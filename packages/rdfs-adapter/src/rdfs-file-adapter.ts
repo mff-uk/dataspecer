@@ -77,7 +77,7 @@ export class RdfsFileAdapter implements CimAdapter {
      */
     protected mapDatatype(iri: string): string | null | undefined {
         const mapping = {
-            [RDFS.Literal]: null,
+            [RDFS.Literal]: RDFS.Literal,
             [RDF.langString]: RDF.langString,
 
             [SCHEMAORG.Boolean]: OFN.boolean,

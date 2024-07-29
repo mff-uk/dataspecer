@@ -35,6 +35,8 @@ import { CancelButton } from "../components/dialog/buttons/cancel-button";
 import { CreateButton } from "../components/dialog/buttons/create-button";
 import { useClassesContext } from "../context/classes-context";
 import { type OverriddenFieldsType, getDefaultOverriddenFields } from "../util/profile-utils";
+import { t } from "../application/";
+import { prefixForIri } from "../service/prefix-service";
 
 export type ProfileDialogSupportedTypes =
     | SemanticModelClass
@@ -66,7 +68,7 @@ export const useCreateProfileDialog = () => {
         const [name, setName] = useState<LanguageString>(getNameLanguageString(entity) ?? {});
         const [description, setDescription] = useState<LanguageString>(getDescriptionLanguageString(entity) ?? {});
         const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.getId() ?? "---");
-        const [newIri, setNewIri] = useState(getIri(entity)?.concat("-profile") ?? getRandomName(8));
+        const [newIri, setNewIri] = useState(suggestNewProfileIri(entity));
         const [changedFields, setChangedFields] = useState({
             name: false,
             description: false,
@@ -171,8 +173,6 @@ export const useCreateProfileDialog = () => {
         };
 
         const handleSavingProfile = (m: InMemorySemanticModel) => {
-            console.log("saving profile", changedFields, name, description, usageNote, newDomain, newRange);
-
             if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
                 handleSaveClassProfile(entity, m);
             } else if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
@@ -183,29 +183,24 @@ export const useCreateProfileDialog = () => {
 
         return (
             <BaseDialog
-                heading={`Create a profile ${displayNameOfProfiledEntity ? "of " + displayNameOfProfiledEntity : ""}`}
+                heading={t("create-profile-dialog.label", displayNameOfProfiledEntity)}
             >
-                <div className="">
+                <div>
                     <DialogColoredModelHeaderWithModelSelector
                         style="grid grid-cols-1 px-1 md:grid-cols-[25%_75%] gap-y-3 bg-slate-100 md:pb-4 md:pl-8 md:pr-16 md:pt-2"
                         activeModel={activeModel}
                         onModelSelected={(m) => setActiveModel(m)}
                     />
                     <div className="grid grid-cols-1 gap-y-3 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pb-4 md:pl-8 md:pr-16 md:pt-2">
-                        <DialogDetailRow detailKey="profiled entity">{displayNameOfProfiledEntity}</DialogDetailRow>
-                        <DialogDetailRow detailKey="profiled entity type">
+                        <DialogDetailRow detailKey={t("create-profile-dialog.profiled")}>{displayNameOfProfiledEntity}</DialogDetailRow>
+                        <DialogDetailRow detailKey={t("create-profile-dialog.profiled-type")}>
                             {getEntityTypeString(entity)}
                         </DialogDetailRow>
                     </div>
                 </div>
                 <div className="grid grid-cols-1 gap-y-3 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pb-4 md:pl-8 md:pr-16 md:pt-2">
-                    {/* 
-                    ------------
-                    Profile name
-                    ------------
-                    */}
 
-                    <DialogDetailRow detailKey="name">
+                    <DialogDetailRow detailKey={t("create-profile-dialog.name")}>
                         <MultiLanguageInputForLanguageStringWithOverride
                             forElement="create-profile-name"
                             ls={name}
@@ -221,13 +216,7 @@ export const useCreateProfileDialog = () => {
                         />
                     </DialogDetailRow>
 
-                    {/* 
-                    -----------
-                    Profile IRI
-                    -----------
-                    */}
-
-                    <DialogDetailRow detailKey="iri">
+                    <DialogDetailRow detailKey={t("create-profile-dialog.iri")}>
                         <IriInput
                             name={name}
                             newIri={newIri}
@@ -235,17 +224,10 @@ export const useCreateProfileDialog = () => {
                             iriHasChanged={changedFields.iri}
                             onChange={() => setChangedFields((prev) => ({ ...prev, iri: true }))}
                             baseIri={modelIri}
-                            withNameSuggestionsDisabled={true}
                         />
                     </DialogDetailRow>
 
-                    {/* 
-                    -------------------
-                    Profile description
-                    -------------------
-                    */}
-
-                    <DialogDetailRow detailKey="description">
+                    <DialogDetailRow detailKey={t("create-profile-dialog.description")}>
                         <MultiLanguageInputForLanguageStringWithOverride
                             forElement="create-profile-description"
                             ls={description}
@@ -262,13 +244,7 @@ export const useCreateProfileDialog = () => {
                         />
                     </DialogDetailRow>
 
-                    {/* 
-                    ----------
-                    Usage note
-                    ----------
-                    */}
-
-                    <DialogDetailRow detailKey="usage (profile?) note">
+                    <DialogDetailRow detailKey={t("create-profile-dialog.usage-note")}>
                         <MultiLanguageInputForLanguageString
                             ls={usageNote}
                             setLs={setUsageNote}
@@ -277,20 +253,8 @@ export const useCreateProfileDialog = () => {
                         />
                     </DialogDetailRow>
 
-                    {/* 
-                    -----------------------------------------------------------
-                    Range and domain for a relationship or relationship profile
-                    -----------------------------------------------------------
-                    */}
                     {hasDomainAndRange && (
                         <>
-                            {changedFieldsAsStringArray.length > 0 && (
-                                <>
-                                    <DialogDetailRow detailKey="warning">
-                                        <ProfileModificationWarning changedFields={changedFieldsAsStringArray} />
-                                    </DialogDetailRow>
-                                </>
-                            )}
                             <DomainRangeComponent
                                 entity={entity}
                                 domain={newDomain}
@@ -306,15 +270,21 @@ export const useCreateProfileDialog = () => {
                                     setChangedFields((prev) => ({ ...prev, rangeCardinality: true }))
                                 }
                                 withOverride={{ overriddenFields, setOverriddenFields }}
+                                hideCardinality={false}
                             />
                         </>
+                    )}
+                    {changedFieldsAsStringArray.length === 0 ? null : (
+                        <DialogDetailRow detailKey={t("create-profile-dialog.warning")}>
+                            <ProfileModificationWarning changedFields={changedFieldsAsStringArray} />
+                        </DialogDetailRow>
                     )}
                 </div>
                 <div className="mt-auto flex flex-row justify-evenly font-semibold">
                     {model && entity ? (
                         <CreateButton onClick={() => handleSavingProfile(model)} />
                     ) : (
-                        <CreateButton style="cursor-not-allowed" disabled={true} title="model probably not selected" />
+                        <CreateButton style="cursor-not-allowed" disabled={true} title="You have to select model first" />
                     )}
                     <CancelButton onClick={localClose} />
                 </div>
@@ -329,3 +299,22 @@ export const useCreateProfileDialog = () => {
         CreateProfileDialog,
     };
 };
+
+function suggestNewProfileIri(entity: ProfileDialogSupportedTypes | null) : string {
+    const entityIri = getIri(entity);
+    if (entityIri === null) {
+        return getRandomName(8);
+    }
+    const tailIndex = Math.max(entityIri.lastIndexOf("/"), entityIri.lastIndexOf("#"));
+    if (tailIndex === -1) {
+        // It does not even look like an IRI we just return it.
+        return entityIri;
+    }
+    const head = entityIri.slice(0, tailIndex + 1);
+    const tail = entityIri.slice(tailIndex + 1);
+    const prefix = prefixForIri(head);
+    if (prefix === null) {
+        return tail;
+    }
+    return `${prefix}-${tail}`;
+}

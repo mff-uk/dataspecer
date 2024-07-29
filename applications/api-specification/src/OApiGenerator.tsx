@@ -46,15 +46,16 @@ function initializeOpenAPISpec(userInput) {
         components: {
             schemas: {},
             securitySchemes: {
-                basicAuth: {
+                bearerAuth: {
                     type: 'http',
-                    scheme: 'basic'
+                    scheme: 'bearer',
+                    bearerFormat: 'JWT'
                 }
             }
         },
         security: [
             {
-                basicAuth: []
+                bearerAuth: []
             }
         ]
     };

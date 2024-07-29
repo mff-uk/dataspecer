@@ -25,15 +25,3 @@ export function compareMaps<T>(oneMap: Map<string, T>, anotherMap: Map<string, T
     }
     return true;
 }
-
-// --- dialogs --- --- ---
-
-export const clickedInside = (rect: DOMRect, cliX: number, cliY: number) => {
-    const offset = 15;
-    return (
-        rect.top + offset <= cliY &&
-        cliY <= rect.top + rect.height + offset &&
-        rect.left - offset <= cliX &&
-        cliX <= rect.left + rect.width + offset
-    );
-};

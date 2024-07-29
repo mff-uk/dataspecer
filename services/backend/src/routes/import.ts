@@ -1,17 +1,18 @@
-import express from 'express';
-import { asyncHandler } from './../utils/async-handler';
-import z from 'zod';
-import { parse } from 'node-html-parser';
-import * as jsonld from 'jsonld';
-import { LanguageString } from '@dataspecer/core-v2/semantic-model/concepts';
-import N3, { Quad_Object } from 'n3';
-import { resourceModel } from '../main';
-import { v4 as uuidv4 } from 'uuid';
-import { createRdfsModel } from '@dataspecer/core-v2/semantic-model/simplified';
-import { httpFetch } from '@dataspecer/core/io/fetch/fetch-nodejs';
-import { conceptualModelToEntityListContainer, rdfToConceptualModel } from '@dataspecer/core-v2/semantic-model/data-specification-vocabulary';
 import { LOCAL_SEMANTIC_MODEL } from '@dataspecer/core-v2/model/known-models';
+import { isSemanticModelRelationship, LanguageString, SemanticModelEntity } from '@dataspecer/core-v2/semantic-model/concepts';
+import { conceptualModelToEntityListContainer, rdfToConceptualModel } from '@dataspecer/core-v2/semantic-model/data-specification-vocabulary';
+import { createRdfsModel } from '@dataspecer/core-v2/semantic-model/simplified';
+import { isSemanticModelRelationshipUsage } from '@dataspecer/core-v2/semantic-model/usage/concepts';
 import { PimStoreWrapper } from '@dataspecer/core-v2/semantic-model/v1-adapters';
+import { httpFetch } from '@dataspecer/core/io/fetch/fetch-nodejs';
+import express from 'express';
+import * as jsonld from 'jsonld';
+import N3, { Quad_Object } from 'n3';
+import { parse } from 'node-html-parser';
+import { v4 as uuidv4 } from 'uuid';
+import z from 'zod';
+import { resourceModel } from '../main';
+import { asyncHandler } from './../utils/async-handler';
 
 function getIriToIdMapping() {
   const mapping: Record<string, string> = {};
@@ -49,6 +50,21 @@ async function importRdfsModel(parentIri: string, url: string, newIri: string, u
   serialization.id = newIri;
   serialization.alias = userMetadata?.label?.en ?? userMetadata?.label?.cs;
   await store.setJson(serialization);
+}
+
+/**
+ * Splits IRI into prefix and local name.
+ * If invalid, only local name is returned.
+ */
+function splitIri(iri: string | null | undefined): [string, string] {
+  if (!iri) {
+    return ["", ""];
+  }
+  const separator = Math.max(iri.lastIndexOf("#"), iri.lastIndexOf("/"));
+  if (separator === -1) {
+    return ["", iri];
+  }
+  return [iri.substring(0, separator + 1), iri.substring(separator + 1)];
 }
 
 async function importRdfsAndDsv(parentIri: string, rdfsUrl: string | null, dsvUrl: string | null, newIri: string, userMetadata: any) {
@@ -89,7 +105,48 @@ async function importRdfsAndDsv(parentIri: string, rdfsUrl: string | null, dsvUr
 
     result.entities = {
       ...result.entities,
-      ...dsvResult.entities,
+      ...Object.fromEntries(dsvResult.entities.map(entity => [entity.id, entity])),
+    }
+  }
+
+  // Manage prefixes
+  const prefixesCount: Record<string, number> = {};
+  for (const entity of Object.values(result.entities) as SemanticModelEntity[]) {
+    const [prefix] = splitIri(entity.iri);
+    if (prefix) {
+      prefixesCount[prefix] = (prefixesCount[prefix] ?? 0) + 1;
+    }
+
+    if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
+      for (const end of entity.ends) {
+        const [prefix] = splitIri(end.iri);
+        if (prefix) {
+          prefixesCount[prefix] = (prefixesCount[prefix] ?? 0) + 1;
+        }
+      }
+    }
+  }
+  let bestPrefix = null;
+  let bestPrefixCount = 0;
+  for (const [prefix, count] of Object.entries(prefixesCount)) {
+    if (count > bestPrefixCount) {
+      bestPrefix = prefix;
+      bestPrefixCount = count;
+    }
+  }
+  result.baseIri = bestPrefix;
+  if (bestPrefix) {
+    for (const entity of Object.values(result.entities) as SemanticModelEntity[]) {
+      if (entity.iri && entity.iri.startsWith(bestPrefix)) {
+        entity.iri = entity.iri.substring(bestPrefix.length);
+      }
+      if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
+        for (const end of entity.ends) {
+          if (end.iri && end.iri.startsWith(bestPrefix)) {
+            end.iri = end.iri.substring(bestPrefix.length);
+          }
+        }
+      }
     }
   }
 
@@ -103,6 +160,9 @@ async function importRdfsAndDsv(parentIri: string, rdfsUrl: string | null, dsvUr
  * Imports from URL and creates either a package or PIM model.
  */
 async function importFromUrl(parentIri: string, url: string) {
+  url = url.replace(/#.*$/, "");
+  console.log("Importing from URL: " + url);
+
   // const baseIri = url;
   const baseIri = url;
 
@@ -132,6 +192,7 @@ async function importFromUrl(parentIri: string, url: string) {
       label: name,
       description,
       importedFromUrl: url,
+      documentBaseUrl: url,
     });
 
     let rdfsUrl = null;
@@ -139,6 +200,7 @@ async function importFromUrl(parentIri: string, url: string) {
 
     const artefacts = store.getObjects(baseIri, "https://w3id.org/dsv#artefact", null);
     for (const artefact of artefacts) {
+      console.log(artefact);
       const artefactUrl = store.getObjects(artefact, "http://www.w3.org/ns/dx/prof/hasArtifact", null)[0].id;
       const role = store.getObjects(artefact, "http://www.w3.org/ns/dx/prof/hasRole", null)[0].id;
 
@@ -164,8 +226,17 @@ async function importFromUrl(parentIri: string, url: string) {
 
     return await resourceModel.getResource(newPackageIri);
   } else {
+    // Generate name
+    let chunkToParse = url;
+    try {
+        chunkToParse = (new URL(url)).pathname;
+    } catch (error) {}
+
+    const name = chunkToParse.split("/").pop()?.split(".")[0] ?? null;
+
     return await importRdfsModel(parentIri, url, parentIri + "/" + uuidv4(), {
       documentBaseUrl: url,
+      ... name ? { label: { en: name } } : {},
     });
   }
 }

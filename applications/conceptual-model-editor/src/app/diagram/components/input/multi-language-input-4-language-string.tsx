@@ -1,5 +1,5 @@
 import type { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useState, useEffect } from "react";
 import { getAvailableLanguagesForLanguageString } from "../../util/language-utils";
 
 const LanguageItem = (props: {
@@ -13,7 +13,7 @@ const LanguageItem = (props: {
     return (
         <li onClick={onClick} className={selected ? "font-bold" : ""}>
             {children}
-            {selected && (
+            {!selected || disabled ? null : (
                 <button disabled={disabled} className="text-xs" onClick={onDeleted}>
                     🗑
                 </button>
@@ -93,11 +93,15 @@ export const MultiLanguageInputForLanguageString = (props: {
     const languages = getAvailableLanguagesForLanguageString(ls);
     const [currentLang, setCurrentLang] = useState(preferredLanguage || languages.at(0) || "en");
 
-    if (!languages.includes(currentLang) && languages.length > 0) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        setCurrentLang(languages.at(0)!);
-        props.onChange?.();
-    }
+    // In this hook we make sure that selected language is one of the available ones.
+    // For example when user deleted language it will change it to next one.
+    useEffect(() => {
+        if (!languages.includes(currentLang) && languages.length > 0) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            setCurrentLang(languages.at(0)!);
+            props.onChange?.();
+        }
+    }, [languages, currentLang]) ;
 
     const displayString = ls[currentLang] ?? "";
 
@@ -115,17 +119,15 @@ export const MultiLanguageInputForLanguageString = (props: {
                         >
                             {lang}
                         </LanguageItem>
-                    ))
-                    .concat(
-                        <AddLang
-                            key={"add-language-button"}
-                            onEnterCallback={(l) => {
-                                setLs((prev) => ({ ...prev, [l]: "" }));
-                                setCurrentLang(l);
-                                props.onChange?.();
-                            }}
-                        />
-                    )}
+                    ))}
+                {disabled ? null : <AddLang
+                    key={"add-language-button"}
+                    onEnterCallback={(l) => {
+                        setLs((prev) => ({ ...prev, [l]: "" }));
+                        setCurrentLang(l);
+                        props.onChange?.();
+                    }}
+                />}
             </ul>
             {props.inputType == "text" ? (
                 <input

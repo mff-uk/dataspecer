@@ -1,17 +1,17 @@
-import { SemanticModelClass, SemanticModelRelationship } from './../../../../packages/core-v2/lib/semantic-model/concepts/concepts.d';
+import { defaultConfiguration, generateDocumentation } from "@dataspecer/core-v2/documentation-generator";
 import { LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL } from "@dataspecer/core-v2/model/known-models";
-import { resourceModel } from "../main";
-import { asyncHandler } from "../utils/async-handler";
+import { SemanticModelEntity, isSemanticModelClass, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import * as DataSpecificationVocabulary from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
+import { generate } from "@dataspecer/core-v2/semantic-model/lightweight-owl";
+import { PimStoreWrapper } from "@dataspecer/core-v2/semantic-model/v1-adapters";
+import { simplifiedSemanticModelToSemanticModel } from "@dataspecer/core-v2/simplified-semantic-model";
 import express from "express";
 import { z } from "zod";
-import { SemanticModelEntity, isSemanticModelClass, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { simplifiedSemanticModelToSemanticModel } from "@dataspecer/core-v2/simplified-semantic-model";
-import { generate } from "@dataspecer/core-v2/semantic-model/lightweight-owl";
-import { generateDocumentation, defaultConfiguration } from "@dataspecer/core-v2/documentation-generator";
 import { ZipStreamDictionary } from "../generate/zip-stream-dictionary";
-import * as DataSpecificationVocabulary from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
-import { PimStoreWrapper } from "@dataspecer/core-v2/semantic-model/v1-adapters";
-import { raw } from 'body-parser';
+import { resourceModel } from "../main";
+import { asyncHandler } from "../utils/async-handler";
+import { SemanticModelRelationship } from './../../../../packages/core-v2/lib/semantic-model/concepts/concepts.d';
+import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 interface ModelDescription {
     isPrimary: boolean;
@@ -27,7 +27,7 @@ async function generateLightweightOwl(entities: Record<string, SemanticModelEnti
 
 async function generateDsv(models: ModelDescription[]): Promise<string> {
     // We collect all models as context and all entities for export.
-    const conceptualModelIri = models[0]?.documentationUrl ?? ""; // We consider documentation URL as the IRI of the conceptual model.
+    const conceptualModelIri = models[0]?.baseIri + "applicationProfileConceptualModel"; // We consider documentation URL as the IRI of the conceptual model.
     const contextModels = [];
     const modelForExport: DataSpecificationVocabulary.EntityListContainer = {
         baseIri: models[0]?.baseIri ?? "",
@@ -73,7 +73,7 @@ export const getLightweightOwl = asyncHandler(async (request: express.Request, r
 
 export const getlightweightFromSimplified = asyncHandler(async (request: express.Request, response: express.Response) => {
     const entities = simplifiedSemanticModelToSemanticModel(request.body, {});
-    const result = await generate(Object.values(entities));
+    const result = await generate(Object.values(entities), {baseIri: "", iri: ""});
     response.type("text/turtle").send(result);
     return;
 });
@@ -131,12 +131,12 @@ function absoluteIri(baseIri: string, entities: Record<string, SemanticModelEnti
     const convert = (iri: string | null) => (iri && !iri.includes("://")) ? (baseIri + iri) : iri;
     const result = {} as Record<string, SemanticModelEntity>;
     for (const [key, entity] of Object.entries(entities)) {
-        if (isSemanticModelClass(entity)) {
+        if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
             result[key] = {
                 ...entity,
                 iri: convert(entity.iri),
             };
-        } else if (isSemanticModelRelationship(entity)) {
+        } else if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
             result[key] = {
                 ...entity,
                 iri: convert(entity.iri),
@@ -145,7 +145,7 @@ function absoluteIri(baseIri: string, entities: Record<string, SemanticModelEnti
                     iri: convert(end.iri),
                 }),
                 ),
-            } as SemanticModelRelationship;
+            } as SemanticModelRelationship | SemanticModelRelationshipUsage;
         } else {
             result[key] = entity;
         }
@@ -185,7 +185,7 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
                 entities: absoluteIri(data.baseIri, data.entities),
                 isPrimary: isRoot,
                 // @ts-ignore
-                documentationUrl: pckg.userMetadata?.documentBaseUrl,// ?? (isRoot ? "." : null),
+                documentationUrl: pckg.userMetadata?.documentBaseUrl, //data.baseIri + "applicationProfileConceptualModel", //pckg.userMetadata?.documentBaseUrl,// ?? (isRoot ? "." : null),
                 baseIri: data.baseIri,
             });
         }
@@ -258,7 +258,7 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
     };
 
     // OWL
-    const owl = await generateLightweightOwl(semanticModel, models[0].baseIri ?? "", models[0].baseIri ?? "");
+    const owl = await generateLightweightOwl(semanticModel, models[0].baseIri ?? "", models[0]?.baseIri + "applicationProfileConceptualModel");
     if (owl) {
         const owlFile = streamDictionary.writePath("model.owl.ttl");
         await owlFile.write(owl);

@@ -3,7 +3,7 @@ import { Entity } from "../../entity-model";
 import {
   SemanticModelEntity,
   isSemanticModelClass,
-  isSemanticModelRelationship as isSemanticModelRelationshipPartial,
+  isSemanticModelRelationship,
   isSemanticModelAttribute,
   SemanticModelRelationship,
 } from "../concepts";
@@ -12,7 +12,7 @@ import {
   SemanticModelClassUsage,
   SemanticModelRelationshipUsage,
   isSemanticModelClassUsage,
-  isSemanticModelRelationshipUsage as isSemanticModelRelationshipUsagePartial,
+  isSemanticModelRelationshipUsage,
   isSemanticModelAttributeUsage,
 } from "../usage/concepts";
 
@@ -122,7 +122,6 @@ class EntityListCOntainerToConceptualModel {
     } else {
       console.warn(`Invalid profileOf for '${item.usageOf}' type '${profileOf.type}' for '${item.id}'.`)
     }
-
     return classProfile;
   }
 
@@ -180,7 +179,7 @@ class EntityListCOntainerToConceptualModel {
     // For profileOfIri of we need to check what we are profiling.
     const profileOf = this.context.identifierToEntity(item.usageOf);
     if (profileOf === null) {
-      console.error(`Missing profileOf for '${item.usageOf}' for '${item.id}'.`);
+      console.error(`Missing profileOf with if '${item.usageOf}' for '${item.id}'.`);
     } else if (isSemanticModelRelationship(profileOf)) {
       const [_, profileOfRange] = profileOf.ends;
       if (profileOfRange === undefined) {
@@ -193,10 +192,11 @@ class EntityListCOntainerToConceptualModel {
       if (profileOfRange === undefined) {
         console.error(`Missing end for '${profileOf.id}' as profile for '${item.id}'`);
       } else {
-        propertyProfile.profiledPropertyIri = this.context.entityToIri(profileOf);
+        propertyProfile.profileOfIri = this.context.entityToIri(profileOf);
       }
-    } else {
-      console.warn(`Invalid profileOf for '${item.usageOf}' type '${profileOf.type}' for '${item.id}'.`)
+    } else  {
+      // It can be part of the core types.
+      console.warn(`Invalid profileOf '${profileOf.id}' with type '${profileOf.type}' for '${item.id}'.`)
     }
 
     // Relationship can be of two types.
@@ -239,22 +239,6 @@ function resolveIri(baseIri: string | null, identifier: string, iri: string | nu
     return candidate;
   }
   return baseIri + candidate;
-}
-
-/**
- * Semantic attribute is also relationship, so to detect association we need to
- * check for relationship and not attribute.
- */
-function isSemanticModelRelationship(entity: Entity): entity is SemanticModelRelationship {
-  return isSemanticModelRelationshipPartial(entity) && !isSemanticModelAttribute(entity);
-}
-
-/**
- * Usage attribute is also relationship, so to detect association we need to
- * check for relationship and not attribute.
- */
-function isSemanticModelRelationshipUsage(entity: Entity): entity is SemanticModelRelationshipUsage {
-  return isSemanticModelRelationshipUsagePartial(entity) && !isSemanticModelAttributeUsage(entity);
 }
 
 /**

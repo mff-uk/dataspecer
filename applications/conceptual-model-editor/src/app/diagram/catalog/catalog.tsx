@@ -31,7 +31,7 @@ export const Catalog = () => {
         <div className="grid h-full w-full grid-cols-1 md:grid-rows-[20%_80%]">
             <ModelCatalog />
             <div className="grid h-full grid-rows-[auto_1fr]">
-                {/* 
+                {/*
                 --- selection header --- --- ---
                 */}
                 <div className="flex flex-row py-2 md:py-0 [&>*]:mx-2">

@@ -24,7 +24,7 @@ export const useMenuOptions = () => {
             <button
                 id={`button-menu-options-${props.text}`}
                 type="button"
-                className={`hover:shadow ${props.text == "close" ? "text-red-700" : ""}`}
+                className="hover:shadow py-2"
                 onClick={(e) => {
                     props.onClick?.();
                     close(e);
@@ -44,27 +44,31 @@ export const useMenuOptions = () => {
         position?: string;
     }) => {
         const { openDetailHandler, createProfileHandler, modifyHandler, removeFromViewHandler, deleteHandler } = props;
-
         return (
             <div
                 ref={menuOptionsRef}
                 tabIndex={-1}
                 style={{ pointerEvents: "all" }}
-                className={`flex flex-col bg-white [&>*]:px-5 [&>*]:text-left ${props.position ? props.position : ""}`}
-                onBlur={(e) => {
-                    console.log("blur event ", e);
-                    if (e.relatedTarget?.id.startsWith("button-menu-options-")) {
+                className={`flex flex-col bg-white border-2 border-slate-400 border-solid [&>*]:px-5 [&>*]:text-left ${props.position ? props.position : ""}`}
+                onBlur={(event) => {
+                    if (event.relatedTarget?.id.startsWith("button-menu-options-")) {
                         return;
                     }
-                    close(e);
+                    close(event);
                 }}
             >
-                <MenuButton text="close" />
-                <MenuButton text="ℹ open detail" onClick={openDetailHandler} />
-                {createProfileHandler && <MenuButton text="🧲 create profile" onClick={createProfileHandler} />}
-                {removeFromViewHandler && <MenuButton text="🕶 remove from view" onClick={removeFromViewHandler} />}
-                {modifyHandler && <MenuButton text="✏ modify" onClick={modifyHandler} />}
-                {deleteHandler && <MenuButton text="🗑 delete" onClick={deleteHandler} />}
+                <MenuButton text="ℹ Detail" onClick={openDetailHandler} />
+                {modifyHandler === undefined ? null :
+                    <MenuButton text="✏ Modify" onClick={modifyHandler} />}
+                <HorizontalSeparator />
+                {createProfileHandler === undefined ? null : <>
+                    <MenuButton text="🧲 Create profile" onClick={createProfileHandler} />
+                    <HorizontalSeparator />
+                </>}
+                {removeFromViewHandler === undefined ? null :
+                    <MenuButton text="🕶 Remove from view" onClick={removeFromViewHandler} />}
+                {deleteHandler === undefined ? null :
+                    <MenuButton text="🗑 Delete" onClick={deleteHandler} />}
             </div>
         );
     };
@@ -75,3 +79,5 @@ export const useMenuOptions = () => {
         openMenuOptions: open,
     };
 };
+
+const HorizontalSeparator = () => <hr className="h-0.5 border-none bg-slate-300" />;

@@ -27,16 +27,16 @@ export const Vocabulary = ({ isOpen, resolve, iri }: { iri: string } & BetterMod
         parentIri: iri,
         label: {[i18n.language]: name},
         description: {[i18n.language]: (event.target as any)["description"].value},
-        documentBaseUrl: (event.target as any)["documentation-url"].value ?? undefined,
+        //documentBaseUrl: (event.target as any)["documentation-url"].value ?? undefined,
       }) as string;
   
       // Create semantic model
       await createModelInstructions[LOCAL_SEMANTIC_MODEL].createHook({
         parentIri: packageIri,
-        label: {en: "Semantic model"},
+        label: {en: name},
         description: {en: "Semantic model for the vocabulary"},
         baseIri: (event.target as any)["base-url"].value,
-        documentBaseUrl: (event.target as any)["documentation-url"].value ?? undefined,
+        //documentBaseUrl: (event.target as any)["documentation-url"].value ?? undefined,
         modelAlias: name,
       });
   
@@ -78,10 +78,10 @@ export const Vocabulary = ({ isOpen, resolve, iri }: { iri: string } & BetterMod
               <Label htmlFor="base-url">{t("form.base-iri.name")}</Label>
               <Input id="base-url" placeholder={t("form.base-iri.instruction")} defaultValue="https://example.com/vocabulary#" />
             </div>
-            <div className="grid gap-2">
+            {/* <div className="grid gap-2">
               <Label htmlFor="documentation-url">{t("form.documentation-base-url.name")}</Label>
               <Input id="documentation-url" placeholder={t("form.documentation-base-url.instruction")} defaultValue="https://example.com/" />
-            </div>
+            </div> */}
             {/* <div className="grid gap-2">
               <Label htmlFor="authors">{t("form.authors.name")}</Label>
               <Textarea id="authors" placeholder={t("form.authors.instruction")} />

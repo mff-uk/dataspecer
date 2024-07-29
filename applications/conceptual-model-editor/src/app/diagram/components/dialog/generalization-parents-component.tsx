@@ -112,7 +112,7 @@ export const GeneralizationParentsComponent = (props: {
             ) : (
                 <div className="text-left">
                     <button className=" bg-white px-2 py-1 hover:shadow-sm" onClick={() => setShowSelectParent(true)}>
-                        ➕ add specialization
+                        ➕ Add generalization
                     </button>
                 </div>
             )}

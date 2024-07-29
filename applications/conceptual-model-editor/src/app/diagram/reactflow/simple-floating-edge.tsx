@@ -207,7 +207,12 @@ export const semanticModelRelationshipToReactFlowEdge = (
     usageNotes: LanguageString[]
 ) => {
     const domainAndRange = getDomainAndRange(rel as SemanticModelRelationship & SemanticModelRelationshipUsage);
-    const isDashed = isSemanticModelRelationshipUsage(rel) ? { strokeDasharray: 5 } : {};
+    const style : Record<string, unknown> = { strokeWidth: 3, stroke: color };
+
+    const isProfile = isSemanticModelRelationshipUsage(rel);
+    if (isProfile) {
+        style["strokeDasharray"] = 5;
+    }
 
     return {
         id: rel.id,
@@ -222,7 +227,7 @@ export const semanticModelRelationshipToReactFlowEdge = (
             bgColor: color,
             usageNotes,
         } satisfies SimpleFloatingEdgeDataType,
-        style: { strokeWidth: 3, stroke: color, ...isDashed },
+        style: style,
     } as Edge;
 };
 
@@ -238,7 +243,8 @@ export const semanticModelGeneralizationToReactFlowEdge = (
             type: MarkerType.ArrowClosed,
             width: 20,
             height: 20,
-            strokeWidth: 2,
+            strokeWidth: 1,
+            color: color || "maroon",
         },
         type: "floating",
         data: {
@@ -255,7 +261,13 @@ export const semanticModelClassUsageToReactFlowEdge = (
         id: classUsage.id,
         source: classUsage.id,
         target: classUsage.usageOf,
-        markerEnd: { type: MarkerType.Arrow, width: 20, height: 20, color: color || "azure" },
+        markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+            strokeWidth: 1,
+            color: color || "azure"
+        },
         type: "floating",
         data: {
             entity: classUsage,

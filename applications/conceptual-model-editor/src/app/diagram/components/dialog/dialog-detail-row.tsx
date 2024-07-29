@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
-export const DialogDetailRow = (props: { detailKey: string; children: ReactNode; style?: string }) => {
+// TODO Rename style to className to be consistent.
+export const DialogDetailRow = (props: { detailKey: string; children: ReactNode; style?: string}) => {
     const { detailKey, style, children } = props;
     return (
         <>

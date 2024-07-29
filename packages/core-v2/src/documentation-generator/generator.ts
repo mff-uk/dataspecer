@@ -1,8 +1,11 @@
 import Handlebars from "handlebars";
-import { isSemanticModelClass, isSemanticModelGeneralization } from '../semantic-model/concepts/concepts-utils';
+import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from '../semantic-model/concepts/concepts-utils';
 // @ts-ignore
 import { LanguageString, SemanticModelEntity } from "../semantic-model/concepts";
 import { getTranslation } from "../utils/language";
+import { SemanticModelAggregator } from "../semantic-model/aggregator";
+import { Entities, Entity, InMemoryEntityModel } from "../entity-model";
+import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "../semantic-model/usage/concepts";
 
 export interface DocumentationGeneratorConfiguration {
   template: string;
@@ -20,6 +23,26 @@ interface ModelDescription {
   baseIri: string | null;
 }
 
+const PREFIX_MAP: Record<string, string> = {
+  "http://www.w3.org/ns/adms#": "adms",
+  "http://purl.org/dc/elements/1.1/": "dc",
+  "http://www.w3.org/ns/dcat#": "dcat",
+  "http://purl.org/dc/terms/": "dcterms",
+  "http://purl.org/dc/dcmitype/": "dctype",
+  "http://xmlns.com/foaf/0.1/": "foaf",
+  "http://www.w3.org/ns/locn#": "locn",
+  "http://www.w3.org/ns/odrl/2/": "odrl",
+  "http://www.w3.org/2002/07/owl#": "owl",
+  "http://www.w3.org/ns/prov#": "prov",
+  "http://www.w3.org/1999/02/22-rdf-syntax-ns#": "rdf",
+  "http://www.w3.org/2000/01/rdf-schema#": "rdfs",
+  "http://www.w3.org/2004/02/skos/core#": "skos",
+  "http://spdx.org/rdf/terms#": "spdx",
+  "http://www.w3.org/2006/time#": "time",
+  "http://www.w3.org/2006/vcard/ns#": "vcard",
+  "http://www.w3.org/2001/XMLSchema#": "xsd",
+};
+
 export async function generateDocumentation(
   inputModel: {
     resourceModel: any,
@@ -34,10 +57,29 @@ export async function generateDocumentation(
   configuration: DocumentationGeneratorConfiguration,
 ): Promise<string> {
   // Primary semantic model
-  const semanticModel = {};
+  const semanticModel = {} as Entities
   for (const model of inputModel.models) {
     if (model.isPrimary) {
       Object.assign(semanticModel, model.entities);
+    }
+  }
+
+  // Create an aggregator and pass all models to it to effectively work with application profiles
+  const aggregator = new SemanticModelAggregator();
+  for (const model of inputModel.models) {
+    const entityModel = new InMemoryEntityModel();
+    entityModel.change(model.entities, []);
+    aggregator.addModel(entityModel);
+  }
+  const aggregatedEntities = aggregator.getView().getEntities();
+
+  // Modify semantic model to include aggregated entities
+  // We need to modify all the models
+  for (const model of inputModel.models) {
+    for (const entity of Object.values(model.entities)) {
+      const entityWithAggregation = entity as Entity & {aggregation?: Entity, aggregationParent?: Entity};
+      entityWithAggregation.aggregation = aggregatedEntities[entity.id]?.aggregatedEntity!;
+      entityWithAggregation.aggregationParent = aggregatedEntities[entity.id]?.sources[0]?.aggregatedEntity!;
     }
   }
 
@@ -61,6 +103,30 @@ export async function generateDocumentation(
   handlebars.registerHelper('ifEquals', function(arg1: any, arg2: any, options: any) {
     // @ts-ignore
     return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
+  });
+
+  /**
+   * Shortens IRIs by using prefixes.
+   */
+  handlebars.registerHelper('prefixed', function(iri?: string) {
+    if (!iri) {
+      return iri;
+    }
+    
+    const last = Math.max(iri.lastIndexOf("#"), iri.lastIndexOf("/"));
+    if (last === -1) {
+      return iri;
+    }
+
+    const prefix = iri.substring(0, last + 1);
+    const suffix = iri.substring(last + 1);
+
+    // todo - use prefixes from the model
+    if (Object.hasOwn(PREFIX_MAP, prefix)) {
+      return PREFIX_MAP[prefix] + ":" + suffix;
+    }
+
+    return iri;
   });
 
   /**
@@ -162,12 +228,21 @@ export async function generateDocumentation(
       }
     }
 
-    return entity ? options.fn(entity) : null;
+    return entity ? options.fn(entity) : options.inverse(input);
   });
 
   function getAnchorForLocalEntity(entity: SemanticModelEntity): string | null {
-    if (isSemanticModelClass(entity)) {
-      const {ok, translation} = getTranslation(entity.name, [configuration.language]);
+    if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
+      // @ts-ignore
+      const {ok, translation} = getTranslation(entity.aggregation.ends[1].name, [configuration.language]);
+      if (ok) {
+        return normalizeLabel(translation);
+      }
+    }
+
+    if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
+      // @ts-ignore
+      const {ok, translation} = getTranslation(entity.aggregation.name, [configuration.language]);
       if (ok) {
         return normalizeLabel(translation);
       }
@@ -187,6 +262,15 @@ export async function generateDocumentation(
     for (const model of inputModel.models) {
       if (Object.hasOwn(model.entities, input)) {
         inModel = model;
+        break;
+      }
+      // Hotfix because AP usage links to IRI not to ID
+      const entity = Object.values(model.entities).find(entity => entity.iri === input ||
+        ((isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) && entity.ends.some(end => end.iri === input))
+      );
+      if (entity) {
+        inModel = model;
+        input = entity.id;
         break;
       }
     }
@@ -247,7 +331,17 @@ export async function generateDocumentation(
   })
 
   handlebars.registerHelper('json', function(input: any) {
-    return JSON.stringify(input, null, 2);
+    const cache = [] as any[];
+    return JSON.stringify(input, (key, value) => {
+      if (typeof value === 'object' && value !== null) {
+        // Duplicate reference found, discard key
+        if (cache.includes(value)) return;
+    
+        // Store value in our collection
+        cache.push(value);
+      }
+      return value;
+    }, 2);
   });
 
   handlebars.registerHelper('console-log', function(input: any) {

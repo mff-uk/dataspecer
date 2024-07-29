@@ -3,6 +3,7 @@ import {
     type SemanticModelClass,
     type SemanticModelRelationship,
     isSemanticModelClass,
+    isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useRef, useEffect, useState } from "react";
 import { IriLink } from "../components/iri-link";
@@ -10,6 +11,7 @@ import {
     type SemanticModelClassUsage,
     type SemanticModelRelationshipUsage,
     isSemanticModelClassUsage,
+    isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useBaseDialog } from "../components/base-dialog";
 import { sourceModelOfEntity } from "../util/model-utils";
@@ -97,6 +99,9 @@ export const useEntityDetailDialog = () => {
             setAddToActiveViewButtonClicked(false);
         };
 
+        const isRelationship = isSemanticModelRelationship(viewedEntity);
+        const isRelationshipProfile = isSemanticModelRelationshipUsage(viewedEntity);
+
         return (
             <BaseDialog heading={`${capFirst(getEntityTypeString(viewedEntity))} detail`}>
                 <div className="bg-slate-100">
@@ -105,7 +110,7 @@ export const useEntityDetailDialog = () => {
                         viewedEntity={viewedEntity}
                         currentLanguage={currentLang}
                         setCurrentLanguage={(l) => setCurrentLang(l)}
-                        style="grid md:grid-cols-[80%_20%] md:grid-rows-1 md:py-2 md:pl-8"
+                        style="grid md:grid-cols-[20%_80%] md:grid-rows-1 md:py-2 md:pl-8"
                     />
 
                     {/*
@@ -145,7 +150,7 @@ export const useEntityDetailDialog = () => {
                     <div className="grid md:grid-cols-[20%_80%] md:pl-8">
                         <>
                             {profileOf && (
-                                <DialogDetailRow detailKey="direct profile of">
+                                <DialogDetailRow detailKey={t("entity-detail-dialog.direct-profile")}>
                                     <ResourceDetailClickThrough
                                         detailDialogLanguage={currentLang}
                                         resource={profileOf}
@@ -175,7 +180,9 @@ export const useEntityDetailDialog = () => {
                             )}
                         </>
                         {specializationOf.length > 0 && (
-                            <DialogDetailRow detailKey={t("entity-detail-dialog.specialization-of")}>
+                            <DialogDetailRow detailKey={t(isRelationship || isRelationshipProfile ?
+                            "entity-detail-dialog.specialization-of-property" :
+                            "entity-detail-dialog.specialization-of")}>
                                 <ScrollableResourceDetailClickThroughList
                                     detailDialogLanguage={currentLang}
                                     resources={specializationOf}

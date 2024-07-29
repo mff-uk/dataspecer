@@ -5,14 +5,14 @@ import { BackendPackageService } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import type { EntityModel } from "@dataspecer/core-v2/entity-model";
 import type { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
-import { type ExportedConfigurationType, modelsToWorkspaceString, useLocalStorage } from "../export/export-utils";
-import { useModelGraphContext } from "../../context/model-context";
-import { useDownload } from "../export/download";
-import { useClassesContext } from "../../context/classes-context";
-import { getIri, getModelIri, entityWithOverriddenIri } from "../../util/iri-utils";
-import { ExportButton } from "../../components/management/buttons/export-button";
-import { useAutoSave } from "../autosave";
-import { useQueryParamsContext } from "../../context/query-params-context";
+import { type ExportedConfigurationType, modelsToWorkspaceString, useLocalStorage } from "../features/export/export-utils";
+import { useModelGraphContext } from "../context/model-context";
+import { useDownload } from "../features/export/download";
+import { useClassesContext } from "../context/classes-context";
+import { getIri, getModelIri, entityWithOverriddenIri } from "../util/iri-utils";
+import { ExportButton } from "../components/management/buttons/export-button";
+import { useAutoSave } from "../features/autosave";
+import { useQueryParamsContext } from "../context/query-params-context";
 import * as DataSpecificationVocabulary from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
 
 export const ExportManagement = () => {
@@ -69,23 +69,26 @@ export const ExportManagement = () => {
     };
 
     const handleGenerateLightweightOwl = () => {
-        generate(
-            Object.values(aggregatorView.getEntities())
-                .map((aggregatedEntityWrapper) => aggregatedEntityWrapper.aggregatedEntity)
-                .filter((entityOrNull): entityOrNull is SemanticModelEntity => {
-                    return entityOrNull != null;
-                })
-                .map((aggregatedEntity) => {
-                    const modelBaseIri = getModelIri(models.get(sourceModelOfEntityMap.get(aggregatedEntity.id) ?? ""));
-                    const entityIri = getIri(aggregatedEntity, modelBaseIri);
+        const entities = Object.values(aggregatorView.getEntities())
+            .map((aggregatedEntityWrapper) => aggregatedEntityWrapper.aggregatedEntity)
+            .filter((entityOrNull): entityOrNull is SemanticModelEntity => {
+                return entityOrNull != null;
+            })
+            .map((aggregatedEntity) => {
+                const modelBaseIri = getModelIri(models.get(sourceModelOfEntityMap.get(aggregatedEntity.id) ?? ""));
+                const entityIri = getIri(aggregatedEntity, modelBaseIri);
 
-                    if (!entityIri) {
-                        return aggregatedEntity;
-                    }
+                if (!entityIri) {
+                    return aggregatedEntity;
+                }
 
-                    return entityWithOverriddenIri(entityIri, aggregatedEntity);
-                })
-        )
+                return entityWithOverriddenIri(entityIri, aggregatedEntity);
+            });
+        const context = {
+            baseIri: "", // TODO Get base URL.
+            iri: "",
+        };
+        generate(entities, context)
             .then((generatedLightweightOwl) => {
                 const date = Date.now();
                 download(generatedLightweightOwl, `dscme-lw-ontology-${date}.ttl`, "text/plain");
@@ -154,17 +157,17 @@ export const ExportManagement = () => {
 
     return (
         <div className="my-auto mr-2 flex flex-row">
-            <ExportButton title="open workspace from configuration file" onClick={handleLoadWorkspaceFromJson}>
+            <ExportButton title="Open workspace from configuration file" onClick={handleLoadWorkspaceFromJson}>
                 📥ws
             </ExportButton>
             <AutoSaveButton />
-            <ExportButton title="generate workspace configuration file" onClick={handleExportWorkspaceToJson}>
+            <ExportButton title="Generate workspace configuration file" onClick={handleExportWorkspaceToJson}>
                 💾ws
             </ExportButton>
-            <ExportButton title="generate lightweight ontology" onClick={handleGenerateLightweightOwl}>
-                💾lw-onto
+            <ExportButton title="Generate RDFS/OWL (vocabulary)" onClick={handleGenerateLightweightOwl}>
+                💾rdfs/owl
             </ExportButton>
-            <ExportButton title="generate lightweight ontology" onClick={handleGenerateDataSpecificationVocabulary}>
+            <ExportButton title="Generate DSV (application profile)" onClick={handleGenerateDataSpecificationVocabulary}>
                 💾dsv
             </ExportButton>
         </div>

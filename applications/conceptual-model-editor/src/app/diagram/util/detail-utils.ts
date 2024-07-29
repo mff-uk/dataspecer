@@ -31,7 +31,7 @@ import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationsh
 import { temporaryDomainRangeHelper } from "./relationship-utils";
 import { cardinalityToString } from "./utils";
 import { dataTypeUriToName, isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
-import type { Entity } from "@dataspecer/core-v2";
+import type { Entity, EntityModel } from "@dataspecer/core-v2";
 
 export type EntityDetailSupportedType =
     | SemanticModelClass
@@ -93,6 +93,7 @@ export interface EntityDetailProxy {
     raw: Entity | null;
     canHaveAttributes: boolean;
     canHaveDomainAndRange: boolean;
+    model: EntityModel | null;
 }
 
 export const EntityProxy = (viewedEntity: EntityDetailSupportedType, currentLang?: string) => {
@@ -140,6 +141,8 @@ export const EntityProxy = (viewedEntity: EntityDetailSupportedType, currentLang
                 return getDataType();
             } else if (property == "raw") {
                 return getRawEntity();
+            } else if (property === "model") {
+                return sourceModel;
             }
         },
     });

@@ -2,16 +2,13 @@ import type { EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { useModelGraphContext } from "../../context/model-context";
 import { DialogDetailRow } from "./dialog-detail-row";
-import { getModelDisplayName } from "../../util/name-utils";
 import { isSemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
 import type { EntityDetailSupportedType } from "../../util/detail-utils";
 import { getLanguagesForNamedThing } from "../../util/language-utils";
 
-const filterInMemoryModels = (models: Map<string, EntityModel>) => {
-    return [...models.entries()]
-        .filter(([_, m]) => m instanceof InMemorySemanticModel)
-        .map(([mId, m]) => ({ id: mId, alias: m.getAlias() }));
-};
+import { t } from "../../application";
+import { getModelLabel } from "../../service/model-service";
+import { type SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 
 export const DialogColoredModelHeader = (props: { activeModel: EntityModel | null; style?: string }) => {
     const { aggregatorView } = useModelGraphContext();
@@ -20,12 +17,23 @@ export const DialogColoredModelHeader = (props: { activeModel: EntityModel | nul
     return (
         <div
             className={style}
-            style={{ backgroundColor: aggregatorView.getActiveVisualModel()?.getColor(activeModel?.getId() ?? "") }}
+            style={{ backgroundColor: getModelColor(aggregatorView, activeModel?.getId()) }}
         >
-            <DialogDetailRow detailKey="source model">{getModelDisplayName(activeModel)}</DialogDetailRow>
+            <DialogDetailRow detailKey={t("model")}>{getModelLabel(activeModel)}</DialogDetailRow>
         </div>
     );
 };
+
+function getModelColor(view: SemanticModelAggregatorView, modelIdentifier: string | undefined): string {
+    if (modelIdentifier === undefined) {
+        return "";
+    }
+    const visualModel = view.getActiveVisualModel();
+    if (visualModel === null) {
+        return "";
+    }
+    return visualModel.getColor(modelIdentifier) ?? "";
+}
 
 export const DialogColoredModelHeaderWithLanguageSelector = (props: {
     style?: string;
@@ -36,27 +44,25 @@ export const DialogColoredModelHeaderWithLanguageSelector = (props: {
 }) => {
     const { aggregatorView } = useModelGraphContext();
     const { activeModel, viewedEntity, currentLanguage, setCurrentLanguage, style } = props;
-
-    const langs = isSemanticModelGeneralization(viewedEntity) ? [] : getLanguagesForNamedThing(viewedEntity);
-
+    const languages = isSemanticModelGeneralization(viewedEntity) ? [] : getLanguagesForNamedThing(viewedEntity);
     return (
-        <>
-            <div
-                className={style}
-                style={{
-                    backgroundColor: aggregatorView.getActiveVisualModel()?.getColor(activeModel?.getId() ?? ""),
-                }}
-            >
-                <div className="mb-2 w-full text-sm">source model: {getModelDisplayName(activeModel)}</div>
-                <div>
-                    lang:
+        <div
+            className={style}
+            style={{ backgroundColor: getModelColor(aggregatorView, activeModel?.getId()) }}
+        >
+            <div className="font-semibold">{t("model")}:</div>
+            <div className="flex">
+                <div>{getModelLabel(activeModel)}</div>
+                <div className="ml-auto mr-8">
+                    Language:&nbsp;
                     <select
                         name="langs"
                         id="langs"
+                        className="w-32"
                         onChange={(e) => setCurrentLanguage(e.target.value)}
                         defaultValue={currentLanguage}
                     >
-                        {langs.map((lang) => (
+                        {languages.map((lang) => (
                             <option key={lang} value={lang}>
                                 {lang}
                             </option>
@@ -64,7 +70,7 @@ export const DialogColoredModelHeaderWithLanguageSelector = (props: {
                     </select>
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 
@@ -76,14 +82,19 @@ export const DialogColoredModelHeaderWithModelSelector = (props: {
     const { aggregatorView, models } = useModelGraphContext();
     const { activeModel, onModelSelected, style } = props;
 
-    const inMemoryModels = filterInMemoryModels(models);
+    const availableModels = Array.from(models.values())
+        .filter(model => model instanceof InMemorySemanticModel)
+        .map(model => ({
+            id: model.getId(),
+            label: getModelLabel(model),
+        }));
 
     return (
         <div
             className={style}
-            style={{ backgroundColor: aggregatorView.getActiveVisualModel()?.getColor(activeModel ?? "") }}
+            style={{ backgroundColor: getModelColor(aggregatorView, activeModel) }}
         >
-            <DialogDetailRow detailKey="active model">
+            <DialogDetailRow detailKey={t("model")}>
                 <select
                     className="w-full"
                     name="models"
@@ -91,10 +102,9 @@ export const DialogColoredModelHeaderWithModelSelector = (props: {
                     onChange={(e) => onModelSelected(e.target.value)}
                     defaultValue={activeModel}
                 >
-                    {inMemoryModels.map(({ id, alias }) => (
-                        <option key={id + (alias ?? "")} value={id}>
-                            {alias ? alias + ":" : null}
-                            {id}
+                    {availableModels.map(item => (
+                        <option key={item.id} value={item.id}>
+                            {item.label}
                         </option>
                     ))}
                 </select>

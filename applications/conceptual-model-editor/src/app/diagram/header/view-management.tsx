@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
-import { useModelGraphContext } from "../../context/model-context";
-import { DropDownCatalog } from "../../components/management/dropdown-catalog";
-import { useQueryParamsContext } from "../../context/query-params-context";
+import { useModelGraphContext } from "../context/model-context";
+import { DropDownCatalog } from "../components/management/dropdown-catalog";
+import { useQueryParamsContext } from "../context/query-params-context";
 
 export const ViewManagement = () => {
     const {
@@ -17,7 +17,7 @@ export const ViewManagement = () => {
     const { viewId, updateViewId: setViewIdSearchParam } = useQueryParamsContext();
 
     const activeViewId = aggregatorView.getActiveViewId();
-    const availableVisualModelIds = [...new Set(aggregatorView.getAvailableVisualModelIds())];
+    const availableVisualModelIds = aggregatorView.getAvailableVisualModels().map(m => [m.getId(), m.modelAlias] as [string, string]);
 
     useEffect(() => {
         if (!activeViewId) {

@@ -4,26 +4,38 @@ import { ExportButton } from "../components/management/buttons/export-button";
 import { useModelGraphContext } from "../context/model-context";
 import { useQueryParamsContext } from "../context/query-params-context";
 
+const AUTOSAVE_INTERVAL = parseInt(process.env.NEXT_PUBLIC_APP_AUTOSAVE_INTERVAL_MS ?? "30000") || 30000;
+
+const AUTOSAVE_ENABLED_BY_DEFAULT = process.env.NEXT_PUBLIC_APP_AUTOSAVE_ENABLED_BY_DEFAULT === "1";
+
 export const useAutoSave = () => {
     const { models, visualModels } = useModelGraphContext();
     const { packageId } = useQueryParamsContext();
 
     const { updateSemanticModelPackageModels } = useBackendConnection();
-    const [autosaveActive, setAutosaveActive] = useState(false);
+    const [autosaveActive, setAutosaveActive] = useState(AUTOSAVE_ENABLED_BY_DEFAULT);
     const [autosaveInterval, setAutosaveInterval] = useState<NodeJS.Timeout | null>(null);
-    const [autosaveButtonLabel, setAutosaveButtonLabel] = useState("🔴autosave");
-
-    const AUTOSAVE_INTERVAL = parseInt(process.env.NEXT_PUBLIC_APP_AUTOSAVE_INTERVAL_MS ?? "30000") || 30000;
-
-    const getCurrentLabel = () => {
-        if (autosaveActive) {
-            return "🟢autosave";
-        }
-        return "🔴autosave";
-    };
+    const [autosaveButtonLabel, setAutosaveButtonLabel] = useState(getAutosaveLabel(AUTOSAVE_ENABLED_BY_DEFAULT));
 
     useEffect(() => {
-        setAutosaveButtonLabel(getCurrentLabel());
+
+        // We create the handler here to emphasize that it captures the
+        // same variables as the callback. The reason is that since we allow
+        // autoload from the start, models, visualModels may change later.
+        const handleAutoSavePackage = () => {
+            if (!packageId) {
+                return;
+            }
+            updateSemanticModelPackageModels(packageId, [...models.values()], [...visualModels.values()])
+                .then(status => {
+                    setAutosaveButtonLabel(`... ${status ? "success" : "fail"}`);
+                    // Keep the label for some time and then return back.
+                    setTimeout(() => setAutosaveButtonLabel(getAutosaveLabel(autosaveActive)), 750);
+                })
+                .catch(console.error);
+        };
+
+        setAutosaveButtonLabel(getAutosaveLabel(autosaveActive));
 
         if (!autosaveActive) {
             clearInterval(autosaveInterval ?? undefined);
@@ -31,40 +43,25 @@ export const useAutoSave = () => {
             return;
         }
         handleAutoSavePackage();
-        const res = setInterval(() => {
-            handleAutoSavePackage();
-        }, AUTOSAVE_INTERVAL);
 
-        setAutosaveInterval(res);
+        // Unregister so we do not register twice.
+        clearInterval(autosaveInterval ?? undefined);
+        const timeout = setInterval(() => handleAutoSavePackage(), AUTOSAVE_INTERVAL);
+        setAutosaveInterval(timeout);
+
+        // We can not list all properties (autosaveInterval) as this would cycle since
+        // we set the value in this function.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [autosaveActive]);
-
-    const handleAutoSavePackage = () => {
-        if (!packageId) {
-            return;
-        }
-        updateSemanticModelPackageModels(packageId, [...models.values()], [...visualModels.values()])
-            .then((status) => {
-                showWasAutosaved(status ? "success" : "fail");
-            })
-            .catch(console.log);
-    };
-
-    const showWasAutosaved = (result: "success" | "fail" = "success") => {
-        setAutosaveButtonLabel(`... ${result}`);
-        setTimeout(() => {
-            setAutosaveButtonLabel(getCurrentLabel());
-        }, 750);
-    };
+    }, [autosaveActive, models, visualModels]);
 
     let autosaveButtonTitle: string;
     if (!packageId) {
         autosaveButtonTitle =
-            "you can only use autosave to backend when you are inside a package\ngo to /manager and start from there";
+            "you can only use autosave when you are inside a package\ngo to /manager and start from there";
     } else if (autosaveActive) {
-        autosaveButtonTitle = "autosave: active, stop autosave to backend";
+        autosaveButtonTitle = "autosave: active, stop autosave";
     } else {
-        autosaveButtonTitle = "autosave: inactive, start autosave to backend";
+        autosaveButtonTitle = "autosave: inactive, start autosave";
     }
 
     const AutoSaveButton = () => {
@@ -85,3 +82,11 @@ export const useAutoSave = () => {
         AutoSaveButton,
     };
 };
+
+const getAutosaveLabel = (active: boolean) => {
+    if (active) {
+        return "🟢autosave";
+    }
+    return "🔴autosave";
+};
+

@@ -77,10 +77,16 @@ export class ResourceModel {
      * Updates user metadata of the resource.
      */
     async updateResource(iri: string, userMetadata: {}) {
+        const resource = await this.prismaClient.resource.findFirst({where: {iri}});
+        let metadata = resource?.userMetadata ? JSON.parse(resource?.userMetadata!) as object : {};
+        metadata = {
+            ...metadata,
+            ...userMetadata
+        }
         await this.prismaClient.resource.update({
             where: {iri},
             data: {
-                userMetadata: JSON.stringify(userMetadata),
+                userMetadata: JSON.stringify(metadata),
             }
         });
         await this.updateModificationTime(iri);

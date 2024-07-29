@@ -15,6 +15,9 @@ export const dataTypeUriToName = (uri: string) => {
     if (isRdfDataType(uri)) {
         return "rdf:" + uri.split("#").at(1)!;
     }
+    if (uri === "http://www.w3.org/2000/01/rdf-schema#Literal") {
+        return "rdfs:Literal";
+    }
     return null;
 };
 
@@ -22,5 +25,5 @@ export const isDataType = (uri: string | null): uri is string => {
     if (!uri) {
         return false;
     }
-    return isXsdSimpleDataType(uri) || isRdfDataType(uri); // || isOtherDataType(uri)...
+    return isXsdSimpleDataType(uri) || isRdfDataType(uri) || uri === "http://www.w3.org/2000/01/rdf-schema#Literal"; // || isOtherDataType(uri)...
 };

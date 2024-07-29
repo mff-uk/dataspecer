@@ -15,6 +15,7 @@ import { useMenuOptions } from "./components/menu-options";
 import { ClassNodeAttributeRow, ThreeDotsRow } from "./components/attribute-row";
 import { ClassNodeHeader } from "./components/class-node-header";
 import { useDialogsContext } from "../context/dialogs-context";
+import { usePrefixForIri } from "../service/prefix-service";
 
 export type ClassCustomNodeDataType = {
     cls: SemanticModelClass | SemanticModelClassUsage;
@@ -55,7 +56,7 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
             >
                 <ClassNodeHeader name={name} description={description} isProfileOf={profileOf} color={clr} />
 
-                <p className="overflow-x-clip text-gray-500">{iri}</p>
+                <p className="overflow-x-clip text-gray-500">{usePrefixForIri(iri)}</p>
 
                 <div key={"attributes" + attributes.length.toString()} className="max-h-44 overflow-x-auto ">
                     <>

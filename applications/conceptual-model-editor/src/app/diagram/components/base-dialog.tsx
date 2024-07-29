@@ -1,5 +1,4 @@
 import { useRef, useEffect, useState } from "react";
-import { clickedInside } from "../util/utils";
 
 export const useBaseDialog = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -25,22 +24,14 @@ export const useBaseDialog = () => {
         return (
             <dialog
                 ref={dialogRef}
-                className="z-30 flex min-h-[70%] w-[97%] flex-col p-1 md:max-h-[95%] md:w-[70%] md:gap-10 md:p-4"
+                className="base-dialog z-30 flex min-h-[70%] w-[97%] flex-col p-1 md:max-h-[95%] md:w-[70%] md:p-4"
                 onCancel={(e) => {
                     e.preventDefault();
                     close();
                 }}
-                onMouseDown={(e) => {
-                    const rect = dialogRef.current.getBoundingClientRect();
-                    const clickedInRect = clickedInside(rect, e.clientX, e.clientY);
-                    if (!clickedInRect) {
-                        close();
-                    }
-                }}
             >
-                <div>
-                    <h1 className="text-xl">{heading}</h1>
-                </div>
+                <h1 className="text-xl">{heading}</h1>
+                <hr className="my-2"/>
                 {children}
             </dialog>
         );

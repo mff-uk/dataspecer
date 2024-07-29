@@ -23,7 +23,7 @@ import { ClassesContext } from "./context/classes-context";
 import { ModelGraphContext } from "./context/model-context";
 import { type SupportedLanguageType, ConfigurationContext } from "./context/configuration-context";
 import { type Warning, WarningsContext } from "./context/warnings-context";
-import Header from "./header";
+import Header from "./header/header";
 import { useBackendConnection } from "./backend-connection";
 import { Catalog } from "./catalog/catalog";
 import { Visualization } from "./visualization";
@@ -31,6 +31,10 @@ import { bothEndsHaveAnIri } from "./util/relationship-utils";
 import { getRandomName } from "../utils/random-gen";
 import { DialogsContextProvider } from "./context/dialogs-context";
 import { QueryParamsProvider, useQueryParamsContext } from "./context/query-params-context";
+
+import "./page.css";
+import { ReactFlowProvider } from "reactflow";
+import { NotificationList } from "./notification";
 
 const Page = () => {
     const [language, setLanguage] = useState<SupportedLanguageType>("en");
@@ -261,7 +265,7 @@ const Page = () => {
                             updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
                         };
                     } else {
-                        console.error(`Unknown type of updated entity type: ${curr.aggregatedEntity?.type} id: ${curr.aggregatedEntity?.id}`);
+                        console.error("Unknown type of updated entity", curr.aggregatedEntity);
                         throw new Error("Unknown type of updated entity.");
                     }
                 },
@@ -354,6 +358,7 @@ const Page = () => {
                                         <Visualization />
                                     </div>
                                 </main>
+                                <NotificationList />
                             </DialogsContextProvider>
                         </WarningsContext.Provider>
                     </ClassesContext.Provider>
@@ -366,7 +371,9 @@ const Page = () => {
 const PageWrapper = () => {
     return (
         <QueryParamsProvider>
-            <Page />
+            <ReactFlowProvider>     {/* So we can access functionalities of reactflow inside catalog */}
+                <Page />
+            </ReactFlowProvider>
         </QueryParamsProvider>
     );
 };
