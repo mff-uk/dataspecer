@@ -3,7 +3,7 @@ import { <%= it.instance_result_type %> } from <%~ it.instance_result_type_path 
 import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 import { <%= it.delete_mutator_interface_type %> } from <%~ it.delete_mutator_interface_type_path %>;
 
-export default class <%= it.aggregate_name %>LdkitInstanceDeleteMutator implements <%= it.delete_mutator_interface_type %> {
+export class <%= it.aggregate_name %>LdkitInstanceDeleteMutator implements <%= it.delete_mutator_interface_type %> {
 
     async deleteInstance(instanceIri: string): Promise<<%= it.instance_result_type %>> {
 

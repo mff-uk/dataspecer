@@ -1,3 +1,4 @@
+import { DatasourceConfig, DataSourceType } from "../../../application-config";
 import { StageGenerationContext } from "../../../engine/generator-stage-interface";
 import { DalGeneratorStrategy } from "../../strategy-interface";
 import { InstanceDeleteLdkitGenerator } from "../../template-generators/ldkit/delete/instance-delete-generator";
@@ -7,9 +8,16 @@ export class LdkitDeleteDalGenerator implements DalGeneratorStrategy {
     strategyIdentifier: string = "ldkit-instance-delete";
 
     private readonly _schemaProvider: SchemaProvider;
+    private readonly _sparqlEndpointUri: string;
 
-    constructor() {
+    constructor(datasourceConfig: DatasourceConfig) {
+
+        if (datasourceConfig.format !== DataSourceType.Rdf) {
+            throw new Error("Trying to generate LDkit data access with different datasource");
+        }
+        
         this._schemaProvider = new LdkitSchemaProvider();
+        this._sparqlEndpointUri = datasourceConfig.endpointUri;
     }
 
     async generateDataLayer(context: StageGenerationContext) {
@@ -22,12 +30,12 @@ export class LdkitDeleteDalGenerator implements DalGeneratorStrategy {
             templatePath: "./delete/data-layer/ldkit/instance-delete-mutator",
         })
         .processTemplate({
-            sparqlEndpointUri: "<sparql endpoint URI>",
+            sparqlEndpointUri: this._sparqlEndpointUri,
             ldkitSchemaArtifact: ldkitSchemaArtifact,
             pathResolver: context._.pathResolver
         });
 
-        return Promise.resolve(instanceListReaderArtifact);
+        return instanceListReaderArtifact;
     }
 
 }

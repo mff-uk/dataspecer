@@ -40,12 +40,12 @@ export class InstanceDeleteLdkitGenerator extends TemplateConsumer<InstanceDelet
         }
 
         const deleteTemplate: InstanceDeleteLdkitTemplate = {
-            templatePath: this._filePath,
+            templatePath: this._templatePath,
             placeholders: {
                 aggregate_name: this._aggregateName,
                 delete_mutator_interface_type: deleteMutatorInterfaceArtifact.exportedObjectName,
                 delete_mutator_interface_type_path: {
-                    from: dependencies.pathResolver.getFullSavePath(this._filePath),
+                    from: this._filePath,
                     to: deleteMutatorInterfaceArtifact.filePath
                 },
                 instance_result_type: deleteReturnTypeArtifact.exportedObjectName,
