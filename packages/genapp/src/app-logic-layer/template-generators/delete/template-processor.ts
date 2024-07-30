@@ -31,12 +31,12 @@ export class DeleteAppLayerTemplateProcessor extends ApplicationLayerTemplateGen
                 aggregate_name: dependencies.aggregateName,
                 delete_mutator_instance: dependencies.dataLayerLinkArtifact.exportedObjectName,
                 delete_mutator_instance_path: {
-                    from: this._filePath,
+                    from: dependencies.pathResolver.getFullSavePath(this._filePath),
                     to: dependencies.dataLayerLinkArtifact.filePath
                 },
                 delete_mutator_interface_type: deleteMutatorInterfaceArtifact.exportedObjectName,
                 delete_mutator_interface_type_path: {
-                    from: this._filePath,
+                    from: dependencies.pathResolver.getFullSavePath(this._filePath),
                     to: deleteMutatorInterfaceArtifact.filePath
                 },
                 generated_capability_class: generatedCapabilityInterface.exportedObjectName,

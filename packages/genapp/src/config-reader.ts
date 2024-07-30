@@ -36,6 +36,15 @@ export class StaticConfigurationReader implements ConfigurationReader<Applicatio
                         hasFilter: false,
                         hasSearch: false,
                         hasAllSelection: false
+                    },
+                    delete: {
+                        id: "dataset_delete_id",
+                        type: "instance",
+                        hasAllSelection: false,
+                        hasFilter: false,
+                        hasSearch: false,
+                        showAsPopup: false,
+                        showHeader: false
                     }
                 }
             },

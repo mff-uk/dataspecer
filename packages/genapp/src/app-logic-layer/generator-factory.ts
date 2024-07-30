@@ -1,4 +1,5 @@
 import { ApplicationLayerGenerator } from "./strategy-interface";
+import { DeleteAppLayerTemplateProcessor } from "./template-generators/delete/template-processor";
 import { DetailAppLayerTemplateProcessor } from "./template-generators/detail/template-processor";
 import { ListAppLayerTemplateProcessor } from "./template-generators/list/template-processor";
 
@@ -18,6 +19,10 @@ export const TemplateApplicationLayerGeneratorFactory: ApplicationLayerGenerator
             detail: new DetailAppLayerTemplateProcessor({
                 templatePath: "./detail/application-layer/detail-app-logic",
                 filePath: `./${aggregateName.toLowerCase()}-detail-app-logic.ts`
+            }),
+            "delete-instance": new DeleteAppLayerTemplateProcessor({
+                templatePath: "./delete/application-layer/delete-instance-app-logic",
+                filePath: `./${aggregateName.toLowerCase()}-delete-instance-app-logic.ts`
             })
         };
 

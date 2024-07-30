@@ -5,6 +5,7 @@ import {
 } from "../application-config";
 import { CapabilityGenerator } from "../capabilities/capability-generator-interface";
 import { CustomCapabilityGenerator } from "../capabilities/custom-capability";
+import { DeleteInstanceCapability } from "../capabilities/delete-instance";
 import { DetailCapability } from "../capabilities/detail";
 import { ListCapability } from "../capabilities/list";
 import { StaticConfigurationReader, FileConfigurationReader } from "../config-reader";
@@ -197,7 +198,7 @@ class ApplicationGenerator {
             list: new ListCapability(rootAggregateName, datasource),
             detail: new DetailCapability(rootAggregateName, datasource),
             create: null,
-            delete: null,
+            delete: new DeleteInstanceCapability(rootAggregateName, datasource),
         };
 
         const generator = capabilityGeneratorMapping[capabilityName];
