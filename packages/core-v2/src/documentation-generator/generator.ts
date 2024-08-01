@@ -336,6 +336,8 @@ export async function generateDocumentation(
   handlebars.registerHelper('helperMissing', function() {
     const options = arguments[arguments.length-1];
     const args = Array.prototype.slice.call(arguments, 0, arguments.length-1);
+    // @ts-ignore
+    this.args = args;
     if (definitions[options.name]) {
       // @ts-ignore
       return new Handlebars.SafeString(definitions[options.name]!(this));

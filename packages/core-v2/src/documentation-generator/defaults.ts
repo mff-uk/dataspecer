@@ -4,6 +4,11 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
   template: `<!DOCTYPE html>
   {{#def "class"}}<a href="{{{href aggregation.id}}}">{{#translate aggregation.name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}</a>{{/def}}
   {{#def "relation"}}<a href="{{{href aggregation.ends.1.iri}}}">{{#translate aggregation.ends.1.name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}</a>{{/def}}
+  {{#def "cardinality"}}
+    {{#if args.[0]}}
+      [{{args.[0].[0]}}..{{#if args.[0].[1]}}{{args.[0].[1]}}{{else}}*{{/if}}]
+    {{/if}}
+  {{/def}}
   <html>
     <head>
       <meta charset="utf-8" />
@@ -194,11 +199,19 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
                 {{/translate}}
                 <tr>
                   <td>{{#iflng "cs"}}Definiční obor{{lng}}Domain{{/iflng}}</td>
-                  <td><a href="{{{href ends.0.concept}}}">{{#semanticEntity ends.0.concept}}{{#translate name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{/semanticEntity}}</a></td>
+                  <td>
+                    <a href="{{{href ends.0.concept}}}">{{#semanticEntity ends.0.concept}}{{#translate name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{/semanticEntity}}</a>
+
+                    {{cardinality ends.0.cardinality}}
+                  </td>
                 </tr>
                 <tr>
                   <td>{{#iflng "cs"}}Obor hodnot{{lng}}Range{{/iflng}}</td>
-                  <td><a href="{{{href ends.1.concept}}}">{{#semanticEntity ends.1.concept}}{{#translate name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{else}}{{prefixed .}}{{/semanticEntity}}</a></td>
+                  <td>
+                    <a href="{{{href ends.1.concept}}}">{{#semanticEntity ends.1.concept}}{{#translate name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{else}}{{prefixed .}}{{/semanticEntity}}</a>
+                    
+                    {{cardinality ends.1.cardinality}}
+                  </td>
                 </tr>
               </table>
             </section>
@@ -229,11 +242,19 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
               {{/translate}}
               <tr>
                 <td>{{#iflng "cs"}}Definiční obor{{lng}}Domain{{/iflng}}</td>
-                <td><a href="{{{href aggregation.ends.0.concept}}}">{{#semanticEntity aggregation.ends.0.concept}}{{#translate aggregation.name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{/semanticEntity}}</a></td>
+                <td>
+                  <a href="{{{href aggregation.ends.0.concept}}}">{{#semanticEntity aggregation.ends.0.concept}}{{#translate aggregation.name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{/semanticEntity}}</a>
+                                  
+                  {{cardinality aggregation.ends.0.cardinality}}  
+                </td>
               </tr>
               <tr>
                 <td>{{#iflng "cs"}}Obor hodnot{{lng}}Range{{/iflng}}</td>
-                <td><a href="{{{href aggregation.ends.1.concept}}}">{{#semanticEntity aggregation.ends.1.concept}}{{#translate aggregation.name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{else}}{{prefixed .}}{{/semanticEntity}}</a></td>
+                <td>
+                  <a href="{{{href aggregation.ends.1.concept}}}">{{#semanticEntity aggregation.ends.1.concept}}{{#translate aggregation.name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{else}}{{prefixed .}}{{/semanticEntity}}</a>
+                                  
+                  {{cardinality aggregation.ends.1.cardinality}}  
+              </td>
               </tr>
 
               {{#def "profilesRelationshipChain"}}
