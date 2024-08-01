@@ -123,10 +123,19 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
                   <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
                 </tr>
                 {{/translate}}
-                {{#semanticEntity usageOf}}
+                {{#def "profilesClassChain"}}
+                  {{class}} (<a href="{{{iri}}}">{{prefixed iri}}</a>)
+                  {{#if aggregationParent}}
+                    {{#semanticEntity aggregationParent.iri}}
+                      <br />
+                      {{profilesClassChain}}
+                    {{/semanticEntity}}
+                  {{/if}}
+                {{/def}}
+                {{#semanticEntity aggregationParent.iri}}
                 <tr>
                   <td>{{#iflng "cs"}}Profiluje{{lng}}Profiles{{/iflng}}</td>
-                  <td>{{class}} (<a href="{{{iri}}}">{{prefixed iri}}</a>)</td>
+                  <td>{{profilesClassChain}}</td>
                 </tr>
                 {{/semanticEntity}}
 
@@ -227,10 +236,19 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
                 <td><a href="{{{href aggregation.ends.1.concept}}}">{{#semanticEntity aggregation.ends.1.concept}}{{#translate aggregation.name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{else}}{{prefixed .}}{{/semanticEntity}}</a></td>
               </tr>
 
+              {{#def "profilesRelationshipChain"}}
+                {{relation}} (<a href="{{{ends.1.iri}}}">{{prefixed ends.1.iri}}</a>)
+                {{#if aggregationParent}}
+                  {{#semanticEntity aggregationParent.id}}
+                    <br />
+                    {{profilesRelationshipChain}}
+                  {{/semanticEntity}}
+                {{/if}}
+              {{/def}}
               {{#semanticEntity usageOf}}
               <tr>
-                <td>{{#iflng "cs"}}Profil{{lng}}Profile of{{/iflng}}</td>
-                <td>{{relation}} (<a href="{{{ends.1.iri}}}">{{prefixed ends.1.iri}}</a>)</td>
+                <td>{{#iflng "cs"}}Profiluje{{lng}}Profiles{{/iflng}}</td>
+                <td>{{profilesRelationshipChain}}</td>
               </tr>
               {{/semanticEntity}}
 
