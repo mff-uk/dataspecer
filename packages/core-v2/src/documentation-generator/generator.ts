@@ -95,6 +95,12 @@ export async function generateDocumentation(
     },
 
     externalArtifacts: inputModel.externalArtifacts,
+
+    // List of used prefixes in the document.
+    usedPrefixes: [] as {
+      iri: string,
+      prefix: string,
+    }[],
   };
 
 
@@ -106,7 +112,7 @@ export async function generateDocumentation(
   });
 
   /**
-   * Shortens IRIs by using prefixes.
+   * Shortens IRIs by using prefixes and remebers them for future use.
    */
   handlebars.registerHelper('prefixed', function(iri?: string) {
     if (!iri) {
@@ -123,6 +129,12 @@ export async function generateDocumentation(
 
     // todo - use prefixes from the model
     if (Object.hasOwn(PREFIX_MAP, prefix)) {
+      if (!data.usedPrefixes.find(p => p.iri === prefix)) {
+        data.usedPrefixes.push({
+          iri: prefix,
+          prefix: PREFIX_MAP[prefix]!,
+        });
+      }
       return PREFIX_MAP[prefix] + ":" + suffix;
     }
 
@@ -382,6 +394,7 @@ export async function generateDocumentation(
   });
 
   const compiledTemplate = handlebars.compile(configuration.template);
+  await compiledTemplate(data);
   const result = await compiledTemplate(data);
   return result;
 }

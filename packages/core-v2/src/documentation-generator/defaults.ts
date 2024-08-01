@@ -283,6 +283,18 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
       </section>
 
       <section>
+        <h1>{{#iflng "cs"}}Použité prefixy{{lng}}Used prefixes{{/iflng}}</h1>
+        <table id="table-namespaces" class="simple">
+          <thead><tr><th>Prefix</th><th>Namespace IRI</th></tr></thead>
+          <tbody>
+            {{#each usedPrefixes}}
+              <tr><td><code>{{prefix}}</code></td><td><a href={{{iri}}}><code>{{iri}}</code></a></td></tr>
+            {{/each}}
+          </tbody>
+        </table>  
+      </section>
+
+      <section>
         <h1>{{#iflng "cs"}}Přílohy{{lng}}Attachments{{/iflng}}</h1>
         <table class="def">
           {{#if externalArtifacts.owl-vocabulary}}
@@ -299,6 +311,24 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
           {{/if}}
         </table>
       </section>
+
+    <style>
+      table.simple {
+        margin: auto;
+        border-spacing: 0;
+        border-collapse: collapse;
+      }
+
+      table.simple th {
+        padding: 3px 10px;
+        text-align: left;
+      }
+
+      table.simple td {
+        border-top: 1px solid #ddd;
+        padding: 3px 10px;
+      }
+    </style>  
     </body>
   </html>`,
   language: "en"
