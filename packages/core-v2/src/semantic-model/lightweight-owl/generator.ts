@@ -82,6 +82,15 @@ class Generator {
             }
         }
 
+        // Write other properties that do not have a domain from this vocabulary
+        for (const property of properties) {
+            if (writtenProperties.has(property.iri ?? property.id)) {
+                continue;
+            }
+            this.writeProperty(property);
+            writtenProperties.add(property.id);
+        }
+
         return new Promise((resolve, reject) => this.writer.end((error, result) => resolve(result)));
     }
 
