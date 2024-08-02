@@ -13,7 +13,8 @@ export interface DocumentationGeneratorConfiguration {
 }
 
 function normalizeLabel(label: string) {
-  return label.replace(/ /g, "-").toLowerCase();
+  // We do not want to convert it to lower case because classes and relations may have identical name but different case as it is common convention in RDF.
+  return label.replace(/ /g, "-");
 }
 
 interface ModelDescription {
