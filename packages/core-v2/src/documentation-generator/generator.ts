@@ -101,6 +101,9 @@ export async function generateDocumentation(
       iri: string,
       prefix: string,
     }[],
+
+    // Lang
+    lang: configuration.language,
   };
 
 

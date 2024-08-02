@@ -87,6 +87,7 @@ async function getDocumentationData(packageId: string, models: ModelDescription[
         URL: string,
     }[]>,
     dsv?: any,
+    language?: string,
 } = {}): Promise<string> {
     const externalArtifacts = options.externalArtifacts ?? {};
 
@@ -103,7 +104,7 @@ async function getDocumentationData(packageId: string, models: ModelDescription[
         dsv: options.dsv
     };
 
-    return await generateDocumentation(context, {...defaultConfiguration, template});
+    return await generateDocumentation(context, {...defaultConfiguration, template, language: options.language ?? "en"});
 }
 
 export const getDocumentation = asyncHandler(async (request: express.Request, response: express.Response) => {
@@ -322,6 +323,13 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
     const documentation = streamDictionary.writePath("index.html");
     await documentation.write(await getDocumentationData(packageIri, models, {externalArtifacts, dsv: dsvMetadata}));
     await documentation.close();
+
+    const langs = ["cs", "en"];
+    for (const lang of langs) {
+        const documentation = streamDictionary.writePath(`index.${lang}.html`);
+        await documentation.write(await getDocumentationData(packageIri, models, {externalArtifacts, dsv: dsvMetadata, language: lang}));
+        await documentation.close();
+    }
 }
 
 export const getZip = asyncHandler(async (request: express.Request, response: express.Response) => {
