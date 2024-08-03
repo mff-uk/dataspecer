@@ -105,6 +105,11 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         return [entityModels, visualModels] as const;
     }
 
+    /**
+     * Simplified operation for updating a list of models on backend.
+     * 
+     * If some models (semantic or visual) are ommited, they will be deleted.
+     */
     async updateSemanticModelPackageModels(
         packageId: string,
         models: EntityModel[],
@@ -153,6 +158,23 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
                 body: JSON.stringify(modelSerialization),
             });
             responseStatuses.add(updatedResponse.status);
+        }
+
+        // Remove other models
+        const modelIds = [...models, ...visualModels].map(model => model.getId());
+        const pckg = await this.getPackage(packageId);
+        for (const model of pckg.subResources!) {
+            if (model.types.some(t => [
+                LOCAL_VISUAL_MODEL,
+                "https://dataspecer.com/core/model-descriptor/sgov",
+                LOCAL_SEMANTIC_MODEL,
+                "https://dataspecer.com/core/model-descriptor/pim-store-wrapper"
+            ].includes(t))) {
+                if (!modelIds.includes(model.iri)) {
+                    // Remove model
+                    await this.deleteResource(model.iri);
+                }
+            }
         }
 
         const anyErrors = [...responseStatuses.values()].filter((n) => n > 399).length;
