@@ -79,3 +79,10 @@ export const DeleteInstanceMutatorInterfaceGenerator = new ReaderInterfaceGenera
     templatePath: "./delete/data-layer/instance-delete-interface",
     listReturnTypeInterfaceGenerator: InstanceResultReturnInterfaceGenerator
 })
+
+export const InstanceCreatorInterfaceGenerator = new ReaderInterfaceGenerator({
+    filePath: "./writers/instance-creator.ts",
+    queryExportedObjectName: "AggregateInstanceCreator",
+    templatePath: "./create/data-layer/instance-create-interface",
+    listReturnTypeInterfaceGenerator: InstanceResultReturnInterfaceGenerator
+})

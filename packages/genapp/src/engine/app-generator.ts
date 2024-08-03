@@ -4,6 +4,7 @@ import {
     DatasourceConfig
 } from "../application-config";
 import { CapabilityGenerator } from "../capabilities/capability-generator-interface";
+import { CreateInstanceCapability } from "../capabilities/create-instance";
 import { CustomCapabilityGenerator } from "../capabilities/custom-capability";
 import { DeleteInstanceCapability } from "../capabilities/delete-instance";
 import { DetailCapability } from "../capabilities/detail";
@@ -197,7 +198,7 @@ class ApplicationGenerator {
         const capabilityGeneratorMapping: { [capabilityName: string]: CapabilityGenerator | null } = {
             list: new ListCapability(rootAggregateName, datasource),
             detail: new DetailCapability(rootAggregateName, datasource),
-            create: null,
+            create: new CreateInstanceCapability(rootAggregateName, datasource),
             delete: new DeleteInstanceCapability(rootAggregateName, datasource),
         };
 

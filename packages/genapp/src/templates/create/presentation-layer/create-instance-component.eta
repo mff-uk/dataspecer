@@ -1,0 +1,246 @@
+// https://rjsf-team.github.io/react-jsonschema-form/
+
+import { useState } from 'react';
+import Form from '@rjsf/mui';
+import { RJSFSchema } from '@rjsf/utils';
+import validator from '@rjsf/validator-ajv8';
+
+const CreateDatasetInstance = () => {
+
+    const [isUpdateMode, setUpdateMode] = useState<boolean>(false);
+    const [formData, setFormData] = useState<RJSFSchema>({
+        "firstName": "Chuck",
+        "lastName": "Norris",
+        "age": 75,
+        "bio": "Roundhouse kicking asses since 1940",
+        "password": "noneed",
+        "telephone": "1-800-KICKASS",
+        "X": {
+            "cs": "Nejaka default hodnota",
+            "en": "Some default value"
+        },
+        "klíčové_slovo": [
+            {
+                "cs": "klicoveSlovo1",
+                "en": "keyword1"
+            },
+            {
+                "cs": "klicoveSlovo2",
+                "en": "keyword2"
+            },
+            {
+                "cs": "klicoveSlovo3",
+                "en": "keyword3"
+            }
+        ],
+    });
+
+    const uiSchema: RJSFSchema = {
+        "firstName": {
+            "ui:autofocus": true,
+            "ui:emptyValue": "",
+            "ui:placeholder": "ui:emptyValue causes this field to always be valid despite being required",
+            "ui:autocomplete": "family-name",
+            "ui:enableMarkdownInDescription": true,
+            "ui:description": "Make text **bold** or *italic*. Take a look at other options [here](https://markdown-to-jsx.quantizor.dev/)."
+        },
+        "lastName": {
+            "ui:autocomplete": "given-name",
+            "ui:enableMarkdownInDescription": true,
+            "ui:description": "Make things **bold** or *italic*. Embed snippets of `code`. <small>And this is a small texts.</small> "
+        },
+        "age": {
+            "ui:widget": "updown",
+            "ui:title": "Age of person",
+            "ui:description": "(earth year)"
+        },
+        "bio": {
+            "ui:widget": "textarea"
+        },
+        "password": {
+            "ui:widget": "password",
+            "ui:help": "Hint: Make it strong!"
+        },
+        "telephone": {
+            "ui:options": {
+                "inputType": "tel"
+            }
+        }
+    }
+
+    const schema: RJSFSchema =
+    {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "/genapp/dataset/schema.json",
+        "title": "Datová sada",
+        "description": "Kolekce dat poskytovaná či řízená jedním zdrojem, která je k dispozici pro přístup či stažení v jednom či více formátech.",
+        "type": "object",
+        "required": [
+            "id",
+            "title",
+            "klíčové_slovo",
+            "distribuce"
+        ],
+        "properties": {
+            "id": {
+                "type": "string",
+                "format": "iri"
+            },
+            "title": {
+                "title": "Title",
+                "description": "A name given to the resource.",
+                "type": "object",
+                "required": [
+
+                ],
+                "properties": {
+                    "cs": {
+                        "title": "Hodnota v českém jazyce",
+                        "type": "string"
+                    },
+                    "en": {
+                        "title": "Hodnota v anglickém jazyce",
+                        "type": "string"
+                    }
+                }
+            },
+            "klíčové_slovo": {
+                "title": "klíčové slovo",
+                "description": "Klíčové slovo nebo značka popisující zdroj.",
+                "type": "array",
+                "items": {
+                    "title": "",
+                    "type": "object",
+                    "required": [
+
+                    ],
+                    "properties": {
+                        "cs": {
+                            "title": "Hodnota v českém jazyce",
+                            "type": "string"
+                        },
+                        "en": {
+                            "title": "Hodnota v anglickém jazyce",
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "distribuce": {
+                "title": "distribuce",
+                "description": "Dostupná distribuce datové sady.",
+                "type": "array",
+                "items": {
+                    "title": "Distribuce",
+                    "description": "Konkrétní reprezentace datové sady. Datová sada může být dostupná v různých serializacích, které se mohou navzájem lišit různými způsoby, mimo jiné přirozeným jazykem, media-typem či formátem, schematickou organizací, časovým a prostorovým rozlišením, úrovní detailu či profily (které mohou specifikovat některé či všechny tyto rozdíly).",
+                    "type": "object",
+                    "required": [
+                        "id",
+                        "title"
+                    ],
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                            "format": "iri"
+                        },
+                        "title": {
+                            "title": "Title",
+                            "description": "A name given to the resource.",
+                            "type": "object",
+                            "required": [
+
+                            ],
+                            "properties": {
+                                "cs": {
+                                    "title": "Hodnota v českém jazyce",
+                                    "type": "string"
+                                },
+                                "en": {
+                                    "title": "Hodnota v anglickém jazyce",
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "format": {
+                            "title": "Format",
+                            "description": "The file format, physical medium, or dimensions of the resource.",
+                            "type": "array",
+                            "items": {
+                                "title": "http://www.w3.org/2002/07/owl#Thing",
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+
+    // const schema: RJSFSchema = {
+    //     "title": "A registration form",
+    //     "description": "A simple form example.",
+    //     "type": "object",
+    //     "required": [
+    //         "firstName",
+    //         "lastName"
+    //     ],
+    //     "properties": {
+    //         "firstName": {
+    //             "type": "string",
+    //             "title": "First name",
+    //             "default": "Chuck"
+    //         },
+    //         "lastName": {
+    //             "type": "string",
+    //             "title": "Last name"
+    //         },
+    //         "age": {
+    //             "type": "integer",
+    //             "title": "Age"
+    //         },
+    //         "bio": {
+    //             "type": "string",
+    //             "title": "Bio"
+    //         },
+    //         "password": {
+    //             "type": "string",
+    //             "title": "Password",
+    //             "minLength": 3
+    //         },
+    //         "telephone": {
+    //             "type": "string",
+    //             "title": "Telephone",
+    //             "minLength": 10
+    //         }
+    //     }
+    // }
+    const log = (type) => console.log.bind(console, type);
+
+    //const data = "";
+    // const [editorState, setEditorState] = useState(() =>
+    //     EditorState.create(JSON.parse(schema), "")
+    // );
+
+    return (
+        <div>
+            <Form
+                schema={schema}
+                validator={validator}
+                onChange={log('changed')}
+                onSubmit={log('submitted')}
+                onError={log('errors')}
+                uiSchema={uiSchema}
+                formData={formData}
+                showErrorList="top"
+            >
+                {isUpdateMode && (<div>
+                    <button type='submit'>Submit</button>
+                    <button type='button'>Cancel</button>
+                </div>)}
+            </ Form>
+        </div>
+    );
+}
+
+export default CreateDatasetInstance;

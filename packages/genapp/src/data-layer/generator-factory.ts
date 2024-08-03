@@ -5,6 +5,7 @@ import { LdkitListDalGenerator } from "./strategies/ldkit/list-strategy";
 import { LocalStorageDalGeneratorStrategy } from "./strategies/localstorage-dal-strategy";
 import { LdkitDetailDalGenerator } from "./strategies/ldkit/detail-strategy";
 import { LdkitDeleteDalGenerator } from "./strategies/ldkit/delete-strategy";
+import { CreateLdkitInstanceDalStrategy } from "./strategies/ldkit/create-strategy";
 
 export type DataAccessLayerGeneratorFactory = {
     getDalGeneratorStrategy: (datasourceConfig: DatasourceConfig) => DalGeneratorStrategy;
@@ -56,6 +57,26 @@ export const DeleteInstanceTemplateGeneratorFactory: DataAccessLayerGeneratorFac
     getDalGeneratorStrategy(datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
         const generators = {
             [DataSourceType.Rdf]: new LdkitDeleteDalGenerator(datasourceConfig),
+            [DataSourceType.Json]:  null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("json"),
+            [DataSourceType.Xml]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("xml"),
+            [DataSourceType.Csv]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("csv"),
+            [DataSourceType.Local]: null as unknown as DalGeneratorStrategy, //new LocalStorageDalGeneratorStrategy()
+        };
+
+        const generator = generators[datasourceConfig.format];
+
+        if (!generator) {
+            throw new Error("No matching data layer generator has been found!");
+        }
+
+        return generator;
+    }
+}
+
+export const CreateInstanceTemplateGeneratorFactory: DataAccessLayerGeneratorFactory = {
+    getDalGeneratorStrategy(datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
+        const generators = {
+            [DataSourceType.Rdf]: new CreateLdkitInstanceDalStrategy(datasourceConfig),
             [DataSourceType.Json]:  null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("json"),
             [DataSourceType.Xml]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("xml"),
             [DataSourceType.Csv]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("csv"),

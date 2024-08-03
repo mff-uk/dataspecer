@@ -1,0 +1,31 @@
+import { Entity } from "ldkit/types/library/lens/types";
+import { Context, SchemaInterface, createLens } from "ldkit";
+import { <%= it.instance_result_type %> } from <%~ it.instance_result_type_path %>;
+import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
+import { <%= it.creator_interface_type %> } from <%~ it.creator_interface_type_path %>;
+
+export class <%= it.aggregate_name %>LdkitInstanceCreator implements  <%= it.creator_interface_type %>  {
+
+    async createInstance(
+        newInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>>
+    ): Promise<<%= it.instance_result_type %>> {
+
+        const context: Context = {
+            sources: [<%~ it.ldkit_endpoint_uri %>]
+        }
+
+        const lens = createLens(<%= it.ldkit_schema %>, context);
+        await lens.insert(newInstance);
+
+        const result: <%= it.instance_result_type %> = {
+            instance: {
+                aggregateName: "<%= it.aggregate_name %>",
+                raw: newInstance
+            },
+            message: "Instance created successfully",
+            redirectUrl: "/"
+        }
+
+        return result;
+    }
+}
