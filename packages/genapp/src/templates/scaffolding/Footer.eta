@@ -32,7 +32,7 @@ export const Footer = () => {
           }}
         >
           <Typography variant="caption" color="initial">
-            Copyright ©2022
+            Copyright ©{ new Date().getFullYear() }
           </Typography>
         </Box>
       </Container>
