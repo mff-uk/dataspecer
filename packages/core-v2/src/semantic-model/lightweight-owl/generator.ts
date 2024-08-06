@@ -60,6 +60,14 @@ class Generator {
             rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
             ... this.context?.baseIri ? { "": this.context.baseIri } : {},
         });
+
+        // Write the ontology
+        this.writer.addQuad(
+            namedNode(this.context.iri),
+            RDF_TYPE,
+            namedNode("http://www.w3.org/2002/07/owl#Ontology")
+        );
+
         const classes = entities.filter(isSemanticModelClass);
         this.entitiesMap = Object.fromEntries(entities.map(e => [e.id, e]));
         this.generalizations = entities.filter(isSemanticModelGeneralization);

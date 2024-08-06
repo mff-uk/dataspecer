@@ -259,7 +259,8 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
     };
 
     // OWL
-    const owl = await generateLightweightOwl(semanticModel, models[0].baseIri ?? "", models[0]?.baseIri + "applicationProfileConceptualModel");
+    // Todo: base iri and iri itself should be part of specification metadata
+    const owl = await generateLightweightOwl(semanticModel, models[0].baseIri ?? "", models[0]?.baseIri ?? "");
     if (owl) {
         const owlFile = streamDictionary.writePath("model.owl.ttl");
         await owlFile.write(owl);
