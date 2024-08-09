@@ -2,7 +2,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { createSgovModel, createRdfsModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useModelGraphContext } from "../context/model-context";
-import { ModelItemRow } from "../components/catalog-rows/model-item-row";
+import { ModelItemRow } from "./components/model-item-row";
 import { useState } from "react";
 
 import { AddModelDialog, type PredefinedModel } from "../dialog/create-model-dialog";
@@ -88,7 +88,7 @@ export const ModelCatalog = () => {
             } else if (model.identifier === "sgov") {
                 addSgov();
             } else {
-                logger.error("Invalid predefined model.", {model});
+                logger.error("Invalid predefined model.", { model });
             }
         }
     };
@@ -100,8 +100,7 @@ export const ModelCatalog = () => {
 
     return (
         <>
-            <div className="min-w-24 overflow-y-scroll bg-teal-100 px-1">
-                <h3 className="font-semibold">{t("model-catalog.label")}</h3>
+            <div>
                 <ul>
                     {[...models.keys()].map((modelId, index) => (
                         <li key={"model" + index.toString()}>
@@ -109,11 +108,12 @@ export const ModelCatalog = () => {
                         </li>
                     ))}
                 </ul>
-                <div className="flex flex-row [&>*]:mr-1">
+                <div className="flex flex-row [&>*]:mr-1 justify-between whitespace-nowrap">
+                    &nbsp;
                     <button
                         onClick={() => setAddDialogOpen(true)}
                         type="button"
-                        className="cursor-pointer border bg-indigo-600 px-1 text-white disabled:cursor-default disabled:bg-zinc-500"
+                        className="cursor-pointer px-1 disabled:cursor-default disabled:bg-zinc-500"
                     >
                         {t("model-catalog.add-vocabulary")}
                     </button>
