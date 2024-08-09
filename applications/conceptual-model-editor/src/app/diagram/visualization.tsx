@@ -246,7 +246,7 @@ export const Visualization = () => {
                 models: localModels, // eslint-disable-line prefer-const
             } = getCurrentClassesRelationshipsGeneralizationsAndProfiles();
 
-            const getNode = (cls: SemanticModelClass | SemanticModelClassUsage, visualEntity: VisualEntity | null) => {
+            const createReactflowNode = (cls: SemanticModelClass | SemanticModelClassUsage, visualEntity: VisualEntity | null) => {
                 if (!visualEntity) {
                     return;
                 }
@@ -326,7 +326,7 @@ export const Visualization = () => {
                             isSemanticModelClass(aggregatedEntityOfAttributesNode) ||
                             isSemanticModelClassUsage(aggregatedEntityOfAttributesNode)
                         ) {
-                            const n = getNode(aggregatedEntityOfAttributesNode, visualEntityOfAttributesNode ?? null);
+                            const n = createReactflowNode(aggregatedEntityOfAttributesNode, visualEntityOfAttributesNode ?? null);
                             if (n && n != "hide-it!") {
                                 return [n.id, n];
                             }
@@ -356,17 +356,18 @@ export const Visualization = () => {
                 }
                 const visualEntity = ve ?? entities[id]?.visualEntity ?? null;
                 if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {                    
-                    const n = getNode(entity, visualEntity);
+                    const n = createReactflowNode(entity, visualEntity);
                     if (n == "hide-it!") {
                         setNodes((prev) => prev.filter((n) => (n.data as ClassCustomNodeDataType).cls.id !== id));
                     } else if (n) {
-                        const reactflowNode = reactFlowInstance.getNode(entity.id);                        
+                        const reactflowNode = reactFlowInstance.getNode(entity.id);     
+                        const hasSameEntityName = (reactflowNode?.data as ClassCustomNodeDataType)?.cls?.name === entity.name;
                         // We check if the node is already visible on canvas, if it is then we can skip it, reactflow already handled the changes for us.
                         // You might be wondering why we have to check if the view (visual model) changed.
                         // Right now the id of the semantic entity is used as the id for the reactflow node (Is it ok? Shouldn't we use the ID of visual entity?)
                         // That means that if we change the view, the same reactflow nodes are still there even in different view, but they are not rendered unless explictly set again.                        
                         // I use useRef to track the view change hopefully it is correct (I am not that familiar with react to be 100% sure).
-                        if(reactflowNode !== undefined && !changedVisualModel.current) {
+                        if(reactflowNode !== undefined && !changedVisualModel.current && hasSameEntityName) {                            
                             continue;
                         }
 
@@ -401,7 +402,7 @@ export const Visualization = () => {
                         }
 
                         const visEntityOfAttributesNode = entities[aggregatedEntityOfAttributesNode.id]?.visualEntity;
-                        const n = getNode(aggregatedEntityOfAttributesNode, visEntityOfAttributesNode ?? null);
+                        const n = createReactflowNode(aggregatedEntityOfAttributesNode, visEntityOfAttributesNode ?? null);
                         if (n && n != "hide-it!") {
                             setNodes((prev) =>
                                 prev.filter((n) => (n.data as ClassCustomNodeDataType).cls.id !== id).concat(n)
