@@ -22,6 +22,7 @@ export type DialogsContextType = {
     openModificationDialog: (entity: ModificationDialogSupportedTypes, model?: InMemorySemanticModel | null) => void;
     openProfileDialog: (entity: ProfileDialogSupportedTypes) => void;
     openCreateClassDialog: (
+        onCreateClassCallback?: (newEntityID: string) => void,
         model?: InMemorySemanticModel | undefined,
         position?:
             | {

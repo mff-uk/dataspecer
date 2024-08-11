@@ -3,8 +3,7 @@ import ReactFlow, {
     type Edge,
     type EdgeChange,
     type Node,
-    type NodeChange,
-    type ReactFlowInstance,
+    type NodeChange,    
     type XYPosition,
     Background,
     Controls,
@@ -16,7 +15,7 @@ import ReactFlow, {
     useNodesState,
     useReactFlow,
 } from "reactflow";
-import { useMemo, useCallback, useEffect, useState } from "react";
+import React, { useMemo, useCallback, useEffect, useState, useRef } from "react";
 import {
     type ClassCustomNodeDataType,
     ClassCustomNode,
@@ -58,6 +57,8 @@ import { useDownload } from "./features/export/download";
 import { useDialogsContext } from "./context/dialogs-context";
 import { type Warning, useWarningsContext } from "./context/warnings-context";
 import { getRandomName } from "../utils/random-gen";
+import { useCanvasMenuOptions } from "./reactflow/components/drag-edge-canvas-menu";
+import { useSelectClassesDialog } from "./dialog/select-classes-dialog";
 
 // Function that returns SVG for the current model.
 export let getSvgForCurrentView: () => Promise<{
@@ -83,11 +84,12 @@ export const Visualization = () => {
     const nodeTypes = useMemo(() => ({ classCustomNode: ClassCustomNode }), []);
     const edgeTypes = useMemo(() => ({ floating: SimpleFloatingEdge }), []);
 
-    // TODO: Remove the next few comments if no issues will be found within next few days/weeks. And also remove the onInit line in the return.
-    // I think that the wrapper using ReactflowInstance provider in page.tsx is enough, hopefully it doesn't break anything.
-    // The Old code:
-    //const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
     const reactFlowInstance = useReactFlow();
+
+    const { CanvasMenuOptions, openCanvasMenuOptions, isCanvasMenuOptionsOpen, canvasMenuXYPosition, setCanvasMenuXYPosition } = useCanvasMenuOptions();    
+    const { openSelectClassDialog, isSelectClassDialogOpen, SelectClassesDialog } = useSelectClassesDialog();
+    const [nodeStartingConnection, setNodeStartingConnection] = useState<{ nodeId: string | null; handleId: string | null; handleType: "source" | "target" | null; }>();
+    const [entityIDsToConnectTo, setEntityIDsToConnectTo] = useState<string[]>([]);
 
     // --- handlers --- --- ---
 
@@ -101,8 +103,12 @@ export const Visualization = () => {
         [activeVisualModel]
     );
 
+    // https://github.com/xyflow/xyflow/issues/1207
+    const isConnectionCreated = useRef(false);
+
     const onConnect = useCallback(
         (connection: Connection) => {
+            isConnectionCreated.current = true;
             openCreateConnectionDialog(connection);
         },
         [openCreateConnectionDialog]
@@ -146,7 +152,7 @@ export const Visualization = () => {
                     x: e.clientX,
                     y: e.clientY,
                 });
-                openCreateClassDialog(undefined, {
+                openCreateClassDialog(undefined, undefined, {
                     x: position?.x ?? e.nativeEvent.layerX,
                     y: position?.y ?? e.nativeEvent.layerY,
                 });
@@ -490,9 +496,44 @@ export const Visualization = () => {
         }
     };
 
+
+    
+
+    const onSelectClassesCallback = () => (newEntityIDs: string[]) => {         
+        setEntityIDsToConnectTo([...entityIDsToConnectTo, ...newEntityIDs]);
+    };
+    const onCreateClassCallback = () => (newEntityID: string) => { 
+        // With timeout the dialog is in the same place, but it takes a moment to get there
+        setTimeout(() => setEntityIDsToConnectTo([...entityIDsToConnectTo, newEntityID]), 200);
+        // setEntityIDsToConnectTo([...entityIDsToConnectTo, newEntityID]);
+    };
+    
+    useEffect(() => {
+        if(entityIDsToConnectTo !== undefined && entityIDsToConnectTo.length > 0 && !isCreateConnectionDialogOpen) {
+            const connection = {
+                source: nodeStartingConnection?.handleType === "source" ? nodeStartingConnection?.nodeId : (entityIDsToConnectTo.shift() as string),
+                target: nodeStartingConnection?.handleType === "target" ? nodeStartingConnection?.nodeId : (entityIDsToConnectTo.shift() as string),
+                sourceHandle: null,     // TODO: Maybe will have to specify handlers later in development
+                targetHandle: null
+            };
+                
+            openCreateConnectionDialog(connection);  
+        }
+    }, [entityIDsToConnectTo, isCreateConnectionDialogOpen]);
+
+    const openCreateClassDialogOnCanvasHandler = () => {  
+        const position = reactFlowInstance?.screenToFlowPosition({
+            x: canvasMenuXYPosition?.x ?? 500,
+            y: canvasMenuXYPosition?.y ?? 250,
+        });      
+        openCreateClassDialog(onCreateClassCallback, undefined, position);
+    };           
+
+
     return (
         <>
-            {isCreateConnectionDialogOpen && <CreateConnectionDialog />}
+            {isCreateConnectionDialogOpen && <CreateConnectionDialog />}               
+            {isSelectClassDialogOpen && <SelectClassesDialog></SelectClassesDialog>}         
 
             <div className="h-[80vh] w-full md:h-full">
                 <ReactFlow
@@ -512,8 +553,26 @@ export const Visualization = () => {
                     onDragOver={onDragOver}
                     onDrop={onDrop}
                     snapToGrid={true}     
-                    // onInit={(reactFlowInstance) => setReactFlowInstance(reactFlowInstance)}               
                     onPaneClick={onPaneClick}
+                    onConnectStart={(event, params: { nodeId: string | null; handleId: string | null; handleType: "source" | "target" | null; }) => {
+                        setNodeStartingConnection(params);
+                        isConnectionCreated.current = false;
+                    }}                    
+                    onConnectEnd={(event) => {    
+                        const eventAsMouseEvent = event as unknown as React.MouseEvent;
+                        // TODO: The type for event should be different, but there are probably some typing issues 
+                        // TODO: I am not sure about the typing here, but the idea of checking if we are click on canvas comes from here 
+                        //       https://reactflow.dev/examples/nodes/add-node-on-edge-drop
+                        const target = event.target as unknown as {classList: DOMTokenList};        
+                        const isTargetPane = target.classList.contains("react-flow__pane");                          
+                        setCanvasMenuXYPosition({
+                            x: eventAsMouseEvent.clientX,
+                            y: eventAsMouseEvent.clientY,
+                        });
+                        if (!isConnectionCreated.current && isTargetPane) {
+                            openCanvasMenuOptions();           
+                        }
+                    }}         
                 >
                     <Controls />
                     <MiniMap
@@ -522,11 +581,11 @@ export const Visualization = () => {
                     />
                     <Panel position="top-right">
                         <div className="flex flex-row-reverse">
-                            <div className="cursor-help" title="add class to canvas by clicking and holding `alt`">
+                            <div className="cursor-help" title="Add class to canvas by clicking and holding `alt`">
                                 ℹ
                             </div>
                             <div className="mx-1">
-                                <button title="download svg of the canvas" onClick={exportCanvasToSvg}>
+                                <button title="Download svg of the canvas" onClick={exportCanvasToSvg}>
                                     🖼
                                 </button>
                             </div>
@@ -534,6 +593,7 @@ export const Visualization = () => {
                     </Panel>
                     <Background gap={12} size={1} />
                 </ReactFlow>
+                {isCanvasMenuOptionsOpen && <CanvasMenuOptions openSelectClassDialog={() => openSelectClassDialog(onSelectClassesCallback)} openCreateClassDialogHandler={openCreateClassDialogOnCanvasHandler} />}                                
             </div>
         </>
     );

@@ -73,6 +73,8 @@ const translations: Record<string, string | Function> = {
   "create-connection-dialog.source": "Source",
   "create-connection-dialog.target": "Target",
   //
+  "select-classes-dialog.select-classes": "Select classes",
+  //
   "model-service.model-label-from-id": (id: string) => `Unnamed model with id '${id}'`,
   //
   "create-profile-dialog.label": (profile: string) => `Create a profile ${profile ? "of '" + profile + "'" : ""}`,

@@ -20,8 +20,10 @@ export const useCreateClassDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
     const [model, setModel] = useState<InMemorySemanticModel | null>(null);
     const [position, setPosition] = useState<{ x: number; y: number } | undefined>(undefined);
+    const [onCreateClassCallback, setOnCreateClassCallback] = useState<((newEntityID: string) => void) | undefined>(undefined);
 
-    const localOpen = (model?: InMemorySemanticModel, position?: { x: number; y: number }) => {
+    const localOpen = (onCreateClassCallback?: (newEntityID: string) => void, model?: InMemorySemanticModel, position?: { x: number; y: number }) => {
+        setOnCreateClassCallback(onCreateClassCallback);
         setModel(model ?? null);
         setPosition(position);
         open();
@@ -59,9 +61,15 @@ export const useCreateClassDialog = () => {
             } else {
                 logger.warn("We have not recieved the id of newly created class.", newClass);
             }
+            
             close();
+            
+            if(onCreateClassCallback !== undefined) {
+                if(newClass.id !== undefined) {
+                    onCreateClassCallback(newClass.id);
+                }
+            }
         };
-
         return (
             <BaseDialog heading={t("create-class-dialog.create-class")}>
                 <div>

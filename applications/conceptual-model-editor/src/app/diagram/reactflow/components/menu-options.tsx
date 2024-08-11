@@ -1,12 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 export const useMenuOptions = () => {
     const [isMenuOptionsOpen, setIsMenuOptionsOpen] = useState(false);
     const menuOptionsRef = useRef<HTMLDivElement | null>(null);
 
-    const close = (e: React.MouseEvent | React.FocusEvent) => {
+    const close = (e?: React.MouseEvent | React.FocusEvent) => {
         setIsMenuOptionsOpen(false);
-        e.stopPropagation();
+        if (e !== undefined) {
+            e.stopPropagation();
+        }
     };
 
     const open = () => {
@@ -43,13 +45,54 @@ export const useMenuOptions = () => {
         deleteHandler?: () => void;
         position?: string;
     }) => {
-        const { openDetailHandler, createProfileHandler, modifyHandler, removeFromViewHandler, deleteHandler } = props;
+        const { openDetailHandler, createProfileHandler, modifyHandler, removeFromViewHandler, deleteHandler, position } = props;
+        // You have to actually define the type here explictly, typescript can't interfere the type correctly
+        const handlersWithTexts: Array<[(() => void) | undefined, string]> = [      
+            [openDetailHandler, "ℹ Detail"],
+            [modifyHandler, "✏ Modify"],
+            [undefined, "HorizontalSeparator"],
+            [createProfileHandler, "🧲 Create profile"],            
+            [undefined, "HorizontalSeparator"],
+            [removeFromViewHandler, "🕶 Remove from view"],
+            [deleteHandler, "🗑 Delete"],
+        ];
+        return MenuOptionsGeneral({handlersWithTexts, positionTailwind: position});        
+    };    
+
+    /**
+     * 
+     * @param props is an object with following properties:
+     * - handlersWithTexts is an array of tuples. The first property specifies the handler called on click and the second one the name. 
+     * Special case is if the handler is undefined and the name is "HorizontalSeparator".
+     * - positionTailwind specifies the position in tailwind notation.
+     * - positionCSS specifies the position in CSS notation. If both the tailwind and CSS positions are specified, the behavior is undefined.
+     * @returns
+     */
+    const MenuOptionsGeneral = (props: {
+        handlersWithTexts: Array<[(() => void) | undefined, string]>;
+        positionTailwind?: string;
+        positionCSS?: object;       // TODO: It might be possible to specify better type
+    }) => {        
+        const buttonsToRender = props.handlersWithTexts.map(e => {
+            const [handler, text] = e;
+            return ((text === "HorizontalSeparator" && handler === undefined) ? (<HorizontalSeparator />) :
+                (handler === undefined) ? (<></>) : (<MenuButton text={text} onClick={handler} />));                               
+        });              
+        
+        
+        let style: React.CSSProperties = { pointerEvents: "all" };
+        if (props.positionCSS !== undefined) {
+            style = { 
+                ...style, 
+                ...props.positionCSS
+            };
+        }
         return (
             <div
                 ref={menuOptionsRef}
                 tabIndex={-1}
-                style={{ pointerEvents: "all" }}
-                className={`flex flex-col bg-white border-2 border-slate-400 border-solid [&>*]:px-5 [&>*]:text-left ${props.position ? props.position : ""}`}
+                style={style}
+                className={`flex flex-col bg-white border-2 border-slate-400 border-solid [&>*]:px-5 [&>*]:text-left ${props.positionTailwind ? props.positionTailwind : ""}`}                
                 onBlur={(event) => {
                     if (event.relatedTarget?.id.startsWith("button-menu-options-")) {
                         return;
@@ -57,26 +100,19 @@ export const useMenuOptions = () => {
                     close(event);
                 }}
             >
-                <MenuButton text="ℹ Detail" onClick={openDetailHandler} />
-                {modifyHandler === undefined ? null :
-                    <MenuButton text="✏ Modify" onClick={modifyHandler} />}
-                <HorizontalSeparator />
-                {createProfileHandler === undefined ? null : <>
-                    <MenuButton text="🧲 Create profile" onClick={createProfileHandler} />
-                    <HorizontalSeparator />
-                </>}
-                {removeFromViewHandler === undefined ? null :
-                    <MenuButton text="🕶 Remove from view" onClick={removeFromViewHandler} />}
-                {deleteHandler === undefined ? null :
-                    <MenuButton text="🗑 Delete" onClick={deleteHandler} />}
+                {
+                    buttonsToRender
+                }                
             </div>
         );
     };
 
     return {
         MenuOptions,
+        MenuOptionsGeneral,
         isMenuOptionsOpen,
         openMenuOptions: open,
+        closeMenuOptions: close,
     };
 };
 

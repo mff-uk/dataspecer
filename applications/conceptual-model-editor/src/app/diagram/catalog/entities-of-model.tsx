@@ -130,7 +130,7 @@ export const EntitiesOfModel = (props: {
     };
 
     const handleAddConcept = (model: InMemorySemanticModel) => {
-        openCreateClassDialog(model);
+        openCreateClassDialog(undefined, model);
     };
 
     const handleAddEntityToActiveView = (entityId: string) => {
