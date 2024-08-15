@@ -245,6 +245,15 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
         URL: string,
     }[]> = {};
 
+    const langs = ["cs", "en"];
+    const writeFile = async (path: string, data: string) => {
+        for (const lang of langs) {
+            const file = streamDictionary.writePath(`${lang}/${path}`);
+            await file.write(data);
+            await file.close();
+        }
+    }
+
     const dsvMetadata: any = {
         "@id": "." + queryParams,
         "@type": ["http://purl.org/dc/terms/Standard", "http://www.w3.org/2002/07/owl#Ontology"],
@@ -262,9 +271,7 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
     // Todo: base iri and iri itself should be part of specification metadata
     const owl = await generateLightweightOwl(semanticModel, models[0].baseIri ?? "", models[0]?.baseIri ?? "");
     if (owl) {
-        const owlFile = streamDictionary.writePath("model.owl.ttl");
-        await owlFile.write(owl);
-        await owlFile.close();
+        await writeFile("model.owl.ttl", owl);
         externalArtifacts["owl-vocabulary"] = [{type: "model.owl.ttl", URL: "./model.owl.ttl" + queryParams}];
 
         dsvMetadata["https://w3id.org/dsv#artefact"].push({
@@ -281,9 +288,7 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
     // DSV
     const dsv = await generateDsv(models);
     if (dsv) {
-        const dsvFile = streamDictionary.writePath("dsv.ttl");
-        await dsvFile.write(dsv);
-        await dsvFile.close();
+        await writeFile("dsv.ttl", dsv);
         externalArtifacts["dsv-profile"] = [{type: "dsv.ttl", URL: "./dsv.ttl" + queryParams}];
 
         dsvMetadata["https://w3id.org/dsv#artefact"].push({
@@ -304,9 +309,7 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
         const svg = svgModel ? (await svgModel.getJson()).svg as string : null;
 
         if (svg) {
-            const svgFile = streamDictionary.writePath(`${visualModel.iri}.svg`);
-            await svgFile.write(svg);
-            await svgFile.close();
+            await writeFile(`${visualModel.iri}.svg`, svg);
             externalArtifacts["svg"] = [...(externalArtifacts["svg"] ?? []), {type: "svg", URL: `./${visualModel.iri}.svg` + queryParams}];
         }
     }
@@ -321,13 +324,9 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
             "@id": "http://www.w3.org/ns/dx/prof/role/specification"
         }],
     });
-    const documentation = streamDictionary.writePath("index.html");
-    await documentation.write(await getDocumentationData(packageIri, models, {externalArtifacts, dsv: dsvMetadata}));
-    await documentation.close();
 
-    const langs = ["cs", "en"];
     for (const lang of langs) {
-        const documentation = streamDictionary.writePath(`index.${lang}.html`);
+        const documentation = streamDictionary.writePath(`${lang}/index.html`);
         await documentation.write(await getDocumentationData(packageIri, models, {externalArtifacts, dsv: dsvMetadata, language: lang}));
         await documentation.close();
     }
