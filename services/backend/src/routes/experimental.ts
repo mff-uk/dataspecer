@@ -255,7 +255,7 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
     }
 
     const dsvMetadata: any = {
-        "@id": "." + queryParams,
+        "@id": queryParams,
         "@type": ["http://purl.org/dc/terms/Standard", "http://www.w3.org/2002/07/owl#Ontology"],
         "http://purl.org/dc/terms/title":
             Object.entries(resource.userMetadata?.label ?? {}).map(([lang, value]) => (
@@ -318,7 +318,7 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
     dsvMetadata["https://w3id.org/dsv#artefact"].push({
         "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
         "http://www.w3.org/ns/dx/prof/hasArtifact": [{
-            "@id": "." + queryParams,
+            "@id": queryParams,
         }],
         "http://www.w3.org/ns/dx/prof/hasRole": [{
             "@id": "http://www.w3.org/ns/dx/prof/role/specification"
