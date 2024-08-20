@@ -7,14 +7,15 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { useEffect, useState } from 'react';
 import { <%= it.list_capability_app_layer %> } from <%~ it.list_app_layer_path %>;
+import { <%= it.instance_capability_options %> } from <%~ it.instance_capability_options_path %>;
 
 export default function <%= it.presentation_layer_component_name %>({ aggregateName }: { aggregateName: string }) {
 
     const [objectsList, setObjectsList] = useState(undefined as unknown as object[]);
     const [loadingStatus, setLoadingStatus] = useState<boolean>(true);
+    const hasCreateCapability = false;
 
     const stringify = (objectKey) => {
-        //console.log(objectKey)
         return typeof objectKey == 'object'
             ? Object.keys(objectKey).filter(key => !["$id", "$type"].includes(key)).map(k => stringify(objectKey[k])).join(" || ")
             : objectKey.toString();
@@ -28,76 +29,98 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
     }
 
     useEffect(() => {
-        if (!objectsList) {
-            <%= it.list_capability_app_layer %>.runCapability(aggregateName)
-                .then(result => {
-                    if (!result || !result.entities || result.entities.length === 0) {
-                        console.error("No objects available");
-                    } else {
-                        console.log(`Found ${result.entities.length} corresponding objects`)
-                    }
-                    const results = result.entities.map(res => res.raw);
+        const fetchInstancesList = async () => {
+            if (!objectsList) {
+                const listResult = await <%= it.list_capability_app_layer %>.runCapability(aggregateName);
 
-                    setLoadingStatus(false);
-                    setObjectsList(results);
-                })
+                if (!listResult ||
+                    !listResult.entities ||
+                    listResult.entities.length === 0) {
+
+                    console.error("No objects available");
+                } else {
+                    console.log(`Found ${listResult.entities.length} corresponding objects`);
+                }
+
+                const instances = listResult.entities.map(res => res.raw);
+                setLoadingStatus(false);
+                setObjectsList(instances);
+            }
         }
+
+        fetchInstancesList();
     }, [loadingStatus, aggregateName, objectsList]);
 
     return (
-        loadingStatus
-            ?
-            (<div>Loading results</div>)
-            : (
-                <TableContainer>
-                    <Table sx={{ minWidth: 650 }} aria-label="simple table"></Table>
-                    {objectsList &&
-                        <React.Fragment>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell align="right">
-                                        <strong>Index</strong>
-                                    </TableCell>
-                                    {objectsList.length > 0
-                                        ? Object
-                                            .keys(excludeKey(objectsList[0], ["$id", "$type"]))
-                                            .map((key, ix) => {
-                                                //console.log("KEY: ", key);
-                                                return <TableCell key={ix} align="right">
-                                                    <strong>{key}</strong>
-                                                </TableCell>
-                                            })
-                                        : (<TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                            <TableCell align="right">No corresponding objects found.</TableCell>
-                                        </TableRow>)
-                                    }
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {objectsList.length > 0 &&
-                                    objectsList.map((obj, idx) =>
-                                        <TableRow
-                                            key={idx}
-                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                            <TableCell align="right">
-                                                {idx + 1}
-                                            </TableCell>
-                                            {Object
-                                                .keys(excludeKey(obj, ["$id", "$type"]))
-                                                .map((key, ix) => {
-                                                    return <TableCell key={ix} align="right">
-                                                        {stringify(obj[key])}
-                                                    </TableCell>
-                                                })
-                                            }
-                                        </TableRow>
-                                    )
-                                }
-                            </TableBody>
-                        </React.Fragment>
-                    }
-                </TableContainer>
-            )
 
+        <>
+            {
+                hasCreateCapability && <div>
+                    <button onClick={() => alert("Creating new instance")}>Create New</button>
+                </div>
+            }
+            {
+                loadingStatus
+                ?
+                (<div>Loading results</div>)
+                : (
+                    <TableContainer>
+                        <Table sx={{ minWidth: 650 }} aria-label="simple table"></Table>
+                        {objectsList &&
+                            <React.Fragment>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell align="right">
+                                            <strong>Index</strong>
+                                        </TableCell>
+                                        {objectsList.length > 0
+                                            ? Object
+                                                .keys(excludeKey(objectsList[0], ["$id", "$type"]))
+                                                .map((key, ix) =>
+                                                    <TableCell key={ix} align="right">
+                                                        <strong>{key}</strong>
+                                                    </TableCell>
+                                                )
+                                            : (<TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                                <TableCell align="right">No corresponding objects found.</TableCell>
+                                            </TableRow>)
+                                        }
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {objectsList.length > 0 &&
+                                        objectsList.map((obj, idx) =>
+                                            <TableRow
+                                                key={idx}
+                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                                <TableCell align="right">
+                                                    {idx + 1}
+                                                </TableCell>
+                                                {Object
+                                                    .keys(excludeKey(obj, ["$id", "$type"]))
+                                                    .map((key, ix) =>
+                                                        <TableCell key={ix} align="right">
+                                                            {stringify(obj[key])}
+                                                        </TableCell>
+                                                    )
+                                                }
+                                                <TableCell>
+                                                    <ListItemCapabilityOptions
+                                                        aggregateName={aggregateName}
+                                                        instanceId={obj["$id"]}
+                                                        optionNames={["Detail", "Edit", "Delete"].sort()} // TODO: iterate through supported application graph edges
+                                                    />
+                                                </TableCell>
+                                            </TableRow>
+                                        )
+                                    }
+                                </TableBody>
+                            </React.Fragment>
+                        }
+                    </TableContainer>
+                )
+
+            }
+        </>
     )
 }

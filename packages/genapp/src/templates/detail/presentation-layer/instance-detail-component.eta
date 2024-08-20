@@ -1,37 +1,89 @@
 import { useEffect, useState } from 'react';
 import { <%= it.detail_capability_app_layer %> } from <%~ it.detail_app_layer_path %>;
+// TODO: line below might need proper generator
 import { AggregateInstance } from '../../interfaces/capability-result';
+import { useSearchParams } from 'react-router-dom';
+import Form from '@rjsf/mui';
+import validator from '@rjsf/validator-ajv8';
+// TODO: use proper useJsonSchema hook import
+import useJsonSchema from '../create-instance/useJsonSchema';
+import <%= it.useJsonSchema_hook %> from <%~ it.useJsonSchema_hook_path %>;
 
 export default function <%= it.aggregate_name %>InstanceDetail() {
 
     const [instance, setInstance] = useState<AggregateInstance>();
     const [loadingStatus, setLoadingStatus] = useState<boolean>(true);
+    const [searchParams, _] = useSearchParams();
+    const [instanceId, setInstanceId] = useState<string>("");
+    const { schema } = useJsonSchema({
+        specificationIri: "",
+        aggregateName: "<%= it.aggregate_name %>",
+        isUpdate: false
+    });
+    const debugView = false;
 
     useEffect(() => {
-        if (!instance) {
-            <%= it.detail_capability_app_layer %>.runCapability("https://data.gov.cz/zdroj/datové-sady/00006599/841711772")
-                .then(result => {
-                    if (!result || !result.instance) {
-                        console.error("No instance detail available");
-                        return;
-                    }
 
+        const fetchInstanceDetail = async () => {
+            if (!instance) {
+                const id = searchParams.get("instanceId");
+
+                if (!id) {
                     setLoadingStatus(false);
-                    setInstance(result.instance);
-                })
+                    return;
+                }
+
+                const result = await <%= it.detail_capability_app_layer %>.runCapability(id);
+
+                if (!result || !result.instance) {
+                    console.error("No instance detail available");
+                    return;
+                }
+
+                setLoadingStatus(false);
+                result.instance.raw["id"] = result.instance.raw["$id"]; // TODO: perform based on data layer / schema
+                setInstance(result.instance);
+                setInstaceId(id);
+            }
         }
-    }, [loadingStatus, instance]);
+
+        fetchInstanceDetail();
+    }, [loadingStatus, instance, searchParams]);
 
     return (
         <>
             <h2>Detail of "<%= it.aggregate_name %>" instance</h2>
-            <div>
-                {
-                loadingStatus
-                    ? "Hello from Instance detail component"
-                    : (instance ? JSON.stringify(instance) : "No detail")
-                }
-            </div>
+            {
+                // TODO: Generate a button below only if described within application graph
+                // get list of supported out detail edges
+                ["Update", "Delete", "Back to list"].map((x, idx) => {
+                    return <button key={idx}>{x}</button>
+                })
+            }
+            {
+                debugView &&
+                <div>
+                    {
+                        !loadingStatus && (
+                            instance
+                                ? JSON.stringify(instance)
+                                : "No detail"
+                        )
+                    }
+                </div>
+            }
+            {
+                !loadingStatus && instance &&
+                <Form
+                    id={`<%= it.aggregate_name %>__${instanceId}`}
+                    schema={schema}
+                    validator={validator}
+                    uiSchema={{}}
+                    formData={instance.raw}
+                    showErrorList="top"
+                    readonly={true}
+                />
+            }
         </>
     )
 }

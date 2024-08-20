@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -14,6 +15,13 @@ import MenuIcon from '@mui/icons-material/Menu';
 const drawerWidth = 240;
 
 export const Sidebar = () => {
+
+    const navigate = useNavigate();
+
+    const handleClick = (destination: string) => {
+        navigate(destination);
+    }
+
     return (
         <>
             <CssBaseline />
@@ -28,7 +36,7 @@ export const Sidebar = () => {
                 <Toolbar />
                 <Box sx={{ overflow: 'auto' }}>
                     <ListItem disablePadding>
-                        <ListItemButton onClick={() => alert(`Redirect to Menu`)}>
+                        <ListItemButton onClick={() => handleClick("/") }>
                             <ListItemIcon>
                                 <MenuIcon />
                             </ListItemIcon>
@@ -38,7 +46,7 @@ export const Sidebar = () => {
                     <List>
                         {[<%~ Object.keys(it.aggregates_with_list).map(aggregateName => `"${aggregateName}"`) %>].map((text, index) => (
                             <ListItem key={text} disablePadding>
-                                <ListItemButton onClick={() => alert(`Redirect to `)}>
+                                <ListItemButton onClick={() => handleClick(`/${text.toLowerCase()}/list`) }>
                                     <ListItemIcon>
                                         <AccountTree />
                                     </ListItemIcon>
@@ -48,18 +56,6 @@ export const Sidebar = () => {
                         ))}
                     </List>
                     <Divider />
-                    { /* <List>
-                        {['All mail', 'Trash', 'Spam'].map((text, index) => (
-                            <ListItem key={text} disablePadding>
-                                <ListItemButton>
-                                    <ListItemIcon>
-                                        {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                                    </ListItemIcon>
-                                    <ListItemText primary={text} />
-                                </ListItemButton>
-                            </ListItem>
-                        ))}
-                    </List> */}
                 </Box>
             </Drawer>
         </>

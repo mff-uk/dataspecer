@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import Form from '@rjsf/mui';
-import { RJSFSchema } from '@rjsf/utils';
 import validator from '@rjsf/validator-ajv8';
+import <%= it.useJsonSchema_hook %> from <%~ it.useJsonSchema_hook_path %>;
 
 const CreateDatasetInstance = () => {
 
+    const log = (type) => console.log.bind(console, type);
     const [isUpdateMode, setUpdateMode] = useState<boolean>(false);
     const [formData, setFormData] = useState<RJSFSchema>({
         "firstName": "Chuck",
@@ -215,7 +216,6 @@ const CreateDatasetInstance = () => {
     //         }
     //     }
     // }
-    const log = (type) => console.log.bind(console, type);
 
     //const data = "";
     // const [editorState, setEditorState] = useState(() =>

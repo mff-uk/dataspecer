@@ -16,7 +16,10 @@ export class DetailComponentTemplateProcessor extends PresentationLayerTemplateG
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
                     to: dependencies.appLogicArtifact.filePath
                 },
-                detail_capability_app_layer: dependencies.appLogicArtifact.exportedObjectName
+                detail_capability_app_layer: dependencies.appLogicArtifact.exportedObjectName,
+                useJsonSchema_hook: undefined,
+                useJsonSchema_hook_path: undefined,
+                supported_out_detail_transitions: undefined
             }
         }
 

@@ -22,7 +22,13 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
                 list_app_layer_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
                     to: dependencies.appLogicArtifact.filePath
-                }
+                },
+                instance_capability_options: undefined,
+                instance_capability_options_path: {
+                    from: undefined,
+                    to: undefined
+                },
+                supported_out_list_transitions: undefined
             }
         };
 
