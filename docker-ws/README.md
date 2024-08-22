@@ -18,10 +18,12 @@ services:
   dataspecer:
     image: ghcr.io/dataspecer/ws
     environment:
-      BASE_URL: http://localhost/subdomain
+      BASE_URL: http://localhost
       USER: 1000
+    ports:
+      - 80:80 # or 8080:80 for example
     volumes:
-      - ./database:/usr/src/app/database
+      - ./data:/usr/src/app/database
 ```
 
 ## Build instructions
