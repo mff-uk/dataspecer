@@ -25,7 +25,7 @@ export interface Configuration {
 
 const defaultConfiguration = {
     payloadSizeLimit: "64mb",
-    v1RootIri: "http://dataspecer.com/packages/v1",
+    v1RootIri: "http://dataspecer.com/packages/local-root",
     v1RootMetadata: {
         label: {
             cs: "Datové specifikace z core@v.1",

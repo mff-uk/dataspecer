@@ -6,3 +6,5 @@ utils
 LICENSE
 README.md
 !.npmrc
+services/backend/database
+**/dist

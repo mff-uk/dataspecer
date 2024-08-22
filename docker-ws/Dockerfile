@@ -57,4 +57,3 @@ COPY --from=builder /usr/src/app/.dist /usr/share/nginx/html-template
 EXPOSE 80
 HEALTHCHECK CMD ./docker-healthcheck.sh
 ENTRYPOINT ["./docker-entrypoint.sh"]
-CMD ["server"]
