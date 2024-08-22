@@ -32,6 +32,9 @@ let basename = new URL(configuration.host).pathname;
 if (basename.endsWith('/')) {
     basename = basename.slice(0, -1);
 }
+if (process.env.BASENAME_OVERRIDE !== undefined) {
+    basename = process.env.BASENAME_OVERRIDE;
+}
 
 // Run express
 
