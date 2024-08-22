@@ -1,13 +1,14 @@
 {
   "devDependencies": {
     "@types/react-dom": "^18.0.11",
-    "turbo": "^1.12.5"
+    "turbo": "^2.0.14"
   },
   "scripts": {
     "build": "turbo build",
     "test": "turbo test"
   },
   "name": "dataspecer",
+  "packageManager": "npm@10.8.2",
   "workspaces": [
     "packages/*",
     "services/*",

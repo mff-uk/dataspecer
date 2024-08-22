@@ -33,7 +33,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
     }
 
     async getPackage(packageId: string): Promise<Package> {
-        const result = await this.httpFetch(this.getPackageUrl(packageId).toString());
+        const result = await this.httpFetch(this.getPackageUrl(packageId));
         if (result.status === 404) {
             // @ts-ignore
             return null;
@@ -42,7 +42,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
     }
 
     async createPackage(parentPackageId: string, data: ResourceEditable): Promise<Package> {
-        const result = await this.httpFetch(this.getPackageUrl(parentPackageId, true).toString(), {
+        const result = await this.httpFetch(this.getPackageUrl(parentPackageId, true), {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -53,7 +53,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
     }
 
     async updatePackage(packageId: string, data: Partial<ResourceEditable>): Promise<Package> {
-        const result = await this.httpFetch(this.getPackageUrl(packageId).toString(), {
+        const result = await this.httpFetch(this.getPackageUrl(packageId), {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -64,13 +64,13 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
     }
 
     async deletePackage(packageId: string): Promise<void> {
-        await this.httpFetch(this.getPackageUrl(packageId).toString(), {
+        await this.httpFetch(this.getPackageUrl(packageId), {
             method: "DELETE",
         });
     }
 
     async deleteResource(iri: string): Promise<void> {
-        await this.httpFetch(this.getResourceUrl(iri).toString(), {
+        await this.httpFetch(this.getResourceUrl(iri), {
             method: "DELETE",
         });
     }
@@ -122,10 +122,10 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
             const iri = visualModel.getId();
             const name = modelSerialization.modelAlias ?? modelSerialization.alias;
 
-            const response = await this.httpFetch(this.getResourceUrl(iri).toString());
+            const response = await this.httpFetch(this.getResourceUrl(iri));
             const userMetadata = name ? { label: { en: name } } : {};
             if (response.status !== 200) {
-                const createdResponse = await this.httpFetch(this.getResourceUrl(packageId, true).toString(), {
+                const createdResponse = await this.httpFetch(this.getResourceUrl(packageId, true), {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -138,7 +138,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
                 });
                 responseStatuses.add(createdResponse.status);
             } else {
-                const updatedResponse = await this.httpFetch(this.getResourceUrl(iri).toString(), {
+                const updatedResponse = await this.httpFetch(this.getResourceUrl(iri), {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
@@ -150,7 +150,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
                 responseStatuses.add(updatedResponse.status);
             }
 
-            const updatedResponse = await this.httpFetch(this.getBlobUrl(iri).toString(), {
+            const updatedResponse = await this.httpFetch(this.getBlobUrl(iri), {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -186,9 +186,9 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
     }
 
     async createRemoteSemanticModel(packageId: string) {
-        const url = this.getPackageUrl(packageId);
-        url.pathname += "/semantic-models";
-        const result = await this.httpFetch(url.toString(), {
+        let url = this.backendUrl + "/resources/packages/semantic-models";
+        url += "?iri=" + encodeURIComponent(packageId);
+        const result = await this.httpFetch(url, {
             method: "POST",
         });
         const data = await result.json();
@@ -196,23 +196,23 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         return await createHttpSemanticModel(data, this.httpFetch);
     }
 
-    private getPackageUrl(packageId: string, asParent: boolean = false): URL {
-        const url = new URL(this.backendUrl + "/resources/packages");
-        url.searchParams.append(asParent ? "parentIri" : "iri", packageId);
+    private getPackageUrl(packageId: string, asParent: boolean = false): string {
+        let url = this.backendUrl + "/resources/packages";
+        url += "?" + (asParent ? "parentIri" : "iri") + "=" + encodeURIComponent(packageId);
         return url;
     }
 
-    private getResourceUrl(iri: string, asParent: boolean = false): URL {
-        const url = new URL(this.backendUrl + "/resources");
-        url.searchParams.append(asParent ? "parentIri" : "iri", iri);
+    private getResourceUrl(iri: string, asParent: boolean = false): string {
+        let url = this.backendUrl + "/resources";
+        url += "?" + (asParent ? "parentIri" : "iri") + "=" + encodeURIComponent(iri);
         return url;
     }
 
-    private getBlobUrl(iri: string, name?: string): URL {
-        const url = new URL(this.backendUrl + "/resources/blob");
-        url.searchParams.append("iri", iri);
+    private getBlobUrl(iri: string, name?: string): string {
+        let url = this.backendUrl + "/resources/blob";
+        url += "?" + "iri" + "=" + encodeURIComponent(iri);
         if (name) {
-            url.searchParams.append("name", name);
+            url += "&name=" + encodeURIComponent(name);
         }
         return url;
     }
@@ -323,11 +323,11 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
     }
 
     async copyRecursively(resourceToCopy: string, newParentResource: string, userMetadata: BaseResource["userMetadata"] = {}) {
-        const url = new URL(this.backendUrl + "/repository/copy-recursively");
-        url.searchParams.append("iri", resourceToCopy);
-        url.searchParams.append("parentIri", newParentResource);
+        let url = this.backendUrl + "/repository/copy-recursively";
+        url += "?" + "iri" + "=" + encodeURIComponent(resourceToCopy);
+        url += "&" + "parentIri" + "=" + encodeURIComponent(newParentResource);
 
-        const result = await this.httpFetch(url.toString(), {
+        const result = await this.httpFetch(url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

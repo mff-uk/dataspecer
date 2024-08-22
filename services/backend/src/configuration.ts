@@ -46,4 +46,12 @@ const defaultConfiguration = {
     },
 } as Partial<Configuration>
 
-export default ({...defaultConfiguration, ...configuration} as Configuration);
+const envConfiguration = {} as Partial<Configuration>;
+if (process.env.HOST) {
+    envConfiguration.host = process.env.HOST;
+}
+if (process.env.PORT) {
+    envConfiguration.port = Number(process.env.PORT);
+}
+
+export default ({...defaultConfiguration, ...configuration, ...envConfiguration} as Configuration);

@@ -21,4 +21,7 @@ module.exports = {
         filename: 'backend-bundle.js',
     },
     target: 'node',
+    externals: {
+        '../main.config': 'commonjs ../main.config.js'
+    }
 };
