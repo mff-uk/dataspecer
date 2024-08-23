@@ -54,9 +54,12 @@ export async function generateDocumentation(
       URL: string,
     }[]>,
     dsv: any | null,
+    prefixMap: Record<string, string>,
   },
   configuration: DocumentationGeneratorConfiguration,
 ): Promise<string> {
+  const localPrefixMap = {...PREFIX_MAP, ...inputModel.prefixMap};
+
   // Primary semantic model
   const semanticModel = {} as Entities
   for (const model of inputModel.models) {
@@ -132,14 +135,14 @@ export async function generateDocumentation(
     const suffix = iri.substring(last + 1);
 
     // todo - use prefixes from the model
-    if (Object.hasOwn(PREFIX_MAP, prefix)) {
+    if (Object.hasOwn(localPrefixMap, prefix)) {
       if (!data.usedPrefixes.find(p => p.iri === prefix)) {
         data.usedPrefixes.push({
           iri: prefix,
-          prefix: PREFIX_MAP[prefix]!,
+          prefix: localPrefixMap[prefix]!,
         });
       }
-      return PREFIX_MAP[prefix] + ":" + suffix;
+      return localPrefixMap[prefix] + ":" + suffix;
     }
 
     return iri;

@@ -88,6 +88,7 @@ async function getDocumentationData(packageId: string, models: ModelDescription[
     }[]>,
     dsv?: any,
     language?: string,
+    prefixMap?: Record<string, string>,
 } = {}): Promise<string> {
     const externalArtifacts = options.externalArtifacts ?? {};
 
@@ -101,7 +102,8 @@ async function getDocumentationData(packageId: string, models: ModelDescription[
         models,
         modelIri: packageId,
         externalArtifacts,
-        dsv: options.dsv
+        dsv: options.dsv,
+        prefixMap: options.prefixMap ?? {},
     };
 
     return await generateDocumentation(context, {...defaultConfiguration, template, language: options.language ?? "en"});
@@ -172,6 +174,8 @@ class SingleFileStreamDictionary {
 async function generateArtifacts(packageIri: string, streamDictionary: SingleFileStreamDictionary, queryParams: string = "") {
     const resource = (await resourceModel.getPackage(packageIri))!;
 
+    const prefixMap = {} as Record<string, string>;
+
     // Find all models recursively and store them with their metadata
     const models = [] as ModelDescription[];
     async function fillModels(packageIri: string, isRoot: boolean = false) {
@@ -182,6 +186,12 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
         const semanticModels = pckg.subResources.filter(r => r.types[0] === LOCAL_SEMANTIC_MODEL);
         for (const model of semanticModels) {
             const data = await (await resourceModel.getOrCreateResourceModelStore(model.iri)).getJson();
+
+            const modelName = model.userMetadata?.label?.en ?? model.userMetadata?.label?.cs;
+            if (modelName && modelName.length > 0 && modelName.match(/^[a-z]+$/)) {
+                prefixMap[data.baseIri] = modelName;
+            }
+
             models.push({
                 entities: absoluteIri(data.baseIri, data.entities),
                 isPrimary: isRoot,
@@ -327,7 +337,7 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
 
     for (const lang of langs) {
         const documentation = streamDictionary.writePath(`${lang}/index.html`);
-        await documentation.write(await getDocumentationData(packageIri, models, {externalArtifacts, dsv: dsvMetadata, language: lang}));
+        await documentation.write(await getDocumentationData(packageIri, models, {externalArtifacts, dsv: dsvMetadata, language: lang, prefixMap}));
         await documentation.close();
     }
 }
