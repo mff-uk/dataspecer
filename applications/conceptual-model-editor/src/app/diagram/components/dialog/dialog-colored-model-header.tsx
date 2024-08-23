@@ -9,6 +9,7 @@ import { getLanguagesForNamedThing } from "../../util/language-utils";
 import { t } from "../../application";
 import { getModelLabel } from "../../service/model-service";
 import { type SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
+import { ChangeEvent } from "react";
 
 export const DialogColoredModelHeader = (props: { activeModel: EntityModel | null; style?: string }) => {
     const { aggregatorView } = useModelGraphContext();
@@ -76,18 +77,28 @@ export const DialogColoredModelHeaderWithLanguageSelector = (props: {
 
 export const DialogColoredModelHeaderWithModelSelector = (props: {
     activeModel?: string;
-    onModelSelected: (mId: string) => void;
+    onModelSelected: (mId: string, model: InMemorySemanticModel) => void;
     style?: string;
 }) => {
     const { aggregatorView, models } = useModelGraphContext();
-    const { activeModel, onModelSelected, style } = props;
+    const { activeModel, style } = props;
 
     const availableModels = Array.from(models.values())
         .filter(model => model instanceof InMemorySemanticModel)
         .map(model => ({
             id: model.getId(),
             label: getModelLabel(model),
+            model: model as InMemorySemanticModel,
         }));
+
+    const onChange = (event: ChangeEvent<HTMLSelectElement>) => {
+        const identifier = event.target.value;
+        for (const modelWrapper of availableModels) {
+            if (modelWrapper.id === identifier) {
+                props.onModelSelected(identifier, modelWrapper.model);
+            }
+        }
+    };
 
     return (
         <div
@@ -99,7 +110,7 @@ export const DialogColoredModelHeaderWithModelSelector = (props: {
                     className="w-full"
                     name="models"
                     id="models"
-                    onChange={(e) => onModelSelected(e.target.value)}
+                    onChange={onChange}
                     defaultValue={activeModel}
                 >
                     {availableModels.map(item => (

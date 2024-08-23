@@ -87,6 +87,8 @@ async function getDocumentationData(packageId: string, models: ModelDescription[
         URL: string,
     }[]>,
     dsv?: any,
+    language?: string,
+    prefixMap?: Record<string, string>,
 } = {}): Promise<string> {
     const externalArtifacts = options.externalArtifacts ?? {};
 
@@ -100,10 +102,11 @@ async function getDocumentationData(packageId: string, models: ModelDescription[
         models,
         modelIri: packageId,
         externalArtifacts,
-        dsv: options.dsv
+        dsv: options.dsv,
+        prefixMap: options.prefixMap ?? {},
     };
 
-    return await generateDocumentation(context, {...defaultConfiguration, template});
+    return await generateDocumentation(context, {...defaultConfiguration, template, language: options.language ?? "en"});
 }
 
 export const getDocumentation = asyncHandler(async (request: express.Request, response: express.Response) => {
@@ -171,6 +174,8 @@ class SingleFileStreamDictionary {
 async function generateArtifacts(packageIri: string, streamDictionary: SingleFileStreamDictionary, queryParams: string = "") {
     const resource = (await resourceModel.getPackage(packageIri))!;
 
+    const prefixMap = {} as Record<string, string>;
+
     // Find all models recursively and store them with their metadata
     const models = [] as ModelDescription[];
     async function fillModels(packageIri: string, isRoot: boolean = false) {
@@ -181,6 +186,12 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
         const semanticModels = pckg.subResources.filter(r => r.types[0] === LOCAL_SEMANTIC_MODEL);
         for (const model of semanticModels) {
             const data = await (await resourceModel.getOrCreateResourceModelStore(model.iri)).getJson();
+
+            const modelName = model.userMetadata?.label?.en ?? model.userMetadata?.label?.cs;
+            if (modelName && modelName.length > 0 && modelName.match(/^[a-z]+$/)) {
+                prefixMap[data.baseIri] = modelName;
+            }
+
             models.push({
                 entities: absoluteIri(data.baseIri, data.entities),
                 isPrimary: isRoot,
@@ -244,8 +255,17 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
         URL: string,
     }[]> = {};
 
+    const langs = ["cs", "en"];
+    const writeFile = async (path: string, data: string) => {
+        for (const lang of langs) {
+            const file = streamDictionary.writePath(`${lang}/${path}`);
+            await file.write(data);
+            await file.close();
+        }
+    }
+
     const dsvMetadata: any = {
-        "@id": "." + queryParams,
+        "@id": queryParams,
         "@type": ["http://purl.org/dc/terms/Standard", "http://www.w3.org/2002/07/owl#Ontology"],
         "http://purl.org/dc/terms/title":
             Object.entries(resource.userMetadata?.label ?? {}).map(([lang, value]) => (
@@ -258,11 +278,10 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
     };
 
     // OWL
-    const owl = await generateLightweightOwl(semanticModel, models[0].baseIri ?? "", models[0]?.baseIri + "applicationProfileConceptualModel");
+    // Todo: base iri and iri itself should be part of specification metadata
+    const owl = await generateLightweightOwl(semanticModel, models[0].baseIri ?? "", models[0]?.baseIri ?? "");
     if (owl) {
-        const owlFile = streamDictionary.writePath("model.owl.ttl");
-        await owlFile.write(owl);
-        await owlFile.close();
+        await writeFile("model.owl.ttl", owl);
         externalArtifacts["owl-vocabulary"] = [{type: "model.owl.ttl", URL: "./model.owl.ttl" + queryParams}];
 
         dsvMetadata["https://w3id.org/dsv#artefact"].push({
@@ -279,9 +298,7 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
     // DSV
     const dsv = await generateDsv(models);
     if (dsv) {
-        const dsvFile = streamDictionary.writePath("dsv.ttl");
-        await dsvFile.write(dsv);
-        await dsvFile.close();
+        await writeFile("dsv.ttl", dsv);
         externalArtifacts["dsv-profile"] = [{type: "dsv.ttl", URL: "./dsv.ttl" + queryParams}];
 
         dsvMetadata["https://w3id.org/dsv#artefact"].push({
@@ -302,9 +319,7 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
         const svg = svgModel ? (await svgModel.getJson()).svg as string : null;
 
         if (svg) {
-            const svgFile = streamDictionary.writePath(`${visualModel.iri}.svg`);
-            await svgFile.write(svg);
-            await svgFile.close();
+            await writeFile(`${visualModel.iri}.svg`, svg);
             externalArtifacts["svg"] = [...(externalArtifacts["svg"] ?? []), {type: "svg", URL: `./${visualModel.iri}.svg` + queryParams}];
         }
     }
@@ -313,15 +328,18 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
     dsvMetadata["https://w3id.org/dsv#artefact"].push({
         "@type": ["http://www.w3.org/ns/dx/prof/ResourceDescriptor"],
         "http://www.w3.org/ns/dx/prof/hasArtifact": [{
-            "@id": "." + queryParams,
+            "@id": queryParams,
         }],
         "http://www.w3.org/ns/dx/prof/hasRole": [{
             "@id": "http://www.w3.org/ns/dx/prof/role/specification"
         }],
     });
-    const documentation = streamDictionary.writePath("index.html");
-    await documentation.write(await getDocumentationData(packageIri, models, {externalArtifacts, dsv: dsvMetadata}));
-    await documentation.close();
+
+    for (const lang of langs) {
+        const documentation = streamDictionary.writePath(`${lang}/index.html`);
+        await documentation.write(await getDocumentationData(packageIri, models, {externalArtifacts, dsv: dsvMetadata, language: lang, prefixMap}));
+        await documentation.close();
+    }
 }
 
 export const getZip = asyncHandler(async (request: express.Request, response: express.Response) => {

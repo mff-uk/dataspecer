@@ -13,7 +13,8 @@ export interface DocumentationGeneratorConfiguration {
 }
 
 function normalizeLabel(label: string) {
-  return label.replace(/ /g, "-").toLowerCase();
+  // We do not want to convert it to lower case because classes and relations may have identical name but different case as it is common convention in RDF.
+  return label.replace(/ /g, "-");
 }
 
 interface ModelDescription {
@@ -53,9 +54,12 @@ export async function generateDocumentation(
       URL: string,
     }[]>,
     dsv: any | null,
+    prefixMap: Record<string, string>,
   },
   configuration: DocumentationGeneratorConfiguration,
 ): Promise<string> {
+  const localPrefixMap = {...PREFIX_MAP, ...inputModel.prefixMap};
+
   // Primary semantic model
   const semanticModel = {} as Entities
   for (const model of inputModel.models) {
@@ -95,6 +99,15 @@ export async function generateDocumentation(
     },
 
     externalArtifacts: inputModel.externalArtifacts,
+
+    // List of used prefixes in the document.
+    usedPrefixes: [] as {
+      iri: string,
+      prefix: string,
+    }[],
+
+    // Lang
+    lang: configuration.language,
   };
 
 
@@ -106,7 +119,7 @@ export async function generateDocumentation(
   });
 
   /**
-   * Shortens IRIs by using prefixes.
+   * Shortens IRIs by using prefixes and remebers them for future use.
    */
   handlebars.registerHelper('prefixed', function(iri?: string) {
     if (!iri) {
@@ -122,8 +135,14 @@ export async function generateDocumentation(
     const suffix = iri.substring(last + 1);
 
     // todo - use prefixes from the model
-    if (Object.hasOwn(PREFIX_MAP, prefix)) {
-      return PREFIX_MAP[prefix] + ":" + suffix;
+    if (Object.hasOwn(localPrefixMap, prefix)) {
+      if (!data.usedPrefixes.find(p => p.iri === prefix)) {
+        data.usedPrefixes.push({
+          iri: prefix,
+          prefix: localPrefixMap[prefix]!,
+        });
+      }
+      return localPrefixMap[prefix] + ":" + suffix;
     }
 
     return iri;
@@ -324,6 +343,8 @@ export async function generateDocumentation(
   handlebars.registerHelper('helperMissing', function() {
     const options = arguments[arguments.length-1];
     const args = Array.prototype.slice.call(arguments, 0, arguments.length-1);
+    // @ts-ignore
+    this.args = args;
     if (definitions[options.name]) {
       // @ts-ignore
       return new Handlebars.SafeString(definitions[options.name]!(this));
@@ -382,6 +403,7 @@ export async function generateDocumentation(
   });
 
   const compiledTemplate = handlebars.compile(configuration.template);
+  await compiledTemplate(data);
   const result = await compiledTemplate(data);
   return result;
 }

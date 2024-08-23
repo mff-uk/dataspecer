@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
-import { ExpandModelButton } from "../buttons";
+import { ExpandModelButton } from "./expand-model";
 import { useModelGraphContext } from "../../context/model-context";
 import { tailwindColorToHex } from "~/app/utils/color-utils";
 import { getModelDetails } from "../../util/model-utils";

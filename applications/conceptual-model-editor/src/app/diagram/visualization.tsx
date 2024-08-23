@@ -16,7 +16,7 @@ import ReactFlow, {
     useNodesState,
     useReactFlow,
 } from "reactflow";
-import { useMemo, useCallback, useEffect, useState } from "react";
+import { useMemo, useCallback, useEffect, useState, useRef } from "react";
 import {
     type ClassCustomNodeDataType,
     ClassCustomNode,
@@ -77,16 +77,14 @@ export const Visualization = () => {
     const { setWarnings } = useWarningsContext();
 
     const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
+    const changedVisualModel = useRef<boolean>(true);
+
 
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const nodeTypes = useMemo(() => ({ classCustomNode: ClassCustomNode }), []);
     const edgeTypes = useMemo(() => ({ floating: SimpleFloatingEdge }), []);
 
-    // TODO: Remove the next few comments if no issues will be found within next few days/weeks. And also remove the onInit line in the return.
-    // I think that the wrapper using ReactflowInstance provider in page.tsx is enough, hopefully it doesn't break anything.
-    // The Old code:
-    //const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
     const reactFlowInstance = useReactFlow();
 
     // --- handlers --- --- ---
@@ -244,7 +242,7 @@ export const Visualization = () => {
                 models: localModels, // eslint-disable-line prefer-const
             } = getCurrentClassesRelationshipsGeneralizationsAndProfiles();
 
-            const getNode = (cls: SemanticModelClass | SemanticModelClassUsage, visualEntity: VisualEntity | null) => {
+            const createReactflowNode = (cls: SemanticModelClass | SemanticModelClassUsage, visualEntity: VisualEntity | null) => {
                 if (!visualEntity) {
                     return;
                 }
@@ -324,7 +322,7 @@ export const Visualization = () => {
                             isSemanticModelClass(aggregatedEntityOfAttributesNode) ||
                             isSemanticModelClassUsage(aggregatedEntityOfAttributesNode)
                         ) {
-                            const n = getNode(aggregatedEntityOfAttributesNode, visualEntityOfAttributesNode ?? null);
+                            const n = createReactflowNode(aggregatedEntityOfAttributesNode, visualEntityOfAttributesNode ?? null);
                             if (n && n != "hide-it!") {
                                 return [n.id, n];
                             }
@@ -354,10 +352,22 @@ export const Visualization = () => {
                 }
                 const visualEntity = ve ?? entities[id]?.visualEntity ?? null;
                 if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
-                    const n = getNode(entity, visualEntity);
+                    const n = createReactflowNode(entity, visualEntity);
                     if (n == "hide-it!") {
                         setNodes((prev) => prev.filter((n) => (n.data as ClassCustomNodeDataType).cls.id !== id));
                     } else if (n) {
+                        const reactflowNode = reactFlowInstance.getNode(entity.id);
+                        const isSameEntity = (reactflowNode?.data as ClassCustomNodeDataType)?.cls === entity;
+                        // We check if the node is already visible on canvas, if it is then we can skip it, reactflow already handled the changes for us.
+                        // You might be wondering why we have to check if the view (visual model) changed.
+                        // Right now the id of the semantic entity is used as the id for the reactflow node (Is it ok? Shouldn't we use the ID of visual entity?)
+                        // That means that if we change the view, the same reactflow nodes are still there even in different view, but they are not rendered unless explictly set again.
+                        // I use useRef to track the view change hopefully it is correct (I am not that familiar with react to be 100% sure).
+
+                        if(reactflowNode !== undefined && !changedVisualModel.current && isSameEntity) {
+                            continue;
+                        }
+
                         setNodes((prev) =>
                             prev.filter((n) => (n.data as ClassCustomNodeDataType).cls.id !== id).concat(n)
                         );
@@ -389,7 +399,7 @@ export const Visualization = () => {
                         }
 
                         const visEntityOfAttributesNode = entities[aggregatedEntityOfAttributesNode.id]?.visualEntity;
-                        const n = getNode(aggregatedEntityOfAttributesNode, visEntityOfAttributesNode ?? null);
+                        const n = createReactflowNode(aggregatedEntityOfAttributesNode, visEntityOfAttributesNode ?? null);
                         if (n && n != "hide-it!") {
                             setNodes((prev) =>
                                 prev.filter((n) => (n.data as ClassCustomNodeDataType).cls.id !== id).concat(n)
@@ -422,6 +432,7 @@ export const Visualization = () => {
                     );
                 }
             }
+            changedVisualModel.current = false;
 
             const rerenderAllEdges = () => {
                 const visualEntities = aggregatorView.getActiveVisualModel()?.getVisualEntities();
@@ -477,18 +488,31 @@ export const Visualization = () => {
         console.log("visualization: active visual model changed", activeVisualModel);
         setNodes([]);
         setEdges([]);
+        changedVisualModel.current = true;
         rerenderEverythingOnCanvas();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeVisualModel]);
 
-    const handleNodeChanges = (changes: NodeChange[]) => {
-        for (const change of changes) {
-            if (change.type == "position") {
-                change.positionAbsolute &&
-                    activeVisualModel?.updateEntity(change.id, { position: change.positionAbsolute });
-            }
+    const onNodeDragStop = (event: React.MouseEvent, node: Node, nodes: Node[]) => {
+        updateVisualEntityIfNecessary(node);
+    };
+    const onSelectionDragStop = (event: React.MouseEvent, nodes: Node[]) => {
+        for (const n of nodes) {
+            updateVisualEntityIfNecessary(n);
         }
     };
+
+    const updateVisualEntityIfNecessary = (node: Node) => {
+        if (!isAtSamePositionAsVisualEntity(node)) {
+            activeVisualModel?.updateEntity(node.id, { position: node.positionAbsolute });
+        }
+    };
+
+    const isAtSamePositionAsVisualEntity = (node: Node): boolean => {
+        const visEntityPos = activeVisualModel?.getVisualEntity(node.id)?.position;
+        return node.positionAbsolute?.x === visEntityPos?.x && node.positionAbsolute?.y === visEntityPos?.y;
+    };
+
 
     return (
         <>
@@ -502,7 +526,6 @@ export const Visualization = () => {
                     edgeTypes={edgeTypes}
                     onNodesChange={(changes: NodeChange[]) => {
                         onNodesChange(changes);
-                        handleNodeChanges(changes);
                     }}
                     onEdgesChange={(changes: EdgeChange[]) => {
                         onEdgesChange(changes);
@@ -511,9 +534,10 @@ export const Visualization = () => {
                     snapGrid={[20, 20]}
                     onDragOver={onDragOver}
                     onDrop={onDrop}
-                    snapToGrid={true}     
-                    // onInit={(reactFlowInstance) => setReactFlowInstance(reactFlowInstance)}               
+                    snapToGrid={true}
                     onPaneClick={onPaneClick}
+                    onNodeDragStop={onNodeDragStop}
+                    onSelectionDragStop={onSelectionDragStop}
                 >
                     <Controls />
                     <MiniMap

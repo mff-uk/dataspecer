@@ -1,4 +1,4 @@
-import { WarningRow } from "../components/catalog-rows/warning-row";
+import { WarningRow } from "./components/warning-row";
 import { useWarningsContext } from "../context/warnings-context";
 
 export const WarningCatalog = () => {
