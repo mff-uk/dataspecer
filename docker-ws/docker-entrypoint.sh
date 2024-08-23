@@ -28,9 +28,12 @@ else
 
   # Prepare frontend for nginx
   echo "🌍 Preparing frontend"
-  BASE_PATH=$(echo $NORMALIZED_URL | awk -F[/:] '{for (i=5; i<=NF; i++) printf "/%s", $i; print ""}')
+  BASE_PATH=$(echo $NORMALIZED_URL | awk -F[/] '{for (i=4; i<=NF; i++) printf "/%s", $i; print ""}')
   cp -r /usr/share/nginx/html-template/* /usr/share/nginx/html
   find /usr/share/nginx/html/ -type f -exec sed -i "s|/_BASE_PATH_DOCKER_REPLACE__|$BASE_PATH|g" {} \;
+
+  # Prepare nginx
+  sed "s|__BASE_PATH__|$BASE_PATH|g" /etc/nginx/nginx.conf-template > /etc/nginx/nginx.conf
 
   prepareDatabase
 

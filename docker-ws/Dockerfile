@@ -7,7 +7,6 @@ COPY packages/ packages/
 COPY .npmrc cloudflare.build.sh package-lock.json package.json turbo.json ./
 
 # Build app
-# --mount=type=cache,target=.turbo/cache \
 RUN --mount=type=cache,target=/root/.npm \
   DO_BUILD_BACKEND=true \
   BASE_PATH=/_BASE_PATH_DOCKER_REPLACE__ \
@@ -34,7 +33,8 @@ RUN --mount=type=cache,target=/root/.npm npm i -g prisma && \
   chmod -R a+rwx /usr/local/lib/node_modules/prisma
 
 # Configure nginx
-COPY ./docker-ws/nginx.conf /etc/nginx/nginx.conf
+COPY --chmod=777 ./docker-ws/nginx.conf /etc/nginx/nginx.conf-template
+RUN chmod -R a+rwx /etc/nginx/
 
 COPY --chmod=777 ./docker-ws/docker-entrypoint.sh ./docker-ws/docker-healthcheck.sh .
 
