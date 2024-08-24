@@ -232,7 +232,7 @@ export const Visualization = () => {
     // - second time for the visual information from the active visual model
     //   - change of visibility, position
     useEffect(() => {
-        const predicateForFilterToGetSemanticNodesDifferentFromID = (id: string) => {
+        const predicateForFilterToGetNodesDifferentFromID = (id: string) => {
             const predicate = (n: Node) => (isAlignmentNodeID(n.id) || (n.data as ClassCustomNodeDataType).cls.id !== id);
             return predicate;
         };
@@ -361,10 +361,10 @@ export const Visualization = () => {
                 if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
                     const n = getNode(entity, visualEntity);
                     if (n == "hide-it!") {
-                        setNodes((prev) => prev.filter(predicateForFilterToGetSemanticNodesDifferentFromID(id)));
+                        setNodes((prev) => prev.filter(predicateForFilterToGetNodesDifferentFromID(id)));
                     } else if (n) {
                         setNodes((prev) =>
-                            prev.filter(predicateForFilterToGetSemanticNodesDifferentFromID(id)).concat(n)
+                            prev.filter(predicateForFilterToGetNodesDifferentFromID(id)).concat(n)
                         );
                     }
                 } else if (isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity)) {
@@ -397,7 +397,7 @@ export const Visualization = () => {
                         const n = getNode(aggregatedEntityOfAttributesNode, visEntityOfAttributesNode ?? null);
                         if (n && n != "hide-it!") {
                             setNodes((prev) =>
-                                prev.filter(predicateForFilterToGetSemanticNodesDifferentFromID(id)).concat(n)
+                                prev.filter(predicateForFilterToGetNodesDifferentFromID(id)).concat(n)
                             );
                         }
                     } else {
