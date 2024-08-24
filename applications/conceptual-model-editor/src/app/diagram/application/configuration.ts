@@ -42,17 +42,46 @@ export interface Configuration {
    */
   hideRelationCardinality: boolean;
 
+
+  /**
+   * Value for reactflow's snap grid - x coordinate
+   */
+  xSnapGrid: number;
+  /**
+   * Value for reactflow's snap grid - y coordinate
+   */
+  ySnapGrid: number;
+
+  /**
+   * Specifies the distance after which should the alignment line disappear (should be multiple of xSnapGrid) - x coordinate
+   */
+  alignmentXSnapGrid: number;
+  /**
+   * Specifies the distance after which should the alignment line disappear (should be multiple of ySnapGrid) - y coordinate
+   */
+  alignmentYSnapGrid: number;
+
 }
 
 /**
  * Read comment for the Configuration interface above!
  */
 export const configuration = (): Configuration => {
+  const xSnapGrid = 10;
+  const ySnapGrid = 10;
+  const alignmentXSnapGrid = xSnapGrid * 2;
+  const alignmentYSnapGrid = ySnapGrid * 2;
+
   return {
     languagePreferences: ["en", "es", "de", "cs", "sk"],
     nameToIri: NamingConventions.lowerCamelCase,
     nameToClassIri: NamingConventions.upperCamelCase,
     hideIdentifier: true,
     hideRelationCardinality: true,
+
+    xSnapGrid,
+    ySnapGrid,
+    alignmentXSnapGrid,
+    alignmentYSnapGrid
   };
 };

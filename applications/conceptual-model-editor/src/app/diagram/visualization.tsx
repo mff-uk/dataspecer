@@ -10,13 +10,17 @@ import ReactFlow, {
     Controls,
     MiniMap,
     Panel,
+    Position,
+    Transform,
     getRectOfNodes,
     getTransformForBounds,
     useEdgesState,
     useNodesState,
     useReactFlow,
+    useStoreApi,
+    useViewport,
 } from "reactflow";
-import { useMemo, useCallback, useEffect, useState } from "react";
+import { useMemo, useCallback, useEffect, useState, SetStateAction, Dispatch } from "react";
 import {
     type ClassCustomNodeDataType,
     ClassCustomNode,
@@ -58,6 +62,12 @@ import { useDownload } from "./features/export/download";
 import { useDialogsContext } from "./context/dialogs-context";
 import { type Warning, useWarningsContext } from "./context/warnings-context";
 import { getRandomName } from "../utils/random-gen";
+import { createAlignmentEdges, isAlignmentNodeID, useAlignment } from "./reactflow/alignment";
+import { configuration } from "./application";
+
+
+const { xSnapGrid, ySnapGrid } = configuration();
+
 
 // Function that returns SVG for the current model.
 export let getSvgForCurrentView: () => Promise<{
@@ -83,10 +93,6 @@ export const Visualization = () => {
     const nodeTypes = useMemo(() => ({ classCustomNode: ClassCustomNode }), []);
     const edgeTypes = useMemo(() => ({ floating: SimpleFloatingEdge }), []);
 
-    // TODO: Remove the next few comments if no issues will be found within next few days/weeks. And also remove the onInit line in the return.
-    // I think that the wrapper using ReactflowInstance provider in page.tsx is enough, hopefully it doesn't break anything.
-    // The Old code:
-    //const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
     const reactFlowInstance = useReactFlow();
 
     // --- handlers --- --- ---
@@ -125,13 +131,7 @@ export const Visualization = () => {
                 return;
             }
 
-            // reactFlowInstance.project was renamed to reactFlowInstance.screenToFlowPosition
-            // and you don't need to subtract the reactFlowBounds.left/top anymore
-            // details: https://reactflow.dev/whats-new/2023-11-10
-            const position = reactFlowInstance?.screenToFlowPosition({
-                x: event.clientX,
-                y: event.clientY,
-            });
+            const position = getReactflowPositionFromMouseEvent(event);
 
             console.log("on drop handler", event, reactFlowInstance, event.dataTransfer, type, entityId, position);
             handleAddEntityToActiveView(entityId, position);
@@ -232,6 +232,11 @@ export const Visualization = () => {
     // - second time for the visual information from the active visual model
     //   - change of visibility, position
     useEffect(() => {
+        const predicateForFilterToGetSemanticNodesDifferentFromID = (id: string) => {
+            const predicate = (n: Node) => (isAlignmentNodeID(n.id) || (n.data as ClassCustomNodeDataType).cls.id !== id);
+            return predicate;
+        };
+
         const aggregatorCallback = (updated: AggregatedEntityWrapper[], removed: string[]) => {
             const localActiveVisualModel = aggregatorView.getActiveVisualModel();
             const entities = aggregatorView.getEntities();
@@ -356,10 +361,10 @@ export const Visualization = () => {
                 if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
                     const n = getNode(entity, visualEntity);
                     if (n == "hide-it!") {
-                        setNodes((prev) => prev.filter((n) => (n.data as ClassCustomNodeDataType).cls.id !== id));
+                        setNodes((prev) => prev.filter(predicateForFilterToGetSemanticNodesDifferentFromID(id)));
                     } else if (n) {
                         setNodes((prev) =>
-                            prev.filter((n) => (n.data as ClassCustomNodeDataType).cls.id !== id).concat(n)
+                            prev.filter(predicateForFilterToGetSemanticNodesDifferentFromID(id)).concat(n)
                         );
                     }
                 } else if (isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity)) {
@@ -392,7 +397,7 @@ export const Visualization = () => {
                         const n = getNode(aggregatedEntityOfAttributesNode, visEntityOfAttributesNode ?? null);
                         if (n && n != "hide-it!") {
                             setNodes((prev) =>
-                                prev.filter((n) => (n.data as ClassCustomNodeDataType).cls.id !== id).concat(n)
+                                prev.filter(predicateForFilterToGetSemanticNodesDifferentFromID(id)).concat(n)
                             );
                         }
                     } else {
@@ -424,6 +429,7 @@ export const Visualization = () => {
             }
 
             const rerenderAllEdges = () => {
+
                 const visualEntities = aggregatorView.getActiveVisualModel()?.getVisualEntities();
                 const edgesToRender = [
                     ...localRelationships,
@@ -442,7 +448,8 @@ export const Visualization = () => {
                             sourceModelId === undefined ? undefined : (localActiveVisualModel?.getColor(sourceModelId) ?? undefined)
                         );
                     })
-                    .filter((edge): edge is Edge => edge?.id !== undefined);
+                    .filter((edge): edge is Edge => edge?.id !== undefined)
+                    .concat(createAlignmentEdges());
                 setEdges(edgesToRender);
             };
             rerenderAllEdges();
@@ -490,9 +497,41 @@ export const Visualization = () => {
         }
     };
 
+
+    const getReactflowPositionFromMouseEvent = (event: React.MouseEvent) => {
+        // reactFlowInstance.project was renamed to reactFlowInstance.screenToFlowPosition
+        // and you don't need to subtract the reactFlowBounds.left/top anymore
+        // details: https://reactflow.dev/whats-new/2023-11-10
+         return reactFlowInstance?.screenToFlowPosition({
+            x: event.clientX,
+            y: event.clientY,
+        });
+    };
+
+    const { onReset, alignmentSetUpOnNodeDragStart,
+            alignmentOnNodeDrag, alignmentCleanUpOnNodeDragStop } = useAlignment({ reactFlowInstance, setNodes });
+
+    useEffect(() => {
+        onReset();
+    }, [reactFlowInstance, setNodes, activeVisualModel, aggregatorView]);
+
+
+
+    const onNodeDragStop = (event: React.MouseEvent, node: Node, nodes: Node[]) => {
+        activeVisualModel?.updateEntity(node.id, { position: node.positionAbsolute });
+    };
+    const onSelectionDragStop = (event: React.MouseEvent, nodes: Node[]) => {
+        for (const n of nodes) {
+            activeVisualModel?.updateEntity(n.id, { position: n.positionAbsolute });
+        }
+    };
+
+
+
     return (
         <>
             {isCreateConnectionDialogOpen && <CreateConnectionDialog />}
+
 
             <div className="h-[80vh] w-full md:h-full">
                 <ReactFlow
@@ -502,18 +541,29 @@ export const Visualization = () => {
                     edgeTypes={edgeTypes}
                     onNodesChange={(changes: NodeChange[]) => {
                         onNodesChange(changes);
-                        handleNodeChanges(changes);
                     }}
                     onEdgesChange={(changes: EdgeChange[]) => {
                         onEdgesChange(changes);
                     }}
+                    onNodeDragStop={(event: React.MouseEvent, node: Node, nodes: Node[]) => {
+                        alignmentCleanUpOnNodeDragStop(node);
+
+                        onNodeDragStop(event, node, nodes);
+                    }}
+                    onSelectionDragStop={onSelectionDragStop}
                     onConnect={onConnect}
-                    snapGrid={[20, 20]}
+                    snapGrid={[xSnapGrid, ySnapGrid]}
                     onDragOver={onDragOver}
                     onDrop={onDrop}
-                    snapToGrid={true}     
-                    // onInit={(reactFlowInstance) => setReactFlowInstance(reactFlowInstance)}               
+                    snapToGrid={true}
                     onPaneClick={onPaneClick}
+
+                    onNodeDragStart={(event: React.MouseEvent, node: Node, nodes: Node[]) => {
+                        alignmentSetUpOnNodeDragStart(event, node);
+                    }}
+                    onNodeDrag={(event: React.MouseEvent, node: Node, nodes: Node[]) => {
+                        alignmentOnNodeDrag(event, node);
+                    }}
                 >
                     <Controls />
                     <MiniMap
@@ -539,7 +589,17 @@ export const Visualization = () => {
     );
 };
 
+
+const isSemanticNode = (node: Node) => {
+    return !isAlignmentNodeID(node.id);
+};
+
 const miniMapNodeColor = (node: Node) => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
-    return tailwindColorToHex(node.data?.color);
+    if(isSemanticNode(node)) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
+        return tailwindColorToHex(node.data?.color);
+    }
+    else {
+        return "#FFFFFF";
+    }
 };

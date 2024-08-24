@@ -180,4 +180,15 @@ export function isVisualModel(what: object): what is VisualEntityModel {
 }
 
 const createId = () => (Math.random() + 1).toString(36).substring(7);
-const randomPosition = () => ({ x: Math.random() * 500, y: Math.random() * 500 });
+const randomPosition = () => {
+    const convertToMultipleOfN = (value: number, n: number) => {
+        const d = Math.floor(value / n);
+        return n * d;
+    };
+
+    // We don't have access to the cme configuration, so just expect that 20 is divisible by the snapgrid parameters).
+    // Alternative solution is to keep the visual entities position as they are, but repair them when we put them on canvas.
+    const convertToValidCoordinate = (coordinate: number) => convertToMultipleOfN(coordinate, 20);
+
+    return { x: convertToValidCoordinate(Math.random() * 500), y: convertToValidCoordinate(Math.random() * 500) };
+};
