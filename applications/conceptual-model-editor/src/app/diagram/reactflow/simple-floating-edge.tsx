@@ -166,7 +166,7 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
                 >
                     <EdgeNameLabel name={displayName} isProfile={isProfile} hasParents={parentNames} />
                     <EdgeUsageNotesLabel usageNotes={usageNotes} />
-                    {isMenuOptionsOpen && (
+                    {(
                         <MenuOptions
                             openDetailHandler={() => openDetailDialog(entity)}
                             createProfileHandler={isRelationshipOrUsage ? () => openProfileDialog(entity) : undefined}

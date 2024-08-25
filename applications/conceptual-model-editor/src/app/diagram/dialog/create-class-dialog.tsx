@@ -16,14 +16,25 @@ import { CancelButton } from "../components/dialog/buttons/cancel-button";
 import { useClassesContext } from "../context/classes-context";
 import { t, logger, configuration } from "../application/";
 
+type CreateClassCallback = (newEntityID: string) => void;
+
 export const useCreateClassDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
     const [model, setModel] = useState<InMemorySemanticModel | null>(null);
     const [position, setPosition] = useState<{ x: number; y: number } | undefined>(undefined);
-    const [onCreateClassCallback, setOnCreateClassCallback] = useState<((newEntityID: string) => void) | undefined>(undefined);
+    const [onCreateClassCallback, setOnCreateClassCallback] = useState<CreateClassCallback | null>(null);
 
-    const localOpen = (onCreateClassCallback?: (newEntityID: string) => void, model?: InMemorySemanticModel, position?: { x: number; y: number }) => {
+    const openDialog = (model?: InMemorySemanticModel, position?: { x: number; y: number }) => {
+        setOnCreateClassCallback(null);
+        openInternal(model, position);
+    };
+
+    const openDialogWithCallback = (onCreateClassCallback: CreateClassCallback, model?: InMemorySemanticModel, position?: { x: number; y: number }) => {
         setOnCreateClassCallback(onCreateClassCallback);
+        openInternal(model, position);
+    };
+
+    const openInternal = (model?: InMemorySemanticModel, position?: { x: number; y: number }) => {
         setModel(model ?? null);
         setPosition(position);
         open();
@@ -61,10 +72,10 @@ export const useCreateClassDialog = () => {
             } else {
                 logger.warn("We have not recieved the id of newly created class.", newClass);
             }
-            
+
             close();
-            
-            if(onCreateClassCallback !== undefined) {
+
+            if(onCreateClassCallback !== null) {
                 if(newClass.id !== undefined) {
                     onCreateClassCallback(newClass.id);
                 }
@@ -122,7 +133,8 @@ export const useCreateClassDialog = () => {
     return {
         isCreateClassDialogOpen: isOpen,
         closeCreateClassDialog: close,
-        openCreateClassDialog: localOpen,
+        openCreateClassDialog: openDialog,
+        openCreateClassDialogWithCallback: openDialogWithCallback,
         CreateClassDialog,
     };
 };

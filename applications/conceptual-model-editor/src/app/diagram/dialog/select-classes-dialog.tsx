@@ -1,117 +1,158 @@
 import { useCallback, useState } from "react";
 import { useModelGraphContext } from "../context/model-context";
-import { isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelClass, SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useBaseDialog } from "../components/base-dialog";
 import { useConfigurationContext } from "../context/configuration-context";
 import { CreateButton } from "../components/dialog/buttons/create-button";
 import { CancelButton } from "../components/dialog/buttons/cancel-button";
 import { t } from "../application/";
-import { isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelClassUsage, SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { type EntityDetailSupportedType, EntityProxy } from "../util/detail-utils";
 import { tailwindColorToHex } from "~/app/utils/color-utils";
+import { Entity, EntityModel } from "@dataspecer/core-v2";
+import { ModalDialog } from "./modal-dialog";
 
 const getDefaultColor = () => {
     return "#069420";
 };
 
-export const useSelectClassesDialog = () => {
-    const { isOpen, open, close, BaseDialog } = useBaseDialog();
-    const [onSelectConfirmCallback, setOnSelectConfirmCallback] = useState<((newEntityID: string[]) => void) | undefined>(undefined);
+export interface SelectClassesDialogProps {
+    isOpen: boolean;
+    close: () => void;
+    onSelectConfirmCallback?: (newEntityID: string[]) => void;
+}
 
-    const localOpen = (onSelectConfirmCallback?: (newEntityID: string[]) => void) => {
-        setOnSelectConfirmCallback(onSelectConfirmCallback);
-        open();
+export interface SelectClassesDialogContext {
+    open: (onSelectConfirmCallback?: (newEntityID: string[]) => void) => void;
+    props: SelectClassesDialogProps;
+}
+
+
+export const useSelectClassesDialog = (): SelectClassesDialogContext => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    const close = () => {
+        setIsOpen(false);
     };
 
-    // TODO: Maybe could be optimized later, when I get to know React better
-    function createChangedRecord<T>(record: Record<string, T>, id: string, newValue: T): Record<string, T> {
-        const newRecord = {...record};
-        newRecord[id] = newValue;
-        return newRecord;
-    }
+    const internalOpen = () => {
+        setIsOpen(true);
+    };
 
 
-    const SelectClassesDialog = () => {   
-        const [connectionsMap, setConnectionsMap] = useState<Record<string, boolean>>({});
+    const [onSelectConfirmCallback, setOnSelectConfirmCallback] = useState<((newEntityID: string[]) => void) | undefined>(undefined);
 
-        const { models, aggregatorView } = useModelGraphContext();
-        const activeVisualModel = aggregatorView.getActiveVisualModel();     
-
-        const { language: preferredLanguage } = useConfigurationContext();
-
-        const getPreferredName = useCallback((entity: EntityDetailSupportedType) => {
-            const { name } = EntityProxy(entity, preferredLanguage);
-            return name;
-        }, [preferredLanguage]);
-            
-        
-        // TODO: Probably could use better dependecies, but if it works it works
-        const getSelectedClasses = useCallback(() => {
-            const selectedClasses = Object.entries(connectionsMap).map(([k, v]) => {                
-                if(v) {
-                    return k;
-                }
-            });
-            if(selectedClasses === undefined) {
-                return [];
-            }
-            else {
-                return selectedClasses.filter(e => e !== undefined);
-            }
-        }, [connectionsMap]);
-
-        const onAcceptCallback = useCallback(() => {
-            if(onSelectConfirmCallback === undefined) {                
-                close();                
-            }
-            else {
-                onSelectConfirmCallback(getSelectedClasses());
-                close();
-            }            
-        }, [getSelectedClasses]);
-           
-
-        // TODO: Probably will have to show profiles later differently (like in catalog - using TreeLikeOffset)
-        return (
-            <BaseDialog heading={t("select-classes-dialog.select-classes")}>
-                <div>
-                    {/* We could also modify and then reuse <EntityCatalog />, it would be kind of nice, but it would take a lot of time */}
-                    <ul>
-                        {[...models.entries()].map(([modelId, model]) => 
-                            <div key={`select-classes-dialog-div-${model.getId()}`}>
-                                <h4 key={`select-classes-dialog-h4-${model.getId()}`}>Ⓜ {model.getAlias() ?? ""}</h4>
-                                {Object.values(model.getEntities()).map(e => {
-                                    if(isSemanticModelClass(e) || isSemanticModelClassUsage(e)) {
-                                        return <div key={`select-classes-dialog-div-${e.id}`} 
-                                                    style={{ backgroundColor: tailwindColorToHex(activeVisualModel?.getColor(modelId) ?? getDefaultColor()) }}>
-                                                    <li key={`select-classes-dialog-li-${e.id}`}><input type="checkbox" 
-                                                        onChange={(event) => setConnectionsMap(createChangedRecord(connectionsMap, e.id, event.target.checked))}
-                                                        // Note that if it is undefined we also set the value to false.
-                                                        // We do this because otherwise the order of the created associations is same as the chosen order and not the model order
-                                                        checked={connectionsMap[e.id] === undefined ? (connectionsMap[e.id] = false) : connectionsMap[e.id]}></input> {getPreferredName(e)}</li>
-                                            </div>;
-                                    }
-                                })
-                                }                        
-                            </div>
-                        )}
-                    </ul>
-                </div>    
-
-                {/* TODO: Maybe try to improve dialog in case when it contains scrollbar 
-                          For now just solved like this - https://stackoverflow.com/questions/67300514/how-to-make-button-static-and-fixed-at-bottom */}
-                <div className="flex flex-row justify-evenly font-semibold sticky bottom-0 w-full">
-                    <CreateButton onClick={onAcceptCallback} />
-                    <CancelButton onClick={close} />
-                </div>
-            </BaseDialog>
-        );
+    const open = (onSelectConfirmCallback?: (newEntityID: string[]) => void) => {
+        setOnSelectConfirmCallback(onSelectConfirmCallback);
+        internalOpen();
     };
 
     return {
-        isSelectClassDialogOpen: isOpen,
-        closeSelectClassDialog: close,
-        openSelectClassDialog: localOpen,
-        SelectClassesDialog,
+        open,
+        props: {
+            isOpen,
+            close,
+            onSelectConfirmCallback
+        },
     };
+};
+
+
+export const SelectClassesDialog = (selectClassesDialogProps: SelectClassesDialogProps) => {
+    const { isOpen, close, onSelectConfirmCallback } = selectClassesDialogProps;
+
+    const selectionMap: Record<string, boolean> = {};
+
+    const { models, aggregatorView } = useModelGraphContext();
+    const activeVisualModel = aggregatorView.getActiveVisualModel();
+
+    const { language: preferredLanguage } = useConfigurationContext();
+
+    const getPreferredName = useCallback((entity: EntityDetailSupportedType) => {
+        const { name } = EntityProxy(entity, preferredLanguage);
+        return name;
+    }, [preferredLanguage]);
+
+
+    if(!isOpen) {
+        return null;
+    }
+
+
+
+    const getSelectedClasses = (selectionMap: Record<string, boolean>) => {
+        const selectedClasses = Object.entries(selectionMap).map(([classID, isSelected]) => {
+            if(isSelected) {
+                return classID;
+            }
+        });
+        return selectedClasses.filter(selectedClass => selectedClass !== undefined);
+    };
+
+    const onAcceptCallback = () => {
+        if(onSelectConfirmCallback === undefined) {
+            close();
+        }
+        else {
+            onSelectConfirmCallback(getSelectedClasses(selectionMap));
+            close();
+        }
+    };
+
+    const getClassesAndClassUsages = (model: EntityModel) => {
+        return Object.values(model.getEntities()).filter((entity) => isSemanticModelClass(entity) || isSemanticModelClassUsage(entity));
+    };
+
+    const renderSelectionRow = (entity: SemanticModelClass | SemanticModelClassUsage, modelId: string) => {
+        // We set to default value (false), so that we can preserve the model order for the callback
+        selectionMap[entity.id] = false;
+
+        return <div key={`select-classes-dialog-div-${entity.id}`}
+                    style={{ backgroundColor: tailwindColorToHex(activeVisualModel?.getColor(modelId) ?? getDefaultColor()) }}>
+                    <li key={`select-classes-dialog-li-${entity.id}`}><input type="checkbox"
+                        onChange={(event) => selectionMap[entity.id] = event.target.checked}>
+                        </input> {getPreferredName(entity)}
+                    </li>
+                </div>;
+    };
+
+    const renderModel = (model: EntityModel, modelId: string) => {
+        return <div key={`select-classes-dialog-div-${model.getId()}`}>
+                    <h4 key={`select-classes-dialog-h4-${model.getId()}`}>Ⓜ {model.getAlias() ?? ""}</h4>
+                    {
+                        getClassesAndClassUsages(model).map(entity => {
+                            return renderSelectionRow(entity, modelId);
+                        })
+                    }
+        </div>;
+    };
+
+
+    const footer = (
+        <div className="flex flex-row justify-evenly font-semibold sticky bottom-0 w-full">
+                <CreateButton onClick={onAcceptCallback} />
+                <CancelButton onClick={close} />
+        </div>
+    );
+
+    const dialogContent = (
+        <div>
+            <ul>
+                {[...models.entries()].map(([modelId, model]) =>
+                    renderModel(model, modelId)
+                )}
+            </ul>
+        </div>
+    );
+
+
+    return (
+        <ModalDialog
+            heading={t("select-classes-dialog.select-classes")}
+            isOpen={isOpen}
+            onCancel={close}
+            content={dialogContent}
+            footer={footer}
+        />
+    );
 };

@@ -28,7 +28,7 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
     const { language: preferredLanguage } = useConfigurationContext();
     const { models, aggregatorView } = useModelGraphContext();
     const { deleteEntityFromModel } = useClassesContext();
-    const { MenuOptions, isMenuOptionsOpen, openMenuOptions } = useMenuOptions();
+    const { MenuOptions, openMenuOptions } = useMenuOptions();
     const { openDetailDialog, openModificationDialog, openProfileDialog } = useDialogsContext();
 
     const { cls, attributes, attributeUsages, color } = props.data;
@@ -71,7 +71,7 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
                     </>
                 </div>
             </div>
-            {isMenuOptionsOpen && (
+            {(
                 <MenuOptions
                     position="absolute right-2 top-2 z-10"
                     openDetailHandler={() => openDetailDialog(cls)}

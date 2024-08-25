@@ -10,6 +10,7 @@ import type {
 import type { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { type ProfileDialogSupportedTypes, useCreateProfileDialog } from "../dialog/create-profile-dialog";
 import { useCreateClassDialog } from "../dialog/create-class-dialog";
+import { SelectClassesDialog, useSelectClassesDialog } from "../dialog/select-classes-dialog";
 
 type ModificationDialogSupportedTypes =
     | SemanticModelClass
@@ -22,7 +23,6 @@ export type DialogsContextType = {
     openModificationDialog: (entity: ModificationDialogSupportedTypes, model?: InMemorySemanticModel | null) => void;
     openProfileDialog: (entity: ProfileDialogSupportedTypes) => void;
     openCreateClassDialog: (
-        onCreateClassCallback?: (newEntityID: string) => void,
         model?: InMemorySemanticModel | undefined,
         position?:
             | {
@@ -31,15 +31,27 @@ export type DialogsContextType = {
               }
             | undefined
     ) => void;
+    openCreateClassDialogWithCallback: (
+        onCreateClassCallback: (newEntityID: string) => void,
+        model?: InMemorySemanticModel | undefined,
+        position?:
+            | {
+                  x: number;
+                  y: number;
+              }
+            | undefined
+    ) => void;
+    openSelectClassesDialog: (onSelectConfirmCallback?: (newEntityID: string[]) => void) => void
 };
 
 export const DialogsContext = React.createContext(null as unknown as DialogsContextType);
 
 export const DialogsContextProvider = (props: { children: ReactNode }) => {
     const { openEntityDetailDialog, isEntityDetailDialogOpen, EntityDetailDialog } = useEntityDetailDialog();
-    const { isModifyEntityDialogOpen, ModifyEntityDialog, openModifyEntityDialog } = useModifyEntityDialog();
+    const { openModifyEntityDialog, isModifyEntityDialogOpen, ModifyEntityDialog } = useModifyEntityDialog();
     const { openCreateProfileDialog, isCreateProfileDialogOpen, CreateProfileDialog } = useCreateProfileDialog();
-    const { openCreateClassDialog, isCreateClassDialogOpen, CreateClassDialog } = useCreateClassDialog();
+    const { openCreateClassDialog, openCreateClassDialogWithCallback, isCreateClassDialogOpen, CreateClassDialog } = useCreateClassDialog();
+    const selectClassesDialog = useSelectClassesDialog();
 
     return (
         <DialogsContext.Provider
@@ -48,6 +60,8 @@ export const DialogsContextProvider = (props: { children: ReactNode }) => {
                 openModificationDialog: openModifyEntityDialog,
                 openProfileDialog: openCreateProfileDialog,
                 openCreateClassDialog: openCreateClassDialog,
+                openCreateClassDialogWithCallback: openCreateClassDialogWithCallback,
+                openSelectClassesDialog: selectClassesDialog.open
             }}
         >
             {props.children}
@@ -55,6 +69,7 @@ export const DialogsContextProvider = (props: { children: ReactNode }) => {
             {isModifyEntityDialogOpen && <ModifyEntityDialog />}
             {isCreateProfileDialogOpen && <CreateProfileDialog />}
             {isCreateClassDialogOpen && <CreateClassDialog />}
+            <SelectClassesDialog {...selectClassesDialog.props} />
         </DialogsContext.Provider>
     );
 };

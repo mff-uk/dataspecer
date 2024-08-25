@@ -22,7 +22,7 @@ export const DefaultEdge: React.FC<EdgeProps> = (props: EdgeProps) => {
   const { aggregatorView, models } = useModelGraphContext();
   const { deleteEntityFromModel } = useClassesContext();
   const { openDetailDialog, openModificationDialog, openProfileDialog } = useDialogsContext();
-  const { MenuOptions, isMenuOptionsOpen, openMenuOptions } = useMenuOptions();
+  const { openMenuOptions } = useMenuOptions();
   const edgeData = props.data as EdgeData;
   const model = useMemo(() => findSourceModelOfEntity(edgeData.entityIdentifier, models), [edgeData.entityIdentifier, models]);
   //

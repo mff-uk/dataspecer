@@ -3,7 +3,7 @@ import ReactFlow, {
     type Edge,
     type EdgeChange,
     type Node,
-    type NodeChange,    
+    type NodeChange,
     type XYPosition,
     Background,
     Controls,
@@ -58,7 +58,7 @@ import { useDialogsContext } from "./context/dialogs-context";
 import { type Warning, useWarningsContext } from "./context/warnings-context";
 import { getRandomName } from "../utils/random-gen";
 import { useCanvasMenuOptions } from "./reactflow/components/drag-edge-canvas-menu";
-import { useSelectClassesDialog } from "./dialog/select-classes-dialog";
+
 
 // Function that returns SVG for the current model.
 export let getSvgForCurrentView: () => Promise<{
@@ -70,7 +70,7 @@ export const Visualization = () => {
     const { aggregatorView, models } = useModelGraphContext();
     const { CreateConnectionDialog, isCreateConnectionDialogOpen, openCreateConnectionDialog } =
         useCreateConnectionDialog();
-    const { openCreateClassDialog } = useDialogsContext();
+    const { openCreateClassDialog, openCreateClassDialogWithCallback, openSelectClassesDialog } = useDialogsContext();
 
     const { downloadImage } = useDownload();
 
@@ -86,8 +86,7 @@ export const Visualization = () => {
 
     const reactFlowInstance = useReactFlow();
 
-    const { CanvasMenuOptions, openCanvasMenuOptions, isCanvasMenuOptionsOpen, canvasMenuXYPosition, setCanvasMenuXYPosition } = useCanvasMenuOptions();    
-    const { openSelectClassDialog, isSelectClassDialogOpen, SelectClassesDialog } = useSelectClassesDialog();
+    const { CanvasMenuOptions, openCanvasMenuOptions, canvasMenuXYPosition, setCanvasMenuXYPosition } = useCanvasMenuOptions();
     const [nodeStartingConnection, setNodeStartingConnection] = useState<{ nodeId: string | null; handleId: string | null; handleType: "source" | "target" | null; }>();
     const [entityIDsToConnectTo, setEntityIDsToConnectTo] = useState<string[]>([]);
 
@@ -152,7 +151,7 @@ export const Visualization = () => {
                     x: e.clientX,
                     y: e.clientY,
                 });
-                openCreateClassDialog(undefined, undefined, {
+                openCreateClassDialog(undefined, {
                     x: position?.x ?? e.nativeEvent.layerX,
                     y: position?.y ?? e.nativeEvent.layerY,
                 });
@@ -497,43 +496,40 @@ export const Visualization = () => {
     };
 
 
-    
 
-    const onSelectClassesCallback = () => (newEntityIDs: string[]) => {         
+
+    const onSelectClassesCallback = () => (newEntityIDs: string[]) => {
         setEntityIDsToConnectTo([...entityIDsToConnectTo, ...newEntityIDs]);
     };
-    const onCreateClassCallback = () => (newEntityID: string) => { 
+    const onCreateClassCallback = () => (newEntityID: string) => {
         // With timeout the dialog is in the same place, but it takes a moment to get there
-        setTimeout(() => setEntityIDsToConnectTo([...entityIDsToConnectTo, newEntityID]), 200);
-        // setEntityIDsToConnectTo([...entityIDsToConnectTo, newEntityID]);
+        setTimeout(() => setEntityIDsToConnectTo([...entityIDsToConnectTo, newEntityID]), 100);
     };
-    
+
     useEffect(() => {
         if(entityIDsToConnectTo !== undefined && entityIDsToConnectTo.length > 0 && !isCreateConnectionDialogOpen) {
             const connection = {
                 source: nodeStartingConnection?.handleType === "source" ? nodeStartingConnection?.nodeId : (entityIDsToConnectTo.shift() as string),
                 target: nodeStartingConnection?.handleType === "target" ? nodeStartingConnection?.nodeId : (entityIDsToConnectTo.shift() as string),
-                sourceHandle: null,     // TODO: Maybe will have to specify handlers later in development
+                sourceHandle: null,
                 targetHandle: null
             };
-                
-            openCreateConnectionDialog(connection);  
+
+            openCreateConnectionDialog(connection);
         }
     }, [entityIDsToConnectTo, isCreateConnectionDialogOpen]);
 
-    const openCreateClassDialogOnCanvasHandler = () => {  
+    const openCreateClassDialogOnCanvasHandler = () => {
         const position = reactFlowInstance?.screenToFlowPosition({
             x: canvasMenuXYPosition?.x ?? 500,
             y: canvasMenuXYPosition?.y ?? 250,
-        });      
-        openCreateClassDialog(onCreateClassCallback, undefined, position);
-    };           
-
+        });
+        openCreateClassDialogWithCallback(onCreateClassCallback, undefined, position);
+    };
 
     return (
         <>
-            {isCreateConnectionDialogOpen && <CreateConnectionDialog />}               
-            {isSelectClassDialogOpen && <SelectClassesDialog></SelectClassesDialog>}         
+            {!isCreateConnectionDialogOpen ? null : <CreateConnectionDialog />}
 
             <div className="h-[80vh] w-full md:h-full">
                 <ReactFlow
@@ -552,27 +548,28 @@ export const Visualization = () => {
                     snapGrid={[20, 20]}
                     onDragOver={onDragOver}
                     onDrop={onDrop}
-                    snapToGrid={true}     
+                    snapToGrid={true}
                     onPaneClick={onPaneClick}
                     onConnectStart={(event, params: { nodeId: string | null; handleId: string | null; handleType: "source" | "target" | null; }) => {
                         setNodeStartingConnection(params);
                         isConnectionCreated.current = false;
-                    }}                    
-                    onConnectEnd={(event) => {    
+                    }}
+                    onConnectEnd={(event) => {
+                        // Does reactflow v12 have better typing or why do we need to do this? Check next comments for more context.
                         const eventAsMouseEvent = event as unknown as React.MouseEvent;
-                        // TODO: The type for event should be different, but there are probably some typing issues 
-                        // TODO: I am not sure about the typing here, but the idea of checking if we are click on canvas comes from here 
-                        //       https://reactflow.dev/examples/nodes/add-node-on-edge-drop
-                        const target = event.target as unknown as {classList: DOMTokenList};        
-                        const isTargetPane = target.classList.contains("react-flow__pane");                          
+                        // The idea of checking if we are click on canvas comes from here:
+                        // https://reactflow.dev/examples/nodes/add-node-on-edge-drop
+                        // Also notice that in the reactflow example, they are also accessing the clientX, clientY so there really might be some typing issue.
+                        const target = event.target as unknown as {classList: DOMTokenList};
+                        const isTargetPane = target.classList.contains("react-flow__pane");
                         setCanvasMenuXYPosition({
                             x: eventAsMouseEvent.clientX,
                             y: eventAsMouseEvent.clientY,
                         });
                         if (!isConnectionCreated.current && isTargetPane) {
-                            openCanvasMenuOptions();           
+                            openCanvasMenuOptions();
                         }
-                    }}         
+                    }}
                 >
                     <Controls />
                     <MiniMap
@@ -593,7 +590,7 @@ export const Visualization = () => {
                     </Panel>
                     <Background gap={12} size={1} />
                 </ReactFlow>
-                {isCanvasMenuOptionsOpen && <CanvasMenuOptions openSelectClassDialog={() => openSelectClassDialog(onSelectClassesCallback)} openCreateClassDialogHandler={openCreateClassDialogOnCanvasHandler} />}                                
+                {<CanvasMenuOptions openSelectClassesDialogHandler={() => openSelectClassesDialog(onSelectClassesCallback)} openCreateClassDialogHandler={openCreateClassDialogOnCanvasHandler} />}
             </div>
         </>
     );
