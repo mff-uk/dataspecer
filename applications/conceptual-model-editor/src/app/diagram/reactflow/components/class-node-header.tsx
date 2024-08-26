@@ -23,7 +23,7 @@ export const ClassNodeHeader = (props: {
 
     return (
         <h1
-            className="flex flex-col overflow-x-hidden whitespace-nowrap border-b border-b-black"
+            className="flex flex-col overflow-x-hidden whitespace-nowrap border border-b-black"
             style={{ backgroundColor: color }}
             title={description ?? ""}
         >

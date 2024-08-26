@@ -23,3 +23,11 @@ export const ClassNodeAttributeRow = (props: {
         </p>
     );
 };
+
+export const ThreeDotsRow = (props: { onClickHandler: () => void }) => {
+    return (
+        <p key="more-than-5-attributes" className="flex flex-row" onClick={props.onClickHandler}>
+            <span>- ...</span>
+        </p>
+    );
+};

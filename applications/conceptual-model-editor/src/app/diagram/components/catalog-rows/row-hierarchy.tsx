@@ -8,7 +8,7 @@ import type {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { EntityRow } from "./entity-catalog-row";
+import { EntityRow } from "../../components/catalog-rows/entity-catalog-row";
 import { sourceModelOfEntity } from "../../util/model-utils";
 import { useModelGraphContext } from "../../context/model-context";
 import { useClassesContext } from "../../context/classes-context";
@@ -60,10 +60,12 @@ export const RowHierarchy = (props: {
 
     const thisEntityProfiles = profiles.filter((p) => p.usageOf == entity.id);
 
-    const targetHandler = {
+    const targetHandler = { 
         centerViewportOnEntityHandler: () => props.handlers.handleTargeting(entity.id),
         isTargetable: !isAttribute && !isEdge,
-     };
+     };     
+
+    // console.log("row hierarchy rerendered", sourceModel?.getId());
 
     return (
         <>
@@ -87,7 +89,7 @@ export const RowHierarchy = (props: {
                     drawable={drawingHandler}
                     removable={removalHandler}
                     targetable={targetHandler}
-                    sourceModel={sourceModel}
+                    sourceModel={sourceModel}                    
                 />
                 {thisEntityProfiles.map((p) => (
                     <RowHierarchy

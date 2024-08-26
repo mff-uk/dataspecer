@@ -6,7 +6,7 @@ import { useQueryParamsContext } from "../context/query-params-context";
 
 const AUTOSAVE_INTERVAL = parseInt(process.env.NEXT_PUBLIC_APP_AUTOSAVE_INTERVAL_MS ?? "30000") || 30000;
 
-const AUTOSAVE_ENABLED_BY_DEFAULT = false; // process.env.NEXT_PUBLIC_APP_AUTOSAVE_ENABLED_BY_DEFAULT === "1";
+const AUTOSAVE_ENABLED_BY_DEFAULT = process.env.NEXT_PUBLIC_APP_AUTOSAVE_ENABLED_BY_DEFAULT === "1";
 
 export const useAutoSave = () => {
     const { models, visualModels } = useModelGraphContext();

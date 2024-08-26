@@ -19,7 +19,7 @@ import {
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useConfigurationContext } from "../context/configuration-context";
-import { DomainRangeComponent } from "./components/domain-range-component";
+import { DomainRangeComponent } from "./domain-range-component";
 import { getDescriptionLanguageString, getNameLanguageString } from "../util/name-utils";
 import { temporaryDomainRangeHelper } from "../util/relationship-utils";
 import { ProfileModificationWarning } from "../features/warnings/profile-modification-warning";

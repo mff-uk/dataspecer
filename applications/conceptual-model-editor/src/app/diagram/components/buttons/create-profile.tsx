@@ -1,4 +1,4 @@
-import { t } from "../../application";
+import { t } from "../../application/";
 
 export const CreateProfileButton = ({ onClickHandler }: { onClickHandler?: () => void }) => {
 

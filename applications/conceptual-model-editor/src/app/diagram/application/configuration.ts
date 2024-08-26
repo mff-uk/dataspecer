@@ -46,7 +46,6 @@ export interface Configuration {
 
 /**
  * Read comment for the Configuration interface above!
- * TODO Rename to staticConfiguration
  */
 export const configuration = (): Configuration => {
   return {

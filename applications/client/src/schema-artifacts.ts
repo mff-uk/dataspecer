@@ -203,7 +203,7 @@ export function getSchemaArtifacts(
     ldkit.generator = "https://schemas.dataspecer.com/generator/LDkit";
     ldkit.psm = psmSchemaIri;
     ldkit.configuration = configuration;
-    if ((dataSpecificationConfiguration.useGenerators?.["LDkit"] ?? generatorsEnabledByDefault) !== false) {
+    if (dataSpecificationConfiguration.useGenerators?.["LDkit"] !== false) {
         artifacts.push(ldkit);
     }
 

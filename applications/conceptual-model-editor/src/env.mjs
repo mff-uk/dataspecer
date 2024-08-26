@@ -15,8 +15,8 @@ const server = z.object({
 const client = z.object({
     NEXT_PUBLIC_APP_AUTOSAVE_INTERVAL_MS: z.coerce.number(),
     NEXT_PUBLIC_APP_AUTOSAVE_ENABLED_BY_DEFAULT: z.coerce.boolean(),
-    NEXT_PUBLIC_APP_BACKEND: z.string(),
-    NEXT_PUBLIC_APP_BACKEND_PACKAGE_ROOT: z.string(),
+    NEXT_PUBLIC_APP_BACKEND: z.string().url(),
+    NEXT_PUBLIC_APP_BACKEND_PACKAGE_ROOT: z.string().url(),
     NEXT_PUBLIC_DSCME_LOGO_LINK: z.string(),
     NEXT_PUBLIC_MANAGER_PATH: z.string(),
 });

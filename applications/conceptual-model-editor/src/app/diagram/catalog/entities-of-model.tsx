@@ -15,17 +15,17 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { CanvasContext } from "../../context/canvas-context";
-import { useClassesContext } from "../../context/classes-context";
-import { useModelGraphContext } from "../../context/model-context";
-import { AddConceptRow } from "./add-concept-row";
-import { InputEntityRow } from "./input-row";
-import { useModelEntitiesList } from "./model-entities-header";
-import { RowHierarchy } from "./row-hierarchy";
-import { getCurrentVisibilityOnCanvas } from "../../util/canvas-utils";
-import { getModelDetails } from "../../util/model-utils";
-import { compareMaps } from "../../util/utils";
-import { useDialogsContext } from "../../context/dialogs-context";
+import { CanvasContext } from "../context/canvas-context";
+import { useClassesContext } from "../context/classes-context";
+import { useModelGraphContext } from "../context/model-context";
+import { AddConceptRow } from "../components/catalog-rows/add-concept-row";
+import { InputEntityRow } from "../components/catalog-rows/input-row";
+import { useModelEntitiesList } from "../components/catalog-rows/model-entities-header";
+import { RowHierarchy } from "../components/catalog-rows/row-hierarchy";
+import { getCurrentVisibilityOnCanvas } from "../util/canvas-utils";
+import { getModelDetails } from "../util/model-utils";
+import { compareMaps } from "../util/utils";
+import { useDialogsContext } from "../context/dialogs-context";
 import { useReactFlow } from "reactflow";
 
 const getEntitiesToShow = (
@@ -146,7 +146,7 @@ export const EntitiesOfModel = (props: {
             activeVisualModel?.addEntity({ sourceEntityId: entityId, visible: false });
         }
     };
-
+    
     const handleRemoval = async (model: InMemorySemanticModel | ExternalSemanticModel, entityId: string) => {
         if (model instanceof InMemorySemanticModel) {
             deleteEntityFromModel(model, entityId);
@@ -155,28 +155,28 @@ export const EntitiesOfModel = (props: {
         }
     };
 
-    // TODO: Ideally these methods (meaning all the handlers in this method) should be defined elsewhere on separate places
+    // TODO: Ideally these methods (meaning all the handlers in this method) should be defined elsewhere on separate places 
     //       and imported here or passed as props.
     //       BUT I think that in future we will add here at most 1 extra button for catalog entities, so it is kinda fine.
     const reactflowInstance = useReactFlow();
     const handleTargeting = (entityId: string) => {
         const visualEntity = activeVisualModel?.getVisualEntity(entityId);
-        // TODO: For now only for nodes (It probably makes sense for other entities also but the implementation is slightly more complicated).
+        // TODO: For now only for nodes (It probably makes sense for other entities also but the implementation is slightly more complicated). 
         //       For edges it kinda works, for attributes we first have to find the domain class they are part of.
         if(entityType === "class" || entityType === "profile") {
             const reactflowNode = reactflowInstance.getNode(entityId);
             if(reactflowNode !== undefined) {
-                reactflowInstance.fitView({nodes: [reactflowNode],
-                    duration: 400,
+                reactflowInstance.fitView({nodes: [reactflowNode], 
+                    duration: 400, 
                     //minZoom: reactflowInstance.getViewport().zoom,
                     //maxZoom: reactflowInstance.getViewport().zoom,
                 });
             }
         }
         // else if(entityType === "relationship") {
-        //     reactflowInstance.setCenter(visualEntity?.position.x as number, visualEntity?.position.y as number);
+        //     reactflowInstance.setCenter(visualEntity?.position.x as number, visualEntity?.position.y as number);  
         // }
-        // else {
+        // else {                        
         //     // TODO: EMPTY
         // }
     };

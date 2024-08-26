@@ -2,19 +2,11 @@
 
 A set of tools for effortless management and creation of data specifications.
 
-Check our website [dataspecer.com](https://dataspecer.com/) for more information.
-
-## Docker container
-
-You can easily run the whole application in a Docker container.
-
-Instructions are in [docker-ws directory](./docker-ws/README.md).
-
 ## Documentation
 
 Check [what to learn](./documentation/what-to-learn.md) - a simple guide on how to start working on the project.
 
-## How to build locally
+## Build instructions
 
 This repository is a monorepo - consisting of several packages, applications, and services that are build and developed separately, but depends on each other.
 

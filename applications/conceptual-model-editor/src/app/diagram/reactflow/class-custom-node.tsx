@@ -12,7 +12,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { useClassesContext } from "../context/classes-context";
 import { EntityProxy } from "../util/detail-utils";
 import { useMenuOptions } from "./components/menu-options";
-import { ClassNodeAttributeRow } from "./components/attribute-row";
+import { ClassNodeAttributeRow, ThreeDotsRow } from "./components/attribute-row";
 import { ClassNodeHeader } from "./components/class-node-header";
 import { useDialogsContext } from "../context/dialogs-context";
 import { usePrefixForIri } from "../service/prefix-service";
@@ -59,12 +59,16 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
                 <p className="overflow-x-clip text-gray-500">{usePrefixForIri(iri)}</p>
 
                 <div key={"attributes" + attributes.length.toString()} className="max-h-44 overflow-x-auto ">
-                    {attributes?.map((attr) => (
-                        <ClassNodeAttributeRow key={attr.id + cls.id} attribute={attr} />
-                    ))}
-                    {attributeUsages?.map((attr) => (
-                        <ClassNodeAttributeRow key={attr.id + cls.id} attribute={attr} />
-                    ))}
+                    <>
+                        {attributes?.slice(0, 5).map((attr) => (
+                            <ClassNodeAttributeRow key={attr.id + cls.id} attribute={attr} />
+                        ))}
+                        {attributes.length >= 5 && <ThreeDotsRow onClickHandler={() => openDetailDialog(cls)} />}
+                        {attributeUsages?.slice(0, 5).map((attr) => (
+                            <ClassNodeAttributeRow key={attr.id + cls.id} attribute={attr} />
+                        ))}
+                        {attributeUsages.length >= 5 && <ThreeDotsRow onClickHandler={() => openDetailDialog(cls)} />}
+                    </>
                 </div>
             </div>
             {isMenuOptionsOpen && (

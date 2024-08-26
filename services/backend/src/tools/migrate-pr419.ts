@@ -4,7 +4,7 @@ import { LocalStoreModel } from "../models/local-store-model";
 import { V1 } from "@dataspecer/core-v2/model/known-models";
 import { ROOT_PACKAGE_FOR_V1, createV1RootModel } from "../models/data-specification-model-adapted";
 
-export async function migratePR419() {
+(async () => {    
     const prisma = new PrismaClient();
     const dataSpecifications = await prisma.$queryRaw`SELECT * FROM DataSpecification` as any[];
     const dataStructures = await prisma.$queryRaw`SELECT * FROM DataStructure` as any[];
@@ -15,7 +15,7 @@ export async function migratePR419() {
     const adapter = new ResourceModel(storeModel, prisma);
     
     if (await adapter.getPackage(ROOT_PACKAGE_FOR_V1)) {
-        if (process.argv[3] !== "--force") {
+        if (process.argv[2] !== "--force") {
             throw new Error("Root package for model v1 already exists. Use --force to overwrite. Aborting.");
         } else {
             console.log("Root package for model v1 already exists. Overwriting.");
@@ -88,6 +88,4 @@ export async function migratePR419() {
     }
 
     await prisma.$executeRaw`UPDATE Resource SET createdAt = 0, modifiedAt = 0, subtreeModifiedAt = 0 WHERE 1=1`;
-
-    console.log("Migration done.");
-}
+})();

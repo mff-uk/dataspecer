@@ -15,7 +15,7 @@ import {
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { type getEntityTypeString } from "../../util/detail-utils";
-import { prepareSemanticModelEntitiesForSelect } from "../../service/entity-service";
+import { prepareClassAndClassUsageForSelect } from "../../service/model-service";
 
 type SupportedTypes =
     | SemanticModelClass
@@ -47,7 +47,7 @@ export const SelectGeneralizationParent = (props: {
     const resources = [...c, ...r, ...p];
 
     const possibleParents = getPossibleParents(parentType, resources)?.filter((p) => !alreadySpecialized.includes(p.id)) ?? [];
-    const values = prepareSemanticModelEntitiesForSelect(possibleParents);
+    const values = prepareClassAndClassUsageForSelect(possibleParents);
 
     return (
         <div className="flex-grow">
@@ -63,7 +63,7 @@ export const SelectGeneralizationParent = (props: {
                     ---
                 </option>
                 {values.map(item => (
-                    <option key={item.identifier} value={item.identifier}>
+                    <option key={item.id} value={item.id}>
                         {item.label}
                     </option>
                 ))}

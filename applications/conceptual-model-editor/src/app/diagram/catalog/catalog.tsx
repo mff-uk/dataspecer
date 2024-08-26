@@ -8,106 +8,86 @@ import { ProfileCatalog } from "./profile-catalog";
 import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
 import { WarningCatalog } from "./warning-catalog";
 import { useWarningsContext } from "../context/warnings-context";
-import { t } from "../application";
-
-enum CatalogTabs {
-    Models,
-    Classes,
-    Associations,
-    Attributes,
-    Profiles,
-    Warnings,
-}
 
 export const Catalog = () => {
-    const { relationships, profiles } = useClassesContext();
+    const [entityView, setEntityView] = useState<"class" | "relationship" | "attribute" | "profile" | "warning">(
+        "class"
+    );
+    const { relationships: r, profiles } = useClassesContext();
     const { warnings } = useWarningsContext();
 
-    const [activeTab, setActiveTab] = useState(CatalogTabs.Models);
+    const relationships = r.filter((v) => !isSemanticModelAttribute(v));
+    const attributes = r.filter(isSemanticModelAttribute);
 
-    const associations = relationships.filter(item => !isSemanticModelAttribute(item));
-    const attributes = associations.filter(isSemanticModelAttribute);
-
-    const Content = selectTabConcent(activeTab);
+    if (entityView == "relationship" && relationships.length == 0) {
+        setEntityView("class");
+    } else if (entityView == "attribute" && attributes.length == 0) {
+        setEntityView("class");
+    } else if (entityView == "profile" && profiles.length == 0) {
+        setEntityView("class");
+    }
 
     return (
-        <div className="border-r-2 border-gray-300 flex flex-col">
-            <div className="flex flex-row [&>*]:mx-2 flex-wrap py-1 border-b-2 border-gray-300">
-                <CatalogTabButton
-                    active={activeTab === CatalogTabs.Models}
-                    onClick={() => setActiveTab(CatalogTabs.Models)}
-                    label={t("model.vocabularies")}
-                />
-                <CatalogTabButton
-                    active={activeTab === CatalogTabs.Classes}
-                    onClick={() => setActiveTab(CatalogTabs.Classes)}
-                    label={t("model.classes")}
-                />
-                <CatalogTabButton
-                    active={activeTab === CatalogTabs.Associations}
-                    onClick={() => setActiveTab(CatalogTabs.Associations)}
-                    label={t("model.associations")}
-                    hidden={associations.length === 0}
-                />
-                <CatalogTabButton
-                    active={activeTab === CatalogTabs.Attributes}
-                    onClick={() => setActiveTab(CatalogTabs.Attributes)}
-                    label={t("model.attributes")}
-                    hidden={attributes.length === 0}
-                />
-                <CatalogTabButton
-                    active={activeTab === CatalogTabs.Profiles}
-                    onClick={() => setActiveTab(CatalogTabs.Profiles)}
-                    label={t("model.profiles")}
-                    hidden={profiles.length === 0}
-                />
-                <CatalogTabButton
-                    active={activeTab === CatalogTabs.Warnings}
-                    onClick={() => setActiveTab(CatalogTabs.Warnings)}
-                    label={t("model.warnings")}
-                    hidden={warnings.length === 0}
-                />
-            </div>
-            <div className="m-1 overflow-y-scroll pb-2">
-                <Content />
+        <div className="grid h-full w-full grid-cols-1 md:grid-rows-[20%_80%]">
+            <ModelCatalog />
+            <div className="grid h-full grid-rows-[auto_1fr]">
+                {/*
+                --- selection header --- --- ---
+                */}
+                <div className="flex flex-row py-2 md:py-0 [&>*]:mx-2">
+                    <button
+                        disabled={entityView == "class"}
+                        onClick={() => setEntityView("class")}
+                        className={`${entityView == "class" ? "font-bold" : ""}`}
+                    >
+                        classes
+                    </button>
+
+                    {relationships.length > 0 && (
+                        <button
+                            disabled={entityView == "relationship"}
+                            onClick={() => setEntityView("relationship")}
+                            className={`${entityView == "relationship" ? "font-bold" : ""}`}
+                        >
+                            relationships
+                        </button>
+                    )}
+                    {attributes.length > 0 && (
+                        <button
+                            disabled={entityView == "attribute"}
+                            onClick={() => setEntityView("attribute")}
+                            className={`${entityView == "attribute" ? "font-bold" : ""}`}
+                        >
+                            attributes
+                        </button>
+                    )}
+                    {profiles.length > 0 && (
+                        <button
+                            disabled={entityView == "profile"}
+                            onClick={() => setEntityView("profile")}
+                            className={`${entityView == "profile" ? "font-bold" : ""}`}
+                        >
+                            profiles
+                        </button>
+                    )}
+                    {warnings.length > 0 && (
+                        <button
+                            disabled={entityView == "warning"}
+                            onClick={() => setEntityView("warning")}
+                            className={`text-orange-500 ${entityView == "warning" ? "font-bold" : "font-semibold "}`}
+                        >
+                            ⚠️warnings
+                        </button>
+                    )}
+                </div>
+                <div className="my-0 overflow-y-scroll pb-2">
+                    {entityView == "class" && <EntityCatalog />}
+                    {entityView == "relationship" && <RelationshipCatalog />}
+                    {entityView == "attribute" && <AttributeCatalog />}
+                    {entityView == "profile" && <ProfileCatalog />}
+                    {entityView == "warning" && <WarningCatalog />}
+                </div>
             </div>
         </div>
     );
-};
-
-const CatalogTabButton = (props: {
-    label: string,
-    active: boolean,
-    onClick: () => void,
-    hidden?: boolean,
-}) => {
-    if (props.hidden === true) {
-        return null;
-    }
-    return (
-        <button
-            disabled={props.active}
-            onClick={props.onClick}
-            className={props.active ? "font-bold" : ""}
-        >
-            {props.label}
-        </button>
-    );
-};
-
-const selectTabConcent = (active: CatalogTabs) => {
-    switch (active) {
-        case CatalogTabs.Models:
-            return ModelCatalog;
-        case CatalogTabs.Associations:
-            return RelationshipCatalog;
-        case CatalogTabs.Attributes:
-            return AttributeCatalog;
-        case CatalogTabs.Classes:
-            return EntityCatalog;
-        case CatalogTabs.Profiles:
-            return ProfileCatalog;
-        case CatalogTabs.Warnings:
-            return WarningCatalog;
-    }
 };

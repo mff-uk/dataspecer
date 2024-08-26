@@ -2,7 +2,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { shortenStringTo } from "../../util/utils";
 import { useModelGraphContext } from "../../context/model-context";
 import { useEditInput } from "../../components/input/edit-input";
-import { ModelTypeIcon } from "../../components/model-type-icon";
+import { ModelTypeIcon } from "../model-type-icon";
 import { ColorPicker } from "../../features/color-picker";
 import { useEffect, useMemo, useState } from "react";
 import { randomColorFromPalette } from "~/app/utils/color-utils";

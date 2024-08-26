@@ -1,5 +1,5 @@
 import { useModelGraphContext } from "../context/model-context";
-import { EntitiesOfModel } from "./components/entities-of-model";
+import { EntitiesOfModel } from "./entities-of-model";
 
 export const RelationshipCatalog = () => {
     const { models } = useModelGraphContext();

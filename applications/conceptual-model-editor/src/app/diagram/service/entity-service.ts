@@ -1,5 +1,4 @@
 import {
-  SemanticModelRelationship,
   isSemanticModelClass,
   isSemanticModelGeneralization,
   isSemanticModelRelationship,
@@ -17,12 +16,11 @@ import {
   type SemanticModelClass,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 
-import { getRange } from "./relationship-service";
-import { getDuplicateNames } from "../util/name-utils";
+import {
+  getRange,
+} from "./relationship-service";
 
 import { t, configuration } from "../application/";
-import { EntityProxy } from "../util/detail-utils";
-import { getModelLabel } from "./model-service";
 
 type GetEntityLabelType = SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationshipUsage;
 
@@ -85,42 +83,3 @@ function languageStringToHumanReadable(value: LanguageString, language: string, 
 
   return null;
 }
-
-// We use this as older part of the utils is not cable
-// working with SemanticModelEntity.
-type LimitedSemanticEntity = SemanticModelClass
-  | SemanticModelRelationship
-  | SemanticModelClassUsage
-  | SemanticModelRelationshipUsage;
-
-export type SelectItem = {
-  identifier: string;
-  label: string;
-};
-
-/**
- * Given list of semantic model entities (limited version) prepares
- * values for the selection component.
- */
-export const prepareSemanticModelEntitiesForSelect = (entities: LimitedSemanticEntity[]): SelectItem[] => {
-  const result: SelectItem[] = [];
-  const duplicateNames = getDuplicateNames(entities);
-
-  for (const item of entities) {
-    const { name, iri, model } = EntityProxy(item);
-    const displayIri = duplicateNames.has(name ?? "");
-
-    const nameLabel = name ?? "";
-    const modelLabel = model === null ? "" : `[${getModelLabel(model)}]`;
-    const iriLabel = displayIri && iri !== null ? `(${iri})` : "";
-
-    result.push({
-      identifier: item.id,
-      label: `${nameLabel} ${modelLabel} ${iriLabel}`,
-    });
-  }
-
-  result.sort((left, right) => left.label.localeCompare(right.label));
-
-  return result;
-};

@@ -25,7 +25,7 @@ export interface Configuration {
 
 const defaultConfiguration = {
     payloadSizeLimit: "64mb",
-    v1RootIri: "http://dataspecer.com/packages/local-root",
+    v1RootIri: "http://dataspecer.com/packages/v1",
     v1RootMetadata: {
         label: {
             cs: "Datové specifikace z core@v.1",
@@ -46,12 +46,4 @@ const defaultConfiguration = {
     },
 } as Partial<Configuration>
 
-const envConfiguration = {} as Partial<Configuration>;
-if (process.env.HOST) {
-    envConfiguration.host = process.env.HOST;
-}
-if (process.env.PORT) {
-    envConfiguration.port = Number(process.env.PORT);
-}
-
-export default ({...defaultConfiguration, ...configuration, ...envConfiguration} as Configuration);
+export default ({...defaultConfiguration, ...configuration} as Configuration);

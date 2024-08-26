@@ -105,13 +105,8 @@ const translations: Record<string, string | Function> = {
   "add-model-dialog.tab-predefined.introduction": "Select vocabulary from bellow to import. You can import multiple at once.",
   "add-model-dialog.tab-create.introduction": "Create an empty vocabulary.",
   //
-  "model.vocabularies": "Vocabularies",
-  "model.classes": "Classes",
-  "model.associations": "Associations",
-  "model.attributes": "Attributes",
-  "model.profiles": "Profiles",
-  "model.warnings": "⚠️&nbsp;Warnings",
-  "model-catalog.add-vocabulary": "➕ Vocabulary",
+  "model-catalog.label": "Vocabularies",
+  "model-catalog.add-vocabulary": "Add a vocabulary",
 };
 
 export const t = (text: string, ...args: unknown[]) : string => {

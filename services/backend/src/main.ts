@@ -20,7 +20,6 @@ import { getSimplifiedSemanticModel, setSimplifiedSemanticModel } from './routes
 import { getDocumentation, getLightweightOwl, getSingleFile, getZip, getlightweightFromSimplified as getlightweightOwlFromSimplified } from './routes/experimental';
 import { generate } from './routes/generate';
 import { importResource } from './routes/import';
-import { migratePR419 } from './tools/migrate-pr419';
 
 // Create application models
 
@@ -32,9 +31,6 @@ export const dataSpecificationModel = new DataSpecificationModelAdapted(storeMod
 let basename = new URL(configuration.host).pathname;
 if (basename.endsWith('/')) {
     basename = basename.slice(0, -1);
-}
-if (process.env.BASENAME_OVERRIDE !== undefined) {
-    basename = process.env.BASENAME_OVERRIDE;
 }
 
 // Run express
@@ -118,31 +114,19 @@ application.get(basename + '/experimental/output.zip', getZip);
 application.get(basename + '/preview/*', getSingleFile);
 
 (async () => {
-    // Command-line arguments
-    if (process.argv.length > 2) {
-        // Some command line arguments are present
-        if (process.argv[2] === "migrate-pr419") {
-            await migratePR419();
-             process.exit(0);
-        } else {
-            console.error("Unknown command line arguments.");
-            process.exit(0);
-        }
-    } else {
-        // Create local root
-        if (!await resourceModel.getResource(configuration.localRootIri)) {
-            console.log("There is no default root package. Creating one...");
-            await resourceModel.createPackage(null, configuration.localRootIri, configuration.localRootMetadata);
-        }
-        // Create root models for the common use and for the v1 adapter.
-        if (!await resourceModel.getResource(configuration.v1RootIri)) {
-            console.log("There is no root package for data specifications from v1 dataspecer. Creating one...");
-            await resourceModel.createPackage(null, configuration.v1RootIri, configuration.v1RootMetadata);
-        }
-    
-        application.listen(Number(configuration.port), () => {
-            console.log(`Server is listening on port ${Number(configuration.port)}.`);
-            console.log(`Try ${configuration.host}/data-specification for a list of data specifications. (should return "[]" for new instances)`);
-        });
+    // Create local root
+    if (!await resourceModel.getResource(configuration.localRootIri)) {
+        console.log("There is no default root package. Creating one...");
+        await resourceModel.createPackage(null, configuration.localRootIri, configuration.localRootMetadata);
     }
+    // Create root models for the common use and for the v1 adapter.
+    if (!await resourceModel.getResource(configuration.v1RootIri)) {
+        console.log("There is no root package for data specifications from v1 dataspecer. Creating one...");
+        await resourceModel.createPackage(null, configuration.v1RootIri, configuration.v1RootMetadata);
+    }
+
+    application.listen(Number(configuration.port), () => {
+        console.log(`Server is listening on port ${Number(configuration.port)}.`);
+        console.log(`Try ${configuration.host}/data-specification for a list of data specifications. (should return "[]" for new instances)`);
+    });
 })();

@@ -13,7 +13,7 @@ import { HttpStoreDescriptor } from "@dataspecer/backend-utils/store-descriptor"
 export const ROOT_PACKAGE_FOR_V1 = configuration.v1RootIri;
 
 export async function createV1RootModel(adapter: ResourceModel) {
-  await adapter.createPackage(null, ROOT_PACKAGE_FOR_V1, configuration.v1RootIri === configuration.localRootIri ? configuration.localRootMetadata : configuration.v1RootMetadata);
+  await adapter.createPackage(null, ROOT_PACKAGE_FOR_V1, configuration.v1RootMetadata);
 }
 
 export function replaceStoreDescriptorsInDataSpecification<T extends DataSpecificationWithStores>(dataSpecification: T): T {

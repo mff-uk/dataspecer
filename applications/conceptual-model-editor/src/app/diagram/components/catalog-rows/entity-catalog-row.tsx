@@ -13,16 +13,18 @@ import {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { EntityProxy } from "../../util/detail-utils";
 import { useConfigurationContext } from "../../context/configuration-context";
-import { IriLink } from "../../components/iri-link";
-import { CreateProfileButton }  from "./create-profile";
-import { DrawOnCanvasButton }  from "./draw-on-canvas";
-import { ExpandButton }  from "./expand";
-import { OpenDetailButton }  from "./open-detail";
-import { RemoveButton  }  from "./remove";
+import { IriLink } from "../iri-link";
+import {
+    CreateProfileButton,
+    DrawOnCanvasButton,
+    ExpandButton,
+    OpenDetailButton,
+    RemoveButton,
+} from "../buttons";
 import { onDragStart } from "../../reactflow/utils";
 import { useCanvasVisibility } from "../../util/canvas-utils";
 import { useDialogsContext } from "../../context/dialogs-context";
-import { MoveViewportToEntityButton } from "./center-viewport-on-entity";
+import { MoveViewportToEntityButton } from "../buttons/center-viewport-on-entity";
 
 const TreeLikeOffset = (props: { offset?: number }) => {
     const { offset } = props;
@@ -67,7 +69,7 @@ export const EntityRow = (props: {
 
     return (
         <div
-            className="flex flex-row justify-between flex-wrap whitespace-nowrap hover:shadow"
+            className="flex flex-row justify-between whitespace-nowrap hover:shadow"
             draggable={isDraggable}
             onDragStart={(e) => onDragStart(e as unknown as DragEvent, entity.id, "classNode")}
         >

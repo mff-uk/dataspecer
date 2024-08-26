@@ -9,7 +9,7 @@ import type {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import type { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { type ProfileDialogSupportedTypes, useCreateProfileDialog } from "../dialog/create-profile-dialog";
-import { useCreateClassDialog, CreateClassDialog } from "../dialog/create-class-dialog";
+import { useCreateClassDialog } from "../dialog/create-class-dialog";
 
 type ModificationDialogSupportedTypes =
     | SemanticModelClass
@@ -38,7 +38,7 @@ export const DialogsContextProvider = (props: { children: ReactNode }) => {
     const { openEntityDetailDialog, isEntityDetailDialogOpen, EntityDetailDialog } = useEntityDetailDialog();
     const { isModifyEntityDialogOpen, ModifyEntityDialog, openModifyEntityDialog } = useModifyEntityDialog();
     const { openCreateProfileDialog, isCreateProfileDialogOpen, CreateProfileDialog } = useCreateProfileDialog();
-    const classDialog = useCreateClassDialog();
+    const { openCreateClassDialog, isCreateClassDialogOpen, CreateClassDialog } = useCreateClassDialog();
 
     return (
         <DialogsContext.Provider
@@ -46,14 +46,14 @@ export const DialogsContextProvider = (props: { children: ReactNode }) => {
                 openDetailDialog: openEntityDetailDialog,
                 openModificationDialog: openModifyEntityDialog,
                 openProfileDialog: openCreateProfileDialog,
-                openCreateClassDialog: classDialog.open,
+                openCreateClassDialog: openCreateClassDialog,
             }}
         >
             {props.children}
             {isEntityDetailDialogOpen && <EntityDetailDialog />}
             {isModifyEntityDialogOpen && <ModifyEntityDialog />}
             {isCreateProfileDialogOpen && <CreateProfileDialog />}
-            <CreateClassDialog {...classDialog.props} />
+            {isCreateClassDialogOpen && <CreateClassDialog />}
         </DialogsContext.Provider>
     );
 };
