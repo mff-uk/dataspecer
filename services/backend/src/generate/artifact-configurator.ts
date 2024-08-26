@@ -81,14 +81,20 @@ export class ArtifactConfigurator {
     artifacts.push(ldkitArtifact);
     //}
 
-    const jsonSchema: DataSpecificationArtefact = new DataSpecificationSchema();
-    jsonSchema.iri = `${dataSpecificationIri}#jsonschema`;
-    jsonSchema.generator = JSON_SCHEMA.Generator;
-    const jsonSchemaFileName = dataSpecificationConfiguration.renameArtifacts?.[jsonSchema.generator] ?? "schema.json";
-    jsonSchema.outputPath = `${dataSpecificationName}/${jsonSchemaFileName}`;
-    jsonSchema.publicUrl = `${this.baseURL}/${jsonSchemaFileName}`;
-    jsonSchema.configuration = configuration;
-    artifacts.push(jsonSchema);
+    for (const psmSchemaIri of dataSpecification.psms) {
+      let subdirectory = "/" + await this.getSchemaDirectoryName(dataSpecificationIri, psmSchemaIri);
+
+      if (dataSpecificationConfiguration.skipStructureNameIfOnlyOne && dataSpecification.psms.length === 1) {
+        subdirectory = "";
+      }
+
+      artifacts.push(...getSchemaArtifacts(
+          psmSchemaIri,
+          `${this.baseURL}${subdirectory}`,
+          `${dataSpecificationName}${subdirectory}`,
+          configuration
+      ));
+    }
 
     return artifacts;
   }
@@ -152,4 +158,30 @@ export class ArtifactConfigurator {
 
     return this.nameFromIri(dataSpecificationIri);
   }
+}
+
+export function getSchemaArtifacts(
+  psmSchemaIri: string,
+  baseUrl: string,
+  basePath: string,
+  configuration: object
+) {
+  const dataSpecificationConfiguration = DataSpecificationConfigurator.getFromObject(configuration);
+  const generatorsEnabledByDefault = dataSpecificationConfiguration.generatorsEnabledByDefault!;
+
+  const artifacts: DataSpecificationArtefact[] = [];
+
+  const jsonSchema = new DataSpecificationSchema();
+  jsonSchema.iri = `${psmSchemaIri}#jsonschema`;
+  jsonSchema.generator = JSON_SCHEMA.Generator;
+  const jsonSchemaFileName = dataSpecificationConfiguration.renameArtifacts?.[jsonSchema.generator] ?? "schema.json";
+  jsonSchema.outputPath = `${basePath}/${jsonSchemaFileName}`;
+  jsonSchema.publicUrl = `${baseUrl}/${jsonSchemaFileName}`;
+  jsonSchema.psm = psmSchemaIri;
+  jsonSchema.configuration = configuration;
+  if ((dataSpecificationConfiguration.useGenerators?.["json"] ?? generatorsEnabledByDefault) !== false) {
+      artifacts.push(jsonSchema);
+  }
+
+  return artifacts;
 }
