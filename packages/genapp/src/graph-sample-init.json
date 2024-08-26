@@ -1,0 +1,39 @@
+{
+    "label": "Application graph",
+    "datasources": [
+        {
+            "label": "NKOD",
+            "endpoint": "https://data.gov.cz/sparql"
+        }
+    ],
+    "nodes": [
+        {
+            "iri":  "https://example.org/application_graph/nodes/1",
+            "structure": "https://ofn.gov.cz/schema/1723477940765-73a8-8ecc-8e45",
+            "capability": "https://dataspecer.com/application_graph/capability/list",
+            "config": {
+                "showHeader": true,
+                "showAsPopup": false
+            }
+        },
+        {
+            "iri": "https://example.org/application_graph/nodes/2",
+            "structure": "https://ofn.gov.cz/schema/1723477612561-03b0-588d-9bcb",
+            "capabilityId": "<detailCapabilityId>",
+            "config": {}
+        }
+    ],
+    "edges": [
+        {
+            "iri": "<edge_iri>",
+            "source": "https://example.org/application_graph/nodes/1",
+            "target": "https://example.org/application_graph/nodes/2",
+            "type": "transition"
+        },
+        {
+            "source": "2",
+            "target": "1",
+            "type": "redirect"
+        }
+    ]
+}

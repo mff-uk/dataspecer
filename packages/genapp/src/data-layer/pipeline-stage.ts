@@ -20,7 +20,7 @@ export class DataLayerGeneratorStage implements GeneratorStage {
 
         context._.pathResolver = this.artifactSaver;
         if (this._datasourceConfig.format !== DataSourceType.Local) {
-            context._.sparqlEndpointUri = this._datasourceConfig.endpointUri;
+            context._.sparqlEndpointUri = this._datasourceConfig.endpoint;
         }
 
         const dalArtifact = await this._dalGeneratorStrategy.generateDataLayer(context);

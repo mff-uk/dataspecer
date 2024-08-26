@@ -17,7 +17,7 @@ export class LdkitDeleteDalGenerator implements DalGeneratorStrategy {
         }
         
         this._schemaProvider = new LdkitSchemaProvider();
-        this._sparqlEndpointUri = datasourceConfig.endpointUri;
+        this._sparqlEndpointUri = datasourceConfig.endpoint;
     }
 
     async generateDataLayer(context: StageGenerationContext) {

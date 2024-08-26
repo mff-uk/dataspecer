@@ -9,5 +9,3 @@ export type LayerArtifact = {
     sourceText: string; // code
     dependencies?: LayerArtifact[];
 }
-
-export type CapabilityArtifactResultMap = { [capabilityName: string]: LayerArtifact };

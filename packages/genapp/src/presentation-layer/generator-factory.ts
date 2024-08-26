@@ -1,3 +1,7 @@
+import { CreateInstanceCapability } from "../capabilities/create-instance";
+import { DeleteInstanceCapability } from "../capabilities/delete-instance";
+import { DetailCapability } from "../capabilities/detail";
+import { ListCapability } from "../capabilities/list";
 import { PresentationLayerGenerator } from "./strategy-interface";
 import { CreateInstanceComponentTemplateProcessor } from "./template-generators/create/create-component-generator";
 import { DetailComponentTemplateProcessor } from "./template-generators/detail/detail-template-processor";
@@ -11,19 +15,19 @@ export const PresentationLayerTemplateGeneratorFactory: PresentationLayerGenerat
     getPresentationLayerGenerator(aggregateName: string, targetCapabilityName: string): PresentationLayerGenerator {
 
         const capabilityGeneratorMap: { [capabilityName: string] : PresentationLayerGenerator } = {
-            list: new ListTableTemplateProcessor({ 
+            [ListCapability.identifier]: new ListTableTemplateProcessor({ 
                 filePath: `${aggregateName}ListTable.tsx`, 
                 templatePath: "./list/presentation-layer/table-component" 
             }),
-            detail: new DetailComponentTemplateProcessor({
+            [DetailCapability.identifier]: new DetailComponentTemplateProcessor({
                 filePath: `${aggregateName}InstanceDetail.tsx`,
                 templatePath: "./detail/presentation-layer/instance-detail-component"
             }),
-            "create-instance": new CreateInstanceComponentTemplateProcessor({
+            [CreateInstanceCapability.identifier]: new CreateInstanceComponentTemplateProcessor({
                 filePath: `Create${aggregateName}Instance.tsx`,
                 templatePath: "./create/presentation-layer/create-instance-component"
             }),
-            "delete-instance": undefined!,
+            [DeleteInstanceCapability.identifier]: undefined!,
         }
 
         const generator = capabilityGeneratorMap[targetCapabilityName];

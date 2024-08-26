@@ -1,182 +1,108 @@
 import * as fs from "fs";
-import { AggregateConfiguration, ApplicationConfiguration, CapabilityConfiguration, DataSourceType } from "./application-config";
+import { 
+    ApplicationGraph,
+    ApplicationGraphEdgeType,
+    ApplicationGraphType,
+    DataSourceType
+} from "./application-config";
 
-export interface ConfigurationReader<TConfiguration extends ApplicationConfiguration> {
-    getAppConfiguration(): TConfiguration;
-    getRootAggregateNames(): string[];
-    getAggregateConfiguration(aggregateName: string): AggregateConfiguration;
+export interface ConfigurationReader {
+    getAppConfiguration(): ApplicationGraph;
 }
 
-export class StaticConfigurationReader implements ConfigurationReader<ApplicationConfiguration> {
+export class StaticConfigurationReader implements ConfigurationReader {
 
-    private readonly _configuration: ApplicationConfiguration;
+    private readonly _graph: ApplicationGraph;
 
     constructor() {
-        this._configuration = {
-            "Dataset": {
-                datasource: {
-                    format: DataSourceType.Rdf,
-                    endpointUri: "https://data.gov.cz/sparql"
-                },
-                capabilities: {
-                    list: {
-                        id: "dataset_list_id",
-                        type: "collection",
-                        showHeader: true,
-                        showAsPopup: false,
-                        hasFilter: true,
-                        hasSearch: true,
-                        hasAllSelection: true
-                    },
-                    detail: {
-                        id: "dataset_detail_id",
-                        type: "instance",
-                        showHeader: true,
-                        showAsPopup: false,
-                        hasFilter: false,
-                        hasSearch: false,
-                        hasAllSelection: false
-                    },
-                    delete: {
-                        id: "dataset_delete_id",
-                        type: "instance",
-                        hasAllSelection: false,
-                        hasFilter: false,
-                        hasSearch: false,
-                        showAsPopup: false,
-                        showHeader: false
-                    },
-                    create: {
-                        id: "dataset_create_id",
-                        type: "collection",
-                        hasAllSelection: false,
-                        hasFilter: false,
-                        hasSearch: false,
-                        showAsPopup: false,
-                        showHeader: false
-                    }
+
+        let graphInstance: ApplicationGraphType = {
+            label: "Application graph",
+            datasources: [
+                {
+                    label: "NKOD",
+                    endpoint: "https://data.gov.cz/sparql",
+                    format: DataSourceType.Rdf
                 }
-            },
-            "Catalog": {
-                datasource: {
-                    format: DataSourceType.Rdf,
-                    endpointUri: "https://data.gov.cz/sparql"
-                },
-                capabilities: {
-                    list: {
-                        id: "catalog_list_id",
-                        type: "collection",
-                        showHeader: true,
-                        showAsPopup: false,
-                        hasFilter: true,
-                        hasSearch: true,
-                        hasAllSelection: true
-                    },
-                    detail: {
-                        id: "catalog_detail_id",
-                        type: "instance",
-                        showHeader: true,
-                        showAsPopup: false,
-                        hasFilter: false,
-                        hasSearch: false,
-                        hasAllSelection: false
+            ],
+            nodes: [
+                {
+                    iri:  "https://example.org/application_graph/nodes/1",
+                    structure: "https://ofn.gov.cz/schema/1723477940765-73a8-8ecc-8e45",
+                    capability: "https://dataspecer.com/application_graph/capability/list",
+                    config: {
+                        "showHeader": true,
+                        "showAsPopup": false
                     }
-                }
-            },
-
-
-
-
-
-            
-            // "Catalog": {
-            //     datasource: { 
-            //         format: DataSourceType.Rdf,
-            //         endpointUri: "https://data.gov.cz/sparql"
-            //     },
-            //     capabilities: {
-            //         list: {
-            //             id: "catalog_list",
-            //             type: "aggregate",
-            //             showHeader: true,
-            //             showAsPopup: false,
-            //             hasFilter: true,
-            //             hasSearch: true,
-            //             hasAllSelection: true
-            //         }
-            //     }
-            // },
-            // "Distribution": {
-            //     datasource: { 
-            //         format: DataSourceType.Rdf,
-            //         endpointUri: "https://data.gov.cz/sparql"
-            //     },
-            //     capabilities: {
-            //         list: {
-            //             id: "catalog_list",
-            //             type: "aggregate",
-            //             showHeader: true,
-            //             showAsPopup: false,
-            //             hasFilter: true,
-            //             hasSearch: true,
-            //             hasAllSelection: true
-            //         }
-            //     }
-            // }
-        } as ApplicationConfiguration;
-    }
-
-    getRootAggregateNames(): string[] {
-        return Object.keys(this._configuration);
-    }
-
-    getAppConfiguration(): ApplicationConfiguration {
-        return this._configuration;
-    }
-
-    getAggregateConfiguration(aggregateName: string): AggregateConfiguration {
-        const aggConfig = this._configuration[aggregateName];
-
-        if (!aggConfig) {
-            throw new Error(`No configuration has been found for "${aggregateName}".`);
+                },
+                // {
+                //     iri: "https://example.org/application_graph/nodes/2",
+                //     structure: "https://ofn.gov.cz/schema/1723477612561-03b0-588d-9bcb",
+                //     capability: "<detailCapabilityId>",
+                //     config: {}
+                // }
+            ],
+            edges: [
+                // {
+                //     iri: "<edge_iri_1>",
+                //     source: "https://example.org/application_graph/nodes/1",
+                //     target: "https://example.org/application_graph/nodes/2",
+                //     type: ApplicationGraphEdgeType.Transition
+                // },
+                // {
+                //     iri: "<edge_iri_2>",
+                //     source: "https://example.org/application_graph/nodes/2",
+                //     target: "https://example.org/application_graph/nodes/1",
+                //     type: ApplicationGraphEdgeType.Redirection
+                // }
+            ]
         }
 
-        return aggConfig;
+        this._graph = new ApplicationGraph(
+                graphInstance.label,
+                graphInstance.datasources,
+                graphInstance.nodes,
+                graphInstance.edges
+        );
+    }
+
+    getAppConfiguration(): ApplicationGraph {
+        return this._graph;
     }
 }
 
-export class FileConfigurationReader implements ConfigurationReader<ApplicationConfiguration> {
+// export class FileConfigurationReader implements ConfigurationReader {
 
-    private readonly _configFilePath: string;
-    private _configuration: ApplicationConfiguration;
+//     private readonly _configFilePath: string;
+//     private _configuration: ApplicationConfiguration;
 
-    constructor(configFilePath: string) {
-        this._configFilePath = configFilePath;
-        this._configuration = {} as ApplicationConfiguration;
-    }
+//     constructor(configFilePath: string) {
+//         this._configFilePath = configFilePath;
+//         this._configuration = {} as ApplicationConfiguration;
+//     }
 
-    getRootAggregateNames(): string[] {
-        return Object.keys(this._configuration);
-    }
+//     getRootAggregateNames(): string[] {
+//         return Object.keys(this._configuration);
+//     }
 
-    getAppConfiguration(): ApplicationConfiguration {
+//     getAppConfiguration(): ApplicationConfiguration {
 
-        const fileContent = fs
-            .readFileSync(this._configFilePath)
-            .toString();
+//         const fileContent = fs
+//             .readFileSync(this._configFilePath)
+//             .toString();
 
-        this._configuration = JSON.parse(fileContent) as ApplicationConfiguration;
+//         this._configuration = JSON.parse(fileContent) as ApplicationConfiguration;
 
-        return this._configuration;
-    }
+//         return this._configuration;
+//     }
 
-    getAggregateConfiguration(aggregateName: string): AggregateConfiguration {
-        const aggConfig = this._configuration[aggregateName];
+//     getAggregateConfiguration(aggregateName: string): AggregateConfiguration {
+//         const aggConfig = this._configuration[aggregateName];
 
-        if (!aggConfig) {
-            throw new Error(`No configuration has been found for "${aggregateName}".`);
-        }
+//         if (!aggConfig) {
+//             throw new Error(`No configuration has been found for "${aggregateName}".`);
+//         }
 
-        return aggConfig;
-    }
-}
+//         return aggConfig;
+//     }
+// }

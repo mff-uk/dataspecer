@@ -1,6 +1,6 @@
 import { ArtifactSaver } from "../utils/artifact-saver";
 import { getRelativePath } from "../utils/utils";
-import { CapabilityArtifactResultMap, LayerArtifact } from "./layer-artifact";
+import { LayerArtifact } from "./layer-artifact";
 import { ReactApplicationBaseGenerator } from "./react-app-base-generator";
 
 export class ReactAppBaseGeneratorStage {
@@ -15,37 +15,36 @@ export class ReactAppBaseGeneratorStage {
         });
     }
 
-    generateApplicationBase(artifactsByAggregateName: { [rootAggregateName: string]: CapabilityArtifactResultMap }) {
+    generateApplicationBase() {
 
-        const result: { [aggregateName: string]: any } = {};
-        Object.entries(artifactsByAggregateName)
-            .forEach(([aggregateName, capabilityMap]) => {
-                const transformedCapabilityMap = Object.fromEntries(
-                    Object.entries(capabilityMap)
-                        .map(([capabilityName, capabilityArtifact]) => {
-                            return [
-                                capabilityName, 
-                                {
-                                    componentName: capabilityArtifact.exportedObjectName,
-                                    relativePath: getRelativePath(
-                                        this.artifactSaver.getFullSavePath("./App.tsx"),
-                                        capabilityArtifact.filePath
-                                    ),
-                                    props: { aggregateName: aggregateName },
-                                }
-                            ]
-                        })
-                );
-                result[aggregateName] = transformedCapabilityMap;
-            })
+        // const result: { [aggregateName: string]: any } = {};
+        // Object.entries(artifactsByAggregateName)
+        //     .forEach(([aggregateName, capabilityMap]) => {
+        //         const transformedCapabilityMap = Object.fromEntries(
+        //             Object.entries(capabilityMap)
+        //                 .map(([capabilityName, capabilityArtifact]) => {
+        //                     return [
+        //                         capabilityName, 
+        //                         {
+        //                             componentName: capabilityArtifact.exportedObjectName,
+        //                             relativePath: getRelativePath(
+        //                                 this.artifactSaver.getFullSavePath("./App.tsx"),
+        //                                 capabilityArtifact.filePath
+        //                             ),
+        //                             props: { aggregateName: aggregateName },
+        //                         }
+        //                     ]
+        //                 })
+        //         );
+        //         result[aggregateName] = transformedCapabilityMap;
+        //     })
 
-        console.log("RESULT BELOW: ", result);
+        // console.log("RESULT BELOW: ", result);
 
-        const reactBaseLayerArtifact = this.stageGenerator.processTemplate({
-            artifacts: result
-        });
+        // const reactBaseLayerArtifact = this.stageGenerator.processTemplate({
+        //     artifacts: result
+        // });
 
-        return reactBaseLayerArtifact;
+        // return reactBaseLayerArtifact;
     }
 }
-

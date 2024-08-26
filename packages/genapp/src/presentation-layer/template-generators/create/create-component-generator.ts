@@ -17,9 +17,9 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
                     to: dependencies.appLogicArtifact.filePath
                 },
-                supported_out_create_edges: undefined,
-                useJsonSchema_hook: undefined,
-                useJsonSchema_hook_path: undefined
+                //supported_out_create_edges: undefined,
+                //useJsonSchema_hook: undefined,
+                //useJsonSchema_hook_path: undefined
             }
         }
 

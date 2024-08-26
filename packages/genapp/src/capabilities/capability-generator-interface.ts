@@ -1,5 +1,5 @@
 import { LayerArtifact } from "../engine/layer-artifact";
-import { CapabilityConfiguration } from "../application-config";
+import { CapabilityConfiguration, Iri } from "../application-config";
 import { StageGenerationContext } from "../engine/generator-stage-interface";
 import { GeneratorPipeline } from "../engine/generator-pipeline";
 
@@ -7,19 +7,32 @@ export interface CapabilityGenerator {
     generateCapability(config: CapabilityConfiguration): Promise<LayerArtifact>;
 }
 
+export type AggregateStructureMetadata = {
+    iri: Iri;
+    rootClassIri: Iri;
+    humanLabel: string;
+    technicalLabel: string;
+}
+
 export class BaseCapabilityGenerator implements CapabilityGenerator {
 
-    private readonly _capabilityStagesGeneratorPipeline: GeneratorPipeline;
-    private readonly _aggregateName: string;
+    protected _capabilityStagesGeneratorPipeline: GeneratorPipeline = null!;
+    protected readonly _aggregateMetadata: AggregateStructureMetadata;
+    private readonly _aggregateIri: string;
 
-    constructor(aggregateName: string, pipeline: GeneratorPipeline) {
-        this._aggregateName = aggregateName;
-        this._capabilityStagesGeneratorPipeline = pipeline;
+    constructor(aggregateIri: Iri) {
+        this._aggregateIri = aggregateIri;
+        this._aggregateMetadata = {
+            iri: aggregateIri,
+            rootClassIri: "http://dataspecer.com/sample/root/class/iri",
+            humanLabel: "<Sample Data Structure>",
+            technicalLabel: "sample_data_structure"
+        } as AggregateStructureMetadata;
     }
 
     protected convertConfigToCapabilityContext(config: CapabilityConfiguration): StageGenerationContext {
         const result: StageGenerationContext = {
-            aggregateName: this._aggregateName,
+            aggregateName: this._aggregateIri,
             config: config,
             _: {} // TODO: better handle custom objects (e.g. create default StageGenerationContext instance)
         };
@@ -33,5 +46,4 @@ export class BaseCapabilityGenerator implements CapabilityGenerator {
         const pipelineOutput = this._capabilityStagesGeneratorPipeline.generateStages(stageContext);
         return pipelineOutput;
     }
-
 }
