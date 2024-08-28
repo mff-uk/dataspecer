@@ -8,13 +8,13 @@ import { DetailComponentTemplateProcessor } from "./template-generators/detail/d
 import { ListTableTemplateProcessor } from "./template-generators/list/list-table-template-processor";
 
 export type PresentationLayerGeneratorFactory = {
-    getPresentationLayerGenerator: (targetAggregateName: string, targetCapabilityName: string) => PresentationLayerGenerator;
+    getPresentationLayerGenerator: (aggregateName: string, capabilityIdentifier: string) => PresentationLayerGenerator;
 }
 
 export const PresentationLayerTemplateGeneratorFactory: PresentationLayerGeneratorFactory = {
-    getPresentationLayerGenerator(aggregateName: string, targetCapabilityName: string): PresentationLayerGenerator {
+    getPresentationLayerGenerator(aggregateName: string, capabilityIri: string): PresentationLayerGenerator {
 
-        const capabilityGeneratorMap: { [capabilityName: string] : PresentationLayerGenerator } = {
+        const capabilityGeneratorMap: { [capabilityIri: string] : PresentationLayerGenerator } = {
             [ListCapability.identifier]: new ListTableTemplateProcessor({ 
                 filePath: `${aggregateName}ListTable.tsx`, 
                 templatePath: "./list/presentation-layer/table-component" 
@@ -30,10 +30,10 @@ export const PresentationLayerTemplateGeneratorFactory: PresentationLayerGenerat
             [DeleteInstanceCapability.identifier]: undefined!,
         }
 
-        const generator = capabilityGeneratorMap[targetCapabilityName];
+        const generator = capabilityGeneratorMap[capabilityIri];
 
         if (!generator) {
-            throw new Error(`Unable to find template generator for "${targetCapabilityName}"`);
+            throw new Error(`Unable to find template generator for "${capabilityIri}"`);
         }
 
         return generator;

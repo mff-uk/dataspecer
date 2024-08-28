@@ -17,11 +17,10 @@ export interface SchemaProvider {
 
 export class LdkitSchemaProvider implements SchemaProvider {
 
-    private readonly _backendUrl = "http://localhost:8889";
     private readonly _api: DalApi;
 
     constructor() {
-        this._api = new DalApi(this._backendUrl);
+        this._api = new DalApi("http://localhost:8889");    //process.env.APP_BACKEND!);
     }
 
     async getSchemaArtifact(aggregateName: string): Promise<LayerArtifact> {

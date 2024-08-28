@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosResponse, HttpStatusCode } from "axios";
 
 export default class DalApi {
     private readonly endpointBaseUri: string;
@@ -20,4 +20,24 @@ export default class DalApi {
         return promise;
     }
 
+    async getStructureInfo(structureIri: string) {
+
+        
+        console.log("BACKEND: ", process.env.APP_BACKEND);
+        const pimStructure = await axios
+            .get(`${this.endpointBaseUri}/resources/blob?iri=${encodeURIComponent(structureIri)}`);
+
+        if (pimStructure.status !== HttpStatusCode.Ok) {
+            console.error(pimStructure);
+            throw new Error(`Error fetching data with PIM IRI ${structureIri}:`);
+        }
+
+        return pimStructure.data().json();
+        
+        // const result = await fetch()
+        //     .then(response => response.json())
+        //     .catch(error => {
+        //         console.error(`Error fetching data with PIM IRI ${structureIri}:`, error);
+        //     });
+    }
 }

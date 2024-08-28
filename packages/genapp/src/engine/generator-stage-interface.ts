@@ -1,10 +1,18 @@
 import { LayerArtifact } from "./layer-artifact";
-import { CapabilityConfiguration } from "../application-config";
+import { ApplicationGraph, ApplicationGraphEdge, ApplicationGraphNode } from "../application-config";
 import { ArtifactSaver } from "../utils/artifact-saver";
+
+export interface CapabilityConfiguration {
+    graph: ApplicationGraph;
+    currentNode: ApplicationGraphNode; // TODO: to be removed
+    config: object;
+}
 
 export type StageGenerationContext = { 
     aggregateName: string;
-    config: CapabilityConfiguration;
+    config: object;
+    graph: ApplicationGraph,
+    currentNode: ApplicationGraphNode, // TODO: to be removed
     previousResult?: LayerArtifact;
     _: Record<string, any>;
 };

@@ -36,6 +36,7 @@ export class SidebarComponentTemplateProcessor extends TemplateConsumer<SidebarC
     
     processTemplate(dependencies: SidebarComponentDependencyMap): LayerArtifact {
         
+        // TODO: integrate application graph -> sidebar displays all "collection" type capabilities (list, create)
         const aggregateNames = this.getAggregateNamesWithListCapability(dependencies.aggregateCapabilitiesMap);
 
         const sidebarTemplate: SidebarComponentTemplate = {

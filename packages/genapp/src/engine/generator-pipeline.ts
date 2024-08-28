@@ -2,16 +2,16 @@ import { GeneratorStage, StageGenerationContext } from "./generator-stage-interf
 import { LayerArtifact } from "./layer-artifact";
 
 export class GeneratorPipeline {
-    private readonly pipelineStages: GeneratorStage[];
+    private readonly _pipelineStages: GeneratorStage[];
     private lastArtifact: LayerArtifact | undefined;
 
     constructor(...stages: GeneratorStage[]) {
-        this.pipelineStages = stages;
+        this._pipelineStages = stages;
     }
 
     async generateStages(context: StageGenerationContext): Promise<LayerArtifact> {
 
-        for (const stage of this.pipelineStages) {
+        for (const stage of this._pipelineStages) {
             const layerArtifact = await stage.generateStage(context);
 
             let layerOutput = layerArtifact;

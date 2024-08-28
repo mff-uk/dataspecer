@@ -6,7 +6,6 @@ import { useSearchParams } from 'react-router-dom';
 import Form from '@rjsf/mui';
 import validator from '@rjsf/validator-ajv8';
 // TODO: use proper useJsonSchema hook import
-import useJsonSchema from '../create-instance/useJsonSchema';
 import <%= it.useJsonSchema_hook %> from <%~ it.useJsonSchema_hook_path %>;
 
 export default function <%= it.aggregate_name %>InstanceDetail() {
@@ -43,7 +42,7 @@ export default function <%= it.aggregate_name %>InstanceDetail() {
                 setLoadingStatus(false);
                 result.instance.raw["id"] = result.instance.raw["$id"]; // TODO: perform based on data layer / schema
                 setInstance(result.instance);
-                setInstaceId(id);
+                setInstanceId(id);
             }
         }
 

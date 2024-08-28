@@ -1,29 +1,31 @@
 
 import { TemplateApplicationLayerGeneratorFactory } from "../app-logic-layer/generator-factory";
 import { ApplicationLayerStage } from "../app-logic-layer/pipeline-stage";
-import { DatasourceConfig, Iri } from "../application-config";
+import { DatasourceConfig } from "../application-config";
 import { DeleteInstanceTemplateGeneratorFactory } from "../data-layer/generator-factory";
 import { DataLayerGeneratorStage } from "../data-layer/pipeline-stage";
 import { GeneratorPipeline } from "../engine/generator-pipeline";
 import { BaseCapabilityGenerator } from "./capability-generator-interface";
+import { CapabilityConstructorInput } from "./constructor-input";
 
 export class DeleteInstanceCapability extends BaseCapabilityGenerator {
 
-    public static readonly identifier: string = "https://dataspecer.com/application_graph/capability/delete-instance";
+    public static readonly label: string = "delete-instance";
+    public static readonly identifier: string = `https://dataspecer.com/application_graph/capability/${this.label}`;
 
-    constructor(aggregateIri: Iri, datasourceConfig: DatasourceConfig) {
-        super(aggregateIri);
+    constructor(constructorInput: CapabilityConstructorInput) {
+        super(constructorInput.rootLabel, constructorInput.rootStructureIri);
         
-        const dalLayerGeneratorStrategy = DeleteInstanceTemplateGeneratorFactory.getDalGeneratorStrategy(datasourceConfig);
+        const dalLayerGeneratorStrategy = DeleteInstanceTemplateGeneratorFactory.getDalGeneratorStrategy(constructorInput.datasource);
         const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(
-            aggregateIri,
+            constructorInput.rootLabel,
             DeleteInstanceCapability.identifier
         );
 
         //const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory.getPresentationLayerGenerator(targetAggregateName, DeleteInstanceCapability.identifier);
 
         this._capabilityStagesGeneratorPipeline = new GeneratorPipeline(
-            new DataLayerGeneratorStage(datasourceConfig, dalLayerGeneratorStrategy),
+            new DataLayerGeneratorStage(constructorInput.datasource, dalLayerGeneratorStrategy),
             new ApplicationLayerStage(appLayerGeneratorStrategy)
             //new PresentationLayerStage(DeleteInstanceCapability.identifier, presentationLayerGeneratorStrategy)
         );

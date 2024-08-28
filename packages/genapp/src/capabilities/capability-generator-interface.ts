@@ -1,40 +1,34 @@
 import { LayerArtifact } from "../engine/layer-artifact";
-import { CapabilityConfiguration, Iri } from "../application-config";
-import { StageGenerationContext } from "../engine/generator-stage-interface";
+import { CapabilityConfiguration, StageGenerationContext } from "../engine/generator-stage-interface";
 import { GeneratorPipeline } from "../engine/generator-pipeline";
 
 export interface CapabilityGenerator {
     generateCapability(config: CapabilityConfiguration): Promise<LayerArtifact>;
 }
 
-export type AggregateStructureMetadata = {
-    iri: Iri;
-    rootClassIri: Iri;
-    humanLabel: string;
-    technicalLabel: string;
-}
-
 export class BaseCapabilityGenerator implements CapabilityGenerator {
 
     protected _capabilityStagesGeneratorPipeline: GeneratorPipeline = null!;
-    protected readonly _aggregateMetadata: AggregateStructureMetadata;
-    private readonly _aggregateIri: string;
+    protected readonly _structureIri: string;
+    private readonly _aggregateName: string;
 
-    constructor(aggregateIri: Iri) {
-        this._aggregateIri = aggregateIri;
-        this._aggregateMetadata = {
-            iri: aggregateIri,
-            rootClassIri: "http://dataspecer.com/sample/root/class/iri",
-            humanLabel: "<Sample Data Structure>",
-            technicalLabel: "sample_data_structure"
-        } as AggregateStructureMetadata;
+
+    constructor(aggregateName: string, structureIri: string) {
+        this._aggregateName = aggregateName;
+        this._structureIri = structureIri;
     }
 
     protected convertConfigToCapabilityContext(config: CapabilityConfiguration): StageGenerationContext {
         const result: StageGenerationContext = {
-            aggregateName: this._aggregateIri,
-            config: config,
-            _: {} // TODO: better handle custom objects (e.g. create default StageGenerationContext instance)
+            // get from graph node / dataspecer structure info
+            aggregateName: this._aggregateName,
+            // should not be needed
+            graph: config.graph,
+            currentNode: config.currentNode,
+
+            // capability info
+            config: config.config,
+            _: {}
         };
 
         return result;

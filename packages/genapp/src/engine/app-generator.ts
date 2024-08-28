@@ -18,8 +18,14 @@ import { ListCapability } from "../capabilities/list";
 import { StaticConfigurationReader } from "../config-reader";
 import { LayerArtifact } from "./layer-artifact";
 import { ReactAppBaseGeneratorStage } from "./react-app-base-stage";
-import { BackendPackageService } from "@dataspecer/core-v2/project";
 import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
+import DalApi from "../data-layer/dal-generator-api";
+import { CapabilityConstructorInput } from "../capabilities/constructor-input";
+
+type CapabilityGeneratorInput = {
+    capabilityIri: string;
+    capabilityConfig: object;
+}
 
 class ApplicationGenerator {
 
@@ -29,17 +35,19 @@ class ApplicationGenerator {
         this._configReader = new StaticConfigurationReader();
     }
 
-    private getCapabilityGenerator(capabilityIri: string, rootAggregateIri: Iri, datasource: Datasource): CapabilityGenerator {
+    private getCapabilityGenerator(
+        capabilityIri: string,
+        constructorInput: CapabilityConstructorInput): CapabilityGenerator {
 
         switch (capabilityIri) {
             case ListCapability.identifier:
-                return new ListCapability(rootAggregateIri, datasource);
+                return new ListCapability(constructorInput);
             case DetailCapability.identifier:
-                return new DetailCapability(rootAggregateIri, datasource);
+                return new DetailCapability(constructorInput);
             case CreateInstanceCapability.identifier:
-                new CreateInstanceCapability(rootAggregateIri, datasource);
+                new CreateInstanceCapability(constructorInput);
             case DeleteInstanceCapability.identifier:
-                new DeleteInstanceCapability(rootAggregateIri, datasource);
+                new DeleteInstanceCapability(constructorInput);
             default:
                 throw new Error(`"${capabilityIri}" does not correspond to a valid capability identifier.`);
         }
@@ -77,14 +85,11 @@ class ApplicationGenerator {
     private async generateAppFromConfig(appGraph: ApplicationGraph) {
         const generationPromises = appGraph.nodes.map(
             async applicationNode => {
-                const transitions = appGraph.getOutgoingEdges(applicationNode);
-                const nodeDatasource = appGraph.getNodeDatasource(applicationNode);
 
                 // TODO: Get result
                 const nodeResult = await this.generateApplicationNode(
                     applicationNode,
-                    transitions,
-                    nodeDatasource
+                    appGraph
                 );
 
                 return {
@@ -102,35 +107,32 @@ class ApplicationGenerator {
 
     private async generateApplicationNode(
         appNode: ApplicationGraphNode,
-        transitions: ApplicationGraphEdge[],
-        datasource: Datasource
-    ) : Promise<LayerArtifact> {
-        const backendUrl = "http://localhost:8889";
+        graph: ApplicationGraph // TODO: remove when not needed
+    ): Promise<LayerArtifact> {
 
-        const structureIri = appNode.structure;
+        const structureIri = appNode.getStructureInfo();
 
+        // TODO: Move to api namespace
+        const result = await new DalApi("http://localhost:8889")
+            .getStructureInfo(structureIri);
 
-        const result = await fetch(`${backendUrl}/resources/blob?iri=${encodeURIComponent(structureIri)}`)
-            .then(response => response.json())
-            .catch(error => {
-                console.error(`Error fetching data with PIM IRI ${structureIri}:`, error);
+        const structureSchema = result.resources[structureIri] as DataPsmSchema;
+        const aggregateName = structureSchema.dataPsmHumanLabel!.en!;   //.toLowerCase().replace(" ", "_");
+        const { iri: capabilityIri, config: capabilityConfig } = appNode.getCapabilityInfo();
+
+        const capabilityConstructorInput: CapabilityConstructorInput = {
+            rootStructureIri: structureIri,
+            rootLabel: aggregateName,
+            datasource: appNode.getDatasource(graph)
+        };
+
+        const capabilityResult = await (this
+            .getCapabilityGenerator(capabilityIri, capabilityConstructorInput)
+            ).generateCapability({
+                graph: graph,
+                currentNode: appNode,
+                config: capabilityConfig,
             });
-
-        console.log(result);
-
-        const structureSchema = (result as any).resources[structureIri] as DataPsmSchema;
-        const aggregateName = structureSchema.dataPsmHumanLabel!.en!.toLowerCase().replace(" ", "_");
-
-        const generator = this.getCapabilityGenerator(
-            appNode.capability,
-            aggregateName,
-            datasource
-        );
-
-        const capabilityResult = await generator.generateCapability({
-            config: appNode.config,
-            transitions: transitions
-        });
 
         return capabilityResult;
     }
@@ -138,4 +140,3 @@ class ApplicationGenerator {
 
 const generator = new ApplicationGenerator();
 generator.generate();
-``

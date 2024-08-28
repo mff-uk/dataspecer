@@ -105,10 +105,10 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
                                                     )
                                                 }
                                                 <TableCell>
-                                                    <ListItemCapabilityOptions
+                                                    <<%= it.instance_capability_options %>
                                                         aggregateName={aggregateName}
                                                         instanceId={obj["$id"]}
-                                                        optionNames={["Detail", "Edit", "Delete"].sort()} // TODO: iterate through supported application graph edges
+                                                        optionNames={ [ <% for (let idx in it.supported_out_list_transitions) { %>"<%~ it.supported_out_list_transitions[idx] %>"<% } %> ] } // TODO: iterate through supported application graph edges
                                                     />
                                                 </TableCell>
                                             </TableRow>

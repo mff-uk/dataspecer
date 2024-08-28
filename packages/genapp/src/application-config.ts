@@ -16,22 +16,62 @@ export type UriDatasource = {
 
 export type DatasourceConfig = LocalDatasource | UriDatasource;
 
-export interface CapabilityConfiguration {
-    transitions: ApplicationGraphEdge[];
-    config: object;
-}
-
 export type Iri = string;
 
 export type Datasource = {
     label: string;
 } & DatasourceConfig;
 
-export type ApplicationGraphNode = {
+export type ApplicationGraphNodeType = {
     iri: Iri;        // node iri
     structure: Iri;  // iri of the datastructure the node refers to
     capability: Iri; // iri of the dataspecer defined capability 
     config: object;     // key-value pairs specific for the specific capability
+}
+
+export class ApplicationGraphNode {
+    private readonly _node: ApplicationGraphNodeType;
+
+    constructor(node: ApplicationGraphNodeType) {
+        this._node = node;
+    }
+
+    public getIri() {
+        return this._node.iri;
+    }
+
+    public getCapabilityInfo() {
+        return {
+            iri: this._node.capability,
+            config: this._node.config
+        };
+    }
+
+    public getStructureInfo() {
+        return this._node.structure;
+    }
+    
+    public getOutgoingEdges(graph: ApplicationGraph): ApplicationGraphEdge[] {
+        return graph
+            .edges
+            .filter(edge => edge.source === this._node.iri);
+    }
+
+    public getIncomingEdges(graph: ApplicationGraph): ApplicationGraphEdge[] {
+        return graph
+            .edges
+            .filter(edge => edge.target === this._node.iri);
+    }
+
+    public getDatasource(graph: ApplicationGraph) {
+        let datasource = graph.datasources.at(0);
+
+        if (!datasource) {
+            throw new Error("Must contain at least 1 datasource");
+        }
+
+        return datasource;
+    }
 }
 
 export enum ApplicationGraphEdgeType {
@@ -74,7 +114,7 @@ export class ApplicationGraph implements ApplicationGraphType {
 
     getNodeByIri(iri: string): ApplicationGraphNode | null {
         let matchingNodes = this.nodes
-            .filter(node => node.iri === iri);
+            .filter(node => node.getIri() === iri);
 
         if (!matchingNodes || matchingNodes.length !== 1) {
             return null;
@@ -85,30 +125,7 @@ export class ApplicationGraph implements ApplicationGraphType {
 
     getNodesByRootDataStructure(rootStructureIri: string): ApplicationGraphNode[] {
         return this.nodes
-            .filter(node => node.structure === rootStructureIri);
-    }
-
-    // TODO: move to node class
-    getOutgoingEdges(node: ApplicationGraphNode): ApplicationGraphEdge[] {
-        return this
-            .edges
-            .filter(edge => edge.source === node.iri);
-    }
-
-    getIncomingEdges(node: ApplicationGraphNode): ApplicationGraphEdge[] {
-        return this
-            .edges
-            .filter(edge => edge.target === node.iri);
-    }
-
-    getNodeDatasource(applicationNode: ApplicationGraphNode) {
-        let datasource = this.datasources.at(0);
-
-        if (!datasource) {
-            throw new Error("Must contain at least 1 datasource");
-        }
-
-        return datasource;
+            .filter(node => node.getStructureInfo() === rootStructureIri);
     }
 }
 

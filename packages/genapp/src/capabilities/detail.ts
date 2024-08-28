@@ -1,34 +1,35 @@
 import { TemplateApplicationLayerGeneratorFactory } from "../app-logic-layer/generator-factory";
 import { ApplicationLayerStage } from "../app-logic-layer/pipeline-stage";
-import { Datasource, Iri } from "../application-config";
 import { DetailTemplateDalGeneratorFactory } from "../data-layer/generator-factory";
 import { DataLayerGeneratorStage } from "../data-layer/pipeline-stage";
 import { GeneratorPipeline } from "../engine/generator-pipeline";
 import { PresentationLayerTemplateGeneratorFactory } from "../presentation-layer/generator-factory";
-import { PresentationLayerStage } from "../presentation-layer/list-pipeline-stage";
+import { PresentationLayerStage } from "../presentation-layer/pipeline-stage";
 import { BaseCapabilityGenerator } from "./capability-generator-interface";
+import { CapabilityConstructorInput } from "./constructor-input";
 
 export class DetailCapability extends BaseCapabilityGenerator {
 
-    public static readonly identifier: string = "https://dataspecer.com/application_graph/capability/detail";
+    public static readonly label: string = "detail";
+    public static readonly identifier: string = `https://dataspecer.com/application_graph/capability/${this.label}`;
 
-    constructor(aggregateIri: Iri, datasourceConfig: Datasource) {
-        super(aggregateIri);
+    constructor(constructorInput: CapabilityConstructorInput) {
+        super(constructorInput.rootLabel, constructorInput.rootStructureIri);
 
-        const dalLayerGeneratorStrategy = DetailTemplateDalGeneratorFactory.getDalGeneratorStrategy(datasourceConfig);
+        const dalLayerGeneratorStrategy = DetailTemplateDalGeneratorFactory.getDalGeneratorStrategy(constructorInput.datasource);
         const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(
-            aggregateIri,
+            constructorInput.rootLabel,
             DetailCapability.identifier
         );
         const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory.getPresentationLayerGenerator(
-            aggregateIri,
+            constructorInput.rootLabel,
             DetailCapability.identifier
         );
 
         this._capabilityStagesGeneratorPipeline = new GeneratorPipeline(
-            new DataLayerGeneratorStage(datasourceConfig, dalLayerGeneratorStrategy),
+            new DataLayerGeneratorStage(constructorInput.datasource, dalLayerGeneratorStrategy),
             new ApplicationLayerStage(appLayerGeneratorStrategy),
-            new PresentationLayerStage(DetailCapability.identifier, presentationLayerGeneratorStrategy)
+            new PresentationLayerStage(DetailCapability.label, presentationLayerGeneratorStrategy)
         );
     }
 }

@@ -2,6 +2,7 @@ import * as fs from "fs";
 import { 
     ApplicationGraph,
     ApplicationGraphEdgeType,
+    ApplicationGraphNode,
     ApplicationGraphType,
     DataSourceType
 } from "./application-config";
@@ -26,35 +27,29 @@ export class StaticConfigurationReader implements ConfigurationReader {
                 }
             ],
             nodes: [
-                {
+                new ApplicationGraphNode({
                     iri:  "https://example.org/application_graph/nodes/1",
-                    structure: "https://ofn.gov.cz/schema/1723477940765-73a8-8ecc-8e45",
+                    structure: "https://ofn.gov.cz/schema/1713975101423-6a97-9fb6-b2db",
                     capability: "https://dataspecer.com/application_graph/capability/list",
                     config: {
                         "showHeader": true,
                         "showAsPopup": false
                     }
-                },
-                // {
-                //     iri: "https://example.org/application_graph/nodes/2",
-                //     structure: "https://ofn.gov.cz/schema/1723477612561-03b0-588d-9bcb",
-                //     capability: "<detailCapabilityId>",
-                //     config: {}
-                // }
+                }),
+                new ApplicationGraphNode({
+                    iri: "https://example.org/application_graph/nodes/2",
+                    structure: "https://ofn.gov.cz/schema/1713975101423-6a97-9fb6-b2db",
+                    capability: "https://dataspecer.com/application_graph/capability/detail",
+                    config: {}
+                })
             ],
             edges: [
-                // {
-                //     iri: "<edge_iri_1>",
-                //     source: "https://example.org/application_graph/nodes/1",
-                //     target: "https://example.org/application_graph/nodes/2",
-                //     type: ApplicationGraphEdgeType.Transition
-                // },
-                // {
-                //     iri: "<edge_iri_2>",
-                //     source: "https://example.org/application_graph/nodes/2",
-                //     target: "https://example.org/application_graph/nodes/1",
-                //     type: ApplicationGraphEdgeType.Redirection
-                // }
+                {
+                    iri: "https://example.org/application_graph/edges/1",
+                    source: "https://example.org/application_graph/nodes/1",
+                    target: "https://example.org/application_graph/nodes/2",
+                    type: ApplicationGraphEdgeType.Transition
+                }
             ]
         }
 
