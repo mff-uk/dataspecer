@@ -6,6 +6,7 @@ import { DetailReaderInterfaceGenerator } from "../../reader-interface-generator
 import { InstanceDetailLdkitReaderTemplate } from "./instance-detail-reader-template";
 
 interface InstanceDetailLdkitReaderDependencyMap extends TemplateDependencyMap {
+    aggregateHumanLabel: string;
     pathResolver: GeneratedFilePathCalculator,
     ldkitSchemaArtifact: LayerArtifact,
     sparqlEndpointUri: string
@@ -13,19 +14,8 @@ interface InstanceDetailLdkitReaderDependencyMap extends TemplateDependencyMap {
 
 export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<InstanceDetailLdkitReaderTemplate> {
 
-    private readonly _aggregateName: string;
-
-    constructor({ templatePath, filePath, aggregateName }: TemplateMetadata & { aggregateName: string }) {
-        super({
-            templatePath,
-            filePath
-        });
-
-        if (!aggregateName || aggregateName === "") {
-            throw new Error(`Invalid aggregate name argument: "${aggregateName}"`);
-        }
-
-        this._aggregateName = aggregateName;
+    constructor(templateMetadata: TemplateMetadata) {
+        super(templateMetadata);
     }
 
     private getReaderInterfaceReturnTypeName(readerInterfaceArtifact: LayerArtifact): LayerArtifact {
@@ -50,7 +40,7 @@ export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<Instanc
         const instanceLdkitReaderTemplate: InstanceDetailLdkitReaderTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: this._aggregateName,
+                aggregate_name: dependencies.aggregateHumanLabel,
                 ldkit_schema: dependencies.ldkitSchemaArtifact.exportedObjectName,
                 ldkit_endpoint_uri: `"${dependencies.sparqlEndpointUri}"`,
                 ldkit_instance_reader: instanceReaderInterfaceArtifact.exportedObjectName,
@@ -74,7 +64,7 @@ export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<Instanc
 
         const readerInterfaceArtifact: LayerArtifact = {
             sourceText: ldkitInstanceDetailReader,
-            exportedObjectName: `${this._aggregateName}LdkitInstanceReader`,
+            exportedObjectName: `${dependencies.aggregateHumanLabel}LdkitInstanceReader`,
             filePath: this._filePath,
             dependencies: [instanceReaderInterfaceArtifact]
         }

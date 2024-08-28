@@ -1,7 +1,7 @@
+import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
 import { Datasource } from "../application-config";
 
 export type CapabilityConstructorInput = {
-    rootStructureIri: string;
-    rootLabel: string;
+    dataStructure: DataPsmSchema;
     datasource: Datasource;
 };

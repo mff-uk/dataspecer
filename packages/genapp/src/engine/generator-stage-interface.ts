@@ -4,12 +4,12 @@ import { ArtifactSaver } from "../utils/artifact-saver";
 
 export interface CapabilityConfiguration {
     graph: ApplicationGraph;
-    currentNode: ApplicationGraphNode; // TODO: to be removed
+    node: ApplicationGraphNode; // TODO: to be removed
     config: object;
 }
 
-export type StageGenerationContext = { 
-    aggregateName: string;
+export type GenerationContext = { 
+    technicalAggregateName: string,
     config: object;
     graph: ApplicationGraph,
     currentNode: ApplicationGraphNode, // TODO: to be removed
@@ -19,5 +19,5 @@ export type StageGenerationContext = {
 
 export interface GeneratorStage {
     artifactSaver?: ArtifactSaver;
-    generateStage(context: StageGenerationContext): Promise<LayerArtifact>;
+    generateStage(context: GenerationContext): Promise<LayerArtifact>;
 }

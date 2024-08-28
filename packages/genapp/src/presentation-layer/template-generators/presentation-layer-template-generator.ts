@@ -1,5 +1,5 @@
 import { TemplateDescription } from "../../engine/eta-template-renderer";
-import { StageGenerationContext } from "../../engine/generator-stage-interface";
+import { GenerationContext } from "../../engine/generator-stage-interface";
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { TemplateConsumer } from "../../templates/template-consumer";
 import { PresentationLayerGenerator } from "../strategy-interface";
@@ -9,7 +9,7 @@ export abstract class PresentationLayerTemplateGenerator<TemplateType extends Te
     
     strategyIdentifier: string = "";
 
-    generatePresentationLayer(context: StageGenerationContext): Promise<LayerArtifact> {
+    generatePresentationLayer(context: GenerationContext): Promise<LayerArtifact> {
         if (!context.previousResult) {
             const errorArtifact: LayerArtifact = {
                 filePath: "",
@@ -25,7 +25,8 @@ export abstract class PresentationLayerTemplateGenerator<TemplateType extends Te
         }
 
         const presentationLayerArtifact = this.processTemplate({
-            aggregateName: context.aggregateName,
+            // TODO: Change to human label aggregate name identifier (without spaces pascal camel case)
+            aggregateHumanLabel: context.technicalAggregateName,
             pathResolver: context._.pathResolver,   
             appLogicArtifact: context.previousResult,
             graph: context.graph,

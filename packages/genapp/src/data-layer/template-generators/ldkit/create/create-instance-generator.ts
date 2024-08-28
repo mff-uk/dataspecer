@@ -6,6 +6,8 @@ import { InstanceCreatorInterfaceGenerator } from "../../reader-interface-genera
 import { CreateLdkitInstanceTemplate } from "./create-instance-template";
 
 interface CreateLdkitInstanceDependencyMap extends TemplateDependencyMap {
+    // TODO: Change to human label aggregate name identifier (without spaces pascal camel case)
+    aggregateHumanLabel: string,
     pathResolver: GeneratedFilePathCalculator,
     ldkitSchemaArtifact: LayerArtifact,
     sparqlEndpointUri: string
@@ -13,11 +15,8 @@ interface CreateLdkitInstanceDependencyMap extends TemplateDependencyMap {
 
 export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitInstanceTemplate> {
 
-    private readonly _aggregateName: string;
-
-    constructor({ templatePath, filePath, aggregateName }: TemplateMetadata & { aggregateName: string }) {
-        super({ templatePath, filePath });
-        this._aggregateName = aggregateName;
+    constructor(templateMetadata: TemplateMetadata) {
+        super(templateMetadata);
     }
 
     processTemplate(dependencies: CreateLdkitInstanceDependencyMap): LayerArtifact {
@@ -39,7 +38,7 @@ export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitIn
         const createTemplate: CreateLdkitInstanceTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: this._aggregateName,
+                aggregate_name: dependencies.aggregateHumanLabel,
                 creator_interface_type: creatorInterfaceArtifact.exportedObjectName,
                 creator_interface_type_path: {
                     from: this._filePath,
@@ -62,7 +61,7 @@ export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitIn
         const createInstanceRender = this._templateRenderer.renderTemplate(createTemplate);
 
         const createDalLayerArtifact: LayerArtifact = {
-            exportedObjectName: `${this._aggregateName}LdkitInstanceCreator`,
+            exportedObjectName: `${dependencies.aggregateHumanLabel}LdkitInstanceCreator`,
             filePath: this._filePath,
             sourceText: createInstanceRender,
             dependencies: [creatorInterfaceArtifact]

@@ -27,7 +27,7 @@ export class CreateInstanceAppLayerTemplateProcessor extends ApplicationLayerTem
         const createInstanceAppLayerTemplate: CreateInstanceCapabilityAppLayerTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: dependencies.aggregateName,
+                aggregate_name: dependencies.aggregateHumanLabel,
                 instance_creator_type: dependencies.dataLayerLinkArtifact.exportedObjectName,
                 instance_creator_type_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
@@ -51,7 +51,7 @@ export class CreateInstanceAppLayerTemplateProcessor extends ApplicationLayerTem
 
         const createAppLayerArtifact: LayerArtifact = {
             filePath: this._filePath,
-            exportedObjectName: `${dependencies.aggregateName}CreateCapabilityLogic`,
+            exportedObjectName: `${dependencies.aggregateHumanLabel}CreateCapabilityLogic`,
             sourceText: createInstanceAppLayerRender,
             dependencies: [creatorInterfaceArtifact, createReturnTypeArtifact]
         }

@@ -3,7 +3,7 @@ import { TemplateDependencyMap } from "../../templates/template-consumer";
 import { GeneratedFilePathCalculator } from "../../utils/artifact-saver";
 
 export interface ApplicationLayerTemplateDependencyMap extends TemplateDependencyMap {
-    aggregateName: string,
+    aggregateHumanLabel: string,
     pathResolver: GeneratedFilePathCalculator,
     dataLayerLinkArtifact: LayerArtifact
 }

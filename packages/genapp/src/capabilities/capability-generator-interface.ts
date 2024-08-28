@@ -1,6 +1,7 @@
 import { LayerArtifact } from "../engine/layer-artifact";
-import { CapabilityConfiguration, StageGenerationContext } from "../engine/generator-stage-interface";
+import { CapabilityConfiguration, GenerationContext } from "../engine/generator-stage-interface";
 import { GeneratorPipeline } from "../engine/generator-pipeline";
+import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
 
 export interface CapabilityGenerator {
     generateCapability(config: CapabilityConfiguration): Promise<LayerArtifact>;
@@ -8,23 +9,46 @@ export interface CapabilityGenerator {
 
 export class BaseCapabilityGenerator implements CapabilityGenerator {
 
-    protected _capabilityStagesGeneratorPipeline: GeneratorPipeline = null!;
-    protected readonly _structureIri: string;
-    private readonly _aggregateName: string;
+    protected _capabilityStagesGeneratorPipeline: GeneratorPipeline = null!;    
+    protected readonly _dataStructure: DataPsmSchema;
+    protected readonly _aggregateName: string;
 
-
-    constructor(aggregateName: string, structureIri: string) {
-        this._aggregateName = aggregateName;
-        this._structureIri = structureIri;
+    constructor(targetDataStructure: DataPsmSchema) {
+        this._dataStructure = targetDataStructure;
+        this._aggregateName = this.getAggregateName(targetDataStructure);
     }
 
-    protected convertConfigToCapabilityContext(config: CapabilityConfiguration): StageGenerationContext {
-        const result: StageGenerationContext = {
-            // get from graph node / dataspecer structure info
-            aggregateName: this._aggregateName,
+    private getAggregateName(targetDataStructure: DataPsmSchema): string {
+
+        if (targetDataStructure.dataPsmTechnicalLabel) {
+            return targetDataStructure.dataPsmTechnicalLabel;
+        }
+
+        if (!targetDataStructure.dataPsmHumanLabel ||
+            Object.keys(targetDataStructure.dataPsmHumanLabel).length === 0) {
+            throw new Error(`Data structure ${targetDataStructure.iri} is missing a name.`);
+        }
+
+        const labelKeys = Object.keys(targetDataStructure.dataPsmHumanLabel);
+
+        const humanLabel = labelKeys.includes("en")
+            ? targetDataStructure.dataPsmHumanLabel["en"]!
+            : targetDataStructure.dataPsmHumanLabel[labelKeys.at(0)!]!;
+
+        const aggregateName = humanLabel
+            .toLowerCase()
+            .replaceAll(/\s+/, "-");
+
+        return aggregateName;
+    }
+
+    private convertToGenerationContext(config: CapabilityConfiguration): GenerationContext {
+        const result: GenerationContext = {
+            technicalAggregateName: this._aggregateName,
+
             // should not be needed
             graph: config.graph,
-            currentNode: config.currentNode,
+            currentNode: config.node,
 
             // capability info
             config: config.config,
@@ -35,9 +59,10 @@ export class BaseCapabilityGenerator implements CapabilityGenerator {
     }
 
     generateCapability(config: CapabilityConfiguration): Promise<LayerArtifact> {
-        const stageContext = this.convertConfigToCapabilityContext(config);
+        const generationContext = this.convertToGenerationContext(config);
 
-        const pipelineOutput = this._capabilityStagesGeneratorPipeline.generateStages(stageContext);
-        return pipelineOutput;
+        return this
+            ._capabilityStagesGeneratorPipeline
+            .generateStages(generationContext);
     }
 }

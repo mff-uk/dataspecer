@@ -1,5 +1,5 @@
 import { TemplateDescription } from "../../engine/eta-template-renderer";
-import { StageGenerationContext } from "../../engine/generator-stage-interface";
+import { GenerationContext } from "../../engine/generator-stage-interface";
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { TemplateConsumer } from "../../templates/template-consumer";
 import { ApplicationLayerGenerator } from "../strategy-interface";
@@ -9,7 +9,7 @@ export abstract class ApplicationLayerTemplateGenerator<TemplateType extends Tem
     
     strategyIdentifier: string = "";
 
-    generateApplicationLayer(context: StageGenerationContext): Promise<LayerArtifact> {
+    generateApplicationLayer(context: GenerationContext): Promise<LayerArtifact> {
         
         if (!context.previousResult) {
             throw new Error("Application layer depends on LayerArtifact generated within previous layer");
@@ -20,7 +20,8 @@ export abstract class ApplicationLayerTemplateGenerator<TemplateType extends Tem
         }
 
         const applicationLayer = this.processTemplate({
-            aggregateName: context.aggregateName,
+            // TODO: Change to human label aggregate name identifier (without spaces pascal camel case)
+            aggregateHumanLabel: context.technicalAggregateName,
             pathResolver: context._.pathResolver,
             dataLayerLinkArtifact: context.previousResult
         });

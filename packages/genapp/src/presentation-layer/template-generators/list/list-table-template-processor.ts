@@ -1,4 +1,5 @@
-import { ApplicationGraph, ApplicationGraphEdgeType, ApplicationGraphNode } from "../../../application-config";
+// TODO: merge / reduce imports
+import { ApplicationGraph, ApplicationGraphNode } from "../../../application-config";
 import { CreateInstanceCapability } from "../../../capabilities/create-instance";
 import { DeleteInstanceCapability } from "../../../capabilities/delete-instance";
 import { DetailCapability } from "../../../capabilities/detail";

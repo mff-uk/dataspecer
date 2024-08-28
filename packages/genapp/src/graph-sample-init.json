@@ -9,7 +9,7 @@
     "nodes": [
         {
             "iri":  "https://example.org/application_graph/nodes/1",
-            "structure": "https://ofn.gov.cz/schema/1723477940765-73a8-8ecc-8e45",
+            "structure": "https://ofn.gov.cz/schema/1713975101423-6a97-9fb6-b2db",
             "capability": "https://dataspecer.com/application_graph/capability/list",
             "config": {
                 "showHeader": true,
@@ -18,8 +18,8 @@
         },
         {
             "iri": "https://example.org/application_graph/nodes/2",
-            "structure": "https://ofn.gov.cz/schema/1723477612561-03b0-588d-9bcb",
-            "capabilityId": "<detailCapabilityId>",
+            "structure": "https://ofn.gov.cz/schema/1713975101423-6a97-9fb6-b2db",
+            "capabilityId": "https://dataspecer.com/application_graph/capability/detail",
             "config": {}
         }
     ],

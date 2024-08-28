@@ -29,6 +29,7 @@ export class StaticConfigurationReader implements ConfigurationReader {
             nodes: [
                 new ApplicationGraphNode({
                     iri:  "https://example.org/application_graph/nodes/1",
+                    // Dataset structure from Genapp local specification
                     structure: "https://ofn.gov.cz/schema/1713975101423-6a97-9fb6-b2db",
                     capability: "https://dataspecer.com/application_graph/capability/list",
                     config: {
@@ -38,6 +39,7 @@ export class StaticConfigurationReader implements ConfigurationReader {
                 }),
                 new ApplicationGraphNode({
                     iri: "https://example.org/application_graph/nodes/2",
+                    // Dataset structure from Genapp local specification
                     structure: "https://ofn.gov.cz/schema/1713975101423-6a97-9fb6-b2db",
                     capability: "https://dataspecer.com/application_graph/capability/detail",
                     config: {}

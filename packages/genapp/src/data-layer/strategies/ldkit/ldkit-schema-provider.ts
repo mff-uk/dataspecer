@@ -20,7 +20,7 @@ export class LdkitSchemaProvider implements SchemaProvider {
     private readonly _api: DalApi;
 
     constructor() {
-        this._api = new DalApi("http://localhost:8889");    //process.env.APP_BACKEND!);
+        this._api = new DalApi("http://localhost:8889");
     }
 
     async getSchemaArtifact(aggregateName: string): Promise<LayerArtifact> {

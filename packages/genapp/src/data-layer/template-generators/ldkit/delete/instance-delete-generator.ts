@@ -6,6 +6,7 @@ import { DeleteInstanceMutatorInterfaceGenerator } from "../../reader-interface-
 import { InstanceResultReturnInterfaceGenerator } from "../../../../capabilities/template-generators/capability-interface-generator";
 
 interface LdkitInstanceDeleteMutatorDependencyMap extends TemplateDependencyMap {
+    aggregateHumanLabel: string,
     pathResolver: GeneratedFilePathCalculator,
     ldkitSchemaArtifact: LayerArtifact,
     sparqlEndpointUri: string
@@ -13,14 +14,8 @@ interface LdkitInstanceDeleteMutatorDependencyMap extends TemplateDependencyMap 
 
 export class InstanceDeleteLdkitGenerator extends TemplateConsumer<InstanceDeleteLdkitTemplate> {
 
-    private readonly _aggregateName: string;
-
-    constructor({ templatePath, filePath, aggregateName }: TemplateMetadata & { aggregateName: string }) {
-        super({
-            templatePath,
-            filePath
-        });
-        this._aggregateName = aggregateName;
+    constructor(templateMetadata: TemplateMetadata) {
+        super(templateMetadata);
     }
 
     processTemplate(dependencies: LdkitInstanceDeleteMutatorDependencyMap): LayerArtifact {
@@ -42,7 +37,7 @@ export class InstanceDeleteLdkitGenerator extends TemplateConsumer<InstanceDelet
         const deleteTemplate: InstanceDeleteLdkitTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: this._aggregateName,
+                aggregate_name: dependencies.aggregateHumanLabel,
                 delete_mutator_interface_type: deleteMutatorInterfaceArtifact.exportedObjectName,
                 delete_mutator_interface_type_path: {
                     from: this._filePath,
@@ -65,7 +60,7 @@ export class InstanceDeleteLdkitGenerator extends TemplateConsumer<InstanceDelet
         const deleteInstanceRender = this._templateRenderer.renderTemplate(deleteTemplate);
 
         const deleteDalLayerArtifact: LayerArtifact = {
-            exportedObjectName: `${this._aggregateName}LdkitInstanceDeleteMutator`,
+            exportedObjectName: `${dependencies.aggregateHumanLabel}LdkitInstanceDeleteMutator`,
             filePath: this._filePath,
             sourceText: deleteInstanceRender,
             dependencies: [deleteMutatorInterfaceArtifact]

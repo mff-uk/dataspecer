@@ -17,7 +17,7 @@ export class ListAppLayerTemplateProcessor extends ApplicationLayerTemplateGener
 
     processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): LayerArtifact {
 
-        const listAppLayerExportName = `${dependencies.aggregateName}ListCapabilityLogic`
+        const listAppLayerExportName = `${dependencies.aggregateHumanLabel}ListCapabilityLogic`
         const readerInterfaceArtifact = ListReaderInterfaceGenerator.processTemplate();
         
         if (!readerInterfaceArtifact.dependencies || readerInterfaceArtifact.dependencies.length === 0) {

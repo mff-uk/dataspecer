@@ -11,7 +11,7 @@ export class DetailComponentTemplateProcessor extends PresentationLayerTemplateG
         const instanceDetailTemplate: DetailReactComponentTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: dependencies.aggregateName,
+                aggregate_name: dependencies.aggregateHumanLabel,
                 detail_app_layer_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
                     to: dependencies.appLogicArtifact.filePath
@@ -27,7 +27,7 @@ export class DetailComponentTemplateProcessor extends PresentationLayerTemplateG
 
         const presentationLayerArtifact: LayerArtifact = {
             filePath: this._filePath,
-            exportedObjectName: `${dependencies.aggregateName}InstanceDetail`,
+            exportedObjectName: `${dependencies.aggregateHumanLabel}InstanceDetail`,
             sourceText: instanceDetailComponentRender,
             dependencies: [dependencies.appLogicArtifact]
         }

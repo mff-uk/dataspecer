@@ -1,7 +1,6 @@
 
 import { TemplateApplicationLayerGeneratorFactory } from "../app-logic-layer/generator-factory";
 import { ApplicationLayerStage } from "../app-logic-layer/pipeline-stage";
-import { DatasourceConfig } from "../application-config";
 import { ListTemplateDalGeneratorFactory } from "../data-layer/generator-factory";
 import { DataLayerGeneratorStage } from "../data-layer/pipeline-stage";
 import { GeneratorPipeline } from "../engine/generator-pipeline";
@@ -16,15 +15,15 @@ export class ListCapability extends BaseCapabilityGenerator {
     public static readonly identifier: string = `https://dataspecer.com/application_graph/capability/${this.label}`;
 
     constructor(constructorInput: CapabilityConstructorInput) {
-        super(constructorInput.rootLabel, constructorInput.rootStructureIri);
+        super(constructorInput.dataStructure);
 
         const dalLayerGeneratorStrategy = ListTemplateDalGeneratorFactory.getDalGeneratorStrategy(constructorInput.datasource);
         const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(
-            constructorInput.rootLabel,
+            this._aggregateName,
             ListCapability.identifier
         );
         const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory.getPresentationLayerGenerator(
-            constructorInput.rootLabel,
+            this._aggregateName,
             ListCapability.identifier
         );
 

@@ -1,4 +1,6 @@
+import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
 import { LayerArtifact } from "./engine/layer-artifact";
+import DalApi from "./data-layer/dal-generator-api";
 
 export enum DataSourceType {
     Local,
@@ -47,8 +49,16 @@ export class ApplicationGraphNode {
         };
     }
 
-    public getStructureInfo() {
+    public getStructureIri() {
         return this._node.structure;
+    }
+
+    public async getNodeDataStructure(): Promise<DataPsmSchema> {
+        
+        const dataStructure = await new DalApi("http://localhost:8889")
+            .getStructureInfo(this._node.structure);
+
+        return dataStructure;
     }
     
     public getOutgoingEdges(graph: ApplicationGraph): ApplicationGraphEdge[] {
@@ -125,7 +135,7 @@ export class ApplicationGraph implements ApplicationGraphType {
 
     getNodesByRootDataStructure(rootStructureIri: string): ApplicationGraphNode[] {
         return this.nodes
-            .filter(node => node.getStructureInfo() === rootStructureIri);
+            .filter(node => node.getStructureIri() === rootStructureIri);
     }
 }
 

@@ -1,4 +1,4 @@
-import { GeneratorStage, type StageGenerationContext } from "../engine/generator-stage-interface";
+import { GeneratorStage, type GenerationContext } from "../engine/generator-stage-interface";
 import { ArtifactSaver } from "../utils/artifact-saver";
 import { LayerArtifact, isLayerArtifact } from "../engine/layer-artifact";
 import { DalGeneratorStrategy } from "./strategy-interface";
@@ -16,12 +16,12 @@ export class DataLayerGeneratorStage implements GeneratorStage {
         this.artifactSaver = new ArtifactSaver("/data-layer");
     }
 
-    async generateStage(context: StageGenerationContext): Promise<LayerArtifact> {
+    async generateStage(context: GenerationContext): Promise<LayerArtifact> {
 
         context._.pathResolver = this.artifactSaver;
-        if (this._datasourceConfig.format !== DataSourceType.Local) {
-            context._.sparqlEndpointUri = this._datasourceConfig.endpoint;
-        }
+        // if (this._datasourceConfig.format !== DataSourceType.Local) {
+        //     context._.sparqlEndpointUri = this._datasourceConfig.endpoint;
+        // }
 
         const dalArtifact = await this._dalGeneratorStrategy.generateDataLayer(context);
 
@@ -29,6 +29,6 @@ export class DataLayerGeneratorStage implements GeneratorStage {
             throw new Error("Could not generate application data layer");
         }
 
-        return dalArtifact as LayerArtifact;
+        return dalArtifact;
     }
 }

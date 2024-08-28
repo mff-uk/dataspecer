@@ -1,4 +1,9 @@
 import axios, { AxiosResponse, HttpStatusCode } from "axios";
+import { DataSpecification } from "@dataspecer/core/data-specification/model/data-specification";
+import {Resource} from "@dataspecer/federated-observable-store/resource";
+import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
+import { CoreResourceReader } from "@dataspecer/core/core/core-reader";
+import { CoreResource } from "@dataspecer/core/core/core-resource";
 
 export default class DalApi {
     private readonly endpointBaseUri: string;
@@ -20,24 +25,46 @@ export default class DalApi {
         return promise;
     }
 
-    async getStructureInfo(structureIri: string) {
+    async getDataSpecification(): Promise<DataSpecification> {
+        const response = await axios.get<DataSpecification>(`${this.endpointBaseUri}/data-specification?dataSpecificationIri=${this.dataSpecificationIri}`);
 
-        
-        console.log("BACKEND: ", process.env.APP_BACKEND);
-        const pimStructure = await axios
+        const dataSpecficiationModel = response.data;
+
+        if (!dataSpecficiationModel) {
+            throw new Error("Invalid data specification received");
+        }
+
+        return dataSpecficiationModel;
+    }
+
+    async getStructureInfo(structureIri: string): Promise<DataPsmSchema> {
+
+        // const specificationModel = await this.getDataSpecification();
+
+        // if (!specificationModel.psms.includes(structureIri)) {
+        //     throw new Error(`Selected data specification does not contain data structure: ${structureIri}`);
+        // }
+
+        const response = await axios
             .get(`${this.endpointBaseUri}/resources/blob?iri=${encodeURIComponent(structureIri)}`);
 
-        if (pimStructure.status !== HttpStatusCode.Ok) {
-            console.error(pimStructure);
+        if (response.status !== HttpStatusCode.Ok) {
+            console.error(response);
             throw new Error(`Error fetching data with PIM IRI ${structureIri}:`);
         }
 
-        return pimStructure.data().json();
-        
-        // const result = await fetch()
-        //     .then(response => response.json())
-        //     .catch(error => {
-        //         console.error(`Error fetching data with PIM IRI ${structureIri}:`, error);
-        //     });
+        const psmResourceMap = response.data().resources as ResourceMap<DataPsmSchema>;
+
+        const dataStructure = psmResourceMap[structureIri];
+
+        if (!dataStructure) {
+            throw new Error(`${structureIri} does not reference any valid data structure`);
+        }
+
+        return dataStructure;
     }
+}
+
+type ResourceMap<TResource extends CoreResource> = {
+    [resourceIri: string]: TResource
 }

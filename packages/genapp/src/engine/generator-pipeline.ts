@@ -1,15 +1,19 @@
-import { GeneratorStage, StageGenerationContext } from "./generator-stage-interface";
+import { GenerationContext, GeneratorStage } from "./generator-stage-interface";
 import { LayerArtifact } from "./layer-artifact";
 
 export class GeneratorPipeline {
     private readonly _pipelineStages: GeneratorStage[];
-    private lastArtifact: LayerArtifact | undefined;
+    private _pipelineOutputArtifact: LayerArtifact | undefined;
 
     constructor(...stages: GeneratorStage[]) {
         this._pipelineStages = stages;
     }
 
-    async generateStages(context: StageGenerationContext): Promise<LayerArtifact> {
+    async generateStages(context: GenerationContext): Promise<LayerArtifact> {
+
+        if (!this._pipelineStages || this._pipelineStages.length === 0) {
+            throw new Error("No stages to be generated");
+        }
 
         for (const stage of this._pipelineStages) {
             const layerArtifact = await stage.generateStage(context);
@@ -21,14 +25,10 @@ export class GeneratorPipeline {
                 layerOutput = savedArtifact;
             }
 
-            this.lastArtifact = layerOutput;
+            this._pipelineOutputArtifact = layerOutput;
             context.previousResult = layerOutput;
         }
 
-        if (!this.lastArtifact) {
-            throw new Error("No artifact provided as output from the pipeline.");
-        }
-
-        return this.lastArtifact;
+        return this._pipelineOutputArtifact!;
     }
 }

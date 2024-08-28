@@ -4,7 +4,8 @@ import { TemplateDependencyMap } from "../../templates/template-consumer";
 import { GeneratedFilePathCalculator } from "../../utils/artifact-saver";
 
 export interface PresentationLayerDependencyMap extends TemplateDependencyMap {
-    aggregateName: string,
+    // TODO: Change to human label aggregate name identifier (without spaces pascal camel case)
+    aggregateHumanLabel: string,
     pathResolver: GeneratedFilePathCalculator,
     appLogicArtifact: LayerArtifact;
     graph: ApplicationGraph;

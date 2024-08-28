@@ -1,4 +1,4 @@
-import { StageGenerationContext } from "../../../engine/generator-stage-interface";
+import { GenerationContext } from "../../../engine/generator-stage-interface";
 import { DalGeneratorStrategy } from "../../strategy-interface";
 import { LdkitSchemaProvider, SchemaProvider } from "./ldkit-schema-provider";
 import { CreateLdkitInstanceGenerator } from "../../template-generators/ldkit/create/create-instance-generator";
@@ -19,16 +19,17 @@ export class CreateLdkitInstanceDalStrategy implements DalGeneratorStrategy {
         this._sparqlEndpointUri = datasourceConfig.endpoint;
     }
 
-    async generateDataLayer(context: StageGenerationContext) {
+    async generateDataLayer(context: GenerationContext) {
 
         const ldkitSchemaArtifact = await this._schemaProvider.getSchemaArtifact(context.aggregateName);
 
         const instanceCreatorDataLayerArtifact = new CreateLdkitInstanceGenerator({
-            aggregateName: context.aggregateName,
-            filePath: `./writers/${this.strategyIdentifier}/${context.aggregateName.toLowerCase()}-create-instance.ts`,
+            filePath: `./writers/${this.strategyIdentifier}/${context.technicalAggregateName}-create-instance.ts`,
             templatePath: "./create/data-layer/ldkit/instance-creator",
         })
             .processTemplate({
+                // TODO: Change to human label aggregate name identifier (without spaces pascal camel case)
+                aggregateHumanLabel: context.technicalAggregateName,
                 sparqlEndpointUri: this._sparqlEndpointUri,
                 ldkitSchemaArtifact: ldkitSchemaArtifact,
                 pathResolver: context._.pathResolver

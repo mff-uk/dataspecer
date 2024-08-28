@@ -1,5 +1,5 @@
 import { DatasourceConfig, DataSourceType } from "../../../application-config";
-import { StageGenerationContext } from "../../../engine/generator-stage-interface";
+import { GenerationContext } from "../../../engine/generator-stage-interface";
 import { DalGeneratorStrategy } from "../../strategy-interface";
 import { InstanceDeleteLdkitGenerator } from "../../template-generators/ldkit/delete/instance-delete-generator";
 import { LdkitSchemaProvider, SchemaProvider } from "./ldkit-schema-provider";
@@ -20,16 +20,17 @@ export class LdkitDeleteDalGenerator implements DalGeneratorStrategy {
         this._sparqlEndpointUri = datasourceConfig.endpoint;
     }
 
-    async generateDataLayer(context: StageGenerationContext) {
+    async generateDataLayer(context: GenerationContext) {
 
         const ldkitSchemaArtifact = await this._schemaProvider.getSchemaArtifact(context.aggregateName);
 
         const instanceListReaderArtifact = new InstanceDeleteLdkitGenerator({
-            aggregateName: context.aggregateName,
-            filePath: `./writers/${this.strategyIdentifier}/${context.aggregateName.toLowerCase()}-instance-delete.ts`,
+            filePath: `./writers/${this.strategyIdentifier}/${context.technicalAggregateName}-instance-delete.ts`,
             templatePath: "./delete/data-layer/ldkit/instance-delete-mutator",
         })
         .processTemplate({
+            // TODO: Change to human label aggregate name identifier (without spaces pascal camel case)
+            aggregateHumanLabel: context.technicalAggregateName,
             sparqlEndpointUri: this._sparqlEndpointUri,
             ldkitSchemaArtifact: ldkitSchemaArtifact,
             pathResolver: context._.pathResolver

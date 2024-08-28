@@ -52,7 +52,7 @@ export class DeleteAppLayerTemplateProcessor extends ApplicationLayerTemplateGen
 
         const deleteInstanceLayerArtifact: LayerArtifact = {
             filePath: this._filePath,
-            exportedObjectName: `${dependencies.aggregateName}DeleteCapabilityLogic`,
+            exportedObjectName: `${dependencies.aggregateHumanLabel}DeleteCapabilityLogic`,
             sourceText: deleteInstanceAppLayerRender,
             dependencies: [deleteMutatorInterfaceArtifact, deleteReturnTypeArtifact]
         }

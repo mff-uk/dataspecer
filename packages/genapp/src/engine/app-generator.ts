@@ -1,31 +1,18 @@
 
-import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import {
     ApplicationGraph,
-    ApplicationGraphEdge,
     ApplicationGraphNode,
-    Datasource,
-    DatasourceConfig,
-    Iri,
     NodeResult
 } from "../application-config";
 import { CapabilityGenerator } from "../capabilities/capability-generator-interface";
 import { CreateInstanceCapability } from "../capabilities/create-instance";
-import { CustomCapabilityGenerator } from "../capabilities/custom-capability";
 import { DeleteInstanceCapability } from "../capabilities/delete-instance";
 import { DetailCapability } from "../capabilities/detail";
 import { ListCapability } from "../capabilities/list";
 import { StaticConfigurationReader } from "../config-reader";
 import { LayerArtifact } from "./layer-artifact";
 import { ReactAppBaseGeneratorStage } from "./react-app-base-stage";
-import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
-import DalApi from "../data-layer/dal-generator-api";
 import { CapabilityConstructorInput } from "../capabilities/constructor-input";
-
-type CapabilityGeneratorInput = {
-    capabilityIri: string;
-    capabilityConfig: object;
-}
 
 class ApplicationGenerator {
 
@@ -106,31 +93,23 @@ class ApplicationGenerator {
     }
 
     private async generateApplicationNode(
-        appNode: ApplicationGraphNode,
+        currentNode: ApplicationGraphNode,
         graph: ApplicationGraph // TODO: remove when not needed
     ): Promise<LayerArtifact> {
 
-        const structureIri = appNode.getStructureInfo();
-
-        // TODO: Move to api namespace
-        const result = await new DalApi("http://localhost:8889")
-            .getStructureInfo(structureIri);
-
-        const structureSchema = result.resources[structureIri] as DataPsmSchema;
-        const aggregateName = structureSchema.dataPsmHumanLabel!.en!;   //.toLowerCase().replace(" ", "_");
-        const { iri: capabilityIri, config: capabilityConfig } = appNode.getCapabilityInfo();
+        const dataStructure = await currentNode.getNodeDataStructure();
+        const { iri: capabilityIri, config: capabilityConfig } = currentNode.getCapabilityInfo();
 
         const capabilityConstructorInput: CapabilityConstructorInput = {
-            rootStructureIri: structureIri,
-            rootLabel: aggregateName,
-            datasource: appNode.getDatasource(graph)
+            dataStructure: dataStructure,
+            datasource: currentNode.getDatasource(graph)
         };
 
         const capabilityResult = await (this
-            .getCapabilityGenerator(capabilityIri, capabilityConstructorInput)
-            ).generateCapability({
+            .getCapabilityGenerator(capabilityIri, capabilityConstructorInput))
+            .generateCapability({
                 graph: graph,
-                currentNode: appNode,
+                node: currentNode,
                 config: capabilityConfig,
             });
 

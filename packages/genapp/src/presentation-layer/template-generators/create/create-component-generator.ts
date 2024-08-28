@@ -11,7 +11,7 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
         const createInstanceComponentTemplate: CreateInstanceReactComponentTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: dependencies.aggregateName,
+                aggregate_name: dependencies.aggregateHumanLabel,
                 create_capability_app_layer: dependencies.appLogicArtifact.exportedObjectName,
                 create_capability_app_layer_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
@@ -27,7 +27,7 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
 
         const presentationLayerArtifact: LayerArtifact = {
             filePath: this._filePath,
-            exportedObjectName: `Create${dependencies.aggregateName}Instance`,
+            exportedObjectName: `Create${dependencies.aggregateHumanLabel}Instance`,
             sourceText: instanceDetailComponentRender,
             dependencies: [dependencies.appLogicArtifact]
         }

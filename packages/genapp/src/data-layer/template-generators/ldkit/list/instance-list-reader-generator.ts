@@ -4,6 +4,7 @@ import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../..
 import { BaseListLdkitReaderGenerator } from "./base-list-reader-generator";
 
 interface InstanceListLdkitReaderDependencyMap extends TemplateDependencyMap {
+    aggregateHumanLabel: string,
     ldkitSchemaArtifact: LayerArtifact,
     sparqlEndpointUri: string
 }
@@ -14,19 +15,8 @@ function isInstanceListLdkitReaderDependencyList(obj: TemplateDependencyMap): ob
 
 export class InstanceListLdkitReaderGenerator extends TemplateConsumer<InstanceListLdkitReaderTemplate> {
 
-    private readonly _aggregateName: string;
-
-    constructor({ templatePath, filePath, aggregateName } : TemplateMetadata & { aggregateName: string }) {
-        super({
-            templatePath,
-            filePath
-        });
-
-        if (!aggregateName || aggregateName === "") {
-            throw new Error(`Invalid aggregate name argument: "${aggregateName}"`);
-        }
-
-        this._aggregateName = aggregateName;
+    constructor(templateMetadata: TemplateMetadata) {
+        super(templateMetadata);
     }
 
     processTemplate(dependencies: InstanceListLdkitReaderDependencyMap): LayerArtifact {
@@ -40,7 +30,7 @@ export class InstanceListLdkitReaderGenerator extends TemplateConsumer<InstanceL
         const instanceListLdkitReaderTemplate: InstanceListLdkitReaderTemplate = { 
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: this._aggregateName,
+                aggregate_name: dependencies.aggregateHumanLabel,
                 ldkit_endpoint_uri: `"${dependencies.sparqlEndpointUri}"`,
                 ldkit_schema: dependencies.ldkitSchemaArtifact.exportedObjectName,
                 ldkit_list_reader_base_class: baseLdkitListReaderArtifact.exportedObjectName,
@@ -59,7 +49,7 @@ export class InstanceListLdkitReaderGenerator extends TemplateConsumer<InstanceL
 
         const readerInterfaceArtifact: LayerArtifact = {
             sourceText: ldkitInstanceListReader,
-            exportedObjectName: `${this._aggregateName}LdkitListReader`,
+            exportedObjectName: `${dependencies.aggregateHumanLabel}LdkitListReader`,
             filePath: this._filePath,
             dependencies: [baseLdkitListReaderArtifact, dependencies.ldkitSchemaArtifact]
         }

@@ -16,7 +16,7 @@ export class DetailAppLayerTemplateProcessor extends ApplicationLayerTemplateGen
 
     processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): LayerArtifact {
         
-        const detailAppLayerExportedName: string = `${dependencies.aggregateName}DetailCapabilityLogic`;
+        const detailAppLayerExportedName: string = `${dependencies.aggregateHumanLabel}DetailCapabilityLogic`;
         const instanceReaderInterfaceArtifact = DetailReaderInterfaceGenerator.processTemplate();
 
         if (!instanceReaderInterfaceArtifact.dependencies || instanceReaderInterfaceArtifact.dependencies.length === 0) {

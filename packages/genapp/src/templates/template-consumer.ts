@@ -1,6 +1,7 @@
 import { TemplateDescription, TemplateGenerator } from "../engine/eta-template-renderer";
 import { LayerArtifact } from "../engine/layer-artifact";
 
+// TODO: add default key "aggregateHumanLabel": string;
 export type TemplateDependencyMap = Record<string, any>;
 
 export type TemplateMetadata = {

@@ -1,6 +1,6 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { DalGeneratorStrategy } from "../../strategy-interface";
-import { StageGenerationContext } from "../../../engine/generator-stage-interface";
+import { GenerationContext } from "../../../engine/generator-stage-interface";
 import { DataSourceType, DatasourceConfig } from "../../../application-config";
 import { LdkitSchemaProvider, SchemaProvider } from "./ldkit-schema-provider";
 import { InstanceListLdkitReaderGenerator } from "../../template-generators/ldkit/list/instance-list-reader-generator";
@@ -20,16 +20,17 @@ export class LdkitListDalGenerator implements DalGeneratorStrategy {
         this._sparqlEndpointUri = datasourceConfig.endpoint;
     }
 
-    async generateDataLayer(context: StageGenerationContext): Promise<LayerArtifact> {
+    async generateDataLayer(context: GenerationContext): Promise<LayerArtifact> {
 
         const ldkitSchemaArtifact = await this._schemaProvider.getSchemaArtifact(context.aggregateName);
 
         const instanceListReaderArtifact = new InstanceListLdkitReaderGenerator({
-            aggregateName: context.aggregateName,
-            filePath: `./readers/${this.strategyIdentifier}/${context.aggregateName.toLowerCase()}-list.ts`,
-            templatePath: "./list/data-layer/ldkit/aggregate-specific-reader",
+            filePath: `./readers/${this.strategyIdentifier}/${context.technicalAggregateName}-list.ts`,
+            templatePath: `./list/data-layer/${this.strategyIdentifier}/aggregate-specific-reader`,
         })
         .processTemplate({
+            // TODO: Change to human label aggregate name identifier (without spaces pascal camel case)
+            aggregateHumanLabel: context.technicalAggregateName,
             ldkitSchemaArtifact: ldkitSchemaArtifact,
             sparqlEndpointUri: this._sparqlEndpointUri
         });

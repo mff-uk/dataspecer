@@ -10,29 +10,29 @@ import { DetailAppLayerTemplateProcessor } from "./template-generators/detail/te
 import { ListAppLayerTemplateProcessor } from "./template-generators/list/template-processor";
 
 export type ApplicationLayerGeneratorFactory = {
-    getApplicationLayerGenerator: (aggregateName: string, capabilityIdentifier: Iri) => ApplicationLayerGenerator;
+    getApplicationLayerGenerator: (technicalAggregateName: string, capabilityIdentifier: Iri) => ApplicationLayerGenerator;
 }
 
 export const TemplateApplicationLayerGeneratorFactory: ApplicationLayerGeneratorFactory = {
 
-    getApplicationLayerGenerator(aggregateName: Iri, capabilityIdentifier: Iri) {
+    getApplicationLayerGenerator(technicalAggregateName: string, capabilityIdentifier: Iri) {
 
         const appLayerGenerators: Record<Iri, ApplicationLayerGenerator> = {
             [ListCapability.identifier]: new ListAppLayerTemplateProcessor({
                 templatePath: "./list/application-layer/list-app-logic",
-                filePath: `./${aggregateName.toLowerCase()}-list-app-logic.ts`
+                filePath: `./${technicalAggregateName}-list-app-logic.ts`
             }),
             [DetailCapability.identifier]: new DetailAppLayerTemplateProcessor({
                 templatePath: "./detail/application-layer/detail-app-logic",
-                filePath: `./${aggregateName.toLowerCase()}-detail-app-logic.ts`
+                filePath: `./${technicalAggregateName}-detail-app-logic.ts`
             }),
             [DeleteInstanceCapability.identifier]: new DeleteAppLayerTemplateProcessor({
                 templatePath: "./delete/application-layer/delete-instance-app-logic",
-                filePath: `./${aggregateName.toLowerCase()}-delete-instance-app-logic.ts`
+                filePath: `./${technicalAggregateName}-delete-instance-app-logic.ts`
             }),
             [CreateInstanceCapability.identifier]: new CreateInstanceAppLayerTemplateProcessor({
                 templatePath: "./create/application-layer/create-instance-app-logic",
-                filePath: `./${aggregateName.toLowerCase()}-create-instance-app-logic.ts`
+                filePath: `./${technicalAggregateName}-create-instance-app-logic.ts`
             })
         }
 
