@@ -58,6 +58,7 @@ import { useDialogsContext } from "./context/dialogs-context";
 import { type Warning, useWarningsContext } from "./context/warnings-context";
 import { getRandomName } from "../utils/random-gen";
 import { useCanvasMenuOptions } from "./reactflow/components/drag-edge-canvas-menu";
+import { useDragEdgeToCanvas } from "./reactflow/features/drag-edge-to-canvas/drag-edge-to-canvas-controller";
 
 
 // Function that returns SVG for the current model.
@@ -70,7 +71,7 @@ export const Visualization = () => {
     const { aggregatorView, models } = useModelGraphContext();
     const { CreateConnectionDialog, isCreateConnectionDialogOpen, openCreateConnectionDialog } =
         useCreateConnectionDialog();
-    const { openCreateClassDialog, openCreateClassDialogWithCallback, openSelectClassesDialog } = useDialogsContext();
+    const { openCreateClassDialog, openSelectClassesDialog } = useDialogsContext();
 
     const { downloadImage } = useDownload();
 
@@ -86,9 +87,8 @@ export const Visualization = () => {
 
     const reactFlowInstance = useReactFlow();
 
-    const { CanvasMenuOptions, openCanvasMenuOptions, canvasMenuXYPosition, setCanvasMenuXYPosition } = useCanvasMenuOptions();
-    const [nodeStartingConnection, setNodeStartingConnection] = useState<{ nodeId: string | null; handleId: string | null; handleType: "source" | "target" | null; }>();
-    const [entityIDsToConnectTo, setEntityIDsToConnectTo] = useState<string[]>([]);
+    const { CanvasMenuOptions } = useCanvasMenuOptions();
+    const dragEdgeToCanvas = useDragEdgeToCanvas(isCreateConnectionDialogOpen, openCreateConnectionDialog);
 
     // --- handlers --- --- ---
 
@@ -102,12 +102,9 @@ export const Visualization = () => {
         [activeVisualModel]
     );
 
-    // https://github.com/xyflow/xyflow/issues/1207
-    const isConnectionCreated = useRef(false);
-
     const onConnect = useCallback(
         (connection: Connection) => {
-            isConnectionCreated.current = true;
+            dragEdgeToCanvas.createdConnectionInReactflow();
             openCreateConnectionDialog(connection);
         },
         [openCreateConnectionDialog]
@@ -496,37 +493,6 @@ export const Visualization = () => {
     };
 
 
-
-
-    const onSelectClassesCallback = () => (newEntityIDs: string[]) => {
-        setEntityIDsToConnectTo([...entityIDsToConnectTo, ...newEntityIDs]);
-    };
-    const onCreateClassCallback = () => (newEntityID: string) => {
-        // With timeout the dialog is in the same place, but it takes a moment to get there
-        setTimeout(() => setEntityIDsToConnectTo([...entityIDsToConnectTo, newEntityID]), 100);
-    };
-
-    useEffect(() => {
-        if(entityIDsToConnectTo !== undefined && entityIDsToConnectTo.length > 0 && !isCreateConnectionDialogOpen) {
-            const connection = {
-                source: nodeStartingConnection?.handleType === "source" ? nodeStartingConnection?.nodeId : (entityIDsToConnectTo.shift() as string),
-                target: nodeStartingConnection?.handleType === "target" ? nodeStartingConnection?.nodeId : (entityIDsToConnectTo.shift() as string),
-                sourceHandle: null,
-                targetHandle: null
-            };
-
-            openCreateConnectionDialog(connection);
-        }
-    }, [entityIDsToConnectTo, isCreateConnectionDialogOpen]);
-
-    const openCreateClassDialogOnCanvasHandler = () => {
-        const position = reactFlowInstance?.screenToFlowPosition({
-            x: canvasMenuXYPosition?.x ?? 500,
-            y: canvasMenuXYPosition?.y ?? 250,
-        });
-        openCreateClassDialogWithCallback(onCreateClassCallback, undefined, position);
-    };
-
     return (
         <>
             {!isCreateConnectionDialogOpen ? null : <CreateConnectionDialog />}
@@ -551,24 +517,10 @@ export const Visualization = () => {
                     snapToGrid={true}
                     onPaneClick={onPaneClick}
                     onConnectStart={(event, params: { nodeId: string | null; handleId: string | null; handleType: "source" | "target" | null; }) => {
-                        setNodeStartingConnection(params);
-                        isConnectionCreated.current = false;
+                        dragEdgeToCanvas.onConnectStart(params);
                     }}
                     onConnectEnd={(event) => {
-                        // Does reactflow v12 have better typing or why do we need to do this? Check next comments for more context.
-                        const eventAsMouseEvent = event as unknown as React.MouseEvent;
-                        // The idea of checking if we are click on canvas comes from here:
-                        // https://reactflow.dev/examples/nodes/add-node-on-edge-drop
-                        // Also notice that in the reactflow example, they are also accessing the clientX, clientY so there really might be some typing issue.
-                        const target = event.target as unknown as {classList: DOMTokenList};
-                        const isTargetPane = target.classList.contains("react-flow__pane");
-                        setCanvasMenuXYPosition({
-                            x: eventAsMouseEvent.clientX,
-                            y: eventAsMouseEvent.clientY,
-                        });
-                        if (!isConnectionCreated.current && isTargetPane) {
-                            openCanvasMenuOptions();
-                        }
+                        dragEdgeToCanvas.onConnectEnd(event);
                     }}
                 >
                     <Controls />
@@ -590,7 +542,9 @@ export const Visualization = () => {
                     </Panel>
                     <Background gap={12} size={1} />
                 </ReactFlow>
-                {<CanvasMenuOptions openSelectClassesDialogHandler={() => openSelectClassesDialog(onSelectClassesCallback)} openCreateClassDialogHandler={openCreateClassDialogOnCanvasHandler} />}
+
+                {<dragEdgeToCanvas.CanvasMenuOptions openSelectClassesDialogHandler={() => openSelectClassesDialog(dragEdgeToCanvas.onSelectClassesCallback)}
+                                    openCreateClassDialogHandler={() => dragEdgeToCanvas.openCreateClassDialogOnCanvasHandler(reactFlowInstance)} />}
             </div>
         </>
     );

@@ -70,7 +70,7 @@ export const useCreateClassDialog = () => {
                     .getActiveVisualModel()
                     ?.addEntity({ sourceEntityId: newClass.id, position: position ?? undefined });
             } else {
-                logger.warn("We have not recieved the id of newly created class.", newClass);
+                logger.warn("We have not received the id of newly created class.", newClass);
             }
 
             close();

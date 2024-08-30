@@ -16,8 +16,6 @@ export const useCanvasMenuOptions = () => {
             openCreateClassDialogHandler: () => void;
             openSelectClassesDialogHandler: () => void;
         }) => {
-
-
         const handlersWithTexts: Array<HandlerWithLabel> = [
             { handler: props.openCreateClassDialogHandler, label: "➕ Create new class" },
             { handler: "Horizontal Separator", label: "" },

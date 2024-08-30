@@ -28,6 +28,16 @@ export interface SelectClassesDialogContext {
 }
 
 
+const getSelectedClasses = (selectionMap: Record<string, boolean>) => {
+    const selectedClasses = Object.entries(selectionMap).map(([classID, isSelected]) => {
+        if(isSelected) {
+            return classID;
+        }
+    });
+    return selectedClasses.filter(selectedClass => selectedClass !== undefined);
+};
+
+
 export const useSelectClassesDialog = (): SelectClassesDialogContext => {
     const [isOpen, setIsOpen] = useState(false);
 
@@ -59,6 +69,7 @@ export const useSelectClassesDialog = (): SelectClassesDialogContext => {
 
 
 export const SelectClassesDialog = (selectClassesDialogProps: SelectClassesDialogProps) => {
+    // Getting the relevant data for rendering
     const { isOpen, close, onSelectConfirmCallback } = selectClassesDialogProps;
 
     const selectionMap: Record<string, boolean> = {};
@@ -66,37 +77,27 @@ export const SelectClassesDialog = (selectClassesDialogProps: SelectClassesDialo
     const { models, aggregatorView } = useModelGraphContext();
     const activeVisualModel = aggregatorView.getActiveVisualModel();
 
+    // TODO: As talked in the pull request, it is used on multiple places, later in time refactor
     const { language: preferredLanguage } = useConfigurationContext();
 
     const getPreferredName = useCallback((entity: EntityDetailSupportedType) => {
         const { name } = EntityProxy(entity, preferredLanguage);
         return name;
     }, [preferredLanguage]);
+    // TODO: End of TODO:
 
 
+    // The rendering part
     if(!isOpen) {
         return null;
     }
 
 
-
-    const getSelectedClasses = (selectionMap: Record<string, boolean>) => {
-        const selectedClasses = Object.entries(selectionMap).map(([classID, isSelected]) => {
-            if(isSelected) {
-                return classID;
-            }
-        });
-        return selectedClasses.filter(selectedClass => selectedClass !== undefined);
-    };
-
     const onAcceptCallback = () => {
-        if(onSelectConfirmCallback === undefined) {
-            close();
-        }
-        else {
+        if(onSelectConfirmCallback !== undefined) {
             onSelectConfirmCallback(getSelectedClasses(selectionMap));
-            close();
         }
+        close();
     };
 
     const getClassesAndClassUsages = (model: EntityModel) => {
