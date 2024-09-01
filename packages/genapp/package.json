@@ -24,5 +24,9 @@
     "@types/node": "^20.11.30",
     "rimraf": "^5.0.5",
     "typescript": "^5.3.3"
+  },
+  "exports": {
+    "./template-generators/app": "./lib/app-logic-layer/template-generators/index.js",
+    "./application-graph": "./lib/engine/graph/index.js"
   }
 }
