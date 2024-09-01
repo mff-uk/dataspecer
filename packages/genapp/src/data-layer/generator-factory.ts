@@ -15,7 +15,7 @@ export const ListTemplateDalGeneratorFactory: DataAccessLayerGeneratorFactory = 
 
     getDalGeneratorStrategy(datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
         const generators = {
-            [DataSourceType.Rdf]:   new LdkitListDalGenerator(datasourceConfig),
+            [DataSourceType.Rdf]: new LdkitListDalGenerator(datasourceConfig),
             [DataSourceType.Json]:  null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("json"),
             [DataSourceType.Xml]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("xml"),
             [DataSourceType.Csv]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("csv"),

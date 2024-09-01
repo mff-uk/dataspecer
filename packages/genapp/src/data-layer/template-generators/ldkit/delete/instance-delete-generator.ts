@@ -6,7 +6,6 @@ import { DeleteInstanceMutatorInterfaceGenerator } from "../../reader-interface-
 import { InstanceResultReturnInterfaceGenerator } from "../../../../capabilities/template-generators/capability-interface-generator";
 
 interface LdkitInstanceDeleteMutatorDependencyMap extends TemplateDependencyMap {
-    aggregateHumanLabel: string,
     pathResolver: GeneratedFilePathCalculator,
     ldkitSchemaArtifact: LayerArtifact,
     sparqlEndpointUri: string

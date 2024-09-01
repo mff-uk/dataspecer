@@ -1,7 +1,7 @@
 import { LayerArtifact } from "../engine/layer-artifact";
 import { CapabilityConfiguration, GenerationContext } from "../engine/generator-stage-interface";
 import { GeneratorPipeline } from "../engine/generator-pipeline";
-import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
+import { AggregateMetadata } from "../application-config";
 
 export interface CapabilityGenerator {
     generateCapability(config: CapabilityConfiguration): Promise<LayerArtifact>;
@@ -10,41 +10,15 @@ export interface CapabilityGenerator {
 export class BaseCapabilityGenerator implements CapabilityGenerator {
 
     protected _capabilityStagesGeneratorPipeline: GeneratorPipeline = null!;    
-    protected readonly _dataStructure: DataPsmSchema;
-    protected readonly _aggregateName: string;
+    protected readonly _aggregateMetadata: AggregateMetadata;
 
-    constructor(targetDataStructure: DataPsmSchema) {
-        this._dataStructure = targetDataStructure;
-        this._aggregateName = this.getAggregateName(targetDataStructure);
-    }
-
-    private getAggregateName(targetDataStructure: DataPsmSchema): string {
-
-        if (targetDataStructure.dataPsmTechnicalLabel) {
-            return targetDataStructure.dataPsmTechnicalLabel;
-        }
-
-        if (!targetDataStructure.dataPsmHumanLabel ||
-            Object.keys(targetDataStructure.dataPsmHumanLabel).length === 0) {
-            throw new Error(`Data structure ${targetDataStructure.iri} is missing a name.`);
-        }
-
-        const labelKeys = Object.keys(targetDataStructure.dataPsmHumanLabel);
-
-        const humanLabel = labelKeys.includes("en")
-            ? targetDataStructure.dataPsmHumanLabel["en"]!
-            : targetDataStructure.dataPsmHumanLabel[labelKeys.at(0)!]!;
-
-        const aggregateName = humanLabel
-            .toLowerCase()
-            .replaceAll(/\s+/, "-");
-
-        return aggregateName;
+    constructor(aggregateMetadata: AggregateMetadata) {
+        this._aggregateMetadata = aggregateMetadata;
     }
 
     private convertToGenerationContext(config: CapabilityConfiguration): GenerationContext {
         const result: GenerationContext = {
-            technicalAggregateName: this._aggregateName,
+            aggregate: config.aggregate,
 
             // should not be needed
             graph: config.graph,

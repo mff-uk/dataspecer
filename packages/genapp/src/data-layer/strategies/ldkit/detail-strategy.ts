@@ -23,14 +23,13 @@ export class LdkitDetailDalGenerator implements DalGeneratorStrategy {
 
     async generateDataLayer(context: GenerationContext): Promise<LayerArtifact> {
 
-        const ldkitSchemaArtifact = await this._schemaProvider.getSchemaArtifact(context.aggregateName);
+        const ldkitSchemaArtifact = await this._schemaProvider.getSchemaArtifact(context.aggregate.iri);
 
         const instanceDetailReaderArtifact = new InstanceDetailLdkitReaderGenerator({
-            filePath: path.posix.join("readers", this.strategyIdentifier, `${context.technicalAggregateName}-detail.ts`),
+            filePath: path.posix.join("readers", this.strategyIdentifier, `${context.aggregate.technicalLabel}-detail.ts`),
             templatePath: `./detail/data-layer/${this.strategyIdentifier}/instance-detail-reader`,
         }).processTemplate({
-            // TODO: Change to human label aggregate name identifier (without spaces pascal camel case)
-            aggregateHumanLabel: context.technicalAggregateName,
+            aggregate: context.aggregate,
             pathResolver: context._.pathResolver,
             ldkitSchemaArtifact: ldkitSchemaArtifact,
             sparqlEndpointUri: this._sparqlEndpointUri

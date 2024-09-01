@@ -1,18 +1,19 @@
 import { LayerArtifact } from "./layer-artifact";
-import { ApplicationGraph, ApplicationGraphEdge, ApplicationGraphNode } from "../application-config";
+import { AggregateMetadata, ApplicationGraph, ApplicationGraphEdge, ApplicationGraphNode } from "../application-config";
 import { ArtifactSaver } from "../utils/artifact-saver";
 
 export interface CapabilityConfiguration {
+    aggregate: AggregateMetadata,
     graph: ApplicationGraph;
-    node: ApplicationGraphNode; // TODO: to be removed
+    node: ApplicationGraphNode;
     config: object;
 }
 
 export type GenerationContext = { 
-    technicalAggregateName: string,
+    aggregate: AggregateMetadata,
     config: object;
     graph: ApplicationGraph,
-    currentNode: ApplicationGraphNode, // TODO: to be removed
+    currentNode: ApplicationGraphNode,
     previousResult?: LayerArtifact;
     _: Record<string, any>;
 };

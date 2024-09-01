@@ -14,15 +14,15 @@ export class DetailCapability extends BaseCapabilityGenerator {
     public static readonly identifier: string = `https://dataspecer.com/application_graph/capability/${this.label}`;
 
     constructor(constructorInput: CapabilityConstructorInput) {
-        super(constructorInput.dataStructure);
+        super(constructorInput.dataStructureMetadata);
 
         const dalLayerGeneratorStrategy = DetailTemplateDalGeneratorFactory.getDalGeneratorStrategy(constructorInput.datasource);
         const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(
-            this._aggregateName,
+            constructorInput.dataStructureMetadata.technicalLabel,
             DetailCapability.identifier
         );
         const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory.getPresentationLayerGenerator(
-            this._aggregateName,
+            constructorInput.dataStructureMetadata.technicalLabel,
             DetailCapability.identifier
         );
 

@@ -21,15 +21,14 @@ export class CreateLdkitInstanceDalStrategy implements DalGeneratorStrategy {
 
     async generateDataLayer(context: GenerationContext) {
 
-        const ldkitSchemaArtifact = await this._schemaProvider.getSchemaArtifact(context.aggregateName);
+        const ldkitSchemaArtifact = await this._schemaProvider.getSchemaArtifact(context.aggregate.iri);
 
         const instanceCreatorDataLayerArtifact = new CreateLdkitInstanceGenerator({
-            filePath: `./writers/${this.strategyIdentifier}/${context.technicalAggregateName}-create-instance.ts`,
+            filePath: `./writers/${this.strategyIdentifier}/${context.aggregate.technicalLabel}-create-instance.ts`,
             templatePath: "./create/data-layer/ldkit/instance-creator",
         })
             .processTemplate({
-                // TODO: Change to human label aggregate name identifier (without spaces pascal camel case)
-                aggregateHumanLabel: context.technicalAggregateName,
+                aggregate: context.aggregate,
                 sparqlEndpointUri: this._sparqlEndpointUri,
                 ldkitSchemaArtifact: ldkitSchemaArtifact,
                 pathResolver: context._.pathResolver

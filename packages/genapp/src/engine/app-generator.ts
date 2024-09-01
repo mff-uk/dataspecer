@@ -1,14 +1,17 @@
 
 import {
+    AggregateMetadata,
     ApplicationGraph,
     ApplicationGraphNode,
     NodeResult
 } from "../application-config";
-import { CapabilityGenerator } from "../capabilities/capability-generator-interface";
-import { CreateInstanceCapability } from "../capabilities/create-instance";
-import { DeleteInstanceCapability } from "../capabilities/delete-instance";
-import { DetailCapability } from "../capabilities/detail";
-import { ListCapability } from "../capabilities/list";
+import {
+    CapabilityGenerator,
+    ListCapability,
+    DetailCapability,
+    CreateInstanceCapability,
+    DeleteInstanceCapability
+} from "../capabilities/index";
 import { StaticConfigurationReader } from "../config-reader";
 import { LayerArtifact } from "./layer-artifact";
 import { ReactAppBaseGeneratorStage } from "./react-app-base-stage";
@@ -22,9 +25,7 @@ class ApplicationGenerator {
         this._configReader = new StaticConfigurationReader();
     }
 
-    private getCapabilityGenerator(
-        capabilityIri: string,
-        constructorInput: CapabilityConstructorInput): CapabilityGenerator {
+    private getCapabilityGenerator(capabilityIri: string, constructorInput: CapabilityConstructorInput): CapabilityGenerator {
 
         switch (capabilityIri) {
             case ListCapability.identifier:
@@ -32,9 +33,9 @@ class ApplicationGenerator {
             case DetailCapability.identifier:
                 return new DetailCapability(constructorInput);
             case CreateInstanceCapability.identifier:
-                new CreateInstanceCapability(constructorInput);
+                return new CreateInstanceCapability(constructorInput);
             case DeleteInstanceCapability.identifier:
-                new DeleteInstanceCapability(constructorInput);
+                return new DeleteInstanceCapability(constructorInput);
             default:
                 throw new Error(`"${capabilityIri}" does not correspond to a valid capability identifier.`);
         }
@@ -99,15 +100,17 @@ class ApplicationGenerator {
 
         const dataStructure = await currentNode.getNodeDataStructure();
         const { iri: capabilityIri, config: capabilityConfig } = currentNode.getCapabilityInfo();
+        const aggregateMetadata = new AggregateMetadata(dataStructure);
 
         const capabilityConstructorInput: CapabilityConstructorInput = {
-            dataStructure: dataStructure,
+            dataStructureMetadata: aggregateMetadata,
             datasource: currentNode.getDatasource(graph)
         };
 
         const capabilityResult = await (this
             .getCapabilityGenerator(capabilityIri, capabilityConstructorInput))
             .generateCapability({
+                aggregate: aggregateMetadata,
                 graph: graph,
                 node: currentNode,
                 config: capabilityConfig,

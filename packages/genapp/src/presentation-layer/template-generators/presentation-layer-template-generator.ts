@@ -3,6 +3,16 @@ import { GenerationContext } from "../../engine/generator-stage-interface";
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { TemplateConsumer } from "../../templates/template-consumer";
 import { PresentationLayerGenerator } from "../strategy-interface";
+import { ApplicationGraph, ApplicationGraphNode } from "../../application-config";
+import { TemplateDependencyMap } from "../../templates/template-consumer";
+import { GeneratedFilePathCalculator } from "../../utils/artifact-saver";
+
+export interface PresentationLayerDependencyMap extends TemplateDependencyMap {
+    pathResolver: GeneratedFilePathCalculator,
+    appLogicArtifact: LayerArtifact;
+    graph: ApplicationGraph;
+    currentNode: ApplicationGraphNode;
+}
 
 export abstract class PresentationLayerTemplateGenerator<TemplateType extends TemplateDescription>
     extends TemplateConsumer<TemplateType> implements PresentationLayerGenerator {
@@ -25,8 +35,7 @@ export abstract class PresentationLayerTemplateGenerator<TemplateType extends Te
         }
 
         const presentationLayerArtifact = this.processTemplate({
-            // TODO: Change to human label aggregate name identifier (without spaces pascal camel case)
-            aggregateHumanLabel: context.technicalAggregateName,
+            aggregate: context.aggregate,
             pathResolver: context._.pathResolver,   
             appLogicArtifact: context.previousResult,
             graph: context.graph,

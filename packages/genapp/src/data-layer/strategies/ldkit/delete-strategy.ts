@@ -22,15 +22,14 @@ export class LdkitDeleteDalGenerator implements DalGeneratorStrategy {
 
     async generateDataLayer(context: GenerationContext) {
 
-        const ldkitSchemaArtifact = await this._schemaProvider.getSchemaArtifact(context.aggregateName);
+        const ldkitSchemaArtifact = await this._schemaProvider.getSchemaArtifact(context.aggregate.iri);
 
         const instanceListReaderArtifact = new InstanceDeleteLdkitGenerator({
-            filePath: `./writers/${this.strategyIdentifier}/${context.technicalAggregateName}-instance-delete.ts`,
+            filePath: `./writers/${this.strategyIdentifier}/${context.aggregate.technicalLabel}-instance-delete.ts`,
             templatePath: "./delete/data-layer/ldkit/instance-delete-mutator",
         })
         .processTemplate({
-            // TODO: Change to human label aggregate name identifier (without spaces pascal camel case)
-            aggregateHumanLabel: context.technicalAggregateName,
+            aggregate: context.aggregate,
             sparqlEndpointUri: this._sparqlEndpointUri,
             ldkitSchemaArtifact: ldkitSchemaArtifact,
             pathResolver: context._.pathResolver

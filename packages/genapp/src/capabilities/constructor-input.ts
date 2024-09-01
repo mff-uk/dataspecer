@@ -1,7 +1,6 @@
-import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
-import { Datasource } from "../application-config";
+import { AggregateMetadata, Datasource } from "../application-config";
 
 export type CapabilityConstructorInput = {
-    dataStructure: DataPsmSchema;
+    dataStructureMetadata: AggregateMetadata;
     datasource: Datasource;
 };

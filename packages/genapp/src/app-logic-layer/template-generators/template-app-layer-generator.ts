@@ -1,11 +1,18 @@
 import { TemplateDescription } from "../../engine/eta-template-renderer";
 import { GenerationContext } from "../../engine/generator-stage-interface";
 import { LayerArtifact } from "../../engine/layer-artifact";
-import { TemplateConsumer } from "../../templates/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap } from "../../templates/template-consumer";
+import { GeneratedFilePathCalculator } from "../../utils/artifact-saver";
 import { ApplicationLayerGenerator } from "../strategy-interface";
 
+export interface ApplicationLayerTemplateDependencyMap extends TemplateDependencyMap {
+    pathResolver: GeneratedFilePathCalculator,
+    dataLayerLinkArtifact: LayerArtifact
+}
+
 export abstract class ApplicationLayerTemplateGenerator<TemplateType extends TemplateDescription>
-    extends TemplateConsumer<TemplateType> implements ApplicationLayerGenerator {
+    extends TemplateConsumer<TemplateType>
+    implements ApplicationLayerGenerator {
     
     strategyIdentifier: string = "";
 
@@ -20,8 +27,7 @@ export abstract class ApplicationLayerTemplateGenerator<TemplateType extends Tem
         }
 
         const applicationLayer = this.processTemplate({
-            // TODO: Change to human label aggregate name identifier (without spaces pascal camel case)
-            aggregateHumanLabel: context.technicalAggregateName,
+            aggregate: context.aggregate,
             pathResolver: context._.pathResolver,
             dataLayerLinkArtifact: context.previousResult
         });

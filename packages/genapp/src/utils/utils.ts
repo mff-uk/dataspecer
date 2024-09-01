@@ -17,3 +17,10 @@ export function getRelativePath(sourcePath: string, targetPath: string): string 
     //console.log(`actual relative: "${result}`);
     return result;
 }
+
+export function toPascalCase(str: string): string {
+    return str.replace(
+        /(\w)(\w*)/g,
+        (_, g1, g2) => g1.toUpperCase() + g2.toLowerCase()
+    );
+}

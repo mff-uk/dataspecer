@@ -1,9 +1,11 @@
-import { CreateInstanceCapability } from "../capabilities/create-instance";
-import { DeleteInstanceCapability } from "../capabilities/delete-instance";
-import { DetailCapability } from "../capabilities/detail";
-import { ListCapability } from "../capabilities/list";
+import {
+    ListCapability,
+    DetailCapability,
+    CreateInstanceCapability,
+    DeleteInstanceCapability
+} from "../capabilities/index";
 import { PresentationLayerGenerator } from "./strategy-interface";
-import { CreateInstanceComponentTemplateProcessor } from "./template-generators/create/create-component-generator";
+import { CreateInstanceComponentTemplateProcessor } from "./template-generators/create/create-component-processor";
 import { DetailComponentTemplateProcessor } from "./template-generators/detail/detail-template-processor";
 import { ListTableTemplateProcessor } from "./template-generators/list/list-table-template-processor";
 

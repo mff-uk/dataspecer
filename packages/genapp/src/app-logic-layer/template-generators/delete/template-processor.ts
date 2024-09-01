@@ -1,8 +1,7 @@
 import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 import { DeleteInstanceMutatorInterfaceGenerator } from "../../../data-layer/template-generators/reader-interface-generator";
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { ApplicationLayerTemplateDependencyMap } from "../app-layer-dependency-map";
-import { ApplicationLayerTemplateGenerator } from "../template-app-layer-generator";
+import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "../template-app-layer-generator";
 import { DeleteCapabilityAppLayerTemplate } from "./delete-app-layer-template";
 
 export class DeleteAppLayerTemplateProcessor extends ApplicationLayerTemplateGenerator<DeleteCapabilityAppLayerTemplate> {
@@ -10,8 +9,10 @@ export class DeleteAppLayerTemplateProcessor extends ApplicationLayerTemplateGen
     processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): LayerArtifact {
 
         const generatedCapabilityInterface = GeneratedCapabilityInterfaceGenerator.processTemplate();
-
         const deleteMutatorInterfaceArtifact = DeleteInstanceMutatorInterfaceGenerator.processTemplate();
+        const deleteAppLayerExportedName = dependencies.aggregate.getAggregateNamePascalCase({
+            suffix: "DeleteCapabilityLogic"
+        });
 
         if (!deleteMutatorInterfaceArtifact || !deleteMutatorInterfaceArtifact.dependencies) {
             throw new Error("At least one interface dependency is expected");
@@ -28,7 +29,7 @@ export class DeleteAppLayerTemplateProcessor extends ApplicationLayerTemplateGen
         const deleteInstanceAppLayerTemplate: DeleteCapabilityAppLayerTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: dependencies.aggregateName,
+                aggregate_name: deleteAppLayerExportedName,
                 delete_mutator_instance: dependencies.dataLayerLinkArtifact.exportedObjectName,
                 delete_mutator_instance_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
@@ -52,7 +53,7 @@ export class DeleteAppLayerTemplateProcessor extends ApplicationLayerTemplateGen
 
         const deleteInstanceLayerArtifact: LayerArtifact = {
             filePath: this._filePath,
-            exportedObjectName: `${dependencies.aggregateHumanLabel}DeleteCapabilityLogic`,
+            exportedObjectName: deleteAppLayerExportedName,
             sourceText: deleteInstanceAppLayerRender,
             dependencies: [deleteMutatorInterfaceArtifact, deleteReturnTypeArtifact]
         }

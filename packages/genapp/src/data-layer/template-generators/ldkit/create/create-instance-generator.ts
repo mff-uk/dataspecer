@@ -6,8 +6,6 @@ import { InstanceCreatorInterfaceGenerator } from "../../reader-interface-genera
 import { CreateLdkitInstanceTemplate } from "./create-instance-template";
 
 interface CreateLdkitInstanceDependencyMap extends TemplateDependencyMap {
-    // TODO: Change to human label aggregate name identifier (without spaces pascal camel case)
-    aggregateHumanLabel: string,
     pathResolver: GeneratedFilePathCalculator,
     ldkitSchemaArtifact: LayerArtifact,
     sparqlEndpointUri: string
@@ -35,10 +33,14 @@ export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitIn
             createReturnTypeArtifact = InstanceResultReturnInterfaceGenerator.processTemplate();
         }
 
+        const createExportedObject = dependencies.aggregate.getAggregateNamePascalCase({
+            suffix: "LdkitInstanceCreator"
+        });
+
         const createTemplate: CreateLdkitInstanceTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: dependencies.aggregateHumanLabel,
+                aggregate_name: createExportedObject,
                 creator_interface_type: creatorInterfaceArtifact.exportedObjectName,
                 creator_interface_type_path: {
                     from: this._filePath,
@@ -61,7 +63,7 @@ export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitIn
         const createInstanceRender = this._templateRenderer.renderTemplate(createTemplate);
 
         const createDalLayerArtifact: LayerArtifact = {
-            exportedObjectName: `${dependencies.aggregateHumanLabel}LdkitInstanceCreator`,
+            exportedObjectName: createExportedObject,
             filePath: this._filePath,
             sourceText: createInstanceRender,
             dependencies: [creatorInterfaceArtifact]

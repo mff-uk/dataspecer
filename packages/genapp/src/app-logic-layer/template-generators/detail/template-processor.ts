@@ -2,8 +2,7 @@ import { LayerArtifact } from "../../../engine/layer-artifact";
 import { TemplateMetadata } from "../../../templates/template-consumer";
 import { DetailCapabilityAppLayerTemplate } from "./detail-app-layer-template";
 import { DetailReaderInterfaceGenerator } from "../../../data-layer/template-generators/reader-interface-generator";
-import { ApplicationLayerTemplateDependencyMap } from "../app-layer-dependency-map";
-import { ApplicationLayerTemplateGenerator } from "../template-app-layer-generator";
+import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "../template-app-layer-generator";
 import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 
 export class DetailAppLayerTemplateProcessor extends ApplicationLayerTemplateGenerator<DetailCapabilityAppLayerTemplate> {
@@ -16,7 +15,10 @@ export class DetailAppLayerTemplateProcessor extends ApplicationLayerTemplateGen
 
     processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): LayerArtifact {
         
-        const detailAppLayerExportedName: string = `${dependencies.aggregateHumanLabel}DetailCapabilityLogic`;
+        const detailAppLayerExportedName: string = dependencies.aggregate.getAggregateNamePascalCase({
+            suffix: "DetailCapabilityLogic"
+        });
+        
         const instanceReaderInterfaceArtifact = DetailReaderInterfaceGenerator.processTemplate();
 
         if (!instanceReaderInterfaceArtifact.dependencies || instanceReaderInterfaceArtifact.dependencies.length === 0) {

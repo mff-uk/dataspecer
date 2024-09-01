@@ -3,8 +3,7 @@ import { ListCapabilityAppLayerTemplate } from "./list-app-layer-template";
 import { ListReaderInterfaceGenerator } from "../../../data-layer/template-generators/reader-interface-generator";
 import { GeneratedCapabilityInterfaceGenerator, ListResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 import { TemplateMetadata } from "../../../templates/template-consumer";
-import { ApplicationLayerTemplateDependencyMap } from "../app-layer-dependency-map";
-import { ApplicationLayerTemplateGenerator } from "../template-app-layer-generator";
+import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "../template-app-layer-generator";
 
 export class ListAppLayerTemplateProcessor extends ApplicationLayerTemplateGenerator<ListCapabilityAppLayerTemplate> {
 
@@ -17,8 +16,10 @@ export class ListAppLayerTemplateProcessor extends ApplicationLayerTemplateGener
 
     processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): LayerArtifact {
 
-        const listAppLayerExportName = `${dependencies.aggregateHumanLabel}ListCapabilityLogic`
         const readerInterfaceArtifact = ListReaderInterfaceGenerator.processTemplate();
+        const listAppLayerExportName = dependencies.aggregate.getAggregateNamePascalCase({
+            suffix: "ListCapabilityLogic"
+        });
         
         if (!readerInterfaceArtifact.dependencies || readerInterfaceArtifact.dependencies.length === 0) {
             throw new Error("Reader interface expects at least one dependency artifact - return type of the read function.");

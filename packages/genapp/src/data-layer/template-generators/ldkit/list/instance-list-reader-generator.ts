@@ -4,7 +4,6 @@ import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../..
 import { BaseListLdkitReaderGenerator } from "./base-list-reader-generator";
 
 interface InstanceListLdkitReaderDependencyMap extends TemplateDependencyMap {
-    aggregateHumanLabel: string,
     ldkitSchemaArtifact: LayerArtifact,
     sparqlEndpointUri: string
 }
@@ -26,11 +25,14 @@ export class InstanceListLdkitReaderGenerator extends TemplateConsumer<InstanceL
         }
 
         const baseLdkitListReaderArtifact = new BaseListLdkitReaderGenerator().processTemplate();
+        const listExportedObject = dependencies.aggregate.getAggregateNamePascalCase({
+            suffix: "LdkitListReader"
+        });
 
         const instanceListLdkitReaderTemplate: InstanceListLdkitReaderTemplate = { 
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: dependencies.aggregateHumanLabel,
+                aggregate_name: listExportedObject,
                 ldkit_endpoint_uri: `"${dependencies.sparqlEndpointUri}"`,
                 ldkit_schema: dependencies.ldkitSchemaArtifact.exportedObjectName,
                 ldkit_list_reader_base_class: baseLdkitListReaderArtifact.exportedObjectName,
@@ -49,7 +51,7 @@ export class InstanceListLdkitReaderGenerator extends TemplateConsumer<InstanceL
 
         const readerInterfaceArtifact: LayerArtifact = {
             sourceText: ldkitInstanceListReader,
-            exportedObjectName: `${dependencies.aggregateHumanLabel}LdkitListReader`,
+            exportedObjectName: listExportedObject,
             filePath: this._filePath,
             dependencies: [baseLdkitListReaderArtifact, dependencies.ldkitSchemaArtifact]
         }

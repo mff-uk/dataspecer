@@ -1,8 +1,7 @@
 import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 import { InstanceCreatorInterfaceGenerator } from "../../../data-layer/template-generators/reader-interface-generator";
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { ApplicationLayerTemplateDependencyMap } from "../app-layer-dependency-map";
-import { ApplicationLayerTemplateGenerator } from "../template-app-layer-generator";
+import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "../template-app-layer-generator";
 import { CreateInstanceCapabilityAppLayerTemplate } from "./create-app-layer-template";
 
 export class CreateInstanceAppLayerTemplateProcessor extends ApplicationLayerTemplateGenerator<CreateInstanceCapabilityAppLayerTemplate> {
@@ -11,6 +10,9 @@ export class CreateInstanceAppLayerTemplateProcessor extends ApplicationLayerTem
 
         const generatedCapabilityInterface = GeneratedCapabilityInterfaceGenerator.processTemplate();
         const creatorInterfaceArtifact = InstanceCreatorInterfaceGenerator.processTemplate();
+        const createAppLayerExportedName = dependencies.aggregate.getAggregateNamePascalCase({
+            suffix: "CreateCapabilityLogic"
+        });
 
         if (!creatorInterfaceArtifact || !creatorInterfaceArtifact.dependencies) {
             throw new Error("At least one interface dependency is expected");
@@ -27,7 +29,7 @@ export class CreateInstanceAppLayerTemplateProcessor extends ApplicationLayerTem
         const createInstanceAppLayerTemplate: CreateInstanceCapabilityAppLayerTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: dependencies.aggregateHumanLabel,
+                aggregate_name: createAppLayerExportedName,
                 instance_creator_type: dependencies.dataLayerLinkArtifact.exportedObjectName,
                 instance_creator_type_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
@@ -51,7 +53,7 @@ export class CreateInstanceAppLayerTemplateProcessor extends ApplicationLayerTem
 
         const createAppLayerArtifact: LayerArtifact = {
             filePath: this._filePath,
-            exportedObjectName: `${dependencies.aggregateHumanLabel}CreateCapabilityLogic`,
+            exportedObjectName: createAppLayerExportedName,
             sourceText: createInstanceAppLayerRender,
             dependencies: [creatorInterfaceArtifact, createReturnTypeArtifact]
         }

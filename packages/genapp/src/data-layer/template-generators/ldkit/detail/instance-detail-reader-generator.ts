@@ -6,7 +6,6 @@ import { DetailReaderInterfaceGenerator } from "../../reader-interface-generator
 import { InstanceDetailLdkitReaderTemplate } from "./instance-detail-reader-template";
 
 interface InstanceDetailLdkitReaderDependencyMap extends TemplateDependencyMap {
-    aggregateHumanLabel: string;
     pathResolver: GeneratedFilePathCalculator,
     ldkitSchemaArtifact: LayerArtifact,
     sparqlEndpointUri: string
@@ -36,11 +35,15 @@ export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<Instanc
 
         const instanceReaderInterfaceArtifact = DetailReaderInterfaceGenerator.processTemplate();
         const instanceReturnTypeArtifact = this.getReaderInterfaceReturnTypeName(instanceReaderInterfaceArtifact);
+        const detailExportedObject = dependencies.aggregate.getAggregateNamePascalCase({
+            suffix: "LdkitInstanceReader"
+        });
+        
 
         const instanceLdkitReaderTemplate: InstanceDetailLdkitReaderTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: dependencies.aggregateHumanLabel,
+                aggregate_name: detailExportedObject,
                 ldkit_schema: dependencies.ldkitSchemaArtifact.exportedObjectName,
                 ldkit_endpoint_uri: `"${dependencies.sparqlEndpointUri}"`,
                 ldkit_instance_reader: instanceReaderInterfaceArtifact.exportedObjectName,
@@ -64,7 +67,7 @@ export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<Instanc
 
         const readerInterfaceArtifact: LayerArtifact = {
             sourceText: ldkitInstanceDetailReader,
-            exportedObjectName: `${dependencies.aggregateHumanLabel}LdkitInstanceReader`,
+            exportedObjectName: detailExportedObject,
             filePath: this._filePath,
             dependencies: [instanceReaderInterfaceArtifact]
         }

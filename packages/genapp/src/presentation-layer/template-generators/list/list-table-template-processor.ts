@@ -1,14 +1,15 @@
 // TODO: merge / reduce imports
 import { ApplicationGraph, ApplicationGraphNode } from "../../../application-config";
-import { CreateInstanceCapability } from "../../../capabilities/create-instance";
-import { DeleteInstanceCapability } from "../../../capabilities/delete-instance";
-import { DetailCapability } from "../../../capabilities/detail";
-import { ListCapability } from "../../../capabilities/list";
+import {
+    ListCapability,
+    DetailCapability,
+    CreateInstanceCapability,
+    DeleteInstanceCapability
+} from "../../../capabilities/index";
 import { ListItemCapabilityOptionsGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { TemplateMetadata } from "../../../templates/template-consumer";
-import { PresentationLayerDependencyMap } from "../presentation-layer-dependency-map";
-import { PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
+import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
 import { ListTableTemplate } from "./list-table-template";
 
 export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerator<ListTableTemplate> {
@@ -56,7 +57,10 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
 
         const listItemOptionsArtifact = ListItemCapabilityOptionsGenerator.processTemplate();
 
-        const listTableComponentName: string = `${dependencies.aggregateName}ListTable`;
+        const listTableComponentName: string = dependencies.aggregate.getAggregateNamePascalCase({
+            suffix: "ListTable"
+        });
+
         const tableTemplate: ListTableTemplate = {
             templatePath: this._templatePath,
             placeholders: {

@@ -1,6 +1,5 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { PresentationLayerDependencyMap } from "../presentation-layer-dependency-map";
-import { PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
+import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
 import { CreateInstanceReactComponentTemplate } from "./create-component-template";
 
 export class CreateInstanceComponentTemplateProcessor extends PresentationLayerTemplateGenerator<CreateInstanceReactComponentTemplate> {
@@ -8,10 +7,15 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
 
     processTemplate(dependencies: PresentationLayerDependencyMap): LayerArtifact {
 
+        const createExportedName = dependencies.aggregate.getAggregateNamePascalCase({
+            prefix: "Create",
+            suffix: "Instance"
+        });
+
         const createInstanceComponentTemplate: CreateInstanceReactComponentTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: dependencies.aggregateHumanLabel,
+                aggregate_name: createExportedName,
                 create_capability_app_layer: dependencies.appLogicArtifact.exportedObjectName,
                 create_capability_app_layer_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
@@ -27,7 +31,7 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
 
         const presentationLayerArtifact: LayerArtifact = {
             filePath: this._filePath,
-            exportedObjectName: `Create${dependencies.aggregateHumanLabel}Instance`,
+            exportedObjectName: createExportedName,
             sourceText: instanceDetailComponentRender,
             dependencies: [dependencies.appLogicArtifact]
         }

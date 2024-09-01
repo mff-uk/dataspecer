@@ -22,15 +22,14 @@ export class LdkitListDalGenerator implements DalGeneratorStrategy {
 
     async generateDataLayer(context: GenerationContext): Promise<LayerArtifact> {
 
-        const ldkitSchemaArtifact = await this._schemaProvider.getSchemaArtifact(context.aggregateName);
+        const ldkitSchemaArtifact = await this._schemaProvider.getSchemaArtifact(context.aggregate.iri);
 
         const instanceListReaderArtifact = new InstanceListLdkitReaderGenerator({
-            filePath: `./readers/${this.strategyIdentifier}/${context.technicalAggregateName}-list.ts`,
+            filePath: `./readers/${this.strategyIdentifier}/${context.aggregate.technicalLabel}-list.ts`,
             templatePath: `./list/data-layer/${this.strategyIdentifier}/aggregate-specific-reader`,
         })
         .processTemplate({
-            // TODO: Change to human label aggregate name identifier (without spaces pascal camel case)
-            aggregateHumanLabel: context.technicalAggregateName,
+            aggregate: context.aggregate,
             ldkitSchemaArtifact: ldkitSchemaArtifact,
             sparqlEndpointUri: this._sparqlEndpointUri
         });
