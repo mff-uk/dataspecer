@@ -16,7 +16,7 @@ import { OutputStream } from "@dataspecer/core/io/stream/output-stream";
 
 
 export class LDkitGenerator implements ArtefactGenerator {
-    
+
     static readonly IDENTIFIER = "https://schemas.dataspecer.com/generator/LDkit";
 
     identifier(): string {
@@ -104,7 +104,9 @@ export class LDkitGenerator implements ArtefactGenerator {
                 dataSchema: schema
             });
 
-            const stream = output.writePath(artefact.outputPath + `${aggregateName.toLowerCase()}-schema.ts`);
+            const uuid = iri.slice(iri.lastIndexOf("/") + 1);
+
+            const stream = output.writePath(artefact.outputPath + `${aggregateName.toLowerCase()}-${uuid}-schema.ts`);
             await stream.write(sourcefileContent);
             await stream.close();
         }
