@@ -1,4 +1,4 @@
-import { DataSourceType, DatasourceConfig } from "../application-config";
+import { DataSourceType, DatasourceConfig } from "../engine/graph/datasource";
 import { DalGeneratorStrategy } from "./strategy-interface";
 import { FileDalGeneratorStrategy } from "./strategies/file-dal-strategy";
 import { LdkitListDalGenerator } from "./strategies/ldkit/list-strategy";

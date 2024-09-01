@@ -1,21 +1,15 @@
-
-import {
-    AggregateMetadata,
-    ApplicationGraph,
-    ApplicationGraphNode,
-    NodeResult
-} from "../application-config";
 import {
     CapabilityGenerator,
     ListCapability,
     DetailCapability,
     CreateInstanceCapability,
     DeleteInstanceCapability
-} from "../capabilities/index";
+} from "../capabilities";
 import { StaticConfigurationReader } from "../config-reader";
 import { LayerArtifact } from "./layer-artifact";
 import { ReactAppBaseGeneratorStage } from "./react-app-base-stage";
 import { CapabilityConstructorInput } from "../capabilities/constructor-input";
+import { ApplicationGraph, ApplicationGraphNode } from "./graph";
 
 class ApplicationGenerator {
 
@@ -98,9 +92,8 @@ class ApplicationGenerator {
         graph: ApplicationGraph // TODO: remove when not needed
     ): Promise<LayerArtifact> {
 
-        const dataStructure = await currentNode.getNodeDataStructure();
+        const aggregateMetadata = await currentNode.getNodeDataStructure();
         const { iri: capabilityIri, config: capabilityConfig } = currentNode.getCapabilityInfo();
-        const aggregateMetadata = new AggregateMetadata(dataStructure);
 
         const capabilityConstructorInput: CapabilityConstructorInput = {
             dataStructureMetadata: aggregateMetadata,
@@ -121,4 +114,8 @@ class ApplicationGenerator {
 }
 
 const generator = new ApplicationGenerator();
-generator.generate();
+generator.generate();export type NodeResult = {
+    node: ApplicationGraphNode;
+    result: LayerArtifact;
+};
+

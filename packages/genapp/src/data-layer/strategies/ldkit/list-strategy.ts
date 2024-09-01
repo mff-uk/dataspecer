@@ -1,12 +1,12 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { DalGeneratorStrategy } from "../../strategy-interface";
 import { GenerationContext } from "../../../engine/generator-stage-interface";
-import { DataSourceType, DatasourceConfig } from "../../../application-config";
+import { DataSourceType, DatasourceConfig } from "../../../engine/graph/datasource";
 import { LdkitSchemaProvider, SchemaProvider } from "./ldkit-schema-provider";
 import { InstanceListLdkitReaderGenerator } from "../../template-generators/ldkit/list/instance-list-reader-generator";
 
 export class LdkitListDalGenerator implements DalGeneratorStrategy {
-    
+
     strategyIdentifier: string = "ldkit";
     private readonly _schemaProvider: SchemaProvider;
     private readonly _sparqlEndpointUri: string;
@@ -15,14 +15,14 @@ export class LdkitListDalGenerator implements DalGeneratorStrategy {
         if (datasourceConfig.format !== DataSourceType.Rdf) {
             throw new Error("Trying to generate LDkit data access with different datasource");
         }
-        
+
         this._schemaProvider = new LdkitSchemaProvider();
         this._sparqlEndpointUri = datasourceConfig.endpoint;
     }
 
     async generateDataLayer(context: GenerationContext): Promise<LayerArtifact> {
 
-        const ldkitSchemaArtifact = await this._schemaProvider.getSchemaArtifact(context.aggregate.iri);
+        const ldkitSchemaArtifact = await this._schemaProvider.getSchemaArtifact(context.aggregate);
 
         const instanceListReaderArtifact = new InstanceListLdkitReaderGenerator({
             filePath: `./readers/${this.strategyIdentifier}/${context.aggregate.technicalLabel}-list.ts`,

@@ -1,5 +1,6 @@
 import { LayerArtifact } from "./layer-artifact";
-import { AggregateMetadata, ApplicationGraph, ApplicationGraphEdge, ApplicationGraphNode } from "../application-config";
+import { AggregateMetadata } from "../application-config";
+import { ApplicationGraph, ApplicationGraphNode } from "../engine/graph";
 import { ArtifactSaver } from "../utils/artifact-saver";
 
 export interface CapabilityConfiguration {
@@ -9,7 +10,7 @@ export interface CapabilityConfiguration {
     config: object;
 }
 
-export type GenerationContext = { 
+export type GenerationContext = {
     aggregate: AggregateMetadata,
     config: object;
     graph: ApplicationGraph,

@@ -1,11 +1,9 @@
 import * as fs from "fs";
-import { 
-    ApplicationGraph,
-    ApplicationGraphEdgeType,
-    ApplicationGraphNode,
-    ApplicationGraphType,
-    DataSourceType
-} from "./application-config";
+import { DataSourceType } from "./engine/graph/datasource";
+import { ApplicationGraph, ApplicationGraphType } from "./engine/graph/application-graph";
+import { ApplicationGraphNode } from "./engine/graph/application-graph-node";
+import { ApplicationGraphEdgeType } from "./engine/graph/application-graph-edge";
+
 
 export interface ConfigurationReader {
     getAppConfiguration(): ApplicationGraph;

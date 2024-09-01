@@ -8,11 +8,20 @@ import { PresentationLayerTemplateGeneratorFactory } from "../presentation-layer
 import { PresentationLayerStage } from "../presentation-layer/pipeline-stage";
 import { BaseCapabilityGenerator } from "./capability-generator-interface";
 import { CapabilityConstructorInput } from "./constructor-input";
+import { CreateInstanceCapability } from "./create-instance";
+import { DeleteInstanceCapability } from "./delete-instance";
+import { DetailCapability } from "./detail";
 
 export class ListCapability extends BaseCapabilityGenerator {
 
     public static readonly label: string = "list";
     public static readonly identifier: string = `https://dataspecer.com/application_graph/capability/${this.label}`;
+
+    public static readonly allowedTransitions: string[] = [
+        CreateInstanceCapability.identifier,
+        DeleteInstanceCapability.identifier,
+        DetailCapability.identifier
+    ];
 
     constructor(constructorInput: CapabilityConstructorInput) {
         super(constructorInput.dataStructureMetadata);

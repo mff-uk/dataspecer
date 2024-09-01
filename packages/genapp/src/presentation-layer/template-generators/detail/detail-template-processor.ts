@@ -1,4 +1,5 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
+import { TransitionsGenerator } from "../../../engine/transitions/transitions-generator";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
 import { DetailReactComponentTemplate } from "./detail-template";
 
@@ -20,9 +21,12 @@ export class DetailComponentTemplateProcessor extends PresentationLayerTemplateG
                     to: dependencies.appLogicArtifact.filePath
                 },
                 detail_capability_app_layer: dependencies.appLogicArtifact.exportedObjectName,
-                //useJsonSchema_hook: undefined,
-                //useJsonSchema_hook_path: undefined,
-                //supported_out_detail_transitions: undefined
+                useJsonSchema_hook: "",
+                useJsonSchema_hook_path: {
+                    from: "",
+                    to: ""
+                },
+                supported_out_detail_transitions: dependencies.transitionLabels
             }
         }
 

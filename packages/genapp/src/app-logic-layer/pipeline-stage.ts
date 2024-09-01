@@ -13,10 +13,12 @@ export class ApplicationLayerStage implements GeneratorStage {
         this._applicationLayerGeneratorStrategy = layerGeneratorStrategy;
     }
 
-    generateStage(context: GenerationContext): Promise<LayerArtifact> {
+    async generateStage(context: GenerationContext): Promise<LayerArtifact> {
         context._.pathResolver = this.artifactSaver as GeneratedFilePathCalculator;
 
-        const appLayerArtifact = this._applicationLayerGeneratorStrategy.generateApplicationLayer(context);
+        const appLayerArtifact = await this._applicationLayerGeneratorStrategy.generateApplicationLayer(context);
+
+        console.log("AppLayerArtifact fragment: ", appLayerArtifact);
 
         if (!isLayerArtifact(appLayerArtifact)) {
             throw new Error("Could not generate application layer");

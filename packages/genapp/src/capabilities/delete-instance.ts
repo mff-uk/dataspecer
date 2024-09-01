@@ -1,7 +1,7 @@
 
 import { TemplateApplicationLayerGeneratorFactory } from "../app-logic-layer/generator-factory";
 import { ApplicationLayerStage } from "../app-logic-layer/pipeline-stage";
-import { DatasourceConfig } from "../application-config";
+import { DatasourceConfig } from "../engine/graph/datasource";
 import { DeleteInstanceTemplateGeneratorFactory } from "../data-layer/generator-factory";
 import { DataLayerGeneratorStage } from "../data-layer/pipeline-stage";
 import { GeneratorPipeline } from "../engine/generator-pipeline";

@@ -2,7 +2,7 @@ import { GeneratorStage, type GenerationContext } from "../engine/generator-stag
 import { ArtifactSaver } from "../utils/artifact-saver";
 import { LayerArtifact, isLayerArtifact } from "../engine/layer-artifact";
 import { DalGeneratorStrategy } from "./strategy-interface";
-import { DataSourceType, DatasourceConfig } from "../application-config";
+import { DataSourceType, DatasourceConfig } from "../engine/graph/datasource";
 
 export class DataLayerGeneratorStage implements GeneratorStage {
 

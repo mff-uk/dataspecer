@@ -1,13 +1,7 @@
 // TODO: merge / reduce imports
-import { ApplicationGraph, ApplicationGraphNode } from "../../../application-config";
-import {
-    ListCapability,
-    DetailCapability,
-    CreateInstanceCapability,
-    DeleteInstanceCapability
-} from "../../../capabilities/index";
 import { ListItemCapabilityOptionsGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 import { LayerArtifact } from "../../../engine/layer-artifact";
+import { TransitionsGenerator } from "../../../engine/transitions/transitions-generator";
 import { TemplateMetadata } from "../../../templates/template-consumer";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
 import { ListTableTemplate } from "./list-table-template";
@@ -19,44 +13,9 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
         super(templateMetadata);
     }
 
-    private getShortCapabilityName(capabilityId: string): string {
-        const map = {
-            [ListCapability.identifier]: "list",
-            [DetailCapability.identifier]: "detail",
-            [CreateInstanceCapability.identifier]: "create-instance",
-            [DeleteInstanceCapability.identifier]: "delete-instance"
-        };
-
-        const shortName = map[capabilityId];
-        if (!shortName) {
-            throw new Error("Unsupported capability identifier");
-        }
-
-        return shortName;
-    }
-
-    private getListTransitions(currentNode: ApplicationGraphNode, graph: ApplicationGraph): string[] {
-        const edges = currentNode.getOutgoingEdges(graph);
-
-        const transitionNames = edges.map(edge => {
-            const transitionEnd = graph.getNodeByIri(edge.target);
-
-            if (!transitionEnd) {
-                throw new Error(`Invalid transition edge: ${edge}`);
-            }
-
-            const shortLabel = this.getShortCapabilityName(transitionEnd.getCapabilityInfo().iri);
-
-            return shortLabel;
-        });
-
-        return transitionNames;
-    }
-    
     processTemplate(dependencies: PresentationLayerDependencyMap): LayerArtifact {
 
         const listItemOptionsArtifact = ListItemCapabilityOptionsGenerator.processTemplate();
-
         const listTableComponentName: string = dependencies.aggregate.getAggregateNamePascalCase({
             suffix: "ListTable"
         });
@@ -75,7 +34,7 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
                     from: this._filePath,
                     to: listItemOptionsArtifact.filePath
                 },
-                supported_out_list_transitions: this.getListTransitions(dependencies.currentNode, dependencies.graph)
+                supported_out_list_transitions: dependencies.transitionLabels
             }
         };
 

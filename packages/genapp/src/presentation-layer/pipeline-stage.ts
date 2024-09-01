@@ -17,10 +17,10 @@ export class PresentationLayerStage implements GeneratorStage {
         this._presentationLayerStrategy = presentationLayerGenerator;
     }
 
-    generateStage(context: GenerationContext): Promise<LayerArtifact> {
+    async generateStage(context: GenerationContext): Promise<LayerArtifact> {
         context._.pathResolver = this.artifactSaver as GeneratedFilePathCalculator;
 
-        const presentationLayerArtifact = this._presentationLayerStrategy.generatePresentationLayer(context);
+        const presentationLayerArtifact = await this._presentationLayerStrategy.generatePresentationLayer(context);
         
         if (!isLayerArtifact(presentationLayerArtifact)) {
             throw new Error("Could not generate presentation layer");

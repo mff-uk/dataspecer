@@ -2,7 +2,7 @@ import { GenerationContext } from "../../../engine/generator-stage-interface";
 import { DalGeneratorStrategy } from "../../strategy-interface";
 import { LdkitSchemaProvider, SchemaProvider } from "./ldkit-schema-provider";
 import { CreateLdkitInstanceGenerator } from "../../template-generators/ldkit/create/create-instance-generator";
-import { DatasourceConfig, DataSourceType } from "../../../application-config";
+import { DatasourceConfig, DataSourceType } from "../../../engine/graph/datasource";
 
 export class CreateLdkitInstanceDalStrategy implements DalGeneratorStrategy {
     strategyIdentifier: string = "create-ldkit-instance";
@@ -21,7 +21,7 @@ export class CreateLdkitInstanceDalStrategy implements DalGeneratorStrategy {
 
     async generateDataLayer(context: GenerationContext) {
 
-        const ldkitSchemaArtifact = await this._schemaProvider.getSchemaArtifact(context.aggregate.iri);
+        const ldkitSchemaArtifact = await this._schemaProvider.getSchemaArtifact(context.aggregate);
 
         const instanceCreatorDataLayerArtifact = new CreateLdkitInstanceGenerator({
             filePath: `./writers/${this.strategyIdentifier}/${context.aggregate.technicalLabel}-create-instance.ts`,

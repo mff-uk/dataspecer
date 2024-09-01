@@ -1,8 +1,6 @@
 import axios, { AxiosResponse, HttpStatusCode } from "axios";
 import { DataSpecification } from "@dataspecer/core/data-specification/model/data-specification";
-import {Resource} from "@dataspecer/federated-observable-store/resource";
 import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
-import { CoreResourceReader } from "@dataspecer/core/core/core-reader";
 import { CoreResource } from "@dataspecer/core/core/core-resource";
 
 export default class DalApi {
@@ -53,8 +51,7 @@ export default class DalApi {
             throw new Error(`Error fetching data with PIM IRI ${structureIri}:`);
         }
 
-        const psmResourceMap = response.data().resources as ResourceMap<DataPsmSchema>;
-
+        const psmResourceMap = response.data.resources as ResourceMap<DataPsmSchema>;
         const dataStructure = psmResourceMap[structureIri];
 
         if (!dataStructure) {

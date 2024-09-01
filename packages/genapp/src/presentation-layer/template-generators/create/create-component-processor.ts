@@ -1,4 +1,5 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
+import { TransitionsGenerator } from "../../../engine/transitions/transitions-generator";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
 import { CreateInstanceReactComponentTemplate } from "./create-component-template";
 
@@ -21,9 +22,12 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
                     to: dependencies.appLogicArtifact.filePath
                 },
-                // supported_out_create_edges: undefined,
-                // useJsonSchema_hook: undefined,
-                // useJsonSchema_hook_path: undefined
+                useJsonSchema_hook: "",
+                useJsonSchema_hook_path: {
+                    from: "",
+                    to: ""
+                },
+                supported_out_create_edges: dependencies.transitionLabels
             }
         }
 

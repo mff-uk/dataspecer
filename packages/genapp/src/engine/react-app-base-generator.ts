@@ -3,6 +3,7 @@ import { ImportRelativePath, TemplateDescription } from "./eta-template-renderer
 import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../templates/template-consumer";
 import { CopyTemplateProcessor } from "../capabilities/template-generators/capability-interface-generator";
 import { SidebarComponentTemplateProcessor } from "../presentation-layer/template-generators/sidebar-template.processor";
+import { AggregateMetadata } from "../application-config";
 
 interface ReactAppBaseTemplate extends TemplateDescription {
     placeholders: {
@@ -77,7 +78,11 @@ export class ReactApplicationBaseGenerator extends TemplateConsumer<ReactAppBase
         const sidebarComponentArtifact = new SidebarComponentTemplateProcessor({
             filePath: "./Sidebar.tsx",
             templatePath: "./scaffolding/Sidebar"
-        }).processTemplate({ aggregateCapabilitiesMap: dependencies.artifacts });
+        }).processTemplate({
+            // TODO: change this to ignore aggregate or use it within sidebar generator
+            aggregate: undefined as unknown as AggregateMetadata,
+            aggregateCapabilitiesMap: dependencies.artifacts 
+        });
 
         let toCopy: LayerArtifact[] = [];
         ["Content", "Footer", "TopBar", "index"].forEach(name => {

@@ -3,23 +3,23 @@ import { GenerationContext } from "../../engine/generator-stage-interface";
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { TemplateConsumer } from "../../templates/template-consumer";
 import { PresentationLayerGenerator } from "../strategy-interface";
-import { ApplicationGraph, ApplicationGraphNode } from "../../application-config";
 import { TemplateDependencyMap } from "../../templates/template-consumer";
 import { GeneratedFilePathCalculator } from "../../utils/artifact-saver";
+import { TransitionsGenerator } from "../../engine/transitions/transitions-generator";
 
 export interface PresentationLayerDependencyMap extends TemplateDependencyMap {
-    pathResolver: GeneratedFilePathCalculator,
+    pathResolver: GeneratedFilePathCalculator;
     appLogicArtifact: LayerArtifact;
-    graph: ApplicationGraph;
-    currentNode: ApplicationGraphNode;
+    transitionLabels: string[];
 }
 
 export abstract class PresentationLayerTemplateGenerator<TemplateType extends TemplateDescription>
-    extends TemplateConsumer<TemplateType> implements PresentationLayerGenerator {
+    extends TemplateConsumer<TemplateType>
+    implements PresentationLayerGenerator {
     
     strategyIdentifier: string = "";
 
-    generatePresentationLayer(context: GenerationContext): Promise<LayerArtifact> {
+    async generatePresentationLayer(context: GenerationContext): Promise<LayerArtifact> {
         if (!context.previousResult) {
             const errorArtifact: LayerArtifact = {
                 filePath: "",
@@ -34,14 +34,16 @@ export abstract class PresentationLayerTemplateGenerator<TemplateType extends Te
             throw new Error("Missing path resolver");
         }
 
+        const transitions = await (new TransitionsGenerator()
+            .getNodeTransitionLabels(context.currentNode, context.graph));
+
         const presentationLayerArtifact = this.processTemplate({
             aggregate: context.aggregate,
             pathResolver: context._.pathResolver,   
             appLogicArtifact: context.previousResult,
-            graph: context.graph,
-            currentNode: context.currentNode
-        });
+            transitionLabels: transitions
+        } as PresentationLayerDependencyMap);
 
-        return Promise.resolve(presentationLayerArtifact);
+        return presentationLayerArtifact;
     }
 }

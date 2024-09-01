@@ -13,11 +13,11 @@ export interface ApplicationLayerTemplateDependencyMap extends TemplateDependenc
 export abstract class ApplicationLayerTemplateGenerator<TemplateType extends TemplateDescription>
     extends TemplateConsumer<TemplateType>
     implements ApplicationLayerGenerator {
-    
+
     strategyIdentifier: string = "";
 
-    generateApplicationLayer(context: GenerationContext): Promise<LayerArtifact> {
-        
+    async generateApplicationLayer(context: GenerationContext): Promise<LayerArtifact> {
+
         if (!context.previousResult) {
             throw new Error("Application layer depends on LayerArtifact generated within previous layer");
         }
