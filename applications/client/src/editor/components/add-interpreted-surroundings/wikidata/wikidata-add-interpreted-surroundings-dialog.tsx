@@ -35,6 +35,7 @@ interface WikidataAddInterpretedSurroundingDialogContentProps
 
 export const WikidataAddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundingDialogProperties> =
     dialog({ fullWidth: true, maxWidth: "xl", PaperProps: { sx: { height: "90%" } } }, (props) => {
+        // @ts-ignore
         const { cim } = React.useContext(ConfigurationContext);
         const { pimResource: pimClass, dataPsmResource: dataPsmClass } =
             useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(props.dataPsmClassIri);
@@ -115,6 +116,7 @@ const WikidataAddInterpretedSurroundingsDialogContent: React.FC<
                             propertyWdSelectionContextValue.wdPropertySelectionRecords, adapterContext, rootWdClassSurroundings);
                             selected({
                                 resourcesToAdd,
+                                // @ts-ignore
                                 sourcePimModel: ReadOnlyMemoryStore.create(resources),
                                 forDataPsmClass: dataPsmClass
                             })

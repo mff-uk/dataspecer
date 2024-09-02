@@ -1,27 +1,25 @@
-import {IconButton, ListItem, ListItemText, Typography} from "@mui/material";
-import {LanguageStringUndefineable, translateFrom} from "../../helper/LanguageStringComponents";
+import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
+import { IconButton, ListItem, ListItemText, Typography } from "@mui/material";
 import React from "react";
-import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
-import {PimClass} from "@dataspecer/core/pim/model";
-import {SlovnikGovCzGlossary} from "../../slovnik.gov.cz/SlovnikGovCzGlossary";
-import {useTranslation} from "react-i18next";
+import { useTranslation } from "react-i18next";
+import { LanguageStringUndefineable, translateFrom } from "../../helper/LanguageStringComponents";
+import { SlovnikGovCzGlossary } from "../../slovnik.gov.cz/SlovnikGovCzGlossary";
 
 export const Item: React.FC<{
-  pimClassIri: string,
+  semanticModelClass: SemanticModelClass,
   onClick?: () => void,
   onInfo?: () => void,
-}> = ({pimClassIri, onClick, onInfo}) => {
-  const {resource} = useResource<PimClass>(pimClassIri);
+}> = ({semanticModelClass, onClick, onInfo}) => {
   const {i18n} = useTranslation();
 
   return <ListItem dense button onClick={onClick}>
-    <LanguageStringUndefineable from={resource?.pimHumanDescription ?? {}}>
+    <LanguageStringUndefineable from={semanticModelClass.description ?? {}}>
       {text =>
         <ListItemText secondary={<Typography variant="body2" color="textSecondary" noWrap title={text}>{text}</Typography>}>
-          <strong>{translateFrom(resource?.pimHumanLabel, i18n.languages)}</strong>
+          <strong>{translateFrom(semanticModelClass.name, i18n.languages)}</strong>
           {" "}
-          <SlovnikGovCzGlossary cimResourceIri={resource?.pimInterpretation as string} />
+          <SlovnikGovCzGlossary cimResourceIri={semanticModelClass.id as string} />
         </ListItemText>
       }
     </LanguageStringUndefineable>

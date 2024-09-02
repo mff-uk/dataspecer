@@ -1,18 +1,16 @@
-import {Box, CircularProgress, IconButton, List, ListItem, ListItemText, TextField, Typography} from "@mui/material";
-import React, {useContext, useEffect, useMemo, useState} from "react";
-import {useTranslation} from "react-i18next";
-import {PimClass} from "@dataspecer/core/pim/model";
-import {SlovnikGovCzGlossary} from "../../slovnik.gov.cz/SlovnikGovCzGlossary";
-import {ConfigurationContext} from "../../App";
+import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
-import {PimClassDetailDialog} from "../../detail/pim-class-detail-dialog";
-import {ReadOnlyMemoryStore} from "@dataspecer/core/core";
 import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
-import {DialogParameters, useDialog} from "../../../dialog";
-import {translateFrom} from "../../helper/LanguageStringComponents";
-import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
-import {ReadOnlyMemoryStoreWithDummyPimSchema} from "@dataspecer/federated-observable-store/read-only-memory-store-with-dummy-pim-schema";
+import { Box, CircularProgress, IconButton, List, ListItem, ListItemText, TextField, Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { isSourceSemanticModelSearchableSync } from "../../../configuration/configuration";
+import { DialogParameters, useDialog } from "../../../dialog";
+import { ConfigurationContext } from "../../App";
+import { PimClassDetailDialog } from "../../detail/pim-class-detail-dialog";
+import { translateFrom } from "../../helper/LanguageStringComponents";
+import { SlovnikGovCzGlossary } from "../../slovnik.gov.cz/SlovnikGovCzGlossary";
 
 const MAX_RESULTS = 30;
 
@@ -24,9 +22,9 @@ const useDebounceEffect = (effect: () => void, delay: number, debounceDeps: any[
     }, debounceDeps);
 }
 
-export const DefaultSearchDialogContent: React.FC<DialogParameters & {selected: (cls: PimClass) => void}> = ({close, isOpen, selected}) => {
-    const {cim} = React.useContext(ConfigurationContext);
-    const [findResults, updateFindResults] = useState<PimClass[] | null>(null);
+export const DefaultSearchDialogContent: React.FC<DialogParameters & {selected: (cls: SemanticModelClass) => void}> = ({close, isOpen, selected}) => {
+    const {sourceSemanticModel} = React.useContext(ConfigurationContext);
+    const [findResults, updateFindResults] = useState<SemanticModelClass[] | null>(null);
     const [loading, setLoading] = useState(false);
     const [isError, setError] = useState(false);
     const {t, i18n} = useTranslation("search-dialog");
@@ -35,25 +33,12 @@ export const DefaultSearchDialogContent: React.FC<DialogParameters & {selected: 
 
     const DetailDialog = useDialog(PimClassDetailDialog);
 
-    // Following code creates a new store context containing downloaded data. This allow us to use standard application
-    // components which render dialogs and other stuff
-
-    const storeContext = useContext(ConfigurationContext);
-    const store = useFederatedObservableStore();
-    const NewStoreContext = useMemo(() => ({...storeContext, store}), [storeContext, store]);
-    useEffect(() => {
-        const resources = Object.fromEntries(findResults?.map(r => [r.iri, r]) ?? []);
-        const readOnlyMemoryStore = ReadOnlyMemoryStore.create(resources);
-        const wrappedStore = new ReadOnlyMemoryStoreWithDummyPimSchema(readOnlyMemoryStore, "http://dummy-schema/");
-        store.addStore(wrappedStore);
-        return () => store.removeStore(wrappedStore);
-    }, [findResults, store]);
-
     useDebounceEffect(() => {
         setError(false);
         if (searchText) {
             setLoading(true);
-            cim.cimAdapter.search(searchText).then(result => {
+            sourceSemanticModel.search(searchText).then(result => {
+                console.log(result);
                 updateFindResults(result.filter((_, i) => i < MAX_RESULTS));
             }).catch(error => {
                 console.info("Error during search.", error);
@@ -62,7 +47,7 @@ export const DefaultSearchDialogContent: React.FC<DialogParameters & {selected: 
         } else {
             updateFindResults(null);
         }
-    }, 100, [searchText, cim.cimAdapter]);
+    }, isSourceSemanticModelSearchableSync(sourceSemanticModel) ? 0 : 100, [searchText, sourceSemanticModel]);
 
     return (
         <>
@@ -87,16 +72,16 @@ export const DefaultSearchDialogContent: React.FC<DialogParameters & {selected: 
                     margin: theme => theme.spacing(2, 0, 0, 0),
                 }}
                 >
-                {findResults && findResults.map((result: PimClass) =>
-                    <ListItem button key={result.pimInterpretation} onClick={() => {
+                {findResults && findResults.map((result: SemanticModelClass) =>
+                    <ListItem button key={result.id} onClick={() => {
                         selected(result);
                         close();
                     }}>
                         <ListItemText secondary={<Typography variant="body2" color="textSecondary" noWrap
-                                                                title={translateFrom(result.pimHumanDescription, i18n.languages)}>{translateFrom(result.pimHumanDescription, i18n.languages)}</Typography>}>
-                            <strong>{translateFrom(result.pimHumanLabel, i18n.languages)}</strong>
+                                                                title={translateFrom(result.name, i18n.languages)}>{translateFrom(result.description, i18n.languages)}</Typography>}>
+                            <strong>{translateFrom(result.name, i18n.languages)}</strong>
                             {" "}
-                            <SlovnikGovCzGlossary cimResourceIri={result.pimInterpretation as string}/>
+                            <SlovnikGovCzGlossary cimResourceIri={result.iri as string}/>
                         </ListItemText>
                         <IconButton onClick={e => {
                             e.stopPropagation();
@@ -120,9 +105,7 @@ export const DefaultSearchDialogContent: React.FC<DialogParameters & {selected: 
                     {findResults && <><SearchOffIcon sx={{display: "block", height: "4rem", width: "4rem"}} />{t('info panel nothing found')}</>}
                 </Box>}
             </List>
-            <ConfigurationContext.Provider value={NewStoreContext}>
-                <DetailDialog.Component />
-            </ConfigurationContext.Provider>
+            <DetailDialog.Component />
         </>
     );
 }

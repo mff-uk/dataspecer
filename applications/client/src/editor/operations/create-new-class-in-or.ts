@@ -1,13 +1,13 @@
-import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-operation";
-import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
-import {CoreResourceReader} from "@dataspecer/core/core";
-import {extendPimClassesAlongInheritance} from "./helper/extend-pim-classes-along-inheritance";
-import {ASSOCIATION_END} from "@dataspecer/core/data-psm/data-psm-vocabulary";
-import {DataPsmAssociationEnd} from "@dataspecer/core/data-psm/model";
-import {PimAssociationEnd, PimClass} from "@dataspecer/core/pim/model";
-import {DataPsmCreateClass, DataPsmSetChoice} from "@dataspecer/core/data-psm/operation";
-import {createPimClassIfMissing} from "./helper/pim";
-import {TechnicalLabelOperationContext} from "./context/technical-label-operation-context";
+import { SemanticModelClass, SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
+import { ASSOCIATION_END } from "@dataspecer/core/data-psm/data-psm-vocabulary";
+import { DataPsmAssociationEnd } from "@dataspecer/core/data-psm/model";
+import { DataPsmCreateClass, DataPsmSetChoice } from "@dataspecer/core/data-psm/operation";
+import { PimAssociationEnd, PimClass, PimResource } from "@dataspecer/core/pim/model";
+import { ComplexOperation } from "@dataspecer/federated-observable-store/complex-operation";
+import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
+import { TechnicalLabelOperationContext } from "./context/technical-label-operation-context";
+import { extendPimClassesAlongInheritance } from "./helper/extend-pim-classes-along-inheritance";
+import { createPimClassIfMissing } from "./helper/pim";
 
 /**
  * Adds new class to the OR and tries to create inheritance chain to PIM.
@@ -15,15 +15,15 @@ import {TechnicalLabelOperationContext} from "./context/technical-label-operatio
 export class CreateNewClassInOr implements ComplexOperation {
   private store!: FederatedObservableStore;
   private readonly dataPsmOrIri: string;
-  private readonly pimClassIri: string;
-  private readonly pimClassStore: CoreResourceReader;
+  private readonly semanticClassId: string;
+  private readonly sourceSemanticModel: SemanticModelEntity[];
   private context: TechnicalLabelOperationContext|null = null;
   private pimSchema: string | null;
 
-  constructor(dataPsmOrIri: string, pimClassIri: string, pimClassStore: CoreResourceReader, pimSchema: string|null = null) {
+  constructor(dataPsmOrIri: string, semanticClassId: string, sourceSemanticModel: SemanticModelEntity[], pimSchema: string|null = null) {
     this.dataPsmOrIri = dataPsmOrIri;
-    this.pimClassIri = pimClassIri;
-    this.pimClassStore = pimClassStore;
+    this.semanticClassId = semanticClassId;
+    this.sourceSemanticModel = sourceSemanticModel;
     this.pimSchema = pimSchema;
   }
 
@@ -49,7 +49,7 @@ export class CreateNewClassInOr implements ComplexOperation {
       }
     }
 
-    const desiredPimClass = await this.pimClassStore.readResource(this.pimClassIri) as PimClass;
+    const desiredSemanticClass = this.sourceSemanticModel.find((entity) => entity.id === this.semanticClassId) as SemanticModelClass;
 
     let pimSchema: string | null = null;
     if (parentAssociation) {
@@ -59,17 +59,18 @@ export class CreateNewClassInOr implements ComplexOperation {
       pimSchema = this.store.getSchemaForResource(typedPimClass.iri as string) as string;
 
 
+      const sourceSemanticClass = this.sourceSemanticModel.find((entity) => entity.id === typedPimClass.pimInterpretation) as SemanticModelClass;
       await extendPimClassesAlongInheritance(
-          typedPimClass, desiredPimClass, pimSchema, this.store, this.pimClassStore);
+        sourceSemanticClass, desiredSemanticClass, pimSchema, this.store, this.sourceSemanticModel);
     }
 
-    const pimClass = await createPimClassIfMissing(desiredPimClass, pimSchema ?? this.pimSchema as string, this.store);
+    const pimClass = await createPimClassIfMissing(desiredSemanticClass, pimSchema ?? this.pimSchema as string, this.store);
 
     // Create data psm class
 
     const dataPsmCreateClass = new DataPsmCreateClass();
     dataPsmCreateClass.dataPsmInterpretation = pimClass;
-    dataPsmCreateClass.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(desiredPimClass) ?? null;
+    dataPsmCreateClass.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(await this.store.readResource(pimClass) as PimResource) ?? null;
     const dataPsmCreateClassResult = await this.store.applyOperation(dataPsmSchema, dataPsmCreateClass);
     const psmClass = dataPsmCreateClassResult.created[0];
 

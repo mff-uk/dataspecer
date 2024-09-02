@@ -1,14 +1,14 @@
-import React, {useCallback, useContext} from "react";
+import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
+import { DataPsmClass } from "@dataspecer/core/data-psm/model";
+import { useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
 import AddIcon from "@mui/icons-material/Add";
-import {useTranslation} from "react-i18next";
-import {CoreResourceReader} from "@dataspecer/core/core";
-import {DataPsmClass} from "@dataspecer/core/data-psm/model";
-import {AddClassSurroundings} from "../../../operations/add-class-surroundings";
-import {MenuItem} from "@mui/material";
-import {AddInterpretedSurroundingsDialog} from "../../add-interpreted-surroundings";
-import {UseDialogOpenFunction} from "../../../dialog";
-import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
-import {ConfigurationContext} from "../../App";
+import { MenuItem } from "@mui/material";
+import React, { useCallback, useContext } from "react";
+import { useTranslation } from "react-i18next";
+import { UseDialogOpenFunction } from "../../../dialog";
+import { AddClassSurroundings } from "../../../operations/add-class-surroundings";
+import { AddInterpretedSurroundingsDialog } from "../../add-interpreted-surroundings";
+import { ConfigurationContext } from "../../App";
 
 export const DataPsmClassAddSurroundingsButton: React.FC<{open: UseDialogOpenFunction<typeof AddInterpretedSurroundingsDialog, "dataPsmClassIri">}> = ({open}) => {
     const store = useFederatedObservableStore();
@@ -17,7 +17,7 @@ export const DataPsmClassAddSurroundingsButton: React.FC<{open: UseDialogOpenFun
 
     const addSurroundings = useCallback((operation: {
         resourcesToAdd: [string, boolean][],
-        sourcePimModel: CoreResourceReader,
+        sourcePimModel: SemanticModelEntity[],
         forDataPsmClass: DataPsmClass,
      }) => {
         const addClassSurroundings = new AddClassSurroundings(operation.forDataPsmClass, operation.sourcePimModel, operation.resourcesToAdd);
