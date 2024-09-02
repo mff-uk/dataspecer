@@ -74,7 +74,36 @@ export const createModelInstructions = {
   },
   [V1.PSM]: {
     needsNaming: false,
-    createHook: getHookForStandardModel(V1.PSM, () => ({operations: [], resources: []})),
+    createHook: async (context: createModelContext) => {
+      await getHookForStandardModel(V1.PSM, iri => ({operations: [], resources: {
+        [iri]: {
+          "types": [
+              "https://ofn.gov.cz/slovník/psm/Schema"
+          ],
+          "iri": iri,
+          "dataPsmHumanLabel": null,
+          "dataPsmHumanDescription": null,
+          "dataPsmTechnicalLabel": null,
+          "dataPsmRoots": [],
+          "dataPsmParts": []
+        }
+      }}))(context);
+      
+      const pckg = await packageService.getPackage(context.parentIri);
+      if (!pckg.subResources?.some(r => r.types.includes(V1.PIM))) {
+        await getHookForStandardModel(V1.PIM, iri => ({operations: [], resources: {
+          [iri]: {
+            "types": [
+                "https://ofn.gov.cz/slovník/pim/Schema"
+            ],
+            "iri": iri,
+            "pimHumanLabel": null,
+            "pimHumanDescription": null,
+            "pimParts": []
+          }
+        }}))(context);
+      }
+  },
   },
   [LOCAL_VISUAL_MODEL]: {
     needsNaming: false,
