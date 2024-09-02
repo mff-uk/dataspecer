@@ -26,7 +26,7 @@ export class DetailComponentTemplateProcessor extends PresentationLayerTemplateG
                     from: this._filePath,
                     to: this._filePath
                 },
-                supported_out_detail_transitions: dependencies.transitions
+                capability_transitions: dependencies.transitions
             }
         }
 

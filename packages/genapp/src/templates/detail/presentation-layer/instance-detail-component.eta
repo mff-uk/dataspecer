@@ -5,7 +5,6 @@ import { AggregateInstance } from '../../interfaces/capability-result';
 import { useSearchParams } from 'react-router-dom';
 import Form from '@rjsf/mui';
 import validator from '@rjsf/validator-ajv8';
-// TODO: use proper useJsonSchema hook import
 import <%= it.useJsonSchema_hook %> from <%~ it.useJsonSchema_hook_path %>;
 
 export default function <%= it.export_name %>() {
@@ -52,13 +51,9 @@ export default function <%= it.export_name %>() {
     return (
         <>
             <h2>Detail of "<%= it.aggregate_name %>" instance</h2>
-            {
-                // TODO: Generate a button below only if described within application graph
-                // get list of supported out detail edges
-                ["Update", "Delete", "Back to list"].map((x, idx) => {
-                    return <button key={idx}>{x}</button>
-                })
-            }
+            <% for (let index = 0; index < it.capability_transitions.length; index++) { %><% const transition = it.capability_transitions[index]; %>
+                <button key={transition.id}><%= transition.label %></button>
+            <% } %>
             {
                 debugView &&
                 <div>
