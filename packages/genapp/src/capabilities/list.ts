@@ -6,13 +6,13 @@ import { DataLayerGeneratorStage } from "../data-layer/pipeline-stage";
 import { GeneratorPipeline } from "../engine/generator-pipeline";
 import { PresentationLayerTemplateGeneratorFactory } from "../presentation-layer/generator-factory";
 import { PresentationLayerStage } from "../presentation-layer/pipeline-stage";
-import { BaseCapabilityGenerator } from "./capability-generator-interface";
+import { AggregateTypeCapabilityGenerator } from "./capability-generator-interface";
 import { CapabilityConstructorInput } from "./constructor-input";
 import { CreateInstanceCapability } from "./create-instance";
 import { DeleteInstanceCapability } from "./delete-instance";
 import { DetailCapability } from "./detail";
 
-export class ListCapability extends BaseCapabilityGenerator {
+export class ListCapability extends AggregateTypeCapabilityGenerator {
 
     public static readonly label: string = "list";
     public static readonly identifier: string = `https://dataspecer.com/application_graph/capability/${this.label}`;
@@ -22,6 +22,8 @@ export class ListCapability extends BaseCapabilityGenerator {
         DeleteInstanceCapability.identifier,
         DetailCapability.identifier
     ];
+
+    getCapabilityLabel = (): string => ListCapability.label;
 
     constructor(constructorInput: CapabilityConstructorInput) {
         super(constructorInput.dataStructureMetadata);

@@ -1,5 +1,5 @@
-import { LayerArtifact } from "./layer-artifact";
-import { ImportRelativePath, TemplateDescription } from "./eta-template-renderer";
+import { LayerArtifact } from "../engine/layer-artifact";
+import { ImportRelativePath, TemplateDescription } from "../engine/eta-template-renderer";
 import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../templates/template-consumer";
 import { CopyTemplateProcessor } from "../capabilities/template-generators/capability-interface-generator";
 import { SidebarComponentTemplateProcessor } from "../presentation-layer/template-generators/sidebar-template.processor";
@@ -14,25 +14,26 @@ interface ReactAppBaseTemplate extends TemplateDescription {
         page_template_component: string,
         page_template_component_path: ImportRelativePath,
         import_statements: string[],
-        artifacts_map: AggregateCapabilitiesReactRouteComponentsMap
+        artifacts_map: CapabilityRouteComponentMap
     }
 }
 
 export type ReactRouteComponentDescription = {
     componentName: string,
+    relativePath: string,
+    capability: {
+        type: string,
+        label: string
+    },
     props: { [propName: string]: string }
-    relativePath: string
 }
 
-export type AggregateCapabilitiesReactRouteComponentsMap = {
-    [aggregateName: string]: {
-        [capabilityName: string]: ReactRouteComponentDescription
-    }
+export type CapabilityRouteComponentMap = {
+    [capabilityPath: string]: ReactRouteComponentDescription
 }
 
-
-interface ReactAppBaseTemplateDependencyMap extends TemplateDependencyMap {
-    artifacts: AggregateCapabilitiesReactRouteComponentsMap
+export interface ReactAppBaseTemplateDependencyMap extends TemplateDependencyMap {
+    capabilityMap: CapabilityRouteComponentMap
 }
 
 export class ReactApplicationBaseGenerator extends TemplateConsumer<ReactAppBaseTemplate> {
@@ -43,14 +44,10 @@ export class ReactApplicationBaseGenerator extends TemplateConsumer<ReactAppBase
         super(templateMetadata)
     }
 
-    private getImportStatements(artifactsMap: AggregateCapabilitiesReactRouteComponentsMap): Set<string> {
-
-        const importStatements = Object.values(artifactsMap)
-            .reduce<string[]>((acc, capabilityArtifactsMap) => {
-                const aggregateImports = Object.values(capabilityArtifactsMap)
-                    .map(artifact => `import ${artifact.componentName} from "${artifact.relativePath}";`);
-                return acc.concat(aggregateImports);
-            }, []);
+    private getImportStatements(artifactsMap: CapabilityRouteComponentMap): Set<string> {
+        const importStatements = Object
+            .values(artifactsMap)
+            .map(capabilityArtifact => `import ${capabilityArtifact.componentName} from "${capabilityArtifact.relativePath}";`);
 
         return new Set<string>(importStatements);
     }
@@ -81,7 +78,7 @@ export class ReactApplicationBaseGenerator extends TemplateConsumer<ReactAppBase
         }).processTemplate({
             // TODO: change this to ignore aggregate or use it within sidebar generator
             aggregate: undefined as unknown as AggregateMetadata,
-            aggregateCapabilitiesMap: dependencies.artifacts 
+            capabilityMap: dependencies.capabilityMap
         });
 
         let toCopy: LayerArtifact[] = [];
@@ -119,7 +116,7 @@ export class ReactApplicationBaseGenerator extends TemplateConsumer<ReactAppBase
             {
                 templatePath: "./scaffolding/reportWebVitals",
                 filePath: "./reportWebVitals.ts",
-                queryExportedObjectName:  "reportWebVitals"
+                queryExportedObjectName: "reportWebVitals"
             }
         ].map(templateMetadata => new CopyTemplateProcessor(templateMetadata).processTemplate())
         );
@@ -127,8 +124,8 @@ export class ReactApplicationBaseGenerator extends TemplateConsumer<ReactAppBase
         const reactAppComponentTemplate: ReactAppBaseTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                artifacts_map: dependencies.artifacts,
-                import_statements: [...this.getImportStatements(dependencies.artifacts)],
+                artifacts_map: dependencies.capabilityMap,
+                import_statements: [...this.getImportStatements(dependencies.capabilityMap)],
                 error_component_path: {
                     from: this._filePath,
                     to: errorPageArtifact.filePath

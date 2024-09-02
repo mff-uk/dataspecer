@@ -56,9 +56,3 @@ export const GeneratedCapabilityInterfaceGenerator = new CapabilityInterfaceGene
     templatePath: "./capability-result-interface",
     queryExportedObjectName: "GeneratedCapability"
 });
-
-export const ListItemCapabilityOptionsGenerator = new CapabilityInterfaceGenerator({
-    filePath: "./ListItemCapabilityOptions.tsx",
-    queryExportedObjectName: "ListItemCapabilityOptions",
-    templatePath: "./list/presentation-layer/item-capability-options"
-});

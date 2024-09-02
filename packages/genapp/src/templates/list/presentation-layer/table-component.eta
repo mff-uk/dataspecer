@@ -31,7 +31,7 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
     useEffect(() => {
         const fetchInstancesList = async () => {
             if (!objectsList) {
-                const listResult = await <%= it.list_capability_app_layer %>.runCapability(aggregateName);
+                const listResult = await <%= it.list_capability_app_layer %>.runCapability("<%= it.aggregate_name %>");
 
                 if (!listResult ||
                     !listResult.entities ||
@@ -106,9 +106,8 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
                                                 }
                                                 <TableCell>
                                                     <<%= it.instance_capability_options %>
-                                                        aggregateName={aggregateName}
                                                         instanceId={obj["$id"]}
-                                                        optionNames={ [ <% for (let idx in it.supported_out_list_transitions) { %>"<%~ it.supported_out_list_transitions[idx] %>"<% } %> ] } // TODO: iterate through supported application graph edges
+                                                        optionNames={<%~ JSON.stringify(it.supported_out_list_transitions, undefined, 2) %>}
                                                     />
                                                 </TableCell>
                                             </TableRow>

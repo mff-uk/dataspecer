@@ -1,21 +1,22 @@
 
 import { TemplateApplicationLayerGeneratorFactory } from "../app-logic-layer/generator-factory";
 import { ApplicationLayerStage } from "../app-logic-layer/pipeline-stage";
-import { DatasourceConfig } from "../engine/graph/datasource";
 import { DeleteInstanceTemplateGeneratorFactory } from "../data-layer/generator-factory";
 import { DataLayerGeneratorStage } from "../data-layer/pipeline-stage";
 import { GeneratorPipeline } from "../engine/generator-pipeline";
-import { BaseCapabilityGenerator } from "./capability-generator-interface";
+import { InstanceTypeCapabilityGenerator } from "./capability-generator-interface";
 import { CapabilityConstructorInput } from "./constructor-input";
 
-export class DeleteInstanceCapability extends BaseCapabilityGenerator {
+export class DeleteInstanceCapability extends InstanceTypeCapabilityGenerator {
 
     public static readonly label: string = "delete-instance";
     public static readonly identifier: string = `https://dataspecer.com/application_graph/capability/${this.label}`;
 
+    getCapabilityLabel = (): string => DeleteInstanceCapability.label;
+
     constructor(constructorInput: CapabilityConstructorInput) {
         super(constructorInput.dataStructureMetadata);
-        
+
         const dalLayerGeneratorStrategy = DeleteInstanceTemplateGeneratorFactory.getDalGeneratorStrategy(constructorInput.datasource);
         const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(
             constructorInput.dataStructureMetadata.technicalLabel,

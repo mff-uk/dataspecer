@@ -8,7 +8,7 @@ import validator from '@rjsf/validator-ajv8';
 // TODO: use proper useJsonSchema hook import
 import <%= it.useJsonSchema_hook %> from <%~ it.useJsonSchema_hook_path %>;
 
-export default function <%= it.aggregate_name %>() {
+export default function <%= it.export_name %>() {
 
     const [instance, setInstance] = useState<AggregateInstance>();
     const [loadingStatus, setLoadingStatus] = useState<boolean>(true);

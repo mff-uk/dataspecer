@@ -1,5 +1,4 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TransitionsGenerator } from "../../../engine/transitions/transitions-generator";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
 import { DetailReactComponentTemplate } from "./detail-template";
 
@@ -11,22 +10,23 @@ export class DetailComponentTemplateProcessor extends PresentationLayerTemplateG
         const detailExportedName = dependencies.aggregate.getAggregateNamePascalCase({
             suffix: "InstanceDetail"
         });
-        
+
         const instanceDetailTemplate: DetailReactComponentTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: detailExportedName,
+                aggregate_name: dependencies.aggregate.aggregateName,
+                export_name: detailExportedName,
                 detail_app_layer_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
                     to: dependencies.appLogicArtifact.filePath
                 },
                 detail_capability_app_layer: dependencies.appLogicArtifact.exportedObjectName,
-                useJsonSchema_hook: "",
+                useJsonSchema_hook: "<useJsonSchema hook placeholder>",
                 useJsonSchema_hook_path: {
-                    from: "",
-                    to: ""
+                    from: this._filePath,
+                    to: this._filePath
                 },
-                supported_out_detail_transitions: dependencies.transitionLabels
+                supported_out_detail_transitions: dependencies.transitions
             }
         }
 

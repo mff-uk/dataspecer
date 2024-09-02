@@ -1,22 +1,21 @@
 import { TemplateDescription } from "../../engine/eta-template-renderer";
 import { GenerationContext } from "../../engine/generator-stage-interface";
 import { LayerArtifact } from "../../engine/layer-artifact";
-import { TemplateConsumer } from "../../templates/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap  } from "../../templates/template-consumer";
 import { PresentationLayerGenerator } from "../strategy-interface";
-import { TemplateDependencyMap } from "../../templates/template-consumer";
 import { GeneratedFilePathCalculator } from "../../utils/artifact-saver";
-import { TransitionsGenerator } from "../../engine/transitions/transitions-generator";
+import { AllowedTransition, TransitionsGenerator } from "../../engine/transitions/transitions-generator";
 
 export interface PresentationLayerDependencyMap extends TemplateDependencyMap {
     pathResolver: GeneratedFilePathCalculator;
     appLogicArtifact: LayerArtifact;
-    transitionLabels: string[];
+    transitions: AllowedTransition[];
 }
 
 export abstract class PresentationLayerTemplateGenerator<TemplateType extends TemplateDescription>
     extends TemplateConsumer<TemplateType>
     implements PresentationLayerGenerator {
-    
+
     strategyIdentifier: string = "";
 
     async generatePresentationLayer(context: GenerationContext): Promise<LayerArtifact> {
@@ -35,13 +34,13 @@ export abstract class PresentationLayerTemplateGenerator<TemplateType extends Te
         }
 
         const transitions = await (new TransitionsGenerator()
-            .getNodeTransitionLabels(context.currentNode, context.graph));
+            .getNodeTransitions(context.currentNode, context.graph));
 
         const presentationLayerArtifact = this.processTemplate({
             aggregate: context.aggregate,
-            pathResolver: context._.pathResolver,   
+            pathResolver: context._.pathResolver,
             appLogicArtifact: context.previousResult,
-            transitionLabels: transitions
+            transitions: transitions
         } as PresentationLayerDependencyMap);
 
         return presentationLayerArtifact;

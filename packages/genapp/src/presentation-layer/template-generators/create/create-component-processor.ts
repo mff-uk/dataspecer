@@ -22,12 +22,12 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
                     to: dependencies.appLogicArtifact.filePath
                 },
-                useJsonSchema_hook: "",
+                useJsonSchema_hook: "<useJsonSchema hook placeholder>",
                 useJsonSchema_hook_path: {
-                    from: "",
+                    from: this._filePath,
                     to: ""
                 },
-                supported_out_create_edges: dependencies.transitionLabels
+                supported_out_create_edges: dependencies.transitions
             }
         }
 

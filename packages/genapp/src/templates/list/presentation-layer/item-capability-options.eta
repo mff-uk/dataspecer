@@ -4,9 +4,8 @@ import MenuItem from "@mui/material/MenuItem";
 import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { createSearchParams, useNavigate } from 'react-router-dom';
-                                            //
-export const ListItemCapabilityOptions = ({ optionNames, instanceId, aggregateName }: { optionNames: string[], instanceId: string, aggregateName: string }) => {
-                                            //
+
+export const <%= it.export_name %> = ({ optionNames, instanceId }: { optionNames: string[], instanceId: string }) => {
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -17,12 +16,8 @@ export const ListItemCapabilityOptions = ({ optionNames, instanceId, aggregateNa
         setAnchorEl(event.currentTarget);
     }
 
-    //
-    const handleInstanceCapabilityRedirect = (optionName: string) => {
+    const handleInstanceCapabilityRedirect = (urlPath: string) => {
         handleClose();
-
-        const urlPath = `/${aggregateName.toLowerCase()}/${optionName.toLowerCase()}`;
-
         navigate({
             pathname: urlPath,
             search: createSearchParams({
@@ -30,7 +25,6 @@ export const ListItemCapabilityOptions = ({ optionNames, instanceId, aggregateNa
             }).toString()
         });
     }
-    //
 
     const ITEM_HEIGHT = 48;
 
@@ -60,20 +54,12 @@ export const ListItemCapabilityOptions = ({ optionNames, instanceId, aggregateNa
                         }
                     }
                 }}
-            >
-                {
-                //    
-                optionNames.map((optionName) => (
-                //
-                    <MenuItem
-                        key={optionName}
-                        //
-                        onClick={() => handleInstanceCapabilityRedirect(optionName)}
-                        //
-                    >
-                        {optionName}
-                    </MenuItem>
-                ))}
+            ><% for (let index = 0; index < it.capability_transitions.length; index++) { %><% const transition = it.capability_transitions[index]; %>
+                <MenuItem key={"<%~ transition.id %>"}
+                    onClick={() => handleInstanceCapabilityRedirect("<%~ transition.id %>")}
+                >
+                    <%~ transition.label %>
+                </MenuItem><% } %>
             </Menu>
         </>
     )

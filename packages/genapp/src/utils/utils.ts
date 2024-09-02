@@ -19,8 +19,12 @@ export function getRelativePath(sourcePath: string, targetPath: string): string 
 }
 
 export function toPascalCase(str: string): string {
-    return str.replace(
+    const result = str.replace(
         /(\w)(\w*)/g,
         (_, g1, g2) => g1.toUpperCase() + g2.toLowerCase()
     );
+
+    console.log("PASCAL CASE: ", result);
+
+    return result;
 }

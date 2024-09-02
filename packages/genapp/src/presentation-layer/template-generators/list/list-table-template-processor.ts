@@ -1,9 +1,8 @@
 // TODO: merge / reduce imports
-import { ListItemCapabilityOptionsGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TransitionsGenerator } from "../../../engine/transitions/transitions-generator";
 import { TemplateMetadata } from "../../../templates/template-consumer";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
+import { ListItemCapabilityOptionsDependencyMap, ListItemCapabilityOptionsGenerator } from "./list-item-options-processor";
 import { ListTableTemplate } from "./list-table-template";
 
 export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerator<ListTableTemplate> {
@@ -15,7 +14,14 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
 
     processTemplate(dependencies: PresentationLayerDependencyMap): LayerArtifact {
 
-        const listItemOptionsArtifact = ListItemCapabilityOptionsGenerator.processTemplate();
+        const listItemOptionsArtifact = new ListItemCapabilityOptionsGenerator({
+            filePath: `./${dependencies.aggregate.getAggregateNamePascalCase({ "suffix": "ListItemCapabilityOptions" })}.tsx`,
+            templatePath: "./list/presentation-layer/item-capability-options"
+        }).processTemplate({
+            aggregate: dependencies.aggregate,
+            transitions: dependencies.transitions
+        } as ListItemCapabilityOptionsDependencyMap);
+
         const listTableComponentName: string = dependencies.aggregate.getAggregateNamePascalCase({
             suffix: "ListTable"
         });
@@ -23,6 +29,7 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
         const tableTemplate: ListTableTemplate = {
             templatePath: this._templatePath,
             placeholders: {
+                aggregate_name: dependencies.aggregate.getAggregateNamePascalCase(),
                 presentation_layer_component_name: listTableComponentName,
                 list_capability_app_layer: dependencies.appLogicArtifact.exportedObjectName,
                 list_app_layer_path: {
@@ -34,7 +41,7 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
                     from: this._filePath,
                     to: listItemOptionsArtifact.filePath
                 },
-                supported_out_list_transitions: dependencies.transitionLabels
+                supported_out_list_transitions: dependencies.transitions
             }
         };
 

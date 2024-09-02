@@ -1,49 +1,42 @@
 import { TemplateDescription } from "../../engine/eta-template-renderer";
 import { LayerArtifact } from "../../engine/layer-artifact";
-import { AggregateCapabilitiesReactRouteComponentsMap, ReactRouteComponentDescription } from "../../engine/react-app-base-generator";
+import { CapabilityRouteComponentMap, ReactRouteComponentDescription } from "../../react-base/react-app-base-generator";
 import { TemplateConsumer, TemplateDependencyMap } from "../../templates/template-consumer";
 
 export interface SidebarComponentTemplate extends TemplateDescription {
     placeholders: {
-        aggregates_with_list: { [aggregateName: string]: ReactRouteComponentDescription };
+        collection_aggregates: { [capabilityPath: string]: string };
     };
 }
 
 interface SidebarComponentDependencyMap extends TemplateDependencyMap {
-    aggregateCapabilitiesMap: AggregateCapabilitiesReactRouteComponentsMap;
+    capabilityMap: CapabilityRouteComponentMap;
 }
 
 export class SidebarComponentTemplateProcessor extends TemplateConsumer<SidebarComponentTemplate> {
 
-    private getAggregateNamesWithListCapability(aggregateCapabilitiesMap: AggregateCapabilitiesReactRouteComponentsMap): 
-        { [aggregateName: string]: ReactRouteComponentDescription } {
-        
-        const result: { [aggregateName: string]: ReactRouteComponentDescription } = {};
-        Object.keys(aggregateCapabilitiesMap)
-            .filter(aggregateName => {
-                const capabilityComponentDescriptorMap = aggregateCapabilitiesMap[aggregateName]!;
-                return "list" in capabilityComponentDescriptorMap;
-            })
-            .forEach(aggregateName => {
-                const aggregateListComponent = aggregateCapabilitiesMap[aggregateName]!.list!;
-                result[aggregateName] = aggregateListComponent;
+    private getCollectionCapabilities(capabilityMap: CapabilityRouteComponentMap): { [capabilityPath: string]: string } {
+        const result: { [capabilityPath: string]: string } = {};
+        const capabilityLabels = Object.entries(capabilityMap)
+            .filter(([_, generatedMetadata]) => generatedMetadata.capability.type === "collection")
+            .forEach(([capabilityPath, generatedMetadata]) => {
+                const capabilityLabel = `${generatedMetadata.capability.label[0]!.toUpperCase()}${generatedMetadata.capability.label.slice(1)} ${generatedMetadata.props.aggregateName}`;
+                result[capabilityPath] = capabilityLabel;
             });
 
-        console.log(result);
+        console.log(capabilityLabels);
 
         return result;
     }
-    
+
     processTemplate(dependencies: SidebarComponentDependencyMap): LayerArtifact {
-        
+
         // TODO: integrate application graph -> sidebar displays all "collection" type capabilities (list, create)
-        const aggregateNames = this.getAggregateNamesWithListCapability(dependencies.aggregateCapabilitiesMap);
+        const collectionCapabilityMap = this.getCollectionCapabilities(dependencies.capabilityMap);
 
         const sidebarTemplate: SidebarComponentTemplate = {
             templatePath: this._templatePath,
-            placeholders: {
-                aggregates_with_list: aggregateNames
-            }
+            placeholders: { collection_aggregates: collectionCapabilityMap }
         };
 
         const sidebarComponentRender = this._templateRenderer.renderTemplate(sidebarTemplate);
@@ -54,7 +47,7 @@ export class SidebarComponentTemplateProcessor extends TemplateConsumer<SidebarC
             sourceText: sidebarComponentRender,
             dependencies: []
         }
-        
+
         return sidebarComponentArtifact;
     }
 }

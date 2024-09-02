@@ -10,9 +10,9 @@ import {
     ListCapability
 } from "../../capabilities";
 
-type AllowedTransition = {
+export type AllowedTransition = {
     label: string,
-    iri: string
+    id: string
 }
 
 type AllowedTransitionsMap = {
@@ -32,9 +32,9 @@ export class TransitionsGenerator {
             aggregations: [],
             redirections: [],
             transitions: [
-                { iri: CreateInstanceCapability.identifier, label: CreateInstanceCapability.label },
-                { iri: DeleteInstanceCapability.identifier, label: DeleteInstanceCapability.label },
-                { iri: DetailCapability.identifier, label: DetailCapability.label }
+                { id: CreateInstanceCapability.identifier, label: CreateInstanceCapability.label },
+                { id: DeleteInstanceCapability.identifier, label: DeleteInstanceCapability.label },
+                { id: DetailCapability.identifier, label: DetailCapability.label }
             ]
         },
         [DetailCapability.identifier]: {
@@ -42,8 +42,8 @@ export class TransitionsGenerator {
             aggregations: [],
             redirections: [],
             transitions: [
-                { iri: ListCapability.identifier, label: ListCapability.label },
-                { iri: DeleteInstanceCapability.identifier, label: DeleteInstanceCapability.label }
+                { id: ListCapability.identifier, label: ListCapability.label },
+                { id: DeleteInstanceCapability.identifier, label: DeleteInstanceCapability.label }
             ]
         },
         [CreateInstanceCapability.identifier]: {
@@ -51,8 +51,8 @@ export class TransitionsGenerator {
             aggregations: [],
             transitions: [],
             redirections: [
-                { iri: ListCapability.identifier, label: ListCapability.label },
-                { iri: DetailCapability.identifier, label: DetailCapability.label }
+                { id: ListCapability.identifier, label: ListCapability.label },
+                { id: DetailCapability.identifier, label: DetailCapability.label }
             ]
         },
         [DeleteInstanceCapability.identifier]: {
@@ -60,7 +60,7 @@ export class TransitionsGenerator {
             aggregations: [],
             transitions: [],
             redirections: [
-                { iri: ListCapability.identifier, label: ListCapability.label }
+                { id: ListCapability.identifier, label: ListCapability.label }
             ],
         }
     };
@@ -78,17 +78,17 @@ export class TransitionsGenerator {
 
         switch (edgeType) {
             case ApplicationGraphEdgeType.Transition:
-                return sourceAllowed.transitions.find(x => x.iri === targetCapabilityIri)?.label ?? "";
+                return sourceAllowed.transitions.find(x => x.id === targetCapabilityIri)?.label ?? "";
             case ApplicationGraphEdgeType.Redirection:
-                return sourceAllowed.redirections.find(x => x.iri === targetCapabilityIri)?.label ?? "";
+                return sourceAllowed.redirections.find(x => x.id === targetCapabilityIri)?.label ?? "";
             case ApplicationGraphEdgeType.Aggregation:
-                return sourceAllowed.aggregations.find(x => x.iri === targetCapabilityIri)?.label ?? "";
+                return sourceAllowed.aggregations.find(x => x.id === targetCapabilityIri)?.label ?? "";
             default:
                 throw new Error("Invalid edge type");
         }
     }
 
-    public async getNodeTransitionLabels(currentNode: ApplicationGraphNode, graph: ApplicationGraph): Promise<string[]> {
+    public async getNodeTransitions(currentNode: ApplicationGraphNode, graph: ApplicationGraph): Promise<AllowedTransition[]> {
         const edges = currentNode.getOutgoingEdges(graph);
 
         const transitionLinkPromises = edges.map(
@@ -115,13 +115,16 @@ export class TransitionsGenerator {
                 const capabilityLabel = targetLabel.length === 1
                     ? targetLabel.toUpperCase()
                     : `${targetLabel[0]?.toUpperCase()}${targetLabel.slice(1)}`;
-                
-                return `${targetDatastructure.technicalLabel}/${capabilityLabel}`;
+
+                return {
+                    id: `/${targetDatastructure.technicalLabel}/${targetLabel}`,
+                    label: capabilityLabel
+                } as AllowedTransition;
             });
 
         const transitionLinks = await Promise.all(transitionLinkPromises);
 
         return transitionLinks
-            .filter(link => !link.endsWith("/")); // filters out empty capability labels
+            .filter(link => !link.id.endsWith("/")); // filters out empty capability labels
     }
 }

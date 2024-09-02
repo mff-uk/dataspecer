@@ -5,13 +5,15 @@ import { DataLayerGeneratorStage } from "../data-layer/pipeline-stage";
 import { GeneratorPipeline } from "../engine/generator-pipeline";
 import { PresentationLayerTemplateGeneratorFactory } from "../presentation-layer/generator-factory";
 import { PresentationLayerStage } from "../presentation-layer/pipeline-stage";
-import { BaseCapabilityGenerator } from "./capability-generator-interface";
+import { InstanceTypeCapabilityGenerator } from "./capability-generator-interface";
 import { CapabilityConstructorInput } from "./constructor-input";
 
-export class DetailCapability extends BaseCapabilityGenerator {
+export class DetailCapability extends InstanceTypeCapabilityGenerator {
 
     public static readonly label: string = "detail";
     public static readonly identifier: string = `https://dataspecer.com/application_graph/capability/${this.label}`;
+
+    getCapabilityLabel = (): string => DetailCapability.label;
 
     constructor(constructorInput: CapabilityConstructorInput) {
         super(constructorInput.dataStructureMetadata);
