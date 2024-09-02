@@ -5,7 +5,7 @@ import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { createSearchParams, useNavigate } from 'react-router-dom';
 
-export const <%= it.export_name %> = ({ optionNames, instanceId }: { optionNames: string[], instanceId: string }) => {
+export const <%= it.export_name %> = ({ instanceId }: { instanceId: string }) => {
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);

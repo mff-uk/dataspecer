@@ -105,10 +105,7 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
                                                     )
                                                 }
                                                 <TableCell>
-                                                    <<%= it.instance_capability_options %>
-                                                        instanceId={obj["$id"]}
-                                                        optionNames={<%~ JSON.stringify(it.supported_out_list_transitions, undefined, 2) %>}
-                                                    />
+                                                    <<%= it.instance_capability_options %> instanceId={obj["$id"]} />
                                                 </TableCell>
                                             </TableRow>
                                         )

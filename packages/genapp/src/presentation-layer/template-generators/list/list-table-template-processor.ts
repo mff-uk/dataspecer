@@ -40,8 +40,7 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
                 instance_capability_options_path: {
                     from: this._filePath,
                     to: listItemOptionsArtifact.filePath
-                },
-                supported_out_list_transitions: dependencies.transitions
+                }
             }
         };
 
