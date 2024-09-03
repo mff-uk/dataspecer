@@ -1,6 +1,8 @@
 // Some parts of @dataspecer/core library contains nodejs specific code, hence
 // the polyfills are required.
 
+const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
+
 module.exports = function override(config, env) {
     config.resolve.fallback = {
         buffer: false,
@@ -16,5 +18,6 @@ module.exports = function override(config, env) {
             );
         },
     ];
+    config.resolve.plugins = config.resolve.plugins.filter(plugin => !(plugin instanceof ModuleScopePlugin));
     return config;
 };
