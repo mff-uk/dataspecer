@@ -430,8 +430,8 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
                     {/* "Set dematerialized" checkbox */}
                     <FormControlLabel
                         control={<Checkbox
-                            checked={isClassClosed}
-                            onChange={event => setIsClassClosed(event.target.checked)}
+                            checked={isAssociationDematerialized}
+                            onChange={event => setIsAssociationDematerialized(event.target.checked)}
                         />}
                         label={t('dematerialization.checkbox') as string}
                     />
