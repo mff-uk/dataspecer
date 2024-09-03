@@ -25,8 +25,8 @@ import { RowHierarchy } from "./row-hierarchy";
 import { getCurrentVisibilityOnCanvas } from "../../util/canvas-utils";
 import { getModelDetails } from "../../util/model-utils";
 import { compareMaps } from "../../util/utils";
-import { useDialogsContext } from "../../context/dialogs-context";
 import { useReactFlow } from "reactflow";
+import { useActions } from "../../action/actions-react-binding";
 
 const getEntitiesToShow = (
     entityType: "class" | "relationship" | "attribute" | "profile",
@@ -56,7 +56,7 @@ export const EntitiesOfModel = (props: {
 
     const { profiles, allowedClasses, setAllowedClasses, deleteEntityFromModel } = useClassesContext();
     const { aggregatorView } = useModelGraphContext();
-    const { openCreateClassDialog } = useDialogsContext();
+    const actions = useActions();
     const { ModelEntitiesList } = useModelEntitiesList(model);
 
     const { id: modelId } = useMemo(() => getModelDetails(model), [model]);
@@ -130,7 +130,7 @@ export const EntitiesOfModel = (props: {
     };
 
     const handleAddConcept = (model: InMemorySemanticModel) => {
-        openCreateClassDialog(model);
+        actions.openCreateClassDialog(model);
     };
 
     const handleAddEntityToActiveView = (entityId: string) => {

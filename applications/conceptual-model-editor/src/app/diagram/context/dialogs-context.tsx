@@ -9,7 +9,6 @@ import type {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import type { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { type ProfileDialogSupportedTypes, useCreateProfileDialog } from "../dialog/create-profile-dialog";
-import { useCreateClassDialog, CreateClassDialog } from "../dialog/create-class-dialog";
 
 type ModificationDialogSupportedTypes =
     | SemanticModelClass
@@ -21,24 +20,20 @@ export type DialogsContextType = {
     openDetailDialog: (entity: EntityDetailSupportedType) => void;
     openModificationDialog: (entity: ModificationDialogSupportedTypes, model?: InMemorySemanticModel | null) => void;
     openProfileDialog: (entity: ProfileDialogSupportedTypes) => void;
-    openCreateClassDialog: (
-        model?: InMemorySemanticModel | undefined,
-        position?:
-            | {
-                  x: number;
-                  y: number;
-              }
-            | undefined
-    ) => void;
 };
 
+/**
+ * @deprecated
+ */
 export const DialogsContext = React.createContext(null as unknown as DialogsContextType);
 
+/**
+ * @deprecated
+ */
 export const DialogsContextProvider = (props: { children: ReactNode }) => {
     const { openEntityDetailDialog, isEntityDetailDialogOpen, EntityDetailDialog } = useEntityDetailDialog();
     const { isModifyEntityDialogOpen, ModifyEntityDialog, openModifyEntityDialog } = useModifyEntityDialog();
     const { openCreateProfileDialog, isCreateProfileDialogOpen, CreateProfileDialog } = useCreateProfileDialog();
-    const classDialog = useCreateClassDialog();
 
     return (
         <DialogsContext.Provider
@@ -46,20 +41,20 @@ export const DialogsContextProvider = (props: { children: ReactNode }) => {
                 openDetailDialog: openEntityDetailDialog,
                 openModificationDialog: openModifyEntityDialog,
                 openProfileDialog: openCreateProfileDialog,
-                openCreateClassDialog: classDialog.open,
             }}
         >
             {props.children}
             {isEntityDetailDialogOpen && <EntityDetailDialog />}
             {isModifyEntityDialogOpen && <ModifyEntityDialog />}
             {isCreateProfileDialogOpen && <CreateProfileDialog />}
-            <CreateClassDialog {...classDialog.props} />
         </DialogsContext.Provider>
     );
 };
 
 /**
- * provides all the dialogs in one place, simply call for example `openDetailDialog` if you want to open it
+ * Provides all the dialogs in one place, simply call for example `openDetailDialog` if you want to open it.
+ *
+ * @deprecated
  */
 export const useDialogsContext = (): DialogsContextType => {
     const context = useContext(DialogsContext);

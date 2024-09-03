@@ -32,9 +32,13 @@ import { getRandomName } from "../utils/random-gen";
 import { DialogsContextProvider } from "./context/dialogs-context";
 import { QueryParamsProvider, useQueryParamsContext } from "./context/query-params-context";
 
+import { DialogContextProvider } from "./dialog/dialog-context";
+import { DialogRenderer } from "./dialog/dialog-renderer";
+
 import "./page.css";
 import { ReactFlowProvider } from "reactflow";
 import { NotificationList } from "./notification";
+import { ActionsContextProvider } from "./action/actions-react-binding";
 
 const Page = () => {
     const [language, setLanguage] = useState<SupportedLanguageType>("en");
@@ -291,12 +295,12 @@ const Page = () => {
                 updatedProfileIds,
                 updatedRawEntityIds,
             ] = [
-                new Set(updatedClasses.map((c) => c.id)),
-                new Set(updatedRelationships.map((r) => r.id)),
-                new Set(updatedGeneralizations.map((g) => g.id)),
-                new Set(updatedProfiles.map((p) => p.id)),
-                new Set(updatedRawEntities.map((r) => r?.id)),
-            ];
+                    new Set(updatedClasses.map((c) => c.id)),
+                    new Set(updatedRelationships.map((r) => r.id)),
+                    new Set(updatedGeneralizations.map((g) => g.id)),
+                    new Set(updatedProfiles.map((p) => p.id)),
+                    new Set(updatedRawEntities.map((r) => r?.id)),
+                ];
 
             setClasses((prev) => prev.filter((v) => !updatedClassIds.has(v.id)).concat(updatedClasses));
             setRelationships((prev) =>
@@ -350,16 +354,22 @@ const Page = () => {
                         }}
                     >
                         <WarningsContext.Provider value={{ warnings, setWarnings }}>
-                            <DialogsContextProvider>
-                                <Header />
-                                <main className="w-full flex-grow bg-teal-50  md:h-[calc(100%-48px)]">
-                                    <div className="my-0 grid grid-rows-[auto_fit] md:h-full md:grid-cols-[25%_75%] md:grid-rows-1 ">
-                                        <Catalog />
-                                        <Visualization />
-                                    </div>
-                                </main>
-                                <NotificationList />
-                            </DialogsContextProvider>
+                            <DialogContextProvider>
+                                <ActionsContextProvider>
+                                    <DialogsContextProvider>
+                                        <Header />
+                                        <main className="w-full flex-grow bg-teal-50  md:h-[calc(100%-48px)]">
+                                            <div className="my-0 grid grid-rows-[auto_fit] md:h-full md:grid-cols-[25%_75%] md:grid-rows-1 ">
+                                                <Catalog />
+                                                <Visualization />
+                                            </div>
+                                        </main>
+
+                                        <NotificationList />
+                                        <DialogRenderer />
+                                    </DialogsContextProvider>
+                                </ActionsContextProvider>
+                            </DialogContextProvider>
                         </WarningsContext.Provider>
                     </ClassesContext.Provider>
                 </ModelGraphContext.Provider>

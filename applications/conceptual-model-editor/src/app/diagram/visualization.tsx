@@ -4,7 +4,6 @@ import ReactFlow, {
     type EdgeChange,
     type Node,
     type NodeChange,
-    type ReactFlowInstance,
     type XYPosition,
     Background,
     Controls,
@@ -16,7 +15,7 @@ import ReactFlow, {
     useNodesState,
     useReactFlow,
 } from "reactflow";
-import { useMemo, useCallback, useEffect, useState, useRef } from "react";
+import { useMemo, useCallback, useEffect, useRef } from "react";
 import {
     type ClassCustomNodeDataType,
     ClassCustomNode,
@@ -55,7 +54,6 @@ import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationsh
 import { bothEndsHaveAnIri, temporaryDomainRangeHelper } from "./util/relationship-utils";
 import { toSvg } from "html-to-image";
 import { useDownload } from "./features/export/download";
-import { useDialogsContext } from "./context/dialogs-context";
 import { type Warning, useWarningsContext } from "./context/warnings-context";
 import { getRandomName } from "../utils/random-gen";
 
@@ -69,7 +67,6 @@ export const Visualization = () => {
     const { aggregatorView, models } = useModelGraphContext();
     const { CreateConnectionDialog, isCreateConnectionDialogOpen, openCreateConnectionDialog } =
         useCreateConnectionDialog();
-    const { openCreateClassDialog } = useDialogsContext();
 
     const { downloadImage } = useDownload();
 
@@ -135,22 +132,6 @@ export const Visualization = () => {
             handleAddEntityToActiveView(entityId, position);
         },
         [reactFlowInstance, handleAddEntityToActiveView]
-    );
-
-    const onPaneClick = useCallback(
-        (e: React.MouseEvent) => {
-            if (e.altKey) {
-                const position = reactFlowInstance?.screenToFlowPosition({
-                    x: e.clientX,
-                    y: e.clientY,
-                });
-                openCreateClassDialog(undefined, {
-                    x: position?.x ?? e.nativeEvent.layerX,
-                    y: position?.y ?? e.nativeEvent.layerY,
-                });
-            }
-        },
-        [reactFlowInstance, openCreateClassDialog]
     );
 
     const getCurrentClassesRelationshipsGeneralizationsAndProfiles = () => {
@@ -535,7 +516,6 @@ export const Visualization = () => {
                     onDragOver={onDragOver}
                     onDrop={onDrop}
                     snapToGrid={true}
-                    onPaneClick={onPaneClick}
                     onNodeDragStop={onNodeDragStop}
                     onSelectionDragStop={onSelectionDragStop}
                 >

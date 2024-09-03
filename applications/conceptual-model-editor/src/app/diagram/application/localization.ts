@@ -18,12 +18,13 @@ const translations: Record<string, string | Function> = {
   //
   "header.logo-title": "Leave to manager without saving",
   //
-  "create-class-dialog.create-class": "Create a new class",
+  "create-class-dialog.label": "Create a new class",
   "create-class-dialog.name": "Name",
   "create-class-dialog.iri": "IRI",
   "create-class-dialog.description": "Definition",
-  "create-class-dialog.error.model-not-set": "active model not set",
   "create-class-dialog.error-iri-not-set": "iri not set",
+  "create-class-dialog.btn-ok": "✅ create",
+  "create-class-dialog.btn-cancel": "❌ cancel",
   //
   "create-profile-button.title": "Create profile",
   "create-profile-button.title.missing-handler": "Can't make profiles here, possibly find the entity and make the profile there",
