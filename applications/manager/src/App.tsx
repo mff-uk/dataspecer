@@ -7,6 +7,7 @@ import { SortModels } from './components/sort-models';
 import { BetterModalProvider } from './lib/better-modal';
 import { ResourcesContext, useResourcesContext } from './package';
 import { useTranslation } from "react-i18next";
+import { Toaster } from "@/components/ui/sonner"
 
 const version = import.meta.env.VITE_VERSION || null;
 
@@ -43,6 +44,7 @@ function App() {
           </main>
         </div>
       </BetterModalProvider>
+      <Toaster />
     </ResourcesContext.Provider>
   )
 }

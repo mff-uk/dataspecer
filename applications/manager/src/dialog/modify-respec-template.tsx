@@ -5,7 +5,7 @@ import { BetterModalProps } from "@/lib/better-modal";
 import * as monaco from 'monaco-editor';
 import { useEffect, useRef, useState } from "react";
 
-export const ModifyRawContent = ({ isOpen, resolve, iri, blobName, defaultContent }: { iri: string, blobName: string, defaultContent: string } & BetterModalProps) => {
+export const ModifyRespecTemplate = ({ isOpen, resolve, iri, blobName, defaultContent }: { iri: string, blobName: string, defaultContent: string } & BetterModalProps) => {
   const monaco = useRef<{editor: monaco.editor.IStandaloneCodeEditor}>();
 
   const [data, setData] = useState<string | null | undefined>(undefined);
@@ -42,7 +42,7 @@ export const ModifyRawContent = ({ isOpen, resolve, iri, blobName, defaultConten
           <ModalTitle>Modify Respec Template</ModalTitle>
         </ModalHeader>
         <ModalBody>
-          {data !== undefined && <MonacoEditor refs={monaco} defaultValue={data ?? defaultContent} />}
+          {data !== undefined && <MonacoEditor refs={monaco} defaultValue={data ?? defaultContent} language="handlebars" />}
         </ModalBody>
         <ModalFooter>
           <Button variant="outline" onClick={() => resolve()}>Cancel</Button>

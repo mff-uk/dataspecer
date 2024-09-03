@@ -19,6 +19,7 @@ function handleEditorWillMount(m: typeof monaco) {
 export const MonacoEditor: FC<{
   refs: React.MutableRefObject<{ editor: monaco.editor.IStandaloneCodeEditor } | undefined>,
   defaultValue: string,
+  language: string,
 }> = (props) => {
   const { resolvedTheme } = useTheme();
 
@@ -27,7 +28,7 @@ export const MonacoEditor: FC<{
           onMount={editor => props.refs.current = {editor}}
           className="min-h-[12cm]"
           theme={resolvedTheme === "dark" ? "dataspecer-dark" : "vs"}
-          language="handlebars"
+          language={props.language}
           defaultValue={props.defaultValue}
           beforeMount={handleEditorWillMount}
           options={{
