@@ -1,7 +1,7 @@
 import React, { createContext, useState, useMemo } from "react";
 import {
-  DialogApiContextType,
-  DialogRendererContextType,
+  type DialogApiContextType,
+  type DialogRendererContextType,
   createInitialDialogContextStateType,
   createDialogApiContext,
   createDialogRendererContext,
@@ -27,5 +27,5 @@ export function DialogContextProvider(props: { children: React.ReactNode }) {
         {props.children}
       </DialogRendererContext.Provider>
     </DialogApiContext.Provider>
-  )
+  );
 }

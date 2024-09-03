@@ -1,4 +1,4 @@
-import { DialogWrapper, DialogProps } from "../dialog-api";
+import { type DialogWrapper, type DialogProps } from "../dialog-api";
 import { t, configuration } from "../../application";
 
 import { DialogColoredModelHeaderWithModelSelector } from "../../components/dialog/dialog-colored-model-header";
@@ -11,7 +11,7 @@ import {
   createEditClassNewState,
   useEditClassController,
 } from "./edit-class-dialog-controller";
-import { EntityModel } from "@dataspecer/core-v2";
+import { type EntityModel } from "@dataspecer/core-v2";
 
 export const createEditClassDialog = (
   model: EntityModel,
@@ -31,8 +31,8 @@ export const createEditClassDialog = (
 };
 
 function validate(state: EditClassState): boolean {
-  return state.iri.trim() !== ""
-};
+  return state.iri.trim() !== "";
+}
 
 const EditClassDialog = (props: DialogProps<EditClassState>) => {
   const state = props.state;
@@ -75,5 +75,5 @@ const EditClassDialog = (props: DialogProps<EditClassState>) => {
         </DialogDetailRow>
       </div>
     </>
-  )
-}
+  );
+};

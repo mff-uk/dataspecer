@@ -1,10 +1,10 @@
 
 import { Label, Input, Checkbox, Tab, Tabs } from "../components";
-import { DialogWrapper, DialogProps } from "../dialog-api";
+import { type DialogWrapper, type DialogProps } from "../dialog-api";
 import { t } from "../../application";
 
 import {
-  CreateModelState,
+  type CreateModelState,
   useCreateModelController,
   TabType,
   type PredefinedModel,
@@ -55,7 +55,7 @@ const CreateModelDialog = (props: DialogProps<CreateModelState>) => {
         })}
       </div>
     </>
-  )
+  );
 };
 
 function TabHeader(props: {
@@ -83,7 +83,7 @@ function TabHeader(props: {
         {t("add-model-dialog.tab-create")}
       </Tab>
     </Tabs>
-  )
+  );
 }
 
 function getTabContentStyle(active: boolean): string {

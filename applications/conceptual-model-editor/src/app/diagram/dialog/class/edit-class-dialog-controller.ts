@@ -1,9 +1,10 @@
-import React, { useMemo } from "react";
+import type React from "react";
+import { useMemo } from "react";
 
 import { type EntityModel } from "@dataspecer/core-v2";
 import { type LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 
-import { DialogProps } from "../dialog-api";
+import { type DialogProps } from "../dialog-api";
 import { generateName } from "../../util/name-utils";
 import { getModelIri } from "../../util/iri-utils";
 
@@ -70,7 +71,7 @@ export function createEditClassNewState(
     name: { [language]: name },
     description: {},
     language: language,
-  }
+  };
 }
 
 export interface CreateEditControllerType {

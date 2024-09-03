@@ -1,19 +1,19 @@
 import React, { useContext, useMemo } from "react";
 
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { type InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 
 import { type DialogApiContextType } from "../dialog/dialog-service";
 import { DialogApiContext } from "../dialog/dialog-context";
 import { logger } from "../application/";
-import { EditClassState } from "../dialog/class/edit-class-dialog-controller";
-import { ClassesContextType, ClassesContext } from "../context/classes-context";
+import { type EditClassState } from "../dialog/class/edit-class-dialog-controller";
+import { type ClassesContextType, ClassesContext } from "../context/classes-context";
 import { useNotificationServiceWriter } from "../notification/";
-import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { ModelGraphContext, ModelGraphContextType } from "../context/model-context";
+import { type UseNotificationServiceWriterType } from "../notification/notification-service-context";
+import { ModelGraphContext, type ModelGraphContextType } from "../context/model-context";
 import { createAddModelDialog } from "../dialog/model/create-model-dialog";
-import { CreateModelState } from "../dialog/model/create-model-dialog-controller";
+import { type CreateModelState } from "../dialog/model/create-model-dialog-controller";
 import { createEditClassDialog } from "../dialog/class/edit-class-dialog";
-import { ConfigurationContext, ConfigurationContextType } from "../context/configuration-context";
+import { ConfigurationContext, type ConfigurationContextType } from "../context/configuration-context";
 import { createVocabulary } from "./create-vocabulary";
 import { createClass } from "./create-class";
 
@@ -35,13 +35,13 @@ export const ActionContext = React.createContext<ActionsContextType>(createNoOpe
 
 function noOperation() {
   logger.error("Using uninitialized actions context!");
-};
+}
 
 function createNoOperationActionsContext(): ActionsContextType {
   return {
     openCreateModelDialog: noOperation,
     openCreateClassDialog: noOperation,
-  }
+  };
 }
 
 export const ActionsContextProvider = (props: {
@@ -63,7 +63,7 @@ export const ActionsContextProvider = (props: {
       {props.children}
     </ActionContext.Provider>
   );
-}
+};
 
 function createActionsContext(
   options: ConfigurationContextType | null,
@@ -77,10 +77,10 @@ function createActionsContext(
     if (graph === null) {
       console.error("Contexts are not ready.");
       return;
-    };
+    }
 
     const onConfirm = (state: CreateModelState) => {
-      createVocabulary(graph, state)
+      createVocabulary(graph, state);
     };
 
     dialogs?.openDialog(createAddModelDialog(onConfirm));

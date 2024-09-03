@@ -5,7 +5,7 @@ import { useNotificationServiceWriter } from "../notification";
 import { usePackageService } from "../service/package-service-context";
 import { getSvgForCurrentView } from "../visualization";
 import { getLocalizedStringFromLanguageString } from "../util/language-utils";
-import { Package } from "@dataspecer/core-v2/project";
+import { type Package } from "@dataspecer/core-v2/project";
 
 const MGR_REDIRECT_PATH = process.env.NEXT_PUBLIC_MANAGER_PATH;
 

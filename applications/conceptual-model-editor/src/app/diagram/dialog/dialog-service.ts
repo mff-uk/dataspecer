@@ -1,5 +1,5 @@
-import React from "react";
-import { DialogWrapper, DialogProps } from "./dialog-api";
+import type React from "react";
+import { type DialogWrapper, type DialogProps } from "./dialog-api";
 
 import { logger } from "../application";
 
@@ -11,6 +11,7 @@ export interface DialogApiContextType {
   /**
    * Request new dialog to be open.
    */
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   openDialog: (dialog: DialogWrapper<any>) => void;
 
   /**
@@ -50,6 +51,10 @@ export interface DialogRendererContextType<S> {
 
 /**
  * Hold context internal data.
+ * Here we use any as a type for generic as we can have different
+ * types for different dialogs. As a result we need to disable
+ * @typescript-eslint/no-unsafe-assignment down in the file where
+ * we cast from a generic to any and back.
  */
 interface State {
 
@@ -61,7 +66,7 @@ export const createInitialDialogContextStateType = (): State => {
   return {
     dialogs: [],
   };
-}
+};
 
 export const createDialogApiContext = (setState: React.Dispatch<React.SetStateAction<State>>): DialogApiContextType => {
 
@@ -109,7 +114,9 @@ export const createDialogRendererContext = <S>(state: State, setState: React.Dis
       }
       if (typeof next === "function") {
         // Little help for TypeScript here.
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const setter: (prevState: S) => S = next as any;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         dialog = {...dialog, state: setter(dialog.state)};
       } else {
         dialog = {...dialog, state: next};
@@ -137,10 +144,12 @@ export const createDialogRendererContext = <S>(state: State, setState: React.Dis
     canConfirm: dialog.validate?.(dialog.state) ?? true,
     confirmLabel: dialog.confirmLabel,
     closeLabel: dialog.cancelLabel,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     state: dialog.state,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     component: dialog.component,
     changeState,
     confirm,
     close,
-  }
+  };
 };

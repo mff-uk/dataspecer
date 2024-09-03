@@ -1,11 +1,11 @@
 
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { type InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { createClass as createSemanticModel } from "@dataspecer/core-v2/semantic-model/operations";
 
 import { logger } from "../application";
-import { EditClassState } from "../dialog/class/edit-class-dialog-controller";
-import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { ModelGraphContextType } from "../context/model-context";
+import { type EditClassState } from "../dialog/class/edit-class-dialog-controller";
+import { type UseNotificationServiceWriterType } from "../notification/notification-service-context";
+import { type ModelGraphContextType } from "../context/model-context";
 
 export function createClass(
   notifications: UseNotificationServiceWriterType,
@@ -42,4 +42,4 @@ export function createClass(
     position: position,
   });
 
-};
+}

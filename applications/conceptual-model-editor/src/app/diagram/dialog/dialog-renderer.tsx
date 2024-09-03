@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useRef } from "react";
 
 import { DialogApiContext, DialogRendererContext } from "./dialog-context";
-import { DialogRendererContextType } from "./dialog-service";
+import { type DialogRendererContextType } from "./dialog-service";
 
-import { t } from "../application/"
+import { t } from "../application/";
 
 /**
  * This component is responsible for rendering dialogs on screen.
@@ -18,7 +18,7 @@ export function DialogRenderer() {
   }
 
   return <Dialog reference={reference} context={state}/>;
-};
+}
 
 function Dialog({ reference, context }: {
   reference: React.MutableRefObject<HTMLDialogElement>,
@@ -40,6 +40,7 @@ function Dialog({ reference, context }: {
       <h1 className="text-xl">{t(context.label)}</h1>
       <hr className="my-2" />
       <div>
+        {/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */}
         <Component state={context.state} changeState={context.changeState} />
       </div>
       <div className="mt-auto flex flex-row justify-evenly font-semibold">

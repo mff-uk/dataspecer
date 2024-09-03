@@ -1,13 +1,13 @@
 
-import { EntityModel } from "@dataspecer/core-v2";
+import { type EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 
 import { logger } from "../application";
-import { ModelGraphContextType } from "../context/model-context";
-import { CreateModelState, TabType } from "../dialog/model/create-model-dialog-controller";
+import { type ModelGraphContextType } from "../context/model-context";
+import { type CreateModelState, TabType } from "../dialog/model/create-model-dialog-controller";
 import { createRdfsModel, createSgovModel } from "@dataspecer/core-v2/semantic-model/simplified";
-import { VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
+import { type VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
 import { randomColorFromPalette } from "~/app/utils/color-utils";
 
 const SGOV_IDENTIFIER = "sgov";
@@ -61,7 +61,7 @@ export function createVocabulary(
       break;
   }
 
-};
+}
 
 function addModelsToGraph(graph: ModelGraphContextType, models: EntityModel[]) {
 
@@ -79,7 +79,7 @@ function addModelsToGraph(graph: ModelGraphContextType, models: EntityModel[]) {
       visualModel.setColor(model.getId(), randomColorFromPalette());
     }
   }
-};
+}
 
 const addVisualModelToGraph = (graph: ModelGraphContextType, model: VisualEntityModel) => {
   graph.aggregator.addModel(model);

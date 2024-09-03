@@ -7,7 +7,7 @@ import {
     isSemanticModelRelationship,
     isSemanticModelClass,
     isSemanticModelAttribute,
-    SemanticModelEntity,
+    type SemanticModelEntity,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useMemo, useState } from "react";
 import { useClassesContext } from "../context/classes-context";
@@ -28,7 +28,7 @@ import { IriInput } from "../components/input/iri-input";
 import { AddAttributesComponent } from "../components/dialog/attributes-component";
 import { DomainRangeComponent } from "./components/domain-range-component";
 import {
-    Operation,
+    type Operation,
     createGeneralization,
     createRelationship,
     deleteEntity,
@@ -61,7 +61,7 @@ import { ModifyButton } from "../components/dialog/buttons/modify-button";
 import { GeneralizationParentsComponent } from "../components/dialog/generalization-parents-component";
 import { useModelGraphContext } from "../context/model-context";
 import { t, configuration } from "../application/";
-import { EntityModel } from "@dataspecer/core-v2";
+import { type EntityModel } from "@dataspecer/core-v2";
 import { getDomainAndRange } from "../service/relationship-service";
 
 type SupportedTypes =

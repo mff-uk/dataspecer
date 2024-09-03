@@ -1,5 +1,5 @@
 import {
-  SemanticModelRelationship,
+  type SemanticModelRelationship,
   isSemanticModelClass,
   isSemanticModelGeneralization,
   isSemanticModelRelationship,
