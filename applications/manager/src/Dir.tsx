@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { API_SPECIFICATION_MODEL, LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL, V1 } from "@dataspecer/core-v2/model/known-models";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
-import { ChevronDown, ChevronRight, Copy, EllipsisVertical, FileText, Folder, FolderDown, NotepadTextDashed, Pencil, Plus, Sparkles, Trash2, WandSparkles } from "lucide-react";
+import { ChevronDown, ChevronRight, CircuitBoard, Copy, EllipsisVertical, FileText, Folder, FolderDown, NotepadTextDashed, Pencil, Plus, Sparkles, Trash2, WandSparkles } from "lucide-react";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getValidTime } from "./components/time";
@@ -19,10 +19,11 @@ import { useToggle } from "./hooks/use-toggle";
 import { ModelIcon, createModelInstructions, modelTypeToName } from "./known-models";
 import { useBetterModal } from "./lib/better-modal";
 import { ResourcesContext, modifyUserMetadata, packageService, requestLoadPackage } from "./package";
-import { ModifyRawContent } from "./dialog/modify-raw-content";
+import { ModifyRespecTemplate } from "./dialog/modify-respec-template";
 import { defaultConfiguration } from "@dataspecer/core-v2/documentation-generator";
 import React from "react";
 import { SortModelsContext } from "./components/sort-models";
+import { ModifyRawDialog } from "./dialog/modify-raw";
 
 export function lng(text: LanguageString | undefined): string | undefined {
   return text?.["cs"] ?? text?.["en"];
@@ -137,7 +138,7 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
           {resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem asChild><a href={import.meta.env.VITE_BACKEND + "/experimental/output.zip?iri=" + encodeURIComponent(iri)}><FolderDown className="mr-2 h-4 w-4" /> {t("export-zip")}</a></DropdownMenuItem>}
           {resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem asChild><a target="_blank" href={import.meta.env.VITE_BACKEND + `/preview/${i18n.language}/index.html?iri=` + encodeURIComponent(iri)}><FileText className="mr-2 h-4 w-4" /> {t("show-documentation")} ({i18n.language})</a></DropdownMenuItem>}
           {i18n.language !== "en" && resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem asChild><a target="_blank" href={import.meta.env.VITE_BACKEND + `/preview/en/index.html?iri=` + encodeURIComponent(iri)}><FileText className="mr-2 h-4 w-4" /> {t("show-documentation")} (en)</a></DropdownMenuItem>}
-          {resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem onClick={() => openModal(ModifyRawContent, {iri, blobName: "respec", defaultContent: defaultConfiguration.template})}><NotepadTextDashed className="mr-2 h-4 w-4" /> {t("modify-documentation-template")}</DropdownMenuItem>}
+          {resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem onClick={() => openModal(ModifyRespecTemplate, {iri, blobName: "respec", defaultContent: defaultConfiguration.template})}><NotepadTextDashed className="mr-2 h-4 w-4" /> {t("modify-documentation-template")}</DropdownMenuItem>}
           {resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem onClick={async () => {
             await packageService.copyRecursively(iri, parentIri!);
             await requestLoadPackage(parentIri!, true);
@@ -149,6 +150,7 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
             }
           }}><Pencil className="mr-2 h-4 w-4" /> Rename</DropdownMenuItem>
           {resource.types.includes(LOCAL_SEMANTIC_MODEL) && <DropdownMenuItem onClick={() => openModal(Autolayout, {iri, parentIri: parentIri!})}><Sparkles className="mr-2 h-4 w-4" /> {t("autolayout")}</DropdownMenuItem>}
+          <DropdownMenuItem onClick={() => openModal(ModifyRawDialog, {iri})}><CircuitBoard className="mr-2 h-4 w-4" /> {t("modify raw data")}</DropdownMenuItem>
           <DropdownMenuItem className="bg-destructive text-destructive-foreground hover:bg-destructive" onClick={() => openModal(DeleteResource, {iri})}><Trash2 className="mr-2 h-4 w-4" /> {t("remove")}</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
