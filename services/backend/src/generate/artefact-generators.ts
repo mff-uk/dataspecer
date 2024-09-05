@@ -1,4 +1,5 @@
 import { LDkitGenerator } from "@dataspecer/ldkit";
+import { JsonSchemaGenerator } from "@dataspecer/json/json-schema";
 
 /**
  * Returns all artefact generators that will be used in the application.
@@ -7,5 +8,6 @@ import { LDkitGenerator } from "@dataspecer/ldkit";
 export function getArtefactGenerators() {
     return [
         new LDkitGenerator(),
+        new JsonSchemaGenerator()
     ];
 }

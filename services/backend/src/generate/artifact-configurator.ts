@@ -5,9 +5,12 @@ import { DataPsmSchema } from "@dataspecer/core/data-psm/model";
 import { DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
 import {
   DataSpecification,
-  DataSpecificationArtefact
+  DataSpecificationArtefact,
+  DataSpecificationSchema
 } from "@dataspecer/core/data-specification/model";
 import { PimSchema } from "@dataspecer/core/pim/model";
+import { JSON_SCHEMA } from "@dataspecer/json/json-schema";
+import { LDkitGenerator } from "@dataspecer/ldkit";
 
 export class ArtifactConfigurator {
   protected readonly dataSpecifications: DataSpecification[];
@@ -68,15 +71,24 @@ export class ArtifactConfigurator {
     //   dataSpecificationConfiguration.generatorsEnabledByDefault!;
 
     //if ((dataSpecificationConfiguration.useGenerators?.["LDkit"] ?? generatorsEnabledByDefault) === true) {
-      const artifact: DataSpecificationArtefact = new DataSpecificationArtefact();
-      artifact.iri = `${dataSpecificationIri}#LDkit`;
-      artifact.generator = "https://schemas.dataspecer.com/generator/LDkit";
-      const artifactFileName = dataSpecificationConfiguration.renameArtifacts?.[artifact.generator] ?? "LDkit/";
-      artifact.outputPath = `${dataSpecificationName}/${artifactFileName}`;
-      artifact.publicUrl = `${this.baseURL}/${artifactFileName}`;
-      //artifact.configuration = configuration;
-      artifacts.push(artifact);
+    const ldkitArtifact: DataSpecificationArtefact = new DataSpecificationArtefact();
+    ldkitArtifact.iri = `${dataSpecificationIri}#LDkit`;
+    ldkitArtifact.generator = LDkitGenerator.IDENTIFIER;
+    const ldkitArtifactFileName = dataSpecificationConfiguration.renameArtifacts?.[ldkitArtifact.generator] ?? "LDkit/";
+    ldkitArtifact.outputPath = `${dataSpecificationName}/${ldkitArtifactFileName}`;
+    ldkitArtifact.publicUrl = `${this.baseURL}/${ldkitArtifactFileName}`;
+    //artifact.configuration = configuration;
+    artifacts.push(ldkitArtifact);
     //}
+
+    const jsonSchema: DataSpecificationArtefact = new DataSpecificationSchema();
+    jsonSchema.iri = `${dataSpecificationIri}#jsonschema`;
+    jsonSchema.generator = JSON_SCHEMA.Generator;
+    const jsonSchemaFileName = dataSpecificationConfiguration.renameArtifacts?.[jsonSchema.generator] ?? "schema.json";
+    jsonSchema.outputPath = `${dataSpecificationName}/${jsonSchemaFileName}`;
+    jsonSchema.publicUrl = `${this.baseURL}/${jsonSchemaFileName}`;
+    jsonSchema.configuration = configuration;
+    artifacts.push(jsonSchema);
 
     return artifacts;
   }
