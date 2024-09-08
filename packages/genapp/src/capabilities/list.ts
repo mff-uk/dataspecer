@@ -28,7 +28,7 @@ export class ListCapability extends AggregateTypeCapabilityGenerator {
     constructor(constructorInput: CapabilityConstructorInput) {
         super(constructorInput.dataStructureMetadata);
 
-        const dalLayerGeneratorStrategy = ListTemplateDalGeneratorFactory.getDalGeneratorStrategy(constructorInput.datasource);
+        const dalLayerGeneratorStrategy = ListTemplateDalGeneratorFactory.getDalGeneratorStrategy(constructorInput.dataStructureMetadata.specificationIri, constructorInput.datasource);
         const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(
             constructorInput.dataStructureMetadata.technicalLabel,
             ListCapability.identifier

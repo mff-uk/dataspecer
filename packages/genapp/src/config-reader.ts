@@ -17,6 +17,7 @@ export class StaticConfigurationReader implements ConfigurationReader {
 
         let graphInstance: ApplicationGraphType = {
             label: "Application graph",
+            specificationIri: "https://ofn.gov.cz/data-specification/c3e8d59e-cee7-482f-8ee6-5fa52a178ab8",
             datasources: [
                 {
                     label: "NKOD",
@@ -25,23 +26,27 @@ export class StaticConfigurationReader implements ConfigurationReader {
                 }
             ],
             nodes: [
-                new ApplicationGraphNode({
-                    iri:  "https://example.org/application_graph/nodes/1",
-                    // Dataset structure from Genapp local specification
-                    structure: "https://ofn.gov.cz/schema/1713975101423-6a97-9fb6-b2db",
-                    capability: "https://dataspecer.com/application_graph/capability/list",
-                    config: {
-                        "showHeader": true,
-                        "showAsPopup": false
-                    }
-                }),
-                new ApplicationGraphNode({
-                    iri: "https://example.org/application_graph/nodes/2",
-                    // Dataset structure from Genapp local specification
-                    structure: "https://ofn.gov.cz/schema/1713975101423-6a97-9fb6-b2db",
-                    capability: "https://dataspecer.com/application_graph/capability/detail",
-                    config: {}
-                })
+                new ApplicationGraphNode(
+                    "https://ofn.gov.cz/data-specification/c3e8d59e-cee7-482f-8ee6-5fa52a178ab8",
+                    {
+                        iri: "https://example.org/application_graph/nodes/1",
+                        // Dataset structure from Genapp local specification
+                        structure: "https://ofn.gov.cz/schema/1713975101423-6a97-9fb6-b2db",
+                        capability: "https://dataspecer.com/application_graph/capability/list",
+                        config: {
+                            "showHeader": true,
+                            "showAsPopup": false
+                        }
+                    }),
+                new ApplicationGraphNode(
+                    "https://ofn.gov.cz/data-specification/c3e8d59e-cee7-482f-8ee6-5fa52a178ab8",
+                    {
+                        iri: "https://example.org/application_graph/nodes/2",
+                        // Dataset structure from Genapp local specification
+                        structure: "https://ofn.gov.cz/schema/1713975101423-6a97-9fb6-b2db",
+                        capability: "https://dataspecer.com/application_graph/capability/detail",
+                        config: {}
+                    })
             ],
             edges: [
                 {
@@ -54,10 +59,11 @@ export class StaticConfigurationReader implements ConfigurationReader {
         }
 
         this._graph = new ApplicationGraph(
-                graphInstance.label,
-                graphInstance.datasources,
-                graphInstance.nodes,
-                graphInstance.edges
+            graphInstance.label,
+            graphInstance.datasources,
+            graphInstance.nodes,
+            graphInstance.edges,
+            graphInstance.specificationIri
         );
     }
 

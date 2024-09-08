@@ -1,5 +1,6 @@
 {
     "label": "Application graph",
+    "dataSpecification": "https://ofn.gov.cz/data-specification/c3e8d59e-cee7-482f-8ee6-5fa52a178ab8",
     "datasources": [
         {
             "label": "NKOD",

@@ -7,6 +7,7 @@ export interface ApplicationGraphType {
     datasources: Datasource[];
     nodes: ApplicationGraphNode[];
     edges: ApplicationGraphEdge[];
+    specificationIri: string;
 }
 
 export class ApplicationGraph implements ApplicationGraphType {
@@ -14,17 +15,20 @@ export class ApplicationGraph implements ApplicationGraphType {
     datasources: Datasource[];
     nodes: ApplicationGraphNode[];
     edges: ApplicationGraphEdge[];
+    specificationIri: string;
 
     constructor(
         label: string,
         datasources: Datasource[],
         nodes: ApplicationGraphNode[],
-        edges: ApplicationGraphEdge[]
+        edges: ApplicationGraphEdge[],
+        specificationIri: string
     ) {
         this.label = label;
         this.nodes = nodes;
         this.datasources = datasources;
         this.edges = edges;
+        this.specificationIri = specificationIri;
     }
 
     getNodeByIri(iri: string): ApplicationGraphNode | null {

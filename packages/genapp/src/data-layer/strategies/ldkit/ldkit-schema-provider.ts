@@ -19,9 +19,11 @@ export interface SchemaProvider {
 export class LdkitSchemaProvider implements SchemaProvider {
 
     private readonly _api: DalApi;
+    private readonly _dataSpecificationIri: string;
 
-    constructor() {
-        this._api = new DalApi("http://localhost:8889");
+    constructor(dataSpecificationIri: string) {
+        this._api = new DalApi();
+        this._dataSpecificationIri = dataSpecificationIri;
     }
 
     private getAggregateUuid(aggregateIri: string): string {
@@ -29,7 +31,7 @@ export class LdkitSchemaProvider implements SchemaProvider {
     }
 
     async getSchemaArtifact(aggregate: AggregateMetadata): Promise<LayerArtifact> {
-        const response = await this._api.generateDalLayerArtifact("ldkit", aggregate.iri);
+        const response = await this._api.generateDalLayerArtifact(this._dataSpecificationIri);
 
         if (!isAxiosResponse(response) || response.status !== 200) {
             throw new Error("Invalid artifact returned from server");

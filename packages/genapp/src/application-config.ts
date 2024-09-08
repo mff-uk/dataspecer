@@ -6,6 +6,7 @@ export type Iri = string;
 export class AggregateMetadata {
     private readonly _dataStructure: DataPsmSchema;
     public readonly iri: string;
+    public readonly specificationIri: string;
     /**
      * Either a data structure technical label. Otherwise,
      * white-space characters are replaced by '-' and entire
@@ -19,8 +20,9 @@ export class AggregateMetadata {
     public readonly technicalLabel: string;
     public readonly roots: string[];
 
-    constructor(structure: DataPsmSchema) {
+    constructor(specificationIri: string, structure: DataPsmSchema) {
         this._dataStructure = structure;
+        this.specificationIri = specificationIri;
 
         this.iri = this._dataStructure.iri!;
         this.aggregateName = this.getAggregateName(structure);

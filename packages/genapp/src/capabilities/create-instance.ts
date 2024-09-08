@@ -18,7 +18,7 @@ export class CreateInstanceCapability extends AggregateTypeCapabilityGenerator {
     constructor(constructorInput: CapabilityConstructorInput) {
         super(constructorInput.dataStructureMetadata);
 
-        const dalLayerGeneratorStrategy = CreateInstanceTemplateGeneratorFactory.getDalGeneratorStrategy(constructorInput.datasource);
+        const dalLayerGeneratorStrategy = CreateInstanceTemplateGeneratorFactory.getDalGeneratorStrategy(constructorInput.dataStructureMetadata.specificationIri, constructorInput.datasource);
         const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(
             constructorInput.dataStructureMetadata.technicalLabel,
             CreateInstanceCapability.identifier

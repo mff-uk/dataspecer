@@ -3,28 +3,30 @@ import { DataSpecification } from "@dataspecer/core/data-specification/model/dat
 import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
 import { CoreResource } from "@dataspecer/core/core/core-resource";
 
+type ResourceMap<TResource extends CoreResource> = {
+    [resourceIri: string]: TResource
+}
+
 export default class DalApi {
     private readonly endpointBaseUri: string;
-    private readonly dataSpecificationIri: string;
 
-    constructor(baseUri: string) {
-        this.endpointBaseUri = baseUri;
-        this.dataSpecificationIri = "https://ofn.gov.cz/data-specification/c3e8d59e-cee7-482f-8ee6-5fa52a178ab8";
+    constructor() {
+        this.endpointBaseUri = process.env.APP_BACKEND!; //|| "http://localhost:8889";
     }
 
-    async generateDalLayerArtifact(dalGeneratorIdentifier: string, aggregateName: string): 
+    async generateDalLayerArtifact(dataSpecificationIri: string):
         Promise<AxiosResponse<Buffer, any>> {
 
-        //const path = `/generators/${dalGeneratorIdentifier}/${aggregateName}`;
-        //console.log(`Calling API: ${this.endpointBaseUri + path}`);
-        //const promise = axios.get(this.endpointBaseUri + path);
-        const promise = axios.get(`${this.endpointBaseUri}/generate?iri=${this.dataSpecificationIri}`, { responseType: "arraybuffer"});
+        const promise = axios.get(
+            `${this.endpointBaseUri}/generate?iri=${dataSpecificationIri}`,
+            { responseType: "arraybuffer" }
+        );
 
         return promise;
     }
 
-    async getDataSpecification(): Promise<DataSpecification> {
-        const response = await axios.get<DataSpecification>(`${this.endpointBaseUri}/data-specification?dataSpecificationIri=${this.dataSpecificationIri}`);
+    private async getDataSpecification(dataSpecificationIri: string): Promise<DataSpecification> {
+        const response = await axios.get<DataSpecification>(`${this.endpointBaseUri}/data-specification?dataSpecificationIri=${dataSpecificationIri}`);
 
         const dataSpecficiationModel = response.data;
 
@@ -35,13 +37,13 @@ export default class DalApi {
         return dataSpecficiationModel;
     }
 
-    async getStructureInfo(structureIri: string): Promise<DataPsmSchema> {
+    async getStructureInfo(dataSpecificationIri: string, structureIri: string): Promise<DataPsmSchema> {
 
-        // const specificationModel = await this.getDataSpecification();
+        const specificationModel = await this.getDataSpecification(dataSpecificationIri);
 
-        // if (!specificationModel.psms.includes(structureIri)) {
-        //     throw new Error(`Selected data specification does not contain data structure: ${structureIri}`);
-        // }
+        if (!specificationModel.psms.includes(structureIri)) {
+            throw new Error(`Selected data specification does not contain data structure: ${structureIri}`);
+        }
 
         const response = await axios
             .get(`${this.endpointBaseUri}/resources/blob?iri=${encodeURIComponent(structureIri)}`);
@@ -60,8 +62,4 @@ export default class DalApi {
 
         return dataStructure;
     }
-}
-
-type ResourceMap<TResource extends CoreResource> = {
-    [resourceIri: string]: TResource
 }

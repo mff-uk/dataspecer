@@ -1,21 +1,22 @@
 import { AggregateMetadata, Iri } from "../../application-config";
 import DalApi from "../../data-layer/dal-generator-api";
-import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
 import { ApplicationGraphEdge } from "./application-graph-edge";
 import { ApplicationGraph } from "./application-graph";
 
 export type ApplicationGraphNodeType = {
     iri: Iri;        // node iri
     structure: Iri;  // iri of the datastructure the node refers to
-    capability: Iri; // iri of the dataspecer defined capability 
+    capability: Iri; // iri of the dataspecer defined capability
     config: object;     // key-value pairs specific for the specific capability
 }
 
 export class ApplicationGraphNode {
     private readonly _node: ApplicationGraphNodeType;
+    private readonly _specificationIri: string;
 
-    constructor(node: ApplicationGraphNodeType) {
+    constructor(specificationIri: string, node: ApplicationGraphNodeType) {
         this._node = node;
+        this._specificationIri = specificationIri;
     }
 
     public getIri() {
@@ -35,10 +36,13 @@ export class ApplicationGraphNode {
 
     public async getNodeDataStructure(): Promise<AggregateMetadata> {
 
-        const dataStructure = await new DalApi("http://localhost:8889")
-            .getStructureInfo(this._node.structure);
+        const dataStructure = await new DalApi()
+            .getStructureInfo(
+                this._specificationIri,
+                this._node.structure
+            );
 
-        return new AggregateMetadata(dataStructure);
+        return new AggregateMetadata(this._specificationIri, dataStructure);
     }
 
     public getOutgoingEdges(graph: ApplicationGraph): ApplicationGraphEdge[] {

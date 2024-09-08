@@ -12,12 +12,12 @@ export class LdkitDetailDalGenerator implements DalGeneratorStrategy {
     private readonly _schemaProvider: SchemaProvider;
     private readonly _sparqlEndpointUri: string;
 
-    constructor(datasourceConfig: DatasourceConfig) {
+    constructor(specificationIri: string, datasourceConfig: DatasourceConfig) {
         if (datasourceConfig.format !== DataSourceType.Rdf) {
             throw new Error("Trying to generate LDkit data access with different datasource");
         }
 
-        this._schemaProvider = new LdkitSchemaProvider();
+        this._schemaProvider = new LdkitSchemaProvider(specificationIri);
         this._sparqlEndpointUri = datasourceConfig.endpoint;
     }
 

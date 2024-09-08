@@ -8,14 +8,14 @@ import { LdkitDeleteDalGenerator } from "./strategies/ldkit/delete-strategy";
 import { CreateLdkitInstanceDalStrategy } from "./strategies/ldkit/create-strategy";
 
 export type DataAccessLayerGeneratorFactory = {
-    getDalGeneratorStrategy: (datasourceConfig: DatasourceConfig) => DalGeneratorStrategy;
+    getDalGeneratorStrategy: (specificationIri: string, datasourceConfig: DatasourceConfig) => DalGeneratorStrategy;
 }
 
 export const ListTemplateDalGeneratorFactory: DataAccessLayerGeneratorFactory = {
 
-    getDalGeneratorStrategy(datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
+    getDalGeneratorStrategy(specificationIri: string, datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
         const generators = {
-            [DataSourceType.Rdf]: new LdkitListDalGenerator(datasourceConfig),
+            [DataSourceType.Rdf]: new LdkitListDalGenerator(specificationIri, datasourceConfig),
             [DataSourceType.Json]:  null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("json"),
             [DataSourceType.Xml]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("xml"),
             [DataSourceType.Csv]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("csv"),
@@ -34,9 +34,9 @@ export const ListTemplateDalGeneratorFactory: DataAccessLayerGeneratorFactory = 
 
 export const DetailTemplateDalGeneratorFactory: DataAccessLayerGeneratorFactory = {
 
-    getDalGeneratorStrategy(datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
+    getDalGeneratorStrategy(specificationIri: string, datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
         const generators = {
-            [DataSourceType.Rdf]: new LdkitDetailDalGenerator(datasourceConfig),
+            [DataSourceType.Rdf]: new LdkitDetailDalGenerator(specificationIri, datasourceConfig),
             [DataSourceType.Json]:  null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("json"),
             [DataSourceType.Xml]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("xml"),
             [DataSourceType.Csv]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("csv"),
@@ -54,9 +54,9 @@ export const DetailTemplateDalGeneratorFactory: DataAccessLayerGeneratorFactory 
 }
 
 export const DeleteInstanceTemplateGeneratorFactory: DataAccessLayerGeneratorFactory = {
-    getDalGeneratorStrategy(datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
+    getDalGeneratorStrategy(specificationIri: string, datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
         const generators = {
-            [DataSourceType.Rdf]: new LdkitDeleteDalGenerator(datasourceConfig),
+            [DataSourceType.Rdf]: new LdkitDeleteDalGenerator(specificationIri, datasourceConfig),
             [DataSourceType.Json]:  null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("json"),
             [DataSourceType.Xml]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("xml"),
             [DataSourceType.Csv]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("csv"),
@@ -74,9 +74,9 @@ export const DeleteInstanceTemplateGeneratorFactory: DataAccessLayerGeneratorFac
 }
 
 export const CreateInstanceTemplateGeneratorFactory: DataAccessLayerGeneratorFactory = {
-    getDalGeneratorStrategy(datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
+    getDalGeneratorStrategy(specificationIri: string, datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
         const generators = {
-            [DataSourceType.Rdf]: new CreateLdkitInstanceDalStrategy(datasourceConfig),
+            [DataSourceType.Rdf]: new CreateLdkitInstanceDalStrategy(specificationIri, datasourceConfig),
             [DataSourceType.Json]:  null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("json"),
             [DataSourceType.Xml]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("xml"),
             [DataSourceType.Csv]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("csv"),
