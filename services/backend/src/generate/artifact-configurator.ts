@@ -70,17 +70,6 @@ export class ArtifactConfigurator {
     // const generatorsEnabledByDefault =
     //   dataSpecificationConfiguration.generatorsEnabledByDefault!;
 
-    //if ((dataSpecificationConfiguration.useGenerators?.["LDkit"] ?? generatorsEnabledByDefault) === true) {
-    const ldkitArtifact: DataSpecificationArtefact = new DataSpecificationArtefact();
-    ldkitArtifact.iri = `${dataSpecificationIri}#LDkit`;
-    ldkitArtifact.generator = LDkitGenerator.IDENTIFIER;
-    const ldkitArtifactFileName = dataSpecificationConfiguration.renameArtifacts?.[ldkitArtifact.generator] ?? "LDkit/";
-    ldkitArtifact.outputPath = `${dataSpecificationName}/${ldkitArtifactFileName}`;
-    ldkitArtifact.publicUrl = `${this.baseURL}/${ldkitArtifactFileName}`;
-    //artifact.configuration = configuration;
-    artifacts.push(ldkitArtifact);
-    //}
-
     for (const psmSchemaIri of dataSpecification.psms) {
       let subdirectory = "/" + await this.getSchemaDirectoryName(dataSpecificationIri, psmSchemaIri);
 
@@ -89,10 +78,10 @@ export class ArtifactConfigurator {
       }
 
       artifacts.push(...getSchemaArtifacts(
-          psmSchemaIri,
-          `${this.baseURL}${subdirectory}`,
-          `${dataSpecificationName}${subdirectory}`,
-          configuration
+        psmSchemaIri,
+        `${this.baseURL}${subdirectory}`,
+        `${dataSpecificationName}${subdirectory}`,
+        configuration
       ));
     }
 
@@ -171,16 +160,29 @@ export function getSchemaArtifacts(
 
   const artifacts: DataSpecificationArtefact[] = [];
 
+  const psmUuid = psmSchemaIri.slice(psmSchemaIri.lastIndexOf("/") + 1);
+
+  const ldkitArtifact: DataSpecificationArtefact = new DataSpecificationArtefact();
+  ldkitArtifact.iri = `${psmSchemaIri}#ldkit`;
+  ldkitArtifact.generator = LDkitGenerator.IDENTIFIER;
+  const ldkitArtifactFileName = dataSpecificationConfiguration.renameArtifacts?.[ldkitArtifact.generator] ?? `${psmUuid}-schema.ts`;
+  ldkitArtifact.outputPath = `${basePath}/ldkit/${ldkitArtifactFileName}`;
+  ldkitArtifact.publicUrl = `${baseUrl}/ldkit/${ldkitArtifactFileName}`;
+  ldkitArtifact.configuration = configuration;
+  if ((dataSpecificationConfiguration.useGenerators?.["json"] ?? generatorsEnabledByDefault) !== false) {
+    artifacts.push(ldkitArtifact);
+  }
+
   const jsonSchema = new DataSpecificationSchema();
   jsonSchema.iri = `${psmSchemaIri}#jsonschema`;
   jsonSchema.generator = JSON_SCHEMA.Generator;
-  const jsonSchemaFileName = dataSpecificationConfiguration.renameArtifacts?.[jsonSchema.generator] ?? "schema.json";
-  jsonSchema.outputPath = `${basePath}/${jsonSchemaFileName}`;
-  jsonSchema.publicUrl = `${baseUrl}/${jsonSchemaFileName}`;
+  const jsonSchemaFileName = dataSpecificationConfiguration.renameArtifacts?.[jsonSchema.generator] ?? `${psmUuid}-schema.json`;
+  jsonSchema.outputPath = `${basePath}/json/${jsonSchemaFileName}`;
+  jsonSchema.publicUrl = `${baseUrl}/json/${jsonSchemaFileName}`;
   jsonSchema.psm = psmSchemaIri;
   jsonSchema.configuration = configuration;
   if ((dataSpecificationConfiguration.useGenerators?.["json"] ?? generatorsEnabledByDefault) !== false) {
-      artifacts.push(jsonSchema);
+    artifacts.push(jsonSchema);
   }
 
   return artifacts;
