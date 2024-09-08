@@ -5,8 +5,11 @@ import { OnPremiseEntityModel, OnPremiseEntityModelType } from "./on-premise-ent
 import { LegacyModel } from "./legacy-model";
 import { TypedObject } from "./typed-object";
 import { EntityEventListener, ObservableEntityModel, UnsubscribeCallback, ObservableEntityModelType } from "./observable-entity-model";
-import { WritableEntityModel, WritableEntityModelType } from "./writable-entity-model";
+import { ChangeEntity, NewEntity, WritableEntityModel, WritableEntityModelType } from "./writable-entity-model";
 
+/**
+ * @deprecated We should introduce a factory class to create entity model based on package data
+ */
 export function createDefaultEntityModel(type: string, identifier?: string): TypedObject {
   return new DefaultEntityModel(type, identifier ?? createIdentifier());
 }
@@ -66,12 +69,12 @@ class DefaultEntityModel implements EntityModel, LabeledModel, OnPremiseEntityMo
    * @param change
    * @param remove
    */
-  protected change(create: Omit<Entity, "identifier">[], change: Record<string, Partial<Entity | any>>, remove: string[]) {
+  change<T extends Entity>(create: NewEntity<T>[], change: Record<string, ChangeEntity<T>>, remove: string[]): void {
     // Create.
     const created: Entity[] = []
     create.forEach(entity => {
       const identifier = createIdentifier();
-      const newEntity = {
+      const newEntity : Entity = {
         ...entity,
         identifier,
       };
@@ -123,6 +126,11 @@ class DefaultEntityModel implements EntityModel, LabeledModel, OnPremiseEntityMo
     this.listeners.push(listener);
     // Return callback to remove the listener.
     return () => this.listeners = this.listeners.filter(item => item !== listener);
+  }
+
+  modifyEntities<T extends Entity>(create: NewEntity<T>[], change: Record<string, ChangeEntity<T>>, remove: string[]): Promise<void> {
+    this.change(create, change, remove);
+    return Promise.resolve();
   }
 
   getId(): string {
