@@ -1,5 +1,4 @@
 import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
-import { AllowedTransition } from "../../../engine/transitions/transitions-generator";
 
 export interface ListTableTemplate extends TemplateDescription {
     placeholders: {

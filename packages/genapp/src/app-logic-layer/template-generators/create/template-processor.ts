@@ -6,10 +6,10 @@ import { CreateInstanceCapabilityAppLayerTemplate } from "./create-app-layer-tem
 
 export class CreateInstanceAppLayerTemplateProcessor extends ApplicationLayerTemplateGenerator<CreateInstanceCapabilityAppLayerTemplate> {
 
-    processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): LayerArtifact {
+    async processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): Promise<LayerArtifact> {
 
-        const generatedCapabilityInterface = GeneratedCapabilityInterfaceGenerator.processTemplate();
-        const creatorInterfaceArtifact = InstanceCreatorInterfaceGenerator.processTemplate();
+        const generatedCapabilityInterface = await GeneratedCapabilityInterfaceGenerator.processTemplate();
+        const creatorInterfaceArtifact = await InstanceCreatorInterfaceGenerator.processTemplate();
         const createAppLayerExportedName = dependencies.aggregate.getAggregateNamePascalCase({
             suffix: "CreateCapabilityLogic"
         });
@@ -23,7 +23,7 @@ export class CreateInstanceAppLayerTemplateProcessor extends ApplicationLayerTem
             .find(artifact => artifact.exportedObjectName === "InstanceResult");
 
         if (!createReturnTypeArtifact) {
-            createReturnTypeArtifact = InstanceResultReturnInterfaceGenerator.processTemplate();
+            createReturnTypeArtifact = await InstanceResultReturnInterfaceGenerator.processTemplate();
         }
 
         const createInstanceAppLayerTemplate: CreateInstanceCapabilityAppLayerTemplate = {

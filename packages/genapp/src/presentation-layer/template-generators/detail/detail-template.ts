@@ -7,8 +7,8 @@ export interface DetailReactComponentTemplate extends TemplateDescription {
         export_name: string;
         detail_capability_app_layer: string;
         detail_app_layer_path: ImportRelativePath;
-        useJsonSchema_hook: string;
-        useJsonSchema_hook_path: ImportRelativePath;
+        json_schema: string;
+        //json_schema_path: ImportRelativePath;
         capability_transitions: AllowedTransition[];
     };
 }

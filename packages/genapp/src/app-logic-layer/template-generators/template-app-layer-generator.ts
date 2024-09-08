@@ -26,7 +26,7 @@ export abstract class ApplicationLayerTemplateGenerator<TemplateType extends Tem
             throw new Error("path resolver not found");
         }
 
-        const applicationLayer = this.processTemplate({
+        const applicationLayer = await this.processTemplate({
             aggregate: context.aggregate,
             pathResolver: context._.pathResolver,
             dataLayerLinkArtifact: context.previousResult

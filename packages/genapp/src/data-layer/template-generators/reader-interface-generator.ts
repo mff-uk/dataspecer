@@ -10,7 +10,7 @@ import {
 
 // TODO: Change interface name
 class ReaderInterfaceGenerator extends TemplateConsumer<ReaderInterfaceTemplate> {
-    
+
     private readonly _readerInterfaceName: string;
     private readonly _capabilityReturnTypeGenerator: CapabilityInterfaceGeneratorType;
 
@@ -30,11 +30,11 @@ class ReaderInterfaceGenerator extends TemplateConsumer<ReaderInterfaceTemplate>
             : this._filePath;
     }
 
-    processTemplate(): LayerArtifact {
+    async processTemplate(): Promise<LayerArtifact> {
 
-        const capabilityResultArtifact = this._capabilityReturnTypeGenerator.processTemplate();
+        const capabilityResultArtifact = await this._capabilityReturnTypeGenerator.processTemplate();
 
-        const readerInterfaceTemplate: ReaderInterfaceTemplate = { 
+        const readerInterfaceTemplate: ReaderInterfaceTemplate = {
             templatePath: this._templatePath,
             placeholders: {
                 read_return_type: capabilityResultArtifact.exportedObjectName,

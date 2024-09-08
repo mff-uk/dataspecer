@@ -17,9 +17,9 @@ export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitIn
         super(templateMetadata);
     }
 
-    processTemplate(dependencies: CreateLdkitInstanceDependencyMap): LayerArtifact {
+    async processTemplate(dependencies: CreateLdkitInstanceDependencyMap): Promise<LayerArtifact> {
 
-        const creatorInterfaceArtifact = InstanceCreatorInterfaceGenerator.processTemplate();
+        const creatorInterfaceArtifact = await InstanceCreatorInterfaceGenerator.processTemplate();
 
         if (!creatorInterfaceArtifact || !creatorInterfaceArtifact.dependencies) {
             throw new Error("At least one interface dependency is expected");
@@ -30,7 +30,7 @@ export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitIn
             .find(artifact => artifact.exportedObjectName === "InstanceResult");
 
         if (!createReturnTypeArtifact) {
-            createReturnTypeArtifact = InstanceResultReturnInterfaceGenerator.processTemplate();
+            createReturnTypeArtifact = await InstanceResultReturnInterfaceGenerator.processTemplate();
         }
 
         const createExportedObject = dependencies.aggregate.getAggregateNamePascalCase({

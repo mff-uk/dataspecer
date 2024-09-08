@@ -6,10 +6,10 @@ import { DeleteCapabilityAppLayerTemplate } from "./delete-app-layer-template";
 
 export class DeleteAppLayerTemplateProcessor extends ApplicationLayerTemplateGenerator<DeleteCapabilityAppLayerTemplate> {
 
-    processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): LayerArtifact {
+    async processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): Promise<LayerArtifact> {
 
-        const generatedCapabilityInterface = GeneratedCapabilityInterfaceGenerator.processTemplate();
-        const deleteMutatorInterfaceArtifact = DeleteInstanceMutatorInterfaceGenerator.processTemplate();
+        const generatedCapabilityInterface = await GeneratedCapabilityInterfaceGenerator.processTemplate();
+        const deleteMutatorInterfaceArtifact = await DeleteInstanceMutatorInterfaceGenerator.processTemplate();
         const deleteAppLayerExportedName = dependencies.aggregate.getAggregateNamePascalCase({
             suffix: "DeleteCapabilityLogic"
         });
@@ -23,7 +23,7 @@ export class DeleteAppLayerTemplateProcessor extends ApplicationLayerTemplateGen
             .find(artifact => artifact.exportedObjectName === "InstanceResult");
 
         if (!deleteReturnTypeArtifact) {
-            deleteReturnTypeArtifact = InstanceResultReturnInterfaceGenerator.processTemplate();
+            deleteReturnTypeArtifact = await InstanceResultReturnInterfaceGenerator.processTemplate();
         }
 
         const deleteInstanceAppLayerTemplate: DeleteCapabilityAppLayerTemplate = {

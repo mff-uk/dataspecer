@@ -36,7 +36,7 @@ export abstract class PresentationLayerTemplateGenerator<TemplateType extends Te
         const transitions = await (new TransitionsGenerator()
             .getNodeTransitions(context.currentNode, context.graph));
 
-        const presentationLayerArtifact = this.processTemplate({
+        const presentationLayerArtifact = await this.processTemplate({
             aggregate: context.aggregate,
             pathResolver: context._.pathResolver,
             appLogicArtifact: context.previousResult,

@@ -29,7 +29,7 @@ export class SidebarComponentTemplateProcessor extends TemplateConsumer<SidebarC
         return result;
     }
 
-    processTemplate(dependencies: SidebarComponentDependencyMap): LayerArtifact {
+    async processTemplate(dependencies: SidebarComponentDependencyMap): Promise<LayerArtifact> {
 
         // TODO: integrate application graph -> sidebar displays all "collection" type capabilities (list, create)
         const collectionCapabilityMap = this.getCollectionCapabilities(dependencies.capabilityMap);

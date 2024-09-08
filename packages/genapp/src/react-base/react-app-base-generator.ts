@@ -52,27 +52,27 @@ export class ReactApplicationBaseGenerator extends TemplateConsumer<ReactAppBase
         return new Set<string>(importStatements);
     }
 
-    processTemplate(dependencies: ReactAppBaseTemplateDependencyMap): LayerArtifact {
+    async processTemplate(dependencies: ReactAppBaseTemplateDependencyMap): Promise<LayerArtifact> {
 
-        const errorPageArtifact = new CopyTemplateProcessor({
+        const errorPageArtifact = await new CopyTemplateProcessor({
             filePath: "./ErrorPage.tsx",
             templatePath: "./scaffolding/ErrorPage",
             queryExportedObjectName: "ErrorPage"
         }).processTemplate();
 
-        const mainComponentArtifact = new CopyTemplateProcessor({
+        const mainComponentArtifact = await new CopyTemplateProcessor({
             templatePath: "./scaffolding/Main",
             filePath: "./Main.tsx",
             queryExportedObjectName: "Main"
         }).processTemplate();
 
-        const pageTemplateComponentArtifact = new CopyTemplateProcessor({
+        const pageTemplateComponentArtifact = await new CopyTemplateProcessor({
             templatePath: "./scaffolding/PageTemplate",
             filePath: "./PageTemplate.tsx",
             queryExportedObjectName: "PageTemplate"
         }).processTemplate();
 
-        const sidebarComponentArtifact = new SidebarComponentTemplateProcessor({
+        const sidebarComponentArtifact = await new SidebarComponentTemplateProcessor({
             filePath: "./Sidebar.tsx",
             templatePath: "./scaffolding/Sidebar"
         }).processTemplate({
@@ -81,18 +81,16 @@ export class ReactApplicationBaseGenerator extends TemplateConsumer<ReactAppBase
             capabilityMap: dependencies.capabilityMap
         });
 
-        let toCopy: LayerArtifact[] = [];
-        ["Content", "Footer", "TopBar", "index"].forEach(name => {
-            const componentArtifact = new CopyTemplateProcessor({
-                templatePath: `./scaffolding/${name}`,
-                filePath: `./${name}.tsx`,
-                queryExportedObjectName: name
-            }).processTemplate();
+        const componentArtifactPromises =
+            ["Content", "Footer", "TopBar", "index"].map(async name => {
+                return await new CopyTemplateProcessor({
+                    templatePath: `./scaffolding/${name}`,
+                    filePath: `./${name}.tsx`,
+                    queryExportedObjectName: name
+                }).processTemplate();
+            });
 
-            toCopy.push(componentArtifact);
-        });
-
-        toCopy = toCopy.concat([
+        const copiedTemplatePromises = [
             {
                 templatePath: "./scaffolding/index_css",
                 filePath: "./index.css",
@@ -118,8 +116,12 @@ export class ReactApplicationBaseGenerator extends TemplateConsumer<ReactAppBase
                 filePath: "./reportWebVitals.ts",
                 queryExportedObjectName: "reportWebVitals"
             }
-        ].map(templateMetadata => new CopyTemplateProcessor(templateMetadata).processTemplate())
-        );
+        ].map(async templateMetadata => await new CopyTemplateProcessor(templateMetadata).processTemplate());
+
+        let toCopy = await Promise.all(componentArtifactPromises);
+        const toCopyTemplates = await Promise.all(copiedTemplatePromises);
+
+        toCopy = toCopy.concat(toCopyTemplates);
 
         const reactAppComponentTemplate: ReactAppBaseTemplate = {
             templatePath: this._templatePath,

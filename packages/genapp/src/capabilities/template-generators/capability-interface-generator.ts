@@ -18,7 +18,7 @@ class CapabilityInterfaceGenerator extends TemplateConsumer<CapabilityInterfaceT
         this._capabilityInterfaceExportedName = templateMetadata.queryExportedObjectName;
     }
 
-    processTemplate(): LayerArtifact {
+    async processTemplate(): Promise<LayerArtifact> {
 
         const capabilityInterfaceTemplate: CapabilityInterfaceTemplate = {
             templatePath: this._templatePath

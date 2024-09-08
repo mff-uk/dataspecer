@@ -6,20 +6,20 @@ import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerato
 import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 
 export class DetailAppLayerTemplateProcessor extends ApplicationLayerTemplateGenerator<DetailCapabilityAppLayerTemplate> {
-    
+
     strategyIdentifier: string = "detail-app-template-generator";
 
     constructor(templateMetadata: TemplateMetadata) {
         super(templateMetadata);
     }
 
-    processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): LayerArtifact {
-        
+    async processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): Promise<LayerArtifact> {
+
         const detailAppLayerExportedName: string = dependencies.aggregate.getAggregateNamePascalCase({
             suffix: "DetailCapabilityLogic"
         });
-        
-        const instanceReaderInterfaceArtifact = DetailReaderInterfaceGenerator.processTemplate();
+
+        const instanceReaderInterfaceArtifact = await DetailReaderInterfaceGenerator.processTemplate();
 
         if (!instanceReaderInterfaceArtifact.dependencies || instanceReaderInterfaceArtifact.dependencies.length === 0) {
             throw new Error("Reader interface expects at least one dependency artifact - return type of the read function.");
@@ -28,11 +28,11 @@ export class DetailAppLayerTemplateProcessor extends ApplicationLayerTemplateGen
         let instanceReturnTypeArtifact = instanceReaderInterfaceArtifact.dependencies.find(artifact => artifact.exportedObjectName === "InstanceResult");
 
         if (!instanceReturnTypeArtifact) {
-            instanceReturnTypeArtifact = InstanceResultReturnInterfaceGenerator.processTemplate();
+            instanceReturnTypeArtifact = await InstanceResultReturnInterfaceGenerator.processTemplate();
         }
 
-        const generatedCapabilityInterface = GeneratedCapabilityInterfaceGenerator.processTemplate();
-        
+        const generatedCapabilityInterface = await GeneratedCapabilityInterfaceGenerator.processTemplate();
+
         const detailAppLayerTemplate: DetailCapabilityAppLayerTemplate = {
             templatePath: this._templatePath,
             placeholders: {

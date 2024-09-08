@@ -90,7 +90,7 @@ class ApplicationGenerator {
 
         const nodeResultMappings = await Promise.all(generationPromises);
 
-        new ReactAppBaseGeneratorStage()
+        await new ReactAppBaseGeneratorStage()
             .generateApplicationBase(nodeResultMappings);
 
         // TODO: integrate the application base (add final application node - static app base generator)

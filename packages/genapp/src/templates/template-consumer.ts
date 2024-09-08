@@ -20,5 +20,5 @@ export abstract class TemplateConsumer<TemplateType extends TemplateDescription>
         this._templatePath = templatePath;
     }
 
-    abstract processTemplate(dependencies: TemplateDependencyMap): LayerArtifact;
+    abstract processTemplate(dependencies: TemplateDependencyMap): Promise<LayerArtifact>;
 }

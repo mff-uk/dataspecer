@@ -16,7 +16,7 @@ export interface ListItemCapabilityOptionsDependencyMap extends TemplateDependen
 
 export class ListItemCapabilityOptionsGenerator extends TemplateConsumer<ListItemCapabilityOptionsTemplate> {
 
-    processTemplate(dependencies: ListItemCapabilityOptionsDependencyMap): LayerArtifact {
+    async processTemplate(dependencies: ListItemCapabilityOptionsDependencyMap): Promise<LayerArtifact> {
 
         const exportedObjectName: string = dependencies.aggregate.getAggregateNamePascalCase({
             suffix: "ListItemCapabilityOptions"

@@ -1,6 +1,5 @@
 // TODO: merge / reduce imports
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateMetadata } from "../../../templates/template-consumer";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
 import { ListItemCapabilityOptionsDependencyMap, ListItemCapabilityOptionsGenerator } from "./list-item-options-processor";
 import { ListTableTemplate } from "./list-table-template";
@@ -8,13 +7,10 @@ import { ListTableTemplate } from "./list-table-template";
 export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerator<ListTableTemplate> {
 
     strategyIdentifier: string = "list-table-react-generator";
-    constructor(templateMetadata: TemplateMetadata) {
-        super(templateMetadata);
-    }
 
-    processTemplate(dependencies: PresentationLayerDependencyMap): LayerArtifact {
+    async processTemplate(dependencies: PresentationLayerDependencyMap): Promise<LayerArtifact> {
 
-        const listItemOptionsArtifact = new ListItemCapabilityOptionsGenerator({
+        const listItemOptionsArtifact = await new ListItemCapabilityOptionsGenerator({
             filePath: `./${dependencies.aggregate.getAggregateNamePascalCase({ "suffix": "ListItemCapabilityOptions" })}.tsx`,
             templatePath: "./list/presentation-layer/item-capability-options"
         }).processTemplate({

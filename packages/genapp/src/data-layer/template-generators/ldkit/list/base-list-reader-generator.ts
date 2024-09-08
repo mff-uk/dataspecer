@@ -13,9 +13,9 @@ export class BaseListLdkitReaderGenerator extends TemplateConsumer<BaseLdkitRead
         });
     }
 
-    processTemplate(dependencies?: TemplateDependencyMap): LayerArtifact {
-        const readerInterfaceArtifact = ListReaderInterfaceGenerator.processTemplate();
-        
+    async processTemplate(dependencies?: TemplateDependencyMap): Promise<LayerArtifact> {
+        const readerInterfaceArtifact = await ListReaderInterfaceGenerator.processTemplate();
+
         if (!readerInterfaceArtifact.dependencies || readerInterfaceArtifact.dependencies.length === 0) {
             throw new Error("Reader interface expectes at least one dependency artifact - return type of the read function.");
         }
@@ -23,7 +23,7 @@ export class BaseListLdkitReaderGenerator extends TemplateConsumer<BaseLdkitRead
         let listReturnTypeArtifact = readerInterfaceArtifact.dependencies.find(artifact => artifact.exportedObjectName === "ListResult");
 
         if (!listReturnTypeArtifact) {
-            listReturnTypeArtifact = ListResultReturnInterfaceGenerator.processTemplate();
+            listReturnTypeArtifact = await ListResultReturnInterfaceGenerator.processTemplate();
         }
 
         const baseLdkitReaderTemplate: BaseLdkitReaderTemplate = {
@@ -42,7 +42,7 @@ export class BaseListLdkitReaderGenerator extends TemplateConsumer<BaseLdkitRead
             }
         }
 
-        const baseLdkitReaderRender =this._templateRenderer.renderTemplate(baseLdkitReaderTemplate);
+        const baseLdkitReaderRender = this._templateRenderer.renderTemplate(baseLdkitReaderTemplate);
 
         const result: LayerArtifact = {
             exportedObjectName: "LdkitListReader",

@@ -17,7 +17,7 @@ export class ReactAppBaseGeneratorStage {
         });
     }
 
-    generateApplicationBase(generatedNodes: NodeResult[]): LayerArtifact {
+    async generateApplicationBase(generatedNodes: NodeResult[]): Promise<LayerArtifact> {
 
         const entries = generatedNodes.map(generatedNode => [
             generatedNode.nodePath,
@@ -37,7 +37,7 @@ export class ReactAppBaseGeneratorStage {
 
         const capabilityMap: CapabilityRouteComponentMap = Object.fromEntries<ReactRouteComponentDescription>(entries);
 
-        const reactBaseLayerArtifact = this.stageGenerator.processTemplate({
+        const reactBaseLayerArtifact = await this.stageGenerator.processTemplate({
             aggregate: undefined!,
             capabilityMap: capabilityMap
         });

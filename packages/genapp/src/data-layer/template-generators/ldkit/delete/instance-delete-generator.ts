@@ -17,9 +17,9 @@ export class InstanceDeleteLdkitGenerator extends TemplateConsumer<InstanceDelet
         super(templateMetadata);
     }
 
-    processTemplate(dependencies: LdkitInstanceDeleteMutatorDependencyMap): LayerArtifact {
+    async processTemplate(dependencies: LdkitInstanceDeleteMutatorDependencyMap): Promise<LayerArtifact> {
 
-        const deleteMutatorInterfaceArtifact = DeleteInstanceMutatorInterfaceGenerator.processTemplate();
+        const deleteMutatorInterfaceArtifact = await DeleteInstanceMutatorInterfaceGenerator.processTemplate();
 
         if (!deleteMutatorInterfaceArtifact || !deleteMutatorInterfaceArtifact.dependencies) {
             throw new Error("At least one interface dependency is expected");
@@ -30,7 +30,7 @@ export class InstanceDeleteLdkitGenerator extends TemplateConsumer<InstanceDelet
             .find(artifact => artifact.exportedObjectName === "InstanceResult");
 
         if (!deleteReturnTypeArtifact) {
-            deleteReturnTypeArtifact = InstanceResultReturnInterfaceGenerator.processTemplate();
+            deleteReturnTypeArtifact = await InstanceResultReturnInterfaceGenerator.processTemplate();
         }
 
         const deleteTemplate: InstanceDeleteLdkitTemplate = {
@@ -55,7 +55,7 @@ export class InstanceDeleteLdkitGenerator extends TemplateConsumer<InstanceDelet
                 }
             }
         };
-        
+
         const deleteInstanceRender = this._templateRenderer.renderTemplate(deleteTemplate);
 
         const deleteDalLayerArtifact: LayerArtifact = {
@@ -64,7 +64,7 @@ export class InstanceDeleteLdkitGenerator extends TemplateConsumer<InstanceDelet
             sourceText: deleteInstanceRender,
             dependencies: [deleteMutatorInterfaceArtifact]
         }
-        
+
         return deleteDalLayerArtifact;
     }
 }

@@ -17,7 +17,7 @@ export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<Instanc
         super(templateMetadata);
     }
 
-    private getReaderInterfaceReturnTypeName(readerInterfaceArtifact: LayerArtifact): LayerArtifact {
+    private async getReaderInterfaceReturnTypeName(readerInterfaceArtifact: LayerArtifact): Promise<LayerArtifact> {
         if (!readerInterfaceArtifact.dependencies || readerInterfaceArtifact.dependencies.length === 0) {
             throw new Error("Reader interface expects at least one dependency artifact - return type of the read function.");
         }
@@ -25,20 +25,19 @@ export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<Instanc
         let instanceReturnTypeArtifact = readerInterfaceArtifact.dependencies.find(artifact => artifact.exportedObjectName === "InstanceResult");
 
         if (!instanceReturnTypeArtifact) {
-            instanceReturnTypeArtifact = InstanceResultReturnInterfaceGenerator.processTemplate();
+            instanceReturnTypeArtifact = await InstanceResultReturnInterfaceGenerator.processTemplate();
         }
 
         return instanceReturnTypeArtifact;
     }
 
-    processTemplate(dependencies: InstanceDetailLdkitReaderDependencyMap): LayerArtifact {
+    async processTemplate(dependencies: InstanceDetailLdkitReaderDependencyMap): Promise<LayerArtifact> {
 
-        const instanceReaderInterfaceArtifact = DetailReaderInterfaceGenerator.processTemplate();
-        const instanceReturnTypeArtifact = this.getReaderInterfaceReturnTypeName(instanceReaderInterfaceArtifact);
+        const instanceReaderInterfaceArtifact = await DetailReaderInterfaceGenerator.processTemplate();
+        const instanceReturnTypeArtifact = await this.getReaderInterfaceReturnTypeName(instanceReaderInterfaceArtifact);
         const detailExportedObject = dependencies.aggregate.getAggregateNamePascalCase({
             suffix: "LdkitInstanceReader"
         });
-        
 
         const instanceLdkitReaderTemplate: InstanceDetailLdkitReaderTemplate = {
             templatePath: this._templatePath,

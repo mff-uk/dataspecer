@@ -1,17 +1,20 @@
+import { JsonSchemaProvider } from "../../../data-layer/strategies/ldkit/ldkit-schema-provider";
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TransitionsGenerator } from "../../../engine/transitions/transitions-generator";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
 import { CreateInstanceReactComponentTemplate } from "./create-component-template";
 
 export class CreateInstanceComponentTemplateProcessor extends PresentationLayerTemplateGenerator<CreateInstanceReactComponentTemplate> {
     strategyIdentifier: string = "create-react-component-generator";
 
-    processTemplate(dependencies: PresentationLayerDependencyMap): LayerArtifact {
+    async processTemplate(dependencies: PresentationLayerDependencyMap): Promise<LayerArtifact> {
 
         const createExportedName = dependencies.aggregate.getAggregateNamePascalCase({
             prefix: "Create",
             suffix: "Instance"
         });
+
+        const schemaProvider = new JsonSchemaProvider(dependencies.aggregate.specificationIri);
+        const jsonSchemaArtifact = await schemaProvider.getSchemaArtifact(dependencies.aggregate);
 
         const createInstanceComponentTemplate: CreateInstanceReactComponentTemplate = {
             templatePath: this._templatePath,
@@ -22,11 +25,11 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
                     to: dependencies.appLogicArtifact.filePath
                 },
-                useJsonSchema_hook: "<useJsonSchema hook placeholder>",
-                useJsonSchema_hook_path: {
-                    from: this._filePath,
-                    to: ""
-                },
+                json_schema: jsonSchemaArtifact.sourceText,
+                // json_schema_path: {
+                //     from: this._filePath,
+                //     to: jsonSchemaArtifact.filePath
+                // },
                 supported_out_create_edges: dependencies.transitions
             }
         }
@@ -37,7 +40,7 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
             filePath: this._filePath,
             exportedObjectName: createExportedName,
             sourceText: instanceDetailComponentRender,
-            dependencies: [dependencies.appLogicArtifact]
+            dependencies: [dependencies.appLogicArtifact, jsonSchemaArtifact]
         }
 
         return presentationLayerArtifact;

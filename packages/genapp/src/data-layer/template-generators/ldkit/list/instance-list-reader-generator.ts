@@ -18,18 +18,18 @@ export class InstanceListLdkitReaderGenerator extends TemplateConsumer<InstanceL
         super(templateMetadata);
     }
 
-    processTemplate(dependencies: InstanceListLdkitReaderDependencyMap): LayerArtifact {
+    async processTemplate(dependencies: InstanceListLdkitReaderDependencyMap): Promise<LayerArtifact> {
 
         if (!dependencies || !isInstanceListLdkitReaderDependencyList(dependencies)) {
             throw new Error("Invalid dependencies list parameter.");
         }
 
-        const baseLdkitListReaderArtifact = new BaseListLdkitReaderGenerator().processTemplate();
+        const baseLdkitListReaderArtifact = await new BaseListLdkitReaderGenerator().processTemplate();
         const listExportedObject = dependencies.aggregate.getAggregateNamePascalCase({
             suffix: "LdkitListReader"
         });
 
-        const instanceListLdkitReaderTemplate: InstanceListLdkitReaderTemplate = { 
+        const instanceListLdkitReaderTemplate: InstanceListLdkitReaderTemplate = {
             templatePath: this._templatePath,
             placeholders: {
                 aggregate_name: listExportedObject,
@@ -39,7 +39,7 @@ export class InstanceListLdkitReaderGenerator extends TemplateConsumer<InstanceL
                 ldkit_list_reader_base_class_path: {
                     from: this._filePath,
                     to: baseLdkitListReaderArtifact.filePath
-                }, 
+                },
                 ldkit_schema_path: {
                     from: this._filePath,
                     to: dependencies.ldkitSchemaArtifact.filePath
