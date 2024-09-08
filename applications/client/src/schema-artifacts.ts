@@ -197,10 +197,11 @@ export function getSchemaArtifacts(
     }
 
     const ldkit = new DataSpecificationSchema();
-    ldkit.iri = `${psmSchemaIri}#LDkit`;
-    ldkit.outputPath = `${basePath}/ldkit-schema.ts`;
-    ldkit.publicUrl = `${baseUrl}/ldkit-schema.ts`;
+    ldkit.iri = `${psmSchemaIri}#ldkit`;
     ldkit.generator = "https://schemas.dataspecer.com/generator/LDkit";
+    const ldkitSchemaFilename = dataSpecificationConfiguration.renameArtifacts?.[ldkit.generator] ?? "ldkit-schema.ts";
+    ldkit.outputPath = `${basePath}/${ldkitSchemaFilename}`;
+    ldkit.publicUrl = `${baseUrl}/${ldkitSchemaFilename}`;
     ldkit.psm = psmSchemaIri;
     ldkit.configuration = configuration;
     if (dataSpecificationConfiguration.useGenerators?.["LDkit"] !== false) {
