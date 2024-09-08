@@ -49,13 +49,15 @@ export function getSupportedWriter(sourceCodeLanguageIdentifier: SourceCodeLangu
 }
 
 export function convertToPascalCase(initialName: string): string {
-    return initialName
-        .replace("-", " ")
-        .split(" ")
-        .map(word => {
-            return `${word.charAt(0).toUpperCase()}${word.substring(1).toLowerCase()}`;
-        })
-        .join("");
+    const result = initialName
+        .replaceAll("-", " ")
+        .replace(
+            /(\w)(\w*)/g,
+            (_, g1, g2) => g1.toUpperCase() + g2.toLowerCase()
+        )
+        .replaceAll(" ", "");
+
+    return result;
 }
 
 export function convertToKebabCase(initialName: string): string {

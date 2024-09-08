@@ -13,7 +13,7 @@ export interface StructureClassToSchemaAdapter {
 export class LdkitSchemaAdapter implements StructureClassToSchemaAdapter {
 
     convertAttributeDataTypeToLdkitSupportedDataType<T>(dataTypeIri: string): keyof T {
-        const map = {
+        const map: { [k: string]: any } = {
             "https://ofn.gov.cz/zdroj/z%C3%A1kladn%C3%AD-datov%C3%A9-typy/2020-07-01/boolean": xsd.boolean,
             "https://ofn.gov.cz/zdroj/z%C3%A1kladn%C3%AD-datov%C3%A9-typy/2020-07-01/datum": xsd.date,
             "https://ofn.gov.cz/zdroj/z%C3%A1kladn%C3%AD-datov%C3%A9-typy/2020-07-01/datum-a-čas": xsd.dateTime,
@@ -55,9 +55,9 @@ export class LdkitSchemaAdapter implements StructureClassToSchemaAdapter {
         return ldkitProperty;
     }
 
-    setCardinalityRelatedProperties(cardMin: number, cardMax: number | null, property: LdkitSchemaProperty): void {
+    setCardinalityRelatedProperties(cardMin: number | null, cardMax: number | null, property: LdkitSchemaProperty): void {
 
-        if (!cardMax) {
+        if (!cardMax || !cardMin) {
             // cardMax is null == no upper bound == array expected
             property["@array"] = true;
             return;
@@ -66,7 +66,7 @@ export class LdkitSchemaAdapter implements StructureClassToSchemaAdapter {
         if (cardMax < cardMin) {
             throw new Error("Invalid cardinality on property");
         }
-        
+
         if (cardMin === 0 && cardMax === 1) {
             // TODO: compre with ldkit definition of optional
             property["@optional"] = true;
@@ -81,12 +81,16 @@ export class LdkitSchemaAdapter implements StructureClassToSchemaAdapter {
     // TODO: generate property based on dataTypes - rewrite
     convertClassPropertyToLdkitProperty(classProperty: StructureModelProperty): string | LdkitSchemaProperty | readonly string[] {
 
+        if (!classProperty.cimIri) {
+            throw new Error("Missing class property conceptual IRI");
+        }
+
         let ldkitProperty: LdkitSchemaProperty = {
             "@id": classProperty.cimIri,
         }
 
         if (!classProperty?.dataTypes || classProperty.dataTypes.length === 0) {
-            throw new Error(`Property "${classProperty.humanLabel["en"]}" does not have a datatype.`);
+            throw new Error(`Property does not have a datatype.`);
         }
 
         this.setCardinalityRelatedProperties(classProperty.cardinalityMin, classProperty.cardinalityMax, ldkitProperty);
@@ -117,7 +121,7 @@ export class LdkitSchemaAdapter implements StructureClassToSchemaAdapter {
         const propertyMap: LdkitSchemaPropertyMap = {};
 
         classProperties.map(classProperty => {
-            const propertyName: string = classProperty.technicalLabel;
+            const propertyName: string = classProperty.technicalLabel!;
             propertyMap[propertyName] = this.convertClassPropertyToLdkitProperty(classProperty);
         });
 
@@ -143,11 +147,11 @@ export class LdkitSchemaAdapter implements StructureClassToSchemaAdapter {
 
         assert(model.roots.length === 1, "Exactly one root class must be provided.");
 
-        if (model.roots[0].classes.length !== 1) {
+        if (model.roots[0]!.classes.length !== 1) {
             throw new Error("Root classes number other than 1 is not supported yet");
         }
 
-        const root: StructureModelClass = model.roots[0].classes[0];
+        const root: StructureModelClass = model.roots[0]!.classes[0]!;
 
         return this.convertStructureModelClassToLdkitSchema(root);
     }
