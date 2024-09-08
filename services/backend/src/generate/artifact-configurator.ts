@@ -160,12 +160,13 @@ export function getSchemaArtifacts(
 
   const artifacts: DataSpecificationArtefact[] = [];
 
-  const ldkitArtifact: DataSpecificationArtefact = new DataSpecificationArtefact();
+  const ldkitArtifact: DataSpecificationSchema = new DataSpecificationSchema();
   ldkitArtifact.iri = `${psmSchemaIri}#ldkit`;
   ldkitArtifact.generator = LDkitGenerator.IDENTIFIER;
   const ldkitArtifactFileName = dataSpecificationConfiguration.renameArtifacts?.[ldkitArtifact.generator] ?? `ldkit-schema.ts`;
   ldkitArtifact.outputPath = `${basePath}/${ldkitArtifactFileName}`;
   ldkitArtifact.publicUrl = `${baseUrl}/${ldkitArtifactFileName}`;
+  ldkitArtifact.psm = psmSchemaIri;
   ldkitArtifact.configuration = configuration;
   if ((dataSpecificationConfiguration.useGenerators?.["json"] ?? generatorsEnabledByDefault) !== false) {
     artifacts.push(ldkitArtifact);
