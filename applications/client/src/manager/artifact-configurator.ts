@@ -67,17 +67,6 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
       artifacts.push(respec);
     }
 
-    if ((dataSpecificationConfiguration.useGenerators?.["LDkit"] ?? generatorsEnabledByDefault) === true) {
-      const artifact: DataSpecificationArtefact = new DataSpecificationArtefact();
-      artifact.iri = `${dataSpecificationIri}#LDkit`;
-      artifact.generator = "https://schemas.dataspecer.com/generator/LDkit";
-      const artifactFileName = dataSpecificationConfiguration.renameArtifacts?.[artifact.generator] ?? "LDkit/";
-      artifact.outputPath = `${dataSpecificationName}/${artifactFileName}`;
-      artifact.publicUrl = `${this.baseURL}/${artifactFileName}`;
-      //artifact.configuration = configuration;
-      artifacts.push(artifact);
-    }
-
     return artifacts;
   }
 }
