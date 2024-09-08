@@ -12,11 +12,6 @@ export default function <%= it.export_name %>() {
     const [loadingStatus, setLoadingStatus] = useState<boolean>(true);
     const [searchParams, _] = useSearchParams();
     const [instanceId, setInstanceId] = useState<string>("");
-    <% /* const { schema } = useJsonSchema({
-        specificationIri: "",
-        aggregateName: "<%= it.aggregate_name %>",
-        isUpdate: false
-    }); */ %>
 
     const schema = <%~ it.json_schema %>;
     const debugView = false;
