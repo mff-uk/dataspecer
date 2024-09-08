@@ -19,7 +19,6 @@ type LdkitSchemaGeneratorOutput = {
     name: string;
 }
 
-
 export class LDkitGenerator implements ArtefactGenerator {
 
     static readonly IDENTIFIER = "https://schemas.dataspecer.com/generator/LDkit";
