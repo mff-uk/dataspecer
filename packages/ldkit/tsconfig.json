@@ -3,25 +3,24 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "target": "ES6",
+    "target": "es2022",
     "allowJs": true,
     "resolveJsonModule": true,
     "moduleDetection": "force",
     "isolatedModules": false,
-
-    "strict": false,
+    "strict": true,
     "noUncheckedIndexedAccess": true,
-
     "moduleResolution": "Node16",
     "module": "Node16",
     "outDir": "lib",
     "sourceMap": true,
-
     "declaration": true,
-
     "declarationMap": true,
-    
-    "lib": ["ES6"]
+    "lib": [
+      "es2022"
+    ],
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src/**/*"
+  ]
 }

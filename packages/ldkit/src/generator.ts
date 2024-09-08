@@ -43,7 +43,7 @@ export class LDkitGenerator implements ArtefactGenerator {
 
         const schemaArtefact: DataSpecificationSchema = artefact as DataSpecificationSchema;
 
-        const conceptualModel: ConceptualModel = context.conceptualModels[specification?.pim];
+        const conceptualModel: ConceptualModel = context.conceptualModels[specification.pim!]!;
         assertNot(
             conceptualModel === undefined,
             `Missing conceptual model ${specification.pim}.`
@@ -53,7 +53,7 @@ export class LDkitGenerator implements ArtefactGenerator {
             Object.values(context.conceptualModels).map(cm => Object.entries(cm.classes)).flat()
         );
 
-        let structureModel: StructureModel = context.structureModels[schemaArtefact.psm];
+        let structureModel: StructureModel = context.structureModels[schemaArtefact.psm!]!;
         assertNot(
             structureModel === undefined,
             `Missing structure model ${schemaArtefact.psm}.`
@@ -85,7 +85,7 @@ export class LDkitGenerator implements ArtefactGenerator {
             dataSchema: ldkitSchemaOutput.schema
         });
 
-        const stream = output.writePath(artefact.outputPath); // + `${aggregateName.toLowerCase()}-${uuid}-schema.ts`);
+        const stream = output.writePath(artefact.outputPath!);
         await stream.write(sourcefileContent);
         await stream.close();
     }
@@ -106,8 +106,14 @@ export class LDkitGenerator implements ArtefactGenerator {
             ? structure.humanLabel["en"]!
             : structure.humanLabel[labelKeys.at(0)!]!;
 
-        const aggregateName = convertToPascalCase(humanLabel);
+        const aggregateName = convertToPascalCase(this.normalizeName(humanLabel));
 
         return aggregateName;
+    }
+
+    private normalizeName(name: string) {
+        return name
+            .replace(/[\s/<>:"\\|?*]+/g, "-") // Windows and Linux forbidden characters
+            .toLowerCase();
     }
 }

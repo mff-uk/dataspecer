@@ -11,7 +11,7 @@ import ts, {
     ObjectLiteralElementLike
 } from "typescript";
 import { LdkitSchema, LdkitSchemaProperty } from "../ldkit-schema-model";
-import { convertToKebabCase, convertToPascalCase } from "../utils/utils";
+import { convertToKebabCase } from "../utils/utils";
 import { SourceCodeWriter } from "./source-code-writer-model";
 import { AggregateMetadata } from "../readers/aggregate-data-provider-model";
 
@@ -37,9 +37,8 @@ export class TypescriptWriter implements SourceCodeWriter {
 
     private getLdkitSchemaRootNode(metadata: AggregateMetadata): Node {
 
-        const convertedAggregateSchemaName: string = convertToPascalCase(metadata.aggregateName);
         const ldkitSchemaDeclaration = factory.createVariableDeclaration(
-            `${convertedAggregateSchemaName}Schema`,
+            `${metadata.aggregateName}Schema`,
             undefined, // ts.ExclamationToken
             undefined, // type reference undefined to match ldkit's library type
             this.getSchemaAsObjectLiteral(metadata.dataSchema)
