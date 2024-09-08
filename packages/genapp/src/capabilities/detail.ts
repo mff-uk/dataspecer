@@ -24,7 +24,7 @@ export class DetailCapability extends InstanceTypeCapabilityGenerator {
             DetailCapability.identifier
         );
         const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory.getPresentationLayerGenerator(
-            constructorInput.dataStructureMetadata.technicalLabel,
+            constructorInput.dataStructureMetadata,
             DetailCapability.identifier
         );
 

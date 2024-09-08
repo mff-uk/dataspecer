@@ -1,5 +1,5 @@
 import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
-import { toPascalCase } from "./utils/utils";
+import { normalizeName } from "./utils/utils";
 
 export type Iri = string;
 
@@ -47,9 +47,7 @@ export class AggregateMetadata {
             ? structure.dataPsmHumanLabel["en"]!
             : structure.dataPsmHumanLabel[labelKeys.at(0)!]!;
 
-        const aggregateName = humanLabel
-            .toLowerCase()
-            .replace(/\s+/g, "-");
+        const aggregateName = normalizeName(humanLabel);
 
         console.log(`Aggregate name: "${aggregateName}"`);
         return aggregateName;
@@ -61,6 +59,18 @@ export class AggregateMetadata {
      * @returns The pascal case version of this aggregate name. Prepended by prefix (if exists) and suffix-appended (if exists).
      */
     public getAggregateNamePascalCase({ prefix, suffix }: { prefix?: string, suffix?: string } = {}): string {
-        return `${prefix ?? ""}${toPascalCase(this.aggregateName)}${suffix ?? ""}`;
+        return `${prefix ?? ""}${this.toPascalCase(this.aggregateName)}${suffix ?? ""}`;
+    }
+
+    private toPascalCase(str: string): string {
+        const result = str
+            .replaceAll("-", " ")
+            .replace(
+                /(\w)(\w*)/g,
+                (_, g1, g2) => g1.toUpperCase() + g2.toLowerCase()
+            )
+            .replaceAll(" ", "");
+
+        return result;
     }
 }

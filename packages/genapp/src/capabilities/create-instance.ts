@@ -24,7 +24,7 @@ export class CreateInstanceCapability extends AggregateTypeCapabilityGenerator {
             CreateInstanceCapability.identifier
         );
         const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory.getPresentationLayerGenerator(
-            constructorInput.dataStructureMetadata.technicalLabel,
+            constructorInput.dataStructureMetadata,
             CreateInstanceCapability.identifier
         );
 

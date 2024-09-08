@@ -34,7 +34,7 @@ export class ListCapability extends AggregateTypeCapabilityGenerator {
             ListCapability.identifier
         );
         const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory.getPresentationLayerGenerator(
-            constructorInput.dataStructureMetadata.technicalLabel,
+            constructorInput.dataStructureMetadata,
             ListCapability.identifier
         );
 

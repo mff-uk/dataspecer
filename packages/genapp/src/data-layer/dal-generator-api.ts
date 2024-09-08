@@ -11,7 +11,7 @@ export default class DalApi {
     private readonly endpointBaseUri: string;
 
     constructor() {
-        this.endpointBaseUri = process.env.APP_BACKEND!; //|| "http://localhost:8889";
+        this.endpointBaseUri = process.env.APP_BACKEND!;
     }
 
     async generateDalLayerArtifact(dataSpecificationIri: string):
@@ -25,7 +25,7 @@ export default class DalApi {
         return promise;
     }
 
-    private async getDataSpecification(dataSpecificationIri: string): Promise<DataSpecification> {
+    async getDataSpecification(dataSpecificationIri: string): Promise<DataSpecification> {
         const response = await axios.get<DataSpecification>(`${this.endpointBaseUri}/data-specification?dataSpecificationIri=${dataSpecificationIri}`);
 
         const dataSpecficiationModel = response.data;
@@ -37,6 +37,17 @@ export default class DalApi {
         return dataSpecficiationModel;
     }
 
+    async getResource(resourceIri: string) {
+        const resourceResponse = await axios.get(`${this.endpointBaseUri}/resources/blob?iri=${encodeURIComponent(resourceIri)}`);
+
+        if (resourceResponse.status !== HttpStatusCode.Ok) {
+            console.error(resourceResponse);
+            throw new Error(`Error fetching data for: ${resourceIri}:`);
+        }
+
+        return resourceResponse.data.resources;
+    }
+
     async getStructureInfo(dataSpecificationIri: string, structureIri: string): Promise<DataPsmSchema> {
 
         const specificationModel = await this.getDataSpecification(dataSpecificationIri);
@@ -45,15 +56,9 @@ export default class DalApi {
             throw new Error(`Selected data specification does not contain data structure: ${structureIri}`);
         }
 
-        const response = await axios
-            .get(`${this.endpointBaseUri}/resources/blob?iri=${encodeURIComponent(structureIri)}`);
+        const resourceResponse = await this.getResource(structureIri);
 
-        if (response.status !== HttpStatusCode.Ok) {
-            console.error(response);
-            throw new Error(`Error fetching data with PIM IRI ${structureIri}:`);
-        }
-
-        const psmResourceMap = response.data.resources as ResourceMap<DataPsmSchema>;
+        const psmResourceMap = resourceResponse as ResourceMap<DataPsmSchema>;
         const dataStructure = psmResourceMap[structureIri];
 
         if (!dataStructure) {

@@ -18,13 +18,8 @@ export function getRelativePath(sourcePath: string, targetPath: string): string 
     return result;
 }
 
-export function toPascalCase(str: string): string {
-    const result = str
-        .replaceAll("-", "")
-        .replace(
-            /(\w)(\w*)/g,
-            (_, g1, g2) => g1.toUpperCase() + g2.toLowerCase()
-        );
-
-    return result;
+export function normalizeName(name: string, replaceWith: string = "-") {
+    return name
+        .replace(/[\s/<>:"\\|?*]+/g, replaceWith) // Windows and Linux forbidden characters
+        .toLowerCase();
 }

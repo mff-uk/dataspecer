@@ -1,23 +1,23 @@
+import { AggregateMetadata } from "../application-config";
 import {
     ListCapability,
     DetailCapability,
     CreateInstanceCapability,
     DeleteInstanceCapability
 } from "../capabilities/index";
-import { toPascalCase } from "../utils/utils";
 import { PresentationLayerGenerator } from "./strategy-interface";
 import { CreateInstanceComponentTemplateProcessor } from "./template-generators/create/create-component-processor";
 import { DetailComponentTemplateProcessor } from "./template-generators/detail/detail-template-processor";
 import { ListTableTemplateProcessor } from "./template-generators/list/list-table-template-processor";
 
 export type PresentationLayerGeneratorFactory = {
-    getPresentationLayerGenerator: (aggregateName: string, capabilityIdentifier: string) => PresentationLayerGenerator;
+    getPresentationLayerGenerator: (aggregateMetadata: AggregateMetadata, capabilityIdentifier: string) => PresentationLayerGenerator;
 }
 
 export const PresentationLayerTemplateGeneratorFactory: PresentationLayerGeneratorFactory = {
-    getPresentationLayerGenerator(aggregateName: string, capabilityIri: string): PresentationLayerGenerator {
+    getPresentationLayerGenerator(aggregateMetadata: AggregateMetadata, capabilityIri: string): PresentationLayerGenerator {
 
-        const pascalCaseAggregateName = toPascalCase(aggregateName);
+        const pascalCaseAggregateName = aggregateMetadata.getAggregateNamePascalCase();
 
         const capabilityGeneratorMap: { [capabilityIri: string] : PresentationLayerGenerator } = {
             [ListCapability.identifier]: new ListTableTemplateProcessor({
