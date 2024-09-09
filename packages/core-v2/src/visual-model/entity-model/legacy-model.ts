@@ -18,10 +18,10 @@ export interface LegacyModel {
   serializeModel() : object;
 
   /**
-   * @deprecated Use factory instead.
    * Replace model content with value loaded from given JSON representation of the model.
-   * @param value
+   * @deprecated Use factory instead.
+   * @returns This model.
    */
-  deserializeModel(value: object): void;
+  deserializeModel(value: object): this;
 
 }

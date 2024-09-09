@@ -1,0 +1,22 @@
+import { Entity, EntityIdentifier } from "./entity";
+import { TypedObject, isTypedObject } from "./typed-object";
+import { ChangeEntity, NewEntity } from "./writable-entity-model";
+
+/**
+ * Allow for synchronous modification of entities.
+ */
+export interface SynchronousWritableEntityModel extends TypedObject {
+
+  createEntitySync<T extends Entity>(entity: NewEntity<T>): EntityIdentifier;
+
+  changeEntitySync<T extends Entity>(identifier: EntityIdentifier, entity: ChangeEntity<T>): void;
+
+  deleteEntitySync(identifier: EntityIdentifier): void;
+
+}
+
+export const SynchronousWritableEntityModelType = "synchronous-writable-entity-model";
+
+export function isSynchronousWritableEntityModel(what: unknown): what is SynchronousWritableEntityModel {
+  return isTypedObject(what) && what.getTypes().includes(SynchronousWritableEntityModelType);
+}

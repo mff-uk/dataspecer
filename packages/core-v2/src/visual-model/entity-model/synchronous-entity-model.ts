@@ -4,7 +4,7 @@ import { isTypedObject } from "./typed-object";
 /**
  * This model fits to the local machine.
  */
-export interface OnPremiseEntityModel {
+export interface SynchronousEntityModel {
 
   /**
    * Load all entities into the model preparing it for synchronous use.
@@ -16,14 +16,14 @@ export interface OnPremiseEntityModel {
    * @param identifier
    * @returns Null if there is no entity with given identifier.
    */
-  getLocalEntity(identifier: EntityIdentifier): Entity | null;
+  getEntitySync(identifier: EntityIdentifier): Entity | null;
 
-  getLocalEntities(): Entity[];
+  getEntitiesSync(): Entity[];
 
 }
 
-export const OnPremiseEntityModelType = "on-premise-entity-model";
+export const SynchronousEntityModelType = "synchronous-entity-model";
 
-export function isLocalEntityModel(what: unknown): what is OnPremiseEntityModel {
-  return isTypedObject(what) && what.getTypes().includes(OnPremiseEntityModelType);
+export function isSynchronousEntityModel(what: unknown): what is SynchronousEntityModel {
+  return isTypedObject(what) && what.getTypes().includes(SynchronousEntityModelType);
 }

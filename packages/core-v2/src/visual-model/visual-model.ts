@@ -1,183 +1,138 @@
-import { LOCAL_VISUAL_MODEL } from "../model/known-models";
-import { type VisualEntities, VisualEntity } from "./visual-entity";
+import { EntityIdentifier } from "./entity-model/entity";
+import { EntityModel } from "./entity-model/entity-model";
+import { LegacyModel } from "./entity-model/legacy-model";
+import { ObservableEntityModel, UnsubscribeCallback } from "./entity-model/observable-entity-model";
+import { SynchronousEntityModel } from "./entity-model/synchronous-entity-model";
+import { SynchronousWritableEntityModel } from "./entity-model/on-premise-writable-entity-model";
+import { isTypedObject } from "./entity-model/typed-object";
+import { VisualEntity, VisualGroup, VisualNode, VisualRelationship } from "./visual-entity";
+import { SerializableModel } from "./entity-model/serializable-model";
 
-export interface VisualEntityModel {
-    getId(): string;
-    getVisualEntity(entityId: string): VisualEntity | undefined;
-    getVisualEntities(): Map<string, VisualEntity>;
-    addEntity(entity: Partial<Omit<VisualEntity, "id" | "type">>): void;
-    updateEntity(
-        visualEntityId: string,
-        entity: Partial<Omit<VisualEntity, "id" | "type" | "sourceEntityId">>
-    ): boolean;
-    subscribeToChanges(callback: (updated: Record<string, VisualEntity>, removed: string[]) => void): () => void;
-    deserializeModel(data: object): VisualEntityModel;
+export type RepresentedEntityIdentifier = string;
 
-    getColor(semModelId: string): string | undefined;
-    setColor(semModelId: string, hexColor: string): void;
+/**
+ * Color stored in hex with the leading hash sign, e.g. '#70d6ff'.
+ */
+export type HexColor = string;
 
-    /** [modelId: string, hexColor: string] */
-    getModelColorPairs(): [string, string][];
-}
-
-export class VisualEntityModelImpl implements VisualEntityModel {
-    private iri: string;
-    /** [modelId: string, hexColor: string] */
-    private modelColors: Map<string, string> = new Map();
-    /** @internal [sourceEntityId, VisualEntity] */
-    public entitiesMap: Map<string, VisualEntity> = new Map();
-    /** @internal */
-    public listeners: ((updated: Record<string, VisualEntity>, removed: string[]) => void)[] = [];
-
-    public modelAlias: string | null = null;
-
-    constructor(modelId: string | undefined) {
-        console.log("visual model being created", modelId);
-        this.iri = modelId ?? createId();
-    }
-
-    getId(): string {
-        return this.iri;
-    }
-
-    getVisualEntity(entityId: string): VisualEntity | undefined {
-        return this.entitiesMap.get(entityId);
-    }
-
-    getVisualEntities(): Map<string, VisualEntity> {
-        return this.entitiesMap;
-    }
-
-    subscribeToChanges(callback: (updated: Record<string, VisualEntity>, removed: string[]) => void): () => void {
-        // console.log("visual-model: subscribe-to-changes: pushing a callback", callback);
-        this.listeners.push(callback);
-
-        return () => {
-            this.listeners = this.listeners.filter((l) => l !== callback);
-        };
-    }
-
-    addEntity(entity: Partial<Omit<VisualEntity, "type" | "id">> & Pick<VisualEntity, "sourceEntityId">): void {
-        console.log("visual-model: add-entity", entity);
-        const id = createId();
-        this.change(
-            {
-                [id]: {
-                    id,
-                    type: ["visual-entity"],
-                    sourceEntityId: entity.sourceEntityId,
-                    visible: entity.visible ?? true,
-                    position: entity.position ?? randomPosition(),
-                    hiddenAttributes: entity.hiddenAttributes ?? [],
-                } as VisualEntity,
-            },
-            []
-        );
-    }
-
-    updateEntity(
-        visualEntityId: string,
-        updatedVisualEntity: Partial<Omit<VisualEntity, "id" | "type" | "sourceEntityId">>
-    ) {
-        const visualEntity = this.getVisualEntity(visualEntityId);
-        if (!visualEntity) {
-            return false;
-        }
-        this.change(
-            {
-                [visualEntityId]: {
-                    ...visualEntity,
-                    ...updatedVisualEntity,
-                },
-            },
-            []
-        );
-        return true;
-    }
+/**
+ * Visual model is designed to allow users place a class, or profile, on a canvas.
+ * This include, but is not limited to, associating position and color with an entity.
+ *
+ * Since the visual model capture what use see we design it as synchronous interface.
+ */
+export interface VisualModel extends LegacyModel {
 
     /**
-     * Helper function to change the entities and properly notify all listeners.
-     * @param updated
-     * @param removed removedEntityId[]
+     * @returns Model identifier.
      */
-    public change(updated: Record<string, VisualEntity>, removed: string[]) {
-        // Filter removed entities from updated
-        removed = removed.filter((id) => updated[id] === undefined);
+    getIdentifier(): string;
 
-        // console.log("visual-model: change: updated", updated);
+    /**
+     * @returns Visual entity with given identifier or null.
+     */
+    getVisualEntity(identifier: EntityIdentifier): VisualEntity | null;
 
-        // this.entities = { ...this.entities, ...updated };
-        for (const [_, value] of Object.entries(updated)) {
-            this.entitiesMap.set(value.sourceEntityId, value);
-        }
-        for (const removedId of removed) {
-            // delete this.entities[removedId];
-            this.entitiesMap.delete(removedId);
-        }
-        for (const listener of this.listeners) {
-            // console.log("visual-model: change: listener to be called", listener, updated, removed);
-            listener(updated, removed);
-        }
-    }
+    /**
+     * @returns Entity with given source entity identifier or null.
+     */
+    getVisualEntityForRepresented(represented: RepresentedEntityIdentifier): VisualEntity | null;
 
-    serializeModel() {
-        return {
-            // TODO: fix
-            type: LOCAL_VISUAL_MODEL,
-            modelId: this.getId(),
-            visualEntities: Object.fromEntries(this.entitiesMap.entries()),
-            modelColors: Object.fromEntries(this.modelColors.entries()),
-            modelAlias: this.modelAlias,
-        };
-    }
+    /**
+     * @returns Snapshot of map with all entities in the model.
+     */
+    getVisualEntities(): Map<EntityIdentifier, VisualEntity>;
 
-    deserializeModel(data: object) {
-        const modelDescriptor = data as any;
-        const entities = modelDescriptor.visualEntities as Record<string, VisualEntity>;
-        for (const [sourceEntityId, visualEntity] of Object.entries(entities)) {
-            this.entitiesMap.set(sourceEntityId, visualEntity);
-        }
-        const colors = (modelDescriptor.modelColors ?? {}) as Record<string, string>;
-        for (const [modelId, color] of Object.entries(colors)) {
-            this.modelColors.set(modelId, color);
-        }
-        this.modelAlias = modelDescriptor.modelAlias;
-        return this;
-    }
+    /**
+     * Subscribe to changes.
+     * @returns Callback to cancel the subscription.
+     */
+    subscribeToChanges(listener: VisualModelListener): UnsubscribeCallback;
 
-    getColor(modelId: string) {
-        return this.modelColors.get(modelId);
-    }
+    /**
+     * @returns Color as defined for given model or null.
+     */
+    getModelColor(identifier: string): HexColor | null;
 
-    setColor(modelId: string, hexColor: string) {
-        // TODO: sanitize
-        this.modelColors.set(modelId, hexColor);
-        this.change(
-            Object.fromEntries(
-                [...this.entitiesMap.entries()].map(([sourceEntityId, entity]) => [
-                    entity.id,
-                    {
-                        id: entity.id,
-                        type: ["visual-entity"],
-                        sourceEntityId: sourceEntityId,
-                        visible: entity.visible ?? true,
-                        position: entity.position ?? randomPosition(),
-                        hiddenAttributes: entity.hiddenAttributes ?? [],
-                    },
-                ])
-            ),
-            []
-        );
-    }
+    /**
+     * @returns All stored model color pairs.
+     */
+    getModelColors(): Map<string, VisualModelData>;
 
-    getModelColorPairs(): [string, string][] {
-        return [...this.modelColors.entries()];
-    }
 }
 
-export function isVisualModel(what: object): what is VisualEntityModel {
-    return (what as VisualEntityModel).getVisualEntities !== undefined;
+/**
+ * WARNING: The listeners are not triggered when model is changed using deserialization!
+ */
+export interface VisualModelListener {
+
+    visualEntitiesDidChange?: (entities: { previous: VisualEntity | null, next: VisualEntity | null }[]) => void;
+
+    modelColorDidChange?: (identifier: string, next: HexColor) => void;
+
 }
 
-const createId = () => (Math.random() + 1).toString(36).substring(7);
-const randomPosition = () => ({ x: Math.random() * 500, y: Math.random() * 500 });
+/**
+ * Interface holding visual data.
+ */
+export interface VisualModelData {
+
+    color: HexColor | null;
+
+}
+
+export interface WritableVisualModel extends VisualModel {
+
+    /**
+     * @returns Identifier for the new entity.
+     */
+    addVisualNode(entity: Omit<VisualNode, "id" | "type">): string;
+
+    /**
+     * @returns Identifier for the new entity.
+     */
+    addVisualRelationship(entity: Omit<VisualRelationship, "id" | "type">): string;
+
+    /**
+     * @returns Identifier for the new entity.
+     */
+    addVisualGroup(entity: Omit<VisualGroup, "id" | "identifier">): string;
+
+    /**
+     * Perform update of a visual entity with given identifier.
+     */
+    updateVisualEntity<T extends VisualEntity>(identifier: EntityIdentifier, entity: Partial<Omit<T, "id" | "type">>): void;
+
+    /**
+     * Delete entity with given identifier.
+     */
+    deleteVisualEntity(identifier: EntityIdentifier): void;
+
+    /**
+     * Set color for given model.
+     */
+    setModelColor(identifier: string, color: HexColor): void;
+
+    /**
+     * Delete all stored information about color for given model.
+     */
+    deleteModelColor(identifier: string): void;
+
+}
+
+export const VisualModelType = "visual-model";
+
+export function isVisualModel(what: unknown): what is VisualModel {
+    return isTypedObject(what) && what.getTypes().includes(VisualModelType);
+}
+
+/**
+ * Definition of a model we can use as internal model for the visual model.
+ */
+export interface OnPremiseUnderlyingVisualModel extends
+    EntityModel,
+    SynchronousEntityModel,
+    SynchronousWritableEntityModel,
+    ObservableEntityModel,
+    SerializableModel,
+    LegacyModel { }

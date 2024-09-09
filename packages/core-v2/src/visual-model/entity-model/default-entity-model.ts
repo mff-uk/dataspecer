@@ -1,20 +1,25 @@
-import { Entity } from "./entity";
+import { Entity, EntityIdentifier } from "./entity";
 import { EntityModel } from "./entity-model";
 import { LabeledModel, LabeledModelType, LanguageString } from "./labeled-model";
-import { OnPremiseEntityModel, OnPremiseEntityModelType } from "./on-premise-entity-model";
+import { SynchronousEntityModel, SynchronousEntityModelType } from "./synchronous-entity-model";
 import { LegacyModel } from "./legacy-model";
-import { TypedObject } from "./typed-object";
 import { EntityEventListener, ObservableEntityModel, UnsubscribeCallback, ObservableEntityModelType } from "./observable-entity-model";
-import { ChangeEntity, NewEntity, WritableEntityModel, WritableEntityModelType } from "./writable-entity-model";
+import { ChangeEntity, NewEntity } from "./writable-entity-model";
+import { SynchronousWritableEntityModel, SynchronousWritableEntityModelType } from "./on-premise-writable-entity-model";
+import { SerializableModel, SerializableModelType } from "./serializable-model";
+
+export interface DefaultEntityModelType extends EntityModel, LabeledModel, SynchronousEntityModel, SynchronousWritableEntityModel, ObservableEntityModel, SerializableModel, LegacyModel { }
 
 /**
  * @deprecated We should introduce a factory class to create entity model based on package data
  */
-export function createDefaultEntityModel(type: string, identifier?: string): TypedObject {
+export function createDefaultEntityModel(type: string, identifier?: string): DefaultEntityModelType {
   return new DefaultEntityModel(type, identifier ?? createIdentifier());
 }
 
-class DefaultEntityModel implements EntityModel, LabeledModel, OnPremiseEntityModel, ObservableEntityModel, WritableEntityModel, LegacyModel {
+const VERSION = 0;
+
+class DefaultEntityModel implements DefaultEntityModelType {
 
   protected identifier: string;
 
@@ -36,15 +41,15 @@ class DefaultEntityModel implements EntityModel, LabeledModel, OnPremiseEntityMo
   }
 
   getEntity(identifier: string): Promise<Entity | null> {
-    return Promise.resolve(this.getLocalEntity(identifier));
+    return Promise.resolve(this.getEntitySync(identifier));
   }
 
   getTypes(): string[] {
-    return [LabeledModelType, OnPremiseEntityModelType, ObservableEntityModelType, WritableEntityModelType]
+    return [LabeledModelType, SynchronousEntityModelType, SynchronousWritableEntityModelType, ObservableEntityModelType, SerializableModelType]
   }
 
   getLabel(): { [language: string]: string; } | null {
-    const entity = this.getLocalEntity(modelEntityIdentifier(this.identifier));
+    const entity = this.getEntitySync(modelEntityIdentifier(this.identifier));
     if (entity === null) {
       return null;
     }
@@ -53,13 +58,11 @@ class DefaultEntityModel implements EntityModel, LabeledModel, OnPremiseEntityMo
   }
 
   setLabel(label: { [language: string]: string; } | null): void {
-    this.change(
-      [], {
-      [modelEntityIdentifier(this.identifier)]: {
-        label: label
-      },
-    },
-      []);
+    const identifier = modelEntityIdentifier(this.identifier);
+    const change: ChangeEntity<ModelEntity> = {
+      label: label
+    };
+    this.change([], { [identifier]: change, }, []);
   }
 
   /**
@@ -69,17 +72,12 @@ class DefaultEntityModel implements EntityModel, LabeledModel, OnPremiseEntityMo
    * @param change
    * @param remove
    */
-  change<T extends Entity>(create: NewEntity<T>[], change: Record<string, ChangeEntity<T>>, remove: string[]): void {
+  protected change<T extends Entity>(create: T[], change: Record<string, ChangeEntity<T>>, remove: string[]): void {
     // Create.
     const created: Entity[] = []
     create.forEach(entity => {
-      const identifier = createIdentifier();
-      const newEntity : Entity = {
-        ...entity,
-        identifier,
-      };
-      this.entities.set(identifier, newEntity);
-      created.push(newEntity);
+      this.entities.set(entity.identifier, entity);
+      created.push(entity);
     });
     // Update.
     const changed: Entity[] = [];
@@ -108,17 +106,33 @@ class DefaultEntityModel implements EntityModel, LabeledModel, OnPremiseEntityMo
     this.listeners.forEach(listener => listener.entitiesDidChange(created, changed, removed));
   }
 
+  createEntitySync<T extends Entity>(entity: NewEntity<T>): string {
+    const identifier = createIdentifier();
+    this.change([{ ...entity, identifier }], {}, []);
+    return identifier;
+  }
+
+  changeEntitySync<T extends Entity>(identifier: EntityIdentifier, entity: ChangeEntity<T>): void {
+    this.change([], {
+      [identifier]: entity,
+    }, []);
+  }
+
+  deleteEntitySync(identifier: string): void {
+    this.change([], {}, [identifier]);
+  }
+
   initialize(): Promise<void> {
     // There is no implementation here as all the data
     // are loaded using LegacyModel interface.
     return Promise.resolve();
   }
 
-  getLocalEntity(identifier: string): Entity | null {
+  getEntitySync(identifier: string): Entity | null {
     return this.entities.get(identifier) ?? null;
   }
 
-  getLocalEntities(): Entity[] {
+  getEntitiesSync(): Entity[] {
     return [...this.entities.values()];
   }
 
@@ -128,9 +142,13 @@ class DefaultEntityModel implements EntityModel, LabeledModel, OnPremiseEntityMo
     return () => this.listeners = this.listeners.filter(item => item !== listener);
   }
 
-  modifyEntities<T extends Entity>(create: NewEntity<T>[], change: Record<string, ChangeEntity<T>>, remove: string[]): Promise<void> {
-    this.change(create, change, remove);
-    return Promise.resolve();
+  serializeModelToApiJsonObject(): object {
+    return {
+      identifier: this.identifier,
+      version: VERSION,
+      type: this.type,
+      entities: [...this.entities.values()],
+    }
   }
 
   getId(): string {
@@ -138,20 +156,18 @@ class DefaultEntityModel implements EntityModel, LabeledModel, OnPremiseEntityMo
   }
 
   serializeModel(): object {
-    return {
-      identifier: this.identifier,
-      type: this.type,
-      entities: [...this.entities.values()],
-    }
+    return this.serializeModelToApiJsonObject();
   }
 
-  deserializeModel(value: object): void {
+  deserializeModel(value: object): this {
     const payload = value as any;
     if (this.type !== payload.type) {
       throw new Error(`Models do not have same types, actual: '${this.type}', expected: '${payload.type}'.`);
     }
-    this.identifier = payload.identifier;
+    // We need to ensure backwards compatibility here.
+    this.identifier = payload.identifier ?? payload.modelId;
     this.entities = new Map(Object.entries(payload.entities));
+    return this;
   }
 
 }
