@@ -12,7 +12,7 @@ export class LdkitListDalGenerator implements DalGeneratorStrategy {
     private readonly _sparqlEndpointUri: string;
 
     constructor(specificationIri: string, datasourceConfig: DatasourceConfig) {
-        if (datasourceConfig.format !== DataSourceType.Rdf) {
+        if (datasourceConfig.format !== DataSourceType.RDF) {
             throw new Error("Trying to generate LDkit data access with different datasource");
         }
 

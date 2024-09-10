@@ -1,15 +1,15 @@
 
 export enum DataSourceType {
-    Local,
-    Json,
-    Rdf,
-    Xml,
-    Csv
+    Local = "local",
+    JSON = "json",
+    RDF = "rdf",
+    XML = "xml",
+    CSV = "csv"
 }
 
 type LocalDatasource = { format: DataSourceType.Local; };
 type UriDatasource = {
-    format: DataSourceType.Json | DataSourceType.Csv | DataSourceType.Rdf | DataSourceType.Xml;
+    format: DataSourceType.JSON | DataSourceType.CSV | DataSourceType.RDF | DataSourceType.XML;
     endpoint: string;
 };
 

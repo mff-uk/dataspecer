@@ -15,10 +15,10 @@ export const ListTemplateDalGeneratorFactory: DataAccessLayerGeneratorFactory = 
 
     getDalGeneratorStrategy(specificationIri: string, datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
         const generators = {
-            [DataSourceType.Rdf]: new LdkitListDalGenerator(specificationIri, datasourceConfig),
-            [DataSourceType.Json]:  null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("json"),
-            [DataSourceType.Xml]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("xml"),
-            [DataSourceType.Csv]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("csv"),
+            [DataSourceType.RDF]: new LdkitListDalGenerator(specificationIri, datasourceConfig),
+            [DataSourceType.JSON]:  null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("json"),
+            [DataSourceType.XML]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("xml"),
+            [DataSourceType.CSV]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("csv"),
             [DataSourceType.Local]: null as unknown as DalGeneratorStrategy, //new LocalStorageDalGeneratorStrategy()
         };
 
@@ -36,10 +36,10 @@ export const DetailTemplateDalGeneratorFactory: DataAccessLayerGeneratorFactory 
 
     getDalGeneratorStrategy(specificationIri: string, datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
         const generators = {
-            [DataSourceType.Rdf]: new LdkitDetailDalGenerator(specificationIri, datasourceConfig),
-            [DataSourceType.Json]:  null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("json"),
-            [DataSourceType.Xml]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("xml"),
-            [DataSourceType.Csv]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("csv"),
+            [DataSourceType.RDF]: new LdkitDetailDalGenerator(specificationIri, datasourceConfig),
+            [DataSourceType.JSON]:  null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("json"),
+            [DataSourceType.XML]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("xml"),
+            [DataSourceType.CSV]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("csv"),
             [DataSourceType.Local]: null as unknown as DalGeneratorStrategy, //new LocalStorageDalGeneratorStrategy()
         };
 
@@ -56,10 +56,10 @@ export const DetailTemplateDalGeneratorFactory: DataAccessLayerGeneratorFactory 
 export const DeleteInstanceTemplateGeneratorFactory: DataAccessLayerGeneratorFactory = {
     getDalGeneratorStrategy(specificationIri: string, datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
         const generators = {
-            [DataSourceType.Rdf]: new LdkitDeleteDalGenerator(specificationIri, datasourceConfig),
-            [DataSourceType.Json]:  null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("json"),
-            [DataSourceType.Xml]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("xml"),
-            [DataSourceType.Csv]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("csv"),
+            [DataSourceType.RDF]: new LdkitDeleteDalGenerator(specificationIri, datasourceConfig),
+            [DataSourceType.JSON]:  null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("json"),
+            [DataSourceType.XML]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("xml"),
+            [DataSourceType.CSV]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("csv"),
             [DataSourceType.Local]: null as unknown as DalGeneratorStrategy, //new LocalStorageDalGeneratorStrategy()
         };
 
@@ -76,10 +76,10 @@ export const DeleteInstanceTemplateGeneratorFactory: DataAccessLayerGeneratorFac
 export const CreateInstanceTemplateGeneratorFactory: DataAccessLayerGeneratorFactory = {
     getDalGeneratorStrategy(specificationIri: string, datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
         const generators = {
-            [DataSourceType.Rdf]: new CreateLdkitInstanceDalStrategy(specificationIri, datasourceConfig),
-            [DataSourceType.Json]:  null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("json"),
-            [DataSourceType.Xml]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("xml"),
-            [DataSourceType.Csv]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("csv"),
+            [DataSourceType.RDF]: new CreateLdkitInstanceDalStrategy(specificationIri, datasourceConfig),
+            [DataSourceType.JSON]:  null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("json"),
+            [DataSourceType.XML]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("xml"),
+            [DataSourceType.CSV]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("csv"),
             [DataSourceType.Local]: null as unknown as DalGeneratorStrategy, //new LocalStorageDalGeneratorStrategy()
         };
 

@@ -1,9 +1,9 @@
 import { Iri } from "../../application-config";
 
 export enum ApplicationGraphEdgeType {
-    Transition,
-    Aggregation,
-    Redirection
+    Transition = "transition",
+    Aggregation = "aggregation",
+    Redirection = "redirect"
 }
 
 export type ApplicationGraphEdge = {
