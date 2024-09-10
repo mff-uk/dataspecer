@@ -3,8 +3,9 @@ import { <%= it.detail_capability_app_layer %> } from <%~ it.detail_app_layer_pa
 // TODO: line below might need proper generator
 import { AggregateInstance } from '../../interfaces/capability-result';
 import { useSearchParams } from 'react-router-dom';
-import Form from '@rjsf/mui';
-import validator from '@rjsf/validator-ajv8';
+import Form from "@rjsf/mui";
+import validator from "@rjsf/validator-ajv8";
+import { RJSFSchema } from "@rjsf/utils";
 
 export default function <%= it.export_name %>() {
 
@@ -13,7 +14,7 @@ export default function <%= it.export_name %>() {
     const [searchParams, _] = useSearchParams();
     const [instanceId, setInstanceId] = useState<string>("");
 
-    const schema = <%~ it.json_schema %>;
+    const schema: RJSFSchema = <%~ it.json_schema %>;
     const debugView = false;
 
     useEffect(() => {
@@ -48,7 +49,7 @@ export default function <%= it.export_name %>() {
         <>
             <h2>Detail of "<%= it.aggregate_name %>" instance</h2>
             <% for (let index = 0; index < it.capability_transitions.length; index++) { %><% const transition = it.capability_transitions[index]; %>
-                <button key={transition.id}><%= transition.label %></button>
+                <button key={"<%= transition.id %>"} onClick={() => alert("Should redirect to <%= transition.id %>")}><%= transition.label %></button>
             <% } %>
             {
                 debugView &&

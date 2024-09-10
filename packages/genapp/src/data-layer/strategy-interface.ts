@@ -1,7 +1,7 @@
 import { type AxiosResponse } from "axios";
 import { LayerArtifact } from "../engine/layer-artifact";
 import { GenerationContext } from "../engine/generator-stage-interface";
-import { TemplateConsumer } from "../templates/template-consumer";
+import { TemplateConsumer } from "../engine/template-consumer";
 import { TemplateDescription } from "../engine/eta-template-renderer";
 
 export interface DalGeneratorStrategy {

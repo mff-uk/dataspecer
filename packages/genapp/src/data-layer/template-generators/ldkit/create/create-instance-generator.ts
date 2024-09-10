@@ -1,6 +1,6 @@
 import { InstanceResultReturnInterfaceGenerator } from "../../../../capabilities/template-generators/capability-interface-generator";
 import { LayerArtifact } from "../../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../../templates/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../../engine/template-consumer";
 import { GeneratedFilePathCalculator } from "../../../../utils/artifact-saver";
 import { InstanceCreatorInterfaceGenerator } from "../../reader-interface-generator";
 import { CreateLdkitInstanceTemplate } from "./create-instance-template";

@@ -2,7 +2,7 @@ import { LayerArtifact } from "../../../engine/layer-artifact";
 import { ListCapabilityAppLayerTemplate } from "./list-app-layer-template";
 import { ListReaderInterfaceGenerator } from "../../../data-layer/template-generators/reader-interface-generator";
 import { GeneratedCapabilityInterfaceGenerator, ListResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
-import { TemplateMetadata } from "../../../templates/template-consumer";
+import { TemplateMetadata } from "../../../engine/template-consumer";
 import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "../template-app-layer-generator";
 
 export class ListAppLayerTemplateProcessor extends ApplicationLayerTemplateGenerator<ListCapabilityAppLayerTemplate> {

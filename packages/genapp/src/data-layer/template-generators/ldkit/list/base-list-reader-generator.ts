@@ -1,6 +1,6 @@
 import { LayerArtifact } from "../../../../engine/layer-artifact";
 import { BaseLdkitReaderTemplate } from "./base-ldkit-reader-template";
-import { TemplateConsumer, TemplateDependencyMap } from "../../../../templates/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap } from "../../../../engine/template-consumer";
 import { ListReaderInterfaceGenerator } from "../../reader-interface-generator";
 import { ListResultReturnInterfaceGenerator } from "../../../../capabilities/template-generators/capability-interface-generator";
 

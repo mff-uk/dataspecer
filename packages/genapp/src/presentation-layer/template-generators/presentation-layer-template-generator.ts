@@ -1,7 +1,7 @@
 import { TemplateDescription } from "../../engine/eta-template-renderer";
 import { GenerationContext } from "../../engine/generator-stage-interface";
 import { LayerArtifact } from "../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap  } from "../../templates/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap  } from "../../engine/template-consumer";
 import { PresentationLayerGenerator } from "../strategy-interface";
 import { GeneratedFilePathCalculator } from "../../utils/artifact-saver";
 import { AllowedTransition, TransitionsGenerator } from "../../engine/transitions/transitions-generator";

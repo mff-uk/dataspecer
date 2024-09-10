@@ -1,6 +1,6 @@
 import { AggregateMetadata } from "../application-config";
-import { TemplateDescription, TemplateGenerator } from "../engine/eta-template-renderer";
-import { LayerArtifact } from "../engine/layer-artifact";
+import { TemplateDescription, TemplateGenerator } from "./eta-template-renderer";
+import { LayerArtifact } from "./layer-artifact";
 
 export type TemplateDependencyMap = Record<"aggregate", AggregateMetadata> & Record<string, any>;
 

@@ -3,6 +3,7 @@ import { ImportRelativePath, TemplateDescription } from "../../../../engine/eta-
 export interface InstanceDetailLdkitReaderTemplate extends TemplateDescription {
     placeholders: {
         ldkit_instance_reader: string,
+        exported_name_object: string;
         ldkit_instance_reader_path: ImportRelativePath,
         ldkit_schema: string,
         ldkit_schema_path: ImportRelativePath,

@@ -1,5 +1,5 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateMetadata } from "../../../templates/template-consumer";
+import { TemplateMetadata } from "../../../engine/template-consumer";
 import { DetailCapabilityAppLayerTemplate } from "./detail-app-layer-template";
 import { DetailReaderInterfaceGenerator } from "../../../data-layer/template-generators/reader-interface-generator";
 import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "../template-app-layer-generator";

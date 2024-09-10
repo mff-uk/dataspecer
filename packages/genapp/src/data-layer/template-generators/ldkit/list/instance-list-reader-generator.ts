@@ -1,6 +1,6 @@
 import { LayerArtifact } from "../../../../engine/layer-artifact";
 import { InstanceListLdkitReaderTemplate } from "./instance-list-reader-template";
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../../templates/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../../engine/template-consumer";
 import { BaseListLdkitReaderGenerator } from "./base-list-reader-generator";
 
 interface InstanceListLdkitReaderDependencyMap extends TemplateDependencyMap {

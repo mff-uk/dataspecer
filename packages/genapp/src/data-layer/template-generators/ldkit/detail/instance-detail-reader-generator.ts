@@ -1,6 +1,6 @@
 import { InstanceResultReturnInterfaceGenerator } from "../../../../capabilities/template-generators/capability-interface-generator";
 import { LayerArtifact } from "../../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../../templates/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../../engine/template-consumer";
 import { GeneratedFilePathCalculator } from "../../../../utils/artifact-saver";
 import { DetailReaderInterfaceGenerator } from "../../reader-interface-generator";
 import { InstanceDetailLdkitReaderTemplate } from "./instance-detail-reader-template";
@@ -42,7 +42,8 @@ export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<Instanc
         const instanceLdkitReaderTemplate: InstanceDetailLdkitReaderTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: detailExportedObject,
+                aggregate_name: dependencies.aggregate.getAggregateNamePascalCase(),
+                exported_name_object: detailExportedObject,
                 ldkit_schema: dependencies.ldkitSchemaArtifact.exportedObjectName,
                 ldkit_endpoint_uri: `"${dependencies.sparqlEndpointUri}"`,
                 ldkit_instance_reader: instanceReaderInterfaceArtifact.exportedObjectName,
@@ -52,7 +53,7 @@ export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<Instanc
                     to: instanceReturnTypeArtifact.filePath
                 },
                 ldkit_instance_reader_path: {
-                    from: dependencies.pathResolver.getFullSavePath(this._filePath),
+                    from: this._filePath,//dependencies.pathResolver.getFullSavePath(this._filePath),
                     to: instanceReaderInterfaceArtifact.filePath
                 },
                 ldkit_schema_path: {

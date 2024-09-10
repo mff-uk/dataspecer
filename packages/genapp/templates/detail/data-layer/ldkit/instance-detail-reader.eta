@@ -3,7 +3,7 @@ import { <%= it.ldkit_instance_reader %> } from <%~ it.ldkit_instance_reader_pat
 import { <%= it.instance_result_type %> } from <%~ it.instance_result_type_path %>;
 import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 
-export default class <%= it.aggregate_name %> implements <%= it.ldkit_instance_reader %> {
+export default class <%= it.exported_name_object %> implements <%= it.ldkit_instance_reader %> {
 
     async readInstance(instanceIri: string): Promise<<%= it.instance_result_type %>> {
 

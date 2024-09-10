@@ -1,6 +1,6 @@
 import { LayerArtifact } from "../engine/layer-artifact";
 import { ImportRelativePath, TemplateDescription } from "../engine/eta-template-renderer";
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../templates/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../engine/template-consumer";
 import { CopyTemplateProcessor } from "../capabilities/template-generators/capability-interface-generator";
 import { SidebarComponentTemplateProcessor } from "../presentation-layer/template-generators/sidebar-template-processor";
 

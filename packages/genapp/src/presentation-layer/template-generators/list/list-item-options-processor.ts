@@ -1,7 +1,7 @@
 import { TemplateDescription } from "../../../engine/eta-template-renderer";
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { AllowedTransition } from "../../../engine/transitions/transitions-generator";
-import { TemplateConsumer, TemplateDependencyMap } from "../../../templates/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/template-consumer";
 
 interface ListItemCapabilityOptionsTemplate extends TemplateDescription {
     placeholders: {

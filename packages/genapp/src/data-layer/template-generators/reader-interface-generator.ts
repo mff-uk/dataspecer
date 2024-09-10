@@ -1,5 +1,5 @@
 import { LayerArtifact } from "../../engine/layer-artifact";
-import { TemplateConsumer, TemplateMetadata } from "../../templates/template-consumer";
+import { TemplateConsumer, TemplateMetadata } from "../../engine/template-consumer";
 import { BaseArtifactSaver } from "../../utils/artifact-saver";
 import { ReaderInterfaceTemplate } from "./reader-interface-template";
 import {

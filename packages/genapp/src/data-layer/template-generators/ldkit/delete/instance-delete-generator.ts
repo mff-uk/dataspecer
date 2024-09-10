@@ -1,4 +1,4 @@
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../../templates/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../../engine/template-consumer";
 import { LayerArtifact } from "../../../../engine/layer-artifact";
 import { GeneratedFilePathCalculator } from "../../../../utils/artifact-saver";
 import { InstanceDeleteLdkitTemplate } from "./instance-delete-template";

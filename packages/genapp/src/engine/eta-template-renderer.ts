@@ -25,7 +25,7 @@ export class TemplateGenerator<TTemplate extends TemplateDescription> {
     private readonly _eta: Eta;
     constructor() {
         this._eta = new Eta({
-            views: path.join(__dirname, "..", "templates"),
+            views: path.join(__dirname, "..", "..", "templates"),
             autoTrim: false,
             cache: true
         });

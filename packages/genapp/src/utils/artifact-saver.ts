@@ -16,7 +16,7 @@ export interface GeneratedFilePathCalculator {
 
 export class ArtifactSaver implements GeneratedFilePathCalculator {
 
-    private readonly _layerSubdirectoryPath: string;
+    private _layerSubdirectoryPath: string;
     private readonly _globalBasePaths: string[];
 
     constructor(saveBaseDir: string, layerPath: string) {
@@ -91,22 +91,27 @@ export class ArtifactSaver implements GeneratedFilePathCalculator {
     }
 
     copy(templatesDirPath: string) {
-        templatesDirPath = path.join(__dirname, "..", "templates", templatesDirPath);
+        templatesDirPath = path.join(__dirname, "..", "..", "templates", templatesDirPath);
 
         if (!fs.existsSync(templatesDirPath) || !fs.statSync(templatesDirPath).isDirectory()) {
             throw new Error("Templates directory does not exist");
         }
 
-        const filePaths = fs.readdirSync(templatesDirPath, { recursive: true });
+        const filePaths = fs.readdirSync(templatesDirPath, { recursive: false });
 
         console.log(filePaths);
+
+        const layerSubdirBackup = this._layerSubdirectoryPath
+        this._layerSubdirectoryPath = "..";
 
         filePaths.forEach(filePath => {
             const filename = filePath as string;
             const source = path.posix.join(templatesDirPath, filename);
             const target = this.getFullSavePath(filename);
 
-            fs.copyFileSync(source, target);
+            fs.cpSync(source, target, { recursive: true });
         });
+
+        this._layerSubdirectoryPath = layerSubdirBackup;
     }
 }

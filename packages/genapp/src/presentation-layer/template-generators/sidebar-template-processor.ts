@@ -1,7 +1,7 @@
 import { TemplateDescription } from "../../engine/eta-template-renderer";
 import { LayerArtifact } from "../../engine/layer-artifact";
-import { CapabilityRouteComponentMap, ReactRouteComponentDescription } from "../../react-base/react-app-base-generator";
-import { TemplateConsumer, TemplateDependencyMap } from "../../templates/template-consumer";
+import { CapabilityRouteComponentMap } from "../../react-base/react-app-base-generator";
+import { TemplateConsumer, TemplateDependencyMap } from "../../engine/template-consumer";
 
 export interface SidebarComponentTemplate extends TemplateDescription {
     placeholders: {
