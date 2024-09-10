@@ -26,8 +26,8 @@ export class DeleteInstanceCapability extends InstanceTypeCapabilityGenerator {
         //const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory.getPresentationLayerGenerator(targetAggregateName, DeleteInstanceCapability.identifier);
 
         this._capabilityStagesGeneratorPipeline = new GeneratorPipeline(
-            new DataLayerGeneratorStage(constructorInput.datasource, dalLayerGeneratorStrategy),
-            new ApplicationLayerStage(appLayerGeneratorStrategy)
+            new DataLayerGeneratorStage(constructorInput.saveBasePath, dalLayerGeneratorStrategy),
+            new ApplicationLayerStage(constructorInput.saveBasePath, appLayerGeneratorStrategy)
             //new PresentationLayerStage(DeleteInstanceCapability.identifier, presentationLayerGeneratorStrategy)
         );
     }

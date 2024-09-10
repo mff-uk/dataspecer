@@ -76,52 +76,9 @@ export class ReactApplicationBaseGenerator extends TemplateConsumer<ReactAppBase
             filePath: "./Sidebar.tsx",
             templatePath: "./scaffolding/Sidebar"
         }).processTemplate({
-            // TODO: change this to ignore aggregate or use it within sidebar generator
-            aggregate: undefined as unknown as AggregateMetadata,
+            aggregate: undefined!,
             capabilityMap: dependencies.capabilityMap
         });
-
-        const componentArtifactPromises =
-            ["Content", "Footer", "TopBar", "index"].map(async name => {
-                return await new CopyTemplateProcessor({
-                    templatePath: `./scaffolding/${name}`,
-                    filePath: `./${name}.tsx`,
-                    queryExportedObjectName: name
-                }).processTemplate();
-            });
-
-        const copiedTemplatePromises = [
-            {
-                templatePath: "./scaffolding/index_css",
-                filePath: "./index.css",
-                queryExportedObjectName: "index.css"
-            },
-            {
-                templatePath: "./scaffolding/App_css",
-                filePath: "./App.css",
-                queryExportedObjectName: "App.css",
-            },
-            {
-                templatePath: "./scaffolding/package",
-                filePath: "../package.json",
-                queryExportedObjectName: "package"
-            },
-            {
-                templatePath: "./scaffolding/tsconfig",
-                filePath: "../tsconfig.json",
-                queryExportedObjectName: "tsconfig"
-            },
-            {
-                templatePath: "./scaffolding/reportWebVitals",
-                filePath: "./reportWebVitals.ts",
-                queryExportedObjectName: "reportWebVitals"
-            }
-        ].map(async templateMetadata => await new CopyTemplateProcessor(templateMetadata).processTemplate());
-
-        let toCopy = await Promise.all(componentArtifactPromises);
-        const toCopyTemplates = await Promise.all(copiedTemplatePromises);
-
-        toCopy = toCopy.concat(toCopyTemplates);
 
         const reactAppComponentTemplate: ReactAppBaseTemplate = {
             templatePath: this._templatePath,
@@ -155,8 +112,7 @@ export class ReactApplicationBaseGenerator extends TemplateConsumer<ReactAppBase
                 errorPageArtifact,
                 mainComponentArtifact,
                 pageTemplateComponentArtifact,
-                sidebarComponentArtifact,
-                ...toCopy
+                sidebarComponentArtifact
             ]
         }
 

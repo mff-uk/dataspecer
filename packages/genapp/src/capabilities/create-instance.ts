@@ -29,9 +29,9 @@ export class CreateInstanceCapability extends AggregateTypeCapabilityGenerator {
         );
 
         this._capabilityStagesGeneratorPipeline = new GeneratorPipeline(
-            new DataLayerGeneratorStage(constructorInput.datasource, dalLayerGeneratorStrategy),
-            new ApplicationLayerStage(appLayerGeneratorStrategy),
-            new PresentationLayerStage(CreateInstanceCapability.identifier, presentationLayerGeneratorStrategy)
+            new DataLayerGeneratorStage(constructorInput.saveBasePath, dalLayerGeneratorStrategy),
+            new ApplicationLayerStage(constructorInput.saveBasePath, appLayerGeneratorStrategy),
+            new PresentationLayerStage(constructorInput.saveBasePath, CreateInstanceCapability.identifier, presentationLayerGeneratorStrategy)
         );
     }
 }

@@ -29,9 +29,9 @@ export class DetailCapability extends InstanceTypeCapabilityGenerator {
         );
 
         this._capabilityStagesGeneratorPipeline = new GeneratorPipeline(
-            new DataLayerGeneratorStage(constructorInput.datasource, dalLayerGeneratorStrategy),
-            new ApplicationLayerStage(appLayerGeneratorStrategy),
-            new PresentationLayerStage(DetailCapability.label, presentationLayerGeneratorStrategy)
+            new DataLayerGeneratorStage(constructorInput.saveBasePath, dalLayerGeneratorStrategy),
+            new ApplicationLayerStage(constructorInput.saveBasePath, appLayerGeneratorStrategy),
+            new PresentationLayerStage(constructorInput.saveBasePath, DetailCapability.label, presentationLayerGeneratorStrategy)
         );
     }
 }

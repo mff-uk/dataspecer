@@ -8,8 +8,8 @@ export class ApplicationLayerStage implements GeneratorStage {
     artifactSaver: ArtifactSaver;
     private readonly _applicationLayerGeneratorStrategy: ApplicationLayerGenerator;
 
-    constructor(layerGeneratorStrategy: ApplicationLayerGenerator) {
-        this.artifactSaver = new ArtifactSaver("/application-layer");
+    constructor(saveBaseDir: string, layerGeneratorStrategy: ApplicationLayerGenerator) {
+        this.artifactSaver = new ArtifactSaver(saveBaseDir, "/application-layer");
         this._applicationLayerGeneratorStrategy = layerGeneratorStrategy;
     }
 

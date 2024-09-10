@@ -6,7 +6,7 @@ import {
     DeleteInstanceCapability
 } from "../capabilities";
 import { parse } from "ts-command-line-args";
-import { ConfigurationReaderFactory, StaticConfigurationReader } from "../config-reader";
+import { ConfigurationReaderFactory } from "../config-reader";
 import { LayerArtifact } from "./layer-artifact";
 import { ReactAppBaseGeneratorStage } from "../react-base/react-app-base-stage";
 import { CapabilityConstructorInput } from "../capabilities/constructor-input";
@@ -29,6 +29,11 @@ export interface GenappInputArguments {
 }
 
 class ApplicationGenerator {
+    private readonly _args: GenappInputArguments;
+
+    constructor(args: GenappInputArguments) {
+        this._args = args;
+    }
 
     private getCapabilityGenerator(capabilityIri: string, constructorInput: CapabilityConstructorInput): CapabilityGenerator {
 
@@ -46,29 +51,8 @@ class ApplicationGenerator {
         }
     }
 
-    async generate(args: GenappInputArguments) {
-
-        // // TODO: iterate through graph nodes and match outgoing edges
-        // // validate / filter list of valid edges and generate capabilities
-
-        // // TODO: retrieve result for each generated node and map the result to the specified capability
-
-        // // TODO: based on edges, generate remaining capability nodes
-        // // i.e. nodes that are targets of an edge, but have not yet been generated
-
-        // // at the end of app generation, there must not be a node which is not generated (or is a target that is not generated)
-
-        // for (const aggregateName of this._configReader.getRootAggregateNames()) {
-        //     const aggregateGeneratedCapabilities = await this.processAggregateGeneration(aggregateName);
-
-        //     generatedArtifactsByAggregateName[aggregateName] = aggregateGeneratedCapabilities;
-        // }
-        // const baseGeneratorStage = new ReactAppBaseGeneratorStage();
-
-        // const appBaseArtifact = baseGeneratorStage.generateApplicationBase(generatedArtifactsByAggregateName);
-        // baseGeneratorStage.artifactSaver.saveArtifact(appBaseArtifact);
-
-        const configReader = ConfigurationReaderFactory.createConfigurationReader(args);
+    async generate() {
+        const configReader = ConfigurationReaderFactory.createConfigurationReader(this._args);
 
         const appGraph: ApplicationGraph = configReader
             .getAppConfiguration();
@@ -91,7 +75,7 @@ class ApplicationGenerator {
 
         const nodeResultMappings = await Promise.all(generationPromises);
 
-        await new ReactAppBaseGeneratorStage()
+        await new ReactAppBaseGeneratorStage(this._args.targetRootPath!)
             .generateApplicationBase(nodeResultMappings);
 
         // TODO: integrate the application base (add final application node - static app base generator)
@@ -109,7 +93,8 @@ class ApplicationGenerator {
 
         const capabilityConstructorInput: CapabilityConstructorInput = {
             dataStructureMetadata: aggregateMetadata,
-            datasource: currentNode.getDatasource(graph)
+            datasource: currentNode.getDatasource(graph),
+            saveBasePath: this._args.targetRootPath!
         };
 
         const capabilityGenerator = this.getCapabilityGenerator(capabilityIri, capabilityConstructorInput);
@@ -144,11 +129,13 @@ function main() {
             targetRootPath: { type: String, optional: true }
         });
 
+    args.targetRootPath = args.targetRootPath ?? ".";
+
     console.log(`TARGET ROOT: ${args.targetRootPath}`);
     console.log(`APP GRAPH PATH: ${args.appGraphPath}`);
 
-    const generator = new ApplicationGenerator();
-    generator.generate(args);
+    const generator = new ApplicationGenerator(args);
+    generator.generate();
 }
 
 main();

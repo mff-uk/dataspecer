@@ -9,8 +9,8 @@ export class ReactAppBaseGeneratorStage {
     private readonly stageGenerator: ReactApplicationBaseGenerator;
     private readonly _appBaseFilepath: string = "./App.tsx";
 
-    constructor() {
-        this.artifactSaver = new ArtifactSaver(".");
+    constructor(saveBaseDir: string) {
+        this.artifactSaver = new ArtifactSaver(saveBaseDir, ".");
         this.stageGenerator = new ReactApplicationBaseGenerator({
             templatePath: "./scaffolding/App",
             filePath: this._appBaseFilepath
@@ -42,8 +42,16 @@ export class ReactAppBaseGeneratorStage {
             capabilityMap: capabilityMap
         });
 
+        this.copyStaticFiles();
+
         this.artifactSaver.saveArtifact(reactBaseLayerArtifact);
 
         return reactBaseLayerArtifact;
+    }
+
+    private copyStaticFiles() {
+        const toCopyTemplatesDirPath = "./scaffolding/copy";
+
+        this.artifactSaver.copy(toCopyTemplatesDirPath);
     }
 }
