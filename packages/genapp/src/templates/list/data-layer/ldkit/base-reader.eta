@@ -6,7 +6,7 @@ type NestedResultsMap = {
     [attrName: string]: SchemaInterface<any>[];
 }
 
-export abstract class LdkitListReader implements <%= it.list_reader_interface %> {
+export abstract class <%= it.exported_object_name %> implements <%= it.list_reader_interface %> {
 
     private readonly _nestedResultsCache: NestedResultsMap;
     private readonly _nestedSchemaCache: { [attrName: string]: any };
@@ -45,7 +45,7 @@ export abstract class LdkitListReader implements <%= it.list_reader_interface %>
             console.log(`Populating instance ${instances.length}`);
             Object.entries(instance)
                 .forEach(([attrName, attrValue]) => {
-                    
+
                     if (["$id", "$type"].includes(attrName) || !Object.keys(nestedInstances).includes(attrName)) {
                         return;
                     }
