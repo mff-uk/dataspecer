@@ -33,10 +33,15 @@ export class InstanceDeleteLdkitGenerator extends TemplateConsumer<InstanceDelet
             deleteReturnTypeArtifact = await InstanceResultReturnInterfaceGenerator.processTemplate();
         }
 
+        const exportedName = dependencies.aggregate.getAggregateNamePascalCase({
+            suffix: "LdkitInstanceDeleteMutator"
+        });
+
         const deleteTemplate: InstanceDeleteLdkitTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: dependencies.aggregateHumanLabel,
+                exported_object_name: exportedName,
+                aggregate_name: dependencies.aggregate.getAggregateNamePascalCase(),
                 delete_mutator_interface_type: deleteMutatorInterfaceArtifact.exportedObjectName,
                 delete_mutator_interface_type_path: {
                     from: this._filePath,
@@ -59,7 +64,7 @@ export class InstanceDeleteLdkitGenerator extends TemplateConsumer<InstanceDelet
         const deleteInstanceRender = this._templateRenderer.renderTemplate(deleteTemplate);
 
         const deleteDalLayerArtifact: LayerArtifact = {
-            exportedObjectName: `${dependencies.aggregateHumanLabel}LdkitInstanceDeleteMutator`,
+            exportedObjectName: exportedName,
             filePath: this._filePath,
             sourceText: deleteInstanceRender,
             dependencies: [deleteMutatorInterfaceArtifact]

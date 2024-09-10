@@ -29,7 +29,7 @@ export class DeleteAppLayerTemplateProcessor extends ApplicationLayerTemplateGen
         const deleteInstanceAppLayerTemplate: DeleteCapabilityAppLayerTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: deleteAppLayerExportedName,
+                exported_object_name: deleteAppLayerExportedName,
                 delete_mutator_instance: dependencies.dataLayerLinkArtifact.exportedObjectName,
                 delete_mutator_instance_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),

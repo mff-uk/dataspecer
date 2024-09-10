@@ -4,6 +4,7 @@ import { AllowedTransition } from "../../../engine/transitions/transitions-gener
 export interface CreateInstanceReactComponentTemplate extends TemplateDescription {
     placeholders: {
         aggregate_name: string,
+        exported_object_name: string;
         create_capability_app_layer: string,
         create_capability_app_layer_path: ImportRelativePath,
         json_schema: string,

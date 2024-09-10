@@ -2,7 +2,7 @@ import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-tem
 
 export interface CreateInstanceCapabilityAppLayerTemplate extends TemplateDescription {
     placeholders: {
-        aggregate_name: string,
+        exported_object_name: string,
         instance_creator_type: string,
         instance_creator_type_path: ImportRelativePath,
         creator_interface_type: string,

@@ -2,7 +2,7 @@ import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-tem
 
 export interface DeleteCapabilityAppLayerTemplate extends TemplateDescription {
     placeholders: {
-        aggregate_name: string,
+        exported_object_name: string;
         delete_mutator_instance: string,
         delete_mutator_instance_path: ImportRelativePath,
         delete_mutator_interface_type: string,

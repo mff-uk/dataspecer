@@ -29,7 +29,7 @@ export class CreateInstanceAppLayerTemplateProcessor extends ApplicationLayerTem
         const createInstanceAppLayerTemplate: CreateInstanceCapabilityAppLayerTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: createAppLayerExportedName,
+                exported_object_name: createAppLayerExportedName,
                 instance_creator_type: dependencies.dataLayerLinkArtifact.exportedObjectName,
                 instance_creator_type_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),

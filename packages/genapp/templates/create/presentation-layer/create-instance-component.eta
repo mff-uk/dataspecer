@@ -1,10 +1,10 @@
 // https://rjsf-team.github.io/react-jsonschema-form/
-import { useState } from 'react';
-import Form from '@rjsf/mui';
-import validator from '@rjsf/validator-ajv8';
-//import <%= it.json_schema %> from <~ it.json_schema_path >;
+import { useState } from "react";
+import Form from "@rjsf/mui";
+import validator from "@rjsf/validator-ajv8";
+import { RJSFSchema } from "@rjsf/utils";
 
-const CreateDatasetInstance = () => {
+const <%= it.exported_object_name %> = () => {
 
     const log = (type) => console.log.bind(console, type);
     const [isUpdateMode, setUpdateMode] = useState<boolean>(false);

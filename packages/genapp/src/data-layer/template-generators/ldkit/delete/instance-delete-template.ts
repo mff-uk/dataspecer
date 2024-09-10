@@ -3,6 +3,7 @@ import { ImportRelativePath, TemplateDescription } from "../../../../engine/eta-
 export interface InstanceDeleteLdkitTemplate extends TemplateDescription {
     placeholders: {
         aggregate_name: string,
+        exported_object_name: string;
         ldkit_schema: string,
         ldkit_schema_path: ImportRelativePath,
         ldkit_endpoint_uri: string,

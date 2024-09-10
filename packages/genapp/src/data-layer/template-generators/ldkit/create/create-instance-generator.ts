@@ -40,7 +40,8 @@ export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitIn
         const createTemplate: CreateLdkitInstanceTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: createExportedObject,
+                aggregate_name: dependencies.aggregate.getAggregateNamePascalCase(),
+                exported_object_name: createExportedObject,
                 creator_interface_type: creatorInterfaceArtifact.exportedObjectName,
                 creator_interface_type_path: {
                     from: this._filePath,
