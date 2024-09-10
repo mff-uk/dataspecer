@@ -1,16 +1,16 @@
 import { Datasource } from "./datasource";
 import { ApplicationGraphEdge } from "./application-graph-edge";
-import { ApplicationGraphNode } from "./application-graph-node";
+import { ApplicationGraphNode, ApplicationGraphNodeType } from "./application-graph-node";
 
 export interface ApplicationGraphType {
     label: string;
     datasources: Datasource[];
-    nodes: ApplicationGraphNode[];
+    nodes: ApplicationGraphNodeType[];
     edges: ApplicationGraphEdge[];
-    specificationIri: string;
+    dataSpecification: string;
 }
 
-export class ApplicationGraph implements ApplicationGraphType {
+export class ApplicationGraph {
     label: string;
     datasources: Datasource[];
     nodes: ApplicationGraphNode[];
@@ -20,12 +20,12 @@ export class ApplicationGraph implements ApplicationGraphType {
     constructor(
         label: string,
         datasources: Datasource[],
-        nodes: ApplicationGraphNode[],
+        nodes: ApplicationGraphNodeType[],
         edges: ApplicationGraphEdge[],
         specificationIri: string
     ) {
         this.label = label;
-        this.nodes = nodes;
+        this.nodes = nodes.map(n => new ApplicationGraphNode(specificationIri, n));
         this.datasources = datasources;
         this.edges = edges;
         this.specificationIri = specificationIri;
