@@ -2,8 +2,7 @@ import { LayerArtifact } from "../engine/layer-artifact";
 import { ImportRelativePath, TemplateDescription } from "../engine/eta-template-renderer";
 import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../templates/template-consumer";
 import { CopyTemplateProcessor } from "../capabilities/template-generators/capability-interface-generator";
-import { SidebarComponentTemplateProcessor } from "../presentation-layer/template-generators/sidebar-template.processor";
-import { AggregateMetadata } from "../application-config";
+import { SidebarComponentTemplateProcessor } from "../presentation-layer/template-generators/sidebar-template-processor";
 
 interface ReactAppBaseTemplate extends TemplateDescription {
     placeholders: {
