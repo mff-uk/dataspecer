@@ -5,7 +5,8 @@ import {
     CreateInstanceCapability,
     DeleteInstanceCapability
 } from "../capabilities";
-import { StaticConfigurationReader } from "../config-reader";
+import { parse } from "ts-command-line-args";
+import { ConfigurationReaderFactory, StaticConfigurationReader } from "../config-reader";
 import { LayerArtifact } from "./layer-artifact";
 import { ReactAppBaseGeneratorStage } from "../react-base/react-app-base-stage";
 import { CapabilityConstructorInput } from "../capabilities/constructor-input";
@@ -22,13 +23,12 @@ export type NodeResult = {
     };
 };
 
+export interface GenappInputArguments {
+    appGraphPath: string;
+    targetRootPath?: string;
+}
+
 class ApplicationGenerator {
-
-    private readonly _configReader;
-
-    constructor() {
-        this._configReader = new StaticConfigurationReader();
-    }
 
     private getCapabilityGenerator(capabilityIri: string, constructorInput: CapabilityConstructorInput): CapabilityGenerator {
 
@@ -46,7 +46,7 @@ class ApplicationGenerator {
         }
     }
 
-    async generate() {
+    async generate(args: GenappInputArguments) {
 
         // // TODO: iterate through graph nodes and match outgoing edges
         // // validate / filter list of valid edges and generate capabilities
@@ -63,15 +63,16 @@ class ApplicationGenerator {
 
         //     generatedArtifactsByAggregateName[aggregateName] = aggregateGeneratedCapabilities;
         // }
-
-        // console.log("~".repeat(100));
-        // console.log(generatedArtifactsByAggregateName);
         // const baseGeneratorStage = new ReactAppBaseGeneratorStage();
 
         // const appBaseArtifact = baseGeneratorStage.generateApplicationBase(generatedArtifactsByAggregateName);
         // baseGeneratorStage.artifactSaver.saveArtifact(appBaseArtifact);
 
-        const appGraph: ApplicationGraph = this._configReader.getAppConfiguration();
+        const configReader = ConfigurationReaderFactory.createConfigurationReader(args);
+
+        const appGraph: ApplicationGraph = configReader
+            .getAppConfiguration();
+
         this.generateAppFromConfig(appGraph);
     }
 
@@ -102,7 +103,7 @@ class ApplicationGenerator {
         currentNode: ApplicationGraphNode,
         graph: ApplicationGraph
     ): Promise<NodeResult> {
-
+        console.log("CURRENT NODE: ", currentNode);
         const aggregateMetadata = await currentNode.getNodeDataStructure();
         const { iri: capabilityIri, config: capabilityConfig } = currentNode.getCapabilityInfo();
 
@@ -135,5 +136,19 @@ class ApplicationGenerator {
     }
 }
 
-const generator = new ApplicationGenerator();
-generator.generate();
+function main() {
+
+    const args = parse<GenappInputArguments>(
+        {
+            appGraphPath: String,
+            targetRootPath: { type: String, optional: true }
+        });
+
+    console.log(`TARGET ROOT: ${args.targetRootPath}`);
+    console.log(`APP GRAPH PATH: ${args.appGraphPath}`);
+
+    const generator = new ApplicationGenerator();
+    generator.generate(args);
+}
+
+main();

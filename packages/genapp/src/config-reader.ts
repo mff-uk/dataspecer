@@ -1,12 +1,21 @@
 import * as fs from "fs";
 import { DataSourceType } from "./engine/graph/datasource";
 import { ApplicationGraph, ApplicationGraphType } from "./engine/graph/application-graph";
-import { ApplicationGraphNode } from "./engine/graph/application-graph-node";
 import { ApplicationGraphEdgeType } from "./engine/graph/application-graph-edge";
-
+import { GenappInputArguments } from "./engine/app-generator";
 
 export interface ConfigurationReader {
     getAppConfiguration(): ApplicationGraph;
+}
+
+export const ConfigurationReaderFactory = {
+    createConfigurationReader(args: GenappInputArguments): ConfigurationReader {
+        if (args.appGraphPath) {
+            return new FileConfigurationReader(args.appGraphPath);
+        }
+
+        return new StaticConfigurationReader();
+    }
 }
 
 export class StaticConfigurationReader implements ConfigurationReader {
@@ -17,36 +26,32 @@ export class StaticConfigurationReader implements ConfigurationReader {
 
         let graphInstance: ApplicationGraphType = {
             label: "Application graph",
-            specificationIri: "https://ofn.gov.cz/data-specification/c3e8d59e-cee7-482f-8ee6-5fa52a178ab8",
+            dataSpecification: "https://ofn.gov.cz/data-specification/c3e8d59e-cee7-482f-8ee6-5fa52a178ab8",
             datasources: [
                 {
                     label: "NKOD",
                     endpoint: "https://data.gov.cz/sparql",
-                    format: DataSourceType.Rdf
+                    format: DataSourceType.RDF
                 }
             ],
             nodes: [
-                new ApplicationGraphNode(
-                    "https://ofn.gov.cz/data-specification/c3e8d59e-cee7-482f-8ee6-5fa52a178ab8",
-                    {
-                        iri: "https://example.org/application_graph/nodes/1",
-                        // Dataset structure from Genapp local specification
-                        structure: "https://ofn.gov.cz/schema/1713975101423-6a97-9fb6-b2db",
-                        capability: "https://dataspecer.com/application_graph/capability/list",
-                        config: {
-                            "showHeader": true,
-                            "showAsPopup": false
-                        }
-                    }),
-                new ApplicationGraphNode(
-                    "https://ofn.gov.cz/data-specification/c3e8d59e-cee7-482f-8ee6-5fa52a178ab8",
-                    {
-                        iri: "https://example.org/application_graph/nodes/2",
-                        // Dataset structure from Genapp local specification
-                        structure: "https://ofn.gov.cz/schema/1713975101423-6a97-9fb6-b2db",
-                        capability: "https://dataspecer.com/application_graph/capability/detail",
-                        config: {}
-                    })
+                {
+                    iri: "https://example.org/application_graph/nodes/1",
+                    // Dataset structure from Genapp local specification
+                    structure: "https://ofn.gov.cz/schema/1713975101423-6a97-9fb6-b2db",
+                    capability: "https://dataspecer.com/application_graph/capability/list",
+                    config: {
+                        "showHeader": true,
+                        "showAsPopup": false
+                    }
+                },
+                {
+                    iri: "https://example.org/application_graph/nodes/2",
+                    // Dataset structure from Genapp local specification
+                    structure: "https://ofn.gov.cz/schema/1713975101423-6a97-9fb6-b2db",
+                    capability: "https://dataspecer.com/application_graph/capability/detail",
+                    config: {}
+                }
             ],
             edges: [
                 {
@@ -63,7 +68,7 @@ export class StaticConfigurationReader implements ConfigurationReader {
             graphInstance.datasources,
             graphInstance.nodes,
             graphInstance.edges,
-            graphInstance.specificationIri
+            graphInstance.dataSpecification
         );
     }
 
@@ -72,38 +77,29 @@ export class StaticConfigurationReader implements ConfigurationReader {
     }
 }
 
-// export class FileConfigurationReader implements ConfigurationReader {
+export class FileConfigurationReader implements ConfigurationReader {
 
-//     private readonly _configFilePath: string;
-//     private _configuration: ApplicationConfiguration;
+    private readonly _configFilePath: string;
 
-//     constructor(configFilePath: string) {
-//         this._configFilePath = configFilePath;
-//         this._configuration = {} as ApplicationConfiguration;
-//     }
+    constructor(configFilePath: string) {
+        this._configFilePath = configFilePath;
+    }
 
-//     getRootAggregateNames(): string[] {
-//         return Object.keys(this._configuration);
-//     }
 
-//     getAppConfiguration(): ApplicationConfiguration {
+    getAppConfiguration(): ApplicationGraph {
+        const fileContent = fs
+            .readFileSync(this._configFilePath)
+            .toString();
 
-//         const fileContent = fs
-//             .readFileSync(this._configFilePath)
-//             .toString();
+        const graph = JSON.parse(fileContent) as ApplicationGraphType;
 
-//         this._configuration = JSON.parse(fileContent) as ApplicationConfiguration;
-
-//         return this._configuration;
-//     }
-
-//     getAggregateConfiguration(aggregateName: string): AggregateConfiguration {
-//         const aggConfig = this._configuration[aggregateName];
-
-//         if (!aggConfig) {
-//             throw new Error(`No configuration has been found for "${aggregateName}".`);
-//         }
-
-//         return aggConfig;
-//     }
-// }
+        const result: ApplicationGraph = new ApplicationGraph(
+            graph.label,
+            graph.datasources,
+            graph.nodes,
+            graph.edges,
+            graph.dataSpecification
+        );
+        return result;
+    }
+}
