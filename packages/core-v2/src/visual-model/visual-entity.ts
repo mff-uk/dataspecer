@@ -43,7 +43,7 @@ export interface VisualNode extends VisualEntity {
 
 }
 
-export const VISUAL_NODE_TYPE = "visual-entity";
+export const VISUAL_NODE_TYPE = "visual-node";
 
 export function isVisualNode(what: Entity): what is VisualNode {
     return what.type.includes(VISUAL_NODE_TYPE);
@@ -80,7 +80,7 @@ export interface VisualRelationship extends VisualEntity {
 
 }
 
-export const VISUAL_RELATIONSHIP_TYPE = "visual-entity";
+export const VISUAL_RELATIONSHIP_TYPE = "visual-relationship";
 
 export function isVisualRelationship(what: Entity): what is VisualRelationship {
     return what.type.includes(VISUAL_RELATIONSHIP_TYPE);
@@ -126,7 +126,7 @@ export interface ModelVisualInformation extends VisualEntity {
 
 }
 
-export const MODEL_VISUAL_TYPE = "model-visual";
+export const MODEL_VISUAL_TYPE = "visual-model-data";
 
 export function isModelVisualInformation(what: Entity): what is ModelVisualInformation {
     return what.type.includes(MODEL_VISUAL_TYPE);
