@@ -6,12 +6,12 @@ interface ArtifactSaverCache {
     savedArtifactsMap: { [artifactObject: string]: string; };
 }
 
-export const BaseArtifactSaver: ArtifactSaverCache = {
+const BaseArtifactSaver: ArtifactSaverCache = {
     savedArtifactsMap: {}
 };
 
 export interface GeneratedFilePathCalculator {
-    getFullSavePath(filename: string): string;
+    getFullSavePath(filename: string, artifactName?: string): string;
 }
 
 export class ArtifactSaver implements GeneratedFilePathCalculator {
@@ -38,7 +38,12 @@ export class ArtifactSaver implements GeneratedFilePathCalculator {
             : path.posix.dirname(baseDirPath);
     }
 
-    getFullSavePath(filename: string): string {
+    getFullSavePath(filename: string, artifactName?: string): string {
+
+        if (artifactName && this.isSaved(artifactName)) {
+            return BaseArtifactSaver.savedArtifactsMap[artifactName]!;
+        }
+
         return path.posix.join(
             ...this._globalBasePaths,
             this._layerSubdirectoryPath,
@@ -74,13 +79,13 @@ export class ArtifactSaver implements GeneratedFilePathCalculator {
             artifact.dependencies = artifact.dependencies.map(dep => this.saveArtifact(dep));
         }
 
-        const fullFilepath = this.getFullSavePath(artifact.filePath);
+        const fullFilepath = this.getFullSavePath(artifact.filePath, artifact.exportedObjectName);
+        console.log(`   ${artifact.exportedObjectName} fullpath: `, fullFilepath);
         fs.mkdir(path.dirname(fullFilepath), { recursive: true }, () => {
             fs.writeFileSync(fullFilepath, artifact.sourceText);
         });
 
-        const absoluteFilepath = path.posix.resolve(fullFilepath)
-        BaseArtifactSaver.savedArtifactsMap[artifact.exportedObjectName] = absoluteFilepath.substring(absoluteFilepath.indexOf("generated"));
+        BaseArtifactSaver.savedArtifactsMap[artifact.exportedObjectName] = fullFilepath;
 
         // save actual path where the artifact has been saved
         artifact.filePath = fullFilepath;

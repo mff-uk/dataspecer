@@ -1,6 +1,5 @@
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { TemplateConsumer, TemplateMetadata } from "../../engine/template-consumer";
-import { BaseArtifactSaver } from "../../utils/artifact-saver";
 import { ReaderInterfaceTemplate } from "./reader-interface-template";
 import {
     InstanceResultReturnInterfaceGenerator,
@@ -24,12 +23,6 @@ class ReaderInterfaceGenerator extends TemplateConsumer<ReaderInterfaceTemplate>
         this._capabilityReturnTypeGenerator = templateMetadata.listReturnTypeInterfaceGenerator;
     }
 
-    private getThisArtifactFilepath(exportedObjectName: string): string {
-        return Object.keys(BaseArtifactSaver.savedArtifactsMap).includes(exportedObjectName)
-            ? BaseArtifactSaver.savedArtifactsMap[exportedObjectName]!
-            : this._filePath;
-    }
-
     async processTemplate(): Promise<LayerArtifact> {
 
         const capabilityResultArtifact = await this._capabilityReturnTypeGenerator.processTemplate();
@@ -50,7 +43,7 @@ class ReaderInterfaceGenerator extends TemplateConsumer<ReaderInterfaceTemplate>
         const readerInterfaceArtifact: LayerArtifact = {
             sourceText: readerInterfaceRender,
             exportedObjectName: this._readerInterfaceName,
-            filePath: this.getThisArtifactFilepath(this._readerInterfaceName),
+            filePath: this._filePath, //this.getThisArtifactFilepath(this._readerInterfaceName),
             dependencies: [capabilityResultArtifact]
         }
 

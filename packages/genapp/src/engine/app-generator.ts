@@ -5,6 +5,7 @@ import {
     CreateInstanceCapability,
     DeleteInstanceCapability
 } from "../capabilities";
+import { sep, posix } from "path";
 import { parse } from "ts-command-line-args";
 import { ConfigurationReaderFactory } from "../config-reader";
 import { LayerArtifact } from "./layer-artifact";
@@ -129,7 +130,7 @@ function main() {
             targetRootPath: { type: String, optional: true }
         });
 
-    args.targetRootPath = args.targetRootPath ?? ".";
+    args.targetRootPath = (args.targetRootPath ?? ".").replaceAll(sep, posix.sep);;
 
     console.log(`TARGET ROOT: ${args.targetRootPath}`);
     console.log(`APP GRAPH PATH: ${args.appGraphPath}`);

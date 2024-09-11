@@ -68,7 +68,10 @@ export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<Instanc
                 },
                 ldkit_instance_reader_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
-                    to: dependencies.pathResolver.getFullSavePath(instanceReaderInterfaceArtifact.filePath)
+                    to: dependencies.pathResolver.getFullSavePath(
+                        instanceReaderInterfaceArtifact.filePath,
+                        instanceReaderInterfaceArtifact.exportedObjectName
+                    )
                 },
                 ldkit_schema_path: {
                     from: this._filePath,

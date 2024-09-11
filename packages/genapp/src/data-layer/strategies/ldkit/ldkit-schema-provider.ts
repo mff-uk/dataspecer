@@ -84,7 +84,7 @@ class DataspecerBaseSchemaProvider {
     protected async getSchemaLayerArtifact(file: JSZip.JSZipObject, aggregate: AggregateMetadata, schemaIdentifier: string): Promise<LayerArtifact> {
         const fileContent = await file.async("string");
         const result: LayerArtifact = {
-            filePath: path.posix.join("schemas", schemaIdentifier, `${aggregate.technicalLabel}-schema.ts`),
+            filePath: `./schemas/${schemaIdentifier}/${aggregate.technicalLabel}-schema.ts`,
             sourceText: fileContent,
             exportedObjectName: aggregate.getAggregateNamePascalCase({
                 suffix: "Schema"

@@ -42,7 +42,10 @@ export class DetailAppLayerTemplateProcessor extends ApplicationLayerTemplateGen
                 generated_capability_class: generatedCapabilityInterface.exportedObjectName,
                 instance_reader_interface_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
-                    to: instanceReaderInterfaceArtifact.filePath
+                    to: dependencies.pathResolver.getFullSavePath(
+                        instanceReaderInterfaceArtifact.filePath,
+                        instanceReaderInterfaceArtifact.exportedObjectName
+                    )
                 },
                 read_return_type_path: {
                     from: this._filePath,
