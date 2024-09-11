@@ -1,11 +1,22 @@
 import { LayerArtifact } from "../../../../engine/layer-artifact";
-import { InstanceListLdkitReaderTemplate } from "./instance-list-reader-template";
 import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../../engine/template-consumer";
 import { BaseListLdkitReaderGenerator } from "./base-list-reader-generator";
+import { ImportRelativePath, TemplateDescription } from "../../../../engine/eta-template-renderer";
 
 interface InstanceListLdkitReaderDependencyMap extends TemplateDependencyMap {
     ldkitSchemaArtifact: LayerArtifact,
     sparqlEndpointUri: string
+}
+
+interface InstanceListLdkitReaderTemplate extends TemplateDescription {
+    placeholders: {
+        ldkit_list_reader_base_class: string,
+        ldkit_list_reader_base_class_path: ImportRelativePath,
+        ldkit_schema: string,
+        ldkit_schema_path: ImportRelativePath,
+        aggregate_name: string,
+        ldkit_endpoint_uri: string
+    };
 }
 
 function isInstanceListLdkitReaderDependencyList(obj: TemplateDependencyMap): obj is InstanceListLdkitReaderDependencyMap {

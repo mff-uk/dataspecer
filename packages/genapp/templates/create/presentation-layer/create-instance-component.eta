@@ -33,4 +33,4 @@ const <%= it.exported_object_name %> = () => {
     );
 }
 
-export default CreateDatasetInstance;
+export default <%= it.exported_object_name %>;

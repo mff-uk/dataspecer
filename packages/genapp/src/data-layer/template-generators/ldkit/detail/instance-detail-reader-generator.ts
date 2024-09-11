@@ -3,12 +3,26 @@ import { LayerArtifact } from "../../../../engine/layer-artifact";
 import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../../engine/template-consumer";
 import { GeneratedFilePathCalculator } from "../../../../utils/artifact-saver";
 import { DetailReaderInterfaceGenerator } from "../../reader-interface-generator";
-import { InstanceDetailLdkitReaderTemplate } from "./instance-detail-reader-template";
+import { ImportRelativePath, TemplateDescription } from "../../../../engine/eta-template-renderer";
 
 interface InstanceDetailLdkitReaderDependencyMap extends TemplateDependencyMap {
     pathResolver: GeneratedFilePathCalculator,
     ldkitSchemaArtifact: LayerArtifact,
     sparqlEndpointUri: string
+}
+
+export interface InstanceDetailLdkitReaderTemplate extends TemplateDescription {
+    placeholders: {
+        ldkit_instance_reader: string,
+        exported_name_object: string;
+        ldkit_instance_reader_path: ImportRelativePath,
+        ldkit_schema: string,
+        ldkit_schema_path: ImportRelativePath,
+        aggregate_name: string,
+        instance_result_type: string,
+        instance_result_type_path: ImportRelativePath,
+        ldkit_endpoint_uri: string
+    };
 }
 
 export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<InstanceDetailLdkitReaderTemplate> {
@@ -53,8 +67,8 @@ export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<Instanc
                     to: instanceReturnTypeArtifact.filePath
                 },
                 ldkit_instance_reader_path: {
-                    from: this._filePath,//dependencies.pathResolver.getFullSavePath(this._filePath),
-                    to: instanceReaderInterfaceArtifact.filePath
+                    from: dependencies.pathResolver.getFullSavePath(this._filePath),
+                    to: dependencies.pathResolver.getFullSavePath(instanceReaderInterfaceArtifact.filePath)
                 },
                 ldkit_schema_path: {
                     from: this._filePath,
@@ -63,13 +77,17 @@ export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<Instanc
             }
         }
 
+
+        console.log("INTERFACE PATH: ", instanceLdkitReaderTemplate.placeholders.ldkit_instance_reader_path);
+        console.log("FULL COMPUTED: ", dependencies.pathResolver.getFullSavePath(this._filePath));
+
         const ldkitInstanceDetailReader: string = this._templateRenderer.renderTemplate(instanceLdkitReaderTemplate);
 
         const readerInterfaceArtifact: LayerArtifact = {
             sourceText: ldkitInstanceDetailReader,
             exportedObjectName: detailExportedObject,
             filePath: this._filePath,
-            dependencies: [instanceReaderInterfaceArtifact]
+            dependencies: [instanceReaderInterfaceArtifact, dependencies.ldkitSchemaArtifact]
         }
 
         return readerInterfaceArtifact;
