@@ -1,7 +1,7 @@
-import { LayerArtifact } from "../../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../../engine/template-consumer";
+import { LayerArtifact } from "../../../engine/layer-artifact";
+import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../engine/template-consumer";
 import { BaseListLdkitReaderGenerator } from "./base-list-reader-generator";
-import { ImportRelativePath, TemplateDescription } from "../../../../engine/eta-template-renderer";
+import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
 
 interface InstanceListLdkitReaderDependencyMap extends TemplateDependencyMap {
     ldkitSchemaArtifact: LayerArtifact,

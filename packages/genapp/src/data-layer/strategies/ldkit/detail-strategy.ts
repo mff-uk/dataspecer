@@ -4,7 +4,7 @@ import { SchemaProvider } from "../../schema-providers/base-schema-provider";
 import { GenerationContext } from "../../../engine/generator-stage-interface";
 import { DataSourceType, DatasourceConfig } from "../../../engine/graph/datasource";
 import { LdkitSchemaProvider } from "../../schema-providers/ldkit-schema-provider";
-import { InstanceDetailLdkitReaderGenerator } from "../../template-generators/ldkit/detail/instance-detail-reader-generator";
+import { InstanceDetailLdkitReaderGenerator } from "../../template-generators/ldkit/instance-detail-reader-generator";
 
 export class LdkitDetailDalGenerator implements DalGeneratorStrategy {
 

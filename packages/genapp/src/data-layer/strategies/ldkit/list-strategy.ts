@@ -3,7 +3,7 @@ import { DalGeneratorStrategy } from "../../strategy-interface";
 import { GenerationContext } from "../../../engine/generator-stage-interface";
 import { DataSourceType, DatasourceConfig } from "../../../engine/graph/datasource";
 import { LdkitSchemaProvider } from "../../schema-providers/ldkit-schema-provider";
-import { InstanceListLdkitReaderGenerator } from "../../template-generators/ldkit/list/instance-list-reader-generator";
+import { InstanceListLdkitReaderGenerator } from "../../template-generators/ldkit/instance-list-reader-generator";
 import { SchemaProvider } from "../../schema-providers/base-schema-provider";
 
 export class LdkitListDalGenerator implements DalGeneratorStrategy {
@@ -28,9 +28,9 @@ export class LdkitListDalGenerator implements DalGeneratorStrategy {
         const instanceListReaderArtifact = new InstanceListLdkitReaderGenerator({
             filePath: `./readers/${this.strategyIdentifier}/${context.aggregate.technicalLabel}-list.ts`,
             templatePath: `./list/data-layer/${this.strategyIdentifier}/aggregate-specific-reader`,
-        })
-        .processTemplate({
+        }).processTemplate({
             aggregate: context.aggregate,
+            pathResolver: context._.pathResolver,
             ldkitSchemaArtifact: ldkitSchemaArtifact,
             sparqlEndpointUri: this._sparqlEndpointUri
         });

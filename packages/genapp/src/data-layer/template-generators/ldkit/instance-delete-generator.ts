@@ -1,9 +1,9 @@
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../../engine/template-consumer";
-import { LayerArtifact } from "../../../../engine/layer-artifact";
-import { GeneratedFilePathCalculator } from "../../../../utils/artifact-saver";
-import { DeleteInstanceMutatorInterfaceGenerator } from "../../reader-interface-generator";
-import { InstanceResultReturnInterfaceGenerator } from "../../../../capabilities/template-generators/capability-interface-generator";
-import { ImportRelativePath, TemplateDescription } from "../../../../engine/eta-template-renderer"
+import { LayerArtifact } from "../../../engine/layer-artifact";
+import { GeneratedFilePathCalculator } from "../../../utils/artifact-saver";
+import { InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
+import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
+import { DeleteInstanceMutatorInterfaceGenerator } from "../reader-interface-generator";
+import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../engine/template-consumer";
 
 interface InstanceDeleteLdkitTemplate extends TemplateDescription {
     placeholders: {

@@ -1,8 +1,8 @@
-import { LayerArtifact } from "../../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap } from "../../../../engine/template-consumer";
-import { ListReaderInterfaceGenerator } from "../../reader-interface-generator";
-import { ListResultReturnInterfaceGenerator } from "../../../../capabilities/template-generators/capability-interface-generator";
-import { TemplateDescription, ImportRelativePath } from "../../../../engine/eta-template-renderer";
+import { LayerArtifact } from "../../../engine/layer-artifact";
+import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/template-consumer";
+import { ListReaderInterfaceGenerator } from "../reader-interface-generator";
+import { ListResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
+import { TemplateDescription, ImportRelativePath } from "../../../engine/eta-template-renderer";
 
 export interface BaseLdkitReaderTemplate extends TemplateDescription {
     templatePath: string;

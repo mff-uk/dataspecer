@@ -1,7 +1,7 @@
 import { DatasourceConfig, DataSourceType } from "../../../engine/graph/datasource";
 import { GenerationContext } from "../../../engine/generator-stage-interface";
 import { DalGeneratorStrategy } from "../../strategy-interface";
-import { InstanceDeleteLdkitGenerator } from "../../template-generators/ldkit/delete/instance-delete-generator";
+import { InstanceDeleteLdkitGenerator } from "../../template-generators/ldkit/instance-delete-generator";
 import { LdkitSchemaProvider } from "../../schema-providers/ldkit-schema-provider";
 import { SchemaProvider } from "../../schema-providers/base-schema-provider";
 

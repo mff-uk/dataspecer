@@ -13,22 +13,20 @@ function isAxiosResponse(
 }
 
 export interface SchemaProvider {
-    getSchemaArtifact(aggregateIri: AggregateMetadata): Promise<LayerArtifact>;
+    getSchemaArtifact(aggregate: AggregateMetadata): Promise<LayerArtifact>;
 }
 
-export class DataspecerBaseSchemaProvider {
+export abstract class DataspecerBaseSchemaProvider {
 
     protected readonly _api: DalApi;
     protected readonly _dataSpecificationIri: string;
 
     private readonly _schemaFilename: string;
-    private readonly _subDirectoryName: string;
 
-    constructor(dataSpecificationIri: string, schemaFilename: string, subdirectoryName: string) {
+    constructor(dataSpecificationIri: string, schemaFilename: string) {
         this._api = new DalApi();
         this._dataSpecificationIri = dataSpecificationIri;
         this._schemaFilename = schemaFilename;
-        this._subDirectoryName = subdirectoryName;
     }
 
     async getSchemaArtifact(aggregate: AggregateMetadata): Promise<LayerArtifact> {
@@ -42,7 +40,7 @@ export class DataspecerBaseSchemaProvider {
         }
 
         const aggregateSchemaFile = schemaFiles.at(0)!;
-        return this.getSchemaLayerArtifact(aggregateSchemaFile, aggregate, this._subDirectoryName);
+        return this.getSchemaLayerArtifact(aggregateSchemaFile, aggregate);
     }
 
     protected async getAggregateSchemaFile(aggregate: AggregateMetadata): Promise<JSZip> {
@@ -99,16 +97,6 @@ export class DataspecerBaseSchemaProvider {
         return fallbackName;
     }
 
-    protected async getSchemaLayerArtifact(file: JSZip.JSZipObject, aggregate: AggregateMetadata, schemaIdentifier: string): Promise<LayerArtifact> {
-        const fileContent = await file.async("string");
-        const result: LayerArtifact = {
-            filePath: `./schemas/${schemaIdentifier}/${aggregate.technicalLabel}-schema.ts`,
-            sourceText: fileContent,
-            exportedObjectName: aggregate.getAggregateNamePascalCase({
-                suffix: "Schema"
-            })
-        }
+    protected abstract getSchemaLayerArtifact(file: JSZip.JSZipObject, aggregate: AggregateMetadata): Promise<LayerArtifact>;
 
-        return result;
-    }
 }

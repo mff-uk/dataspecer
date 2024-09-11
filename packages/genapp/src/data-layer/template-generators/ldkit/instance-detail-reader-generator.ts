@@ -1,9 +1,9 @@
-import { InstanceResultReturnInterfaceGenerator } from "../../../../capabilities/template-generators/capability-interface-generator";
-import { LayerArtifact } from "../../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../../engine/template-consumer";
-import { GeneratedFilePathCalculator } from "../../../../utils/artifact-saver";
-import { DetailReaderInterfaceGenerator } from "../../reader-interface-generator";
-import { ImportRelativePath, TemplateDescription } from "../../../../engine/eta-template-renderer";
+import { InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
+import { LayerArtifact } from "../../../engine/layer-artifact";
+import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../engine/template-consumer";
+import { GeneratedFilePathCalculator } from "../../../utils/artifact-saver";
+import { DetailReaderInterfaceGenerator } from "../reader-interface-generator";
+import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
 
 interface InstanceDetailLdkitReaderDependencyMap extends TemplateDependencyMap {
     pathResolver: GeneratedFilePathCalculator,
