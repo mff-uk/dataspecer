@@ -120,7 +120,7 @@ export interface ModelVisualInformation extends VisualEntity {
     /**
      * Identifier of the model.
      */
-    model: string;
+    representedModel: string;
 
     color: Color;
 

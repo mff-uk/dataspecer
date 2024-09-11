@@ -1,6 +1,6 @@
 import { LOCAL_VISUAL_MODEL } from "../model/known-models";
 
-import { MODEL_VISUAL_TYPE, ModelVisualInformation, VISUAL_GROUP_TYPE, VISUAL_NODE_TYPE, VISUAL_RELATIONSHIP_TYPE, VisualEntity, VisualGroup, VisualNode, VisualRelationship } from "./visual-entity";
+import { MODEL_VISUAL_TYPE, ModelVisualInformation, VISUAL_GROUP_TYPE, VISUAL_NODE_TYPE, VISUAL_RELATIONSHIP_TYPE, VisualEntity, VisualGroup, VisualNode, VisualRelationship, isModelVisualInformation, isVisualGroup, isVisualNode, isVisualRelationship } from "./visual-entity";
 import {
   WritableVisualModel,
   OnPremiseUnderlyingVisualModel,
@@ -9,8 +9,8 @@ import {
   RepresentedEntityIdentifier,
   VisualModelData,
 } from "./visual-model";
-import { UnsubscribeCallback } from "./entity-model/observable-entity-model";
-import { EntityIdentifier } from "./entity-model/entity";
+import { EntityEventListener, UnsubscribeCallback } from "./entity-model/observable-entity-model";
+import { Entity, EntityIdentifier } from "./entity-model/entity";
 
 /**
  * This is how data were stored in the version one of the visualization model.
@@ -28,21 +28,26 @@ interface VisualModelJsonSerializationV1 {
 
 }
 
-export class DefaultVisualModel implements WritableVisualModel {
+export class DefaultVisualModel implements WritableVisualModel, EntityEventListener {
 
   private model: OnPremiseUnderlyingVisualModel;
 
-  private listeners: VisualModelListener[] = [];
+  private observers: VisualModelListener[] = [];
 
   private entities: Map<EntityIdentifier, VisualEntity> = new Map();
 
-  private sourceToEntity: Map<RepresentedEntityIdentifier, EntityIdentifier> = new Map();
+  /**
+   * Cached mapping from represented to entity identifiers.
+   */
+  private representedToEntity: Map<RepresentedEntityIdentifier, EntityIdentifier> = new Map();
 
   private models: Map<string, VisualModelData> = new Map();
 
   constructor(model: OnPremiseUnderlyingVisualModel) {
     this.model = model;
     this.initialize();
+    // Register for changes in the model.
+    this.model.subscribeToChanges(this);
   }
 
   /**
@@ -51,7 +56,10 @@ export class DefaultVisualModel implements WritableVisualModel {
    */
   protected initialize() {
     const entities = this.model.getEntitiesSync();
-    // TODO
+    for (const entity of entities) {
+      // We utilize the method reacting on new entity added to the model.
+      this.onEntityDidCreate(entity);
+    }
   }
 
   getIdentifier(): string {
@@ -63,7 +71,7 @@ export class DefaultVisualModel implements WritableVisualModel {
   }
 
   getVisualEntityForRepresented(represented: RepresentedEntityIdentifier): VisualEntity | null {
-    const identifier = this.sourceToEntity.get(represented);
+    const identifier = this.representedToEntity.get(represented);
     if (identifier === undefined) {
       return null;
     }
@@ -75,10 +83,10 @@ export class DefaultVisualModel implements WritableVisualModel {
   }
 
   subscribeToChanges(listener: VisualModelListener): UnsubscribeCallback {
-    this.listeners.push(listener);
+    this.observers.push(listener);
     // Return callback to remove the listener.
     return () => {
-      this.listeners = this.listeners.filter(item => item !== listener);
+      this.observers = this.observers.filter(item => item !== listener);
     };
   }
 
@@ -90,62 +98,82 @@ export class DefaultVisualModel implements WritableVisualModel {
     return new Map(this.models);
   }
 
-  addVisualNode(entity: Omit<VisualNode, "id" | "type">): string {
+  addVisualNode(entity: Omit<VisualNode, "identifier" | "type">): string {
+    // This will trigger update in underling model and invoke callback.
+    // We react to changes using the callback.
     return this.model.createEntitySync({
       ...entity,
       type: [VISUAL_NODE_TYPE],
     });
   }
 
-  addVisualRelationship(entity: Omit<VisualRelationship, "id" | "type">): string {
+  addVisualRelationship(entity: Omit<VisualRelationship, "identifier" | "type">): string {
+    // This will trigger update in underling model and invoke callback.
+    // We react to changes using the callback.
     return this.model.createEntitySync({
       ...entity,
       type: [VISUAL_RELATIONSHIP_TYPE],
     });
   }
 
-  addVisualGroup(entity: Omit<VisualGroup, "id" | "identifier">): string {
+  addVisualGroup(entity: Omit<VisualGroup, "identifier" | "identifier">): string {
+    // This will trigger update in underling model and invoke callback.
+    // We react to changes using the callback.
     return this.model.createEntitySync({
       ...entity,
       type: [VISUAL_GROUP_TYPE],
     });
   }
 
-  updateVisualEntity<T extends VisualEntity>(identifier: EntityIdentifier, entity: Partial<Omit<T, "id" | "type">>): void {
-
+  updateVisualEntity<T extends VisualEntity>(identifier: EntityIdentifier, entity: Partial<Omit<T, "identifier" | "type">>): void {
+    // This will trigger update in underling model and invoke callback.
+    // We react to changes using the callback.
+    this.model.changeEntitySync(identifier, entity);
   }
 
   deleteVisualEntity(identifier: EntityIdentifier): void {
+    // This will trigger update in underling model and invoke callback.
+    // We react to changes using the callback.
     this.model.deleteEntitySync(identifier);
   }
 
   setModelColor(identifier: string, color: HexColor): void {
-    const entityIdentifier = modelEntityIdentifier(identifier);
+    const entityIdentifier = this.models.get(identifier)?.entity;
+    if (entityIdentifier === undefined) {
+      // We need to create new model entity.
+      this.createModelEntity(identifier, color);
+      return;;
+    }
     const entity = this.model.getEntitySync(entityIdentifier);
     if (entity === null) {
-      // We need to create new entity.
-      this.model.createEntitySync<ModelVisualInformation>({
-        type: [MODEL_VISUAL_TYPE],
-        model: identifier,
-        color
-      });
-    } else {
-      // Change existing entity.
-      this.model.changeEntitySync<ModelVisualInformation>(entityIdentifier, { color });
+      // We need to create new model entity.
+      this.createModelEntity(identifier, color);
+      return;;
     }
-    // Update local state in a synchronous way.
-    // We could wait for change report, but we do not need it at this point in time.
-    const model = this.models.get(identifier);
-    if (model === undefined) {
-      this.models.set(identifier, { color });
-    } else {
-      model.color = color;
-    }
+    // This will trigger update in underling model and invoke callback.
+    // We react to changes using the callback.
+    this.model.changeEntitySync<ModelVisualInformation>(entityIdentifier, { color });
+  }
+
+  protected createModelEntity(model: string, color: HexColor) : void {
+    // This will trigger update in underling model and invoke callback.
+    // We react to changes using the callback.
+    this.model.createEntitySync<ModelVisualInformation>({
+      type: [MODEL_VISUAL_TYPE],
+      representedModel: model,
+      color
+    });
   }
 
   deleteModelColor(identifier: string): void {
-    const entityIdentifier = modelEntityIdentifier(identifier);
-    // We know there is no data other then color.
+    // We need to get entity identifier.
+    const entityIdentifier = this.models.get(identifier)?.entity;
+    if (entityIdentifier === undefined) {
+      return;
+    }
+    // Now we delete the entity.
+    // This will trigger update in underling model and invoke callback.
+    // We react to changes using the callback.
     this.model.deleteEntitySync(entityIdentifier);
   }
 
@@ -173,11 +201,98 @@ export class DefaultVisualModel implements WritableVisualModel {
     return this;
   }
 
-}
+  entitiesDidChange(created: Entity[], changed: Entity[], removed: string[]): void {
+    created.forEach(entity => this.onEntityDidCreate(entity));
+    changed.forEach(entity => this.onEntityDidChange(entity));
+    removed.forEach(entity => this.onEntityDidRemoved(entity));
+  }
 
-/**
- * @returns Identifier of the entity inside the model used to store model information.
- */
-const modelEntityIdentifier = (identifier: string) => {
-  return identifier + "-visual-data-for-model-entity";
-};
+  protected onEntityDidCreate(entity: Entity) {
+    if (isVisualNode(entity)) {
+      this.entities.set(entity.identifier, entity);
+      this.representedToEntity.set(entity.representedEntity, entity.identifier);
+      this.notifyObserversOnEntityChangeOrDelete(null, entity);
+    }
+    if (isVisualRelationship(entity)) {
+      this.entities.set(entity.identifier, entity);
+      this.representedToEntity.set(entity.representedRelationship, entity.identifier);
+      this.notifyObserversOnEntityChangeOrDelete(null, entity);
+    }
+    if (isVisualGroup(entity)) {
+      this.entities.set(entity.identifier, entity);
+      this.notifyObserversOnEntityChangeOrDelete(null, entity);
+    }
+    if (isModelVisualInformation(entity)) {
+      this.entities.set(entity.identifier, entity);
+      this.models.set(entity.representedModel, {
+        representedModel: entity.representedModel,
+        entity: entity.identifier,
+        color: entity.color,
+      });
+      this.notifyObserversOnModelChange(null, entity);
+      this.notifyObserversOnEntityChangeOrDelete(null, entity);
+    }
+  }
+
+  protected notifyObserversOnEntityChangeOrDelete(previous: VisualEntity | null, next: VisualEntity | null): void {
+    this.observers.forEach(observer => observer.visualEntitiesDidChange([{ previous, next }]));
+  }
+
+  protected notifyObserversOnModelChange(previous: ModelVisualInformation | null, next: ModelVisualInformation | null) {
+    if (previous?.color !== next?.color) {
+      // There was a change in color.
+    }
+    // We know that at leas one of then is not null, unfortunately TS
+    // is not capable of detecting that.
+    const modelIdentifier = (previous?.representedModel ?? next?.representedModel) as string;
+    const color = next?.color ?? null;
+    this.observers.forEach(observer => observer.modelColorDidChange(modelIdentifier, color));
+  }
+
+  protected onEntityDidChange(entity: Entity) {
+    const previous = this.entities.get(entity.identifier);
+    if (isVisualNode(entity)) {
+
+      this.notifyObserversOnEntityChangeOrDelete(previous as VisualEntity, entity);
+    }
+    if (isVisualRelationship(entity)) {
+
+      this.notifyObserversOnEntityChangeOrDelete(previous as VisualEntity, entity);
+    }
+    if (isVisualGroup(entity)) {
+
+      this.notifyObserversOnEntityChangeOrDelete(previous as VisualEntity, entity);
+    }
+    if (isModelVisualInformation(entity)) {
+
+      this.notifyObserversOnEntityChangeOrDelete(previous as VisualEntity, entity);
+    }
+  }
+
+  protected onEntityDidRemoved(identifier: string) {
+    const previous = this.entities.get(identifier);
+    if (previous === undefined) {
+      // We have no previous information about the entity,
+      // so we ignore the update.
+      return;
+    }
+    // Remove the entity.
+    this.entities.delete(identifier);
+    if (isVisualNode(previous)) {
+      this.notifyObserversOnEntityChangeOrDelete(previous, null);
+    }
+    if (isVisualRelationship(previous)) {
+      this.notifyObserversOnEntityChangeOrDelete(previous, null);
+    }
+    if (isVisualGroup(previous)) {
+      this.notifyObserversOnEntityChangeOrDelete(previous, null);
+    }
+    if (isModelVisualInformation(previous)) {
+      // We also need to delete from model.
+      this.models.delete(previous.representedModel);
+      // This meas change in color.
+      this.notifyObserversOnModelChange(previous, null);
+      this.notifyObserversOnEntityChangeOrDelete(previous, null);
+    }
+  }
+}

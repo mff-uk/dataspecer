@@ -1,5 +1,5 @@
 import { createDefaultEntityModel } from "./entity-model/default-entity-model";
-import { MODEL_VISUAL_TYPE } from "./visual-entity";
+import { MODEL_VISUAL_TYPE, VisualEntity, VisualNode, isVisualNode } from "./visual-entity";
 import { WritableVisualModel } from "./visual-model";
 import { createDefaultVisualModelFactory } from "./visual-model-factory";
 
@@ -34,13 +34,18 @@ test("Set and delete visual entity.", async () => {
   const model = await createModel("abc");
   //
   expect(model.getVisualEntityForRepresented("s")).toBeNull();
-  model.addVisualEntity({
-    sourceEntityId: "s",
-    position: { x: 100, y: 200 },
+  model.addVisualNode({
+    representedEntity: "s",
+    model: "m",
+    content: [],
+    visualModels: [],
+    position: { x: 100, y: 200, anchored: null },
   });
   const actual = model.getVisualEntityForRepresented("s");
   expect(actual).not.toBeNull();
-  expect(actual?.sourceEntityId).toBe("s");
-  model.deleteVisualEntityForRepresented("s");
+  expect(isVisualNode(actual as VisualEntity)).toBeTruthy();
+  const visualNode = actual as VisualNode;
+  expect(visualNode.representedEntity).toBe("s");
+  model.deleteVisualEntity(visualNode.identifier);
   expect(model.getVisualEntityForRepresented("s")).toBeNull();
 });

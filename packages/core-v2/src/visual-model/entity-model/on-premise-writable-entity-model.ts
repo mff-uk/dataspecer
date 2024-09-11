@@ -4,6 +4,10 @@ import { ChangeEntity, NewEntity } from "./writable-entity-model";
 
 /**
  * Allow for synchronous modification of entities.
+ *
+ * When paired with ObservableEntityModel all events from synchronous
+ * operation must raise events as a part of the synchronous operation
+ * execution.
  */
 export interface SynchronousWritableEntityModel extends TypedObject {
 

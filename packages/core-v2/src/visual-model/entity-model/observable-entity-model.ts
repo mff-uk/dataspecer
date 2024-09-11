@@ -12,6 +12,11 @@ export interface ObservableEntityModel extends TypedObject {
 
 export interface EntityEventListener {
 
+  /**
+   * @param created Entities as created with assigned identifiers.
+   * @param changed New state of changed entities.
+   * @param removed Identifiers of removed entities.
+   */
   entitiesDidChange: (created: Entity[], changed: Entity[], removed: string[]) => void;
 
 }
