@@ -2,7 +2,21 @@ import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGen
 import { DeleteInstanceMutatorInterfaceGenerator } from "../../../data-layer/template-generators/reader-interface-generator";
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "../template-app-layer-generator";
-import { DeleteCapabilityAppLayerTemplate } from "./delete-app-layer-template";
+import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer"
+
+interface DeleteCapabilityAppLayerTemplate extends TemplateDescription {
+    placeholders: {
+        exported_object_name: string;
+        delete_mutator_instance: string,
+        delete_mutator_instance_path: ImportRelativePath,
+        delete_mutator_interface_type: string,
+        delete_mutator_interface_type_path: ImportRelativePath,
+        generated_capability_class: string,
+        read_return_type: string,
+        read_return_type_path: ImportRelativePath,
+
+    };
+}
 
 export class DeleteAppLayerTemplateProcessor extends ApplicationLayerTemplateGenerator<DeleteCapabilityAppLayerTemplate> {
 

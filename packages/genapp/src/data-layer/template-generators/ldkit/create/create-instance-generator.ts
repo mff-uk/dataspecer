@@ -3,7 +3,21 @@ import { LayerArtifact } from "../../../../engine/layer-artifact";
 import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../../engine/template-consumer";
 import { GeneratedFilePathCalculator } from "../../../../utils/artifact-saver";
 import { InstanceCreatorInterfaceGenerator } from "../../reader-interface-generator";
-import { CreateLdkitInstanceTemplate } from "./create-instance-template";
+import { ImportRelativePath, TemplateDescription } from "../../../../engine/eta-template-renderer"
+
+interface CreateLdkitInstanceTemplate extends TemplateDescription {
+    placeholders: {
+        aggregate_name: string,
+        exported_object_name: string,
+        ldkit_schema: string,
+        ldkit_schema_path: ImportRelativePath,
+        ldkit_endpoint_uri: string,
+        instance_result_type: string,
+        instance_result_type_path: ImportRelativePath,
+        creator_interface_type: string,
+        creator_interface_type_path: ImportRelativePath
+    }
+}
 
 interface CreateLdkitInstanceDependencyMap extends TemplateDependencyMap {
     pathResolver: GeneratedFilePathCalculator,

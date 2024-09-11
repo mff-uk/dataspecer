@@ -1,11 +1,20 @@
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { TemplateConsumer, TemplateMetadata } from "../../engine/template-consumer";
-import { ReaderInterfaceTemplate } from "./reader-interface-template";
 import {
     InstanceResultReturnInterfaceGenerator,
     ListResultReturnInterfaceGenerator,
     CapabilityInterfaceGeneratorType
 } from "../../capabilities/template-generators/capability-interface-generator";
+import { ImportRelativePath, TemplateDescription } from "../../engine/eta-template-renderer";
+
+// TODO: Change / use more generic interfaceTemplate and placeholder names (e.g. InterfaceTemplate and return_type)
+interface ReaderInterfaceTemplate extends TemplateDescription {
+    templatePath: string;
+    placeholders: {
+        read_return_type: string;
+        read_return_type_path: ImportRelativePath;
+    };
+}
 
 // TODO: Change interface name
 class ReaderInterfaceGenerator extends TemplateConsumer<ReaderInterfaceTemplate> {

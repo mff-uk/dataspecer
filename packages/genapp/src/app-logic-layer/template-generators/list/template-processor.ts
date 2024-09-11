@@ -1,9 +1,22 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { ListCapabilityAppLayerTemplate } from "./list-app-layer-template";
 import { ListReaderInterfaceGenerator } from "../../../data-layer/template-generators/reader-interface-generator";
 import { GeneratedCapabilityInterfaceGenerator, ListResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 import { TemplateMetadata } from "../../../engine/template-consumer";
 import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "../template-app-layer-generator";
+import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
+
+interface ListCapabilityAppLayerTemplate extends TemplateDescription {
+    templatePath: string,
+    placeholders: {
+        list_reader_interface: string,
+        list_reader_interface_path: ImportRelativePath,
+        reader_implementation_path: ImportRelativePath,
+        generated_capability_class: string,
+        read_return_type: string,
+        list_app_layer_export_name: string,
+        read_return_type_path: ImportRelativePath
+    }
+}
 
 export class ListAppLayerTemplateProcessor extends ApplicationLayerTemplateGenerator<ListCapabilityAppLayerTemplate> {
 

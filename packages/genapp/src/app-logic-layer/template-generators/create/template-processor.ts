@@ -2,7 +2,20 @@ import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGen
 import { InstanceCreatorInterfaceGenerator } from "../../../data-layer/template-generators/reader-interface-generator";
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "../template-app-layer-generator";
-import { CreateInstanceCapabilityAppLayerTemplate } from "./create-app-layer-template";
+import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer"
+
+interface CreateInstanceCapabilityAppLayerTemplate extends TemplateDescription {
+    placeholders: {
+        exported_object_name: string,
+        instance_creator_type: string,
+        instance_creator_type_path: ImportRelativePath,
+        creator_interface_type: string,
+        creator_interface_type_path: ImportRelativePath,
+        generated_capability_class: string,
+        read_return_type: string,
+        read_return_type_path: ImportRelativePath,
+    };
+}
 
 export class CreateInstanceAppLayerTemplateProcessor extends ApplicationLayerTemplateGenerator<CreateInstanceCapabilityAppLayerTemplate> {
 

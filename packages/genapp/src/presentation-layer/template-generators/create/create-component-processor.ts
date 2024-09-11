@@ -1,7 +1,20 @@
 import { JsonSchemaProvider } from "../../../data-layer/strategies/ldkit/ldkit-schema-provider";
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
-import { CreateInstanceReactComponentTemplate } from "./create-component-template";
+import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
+import { AllowedTransition } from "../../../engine/transitions/transitions-generator";
+
+interface CreateInstanceReactComponentTemplate extends TemplateDescription {
+    placeholders: {
+        aggregate_name: string,
+        exported_object_name: string;
+        create_capability_app_layer: string,
+        create_capability_app_layer_path: ImportRelativePath,
+        json_schema: string,
+        //json_schema_path: ImportRelativePath,
+        supported_out_create_edges: AllowedTransition[]
+    };
+}
 
 export class CreateInstanceComponentTemplateProcessor extends PresentationLayerTemplateGenerator<CreateInstanceReactComponentTemplate> {
     strategyIdentifier: string = "create-react-component-generator";

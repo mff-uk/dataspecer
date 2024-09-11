@@ -2,7 +2,7 @@ import { TemplateDescription } from "../../engine/eta-template-renderer";
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { TemplateConsumer, TemplateMetadata } from "../../engine/template-consumer";
 
-export interface CapabilityInterfaceTemplate extends TemplateDescription {
+interface CapabilityInterfaceTemplate extends TemplateDescription {
     templatePath: string
 }
 

@@ -1,9 +1,21 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { TemplateMetadata } from "../../../engine/template-consumer";
-import { DetailCapabilityAppLayerTemplate } from "./detail-app-layer-template";
 import { DetailReaderInterfaceGenerator } from "../../../data-layer/template-generators/reader-interface-generator";
 import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "../template-app-layer-generator";
 import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
+import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
+
+interface DetailCapabilityAppLayerTemplate extends TemplateDescription {
+    placeholders: {
+        detail_app_layer_exported_name: string,
+        instance_reader_interface: string,
+        generated_capability_class: string,
+        read_return_type: string,
+        read_return_type_path: ImportRelativePath,
+        reader_implementation_path: ImportRelativePath,
+        instance_reader_interface_path: ImportRelativePath,
+    };
+}
 
 export class DetailAppLayerTemplateProcessor extends ApplicationLayerTemplateGenerator<DetailCapabilityAppLayerTemplate> {
 

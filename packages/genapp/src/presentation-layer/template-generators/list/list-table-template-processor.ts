@@ -2,7 +2,20 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
 import { ListItemCapabilityOptionsDependencyMap, ListItemCapabilityOptionsGenerator } from "./list-item-options-processor";
-import { ListTableTemplate } from "./list-table-template";
+import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
+
+interface ListTableTemplate extends TemplateDescription {
+    placeholders: {
+        aggregate_name: string;
+        presentation_layer_component_name: string;
+        list_capability_app_layer: string;
+        list_app_layer_path: ImportRelativePath;
+        instance_capability_options: string;
+        instance_capability_options_path: ImportRelativePath;
+        //supported_out_list_transitions: AllowedTransition[];
+    };
+}
+
 
 export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerator<ListTableTemplate> {
 

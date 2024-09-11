@@ -1,9 +1,23 @@
 import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../../engine/template-consumer";
 import { LayerArtifact } from "../../../../engine/layer-artifact";
 import { GeneratedFilePathCalculator } from "../../../../utils/artifact-saver";
-import { InstanceDeleteLdkitTemplate } from "./instance-delete-template";
 import { DeleteInstanceMutatorInterfaceGenerator } from "../../reader-interface-generator";
 import { InstanceResultReturnInterfaceGenerator } from "../../../../capabilities/template-generators/capability-interface-generator";
+import { ImportRelativePath, TemplateDescription } from "../../../../engine/eta-template-renderer"
+
+interface InstanceDeleteLdkitTemplate extends TemplateDescription {
+    placeholders: {
+        aggregate_name: string,
+        exported_object_name: string;
+        ldkit_schema: string,
+        ldkit_schema_path: ImportRelativePath,
+        ldkit_endpoint_uri: string,
+        instance_result_type: string,
+        instance_result_type_path: ImportRelativePath,
+        delete_mutator_interface_type: string,
+        delete_mutator_interface_type_path: ImportRelativePath
+    }
+}
 
 interface LdkitInstanceDeleteMutatorDependencyMap extends TemplateDependencyMap {
     pathResolver: GeneratedFilePathCalculator,
