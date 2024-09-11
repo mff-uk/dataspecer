@@ -52,7 +52,7 @@ export interface VisualModel extends LegacyModel {
     /**
      * @returns All stored model color pairs.
      */
-    getModelColors(): Map<string, VisualModelData>;
+    getModelsData(): Map<string, VisualModelData>;
 
 }
 

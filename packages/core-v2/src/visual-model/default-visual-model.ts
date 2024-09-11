@@ -94,7 +94,7 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
     return this.models.get(identifier)?.color ?? null;
   }
 
-  getModelColors(): Map<string, VisualModelData> {
+  getModelsData(): Map<string, VisualModelData> {
     return new Map(this.models);
   }
 
