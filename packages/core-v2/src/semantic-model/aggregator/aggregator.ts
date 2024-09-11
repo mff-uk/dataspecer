@@ -102,11 +102,15 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
         }
 
         if (isVisualModel(model)) {
-            const unsubscribe = model.subscribeToChanges((updated, removed) => {
-                console.log("visual-model", model.getIdentifier(), "updated&removed", updated, removed);
+            const unsubscribe = model.subscribeToChanges({
+                modelColorDidChange(identifier, next) {
+                    console.trace("visual-model:modelColorDidChange", {identifier, next});
+                },
+                visualEntitiesDidChange(entities) {
+                    console.trace("visual-model:visualEntitiesDidChange", entities);
+                },
             });
             this.models.set(model, unsubscribe);
-            // this.activeVisualModel = model;
             return;
         }
 
@@ -256,7 +260,7 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
                         !entity.type.includes(SEMANTIC_MODEL_GENERALIZATION) &&
                         !entity.type.includes(SEMANTIC_MODEL_RELATIONSHIP)
                     ) {
-                        console.warn("Entity", entity.id, "from model", model.getIdentifier(), "has an unknown type", entity.type , ", and therefore the aggregator does not know its dependencies. The entity would be considered as standalone and not aggregated with other entities. This may lead to unexpected results if you expect something else.");
+                        console.warn("Entity", entity.id, "from model", model.getId(), "has an unknown type", entity.type , ", and therefore the aggregator does not know its dependencies. The entity would be considered as standalone and not aggregated with other entities. This may lead to unexpected results if you expect something else.");
                     }
                     this.baseModelEntities[updatedEntity] = {
                         id: updatedEntity,

@@ -3,7 +3,7 @@ import { LOCAL_VISUAL_MODEL } from "../model/known-models";
 import { MODEL_VISUAL_TYPE, ModelVisualInformation, VISUAL_GROUP_TYPE, VISUAL_NODE_TYPE, VISUAL_RELATIONSHIP_TYPE, VisualEntity, VisualGroup, VisualNode, VisualRelationship, isModelVisualInformation, isVisualGroup, isVisualNode, isVisualRelationship } from "./visual-entity";
 import {
   WritableVisualModel,
-  OnPremiseUnderlyingVisualModel,
+  SynchronousUnderlyingVisualModel,
   VisualModelListener,
   HexColor,
   RepresentedEntityIdentifier,
@@ -30,7 +30,7 @@ interface VisualModelJsonSerializationV1 {
 
 export class DefaultVisualModel implements WritableVisualModel, EntityEventListener {
 
-  private model: OnPremiseUnderlyingVisualModel;
+  private model: SynchronousUnderlyingVisualModel;
 
   private observers: VisualModelListener[] = [];
 
@@ -43,7 +43,7 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
 
   private models: Map<string, VisualModelData> = new Map();
 
-  constructor(model: OnPremiseUnderlyingVisualModel) {
+  constructor(model: SynchronousUnderlyingVisualModel) {
     this.model = model;
     this.initialize();
     // Register for changes in the model.

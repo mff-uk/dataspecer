@@ -5,23 +5,23 @@ import { createDefaultVisualModelFactory } from "./visual-model-factory";
 
 const factory = createDefaultVisualModelFactory();
 
-test("Create default visual model.", async () => {
+test("Create default visual model.", () => {
   const identifier = "abc";
-  const model = await createModel(identifier);
+  const model = createModel(identifier);
   //
   expect(model.getIdentifier()).toBe(identifier);
 });
 
-async function createModel(identifier: string) : Promise<WritableVisualModel> {
+function createModel(identifier: string) : WritableVisualModel {
   const internal = createDefaultEntityModel(MODEL_VISUAL_TYPE, identifier);
-  const model = await factory.createVisualModel(internal);
+  const model = factory.createWritableVisualModelSync(internal);
   expect(model).not.toBeNull;
   // TypeScript does not infer the not null from previous line.
   return model as WritableVisualModel;
 }
 
-test("Set and delete model color.", async () => {
-  const model = await createModel("abc");
+test("Set and delete model color.", () => {
+  const model = createModel("abc");
   //
   expect(model.getModelColor("1234")).toBeNull();
   model.setModelColor("1234", "#00ff00");
@@ -30,8 +30,8 @@ test("Set and delete model color.", async () => {
   expect(model.getModelColor("1234")).toBeNull();
 });
 
-test("Set and delete visual entity.", async () => {
-  const model = await createModel("abc");
+test("Set and delete visual entity.", () => {
+  const model = createModel("abc");
   //
   expect(model.getVisualEntityForRepresented("s")).toBeNull();
   model.addVisualNode({

@@ -1,15 +1,15 @@
 import { DefaultVisualModel } from "./default-visual-model";
-import { OnPremiseUnderlyingVisualModel, VisualModel } from "./visual-model";
+import { SynchronousUnderlyingVisualModel, WritableVisualModel } from "./visual-model";
 
 export interface VisualModelFactory {
 
-  createVisualModel(model: OnPremiseUnderlyingVisualModel): Promise<VisualModel | null>;
+  createWritableVisualModelSync(model: SynchronousUnderlyingVisualModel): WritableVisualModel;
 
 }
 
 class DefaultVisualModelFactory implements VisualModelFactory {
 
-  async createVisualModel(model: OnPremiseUnderlyingVisualModel): Promise<VisualModel | null> {
+  createWritableVisualModelSync(model: SynchronousUnderlyingVisualModel): WritableVisualModel {
     return new DefaultVisualModel(model);
   }
 

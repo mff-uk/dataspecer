@@ -146,7 +146,7 @@ export function isVisualModel(what: unknown): what is VisualModel {
 /**
  * Definition of a model we can use as internal model for the visual model.
  */
-export interface OnPremiseUnderlyingVisualModel extends
+export interface SynchronousUnderlyingVisualModel extends
     EntityModel,
     SynchronousEntityModel,
     SynchronousWritableEntityModel,
