@@ -1,11 +1,10 @@
-import path from "path";
 import JSZip from "jszip";
-import DalApi from "../../dal-generator-api";
+import DalApi from "../dal-generator-api";
 import { AxiosResponse } from "axios";
-import { LayerArtifact } from "../../../engine/layer-artifact";
-import { AggregateMetadata } from "../../../application-config";
+import { normalizeName } from "../../utils/utils";
 import { PimSchema } from "@dataspecer/core/pim/model";
-import { normalizeName } from "../../../utils/utils";
+import { LayerArtifact } from "../../engine/layer-artifact";
+import { AggregateMetadata } from "../../application-config";
 
 function isAxiosResponse(
     dataLayerResult: LayerArtifact | AxiosResponse<LayerArtifact, any> | AxiosResponse<Buffer, any>
@@ -17,14 +16,33 @@ export interface SchemaProvider {
     getSchemaArtifact(aggregateIri: AggregateMetadata): Promise<LayerArtifact>;
 }
 
-class DataspecerBaseSchemaProvider {
+export class DataspecerBaseSchemaProvider {
 
     protected readonly _api: DalApi;
     protected readonly _dataSpecificationIri: string;
 
-    constructor(dataSpecificationIri: string) {
+    private readonly _schemaFilename: string;
+    private readonly _subDirectoryName: string;
+
+    constructor(dataSpecificationIri: string, schemaFilename: string, subdirectoryName: string) {
         this._api = new DalApi();
         this._dataSpecificationIri = dataSpecificationIri;
+        this._schemaFilename = schemaFilename;
+        this._subDirectoryName = subdirectoryName;
+    }
+
+    async getSchemaArtifact(aggregate: AggregateMetadata): Promise<LayerArtifact> {
+
+        const zipSubdirectory = await this.getAggregateSchemaFile(aggregate);
+
+        const schemaFiles = zipSubdirectory.filter((_, file) => file.name.endsWith(this._schemaFilename));
+
+        if (!schemaFiles || schemaFiles.length !== 1) {
+            throw new Error(`No LDkit schema file found for aggregate ${aggregate.aggregateName}`);
+        }
+
+        const aggregateSchemaFile = schemaFiles.at(0)!;
+        return this.getSchemaLayerArtifact(aggregateSchemaFile, aggregate, this._subDirectoryName);
     }
 
     protected async getAggregateSchemaFile(aggregate: AggregateMetadata): Promise<JSZip> {
@@ -92,47 +110,5 @@ class DataspecerBaseSchemaProvider {
         }
 
         return result;
-    }
-}
-
-export class LdkitSchemaProvider extends DataspecerBaseSchemaProvider implements SchemaProvider {
-
-    private readonly ldkitSchemaFileName = "ldkit-schema.ts";
-
-    constructor(dataSpecificationIri: string) {
-        super(dataSpecificationIri);
-    }
-
-    async getSchemaArtifact(aggregate: AggregateMetadata): Promise<LayerArtifact> {
-
-        const zipSubdirectory = await this.getAggregateSchemaFile(aggregate);
-        const ldkitSchemaFiles = zipSubdirectory.filter((_, file) => file.name.endsWith(this.ldkitSchemaFileName));
-
-        if (!ldkitSchemaFiles || ldkitSchemaFiles.length !== 1) {
-            throw new Error(`No LDkit schema file found for aggregate ${aggregate.aggregateName}`);
-        }
-
-        const aggregateSchemaFile = ldkitSchemaFiles.at(0)!;
-        return this.getSchemaLayerArtifact(aggregateSchemaFile, aggregate, "ldkit");
-    }
-
-}
-
-export class JsonSchemaProvider extends DataspecerBaseSchemaProvider implements SchemaProvider {
-
-    private readonly jsonSchemaFileName = "schema.json";
-
-    async getSchemaArtifact(aggregate: AggregateMetadata): Promise<LayerArtifact> {
-
-        const zipSubdirectory = await this.getAggregateSchemaFile(aggregate);
-
-        const jsonSchemaFiles = zipSubdirectory.filter((_, file) => file.name.endsWith(this.jsonSchemaFileName));
-
-        if (!jsonSchemaFiles || jsonSchemaFiles.length !== 1) {
-            throw new Error(`No LDkit schema file found for aggregate ${aggregate.aggregateName}`);
-        }
-
-        const aggregateSchemaFile = jsonSchemaFiles.at(0)!;
-        return this.getSchemaLayerArtifact(aggregateSchemaFile, aggregate, "json");
     }
 }

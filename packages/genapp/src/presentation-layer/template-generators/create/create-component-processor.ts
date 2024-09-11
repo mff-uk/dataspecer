@@ -1,8 +1,8 @@
-import { JsonSchemaProvider } from "../../../data-layer/strategies/ldkit/ldkit-schema-provider";
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
 import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
 import { AllowedTransition } from "../../../engine/transitions/transitions-generator";
+import { JsonSchemaProvider } from "../../../data-layer/schema-providers/json-schema-provider";
 
 interface CreateInstanceReactComponentTemplate extends TemplateDescription {
     placeholders: {

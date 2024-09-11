@@ -1,4 +1,4 @@
-import { JsonSchemaProvider } from "../../../data-layer/strategies/ldkit/ldkit-schema-provider";
+import { JsonSchemaProvider } from "data-layer/strategies/json/json-schema-provider";
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
 import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";

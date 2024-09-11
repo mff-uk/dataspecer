@@ -2,8 +2,9 @@ import { LayerArtifact } from "../../../engine/layer-artifact";
 import { DalGeneratorStrategy } from "../../strategy-interface";
 import { GenerationContext } from "../../../engine/generator-stage-interface";
 import { DataSourceType, DatasourceConfig } from "../../../engine/graph/datasource";
-import { LdkitSchemaProvider, SchemaProvider } from "./ldkit-schema-provider";
+import { LdkitSchemaProvider } from "../../schema-providers/ldkit-schema-provider";
 import { InstanceListLdkitReaderGenerator } from "../../template-generators/ldkit/list/instance-list-reader-generator";
+import { SchemaProvider } from "../../schema-providers/base-schema-provider";
 
 export class LdkitListDalGenerator implements DalGeneratorStrategy {
 

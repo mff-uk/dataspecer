@@ -1,8 +1,9 @@
 import { GenerationContext } from "../../../engine/generator-stage-interface";
 import { DalGeneratorStrategy } from "../../strategy-interface";
-import { LdkitSchemaProvider, SchemaProvider } from "./ldkit-schema-provider";
+import { LdkitSchemaProvider } from "../../schema-providers/ldkit-schema-provider";
 import { CreateLdkitInstanceGenerator } from "../../template-generators/ldkit/create/create-instance-generator";
 import { DatasourceConfig, DataSourceType } from "../../../engine/graph/datasource";
+import { SchemaProvider } from "../../schema-providers/base-schema-provider";
 
 export class CreateLdkitInstanceDalStrategy implements DalGeneratorStrategy {
     strategyIdentifier: string = "create-ldkit-instance";
