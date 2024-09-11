@@ -4,7 +4,7 @@ import { Entity, EntityIdentifier } from "./entity-model/entity";
  * Color in hexadecimal, must start with "#" character.
  * Should be in lower case.
  */
-export type Color = string;
+export type HexColor = string;
 
 /**
  * Base interface for all visual entities.
@@ -37,7 +37,8 @@ export interface VisualNode extends VisualEntity {
     content: string[];
 
     /**
-     * List of visual models assigned to this entity as an internal representation.
+     * List of linked visual models assigned to this entity as its an internal representation.
+     * In other words, diagrams that are assigned to this visual entity as representative diagrams.
      */
     visualModels: string[];
 
@@ -122,7 +123,7 @@ export interface ModelVisualInformation extends VisualEntity {
      */
     representedModel: string;
 
-    color: Color;
+    color: HexColor;
 
 }
 

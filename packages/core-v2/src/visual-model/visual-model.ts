@@ -5,15 +5,10 @@ import { ObservableEntityModel, UnsubscribeCallback } from "./entity-model/obser
 import { SynchronousEntityModel } from "./entity-model/synchronous-entity-model";
 import { SynchronousWritableEntityModel } from "./entity-model/on-premise-writable-entity-model";
 import { isTypedObject } from "./entity-model/typed-object";
-import { VisualEntity, VisualGroup, VisualNode, VisualRelationship } from "./visual-entity";
+import { HexColor, VisualEntity, VisualGroup, VisualNode, VisualRelationship } from "./visual-entity";
 import { SerializableModel } from "./entity-model/serializable-model";
 
 export type RepresentedEntityIdentifier = string;
-
-/**
- * Color stored in hex with the leading hash sign, e.g. '#70d6ff'.
- */
-export type HexColor = string;
 
 /**
  * Visual model is designed to allow users place a class, or profile, on a canvas.
