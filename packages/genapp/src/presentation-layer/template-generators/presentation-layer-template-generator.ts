@@ -4,12 +4,12 @@ import { LayerArtifact } from "../../engine/layer-artifact";
 import { TemplateConsumer, TemplateDependencyMap  } from "../../engine/template-consumer";
 import { PresentationLayerGenerator } from "../strategy-interface";
 import { GeneratedFilePathCalculator } from "../../utils/artifact-saver";
-import { AllowedTransition, TransitionsGenerator } from "../../engine/transitions/transitions-generator";
+import { NodeTransitionsView, TransitionsGenerator } from "../../engine/transitions/transitions-generator";
 
 export interface PresentationLayerDependencyMap extends TemplateDependencyMap {
     pathResolver: GeneratedFilePathCalculator;
     appLogicArtifact: LayerArtifact;
-    transitions: AllowedTransition[];
+    transitions: NodeTransitionsView;
 }
 
 export abstract class PresentationLayerTemplateGenerator<TemplateType extends TemplateDescription>
@@ -33,14 +33,14 @@ export abstract class PresentationLayerTemplateGenerator<TemplateType extends Te
             throw new Error("Missing path resolver");
         }
 
-        const transitions = await (new TransitionsGenerator()
+        const transitionsView = await (new TransitionsGenerator()
             .getNodeTransitions(context.currentNode, context.graph));
 
         const presentationLayerArtifact = await this.processTemplate({
             aggregate: context.aggregate,
             pathResolver: context._.pathResolver,
             appLogicArtifact: context.previousResult,
-            transitions: transitions
+            transitions: transitionsView
         } as PresentationLayerDependencyMap);
 
         return presentationLayerArtifact;

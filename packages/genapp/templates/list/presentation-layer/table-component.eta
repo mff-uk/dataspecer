@@ -5,7 +5,10 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import { useEffect, useState } from 'react';<% const hasTransitions = it.instance_capability_options != null && it.instance_capability_options_path != null; %>
+import Button from '@mui/material/Button';
+import { useEffect, useState } from 'react';
+import { Backdrop, CircularProgress } from '@mui/material';
+import { <%= it.navigation_hook %> } from <%~ it.navigation_hook_path %>;<% const hasTransitions = it.instance_capability_options != null && it.instance_capability_options_path != null; %>
 import { <%= it.list_capability_app_layer %> } from <%~ it.list_app_layer_path %>;<% if (hasTransitions) { %>
 import { <%= it.instance_capability_options %> } from <%~ it.instance_capability_options_path %>;
 <% } %>
@@ -13,8 +16,8 @@ import { <%= it.instance_capability_options %> } from <%~ it.instance_capability
 export default function <%= it.presentation_layer_component_name %>({ aggregateName }: { aggregateName: string }) {
 
     const [instanceList, setInstanceList] = useState(undefined as unknown as object[]);
-    const [loadingStatus, setLoadingStatus] = useState<boolean>(true);
-    const hasCreateCapability = false;
+    const [isLoading, setisLoading] = useState<boolean>(true);
+    const { handleCollectionCapabilityRedirect } = <%= it.navigation_hook %>();
 
     const stringify = (objectKey) => {
         return typeof objectKey == 'object'
@@ -37,68 +40,63 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
                 }
 
                 const instances = listResult.entities.map(res => res.raw);
-                setLoadingStatus(false);
+                setisLoading(false);
                 setInstanceList(instances);
             }
         }
 
         fetchInstancesList();
-    }, [loadingStatus, aggregateName, instanceList]);
+    }, [isLoading, aggregateName, instanceList]);
 
     return (
 
         <>
-            {
-                hasCreateCapability && <div>
-                    <button onClick={() => alert("Creating new instance")}>Create New</button>
-                </div>
-            }
-            {
-                loadingStatus
-                ?
-                (<div>Loading results</div>)
-                : (
-                    <TableContainer>
-                        <Table sx={{ minWidth: 650 }} aria-label="<%= it.aggregate_name %> table"></Table>
-                        {instanceList &&
-                            <React.Fragment>
-                                <TableHead>
-                                    <TableRow>
+            <Backdrop
+                sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+                open={isLoading}
+            >
+                <CircularProgress color="inherit" />
+            </Backdrop><% for (let index = 0; index < it.list_collection_transitions.length; index++) { %><% const collectionTransition = it.list_collection_transitions[index]; %>
+            <Button id="<%= collectionTransition.id %>-transition-button" diasbled={isLoading} sx={{ marginRight: 1 }} variant="contained" onClick={() => handleCollectionCapabilityRedirect("<%= collectionTransition.id %>")}><%= collectionTransition.label %>: <%= it.aggregate_name %></Button>
+            <% } %>
+            <TableContainer>
+                <Table sx={{ minWidth: 650 }} aria-label="<%= it.aggregate_name %> table"></Table>
+                {instanceList &&
+                    <React.Fragment>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell align="right">
+                                    <strong>Index</strong>
+                                </TableCell><% const propertyNames = Object.keys(it.table_schema.properties); const excludedNames = ["id", "type"]; %><% for (let index = 0; index < propertyNames.length; index++) { %><% const propertyName = propertyNames[index]; %><% if (excludedNames.includes(propertyName)) continue; %>
+                                <TableCell key={<%= index %>} align="right" sx={{ width: window.innerWidth / <%= propertyNames.length - excludedNames.length %> }}>
+                                    <strong><%= it.table_schema.properties[propertyName]?.title ?? propertyName %></strong>
+                                </TableCell><% } %>
+                                <% if (hasTransitions) { %><TableCell align="right" /><% } %>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {
+                                instanceList.map((instance, idx) =>
+                                    <TableRow
+                                        key={idx}
+                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                    >
                                         <TableCell align="right">
-                                            <strong>Index</strong>
-                                        </TableCell><% const propertyNames = Object.keys(it.table_schema.properties); const excludedNames = ["id", "type"]; %><% for (let index = 0; index < propertyNames.length; index++) { %><% const propertyName = propertyNames[index]; %><% if (excludedNames.includes(propertyName)) continue; %>
-                                        <TableCell key={<%= index %>} align="right" sx={{ width: window.innerWidth / <%= propertyNames.length - excludedNames.length %> }}>
-                                            <strong><%= it.table_schema.properties[propertyName]?.title ?? propertyName %></strong>
+                                            {idx + 1}
+                                        </TableCell><% for (let index = 0; index < propertyNames.length; index++) { %><% const propertyName = propertyNames[index];%><% if (propertyName === "id" || propertyName === "type") continue; %>
+                                        <TableCell key={<%= index %>} align="right">
+                                            {stringify(instance["<%= propertyName %>"])}
+                                        </TableCell><% } %><% if (hasTransitions) { %>
+                                        <TableCell>
+                                            <<%= it.instance_capability_options %> instanceId={instance["$id"]} />
                                         </TableCell><% } %>
-                                        <% if (hasTransitions) { %><TableCell align="right" /><% } %>
                                     </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {
-                                        instanceList.map((instance, idx) =>
-                                            <TableRow
-                                                key={idx}
-                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                            >
-                                                <TableCell align="right">
-                                                    {idx + 1}
-                                                </TableCell><% for (let index = 0; index < propertyNames.length; index++) { %><% const propertyName = propertyNames[index];%><% if (propertyName === "id" || propertyName === "type") continue; %>
-                                                <TableCell key={<%= index %>} align="right">
-                                                    {stringify(instance["<%= propertyName %>"])}
-                                                </TableCell><% } %><% if (hasTransitions) { %>
-                                                <TableCell>
-                                                    <<%= it.instance_capability_options %> instanceId={instance["$id"]} />
-                                                </TableCell><% } %>
-                                            </TableRow>
-                                        )
-                                    }
-                                </TableBody>
-                            </React.Fragment>
-                        }
-                    </TableContainer>
-                )
-
-            }
+                                )
+                            }
+                        </TableBody>
+                    </React.Fragment>
+                }
+            </TableContainer>
         </>
     )
 }

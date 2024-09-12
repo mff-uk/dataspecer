@@ -13,6 +13,10 @@ import { ReactAppBaseGeneratorStage } from "../react-base/react-app-base-stage";
 import { CapabilityConstructorInput } from "../capabilities/constructor-input";
 import { ApplicationGraph, ApplicationGraphNode } from "./graph";
 import { AggregateMetadata } from "../application-config";
+import { ListCapabilityMetadata } from "../capabilities/list";
+import { DetailCapabilityMetadata } from "../capabilities/detail";
+import { CreateInstanceCapabilityMetadata } from "../capabilities/create-instance";
+import { DeleteInstanceCapabilityMetadata } from "../capabilities/delete-instance";
 
 export type NodeResult = {
     structure: AggregateMetadata;
@@ -38,14 +42,19 @@ class ApplicationGenerator {
 
     private getCapabilityGenerator(capabilityIri: string, constructorInput: CapabilityConstructorInput): CapabilityGenerator {
 
+        const listId = new ListCapabilityMetadata().getIdentifier(),
+            detailId = new DetailCapabilityMetadata().getIdentifier(),
+            createInstanceId = new CreateInstanceCapabilityMetadata().getIdentifier(),
+            deleteInstanceId = new DeleteInstanceCapabilityMetadata().getIdentifier();
+
         switch (capabilityIri) {
-            case ListCapability.identifier:
+            case listId:
                 return new ListCapability(constructorInput);
-            case DetailCapability.identifier:
+            case detailId:
                 return new DetailCapability(constructorInput);
-            case CreateInstanceCapability.identifier:
+            case createInstanceId:
                 return new CreateInstanceCapability(constructorInput);
-            case DeleteInstanceCapability.identifier:
+            case deleteInstanceId:
                 return new DeleteInstanceCapability(constructorInput);
             default:
                 throw new Error(`"${capabilityIri}" does not correspond to a valid capability identifier.`);
@@ -111,10 +120,10 @@ class ApplicationGenerator {
         const result: NodeResult = {
             artifact: nodeArtifact,
             structure: aggregateMetadata,
-            nodePath: `${aggregateMetadata.technicalLabel}/${capabilityGenerator.getCapabilityLabel()}`,
+            nodePath: `${aggregateMetadata.technicalLabel}/${capabilityGenerator.getLabel()}`,
             capability: {
                 type: capabilityGenerator.getType(),
-                label: capabilityGenerator.getCapabilityLabel()
+                label: capabilityGenerator.getLabel()
             }
         };
 

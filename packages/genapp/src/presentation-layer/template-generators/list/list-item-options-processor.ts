@@ -1,13 +1,16 @@
-import { TemplateDescription } from "../../../engine/eta-template-renderer";
+import { UseNavigationHookGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
+import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { AllowedTransition } from "../../../engine/transitions/transitions-generator";
 import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/template-consumer";
+import { AllowedTransition } from "../../../engine/transitions/transitions-generator";
 
 interface ListItemCapabilityOptionsTemplate extends TemplateDescription {
     placeholders: {
         export_name: string;
         aggregate_technical_label: string;
-        capability_transitions: AllowedTransition[];
+        instance_transitions: AllowedTransition[];
+        navigation_hook: string;
+        navigation_hook_path: ImportRelativePath;
     };
 }
 
@@ -20,15 +23,22 @@ export class ListItemCapabilityOptionsGenerator extends TemplateConsumer<ListIte
     async processTemplate(dependencies: ListItemCapabilityOptionsDependencyMap): Promise<LayerArtifact> {
 
         const exportedObjectName: string = dependencies.aggregate.getAggregateNamePascalCase({
-            suffix: "ListItemCapabilityOptions"
+            suffix: "ListItemOptions"
         });
+
+        const useNavigationHook = await UseNavigationHookGenerator.processTemplate();
 
         const optionsTemplate: ListItemCapabilityOptionsTemplate = {
             templatePath: this._templatePath,
             placeholders: {
                 aggregate_technical_label: dependencies.aggregate.technicalLabel,
                 export_name: exportedObjectName,
-                capability_transitions: dependencies.transitions,
+                navigation_hook: useNavigationHook.exportedObjectName,
+                navigation_hook_path: {
+                    from: this._filePath,
+                    to: useNavigationHook.filePath
+                },
+                instance_transitions: dependencies.transitions,
             }
         }
 
@@ -38,6 +48,7 @@ export class ListItemCapabilityOptionsGenerator extends TemplateConsumer<ListIte
             exportedObjectName: exportedObjectName,
             filePath: this._filePath,
             sourceText: listItemOptionsRender,
+            dependencies: [useNavigationHook]
         }
 
         return listItemOptionsArtifact;

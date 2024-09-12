@@ -1,8 +1,8 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
 import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
-import { AllowedTransition } from "../../../engine/transitions/transitions-generator";
 import { JsonSchemaProvider } from "../../../data-layer/schema-providers/json-schema-provider";
+import { NodeTransitionsView } from "../../../engine/transitions/transitions-generator";
 
 interface DetailReactComponentTemplate extends TemplateDescription {
     placeholders: {
@@ -12,10 +12,9 @@ interface DetailReactComponentTemplate extends TemplateDescription {
         detail_app_layer_path: ImportRelativePath;
         json_schema: string;
         //json_schema_path: ImportRelativePath;
-        capability_transitions: AllowedTransition[];
+        capability_transitions: NodeTransitionsView;
     };
 }
-
 
 export class DetailComponentTemplateProcessor extends PresentationLayerTemplateGenerator<DetailReactComponentTemplate> {
     strategyIdentifier: string = "detail-react-component-generator";

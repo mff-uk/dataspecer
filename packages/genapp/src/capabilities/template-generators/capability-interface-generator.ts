@@ -56,3 +56,9 @@ export const GeneratedCapabilityInterfaceGenerator = new CapabilityInterfaceGene
     templatePath: "./capability-result-interface",
     queryExportedObjectName: "GeneratedCapability"
 });
+
+export const UseNavigationHookGenerator = new CopyTemplateProcessor({
+    templatePath: "./hooks/use-navigation",
+    filePath: "./hooks/useGenappNavigation.ts",
+    queryExportedObjectName: "useGenappNavigation"
+});

@@ -1,9 +1,11 @@
 // TODO: merge / reduce imports
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
-import { ListItemCapabilityOptionsDependencyMap, ListItemCapabilityOptionsGenerator } from "./list-item-options-processor";
+import { ListItemCapabilityOptionsDependencyMap, ListItemCapabilityOptionsGenerator as ListItemOptionsGenerator } from "./list-item-options-processor";
 import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
 import { JsonSchemaProvider } from "../../../data-layer/schema-providers/json-schema-provider";
+import { CapabilityType } from "../../../capabilities";
+import { UseNavigationHookGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 
 interface ListTableTemplate extends TemplateDescription {
     placeholders: {
@@ -13,8 +15,10 @@ interface ListTableTemplate extends TemplateDescription {
         list_app_layer_path: ImportRelativePath;
         instance_capability_options: string | null;
         instance_capability_options_path: ImportRelativePath | null;
-        //supported_out_list_transitions: AllowedTransition[];
         table_schema: any;
+        list_collection_transitions: any[];
+        navigation_hook: string;
+        navigation_hook_path: ImportRelativePath;
     };
 }
 
@@ -24,19 +28,22 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
 
     async processTemplate(dependencies: PresentationLayerDependencyMap): Promise<LayerArtifact> {
 
-        const hasAnyTransitions = dependencies.transitions.length > 0;
+        const groupedTransitions = dependencies.transitions.groupByCapabilityType();
+        const collectionTransitions = groupedTransitions[CapabilityType.Collection.toString()]!;
+        const instanceTransitions = groupedTransitions[CapabilityType.Instance.toString()]!;
+        const hasAnyInstanceTransitions = instanceTransitions.length > 0;
 
-        const listItemOptionsArtifact = await new ListItemCapabilityOptionsGenerator({
-            filePath: `./${dependencies.aggregate.getAggregateNamePascalCase({ "suffix": "ListItemCapabilityOptions" })}.tsx`,
+        const listItemOptionsArtifact = await new ListItemOptionsGenerator({
+            filePath: `./${dependencies.aggregate.getAggregateNamePascalCase({ "suffix": "ListItemOptions" })}.tsx`,
             templatePath: "./list/presentation-layer/item-capability-options"
         }).processTemplate({
             aggregate: dependencies.aggregate,
-            transitions: dependencies.transitions
+            transitions: instanceTransitions
         } as ListItemCapabilityOptionsDependencyMap);
 
-        const listTableComponentName: string = dependencies.aggregate.getAggregateNamePascalCase({
-            suffix: "ListTable"
-        });
+        const useNavigationHook = await UseNavigationHookGenerator.processTemplate();
+
+        const listTableComponentName: string = dependencies.aggregate.getAggregateNamePascalCase({ suffix: "ListTable" });
 
         const jsonSchema = (await new JsonSchemaProvider(dependencies.aggregate.specificationIri)
             .getSchemaArtifact(dependencies.aggregate))
@@ -53,22 +60,28 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
                     to: dependencies.appLogicArtifact.filePath
                 },
                 table_schema: JSON.parse(jsonSchema),
-                instance_capability_options: hasAnyTransitions
+                list_collection_transitions: collectionTransitions,
+                instance_capability_options: hasAnyInstanceTransitions
                     ? listItemOptionsArtifact.exportedObjectName
                     : null,
-                instance_capability_options_path: hasAnyTransitions
+                instance_capability_options_path: hasAnyInstanceTransitions
                     ? {
                         from: this._filePath,
                         to: listItemOptionsArtifact.filePath
                     }
-                    : null
+                    : null,
+                navigation_hook: useNavigationHook.exportedObjectName,
+                navigation_hook_path: {
+                    from: this._filePath,
+                    to: useNavigationHook.filePath
+                },
             }
         };
 
         const presentationLayerRender = this._templateRenderer.renderTemplate(tableTemplate);
-        const dependentArtifacts = [dependencies.appLogicArtifact];
+        const dependentArtifacts = [dependencies.appLogicArtifact, useNavigationHook];
 
-        if (hasAnyTransitions) {
+        if (hasAnyInstanceTransitions) {
             dependentArtifacts.push(listItemOptionsArtifact);
         }
 

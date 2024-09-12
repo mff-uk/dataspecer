@@ -1,5 +1,4 @@
 
-import { CAPABILITY_BASE_IRI } from ".";
 import { TemplateApplicationLayerGeneratorFactory } from "../app-logic-layer/generator-factory";
 import { ApplicationLayerStage } from "../app-logic-layer/pipeline-stage";
 import { ListTemplateDalGeneratorFactory } from "../data-layer/generator-factory";
@@ -7,42 +6,33 @@ import { DataLayerGeneratorStage } from "../data-layer/pipeline-stage";
 import { GeneratorPipeline } from "../engine/generator-pipeline";
 import { PresentationLayerTemplateGeneratorFactory } from "../presentation-layer/generator-factory";
 import { PresentationLayerStage } from "../presentation-layer/pipeline-stage";
-import { AggregateTypeCapabilityGenerator } from "./capability-generator-interface";
+import { AggregateCapabilityMetadata, BaseCapabilityGenerator } from "./capability-generator-interface";
 import { CapabilityConstructorInput } from "./constructor-input";
-import { CreateInstanceCapability } from "./create-instance";
-import { DeleteInstanceCapability } from "./delete-instance";
-import { DetailCapability } from "./detail";
 
-export class ListCapability extends AggregateTypeCapabilityGenerator {
+export class ListCapabilityMetadata extends AggregateCapabilityMetadata {
+    getHumanLabel = (): string => "List";
+    getLabel = (): string => "list";
+}
 
-    public static readonly label: string = "list";
-    public static readonly identifier: string = CAPABILITY_BASE_IRI + this.label;
-
-    public static readonly allowedTransitions: string[] = [
-        CreateInstanceCapability.identifier,
-        DeleteInstanceCapability.identifier,
-        DetailCapability.identifier
-    ];
-
-    getCapabilityLabel = (): string => ListCapability.label;
+export class ListCapability extends BaseCapabilityGenerator {
 
     constructor(constructorInput: CapabilityConstructorInput) {
-        super(constructorInput.dataStructureMetadata);
+        super(constructorInput.dataStructureMetadata, new ListCapabilityMetadata());
 
         const dalLayerGeneratorStrategy = ListTemplateDalGeneratorFactory.getDalGeneratorStrategy(constructorInput.dataStructureMetadata.specificationIri, constructorInput.datasource);
         const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(
             constructorInput.dataStructureMetadata.technicalLabel,
-            ListCapability.identifier
+            this.getIdentifier()
         );
         const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory.getPresentationLayerGenerator(
             constructorInput.dataStructureMetadata,
-            ListCapability.identifier
+            this.getIdentifier()
         );
 
         this._capabilityStagesGeneratorPipeline = new GeneratorPipeline(
             new DataLayerGeneratorStage(constructorInput.saveBasePath, dalLayerGeneratorStrategy),
             new ApplicationLayerStage(constructorInput.saveBasePath, appLayerGeneratorStrategy),
-            new PresentationLayerStage(constructorInput.saveBasePath, ListCapability.label, presentationLayerGeneratorStrategy)
+            new PresentationLayerStage(constructorInput.saveBasePath, this.getLabel(), presentationLayerGeneratorStrategy)
         );
     }
 }

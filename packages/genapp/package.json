@@ -31,6 +31,7 @@
   },
   "exports": {
     "./template-generators/app": "./lib/app-logic-layer/template-generators/index.js",
-    "./application-graph": "./lib/engine/graph/index.js"
+    "./application-graph": "./lib/engine/graph/index.js",
+    "./capabilities": "./lib/capabilities/index.js"
   }
 }

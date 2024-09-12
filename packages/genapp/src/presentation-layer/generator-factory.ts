@@ -1,10 +1,8 @@
 import { AggregateMetadata } from "../application-config";
-import {
-    ListCapability,
-    DetailCapability,
-    CreateInstanceCapability,
-    DeleteInstanceCapability
-} from "../capabilities/index";
+import { CreateInstanceCapabilityMetadata } from "../capabilities/create-instance";
+import { DeleteInstanceCapabilityMetadata } from "../capabilities/delete-instance";
+import { DetailCapabilityMetadata } from "../capabilities/detail";
+import { ListCapabilityMetadata } from "../capabilities/list";
 import { PresentationLayerGenerator } from "./strategy-interface";
 import { CreateInstanceComponentTemplateProcessor } from "./template-generators/create/create-component-processor";
 import { DetailComponentTemplateProcessor } from "./template-generators/detail/detail-template-processor";
@@ -18,21 +16,25 @@ export const PresentationLayerTemplateGeneratorFactory: PresentationLayerGenerat
     getPresentationLayerGenerator(aggregateMetadata: AggregateMetadata, capabilityIri: string): PresentationLayerGenerator {
 
         const pascalCaseAggregateName = aggregateMetadata.getAggregateNamePascalCase();
+        const listMetadata = new ListCapabilityMetadata();
+        const detailMetadata = new DetailCapabilityMetadata();
+        const createMetadata = new CreateInstanceCapabilityMetadata();
+        const deleteMetadata = new DeleteInstanceCapabilityMetadata();
 
         const capabilityGeneratorMap: { [capabilityIri: string] : PresentationLayerGenerator } = {
-            [ListCapability.identifier]: new ListTableTemplateProcessor({
+            [listMetadata.getIdentifier()]: new ListTableTemplateProcessor({
                 filePath: `${pascalCaseAggregateName}ListTable.tsx`,
                 templatePath: "./list/presentation-layer/table-component"
             }),
-            [DetailCapability.identifier]: new DetailComponentTemplateProcessor({
+            [detailMetadata.getIdentifier()]: new DetailComponentTemplateProcessor({
                 filePath: `${pascalCaseAggregateName}InstanceDetail.tsx`,
                 templatePath: "./detail/presentation-layer/instance-detail-component"
             }),
-            [CreateInstanceCapability.identifier]: new CreateInstanceComponentTemplateProcessor({
+            [createMetadata.getIdentifier()]: new CreateInstanceComponentTemplateProcessor({
                 filePath: `Create${pascalCaseAggregateName}Instance.tsx`,
                 templatePath: "./create/presentation-layer/create-instance-component"
             }),
-            [DeleteInstanceCapability.identifier]: undefined!,
+            [deleteMetadata.getIdentifier()]: undefined!,
         }
 
         const generator = capabilityGeneratorMap[capabilityIri];

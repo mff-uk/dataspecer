@@ -4,24 +4,23 @@ import { ApplicationLayerStage } from "../app-logic-layer/pipeline-stage";
 import { DeleteInstanceTemplateGeneratorFactory } from "../data-layer/generator-factory";
 import { DataLayerGeneratorStage } from "../data-layer/pipeline-stage";
 import { GeneratorPipeline } from "../engine/generator-pipeline";
-import { CAPABILITY_BASE_IRI } from ".";
-import { InstanceTypeCapabilityGenerator } from "./capability-generator-interface";
+import { BaseCapabilityGenerator, InstanceCapabilityMetadata } from "./capability-generator-interface";
 import { CapabilityConstructorInput } from "./constructor-input";
 
-export class DeleteInstanceCapability extends InstanceTypeCapabilityGenerator {
+export class DeleteInstanceCapabilityMetadata extends InstanceCapabilityMetadata {
+    getHumanLabel = (): string => "Delete Instance";
+    getLabel = (): string => "delete-instance";
+}
 
-    public static readonly label: string = "delete-instance";
-    public static readonly identifier: string = CAPABILITY_BASE_IRI + this.label;
-
-    getCapabilityLabel = (): string => DeleteInstanceCapability.label;
+export class DeleteInstanceCapability extends BaseCapabilityGenerator {
 
     constructor(constructorInput: CapabilityConstructorInput) {
-        super(constructorInput.dataStructureMetadata);
+        super(constructorInput.dataStructureMetadata, new DeleteInstanceCapabilityMetadata());
 
         const dalLayerGeneratorStrategy = DeleteInstanceTemplateGeneratorFactory.getDalGeneratorStrategy(constructorInput.dataStructureMetadata.specificationIri, constructorInput.datasource);
         const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(
             constructorInput.dataStructureMetadata.technicalLabel,
-            DeleteInstanceCapability.identifier
+            this.getIdentifier()
         );
 
         //const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory.getPresentationLayerGenerator(targetAggregateName, DeleteInstanceCapability.identifier);
