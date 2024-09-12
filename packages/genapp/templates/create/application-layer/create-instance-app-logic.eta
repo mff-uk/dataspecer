@@ -1,6 +1,3 @@
-import { SchemaInterface } from "ldkit";
-import { Entity } from "ldkit/types/library/lens/types";
-import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 import { <%= it.creator_interface_type %> } from <%~ it.creator_interface_type_path %>;
 import { <%= it.instance_creator_type %> } from <%~ it.instance_creator_type_path %>;
 import { <%= it.generated_capability_class %>, <%= it.read_return_type %> } from <%~ it.read_return_type_path %>;
@@ -10,7 +7,7 @@ export const <%= it.exported_object_name %>: <%= it.generated_capability_class %
 
     async runCapability(instanceIri: string): Promise<<%= it.read_return_type %>> {
 
-        const newInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> = {
+        const newInstance = {
             $id: instanceIri,
             $type: [
                 "http://www.w3.org/ns/dcat#Dataset"
@@ -33,5 +30,5 @@ export const <%= it.exported_object_name %>: <%= it.generated_capability_class %
         const instanceResult: <%= it.read_return_type %> = await creator.createInstance(newInstance);
 
         return instanceResult;
-    },
+    }
 }

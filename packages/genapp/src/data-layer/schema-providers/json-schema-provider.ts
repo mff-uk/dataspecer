@@ -12,7 +12,7 @@ export class JsonSchemaProvider extends DataspecerBaseSchemaProvider implements 
     protected async getSchemaLayerArtifact(file: JSZipObject, aggregate: AggregateMetadata): Promise<LayerArtifact> {
         const fileContent = await file.async("string");
         const result: LayerArtifact = {
-            filePath: `./schemas/json/${aggregate.technicalLabel}-schema.json`,
+            filePath: `../schemas/json/${aggregate.technicalLabel}-schema.json`,
             sourceText: fileContent,
             exportedObjectName: aggregate.getAggregateNamePascalCase({
                 suffix: "JsonSchema"

@@ -6,6 +6,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Button from '@mui/material/Button';
+import { Link } from "react-router-dom";
 import { useEffect, useState } from 'react';
 import { Backdrop, CircularProgress } from '@mui/material';
 import { <%= it.navigation_hook %> } from <%~ it.navigation_hook_path %>;<% const hasTransitions = it.instance_capability_options != null && it.instance_capability_options_path != null; %>

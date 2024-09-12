@@ -16,10 +16,6 @@ export default class <%= it.exported_name_object %> implements <%= it.ldkit_inst
         const lens = createLens(<%= it.ldkit_schema %>);
         const <%= instanceVariableName %> = await lens.findByIri(instanceIri);
 
-        if (!<%= instanceVariableName %>) {
-            throw new Error("Error on data read.");
-        }
-
         const result: <%= it.instance_result_type %> = {
             instance: {
                 aggregateName: "<%= it.aggregate_name %>",

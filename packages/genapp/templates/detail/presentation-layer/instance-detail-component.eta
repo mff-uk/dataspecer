@@ -3,39 +3,45 @@ import { <%= it.detail_capability_app_layer %> } from <%~ it.detail_app_layer_pa
 // TODO: line below might need proper generator
 import { AggregateInstance } from '../../interfaces/capability-result';
 import { useSearchParams } from 'react-router-dom';
+import Alert from '@mui/material/Alert';
+import { Backdrop, CircularProgress } from '@mui/material';
 import Form from "@rjsf/mui";
 import validator from "@rjsf/validator-ajv8";
 import { RJSFSchema } from "@rjsf/utils";
+import * as <%= it.json_schema %> from <%~ it.json_schema_path %>;
 
 export default function <%= it.export_name %>() {
 
     const [instance, setInstance] = useState<AggregateInstance>();
-    const [loadingStatus, setLoadingStatus] = useState<boolean>(true);
-    const [searchParams, _] = useSearchParams();
+    const [isMissingInstance, setMissingInstance] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [searchParams, setSearchParams] = useSearchParams();
     const [instanceId, setInstanceId] = useState<string>("");
 
-    const schema: RJSFSchema = <%~ it.json_schema %>;
+    const schema: RJSFSchema = <%~ it.json_schema %> as RJSFSchema;
     const debugView = false;
 
     useEffect(() => {
 
         const fetchInstanceDetail = async () => {
             if (!instance) {
+            console.log(searchParams);
                 const id = searchParams.get("instanceId");
 
                 if (!id) {
-                    setLoadingStatus(false);
+                    setMissingInstance(true);
+                    setIsLoading(false);
                     return;
                 }
 
                 const result = await <%= it.detail_capability_app_layer %>.runCapability(id);
 
-                if (!result || !result.instance) {
-                    console.error("No instance detail available");
+                setIsLoading(false);
+                if (!result?.instance?.raw) {
+                    setMissingInstance(true);
                     return;
                 }
 
-                setLoadingStatus(false);
                 result.instance.raw["id"] = result.instance.raw["$id"]; // TODO: perform based on data layer / schema
                 setInstance(result.instance);
                 setInstanceId(id);
@@ -43,7 +49,7 @@ export default function <%= it.export_name %>() {
         }
 
         fetchInstanceDetail();
-    }, [loadingStatus, instance, searchParams]);
+    }, [isLoading, instance, searchParams]);
 
     return (
         <>
@@ -55,7 +61,7 @@ export default function <%= it.export_name %>() {
                 debugView &&
                 <div>
                     {
-                        !loadingStatus && (
+                        !isLoading && (
                             instance
                                 ? JSON.stringify(instance)
                                 : "No detail"
@@ -63,17 +69,28 @@ export default function <%= it.export_name %>() {
                     }
                 </div>
             }
+            { isMissingInstance && <Alert onClose={() => {}} severity="error">{`No valid instance found for ${instanceId}`}</Alert> }
+            <Backdrop
+                sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+                open={isLoading}
+            >
+                <CircularProgress color="inherit" />
+            </Backdrop>
             {
-                !loadingStatus && instance &&
-                <Form
-                    id={`<%= it.aggregate_name %>__${instanceId}`}
+                !isLoading &&
+                (
+                    isMissingInstance
+                    ? <div>{`No valid instance found for ${instanceId}`}</div>
+                    : <Form
+                    id={`data-set__${instanceId}`}
                     schema={schema}
                     validator={validator}
                     uiSchema={{}}
-                    formData={instance.raw}
+                    formData={instance!.raw}
                     showErrorList="top"
                     readonly={true}
                 />
+                )
             }
         </>
     )

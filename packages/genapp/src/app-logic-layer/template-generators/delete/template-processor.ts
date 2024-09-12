@@ -47,12 +47,18 @@ export class DeleteAppLayerTemplateProcessor extends ApplicationLayerTemplateGen
                 delete_mutator_instance: dependencies.dataLayerLinkArtifact.exportedObjectName,
                 delete_mutator_instance_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
-                    to: dependencies.dataLayerLinkArtifact.filePath
+                    to: dependencies.pathResolver.getFullSavePath(
+                        dependencies.dataLayerLinkArtifact.filePath,
+                        dependencies.dataLayerLinkArtifact.exportedObjectName
+                    )
                 },
                 delete_mutator_interface_type: deleteMutatorInterfaceArtifact.exportedObjectName,
                 delete_mutator_interface_type_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
-                    to: deleteMutatorInterfaceArtifact.filePath
+                    to: dependencies.pathResolver.getFullSavePath(
+                        deleteMutatorInterfaceArtifact.filePath,
+                        deleteMutatorInterfaceArtifact.exportedObjectName
+                    )
                 },
                 generated_capability_class: generatedCapabilityInterface.exportedObjectName,
                 read_return_type: deleteReturnTypeArtifact.exportedObjectName,

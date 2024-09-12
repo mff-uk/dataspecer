@@ -51,7 +51,9 @@ export class CreateInstanceAppLayerTemplateProcessor extends ApplicationLayerTem
                 creator_interface_type: creatorInterfaceArtifact.exportedObjectName,
                 creator_interface_type_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
-                    to: creatorInterfaceArtifact.filePath
+                    to: dependencies.pathResolver.getFullSavePath(creatorInterfaceArtifact.filePath,
+                        creatorInterfaceArtifact.exportedObjectName
+                    )
                 },
                 generated_capability_class: generatedCapabilityInterface.exportedObjectName,
                 read_return_type: createReturnTypeArtifact.exportedObjectName,

@@ -1,12 +1,6 @@
 import { CreateInstanceCapabilityMetadata } from "../capabilities/create-instance";
 import { DeleteInstanceCapabilityMetadata } from "../capabilities/delete-instance";
 import { DetailCapabilityMetadata } from "../capabilities/detail";
-import {
-    ListCapability,
-    DetailCapability,
-    CreateInstanceCapability,
-    DeleteInstanceCapability
-} from "../capabilities/index";
 import { ListCapabilityMetadata } from "../capabilities/list";
 import { ApplicationLayerGenerator } from "./strategy-interface";
 import {
@@ -38,11 +32,11 @@ export const TemplateApplicationLayerGeneratorFactory: ApplicationLayerGenerator
                 templatePath: "./detail/application-layer/detail-app-logic",
                 filePath: `./${technicalAggregateName}-detail-app-logic.ts`
             }),
-            [createMetadata.getIdentifier()]: new DeleteAppLayerGenerator({
+            [deleteMetadata.getIdentifier()]: new DeleteAppLayerGenerator({
                 templatePath: "./delete/application-layer/delete-instance-app-logic",
                 filePath: `./${technicalAggregateName}-delete-instance-app-logic.ts`
             }),
-            [deleteMetadata.getIdentifier()]: new CreateAppLayerGenerator({
+            [createMetadata.getIdentifier()]: new CreateAppLayerGenerator({
                 templatePath: "./create/application-layer/create-instance-app-logic",
                 filePath: `./${technicalAggregateName}-create-instance-app-logic.ts`
             })

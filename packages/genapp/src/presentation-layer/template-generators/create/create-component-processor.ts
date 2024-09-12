@@ -1,19 +1,21 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
 import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
-//import { AllowedTransition } from "../../../engine/transitions/transitions-generator";
 import { JsonSchemaProvider } from "../../../data-layer/schema-providers/json-schema-provider";
-import { NodeTransitionsView } from "../../../engine/transitions/transitions-generator";
+import { ApplicationGraphEdgeType } from "../../../engine/graph";
+import { AllowedTransition } from "../../../engine/transitions/transitions-generator";
+import { UseNavigationHookGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 
 interface CreateInstanceReactComponentTemplate extends TemplateDescription {
     placeholders: {
-        aggregate_name: string,
         exported_object_name: string;
         create_capability_app_layer: string,
         create_capability_app_layer_path: ImportRelativePath,
         json_schema: string,
-        //json_schema_path: ImportRelativePath,
-        supported_out_create_edges: NodeTransitionsView
+        json_schema_path: ImportRelativePath,
+        navigation_hook: string,
+        navigation_hook_path: ImportRelativePath,
+        redirects: AllowedTransition[];
     };
 }
 
@@ -27,25 +29,33 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
             suffix: "Instance"
         });
 
-        const schemaProvider = new JsonSchemaProvider(dependencies.aggregate.specificationIri);
-        const jsonSchemaArtifact = await schemaProvider.getSchemaArtifact(dependencies.aggregate);
+        const jsonSchemaArtifact = await new JsonSchemaProvider(dependencies.aggregate.specificationIri)
+            .getSchemaArtifact(dependencies.aggregate);
+
+        const redirectTransitions = dependencies.transitions.groupByTransitionType()[ApplicationGraphEdgeType.Redirection.toString()]!;
+
+        const useNavigationHook = await UseNavigationHookGenerator.processTemplate();
 
         const createInstanceComponentTemplate: CreateInstanceReactComponentTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: dependencies.aggregate.getAggregateNamePascalCase(),
                 exported_object_name: createExportedName,
                 create_capability_app_layer: dependencies.appLogicArtifact.exportedObjectName,
                 create_capability_app_layer_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
                     to: dependencies.appLogicArtifact.filePath
                 },
-                json_schema: jsonSchemaArtifact.sourceText,
-                // json_schema_path: {
-                //     from: this._filePath,
-                //     to: jsonSchemaArtifact.filePath
-                // },
-                supported_out_create_edges: dependencies.transitions
+                navigation_hook: useNavigationHook.exportedObjectName,
+                navigation_hook_path: {
+                    from: this._filePath,
+                    to: useNavigationHook.filePath
+                },
+                redirects: redirectTransitions,
+                json_schema: jsonSchemaArtifact.exportedObjectName,
+                json_schema_path: {
+                    from: this._filePath,
+                    to: jsonSchemaArtifact.filePath
+                }
             }
         }
 

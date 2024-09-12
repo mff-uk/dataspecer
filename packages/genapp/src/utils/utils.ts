@@ -5,7 +5,7 @@ export function getRelativePath(sourcePath: string, targetPath: string): string 
     // console.log(`--utils source: "${sourcePath}"`);
     // console.log(`--utils Target: "${targetPath}"`);
 
-    targetPath = targetPath.substring(0, targetPath.lastIndexOf(".") < 1 ? targetPath.length : targetPath.lastIndexOf("."));
+    //targetPath = targetPath.substring(0, targetPath.lastIndexOf(".") < 1 ? targetPath.length : targetPath.lastIndexOf("."));
     //console.log(`--after Target: "${targetPath}"`);
 
     const prefix = path.dirname(targetPath).startsWith(path.dirname(sourcePath)) ? "./" : "";

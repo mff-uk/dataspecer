@@ -11,7 +11,7 @@ interface DetailReactComponentTemplate extends TemplateDescription {
         detail_capability_app_layer: string;
         detail_app_layer_path: ImportRelativePath;
         json_schema: string;
-        //json_schema_path: ImportRelativePath;
+        json_schema_path: ImportRelativePath;
         capability_transitions: NodeTransitionsView;
     };
 }
@@ -38,11 +38,11 @@ export class DetailComponentTemplateProcessor extends PresentationLayerTemplateG
                     to: dependencies.appLogicArtifact.filePath
                 },
                 detail_capability_app_layer: dependencies.appLogicArtifact.exportedObjectName,
-                json_schema: jsonSchemaArtifact.sourceText,
-                // json_schema_path: {
-                //     from: this._filePath,
-                //     to: jsonSchemaArtifact.filePath
-                // },
+                json_schema: jsonSchemaArtifact.exportedObjectName,
+                json_schema_path: {
+                    from: this._filePath,
+                    to: jsonSchemaArtifact.filePath
+                },
                 capability_transitions: dependencies.transitions
             }
         }
