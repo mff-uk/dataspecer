@@ -1,4 +1,5 @@
 
+import { CAPABILITY_BASE_IRI } from ".";
 import { TemplateApplicationLayerGeneratorFactory } from "../app-logic-layer/generator-factory";
 import { ApplicationLayerStage } from "../app-logic-layer/pipeline-stage";
 import { ListTemplateDalGeneratorFactory } from "../data-layer/generator-factory";
@@ -15,7 +16,7 @@ import { DetailCapability } from "./detail";
 export class ListCapability extends AggregateTypeCapabilityGenerator {
 
     public static readonly label: string = "list";
-    public static readonly identifier: string = `https://dataspecer.com/application_graph/capability/${this.label}`;
+    public static readonly identifier: string = CAPABILITY_BASE_IRI + this.label;
 
     public static readonly allowedTransitions: string[] = [
         CreateInstanceCapability.identifier,

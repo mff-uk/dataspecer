@@ -1,8 +1,6 @@
 import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
 import { normalizeName } from "./utils/utils";
 
-export type Iri = string;
-
 export class AggregateMetadata {
     private readonly _dataStructure: DataPsmSchema;
     public readonly iri: string;

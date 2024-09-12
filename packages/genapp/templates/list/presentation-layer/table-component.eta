@@ -5,13 +5,14 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import { useEffect, useState } from 'react';
-import { <%= it.list_capability_app_layer %> } from <%~ it.list_app_layer_path %>;
+import { useEffect, useState } from 'react';<% const hasTransitions = it.instance_capability_options != null && it.instance_capability_options_path != null; %>
+import { <%= it.list_capability_app_layer %> } from <%~ it.list_app_layer_path %>;<% if (hasTransitions) { %>
 import { <%= it.instance_capability_options %> } from <%~ it.instance_capability_options_path %>;
+<% } %>
 
 export default function <%= it.presentation_layer_component_name %>({ aggregateName }: { aggregateName: string }) {
 
-    const [objectsList, setObjectsList] = useState(undefined as unknown as object[]);
+    const [instanceList, setInstanceList] = useState(undefined as unknown as object[]);
     const [loadingStatus, setLoadingStatus] = useState<boolean>(true);
     const hasCreateCapability = false;
 
@@ -21,16 +22,9 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
             : objectKey.toString();
     }
 
-    function excludeKey(obj: object, keys: string[]): object {
-        const newObj = { ...obj };
-        keys.forEach(k => delete newObj[k]);
-
-        return newObj;
-    }
-
     useEffect(() => {
         const fetchInstancesList = async () => {
-            if (!objectsList) {
+            if (!instanceList) {
                 const listResult = await <%= it.list_capability_app_layer %>.runCapability("<%= it.aggregate_name %>");
 
                 if (!listResult ||
@@ -44,12 +38,12 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
 
                 const instances = listResult.entities.map(res => res.raw);
                 setLoadingStatus(false);
-                setObjectsList(instances);
+                setInstanceList(instances);
             }
         }
 
         fetchInstancesList();
-    }, [loadingStatus, aggregateName, objectsList]);
+    }, [loadingStatus, aggregateName, instanceList]);
 
     return (
 
@@ -65,48 +59,36 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
                 (<div>Loading results</div>)
                 : (
                     <TableContainer>
-                        <Table sx={{ minWidth: 650 }} aria-label="simple table"></Table>
-                        {objectsList &&
+                        <Table sx={{ minWidth: 650 }} aria-label="<%= it.aggregate_name %> table"></Table>
+                        {instanceList &&
                             <React.Fragment>
                                 <TableHead>
                                     <TableRow>
                                         <TableCell align="right">
                                             <strong>Index</strong>
-                                        </TableCell>
-                                        {objectsList.length > 0
-                                            ? Object
-                                                .keys(excludeKey(objectsList[0], ["$id", "$type"]))
-                                                .map((key, ix) =>
-                                                    <TableCell key={ix} align="right">
-                                                        <strong>{key}</strong>
-                                                    </TableCell>
-                                                )
-                                            : (<TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                                <TableCell align="right">No corresponding objects found.</TableCell>
-                                            </TableRow>)
-                                        }
+                                        </TableCell><% const propertyNames = Object.keys(it.table_schema.properties); const excludedNames = ["id", "type"]; %><% for (let index = 0; index < propertyNames.length; index++) { %><% const propertyName = propertyNames[index]; %><% if (excludedNames.includes(propertyName)) continue; %>
+                                        <TableCell key={<%= index %>} align="right" sx={{ width: window.innerWidth / <%= propertyNames.length - excludedNames.length %> }}>
+                                            <strong><%= it.table_schema.properties[propertyName]?.title ?? propertyName %></strong>
+                                        </TableCell><% } %>
+                                        <% if (hasTransitions) { %><TableCell align="right" /><% } %>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {objectsList.length > 0 &&
-                                        objectsList.map((obj, idx) =>
+                                    {
+                                        instanceList.map((instance, idx) =>
                                             <TableRow
                                                 key={idx}
-                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                            >
                                                 <TableCell align="right">
                                                     {idx + 1}
-                                                </TableCell>
-                                                {Object
-                                                    .keys(excludeKey(obj, ["$id", "$type"]))
-                                                    .map((key, ix) =>
-                                                        <TableCell key={ix} align="right">
-                                                            {stringify(obj[key])}
-                                                        </TableCell>
-                                                    )
-                                                }
+                                                </TableCell><% for (let index = 0; index < propertyNames.length; index++) { %><% const propertyName = propertyNames[index];%><% if (propertyName === "id" || propertyName === "type") continue; %>
+                                                <TableCell key={<%= index %>} align="right">
+                                                    {stringify(instance["<%= propertyName %>"])}
+                                                </TableCell><% } %><% if (hasTransitions) { %>
                                                 <TableCell>
-                                                    <<%= it.instance_capability_options %> instanceId={obj["$id"]} />
-                                                </TableCell>
+                                                    <<%= it.instance_capability_options %> instanceId={instance["$id"]} />
+                                                </TableCell><% } %>
                                             </TableRow>
                                         )
                                     }

@@ -9,7 +9,7 @@ export class JsonSchemaProvider extends DataspecerBaseSchemaProvider implements 
         super(dataSpecificationIri, "schema.json");
     }
 
-    async getSchemaLayerArtifact(file: JSZipObject, aggregate: AggregateMetadata): Promise<LayerArtifact> {
+    protected async getSchemaLayerArtifact(file: JSZipObject, aggregate: AggregateMetadata): Promise<LayerArtifact> {
         const fileContent = await file.async("string");
         const result: LayerArtifact = {
             filePath: `./schemas/json/${aggregate.technicalLabel}-schema.json`,

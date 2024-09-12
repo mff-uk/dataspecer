@@ -3,6 +3,7 @@ import { ApplicationLayerStage } from "../app-logic-layer/pipeline-stage";
 import { DetailTemplateDalGeneratorFactory } from "../data-layer/generator-factory";
 import { DataLayerGeneratorStage } from "../data-layer/pipeline-stage";
 import { GeneratorPipeline } from "../engine/generator-pipeline";
+import { CAPABILITY_BASE_IRI } from ".";
 import { PresentationLayerTemplateGeneratorFactory } from "../presentation-layer/generator-factory";
 import { PresentationLayerStage } from "../presentation-layer/pipeline-stage";
 import { InstanceTypeCapabilityGenerator } from "./capability-generator-interface";
@@ -11,7 +12,7 @@ import { CapabilityConstructorInput } from "./constructor-input";
 export class DetailCapability extends InstanceTypeCapabilityGenerator {
 
     public static readonly label: string = "detail";
-    public static readonly identifier: string = `https://dataspecer.com/application_graph/capability/${this.label}`;
+    public static readonly identifier: string = CAPABILITY_BASE_IRI + this.label;
 
     getCapabilityLabel = (): string => DetailCapability.label;
 

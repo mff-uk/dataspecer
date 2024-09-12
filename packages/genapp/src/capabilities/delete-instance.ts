@@ -4,13 +4,14 @@ import { ApplicationLayerStage } from "../app-logic-layer/pipeline-stage";
 import { DeleteInstanceTemplateGeneratorFactory } from "../data-layer/generator-factory";
 import { DataLayerGeneratorStage } from "../data-layer/pipeline-stage";
 import { GeneratorPipeline } from "../engine/generator-pipeline";
+import { CAPABILITY_BASE_IRI } from ".";
 import { InstanceTypeCapabilityGenerator } from "./capability-generator-interface";
 import { CapabilityConstructorInput } from "./constructor-input";
 
 export class DeleteInstanceCapability extends InstanceTypeCapabilityGenerator {
 
     public static readonly label: string = "delete-instance";
-    public static readonly identifier: string = `https://dataspecer.com/application_graph/capability/${this.label}`;
+    public static readonly identifier: string = CAPABILITY_BASE_IRI + this.label;
 
     getCapabilityLabel = (): string => DeleteInstanceCapability.label;
 

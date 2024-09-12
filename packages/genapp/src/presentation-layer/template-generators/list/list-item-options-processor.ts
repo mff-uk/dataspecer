@@ -6,6 +6,7 @@ import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/templat
 interface ListItemCapabilityOptionsTemplate extends TemplateDescription {
     placeholders: {
         export_name: string;
+        aggregate_technical_label: string;
         capability_transitions: AllowedTransition[];
     };
 }
@@ -25,6 +26,7 @@ export class ListItemCapabilityOptionsGenerator extends TemplateConsumer<ListIte
         const optionsTemplate: ListItemCapabilityOptionsTemplate = {
             templatePath: this._templatePath,
             placeholders: {
+                aggregate_technical_label: dependencies.aggregate.technicalLabel,
                 export_name: exportedObjectName,
                 capability_transitions: dependencies.transitions,
             }

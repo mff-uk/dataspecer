@@ -9,10 +9,14 @@ export interface ImportRelativePath {
 
 export interface TemplateDescription {
     templatePath: string;
-    placeholders?: { [placeHolderName: string]: string | ImportRelativePath | object };
+    placeholders?: { [placeHolderName: string]: string | ImportRelativePath | object | null };
 }
 
 function isImportRelativePath(obj: any): obj is ImportRelativePath {
+    if (!obj) {
+        return false;
+    }
+
     const relPath = (obj as ImportRelativePath);
     return relPath !== undefined
         && relPath.from !== undefined

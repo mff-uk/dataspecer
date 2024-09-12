@@ -1,5 +1,3 @@
-import { Iri } from "../../application-config";
-
 export enum ApplicationGraphEdgeType {
     Transition = "transition",
     Aggregation = "aggregation",
@@ -7,8 +5,8 @@ export enum ApplicationGraphEdgeType {
 }
 
 export type ApplicationGraphEdge = {
-    iri: Iri; // edge iri
-    source: Iri; // outgoing node iri
-    target: Iri; // incoming node iri
+    iri: string; // edge iri
+    source: string; // outgoing node iri
+    target: string; // incoming node iri
     type: ApplicationGraphEdgeType;
 };

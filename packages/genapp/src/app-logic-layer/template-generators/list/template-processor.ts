@@ -63,7 +63,10 @@ export class ListAppLayerTemplateProcessor extends ApplicationLayerTemplateGener
                 },
                 list_reader_interface_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
-                    to: readerInterfaceArtifact.filePath
+                    to: dependencies.pathResolver.getFullSavePath(
+                        readerInterfaceArtifact.filePath,
+                        readerInterfaceArtifact.exportedObjectName
+                    )
                 }
             }
         }

@@ -33,7 +33,7 @@ export const <%= it.export_name %> = ({ instanceId }: { instanceId: string }) =>
             <IconButton
                 aria-label="instance-more-options"
                 id="long-button"
-                aria-controls={open ? "long-menu" : undefined}
+                aria-controls={open ? "<%= it.aggregate_technical_label %>-menu" : undefined}
                 aria-expanded={open ? "true" : undefined}
                 aria-haspopup="true"
                 onClick={handleClick}
@@ -41,7 +41,7 @@ export const <%= it.export_name %> = ({ instanceId }: { instanceId: string }) =>
                 <MoreVertIcon />
             </IconButton>
             <Menu
-                id="long-menu"
+                id="<%= it.aggregate_technical_label %>-menu"
                 MenuListProps={{ "aria-labelledby": "long-button" }}
                 anchorEl={anchorEl}
                 open={open}

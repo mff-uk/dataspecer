@@ -1,12 +1,12 @@
-import { AggregateMetadata, Iri } from "../../application-config";
+import { AggregateMetadata } from "../../application-config";
 import DalApi from "../../data-layer/dal-generator-api";
 import { ApplicationGraphEdge } from "./application-graph-edge";
 import { ApplicationGraph } from "./application-graph";
 
 export type ApplicationGraphNodeType = {
-    iri: Iri;        // node iri
-    structure: Iri;  // iri of the datastructure the node refers to
-    capability: Iri; // iri of the dataspecer defined capability
+    iri: string;        // node iri
+    structure: string;  // iri of the datastructure the node refers to
+    capability: string; // iri of the dataspecer defined capability
     config: object;     // key-value pairs specific for the specific capability
 }
 
