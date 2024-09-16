@@ -5,6 +5,7 @@ import { DetailCapabilityMetadata } from "../capabilities/detail";
 import { ListCapabilityMetadata } from "../capabilities/list";
 import { PresentationLayerGenerator } from "./strategy-interface";
 import { CreateInstanceComponentTemplateProcessor } from "./template-generators/create/create-component-processor";
+import { DeleteInstanceComponentTemplateProcessor } from "./template-generators/delete/delete-instance-template-generator";
 import { DetailComponentTemplateProcessor } from "./template-generators/detail/detail-template-processor";
 import { ListTableTemplateProcessor } from "./template-generators/list/list-table-template-processor";
 
@@ -34,7 +35,10 @@ export const PresentationLayerTemplateGeneratorFactory: PresentationLayerGenerat
                 filePath: `Create${pascalCaseAggregateName}Instance.tsx`,
                 templatePath: "./create/presentation-layer/create-instance-component"
             }),
-            [deleteMetadata.getIdentifier()]: undefined!,
+            [deleteMetadata.getIdentifier()]: new DeleteInstanceComponentTemplateProcessor({
+                filePath: `Delete${pascalCaseAggregateName}Instance.tsx`,
+                templatePath: "./delete/presentation-layer/delete-instance-confirmation-modal"
+            }),
         }
 
         const generator = capabilityGeneratorMap[capabilityIri];

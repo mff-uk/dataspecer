@@ -4,6 +4,8 @@ import { ApplicationLayerStage } from "../app-logic-layer/pipeline-stage";
 import { DeleteInstanceTemplateGeneratorFactory } from "../data-layer/generator-factory";
 import { DataLayerGeneratorStage } from "../data-layer/pipeline-stage";
 import { GeneratorPipeline } from "../engine/generator-pipeline";
+import { PresentationLayerTemplateGeneratorFactory } from "../presentation-layer/generator-factory";
+import { PresentationLayerStage } from "../presentation-layer/pipeline-stage";
 import { BaseCapabilityGenerator, InstanceCapabilityMetadata } from "./capability-generator-interface";
 import { CapabilityConstructorInput } from "./constructor-input";
 
@@ -23,12 +25,16 @@ export class DeleteInstanceCapability extends BaseCapabilityGenerator {
             this.getIdentifier()
         );
 
-        //const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory.getPresentationLayerGenerator(targetAggregateName, DeleteInstanceCapability.identifier);
+        const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory
+            .getPresentationLayerGenerator(
+                constructorInput.dataStructureMetadata,
+                this.getIdentifier()
+            );
 
         this._capabilityStagesGeneratorPipeline = new GeneratorPipeline(
             new DataLayerGeneratorStage(constructorInput.saveBasePath, dalLayerGeneratorStrategy),
-            new ApplicationLayerStage(constructorInput.saveBasePath, appLayerGeneratorStrategy)
-            //new PresentationLayerStage(DeleteInstanceCapability.identifier, presentationLayerGeneratorStrategy)
+            new ApplicationLayerStage(constructorInput.saveBasePath, appLayerGeneratorStrategy),
+            new PresentationLayerStage(constructorInput.saveBasePath, this.getLabel(), presentationLayerGeneratorStrategy)
         );
     }
 }

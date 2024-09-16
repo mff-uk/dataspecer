@@ -48,7 +48,10 @@ export class TransitionsGenerator {
         },
         [this.detailMetadata.getIdentifier()]: {
             label: this.detailMetadata.getLabel(),
-            aggregations: [],
+            aggregations: [
+                this.listMetadata,
+                this.createMetadata,
+            ],
             redirections: [],
             transitions: [
                 this.listMetadata,
@@ -58,17 +61,17 @@ export class TransitionsGenerator {
         [this.createMetadata.getIdentifier()]: {
             label: this.createMetadata.getLabel(),
             aggregations: [],
-            transitions: [],
             redirections: [
                 this.listMetadata,
                 this.detailMetadata
-            ]
+            ],
+            transitions: [],
         },
         [this.deleteMetadata.getIdentifier()]: {
             label: this.deleteMetadata.getLabel(),
             aggregations: [],
-            transitions: [],
             redirections: [this.listMetadata],
+            transitions: [],
         }
     };
 

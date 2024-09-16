@@ -15,7 +15,7 @@ interface ListTableTemplate extends TemplateDescription {
         list_app_layer_path: ImportRelativePath;
         instance_capability_options: string | null;
         instance_capability_options_path: ImportRelativePath | null;
-        table_schema: any;
+        table_schema: object;
         list_collection_transitions: any[];
         navigation_hook: string;
         navigation_hook_path: ImportRelativePath;

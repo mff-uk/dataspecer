@@ -58,7 +58,7 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
             >
                 <CircularProgress color="inherit" />
             </Backdrop><% for (let index = 0; index < it.list_collection_transitions.length; index++) { %><% const collectionTransition = it.list_collection_transitions[index]; %>
-            <Button id="<%= collectionTransition.id %>-transition-button" diasbled={isLoading} sx={{ marginRight: 1 }} variant="contained" onClick={() => handleCollectionCapabilityRedirect("<%= collectionTransition.id %>")}><%= collectionTransition.label %>: <%= it.aggregate_name %></Button>
+            <Button id="<%= collectionTransition.id %>-transition-button" disabled={isLoading} sx={{ marginRight: 1 }} variant="contained" onClick={() => handleCollectionCapabilityRedirect("<%= collectionTransition.id %>")}><%= collectionTransition.label %>: <%= it.aggregate_name %></Button>
             <% } %>
             <TableContainer>
                 <Table sx={{ minWidth: 650 }} aria-label="<%= it.aggregate_name %> table"></Table>

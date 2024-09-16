@@ -1,14 +1,173 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, ReactElement, FC } from 'react';
 import { <%= it.detail_capability_app_layer %> } from <%~ it.detail_app_layer_path %>;
 // TODO: line below might need proper generator
 import { AggregateInstance } from '../../interfaces/capability-result';
 import { useSearchParams } from 'react-router-dom';
 import Alert from '@mui/material/Alert';
 import { Backdrop, CircularProgress } from '@mui/material';
-import Form from "@rjsf/mui";
-import validator from "@rjsf/validator-ajv8";
-import { RJSFSchema } from "@rjsf/utils";
-import * as <%= it.json_schema %> from <%~ it.json_schema_path %>;
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import { <%= it.navigation_hook %> } from <%~ it.navigation_hook_path %>;
+<%
+    function getDetailRenderComponentByProperty(propertyName, propertySchema, instanceRef) {
+        if (!propertySchema.type) {
+            return "";
+        }
+
+        const instanceReference = propertyName !== null
+            ? `${instanceRef}["${propertyName}"]`
+            : instanceRef;
+
+        let componentName = "DefaultObjectRenderer";
+
+        switch (propertySchema.type) {
+            case "string":
+                componentName = (propertySchema.format && propertySchema.format === "iri")
+                    ? "IriLinkRenderer"
+                    : "StringRenderer"
+                break;
+            case "object":
+                return (
+                `<ObjectRenderer
+                            title="${propertySchema.title ?? ""}"
+                            properties={[${Object.keys(propertySchema.properties).map(x => `"${x}"`)}]}
+                            objectValue={${instanceRef}["${propertyName}"]}
+                        />`);
+                break;
+            case "array":
+                return (
+                    `<ArrayRenderer
+                        title="${propertySchema.title ?? ""}"
+                        arrayRef={${instanceRef}["${propertyName}"]}
+                        itemComponents={{}}
+                    />`)
+            default:
+                componentName = "DefaultObjectRenderer fromSwitch={true}"
+        }
+
+        return `<${componentName} name={"${propertyName ?? ""}"} value={${instanceReference}}/>`
+    }
+%>
+const PropertyAlert = ({ errorPropertyName }: { errorPropertyName: string}) => {
+    return <Alert severity="error">Instance property "{errorPropertyName}" does not correspond to declared schema.</Alert>
+}
+
+type ComponentProps = {
+    name: any,
+    value: any
+}
+
+const DefaultObjectRenderer = ({ name, value }) => {
+
+    return (
+        <div>
+            JSON.stringify(value);
+        </div>
+    )
+}
+
+const StringRenderer = ({ name, value }) => {
+    return (
+        <Box component="section">
+            <Typography variant="body1">
+                {name}
+            </Typography>
+            <Typography variant="body2">
+                {value}
+            </Typography>
+        </Box>
+    )
+}
+
+const IriLinkRenderer = ({ name, value }) => {
+
+    const [isValidUrl, setIsValidUrl] = useState<boolean>(false);
+
+    useEffect(() => {
+        try {
+            new URL(value);
+            setIsValidUrl(true);
+        } catch {
+            setIsValidUrl(false);
+        }
+    }, [value]);
+
+    return (
+        <Box component="section">
+            {!isValidUrl
+                ? <PropertyAlert errorPropertyName={name} />
+                : <a href={value}>
+                    {value}
+                </a>
+            }
+        </Box>
+    )
+}
+
+const KeyValuePair = ({ objectKey, objectValue }) => {
+
+    return (
+        <Box mb="lg">
+            <Typography variant="body1">
+                { objectKey }
+            </Typography>
+            <Typography variant="body2">
+                { objectValue }
+            </Typography>
+        </Box>
+    );
+}
+
+const ObjectRenderer = ({ title, properties, objectValue }) => {
+
+    return (
+        <Box component="section">
+            {(typeof objectValue !== "object")
+                ? <PropertyAlert errorPropertyName={title} />
+                : Object.entries(objectValue).map(([key, value]) =>
+                    <KeyValuePair
+                        key={key}
+                        objectKey={key}
+                        objectValue={value}
+                    />
+                )
+            }
+        </Box>
+    );
+}
+
+type ArrayRendererProps = {
+    title: string,
+    arrayRef: any,
+    itemComponents: Record<string, ReactElement<ComponentProps>>;
+}
+
+const ArrayRenderer: FC<ArrayRendererProps> = (props) => {
+
+    const { title, arrayRef, itemComponents } = props;
+
+    return (
+        <Box component="section">
+            {(!Array.isArray(arrayRef))
+                ? <PropertyAlert errorPropertyName={title} />
+                : (
+                    <>
+                        <Typography variant="body1">
+                            {title}
+                        </Typography>
+                        <ul>
+                            {(arrayRef || []).map((item, idx) =>
+                                <li key={idx}>
+                                    {JSON.stringify(item)}
+                                </li>
+                            )}
+                        </ul>
+                    </>)
+            }
+        </Box>
+    )
+}
 
 export default function <%= it.export_name %>() {
 
@@ -17,15 +176,21 @@ export default function <%= it.export_name %>() {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [searchParams, setSearchParams] = useSearchParams();
     const [instanceId, setInstanceId] = useState<string>("");
+    const navigationHooks = <%= it.navigation_hook %>();
 
-    const schema: RJSFSchema = <%~ it.json_schema %> as RJSFSchema;
-    const debugView = false;
+    const handleDetailClick = (link: string, capabilityType: string) => {
+
+        if (capabilityType === "instance") {
+            navigationHooks.handleInstanceCapabilityRedirect(link, instanceId);
+        } else {
+            navigationHooks.handleCollectionCapabilityRedirect(link);
+        }
+    }
 
     useEffect(() => {
 
         const fetchInstanceDetail = async () => {
             if (!instance) {
-            console.log(searchParams);
                 const id = searchParams.get("instanceId");
 
                 if (!id) {
@@ -53,22 +218,8 @@ export default function <%= it.export_name %>() {
 
     return (
         <>
-            <h2>Detail of "<%= it.aggregate_name %>" instance</h2>
-            <% for (let index = 0; index < it.capability_transitions.length; index++) { %><% const transition = it.capability_transitions[index]; %>
-                <button key={"<%= transition.id %>"} onClick={() => alert("Should redirect to <%= transition.id %>")}><%= transition.label %></button>
-            <% } %>
-            {
-                debugView &&
-                <div>
-                    {
-                        !isLoading && (
-                            instance
-                                ? JSON.stringify(instance)
-                                : "No detail"
-                        )
-                    }
-                </div>
-            }
+
+            <h2>Detail of "<%= it.json_schema.title %>" instance</h2>
             { isMissingInstance && <Alert onClose={() => {}} severity="error">{`No valid instance found for ${instanceId}`}</Alert> }
             <Backdrop
                 sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
@@ -76,21 +227,21 @@ export default function <%= it.export_name %>() {
             >
                 <CircularProgress color="inherit" />
             </Backdrop>
-            {
-                !isLoading &&
-                (
-                    isMissingInstance
-                    ? <div>{`No valid instance found for ${instanceId}`}</div>
-                    : <Form
-                    id={`data-set__${instanceId}`}
-                    schema={schema}
-                    validator={validator}
-                    uiSchema={{}}
-                    formData={instance!.raw}
-                    showErrorList="top"
-                    readonly={true}
-                />
-                )
+            <% for (let index = 0; index < it.capability_transitions.length; index++) { %><% const transition = it.capability_transitions[index]; %>
+                <Button key={"<%= transition.id %>"} id="<%= transition.id %>-transition-button" disabled={isLoading} sx={{ marginRight: 1 }} variant="contained" onClick={() => handleDetailClick("<%= transition.id %>", "<%= transition.capabilityType %>")}><%= transition.label %></Button>
+            <% } %>
+            { instance &&
+                <Box id="<%= it.aggregate_name %>-detail" component="section"><% const propertyNames = Object.keys(it.json_schema.properties); %><% for (let index = 0; index < propertyNames.length; index++) { %><% const propName = propertyNames[index]; const propValue = it.json_schema.properties[propName]; %><% if (propName === "type") continue; %>
+                    <Box id="<%~ propName %>-property-key" component="section" sx={{ p: 2 }}>
+                        <h4 id="<%~ propName %>-property-key"><% const name = (propValue.title ?? propName); const displayName = `${name.charAt(0).toUpperCase()}${name.slice(1)}` %>
+                            <%~ displayName %>:
+                        </h4>
+                        <label id="<%~ propName %>-property-value">
+                            <%~ getDetailRenderComponentByProperty(propName, propValue, "instance.raw") %>
+                            {/* JSON.stringify(instance.raw["<%~ propName %>"]) */}
+                        </label>
+                    </Box><% } %>
+                </Box>
             }
         </>
     )
