@@ -50,7 +50,7 @@ export interface VisualModel extends TypedObject, LegacyModel {
     getModelColor(identifier: string): HexColor | null;
 
     /**
-     * @returns All stored model color pairs.
+     * @returns All stored model data pairs.
      */
     getModelsData(): Map<string, VisualModelData>;
 
