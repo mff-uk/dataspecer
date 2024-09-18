@@ -41,7 +41,7 @@ import {
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useClassesContext } from "./context/classes-context";
-import { type VisualEntity } from "@dataspecer/core-v2/visual-model";
+import { type WritableVisualModel, type VisualEntity, type VisualNode, isVisualNode, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
 import { type AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
 import {
     type SemanticModelClassUsage,
@@ -76,25 +76,28 @@ export const Visualization = () => {
     const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
     const changedVisualModel = useRef<boolean>(true);
 
-
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const nodeTypes = useMemo(() => ({ classCustomNode: ClassCustomNode }), []);
     const edgeTypes = useMemo(() => ({ floating: SimpleFloatingEdge }), []);
 
-    const reactFlowInstance = useReactFlow();
+    const reactFlowInstance = useReactFlow<object, object>();
 
     // --- handlers --- --- ---
 
-    const handleAddEntityToActiveView = useCallback(
-        (entityId: string, position?: XYPosition) => {
-            const updateStatus = activeVisualModel?.updateEntity(entityId, { visible: true, position });
-            if (!updateStatus) {
-                activeVisualModel?.addEntity({ sourceEntityId: entityId, position });
-            }
-        },
-        [activeVisualModel]
-    );
+    const handleAddEntityToActiveView = useCallback((modelId: string, entityId: string, position: XYPosition) => {
+        const visualModel = activeVisualModel as WritableVisualModel;
+        if (visualModel === null) {
+            return;
+        }
+        visualModel.addVisualNode({
+            model: modelId,
+            representedEntity: entityId,
+            content: [],
+            position: { x: position.x, y: position.y, anchored: null },
+            visualModels: [],
+        });
+    }, [activeVisualModel]);
 
     const onConnect = useCallback(
         (connection: Connection) => {
@@ -128,8 +131,9 @@ export const Visualization = () => {
                 y: event.clientY,
             });
 
-            console.log("on drop handler", event, reactFlowInstance, event.dataTransfer, type, entityId, position);
-            handleAddEntityToActiveView(entityId, position);
+            console.log("onDrop", {event});
+            // TODO
+            // handleAddEntityToActiveView(entityId, position);
         },
         [reactFlowInstance, handleAddEntityToActiveView]
     );
@@ -153,7 +157,9 @@ export const Visualization = () => {
         if (!modelId) {
             return;
         }
-        activeVisualModel?.setColor(modelId, activeVisualModel.getColor(modelId) ?? "69ff69"); // FIXME: a better way to make all edges rerender?
+        const visualModel = activeVisualModel as WritableVisualModel;
+        // FIXME: A better way to make all edges rerender?
+        visualModel?.setModelColor(modelId, activeVisualModel?.getModelColor(modelId) ?? "69ff69");
     };
 
     const getSvg = () => {
@@ -182,6 +188,7 @@ export const Visualization = () => {
             },
         });
     };
+
 
     const exportCanvasToSvg = () => {
         const svg = getSvg();
@@ -223,18 +230,15 @@ export const Visualization = () => {
                 models: localModels, // eslint-disable-line prefer-const
             } = getCurrentClassesRelationshipsGeneralizationsAndProfiles();
 
-            const createReactflowNode = (cls: SemanticModelClass | SemanticModelClassUsage, visualEntity: VisualEntity | null) => {
+            const createReactflowNode = (cls: SemanticModelClass | SemanticModelClassUsage, visualEntity: VisualNode | null) => {
                 if (!visualEntity) {
                     return;
                 }
                 const pos = visualEntity.position;
-                const visible = visualEntity.visible;
                 if (!cls || !pos) {
                     return;
                 }
-                if (!visible) {
-                    return "hide-it!";
-                }
+
                 let originModelId = sourceModelOfEntityMap.get(cls.id);
 
                 if (!originModelId) {
@@ -261,7 +265,7 @@ export const Visualization = () => {
                     cls.id,
                     cls,
                     pos,
-                    originModelId ? localActiveVisualModel?.getColor(originModelId) : "#ffaa66", // colorForModel.get(UNKNOWN_MODEL_ID),
+                    originModelId ? (localActiveVisualModel?.getModelColor(originModelId) ?? undefined) : "#ffaa66",
                     attributes,
                     attributeProfiles
                 );
@@ -303,8 +307,8 @@ export const Visualization = () => {
                             isSemanticModelClass(aggregatedEntityOfAttributesNode) ||
                             isSemanticModelClassUsage(aggregatedEntityOfAttributesNode)
                         ) {
-                            const n = createReactflowNode(aggregatedEntityOfAttributesNode, visualEntityOfAttributesNode ?? null);
-                            if (n && n != "hide-it!") {
+                            const n = createReactflowNode(aggregatedEntityOfAttributesNode, visualEntityOfAttributesNode as VisualNode ?? null);
+                            if (n !== undefined) {
                                 return [n.id, n];
                             }
                         }
@@ -333,26 +337,22 @@ export const Visualization = () => {
                 }
                 const visualEntity = ve ?? entities[id]?.visualEntity ?? null;
                 if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
-                    const n = createReactflowNode(entity, visualEntity);
-                    if (n == "hide-it!") {
-                        setNodes((prev) => prev.filter((n) => (n.data as ClassCustomNodeDataType).cls.id !== id));
-                    } else if (n) {
-                        const reactflowNode = reactFlowInstance.getNode(entity.id);
-                        const isSameEntity = (reactflowNode?.data as ClassCustomNodeDataType)?.cls === entity;
-                        // We check if the node is already visible on canvas, if it is then we can skip it, reactflow already handled the changes for us.
-                        // You might be wondering why we have to check if the view (visual model) changed.
-                        // Right now the id of the semantic entity is used as the id for the reactflow node (Is it ok? Shouldn't we use the ID of visual entity?)
-                        // That means that if we change the view, the same reactflow nodes are still there even in different view, but they are not rendered unless explictly set again.
-                        // I use useRef to track the view change hopefully it is correct (I am not that familiar with react to be 100% sure).
+                    const n = createReactflowNode(entity, visualEntity as VisualNode);
+                    const reactflowNode = reactFlowInstance.getNode(entity.id);
+                    const isSameEntity = (reactflowNode?.data as ClassCustomNodeDataType)?.cls === entity;
+                    // We check if the node is already visible on canvas, if it is then we can skip it, reactflow already handled the changes for us.
+                    // You might be wondering why we have to check if the view (visual model) changed.
+                    // Right now the id of the semantic entity is used as the id for the reactflow node (Is it ok? Shouldn't we use the ID of visual entity?)
+                    // That means that if we change the view, the same reactflow nodes are still there even in different view, but they are not rendered unless explictly set again.
+                    // I use useRef to track the view change hopefully it is correct (I am not that familiar with react to be 100% sure).
 
-                        if(reactflowNode !== undefined && !changedVisualModel.current && isSameEntity) {
-                            continue;
-                        }
-
-                        setNodes((prev) =>
-                            prev.filter((n) => (n.data as ClassCustomNodeDataType).cls.id !== id).concat(n)
-                        );
+                    if (reactflowNode !== undefined && !changedVisualModel.current && isSameEntity) {
+                        continue;
                     }
+
+                    setNodes((prev) =>
+                        prev.filter((n) => (n.data as ClassCustomNodeDataType).cls.id !== id).concat(n)
+                    );
                 } else if (isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity)) {
                     if (bothEndsHaveAnIri(entity)) {
                         console.warn("both ends have an IRI, skipping", entity, entity.ends);
@@ -380,8 +380,8 @@ export const Visualization = () => {
                         }
 
                         const visEntityOfAttributesNode = entities[aggregatedEntityOfAttributesNode.id]?.visualEntity;
-                        const n = createReactflowNode(aggregatedEntityOfAttributesNode, visEntityOfAttributesNode ?? null);
-                        if (n && n != "hide-it!") {
+                        const n = createReactflowNode(aggregatedEntityOfAttributesNode, visEntityOfAttributesNode as VisualNode ?? null);
+                        if (n  !== undefined) {
                             setNodes((prev) =>
                                 prev.filter((n) => (n.data as ClassCustomNodeDataType).cls.id !== id).concat(n)
                             );
@@ -416,7 +416,6 @@ export const Visualization = () => {
             changedVisualModel.current = false;
 
             const rerenderAllEdges = () => {
-                const visualEntities = aggregatorView.getActiveVisualModel()?.getVisualEntities();
                 const edgesToRender = [
                     ...localRelationships,
                     ...localGeneralizations,
@@ -424,14 +423,10 @@ export const Visualization = () => {
                     ...localProfiles.filter(isSemanticModelClassUsage),
                 ]
                     .map((entity) => {
-                        const visible = visualEntities?.get(entity.id)?.visible ?? true;
-                        if (!visible) {
-                            return;
-                        }
                         const sourceModelId = sourceModelOfEntityMap.get(entity.id);
                         return getEdge(
                             entity,
-                            sourceModelId === undefined ? undefined : (localActiveVisualModel?.getColor(sourceModelId) ?? undefined)
+                            sourceModelId === undefined ? undefined : (localActiveVisualModel?.getModelColor(sourceModelId) ?? undefined)
                         );
                     })
                     .filter((edge): edge is Edge => edge?.id !== undefined);
@@ -441,19 +436,42 @@ export const Visualization = () => {
         };
 
         const callToUnsubscribeSemanticAggregatorCallback = aggregatorView.subscribeToChanges(aggregatorCallback);
-        const callToUnsubscribeCanvasCallback = aggregatorView
-            .getActiveVisualModel()
-            ?.subscribeToChanges((updated: Record<string, VisualEntity>, removed: string[]) => {
-                const entities = aggregatorView.getEntities();
-                const updatedAsAggregatedEntityWrappers = Object.entries(updated).map(([_, visualEntity]) => {
-                    return {
-                        id: visualEntity.sourceEntityId,
-                        aggregatedEntity: entities[visualEntity.sourceEntityId]?.aggregatedEntity ?? null,
-                        visualEntity: visualEntity,
-                    } as AggregatedEntityWrapper;
-                });
-                aggregatorCallback(updatedAsAggregatedEntityWrappers, removed);
-            });
+        const callToUnsubscribeCanvasCallback = aggregatorView.getActiveVisualModel()?.subscribeToChanges({
+                modelColorDidChange() {
+                    // We ignore model color changes here for now.
+                },
+                visualEntitiesDidChange(changes) {
+                    const entities = aggregatorView.getEntities();
+                    const changed: AggregatedEntityWrapper[] = [];
+                    const removed: string [] = [];
+                    for (const {previous, next} of changes) {
+                        if (next !== null) {
+                            // New or changed.
+                            if (isVisualNode(next)) {
+                                changed.push({
+                                    id: next.representedEntity,
+                                    aggregatedEntity: entities[next.representedEntity]?.aggregatedEntity ?? null,
+                                    visualEntity: next,
+                                    rawEntity: null,
+                                    sources: [],
+                                });
+                            } else if (isVisualRelationship(next)) {
+                                changed.push({
+                                    id: next.representedRelationship,
+                                    aggregatedEntity: entities[next.representedRelationship]?.aggregatedEntity ?? null,
+                                    visualEntity: next,
+                                    rawEntity: null,
+                                    sources: [],
+                                });
+                            }
+                        } else if (previous !== null && next === null) {
+                            // Remove
+                            removed.push(previous.identifier);
+                        }
+                    }
+                    aggregatorCallback(changed, removed);
+                },
+        });
 
         aggregatorCallback([], []);
 
@@ -485,12 +503,17 @@ export const Visualization = () => {
 
     const updateVisualEntityIfNecessary = (node: Node) => {
         if (!isAtSamePositionAsVisualEntity(node)) {
-            activeVisualModel?.updateEntity(node.id, { position: node.positionAbsolute });
+            const visualModel = activeVisualModel as WritableVisualModel;
+            if (visualModel === null) {
+                return;
+            }
+            visualModel.updateVisualEntity(node.id, { position: node.positionAbsolute });
         }
     };
 
     const isAtSamePositionAsVisualEntity = (node: Node): boolean => {
-        const visEntityPos = activeVisualModel?.getVisualEntity(node.id)?.position;
+        const visEntity = activeVisualModel?.getVisualEntity(node.id) as VisualNode;
+        const visEntityPos = visEntity?.position;
         return node.positionAbsolute?.x === visEntityPos?.x && node.positionAbsolute?.y === visEntityPos?.y;
     };
 

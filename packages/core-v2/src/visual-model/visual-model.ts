@@ -4,7 +4,7 @@ import { LegacyModel } from "./entity-model/legacy-model";
 import { ObservableEntityModel, UnsubscribeCallback } from "./entity-model/observable-entity-model";
 import { SynchronousEntityModel } from "./entity-model/synchronous-entity-model";
 import { SynchronousWritableEntityModel } from "./entity-model/on-premise-writable-entity-model";
-import { isTypedObject } from "./entity-model/typed-object";
+import { TypedObject, isTypedObject } from "./entity-model/typed-object";
 import { HexColor, VisualEntity, VisualGroup, VisualNode, VisualRelationship } from "./visual-entity";
 import { SerializableModel } from "./entity-model/serializable-model";
 
@@ -16,7 +16,7 @@ export type RepresentedEntityIdentifier = string;
  *
  * Since the visual model capture what use see we design it as synchronous interface.
  */
-export interface VisualModel extends LegacyModel {
+export interface VisualModel extends TypedObject, LegacyModel {
 
     /**
      * @returns Model identifier.
@@ -54,6 +54,12 @@ export interface VisualModel extends LegacyModel {
      */
     getModelsData(): Map<string, VisualModelData>;
 
+}
+
+export const VisualModelType = "visual-model";
+
+export function isVisualModel(what: unknown): what is VisualModel {
+    return isTypedObject(what) && what.getTypes().includes(VisualModelType);
 }
 
 /**
@@ -132,10 +138,10 @@ export interface WritableVisualModel extends VisualModel {
 
 }
 
-export const VisualModelType = "visual-model";
+export const WritableVisualModelType = "writable-visual-model";
 
-export function isVisualModel(what: unknown): what is VisualModel {
-    return isTypedObject(what) && what.getTypes().includes(VisualModelType);
+export function isWritableVisualModel(what: unknown): what is WritableVisualModel {
+    return isTypedObject(what) && what.getTypes().includes(WritableVisualModelType);
 }
 
 /**

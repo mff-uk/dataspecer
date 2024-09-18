@@ -2,7 +2,7 @@ import { type EntityModel } from "@dataspecer/core-v2/entity-model";
 import { BackendPackageService, type ResourceEditable } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useMemo } from "react";
-import type { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
+import type { VisualModel } from "@dataspecer/core-v2/visual-model";
 
 export const useBackendConnection = () => {
     // should fail already when spinning up the next app
@@ -24,7 +24,7 @@ export const useBackendConnection = () => {
     const updateSemanticModelPackageModels = async (
         packageId: string,
         models: EntityModel[],
-        visualModels: VisualEntityModel[]
+        visualModels: VisualModel[]
     ) => {
         return service.updateSemanticModelPackageModels(packageId, models, visualModels);
     };

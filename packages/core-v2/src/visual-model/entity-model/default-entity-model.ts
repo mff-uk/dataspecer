@@ -165,6 +165,7 @@ class DefaultEntityModel implements DefaultEntityModelType {
       throw new Error(`Models do not have same types, actual: '${this.type}', expected: '${payload.type}'.`);
     }
     // We need to ensure backwards compatibility here.
+    console.log("deserializeModel", {payload});
     this.identifier = payload.identifier ?? payload.modelId;
     this.entities = new Map(Object.entries(payload.entities));
     return this;

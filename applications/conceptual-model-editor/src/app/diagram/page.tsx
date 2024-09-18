@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ReactFlowProvider } from "reactflow";
+
 import type { Entity, EntityModel } from "@dataspecer/core-v2/entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { type VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
+import { type WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { type AggregatedEntityWrapper, SemanticModelAggregator } from "@dataspecer/core-v2/semantic-model/aggregator";
 import {
     type SemanticModelClass,
@@ -19,6 +21,7 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+
 import { ClassesContext } from "./context/classes-context";
 import { ModelGraphContext } from "./context/model-context";
 import { type SupportedLanguageType, ConfigurationContext } from "./context/configuration-context";
@@ -31,14 +34,13 @@ import { bothEndsHaveAnIri } from "./util/relationship-utils";
 import { getRandomName } from "../utils/random-gen";
 import { DialogsContextProvider } from "./context/dialogs-context";
 import { QueryParamsProvider, useQueryParamsContext } from "./context/query-params-context";
-
 import { DialogContextProvider } from "./dialog/dialog-context";
 import { DialogRenderer } from "./dialog/dialog-renderer";
-
-import "./page.css";
-import { ReactFlowProvider } from "reactflow";
 import { NotificationList } from "./notification";
 import { ActionsContextProvider } from "./action/actions-react-binding";
+
+import "./page.css";
+import { createWritableVisualModel } from "./util/visual-model-utils";
 
 const Page = () => {
     const [language, setLanguage] = useState<SupportedLanguageType>("en");
@@ -53,7 +55,7 @@ const Page = () => {
     const [generalizations, setGeneralizations] = useState<SemanticModelGeneralization[]>([]);
     const [usages, setUsages] = useState<(SemanticModelClassUsage | SemanticModelRelationshipUsage)[]>([]);
     const [rawEntities, setRawEntities] = useState<(Entity | null)[]>([]);
-    const [visualModels, setVisualModels] = useState(new Map<string, VisualEntityModel>());
+    const [visualModels, setVisualModels] = useState(new Map<string, WritableVisualModel>());
     const [sourceModelOfEntityMap, setSourceModelOfEntityMap] = useState(new Map<string, string>());
 
     const [defaultModelAlreadyCreated, setDefaultModelAlreadyCreated] = useState(false);
@@ -88,7 +90,7 @@ const Page = () => {
 
             const tempAggregator = new SemanticModelAggregator();
             const tempAggregatorView = tempAggregator.getView();
-            const visualModel = new VisualEntityModelImpl(undefined);
+            const visualModel = createWritableVisualModel();
             setVisualModels(new Map([[visualModel.getId(), visualModel]]));
             tempAggregator.addModel(visualModel);
             tempAggregatorView.changeActiveVisualModel(visualModel.getId());
@@ -104,7 +106,7 @@ const Page = () => {
             return () => {
                 setDefaultModelAlreadyCreated(false);
                 setModels(() => new Map<string, EntityModel>());
-                setVisualModels(() => new Map<string, VisualEntityModel>());
+                setVisualModels(() => new Map<string, WritableVisualModel>());
             };
         }
 
@@ -117,7 +119,7 @@ const Page = () => {
                 if (entityModels.length == 0 && visualModels2.length == 0) {
                     console.log("empty models from backend", entityModels, visualModels2);
 
-                    const visualModel = new VisualEntityModelImpl(undefined);
+                    const visualModel = createWritableVisualModel();
                     visualModels2.push(visualModel);
 
                     const model = new InMemorySemanticModel();
@@ -137,7 +139,7 @@ const Page = () => {
                     aggregator.addModel(model);
                 }
 
-                setVisualModels(new Map(visualModels2.map((m) => [m.getId(), m])));
+                setVisualModels(new Map(visualModels2.map((m) => [m.getId(), m as WritableVisualModel])));
                 setModels(new Map(entityModels.map((m) => [m.getId(), m])));
 
                 const tempAggregatorView = aggregator.getView();
@@ -381,7 +383,7 @@ const Page = () => {
 const PageWrapper = () => {
     return (
         <QueryParamsProvider>
-            <ReactFlowProvider>     {/* So we can access functionalities of reactflow inside catalog */}
+            <ReactFlowProvider>
                 <Page />
             </ReactFlowProvider>
         </QueryParamsProvider>

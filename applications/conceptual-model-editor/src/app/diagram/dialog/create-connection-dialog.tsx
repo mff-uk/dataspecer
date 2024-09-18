@@ -1,10 +1,13 @@
+import { useRef, useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import type { Connection } from "reactflow";
+
 import type {
     LanguageString,
     SemanticModelRelationship,
     SemanticModelRelationshipEnd,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { useRef, useEffect, useState, type Dispatch, type SetStateAction } from "react";
-import type { Connection } from "reactflow";
+import type { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+
 import type { AssociationConnectionType, GeneralizationConnectionType } from "../util/edge-connection";
 import { useClassesContext } from "../context/classes-context";
 import { useModelGraphContext } from "../context/model-context";
@@ -17,12 +20,10 @@ import { useConfigurationContext } from "../context/configuration-context";
 import { IriInput } from "../components/input/iri-input";
 import { getModelIri } from "../util/iri-utils";
 import { CardinalityOptions } from "../components/cardinality-options";
-
 import { DialogDetailRow } from "../components/dialog/dialog-detail-row";
 import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/dialog-colored-model-header";
 import { CreateButton } from "../components/dialog/buttons/create-button";
 import { CancelButton } from "../components/dialog/buttons/cancel-button";
-
 import { getEntityLabel } from "../service/entity-service";
 import { t, logger, configuration } from "../application/";
 
@@ -146,8 +147,15 @@ export const useCreateConnectionDialog = () => {
                     break;
             }
 
-            if (result !== null && result.id !== null) {
-                aggregatorView.getActiveVisualModel()?.addEntity({ sourceEntityId: result.id });
+            if (result !== null && result.id !== null && result.id !== undefined) {
+                const visualModel = aggregatorView.getActiveVisualModel() as WritableVisualModel;
+                if (visualModel === null) {
+                    return;
+                }
+                visualModel.addVisualRelationship({
+                    representedRelationship: result.id,
+                    waypoints: [],
+                });
             }
 
             close();

@@ -27,7 +27,6 @@ const translations: Record<string, string | Function> = {
   "create-class-dialog.btn-cancel": "❌ cancel",
   //
   "create-profile-button.title": "Create profile",
-  "create-profile-button.title.missing-handler": "Can't make profiles here, possibly find the entity and make the profile there",
   //
   "modify-entity-dialog.label-class": "Class modification",
   "modify-entity-dialog.label-class-profile": "Class profile modification",

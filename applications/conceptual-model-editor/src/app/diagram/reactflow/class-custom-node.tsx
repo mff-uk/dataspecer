@@ -1,14 +1,17 @@
+import { useMemo } from "react";
+
 import { Handle, Position, type XYPosition, type Node } from "reactflow";
 import type { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import type {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import type { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+
 import { useConfigurationContext } from "../context/configuration-context";
 import { sourceModelOfEntity } from "../util/model-utils";
 import { useModelGraphContext } from "../context/model-context";
-import { useMemo } from "react";
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { useClassesContext } from "../context/classes-context";
 import { EntityProxy } from "../util/detail-utils";
 import { useMenuOptions } from "./components/menu-options";
@@ -40,7 +43,15 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
     const { name, description, iri, profileOf } = EntityProxy(cls, preferredLanguage);
 
     const handleRemoveEntityFromActiveView = () => {
-        aggregatorView.getActiveVisualModel()?.updateEntity(cls.id, { visible: false });
+        const visualModel = aggregatorView.getActiveVisualModel() as WritableVisualModel;
+        if (visualModel === null) {
+            return;
+        }
+        const entity = visualModel.getVisualEntityForRepresented(cls.id);
+        if (entity === null) {
+            return;
+        }
+        visualModel.deleteVisualEntity(entity.identifier);
     };
 
     const isModelLocal = model instanceof InMemorySemanticModel;

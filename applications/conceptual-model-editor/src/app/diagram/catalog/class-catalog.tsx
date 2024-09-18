@@ -1,15 +1,15 @@
 import { useModelGraphContext } from "../context/model-context";
 import { EntitiesOfModel, EntityType } from "./entity-list/entities-of-model";
 
-export const RelationshipCatalog = () => {
+export const EntityCatalog = () => {
     const { models } = useModelGraphContext();
 
     return (
         <ul>
             {[...models.entries()].map(([identifier, model]) => (
                 <EntitiesOfModel
-                    entityType={EntityType.Relationship}
-                    key={identifier + (model.getAlias() ?? "no-model-alias") + "relationships"}
+                    entityType={EntityType.Class}
+                    key={identifier + (model.getAlias() ?? "no-alias") + "classes"}
                     model={model}
                 />
             ))}

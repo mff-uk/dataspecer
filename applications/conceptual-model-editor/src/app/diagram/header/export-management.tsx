@@ -4,7 +4,7 @@ import type { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/con
 import { BackendPackageService } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import type { EntityModel } from "@dataspecer/core-v2/entity-model";
-import type { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
+import type { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { type ExportedConfigurationType, modelsToWorkspaceString, useLocalStorage } from "../features/export/export-utils";
 import { useModelGraphContext } from "../context/model-context";
 import { useDownload } from "../features/export/download";
@@ -59,7 +59,7 @@ export const ExportManagement = () => {
 
     const loadWorkSpaceConfiguration = (
         entityModels: EntityModel[],
-        visualModels: VisualEntityModel[],
+        visualModels: VisualModel[],
         activeView?: string
     ) => {
         replaceModels(entityModels, visualModels);

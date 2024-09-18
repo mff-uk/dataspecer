@@ -1,6 +1,7 @@
 
 import { type InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { createClass as createSemanticModel } from "@dataspecer/core-v2/semantic-model/operations";
+import { createClass as createClassInSemanticModel } from "@dataspecer/core-v2/semantic-model/operations";
+import { isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { logger } from "../application";
 import { type EditClassState } from "../dialog/class/edit-class-dialog-controller";
@@ -14,7 +15,7 @@ export function createClass(
   position: { x: number, y: number } | null,
   state: EditClassState) {
 
-  const operation = createSemanticModel({
+  const operation = createClassInSemanticModel({
     iri: state.iri,
     name: state.name,
     description: state.description,
@@ -22,8 +23,8 @@ export function createClass(
 
   const newClass = model.executeOperation(operation);
   if (newClass.success === false || newClass.id === undefined) {
-    notifications.error("We have not recieved the id of newly created class. See logs for more detail.");
-    logger.error("We have not recieved the id of newly created class.", { "operation": newClass });
+    notifications.error("We have not received the id of newly created class. See logs for more detail.");
+    logger.error("We have not received the id of newly created class.", { "operation": newClass });
     return;
   }
 
@@ -32,14 +33,20 @@ export function createClass(
   }
 
   const visualModel = graph.aggregatorView.getActiveVisualModel();
-  if (visualModel === null) {
+  if (visualModel === null || !isWritableVisualModel(visualModel)) {
     notifications.error("There is no active visual model.");
     return;
   }
 
-  visualModel.addEntity({
-    sourceEntityId: newClass.id,
-    position: position,
+  visualModel.addVisualNode({
+    model: model.getId(),
+    representedEntity: newClass.id,
+    position: {
+      ...position,
+      anchored: null,
+    },
+    content: [],
+    visualModels: [],
   });
 
 }

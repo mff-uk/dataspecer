@@ -1,5 +1,7 @@
-import type { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { type ReactNode, useState, useEffect } from "react";
+
+import type { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
+
 import { getAvailableLanguagesForLanguageString } from "../../util/language-utils";
 
 const LanguageItem = (props: {
@@ -89,7 +91,7 @@ export const MultiLanguageInputForLanguageString = (props: {
         props.onChange?.();
     };
 
-    const { ls, setLs } = props;
+    const { ls, setLs, onChange } = props;
     const languages = getAvailableLanguagesForLanguageString(ls);
     const [currentLang, setCurrentLang] = useState(preferredLanguage || languages.at(0) || "en");
 
@@ -99,9 +101,9 @@ export const MultiLanguageInputForLanguageString = (props: {
         if (!languages.includes(currentLang) && languages.length > 0) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             setCurrentLang(languages.at(0)!);
-            props.onChange?.();
+            onChange?.();
         }
-    }, [languages, currentLang]) ;
+    }, [languages, currentLang, onChange]) ;
 
     const displayString = ls[currentLang] ?? "";
 

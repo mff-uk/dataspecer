@@ -36,6 +36,7 @@ import { EdgeNameLabel } from "./components/edge-name-label";
 import { EdgeUsageNotesLabel } from "./components/edge-usage-notes-label";
 import { CardinalityEdgeLabel } from "./components/edge-cardinality-label";
 import { useDialogsContext } from "../context/dialogs-context";
+import type { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 type SimpleFloatingEdgeDataType = {
     entity:
@@ -121,10 +122,15 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
     }
 
     const handleRemoveEntityFromActiveView = (entityId: string) => {
-        const updateStatus = aggregatorView.getActiveVisualModel()?.updateEntity(entityId, { visible: false });
-        if (!updateStatus) {
-            aggregatorView.getActiveVisualModel()?.addEntity({ sourceEntityId: entityId, visible: false });
+        const visualModel = aggregatorView.getActiveVisualModel() as WritableVisualModel;
+        if (visualModel === null) {
+            return;
         }
+        const entity = visualModel.getVisualEntityForRepresented(entityId);
+        if (entity === null) {
+            return;
+        }
+        visualModel.deleteVisualEntity(entity.identifier);
     };
 
     const modelIsLocal = model instanceof InMemorySemanticModel;

@@ -1,10 +1,13 @@
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { shortenStringTo } from "../../util/utils";
-import { useModelGraphContext } from "../../context/model-context";
-import { useEditInput } from "../../components/input/edit-input";
-import { ModelTypeIcon } from "../../components/model-type-icon";
-import { ColorPicker } from "../../features/color-picker";
 import { useEffect, useMemo, useState } from "react";
+
+import type { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+
+import { shortenStringTo } from "../util/utils";
+import { useModelGraphContext } from "../context/model-context";
+import { useEditInput } from "../components/input/edit-input";
+import { ModelTypeIcon } from "../components/model-type-icon";
+import { ColorPicker } from "../features/color-picker";
 import { randomColorFromPalette } from "~/app/utils/color-utils";
 
 const ModelName = (props: { displayName: string | null }) => (
@@ -12,7 +15,7 @@ const ModelName = (props: { displayName: string | null }) => (
 );
 
 export const ModelItemRow = (props: { modelId: string }) => {
-    const { models, setModelAlias, setModelIri, removeModelFromModels, aggregatorView } = useModelGraphContext();
+    const { models, setModelAlias, setModelIri, removeModel, aggregatorView } = useModelGraphContext();
     const { EditInput, isEditInputActive, openEditInput } = useEditInput();
 
     const { modelId } = props;
@@ -22,17 +25,17 @@ export const ModelItemRow = (props: { modelId: string }) => {
     const displayName = modelAlias ?? shortenStringTo(modelId);
 
     const { activeVisualModel } = useMemo(() => {
-        return { activeVisualModel: aggregatorView.getActiveVisualModel() };
+        return { activeVisualModel: aggregatorView.getActiveVisualModel() as WritableVisualModel };
     }, [aggregatorView]);
 
-    const [currentColor, setCurrentColor] = useState(activeVisualModel?.getColor(modelId) || "#000001");
+    const [currentColor, setCurrentColor] = useState(activeVisualModel?.getModelColor(modelId) || "#000001");
 
     useEffect(() => {
-        let color = activeVisualModel?.getColor(modelId);
+        let color = activeVisualModel?.getModelColor(modelId);
 
         if (!color) {
             color = randomColorFromPalette();
-            activeVisualModel?.setColor(modelId, color);
+            activeVisualModel?.setModelColor(modelId, color);
         }
 
         setCurrentColor(color ?? "#ff00ff");
@@ -41,14 +44,13 @@ export const ModelItemRow = (props: { modelId: string }) => {
     const handleSaveColor = (color: string) => {
         console.log(color, activeVisualModel);
         setCurrentColor(color);
-        activeVisualModel?.setColor(modelId, color);
+        activeVisualModel?.setModelColor(modelId, color);
     };
 
     const saveAlias = (value: string | null) => {
         if (!model) {
             return;
         }
-        console.log("saving new alias", value, " to model ", model);
         setModelAlias(value, model);
     };
 
@@ -56,12 +58,11 @@ export const ModelItemRow = (props: { modelId: string }) => {
         if (!model || !(model instanceof InMemorySemanticModel)) {
             return;
         }
-        console.log("saving new base iri", value, " to model ", model);
         setModelIri(value ?? "", model);
     };
 
     const handleRemoveButtonClicked = () => {
-        removeModelFromModels(props.modelId);
+        removeModel(props.modelId);
     };
 
     const handleModifyModelAliasClicked = () => {

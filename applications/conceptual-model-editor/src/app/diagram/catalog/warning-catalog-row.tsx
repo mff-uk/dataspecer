@@ -1,4 +1,4 @@
-import type { Warning } from "../../context/warnings-context";
+import type { Warning } from "../context/warnings-context";
 
 export const WarningRow = (props: { warning: Warning }) => {
     const { warning } = props;

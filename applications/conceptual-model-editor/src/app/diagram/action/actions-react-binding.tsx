@@ -68,7 +68,7 @@ export const ActionsContextProvider = (props: {
 function createActionsContext(
   options: ConfigurationContextType | null,
   dialogs: DialogApiContextType | null,
-  classes: ClassesContextType | null,
+  _: ClassesContextType | null,
   notifications: UseNotificationServiceWriterType | null,
   graph: ModelGraphContextType | null,
 ): ActionsContextType {

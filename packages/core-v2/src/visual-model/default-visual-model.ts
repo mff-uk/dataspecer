@@ -5,10 +5,12 @@ import {
   WritableVisualModel,
   SynchronousUnderlyingVisualModel,
   VisualModelListener,
-  HexColor,
   RepresentedEntityIdentifier,
   VisualModelData,
+  VisualModelType,
+  WritableVisualModelType,
 } from "./visual-model";
+import { HexColor } from "./visual-entity";
 import { EntityEventListener, UnsubscribeCallback } from "./entity-model/observable-entity-model";
 import { Entity, EntityIdentifier } from "./entity-model/entity";
 
@@ -48,6 +50,10 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
     this.initialize();
     // Register for changes in the model.
     this.model.subscribeToChanges(this);
+  }
+
+  getTypes(): string[] {
+    return [VisualModelType, WritableVisualModelType];
   }
 
   /**

@@ -1,5 +1,5 @@
 import { useModelGraphContext } from "../context/model-context";
-import { EntitiesOfModel } from "./components/entities-of-model";
+import { EntitiesOfModel } from "./entity-list/entities-of-model";
 
 export const AttributeCatalog = () => {
     const { models } = useModelGraphContext();

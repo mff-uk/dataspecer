@@ -7,8 +7,9 @@ import { logger } from "../application";
 import { type ModelGraphContextType } from "../context/model-context";
 import { type CreateModelState, TabType } from "../dialog/model/create-model-dialog-controller";
 import { createRdfsModel, createSgovModel } from "@dataspecer/core-v2/semantic-model/simplified";
-import { type VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
+import { type WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { randomColorFromPalette } from "~/app/utils/color-utils";
+import { createWritableVisualModel } from "../util/visual-model-utils";
 
 const SGOV_IDENTIFIER = "sgov";
 
@@ -67,7 +68,7 @@ function addModelsToGraph(graph: ModelGraphContextType, models: EntityModel[]) {
 
   // If there is no visual model, we create a default one.
   if (graph.aggregatorView.getActiveVisualModel() === null) {
-    const defaultVisualModel = new VisualEntityModelImpl(undefined);
+    const defaultVisualModel = createWritableVisualModel();
     addVisualModelToGraph(graph, defaultVisualModel);
     graph.aggregatorView.changeActiveVisualModel(defaultVisualModel.getId());
   }
@@ -76,12 +77,12 @@ function addModelsToGraph(graph: ModelGraphContextType, models: EntityModel[]) {
     graph.aggregator.addModel(model);
     graph.setModels((previous) => previous.set(model.getId(), model));
     for (const [_, visualModel] of graph.visualModels) {
-      visualModel.setColor(model.getId(), randomColorFromPalette());
+      visualModel.setModelColor(model.getId(), randomColorFromPalette());
     }
   }
 }
 
-const addVisualModelToGraph = (graph: ModelGraphContextType, model: VisualEntityModel) => {
+const addVisualModelToGraph = (graph: ModelGraphContextType, model: WritableVisualModel) => {
   graph.aggregator.addModel(model);
   graph.setVisualModels((previous) => previous.set(model.getId(), model));
 };

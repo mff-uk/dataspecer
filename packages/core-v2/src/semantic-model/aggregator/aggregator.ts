@@ -1,7 +1,7 @@
 import { Entity } from "../../entity-model/entity";
 import { EntityModel } from "../../entity-model/entity-model";
 import { VisualEntity } from "../../visual-model/visual-entity";
-import { VisualModel, isVisualModel } from "../../visual-model/visual-model";
+import { VisualModel, WritableVisualModel, isVisualModel } from "../../visual-model/visual-model";
 import { SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_RELATIONSHIP, SemanticModelClass, SemanticModelRelationship, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "../concepts";
 import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "../usage/concepts";
 
@@ -104,10 +104,10 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
         if (isVisualModel(model)) {
             const unsubscribe = model.subscribeToChanges({
                 modelColorDidChange(identifier, next) {
-                    console.trace("visual-model:modelColorDidChange", {identifier, next});
+                    console.debug("visual-model:modelColorDidChange", {identifier, next});
                 },
                 visualEntitiesDidChange(entities) {
-                    console.trace("visual-model:visualEntitiesDidChange", entities);
+                    console.debug("visual-model:visualEntitiesDidChange", entities);
                 },
             });
             this.models.set(model, unsubscribe);

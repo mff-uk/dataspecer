@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import type { EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import {
@@ -11,18 +12,18 @@ import {
     type SemanticModelRelationshipUsage,
     isSemanticModelClassUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+
 import { EntityProxy } from "../../util/detail-utils";
 import { useConfigurationContext } from "../../context/configuration-context";
 import { IriLink } from "../../components/iri-link";
-import { CreateProfileButton }  from "./create-profile";
-import { DrawOnCanvasButton }  from "./draw-on-canvas";
-import { ExpandButton }  from "./expand";
-import { OpenDetailButton }  from "./open-detail";
-import { RemoveButton  }  from "./remove";
+import { CreateProfileButton } from "../components/create-profile";
+import { DrawOnCanvasButton } from "../components/draw-on-canvas";
+import { ExpandButton } from "../components/expand";
+import { OpenDetailButton } from "../components/open-detail";
+import { RemoveButton } from "../components/remove";
 import { onDragStart } from "../../reactflow/utils";
-import { useCanvasVisibility } from "../../util/canvas-utils";
 import { useDialogsContext } from "../../context/dialogs-context";
-import { MoveViewportToEntityButton } from "./center-viewport-on-entity";
+import { MoveViewportToEntityButton } from "../components/center-viewport-on-entity";
 
 const TreeLikeOffset = (props: { offset?: number }) => {
     const { offset } = props;
@@ -32,6 +33,9 @@ const TreeLikeOffset = (props: { offset?: number }) => {
     return <span style={{ marginLeft: (offset - 1) * 12 }}>└-</span>;
 };
 
+/**
+ * A single
+ */
 export const EntityRow = (props: {
     entity: SemanticModelClass | SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage;
     expandable: null | {
@@ -49,9 +53,9 @@ export const EntityRow = (props: {
         centerViewportOnEntityHandler: () => void;
         isTargetable: boolean;
     };
-
     sourceModel?: EntityModel;
     offset?: number;
+    isOnCanvas: boolean;
 }) => {
     const { openDetailDialog, openModificationDialog, openProfileDialog } = useDialogsContext();
     const { language: preferredLanguage } = useConfigurationContext();
@@ -60,7 +64,6 @@ export const EntityRow = (props: {
     const { name, iri } = EntityProxy(entity, preferredLanguage);
 
     const [isExpanded, setIsExpanded] = useState(expandable?.expanded());
-    const { isOnCanvas } = useCanvasVisibility(entity.id);
     const isDraggable = isSemanticModelClass(entity) || isSemanticModelClassUsage(entity);
 
     const sourceModelIsLocal = sourceModel instanceof InMemorySemanticModel;
@@ -95,13 +98,15 @@ export const EntityRow = (props: {
                 <OpenDetailButton onClick={() => openDetailDialog(entity)} />
                 {drawable && (
                     <DrawOnCanvasButton
-                        visible={isOnCanvas}
+                        visible={props.isOnCanvas}
                         addToCanvas={drawable?.addToViewHandler}
                         removeFromCanvas={drawable?.removeFromViewHandler}
                     />
                 )}
                 <CreateProfileButton onClickHandler={() => openProfileDialog(entity)} />
-                {props.targetable?.isTargetable && <MoveViewportToEntityButton disabled={!isOnCanvas} onClick={props.targetable?.centerViewportOnEntityHandler} />}
+                {props.targetable?.isTargetable
+                    ? <MoveViewportToEntityButton disabled={!props.isOnCanvas} onClick={props.targetable?.centerViewportOnEntityHandler} />
+                    : null}
             </div>
         </div>
     );
