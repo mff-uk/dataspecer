@@ -1,3 +1,4 @@
+import { DETAIL_CAPABILITY_ID } from ".";
 import { TemplateApplicationLayerGeneratorFactory } from "../app-logic-layer/generator-factory";
 import { ApplicationLayerStage } from "../app-logic-layer/pipeline-stage";
 import { DetailTemplateDalGeneratorFactory } from "../data-layer/generator-factory";
@@ -9,14 +10,20 @@ import { BaseCapabilityGenerator, InstanceCapabilityMetadata } from "./capabilit
 import { CapabilityConstructorInput } from "./constructor-input";
 
 export class DetailCapabilityMetadata extends InstanceCapabilityMetadata {
-    getHumanLabel = (): string => "Detail";
+
+    constructor(label: string | undefined) {
+        super(label ?? "Detail");
+    }
+
+    static label: string = "detail";
     getLabel = (): string => "detail";
+    getIdentifier = (): string => DETAIL_CAPABILITY_ID;
 }
 
 export class DetailCapability extends BaseCapabilityGenerator {
 
     constructor(constructorInput: CapabilityConstructorInput) {
-        super(constructorInput.dataStructureMetadata, new DetailCapabilityMetadata());
+        super(constructorInput.dataStructureMetadata, new DetailCapabilityMetadata(constructorInput.capabilityLabel));
 
         const dalLayerGeneratorStrategy = DetailTemplateDalGeneratorFactory.getDalGeneratorStrategy(constructorInput.dataStructureMetadata.specificationIri, constructorInput.datasource);
         const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(

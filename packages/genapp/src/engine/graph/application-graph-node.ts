@@ -2,12 +2,18 @@ import { AggregateMetadata } from "../../application-config";
 import DalApi from "../../data-layer/dal-generator-api";
 import { ApplicationGraphEdge } from "./application-graph-edge";
 import { ApplicationGraph } from "./application-graph";
+import { LanguageString } from "@dataspecer/core/core";
 
 export type ApplicationGraphNodeType = {
+    label: LanguageString;
     iri: string;        // node iri
     structure: string;  // iri of the datastructure the node refers to
     capability: string; // iri of the dataspecer defined capability
-    config: object;     // key-value pairs specific for the specific capability
+    // config: {
+    //     "starting": boolean,
+    //     "pageTitle": LanguageString,
+    // } & Record<string, any>;     // key-value pairs specific for the specific capability
+    config: Record<string, any>;
 }
 
 export class ApplicationGraphNode {
@@ -21,6 +27,22 @@ export class ApplicationGraphNode {
 
     public getIri() {
         return this._node.iri;
+    }
+
+    public getNodeLabel(languageKey?: string): string | undefined {
+
+        const labels = this._node.label;
+        if (!labels ||
+            Object.keys(labels).length === 0) {
+            return undefined;
+        }
+
+        if (!languageKey || !(languageKey in labels)) {
+            // take first value
+            return Object.values(labels).at(0)!;
+        }
+
+        return labels[languageKey]!;
     }
 
     public getCapabilityInfo() {

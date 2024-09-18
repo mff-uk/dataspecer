@@ -3,7 +3,15 @@ import {
     ApplicationGraphEdgeType,
     ApplicationGraphNode
 } from "../graph";
-import { CapabilityType } from "../../capabilities";
+import {
+    CapabilityIdentifier,
+    CapabilityType,
+    CREATE_CAPABILITY_ID,
+    DELETE_CAPABILITY_ID,
+    DETAIL_CAPABILITY_ID,
+    getCapabilityMetadata,
+    LIST_CAPABILITY_ID
+} from "../../capabilities";
 import { ListCapabilityMetadata } from "../../capabilities/list";
 import { DetailCapabilityMetadata } from "../../capabilities/detail";
 import { CreateInstanceCapabilityMetadata } from "../../capabilities/create-instance";
@@ -16,61 +24,54 @@ export type AllowedTransition = {
     transitionType: ApplicationGraphEdgeType
 }
 
-type CapabilityMetadataType = ListCapabilityMetadata | DetailCapabilityMetadata | CreateInstanceCapabilityMetadata | DeleteInstanceCapabilityMetadata;
-
 type AllowedTransitionsMap = {
     [capabilityIri: string]: {
         label: string,
-        aggregations: CapabilityMetadataType[],
-        redirections: CapabilityMetadataType[],
-        transitions: CapabilityMetadataType[]
+        aggregations: CapabilityIdentifier[],
+        redirections: CapabilityIdentifier[],
+        transitions: CapabilityIdentifier[]
     }
 }
 
 export class TransitionsGenerator {
 
-    private readonly listMetadata = new ListCapabilityMetadata();
-    private readonly detailMetadata = new DetailCapabilityMetadata();
-    private readonly createMetadata = new CreateInstanceCapabilityMetadata();
-    private readonly deleteMetadata = new DeleteInstanceCapabilityMetadata();
-
     private readonly _allowedTransitionTypes: AllowedTransitionsMap = {
-        [this.listMetadata.getIdentifier()]: {
-            label: this.listMetadata.getLabel(),
+        [LIST_CAPABILITY_ID]: {
+            label: ListCapabilityMetadata.label,
             aggregations: [],
             redirections: [],
             transitions: [
-                this.createMetadata,
-                this.deleteMetadata,
-                this.detailMetadata,
-                this.listMetadata
+                CREATE_CAPABILITY_ID,
+                DELETE_CAPABILITY_ID,
+                DETAIL_CAPABILITY_ID,
+                LIST_CAPABILITY_ID
             ]
         },
-        [this.detailMetadata.getIdentifier()]: {
-            label: this.detailMetadata.getLabel(),
+        [DETAIL_CAPABILITY_ID]: {
+            label: DetailCapabilityMetadata.label,
             aggregations: [
-                this.listMetadata,
-                this.createMetadata,
+                LIST_CAPABILITY_ID,
+                CREATE_CAPABILITY_ID,
             ],
             redirections: [],
             transitions: [
-                this.listMetadata,
-                this.deleteMetadata
+                LIST_CAPABILITY_ID,
+                DELETE_CAPABILITY_ID
             ]
         },
-        [this.createMetadata.getIdentifier()]: {
-            label: this.createMetadata.getLabel(),
+        [CREATE_CAPABILITY_ID]: {
+            label: CreateInstanceCapabilityMetadata.label,
             aggregations: [],
             redirections: [
-                this.listMetadata,
-                this.detailMetadata
+                LIST_CAPABILITY_ID,
+                DETAIL_CAPABILITY_ID
             ],
             transitions: [],
         },
-        [this.deleteMetadata.getIdentifier()]: {
-            label: this.deleteMetadata.getLabel(),
+        [DELETE_CAPABILITY_ID]: {
+            label: DeleteInstanceCapabilityMetadata.label,
             aggregations: [],
-            redirections: [this.listMetadata],
+            redirections: [LIST_CAPABILITY_ID],
             transitions: [],
         }
     };
@@ -79,7 +80,7 @@ export class TransitionsGenerator {
         sourceCapabilityIri: string,
         targetCapabilityIri: string,
         edgeType: ApplicationGraphEdgeType
-    ): CapabilityMetadataType | undefined {
+    ): CapabilityIdentifier | undefined {
         const sourceAllowed = this._allowedTransitionTypes[sourceCapabilityIri];
 
         if (!sourceAllowed) {
@@ -88,11 +89,11 @@ export class TransitionsGenerator {
 
         switch (edgeType) {
             case ApplicationGraphEdgeType.Transition:
-                return sourceAllowed.transitions.find(x => x.getIdentifier() === targetCapabilityIri);
+                return sourceAllowed.transitions.find(iri => iri === targetCapabilityIri);
             case ApplicationGraphEdgeType.Redirection:
-                return sourceAllowed.redirections.find(x => x.getIdentifier() === targetCapabilityIri);
+                return sourceAllowed.redirections.find(iri => iri === targetCapabilityIri);
             case ApplicationGraphEdgeType.Aggregation:
-                return sourceAllowed.aggregations.find(x => x.getIdentifier() === targetCapabilityIri);
+                return sourceAllowed.aggregations.find(iri => iri === targetCapabilityIri);
             default:
                 throw new Error(`Invalid edge type. Please choose from available edge types."`);
         }
@@ -114,23 +115,22 @@ export class TransitionsGenerator {
                 const sourceCapabilityIri = currentNode.getCapabilityInfo().iri;
                 const targetCapabilityIri = transitionEndNode.getCapabilityInfo().iri;
 
-                const targetCapability = this.getAllowedTargetCapability(sourceCapabilityIri, targetCapabilityIri, edge.type);
+                const allowedTargetIri = this.getAllowedTargetCapability(sourceCapabilityIri, targetCapabilityIri, edge.type);
 
                 console.log(`NODE FROM ${currentNode.getIri()} to ${transitionEndNode.getIri()}`);
 
-
-                if (!targetCapability) {
+                if (!allowedTargetIri) {
                     console.error(`Could not find matching "${edge.type.toString()}" transition from ${sourceCapabilityIri} to ${targetCapabilityIri}`)
+                    return;
                 }
 
+                const targetCapability = getCapabilityMetadata(allowedTargetIri, transitionEndNode.getNodeLabel("en"));
                 const targetDatastructure = await dataStructurePromise;
 
-                const capabilityLabel = targetCapability!.getLabel();
-
                 const result: AllowedTransition = {
-                    id: `/${targetDatastructure.technicalLabel}/${capabilityLabel}`,
-                    label: targetCapability!.getHumanLabel(),
-                    capabilityType: targetCapability!.getType(),
+                    id: `/${targetDatastructure.technicalLabel}/${targetCapability.getLabel()}`,
+                    label: targetCapability.getHumanLabel(),
+                    capabilityType: targetCapability.getType(),
                     transitionType: edge.type
                 };
 
@@ -139,7 +139,8 @@ export class TransitionsGenerator {
                 return result;
             });
 
-        const transitionLinks = await Promise.all(transitionLinkPromises);
+        const transitionLinks = (await Promise.all(transitionLinkPromises))
+            .filter(link => link !== undefined);
 
         return new NodeTransitionsView(transitionLinks);
     }

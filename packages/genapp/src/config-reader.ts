@@ -43,6 +43,10 @@ export class StaticConfigurationReader implements ConfigurationReader {
                     config: {
                         "showHeader": true,
                         "showAsPopup": false
+                    },
+                    label: {
+                        "cs": "Seznam datových sad",
+                        "en": "List of datasets"
                     }
                 },
                 {
@@ -50,7 +54,11 @@ export class StaticConfigurationReader implements ConfigurationReader {
                     // Dataset structure from Genapp local specification
                     structure: "https://ofn.gov.cz/schema/1713975101423-6a97-9fb6-b2db",
                     capability: "https://dataspecer.com/application_graph/capability/detail",
-                    config: {}
+                    config: {},
+                    label: {
+                        "cs": "Detail datové sady",
+                        "en": "Dataset detail"
+                    }
                 }
             ],
             edges: [

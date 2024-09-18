@@ -1,3 +1,4 @@
+import { CREATE_CAPABILITY_ID } from ".";
 import { TemplateApplicationLayerGeneratorFactory } from "../app-logic-layer/generator-factory";
 import { ApplicationLayerStage } from "../app-logic-layer/pipeline-stage";
 import { CreateInstanceTemplateGeneratorFactory } from "../data-layer/generator-factory";
@@ -9,14 +10,20 @@ import { AggregateCapabilityMetadata, BaseCapabilityGenerator } from "./capabili
 import { CapabilityConstructorInput } from "./constructor-input";
 
 export class CreateInstanceCapabilityMetadata extends AggregateCapabilityMetadata {
-    getHumanLabel = (): string => "Create New";
+
+    constructor(humanLabel: string | undefined) {
+        super(humanLabel ?? "Create New");
+    }
+
+    static label: string = "create-instance";
     getLabel = (): string => "create-instance";
+    getIdentifier = (): string => CREATE_CAPABILITY_ID;
 }
 
 export class CreateInstanceCapability extends BaseCapabilityGenerator {
 
     constructor(constructorInput: CapabilityConstructorInput) {
-        super(constructorInput.dataStructureMetadata, new CreateInstanceCapabilityMetadata());
+        super(constructorInput.dataStructureMetadata, new CreateInstanceCapabilityMetadata(constructorInput.capabilityLabel));
 
         const dalLayerGeneratorStrategy = CreateInstanceTemplateGeneratorFactory.getDalGeneratorStrategy(constructorInput.dataStructureMetadata.specificationIri, constructorInput.datasource);
         const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(

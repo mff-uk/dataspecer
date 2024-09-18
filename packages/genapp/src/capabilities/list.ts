@@ -1,4 +1,4 @@
-
+import { LIST_CAPABILITY_ID } from ".";
 import { TemplateApplicationLayerGeneratorFactory } from "../app-logic-layer/generator-factory";
 import { ApplicationLayerStage } from "../app-logic-layer/pipeline-stage";
 import { ListTemplateDalGeneratorFactory } from "../data-layer/generator-factory";
@@ -10,14 +10,19 @@ import { AggregateCapabilityMetadata, BaseCapabilityGenerator } from "./capabili
 import { CapabilityConstructorInput } from "./constructor-input";
 
 export class ListCapabilityMetadata extends AggregateCapabilityMetadata {
-    getHumanLabel = (): string => "List";
+    constructor(humanLabel: string | undefined) {
+        super(humanLabel ?? "List");
+    }
+
+    static label: string = "list";
     getLabel = (): string => "list";
+    getIdentifier = (): string => LIST_CAPABILITY_ID;
 }
 
 export class ListCapability extends BaseCapabilityGenerator {
 
     constructor(constructorInput: CapabilityConstructorInput) {
-        super(constructorInput.dataStructureMetadata, new ListCapabilityMetadata());
+        super(constructorInput.dataStructureMetadata, new ListCapabilityMetadata(constructorInput.capabilityLabel));
 
         const dalLayerGeneratorStrategy = ListTemplateDalGeneratorFactory.getDalGeneratorStrategy(constructorInput.dataStructureMetadata.specificationIri, constructorInput.datasource);
         const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(

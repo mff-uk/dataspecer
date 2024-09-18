@@ -1,4 +1,5 @@
 
+import { DELETE_CAPABILITY_ID } from ".";
 import { TemplateApplicationLayerGeneratorFactory } from "../app-logic-layer/generator-factory";
 import { ApplicationLayerStage } from "../app-logic-layer/pipeline-stage";
 import { DeleteInstanceTemplateGeneratorFactory } from "../data-layer/generator-factory";
@@ -10,14 +11,20 @@ import { BaseCapabilityGenerator, InstanceCapabilityMetadata } from "./capabilit
 import { CapabilityConstructorInput } from "./constructor-input";
 
 export class DeleteInstanceCapabilityMetadata extends InstanceCapabilityMetadata {
-    getHumanLabel = (): string => "Delete Instance";
+
+    constructor(humanLabel: string | undefined) {
+        super(humanLabel ?? "Delete Instance");
+    }
+
+    static label: string = "delete-instance";
     getLabel = (): string => "delete-instance";
+    getIdentifier = (): string => DELETE_CAPABILITY_ID;
 }
 
 export class DeleteInstanceCapability extends BaseCapabilityGenerator {
 
     constructor(constructorInput: CapabilityConstructorInput) {
-        super(constructorInput.dataStructureMetadata, new DeleteInstanceCapabilityMetadata());
+        super(constructorInput.dataStructureMetadata, new DeleteInstanceCapabilityMetadata(constructorInput.capabilityLabel));
 
         const dalLayerGeneratorStrategy = DeleteInstanceTemplateGeneratorFactory.getDalGeneratorStrategy(constructorInput.dataStructureMetadata.specificationIri, constructorInput.datasource);
         const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(

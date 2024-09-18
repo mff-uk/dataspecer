@@ -3,7 +3,11 @@ import {
     ListCapability,
     DetailCapability,
     CreateInstanceCapability,
-    DeleteInstanceCapability
+    DeleteInstanceCapability,
+    LIST_CAPABILITY_ID,
+    DETAIL_CAPABILITY_ID,
+    CREATE_CAPABILITY_ID,
+    DELETE_CAPABILITY_ID
 } from "../capabilities";
 import { sep, posix } from "path";
 import { parse } from "ts-command-line-args";
@@ -13,10 +17,6 @@ import { ReactAppBaseGeneratorStage } from "../react-base/react-app-base-stage";
 import { CapabilityConstructorInput } from "../capabilities/constructor-input";
 import { ApplicationGraph, ApplicationGraphNode } from "./graph";
 import { AggregateMetadata } from "../application-config";
-import { ListCapabilityMetadata } from "../capabilities/list";
-import { DetailCapabilityMetadata } from "../capabilities/detail";
-import { CreateInstanceCapabilityMetadata } from "../capabilities/create-instance";
-import { DeleteInstanceCapabilityMetadata } from "../capabilities/delete-instance";
 
 export type NodeResult = {
     structure: AggregateMetadata;
@@ -42,19 +42,14 @@ class ApplicationGenerator {
 
     private getCapabilityGenerator(capabilityIri: string, constructorInput: CapabilityConstructorInput): CapabilityGenerator {
 
-        const listId = new ListCapabilityMetadata().getIdentifier(),
-            detailId = new DetailCapabilityMetadata().getIdentifier(),
-            createInstanceId = new CreateInstanceCapabilityMetadata().getIdentifier(),
-            deleteInstanceId = new DeleteInstanceCapabilityMetadata().getIdentifier();
-
         switch (capabilityIri) {
-            case listId:
+            case LIST_CAPABILITY_ID:
                 return new ListCapability(constructorInput);
-            case detailId:
+            case DETAIL_CAPABILITY_ID:
                 return new DetailCapability(constructorInput);
-            case createInstanceId:
+            case CREATE_CAPABILITY_ID:
                 return new CreateInstanceCapability(constructorInput);
-            case deleteInstanceId:
+            case DELETE_CAPABILITY_ID:
                 return new DeleteInstanceCapability(constructorInput);
             default:
                 throw new Error(`"${capabilityIri}" does not correspond to a valid capability identifier.`);
@@ -98,11 +93,13 @@ class ApplicationGenerator {
         graph: ApplicationGraph
     ): Promise<NodeResult> {
         console.log("CURRENT NODE: ", currentNode);
-        const aggregateMetadata = await currentNode.getNodeDataStructure();
+        const dataStructureMetadata = await currentNode.getNodeDataStructure();
         const { iri: capabilityIri, config: capabilityConfig } = currentNode.getCapabilityInfo();
+        const capabilityLabel = currentNode.getNodeLabel("en");
 
         const capabilityConstructorInput: CapabilityConstructorInput = {
-            dataStructureMetadata: aggregateMetadata,
+            capabilityLabel,
+            dataStructureMetadata,
             datasource: currentNode.getDatasource(graph),
             saveBasePath: this._args.targetRootPath!
         };
@@ -111,7 +108,7 @@ class ApplicationGenerator {
 
         const nodeArtifact = await capabilityGenerator
             .generateCapability({
-                aggregate: aggregateMetadata,
+                aggregate: dataStructureMetadata,
                 graph: graph,
                 node: currentNode,
                 config: capabilityConfig,
@@ -119,8 +116,8 @@ class ApplicationGenerator {
 
         const result: NodeResult = {
             artifact: nodeArtifact,
-            structure: aggregateMetadata,
-            nodePath: `${aggregateMetadata.technicalLabel}/${capabilityGenerator.getLabel()}`,
+            structure: dataStructureMetadata,
+            nodePath: `${dataStructureMetadata.technicalLabel}/${capabilityGenerator.getLabel()}`,
             capability: {
                 type: capabilityGenerator.getType(),
                 label: capabilityGenerator.getLabel()

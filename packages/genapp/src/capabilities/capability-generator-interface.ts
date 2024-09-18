@@ -2,7 +2,7 @@ import { LayerArtifact } from "../engine/layer-artifact";
 import { CapabilityConfiguration, GenerationContext } from "../engine/generator-stage-interface";
 import { GeneratorPipeline } from "../engine/generator-pipeline";
 import { AggregateMetadata } from "../application-config";
-import { CAPABILITY_BASE_IRI, CapabilityType } from ".";
+import { CapabilityType } from ".";
 
 export interface CapabilityGeneratorMetadata {
     getType(): CapabilityType;
@@ -13,25 +13,37 @@ export interface CapabilityGeneratorMetadata {
 
 export abstract class InstanceCapabilityMetadata implements CapabilityGeneratorMetadata {
     abstract getLabel(): string;
-    abstract getHumanLabel(): string;
+    abstract getIdentifier(): string;
+
+    private readonly _humanLabel: string;
+
+    constructor(label: string) {
+        this._humanLabel = label;
+    }
 
     getType = (): CapabilityType => CapabilityType.Instance;
-    getIdentifier = () : string => CAPABILITY_BASE_IRI + this.getLabel();
+    getHumanLabel = (): string => this._humanLabel;
 }
 
 export abstract class AggregateCapabilityMetadata implements CapabilityGeneratorMetadata{
     abstract getLabel(): string;
-    abstract getHumanLabel(): string;
+    abstract getIdentifier(): string;
 
+    private readonly _humanLabel: string;
+
+    constructor(label: string) {
+        this._humanLabel = label;
+    }
+
+    getHumanLabel = (): string => this._humanLabel;
     getType = (): CapabilityType => CapabilityType.Collection;
-    getIdentifier = () : string => CAPABILITY_BASE_IRI + this.getLabel();
 }
 
 export interface CapabilityGenerator extends CapabilityGeneratorMetadata {
     generateCapability(config: CapabilityConfiguration): Promise<LayerArtifact>;
 }
 
-export class BaseCapabilityGenerator implements CapabilityGenerator, CapabilityGeneratorMetadata {
+export abstract class BaseCapabilityGenerator implements CapabilityGenerator, CapabilityGeneratorMetadata {
 
     private readonly _capabilityMetadata: CapabilityGeneratorMetadata;
     protected _capabilityStagesGeneratorPipeline: GeneratorPipeline = null!;
@@ -42,8 +54,8 @@ export class BaseCapabilityGenerator implements CapabilityGenerator, CapabilityG
         this._capabilityMetadata = capabilityMetadata;
     }
 
-    getType = (): CapabilityType => this._capabilityMetadata.getType();
     getLabel = (): string => this._capabilityMetadata.getLabel();
+    getType = (): CapabilityType => this._capabilityMetadata.getType();
     getIdentifier = (): string => this._capabilityMetadata.getIdentifier();
     getHumanLabel = (): string => this._capabilityMetadata.getHumanLabel();
 
