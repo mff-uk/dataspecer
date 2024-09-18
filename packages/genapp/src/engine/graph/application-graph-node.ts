@@ -4,18 +4,56 @@ import { ApplicationGraphEdge } from "./application-graph-edge";
 import { ApplicationGraph } from "./application-graph";
 import { LanguageString } from "@dataspecer/core/core";
 
+/**
+ * Base node configuration. Maps any object to a named key, which
+ * may be further accessed by derived types specific for each
+ * capability.
+ *
+ * @property starting: Optional flag to indicate whether a link to node (i.e. data-structure / capability pair) should be shown
+ *  within application sidebar.
+ * @property pageTitle: Optional, customizable, language-specific title, which will be shown on capability screen.
+ *  Corresponds to a "language": "title" mapping.
+ *
+ * @see {@link ListNodeConfiguration } for capability specific configuration extensions.
+ */
+export type NodeConfiguration = {
+    starting?: boolean,
+    pageTitle?: LanguageString,
+} & Record<string, any>;
+
+export type ListNodeConfiguration = {
+    showHeader?: boolean;
+} & NodeConfiguration;
+
+export type DetailNodeConfiguration = NodeConfiguration;
+
+/**
+ * Describes an application graph node. Each instance of application
+ * graph node represents a unit of the generated application, i.e. a functional
+ * unit, through which application users fulfill their needs.
+ *
+ * @property label: Custom, user-defined node name. Label is defined as a mapping between language and the label itself.
+ *   @example { "en": "Custom node name" }
+ * @property iri: Unique identification of an application node.
+ *   @example "https://example.org/application_graph/nodes/1"
+ * @property structure: IRI of a Dataspecer data structure that this node instance referes to.
+ *  Represents the subject on which an capability (action) will be performed.
+ * @property capability: IRI of a supported capability (action) to be performed on a data structure.
+ *   @example "https://dataspecer.com/application_graph/<capability_identifier>"
+ * @property config: Custom configuration of a node
+ *   @see {@link NodeConfiguration} for more details
+ */
 export type ApplicationGraphNodeType = {
     label: LanguageString;
-    iri: string;        // node iri
-    structure: string;  // iri of the datastructure the node refers to
-    capability: string; // iri of the dataspecer defined capability
-    // config: {
-    //     "starting": boolean,
-    //     "pageTitle": LanguageString,
-    // } & Record<string, any>;     // key-value pairs specific for the specific capability
-    config: Record<string, any>;
+    iri: string;
+    structure: string;
+    capability: string;
+    config: NodeConfiguration;
 }
 
+/**
+ * Instance of an application node. Extends the {@link ApplicationGraphNodeType} by adding instance-specific methods.
+ */
 export class ApplicationGraphNode {
     private readonly _node: ApplicationGraphNodeType;
     private readonly _specificationIri: string;

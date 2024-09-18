@@ -1,3 +1,4 @@
+import { LanguageString } from "@dataspecer/core/core/core-resource";
 import { AggregateMetadata } from "../application-config";
 import { TemplateDescription, TemplateGenerator } from "./eta-template-renderer";
 import { LayerArtifact } from "./layer-artifact";
@@ -21,4 +22,12 @@ export abstract class TemplateConsumer<TemplateType extends TemplateDescription>
     }
 
     abstract processTemplate(dependencies: TemplateDependencyMap): Promise<LayerArtifact>;
+
+    protected getTemplatePageTitle(pageTitleLanguageString: LanguageString | undefined): string | null {
+        if (!pageTitleLanguageString || Object.keys(pageTitleLanguageString).length === 0) {
+            return null;
+        }
+
+        return pageTitleLanguageString["en"] ?? Object.values(pageTitleLanguageString).at(0)!;
+    }
 }

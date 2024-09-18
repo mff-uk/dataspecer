@@ -5,11 +5,13 @@ import { TemplateConsumer, TemplateDependencyMap  } from "../../engine/template-
 import { PresentationLayerGenerator } from "../strategy-interface";
 import { GeneratedFilePathCalculator } from "../../utils/artifact-saver";
 import { NodeTransitionsView, TransitionsGenerator } from "../../engine/transitions/transitions-generator";
+import { DetailNodeConfiguration } from "../../engine/graph";
 
 export interface PresentationLayerDependencyMap extends TemplateDependencyMap {
     pathResolver: GeneratedFilePathCalculator;
     appLogicArtifact: LayerArtifact;
     transitions: NodeTransitionsView;
+    detailNodeConfig: DetailNodeConfiguration;
 }
 
 export abstract class PresentationLayerTemplateGenerator<TemplateType extends TemplateDescription>
@@ -40,7 +42,8 @@ export abstract class PresentationLayerTemplateGenerator<TemplateType extends Te
             aggregate: context.aggregate,
             pathResolver: context._.pathResolver,
             appLogicArtifact: context.previousResult,
-            transitions: transitionsView
+            transitions: transitionsView,
+            detailNodeConfig: context.config
         } as PresentationLayerDependencyMap);
 
         return presentationLayerArtifact;

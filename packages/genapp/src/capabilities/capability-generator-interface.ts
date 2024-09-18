@@ -1,14 +1,22 @@
 import { LayerArtifact } from "../engine/layer-artifact";
-import { CapabilityConfiguration, GenerationContext } from "../engine/generator-stage-interface";
+import { GenerationContext } from "../engine/generator-stage-interface";
 import { GeneratorPipeline } from "../engine/generator-pipeline";
 import { AggregateMetadata } from "../application-config";
 import { CapabilityType } from ".";
+import { ApplicationGraph, ApplicationGraphNode, NodeConfiguration } from "../engine/graph";
 
 export interface CapabilityGeneratorMetadata {
     getType(): CapabilityType;
     getLabel(): string;
     getHumanLabel(): string;
     getIdentifier(): string;
+}
+
+interface CapabilityConfiguration {
+    aggregate: AggregateMetadata,
+    graph: ApplicationGraph;
+    node: ApplicationGraphNode;
+    nodeConfig: NodeConfiguration;
 }
 
 export abstract class InstanceCapabilityMetadata implements CapabilityGeneratorMetadata {
@@ -62,13 +70,9 @@ export abstract class BaseCapabilityGenerator implements CapabilityGenerator, Ca
     private convertToGenerationContext(config: CapabilityConfiguration): GenerationContext {
         const result: GenerationContext = {
             aggregate: config.aggregate,
-
-            // should not be needed
             graph: config.graph,
             currentNode: config.node,
-
-            // capability info
-            config: config.config,
+            config: config.nodeConfig,
             _: {}
         };
 

@@ -42,7 +42,7 @@ export class StaticConfigurationReader implements ConfigurationReader {
                     capability: "https://dataspecer.com/application_graph/capability/list",
                     config: {
                         "showHeader": true,
-                        "showAsPopup": false
+                        "showAsPopup": false,
                     },
                     label: {
                         "cs": "Seznam datových sad",

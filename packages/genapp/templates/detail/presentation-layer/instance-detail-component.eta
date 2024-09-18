@@ -257,7 +257,6 @@ export default function <%= it.export_name %>() {
                     return;
                 }
 
-                result.instance.raw["id"] = result.instance.raw["$id"]; // TODO: perform based on data layer / schema
                 setInstance(result.instance);
                 setInstanceId(id);
             }
@@ -267,9 +266,8 @@ export default function <%= it.export_name %>() {
     }, [isLoading, instance, searchParams]);
 
     return (
-        <>
-
-            <h2>Detail of "<%= it.json_schema.title %>" instance</h2>
+        <><% const defaultPageTitle = "Detail of \"it.json_schema.title\" instance" %>
+            <h2><%= it.page_title ?? defaultPageTitle %></h2>
             { isMissingInstance && <Alert onClose={() => {}} severity="error">{`No valid instance found for ${instanceId}`}</Alert> }
             <Backdrop
                 sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}

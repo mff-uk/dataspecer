@@ -47,10 +47,11 @@ export default class <%= it.exported_name_object %> implements <%= it.ldkit_inst
 
     private async populateNestedDetails(instanceDetail: object, schema: object) {
 
-        if (!instanceDetail) {
+        if (!instanceDetail || !("$id" in instanceDetail)) {
             return;
         }
 
+        instanceDetail["id"] = instanceDetail["$id"];
         const promises = Object.entries(schema)
             .map(async ([attrName, attrValue]) => {
                 const nestedSchema = attrValue["@schema"];

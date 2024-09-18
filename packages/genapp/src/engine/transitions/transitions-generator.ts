@@ -121,7 +121,14 @@ export class TransitionsGenerator {
 
                 if (!allowedTargetIri) {
                     console.error(`Could not find matching "${edge.type.toString()}" transition from ${sourceCapabilityIri} to ${targetCapabilityIri}`)
-                    return;
+                    const toFilterTransition: AllowedTransition = {
+                        id: "filter",
+                        capabilityType: "collection",
+                        label: "",
+                        transitionType: ApplicationGraphEdgeType.Transition
+                    };
+
+                    return toFilterTransition;
                 }
 
                 const targetCapability = getCapabilityMetadata(allowedTargetIri, transitionEndNode.getNodeLabel("en"));
@@ -140,7 +147,7 @@ export class TransitionsGenerator {
             });
 
         const transitionLinks = (await Promise.all(transitionLinkPromises))
-            .filter(link => link !== undefined);
+            .filter(link => link.id !== "filter");
 
         return new NodeTransitionsView(transitionLinks);
     }

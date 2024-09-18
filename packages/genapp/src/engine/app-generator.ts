@@ -111,7 +111,7 @@ class ApplicationGenerator {
                 aggregate: dataStructureMetadata,
                 graph: graph,
                 node: currentNode,
-                config: capabilityConfig,
+                nodeConfig: capabilityConfig,
             });
 
         const result: NodeResult = {

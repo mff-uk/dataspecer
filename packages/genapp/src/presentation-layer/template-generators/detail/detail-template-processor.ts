@@ -8,12 +8,12 @@ import { UseNavigationHookGenerator } from "../../../capabilities/template-gener
 
 interface DetailReactComponentTemplate extends TemplateDescription {
     placeholders: {
+        page_title: string | null;
         aggregate_name: string;
         export_name: string;
         detail_capability_app_layer: string;
         detail_app_layer_path: ImportRelativePath;
         json_schema: object;
-        //json_schema_path: ImportRelativePath;
         capability_transitions: AllowedTransition[];
         capability_aggregations: AllowedTransition[];
         navigation_hook: string;
@@ -40,6 +40,7 @@ export class DetailComponentTemplateProcessor extends PresentationLayerTemplateG
         const instanceDetailTemplate: DetailReactComponentTemplate = {
             templatePath: this._templatePath,
             placeholders: {
+                page_title: this.getTemplatePageTitle(dependencies.detailNodeConfig.pageTitle),
                 aggregate_name: dependencies.aggregate.aggregateName,
                 export_name: detailExportedName,
                 detail_app_layer_path: {
