@@ -26,11 +26,7 @@ const <%= it.exported_name_object %> = () => {
             return;
         }
 
-        result.instance.raw["id"] = result.instance.raw["$id"];
-
-        if (result.instance.raw) {
-            setResultMessage(<Alert severity="success">Deletion successful</Alert>);
-        }
+        setResultMessage(<Alert severity="success">{result.message ?? "Success"}</Alert>);
         <% if (it.redirect_capability !== null) { %>
         setTimeout(() => {<% if (it.redirect_capability.capabilityType === "instance") { %>
             navigationHooks.handleInstanceCapabilityRedirect("<%~ it.redirect_capability.id %>", instanceId);

@@ -1,21 +1,29 @@
-import { useEffect, useState, ReactElement, FC } from 'react';
-import { <%= it.detail_capability_app_layer %> } from <%~ it.detail_app_layer_path %>;
+import {
+    useEffect,
+    useState,
+    FC, ReactElement,
+    ReactNode,
+    Children,
+    cloneElement,
+    isValidElement
+} from "react";
+import { useSearchParams } from "react-router-dom";
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import { Backdrop, CircularProgress } from '@mui/material';
 // TODO: line below might need proper generator
 import { AggregateInstance } from '../../interfaces/capability-result';
-import { useSearchParams } from 'react-router-dom';
-import Alert from '@mui/material/Alert';
-import { Backdrop, CircularProgress } from '@mui/material';
-import Button from '@mui/material/Button';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
 import { <%= it.navigation_hook %> } from <%~ it.navigation_hook_path %>;
+import { <%= it.detail_capability_app_layer %> } from <%~ it.detail_app_layer_path %>;
 <%
     function getDetailRenderComponentByProperty(propertyName, propertySchema, instanceRef) {
         if (!propertySchema.type) {
             return "";
         }
 
-        const instanceReference = propertyName !== null
+        const instanceReference = propertyName !== null && propertyName !== ""
             ? `${instanceRef}["${propertyName}"]`
             : instanceRef;
 
@@ -30,20 +38,25 @@ import { <%= it.navigation_hook %> } from <%~ it.navigation_hook_path %>;
             case "object":
                 return (
                 `<ObjectRenderer
-                            title="${propertySchema.title ?? ""}"
-                            properties={[${Object.keys(propertySchema.properties).map(x => `"${x}"`)}]}
-                            objectValue={${instanceRef}["${propertyName}"]}
-                        />`);
+                            name="${propertyName ?? ""}"
+                            value={${instanceReference}}
+                        >
+                            ${Object.entries(propertySchema.properties ?? {})
+                                .map(([objPropName, objPropSchema]) => getDetailRenderComponentByProperty(objPropName, objPropSchema, instanceReference))
+                                .join("\n")
+                            }
+                        </ObjectRenderer>`);
                 break;
             case "array":
                 return (
                     `<ArrayRenderer
-                        title="${propertySchema.title ?? ""}"
-                        arrayRef={${instanceRef}["${propertyName}"]}
-                        itemComponents={{}}
-                    />`)
+                        name="${propertyName ?? ""}"
+                        value={${instanceReference}}
+                    >
+                        ${getDetailRenderComponentByProperty(propertyName, propertySchema.items, "")}
+                    </ArrayRenderer>`)
             default:
-                componentName = "DefaultObjectRenderer fromSwitch={true}"
+                componentName = "DefaultObjectRenderer"
         }
 
         return `<${componentName} name={"${propertyName ?? ""}"} value={${instanceReference}}/>`
@@ -58,7 +71,7 @@ type ComponentProps = {
     value: any
 }
 
-const DefaultObjectRenderer = ({ name, value }) => {
+const DefaultObjectRenderer: FC<ComponentProps> = ({ name, value }) => {
 
     return (
         <div>
@@ -67,20 +80,20 @@ const DefaultObjectRenderer = ({ name, value }) => {
     )
 }
 
-const StringRenderer = ({ name, value }) => {
+const StringRenderer: FC<ComponentProps> = ({ name, value }) => {
     return (
         <Box component="section">
-            <Typography variant="body1">
+            <Typography variant="body2">
                 {name}
             </Typography>
-            <Typography variant="body2">
+            <Typography variant="body1">
                 {value}
             </Typography>
         </Box>
     )
 }
 
-const IriLinkRenderer = ({ name, value }) => {
+const IriLinkRenderer: FC<ComponentProps> = ({ name, value }) => {
 
     const [isValidUrl, setIsValidUrl] = useState<boolean>(false);
 
@@ -105,65 +118,102 @@ const IriLinkRenderer = ({ name, value }) => {
     )
 }
 
-const KeyValuePair = ({ objectKey, objectValue }) => {
+const KeyValuePair: FC<ComponentProps> = (props) => {
+
+    const { name: objectKey, value: objectValue} = props;
 
     return (
         <Box mb="lg">
             <Typography variant="body1">
-                { objectKey }
+                {objectKey}
             </Typography>
             <Typography variant="body2">
-                { objectValue }
+                {objectValue}
             </Typography>
         </Box>
     );
 }
 
-const ObjectRenderer = ({ title, properties, objectValue }) => {
+const ObjectRenderer: FC<ComponentProps & { children: ReactElement<ComponentProps> | ReactNode }> = (props) => {
+
+    const { name: objectName, value, children } = props;
 
     return (
         <Box component="section">
-            {(typeof objectValue !== "object")
-                ? <PropertyAlert errorPropertyName={title} />
-                : Object.entries(objectValue).map(([key, value]) =>
-                    <KeyValuePair
-                        key={key}
-                        objectKey={key}
-                        objectValue={value}
-                    />
+            {(typeof value !== "object")
+                ? <PropertyAlert errorPropertyName={objectName} />
+                : (
+                    Children.map(children, child => {
+                        if (!isValidElement(child)) {
+                            return child;
+                        }
+
+                        const attrName: string = child.props.name as string;
+                        console.log("OBJECT ATTR NAME: ", attrName);
+                        console.log(`ACCESSING ${attrName} in object: `, value);
+                        const instanceValue = value[attrName] ?? "N/A";
+
+                        console.log("UPDATED VALUE: ", instanceValue);
+                        const cloned = cloneElement(child, {
+                            value: instanceValue
+                        });
+                        console.log("CLONED: ", cloned);
+
+                        return cloned;
+                    })
                 )
             }
         </Box>
     );
 }
 
-type ArrayRendererProps = {
-    title: string,
-    arrayRef: any,
-    itemComponents: Record<string, ReactElement<ComponentProps>>;
-}
+const ArrayRenderer: FC<ComponentProps & { children: ReactElement<ComponentProps> | ReactNode }> = (props) => {
 
-const ArrayRenderer: FC<ArrayRendererProps> = (props) => {
-
-    const { title, arrayRef, itemComponents } = props;
+    const { name: title, value: arrayRef, children } = props;
 
     return (
         <Box component="section">
             {(!Array.isArray(arrayRef))
                 ? <PropertyAlert errorPropertyName={title} />
                 : (
-                    <>
-                        <Typography variant="body1">
-                            {title}
-                        </Typography>
-                        <ul>
-                            {(arrayRef || []).map((item, idx) =>
+                    <ul>
+                        {(arrayRef || []).map((item, idx) => {
+                            console.log("ARRAY ITEM: ", item);
+                            if (item && (["string", "number", "boolean"].includes(typeof item))) {
+                                return (
+                                    <li key={idx}>
+                                        {JSON.stringify(item)}
+                                    </li>
+                                );
+                            }
+
+                            return (
                                 <li key={idx}>
-                                    {JSON.stringify(item)}
+                                    {
+                                        Children.map(children, child => {
+                                            if (!isValidElement(child)) {
+                                                return child;
+                                            }
+
+                                            const name: string = child.props.name as string;
+                                            console.log("CHILD NAME PROP: ", name);
+                                            const value: any = item;
+
+                                            console.log("UPDATED VALUE: ", value);
+                                            const cloned = cloneElement(child, {
+                                                key: idx,
+                                                value
+                                            });
+                                            console.log("CLONED: ", cloned);
+
+                                            return cloned;
+                                        })
+                                    }
                                 </li>
-                            )}
-                        </ul>
-                    </>)
+                            )
+                        })}
+                    </ul>
+                )
             }
         </Box>
     )
@@ -238,7 +288,6 @@ export default function <%= it.export_name %>() {
                         </h4>
                         <label id="<%~ propName %>-property-value">
                             <%~ getDetailRenderComponentByProperty(propName, propValue, "instance.raw") %>
-                            {/* JSON.stringify(instance.raw["<%~ propName %>"]) */}
                         </label>
                     </Box><% } %>
                 </Box>
