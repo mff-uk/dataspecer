@@ -28,8 +28,7 @@ export class BackendConnector {
   }
 
   public async readDataSpecification(iri: string) {
-    const url = new URL(this.backendUrl + "/data-specification");
-    url.searchParams.append("dataSpecificationIri", iri);
+    const url = this.backendUrl + "/data-specification" + "?dataSpecificationIri=" + encodeURIComponent(iri);
     const data = await this.httpFetch(url.toString());
     return await data.json() as (DataSpecification & DataSpecificationWithStores & DataSpecificationWithMetadata)|null;
   }

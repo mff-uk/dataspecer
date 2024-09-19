@@ -31,7 +31,7 @@ enum ConnectionType {
     generalization = "generalization",
 }
 
-// TODO: This is not nice but, we cano not move the useState outside of
+// TODO: This is not nice but, we can not move the useState outside of
 //  the CreateConnectionDialog as it would cause re-creation of the dialog.
 //  Instead we use this ugly trick, it would be better to have the CreateConnectionDialog
 //  as a separate component.

@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { useModelGraphContext } from "../context/model-context";
+
 import type { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import type { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
+
+import { useModelGraphContext } from "../context/model-context";
 import { MultiLanguageInputForLanguageString } from "../components/input/multi-language-input-4-language-string";
-import { filterInMemoryModels } from "../util/model-utils";
 import { getModelIri } from "../util/iri-utils";
-import { useBaseDialog } from "../components/base-dialog";
 import { generateName } from "../util/name-utils";
 import { useConfigurationContext } from "../context/configuration-context";
 import { IriInput } from "../components/input/iri-input";
@@ -15,106 +15,171 @@ import { CreateButton } from "../components/dialog/buttons/create-button";
 import { CancelButton } from "../components/dialog/buttons/cancel-button";
 import { useClassesContext } from "../context/classes-context";
 import { t, logger, configuration } from "../application/";
+import { ModalDialog } from "./modal-dialog";
+import { useNotificationServiceWriter } from "../notification";
 
-export const useCreateClassDialog = () => {
-    const { isOpen, open, close, BaseDialog } = useBaseDialog();
-    const [model, setModel] = useState<InMemorySemanticModel | null>(null);
-    const [position, setPosition] = useState<{ x: number; y: number } | undefined>(undefined);
+interface Point {
+    x: number;
+    y: number;
+}
 
-    const localOpen = (model?: InMemorySemanticModel, position?: { x: number; y: number }) => {
-        setModel(model ?? null);
-        setPosition(position);
-        open();
+export interface CreateClassDialogProps {
+    isOpen: boolean;
+    /**
+     * We need to close the dialog.
+     */
+    close: () => void,
+    /**
+     * Default model to create the class in.
+     */
+    model: InMemorySemanticModel | null;
+    /**
+     * Position where the new class should be inserted at.
+     */
+    position: Point | null;
+}
+
+export const CreateClassDialog = (props: CreateClassDialogProps) => {
+    // Just a wrap to make sure we do not render anything when we should not.
+    if (props.isOpen === false) {
+        return null;
+    }
+    return <CreateClassDialoginternal {...props} />;
+};
+
+const CreateClassDialoginternal = (props: CreateClassDialogProps) => {
+    const notifications = useNotificationServiceWriter();
+    const { createAClass } = useClassesContext();
+    const { language } = useConfigurationContext();
+    const { aggregatorView } = useModelGraphContext();
+
+    // State
+    const [model, setModel] = useState<InMemorySemanticModel | null>(props.model);
+    const [name, setName] = useState<LanguageString>({ [language]: generateName() });
+    const [description, setDescription] = useState<LanguageString>({});
+    const modelIri = getModelIri(model);
+    const [iri, setIri] = useState(configuration().nameToClassIri(name[language] ?? ""));
+    const [iriHasChanged, setIriHasChanged] = useState(false);
+
+    const handleCreateClass = () => {
+        if (model === null) {
+            notifications.error("create-class-dialog.error.model-not-set");
+            return;
+        }
+        if (iri.trim() === "") {
+            notifications.error(t("create-class-dialog.error-iri-not-set"));
+            return;
+        }
+        // Create a new class.
+        const newClass = createAClass(model, name, iri, description);
+        if (newClass.id === undefined) {
+            notifications.error("We have not recieved the id of newly created class. See logs for more detail.");
+            logger.error("We have not recieved the id of newly created class.", { "class": newClass });
+            props.close();
+            return;
+        }
+        // We add the new class to the canvas.
+        aggregatorView.getActiveVisualModel()?.addEntity({
+            sourceEntityId: newClass.id,
+            // TODO Determine default position here!
+            position: props.position ?? undefined
+        });
+        props.close();
     };
 
-    const CreateClassDialog = () => {
-        const { language: preferredLanguage } = useConfigurationContext();
-        const { createAClass } = useClassesContext();
-        const { aggregatorView, models } = useModelGraphContext();
+    const content = (
+        <>
+            <DialogColoredModelHeaderWithModelSelector
+                style="grid gap-y-2 md:grid-cols-[25%_75%] md:gap-y-3 bg-slate-100 md:pb-4 md:pl-8 md:pr-16 md:pt-2"
+                activeModel={model?.getId()}
+                onModelSelected={(_, model) => setModel(model)}
+            />
+            <div className="grid bg-slate-100 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
+                <DialogDetailRow detailKey={t("create-class-dialog.name")} style="text-xl">
+                    <MultiLanguageInputForLanguageString
+                        ls={name}
+                        setLs={setName}
+                        defaultLang={language}
+                        inputType="text"
+                    />
+                </DialogDetailRow>
+                <DialogDetailRow detailKey={t("create-class-dialog.iri")}>
+                    <IriInput
+                        name={name}
+                        newIri={iri}
+                        setNewIri={(iri) => setIri(iri)}
+                        iriHasChanged={iriHasChanged}
+                        onChange={() => setIriHasChanged(true)}
+                        baseIri={modelIri}
+                        nameSuggestion={configuration().nameToClassIri}
+                    />
+                </DialogDetailRow>
+                <DialogDetailRow detailKey={t("create-class-dialog.description")}>
+                    <MultiLanguageInputForLanguageString
+                        ls={description}
+                        setLs={setDescription}
+                        defaultLang={language}
+                        inputType="textarea"
+                    />
+                </DialogDetailRow>
+            </div>
+        </>
+    );
 
-        const inMemoryModels = filterInMemoryModels([...models.values()]);
-        const [activeModel, setActiveModel] = useState(model ?? inMemoryModels.at(0));
+    const footer = (
+        <>
+            <CreateButton onClick={handleCreateClass} />
+            <CancelButton onClick={props.close} />
+        </>
+    );
 
-        const [newName, setNewName] = useState<LanguageString>({ [preferredLanguage]: generateName() });
-        const [newDescription, setNewDescription] = useState<LanguageString>({});
+    return (
+        <ModalDialog
+            heading={t("create-class-dialog.create-class")}
+            isOpen={props.isOpen}
+            onCancel={props.close}
+            content={content}
+            footer={footer}
+        />
+    );
+};
 
-        const baseIri = getModelIri(activeModel);
-        const [newIri, setNewIri] = useState( configuration().nameToClassIri(newName[preferredLanguage] ?? ""));
-        const [iriHasChanged, setIriHasChanged] = useState(false);
+export interface CreateClassDialogContext {
+    /**
+     * Open the dialog.
+     */
+    open: (model?: InMemorySemanticModel, position?: Point) => void;
+    /**
+     * Properties for the CreateClassDialog dialog.
+     */
+    props: CreateClassDialogProps;
+}
 
-        const handleCreateClass = () => {
-            if (!activeModel) {
-                alert(t("create-class-dialog.error.model-not-set"));
-                return;
-            }
-            if (!newIri || newIri == "") {
-                alert(t("create-class-dialog.error-iri-not-set"));
-                return;
-            }
-            const newClass = createAClass(activeModel, newName, newIri, newDescription);
-            if (newClass.id !== undefined) {
-                aggregatorView
-                    .getActiveVisualModel()
-                    ?.addEntity({ sourceEntityId: newClass.id, position: position ?? undefined });
-            } else {
-                logger.warn("We have not recieved the id of newly created class.", newClass);
-            }
-            close();
-        };
+/**
+ * Context to allow control over the CreateClassDialog.
+ */
+export const useCreateClassDialog = (): CreateClassDialogContext => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [model, setModel] = useState<InMemorySemanticModel | null>(null);
+    const [position, setPosition] = useState<Point | null>(null);
 
-        return (
-            <BaseDialog heading={t("create-class-dialog.create-class")}>
-                <div>
-                    <div>
-                        <DialogColoredModelHeaderWithModelSelector
-                            style="grid gap-y-2 md:grid-cols-[25%_75%] md:gap-y-3 bg-slate-100 md:pb-4 md:pl-8 md:pr-16 md:pt-2"
-                            activeModel={activeModel?.getId()}
-                            onModelSelected={(model) => setActiveModel(inMemoryModels.find((m) => m.getId() == model))}
-                        />
-                        <div className="grid bg-slate-100 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
-                            <DialogDetailRow detailKey={t("create-class-dialog.name")} style="text-xl">
-                                <MultiLanguageInputForLanguageString
-                                    ls={newName}
-                                    setLs={setNewName}
-                                    defaultLang={preferredLanguage}
-                                    inputType="text"
-                                />
-                            </DialogDetailRow>
-                            <DialogDetailRow detailKey={t("create-class-dialog.iri")}>
-                                <IriInput
-                                    name={newName}
-                                    newIri={newIri}
-                                    setNewIri={(iri) => setNewIri(iri)}
-                                    iriHasChanged={iriHasChanged}
-                                    onChange={() => setIriHasChanged(true)}
-                                    baseIri={baseIri}
-                                    nameSuggestion={configuration().nameToClassIri}
-                                />
-                            </DialogDetailRow>
-                            <DialogDetailRow detailKey={t("create-class-dialog.description")}>
-                                <MultiLanguageInputForLanguageString
-                                    ls={newDescription}
-                                    setLs={setNewDescription}
-                                    defaultLang={preferredLanguage}
-                                    inputType="textarea"
-                                />
-                            </DialogDetailRow>
-                        </div>
-                    </div>
-                </div>
+    const open = (model?: InMemorySemanticModel, position?: Point): void => {
+        setIsOpen(true);
+        setModel(model ?? null);
+        setPosition(position ?? null);
+    };
 
-                <div className="flex flex-row justify-evenly font-semibold">
-                    <CreateButton onClick={handleCreateClass} />
-                    <CancelButton onClick={close} />
-                </div>
-            </BaseDialog>
-        );
+    const close = (): void => {
+        setIsOpen(false);
     };
 
     return {
-        isCreateClassDialogOpen: isOpen,
-        closeCreateClassDialog: close,
-        openCreateClassDialog: localOpen,
-        CreateClassDialog,
+        open,
+        props: {
+            isOpen,
+            close,
+            model,
+            position
+        },
     };
 };
