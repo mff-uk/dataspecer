@@ -30,6 +30,7 @@ export const DataPsmClassItem: React.FC<{
 
   const {dataPsmResource: dataPsmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(props.iri);
   const readOnly = false;
+  const isCodelist = pimClass?.pimIsCodelist ?? false;
   const cimClassIri = pimClass?.pimInterpretation;
 
   const AddSurroundings = useDialog(isWikidataAdapter(cim.cimAdapter) ? WikidataAddInterpretedSurroundingsDialog : AddInterpretedSurroundingsDialog, ["dataPsmClassIri"]);
@@ -58,7 +59,7 @@ export const DataPsmClassItem: React.FC<{
   </>;
 
   const thisMenu = <>
-    {cimClassIri && !readOnly && <DataPsmClassAddSurroundingsButton open={AddSurroundings.open} />}
+    {cimClassIri && !readOnly && !isCodelist && <DataPsmClassAddSurroundingsButton open={AddSurroundings.open} />}
   </>;
 
   const ReplaceAlongHierarchy = useDialog(ReplaceAlongInheritanceDialog);
