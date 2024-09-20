@@ -142,10 +142,14 @@ class StructureModelAdapter {
     );
     if (DataPsmClass.is(part)) {
       const model = await adapter.loadClass(part);
-      return {...model, isReferenced: true};
+      const copiedModel = Object.assign(Object.create(Object.getPrototypeOf(model)), model);
+      copiedModel.isReferenced = true;
+      return copiedModel;
     } else if (DataPsmExternalRoot.is(part)) {
       const model = await adapter.loadExternalRoot(part);
-      return {...model, isReferenced: true};
+      const copiedModel = Object.assign(Object.create(Object.getPrototypeOf(model)), model);
+      copiedModel.isReferenced = true;
+      return copiedModel;
     } else {
       throw new Error(
         `Invalid class reference '${classReferenceData.iri}' target.`

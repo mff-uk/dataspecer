@@ -58,7 +58,7 @@ async function createObject(
   const result = await generator.generateToObject(context, artifact, specification);
 
   return {
-    schema: result,
+    schema: result.xmlSchema,
     resource: storeResources[psmIri] as DataPsmSchema
   }
 }
