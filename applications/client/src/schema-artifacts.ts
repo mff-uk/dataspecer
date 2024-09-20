@@ -204,7 +204,7 @@ export function getSchemaArtifacts(
     ldkit.publicUrl = `${baseUrl}/${ldkitSchemaFilename}`;
     ldkit.psm = psmSchemaIri;
     ldkit.configuration = configuration;
-    if ((dataSpecificationConfiguration.useGenerators?.["LDkit"] ?? generatorsEnabledByDefault) !== false) {
+    if ((dataSpecificationConfiguration.useGenerators?.["LDkit"] ?? false) !== false) {
         artifacts.push(ldkit);
     }
 

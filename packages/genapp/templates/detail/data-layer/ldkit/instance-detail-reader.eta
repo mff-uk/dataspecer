@@ -1,4 +1,4 @@
-import { Context, setDefaultContext, createLens } from "ldkit";
+import { Context, setDefaultContext, createLens, SchemaInterface } from "ldkit";
 import { <%= it.ldkit_instance_reader %> } from <%~ it.ldkit_instance_reader_path %>;
 import { <%= it.instance_result_type %> } from <%~ it.instance_result_type_path %>;
 import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
@@ -36,7 +36,7 @@ export default class <%= it.exported_name_object %> implements <%= it.ldkit_inst
         return result;
     }
 
-    private async getInstanceDetail(iri: string, schema: object) {
+    private async getInstanceDetail(iri: string, schema: any) {
         const lens = createLens(schema);
         const instanceDetail = await lens.findByIri(iri);
 
@@ -45,7 +45,7 @@ export default class <%= it.exported_name_object %> implements <%= it.ldkit_inst
         return instanceDetail;
     }
 
-    private async populateNestedDetails(instanceDetail: object, schema: object) {
+    private async populateNestedDetails(instanceDetail: SchemaInterface<any> | undefined, schema: object) {
 
         if (!instanceDetail || !("$id" in instanceDetail)) {
             return;

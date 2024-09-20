@@ -1,13 +1,13 @@
 import { type Dispatch, type SetStateAction, type ChangeEvent } from "react";
 
 import {
-    SemanticModelClass,
+    type SemanticModelClass,
     isSemanticModelAttribute,
     type SemanticModelRelationship,
     type SemanticModelRelationshipEnd,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
-    SemanticModelClassUsage,
+    type SemanticModelClassUsage,
     isSemanticModelAttributeUsage,
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
@@ -20,7 +20,7 @@ import type { OverriddenFieldsType } from "../../util/profile-utils";
 import { useClassesContext } from "../../context/classes-context";
 import { OverrideFieldCheckbox } from "../../components/input/override-field-checkbox";
 import type { WithOverrideHandlerType } from "../../util/profile-utils";
-import { prepareSemanticModelEntitiesForSelect, SelectItem } from "../../service/entity-service";
+import { prepareSemanticModelEntitiesForSelect, type SelectItem } from "../../service/entity-service";
 
 import { t } from "../../application";
 import { DataTypeURIs, dataTypeUriToName } from "@dataspecer/core-v2/semantic-model/datatypes";

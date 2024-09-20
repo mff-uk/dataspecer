@@ -19,25 +19,25 @@ form:
   description:
     instruction: Popište svůj projekt podrobněji
     name: Popis
-  documentation-base-url:
-    instruction: Základ URL adresy pro veřejně dostupnou dokumentaci. Měla by končit lomítkem..
-    name: Base URL dokumentace
   name:
     instruction: Zadejte název projektu
     name: Název
   url:
     instruction: URL veřejně přístupná z internetu
     name: URL
+format as json: Formátovat jako JSON
 mode-toggle:
   dark: Tmavé
   light: Světlé
   system: Dle systému
   title: Změnit motiv
+modify raw data: Upravit data modelu
 modify-documentation-template: Upravit šablonu dokumentace
 new-package: Nová složka
 open: Otevřít
 project-wizard: Průvodce projektem
 remove: Odstranit
+save: Uložit
 show-documentation: Zobrazit dokumentaci
 sort-models:
   creation-new-first: Nově vytvořené první
@@ -46,3 +46,4 @@ sort-models:
   modification-old-first: Změněné poslední
   name-az: Abecedně
   name-za: Obráceně abecedně
+successfully saved: Úspěšně uloženo.

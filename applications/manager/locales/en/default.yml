@@ -21,25 +21,25 @@ form:
   description:
     instruction: Describe your project in more detail
     name: Description
-  documentation-base-url:
-    instruction: Base URL for publicly accessible documentation. Should end with a slash.
-    name: Base URL documentation
   name:
     instruction: Enter the name of the project
     name: Name
   url:
     instruction: URL publicly accessible from the internet
     name: URL
+format as json: Format as json
 mode-toggle:
   dark: Dark
   light: Light
   system: System
   title: Toggle theme
+modify raw data: Modify raw data
 modify-documentation-template: Modify documentation template
 new-package: New package
 open: Open
 project-wizard: Project Wizard
 remove: Remove
+save: Save
 show-documentation: Show documentation
 sort-models:
   creation-new-first: Newly created first
@@ -48,3 +48,4 @@ sort-models:
   modification-old-first: Recently modified last
   name-az: Alphabetically
   name-za: Reverse alphabetically
+successfully saved: Successfully saved.

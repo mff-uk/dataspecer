@@ -336,4 +336,14 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         });
         const data = await result.json();
     }
+
+    async getResourceDataStores(iri: string): Promise<Record<string, string> | null> {
+        const url = this.getResourceUrl(iri);
+        const result = await this.httpFetch(url);
+        if (result.status === 404) {
+            return null;
+        }
+        const data = await result.json() as any;
+        return data.dataStores ?? null;
+    }
 }

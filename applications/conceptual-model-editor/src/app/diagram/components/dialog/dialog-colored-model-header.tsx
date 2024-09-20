@@ -9,7 +9,7 @@ import { getLanguagesForNamedThing } from "../../util/language-utils";
 import { t } from "../../application";
 import { getModelLabel } from "../../service/model-service";
 import { type SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { ChangeEvent } from "react";
+import { type ChangeEvent } from "react";
 
 export const DialogColoredModelHeader = (props: { activeModel: EntityModel | null; style?: string }) => {
     const { aggregatorView } = useModelGraphContext();

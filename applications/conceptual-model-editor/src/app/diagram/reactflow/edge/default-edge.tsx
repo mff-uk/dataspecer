@@ -1,10 +1,10 @@
-import { MouseEvent, MouseEventHandler, useCallback, useMemo } from "react";
+import { type MouseEvent, MouseEventHandler, useCallback, useMemo } from "react";
 
-import { EdgeLabelRenderer, EdgeProps, getSmoothStepPath, useStore } from "reactflow";
+import { EdgeLabelRenderer, type EdgeProps, getSmoothStepPath, useStore } from "reactflow";
 
 import { useMenuOptions } from "../components/menu-options";
 import { sourceModelOfEntity } from "../../util/model-utils";
-import { EdgeData, EdgeType } from "./edge-model";
+import { type EdgeData, EdgeType } from "./edge-model";
 
 import { type Point, getFloatingEdgePoints, getHandleFloatingEdgePoints } from "./geometry";
 import { useConfigurationContext } from "../../context/configuration-context";
@@ -13,8 +13,8 @@ import { useClassesContext } from "../../context/classes-context";
 import { useDialogsContext } from "../../context/dialogs-context";
 import { findSourceModelOfEntity } from "../../service/model-service";
 import { cardinalityToString, getDomainAndRange } from "../../service/relationship-service";
-import { SemanticModelRelationship, SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
-import { SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { type SemanticModelRelationship, SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
+import { type SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 export const DefaultEdge: React.FC<EdgeProps> = (props: EdgeProps) => {
   const geometry = useEdgeGeometry(props.source, props.target);

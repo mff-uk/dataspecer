@@ -26,7 +26,7 @@ export const Catalog = () => {
     const [activeTab, setActiveTab] = useState(CatalogTabs.Models);
 
     const associations = relationships.filter(item => !isSemanticModelAttribute(item));
-    const attributes = associations.filter(isSemanticModelAttribute);
+    const attributes = relationships.filter(isSemanticModelAttribute);
 
     const Content = selectTabConcent(activeTab);
 
