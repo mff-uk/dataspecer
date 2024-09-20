@@ -495,13 +495,14 @@ class XmlSchemaAdapter {
     const [definition, name, abstract] = this.classPropertyToComplexDefinition(
       propertyData, dataTypes
     );
+    const dataTypeAnnotation = this.getAnnotation(dataTypes[0].dataType);
     if (name != null) {
       // The type has a name; define it and use its name.
       const complexType: XmlSchemaComplexType = {
         name: [null, name],
         mixed: false,
         abstract: abstract,
-        annotation: null,
+        annotation: dataTypeAnnotation,
         complexDefinition: definition
       };
       this.types[name] = complexType;
@@ -509,7 +510,7 @@ class XmlSchemaAdapter {
         name: [this.model.namespacePrefix, name],
         mixed: false,
         abstract: abstract,
-        annotation: null,
+        annotation: dataTypeAnnotation,
         complexDefinition: definition
       };
     }
@@ -517,7 +518,7 @@ class XmlSchemaAdapter {
       name: null,
       mixed: false,
       abstract: abstract,
-      annotation: null,
+      annotation: dataTypeAnnotation,
       complexDefinition: definition
     };
   }
@@ -644,7 +645,7 @@ class XmlSchemaAdapter {
     if (dataTypes.length === 1) {
       return {
         name: this.primitiveToQName(dataTypes[0]),
-        annotation: null,
+        annotation: null, // No annotation for primitive types.
       };
     }
     // Use the union of all the datatypes.

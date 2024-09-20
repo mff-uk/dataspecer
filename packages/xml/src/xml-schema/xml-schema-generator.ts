@@ -14,6 +14,7 @@ import { BIKESHED, BikeshedAdapterArtefactContext } from "@dataspecer/bikeshed";
 import { XML_SCHEMA } from "./xml-schema-vocabulary";
 import { createBikeshedSchemaXml } from "./xml-schema-to-bikeshed";
 import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties"
+import { createRespecSchema } from "./xml-schema-to-respec";
 
 export class XmlSchemaGenerator implements ArtefactGenerator {
   identifier(): string {
@@ -26,7 +27,7 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
     specification: DataSpecification,
     output: StreamDictionary
   ) {
-    const model = await this.generateToObject(context, artefact, specification);
+    const {xmlSchema: model} = await this.generateToObject(context, artefact, specification);
     const stream = output.writePath(artefact.outputPath);
     await writeXmlSchema(model, stream);
     await stream.close();
@@ -36,7 +37,7 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
     context: ArtefactGeneratorContext,
     artefact: DataSpecificationArtefact,
     specification: DataSpecification
-  ): Promise<XmlSchema> {
+  ) {
     if (!DataSpecificationSchema.is(artefact)) {
       assertFailed("Invalid artefact type.");
     }
@@ -69,9 +70,12 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
       model, context.reader
     );
 
-    return structureModelToXmlSchema(
-      context, specification, schemaArtefact, xmlModel
-    );
+    return {
+      xmlSchema: structureModelToXmlSchema(
+        context, specification, schemaArtefact, xmlModel
+      ),
+      conceptualModel,
+  };
   }
 
   async generateForDocumentation(
@@ -91,6 +95,14 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
           Object.values(context.specifications)
         ),
       });
+    } else if (documentationIdentifier === "https://schemas.dataspecer.com/generator/template-artifact") {
+      const {artifact: documentationArtefact} = callerContext as {artifact: DataSpecificationArtefact};
+      const {xmlSchema, conceptualModel} = await this.generateToObject(context, artefact, specification);
+      return createRespecSchema(
+        documentationArtefact,
+        xmlSchema,
+        conceptualModel,
+      );
     }
     return null;
   }

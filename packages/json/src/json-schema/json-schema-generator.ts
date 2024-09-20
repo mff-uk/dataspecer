@@ -341,7 +341,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
 </dd>
 {{/classSpecificationArtifact}}
 </dl>
-
+</section>
 {{/isFromExternalSchema}}{{/classes}}
 </section>`);
             }
