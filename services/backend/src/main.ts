@@ -120,7 +120,7 @@ application.get(basename + '/preview/*', getSingleFile);
 
 // Generate application
 
-application.get(basename + "/generate-app", getGeneratedApplication);
+application.post(basename + "/generate-app", getGeneratedApplication);
 
 (async () => {
     // Command-line arguments

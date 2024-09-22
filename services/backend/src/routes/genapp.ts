@@ -16,24 +16,26 @@ export const getGeneratedApplication = asyncHandler(async (request: express.Requ
     }
 
     const inputArgs: GenappInputArguments = {
-        serializedGraph: JSON.stringify(request.body)
+        serializedGraph: request.body.serializedGraph as string
     };
 
-    try {
+    // try {
         const appGenerator = new ApplicationGenerator(inputArgs);
         const generatedApplicationZip = await appGenerator.generate();
 
-        response.writeHead(200, {
-            "Content-type": "application/zip",
-            "Content-Disposition": `attachment; filename=${query.zipname}`
-        }).end(generatedApplicationZip);
+        //response.send(new Blob([generatedApplicationZip], { type: "application/zip" }));
+        response.type("application/zip").send(generatedApplicationZip);
 
-    } catch (error) {
-        response.status(500).json({
-            "message": "Unable to generate application",
-            error
-        });
-    }
+        // ,
+        //     "Content-Disposition": `attachment; filename=${query.zipname}`
+        // }).end(generatedApplicationZip);
+
+    // } catch (error) {
+    //     response.status(500).json({
+    //         "message": "Unable to generate application",
+    //         error
+    //     });
+    // }
 
     return;
 });

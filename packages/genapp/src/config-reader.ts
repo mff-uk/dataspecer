@@ -79,14 +79,14 @@ export class FileConfigurationReader implements ConfigurationReader {
 
 export class StringLiteralConfigurationReader implements ConfigurationReader {
 
-    private readonly _serializedGraph: string;
+    private readonly _serializedGraph: ApplicationGraphType;
 
     constructor(serializedGraph: string) {
-        this._serializedGraph = serializedGraph;
+        this._serializedGraph = JSON.parse(serializedGraph) as ApplicationGraphType;
     }
 
     getAppConfiguration(): ApplicationGraph {
-        const graph = JSON.parse(this._serializedGraph) as ApplicationGraphType;
+        const graph = this._serializedGraph;
 
         const result: ApplicationGraph = new ApplicationGraph(
             graph.label,

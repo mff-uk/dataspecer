@@ -1,39 +1,68 @@
-import { useState } from 'react';
 import './App.css';
+import { useState } from 'react';
+import axios, { AxiosResponse } from "axios";
 import { Button } from './components/ui/button';
-import { ApplicationGenerator, GenappInputArguments } from "@dataspecer/genapp"
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 function App() {
 
-  const startAppGeneration = async () => {
+  const [file, setFile] = useState();
+  const [resultZipName, setResultZipName] = useState<string | null>(null);
+  const [fileContent, setFileContent] = useState<string | null>(null);
+  const reader = new FileReader();
 
-      const input: GenappInputArguments = {
-        appGraphPath: "",
-        targetRootPath: ""
-      };
-
-      await (new ApplicationGenerator(input)).generate();
+  const handleFileChange = (event: any) => {
+    console.log(event.target.files[0]);
+    setFile(event.target.files[0]);
   }
 
+  const handleOutputZipName = (event: any) => {
+    setResultZipName(event.target.value);
+  }
+
+  const startAppGeneration = async () => {
+    reader.onload = (event: ProgressEvent<FileReader>) => {
+
+      const content: string = event.target?.result as string;
+
+      if (!content) {
+        console.error("No valid file content found");
+      }
+
+      setFileContent(content);
+    };
+
+    if (file) {
+      reader.readAsText(file);  // Read the file content as text
+    }
+
+    const response = await axios.post<any, AxiosResponse<Blob, any>>(
+      `http://localhost:3100/generate-app?zipname=${resultZipName ?? "genapp"}`,
+      { serializedGraph: fileContent }
+    );
+
+    console.log("RECEIVED LENGTH: ", response.data);
+    saveAs(response.data, `${resultZipName ?? "genapp"}.zip`);
+
+
+    //console.log(response);
+  }
 
   return (
     <div className='container mt-3'>
       <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
         <small>Dataspecer</small> genapp
       </h1>
-      {/* <p className="leading-7 [&:not(:first-child)]:mt-6">
-        This application written in React, Vite, Tailwind and shadcn/ui can be used to define custom applications.
-      </p> */}
+      <div>
+        Choose output name:
+      </div>
+      <input id="output-zip-name" type="text" onChange={handleOutputZipName} />
       <div>
         Choose application graph file:
       </div>
-      <input id="graph-file-input" type="file" accept=".json" />
-      <div>
-        Choose output directory:
-      </div>
-      <input id="output-dir-input" type="file" />
-      {/* <input directory="" webkitdirectory="" type="file" /> */}
-      <Button onClick={startAppGeneration}>Generate application</Button>
+      <input id="graph-file-input" type="file" accept=".json" onChange={handleFileChange} />
+      <Button onClick={startAppGeneration} disabled={file === undefined}>Generate application</Button>
     </div>
   )
 }

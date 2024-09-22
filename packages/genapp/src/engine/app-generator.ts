@@ -9,7 +9,6 @@ import {
     CREATE_CAPABILITY_ID,
     DELETE_CAPABILITY_ID
 } from "../capabilities";
-import { parse } from "ts-command-line-args";
 import { ConfigurationReaderFactory } from "../config-reader";
 import { LayerArtifact } from "./layer-artifact";
 import { ReactAppBaseGeneratorStage } from "../react-base/react-app-base-stage";
@@ -58,7 +57,7 @@ export class ApplicationGenerator {
         }
     }
 
-    private generateZipArchiveFromGeneratedFiles(): Promise<Uint8Array> {
+    private generateZipArchiveFromGeneratedFiles(): Promise<Blob> {
         let resultZip = new JSZip();
 
         fs.readdirSync("generated", { recursive: true, encoding: "utf-8" }).forEach(filename => {
@@ -69,19 +68,17 @@ export class ApplicationGenerator {
                 return;
             }
             console.log(`ZIPPING PATH "${filePath}"`);
-            const content = fs.readFileSync(filePath);
+            const content = fs.readFileSync(filePath, { encoding: "utf-8" });
             resultZip = resultZip.file(filePath, content);
         })
 
-        fs.rmSync("generated", { recursive: true });
-
         return resultZip.generateAsync({
-            type: "uint8array",
-            mimeType: "application/zip"
+            type: "blob",
+            //mimeType: "application/zip"
         });
     }
 
-    async generate(): Promise<Uint8Array> {
+    async generate(): Promise<Blob> {
         const configReader = ConfigurationReaderFactory.createConfigurationReader(this._args);
 
         const appGraph: ApplicationGraph = configReader
@@ -89,7 +86,11 @@ export class ApplicationGenerator {
 
         await this.generateAppFromConfig(appGraph);
 
-        return this.generateZipArchiveFromGeneratedFiles();
+        const generatedZip = await this.generateZipArchiveFromGeneratedFiles();
+
+        console.log("CORRECT ZIP LENGTH: ", generatedZip.size);
+        //fs.writeFileSync("./.gen.zip", generatedZip.stream);
+        return generatedZip;
     }
 
     private async generateAppFromConfig(appGraph: ApplicationGraph) {

@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.2",
+    "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "jszip": "^3.10.1",
     "lucide-react": "^0.323.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -20,7 +22,6 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    "@dataspecer/genapp": "*",
     "@types/node": "^20.11.16",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
