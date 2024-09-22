@@ -39,9 +39,9 @@ export class DeleteInstanceCapability extends BaseCapabilityGenerator {
             );
 
         this._capabilityStagesGeneratorPipeline = new GeneratorPipeline(
-            new DataLayerGeneratorStage(constructorInput.saveBasePath, dalLayerGeneratorStrategy),
-            new ApplicationLayerStage(constructorInput.saveBasePath, appLayerGeneratorStrategy),
-            new PresentationLayerStage(constructorInput.saveBasePath, this.getLabel(), presentationLayerGeneratorStrategy)
+            new DataLayerGeneratorStage(dalLayerGeneratorStrategy),
+            new ApplicationLayerStage(appLayerGeneratorStrategy),
+            new PresentationLayerStage(this.getLabel(), presentationLayerGeneratorStrategy)
         );
     }
 }

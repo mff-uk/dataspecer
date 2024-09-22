@@ -10,8 +10,12 @@ export interface ConfigurationReader {
 
 export const ConfigurationReaderFactory = {
     createConfigurationReader(args: GenappInputArguments): ConfigurationReader {
-        if (args.appGraphPath) {
-            return new FileConfigurationReader(args.appGraphPath);
+        if (args.appGraphFile) {
+            return new FileConfigurationReader(args.appGraphFile);
+        }
+
+        if (args.serializedGraph) {
+            return new StringLiteralConfigurationReader(args.serializedGraph);
         }
 
         return new StaticConfigurationReader();
@@ -26,49 +30,10 @@ export class StaticConfigurationReader implements ConfigurationReader {
 
         let graphInstance: ApplicationGraphType = {
             label: "Application graph",
-            dataSpecification: "https://ofn.gov.cz/data-specification/c3e8d59e-cee7-482f-8ee6-5fa52a178ab8",
-            datasources: [
-                {
-                    label: "NKOD",
-                    endpoint: "https://data.gov.cz/sparql",
-                    format: DataSourceType.RDF
-                }
-            ],
-            nodes: [
-                {
-                    iri: "https://example.org/application_graph/nodes/1",
-                    // Dataset structure from Genapp local specification
-                    structure: "https://ofn.gov.cz/schema/1713975101423-6a97-9fb6-b2db",
-                    capability: "https://dataspecer.com/application_graph/capability/list",
-                    config: {
-                        "showHeader": true,
-                        "showAsPopup": false,
-                    },
-                    label: {
-                        "cs": "Seznam datových sad",
-                        "en": "List of datasets"
-                    }
-                },
-                {
-                    iri: "https://example.org/application_graph/nodes/2",
-                    // Dataset structure from Genapp local specification
-                    structure: "https://ofn.gov.cz/schema/1713975101423-6a97-9fb6-b2db",
-                    capability: "https://dataspecer.com/application_graph/capability/detail",
-                    config: {},
-                    label: {
-                        "cs": "Detail datové sady",
-                        "en": "Dataset detail"
-                    }
-                }
-            ],
-            edges: [
-                {
-                    iri: "https://example.org/application_graph/edges/1",
-                    source: "https://example.org/application_graph/nodes/1",
-                    target: "https://example.org/application_graph/nodes/2",
-                    type: ApplicationGraphEdgeType.Transition
-                }
-            ]
+            dataSpecification: "",
+            datasources: [],
+            nodes: [ ],
+            edges: [ ]
         }
 
         this._graph = new ApplicationGraph(
@@ -100,6 +65,28 @@ export class FileConfigurationReader implements ConfigurationReader {
             .toString();
 
         const graph = JSON.parse(fileContent) as ApplicationGraphType;
+
+        const result: ApplicationGraph = new ApplicationGraph(
+            graph.label,
+            graph.datasources,
+            graph.nodes,
+            graph.edges,
+            graph.dataSpecification
+        );
+        return result;
+    }
+}
+
+export class StringLiteralConfigurationReader implements ConfigurationReader {
+
+    private readonly _serializedGraph: string;
+
+    constructor(serializedGraph: string) {
+        this._serializedGraph = serializedGraph;
+    }
+
+    getAppConfiguration(): ApplicationGraph {
+        const graph = JSON.parse(this._serializedGraph) as ApplicationGraphType;
 
         const result: ApplicationGraph = new ApplicationGraph(
             graph.label,

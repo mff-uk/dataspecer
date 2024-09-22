@@ -9,7 +9,6 @@ import {
     CREATE_CAPABILITY_ID,
     DELETE_CAPABILITY_ID
 } from "../capabilities";
-import { sep, posix } from "path";
 import { parse } from "ts-command-line-args";
 import { ConfigurationReaderFactory } from "../config-reader";
 import { LayerArtifact } from "./layer-artifact";
@@ -17,6 +16,9 @@ import { ReactAppBaseGeneratorStage } from "../react-base/react-app-base-stage";
 import { CapabilityConstructorInput } from "../capabilities/constructor-input";
 import { ApplicationGraph, ApplicationGraphNode } from "./graph";
 import { AggregateMetadata } from "../application-config";
+import * as fs from "fs";
+import JSZip from "jszip";
+import path from "path";
 
 export type NodeResult = {
     structure: AggregateMetadata;
@@ -29,11 +31,11 @@ export type NodeResult = {
 };
 
 export interface GenappInputArguments {
-    appGraphPath: string;
-    targetRootPath?: string;
+    appGraphFile?: string;
+    serializedGraph?: string;
 }
 
-class ApplicationGenerator {
+export class ApplicationGenerator {
     private readonly _args: GenappInputArguments;
 
     constructor(args: GenappInputArguments) {
@@ -56,13 +58,38 @@ class ApplicationGenerator {
         }
     }
 
-    async generate() {
+    private generateZipArchiveFromGeneratedFiles(): Promise<Uint8Array> {
+        let resultZip = new JSZip();
+
+        fs.readdirSync("generated", { recursive: true, encoding: "utf-8" }).forEach(filename => {
+
+            const filePath = path.join("generated", filename);
+
+            if (fs.statSync(filePath).isDirectory()) {
+                return;
+            }
+            console.log(`ZIPPING PATH "${filePath}"`);
+            const content = fs.readFileSync(filePath);
+            resultZip = resultZip.file(filePath, content);
+        })
+
+        fs.rmSync("generated", { recursive: true });
+
+        return resultZip.generateAsync({
+            type: "uint8array",
+            mimeType: "application/zip"
+        });
+    }
+
+    async generate(): Promise<Uint8Array> {
         const configReader = ConfigurationReaderFactory.createConfigurationReader(this._args);
 
         const appGraph: ApplicationGraph = configReader
             .getAppConfiguration();
 
-        this.generateAppFromConfig(appGraph);
+        await this.generateAppFromConfig(appGraph);
+
+        return this.generateZipArchiveFromGeneratedFiles();
     }
 
     private async generateAppFromConfig(appGraph: ApplicationGraph) {
@@ -80,12 +107,8 @@ class ApplicationGenerator {
 
         const nodeResultMappings = await Promise.all(generationPromises);
 
-        await new ReactAppBaseGeneratorStage(this._args.targetRootPath!)
+        await new ReactAppBaseGeneratorStage()
             .generateApplicationBase(nodeResultMappings);
-
-        // TODO: integrate the application base (add final application node - static app base generator)
-        // config to the app base generator is the mapping of the results
-        // and transitions are from the node itself to all the nodes
     }
 
     private async generateApplicationNode(
@@ -101,7 +124,6 @@ class ApplicationGenerator {
             capabilityLabel,
             dataStructureMetadata,
             datasource: currentNode.getDatasource(graph),
-            saveBasePath: this._args.targetRootPath!
         };
 
         const capabilityGenerator = this.getCapabilityGenerator(capabilityIri, capabilityConstructorInput);
@@ -127,22 +149,3 @@ class ApplicationGenerator {
         return result;
     }
 }
-
-function main() {
-
-    const args = parse<GenappInputArguments>(
-        {
-            appGraphPath: String,
-            targetRootPath: { type: String, optional: true }
-        });
-
-    args.targetRootPath = (args.targetRootPath ?? ".").replaceAll(sep, posix.sep);;
-
-    console.log(`TARGET ROOT: ${args.targetRootPath}`);
-    console.log(`APP GRAPH PATH: ${args.appGraphPath}`);
-
-    const generator = new ApplicationGenerator(args);
-    generator.generate();
-}
-
-main();

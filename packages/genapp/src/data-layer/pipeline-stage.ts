@@ -8,9 +8,9 @@ export class DataLayerGeneratorStage implements GeneratorStage {
     artifactSaver: ArtifactSaver;
     private readonly _dalGeneratorStrategy: DalGeneratorStrategy;
 
-    constructor(saveBaseDir: string, dalGeneratorStrategy: DalGeneratorStrategy) {
+    constructor(dalGeneratorStrategy: DalGeneratorStrategy) {
         this._dalGeneratorStrategy = dalGeneratorStrategy;
-        this.artifactSaver = new ArtifactSaver(saveBaseDir, "/data-layer");
+        this.artifactSaver = new ArtifactSaver("/data-layer");
     }
 
     async generateStage(context: GenerationContext): Promise<LayerArtifact> {

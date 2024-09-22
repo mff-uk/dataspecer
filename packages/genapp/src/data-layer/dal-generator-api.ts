@@ -11,7 +11,7 @@ export default class DalApi {
     private readonly endpointBaseUri: string;
 
     constructor() {
-        this.endpointBaseUri = process.env.APP_BACKEND!;
+        this.endpointBaseUri = process.env.APP_BACKEND ?? "http://localhost:3100";
     }
 
     async generateDalLayerArtifact(dataSpecificationIri: string):

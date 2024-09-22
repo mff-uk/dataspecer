@@ -8,12 +8,12 @@ export class PresentationLayerStage implements GeneratorStage {
     artifactSaver: ArtifactSaver;
     private readonly _presentationLayerStrategy: PresentationLayerGenerator;
 
-    constructor(saveBaseDir: string, capabilityLabel: string, presentationLayerGenerator: PresentationLayerGenerator) {
+    constructor(capabilityLabel: string, presentationLayerGenerator: PresentationLayerGenerator) {
         if (!capabilityLabel || capabilityLabel === "") {
             throw new Error("Unable to generate presentation layer for capability with empty / invalid name.");
         }
 
-        this.artifactSaver = new ArtifactSaver(saveBaseDir, `/presentation-layer/${capabilityLabel}`);
+        this.artifactSaver = new ArtifactSaver(`/presentation-layer/${capabilityLabel}`);
         this._presentationLayerStrategy = presentationLayerGenerator;
     }
 
