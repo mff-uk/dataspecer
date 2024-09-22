@@ -1,7 +1,7 @@
 {
-  "name": "genapp",
+  "name": "@dataspecer/genapp-ui",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -20,6 +20,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@dataspecer/genapp": "*",
     "@types/node": "^20.11.16",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
