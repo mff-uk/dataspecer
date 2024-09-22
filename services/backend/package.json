@@ -16,6 +16,7 @@
     "@dataspecer/core": "*",
     "@dataspecer/core-v2": "*",
     "@dataspecer/ldkit": "*",
+    "@dataspecer/genapp": "*",
     "@dataspecer/rdfs-adapter": "*",
     "@prisma/client": "^4.12.0",
     "@types/cli-progress": "^3.11.5",

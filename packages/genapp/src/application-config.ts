@@ -62,12 +62,12 @@ export class AggregateMetadata {
 
     private toPascalCase(str: string): string {
         const result = str
-            .replaceAll("-", " ")
+            .replace(/-/g, " ")
             .replace(
                 /(\w)(\w*)/g,
-                (_, g1, g2) => g1.toUpperCase() + g2.toLowerCase()
+                (_, g1: string, g2: string) => g1.toUpperCase() + g2.toLowerCase()
             )
-            .replaceAll(" ", "");
+            .replace(/\s/g, "");
 
         return result;
     }

@@ -19,23 +19,10 @@ export class ArtifactSaver implements GeneratedFilePathCalculator {
     private _layerSubdirectoryPath: string;
     private readonly _globalBasePaths: string[];
 
-    constructor(saveBaseDir: string, layerPath: string) {
+    constructor(layerPath: string) {
         this._layerSubdirectoryPath = layerPath;
 
-        const baseDirectoryPath = this.getSaveBaseDirectoryPath(saveBaseDir);
-        this._globalBasePaths = [baseDirectoryPath, "generated", "src"];
-    }
-
-    private getSaveBaseDirectoryPath(baseDirPath: string): string {
-
-        if (!fs.existsSync(baseDirPath)) {
-            const createdDir = fs.mkdirSync(baseDirPath, { recursive: true })!;
-            return path.posix.normalize(createdDir);
-        }
-
-        return fs.statSync(baseDirPath).isDirectory()
-            ? path.posix.normalize(baseDirPath)
-            : path.posix.dirname(baseDirPath);
+        this._globalBasePaths = ["generated", "src"];
     }
 
     getFullSavePath(filename: string, artifactName?: string): string {

@@ -9,8 +9,8 @@ export class ReactAppBaseGeneratorStage {
     private readonly stageGenerator: ReactApplicationBaseGenerator;
     private readonly _appBaseFilepath: string = "./App.tsx";
 
-    constructor(saveBaseDir: string) {
-        this.artifactSaver = new ArtifactSaver(saveBaseDir, ".");
+    constructor() {
+        this.artifactSaver = new ArtifactSaver(".");
         this.stageGenerator = new ReactApplicationBaseGenerator({
             templatePath: "./scaffolding/App",
             filePath: this._appBaseFilepath
