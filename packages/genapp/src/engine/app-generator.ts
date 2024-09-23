@@ -85,7 +85,10 @@ export class ApplicationGenerator {
 
         await this.generateAppFromConfig(appGraph);
 
-        return this.generateZipArchiveFromGeneratedFiles();
+        const zip = await this.generateZipArchiveFromGeneratedFiles();
+
+        fs.rmSync("generated", { recursive: true });
+        return zip;
     }
 
     private async generateAppFromConfig(appGraph: ApplicationGraph) {
