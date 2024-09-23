@@ -11,14 +11,16 @@ export default class DalApi {
     private readonly endpointBaseUri: string;
 
     constructor() {
-        this.endpointBaseUri = process.env.APP_BACKEND ?? "http://localhost:3100";
+        this.endpointBaseUri = process.env.APP_BACKEND ?? "";
     }
 
     async generateDalLayerArtifact(dataSpecificationIri: string):
         Promise<AxiosResponse<Buffer, any>> {
 
+        const url = `${this.endpointBaseUri}/generate?iri=${dataSpecificationIri}`;
+        console.log("URL", url);
         const promise = axios.get(
-            `${this.endpointBaseUri}/generate?iri=${dataSpecificationIri}`,
+            url,
             { responseType: "arraybuffer" }
         );
 
@@ -26,7 +28,10 @@ export default class DalApi {
     }
 
     async getDataSpecification(dataSpecificationIri: string): Promise<DataSpecification> {
-        const response = await axios.get<DataSpecification>(`${this.endpointBaseUri}/data-specification?dataSpecificationIri=${dataSpecificationIri}`);
+
+        const url = `${this.endpointBaseUri}/data-specification?dataSpecificationIri=${dataSpecificationIri}`;
+        console.log("URL", url);
+        const response = await axios.get<DataSpecification>(url);
 
         const dataSpecficiationModel = response.data;
 
@@ -38,7 +43,9 @@ export default class DalApi {
     }
 
     async getResource(resourceIri: string) {
-        const resourceResponse = await axios.get(`${this.endpointBaseUri}/resources/blob?iri=${encodeURIComponent(resourceIri)}`);
+        const url = `${this.endpointBaseUri}/resources/blob?iri=${encodeURIComponent(resourceIri)}`;
+        console.log("URL", url);
+        const resourceResponse = await axios.get(url);
 
         if (resourceResponse.status !== HttpStatusCode.Ok) {
             console.error(resourceResponse);
