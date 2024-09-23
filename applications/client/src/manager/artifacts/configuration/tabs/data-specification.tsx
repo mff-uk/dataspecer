@@ -178,7 +178,7 @@ export const DataSpecification: FC<{
             undefinedIs={generatorsEnabledByDefault}
         />
       </Grid>
-      <Grid item xs={12}>
+      {/* <Grid item xs={12}>
         <SwitchWithDefault
             label="LDkit application skeleton (experimental)"
             current={input.useGenerators ?? {}}
@@ -187,7 +187,7 @@ export const DataSpecification: FC<{
             default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
             undefinedIs={generatorsEnabledByDefault}
         />
-      </Grid>
+      </Grid> */}
       <Grid item xs={12}>
         <SwitchWithDefault
           label="Documentation"
@@ -208,7 +208,7 @@ export const DataSpecification: FC<{
           undefinedIs={generatorsEnabledByDefault}
         />
       </Grid>
-      <Grid item xs={12}>
+      {/* <Grid item xs={12}>
         <SwitchWithDefault
           label="LDkit"
           current={input.useGenerators ?? {}}
@@ -217,7 +217,7 @@ export const DataSpecification: FC<{
           default={defaultObject ? (defaultObject?.useGenerators ?? {}) : undefined}
           undefinedIs={false}
         />
-      </Grid>
+      </Grid> */}
     </Grid>
 
     <Typography variant="body2" sx={{mt: 1}}>

@@ -196,17 +196,17 @@ export function getSchemaArtifacts(
         artifacts.push(openapi);
     }
 
-    const ldkit = new DataSpecificationSchema();
-    ldkit.iri = `${psmSchemaIri}#ldkit`;
-    ldkit.generator = "https://schemas.dataspecer.com/generator/LDkit";
-    const ldkitSchemaFilename = dataSpecificationConfiguration.renameArtifacts?.[ldkit.generator] ?? "ldkit-schema.ts";
-    ldkit.outputPath = `${basePath}/${ldkitSchemaFilename}`;
-    ldkit.publicUrl = `${baseUrl}/${ldkitSchemaFilename}`;
-    ldkit.psm = psmSchemaIri;
-    ldkit.configuration = configuration;
-    if ((dataSpecificationConfiguration.useGenerators?.["LDkit"] ?? false) !== false) {
-        artifacts.push(ldkit);
-    }
+    // const ldkit = new DataSpecificationSchema();
+    // ldkit.iri = `${psmSchemaIri}#ldkit`;
+    // ldkit.generator = "https://schemas.dataspecer.com/generator/LDkit";
+    // const ldkitSchemaFilename = dataSpecificationConfiguration.renameArtifacts?.[ldkit.generator] ?? "ldkit-schema.ts";
+    // ldkit.outputPath = `${basePath}/${ldkitSchemaFilename}`;
+    // ldkit.publicUrl = `${baseUrl}/${ldkitSchemaFilename}`;
+    // ldkit.psm = psmSchemaIri;
+    // ldkit.configuration = configuration;
+    // if ((dataSpecificationConfiguration.useGenerators?.["LDkit"] ?? false) !== false) {
+    //     artifacts.push(ldkit);
+    // }
 
     return artifacts;
 }
