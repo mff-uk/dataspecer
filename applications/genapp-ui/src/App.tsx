@@ -37,16 +37,15 @@ function App() {
       reader.readAsText(file);  // Read the file content as text
     }
 
-    const response = await axios.post<any, AxiosResponse<Blob, any>>(
+    const response = await axios.post<any, AxiosResponse<Buffer, any>>(
       `http://localhost:3100/generate-app?zipname=${resultZipName ?? "genapp"}`,
-      { serializedGraph: fileContent }
+      { serializedGraph: fileContent },
+      { responseType: "arraybuffer" }
     );
-
-    console.log("RECEIVED LENGTH: ", response.data);
-    saveAs(response.data, `${resultZipName ?? "genapp"}.zip`);
-
-
-    //console.log(response);
+    const zip = new JSZip();
+    const x = await zip.loadAsync(response.data);
+    const blob = await x.generateAsync({ type: "blob" });
+    saveAs(blob, `${resultZipName ?? "genapp"}.zip`);
   }
 
   return (

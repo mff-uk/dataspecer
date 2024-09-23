@@ -57,7 +57,7 @@ export class ApplicationGenerator {
         }
     }
 
-    private generateZipArchiveFromGeneratedFiles(): Promise<Blob> {
+    private generateZipArchiveFromGeneratedFiles(): Promise<Buffer> {
         let resultZip = new JSZip();
 
         fs.readdirSync("generated", { recursive: true, encoding: "utf-8" }).forEach(filename => {
@@ -73,12 +73,11 @@ export class ApplicationGenerator {
         })
 
         return resultZip.generateAsync({
-            type: "blob",
-            //mimeType: "application/zip"
+            type: "nodebuffer"
         });
     }
 
-    async generate(): Promise<Blob> {
+    async generate(): Promise<Buffer> {
         const configReader = ConfigurationReaderFactory.createConfigurationReader(this._args);
 
         const appGraph: ApplicationGraph = configReader
@@ -86,11 +85,7 @@ export class ApplicationGenerator {
 
         await this.generateAppFromConfig(appGraph);
 
-        const generatedZip = await this.generateZipArchiveFromGeneratedFiles();
-
-        console.log("CORRECT ZIP LENGTH: ", generatedZip.size);
-        //fs.writeFileSync("./.gen.zip", generatedZip.stream);
-        return generatedZip;
+        return this.generateZipArchiveFromGeneratedFiles();
     }
 
     private async generateAppFromConfig(appGraph: ApplicationGraph) {
