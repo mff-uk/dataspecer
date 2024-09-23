@@ -1,24 +1,20 @@
 import './App.css';
 import { useState } from 'react';
-import axios, { AxiosResponse } from "axios";
-import { Button } from './components/ui/button';
-import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import { Button } from './components/ui/button';
+import { OutputFilenameInput } from './UserInput';
+import { downloadGeneratedZip } from './download-generated-zip';
 
 function App() {
 
-  const [file, setFile] = useState();
-  const [resultZipName, setResultZipName] = useState<string | null>(null);
-  const [fileContent, setFileContent] = useState<string | null>(null);
   const reader = new FileReader();
+  const [file, setFile] = useState();
+  const [fileContent, setFileContent] = useState<string | null>(null);
+  const [resultZipName, setResultZipName] = useState<string | null>(null);
 
   const handleFileChange = (event: any) => {
-    console.log(event.target.files[0]);
-    setFile(event.target.files[0]);
-  }
-
-  const handleOutputZipName = (event: any) => {
-    setResultZipName(event.target.value);
+    const file = event.target.files[0];
+    setFile(file);
   }
 
   const startAppGeneration = async () => {
@@ -28,40 +24,41 @@ function App() {
 
       if (!content) {
         console.error("No valid file content found");
+        return;
       }
 
       setFileContent(content);
     };
 
     if (file) {
-      reader.readAsText(file);  // Read the file content as text
+      reader.readAsText(file);
     }
 
-    const response = await axios.post<any, AxiosResponse<Buffer, any>>(
-      `http://localhost:3100/generate-app?zipname=${resultZipName ?? "genapp"}`,
-      { serializedGraph: fileContent },
-      { responseType: "arraybuffer" }
+    const zipBlob: Blob = await downloadGeneratedZip(
+      resultZipName ?? "genapp",
+      fileContent ?? ""
     );
-    const zip = new JSZip();
-    const x = await zip.loadAsync(response.data);
-    const blob = await x.generateAsync({ type: "blob" });
-    saveAs(blob, `${resultZipName ?? "genapp"}.zip`);
+    saveAs(zipBlob, `${resultZipName ?? "genapp"}.zip`);
   }
 
   return (
-    <div className='container mt-3'>
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+    <div className="container mt-3">
+      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
         <small>Dataspecer</small> genapp
       </h1>
-      <div>
-        Choose output name:
+      <OutputFilenameInput
+        id="outputfile_input"
+        placeholder="Result ZIP file without '.zip' extension"
+        label="Choose output file name"
+        zipNameState={[resultZipName, setResultZipName]}
+      />
+      <div className="p-1 flex items-center">
+        <label htmlFor={"graph-file-input"} className="mr-2">Select application graph file: </label>
+        <input id="graph-file-input" type="file" accept=".json" onChange={handleFileChange} />
       </div>
-      <input id="output-zip-name" type="text" onChange={handleOutputZipName} />
-      <div>
-        Choose application graph file:
+      <div className="pt-5 flex items-center">
+        <Button onClick={startAppGeneration} disabled={!file || !resultZipName}>Generate application</Button>
       </div>
-      <input id="graph-file-input" type="file" accept=".json" onChange={handleFileChange} />
-      <Button onClick={startAppGeneration} disabled={file === undefined}>Generate application</Button>
     </div>
   )
 }
