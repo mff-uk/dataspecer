@@ -1,5 +1,4 @@
 import TextField from "@mui/material/TextField";
-import { useState } from "react";
 import { InputAdornment } from "@mui/material";
 
 type UserInputProps = {
