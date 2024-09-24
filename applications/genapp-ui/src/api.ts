@@ -9,6 +9,6 @@ export const generateApp = (zipName: string, graphFileContent: string): Promise<
         .post<any, AxiosResponse<Buffer, any>>(
             url,
             { serializedGraph: graphFileContent },
-            { responseType: "arraybuffer", timeout: 10000 }
+            { responseType: "arraybuffer" }
         );
 }

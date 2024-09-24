@@ -11,5 +11,5 @@ export async function downloadGeneratedZip(zipName: string, fileContent: string)
     }
 
     const zip = await new JSZip().loadAsync(response.data);
-    return zip.generateAsync({ type: "blob" });
+    return await zip.generateAsync({ type: "blob" });
 }

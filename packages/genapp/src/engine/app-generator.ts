@@ -65,9 +65,10 @@ export class ApplicationGenerator {
             const filePath = path.join("generated", filename);
 
             if (fs.statSync(filePath).isDirectory()) {
+                console.log(`   Is directory: ${filePath}`);
                 return;
             }
-            console.log(`ZIPPING PATH "${filePath}"`);
+            console.log(`"${filePath}"`);
             const content = fs.readFileSync(filePath, { encoding: "utf-8" });
             resultZip = resultZip.file(filePath, content);
         })
@@ -87,7 +88,7 @@ export class ApplicationGenerator {
 
         const zip = await this.generateZipArchiveFromGeneratedFiles();
 
-        fs.rmSync("generated", { recursive: true });
+        //fs.rmSync("generated", { recursive: true });
         return zip;
     }
 
@@ -105,6 +106,8 @@ export class ApplicationGenerator {
         );
 
         const nodeResultMappings = await Promise.all(generationPromises);
+
+        console.log("MAPPING: ", nodeResultMappings);
 
         await new ReactAppBaseGeneratorStage()
             .generateApplicationBase(nodeResultMappings);
