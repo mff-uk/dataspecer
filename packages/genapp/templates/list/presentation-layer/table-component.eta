@@ -69,7 +69,7 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
                                 <TableCell align="right">
                                     <strong>Index</strong>
                                 </TableCell><% const propertyNames = Object.keys(it.table_schema.properties); const excludedNames = ["id", "type"]; %><% for (let index = 0; index < propertyNames.length; index++) { %><% const propertyName = propertyNames[index]; %><% if (excludedNames.includes(propertyName)) continue; %>
-                                <TableCell key={<%= index %>} align="right" sx={{ width: window.innerWidth / <%= propertyNames.length - excludedNames.length %> }}>
+                                <TableCell key={<%= index %>} align="right" sx={{ maxWidth: window.innerWidth / <%= propertyNames.length - excludedNames.length %> }}>
                                     <strong><%= it.table_schema.properties[propertyName]?.title ?? propertyName %></strong>
                                 </TableCell><% } %>
                                 <% if (hasTransitions) { %><TableCell align="right" /><% } %>
@@ -85,7 +85,7 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
                                         <TableCell align="right">
                                             {idx + 1}
                                         </TableCell><% for (let index = 0; index < propertyNames.length; index++) { %><% const propertyName = propertyNames[index];%><% if (propertyName === "id" || propertyName === "type") continue; %>
-                                        <TableCell key={<%= index %>} align="right">
+                                        <TableCell key={<%= index %>} align="right" sx={{ maxWidth: window.innerWidth / <%= propertyNames.length - excludedNames.length %> }}>
                                             {stringify(instance["<%= propertyName %>"])}
                                         </TableCell><% } %><% if (hasTransitions) { %>
                                         <TableCell>

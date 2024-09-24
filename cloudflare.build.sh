@@ -68,5 +68,5 @@ mkdir .dist/api-specification
 cp -r applications/api-specification/dist/* .dist/api-specification
 
 # Copy genapp application
-mkdir .dist/genapp
-cp -r applications/genapp/dist/* .dist/genapp
+mkdir .dist/genapp-ui
+cp -r applications/genapp-ui/dist/* .dist/genapp-ui

@@ -75,7 +75,7 @@ const DefaultObjectRenderer: FC<ComponentProps> = ({ name, value }) => {
 
     return (
         <div>
-            JSON.stringify(value);
+            { JSON.stringify(value) }
         </div>
     )
 }
