@@ -1,6 +1,6 @@
 import { LOCAL_VISUAL_MODEL } from "../model/known-models";
 
-import { MODEL_VISUAL_TYPE, ModelVisualInformation, VISUAL_GROUP_TYPE, VISUAL_NODE_TYPE, VISUAL_RELATIONSHIP_TYPE, VisualEntity, VisualGroup, VisualNode, VisualRelationship, isModelVisualInformation, isVisualGroup, isVisualNode, isVisualRelationship } from "./visual-entity";
+import { MODEL_VISUAL_TYPE, ModelVisualInformation, UNKNOWN_MODEL, VISUAL_GROUP_TYPE, VISUAL_NODE_TYPE, VISUAL_RELATIONSHIP_TYPE, VisualEntity, VisualGroup, VisualNode, VisualRelationship, isModelVisualInformation, isVisualGroup, isVisualNode, isVisualRelationship } from "./visual-entity";
 import {
   WritableVisualModel,
   SynchronousUnderlyingVisualModel,
@@ -9,24 +9,45 @@ import {
   VisualModelData,
   VisualModelType,
   WritableVisualModelType,
+  VisualModelDataVersion,
 } from "./visual-model";
 import { HexColor } from "./visual-entity";
 import { EntityEventListener, UnsubscribeCallback } from "./entity-model/observable-entity-model";
 import { Entity, EntityIdentifier } from "./entity-model/entity";
+import { LanguageString } from "./entity-model/labeled-model";
 
 /**
- * This is how data were stored in the version one of the visualization model.
- * Later we switch to using entities and underlying model.
+ * This is how data were stored in the initial version of the visual model.
  */
-interface VisualModelJsonSerializationV1 {
+interface VisualModelJsonSerializationV0 {
 
   type: typeof LOCAL_VISUAL_MODEL;
 
   modelId: string;
 
-  visualEntities: Record<string, VisualEntity>;
+  modelAlias?: string;
+
+  visualEntities: Record<string, VisualModelEntityV0>;
 
   modelColors: Record<string, string>;
+
+}
+
+const VISUAL_ENTITY_V0_TYPE = "visual-entity";
+
+interface VisualModelEntityV0 {
+
+  id: string;
+
+  type: string[];
+
+  sourceEntityId: string;
+
+  visible: boolean | undefined;
+
+  position: { x: number, y: number };
+
+  hiddenAttributes: [];
 
 }
 
@@ -43,11 +64,16 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
    */
   private representedToEntity: Map<RepresentedEntityIdentifier, EntityIdentifier> = new Map();
 
+  /**
+   * Map from model identifier to the model data.
+   */
   private models: Map<string, VisualModelData> = new Map();
+
+  private sourceDataVersion: VisualModelDataVersion = VisualModelDataVersion.VERSION_1;
 
   constructor(model: SynchronousUnderlyingVisualModel) {
     this.model = model;
-    this.initialize();
+    this.loadFromEntities();
     // Register for changes in the model.
     this.model.subscribeToChanges(this);
   }
@@ -60,7 +86,7 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
    * Load data from the underlying model so we can provide synchronous interface
    * on top on asynchronous model.
    */
-  protected initialize() {
+  protected loadFromEntities() {
     const entities = this.model.getEntitiesSync();
     for (const entity of entities) {
       // We utilize the method reacting on new entity added to the model.
@@ -102,6 +128,18 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
 
   getModelsData(): Map<string, VisualModelData> {
     return new Map(this.models);
+  }
+
+  getInitialModelVersion(): VisualModelDataVersion {
+    return this.sourceDataVersion;
+  }
+
+  getLabel(): LanguageString | null {
+    return this.model.getLabel();
+  }
+
+  setLabel(label: LanguageString | null): void {
+    this.model.setLabel(label);
   }
 
   addVisualNode(entity: Omit<VisualNode, "identifier" | "type">): string {
@@ -161,9 +199,11 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
     this.model.changeEntitySync<ModelVisualInformation>(entityIdentifier, { color });
   }
 
-  protected createModelEntity(model: string, color: HexColor) : void {
+  protected createModelEntity(model: string, color: HexColor): void {
     // This will trigger update in underling model and invoke callback.
     // We react to changes using the callback.
+    // The same way to create a ModelVisualInformation is used in the
+    // deserializeModelV0 method!
     this.model.createEntitySync<ModelVisualInformation>({
       type: [MODEL_VISUAL_TYPE],
       representedModel: model,
@@ -172,6 +212,11 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
   }
 
   deleteModelColor(identifier: string): void {
+    // There is only color, so we delete the entity.
+    this.deleteModelData(identifier);
+  }
+
+  deleteModelData(identifier: string): void {
     // We need to get entity identifier.
     const entityIdentifier = this.models.get(identifier)?.entity;
     if (entityIdentifier === undefined) {
@@ -192,19 +237,82 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
   }
 
   deserializeModel(value: object): this {
-    this.model.deserializeModel(value);
-    this.initialize();
-    // In previous versions the model information was not
-    // stored in an entity.
-    if ((value as any).modelColors === undefined) {
-      return this;
-    }
-    // Conversion from version 1.
-    const v1 = value as VisualModelJsonSerializationV1;
-    for (const [identifier, color] of Object.entries(v1.modelColors)) {
-      this.setModelColor(identifier, color);
+    if (isEntityModelV0(value)) {
+      this.sourceDataVersion = VisualModelDataVersion.VERSION_0;
+      this.deserializeModelV0(value);
+    } else {
+      this.sourceDataVersion = VisualModelDataVersion.VERSION_1;
+      this.deserializeModelV1(value);
     }
     return this;
+  }
+
+  protected deserializeModelV0(value: VisualModelJsonSerializationV0): void {
+    // We can not pass the model to the internal entity directly.
+    // So we perform a migration.
+    const migratedEntities: Record<string, VisualEntity> = {};
+    for (const [identifier, entity] of Object.entries(value.visualEntities)) {
+      if (!entity.type.includes(VISUAL_ENTITY_V0_TYPE)) {
+        console.error("Removing unknown visual entity.", { entity });
+        continue;
+      }
+      if (entity.visible === false) {
+        // We removed hidden entities.
+        continue;
+      }
+      // This can represent a node or an edge.
+      // The best to tell the difference is using a position.
+      const isNode =
+        entity.position.x === Math.ceil(entity.position.x) &&
+        entity.position.y === Math.ceil(entity.position.y);
+      if (isNode) {
+        const migratedNode: VisualNode = {
+          identifier,
+          type: [VISUAL_NODE_TYPE],
+          //
+          representedEntity: entity.sourceEntityId,
+          model: UNKNOWN_MODEL,
+          content: [],
+          visualModels: [],
+          position: { ...entity.position, anchored: null },
+        };
+        migratedEntities[identifier] = migratedNode;
+      } else {
+        const migratedRelationship: VisualRelationship = {
+          identifier,
+          type: [VISUAL_RELATIONSHIP_TYPE],
+          //
+          representedRelationship: entity.sourceEntityId,
+          model: UNKNOWN_MODEL,
+          waypoints: [],
+        };
+        migratedEntities[identifier] = migratedRelationship;
+      }
+    }
+    const migratedValue = {
+      identifier: value.modelId,
+      type: value.type,
+      entities: migratedEntities,
+    }
+    // Load migrated content.
+    this.model.deserializeModel(migratedValue);
+    // And initialize the model.
+    this.loadFromEntities();
+    // Migrate colors colors.
+    for (const [identifier, color] of Object.entries(value.modelColors)) {
+      this.setModelColor(identifier, color);
+    }
+    // Migrate label.
+    this.model.setLabel({ "en": value.modelAlias ?? "Anonymous model" });
+    // Print debug information about migration
+    console.log("Visual model migration done.", {v0: value, current: this.model.getEntitiesSync()})
+  }
+
+  protected deserializeModelV1(value: object): void {
+    // We just load the entities.
+    this.model.deserializeModel(value);
+    // And initialize the model.
+    this.loadFromEntities();
   }
 
   entitiesDidChange(created: Entity[], changed: Entity[], removed: string[]): void {
@@ -301,4 +409,8 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
       this.notifyObserversOnEntityChangeOrDelete(previous, null);
     }
   }
+}
+
+function isEntityModelV0(what: object): what is VisualModelJsonSerializationV0 {
+  return (what as any).modelColors !== undefined || (what as any).visualEntities !== undefined;
 }

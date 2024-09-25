@@ -1,5 +1,5 @@
 import { EntityIdentifier } from "./entity-model/entity";
-import { EntityModel } from "./entity-model/entity-model";
+import { EntityModel, ModelIdentifier } from "./entity-model/entity-model";
 import { LegacyModel } from "./entity-model/legacy-model";
 import { ObservableEntityModel, UnsubscribeCallback } from "./entity-model/observable-entity-model";
 import { SynchronousEntityModel } from "./entity-model/synchronous-entity-model";
@@ -7,8 +7,19 @@ import { SynchronousWritableEntityModel } from "./entity-model/on-premise-writab
 import { TypedObject, isTypedObject } from "./entity-model/typed-object";
 import { HexColor, VisualEntity, VisualGroup, VisualNode, VisualRelationship } from "./visual-entity";
 import { SerializableModel } from "./entity-model/serializable-model";
+import { LabeledModel } from "./entity-model/labeled-model";
 
 export type RepresentedEntityIdentifier = string;
+
+export enum VisualModelDataVersion {
+    VERSION_0,
+    /**
+     * Changes from previous version:
+     * - edges detected based on decimal position
+     * - model assigned to UNKNOWN_MODEL
+     */
+    VERSION_1,
+};
 
 /**
  * Visual model is designed to allow users place a class, or profile, on a canvas.
@@ -16,12 +27,12 @@ export type RepresentedEntityIdentifier = string;
  *
  * Since the visual model capture what use see we design it as synchronous interface.
  */
-export interface VisualModel extends TypedObject, LegacyModel {
+export interface VisualModel extends TypedObject, LegacyModel, LabeledModel {
 
     /**
      * @returns Model identifier.
      */
-    getIdentifier(): string;
+    getIdentifier(): ModelIdentifier;
 
     /**
      * @returns Visual entity with given identifier or null.
@@ -47,12 +58,19 @@ export interface VisualModel extends TypedObject, LegacyModel {
     /**
      * @returns Color as defined for given model or null.
      */
-    getModelColor(identifier: string): HexColor | null;
+    getModelColor(identifier: ModelIdentifier): HexColor | null;
 
     /**
      * @returns All stored model data pairs.
      */
-    getModelsData(): Map<string, VisualModelData>;
+    getModelsData(): Map<ModelIdentifier, VisualModelData>;
+
+    /**
+     * We can use the version to perform higher level migration when needed.
+     *
+     * @returns Version of data content of this model was created from or latest version.
+     */
+    getInitialModelVersion(): VisualModelDataVersion;
 
 }
 
@@ -76,7 +94,7 @@ export interface VisualModelListener {
     /**
      * Color is set to null, when the information about model color is removed.
      */
-    modelColorDidChange: (identifier: string, next: HexColor | null) => void;
+    modelColorDidChange: (identifier: ModelIdentifier, next: HexColor | null) => void;
 
 }
 
@@ -88,7 +106,7 @@ export interface VisualModelData {
     /**
      * Identifier of represented model.
      */
-    representedModel: string;
+    representedModel: ModelIdentifier;
 
     /**
      * Identifier of an entity holding the model data.
@@ -129,12 +147,17 @@ export interface WritableVisualModel extends VisualModel {
     /**
      * Set color for given model.
      */
-    setModelColor(identifier: string, color: HexColor): void;
+    setModelColor(identifier: ModelIdentifier, color: HexColor): void;
 
     /**
-     * Delete all stored information about color for given model.
+     * Delete stored information about color for given model.
      */
-    deleteModelColor(identifier: string): void;
+    deleteModelColor(identifier: ModelIdentifier): void;
+
+    /**
+     * Delete all stored information about the model.
+     */
+    deleteModelData(identifier: ModelIdentifier): void;
 
 }
 
@@ -153,4 +176,5 @@ export interface SynchronousUnderlyingVisualModel extends
     SynchronousWritableEntityModel,
     ObservableEntityModel,
     SerializableModel,
+    LabeledModel,
     LegacyModel { }

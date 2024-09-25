@@ -1,5 +1,5 @@
 import { Entity, EntityIdentifier } from "./entity";
-import { EntityModel } from "./entity-model";
+import { EntityModel, ModelIdentifier } from "./entity-model";
 import { LabeledModel, LabeledModelType, LanguageString } from "./labeled-model";
 import { SynchronousEntityModel, SynchronousEntityModelType } from "./synchronous-entity-model";
 import { LegacyModel } from "./legacy-model";
@@ -13,7 +13,7 @@ export interface DefaultEntityModelType extends EntityModel, LabeledModel, Synch
 /**
  * @deprecated We should introduce a factory class to create entity model based on package data
  */
-export function createDefaultEntityModel(type: string, identifier?: string): DefaultEntityModelType {
+export function createDefaultEntityModel(type: string, identifier?: ModelIdentifier): DefaultEntityModelType {
   return new DefaultEntityModel(type, identifier ?? createIdentifier());
 }
 
@@ -21,7 +21,7 @@ const VERSION = 0;
 
 class DefaultEntityModel implements DefaultEntityModelType {
 
-  protected identifier: string;
+  protected identifier: ModelIdentifier;
 
   protected type: string;
 
@@ -29,14 +29,14 @@ class DefaultEntityModel implements DefaultEntityModelType {
 
   protected listeners: EntityEventListener[];
 
-  constructor(type: string, identifier: string) {
+  constructor(type: string, identifier: ModelIdentifier) {
     this.identifier = identifier;
     this.type = type;
     this.entities = new Map<string, Entity>();
     this.listeners = [];
   }
 
-  getIdentifier(): string {
+  getIdentifier(): ModelIdentifier {
     return this.identifier;
   }
 
@@ -59,10 +59,21 @@ class DefaultEntityModel implements DefaultEntityModelType {
 
   setLabel(label: { [language: string]: string; } | null): void {
     const identifier = modelEntityIdentifier(this.identifier);
-    const change: ChangeEntity<ModelEntity> = {
-      label: label
-    };
-    this.change([], { [identifier]: change, }, []);
+    if (this.getEntitySync(identifier) === null) {
+      // Create model entity.
+      const modelEntity : ModelEntity = {
+        identifier,
+        type: [ModelEntityType],
+        label,
+      };
+      this.change([modelEntity], {}, []);
+    } else {
+      // Update.
+      const change: ChangeEntity<ModelEntity> = {
+        label: label
+      };
+      this.change([], { [identifier]: change, }, []);
+    }
   }
 
   /**
@@ -84,7 +95,7 @@ class DefaultEntityModel implements DefaultEntityModelType {
     for (const [identifier, entity] of Object.entries(change)) {
       const oldEntity = this.entities.get(identifier);
       if (oldEntity === undefined) {
-        console.warn("Update called for non-existing entity.", { identifier, entity });
+        console.warn("Update called for non-existing entity.", { identifier, entity, available: this.entities.keys() });
         continue;
       }
       const newEntity: Entity = {
@@ -118,7 +129,7 @@ class DefaultEntityModel implements DefaultEntityModelType {
     }, []);
   }
 
-  deleteEntitySync(identifier: string): void {
+  deleteEntitySync(identifier: EntityIdentifier): void {
     this.change([], {}, [identifier]);
   }
 
@@ -128,7 +139,7 @@ class DefaultEntityModel implements DefaultEntityModelType {
     return Promise.resolve();
   }
 
-  getEntitySync(identifier: string): Entity | null {
+  getEntitySync(identifier: EntityIdentifier): Entity | null {
     return this.entities.get(identifier) ?? null;
   }
 
@@ -165,8 +176,7 @@ class DefaultEntityModel implements DefaultEntityModelType {
       throw new Error(`Models do not have same types, actual: '${this.type}', expected: '${payload.type}'.`);
     }
     // We need to ensure backwards compatibility here.
-    console.log("deserializeModel", {payload});
-    this.identifier = payload.identifier ?? payload.modelId;
+    this.identifier = payload.identifier;
     this.entities = new Map(Object.entries(payload.entities));
     return this;
   }
@@ -190,3 +200,5 @@ interface ModelEntity extends Entity {
   label: LanguageString | null;
 
 }
+
+const ModelEntityType = "entity-model-type";

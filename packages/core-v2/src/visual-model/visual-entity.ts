@@ -1,4 +1,5 @@
 import { Entity, EntityIdentifier } from "./entity-model/entity";
+import { ModelIdentifier } from "./entity-model/entity-model";
 
 /**
  * Color in hexadecimal, must start with "#" character.
@@ -22,9 +23,9 @@ export interface VisualNode extends VisualEntity {
     representedEntity: EntityIdentifier;
 
     /**
-     * Identifier of the entity model.
+     * Identifier of the entity model the represented entity belongs to.
      */
-    model: string;
+    model: ModelIdentifier;
 
     /**
      * Position on canvas.
@@ -32,7 +33,7 @@ export interface VisualNode extends VisualEntity {
     position: Position;
 
     /**
-     * Identifiers of non-visual relationships to show as a part of the entity.
+     * Identifiers of non-visual relationships, e.g. attribute, to show as a part of the entity.
      */
     content: string[];
 
@@ -43,6 +44,8 @@ export interface VisualNode extends VisualEntity {
     visualModels: string[];
 
 }
+
+export const UNKNOWN_MODEL = "unknown-model";
 
 export const VISUAL_NODE_TYPE = "visual-node";
 
@@ -73,6 +76,11 @@ export interface VisualRelationship extends VisualEntity {
      * Identifier of represented entity.
      */
     representedRelationship: EntityIdentifier;
+
+    /**
+     * Identifier of the entity model the represented relationship belongs to.
+     */
+    model: ModelIdentifier;
 
     /**
      * Order of waypoints is defined by the order in the array.

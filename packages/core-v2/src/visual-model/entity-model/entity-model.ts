@@ -1,6 +1,8 @@
 import { Entity, EntityIdentifier } from "./entity";
 import { TypedObject } from "./typed-object";
 
+export type ModelIdentifier = string;
+
 /**
  * Represents a collection of entities with simple read access.
  * By design this model is not provided with additional functionality or being extended.
@@ -12,7 +14,7 @@ export interface EntityModel extends TypedObject {
   /**
    * @returns Model identifier.
    */
-  getIdentifier(): string;
+  getIdentifier(): ModelIdentifier;
 
   /**
    * @returns Entity with given identifier.
