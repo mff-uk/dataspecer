@@ -308,6 +308,7 @@ export { semanticModelAggregatorInternal as SemanticModelAggregator };
  * multiple views can be created for the same aggregator, each for a different subgraph.
  */
 export class SemanticModelAggregatorView {
+
     private readonly aggregator: SemanticModelAggregatorInternal;
 
     /**
@@ -318,12 +319,19 @@ export class SemanticModelAggregatorView {
     }
 
     /**
-     * Returns all entities aggregated.
+     * @returns Array of all models in the aggregator.
+     */
+    getModels(): SupportedModels[] {
+        return [...this.aggregator.models.keys()];
+    }
+
+    /**
+     * @returns Dictionary with all entities aggregated.
      */
     getEntities(): Record<string, AggregatedEntityWrapper> {
         const entities = {...this.aggregator.baseModelEntities};
+        // Just an optimization to not call it multiple times, when it is null.
         if (this.aggregator.activeVisualModel === null) {
-            console.debug("No visual entities added as visual model is null.")
             return entities;
         }
         for (const entity of Object.values(entities)) {
@@ -346,10 +354,9 @@ export class SemanticModelAggregatorView {
         return () => this.aggregator.baseModelSubscribers.delete(callback);
     }
 
-    changeView(toModel: SupportedModels) {
-        throw new Error("Not implemented yet.");
-    }
-
+    /**
+     * @deprecated
+     */
     getActiveViewId() {
         return this.aggregator.activeVisualModel?.getIdentifier();
     }
@@ -358,18 +365,22 @@ export class SemanticModelAggregatorView {
         return this.aggregator.activeVisualModel;
     }
 
+    changeActiveVisualModel(identifier: string | null) {
+        this.aggregator.setActiveVisualModel(identifier);
+    }
+
     getAvailableVisualModels(): VisualModel[] {
         return [...this.aggregator.models.keys()]
             .filter((m) => isVisualModel(m)) as VisualModel[];
     }
 
+    /**
+     * @deprecated
+     */
     getAvailableVisualModelIds(): string[] {
         return [...this.aggregator.models.keys()]
             .filter((m) => isVisualModel(m))
             .map((m) => (m as VisualModel).getIdentifier());
     }
 
-    changeActiveVisualModel(identifier: string | null) {
-        this.aggregator.setActiveVisualModel(identifier);
-    }
 }
