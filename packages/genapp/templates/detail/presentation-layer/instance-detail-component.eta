@@ -23,9 +23,14 @@ import { <%= it.detail_capability_app_layer %> } from <%~ it.detail_app_layer_pa
             return "";
         }
 
-        const instanceReference = propertyName !== null && propertyName !== ""
+        let valueReference = (propertyName !== null && propertyName !== "") && instanceRef !== ""
             ? `${instanceRef}["${propertyName}"]`
             : instanceRef;
+
+        if (instanceRef === "") {
+            valueReference = '""';
+            propertyName = "";
+        }
 
         let componentName = "DefaultObjectRenderer";
 
@@ -39,10 +44,10 @@ import { <%= it.detail_capability_app_layer %> } from <%~ it.detail_app_layer_pa
                 return (
                 `<ObjectRenderer
                             name="${propertyName ?? ""}"
-                            value={${instanceReference}}
+                            value={${valueReference}}
                         >
                             ${Object.entries(propertySchema.properties ?? {})
-                                .map(([objPropName, objPropSchema]) => getDetailRenderComponentByProperty(objPropName, objPropSchema, instanceReference))
+                                .map(([objPropName, objPropSchema]) => getDetailRenderComponentByProperty(objPropName, objPropSchema, valueReference))
                                 .join("\n")
                             }
                         </ObjectRenderer>`);
@@ -51,7 +56,7 @@ import { <%= it.detail_capability_app_layer %> } from <%~ it.detail_app_layer_pa
                 return (
                     `<ArrayRenderer
                         name="${propertyName ?? ""}"
-                        value={${instanceReference}}
+                        value={${valueReference}}
                     >
                         ${getDetailRenderComponentByProperty(propertyName, propertySchema.items, "")}
                     </ArrayRenderer>`)
@@ -59,7 +64,7 @@ import { <%= it.detail_capability_app_layer %> } from <%~ it.detail_app_layer_pa
                 componentName = "DefaultObjectRenderer"
         }
 
-        return `<${componentName} name={"${propertyName ?? ""}"} value={${instanceReference}}/>`
+        return `<${componentName} name={"${propertyName ?? ""}"} value={${valueReference}}/>`
     }
 %>
 const PropertyAlert = ({ errorPropertyName }: { errorPropertyName: string}) => {

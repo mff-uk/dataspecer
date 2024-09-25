@@ -56,7 +56,8 @@ export class TransitionsGenerator {
             redirections: [],
             transitions: [
                 LIST_CAPABILITY_ID,
-                DELETE_CAPABILITY_ID
+                DELETE_CAPABILITY_ID,
+                CREATE_CAPABILITY_ID
             ]
         },
         [CREATE_CAPABILITY_ID]: {

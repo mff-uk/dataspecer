@@ -39,6 +39,7 @@ function App() {
   }
 
   const startAppGeneration = async () => {
+    setFailureMsg("");
 
     if (!fileContent || fileContent === "") {
       setFailureMsg("File to be read is missing");

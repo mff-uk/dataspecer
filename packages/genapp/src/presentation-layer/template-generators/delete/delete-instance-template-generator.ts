@@ -43,7 +43,7 @@ export class DeleteInstanceComponentTemplateProcessor extends PresentationLayerT
                 },
                 delete_app_layer: dependencies.appLogicArtifact.exportedObjectName,
                 delete_app_layer_path: {
-                    from: this._filePath,
+                    from: dependencies.pathResolver.getFullSavePath(this._filePath),
                     to: dependencies.pathResolver.getFullSavePath(
                         dependencies.appLogicArtifact.filePath,
                         dependencies.appLogicArtifact.exportedObjectName
