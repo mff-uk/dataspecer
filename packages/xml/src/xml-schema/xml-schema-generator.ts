@@ -55,7 +55,7 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
     
     const transformations = defaultStructureTransformations.filter(
       transformation =>
-        transformation !== structureModelFlattenInheritance &&
+        //transformation !== structureModelFlattenInheritance &&
         transformation !== structureModelDematerialize
     );
     model = transformStructureModel(

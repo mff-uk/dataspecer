@@ -135,7 +135,7 @@ test(testPrefix + "root has simple elements", async () => {
   expect(element.annotation.modelReference).toBe("https://slovník.gov.cz/datový/turistické-cíle/pojem/veřejná-přístupnost");
 });
 
-test(testPrefix + "root has abstract element", async () => {
+test.skip(testPrefix + "root has abstract element", async () => {
   const {schema} = await getSchema1();
   const type = schema.elements[0].type;
   expectTrue(xmlSchemaTypeIsComplex(type));

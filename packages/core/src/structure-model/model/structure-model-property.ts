@@ -48,6 +48,11 @@ export class StructureModelProperty {
   dataTypes: StructureModelType[] = [];
 
   /**
+   * Technical label of the wrapping OR. If the OR is not wrapped, then it is empty.
+   */
+  orTechnicalLabel: string | null = null;
+
+  /**
    * If true the output is not materialized.
    */
   dematerialize: boolean | null = null;

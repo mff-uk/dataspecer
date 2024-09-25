@@ -17,4 +17,9 @@ export class StructureModelSchemaRoot {
    * If the array contains only one class, then the OR may be omitted.
    */
   classes: StructureModelClass[] = [];
+
+  /**
+   * Technical label of the wrapping OR. If the OR is not wrapped, then it is empty.
+   */
+  orTechnicalLabel: string | null = null;
 }

@@ -1,7 +1,7 @@
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import {useAsyncMemo} from "../../../hooks/use-async-memo";
 import {useDataPsmAndInterpretedPim} from "../../../hooks/use-data-psm-and-interpreted-pim";
-import {DataPsmAssociationEnd, DataPsmClass, DataPsmExternalRoot, DataPsmSchema} from "@dataspecer/core/data-psm/model";
+import {DataPsmAssociationEnd, DataPsmClass, DataPsmExternalRoot, DataPsmOr, DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import {PimAssociationEnd, PimClass} from "@dataspecer/core/pim/model";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import React, {useCallback} from "react";
@@ -46,6 +46,26 @@ export const ReplaceAssociationEndWithReference: React.FC<{dataPsmAssociationEnd
                         const pim = await store.readResource(root.dataPsmTypes[0]) as PimClass;
                         if (pim === null) continue;
                         if (pim.pimInterpretation === pimClass.pimInterpretation) {
+                            foundExistingDataPsms.push(schemaIri);
+                        }
+                    } else if (DataPsmOr.is(root)) {
+                        const choices = root.dataPsmChoices;
+                        // todo: Make better implementation
+                        // At least one class should match
+
+                        let found = false;
+                        for (const choice of choices) {
+                            const dataPsmClass = await store.readResource(choice) as DataPsmClass;
+                            if (!dataPsmClass || dataPsmClass.dataPsmInterpretation === null) continue;
+                            const pim = await store.readResource(dataPsmClass.dataPsmInterpretation) as PimClass;
+                            if (pim === null) continue;
+                            if (pim.pimInterpretation === pimClass.pimInterpretation) {
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (found) {
                             foundExistingDataPsms.push(schemaIri);
                         }
                     }

@@ -66,6 +66,9 @@ export const RegularOr: React.FC<{ iri: string} & ObjectContext & RowSlots> = me
 
   const thisStartRow = <>
     <Span sx={sxStyles.or}>{t("OR")}</Span>
+    {typeof resource.dataPsmTechnicalLabel === "string" && resource.dataPsmTechnicalLabel.length > 0 &&
+      <> (<Span sx={sxStyles.technicalLabel}>{resource.dataPsmTechnicalLabel}</Span>)</>
+    }
   </>;
 
   const thisMenu = <>
