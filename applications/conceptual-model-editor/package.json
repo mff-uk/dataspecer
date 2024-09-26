@@ -6,7 +6,7 @@
     "scripts": {
         "build": "next build",
         "dev": "next dev",
-        "lint": "next lint --fix",
+        "lint": "tsc && next lint --fix",
         "start": "next start",
         "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests"
     },
