@@ -620,7 +620,10 @@ class XmlSchemaAdapter {
         element: {
           elementName: [null, classData.technicalLabel],
           annotation: null,
-          type: null
+          type: {
+            name: [this.model.namespacePrefix, classData.technicalLabel],
+            annotation: null
+}
         }
       } as XmlSchemaComplexContentElement);
     }
