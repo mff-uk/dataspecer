@@ -16,6 +16,5 @@ export const WarningsContext = React.createContext(null as unknown as WarningsCo
 
 export const useWarningsContext = () => {
     const { warnings, setWarnings } = useContext(WarningsContext);
-
     return { warnings, setWarnings };
 };

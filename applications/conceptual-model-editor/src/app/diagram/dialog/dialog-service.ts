@@ -109,7 +109,7 @@ export const createDialogRendererContext = <S>(state: State, setState: React.Dis
       // We grab the last dialog we are working with.
       let dialog = previous.dialogs.at(-1);
       if (dialog === undefined) {
-        logger.error("An attemp was made to change state of dialog, when no dialog is open.");
+        logger.error("An attempt was made to change state of dialog, when no dialog is open.");
         return previous;
       }
       if (typeof next === "function") {

@@ -17,11 +17,12 @@ export const ViewManagement = () => {
     const { viewId, updateViewId: setViewIdSearchParam } = useQueryParamsContext();
 
     const activeViewId = aggregatorView.getActiveViewId();
-    const availableVisualModelIds = aggregatorView.getAvailableVisualModels().map(m => [m.getId(), m.modelAlias] as [string, string]);
+    const availableVisualModelIds = aggregatorView.getAvailableVisualModels().map(m => [m.getId(), m.getLabel()?.["en"]] as [string, string]);
 
     useEffect(() => {
-        if (!activeViewId) {
-            console.log("setting activeViewId to null");
+        if (activeViewId === undefined) {
+            console.log("Ignore change in activeViewId as it is null.");
+            return;
         }
         setViewIdSearchParam(activeViewId ?? null);
         // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -4,7 +4,7 @@ import type { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/con
 import { BackendPackageService } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import type { EntityModel } from "@dataspecer/core-v2/entity-model";
-import type { VisualModel } from "@dataspecer/core-v2/visual-model";
+import type { VisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { type ExportedConfigurationType, modelsToWorkspaceString, useLocalStorage } from "../features/export/export-utils";
 import { useModelGraphContext } from "../context/model-context";
 import { useDownload } from "../features/export/download";
@@ -62,10 +62,9 @@ export const ExportManagement = () => {
         visualModels: VisualModel[],
         activeView?: string
     ) => {
-        replaceModels(entityModels, visualModels);
+        replaceModels(entityModels, visualModels as WritableVisualModel[]);
         aggregatorView.changeActiveVisualModel(activeView ?? visualModels.at(0)?.getId() ?? null);
         setAggregatorView(aggregator.getView());
-        console.log("export-management: use configuration finished");
     };
 
     const handleGenerateLightweightOwl = () => {

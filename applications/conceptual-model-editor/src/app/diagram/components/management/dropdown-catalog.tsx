@@ -84,7 +84,6 @@ export const DropDownCatalog = (props: {
                                     return;
                                 }
                                 setDropdownOpen(false);
-                                console.log(e);
                                 e.stopPropagation();
                             }}
                         >

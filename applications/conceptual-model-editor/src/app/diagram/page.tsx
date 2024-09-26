@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { ReactFlowProvider } from "reactflow";
 
 import type { Entity, EntityModel } from "@dataspecer/core-v2/entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { type WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { type AggregatedEntityWrapper, SemanticModelAggregator } from "@dataspecer/core-v2/semantic-model/aggregator";
+import { isVisualModel, isVisualNode, isVisualRelationship, isWritableVisualModel, VisualModel, VisualModelDataVersion, type WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { type AggregatedEntityWrapper, SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 import {
     type SemanticModelClass,
     type SemanticModelRelationship,
@@ -38,33 +38,39 @@ import { DialogContextProvider } from "./dialog/dialog-context";
 import { DialogRenderer } from "./dialog/dialog-renderer";
 import { NotificationList } from "./notification";
 import { ActionsContextProvider } from "./action/actions-react-binding";
-
-import "./page.css";
 import { createWritableVisualModel } from "./util/visual-model-utils";
 
-const Page = () => {
-    const [language, setLanguage] = useState<SupportedLanguageType>("en");
+import "./page.css";
+import { findSourceModelOfEntity } from "./service/model-service";
 
+const semanticModelAggregator = new SemanticModelAggregator();
+type SemanticModelAggregatorType = typeof semanticModelAggregator;
+
+const Page = () => {
+    // Options
+    const [language, setLanguage] = useState<SupportedLanguageType>("en");
+    // URL query
+    const { packageId, viewId, updatePackageId } = useQueryParamsContext();
+    // Dataspecer API
     const [aggregator, setAggregator] = useState(new SemanticModelAggregator());
     const [aggregatorView, setAggregatorView] = useState(aggregator.getView());
+    const { getModelsFromBackend } = useBackendConnection();
+    // Local state
     const [models, setModels] = useState(new Map<string, EntityModel>());
     const [classes, setClasses] = useState<SemanticModelClass[]>([]);
     const [allowedClasses, setAllowedClasses] = useState<string[]>([]);
     const [relationships, setRelationships] = useState<SemanticModelRelationship[]>([]);
-    const [warnings, setWarnings] = useState<Warning[]>([]);
     const [generalizations, setGeneralizations] = useState<SemanticModelGeneralization[]>([]);
     const [usages, setUsages] = useState<(SemanticModelClassUsage | SemanticModelRelationshipUsage)[]>([]);
+    const [warnings, setWarnings] = useState<Warning[]>([]);
     const [rawEntities, setRawEntities] = useState<(Entity | null)[]>([]);
     const [visualModels, setVisualModels] = useState(new Map<string, WritableVisualModel>());
     const [sourceModelOfEntityMap, setSourceModelOfEntityMap] = useState(new Map<string, string>());
-
+    //
     const [defaultModelAlreadyCreated, setDefaultModelAlreadyCreated] = useState(false);
 
-    const { packageId, viewId, updatePackageId } = useQueryParamsContext();
-    const { getModelsFromBackend } = useBackendConnection();
-
-    // runs on initial load
-    // if the app was launched without package-id query parameter
+    // Runs on initial load.
+    // If the app was launched without package-id query parameter
     // - creates a default entity model
     // - creates a view for it
     // - registers it with the aggregator
@@ -74,252 +80,50 @@ const Page = () => {
     // - registers them at the aggregator
     // - if there was no local model within the package, it creates and registers one as well
     useEffect(() => {
-        const pId = packageId;
-        console.log("getModelsFromBackend is going to be called from useEffect in ModelsComponent, pId:", pId);
-
-        if (!pId) {
-            console.log("page: packageId not set");
-
+        if (packageId == null) {
             if (defaultModelAlreadyCreated) {
-                console.log(
-                    "page: returning from useEffect, default model already created",
-                    defaultModelAlreadyCreated
-                );
+                // We have already created a default package.
                 return;
+            } else {
+                console.log("[INITIALIZATION] No package identifier provided, creating default model.", { packageId });
+                return initializeWithoutPackage(
+                    setVisualModels,
+                    setModels,
+                    setDefaultModelAlreadyCreated,
+                    setAggregator,
+                    setAggregatorView);
             }
-
-            const tempAggregator = new SemanticModelAggregator();
-            const tempAggregatorView = tempAggregator.getView();
-            const visualModel = createWritableVisualModel();
-            setVisualModels(new Map([[visualModel.getId(), visualModel]]));
-            tempAggregator.addModel(visualModel);
-            tempAggregatorView.changeActiveVisualModel(visualModel.getId());
-
-            const model = new InMemorySemanticModel();
-            model.setAlias("default local model");
-            setModels(new Map([[model.getId(), model]]));
-            tempAggregator.addModel(model);
-
-            setDefaultModelAlreadyCreated(true);
-            setAggregator(tempAggregator);
-            setAggregatorView(tempAggregatorView);
-            return () => {
-                setDefaultModelAlreadyCreated(false);
-                setModels(() => new Map<string, EntityModel>());
-                setVisualModels(() => new Map<string, WritableVisualModel>());
-            };
+        } else {
+            console.log("[INITIALIZATION] Loading models for package.", { packageId });
+            return initializeWithPackage(
+                packageId, viewId, aggregator,
+                getModelsFromBackend,
+                setVisualModels,
+                setModels,
+                setAggregatorView,
+                updatePackageId);
         }
-
-        const getModels = () => getModelsFromBackend(pId);
-
-        const cleanup = getModels()
-            .then((models) => {
-                console.log("getModels: then: models:", models);
-                const [entityModels, visualModels2] = models;
-                if (entityModels.length == 0 && visualModels2.length == 0) {
-                    console.log("empty models from backend", entityModels, visualModels2);
-
-                    const visualModel = createWritableVisualModel();
-                    visualModels2.push(visualModel);
-
-                    const model = new InMemorySemanticModel();
-                    model.setAlias("default local model");
-                    entityModels.push(model);
-                }
-                if (!entityModels.find((m) => m instanceof InMemorySemanticModel)) {
-                    const model = new InMemorySemanticModel();
-                    model.setAlias("default local model");
-                    entityModels.push(model);
-                }
-
-                for (const model of visualModels2) {
-                    aggregator.addModel(model);
-                }
-                for (const model of entityModels) {
-                    aggregator.addModel(model);
-                }
-
-                setVisualModels(new Map(visualModels2.map((m) => [m.getId(), m as WritableVisualModel])));
-                setModels(new Map(entityModels.map((m) => [m.getId(), m])));
-
-                const tempAggregatorView = aggregator.getView();
-                const availableVisualModelIds = visualModels2.map((m) => m.getId());
-
-                if (viewId && availableVisualModelIds.includes(viewId)) {
-                    tempAggregatorView.changeActiveVisualModel(viewId);
-                } else {
-                    // choose the first available model
-                    const modelId = visualModels2.at(0)?.getId();
-                    if (modelId) {
-                        tempAggregatorView.changeActiveVisualModel(modelId);
-                    }
-                }
-
-                setAggregatorView(tempAggregatorView);
-                return () => {
-                    for (const m of [...entityModels, ...visualModels2]) {
-                        try {
-                            aggregator.deleteModel(m);
-                        } catch (err) {
-                            console.log("error: trying delete a model from aggregator", err);
-                        }
-                    }
-                    setModels(new Map());
-                    setVisualModels(new Map());
-                };
-            })
-            .catch((reason) => {
-                console.error(reason);
-                updatePackageId(null);
-            });
-
-        return async () => {
-            console.log("models cleanup in package effect");
-            (await cleanup)?.();
-        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // registers a subscription callback at the aggregator, that:
+    // Registers a subscription callback at the aggregator, that:
     // - removes whatever was removed from the models registered at the aggregator from the `ClassContext`
     // - goes through the updated elements
     // - based on their types puts them to their respective buckets - classes, relationships, etc
     useEffect(() => {
+        if (aggregatorView === null) {
+            return;
+        }
+
         const callback = (updated: AggregatedEntityWrapper[], removed: string[]) => {
-            console.log("page.tsx callback, updated, removed", updated, removed);
-            const removedIds = new Set(removed);
-            const localSourceMap = sourceModelOfEntityMap;
-
-            setClasses((prev) => prev.filter((v) => !removedIds.has(v.id)));
-            setRelationships((prev) => prev.filter((v) => !removedIds.has(v.id)));
-            setUsages((prev) => prev.filter((v) => !removedIds.has(v.id)));
-            setGeneralizations((prev) => prev.filter((v) => !removedIds.has(v.id)));
-            setRawEntities((prev) => prev.filter((r) => r?.id && !removedIds.has(r?.id)));
-
-            const {
-                updatedClasses,
-                updatedRelationships,
-                updatedGeneralizations,
-                updatedProfiles,
-                updatedRawEntities,
-            } = updated.reduce(
-                (
-                    {
-                        updatedClasses,
-                        updatedRelationships,
-                        updatedGeneralizations,
-                        updatedProfiles,
-                        updatedRawEntities,
-                    },
-                    curr
-                ) => {
-                    if (isSemanticModelClass(curr.aggregatedEntity)) {
-                        return {
-                            updatedClasses: updatedClasses.concat(curr.aggregatedEntity),
-                            updatedRelationships,
-                            updatedGeneralizations,
-                            updatedProfiles,
-                            updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
-                        };
-                    } else if (isSemanticModelRelationship(curr.aggregatedEntity)) {
-                        if (bothEndsHaveAnIri(curr.aggregatedEntity)) {
-                            console.warn(
-                                "both ends have an IRI, skipping",
-                                curr.aggregatedEntity,
-                                curr.aggregatedEntity.ends
-                            );
-                            setWarnings((prev) =>
-                                prev.concat({
-                                    id: getRandomName(15),
-                                    type: "unsupported-relationship",
-                                    message: "both ends have an IRI",
-                                    object: curr.aggregatedEntity,
-                                })
-                            );
-                            return {
-                                updatedClasses,
-                                updatedRelationships,
-                                updatedGeneralizations,
-                                updatedProfiles,
-                                updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
-                            };
-                        }
-                        return {
-                            updatedClasses,
-                            updatedRelationships: updatedRelationships.concat(curr.aggregatedEntity),
-                            updatedGeneralizations,
-                            updatedProfiles,
-                            updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
-                        };
-                    } else if (
-                        isSemanticModelClassUsage(curr.aggregatedEntity) ||
-                        isSemanticModelRelationshipUsage(curr.aggregatedEntity)
-                    ) {
-                        return {
-                            updatedClasses,
-                            updatedRelationships,
-                            updatedGeneralizations,
-                            updatedProfiles: updatedProfiles.concat(curr.aggregatedEntity),
-                            updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
-                        };
-                    } else if (isSemanticModelGeneralization(curr.aggregatedEntity)) {
-                        return {
-                            updatedClasses,
-                            updatedRelationships,
-                            updatedGeneralizations: updatedGeneralizations.concat(curr.aggregatedEntity),
-                            updatedProfiles,
-                            updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
-                        };
-                    } else {
-                        console.error("Unknown type of updated entity", curr.aggregatedEntity);
-                        throw new Error("Unknown type of updated entity.");
-                    }
-                },
-                {
-                    updatedClasses: [] as SemanticModelClass[],
-                    updatedRelationships: [] as SemanticModelRelationship[],
-                    updatedGeneralizations: [] as SemanticModelGeneralization[],
-                    updatedProfiles: [] as (SemanticModelClassUsage | SemanticModelRelationshipUsage)[],
-                    updatedRawEntities: [] as (Entity | null)[],
-                }
-            );
-
-            for (const m of models.values()) {
-                const modelId = m.getId();
-                Object.values(m.getEntities()).forEach((e) => localSourceMap.set(e.id, modelId));
-            }
-            setSourceModelOfEntityMap(new Map(localSourceMap));
-
-            const [
-                updatedClassIds,
-                updatedRelationshipIds,
-                updatedGeneralizationIds,
-                updatedProfileIds,
-                updatedRawEntityIds,
-            ] = [
-                    new Set(updatedClasses.map((c) => c.id)),
-                    new Set(updatedRelationships.map((r) => r.id)),
-                    new Set(updatedGeneralizations.map((g) => g.id)),
-                    new Set(updatedProfiles.map((p) => p.id)),
-                    new Set(updatedRawEntities.map((r) => r?.id)),
-                ];
-
-            setClasses((prev) => prev.filter((v) => !updatedClassIds.has(v.id)).concat(updatedClasses));
-            setRelationships((prev) =>
-                prev.filter((v) => !updatedRelationshipIds.has(v.id)).concat(updatedRelationships)
-            );
-            setGeneralizations((prev) =>
-                prev.filter((v) => !updatedGeneralizationIds.has(v.id)).concat(updatedGeneralizations)
-            );
-            setUsages((prev) => prev.filter((v) => !updatedProfileIds.has(v.id)).concat(updatedProfiles));
-            setRawEntities((prev) => prev.filter((r) => !updatedRawEntityIds.has(r?.id)).concat(updatedRawEntities));
+            propagateAggregatorChangesToLocalState(
+                updated, removed,
+                setClasses, setRelationships,
+                setUsages, setGeneralizations, setRawEntities,
+                setWarnings, setSourceModelOfEntityMap,
+                aggregatorView);
         };
-        const callToUnsubscribe = aggregatorView?.subscribeToChanges(callback);
-
-        callback([], []);
-        return () => {
-            callToUnsubscribe();
-        };
+        return aggregatorView?.subscribeToChanges(callback);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [aggregatorView]);
 
@@ -391,3 +195,348 @@ const PageWrapper = () => {
 };
 
 export default PageWrapper;
+
+function initializeWithoutPackage(
+    setVisualModels: Dispatch<SetStateAction<Map<string, WritableVisualModel>>>,
+    setModels: Dispatch<SetStateAction<Map<string, EntityModel>>>,
+    setDefaultModelAlreadyCreated: Dispatch<SetStateAction<boolean>>,
+    setAggregator: Dispatch<SetStateAction<SemanticModelAggregatorType>>,
+    setAggregatorView: Dispatch<SetStateAction<SemanticModelAggregatorView>>,
+) {
+    const tempAggregator = new SemanticModelAggregator();
+
+    // Create visual model.
+    const visualModel = createWritableVisualModel();
+    setVisualModels(new Map([[visualModel.getId(), visualModel]]));
+    tempAggregator.addModel(visualModel);
+    const tempAggregatorView = tempAggregator.getView();
+    tempAggregatorView.changeActiveVisualModel(visualModel.getId());
+
+    // Create semantic model.
+    const model = new InMemorySemanticModel();
+    model.setAlias("Default local model");
+    setModels(new Map([[model.getId(), model]]));
+    tempAggregator.addModel(model);
+
+    setDefaultModelAlreadyCreated(true);
+    setAggregator(tempAggregator);
+    setAggregatorView(tempAggregatorView);
+
+    return () => {
+        setDefaultModelAlreadyCreated(false);
+        setModels(() => new Map<string, EntityModel>());
+        setVisualModels(() => new Map<string, WritableVisualModel>());
+    };
+}
+
+function initializeWithPackage(
+    packageId: string,
+    viewId: string | null,
+    aggregator: SemanticModelAggregatorType,
+    getModelsFromBackend: (packageId: string) => Promise<readonly [EntityModel[], VisualModel[]]>,
+    setVisualModels: Dispatch<SetStateAction<Map<string, WritableVisualModel>>>,
+    setModels: Dispatch<SetStateAction<Map<string, EntityModel>>>,
+    setAggregatorView: Dispatch<SetStateAction<SemanticModelAggregatorView>>,
+    updatePackageId: (packageId: string | null) => void,
+) {
+    const getModels = () => getModelsFromBackend(packageId);
+
+    const cleanup = getModels().then((models) => {
+        const [entityModels, visualModels] = models;
+        if (entityModels.length == 0 && visualModels.length == 0) {
+            console.warn("No models returned from backend, creating default models in the package.");
+
+            const visualModel = createWritableVisualModel();
+            visualModels.push(visualModel);
+
+            const model = new InMemorySemanticModel();
+            model.setAlias("Default local model");
+            entityModels.push(model);
+        }
+
+        if (!entityModels.find((m) => m instanceof InMemorySemanticModel)) {
+            console.warn("No semantic model found in the package, creating a default model.");
+
+            const model = new InMemorySemanticModel();
+            model.setAlias("Default local model");
+            entityModels.push(model);
+        }
+
+        // Add models to aggregator.
+        for (const model of visualModels) {
+            aggregator.addModel(model);
+        }
+
+        for (const model of entityModels) {
+            aggregator.addModel(model);
+        }
+
+        const aggregatorView = aggregator.getView();
+        const visualModelsMap = new Map(visualModels.map((model) => [model.getIdentifier(), model as WritableVisualModel]));
+        const entityModelsMap = new Map(entityModels.map((model) => [model.getId(), model]));
+
+        // Perform high-level migration.
+        for (const model of visualModels) {
+            if (!isWritableVisualModel(model)) {
+                // We can not perform migration in read-only models.
+                continue;
+            }
+            if (model.getInitialModelVersion() === VisualModelDataVersion.VERSION_0) {
+                // We need to check the model.
+                migrateVisualModelFromV0(entityModelsMap, aggregatorView, model);
+            }
+        }
+
+        // Set models to state.
+        setVisualModels(visualModelsMap);
+        setModels(entityModelsMap);
+
+        const availableVisualModelIds = visualModels.map((model) => model.getIdentifier());
+
+        // Select active visual model.
+        if (viewId && availableVisualModelIds.includes(viewId)) {
+            aggregatorView.changeActiveVisualModel(viewId);
+        } else {
+            // choose the first available model.
+            const modelId = visualModels.at(0)?.getIdentifier();
+            if (modelId) {
+                aggregatorView.changeActiveVisualModel(modelId);
+            }
+        }
+
+        setAggregatorView(aggregatorView);
+
+        return () => {
+            console.log("Cleanup for the package loading method.");
+            for (const model of [...entityModels, ...visualModels]) {
+                try {
+                    aggregator.deleteModel(model);
+                } catch (err) {
+                    console.log("Can't delete model from aggregator.", err);
+                }
+            }
+            setModels(new Map());
+            setVisualModels(new Map());
+        };
+    }).catch((error) => {
+        console.error("Can not prepare package.", error);
+        updatePackageId(null);
+    });
+
+    return async () => {
+        (await cleanup)?.();
+    };
+}
+
+/**
+ * Perform high-level migration of visual model from version 0.
+ * - check that we have a represented entity
+ * - check and set model for a represented entity
+ */
+function migrateVisualModelFromV0(models: Map<string, EntityModel>, aggregator: SemanticModelAggregatorView, visualModel: WritableVisualModel) {
+    console.log("[INITIALIZATION] Migrating visual model from version '0'.", {model: visualModel});
+    const entities = aggregator.getEntities();
+
+    for (const entity of visualModel.getVisualEntities().values()) {
+        if (isVisualNode(entity)) {
+            // Check presence
+            const represented = entities[entity.representedEntity];
+            if (represented === undefined) {
+                visualModel.deleteVisualEntity(entity.identifier);
+                continue;
+            }
+            // Check model
+            const representedModel = findSourceModelOfEntity(represented.id, models);
+            if (representedModel === null) {
+                visualModel.deleteVisualEntity(entity.identifier);
+                continue;
+            }
+            // Check type
+            const representedEntity = represented.aggregatedEntity;
+            if (isSemanticModelClass(representedEntity) || isSemanticModelClassUsage(representedEntity)) {
+                // This is ok.
+            } else {
+                // Type miss match.
+                visualModel.deleteVisualEntity(entity.identifier);
+                continue;
+            }
+            // Update
+            visualModel.updateVisualEntity(entity.identifier, { model: representedModel.getId() });
+        } else if (isVisualRelationship(entity)) {
+            // Check presence
+            const represented = entities[entity.representedRelationship];
+            if (represented === undefined) {
+                visualModel.deleteVisualEntity(entity.identifier);
+                continue;
+            }
+            // Check model
+            const representedModel = findSourceModelOfEntity(represented.id, models);
+            if (representedModel === null) {
+                visualModel.deleteVisualEntity(entity.identifier);
+                continue;
+            }
+            // Check type
+            const representedEntity = represented.aggregatedEntity;
+            if (isSemanticModelClass(representedEntity) || isSemanticModelClassUsage(representedEntity)) {
+                // Type miss match.
+                visualModel.deleteVisualEntity(entity.identifier);
+                continue;
+            } else {
+                // Probably ok ...
+            }
+            // Update
+            visualModel.updateVisualEntity(entity.identifier, { model: representedModel.getId() });
+        }
+    }
+
+    // Remove unused model data.
+    for (const [identifier, _] of visualModel.getModelsData()) {
+        if (models.has(identifier)) {
+            continue;
+        }
+        // The model is missing, we delete the information.
+        visualModel.deleteModelData(identifier);
+    }
+
+}
+
+function propagateAggregatorChangesToLocalState(
+    updated: AggregatedEntityWrapper[],
+    removed: string[],
+    // Local state.
+    setClasses: Dispatch<SetStateAction<SemanticModelClass[]>>,
+    setRelationships: Dispatch<SetStateAction<SemanticModelRelationship[]>>,
+    setUsages: Dispatch<SetStateAction<(SemanticModelClassUsage | SemanticModelRelationshipUsage)[]>>,
+    setGeneralizations: Dispatch<SetStateAction<SemanticModelGeneralization[]>>,
+    setRawEntities: Dispatch<SetStateAction<(Entity | null)[]>>,
+    setWarnings: Dispatch<SetStateAction<Warning[]>>,
+    setSourceModelOfEntityMap: Dispatch<SetStateAction<Map<string, string>>>,
+    aggregator: SemanticModelAggregatorView,
+) {
+    // Remove items.
+    const removedIds = new Set(removed);
+    setClasses((prev) => prev.filter((item) => !removedIds.has(item.id)));
+    setRelationships((prev) => prev.filter((item) => !removedIds.has(item.id)));
+    setUsages((prev) => prev.filter((item) => !removedIds.has(item.id)));
+    setGeneralizations((prev) => prev.filter((item) => !removedIds.has(item.id)));
+    setRawEntities((prev) => prev.filter((item) => item?.id && !removedIds.has(item?.id)));
+
+    // Prepare update.
+    const localSourceMap = new Map<string, string>();
+    const {
+        updatedClasses,
+        updatedRelationships,
+        updatedGeneralizations,
+        updatedProfiles,
+        updatedRawEntities,
+    } = updated.reduce(
+        (
+            {
+                updatedClasses,
+                updatedRelationships,
+                updatedGeneralizations,
+                updatedProfiles,
+                updatedRawEntities,
+            },
+            curr
+        ) => {
+            //
+            if (isSemanticModelClass(curr.aggregatedEntity)) {
+                return {
+                    updatedClasses: updatedClasses.concat(curr.aggregatedEntity),
+                    updatedRelationships,
+                    updatedGeneralizations,
+                    updatedProfiles,
+                    updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
+                };
+            } else if (isSemanticModelRelationship(curr.aggregatedEntity)) {
+                if (bothEndsHaveAnIri(curr.aggregatedEntity)) {
+                    console.warn(
+                        "Both ends have an IRI, skipping.",
+                        curr.aggregatedEntity,
+                        curr.aggregatedEntity.ends
+                    );
+                    setWarnings((prev) =>
+                        prev.concat({
+                            id: getRandomName(15),
+                            type: "unsupported-relationship",
+                            message: "both ends have an IRI",
+                            object: curr.aggregatedEntity,
+                        })
+                    );
+                    return {
+                        updatedClasses,
+                        updatedRelationships,
+                        updatedGeneralizations,
+                        updatedProfiles,
+                        updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
+                    };
+                }
+                return {
+                    updatedClasses,
+                    updatedRelationships: updatedRelationships.concat(curr.aggregatedEntity),
+                    updatedGeneralizations,
+                    updatedProfiles,
+                    updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
+                };
+            } else if (
+                isSemanticModelClassUsage(curr.aggregatedEntity) ||
+                isSemanticModelRelationshipUsage(curr.aggregatedEntity)
+            ) {
+                return {
+                    updatedClasses,
+                    updatedRelationships,
+                    updatedGeneralizations,
+                    updatedProfiles: updatedProfiles.concat(curr.aggregatedEntity),
+                    updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
+                };
+            } else if (isSemanticModelGeneralization(curr.aggregatedEntity)) {
+                return {
+                    updatedClasses,
+                    updatedRelationships,
+                    updatedGeneralizations: updatedGeneralizations.concat(curr.aggregatedEntity),
+                    updatedProfiles,
+                    updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
+                };
+            } else {
+                console.error("Unknown type of updated entity", curr.aggregatedEntity);
+                throw new Error("Unknown type of updated entity.");
+            }
+        },
+        {
+            updatedClasses: [] as SemanticModelClass[],
+            updatedRelationships: [] as SemanticModelRelationship[],
+            updatedGeneralizations: [] as SemanticModelGeneralization[],
+            updatedProfiles: [] as (SemanticModelClassUsage | SemanticModelRelationshipUsage)[],
+            updatedRawEntities: [] as (Entity | null)[],
+        }
+    );
+
+    const models = aggregator.getModels();
+    for (const model of models.values()) {
+        const modelId = model.getId();
+        if (isVisualModel(model)) {
+            // We ignore those.
+            continue;
+        }
+        Object.values(model.getEntities()).forEach((e) => localSourceMap.set(e.id, modelId));
+    }
+    setSourceModelOfEntityMap(new Map(localSourceMap));
+
+    // Update local state.
+    const updatedClassIds = new Set(updatedClasses.map((item) => item.id));
+    setClasses((prev) => prev.filter((item) => !updatedClassIds.has(item.id)).concat(updatedClasses));
+
+    const updatedRelationshipIds = new Set(updatedRelationships.map((item) => item.id));
+    setRelationships((prev) => prev.filter((item) => !updatedRelationshipIds.has(item.id)).concat(updatedRelationships));
+
+    const updatedGeneralizationIds = new Set(updatedGeneralizations.map((item) => item.id));
+    setGeneralizations((prev) => prev.filter((item) => !updatedGeneralizationIds.has(item.id)).concat(updatedGeneralizations));
+
+    const updatedProfileIds = new Set(updatedProfiles.map((item) => item.id));
+    setUsages((prev) => prev.filter((item) => !updatedProfileIds.has(item.id)).concat(updatedProfiles));
+
+    const updatedRawEntityIds = new Set(updatedRawEntities.map((item) => item?.id));
+    setRawEntities((prev) => prev.filter((item) => !updatedRawEntityIds.has(item?.id)).concat(updatedRawEntities));
+
+}

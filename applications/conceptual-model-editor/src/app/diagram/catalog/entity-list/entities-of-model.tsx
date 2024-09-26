@@ -243,27 +243,27 @@ export const EntitiesOfModel = (props: { model: EntityModel; entityType: EntityT
                 <div className="flex flex-row">
                     <ExpandModelButton isOpen={listCollapsed} onClick={() => setListCollapsed(!listCollapsed)} />
                 </div>
-                {listCollapsed ? null : (
-                    <ul id={`infinite-scroll-${model.getId()}`} className="ml-1">
-                        {entities.map((entity: EntityTypes) => (
-                            <RowHierarchy
-                                key={entity.id}
-                                entity={entity}
-                                indent={0}
-                                handlers={{
-                                    handleAddEntityToActiveView: handleAddToView,
-                                    handleRemoveEntityFromActiveView: handleDeleteFromView,
-                                    handleExpansion,
-                                    handleRemoval: handleDeleteEntity,
-                                    handleTargeting: handleSetViewportToEntity,
-                                }}
-                                onCanvas={visible}
-                            />
-                        ))}
-                        {renderExternalSemanticModelSearch(entityType, model, handleAddClass)}
-                    </ul>
-                )}
             </div>
+            {listCollapsed ? null : (
+                <ul id={`infinite-scroll-${model.getId()}`} className="ml-1">
+                    {entities.map((entity: EntityTypes) => (
+                        <RowHierarchy
+                            key={entity.id}
+                            entity={entity}
+                            indent={0}
+                            handlers={{
+                                handleAddEntityToActiveView: handleAddToView,
+                                handleRemoveEntityFromActiveView: handleDeleteFromView,
+                                handleExpansion,
+                                handleRemoval: handleDeleteEntity,
+                                handleTargeting: handleSetViewportToEntity,
+                            }}
+                            onCanvas={visible}
+                        />
+                    ))}
+                    {renderExternalSemanticModelSearch(entityType, model, handleAddClass)}
+                </ul>
+            )}
         </li>
     );
 };
