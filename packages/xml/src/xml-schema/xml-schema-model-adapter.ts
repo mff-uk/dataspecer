@@ -215,6 +215,33 @@ class XmlSchemaAdapter {
     return [null, classData.technicalLabel];
   }
 
+  resolveImportedOrName(
+    property: StructureModelProperty
+  ): QName | Promise<QName> {
+    const allClassesAreImported = property.dataTypes.every(dt => dt.isAssociation() && dt.dataType.isReferenced);
+    if (allClassesAreImported) {
+      const firstClass = (property.dataTypes[0] as StructureModelComplexType).dataType;
+
+      const importDeclaration = this.imports[firstClass.specification];
+      if (importDeclaration != null) {
+        // Already imported; construct it using the prefix.
+        return this.getQName(importDeclaration.prefix, property.orTechnicalLabel);
+      }
+      const artefact = this.findArtefactForImport(firstClass);
+      if (artefact != null) {
+        const model = this.getImportedModel(firstClass.structureSchema);
+        // Register the import of the schema.
+        const imported = this.imports[firstClass.specification] = {
+          namespace: this.getModelNamespace(model),
+          prefix: this.getModelPrefix(model),
+          schemaLocation: pathRelative(this.currentPath(), artefact.publicUrl),
+        };
+        return this.getQName(imported.prefix, property.orTechnicalLabel);
+      }
+    }
+    return [null, property.orTechnicalLabel];
+  }
+
   /**
    * Helper function to construct a {@link QName} from an asynchronously
    * obtained prefix.
@@ -438,6 +465,19 @@ class XmlSchemaAdapter {
         `Property ${propertyData.psmIri} has no specified types.`
       );
     }
+
+    const everyClassIsReferenced = propertyData.dataTypes.every(dt => dt.isAssociation() && dt.dataType.isReferenced);
+
+    if (everyClassIsReferenced && propertyData.orTechnicalLabel) {
+      return {
+        elementName: [null, propertyData.technicalLabel],
+        type: {
+          name: this.resolveImportedOrName(propertyData),
+        } as XmlSchemaSimpleType,
+        annotation: this.getAnnotation(propertyData),
+      };
+    }
+
     // Treat codelists as URIs
     dataTypes = dataTypes.map(this.replaceCodelistWithUri, this);
     // Enforce the same type (class or datatype)
@@ -590,7 +630,7 @@ class XmlSchemaAdapter {
             annotation: null,
             type: null
           } 
-        }as XmlSchemaComplexContent]
+        } as XmlSchemaComplexContent]
       } as XmlSchemaComplexContainer, null];
     }
 
@@ -623,7 +663,7 @@ class XmlSchemaAdapter {
           type: {
             name: [this.model.namespacePrefix, classData.technicalLabel],
             annotation: null
-}
+          }
         }
       } as XmlSchemaComplexContentElement);
     }

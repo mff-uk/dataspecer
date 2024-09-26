@@ -297,7 +297,7 @@ async function writeElement(
         // The type is specified in the schema, simply use its name.
         await writer.writeLocalAttributeValue(
           "type",
-          writer.getQName(...type.name)
+          writer.getQName(...await type.name)
         );
         await writeAnnotation(element, writer);
       } else {
@@ -324,7 +324,7 @@ async function writeTypeAttributes(
 ): Promise<void> {
   if (type.name != null) {
     await writer.writeLocalAttributeValue(
-      "name", writer.getQName(...type.name)
+      "name", writer.getQName(...await type.name)
     );
   }
   await writeAnnotation(type, writer);
