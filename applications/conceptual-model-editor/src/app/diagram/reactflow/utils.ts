@@ -125,11 +125,12 @@ export function getLoopPath(s: Node, t: Node, typeE: "rel" | "gen", offset = 30)
     return [path, p2.x, p2.y] as const;
 }
 
-export const onDragStart = (event: DragEvent, entityId: string, nodeType: string) => {
+export const onDragStart = (event: DragEvent, model: string, entityId: string, nodeType: string) => {
     if (!event.dataTransfer) {
         return;
     }
     event.dataTransfer.setData("application/reactflow", nodeType);
+    event.dataTransfer.setData("application/reactflow-model", model);
     event.dataTransfer.setData("application/reactflow-entityId", entityId);
 
     event.dataTransfer.effectAllowed = "move";

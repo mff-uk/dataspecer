@@ -29,6 +29,7 @@ import { ScrollableResourceDetailClickThroughList } from "../components/scrollab
 import { DialogColoredModelHeaderWithLanguageSelector } from "../components/dialog/dialog-colored-model-header";
 import { CloseButton } from "../components/dialog/buttons/close-button";
 import { t } from "../application";
+import { useActions } from "../action/actions-react-binding";
 
 type EntityDialogSupportedType =
     | SemanticModelClass
@@ -92,32 +93,19 @@ export const useEntityDetailDialog = () => {
         const isRelationship = isSemanticModelRelationship(viewedEntity);
         const isRelationshipProfile = isSemanticModelRelationshipUsage(viewedEntity);
 
+        const actions = useActions();
         const reactflow  = useReactFlow<object, object>();
 
         const handleAddEntityToActiveView = (entityId: string) => {
-            // TODO Move to action
             const visualModel = aggregatorView.getActiveVisualModel() as WritableVisualModel;
             if (visualModel === null || sourceModel?.getId() === undefined) {
                 return;
             }
             if (isRelationship) {
-                visualModel.addVisualRelationship({
-                    representedRelationship: entityId,
-                    waypoints: [],
-                });
+                actions.addRelationToVisualModel(sourceModel.getId(), entityId);
             } else {
                 const viewport = reactflow.getViewport();
-                visualModel.addVisualNode({
-                    model: sourceModel?.getId(),
-                    representedEntity: viewedEntity.id,
-                    position: {
-                        x: viewport.x,
-                        y: viewport.y,
-                        anchored: null,
-                    },
-                    content: [],
-                    visualModels: [],
-                });
+                actions.addNodeToVisualModel(sourceModel.getId(), entityId, viewport);
             }
         };
 

@@ -1,4 +1,3 @@
-
 import { type EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";

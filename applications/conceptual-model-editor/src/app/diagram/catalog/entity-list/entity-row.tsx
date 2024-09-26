@@ -33,10 +33,8 @@ const TreeLikeOffset = (props: { offset?: number }) => {
     return <span style={{ marginLeft: (offset - 1) * 12 }}>└-</span>;
 };
 
-/**
- * A single
- */
 export const EntityRow = (props: {
+    model: string,
     entity: SemanticModelClass | SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage;
     expandable: null | {
         toggleHandler: () => void;
@@ -72,7 +70,7 @@ export const EntityRow = (props: {
         <div
             className="flex flex-row justify-between flex-wrap whitespace-nowrap hover:shadow"
             draggable={isDraggable}
-            onDragStart={(e) => onDragStart(e as unknown as DragEvent, entity.id, "classNode")}
+            onDragStart={(e) => onDragStart(e as unknown as DragEvent, props.model, entity.id, "classNode")}
         >
             <span className="overflow-x-clip" title={iri ?? ""}>
                 <IriLink iri={iri} />

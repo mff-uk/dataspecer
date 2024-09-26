@@ -16,6 +16,9 @@ import { createEditClassDialog } from "../dialog/class/edit-class-dialog";
 import { ConfigurationContext, type ConfigurationContextType } from "../context/configuration-context";
 import { createVocabulary } from "./create-vocabulary";
 import { createClass } from "./create-class";
+import { addNodeToVisualModelAction } from "./add-node-to-visual-model";
+import { addRelationToVisualModelAction } from "./add-relation-to-visual-model";
+import { removeFromVisualModelAction } from "./remove-from-visual-model";
 
 export interface ActionsContextType {
 
@@ -29,6 +32,12 @@ export interface ActionsContextType {
    * When position is provided the class is also inserted to the canvas.
    */
   openCreateClassDialog: (model: InMemorySemanticModel) => void;
+
+  addNodeToVisualModel: (model: string, identifier: string, position: { x: number, y: number }) => void;
+
+  addRelationToVisualModel: (model: string, identifier: string) => void;
+
+  removeFromVisualModel: (identifier: string) => void;
 }
 
 export const ActionContext = React.createContext<ActionsContextType>(createNoOperationActionsContext());
@@ -99,9 +108,39 @@ function createActionsContext(
     dialogs?.openDialog(createEditClassDialog(model, options.language, onConfirm));
   };
 
+  const addNodeToVisualModel = (model: string, identifier: string, position: { x: number, y: number }) => {
+    if (notifications === null || graph === null) {
+      console.error("Contexts are not ready.");
+      return;
+    }
+
+    addNodeToVisualModelAction(notifications, graph, model, identifier, position);
+  };
+
+  const addRelationToVisualModel = (model: string, identifier: string) => {
+    if (notifications === null || graph === null) {
+      console.error("Contexts are not ready.");
+      return;
+    }
+
+    addRelationToVisualModelAction(notifications, graph, model, identifier);
+  };
+
+  const removeFromVisualModel = (identifier: string) => {
+    if (notifications === null || graph === null) {
+      console.error("Contexts are not ready.");
+      return;
+    }
+
+    removeFromVisualModelAction(notifications, graph, identifier);
+  };
+
   return {
     openCreateModelDialog,
     openCreateClassDialog,
+    addNodeToVisualModel,
+    addRelationToVisualModel,
+    removeFromVisualModel,
   };
 
 }

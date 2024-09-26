@@ -5,7 +5,6 @@ import ReactFlow, {
     type EdgeChange,
     type Node,
     type NodeChange,
-    type XYPosition,
     Background,
     Controls,
     MiniMap,
@@ -53,11 +52,11 @@ import {
 import { tailwindColorToHex } from "../utils/color-utils";
 import { useCreateConnectionDialog } from "./dialog/create-connection-dialog";
 import { useModelGraphContext } from "./context/model-context";
-import { ClassesContextType, useClassesContext, UseClassesContextType } from "./context/classes-context";
+import { useClassesContext, UseClassesContextType } from "./context/classes-context";
 import { bothEndsHaveAnIri, temporaryDomainRangeHelper } from "./util/relationship-utils";
 import { toSvg } from "html-to-image";
 import { useDownload } from "./features/export/download";
-import { type Warning, WarningsContextType, useWarningsContext } from "./context/warnings-context";
+import { useActions } from "./action/actions-react-binding";
 
 import "reactflow/dist/style.css";
 
@@ -78,11 +77,11 @@ const DEFAULT_MODEL_COLOR = "#ffffff";
 export const Visualization = () => {
     const { aggregatorView } = useModelGraphContext();
     const { CreateConnectionDialog, isCreateConnectionDialogOpen, openCreateConnectionDialog } = useCreateConnectionDialog();
+    const actions = useActions();
 
     const { downloadImage } = useDownload();
 
     const classesContext = useClassesContext();
-    const warningsContext = useWarningsContext();
 
     const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
     const changedVisualModel = useRef<boolean>(true);
@@ -107,6 +106,7 @@ export const Visualization = () => {
         event.preventDefault();
 
         const type = event.dataTransfer.getData("application/reactflow");
+        const model = event.dataTransfer.getData("application/reactflow-model");
         const entityId = event.dataTransfer.getData("application/reactflow-entityId");
 
         // check if the dropped element is valid
@@ -122,10 +122,7 @@ export const Visualization = () => {
             y: event.clientY,
         });
 
-        console.log("onDrop", { event });
-
-        // TODO
-        // handleAddEntityToActiveView(activeVisualModel, entityId, position);
+        actions.addNodeToVisualModel(model, entityId, position);
     }, [reactFlowInstance, activeVisualModel]);
 
     const onNodeDragStop = (_: React.MouseEvent, node: Node, nodes: Node[]) => {
@@ -301,19 +298,6 @@ export const Visualization = () => {
         </>
     );
 };
-
-function handleAddEntityToActiveView(visualModel: WritableVisualModel | null, modelId: string, entityId: string, position: XYPosition) {
-    if (visualModel === null) {
-        return;
-    }
-    visualModel.addVisualNode({
-        model: modelId,
-        representedEntity: entityId,
-        content: [],
-        position: { x: position.x, y: position.y, anchored: null },
-        visualModels: [],
-    });
-}
 
 function miniMapNodeColor(node: Node) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
@@ -547,7 +531,7 @@ function createReactflowNode(
     const color = visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR;
 
     return semanticModelClassToReactFlowNode(
-        entity.id, entity, visualNode.position,
+        visualNode.identifier, entity, visualNode.position,
         color, nodeAttributes, nodeAttributeProfiles
     );
 }
@@ -741,3 +725,4 @@ function resetReactflowFromVisualModel(
     setNodes(nextNodes);
     setEdges(nextEdges);
 }
+

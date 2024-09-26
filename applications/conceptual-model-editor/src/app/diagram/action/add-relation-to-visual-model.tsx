@@ -3,15 +3,17 @@ import type { ModelGraphContextType } from "../context/model-context";
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 
 /**
- * Remove resource from visual model and thus from the canvas.
+ * Add resource to the visual model and by doing so to the canvas as well.
  *
  * @param notifications
  * @param graph
- * @param identifier Identifier of semantic entity to remove visual entity for.
+ * @param model Owner of the entity to add visual representation for.
+ * @param identifier Identifier of semantic entity to add visual representation for.
  */
-export function removeFromVisualModelAction(
+export function addRelationToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
+  model: string,
   identifier: string,
 ) {
   const visualModel = graph.aggregatorView.getActiveVisualModel();
@@ -24,11 +26,9 @@ export function removeFromVisualModelAction(
     return;
   }
   //
-  const entity = visualModel.getVisualEntityForRepresented(identifier);
-  console.log("removeFromVisualModelAction", {entity, visualModel});
-  if (entity === null) {
-    notifications.error("Can not get visual entity.")
-    return;
-  }
-  visualModel.deleteVisualEntity(entity.identifier);
+  visualModel.addVisualRelationship({
+    model: model,
+    representedRelationship: identifier,
+    waypoints: [],
+  });
 }

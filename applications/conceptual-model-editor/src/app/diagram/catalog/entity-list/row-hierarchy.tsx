@@ -16,6 +16,7 @@ import { sourceModelOfEntity } from "../../util/model-utils";
 import { useModelGraphContext } from "../../context/model-context";
 import { useClassesContext } from "../../context/classes-context";
 import { hasBothEndsOnCanvas, isAnAttribute, isAnEdge } from "../../util/relationship-utils";
+import { findSourceModelOfEntity } from "../../service/model-service";
 
 export const RowHierarchy = (props: {
     entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationship | SemanticModelRelationshipUsage;
@@ -70,6 +71,12 @@ export const RowHierarchy = (props: {
         isTargetable: props.onCanvas.includes(entity.id) && !isAttribute && !isEdge,
     };
 
+    const model = findSourceModelOfEntity(entity.id, models);
+    if (model === null) {
+        console.error("Entity was not rendered as model is null.", { entity });
+        return null;
+    }
+
     return (
         <div
             className="flex flex-col"
@@ -81,6 +88,7 @@ export const RowHierarchy = (props: {
         >
             <EntityRow
                 offset={props.indent}
+                model={model.getId()}
                 entity={entity}
                 key={
                     entity.id +

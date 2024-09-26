@@ -108,7 +108,7 @@ export const ClassCustomNode = (props: { data: ClassCustomNodeDataType }) => {
 
 /**
  *
- * @param id VisualEntityId
+ * @param id Visual entity identifier.
  * @param cls
  * @param position
  * @param color
@@ -120,7 +120,6 @@ export const semanticModelClassToReactFlowNode = (
     position: XYPosition,
     color: string | undefined,
     attributes: SemanticModelRelationship[],
-
     attributeUsages: SemanticModelRelationshipUsage[]
 ) =>
     ({

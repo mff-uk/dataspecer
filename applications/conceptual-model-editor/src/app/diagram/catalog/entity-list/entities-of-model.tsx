@@ -26,7 +26,7 @@ import { RowHierarchy } from "./row-hierarchy";
 import { shortenStringTo } from "../../util/utils";
 import { useActions } from "../../action/actions-react-binding";
 import { ExpandModelButton } from "../components/expand-model";
-import { type VisualEntity, isVisualNode, isVisualRelationship, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { type VisualEntity, isVisualNode, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
 
 export enum EntityType {
 Class = "class",
@@ -79,7 +79,7 @@ export const EntitiesOfModel = (props: { model: EntityModel; entityType: EntityT
     const [listCollapsed, setListCollapsed] = useState(false);
     const [visible, setVisible] = useState<string[]>([]);
     const [color, setColor] = useState(DEFAULT_MODEL_COLOR);
-    const reactflow = useReactFlow<object, object>();
+    const reactFlow = useReactFlow<object, object>();
 
     //
 
@@ -157,7 +157,6 @@ export const EntitiesOfModel = (props: { model: EntityModel; entityType: EntityT
      * This functionality is available only for ExternalSemanticModel.
      */
     const handleExpansion = async (model: EntityModel, identifier: string) => {
-        // TODO Move code to action.
         if (!(model instanceof ExternalSemanticModel)) {
             return;
         }
@@ -179,38 +178,23 @@ export const EntitiesOfModel = (props: { model: EntityModel; entityType: EntityT
     };
 
     const handleAddToView = (identifier: string) => {
-        // TODO Move code to action.
-        if (isWritableVisualModel(activeVisualModel)) {
-            const viewport = reactflow.getViewport();
-            activeVisualModel.addVisualNode({
-                model: model.getId(),
-                representedEntity: identifier,
-                content: [],
-                visualModels: [],
-                position: {
-                    x: viewport.x,
-                    y: viewport.y,
-                    anchored: null,
-                }
-            });
-        }
+        const viewport = reactFlow.getViewport();
+        const position = {
+            x: viewport.x,
+            y: viewport.y,
+        };
+        actions.addNodeToVisualModel(model.getId(), identifier, position);
     };
 
     const handleDeleteFromView = (identifier: string) => {
-        // TODO Move code to action.
-        if (isWritableVisualModel(activeVisualModel)) {
-            const visualEntity = activeVisualModel.getVisualEntityForRepresented(identifier);
-            if (visualEntity !== null) {
-                activeVisualModel.deleteVisualEntity(visualEntity?.identifier);
-            }
-        }
+        actions.removeFromVisualModel(identifier);
     };
 
     const handleDeleteEntity = async (model: InMemorySemanticModel | ExternalSemanticModel, identifier: string) => {
         // TODO Move code to action.
         if (model instanceof InMemorySemanticModel) {
             deleteEntityFromModel(model, identifier);
-            handleDeleteFromView(identifier);
+            actions.removeFromVisualModel(identifier);
         } else {
             await model.releaseClass(identifier);
         }
@@ -222,12 +206,12 @@ export const EntitiesOfModel = (props: { model: EntityModel; entityType: EntityT
             return;
         }
         const visualEntity = activeVisualModel?.getVisualEntityForRepresented(identifier);
-        if (visualEntity === null) {
+        if (visualEntity === null || visualEntity === undefined) {
             return;
         }
-        const node = reactflow.getNode(visualEntity?.identifier);
+        const node = reactFlow.getNode(visualEntity.identifier);
         if (node !== undefined) {
-            reactflow.fitView({
+            reactFlow.fitView({
                 nodes: [node],
                 duration: 400,
             });
