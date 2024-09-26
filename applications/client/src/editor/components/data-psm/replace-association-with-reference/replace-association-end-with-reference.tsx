@@ -14,7 +14,7 @@ import {UseDialogOpenFunction} from "../../../dialog";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import { FederatedObservableStore } from '@dataspecer/federated-observable-store/federated-observable-store';
 
-async function getPimClassInterpretationHierarchy(pimClassIri: string, store: FederatedObservableStore): string[] {
+async function getPimClassInterpretationHierarchy(pimClassIri: string, store: FederatedObservableStore): Promise<string[]> {
     const cls = await store.readResource(pimClassIri) as PimClass;
     if (cls === null) return [];
     const interpretation = [];
