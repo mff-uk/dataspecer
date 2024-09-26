@@ -192,7 +192,7 @@ test(testPrefix + "root has group reference", async () => {
 
 test(testPrefix + "imports are present", async () => {
   const {schema} = await getSchema1();
-  expect(schema.imports.length).toBe(1);
+  expect(schema.imports.length).toBe(2);
   const importDecl = schema.imports[0];
   expect(await importDecl.namespace).toBe(null);
   expect(await importDecl.prefix).toBe(null);
