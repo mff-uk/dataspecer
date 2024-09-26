@@ -9,12 +9,14 @@ import {DataSpecification, DataSpecificationArtefact, DataSpecificationSchema,} 
 import {XSD, XSD_PREFIX} from "@dataspecer/core/well-known";
 import {XML_SCHEMA} from "./xml-schema-vocabulary";
 
-import {iriElementName, langStringName, QName, simpleTypeMapQName} from "../conventions";
+import {commonXmlNamespace, commonXmlPrefix, iriElementName, langStringName, QName, simpleTypeMapQName} from "../conventions";
 import {pathRelative} from "@dataspecer/core/core/utilities/path-relative";
 import {structureModelAddXmlProperties} from "../xml-structure-model/add-xml-properties";
 import {ArtefactGeneratorContext} from "@dataspecer/core/generator";
 import {DefaultXmlConfiguration, ExtractOptions, XmlConfiguration, XmlConfigurator} from "../configuration";
 import { XML_COMMON_SCHEMA_GENERATOR } from "../xml-common-schema/index";
+import { DataSpecificationConfiguration, DataSpecificationConfigurator, DefaultDataSpecificationConfiguration } from "@dataspecer/core/data-specification/configuration";
+import { structureModelAddDefaultValues } from "@dataspecer/core/structure-model/transformation/add-default-values";
 
 /**
  * Converts a {@link StructureModel} to an {@link XmlSchema}.
@@ -26,6 +28,14 @@ export function structureModelToXmlSchema(
   model: StructureModel
 ): XmlSchema {
   const options = XmlConfigurator.merge(DefaultXmlConfiguration, XmlConfigurator.getFromObject(artifact.configuration)) as XmlConfiguration;
+
+  // Adds default values regarding the instancesHaveIdentity
+  const globalConfiguration = DataSpecificationConfigurator.merge(
+    DefaultDataSpecificationConfiguration,
+    DataSpecificationConfigurator.getFromObject(artifact.configuration)
+  ) as DataSpecificationConfiguration;
+  model = structureModelAddDefaultValues(model, globalConfiguration) as StructureModel;
+
   // Find common XML artifact
   const commonXmlArtefact = specification.artefacts.find(a => a.generator === XML_COMMON_SCHEMA_GENERATOR);
   if (!commonXmlArtefact) {
@@ -103,6 +113,11 @@ class XmlSchemaAdapter {
   private types: Record<string, XmlSchemaType>;
 
   /**
+   * Whether during the generation of the schema, the common XML schema was used and hence it needs to be imported.
+   */
+  private wasCommonXmlImportUsed: boolean = false;
+
+  /**
    * Produces an XML Schema model from a list of root classes.
    * @param roots A list of roots to specify the desired root elements.
    * @returns An instance of {@link XmlSchema} with the specific root elements.
@@ -111,9 +126,17 @@ class XmlSchemaAdapter {
     this.imports = {};
     this.groups = {};
     this.types = {};
+    this.wasCommonXmlImportUsed = false;
     const elements = roots
       .map(this.rootToElement, this)
       .map(this.extractTypeFromRoot, this);
+    if (this.wasCommonXmlImportUsed) {
+      this.imports[commonXmlNamespace] = {
+        namespace: Promise.resolve(commonXmlNamespace),
+        prefix: Promise.resolve(commonXmlPrefix),
+        schemaLocation: this.commonXmlSchemaLocation,
+      };
+    }
     return {
       targetNamespace: this.model.namespace,
       targetNamespacePrefix: this.model.namespacePrefix,
@@ -361,6 +384,7 @@ class XmlSchemaAdapter {
     extractOptions: ExtractOptions,
     skipIri?: boolean
   ): XmlSchemaComplexItem {
+    skipIri ||= classData.instancesHaveIdentity === "NEVER";
     if (this.classIsImported(classData)) {
       // For an imported type, construct a reference to its group.
       const name = this.resolveImportedClassName(classData);
@@ -402,6 +426,7 @@ class XmlSchemaAdapter {
     }
     if (!skipIri) {
       contents.splice(0, 0, iriProperty);
+      this.wasCommonXmlImportUsed = true;
     }
     return contentsSequence;
   }
@@ -410,6 +435,7 @@ class XmlSchemaAdapter {
    * Constructs the sequence of {@link iriProperty} and another item.
    */
   getIriSequence(item: XmlSchemaComplexItem): XmlSchemaComplexSequence {
+    this.wasCommonXmlImportUsed = true;
     const content: XmlSchemaComplexContentItem = {
       cardinalityMax: 1,
       cardinalityMin: 1,
