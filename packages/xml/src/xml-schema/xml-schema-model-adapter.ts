@@ -332,7 +332,7 @@ class XmlSchemaAdapter {
   rootToElement(root: StructureModelSchemaRoot): XmlSchemaElement {
     const classes = root.classes;
 
-    if (classes.length === 1) {
+    if (classes.length === 1 && !root.isInOr) {
       return this.classToElement(classes[0]);
     }
 
@@ -593,7 +593,7 @@ class XmlSchemaAdapter {
   ): [definition: XmlSchemaComplexItem, name: string, abstract: boolean] {
     const skipIri: boolean = propertyData.dematerialize;
 
-    const [el, name] = this.oRToSingleType(dataTypes.map(t => t.dataType) , true, skipIri, propertyData.orTechnicalLabel);
+    const [el, name] = this.oRToSingleType(dataTypes.map(t => t.dataType) , true, skipIri, propertyData.orTechnicalLabel, propertyData.isInOr);
 
     return [el, name, false];
   }
@@ -606,9 +606,10 @@ class XmlSchemaAdapter {
     classes: StructureModelClass[],
     exclusive: boolean,
     skipIri?: boolean,
-    orTechnicalLabel?: string
+    orTechnicalLabel?: string,
+    isInOr?: boolean,
   ): [XmlSchemaComplexItem, string | null] {
-    if (classes.length === 1) {
+    if (classes.length === 1 && !isInOr) {
       const typeClass = classes[0];
       const name =
         this.options.otherClasses.extractType ? typeClass.technicalLabel : null;
@@ -711,7 +712,7 @@ class XmlSchemaAdapter {
     propertyData: StructureModelProperty,
     dataTypes: StructureModelPrimitiveType[]
   ): XmlSchemaType {
-    if (dataTypes.length === 1) {
+    if (dataTypes.length === 1 && !propertyData.isInOr) {
       return {
         name: this.primitiveToQName(dataTypes[0]),
         annotation: null, // No annotation for primitive types.
