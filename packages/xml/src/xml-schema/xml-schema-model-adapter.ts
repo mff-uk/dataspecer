@@ -338,7 +338,7 @@ class XmlSchemaAdapter {
 
     const [el, name] = this.oRToSingleType(classes, true);
     const complexType = {
-      name: [null, root.orTechnicalLabel],
+      name: [this.model.namespacePrefix, root.orTechnicalLabel],
       complexDefinition: el,
       annotation: null,
     } as XmlSchemaComplexType;
