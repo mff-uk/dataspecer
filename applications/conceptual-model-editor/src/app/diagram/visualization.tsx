@@ -15,6 +15,7 @@ import ReactFlow, {
     getTransformForBounds,
     useEdgesState,
     useNodesState,
+    useOnSelectionChange,
     useReactFlow,
 } from "reactflow";
 
@@ -60,6 +61,7 @@ import { useDownload } from "./features/export/download";
 import { type Warning, WarningsContextType, useWarningsContext } from "./context/warnings-context";
 
 import "reactflow/dist/style.css";
+import { setHighlightingStylesBasedOnSelection } from "./reactflow/set-highlighting-styles";
 
 /**
  * Returns SVG for the current model.
@@ -258,6 +260,23 @@ export const Visualization = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeVisualModel]);
+
+
+
+    // Based on https://reactflow.dev/api-reference/hooks/use-on-selection-change
+    // ... Alternativně onSelectionChange zaregistrovaný na Reactflow komponentě - asi to je stejný
+    type SelectCallbackParametersType = {
+        nodes: Node[],
+        edges: Edge[]
+    };
+
+    const onChange = useCallback(({ nodes, edges }: SelectCallbackParametersType) => {
+        setHighlightingStylesBasedOnSelection(nodes, edges, setNodes, setEdges);
+    }, []);
+
+    useOnSelectionChange({
+        onChange,
+    });
 
     return (
         <>
