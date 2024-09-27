@@ -9,6 +9,9 @@ import {
 
 export const DialogApiContext = createContext<DialogApiContextType | null>(null);
 
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any --
+ * We do not want to place any restriction on the data used by the dialog.
+ */
 export const DialogRendererContext = createContext<DialogRendererContextType<any> | null>(null);
 
 /**

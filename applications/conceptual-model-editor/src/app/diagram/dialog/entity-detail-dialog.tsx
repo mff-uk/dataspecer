@@ -1,3 +1,6 @@
+import { useRef, useEffect, useState } from "react";
+import { useReactFlow } from "reactflow";
+
 import {
     type SemanticModelGeneralization,
     type SemanticModelClass,
@@ -5,14 +8,15 @@ import {
     isSemanticModelClass,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { useRef, useEffect, useState } from "react";
-import { IriLink } from "../components/iri-link";
 import {
     type SemanticModelClassUsage,
     type SemanticModelRelationshipUsage,
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+
+import { IriLink } from "../components/iri-link";
 import { useBaseDialog } from "../components/base-dialog";
 import { sourceModelOfEntity } from "../util/model-utils";
 import { useConfigurationContext } from "../context/configuration-context";
@@ -80,17 +84,40 @@ export const useEntityDetailDialog = () => {
             datatype,
         } = EntityProxy(viewedEntity, currentLang);
 
-        const [addToActiveViewButtonClicked, setAddToActiveViewButtonClicked] = useState(
-            aggregatorView.getActiveVisualModel()?.getVisualEntity(viewedEntity.id)?.visible ?? false
-        );
-        const isInActiveView =
-            aggregatorView.getActiveVisualModel()?.getVisualEntity(viewedEntity.id)?.visible ?? false;
+        const isInActiveView = aggregatorView.getActiveVisualModel()?.getVisualEntityForRepresented(viewedEntity.id) !== null;
+
+        const [addToActiveViewButtonClicked, setAddToActiveViewButtonClicked] = useState(isInActiveView);
         const canBeAddedToActiveView = isSemanticModelClass(viewedEntity) || isSemanticModelClassUsage(viewedEntity);
 
+        const isRelationship = isSemanticModelRelationship(viewedEntity);
+        const isRelationshipProfile = isSemanticModelRelationshipUsage(viewedEntity);
+
+        const reactflow  = useReactFlow<object, object>();
+
         const handleAddEntityToActiveView = (entityId: string) => {
-            const updateStatus = aggregatorView.getActiveVisualModel()?.updateEntity(entityId, { visible: true });
-            if (!updateStatus) {
-                aggregatorView.getActiveVisualModel()?.addEntity({ sourceEntityId: entityId });
+            // TODO Move to action
+            const visualModel = aggregatorView.getActiveVisualModel() as WritableVisualModel;
+            if (visualModel === null || sourceModel?.getId() === undefined) {
+                return;
+            }
+            if (isRelationship) {
+                visualModel.addVisualRelationship({
+                    representedRelationship: entityId,
+                    waypoints: [],
+                });
+            } else {
+                const viewport = reactflow.getViewport();
+                visualModel.addVisualNode({
+                    model: sourceModel?.getId(),
+                    representedEntity: viewedEntity.id,
+                    position: {
+                        x: viewport.x,
+                        y: viewport.y,
+                        anchored: null,
+                    },
+                    content: [],
+                    visualModels: [],
+                });
             }
         };
 
@@ -98,9 +125,6 @@ export const useEntityDetailDialog = () => {
             setViewedEntity(e);
             setAddToActiveViewButtonClicked(false);
         };
-
-        const isRelationship = isSemanticModelRelationship(viewedEntity);
-        const isRelationshipProfile = isSemanticModelRelationshipUsage(viewedEntity);
 
         return (
             <BaseDialog heading={`${capFirst(getEntityTypeString(viewedEntity))} detail`}>

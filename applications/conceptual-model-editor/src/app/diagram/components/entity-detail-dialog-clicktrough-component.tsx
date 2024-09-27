@@ -23,7 +23,7 @@ export const ResourceDetailClickThrough = (props: {
 
     const { resource, onClick, withCardinality, withIri, detailDialogLanguage } = props;
     const name = EntityProxy(resource, detailDialogLanguage ?? language).name;
-    const modelColor = aggregatorView.getActiveVisualModel()?.getColor(sourceModelOfEntityMap.get(resource.id) ?? "");
+    const modelColor = aggregatorView.getActiveVisualModel()?.getModelColor(sourceModelOfEntityMap.get(resource.id) ?? "");
     const iri = withIri ? getIri(resource, getModelIri(sourceModelOfEntity(resource.id, [...models.values()]))) : null;
 
     return (

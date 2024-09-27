@@ -70,12 +70,6 @@ type SupportedTypes =
     | SemanticModelRelationship
     | SemanticModelRelationshipUsage;
 
-type ProfileType =
-    | SemanticModelClass
-    | SemanticModelRelationship
-    | SemanticModelClassUsage
-    | SemanticModelRelationshipUsage;
-
 export const useModifyEntityDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
     const [modifiedEntity, setModifiedEntity] = useState(null as unknown as SupportedTypes);

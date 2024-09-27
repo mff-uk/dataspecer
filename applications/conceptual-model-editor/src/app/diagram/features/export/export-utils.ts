@@ -1,5 +1,5 @@
 import type { EntityModel } from "@dataspecer/core-v2/entity-model";
-import type { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
+import type { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { BackendPackageService } from "@dataspecer/core-v2/project";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { useMemo } from "react";
@@ -13,7 +13,7 @@ export type ExportedConfigurationType = {
 
 export const modelsToWorkspaceString = (
     models: Map<string, EntityModel>,
-    visualModels: Map<string, VisualEntityModel>,
+    visualModels: Map<string, VisualModel>,
     timestamp: number,
     activeView?: string
 ) => {
@@ -45,7 +45,7 @@ export const useLocalStorage = () => {
 
     const saveWorkspaceState = (
         models: Map<string, EntityModel>,
-        visualModels: Map<string, VisualEntityModel>,
+        visualModels: Map<string, VisualModel>,
         activeView?: string
     ) => {
         localStorage.setItem(

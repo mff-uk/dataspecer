@@ -4,7 +4,7 @@ export type NameToIriStrategy = (name: string) => string;
 
 /**
  * This configuration is not provided via the React context as we
- * do not support change witout applicaiton reload.
+ * do not support change without application reload.
  *
  * The idea is to restrict use of context for things we do not
  * need to watch for.
@@ -45,8 +45,7 @@ export interface Configuration {
 }
 
 /**
- * Read comment for the Configuration interface above!
- * TODO Rename to staticConfiguration
+ * Instance wide configuration.
  */
 export const configuration = (): Configuration => {
   return {

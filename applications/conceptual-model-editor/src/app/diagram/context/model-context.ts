@@ -1,58 +1,100 @@
-import {
-    SemanticModelAggregator,
-    type SemanticModelAggregatorView,
-} from "@dataspecer/core-v2/semantic-model/aggregator";
+import React, { useContext } from "react";
+
+import { SemanticModelAggregator, type SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 import type { EntityModel } from "@dataspecer/core-v2/entity-model";
 import type { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import React, { useContext } from "react";
-import { type VisualEntityModel, VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
-import { randomColorFromPalette } from "~/app/utils/color-utils";
+import { type WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
-const aggregatorInstance = new SemanticModelAggregator();
+import { randomColorFromPalette } from "../../utils/color-utils";
+import { createWritableVisualModel } from "../util/visual-model-utils";
+
+// This is to compile with TypeScript as we can not use
+// the type directly for aggregator.
+const SemanticModelAggregatorType = new SemanticModelAggregator();
 
 export type ModelGraphContextType = {
-    aggregator: typeof aggregatorInstance; // to make it compile
+
+    aggregator: typeof SemanticModelAggregatorType;
+
     aggregatorView: SemanticModelAggregatorView;
+
     setAggregatorView: React.Dispatch<React.SetStateAction<SemanticModelAggregatorView>>;
+
     models: Map<string, EntityModel>;
+
     setModels: React.Dispatch<React.SetStateAction<Map<string, EntityModel>>>;
-    visualModels: Map<string, VisualEntityModel>;
-    setVisualModels: React.Dispatch<React.SetStateAction<Map<string, VisualEntityModel>>>;
+
+    visualModels: Map<string, WritableVisualModel>;
+
+    setVisualModels: React.Dispatch<React.SetStateAction<Map<string, WritableVisualModel>>>;
 };
 
 export const ModelGraphContext = React.createContext(null as unknown as ModelGraphContextType);
+
+interface UseModelGraphContextType {
+
+    aggregator: typeof SemanticModelAggregatorType;
+
+    aggregatorView: SemanticModelAggregatorView;
+
+    setAggregatorView: React.Dispatch<React.SetStateAction<SemanticModelAggregatorView>>;
+
+    models: Map<string, EntityModel>;
+
+    visualModels: Map<string, WritableVisualModel>;
+
+    setVisualModels: React.Dispatch<React.SetStateAction<Map<string, WritableVisualModel>>>;
+
+    //
+
+    addModel: (...models: EntityModel[]) => void;
+
+    addVisualModel: (...models: WritableVisualModel[]) => void;
+
+    setModelAlias: (alias: string | null, model: EntityModel) => void;
+
+    setModelIri: (iri: string, model: InMemorySemanticModel) => void;
+
+    cleanModels: () => void;
+
+    replaceModels: (entityModels: EntityModel[], visualModels: WritableVisualModel[]) => void;
+
+    removeModel: (modelId: string) => void;
+
+    removeVisualModel: (modelId: string) => void;
+
+}
 
 /**
  * provides all models and visual models we work with
  * also provides model manipulating functions (eg add, remove, set alias, ..)
  */
-export const useModelGraphContext = () => {
+export const useModelGraphContext = (): UseModelGraphContextType => {
     const { aggregator, aggregatorView, setAggregatorView, models, setModels, visualModels, setVisualModels } =
         useContext(ModelGraphContext);
 
-    const addModelToGraph = (...models: EntityModel[]) => {
-        // make sure there is a view
+    const addModel = (...models: EntityModel[]) => {
+        // Make sure there is a view model.
         if (!aggregatorView.getActiveVisualModel()) {
-            const defaultVisualModel = new VisualEntityModelImpl(undefined);
-            addVisualModelToGraph(defaultVisualModel);
-            aggregatorView.changeActiveVisualModel(defaultVisualModel.getId());
+            const visualModel = createWritableVisualModel();
+            addVisualModel(visualModel);
+            aggregatorView.changeActiveVisualModel(visualModel.getId());
         }
-
+        // Add models.
         for (const model of models) {
             aggregator.addModel(model);
             setModels((previous) => previous.set(model.getId(), model));
-
+            // Set color for all visual models.
             for (const [_, visualModel] of visualModels) {
-                console.log("setting color for model", model.getId());
-                visualModel.setColor(model.getId(), randomColorFromPalette());
+                visualModel.setModelColor(model.getId(), randomColorFromPalette());
             }
         }
     };
 
-    const addVisualModelToGraph = (...visModels: VisualEntityModel[]) => {
-        for (const visModel of visModels) {
-            aggregator.addModel(visModel);
-            setVisualModels((previous) => previous.set(visModel.getId(), visModel));
+    const addVisualModel = (...models: WritableVisualModel[]) => {
+        for (const model of models) {
+            aggregator.addModel(model);
+            setVisualModels((previous) => previous.set(model.getId(), model));
         }
     };
 
@@ -81,29 +123,31 @@ export const useModelGraphContext = () => {
         setVisualModels(new Map());
     };
 
-    const replaceModels = (m: EntityModel[], vm: VisualEntityModel[]) => {
-        for (const [_, m] of models) {
-            aggregator.deleteModel(m);
+    const replaceModels = (entityModels: EntityModel[], visualModels: WritableVisualModel[]) => {
+        // Remove old models.
+        for (const [_, model] of models) {
+            aggregator.deleteModel(model);
         }
-        for (const [_, m] of visualModels) {
-            aggregator.deleteModel(m);
-        }
-
-        for (const model of vm) {
-            aggregator.addModel(model);
-        }
-        for (const model of m) {
-            aggregator.addModel(model);
+        for (const model of visualModels) {
+            aggregator.deleteModel(model);
         }
 
-        setVisualModels(new Map(vm.map((m) => [m.getId(), m])));
-        setModels(new Map(m.map((m) => [m.getId(), m])));
+        // Set new models.
+        for (const model of visualModels) {
+            aggregator.addModel(model);
+        }
+        for (const model of entityModels) {
+            aggregator.addModel(model);
+        }
+
+        setVisualModels(new Map(visualModels.map((m) => [m.getId(), m])));
+        setModels(new Map(entityModels.map((m) => [m.getId(), m])));
     };
 
-    const removeModelFromModels = (modelId: string) => {
+    const removeModel = (modelId: string) => {
         const model = models.get(modelId);
         if (!model) {
-            alert(`no model with id: ${modelId} found`);
+            alert(`No model with id: ${modelId} found.`);
             return;
         }
         aggregator.deleteModel(model);
@@ -111,10 +155,10 @@ export const useModelGraphContext = () => {
         setModels(new Map(models));
     };
 
-    const removeVisualModelFromModels = (modelId: string) => {
+    const removeVisualModel = (modelId: string) => {
         const visualModel = visualModels.get(modelId);
         if (!visualModel) {
-            alert(`no model with id: ${modelId} found`);
+            alert(`No model with id: ${modelId} found`);
             return;
         }
         aggregator.deleteModel(visualModel);
@@ -130,13 +174,14 @@ export const useModelGraphContext = () => {
         models,
         visualModels,
         setVisualModels,
-        addModelToGraph,
-        addVisualModelToGraph,
-        cleanModels,
-        replaceModels,
-        removeModelFromModels,
-        removeVisualModelFromModels,
+        //
+        addModel,
+        addVisualModel,
         setModelAlias,
         setModelIri,
+        cleanModels,
+        replaceModels,
+        removeModel,
+        removeVisualModel,
     };
 };

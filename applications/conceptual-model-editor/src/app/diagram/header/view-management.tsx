@@ -1,27 +1,28 @@
 import { useEffect } from "react";
-import { VisualEntityModelImpl } from "@dataspecer/core-v2/visual-model";
 import { useModelGraphContext } from "../context/model-context";
 import { DropDownCatalog } from "../components/management/dropdown-catalog";
 import { useQueryParamsContext } from "../context/query-params-context";
+import { createWritableVisualModel } from "../util/visual-model-utils";
 
 export const ViewManagement = () => {
     const {
         aggregatorView,
         aggregator,
         setAggregatorView,
-        addVisualModelToGraph,
+        addVisualModel: addVisualModelToGraph,
         visualModels,
-        removeVisualModelFromModels,
+        removeVisualModel: removeVisualModelFromModels,
     } = useModelGraphContext();
 
     const { viewId, updateViewId: setViewIdSearchParam } = useQueryParamsContext();
 
     const activeViewId = aggregatorView.getActiveViewId();
-    const availableVisualModelIds = aggregatorView.getAvailableVisualModels().map(m => [m.getId(), m.modelAlias] as [string, string]);
+    const availableVisualModelIds = aggregatorView.getAvailableVisualModels().map(m => [m.getId(), m.getLabel()?.["en"]] as [string, string]);
 
     useEffect(() => {
-        if (!activeViewId) {
-            console.log("setting activeViewId to null");
+        if (activeViewId === undefined) {
+            console.log("Ignore change in activeViewId as it is null.");
+            return;
         }
         setViewIdSearchParam(activeViewId ?? null);
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -40,10 +41,10 @@ export const ViewManagement = () => {
     const handleCreateNewView = () => {
         // FIXME: workaround for having the same color for different views, better to have model colors in a package config or sth
         const activeVisualModel = aggregatorView.getActiveVisualModel();
-        const model = new VisualEntityModelImpl(undefined);
+        const model = createWritableVisualModel();
         if (activeVisualModel) {
-            for (const [mId, mColor] of activeVisualModel.getModelColorPairs()) {
-                model.setColor(mId, mColor);
+            for (const [identifier, data] of activeVisualModel.getModelsData()) {
+                model.setModelColor(identifier, data.color ?? "white");
             }
         }
         addVisualModelToGraph(model);

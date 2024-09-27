@@ -90,35 +90,36 @@ export interface CreateEditControllerType {
 
 export function useEditClassController({ state, changeState }: DialogProps<EditClassState>): CreateEditControllerType {
 
-  const setModel = (identifier: string, model: EntityModel) => {
-    changeState({
-      ...state,
-      model: model,
-      baseIri: getModelIri(model),
-    });
-  };
-
-  const setIri = (iri: string) => {
-    changeState({ ...state, iri });
-  };
-
-  const onUserChangedIri = () => {
-    changeState({ ...state, autoGenerateIri: false });
-  };
-
-  const setName = (value: LanguageString | ((prev: LanguageString) => LanguageString)): void => {
-    const name: LanguageString = typeof value === "function" ?
-      value(state.name) : value;
-    changeState({ ...state, name });
-  };
-
-  const setDescription = (value: LanguageString | ((prev: LanguageString) => LanguageString)): void => {
-    const description: LanguageString = typeof value === "function" ?
-      value(state.name) : value;
-    changeState({ ...state, description });
-  };
-
   return useMemo(() => {
+
+    const setModel = (_: string, model: EntityModel) => {
+      changeState({
+        ...state,
+        model: model,
+        baseIri: getModelIri(model),
+      });
+    };
+
+    const setIri = (iri: string) => {
+      changeState({ ...state, iri });
+    };
+
+    const onUserChangedIri = () => {
+      changeState({ ...state, autoGenerateIri: false });
+    };
+
+    const setName = (value: LanguageString | ((prev: LanguageString) => LanguageString)): void => {
+      const name: LanguageString = typeof value === "function" ?
+        value(state.name) : value;
+      changeState({ ...state, name });
+    };
+
+    const setDescription = (value: LanguageString | ((prev: LanguageString) => LanguageString)): void => {
+      const description: LanguageString = typeof value === "function" ?
+        value(state.name) : value;
+      changeState({ ...state, description });
+    };
+
     return {
       setModel,
       setIri,

@@ -33,7 +33,7 @@ function getModelColor(view: SemanticModelAggregatorView, modelIdentifier: strin
     if (visualModel === null) {
         return "";
     }
-    return visualModel.getColor(modelIdentifier) ?? "";
+    return visualModel.getModelColor(modelIdentifier) ?? "";
 }
 
 export const DialogColoredModelHeaderWithLanguageSelector = (props: {

@@ -1,10 +1,11 @@
 import { type SemanticModelRelationship, isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
-import { EntityProxy } from "../../../util/detail-utils";
-import { useConfigurationContext } from "../../../context/configuration-context";
 import {
     type SemanticModelRelationshipUsage,
     isSemanticModelAttributeUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+
+import { EntityProxy } from "../../../util/detail-utils";
+import { useConfigurationContext } from "../../../context/configuration-context";
 import { getLocalizedStringFromLanguageString } from "../../../util/language-utils";
 import { getProfiledEntity } from "../../../util/profile-utils";
 import { useClassesContext } from "../../../context/classes-context";

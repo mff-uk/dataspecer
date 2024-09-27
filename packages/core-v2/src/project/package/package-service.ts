@@ -1,6 +1,6 @@
 import { EntityModel } from "../../entity-model";
 import { WritableSemanticModelAdapter } from "../../semantic-model/writable-semantic-model-adapter";
-import { VisualEntityModel } from "../../visual-model";
+import { VisualModel } from "../../visual-model";
 import { Package, ResourceEditable } from "../resource/resource";
 
 /**
@@ -32,7 +32,7 @@ export interface SemanticModelPackageService extends PackageService {
     /**
      * Constructs all models from a package with semantic model.
      */
-    constructSemanticModelPackageModels(packageId: string): Promise<readonly [EntityModel[], VisualEntityModel[]]>;
+    constructSemanticModelPackageModels(packageId: string): Promise<readonly [EntityModel[], VisualModel[]]>;
 
     /**
      * Sets semantic models that should be stored in the given package.
@@ -42,7 +42,7 @@ export interface SemanticModelPackageService extends PackageService {
     updateSemanticModelPackageModels(
         packageId: string,
         models: EntityModel[],
-        visualModels: VisualEntityModel[]
+        visualModels: VisualModel[]
     ): Promise<boolean>;
 
     /**

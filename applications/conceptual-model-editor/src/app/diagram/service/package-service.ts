@@ -12,8 +12,10 @@ export interface PackageService {
   getRootPackage: (identifier: string) => Promise<Package>;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const backendService = new BackendPackageService(process.env.NEXT_PUBLIC_APP_BACKEND!, fetchService.fetch);
 
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const backendPackageRootUrl = process.env.NEXT_PUBLIC_APP_BACKEND_PACKAGE_ROOT!;
 
 const getPackage = (identifier: string): Promise<Package> => {

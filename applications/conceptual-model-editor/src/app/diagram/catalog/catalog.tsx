@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { EntityCatalog } from "./entity-catalog";
+import { EntityCatalog } from "./class-catalog";
 import { ModelCatalog } from "./model-catalog";
 import { AttributeCatalog } from "./attribute-catalog";
 import { RelationshipCatalog } from "./relationship-catalog";

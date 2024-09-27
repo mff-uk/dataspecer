@@ -1,10 +1,12 @@
+import { useState, useEffect } from "react";
+
 import type { EntityModel } from "@dataspecer/core-v2/entity-model";
 import type {
     SemanticModelRelationship,
     LanguageString,
     SemanticModelRelationshipEnd,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { useState, useEffect } from "react";
+
 import { getRandomName } from "~/app/utils/random-gen";
 import { getModelIri } from "../../util/iri-utils";
 import { CardinalityOptions } from "../cardinality-options";

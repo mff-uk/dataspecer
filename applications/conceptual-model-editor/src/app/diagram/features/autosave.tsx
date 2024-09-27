@@ -23,6 +23,13 @@ export const useAutoSave = () => {
         // same variables as the callback. The reason is that since we allow
         // autoload from the start, models, visualModels may change later.
         const handleAutoSavePackage = () => {
+            // TODO This method is disabled for safety.
+            // Using 1 === 1 to not trigger inaccessible code warning.
+            // eslint-disable-next-line no-constant-condition
+            if (1 === 1) {
+                return;
+            }
+
             if (!packageId) {
                 return;
             }
