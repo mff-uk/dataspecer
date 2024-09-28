@@ -59,20 +59,25 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
                 <CircularProgress color="inherit" />
             </Backdrop><% for (let index = 0; index < it.list_collection_transitions.length; index++) { %><% const collectionTransition = it.list_collection_transitions[index]; %>
             <Button id="<%= collectionTransition.id %>-transition-button" disabled={isLoading} sx={{ marginRight: 1 }} variant="contained" onClick={() => handleCollectionCapabilityRedirect("<%= collectionTransition.id %>")}><%= collectionTransition.label %>: <%= it.aggregate_name %></Button>
-            <% } %>
+            <% } %><% const defaultPageTitle = "List of \"\" items" %>
+            <h2><%= it.page_title ?? defaultPageTitle %></h2>
             <TableContainer>
                 <Table sx={{ minWidth: 650 }} aria-label="<%= it.aggregate_name %> table"></Table>
                 {instanceList &&
                     <React.Fragment>
                         <TableHead>
                             <TableRow>
-                                <TableCell align="right">
+                                <TableCell align="left">
                                     <strong>Index</strong>
                                 </TableCell><% const propertyNames = Object.keys(it.table_schema.properties); const excludedNames = ["id", "type"]; %><% for (let index = 0; index < propertyNames.length; index++) { %><% const propertyName = propertyNames[index]; %><% if (excludedNames.includes(propertyName)) continue; %>
-                                <TableCell key={<%= index %>} align="right" sx={{ maxWidth: window.innerWidth / <%= propertyNames.length - excludedNames.length %> }}>
+                                <TableCell key={<%= index %>} align="left" sx={{ maxWidth: window.innerWidth / <%= propertyNames.length - excludedNames.length %> }}>
                                     <strong><%= it.table_schema.properties[propertyName]?.title ?? propertyName %></strong>
                                 </TableCell><% } %>
-                                <% if (hasTransitions) { %><TableCell align="right" /><% } %>
+                                <% if (hasTransitions) { %>
+                                <TableCell align="left">
+                                    <strong>Options</strong>
+                                </TableCell>
+                                <% } %>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -82,10 +87,10 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
                                         key={idx}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                     >
-                                        <TableCell align="right">
+                                        <TableCell align="left">
                                             {idx + 1}
                                         </TableCell><% for (let index = 0; index < propertyNames.length; index++) { %><% const propertyName = propertyNames[index];%><% if (propertyName === "id" || propertyName === "type") continue; %>
-                                        <TableCell key={<%= index %>} align="right" sx={{ maxWidth: window.innerWidth / <%= propertyNames.length - excludedNames.length %> }}>
+                                        <TableCell key={<%= index %>} align="left" sx={{ maxWidth: window.innerWidth / <%= propertyNames.length - excludedNames.length %> }}>
                                             {stringify(instance["<%= propertyName %>"])}
                                         </TableCell><% } %><% if (hasTransitions) { %>
                                         <TableCell>

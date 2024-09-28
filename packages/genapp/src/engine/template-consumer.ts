@@ -23,11 +23,11 @@ export abstract class TemplateConsumer<TemplateType extends TemplateDescription>
 
     abstract processTemplate(dependencies: TemplateDependencyMap): Promise<LayerArtifact>;
 
-    protected getTemplatePageTitle(pageTitleLanguageString: LanguageString | undefined): string | null {
+    protected getTemplatePageTitle(pageTitleLanguageString: LanguageString | undefined, languageId: string = "en"): string | null {
         if (!pageTitleLanguageString || Object.keys(pageTitleLanguageString).length === 0) {
             return null;
         }
 
-        return pageTitleLanguageString["en"] ?? Object.values(pageTitleLanguageString).at(0)!;
+        return pageTitleLanguageString[languageId] ?? Object.values(pageTitleLanguageString).at(0)!;
     }
 }

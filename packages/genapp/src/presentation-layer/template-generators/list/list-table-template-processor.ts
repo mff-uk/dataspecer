@@ -10,6 +10,7 @@ import { UseNavigationHookGenerator } from "../../../capabilities/template-gener
 interface ListTableTemplate extends TemplateDescription {
     placeholders: {
         aggregate_name: string;
+        page_title: string | null;
         presentation_layer_component_name: string;
         list_capability_app_layer: string;
         list_app_layer_path: ImportRelativePath;
@@ -53,6 +54,7 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
             templatePath: this._templatePath,
             placeholders: {
                 aggregate_name: dependencies.aggregate.getAggregateNamePascalCase(),
+                page_title: this.getTemplatePageTitle(dependencies.detailNodeConfig.pageTitle),
                 presentation_layer_component_name: listTableComponentName,
                 list_capability_app_layer: dependencies.appLogicArtifact.exportedObjectName,
                 list_app_layer_path: {

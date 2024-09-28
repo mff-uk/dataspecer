@@ -273,7 +273,6 @@ export default function <%= it.export_name %>() {
     return (
         <><% const defaultPageTitle = "Detail of \"it.json_schema.title\" instance" %>
             <h2><%= it.page_title ?? defaultPageTitle %></h2>
-            { isMissingInstance && <Alert onClose={() => {}} severity="error">{`No valid instance found for ${instanceId}`}</Alert> }
             <Backdrop
                 sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
                 open={isLoading}
@@ -283,6 +282,7 @@ export default function <%= it.export_name %>() {
             <% for (let index = 0; index < it.capability_transitions.length; index++) { %><% const transition = it.capability_transitions[index]; %>
                 <Button key={"<%= transition.id %>"} id="<%= transition.id %>-transition-button" disabled={isLoading} sx={{ marginRight: 1 }} variant="contained" onClick={() => handleDetailClick("<%= transition.id %>", "<%= transition.capabilityType %>")}><%= transition.label %></Button>
             <% } %>
+            { isMissingInstance && <Alert onClose={() => {}} severity="error">{`No valid instance found for ${instanceId}`}</Alert> }
             { instance &&
                 <Box id="<%= it.aggregate_name %>-detail" component="section"><% const propertyNames = Object.keys(it.json_schema.properties); %><% for (let index = 0; index < propertyNames.length; index++) { %><% const propName = propertyNames[index]; const propValue = it.json_schema.properties[propName]; %><% if (propName === "type") continue; %>
                     <Box id="<%~ propName %>-property-key" component="section" sx={{ p: 2 }}>
