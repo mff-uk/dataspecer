@@ -1,0 +1,34 @@
+import { Context, createLens } from "ldkit";
+import { <%= it.instance_result_type %> } from <%~ it.instance_result_type_path %>;
+import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
+import { <%= it.delete_mutator_interface_type %> } from <%~ it.delete_mutator_interface_type_path %>;
+
+export class <%= it.exported_object_name %> implements <%= it.delete_mutator_interface_type %> {
+
+    async deleteInstance(instanceIri: string): Promise<<%= it.instance_result_type %>> {
+
+        const context: Context = {
+            sources: [<%~ it.ldkit_endpoint_uri %>]
+        }
+
+        const lens = createLens(<%= it.ldkit_schema %>, context);
+        const toDelete = await lens.findByIri(instanceIri);
+
+        if (!toDelete) {
+            throw new Error("Couldn't delete selected instance");
+        }
+
+        // await lens.delete(instanceIri);
+
+        const result: <%= it.instance_result_type %> = {
+            instance: {
+                aggregateName: "<%= it.aggregate_name %>",
+                raw: toDelete.$id
+            },
+            message: "Instance deleted successfully",
+            redirectUrl: "/"
+        }
+
+        return result;
+    }
+}

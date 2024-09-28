@@ -1,0 +1,38 @@
+{
+  "name": "@dataspecer/genapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && copyfiles -u 1 src/**/* ./lib/",
+    "dev": "tsc -w",
+    "prebuild": "rimraf lib generated",
+    "start": "node ./lib/engine/app-generator.js",
+    "test": "echo \"No test run specified\""
+  },
+  "author": "Viktor Bujko",
+  "license": "ISC",
+  "dependencies": {
+    "@dataspecer/core": "*",
+    "@types/command-line-args": "^5.2.3",
+    "axios": "^1.6.8",
+    "copyfiles": "^2.4.1",
+    "eta": "^3.4.0",
+    "jszip": "^3.10.1",
+    "ts-command-line-args": "^2.5.1",
+    "ts-morph": "^22.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.5",
+    "dotenv": "^16.4.5",
+    "dotenv-webpack": "^8.1.0",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.3"
+  },
+  "exports": {
+    ".": "./lib/index.js",
+    "./template-generators/app": "./lib/app-logic-layer/template-generators/index.js",
+    "./application-graph": "./lib/engine/graph/index.js",
+    "./capabilities": "./lib/capabilities/index.js"
+  }
+}

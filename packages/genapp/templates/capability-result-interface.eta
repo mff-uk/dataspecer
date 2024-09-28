@@ -1,0 +1,22 @@
+export interface GeneratedCapability<TResult extends CapabilityResult> {
+    name: string;
+    runCapability: (request: string) => Promise<TResult>;
+}
+
+export interface AggregateInstance {
+    raw: any;
+    aggregateName: string;
+}
+
+export interface CapabilityResult {
+    message?: string;
+    redirectUrl?: string;
+}
+
+export interface ListResult extends CapabilityResult {
+    entities: AggregateInstance[];
+}
+
+export interface InstanceResult extends CapabilityResult {
+    instance: AggregateInstance;
+}

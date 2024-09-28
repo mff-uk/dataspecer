@@ -1,21 +1,17 @@
-import { printNode, Project, SourceFileCreateOptions } from "ts-morph";
+import { printNode } from "ts-morph";
 import ts, {
     factory,
-    createPrinter,
-    createSourceFile,
     Expression,
     Node,
     NodeFlags,
     PropertyAccessExpression,
-    ScriptTarget,
-    ScriptKind,
     SyntaxKind,
     VariableDeclaration,
     VariableDeclarationList,
     ObjectLiteralElementLike
 } from "typescript";
 import { LdkitSchema, LdkitSchemaProperty } from "../ldkit-schema-model";
-import { tryGetKnownDictionaryPrefix, convertToKebabCase, convertToPascalCase } from "../utils/utils";
+import { convertToKebabCase } from "../utils/utils";
 import { SourceCodeWriter } from "./source-code-writer-model";
 import { AggregateMetadata } from "../readers/aggregate-data-provider-model";
 
@@ -33,19 +29,16 @@ export class TypescriptWriter implements SourceCodeWriter {
     }
 
     getSourceCodeFromMetadata(aggregateMetadata: AggregateMetadata): string {
-
-        const filePath: string = this.generateSourceFilePath("./generated/", aggregateMetadata.aggregateName);
         const ldkitSchemaRootNode = this.getLdkitSchemaRootNode(aggregateMetadata);
         const printed: string = printNode(ldkitSchemaRootNode);
 
-        return printed; //printed;
+        return printed;
     }
 
     private getLdkitSchemaRootNode(metadata: AggregateMetadata): Node {
 
-        const convertedAggregateSchemaName: string = convertToPascalCase(metadata.aggregateName);
         const ldkitSchemaDeclaration = factory.createVariableDeclaration(
-            `${convertedAggregateSchemaName}Schema`,
+            `${metadata.aggregateName}Schema`,
             undefined, // ts.ExclamationToken
             undefined, // type reference undefined to match ldkit's library type
             this.getSchemaAsObjectLiteral(metadata.dataSchema)
@@ -86,12 +79,11 @@ export class TypescriptWriter implements SourceCodeWriter {
     private getObjectLiteral(targetObject: LdkitSchema): ObjectLiteralElementLike[] {
 
         const properties: ObjectLiteralElementLike[] = [];
-        
+
         Object.entries(targetObject).map(attr => {
-            //console.log("Attribute: ", attr);
             const [propName, prop] = attr;
             const propertyValueNode: Expression = this.getPropertyValueExpression(prop);
-            const propertyNameNode: string | ts.PropertyName = this.getPropertyNameNode(propName);
+            const propertyNameNode: string = this.getPropertyNameNode(propName);
 
             properties.push(
                 factory.createPropertyAssignment(propertyNameNode, propertyValueNode)
@@ -101,36 +93,23 @@ export class TypescriptWriter implements SourceCodeWriter {
         return properties;
     }
 
-    private getPropertyNameNode(name: string): string | ts.PropertyName {
-        //factory.createStringLiteral(propName), //factory.createComputedPropertyName(
+    private getPropertyNameNode(name: string): string {
         if (!name) {
             throw new Error("Attepmting to use non-valid string as property name");
         }
 
-        name = name.normalize("NFD")
-            .replace(" ", "_")
-            .replace(/[\u0300-\u036f]/g, "");
-
         if (!name.match(/^[a-z0-9_]+$/i)) {
-            //return factory.createComputedPropertyName(factory.createStringLiteral(name));
-            return factory.createStringLiteral(name);
+            return `"${factory.createStringLiteral(name).text}"`;
         }
-        
+
         return name;
     }
 
     private getPropertyValueExpression(propertyValue: LdkitSchemaProperty | string | readonly string[] | any): Expression {
-        
+
         switch (typeof propertyValue) {
             case "string":
-                //const prefixMatch = undefined; //tryGetKnownDictionaryPrefix(propertyValue);
-
-                //if (!prefixMatch) {
                 return factory.createStringLiteral(propertyValue);
-                //}
-
-                // const [prefix, entity] = prefixMatch;
-                // return this.getObjectAccessExpression(prefix, entity);
             case "boolean":
                 return propertyValue
                     ? factory.createTrue()

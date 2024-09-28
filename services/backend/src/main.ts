@@ -21,6 +21,7 @@ import { getDocumentation, getLightweightOwl, getSingleFile, getZip, getlightwei
 import { generate } from './routes/generate';
 import { importResource } from './routes/import';
 import { migratePR419 } from './tools/migrate-pr419';
+import { getGenerateApplicationByModelId, getGeneratedApplication } from './routes/genapp';
 
 // Create application models
 
@@ -116,6 +117,11 @@ application.get(basename + '/experimental/documentation.html', getDocumentation)
 application.get(basename + '/generate', generate);
 application.get(basename + '/experimental/output.zip', getZip);
 application.get(basename + '/preview/*', getSingleFile);
+application.get(basename + '/generate/application', getGenerateApplicationByModelId)
+
+// Generate application
+
+application.post(basename + "/generate-app", getGeneratedApplication);
 
 (async () => {
     // Command-line arguments
@@ -139,7 +145,7 @@ application.get(basename + '/preview/*', getSingleFile);
             console.log("There is no root package for data specifications from v1 dataspecer. Creating one...");
             await resourceModel.createPackage(null, configuration.v1RootIri, configuration.v1RootMetadata);
         }
-    
+
         application.listen(Number(configuration.port), () => {
             console.log(`Server is listening on port ${Number(configuration.port)}.`);
             console.log(`Try ${configuration.host}/data-specification for a list of data specifications. (should return "[]" for new instances)`);

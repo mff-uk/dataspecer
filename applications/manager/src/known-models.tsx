@@ -1,6 +1,6 @@
-import { API_SPECIFICATION_MODEL, LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL, V1 } from "@dataspecer/core-v2/model/known-models";
+import { API_SPECIFICATION_MODEL, APPLICATION_GRAPH, LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL, V1 } from "@dataspecer/core-v2/model/known-models";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
-import { Code, Cog, Eye, Folder, Globe2, LibraryBig } from "lucide-react";
+import { AppWindowMac, Code, Cog, Eye, Folder, Globe2, LibraryBig } from "lucide-react";
 import { v4 as uuidv4 } from 'uuid';
 import { cn } from "./lib/utils";
 import { packageService, requestLoadPackage } from "./package";
@@ -56,7 +56,7 @@ export const createModelInstructions = {
     createHook: async (context: createModelContext) => {
       const iri = uuidv4();
       await packageService.createPackage(context.parentIri, {
-        iri, 
+        iri,
         userMetadata: {
           label: context.label,
           description: context.description,
@@ -87,6 +87,17 @@ export const createModelInstructions = {
       }
     })),
   },
+  [APPLICATION_GRAPH]: {
+    needsNaming: true,
+    createHook: getHookForStandardModel(APPLICATION_GRAPH, (id, context) => ({
+      "id": id,
+      "label": context.label?.cs ?? context.label?.en ?? "Application",
+      "datasources": [],
+      "nodes": [],
+      "edges": [],
+      "dataSpecification": []
+    })),
+  },
   [LOCAL_SEMANTIC_MODEL]: {
     needsNaming: false,
     createHook: getHookForStandardModel(LOCAL_SEMANTIC_MODEL, (iri, context) => ({
@@ -110,9 +121,13 @@ export const modelTypeToName = {
     "https://dataspecer.com/core/model-descriptor/sgov": "SSP",
     "https://dataspecer.com/core/model-descriptor/pim-store-wrapper": "PIM Wrapper",
     [API_SPECIFICATION_MODEL]: "OpenAPI Specification",
+    [APPLICATION_GRAPH]: "Application graph"
   };
 
 export const ModelIcon = ({ type, className }: { type: string[], className?: string }) => {
+  if (type.includes(APPLICATION_GRAPH)) {
+    return <AppWindowMac className={cn("text-rose-600", className)} />
+  }
   if (type.includes(LOCAL_PACKAGE)) {
     return <Folder className={cn("text-gray-400", className)} />;
   }
@@ -132,7 +147,7 @@ export const ModelIcon = ({ type, className }: { type: string[], className?: str
     return <Code className={cn("text-red-400", className)} />;
   }
   if (type.includes(V1.GENERATOR_CONFIGURATION)) {
-    return <Cog className={cn("text-purple-400", className)} />;    
+    return <Cog className={cn("text-purple-400", className)} />;
   }
   if (type.includes("https://dataspecer.com/core/model-descriptor/sgov")) {
     return <Globe2 className={cn("text-green-400", className)} />;
