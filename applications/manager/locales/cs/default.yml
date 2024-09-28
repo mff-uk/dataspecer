@@ -26,6 +26,8 @@ form:
     instruction: URL veřejně přístupná z internetu
     name: URL
 format as json: Formátovat jako JSON
+generate application: Vygenerovat aplikaci
+ID: ID
 mode-toggle:
   dark: Tmavé
   light: Světlé
