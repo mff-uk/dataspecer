@@ -34,7 +34,7 @@ export class LdkitSchemaAdapter implements StructureClassToSchemaAdapter {
             return ldkitProperty;
         }
 
-        const multiLangDatatypeIri: string = "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/text";
+        const multiLangDatatypeIri: string = "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString";
 
         if (attribute.dataType === multiLangDatatypeIri) {
             ldkitProperty["@multilang"] = true;
@@ -60,6 +60,7 @@ export class LdkitSchemaAdapter implements StructureClassToSchemaAdapter {
         if (!cardMax || !cardMin) {
             // cardMax is null == no upper bound == array expected
             property["@array"] = true;
+            property["@optional"] = true;
             return;
         }
 
@@ -67,8 +68,7 @@ export class LdkitSchemaAdapter implements StructureClassToSchemaAdapter {
             throw new Error("Invalid cardinality on property");
         }
 
-        if (cardMin === 0 && cardMax === 1) {
-            // TODO: compre with ldkit definition of optional
+        if (cardMin === 0) {
             property["@optional"] = true;
             return;
         }
