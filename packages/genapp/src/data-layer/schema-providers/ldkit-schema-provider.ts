@@ -11,7 +11,7 @@ export class LdkitSchemaProvider extends DataspecerBaseSchemaProvider implements
 
     protected async getSchemaLayerArtifact(file: JSZipObject, aggregate: AggregateMetadata): Promise<LayerArtifact> {
         const fileContent = await file.async("string");
-        const result: LayerArtifact = {
+        const ldkitSchemaArtifact: LayerArtifact = {
             filePath: `./schemas/ldkit/${aggregate.technicalLabel}-schema.ts`,
             sourceText: fileContent,
             exportedObjectName: aggregate.getAggregateNamePascalCase({
@@ -19,6 +19,6 @@ export class LdkitSchemaProvider extends DataspecerBaseSchemaProvider implements
             })
         }
 
-        return result;
+        return ldkitSchemaArtifact;
     }
 }

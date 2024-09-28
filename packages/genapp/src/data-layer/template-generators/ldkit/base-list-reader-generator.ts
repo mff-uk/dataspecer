@@ -58,13 +58,13 @@ export class BaseListLdkitReaderGenerator extends TemplateConsumer<BaseLdkitRead
 
         const baseLdkitReaderRender = this._templateRenderer.renderTemplate(baseLdkitReaderTemplate);
 
-        const result: LayerArtifact = {
+        const baseLdkitReaderArtifact: LayerArtifact = {
             exportedObjectName: exportObjectName,
             filePath: this._filePath,
             sourceText: baseLdkitReaderRender,
             dependencies: [readerInterfaceArtifact, listReturnTypeArtifact]
         }
 
-        return result;
+        return baseLdkitReaderArtifact;
     }
 }

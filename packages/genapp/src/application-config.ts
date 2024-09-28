@@ -61,7 +61,7 @@ export class AggregateMetadata {
     }
 
     private toPascalCase(str: string): string {
-        const result = str
+        const pascalCased = str
             .replace(/-/g, " ")
             .replace(
                 /(\w)(\w*)/g,
@@ -69,6 +69,6 @@ export class AggregateMetadata {
             )
             .replace(/\s/g, "");
 
-        return result;
+        return pascalCased;
     }
 }

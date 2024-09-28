@@ -25,13 +25,13 @@ class CapabilityInterfaceGenerator extends TemplateConsumer<CapabilityInterfaceT
         };
 
         const render = this._templateRenderer.renderTemplate(capabilityInterfaceTemplate);
-        const result: LayerArtifact = {
+        const capabilityInterfaceResult: LayerArtifact = {
             exportedObjectName: this._capabilityInterfaceExportedName,
             filePath: this._filePath,
             sourceText: render
         }
 
-        return result;
+        return capabilityInterfaceResult;
     }
 }
 

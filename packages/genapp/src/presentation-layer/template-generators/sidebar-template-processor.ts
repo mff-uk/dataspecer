@@ -16,17 +16,17 @@ interface SidebarComponentDependencyMap extends TemplateDependencyMap {
 export class SidebarComponentTemplateProcessor extends TemplateConsumer<SidebarComponentTemplate> {
 
     private getCollectionCapabilities(capabilityMap: CapabilityRouteComponentMap): { [capabilityPath: string]: string } {
-        const result: { [capabilityPath: string]: string } = {};
+        const collectionCapabilities: { [capabilityPath: string]: string } = {};
         const capabilityLabels = Object.entries(capabilityMap)
             .filter(([_, generatedMetadata]) => generatedMetadata.capability.type === "collection")
             .forEach(([capabilityPath, generatedMetadata]) => {
                 const capabilityLabel = `${generatedMetadata.capability.label[0]!.toUpperCase()}${generatedMetadata.capability.label.slice(1)} ${generatedMetadata.props.aggregateName}`;
-                result[capabilityPath] = capabilityLabel;
+                collectionCapabilities[capabilityPath] = capabilityLabel;
             });
 
         console.log(capabilityLabels);
 
-        return result;
+        return collectionCapabilities;
     }
 
     async processTemplate(dependencies: SidebarComponentDependencyMap): Promise<LayerArtifact> {

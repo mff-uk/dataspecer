@@ -15,9 +15,9 @@ export function getRelativePath(sourcePath: string, targetPath: string): string 
     //console.log(`--utils prefix: ${prefix}`);
     //console.log(`relative: "${prefix + path.posix.relative(sourcePath, targetPath)}"`);
 
-    const result = prefix + path.posix.relative(path.dirname(sourcePath), targetPath);
-    console.log(`actual relative: "${result}`);
-    return result;
+    const relPath = prefix + path.posix.relative(path.dirname(sourcePath), targetPath);
+    console.log(`actual relative: "${relPath}`);
+    return relPath;
 }
 
 export function normalizeName(name: string, replaceWith: string = "-") {

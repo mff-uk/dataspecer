@@ -57,8 +57,8 @@ export class ApplicationGenerator {
         }
     }
 
-    private generateZipArchiveFromGeneratedFiles(): Promise<Buffer> {
-        let resultZip = new JSZip();
+    private async generateZipArchiveFromGeneratedFiles(): Promise<Buffer> {
+        let generatedZip = new JSZip();
 
         fs.readdirSync("generated", { recursive: true, encoding: "utf-8" }).forEach(filename => {
 
@@ -68,14 +68,28 @@ export class ApplicationGenerator {
                 console.log(`   Is directory: ${filePath}`);
                 return;
             }
-            console.log(`"${filePath}"`);
+            //console.log(`"${filePath}"`);
             const content = fs.readFileSync(filePath, { encoding: "utf-8" });
-            resultZip = resultZip.file(filePath, content);
+            generatedZip = generatedZip.file(filePath, content);
         })
 
-        return resultZip.generateAsync({
-            type: "nodebuffer"
-        });
+        generatedZip
+            .generateNodeStream({ streamFiles: true })
+            .pipe(fs.createWriteStream("./out.zip"))
+            .on('finish', function () {
+                // JSZip generates a readable stream with a "end" event,
+                // but is piped here in a writable stream which emits a "finish" event.
+                console.log("out.zip written.");
+            });
+
+        return await generatedZip.generateAsync(
+            { type: "nodebuffer" },
+            (metadata) => {
+                console.log(`METADATA PROGRESS: ${metadata.percent.toFixed(5)} %`);
+                if (metadata.currentFile) {
+                    console.log(`current file: ${metadata.currentFile}`);
+                }
+            });
     }
 
     async generate(): Promise<Buffer> {
@@ -88,7 +102,7 @@ export class ApplicationGenerator {
 
         const zip = await this.generateZipArchiveFromGeneratedFiles();
 
-        //fs.rmSync("generated", { recursive: true });
+        setTimeout(() => { console.log("FINISHED GENERATING") }, 1500);
         return zip;
     }
 
@@ -138,7 +152,7 @@ export class ApplicationGenerator {
                 nodeConfig: capabilityConfig,
             });
 
-        const result: NodeResult = {
+        const generatedNodeResult: NodeResult = {
             artifact: nodeArtifact,
             structure: dataStructureMetadata,
             nodePath: `${dataStructureMetadata.technicalLabel}/${capabilityGenerator.getLabel()}`,
@@ -148,6 +162,6 @@ export class ApplicationGenerator {
             }
         };
 
-        return result;
+        return generatedNodeResult;
     }
 }

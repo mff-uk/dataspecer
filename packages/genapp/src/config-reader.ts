@@ -66,14 +66,14 @@ export class FileConfigurationReader implements ConfigurationReader {
 
         const graph = JSON.parse(fileContent) as ApplicationGraphType;
 
-        const result: ApplicationGraph = new ApplicationGraph(
+        const appGraph: ApplicationGraph = new ApplicationGraph(
             graph.label,
             graph.datasources,
             graph.nodes,
             graph.edges,
             graph.dataSpecification
         );
-        return result;
+        return appGraph;
     }
 }
 
@@ -88,13 +88,13 @@ export class StringLiteralConfigurationReader implements ConfigurationReader {
     getAppConfiguration(): ApplicationGraph {
         const graph = this._serializedGraph;
 
-        const result: ApplicationGraph = new ApplicationGraph(
+        const appGraph: ApplicationGraph = new ApplicationGraph(
             graph.label,
             graph.datasources,
             graph.nodes,
             graph.edges,
             graph.dataSpecification
         );
-        return result;
+        return appGraph;
     }
 }

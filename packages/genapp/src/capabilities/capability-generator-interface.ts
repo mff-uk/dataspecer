@@ -68,7 +68,7 @@ export abstract class BaseCapabilityGenerator implements CapabilityGenerator, Ca
     getHumanLabel = (): string => this._capabilityMetadata.getHumanLabel();
 
     private convertToGenerationContext(config: CapabilityConfiguration): GenerationContext {
-        const result: GenerationContext = {
+        const converted: GenerationContext = {
             aggregate: config.aggregate,
             graph: config.graph,
             currentNode: config.node,
@@ -76,7 +76,7 @@ export abstract class BaseCapabilityGenerator implements CapabilityGenerator, Ca
             _: {}
         };
 
-        return result;
+        return converted;
     }
 
     generateCapability(config: CapabilityConfiguration): Promise<LayerArtifact> {

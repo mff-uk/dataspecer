@@ -20,6 +20,7 @@ import { DeleteInstanceCapabilityMetadata } from "../../capabilities/delete-inst
 export type AllowedTransition = {
     label: string,
     id: string,
+    targetId: string,
     capabilityType: "instance" | "collection",
     transitionType: ApplicationGraphEdgeType
 }
@@ -124,6 +125,7 @@ export class TransitionsGenerator {
                     console.error(`Could not find matching "${edge.type.toString()}" transition from ${sourceCapabilityIri} to ${targetCapabilityIri}`)
                     const toFilterTransition: AllowedTransition = {
                         id: "filter",
+                        targetId: "",
                         capabilityType: "collection",
                         label: "",
                         transitionType: ApplicationGraphEdgeType.Transition
@@ -135,16 +137,17 @@ export class TransitionsGenerator {
                 const targetCapability = getCapabilityMetadata(allowedTargetIri, transitionEndNode.getNodeLabel("en"));
                 const targetDatastructure = await dataStructurePromise;
 
-                const result: AllowedTransition = {
+                const generatedTransition: AllowedTransition = {
                     id: `/${targetDatastructure.technicalLabel}/${targetCapability.getLabel()}`,
+                    targetId: targetCapability.getLabel(),
                     label: targetCapability.getHumanLabel(),
                     capabilityType: targetCapability.getType(),
                     transitionType: edge.type
                 };
 
-                console.log("TRANSITION RESULT: ", result);
+                console.log("TRANSITION RESULT: ", generatedTransition);
 
-                return result;
+                return generatedTransition;
             });
 
         const transitionLinks = (await Promise.all(transitionLinkPromises))
