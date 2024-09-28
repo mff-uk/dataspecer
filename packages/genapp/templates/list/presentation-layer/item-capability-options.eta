@@ -1,10 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import IconButton from "@mui/material/IconButton";
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import DeleteIcon from "@mui/icons-material/Delete";
+import ZoomInMapIcon from "@mui/icons-material/ZoomInMap";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { ListItemIcon, ListItemText } from "@mui/material";
 import { <%= it.navigation_hook %> } from <%~ it.navigation_hook_path %>;
+<%
+    function getCapabilityButtonIcon(capabilityTransitionId) {
 
+        switch(capabilityTransitionId) {
+            case "list":
+                return "<ListAltIcon />";
+            case "detail":
+                return "<ZoomInMapIcon />";
+            case "create-instance":
+                return "<AddIcon />";
+            case "delete-instance":
+                return "<DeleteIcon color=\"error\"/>";
+            default:
+                return "<></>";
+        }
+
+        return "<></>";
+    }
+%>
 export const <%= it.export_name %> = ({ instanceId }: { instanceId: string }) => {
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -41,19 +62,24 @@ export const <%= it.export_name %> = ({ instanceId }: { instanceId: string }) =>
                 anchorEl={anchorEl}
                 open={open}
                 onClose={handleClose}
-                slotProps={{
-                    paper: {
-                        style: {
-                            maxHeight: ITEM_HEIGHT * 4.5,
-                            width: "20ch"
-                        }
-                    }
+                anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                }}
+                transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
                 }}
             ><% for (let index = 0; index < it.instance_transitions.length; index++) { %><% const transition = it.instance_transitions[index]; %>
                 <MenuItem key={"<%~ transition.id %>"}
                     onClick={() => redirect("<%~ transition.id %>")}
                 >
-                    <%~ transition.label %>
+                    <ListItemIcon>
+                        <%= getCapabilityButtonIcon(transition.targetId) %>
+                    </ListItemIcon>
+                    <ListItemText>
+                        <%~ transition.label %>
+                    </ListItemText>
                 </MenuItem><% } %>
             </Menu>
         </>

@@ -15,10 +15,24 @@ export class <%= it.exported_object_name %> implements <%= it.delete_mutator_int
         const toDelete = await lens.findByIri(instanceIri);
 
         if (!toDelete) {
-            throw new Error("Couldn't delete selected instance");
+            const notFoundResult: <%= it.instance_result_type %> = {
+                instance: null,
+                message: "Not found the instance to be deleted.",
+                redirectUrl: "/"
+            }
+
+            return notFoundResult;
         }
 
-        // await lens.delete(instanceIri);
+        try {
+            await lens.delete(instanceIri);
+        } catch {
+            return {
+                instance: null,
+                message: "Could not delete instance.",
+                redirectUrl: "/"
+            } as <%= it.instance_result_type %>;
+        }
 
         const result: <%= it.instance_result_type %> = {
             instance: {

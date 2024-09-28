@@ -272,7 +272,7 @@ export default function <%= it.export_name %>() {
 
     return (
         <><% const defaultPageTitle = "Detail of \"it.json_schema.title\" instance" %>
-            <h2><%= it.page_title ?? defaultPageTitle %></h2>
+            <h2><%~ it.page_title ?? defaultPageTitle %></h2>
             <Backdrop
                 sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
                 open={isLoading}

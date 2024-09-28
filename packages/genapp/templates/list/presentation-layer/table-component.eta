@@ -1,19 +1,41 @@
-import React from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Button from '@mui/material/Button';
+import React from "react";
+import Table from "@mui/material/Table";
+import Button from "@mui/material/Button";
+import TableRow from "@mui/material/TableRow";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import AddIcon from "@mui/icons-material/Add";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+import ZoomInMapIcon from "@mui/icons-material/ZoomInMap";
+import DeleteIcon from "@mui/icons-material/Delete";
+import TableContainer from "@mui/material/TableContainer";
 import { Link } from "react-router-dom";
-import { useEffect, useState } from 'react';
-import { Backdrop, CircularProgress } from '@mui/material';
+import { useEffect, useState } from "react";
+import { Backdrop, CircularProgress } from "@mui/material";
 import { <%= it.navigation_hook %> } from <%~ it.navigation_hook_path %>;<% const hasTransitions = it.instance_capability_options != null && it.instance_capability_options_path != null; %>
 import { <%= it.list_capability_app_layer %> } from <%~ it.list_app_layer_path %>;<% if (hasTransitions) { %>
 import { <%= it.instance_capability_options %> } from <%~ it.instance_capability_options_path %>;
 <% } %>
+<%
+    function getCapabilityButtonIcon(capabilityTransitionId) {
 
+        switch(capabilityTransitionId) {
+            case "list":
+                return "<ListAltIcon />";
+            case "detail":
+                return "<ZoomInMapIcon />";
+            case "create-instance":
+                return "<AddIcon />";
+            case "delete-instance":
+                return "<DeleteIcon color=\"error\"/>";
+            default:
+                return "<></>";
+        }
+
+        return "<></>";
+    }
+%>
 export default function <%= it.presentation_layer_component_name %>({ aggregateName }: { aggregateName: string }) {
 
     const [instanceList, setInstanceList] = useState(undefined as unknown as object[]);
@@ -57,8 +79,21 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
                 open={isLoading}
             >
                 <CircularProgress color="inherit" />
-            </Backdrop><% for (let index = 0; index < it.list_collection_transitions.length; index++) { %><% const collectionTransition = it.list_collection_transitions[index]; %>
-            <Button id="<%= collectionTransition.id %>-transition-button" disabled={isLoading} sx={{ marginRight: 1 }} variant="contained" onClick={() => handleCollectionCapabilityRedirect("<%= collectionTransition.id %>")}><%= collectionTransition.label %>: <%= it.aggregate_name %></Button>
+            </Backdrop><% const defaultTablePageTitle = "List of <%= it.aggregate_name %> items" %>
+            <h2><%~ it.page_title ?? defaultTablePageTitle %></h2>
+            <% for (let index = 0; index < it.list_collection_transitions.length; index++) { %><% const collectionTransition = it.list_collection_transitions[index]; %>
+            <Button
+                id="<%= collectionTransition.id %>-transition-button"
+                disabled={isLoading}
+                variant="contained"
+                sx={{
+                    marginRight: 1
+                }}
+                startIcon={<%=  getCapabilityButtonIcon(collectionTransition.targetId) %>}
+                onClick={() => handleCollectionCapabilityRedirect("<%= collectionTransition.id %>")}
+            >
+                <%= collectionTransition.label %>: <%= it.aggregate_name %>
+            </Button>
             <% } %><% const defaultPageTitle = "List of \"\" items" %>
             <h2><%= it.page_title ?? defaultPageTitle %></h2>
             <TableContainer>
