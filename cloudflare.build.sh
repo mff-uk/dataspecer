@@ -38,10 +38,10 @@ if [ -n "$BASE_PATH" ]; then
 fi
 
 if [ -n "$DO_BUILD_BACKEND" ]; then
-  npx turbo run build --concurrency 100% --filter=client --filter=conceptual-model-editor --filter=manager --filter=api-specification --filter=genapp-ui --filter=backend^...
+  npx turbo run build --concurrency 100% --filter=client --filter=conceptual-model-editor --filter=manager --filter=api-specification --filter=backend^...
   (cd services/backend && npx npm run build-pack)
 else
-  npx turbo run build --concurrency 100% --filter=client --filter=conceptual-model-editor --filter=manager --filter=api-specification --filter=genapp-ui
+  npx turbo run build --concurrency 100% --filter=client --filter=conceptual-model-editor --filter=manager --filter=api-specification
 fi
 
 rm -rf .dist
@@ -66,7 +66,3 @@ cp -r applications/manager/dist/* .dist$NEW_MANAGER
 # Copy api-specification application
 mkdir .dist/api-specification
 cp -r applications/api-specification/dist/* .dist/api-specification
-
-# Copy genapp-ui application
-mkdir .dist/genapp-ui
-cp -r applications/genapp-ui/dist/* .dist/genapp-ui
