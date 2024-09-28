@@ -2,6 +2,7 @@ import axios, { AxiosResponse, HttpStatusCode } from "axios";
 import { DataSpecification } from "@dataspecer/core/data-specification/model/data-specification";
 import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
 import { CoreResource } from "@dataspecer/core/core/core-resource";
+import { GenappEnvConfig } from "../engine/app-generator";
 
 type ResourceMap<TResource extends CoreResource> = {
     [resourceIri: string]: TResource
@@ -11,7 +12,7 @@ export default class DalApi {
     private readonly endpointBaseUri: string;
 
     constructor() {
-        this.endpointBaseUri = process.env.APP_BACKEND ?? "http://localhost:3100";
+        this.endpointBaseUri = GenappEnvConfig.Host;
     }
 
     async generateDalLayerArtifact(dataSpecificationIri: string):

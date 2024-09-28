@@ -1,3 +1,4 @@
+import * as fs from "fs";
 import {
     CapabilityGenerator,
     ListCapability,
@@ -9,15 +10,14 @@ import {
     CREATE_CAPABILITY_ID,
     DELETE_CAPABILITY_ID
 } from "../capabilities";
+import archiver from "archiver";
+import { once } from "events";
 import { ConfigurationReaderFactory } from "../config-reader";
 import { LayerArtifact } from "./layer-artifact";
 import { ReactAppBaseGeneratorStage } from "../react-base/react-app-base-stage";
 import { CapabilityConstructorInput } from "../capabilities/constructor-input";
 import { ApplicationGraph, ApplicationGraphNode } from "./graph";
 import { AggregateMetadata } from "../application-config";
-import * as fs from "fs";
-import JSZip from "jszip";
-import path from "path";
 
 export type NodeResult = {
     structure: AggregateMetadata;
@@ -29,16 +29,60 @@ export type NodeResult = {
     };
 };
 
-export interface GenappInputArguments {
+interface GenappEnvironmentConfig {
+    backendHost: string;
+    tmpOutZipname: string;
+    tmpOutDir: string;
+}
+
+export interface GenappConfiguration extends GenappEnvironmentConfig {
     appGraphFile?: string;
     serializedGraph?: string;
 }
 
-export class ApplicationGenerator {
-    private readonly _args: GenappInputArguments;
+export class GenappEnvConfig
+{
+    private static _instance: GenappEnvConfig;
+    private readonly _envConfig: GenappEnvironmentConfig;
 
-    constructor(args: GenappInputArguments) {
+    private constructor(envConfig: GenappEnvironmentConfig)
+    {
+        this._envConfig = envConfig;
+    }
+
+    public static getInstance(envConfig: GenappEnvironmentConfig): GenappEnvConfig
+    {
+        if (!this._instance) {
+            this._instance = new this(envConfig);
+        }
+
+        return this._instance;
+    }
+
+    public static get Host() {
+        return this._instance._envConfig.backendHost;
+    }
+
+    public static get TmpOutDir() {
+        return this._instance._envConfig.tmpOutDir;
+    }
+
+    public static get TmpOutZipName () {
+        return this._instance._envConfig.tmpOutZipname;
+    }
+
+}
+
+export class ApplicationGenerator {
+    private readonly _args: GenappConfiguration;
+
+    constructor(args: GenappConfiguration) {
         this._args = args;
+        GenappEnvConfig.getInstance({
+            tmpOutDir: args.tmpOutDir,
+            backendHost: args.backendHost,
+            tmpOutZipname: args.tmpOutZipname
+        });
     }
 
     private getCapabilityGenerator(capabilityIri: string, constructorInput: CapabilityConstructorInput): CapabilityGenerator {
@@ -57,39 +101,43 @@ export class ApplicationGenerator {
         }
     }
 
-    private async generateZipArchiveFromGeneratedFiles(): Promise<Buffer> {
-        let generatedZip = new JSZip();
+    private async generateZipArchive(tempZipFilename: string) {
+        const output = fs.createWriteStream(tempZipFilename);
+        const zipArchive = archiver("zip", {
+            statConcurrency: 2,
+            zlib: { level: 9 }
+        });
 
-        fs.readdirSync("generated", { recursive: true, encoding: "utf-8" }).forEach(filename => {
+        output.on("close", () => { console.log(`${zipArchive.pointer()} B written`) });
 
-            const filePath = path.join("generated", filename);
-
-            if (fs.statSync(filePath).isDirectory()) {
-                console.log(`   Is directory: ${filePath}`);
-                return;
+        zipArchive.on("warning", function (err) {
+            if (err.code === 'ENOENT') {
+                // log warning
+            } else {
+                // throw error
+                throw err;
             }
-            //console.log(`"${filePath}"`);
-            const content = fs.readFileSync(filePath, { encoding: "utf-8" });
-            generatedZip = generatedZip.file(filePath, content);
-        })
+        });
 
-        generatedZip
-            .generateNodeStream({ streamFiles: true })
-            .pipe(fs.createWriteStream("./out.zip"))
-            .on('finish', function () {
-                // JSZip generates a readable stream with a "end" event,
-                // but is piped here in a writable stream which emits a "finish" event.
-                console.log("out.zip written.");
-            });
+        zipArchive.on("error", err => { throw err; });
 
-        return await generatedZip.generateAsync(
-            { type: "nodebuffer" },
-            (metadata) => {
-                console.log(`METADATA PROGRESS: ${metadata.percent.toFixed(5)} %`);
-                if (metadata.currentFile) {
-                    console.log(`current file: ${metadata.currentFile}`);
-                }
-            });
+        zipArchive.pipe(output);
+        zipArchive.directory(`${this._args.tmpOutDir}/`, "generatedApp");
+        return zipArchive.finalize();
+    }
+
+    private async getZipBuffer(tempZipFilename: string): Promise<Buffer> {
+        const readStream = fs.createReadStream(tempZipFilename);
+        const buffers: Buffer[] = [];
+
+        readStream.on("data", (d: any) => { buffers.push(Buffer.from(d)); });
+
+        await once(readStream, "end");
+
+        fs.rmSync(this._args.tmpOutDir, { recursive: true });
+        fs.rmSync(tempZipFilename);
+
+        return Buffer.concat(buffers);
     }
 
     async generate(): Promise<Buffer> {
@@ -100,10 +148,9 @@ export class ApplicationGenerator {
 
         await this.generateAppFromConfig(appGraph);
 
-        const zip = await this.generateZipArchiveFromGeneratedFiles();
-
-        setTimeout(() => { console.log("FINISHED GENERATING") }, 1500);
-        return zip;
+        const zipFilename = GenappEnvConfig.TmpOutZipName;
+        await this.generateZipArchive(zipFilename);
+        return await this.getZipBuffer(zipFilename);
     }
 
     private async generateAppFromConfig(appGraph: ApplicationGraph) {

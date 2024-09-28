@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import path from "path";
+import { GenappEnvConfig } from "../engine/app-generator";
 import { LayerArtifact } from "../engine/layer-artifact";
 
 interface ArtifactSaverCache {
@@ -20,9 +21,10 @@ export class ArtifactSaver implements GeneratedFilePathCalculator {
     private readonly _globalBasePaths: string[];
 
     constructor(layerPath: string) {
-        this._layerSubdirectoryPath = layerPath;
 
-        this._globalBasePaths = ["generated", "src"];
+        const baseDirectory: string = GenappEnvConfig.TmpOutDir;
+        this._layerSubdirectoryPath = layerPath;
+        this._globalBasePaths = [baseDirectory, "src"];
     }
 
     getFullSavePath(filename: string, artifactName?: string): string {

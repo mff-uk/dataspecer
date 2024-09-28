@@ -1,4 +1,4 @@
 export {
     ApplicationGenerator,
-    type GenappInputArguments
+    type GenappConfiguration
 } from "./engine/app-generator";

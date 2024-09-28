@@ -14,7 +14,9 @@
   "license": "ISC",
   "dependencies": {
     "@dataspecer/core": "*",
+    "@types/archiver": "^6.0.2",
     "@types/command-line-args": "^5.2.3",
+    "archiver": "^7.0.1",
     "axios": "^1.6.8",
     "copyfiles": "^2.4.1",
     "eta": "^3.4.0",

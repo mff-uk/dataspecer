@@ -1,7 +1,8 @@
 import z from "zod";
 import express from "express";
 import { asyncHandler } from "../utils/async-handler";
-import { ApplicationGenerator, GenappInputArguments } from "@dataspecer/genapp";
+import configuration from "../configuration";
+import { ApplicationGenerator, GenappConfiguration } from "@dataspecer/genapp";
 
 export const getGeneratedApplication = asyncHandler(async (request: express.Request, response: express.Response) => {
     const querySchema = z.object({
@@ -15,8 +16,11 @@ export const getGeneratedApplication = asyncHandler(async (request: express.Requ
         return;
     }
 
-    const inputArgs: GenappInputArguments = {
-        serializedGraph: request.body.serializedGraph as string
+    const inputArgs: GenappConfiguration = {
+        serializedGraph: request.body.serializedGraph as string,
+        backendHost: configuration.host,
+        tmpOutDir: "generated",
+        tmpOutZipname: "out.zip",
     };
 
     try {

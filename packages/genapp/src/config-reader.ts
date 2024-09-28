@@ -2,14 +2,14 @@ import * as fs from "fs";
 import { DataSourceType } from "./engine/graph/datasource";
 import { ApplicationGraph, ApplicationGraphType } from "./engine/graph/application-graph";
 import { ApplicationGraphEdgeType } from "./engine/graph/application-graph-edge";
-import { GenappInputArguments } from "./engine/app-generator";
+import { GenappConfiguration } from "./engine/app-generator";
 
 export interface ConfigurationReader {
     getAppConfiguration(): ApplicationGraph;
 }
 
 export const ConfigurationReaderFactory = {
-    createConfigurationReader(args: GenappInputArguments): ConfigurationReader {
+    createConfigurationReader(args: GenappConfiguration): ConfigurationReader {
         if (args.appGraphFile) {
             return new FileConfigurationReader(args.appGraphFile);
         }
