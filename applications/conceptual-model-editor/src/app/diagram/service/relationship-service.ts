@@ -27,8 +27,8 @@ export const getRange = (relationship: SemanticModelRelationship | SemanticModel
 export const getDomainAndRange = (relationship: SemanticModelRelationship | SemanticModelRelationshipUsage): DomainAndRange => {
   const [first, second] = relationship.ends;
 
-  const bothEndsAreUdefined = first === undefined || second === undefined;
-  if (bothEndsAreUdefined) {
+  const bothEndsAreUndefined = first === undefined || second === undefined;
+  if (bothEndsAreUndefined) {
     return emptyDomainAndRange();
   }
 
