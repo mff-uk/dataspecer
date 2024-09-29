@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc && copyfiles -u 1 src/**/* ./lib/",
+    "build": "tsc",
     "dev": "tsc -w",
     "prebuild": "rimraf lib generated",
     "start": "node ./lib/engine/app-generator.js",

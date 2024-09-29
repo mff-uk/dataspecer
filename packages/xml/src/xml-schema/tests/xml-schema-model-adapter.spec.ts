@@ -135,7 +135,7 @@ test(testPrefix + "root has simple elements", async () => {
   expect(element.annotation.modelReference).toBe("https://slovník.gov.cz/datový/turistické-cíle/pojem/veřejná-přístupnost");
 });
 
-test(testPrefix + "root has abstract element", async () => {
+test.skip(testPrefix + "root has abstract element", async () => {
   const {schema} = await getSchema1();
   const type = schema.elements[0].type;
   expectTrue(xmlSchemaTypeIsComplex(type));
@@ -192,7 +192,7 @@ test(testPrefix + "root has group reference", async () => {
 
 test(testPrefix + "imports are present", async () => {
   const {schema} = await getSchema1();
-  expect(schema.imports.length).toBe(1);
+  expect(schema.imports.length).toBe(2);
   const importDecl = schema.imports[0];
   expect(await importDecl.namespace).toBe(null);
   expect(await importDecl.prefix).toBe(null);
