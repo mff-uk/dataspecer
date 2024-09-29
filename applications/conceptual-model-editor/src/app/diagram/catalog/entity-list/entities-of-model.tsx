@@ -74,7 +74,7 @@ export const EntitiesOfModel = (props: {
     const { model, entityType } = props;
     //
     const actions = useActions();
-    const { allowedClasses, setAllowedClasses, deleteEntityFromModel } = useClassesContext();
+    const { allowedClasses, setAllowedClasses } = useClassesContext();
     const { aggregatorView } = useModelGraphContext();
     const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
     // We could utilize Set, but since the list of visible is probably small,
@@ -199,7 +199,7 @@ export const EntitiesOfModel = (props: {
     };
 
     const handleDeleteEntity = async (model: InMemorySemanticModel | ExternalSemanticModel, identifier: string) => {
-        actions.deleteFromSemanticModel(model.getId(), identifier);
+        await actions.deleteFromSemanticModel(model.getId(), identifier);
     };
 
     const handleSetViewportToEntity = (identifier: string) => {

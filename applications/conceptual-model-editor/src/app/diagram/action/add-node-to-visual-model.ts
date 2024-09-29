@@ -1,8 +1,8 @@
 import { isWritableVisualModel, type VisualModel } from "@dataspecer/core-v2/visual-model";
 import type { ModelGraphContextType } from "../context/model-context";
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { isSemanticModelGeneralization, isSemanticModelRelationship, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelRelationshipUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelGeneralization, isSemanticModelRelationship, type SemanticModelGeneralization, type SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelRelationshipUsage, type SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { addRelationToVisualModelAction } from "./add-relation-to-visual-model";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { getDomainAndRange } from "../service/relationship-service";

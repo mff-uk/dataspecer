@@ -39,6 +39,7 @@ import { t } from "../application/";
 import { prefixForIri } from "../service/prefix-service";
 import { useReactFlow } from "reactflow";
 import { isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { useActions } from "../action/actions-react-binding";
 
 export type ProfileDialogSupportedTypes =
     | SemanticModelClass
@@ -67,6 +68,7 @@ export const useCreateProfileDialog = () => {
         const inMemoryModels = filterInMemoryModels([...models.values()]);
 
         const reactFlow = useReactFlow<object, object>();
+        const actions = useActions();
 
         const [usageNote, setUsageNote] = useState<LanguageString>({});
         const [name, setName] = useState<LanguageString>(getNameLanguageString(entity) ?? {});
@@ -118,83 +120,75 @@ export const useCreateProfileDialog = () => {
         }
 
         const handleSaveClassProfile = (e: SemanticModelClass | SemanticModelClassUsage, m: InMemorySemanticModel) => {
+            // TODO ACTION Create class entity
+            const { id: classUsageId } = createClassEntityUsage(m, e.type[0], {
+                usageOf: e.id,
+                usageNote: usageNote,
+                description: overriddenFields.description && changedFields.description ? description : null,
+                name: overriddenFields.name && changedFields.name ? name : null,
+                iri: newIri,
+            });
 
-            // TODO Move code to action.
-
-            // const { id: classUsageId } = createClassEntityUsage(m, e.type[0], {
-            //     usageOf: e.id,
-            //     usageNote: usageNote,
-            //     description: overriddenFields.description && changedFields.description ? description : null,
-            //     name: overriddenFields.name && changedFields.name ? name : null,
-            //     iri: newIri,
-            // });
-            //
-            // const visualModel = aggregatorView.getActiveVisualModel();
-            // if (classUsageId && isWritableVisualModel(visualModel)) {
-            //     visualModel.addVisualNode({
-            //         model: m.getId(),
-            //         representedEntity: classUsageId,
-            //         content: [],
-            //         position: {
-            //
-            //         },
-            //         visualModels: [],
-            //     })
-            //     aggregatorView.getActiveVisualModel()?.addEntity({ sourceEntityId: classUsageId });
-            // }
+            const visualModel = aggregatorView.getActiveVisualModel();
+            if (classUsageId && isWritableVisualModel(visualModel)) {
+                const viewport = reactFlow.getViewport();
+                const position = {
+                    x: viewport.x,
+                    y: viewport.y,
+                };
+                actions.addNodeToVisualModel(m.getId(), classUsageId, position);
+            }
         };
 
         const handleSaveRelationshipProfile = (
             e: SemanticModelRelationship | SemanticModelRelationshipUsage,
             m: InMemorySemanticModel
         ) => {
+            // TODO ACTION Create relationship entity
+            const domainEnd = {
+                concept: overriddenFields.domain && changedFields.domain ? newDomain.concept : null,
+                name: null,
+                description: null,
+                cardinality:
+                    overriddenFields.domainCardinality && changedFields.domainCardinality
+                        ? newDomain.cardinality ?? null
+                        : null,
+                usageNote: null,
+                iri: null,
+            } satisfies SemanticModelRelationshipEndUsage;
+            const rangeEnd = {
+                concept: overriddenFields.range && changedFields.range ? newRange.concept : null,
+                name: overriddenFields.name && changedFields.name ? name : null,
+                description: overriddenFields.description && changedFields.description ? description : null,
+                cardinality:
+                    overriddenFields.rangeCardinality && changedFields.rangeCardinality
+                        ? newRange.cardinality ?? null
+                        : null,
+                usageNote: null,
+                iri: newIri,
+            } as SemanticModelRelationshipEndUsage;
 
-            // TODO Move code to action.
+            let ends: SemanticModelRelationshipEndUsage[];
+            if (currentDomainAndRange?.domainIndex == 1 && currentDomainAndRange.rangeIndex == 0) {
+                ends = [rangeEnd, domainEnd];
+            } else {
+                ends = [domainEnd, rangeEnd];
+            }
 
-            // const domainEnd = {
-            //     concept: overriddenFields.domain && changedFields.domain ? newDomain.concept : null,
-            //     name: null,
-            //     description: null,
-            //     cardinality:
-            //         overriddenFields.domainCardinality && changedFields.domainCardinality
-            //             ? newDomain.cardinality ?? null
-            //             : null,
-            //     usageNote: null,
-            //     iri: null,
-            // } satisfies SemanticModelRelationshipEndUsage;
-            // const rangeEnd = {
-            //     concept: overriddenFields.range && changedFields.range ? newRange.concept : null,
-            //     name: overriddenFields.name && changedFields.name ? name : null,
-            //     description: overriddenFields.description && changedFields.description ? description : null,
-            //     cardinality:
-            //         overriddenFields.rangeCardinality && changedFields.rangeCardinality
-            //             ? newRange.cardinality ?? null
-            //             : null,
-            //     usageNote: null,
-            //     iri: newIri,
-            // } as SemanticModelRelationshipEndUsage;
-            //
-            // let ends: SemanticModelRelationshipEndUsage[];
-            // if (currentDomainAndRange?.domainIndex == 1 && currentDomainAndRange.rangeIndex == 0) {
-            //     ends = [rangeEnd, domainEnd];
-            // } else {
-            //     ends = [domainEnd, rangeEnd];
-            // }
-            //
-            // const { id: relationshipUsageId } = createRelationshipEntityUsage(m, e.type[0], {
-            //     usageOf: e.id,
-            //     usageNote: usageNote,
-            //     ends: ends,
-            // });
-            //
-            // const visualModel = aggregatorView.getActiveVisualModel();
-            // if (relationshipUsageId && isWritableVisualModel(visualModel)) {
-            //     visualModel.addVisualRelationship({
-            //         model: m.getId(),
-            //         representedRelationship: relationshipUsageId,
-            //         waypoints: [],
-            //     });
-            // }
+            const { id: relationshipUsageId } = createRelationshipEntityUsage(m, e.type[0], {
+                usageOf: e.id,
+                usageNote: usageNote,
+                ends: ends,
+            });
+
+            const visualModel = aggregatorView.getActiveVisualModel();
+            if (relationshipUsageId && isWritableVisualModel(visualModel)) {
+                visualModel.addVisualRelationship({
+                    model: m.getId(),
+                    representedRelationship: relationshipUsageId,
+                    waypoints: [],
+                });
+            }
         };
 
         const handleSavingProfile = (m: InMemorySemanticModel) => {

@@ -9,7 +9,7 @@ import type {
     SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
-import { Entity, type EntityModel } from "@dataspecer/core-v2/entity-model";
+import { type Entity, type EntityModel } from "@dataspecer/core-v2/entity-model";
 
 import { EntityRow } from "./entity-row";
 import { sourceModelOfEntity } from "../../util/model-utils";
