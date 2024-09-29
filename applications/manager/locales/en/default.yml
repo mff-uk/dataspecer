@@ -28,6 +28,8 @@ form:
     instruction: URL publicly accessible from the internet
     name: URL
 format as json: Format as json
+generate application: Generate the application
+ID: ID
 mode-toggle:
   dark: Dark
   light: Light

@@ -14,6 +14,7 @@
   "dependencies": {
     "@dataspecer/backend-utils": "*",
     "@dataspecer/core": "*",
+    "@dataspecer/json": "*",
     "@dataspecer/core-v2": "*",
     "@dataspecer/ldkit": "*",
     "@dataspecer/genapp": "*",

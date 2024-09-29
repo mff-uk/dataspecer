@@ -21,7 +21,7 @@ import { getDocumentation, getLightweightOwl, getSingleFile, getZip, getlightwei
 import { generate } from './routes/generate';
 import { importResource } from './routes/import';
 import { migratePR419 } from './tools/migrate-pr419';
-import { getGeneratedApplication } from './routes/genapp';
+import { getGenerateApplicationByModelId, getGeneratedApplication } from './routes/genapp';
 
 // Create application models
 
@@ -117,6 +117,7 @@ application.get(basename + '/experimental/documentation.html', getDocumentation)
 application.get(basename + '/generate', generate);
 application.get(basename + '/experimental/output.zip', getZip);
 application.get(basename + '/preview/*', getSingleFile);
+application.get(basename + '/generate/application', getGenerateApplicationByModelId)
 
 // Generate application
 

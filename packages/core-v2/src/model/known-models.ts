@@ -2,6 +2,7 @@ export const LOCAL_PACKAGE = "http://dataspecer.com/resources/local/package";
 export const LOCAL_VISUAL_MODEL = "http://dataspecer.com/resources/local/visual-model";
 export const LOCAL_SEMANTIC_MODEL = "http://dataspecer.com/resources/local/semantic-model";
 export const API_SPECIFICATION_MODEL = "http://dataspecer.com/resources/local/api-specification";
+export const APPLICATION_GRAPH = "http://dataspecer.com/resources/local/application-graph";
 
 // Old models from core@v1
 export const V1 = {
