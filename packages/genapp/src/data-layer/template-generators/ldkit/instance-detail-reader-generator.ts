@@ -80,7 +80,6 @@ export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<Instanc
             }
         }
 
-
         console.log("INTERFACE PATH: ", instanceLdkitReaderTemplate.placeholders.ldkit_instance_reader_path);
         console.log("FULL COMPUTED: ", dependencies.pathResolver.getFullSavePath(this._filePath));
 

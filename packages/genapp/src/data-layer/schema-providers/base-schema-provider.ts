@@ -80,8 +80,6 @@ export abstract class DataspecerBaseSchemaProvider {
 
         const specificationSchema = (await this._api.getResource(specificationPimIri))[specificationPimIri] as PimSchema;
 
-        console.log("SPEC SCHEMA: ", specificationSchema);
-
         if (!specificationSchema?.pimHumanLabel || Object.values(specificationSchema.pimHumanLabel!).length === 0) {
             return fallbackName;
         }

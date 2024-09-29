@@ -18,8 +18,6 @@ export class ApplicationLayerStage implements GeneratorStage {
 
         const appLayerArtifact = await this._applicationLayerGeneratorStrategy.generateApplicationLayer(context);
 
-        console.log("AppLayerArtifact fragment: ", appLayerArtifact);
-
         if (!isLayerArtifact(appLayerArtifact)) {
             throw new Error("Could not generate application layer");
         }

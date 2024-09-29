@@ -12,7 +12,7 @@ const <%= it.exported_object_name %> = () => {
 
     const [isUpdateMode, setUpdateMode] = useState<boolean>(false);
     const [formData, setFormData] = useState<RJSFSchema>({});
-    const [hasError, setHasError] = useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = useState<string>(null!);
     const navigationHooks = <%= it.navigation_hook %>();
 
     const schema: RJSFSchema = <%~ it.json_schema %> as RJSFSchema;
@@ -26,21 +26,35 @@ const <%= it.exported_object_name %> = () => {
         event.preventDefault();
 
         const { formData } = data;
-        // const createdInstanceResult = await DataSetCreateCapabilityLogic.runCapability(formData);
+        const createdInstanceResult = await <%= it.create_capability_app_layer %>.runCapability(formData);
+
+        if (!createdInstanceResult?.instance?.raw) {
+            setErrorMessage(createdInstanceResult?.message ?? "Creation failed");
+            return;
+        }
+
         // get createdInstanceResult id
+        setTimeout(() => {
         <% if (it.redirects && it.redirects.length > 0) { %><% const firstRedirect = it.redirects.at(0); %>
-        navigationHooks.<%= firstRedirect.capabilityType === "instance" ? "handleInstanceCapabilityRedirect" : "handleCollectionCapabilityRedirect" %>("<%~ firstRedirect.id %>");
+            <% if (firstRedirect && firstRedirect.capabilityType === "instance") { %>
+            navigationHooks.handleInstanceCapabilityRedirect("<%~ firstRedirect.id %>", createdInstanceResult);
+            <% } else { %>
+            navigationHooks.handleCollectionCapabilityRedirect("<%~ firstRedirect.id %>");
+            <% } %>
+        <% } else { %>
+            navigationHooks.handleCollectionCapabilityRedirect("/");
         <% } %>
+        }, 2500);
     }
 
     const handleSubmitError = (errors: RJSFValidationError[]) => {
         console.error(errors);
-        setHasError(true);
+        setErrorMessage("An error occurred");
     }
 
     return (
         <div>
-            { hasError && <Alert onClose={() => {}} severity="error">This is an error Alert.</Alert> }
+            { errorMessage && <Alert onClose={() => {}} severity="error">{ errorMessage }</Alert> }
             <Form
                 schema={schema}
                 validator={validator}
@@ -55,7 +69,7 @@ const <%= it.exported_object_name %> = () => {
                     <button type='submit'>Submit</button>
                     <button type='button'>Cancel</button>
                 </div>)}
-            </ Form>
+            </Form>
         </div>
     );
 }

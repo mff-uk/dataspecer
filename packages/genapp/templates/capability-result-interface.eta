@@ -1,6 +1,6 @@
 export interface GeneratedCapability<TResult extends CapabilityResult> {
     name: string;
-    runCapability: (request: string) => Promise<TResult>;
+    runCapability: <T>(request: T) => Promise<TResult>;
 }
 
 export interface AggregateInstance {
@@ -18,5 +18,5 @@ export interface ListResult extends CapabilityResult {
 }
 
 export interface InstanceResult extends CapabilityResult {
-    instance: AggregateInstance;
+    instance: AggregateInstance | null;
 }

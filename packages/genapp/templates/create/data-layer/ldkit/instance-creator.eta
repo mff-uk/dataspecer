@@ -4,23 +4,46 @@ import { <%= it.instance_result_type %> } from <%~ it.instance_result_type_path 
 import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 import { <%= it.creator_interface_type %> } from <%~ it.creator_interface_type_path %>;
 
-export class <%= it.exported_object_name %> implements  <%= it.creator_interface_type %>  {
+export class <%= it.exported_object_name %> implements <%= it.creator_interface_type %>  {
 
-    async createInstance(
-        newInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>>
-    ): Promise<<%= it.instance_result_type %>> {
+    private mapFormDataToLdkitSchema(formData: any): Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> {
+        console.log("input form data: ", formData);
+
+        // const newInstance: Entity<SchemaInterface<typeof < %= it.ldkit_schema % >>> = {< % for (const ldkitSchemaKey of Object.keys(it.ldkit_schema)) { % >
+        //    "< %~ ldkitSchemaKey % >": formData["< %~ ldkitSchemaKey % >"],< % } % >
+        // }
+
+        const newInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> = formData;
+
+        return newInstance;
+    }
+
+    async createInstance(formData: any): Promise<<%= it.instance_result_type %>> {
 
         const context: Context = {
             sources: [<%~ it.ldkit_endpoint_uri %>]
         }
 
         const lens = createLens(<%= it.ldkit_schema %>, context);
-        await lens.insert(newInstance);
+        const newInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> = this.mapFormDataToLdkitSchema(formData);
+
+        try {
+            //await lens.insert(newInstance);
+            console.log("creation success");
+        } catch (error) {
+            const errorResult: <%= it.instance_result_type %> = {
+                instance: null,
+                message: "Instance creation failed",
+                redirectUrl: "/"
+            };
+
+            return errorResult;
+        }
 
         const result: <%= it.instance_result_type %> = {
             instance: {
                 aggregateName: "<%= it.aggregate_name %>",
-                raw: newInstance
+                raw: newInstance.$id
             },
             message: "Instance created successfully",
             redirectUrl: "/"

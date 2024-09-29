@@ -134,8 +134,8 @@ export class ApplicationGenerator {
 
         await once(readStream, "end");
 
-        fs.rmSync(this._args.tmpOutDir, { recursive: true });
-        fs.rmSync(tempZipFilename);
+        //fs.rmSync(this._args.tmpOutDir, { recursive: true });
+        //fs.rmSync(tempZipFilename);
 
         return Buffer.concat(buffers);
     }
