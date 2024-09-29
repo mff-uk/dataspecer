@@ -84,11 +84,7 @@ export const EntitiesOfModel = (props: {
     const [color, setColor] = useState(DEFAULT_MODEL_COLOR);
     const reactFlow = useReactFlow<object, object>();
 
-    //
-
     const entities = getEntitiesByType(entityType, model);
-
-    // TODO Visible must contain represented entities not visual entities!
 
     /**
      * Initialize.
