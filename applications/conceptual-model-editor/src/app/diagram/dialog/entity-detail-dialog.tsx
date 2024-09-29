@@ -14,7 +14,7 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { type WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { IriLink } from "../components/iri-link";
 import { useBaseDialog } from "../components/base-dialog";

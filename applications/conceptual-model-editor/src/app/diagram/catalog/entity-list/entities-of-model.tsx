@@ -67,7 +67,10 @@ const isUsage = (what: Entity | null): what is SemanticModelClassUsage | Semanti
 /**
  * Render list of entities of given type for given model.
  */
-export const EntitiesOfModel = (props: { model: EntityModel; entityType: EntityType; }) => {
+export const EntitiesOfModel = (props: {
+    model: EntityModel;
+    entityType: EntityType;
+ }) => {
     const { model, entityType } = props;
     //
     const actions = useActions();
@@ -177,31 +180,30 @@ export const EntitiesOfModel = (props: { model: EntityModel; entityType: EntityT
         actions.openCreateClassDialog(model);
     };
 
-    const handleAddToView = (identifier: string) => {
-        const viewport = reactFlow.getViewport();
-        const position = {
-            x: viewport.x,
-            y: viewport.y,
-        };
-        actions.addNodeToVisualModel(model.getId(), identifier, position);
+    const handleAddToView = (entity: Entity ) => {
+        if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
+            const viewport = reactFlow.getViewport();
+            const position = {
+                x: viewport.x,
+                y: viewport.y,
+            };
+            actions.addNodeToVisualModel(model.getId(), entity.id, position);
+        } else {
+            actions.addRelationToVisualModel(model.getId(), entity.id);
+        }
     };
+
 
     const handleDeleteFromView = (identifier: string) => {
         actions.removeFromVisualModel(identifier);
     };
 
     const handleDeleteEntity = async (model: InMemorySemanticModel | ExternalSemanticModel, identifier: string) => {
-        // TODO Move code to action.
-        if (model instanceof InMemorySemanticModel) {
-            deleteEntityFromModel(model, identifier);
-            actions.removeFromVisualModel(identifier);
-        } else {
-            await model.releaseClass(identifier);
-        }
+        actions.deleteFromSemanticModel(model.getId(), identifier);
     };
 
     const handleSetViewportToEntity = (identifier: string) => {
-        // TODO Move code to action.
+        // TODO ACTION Set viewport
         if (entityType !== EntityType.Class && entityType !== EntityType.Profile) {
             return;
         }

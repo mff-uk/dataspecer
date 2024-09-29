@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useEffect, useRef, Dispatch, SetStateAction, MutableRefObject } from "react";
+import { useMemo, useCallback, useEffect, useRef, type Dispatch, type SetStateAction, type MutableRefObject } from "react";
 import ReactFlow, {
     type Connection,
     type Edge,
@@ -9,7 +9,7 @@ import ReactFlow, {
     Controls,
     MiniMap,
     Panel,
-    ReactFlowInstance,
+    type ReactFlowInstance,
     getRectOfNodes,
     getTransformForBounds,
     useEdgesState,
@@ -33,9 +33,8 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { type WritableVisualModel, type VisualNode, isVisualNode, isVisualRelationship, VisualModel, VisualEntity } from "@dataspecer/core-v2/visual-model";
-import { SemanticModelAggregatorView, type AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
+import { type WritableVisualModel, type VisualNode, isVisualNode, isVisualRelationship, type VisualModel, type VisualEntity } from "@dataspecer/core-v2/visual-model";
+import { type SemanticModelAggregatorView, type AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
 
 
 import {
@@ -52,13 +51,14 @@ import {
 import { tailwindColorToHex } from "../utils/color-utils";
 import { useCreateConnectionDialog } from "./dialog/create-connection-dialog";
 import { useModelGraphContext } from "./context/model-context";
-import { useClassesContext, UseClassesContextType } from "./context/classes-context";
+import { useClassesContext, type UseClassesContextType } from "./context/classes-context";
 import { bothEndsHaveAnIri, temporaryDomainRangeHelper } from "./util/relationship-utils";
 import { toSvg } from "html-to-image";
 import { useDownload } from "./features/export/download";
 import { useActions } from "./action/actions-react-binding";
 
 import "reactflow/dist/style.css";
+import { getDomainAndRange } from "./service/relationship-service";
 
 /**
  * Returns SVG for the current model.
@@ -522,7 +522,7 @@ function createReactflowNode(
 
     const nodeAttributes = attributes
         .filter(isSemanticModelAttribute)
-        .filter((attr) => getDomainAndRange(attr)?.domain.concept == entity.id);
+        .filter((attr) => getDomainAndRange(attr).domain?.concept == entity.id);
 
     const nodeAttributeProfiles = attributeProfiles
         .filter(isSemanticModelAttributeUsage)
@@ -556,11 +556,11 @@ function propagateVisualModelColorChangesToVisualization(
     for (const [identifier, entity] of visualModel.getVisualEntities()) {
         if (isVisualNode(entity)) {
             if (entity.model === changedModelIdentifier) {
-                changes.push({previous: entity, next: entity});
+                changes.push({ previous: entity, next: entity });
             }
         } else if (isVisualRelationship(entity)) {
             if (entity.model === changedModelIdentifier) {
-                changes.push({previous: entity, next: entity});
+                changes.push({ previous: entity, next: entity });
             }
         }
     }
@@ -628,7 +628,7 @@ function propagateVisualModelEntitiesChangesToVisualization(
                     isSemanticModelRelationshipUsage(entity) ||
                     isSemanticModelClassUsage(entity);
                 if (isRelationship) {
-                    const nextEdge = createReactflowEdge(entity, color ?? undefined);
+                    const nextEdge = createReactflowEdge(visualModel, next.identifier, entity, color ?? undefined);
                     if (nextEdge !== null) {
                         removed.add(next.representedRelationship);
                         newEdges.push(nextEdge);
@@ -644,7 +644,7 @@ function propagateVisualModelEntitiesChangesToVisualization(
             removed.add(previous.identifier);
         }
     }
-
+    console.log("propagateVisualModelEntitiesChangesToVisualization", { edges: newEdges, nodes: newNodes, removed });
     // Remove and add new.
     setNodes(previous => previous
         .filter(item => !removed.has(item.id))
@@ -658,18 +658,54 @@ function propagateVisualModelEntitiesChangesToVisualization(
  * @returns Reactflow edge or undefined.
  */
 function createReactflowEdge(
+    visualModel: VisualModel,
+    visualEntityIdentifier: string,
     entity: SemanticModelRelationship | SemanticModelGeneralization | SemanticModelRelationshipUsage | SemanticModelClassUsage,
     color: string | undefined,
 ) {
-    if (isSemanticModelRelationshipUsage(entity)) {
+    if (isSemanticModelRelationship(entity)) {
+        const { domain, range } = getDomainAndRange(entity);
+        if (domain === null || domain.concept === null || range === null || range.concept === null) {
+            console.error("Ignored relationship as ends are null.", { domain, range, entity });
+            return null;
+        }
+        const source = visualModel.getVisualEntityForRepresented(domain.concept);
+        const target = visualModel.getVisualEntityForRepresented(range.concept);
+        if (source === null || target === null) {
+            console.warn("Missing visual entities for ends.", { domain, range, entity, source, target });
+            return null;
+        }
+        return semanticModelRelationshipToReactFlowEdge(visualEntityIdentifier, source.identifier, target.identifier, entity, color, []) as Edge;
+    } else if (isSemanticModelRelationshipUsage(entity)) {
         const usageNotes = entity.usageNote ? [entity.usageNote] : [];
-        return semanticModelRelationshipToReactFlowEdge(entity, color, usageNotes) as Edge;
-    } else if (isSemanticModelRelationship(entity)) {
-        return semanticModelRelationshipToReactFlowEdge(entity, color, []) as Edge;
+        const { domain, range } = getDomainAndRange(entity);
+        if (domain === null || domain.concept === null || range === null || range.concept === null) {
+            console.error("Ignored relationship usage as ends are null.", { domain, range, entity });
+            return null;
+        }
+        const source = visualModel.getVisualEntityForRepresented(domain.concept);
+        const target = visualModel.getVisualEntityForRepresented(range.concept);
+        if (source === null || target === null) {
+            console.warn("Missing visual entities for ends.", { domain, range, entity, source, target });
+            return null;
+        }
+        return semanticModelRelationshipToReactFlowEdge(visualEntityIdentifier, domain.concept, range.concept, entity, color, usageNotes) as Edge;
     } else if (isSemanticModelGeneralization(entity)) {
-        return semanticModelGeneralizationToReactFlowEdge(entity, color) as Edge;
+        const source = visualModel.getVisualEntityForRepresented(entity.child);
+        const target = visualModel.getVisualEntityForRepresented(entity.parent);
+        if (source === null || target === null) {
+            console.error("Ignored generalization as ends are null.", { source, target, entity });
+            return null;
+        }
+        return semanticModelGeneralizationToReactFlowEdge(visualEntityIdentifier, source.identifier, target.identifier, entity, color) as Edge;
     } else if (isSemanticModelClassUsage(entity)) {
-        return semanticModelClassUsageToReactFlowEdge(entity, color);
+        const source = visualModel.getVisualEntityForRepresented(entity.id);
+        const target = visualModel.getVisualEntityForRepresented(entity.usageOf);
+        if (source === null || target === null) {
+            console.error("Ignored class usage as ends are null.", { source, target, entity });
+            return null;
+        }
+        return semanticModelClassUsageToReactFlowEdge(visualEntityIdentifier, source.identifier, target.identifier, entity, color);
     }
     return null;
 }
@@ -713,7 +749,11 @@ function resetReactflowFromVisualModel(
                 isSemanticModelRelationshipUsage(entity) ||
                 isSemanticModelClassUsage(entity);
             if (isRelationship) {
-                const nextEdge = createReactflowEdge(entity, color ?? undefined);
+                const nextEdge = createReactflowEdge(
+                    visualModel,
+                    visualEntity.identifier,
+                    entity,
+                    color ?? undefined);
                 if (nextEdge !== null) {
                     nextEdges.push(nextEdge);
                 }

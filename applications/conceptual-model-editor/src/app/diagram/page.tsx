@@ -1,12 +1,12 @@
 "use client";
 
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 import { ReactFlowProvider } from "reactflow";
 
 import type { Entity, EntityModel } from "@dataspecer/core-v2/entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { isVisualModel, isVisualNode, isVisualRelationship, isWritableVisualModel, VisualModel, VisualModelDataVersion, type WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { type AggregatedEntityWrapper, SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
+import { isVisualModel, isVisualNode, isVisualRelationship, isWritableVisualModel, type VisualModel, VisualModelDataVersion, type WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { type AggregatedEntityWrapper, SemanticModelAggregator, type SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 import {
     type SemanticModelClass,
     type SemanticModelRelationship,

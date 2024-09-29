@@ -20,7 +20,6 @@ export const ModelTypeIcon = (props: { model: EntityModel | undefined; onClick: 
     } else if (model instanceof ExternalSemanticModel) {
         modelType = <span title="slovník.gov.cz">sgov</span>;
     } else {
-        //if (model instanceof PimStoreWrapper) {
         modelType = <span title="pim-store wrapper">📁</span>;
     }
 

@@ -44,7 +44,7 @@ export const RemovableGeneralizationRow = (props: {
 };
 
 export const NewRemovableGeneralizationRow = (props: {
-    resource: UnsubscribeFunction<SemanticModelGeneralization, "type" | "id">;
+    resource: Omit<SemanticModelGeneralization, "type" | "id">;
     removeButtonClick: () => void;
     duplicateNames: Set<string>;
 }) => {

@@ -1,5 +1,5 @@
 import { useModelGraphContext } from "../context/model-context";
-import { EntitiesOfModel } from "./entity-list/entities-of-model";
+import { EntitiesOfModel, EntityType } from "./entity-list/entities-of-model";
 
 export const AttributeCatalog = () => {
     const { models } = useModelGraphContext();
@@ -9,7 +9,7 @@ export const AttributeCatalog = () => {
             <ul>
                 {[...models.entries()].map(([modelId, model]) => (
                     <EntitiesOfModel
-                        entityType="attribute"
+                        entityType={EntityType.Attribute}
                         key={modelId + (model.getAlias() ?? "no-model-alias") + "attributes"}
                         model={model}
                     />

@@ -9,7 +9,7 @@ import type {
     SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
-import { type EntityModel } from "@dataspecer/core-v2/entity-model";
+import { Entity, type EntityModel } from "@dataspecer/core-v2/entity-model";
 
 import { EntityRow } from "./entity-row";
 import { sourceModelOfEntity } from "../../util/model-utils";
@@ -21,7 +21,7 @@ import { findSourceModelOfEntity } from "../../service/model-service";
 export const RowHierarchy = (props: {
     entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationship | SemanticModelRelationshipUsage;
     handlers: {
-        handleAddEntityToActiveView: (entityId: string) => void;
+        handleAddEntityToActiveView: (entity: Entity) => void;
         handleRemoveEntityFromActiveView: (entityId: string) => void;
         handleExpansion: (model: EntityModel, classId: string) => Promise<void>;
         handleRemoval: (model: InMemorySemanticModel | ExternalSemanticModel, entityId: string) => Promise<void>;
@@ -52,10 +52,10 @@ export const RowHierarchy = (props: {
 
     const drawingHandler =
         isAttribute ||
-            (isEdge && !hasBothEndsOnCanvas(entity, aggregatorView.getActiveVisualModel()?.getVisualEntities()))
+            (isEdge && !hasBothEndsOnCanvas(entity, aggregatorView.getActiveVisualModel()))
             ? null
             : {
-                addToViewHandler: () => props.handlers.handleAddEntityToActiveView(entity.id),
+                addToViewHandler: () => props.handlers.handleAddEntityToActiveView(entity),
                 removeFromViewHandler: () => props.handlers.handleRemoveEntityFromActiveView(entity.id),
             };
 

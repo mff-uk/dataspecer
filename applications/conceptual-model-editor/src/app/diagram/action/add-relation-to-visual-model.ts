@@ -7,16 +7,14 @@ import type { UseNotificationServiceWriterType } from "../notification/notificat
  *
  * @param notifications
  * @param graph
- * @param model Owner of the entity to add visual representation for.*
+ * @param modelIdentifier Owner of the entity to add visual representation for.
  * @param identifier Identifier of semantic entity to add visual representation for.
- * @param position
  */
-export function addNodeToVisualModelAction(
+export function addRelationToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
-  model: string,
+  modelIdentifier: string,
   identifier: string,
-  position: { x: number, y: number },
 ) {
   const visualModel = graph.aggregatorView.getActiveVisualModel();
   if (visualModel === null) {
@@ -28,15 +26,9 @@ export function addNodeToVisualModelAction(
     return;
   }
   //
-  visualModel.addVisualNode({
-    model: model,
-    representedEntity: identifier,
-    position: {
-      x: position.x,
-      y: position.y,
-      anchored: null,
-    },
-    content: [],
-    visualModels: [],
+  visualModel.addVisualRelationship({
+    model: modelIdentifier,
+    representedRelationship: identifier,
+    waypoints: [],
   });
 }

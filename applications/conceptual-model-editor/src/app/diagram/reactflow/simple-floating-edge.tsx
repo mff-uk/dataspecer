@@ -208,28 +208,30 @@ export const SimpleFloatingEdge: React.FC<EdgeProps> = ({ id, source, target, st
 };
 
 export const semanticModelRelationshipToReactFlowEdge = (
-    rel: SemanticModelRelationship | SemanticModelRelationshipUsage,
+    identifier: string,
+    source: string, target: string,
+    relationship: SemanticModelRelationship | SemanticModelRelationshipUsage,
     color: string | undefined,
     usageNotes: LanguageString[]
 ) => {
-    const domainAndRange = getDomainAndRange(rel as SemanticModelRelationship & SemanticModelRelationshipUsage);
+    const domainAndRange = getDomainAndRange(relationship as SemanticModelRelationship & SemanticModelRelationshipUsage);
     const style : Record<string, unknown> = { strokeWidth: 3, stroke: color };
 
-    const isProfile = isSemanticModelRelationshipUsage(rel);
+    const isProfile = isSemanticModelRelationshipUsage(relationship);
     if (isProfile) {
         style["strokeDasharray"] = 5;
     }
 
     return {
-        id: rel.id,
-        source: domainAndRange?.domain.concept ?? rel.ends[0]!.concept, // eslint-disable-line @typescript-eslint/no-non-null-assertion
-        target: domainAndRange?.range.concept ?? rel.ends[1]!.concept, // eslint-disable-line @typescript-eslint/no-non-null-assertion
+        id: identifier,
+        source: source,
+        target: target,
         markerEnd: { type: MarkerType.Arrow, height: 20, width: 20, color: color || "maroon" },
         type: "floating",
         data: {
-            entity: rel,
-            cardinalitySource: cardinalityToString(domainAndRange?.domain.cardinality ?? rel.ends[0]?.cardinality),
-            cardinalityTarget: cardinalityToString(domainAndRange?.range.cardinality ?? rel.ends[1]?.cardinality),
+            entity: relationship,
+            cardinalitySource: cardinalityToString(domainAndRange?.domain.cardinality ?? relationship.ends[0]?.cardinality),
+            cardinalityTarget: cardinalityToString(domainAndRange?.range.cardinality ?? relationship.ends[1]?.cardinality),
             bgColor: color,
             usageNotes,
         } satisfies SimpleFloatingEdgeDataType,
@@ -238,13 +240,15 @@ export const semanticModelRelationshipToReactFlowEdge = (
 };
 
 export const semanticModelGeneralizationToReactFlowEdge = (
-    gen: SemanticModelGeneralization,
+    identifier: string,
+    source: string, target: string,
+    generalization: SemanticModelGeneralization,
     color: string | undefined
 ) =>
     ({
-        id: gen.id,
-        source: gen.child,
-        target: gen.parent,
+        id: identifier,
+        source: source,
+        target: target,
         markerEnd: {
             type: MarkerType.ArrowClosed,
             width: 20,
@@ -254,19 +258,21 @@ export const semanticModelGeneralizationToReactFlowEdge = (
         },
         type: "floating",
         data: {
-            entity: gen,
+            entity: generalization,
         } satisfies SimpleFloatingEdgeDataType,
         style: { stroke: color || "maroon", strokeWidth: 2 },
     } as Edge);
 
 export const semanticModelClassUsageToReactFlowEdge = (
-    classUsage: SemanticModelClassUsage,
+    identifier: string,
+    source: string, target: string,
+    usage: SemanticModelClassUsage,
     color: string | undefined
 ) =>
     ({
-        id: classUsage.id,
-        source: classUsage.id,
-        target: classUsage.usageOf,
+        id: identifier,
+        source: source,
+        target: target,
         markerEnd: {
             type: MarkerType.ArrowClosed,
             width: 20,
@@ -276,7 +282,7 @@ export const semanticModelClassUsageToReactFlowEdge = (
         },
         type: "floating",
         data: {
-            entity: classUsage,
+            entity: usage,
         } satisfies SimpleFloatingEdgeDataType,
         style: { stroke: color || "azure", strokeWidth: 2, strokeDasharray: 5 },
     } as Edge);

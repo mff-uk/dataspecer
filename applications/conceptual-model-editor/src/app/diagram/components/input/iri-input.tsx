@@ -47,7 +47,6 @@ export const IriInput = (props: {
      */
     nameSuggestion?: (name: string) => string,
 }) => {
-    // TODO: This probably owned by the parent component, we could move it there.
     const { language: preferredLanguage } = useConfigurationContext();
     const { name, newIri, iriHasChanged, setNewIri, disabled } = props;
 

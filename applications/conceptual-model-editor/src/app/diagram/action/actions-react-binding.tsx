@@ -4,10 +4,10 @@ import { type InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/i
 
 import { type DialogApiContextType } from "../dialog/dialog-service";
 import { DialogApiContext } from "../dialog/dialog-context";
-import { logger } from "../application/";
+import { logger } from "../application";
 import { type EditClassState } from "../dialog/class/edit-class-dialog-controller";
 import { type ClassesContextType, ClassesContext } from "../context/classes-context";
-import { useNotificationServiceWriter } from "../notification/";
+import { useNotificationServiceWriter } from "../notification";
 import { type UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { ModelGraphContext, type ModelGraphContextType } from "../context/model-context";
 import { createAddModelDialog } from "../dialog/model/create-model-dialog";
@@ -18,7 +18,8 @@ import { createVocabulary } from "./create-vocabulary";
 import { createClass } from "./create-class";
 import { addNodeToVisualModelAction } from "./add-node-to-visual-model";
 import { addRelationToVisualModelAction } from "./add-relation-to-visual-model";
-import { removeFromVisualModelAction } from "./remove-from-visual-model";
+import { deleteFromSemanticModelAction }  from "./delete-from-semantic-model";
+import { deleteFromVisualModelAction } from "./delete-from-visual-model";
 
 export interface ActionsContextType {
 
@@ -37,6 +38,9 @@ export interface ActionsContextType {
 
   addRelationToVisualModel: (model: string, identifier: string) => void;
 
+  deleteFromSemanticModel: (model: string, identifier: string) => Promise<void>;
+
+  // TODO Update name to deleteFromVisualModel
   removeFromVisualModel: (identifier: string) => void;
 }
 
@@ -46,10 +50,20 @@ function noOperation() {
   logger.error("Using uninitialized actions context!");
 }
 
+function noOperationAsync() {
+  logger.error("Using uninitialized actions context!");
+  return Promise.resolve();
+}
+
+
 function createNoOperationActionsContext(): ActionsContextType {
   return {
     openCreateModelDialog: noOperation,
     openCreateClassDialog: noOperation,
+    addNodeToVisualModel: noOperation,
+    addRelationToVisualModel: noOperation,
+    deleteFromSemanticModel: noOperationAsync,
+    removeFromVisualModel: noOperation,
   };
 }
 
@@ -126,13 +140,21 @@ function createActionsContext(
     addRelationToVisualModelAction(notifications, graph, model, identifier);
   };
 
+  const deleteFromSemanticModel = (model: string, identifier: string) => {
+    if (notifications === null || graph === null) {
+      console.error("Contexts are not ready.");
+      return Promise.reject();
+    }
+
+    return deleteFromSemanticModelAction(notifications, graph, model, identifier);
+  };
+
   const removeFromVisualModel = (identifier: string) => {
     if (notifications === null || graph === null) {
       console.error("Contexts are not ready.");
       return;
     }
-
-    removeFromVisualModelAction(notifications, graph, identifier);
+    deleteFromVisualModelAction(notifications, graph, identifier);
   };
 
   return {
@@ -140,6 +162,7 @@ function createActionsContext(
     openCreateClassDialog,
     addNodeToVisualModel,
     addRelationToVisualModel,
+    deleteFromSemanticModel,
     removeFromVisualModel,
   };
 

@@ -32,11 +32,13 @@ enum ConnectionType {
     generalization = "generalization",
 }
 
-// TODO: This is not nice but, we can not move the useState outside of
+// TODO This is not nice but, we can not move the useState outside of
 //  the CreateConnectionDialog as it would cause re-creation of the dialog.
 //  Instead we use this ugly trick, it would be better to have the CreateConnectionDialog
 //  as a separate component.
 let openWithConnectionType = ConnectionType.association;
+
+const NO_ACTIVE_MODEL = "no in-memory model";
 
 /**
  * This dialog can be used to create an association or a generalization between two entities.
@@ -44,7 +46,6 @@ let openWithConnectionType = ConnectionType.association;
 export const useCreateConnectionDialog = () => {
     const { isOpen, open, close, BaseDialog } = useBaseDialog();
 
-    // TODO This code is part of the baseDialog, we should remove it from here.
     const createConnectionDialogRef = useRef(null as unknown as HTMLDialogElement);
     useEffect(() => {
         const { current: el } = createConnectionDialogRef;
@@ -82,7 +83,7 @@ export const useCreateConnectionDialog = () => {
         const { classes, profiles } = useClassesContext();
         const { models, aggregatorView } = useModelGraphContext();
         const inMemoryModels = filterInMemoryModels(models);
-        const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.at(0) ?? "no in-memory model");
+        const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.at(0) ?? NO_ACTIVE_MODEL);
         const [association, setAssociation] = useState<Omit<SemanticModelRelationship, "type" | "id">>({
             iri: getRandomName(7),
             name: {},
@@ -153,6 +154,7 @@ export const useCreateConnectionDialog = () => {
                     return;
                 }
                 visualModel.addVisualRelationship({
+                    model: modelToSaveTo.getId(),
                     representedRelationship: result.id,
                     waypoints: [],
                 });

@@ -6,7 +6,10 @@ import { t } from "../application/";
  * Given a model create a human readable label.
  * As there is only one label, this function ignore active language.
  */
-export function getModelLabel(model: EntityModel): string {
+export function getModelLabel(model: EntityModel | undefined | null): string {
+  if (model === undefined || model === null) {
+    return "";
+  }
   const alias = model.getAlias();
   if (alias !== null) {
     return alias;

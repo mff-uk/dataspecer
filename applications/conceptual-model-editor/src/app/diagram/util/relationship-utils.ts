@@ -9,7 +9,7 @@ import {
     isSemanticModelAttributeUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import type { VisualEntity } from "@dataspecer/core-v2/visual-model";
+import type { VisualModel } from "@dataspecer/core-v2/visual-model";
 import type { EntityDetailSupportedType } from "./detail-utils";
 
 export type CardinalityOption = "unset" | "0x" | "01" | "11" | "1x" | "xx";
@@ -74,16 +74,16 @@ export const temporaryDomainRangeHelper = (entity: EntityDetailSupportedType) =>
 
 export const hasBothEndsOnCanvas = (
     entity: SemanticModelRelationship | SemanticModelRelationshipUsage,
-    visibleOnCanvasMap?: Map<string, VisualEntity>
+    visualModel: VisualModel | null,
 ) => {
-    if (!visibleOnCanvasMap) {
+    if (visualModel === null) {
         return false;
     }
     const domainAndRange = temporaryDomainRangeHelper(entity);
     const domainConcept = domainAndRange?.domain.concept ?? "";
     const rangeConcept = domainAndRange?.range.concept ?? "";
 
-    const domainOnCanvas = visibleOnCanvasMap.get(domainConcept)?.visible;
-    const rangeOnCanvas = visibleOnCanvasMap.get(rangeConcept)?.visible;
-    return domainOnCanvas && rangeOnCanvas;
+    const domainOnCanvas = visualModel.getVisualEntityForRepresented(domainConcept);
+    const rangeOnCanvas = visualModel.getVisualEntityForRepresented(rangeConcept);
+    return domainOnCanvas !== null && rangeOnCanvas !== null;
 };

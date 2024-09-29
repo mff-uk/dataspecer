@@ -54,10 +54,9 @@ function useEdgeGeometry(sourceIdentifier: string, targetIdentifier: string): {
     return null;
   }
   if (sourceIdentifier === targetIdentifier) {
-    // TODO Support loop!
+    // TODO Support loop
   }
   const edgePositions = getHandleFloatingEdgePoints(source, target);
-  // const edgePositions = getFloatingEdgePoints(source, target);
   if (edgePositions === null) {
     return null;
   }

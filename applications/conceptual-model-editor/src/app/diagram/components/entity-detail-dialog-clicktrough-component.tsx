@@ -10,6 +10,8 @@ import { useConfigurationContext } from "../context/configuration-context";
 import { getIri, getModelIri } from "../util/iri-utils";
 import { sourceModelOfEntity } from "../util/model-utils";
 
+const DEFAULT_MODEL_COLOR = "#ffffff";
+
 export const ResourceDetailClickThrough = (props: {
     resource: SemanticModelClass | SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage;
     detailDialogLanguage?: string;
@@ -23,7 +25,7 @@ export const ResourceDetailClickThrough = (props: {
 
     const { resource, onClick, withCardinality, withIri, detailDialogLanguage } = props;
     const name = EntityProxy(resource, detailDialogLanguage ?? language).name;
-    const modelColor = aggregatorView.getActiveVisualModel()?.getModelColor(sourceModelOfEntityMap.get(resource.id) ?? "");
+    const modelColor = aggregatorView.getActiveVisualModel()?.getModelColor(sourceModelOfEntityMap.get(resource.id) ?? "") ?? DEFAULT_MODEL_COLOR;
     const iri = withIri ? getIri(resource, getModelIri(sourceModelOfEntity(resource.id, [...models.values()]))) : null;
 
     return (
