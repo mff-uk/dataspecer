@@ -6,7 +6,7 @@ USER_ID=${USER:=0}
 
 function createUser {
   # Create user for running the application
-  adduser -u $USER_ID -D -H user > /dev/null 2>&1 || true
+  useradd -u $USER_ID user_$USER_ID > /dev/null 2>&1 || true
 }
 
 function prepareDatabase {
