@@ -214,7 +214,7 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
                                     gap: "1rem",
                                 }}>
                                     <Button variant="outlined" color={"primary"} component={Link}
-                                            to={`/specification?dataSpecificationIri=${encodeURIComponent(specification)}`}>{t("detail")}</Button>
+                                            to={`${process.env.REACT_APP_MANAGER_BASE_URL}specification?dataSpecificationIri=${encodeURIComponent(specification)}`}>{t("detail")}</Button>
                                 </Box>
                             </TableCell>
                         </TableRow>
