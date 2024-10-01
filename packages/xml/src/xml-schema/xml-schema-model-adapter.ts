@@ -41,7 +41,11 @@ export function structureModelToXmlSchema(
   if (!commonXmlArtefact) {
     throw new Error("XML generator requires common xml schema artifact");
   }
-  const commonXmlSchemaLocation = pathRelative(artifact.publicUrl, commonXmlArtefact.publicUrl);
+  const commonXmlSchemaLocation = pathRelative(
+    artifact.publicUrl,
+    commonXmlArtefact.publicUrl,
+    true // todo: we need better resolution whether the path should be absolute or not
+  );
 
   const adapter = new XmlSchemaAdapter(
     context, specification, artifact, model, options, commonXmlSchemaLocation
@@ -230,7 +234,7 @@ class XmlSchemaAdapter {
         const imported = this.imports[classData.structureSchema] = {
           namespace: this.getModelNamespace(model),
           prefix: this.getModelPrefix(model),
-          schemaLocation: pathRelative(this.currentPath(), artefact.publicUrl),
+          schemaLocation: pathRelative(this.currentPath(), artefact.publicUrl, true),
         };
         return this.getQName(imported.prefix, classData.technicalLabel);
       }
@@ -257,7 +261,7 @@ class XmlSchemaAdapter {
         const imported = this.imports[firstClass.structureSchema] = {
           namespace: this.getModelNamespace(model),
           prefix: this.getModelPrefix(model),
-          schemaLocation: pathRelative(this.currentPath(), artefact.publicUrl),
+          schemaLocation: pathRelative(this.currentPath(), artefact.publicUrl, true),
         };
         return this.getQName(imported.prefix, property.orTechnicalLabel);
       }

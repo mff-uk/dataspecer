@@ -1,12 +1,14 @@
 /**
  * Returns the relative path between files from {@param from} to {@param to}.
- * 
+ *
  * It also strips index.html, index.htm from the end of the path.
+ *
+ * @param useAbsoluteIfHttp If true and the path is a URL, it will return the absolute path, effectively ignoring the from parameter.
  */
-export function pathRelative(from: string, to: string): string {
+export function pathRelative(from: string, to: string, useAbsoluteIfHttp: boolean = false): string {
     // Absolute filesystem paths or URLs with same domain
     if ((from.startsWith("/") && to.startsWith("/")) ||
-        (from.match(/^https?:\/\//) && to.match(/^https?:\/\//) && from.split("/")[2] === to.split("/")[2])
+        (from.match(/^https?:\/\//) && to.match(/^https?:\/\//) && from.split("/")[2] === to.split("/")[2] && !useAbsoluteIfHttp)
     ) {
         const fromParts = from.split("/");
         const toParts = to.split("/");
