@@ -218,7 +218,7 @@ class XmlSchemaAdapter {
     classData: StructureModelClass
   ): QName | Promise<QName> {
     if (this.classIsImported(classData)) {
-      const importDeclaration = this.imports[classData.specification];
+      const importDeclaration = this.imports[classData.structureSchema];
       if (importDeclaration != null) {
         // Already imported; construct it using the prefix.
         return this.getQName(importDeclaration.prefix, classData.technicalLabel);
@@ -227,7 +227,7 @@ class XmlSchemaAdapter {
       if (artefact != null) {
         const model = this.getImportedModel(classData.structureSchema);
         // Register the import of the schema.
-        const imported = this.imports[classData.specification] = {
+        const imported = this.imports[classData.structureSchema] = {
           namespace: this.getModelNamespace(model),
           prefix: this.getModelPrefix(model),
           schemaLocation: pathRelative(this.currentPath(), artefact.publicUrl),
@@ -245,7 +245,7 @@ class XmlSchemaAdapter {
     if (allClassesAreImported) {
       const firstClass = (property.dataTypes[0] as StructureModelComplexType).dataType;
 
-      const importDeclaration = this.imports[firstClass.specification];
+      const importDeclaration = this.imports[firstClass.structureSchema];
       if (importDeclaration != null) {
         // Already imported; construct it using the prefix.
         return this.getQName(importDeclaration.prefix, property.orTechnicalLabel);
@@ -254,7 +254,7 @@ class XmlSchemaAdapter {
       if (artefact != null) {
         const model = this.getImportedModel(firstClass.structureSchema);
         // Register the import of the schema.
-        const imported = this.imports[firstClass.specification] = {
+        const imported = this.imports[firstClass.structureSchema] = {
           namespace: this.getModelNamespace(model),
           prefix: this.getModelPrefix(model),
           schemaLocation: pathRelative(this.currentPath(), artefact.publicUrl),
