@@ -37,8 +37,6 @@ export interface ReactAppBaseTemplateDependencyMap extends TemplateDependencyMap
 
 export class ReactApplicationBaseGenerator extends TemplateConsumer<ReactAppBaseTemplate> {
 
-    // <% for (let aggregateName in it.artifacts_map) { %><% for (let capabilityName in it.artifacts_map[aggregateName]) { %><% let item = it.artifacts_map[aggregateName][capabilityName] %>
-    //     import <%= item.componentName %> from <%~ item.filepath %>;<% } %><% } %>
     constructor(templateMetadata: TemplateMetadata) {
         super(templateMetadata)
     }

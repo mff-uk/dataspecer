@@ -168,8 +168,6 @@ export class ApplicationGenerator {
 
         const nodeResultMappings = await Promise.all(generationPromises);
 
-        console.log("MAPPING: ", nodeResultMappings);
-
         await new ReactAppBaseGeneratorStage()
             .generateApplicationBase(nodeResultMappings);
     }

@@ -117,6 +117,9 @@ export class TransitionsGenerator {
                 const sourceCapabilityIri = currentNode.getCapabilityInfo().iri;
                 const targetCapabilityIri = transitionEndNode.getCapabilityInfo().iri;
 
+                // TODO: compare currentNode -> transitionEndNode structure roots to know if they're equal
+                // (this is to prevent e.g. from dataset list -> delete catalog)
+
                 const allowedTargetIri = this.getAllowedTargetCapability(sourceCapabilityIri, targetCapabilityIri, edge.type);
 
                 console.log(`NODE FROM ${currentNode.getIri()} to ${transitionEndNode.getIri()}`);

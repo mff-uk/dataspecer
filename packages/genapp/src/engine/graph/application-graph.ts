@@ -24,6 +24,8 @@ export class ApplicationGraph {
         edges: ApplicationGraphEdge[],
         specificationIri: string
     ) {
+        // TODO: validation - check if all node IRIs are unique
+        // TODO: validation - check if all edge IRIs are unique
         this.label = label;
         this.nodes = nodes.map(n => new ApplicationGraphNode(specificationIri, n));
         this.datasources = datasources;
