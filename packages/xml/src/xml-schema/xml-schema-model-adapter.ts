@@ -234,7 +234,7 @@ class XmlSchemaAdapter {
         const imported = this.imports[classData.structureSchema] = {
           namespace: this.getModelNamespace(model),
           prefix: this.getModelPrefix(model),
-          schemaLocation: pathRelative(this.currentPath(), artefact.publicUrl, true),
+          schemaLocation: pathRelative(this.currentPath(), artefact.publicUrl, classData.specification !== this.model.specification),
         };
         return this.getQName(imported.prefix, classData.technicalLabel);
       }
@@ -261,7 +261,7 @@ class XmlSchemaAdapter {
         const imported = this.imports[firstClass.structureSchema] = {
           namespace: this.getModelNamespace(model),
           prefix: this.getModelPrefix(model),
-          schemaLocation: pathRelative(this.currentPath(), artefact.publicUrl, true),
+          schemaLocation: pathRelative(this.currentPath(), artefact.publicUrl, firstClass.specification !== this.model.specification),
         };
         return this.getQName(imported.prefix, property.orTechnicalLabel);
       }
@@ -318,6 +318,7 @@ class XmlSchemaAdapter {
   getAnnotation(
     data: StructureModelClass | StructureModelProperty
   ): XmlSchemaAnnotation {
+    return null;
     const lines = [];
     if (data.cimIri != null) {
       lines.push(`Význam: ${data.cimIri}`);
