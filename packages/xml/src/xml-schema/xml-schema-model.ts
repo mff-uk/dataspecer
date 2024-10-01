@@ -21,6 +21,7 @@ export class XmlSchema {
 
   /**
    * The array of import declarations for external schemas.
+   * (If the namespace is the same as the target namespace, it is an include.)
    */
   imports: XmlSchemaImportDeclaration[];
 

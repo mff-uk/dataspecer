@@ -318,7 +318,6 @@ class XmlSchemaAdapter {
   getAnnotation(
     data: StructureModelClass | StructureModelProperty
   ): XmlSchemaAnnotation {
-    return null;
     const lines = [];
     if (data.cimIri != null) {
       lines.push(`Význam: ${data.cimIri}`);
