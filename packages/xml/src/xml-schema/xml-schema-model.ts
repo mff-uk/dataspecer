@@ -21,6 +21,7 @@ export class XmlSchema {
 
   /**
    * The array of import declarations for external schemas.
+   * (If the namespace is the same as the target namespace, it is an include.)
    */
   imports: XmlSchemaImportDeclaration[];
 
@@ -284,6 +285,20 @@ export class XmlSchemaSimpleItem {
    * The contents of the type, as a list of {@link QName}s.
    */
   contents: QName[];
+}
+
+export class XmlSchemaSimpleItemRestriction extends XmlSchemaSimpleItem {
+  declare xsType: "restriction";
+
+  base: QName;
+
+  pattern: string | null;
+}
+
+export function xmlSchemaSimpleTypeDefinitionIsRestriction(
+  typeDefinition: XmlSchemaSimpleItem
+): typeDefinition is XmlSchemaSimpleItemRestriction {
+  return typeDefinition.xsType === "restriction";
 }
 
 /**

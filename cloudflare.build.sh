@@ -11,7 +11,7 @@ set -e # Exit with nonzero exit code if anything fails
 
 if [ -n "$USE_NEW_MANAGER" ]; then
   NEW_MANAGER="/"
-  OLD_MANAGER="/data-specification-manager"
+  OLD_MANAGER="data-specification-manager"
 else
   NEW_MANAGER="/manager"
   OLD_MANAGER=""
@@ -19,7 +19,7 @@ fi
 
 npm ci
 
-printf "REACT_APP_BACKEND=$BACKEND\nREACT_APP_DEBUG_VERSION=$CF_PAGES_BRANCH@$(echo $CF_PAGES_COMMIT_SHA | head -c7) $(date -u +%F\ %H:%M:%S)\nREACT_APP_MANAGER_BASE_URL=$BASE_PATH$OLD_MANAGER\nREACT_APP_WIKIDATA_ONTOLOGY_BACKEND=$WIKIDATA_ONTOLOGY_BACKEND\nREACT_APP_STRUCTURE_EDITOR_BASE_URL=$BASE_PATH/editor\n" > applications/client/.env.local
+printf "REACT_APP_BACKEND=$BACKEND\nREACT_APP_DEBUG_VERSION=$CF_PAGES_BRANCH@$(echo $CF_PAGES_COMMIT_SHA | head -c7) $(date -u +%F\ %H:%M:%S)\nREACT_APP_MANAGER_BASE_URL=$BASE_PATH/$OLD_MANAGER\nREACT_APP_WIKIDATA_ONTOLOGY_BACKEND=$WIKIDATA_ONTOLOGY_BACKEND\nREACT_APP_STRUCTURE_EDITOR_BASE_URL=$BASE_PATH/editor\n" > applications/client/.env.local
 
 printf "NEXT_PUBLIC_BASE_PATH=$BASE_PATH/conceptual-model-editor\nNEXT_PUBLIC_APP_BACKEND=$BACKEND\nNEXT_PUBLIC_APP_BACKEND_PACKAGE_ROOT=http://dataspecer.com/packages/local-root\nNEXT_PUBLIC_MANAGER_PATH=$BASE_PATH$NEW_MANAGER\nNEXT_PUBLIC_DSCME_LOGO_LINK=$BASE_PATH$NEW_MANAGER\n" > applications/conceptual-model-editor/.env.local
 # Autosave configuration.

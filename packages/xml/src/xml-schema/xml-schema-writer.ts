@@ -20,6 +20,7 @@ import {
   XmlSchemaAnnotated,
   XmlSchemaType,
   xmlSchemaComplexTypeDefinitionIsExtension,
+  xmlSchemaSimpleTypeDefinitionIsRestriction,
 } from "./xml-schema-model";
 
 import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
@@ -134,16 +135,25 @@ async function writeImportsAndDefinitions(
 
   for (const importDeclaration of model.imports) {
     const namespace = await importDeclaration.namespace;
-    await writer.writeElementFull("xs", "import")(async writer => {
-      await writer.writeLocalAttributeValue(
-        "namespace",
-        namespace
-      );
-      await writer.writeLocalAttributeValue(
-        "schemaLocation",
-        importDeclaration.schemaLocation
-      );
-    });
+    if (namespace == null || namespace === model.targetNamespace) {
+      await writer.writeElementFull("xs", "include")(async writer => {
+        await writer.writeLocalAttributeValue(
+          "schemaLocation",
+          importDeclaration.schemaLocation
+        );
+      });
+    } else {
+      await writer.writeElementFull("xs", "import")(async writer => {
+        await writer.writeLocalAttributeValue(
+          "namespace",
+          namespace
+        );
+        await writer.writeLocalAttributeValue(
+          "schemaLocation",
+          importDeclaration.schemaLocation
+        );
+      });
+    }
   }
 
   if (model.defineLangString) {
@@ -423,11 +433,20 @@ async function writeSimpleType(
     await writeTypeAttributes(type, writer);
     if (definition.xsType != null) {
       await writer.writeElementFull("xs", definition.xsType)(async writer => {
-        // In case of xs:union and similar.
-        await writer.writeLocalAttributeValue(
-          "memberTypes",
-          contents.map(name => writer.getQName(...name)).join(" ")
-        );
+        if (xmlSchemaSimpleTypeDefinitionIsRestriction(definition)) {
+          await writer.writeLocalAttributeValue(
+            "base", writer.getQName(...definition.base)
+          );
+          if (definition.pattern != null) {
+            await writer.writeElementFull("xs", "pattern")(async writer => await writer.writeLocalAttributeValue("value", definition.pattern));
+          }
+        } else {
+          // In case of xs:union and similar.
+          await writer.writeLocalAttributeValue(
+            "memberTypes",
+            contents.map(name => writer.getQName(...name)).join(" ")
+          );
+        }
       });
     }
   });

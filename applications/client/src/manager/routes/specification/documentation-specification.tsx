@@ -48,6 +48,7 @@ import {GarbageCollection} from "./garbage-collection";
 import { ConfigureButton } from "../../artifacts/configuration/configure-button";
 import { ConsistencyFix } from "./consistency-fix";
 import { UpdatePim } from "../../components/update-pim";
+import { DataSpecificationConfiguration, DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
 
 export const DocumentationSpecification = memo(({dataSpecificationIri}: {
     dataSpecificationIri: string;
@@ -81,7 +82,7 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
     const [generateDialogOpen, setGenerateDialogOpen] = React.useState<boolean>(false);
     const [generateState, setGenerateState] = React.useState<GenerateReport>([]);
     const constructedStoreCache = useContext(ConstructedStoreCacheContext);
-    const generateZip = async () => {
+    const generateZip = async (overrideBasePathsToNull: boolean = false) => {
         setZipLoading("stores-loading");
         setGenerateState([]);
         setGenerateDialogOpen(true);
@@ -89,7 +90,7 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
         // Gather all data specifications
 
         // We know, that the current data specification must be present
-        const gatheredDataSpecifications: DataSpecifications = {};
+        let gatheredDataSpecifications: DataSpecifications = {};
 
         const toProcessDataSpecification = [dataSpecificationIri as string];
         for (let i = 0; i < toProcessDataSpecification.length; i++) {
@@ -100,6 +101,16 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
                     toProcessDataSpecification.push(importedDataSpecificationIri);
                 }
             });
+        }
+
+        // Override base urls to null
+        if (overrideBasePathsToNull) {
+            gatheredDataSpecifications = structuredClone(gatheredDataSpecifications);
+            for (const ds of Object.values(gatheredDataSpecifications)) {
+                if (ds.artefactConfiguration[DataSpecificationConfigurator.KEY]) {
+                    (ds.artefactConfiguration[DataSpecificationConfigurator.KEY] as DataSpecificationConfiguration).publicBaseUrl = null;
+                }
+            }
         }
 
         // Gather all store descriptors
@@ -214,7 +225,7 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
                                     gap: "1rem",
                                 }}>
                                     <Button variant="outlined" color={"primary"} component={Link}
-                                            to={`/specification?dataSpecificationIri=${encodeURIComponent(specification)}`}>{t("detail")}</Button>
+                                            to={`${process.env.REACT_APP_MANAGER_BASE_URL}specification?dataSpecificationIri=${encodeURIComponent(specification)}`}>{t("detail")}</Button>
                                 </Box>
                             </TableCell>
                         </TableRow>
@@ -236,7 +247,8 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
             gap: "1rem",
         }}>
             {dataSpecificationIri && <ConfigureArtifacts dataSpecificationIri={dataSpecificationIri} />}
-            <LoadingButton variant="contained" onClick={generateZip} loading={zipLoading !== false}>{t("generate zip file")}</LoadingButton>
+            <LoadingButton variant="contained" onClick={() => generateZip(false)} loading={zipLoading !== false}>{t("generate zip file")}</LoadingButton>
+            <LoadingButton onClick={() => generateZip(true)} loading={zipLoading !== false}>{t("generate zip file with relative paths")}</LoadingButton>
             <Button variant="contained" href={process.env.REACT_APP_BACKEND + "/generate?iri=" + encodeURIComponent(dataSpecificationIri)}>Generate sample application</Button>
         </Box>
 
