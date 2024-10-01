@@ -286,6 +286,20 @@ export class XmlSchemaSimpleItem {
   contents: QName[];
 }
 
+export class XmlSchemaSimpleItemRestriction extends XmlSchemaSimpleItem {
+  declare xsType: "restriction";
+
+  base: QName;
+
+  pattern: string | null;
+}
+
+export function xmlSchemaSimpleTypeDefinitionIsRestriction(
+  typeDefinition: XmlSchemaSimpleItem
+): typeDefinition is XmlSchemaSimpleItemRestriction {
+  return typeDefinition.xsType === "restriction";
+}
+
 /**
  * Represents an individual item inside a container item.
  */

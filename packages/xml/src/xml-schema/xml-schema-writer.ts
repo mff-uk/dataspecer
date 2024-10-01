@@ -20,6 +20,7 @@ import {
   XmlSchemaAnnotated,
   XmlSchemaType,
   xmlSchemaComplexTypeDefinitionIsExtension,
+  xmlSchemaSimpleTypeDefinitionIsRestriction,
 } from "./xml-schema-model";
 
 import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
@@ -423,11 +424,20 @@ async function writeSimpleType(
     await writeTypeAttributes(type, writer);
     if (definition.xsType != null) {
       await writer.writeElementFull("xs", definition.xsType)(async writer => {
-        // In case of xs:union and similar.
-        await writer.writeLocalAttributeValue(
-          "memberTypes",
-          contents.map(name => writer.getQName(...name)).join(" ")
-        );
+        if (xmlSchemaSimpleTypeDefinitionIsRestriction(definition)) {
+          await writer.writeLocalAttributeValue(
+            "base", writer.getQName(...definition.base)
+          );
+          if (definition.pattern != null) {
+            await writer.writeElementFull("xs", "pattern")(async writer => await writer.writeLocalAttributeValue("value", definition.pattern));
+          }
+        } else {
+          // In case of xs:union and similar.
+          await writer.writeLocalAttributeValue(
+            "memberTypes",
+            contents.map(name => writer.getQName(...name)).join(" ")
+          );
+        }
       });
     }
   });

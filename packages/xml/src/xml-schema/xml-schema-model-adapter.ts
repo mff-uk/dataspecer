@@ -1,22 +1,22 @@
-import {StructureModelClass, StructureModelComplexType, StructureModelPrimitiveType, StructureModelProperty, StructureModelSchemaRoot, StructureModelType,} from "@dataspecer/core/structure-model/model";
+import { StructureModelClass, StructureModelComplexType, StructureModelPrimitiveType, StructureModelProperty, StructureModelSchemaRoot, StructureModelType, } from "@dataspecer/core/structure-model/model";
 
-import {XmlStructureModel as StructureModel} from "../xml-structure-model/model/xml-structure-model";
+import { XmlStructureModel as StructureModel } from "../xml-structure-model/model/xml-structure-model";
 
-import {XmlSchema, XmlSchemaAnnotation, XmlSchemaComplexContainer, XmlSchemaComplexContent, XmlSchemaComplexContentElement, XmlSchemaComplexContentItem, XmlSchemaComplexGroup, XmlSchemaComplexItem, XmlSchemaComplexSequence, XmlSchemaComplexType, XmlSchemaElement, XmlSchemaGroupDefinition, XmlSchemaImportDeclaration, XmlSchemaSimpleType, XmlSchemaType, xmlSchemaTypeIsComplex,} from "./xml-schema-model";
+import { XmlSchema, XmlSchemaAnnotation, XmlSchemaComplexContainer, XmlSchemaComplexContent, XmlSchemaComplexContentElement, XmlSchemaComplexContentItem, XmlSchemaComplexGroup, XmlSchemaComplexItem, XmlSchemaComplexSequence, XmlSchemaComplexType, XmlSchemaElement, XmlSchemaGroupDefinition, XmlSchemaImportDeclaration, XmlSchemaSimpleItem, XmlSchemaSimpleType, XmlSchemaType, xmlSchemaTypeIsComplex } from "./xml-schema-model";
 
-import {DataSpecification, DataSpecificationArtefact, DataSpecificationSchema,} from "@dataspecer/core/data-specification/model";
+import { DataSpecification, DataSpecificationArtefact, DataSpecificationSchema, } from "@dataspecer/core/data-specification/model";
 
-import {XSD, XSD_PREFIX} from "@dataspecer/core/well-known";
-import {XML_SCHEMA} from "./xml-schema-vocabulary";
+import { OFN, XSD, XSD_PREFIX } from "@dataspecer/core/well-known";
+import { XML_SCHEMA } from "./xml-schema-vocabulary";
 
-import {commonXmlNamespace, commonXmlPrefix, iriElementName, langStringName, QName, simpleTypeMapQName} from "../conventions";
-import {pathRelative} from "@dataspecer/core/core/utilities/path-relative";
-import {structureModelAddXmlProperties} from "../xml-structure-model/add-xml-properties";
-import {ArtefactGeneratorContext} from "@dataspecer/core/generator";
-import {DefaultXmlConfiguration, ExtractOptions, XmlConfiguration, XmlConfigurator} from "../configuration";
-import { XML_COMMON_SCHEMA_GENERATOR } from "../xml-common-schema/index";
+import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
 import { DataSpecificationConfiguration, DataSpecificationConfigurator, DefaultDataSpecificationConfiguration } from "@dataspecer/core/data-specification/configuration";
+import { ArtefactGeneratorContext } from "@dataspecer/core/generator";
 import { structureModelAddDefaultValues } from "@dataspecer/core/structure-model/transformation/add-default-values";
+import { DefaultXmlConfiguration, ExtractOptions, XmlConfiguration, XmlConfigurator } from "../configuration";
+import { commonXmlNamespace, commonXmlPrefix, iriElementName, langStringName, QName, simpleTypeMapQName } from "../conventions";
+import { XML_COMMON_SCHEMA_GENERATOR } from "../xml-common-schema/index";
+import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties";
 
 /**
  * Converts a {@link StructureModel} to an {@link XmlSchema}.
@@ -452,6 +452,10 @@ class XmlSchemaAdapter {
 
   /**
    * Produces a complex content item from a property.
+   *
+   * Produces for example:
+   *  - <xs:element minOccurs="0" maxOccurs="unbounded" name="capacity" type="xs:string"/>
+   *  - <xs:sequence>...</xs:sequence>
    */
   propertyToComplexContent(
     propertyData: StructureModelProperty
@@ -656,7 +660,7 @@ class XmlSchemaAdapter {
             elementName: [null, orTechnicalLabel],
             annotation: null,
             type: null
-          } 
+          }
         } as XmlSchemaComplexContent]
       } as XmlSchemaComplexContainer, null];
     }
@@ -739,6 +743,19 @@ class XmlSchemaAdapter {
     dataTypes: StructureModelPrimitiveType[]
   ): XmlSchemaType {
     if (dataTypes.length === 1 && !propertyData.isInOr) {
+      if (dataTypes[0].regex && dataTypes[0].dataType === OFN.string) { // todo: check whether regex is shown
+        return {
+          name: null,
+          annotation: null,
+          simpleDefinition: {
+            xsType: "restriction",
+            base: this.primitiveToQName(dataTypes[0]),
+            pattern: dataTypes[0].regex,
+            contents: []
+          } as XmlSchemaSimpleItem,
+        } as XmlSchemaSimpleType;
+      };
+
       return {
         name: this.primitiveToQName(dataTypes[0]),
         annotation: null, // No annotation for primitive types.
