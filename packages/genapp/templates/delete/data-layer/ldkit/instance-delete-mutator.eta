@@ -17,7 +17,7 @@ export class <%= it.exported_object_name %> implements <%= it.delete_mutator_int
         if (!toDelete) {
             const notFoundResult: <%= it.instance_result_type %> = {
                 instance: null,
-                message: "Not found the instance to be deleted.",
+                message: "Could not find the instance to be deleted.",
                 redirectUrl: "/"
             }
 

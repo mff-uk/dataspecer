@@ -75,7 +75,7 @@ export const <%= it.export_name %> = ({ instanceId }: { instanceId: string }) =>
                     onClick={() => redirect("<%~ transition.id %>")}
                 >
                     <ListItemIcon>
-                        <%= getCapabilityButtonIcon(transition.targetId) %>
+                        <%~ getCapabilityButtonIcon(transition.targetId) %>
                     </ListItemIcon>
                     <ListItemText>
                         <%~ transition.label %>

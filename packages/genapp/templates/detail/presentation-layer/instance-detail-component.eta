@@ -286,12 +286,12 @@ export default function <%= it.export_name %>() {
             { instance &&
                 <Box id="<%= it.aggregate_name %>-detail" component="section"><% const propertyNames = Object.keys(it.json_schema.properties); %><% for (let index = 0; index < propertyNames.length; index++) { %><% const propName = propertyNames[index]; const propValue = it.json_schema.properties[propName]; %><% if (propName === "type") continue; %>
                     <Box id="<%~ propName %>-property-key" component="section" sx={{ p: 2 }}>
-                        <h4 id="<%~ propName %>-property-key"><% const name = (propValue.title ?? propName); const displayName = `${name.charAt(0).toUpperCase()}${name.slice(1)}` %>
+                        <Typography variant="h5" id="<%~ propName %>-property-key"><% const name = (propValue.title ?? propName); const displayName = `${name.charAt(0).toUpperCase()}${name.slice(1)}` %>
                             <%~ displayName %>:
-                        </h4>
-                        <label id="<%~ propName %>-property-value">
+                        </Typography>
+                        <Typography variant="body1" id="<%~ propName %>-property-value">
                             <%~ getDetailRenderComponentByProperty(propName, propValue, "instance.raw") %>
-                        </label>
+                        </Typography>
                     </Box><% } %>
                 </Box>
             }

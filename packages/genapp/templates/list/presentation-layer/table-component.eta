@@ -80,7 +80,9 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
             >
                 <CircularProgress color="inherit" />
             </Backdrop><% const defaultTablePageTitle = "List of <%= it.aggregate_name %> items" %>
-            <h2><%~ it.page_title ?? defaultTablePageTitle %></h2>
+            <h2>
+                <%~ it.page_title ?? defaultTablePageTitle %>
+            </h2>
             <% for (let index = 0; index < it.list_collection_transitions.length; index++) { %><% const collectionTransition = it.list_collection_transitions[index]; %>
             <Button
                 id="<%= collectionTransition.id %>-transition-button"
@@ -89,13 +91,11 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
                 sx={{
                     marginRight: 1
                 }}
-                startIcon={<%=  getCapabilityButtonIcon(collectionTransition.targetId) %>}
+                startIcon={<%~  getCapabilityButtonIcon(collectionTransition.targetId) %>}
                 onClick={() => handleCollectionCapabilityRedirect("<%= collectionTransition.id %>")}
             >
                 <%= collectionTransition.label %>: <%= it.aggregate_name %>
-            </Button>
-            <% } %><% const defaultPageTitle = "List of \"\" items" %>
-            <h2><%= it.page_title ?? defaultPageTitle %></h2>
+            </Button><% } %><% const defaultPageTitle = "List of \"\" items" %>
             <TableContainer>
                 <Table sx={{ minWidth: 650 }} aria-label="<%= it.aggregate_name %> table"></Table>
                 {instanceList &&
@@ -110,7 +110,7 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
                                 </TableCell><% } %>
                                 <% if (hasTransitions) { %>
                                 <TableCell align="left">
-                                    <strong>Options</strong>
+                                    <strong>Actions</strong>
                                 </TableCell>
                                 <% } %>
                             </TableRow>
