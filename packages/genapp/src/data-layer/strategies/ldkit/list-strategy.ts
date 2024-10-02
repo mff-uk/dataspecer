@@ -5,6 +5,7 @@ import { DataSourceType, DatasourceConfig } from "../../../engine/graph/datasour
 import { LdkitSchemaProvider } from "../../schema-providers/ldkit-schema-provider";
 import { InstanceListLdkitReaderGenerator } from "../../template-generators/ldkit/instance-list-reader-generator";
 import { SchemaProvider } from "../../schema-providers/base-schema-provider";
+import { LdkitObjectModelTypeGenerator } from "../../template-generators/ldkit/object-model-type-generator";
 
 export class LdkitListDalGenerator implements DalGeneratorStrategy {
 
@@ -24,6 +25,14 @@ export class LdkitListDalGenerator implements DalGeneratorStrategy {
     async generateDataLayer(context: GenerationContext): Promise<LayerArtifact> {
 
         const ldkitSchemaArtifact = await this._schemaProvider.getSchemaArtifact(context.aggregate);
+
+        const objectModelType = new LdkitObjectModelTypeGenerator({
+            filePath: `./types/${context.aggregate.technicalLabel}-object-model.ts`,
+            templatePath: `./list/data-layer/${this.strategyIdentifier}/object-model-type`
+        }).processTemplate({
+            aggregate: context.aggregate,
+            ldkitSchemaArtifact: ldkitSchemaArtifact
+        });
 
         const instanceListReaderArtifact = new InstanceListLdkitReaderGenerator({
             filePath: `./readers/${this.strategyIdentifier}/${context.aggregate.technicalLabel}-list.ts`,
