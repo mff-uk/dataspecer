@@ -13,3 +13,7 @@ lib/
 data/
 node_modules/
 !.github/
+
+# All package-locks except root
+**/package-lock.json
+!package-lock.json
