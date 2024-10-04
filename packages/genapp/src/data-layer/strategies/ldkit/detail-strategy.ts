@@ -5,6 +5,7 @@ import { GenerationContext } from "../../../engine/generator-stage-interface";
 import { DataSourceType, DatasourceConfig } from "../../../engine/graph/datasource";
 import { LdkitSchemaProvider } from "../../schema-providers/ldkit-schema-provider";
 import { InstanceDetailLdkitReaderGenerator } from "../../template-generators/ldkit/instance-detail-reader-generator";
+import { LdkitObjectModelTypeGenerator } from "../../template-generators/ldkit/object-model-type-generator";
 
 export class LdkitDetailDalGenerator implements DalGeneratorStrategy {
 
@@ -25,6 +26,15 @@ export class LdkitDetailDalGenerator implements DalGeneratorStrategy {
 
         const ldkitSchemaArtifact = await this._schemaProvider.getSchemaArtifact(context.aggregate);
 
+        const schemaInterfaceArtifact = await new LdkitObjectModelTypeGenerator({
+            filePath: `./types/${context.aggregate.technicalLabel}-object-model.ts`,
+            // TODO: move template file to more general ldkit path
+            templatePath: `./list/data-layer/ldkit/object-model-type`
+        }).processTemplate({
+            aggregate: context.aggregate,
+            ldkitSchemaArtifact: ldkitSchemaArtifact
+        });
+
         const instanceDetailReaderArtifact = new InstanceDetailLdkitReaderGenerator({
             filePath: `./readers/${this.strategyIdentifier}/${context.aggregate.technicalLabel}-detail.ts`,
             templatePath: `./detail/data-layer/${this.strategyIdentifier}/instance-detail-reader`,
@@ -32,7 +42,8 @@ export class LdkitDetailDalGenerator implements DalGeneratorStrategy {
             aggregate: context.aggregate,
             pathResolver: context._.pathResolver,
             ldkitSchemaArtifact: ldkitSchemaArtifact,
-            sparqlEndpointUri: this._sparqlEndpointUri
+            sparqlEndpointUri: this._sparqlEndpointUri,
+            ldkitSchemaInterfaceArtifact: schemaInterfaceArtifact
         });
 
         return instanceDetailReaderArtifact;

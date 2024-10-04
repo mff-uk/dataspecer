@@ -1,4 +1,4 @@
 import { SchemaInterface } from "ldkit";
-import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
+import { <%= it.ldkit_schema_name %> } from <%~ it.ldkit_schema_path %>;
 
-export type <%= it.object_model_type_name %> = SchemaInterface<typeof <%= it.ldkit_schema %>>;
+export type <%= it.object_model_type_name %> = SchemaInterface<typeof <%= it.ldkit_schema_name %>>;

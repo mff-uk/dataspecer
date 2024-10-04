@@ -8,7 +8,8 @@ import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-tem
 interface InstanceDetailLdkitReaderDependencyMap extends TemplateDependencyMap {
     pathResolver: GeneratedFilePathCalculator,
     ldkitSchemaArtifact: LayerArtifact,
-    sparqlEndpointUri: string
+    sparqlEndpointUri: string,
+    ldkitSchemaInterfaceArtifact: LayerArtifact
 }
 
 export interface InstanceDetailLdkitReaderTemplate extends TemplateDescription {
@@ -89,7 +90,7 @@ export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<Instanc
             sourceText: ldkitInstanceDetailReader,
             exportedObjectName: detailExportedObject,
             filePath: this._filePath,
-            dependencies: [instanceReaderInterfaceArtifact, dependencies.ldkitSchemaArtifact]
+            dependencies: [instanceReaderInterfaceArtifact, dependencies.ldkitSchemaArtifact, dependencies.ldkitSchemaInterfaceArtifact]
         }
 
         return readerInterfaceArtifact;

@@ -1,35 +1,67 @@
 import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../engine/template-consumer";
+import { ArtifactCache } from "../../../utils/artifact-saver";
+import { ObjectModelTypeGeneratorHelper } from "./object-model-generator-helper";
 
 interface LdkitObjectModelTypeTemplate extends TemplateDescription {
     placeholders: {
-        object_model_type_name: string,
-        ldkit_schema: string,
-        ldkit_schema_path: ImportRelativePath
+        object_model_type_name: string;
+        ldkit_schema_name: string;
+        ldkit_schema_path: ImportRelativePath;
     }
+}
+
+interface LdkitObjectModelDependencyMap extends TemplateDependencyMap {
+    ldkitSchemaArtifact: LayerArtifact
 }
 
 export class LdkitObjectModelTypeGenerator extends TemplateConsumer<LdkitObjectModelTypeTemplate> {
 
-    processTemplate(dependencies: TemplateDependencyMap): Promise<LayerArtifact> {
+    private readonly _generatorHelper: ObjectModelTypeGeneratorHelper;
+
+    constructor(templateMetadata: TemplateMetadata) {
+        super(templateMetadata);
+
+        this._generatorHelper = new ObjectModelTypeGeneratorHelper();
+    }
+
+    private getSerializedLdkitSchema(ldkitSchemaSource: string): string {
+        const objectStartIndex = ldkitSchemaSource.indexOf("{");
+        const objectEndIndex = ldkitSchemaSource.indexOf(" as const;");
+
+        return ldkitSchemaSource.substring(objectStartIndex, objectEndIndex);
+    }
+
+    private generateAndSaveLdkitSchemaInterface(ldkitArtifact: LayerArtifact, aggregateTechnicalLabel: string) {
+        const ldkitSchemaInstance = JSON.parse(this.getSerializedLdkitSchema(ldkitArtifact.sourceText));
+
+        const ldkitSchemaInterface = this._generatorHelper.getInterfaceFromLdkitSchemaInstance(ldkitSchemaInstance);
+
+        ArtifactCache.savedArtifactsMap[`__${aggregateTechnicalLabel}DataModelInterface`] = JSON.stringify(ldkitSchemaInterface);
+    }
+
+    processTemplate(dependencies: LdkitObjectModelDependencyMap): Promise<LayerArtifact> {
+
+        const ldkitArtifact = dependencies.ldkitSchemaArtifact;
 
         const objectModelTypeName = dependencies.aggregate.getAggregateNamePascalCase({
             suffix: "ModelType"
         });
 
+        this.generateAndSaveLdkitSchemaInterface(ldkitArtifact, dependencies.aggregate.technicalLabel);
+
         const modelTypeTemplate: LdkitObjectModelTypeTemplate = {
             templatePath: this._templatePath,
             placeholders: {
                 object_model_type_name: objectModelTypeName,
-                ldkit_schema: "",
+                ldkit_schema_name: ldkitArtifact.exportedObjectName,
                 ldkit_schema_path: {
                     from: this._filePath,
-                    to: ""
+                    to: ldkitArtifact.filePath
                 }
-
             }
-        }
+        };
 
         const render = this._templateRenderer.renderTemplate(modelTypeTemplate);
 
