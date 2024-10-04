@@ -7,7 +7,7 @@ interface ArtifactSaverCache {
     savedArtifactsMap: { [artifactObject: string]: string; };
 }
 
-const BaseArtifactSaver: ArtifactSaverCache = {
+export const ArtifactCache: ArtifactSaverCache = {
     savedArtifactsMap: {}
 };
 
@@ -30,7 +30,7 @@ export class ArtifactSaver implements GeneratedFilePathCalculator {
     getFullSavePath(filename: string, artifactName?: string): string {
 
         if (artifactName && this.isSaved(artifactName)) {
-            return BaseArtifactSaver.savedArtifactsMap[artifactName]!;
+            return ArtifactCache.savedArtifactsMap[artifactName]!;
         }
 
         return path.posix.join(
@@ -41,7 +41,7 @@ export class ArtifactSaver implements GeneratedFilePathCalculator {
     }
 
     private isSaved(artifactObjectName: string): boolean {
-        return artifactObjectName in BaseArtifactSaver.savedArtifactsMap;
+        return artifactObjectName in ArtifactCache.savedArtifactsMap;
     }
 
     saveArtifact(artifact: LayerArtifact) {
@@ -51,7 +51,7 @@ export class ArtifactSaver implements GeneratedFilePathCalculator {
 
         if (this.isSaved(artifact.exportedObjectName)) {
             console.log(`${artifact.exportedObjectName} has been already saved. Restoring ...`)
-            const savedFilepath = BaseArtifactSaver.savedArtifactsMap[artifact.exportedObjectName];
+            const savedFilepath = ArtifactCache.savedArtifactsMap[artifact.exportedObjectName];
 
             if (!savedFilepath) {
                 throw new Error(`"${artifact.exportedObjectName}" claims to be saved, but invalid filepath has been saved.`);
@@ -74,7 +74,7 @@ export class ArtifactSaver implements GeneratedFilePathCalculator {
             fs.writeFileSync(fullFilepath, artifact.sourceText);
         });
 
-        BaseArtifactSaver.savedArtifactsMap[artifact.exportedObjectName] = fullFilepath;
+        ArtifactCache.savedArtifactsMap[artifact.exportedObjectName] = fullFilepath;
 
         // save actual path where the artifact has been saved
         artifact.filePath = fullFilepath;

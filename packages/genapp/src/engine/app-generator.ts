@@ -134,23 +134,35 @@ export class ApplicationGenerator {
 
         await once(readStream, "end");
 
-        //fs.rmSync(this._args.tmpOutDir, { recursive: true });
-        //fs.rmSync(tempZipFilename);
-
         return Buffer.concat(buffers);
     }
 
     async generate(): Promise<Buffer> {
-        const configReader = ConfigurationReaderFactory.createConfigurationReader(this._args);
 
-        const appGraph: ApplicationGraph = configReader
-            .getAppConfiguration();
+        const configReader = ConfigurationReaderFactory.createConfigurationReader(this._args);
+        const zipFilename = GenappEnvConfig.TmpOutZipName;
+
+        const appGraph: ApplicationGraph = configReader.getAppConfiguration();
 
         await this.generateAppFromConfig(appGraph);
 
-        const zipFilename = GenappEnvConfig.TmpOutZipName;
         await this.generateZipArchive(zipFilename);
-        return await this.getZipBuffer(zipFilename);
+
+        const generatedBuffer = await this.getZipBuffer(zipFilename);
+
+        setTimeout(() => {
+            if (fs.existsSync(zipFilename)) {
+                console.log("REMOVING zipped application artifact: ", zipFilename);
+                fs.rmSync(zipFilename);
+            }
+
+            if (fs.existsSync(GenappEnvConfig.TmpOutDir)) {
+                console.log("REMOVING temporary app directory: ", GenappEnvConfig.TmpOutDir);
+                fs.rmSync(GenappEnvConfig.TmpOutDir, { recursive: true });
+            }
+        }, 5000);
+
+        return generatedBuffer;
     }
 
     private async generateAppFromConfig(appGraph: ApplicationGraph) {
