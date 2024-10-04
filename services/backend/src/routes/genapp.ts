@@ -45,12 +45,13 @@ export const getGenerateApplicationByModelId = asyncHandler(async (request: expr
 
     const modelStore = await resourceModel.getOrCreateResourceModelStore(query.iri);
     const data = await modelStore.getJson();
+    const date = new Date();
 
     const inputArgs: GenappConfiguration = {
         serializedGraph: JSON.stringify(data),
         backendHost: configuration.host,
-        tmpOutDir: "generated",
-        tmpOutZipname: "out.zip",
+        tmpOutDir: `generated_${date.getFullYear()}${date.toLocaleString([], { month: "2-digit" })}${ date.toLocaleString([], { day: "2-digit" }) }${date.getHours()}${date.getMinutes()}${date.getSeconds()}${date.getMilliseconds()}`,
+        tmpOutZipname: `out_${date.getFullYear()}${date.toLocaleString([], { month: "2-digit" })}${ date.toLocaleString([], { day: "2-digit" }) }${date.getHours()}${date.getMinutes()}${date.getSeconds()}${date.getMilliseconds()}.zip`,
     };
 
     const appGenerator = new ApplicationGenerator(inputArgs);
