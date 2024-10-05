@@ -13,8 +13,8 @@ export class EdgeCrossingMetric implements Metric {
                         return;
                     }
                     for(let outNN of nn.getAllOutgoingEdges()) {
-                        edgeCrossingCount += EdgeCrossingMetric.isEdgeCrossForStraightLines(n.completeVisualEntity, outN.completeVisualEntity,
-                                                                                            nn.completeVisualEntity, outNN.completeVisualEntity);
+                        edgeCrossingCount += EdgeCrossingMetric.isEdgeCrossForStraightLines(n.completeVisualEntity, outN.end.completeVisualEntity,
+                                                                                            nn.completeVisualEntity, outNN.end.completeVisualEntity);
                     }
                 }
                 )

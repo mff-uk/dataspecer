@@ -134,28 +134,64 @@ export class GraphClassic {
     todoDebugExtractedModel: ExtractedModel;
 }
 
+// TODO: Can create more specific interfaces for generalization, etc, which will be extending this one - they will be different in the fields - edge: type and isProfile value
+export interface IEdgeClassic {
+    graph: IGraphClassic,
+
+    edge: SemanticModelEntity,
+    isDummy: boolean,
+    isProfile: boolean,
+
+    start: INodeClassic,
+    end: INodeClassic
+}
+
+class EdgeClassic implements IEdgeClassic {
+    constructor(edge: SemanticModelEntity, isProfile: boolean, graph: IGraphClassic, start: INodeClassic, end: INodeClassic) {
+        this.graph = graph;
+        this.isDummy = false;
+
+        this.isProfile = isProfile;
+        this.edge = edge;
+        this.start = start;
+        this.end = end;
+    }
+
+    graph: IGraphClassic;
+
+    edge: SemanticModelEntity;
+    isDummy: boolean;
+    isProfile: boolean;
+
+    start: INodeClassic;
+    end: INodeClassic;
+}
+
 export interface INodeClassic {
     node: SemanticModelEntity,
     isDummy: boolean,
     isMainEntity: boolean,
     isProfile: boolean,
 
-    profileEdges: Array<INodeClassic>,
-    reverseRelationshipEdges: Array<INodeClassic>,
+    profileEdges: Array<IEdgeClassic>,      // TODO: We are wasting a lot of space by doubling information
+    reverseRelationshipEdges: Array<IEdgeClassic>,
 
-    generalizationEdges: Array<INodeClassic>,
-    reverseGeneralizationEdges: Array<INodeClassic>,
+    generalizationEdges: Array<IEdgeClassic>,
+    reverseGeneralizationEdges: Array<IEdgeClassic>,
 
-    relationshipEdges: Array<INodeClassic>,
-    reverseProfileEdges: Array<INodeClassic>,
-    getAllOutgoingEdges(): Generator<INodeClassic, string, unknown>,
-    getAllIncomingEdges(): Generator<INodeClassic, string, unknown>,
+    relationshipEdges: Array<IEdgeClassic>,
+    reverseProfileEdges: Array<IEdgeClassic>,
+    getAllOutgoingEdges(): Generator<IEdgeClassic, string, unknown>,
+    getAllIncomingEdges(): Generator<IEdgeClassic, string, unknown>,
 
     completeVisualEntity: IVisualEntityComplete,
 
     getAttributes(): SemanticModelRelationship[];
     getSourceGraph(): IGraphClassic;
 }
+
+type AddEdgeType = "relationshipEdges" | "generalizationEdges" | "profileEdges";
+type ReverseAddEdgeType = "reverseRelationshipEdges" | "reverseGeneralizationEdges" | "reverseProfileEdges";
 
 class NodeClassic implements INodeClassic {
     constructor(node: SemanticModelEntity, isProfile: boolean, extractedModel: ExtractedModel, graph: IGraphClassic) {
@@ -164,30 +200,30 @@ class NodeClassic implements INodeClassic {
         this.node = node;
         this.isProfile = isProfile;
 
-        let edgeToAddKey = "relationshipEdges"
-        let reverseEdgeToAddKey = "reverse" + this.capitalizeFirstLetter(edgeToAddKey);
+        let edgeToAddKey: AddEdgeType = "relationshipEdges"
+        let reverseEdgeToAddKey: ReverseAddEdgeType = "reverse" + this.capitalizeFirstLetter(edgeToAddKey) as ReverseAddEdgeType;
         extractedModel.relationships.forEach(r => {
             const [source, target, ...rest] = getEdgeSourceAndTargetRelationship(r);
             if(node.id === source) {
-                this.addEdgeInternal(graph, target, extractedModel, edgeToAddKey, reverseEdgeToAddKey);
+                this.addEdgeInternal(graph, r, target, extractedModel, edgeToAddKey, reverseEdgeToAddKey);
             }
         });
 
         edgeToAddKey = "generalizationEdges"
-        reverseEdgeToAddKey = "reverse" + this.capitalizeFirstLetter(edgeToAddKey);
+        reverseEdgeToAddKey = "reverse" + this.capitalizeFirstLetter(edgeToAddKey);     // ??? Why do I not need to recast here???
         extractedModel.generalizations.forEach(g => {
             const [source, target] = getEdgeSourceAndTargetGeneralization(g);
             if(node.id === source) {
-                this.addEdgeInternal(graph, target, extractedModel, edgeToAddKey, reverseEdgeToAddKey);
+                this.addEdgeInternal(graph, g, target, extractedModel, edgeToAddKey, reverseEdgeToAddKey);
             }
         });
 
         edgeToAddKey = "profileEdges"
-        reverseEdgeToAddKey = "reverse" + this.capitalizeFirstLetter(edgeToAddKey);
+        reverseEdgeToAddKey = "reverse" + this.capitalizeFirstLetter(edgeToAddKey) as ReverseAddEdgeType;
         extractedModel.relationshipsProfiles.forEach(rp => {
             const [source, target] = getEdgeSourceAndTargetRelationshipUsage(rp);
             if(node.id === source) {
-                this.addEdgeInternal(graph, target, extractedModel, edgeToAddKey, reverseEdgeToAddKey);
+                this.addEdgeInternal(graph, rp, target, extractedModel, edgeToAddKey, reverseEdgeToAddKey);
             }
         });
 
@@ -204,7 +240,12 @@ class NodeClassic implements INodeClassic {
         return this.attributes;
     }
 
-    private addEdgeInternal(graph: IGraphClassic, target: string, extractedModel: ExtractedModel, edgeToAddKey: string, reverseEdgeToAddKey: string) {
+    private addEdgeInternal(graph: IGraphClassic,
+                            edge: SemanticModelEntity,
+                            target: string,
+                            extractedModel: ExtractedModel,
+                            edgeToAddKey: AddEdgeType,
+                            reverseEdgeToAddKey: ReverseAddEdgeType) {
         if(graph.nodes[target] === undefined) {
             // TODO: I think that the issue with scheme.org is generalization which has node http://www.w3.org/2000/01/rdf-schema#Class but it isn't in the model
             // At least I hope it isn't some bigger issue between DataType and rdf-schema
@@ -218,8 +259,11 @@ class NodeClassic implements INodeClassic {
                                                   extractedModel, graph);
         }
 
-        this[edgeToAddKey].push(graph.nodes[target]);
-        graph.nodes[target][reverseEdgeToAddKey].push(this);
+        const edgeClassic: IEdgeClassic = new EdgeClassic(edge, edgeToAddKey === "profileEdges", graph, this, graph.nodes[target]);
+        const reverseEdgeClassic: IEdgeClassic = new EdgeClassic(edge, edgeToAddKey === "profileEdges", graph, graph.nodes[target], this);
+
+        this[edgeToAddKey].push(edgeClassic);
+        graph.nodes[target][reverseEdgeToAddKey].push(reverseEdgeClassic);
     }
 
     // https://stackoverflow.com/questions/1026069/how-do-i-make-the-first-letter-of-a-string-uppercase-in-javascript
@@ -236,27 +280,27 @@ class NodeClassic implements INodeClassic {
     completeVisualEntity: IVisualEntityComplete;     // TODO:
     attributes: SemanticModelRelationship[];
 
-    profileEdges: INodeClassic[] = [];
-    reverseProfileEdges: INodeClassic[] = [];
+    profileEdges: IEdgeClassic[] = [];
+    reverseProfileEdges: IEdgeClassic[] = [];
 
-    generalizationEdges: INodeClassic[] = [];
-    reverseGeneralizationEdges: INodeClassic[] = [];
+    generalizationEdges: IEdgeClassic[] = [];
+    reverseGeneralizationEdges: IEdgeClassic[] = [];
 
-    relationshipEdges: INodeClassic[] = [];
-    reverseRelationshipEdges: INodeClassic[] = [];
-    getAllIncomingEdges(): Generator<INodeClassic, string, unknown> {
+    relationshipEdges: IEdgeClassic[] = [];
+    reverseRelationshipEdges: IEdgeClassic[] = [];
+    getAllIncomingEdges(): Generator<IEdgeClassic, string, unknown> {
         const internalGenerator = this.getEdgesInternal([this.reverseRelationshipEdges, this.reverseGeneralizationEdges, this.reverseProfileEdges]);
         return internalGenerator;
     }
 
-    getAllOutgoingEdges(): Generator<INodeClassic, string, unknown> {
+    getAllOutgoingEdges(): Generator<IEdgeClassic, string, unknown> {
         // Note: I couldn't find out, why can't I just somehow return the internals of the getEdgesInternal function
         // Answer: I just had to remove the * in front of method to say that it just returns the generator and isn't the generator in itself
         const internalGenerator = this.getEdgesInternal([this.relationshipEdges, this.generalizationEdges, this.profileEdges]);
         return internalGenerator;
     }
 
-    private *getEdgesInternal(edgesOfDifferentTypes: Array<Array<INodeClassic>>): Generator<INodeClassic, string, unknown> {
+    private *getEdgesInternal(edgesOfDifferentTypes: Array<Array<IEdgeClassic>>): Generator<IEdgeClassic, string, unknown> {
         for(const edgesOfOneType of edgesOfDifferentTypes) {
             // Note: Can't use forEach because of yield
             for(const e of edgesOfOneType) {

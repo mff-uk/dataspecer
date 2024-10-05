@@ -14,18 +14,212 @@ import { AlgorithmName, ConstraintContainer, ElkConstraintContainer } from "./co
 import { ReactflowDimensionsEstimator } from "./reactflow-dimension-estimator";
 import { CONFIG_TO_ELK_CONFIG_MAP } from "./configs/elk/elk-utils";
 import { NodeDimensionQueryHandler } from ".";
+import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 
 
 class ElkGraphTransformer implements GraphTransformer {
     // TODO: Either I will actually store the representation inside the class or not, If not then constructor should be empty
-    constructor(extractedModel: ExtractedModel, NodeDimensionQueryHandler: NodeDimensionQueryHandler, options?: object) {
-        this.todoActualGraph = new GraphClassic(extractedModel);
+    constructor(graph: GraphClassic, NodeDimensionQueryHandler: NodeDimensionQueryHandler, options?: object) {
+        this.graph = graph;
         this.NodeDimensionQueryHandler = NodeDimensionQueryHandler;
     }
 
-    convertGraphToLibraryRepresentation(graph: IGraphClassic, options?: object): object {
-        throw new Error("Method not implemented.");
+    convertGraphToLibraryRepresentation(graph: IGraphClassic, constraintContainer?: ElkConstraintContainer): ElkNode {
+        let mainLayoutOptions: LayoutOptions;
+        let generalizationLayoutOptions: LayoutOptions;
+        if(!this.hasAlgorithmConstraintForAllNodes(constraintContainer)) {
+            mainLayoutOptions = {
+                'elk.algorithm': 'layered',
+                'elk.direction': 'UP',
+                "elk.edgeRouting": "SPLINES",
+                "spacing.nodeNodeBetweenLayers": "100",
+                "spacing.nodeNode": "100",
+                "spacing.edgeNode": "100",
+                "spacing.edgeEdge": "25",
+            };
+        }
+        else {
+            mainLayoutOptions = constraintContainer.algorithmOnlyConstraints["ALL"]?.elkData;
+            generalizationLayoutOptions = constraintContainer.algorithmOnlyConstraints["GENERALIZATION"]?.elkData;
+
+            // TODO: Don't know the exact reason why this error is happening, but I think that for example if we have
+            //       the main algorithm set as layered with direction to LEFT and the generalization to right, then there exists such edges
+            //       which goes against the flow and can't be drawn using splines, so we need to draw them orthogonally
+            //       Downside of having orthogonal edge routing is that the resulting layout inside CME is slightly worse
+            if(mainLayoutOptions["elk.algorithm"] === "layered" && generalizationLayoutOptions !== undefined && mainLayoutOptions["elk.direction"] !== generalizationLayoutOptions["elk.direction"]) {
+                //mainLayoutOptions['org.eclipse.elk.hierarchyHandling'] = "INCLUDE_CHILDREN";
+                 mainLayoutOptions['elk.edgeRouting'] = "ORTHOGONAL";
+                 generalizationLayoutOptions['elk.edgeRouting'] = "ORTHOGONAL";
+            }
+        }
+        const MAIN_EDGE_DIRECTION: string = mainLayoutOptions['elk.direction'] === undefined ? "UP" : mainLayoutOptions['elk.direction'];
+        const GENERALIZATION_EDGE_DIRECTION: string = generalizationLayoutOptions === undefined ? MAIN_EDGE_DIRECTION : generalizationLayoutOptions['elk.direction'];
+
+        // TODO: The above code can be put in separate method (also it doesn't use the graph)
+
+
+        let nodes = Object.entries(graph.nodes).map(([id, node]) => {
+            if(node.isProfile) {
+                return null;
+            }
+            else {
+                return this.createElkNode(id, true, undefined, node.node.iri);      // TODO: Not sure what is the ID (visual or semantic entity id?)
+            }
+        }).filter(n => n !== null);
+
+        // TODO: Same as nodes above, maybe better type the node.node (and access through getter)
+        const profileNodes = Object.entries(graph.nodes).map(([id, node]) => {
+            if(node.isProfile) {
+                return this.createElkNode(id, true, undefined, "USAGE OF: " + (node.node as SemanticModelClassUsage).usageOf);
+            }
+            else {
+                return null;
+            }
+        }).filter(n => n !== null);
+
+
+        nodes = nodes.concat(profileNodes);
+
+        let edges = [];
+
+        Object.entries(graph.nodes).map(([id, node]) => {
+            // TODO: In case of scheme.org the value in the concept field is the Owl#Thing, the actual value I want is in the iri part
+            //       But then I should have the nodes inside elk with id as iri (in case of profiles the ids will stay the same)
+            for(const edge of node.getAllOutgoingEdges()) {
+                const [sourcePort, targetPort] = this.getSourceAndTargetPortBasedOnDirection(MAIN_EDGE_DIRECTION);
+                let elkEdge: ElkExtendedEdge = {
+                    id: edge.edge.id,
+                    sources: [ sourcePort + edge.start.node.id ],
+                    targets: [ targetPort + edge.end.node.id ],
+                }
+                edges.push(elkEdge);
+            }
+            // const [source, target, ...rest] = getEdgeSourceAndTargetRelationship();
+
+            // if(!this.isEdgeWithBothEndsInModel(extractedModel, source, target)) {
+            //     return undefined;
+            // }
+
+
+            // const [sourcePort, targetPort] = this.getSourceAndTargetPortBasedOnDirection(MAIN_EDGE_DIRECTION);
+
+            // let edge: ElkExtendedEdge = {
+            //     id: relationship.id,
+            //     sources: [ sourcePort + source ],
+            //     targets: [ targetPort + target ],
+            // }
+
+            // return edge;
+        });
+
+
+//         // TODO: Repeating the same code 3 times - refactor - just needs different direction and method to get source and target, otherwise the same
+//         //       Only the class profiles are kind of weird that they don't have releationship ID
+//         let edges = extractedModel.relationships.map(relationship => {
+//             // TODO: In case of scheme.org the value in the concept field is the Owl#Thing, the actual value I want is in the iri part
+//             //       But then I should have the nodes inside elk with id as iri (in case of profiles the ids will stay the same)
+//             const [source, target, ...rest] = getEdgeSourceAndTargetRelationship(relationship);
+
+//             if(!this.isEdgeWithBothEndsInModel(extractedModel, source, target)) {
+//                 return undefined;
+//             }
+
+
+//             const [sourcePort, targetPort] = this.getSourceAndTargetPortBasedOnDirection(MAIN_EDGE_DIRECTION);
+
+//             let edge: ElkExtendedEdge = {
+//                 id: relationship.id,
+//                 sources: [ sourcePort + source ],
+//                 targets: [ targetPort + target ],
+//             }
+
+//             return edge;
+//         });
+
+//         edges = edges.concat(extractedModel.generalizations.map(gen => {
+//             const [child, parent] = getEdgeSourceAndTargetGeneralization(gen);
+
+//             if(!this.isEdgeWithBothEndsInModel(extractedModel, child, parent)) {
+//                 return undefined;
+//             }
+
+//             const [sourcePort, targetPort] = this.getSourceAndTargetPortBasedOnDirection(GENERALIZATION_EDGE_DIRECTION);
+
+//             let edge: ElkExtendedEdge = {
+//                 id: gen.id,
+//                 sources: [ sourcePort + child ],
+//                 targets: [ targetPort + parent ],
+//             }
+
+//             return edge;
+//         }));
+
+//         let profileIndex = 0;
+//         edges = edges.concat(extractedModel.classesProfiles.map(p => {
+//             const [source, target] = [p.id, p.usageOf];
+
+//             if(!this.isEdgeWithBothEndsInModel(extractedModel, source, target)) {
+//                 return undefined;
+//             }
+
+//             const [sourcePort, targetPort] = this.getSourceAndTargetPortBasedOnDirection(MAIN_EDGE_DIRECTION);
+
+//             let edge: ElkExtendedEdge = {
+//                 id: `${profileIndex++}-${p.id}`,
+//                 sources: [ sourcePort + source ],
+//                 targets: [ targetPort + target ],
+//             }
+
+//             return edge;
+//         }));
+
+
+//         // TODO: fixed SCHEMA.ORG for now - maybe delete later
+//         edges = edges.filter(e => e !== undefined);
+
+//         // TODO: Profile edges should be done by using agregator probably or something (maybe same for profile classes)
+// /*
+//         const profileEdges = extractedModel.relationshipsProfiles.map(relationship => {
+//             let source, target: string;
+//             if(relationship.ends[0].iri == null) {
+//                 source = relationship.ends[0].concept;
+//                 target = relationship.ends[1].concept;
+//             }
+//             else {
+//                 source = relationship.ends[1].concept;
+//                 target = relationship.ends[0].concept;
+//             }
+//             let edge: ElkExtendedEdge = {
+//                 id: relationship.id,
+//                 sources: [ source ],
+//                 targets: [ target ],
+//             }
+
+//             return edge
+//         });
+
+//         edges = edges.concat(profileEdges);
+// */
+
+
+        let elkGraph: ElkNode = {
+            id: "root",
+            layoutOptions: mainLayoutOptions,
+            children: nodes,
+            edges: edges
+        };
+
+
+        if(generalizationLayoutOptions !== undefined) {
+            // TODO: !!!! This should be performed above the GraphClassic - the creation of generalization subgraphs
+            const generalizationEdges = Object.values(graph.nodes).map(node => {
+                return node.generalizationEdges
+            }).flat(1).map(edge => edge.edge as SemanticModelGeneralization);
+            this.addGeneralizationEdges(elkGraph, generalizationEdges, generalizationLayoutOptions);
+        }
+
+        return elkGraph;
     }
     convertLibraryToGraphRepresentation(libraryRepresentation: object, includeDummies: boolean): IGraphClassic {
         throw new Error("Method not implemented.");
@@ -35,7 +229,7 @@ class ElkGraphTransformer implements GraphTransformer {
     }
 
     // TODO: For now this is just to estimate the width/height, otherwise we don't use the graph yet, so it is kind of useless and waste of space
-    private todoActualGraph: GraphClassic;
+    private graph: GraphClassic;
 
     private NodeDimensionQueryHandler;
 
@@ -571,8 +765,8 @@ class ElkGraphTransformer implements GraphTransformer {
 
 
     createElkNode(id: string, shouldComputeSize?: boolean, layoutOptions?: LayoutOptions, label?: string): ElkNode {
-        const width: number = shouldComputeSize ? this.NodeDimensionQueryHandler.getWidth(this.todoActualGraph.nodes[id]) : 500;
-        const height: number = shouldComputeSize ? this.NodeDimensionQueryHandler.getHeight(this.todoActualGraph.nodes[id]) : 300;
+        const width: number = shouldComputeSize ? this.NodeDimensionQueryHandler.getWidth(this.graph.nodes[id]) : 500;
+        const height: number = shouldComputeSize ? this.NodeDimensionQueryHandler.getHeight(this.graph.nodes[id]) : 300;
 
         const ports: ElkPort[] = this.createPorts(id);
         const portOptions = this.getDefaultLayoutOptionsForNode();
@@ -772,13 +966,28 @@ function shouldPerformGeneralizationTwoRunLayout(algorithmOnlyConstraint: IAlgor
 
 
 export class ElkLayout implements LayoutAlgorithm {
+    /**
+     * @deprecated
+     * @param extractedModel
+     * @param constraintContainer
+     * @param nodeDimensionQueryHandler
+     */
     prepare(extractedModel: ExtractedModel, constraintContainer: ElkConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
-        this.elkGraphTransformer = new ElkGraphTransformer(extractedModel, nodeDimensionQueryHandler, constraintContainer);
+
+        this.elkGraphTransformer = new ElkGraphTransformer(new GraphClassic(extractedModel), nodeDimensionQueryHandler, constraintContainer);
         this.graphInElk = this.elkGraphTransformer.convertToLibraryRepresentation(extractedModel, constraintContainer);
         this.constraintContainer = constraintContainer;
         this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
 
         // console.log(this.graphInElk);
+    }
+
+    prepareFromGraph(graph: GraphClassic, constraintContainer: ElkConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
+        this.graph = graph
+        this.elkGraphTransformer = new ElkGraphTransformer(graph, nodeDimensionQueryHandler, constraintContainer);
+        this.graphInElk = this.elkGraphTransformer.convertGraphToLibraryRepresentation(graph),
+        this.constraintContainer = constraintContainer;
+        this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
     }
 
     async run(): Promise<VisualEntities> {
@@ -808,6 +1017,7 @@ export class ElkLayout implements LayoutAlgorithm {
         throw new Error("TODO: Implement me if you want webworkers and parallelization ... actually nevermind this should be one level up");
     }
 
+    graph: GraphClassic;
     graphInElk: ElkNode;
     constraintContainer: ConstraintContainer;
     elkGraphTransformer: ElkGraphTransformer;

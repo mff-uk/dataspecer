@@ -11,7 +11,7 @@ import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage,
          SemanticModelClassUsage, SemanticModelRelationshipUsage
  } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
- import { IGraphClassic, IVisualEntityComplete } from "./graph-iface";
+ import { GraphClassic, IGraphClassic, IVisualEntityComplete } from "./graph-iface";
 import { ConstraintContainer } from "./configs/constraint-container";
 import { NodeDimensionQueryHandler } from ".";
 
@@ -19,8 +19,15 @@ import { NodeDimensionQueryHandler } from ".";
 export type LayoutMethod = (inputSemanticModel: Record<string, SemanticModelEntity>, options?: object) => Promise<VisualEntities>
 
 export interface LayoutAlgorithm {
-    // TODO: Zmenit at to dostava graf ... pridat dalsi metodu, tuhle dat jako deprecated
+    /**
+     * @deprecated
+     * @param extractedModel
+     * @param constraintContainer
+     * @param nodeDimensionQueryHandler
+     * @returns
+     */
     prepare: (extractedModel: ExtractedModel, constraintContainer: ConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler) => void,
+    prepareFromGraph: (graph: GraphClassic, constraintContainer: ConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler) => void,
     run: () => Promise<VisualEntities>,
     stop: () => void,
 

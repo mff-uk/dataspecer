@@ -38,6 +38,10 @@ export interface NodeDimensionQueryHandler {
 export async function doEditorLayout(visualModel: VisualEntityModel,
 										semanticModels: Record<string, EntityModel>,
 										nodeDimensionQueryHandler?: NodeDimensionQueryHandler) {
+	if(nodeDimensionQueryHandler === undefined) {
+		nodeDimensionQueryHandler = new ReactflowDimensionsEstimator();
+	}
+
 	// TODO: Here perform layouting on top of visual model
 }
 
