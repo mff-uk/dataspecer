@@ -1,124 +1,40 @@
 import { useState } from 'react';
-import { IConstraintSimple } from '@dataspecer/layout';
+import { DIRECTION, AlgorithmName, UserGivenConstraintsVersion2, ElkForceAlgType, getDefaultUserGivenAlgorithmConstraint } from '@dataspecer/layout';
 
 
-enum DIRECTION { 
-    UP = "UP", 
-    RIGHT = "RIGHT", 
-    DOWN = "DOWN", 
-    LEFT = "LEFT"
-}
-
-
-// TODO: Awful
+// TODO:
 // 1) Make it more general - a lot of repeating code and the same strings on multiple of places (create new react components or something)
 // 2) Make it map to the Constraint interface (and pass only the relevant settings further) ... and better typing - kinda done
 // 3) Style it better - but it is kind of throwaway so it doesn't really matter
-// 4) Have language strings, etc.
+// 4) Have dialog localization
 export const useConfigDialog = () => {
-    const [config, setConfig] = useState({"init": "init", "main-layout-alg": "stress", 
-//                                            "profile-nodes-position-against-source": DIRECTION.DOWN,
-                                            "main-alg-direction": DIRECTION.UP,
-                                            "layer-gap": 100,
-                                            "in-layer-gap": 100,                                            
-                                        
-                                            "stress-edge-len": 600,
-
-                                            "min-distance-between-nodes": 100,
-                                            "force-alg-type": "FRUCHTERMAN_REINGOLD",
-                                        
-                                            "process-general-separately": false,
-                                            "general-main-alg-direction": DIRECTION.UP,
-                                            "general-layer-gap": 100,
-                                            "general-in-layer-gap": 100,
-
-                                            "double-run": true,
-                                        });    
+    const [config, setConfig] = useState<UserGivenConstraintsVersion2>({
+                                            main: {
+                                                ...getDefaultUserGivenAlgorithmConstraint(),
+                                                "should_be_considered": true,
+                                                "constraintedNodes": "ALL",
+                                            },
+                                            general: {
+                                                ...getDefaultUserGivenAlgorithmConstraint(),
+                                                "layout_alg": "elk_layered",        // TODO: Defined as stress in the default
+                                                "should_be_considered": false,
+                                                "constraintedNodes": "GENERALIZATION",
+                                                "double_run": true,
+                                            }
+                                        });
 
     // const updateConfig = (key: string, e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     //     setConfig({...config, [key]: parseInt(e.target.value)});
     // }
 
 
-    // TODO: I think that there should be way to make it less error prone (put the relevant configs to components and pick it from them or something)
+
+    // Before V2 we tried filtering, right now just put in everything and pick the correct ones, the responsibility on picking correct one should lie in the layout package anyways
+    // TODO: So it may be renamed to getConfig instead
     const getValidConfig = () => {
-        if(config['main-layout-alg'] === "random") {
-            return {
-                'main-alg-config': {
-                    "constraintedNodes": "ALL",
-                    "data": {
-                        "main-layout-alg": config['main-layout-alg']                        
-                    }
-                }
-            };
-        }   
-        let validConfig: Record<string, IConstraintSimple> = {};
-        if(config['main-layout-alg'] === "stress") {
-            validConfig = {
-                'main-alg-config': {
-                    "constraintedNodes": "ALL",
-                    "data": {
-                        "main-layout-alg": config['main-layout-alg'],
-                        "stress-edge-len": config['stress-edge-len']
-                    }
-                }
-            };
-        }
-        else if(config['main-layout-alg'] === "force") {
-            validConfig = {
-                'main-alg-config': {
-                    "constraintedNodes": "ALL",
-                    "data": {
-                        "main-layout-alg": config['main-layout-alg'],
-                        "min-distance-between-nodes": config['min-distance-between-nodes'],
-                        "force-alg-type": config['force-alg-type'],
-                    }
-                }
-            };
-        }
-        else {
-            validConfig = {
-                'main-alg-config': {
-                    "constraintedNodes": "ALL",
-                    "data": {
-                        "main-layout-alg": config['main-layout-alg'],
-                        "main-alg-direction": config["main-alg-direction"],
-                        "layer-gap": config["layer-gap"],
-                        "in-layer-gap": config["in-layer-gap"],
-                    }
-                }
-            };
-        }
-
-        if(config['process-general-separately']) {
-            validConfig = {
-                ...validConfig,
-                'general-config': {
-                    "constraintedNodes": "GENERALIZATION",
-                    "data": {
-                        "main-layout-alg": "layered",       // TODO: Just fix it for now (layered is usually the best choice for generalization hierarchy anyways)
-                        "general-main-alg-direction": config['general-main-alg-direction'],
-                        "general-layer-gap": config['general-layer-gap'],
-                        "general-in-layer-gap": config['general-in-layer-gap'],                        
-                    }
-                }
-            };
-            
-            if(config["double-run"]) {
-                validConfig = {
-                    ...validConfig,
-                    'general-config-double-run': {
-                        "constraintedNodes": "GENERALIZATION",
-                        "data": {
-                            "double-run": config["double-run"],
-                        }
-                    }
-                }
-            }
-        }
-
-        return validConfig;
+        return config;
     }
+
 
     // const ConfigSlider = (props: {
     //     min: number;
@@ -133,119 +49,153 @@ export const useConfigDialog = () => {
     // }
 
 
-    const ForceConfig = () => {
-        return (
-            <div>
-                
-                <h1 className='font-black'>Physics-based model settings {/* cz: Nastavení fyzikálního modelu */}</h1>
-                <div className="flex flex-row">                    
-                    <label htmlFor="range-min-distance-between-nodes">Min distance between nodes: {/* cz: Min vzdálenost mezi vrcholy: */}</label>
-                </div> 
-                <div className="flex flex-row">
-                    <input type="range" min="0" max="1000" step="10" className="slider" id="range-min-distance-between-nodes" draggable="false" 
-                            defaultValue={config["min-distance-between-nodes"]} 
-                            onMouseUp={(e) => { setConfig({...config, "min-distance-between-nodes": parseInt((e.target as HTMLInputElement).value)});}}></input>
-                            {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget 
-                                (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
-                    {config["min-distance-between-nodes"]}
-                </div>
-
-
-                <div className="flex flex-row">                    
-                    <label htmlFor="force-alg-type">Computation model type: {/* cz: Typ výpočtu: */}</label>
-                </div> 
-                <div className="flex flex-row">
-                    <select id="force-alg-type" value={config["force-alg-type"]} onChange={(event) => {
-                                    // Based on https://stackoverflow.com/questions/17380845/how-do-i-convert-a-string-to-enum-in-typescript
-                                    setConfig({...config, ["force-alg-type"]: event.target.value });        
-                        }}>
-                        <option value="EADES">Eades</option>
-                        <option value="FRUCHTERMAN_REINGOLD">Fruchterman Reingold</option>
-                    </select>
-                </div> 
-            </div>
-            );
-        }
-
-    const StressConfig = () => 
-        <div>            
-            <h1 className='font-black'>Physics-based model settings {/* cz: Nastavení fyzikálního modelu */}</h1>
-            <div className="flex flex-row">                
-                <label htmlFor="range-stress-edge-len">Ideal edge length: {/* cz: Ideální délka hran: */}</label>
-            </div> 
+    const ForceConfig = (props: {stateField: keyof UserGivenConstraintsVersion2}) =>
+        <div>
+            <h1 className='font-black'>Nastavení fyzikálního modelu</h1>
             <div className="flex flex-row">
-                <input type="range" min="0" max="1000" step="10" className="slider" id="range-stress-edge-len" draggable="false" 
-                        defaultValue={config['stress-edge-len']} 
-                        onMouseUp={(e) => { setConfig({...config, "stress-edge-len": parseInt((e.target as HTMLInputElement).value)});}}></input>
-                        {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget 
-                            (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
-                {config["stress-edge-len"]}
+                <label htmlFor="range-min-distance-between-nodes">Min vzdálenost mezi vrcholy: </label>
+            </div>
+            <div className="flex flex-row">
+                <input type="range" min="0" max="1000" step="10" className="slider" id="range-min-distance-between-nodes" draggable="false"
+                        defaultValue={config[props.stateField]["min_distance_between_nodes"]}
+                        onMouseUp={(e) => { setConfig({
+                                                       ...config,
+                                                       [props.stateField]: {
+                                                            ...config[props.stateField],
+                                                            "min_distance_between_nodes": parseInt((e.target as HTMLInputElement).value)
+                                                        }
+                                                    });
+                                                    {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
+                                                        (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
+                                            }}></input>
+                {config[props.stateField]["min_distance_between_nodes"]}
+            </div>
+
+
+            <div className="flex flex-row">
+                <label htmlFor="force-alg-type">Typ výpočtu: </label>
+            </div>
+            <div className="flex flex-row">
+                <select id="force-alg-type" value={config[props.stateField]["force_alg_type"]} onChange={(event) => {
+                                // Based on https://stackoverflow.com/questions/17380845/how-do-i-convert-a-string-to-enum-in-typescript
+                                setConfig({...config,
+                                           [props.stateField]: {
+                                                ...config[props.stateField],
+                                                "force_alg_type": event.target.value as ElkForceAlgType }});
+                    }}>
+                    <option value="EADES">Eades</option>
+                    <option value="FRUCHTERMAN_REINGOLD">Fruchterman Reingold</option>
+                </select>
+            </div>
+        </div>
+
+    const StressConfig = (props: {stateField: keyof UserGivenConstraintsVersion2}) =>
+        <div>
+            <h1 className='font-black'>Nastavení fyzikálního modelu</h1>
+            <div className="flex flex-row">
+                <label htmlFor="range-stress-edge-len">Ideální délka hran: </label>
+            </div>
+            <div className="flex flex-row">
+                <input type="range" min="0" max="1000" step="10" className="slider" id="range-stress-edge-len" draggable="false"
+                        defaultValue={config[props.stateField]['stress_edge_len']}
+                        onMouseUp={(e) => { setConfig({...config,
+                                                        [props.stateField]: {
+                                                            ...config[props.stateField],
+                                                            "stress_edge_len": parseInt((e.target as HTMLInputElement).value)
+                                                        }
+                                                    })
+                                            }}></input>
+                {config[props.stateField]["stress_edge_len"]}
             </div>
         </div>
 
 
-    const LayeredConfig = (props: {idPrefix: "" | "general-"}) => 
+    const LayeredConfig = (props: {stateField: keyof UserGivenConstraintsVersion2}) =>
         <div>
             <h1 className='font-black'>
-                {props.idPrefix === "" ? "Main algorithm settings" : "Settings for generalization edges" /* cz: "Nastavení pro hlavní algoritmus" : "Nastavení pro generalizační vztahy" */}
+                {props.stateField === "main" ? "Nastavení pro hlavní algoritmus" : "Nastavení pro generalizační vztahy"}
             </h1>
             <div className="flex flex-row">
-                <label htmlFor={`${props.idPrefix}main-alg-direction`}>Preferred edge directions: {/* cz: Preferovaný směr hran: */}</label>
-            </div> 
+                <label htmlFor={`${props.stateField}-main-alg-direction`}>Preferovaný směr hran: </label>
+            </div>
             <div className="flex flex-row">
-                <select id={`${props.idPrefix}main-alg-direction`} value={config[`${props.idPrefix}main-alg-direction`]} onChange={(event) => {
+                <select id={`${props.stateField}-main-alg-direction`} value={config[props.stateField]["alg_direction"]} onChange={(event) => {
                                 // Based on https://stackoverflow.com/questions/17380845/how-do-i-convert-a-string-to-enum-in-typescript
-                                setConfig({...config, [`${props.idPrefix}main-alg-direction`]: DIRECTION[event.target.value as keyof typeof DIRECTION] });        
-                    }}>
-                    <option value="UP">Up{/* Nahoru */}</option>
-                    <option value="RIGHT">Right{/* Doprava */}</option>
-                    <option value="DOWN">Down{/* Dolu */}</option>
-                    <option value="LEFT">Left{/* Doleva */}</option>
+                                setConfig({...config,
+                                            [props.stateField]: {
+                                                ...config[props.stateField],
+                                                "alg_direction": DIRECTION[event.target.value as keyof typeof DIRECTION],
+                                            }
+                                });
+                        }}>
+                    <option value="UP">Nahoru</option>
+                    <option value="RIGHT">Doprava</option>
+                    <option value="DOWN">Dolu</option>
+                    <option value="LEFT">Doleva</option>
                 </select>
-            </div>            
-    
+            </div>
+
             <div className="flex flex-row">
                 { /* It has to be onMouseUp, if I put it onChange then react forces redraw and stops the "drag" event I guess */ }
                 { /* TOOD: Rewrite like this or similar <ConfigSlider min={0} max={1000} step={10} configName='layer-gap' defaultValue={100} setConfig={setConfig}></ConfigSlider> */}
-                <label htmlFor={`range-${props.idPrefix}layer-gap`}>Space between layers: {/* cz: Prostor mezi vrstvami: */}</label>
+                <label htmlFor={`range-${props.stateField}-layer-gap`}>Prostor mezi vrstvami: </label>
             </div>
-            <div className="flex flex-row">    
-                <input type="range" min="0" max="1000" step="10" className="slider" id={`range-${props.idPrefix}layer-gap`} draggable="false" 
-                        defaultValue={config[`${props.idPrefix}layer-gap`]} 
-                        onMouseUp={(e) => { setConfig({...config, [`${props.idPrefix}layer-gap`]: parseInt((e.target as HTMLInputElement).value)});}}></input>
-                {config[`${props.idPrefix}layer-gap`]}
+            <div className="flex flex-row">
+                <input type="range" min="0" max="1000" step="10" className="slider" id={`range-${props.stateField}-layer-gap`} draggable="false"
+                        defaultValue={config[props.stateField]["layer_gap"]}
+                        onMouseUp={(e) => { setConfig({
+                                ...config,
+                                [props.stateField]: {
+                                    ...config[props.stateField],
+                                    "layer_gap": parseInt((e.target as HTMLInputElement).value)
+                                }
+                            });
+                        }}></input>
+                {config[props.stateField]["layer_gap"]}
             </div>
-            
+
 
             <div className="flex flex-row">
-                 <label htmlFor={`range-${props.idPrefix}in-layer-gap`}>Space between nodes in layer: {/* cz: Prostor mezi třídami uvnitř vrstvy: */}</label>
+                 <label htmlFor={`range-${props.stateField}in-layer-gap`}>Prostor mezi třídami uvnitř vrstvy: </label>
              </div>
              <div className="flex flex-row ">
-                 <input type="range" min="0" max="1000" step="10" className="slider" id={`range-${props.idPrefix}in-layer-gap`} draggable="false" 
-                        defaultValue={config[`${props.idPrefix}in-layer-gap`]} 
-                        onMouseUp={(e) => { setConfig({...config, [`${props.idPrefix}in-layer-gap`]: parseInt((e.target as HTMLInputElement).value)});}}>
-                </input>            
-                {config[`${props.idPrefix}in-layer-gap`]}
+                 <input type="range" min="0" max="1000" step="10" className="slider" id={`range-${props.stateField}-in-layer-gap`} draggable="false"
+                        defaultValue={config[props.stateField]["in_layer_gap"]}
+                        onMouseUp={(e) => { setConfig({...config,
+                                                        [props.stateField]: {
+                                                            ...config[props.stateField],
+                                                            "in_layer_gap": parseInt((e.target as HTMLInputElement).value)
+                                                        }
+                                                    });
+                                                }}></input>
+                {config[props.stateField]["in_layer_gap"]}
             </div>
-            { props.idPrefix !== "general-" ? null : 
+            { props.stateField !== "general" ? null :
                     <div>
-                        <input type="checkbox" id="checkbox-double-run" name="checkbox-double-run" checked={config['double-run']} 
-                                 onChange={e => setConfig({...config, "double-run": e.target.checked })} />
-                        <label htmlFor="checkbox-double-run">Run algorithm for generalization separately{/* cz: Spusť dva běhy */}</label>
+                        <input type="checkbox" id="checkbox-double-run" name="checkbox-double-run" checked={config[props.stateField]['double_run']}
+                                 onChange={e => setConfig({
+                                                    ...config,
+                                                    [props.stateField]: {
+                                                        ...config[props.stateField],
+                                                        "double_run": e.target.checked
+                                                    }
+                                                })
+                                            } />
+                        <label htmlFor="checkbox-double-run">Spusť dva běhy</label>
                     </div>
-                
+
             }
         </div>
 
     const renderMainAlgorithmConfig = () => {
-        if(config['main-layout-alg'] === "layered") {
-            return <LayeredConfig idPrefix=''></LayeredConfig>;
+        if(config.main['layout_alg'] === "elk_layered") {
+            return <LayeredConfig stateField="main"></LayeredConfig>;
         }
-        else if(config['main-layout-alg'] === "stress") {
-            return <StressConfig></StressConfig>;
+        else if(config.main['layout_alg'] === "elk_stress") {
+            return <StressConfig stateField="main"></StressConfig>;
         }
-        else if(config['main-layout-alg'] === "force") {
-            return <ForceConfig></ForceConfig>;
+        else if(config.main['layout_alg'] === "elk_force") {
+            return <ForceConfig stateField="main"></ForceConfig>;
         }
         else {
             return null;
@@ -253,31 +203,36 @@ export const useConfigDialog = () => {
     }
 
 
-    const ConfigDialog = () =>   
+    const ConfigDialog = () =>
         <div>
             <div className="flex flex-row">
-                <label htmlFor="main-layout-alg" className='font-black'>Main layouting algorithm: { /* cz: Hlavní layoutovací algoritmus: */} </label>
-            </div>    
+                <label htmlFor="main-layout-alg" className='font-black'>Hlavní layoutovací algoritmus: </label>
+            </div>
             <div className="flex flex-row">
-                <select id="main-layout-alg" value={config['main-layout-alg']} 
-                        onChange={(event) => setConfig({...config, "main-layout-alg": event.target.value })}>
-                    <option value="layered">Layered (Hierarchical){/* cz: Úrovňový */}</option>
-                    <option value="stress">Physical (Stress){ /* cz: Fyzikální (Stress) */ }</option>
-                    <option value="force">Physical (Force - Just debug){/* cz: Fyzikální (Force - Jen Debug) */}</option>
-                    <option value="random">Random{/* cz: Náhodný */}</option>
+                <select id="main-layout-alg" value={config.main['layout_alg']}
+                        onChange={(event) => setConfig({...config,
+                                                        main: {
+                                                            ...config.main,
+                                                            "layout_alg": event.target.value as AlgorithmName }
+                                                        })
+                                                    }>
+                    <option value="elk_layered">Úrovňový</option>
+                    <option value="elk_stress">Fyzikální (Stress)</option>
+                    <option value="elk_force">Fyzikální (Force - Jen Debug)</option>
+                    <option value="random">Náhodný</option>
                 </select>
-            </div>            
-            <div className='h-8'>------------------------</div> 
-            {renderMainAlgorithmConfig()}    
-            <div className='h-8'>------------------------</div> 
-            <input type="checkbox" id="checkbox-main-layout-alg" name="checkbox-main-layout-alg" checked={config['process-general-separately']} 
-                    onChange={e => setConfig({...config, "process-general-separately": e.target.checked })} />
-            <label htmlFor="checkbox-main-layout-alg">
-                Process generalization relationships separately (sometimes crashes){/* cz: Zpracuj generalizační vztahy zvlášť (Zatím ne moc funkční ... s fyzikálním téměř vůbec) */}</label>            
-            {config['process-general-separately'] === false ? null : 
+            </div>
+            <div className='h-8'>------------------------</div>
+            {renderMainAlgorithmConfig()}
+            <div className='h-8'>------------------------</div>
+            <input type="checkbox" id="checkbox-main-layout-alg" name="checkbox-main-layout-alg" checked={config.general.should_be_considered}
+                    onChange={e => setConfig({...config,
+                                              general: {...config.general, "should_be_considered": e.target.checked }})} />
+            <label htmlFor="checkbox-main-layout-alg">Zpracuj generalizační vztahy zvlášť (Zatím ne moc funkční ... s fyzikálním téměř vůbec)</label>
+            {config.general.should_be_considered === false ? null :
                 <div>
-                    <div className='h-2'></div>                  
-                    <LayeredConfig idPrefix='general-'></LayeredConfig>
+                    <div className='h-2'></div>
+                    <LayeredConfig stateField='general'></LayeredConfig>
                 </div>
             }
         </div>

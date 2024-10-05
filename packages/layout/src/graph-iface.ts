@@ -4,10 +4,33 @@ import { ExtractedModel, extractModelObjects, getEdgeSourceAndTargetGeneralizati
 
 import { VisualEntity } from "@dataspecer/core-v2/visual-model";
 
+interface Graph {
+    getNodes(): INode,
+    filterNodes(filterFunction): INode,
+    addNodes(nodes): boolean,
+    removeNodes(nodes): boolean,
+    addEdges(node, edges): boolean,
+    putEdges(node, edges): boolean,
+    getEdges(node): INode[],
+    performActionOnNodes(action): void,
+}
+
 export interface IVisualEntityComplete {
     coreVisualEntity: VisualEntity,
     width: number,
     height: number,
+}
+
+export class VisualEntityComplete implements IVisualEntityComplete {
+    coreVisualEntity: VisualEntity;
+    width: number;
+    height: number;
+
+    constructor(coreVisualEntity: VisualEntity, width: number, height: number) {
+        this.coreVisualEntity = coreVisualEntity;
+        this.width = width;
+        this.height = height;
+    }
 }
 
 // TODO: Remove later, was just testing typing in typescript
@@ -31,7 +54,7 @@ interface INode {
     isProfile: boolean,
 }
 
-interface IEdgeIncidence {    
+interface IEdgeIncidence {
     isProfile: boolean,
     isGeneralization: boolean,
 }
@@ -55,24 +78,24 @@ export class GraphIncidence implements IGraphIncidence {
                 index: index, node: (cls as undefined as SemanticModelEntity), isProfile: true
             }
             index++;
-        });        
+        });
 
         extractedModel.relationships.forEach(r => {
             const [source, target, ...rest] = getEdgeSourceAndTargetRelationship(r);
             this.incidenceMatrix[source] = {};
-            this.incidenceMatrix[source][target] = {isProfile: false, isGeneralization: false};     
+            this.incidenceMatrix[source][target] = {isProfile: false, isGeneralization: false};
         });
 
         extractedModel.relationshipsProfiles.forEach(r => {
             const [source, target] = getEdgeSourceAndTargetRelationshipUsage(r);
             this.incidenceMatrix[source] = {};
-            this.incidenceMatrix[source][target] = {isProfile: true, isGeneralization: true};     
+            this.incidenceMatrix[source][target] = {isProfile: true, isGeneralization: true};
         });
 
         extractedModel.generalizations.forEach(g => {
             const [source, target] = getEdgeSourceAndTargetGeneralization(g);
             this.incidenceMatrix[source] = {};
-            this.incidenceMatrix[source][target] = {isProfile: false, isGeneralization: true};            
+            this.incidenceMatrix[source][target] = {isProfile: false, isGeneralization: true};
         });
     }
 
@@ -80,7 +103,7 @@ export class GraphIncidence implements IGraphIncidence {
     incidenceMatrix: Record<string, Record<string, IEdgeIncidence>> ={};
 }
 
-// TODO: This doesn't really make sense, just have interface IGraph which represents any graph 
+// TODO: This doesn't really make sense, just have interface IGraph which represents any graph
 //       (it will have only methods manipulating with it - addNode, ...)
 export interface IGraphClassic {
     nodes: Record<string, INodeClassic>,
@@ -130,8 +153,8 @@ export interface INodeClassic {
 
     completeVisualEntity: IVisualEntityComplete,
 
-    computeWidth(): number,
-    computeHeight(): number;
+    getAttributes(): SemanticModelRelationship[];
+    getSourceGraph(): IGraphClassic;
 }
 
 class NodeClassic implements INodeClassic {
@@ -143,7 +166,7 @@ class NodeClassic implements INodeClassic {
 
         let edgeToAddKey = "relationshipEdges"
         let reverseEdgeToAddKey = "reverse" + this.capitalizeFirstLetter(edgeToAddKey);
-        extractedModel.relationships.forEach(r => {            
+        extractedModel.relationships.forEach(r => {
             const [source, target, ...rest] = getEdgeSourceAndTargetRelationship(r);
             if(node.id === source) {
                 this.addEdgeInternal(graph, target, extractedModel, edgeToAddKey, reverseEdgeToAddKey);
@@ -169,22 +192,28 @@ class NodeClassic implements INodeClassic {
         });
 
         // TODO: We don't really need the whole thing, we just need the attribute so storing the target of the relationship should be enough !
-        this.attributes = extractedModel.attributes.filter(a => { 
-            const [source, target, ...rest] = getEdgeSourceAndTargetRelationship(a);            
+        this.attributes = extractedModel.attributes.filter(a => {
+            const [source, target, ...rest] = getEdgeSourceAndTargetRelationship(a);
             return this.node.id === source;
         });
     }
+    getSourceGraph(): IGraphClassic {
+        return this.graph;
+    }
+    getAttributes(): SemanticModelRelationship[] {
+        return this.attributes;
+    }
 
-    private addEdgeInternal(graph: IGraphClassic, target: string, extractedModel: ExtractedModel, edgeToAddKey: string, reverseEdgeToAddKey: string) {        
+    private addEdgeInternal(graph: IGraphClassic, target: string, extractedModel: ExtractedModel, edgeToAddKey: string, reverseEdgeToAddKey: string) {
         if(graph.nodes[target] === undefined) {
             // TODO: I think that the issue with scheme.org is generalization which has node http://www.w3.org/2000/01/rdf-schema#Class but it isn't in the model
-            // At least I hope it isn't some bigger issue between DataType and rdf-schema            
+            // At least I hope it isn't some bigger issue between DataType and rdf-schema
             const targetEntity: SemanticModelEntity = extractedModel.entities.find(e => e.id === target);
             if(targetEntity === undefined) {
                 return;
             }
             // TODO: Not ideal performance wise, using find 2 times
-            graph.nodes[target] = new NodeClassic(targetEntity, 
+            graph.nodes[target] = new NodeClassic(targetEntity,
                                                   extractedModel.classesProfiles.find(cp => cp.id === target) !== undefined,
                                                   extractedModel, graph);
         }
@@ -198,13 +227,13 @@ class NodeClassic implements INodeClassic {
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
 
-    graph: IGraphClassic;    
+    graph: IGraphClassic;
 
     node: SemanticModelEntity;
     isDummy: boolean = false;       // TODO: For now just keep false
     isMainEntity: boolean = false;  // TODO: For now just keep false
     isProfile: boolean;
-    completeVisualEntity: IVisualEntityComplete;     // TODO: 
+    completeVisualEntity: IVisualEntityComplete;     // TODO:
     attributes: SemanticModelRelationship[];
 
     profileEdges: INodeClassic[] = [];
@@ -216,14 +245,14 @@ class NodeClassic implements INodeClassic {
     relationshipEdges: INodeClassic[] = [];
     reverseRelationshipEdges: INodeClassic[] = [];
     getAllIncomingEdges(): Generator<INodeClassic, string, unknown> {
-        const internalGenerator = this.getEdgesInternal([this.reverseRelationshipEdges, this.reverseGeneralizationEdges, this.reverseProfileEdges]);    
+        const internalGenerator = this.getEdgesInternal([this.reverseRelationshipEdges, this.reverseGeneralizationEdges, this.reverseProfileEdges]);
         return internalGenerator;
     }
 
     getAllOutgoingEdges(): Generator<INodeClassic, string, unknown> {
         // Note: I couldn't find out, why can't I just somehow return the internals of the getEdgesInternal function
         // Answer: I just had to remove the * in front of method to say that it just returns the generator and isn't the generator in itself
-        const internalGenerator = this.getEdgesInternal([this.relationshipEdges, this.generalizationEdges, this.profileEdges]);    
+        const internalGenerator = this.getEdgesInternal([this.relationshipEdges, this.generalizationEdges, this.profileEdges]);
         return internalGenerator;
     }
 
@@ -231,51 +260,10 @@ class NodeClassic implements INodeClassic {
         for(const edgesOfOneType of edgesOfDifferentTypes) {
             // Note: Can't use forEach because of yield
             for(const e of edgesOfOneType) {
-                yield e;        
+                yield e;
             }
         }
 
         return "TODO: Konec";       // The actual value doesn't really matter, I just found it interesting that generator can return something different as last element
-    }
-
-    computeWidth(): number {
-        const WIDTH_OF_EMPTY_ATTR = 10;
-        // TODO: Not using actual model ID so this is just approximation - whole method is just approximation anyways, so it doesn't matter that much
-        const TEST_MODEL_STRING = "https://my-model-7tgfl.iri.todo.com/entities/";      
-        const TEST_STRING = TEST_MODEL_STRING + "creepy-office";
-        const APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER = 359 / TEST_STRING.length;
-        let maxAtrLength = this.attributes.reduce((currMax, currAttribute) => {
-            const [source, target, sourceIndex, targetIndex] = getEdgeSourceAndTargetRelationship(currAttribute);
-            return Math.max(currMax, currAttribute.ends[targetIndex].name?.en.length);       // TODO: Just english tag for now
-        }, 0);
-
-        // TODO: Doesn't probably work properly when having profile of profile
-        // TODO: ?.node for now     
-        let iriLen = this.isProfile ? this.graph.nodes[(this.node as unknown as SemanticModelClassUsage).usageOf]?.node.iri.length : this.node.iri.length;        
-        // TODO: !!! Default for now - definitely change later
-        // TODO: Wait so so profiles also have iri?????
-        if(iriLen === undefined) {
-            iriLen = this.node.iri.length;
-        }
-        const MAX_WIDTH = TEST_MODEL_STRING.length * APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER + 
-                          Math.max(iriLen * APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER,
-                                   WIDTH_OF_EMPTY_ATTR + maxAtrLength * APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER);
-
-        return MAX_WIDTH;
-
-    }
-
-    computeHeight(): number {
-        // First attribute has height of 8, the ones after that 20        
-        const ATTR_HEIGHT = 20;
-        const BASE_HEIGHT = 64;
-        const HEIGHT_AFTER_FIRST_ATTRIBUTE = 72;
-        const ATTR_COUNT = this.attributes.length >= 5 ? 5 : this.attributes.length - 1;        // At 5 the '...' is added
-        if(this.attributes.length === 0) {
-            return BASE_HEIGHT;
-        }
-
-        const height: number = HEIGHT_AFTER_FIRST_ATTRIBUTE + ATTR_COUNT * ATTR_HEIGHT;
-        return height;
     }
 }
