@@ -1,16 +1,17 @@
 import { SemanticModelEntity, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { VisualEntities, VisualEntity } from "../../core-v2/lib/visual-model/visual-entity";
+import { VisualEntity } from "@dataspecer/core-v2/visual-model";
 import { ExtractedModel, LayoutAlgorithm, LayoutMethod, extractModelObjects } from "./layout-iface";
 
 import { doRandomLayoutAdvanced } from "./basic-layouts";
 import { UserGivenConstraints, UserGivenAlgorithmConfigurationslVersion2 } from "./configs/constraints";
 import { GraphClassic, INodeClassic, VisualEntityComplete } from "./graph-iface";
-import { EdgeCrossingMetric } from "./metrics/metrics";
+import { EdgeCrossingMetric } from "./graph-metrics/graph-metrics";
 import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs/constraint-container";
 import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
 import { EntityModel } from "@dataspecer/core-v2";
 import { ConstraintFactory } from "./configs/constraint-factories";
 import { ReactflowDimensionsEstimator } from "./reactflow-dimension-estimator";
+import { VisualEntities } from "../../core-v2/lib/visual-model/visual-entity";
 
 export type { IConstraintSimple, UserGivenConstraints, UserGivenAlgorithmConfigurationslVersion2 as UserGivenConstraintsVersion2 } from "./configs/constraints";
 export { getDefaultUserGivenAlgorithmConstraint } from "./configs/constraints";
@@ -93,9 +94,9 @@ export async function findBestLayout(extractedModel: ExtractedModel,
 		const layoutedVisualEntities = await layoutedVisualEntitiesPromise;
 		Object.keys(layoutedVisualEntities).forEach(key => graph.nodes[key].completeVisualEntity = new VisualEntityComplete(layoutedVisualEntities[key], 500, 300));
 		const edgeCrossCountForCurrMetric = edgeCrossingMetric.computeMetric(graph);
-		console.log("Edge cross count: " + edgeCrossCountForCurrMetric);
+		// console.log("Edge cross count: " + edgeCrossCountForCurrMetric);
 		if(minEdgeCrossCount > edgeCrossCountForCurrMetric) {
-			console.log("MIN Edge cross count: " + edgeCrossCountForCurrMetric);
+			// console.log("MIN Edge cross count: " + edgeCrossCountForCurrMetric);
 			bestLayoutedVisualEntities = layoutedVisualEntitiesPromise;
 			minEdgeCrossCount = edgeCrossCountForCurrMetric;
 		}

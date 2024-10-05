@@ -1,9 +1,9 @@
 import { LanguageString, NamedThing, SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { GraphClassic } from "../graph-iface";
 import { ExtractedModel, extractModelObjects } from "../layout-iface";
-import { VisualEntities } from "../../../core-v2/lib/visual-model/visual-entity";
 import { DIRECTION, findBestLayout, doFindBestLayout, UserGivenConstraintsVersion2 } from "..";
 import { ReactflowDimensionsEstimator } from "../reactflow-dimension-estimator";
+import { VisualEntities } from "../../../core-v2/lib/visual-model/visual-entity";
 
 type PossibleSemanticModelEntity = SemanticModelClass | SemanticModelRelationship | SemanticModelGeneralization;
 

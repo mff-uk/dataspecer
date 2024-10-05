@@ -1,6 +1,6 @@
 import { VisualEntity } from "@dataspecer/core-v2/visual-model";
 import { GraphClassic, IVisualEntityComplete } from "../graph-iface";
-import { AllMetricData, Metric } from "./metrics-iface";
+import { AllMetricData, Metric } from "./graph-metrics-iface";
 import { Position } from "../../../core-v2/lib/visual-model/visual-entity";
 
 export class EdgeCrossingMetric implements Metric {
