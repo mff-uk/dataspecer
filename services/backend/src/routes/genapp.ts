@@ -50,8 +50,8 @@ export const getGenerateApplicationByModelId = asyncHandler(async (request: expr
     const inputArgs: GenappConfiguration = {
         serializedGraph: JSON.stringify(data),
         backendHost: configuration.host,
-        tmpOutDir: `generated_${date.getFullYear()}${date.toLocaleString([], { month: "2-digit" })}${ date.toLocaleString([], { day: "2-digit" }) }${date.getHours()}${date.getMinutes()}${date.getSeconds()}${date.getMilliseconds()}`,
-        tmpOutZipname: `out_${date.getFullYear()}${date.toLocaleString([], { month: "2-digit" })}${ date.toLocaleString([], { day: "2-digit" }) }${date.getHours()}${date.getMinutes()}${date.getSeconds()}${date.getMilliseconds()}.zip`,
+        tmpOutDir: `generated`,
+        tmpOutZipname: `out.zip`,
     };
 
     const appGenerator = new ApplicationGenerator(inputArgs);
