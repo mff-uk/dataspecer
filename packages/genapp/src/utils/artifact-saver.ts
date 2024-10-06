@@ -5,10 +5,17 @@ import { LayerArtifact } from "../engine/layer-artifact";
 
 interface ArtifactSaverCache {
     savedArtifactsMap: { [artifactObject: string]: string; };
+    resetCacheContent: () => void;
 }
 
 export const ArtifactCache: ArtifactSaverCache = {
-    savedArtifactsMap: {}
+    savedArtifactsMap: {},
+    resetCacheContent: function (): void {
+        Object.keys(this.savedArtifactsMap)
+            .forEach(k => {
+                delete this.savedArtifactsMap[k];
+            })
+    }
 };
 
 export interface GeneratedFilePathCalculator {

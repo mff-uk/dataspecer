@@ -18,6 +18,7 @@ import { ReactAppBaseGeneratorStage } from "../react-base/react-app-base-stage";
 import { CapabilityConstructorInput } from "../capabilities/constructor-input";
 import { ApplicationGraph, ApplicationGraphNode } from "./graph";
 import { AggregateMetadata } from "../application-config";
+import { ArtifactCache } from "../utils/artifact-saver";
 
 export type NodeResult = {
     structure: AggregateMetadata;
@@ -138,11 +139,12 @@ export class ApplicationGenerator {
     }
 
     async generate(): Promise<Buffer> {
-
+        ArtifactCache.resetCacheContent();
         const configReader = ConfigurationReaderFactory.createConfigurationReader(this._args);
         const zipFilename = GenappEnvConfig.TmpOutZipName;
 
         const appGraph: ApplicationGraph = configReader.getAppConfiguration();
+
 
         await this.generateAppFromConfig(appGraph);
 
