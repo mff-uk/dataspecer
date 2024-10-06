@@ -223,50 +223,77 @@ const <%~ arrayRendererComponentName %>: FC<ComponentProps & { children: ReactEl
 
     const { name: title, value: arrayRef, children } = props;
 
+    const renderAsPrimitive = (item: any, key: any) => {
+        return Children.map(children ?? [], child => {
+            if (!isValidElement(child)) {
+                return child;
+            }
+
+            const name: string = child.props.name as string;
+            const value: any = item;
+
+            const cloned = cloneElement(child, {
+                key,
+                name,
+                value
+            });
+
+            return cloned;
+        })
+    }
+
+    const renderItemAsObject = (item: object, key: any) => {
+
+        const childrenArray = Children.toArray(children ?? []);
+
+        return Object.entries(item)
+            .map(([itemKey, itemValue]) => {
+                const itemChild = childrenArray.find(child => {
+                    if (!isValidElement(child)) {
+                        return false;
+                    }
+
+                    const childNameProp = child.props.name as string;
+                    return itemKey === childNameProp;
+                });
+
+                if (!itemChild || !isValidElement(itemChild)) {
+                    return null;
+                }
+
+                const cloned = cloneElement(itemChild, {
+                    key,
+                    name: itemKey,
+                    value: itemValue
+                });
+                return cloned;
+            })
+            .filter(child => child !== null && child !== undefined);
+    }
+
     return (
         <Box component="section">
             {(!Array.isArray(arrayRef))
                 ? <PropertyAlert errorPropertyName={title} />
                 : (
                     ((arrayRef || []).length === 0)
-                        ? "Empty list"
+                        ? `Empty "${title}" list`
                         : (
                             <ul>
-                                {(arrayRef || []).map((item, idx) => {
+                                {
+                                (arrayRef || []).map((item, idx) => {
                                     console.log("ARRAY ITEM: ", item);
-                                    if (item && (["string", "number", "boolean"].includes(typeof item))) {
-                                        return (
-                                            <li key={idx}>
-                                                {JSON.stringify(item)}
-                                            </li>
-                                        );
-                                    }
 
                                     return (
                                         <li key={idx}>
                                             {
-                                                Children.map(children, child => {
-                                                    if (!isValidElement(child)) {
-                                                        return child;
-                                                    }
-
-                                                    const name: string = child.props.name as string;
-                                                    console.log("CHILD NAME PROP: ", name);
-                                                    const value: any = item;
-
-                                                    console.log("UPDATED VALUE: ", value);
-                                                    const cloned = cloneElement(child, {
-                                                        key: idx,
-                                                        value
-                                                    });
-                                                    console.log("CLONED: ", cloned);
-
-                                                    return cloned;
-                                                })
+                                                item && (["string", "number", "boolean", "bigint"].includes(typeof item))
+                                                    ? renderAsPrimitive(item, idx)
+                                                    : renderItemAsObject(item, idx)
                                             }
                                         </li>
                                     )
-                                    })}
+                                }
                             </ul>
                         )
                 )
@@ -337,8 +364,7 @@ export default function <%= it.export_name %>() {
             { instance &&
                 <Box id="<%= it.aggregate_name %>-detail" component="section">
                 <% const dataSchemaInterfaceEntries = Object.entries(it.schema); %>
-                <% for (let index = 0; index < dataSchemaInterfaceEntries.length; index++) { %>
-                    <% const [propName, propTypeName] = dataSchemaInterfaceEntries[index]; %>
+                <% for (let index = 0; index < dataSchemaInterfaceEntries.length; index++) { %><% const [propName, propTypeName] = dataSchemaInterfaceEntries[index]; %>
                     <Box id="<%~ propName %>-property-key" component="section" sx={{ p: 2, paddingBottom: 1 }}>
                         <Typography variant="h5" id="<%~ propName %>-property-key"><% const displayName = `${propName.charAt(0).toUpperCase()}${propName.slice(1).replace(/[_-]/g, " ")}` %>
                             <%~ displayName %>:
@@ -346,8 +372,7 @@ export default function <%= it.export_name %>() {
                         <Typography variant="body1" id="<%~ propName %>-property-value">
                             <%~ getDetailRenderComponentByProperty(propName, propTypeName, "instance.raw") %>
                         </Typography>
-                    </Box>
-                <% } %>
+                    </Box><% } %>
                 </Box>
             }
             <Box component="section" sx={{
