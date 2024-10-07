@@ -219,7 +219,7 @@ const <%~ recordRendererComponentName %>: FC<ComponentProps & { children: ReactE
     );
 }
 
-const <%~ arrayRendererComponentName %>: FC<ComponentProps & { children: ReactElement<ComponentProps> | ReactNode }> = (props) => {
+const <%~ arrayRendererComponentName %>: FC<ComponentProps & { children?: ReactElement<ComponentProps> | ReactNode }> = (props) => {
 
     const { name: title, value: arrayRef, children } = props;
 
@@ -281,18 +281,19 @@ const <%~ arrayRendererComponentName %>: FC<ComponentProps & { children: ReactEl
                         : (
                             <ul>
                                 {
-                                (arrayRef || []).map((item, idx) => {
-                                    console.log("ARRAY ITEM: ", item);
+                                    (arrayRef || []).map((item, idx) => {
+                                        console.log("ARRAY ITEM: ", item);
 
-                                    return (
-                                        <li key={idx}>
-                                            {
-                                                item && (["string", "number", "boolean", "bigint"].includes(typeof item))
-                                                    ? renderAsPrimitive(item, idx)
-                                                    : renderItemAsObject(item, idx)
-                                            }
-                                        </li>
-                                    )
+                                        return (
+                                            <li key={idx}>
+                                                {
+                                                    item && (["string", "number", "boolean", "bigint"].includes(typeof item))
+                                                        ? renderAsPrimitive(item, idx)
+                                                        : renderItemAsObject(item, idx)
+                                                }
+                                            </li>
+                                        )
+                                    })
                                 }
                             </ul>
                         )
