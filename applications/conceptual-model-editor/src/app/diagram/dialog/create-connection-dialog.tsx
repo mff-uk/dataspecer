@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState, type Dispatch, type SetStateAction } from "react";
-import type { Connection } from "reactflow";
+import type { Connection } from "@xyflow/react";
 
 import type {
     LanguageString,
@@ -49,7 +49,7 @@ export const useCreateConnectionDialog = () => {
     const createConnectionDialogRef = useRef(null as unknown as HTMLDialogElement);
     useEffect(() => {
         const { current: el } = createConnectionDialogRef;
-        if (isOpen && el !== null) el.showModal();
+    if (isOpen && el !== null) el.showModal();
     }, [isOpen]);
 
     const { createConnection } = useClassesContext();

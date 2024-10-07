@@ -1,6 +1,6 @@
 import {
   useState,
-  HTMLAttributes,
+  type HTMLAttributes,
   useEffect,
   useRef,
   type Dispatch,
@@ -8,8 +8,8 @@ import {
   type ReactNode,
 } from "react";
 import {
-  EdgeChange,
-  OnEdgesChange,
+  type EdgeChange,
+  type OnEdgesChange,
   Panel,
   useStore,
   useStoreApi,
@@ -104,7 +104,7 @@ function ChangeLogger({ limit = 16 }: {
     };
 
     store.setState({ onNodesChange: onNodesChangeLogger, onEdgesChange: onEdgesChangeLogger });
-  }, [onNodesChange, limit]);
+  }, [onNodesChange, onEdgesChange, limit, store]);
 
   return (
     <div className="react-flow__devtools-changelogger">

@@ -1,17 +1,17 @@
-import { useState, SetStateAction, Dispatch } from "react";
+import { useState, type SetStateAction, type Dispatch } from "react";
 import {
     type Node,
     type ReactFlowInstance,
     type XYPosition,
     type InternalNode,
-    NodeChange,
-    NodePositionChange
+    type NodeChange,
+    type NodePositionChange
 } from "@xyflow/react";
 
 import { binarySearch } from "../../util/functions";
 import { configuration } from "../../application/configuration";
-import { NodeType } from "../diagram-controller";
-import { Point } from "../edge/math";
+import { type NodeType } from "../diagram-controller";
+import { type Point } from "../edge/math";
 
 
 // In v12 absolute position isn't exposed in public API anymore, you have use useInternalNode() / getInternalNode ( https://github.com/xyflow/xyflow/discussions/3764 )

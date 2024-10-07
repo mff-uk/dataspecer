@@ -21,7 +21,6 @@ import { DrawOnCanvasButton } from "../components/draw-on-canvas";
 import { ExpandButton } from "../components/expand";
 import { OpenDetailButton } from "../components/open-detail";
 import { RemoveButton } from "../components/remove";
-import { onDragStart } from "../../reactflow/utils";
 import { useDialogsContext } from "../../context/dialogs-context";
 import { MoveViewportToEntityButton } from "../components/center-viewport-on-entity";
 
@@ -70,7 +69,8 @@ export const EntityRow = (props: {
         <div
             className="flex flex-row justify-between flex-wrap whitespace-nowrap hover:shadow"
             draggable={isDraggable}
-            onDragStart={(e) => onDragStart(e as unknown as DragEvent, props.model, entity.id, "classNode")}
+            // TODO Fix to use editor API.
+            // onDragStart={(e) => onDragStart(e as unknown as DragEvent, props.model, entity.id, "classNode")}
         >
             <span className="overflow-x-clip" title={iri ?? ""}>
                 <IriLink iri={iri} />

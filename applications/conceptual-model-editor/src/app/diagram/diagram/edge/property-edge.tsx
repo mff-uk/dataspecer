@@ -6,15 +6,15 @@ import {
   type EdgeProps,
   type Edge,
   useReactFlow,
-  InternalNode,
+  type InternalNode,
   MarkerType,
 } from "@xyflow/react";
 
 import { arrayReplace, arrayInsert } from "../../util/functions";
-import { findNodeCenter, Point, findLineCenter } from "./math";
+import { findNodeCenter, type Point, findLineCenter } from "./math";
 import { createLogger } from "../../application/";
 
-import { Edge as EdgeApi, EdgeType, Position } from "../diagram-api";
+import { type Edge as EdgeApi, EdgeType, type Position } from "../diagram-api";
 import { DiagramContext } from "../diagram-controller";
 import type { Waypoint as WaypointType } from "@dataspecer/core-v2/visual-model";
 

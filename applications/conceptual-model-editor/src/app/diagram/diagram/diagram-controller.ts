@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useState, useMemo, createContext } from "react";
+import type React from "react";
+import { useCallback, useEffect, useState, useMemo, createContext } from "react";
 import {
   useReactFlow,
   useNodesState,
@@ -19,12 +20,12 @@ import {
   type OnConnectStart,
   type OnConnectEnd,
   type IsValidConnection,
-  FinalConnectionState,
+  type FinalConnectionState,
 } from "@xyflow/react";
 
-import { UseDiagramType } from "./diagram-hook";
-import { DiagramActions, DiagramCallbacks, Node as ApiNode, Edge as ApiEdge, ViewportDimensions } from "./diagram-api";
-import { EdgeToolbarProps } from "./edge/edge-toolbar";
+import { type UseDiagramType } from "./diagram-hook";
+import { type DiagramActions, type DiagramCallbacks, type Node as ApiNode, type Edge as ApiEdge, type ViewportDimensions } from "./diagram-api";
+import { type EdgeToolbarProps } from "./edge/edge-toolbar";
 import { EntityNodeName } from "./node/entity-node";
 import { PropertyEdgeName } from "./edge/property-edge";
 

@@ -33,7 +33,7 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { type WritableVisualModel, type VisualNode, isVisualNode, isVisualRelationship, type VisualModel, type VisualEntity, VisualRelationship } from "@dataspecer/core-v2/visual-model";
+import { type WritableVisualModel, type VisualNode, isVisualNode, isVisualRelationship, type VisualModel, type VisualEntity, type VisualRelationship } from "@dataspecer/core-v2/visual-model";
 import { type SemanticModelAggregatorView, type AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
 
 
@@ -50,23 +50,23 @@ import { type SemanticModelAggregatorView, type AggregatedEntityWrapper } from "
 // } from "./reactflow/simple-floating-edge";
 import { tailwindColorToHex } from "../utils/color-utils";
 import { useCreateConnectionDialog } from "./dialog/create-connection-dialog";
-import { useModelGraphContext, UseModelGraphContextType } from "./context/model-context";
+import { useModelGraphContext, type UseModelGraphContextType } from "./context/model-context";
 import { useClassesContext, type UseClassesContextType } from "./context/classes-context";
 import { bothEndsHaveAnIri, temporaryDomainRangeHelper } from "./util/relationship-utils";
 import { toSvg } from "html-to-image";
 import { useDownload } from "./features/export/download";
 import { useActions } from "./action/actions-react-binding";
 import { getDomainAndRange } from "./service/relationship-service";
-import { Diagram, Node, Edge, EntityItem, EdgeType } from "./diagram/";
-import { UseDiagramType } from "./diagram/diagram-hook";
+import { Diagram, type Node, type Edge, type EntityItem, EdgeType } from "./diagram/";
+import { type UseDiagramType } from "./diagram/diagram-hook";
 import { logger } from "./application";
 import { EntityProxy } from "./util/detail-utils";
-import { ConfigurationContextType, useConfigurationContext, UseConfigurationContextType } from "./context/configuration-context";
+import { ConfigurationContextType, useConfigurationContext, type UseConfigurationContextType } from "./context/configuration-context";
 import { getDescriptionLanguageString, getFallbackDisplayName, getNameLanguageString, getUsageNoteLanguageString } from "./util/name-utils";
 import { getLocalizedStringFromLanguageString } from "./util/language-utils";
 import { getIri, getModelIri } from "./util/iri-utils";
 import { findSourceModelOfEntity } from "./service/model-service";
-import { EntityModel } from "@dataspecer/core-v2";
+import { type EntityModel } from "@dataspecer/core-v2";
 import { cardinalityToString } from "./util/utils";
 
 /**
