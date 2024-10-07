@@ -23,7 +23,6 @@ export class ReactflowDimensionsEstimator implements NodeDimensionQueryHandler {
                                    WIDTH_OF_EMPTY_ATTR + maxAtrLength * APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER);
 
         return MAX_WIDTH;
-
     }
 
 

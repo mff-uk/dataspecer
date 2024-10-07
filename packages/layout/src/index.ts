@@ -35,8 +35,22 @@ export interface NodeDimensionQueryHandler {
 	getHeight(node: INodeClassic);
 }
 
+export async function doDynamicLayout(visualModel: VisualEntityModel,
+										semanticModels: Record<string, EntityModel>,
+										newNodesIdentifiers: string[],
+										config: UserGivenAlgorithmConfigurationslVersion2,
+										nodeDimensionQueryHandler?: NodeDimensionQueryHandler) {
+	if(nodeDimensionQueryHandler === undefined) {
+		nodeDimensionQueryHandler = new ReactflowDimensionsEstimator();
+	}
+
+	// TODO: Here perform dynamic layouting on top of visual model
+}
+
+
 export async function doEditorLayout(visualModel: VisualEntityModel,
 										semanticModels: Record<string, EntityModel>,
+										config: UserGivenAlgorithmConfigurationslVersion2,
 										nodeDimensionQueryHandler?: NodeDimensionQueryHandler) {
 	if(nodeDimensionQueryHandler === undefined) {
 		nodeDimensionQueryHandler = new ReactflowDimensionsEstimator();
@@ -53,6 +67,12 @@ export async function doLayout(inputSemanticModel: Record<string, SemanticModelE
 								nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
 	// tryCreateClassicGraph();
 
+	console.log("CONFIG");
+	console.log(config);
+	console.log("inputSemanticModel");
+	console.log(inputSemanticModel);
+
+
 	if(nodeDimensionQueryHandler === undefined) {
 		nodeDimensionQueryHandler = new ReactflowDimensionsEstimator();
 	}
@@ -61,9 +81,11 @@ export async function doLayout(inputSemanticModel: Record<string, SemanticModelE
 	const constraints = ConstraintFactory.createConstraints(config);
 	const extractedModel = extractModelObjects(inputSemanticModel);
 	const mainLayoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[constraints.algorithmOnlyConstraints["ALL"].algorithmName];
-	const graph = new GraphClassic(extractedModel);
+	const graph = new GraphClassic(extractedModel, null);
 	mainLayoutAlgorithm.prepare(extractedModel, constraints, nodeDimensionQueryHandler);
 	const layoutedVisualEntitiesPromise: Promise<VisualEntities> = mainLayoutAlgorithm.run();
+	console.log("layoutedVisualEntitiesPromise");
+	console.log(await layoutedVisualEntitiesPromise);
 	return layoutedVisualEntitiesPromise;
 }
 
@@ -91,7 +113,7 @@ export async function findBestLayout(extractedModel: ExtractedModel,
 	let bestLayoutedVisualEntities: Promise<VisualEntities>;
 	let minEdgeCrossCount = 1000000;
 	const edgeCrossingMetric: EdgeCrossingMetric = new EdgeCrossingMetric();
-	const graph = new GraphClassic(extractedModel);
+	const graph = new GraphClassic(extractedModel, null);
 	for(let i = 0; i < 1; i++) {
 		mainLayoutAlgorithm.prepare(extractedModel, constraints, nodeDimensionQueryHandler);
 		const layoutedVisualEntitiesPromise: Promise<VisualEntities> = mainLayoutAlgorithm.run();

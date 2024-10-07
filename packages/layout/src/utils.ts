@@ -6,3 +6,12 @@ export enum DIRECTION {
     DOWN = "DOWN",
     LEFT = "LEFT"
 }
+
+export const xdd = () => {
+
+}
+
+// https://stackoverflow.com/questions/1026069/how-do-i-make-the-first-letter-of-a-string-uppercase-in-javascript
+export const capitalizeFirstLetter = (string: string): string => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}

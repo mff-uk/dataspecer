@@ -216,7 +216,7 @@ class ElkGraphTransformer implements GraphTransformer {
             const generalizationEdges = Object.values(graph.nodes).map(node => {
                 return node.generalizationEdges
             }).flat(1).map(edge => edge.edge as SemanticModelGeneralization);
-            this.addGeneralizationEdges(elkGraph, generalizationEdges, generalizationLayoutOptions);
+            this.createAndAddGeneralizationSubgraphsInElk(elkGraph, generalizationEdges, generalizationLayoutOptions);
         }
 
         return elkGraph;
@@ -480,12 +480,13 @@ class ElkGraphTransformer implements GraphTransformer {
 
 
         if(generalizationLayoutOptions !== undefined) {
-            this.addGeneralizationEdges(graph, extractedModel.generalizations, generalizationLayoutOptions);
+            this.createAndAddGeneralizationSubgraphsInElk(graph, extractedModel.generalizations, generalizationLayoutOptions);
         }
 
         return graph;
     }
 
+    // TODO: !!!! Should be ok now and satisfied in the input graph already
     // TODO: fixes SCHEMA.ORG vocabulary and other models - If the class isn't part of the model, ignore the edge - may not be optimal performance wise
     // TODO: May delete later
     isEdgeWithBothEndsInModel(extractedModel: ExtractedModel, source: string, target: string): boolean {
@@ -507,7 +508,7 @@ class ElkGraphTransformer implements GraphTransformer {
     }
 
 
-    createSubgraphFromNodesAndInsert(graph: ElkNode, subgraphNodes: Array<ElkNode>, subgraphLayoutOptions?: LayoutOptions): ElkNode {
+    createElkSubgraphFromNodesAndInsertToElkGraph(graph: ElkNode, subgraphNodes: Array<ElkNode>, subgraphLayoutOptions?: LayoutOptions): ElkNode {
         // 1) Take ElkNodes and create one subgraph which has them as children
         const subgraph: ElkNode = this.convertSubgraphListToActualSubgraph(subgraphNodes, subgraphLayoutOptions);
         // 2) Repair the old graph by substituting the newly created subgraph from 1), while doing that also repair edges by splitting them into two parts
@@ -556,7 +557,7 @@ class ElkGraphTransformer implements GraphTransformer {
     }
 
     repairEdgesInsideSubgraph(graph: ElkNode, subgraph: ElkNode, changedNodes: Array<ElkNode>) {
-        let edgesInSubgraph = graph.edges.filter(e => {
+        const edgesInSubgraph = graph.edges.filter(e => {
             // TODO: Could be done faster ... for example the slicing could be performed only once
             return changedNodes.findIndex(n => n.id === convertNodePortIdToId(e.sources[0])) >= 0 && changedNodes.findIndex(n => n.id === convertNodePortIdToId(e.targets[0])) >= 0;
         });
@@ -645,7 +646,7 @@ class ElkGraphTransformer implements GraphTransformer {
         graph.children = graph.children.filter(ch => ch.id !== nodeToAdd.id);
     }
 
-    addGeneralizationEdges(graph: ElkNode, genEdges: SemanticModelGeneralization[], generalizationOptions?: LayoutOptions): Array<ElkNode> {
+    createAndAddGeneralizationSubgraphsInElk(graph: ElkNode, genEdges: SemanticModelGeneralization[], generalizationOptions?: LayoutOptions): Array<ElkNode> {
         // For now 1 whole hierarchy (n levels) == 1 subgraph
         // TODO: Also very slow, but I will probably have my own graph representation later, in such case getting the generalization edges neighbors and
         // performing reachability search is trivial
@@ -663,7 +664,7 @@ class ElkGraphTransformer implements GraphTransformer {
             children[g.parent].push(g.child);
         });
 
-        const subgraphs: string[][] = this.getGeneralizationSubgraphs(parents, children);
+        const subgraphs: string[][] = this.findGeneralizationSubgraphs(parents, children);
         let genSubgraphs: ElkNode[][] = subgraphs.map(subgraph => {
             // This removes the labels, so it is better to just paste in the original node
             // TODO: Or maybe the copy of it, but for now just paste in the original one
@@ -685,14 +686,14 @@ class ElkGraphTransformer implements GraphTransformer {
 
         let createdSubgraphs: Array<ElkNode> = [];
         genSubgraphs.forEach(subg => {
-            createdSubgraphs.push(this.createSubgraphFromNodesAndInsert(graph, subg, generalizationOptions));
+            createdSubgraphs.push(this.createElkSubgraphFromNodesAndInsertToElkGraph(graph, subg, generalizationOptions));
         });
 
 
         return createdSubgraphs;
     }
 
-    getGeneralizationSubgraphs(parents: Record<string, string[]>, children: Record<string, string[]>): string[][] {
+    findGeneralizationSubgraphs(parents: Record<string, string[]>, children: Record<string, string[]>): string[][] {
         let subgraphs: Record<string, number> = {};
         let stack: string[] = [];
         let currSubgraph = -1;
@@ -731,7 +732,7 @@ class ElkGraphTransformer implements GraphTransformer {
         return subgraphsAsArrays;
     }
 
-    createPorts(id: string): ElkPort[] {
+    createDefaultPorts(id: string): ElkPort[] {
         // TODO: For now just fix the ports no matter the given layout options
         const ports: ElkPort[] = [];
         const portSides: string[] = ['NORTH', 'EAST', 'SOUTH', 'WEST'];
@@ -768,7 +769,7 @@ class ElkGraphTransformer implements GraphTransformer {
         const width: number = shouldComputeSize ? this.NodeDimensionQueryHandler.getWidth(this.graph.nodes[id]) : 500;
         const height: number = shouldComputeSize ? this.NodeDimensionQueryHandler.getHeight(this.graph.nodes[id]) : 300;
 
-        const ports: ElkPort[] = this.createPorts(id);
+        const ports: ElkPort[] = this.createDefaultPorts(id);
         const portOptions = this.getDefaultLayoutOptionsForNode();
 
         const nodeLabel: ElkLabel = { text: label === undefined ? id : label };
@@ -974,7 +975,7 @@ export class ElkLayout implements LayoutAlgorithm {
      */
     prepare(extractedModel: ExtractedModel, constraintContainer: ElkConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
 
-        this.elkGraphTransformer = new ElkGraphTransformer(new GraphClassic(extractedModel), nodeDimensionQueryHandler, constraintContainer);
+        this.elkGraphTransformer = new ElkGraphTransformer(new GraphClassic(extractedModel, null), nodeDimensionQueryHandler, constraintContainer);
         this.graphInElk = this.elkGraphTransformer.convertToLibraryRepresentation(extractedModel, constraintContainer);
         this.constraintContainer = constraintContainer;
         this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;

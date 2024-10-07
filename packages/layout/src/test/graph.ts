@@ -4,7 +4,7 @@ import { ExtractedModel } from "../layout-iface";
 
 export function tryCreateClassicGraph(inputModel: Record<string, SemanticModelEntity> | ExtractedModel) {
     console.log("Calling tryCreateClassicGraph");
-    const graph = new GraphClassic(inputModel);
+    const graph = new GraphClassic(inputModel, null);
     console.log("OUTPUT GRAPH:");
     console.log(graph);
 }

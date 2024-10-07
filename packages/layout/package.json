@@ -5,7 +5,7 @@
       "build": "tsc",
       "dev": "tsc -w",
       "prebuild": "rimraf lib",
-      "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests"
+      "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests --silent"
     },
     "exports": {
       ".": "./lib/index.js"

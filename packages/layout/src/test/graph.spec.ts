@@ -10,7 +10,7 @@ type PossibleSemanticModelEntity = SemanticModelClass | SemanticModelRelationshi
 
 export function tryCreateClassicGraph() {
     console.log("Calling tryCreateClassicGraph");
-    const graph = new GraphClassic(testGraph);
+    const graph = new GraphClassic(testGraph, null);
     extractModelObjects(testGraph);
 
     console.log("OUTPUT GRAPH:");
@@ -27,13 +27,187 @@ const removeIdField = (obj: object) => {
 }
 
 test("Test Correctness against first (well actually second) implementation", async () => {
-    for(const [_, {config, result}] of Object.entries(configs)) {
+    for(const [_, {config, result}] of Object.entries(tests1)) {
         const newResult = await doFindBestLayout(testGraph, config, new ReactflowDimensionsEstimator());
         removeIdField(newResult);
         removeIdField(result);
         expect(newResult).toEqual(result);
     };
+
+    for(const [_, {config, result}] of Object.entries(tests2)) {
+      const newResult = await doFindBestLayout(testGraph2, config, new ReactflowDimensionsEstimator());
+      removeIdField(newResult);
+      removeIdField(result);
+      expect(newResult).toEqual(result);
+  };
 });
+
+
+const testGraph2: Record<string, PossibleSemanticModelEntity> = {
+  "0qr5kdhc5gnmm1y78zyt": {
+    "id": "0qr5kdhc5gnmm1y78zyt",
+    "iri": "FilthyQuestion",
+    "type": [
+      "class"
+    ],
+    "name": {
+      "en": "Filthy Question"
+    },
+    "description": {}
+  },
+  "l93yw8osmqim1y790z8": {
+    "id": "l93yw8osmqim1y790z8",
+    "iri": "SillyName",
+    "type": [
+      "class"
+    ],
+    "name": {
+      "en": "Silly Name"
+    },
+    "description": {}
+  },
+  "8mvxw75xc13m1y791we": {
+    "id": "8mvxw75xc13m1y791we",
+    "iri": "PompousGame",
+    "type": [
+      "class"
+    ],
+    "name": {
+      "en": "Pompous Game"
+    },
+    "description": {}
+  },
+  "g2d218g0g1em1y792ss": {
+    "id": "g2d218g0g1em1y792ss",
+    "iri": "SweetGroup",
+    "type": [
+      "class"
+    ],
+    "name": {
+      "en": "Sweet Group"
+    },
+    "description": {}
+  },
+  "1h4le93j5n5m1y793o5": {
+    "id": "1h4le93j5n5m1y793o5",
+    "iri": "HelplessWay",
+    "type": [
+      "class"
+    ],
+    "name": {
+      "en": "Helpless Way"
+    },
+    "description": {}
+  },
+  "ffbs6fmpajum1y7956b": {
+    "id": "ffbs6fmpajum1y7956b",
+    "iri": "HelplessDoor",
+    "type": [
+      "class"
+    ],
+    "name": {
+      "en": "Helpless Door"
+    },
+    "description": {}
+  },
+  "goomflz5lkm1y796aw": {
+    "id": "goomflz5lkm1y796aw",
+    "iri": "DisturbedGuy",
+    "type": [
+      "class"
+    ],
+    "name": {
+      "en": "Disturbed Guy"
+    },
+    "description": {}
+  },
+  "npnhas9srcqm1y79bnx": {
+    "id": "npnhas9srcqm1y79bnx",
+    "iri": null,
+    "child": "8mvxw75xc13m1y791we",
+    "parent": "0qr5kdhc5gnmm1y78zyt",
+    "type": [
+      "generalization"
+    ]
+  },
+  "66ss6sai3rkm1y79g3s": {
+    "id": "66ss6sai3rkm1y79g3s",
+    "iri": null,
+    "child": "ffbs6fmpajum1y7956b",
+    "parent": "0qr5kdhc5gnmm1y78zyt",
+    "type": [
+      "generalization"
+    ]
+  },
+  "84waehmh4vrm1y79jr6": {
+    "id": "84waehmh4vrm1y79jr6",
+    "iri": null,
+    "child": "l93yw8osmqim1y790z8",
+    "parent": "g2d218g0g1em1y792ss",
+    "type": [
+      "generalization"
+    ]
+  },
+  "7gbq8hqfnxpm1y79lgo": {
+    "id": "7gbq8hqfnxpm1y79lgo",
+    "iri": null,
+    "child": "goomflz5lkm1y796aw",
+    "parent": "g2d218g0g1em1y792ss",
+    "type": [
+      "generalization"
+    ]
+  },
+  "n7lbz6ng2tem1y79qvc": {
+    "id": "n7lbz6ng2tem1y79qvc",
+    "type": [
+      "relationship"
+    ],
+    "iri": null,
+    "name": {},
+    "description": {},
+    "ends": [
+      {
+        "name": {},
+        "description": {},
+        "cardinality": null,
+        "concept": "0qr5kdhc5gnmm1y78zyt",
+        "iri": null
+      },
+      {
+        "name": {},
+        "description": {},
+        "cardinality": null,
+        "concept": "1h4le93j5n5m1y793o5",
+        "iri": "4e2f083ecea361"
+      }
+    ]
+  },
+  "xknqmcojp7m1y79v97": {
+    "id": "xknqmcojp7m1y79v97",
+    "type": [
+      "relationship"
+    ],
+    "iri": null,
+    "name": {},
+    "description": {},
+    "ends": [
+      {
+        "name": {},
+        "description": {},
+        "cardinality": null,
+        "concept": "g2d218g0g1em1y792ss",
+        "iri": null
+      },
+      {
+        "name": {},
+        "description": {},
+        "cardinality": null,
+        "concept": "1h4le93j5n5m1y793o5",
+        "iri": "81c486dc8e70e1"
+      }
+    ]
+  }
+}
 
 
 // Test-Str2 Directory ... iawx6
@@ -2243,11 +2417,499 @@ const testGraph: Record<string, PossibleSemanticModelEntity> = {
 
 
 
+  const layeredWithLayeredGeneralization2: ConfigAndResult = {
+    config: {
+      "main": {
+        "layout_alg": "elk_layered",
+        "alg_direction": DIRECTION["UP"],
+        "layer_gap": 100,
+        "in_layer_gap": 100,
+        "stress_edge_len": 600,
+        "force_alg_type": "FRUCHTERMAN_REINGOLD",
+        "min_distance_between_nodes": 100,
+        "should_be_considered": true,
+        "constraintedNodes": "ALL"
+      },
+      "general": {
+        "layout_alg": "elk_layered",
+        "alg_direction": DIRECTION["UP"],
+        "layer_gap": 100,
+        "in_layer_gap": 100,
+        "stress_edge_len": 600,
+        "force_alg_type": "FRUCHTERMAN_REINGOLD",
+        "min_distance_between_nodes": 100,
+        "should_be_considered": true,
+        "constraintedNodes": "GENERALIZATION",
+        "double_run": true
+      }
+    },
+    result: {
+      "1h4le93j5n5m1y793o5": {
+        "id": "2645wu4mn4b",
+        "type": [
+          "visual-entity"
+        ],
+        "sourceEntityId": "1h4le93j5n5m1y793o5",
+        "visible": true,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "hiddenAttributes": []
+      },
+      "8mvxw75xc13m1y791we": {
+        "id": "65oi5q8kl7",
+        "type": [
+          "visual-entity"
+        ],
+        "sourceEntityId": "8mvxw75xc13m1y791we",
+        "visible": true,
+        "position": {
+          "x": 547.6573275862066,
+          "y": 355
+        },
+        "hiddenAttributes": []
+      },
+      "0qr5kdhc5gnmm1y78zyt": {
+        "id": "r6o55sdhytb",
+        "type": [
+          "visual-entity"
+        ],
+        "sourceEntityId": "0qr5kdhc5gnmm1y78zyt",
+        "visible": true,
+        "position": {
+          "x": 1045.8254310344823,
+          "y": 186
+        },
+        "hiddenAttributes": []
+      },
+      "ffbs6fmpajum1y7956b": {
+        "id": "0emmppz3omcj",
+        "type": [
+          "visual-entity"
+        ],
+        "sourceEntityId": "ffbs6fmpajum1y7956b",
+        "visible": true,
+        "position": {
+          "x": 994.2780172413792,
+          "y": 355
+        },
+        "hiddenAttributes": []
+      },
+      "l93yw8osmqim1y790z8": {
+        "id": "871oflhnjqq",
+        "type": [
+          "visual-entity"
+        ],
+        "sourceEntityId": "l93yw8osmqim1y790z8",
+        "visible": true,
+        "position": {
+          "x": -523.6573275862069,
+          "y": 355
+        },
+        "hiddenAttributes": []
+      },
+      "g2d218g0g1em1y792ss": {
+        "id": "4k89x2js446",
+        "type": [
+          "visual-entity"
+        ],
+        "sourceEntityId": "g2d218g0g1em1y792ss",
+        "visible": true,
+        "position": {
+          "x": -34.773706896551744,
+          "y": 186
+        },
+        "hiddenAttributes": []
+      },
+      "goomflz5lkm1y796aw": {
+        "id": "468rnia9jd7",
+        "type": [
+          "visual-entity"
+        ],
+        "sourceEntityId": "goomflz5lkm1y796aw",
+        "visible": true,
+        "position": {
+          "x": -89.41594827586198,
+          "y": 355
+        },
+        "hiddenAttributes": []
+      }
+    }
+  };
 
-  const configs: Record<string, ConfigAndResult> = {
+  // const layeredWithLayeredGeneralization2 = {
+  //   config: {
+  //     "main": {
+  //       "layout_alg": "elk_layered",
+  //       "alg_direction": DIRECTION["UP"],
+  //       "layer_gap": 100,
+  //       "in_layer_gap": 100,
+  //       "stress_edge_len": 600,
+  //       "force_alg_type": "FRUCHTERMAN_REINGOLD",
+  //       "min_distance_between_nodes": 100,
+  //       "should_be_considered": true,
+  //       "constraintedNodes": "ALL"
+  //     },
+  //     "general": {
+  //       "layout_alg": "elk_layered",
+  //       "alg_direction": DIRECTION["UP"],
+  //       "layer_gap": 100,
+  //       "in_layer_gap": 100,
+  //       "stress_edge_len": 600,
+  //       "force_alg_type": "FRUCHTERMAN_REINGOLD",
+  //       "min_distance_between_nodes": 100,
+  //       "should_be_considered": true,
+  //       "constraintedNodes": "GENERALIZATION",
+  //       "double_run": true
+  //     }
+  //   },
+  //   result: {
+  //     "1h4le93j5n5m1y793o5": {
+  //       "id": "2645wu4mn4b",
+  //       "type": [
+  //         "visual-entity"
+  //       ],
+  //       "sourceEntityId": "1h4le93j5n5m1y793o5",
+  //       "visible": true,
+  //       "position": {
+  //         "x": 0,
+  //         "y": 0
+  //       },
+  //       "hiddenAttributes": []
+  //     },
+  //     "8mvxw75xc13m1y791we": {
+  //       "id": "65oi5q8kl7",
+  //       "type": [
+  //         "visual-entity"
+  //       ],
+  //       "sourceEntityId": "8mvxw75xc13m1y791we",
+  //       "visible": true,
+  //       "position": {
+  //         "x": 547.6573275862066,
+  //         "y": 355
+  //       },
+  //       "hiddenAttributes": []
+  //     },
+  //     "0qr5kdhc5gnmm1y78zyt": {
+  //       "id": "r6o55sdhytb",
+  //       "type": [
+  //         "visual-entity"
+  //       ],
+  //       "sourceEntityId": "0qr5kdhc5gnmm1y78zyt",
+  //       "visible": true,
+  //       "position": {
+  //         "x": 1045.8254310344823,
+  //         "y": 186
+  //       },
+  //       "hiddenAttributes": []
+  //     },
+  //     "ffbs6fmpajum1y7956b": {
+  //       "id": "0emmppz3omcj",
+  //       "type": [
+  //         "visual-entity"
+  //       ],
+  //       "sourceEntityId": "ffbs6fmpajum1y7956b",
+  //       "visible": true,
+  //       "position": {
+  //         "x": 994.2780172413792,
+  //         "y": 355
+  //       },
+  //       "hiddenAttributes": []
+  //     },
+  //     "l93yw8osmqim1y790z8": {
+  //       "id": "871oflhnjqq",
+  //       "type": [
+  //         "visual-entity"
+  //       ],
+  //       "sourceEntityId": "l93yw8osmqim1y790z8",
+  //       "visible": true,
+  //       "position": {
+  //         "x": -523.6573275862069,
+  //         "y": 355
+  //       },
+  //       "hiddenAttributes": []
+  //     },
+  //     "g2d218g0g1em1y792ss": {
+  //       "id": "4k89x2js446",
+  //       "type": [
+  //         "visual-entity"
+  //       ],
+  //       "sourceEntityId": "g2d218g0g1em1y792ss",
+  //       "visible": true,
+  //       "position": {
+  //         "x": -34.773706896551744,
+  //         "y": 186
+  //       },
+  //       "hiddenAttributes": []
+  //     },
+  //     "goomflz5lkm1y796aw": {
+  //       "id": "468rnia9jd7",
+  //       "type": [
+  //         "visual-entity"
+  //       ],
+  //       "sourceEntityId": "goomflz5lkm1y796aw",
+  //       "visible": true,
+  //       "position": {
+  //         "x": -89.41594827586198,
+  //         "y": 355
+  //       },
+  //       "hiddenAttributes": []
+  //     }
+  //   }
+  // };
+
+  // const elkStressWithLayeredGeneralization2 = {
+  //   config: {
+  //     "main": {
+  //       "layout_alg": "elk_stress",
+  //       "alg_direction": DIRECTION["UP"],
+  //       "layer_gap": 100,
+  //       "in_layer_gap": 100,
+  //       "stress_edge_len": 600,
+  //       "force_alg_type": "FRUCHTERMAN_REINGOLD",
+  //       "min_distance_between_nodes": 100,
+  //       "should_be_considered": true,
+  //       "constraintedNodes": "ALL"
+  //     },
+  //     "general": {
+  //       "layout_alg": "elk_layered",
+  //       "alg_direction": DIRECTION["UP"],
+  //       "layer_gap": 100,
+  //       "in_layer_gap": 100,
+  //       "stress_edge_len": 600,
+  //       "force_alg_type": "FRUCHTERMAN_REINGOLD",
+  //       "min_distance_between_nodes": 100,
+  //       "should_be_considered": true,
+  //       "constraintedNodes": "GENERALIZATION",
+  //       "double_run": true
+  //     }
+  //   },
+  //   result: {
+  //     "1h4le93j5n5m1y793o5": {
+  //       "id": "py2t23y68hq",
+  //       "type": [
+  //         "visual-entity"
+  //       ],
+  //       "sourceEntityId": "1h4le93j5n5m1y793o5",
+  //       "visible": true,
+  //       "position": {
+  //         "x": 0,
+  //         "y": 0
+  //       },
+  //       "hiddenAttributes": []
+  //     },
+  //     "8mvxw75xc13m1y791we": {
+  //       "id": "1tmb1j8bsft",
+  //       "type": [
+  //         "visual-entity"
+  //       ],
+  //       "sourceEntityId": "8mvxw75xc13m1y791we",
+  //       "visible": true,
+  //       "position": {
+  //         "x": -706.0570385298174,
+  //         "y": 487.45378925527234
+  //       },
+  //       "hiddenAttributes": []
+  //     },
+  //     "0qr5kdhc5gnmm1y78zyt": {
+  //       "id": "wnt4yrkdqgc",
+  //       "type": [
+  //         "visual-entity"
+  //       ],
+  //       "sourceEntityId": "0qr5kdhc5gnmm1y78zyt",
+  //       "visible": true,
+  //       "position": {
+  //         "x": -207.8889350815415,
+  //         "y": 318.45378925527234
+  //       },
+  //       "hiddenAttributes": []
+  //     },
+  //     "ffbs6fmpajum1y7956b": {
+  //       "id": "hat92yrxya6",
+  //       "type": [
+  //         "visual-entity"
+  //       ],
+  //       "sourceEntityId": "ffbs6fmpajum1y7956b",
+  //       "visible": true,
+  //       "position": {
+  //         "x": -259.436348874645,
+  //         "y": 487.45378925527234
+  //       },
+  //       "hiddenAttributes": []
+  //     },
+  //     "l93yw8osmqim1y790z8": {
+  //       "id": "bo1a3xcp5o5",
+  //       "type": [
+  //         "visual-entity"
+  //       ],
+  //       "sourceEntityId": "l93yw8osmqim1y790z8",
+  //       "visible": true,
+  //       "position": {
+  //         "x": 163.98469830168335,
+  //         "y": -356.084375398726
+  //       },
+  //       "hiddenAttributes": []
+  //     },
+  //     "g2d218g0g1em1y792ss": {
+  //       "id": "bsaj486u4c",
+  //       "type": [
+  //         "visual-entity"
+  //       ],
+  //       "sourceEntityId": "g2d218g0g1em1y792ss",
+  //       "visible": true,
+  //       "position": {
+  //         "x": 652.8683189913386,
+  //         "y": -525.084375398726
+  //       },
+  //       "hiddenAttributes": []
+  //     },
+  //     "goomflz5lkm1y796aw": {
+  //       "id": "a240vgiftfd",
+  //       "type": [
+  //         "visual-entity"
+  //       ],
+  //       "sourceEntityId": "goomflz5lkm1y796aw",
+  //       "visible": true,
+  //       "position": {
+  //         "x": 598.2260776120281,
+  //         "y": -356.084375398726
+  //       },
+  //       "hiddenAttributes": []
+  //     }
+  //   }
+  // };
+
+  const elkStressWithLayeredGeneralization2: ConfigAndResult = {
+  config: {
+      "main": {
+        "layout_alg": "elk_stress",
+        "alg_direction": DIRECTION["UP"],
+        "layer_gap": 100,
+        "in_layer_gap": 100,
+        "stress_edge_len": 600,
+        "force_alg_type": "FRUCHTERMAN_REINGOLD",
+        "min_distance_between_nodes": 100,
+        "should_be_considered": true,
+        "constraintedNodes": "ALL"
+      },
+      "general": {
+        "layout_alg": "elk_layered",
+        "alg_direction": DIRECTION["UP"],
+        "layer_gap": 100,
+        "in_layer_gap": 100,
+        "stress_edge_len": 600,
+        "force_alg_type": "FRUCHTERMAN_REINGOLD",
+        "min_distance_between_nodes": 100,
+        "should_be_considered": true,
+        "constraintedNodes": "GENERALIZATION",
+        "double_run": true
+      }
+    },
+    result: {
+      "1h4le93j5n5m1y793o5": {
+        "id": "py2t23y68hq",
+        "type": [
+          "visual-entity"
+        ],
+        "sourceEntityId": "1h4le93j5n5m1y793o5",
+        "visible": true,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "hiddenAttributes": []
+      },
+      "8mvxw75xc13m1y791we": {
+        "id": "1tmb1j8bsft",
+        "type": [
+          "visual-entity"
+        ],
+        "sourceEntityId": "8mvxw75xc13m1y791we",
+        "visible": true,
+        "position": {
+          "x": -706.0570385298174,
+          "y": 487.45378925527234
+        },
+        "hiddenAttributes": []
+      },
+      "0qr5kdhc5gnmm1y78zyt": {
+        "id": "wnt4yrkdqgc",
+        "type": [
+          "visual-entity"
+        ],
+        "sourceEntityId": "0qr5kdhc5gnmm1y78zyt",
+        "visible": true,
+        "position": {
+          "x": -207.8889350815415,
+          "y": 318.45378925527234
+        },
+        "hiddenAttributes": []
+      },
+      "ffbs6fmpajum1y7956b": {
+        "id": "hat92yrxya6",
+        "type": [
+          "visual-entity"
+        ],
+        "sourceEntityId": "ffbs6fmpajum1y7956b",
+        "visible": true,
+        "position": {
+          "x": -259.436348874645,
+          "y": 487.45378925527234
+        },
+        "hiddenAttributes": []
+      },
+      "l93yw8osmqim1y790z8": {
+        "id": "bo1a3xcp5o5",
+        "type": [
+          "visual-entity"
+        ],
+        "sourceEntityId": "l93yw8osmqim1y790z8",
+        "visible": true,
+        "position": {
+          "x": 163.98469830168335,
+          "y": -356.084375398726
+        },
+        "hiddenAttributes": []
+      },
+      "g2d218g0g1em1y792ss": {
+        "id": "bsaj486u4c",
+        "type": [
+          "visual-entity"
+        ],
+        "sourceEntityId": "g2d218g0g1em1y792ss",
+        "visible": true,
+        "position": {
+          "x": 652.8683189913386,
+          "y": -525.084375398726
+        },
+        "hiddenAttributes": []
+      },
+      "goomflz5lkm1y796aw": {
+        "id": "a240vgiftfd",
+        "type": [
+          "visual-entity"
+        ],
+        "sourceEntityId": "goomflz5lkm1y796aw",
+        "visible": true,
+        "position": {
+          "x": 598.2260776120281,
+          "y": -356.084375398726
+        },
+        "hiddenAttributes": []
+      }
+    }
+  };
+
+
+  const tests1: Record<string, ConfigAndResult> = {
     "layered": layered,
     // "elk-force": elkForce,
     "elk-stress": elkStress,
     "layered-layeredGeneralization": layeredWithLayeredGeneralization,
     "elk-stress-layeredGeneralization": elkStressWithLayeredGeneralization,
+  };
+  const tests2: Record<string, ConfigAndResult> = {
+    "layered-layeredGeneralization2": layeredWithLayeredGeneralization2,
+    "elk-stress-layeredGeneralization2": elkStressWithLayeredGeneralization2,
   };
