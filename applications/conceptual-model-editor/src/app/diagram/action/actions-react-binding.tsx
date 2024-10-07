@@ -18,8 +18,10 @@ import { createVocabulary } from "./create-vocabulary";
 import { createClass } from "./create-class";
 import { addNodeToVisualModelAction } from "./add-node-to-visual-model";
 import { addRelationToVisualModelAction } from "./add-relation-to-visual-model";
-import { deleteFromSemanticModelAction }  from "./delete-from-semantic-model";
+import { deleteFromSemanticModelAction } from "./delete-from-semantic-model";
 import { deleteFromVisualModelAction } from "./delete-from-visual-model";
+import { useDiagram, type DiagramCallbacks } from "../diagram/";
+import type { UseDiagramType } from "../diagram/diagram-hook";
 
 export interface ActionsContextType {
 
@@ -34,17 +36,42 @@ export interface ActionsContextType {
    */
   openCreateClassDialog: (model: InMemorySemanticModel) => void;
 
-  addNodeToVisualModel: (model: string, identifier: string, position: { x: number, y: number }) => void;
+  /**
+   * Position is determined by the action.
+   */
+  addNodeToVisualModel: (model: string, identifier: string) => void;
+
+  addNodeToVisualModelToPosition: (model: string, identifier: string, position: { x: number, y: number }) => void;
 
   addRelationToVisualModel: (model: string, identifier: string) => void;
 
   deleteFromSemanticModel: (model: string, identifier: string) => Promise<void>;
 
-  // TODO Update name to deleteFromVisualModel
+  // TODO Change name to deleteFromVisualModel
   removeFromVisualModel: (identifier: string) => void;
+
+  centerViewportToVisualEntity: (model: string, identifier: string) => void;
+
+  /**
+   * As this context requires two way communication it is created and shared via the actions.
+   */
+  diagram: UseDiagramType | null;
+
 }
 
-export const ActionContext = React.createContext<ActionsContextType>(createNoOperationActionsContext());
+const noOperationActionsContext = {
+  openCreateModelDialog: noOperation,
+  openCreateClassDialog: noOperation,
+  addNodeToVisualModel: noOperation,
+  addNodeToVisualModelToPosition: noOperation,
+  addRelationToVisualModel: noOperation,
+  deleteFromSemanticModel: noOperationAsync,
+  removeFromVisualModel: noOperation,
+  centerViewportToVisualEntity: noOperation,
+  diagram: null,
+};
+
+export const ActionContext = React.createContext<ActionsContextType>(noOperationActionsContext);
 
 function noOperation() {
   logger.error("Using uninitialized actions context!");
@@ -55,18 +82,6 @@ function noOperationAsync() {
   return Promise.resolve();
 }
 
-
-function createNoOperationActionsContext(): ActionsContextType {
-  return {
-    openCreateModelDialog: noOperation,
-    openCreateClassDialog: noOperation,
-    addNodeToVisualModel: noOperation,
-    addRelationToVisualModel: noOperation,
-    deleteFromSemanticModel: noOperationAsync,
-    removeFromVisualModel: noOperation,
-  };
-}
-
 export const ActionsContextProvider = (props: {
   children: React.ReactNode,
 }) => {
@@ -75,10 +90,11 @@ export const ActionsContextProvider = (props: {
   const classes = useContext(ClassesContext);
   const notifications = useNotificationServiceWriter();
   const graph = useContext(ModelGraphContext);
+  const diagram = useDiagram();
 
   const actions = useMemo(
-    () => createActionsContext(options, dialogs, classes, notifications, graph),
-    [options, dialogs, classes, notifications, graph]
+    () => createActionsContext(options, dialogs, classes, notifications, graph, diagram),
+    [options, dialogs, classes, notifications, graph, diagram]
   );
 
   return (
@@ -91,17 +107,55 @@ export const ActionsContextProvider = (props: {
 function createActionsContext(
   options: ConfigurationContextType | null,
   dialogs: DialogApiContextType | null,
-  _: ClassesContextType | null,
+  classes: ClassesContextType | null,
   notifications: UseNotificationServiceWriterType | null,
   graph: ModelGraphContextType | null,
+  diagram: UseDiagramType,
 ): ActionsContextType {
+  if (options === null || dialogs === null || classes === null || notifications === null || graph === null || !diagram.areActionsReady) {
+    // We need to return the diagram object so it can be consumed by
+    // the Diagram component and initialized.
+    return {
+      ...noOperationActionsContext,
+      diagram,
+    };
+  }
+
+  console.info("createActionsContext is creating new actions object.");
+
+  const callbacks: DiagramCallbacks = {
+
+    onShowNodeDetail: (id) => console.log("Application.onShowNodeDetail", { id }),
+
+    onEditNode: (id) => console.log("Application.onEditNode", { id }),
+
+    onCreateNodeProfile: (id) => console.log("Application.onCreateNodeProfile", { id }),
+
+    onHideNode: (id) => console.log("Application.onHideNode", { id }),
+
+    onDeleteNode: (id) => console.log("Application.onDeleteNode", { id }),
+
+    onShowEdgeDetail: (id) => console.log("Application.onShowEdgeDetail", { id }),
+
+    onEditEdge: (id) => console.log("Application.onEditEdge", { id }),
+
+    onCreateEdgeProfile: (id) => console.log("Application.onCreateEdgeProfile", { id }),
+
+    onHideEdge: (id) => console.log("Application.onHideEdge", { id }),
+
+    onDeleteEdge: (id) => console.log("Application.onDeleteEdge", { id }),
+
+    onCreateConnectionToNode: (source, target) => console.log("Application.onCreateConnectionToNode", { source, target }),
+
+    onCreateConnectionToNothing: (source, position) => console.log("Application.onCreateConnectionToNothing", { source, position }),
+
+    onSelectionDidChange: (nodes, edges) => console.log("Application.onSelectionDidChange", { nodes, edges }),
+
+  };
+
+  diagram.setCallbacks(callbacks);
 
   const openCreateModelDialog = () => {
-    if (graph === null) {
-      console.error("Contexts are not ready.");
-      return;
-    }
-
     const onConfirm = (state: CreateModelState) => {
       createVocabulary(graph, state);
     };
@@ -110,11 +164,6 @@ function createActionsContext(
   };
 
   const openCreateClassDialog = (model: InMemorySemanticModel) => {
-    if (options === null || notifications === null || graph === null) {
-      console.error("Contexts are not ready.");
-      return;
-    }
-
     const onConfirm = (state: EditClassState) => {
       createClass(notifications, graph, model, null, state);
     };
@@ -122,30 +171,24 @@ function createActionsContext(
     dialogs?.openDialog(createEditClassDialog(model, options.language, onConfirm));
   };
 
-  const addNodeToVisualModel = (model: string, identifier: string, position: { x: number, y: number }) => {
-    if (notifications === null || graph === null) {
-      console.error("Contexts are not ready.");
-      return;
-    }
+  const addNodeToVisualModel = (model: string, identifier: string) => {
+    const viewport = diagram.actions().getViewport();
+    const position = {
+      x: viewport.position.x + (viewport.width / 2),
+      y: viewport.position.y + (viewport.height / 2),
+    };
+    addNodeToVisualModelAction(notifications, graph, model, identifier, position);
+  };
 
+  const addNodeToVisualModelToPosition = (model: string, identifier: string, position: { x: number, y: number }) => {
     addNodeToVisualModelAction(notifications, graph, model, identifier, position);
   };
 
   const addRelationToVisualModel = (model: string, identifier: string) => {
-    if (notifications === null || graph === null) {
-      console.error("Contexts are not ready.");
-      return;
-    }
-
     addRelationToVisualModelAction(notifications, graph, model, identifier);
   };
 
   const deleteFromSemanticModel = (model: string, identifier: string) => {
-    if (notifications === null || graph === null) {
-      console.error("Contexts are not ready.");
-      return Promise.reject();
-    }
-
     return deleteFromSemanticModelAction(notifications, graph, model, identifier);
   };
 
@@ -157,13 +200,31 @@ function createActionsContext(
     deleteFromVisualModelAction(notifications, graph, identifier);
   };
 
+  const centerViewportToVisualEntity = (model: string, identifier: string) => {
+    // TODO Extract to an action file.
+    const visualModel = graph.aggregatorView.getActiveVisualModel();
+    if (visualModel === null) {
+      notifications.error("There is no active visual model.");
+      return;
+    }
+    const entity = visualModel.getVisualEntityForRepresented(identifier);
+    if (entity === null) {
+      notifications.error("There is no visual representation of the entity.");
+      return;
+    }
+    diagram.actions().centerViewportToNode(entity.identifier);
+  };
+
   return {
     openCreateModelDialog,
     openCreateClassDialog,
     addNodeToVisualModel,
+    addNodeToVisualModelToPosition,
     addRelationToVisualModel,
     deleteFromSemanticModel,
     removeFromVisualModel,
+    centerViewportToVisualEntity,
+    diagram,
   };
 
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
-import { ReactFlowProvider } from "reactflow";
 
 import type { Entity, EntityModel } from "@dataspecer/core-v2/entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
@@ -66,7 +65,6 @@ const Page = () => {
     const [rawEntities, setRawEntities] = useState<(Entity | null)[]>([]);
     const [visualModels, setVisualModels] = useState(new Map<string, WritableVisualModel>());
     const [sourceModelOfEntityMap, setSourceModelOfEntityMap] = useState(new Map<string, string>());
-    //
     const [defaultModelAlreadyCreated, setDefaultModelAlreadyCreated] = useState(false);
 
     // Runs on initial load.
@@ -187,9 +185,7 @@ const Page = () => {
 const PageWrapper = () => {
     return (
         <QueryParamsProvider>
-            <ReactFlowProvider>
-                <Page />
-            </ReactFlowProvider>
+            <Page />
         </QueryParamsProvider>
     );
 };

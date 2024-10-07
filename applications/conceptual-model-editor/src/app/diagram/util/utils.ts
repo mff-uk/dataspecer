@@ -8,7 +8,7 @@ export const shortenStringTo = (modelId: string | null, length: number = 20) => 
 
 export const cardinalityToString = (cardinality: [number, number | null] | undefined | null) => {
     if (!cardinality) {
-        return undefined;
+        return null;
     }
     return `[${cardinality.at(0) ?? "*"}..${cardinality[1] ?? "*"}]`;
 };

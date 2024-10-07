@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import { useModelGraphContext } from "../context/model-context";
 import { useBaseDialog } from "../components/base-dialog";
 import { filterInMemoryModels } from "../util/model-utils";
@@ -37,7 +38,6 @@ import { useClassesContext } from "../context/classes-context";
 import { type OverriddenFieldsType, getDefaultOverriddenFields } from "../util/profile-utils";
 import { t } from "../application/";
 import { prefixForIri } from "../service/prefix-service";
-import { useReactFlow } from "reactflow";
 import { isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { useActions } from "../action/actions-react-binding";
 
@@ -66,8 +66,6 @@ export const useCreateProfileDialog = () => {
         const { createClassEntityUsage, createRelationshipEntityUsage } = useClassesContext();
         const { models, aggregatorView } = useModelGraphContext();
         const inMemoryModels = filterInMemoryModels([...models.values()]);
-
-        const reactFlow = useReactFlow<object, object>();
         const actions = useActions();
 
         const [usageNote, setUsageNote] = useState<LanguageString>({});
@@ -131,12 +129,7 @@ export const useCreateProfileDialog = () => {
 
             const visualModel = aggregatorView.getActiveVisualModel();
             if (classUsageId && isWritableVisualModel(visualModel)) {
-                const viewport = reactFlow.getViewport();
-                const position = {
-                    x: viewport.x,
-                    y: viewport.y,
-                };
-                actions.addNodeToVisualModel(m.getId(), classUsageId, position);
+                actions.addNodeToVisualModel(m.getId(), classUsageId);
             }
         };
 

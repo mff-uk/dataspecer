@@ -1,21 +1,21 @@
 import { useMemo, useCallback, useEffect, useRef, type Dispatch, type SetStateAction, type MutableRefObject } from "react";
-import ReactFlow, {
-    type Connection,
-    type Edge,
-    type EdgeChange,
-    type Node,
-    type NodeChange,
-    Background,
-    Controls,
-    MiniMap,
-    Panel,
-    type ReactFlowInstance,
-    getRectOfNodes,
-    getTransformForBounds,
-    useEdgesState,
-    useNodesState,
-    useReactFlow,
-} from "reactflow";
+// import ReactFlow, {
+//     type Connection,
+//     type Edge,
+//     type EdgeChange,
+//     type Node,
+//     type NodeChange,
+//     Background,
+//     Controls,
+//     MiniMap,
+//     Panel,
+//     type ReactFlowInstance,
+//     getRectOfNodes,
+//     getTransformForBounds,
+//     useEdgesState,
+//     useNodesState,
+//     useReactFlow,
+// } from "reactflow";
 
 import {
     type SemanticModelClass,
@@ -33,32 +33,41 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { type WritableVisualModel, type VisualNode, isVisualNode, isVisualRelationship, type VisualModel, type VisualEntity } from "@dataspecer/core-v2/visual-model";
+import { type WritableVisualModel, type VisualNode, isVisualNode, isVisualRelationship, type VisualModel, type VisualEntity, VisualRelationship } from "@dataspecer/core-v2/visual-model";
 import { type SemanticModelAggregatorView, type AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
 
 
-import {
-    type ClassCustomNodeDataType,
-    ClassCustomNode,
-    semanticModelClassToReactFlowNode,
-} from "./reactflow/class-custom-node";
-import {
-    SimpleFloatingEdge,
-    semanticModelClassUsageToReactFlowEdge,
-    semanticModelGeneralizationToReactFlowEdge,
-    semanticModelRelationshipToReactFlowEdge,
-} from "./reactflow/simple-floating-edge";
+// import {
+//     type ClassCustomNodeDataType,
+//     ClassCustomNode,
+//     semanticModelClassToReactFlowNode,
+// } from "./reactflow/class-custom-node";
+// import {
+//     SimpleFloatingEdge,
+//     semanticModelClassUsageToReactFlowEdge,
+//     semanticModelGeneralizationToReactFlowEdge,
+//     semanticModelRelationshipToReactFlowEdge,
+// } from "./reactflow/simple-floating-edge";
 import { tailwindColorToHex } from "../utils/color-utils";
 import { useCreateConnectionDialog } from "./dialog/create-connection-dialog";
-import { useModelGraphContext } from "./context/model-context";
+import { useModelGraphContext, UseModelGraphContextType } from "./context/model-context";
 import { useClassesContext, type UseClassesContextType } from "./context/classes-context";
 import { bothEndsHaveAnIri, temporaryDomainRangeHelper } from "./util/relationship-utils";
 import { toSvg } from "html-to-image";
 import { useDownload } from "./features/export/download";
 import { useActions } from "./action/actions-react-binding";
-
-import "reactflow/dist/style.css";
 import { getDomainAndRange } from "./service/relationship-service";
+import { Diagram, Node, Edge, EntityItem, EdgeType } from "./diagram/";
+import { UseDiagramType } from "./diagram/diagram-hook";
+import { logger } from "./application";
+import { EntityProxy } from "./util/detail-utils";
+import { ConfigurationContextType, useConfigurationContext, UseConfigurationContextType } from "./context/configuration-context";
+import { getDescriptionLanguageString, getFallbackDisplayName, getNameLanguageString, getUsageNoteLanguageString } from "./util/name-utils";
+import { getLocalizedStringFromLanguageString } from "./util/language-utils";
+import { getIri, getModelIri } from "./util/iri-utils";
+import { findSourceModelOfEntity } from "./service/model-service";
+import { EntityModel } from "@dataspecer/core-v2";
+import { cardinalityToString } from "./util/utils";
 
 /**
  * Returns SVG for the current model.
@@ -68,15 +77,18 @@ export let getSvgForCurrentView: () => Promise<{
     forModelId: string;
 } | null>;
 
-const NODE_TYPES = { classCustomNode: ClassCustomNode };
+// const NODE_TYPES = { classCustomNode: ClassCustomNode };
 
-const EDGE_TYPES = { floating: SimpleFloatingEdge };
+// const EDGE_TYPES = { floating: SimpleFloatingEdge };
 
 const DEFAULT_MODEL_COLOR = "#ffffff";
 
 export const Visualization = () => {
-    const { aggregatorView } = useModelGraphContext();
-    const { CreateConnectionDialog, isCreateConnectionDialogOpen, openCreateConnectionDialog } = useCreateConnectionDialog();
+    const configuration = useConfigurationContext();
+    const graph = useModelGraphContext();
+    const aggregatorView = graph.aggregatorView;
+
+    // const { CreateConnectionDialog, isCreateConnectionDialogOpen, openCreateConnectionDialog } = useCreateConnectionDialog();
     const actions = useActions();
 
     const { downloadImage } = useDownload();
@@ -86,97 +98,97 @@ export const Visualization = () => {
     const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
     const changedVisualModel = useRef<boolean>(true);
 
-    const [nodes, setNodes, onNodesChange] = useNodesState([]);
-    const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+    // const [nodes, setNodes, onNodesChange] = useNodesState([]);
+    // const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-    const reactFlowInstance = useReactFlow<object, object>();
+    // const reactFlowInstance = useReactFlow<object, object>();
 
     // HANDLERS
 
-    const onConnect = useCallback((connection: Connection) => {
-        openCreateConnectionDialog(connection);
-    }, [openCreateConnectionDialog]);
+    // const onConnect = useCallback((connection: Connection) => {
+    //     openCreateConnectionDialog(connection);
+    // }, [openCreateConnectionDialog]);
 
-    const onDragOver = useCallback((event: React.DragEvent) => {
-        event.preventDefault();
-        event.dataTransfer.dropEffect = "move";
-    }, []);
+    // const onDragOver = useCallback((event: React.DragEvent) => {
+    //     event.preventDefault();
+    //     event.dataTransfer.dropEffect = "move";
+    // }, []);
 
-    const onDrop = useCallback((event: React.DragEvent) => {
-        event.preventDefault();
+    // const onDrop = useCallback((event: React.DragEvent) => {
+    //     event.preventDefault();
+    //
+    //     const type = event.dataTransfer.getData("application/reactflow");
+    //     const model = event.dataTransfer.getData("application/reactflow-model");
+    //     const entityId = event.dataTransfer.getData("application/reactflow-entityId");
+    //
+    //     // check if the dropped element is valid
+    //     if (typeof type === "undefined" || !type) {
+    //         return;
+    //     }
+    //
+    //     // reactFlowInstance.project was renamed to reactFlowInstance.screenToFlowPosition
+    //     // and you don't need to subtract the reactFlowBounds.left/top anymore
+    //     // details: https://reactflow.dev/whats-new/2023-11-10
+    //     const position = reactFlowInstance?.screenToFlowPosition({
+    //         x: event.clientX,
+    //         y: event.clientY,
+    //     });
+    //
+    //     actions.addNodeToVisualModel(model, entityId, position);
+    // }, [reactFlowInstance, activeVisualModel]);
 
-        const type = event.dataTransfer.getData("application/reactflow");
-        const model = event.dataTransfer.getData("application/reactflow-model");
-        const entityId = event.dataTransfer.getData("application/reactflow-entityId");
+    // const onNodeDragStop = (_: React.MouseEvent, node: Node, nodes: Node[]) => {
+    //     updateVisualEntityIfNecessary(node, activeVisualModel as WritableVisualModel);
+    // };
 
-        // check if the dropped element is valid
-        if (typeof type === "undefined" || !type) {
-            return;
-        }
-
-        // reactFlowInstance.project was renamed to reactFlowInstance.screenToFlowPosition
-        // and you don't need to subtract the reactFlowBounds.left/top anymore
-        // details: https://reactflow.dev/whats-new/2023-11-10
-        const position = reactFlowInstance?.screenToFlowPosition({
-            x: event.clientX,
-            y: event.clientY,
-        });
-
-        actions.addNodeToVisualModel(model, entityId, position);
-    }, [reactFlowInstance, activeVisualModel]);
-
-    const onNodeDragStop = (_: React.MouseEvent, node: Node, nodes: Node[]) => {
-        updateVisualEntityIfNecessary(node, activeVisualModel as WritableVisualModel);
-    };
-
-    const onSelectionDragStop = (_: React.MouseEvent, nodes: Node[]) => {
-        for (const node of nodes) {
-            updateVisualEntityIfNecessary(node, activeVisualModel as WritableVisualModel);
-        }
-    };
+    // const onSelectionDragStop = (_: React.MouseEvent, nodes: Node[]) => {
+    //     for (const node of nodes) {
+    //         updateVisualEntityIfNecessary(node, activeVisualModel as WritableVisualModel);
+    //     }
+    // };
 
     // EXPORT TO SVG : START
 
-    const getSvg = () => {
-        // we calculate a transform for the nodes so that all nodes are visible
-        // we then overwrite the transform of the `.react-flow__viewport` element
-        // with the style option of the html-to-image library
-        const imageWidth = 800;
-        const imageHeight = 550;
-        const nodesBounds = getRectOfNodes(nodes);
-        const transform = getTransformForBounds(nodesBounds, imageWidth, imageHeight, 0.5, 2);
-
-        const flow__viewport = document.querySelector(".react-flow__viewport") as HTMLElement | null;
-
-        if (!flow__viewport) {
-            return;
-        }
-
-        return toSvg(flow__viewport, {
-            backgroundColor: "#ffffff",
-            width: imageWidth,
-            height: imageHeight,
-            style: {
-                width: imageWidth.toString(),
-                height: imageHeight.toString(),
-                transform: `translate(${transform[0]}px, ${transform[1]}px) scale(${transform[2]})`,
-            },
-        });
-    };
+    // const getSvg = () => {
+    //     // we calculate a transform for the nodes so that all nodes are visible
+    //     // we then overwrite the transform of the `.react-flow__viewport` element
+    //     // with the style option of the html-to-image library
+    //     const imageWidth = 800;
+    //     const imageHeight = 550;
+    //     const nodesBounds = getRectOfNodes(nodes);
+    //     const transform = getTransformForBounds(nodesBounds, imageWidth, imageHeight, 0.5, 2);
+    //
+    //     const flow__viewport = document.querySelector(".react-flow__viewport") as HTMLElement | null;
+    //
+    //     if (!flow__viewport) {
+    //         return;
+    //     }
+    //
+    //     return toSvg(flow__viewport, {
+    //         backgroundColor: "#ffffff",
+    //         width: imageWidth,
+    //         height: imageHeight,
+    //         style: {
+    //             width: imageWidth.toString(),
+    //             height: imageHeight.toString(),
+    //             transform: `translate(${transform[0]}px, ${transform[1]}px) scale(${transform[2]})`,
+    //         },
+    //     });
+    // };
 
     const exportCanvasToSvg = () => {
-        const svg = getSvg();
-        if (svg) {
-            svg.then(downloadImage).catch(console.error);
-        }
+        // const svg = getSvg();
+        // if (svg) {
+        //     svg.then(downloadImage).catch(console.error);
+        // }
     };
 
-    getSvgForCurrentView = () => getSvg()?.then((svg) => {
-        return {
-            svg: svg,
-            forModelId: activeVisualModel?.getId() ?? "",
-        };
-    }) ?? Promise.resolve(null);
+    // getSvgForCurrentView = () => getSvg()?.then((svg) => {
+    //     return {
+    //         svg: svg,
+    //         forModelId: activeVisualModel?.getId() ?? "",
+    //     };
+    // }) ?? Promise.resolve(null);
 
     // EXPORT TO SVG : END
 
@@ -201,9 +213,9 @@ export const Visualization = () => {
                 return;
             }
             console.log("[VISUALIZATION] Semantic entities has been changed.", { updated, removed });
-            propagateAggregatorChangesToVisualization(
-                updated, removed, activeVisualModel as WritableVisualModel, aggregatorView,
-                classesContext, reactFlowInstance, setNodes, changedVisualModel);
+            // propagateAggregatorChangesToVisualization(
+            //     updated, removed, activeVisualModel as WritableVisualModel, aggregatorView,
+            //     classesContext, reactFlowInstance, setNodes, changedVisualModel);
         });
 
         const unsubscribeCanvasCallback = aggregatorView.getActiveVisualModel()?.subscribeToChanges({
@@ -213,22 +225,22 @@ export const Visualization = () => {
                 }
                 // We ignore model color changes here for now.
                 console.log("[VISUALIZATION] Model color has been changed.", { model });
-                propagateVisualModelColorChangesToVisualization(
-                    model,
-                    setNodes, setEdges,
-                    aggregatorView, classesContext,
-                    activeVisualModel as WritableVisualModel);
+                // propagateVisualModelColorChangesToVisualization(
+                //     model,
+                //     setNodes, setEdges,
+                //     aggregatorView, classesContext,
+                //     activeVisualModel as WritableVisualModel);
             },
             visualEntitiesDidChange(changes) {
                 if (activeVisualModel === null) {
                     return;
                 }
                 console.log("[VISUALIZATION] Visual entities has been changed.", { changes });
-                propagateVisualModelEntitiesChangesToVisualization(
-                    changes,
-                    setNodes, setEdges,
-                    aggregatorView, classesContext,
-                    activeVisualModel as WritableVisualModel);
+                // propagateVisualModelEntitiesChangesToVisualization(
+                //     changes,
+                //     setNodes, setEdges,
+                //     aggregatorView, classesContext,
+                //     activeVisualModel as WritableVisualModel);
             },
         });
 
@@ -242,25 +254,15 @@ export const Visualization = () => {
     // Update canvas content on view change.
     useEffect(() => {
         console.log("[VISUALIZATION] Active visual model has changed.", activeVisualModel);
-        changedVisualModel.current = true;
-        if (activeVisualModel === null) {
-            // Just remove all.
-            setNodes([]);
-            setEdges([]);
-        } else {
-            resetReactflowFromVisualModel(
-                setNodes, setEdges,
-                aggregatorView, classesContext,
-                activeVisualModel as WritableVisualModel);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activeVisualModel]);
+        onChangeVisualModel(configuration, activeVisualModel, actions.diagram, aggregatorView, classesContext, graph);
+    }, [configuration, activeVisualModel, actions, aggregatorView, classesContext, graph]);
 
     return (
         <>
-            {isCreateConnectionDialogOpen && <CreateConnectionDialog />}
+            {/* {isCreateConnectionDialogOpen && <CreateConnectionDialog />} */}
             <div className="h-[80vh] w-full md:h-full">
-                <ReactFlow
+                {actions.diagram === null ? null : <Diagram diagram={actions.diagram} />}
+                {/* <ReactFlow
                     nodes={nodes}
                     edges={edges}
                     nodeTypes={NODE_TYPES}
@@ -293,376 +295,505 @@ export const Visualization = () => {
                         </div>
                     </Panel>
                     <Background gap={12} size={1} />
-                </ReactFlow>
+                </ReactFlow> */}
             </div>
         </>
     );
 };
 
-function miniMapNodeColor(node: Node) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
-    return tailwindColorToHex(node.data?.color);
-}
+// function miniMapNodeColor(node: Node) {
+//     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
+//     return tailwindColorToHex(node.data?.color);
+// }
 
-function updateVisualEntityIfNecessary(node: Node, visualModel: WritableVisualModel | null) {
-    if (visualModel === null) {
-        return;
-    }
-    if (!isAtSamePositionAsVisualEntity(node, visualModel)) {
-        visualModel.updateVisualEntity(node.id, { position: node.positionAbsolute });
-    }
-}
+// function updateVisualEntityIfNecessary(node: Node, visualModel: WritableVisualModel | null) {
+//     if (visualModel === null) {
+//         return;
+//     }
+//     if (!isAtSamePositionAsVisualEntity(node, visualModel)) {
+//         visualModel.updateVisualEntity(node.id, { position: node.positionAbsolute });
+//     }
+// }
 
-function isAtSamePositionAsVisualEntity(node: Node, visualModel: VisualModel): boolean {
-    const visualNode = visualModel?.getVisualEntity(node.id) as VisualNode;
-    const position = visualNode?.position;
-    return node.positionAbsolute?.x === position?.x && node.positionAbsolute?.y === position?.y;
-}
+// function isAtSamePositionAsVisualEntity(node: Node, visualModel: VisualModel): boolean {
+//     const visualNode = visualModel?.getVisualEntity(node.id) as VisualNode;
+//     const position = visualNode?.position;
+//     return node.positionAbsolute?.x === position?.x && node.positionAbsolute?.y === position?.y;
+// }
 
-function propagateAggregatorChangesToVisualization(
-    updated: AggregatedEntityWrapper[],
-    removed: string[],
-    //
-    visualModel: WritableVisualModel,
-    aggregatorView: SemanticModelAggregatorView,
-    classesContext: UseClassesContextType,
-    reactflow: ReactFlowInstance<object, object>,
-    setNodes: Dispatch<SetStateAction<Node<any, string | undefined>[]>>,
-    changedVisualModel: MutableRefObject<boolean>,
-) {
-    // We have updated the model since possible last change.
-    changedVisualModel.current = false;
+// function propagateAggregatorChangesToVisualization(
+//     updated: AggregatedEntityWrapper[],
+//     removed: string[],
+//     //
+//     visualModel: WritableVisualModel,
+//     aggregatorView: SemanticModelAggregatorView,
+//     classesContext: UseClassesContextType,
+//     reactflow: ReactFlowInstance<object, object>,
+//     setNodes: Dispatch<SetStateAction<Node<any, string | undefined>[]>>,
+//     changedVisualModel: MutableRefObject<boolean>,
+// ) {
+//     // We have updated the model since possible last change.
+//     changedVisualModel.current = false;
+//
+//     const entities = aggregatorView.getEntities();
+//
+//     let localRelationships = classesContext.relationships;
+//     let localAttributes = classesContext.relationships.filter(isSemanticModelAttribute);
+//     let localGeneralizations = classesContext.generalizations;
+//     let localProfiles = classesContext.profiles;
+//     let localAttributeProfiles = classesContext.profiles.filter(isSemanticModelAttributeUsage);
+//
+//     // Remove entities.
+//     if (removed.length > 0) {
+//         // Update visualization.
+//         handleRemoveByAggregator(setNodes, visualModel, entities, classesContext.relationships, removed);
+//         // Update local state.
+//         const filterRemoved = (item: { id: string }) => !removed.includes(item.id);
+//         localAttributes = localAttributes.filter(filterRemoved);
+//         localAttributeProfiles = localAttributeProfiles.filter(filterRemoved);
+//         localGeneralizations = localGeneralizations.filter(filterRemoved);
+//         localRelationships = localRelationships.filter(filterRemoved);
+//         localProfiles = localProfiles.filter(filterRemoved);
+//     }
+//
+//     // Update local state.
+//     // We use it when rendering content of the nodes.
+//     for (const updatedEntity of updated) {
+//         const entity = updatedEntity.aggregatedEntity;
+//         if (isSemanticModelAttribute(entity)) {
+//             localAttributes = localAttributes.filter((item) => item.id != entity.id).concat(entity);
+//         } else if (isSemanticModelAttributeUsage(entity)) {
+//             localAttributeProfiles = localAttributeProfiles.filter((item) => item.id != entity.id).concat(entity);
+//         } else if (isSemanticModelRelationship(entity)) {
+//             localRelationships = localRelationships.filter((item) => item.id != entity.id).concat(entity);
+//         } else if (isSemanticModelRelationshipUsage(entity)) {
+//             localProfiles = localProfiles.filter((item) => item.id != entity.id).concat(entity);
+//         } else if (isSemanticModelGeneralization(entity)) {
+//             localGeneralizations = localGeneralizations.filter((item) => item.id != entity.id).concat(entity);
+//         } else {
+//             // We do not care about other types here.
+//         }
+//     }
+//
+//     // Update changed entities.
+//     for (const updatedEntity of updated) {
+//         handleChangeByAggregator(
+//             updatedEntity,
+//             reactflow, visualModel, entities,
+//             classesContext.sourceModelOfEntityMap,
+//             localAttributes, localAttributeProfiles, setNodes);
+//     }
+//
+// }
 
-    const entities = aggregatorView.getEntities();
+// function handleRemoveByAggregator(
+//     setNodes: Dispatch<SetStateAction<Node<any, string | undefined>[]>>,
+//     visualModel: WritableVisualModel,
+//     entities: Record<string, AggregatedEntityWrapper>,
+//     relationships: SemanticModelRelationship[],
+//     removed: string[],
+// ) {
+//     // Collect nodes affected by removal of a relationship.
+//     const nodesAffectedByAttributeRemovals = new Set<string>();
+//     const affectedNodesReplacements: Node[] = [];
+//     for (const relationship of relationships) {
+//         if (!removed.includes(relationship.id)) {
+//             continue;
+//         }
+//         // Look for domain being class or class profile.
+//         const domainEntity = entities[temporaryDomainRangeHelper(relationship)?.domain.concept ?? ""]?.aggregatedEntity ?? null;
+//         if (isSemanticModelClass(domainEntity) || isSemanticModelClassUsage(domainEntity)) {
+//             const domainVisualEntity = visualModel.getVisualEntityForRepresented(domainEntity.id);
+//             if (domainVisualEntity !== null) {
+//                 nodesAffectedByAttributeRemovals.add(domainVisualEntity.identifier);
+//                 // TODO Create new version ?
+//                 // affectedNodesReplacements.push(createReactflowNode())
+//             }
+//         }
+//     }
+//
+//     // Remove visual entities representing the removed entities.
+//     const entitiesToRemove = new Set<string>();
+//     for (const remove of removed) {
+//         const visualEntity = visualModel.getVisualEntityForRepresented(remove);
+//         if (visualEntity === null) {
+//             continue;
+//         }
+//         entitiesToRemove.add(visualEntity.identifier);
+//     }
+//
+//     // Changes nodes.
+//     setNodes(previous => previous.filter(item => !entitiesToRemove.has(item.id)));
+// }
 
-    let localRelationships = classesContext.relationships;
-    let localAttributes = classesContext.relationships.filter(isSemanticModelAttribute);
-    let localGeneralizations = classesContext.generalizations;
-    let localProfiles = classesContext.profiles;
-    let localAttributeProfiles = classesContext.profiles.filter(isSemanticModelAttributeUsage);
+// function handleChangeByAggregator(
+//     change: AggregatedEntityWrapper,
+//     //
+//     reactflow: ReactFlowInstance<object, object>,
+//     visualModel: WritableVisualModel,
+//     entities: Record<string, AggregatedEntityWrapper>,
+//     sourceModelOfEntityMap: Map<string, string>,
+//     attributes: SemanticModelRelationship[],
+//     attributeProfiles: SemanticModelRelationshipUsage[],
+//     setNodes: Dispatch<SetStateAction<Node<any, string | undefined>[]>>,
+// ) {
+//     if (change.aggregatedEntity === null) {
+//         // We have no information thus we can not update.
+//         return;
+//     }
+//     const entity = change.aggregatedEntity;
+//     const visualEntity = visualModel.getVisualEntityForRepresented(change.id);
+//     if (visualEntity === null) {
+//         // We have no visual representation of entity, so there is
+//         // nothing to update.
+//         return;
+//     }
 
-    // Remove entities.
-    if (removed.length > 0) {
-        // Update visualization.
-        handleRemoveByAggregator(setNodes, visualModel, entities, classesContext.relationships, removed);
-        // Update local state.
-        const filterRemoved = (item: { id: string }) => !removed.includes(item.id);
-        localAttributes = localAttributes.filter(filterRemoved);
-        localAttributeProfiles = localAttributeProfiles.filter(filterRemoved);
-        localGeneralizations = localGeneralizations.filter(filterRemoved);
-        localRelationships = localRelationships.filter(filterRemoved);
-        localProfiles = localProfiles.filter(filterRemoved);
-    }
+//     if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
+//         if (!isVisualNode(visualEntity)) {
+//             console.warn("Ignored update to entity as the visual entity is not a node.", { entity, visualEntity });
+//             return;
+//         }
+//         const node = reactflow.getNode(entity.id);
+//         if (node === undefined) {
+//             console.warn("No node returned by ReactFlow but there is a visual entity.", { entity, visualEntity });
+//         }
+//         // We just recreate the node, to propagate the changes.
+//         const nextNode = createReactflowNode(
+//             attributes, attributeProfiles, visualModel,
+//             entity, visualEntity);
+//         if (nextNode === null) {
+//             return;
+//         }
+//         // Replace old node with a new one.
+//         setNodes((prev) => prev.filter((node) => (node.data as ClassCustomNodeDataType).cls.id !== entity.id).concat(nextNode));
+//     } else if (isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity)) {
+//         // There has been change in an attribute. We need to
+//         // update visual entity with the attribute.
+//         if (bothEndsHaveAnIri(entity)) {
+//             // Both ends are IRI so it is not an attribute.
+//             console.warn("Ignore update of attribute (profile) as both ends are IRIs.", { entity });
+//             return;
+//         }
+//         // We need to the owner entity.
+//         const domainOfAttribute = temporaryDomainRangeHelper(entity)?.domain.concept;
+//         const ownerEntity = entities[domainOfAttribute ?? entity.ends[0]?.concept ?? ""]?.aggregatedEntity ?? null;
+//         if (isSemanticModelClass(ownerEntity) || isSemanticModelClassUsage(ownerEntity)) {
+//             // Owner is a class or class profile, so we can update the list of attributes.
+//             const ownerVisualEntity = visualModel.getVisualEntityForRepresented(ownerEntity.id);
+//             if (ownerVisualEntity === null || !isVisualNode(ownerVisualEntity)) {
+//                 // There is no visual representation.
+//                 return;
+//             }
+//
+//             // We just recreate the node, to propagate the changes.
+//             const nextNode = createReactflowNode(
+//                 attributes, attributeProfiles, visualModel,
+//                 ownerEntity, ownerVisualEntity);
+//             if (nextNode === null) {
+//                 return;
+//             }
+//             // Replace old node with a new one.
+//             setNodes((prev) => prev.filter((node) => (node.data as ClassCustomNodeDataType).cls.id !== entity.id).concat(nextNode));
+//         }
+//     }
+// }
 
-    // Update local state.
-    // We use it when rendering content of the nodes.
-    for (const updatedEntity of updated) {
-        const entity = updatedEntity.aggregatedEntity;
-        if (isSemanticModelAttribute(entity)) {
-            localAttributes = localAttributes.filter((item) => item.id != entity.id).concat(entity);
-        } else if (isSemanticModelAttributeUsage(entity)) {
-            localAttributeProfiles = localAttributeProfiles.filter((item) => item.id != entity.id).concat(entity);
-        } else if (isSemanticModelRelationship(entity)) {
-            localRelationships = localRelationships.filter((item) => item.id != entity.id).concat(entity);
-        } else if (isSemanticModelRelationshipUsage(entity)) {
-            localProfiles = localProfiles.filter((item) => item.id != entity.id).concat(entity);
-        } else if (isSemanticModelGeneralization(entity)) {
-            localGeneralizations = localGeneralizations.filter((item) => item.id != entity.id).concat(entity);
-        } else {
-            // We do not care about other types here.
-        }
-    }
+// function propagateVisualModelColorChangesToVisualization(
+//     changedModelIdentifier: string,
+//     setNodes: Dispatch<SetStateAction<Node<any, string | undefined>[]>>,
+//     setEdges: Dispatch<SetStateAction<Edge<any>[]>>,
+//     aggregatorView: SemanticModelAggregatorView,
+//     classesContext: UseClassesContextType,
+//     visualModel: WritableVisualModel,
+// ) {
+//     // We need to re-render entities from the model.
+//     // We just collect them and use the other visual update method,
+//     // simulating change in the entities.
+//     const changes: {
+//         previous: VisualEntity | null;
+//         next: VisualEntity | null;
+//     }[] = [];
+//
+//     // We need to update all entities from given model.
+//     for (const [identifier, entity] of visualModel.getVisualEntities()) {
+//         if (isVisualNode(entity)) {
+//             if (entity.model === changedModelIdentifier) {
+//                 changes.push({ previous: entity, next: entity });
+//             }
+//         } else if (isVisualRelationship(entity)) {
+//             if (entity.model === changedModelIdentifier) {
+//                 changes.push({ previous: entity, next: entity });
+//             }
+//         }
+//     }
+//
+//     propagateVisualModelEntitiesChangesToVisualization(
+//         changes,
+//         setNodes, setEdges,
+//         aggregatorView, classesContext,
+//         visualModel);
+// }
 
-    // Update changed entities.
-    for (const updatedEntity of updated) {
-        handleChangeByAggregator(
-            updatedEntity,
-            reactflow, visualModel, entities,
-            classesContext.sourceModelOfEntityMap,
-            localAttributes, localAttributeProfiles, setNodes);
-    }
-
-}
-
-function handleRemoveByAggregator(
-    setNodes: Dispatch<SetStateAction<Node<any, string | undefined>[]>>,
-    visualModel: WritableVisualModel,
-    entities: Record<string, AggregatedEntityWrapper>,
-    relationships: SemanticModelRelationship[],
-    removed: string[],
-) {
-    // Collect nodes affected by removal of a relationship.
-    const nodesAffectedByAttributeRemovals = new Set<string>();
-    const affectedNodesReplacements: Node[] = [];
-    for (const relationship of relationships) {
-        if (!removed.includes(relationship.id)) {
-            continue;
-        }
-        // Look for domain being class or class profile.
-        const domainEntity = entities[temporaryDomainRangeHelper(relationship)?.domain.concept ?? ""]?.aggregatedEntity ?? null;
-        if (isSemanticModelClass(domainEntity) || isSemanticModelClassUsage(domainEntity)) {
-            const domainVisualEntity = visualModel.getVisualEntityForRepresented(domainEntity.id);
-            if (domainVisualEntity !== null) {
-                nodesAffectedByAttributeRemovals.add(domainVisualEntity.identifier);
-                // TODO Create new version ?
-                // affectedNodesReplacements.push(createReactflowNode())
-            }
-        }
-    }
-
-    // Remove visual entities representing the removed entities.
-    const entitiesToRemove = new Set<string>();
-    for (const remove of removed) {
-        const visualEntity = visualModel.getVisualEntityForRepresented(remove);
-        if (visualEntity === null) {
-            continue;
-        }
-        entitiesToRemove.add(visualEntity.identifier);
-    }
-
-    // Changes nodes.
-    setNodes(previous => previous.filter(item => !entitiesToRemove.has(item.id)));
-}
-
-function handleChangeByAggregator(
-    change: AggregatedEntityWrapper,
-    //
-    reactflow: ReactFlowInstance<object, object>,
-    visualModel: WritableVisualModel,
-    entities: Record<string, AggregatedEntityWrapper>,
-    sourceModelOfEntityMap: Map<string, string>,
-    attributes: SemanticModelRelationship[],
-    attributeProfiles: SemanticModelRelationshipUsage[],
-    setNodes: Dispatch<SetStateAction<Node<any, string | undefined>[]>>,
-) {
-    if (change.aggregatedEntity === null) {
-        // We have no information thus we can not update.
-        return;
-    }
-    const entity = change.aggregatedEntity;
-    const visualEntity = visualModel.getVisualEntityForRepresented(change.id);
-    if (visualEntity === null) {
-        // We have no visual representation of entity, so there is
-        // nothing to update.
-        return;
-    }
-
-    if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
-        if (!isVisualNode(visualEntity)) {
-            console.warn("Ignored update to entity as the visual entity is not a node.", { entity, visualEntity });
-            return;
-        }
-        const node = reactflow.getNode(entity.id);
-        if (node === undefined) {
-            console.warn("No node returned by ReactFlow but there is a visual entity.", { entity, visualEntity });
-        }
-        // We just recreate the node, to propagate the changes.
-        const nextNode = createReactflowNode(
-            attributes, attributeProfiles, visualModel,
-            entity, visualEntity);
-        if (nextNode === null) {
-            return;
-        }
-        // Replace old node with a new one.
-        setNodes((prev) => prev.filter((node) => (node.data as ClassCustomNodeDataType).cls.id !== entity.id).concat(nextNode));
-    } else if (isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity)) {
-        // There has been change in an attribute. We need to
-        // update visual entity with the attribute.
-        if (bothEndsHaveAnIri(entity)) {
-            // Both ends are IRI so it is not an attribute.
-            console.warn("Ignore update of attribute (profile) as both ends are IRIs.", { entity });
-            return;
-        }
-        // We need to the owner entity.
-        const domainOfAttribute = temporaryDomainRangeHelper(entity)?.domain.concept;
-        const ownerEntity = entities[domainOfAttribute ?? entity.ends[0]?.concept ?? ""]?.aggregatedEntity ?? null;
-        if (isSemanticModelClass(ownerEntity) || isSemanticModelClassUsage(ownerEntity)) {
-            // Owner is a class or class profile, so we can update the list of attributes.
-            const ownerVisualEntity = visualModel.getVisualEntityForRepresented(ownerEntity.id);
-            if (ownerVisualEntity === null || !isVisualNode(ownerVisualEntity)) {
-                // There is no visual representation.
-                return;
-            }
-
-            // We just recreate the node, to propagate the changes.
-            const nextNode = createReactflowNode(
-                attributes, attributeProfiles, visualModel,
-                ownerEntity, ownerVisualEntity);
-            if (nextNode === null) {
-                return;
-            }
-            // Replace old node with a new one.
-            setNodes((prev) => prev.filter((node) => (node.data as ClassCustomNodeDataType).cls.id !== entity.id).concat(nextNode));
-        }
-    }
-}
+// /**
+//  * This method must not evaluate the changes as it is used by
+//  * other method to apply the changes.
+//  */
+// function propagateVisualModelEntitiesChangesToVisualization(
+//     changes: {
+//         previous: VisualEntity | null;
+//         next: VisualEntity | null;
+//     }[],
+//     //
+//     setNodes: Dispatch<SetStateAction<Node<any, string | undefined>[]>>,
+//     setEdges: Dispatch<SetStateAction<Edge<any>[]>>,
+//     aggregatorView: SemanticModelAggregatorView,
+//     classesContext: UseClassesContextType,
+//     visualModel: WritableVisualModel,
+// ) {
+//     const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
+//     const attributeProfiles = classesContext.profiles.filter(isSemanticModelAttributeUsage);
+//
+//     const entities = aggregatorView.getEntities();
+//
+//     // When updating we remove the old entity and add a new one.
+//     const newNodes: Node[] = [];
+//     const newEdges: Edge[] = [];
+//     const removed = new Set<string>();
+//
+//     for (const { previous, next } of changes) {
+//         if (next !== null) {
+//             // Create or update
+//             if (isVisualNode(next)) {
+//                 const entity = entities[next.representedEntity]?.aggregatedEntity ?? null;
+//                 if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
+//                     const nextNode = createReactflowNode(
+//                         attributes, attributeProfiles, visualModel,
+//                         entity, next);
+//                     if (nextNode !== null) {
+//                         // This will do nothing when entity is new.
+//                         removed.add(next.representedEntity);
+//                         newNodes.push(nextNode);
+//                     } else {
+//                         console.warn("Ignored change of node visual entity as Reactflow node is null.", { next, entity });
+//                     }
+//                 } else {
+//                     console.warn("Visual entity update ignored as represented entity is not of expected type (class, class profile).", { next, entity });
+//                 }
+//             } else if (isVisualRelationship(next)) {
+//                 const entity = entities[next.representedRelationship]?.aggregatedEntity ?? null;
+//                 const model = classesContext.sourceModelOfEntityMap.get(next.representedRelationship) ?? null;
+//                 const color = model === null ? undefined : visualModel?.getModelColor(model);
+//
+//                 const isRelationship =
+//                     isSemanticModelRelationship(entity) ||
+//                     isSemanticModelGeneralization(entity) ||
+//                     isSemanticModelRelationshipUsage(entity) ||
+//                     isSemanticModelClassUsage(entity);
+//                 if (isRelationship) {
+//                     const nextEdge = createReactflowEdge(visualModel, next.identifier, entity, color ?? undefined);
+//                     if (nextEdge !== null) {
+//                         removed.add(next.representedRelationship);
+//                         newEdges.push(nextEdge);
+//                     } else {
+//                         console.warn("Ignored change of relationship visual entity as Reactflow node is null.", { next, entity });
+//                     }
+//                 } else {
+//                     console.warn("Visual entity update ignored as represented entity is null.", { next });
+//                 }
+//             }
+//         } else if (previous !== null && next === null) {
+//             // Remove
+//             removed.add(previous.identifier);
+//         }
+//     }
+//     console.log("propagateVisualModelEntitiesChangesToVisualization", { edges: newEdges, nodes: newNodes, removed });
+//     // Remove and add new.
+//     setNodes(previous => previous
+//         .filter(item => !removed.has(item.id))
+//         .concat(newNodes));
+//     setEdges(previous => previous
+//         .filter(item => !removed.has(item.id))
+//         .concat(newEdges));
+// }
 
 /**
- * @returns Reactflow node or undefined.
+ * Set content of nodes and edges from the visual model.
+ * Effectively erase any previous content.
+ *
+ * TODO We call setContent which is async, we should return a promise and wait.
  */
-function createReactflowNode(
-    attributes: SemanticModelRelationship[],
-    attributeProfiles: SemanticModelRelationshipUsage[],
-    visualModel: WritableVisualModel | null,
-    entity: SemanticModelClass | SemanticModelClassUsage,
-    visualNode: VisualNode | null,
-): Node | null {
+function onChangeVisualModel(
+    configuration: UseConfigurationContextType,
+    visualModel: VisualModel | null,
+    diagram: UseDiagramType | null,
+    aggregatorView: SemanticModelAggregatorView,
+    classesContext: UseClassesContextType,
+    graphContext: UseModelGraphContextType,
+) {
+    if (diagram === null || !diagram.areActionsReady) {
+        logger.warn("Event ignored, but the diagram is not ready yet!");
+        return;
+    }
     if (visualModel === null) {
-        return null;
+        // We just set content to nothing and return.
+        void diagram.actions().setContent([], []);
+        return;
     }
 
-    // If we do not have visual entity try to get it from the visual model.
-    if (visualNode === null) {
-        const visualEntity = visualModel.getVisualEntityForRepresented(entity.id);
-        if (visualEntity === null || !isVisualNode(visualEntity)) {
-            return null;
+    const models = graphContext.models;
+    const entities = aggregatorView.getEntities();
+    const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
+    const attributeProfiles = classesContext.profiles.filter(isSemanticModelAttributeUsage);
+
+    const profilingSources = [...classesContext.classes, ...classesContext.relationships, ...classesContext.profiles];
+
+    const nextNodes: Node[] = [];
+    const nextEdges: Edge[] = [];
+
+    const visualEntities = visualModel.getVisualEntities().values();
+    for (const visualEntity of visualEntities) {
+        if (isVisualNode(visualEntity)) {
+            const entity = entities[visualEntity.representedEntity]?.aggregatedEntity ?? null;
+            if (isSemanticModelClassUsage(entity) || isSemanticModelClass(entity)) {
+                const model = findSourceModelOfEntity(entity.id, models);
+                if (model === null) {
+                    console.error("Ignored entity for missing model.", { entity });
+                    continue;
+                }
+                const node = createDiagramNode(
+                    configuration, visualModel,
+                    attributes, attributeProfiles, profilingSources,
+                    visualEntity, entity, model);
+                nextNodes.push(node);
+            }
+        } else if (isVisualRelationship(visualEntity)) {
+            const entity = entities[visualEntity.representedRelationship]?.aggregatedEntity ?? null;
+            const isRelationship =
+                isSemanticModelRelationship(entity) ||
+                isSemanticModelGeneralization(entity) ||
+                isSemanticModelRelationshipUsage(entity) ||
+                isSemanticModelClassUsage(entity);
+            if (isRelationship) {
+                const model = findSourceModelOfEntity(entity.id, models);
+                if (model === null) {
+                    console.error("Ignored entity for missing model.", { entity });
+                    continue;
+                }
+                const edge = createDiagramEdge(
+                    configuration, visualModel, profilingSources,
+                    visualEntity, entity, model);
+                if (edge !== null) {
+                    nextEdges.push(edge);
+                }
+            }
         }
-        visualNode = visualEntity;
+        // For now we ignore all other.
     }
+
+    void diagram.actions().setContent(nextNodes, nextEdges);
+}
+
+function createDiagramNode(
+    configuration: UseConfigurationContextType,
+    visualModel: VisualModel,
+    attributes: SemanticModelRelationship[],
+    attributesProfiles: SemanticModelRelationshipUsage[],
+    profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
+    visualNode: VisualNode,
+    entity: SemanticModelClass | SemanticModelClassUsage,
+    model: EntityModel,
+): Node {
+    const language = configuration.language;
 
     const nodeAttributes = attributes
         .filter(isSemanticModelAttribute)
         .filter((attr) => getDomainAndRange(attr).domain?.concept == entity.id);
 
-    const nodeAttributeProfiles = attributeProfiles
+    const nodeAttributeProfiles = attributesProfiles
         .filter(isSemanticModelAttributeUsage)
         .filter((attr) => temporaryDomainRangeHelper(attr)?.domain.concept == entity.id);
 
-    const color = visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR;
-
-    return semanticModelClassToReactFlowNode(
-        visualNode.identifier, entity, visualNode.position,
-        color, nodeAttributes, nodeAttributeProfiles
-    );
-}
-
-function propagateVisualModelColorChangesToVisualization(
-    changedModelIdentifier: string,
-    setNodes: Dispatch<SetStateAction<Node<any, string | undefined>[]>>,
-    setEdges: Dispatch<SetStateAction<Edge<any>[]>>,
-    aggregatorView: SemanticModelAggregatorView,
-    classesContext: UseClassesContextType,
-    visualModel: WritableVisualModel,
-) {
-    // We need to re-render entities from the model.
-    // We just collect them and use the other visual update method,
-    // simulating change in the entities.
-    const changes: {
-        previous: VisualEntity | null;
-        next: VisualEntity | null;
-    }[] = [];
-
-    // We need to update all entities from given model.
-    for (const [identifier, entity] of visualModel.getVisualEntities()) {
-        if (isVisualNode(entity)) {
-            if (entity.model === changedModelIdentifier) {
-                changes.push({ previous: entity, next: entity });
-            }
-        } else if (isVisualRelationship(entity)) {
-            if (entity.model === changedModelIdentifier) {
-                changes.push({ previous: entity, next: entity });
-            }
-        }
+    const items: EntityItem[] = [];
+    for (const attribute of nodeAttributes) {
+        items.push({
+            identifier: attribute.id,
+            label: getEntityLabel(language, attribute),
+            profileOf: null,
+        });
     }
 
-    propagateVisualModelEntitiesChangesToVisualization(
-        changes,
-        setNodes, setEdges,
-        aggregatorView, classesContext,
-        visualModel);
-}
+    for (const attributeProfile of nodeAttributeProfiles) {
+        const profileOf =
+            (isSemanticModelClassUsage(attributeProfile) || isSemanticModelRelationshipUsage(attributeProfile)
+                ? profilingSources.find((e) => e.id == attributeProfile.usageOf)
+                : null
+            ) ?? null;
 
-/**
- * This method must not evaluate the changes as it is used by
- * other method to apply the changes.
- */
-function propagateVisualModelEntitiesChangesToVisualization(
-    changes: {
-        previous: VisualEntity | null;
-        next: VisualEntity | null;
-    }[],
-    //
-    setNodes: Dispatch<SetStateAction<Node<any, string | undefined>[]>>,
-    setEdges: Dispatch<SetStateAction<Edge<any>[]>>,
-    aggregatorView: SemanticModelAggregatorView,
-    classesContext: UseClassesContextType,
-    visualModel: WritableVisualModel,
-) {
-    const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
-    const attributeProfiles = classesContext.profiles.filter(isSemanticModelAttributeUsage);
-
-    const entities = aggregatorView.getEntities();
-
-    // When updating we remove the old entity and add a new one.
-    const newNodes: Node[] = [];
-    const newEdges: Edge[] = [];
-    const removed = new Set<string>();
-
-    for (const { previous, next } of changes) {
-        if (next !== null) {
-            // Create or update
-            if (isVisualNode(next)) {
-                const entity = entities[next.representedEntity]?.aggregatedEntity ?? null;
-                if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
-                    const nextNode = createReactflowNode(
-                        attributes, attributeProfiles, visualModel,
-                        entity, next);
-                    if (nextNode !== null) {
-                        // This will do nothing when entity is new.
-                        removed.add(next.representedEntity);
-                        newNodes.push(nextNode);
-                    } else {
-                        console.warn("Ignored change of node visual entity as Reactflow node is null.", { next, entity });
-                    }
-                } else {
-                    console.warn("Visual entity update ignored as represented entity is not of expected type (class, class profile).", { next, entity });
-                }
-            } else if (isVisualRelationship(next)) {
-                const entity = entities[next.representedRelationship]?.aggregatedEntity ?? null;
-                const model = classesContext.sourceModelOfEntityMap.get(next.representedRelationship) ?? null;
-                const color = model === null ? undefined : visualModel?.getModelColor(model);
-
-                const isRelationship =
-                    isSemanticModelRelationship(entity) ||
-                    isSemanticModelGeneralization(entity) ||
-                    isSemanticModelRelationshipUsage(entity) ||
-                    isSemanticModelClassUsage(entity);
-                if (isRelationship) {
-                    const nextEdge = createReactflowEdge(visualModel, next.identifier, entity, color ?? undefined);
-                    if (nextEdge !== null) {
-                        removed.add(next.representedRelationship);
-                        newEdges.push(nextEdge);
-                    } else {
-                        console.warn("Ignored change of relationship visual entity as Reactflow node is null.", { next, entity });
-                    }
-                } else {
-                    console.warn("Visual entity update ignored as represented entity is null.", { next });
-                }
-            }
-        } else if (previous !== null && next === null) {
-            // Remove
-            removed.add(previous.identifier);
-        }
+        items.push({
+            identifier: attributeProfile.id,
+            label: getEntityLabel(language, attributeProfile),
+            profileOf: profileOf === null ? null : {
+                label: getEntityLabel(language, profileOf),
+                usageNote: getUsageNote(language, attributeProfile),
+            },
+        });
     }
-    console.log("propagateVisualModelEntitiesChangesToVisualization", { edges: newEdges, nodes: newNodes, removed });
-    // Remove and add new.
-    setNodes(previous => previous
-        .filter(item => !removed.has(item.id))
-        .concat(newNodes));
-    setEdges(previous => previous
-        .filter(item => !removed.has(item.id))
-        .concat(newEdges));
+
+    const profileOf =
+        (isSemanticModelClassUsage(entity) || isSemanticModelRelationshipUsage(entity)
+            ? profilingSources.find((e) => e.id == entity.usageOf)
+            : null
+        ) ?? null;
+
+    return {
+        identifier: visualNode.identifier,
+        label: getEntityLabel(language, entity),
+        iri: getIri(entity, getModelIri(model)),
+        color: visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR,
+        description: getEntityDescription(language, entity),
+        group: null,
+        position: {
+            x: visualNode.position.x,
+            y: visualNode.position.y,
+        },
+        profileOf: profileOf === null ? null : {
+            label: getEntityLabel(language, profileOf),
+            usageNote: getUsageNote(language, entity),
+        },
+        items: items,
+    };
 }
 
-/**
- * @returns Reactflow edge or undefined.
- */
-function createReactflowEdge(
+function getEntityLabel(
+    language: string,
+    entity: SemanticModelClass | SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelGeneralization
+) {
+    return getLocalizedStringFromLanguageString(getNameLanguageString(entity), language)
+        ?? getFallbackDisplayName(entity) ?? "";
+}
+
+function getEntityDescription(
+    language: string,
+    entity: SemanticModelClass | SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelGeneralization) {
+    return getLocalizedStringFromLanguageString(getDescriptionLanguageString(entity), language);
+}
+
+function getUsageNote(
+    language: string,
+    entity: SemanticModelClass | SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelGeneralization) {
+    return getLocalizedStringFromLanguageString(getUsageNoteLanguageString(entity), language);
+}
+
+function createDiagramEdge(
+    configuration: UseConfigurationContextType,
     visualModel: VisualModel,
-    visualEntityIdentifier: string,
+    profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
+    visualNode: VisualRelationship,
     entity: SemanticModelRelationship | SemanticModelGeneralization | SemanticModelRelationshipUsage | SemanticModelClassUsage,
-    color: string | undefined,
-) {
+    model: EntityModel,
+): Edge | null {
+    const identifier = entity.id;
     if (isSemanticModelRelationship(entity)) {
         const { domain, range } = getDomainAndRange(entity);
         if (domain === null || domain.concept === null || range === null || range.concept === null) {
@@ -675,9 +806,11 @@ function createReactflowEdge(
             console.warn("Missing visual entities for ends.", { domain, range, entity, source, target });
             return null;
         }
-        return semanticModelRelationshipToReactFlowEdge(visualEntityIdentifier, source.identifier, target.identifier, entity, color, []) as Edge;
+        //
+        return createDiagramEdgeForRelationship(
+            configuration, visualModel, profilingSources,
+            visualNode, entity, source, target);
     } else if (isSemanticModelRelationshipUsage(entity)) {
-        const usageNotes = entity.usageNote ? [entity.usageNote] : [];
         const { domain, range } = getDomainAndRange(entity);
         if (domain === null || domain.concept === null || range === null || range.concept === null) {
             console.error("Ignored relationship usage as ends are null.", { domain, range, entity });
@@ -689,7 +822,10 @@ function createReactflowEdge(
             console.warn("Missing visual entities for ends.", { domain, range, entity, source, target });
             return null;
         }
-        return semanticModelRelationshipToReactFlowEdge(visualEntityIdentifier, domain.concept, range.concept, entity, color, usageNotes) as Edge;
+        //
+        return createDiagramEdgeForRelationshipProfile(
+            configuration, visualModel, profilingSources,
+            visualNode, entity, source, target);
     } else if (isSemanticModelGeneralization(entity)) {
         const source = visualModel.getVisualEntityForRepresented(entity.child);
         const target = visualModel.getVisualEntityForRepresented(entity.parent);
@@ -697,72 +833,142 @@ function createReactflowEdge(
             console.error("Ignored generalization as ends are null.", { source, target, entity });
             return null;
         }
-        return semanticModelGeneralizationToReactFlowEdge(visualEntityIdentifier, source.identifier, target.identifier, entity, color) as Edge;
+        //
+        return createDiagramEdgeForGeneralization(
+            configuration, visualModel, profilingSources,
+            visualNode, entity, source, target);
     } else if (isSemanticModelClassUsage(entity)) {
         const source = visualModel.getVisualEntityForRepresented(entity.id);
         const target = visualModel.getVisualEntityForRepresented(entity.usageOf);
         if (source === null || target === null) {
-            console.error("Ignored class usage as ends are null.", { source, target, entity });
+            console.error("Ignored generalization as ends are null.", { source, target, entity });
             return null;
         }
-        return semanticModelClassUsageToReactFlowEdge(visualEntityIdentifier, source.identifier, target.identifier, entity, color);
+        //
+        return createDiagramEdgeForClassUsage(
+            configuration, visualModel, profilingSources,
+            visualNode, entity, source, target);
     }
-    return null;
+    throw Error(`Unknown entity type ${identifier}.`);
 }
 
-/**
- * Set content of nodes and edges from the visual model.
- * Effectively erase any previous content.
- */
-function resetReactflowFromVisualModel(
-    setNodes: Dispatch<SetStateAction<Node<any, string | undefined>[]>>,
-    setEdges: Dispatch<SetStateAction<Edge<any>[]>>,
-    aggregatorView: SemanticModelAggregatorView,
-    classesContext: UseClassesContextType,
-    visualModel: WritableVisualModel,
-) {
-    const entities = aggregatorView.getEntities();
-    const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
-    const attributeProfiles = classesContext.profiles.filter(isSemanticModelAttributeUsage);
+function createDiagramEdgeForRelationship (
+    configuration: UseConfigurationContextType,
+    visualModel: VisualModel,
+    profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
+    visualNode: VisualRelationship,
+    entity: SemanticModelRelationship,
+    source: VisualEntity,
+    target: VisualEntity,
+) : Edge {
+    const language = configuration.language;
 
-    const nextNodes: Node[] = [];
-    const nextEdges: Edge[] = [];
-    const visualEntities = visualModel.getVisualEntities().values();
-    for (const visualEntity of visualEntities) {
-        if (isVisualNode(visualEntity)) {
-            const entity = entities[visualEntity.representedEntity]?.aggregatedEntity ?? null;
-            if (isSemanticModelClassUsage(entity) || isSemanticModelClass(entity)) {
-                const nextNode = createReactflowNode(
-                    attributes, attributeProfiles, visualModel,
-                    entity, visualEntity);
-                if (nextNode !== null) {
-                    nextNodes.push(nextNode);
-                }
-            }
-        } else if (isVisualRelationship(visualEntity)) {
-            const entity = entities[visualEntity.representedRelationship]?.aggregatedEntity ?? null;
-            const color = visualModel.getModelColor(visualEntity.model);
+    const profileOf =
+        (isSemanticModelRelationshipUsage(entity)
+            ? profilingSources.find((e) => e.id == entity.usageOf)
+            : null
+        ) ?? null;
 
-            const isRelationship =
-                isSemanticModelRelationship(entity) ||
-                isSemanticModelGeneralization(entity) ||
-                isSemanticModelRelationshipUsage(entity) ||
-                isSemanticModelClassUsage(entity);
-            if (isRelationship) {
-                const nextEdge = createReactflowEdge(
-                    visualModel,
-                    visualEntity.identifier,
-                    entity,
-                    color ?? undefined);
-                if (nextEdge !== null) {
-                    nextEdges.push(nextEdge);
-                }
-            }
-        } else {
-            // For now we ignore all other.
-        }
-    }
-    setNodes(nextNodes);
-    setEdges(nextEdges);
+    const { domain, range } = getDomainAndRange(entity);
+
+    return {
+        type: EdgeType.Association,
+        identifier: visualNode.identifier,
+        label: getEntityLabel(language, entity),
+        source: source.identifier,
+        cardinalitySource: cardinalityToString(domain?.cardinality),
+        target: target.identifier,
+        cardinalityTarget: cardinalityToString(range?.cardinality),
+        color: visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR,
+        waypoints: [],
+        profileOf: profileOf === null ? null : {
+            label: getEntityLabel(language, profileOf),
+            usageNote: getUsageNote(language, entity),
+        },
+    };
 }
 
+function createDiagramEdgeForRelationshipProfile (
+    configuration: UseConfigurationContextType,
+    visualModel: VisualModel,
+    profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
+    visualNode: VisualRelationship,
+    entity: SemanticModelRelationshipUsage,
+    source: VisualEntity,
+    target: VisualEntity,
+) : Edge {
+
+    const language = configuration.language;
+
+    const profileOf =
+        (isSemanticModelRelationshipUsage(entity)
+            ? profilingSources.find((e) => e.id == entity.usageOf)
+            : null
+        ) ?? null;
+
+    const { domain, range } = getDomainAndRange(entity);
+
+    return {
+        type: EdgeType.AssociationProfile,
+        identifier: visualNode.identifier,
+        label: getEntityLabel(language, entity),
+        source: source.identifier,
+        cardinalitySource: cardinalityToString(domain?.cardinality),
+        target: target.identifier,
+        cardinalityTarget: cardinalityToString(range?.cardinality),
+        color: visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR,
+        waypoints: [],
+        profileOf: profileOf === null ? null : {
+            label: getEntityLabel(language, profileOf),
+            usageNote: getUsageNote(language, entity),
+        },
+    };
+}
+
+function createDiagramEdgeForGeneralization (
+    configuration: UseConfigurationContextType,
+    visualModel: VisualModel,
+    profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
+    visualNode: VisualRelationship,
+    entity: SemanticModelGeneralization,
+    source: VisualEntity,
+    target: VisualEntity,
+) : Edge {
+
+    return {
+        type: EdgeType.Generalization,
+        identifier: visualNode.identifier,
+        label: null,
+        source: source.identifier,
+        cardinalitySource: null,
+        target: target.identifier,
+        cardinalityTarget: null,
+        color: visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR,
+        waypoints: [],
+        profileOf: null,
+    };
+}
+
+function createDiagramEdgeForClassUsage (
+    configuration: UseConfigurationContextType,
+    visualModel: VisualModel,
+    profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
+    visualNode: VisualRelationship,
+    entity: SemanticModelClassUsage,
+    source: VisualEntity,
+    target: VisualEntity,
+) : Edge | null{
+
+    return {
+        type: EdgeType.ClassUsage,
+        identifier: visualNode.identifier,
+        label: null,
+        source: source.identifier,
+        cardinalitySource: null,
+        target: target.identifier,
+        cardinalityTarget: null,
+        color: visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR,
+        waypoints: [],
+        profileOf: null,
+    };
+}

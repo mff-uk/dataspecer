@@ -31,7 +31,7 @@ export type ModelGraphContextType = {
 
 export const ModelGraphContext = React.createContext(null as unknown as ModelGraphContextType);
 
-interface UseModelGraphContextType {
+export interface UseModelGraphContextType {
 
     aggregator: typeof SemanticModelAggregatorType;
 

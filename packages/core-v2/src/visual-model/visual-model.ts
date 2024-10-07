@@ -40,6 +40,8 @@ export interface VisualModel extends TypedObject, LegacyModel, LabeledModel {
     getVisualEntity(identifier: EntityIdentifier): VisualEntity | null;
 
     /**
+     * TODO: We need to add a model as a part of the identifier.
+     *
      * @returns Entity with given source entity identifier or null.
      */
     getVisualEntityForRepresented(represented: RepresentedEntityIdentifier): VisualEntity | null;

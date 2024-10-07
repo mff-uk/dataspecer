@@ -8,6 +8,8 @@ export type NameToIriStrategy = (name: string) => string;
  *
  * The idea is to restrict use of context for things we do not
  * need to watch for.
+ *
+ * TODO: Rename to InstanceConfiguration
  */
 export interface Configuration {
 
@@ -42,6 +44,25 @@ export interface Configuration {
    */
   hideRelationCardinality: boolean;
 
+  /**
+   * Value for reactflow's snap grid - x coordinate
+   */
+  xSnapGrid: number;
+
+  /**
+   * Value for reactflow's snap grid - y coordinate
+   */
+  ySnapGrid: number;
+
+  /**
+   * Specifies the distance after which should the alignment line disappear (should be multiple of xSnapGrid) - x coordinate
+   */
+  alignmentXSnapGrid: number;
+
+  /**
+   * Specifies the distance after which should the alignment line disappear (should be multiple of ySnapGrid) - y coordinate
+   */
+  alignmentYSnapGrid: number;
 }
 
 /**
@@ -54,5 +75,9 @@ export const configuration = (): Configuration => {
     nameToClassIri: NamingConventions.upperCamelCase,
     hideIdentifier: true,
     hideRelationCardinality: true,
+    xSnapGrid: 10,
+    ySnapGrid: 10,
+    alignmentXSnapGrid: 20,
+    alignmentYSnapGrid: 20,
   };
 };

@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { useReactFlow } from "reactflow";
 
 import type { Entity, EntityModel } from "@dataspecer/core-v2/entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
@@ -82,8 +81,6 @@ export const EntitiesOfModel = (props: {
     const [listCollapsed, setListCollapsed] = useState(false);
     const [visible, setVisible] = useState<string[]>([]);
     const [color, setColor] = useState(DEFAULT_MODEL_COLOR);
-    const reactFlow = useReactFlow<object, object>();
-
     const entities = getEntitiesByType(entityType, model);
 
     /**
@@ -178,12 +175,7 @@ export const EntitiesOfModel = (props: {
 
     const handleAddToView = (entity: Entity ) => {
         if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
-            const viewport = reactFlow.getViewport();
-            const position = {
-                x: viewport.x,
-                y: viewport.y,
-            };
-            actions.addNodeToVisualModel(model.getId(), entity.id, position);
+            actions.addNodeToVisualModel(model.getId(), entity.id);
         } else {
             actions.addRelationToVisualModel(model.getId(), entity.id);
         }
@@ -199,21 +191,7 @@ export const EntitiesOfModel = (props: {
     };
 
     const handleSetViewportToEntity = (identifier: string) => {
-        // TODO ACTION Set viewport
-        if (entityType !== EntityType.Class && entityType !== EntityType.Profile) {
-            return;
-        }
-        const visualEntity = activeVisualModel?.getVisualEntityForRepresented(identifier);
-        if (visualEntity === null || visualEntity === undefined) {
-            return;
-        }
-        const node = reactFlow.getNode(visualEntity.identifier);
-        if (node !== undefined) {
-            reactFlow.fitView({
-                nodes: [node],
-                duration: 400,
-            });
-        }
+        actions.centerViewportToVisualEntity(model.getId(), identifier);
     };
 
     // Rendering section.

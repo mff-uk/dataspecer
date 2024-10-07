@@ -1,5 +1,4 @@
 import { useRef, useEffect, useState } from "react";
-import { useReactFlow } from "reactflow";
 
 import {
     type SemanticModelGeneralization,
@@ -94,7 +93,6 @@ export const useEntityDetailDialog = () => {
         const isRelationshipProfile = isSemanticModelRelationshipUsage(viewedEntity);
 
         const actions = useActions();
-        const reactflow  = useReactFlow<object, object>();
 
         const handleAddEntityToActiveView = (entityId: string) => {
             const visualModel = aggregatorView.getActiveVisualModel() as WritableVisualModel;
@@ -104,8 +102,7 @@ export const useEntityDetailDialog = () => {
             if (isRelationship) {
                 actions.addRelationToVisualModel(sourceModel.getId(), entityId);
             } else {
-                const viewport = reactflow.getViewport();
-                actions.addNodeToVisualModel(sourceModel.getId(), entityId, viewport);
+                actions.addNodeToVisualModel(sourceModel.getId(), entityId);
             }
         };
 
