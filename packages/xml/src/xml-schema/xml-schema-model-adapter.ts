@@ -139,6 +139,7 @@ class XmlSchemaAdapter {
         namespace: Promise.resolve(commonXmlNamespace),
         prefix: Promise.resolve(commonXmlPrefix),
         schemaLocation: this.commonXmlSchemaLocation,
+        model: null
       };
     }
     return {
@@ -235,6 +236,7 @@ class XmlSchemaAdapter {
           namespace: this.getModelNamespace(model),
           prefix: this.getModelPrefix(model),
           schemaLocation: pathRelative(this.currentPath(), artefact.publicUrl, classData.specification !== this.model.specification),
+          model
         };
         return this.getQName(imported.prefix, classData.technicalLabel);
       }
@@ -262,6 +264,7 @@ class XmlSchemaAdapter {
           namespace: this.getModelNamespace(model),
           prefix: this.getModelPrefix(model),
           schemaLocation: pathRelative(this.currentPath(), artefact.publicUrl, firstClass.specification !== this.model.specification),
+          model
         };
         return this.getQName(imported.prefix, property.orTechnicalLabel);
       }

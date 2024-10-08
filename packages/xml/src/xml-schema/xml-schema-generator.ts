@@ -5,16 +5,15 @@ import {
 } from "@dataspecer/core/data-specification/model";
 import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
 import { ArtefactGenerator, ArtefactGeneratorContext } from "@dataspecer/core/generator";
-import { XmlSchema } from "./xml-schema-model";
 import { writeXmlSchema } from "./xml-schema-writer";
 import { structureModelToXmlSchema } from "./xml-schema-model-adapter";
 import { assertFailed, assertNot } from "@dataspecer/core/core";
-import { defaultStructureTransformations, structureModelDematerialize,structureModelFlattenInheritance, transformStructureModel } from "@dataspecer/core/structure-model/transformation";
+import { defaultStructureTransformations, structureModelDematerialize, transformStructureModel } from "@dataspecer/core/structure-model/transformation";
 import { BIKESHED, BikeshedAdapterArtefactContext } from "@dataspecer/bikeshed";
 import { XML_SCHEMA } from "./xml-schema-vocabulary";
 import { createBikeshedSchemaXml } from "./xml-schema-to-bikeshed";
 import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties"
-import { createRespecSchema } from "./xml-schema-to-respec";
+import { generateDocumentation } from "./xml-schema-documentation";
 
 export class XmlSchemaGenerator implements ArtefactGenerator {
   identifier(): string {
@@ -52,7 +51,7 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
       model === undefined,
       `Missing structure model ${schemaArtefact.psm}.`
     );
-    
+
     const transformations = defaultStructureTransformations.filter(
       transformation =>
         //transformation !== structureModelFlattenInheritance &&
@@ -98,11 +97,17 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
     } else if (documentationIdentifier === "https://schemas.dataspecer.com/generator/template-artifact") {
       const {artifact: documentationArtefact} = callerContext as {artifact: DataSpecificationArtefact};
       const {xmlSchema, conceptualModel} = await this.generateToObject(context, artefact, specification);
-      return createRespecSchema(
-        documentationArtefact,
-        xmlSchema,
-        conceptualModel,
-      );
+      // return createRespecSchema(
+      //   documentationArtefact,
+      //   xmlSchema,
+      //   conceptualModel,
+      // );
+      // todo: We plan to generate the whole documentation using @dataspecer/handlebars-adapter.
+      // todo: For now, only this XML documentation is generated with it and returned back to the old documentation generator system.
+      const generatedDocumentation = await generateDocumentation(documentationArtefact, xmlSchema, conceptualModel, context, artefact, specification);
+      return {
+        useTemplate: () => () => generatedDocumentation,
+      }
     }
     return null;
   }

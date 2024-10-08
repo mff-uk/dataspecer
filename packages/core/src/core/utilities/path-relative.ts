@@ -20,6 +20,11 @@ export function pathRelative(from: string, to: string, useAbsoluteIfHttp: boolea
         }
         // samePartsLength > 0
 
+        // samePartsLength is only applicable for directories
+        if (samePartsLength > 0 && (fromParts.length === samePartsLength || toParts.length === samePartsLength)) {
+            samePartsLength--;
+        }
+
         const up = Math.max(fromParts.length - samePartsLength - 1, 0); // for filename
         if (toParts.slice(samePartsLength).length) {
             return stripIndex((up ? "../".repeat(up) : "./") + toParts.slice(samePartsLength).join("/"));

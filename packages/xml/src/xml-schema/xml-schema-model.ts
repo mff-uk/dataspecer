@@ -1,3 +1,4 @@
+import { StructureModel } from "@dataspecer/core/structure-model/model/structure-model";
 import { QName } from "../conventions";
 
 /**
@@ -64,6 +65,8 @@ export class XmlSchemaImportDeclaration {
    * The location of the schema file.
    */
   schemaLocation: string;
+
+  model: Promise<StructureModel> | null;
 }
 
 /**
