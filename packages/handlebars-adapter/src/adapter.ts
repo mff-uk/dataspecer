@@ -2,13 +2,48 @@ import { LanguageString } from "@dataspecer/core/core/core-resource";
 import handlebars from "handlebars";
 
 export class HandlebarsAdapter {
-  private readonly engine: typeof handlebars;
+  // todo: make private
+  public readonly engine: typeof handlebars;
   private template: HandlebarsTemplateDelegate<any> | null = null;
 
   constructor() {
     this.engine = handlebars.create();
 
     const language = "cs";
+
+    this.engine.registerHelper('dump', function (a) {
+      return JSON.stringify(a);
+    });
+
+    this.engine.registerHelper('equals', function (a, b) {
+      return a === b
+    });
+
+    this.engine.registerHelper('or', function (...props: any[]) {
+      let result = false;
+      props.pop();
+      for (const prop of props) {
+        if (prop) {
+          result = true;
+        }
+      }
+      return result;
+    });
+
+    this.engine.registerHelper('and', function (...props: any[]) {
+      let result = true;
+      props.pop();
+      for (const prop of props) {
+        if (!prop) {
+          result = false;
+        }
+      }
+      return result;
+    });
+
+    this.engine.registerHelper('non-empty', function(o) {
+      return o && Object.keys(o).length > 0;
+    });
 
     this.engine.registerHelper(
       "translate",
@@ -47,7 +82,8 @@ export class HandlebarsAdapter {
     );
 
     // Definition of custom helpers
-    const definitions = {} as Record<string, Function>;
+    // function name -> [arguments names, function]
+    const definitions = {} as Record<string, [string[], (_this: any) => string]>;
     this.engine.registerHelper("def", function () {
       const options = arguments[arguments.length - 1];
       const args = Array.prototype.slice.call(
@@ -55,7 +91,7 @@ export class HandlebarsAdapter {
         0,
         arguments.length - 1
       );
-      definitions[args[0]] = options.fn;
+      definitions[args[0]] = [args.slice(1), options.fn];
       return null;
     });
     this.engine.registerHelper("helperMissing", function () {
@@ -68,8 +104,14 @@ export class HandlebarsAdapter {
       // @ts-ignore
       this.args = args;
       if (definitions[options.name]) {
+        const [argNames, func] = definitions[options.name]!;
+
+        for (let i = 0; i < args.length && i < argNames.length; i++) {
+          // @ts-ignore
+          this[argNames[i]] = args[i];
+        }
         // @ts-ignore
-        return new handlebars.SafeString(definitions[options.name]!(this));
+        return new handlebars.SafeString(func(this));
       }
     });
   }

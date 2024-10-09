@@ -337,7 +337,9 @@ class XmlSchemaAdapter {
     }
     return lines.length == 0 ? null : {
       modelReference: data.cimIri,
-      documentation: lines.join("\n")
+      documentation: lines.join("\n"),
+      metaTitle: data.humanLabel,
+      metaDescription: data.humanDescription,
     }
   }
 

@@ -1,5 +1,6 @@
 import { StructureModel } from "@dataspecer/core/structure-model/model/structure-model";
 import { QName } from "../conventions";
+import { LanguageString } from "@dataspecer/core/core/core-resource";
 
 /**
  * Represents an xs:schema definition.
@@ -92,6 +93,16 @@ export class XmlSchemaAnnotation {
    * The xs:documentation content of the annotation.
    */
   documentation: string | null;
+
+  /**
+   * The title of the annotation for non-technical use.
+   */
+  metaTitle: LanguageString | null;
+
+  /**
+   * The description of the annotation for non-technical use.
+   */
+  metaDescription: LanguageString | null;
 }
 
 /**
