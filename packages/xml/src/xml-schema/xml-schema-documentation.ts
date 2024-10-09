@@ -116,30 +116,32 @@ class XmlSchemaDocumentationGenerator {
     this.generator = new HandlebarsAdapter();
   }
 
-  private getElementUniqueId(element: XmlSchemaElement | XmlSchemaType | XmlSchemaGroupDefinition | QName | string, type: string | undefined): string {
+  private getElementUniqueId(element: XmlSchemaElement | XmlSchemaType | XmlSchemaGroupDefinition | QName | string, type: string | undefined, forceNamespace?: string): string {
     if (!type && typeof element === "object") {
-      if ((element as XmlSchemaElement).elementName) {
+      if ((element as XmlSchemaElement).elementName !== undefined) {
         type = "element";
-      } else if ((element as XmlSchemaGroupDefinition).definition) {
+      } else if ((element as XmlSchemaGroupDefinition).definition !== undefined) {
         type = "group";
       } else {
         type = "type";
       }
     }
 
+    const fns = forceNamespace ? `${forceNamespace}:` : "";
+
     if (typeof element === "string") {
-      return type + "-" + element;
+      return type + "-" + fns + element;
     } else if (Array.isArray(element)) {
-      const ns = element[0] ? `${element[0]}:` : "";
+      const ns = element[0] ? `${element[0]}:` : fns;
       return `${type}-${ns}${element[1]}`;
     } else {
       const name = (element as XmlSchemaElement).elementName ?? (element as XmlSchemaType).name ?? (element as XmlSchemaGroupDefinition).name;
 
       if (typeof name === "string") {
-        return type + "-" + name;
+        return type + "-" + fns + name;
       }
 
-      const ns = name[0] ? `${name[0]}:` : "";
+      const ns = name[0] ? `${name[0]}:` : fns;
       return `${type}-${ns}${name[1]}`;
     }
   }
@@ -152,6 +154,11 @@ class XmlSchemaDocumentationGenerator {
     prefixToNamespace["xs"] = "https://www.w3.org/TR/xmlschema-2/#";
 
     this.generator.engine.registerHelper("xml-id-anchor", (element: XmlSchemaElement | XmlSchemaType | XmlSchemaGroupDefinition | QName | string, options: any) => {
+      const name = (element as XmlSchemaElement).elementName ?? (element as XmlSchemaType).name ?? (element as XmlSchemaGroupDefinition).name ?? element as QName ?? [null, element as string];
+      if (name[0] === null && this.xmlSchema.targetNamespacePrefix) {
+        return this.getElementUniqueId(element, options.hash.type, this.xmlSchema.targetNamespacePrefix);
+      }
+
       return this.getElementUniqueId(element, options.hash.type);
     });
     this.generator.engine.registerHelper("xml-href", (element: XmlSchemaElement | XmlSchemaType | XmlSchemaGroupDefinition | QName | string, options: any) => {
@@ -163,10 +170,18 @@ class XmlSchemaDocumentationGenerator {
         return path + "#" + this.getElementUniqueId(element, options.hash.type);
       }
 
-      const possibleOutsideReferenceName = (element as XmlSchemaElement).elementName ?? (element as XmlSchemaType).name ?? element as QName;
-      if (Array.isArray(possibleOutsideReferenceName) && possibleOutsideReferenceName[0] !== null && this.xmlSchema.targetNamespacePrefix !== possibleOutsideReferenceName[0]) {
+      const possibleOutsideReferenceName = (element as XmlSchemaElement).elementName ?? (element as XmlSchemaType).name ?? element as QName ?? [null, element as string];
+
+      if (possibleOutsideReferenceName[1] === "langString") {
+        return "";
+      }
+
+      if (possibleOutsideReferenceName[0] !== null && this.xmlSchema.targetNamespacePrefix !== possibleOutsideReferenceName[0]) {
         // This is link to an external element
         return prefixToNamespace[possibleOutsideReferenceName[0]] + possibleOutsideReferenceName[1];
+      }
+      if (possibleOutsideReferenceName[0] === null && this.xmlSchema.targetNamespacePrefix) {
+        return "#" + this.getElementUniqueId(element, options.hash.type, this.xmlSchema.targetNamespacePrefix);
       }
       return "#" + this.getElementUniqueId(element, options.hash.type);
     });
@@ -327,9 +342,9 @@ export const DEFAULT_TEMPLATE = `
           {{#if (equals xsType "group")}}
             skupina
             {{#if referencesStructure}}
-              referencující externí skupinu
+              referencující
             {{/if}}
-            <a href="{{xml-href name type="group" structure=referencesStructure}}"><code>{{xml-qname name}}</code></a>
+            <a href="{{xml-href name type="element" structure=referencesStructure}}"><code>{{xml-qname name}}</code></a>
           {{else}}
             {{xml-type}}
           {{/if}}
@@ -493,4 +508,6 @@ export const DEFAULT_TEMPLATE = `
 </section>
 {{#linkedChildElements}}{{xml-non-root-element .}}{{/linkedChildElements}}
 {{/rootTypes}}
+
+</section>
 `;
