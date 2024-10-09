@@ -234,6 +234,12 @@ export class XmlSchemaComplexGroup extends XmlSchemaComplexItem {
   declare xsType: "group";
 
   name: QName;
+
+  /**
+   * In case this group is a reference to group from another schema, this is the reference.
+   * Structure model ID
+   */
+  referencesStructure: string | null;
 }
 
 /**

@@ -15,6 +15,8 @@ import { createBikeshedSchemaXml } from "./xml-schema-to-bikeshed";
 import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties"
 import { generateDocumentation } from "./xml-schema-documentation";
 
+export const NEW_DOC_GENERATOR = "https://schemas.dataspecer.com/generator/template-artifact";
+
 export class XmlSchemaGenerator implements ArtefactGenerator {
   identifier(): string {
     return XML_SCHEMA.Generator;
@@ -96,7 +98,7 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
           Object.values(context.specifications)
         ),
       });
-    } else if (documentationIdentifier === "https://schemas.dataspecer.com/generator/template-artifact") {
+    } else if (documentationIdentifier === NEW_DOC_GENERATOR) {
       const {artifact: documentationArtefact} = callerContext as {artifact: DataSpecificationArtefact};
       const {xmlSchema, conceptualModel} = await this.generateToObject(context, artefact, specification);
       console.warn("🌱🌱🌱", xmlSchema);

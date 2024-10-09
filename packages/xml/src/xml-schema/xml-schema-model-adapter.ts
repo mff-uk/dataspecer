@@ -403,6 +403,7 @@ class XmlSchemaAdapter {
       const groupRef: XmlSchemaComplexGroup = {
         xsType: "group",
         name: name,
+        referencesStructure: classData.structureSchema,
       };
       if (skipIri) {
         return groupRef;
@@ -429,6 +430,7 @@ class XmlSchemaAdapter {
       const groupRef: XmlSchemaComplexGroup = {
         xsType: "group",
         name: [this.model.namespacePrefix, groupName],
+        referencesStructure: null,
       };
       if (skipIri) {
         return groupRef;

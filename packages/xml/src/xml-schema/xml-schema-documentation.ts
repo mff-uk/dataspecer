@@ -20,6 +20,7 @@ import { getMustacheView } from "@dataspecer/template-artifact";
 import { ArtefactGeneratorContext } from "@dataspecer/core/generator/artefact-generator-context";
 import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
 import { QName } from "../conventions";
+import { NEW_DOC_GENERATOR } from "./xml-schema-generator";
 
 /**
  * Recursively traverses the complex content container and returns all elements.
@@ -154,9 +155,17 @@ class XmlSchemaDocumentationGenerator {
       return this.getElementUniqueId(element, options.hash.type);
     });
     this.generator.engine.registerHelper("xml-href", (element: XmlSchemaElement | XmlSchemaType | XmlSchemaGroupDefinition | QName | string, options: any) => {
+      // Use structure to link to other documentation of structure model
+      if (options.hash.structure) {
+        const specification = Object.values(this.context.specifications).find(specification => specification.psms.includes(options.hash.structure));
+        const artefact = specification.artefacts.find(artefact => artefact.generator === NEW_DOC_GENERATOR);
+        const path = pathRelative(this.artefact.publicUrl, artefact.publicUrl, true);
+        return path + "#" + this.getElementUniqueId(element, options.hash.type);
+      }
+
       const possibleOutsideReferenceName = (element as XmlSchemaElement).elementName ?? (element as XmlSchemaType).name ?? element as QName;
       if (Array.isArray(possibleOutsideReferenceName) && possibleOutsideReferenceName[0] !== null && this.xmlSchema.targetNamespacePrefix !== possibleOutsideReferenceName[0]) {
-        // This is link to external element
+        // This is link to an external element
         return prefixToNamespace[possibleOutsideReferenceName[0]] + possibleOutsideReferenceName[1];
       }
       return "#" + this.getElementUniqueId(element, options.hash.type);
@@ -316,7 +325,11 @@ export const DEFAULT_TEMPLATE = `
         {{/if}}
         {{#item}}
           {{#if (equals xsType "group")}}
-            skupina <a href="{{xml-href name type="group"}}"><code>{{xml-qname name}}</code></a>
+            skupina
+            {{#if referencesStructure}}
+              referencující externí skupinu
+            {{/if}}
+            <a href="{{xml-href name type="group" structure=referencesStructure}}"><code>{{xml-qname name}}</code></a>
           {{else}}
             {{xml-type}}
           {{/if}}
@@ -360,24 +373,9 @@ export const DEFAULT_TEMPLATE = `
           <code>{{xml-qname name}}</code>
         </dd>
       {{/if}}
-      {{#if contents}}
-        <dt>Obsah {{xml-content-type xsType}}</dt>
-        <ul style="margin-top: 0;">
-        {{#contents}}
-          <li>
-            {{#if element}}
-              element <a href="{{xml-href element}}"><code>&lt;{{element.elementName.[1]}}&gt;</code></a>
-            {{/if}}
-            {{#item}}
-              {{xml-type}}
-            {{/item}}
-
-            [{{cardinalityMin}}..{{#if cardinalityMax}}{{cardinalityMax}}{{else}}*{{/if}}]
-          </li>
-        {{/contents}}
-        </ul>
-      {{/if}}
     {{/complexDefinition}}
+
+    {{xml-complex-definition complexDefinition}}
   </div>
 {{/def}}
 
@@ -496,6 +494,3 @@ export const DEFAULT_TEMPLATE = `
 {{#linkedChildElements}}{{xml-non-root-element .}}{{/linkedChildElements}}
 {{/rootTypes}}
 `;
-
-
-// obsahem je primitivní hodnota typu integer
