@@ -172,7 +172,16 @@ export const DefaultTemplateArtifactConfiguration = {
 <h2>Konceptuální model</h2>
 V této sekci jsou definovány veškeré koncepty, třídy a asociace, potřebné pro <i>{{#semanticModels}}{{#humanLabel}}{{translate}}{{/humanLabel}}{{/semanticModels}}</i>.
 
-<figure><img src="{{#artifact.image.publicUrl}}{{{relativePath}}}{{/artifact.image.publicUrl}}"><figcaption>Diagram konceptuálního modelu.</figcaption></figure>
+<figure>
+    <a href="{{#artifact.image.publicUrl}}{{{relativePath}}}{{/artifact.image.publicUrl}}">
+        <img src="{{#artifact.image.publicUrl}}{{{relativePath}}}{{/artifact.image.publicUrl}}">
+    </a>
+    <figcaption>
+        <a href="{{#artifact.image.publicUrl}}{{{relativePath}}}{{/artifact.image.publicUrl}}">
+            Diagram konceptuálního modelu.
+        </a>
+    </figcaption>
+</figure>
 
 {{#semanticModels}}
 {{#classes}}
