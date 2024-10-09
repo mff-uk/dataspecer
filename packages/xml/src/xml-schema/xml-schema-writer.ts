@@ -78,8 +78,8 @@ async function writeSchemaBegin(
   const registered: Record<string, string> = {};
 
   for (const importDeclaration of model.imports) {
-    const namespace = await importDeclaration.namespace;
-    const prefix = await importDeclaration.prefix;
+    const namespace = importDeclaration.namespace;
+    const prefix = importDeclaration.prefix;
     if (
       namespace != null &&
       prefix != null
@@ -134,7 +134,7 @@ async function writeImportsAndDefinitions(
   }
 
   for (const importDeclaration of model.imports) {
-    const namespace = await importDeclaration.namespace;
+    const namespace = importDeclaration.namespace;
     if (namespace == null || namespace === model.targetNamespace) {
       await writer.writeElementFull("xs", "include")(async writer => {
         await writer.writeLocalAttributeValue(
@@ -272,7 +272,7 @@ async function writeElement(
 ): Promise<void> {
   await writer.writeElementFull("xs", "element")(async writer => {
     await writeAttributesForComplexContent(parentContent, writer);
-    const name = await element.elementName;
+    const name = element.elementName;
     if (element.type == null) {
       // An element with no type uses ref to its name.
       await writer.writeLocalAttributeValue(
@@ -287,7 +287,7 @@ async function writeElement(
         // The type is specified in the schema, simply use its name.
         await writer.writeLocalAttributeValue(
           "type",
-          writer.getQName(...await type.name)
+          writer.getQName(...type.name)
         );
         await writeAnnotation(element, writer);
       } else {
@@ -314,7 +314,7 @@ async function writeTypeAttributes(
 ): Promise<void> {
   if (type.name != null) {
     await writer.writeLocalAttributeValue(
-      "name", writer.getQName(...await type.name)
+      "name", writer.getQName(...type.name)
     );
   }
   await writeAnnotation(type, writer);
@@ -384,7 +384,7 @@ async function writeComplexContent(
     await writeAttributesForComplexContent(parentContent, writer);
     if (xmlSchemaComplexTypeDefinitionIsGroup(definition)) {
       await writer.writeLocalAttributeValue(
-        "ref", writer.getQName(...await definition.name)
+        "ref", writer.getQName(...definition.name)
       );
     } else if (
       xmlSchemaComplexTypeDefinitionIsSequence(definition) ||

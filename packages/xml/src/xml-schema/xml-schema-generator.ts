@@ -27,6 +27,8 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
     output: StreamDictionary
   ) {
     const {xmlSchema: model} = await this.generateToObject(context, artefact, specification);
+    console.warn("🌱🌱🌱", model);
+
     const stream = output.writePath(artefact.outputPath);
     await writeXmlSchema(model, stream);
     await stream.close();
@@ -70,7 +72,7 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
     );
 
     return {
-      xmlSchema: structureModelToXmlSchema(
+      xmlSchema: await structureModelToXmlSchema(
         context, specification, schemaArtefact, xmlModel
       ),
       conceptualModel,
@@ -97,6 +99,7 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
     } else if (documentationIdentifier === "https://schemas.dataspecer.com/generator/template-artifact") {
       const {artifact: documentationArtefact} = callerContext as {artifact: DataSpecificationArtefact};
       const {xmlSchema, conceptualModel} = await this.generateToObject(context, artefact, specification);
+      console.warn("🌱🌱🌱", xmlSchema);
       // return createRespecSchema(
       //   documentationArtefact,
       //   xmlSchema,

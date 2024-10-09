@@ -146,7 +146,7 @@ class XmlSchemaDocumentationGenerator {
   async generateToString(): Promise<string> {
     const prefixToNamespace = {} as Record<string, string>;
     for (const imp of this.xmlSchema.imports) {
-      prefixToNamespace[await imp.prefix] = await imp.namespace + "#";
+      prefixToNamespace[imp.prefix] = imp.namespace + "#";
     }
     prefixToNamespace["xs"] = "https://www.w3.org/TR/xmlschema-2/#";
 
@@ -249,11 +249,11 @@ class XmlSchemaDocumentationGenerator {
 
     const imports = [];
     for (const imp of this.xmlSchema.imports) {
-      const model = await imp.model;
+      const model = imp.model;
       const schema = model?.roots[0].classes[0].structureSchema;
       imports.push({
-        prefix: await imp.prefix,
-        namespace: await imp.namespace,
+        prefix: imp.prefix,
+        namespace: imp.namespace,
         schemaLocation: imp.schemaLocation,
         documentation: schema ? classSpecificationArtifact(schema) : null,
       });

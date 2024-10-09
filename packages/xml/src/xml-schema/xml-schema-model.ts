@@ -55,19 +55,19 @@ export class XmlSchemaImportDeclaration {
   /**
    * The namespace prefix used by the schema.
    */
-  prefix: Promise<string | null>;
+  prefix: string | null;
 
   /**
    * The namespace IRI used by the schema.
    */
-  namespace: Promise<string | null>;
+  namespace: string | null;
 
   /**
    * The location of the schema file.
    */
   schemaLocation: string;
 
-  model: Promise<StructureModel> | null;
+  model: StructureModel | null;
 }
 
 /**
@@ -124,11 +124,7 @@ export class XmlSchemaGroupDefinition {
  * Represents an xs:element definition.
  */
 export class XmlSchemaElement extends XmlSchemaAnnotated {
-  /**
-   * The name of the element as a {@link QName}; may be a promise
-   * if the prefix is externally defined.
-   */
-  elementName: QName | Promise<QName>;
+  elementName: QName;
 
   /**
    * The type of the element.
@@ -237,11 +233,7 @@ export class XmlSchemaComplexAll extends XmlSchemaComplexContainer {
 export class XmlSchemaComplexGroup extends XmlSchemaComplexItem {
   declare xsType: "group";
 
-  /**
-   * The name of the group as a {@link QName}; may be a promise
-   * if the prefix is externally defined.
-   */
-  name: QName | Promise<QName>;
+  name: QName;
 }
 
 /**
