@@ -376,12 +376,6 @@ export default function <%= it.export_name %>() {
                     </Box><% } %>
                 </Box>
             }
-            <Box component="section" sx={{
-                p: 1,
-                color: "transparent",
-                width: window.innerWidth,
-                height: "10%"
-            }} />
         </>
     )
 }
