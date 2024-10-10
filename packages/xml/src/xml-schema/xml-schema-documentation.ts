@@ -371,7 +371,11 @@ export const DEFAULT_TEMPLATE = `
     {{#if name}}
       <dt>Obsah</dt>
       <dd>
-        Obsahem elementu je typ <a href="{{xml-href name}}"><code>{{xml-qname name}}</code></a>.
+        {{#if (equals name.[1] "langString")}}
+          Obsahem elementue je <i>Řetězec s označením jazyka</i>.
+        {{else}}
+          Obsahem elementu je typ <a href="{{xml-href name}}"><code>{{xml-qname name}}</code></a>.
+        {{/if}}
       </dd>
     {{/if}}
 
