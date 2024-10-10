@@ -403,7 +403,7 @@ export const DEFAULT_TEMPLATE = `
 
 {{#xmlSchema.targetNamespace}}
   <dt>Definováno v namespace</dt>
-  <dd><code><a href="{{.}}">{{.}}</a></code> (preferovaný prefix: <code>{{@root.xmlSchema.targetNamespacePrefix}}</code>)</dd>
+  <dd><code>{{.}}</code> (preferovaný prefix: <code>{{@root.xmlSchema.targetNamespacePrefix}}</code>)</dd>
 {{/xmlSchema.targetNamespace}}
 
 <section>
