@@ -225,7 +225,7 @@ async function writeGroup(
   writer: XmlWriter
 ): Promise<void> {
   await writer.writeElementFull("xs", "group")(async writer => {
-    await writer.writeLocalAttributeValue("name", group.name);
+    await writer.writeLocalAttributeValue("name", writer.getQName(...group.name));
     await writeComplexContent(group.definition, null, writer);
   });
 }
@@ -280,7 +280,7 @@ async function writeElement(
 ): Promise<void> {
   await writer.writeElementFull("xs", "element")(async writer => {
     await writeAttributesForComplexContent(parentContent, writer);
-    const name = element.elementName;
+    const name = element.name;
     if (element.type == null) {
       // An element with no type uses ref to its name.
       await writer.writeLocalAttributeValue(

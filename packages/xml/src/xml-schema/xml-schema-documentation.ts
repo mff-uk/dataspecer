@@ -31,7 +31,7 @@ function traverseXmlSchemaComplexContainer(container: XmlSchemaComplexContainer,
     // It can be element or item
     if (xmlSchemaComplexContentIsElement(content)) {
       const element = content.element;
-      const skipElement = element.elementName[0] === "c" && element.elementName[1] === "iri";
+      const skipElement = element.name[0] === "c" && element.name[1] === "iri";
       if (!skipElement) {
         elements.push(element);
         // @ts-ignore
@@ -124,15 +124,20 @@ class XmlSchemaDocumentationGenerator {
   }
 
   private getElementUniqueId(element: XmlSchemaElement | XmlSchemaType | XmlSchemaGroupDefinition | QName | string, type: string | undefined, forceNamespace?: string): string {
-    if (!type && typeof element === "object") {
-      if ((element as XmlSchemaElement).elementName !== undefined) {
+    if (!type && typeof element === "object" && !Array.isArray(element)) {
+      if (element.entityType === "element") {
         type = "element";
-      } else if ((element as XmlSchemaGroupDefinition).definition !== undefined) {
+      } else if (element.entityType === "groupDefinition") {
         type = "group";
       } else {
         type = "type";
       }
     }
+    if (!type) {
+      type = "type";
+    }
+
+    console.log("💀", type, element);
 
     const fns = forceNamespace ? `${forceNamespace}:` : "";
 
@@ -142,7 +147,7 @@ class XmlSchemaDocumentationGenerator {
       const ns = element[0] ? `${element[0]}:` : fns;
       return `${type}-${ns}${element[1]}`;
     } else {
-      const name = (element as XmlSchemaElement).elementName ?? (element as XmlSchemaType).name ?? (element as XmlSchemaGroupDefinition).name;
+      const name = (element as XmlSchemaElement).name ?? (element as XmlSchemaType).name ?? (element as XmlSchemaGroupDefinition).name;
 
       if (typeof name === "string") {
         return type + "-" + fns + name;
@@ -161,7 +166,7 @@ class XmlSchemaDocumentationGenerator {
     prefixToNamespace["xs"] = "https://www.w3.org/TR/xmlschema-2/#";
 
     this.generator.engine.registerHelper("xml-id-anchor", (element: XmlSchemaElement | XmlSchemaType | XmlSchemaGroupDefinition | QName | string, options: any) => {
-      const name = (element as XmlSchemaElement).elementName ?? (element as XmlSchemaType).name ?? (element as XmlSchemaGroupDefinition).name ?? element as QName ?? [null, element as string];
+      const name = (element as XmlSchemaElement).name ?? (element as XmlSchemaType).name ?? (element as XmlSchemaGroupDefinition).name ?? element as QName ?? [null, element as string];
       if (name[0] === null && this.xmlSchema.targetNamespacePrefix) {
         return this.getElementUniqueId(element, options.hash.type, this.xmlSchema.targetNamespacePrefix);
       }
@@ -177,7 +182,7 @@ class XmlSchemaDocumentationGenerator {
         return path + "#" + this.getElementUniqueId(element, options.hash.type);
       }
 
-      const possibleOutsideReferenceName = (element as XmlSchemaElement).elementName ?? (element as XmlSchemaType).name ?? element as QName ?? [null, element as string];
+      const possibleOutsideReferenceName = (element as XmlSchemaElement).name ?? (element as XmlSchemaType).name ?? element as QName ?? [null, element as string];
 
       if (possibleOutsideReferenceName[1] === "langString") {
         return "";
@@ -341,7 +346,7 @@ export const DEFAULT_TEMPLATE = `
     {{#contents}}
       <li>
         {{#if element}}
-          element <a href="{{xml-href element}}"><code>&lt;{{element.elementName.[1]}}&gt;</code></a> [{{../cardinalityMin}}..{{#if ../cardinalityMax}}{{../cardinalityMax}}{{else}}*{{/if}}]
+          element <a href="{{xml-href element}}"><code>&lt;{{element.name.[1]}}&gt;</code></a> [{{../cardinalityMin}}..{{#if ../cardinalityMax}}{{../cardinalityMax}}{{else}}*{{/if}}]
         {{/if}}
         {{#item}}
           {{#if (equals xsType "group")}}
@@ -465,7 +470,7 @@ export const DEFAULT_TEMPLATE = `
   <h4>Kořenové entity XSD schématu</h4>
   <ul>
     {{#xmlSchema.elements}}
-      <li> element <a href="{{xml-href .}}"><code>{{xml-qname elementName}}</code></a></li>
+      <li> element <a href="{{xml-href .}}"><code>{{xml-qname name}}</code></a></li>
     {{/xmlSchema.elements}}
 
     {{#xmlSchema.groups}}
@@ -482,7 +487,7 @@ export const DEFAULT_TEMPLATE = `
 
 {{#def "xml-non-root-element" "element"}}
 <section id="{{xml-id-anchor .}}">
-  <h4>Element {{^elementName.[0]}}{{#path}}{{#if elementName}}<code>&lt;{{elementName.[1]}}&gt;</code> / {{/if}}{{/path}}{{/elementName.[0]}}<code>&lt;{{elementName.[1]}}&gt;</code></h4>
+  <h4>Element {{^name.[0]}}{{#path}}{{#if (equals entityType "element")}}<code>&lt;{{name.[1]}}&gt;</code> / {{/if}}{{/path}}{{/name.[0]}}<code>&lt;{{name.[1]}}&gt;</code></h4>
   {{xml-meaning annotation}}
 
   {{#cardinalityFromParentContainer}}
@@ -505,7 +510,7 @@ export const DEFAULT_TEMPLATE = `
 
 {{#rootElements}}
 <section id="{{xml-id-anchor .}}">
-  <h4>Kořenový element <code>&lt;{{elementName.[1]}}&gt;</code></h4>
+  <h4>Kořenový element <code>&lt;{{name.[1]}}&gt;</code></h4>
   {{xml-meaning annotation}}
 
   {{#if type}}{{#with type}}

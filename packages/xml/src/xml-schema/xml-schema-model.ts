@@ -100,14 +100,23 @@ export class XmlSchemaAnnotation {
   metaDescription: LanguageString | null;
 }
 
+export interface XmlNamedEntity {
+  /**
+   * XML name attribute of the entity.
+   */
+  name: QName | null;
+}
+
 /**
  * Represents a top-level xs:group definition.
  */
-export class XmlSchemaGroupDefinition {
+export class XmlSchemaGroupDefinition implements XmlNamedEntity {
+  entityType: "groupDefinition";
+
   /**
    * The name of the group.
    */
-  name: string | null;
+  name: QName | null;
 
   /**
    * The item which serves as the definition of the group.
@@ -118,8 +127,10 @@ export class XmlSchemaGroupDefinition {
 /**
  * Represents an xs:element definition.
  */
-export class XmlSchemaElement extends XmlSchemaAnnotated {
-  elementName: QName;
+export class XmlSchemaElement extends XmlSchemaAnnotated implements XmlNamedEntity {
+  entityType: "element";
+
+  name: QName;
 
   /**
    * The type of the element.
@@ -130,7 +141,9 @@ export class XmlSchemaElement extends XmlSchemaAnnotated {
 /**
  * Represents an xs:simpleType or xs:complexType.
  */
-export class XmlSchemaType extends XmlSchemaAnnotated {
+export class XmlSchemaType extends XmlSchemaAnnotated implements XmlNamedEntity {
+  entityType: "type";
+
   /**
    * The name of the type, or null if the type is inline.
    */
