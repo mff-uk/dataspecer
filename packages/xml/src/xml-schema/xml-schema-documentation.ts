@@ -367,7 +367,7 @@ export const DEFAULT_TEMPLATE = `
 {{/def}}
 
 {{#def "xml-type"}}
-  <div style="margin-left: 1rem;">
+  <div style="margin-left: 40px;">
     {{#if name}}
       <dt>Obsah</dt>
       <dd>
@@ -475,7 +475,7 @@ export const DEFAULT_TEMPLATE = `
   {{xml-meaning annotation}}
 
   {{#if type}}{{#with type}}
-    <h4 style="margin-top: 0; margin-bottom: .5rem;">Typ elementu</h4>
+    <dt>Typ elementu</dt>
     {{xml-type}}
   {{/with}}{{else}}
     <i>Element nemá definovaný typ.</i>
@@ -489,7 +489,7 @@ export const DEFAULT_TEMPLATE = `
   {{xml-meaning annotation}}
 
   {{#if type}}{{#with type}}
-    <h4 style="margin-top: 0; margin-bottom: .5rem;">Typ elementu</h4>
+    <dt>Typ elementu</dt>
     {{xml-type}}
   {{/with}}{{else}}
     <i>Element nemá definovaný typ.</i>
