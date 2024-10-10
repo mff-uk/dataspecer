@@ -329,14 +329,12 @@ export const DEFAULT_TEMPLATE = `
 {{#if (equals type "sequence")}} - elementy v tomto pořadí{{/if}}
 {{/def}}
 
-{{#def "xml-complex-definition" "complexDefinition"}}
-  {{#if complexDefinition.contents}}
-    <dt>Obsah {{xml-content-type complexDefinition.xsType}}</dt>
-    <ul style="margin-top: 0;">
-    {{#complexDefinition.contents}}
+{{#def "xml-schema-complex-content" "contents"}}
+  <ul style="margin-top: 0;">
+    {{#contents}}
       <li>
         {{#if element}}
-          element <a href="{{xml-href element}}"><code>&lt;{{element.elementName.[1]}}&gt;</code></a>
+          element <a href="{{xml-href element}}"><code>&lt;{{element.elementName.[1]}}&gt;</code></a> [{{../cardinalityMin}}..{{#if ../cardinalityMax}}{{../cardinalityMax}}{{else}}*{{/if}}]
         {{/if}}
         {{#item}}
           {{#if (equals xsType "group")}}
@@ -344,16 +342,27 @@ export const DEFAULT_TEMPLATE = `
             {{#if referencesStructure}}
               referencující
             {{/if}}
-            <a href="{{xml-href name type="element" structure=referencesStructure}}"><code>{{xml-qname name}}</code></a>
-          {{else}}
-            {{xml-type}}
+            <a href="{{xml-href name type="element" structure=referencesStructure}}"><code>{{xml-qname name}}</code></a> [{{../cardinalityMin}}..{{#if ../cardinalityMax}}{{../cardinalityMax}}{{else}}*{{/if}}]
+            {{else}}
+            {{#if (equals xsType "sequence")}}
+              sekvence [{{../cardinalityMin}}..{{#if ../cardinalityMax}}{{../cardinalityMax}}{{else}}*{{/if}}]
+              <ul>
+                {{xml-schema-complex-content contents}}
+              </ul>
+              {{else}}
+                {{xml-type}} [{{../cardinalityMin}}..{{#if ../cardinalityMax}}{{../cardinalityMax}}{{else}}*{{/if}}]
+            {{/if}}
           {{/if}}
         {{/item}}
-
-        [{{cardinalityMin}}..{{#if cardinalityMax}}{{cardinalityMax}}{{else}}*{{/if}}]
       </li>
-    {{/complexDefinition.contents}}
-    </ul>
+    {{/contents}}
+  </ul>
+{{/def}}
+
+{{#def "xml-complex-definition" "complexDefinition"}}
+  {{#if complexDefinition.contents}}
+    <dt>Obsah {{xml-content-type complexDefinition.xsType}}</dt>
+    {{xml-schema-complex-content complexDefinition.contents}}
   {{/if}}
 {{/def}}
 
