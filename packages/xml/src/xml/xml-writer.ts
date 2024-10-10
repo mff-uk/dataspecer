@@ -51,9 +51,9 @@ export interface XmlWriter extends XmlNamespaceMap {
    */
   writeElementBegin(
     namespacePrefix: string | null,
-    elementName: string
+    elementName: string,
   ): Promise<void>;
-  
+
   /**
    * Writes the end tag of an element.
    * @param namespacePrefix The namespaces prefix of the element, or null.
@@ -108,7 +108,7 @@ export interface XmlWriter extends XmlNamespaceMap {
     attributeName: string,
     attributeValue: string | null
   ): Promise<void>;
-  
+
   /**
    * Writes an attribute on an element without a namespace.
    * @param attributeName The local name of the attribute.
@@ -334,7 +334,7 @@ export abstract class XmlIndentingTextWriter
 
   async writeText(text: string): Promise<void> {
     await this.leaveElementAttributes();
-    await this.write(xmlEscape(text));
+    await this.write(this.currentIndent + xmlEscape(text));
   }
 
   async writeElementEnd(

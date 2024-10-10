@@ -90,11 +90,6 @@ export class XmlSchemaAnnotation {
   modelReference: string | null;
 
   /**
-   * The xs:documentation content of the annotation.
-   */
-  documentation: string | null;
-
-  /**
    * The title of the annotation for non-technical use.
    */
   metaTitle: LanguageString | null;

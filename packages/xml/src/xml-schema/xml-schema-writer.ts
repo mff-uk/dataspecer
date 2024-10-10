@@ -255,9 +255,17 @@ async function writeAnnotation(
       "sawsdl", "modelReference", annotation.modelReference
     );
     await writer.writeElementFull("xs", "annotation")(async writer => {
-      await writer.writeElementValue(
-        "xs", "documentation", annotation.documentation
-      );
+      const languages = [...new Set([...Object.keys(annotation.metaTitle ?? {}), ...Object.keys(annotation.metaDescription ?? {})])].sort();
+      for (const language of languages) {
+        await writer.writeElementFull("xs", "documentation")(async writer => {
+          await writer.writeLocalAttributeValue("xml:lang", language);
+          const title = annotation.metaTitle?.[language];
+          const description = annotation.metaDescription?.[language];
+          await writer.writeText(
+            `${title ?? ""}${title && description ? " - " : ""}${description ?? ""}\n`
+          );
+        });
+      }
     });
   }
 }
