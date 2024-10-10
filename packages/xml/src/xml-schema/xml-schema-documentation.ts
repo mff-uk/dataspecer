@@ -453,7 +453,7 @@ export const DEFAULT_TEMPLATE = `
     {{/xmlSchema.groups}}
 
     {{#xmlSchema.types}}
-      <li> typ <a href="{{xml-href .}}"><code>{{xml-qname name}}</code></a></li>
+      <li> {{#if complexDefinition}}komplexní{{/if}}{{#if simpleDefinition}}jednoduchý{{/if}} typ <a href="{{xml-href .}}"><code>{{xml-qname name}}</code></a></li>
     {{/xmlSchema.types}}
   </ul>
 </section>
@@ -500,7 +500,7 @@ export const DEFAULT_TEMPLATE = `
 
 {{#rootTypes}}
 <section id="{{xml-id-anchor .}}">
-  <h4>Kořenový typ {{#if name}}<code>{{xml-qname name}}</code>{{else}}bez pojmenování{{/if}}</h4>
+  <h4>Kořenový {{#if complexDefinition}}komplexní{{/if}}{{#if simpleDefinition}}jednoduchý{{/if}} typ {{#if name}}<code>{{xml-qname name}}</code>{{else}}bez pojmenování{{/if}}</h4>
 
   {{xml-meaning annotation}}
 
