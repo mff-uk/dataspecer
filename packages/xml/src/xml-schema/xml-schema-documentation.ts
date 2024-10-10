@@ -25,7 +25,7 @@ import { NEW_DOC_GENERATOR } from "./xml-schema-generator";
 /**
  * Recursively traverses the complex content container and returns all elements.
  */
-function traverseXmlSchemaComplexContainer(container: XmlSchemaComplexContainer, path: XmlSchemaElement[] = []): XmlSchemaElement[] {
+function traverseXmlSchemaComplexContainer(container: XmlSchemaComplexContainer, path: (XmlSchemaElement | XmlSchemaGroupDefinition | XmlSchemaType)[] = []): XmlSchemaElement[] {
   const elements = [] as XmlSchemaElement[];
   for (const content of container.contents) {
     // It can be element or item
@@ -39,6 +39,8 @@ function traverseXmlSchemaComplexContainer(container: XmlSchemaComplexContainer,
           min: content.cardinalityMin,
           max: content.cardinalityMax,
         };
+        // @ts-ignore
+        element.parentEntityInDocumentation = path[path.length - 1];
       }
       // @ts-ignore
       element.path = [...path];
@@ -52,7 +54,7 @@ function traverseXmlSchemaComplexContainer(container: XmlSchemaComplexContainer,
   }
   return elements;
 }
-function traverseXmlSchemaType(type: XmlSchemaType, path: XmlSchemaElement[] = []): XmlSchemaElement[] {
+function traverseXmlSchemaType(type: XmlSchemaType, path: (XmlSchemaElement | XmlSchemaGroupDefinition | XmlSchemaType)[] = []): XmlSchemaElement[] {
   const elements = [] as XmlSchemaElement[];
   if (xmlSchemaTypeIsComplex(type)) {
     const complexItem = type.complexDefinition;
@@ -63,10 +65,10 @@ function traverseXmlSchemaType(type: XmlSchemaType, path: XmlSchemaElement[] = [
   }
   return elements;
 }
-function traverseXmlSchemaElement(element: XmlSchemaElement, path: XmlSchemaElement[] = []): XmlSchemaElement[] {
+function traverseXmlSchemaElement(element: XmlSchemaElement, path: (XmlSchemaElement | XmlSchemaGroupDefinition | XmlSchemaType)[] = []): XmlSchemaElement[] {
   return traverseXmlSchemaType(element.type, path);
 }
-function traverseXmlSchemaComplexItem(complexItem: XmlSchemaComplexItem, path: XmlSchemaElement[] = []): XmlSchemaElement[] {
+function traverseXmlSchemaComplexItem(complexItem: XmlSchemaComplexItem, path: (XmlSchemaElement | XmlSchemaGroupDefinition | XmlSchemaType)[] = []): XmlSchemaElement[] {
   const elements = [] as XmlSchemaElement[];
   if ((complexItem as XmlSchemaComplexContainer).contents) {
     const container = complexItem as XmlSchemaComplexContainer;
@@ -241,14 +243,14 @@ class XmlSchemaDocumentationGenerator {
     for (const group of this.xmlSchema.groups) {
       rootGroups.push({
         ...group,
-        linkedChildElements: traverseXmlSchemaComplexItem(group.definition),
+        linkedChildElements: traverseXmlSchemaComplexItem(group.definition, [group]),
       });
     }
 
     for (const type of this.xmlSchema.types) {
       rootTypes.push({
         ...type,
-        linkedChildElements: traverseXmlSchemaType(type),
+        linkedChildElements: traverseXmlSchemaType(type, [type]),
       });
     }
 
@@ -480,13 +482,17 @@ export const DEFAULT_TEMPLATE = `
 
 {{#def "xml-non-root-element" "element"}}
 <section id="{{xml-id-anchor .}}">
-  <h4>Element {{^elementName.[0]}}{{#path}}<code>&lt;{{elementName.[1]}}&gt;</code> / {{/path}}{{/elementName.[0]}}<code>&lt;{{elementName.[1]}}&gt;</code></h4>
+  <h4>Element {{^elementName.[0]}}{{#path}}{{#if elementName}}<code>&lt;{{elementName.[1]}}&gt;</code> / {{/if}}{{/path}}{{/elementName.[0]}}<code>&lt;{{elementName.[1]}}&gt;</code></h4>
   {{xml-meaning annotation}}
 
   {{#cardinalityFromParentContainer}}
     <dt>Kardinalita elementu v nadřazeném kontejneru</dt>
     <dd>{{min}}..{{#if max}}{{max}}{{else}}*{{/if}}</dd>
   {{/cardinalityFromParentContainer}}
+  {{#parentEntityInDocumentation}}
+    <dt>Nadřazený element</dt>
+    <dd><a href="{{xml-href .}}"></a></dd>
+  {{/parentEntityInDocumentation}}
 
   {{#if type}}{{#with type}}
     <dt>Typ elementu</dt>
@@ -499,7 +505,7 @@ export const DEFAULT_TEMPLATE = `
 
 {{#rootElements}}
 <section id="{{xml-id-anchor .}}">
-  <h4>Kořenový element {{^elementName.[0]}}{{#path}}<code>&lt;{{elementName.[1]}}&gt;</code> / {{/path}}{{/elementName.[0]}}<code>&lt;{{elementName.[1]}}&gt;</code></h4>
+  <h4>Kořenový element <code>&lt;{{elementName.[1]}}&gt;</code></h4>
   {{xml-meaning annotation}}
 
   {{#if type}}{{#with type}}
