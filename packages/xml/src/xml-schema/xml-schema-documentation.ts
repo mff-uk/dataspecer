@@ -222,6 +222,10 @@ class XmlSchemaDocumentationGenerator {
       }
     });
 
+    this.generator.engine.registerHelper("get-examples", (annotation: XmlSchemaAnnotation) => {
+      return [1,2,34,6, annotation.modelReference];
+    });
+
     this.generator.compile(DEFAULT_TEMPLATE);
     const data = await this.prepareData();
     return this.generator.render(data);
@@ -504,6 +508,13 @@ export const DEFAULT_TEMPLATE = `
     {{xml-type}}
   {{/with}}{{else}}
     <i>Element nemá definovaný typ.</i>
+  {{/if}}
+
+  {{#if annotation.structureModelEntity.dataTypes.[0].example}}
+    <dt>Příklady dat</dt>
+    {{#each annotation.structureModelEntity.dataTypes.[0].example}}
+      <dd>{{.}}</dd>
+    {{/each}}
   {{/if}}
 </section>
 {{/def}}

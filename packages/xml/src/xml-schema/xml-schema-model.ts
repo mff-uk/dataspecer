@@ -98,6 +98,8 @@ export class XmlSchemaAnnotation {
    * The description of the annotation for non-technical use.
    */
   metaDescription: LanguageString | null;
+
+  structureModelEntity?: any;
 }
 
 export interface XmlNamedEntity {

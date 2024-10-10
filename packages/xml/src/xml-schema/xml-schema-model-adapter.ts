@@ -328,6 +328,7 @@ class XmlSchemaAdapter {
       modelReference: data.cimIri,
       metaTitle: data.humanLabel,
       metaDescription: data.humanDescription,
+      structureModelEntity: data
     }
   }
 
