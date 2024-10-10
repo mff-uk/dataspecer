@@ -25,7 +25,11 @@ export class CreateInstanceCapability extends BaseCapabilityGenerator {
     constructor(constructorInput: CapabilityConstructorInput) {
         super(constructorInput.dataStructureMetadata, new CreateInstanceCapabilityMetadata(constructorInput.capabilityLabel));
 
-        const dalLayerGeneratorStrategy = CreateInstanceTemplateGeneratorFactory.getDalGeneratorStrategy(constructorInput.dataStructureMetadata.specificationIri, constructorInput.datasource);
+        const dalLayerGeneratorStrategy = CreateInstanceTemplateGeneratorFactory.getDalGeneratorStrategy(
+            constructorInput.dataStructureMetadata.technicalLabel,
+            constructorInput.dataStructureMetadata.specificationIri,
+            constructorInput.datasource
+        );
         const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(
             constructorInput.dataStructureMetadata.technicalLabel,
             this.getIdentifier()

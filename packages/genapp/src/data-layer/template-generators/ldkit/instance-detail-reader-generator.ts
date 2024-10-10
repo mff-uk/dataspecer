@@ -1,9 +1,9 @@
 import { InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../engine/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/templates/template-consumer";
 import { GeneratedFilePathCalculator } from "../../../utils/artifact-saver";
 import { DetailReaderInterfaceGenerator } from "../reader-interface-generator";
-import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
+import { ImportRelativePath, DataLayerTemplateDescription } from "../../../engine/templates/template-interfaces";
 
 interface InstanceDetailLdkitReaderDependencyMap extends TemplateDependencyMap {
     pathResolver: GeneratedFilePathCalculator,
@@ -12,7 +12,7 @@ interface InstanceDetailLdkitReaderDependencyMap extends TemplateDependencyMap {
     ldkitSchemaInterfaceArtifact: LayerArtifact
 }
 
-export interface InstanceDetailLdkitReaderTemplate extends TemplateDescription {
+export interface InstanceDetailLdkitReaderTemplate extends DataLayerTemplateDescription {
     placeholders: {
         ldkit_instance_reader: string,
         exported_name_object: string;
@@ -28,8 +28,13 @@ export interface InstanceDetailLdkitReaderTemplate extends TemplateDescription {
 
 export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<InstanceDetailLdkitReaderTemplate> {
 
-    constructor(templateMetadata: TemplateMetadata) {
-        super(templateMetadata);
+    private static readonly _instanceDetailLdkitDataLayerTemplatePath = "./detail/data-layer/ldkit/instance-detail-reader";
+
+    constructor(outputFilePath: string) {
+        super({
+            filePath: outputFilePath,
+            templatePath: InstanceDetailLdkitReaderGenerator._instanceDetailLdkitDataLayerTemplatePath
+        });
     }
 
     private async getReaderInterfaceReturnTypeName(readerInterfaceArtifact: LayerArtifact): Promise<LayerArtifact> {

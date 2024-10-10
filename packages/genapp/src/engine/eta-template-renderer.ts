@@ -1,16 +1,7 @@
 import path from "path";
 import { Eta } from "eta";
 import { getRelativePath } from "../utils/utils";
-
-export interface ImportRelativePath {
-    from: string;
-    to: string;
-}
-
-export interface TemplateDescription {
-    templatePath: string;
-    placeholders?: { [placeHolderName: string]: string | ImportRelativePath | object | null };
-}
+import { ImportRelativePath, TemplateDescription } from "./templates/template-interfaces";
 
 function isImportRelativePath(obj: any): obj is ImportRelativePath {
     if (!obj) {

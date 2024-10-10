@@ -1,14 +1,14 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../engine/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../engine/templates/template-consumer";
 import { BaseListLdkitReaderGenerator } from "./base-list-reader-generator";
-import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
+import { DataLayerTemplateDescription, ImportRelativePath } from "../../../engine/templates/template-interfaces";
 
 interface InstanceListLdkitReaderDependencyMap extends TemplateDependencyMap {
     ldkitSchemaArtifact: LayerArtifact,
     sparqlEndpointUri: string
 }
 
-interface InstanceListLdkitReaderTemplate extends TemplateDescription {
+export interface InstanceListLdkitReaderTemplate extends DataLayerTemplateDescription {
     placeholders: {
         ldkit_list_reader_base_class: string,
         ldkit_list_reader_base_class_path: ImportRelativePath,
@@ -25,8 +25,13 @@ function isInstanceListLdkitReaderDependencyList(obj: TemplateDependencyMap): ob
 
 export class InstanceListLdkitReaderGenerator extends TemplateConsumer<InstanceListLdkitReaderTemplate> {
 
-    constructor(templateMetadata: TemplateMetadata) {
-        super(templateMetadata);
+    private static readonly _ldkitListDataLayerTemplatePath = "./list/data-layer/ldkit/aggregate-specific-reader";
+
+    constructor(outputFilePath: string) {
+        super({
+            filePath: outputFilePath,
+            templatePath: InstanceListLdkitReaderGenerator._ldkitListDataLayerTemplatePath
+        });
     }
 
     async processTemplate(dependencies: InstanceListLdkitReaderDependencyMap): Promise<LayerArtifact> {

@@ -1,9 +1,9 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateMetadata } from "../../../engine/template-consumer";
+import { TemplateMetadata } from "../../../engine/templates/template-consumer";
 import { DetailReaderInterfaceGenerator } from "../../../data-layer/template-generators/reader-interface-generator";
 import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "../template-app-layer-generator";
 import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
-import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
+import { ImportRelativePath, TemplateDescription } from "../../../engine/templates/template-interfaces";
 
 interface DetailCapabilityAppLayerTemplate extends TemplateDescription {
     placeholders: {

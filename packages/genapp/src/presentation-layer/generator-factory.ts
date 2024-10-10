@@ -3,11 +3,13 @@ import {
     CREATE_CAPABILITY_ID,
     DELETE_CAPABILITY_ID,
     DETAIL_CAPABILITY_ID,
+    EDIT_CAPABILITY_ID,
     LIST_CAPABILITY_ID
 } from "../capabilities";
 import { PresentationLayerGenerator } from "./strategy-interface";
 import { CreateInstanceComponentTemplateProcessor } from "./template-generators/create/create-component-processor";
 import { DeleteInstanceComponentTemplateProcessor } from "./template-generators/delete/delete-instance-template-generator";
+import { EditInstanceComponentTemplateProcessor } from "./template-generators/edit/edit-instance-processor";
 import { DetailComponentTemplateProcessor } from "./template-generators/detail/detail-template-processor";
 import { ListTableTemplateProcessor } from "./template-generators/list/list-table-template-processor";
 
@@ -37,6 +39,10 @@ export const PresentationLayerTemplateGeneratorFactory: PresentationLayerGenerat
                 filePath: `Delete${pascalCaseAggregateName}Instance.tsx`,
                 templatePath: "./delete/presentation-layer/delete-instance-confirmation-modal"
             }),
+            [EDIT_CAPABILITY_ID]: new EditInstanceComponentTemplateProcessor({
+                templatePath: "./edit/presentation-layer/edit-instance-component",
+                filePath: `Edit${pascalCaseAggregateName}Instance.tsx`
+            })
         }
 
         const generator = capabilityGeneratorMap[capabilityIri];

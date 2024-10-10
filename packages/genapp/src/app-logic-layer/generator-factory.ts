@@ -3,6 +3,7 @@ import {
     DETAIL_CAPABILITY_ID,
     DELETE_CAPABILITY_ID,
     CREATE_CAPABILITY_ID,
+    EDIT_CAPABILITY_ID,
 
  } from "../capabilities";
 import { ApplicationLayerGenerator } from "./strategy-interface";
@@ -10,7 +11,8 @@ import {
     ListAppLayerGenerator,
     CreateAppLayerGenerator,
     DeleteAppLayerGenerator,
-    DetailAppLayerGenerator
+    DetailAppLayerGenerator,
+    EditAppLayerGenerator
 } from "./template-generators/index";
 
 export type ApplicationLayerGeneratorFactory = {
@@ -37,6 +39,10 @@ export const TemplateApplicationLayerGeneratorFactory: ApplicationLayerGenerator
             [CREATE_CAPABILITY_ID]: new CreateAppLayerGenerator({
                 templatePath: "./create/application-layer/create-instance-app-logic",
                 filePath: `./${technicalAggregateName}-create-instance-app-logic.ts`
+            }),
+            [EDIT_CAPABILITY_ID]: new EditAppLayerGenerator({
+                templatePath: "./edit/application-layer/edit-instance-app-logic",
+                filePath: `./${technicalAggregateName}-edit-instance-app-logic.ts`
             })
         }
 

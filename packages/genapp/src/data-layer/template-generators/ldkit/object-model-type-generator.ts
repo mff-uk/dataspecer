@@ -1,10 +1,10 @@
-import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
+import { ImportRelativePath, DataLayerTemplateDescription } from "../../../engine/templates/template-interfaces";
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../engine/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../engine/templates/template-consumer";
 import { ArtifactCache } from "../../../utils/artifact-saver";
 import { ObjectModelTypeGeneratorHelper } from "./object-model-generator-helper";
 
-interface LdkitObjectModelTypeTemplate extends TemplateDescription {
+interface LdkitObjectModelTypeTemplate extends DataLayerTemplateDescription {
     placeholders: {
         object_model_type_name: string;
         ldkit_schema_name: string;

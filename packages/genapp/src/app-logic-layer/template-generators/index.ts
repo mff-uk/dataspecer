@@ -2,11 +2,13 @@ import { CreateInstanceAppLayerTemplateProcessor } from "./create/template-proce
 import { DeleteAppLayerTemplateProcessor } from "./delete/template-processor";
 import { DetailAppLayerTemplateProcessor } from "./detail/template-processor";
 import { ListAppLayerTemplateProcessor } from "./list/template-processor";
+import { EditInstanceAppLayerTemplateProcessor } from "./edit/template-processor";
 
 
 export {
     CreateInstanceAppLayerTemplateProcessor as CreateAppLayerGenerator,
-    DeleteAppLayerTemplateProcessor as DeleteAppLayerGenerator, 
+    DeleteAppLayerTemplateProcessor as DeleteAppLayerGenerator,
     DetailAppLayerTemplateProcessor as DetailAppLayerGenerator,
-    ListAppLayerTemplateProcessor as ListAppLayerGenerator
+    ListAppLayerTemplateProcessor as ListAppLayerGenerator,
+    EditInstanceAppLayerTemplateProcessor as EditAppLayerGenerator
 }

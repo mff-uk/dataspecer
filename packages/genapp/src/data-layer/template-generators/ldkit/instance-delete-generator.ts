@@ -1,11 +1,11 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { GeneratedFilePathCalculator } from "../../../utils/artifact-saver";
 import { InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
-import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
+import { ImportRelativePath, DataLayerTemplateDescription } from "../../../engine/templates/template-interfaces";
 import { DeleteInstanceMutatorInterfaceGenerator } from "../reader-interface-generator";
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../engine/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../engine/templates/template-consumer";
 
-interface InstanceDeleteLdkitTemplate extends TemplateDescription {
+export interface InstanceDeleteLdkitTemplate extends DataLayerTemplateDescription {
     placeholders: {
         aggregate_name: string,
         exported_object_name: string;
@@ -27,8 +27,13 @@ interface LdkitInstanceDeleteMutatorDependencyMap extends TemplateDependencyMap 
 
 export class InstanceDeleteLdkitGenerator extends TemplateConsumer<InstanceDeleteLdkitTemplate> {
 
-    constructor(templateMetadata: TemplateMetadata) {
-        super(templateMetadata);
+    private static readonly _deleteLdkitInstanceDataLayerTemplatePath: string = "./delete/data-layer/ldkit/instance-delete-mutator";
+
+    constructor(outputFilePath: string) {
+        super({
+            filePath: outputFilePath,
+            templatePath: InstanceDeleteLdkitGenerator._deleteLdkitInstanceDataLayerTemplatePath
+        });
     }
 
     async processTemplate(dependencies: LdkitInstanceDeleteMutatorDependencyMap): Promise<LayerArtifact> {

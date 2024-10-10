@@ -1,11 +1,11 @@
 import { InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../engine/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/templates/template-consumer";
 import { GeneratedFilePathCalculator } from "../../../utils/artifact-saver";
 import { InstanceCreatorInterfaceGenerator } from "../reader-interface-generator";
-import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer"
+import { DataLayerTemplateDescription, ImportRelativePath } from "../../../engine/templates/template-interfaces";
 
-interface CreateLdkitInstanceTemplate extends TemplateDescription {
+export interface CreateLdkitInstanceTemplate extends DataLayerTemplateDescription {
     placeholders: {
         aggregate_name: string,
         exported_object_name: string,
@@ -27,8 +27,13 @@ interface CreateLdkitInstanceDependencyMap extends TemplateDependencyMap {
 
 export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitInstanceTemplate> {
 
-    constructor(templateMetadata: TemplateMetadata) {
-        super(templateMetadata);
+    private static readonly _createLdkitInstanceDataLayerTemplatePath: string = "./create/data-layer/ldkit/instance-creator";
+
+    constructor(outputFilePath: string) {
+        super({
+            filePath: outputFilePath,
+            templatePath: CreateLdkitInstanceGenerator._createLdkitInstanceDataLayerTemplatePath
+        });
     }
 
     async processTemplate(dependencies: CreateLdkitInstanceDependencyMap): Promise<LayerArtifact> {

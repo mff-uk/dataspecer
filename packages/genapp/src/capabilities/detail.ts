@@ -25,7 +25,11 @@ export class DetailCapability extends BaseCapabilityGenerator {
     constructor(constructorInput: CapabilityConstructorInput) {
         super(constructorInput.dataStructureMetadata, new DetailCapabilityMetadata(constructorInput.capabilityLabel));
 
-        const dalLayerGeneratorStrategy = DetailTemplateDalGeneratorFactory.getDalGeneratorStrategy(constructorInput.dataStructureMetadata.specificationIri, constructorInput.datasource);
+        const dalLayerGeneratorStrategy = DetailTemplateDalGeneratorFactory.getDalGeneratorStrategy(
+            constructorInput.dataStructureMetadata.technicalLabel,
+            constructorInput.dataStructureMetadata.specificationIri,
+            constructorInput.datasource
+        );
         const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(
             constructorInput.dataStructureMetadata.technicalLabel,
             this.getIdentifier()

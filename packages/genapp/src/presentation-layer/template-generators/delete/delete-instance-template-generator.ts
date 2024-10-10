@@ -1,6 +1,6 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
-import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
+import { ImportRelativePath, TemplateDescription } from "../../../engine/templates/template-interfaces";
 import { AllowedTransition } from "../../../engine/transitions/transitions-generator";
 import { UseNavigationHookGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 import { ApplicationGraphEdgeType } from "../../../engine/graph";

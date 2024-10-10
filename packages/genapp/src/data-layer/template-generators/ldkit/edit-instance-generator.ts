@@ -1,9 +1,9 @@
 import { InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../engine/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../engine/templates/template-consumer";
 import { GeneratedFilePathCalculator } from "../../../utils/artifact-saver";
 import { InstanceCreatorInterfaceGenerator } from "../reader-interface-generator";
-import { ImportRelativePath, DataLayerTemplateDescription } from "../../../engine/eta-template-renderer"
+import { ImportRelativePath, DataLayerTemplateDescription } from "../../../engine/templates/template-interfaces";
 
 export interface EditLdkitInstanceTemplate extends DataLayerTemplateDescription {
     placeholders: {

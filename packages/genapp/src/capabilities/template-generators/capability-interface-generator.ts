@@ -1,8 +1,8 @@
-import { TemplateDescription } from "../../engine/eta-template-renderer";
+import { TemplateDescription } from "../../engine/templates/template-interfaces";
 import { LayerArtifact } from "../../engine/layer-artifact";
-import { TemplateConsumer, TemplateMetadata } from "../../engine/template-consumer";
+import { TemplateConsumer, TemplateMetadata } from "../../engine/templates/template-consumer";
 
-interface CapabilityInterfaceTemplate extends TemplateDescription {
+export interface CapabilityInterfaceTemplate extends TemplateDescription {
     templatePath: string
 }
 

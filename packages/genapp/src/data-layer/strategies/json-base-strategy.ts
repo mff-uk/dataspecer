@@ -1,10 +1,10 @@
 import { AxiosResponse } from "axios";
-import { GenerationContext } from "../../../engine/generator-stage-interface";
-import { LayerArtifact } from "../../../engine/layer-artifact";
-import { DalGeneratorStrategy } from "../../strategy-interface";
-import { DatasourceConfig, DataSourceType } from "../../../engine/graph";
-import { SchemaProvider } from "../../schema-providers/base-schema-provider";
-import { JsonSchemaProvider } from "../../schema-providers/json-schema-provider";
+import { GenerationContext } from "../../engine/generator-stage-interface";
+import { LayerArtifact } from "../../engine/layer-artifact";
+import { DalGeneratorStrategy } from "../strategy-interface";
+import { DatasourceConfig, DataSourceType } from "../../engine/graph";
+import { SchemaProvider } from "../schema-providers/base-schema-provider";
+import { JsonSchemaProvider } from "../schema-providers/json-schema-provider";
 
 class JsonDalStrategy implements DalGeneratorStrategy {
 
@@ -14,7 +14,7 @@ class JsonDalStrategy implements DalGeneratorStrategy {
 
     constructor(specificationIri: string, datasourceConfig: DatasourceConfig) {
         if (datasourceConfig.format !== DataSourceType.JSON) {
-            throw new Error("Trying to generate JSOn data access with different datasource");
+            throw new Error("Trying to generate JSON data access with different datasource");
         }
 
         this._schemaProvider = new JsonSchemaProvider(specificationIri);

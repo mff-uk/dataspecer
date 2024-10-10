@@ -26,7 +26,11 @@ export class EditInstanceCapability extends BaseCapabilityGenerator {
     constructor(constructorInput: CapabilityConstructorInput) {
         super(constructorInput.dataStructureMetadata, new EditInstanceCapabilityMetadata(constructorInput.capabilityLabel));
 
-        const dalLayerGeneratorStrategy = EditInstanceTemplateGeneratorFactory.getDalGeneratorStrategy(constructorInput.dataStructureMetadata.specificationIri, constructorInput.datasource);
+        const dalLayerGeneratorStrategy = EditInstanceTemplateGeneratorFactory.getDalGeneratorStrategy(
+            constructorInput.dataStructureMetadata.technicalLabel,
+            constructorInput.dataStructureMetadata.specificationIri,
+            constructorInput.datasource
+        );
         const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(
             constructorInput.dataStructureMetadata.technicalLabel,
             this.getIdentifier()
