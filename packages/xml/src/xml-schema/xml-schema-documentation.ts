@@ -34,6 +34,11 @@ function traverseXmlSchemaComplexContainer(container: XmlSchemaComplexContainer,
       const skipElement = element.elementName[0] === "c" && element.elementName[1] === "iri";
       if (!skipElement) {
         elements.push(element);
+        // @ts-ignore
+        element.cardinalityFromParentContainer = {
+          min: content.cardinalityMin,
+          max: content.cardinalityMax,
+        };
       }
       // @ts-ignore
       element.path = [...path];
@@ -477,6 +482,11 @@ export const DEFAULT_TEMPLATE = `
 <section id="{{xml-id-anchor .}}">
   <h4>Element {{^elementName.[0]}}{{#path}}<code>&lt;{{elementName.[1]}}&gt;</code> / {{/path}}{{/elementName.[0]}}<code>&lt;{{elementName.[1]}}&gt;</code></h4>
   {{xml-meaning annotation}}
+
+  {{#cardinalityFromParentContainer}}
+    <dt>Kardinalita elementu v nadřazeném kontejneru</dt>
+    <dd>{{min}}..{{#if max}}{{max}}{{else}}*{{/if}}</dd>
+  {{/cardinalityFromParentContainer}}
 
   {{#if type}}{{#with type}}
     <dt>Typ elementu</dt>
