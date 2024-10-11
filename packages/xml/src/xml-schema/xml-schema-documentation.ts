@@ -137,8 +137,6 @@ class XmlSchemaDocumentationGenerator {
       type = "type";
     }
 
-    console.log("💀", type, element);
-
     const fns = forceNamespace ? `${forceNamespace}:` : "";
 
     if (typeof element === "string") {
@@ -350,7 +348,7 @@ export const DEFAULT_TEMPLATE = `
     {{#contents}}
       <li>
         {{#if element}}
-          element <a href="{{xml-href element}}"><code>&lt;{{element.name.[1]}}&gt;</code></a> [{{../cardinalityMin}}..{{#if ../cardinalityMax}}{{../cardinalityMax}}{{else}}*{{/if}}]
+          element <a href="{{xml-href element}}"><code>&lt;{{element.name.[1]}}&gt;</code></a> [{{cardinalityMin}}..{{#if cardinalityMax}}{{cardinalityMax}}{{else}}*{{/if}}]
         {{/if}}
         {{#item}}
           {{#if (equals xsType "group")}}

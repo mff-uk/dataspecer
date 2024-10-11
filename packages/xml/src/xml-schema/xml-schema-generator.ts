@@ -29,7 +29,6 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
     output: StreamDictionary
   ) {
     const {xmlSchema: model} = await this.generateToObject(context, artefact, specification);
-    console.warn("🌱🌱🌱", model);
 
     const stream = output.writePath(artefact.outputPath);
     await writeXmlSchema(model, stream);
@@ -101,7 +100,6 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
     } else if (documentationIdentifier === NEW_DOC_GENERATOR) {
       const {artifact: documentationArtefact} = callerContext as {artifact: DataSpecificationArtefact};
       const {xmlSchema, conceptualModel} = await this.generateToObject(context, artefact, specification);
-      console.warn("🌱🌱🌱", xmlSchema);
       // return createRespecSchema(
       //   documentationArtefact,
       //   xmlSchema,
