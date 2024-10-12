@@ -26,14 +26,26 @@ export const getGeneratedApplication = asyncHandler(async (request: express.Requ
 
     try {
         const appGenerator = new ApplicationGenerator(inputArgs);
-        const generatedApplicationZip = await appGenerator.generate();
+        const generatedApplicationZipBuffer = await appGenerator.generate();
 
-        response.type("application/zip").send(generatedApplicationZip);
+        if (generatedApplicationZipBuffer.byteLength === 0) {
+            response.statusMessage = "An empty application has been generated. Check if application graph is not empty.";
+            response.type("application/zip")
+                .send(generatedApplicationZipBuffer);
+            return;
+        }
+
+        response.type("application/zip")
+            .send(generatedApplicationZipBuffer);
+        return;
     } catch (error) {
-        response.status(500).json({
-            "message": "Unable to generate application",
-            error
-        });
+        const errorMsg = "An error occured while generating application prototype. See console for more details.";
+        response.statusMessage = errorMsg;
+        response.status(500).send({
+            "error": error,
+            "message": errorMsg
+        })
+        return;
     }
 });
 
@@ -45,18 +57,35 @@ export const getGenerateApplicationByModelId = asyncHandler(async (request: expr
 
     const modelStore = await resourceModel.getOrCreateResourceModelStore(query.iri);
     const data = await modelStore.getJson();
-    const date = new Date();
 
     const inputArgs: GenappConfiguration = {
         serializedGraph: JSON.stringify(data),
         backendHost: configuration.host,
-        tmpOutDir: `generated`,
+        tmpOutDir: "generated",
         tmpOutZipname: `out.zip`,
     };
 
-    const appGenerator = new ApplicationGenerator(inputArgs);
-    const generatedApplicationZip = await appGenerator.generate();
+    try {
+        const appGenerator = new ApplicationGenerator(inputArgs);
+        const generatedApplicationZipBuffer = await appGenerator.generate();
 
-    response.type("application/zip").send(generatedApplicationZip);
-    return;
+        if (generatedApplicationZipBuffer.byteLength === 0) {
+            response.statusMessage = "An empty application has been generated. Check if application graph is not empty.";
+            response.type("application/zip")
+                .send(generatedApplicationZipBuffer);
+            return;
+        }
+
+        response.type("application/zip")
+            .send(generatedApplicationZipBuffer);
+        return;
+    } catch (error) {
+        const errorMsg = "An error occured while generating application prototype. See console for more details.";
+        response.statusMessage = errorMsg;
+        response.status(500).send({
+            "error": error,
+            "message": errorMsg
+        })
+        return;
+    }
 });
