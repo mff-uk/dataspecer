@@ -24,23 +24,29 @@ export class <%= it.exported_object_name %> implements <%= it.delete_mutator_int
             return notFoundResult;
         }
 
+        let result: <%= it.instance_result_type %>;
+
         try {
-            await lens.delete(toDelete);
+            const deleteLens = createLens(<%= it.ldkit_schema %>, {
+                sources: [<%~ it.ldkit_endpoint_uri %>]
+            })
+            await deleteLens.delete(toDelete);
+
+            result = {
+                instance: {
+                    aggregateName: "<%= it.aggregate_name %>",
+                    raw: toDelete.$id
+                },
+                message: "Instance deleted successfully",
+                redirectUrl: "/"
+            }  as <%= it.instance_result_type %>;
+
         } catch {
-            return {
+            result = {
                 instance: null,
                 message: "Could not delete instance.",
                 redirectUrl: "/"
             } as <%= it.instance_result_type %>;
-        }
-
-        const result: <%= it.instance_result_type %> = {
-            instance: {
-                aggregateName: "<%= it.aggregate_name %>",
-                raw: toDelete.$id
-            },
-            message: "Instance deleted successfully",
-            redirectUrl: "/"
         }
 
         return result;

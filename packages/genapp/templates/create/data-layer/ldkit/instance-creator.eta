@@ -9,11 +9,11 @@ export class <%= it.exported_object_name %> implements <%= it.creator_interface_
     private mapFormDataToLdkitSchema(formData: any): Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> {
         console.log("input form data: ", formData);
 
-        // const newInstance: Entity<SchemaInterface<typeof < %= it.ldkit_schema % >>> = {< % for (const ldkitSchemaKey of Object.keys(it.ldkit_schema)) { % >
-        //    "< %~ ldkitSchemaKey % >": formData["< %~ ldkitSchemaKey % >"],< % } % >
-        // }
-
         const newInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> = formData;
+
+        newInstance["$id"] = newInstance.id;
+        newInstance["$type"] = newInstance["@type"];
+        delete newInstance["@type"];
 
         return newInstance;
     }
@@ -30,6 +30,17 @@ export class <%= it.exported_object_name %> implements <%= it.creator_interface_
         try {
             //await lens.insert(newInstance);
             console.log("creation success");
+
+            const result: <%= it.instance_result_type %> = {
+                instance: {
+                    aggregateName: "<%= it.aggregate_name %>",
+                    raw: newInstance.$id
+                },
+                message: "Instance created successfully",
+                redirectUrl: "/"
+            }
+
+            return result;
         } catch (error) {
             const errorResult: <%= it.instance_result_type %> = {
                 instance: null,
@@ -39,16 +50,5 @@ export class <%= it.exported_object_name %> implements <%= it.creator_interface_
 
             return errorResult;
         }
-
-        const result: <%= it.instance_result_type %> = {
-            instance: {
-                aggregateName: "<%= it.aggregate_name %>",
-                raw: newInstance.$id
-            },
-            message: "Instance created successfully",
-            redirectUrl: "/"
-        }
-
-        return result;
     }
 }
