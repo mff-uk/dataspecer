@@ -5,7 +5,6 @@ import Alert from '@mui/material/Alert';
 import validator from "@rjsf/validator-ajv8";
 import { RJSFSchema, RJSFValidationError } from "@rjsf/utils";
 import { <%= it.navigation_hook %> } from <%~ it.navigation_hook_path %>;
-import * as <%= it.json_schema %> from <%~ it.json_schema_path %>;
 import { <%= it.create_capability_app_layer %> } from <%~ it.create_capability_app_layer_path %>;
 
 const <%= it.exported_object_name %> = () => {

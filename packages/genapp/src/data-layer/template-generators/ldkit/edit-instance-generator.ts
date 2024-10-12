@@ -1,9 +1,9 @@
 import { InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../engine/templates/template-consumer";
-import { GeneratedFilePathCalculator } from "../../../utils/artifact-saver";
+import { TemplateConsumer } from "../../../engine/templates/template-consumer";
 import { InstanceCreatorInterfaceGenerator } from "../reader-interface-generator";
 import { ImportRelativePath, DataLayerTemplateDescription } from "../../../engine/templates/template-interfaces";
+import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy";
 
 export interface EditLdkitInstanceTemplate extends DataLayerTemplateDescription {
     placeholders: {
@@ -19,12 +19,6 @@ export interface EditLdkitInstanceTemplate extends DataLayerTemplateDescription 
     }
 }
 
-interface EditLdkitInstanceDependencyMap extends TemplateDependencyMap {
-    pathResolver: GeneratedFilePathCalculator,
-    ldkitSchemaArtifact: LayerArtifact,
-    sparqlEndpointUri: string
-}
-
 export class EditLdkitInstanceGenerator extends TemplateConsumer<EditLdkitInstanceTemplate> {
 
     private static readonly _editInstanceLdkitDataLayerTemplatePath = "./edit/data-layer/ldkit/instance-editor";
@@ -36,7 +30,7 @@ export class EditLdkitInstanceGenerator extends TemplateConsumer<EditLdkitInstan
         });
     }
 
-    async processTemplate(dependencies: EditLdkitInstanceDependencyMap): Promise<LayerArtifact> {
+    async processTemplate(dependencies: LdkitDalDependencyMap): Promise<LayerArtifact> {
 
         // TODO: change to update
         const editInterfaceArtifact = await InstanceCreatorInterfaceGenerator.processTemplate();
@@ -87,9 +81,9 @@ export class EditLdkitInstanceGenerator extends TemplateConsumer<EditLdkitInstan
             exportedObjectName: editExportedObject,
             filePath: this._filePath,
             sourceText: createInstanceRender,
-            dependencies: [editInterfaceArtifact]
+            dependencies: [editInterfaceArtifact, dependencies.ldkitSchemaInterfaceArtifact]
         }
 
         return createDalLayerArtifact;
     }
-}``
+}

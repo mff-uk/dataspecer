@@ -1,10 +1,12 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
 import { ImportRelativePath, TemplateDescription } from "../../../engine/templates/template-interfaces";
-import { JsonSchemaProvider } from "../../../data-layer/schema-providers/json-schema-provider";
 import { ApplicationGraphEdgeType } from "../../../engine/graph";
 import { AllowedTransition } from "../../../engine/transitions/transitions-generator";
 import { UseNavigationHookGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
+import { ArtifactCache } from "../../../utils/artifact-saver";
+import { AggregateMetadata } from "../../../application-config";
+import { Config, createGenerator } from "ts-json-schema-generator";
 
 interface CreateInstanceReactComponentTemplate extends TemplateDescription {
     placeholders: {
@@ -12,7 +14,6 @@ interface CreateInstanceReactComponentTemplate extends TemplateDescription {
         create_capability_app_layer: string,
         create_capability_app_layer_path: ImportRelativePath,
         json_schema: string,
-        json_schema_path: ImportRelativePath,
         navigation_hook: string,
         navigation_hook_path: ImportRelativePath,
         redirects: AllowedTransition[];
@@ -22,6 +23,48 @@ interface CreateInstanceReactComponentTemplate extends TemplateDescription {
 export class CreateInstanceComponentTemplateProcessor extends PresentationLayerTemplateGenerator<CreateInstanceReactComponentTemplate> {
     strategyIdentifier: string = "create-react-component-generator";
 
+    private tryRestoreAggregateDataModelInterface(aggregate: AggregateMetadata): object {
+
+        // const aggregateSchemaInterface = ArtifactCache.savedArtifactsMap[`__${aggregate.technicalLabel}DataModelInterface`];
+
+        // if (!aggregateSchemaInterface) {
+        //     return { id: "string" };
+        // }
+
+        // const schemaInterface = JSON.parse(aggregateSchemaInterface);
+        // console.log(schemaInterface);
+
+        ///////////////////////////////////////////////////////////
+
+        const typeModelName = aggregate.getAggregateNamePascalCase({ suffix: "ModelType" });
+
+        const typeModelPath = ArtifactCache.savedArtifactsMap[typeModelName]!;
+
+        const convertedSchema = this.convertLdkitSchemaTypeToJsonSchema(typeModelName, typeModelPath);
+
+        console.log(convertedSchema);
+
+        return convertedSchema;
+    }
+
+    private convertLdkitSchemaTypeToJsonSchema(ldkitSchemaTypeName: string, ldkitSchemaTypeFilePath: string) {
+        const config: Config = {
+            path: ldkitSchemaTypeFilePath,
+            type: ldkitSchemaTypeName,
+            tsconfig: "./tsconfig.json",
+            skipTypeCheck: true
+        };
+
+        try {
+            const tsJsonConverter = createGenerator(config);
+            const convertedJsonSchema = tsJsonConverter.createSchema(config.type);
+            return convertedJsonSchema;
+        } catch (error) {
+            console.log(error);
+            return null!;
+        }
+    }
+
     async processTemplate(dependencies: PresentationLayerDependencyMap): Promise<LayerArtifact> {
 
         const createExportedName = dependencies.aggregate.getAggregateNamePascalCase({
@@ -29,8 +72,7 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
             suffix: "Instance"
         });
 
-        const jsonSchemaArtifact = await new JsonSchemaProvider(dependencies.aggregate.specificationIri)
-            .getSchemaArtifact(dependencies.aggregate);
+        const dataSchemaInterface = this.tryRestoreAggregateDataModelInterface(dependencies.aggregate);
 
         const redirectTransitions = dependencies.transitions.groupByTransitionType()[ApplicationGraphEdgeType.Redirection.toString()]!;
 
@@ -51,11 +93,7 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
                     to: useNavigationHook.filePath
                 },
                 redirects: redirectTransitions,
-                json_schema: jsonSchemaArtifact.exportedObjectName,
-                json_schema_path: {
-                    from: this._filePath,
-                    to: jsonSchemaArtifact.filePath
-                }
+                json_schema: JSON.stringify(dataSchemaInterface, null, 2),
             }
         }
 
@@ -65,7 +103,7 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
             filePath: this._filePath,
             exportedObjectName: createExportedName,
             sourceText: instanceDetailComponentRender,
-            dependencies: [dependencies.appLogicArtifact, jsonSchemaArtifact]
+            dependencies: [dependencies.appLogicArtifact]
         }
 
         return presentationLayerArtifact;

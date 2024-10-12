@@ -1,9 +1,9 @@
 import { InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/templates/template-consumer";
-import { GeneratedFilePathCalculator } from "../../../utils/artifact-saver";
+import { TemplateConsumer } from "../../../engine/templates/template-consumer";
 import { InstanceCreatorInterfaceGenerator } from "../reader-interface-generator";
 import { DataLayerTemplateDescription, ImportRelativePath } from "../../../engine/templates/template-interfaces";
+import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy";
 
 export interface CreateLdkitInstanceTemplate extends DataLayerTemplateDescription {
     placeholders: {
@@ -19,12 +19,6 @@ export interface CreateLdkitInstanceTemplate extends DataLayerTemplateDescriptio
     }
 }
 
-interface CreateLdkitInstanceDependencyMap extends TemplateDependencyMap {
-    pathResolver: GeneratedFilePathCalculator,
-    ldkitSchemaArtifact: LayerArtifact,
-    sparqlEndpointUri: string
-}
-
 export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitInstanceTemplate> {
 
     private static readonly _createLdkitInstanceDataLayerTemplatePath: string = "./create/data-layer/ldkit/instance-creator";
@@ -36,7 +30,7 @@ export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitIn
         });
     }
 
-    async processTemplate(dependencies: CreateLdkitInstanceDependencyMap): Promise<LayerArtifact> {
+    async processTemplate(dependencies: LdkitDalDependencyMap): Promise<LayerArtifact> {
 
         const creatorInterfaceArtifact = await InstanceCreatorInterfaceGenerator.processTemplate();
 
@@ -86,7 +80,7 @@ export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitIn
             exportedObjectName: createExportedObject,
             filePath: this._filePath,
             sourceText: createInstanceRender,
-            dependencies: [creatorInterfaceArtifact]
+            dependencies: [creatorInterfaceArtifact, dependencies.ldkitSchemaInterfaceArtifact]
         }
 
         return createDalLayerArtifact;

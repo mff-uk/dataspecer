@@ -1,12 +1,8 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../engine/templates/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/templates/template-consumer";
 import { BaseListLdkitReaderGenerator } from "./base-list-reader-generator";
 import { DataLayerTemplateDescription, ImportRelativePath } from "../../../engine/templates/template-interfaces";
-
-interface InstanceListLdkitReaderDependencyMap extends TemplateDependencyMap {
-    ldkitSchemaArtifact: LayerArtifact,
-    sparqlEndpointUri: string
-}
+import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy";
 
 export interface InstanceListLdkitReaderTemplate extends DataLayerTemplateDescription {
     placeholders: {
@@ -19,8 +15,8 @@ export interface InstanceListLdkitReaderTemplate extends DataLayerTemplateDescri
     };
 }
 
-function isInstanceListLdkitReaderDependencyList(obj: TemplateDependencyMap): obj is InstanceListLdkitReaderDependencyMap {
-    return (obj as InstanceListLdkitReaderDependencyMap) !== undefined;
+function isInstanceListLdkitReaderDependencyList(obj: TemplateDependencyMap): obj is LdkitDalDependencyMap {
+    return (obj as LdkitDalDependencyMap) !== undefined;
 }
 
 export class InstanceListLdkitReaderGenerator extends TemplateConsumer<InstanceListLdkitReaderTemplate> {
@@ -34,7 +30,7 @@ export class InstanceListLdkitReaderGenerator extends TemplateConsumer<InstanceL
         });
     }
 
-    async processTemplate(dependencies: InstanceListLdkitReaderDependencyMap): Promise<LayerArtifact> {
+    async processTemplate(dependencies: LdkitDalDependencyMap): Promise<LayerArtifact> {
 
         if (!dependencies || !isInstanceListLdkitReaderDependencyList(dependencies)) {
             throw new Error("Invalid dependencies list parameter.");
@@ -69,7 +65,7 @@ export class InstanceListLdkitReaderGenerator extends TemplateConsumer<InstanceL
             sourceText: ldkitInstanceListReader,
             exportedObjectName: listExportedObject,
             filePath: this._filePath,
-            dependencies: [baseLdkitListReaderArtifact, dependencies.ldkitSchemaArtifact]
+            dependencies: [baseLdkitListReaderArtifact, dependencies.ldkitSchemaArtifact, dependencies.ldkitSchemaInterfaceArtifact]
         }
 
         return readerInterfaceArtifact;

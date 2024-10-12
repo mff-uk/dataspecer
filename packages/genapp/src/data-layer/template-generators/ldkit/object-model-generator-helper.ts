@@ -73,11 +73,17 @@ export class ObjectModelTypeGeneratorHelper {
         const transformed = Object.entries(modelInstance)
             .map(([key, value]) => {
                 if (typeof value !== "string" && !isValidPropertyValue(value)) {
-                    return [key, "never"];
+                    return [key, "never"] as [string, any];
                 }
 
-                return [key, this.inferPropertyValueType(value)];
+                return [key, this.inferPropertyValueType(value)] as [string, any];
             });
+
+        const identifierTypeProperty = transformed.find(([key, _]) => key !== null && key !== undefined && key.toLowerCase() === "id");
+
+        if (!identifierTypeProperty) {
+            transformed.push(["id", "string"]);
+        }
 
         const schemaInterfaceResult = Object.fromEntries(transformed);
 

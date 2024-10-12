@@ -365,7 +365,7 @@ export default function <%= it.export_name %>() {
             { instance &&
                 <Box id="<%= it.aggregate_name %>-detail" component="section">
                 <% const dataSchemaInterfaceEntries = Object.entries(it.schema); %>
-                <% for (let index = 0; index < dataSchemaInterfaceEntries.length; index++) { %><% const [propName, propTypeName] = dataSchemaInterfaceEntries[index]; %>
+                <% for (let index = 0; index < dataSchemaInterfaceEntries.length; index++) { %><% const [propName, propTypeName] = dataSchemaInterfaceEntries[index]; if (propName.startsWith("@") || propName.startsWith("$")) { continue; } %>
                     <Box id="<%~ propName %>-property-key" component="section" sx={{ p: 2, paddingBottom: 1 }}>
                         <Typography variant="h5" id="<%~ propName %>-property-key"><% const displayName = `${propName.charAt(0).toUpperCase()}${propName.slice(1).replace(/[_-]/g, " ")}` %>
                             <%~ displayName %>:

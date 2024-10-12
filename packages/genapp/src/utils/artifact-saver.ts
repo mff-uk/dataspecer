@@ -77,9 +77,8 @@ export class ArtifactSaver implements GeneratedFilePathCalculator {
 
         const fullFilepath = this.getFullSavePath(artifact.filePath, artifact.exportedObjectName);
         console.log(`   ${artifact.exportedObjectName} fullpath: `, fullFilepath);
-        fs.mkdir(path.dirname(fullFilepath), { recursive: true }, () => {
-            fs.writeFileSync(fullFilepath, artifact.sourceText);
-        });
+        fs.mkdirSync(path.dirname(fullFilepath), { recursive: true });
+        fs.writeFileSync(fullFilepath, artifact.sourceText);
 
         ArtifactCache.savedArtifactsMap[artifact.exportedObjectName] = fullFilepath;
 

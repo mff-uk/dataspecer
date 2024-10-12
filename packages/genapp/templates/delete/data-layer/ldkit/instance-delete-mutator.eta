@@ -25,7 +25,7 @@ export class <%= it.exported_object_name %> implements <%= it.delete_mutator_int
         }
 
         try {
-            await lens.delete(instanceIri);
+            await lens.delete(toDelete);
         } catch {
             return {
                 instance: null,

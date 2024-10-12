@@ -1,16 +1,9 @@
 import { InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/templates/template-consumer";
-import { GeneratedFilePathCalculator } from "../../../utils/artifact-saver";
+import { TemplateConsumer } from "../../../engine/templates/template-consumer";
 import { DetailReaderInterfaceGenerator } from "../reader-interface-generator";
 import { ImportRelativePath, DataLayerTemplateDescription } from "../../../engine/templates/template-interfaces";
-
-interface InstanceDetailLdkitReaderDependencyMap extends TemplateDependencyMap {
-    pathResolver: GeneratedFilePathCalculator,
-    ldkitSchemaArtifact: LayerArtifact,
-    sparqlEndpointUri: string,
-    ldkitSchemaInterfaceArtifact: LayerArtifact
-}
+import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy";
 
 export interface InstanceDetailLdkitReaderTemplate extends DataLayerTemplateDescription {
     placeholders: {
@@ -51,7 +44,7 @@ export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<Instanc
         return instanceReturnTypeArtifact;
     }
 
-    async processTemplate(dependencies: InstanceDetailLdkitReaderDependencyMap): Promise<LayerArtifact> {
+    async processTemplate(dependencies: LdkitDalDependencyMap): Promise<LayerArtifact> {
 
         const instanceReaderInterfaceArtifact = await DetailReaderInterfaceGenerator.processTemplate();
         const instanceReturnTypeArtifact = await this.getReaderInterfaceReturnTypeName(instanceReaderInterfaceArtifact);

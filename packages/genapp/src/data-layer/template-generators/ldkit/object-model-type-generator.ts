@@ -6,6 +6,7 @@ import { ObjectModelTypeGeneratorHelper } from "./object-model-generator-helper"
 
 interface LdkitObjectModelTypeTemplate extends DataLayerTemplateDescription {
     placeholders: {
+        object_model_type: object;
         object_model_type_name: string;
         ldkit_schema_name: string;
         ldkit_schema_path: ImportRelativePath;
@@ -20,8 +21,11 @@ export class LdkitObjectModelTypeGenerator extends TemplateConsumer<LdkitObjectM
 
     private readonly _generatorHelper: ObjectModelTypeGeneratorHelper;
 
-    constructor(templateMetadata: TemplateMetadata) {
-        super(templateMetadata);
+    constructor(outputFilePath: string) {
+        super({
+            filePath: outputFilePath,
+            templatePath: `./list/data-layer/ldkit/object-model-type`
+        });
 
         this._generatorHelper = new ObjectModelTypeGeneratorHelper();
     }
@@ -39,6 +43,8 @@ export class LdkitObjectModelTypeGenerator extends TemplateConsumer<LdkitObjectM
         const ldkitSchemaInterface = this._generatorHelper.getInterfaceFromLdkitSchemaInstance(ldkitSchemaInstance);
 
         ArtifactCache.savedArtifactsMap[`__${aggregateTechnicalLabel}DataModelInterface`] = JSON.stringify(ldkitSchemaInterface);
+
+        return ldkitSchemaInterface;
     }
 
     processTemplate(dependencies: LdkitObjectModelDependencyMap): Promise<LayerArtifact> {
@@ -49,11 +55,12 @@ export class LdkitObjectModelTypeGenerator extends TemplateConsumer<LdkitObjectM
             suffix: "ModelType"
         });
 
-        this.generateAndSaveLdkitSchemaInterface(ldkitArtifact, dependencies.aggregate.technicalLabel);
+        const ldkitSchemaInterface = this.generateAndSaveLdkitSchemaInterface(ldkitArtifact, dependencies.aggregate.technicalLabel);
 
         const modelTypeTemplate: LdkitObjectModelTypeTemplate = {
             templatePath: this._templatePath,
             placeholders: {
+                object_model_type: ldkitSchemaInterface,
                 object_model_type_name: objectModelTypeName,
                 ldkit_schema_name: ldkitArtifact.exportedObjectName,
                 ldkit_schema_path: {

@@ -4,9 +4,17 @@ import { GenerationContext } from "../../engine/generator-stage-interface";
 import { DataSourceType, DatasourceConfig } from "../../engine/graph/datasource";
 import { LdkitSchemaProvider } from "../schema-providers/ldkit-schema-provider";
 import { SchemaProvider } from "../schema-providers/base-schema-provider";
-import { TemplateConsumer } from "../../engine/templates/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap } from "../../engine/templates/template-consumer";
 import { DataLayerTemplateDescription } from "../../engine/templates/template-interfaces";
 import { LdkitObjectModelTypeGenerator } from "../template-generators/ldkit/object-model-type-generator";
+import { GeneratedFilePathCalculator } from "../../utils/artifact-saver";
+
+export interface LdkitDalDependencyMap extends TemplateDependencyMap {
+    pathResolver: GeneratedFilePathCalculator,
+    ldkitSchemaArtifact: LayerArtifact,
+    sparqlEndpointUri: string,
+    ldkitSchemaInterfaceArtifact: LayerArtifact
+}
 
 export class TemplateDataLayerGeneratorStrategy<TDalTemplate extends DataLayerTemplateDescription> implements DalGeneratorStrategy {
 
@@ -29,11 +37,8 @@ export class TemplateDataLayerGeneratorStrategy<TDalTemplate extends DataLayerTe
 
         const dataLayerSchemaArtifact = await this._schemaProvider.getSchemaArtifact(context.aggregate);
 
-        const schemaInterfaceArtifact = await new LdkitObjectModelTypeGenerator({
-            filePath: `./types/${context.aggregate.technicalLabel}-object-model.ts`,
-            // TODO: move template file to more general ldkit path
-            templatePath: `./list/data-layer/ldkit/object-model-type`
-        }).processTemplate({
+        const schemaInterfaceArtifact = await new LdkitObjectModelTypeGenerator(`./types/${context.aggregate.technicalLabel}-object-model.ts`)
+        .processTemplate({
             aggregate: context.aggregate,
             ldkitSchemaArtifact: dataLayerSchemaArtifact
         });
@@ -45,7 +50,7 @@ export class TemplateDataLayerGeneratorStrategy<TDalTemplate extends DataLayerTe
                 ldkitSchemaArtifact: dataLayerSchemaArtifact,
                 sparqlEndpointUri: this._sparqlEndpointUri,
                 ldkitSchemaInterfaceArtifact: schemaInterfaceArtifact
-            }
+            } as LdkitDalDependencyMap
         );
 
         return dataLayerTemplateArtifact;
