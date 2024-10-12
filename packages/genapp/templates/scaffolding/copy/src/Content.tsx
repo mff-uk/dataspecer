@@ -8,8 +8,9 @@ export const Content = ({ children }) => {
             <Box component="section" sx={{
                 p: 1,
                 color: "transparent",
-                width: window.innerWidth,
-                height: "10%"
+                width: "90%",
+                height: "10%",
+                maxHeight: "200px"
             }} />
         </Box>
     )

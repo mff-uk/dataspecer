@@ -53,7 +53,7 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
             path: ldkitSchemaTypeFilePath,
             type: ldkitSchemaTypeName,
             // mocks tsconfig for generated model type
-            tsconfig: "./tsconfig.json.txt",
+            tsconfig: "./tsconfig.json",
             skipTypeCheck: true
         };
 

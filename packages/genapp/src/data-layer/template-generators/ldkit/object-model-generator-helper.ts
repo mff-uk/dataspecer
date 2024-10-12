@@ -82,7 +82,7 @@ export class ObjectModelTypeGeneratorHelper {
         const identifierTypeProperty = transformed.find(([key, _]) => key !== null && key !== undefined && key.toLowerCase() === "id");
 
         if (!identifierTypeProperty) {
-            transformed.push(["id", "string"]);
+            transformed.unshift(["id", "string"]);
         }
 
         const schemaInterfaceResult = Object.fromEntries(transformed);
