@@ -8,7 +8,8 @@ import {
     LIST_CAPABILITY_ID,
     DETAIL_CAPABILITY_ID,
     CREATE_CAPABILITY_ID,
-    DELETE_CAPABILITY_ID
+    DELETE_CAPABILITY_ID,
+    EDIT_CAPABILITY_ID
 } from "../capabilities";
 import archiver from "archiver";
 import { once } from "events";
@@ -19,6 +20,7 @@ import { CapabilityConstructorInput } from "../capabilities/constructor-input";
 import { ApplicationGraph, ApplicationGraphNode } from "./graph";
 import { AggregateMetadata } from "../application-config";
 import { ArtifactCache } from "../utils/artifact-saver";
+import { EditInstanceCapability } from "../capabilities/edit-instance";
 
 export type NodeResult = {
     structure: AggregateMetadata;
@@ -97,6 +99,8 @@ export class ApplicationGenerator {
                 return new CreateInstanceCapability(constructorInput);
             case DELETE_CAPABILITY_ID:
                 return new DeleteInstanceCapability(constructorInput);
+            case EDIT_CAPABILITY_ID:
+                return new EditInstanceCapability(constructorInput);
             default:
                 throw new Error(`"${capabilityIri}" does not correspond to a valid capability identifier.`);
         }
@@ -145,6 +149,12 @@ export class ApplicationGenerator {
 
         const appGraph: ApplicationGraph = configReader.getAppConfiguration();
 
+        if (!appGraph.nodes || appGraph.nodes.length === 0) {
+            console.error("Provided application graph does not contain any nodes to be generated.");
+
+            const emptyBuffer = Buffer.alloc(0);
+            return emptyBuffer;
+        }
 
         await this.generateAppFromConfig(appGraph);
 
@@ -168,6 +178,12 @@ export class ApplicationGenerator {
     }
 
     private async generateAppFromConfig(appGraph: ApplicationGraph) {
+
+        if (!appGraph.nodes || appGraph.nodes.length === 0) {
+            console.error("Provided application graph does not contain any nodes to be generated.");
+            return;
+        }
+
         const generationPromises = appGraph.nodes.map(
             async applicationNode => {
 

@@ -1,8 +1,8 @@
-import { UseNavigationHookGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
-import { ImportRelativePath, TemplateDescription } from "../../../engine/templates/template-interfaces";
-import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/templates/template-consumer";
-import { AllowedTransition } from "../../../engine/transitions/transitions-generator";
+import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
+import { ImportRelativePath, TemplateDescription } from "../../engine/templates/template-interfaces";
+import { LayerArtifact } from "../../engine/layer-artifact";
+import { TemplateConsumer, TemplateDependencyMap } from "../../engine/templates/template-consumer";
+import { AllowedTransition } from "../../engine/transitions/transitions-generator";
 
 interface ListItemCapabilityOptionsTemplate extends TemplateDescription {
     placeholders: {

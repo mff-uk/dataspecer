@@ -3,6 +3,7 @@ import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/templat
 import { BaseListLdkitReaderGenerator } from "./base-list-reader-generator";
 import { DataLayerTemplateDescription, ImportRelativePath } from "../../../engine/templates/template-interfaces";
 import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy";
+import { ReadWriteEndpointUri } from "../../../engine/graph/datasource";
 
 export interface InstanceListLdkitReaderTemplate extends DataLayerTemplateDescription {
     placeholders: {
@@ -41,11 +42,15 @@ export class InstanceListLdkitReaderGenerator extends TemplateConsumer<InstanceL
             suffix: "LdkitListReader"
         });
 
+        const readSparqlEndpointUri = typeof dependencies.sparqlEndpointUri === "string"
+            ? dependencies.sparqlEndpointUri
+            : (dependencies.sparqlEndpointUri as ReadWriteEndpointUri).read;
+
         const instanceListLdkitReaderTemplate: InstanceListLdkitReaderTemplate = {
             templatePath: this._templatePath,
             placeholders: {
                 aggregate_name: listExportedObject,
-                ldkit_endpoint_uri: `"${dependencies.sparqlEndpointUri}"`,
+                ldkit_endpoint_uri: `"${readSparqlEndpointUri}"`,
                 ldkit_schema: dependencies.ldkitSchemaArtifact.exportedObjectName,
                 ldkit_list_reader_base_class: baseLdkitListReaderArtifact.exportedObjectName,
                 ldkit_list_reader_base_class_path: {

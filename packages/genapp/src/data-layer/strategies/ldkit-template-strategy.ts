@@ -1,7 +1,7 @@
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { DalGeneratorStrategy } from "../strategy-interface";
 import { GenerationContext } from "../../engine/generator-stage-interface";
-import { DataSourceType, DatasourceConfig } from "../../engine/graph/datasource";
+import { DataSourceType, DatasourceConfig, EndpointUri } from "../../engine/graph/datasource";
 import { LdkitSchemaProvider } from "../schema-providers/ldkit-schema-provider";
 import { SchemaProvider } from "../schema-providers/base-schema-provider";
 import { TemplateConsumer, TemplateDependencyMap } from "../../engine/templates/template-consumer";
@@ -12,7 +12,7 @@ import { GeneratedFilePathCalculator } from "../../utils/artifact-saver";
 export interface LdkitDalDependencyMap extends TemplateDependencyMap {
     pathResolver: GeneratedFilePathCalculator,
     ldkitSchemaArtifact: LayerArtifact,
-    sparqlEndpointUri: string,
+    sparqlEndpointUri: EndpointUri,
     ldkitSchemaInterfaceArtifact: LayerArtifact
 }
 
@@ -20,7 +20,7 @@ export class TemplateDataLayerGeneratorStrategy<TDalTemplate extends DataLayerTe
 
     strategyIdentifier: string = "ldkit-dal-strategy";
     private readonly _schemaProvider: SchemaProvider;
-    private readonly _sparqlEndpointUri: string;
+    private readonly _sparqlEndpointUri: EndpointUri;
     private readonly _templateDataLayerGenerator: TemplateConsumer<TDalTemplate>;
 
     constructor(templateGenerator: TemplateConsumer<TDalTemplate>, specificationIri: string, datasourceConfig: DatasourceConfig) {

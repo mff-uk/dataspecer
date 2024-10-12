@@ -21,7 +21,7 @@ export class <%= it.exported_object_name %> implements <%= it.creator_interface_
     async createInstance(formData: any): Promise<<%= it.instance_result_type %>> {
 
         const context: Context = {
-            sources: [<%~ it.ldkit_endpoint_uri %>]
+            sources: [<%~ it.sparql_endpoint_uri %>]
         }
 
         const lens = createLens(<%= it.ldkit_schema %>, context);

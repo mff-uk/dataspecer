@@ -1,8 +1,8 @@
-import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
-import { DeleteInstanceMutatorInterfaceGenerator } from "../../../data-layer/template-generators/reader-interface-generator";
-import { LayerArtifact } from "../../../engine/layer-artifact";
-import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "../template-app-layer-generator";
-import { ImportRelativePath, TemplateDescription } from "../../../engine/templates/template-interfaces";
+import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGenerator } from "../../capabilities/template-generators/capability-interface-generator";
+import { DeleteInstanceMutatorInterfaceGenerator } from "../../data-layer/template-generators/reader-interface-generator";
+import { LayerArtifact } from "../../engine/layer-artifact";
+import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "./template-app-layer-generator";
+import { ImportRelativePath, TemplateDescription } from "../../engine/templates/template-interfaces";
 
 interface DeleteCapabilityAppLayerTemplate extends TemplateDescription {
     placeholders: {
@@ -19,6 +19,15 @@ interface DeleteCapabilityAppLayerTemplate extends TemplateDescription {
 }
 
 export class DeleteAppLayerTemplateProcessor extends ApplicationLayerTemplateGenerator<DeleteCapabilityAppLayerTemplate> {
+
+    private static readonly _deleteAppLayerTemplatePath: string = "./delete/application-layer/delete-instance-app-logic";
+
+    constructor(outputFilePath: string) {
+        super({
+            filePath: outputFilePath,
+            templatePath: DeleteAppLayerTemplateProcessor._deleteAppLayerTemplatePath
+        })
+    }
 
     async processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): Promise<LayerArtifact> {
 

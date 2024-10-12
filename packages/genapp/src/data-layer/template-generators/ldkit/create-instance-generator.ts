@@ -4,6 +4,7 @@ import { TemplateConsumer } from "../../../engine/templates/template-consumer";
 import { InstanceCreatorInterfaceGenerator } from "../reader-interface-generator";
 import { DataLayerTemplateDescription, ImportRelativePath } from "../../../engine/templates/template-interfaces";
 import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy";
+import { ReadWriteEndpointUri } from "../../../engine/graph/datasource";
 
 export interface CreateLdkitInstanceTemplate extends DataLayerTemplateDescription {
     placeholders: {
@@ -11,7 +12,7 @@ export interface CreateLdkitInstanceTemplate extends DataLayerTemplateDescriptio
         exported_object_name: string,
         ldkit_schema: string,
         ldkit_schema_path: ImportRelativePath,
-        ldkit_endpoint_uri: string,
+        sparql_endpoint_uri: string,
         instance_result_type: string,
         instance_result_type_path: ImportRelativePath,
         creator_interface_type: string,
@@ -50,6 +51,10 @@ export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitIn
             suffix: "LdkitInstanceCreator"
         });
 
+        const updateSparqlEndpointUri: string = typeof dependencies.sparqlEndpointUri === "string"
+                ? dependencies.sparqlEndpointUri
+                : (dependencies.sparqlEndpointUri as ReadWriteEndpointUri).write;
+
         const createTemplate: CreateLdkitInstanceTemplate = {
             templatePath: this._templatePath,
             placeholders: {
@@ -65,7 +70,7 @@ export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitIn
                     from: this._filePath,
                     to: createReturnTypeArtifact.filePath
                 },
-                ldkit_endpoint_uri: `"${dependencies.sparqlEndpointUri}"`,
+                sparql_endpoint_uri: `"${updateSparqlEndpointUri}"`,
                 ldkit_schema: dependencies.ldkitSchemaArtifact.exportedObjectName,
                 ldkit_schema_path: {
                     from: this._filePath,

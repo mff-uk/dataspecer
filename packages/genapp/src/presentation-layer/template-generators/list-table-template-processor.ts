@@ -1,11 +1,11 @@
 // TODO: merge / reduce imports
-import { LayerArtifact } from "../../../engine/layer-artifact";
-import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
+import { LayerArtifact } from "../../engine/layer-artifact";
+import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "./presentation-layer-template-generator";
 import { ListItemCapabilityOptionsDependencyMap, ListItemCapabilityOptionsGenerator as ListItemOptionsGenerator } from "./list-item-options-processor";
-import { ImportRelativePath, TemplateDescription } from "../../../engine/templates/template-interfaces";
-import { JsonSchemaProvider } from "../../../data-layer/schema-providers/json-schema-provider";
-import { CapabilityType } from "../../../capabilities";
-import { UseNavigationHookGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
+import { ImportRelativePath, TemplateDescription } from "../../engine/templates/template-interfaces";
+import { JsonSchemaProvider } from "../../data-layer/schema-providers/json-schema-provider";
+import { CapabilityType } from "../../capabilities";
+import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
 
 interface ListTableTemplate extends TemplateDescription {
     placeholders: {
@@ -26,6 +26,15 @@ interface ListTableTemplate extends TemplateDescription {
 export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerator<ListTableTemplate> {
 
     strategyIdentifier: string = "list-table-react-generator";
+
+    private static readonly _listComponentTemplatePath: string = "./list/presentation-layer/table-component";
+
+    constructor(outputFilePath: string) {
+        super({
+            filePath: outputFilePath,
+            templatePath: ListTableTemplateProcessor._listComponentTemplatePath
+        })
+    }
 
     async processTemplate(dependencies: PresentationLayerDependencyMap): Promise<LayerArtifact> {
 

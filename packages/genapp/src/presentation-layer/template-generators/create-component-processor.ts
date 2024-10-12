@@ -1,11 +1,11 @@
-import { LayerArtifact } from "../../../engine/layer-artifact";
-import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
-import { ImportRelativePath, TemplateDescription } from "../../../engine/templates/template-interfaces";
-import { ApplicationGraphEdgeType } from "../../../engine/graph";
-import { AllowedTransition } from "../../../engine/transitions/transitions-generator";
-import { UseNavigationHookGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
-import { ArtifactCache } from "../../../utils/artifact-saver";
-import { AggregateMetadata } from "../../../application-config";
+import { LayerArtifact } from "../../engine/layer-artifact";
+import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "./presentation-layer-template-generator";
+import { ImportRelativePath, TemplateDescription } from "../../engine/templates/template-interfaces";
+import { ApplicationGraphEdgeType } from "../../engine/graph";
+import { AllowedTransition } from "../../engine/transitions/transitions-generator";
+import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
+import { ArtifactCache } from "../../utils/artifact-saver";
+import { AggregateMetadata } from "../../application-config";
 import { Config, createGenerator, Schema } from "ts-json-schema-generator";
 
 interface CreateInstanceReactComponentTemplate extends TemplateDescription {
@@ -23,14 +23,26 @@ interface CreateInstanceReactComponentTemplate extends TemplateDescription {
 export class CreateInstanceComponentTemplateProcessor extends PresentationLayerTemplateGenerator<CreateInstanceReactComponentTemplate> {
     strategyIdentifier: string = "create-react-component-generator";
 
-    private restoreAggregateDataModelInterface(aggregate: AggregateMetadata): object {
+    private static readonly _createComponentTemplatePath: string = "./create/presentation-layer/create-instance-component";
+
+    constructor(outputFilePath: string) {
+        super({
+            filePath: outputFilePath,
+            templatePath: CreateInstanceComponentTemplateProcessor._createComponentTemplatePath
+        })
+    }
+
+    private restoreAggregateDataModelInterface(aggregate: AggregateMetadata): Schema {
 
         const typeModelName = aggregate.getAggregateNamePascalCase({ suffix: "ModelType" });
 
-        const typeModelPath = ArtifactCache.savedArtifactsMap[typeModelName]!;
+        const typeModelPath = ArtifactCache.savedArtifactsMap[typeModelName];
+
+        if (!typeModelPath) {
+            return {} as Schema;
+        }
 
         const convertedSchema = this.convertLdkitSchemaTypeToJsonSchema(typeModelName, typeModelPath);
-
         console.log(convertedSchema);
 
         return convertedSchema;
@@ -40,7 +52,8 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
         const config: Config = {
             path: ldkitSchemaTypeFilePath,
             type: ldkitSchemaTypeName,
-            tsconfig: "./tsconfig.json",
+            // mocks tsconfig for generated model type
+            tsconfig: "./tsconfig.json.txt",
             skipTypeCheck: true
         };
 

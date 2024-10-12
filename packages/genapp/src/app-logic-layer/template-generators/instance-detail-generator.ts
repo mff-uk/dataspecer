@@ -1,9 +1,9 @@
-import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateMetadata } from "../../../engine/templates/template-consumer";
-import { DetailReaderInterfaceGenerator } from "../../../data-layer/template-generators/reader-interface-generator";
-import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "../template-app-layer-generator";
-import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
-import { ImportRelativePath, TemplateDescription } from "../../../engine/templates/template-interfaces";
+import { LayerArtifact } from "../../engine/layer-artifact";
+import { TemplateMetadata } from "../../engine/templates/template-consumer";
+import { DetailReaderInterfaceGenerator } from "../../data-layer/template-generators/reader-interface-generator";
+import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "./template-app-layer-generator";
+import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGenerator } from "../../capabilities/template-generators/capability-interface-generator";
+import { ImportRelativePath, TemplateDescription } from "../../engine/templates/template-interfaces";
 
 interface DetailCapabilityAppLayerTemplate extends TemplateDescription {
     placeholders: {
@@ -21,8 +21,13 @@ export class DetailAppLayerTemplateProcessor extends ApplicationLayerTemplateGen
 
     strategyIdentifier: string = "detail-app-template-generator";
 
-    constructor(templateMetadata: TemplateMetadata) {
-        super(templateMetadata);
+    private static readonly _detailAppLayerTemplatePath: string = "./detail/application-layer/detail-app-logic";
+
+    constructor(outputFilePath: string) {
+        super({
+            filePath: outputFilePath,
+            templatePath: DetailAppLayerTemplateProcessor._detailAppLayerTemplatePath
+        });
     }
 
     async processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): Promise<LayerArtifact> {

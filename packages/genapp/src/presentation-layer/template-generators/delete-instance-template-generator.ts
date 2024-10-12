@@ -1,9 +1,9 @@
-import { LayerArtifact } from "../../../engine/layer-artifact";
-import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
-import { ImportRelativePath, TemplateDescription } from "../../../engine/templates/template-interfaces";
-import { AllowedTransition } from "../../../engine/transitions/transitions-generator";
-import { UseNavigationHookGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
-import { ApplicationGraphEdgeType } from "../../../engine/graph";
+import { LayerArtifact } from "../../engine/layer-artifact";
+import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "./presentation-layer-template-generator";
+import { ImportRelativePath, TemplateDescription } from "../../engine/templates/template-interfaces";
+import { AllowedTransition } from "../../engine/transitions/transitions-generator";
+import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
+import { ApplicationGraphEdgeType } from "../../engine/graph";
 
 interface DeleteInstanceReactComponentTemplate extends TemplateDescription {
     placeholders: {
@@ -19,6 +19,16 @@ interface DeleteInstanceReactComponentTemplate extends TemplateDescription {
 }
 
 export class DeleteInstanceComponentTemplateProcessor extends PresentationLayerTemplateGenerator<DeleteInstanceReactComponentTemplate> {
+
+    private static readonly  _detailComponentTemplatePath: string = "./delete/presentation-layer/delete-instance-confirmation-modal";
+
+    constructor(outputFilePath: string) {
+        super({
+            filePath: outputFilePath,
+            templatePath: DeleteInstanceComponentTemplateProcessor._detailComponentTemplatePath
+        })
+    }
+
     async processTemplate(dependencies: PresentationLayerDependencyMap): Promise<LayerArtifact> {
 
         const exportName = dependencies.aggregate.getAggregateNamePascalCase({

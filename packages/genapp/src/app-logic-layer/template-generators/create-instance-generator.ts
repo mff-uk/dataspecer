@@ -1,8 +1,8 @@
-import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
-import { InstanceCreatorInterfaceGenerator } from "../../../data-layer/template-generators/reader-interface-generator";
-import { LayerArtifact } from "../../../engine/layer-artifact";
-import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "../template-app-layer-generator";
-import { ImportRelativePath, TemplateDescription } from "../../../engine/templates/template-interfaces";
+import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGenerator } from "../../capabilities/template-generators/capability-interface-generator";
+import { InstanceCreatorInterfaceGenerator } from "../../data-layer/template-generators/reader-interface-generator";
+import { LayerArtifact } from "../../engine/layer-artifact";
+import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "./template-app-layer-generator";
+import { ImportRelativePath, TemplateDescription } from "../../engine/templates/template-interfaces";
 
 interface CreateInstanceCapabilityAppLayerTemplate extends TemplateDescription {
     placeholders: {
@@ -18,6 +18,14 @@ interface CreateInstanceCapabilityAppLayerTemplate extends TemplateDescription {
 }
 
 export class CreateInstanceAppLayerTemplateProcessor extends ApplicationLayerTemplateGenerator<CreateInstanceCapabilityAppLayerTemplate> {
+
+    private static readonly _createAppLayerTemplatePath: string = "./create/application-layer/create-instance-app-logic";
+    constructor(outputFilePath: string) {
+        super({
+            filePath: outputFilePath,
+            templatePath: CreateInstanceAppLayerTemplateProcessor._createAppLayerTemplatePath
+        })
+    }
 
     async processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): Promise<LayerArtifact> {
 

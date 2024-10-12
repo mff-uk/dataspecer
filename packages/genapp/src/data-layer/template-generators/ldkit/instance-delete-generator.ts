@@ -4,6 +4,7 @@ import { ImportRelativePath, DataLayerTemplateDescription } from "../../../engin
 import { DeleteInstanceMutatorInterfaceGenerator } from "../reader-interface-generator";
 import { TemplateConsumer } from "../../../engine/templates/template-consumer";
 import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy";
+import { ReadWriteEndpointUri } from "../../../engine/graph/datasource";
 
 export interface InstanceDeleteLdkitTemplate extends DataLayerTemplateDescription {
     placeholders: {
@@ -11,7 +12,7 @@ export interface InstanceDeleteLdkitTemplate extends DataLayerTemplateDescriptio
         exported_object_name: string;
         ldkit_schema: string,
         ldkit_schema_path: ImportRelativePath,
-        ldkit_endpoint_uri: string,
+        sparql_endpoint_uri: ReadWriteEndpointUri,
         instance_result_type: string,
         instance_result_type_path: ImportRelativePath,
         delete_mutator_interface_type: string,
@@ -50,6 +51,13 @@ export class InstanceDeleteLdkitGenerator extends TemplateConsumer<InstanceDelet
             suffix: "LdkitInstanceDeleteMutator"
         });
 
+        const sparqlEndpointUri: ReadWriteEndpointUri = typeof dependencies.sparqlEndpointUri === "string"
+            ? {
+                read: dependencies.sparqlEndpointUri,
+                write: dependencies.sparqlEndpointUri
+            } as ReadWriteEndpointUri
+            : dependencies.sparqlEndpointUri;
+
         const deleteTemplate: InstanceDeleteLdkitTemplate = {
             templatePath: this._templatePath,
             placeholders: {
@@ -65,7 +73,7 @@ export class InstanceDeleteLdkitGenerator extends TemplateConsumer<InstanceDelet
                     from: this._filePath,
                     to: deleteReturnTypeArtifact.filePath
                 },
-                ldkit_endpoint_uri: `"${dependencies.sparqlEndpointUri}"`,
+                sparql_endpoint_uri: sparqlEndpointUri,
                 ldkit_schema: dependencies.ldkitSchemaArtifact.exportedObjectName,
                 ldkit_schema_path: {
                     from: this._filePath,

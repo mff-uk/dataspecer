@@ -5,12 +5,13 @@ import { DalGeneratorStrategy } from "../strategy-interface";
 import { DatasourceConfig, DataSourceType } from "../../engine/graph";
 import { SchemaProvider } from "../schema-providers/base-schema-provider";
 import { JsonSchemaProvider } from "../schema-providers/json-schema-provider";
+import { EndpointUri } from "../../engine/graph/datasource";
 
 class JsonDalStrategy implements DalGeneratorStrategy {
 
     strategyIdentifier: string = "json";
     private readonly _schemaProvider: SchemaProvider;
-    private readonly _jsonUri: string;
+    private readonly _jsonUri: EndpointUri;
 
     constructor(specificationIri: string, datasourceConfig: DatasourceConfig) {
         if (datasourceConfig.format !== DataSourceType.JSON) {

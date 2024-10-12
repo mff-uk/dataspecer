@@ -1,10 +1,10 @@
-import { LayerArtifact } from "../../../engine/layer-artifact";
-import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
-import { ImportRelativePath, TemplateDescription } from "../../../engine/templates/template-interfaces";
-import { JsonSchemaProvider } from "../../../data-layer/schema-providers/json-schema-provider";
-import { ApplicationGraphEdgeType } from "../../../engine/graph";
-import { AllowedTransition } from "../../../engine/transitions/transitions-generator";
-import { UseNavigationHookGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
+import { LayerArtifact } from "../../engine/layer-artifact";
+import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "./presentation-layer-template-generator";
+import { ImportRelativePath, TemplateDescription } from "../../engine/templates/template-interfaces";
+import { JsonSchemaProvider } from "../../data-layer/schema-providers/json-schema-provider";
+import { ApplicationGraphEdgeType } from "../../engine/graph";
+import { AllowedTransition } from "../../engine/transitions/transitions-generator";
+import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
 
 interface EditInstanceReactComponentTemplate extends TemplateDescription {
     placeholders: {
@@ -21,6 +21,15 @@ interface EditInstanceReactComponentTemplate extends TemplateDescription {
 
 export class EditInstanceComponentTemplateProcessor extends PresentationLayerTemplateGenerator<EditInstanceReactComponentTemplate> {
     strategyIdentifier: string = "edit-react-component-generator";
+
+    private static readonly _editComponentTemplatePath: string = "./edit/presentation-layer/edit-instance-component";
+
+    constructor(outputFilePath: string) {
+        super({
+            filePath: outputFilePath,
+            templatePath: EditInstanceComponentTemplateProcessor._editComponentTemplatePath
+        })
+    }
 
     async processTemplate(dependencies: PresentationLayerDependencyMap): Promise<LayerArtifact> {
 

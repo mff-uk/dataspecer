@@ -1,8 +1,8 @@
-import { CreateInstanceAppLayerTemplateProcessor } from "./create/template-processor";
-import { DeleteAppLayerTemplateProcessor } from "./delete/template-processor";
-import { DetailAppLayerTemplateProcessor } from "./detail/template-processor";
-import { ListAppLayerTemplateProcessor } from "./list/template-processor";
-import { EditInstanceAppLayerTemplateProcessor } from "./edit/template-processor";
+import { CreateInstanceAppLayerTemplateProcessor } from "./create-instance-generator";
+import { DeleteAppLayerTemplateProcessor } from "./delete-instance-generator";
+import { DetailAppLayerTemplateProcessor } from "./instance-detail-generator";
+import { ListAppLayerTemplateProcessor } from "./instance-list-generator";
+import { EditInstanceAppLayerTemplateProcessor } from "./edit-instance-generator";
 
 
 export {

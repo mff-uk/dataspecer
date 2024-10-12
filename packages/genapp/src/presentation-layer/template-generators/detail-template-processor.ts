@@ -1,10 +1,10 @@
-import { ArtifactCache } from "../../../utils/artifact-saver";
-import { LayerArtifact } from "../../../engine/layer-artifact";
-import { AllowedTransition } from "../../../engine/transitions/transitions-generator";
-import { ApplicationGraphEdgeType } from "../../../engine/graph";
-import { UseNavigationHookGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
-import { ImportRelativePath, TemplateDescription } from "../../../engine/templates/template-interfaces";
-import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "../presentation-layer-template-generator";
+import { ArtifactCache } from "../../utils/artifact-saver";
+import { LayerArtifact } from "../../engine/layer-artifact";
+import { AllowedTransition } from "../../engine/transitions/transitions-generator";
+import { ApplicationGraphEdgeType } from "../../engine/graph";
+import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
+import { ImportRelativePath, TemplateDescription } from "../../engine/templates/template-interfaces";
+import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "./presentation-layer-template-generator";
 
 interface DetailReactComponentTemplate extends TemplateDescription {
     placeholders: {
@@ -23,6 +23,15 @@ interface DetailReactComponentTemplate extends TemplateDescription {
 
 export class DetailComponentTemplateProcessor extends PresentationLayerTemplateGenerator<DetailReactComponentTemplate> {
     strategyIdentifier: string = "detail-react-component-generator";
+
+    private static readonly _detailComponentTemplatePath: string = "./detail/presentation-layer/instance-detail-component";
+
+    constructor(outputFilePath: string) {
+        super({
+            filePath: outputFilePath,
+            templatePath: DetailComponentTemplateProcessor._detailComponentTemplatePath
+        })
+    }
 
     private tryRestoreAggregateDataModelInterface(aggregateTechnicalLabel: string): object {
         const aggregateSchemaInterface = ArtifactCache.savedArtifactsMap[`__${aggregateTechnicalLabel}DataModelInterface`];
