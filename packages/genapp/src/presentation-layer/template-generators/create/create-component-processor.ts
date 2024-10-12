@@ -23,18 +23,7 @@ interface CreateInstanceReactComponentTemplate extends TemplateDescription {
 export class CreateInstanceComponentTemplateProcessor extends PresentationLayerTemplateGenerator<CreateInstanceReactComponentTemplate> {
     strategyIdentifier: string = "create-react-component-generator";
 
-    private tryRestoreAggregateDataModelInterface(aggregate: AggregateMetadata): object {
-
-        // const aggregateSchemaInterface = ArtifactCache.savedArtifactsMap[`__${aggregate.technicalLabel}DataModelInterface`];
-
-        // if (!aggregateSchemaInterface) {
-        //     return { id: "string" };
-        // }
-
-        // const schemaInterface = JSON.parse(aggregateSchemaInterface);
-        // console.log(schemaInterface);
-
-        ///////////////////////////////////////////////////////////
+    private restoreAggregateDataModelInterface(aggregate: AggregateMetadata): object {
 
         const typeModelName = aggregate.getAggregateNamePascalCase({ suffix: "ModelType" });
 
@@ -72,7 +61,7 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
             suffix: "Instance"
         });
 
-        const dataSchemaInterface = this.tryRestoreAggregateDataModelInterface(dependencies.aggregate);
+        const dataSchemaInterface = this.restoreAggregateDataModelInterface(dependencies.aggregate);
 
         const redirectTransitions = dependencies.transitions.groupByTransitionType()[ApplicationGraphEdgeType.Redirection.toString()]!;
 
