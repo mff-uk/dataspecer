@@ -6,7 +6,7 @@ import { AllowedTransition } from "../../../engine/transitions/transitions-gener
 import { UseNavigationHookGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 import { ArtifactCache } from "../../../utils/artifact-saver";
 import { AggregateMetadata } from "../../../application-config";
-import { Config, createGenerator } from "ts-json-schema-generator";
+import { Config, createGenerator, Schema } from "ts-json-schema-generator";
 
 interface CreateInstanceReactComponentTemplate extends TemplateDescription {
     placeholders: {
@@ -36,7 +36,7 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
         return convertedSchema;
     }
 
-    private convertLdkitSchemaTypeToJsonSchema(ldkitSchemaTypeName: string, ldkitSchemaTypeFilePath: string) {
+    private convertLdkitSchemaTypeToJsonSchema(ldkitSchemaTypeName: string, ldkitSchemaTypeFilePath: string): Schema {
         const config: Config = {
             path: ldkitSchemaTypeFilePath,
             type: ldkitSchemaTypeName,
@@ -49,8 +49,8 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
             const convertedJsonSchema = tsJsonConverter.createSchema(config.type);
             return convertedJsonSchema;
         } catch (error) {
-            console.log(error);
-            return null!;
+            console.error(error);
+            return {} as Schema;
         }
     }
 
