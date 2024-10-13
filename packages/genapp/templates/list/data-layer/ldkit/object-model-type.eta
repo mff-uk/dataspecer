@@ -1,5 +1,4 @@
 <%
-
     function splitRecordToKeyAndValueTypes(recordTypeName) {
 
         const recordTypeBeginMarker = "<";
@@ -19,12 +18,16 @@
         return [keyTypeName, valueTypeName];
     }
 
-
     function convertSerializedTypeToTypescriptType(obj) {
         const result = Object.entries(obj)
             .map(([propName, typeName]) => {
+
+                if (propName.startsWith("@")) {
+                    return null;
+                }
+
                 if (typeName.endsWith("[]")) {
-                    const nestedStr = typeName.substring(0, typeName.length -2);
+                    const nestedStr = typeName.substring(0, typeName.length - "[]".length);
                     try {
                         const nested = JSON.parse(nestedStr);
                         return `${propName}: ${convertSerializedTypeToTypescriptType(nested)}[],`
@@ -43,13 +46,14 @@
                     return `${propName}: { [key: ${keyTypeName}]: ${valueTypeName} },`
                 }
 
-                return `'${propName}': ${typeName},`
+                return `"${propName}": ${typeName},`
             })
+            .filter(item =>  item !== undefined && item !== null)
             .join("\n");
 
         return `{
-        ${result}
+            ${result}
         }`;
     }
 %>
-export type <%= it.object_model_type_name %> = <%~ convertSerializedTypeToTypescriptType(it.object_model_type)%>
+export type <%= it.object_model_type_name %> = <%~ convertSerializedTypeToTypescriptType(it.object_model_type) %>

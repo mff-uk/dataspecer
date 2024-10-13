@@ -1,6 +1,6 @@
 import { ImportRelativePath, DataLayerTemplateDescription } from "../../../engine/templates/template-interfaces";
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../engine/templates/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/templates/template-consumer";
 import { ArtifactCache } from "../../../utils/artifact-saver";
 import { ObjectModelTypeGeneratorHelper } from "./object-model-generator-helper";
 
@@ -8,8 +8,6 @@ interface LdkitObjectModelTypeTemplate extends DataLayerTemplateDescription {
     placeholders: {
         object_model_type: object;
         object_model_type_name: string;
-        ldkit_schema_name: string;
-        ldkit_schema_path: ImportRelativePath;
     }
 }
 
@@ -61,12 +59,7 @@ export class LdkitObjectModelTypeGenerator extends TemplateConsumer<LdkitObjectM
             templatePath: this._templatePath,
             placeholders: {
                 object_model_type: ldkitSchemaInterface,
-                object_model_type_name: objectModelTypeName,
-                ldkit_schema_name: ldkitArtifact.exportedObjectName,
-                ldkit_schema_path: {
-                    from: this._filePath,
-                    to: ldkitArtifact.filePath
-                }
+                object_model_type_name: objectModelTypeName
             }
         };
 

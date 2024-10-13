@@ -4,9 +4,6 @@ import { ImportRelativePath, TemplateDescription } from "../../engine/templates/
 import { ApplicationGraphEdgeType } from "../../engine/graph";
 import { AllowedTransition } from "../../engine/transitions/transitions-generator";
 import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
-import { ArtifactCache } from "../../utils/artifact-saver";
-import { AggregateMetadata } from "../../application-config";
-import { Config, createGenerator, Schema } from "ts-json-schema-generator";
 
 interface CreateInstanceReactComponentTemplate extends TemplateDescription {
     placeholders: {
@@ -30,41 +27,6 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
             filePath: outputFilePath,
             templatePath: CreateInstanceComponentTemplateProcessor._createComponentTemplatePath
         })
-    }
-
-    private restoreAggregateDataModelInterface(aggregate: AggregateMetadata): Schema {
-
-        const typeModelName = aggregate.getAggregateNamePascalCase({ suffix: "ModelType" });
-
-        const typeModelPath = ArtifactCache.savedArtifactsMap[typeModelName];
-
-        if (!typeModelPath) {
-            return {} as Schema;
-        }
-
-        const convertedSchema = this.convertLdkitSchemaTypeToJsonSchema(typeModelName, typeModelPath);
-        console.log(convertedSchema);
-
-        return convertedSchema;
-    }
-
-    private convertLdkitSchemaTypeToJsonSchema(ldkitSchemaTypeName: string, ldkitSchemaTypeFilePath: string): Schema {
-        const config: Config = {
-            path: ldkitSchemaTypeFilePath,
-            type: ldkitSchemaTypeName,
-            // mocks tsconfig for generated model type
-            tsconfig: "./tsconfig.json",
-            skipTypeCheck: true
-        };
-
-        try {
-            const tsJsonConverter = createGenerator(config);
-            const convertedJsonSchema = tsJsonConverter.createSchema(config.type);
-            return convertedJsonSchema;
-        } catch (error) {
-            console.error(error);
-            return {} as Schema;
-        }
     }
 
     async processTemplate(dependencies: PresentationLayerDependencyMap): Promise<LayerArtifact> {

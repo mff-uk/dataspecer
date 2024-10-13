@@ -38,11 +38,50 @@ export default class <%= it.exported_name_object %> implements <%= it.ldkit_inst
 
     private async getInstanceDetail(iri: string, schema: any) {
         const lens = createLens(schema);
-        const instanceDetail = await lens.findByIri(iri);
+        let instanceDetail = await lens.findByIri(iri);
 
         await this.populateNestedDetails(instanceDetail, schema);
 
+        if (!instanceDetail) {
+            return null;
+        }
+
+        instanceDetail = this.removeLdkitProperties(instanceDetail);
+
         return instanceDetail;
+    }
+
+    private removeLdkitProperties(instanceDetail: any) {
+
+        if (typeof instanceDetail !== "object") {
+            return instanceDetail;
+        }
+
+        if ("$id" in instanceDetail) {
+            instanceDetail["id"] = instanceDetail["$id"];
+        }
+
+        const transformed = Object.entries(instanceDetail)
+            .map(([key, value]): [string | null, any] => {
+
+                if (key.startsWith("$")) {
+                    return [null, value];
+                }
+
+                if (typeof value === "object") {
+                    return [key, this.removeLdkitProperties(value)];
+                }
+
+                if (Array.isArray(value)) {
+                    return [key, value.map(item => this.removeLdkitProperties(item))];
+                }
+
+                return [key, value];
+            }
+        )
+        .filter(([key, _]) => key !== null);
+
+        return Object.fromEntries(transformed);
     }
 
     private async populateNestedDetails(instanceDetail: SchemaInterface<any> | undefined, schema: object) {
@@ -91,7 +130,5 @@ export default class <%= it.exported_name_object %> implements <%= it.ldkit_inst
             })
 
         await Promise.all(promises);
-
-        // return instanceDetail;
     }
 }

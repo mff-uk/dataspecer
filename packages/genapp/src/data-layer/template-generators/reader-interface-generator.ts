@@ -88,3 +88,10 @@ export const InstanceCreatorInterfaceGenerator = new ReaderInterfaceGenerator({
     templatePath: "./create/data-layer/instance-create-interface",
     listReturnTypeInterfaceGenerator: InstanceResultReturnInterfaceGenerator
 })
+
+export const InstanceEditorInterfaceGenerator = new ReaderInterfaceGenerator({
+    filePath: "./writers/instance-editor.ts",
+    queryExportedObjectName: "AggregateInstanceEditor",
+    templatePath: "./edit/data-layer/edit-instance-interface",
+    listReturnTypeInterfaceGenerator: InstanceResultReturnInterfaceGenerator
+})

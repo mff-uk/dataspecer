@@ -19,8 +19,11 @@ import { <%= it.navigation_hook %> } from <%~ it.navigation_hook_path %>;
 import { <%= it.detail_capability_app_layer %> } from <%~ it.detail_app_layer_path %>;
 <%
     const arrayRendererComponentName = "ArrayRenderer";
-    const recordRendererComponentName = "RecordRenderer";
-
+    const recordRendererComponentName = "ObjectRenderer";
+    const defaultRendererComponentName = "DefaultObjectRenderer";
+    const stringRendererComponentName = "StringRenderer";
+%>
+<%
     function splitRecordToKeyAndValueTypes(recordTypeName) {
 
         const recordTypeBeginMarker = "<";
@@ -55,8 +58,7 @@ import { <%= it.detail_capability_app_layer %> } from <%~ it.detail_app_layer_pa
             return "";
         }
 
-
-        let componentName = "DefaultObjectRenderer";
+        let componentName = defaultRendererComponentName;
 
         if (typeName.endsWith("[]")) {
             const arrayTypeName = typeName.substring(0, typeName.lastIndexOf("[]"));
@@ -65,7 +67,7 @@ import { <%= it.detail_capability_app_layer %> } from <%~ it.detail_app_layer_pa
                     name="${propertyName ?? ""}"
                     value={${valueReference}}
                 >
-                    ${getDetailRenderComponentByProperty("", arrayTypeName, `${valueReference}`)}
+                    ${getDetailRenderComponentByProperty("", arrayTypeName, (propertyName !== null && propertyName !== "") ? `${instanceRef}?.["${propertyName}"]` : instanceRef)}
                 </${arrayRendererComponentName}>
                 `)
         }
@@ -86,7 +88,6 @@ import { <%= it.detail_capability_app_layer %> } from <%~ it.detail_app_layer_pa
 
         if (typeName.startsWith("{")) {
             const nestedObjectType = JSON.parse(typeName);
-
             const nestedComponents = Object.entries(nestedObjectType ?? {})
                 .map(
                     ([nestedKey, nestedTypeRef]) => getDetailRenderComponentByProperty(nestedKey, nestedTypeRef, valueReference)
@@ -95,17 +96,16 @@ import { <%= it.detail_capability_app_layer %> } from <%~ it.detail_app_layer_pa
             return nestedComponents.join("\n");
         }
 
-        switch (typeName) {
-            case "string":
-                componentName = "StringRenderer"
-                break;
-            default:
-                componentName = "DefaultObjectRenderer"
+        if (typeName === "string") {
+            componentName = stringRendererComponentName;
+        } else {
+            componentName = defaultRendererComponentName;
         }
 
         return `<${componentName} name={"${propertyName ?? ""}"} value={${valueReference}}/>`
     }
 %>
+
 const PropertyAlert = ({ errorPropertyName }: { errorPropertyName: string}) => {
     return <Alert severity="error">Instance property "{errorPropertyName}" does not correspond to declared schema.</Alert>
 }
@@ -115,7 +115,7 @@ type ComponentProps = {
     value: any
 }
 
-const DefaultObjectRenderer: FC<ComponentProps> = ({ name, value }) => {
+const <%~ defaultRendererComponentName %>: FC<ComponentProps> = ({ name, value }) => {
 
     return (
         <div>
@@ -124,7 +124,7 @@ const DefaultObjectRenderer: FC<ComponentProps> = ({ name, value }) => {
     )
 }
 
-const StringRenderer: FC<ComponentProps> = ({ name, value }) => {
+const <%~ stringRendererComponentName %>: FC<ComponentProps> = ({ name, value }) => {
 
     const [isValidUrl, setIsValidUrl] = useState<boolean>(false);
 
@@ -159,22 +159,6 @@ const LinkRenderer: FC<ComponentProps> = ({ name, value }) => {
             </a>
         </Box>
     )
-}
-
-const KeyValuePair: FC<ComponentProps> = (props) => {
-
-    const { name: objectKey, value: objectValue} = props;
-
-    return (
-        <Box mb="lg">
-            <Typography variant="body1">
-                {objectKey}
-            </Typography>
-            <Typography variant="body2">
-                {objectValue}
-            </Typography>
-        </Box>
-    );
 }
 
 const <%~ recordRendererComponentName %>: FC<ComponentProps & { children: ReactElement<ComponentProps> | ReactNode }> = (props) => {

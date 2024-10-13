@@ -66,7 +66,6 @@ declare const SupportedDataTypesPrototype: {
 
 export type SupportedDataTypes = typeof SupportedDataTypesPrototype;
 
-
 export class ObjectModelTypeGeneratorHelper {
 
     public getInterfaceFromLdkitSchemaInstance(modelInstance: object): SchemaInterface {

@@ -1,14 +1,14 @@
-import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGenerator } from "../../capabilities/template-generators/capability-interface-generator";
-import { InstanceCreatorInterfaceGenerator } from "../../data-layer/template-generators/reader-interface-generator";
 import { LayerArtifact } from "../../engine/layer-artifact";
+import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGenerator } from "../../capabilities/template-generators/capability-interface-generator";
+import { InstanceEditorInterfaceGenerator } from "../../data-layer/template-generators/reader-interface-generator";
 import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "./template-app-layer-generator";
 import { ImportRelativePath, TemplateDescription } from "../../engine/templates/template-interfaces";
 
 interface EditInstanceCapabilityAppLayerTemplate extends TemplateDescription {
     placeholders: {
         exported_object_name: string,
-        instance_creator_type: string,
-        instance_creator_type_path: ImportRelativePath,
+        instance_editor_type: string,
+        instance_editor_type_path: ImportRelativePath,
         editor_interface_type: string,
         editor_interface_type_path: ImportRelativePath,
         generated_capability_class: string,
@@ -31,7 +31,7 @@ export class EditInstanceAppLayerTemplateProcessor extends ApplicationLayerTempl
     async processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): Promise<LayerArtifact> {
 
         const generatedCapabilityInterface = await GeneratedCapabilityInterfaceGenerator.processTemplate();
-        const editorInterfaceArtifact = await InstanceCreatorInterfaceGenerator.processTemplate();
+        const editorInterfaceArtifact = await InstanceEditorInterfaceGenerator.processTemplate();
         const editAppLayerExportedName = dependencies.aggregate.getAggregateNamePascalCase({
             suffix: "EditCapabilityLogic"
         });
@@ -52,8 +52,8 @@ export class EditInstanceAppLayerTemplateProcessor extends ApplicationLayerTempl
             templatePath: this._templatePath,
             placeholders: {
                 exported_object_name: editAppLayerExportedName,
-                instance_creator_type: dependencies.dataLayerLinkArtifact.exportedObjectName,
-                instance_creator_type_path: {
+                instance_editor_type: dependencies.dataLayerLinkArtifact.exportedObjectName,
+                instance_editor_type_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
                     to: dependencies.dataLayerLinkArtifact.filePath
                 },

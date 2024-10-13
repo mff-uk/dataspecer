@@ -9,6 +9,7 @@ import {
     CREATE_CAPABILITY_ID,
     DELETE_CAPABILITY_ID,
     DETAIL_CAPABILITY_ID,
+    EDIT_CAPABILITY_ID,
     getCapabilityMetadata,
     LIST_CAPABILITY_ID
 } from "../../capabilities";
@@ -16,6 +17,7 @@ import { ListCapabilityMetadata } from "../../capabilities/list";
 import { DetailCapabilityMetadata } from "../../capabilities/detail";
 import { CreateInstanceCapabilityMetadata } from "../../capabilities/create-instance";
 import { DeleteInstanceCapabilityMetadata } from "../../capabilities/delete-instance";
+import { EditInstanceCapabilityMetadata } from "../../capabilities/edit-instance";
 
 export type AllowedTransition = {
     label: string,
@@ -45,7 +47,8 @@ export class TransitionsGenerator {
                 CREATE_CAPABILITY_ID,
                 DELETE_CAPABILITY_ID,
                 DETAIL_CAPABILITY_ID,
-                LIST_CAPABILITY_ID
+                LIST_CAPABILITY_ID,
+                EDIT_CAPABILITY_ID
             ]
         },
         [DETAIL_CAPABILITY_ID]: {
@@ -58,7 +61,8 @@ export class TransitionsGenerator {
             transitions: [
                 LIST_CAPABILITY_ID,
                 DELETE_CAPABILITY_ID,
-                CREATE_CAPABILITY_ID
+                CREATE_CAPABILITY_ID,
+                EDIT_CAPABILITY_ID
             ]
         },
         [CREATE_CAPABILITY_ID]: {
@@ -75,6 +79,15 @@ export class TransitionsGenerator {
             aggregations: [],
             redirections: [LIST_CAPABILITY_ID],
             transitions: [],
+        },
+        [EDIT_CAPABILITY_ID]: {
+            label: EditInstanceCapabilityMetadata.label,
+            aggregations: [],
+            redirections: [
+                LIST_CAPABILITY_ID,
+                DETAIL_CAPABILITY_ID
+            ],
+            transitions: []
         }
     };
 
