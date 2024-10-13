@@ -458,7 +458,7 @@ export class GraphClassic implements IGraphClassic {
         }
         const oppositeEnd: "start" | "end" = relevantEnd === "start" ? "end" : "start";
 
-        this.removeEdgeFromNode(edge[relevantEnd], edge);
+        this.removeEdgeFromNode(edge);
         const firstSplitIdentifier = PhantomElementsFactory.constructSplitID(edge.id, 0);
         const secondSplitIdentifier = PhantomElementsFactory.constructSplitID(edge.id, 1);
 
@@ -481,46 +481,17 @@ export class GraphClassic implements IGraphClassic {
                 getAddEdgeTypeFromEdge(edge));
     }
 
-    // TODO: ! I don't need node then and can "simplify" the repeating code - use keys to access ... or actually just call getAddEdgeTypeFromEdge
-    removeEdgeFromNode(node: INodeClassic, edge: IEdgeClassic) {
-        if(edge.isProfile) {
-            // const edgeDirection = edge.start === node ? "profileEdges" : "reverseProfileEdges";
-            // const index = node[edgeDirection].indexOf(edge);
-            // node[edgeDirection].splice(index, 1);
+    removeEdgeFromNode(edge: IEdgeClassic) {
+        const edgeType = getAddEdgeTypeFromEdge(edge);
+        const reverseEdgeType = reverseAddEdgeType(edgeType);
 
-
-            let index = edge.start.profileEdges.indexOf(edge);
-            edge.start.profileEdges.splice(index, 1);
-            index = edge.end.reverseProfileEdges.indexOf(edge);
-            edge.end.reverseProfileEdges.splice(index, 1);
-            // let index = node.profileEdges.indexOf(edge);
-            // node.profileEdges.splice(index, 1);
-            // index = node.reverseProfileEdges.indexOf(edge);
-            // node.reverseProfileEdges.splice(index, 1);
-        }
-        else if(isSemanticModelGeneralization(edge.edge)) {
-            // const edgeDirection = edge.start === node ? "generalizationEdges" : "reverseGeneralizationEdges";
-            // const index = node[edgeDirection].indexOf(edge);
-            // node[edgeDirection].splice(index, 1);
-
-            let index = edge.start.generalizationEdges.indexOf(edge);
-            edge.start.generalizationEdges.splice(index, 1);
-            index = edge.end.reverseGeneralizationEdges.indexOf(edge);
-            edge.end.reverseGeneralizationEdges.splice(index, 1);
-        }
-        else {
-            // const edgeDirection = edge.start === node ? "relationshipEdges" : "reverseRelationshipEdges"
-            // const index = node[edgeDirection].indexOf(edge);
-            // node[edgeDirection].splice(index, 1);
-
-            let index = edge.start.relationshipEdges.indexOf(edge);
-            edge.start.relationshipEdges.splice(index, 1);
-            index = edge.end.reverseRelationshipEdges.indexOf(edge);
-            edge.end.reverseRelationshipEdges.splice(index, 1);
-        }
+        let index = edge.start[edgeType].indexOf(edge);
+        edge.start[edgeType].splice(index, 1);
+        index = edge.end[reverseEdgeType].indexOf(edge);
+        edge.end[reverseEdgeType].splice(index, 1);
 
         // TODO: Put into separate method ... probably should be just method on the main graph which gets graph as argument
-        const index = this.mainGraph.findEdgeIndexInAllEdges(edge.id);
+        index = this.mainGraph.findEdgeIndexInAllEdges(edge.id);
         this.mainGraph.allEdges.splice(index, 1);
     }
 
@@ -735,7 +706,7 @@ function addEdge(graph: IGraphClassic,
                     target: string,
                     extractedModel: ExtractedModel,
                     edgeToAddKey: AddEdgeType) {
-    const reverseEdgeToAddKey: ReverseAddEdgeType = "reverse" + capitalizeFirstLetter(edgeToAddKey) as ReverseAddEdgeType;
+    const reverseEdgeToAddKey: ReverseAddEdgeType = reverseAddEdgeType(edgeToAddKey);
     console.log("Adding Edge to graph")
     console.log(graph);
     console.log(edge);
@@ -775,6 +746,8 @@ function addEdge(graph: IGraphClassic,
 
 type AddEdgeType = "relationshipEdges" | "generalizationEdges" | "profileEdges";
 type ReverseAddEdgeType = "reverseRelationshipEdges" | "reverseGeneralizationEdges" | "reverseProfileEdges";
+
+const reverseAddEdgeType = (addEdgeType: AddEdgeType): ReverseAddEdgeType => "reverse" + capitalizeFirstLetter(addEdgeType) as ReverseAddEdgeType;
 
 class NodeClassic implements INodeClassic {
     constructor(mainGraph: IMainGraphClassic,

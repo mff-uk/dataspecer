@@ -89,8 +89,7 @@ export async function doLayout(inputSemanticModel: Record<string, SemanticModelE
 export async function doFindBestLayout(inputSemanticModel: Record<string, SemanticModelEntity>,
 										config: UserGivenAlgorithmConfigurationslVersion2,
 										nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<VisualEntities> {
-	const extractedModel = extractModelObjects(inputSemanticModel);
-	const graph = GraphFactory.createMainGraph(null, extractedModel, null);
+	const graph = GraphFactory.createMainGraph(null, inputSemanticModel, null);
 	return doFindBestLayoutFromGraph(graph, config, nodeDimensionQueryHandler);
 }
 
