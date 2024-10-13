@@ -2,9 +2,10 @@ import { isSemanticModelGeneralization, SemanticModelClass, SemanticModelEntity,
 import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ExtractedModel, extractModelObjects, getEdgeSourceAndTargetGeneralization, getEdgeSourceAndTargetRelationship, getEdgeSourceAndTargetRelationshipUsage } from "./layout-iface";
 
-import { VisualEntity } from "@dataspecer/core-v2/visual-model";
-import { Position } from "../../core-v2/lib/visual-model/visual-entity";
-import { capitalizeFirstLetter } from "./utils";
+import { VisualEntity, VisualEntityModel } from "@dataspecer/core-v2/visual-model";
+import { Position, VisualEntities } from "../../core-v2/lib/visual-model/visual-entity";
+import { capitalizeFirstLetter, PhantomElementsFactory } from "./util/utils";
+import { EntityModel } from "@dataspecer/core-v2";
 
 interface Graph {
     getNodes(): INode,
@@ -110,6 +111,12 @@ export class GraphIncidence implements IGraphIncidence {
 export interface IGraphClassic extends INodeClassic {
     nodes: Record<string, EdgeEndPoint>,
     todoDebugExtractedModel: ExtractedModel,
+    initialize(mainGraph: IMainGraphClassic,
+                sourceGraph: IGraphClassic,
+                graphIdentifier: string,
+                inputModel: Record<string, SemanticModelEntity> | ExtractedModel | null,
+                nodeContentOfGraph: Array<EdgeEndPoint> | null,
+                isDummy: boolean),
 }
 
 // export class GraphFactory {
@@ -134,75 +141,134 @@ export interface IGraphClassic extends INodeClassic {
 // TODO: Well actually the "evolution" is one place where we can use constraints - we enumerate the nodes which are part of evolution
 
 
+/**
+ * The reason for this is, that for example d3.js likes to have complete list of nodes and edges stored somewhere. Which is ok, but up until now
+ * we extepcted the nodes/edges to be hierarchic - i.e. if there is group node - the graph above it only stores the group node and the content of the group node is
+ * available only from the group node and not anywhere else.
+ */
+export interface IMainGraphClassic extends IGraphClassic {
+    allNodes: EdgeEndPoint[],
+    allEdges: IEdgeClassic[],       // TODO: Kdyz uz mam tyhle edges, tak to potencionalne muzu mit jako mapu a v ramci tech nodu si jen pamatovat ID misto celych objektu, ale je to celkem jedno
+                                    //       (+ tohle pak nebude pole, respektvie bych si ho musel ziskavat skrz Object.values)
+
+    // TODO: Maybe map to make it faster
+    findNodeInAllNodes(nodeIdentifier: string): EdgeEndPoint | null,
+    findEdgeInAllEdges(edgeIdentifier: string): IEdgeClassic | null,
+    findNodeIndexInAllNodes(nodeIdentifier: string): number | null,
+    findEdgeIndexInAllEdges(edgeIdentifier: string): number | null,
+    convertWholeGraphToDataspecerRepresentation(): VisualEntities,
+    initializeFromVisualModel(graphIdentifier: string,
+                                visualModel: VisualEntityModel,
+                                inputModels: Map<string, EntityModel> | ExtractedModel[] | null,
+                                nodeContentOfGraph: Array<EdgeEndPoint> | null),
+}
+
+export class GraphFactory {
+    public static createGraph(mainGraph: IMainGraphClassic,
+                                sourceGraph: IGraphClassic,
+                                graphIdentifier: string,
+                                inputModel: Record<string, SemanticModelEntity> | ExtractedModel,
+                                nodeContentOfGraph: Array<EdgeEndPoint> | null,
+                                isDummy: boolean): IGraphClassic {
+        const graph = new GraphClassic();
+        graph.initialize(mainGraph, sourceGraph, graphIdentifier, inputModel, nodeContentOfGraph, isDummy);
+        return graph;
+    }
+
+    public static createMainGraph(graphIdentifier: string | null,
+                                    inputModel: Record<string, SemanticModelEntity> | ExtractedModel | null,
+                                    nodeContentOfGraph: Array<EdgeEndPoint> | null): IMainGraphClassic {
+        if(graphIdentifier === null) {
+            graphIdentifier = PhantomElementsFactory.createUniquePhanomNodeIdentifier();
+        }
+        const graph = new MainGraphClassic();
+        graph.initialize(graph, graph, graphIdentifier, inputModel, nodeContentOfGraph, false);
+        return graph;
+    }
+
+    public static createMainGraphFromVisualModel(graphIdentifier: string | null,
+                                                    visualModel: VisualEntityModel,
+                                                    inputModels: Map<string, EntityModel> | ExtractedModel[] | null,
+                                                    nodeContentOfGraph: Array<EdgeEndPoint> | null): IMainGraphClassic {
+        if(graphIdentifier === null) {
+            graphIdentifier = PhantomElementsFactory.createUniquePhanomNodeIdentifier();
+        }
+        const graph = new MainGraphClassic();
+        graph.initializeFromVisualModel(graphIdentifier, visualModel, inputModels, nodeContentOfGraph);
+        return graph;
+    }
+}
+
 
 export class GraphClassic implements IGraphClassic {
-    public constructor(inputModel: Record<string, SemanticModelEntity> | ExtractedModel, nodeContentOfGraph: Array<EdgeEndPoint> | null) {
+    initialize(mainGraph: IMainGraphClassic,
+                sourceGraph: IGraphClassic,
+                graphIdentifier: string,
+                inputModel: Record<string, SemanticModelEntity> | ExtractedModel | null,
+                nodeContentOfGraph: Array<EdgeEndPoint> | null,
+                isDummy: boolean) {
+        this.sourceGraph = sourceGraph;
+        if(!(this instanceof MainGraphClassic)) {
+            mainGraph.allNodes.push(this);
+        }
+        this.mainGraph = mainGraph;
+        this.id = graphIdentifier;
+        this.isDummy = isDummy;
+
+
+        if(nodeContentOfGraph !== null) {
+            const nodesMap = {};
+            for(const node of nodeContentOfGraph) {
+                nodesMap[node.node.id] = node;
+                node.setSourceGraph(this);
+            }
+            this.nodes = nodesMap;
+            return;
+        }
+
+
+        if(inputModel === null) {
+            return;
+        }
+
         // https://stackoverflow.com/questions/46703364/why-does-instanceof-in-typescript-give-me-the-error-foo-only-refers-to-a-ty
         // Just simple check, dont check all elements it is not necessary
         const isExtractedModel = (inputModel as ExtractedModel).entities && (inputModel as ExtractedModel).generalizations;
         const extractedModel = isExtractedModel ? (inputModel as ExtractedModel) : extractModelObjects(inputModel as Record<string, SemanticModelEntity>);
         this.todoDebugExtractedModel = extractedModel;
 
-        if(nodeContentOfGraph !== null) {
-            const nodesMap = {};
-            for(const node of nodeContentOfGraph) {
-                nodesMap[node.node.id] = node;
-            }
-            this.nodes = nodesMap;
-            return;
-        }
 
         extractedModel.classes.forEach(c => {
             if(this.nodes[c.id] === undefined) {
-                this.nodes[c.id] = new NodeClassic(c, false, extractedModel, this);
+                this.nodes[c.id] = new NodeClassic(this.mainGraph, c, false, extractedModel, this);
             }
         });
         extractedModel.classesProfiles.forEach(cp => {
             if(this.nodes[cp.id] === undefined) {
                 // TODO: Careful, if I somehow lose (or don't check) the isProfile info stored inside the node, then I can access the iri, which profiles don't have
-                this.nodes[cp.id] = new NodeClassic(cp as undefined as SemanticModelClass, true, extractedModel, this);
+                this.nodes[cp.id] = new NodeClassic(this.mainGraph, cp as undefined as SemanticModelClass, true, extractedModel, this);
             }
         });
+
+
+        // this.createGeneralizationSubgraphs(extractedModel.generalizations);
+        // console.log("this.nodes");
+        // console.log(this.nodes);
+        // console.log("this");
+        // console.log(this);
+        // throw new Error("TODO: THE END");
     }
 
-    findGeneralizationSubgraphs(parents: Record<string, string[]>, children: Record<string, string[]>): string[][] {
-        let subgraphs: Record<string, number> = {};
-        let stack: string[] = [];
-        let currSubgraph = -1;
-
-        for(let [child, concreteParents] of Object.entries(parents)) {
-            if(subgraphs[child] === undefined) {
-                currSubgraph++;
-                stack.push(child);
-                subgraphs[stack[0]] = currSubgraph;
-                // TODO: Can't import assert, but that doesn't really matter
-                // assert(stack[0] === child, "Incorrect assumption about empty stack in DFS");
-            }
-
-            while(stack.length > 0) {
-                let currNode = stack.pop();
-                parents[currNode] = parents[currNode] === undefined ? [] : parents[currNode];
-                children[currNode] = children[currNode] === undefined ? [] : children[currNode];
-                parents[currNode].concat(children[currNode]).forEach(n => {
-                    if(subgraphs[n] === undefined) {
-                        subgraphs[n] = currSubgraph;
-                        stack.push(n);
-                    }
-                });
-            }
-        }
-        currSubgraph++;     // So it is the same as number of subgraphs
-
-
-
-        let subgraphsAsArrays: string[][] = [];
-        for(let i = 0; i < currSubgraph; i++) {
-            subgraphsAsArrays.push([]);
-        }
-        Object.entries(subgraphs).forEach(([nodeID, subgraphID]) => subgraphsAsArrays[subgraphID].push(nodeID));
-
-        return subgraphsAsArrays;
+    public addNode(semanticEntityRepresentingNode: SemanticModelEntity,
+                    isProfile: boolean,
+                    extractedModel: ExtractedModel): void {
+        this.nodes[semanticEntityRepresentingNode.id] = new NodeClassic(this.mainGraph, semanticEntityRepresentingNode, isProfile, extractedModel, this);
     }
+
+    public createGeneralizationSubgraphsFromStoredTODOExtractedModel() {
+        this.createGeneralizationSubgraphs(this.todoDebugExtractedModel.generalizations);
+    }
+
 
     public createGeneralizationSubgraphs(generalizationEdges: SemanticModelGeneralization[]) {
         // For now 1 whole hierarchy (n levels) == 1 subgraph
@@ -251,9 +317,62 @@ export class GraphClassic implements IGraphClassic {
         return createdSubgraphs;
     }
 
+
+    findGeneralizationSubgraphs(parents: Record<string, string[]>, children: Record<string, string[]>): string[][] {
+        let subgraphs: Record<string, number> = {};
+        let stack: string[] = [];
+        let currSubgraph = -1;
+
+        for(let [child, concreteParents] of Object.entries(parents)) {
+            if(subgraphs[child] === undefined) {
+                currSubgraph++;
+                stack.push(child);
+                subgraphs[stack[0]] = currSubgraph;
+                // TODO: Can't import assert, but that doesn't really matter
+                // assert(stack[0] === child, "Incorrect assumption about empty stack in DFS");
+            }
+
+            while(stack.length > 0) {
+                let currNode = stack.pop();
+                parents[currNode] = parents[currNode] === undefined ? [] : parents[currNode];
+                children[currNode] = children[currNode] === undefined ? [] : children[currNode];
+                parents[currNode].concat(children[currNode]).forEach(n => {
+                    if(subgraphs[n] === undefined) {
+                        subgraphs[n] = currSubgraph;
+                        stack.push(n);
+                    }
+                });
+            }
+        }
+        currSubgraph++;     // So it is the same as number of subgraphs
+
+
+
+        let subgraphsAsArrays: string[][] = [];
+        for(let i = 0; i < currSubgraph; i++) {
+            subgraphsAsArrays.push([]);
+        }
+        Object.entries(subgraphs).forEach(([nodeID, subgraphID]) => subgraphsAsArrays[subgraphID].push(nodeID));
+
+        return subgraphsAsArrays;
+    }
+
+
+
+    // We have it as instance method, this way the identifiers are consistent between two graphs
+    private subgraphUniqueIdentifier = 0;
+    private createUniqueGeneralizationSubgraphIdentifier(): string {
+        const identifier = `subgraph-${this.subgraphUniqueIdentifier}`;
+        this.subgraphUniqueIdentifier++;
+
+        return identifier;
+    }
+
     createSubgraphAndInsert(subgraphNodes: Array<EdgeEndPoint>): IGraphClassic {
+        const identifier = this.createUniqueGeneralizationSubgraphIdentifier();
+
         // 1) Take ElkNodes and create one subgraph which has them as children
-        const subgraph: IGraphClassic = new GraphClassic(this.todoDebugExtractedModel, subgraphNodes);      // TODO: Using the variable which I shouldnt use
+        const subgraph: IGraphClassic = GraphFactory.createGraph(this.mainGraph, this, identifier, this.todoDebugExtractedModel, subgraphNodes, true);      // TODO: Using the variable which I shouldnt use
         // 2) Repair the old graph by substituting the newly created subgraph from 1), while doing that also repair edges by splitting them into two parts
         //    (part inside subgraph and outside)
         this.insertSubgraphToGraph(subgraph, subgraphNodes);
@@ -262,14 +381,16 @@ export class GraphClassic implements IGraphClassic {
 
     insertSubgraphToGraph(subgraph: IGraphClassic, subgraphNodes: Array<EdgeEndPoint>): void {
         this.changeNodesInOriginalGraph(subgraph, subgraphNodes);
+        console.log("After changeNodesInOriginalGraph");
         this.repairEdgesInOriginalGraph(subgraph, subgraphNodes);
+        console.log("After repairEdgesInOriginalGraph");
     }
 
     changeNodesInOriginalGraph(subgraph: IGraphClassic, subgraphNodes: Array<EdgeEndPoint>) : void {
         for(const subgraphNode of subgraphNodes) {
             delete this.nodes[subgraphNode.node.id];
         }
-        this.nodes["TODO: Nejake ID subraphu"] = subgraph;
+        this.nodes[subgraph.id] = subgraph;
     }
 
     repairEdgesInOriginalGraph(subgraph: IGraphClassic, changedNodes: Array<EdgeEndPoint>) : void {
@@ -281,6 +402,7 @@ export class GraphClassic implements IGraphClassic {
         this.repairEdgesGoingBeyondSubgraphInternal(subgraph, changedNodes, "targets");
     }
 
+
     /**
      *
      * @param graph
@@ -289,11 +411,15 @@ export class GraphClassic implements IGraphClassic {
      * @param edgeEnd is either "sources" or "targets", if it is sources then it repairs edges going out of subgraph, "targets" then going in
      */
     private repairEdgesGoingBeyondSubgraphInternal(subgraph: IGraphClassic, changedNodes: Array<EdgeEndPoint>, edgeEnd: "sources" | "targets") {
+        console.log("START OF repairEdgesGoingBeyondSubgraphInternal");
+
         const edgesGoingBeyond: IEdgeClassic[] = [];
+
+        const nodesInsideSubgraph = changedNodes.concat(subgraph);
         if(edgeEnd === "sources") {
             changedNodes.forEach(node => {
                 for(const edge of node.getAllOutgoingEdges()) {
-                    if(changedNodes.find(n => n.node.id === edge.end.node.id) === undefined) {
+                    if(nodesInsideSubgraph.find(changedNode => changedNode.id === edge.end.id) === undefined) {
                         edgesGoingBeyond.push(edge);
                     }
                 }
@@ -302,30 +428,105 @@ export class GraphClassic implements IGraphClassic {
         else if(edgeEnd === "targets") {
             changedNodes.forEach(node => {
                 for(const edge of node.getAllIncomingEdges()) {
-                    if(changedNodes.find(n => n.node.id === edge.start.node.id) === undefined) {
+                    if(nodesInsideSubgraph.find(changedNode => changedNode.id === edge.start.id) === undefined) {
                         edgesGoingBeyond.push(edge);
                     }
                 }
             });
         }
 
-        // TODO: Actually ... should visual model contain ports???? And should I have them here in my representation????!!!
-        edgesGoingBeyond.forEach(e => this.splitEdgeIntoTwo(e, subgraph));
+        console.log("BEFORE GOING TO splitEdgeIntoTwo")
+
+        // TODO: Actually ... should visual model contain ports?? And should I have them here in my representation????!!!
+        edgesGoingBeyond.forEach(e => this.splitEdgeIntoTwo(e, subgraph, edgeEnd));
     }
 
-    splitEdgeIntoTwo(edge: IEdgeClassic, subgraph: IGraphClassic): void {
-        const targetNode = edge.end;
-        edge.end = subgraph;
-        const reverseEdge = targetNode.reverseRelationshipEdges.find(e => e.edge.id === edge.edge.id);
-        reverseEdge.start = subgraph;
+    splitEdgeIntoTwo(edge: IEdgeClassic, subgraph: IGraphClassic, edgeEnd: "sources" | "targets"): void {
+        let relevantEnd: "start" | "end";
+        let targetNode: EdgeEndPoint;           // TODO: Rename - bad name
+        let oppositeEdge: IEdgeClassic;
 
-        // TODO: Well edge.edge is not the entirely correct but it may work !!!
+        if(edgeEnd === "sources") {
+            relevantEnd = "end";
+            targetNode = edge.end;
+            oppositeEdge = [...targetNode.getAllIncomingEdges()].find(e => e.id === edge.id);
+        }
+        else {
+            relevantEnd = "start";
+            targetNode = edge.start;
+            oppositeEdge = [...targetNode.getAllOutgoingEdges()].find(e => e.id === edge.id);
+        }
+        const oppositeEnd: "start" | "end" = relevantEnd === "start" ? "end" : "start";
+
+        this.removeEdgeFromNode(edge[relevantEnd], edge);
+        const firstSplitIdentifier = PhantomElementsFactory.constructSplitID(edge.id, 0);
+        const secondSplitIdentifier = PhantomElementsFactory.constructSplitID(edge.id, 1);
+
+
+
+
         addEdge(subgraph,
+                firstSplitIdentifier,
+                edge.edge,
+                edge.start,
+                subgraph.id,
+                this.todoDebugExtractedModel,
+                getAddEdgeTypeFromEdge(edge));
+        addEdge(subgraph.getSourceGraph(),
+                secondSplitIdentifier,
                 edge.edge,
                 subgraph,
-                edge.end.node.id,
+                edge.end.id,
                 this.todoDebugExtractedModel,
-                getAddEdgeTypeFromEdge(edge))
+                getAddEdgeTypeFromEdge(edge));
+    }
+
+    // TODO: ! I don't need node then and can "simplify" the repeating code - use keys to access ... or actually just call getAddEdgeTypeFromEdge
+    removeEdgeFromNode(node: INodeClassic, edge: IEdgeClassic) {
+        if(edge.isProfile) {
+            // const edgeDirection = edge.start === node ? "profileEdges" : "reverseProfileEdges";
+            // const index = node[edgeDirection].indexOf(edge);
+            // node[edgeDirection].splice(index, 1);
+
+
+            let index = edge.start.profileEdges.indexOf(edge);
+            edge.start.profileEdges.splice(index, 1);
+            index = edge.end.reverseProfileEdges.indexOf(edge);
+            edge.end.reverseProfileEdges.splice(index, 1);
+            // let index = node.profileEdges.indexOf(edge);
+            // node.profileEdges.splice(index, 1);
+            // index = node.reverseProfileEdges.indexOf(edge);
+            // node.reverseProfileEdges.splice(index, 1);
+        }
+        else if(isSemanticModelGeneralization(edge.edge)) {
+            // const edgeDirection = edge.start === node ? "generalizationEdges" : "reverseGeneralizationEdges";
+            // const index = node[edgeDirection].indexOf(edge);
+            // node[edgeDirection].splice(index, 1);
+
+            let index = edge.start.generalizationEdges.indexOf(edge);
+            edge.start.generalizationEdges.splice(index, 1);
+            index = edge.end.reverseGeneralizationEdges.indexOf(edge);
+            edge.end.reverseGeneralizationEdges.splice(index, 1);
+        }
+        else {
+            // const edgeDirection = edge.start === node ? "relationshipEdges" : "reverseRelationshipEdges"
+            // const index = node[edgeDirection].indexOf(edge);
+            // node[edgeDirection].splice(index, 1);
+
+            let index = edge.start.relationshipEdges.indexOf(edge);
+            edge.start.relationshipEdges.splice(index, 1);
+            index = edge.end.reverseRelationshipEdges.indexOf(edge);
+            edge.end.reverseRelationshipEdges.splice(index, 1);
+        }
+
+        // TODO: Put into separate method ... probably should be just method on the main graph which gets graph as argument
+        const index = this.mainGraph.findEdgeIndexInAllEdges(edge.id);
+        this.mainGraph.allEdges.splice(index, 1);
+    }
+
+
+    convertToDataspecerRepresentation(): VisualEntity {
+        return this.completeVisualEntity.coreVisualEntity;
     }
 
 
@@ -333,27 +534,33 @@ export class GraphClassic implements IGraphClassic {
     todoDebugExtractedModel: ExtractedModel;
 
 
-    node: SemanticModelEntity | null;
-    isDummy: boolean;
-    isMainEntity: boolean;
-    isProfile: boolean;
+    sourceGraph: IGraphClassic;
+    mainGraph: IMainGraphClassic;
 
-    profileEdges: Array<IEdgeClassic>;      // TODO: We are wasting a lot of space by doubling information
-    reverseRelationshipEdges: Array<IEdgeClassic>;
+    id: string = "";
+    node: SemanticModelEntity | null = null;
+    isDummy: boolean = true;
+    isMainEntity: boolean = false;
+    isProfile: boolean = false;
 
-    generalizationEdges: Array<IEdgeClassic>;
-    reverseGeneralizationEdges: Array<IEdgeClassic>;
+    profileEdges: Array<IEdgeClassic> = [];      // TODO: We are wasting a lot of space by doubling information
+    reverseRelationshipEdges: Array<IEdgeClassic> = [];
 
-    relationshipEdges: Array<IEdgeClassic>;
-    reverseProfileEdges: Array<IEdgeClassic>;
-    getAllOutgoingEdges(): Generator<IEdgeClassic, string, unknown> {
-        throw new Error("Not implemented");
-    }
+    generalizationEdges: Array<IEdgeClassic> = [];
+    reverseGeneralizationEdges: Array<IEdgeClassic> = [];
+
+    relationshipEdges: Array<IEdgeClassic> = [];
+    reverseProfileEdges: Array<IEdgeClassic> = [];
     getAllIncomingEdges(): Generator<IEdgeClassic, string, unknown> {
-        throw new Error("Not implemented");
+        return getAllIncomingEdges(this);
     }
+
+    getAllOutgoingEdges(): Generator<IEdgeClassic, string, unknown> {
+        return getAllOutgoingEdges(this);
+    }
+
     getAllEdges(): Generator<IEdgeClassic, string, unknown> {
-        throw new Error("Not implemented");
+        return getAllEdges(this);
     }
 
     completeVisualEntity: IVisualEntityComplete;
@@ -362,16 +569,80 @@ export class GraphClassic implements IGraphClassic {
         return [];
     }
     getSourceGraph(): IGraphClassic | null {
-        return null;
+        return this.sourceGraph;
+    }
+    setSourceGraph(sourceGraph: IGraphClassic): void {
+        this.sourceGraph = sourceGraph;
     }
 }
+
+
+export class MainGraphClassic extends GraphClassic implements IMainGraphClassic {
+    allNodes: EdgeEndPoint[] = [];
+    allEdges: IEdgeClassic[] = [];
+
+    findNodeInAllNodes(nodeIdentifier: string): EdgeEndPoint | null {
+        return this.allNodes.find(node => node.id === nodeIdentifier);
+    }
+    findEdgeInAllEdges(edgeIdentifier: string): IEdgeClassic | null {
+        return this.allEdges.find(edge => edge?.edge?.id === edgeIdentifier);
+    }
+
+    findNodeIndexInAllNodes(nodeIdentifier: string): number | null {
+        const index = this.allNodes.findIndex(node => node.id === nodeIdentifier);
+        return (index < 0) ? null : index;
+    }
+    findEdgeIndexInAllEdges(edgeIdentifier: string): number | null {
+        const index = this.allEdges.findIndex(edge => edge?.edge?.id === edgeIdentifier);
+        return (index < 0) ? null : index;
+    }
+
+    initializeFromVisualModel(graphIdentifier: string,
+                                visualModel: VisualEntityModel,
+                                inputModels: Map<string, EntityModel> | ExtractedModel[] | null,
+                                nodeContentOfGraph: Array<EdgeEndPoint> | null) {
+        throw new Error("TODO: Method not implemented.");
+    }
+
+
+
+
+    convertWholeGraphToDataspecerRepresentation(): VisualEntities {
+        const visualEntities: VisualEntities = {};
+
+        for(const node of this.allNodes) {
+            if(node.isDummy) {
+                continue;
+            }
+
+            const visualEntityForNode = node.convertToDataspecerRepresentation();
+            visualEntities[node.id] = visualEntityForNode;
+        }
+
+        // TODO: Wait for Visual-model v2
+        // for(const edge of this.allEdges) {
+        //     if(edge.isDummy) {
+        //         continue;
+        //     }
+
+        //     const visualEntityForNode = edge.convertToDataspecerRepresentation();
+        //     visualEntities[edge.id] = visualEntityForNode;
+        // }
+
+        return visualEntities;
+    }
+}
+
+
+
 
 type EdgeEndPoint = INodeClassic | IGraphClassic;
 
 // TODO: Can create more specific interfaces for generalization, etc, which will be extending this one - they will be different in the fields - edge: type and isProfile value
 export interface IEdgeClassic {
-    graph: IGraphClassic,
+    sourceGraph: IGraphClassic,
 
+    id: string,
     edge: SemanticModelEntity,
     isDummy: boolean,
     isProfile: boolean,
@@ -380,11 +651,16 @@ export interface IEdgeClassic {
     end: EdgeEndPoint,
 
     waypoints: Position[],
+
+    convertToDataspecerRepresentation(): VisualEntity;
 }
 
+
 class EdgeClassic implements IEdgeClassic {
-    constructor(edge: SemanticModelEntity, isProfile: boolean, graph: IGraphClassic, start: EdgeEndPoint, end: EdgeEndPoint) {
-        this.graph = graph;
+    constructor(id: string, edge: SemanticModelEntity, isProfile: boolean, sourceGraph: IGraphClassic, start: EdgeEndPoint, end: EdgeEndPoint) {
+        this.id = id;
+        sourceGraph.mainGraph.allEdges.push(this);
+        this.sourceGraph = sourceGraph;
         this.isDummy = false;
 
         this.isProfile = isProfile;
@@ -393,8 +669,9 @@ class EdgeClassic implements IEdgeClassic {
         this.end = end;
     }
 
-    graph: IGraphClassic;
+    sourceGraph: IGraphClassic;
 
+    id: string;
     edge: SemanticModelEntity;
     isDummy: boolean;
     isProfile: boolean;
@@ -403,10 +680,17 @@ class EdgeClassic implements IEdgeClassic {
     end: EdgeEndPoint;
 
     waypoints: Position[];
+
+    convertToDataspecerRepresentation(): VisualEntity {
+        throw new Error("Method not implemented.");
+    }
 }
 
 export interface INodeClassic {
-    node: SemanticModelEntity,
+    mainGraph: IMainGraphClassic;
+    id: string,         // We need id, because some nodes don't have equivalent in the semantic model or are dummy nodes
+
+    node: SemanticModelEntity | null,
     isDummy: boolean,
     isMainEntity: boolean,
     isProfile: boolean,
@@ -427,6 +711,9 @@ export interface INodeClassic {
 
     getAttributes(): SemanticModelRelationship[];
     getSourceGraph(): IGraphClassic | null;
+    setSourceGraph(sourceGraph: IGraphClassic) : void;
+
+    convertToDataspecerRepresentation(): VisualEntity,
 }
 
 const getAddEdgeTypeFromEdge = (edge: IEdgeClassic): AddEdgeType => {
@@ -442,13 +729,26 @@ const getAddEdgeTypeFromEdge = (edge: IEdgeClassic): AddEdgeType => {
 }
 
 function addEdge(graph: IGraphClassic,
+                    id: string,
                     edge: SemanticModelEntity,
                     source: INodeClassic,
                     target: string,
                     extractedModel: ExtractedModel,
                     edgeToAddKey: AddEdgeType) {
     const reverseEdgeToAddKey: ReverseAddEdgeType = "reverse" + capitalizeFirstLetter(edgeToAddKey) as ReverseAddEdgeType;
-    if(graph.nodes[target] === undefined) {
+    console.log("Adding Edge to graph")
+    console.log(graph);
+    console.log(edge);
+    console.log(source);
+    console.log(target);
+    console.log(edgeToAddKey);
+
+    const mainGraph = graph.mainGraph;
+    let targetNode = mainGraph.allNodes.find(n => n.id === target);
+
+    console.log("targetNode");
+    console.log(targetNode);
+    if(targetNode === undefined) {
         // TODO: I think that the issue with scheme.org is generalization which has node http://www.w3.org/2000/01/rdf-schema#Class but it isn't in the model
         // At least I hope it isn't some bigger issue between DataType and rdf-schema
         const targetEntity: SemanticModelEntity = extractedModel.entities.find(e => e.id === target);
@@ -456,49 +756,67 @@ function addEdge(graph: IGraphClassic,
             return;
         }
         // TODO: Not ideal performance wise, using find 2 times
-        source.getSourceGraph().nodes[target] = new NodeClassic(targetEntity,
-                                                                    extractedModel.classesProfiles.find(cp => cp.id === target) !== undefined,
-                                                                    extractedModel, graph);
+        mainGraph.nodes[target] = new NodeClassic(mainGraph, targetEntity,
+                                                    extractedModel.classesProfiles.find(cp => cp.id === target) !== undefined,
+                                                    extractedModel, graph);
+        targetNode = mainGraph.nodes[target];
     }
 
-    const edgeClassic: IEdgeClassic = new EdgeClassic(edge, edgeToAddKey === "profileEdges", graph, source, graph.nodes[target]);
-    const reverseEdgeClassic: IEdgeClassic = new EdgeClassic(edge, edgeToAddKey === "profileEdges", graph, graph.nodes[target], source);
+
+    const edgeClassic: IEdgeClassic = new EdgeClassic(id, edge, edgeToAddKey === "profileEdges", graph, source, targetNode);
+    // TODO: The reverse edge shouldn't be put in the list of all edges.
+
+    // const reverseEdgeClassic: IEdgeClassic = new EdgeClassic(id, edge, edgeToAddKey === "profileEdges", graph, targetNode, source);
+    const reverseEdgeClassic: IEdgeClassic = edgeClassic;
 
     source[edgeToAddKey].push(edgeClassic);
-    graph.nodes[target][reverseEdgeToAddKey].push(reverseEdgeClassic);
+    targetNode[reverseEdgeToAddKey].push(reverseEdgeClassic);
 }
 
 type AddEdgeType = "relationshipEdges" | "generalizationEdges" | "profileEdges";
 type ReverseAddEdgeType = "reverseRelationshipEdges" | "reverseGeneralizationEdges" | "reverseProfileEdges";
 
 class NodeClassic implements INodeClassic {
-    constructor(node: SemanticModelEntity, isProfile: boolean, extractedModel: ExtractedModel, graph: IGraphClassic) {
-        this.graph = graph;
-        graph.nodes[node.id] = this;
-        this.node = node;
+    constructor(mainGraph: IMainGraphClassic,
+                    semanticEntityRepresentingNode: SemanticModelEntity,
+                    isProfile: boolean,
+                    extractedModel: ExtractedModel | null,
+                    sourceGraph: IGraphClassic) {
+        mainGraph.allNodes.push(this);
+        this.mainGraph = mainGraph;
+        this.id = semanticEntityRepresentingNode.id;
+
+        this.sourceGraph = sourceGraph;
+        sourceGraph.nodes[semanticEntityRepresentingNode.id] = this;
+        this.node = semanticEntityRepresentingNode;
         this.isProfile = isProfile;
+
+        if(extractedModel === null) {
+            return;
+        }
+
 
         let edgeToAddKey: AddEdgeType = "relationshipEdges"
         extractedModel.relationships.forEach(r => {
             const [source, target, ...rest] = getEdgeSourceAndTargetRelationship(r);
-            if(node.id === source) {
-                this.addEdge(graph, r, target, extractedModel, edgeToAddKey);
+            if(semanticEntityRepresentingNode.id === source) {
+                this.addEdge(sourceGraph, r.id, r, target, extractedModel, edgeToAddKey);
             }
         });
 
         edgeToAddKey = "generalizationEdges"
         extractedModel.generalizations.forEach(g => {
             const [source, target] = getEdgeSourceAndTargetGeneralization(g);
-            if(node.id === source) {
-                this.addEdge(graph, g, target, extractedModel, edgeToAddKey);
+            if(semanticEntityRepresentingNode.id === source) {
+                this.addEdge(sourceGraph, g.id, g, target, extractedModel, edgeToAddKey);
             }
         });
 
         edgeToAddKey = "profileEdges"
         extractedModel.relationshipsProfiles.forEach(rp => {
             const [source, target] = getEdgeSourceAndTargetRelationshipUsage(rp);
-            if(node.id === source) {
-                this.addEdge(graph, rp, target, extractedModel, edgeToAddKey);
+            if(semanticEntityRepresentingNode.id === source) {
+                this.addEdge(sourceGraph, rp.id, rp, target, extractedModel, edgeToAddKey);
             }
         });
 
@@ -509,18 +827,22 @@ class NodeClassic implements INodeClassic {
         });
     }
     getSourceGraph(): IGraphClassic {
-        return this.graph;
+        return this.sourceGraph;
+    }
+    setSourceGraph(sourceGraph: IGraphClassic): void {
+        this.sourceGraph = sourceGraph;
     }
     getAttributes(): SemanticModelRelationship[] {
         return this.attributes;
     }
 
     addEdge(graph: IGraphClassic,
+            identifier: string,
             edge: SemanticModelEntity,
             target: string,
             extractedModel: ExtractedModel,
             edgeToAddKey: AddEdgeType) {
-        addEdge(graph, edge, this, target, extractedModel, edgeToAddKey);
+        addEdge(graph, identifier, edge, this, target, extractedModel, edgeToAddKey);
         // const reverseEdgeToAddKey: ReverseAddEdgeType = "reverse" + capitalizeFirstLetter(edgeToAddKey) as ReverseAddEdgeType;
         // if(graph.nodes[target] === undefined) {
         //     // TODO: I think that the issue with scheme.org is generalization which has node http://www.w3.org/2000/01/rdf-schema#Class but it isn't in the model
@@ -542,7 +864,14 @@ class NodeClassic implements INodeClassic {
         // graph.nodes[target][reverseEdgeToAddKey].push(reverseEdgeClassic);
     }
 
-    graph: IGraphClassic;
+    convertToDataspecerRepresentation(): VisualEntity {
+        return this.completeVisualEntity.coreVisualEntity;
+    }
+
+    mainGraph: IMainGraphClassic;
+    sourceGraph: IGraphClassic;
+
+    id: string;
 
     node: SemanticModelEntity;
     isDummy: boolean = false;       // TODO: For now just keep false
@@ -560,34 +889,47 @@ class NodeClassic implements INodeClassic {
     relationshipEdges: IEdgeClassic[] = [];
     reverseRelationshipEdges: IEdgeClassic[] = [];
     getAllIncomingEdges(): Generator<IEdgeClassic, string, unknown> {
-        const internalGenerator = this.getEdgesInternal([this.reverseRelationshipEdges, this.reverseGeneralizationEdges, this.reverseProfileEdges]);
-        return internalGenerator;
+        return getAllIncomingEdges(this);
     }
 
     getAllOutgoingEdges(): Generator<IEdgeClassic, string, unknown> {
-        // Note: I couldn't find out, why can't I just somehow return the internals of the getEdgesInternal function
-        // Answer: I just had to remove the * in front of method to say that it just returns the generator and isn't the generator in itself
-        const internalGenerator = this.getEdgesInternal([this.relationshipEdges, this.generalizationEdges, this.profileEdges]);
-        return internalGenerator;
+        return getAllOutgoingEdges(this);
     }
 
-    private *getEdgesInternal(edgesOfDifferentTypes: Array<Array<IEdgeClassic>>): Generator<IEdgeClassic, string, unknown> {
-        for(const edgesOfOneType of edgesOfDifferentTypes) {
-            // Note: Can't use forEach because of yield
-            for(const e of edgesOfOneType) {
-                yield e;
-            }
+    getAllEdges(): Generator<IEdgeClassic, string, unknown> {
+        return getAllEdges(this);
+    }
+}
+
+
+function getAllIncomingEdges(node: INodeClassic): Generator<IEdgeClassic, string, unknown> {
+    const internalGenerator = getEdgesInternal([node.reverseRelationshipEdges, node.reverseGeneralizationEdges, node.reverseProfileEdges]);
+    return internalGenerator;
+}
+
+function getAllOutgoingEdges(node: INodeClassic): Generator<IEdgeClassic, string, unknown> {
+    // Note: I couldn't find out, why can't I just somehow return the internals of the getEdgesInternal function
+    // Answer: I just had to remove the * in front of method to say that it just returns the generator and isn't the generator in itself
+    const internalGenerator = getEdgesInternal([node.relationshipEdges, node.generalizationEdges, node.profileEdges]);
+    return internalGenerator;
+}
+
+function *getEdgesInternal(edgesOfDifferentTypes: Array<Array<IEdgeClassic>>): Generator<IEdgeClassic, string, unknown> {
+    for(const edgesOfOneType of edgesOfDifferentTypes) {
+        // Note: Can't use forEach because of yield
+        for(const e of edgesOfOneType) {
+            yield e;
         }
-
-        return "TODO: Konec";       // The actual value doesn't really matter, I just found it interesting that generator can return something different as last element
     }
 
-    *getAllEdges(): Generator<IEdgeClassic, string, unknown> {
-        const incomingEdges = this.getAllIncomingEdges();
-        const outgoingEdges = this.getAllOutgoingEdges();
-        yield* incomingEdges;
-        yield* outgoingEdges;
+    return "TODO: End of generator";       // The actual value doesn't really matter, I just found it interesting that generator can return something different as last element
+}
 
-        return "TODO: KONEC OBOU";
-    }
+function *getAllEdges(node: INodeClassic): Generator<IEdgeClassic, string, unknown> {
+    const incomingEdges = node.getAllIncomingEdges();
+    const outgoingEdges = node.getAllOutgoingEdges();
+    yield* incomingEdges;
+    yield* outgoingEdges;
+
+    return "TODO: End of both generators";
 }

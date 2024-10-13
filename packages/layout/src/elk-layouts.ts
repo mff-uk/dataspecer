@@ -1,13 +1,13 @@
 import { GraphTransformer, ExtractedModel, extractModelObjects, getEdgeSourceAndTargetRelationship, getEdgeSourceAndTargetGeneralization, LayoutAlgorithm } from "./layout-iface";
 import { SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { VisualEntities, VisualEntity } from "../../core-v2/lib/visual-model/visual-entity";
-import { GraphClassic, IGraphClassic } from "./graph-iface";
+import { Position, VisualEntities, VisualEntity } from "../../core-v2/lib/visual-model/visual-entity";
+import { GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, MainGraphClassic, VisualEntityComplete } from "./graph-iface";
 
 
 
 import ELK from 'elkjs/lib/elk.bundled';
 
-import { LayoutOptions, ElkNode, ElkExtendedEdge, ElkLabel, ElkPort } from 'elkjs/lib/elk-api';
+import ElkConstructor, { LayoutOptions, ElkNode, ElkExtendedEdge, ElkLabel, ElkPort, type ELK as ELKType } from 'elkjs/lib/elk-api';
 
 import { BasicUserGivenConstraints, IAlgorithmOnlyConstraint, IConstraint, IConstraintSimple, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationOnlyData, UserGivenConstraints } from "./configs/constraints";
 import { AlgorithmName, ConstraintContainer, ElkConstraintContainer } from "./configs/constraint-container";
@@ -15,17 +15,24 @@ import { ReactflowDimensionsEstimator } from "./reactflow-dimension-estimator";
 import { CONFIG_TO_ELK_CONFIG_MAP } from "./configs/elk/elk-utils";
 import { NodeDimensionQueryHandler } from ".";
 import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { PhantomElementsFactory } from "./util/utils";
+import _, { clone } from "lodash";
 
 
 
 class ElkGraphTransformer implements GraphTransformer {
     // TODO: Either I will actually store the representation inside the class or not, If not then constructor should be empty
-    constructor(graph: GraphClassic, NodeDimensionQueryHandler: NodeDimensionQueryHandler, options?: object) {
-        this.graph = graph;
+    constructor(graph: IGraphClassic, NodeDimensionQueryHandler: NodeDimensionQueryHandler, options?: object) {
+        console.log("graph in ElkGraphTransformer");
+        console.log(graph);
+        this.graph = graph.mainGraph;
         this.NodeDimensionQueryHandler = NodeDimensionQueryHandler;
     }
 
-    convertGraphToLibraryRepresentation(graph: IGraphClassic, constraintContainer?: ElkConstraintContainer): ElkNode {
+    convertGraphToLibraryRepresentation(graph: IGraphClassic,
+                                        shouldSetLayoutOptions: boolean,
+                                        constraintContainer?: ElkConstraintContainer,
+                                        elkNodeToSet?: ElkNode): ElkNode {
         let mainLayoutOptions: LayoutOptions;
         let generalizationLayoutOptions: LayoutOptions;
         if(!this.hasAlgorithmConstraintForAllNodes(constraintContainer)) {
@@ -53,7 +60,9 @@ class ElkGraphTransformer implements GraphTransformer {
                  generalizationLayoutOptions['elk.edgeRouting'] = "ORTHOGONAL";
             }
         }
-        const MAIN_EDGE_DIRECTION: string = mainLayoutOptions['elk.direction'] === undefined ? "UP" : mainLayoutOptions['elk.direction'];
+
+
+        const MAIN_EDGE_DIRECTION: string = mainLayoutOptions['elk.direction'] ?? "UP";
         const GENERALIZATION_EDGE_DIRECTION: string = generalizationLayoutOptions === undefined ? MAIN_EDGE_DIRECTION : generalizationLayoutOptions['elk.direction'];
 
         // TODO: The above code can be put in separate method (also it doesn't use the graph)
@@ -64,19 +73,25 @@ class ElkGraphTransformer implements GraphTransformer {
                 return null;
             }
             else {
-                return this.createElkNode(id, true, undefined, node.node.iri);      // TODO: Not sure what is the ID (visual or semantic entity id?)
+                const elkNode = this.createElkNode(id, true, undefined, node?.node?.iri, node.completeVisualEntity?.coreVisualEntity?.position);     // TODO: Not sure what is the ID (visual or semantic entity id?)
+                if(node instanceof GraphClassic) {
+                    this.convertGraphToLibraryRepresentation(node, true, constraintContainer, elkNode);
+                }
+                return elkNode;
             }
         }).filter(n => n !== null);
+
 
         // TODO: Same as nodes above, maybe better type the node.node (and access through getter)
         const profileNodes = Object.entries(graph.nodes).map(([id, node]) => {
             if(node.isProfile) {
-                return this.createElkNode(id, true, undefined, "USAGE OF: " + (node.node as SemanticModelClassUsage).usageOf);
+                return this.createElkNode(id, true, undefined, "USAGE OF: " + (node.node as SemanticModelClassUsage).usageOf, node.completeVisualEntity?.coreVisualEntity?.position);
             }
             else {
                 return null;
             }
         }).filter(n => n !== null);
+
 
 
         nodes = nodes.concat(profileNodes);
@@ -86,23 +101,28 @@ class ElkGraphTransformer implements GraphTransformer {
         Object.entries(graph.nodes).map(([id, node]) => {
             // TODO: In case of scheme.org the value in the concept field is the Owl#Thing, the actual value I want is in the iri part
             //       But then I should have the nodes inside elk with id as iri (in case of profiles the ids will stay the same)
+
+            // console.log("node");
+            // console.log(node);
+            // console.log(node.getAllOutgoingEdges());
             for(const edge of node.getAllOutgoingEdges()) {
+                // TODO: Remove the commented code after debugging visual model
+                // console.log("Created edge:");
+                // console.log("START:");
+                // console.log(edge.start.node?.iri ?? edge.start.id);
+                // console.log("END:");
+                // console.log(edge.end.node?.iri ?? edge.end.id);
                 const [sourcePort, targetPort] = this.getSourceAndTargetPortBasedOnDirection(MAIN_EDGE_DIRECTION);
                 let elkEdge: ElkExtendedEdge = {
-                    id: edge.edge.id,
-                    sources: [ sourcePort + edge.start.node.id ],
-                    targets: [ targetPort + edge.end.node.id ],
+                    id: edge.id,
+                    // sources: [ sourcePort + edge.start.id ],
+                    // targets: [ targetPort + edge.end.id ],
+                    sources: [ edge.start.id ],
+                    targets: [ edge.end.id ],
                 }
                 edges.push(elkEdge);
             }
-            // const [source, target, ...rest] = getEdgeSourceAndTargetRelationship();
 
-            // if(!this.isEdgeWithBothEndsInModel(extractedModel, source, target)) {
-            //     return undefined;
-            // }
-
-
-            // const [sourcePort, targetPort] = this.getSourceAndTargetPortBasedOnDirection(MAIN_EDGE_DIRECTION);
 
             // let edge: ElkExtendedEdge = {
             //     id: relationship.id,
@@ -114,122 +134,107 @@ class ElkGraphTransformer implements GraphTransformer {
         });
 
 
-//         // TODO: Repeating the same code 3 times - refactor - just needs different direction and method to get source and target, otherwise the same
-//         //       Only the class profiles are kind of weird that they don't have releationship ID
-//         let edges = extractedModel.relationships.map(relationship => {
-//             // TODO: In case of scheme.org the value in the concept field is the Owl#Thing, the actual value I want is in the iri part
-//             //       But then I should have the nodes inside elk with id as iri (in case of profiles the ids will stay the same)
-//             const [source, target, ...rest] = getEdgeSourceAndTargetRelationship(relationship);
-
-//             if(!this.isEdgeWithBothEndsInModel(extractedModel, source, target)) {
-//                 return undefined;
-//             }
-
-
-//             const [sourcePort, targetPort] = this.getSourceAndTargetPortBasedOnDirection(MAIN_EDGE_DIRECTION);
-
-//             let edge: ElkExtendedEdge = {
-//                 id: relationship.id,
-//                 sources: [ sourcePort + source ],
-//                 targets: [ targetPort + target ],
-//             }
-
-//             return edge;
-//         });
-
-//         edges = edges.concat(extractedModel.generalizations.map(gen => {
-//             const [child, parent] = getEdgeSourceAndTargetGeneralization(gen);
-
-//             if(!this.isEdgeWithBothEndsInModel(extractedModel, child, parent)) {
-//                 return undefined;
-//             }
-
-//             const [sourcePort, targetPort] = this.getSourceAndTargetPortBasedOnDirection(GENERALIZATION_EDGE_DIRECTION);
-
-//             let edge: ElkExtendedEdge = {
-//                 id: gen.id,
-//                 sources: [ sourcePort + child ],
-//                 targets: [ targetPort + parent ],
-//             }
-
-//             return edge;
-//         }));
-
-//         let profileIndex = 0;
-//         edges = edges.concat(extractedModel.classesProfiles.map(p => {
-//             const [source, target] = [p.id, p.usageOf];
-
-//             if(!this.isEdgeWithBothEndsInModel(extractedModel, source, target)) {
-//                 return undefined;
-//             }
-
-//             const [sourcePort, targetPort] = this.getSourceAndTargetPortBasedOnDirection(MAIN_EDGE_DIRECTION);
-
-//             let edge: ElkExtendedEdge = {
-//                 id: `${profileIndex++}-${p.id}`,
-//                 sources: [ sourcePort + source ],
-//                 targets: [ targetPort + target ],
-//             }
-
-//             return edge;
-//         }));
-
-
-//         // TODO: fixed SCHEMA.ORG for now - maybe delete later
-//         edges = edges.filter(e => e !== undefined);
-
-//         // TODO: Profile edges should be done by using agregator probably or something (maybe same for profile classes)
-// /*
-//         const profileEdges = extractedModel.relationshipsProfiles.map(relationship => {
-//             let source, target: string;
-//             if(relationship.ends[0].iri == null) {
-//                 source = relationship.ends[0].concept;
-//                 target = relationship.ends[1].concept;
-//             }
-//             else {
-//                 source = relationship.ends[1].concept;
-//                 target = relationship.ends[0].concept;
-//             }
-//             let edge: ElkExtendedEdge = {
-//                 id: relationship.id,
-//                 sources: [ source ],
-//                 targets: [ target ],
-//             }
-
-//             return edge
-//         });
-
-//         edges = edges.concat(profileEdges);
-// */
-
-
-        let elkGraph: ElkNode = {
-            id: "root",
-            layoutOptions: mainLayoutOptions,
-            children: nodes,
-            edges: edges
-        };
-
-
-        if(generalizationLayoutOptions !== undefined) {
-            // TODO: !!!! This should be performed above the GraphClassic - the creation of generalization subgraphs
-            const generalizationEdges = Object.values(graph.nodes).map(node => {
-                return node.generalizationEdges
-            }).flat(1).map(edge => edge.edge as SemanticModelGeneralization);
-            this.createAndAddGeneralizationSubgraphsInElk(elkGraph, generalizationEdges, generalizationLayoutOptions);
+        let elkGraph: ElkNode;
+        if(elkNodeToSet === undefined) {
+            elkGraph = {
+                id: "root",
+                children: nodes,
+                edges: edges
+            };
         }
+        else {
+            elkGraph = elkNodeToSet;
+            elkGraph.children = nodes;
+            elkGraph.edges = edges;
+        }
+
+        // TODO: I Should pass here the options for subgraph instead of doing this
+        if(shouldSetLayoutOptions) {
+            if(generalizationLayoutOptions !== undefined && isSubgraph(elkGraph)) {
+                elkGraph.layoutOptions = generalizationLayoutOptions;
+            }
+            else if(graph instanceof MainGraphClassic) {        // TODO: This expects that the wrapper graph is always main
+                elkGraph.layoutOptions = mainLayoutOptions;
+            }
+        }
+
+        console.log("elkGraph after conversion");
+        console.log(elkGraph);
 
         return elkGraph;
     }
-    convertLibraryToGraphRepresentation(libraryRepresentation: object, includeDummies: boolean): IGraphClassic {
-        throw new Error("Method not implemented.");
-    }
-    updateExistingGraphRepresentationBasedOnLibraryRepresentation(libraryRepresentation: object, graphToBeUpdated: IGraphClassic, includeNewVertices: boolean): void {
-        throw new Error("Method not implemented.");
+    convertLibraryToGraphRepresentation(libraryRepresentation: ElkNode | null, includeDummies: boolean): IMainGraphClassic {
+        // TODO: 1) This is really simple implementation
+        //       2) It should be noted in docs that we are actually just cloning the old graph and update the copy and creating completely new one - because the results may slightly differ
+        //       3) Using this.graph ... it makes sense since it is the input graph
+        const clonedGraph = _.cloneDeep(this.graph);
+        // TODO: Ideally we would have some clone method which clones the necessary stuff, but keeps relevant references, we can also try to create the graph from scratch
+        //       like this, but it is to specific and usually breaks on different ids
+        //       ..... so remove these TODOs if the cloneDeep is enough
+        // const clonedGraph = GraphFactory.createMainGraph(this.graph.mainGraph.id, this.graph.todoDebugExtractedModel, null);
+        // (clonedGraph as MainGraphClassic).createGeneralizationSubgraphsFromStoredTODOExtractedModel();  // TODO: For now
+
+        this.updateExistingGraphRepresentationBasedOnLibraryRepresentation(libraryRepresentation, clonedGraph, includeDummies, true);
+
+        return clonedGraph;
     }
 
-    // TODO: For now this is just to estimate the width/height, otherwise we don't use the graph yet, so it is kind of useless and waste of space
-    private graph: GraphClassic;
+
+    updateExistingGraphRepresentationBasedOnLibraryRepresentation(libraryRepresentation: ElkNode | null,
+                                                                    graphToBeUpdated: IGraphClassic,        // TODO: Can use this.graph instead
+                                                                    includeNewVertices: boolean,
+                                                                    shouldUpdateEdges: boolean): VisualEntities {
+        // TODO: Type void (respectively null) should be solved better (On Fail call random layout or something, idk)
+        if(libraryRepresentation === null) {
+            return {};
+        }
+
+        const visualEntities = this.recursiveUpdate(libraryRepresentation, graphToBeUpdated, 0, 0, shouldUpdateEdges);
+        const [leftX, topY] = this.findTopLeftPosition(visualEntities.map(ve => ve.coreVisualEntity));         // TODO: The mapping is unnecesary and slow
+        visualEntities.forEach(ve => {
+            ve.coreVisualEntity.position.x -= leftX;
+            ve.coreVisualEntity.position.y -= topY;
+        });
+
+        return Object.fromEntries(visualEntities.map(visualEntity => [visualEntity.coreVisualEntity.sourceEntityId, visualEntity.coreVisualEntity])) as VisualEntities;
+    }
+
+    recursiveUpdate(n: ElkNode, graphToBeUpdated: IGraphClassic, referenceX: number, referenceY: number, shouldUpdateEdges: boolean): VisualEntityComplete[] {
+        // TODO: If we add phantom nodes (and later when also draw edges this may stop working)
+        let visualEntities : VisualEntityComplete[] = [];
+
+        for(let ch of n.children) {
+            const completeVisualEntity = this.convertElkNodeToCompleteVisualEntity(ch, referenceX, referenceY);
+            const node = graphToBeUpdated.mainGraph.findNodeInAllNodes(ch.id);
+            if(node.completeVisualEntity === undefined) {
+                node.completeVisualEntity = completeVisualEntity
+            }
+            else {
+                node.completeVisualEntity.coreVisualEntity.position = completeVisualEntity.coreVisualEntity.position;
+                node.completeVisualEntity.width = completeVisualEntity.width;
+                node.completeVisualEntity.height = completeVisualEntity.height;
+            }
+            visualEntities.push(node.completeVisualEntity);
+            if(isSubgraph(ch)) {
+                let subgraphReferenceX = referenceX + ch.x;
+                let subgraphReferenceY = referenceY + ch.y;
+
+                visualEntities = visualEntities.concat(this.recursiveUpdate(ch, graphToBeUpdated, subgraphReferenceX, subgraphReferenceY, shouldUpdateEdges));
+            }
+            if(shouldUpdateEdges) {
+                for(let edge of n.edges) {
+                    const edgeInOriginalGraph = graphToBeUpdated.mainGraph.findEdgeInAllEdges(edge.id);
+                    // TODO: Update the visual entity of edge or create new one .... But what about the split ones???
+                }
+            }
+        }
+
+        return visualEntities;
+    };
+
+
+    // TODO: Actually should we even store the graph, shouldn't we pass it in methods?
+    private graph: IMainGraphClassic;
 
     private NodeDimensionQueryHandler;
 
@@ -283,6 +288,7 @@ class ElkGraphTransformer implements GraphTransformer {
             ve.position.x -= leftX;
             ve.position.y -= topY;
         });
+
         return Object.fromEntries(visualEntities.map(entity => [entity.sourceEntityId, entity])) as VisualEntities;
     }
 
@@ -310,21 +316,25 @@ class ElkGraphTransformer implements GraphTransformer {
                 visualEntities = visualEntities.concat(this.convertElkNodeRecursively(ch, subgraphReferenceX, subgraphReferenceY));
             }
             else {
-                visualEntities.push(this.convertElkNodeToVisualEntity(ch, referenceX, referenceY));
+                visualEntities.push(this.convertElkNodeToCompleteVisualEntity(ch, referenceX, referenceY).coreVisualEntity);
             }
         }
 
         return visualEntities;
     }
 
-    private convertElkNodeToVisualEntity(n: ElkNode, referenceX: number, referenceY: number): VisualEntity {
+    private convertElkNodeToCompleteVisualEntity(n: ElkNode, referenceX: number, referenceY: number): VisualEntityComplete {
         return {
-            id: Math.random().toString(36).substring(2),
-            type: ["visual-entity"],
-            sourceEntityId: n.id,
-            visible: true,
-            position: { x: referenceX + n.x, y: referenceY + n.y },
-            hiddenAttributes: []
+            coreVisualEntity: {
+                id: Math.random().toString(36).substring(2),
+                type: ["visual-entity"],
+                sourceEntityId: n.id,
+                visible: true,
+                position: { x: referenceX + n.x, y: referenceY + n.y },
+                hiddenAttributes: []
+            },
+            width: n.width,
+            height: n.height
         };
     }
 
@@ -334,6 +344,9 @@ class ElkGraphTransformer implements GraphTransformer {
         return constraintContainer?.algorithmOnlyConstraints["ALL"] !== undefined;
     }
 
+    /**
+     * @deprecated
+     */
     convertToLibraryRepresentation(extractedModel: ExtractedModel, constraintContainer?: ElkConstraintContainer): ElkNode {
         let mainLayoutOptions: LayoutOptions;
         let generalizationLayoutOptions: LayoutOptions;
@@ -356,11 +369,16 @@ class ElkGraphTransformer implements GraphTransformer {
             //       the main algorithm set as layered with direction to LEFT and the generalization to right, then there exists such edges
             //       which goes against the flow and can't be drawn using splines, so we need to draw them orthogonally
             //       Downside of having orthogonal edge routing is that the resulting layout inside CME is slightly worse
-            if(mainLayoutOptions["elk.algorithm"] === "layered" && generalizationLayoutOptions !== undefined && mainLayoutOptions["elk.direction"] !== generalizationLayoutOptions["elk.direction"]) {
-                //mainLayoutOptions['org.eclipse.elk.hierarchyHandling'] = "INCLUDE_CHILDREN";
-                 mainLayoutOptions['elk.edgeRouting'] = "ORTHOGONAL";
-                 generalizationLayoutOptions['elk.edgeRouting'] = "ORTHOGONAL";
-            }
+
+
+	    // TODO: Set only when necessary ... just for debug now ... or actually just keep the ORTHOGONAL
+            // if(mainLayoutOptions["elk.algorithm"] === "layered" && generalizationLayoutOptions !== undefined && mainLayoutOptions["elk.direction"] !== generalizationLayoutOptions["elk.direction"]) {
+            //     //mainLayoutOptions['org.eclipse.elk.hierarchyHandling'] = "INCLUDE_CHILDREN";
+            //      mainLayoutOptions['elk.edgeRouting'] = "ORTHOGONAL";
+            //      generalizationLayoutOptions['elk.edgeRouting'] = "ORTHOGONAL";
+            // }
+            mainLayoutOptions['elk.edgeRouting'] = "ORTHOGONAL";
+            generalizationLayoutOptions['elk.edgeRouting'] = "ORTHOGONAL";
         }
         const MAIN_EDGE_DIRECTION: string = mainLayoutOptions['elk.direction'] === undefined ? "UP" : mainLayoutOptions['elk.direction'];
         const GENERALIZATION_EDGE_DIRECTION: string = generalizationLayoutOptions === undefined ? MAIN_EDGE_DIRECTION : generalizationLayoutOptions['elk.direction'];
@@ -489,6 +507,9 @@ class ElkGraphTransformer implements GraphTransformer {
     // TODO: !!!! Should be ok now and satisfied in the input graph already
     // TODO: fixes SCHEMA.ORG vocabulary and other models - If the class isn't part of the model, ignore the edge - may not be optimal performance wise
     // TODO: May delete later
+    /**
+     * @deprecated
+     */
     isEdgeWithBothEndsInModel(extractedModel: ExtractedModel, source: string, target: string): boolean {
         return (extractedModel.classes.findIndex(e => e.id === source) >= 0 || extractedModel.classesProfiles.findIndex(e => e.id === source) >= 0) &&
                 (extractedModel.classes.findIndex(e => e.id === target) >= 0 || extractedModel.classesProfiles.findIndex(e => e.id === target) >= 0)
@@ -508,6 +529,9 @@ class ElkGraphTransformer implements GraphTransformer {
     }
 
 
+    /**
+     * @deprecated
+     */
     createElkSubgraphFromNodesAndInsertToElkGraph(graph: ElkNode, subgraphNodes: Array<ElkNode>, subgraphLayoutOptions?: LayoutOptions): ElkNode {
         // 1) Take ElkNodes and create one subgraph which has them as children
         const subgraph: ElkNode = this.convertSubgraphListToActualSubgraph(subgraphNodes, subgraphLayoutOptions);
@@ -517,8 +541,14 @@ class ElkGraphTransformer implements GraphTransformer {
         return subgraph;
     }
 
+    /**
+     * @deprecated
+     */
     subgraphCurrID: number = 0;
 
+    /**
+     * @deprecated
+     */
     convertSubgraphListToActualSubgraph(subgraphNodes: Array<ElkNode>, subgraphLayoutOptions?: LayoutOptions): ElkNode {
 
         let layoutOptions: LayoutOptions = (subgraphLayoutOptions !== undefined) ? subgraphLayoutOptions : {
@@ -539,23 +569,39 @@ class ElkGraphTransformer implements GraphTransformer {
         return subgraph;
     }
 
+
+    /**
+     * @deprecated
+     */
     insertSubgraphToGraph(graph: ElkNode, subgraph: ElkNode, subgraphNodes: Array<ElkNode>): void {
         this.changeNodesInOriginalGraph(graph, subgraph, subgraphNodes);
         this.repairEdgesInOriginalGraph(graph, subgraph, subgraphNodes);
     }
 
+
+    /**
+     * @deprecated
+     */
     changeNodesInOriginalGraph(graph: ElkNode, subgraph: ElkNode, subgraphNodes: Array<ElkNode>) : void {
         let newChildren: Array<ElkNode> = graph.children.filter(ch => subgraphNodes.findIndex(subgraphNode => ch.id === subgraphNode.id) < 0);
         newChildren.push(subgraph);
         graph.children = newChildren;
     }
 
+
+    /**
+     * @deprecated
+     */
     repairEdgesInOriginalGraph(graph: ElkNode, subgraph: ElkNode, changedNodes: Array<ElkNode>) : void {
         // This is needed, because if we don't put the edges inside the subgraph, then Elk can't work with it
         this.repairEdgesInsideSubgraph(graph, subgraph, changedNodes);
         this.repairEdgesGoingBeyondSubgraph(graph, subgraph, changedNodes);
     }
 
+
+    /**
+     * @deprecated
+     */
     repairEdgesInsideSubgraph(graph: ElkNode, subgraph: ElkNode, changedNodes: Array<ElkNode>) {
         const edgesInSubgraph = graph.edges.filter(e => {
             // TODO: Could be done faster ... for example the slicing could be performed only once
@@ -566,12 +612,19 @@ class ElkGraphTransformer implements GraphTransformer {
         graph.edges = graph.edges.filter(e => edgesInSubgraph.findIndex(eis => e.id === eis.id) < 0);
     }
 
+
+    /**
+     * @deprecated
+     */
     repairEdgesGoingBeyondSubgraph(graph: ElkNode, subgraph: ElkNode, changedNodes: Array<ElkNode>) {
         this.repairEdgesGoingBeyondSubgraphInternal(graph, subgraph, changedNodes, "sources");
         this.repairEdgesGoingBeyondSubgraphInternal(graph, subgraph, changedNodes, "targets");
     }
 
 
+    /**
+     * @deprecated
+     */
     private setDirectionForEdgeRepair(graph: ElkNode): string {
         let edgeDirectionOutsideSubgraph: string;
         if(graph.layoutOptions['elk.algorithm'] === "layered") {
@@ -585,10 +638,7 @@ class ElkGraphTransformer implements GraphTransformer {
     }
 
     /**
-     *
-     * @param graph
-     * @param subgraph
-     * @param changedNodes
+     * @deprecated
      * @param edgeEnd is either "sources" or "targets", if it is sources then it repairs edges going out of subgraph, "targets" then going in
      */
     private repairEdgesGoingBeyondSubgraphInternal(graph: ElkNode, subgraph: ElkNode, changedNodes: Array<ElkNode>, edgeEnd: "sources" | "targets") {
@@ -616,6 +666,10 @@ class ElkGraphTransformer implements GraphTransformer {
         graph.edges = graph.edges.filter(e => edgesGoingBeyond.findIndex(eis => e.id === eis.id) < 0);
     }
 
+
+    /**
+     * @deprecated
+     */
     splitEdgeIntoTwo(edge: ElkExtendedEdge, intermediateNodeID: string,
                      edgesArrayForFirstSplit: ElkExtendedEdge[],
                      edgesArrayForSecondSplit: ElkExtendedEdge[]): [ElkExtendedEdge, ElkExtendedEdge] {
@@ -637,15 +691,27 @@ class ElkGraphTransformer implements GraphTransformer {
         return [edge1, edge2];
     }
 
+
+    /**
+     * @deprecated
+     */
     addNewNodeToSubgraph(subgraph: ElkNode, nodeToAdd: ElkNode): void {
         subgraph.children.push(nodeToAdd);
     }
 
+
+    /**
+     * @deprecated
+     */
     addNodeFromGraphToSubgraph(graph: ElkNode, subgraph: ElkNode, nodeToAdd: ElkNode): void {
         this.addNewNodeToSubgraph(subgraph, nodeToAdd);
         graph.children = graph.children.filter(ch => ch.id !== nodeToAdd.id);
     }
 
+
+    /**
+     * @deprecated
+     */
     createAndAddGeneralizationSubgraphsInElk(graph: ElkNode, genEdges: SemanticModelGeneralization[], generalizationOptions?: LayoutOptions): Array<ElkNode> {
         // For now 1 whole hierarchy (n levels) == 1 subgraph
         // TODO: Also very slow, but I will probably have my own graph representation later, in such case getting the generalization edges neighbors and
@@ -693,6 +759,10 @@ class ElkGraphTransformer implements GraphTransformer {
         return createdSubgraphs;
     }
 
+
+    /**
+     * @deprecated
+     */
     findGeneralizationSubgraphs(parents: Record<string, string[]>, children: Record<string, string[]>): string[][] {
         let subgraphs: Record<string, number> = {};
         let stack: string[] = [];
@@ -732,6 +802,7 @@ class ElkGraphTransformer implements GraphTransformer {
         return subgraphsAsArrays;
     }
 
+
     createDefaultPorts(id: string): ElkPort[] {
         // TODO: For now just fix the ports no matter the given layout options
         const ports: ElkPort[] = [];
@@ -765,12 +836,13 @@ class ElkGraphTransformer implements GraphTransformer {
     }
 
 
-    createElkNode(id: string, shouldComputeSize?: boolean, layoutOptions?: LayoutOptions, label?: string): ElkNode {
-        const width: number = shouldComputeSize ? this.NodeDimensionQueryHandler.getWidth(this.graph.nodes[id]) : 500;
-        const height: number = shouldComputeSize ? this.NodeDimensionQueryHandler.getHeight(this.graph.nodes[id]) : 300;
+    createElkNode(id: string, shouldComputeSize?: boolean, layoutOptions?: LayoutOptions, label?: string, position?: Position): ElkNode {
+        const width: number = shouldComputeSize ? this.NodeDimensionQueryHandler.getWidth(this.graph.findNodeInAllNodes(id)) : 500;
+        const height: number = shouldComputeSize ? this.NodeDimensionQueryHandler.getHeight(this.graph.findNodeInAllNodes(id)) : 300;
 
         const ports: ElkPort[] = this.createDefaultPorts(id);
         const portOptions = this.getDefaultLayoutOptionsForNode();
+
 
         const nodeLabel: ElkLabel = { text: label === undefined ? id : label };
         let node: ElkNode;
@@ -780,7 +852,7 @@ class ElkGraphTransformer implements GraphTransformer {
                 labels: [ nodeLabel ],
                 width: width,
                 height: height,
-                ports: ports,
+                // ports: ports,
                 layoutOptions: portOptions,
             };
         }
@@ -791,8 +863,12 @@ class ElkGraphTransformer implements GraphTransformer {
                 width: width,
                 height: height,
                 layoutOptions: {...layoutOptions, ...portOptions},
-                ports: ports,
+                // ports: ports,
             };
+        }
+        if(position !== undefined) {
+            node.x = position.x;
+            node.y = position.y;
         }
 
         return node;
@@ -801,43 +877,6 @@ class ElkGraphTransformer implements GraphTransformer {
 
 
 async function performGeneralizationTwoRunLayout(graphInElk: ElkNode, elk): Promise<ElkNode | void> {
-    let layoutPromises = [];
-    let subgraphAllEdges: [ElkExtendedEdge[], ElkExtendedEdge[]][] = [];
-    let subgraphIndices: number[] = [];
-    console.log("GRAPH BEFORE DOUBLE LAYOUTING:");
-    console.log(JSON.stringify(graphInElk));
-    for(const [index, subgraph] of graphInElk.children.entries()) {
-        console.log(index);
-        console.log(subgraph);
-        if(isSubgraph(subgraph)) {
-            console.log(subgraph);
-            subgraphIndices.push(index);
-            // TODO: The variant which removes the edges going to the subgraph boundaries, other solution is
-            //       to box it inside another node and the reroute the edges there (or actually don't even have to reroute if I swap the order of the subgraphs)
-            const [keptEdges, removedEdges] = removeEdgesLeadingToSubgraphInsideSubgraph(subgraph);
-            subgraphAllEdges.push([keptEdges, removedEdges]);
-            subgraph.edges = keptEdges;
-            console.log("THE layouted SUBGRAPH:");
-            console.log(subgraph);
-            console.log(JSON.stringify(subgraph));
-            const layoutPromise = elk.layout(subgraph)
-                .then(console.log)
-                .catch(console.error);
-            layoutPromises.push(layoutPromise);
-        }
-    }
-    await Promise.all(layoutPromises);
-    console.log("GRAPH AFTER FIRST LAYOUTING:");
-    console.log(JSON.stringify(graphInElk));
-    for(const [i, [keptEdges, removedEdges]] of subgraphAllEdges.entries()) {
-        console.log("Layouted subgraph");
-        console.log(graphInElk.children[subgraphIndices[i]]);
-        graphInElk.children[subgraphIndices[i]].edges = graphInElk.children[subgraphIndices[i]].edges.concat(removedEdges);
-    }
-    console.log("GRAPH AFTER FIRST LAYOUTING AND REPAIRING EDGES:");
-    console.log(JSON.stringify(graphInElk));
-
-
     for(const subgraph of graphInElk.children) {
         if(isSubgraph(subgraph)) {
             // TODO: Actually I don't think this is needed
@@ -845,19 +884,16 @@ async function performGeneralizationTwoRunLayout(graphInElk: ElkNode, elk): Prom
         }
     }
 
-    // graphInElk.children[subgraphIndices[0]].children = undefined;
-    // graphInElk.children[subgraphIndices[0]].edges = undefined;
-    // graphInElk.children = graphInElk.children.slice(0, subgraphIndices[0]).concat(graphInElk.children.slice(subgraphIndices[0] + 1));
-    // graphInElk.layoutOptions = {'elk.algorithm': 'force'};
-
-
     const layoutPromise = elk.layout(graphInElk)
                              .catch(console.error);
+    layoutPromise.then(result => console.log("!!! performGeneralizationTwoRunLayout LAYOUTING OVER !!!"));
     layoutPromise.then(console.log);
-    return layoutPromise
+    layoutPromise.then(result => console.log(JSON.stringify(result)));
+    return layoutPromise;
 }
 
 function fixNodesInsideGraph(graph: ElkNode) {
+    graph.layoutOptions = {};
     graph.layoutOptions['elk.algorithm'] = 'fixed';
 }
 
@@ -865,23 +901,16 @@ function removeEdgesLeadingToSubgraphInsideSubgraph(subgraph: ElkNode): [ElkExte
     const keptEdges: ElkExtendedEdge[] = [];
     const removedEdges: ElkExtendedEdge[] = [];
     for(const e of subgraph.edges) {
-        if(convertNodePortIdToId(e.sources[0]) === subgraph.id || convertNodePortIdToId(e.targets[0]) === subgraph.id) {
+        // TODO: Version without ports (the commented code is version with ports)
+        // TODO: The stress algorithm can't work with ports, well it can but the edges aren't set correctly
+        // if(convertNodePortIdToId(e.sources[0]) === subgraph.id || convertNodePortIdToId(e.targets[0]) === subgraph.id) {
+        if(e.sources[0] === subgraph.id || e.targets[0] === subgraph.id) {
             removedEdges.push(e);
         }
         else {
             keptEdges.push(e);
         }
     }
-
-    // keptEdges.forEach(e => console.log(e));
-    // keptEdges.forEach(e => console.log("::::::::::::::"));
-    // console.log(keptEdges.length);
-    // console.log(keptEdges[0].sections);
-    // for(let i = 0; i < keptEdges.length; i++) {
-    //     console.log(i);
-    //     console.log(keptEdges[i]);
-    //     console.log(JSON.stringify(keptEdges[i]));
-    // }
 
     return [keptEdges, removedEdges];
 }
@@ -954,9 +983,17 @@ function convertNodePortIdToId(id: string): string {
     return id.slice(2);
 }
 
+
+/**
+ * @deprecated
+ */
 function isSubgraph(subgraph: ElkNode): boolean {
     return isSubgraphID(subgraph.id);
 }
+
+/**
+ * @deprecated
+ */
 function isSubgraphID(id: string): boolean {
     return id.startsWith("subgraph");
 }
@@ -967,155 +1004,105 @@ function shouldPerformGeneralizationTwoRunLayout(algorithmOnlyConstraint: IAlgor
 
 
 export class ElkLayout implements LayoutAlgorithm {
+    constructor() {
+        this.elk = new ELK();
+    }
+
     /**
      * @deprecated
-     * @param extractedModel
-     * @param constraintContainer
-     * @param nodeDimensionQueryHandler
      */
     prepare(extractedModel: ExtractedModel, constraintContainer: ElkConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
-
-        this.elkGraphTransformer = new ElkGraphTransformer(new GraphClassic(extractedModel, null), nodeDimensionQueryHandler, constraintContainer);
+        this.elkGraphTransformer = new ElkGraphTransformer(GraphFactory.createMainGraph(null, extractedModel, null), nodeDimensionQueryHandler, constraintContainer);
         this.graphInElk = this.elkGraphTransformer.convertToLibraryRepresentation(extractedModel, constraintContainer);
         this.constraintContainer = constraintContainer;
         this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
-
-        // console.log(this.graphInElk);
     }
 
-    prepareFromGraph(graph: GraphClassic, constraintContainer: ElkConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
+    prepareFromGraph(graph: IGraphClassic, constraintContainer: ElkConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
         this.graph = graph
         this.elkGraphTransformer = new ElkGraphTransformer(graph, nodeDimensionQueryHandler, constraintContainer);
-        this.graphInElk = this.elkGraphTransformer.convertGraphToLibraryRepresentation(graph),
+        this.graphInElk = this.elkGraphTransformer.convertGraphToLibraryRepresentation(graph, true, constraintContainer),       // TODO: Why I need to pass the constraintContainer again???
         this.constraintContainer = constraintContainer;
         this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
     }
 
-    async run(): Promise<VisualEntities> {
-        const elk = new ELK();
+    async run(): Promise<IMainGraphClassic> {
         let layoutPromise: Promise<ElkNode | void>;
 
         const constraint = this.constraintContainer.algorithmOnlyConstraints["GENERALIZATION"];
         if(shouldPerformGeneralizationTwoRunLayout(constraint)) {
-            layoutPromise = performGeneralizationTwoRunLayout(this.graphInElk, elk);
+            layoutPromise = performGeneralizationTwoRunLayout(this.graphInElk, this.elk);
         }
         else {
-            layoutPromise = elk.layout(this.graphInElk)
-                                .catch(console.error);
+            layoutPromise = this.elk.layout(this.graphInElk)
+                                    .catch(console.error);
         }
 
-        // console.log(await layoutPromise.then(this.elkGraphTransformer.convertToDataspecerRepresentation(this.graphInElk)));
-        // console.log(this.graphInElk);
-        // console.log(layoutPromise.then(layoutedGraph => this.elkGraphTransformer.convertToDataspecerRepresentation(layoutedGraph)));
-        // console.log("DONE");
 
-
-        console.log("layoutPromise.then(console.log)");
-        layoutPromise.then(console.log);
-        return layoutPromise.then(layoutedGraph => this.elkGraphTransformer.convertToDataspecerRepresentation(layoutedGraph));
+        return layoutPromise.then(layoutedGraph => {
+                                    // TODO: Check if the graph is void or not - Maybe can be solved better
+                                    if(layoutedGraph !== null && typeof layoutedGraph === 'object') {
+                                        return this.elkGraphTransformer.convertLibraryToGraphRepresentation(layoutedGraph, false);
+                                    }
+                                    return this.elkGraphTransformer.convertLibraryToGraphRepresentation(null, false);
+                                });
     }
+
+    async runGeneralizationLayout(): Promise<IMainGraphClassic> {
+        const layoutPromises: Promise<void>[] = [];
+        let subgraphAllEdges: [ElkExtendedEdge[], ElkExtendedEdge[]][] = [];
+        let subgraphIndices: number[] = [];
+        console.log("GRAPH BEFORE DOUBLE LAYOUTING:");
+        console.log(JSON.stringify(this.graphInElk));
+        for(const [index, subgraph] of this.graphInElk.children.entries()) {
+            console.log(index);
+            console.log(subgraph);
+            if(isSubgraph(subgraph)) {
+                console.log(subgraph);
+                subgraphIndices.push(index);
+                // TODO: The variant which removes the edges going to the subgraph boundaries, other solution is
+                //       to box it inside another node and the reroute the edges there (or actually don't even have to reroute if I swap the order of the subgraphs)
+                const [keptEdges, removedEdges] = removeEdgesLeadingToSubgraphInsideSubgraph(subgraph);
+                subgraphAllEdges.push([keptEdges, removedEdges]);
+                subgraph.edges = keptEdges;
+                console.log("THE layouted SUBGRAPH:");
+                console.log(subgraph);
+                console.log(JSON.stringify(subgraph));
+                const layoutPromise = this.elk.layout(subgraph)
+                    .then(console.log)
+                    .catch(console.error);
+                await layoutPromise;            // TODO: Just debug
+                layoutPromises.push(layoutPromise);
+            }
+        }
+        return Promise.all(layoutPromises).then(result => {
+            console.log("GRAPH AFTER FIRST LAYOUTING:");
+            console.log(JSON.stringify(this.graphInElk));
+            for(const [i, [keptEdges, removedEdges]] of subgraphAllEdges.entries()) {
+                console.log("Layouted subgraph");
+                console.log(this.graphInElk.children[subgraphIndices[i]]);
+                this.graphInElk.children[subgraphIndices[i]].edges = this.graphInElk.children[subgraphIndices[i]].edges.concat(removedEdges);
+            }
+            console.log("GRAPH AFTER FIRST LAYOUTING AND REPAIRING EDGES:");
+            console.log(this.graphInElk);
+            console.log(JSON.stringify(this.graphInElk));
+
+            const layoutedGraph = this.elkGraphTransformer.convertLibraryToGraphRepresentation(this.graphInElk, false);
+            // TODO: Alternative solution is just to keep changing the input graph instead of creating copies
+            // this.elkGraphTransformer.updateExistingGraphRepresentationBasedOnLibraryRepresentation(this.graphInElk, this.graph, false, true);
+            return layoutedGraph;
+        });
+    }
+
+
     stop(): void {
         throw new Error("TODO: Implement me if you want webworkers and parallelization ... actually nevermind this should be one level up");
     }
 
-    graph: GraphClassic;
-    graphInElk: ElkNode;
+    private elk: ELKType;
+    private graph: IGraphClassic;
+    private graphInElk: ElkNode;
     constraintContainer: ConstraintContainer;
-    elkGraphTransformer: ElkGraphTransformer;
+    private elkGraphTransformer: ElkGraphTransformer;
     nodeDimensionQueryHandler: NodeDimensionQueryHandler;
-}
-
-
-// export async function doElkLayout(inputSemanticModel: Record<string, SemanticModelEntity>, options: object): Promise<VisualEntities> {
-//     console.log("ELK LAYOUT");
-
-//     const extractedModel = extractModelObjects(inputSemanticModel);
-
-//     const elkGraphTransformer: ElkGraphTransformer = new ElkGraphTransformer(extractedModel, options);
-//     let graphInElk: ElkNode = elkGraphTransformer.convertToLibraryRepresentation(extractedModel, options);
-
-//     console.log("Extracted model:");
-//     console.log(extractedModel);
-
-//     console.log("Graph in ELK");
-//     console.log({...graphInElk});
-//     console.log(JSON.stringify(graphInElk));
-
-
-//     const elk = new ELK();
-
-//     if(shouldPerformGeneralizationTwoRunLayout(options)) {
-//         await performGeneralizationTwoRunLayout(graphInElk, elk);
-//     }
-//     else {
-//         const layoutPromise = elk.layout(graphInElk)
-//             .then(console.log)
-//             .catch(console.error);
-//         await layoutPromise;
-//     }
-
-//     // graphInElk.layoutOptions = {
-//     //     "elk.algorithm": "sporeCompaction",
-//     //     "spacing.nodeNode": "64",
-//     // };
-//     // await elk.layout(graphInElk)
-//     //         .then(console.log)
-//     //         .catch(console.error);
-
-
-// // TODO: Testing running stress algorithm after layout to place the profile nodes
-// /*
-//     const { entities, classes, classesProfiles, relationships, relationshipsProfiles, generalizations } = extractedModel;
-//     graphInElk.layoutOptions = {"elk.algorithm": "stress", "interactive": "true"};
-//     classes.forEach(cls => {
-//         const index: number = graphInElk.children.findIndex(ch => ch.id === cls.id);
-//         graphInElk.children[index].layoutOptions = { "org.eclipse.elk.stress.fixed": "true" };
-//     });
-//     classesProfiles.forEach(cls => {
-//         const index: number = graphInElk.children.findIndex(ch => ch.id === cls.id);
-//         graphInElk.children[index].layoutOptions = { "noLayout": "false" };
-//         const usageOfElkNode: ElkNode = graphInElk.children.find(c => c.id === cls.usageOf);
-//         graphInElk.children[index].x = usageOfElkNode.x;
-//         graphInElk.children[index].y = usageOfElkNode.y + 800;
-//         const e = addPhantomEdge(graphInElk, graphInElk.children[index].id, usageOfElkNode.id);
-//         e["layoutOptions"] = { "desiredEdgeLength": "400" };
-//     });
-
-//     console.log("CHANGED ELK GRAPH:");
-//     console.log(graphInElk);
-
-//     const changedGraphLayoutPromise = elk.layout(graphInElk)
-//          .then(console.log)
-//          .catch(console.error);
-//     await changedGraphLayoutPromise;
-// */
-
-
-
-// //    graphInElk.layoutOptions = {"elk.algorithm": "org.eclipse.elk.sporeOverlap", "interactive": "true"};
-// //    await elk.layout(graphInElk)
-// //         .then(console.log)
-// //         .catch(console.error);
-
-//     const layoutedGraphInDataspecer: VisualEntities = elkGraphTransformer.convertToDataspecerRepresentation(graphInElk);
-//     return layoutedGraphInDataspecer;
-// }
-
-
-let phantomNodeIndex: number = 0;
-let phantomEdgeIndex: number = 0;
-function addPhantomNode(elkGraph: ElkNode) {
-    throw new Error("TODO: Not Implemented");
-    phantomNodeIndex++;
-}
-
-function addPhantomEdge(elkGraph: ElkNode, sourceID: string, targetID: string): ElkExtendedEdge {
-    const phantomEdge: ElkExtendedEdge = {
-        id: `phantom-edge${phantomEdgeIndex}`,
-        sources: [ sourceID ],
-        targets: [ targetID ],
-    };
-    phantomEdgeIndex++;
-    elkGraph.edges.push(phantomEdge);
-    return phantomEdge;
 }

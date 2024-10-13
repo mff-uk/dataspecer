@@ -1,6 +1,6 @@
 import { LayoutOptions } from "elkjs";
-import { IGraphClassic } from "../graph-iface"
-import { DIRECTION } from "../utils";
+import { IGraphClassic, IMainGraphClassic } from "../graph-iface"
+import { DIRECTION } from "../util/utils";
 import { AlgorithmName, ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./constraint-container";
 import _ from "lodash";
 import { ElkForceAlgType } from "./elk/elk-constraints";
@@ -51,6 +51,13 @@ export interface BasicUserGivenConstraints {
         "general_main_alg_direction": DIRECTION,
         "general_layer_gap": number,
         "general_in_layer_gap": number,
+}
+
+
+// TODO: Will need some parameters in the mapped function
+export const CONSTRAINT_MAP: Record<string, (graph: IMainGraphClassic) => Promise<void>> = {
+    "Anchor constraint": async () => {},
+    "post-compactify": async () => {},
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -152,7 +159,11 @@ export function getDefaultUserGivenAlgorithmConstraint(): Omit<UserGivenAlgorith
     }
 }
 
+export type ConstraintTime = "PRE-MAIN" | "IN-MAIN" | "POST-MAIN";
+
 interface IConstraintType {
+    name: string;
+    constraintTime: ConstraintTime;
     type: string;
 }
 
@@ -170,7 +181,9 @@ export interface IConstraint extends IConstraintType {
 export class FixPositionConstraint implements IConstraint {
     constraintedSubgraph: IGraphClassic;
     data: undefined = undefined;
+    name = "Anchor constraint";
     type = "ANCHOR";
+    constraintTime: ConstraintTime = "PRE-MAIN";
 }
 
 /**
@@ -200,6 +213,8 @@ export class AlgorithmConfiguration implements IAlgorithmOnlyConstraint {
     constraintedNodes: ConstraintedNodesGroupingsType;
     data: object;
     type: string;
+    name: string;
+    constraintTime: ConstraintTime = "IN-MAIN";
     // modelID: string = undefined;        // TODO: For now just undefined no matter what, I am still not sure how will it work with models
 
     getAllConstraintKeys() {

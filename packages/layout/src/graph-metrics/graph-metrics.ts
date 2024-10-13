@@ -1,10 +1,10 @@
 import { VisualEntity } from "@dataspecer/core-v2/visual-model";
-import { GraphClassic, IVisualEntityComplete } from "../graph-iface";
+import { GraphClassic, IGraphClassic, IVisualEntityComplete } from "../graph-iface";
 import { AllMetricData, Metric } from "./graph-metrics-iface";
 import { Position } from "../../../core-v2/lib/visual-model/visual-entity";
 
 export class EdgeCrossingMetric implements Metric {
-    computeMetric(graph: GraphClassic): number {
+    computeMetric(graph: IGraphClassic): number {
         let edgeCrossingCount: number = 0;
         Object.values(graph.nodes).forEach(n => {
             for(let outN of n.getAllOutgoingEdges()) {
@@ -13,6 +13,12 @@ export class EdgeCrossingMetric implements Metric {
                         return;
                     }
                     for(let outNN of nn.getAllOutgoingEdges()) {
+                        // TODO: Have to fix, but currently we set only the positions of the entities which are part of the visual model and not the dummy ones
+                        //       (for example generalization subgarphs)
+                        if(n.completeVisualEntity === undefined || nn.completeVisualEntity === undefined) {
+                            continue;
+                        }
+
                         edgeCrossingCount += EdgeCrossingMetric.isEdgeCrossForStraightLines(n.completeVisualEntity, outN.end.completeVisualEntity,
                                                                                             nn.completeVisualEntity, outNN.end.completeVisualEntity);
                     }

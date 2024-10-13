@@ -11,7 +11,7 @@ import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage,
          SemanticModelClassUsage, SemanticModelRelationshipUsage
  } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
- import { GraphClassic, IGraphClassic, IVisualEntityComplete } from "./graph-iface";
+ import { GraphClassic, IGraphClassic, IMainGraphClassic, IVisualEntityComplete } from "./graph-iface";
 import { ConstraintContainer } from "./configs/constraint-container";
 import { NodeDimensionQueryHandler } from ".";
 
@@ -27,10 +27,12 @@ export interface LayoutAlgorithm {
      * @returns
      */
     prepare: (extractedModel: ExtractedModel, constraintContainer: ConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler) => void,
-    prepareFromGraph: (graph: GraphClassic, constraintContainer: ConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler) => void,
-    run: () => Promise<VisualEntities>,
+    prepareFromGraph: (graph: IGraphClassic, constraintContainer: ConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler) => void,
+    run: () => Promise<IMainGraphClassic>,
+    runGeneralizationLayout: () => Promise<IMainGraphClassic>,
     stop: () => void,
 
+    // TODO: Again - why am I putting properties into interface??
     constraintContainer: ConstraintContainer;
     nodeDimensionQueryHandler: NodeDimensionQueryHandler;
 }
@@ -66,9 +68,13 @@ export interface GraphTransformer {
      * 4) Update existing graph representation using {@link updateExistingGraphRepresentationBasedOnLibraryRepresentation} (or create new one using {@link convertLibraryToGraphRepresentation}). Created representations already include VisualModel in form of {@link IVisualEntityComplete} on nodes
      * or just call {@link convertToDataspecerRepresentation} if you no longer need the graph structure
      */
-    convertGraphToLibraryRepresentation(graph: IGraphClassic, options?: object): object,
-    convertLibraryToGraphRepresentation(libraryRepresentation: object, includeDummies: boolean): IGraphClassic,
-    updateExistingGraphRepresentationBasedOnLibraryRepresentation(libraryRepresentation: object, graphToBeUpdated: IGraphClassic, includeNewVertices: boolean): void,
+    convertGraphToLibraryRepresentation(graph: IGraphClassic,
+                                        shouldSetLayoutOptions: boolean): object,
+    convertLibraryToGraphRepresentation(libraryRepresentation: object | null, includeDummies: boolean): IGraphClassic,
+    updateExistingGraphRepresentationBasedOnLibraryRepresentation(libraryRepresentation: object | null,
+                                                                    graphToBeUpdated: IGraphClassic,
+                                                                    includeNewVertices: boolean,
+                                                                    shouldUpdateEdges: boolean): void,
 }
 
 

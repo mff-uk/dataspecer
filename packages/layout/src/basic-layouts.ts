@@ -4,7 +4,8 @@ import { VisualEntities, VisualEntity } from "../../core-v2/lib/visual-model/vis
 import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ConstraintContainer } from "./configs/constraint-container";
 import { NodeDimensionQueryHandler } from ".";
-import { GraphClassic } from "./graph-iface";
+import { GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, MainGraphClassic } from "./graph-iface";
+import { PhantomElementsFactory } from "./util/utils";
 
 
 export async function doRandomLayoutAdvanced(extractedModel: ExtractedModel): Promise<VisualEntities> {
@@ -26,7 +27,7 @@ export async function doRandomLayoutAdvanced(extractedModel: ExtractedModel): Pr
 }
 
 
-export async function doRandomLayoutAdvancedFromGraph(graph: GraphClassic): Promise<VisualEntities> {
+export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic): Promise<VisualEntities> {
     const classNodes = Object.values(graph.nodes).filter(node => !node.isDummy && !node.isProfile);
     const visualEntities = classNodes.map(classNode => {
         return {
@@ -54,7 +55,7 @@ export class RandomLayout implements LayoutAlgorithm {
      */
     prepare(extractedModel: ExtractedModel, constraintContainer: ConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
         this.extractedModel = extractedModel;
-        this.graph = new GraphClassic(extractedModel, null);
+        this.graph = GraphFactory.createMainGraph(null, extractedModel, null);
         this.constraintContainer = constraintContainer;
         this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
     }
@@ -65,14 +66,19 @@ export class RandomLayout implements LayoutAlgorithm {
         this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
     }
 
-    run(): Promise<VisualEntities> {
-        return doRandomLayoutAdvancedFromGraph(this.graph);
+    runGeneralizationLayout(): Promise<IMainGraphClassic> {
+        throw new Error("TODO: Implement me if necessary");
+    }
+    run(): Promise<IMainGraphClassic> {
+        throw new Error("TODO: Implement me so I work correctly - meaning returning Promise<IMainGraphClassic>");
+        // return new Promise(r => {});
+        // return doRandomLayoutAdvancedFromGraph(this.graph);
     }
     stop(): void {
         throw new Error("TODO: Implement me if you want webworkers and parallelization");
     }
 
-    graph: GraphClassic;
+    graph: IGraphClassic;
     extractedModel: ExtractedModel;         // TODO: Can remove
     constraintContainer: ConstraintContainer;
     nodeDimensionQueryHandler: NodeDimensionQueryHandler;
