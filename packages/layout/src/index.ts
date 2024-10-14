@@ -58,8 +58,18 @@ export async function doEditorLayout(visualModel: VisualEntityModel,
 		nodeDimensionQueryHandler = new ReactflowDimensionsEstimator();
 	}
 
-	const graph = GraphFactory.createMainGraphFromVisualModel(null, null, null, null);
-	const visualEntitiesPromise = doFindBestLayoutFromGraph(graph, config, nodeDimensionQueryHandler);
+
+	// TODO: For now for simplicity just concatenate all the semantic models into one
+	let semanticModel: Record<string, SemanticModelEntity> = {};
+	for(const currSemanticModel of semanticModels)  {
+		semanticModel = {
+			...semanticModel,
+			...(currSemanticModel[1].getEntities() as Record<string, SemanticModelEntity>)
+		};
+	}
+
+	const graph = GraphFactory.createMainGraph(null, semanticModel, null, visualModel);
+	const visualEntitiesPromise = doFindBestLayoutFromGraph(graph, config, nodeDimensionQueryHandler, visualModel);
 	// TODO: Repeating code from doLayout
 	if(visualEntitiesPromise == undefined) {
 		console.log("LAYOUT FAILED")
@@ -83,7 +93,6 @@ export async function doLayout(inputSemanticModel: Record<string, SemanticModelE
 		throw new Error("Layout Failed");
 	}
 
-
 	return visualEntitiesPromise;
 }
 
@@ -91,13 +100,14 @@ export async function doLayout(inputSemanticModel: Record<string, SemanticModelE
 export async function doFindBestLayout(inputSemanticModel: Record<string, SemanticModelEntity>,
 										config: UserGivenAlgorithmConfigurationslVersion2,
 										nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<VisualEntities> {
-	const graph = GraphFactory.createMainGraph(null, inputSemanticModel, null);
-	return doFindBestLayoutFromGraph(graph, config, nodeDimensionQueryHandler);
+	const graph = GraphFactory.createMainGraph(null, inputSemanticModel, null, null);
+	return doFindBestLayoutFromGraph(graph, config, nodeDimensionQueryHandler, null);
 }
 
 export async function doFindBestLayoutFromGraph(graph: IMainGraphClassic,
 												config: UserGivenAlgorithmConfigurationslVersion2,
-												nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<VisualEntities> {
+												nodeDimensionQueryHandler: NodeDimensionQueryHandler,
+												visualModel: VisualEntityModel | null): Promise<VisualEntities> {
 	const constraints = ConstraintFactory.createConstraints(config);
 
 	// TODO: Try this later, now it isn't that important
@@ -111,7 +121,7 @@ export async function doFindBestLayoutFromGraph(graph: IMainGraphClassic,
 	// };
 	// constraints.addSimpleConstraints(compactifyConstraint);
 
-	const resultingLayoutPromise = layoutController(graph, constraints, nodeDimensionQueryHandler);
+	const resultingLayoutPromise = layoutController(graph, constraints, nodeDimensionQueryHandler, visualModel);
 
 	// TODO: DEBUG
 	// console.log("THE END");
@@ -123,11 +133,12 @@ export async function doFindBestLayoutFromGraph(graph: IMainGraphClassic,
 
 const layoutController = (graph: IMainGraphClassic,
 							constraints: ConstraintContainer,
-							nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<IMainGraphClassic> => {
+							nodeDimensionQueryHandler: NodeDimensionQueryHandler,
+							visualModel: VisualEntityModel | null): Promise<IMainGraphClassic> => {
 	return runPreMainAlgorithmConstraints(graph, constraints, nodeDimensionQueryHandler).then(_ => {
 		if(constraints.algorithmOnlyConstraints["GENERALIZATION"] !== undefined) {
 			// TODO: For now
-			(graph as MainGraphClassic).createGeneralizationSubgraphsFromStoredTODOExtractedModel();
+			(graph as MainGraphClassic).createGeneralizationSubgraphsFromStoredTODOExtractedModel(visualModel);
 			console.info("graph.allEdges");
 			console.info(graph.allEdges);
 			// throw new Error("THE END of subgraphs");

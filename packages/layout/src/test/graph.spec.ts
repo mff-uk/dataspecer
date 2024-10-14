@@ -10,7 +10,7 @@ type PossibleSemanticModelEntity = SemanticModelClass | SemanticModelRelationshi
 
 export function tryCreateClassicGraph() {
     console.log("Calling tryCreateClassicGraph");
-    const graph = GraphFactory.createMainGraph("TEST", testGraph, null);
+    const graph = GraphFactory.createMainGraph("TEST", testGraph, null, null);
     extractModelObjects(testGraph);
 
     console.log("OUTPUT GRAPH:");

@@ -55,12 +55,12 @@ export class RandomLayout implements LayoutAlgorithm {
      */
     prepare(extractedModel: ExtractedModel, constraintContainer: ConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
         this.extractedModel = extractedModel;
-        this.graph = GraphFactory.createMainGraph(null, extractedModel, null);
+        this.graph = GraphFactory.createMainGraph(null, extractedModel, null, null);
         this.constraintContainer = constraintContainer;
         this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
     }
 
-    prepareFromGraph(graph: GraphClassic, constraintContainer: ConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
+    prepareFromGraph(graph: IGraphClassic, constraintContainer: ConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
         this.graph = graph;
         this.constraintContainer = constraintContainer;
         this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;

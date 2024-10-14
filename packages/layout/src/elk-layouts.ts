@@ -1012,7 +1012,7 @@ export class ElkLayout implements LayoutAlgorithm {
      * @deprecated
      */
     prepare(extractedModel: ExtractedModel, constraintContainer: ElkConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
-        this.elkGraphTransformer = new ElkGraphTransformer(GraphFactory.createMainGraph(null, extractedModel, null), nodeDimensionQueryHandler, constraintContainer);
+        this.elkGraphTransformer = new ElkGraphTransformer(GraphFactory.createMainGraph(null, extractedModel, null, null), nodeDimensionQueryHandler, constraintContainer);
         this.graphInElk = this.elkGraphTransformer.convertToLibraryRepresentation(extractedModel, constraintContainer);
         this.constraintContainer = constraintContainer;
         this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
