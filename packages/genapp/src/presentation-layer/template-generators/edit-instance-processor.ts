@@ -9,13 +9,14 @@ import { ArtifactCache } from "../../utils/artifact-saver";
 
 interface EditInstanceReactComponentTemplate extends TemplateDescription {
     placeholders: {
-        exported_object_name: string;
+        aggregate_name: string,
+        page_title: string | null,
+        exported_object_name: string,
         edit_capability_app_layer: string,
         edit_capability_app_layer_path: ImportRelativePath,
         edit_get_detail_app_layer: string,
         edit_get_detail_app_layer_path: ImportRelativePath,
         json_schema: string,
-        //json_schema_path: ImportRelativePath,
         navigation_hook: string,
         navigation_hook_path: ImportRelativePath,
         redirects: AllowedTransition[];
@@ -64,6 +65,8 @@ export class EditInstanceComponentTemplateProcessor extends PresentationLayerTem
         const editInstanceComponentTemplate: EditInstanceReactComponentTemplate = {
             templatePath: this._templatePath,
             placeholders: {
+                aggregate_name: dependencies.aggregate.getAggregateNamePascalCase(),
+                page_title: this.getTemplatePageTitle(dependencies.detailNodeConfig.pageTitle),
                 exported_object_name: editExportedName,
                 edit_capability_app_layer: dependencies.appLogicArtifact.exportedObjectName,
                 edit_capability_app_layer_path: {
@@ -84,11 +87,7 @@ export class EditInstanceComponentTemplateProcessor extends PresentationLayerTem
                     to: useNavigationHook.filePath
                 },
                 redirects: redirectTransitions,
-                json_schema: JSON.stringify(dataSchemaInterface, null, 2),
-                // json_schema_path: {
-                //     from: this._filePath,
-                //     to: jsonSchemaArtifact.filePath
-                // }
+                json_schema: JSON.stringify(dataSchemaInterface, null, 2)
             }
         }
 

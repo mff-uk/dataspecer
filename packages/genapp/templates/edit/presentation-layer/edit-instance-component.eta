@@ -6,7 +6,7 @@ import validator from "@rjsf/validator-ajv8";
 import SendIcon from "@mui/icons-material/Send";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useSearchParams } from "react-router-dom";
-import { Backdrop, Button, CircularProgress } from "@mui/material";
+import { Backdrop, Button, CircularProgress, Typography } from "@mui/material";
 import { RJSFSchema, RJSFValidationError } from "@rjsf/utils";
 import { <%= it.navigation_hook %> } from <%~ it.navigation_hook_path %>;
 import { <%= it.edit_capability_app_layer %> } from <%~ it.edit_capability_app_layer_path %>;
@@ -59,16 +59,17 @@ const <%= it.exported_object_name %> = () => {
         event.preventDefault();
 
         const { formData } = data;
-        const createdInstanceResult = await <%= it.edit_capability_app_layer %>.runCapability(formData);
+        const editedInstanceResult = await <%= it.edit_capability_app_layer %>.runCapability(formData);
 
-        if (!createdInstanceResult?.instance?.raw) {
-            setErrorMessage(createdInstanceResult?.message ?? "Creation failed");
+        if (!editedInstanceResult?.instance?.raw) {
+            setErrorMessage(editedInstanceResult?.message ?? "Update failed");
             return;
         }
 
-        // get createdInstanceResult id
+        // get editedInstanceResult id
         setTimeout(() => {<% if (it.redirects && it.redirects.length > 0) { %><% const firstRedirect = it.redirects.at(0); %><% if (firstRedirect && firstRedirect.capabilityType === "instance") { %>
-            navigationHooks.handleInstanceCapabilityRedirect("<%~ firstRedirect.id %>", createdInstanceResult);<% } else { %>
+            const editedInstanceId = editedInstanceResult.instance?.raw as string;
+            navigationHooks.handleInstanceCapabilityRedirect("<%~ firstRedirect.id %>", editedInstanceId);<% } else { %>
             navigationHooks.handleCollectionCapabilityRedirect("<%~ firstRedirect.id %>");<% } %><% } else { %>
             navigationHooks.handleCollectionCapabilityRedirect("/");<% } %>
         }, 2500);
@@ -90,19 +91,24 @@ const <%= it.exported_object_name %> = () => {
             </Backdrop>
             {
                 !isLoading && (
-                    <Form
-                        schema={schema}
-                        validator={validator}
-                        onChange={handleFormChange}
-                        onSubmit={submitEditedInstance}
-                        onError={handleSubmitError}
-                        uiSchema={{}}
-                        formData={formData}
-                        showErrorList="top"
-                    >
-                        <Button type="button" variant="outlined" startIcon={<DeleteIcon />}>Cancel</Button>
-                        <Button type="submit" variant="contained" endIcon={<SendIcon />} sx={{ margin: "10px"}}>Submit</Button>
-                    </Form>
+                    <><% const defaultPageTitle = `Modify "${it.aggregate_name}" object` %>
+                        <Typography variant="h3">
+                            <%~ it.page_title ?? defaultPageTitle %>
+                        </Typography>
+                        <Form
+                            schema={schema}
+                            validator={validator}
+                            onChange={handleFormChange}
+                            onSubmit={submitEditedInstance}
+                            onError={handleSubmitError}
+                            uiSchema={{}}
+                            formData={formData}
+                            showErrorList="top"
+                        >
+                            <Button type="button" variant="outlined" startIcon={<DeleteIcon />}>Cancel</Button>
+                            <Button type="submit" variant="contained" endIcon={<SendIcon />} sx={{ margin: "10px"}}>Submit</Button>
+                        </Form>
+                    </>
                 )
             }
         </div>

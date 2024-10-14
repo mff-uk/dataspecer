@@ -6,9 +6,10 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import AddIcon from "@mui/icons-material/Add";
+import Typography from '@mui/material/Typography';
+import DeleteIcon from "@mui/icons-material/Delete";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import ZoomInMapIcon from "@mui/icons-material/ZoomInMap";
-import DeleteIcon from "@mui/icons-material/Delete";
 import TableContainer from "@mui/material/TableContainer";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -80,9 +81,9 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
             >
                 <CircularProgress color="inherit" />
             </Backdrop><% const defaultTablePageTitle = "List of <%= it.aggregate_name %> items" %>
-            <h2>
+            <Typography variant="h3">
                 <%~ it.page_title ?? defaultTablePageTitle %>
-            </h2>
+            </Typography>
             <% for (let index = 0; index < it.list_collection_transitions.length; index++) { %><% const collectionTransition = it.list_collection_transitions[index]; %>
             <Button
                 id="<%= collectionTransition.id %>-transition-button"

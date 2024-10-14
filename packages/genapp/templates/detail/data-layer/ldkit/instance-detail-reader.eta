@@ -68,12 +68,12 @@ export default class <%= it.exported_name_object %> implements <%= it.ldkit_inst
                     return [null, value];
                 }
 
-                if (typeof value === "object") {
-                    return [key, this.removeLdkitProperties(value)];
-                }
-
                 if (Array.isArray(value)) {
                     return [key, value.map(item => this.removeLdkitProperties(item))];
+                }
+
+                if (typeof value === "object") {
+                    return [key, this.removeLdkitProperties(value)];
                 }
 
                 return [key, value];

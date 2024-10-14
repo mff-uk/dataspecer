@@ -9,9 +9,7 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
     private mapFormDataToLdkitSchema(formData: any): Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> {
         console.log("input form data: ", formData);
 
-        let updatedInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> = formData;
-
-        updatedInstance = this.updateLdkitProperties(updatedInstance);
+        const updatedInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> =  this.updateLdkitProperties(formData);
 
         return updatedInstance;
     }
@@ -26,6 +24,10 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
             .map(([key, value]) => {
                 if (key === "id") {
                     return ["$id", value];
+                }
+
+                if (key === "@type") {
+                    return ["$type", value];
                 }
 
                 if (Array.isArray(value)) {

@@ -51,7 +51,6 @@ import { <%= it.detail_capability_app_layer %> } from <%~ it.detail_app_layer_pa
 
         if (!instanceRef || instanceRef === "") {
             valueReference = '""';
-            propertyName = "";
         }
 
         if (propertyName === "@type" || propertyName === "@id") {
@@ -67,7 +66,7 @@ import { <%= it.detail_capability_app_layer %> } from <%~ it.detail_app_layer_pa
                     name="${propertyName ?? ""}"
                     value={${valueReference}}
                 >
-                    ${getDetailRenderComponentByProperty("", arrayTypeName, (propertyName !== null && propertyName !== "") ? `${instanceRef}?.["${propertyName}"]` : instanceRef)}
+                    ${getDetailRenderComponentByProperty(propertyName, arrayTypeName, "")}
                 </${arrayRendererComponentName}>
                 `)
         }
@@ -90,7 +89,7 @@ import { <%= it.detail_capability_app_layer %> } from <%~ it.detail_app_layer_pa
             const nestedObjectType = JSON.parse(typeName);
             const nestedComponents = Object.entries(nestedObjectType ?? {})
                 .map(
-                    ([nestedKey, nestedTypeRef]) => getDetailRenderComponentByProperty(nestedKey, nestedTypeRef, valueReference)
+                    ([nestedKey, nestedTypeRef]) => getDetailRenderComponentByProperty(nestedKey, nestedTypeRef, "")
                 );
 
             return nestedComponents.join("\n");
@@ -334,8 +333,10 @@ export default function <%= it.export_name %>() {
     }, [isLoading, instance, searchParams]);
 
     return (
-        <><% const defaultPageTitle = "Detail of \"it.aggregate_name\" instance" %>
-            <h2><%~ it.page_title ?? defaultPageTitle %></h2>
+        <><% const defaultPageTitle = `Detail of "${it.aggregate_name}" object` %>
+            <Typography variant="h3">
+                <%~ it.page_title ?? defaultPageTitle %>
+            </Typography>
             <Backdrop
                 sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
                 open={isLoading}

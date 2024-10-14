@@ -22,10 +22,6 @@
         const result = Object.entries(obj)
             .map(([propName, typeName]) => {
 
-                if (propName.startsWith("@")) {
-                    return null;
-                }
-
                 if (typeName.endsWith("[]")) {
                     const nestedStr = typeName.substring(0, typeName.length - "[]".length);
                     try {

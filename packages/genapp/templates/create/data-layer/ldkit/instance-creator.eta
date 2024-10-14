@@ -9,13 +9,39 @@ export class <%= it.exported_object_name %> implements <%= it.creator_interface_
     private mapFormDataToLdkitSchema(formData: any): Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> {
         console.log("input form data: ", formData);
 
-        const newInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> = formData;
-
-        newInstance["$id"] = newInstance.id;
-        newInstance["$type"] = newInstance["@type"];
-        delete newInstance["@type"];
+        const newInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> = this.updateLdkitProperties(formData);
 
         return newInstance;
+    }
+
+    private updateLdkitProperties(obj: any) {
+
+        if (typeof obj !== "object") {
+            return obj;
+        }
+
+        const transformed = Object.entries(obj)
+            .map(([key, value]) => {
+                if (key === "id") {
+                    return ["$id", value];
+                }
+
+                if (key === "@type") {
+                    return ["$type", value];
+                }
+
+                if (Array.isArray(value)) {
+                    return [key, value.map(item => this.updateLdkitProperties(item))];
+                }
+
+                if (typeof value === "object") {
+                    return [key, this.updateLdkitProperties(value)];
+                }
+
+                return [key, value];
+            });
+
+        return Object.fromEntries(transformed);
     }
 
     async createInstance(formData: any): Promise<<%= it.instance_result_type %>> {

@@ -7,6 +7,8 @@ import { UseNavigationHookGenerator } from "../../capabilities/template-generato
 
 interface CreateInstanceReactComponentTemplate extends TemplateDescription {
     placeholders: {
+        aggregate_name: string,
+        page_title: string | null,
         exported_object_name: string;
         create_capability_app_layer: string,
         create_capability_app_layer_path: ImportRelativePath,
@@ -45,6 +47,8 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
         const createInstanceComponentTemplate: CreateInstanceReactComponentTemplate = {
             templatePath: this._templatePath,
             placeholders: {
+                aggregate_name: dependencies.aggregate.getAggregateNamePascalCase(),
+                page_title: this.getTemplatePageTitle(dependencies.detailNodeConfig.pageTitle),
                 exported_object_name: createExportedName,
                 create_capability_app_layer: dependencies.appLogicArtifact.exportedObjectName,
                 create_capability_app_layer_path: {
