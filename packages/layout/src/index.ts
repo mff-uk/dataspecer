@@ -19,6 +19,7 @@ export type { IConstraintSimple, UserGivenConstraints, UserGivenAlgorithmConfigu
 export { getDefaultUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion2 } from "./configs/constraints";
 export type { AlgorithmName } from "./configs/constraint-container";
 export { DIRECTION } from "./util/utils";
+export type { INodeClassic } from "./graph-iface"
 
 export type {
 	UserGivenAlgorithmConfiguration,
