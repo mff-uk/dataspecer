@@ -1,5 +1,5 @@
 import { LayoutOptions } from "elkjs";
-import { AlgorithmConfiguration, LayeredConfiguration, StressConfiguration, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationElkForce } from "../constraints";
+import { AlgorithmConfiguration, LayeredConfiguration, SporeConfiguration, StressConfiguration, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationElkForce } from "../constraints";
 import { createElkDataObject } from "./elk-utils";
 import _ from "lodash";
 
@@ -160,5 +160,15 @@ export class ElkForceConfiguration extends AlgorithmConfiguration implements Elk
     data: UserGivenAlgorithmConfigurationElkForce = undefined;
     // I can further enforce the typing by creating type which takes into consideration only used parameters and not those which can't be used
     // (For example those for layered algorithm), but I won't
+    elkData: LayoutOptions = {};
+}
+
+
+export class ElkSporeConfiguration extends SporeConfiguration implements ElkConstraint {
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
+        super(givenAlgorithmConstraints);
+        createElkDataObject(this.data, this.elkData);
+    }
+
     elkData: LayoutOptions = {};
 }

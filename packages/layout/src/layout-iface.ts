@@ -28,8 +28,8 @@ export interface LayoutAlgorithm {
      */
     prepare: (extractedModel: ExtractedModel, constraintContainer: ConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler) => void,
     prepareFromGraph: (graph: IGraphClassic, constraintContainer: ConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler) => void,
-    run: () => Promise<IMainGraphClassic>,
-    runGeneralizationLayout: () => Promise<IMainGraphClassic>,
+    run: (shouldCreateNewGraph: boolean) => Promise<IMainGraphClassic>,
+    runGeneralizationLayout: (shouldCreateNewGraph: boolean) => Promise<IMainGraphClassic>,
     stop: () => void,
 
     // TODO: Again - why am I putting properties into interface??

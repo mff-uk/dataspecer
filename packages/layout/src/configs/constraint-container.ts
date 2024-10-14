@@ -1,12 +1,11 @@
 
-import { dataTypeUriToName } from "@dataspecer/core-v2/semantic-model/datatypes";
-import { ConstraintedNodesGroupingsType, IAlgorithmOnlyConstraint, IConstraint, IConstraintSimple, UserGivenConstraints } from "./constraints";
-import { LayoutAlgorithm, LayoutMethod } from "../layout-iface";
+import { ConstraintedNodesGroupingsType, IAlgorithmOnlyConstraint, IConstraint, IConstraintSimple } from "./constraints";
+import { LayoutAlgorithm } from "../layout-iface";
 import { ElkLayout } from "../elk-layouts";
 import { RandomLayout } from "../basic-layouts";
 import { ElkConstraint } from "./elk/elk-constraints";
 
-export type AlgorithmName = "elk_stress" | "elk_layered" | "elk_force" | "random" | "d3_force";
+export type AlgorithmName = "elk_stress" | "elk_layered" | "elk_force" | "random" | "d3_force" | "sporeCompaction";
 
 export const ALGORITHM_NAME_TO_LAYOUT_MAPPING: Record<AlgorithmName, LayoutAlgorithm> = {
     "elk_stress": new ElkLayout(),
@@ -14,6 +13,7 @@ export const ALGORITHM_NAME_TO_LAYOUT_MAPPING: Record<AlgorithmName, LayoutAlgor
     "elk_force": new ElkLayout(),
     "random": new RandomLayout(),
     "d3_force": new ElkLayout(),    // TODO:
+    "sporeCompaction": new ElkLayout(),
 }
 
 type ModelID = string;

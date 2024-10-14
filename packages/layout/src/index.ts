@@ -3,7 +3,7 @@ import { VisualEntity } from "@dataspecer/core-v2/visual-model";
 import { ExtractedModel, LayoutAlgorithm, LayoutMethod, extractModelObjects } from "./layout-iface";
 
 import { doRandomLayoutAdvanced } from "./basic-layouts";
-import { UserGivenConstraints, UserGivenAlgorithmConfigurationslVersion2, CONSTRAINT_MAP, ConstraintTime, IConstraint, IConstraintSimple } from "./configs/constraints";
+import { UserGivenConstraints, UserGivenAlgorithmConfigurationslVersion2, ConstraintTime, IConstraint, IConstraintSimple } from "./configs/constraints";
 import { GraphClassic, GraphFactory, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualEntityComplete } from "./graph-iface";
 import { EdgeCrossingMetric } from "./graph-metrics/graph-metrics";
 import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs/constraint-container";
@@ -13,9 +13,10 @@ import { ConstraintFactory } from "./configs/constraint-factories";
 import { ReactflowDimensionsEstimator } from "./reactflow-dimension-estimator";
 import { VisualEntities } from "../../core-v2/lib/visual-model/visual-entity";
 import { PhantomElementsFactory } from "./util/utils";
+import { CONSTRAINT_MAP } from "./configs/constraints-mapping";
 
 export type { IConstraintSimple, UserGivenConstraints, UserGivenAlgorithmConfigurationslVersion2 as UserGivenConstraintsVersion2 } from "./configs/constraints";
-export { getDefaultUserGivenAlgorithmConstraint } from "./configs/constraints";
+export { getDefaultUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion2 } from "./configs/constraints";
 export type { AlgorithmName } from "./configs/constraint-container";
 export { DIRECTION } from "./util/utils";
 
@@ -82,6 +83,7 @@ export async function doLayout(inputSemanticModel: Record<string, SemanticModelE
 		throw new Error("Layout Failed");
 	}
 
+
 	return visualEntitiesPromise;
 }
 
@@ -97,6 +99,18 @@ export async function doFindBestLayoutFromGraph(graph: IMainGraphClassic,
 												config: UserGivenAlgorithmConfigurationslVersion2,
 												nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<VisualEntities> {
 	const constraints = ConstraintFactory.createConstraints(config);
+
+	// TODO: Try this later, now it isn't that important
+
+	// const compactifyConstraint: IConstraintSimple  = {
+	// 	name: "post-compactify",
+	// 	type: "???",
+	// 	constraintedNodes: "ALL",
+	// 	constraintTime: "POST-MAIN",
+	// 	data: undefined,
+	// };
+	// constraints.addSimpleConstraints(compactifyConstraint);
+
 	const resultingLayoutPromise = layoutController(graph, constraints, nodeDimensionQueryHandler);
 
 	// TODO: DEBUG
@@ -110,7 +124,7 @@ export async function doFindBestLayoutFromGraph(graph: IMainGraphClassic,
 const layoutController = (graph: IMainGraphClassic,
 							constraints: ConstraintContainer,
 							nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<IMainGraphClassic> => {
-	return runPreMainAlgorithmConstraints(graph, constraints).then(_ => {
+	return runPreMainAlgorithmConstraints(graph, constraints, nodeDimensionQueryHandler).then(_ => {
 		if(constraints.algorithmOnlyConstraints["GENERALIZATION"] !== undefined) {
 			// TODO: For now
 			(graph as MainGraphClassic).createGeneralizationSubgraphsFromStoredTODOExtractedModel();
@@ -120,15 +134,15 @@ const layoutController = (graph: IMainGraphClassic,
 
 			const generalizationAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[constraints.algorithmOnlyConstraints["GENERALIZATION"].algorithmName];
 			generalizationAlgorithm.prepareFromGraph(graph, constraints, nodeDimensionQueryHandler);
-			return generalizationAlgorithm.runGeneralizationLayout().then(generalizationResult => {
+			return generalizationAlgorithm.runGeneralizationLayout(true).then(generalizationResult => {
 				return runMainLayoutAlgorithm(generalizationResult, constraints, nodeDimensionQueryHandler).then(result => {
-					return runPostMainAlgorithmConstraints(result, constraints).then(_ => result);
+					return runPostMainAlgorithmConstraints(result, constraints, nodeDimensionQueryHandler).then(_ => result);
 				});
 			});
 		}
 		else {
 			return runMainLayoutAlgorithm(graph, constraints, nodeDimensionQueryHandler).then(result => {
-				return runPostMainAlgorithmConstraints(result, constraints).then(_ => result);
+				return runPostMainAlgorithmConstraints(result, constraints, nodeDimensionQueryHandler).then(_ => result);
 			});
 		}
 	});
@@ -136,27 +150,32 @@ const layoutController = (graph: IMainGraphClassic,
 }
 
 
-const runPreMainAlgorithmConstraints = async (graph: IMainGraphClassic, constraintsContainer: ConstraintContainer): Promise<void[]> => {
-	const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer.simpleConstraints, "PRE-MAIN").then(_ => {
-		return runConstraintsInternal(graph, constraintsContainer.constraints, "PRE-MAIN");
+const runPreMainAlgorithmConstraints = async (graph: IMainGraphClassic,
+												constraintsContainer: ConstraintContainer,
+												nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<void[]> => {
+	const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer.simpleConstraints, "PRE-MAIN", nodeDimensionQueryHandler).then(_ => {
+		return runConstraintsInternal(graph, constraintsContainer.constraints, "PRE-MAIN", nodeDimensionQueryHandler);
 	});
 	return constraintPromises;
 }
 
-const runPostMainAlgorithmConstraints = async (graph: IMainGraphClassic, constraintsContainer: ConstraintContainer): Promise<void[]> => {
-	const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer.simpleConstraints, "POST-MAIN").then(_ => {
-		return runConstraintsInternal(graph, constraintsContainer.constraints, "POST-MAIN");
+const runPostMainAlgorithmConstraints = async (graph: IMainGraphClassic,
+												constraintsContainer: ConstraintContainer,
+												nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<void[]> => {
+	const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer.simpleConstraints, "POST-MAIN", nodeDimensionQueryHandler).then(_ => {
+		return runConstraintsInternal(graph, constraintsContainer.constraints, "POST-MAIN", nodeDimensionQueryHandler);
 	});
 	return constraintPromises;
 }
 
 const runConstraintsInternal = async (graph: IMainGraphClassic,
 										constraints: IConstraintSimple[] | IConstraint[],
-										constraintTime: Omit<ConstraintTime, "IN-MAIN">): Promise<void[]> => {
+										constraintTime: Omit<ConstraintTime, "IN-MAIN">,
+										nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<void[]> => {
 	const constraintPromises: Promise<void>[] = [];
 	for(const constraint of constraints) {
 		if(constraint.constraintTime === constraintTime) {
-			constraintPromises.push(CONSTRAINT_MAP[constraint.name](graph));
+			constraintPromises.push(CONSTRAINT_MAP[constraint.name](graph, nodeDimensionQueryHandler));
 		}
 	}
 
@@ -179,7 +198,7 @@ const runMainLayoutAlgorithm = async (graph: IMainGraphClassic,
 
 	mainLayoutAlgorithm.prepareFromGraph(graph, constraints, nodeDimensionQueryHandler);		// TODO: Prepare only once? or in each iteration?
 	for(let i = 0; i < 1; i++) {
-		const layoutedGraphPromise: Promise<IMainGraphClassic> = mainLayoutAlgorithm.run();
+		const layoutedGraphPromise: Promise<IMainGraphClassic> = mainLayoutAlgorithm.run(true);
 		const layoutedGraph = await layoutedGraphPromise;
 
 		const visualEntities = layoutedGraph.convertWholeGraphToDataspecerRepresentation();

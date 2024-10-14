@@ -1026,7 +1026,7 @@ export class ElkLayout implements LayoutAlgorithm {
         this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
     }
 
-    async run(): Promise<IMainGraphClassic> {
+    async run(shouldCreateNewGraph: boolean): Promise<IMainGraphClassic> {
         let layoutPromise: Promise<ElkNode | void>;
 
         const constraint = this.constraintContainer.algorithmOnlyConstraints["GENERALIZATION"];
@@ -1040,15 +1040,21 @@ export class ElkLayout implements LayoutAlgorithm {
 
 
         return layoutPromise.then(layoutedGraph => {
-                                    // TODO: Check if the graph is void or not - Maybe can be solved better
-                                    if(layoutedGraph !== null && typeof layoutedGraph === 'object') {
-                                        return this.elkGraphTransformer.convertLibraryToGraphRepresentation(layoutedGraph, false);
+                                    if(shouldCreateNewGraph) {
+                                        // TODO: Check if the graph is void or not - Maybe can be solved better
+                                        if(layoutedGraph !== null && typeof layoutedGraph === 'object') {
+                                            return this.elkGraphTransformer.convertLibraryToGraphRepresentation(layoutedGraph, false);
+                                        }
+                                        return this.elkGraphTransformer.convertLibraryToGraphRepresentation(null, false);
                                     }
-                                    return this.elkGraphTransformer.convertLibraryToGraphRepresentation(null, false);
+                                    else {
+                                        this.elkGraphTransformer.updateExistingGraphRepresentationBasedOnLibraryRepresentation(this.graphInElk, this.graph, false, true);
+                                        return this.graph.mainGraph;            // TODO: Again main graph
+                                    }
                                 });
     }
 
-    async runGeneralizationLayout(): Promise<IMainGraphClassic> {
+    async runGeneralizationLayout(shouldCreateNewGraph: boolean): Promise<IMainGraphClassic> {
         const layoutPromises: Promise<void>[] = [];
         let subgraphAllEdges: [ElkExtendedEdge[], ElkExtendedEdge[]][] = [];
         let subgraphIndices: number[] = [];
@@ -1086,11 +1092,15 @@ export class ElkLayout implements LayoutAlgorithm {
             console.log("GRAPH AFTER FIRST LAYOUTING AND REPAIRING EDGES:");
             console.log(this.graphInElk);
             console.log(JSON.stringify(this.graphInElk));
-
-            const layoutedGraph = this.elkGraphTransformer.convertLibraryToGraphRepresentation(this.graphInElk, false);
-            // TODO: Alternative solution is just to keep changing the input graph instead of creating copies
-            // this.elkGraphTransformer.updateExistingGraphRepresentationBasedOnLibraryRepresentation(this.graphInElk, this.graph, false, true);
-            return layoutedGraph;
+            if(shouldCreateNewGraph) {
+                const layoutedGraph = this.elkGraphTransformer.convertLibraryToGraphRepresentation(this.graphInElk, false);
+                // TODO: Alternative solution is just to keep changing the input graph instead of creating copies
+                return layoutedGraph;
+            }
+            else {
+                this.elkGraphTransformer.updateExistingGraphRepresentationBasedOnLibraryRepresentation(this.graphInElk, this.graph, false, true);
+                return this.graph.mainGraph;            // TODO: Again main graph
+            }
         });
     }
 

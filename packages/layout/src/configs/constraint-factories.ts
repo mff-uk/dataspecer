@@ -2,7 +2,7 @@ import { LayoutMethod } from "../layout-iface";
 import { ConstraintContainer } from "./constraint-container";
 import { AlgorithmConfiguration, IAlgorithmOnlyConstraint, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationslVersion2 } from "./constraints";
 import { D3ForceConfiguration } from "./d3js/d3-constraints";
-import { ElkForceConfiguration, ElkLayeredConfiguration, ElkStressConfiguration } from "./elk/elk-constraints";
+import { ElkForceConfiguration, ElkLayeredConfiguration, ElkSporeConfiguration, ElkStressConfiguration } from "./elk/elk-constraints";
 
 class AlgorithmConstraintFactory {
     static getLayoutMethodForAlgorithmConstraint(algConstraint: AlgorithmConfiguration): LayoutMethod {
@@ -14,7 +14,7 @@ class AlgorithmConstraintFactory {
         }
     }
 
-    static createAlgorithmConfiguration(userGivenAlgorithmConfiguration: UserGivenAlgorithmConfiguration): IAlgorithmOnlyConstraint | undefined {
+    static createAlgorithmConfiguration(userGivenAlgorithmConfiguration: UserGivenAlgorithmConfiguration): IAlgorithmOnlyConstraint | null {
         if(!userGivenAlgorithmConfiguration.should_be_considered) {
             return undefined;
         }
@@ -26,11 +26,13 @@ class AlgorithmConstraintFactory {
             case "elk_force":
                 return new ElkForceConfiguration(userGivenAlgorithmConfiguration);
             case "random":
-                return undefined;
+                return null;
             case "d3_force":
                 return new D3ForceConfiguration(userGivenAlgorithmConfiguration);
+            case "sporeCompaction":
+                return new ElkSporeConfiguration(userGivenAlgorithmConfiguration);
             default:
-                throw new Error("Implementation error You forgot to extend the TopLevelConstraint factory for new algorithm");
+                throw new Error("Implementation error You forgot to extend the AlgorithmConstraintFactory factory for new algorithm");
         }
     }
 }

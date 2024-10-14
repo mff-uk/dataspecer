@@ -1,9 +1,10 @@
-import { LayoutOptions } from "elkjs";
 import { IGraphClassic, IMainGraphClassic } from "../graph-iface"
 import { DIRECTION } from "../util/utils";
-import { AlgorithmName, ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./constraint-container";
+import { AlgorithmName } from "./constraint-container";
 import _ from "lodash";
 import { ElkForceAlgType } from "./elk/elk-constraints";
+import { NodeDimensionQueryHandler, UserGivenConstraintsVersion2 } from "..";
+import { compactify } from "./constraints-implementation";
 
 
 export type ConstraintedNodesGroupingsType = "ALL" | "GENERALIZATION" | "PROFILE";
@@ -51,13 +52,6 @@ export interface BasicUserGivenConstraints {
         "general_main_alg_direction": DIRECTION,
         "general_layer_gap": number,
         "general_in_layer_gap": number,
-}
-
-
-// TODO: Will need some parameters in the mapped function
-export const CONSTRAINT_MAP: Record<string, (graph: IMainGraphClassic) => Promise<void>> = {
-    "Anchor constraint": async () => {},
-    "post-compactify": async () => {},
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,6 +114,10 @@ export interface UserGivenAlgorithmConfigurationStress {
     "stress_edge_len": number,
 }
 
+export interface UserGivenAlgorithmConfigurationSpore {
+    "min_distance_between_nodes": number,
+}
+
 export interface UserGivenAlgorithmConfigurationElkForce {
     "min_distance_between_nodes": number,
     "force_alg_type": ElkForceAlgType,
@@ -144,6 +142,23 @@ export interface UserGivenAlgorithmConfiguration extends UserGivenAlgorithmConfi
 export interface UserGivenAlgorithmConfigurationForGeneralization extends UserGivenAlgorithmConfiguration {
     "double_run": boolean,
     "constraintedNodes": "GENERALIZATION"
+}
+
+export function getDefaultUserGivenConstraintsVersion2(): UserGivenConstraintsVersion2 {
+    return {
+        main: {
+            ...getDefaultUserGivenAlgorithmConstraint(),
+            "should_be_considered": true,
+            "constraintedNodes": "ALL",
+        },
+        general: {
+            ...getDefaultUserGivenAlgorithmConstraint(),
+            "layout_alg": "elk_layered",        // Defined as stress in the default
+            "should_be_considered": false,
+            "constraintedNodes": "GENERALIZATION",
+            "double_run": true,
+        }
+    };
 }
 
 // TODO: getDefaultUserGivenAlgorithmConfiguration
@@ -293,4 +308,21 @@ export class LayeredConfiguration extends AlgorithmConfiguration {
     }
 
     data: UserGivenAlgorithmConfigurationLayered = undefined;
+}
+
+
+// TODO: Maybe put each class to separate file?
+export class SporeConfiguration extends AlgorithmConfiguration {
+    getAllConstraintKeys(): string[] {
+        return super.getAllConstraintKeys().concat([
+            "min_distance_between_nodes",
+        ]);
+    }
+
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
+        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes);
+        this.data = _.pick(givenAlgorithmConstraints, this.getAllConstraintKeys()) as UserGivenAlgorithmConfigurationSpore;
+    }
+
+    data: UserGivenAlgorithmConfigurationSpore = undefined
 }

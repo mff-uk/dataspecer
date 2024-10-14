@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DIRECTION, AlgorithmName, UserGivenConstraintsVersion2, ElkForceAlgType, getDefaultUserGivenAlgorithmConstraint } from '@dataspecer/layout';
+import { DIRECTION, AlgorithmName, UserGivenConstraintsVersion2, ElkForceAlgType, getDefaultUserGivenConstraintsVersion2 } from '@dataspecer/layout';
 
 
 // TODO:
@@ -8,20 +8,7 @@ import { DIRECTION, AlgorithmName, UserGivenConstraintsVersion2, ElkForceAlgType
 // 3) Style it better - but it is kind of throwaway so it doesn't really matter
 // 4) Have dialog localization
 export const useConfigDialog = () => {
-    const [config, setConfig] = useState<UserGivenConstraintsVersion2>({
-                                            main: {
-                                                ...getDefaultUserGivenAlgorithmConstraint(),
-                                                "should_be_considered": true,
-                                                "constraintedNodes": "ALL",
-                                            },
-                                            general: {
-                                                ...getDefaultUserGivenAlgorithmConstraint(),
-                                                "layout_alg": "elk_layered",        // TODO: Defined as stress in the default
-                                                "should_be_considered": false,
-                                                "constraintedNodes": "GENERALIZATION",
-                                                "double_run": true,
-                                            }
-                                        });
+    const [config, setConfig] = useState<UserGivenConstraintsVersion2>(getDefaultUserGivenConstraintsVersion2());
 
     // const updateConfig = (key: string, e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     //     setConfig({...config, [key]: parseInt(e.target.value)});
