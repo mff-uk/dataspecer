@@ -76,7 +76,7 @@ export class ConstraintContainer {
                     this.addAlgorithmConstraints(...algorithmOnlyConstraints);
                     this.simpleConstraints = simpleConstraints === undefined ? [] : simpleConstraints;
                     this.constraints = constraints === undefined ? [] : constraints;
-                    this.underlyingModelsConstraints = underlyingModelsConstraints;
+                    this.underlyingModelsConstraints = underlyingModelsConstraints === undefined ? {} : underlyingModelsConstraints;
 
                     // TODO: For now
                     this.modelID = null;
@@ -90,13 +90,13 @@ export class ConstraintContainer {
         this.constraints = this.constraints.concat(constraints);
     }
     addAlgorithmConstraints(...constraints: IAlgorithmOnlyConstraint[]) {
-        constraints.forEach(c => {
-            if(c === undefined) {
+        constraints.forEach(constraint => {
+            if(constraint === null) {
                 return;
             }
-            this.algorithmOnlyConstraints[c.constraintedNodes] = {
-                ...this.algorithmOnlyConstraints[c.constraintedNodes],
-                ...c
+            this.algorithmOnlyConstraints[constraint.constraintedNodes] = {
+                ...this.algorithmOnlyConstraints[constraint.constraintedNodes],
+                ...constraint
             };
         });
     }

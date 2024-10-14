@@ -27,22 +27,24 @@ export async function doRandomLayoutAdvanced(extractedModel: ExtractedModel): Pr
 }
 
 
-export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic): Promise<IMainGraphClassic> {
-    return new Promise(() => {}).then(_ => {
-        const classNodes = Object.values(graph.nodes).filter(node => !node.isDummy && !node.isProfile);
-        classNodes.forEach(classNode => {
-            const visualEntity =  {
-                id: Math.random().toString(36).substring(2), // Random unique id of visual entity
-                type: ["visual-entity"], // Type of visual entity, keep it as is
-                sourceEntityId: classNode.node.id, // ID of the class you want to visualize
-                visible: true,
-                position: { x: Math.ceil(Math.random() * 300 * Math.sqrt(classNodes.length)), y: Math.ceil(Math.random() * 150 * Math.sqrt(classNodes.length)) },
-                hiddenAttributes: [],
-            } as VisualEntity;
-            classNode.completeVisualEntity.coreVisualEntity = visualEntity;
-        });
-        return graph.mainGraph;     // TODO: !!! Well should it be mainGraph or not? what should we do if we want to layout only part of the graph - only the given argument?
+export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic, nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<IMainGraphClassic> {
+    const classNodes = Object.values(graph.nodes).filter(node => !node.isDummy && !node.isProfile);
+    classNodes.forEach(classNode => {
+        const visualEntity =  {
+            id: Math.random().toString(36).substring(2), // Random unique id of visual entity
+            type: ["visual-entity"], // Type of visual entity, keep it as is
+            sourceEntityId: classNode.node.id, // ID of the class you want to visualize
+            visible: true,
+            position: { x: Math.ceil(Math.random() * 300 * Math.sqrt(classNodes.length)), y: Math.ceil(Math.random() * 150 * Math.sqrt(classNodes.length)) },
+            hiddenAttributes: [],
+        } as VisualEntity;
+        classNode.completeVisualEntity = {
+            coreVisualEntity: visualEntity,
+            width: nodeDimensionQueryHandler.getWidth(classNode),
+            height: nodeDimensionQueryHandler.getHeight(classNode),
+        };
     });
+    return graph.mainGraph;     // TODO: !!! Well should it be mainGraph or not? what should we do if we want to layout only part of the graph - only the given argument?
 }
 
 
@@ -70,7 +72,7 @@ export class RandomLayout implements LayoutAlgorithm {
         throw new Error("TODO: Implement me if necessary");
     }
     run(): Promise<IMainGraphClassic> {
-        return doRandomLayoutAdvancedFromGraph(this.graph);
+        return doRandomLayoutAdvancedFromGraph(this.graph, this.nodeDimensionQueryHandler);
     }
     stop(): void {
         throw new Error("TODO: Implement me if you want webworkers and parallelization");

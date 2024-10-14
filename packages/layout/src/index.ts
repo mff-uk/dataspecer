@@ -10,7 +10,7 @@ import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs
 import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
 import { EntityModel } from "@dataspecer/core-v2";
 import { ConstraintFactory } from "./configs/constraint-factories";
-import { ReactflowDimensionsEstimator } from "./reactflow-dimension-estimator";
+import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
 import { VisualEntities } from "../../core-v2/lib/visual-model/visual-entity";
 import { PhantomElementsFactory } from "./util/utils";
 import { CONSTRAINT_MAP } from "./configs/constraints-mapping";
@@ -199,13 +199,10 @@ const runConstraintsInternal = async (graph: IMainGraphClassic,
 const runMainLayoutAlgorithm = async (graph: IMainGraphClassic,
 										constraints: ConstraintContainer,
 										nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<IMainGraphClassic> => {
-
-
 	const mainLayoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[constraints.algorithmOnlyConstraints["ALL"].algorithmName];
 	let bestLayoutedVisualEntitiesPromise: Promise<IMainGraphClassic>;
 	let minEdgeCrossCount = 1000000;
 	const edgeCrossingMetric: EdgeCrossingMetric = new EdgeCrossingMetric();
-
 
 	mainLayoutAlgorithm.prepareFromGraph(graph, constraints, nodeDimensionQueryHandler);		// TODO: Prepare only once? or in each iteration?
 	for(let i = 0; i < 1; i++) {

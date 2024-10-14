@@ -2,7 +2,7 @@ import { LanguageString, NamedThing, SemanticModelClass, SemanticModelEntity, Se
 import { GraphClassic, GraphFactory, MainGraphClassic } from "../graph-iface";
 import { ExtractedModel, extractModelObjects } from "../layout-iface";
 import { DIRECTION, doFindBestLayout, UserGivenConstraintsVersion2 } from "..";
-import { ReactflowDimensionsEstimator } from "../reactflow-dimension-estimator";
+import { ReactflowDimensionsEstimator } from "../dimension-estimators/reactflow-dimension-estimator";
 import { VisualEntities } from "../../../core-v2/lib/visual-model/visual-entity";
 
 type PossibleSemanticModelEntity = SemanticModelClass | SemanticModelRelationship | SemanticModelGeneralization;

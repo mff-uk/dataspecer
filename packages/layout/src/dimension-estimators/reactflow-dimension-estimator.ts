@@ -1,7 +1,7 @@
 import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { NodeDimensionQueryHandler } from ".";
-import { INodeClassic } from "./graph-iface";
-import { getEdgeSourceAndTargetRelationship } from "./layout-iface";
+import { NodeDimensionQueryHandler } from "..";
+import { INodeClassic } from "../graph-iface";
+import { getEdgeSourceAndTargetRelationship } from "../layout-iface";
 
 export class ReactflowDimensionsEstimator implements NodeDimensionQueryHandler {
     getWidth(estimatedNode: INodeClassic): number {

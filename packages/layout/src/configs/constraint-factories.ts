@@ -16,7 +16,7 @@ class AlgorithmConstraintFactory {
 
     static createAlgorithmConfiguration(userGivenAlgorithmConfiguration: UserGivenAlgorithmConfiguration): IAlgorithmOnlyConstraint | null {
         if(!userGivenAlgorithmConfiguration.should_be_considered) {
-            return undefined;
+            return null;
         }
         switch(userGivenAlgorithmConfiguration.layout_alg) {
             case "elk_stress":
@@ -26,7 +26,14 @@ class AlgorithmConstraintFactory {
             case "elk_force":
                 return new ElkForceConfiguration(userGivenAlgorithmConfiguration);
             case "random":
-                return null;
+                return {
+                    constraintedNodes: userGivenAlgorithmConfiguration.constraintedNodes,
+                    algorithmName: "random",
+                    type: "alg",
+                    constraintTime: "IN-MAIN",
+                    name: "Random alg name",
+                    data: undefined
+                };
             case "d3_force":
                 return new D3ForceConfiguration(userGivenAlgorithmConfiguration);
             case "sporeCompaction":
