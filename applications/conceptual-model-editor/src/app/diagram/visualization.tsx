@@ -56,6 +56,7 @@ import { toSvg } from "html-to-image";
 import { useDownload } from "./features/export/download";
 import { type Warning, useWarningsContext } from "./context/warnings-context";
 import { getRandomName } from "../utils/random-gen";
+import { useLayoutDialog } from "./layout/layout-dialog-full";
 
 // Function that returns SVG for the current model.
 export let getSvgForCurrentView: () => Promise<{
@@ -345,9 +346,9 @@ export const Visualization = () => {
                         // That means that if we change the view, the same reactflow nodes are still there even in different view, but they are not rendered unless explictly set again.
                         // I use useRef to track the view change hopefully it is correct (I am not that familiar with react to be 100% sure).
 
-                        if(reactflowNode !== undefined && !changedVisualModel.current && isSameEntity) {
-                            continue;
-                        }
+                        // if(reactflowNode !== undefined && !changedVisualModel.current && isSameEntity) {
+                        //     continue;
+                        // }
 
                         setNodes((prev) =>
                             prev.filter((n) => (n.data as ClassCustomNodeDataType).cls.id !== id).concat(n)
@@ -494,12 +495,16 @@ export const Visualization = () => {
         return node.positionAbsolute?.x === visEntityPos?.x && node.positionAbsolute?.y === visEntityPos?.y;
     };
 
+    const layoutDialogUse = useLayoutDialog();
+
 
     return (
         <>
             {isCreateConnectionDialogOpen && <CreateConnectionDialog />}
+            {layoutDialogUse.isLayoutDialogOpen && <layoutDialogUse.DialogComponent></layoutDialogUse.DialogComponent>}
 
             <div className="h-[80vh] w-full md:h-full">
+                <button onClick={e => layoutDialogUse.open()}>Layout</button>
                 <ReactFlow
                     nodes={nodes}
                     edges={edges}
