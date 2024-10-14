@@ -188,6 +188,24 @@ export class GraphFactory {
 }
 
 
+const isEntityInVisualModel = (visualModel: VisualEntityModel | null,
+                                visualEntities: Map<string, VisualEntity> | undefined,
+                                sourceEntityIdentifier: string): boolean => {
+    const visualEntity = visualEntities?.get(sourceEntityIdentifier);
+    return visualModel === null || (visualEntity !== undefined && visualEntity.visible === true);
+}
+
+const isGeneralizationInVisualModel = (visualModel: VisualEntityModel | null,
+                                        visualEntities: Map<string, VisualEntity> | undefined,
+                                        generalization: SemanticModelGeneralization): boolean => {
+    const visualEntityChild = visualEntities?.get(generalization.child);
+    const visualEntityParent = visualEntities?.get(generalization.parent);
+    return (visualModel === null) ||
+                (visualEntityChild !== undefined && visualEntityChild.visible === true &&
+                 visualEntityParent !== undefined && visualEntityParent.visible === true);
+}
+
+
 export class GraphClassic implements IGraphClassic {
     initialize(mainGraph: IMainGraphClassic,
                 sourceGraph: IGraphClassic,
@@ -232,17 +250,14 @@ export class GraphClassic implements IGraphClassic {
 
         extractedModel.classes.forEach(c => {
             if(this.nodes[c.id] === undefined) {
-                // TODO: Similiar code to this is on multiple places ... the check against visual model and optional addition to graph
-                const visualEntity = visualEntities?.get(c.id);
-                if(visualModel === null || (visualEntity !== undefined && visualEntity.visible === true)) {
+                if(isEntityInVisualModel(visualModel, visualEntities, c.id)) {
                     this.nodes[c.id] = new NodeClassic(this.mainGraph, c, false, extractedModel, this, visualModel);
                 }
             }
         });
         extractedModel.classesProfiles.forEach(cp => {
             if(this.nodes[cp.id] === undefined) {
-                const visualEntity = visualEntities?.get(cp.id);
-                if(visualModel === null || (visualEntity !== undefined && visualEntity.visible === true)) {
+                if(isEntityInVisualModel(visualModel, visualEntities, cp.id)) {
                     // TODO: Careful, if I somehow lose (or don't check) the isProfile info stored inside the node, then I can access the iri, which profiles don't have
                     this.nodes[cp.id] = new NodeClassic(this.mainGraph, cp as undefined as SemanticModelClass, true, extractedModel, this, visualModel);
                 }
@@ -278,11 +293,7 @@ export class GraphClassic implements IGraphClassic {
         let children: Record<string, string[]> = {};
         const visualEntities = visualModel?.getVisualEntities();
         generalizationEdges.forEach(g => {
-            // TODO: Again same code for checking visibility on multiple places
-            const visualEntityChild = visualEntities?.get(g.child);
-            const visualEntityParent = visualEntities?.get(g.parent);
-            if(!((visualModel === null) ||
-                 (visualEntityChild !== undefined && visualEntityChild.visible === true && visualEntityParent !== undefined && visualEntityParent.visible === true))) {
+            if(!isGeneralizationInVisualModel(visualModel, visualEntities, g)) {
                 return;
             }
             if(parents[g.child] === undefined) {
@@ -780,8 +791,7 @@ class NodeClassic implements INodeClassic {
         extractedModel.relationships.forEach(r => {
             const [source, target, ...rest] = getEdgeSourceAndTargetRelationship(r);
             if(semanticEntityRepresentingNode.id === source) {
-                const visualEntity = visualEntities?.get(r.id);
-                if(visualModel === null || (visualEntity !== undefined && visualEntity.visible === true)) {
+                if(isEntityInVisualModel(visualModel, visualEntities, r.id)) {
                     this.addEdge(sourceGraph, r.id, r, target, extractedModel, edgeToAddKey, visualModel);
                 }
             }
@@ -791,11 +801,7 @@ class NodeClassic implements INodeClassic {
         extractedModel.generalizations.forEach(g => {
             const [source, target] = getEdgeSourceAndTargetGeneralization(g);
             if(semanticEntityRepresentingNode.id === source) {
-                const visualEntityChild = visualEntities?.get(g.child);
-                const visualEntityParent = visualEntities?.get(g.parent);
-                if((visualModel === null) ||
-                        (visualEntityChild !== undefined && visualEntityChild.visible === true &&
-                         visualEntityParent !== undefined && visualEntityParent.visible === true)) {
+                if(isGeneralizationInVisualModel(visualModel, visualEntities, g)) {
                     this.addEdge(sourceGraph, g.id, g, target, extractedModel, edgeToAddKey, visualModel);
                 }
             }
@@ -805,8 +811,7 @@ class NodeClassic implements INodeClassic {
         extractedModel.relationshipsProfiles.forEach(rp => {
             const [source, target] = getEdgeSourceAndTargetRelationshipUsage(rp);
             if(semanticEntityRepresentingNode.id === source) {
-                const visualEntity = visualEntities?.get(rp.id);
-                if(visualModel === null || (visualEntity !== undefined && visualEntity.visible === true)) {
+                if(isEntityInVisualModel(visualModel, visualEntities, rp.id)) {
                     this.addEdge(sourceGraph, rp.id, rp, target, extractedModel, edgeToAddKey, visualModel);
                 }
             }
