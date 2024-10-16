@@ -157,7 +157,7 @@ export class ApplicationGraph {
         return matchingNodes[0]!;
     }
 
-    getNodesByRootDataStructure(rootStructureIri: string): ApplicationGraphNode[] {
+    getNodesByRootStructure(rootStructureIri: string): ApplicationGraphNode[] {
         return this.nodes
             .filter(node => node.getStructureIri() === rootStructureIri);
     }

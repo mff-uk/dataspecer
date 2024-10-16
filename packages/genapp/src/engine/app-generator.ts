@@ -150,8 +150,6 @@ export class ApplicationGenerator {
         }
     }
 
-
-
     /**
      * The entrypoint to the application graph generator. Creates application graph instance,
      * uses graph's data to generate an application prototype. When generation finishes,
@@ -226,13 +224,13 @@ export class ApplicationGenerator {
     ): Promise<NodeResult> {
 
         console.log("CURRENT NODE: ", currentNode);
-        const dataStructureMetadata = await currentNode.getNodeDataStructure();
+        const structureModelMetadata = await currentNode.getNodeStructureModel();
         const { iri: capabilityIri, config: capabilityConfig } = currentNode.getCapabilityInfo();
         const capabilityLabel = currentNode.getNodeLabel("en");
 
         const capabilityConstructorInput: CapabilityConstructorInput = {
             capabilityLabel,
-            dataStructureMetadata,
+            structureModelMetadata: structureModelMetadata,
             datasource: currentNode.getDatasource(graph),
         };
 
@@ -240,7 +238,7 @@ export class ApplicationGenerator {
 
         const nodeArtifact = await capabilityGenerator
             .generateCapability({
-                aggregate: dataStructureMetadata,
+                aggregate: structureModelMetadata,
                 graph: graph,
                 node: currentNode,
                 nodeConfig: capabilityConfig,
@@ -248,8 +246,8 @@ export class ApplicationGenerator {
 
         const generatedNodeResult: NodeResult = {
             artifact: nodeArtifact,
-            structure: dataStructureMetadata,
-            nodePath: `${dataStructureMetadata.technicalLabel}/${capabilityGenerator.getLabel()}`,
+            structure: structureModelMetadata,
+            nodePath: `${structureModelMetadata.technicalLabel}/${capabilityGenerator.getLabel()}`,
             capability: {
                 type: capabilityGenerator.getType(),
                 label: capabilityGenerator.getLabel()

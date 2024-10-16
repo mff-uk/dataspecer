@@ -24,21 +24,21 @@ export class EditInstanceCapabilityMetadata extends InstanceCapabilityMetadata {
 export class EditInstanceCapability extends BaseCapabilityGenerator {
 
     constructor(constructorInput: CapabilityConstructorInput) {
-        super(constructorInput.dataStructureMetadata, new EditInstanceCapabilityMetadata(constructorInput.capabilityLabel));
+        super(constructorInput.structureModelMetadata, new EditInstanceCapabilityMetadata(constructorInput.capabilityLabel));
 
         const dalLayerGeneratorStrategy = EditInstanceTemplateGeneratorFactory.getDalGeneratorStrategy(
-            constructorInput.dataStructureMetadata.technicalLabel,
-            constructorInput.dataStructureMetadata.specificationIri,
+            constructorInput.structureModelMetadata.technicalLabel,
+            constructorInput.structureModelMetadata.specificationIri,
             constructorInput.datasource
         );
         const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(
-            constructorInput.dataStructureMetadata.technicalLabel,
+            constructorInput.structureModelMetadata.technicalLabel,
             this.getIdentifier()
         );
 
         const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory
             .getPresentationLayerGenerator(
-                constructorInput.dataStructureMetadata,
+                constructorInput.structureModelMetadata,
                 this.getIdentifier()
             );
 

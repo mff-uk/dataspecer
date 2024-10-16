@@ -125,7 +125,7 @@ export class TransitionsGenerator {
                     throw new Error(`Invalid transition edge: ${edge}`);
                 }
 
-                const dataStructurePromise = transitionEndNode.getNodeDataStructure();
+                const structureModelPromise = transitionEndNode.getNodeStructureModel();
 
                 const sourceCapabilityIri = currentNode.getCapabilityInfo().iri;
                 const targetCapabilityIri = transitionEndNode.getCapabilityInfo().iri;
@@ -151,10 +151,10 @@ export class TransitionsGenerator {
                 }
 
                 const targetCapability = getCapabilityMetadata(allowedTargetIri, transitionEndNode.getNodeLabel("en"));
-                const targetDatastructure = await dataStructurePromise;
+                const targetStructureModel = await structureModelPromise;
 
                 const generatedTransition: AllowedTransition = {
-                    id: `/${targetDatastructure.technicalLabel}/${targetCapability.getLabel()}`,
+                    id: `/${targetStructureModel.technicalLabel}/${targetCapability.getLabel()}`,
                     targetId: targetCapability.getLabel(),
                     label: targetCapability.getHumanLabel(),
                     capabilityType: targetCapability.getType(),

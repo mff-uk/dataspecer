@@ -108,15 +108,15 @@ export class ApplicationGraphNode {
         return this._node.structure;
     }
 
-    public async getNodeDataStructure(): Promise<AggregateMetadata> {
+    public async getNodeStructureModel(): Promise<AggregateMetadata> {
 
-        const dataStructure = await new DalApi()
+        const structureModel = await new DalApi()
             .getStructureInfo(
                 this._specificationIri,
                 this._node.structure
             );
 
-        return new AggregateMetadata(this._specificationIri, dataStructure);
+        return new AggregateMetadata(this._specificationIri, structureModel);
     }
 
     public getOutgoingEdges(graph: ApplicationGraph): ApplicationGraphEdge[] {

@@ -67,12 +67,12 @@ export default class DalApi {
         const resourceResponse = await this.getResource(structureIri);
 
         const psmResourceMap = resourceResponse as ResourceMap<DataPsmSchema>;
-        const dataStructure = psmResourceMap[structureIri];
+        const structureModel = psmResourceMap[structureIri];
 
-        if (!dataStructure) {
+        if (!structureModel) {
             throw new Error(`${structureIri} does not reference any valid data structure`);
         }
 
-        return dataStructure;
+        return structureModel;
     }
 }
