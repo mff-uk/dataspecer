@@ -1,8 +1,8 @@
-import { TemplateDescription } from "../../engine/templates/template-interfaces";
+import { TemplateModel } from "../../engine/templates/template-interfaces";
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { TemplateConsumer, TemplateMetadata } from "../../engine/templates/template-consumer";
 
-export interface CapabilityInterfaceTemplate extends TemplateDescription {
+export interface CapabilityInterfaceTemplate extends TemplateModel {
     templatePath: string
 }
 

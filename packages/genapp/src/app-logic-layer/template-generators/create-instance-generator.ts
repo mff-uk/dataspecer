@@ -2,9 +2,9 @@ import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGen
 import { InstanceCreatorInterfaceGenerator } from "../../data-layer/template-generators/reader-interface-generator";
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "./template-app-layer-generator";
-import { ImportRelativePath, TemplateDescription } from "../../engine/templates/template-interfaces";
+import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
 
-interface CreateInstanceCapabilityAppLayerTemplate extends TemplateDescription {
+interface CreateInstanceCapabilityAppLayerTemplate extends TemplateModel {
     placeholders: {
         exported_object_name: string,
         instance_creator_type: string,

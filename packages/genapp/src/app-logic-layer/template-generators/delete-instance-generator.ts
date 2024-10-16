@@ -2,9 +2,9 @@ import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGen
 import { DeleteInstanceMutatorInterfaceGenerator } from "../../data-layer/template-generators/reader-interface-generator";
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "./template-app-layer-generator";
-import { ImportRelativePath, TemplateDescription } from "../../engine/templates/template-interfaces";
+import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
 
-interface DeleteCapabilityAppLayerTemplate extends TemplateDescription {
+interface DeleteCapabilityAppLayerTemplate extends TemplateModel {
     placeholders: {
         exported_object_name: string;
         delete_mutator_instance: string,

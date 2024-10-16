@@ -1,7 +1,7 @@
 import { LanguageString } from "@dataspecer/core/core/core-resource";
 import { AggregateMetadata } from "../application-config";
 import { TemplateGenerator } from "./eta-template-renderer";
-import { TemplateDescription } from "./templates/template-interfaces";
+import { TemplateModel } from "./templates/template-interfaces";
 import { LayerArtifact } from "./layer-artifact";
 
 export type TemplateDependencyMap = Record<"aggregate", AggregateMetadata> & Record<string, any>;
@@ -11,7 +11,7 @@ export type TemplateMetadata = {
     filePath: string
 };
 
-export abstract class TemplateConsumer<TemplateType extends TemplateDescription> {
+export abstract class TemplateConsumer<TemplateType extends TemplateModel> {
     protected readonly _templateRenderer: TemplateGenerator<TemplateType>;
     protected readonly _filePath: string;
     protected readonly _templatePath: string;

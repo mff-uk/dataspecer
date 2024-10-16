@@ -2,12 +2,12 @@
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "./presentation-layer-template-generator";
 import { ListItemCapabilityOptionsDependencyMap, ListItemCapabilityOptionsGenerator as ListItemOptionsGenerator } from "./list-item-options-processor";
-import { ImportRelativePath, TemplateDescription } from "../../engine/templates/template-interfaces";
+import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
 import { JsonSchemaProvider } from "../../data-layer/schema-providers/json-schema-provider";
 import { CapabilityType } from "../../capabilities";
 import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
 
-interface ListTableTemplate extends TemplateDescription {
+interface ListTableTemplate extends TemplateModel {
     placeholders: {
         aggregate_name: string;
         page_title: string | null;

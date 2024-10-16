@@ -3,10 +3,10 @@ import { LayerArtifact } from "../../engine/layer-artifact";
 import { AllowedTransition } from "../../engine/transitions/transitions-generator";
 import { ApplicationGraphEdgeType } from "../../engine/graph";
 import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
-import { ImportRelativePath, TemplateDescription } from "../../engine/templates/template-interfaces";
+import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "./presentation-layer-template-generator";
 
-interface DetailReactComponentTemplate extends TemplateDescription {
+interface DetailReactComponentTemplate extends TemplateModel {
     placeholders: {
         page_title: string | null;
         aggregate_name: string;

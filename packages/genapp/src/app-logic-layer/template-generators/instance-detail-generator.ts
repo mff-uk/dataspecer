@@ -3,9 +3,9 @@ import { TemplateMetadata } from "../../engine/templates/template-consumer";
 import { DetailReaderInterfaceGenerator } from "../../data-layer/template-generators/reader-interface-generator";
 import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "./template-app-layer-generator";
 import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGenerator } from "../../capabilities/template-generators/capability-interface-generator";
-import { ImportRelativePath, TemplateDescription } from "../../engine/templates/template-interfaces";
+import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
 
-interface DetailCapabilityAppLayerTemplate extends TemplateDescription {
+interface DetailCapabilityAppLayerTemplate extends TemplateModel {
     placeholders: {
         detail_app_layer_exported_name: string,
         instance_reader_interface: string,

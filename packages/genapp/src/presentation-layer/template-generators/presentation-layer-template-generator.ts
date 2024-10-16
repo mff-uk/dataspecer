@@ -1,5 +1,5 @@
 import { Config, createGenerator, Schema } from "ts-json-schema-generator";
-import { TemplateDescription } from "../../engine/templates/template-interfaces";
+import { TemplateModel } from "../../engine/templates/template-interfaces";
 import { GenerationContext } from "../../engine/generator-stage-interface";
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { TemplateConsumer, TemplateDependencyMap  } from "../../engine/templates/template-consumer";
@@ -17,7 +17,7 @@ export interface PresentationLayerDependencyMap extends TemplateDependencyMap {
     detailNodeConfig: DetailNodeConfiguration;
 }
 
-export abstract class PresentationLayerTemplateGenerator<TemplateType extends TemplateDescription>
+export abstract class PresentationLayerTemplateGenerator<TemplateType extends TemplateModel>
     extends TemplateConsumer<TemplateType>
     implements PresentationLayerGenerator {
 

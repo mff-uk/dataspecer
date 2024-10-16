@@ -1,11 +1,11 @@
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "./presentation-layer-template-generator";
-import { ImportRelativePath, TemplateDescription } from "../../engine/templates/template-interfaces";
+import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
 import { ApplicationGraphEdgeType } from "../../engine/graph";
 import { AllowedTransition } from "../../engine/transitions/transitions-generator";
 import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
 
-interface CreateInstanceReactComponentTemplate extends TemplateDescription {
+interface CreateInstanceReactComponentTemplate extends TemplateModel {
     placeholders: {
         aggregate_name: string,
         page_title: string | null,

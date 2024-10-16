@@ -3,9 +3,9 @@ import { ListReaderInterfaceGenerator } from "../../data-layer/template-generato
 import { GeneratedCapabilityInterfaceGenerator, ListResultReturnInterfaceGenerator } from "../../capabilities/template-generators/capability-interface-generator";
 import { TemplateMetadata } from "../../engine/templates/template-consumer";
 import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "./template-app-layer-generator";
-import { ImportRelativePath, TemplateDescription } from "../../engine/templates/template-interfaces";
+import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
 
-interface ListCapabilityAppLayerTemplate extends TemplateDescription {
+interface ListCapabilityAppLayerTemplate extends TemplateModel {
     templatePath: string,
     placeholders: {
         list_reader_interface: string,

@@ -1,10 +1,10 @@
 import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
-import { ImportRelativePath, TemplateDescription } from "../../engine/templates/template-interfaces";
+import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { TemplateConsumer, TemplateDependencyMap } from "../../engine/templates/template-consumer";
 import { AllowedTransition } from "../../engine/transitions/transitions-generator";
 
-interface ListItemCapabilityOptionsTemplate extends TemplateDescription {
+interface ListItemCapabilityOptionsTemplate extends TemplateModel {
     placeholders: {
         export_name: string;
         aggregate_technical_label: string;

@@ -5,10 +5,10 @@ import {
     ListResultReturnInterfaceGenerator,
     CapabilityInterfaceGeneratorType
 } from "../../capabilities/template-generators/capability-interface-generator";
-import { ImportRelativePath, TemplateDescription } from "../../engine/templates/template-interfaces";
+import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
 
 // TODO: Change / use more generic interfaceTemplate and placeholder names (e.g. InterfaceTemplate and return_type)
-interface ReaderInterfaceTemplate extends TemplateDescription {
+interface ReaderInterfaceTemplate extends TemplateModel {
     templatePath: string;
     placeholders: {
         read_return_type: string;

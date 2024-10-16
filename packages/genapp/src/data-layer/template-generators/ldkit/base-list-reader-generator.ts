@@ -2,9 +2,9 @@ import { LayerArtifact } from "../../../engine/layer-artifact";
 import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/templates/template-consumer";
 import { ListReaderInterfaceGenerator } from "../reader-interface-generator";
 import { ListResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
-import { TemplateDescription, ImportRelativePath } from "../../../engine/templates/template-interfaces";
+import { TemplateModel, ImportRelativePath } from "../../../engine/templates/template-interfaces";
 
-export interface BaseLdkitReaderTemplate extends TemplateDescription {
+export interface BaseLdkitReaderTemplate extends TemplateModel {
     templatePath: string;
     placeholders: {
         exported_object_name: string;

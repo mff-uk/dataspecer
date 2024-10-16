@@ -1,10 +1,10 @@
 import { LayerArtifact } from "../engine/layer-artifact";
-import { ImportRelativePath, TemplateDescription } from "../engine/templates/template-interfaces";
+import { ImportRelativePath, TemplateModel } from "../engine/templates/template-interfaces";
 import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../engine/templates/template-consumer";
 import { CopyTemplateProcessor } from "../capabilities/template-generators/capability-interface-generator";
 import { SidebarComponentTemplateProcessor } from "../presentation-layer/template-generators/sidebar-template-processor";
 
-interface ReactAppBaseTemplate extends TemplateDescription {
+interface ReactAppBaseTemplate extends TemplateModel {
     placeholders: {
         error_component_name: string,
         error_component_path: ImportRelativePath,
