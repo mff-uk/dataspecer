@@ -1,7 +1,11 @@
 import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
 import { normalizeName } from "./utils/utils";
 
-export class AggregateMetadata {
+class AggregateMetadataContext {
+    protected static readonly _aggregateMetadataMap: { [ aggregateTechnicalLabel: string ]: DataPsmSchema; } = {};
+}
+
+export class AggregateMetadata extends AggregateMetadataContext {
     private readonly _structureModel: DataPsmSchema;
     public readonly iri: string;
     public readonly specificationIri: string;
@@ -19,6 +23,8 @@ export class AggregateMetadata {
     public readonly roots: string[];
 
     constructor(specificationIri: string, structure: DataPsmSchema) {
+        super();
+
         this._structureModel = structure;
         this.specificationIri = specificationIri;
 
@@ -52,7 +58,17 @@ export class AggregateMetadata {
     }
 
     private getTechnicalLabel(structure: DataPsmSchema): string {
-        return structure.dataPsmTechnicalLabel ?? this.aggregateName.toLowerCase();
+
+        let techLabel = structure.dataPsmTechnicalLabel ?? this.aggregateName.toLowerCase();
+
+        if (techLabel in AggregateMetadataContext._aggregateMetadataMap) {
+            const techLabelSuffix = "-1";
+            techLabel = `${techLabel}${techLabelSuffix}`;
+        }
+
+        AggregateMetadataContext._aggregateMetadataMap[techLabel] = structure;
+
+        return techLabel;
     }
 
     /**

@@ -70,7 +70,7 @@ export default class DalApi {
         const structureModel = psmResourceMap[structureIri];
 
         if (!structureModel) {
-            throw new Error(`${structureIri} does not reference any valid data structure`);
+            throw new Error(`"${structureIri}" does not reference any valid data structure model.`);
         }
 
         return structureModel;
