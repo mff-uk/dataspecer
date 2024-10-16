@@ -1,16 +1,15 @@
-import {MemoryStore} from "@dataspecer/core/core";
-import {dataPsmExecutors} from "@dataspecer/core/data-psm/data-psm-executors";
-import {pimExecutors} from "@dataspecer/core/pim/executor";
-import {PimCreateSchema} from "@dataspecer/core/pim/operation";
-import {DataPsmCreateSchema} from "@dataspecer/core/data-psm/operation";
-import {DataSpecification} from "@dataspecer/core/data-specification/model";
-import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
-import {useAsyncMemo} from "../../hooks/use-async-memo";
-import {useMemo} from "react";
-import {getAdapter} from "../adapters/get-adapter";
-import {Configuration} from "../configuration";
-import {OperationContext} from "../../operations/context/operation-context";
+import { MemoryStore } from "@dataspecer/core/core";
+import { dataPsmExecutors } from "@dataspecer/core/data-psm/data-psm-executors";
+import { DataPsmCreateSchema } from "@dataspecer/core/data-psm/operation";
+import { DataSpecification } from "@dataspecer/core/data-specification/model";
+import { pimExecutors } from "@dataspecer/core/pim/executor";
+import { PimCreateSchema } from "@dataspecer/core/pim/operation";
+import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
+import { useMemo } from "react";
 import { DefaultClientConfiguration } from "../../../configuration";
+import { useAsyncMemo } from "../../hooks/use-async-memo";
+import { OperationContext } from "../../operations/context/operation-context";
+import { Configuration, useProvidedSourceSemanticModel } from "../configuration";
 
 /**
  * Creates a configuration, that is purely local and does not require any
@@ -22,7 +21,7 @@ export const useLocalConfiguration = (
     enabled: boolean,
 ): Configuration | null => {
     const store = useMemo(() => enabled ? new FederatedObservableStore() : null, [enabled]);
-    const cim = useMemo(() => enabled ? getAdapter([]) : null, [enabled]);
+    const sourceSemanticModel = useProvidedSourceSemanticModel(null, null);
     const operationContext = useMemo(() => {
         const context = new OperationContext();
         context.labelRules = {
@@ -62,7 +61,7 @@ export const useLocalConfiguration = (
             dataSpecifications: dataSpecification ? { [dataSpecification.iri as string]: dataSpecification } : {},
             dataSpecificationIri: dataSpecification?.iri ?? null,
             dataPsmSchemaIri: dataSpecification?.psms[0] ?? null,
-            cim: cim as ReturnType<typeof getAdapter>,
+            sourceSemanticModel,
             operationContext,
         };
     } else {

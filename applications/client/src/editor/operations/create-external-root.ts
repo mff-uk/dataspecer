@@ -35,6 +35,7 @@ export class CreateExternalRoot implements ComplexOperation {
     }
 
     async execute(): Promise<void> {
+        // @ts-ignore
         const pimClassIri = await createPimClassIfMissing(this.pimClass, this.pimSchemaIri, this.store);
 
         const dataPsmCreateExternalRoot = new DataPsmCreateExternalRoot();
