@@ -1,7 +1,7 @@
 import type { SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import type { SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { useConfigurationContext } from "../../../context/configuration-context";
 import { EntityProxy } from "../../../util/detail-utils";
+import { useOptions } from "../../../application/options";
 
 export const RemovableAttributeRow = (props: {
     attribute: SemanticModelRelationship;
@@ -10,7 +10,7 @@ export const RemovableAttributeRow = (props: {
 }) => {
     const { attribute, toBeRemoved, addToToBeRemoved } = props;
 
-    const { language } = useConfigurationContext();
+    const { language } = useOptions();
     const { name, description } = EntityProxy(attribute, language);
 
     return (
@@ -30,7 +30,7 @@ export const RemovableAttributeProfileRow = (props: {
 }) => {
     const { attribute, toBeRemoved, addToToBeRemoved } = props;
 
-    const { language } = useConfigurationContext();
+    const { language } = useOptions();
     const { name, description, usageNote } = EntityProxy(attribute, language);
 
     return (

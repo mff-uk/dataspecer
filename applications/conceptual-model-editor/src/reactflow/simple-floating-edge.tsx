@@ -28,7 +28,6 @@
 // import { useModelGraphContext } from "../context/model-context";
 // import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 // import { useClassesContext } from "../context/classes-context";
-// import { useConfigurationContext } from "../context/configuration-context";
 // import { sourceModelOfEntity } from "../util/model-utils";
 // import { EntityProxy } from "../util/detail-utils";
 // import { useMenuOptions } from "./components/menu-options";

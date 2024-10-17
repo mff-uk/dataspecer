@@ -16,7 +16,6 @@ import type { EntityModel } from "@dataspecer/core-v2/entity-model";
 import { useBaseDialog } from "../components/base-dialog";
 import { MultiLanguageInputForLanguageString } from "../components/input/multi-language-input-4-language-string";
 import { getRandomName } from "../util/random-gen";
-import { useConfigurationContext } from "../context/configuration-context";
 import { IriInput } from "../components/input/iri-input";
 import { getModelIri } from "../util/iri-utils";
 import { CardinalityOptions } from "../components/cardinality-options";
@@ -26,6 +25,7 @@ import { CreateButton } from "../components/dialog/buttons/create-button";
 import { CancelButton } from "../components/dialog/buttons/cancel-button";
 import { getEntityLabel } from "../service/entity-service";
 import { t, logger, configuration } from "../application/";
+import { useOptions } from "../application/options";
 
 enum ConnectionType {
     association = "association",
@@ -79,7 +79,7 @@ export const useCreateConnectionDialog = () => {
         };
 
         const { source: sourceId, target: targetId } = connectionCreated;
-        const { language: preferredLanguage } = useConfigurationContext();
+        const { language: preferredLanguage } = useOptions();
         const { classes, profiles } = useClassesContext();
         const { models, aggregatorView } = useModelGraphContext();
         const inMemoryModels = filterInMemoryModels(models);

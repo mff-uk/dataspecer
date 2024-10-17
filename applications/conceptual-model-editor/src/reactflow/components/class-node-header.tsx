@@ -4,7 +4,6 @@
 //     SemanticModelRelationshipUsage,
 // } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 // import { EntityProxy } from "../../util/detail-utils";
-// import { useConfigurationContext } from "../../context/configuration-context";
 
 // export const ClassNodeHeader = (props: {
 //     name: string | null;

@@ -5,16 +5,16 @@ import {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { EntityProxy } from "../../../util/detail-utils";
-import { useConfigurationContext } from "../../../context/configuration-context";
 import { getLocalizedStringFromLanguageString } from "../../../util/language-utils";
 import { getProfiledEntity } from "../../../util/profile-utils";
 import { useClassesContext } from "../../../context/classes-context";
+import { useOptions } from "../../../application/options";
 
 export const NewRemovableAttributeRow = (props: {
     attribute: Partial<Omit<SemanticModelRelationship, "type">>;
     deleteButtonClicked: () => void;
 }) => {
-    const { language } = useConfigurationContext();
+    const { language } = useOptions();
     const { attribute, deleteButtonClicked } = props;
 
     const attr = attribute.ends?.at(1);
@@ -37,7 +37,7 @@ export const NewRemovableAttributeProfileRow = (props: {
     resource: Partial<Omit<SemanticModelRelationshipUsage, "type">> & Pick<SemanticModelRelationshipUsage, "usageOf">;
     deleteButtonClicked: () => void;
 }) => {
-    const { language } = useConfigurationContext();
+    const { language } = useOptions();
     const { relationships, profiles } = useClassesContext();
     const { resource, deleteButtonClicked } = props;
 

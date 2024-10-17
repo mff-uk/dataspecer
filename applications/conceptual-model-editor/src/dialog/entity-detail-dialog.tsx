@@ -18,7 +18,6 @@ import { type WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { IriLink } from "../components/iri-link";
 import { useBaseDialog } from "../components/base-dialog";
 import { sourceModelOfEntity } from "../util/model-utils";
-import { useConfigurationContext } from "../context/configuration-context";
 import { useModelGraphContext } from "../context/model-context";
 import { capFirst } from "../util/name-utils";
 import { ResourceDetailClickThrough } from "../components/entity-detail-dialog-clicktrough-component";
@@ -29,6 +28,7 @@ import { DialogColoredModelHeaderWithLanguageSelector } from "../components/dial
 import { CloseButton } from "../components/dialog/buttons/close-button";
 import { t } from "../application";
 import { useActions } from "../action/actions-react-binding";
+import { useOptions } from "../application/options";
 
 type EntityDialogSupportedType =
     | SemanticModelClass
@@ -59,7 +59,7 @@ export const useEntityDetailDialog = () => {
     };
 
     const EntityDetailDialog = () => {
-        const { language: preferredLanguage } = useConfigurationContext();
+        const { language: preferredLanguage } = useOptions();
         const [currentLang, setCurrentLang] = useState<string>(preferredLanguage);
         const [viewedEntity, setViewedEntity] = useState(initialViewedEntity);
 

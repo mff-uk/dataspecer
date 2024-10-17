@@ -2,8 +2,8 @@ import { type ChangeEvent, useEffect, useState } from "react";
 import { IRI } from "iri";
 import type { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { TwoWaySwitch } from "./two-way-switch";
-import { useConfigurationContext } from "../../context/configuration-context";
 import { getStringFromLanguageStringInLang } from "../../util/language-utils";
+import { useOptions } from "../../application/options";
 
 enum IriType {
     absolute ="absolute",
@@ -47,7 +47,7 @@ export const IriInput = (props: {
      */
     nameSuggestion?: (name: string) => string,
 }) => {
-    const { language: preferredLanguage } = useConfigurationContext();
+    const { language: preferredLanguage } = useOptions();
     const { name, newIri, iriHasChanged, setNewIri, disabled } = props;
 
     const baseIri = props.baseIri ?? "";

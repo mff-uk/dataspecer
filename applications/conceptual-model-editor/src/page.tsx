@@ -21,7 +21,6 @@ import {
 
 import { ClassesContext } from "./context/classes-context";
 import { ModelGraphContext } from "./context/model-context";
-import { type SupportedLanguageType, ConfigurationContext } from "./context/configuration-context";
 import { type Warning, WarningsContext } from "./context/warnings-context";
 import Header from "./header/header";
 import { useBackendConnection } from "./backend-connection";
@@ -37,6 +36,7 @@ import { NotificationList } from "./notification";
 import { ActionsContextProvider } from "./action/actions-react-binding";
 import { createWritableVisualModel } from "./util/visual-model-utils";
 import { findSourceModelOfEntity } from "./service/model-service";
+import { OptionsContextProvider } from "./application/options";
 
 import "./page.css";
 
@@ -44,8 +44,6 @@ const semanticModelAggregator = new SemanticModelAggregator();
 type SemanticModelAggregatorType = typeof semanticModelAggregator;
 
 const Page = () => {
-    // Options
-    const [language, setLanguage] = useState<SupportedLanguageType>("en");
     // URL query
     const { packageId, viewId, updatePackageId } = useQueryParamsContext();
     // Dataspecer API
@@ -81,7 +79,7 @@ const Page = () => {
                 // We have already created a default package.
                 return;
             } else {
-                console.log("[INITIALIZATION] No package identifier provided, creating default model.", { packageId });
+                console.log("[INITIALIZATION] No package identifier provided, creating default model.");
                 return initializeWithoutPackage(
                     setVisualModels,
                     setModels,
@@ -124,8 +122,8 @@ const Page = () => {
     }, [aggregatorView]);
 
     return (
-        <>
-            <ConfigurationContext.Provider value={{ language, setLanguage }}>
+        <QueryParamsProvider>
+            <OptionsContextProvider>
                 <ModelGraphContext.Provider
                     value={{
                         aggregator,
@@ -175,20 +173,23 @@ const Page = () => {
                         </WarningsContext.Provider>
                     </ClassesContext.Provider>
                 </ModelGraphContext.Provider>
-            </ConfigurationContext.Provider>
-        </>
+            </OptionsContextProvider>
+        </QueryParamsProvider>
     );
 };
 
+// This is here for the query context to be provided
+// so it can be used by the Page component.
 const PageWrapper = () => {
     return (
         <QueryParamsProvider>
             <Page />
         </QueryParamsProvider>
-    );
-};
+    )
+}
 
 export default PageWrapper;
+
 
 function initializeWithoutPackage(
     setVisualModels: Dispatch<SetStateAction<Map<string, WritableVisualModel>>>,
@@ -328,7 +329,7 @@ function initializeWithPackage(
  * - check and set model for a represented entity
  */
 function migrateVisualModelFromV0(models: Map<string, EntityModel>, aggregator: SemanticModelAggregatorView, visualModel: WritableVisualModel) {
-    console.log("[INITIALIZATION] Migrating visual model from version '0'.", {model: visualModel});
+    console.log("[INITIALIZATION] Migrating visual model from version '0'.", { model: visualModel });
     const entities = aggregator.getEntities();
 
     for (const entity of visualModel.getVisualEntities().values()) {

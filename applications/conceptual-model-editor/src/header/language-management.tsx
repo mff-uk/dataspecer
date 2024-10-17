@@ -1,24 +1,15 @@
-import {
-    type SupportedLanguageType,
-    SupportedLanguages,
-    useConfigurationContext,
-} from "../context/configuration-context";
 import { DropDownCatalog } from "../components/management/dropdown-catalog";
+import { useOptions, SupportedLanguages, type Language } from "../application/options";
 
 export const LanguageManagement = () => {
-    const { language, changeLanguage } = useConfigurationContext();
-
-    const handleLanguageSelected = (l: SupportedLanguageType) => {
-        changeLanguage(l);
-    };
-
+    const options = useOptions();
     return (
         <DropDownCatalog
             catalogName="lang"
-            valueSelected={language}
-            openCatalogTitle="change preferred language"
-            availableValues={SupportedLanguages as readonly string[]}
-            onValueSelected={(value) => handleLanguageSelected(value as unknown as SupportedLanguageType)}
+            valueSelected={options.language}
+            openCatalogTitle="Change preferred language"
+            availableValues={SupportedLanguages}
+            onValueSelected={(value) => options.setLanguage(value as Language)}
         />
     );
 };

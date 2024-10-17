@@ -61,13 +61,13 @@ import { Diagram, type Node, type Edge, type EntityItem, EdgeType } from "./diag
 import { type UseDiagramType } from "./diagram/diagram-hook";
 import { logger } from "./application";
 import { EntityProxy } from "./util/detail-utils";
-import { ConfigurationContextType, useConfigurationContext, type UseConfigurationContextType } from "./context/configuration-context";
 import { getDescriptionLanguageString, getFallbackDisplayName, getNameLanguageString, getUsageNoteLanguageString } from "./util/name-utils";
 import { getLocalizedStringFromLanguageString } from "./util/language-utils";
 import { getIri, getModelIri } from "./util/iri-utils";
 import { findSourceModelOfEntity } from "./service/model-service";
 import { type EntityModel } from "@dataspecer/core-v2";
 import { cardinalityToString } from "./util/utils";
+import { Options, useOptions } from "./application/options";
 
 /**
  * Returns SVG for the current model.
@@ -84,7 +84,7 @@ export let getSvgForCurrentView: () => Promise<{
 const DEFAULT_MODEL_COLOR = "#ffffff";
 
 export const Visualization = () => {
-    const configuration = useConfigurationContext();
+    const options = useOptions();
     const graph = useModelGraphContext();
     const aggregatorView = graph.aggregatorView;
 
@@ -254,8 +254,8 @@ export const Visualization = () => {
     // Update canvas content on view change.
     useEffect(() => {
         console.log("[VISUALIZATION] Active visual model has changed.", activeVisualModel);
-        onChangeVisualModel(configuration, activeVisualModel, actions.diagram, aggregatorView, classesContext, graph);
-    }, [configuration, activeVisualModel, actions, aggregatorView, classesContext, graph]);
+        onChangeVisualModel(options, activeVisualModel, actions.diagram, aggregatorView, classesContext, graph);
+    }, [options, activeVisualModel, actions, aggregatorView, classesContext, graph]);
 
     return (
         <>
@@ -624,7 +624,7 @@ export const Visualization = () => {
  * TODO We call setContent which is async, we should return a promise and wait.
  */
 function onChangeVisualModel(
-    configuration: UseConfigurationContextType,
+    options: Options,
     visualModel: VisualModel | null,
     diagram: UseDiagramType | null,
     aggregatorView: SemanticModelAggregatorView,
@@ -662,7 +662,7 @@ function onChangeVisualModel(
                     continue;
                 }
                 const node = createDiagramNode(
-                    configuration, visualModel,
+                    options, visualModel,
                     attributes, attributeProfiles, profilingSources,
                     visualEntity, entity, model);
                 nextNodes.push(node);
@@ -681,7 +681,7 @@ function onChangeVisualModel(
                     continue;
                 }
                 const edge = createDiagramEdge(
-                    configuration, visualModel, profilingSources,
+                    options, visualModel, profilingSources,
                     visualEntity, entity, model);
                 if (edge !== null) {
                     nextEdges.push(edge);
@@ -695,7 +695,7 @@ function onChangeVisualModel(
 }
 
 function createDiagramNode(
-    configuration: UseConfigurationContextType,
+    options: Options,
     visualModel: VisualModel,
     attributes: SemanticModelRelationship[],
     attributesProfiles: SemanticModelRelationshipUsage[],
@@ -704,7 +704,7 @@ function createDiagramNode(
     entity: SemanticModelClass | SemanticModelClassUsage,
     model: EntityModel,
 ): Node {
-    const language = configuration.language;
+    const language = options.language;
 
     const nodeAttributes = attributes
         .filter(isSemanticModelAttribute)
@@ -786,7 +786,7 @@ function getUsageNote(
 }
 
 function createDiagramEdge(
-    configuration: UseConfigurationContextType,
+    options: Options,
     visualModel: VisualModel,
     profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
     visualNode: VisualRelationship,
@@ -808,7 +808,7 @@ function createDiagramEdge(
         }
         //
         return createDiagramEdgeForRelationship(
-            configuration, visualModel, profilingSources,
+            options, visualModel, profilingSources,
             visualNode, entity, source, target);
     } else if (isSemanticModelRelationshipUsage(entity)) {
         const { domain, range } = getDomainAndRange(entity);
@@ -824,7 +824,7 @@ function createDiagramEdge(
         }
         //
         return createDiagramEdgeForRelationshipProfile(
-            configuration, visualModel, profilingSources,
+            options, visualModel, profilingSources,
             visualNode, entity, source, target);
     } else if (isSemanticModelGeneralization(entity)) {
         const source = visualModel.getVisualEntityForRepresented(entity.child);
@@ -835,7 +835,7 @@ function createDiagramEdge(
         }
         //
         return createDiagramEdgeForGeneralization(
-            configuration, visualModel, profilingSources,
+            options, visualModel, profilingSources,
             visualNode, entity, source, target);
     } else if (isSemanticModelClassUsage(entity)) {
         const source = visualModel.getVisualEntityForRepresented(entity.id);
@@ -846,14 +846,14 @@ function createDiagramEdge(
         }
         //
         return createDiagramEdgeForClassUsage(
-            configuration, visualModel, profilingSources,
+            options, visualModel, profilingSources,
             visualNode, entity, source, target);
     }
     throw Error(`Unknown entity type ${identifier}.`);
 }
 
 function createDiagramEdgeForRelationship (
-    configuration: UseConfigurationContextType,
+    options: Options,
     visualModel: VisualModel,
     profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
     visualNode: VisualRelationship,
@@ -861,7 +861,7 @@ function createDiagramEdgeForRelationship (
     source: VisualEntity,
     target: VisualEntity,
 ) : Edge {
-    const language = configuration.language;
+    const language = options.language;
 
     const profileOf =
         (isSemanticModelRelationshipUsage(entity)
@@ -889,7 +889,7 @@ function createDiagramEdgeForRelationship (
 }
 
 function createDiagramEdgeForRelationshipProfile (
-    configuration: UseConfigurationContextType,
+    options: Options,
     visualModel: VisualModel,
     profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
     visualNode: VisualRelationship,
@@ -898,7 +898,7 @@ function createDiagramEdgeForRelationshipProfile (
     target: VisualEntity,
 ) : Edge {
 
-    const language = configuration.language;
+    const language = options.language;
 
     const profileOf =
         (isSemanticModelRelationshipUsage(entity)
@@ -926,7 +926,7 @@ function createDiagramEdgeForRelationshipProfile (
 }
 
 function createDiagramEdgeForGeneralization (
-    configuration: UseConfigurationContextType,
+    options: Options,
     visualModel: VisualModel,
     profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
     visualNode: VisualRelationship,
@@ -950,7 +950,7 @@ function createDiagramEdgeForGeneralization (
 }
 
 function createDiagramEdgeForClassUsage (
-    configuration: UseConfigurationContextType,
+    options: Options,
     visualModel: VisualModel,
     profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
     visualNode: VisualRelationship,

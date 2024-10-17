@@ -14,7 +14,6 @@ import {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { EntityProxy } from "../../util/detail-utils";
-import { useConfigurationContext } from "../../context/configuration-context";
 import { IriLink } from "../../components/iri-link";
 import { CreateProfileButton } from "../components/create-profile";
 import { DrawOnCanvasButton } from "../components/draw-on-canvas";
@@ -23,6 +22,7 @@ import { OpenDetailButton } from "../components/open-detail";
 import { RemoveButton } from "../components/remove";
 import { useDialogsContext } from "../../context/dialogs-context";
 import { MoveViewportToEntityButton } from "../components/center-viewport-on-entity";
+import { useOptions } from "../../application/options";
 
 const TreeLikeOffset = (props: { offset?: number }) => {
     const { offset } = props;
@@ -55,7 +55,7 @@ export const EntityRow = (props: {
     isOnCanvas: boolean;
 }) => {
     const { openDetailDialog, openModificationDialog, openProfileDialog } = useDialogsContext();
-    const { language: preferredLanguage } = useConfigurationContext();
+    const { language: preferredLanguage } = useOptions();
 
     const { entity, offset, drawable, expandable, removable, sourceModel } = props;
     const { name, iri } = EntityProxy(entity, preferredLanguage);

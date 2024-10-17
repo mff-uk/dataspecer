@@ -1,7 +1,7 @@
 import type { SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useClassesContext } from "../../../context/classes-context";
-import { useConfigurationContext } from "../../../context/configuration-context";
 import { EntityProxy } from "../../../util/detail-utils";
+import { useOptions } from "../../../application/options";
 
 const REMOVE_AFTER_SAVE = "after save this resource will no longer be a generalization of the modified resource";
 const REMOVE_IMMEDIATELY = "this resource will no longer be a generalization of the modified resource";
@@ -15,7 +15,7 @@ export const RemovableGeneralizationRow = (props: {
 }) => {
     const { resource, toBeRemoved, removeButtonClick, immediateRemoval, duplicateNames } = props;
 
-    const { language } = useConfigurationContext();
+    const { language } = useOptions();
     const { classes: c, relationships: r, profiles: p } = useClassesContext();
 
     const { parent: parentId } = resource;

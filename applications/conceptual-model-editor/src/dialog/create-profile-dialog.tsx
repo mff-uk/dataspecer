@@ -19,7 +19,6 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { useConfigurationContext } from "../context/configuration-context";
 import { DomainRangeComponent } from "./components/domain-range-component";
 import { getDescriptionLanguageString, getNameLanguageString } from "../util/name-utils";
 import { temporaryDomainRangeHelper } from "../util/relationship-utils";
@@ -40,6 +39,7 @@ import { t } from "../application/";
 import { prefixForIri } from "../service/prefix-service";
 import { isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { useActions } from "../action/actions-react-binding";
+import { useOptions } from "../application/options";
 
 export type ProfileDialogSupportedTypes =
     | SemanticModelClass
@@ -62,7 +62,7 @@ export const useCreateProfileDialog = () => {
     };
 
     const CreateProfileDialog = () => {
-        const { language: preferredLanguage } = useConfigurationContext();
+        const { language: preferredLanguage } = useOptions();
         const { createClassEntityUsage, createRelationshipEntityUsage } = useClassesContext();
         const { models, aggregatorView } = useModelGraphContext();
         const inMemoryModels = filterInMemoryModels([...models.values()]);

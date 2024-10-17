@@ -8,8 +8,6 @@ export type NameToIriStrategy = (name: string) => string;
  *
  * The idea is to restrict use of context for things we do not
  * need to watch for.
- *
- * TODO: Rename to InstanceConfiguration
  */
 export interface Configuration {
 

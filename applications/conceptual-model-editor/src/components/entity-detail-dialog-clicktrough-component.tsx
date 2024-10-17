@@ -6,9 +6,9 @@ import type {
 import { EntityProxy } from "../util/detail-utils";
 import { useModelGraphContext } from "../context/model-context";
 import { useClassesContext } from "../context/classes-context";
-import { useConfigurationContext } from "../context/configuration-context";
 import { getIri, getModelIri } from "../util/iri-utils";
 import { sourceModelOfEntity } from "../util/model-utils";
+import { useOptions } from "../application/options";
 
 const DEFAULT_MODEL_COLOR = "#ffffff";
 
@@ -19,7 +19,7 @@ export const ResourceDetailClickThrough = (props: {
     withCardinality?: string;
     withIri?: boolean;
 }) => {
-    const { language } = useConfigurationContext();
+    const { language } = useOptions();
     const { sourceModelOfEntityMap } = useClassesContext();
     const { aggregatorView, models } = useModelGraphContext();
 

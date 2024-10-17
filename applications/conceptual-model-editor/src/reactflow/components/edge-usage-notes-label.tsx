@@ -1,6 +1,5 @@
 // import { type LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 // import { getLocalizedStringFromLanguageString } from "../../util/language-utils";
-// import { useConfigurationContext } from "../../context/configuration-context";
 
 // export const EdgeUsageNotesLabel = (props: { usageNotes?: LanguageString[] }) => {
 //     const { language } = useConfigurationContext();

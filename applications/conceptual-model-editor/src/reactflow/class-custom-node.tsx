@@ -9,7 +9,6 @@
 // import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 // import type { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
-// import { useConfigurationContext } from "../context/configuration-context";
 // import { sourceModelOfEntity } from "../util/model-utils";
 // import { useModelGraphContext } from "../context/model-context";
 // import { useClassesContext } from "../context/classes-context";

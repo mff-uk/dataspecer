@@ -1,5 +1,5 @@
 import { useBackendConnection } from "../backend-connection";
-import { useConfigurationContext } from "../context/configuration-context";
+import { useOptions } from "../application/options";
 import { useModelGraphContext } from "../context/model-context";
 import { useNotificationServiceWriter } from "../notification";
 import { usePackageService } from "../service/package-service-context";
@@ -21,7 +21,7 @@ export const usePackageSectionService = (): PackageSectionServiceType => {
     const { models, visualModels } = useModelGraphContext();
 
     const { currentPackage, currentPackageIdentifier } = usePackageService();
-    const configuration = useConfigurationContext();
+    const options = useOptions();
     const notifications = useNotificationServiceWriter();
 
     const save = async () => {
@@ -68,7 +68,7 @@ export const usePackageSectionService = (): PackageSectionServiceType => {
         a.click();
     };
 
-    const packageLabel = selectPackageName(currentPackage, configuration.language);
+    const packageLabel = selectPackageName(currentPackage, options.language);
 
     return {
         packageHasIdentifier: currentPackageIdentifier !== null,

@@ -1,6 +1,5 @@
 // import type { SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 // import { EntityProxy } from "../../util/detail-utils";
-// import { useConfigurationContext } from "../../context/configuration-context";
 // import type { SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 // export const ClassNodeAttributeRow = (props: {

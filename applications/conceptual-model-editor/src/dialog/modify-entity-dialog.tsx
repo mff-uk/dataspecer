@@ -22,7 +22,6 @@ import {
     isSemanticModelRelationshipUsage,
     isSemanticModelAttributeUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { useConfigurationContext } from "../context/configuration-context";
 import { getIri, getModelIri } from "../util/iri-utils";
 import { IriInput } from "../components/input/iri-input";
 import { AddAttributesComponent } from "../components/dialog/attributes-component";
@@ -63,6 +62,7 @@ import { useModelGraphContext } from "../context/model-context";
 import { t, configuration } from "../application/";
 import { type EntityModel } from "@dataspecer/core-v2";
 import { getDomainAndRange } from "../service/relationship-service";
+import { useOptions } from "../application/options";
 
 type SupportedTypes =
     | SemanticModelClass
@@ -132,7 +132,7 @@ const createModifyEntityDialog = (
 
     const ModifyEntityDialog = () => {
         const { executeMultipleOperations } = useClassesContext();
-        const { language: preferredLanguage } = useConfigurationContext();
+        const { language: preferredLanguage } = useOptions();
         const { sourceModelOfEntityMap, deleteEntityFromModel } = useClassesContext();
         const { models } = useModelGraphContext();
 

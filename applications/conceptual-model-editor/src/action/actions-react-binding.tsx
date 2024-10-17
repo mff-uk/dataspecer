@@ -13,7 +13,6 @@ import { ModelGraphContext, type ModelGraphContextType } from "../context/model-
 import { createAddModelDialog } from "../dialog/model/create-model-dialog";
 import { type CreateModelState } from "../dialog/model/create-model-dialog-controller";
 import { createEditClassDialog } from "../dialog/class/edit-class-dialog";
-import { ConfigurationContext, type ConfigurationContextType } from "../context/configuration-context";
 import { createVocabulary } from "./create-vocabulary";
 import { createClass } from "./create-class";
 import { addNodeToVisualModelAction } from "./add-node-to-visual-model";
@@ -22,6 +21,7 @@ import { deleteFromSemanticModelAction } from "./delete-from-semantic-model";
 import { deleteFromVisualModelAction } from "./delete-from-visual-model";
 import { useDiagram, type DiagramCallbacks } from "../diagram/";
 import type { UseDiagramType } from "../diagram/diagram-hook";
+import { useOptions, type Options } from "../application/options";
 
 export interface ActionsContextType {
 
@@ -74,18 +74,18 @@ const noOperationActionsContext = {
 export const ActionContext = React.createContext<ActionsContextType>(noOperationActionsContext);
 
 function noOperation() {
-  logger.error("Using uninitialized actions context!");
+  logger.error("[ACTIONS] Using uninitialized actions context!");
 }
 
 function noOperationAsync() {
-  logger.error("Using uninitialized actions context!");
+  logger.error("[ACTIONS] Using uninitialized actions context!");
   return Promise.resolve();
 }
 
 export const ActionsContextProvider = (props: {
   children: React.ReactNode,
 }) => {
-  const options = useContext(ConfigurationContext);
+  const options = useOptions();
   const dialogs = useContext(DialogApiContext);
   const classes = useContext(ClassesContext);
   const notifications = useNotificationServiceWriter();
@@ -105,7 +105,7 @@ export const ActionsContextProvider = (props: {
 };
 
 function createActionsContext(
-  options: ConfigurationContextType | null,
+  options: Options | null,
   dialogs: DialogApiContextType | null,
   classes: ClassesContextType | null,
   notifications: UseNotificationServiceWriterType | null,
@@ -120,8 +120,6 @@ function createActionsContext(
       diagram,
     };
   }
-
-  console.info("createActionsContext is creating new actions object.");
 
   const callbacks: DiagramCallbacks = {
 
