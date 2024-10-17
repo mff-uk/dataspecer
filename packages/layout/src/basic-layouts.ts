@@ -35,7 +35,8 @@ export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic, node
             type: ["visual-entity"], // Type of visual entity, keep it as is
             sourceEntityId: classNode.node.id, // ID of the class you want to visualize
             visible: true,
-            position: { x: Math.ceil(Math.random() * 300 * Math.sqrt(classNodes.length)), y: Math.ceil(Math.random() * 150 * Math.sqrt(classNodes.length)) },
+            position: { x: Math.ceil(Math.random() * 400 * Math.sqrt(classNodes.length)), y: Math.ceil(Math.random() * 250 * Math.sqrt(classNodes.length)) },
+            // position: { x: Math.ceil(Math.random() * 1600), y: Math.ceil(Math.random() * 1000) },
             hiddenAttributes: [],
         } as VisualEntity;
         classNode.completeVisualEntity = {
