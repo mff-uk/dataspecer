@@ -8,24 +8,24 @@ import type {
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import type { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
-import type { AssociationConnectionType, GeneralizationConnectionType } from "../util/edge-connection";
-import { useClassesContext } from "../context/classes-context";
-import { useModelGraphContext } from "../context/model-context";
+import type { AssociationConnectionType, GeneralizationConnectionType } from "../../util/edge-connection";
+import { useClassesContext } from "../../context/classes-context";
+import { useModelGraphContext } from "../../context/model-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import type { EntityModel } from "@dataspecer/core-v2/entity-model";
-import { useBaseDialog } from "../components/base-dialog";
-import { MultiLanguageInputForLanguageString } from "../components/input/multi-language-input-4-language-string";
-import { getRandomName } from "../util/random-gen";
-import { IriInput } from "../components/input/iri-input";
-import { getModelIri } from "../util/iri-utils";
-import { CardinalityOptions } from "../components/cardinality-options";
-import { DialogDetailRow } from "../components/dialog/dialog-detail-row";
-import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/dialog-colored-model-header";
-import { CreateButton } from "../components/dialog/buttons/create-button";
-import { CancelButton } from "../components/dialog/buttons/cancel-button";
-import { getEntityLabel } from "../service/entity-service";
-import { t, logger, configuration } from "../application/";
-import { useOptions } from "../application/options";
+import { useBaseDialog } from "../../components/base-dialog";
+import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
+import { getRandomName } from "../../util/random-gen";
+import { IriInput } from "../../components/input/iri-input";
+import { getModelIri } from "../../util/iri-utils";
+import { CardinalityOptions } from "../../components/cardinality-options";
+import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
+import { DialogColoredModelHeaderWithModelSelector } from "../../components/dialog/dialog-colored-model-header";
+import { CreateButton } from "../../components/dialog/buttons/create-button";
+import { CancelButton } from "../../components/dialog/buttons/cancel-button";
+import { getEntityLabel } from "../../service/entity-service";
+import { t, logger, configuration } from "../../application";
+import { useOptions } from "../../application/options";
 
 enum ConnectionType {
     association = "association",
@@ -234,7 +234,7 @@ export const useCreateConnectionDialog = () => {
 };
 
 /**
- * Swith between generalization and relationship.
+ * Switch between generalization and relationship.
  */
 const TypeSwitch = (props: {
     value: ConnectionType;

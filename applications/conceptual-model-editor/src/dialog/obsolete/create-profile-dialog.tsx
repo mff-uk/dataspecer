@@ -1,9 +1,9 @@
 import { useState } from "react";
 
-import { useModelGraphContext } from "../context/model-context";
-import { useBaseDialog } from "../components/base-dialog";
-import { filterInMemoryModels } from "../util/model-utils";
-import { MultiLanguageInputForLanguageString } from "../components/input/multi-language-input-4-language-string";
+import { useModelGraphContext } from "../../context/model-context";
+import { useBaseDialog } from "../../components/base-dialog";
+import { filterInMemoryModels } from "../../util/model-utils";
+import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import {
     type LanguageString,
     type SemanticModelClass,
@@ -19,27 +19,27 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { DomainRangeComponent } from "./components/domain-range-component";
-import { getDescriptionLanguageString, getNameLanguageString } from "../util/name-utils";
-import { temporaryDomainRangeHelper } from "../util/relationship-utils";
-import { ProfileModificationWarning } from "../features/warnings/profile-modification-warning";
-import { DialogDetailRow } from "../components/dialog/dialog-detail-row";
-import { EntityProxy, getEntityTypeString } from "../util/detail-utils";
-import { MultiLanguageInputForLanguageStringWithOverride } from "../components/input/multi-language-input-4-language-string-with-override";
+import { DomainRangeComponent } from "../components/domain-range-component";
+import { getDescriptionLanguageString, getNameLanguageString } from "../../util/name-utils";
+import { temporaryDomainRangeHelper } from "../../util/relationship-utils";
+import { ProfileModificationWarning } from "../../features/warnings/profile-modification-warning";
+import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
+import { EntityProxy, getEntityTypeString } from "../../util/detail-utils";
+import { MultiLanguageInputForLanguageStringWithOverride } from "../../components/input/multi-language-input-4-language-string-with-override";
 import type { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { DialogColoredModelHeaderWithModelSelector } from "../components/dialog/dialog-colored-model-header";
-import { getIri, getModelIri } from "../util/iri-utils";
-import { getRandomName } from "../util/random-gen";
-import { IriInput } from "../components/input/iri-input";
-import { CancelButton } from "../components/dialog/buttons/cancel-button";
-import { CreateButton } from "../components/dialog/buttons/create-button";
-import { useClassesContext } from "../context/classes-context";
-import { type OverriddenFieldsType, getDefaultOverriddenFields } from "../util/profile-utils";
-import { t } from "../application/";
-import { prefixForIri } from "../service/prefix-service";
+import { DialogColoredModelHeaderWithModelSelector } from "../../components/dialog/dialog-colored-model-header";
+import { getIri, getModelIri } from "../../util/iri-utils";
+import { getRandomName } from "../../util/random-gen";
+import { IriInput } from "../../components/input/iri-input";
+import { CancelButton } from "../../components/dialog/buttons/cancel-button";
+import { CreateButton } from "../../components/dialog/buttons/create-button";
+import { useClassesContext } from "../../context/classes-context";
+import { type OverriddenFieldsType, getDefaultOverriddenFields } from "../../util/profile-utils";
+import { t } from "../../application";
+import { prefixForIri } from "../../service/prefix-service";
 import { isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { useActions } from "../action/actions-react-binding";
-import { useOptions } from "../application/options";
+import { useActions } from "../../action/actions-react-binding";
+import { useOptions } from "../../application/options";
 
 export type ProfileDialogSupportedTypes =
     | SemanticModelClass

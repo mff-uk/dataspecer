@@ -61,7 +61,7 @@ import {
 //     semanticModelRelationshipToReactFlowEdge,
 // } from "./reactflow/simple-floating-edge";
 import { tailwindColorToHex } from "./util/color-utils";
-import { useCreateConnectionDialog } from "./dialog/create-connection-dialog";
+import { useCreateConnectionDialog } from "./dialog/obsolete/create-connection-dialog";
 import { useModelGraphContext, type UseModelGraphContextType } from "./context/model-context";
 import { useClassesContext, type UseClassesContextType } from "./context/classes-context";
 import { bothEndsHaveAnIri, temporaryDomainRangeHelper } from "./util/relationship-utils";

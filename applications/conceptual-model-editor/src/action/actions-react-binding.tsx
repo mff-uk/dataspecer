@@ -22,6 +22,10 @@ import { deleteFromVisualModelAction } from "./delete-from-visual-model";
 import { useDiagram, type DiagramCallbacks } from "../diagram/";
 import type { UseDiagramType } from "../diagram/diagram-hook";
 import { useOptions, type Options } from "../application/options";
+import { centerViewportToVisualEntityAction } from "./center-viewport-to-visual-entity";
+import { createEntityDetailDialog } from "../dialog/obsolete/entity-detail-dialog";
+import { isSemanticModelAttribute, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelAttributeUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 export interface ActionsContextType {
 
@@ -29,6 +33,12 @@ export interface ActionsContextType {
    * Open dialog to add a new model.
    */
   openCreateModelDialog: () => void;
+
+  /**
+   * Open detail dialog, the type of the dialog is determined based on the
+   * entity type.
+   */
+  openDetailDialog: (identifier: string) => void;
 
   /**
    * Open dialog to create a new class.
@@ -47,7 +57,6 @@ export interface ActionsContextType {
 
   deleteFromSemanticModel: (model: string, identifier: string) => Promise<void>;
 
-  // TODO Change name to deleteFromVisualModel
   removeFromVisualModel: (identifier: string) => void;
 
   centerViewportToVisualEntity: (model: string, identifier: string) => void;
@@ -61,6 +70,7 @@ export interface ActionsContextType {
 
 const noOperationActionsContext = {
   openCreateModelDialog: noOperation,
+  openDetailDialog: noOperation,
   openCreateClassDialog: noOperation,
   addNodeToVisualModel: noOperation,
   addNodeToVisualModelToPosition: noOperation,
@@ -129,61 +139,56 @@ function createActionsContext(
   }
 
   //
-  console.info("[ACTIONS] Creating new context object. Are same ", {
-    options: prevOptions === options,
-    dialogs: prevDialogs === dialogs,
-    classes: prevClasses === classes,
-    notifications: prevNotifications === notifications,
-    graph: prevGraph === graph,
-    diagram: prevDiagram === diagram,
-  });
-
+  const changed = [];
+  if (prevOptions !== options) changed.push("options");
+  if (prevDialogs !== dialogs) changed.push("dialogs");
+  if (classes !== classes) changed.push("classes");
+  if (notifications !== notifications) changed.push("notifications");
+  if (graph !== graph) changed.push("graph");
+  if (prevDiagram !== diagram) changed.push("diagram");
+  console.info("[ACTIONS] Creating new context object. ", { changed });
   prevOptions = options;
   prevDialogs = dialogs;
   prevClasses = classes;
   prevNotifications = notifications;
   prevGraph = graph;
   prevDiagram = diagram;
-
   //
 
-  const callbacks: DiagramCallbacks = {
+  const openDetailDialog = (identifier: string) => {
+    const entity = graph.aggregatorView.getEntities()?.[identifier].rawEntity;
+    if (entity === undefined) {
+      notifications.error(`Can not find the entity with identifier '${identifier}'.`);
+      return;
+    }
+    // In future we should have different dialogs based on the type, for now
+    // we just fall through to a single dialog for all.
+    if (isSemanticModelClass(entity)) {
 
-    onShowNodeDetail: (id) => console.log("Application.onShowNodeDetail", { id }),
+    } else if (isSemanticModelClassUsage(entity)) {
 
-    onEditNode: (id) => console.log("Application.onEditNode", { id }),
+    } else if (isSemanticModelAttribute(entity)) {
 
-    onCreateNodeProfile: (id) => console.log("Application.onCreateNodeProfile", { id }),
+    } else if (isSemanticModelAttributeUsage(entity)) {
 
-    onHideNode: (id) => console.log("Application.onHideNode", { id }),
+    } else if (isSemanticModelRelationship(entity)) {
 
-    onDeleteNode: (id) => console.log("Application.onDeleteNode", { id }),
+    } else if (isSemanticModelRelationshipUsage(entity)) {
 
-    onShowEdgeDetail: (id) => console.log("Application.onShowEdgeDetail", { id }),
+    } else if (isSemanticModelGeneralization(entity)) {
 
-    onEditEdge: (id) => console.log("Application.onEditEdge", { id }),
-
-    onCreateEdgeProfile: (id) => console.log("Application.onCreateEdgeProfile", { id }),
-
-    onHideEdge: (id) => console.log("Application.onHideEdge", { id }),
-
-    onDeleteEdge: (id) => console.log("Application.onDeleteEdge", { id }),
-
-    onCreateConnectionToNode: (source, target) => console.log("Application.onCreateConnectionToNode", { source, target }),
-
-    onCreateConnectionToNothing: (source, position) => console.log("Application.onCreateConnectionToNothing", { source, position }),
-
-    onSelectionDidChange: (nodes, edges) => console.log("Application.onSelectionDidChange", { nodes, edges }),
-
+    } else {
+      notifications.error(`Unknown entity type.`);
+      return;
+    }
+    dialogs.openDialog(createEntityDetailDialog(entity, options.language));
   };
-
-  diagram.setCallbacks(callbacks);
 
   const openCreateModelDialog = () => {
     const onConfirm = (state: CreateModelState) => {
       createVocabulary(graph, state);
     };
-
+    //
     dialogs?.openDialog(createAddModelDialog(onConfirm));
   };
 
@@ -191,11 +196,12 @@ function createActionsContext(
     const onConfirm = (state: EditClassState) => {
       createClass(notifications, graph, model, null, state);
     };
-
+    //
     dialogs?.openDialog(createEditClassDialog(model, options.language, onConfirm));
   };
 
   const addNodeToVisualModel = (model: string, identifier: string) => {
+    // We position the new node to the center of the viewport.
     const viewport = diagram.actions().getViewport();
     const position = {
       x: viewport.position.x + (viewport.width / 2),
@@ -217,30 +223,72 @@ function createActionsContext(
   };
 
   const removeFromVisualModel = (identifier: string) => {
-    if (notifications === null || graph === null) {
-      console.error("Contexts are not ready.");
-      return;
-    }
     deleteFromVisualModelAction(notifications, graph, identifier);
   };
 
   const centerViewportToVisualEntity = (model: string, identifier: string) => {
-    // TODO Extract to an action file.
-    const visualModel = graph.aggregatorView.getActiveVisualModel();
-    if (visualModel === null) {
-      notifications.error("There is no active visual model.");
-      return;
-    }
-    const entity = visualModel.getVisualEntityForRepresented(identifier);
-    if (entity === null) {
-      notifications.error("There is no visual representation of the entity.");
-      return;
-    }
-    diagram.actions().centerViewportToNode(entity.identifier);
+    centerViewportToVisualEntityAction(notifications, graph, diagram, model, identifier);
   };
+
+  // Prepare and set diagram callbacks.
+
+  const callbacks: DiagramCallbacks = {
+
+    onShowNodeDetail: (id) => openDetailDialog(id),
+
+    onEditNode: (id) => {
+      console.log("Application.onEditNode", { id });
+    },
+
+    onCreateNodeProfile: (id) => {
+      console.log("Application.onCreateNodeProfile", { id });
+    },
+
+    onHideNode: (id) => {
+      console.log("Application.onHideNode", { id });
+    },
+
+    onDeleteNode: (id) => {
+      console.log("Application.onDeleteNode", { id });
+    },
+
+    onShowEdgeDetail: (id) => openDetailDialog(id),
+
+    onEditEdge: (id) => {
+      console.log("Application.onEditEdge", { id });
+    },
+
+    onCreateEdgeProfile: (id) => {
+      console.log("Application.onCreateEdgeProfile", { id });
+    },
+
+    onHideEdge: (id) => {
+      console.log("Application.onHideEdge", { id });
+    },
+
+    onDeleteEdge: (id) => {
+      console.log("Application.onDeleteEdge", { id });
+    },
+
+    onCreateConnectionToNode: (source, target) => {
+      console.log("Application.onCreateConnectionToNode", { source, target });
+    },
+
+    onCreateConnectionToNothing: (source, position) => {
+      console.log("Application.onCreateConnectionToNothing", { source, position });
+    },
+
+    onSelectionDidChange: (nodes, edges) => {
+      console.log("Application.onSelectionDidChange", { nodes, edges });
+    },
+
+  };
+
+  diagram.setCallbacks(callbacks);
 
   return {
     openCreateModelDialog,
+    openDetailDialog,
     openCreateClassDialog,
     addNodeToVisualModel,
     addNodeToVisualModelToPosition,

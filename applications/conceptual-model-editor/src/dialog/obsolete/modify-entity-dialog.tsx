@@ -10,10 +10,10 @@ import {
     type SemanticModelEntity,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useMemo, useState } from "react";
-import { useClassesContext } from "../context/classes-context";
+import { useClassesContext } from "../../context/classes-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { MultiLanguageInputForLanguageString } from "../components/input/multi-language-input-4-language-string";
-import { useBaseDialog } from "../components/base-dialog";
+import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
+import { useBaseDialog } from "../../components/base-dialog";
 import {
     type SemanticModelClassUsage,
     type SemanticModelRelationshipEndUsage,
@@ -22,10 +22,10 @@ import {
     isSemanticModelRelationshipUsage,
     isSemanticModelAttributeUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { getIri, getModelIri } from "../util/iri-utils";
-import { IriInput } from "../components/input/iri-input";
-import { AddAttributesComponent } from "../components/dialog/attributes-component";
-import { DomainRangeComponent } from "./components/domain-range-component";
+import { getIri, getModelIri } from "../../util/iri-utils";
+import { IriInput } from "../../components/input/iri-input";
+import { AddAttributesComponent } from "../../components/dialog/attributes-component";
+import { DomainRangeComponent } from "../components/domain-range-component";
 import {
     type Operation,
     createGeneralization,
@@ -39,30 +39,30 @@ import {
     modifyClassUsage,
     modifyRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/operations";
-import { getDescriptionLanguageString, getNameLanguageString } from "../util/name-utils";
-import { temporaryDomainRangeHelper } from "../util/relationship-utils";
-import { ProfileModificationWarning } from "../features/warnings/profile-modification-warning";
+import { getDescriptionLanguageString, getNameLanguageString } from "../../util/name-utils";
+import { temporaryDomainRangeHelper } from "../../util/relationship-utils";
+import { ProfileModificationWarning } from "../../features/warnings/profile-modification-warning";
 import {
     RemovableAttributeProfileRow,
     RemovableAttributeRow,
-} from "../components/dialog/modify/removable-attribute-row";
-import { DialogColoredModelHeader } from "../components/dialog/dialog-colored-model-header";
-import { DialogDetailRow } from "../components/dialog/dialog-detail-row";
-import { MultiLanguageInputForLanguageStringWithOverride } from "../components/input/multi-language-input-4-language-string-with-override";
+} from "../../components/dialog/modify/removable-attribute-row";
+import { DialogColoredModelHeader } from "../../components/dialog/dialog-colored-model-header";
+import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
+import { MultiLanguageInputForLanguageStringWithOverride } from "../../components/input/multi-language-input-4-language-string-with-override";
 import {
     NewRemovableAttributeProfileRow,
     NewRemovableAttributeRow,
-} from "../components/dialog/modify/new-attribute-row";
-import { type OverriddenFieldsType, getDefaultOverriddenFields, isSemanticProfile } from "../util/profile-utils";
-import { EntityProxy, getEntityTypeString } from "../util/detail-utils";
-import { CancelButton } from "../components/dialog/buttons/cancel-button";
-import { ModifyButton } from "../components/dialog/buttons/modify-button";
-import { GeneralizationParentsComponent } from "../components/dialog/generalization-parents-component";
-import { useModelGraphContext } from "../context/model-context";
-import { t, configuration } from "../application/";
+} from "../../components/dialog/modify/new-attribute-row";
+import { type OverriddenFieldsType, getDefaultOverriddenFields, isSemanticProfile } from "../../util/profile-utils";
+import { EntityProxy, getEntityTypeString } from "../../util/detail-utils";
+import { CancelButton } from "../../components/dialog/buttons/cancel-button";
+import { ModifyButton } from "../../components/dialog/buttons/modify-button";
+import { GeneralizationParentsComponent } from "../../components/dialog/generalization-parents-component";
+import { useModelGraphContext } from "../../context/model-context";
+import { t, configuration } from "../../application";
 import { type EntityModel } from "@dataspecer/core-v2";
-import { getDomainAndRange } from "../service/relationship-service";
-import { useOptions } from "../application/options";
+import { getDomainAndRange } from "../../service/relationship-service";
+import { useOptions } from "../../application/options";
 
 type SupportedTypes =
     | SemanticModelClass

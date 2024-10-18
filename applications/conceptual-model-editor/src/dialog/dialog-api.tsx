@@ -65,4 +65,9 @@ export interface DialogProps<S> {
    */
   changeState: (next: S | ((prevState: S) => S)) => void;
 
+  /**
+   * Request dialog to be closed.
+   */
+  close: () => void;
+
 }

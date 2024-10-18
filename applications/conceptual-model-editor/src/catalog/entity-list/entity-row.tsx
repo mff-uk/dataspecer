@@ -23,6 +23,7 @@ import { RemoveButton } from "../components/remove";
 import { useDialogsContext } from "../../context/dialogs-context";
 import { MoveViewportToEntityButton } from "../components/center-viewport-on-entity";
 import { useOptions } from "../../application/options";
+import { useActions } from "../../action/actions-react-binding";
 
 const TreeLikeOffset = (props: { offset?: number }) => {
     const { offset } = props;
@@ -54,7 +55,9 @@ export const EntityRow = (props: {
     offset?: number;
     isOnCanvas: boolean;
 }) => {
-    const { openDetailDialog, openModificationDialog, openProfileDialog } = useDialogsContext();
+    const { openDetailDialog } = useActions();
+
+    const { openModificationDialog, openProfileDialog } = useDialogsContext();
     const { language: preferredLanguage } = useOptions();
 
     const { entity, offset, drawable, expandable, removable, sourceModel } = props;
@@ -93,7 +96,7 @@ export const EntityRow = (props: {
                         ✏
                     </button>
                 )}
-                <OpenDetailButton onClick={() => openDetailDialog(entity)} />
+                <OpenDetailButton onClick={() => openDetailDialog(entity.id)} />
                 {drawable && (
                     <DrawOnCanvasButton
                         visible={props.isOnCanvas}

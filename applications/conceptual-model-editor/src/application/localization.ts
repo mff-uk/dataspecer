@@ -112,6 +112,14 @@ const translations: Record<string, string | Function> = {
   "model.profiles": "Profiles",
   "model.warnings": "⚠️&nbsp;Warnings",
   "model-catalog.add-vocabulary": "➕ Vocabulary",
+  //
+  "detail-dialog.btn-close": "Close",
+  "detail-dialog.title.attribute": "Attribute detail",
+  "detail-dialog.title.relationship": "Relationship detail",
+  "detail-dialog.title.attribute-profile": "Attribute profile detail",
+  "detail-dialog.title.class-profile": "Class profile detail",
+  "detail-dialog.title.relationship-profile": "Relationship profile detail",
+  "detail-dialog.title.unknown": "Entity detail",
 };
 
 export const t = (text: string, ...args: unknown[]) : string => {

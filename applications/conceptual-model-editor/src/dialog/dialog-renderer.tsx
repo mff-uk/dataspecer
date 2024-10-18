@@ -41,7 +41,7 @@ function Dialog({ reference, context }: {
       <hr className="my-2" />
       <div>
         {/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */}
-        <Component state={context.state} changeState={context.changeState} />
+        <Component state={context.state} changeState={context.changeState} close={context.close} />
       </div>
       <div className="mt-auto flex flex-row justify-evenly font-semibold">
         {context.confirmLabel === null ? null :
