@@ -1,9 +1,7 @@
 import { EDIT_CAPABILITY_ID } from "../src/capabilities";
 import { ApplicationGraphEdgeType } from "../src/engine/graph";
 import { ApplicationGraphType } from "../src/engine/graph/application-graph";
-
-const NODE_IRI_BASE = "https://example.org/application_graph/nodes";
-const EDGE_IRI_BASE = "https://example.org/application_graph/edges";
+import { EDGE_IRI_BASE, NODE_IRI_BASE } from "./constants";
 
 export const emptyAppGraph: ApplicationGraphType = {
     label: "Empty graph",
@@ -71,7 +69,7 @@ export const editCapabilityGraphWithNoDetailNode: ApplicationGraphType = {
             "iri": `${NODE_IRI_BASE}/1`,
             capability: EDIT_CAPABILITY_ID,
             label: {},
-            structure: "",
+            structure: `${NODE_IRI_BASE}/1`,
             config: {}
         }
     ]
