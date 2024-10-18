@@ -21,15 +21,25 @@ import {
   type OnConnectEnd,
   type IsValidConnection,
   type FinalConnectionState,
+  MarkerType,
 } from "@xyflow/react";
 
 import { type UseDiagramType } from "./diagram-hook";
-import { type DiagramActions, type DiagramCallbacks, type Node as ApiNode, type Edge as ApiEdge, type ViewportDimensions } from "./diagram-api";
+import {
+  type DiagramActions,
+  type DiagramCallbacks,
+  type Node as ApiNode,
+  type Edge as ApiEdge,
+  type ViewportDimensions,
+  EdgeType as ApiEdgeType,
+} from "./diagram-api";
 import { type EdgeToolbarProps } from "./edge/edge-toolbar";
 import { EntityNodeName } from "./node/entity-node";
 import { PropertyEdgeName } from "./edge/property-edge";
 
 import { type AlignmentController, useAlignmentController } from "./features/alignment-controller-v2";
+import { GeneralizationEdgeName } from "./edge/generalization-edge";
+import { ClassProfileEdgeName } from "./edge/class-profile-edge";
 
 export type NodeType = Node<ApiNode>;
 
@@ -93,12 +103,14 @@ interface UseDiagramControllerType {
 
   isValidConnection: IsValidConnection<EdgeType>;
 
-
   onNodeDrag: (event: React.MouseEvent, node: Node, nodes: Node[]) => void;
+
   onNodeDragStart: (event: React.MouseEvent, node: Node, nodes: Node[]) => void;
+
   onNodeDragStop: (event: React.MouseEvent, node: Node, nodes: Node[]) => void;
 
   alignmentController: AlignmentController;
+
 }
 
 export function useDiagramController(api: UseDiagramType): UseDiagramControllerType {
@@ -323,7 +335,7 @@ const createActions = (
       console.log("Diagram.removeGroups", { groups });
     },
     setGroup(group, content) {
-      console.log("Diagram.setGroup", {group, content});
+      console.log("Diagram.setGroup", { group, content });
       return [];
     },
     getGroupContent(group) {
@@ -395,9 +407,9 @@ const createActions = (
       const position = { x: -viewport.x, y: -viewport.y };
       const flow__viewport = document.querySelector(".react-flow__viewport") as HTMLElement | null;
       const viewportDimensionsToReturn = {
-          position,
-          width: (flow__viewport?.clientWidth ?? 0),
-          height: (flow__viewport?.clientHeight ?? 0)
+        position,
+        width: (flow__viewport?.clientWidth ?? 0),
+        height: (flow__viewport?.clientHeight ?? 0)
       };
       convertViewUsingZoom(viewportDimensionsToReturn, viewport.zoom);
       return viewportDimensionsToReturn;
@@ -440,13 +452,46 @@ const edgeToEdgeType = (edge: ApiEdge): EdgeType => {
     id: edge.identifier,
     source: edge.source,
     target: edge.target,
-    type: PropertyEdgeName,
+    type: selectEdgeType(edge),
+    label: edge.label,
+    // We need to assign the marker here as the value is transformed.
+    // In addition reactflow use this value.
+    markerEnd: selectMarkerEnd(edge),
+    style: {
+      strokeWidth: 2,
+      stroke: edge.color,
+    },
     data: {
       ...edge,
       waypoints: [...edge.waypoints],
     },
   };
 };
+
+function selectEdgeType(edge: ApiEdge) {
+  switch (edge.type) {
+    case ApiEdgeType.Association:
+    case ApiEdgeType.AssociationProfile:
+      return PropertyEdgeName;
+    case ApiEdgeType.Generalization:
+      return GeneralizationEdgeName;
+    case ApiEdgeType.ClassProfile:
+      return ClassProfileEdgeName;
+  }
+}
+
+function selectMarkerEnd(edge: ApiEdge) {
+  switch (edge.type) {
+    case ApiEdgeType.Association:
+      return { type: MarkerType.Arrow, height: 20, width: 20, };
+    case ApiEdgeType.AssociationProfile:
+      return { type: MarkerType.Arrow, height: 20, width: 20, };
+    case ApiEdgeType.Generalization:
+      return { type: MarkerType.ArrowClosed, height: 20, width: 20, color: edge.color };
+    case ApiEdgeType.ClassProfile:
+      return { type: MarkerType.ArrowClosed, height: 20, width: 20, color: edge.color };
+  }
+}
 
 /**
  * Move view to given node with animation.

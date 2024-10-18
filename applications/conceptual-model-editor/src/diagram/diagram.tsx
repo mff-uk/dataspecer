@@ -19,7 +19,9 @@ import type { UseDiagramType } from "./diagram-hook";
 
 import { configuration } from "../application/configuration";
 import { AlignmentComponent } from "./features/alignment-viewportal";
-import type { Node as ApiNode} from "./diagram-api";
+import type { Node as ApiNode } from "./diagram-api";
+import { ClassProfileEdge, ClassProfileEdgeName } from "./edge/class-profile-edge";
+import { GeneralizationEdge, GeneralizationEdgeName } from "./edge/generalization-edge";
 
 export function Diagram(props: { diagram: UseDiagramType }) {
   // We use ReactFlowProvider as otherwise use of ReactFlow hooks,
@@ -37,6 +39,8 @@ const nodeTypes = {
 
 const edgeTypes = {
   [PropertyEdgeName]: PropertyEdge,
+  [ClassProfileEdgeName]: ClassProfileEdge,
+  [GeneralizationEdgeName]: GeneralizationEdge,
 };
 
 function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
@@ -71,8 +75,6 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
           // get to the right place, see OnPointerDown at
           // https://github.com/xyflow/xyflow/blob/main/packages/system/src/xyhandle/XYHandle.ts
           connectionRadius={40}
-
-
           onNodeDrag={controller.onNodeDrag}
           onNodeDragStart={controller.onNodeDragStart}
           onNodeDragStop={controller.onNodeDragStop}
@@ -90,12 +92,18 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
 }
 
 function miniMapNodeColor(node: Node<ApiNode>) {
-    return node.data.color;
+  return node.data.color;
 }
 
 /**
  * To use custom marker just use the id as a name for marker-start or marker-end.
- * ReactFlow prefix it with # and create a selector.
+ * ReactFlow prefix it with # and thus creating a selector, next
+ * the selector is wrapped by 'url'.
+ *
+ * This is available when markerEnd is set to an Edge before passing it
+ * to reactflow.
+ *
+ * Also seems like we can not use display none as it makes the end invisible.
  *
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/marker-end
  */

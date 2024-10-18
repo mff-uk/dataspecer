@@ -8,7 +8,7 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 
-import { createLogger } from "../../application/";
+import { createLogger } from "../../application";
 
 import { type Edge as EdgeApi } from "../diagram-api";
 import { DiagramContext } from "../diagram-controller";
@@ -16,7 +16,7 @@ import { createSvgPath, createWaypoints, findLabelPosition, Waypoints } from "./
 
 const logger = createLogger(import.meta.url);
 
-export const PropertyEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
+export const ClassProfileEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
   const sourceNode = useInternalNode(props.source);
   const targetNode = useInternalNode(props.target);
   const reactFlow = useReactFlow();
@@ -43,10 +43,15 @@ export const PropertyEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
     context?.onOpenEdgeContextMenu(props.id, null, x, y);
   };
 
+  const style = {
+    ...props.style,
+    strokeDasharray: 5,
+  };
+
   return (
     <>
       <g onClick={onPathClick}>
-        <BaseEdge id={props.id} path={path} markerEnd={props.markerEnd} style={props.style} />
+        <BaseEdge id={props.id} path={path} markerEnd={props.markerEnd} style={style} />
       </g>
       <>
         {props.selected ? <Waypoints edgeId={props.id} waypoints={waypoints} data={props.data} /> : null}
@@ -76,5 +81,4 @@ export const PropertyEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
   );
 };
 
-export const PropertyEdgeName = "property-edge";
-
+export const ClassProfileEdgeName = "class-profile-edge";

@@ -39,6 +39,7 @@ import { findSourceModelOfEntity } from "./service/model-service";
 import { OptionsContextProvider } from "./application/options";
 
 import "./page.css";
+import { migrateVisualModelFromV0 } from "./dataspecer/visual-model-v0-to-v1";
 
 const semanticModelAggregator = new SemanticModelAggregator();
 type SemanticModelAggregatorType = typeof semanticModelAggregator;
@@ -277,8 +278,7 @@ function initializeWithPackage(
                 continue;
             }
             if (model.getInitialModelVersion() === VisualModelDataVersion.VERSION_0) {
-                // We need to check the model.
-                migrateVisualModelFromV0(entityModelsMap, aggregatorView, model);
+                migrateVisualModelFromV0(entityModelsMap, aggregatorView.getEntities(), model);
             }
         }
 
@@ -321,78 +321,6 @@ function initializeWithPackage(
     return async () => {
         (await cleanup)?.();
     };
-}
-
-/**
- * Perform high-level migration of visual model from version 0.
- * - check that we have a represented entity
- * - check and set model for a represented entity
- */
-function migrateVisualModelFromV0(models: Map<string, EntityModel>, aggregator: SemanticModelAggregatorView, visualModel: WritableVisualModel) {
-    console.log("[INITIALIZATION] Migrating visual model from version '0'.", { model: visualModel });
-    const entities = aggregator.getEntities();
-
-    for (const entity of visualModel.getVisualEntities().values()) {
-        if (isVisualNode(entity)) {
-            // Check presence
-            const represented = entities[entity.representedEntity];
-            if (represented === undefined) {
-                visualModel.deleteVisualEntity(entity.identifier);
-                continue;
-            }
-            // Check model
-            const representedModel = findSourceModelOfEntity(represented.id, models);
-            if (representedModel === null) {
-                visualModel.deleteVisualEntity(entity.identifier);
-                continue;
-            }
-            // Check type
-            const representedEntity = represented.aggregatedEntity;
-            if (isSemanticModelClass(representedEntity) || isSemanticModelClassUsage(representedEntity)) {
-                // This is ok.
-            } else {
-                // Type miss match.
-                visualModel.deleteVisualEntity(entity.identifier);
-                continue;
-            }
-            // Update
-            visualModel.updateVisualEntity(entity.identifier, { model: representedModel.getId() });
-        } else if (isVisualRelationship(entity)) {
-            // Check presence
-            const represented = entities[entity.representedRelationship];
-            if (represented === undefined) {
-                visualModel.deleteVisualEntity(entity.identifier);
-                continue;
-            }
-            // Check model
-            const representedModel = findSourceModelOfEntity(represented.id, models);
-            if (representedModel === null) {
-                visualModel.deleteVisualEntity(entity.identifier);
-                continue;
-            }
-            // Check type
-            const representedEntity = represented.aggregatedEntity;
-            if (isSemanticModelClass(representedEntity) || isSemanticModelClassUsage(representedEntity)) {
-                // Type miss match.
-                visualModel.deleteVisualEntity(entity.identifier);
-                continue;
-            } else {
-                // Probably ok ...
-            }
-            // Update
-            visualModel.updateVisualEntity(entity.identifier, { model: representedModel.getId() });
-        }
-    }
-
-    // Remove unused model data.
-    for (const [identifier, _] of visualModel.getModelsData()) {
-        if (models.has(identifier)) {
-            continue;
-        }
-        // The model is missing, we delete the information.
-        visualModel.deleteModelData(identifier);
-    }
-
 }
 
 function propagateAggregatorChangesToLocalState(

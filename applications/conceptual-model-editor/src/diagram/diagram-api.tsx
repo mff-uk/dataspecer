@@ -251,10 +251,22 @@ export interface EntityItem {
 }
 
 export enum EdgeType {
+  /**
+   * Represents an association.
+   */
   Association,
+  /**
+   * Represents a profile of a association.
+   */
   AssociationProfile,
+  /**
+   * Represents a generalization.
+   */
   Generalization,
-  ClassUsage,
+  /**
+   * Represents a class profile.
+   */
+  ClassProfile,
 }
 
 /**

@@ -8,7 +8,7 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 
-import { createLogger } from "../../application/";
+import { createLogger } from "../../application";
 
 import { type Edge as EdgeApi } from "../diagram-api";
 import { DiagramContext } from "../diagram-controller";
@@ -16,7 +16,7 @@ import { createSvgPath, createWaypoints, findLabelPosition, Waypoints } from "./
 
 const logger = createLogger(import.meta.url);
 
-export const PropertyEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
+export const GeneralizationEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
   const sourceNode = useInternalNode(props.source);
   const targetNode = useInternalNode(props.target);
   const reactFlow = useReactFlow();
@@ -76,5 +76,4 @@ export const PropertyEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
   );
 };
 
-export const PropertyEdgeName = "property-edge";
-
+export const GeneralizationEdgeName = "generalization-edge";

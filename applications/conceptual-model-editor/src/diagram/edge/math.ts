@@ -6,7 +6,11 @@ export type Point = { x: number, y: number };
  * Find intersection of a line starting from center of the rectangle to target point
  * and the rectangle borders.
  */
-export function findRectangleLineIntersection(source: Point, rectangle: { width: number, height: number }, target: Point): Point {
+export function findRectangleLineIntersection(
+  source: Point,
+  rectangle: { width: number, height: number },
+  target: Point,
+): Point {
   // Calculate the rectangle edges and direction vector.
   const left = source.x - (rectangle.width / 2);
   const right = source.x + (rectangle.width / 2);
@@ -77,4 +81,14 @@ export function findNodeCenter(node: Node): Point {
   const x = node.position.x + ((node.measured?.width ?? 0) / 2);
   const y = node.position.y + ((node.measured?.height ?? 0) / 2);
   return { x, y };
+}
+
+export function findNodeBorder(node: Node, next: Point): Point {
+  const center = findNodeCenter(node);
+  const size = node.measured;
+  if (size === undefined || size.width === undefined || size.height === undefined) {
+    return center;
+  }
+  const rectangle = { width: size.width + 4, height: size.height + 4 };
+  return findRectangleLineIntersection(center, rectangle, next);
 }

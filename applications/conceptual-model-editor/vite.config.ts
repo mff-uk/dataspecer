@@ -7,6 +7,8 @@ export default defineConfig({
   base: "./",
   plugins: [react()],
   // See https://vitejs.dev/guide/dep-pre-bundling#monorepos-and-linked-dependencies
+  // When making changes to the linked dep, restart the dev server with
+  // the --force command line option for the changes to take effect.
   optimizeDeps: {
     include: [
       "@dataspecer/core/**",

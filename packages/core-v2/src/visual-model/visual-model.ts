@@ -5,7 +5,7 @@ import { ObservableEntityModel, UnsubscribeCallback } from "./entity-model/obser
 import { SynchronousEntityModel } from "./entity-model/synchronous-entity-model";
 import { SynchronousWritableEntityModel } from "./entity-model/on-premise-writable-entity-model";
 import { TypedObject, isTypedObject } from "./entity-model/typed-object";
-import { HexColor, VisualEntity, VisualGroup, VisualNode, VisualRelationship } from "./visual-entity";
+import { HexColor, VisualEntity, VisualGroup, VisualNode, VisualProfileRelationship, VisualRelationship } from "./visual-entity";
 import { SerializableModel } from "./entity-model/serializable-model";
 import { LabeledModel } from "./entity-model/labeled-model";
 
@@ -40,7 +40,9 @@ export interface VisualModel extends TypedObject, LegacyModel, LabeledModel {
     getVisualEntity(identifier: EntityIdentifier): VisualEntity | null;
 
     /**
-     * TODO: We need to add a model as a part of the identifier.
+     * Return primary visual representation for given entity.
+     * For example for a class profile returns VisualNode, not
+     * VisualProfileRelationship.
      *
      * @returns Entity with given source entity identifier or null.
      */
@@ -130,6 +132,11 @@ export interface WritableVisualModel extends VisualModel {
      * @returns Identifier for the new entity.
      */
     addVisualRelationship(entity: Omit<VisualRelationship, "identifier" | "type">): string;
+
+    /**
+     * @returns Identifier for the new entity.
+     */
+    addVisualProfileRelationship(entity: Omit<VisualProfileRelationship, "identifier" | "type">): string;
 
     /**
      * @returns Identifier for the new entity.

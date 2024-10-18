@@ -99,6 +99,46 @@ export interface Waypoint extends Position {
 
 }
 
+/**
+ * Represents a relationship that is defined by an entity and its property.
+ * Since we also need to capture a type of property this relations
+ * is defined with we use sub-classes.
+ *
+ * This interface should not be used directly, it only servers
+ * as a base-interface.
+ */
+interface VisualNodeRelationship extends VisualEntity {
+
+    /**
+     * Identifier of entity facilitating the relationship.
+     */
+    entity: EntityIdentifier;
+
+    /**
+     * Identifier of the entity model the entity belongs to.
+     */
+    model: ModelIdentifier;
+
+    /**
+     * Order of waypoints is defined by the order in the array.
+     */
+    waypoints: Waypoint[];
+
+}
+
+/**
+ * Represents relationship based on a profile.
+ */
+export interface VisualProfileRelationship extends VisualNodeRelationship {
+
+}
+
+export const VISUAL_PROFILE_RELATIONSHIP_TYPE = "visual-profile-relationship";
+
+export function isVisualProfileRelationship(what: Entity): what is VisualProfileRelationship {
+    return what.type.includes(VISUAL_PROFILE_RELATIONSHIP_TYPE);
+}
+
 export interface VisualGroup extends VisualEntity {
 
     /**

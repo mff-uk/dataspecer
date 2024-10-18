@@ -104,6 +104,13 @@ export const ActionsContextProvider = (props: {
   );
 };
 
+let prevOptions: Options | null = null;
+let prevDialogs: DialogApiContextType | null = null;
+let prevClasses: ClassesContextType | null = null;
+let prevNotifications: UseNotificationServiceWriterType | null = null;
+let prevGraph: ModelGraphContextType | null = null;
+let prevDiagram: UseDiagramType | null = null;
+
 function createActionsContext(
   options: Options | null,
   dialogs: DialogApiContextType | null,
@@ -120,6 +127,25 @@ function createActionsContext(
       diagram,
     };
   }
+
+  //
+  console.info("[ACTIONS] Creating new context object. Are same ", {
+    options: prevOptions === options,
+    dialogs: prevDialogs === dialogs,
+    classes: prevClasses === classes,
+    notifications: prevNotifications === notifications,
+    graph: prevGraph === graph,
+    diagram: prevDiagram === diagram,
+  });
+
+  prevOptions = options;
+  prevDialogs = dialogs;
+  prevClasses = classes;
+  prevNotifications = notifications;
+  prevGraph = graph;
+  prevDiagram = diagram;
+
+  //
 
   const callbacks: DiagramCallbacks = {
 
