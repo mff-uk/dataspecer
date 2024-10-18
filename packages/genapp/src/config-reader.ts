@@ -36,13 +36,7 @@ export class StaticConfigurationReader implements ConfigurationReader {
             edges: [ ]
         }
 
-        this._graph = new ApplicationGraph(
-            graphInstance.label,
-            graphInstance.datasources,
-            graphInstance.nodes,
-            graphInstance.edges,
-            graphInstance.dataSpecification
-        );
+        this._graph = new ApplicationGraph(graphInstance);
     }
 
     getAppConfiguration(): ApplicationGraph {
@@ -66,13 +60,7 @@ export class FileConfigurationReader implements ConfigurationReader {
 
         const graph = JSON.parse(fileContent) as ApplicationGraphType;
 
-        const appGraph: ApplicationGraph = new ApplicationGraph(
-            graph.label,
-            graph.datasources,
-            graph.nodes,
-            graph.edges,
-            graph.dataSpecification
-        );
+        const appGraph: ApplicationGraph = new ApplicationGraph(graph);
         return appGraph;
     }
 }
@@ -88,13 +76,7 @@ export class StringLiteralConfigurationReader implements ConfigurationReader {
     getAppConfiguration(): ApplicationGraph {
         const graph = this._serializedGraph;
 
-        const appGraph: ApplicationGraph = new ApplicationGraph(
-            graph.label,
-            graph.datasources,
-            graph.nodes,
-            graph.edges,
-            graph.dataSpecification
-        );
+        const appGraph: ApplicationGraph = new ApplicationGraph(graph);
         return appGraph;
     }
 }

@@ -122,28 +122,21 @@ export class ApplicationGraph {
             acc.push(nodeInstance);
             return acc;
         },
-        [] as ApplicationGraphNode[]);
+            [] as ApplicationGraphNode[]);
 
         return updatedNodes;
     }
 
-    constructor(
-        label: string,
-        datasources: Datasource[],
-        nodes: ApplicationGraphNodeType[],
-        edges: ApplicationGraphEdge[],
-        specificationIri: string
-    ) {
-        nodes = this.getUniqueNodes(nodes);
-        edges = this.getUniqueEdges(edges);
-        this.validateEdgeEndNodes(edges, nodes);
+    constructor(graphType: ApplicationGraphType) {
 
-
-        this.label = label;
-        this.nodes = this.getNodeInstances(specificationIri, nodes),
-        this.datasources = datasources;
-        this.edges = edges;
-        this.specificationIri = specificationIri;
+        this.label = graphType.label;
+        this.nodes = this.getNodeInstances(
+            graphType.dataSpecification,
+            this.getUniqueNodes(graphType.nodes)
+        );
+        this.datasources = graphType.datasources;
+        this.edges = this.getUniqueEdges(graphType.edges);
+        this.specificationIri = graphType.dataSpecification;
     }
 
     getNodeByIri(iri: string): ApplicationGraphNode | null {

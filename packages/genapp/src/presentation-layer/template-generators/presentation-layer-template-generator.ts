@@ -27,7 +27,7 @@ export abstract class PresentationLayerTemplateGenerator<TemplateType extends Te
 
         const typeModelName = aggregate.getAggregateNamePascalCase({ suffix: "ModelType" });
 
-        const typeModelPath = ArtifactCache.savedArtifactsMap[typeModelName];
+        const typeModelPath = ArtifactCache.content[typeModelName];
 
         if (!typeModelPath) {
             return {} as Schema;

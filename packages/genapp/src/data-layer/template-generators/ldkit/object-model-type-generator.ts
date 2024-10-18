@@ -40,7 +40,7 @@ export class LdkitObjectModelTypeGenerator extends TemplateConsumer<LdkitObjectM
 
         const ldkitSchemaInterface = this._generatorHelper.getInterfaceFromLdkitSchemaInstance(ldkitSchemaInstance);
 
-        ArtifactCache.savedArtifactsMap[`__${aggregateTechnicalLabel}DataModelInterface`] = JSON.stringify(ldkitSchemaInterface);
+        ArtifactCache.content[`__${aggregateTechnicalLabel}DataModelInterface`] = JSON.stringify(ldkitSchemaInterface);
 
         return ldkitSchemaInterface;
     }

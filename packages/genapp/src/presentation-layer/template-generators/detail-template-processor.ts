@@ -34,7 +34,7 @@ export class DetailComponentTemplateProcessor extends PresentationLayerTemplateG
     }
 
     private tryRestoreAggregateDataModelInterface(aggregateTechnicalLabel: string): object {
-        const aggregateSchemaInterface = ArtifactCache.savedArtifactsMap[`__${aggregateTechnicalLabel}DataModelInterface`];
+        const aggregateSchemaInterface = ArtifactCache.content[`__${aggregateTechnicalLabel}DataModelInterface`];
 
         if (!aggregateSchemaInterface) {
             return { id: "string" };

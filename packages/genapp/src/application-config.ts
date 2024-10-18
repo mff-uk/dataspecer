@@ -1,11 +1,15 @@
 import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
 import { normalizeName } from "./utils/utils";
+import { Cache } from "./utils/cache";
 
-class AggregateMetadataContext {
-    protected static readonly _aggregateMetadataMap: { [ aggregateTechnicalLabel: string ]: DataPsmSchema; } = {};
+export const AggregateMetadataCache: Cache<DataPsmSchema> = {
+    content: {},
+    resetCacheContent: function (): void {
+        this.content = {};
+    }
 }
 
-export class AggregateMetadata extends AggregateMetadataContext {
+export class AggregateMetadata {
     private readonly _structureModel: DataPsmSchema;
     public readonly iri: string;
     public readonly specificationIri: string;
@@ -23,7 +27,6 @@ export class AggregateMetadata extends AggregateMetadataContext {
     public readonly roots: string[];
 
     constructor(specificationIri: string, structure: DataPsmSchema) {
-        super();
 
         this._structureModel = structure;
         this.specificationIri = specificationIri;
@@ -61,12 +64,15 @@ export class AggregateMetadata extends AggregateMetadataContext {
 
         let techLabel = structure.dataPsmTechnicalLabel ?? this.aggregateName.toLowerCase();
 
-        if (techLabel in AggregateMetadataContext._aggregateMetadataMap) {
+        if (techLabel in AggregateMetadataCache.content &&
+            structure.iri !== AggregateMetadataCache.content[techLabel]!.iri
+        ) {
+            // two different structure model with same technical label exist
             const techLabelSuffix = "-1";
             techLabel = `${techLabel}${techLabelSuffix}`;
         }
 
-        AggregateMetadataContext._aggregateMetadataMap[techLabel] = structure;
+        AggregateMetadataCache.content[techLabel] = structure;
 
         return techLabel;
     }

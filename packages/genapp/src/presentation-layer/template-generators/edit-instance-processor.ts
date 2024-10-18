@@ -38,7 +38,7 @@ export class EditInstanceComponentTemplateProcessor extends PresentationLayerTem
     private readInstanceDetail(aggregate: AggregateMetadata): [string, string] {
         const detailAppLayerExportedName: string = aggregate.getAggregateNamePascalCase({ suffix: "DetailCapabilityLogic" });
 
-        const detailAppLayerArtifactPath = ArtifactCache.savedArtifactsMap[detailAppLayerExportedName];
+        const detailAppLayerArtifactPath = ArtifactCache.content[detailAppLayerExportedName];
 
         if (!detailAppLayerArtifactPath) {
             throw new Error();
