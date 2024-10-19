@@ -47,13 +47,13 @@ export type ApplicationGraphNodeType = {
     label: LanguageString;
 
     /**
-     * @property structure: IRI of a Dataspecer data structure that this node instance referes to.
-     * Represents the subject on which an capability (action) will be performed.
+     * @property structure: IRI of a Dataspecer data structure model that this node instance refers to.
+     * Represents the subject on which a capability (action) will be performed.
      */
     structure: string;
 
     /**
-     * @property capability: IRI of a supported capability (action) to be performed on a data structure.
+     * @property capability: IRI of a supported capability (action) to be performed on a data structure model.
      * @example "https://dataspecer.com/application_graph/<capability_identifier>"
      */
     capability: string;

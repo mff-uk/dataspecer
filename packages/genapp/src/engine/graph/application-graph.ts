@@ -1,8 +1,6 @@
 import { Datasource } from "./datasource";
-import { ApplicationGraphEdge, ApplicationGraphEdgeType } from "./application-graph-edge";
+import { ApplicationGraphEdge } from "./application-graph-edge";
 import { ApplicationGraphNode, ApplicationGraphNodeFactory, ApplicationGraphNodeType } from "./application-graph-node";
-import { DETAIL_CAPABILITY_ID, EDIT_CAPABILITY_ID } from "../../capabilities";
-import { forEach } from "jszip";
 
 /**
  * ApplicationGraphType interface represents the structure for generator's application graph.
