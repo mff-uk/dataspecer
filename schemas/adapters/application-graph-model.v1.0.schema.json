@@ -1,49 +1,27 @@
 {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://schemas.dataspecer.com/adapters/application-graph-model.v1.0.schema.json",
     "title": "Application Graph",
     "description": "Represents the structure for generator's application graph. Application graph serves as a model of the application to be generated and is a formal representation of user's requirements on the application content.",
     "type": "object",
     "required": [
-      "id",
-      "type",
       "label",
-      "dataspecification",
+      "dataSpecification",
+      "datasources",
       "nodes",
-      "edges",
-      "datasources"
+      "edges"
     ],
     "properties": {
-      "id": {
-        "type": "string",
-        "format": "iri"
-      },
-      "type": {
-        "oneOf": [
-          {
-            "const": "Application Graph"
-          },
-          {
-            "type": "array",
-            "contains": {
-              "const": "Application Graph"
-            },
-            "items": {
-              "type": "string"
-            }
-          }
-        ]
-      },
       "label": {
-        "title": "label",
+        "title": "Label",
         "description": "The label or name of the application graph. Label is a human-readable graph identifier.",
         "type": "string",
         "examples": [
           "Example graph label"
         ]
       },
-      "dataspecification": {
-        "title": "dataspecification",
+      "dataSpecification": {
+        "title": "Data Specification",
         "description": "IRI of a Dataspecer data specification from which the application is to be generated. All IRIs within application graph nodes refer to structural models within the context of this data specification.",
         "type": "string",
         "format": "iri",
@@ -53,43 +31,22 @@
       },
       "nodes": {
         "title": "Nodes",
+        "description": "Application graph nodes, where each node represents a separate, isolated functional unit of the application, that will be generated.",
         "type": "array",
         "items": {
-          "title": "Application graph node",
+          "title": "Node",
           "description": "An application graph node represents a unit of the generated application, i.e. an isolated, functional unit to be generated, through which application users fulfill their needs.",
           "type": "object",
           "required": [
-            "id",
-            "type",
-            "node_iri",
-            "structure",
+            "iri",
             "capability",
-            "node_label",
+            "structure",
+            "label",
             "config"
           ],
           "properties": {
-            "id": {
-              "type": "string",
-              "format": "iri"
-            },
-            "type": {
-              "oneOf": [
-                {
-                  "const": "Application graph node"
-                },
-                {
-                  "type": "array",
-                  "contains": {
-                    "const": "Application graph node"
-                  },
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              ]
-            },
-            "node_iri": {
-              "title": "Node IRI",
+            "iri": {
+              "title": "IRI",
               "description": "Unique identification of an application node",
               "type": "string",
               "format": "iri",
@@ -98,17 +55,8 @@
                 "https://example.org/application_graph/nodes/1"
               ]
             },
-            "structure": {
-              "title": "structure",
-              "description": "IRI of a Dataspecer data structure model that this node instance refers to. Represents the subject instance on which a capability will be performed.",
-              "type": "string",
-              "format": "iri",
-              "examples": [
-                "https://ofn.gov.cz/schema/<structure model id>"
-              ]
-            },
             "capability": {
-              "title": "capability",
+              "title": "Capability",
               "description": "IRI of a supported capability to be performed on a data structure model.",
               "type": "string",
               "format": "iri",
@@ -117,8 +65,19 @@
                 "https://dataspecer.com/application_graph/capability/list"
               ]
             },
-            "node_label": {
-              "title": "Node Label",
+            "structure": {
+              "title": "Structure Model",
+              "description": "IRI of a Dataspecer data structure model that this node instance refers to. Represents the subject instance on which a capability will be performed.",
+              "type": "string",
+              "format": "iri",
+              "pattern": "https://ofn.gov.cz/schema/.+",
+              "examples": [
+                "https://ofn.gov.cz/schema/<structure model id>"
+              ]
+            },
+            "label": {
+              "title": "Label",
+              "description": "Custom, user-defined node name. Label is defined as a mapping between language and the label itself.",
               "type": "object",
               "required": [
                 "@value",
@@ -136,35 +95,13 @@
               }
             },
             "config": {
-              "title": "config",
+              "title": "Config",
+              "description": "Custom configuration of a node.",
               "type": "object",
-              "required": [
-                "id",
-                "type"
-              ],
+              "required": [ ],
               "properties": {
-                "id": {
-                  "type": "string",
-                  "format": "iri"
-                },
-                "type": {
-                  "oneOf": [
-                    {
-                      "const": "Node configuration"
-                    },
-                    {
-                      "type": "array",
-                      "contains": {
-                        "const": "Node configuration"
-                      },
-                      "items": {
-                        "type": "string"
-                      }
-                    }
-                  ]
-                },
                 "starting": {
-                  "title": "starting",
+                  "title": "Starting",
                   "type": "boolean"
                 },
                 "page_title": {
@@ -192,67 +129,64 @@
       },
       "edges": {
         "title": "Edges",
+        "description": "Transitions between different nodes in the graph. Each edge allows the user of the generated application to move from one capability performed on an aggregate to other capability performed on another aggregate.",
         "type": "array",
         "items": {
-          "title": "Application graph edge",
+          "title": "Edge",
           "description": "An edge represents a transition between the nodes in the graph. An edge allows the user of the generated application to move from one capability performed on an aggregate to other capability performed on another aggregate.",
           "type": "object",
           "required": [
-            "id",
-            "type",
-            "edge_iri",
-            "source_node",
+            "iri",
+            "source",
             "target_node",
             "edge_type"
           ],
           "properties": {
-            "id": {
+            "iri": {
+              "title": "IRI",
+              "description": "Unique identifier of an application edge.",
               "type": "string",
-              "format": "iri"
-            },
-            "type": {
-              "oneOf": [
-                {
-                  "const": "Application graph edge"
-                },
-                {
-                  "type": "array",
-                  "contains": {
-                    "const": "Application graph edge"
-                  },
-                  "items": {
-                    "type": "string"
-                  }
-                }
+              "format": "iri",
+              "pattern": "https:\\/\\/example\\.org\\/application_graph\\/edges\\/[\\d-]+",
+              "examples": [
+                "https://example.org/application_graph/edges/1"
               ]
             },
-            "edge_iri": {
-              "title": "Edge IRI",
-              "type": "string",
-              "format": "iri",
-              "pattern": "https:\\/\\/example\\.org\\/application_graph\\/edges\\/[\\d-]+"
-            },
-            "source_node": {
+            "source": {
               "title": "Source Node",
+              "description": "IRI of the source node - (capability, aggregate) pair, from which the user wants to leave.",
               "type": "string",
               "format": "iri",
-              "pattern": "https:\\/\\/example\\.org\\/application_graph\\/nodes\\/[\\d-]+"
+              "pattern": "https:\\/\\/example\\.org\\/application_graph\\/nodes\\/[\\d-]+",
+              "examples": [
+                "https://example.org/application_graph/nodes/1"
+              ]
             },
-            "target_node": {
+            "target": {
               "title": "Target Node",
+              "description": "IRI of the target node - (capability, aggregate) pair, to which the user wants to arrive.",
               "type": "string",
               "format": "iri",
-              "pattern": "https:\\/\\/example\\.org\\/application_graph\\/nodes\\/[\\d-]+"
+              "pattern": "https:\\/\\/example\\.org\\/application_graph\\/nodes\\/[\\d-]+",
+              "examples": [
+                "https://example.org/application_graph/nodes/2"
+              ]
             },
-            "edge_type": {
+            "type": {
               "title": "Edge Type",
-              "type": "string"
+              "description": "A value coming from the enumeration of edge types.",
+              "type": "string",
+              "pattern": "(transition)|(aggregation)|(redirect)",
+              "examples": [
+                "transition"
+              ]
             }
           }
         }
       },
       "datasources": {
         "title": "Datasources",
+        "description": "Data sources to be used. Currently, only first datasource is considered.",
         "type": "array",
         "items": {
           "anyOf": [
@@ -260,87 +194,23 @@
               "title": "Datasource",
               "type": "object",
               "required": [
-                "id",
-                "type",
-                "label",
-                "format",
-                "endpoint_uri"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string",
-                  "format": "iri"
-                },
-                "type": {
-                  "oneOf": [
-                    {
-                      "const": "Datasource"
-                    },
-                    {
-                      "type": "array",
-                      "contains": {
-                        "const": "Datasource"
-                      },
-                      "items": {
-                        "type": "string"
-                      }
-                    }
-                  ]
-                },
-                "label": {
-                  "title": "label",
-                  "type": "string"
-                },
-                "format": {
-                  "title": "format",
-                  "type": "string",
-                  "pattern": "(json)|(csv)|(rdf)|(xml)"
-                },
-                "endpoint_uri": {
-                  "title": "Endpoint Uri",
-                  "type": "string",
-                  "format": "iri"
-                }
-              }
-            },
-            {
-              "title": "Datasource",
-              "type": "object",
-              "required": [
-                "id",
-                "type",
                 "label",
                 "format"
               ],
               "properties": {
-                "id": {
+                "label": {
+                  "title": "Label",
+                  "description": "Name of the datasource.",
                   "type": "string",
-                  "format": "iri"
-                },
-                "type": {
-                  "oneOf": [
-                    {
-                      "const": "Datasource"
-                    },
-                    {
-                      "type": "array",
-                      "contains": {
-                        "const": "Datasource"
-                      },
-                      "items": {
-                        "type": "string"
-                      }
-                    }
+                  "examples": [
+                    "Datasource Name"
                   ]
                 },
-                "label": {
-                  "title": "label",
-                  "type": "string"
-                },
                 "format": {
-                  "title": "format",
+                  "title": "Format",
+                  "description": "Format enumeration value. One of: \"local\", \"json\", \"rdf\", \"xml\", \"csv\"",
                   "type": "string",
-                  "pattern": "(local)"
+                  "pattern": "(rdf)|(json)|(xml)|(csv)|(local)"
                 }
               }
             },
@@ -348,81 +218,87 @@
               "title": "Datasource",
               "type": "object",
               "required": [
-                "id",
-                "type",
                 "label",
                 "format",
                 "endpoint_uri"
               ],
               "properties": {
-                "id": {
+                "label": {
+                  "title": "Label",
+                  "description": "Name of the datasource.",
                   "type": "string",
-                  "format": "iri"
-                },
-                "type": {
-                  "oneOf": [
-                    {
-                      "const": "Datasource"
-                    },
-                    {
-                      "type": "array",
-                      "contains": {
-                        "const": "Datasource"
-                      },
-                      "items": {
-                        "type": "string"
-                      }
-                    }
+                  "examples": [
+                    "Datasource Name"
                   ]
                 },
-                "label": {
-                  "title": "label",
-                  "type": "string"
-                },
                 "format": {
-                  "title": "format",
+                  "title": "Format",
+                  "description": "Format enumeration value. One of: \"local\", \"json\", \"rdf\", \"xml\", \"csv\"",
                   "type": "string",
-                  "pattern": "(json)|(csv)|(rdf)|(xml)"
+                  "pattern": "(rdf)|(json)|(xml)|(csv)|(local)"
                 },
                 "endpoint_uri": {
                   "title": "Endpoint URI",
-                  "type": "object",
-                  "required": [
-                    "id",
-                    "type",
-                    "read",
-                    "write"
-                  ],
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "format": "iri"
-                    },
-                    "type": {
-                      "oneOf": [
-                        {
-                          "const": "Endpoint Uri"
-                        },
-                        {
-                          "type": "array",
-                          "contains": {
-                            "const": "Endpoint Uri"
-                          },
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      ]
-                    },
-                    "read": {
-                      "title": "read",
-                      "type": "string",
-                      "format": "iri"
-                    },
-                    "write": {
-                      "title": "write",
-                      "type": "string",
-                      "format": "iri"
+                  "description": "URI of the endpoint which contains data in specified format. This endpoint will be used for both (read and write) operations.",
+                  "type": "string",
+                  "format": "iri",
+                  "examples": [
+                    "http://example.endpoint.com/"
+                  ]
+                }
+              }
+            },
+            {
+              "title": "Datasource",
+              "type": "object",
+              "required": [
+                "label",
+                "format"
+              ],
+              "properties": {
+                "label": {
+                  "title": "Label",
+                  "description": "Name of the datasource.",
+                  "type": "string",
+                  "examples": [
+                    "Datasource Name"
+                  ]
+                },
+                "format": {
+                  "title": "Format",
+                  "description": "Format enumeration value. One of: \"local\", \"json\", \"rdf\", \"xml\", \"csv\"",
+                  "type": "string",
+                  "pattern": "(rdf)|(json)|(xml)|(csv)|(local)"
+                },
+                "read-write_uri": {
+                  "title": "read-write URI",
+                  "type": "array",
+                  "items": {
+                    "title": "Endpoint URI",
+                    "type": "object",
+                    "required": [
+                      "read",
+                      "write"
+                    ],
+                    "properties": {
+                      "read": {
+                        "title": "Read Endpoint URI",
+                        "description": "URI of the endpoint which contains data in specified format. This endpoint will only be used for read operations.",
+                        "type": "string",
+                        "format": "iri",
+                        "examples": [
+                          "http://example.endpoint.com/read"
+                        ]
+                      },
+                      "write": {
+                        "title": "Write Endpoint URI",
+                        "description": "URI of the endpoint which contains data in specified format. This endpoint will only be used for write operations.",
+                        "type": "string",
+                        "format": "iri",
+                        "examples": [
+                          "http://example.endpoint.com/write"
+                        ]
+                      }
                     }
                   }
                 }

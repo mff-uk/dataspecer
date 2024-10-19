@@ -39,7 +39,7 @@ export type ApplicationGraphEdge = {
      * Identifier - IRI of the target node - (capability, aggregate) pair, to which the user wants to arrive.
      * References a graph's node IRI. (@type ApplicationGraphNode)
      */
-    target: string; // incoming node iri
+    target: string;
 
     /**
      * Enumeration of supported edge types.
