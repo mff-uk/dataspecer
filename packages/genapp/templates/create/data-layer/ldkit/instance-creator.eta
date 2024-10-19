@@ -9,19 +9,45 @@ export class <%= it.exported_object_name %> implements <%= it.creator_interface_
     private mapFormDataToLdkitSchema(formData: any): Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> {
         console.log("input form data: ", formData);
 
-        // const newInstance: Entity<SchemaInterface<typeof < %= it.ldkit_schema % >>> = {< % for (const ldkitSchemaKey of Object.keys(it.ldkit_schema)) { % >
-        //    "< %~ ldkitSchemaKey % >": formData["< %~ ldkitSchemaKey % >"],< % } % >
-        // }
-
-        const newInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> = formData;
+        const newInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> = this.updateLdkitProperties(formData);
 
         return newInstance;
+    }
+
+    private updateLdkitProperties(obj: any) {
+
+        if (typeof obj !== "object") {
+            return obj;
+        }
+
+        const transformed = Object.entries(obj)
+            .map(([key, value]) => {
+                if (key === "id") {
+                    return ["$id", value];
+                }
+
+                if (key === "@type") {
+                    return ["$type", value];
+                }
+
+                if (Array.isArray(value)) {
+                    return [key, value.map(item => this.updateLdkitProperties(item))];
+                }
+
+                if (typeof value === "object") {
+                    return [key, this.updateLdkitProperties(value)];
+                }
+
+                return [key, value];
+            });
+
+        return Object.fromEntries(transformed);
     }
 
     async createInstance(formData: any): Promise<<%= it.instance_result_type %>> {
 
         const context: Context = {
-            sources: [<%~ it.ldkit_endpoint_uri %>]
+            sources: [<%~ it.sparql_endpoint_uri %>]
         }
 
         const lens = createLens(<%= it.ldkit_schema %>, context);
@@ -30,6 +56,17 @@ export class <%= it.exported_object_name %> implements <%= it.creator_interface_
         try {
             //await lens.insert(newInstance);
             console.log("creation success");
+
+            const result: <%= it.instance_result_type %> = {
+                instance: {
+                    aggregateName: "<%= it.aggregate_name %>",
+                    raw: newInstance.$id
+                },
+                message: "Instance created successfully",
+                redirectUrl: "/"
+            }
+
+            return result;
         } catch (error) {
             const errorResult: <%= it.instance_result_type %> = {
                 instance: null,
@@ -39,16 +76,5 @@ export class <%= it.exported_object_name %> implements <%= it.creator_interface_
 
             return errorResult;
         }
-
-        const result: <%= it.instance_result_type %> = {
-            instance: {
-                aggregateName: "<%= it.aggregate_name %>",
-                raw: newInstance.$id
-            },
-            message: "Instance created successfully",
-            redirectUrl: "/"
-        }
-
-        return result;
     }
 }

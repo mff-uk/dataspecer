@@ -8,7 +8,7 @@ export class <%= it.exported_object_name %> implements <%= it.delete_mutator_int
     async deleteInstance(instanceIri: string): Promise<<%= it.instance_result_type %>> {
 
         const context: Context = {
-            sources: [<%~ it.ldkit_endpoint_uri %>]
+            sources: ["<%~ it.sparql_endpoint_uri.read %>"]
         }
 
         const lens = createLens(<%= it.ldkit_schema %>, context);
@@ -24,23 +24,29 @@ export class <%= it.exported_object_name %> implements <%= it.delete_mutator_int
             return notFoundResult;
         }
 
+        let result: <%= it.instance_result_type %>;
+
         try {
-            await lens.delete(instanceIri);
+            const deleteLens = createLens(<%= it.ldkit_schema %>, {
+                sources: ["<%~ it.sparql_endpoint_uri.write %>"]
+            })
+            await deleteLens.delete(toDelete);
+
+            result = {
+                instance: {
+                    aggregateName: "<%= it.aggregate_name %>",
+                    raw: toDelete.$id
+                },
+                message: "Instance deleted successfully",
+                redirectUrl: "/"
+            }  as <%= it.instance_result_type %>;
+
         } catch {
-            return {
+            result = {
                 instance: null,
                 message: "Could not delete instance.",
                 redirectUrl: "/"
             } as <%= it.instance_result_type %>;
-        }
-
-        const result: <%= it.instance_result_type %> = {
-            instance: {
-                aggregateName: "<%= it.aggregate_name %>",
-                raw: toDelete.$id
-            },
-            message: "Instance deleted successfully",
-            redirectUrl: "/"
         }
 
         return result;

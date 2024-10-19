@@ -5,6 +5,7 @@ import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ZoomInMapIcon from "@mui/icons-material/ZoomInMap";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import EditIcon from '@mui/icons-material/Edit';
 import { ListItemIcon, ListItemText } from "@mui/material";
 import { <%= it.navigation_hook %> } from <%~ it.navigation_hook_path %>;
 <%
@@ -19,11 +20,11 @@ import { <%= it.navigation_hook %> } from <%~ it.navigation_hook_path %>;
                 return "<AddIcon />";
             case "delete-instance":
                 return "<DeleteIcon color=\"error\"/>";
+            case "edit-instance":
+                return "<EditIcon />";
             default:
                 return "<></>";
         }
-
-        return "<></>";
     }
 %>
 export const <%= it.export_name %> = ({ instanceId }: { instanceId: string }) => {

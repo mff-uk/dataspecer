@@ -1,14 +1,14 @@
 import { LayerArtifact } from "../../engine/layer-artifact";
-import { TemplateConsumer, TemplateMetadata } from "../../engine/template-consumer";
+import { TemplateConsumer, TemplateMetadata } from "../../engine/templates/template-consumer";
 import {
     InstanceResultReturnInterfaceGenerator,
     ListResultReturnInterfaceGenerator,
     CapabilityInterfaceGeneratorType
 } from "../../capabilities/template-generators/capability-interface-generator";
-import { ImportRelativePath, TemplateDescription } from "../../engine/eta-template-renderer";
+import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
 
 // TODO: Change / use more generic interfaceTemplate and placeholder names (e.g. InterfaceTemplate and return_type)
-interface ReaderInterfaceTemplate extends TemplateDescription {
+interface ReaderInterfaceTemplate extends TemplateModel {
     templatePath: string;
     placeholders: {
         read_return_type: string;
@@ -86,5 +86,12 @@ export const InstanceCreatorInterfaceGenerator = new ReaderInterfaceGenerator({
     filePath: "./writers/instance-creator.ts",
     queryExportedObjectName: "AggregateInstanceCreator",
     templatePath: "./create/data-layer/instance-create-interface",
+    listReturnTypeInterfaceGenerator: InstanceResultReturnInterfaceGenerator
+})
+
+export const InstanceEditorInterfaceGenerator = new ReaderInterfaceGenerator({
+    filePath: "./writers/instance-editor.ts",
+    queryExportedObjectName: "AggregateInstanceEditor",
+    templatePath: "./edit/data-layer/edit-instance-interface",
     listReturnTypeInterfaceGenerator: InstanceResultReturnInterfaceGenerator
 })

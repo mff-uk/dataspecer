@@ -1,18 +1,12 @@
 import { InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../engine/template-consumer";
-import { GeneratedFilePathCalculator } from "../../../utils/artifact-saver";
+import { TemplateConsumer } from "../../../engine/templates/template-consumer";
 import { DetailReaderInterfaceGenerator } from "../reader-interface-generator";
-import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
+import { ImportRelativePath, DataLayerTemplateDescription } from "../../../engine/templates/template-interfaces";
+import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy";
+import { ReadWriteEndpointUri } from "../../../engine/graph/datasource";
 
-interface InstanceDetailLdkitReaderDependencyMap extends TemplateDependencyMap {
-    pathResolver: GeneratedFilePathCalculator,
-    ldkitSchemaArtifact: LayerArtifact,
-    sparqlEndpointUri: string,
-    ldkitSchemaInterfaceArtifact: LayerArtifact
-}
-
-export interface InstanceDetailLdkitReaderTemplate extends TemplateDescription {
+export interface InstanceDetailLdkitReaderTemplate extends DataLayerTemplateDescription {
     placeholders: {
         ldkit_instance_reader: string,
         exported_name_object: string;
@@ -28,8 +22,13 @@ export interface InstanceDetailLdkitReaderTemplate extends TemplateDescription {
 
 export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<InstanceDetailLdkitReaderTemplate> {
 
-    constructor(templateMetadata: TemplateMetadata) {
-        super(templateMetadata);
+    private static readonly _instanceDetailLdkitDataLayerTemplatePath = "./detail/data-layer/ldkit/instance-detail-reader";
+
+    constructor(outputFilePath: string) {
+        super({
+            filePath: outputFilePath,
+            templatePath: InstanceDetailLdkitReaderGenerator._instanceDetailLdkitDataLayerTemplatePath
+        });
     }
 
     private async getReaderInterfaceReturnTypeName(readerInterfaceArtifact: LayerArtifact): Promise<LayerArtifact> {
@@ -46,7 +45,7 @@ export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<Instanc
         return instanceReturnTypeArtifact;
     }
 
-    async processTemplate(dependencies: InstanceDetailLdkitReaderDependencyMap): Promise<LayerArtifact> {
+    async processTemplate(dependencies: LdkitDalDependencyMap): Promise<LayerArtifact> {
 
         const instanceReaderInterfaceArtifact = await DetailReaderInterfaceGenerator.processTemplate();
         const instanceReturnTypeArtifact = await this.getReaderInterfaceReturnTypeName(instanceReaderInterfaceArtifact);
@@ -54,13 +53,17 @@ export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<Instanc
             suffix: "LdkitInstanceReader"
         });
 
+        const readSparqlEndpointUri = typeof dependencies.sparqlEndpointUri === "string"
+            ? dependencies.sparqlEndpointUri
+            : (dependencies.sparqlEndpointUri as ReadWriteEndpointUri).read;
+
         const instanceLdkitReaderTemplate: InstanceDetailLdkitReaderTemplate = {
             templatePath: this._templatePath,
             placeholders: {
                 aggregate_name: dependencies.aggregate.getAggregateNamePascalCase(),
                 exported_name_object: detailExportedObject,
                 ldkit_schema: dependencies.ldkitSchemaArtifact.exportedObjectName,
-                ldkit_endpoint_uri: `"${dependencies.sparqlEndpointUri}"`,
+                ldkit_endpoint_uri: `"${readSparqlEndpointUri}"`,
                 ldkit_instance_reader: instanceReaderInterfaceArtifact.exportedObjectName,
                 instance_result_type: instanceReturnTypeArtifact.exportedObjectName,
                 instance_result_type_path: {

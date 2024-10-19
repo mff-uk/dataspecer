@@ -7,11 +7,18 @@ export enum DataSourceType {
 }
 
 type LocalDatasource = { format: DataSourceType.Local; };
+
+export type ReadWriteEndpointUri = {
+    read: string;
+    write: string;
+}
+
+export type EndpointUri = string | ReadWriteEndpointUri;
+
 type UriDatasource = {
     format: DataSourceType.JSON | DataSourceType.CSV | DataSourceType.RDF | DataSourceType.XML;
-    endpoint: string;
+    endpoint: EndpointUri;
 };
-
 
 export type DatasourceConfig = LocalDatasource | UriDatasource;
 

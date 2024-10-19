@@ -9,6 +9,7 @@ import {
     CREATE_CAPABILITY_ID,
     DELETE_CAPABILITY_ID,
     DETAIL_CAPABILITY_ID,
+    EDIT_CAPABILITY_ID,
     getCapabilityMetadata,
     LIST_CAPABILITY_ID
 } from "../../capabilities";
@@ -16,6 +17,7 @@ import { ListCapabilityMetadata } from "../../capabilities/list";
 import { DetailCapabilityMetadata } from "../../capabilities/detail";
 import { CreateInstanceCapabilityMetadata } from "../../capabilities/create-instance";
 import { DeleteInstanceCapabilityMetadata } from "../../capabilities/delete-instance";
+import { EditInstanceCapabilityMetadata } from "../../capabilities/edit-instance";
 
 export type AllowedTransition = {
     label: string,
@@ -45,7 +47,8 @@ export class TransitionsGenerator {
                 CREATE_CAPABILITY_ID,
                 DELETE_CAPABILITY_ID,
                 DETAIL_CAPABILITY_ID,
-                LIST_CAPABILITY_ID
+                LIST_CAPABILITY_ID,
+                EDIT_CAPABILITY_ID
             ]
         },
         [DETAIL_CAPABILITY_ID]: {
@@ -58,7 +61,8 @@ export class TransitionsGenerator {
             transitions: [
                 LIST_CAPABILITY_ID,
                 DELETE_CAPABILITY_ID,
-                CREATE_CAPABILITY_ID
+                CREATE_CAPABILITY_ID,
+                EDIT_CAPABILITY_ID
             ]
         },
         [CREATE_CAPABILITY_ID]: {
@@ -75,6 +79,15 @@ export class TransitionsGenerator {
             aggregations: [],
             redirections: [LIST_CAPABILITY_ID],
             transitions: [],
+        },
+        [EDIT_CAPABILITY_ID]: {
+            label: EditInstanceCapabilityMetadata.label,
+            aggregations: [],
+            redirections: [
+                LIST_CAPABILITY_ID,
+                DETAIL_CAPABILITY_ID
+            ],
+            transitions: []
         }
     };
 
@@ -112,20 +125,17 @@ export class TransitionsGenerator {
                     throw new Error(`Invalid transition edge: ${edge}`);
                 }
 
-                const dataStructurePromise = transitionEndNode.getNodeDataStructure();
+                const structureModelPromise = transitionEndNode.getNodeStructureModel();
 
                 const sourceCapabilityIri = currentNode.getCapabilityInfo().iri;
                 const targetCapabilityIri = transitionEndNode.getCapabilityInfo().iri;
-
-                // TODO: compare currentNode -> transitionEndNode structure roots to know if they're equal
-                // (this is to prevent e.g. from dataset list -> delete catalog)
 
                 const allowedTargetIri = this.getAllowedTargetCapability(sourceCapabilityIri, targetCapabilityIri, edge.type);
 
                 console.log(`NODE FROM ${currentNode.getIri()} to ${transitionEndNode.getIri()}`);
 
                 if (!allowedTargetIri) {
-                    console.error(`Could not find matching "${edge.type.toString()}" transition from ${sourceCapabilityIri} to ${targetCapabilityIri}`)
+                    console.log(`Could not find matching "${edge.type.toString()}" transition from ${sourceCapabilityIri} to ${targetCapabilityIri}`)
                     const toFilterTransition: AllowedTransition = {
                         id: "filter",
                         targetId: "",
@@ -138,10 +148,10 @@ export class TransitionsGenerator {
                 }
 
                 const targetCapability = getCapabilityMetadata(allowedTargetIri, transitionEndNode.getNodeLabel("en"));
-                const targetDatastructure = await dataStructurePromise;
+                const targetStructureModel = await structureModelPromise;
 
                 const generatedTransition: AllowedTransition = {
-                    id: `/${targetDatastructure.technicalLabel}/${targetCapability.getLabel()}`,
+                    id: `/${targetStructureModel.technicalLabel}/${targetCapability.getLabel()}`,
                     targetId: targetCapability.getLabel(),
                     label: targetCapability.getHumanLabel(),
                     capabilityType: targetCapability.getType(),

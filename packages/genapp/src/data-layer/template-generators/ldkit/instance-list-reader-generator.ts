@@ -1,14 +1,11 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../engine/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/templates/template-consumer";
 import { BaseListLdkitReaderGenerator } from "./base-list-reader-generator";
-import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer";
+import { DataLayerTemplateDescription, ImportRelativePath } from "../../../engine/templates/template-interfaces";
+import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy";
+import { ReadWriteEndpointUri } from "../../../engine/graph/datasource";
 
-interface InstanceListLdkitReaderDependencyMap extends TemplateDependencyMap {
-    ldkitSchemaArtifact: LayerArtifact,
-    sparqlEndpointUri: string
-}
-
-interface InstanceListLdkitReaderTemplate extends TemplateDescription {
+export interface InstanceListLdkitReaderTemplate extends DataLayerTemplateDescription {
     placeholders: {
         ldkit_list_reader_base_class: string,
         ldkit_list_reader_base_class_path: ImportRelativePath,
@@ -19,17 +16,22 @@ interface InstanceListLdkitReaderTemplate extends TemplateDescription {
     };
 }
 
-function isInstanceListLdkitReaderDependencyList(obj: TemplateDependencyMap): obj is InstanceListLdkitReaderDependencyMap {
-    return (obj as InstanceListLdkitReaderDependencyMap) !== undefined;
+function isInstanceListLdkitReaderDependencyList(obj: TemplateDependencyMap): obj is LdkitDalDependencyMap {
+    return (obj as LdkitDalDependencyMap) !== undefined;
 }
 
 export class InstanceListLdkitReaderGenerator extends TemplateConsumer<InstanceListLdkitReaderTemplate> {
 
-    constructor(templateMetadata: TemplateMetadata) {
-        super(templateMetadata);
+    private static readonly _ldkitListDataLayerTemplatePath = "./list/data-layer/ldkit/aggregate-specific-reader";
+
+    constructor(outputFilePath: string) {
+        super({
+            filePath: outputFilePath,
+            templatePath: InstanceListLdkitReaderGenerator._ldkitListDataLayerTemplatePath
+        });
     }
 
-    async processTemplate(dependencies: InstanceListLdkitReaderDependencyMap): Promise<LayerArtifact> {
+    async processTemplate(dependencies: LdkitDalDependencyMap): Promise<LayerArtifact> {
 
         if (!dependencies || !isInstanceListLdkitReaderDependencyList(dependencies)) {
             throw new Error("Invalid dependencies list parameter.");
@@ -40,11 +42,15 @@ export class InstanceListLdkitReaderGenerator extends TemplateConsumer<InstanceL
             suffix: "LdkitListReader"
         });
 
+        const readSparqlEndpointUri = typeof dependencies.sparqlEndpointUri === "string"
+            ? dependencies.sparqlEndpointUri
+            : (dependencies.sparqlEndpointUri as ReadWriteEndpointUri).read;
+
         const instanceListLdkitReaderTemplate: InstanceListLdkitReaderTemplate = {
             templatePath: this._templatePath,
             placeholders: {
                 aggregate_name: listExportedObject,
-                ldkit_endpoint_uri: `"${dependencies.sparqlEndpointUri}"`,
+                ldkit_endpoint_uri: `"${readSparqlEndpointUri}"`,
                 ldkit_schema: dependencies.ldkitSchemaArtifact.exportedObjectName,
                 ldkit_list_reader_base_class: baseLdkitListReaderArtifact.exportedObjectName,
                 ldkit_list_reader_base_class_path: {
@@ -64,7 +70,7 @@ export class InstanceListLdkitReaderGenerator extends TemplateConsumer<InstanceL
             sourceText: ldkitInstanceListReader,
             exportedObjectName: listExportedObject,
             filePath: this._filePath,
-            dependencies: [baseLdkitListReaderArtifact, dependencies.ldkitSchemaArtifact]
+            dependencies: [baseLdkitListReaderArtifact, dependencies.ldkitSchemaArtifact, dependencies.ldkitSchemaInterfaceArtifact]
         }
 
         return readerInterfaceArtifact;

@@ -2,18 +2,14 @@ import * as fs from "fs";
 import path from "path";
 import { GenappEnvConfig } from "../engine/app-generator";
 import { LayerArtifact } from "../engine/layer-artifact";
+import { Cache } from "./cache";
 
-interface ArtifactSaverCache {
-    savedArtifactsMap: { [artifactObject: string]: string; };
-    resetCacheContent: () => void;
-}
-
-export const ArtifactCache: ArtifactSaverCache = {
-    savedArtifactsMap: {},
+export const ArtifactCache: Cache<string> = {
+    content: {},
     resetCacheContent: function (): void {
-        Object.keys(this.savedArtifactsMap)
+        Object.keys(this.content)
             .forEach(k => {
-                delete this.savedArtifactsMap[k];
+                delete this.content[k];
             })
     }
 };
@@ -37,7 +33,7 @@ export class ArtifactSaver implements GeneratedFilePathCalculator {
     getFullSavePath(filename: string, artifactName?: string): string {
 
         if (artifactName && this.isSaved(artifactName)) {
-            return ArtifactCache.savedArtifactsMap[artifactName]!;
+            return ArtifactCache.content[artifactName]!;
         }
 
         return path.posix.join(
@@ -48,7 +44,7 @@ export class ArtifactSaver implements GeneratedFilePathCalculator {
     }
 
     private isSaved(artifactObjectName: string): boolean {
-        return artifactObjectName in ArtifactCache.savedArtifactsMap;
+        return artifactObjectName in ArtifactCache.content;
     }
 
     saveArtifact(artifact: LayerArtifact) {
@@ -58,7 +54,7 @@ export class ArtifactSaver implements GeneratedFilePathCalculator {
 
         if (this.isSaved(artifact.exportedObjectName)) {
             console.log(`${artifact.exportedObjectName} has been already saved. Restoring ...`)
-            const savedFilepath = ArtifactCache.savedArtifactsMap[artifact.exportedObjectName];
+            const savedFilepath = ArtifactCache.content[artifact.exportedObjectName];
 
             if (!savedFilepath) {
                 throw new Error(`"${artifact.exportedObjectName}" claims to be saved, but invalid filepath has been saved.`);
@@ -77,11 +73,10 @@ export class ArtifactSaver implements GeneratedFilePathCalculator {
 
         const fullFilepath = this.getFullSavePath(artifact.filePath, artifact.exportedObjectName);
         console.log(`   ${artifact.exportedObjectName} fullpath: `, fullFilepath);
-        fs.mkdir(path.dirname(fullFilepath), { recursive: true }, () => {
-            fs.writeFileSync(fullFilepath, artifact.sourceText);
-        });
+        fs.mkdirSync(path.dirname(fullFilepath), { recursive: true });
+        fs.writeFileSync(fullFilepath, artifact.sourceText);
 
-        ArtifactCache.savedArtifactsMap[artifact.exportedObjectName] = fullFilepath;
+        ArtifactCache.content[artifact.exportedObjectName] = fullFilepath;
 
         // save actual path where the artifact has been saved
         artifact.filePath = fullFilepath;

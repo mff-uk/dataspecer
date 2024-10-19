@@ -1,16 +1,18 @@
 // https://rjsf-team.github.io/react-jsonschema-form/
 import { useState } from "react";
 import Form from "@rjsf/mui";
+import { Button } from "@mui/material";
 import Alert from '@mui/material/Alert';
 import validator from "@rjsf/validator-ajv8";
+import SendIcon from "@mui/icons-material/Send";
+import Typography from '@mui/material/Typography';
+import DeleteIcon from "@mui/icons-material/Delete";
 import { RJSFSchema, RJSFValidationError } from "@rjsf/utils";
 import { <%= it.navigation_hook %> } from <%~ it.navigation_hook_path %>;
-import * as <%= it.json_schema %> from <%~ it.json_schema_path %>;
 import { <%= it.create_capability_app_layer %> } from <%~ it.create_capability_app_layer_path %>;
 
 const <%= it.exported_object_name %> = () => {
 
-    const [isUpdateMode, setUpdateMode] = useState<boolean>(false);
     const [formData, setFormData] = useState<RJSFSchema>({});
     const [errorMessage, setErrorMessage] = useState<string>(null!);
     const navigationHooks = <%= it.navigation_hook %>();
@@ -33,11 +35,11 @@ const <%= it.exported_object_name %> = () => {
             return;
         }
 
-        // get createdInstanceResult id
         setTimeout(() => {
         <% if (it.redirects && it.redirects.length > 0) { %><% const firstRedirect = it.redirects.at(0); %>
             <% if (firstRedirect && firstRedirect.capabilityType === "instance") { %>
-            navigationHooks.handleInstanceCapabilityRedirect("<%~ firstRedirect.id %>", createdInstanceResult);
+            const newInstanceId = createdInstanceResult.instance?.raw as string;
+            navigationHooks.handleInstanceCapabilityRedirect("<%~ firstRedirect.id %>", newInstanceId);
             <% } else { %>
             navigationHooks.handleCollectionCapabilityRedirect("<%~ firstRedirect.id %>");
             <% } %>
@@ -54,7 +56,10 @@ const <%= it.exported_object_name %> = () => {
 
     return (
         <div>
-            { errorMessage && <Alert onClose={() => {}} severity="error">{ errorMessage }</Alert> }
+            { errorMessage && <Alert onClose={() => {}} severity="error">{ errorMessage }</Alert> }<% const defaultPageTitle = `Create new "${it.aggregate_name}"` %>
+            <Typography variant="h3">
+                <%~ it.page_title ?? defaultPageTitle  %>
+            </Typography>
             <Form
                 schema={schema}
                 validator={validator}
@@ -65,10 +70,8 @@ const <%= it.exported_object_name %> = () => {
                 formData={formData}
                 showErrorList="top"
             >
-                {isUpdateMode && (<div>
-                    <button type='submit'>Submit</button>
-                    <button type='button'>Cancel</button>
-                </div>)}
+                <Button type="button" variant="outlined" startIcon={<DeleteIcon />}>Cancel</Button>
+                <Button type="submit" variant="contained" endIcon={<SendIcon />} sx={{ margin: "10px"}}>Submit</Button>
             </Form>
         </div>
     );

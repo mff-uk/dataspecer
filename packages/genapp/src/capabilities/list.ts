@@ -22,15 +22,19 @@ export class ListCapabilityMetadata extends AggregateCapabilityMetadata {
 export class ListCapability extends BaseCapabilityGenerator {
 
     constructor(constructorInput: CapabilityConstructorInput) {
-        super(constructorInput.dataStructureMetadata, new ListCapabilityMetadata(constructorInput.capabilityLabel));
+        super(constructorInput.structureModelMetadata, new ListCapabilityMetadata(constructorInput.capabilityLabel));
 
-        const dalLayerGeneratorStrategy = ListTemplateDalGeneratorFactory.getDalGeneratorStrategy(constructorInput.dataStructureMetadata.specificationIri, constructorInput.datasource);
+        const dalLayerGeneratorStrategy = ListTemplateDalGeneratorFactory.getDalGeneratorStrategy(
+            constructorInput.structureModelMetadata.technicalLabel,
+            constructorInput.structureModelMetadata.specificationIri,
+            constructorInput.datasource
+        );
         const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(
-            constructorInput.dataStructureMetadata.technicalLabel,
+            constructorInput.structureModelMetadata.technicalLabel,
             this.getIdentifier()
         );
         const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory.getPresentationLayerGenerator(
-            constructorInput.dataStructureMetadata,
+            constructorInput.structureModelMetadata,
             this.getIdentifier()
         );
 
