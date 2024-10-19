@@ -80,16 +80,15 @@
             "description": "Custom, user-defined node name. Label is defined as a mapping between language and the label itself.",
             "type": "object",
             "required": [
-              "@value",
-              "@language"
+              "en"
             ],
             "properties": {
-              "@value": {
-                "title": "Text v daném jazyce",
+              "cs": {
+                "title": "Hodnota v českém jazyce",
                 "type": "string"
               },
-              "@language": {
-                "title": "Jazyk textu",
+              "en": {
+                "title": "Hodnota v anglickém jazyce",
                 "type": "string"
               }
             }
@@ -108,16 +107,15 @@
                 "title": "Page Title",
                 "type": "object",
                 "required": [
-                  "@value",
-                  "@language"
+                  "en"
                 ],
                 "properties": {
-                  "@value": {
-                    "title": "Text v daném jazyce",
+                  "cs": {
+                    "title": "Hodnota v českém jazyce",
                     "type": "string"
                   },
-                  "@language": {
-                    "title": "Jazyk textu",
+                  "en": {
+                    "title": "Hodnota v anglickém jazyce",
                     "type": "string"
                   }
                 }
@@ -138,8 +136,8 @@
         "required": [
           "iri",
           "source",
-          "target_node",
-          "edge_type"
+          "target",
+          "type"
         ],
         "properties": {
           "iri": {
