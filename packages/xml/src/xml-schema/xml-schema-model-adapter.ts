@@ -21,12 +21,12 @@ import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-p
 /**
  * Converts a {@link StructureModel} to an {@link XmlSchema}.
  */
-export function structureModelToXmlSchema(
+export async function structureModelToXmlSchema(
   context: ArtefactGeneratorContext,
   specification: DataSpecification,
   artifact: DataSpecificationSchema,
   model: StructureModel
-): XmlSchema {
+): Promise<XmlSchema> {
   const options = XmlConfigurator.merge(DefaultXmlConfiguration, XmlConfigurator.getFromObject(artifact.configuration)) as XmlConfiguration;
 
   // Adds default values regarding the instancesHaveIdentity
@@ -69,10 +69,11 @@ const iriProperty: XmlSchemaComplexContentElement = {
   cardinalityMin: 0,
   cardinalityMax: 1,
   element: {
-    elementName: iriElementName,
+    entityType: "element",
+    name: iriElementName,
     annotation: null,
     type: null
-  }
+  } satisfies XmlSchemaElement
 };
 
 /**
@@ -126,19 +127,20 @@ class XmlSchemaAdapter {
    * @param roots A list of roots to specify the desired root elements.
    * @returns An instance of {@link XmlSchema} with the specific root elements.
    */
-  public fromRoots(roots: StructureModelSchemaRoot[]): XmlSchema {
+  public async fromRoots(roots: StructureModelSchemaRoot[]): Promise<XmlSchema> {
     this.imports = {};
     this.groups = {};
     this.types = {};
     this.wasCommonXmlImportUsed = false;
-    const elements = roots
-      .map(this.rootToElement, this)
+    const elements = (await Promise.all(roots
+      .map(this.rootToElement, this)))
       .map(this.extractTypeFromRoot, this);
     if (this.wasCommonXmlImportUsed) {
       this.imports[commonXmlNamespace] = {
-        namespace: Promise.resolve(commonXmlNamespace),
-        prefix: Promise.resolve(commonXmlPrefix),
+        namespace: commonXmlNamespace,
+        prefix: commonXmlPrefix,
         schemaLocation: this.commonXmlSchemaLocation,
+        model: null
       };
     }
     return {
@@ -160,19 +162,21 @@ class XmlSchemaAdapter {
     element: XmlSchemaElement
   ): XmlSchemaElement {
     if (this.options.rootClass.extractType) {
-      const typeName = element.elementName[1];
+      const typeName = element.name[1];
       const type = element.type;
       type.name = [null, typeName];
       this.types[typeName] = type;
 
       return {
-        elementName: element.elementName,
+        entityType: "element",
+        name: element.name,
         type: {
+          entityType: "type",
           name: [this.model.namespacePrefix, typeName],
           annotation: null
         },
         annotation: element.annotation,
-      };
+      } satisfies XmlSchemaElement;
     }
     return element;
   }
@@ -218,9 +222,9 @@ class XmlSchemaAdapter {
    * Returns the {@link QName} of a class, potentially asynchronously if the
    * class is imported from a different schema, in order to load the prefix.
    */
-  resolveImportedClassName(
+  async resolveImportedClassName(
     classData: StructureModelClass
-  ): QName | Promise<QName> {
+  ): Promise<QName> {
     if (this.classIsImported(classData)) {
       const importDeclaration = this.imports[classData.structureSchema];
       if (importDeclaration != null) {
@@ -229,12 +233,13 @@ class XmlSchemaAdapter {
       }
       const artefact = this.findArtefactForImport(classData);
       if (artefact != null) {
-        const model = this.getImportedModel(classData.structureSchema);
+        const model = await this.getImportedModel(classData.structureSchema);
         // Register the import of the schema.
         const imported = this.imports[classData.structureSchema] = {
           namespace: this.getModelNamespace(model),
           prefix: this.getModelPrefix(model),
           schemaLocation: pathRelative(this.currentPath(), artefact.publicUrl, classData.specification !== this.model.specification),
+          model
         };
         return this.getQName(imported.prefix, classData.technicalLabel);
       }
@@ -242,9 +247,9 @@ class XmlSchemaAdapter {
     return [null, classData.technicalLabel];
   }
 
-  resolveImportedOrName(
+  async resolveImportedOrName(
     property: StructureModelProperty
-  ): QName | Promise<QName> {
+  ): Promise<QName> {
     const allClassesAreImported = property.dataTypes.every(dt => dt.isAssociation() && dt.dataType.isReferenced);
     if (allClassesAreImported) {
       const firstClass = (property.dataTypes[0] as StructureModelComplexType).dataType;
@@ -256,12 +261,13 @@ class XmlSchemaAdapter {
       }
       const artefact = this.findArtefactForImport(firstClass);
       if (artefact != null) {
-        const model = this.getImportedModel(firstClass.structureSchema);
+        const model = await this.getImportedModel(firstClass.structureSchema);
         // Register the import of the schema.
         const imported = this.imports[firstClass.structureSchema] = {
           namespace: this.getModelNamespace(model),
           prefix: this.getModelPrefix(model),
           schemaLocation: pathRelative(this.currentPath(), artefact.publicUrl, firstClass.specification !== this.model.specification),
+          model
         };
         return this.getQName(imported.prefix, property.orTechnicalLabel);
       }
@@ -273,27 +279,27 @@ class XmlSchemaAdapter {
    * Helper function to construct a {@link QName} from an asynchronously
    * obtained prefix.
    */
-  async getQName(
-    prefix: Promise<string>,
+  getQName(
+    prefix: string,
     name: string
-  ): Promise<QName> {
-    return [await prefix, name];
+  ): QName {
+    return [prefix, name];
   }
 
   /**
    * Helper function to obtain the namespace IRI of an asynchronously
    * obtained structure model.
    */
-  async getModelNamespace(model: Promise<StructureModel>) {
-    return (await model)?.namespace ?? null;
+  getModelNamespace(model: StructureModel) {
+    return model?.namespace ?? null;
   }
 
   /**
    * Helper function to obtain the namespace prefix of an asynchronously
    * obtained structure model.
    */
-  async getModelPrefix(model: Promise<StructureModel>) {
-    return (await model)?.namespacePrefix ?? null;
+  getModelPrefix(model: StructureModel) {
+    return model?.namespacePrefix ?? null;
   }
 
   /**
@@ -318,66 +324,60 @@ class XmlSchemaAdapter {
   getAnnotation(
     data: StructureModelClass | StructureModelProperty
   ): XmlSchemaAnnotation {
-    const lines = [];
-    if (data.cimIri != null) {
-      lines.push(`Význam: ${data.cimIri}`);
-    }
-    if (data.humanLabel != null) {
-      for (const lang of Object.keys(data.humanLabel)) {
-        lines.push(`Název (${lang}): ${data.humanLabel[lang]}`);
-      }
-    }
-    if (data.humanDescription != null) {
-      for (const lang of Object.keys(data.humanDescription)) {
-        lines.push(`Popis (${lang}): ${data.humanDescription[lang]}`);
-      }
-    }
-    return lines.length == 0 ? null : {
+    return (!data.cimIri && Object.values(data?.humanLabel ?? {}).length === 0 && Object.values(data?.humanDescription ?? {}).length === 0) ? null : {
       modelReference: data.cimIri,
-      documentation: lines.join("\n")
+      metaTitle: data.humanLabel,
+      metaDescription: data.humanDescription,
+      structureModelEntity: data
     }
   }
 
   /**
    * Produces an element description from a structure model class.
    */
-  classToElement(classData: StructureModelClass): XmlSchemaElement {
+  async classToElement(classData: StructureModelClass): Promise<XmlSchemaElement> {
     return {
-      elementName: this.resolveImportedClassName(classData),
+      entityType: "element",
+      name: await this.resolveImportedClassName(classData),
       type: {
+        entityType: "type",
         name: null,
-        complexDefinition: this.classToComplexType(
+        complexDefinition: await this.classToComplexType(
           classData,
           this.options.rootClass
         ),
         annotation: this.getAnnotation(classData),
-      } as XmlSchemaComplexType,
+        mixed: false,
+        abstract: null,
+      } satisfies XmlSchemaComplexType,
       annotation: null,
-    };
+    } as XmlSchemaElement;
   }
 
-  rootToElement(root: StructureModelSchemaRoot): XmlSchemaElement {
+  async rootToElement(root: StructureModelSchemaRoot): Promise<XmlSchemaElement> {
     const classes = root.classes;
 
     if (classes.length === 1 && !root.isInOr) {
-      return this.classToElement(classes[0]);
+      return await this.classToElement(classes[0]);
     }
 
-    const [el, name] = this.oRToSingleType(classes, true, undefined, undefined, root.isInOr);
+    const [el, _] = await this.oRToSingleType(classes, true, undefined, undefined, root.isInOr);
     const complexType = {
+      entityType: "type",
       name: [null, root.orTechnicalLabel],
       complexDefinition: el,
       annotation: null,
     } as XmlSchemaComplexType;
     this.types[root.orTechnicalLabel] = complexType;
     return {
-      elementName: [null, root.orTechnicalLabel],
+      entityType: "element",
+      name: [null, root.orTechnicalLabel],
       type: {
         name: [this.model.namespacePrefix, root.orTechnicalLabel],
         annotation: null
       },
       annotation: null,
-    };
+    } as XmlSchemaElement;
   }
 
   /**
@@ -386,18 +386,19 @@ class XmlSchemaAdapter {
    * @param extractOptions The extraction options for this class.
    * @param skipIri True whether to omit &lt;iri&gt; in the result.
    */
-  classToComplexType(
+  async classToComplexType(
     classData: StructureModelClass,
     extractOptions: ExtractOptions,
     skipIri?: boolean
-  ): XmlSchemaComplexItem {
+  ): Promise<XmlSchemaComplexItem> {
     skipIri ||= classData.instancesHaveIdentity === "NEVER";
     if (this.classIsImported(classData)) {
       // For an imported type, construct a reference to its group.
-      const name = this.resolveImportedClassName(classData);
+      const name = await this.resolveImportedClassName(classData);
       const groupRef: XmlSchemaComplexGroup = {
         xsType: "group",
         name: name,
+        referencesStructure: classData.structureSchema,
       };
       if (skipIri) {
         return groupRef;
@@ -405,9 +406,9 @@ class XmlSchemaAdapter {
         return this.getIriSequence(groupRef);
       }
     }
-    const contents = classData.properties.map(
+    const contents = await Promise.all(classData.properties.map(
       this.propertyToComplexContent, this
-    );
+    ));
     const contentsSequence: XmlSchemaComplexSequence = {
       xsType: "sequence",
       contents: contents,
@@ -417,13 +418,15 @@ class XmlSchemaAdapter {
       const groupName = classData.technicalLabel;
 
       this.groups[groupName] = {
-        name: groupName,
+        entityType: "groupDefinition",
+        name: [null, groupName],
         definition: contentsSequence,
-      };
+      } as XmlSchemaGroupDefinition;
 
       const groupRef: XmlSchemaComplexGroup = {
         xsType: "group",
         name: [this.model.namespacePrefix, groupName],
+        referencesStructure: null,
       };
       if (skipIri) {
         return groupRef;
@@ -464,13 +467,13 @@ class XmlSchemaAdapter {
    *  - <xs:element minOccurs="0" maxOccurs="unbounded" name="capacity" type="xs:string"/>
    *  - <xs:sequence>...</xs:sequence>
    */
-  propertyToComplexContent(
+  async propertyToComplexContent(
     propertyData: StructureModelProperty
-  ): XmlSchemaComplexContent {
+  ): Promise<XmlSchemaComplexContent> {
     const elementContent: XmlSchemaComplexContentElement = {
       cardinalityMin: propertyData.cardinalityMin ?? 0,
       cardinalityMax: propertyData.cardinalityMax,
-      element: this.propertyToElement(propertyData),
+      element: await this.propertyToElement(propertyData),
     };
     if (propertyData.dematerialize) {
       const type = elementContent.element.type;
@@ -495,7 +498,7 @@ class XmlSchemaAdapter {
   /**
    * Produces an element definition from a property.
    */
-  propertyToElement(propertyData: StructureModelProperty): XmlSchemaElement {
+  async propertyToElement(propertyData: StructureModelProperty): Promise<XmlSchemaElement> {
     let dataTypes = propertyData.dataTypes;
     if (dataTypes.length === 0) {
       throw new Error(
@@ -507,12 +510,16 @@ class XmlSchemaAdapter {
 
     if (everyClassIsReferenced && propertyData.orTechnicalLabel) {
       return {
-        elementName: [null, propertyData.technicalLabel],
+        entityType: "element",
+        name: [null, propertyData.technicalLabel],
         type: {
-          name: this.resolveImportedOrName(propertyData),
-        } as XmlSchemaSimpleType,
+          entityType: "type",
+          name: await this.resolveImportedOrName(propertyData),
+          annotation: null,
+          simpleDefinition: null,
+        } satisfies XmlSchemaSimpleType,
         annotation: this.getAnnotation(propertyData),
-      };
+      } as XmlSchemaElement;
     }
 
     // Treat codelists as URIs
@@ -520,13 +527,13 @@ class XmlSchemaAdapter {
     // Enforce the same type (class or datatype)
     // for all types in the property range.
     const result =
-      this.propertyToElementCheckType(
+      await this.propertyToElementCheckType(
         propertyData,
         dataTypes,
         type => type.isAssociation(),
         this.classPropertyToType
       ) ??
-      this.propertyToElementCheckType(
+      await this.propertyToElementCheckType(
         propertyData,
         dataTypes,
         type => type.isAttribute(),
@@ -563,21 +570,22 @@ class XmlSchemaAdapter {
    * @param typeConstructor The function constructing the type.
    * @returns The element with the type created by {@link typeConstructor}.
    */
-  propertyToElementCheckType(
+  async propertyToElementCheckType(
     propertyData: StructureModelProperty,
     dataTypes: StructureModelType[],
     rangeChecker: (rangeType: StructureModelType) => boolean,
     typeConstructor: (
       propertyData: StructureModelProperty,
       dataTypes: StructureModelType[]
-    ) => XmlSchemaType
-  ): XmlSchemaElement | null {
+    ) => Promise<XmlSchemaType>
+  ): Promise<XmlSchemaElement | null> {
     if (dataTypes.every(rangeChecker)) {
       return {
-        elementName: [null, propertyData.technicalLabel],
-        type: typeConstructor.call(this, propertyData, dataTypes),
+        entityType: "element",
+        name: [null, propertyData.technicalLabel],
+        type: await typeConstructor.call(this, propertyData, dataTypes),
         annotation: this.getAnnotation(propertyData),
-      };
+      } as XmlSchemaElement;
     }
     return null;
   }
@@ -585,17 +593,18 @@ class XmlSchemaAdapter {
   /**
    * Creates a complex type from a class property.
    */
-  classPropertyToType(
+  async classPropertyToType(
     propertyData: StructureModelProperty,
     dataTypes: StructureModelComplexType[]
-  ): XmlSchemaComplexType {
-    const [definition, name, abstract] = this.classPropertyToComplexDefinition(
+  ): Promise<XmlSchemaComplexType> {
+    const [definition, name, abstract] = await this.classPropertyToComplexDefinition(
       propertyData, dataTypes
     );
     const dataTypeAnnotation = this.getAnnotation(dataTypes[0].dataType);
     if (name != null) {
       // The type has a name; define it and use its name.
       const complexType: XmlSchemaComplexType = {
+        entityType: "type",
         name: [null, name],
         mixed: false,
         abstract: abstract,
@@ -604,6 +613,7 @@ class XmlSchemaAdapter {
       };
       this.types[name] = complexType;
       return {
+        entityType: "type",
         name: [this.model.namespacePrefix, name],
         mixed: false,
         abstract: abstract,
@@ -612,6 +622,7 @@ class XmlSchemaAdapter {
       };
     }
     return {
+      entityType: "type",
       name: null,
       mixed: false,
       abstract: abstract,
@@ -624,13 +635,13 @@ class XmlSchemaAdapter {
    * Produces a complex type definition from a class property, and other
    * information for its complex content item.
    */
-  classPropertyToComplexDefinition(
+  async classPropertyToComplexDefinition(
     propertyData: StructureModelProperty,
     dataTypes: StructureModelComplexType[]
-  ): [definition: XmlSchemaComplexItem, name: string, abstract: boolean] {
+  ): Promise<[definition: XmlSchemaComplexItem, name: string, abstract: boolean]> {
     const skipIri: boolean = propertyData.dematerialize;
 
-    const [el, name] = this.oRToSingleType(dataTypes.map(t => t.dataType) , true, skipIri, propertyData.orTechnicalLabel, propertyData.isInOr);
+    const [el, name] = await this.oRToSingleType(dataTypes.map(t => t.dataType) , true, skipIri, propertyData.orTechnicalLabel, propertyData.isInOr);
 
     return [el, name, false];
   }
@@ -639,18 +650,18 @@ class XmlSchemaAdapter {
    * Converts multiple classes in OR relation to a single type.
    * The second argument specifies whether the or is exclusive or not.
    */
-  oRToSingleType(
+  async oRToSingleType(
     classes: StructureModelClass[],
     exclusive: boolean,
     skipIri?: boolean,
     orTechnicalLabel?: string,
     isInOr?: boolean,
-  ): [XmlSchemaComplexItem, string | null] {
+  ): Promise<[XmlSchemaComplexItem, string | null]> {
     if (classes.length === 1 && !isInOr) {
       const typeClass = classes[0];
       const name =
         this.options.otherClasses.extractType ? typeClass.technicalLabel : null;
-      const classItem = this.classToComplexType(
+      const classItem = await this.classToComplexType(
         typeClass, this.options.otherClasses, skipIri
       );
       return [classItem, name];
@@ -679,10 +690,11 @@ class XmlSchemaAdapter {
 
     for (const classData of classes) {
       if (!classData.isReferenced) {
-        const definition = this.classToComplexType(
+        const definition = await this.classToComplexType(
           classData, this.options.otherClasses, skipIri
         );
         const complexType: XmlSchemaComplexType = {
+          entityType: "type",
           name: [null, classData.technicalLabel],
           mixed: false,
           abstract: false,
@@ -696,59 +708,27 @@ class XmlSchemaAdapter {
         cardinalityMin: 1,
         cardinalityMax: 1,
         element: {
-          elementName: [null, classData.technicalLabel],
+          entityType: "element",
+          name: [null, classData.technicalLabel],
           annotation: null,
           type: {
             name: [this.model.namespacePrefix, classData.technicalLabel],
             annotation: null
           }
-        }
+        } as XmlSchemaElement
       } as XmlSchemaComplexContentElement);
     }
 
     return [root, null];
   }
 
-  // /**
-  //  * Select the single class from the list of root classes and create its
-  //  * complex item, or construct a new complex item from them all.
-  //  * @param roots The array of base root classes.
-  //  * @returns A tuple of the single selected class or null, the created
-  //  * complex item, and the name of the root type, if newly created.
-  //  */
-  // pickChoiceRoot(
-  //   roots: StructureModelClass[]
-  // ): [
-  //   rootClass: StructureModelClass | null,
-  //   root: XmlSchemaComplexItem,
-  //   rootName: string
-  // ] {
-  //   if (roots.length == 1) {
-  //     const classData = roots[0];
-  //     return [
-  //       classData,
-  //       this.classToComplexType(
-  //         classData, this.options.otherClasses
-  //       ),
-  //       classData.technicalLabel
-  //     ];
-  //   }
-  //   const name = "_" + roots.map(cls => cls.technicalLabel).join("_");
-  //   return [null, {
-  //     xsType: "sequence",
-  //     contents: [
-  //       iriProperty
-  //     ]
-  //   } as XmlSchemaComplexSequence, name];
-  // }
-
   /**
    * Creates a simple type from a datatype property.
    */
-  datatypePropertyToType(
+  async datatypePropertyToType(
     propertyData: StructureModelProperty,
     dataTypes: StructureModelPrimitiveType[]
-  ): XmlSchemaType {
+  ): Promise<XmlSchemaType> {
     if (dataTypes.length === 1 && !propertyData.isInOr) {
       if (dataTypes[0].regex && dataTypes[0].dataType === OFN.string) { // todo: check whether regex is shown
         return {
@@ -764,12 +744,14 @@ class XmlSchemaAdapter {
       };
 
       return {
+        entityType: "type",
         name: this.primitiveToQName(dataTypes[0]),
         annotation: null, // No annotation for primitive types.
       };
     }
     // Use the union of all the datatypes.
     const simpleType: XmlSchemaSimpleType = {
+      entityType: "type",
       name: null,
       annotation: null,
       simpleDefinition: {

@@ -19,7 +19,7 @@ export function prepareDataSpecification(
       conceptualModel === undefined,
       `Missing conceptual model ${context.specification.pim}.`
     );
-  
+
     const structureModels = context.specification.psms.map(psm => generatorContext.structureModels[psm]);
     conceptualModel = filterByStructural(conceptualModel, structureModels);
 
@@ -61,14 +61,18 @@ export function prepareDataSpecification(
                 return label.replace(/ /g, "-").toLowerCase();
             }
 
+            const entity = this as ConceptualModelClass | ConceptualModelProperty;
+            const iri = entity.cimIri ?? null;
+            const iriSuffix = iri ? `-${iri}` : "";
+
             if (this instanceof ConceptualModelClass) {
                 const label = this.humanLabel?.cs ?? this.humanLabel?.en ?? "";
-                return `konceptuální-třída-${normalizeLabel(label)}`;
+                return `konceptuální-třída-${normalizeLabel(label)}${iriSuffix}`;
             } else if (this instanceof ConceptualModelProperty) {
                 const parentClass = Object.values(conceptualModel.classes).find(c => c.properties.find(p => p.pimIri === this.pimIri))!;
                 const parentLabel = parentClass.humanLabel?.cs ?? parentClass.humanLabel?.en ?? "";
                 const label = this.humanLabel?.cs ?? this.humanLabel?.en ?? "";
-                return `konceptuální-vlastnost-${normalizeLabel(parentLabel)}-${normalizeLabel(label)}`;
+                return `konceptuální-vlastnost-${normalizeLabel(parentLabel)}-${normalizeLabel(label)}${iriSuffix}`;
             }
         },
     }

@@ -1,4 +1,6 @@
+import { StructureModel } from "@dataspecer/core/structure-model/model/structure-model";
 import { QName } from "../conventions";
+import { LanguageString } from "@dataspecer/core/core/core-resource";
 
 /**
  * Represents an xs:schema definition.
@@ -53,17 +55,19 @@ export class XmlSchemaImportDeclaration {
   /**
    * The namespace prefix used by the schema.
    */
-  prefix: Promise<string | null>;
+  prefix: string | null;
 
   /**
    * The namespace IRI used by the schema.
    */
-  namespace: Promise<string | null>;
+  namespace: string | null;
 
   /**
    * The location of the schema file.
    */
   schemaLocation: string;
+
+  model: StructureModel | null;
 }
 
 /**
@@ -86,19 +90,35 @@ export class XmlSchemaAnnotation {
   modelReference: string | null;
 
   /**
-   * The xs:documentation content of the annotation.
+   * The title of the annotation for non-technical use.
    */
-  documentation: string | null;
+  metaTitle: LanguageString | null;
+
+  /**
+   * The description of the annotation for non-technical use.
+   */
+  metaDescription: LanguageString | null;
+
+  structureModelEntity?: any;
+}
+
+export interface XmlNamedEntity {
+  /**
+   * XML name attribute of the entity.
+   */
+  name: QName | null;
 }
 
 /**
  * Represents a top-level xs:group definition.
  */
-export class XmlSchemaGroupDefinition {
+export class XmlSchemaGroupDefinition implements XmlNamedEntity {
+  entityType: "groupDefinition";
+
   /**
    * The name of the group.
    */
-  name: string | null;
+  name: QName | null;
 
   /**
    * The item which serves as the definition of the group.
@@ -109,12 +129,10 @@ export class XmlSchemaGroupDefinition {
 /**
  * Represents an xs:element definition.
  */
-export class XmlSchemaElement extends XmlSchemaAnnotated {
-  /**
-   * The name of the element as a {@link QName}; may be a promise
-   * if the prefix is externally defined.
-   */
-  elementName: QName | Promise<QName>;
+export class XmlSchemaElement extends XmlSchemaAnnotated implements XmlNamedEntity {
+  entityType: "element";
+
+  name: QName;
 
   /**
    * The type of the element.
@@ -125,7 +143,9 @@ export class XmlSchemaElement extends XmlSchemaAnnotated {
 /**
  * Represents an xs:simpleType or xs:complexType.
  */
-export class XmlSchemaType extends XmlSchemaAnnotated {
+export class XmlSchemaType extends XmlSchemaAnnotated implements XmlNamedEntity {
+  entityType: "type";
+
   /**
    * The name of the type, or null if the type is inline.
    */
@@ -223,11 +243,13 @@ export class XmlSchemaComplexAll extends XmlSchemaComplexContainer {
 export class XmlSchemaComplexGroup extends XmlSchemaComplexItem {
   declare xsType: "group";
 
+  name: QName;
+
   /**
-   * The name of the group as a {@link QName}; may be a promise
-   * if the prefix is externally defined.
+   * In case this group is a reference to group from another schema, this is the reference.
+   * Structure model ID
    */
-  name: QName | Promise<QName>;
+  referencesStructure: string | null;
 }
 
 /**

@@ -14,9 +14,12 @@ export const KNOWN_DATA_TYPES = {
   [OFN_TYPE_PREFIX + "text"]: "text",
 };
 
+const ZERO_WIDTH_SPACE = "\u200B";
+
 export class PlantUml {
   private conceptualModel: ConceptualModel;
   public preferredLanguage = "cs";
+  private registeredNameIdentifiers: Record<string, (ConceptualModelClass | ConceptualModelProperty)[]> = {};
 
   public constructor(conceptualModel: ConceptualModel) {
     this.conceptualModel = conceptualModel;
@@ -24,6 +27,7 @@ export class PlantUml {
 
   /**
    * Returns class identifier for PlantUML that is also a name
+   * If escape is false, that means that the name is NOT an identifier
    */
   private getEntityPlantUMLIdentifier(cls: ConceptualModelClass | ConceptualModelProperty, escape: boolean = true): string {
     let name = cls.humanLabel?.[this.preferredLanguage];
@@ -35,6 +39,17 @@ export class PlantUml {
     }
     if (name === undefined) {
       name = cls.pimIri;
+    }
+
+    if (escape) {
+      if (this.registeredNameIdentifiers[name] === undefined) {
+        this.registeredNameIdentifiers[name] = [cls];
+      }
+      const entitiesWithSameName = this.registeredNameIdentifiers[name]!;
+      if (!entitiesWithSameName.includes(cls)) {
+        entitiesWithSameName.push(cls);
+      }
+      name += ZERO_WIDTH_SPACE.repeat(entitiesWithSameName.indexOf(cls));
     }
 
     // If name contains spaces or special characters, enclose in double quotes

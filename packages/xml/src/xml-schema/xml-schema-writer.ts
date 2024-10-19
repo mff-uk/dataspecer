@@ -78,8 +78,8 @@ async function writeSchemaBegin(
   const registered: Record<string, string> = {};
 
   for (const importDeclaration of model.imports) {
-    const namespace = await importDeclaration.namespace;
-    const prefix = await importDeclaration.prefix;
+    const namespace = importDeclaration.namespace;
+    const prefix = importDeclaration.prefix;
     if (
       namespace != null &&
       prefix != null
@@ -134,7 +134,7 @@ async function writeImportsAndDefinitions(
   }
 
   for (const importDeclaration of model.imports) {
-    const namespace = await importDeclaration.namespace;
+    const namespace = importDeclaration.namespace;
     if (namespace == null || namespace === model.targetNamespace) {
       await writer.writeElementFull("xs", "include")(async writer => {
         await writer.writeLocalAttributeValue(
@@ -225,7 +225,7 @@ async function writeGroup(
   writer: XmlWriter
 ): Promise<void> {
   await writer.writeElementFull("xs", "group")(async writer => {
-    await writer.writeLocalAttributeValue("name", group.name);
+    await writer.writeLocalAttributeValue("name", writer.getQName(...group.name));
     await writeComplexContent(group.definition, null, writer);
   });
 }
@@ -255,9 +255,17 @@ async function writeAnnotation(
       "sawsdl", "modelReference", annotation.modelReference
     );
     await writer.writeElementFull("xs", "annotation")(async writer => {
-      await writer.writeElementValue(
-        "xs", "documentation", annotation.documentation
-      );
+      const languages = [...new Set([...Object.keys(annotation.metaTitle ?? {}), ...Object.keys(annotation.metaDescription ?? {})])].sort();
+      for (const language of languages) {
+        await writer.writeElementFull("xs", "documentation")(async writer => {
+          await writer.writeLocalAttributeValue("xml:lang", language);
+          const title = annotation.metaTitle?.[language];
+          const description = annotation.metaDescription?.[language];
+          await writer.writeText(
+            `${title ?? ""}${title && description ? " - " : ""}${description ?? ""}\n`
+          );
+        });
+      }
     });
   }
 }
@@ -272,7 +280,7 @@ async function writeElement(
 ): Promise<void> {
   await writer.writeElementFull("xs", "element")(async writer => {
     await writeAttributesForComplexContent(parentContent, writer);
-    const name = await element.elementName;
+    const name = element.name;
     if (element.type == null) {
       // An element with no type uses ref to its name.
       await writer.writeLocalAttributeValue(
@@ -287,7 +295,7 @@ async function writeElement(
         // The type is specified in the schema, simply use its name.
         await writer.writeLocalAttributeValue(
           "type",
-          writer.getQName(...await type.name)
+          writer.getQName(...type.name)
         );
         await writeAnnotation(element, writer);
       } else {
@@ -314,7 +322,7 @@ async function writeTypeAttributes(
 ): Promise<void> {
   if (type.name != null) {
     await writer.writeLocalAttributeValue(
-      "name", writer.getQName(...await type.name)
+      "name", writer.getQName(...type.name)
     );
   }
   await writeAnnotation(type, writer);
@@ -384,7 +392,7 @@ async function writeComplexContent(
     await writeAttributesForComplexContent(parentContent, writer);
     if (xmlSchemaComplexTypeDefinitionIsGroup(definition)) {
       await writer.writeLocalAttributeValue(
-        "ref", writer.getQName(...await definition.name)
+        "ref", writer.getQName(...definition.name)
       );
     } else if (
       xmlSchemaComplexTypeDefinitionIsSequence(definition) ||

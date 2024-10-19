@@ -14,6 +14,9 @@ function handleEditorWillMount(m: typeof monaco) {
       'editor.background': '#0a0a0a',
     }
   });
+  m.languages.json.jsonDefaults.setDiagnosticsOptions({
+    enableSchemaRequest: true,
+  });
 }
 
 export const MonacoEditor: FC<{
