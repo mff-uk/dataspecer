@@ -386,7 +386,7 @@ This section provides steps for local build of the entire Dataspecer repository.
    1. Navigate to `applications/client` (from mono repository root directory)
    2. Run `npm run start` to run specification editor locally
    3. Create a data specification according to [this tutorial](https://dataspecer.com/docs/tutorial/basic-schema/)
-
+   4. Continue with the next steps as mentioned in the [User manual](#user-manual----how-to-generate-an-application-prototype) section of this document.
 
 # Dependencies
 
