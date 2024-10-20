@@ -1,5 +1,6 @@
 ---
 title: "Genapp -- Data-model based generator of an application prototype"
+author: Viktor Bujko
 menu:
   docs:
     parent: "projects"
@@ -126,6 +127,15 @@ Each Application Graph __Edge__ is specified as follows:
     - `"redirect"` -- generates a transition, which is triggered automatically after a condition is met (e.g. when create capability finishes successfully, a redirect to list capability is triggered).
     - `"aggregation"` -- __NOTE:__ This type of edge transition is not supported in the current version of Genapp tool.
 
+The specification of application graph edges is further refined by the meaning / usefulness of a transition in the generated prototype. For example, a transition from an aggregate creation node to the same aggregate edit node is not really meaningful as the instance has not even been created yet. For an aggregate, we therefore define the set of supported edges, which are meaningful for the end user. Only these edges are allowed to be generated. Please refer to the table below to find out the allowed transitions between different nodes. Rows should be interpreted as source nodes, whereas columns as target nodes.
+In this table:
+- the ✅ symbol indicates a "transition" edge type is allowed between the nodes with given capabilities,
+- the ↪️ symbol indicates a "redirect" edge type is allowed between the nodes with given capabilities,
+- the ❌ symbol indicates that the transition is typically not meaningful for the end user, and is not allowed
+
+{{% tutorial-image "images/projects/genapp/allowed-transitions.png" %}}
+
+
 Below are the examples of an application graph node, an edge and a datasource (in respective order):
 
 ```json
@@ -185,7 +195,7 @@ user has to perform a set of the following steps:
 
 Note / Tip: For easier and faster navigation in the following step, it is recommended to add a tag to a data specification, or copy the data specification IRI (this option is available on data specfication detail screen).
 
-## Using Dataspecer manager
+## Using Dataspecer manager to launch generator
 
 1. Once the user has created or chosen a data specification to work with, the next step is to navigate to [_Dataspecer manager tool_](https://tool.dataspecer.com/manager/) -- (<https://tool.dataspecer.com/manager>).
 
@@ -200,7 +210,7 @@ Please refer to the screenshots below for an illustration.
 
 {{% tutorial-image "images/projects/genapp/sample-graph-dialog.png" %}}
 
-## Application graph
+### Create an Application Graph
 
 As mentioned in the previous step, the created application graph is empty and does _not_ contain any nodes / edges to be generated. Therefore, the user is required to complete the application graph which complies with the specified application graph schema. By modifying the empty application graph, the user is able to capture and express the requirements on the generated application prototype.
 
@@ -245,10 +255,94 @@ The generated application prototype is currently generated as a [Create React Ap
 
 # Solution overview
 
-- Generated Application Architecture
+In the previous sections, the key concepts were introduced and explained, and a user manual which outlines the expected usage was presented. What now follows is an overview of the architecture of the generated application prototype as well as the architecture of the generator itself.
 
-- Generator architecture
-  - Folder structure
+## Generated Application Architecture
+
+The generated application prototype follows a [Three-Tier architecture](https://www.ibm.com/topics/three-tier-architecture). The generated code is therefore organized into three separate tiers / layers, each with a separate responsibility:
+- Data Access Layer,
+- Application Layer,
+- Presentation Layer.
+
+#### Folder Structure
+
+The folder structure of the generated application prototype also follows this separation, where each of the layers is stored in the corresponding `src` subdirectory:
+- `data-layer`,
+- `application-layer`,
+- `presentation-layer`.
+
+#### Data Access Layer
+
+Data Access Layer is the layer which is responsible for the actual execution of data operations and communication with the specified datasource.
+The generated data access layer contains readers / writers for the nodes specified in the application graph. Moreover, the specific data access implementation corresponds to the format of data specified within application graph datasource.
+
+__NOTE:__ Please note, that only `"rdf"` format data sources are supported despite the possible definition of different formats.
+
+#### Application Layer
+
+Application layer is responsible for the execution logic of corresponding capabilities performed on aggregates. Within the generated application prototype context, the responsibility of the generated application layer is to
+
+#### Presentation Layer
+
+The presentation layer is responsible for visual interaction with a user of the generated prototype. Based on the specific capability, the presentation layer is responsible for displaying data returned from the datasource, or for accepting and processing the input from the user.
+
+Within this project, the generated presentation layer components correspond to the React components.
+
+## Prototype Generator Architecture
+
+### Generator Engine Component
+
+#### `ApplicationGenerator`
+
+The Genapp tool architecture is centered around the `ApplicationGenerator` class located in `src/engine/app-generator.ts` source file. `generate()` method of this class represents the entrypoint to the prototype generator and is in control of the generation process. After the application graph is read and interpreted successfully, the nodes of the graph are being generated.
+
+### Folder Structure
+
+The folder structure of the Genapp tool separates the different generators based on the layer they generate:
+
+#### `app-logic-layer` subdirectory
+
+- This subdirectory contains generators responsible for generation of application layer of a supported capability (i.e. list, detail, create-instance, edit-instance, delete-instance).
+
+#### `capabilities` subdirectory
+
+- This subdirectory contains capabilities definitions. Each capability constructor contains the declaration of the layers that need to be generated for a given capability. This declaration of capability layers is later used by the `GeneratorPipeline` that will be described below.
+
+- Since the generated prototype follows Three-Tier architecture, capabilities define the generator for each of the three layers. However, should the generator be extended with a new capability that has a different layers composition, this is where the new capability definition source file should be stored.
+
+#### `data-layer` subdirectory
+
+- `data-layer` subdirectory contains generators responsible for generation of data access layer for a supported datasource type.
+Data access layer generator factory instantiates a generator for this layer based on the capability to be generated (i.e. the specific operation) as well as the data format specified in the application graph.
+
+#### `engine` subdirectory
+
+This subdirectory contains types and classes which are essential for the generation process management.
+
+- `engine/graph/` subdirectory contains source files related to the definition and interpretation of the Application Graph (i.e. graph, nodes, edges, ...).
+- `engine/templates/` contains the base abstract class for template processing -- `TemplateConsumer`. The classes which inherit from the `TemplateConsumer` and implement the abstract `processTemplate` method define how a specific source code template should be filled in.
+- `engine/generator-pipeline.ts` is a source file which contains the `GeneratorPipeline` class. When instantiated, a collection of stages -- in this case application layers -- is provided. This collection of application layers is later used by the generator engine to generate different application layers for a specific capability.
+
+#### `presentation-layer` subdirectory
+
+- Similarily to the `app-logic-layer` and `data-layer` subdirectories, this subdirectory contains template generators used to generate UI components and their elements for different capabilities.
+
+#### `react-base` subdirectory
+
+- Contains a template generator which is used to generate all the react application scaffolding code needed to build and start the generated application prototype.
+
+#### `utils` subdirectory
+
+- Contains utilityclasses
+
+#### `templates` directory
+
+- The `templates` directory holds all the source code templates used by the Genapp tool to generate the resulting source files. The template subdirectories are organized by the specific capability they support, and within each capability subdirectory, the templates are further divided based on the layer they are intended for.
+
+#### Integration of Generator with Dataspecer
+
+
+#### Missing features & Restrictions
 
 - Generator context, integration and deployment
 
