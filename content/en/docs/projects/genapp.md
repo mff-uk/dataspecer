@@ -7,56 +7,124 @@ weight: 40
 toc: true
 ---
 
+# Key Concepts and Decisions
 
+As stated in the previous section, the aim of this project is to design and implement a tool that can allow a user to automatically generate an application prototype based on a data specification created in Dataspecer. Before generating the actual application prototype code, Dataspecer data specifications were analyzed to determine the scope and range of operations to be generated.
 
-# User manual &ndash; How to generate an application prototype?
+## CRUD Operations
 
-The main goal for a user of the Genapp tool is to generate an application prototype. In order to achieve this goal, the
-user has to perform a set of the following steps:
+The first key concept for the prototype generator is the decision to focus solely on generating __CRUD operations__ -- Create, Read, Update, Delete.
 
-## Data specification and data structure models creation
+CRUD operations are essential building blocks of the majority of information systems. They represent the basic way, in which data can be created, manipulated and managed within a system. Given that most systems require a certain level of consistent data handling, the generation of CRUD operations ensures that the generated application prototype will provide a support for most used and common data interactions.
 
-1. First, the user needs to get a data specification to work with. Using the [Dataspecer tool](https://tool.dataspecer.com/), it is possible to either choose one of the existing specifications from the list or create a specification. Should the user decide to choose one of the existing specifications, then the following steps in this section may be skipped. To create a specfication, the user can click the `Create specification` button, which will lead to the creation of a new, empty, custom-named data specification.
+Additionally, CRUD operations are tightly tied to a data structure that they are performed on, i.e. the static declaration of a data structure. These operations are relatively straightforward with well defined semantic meaning and may be generally applied on most data structures. In order to generate these operations, the generator only needs to consider the static description and is not required to capture any dynamic, context-specific business processes or highly specific data interactions. While infering and generating context-specific operations would make the generated prototype more customized, it might also lead to incorrectly inferred context-specific operations. For this reason, a decision has been made to only support the generation of CRUD operations, which can, however, be applied in broader contexts.
 
-2. To create a custom specification, which will be later used for application prototype generator, you can follow [this tutorial](https://dataspecer.com/docs/tutorial/basic-schema/) despite slight changes in Dataspecer tool UI.
+Therefore, CRUD operations are ideal candidates for operations to be generated within automatic application prototype generator, regardless of the specific data specification context or its domain.
 
-Note / Tip: For easier and faster navigation in the following step, it is recommended to add a tag to a data specification, or copy the data specification IRI (this option is available on data specfication detail screen).
+## Capability and Aggregate Concepts
 
-## Using Dataspecer manager
+In the previous section, we stated the reason why the operations supported by application prototype generator are limited to the CRUD operations. However, from the perspective of the user of the generated application prototype, it is usually not necessary to generate all CRUD operations for all data structures defined in a data specification. The necessity of performing an operation depends on the specific use case and role of the data structure. While some data structures serve mainly for the purpose of data creation and modification, others may be used only as various ways to display processed data.
 
-1. Once the user has created or chosen a data specification to work with, the next step is to navigate to _Dataspecer manager tool_ available under [this link](https://tool.dataspecer.com/manager/) or as https://tool.dataspecer.com/manager.
+The need for flexible operation selection has been reflected in the design of the prototype generator, which allows the generator's user to configure the subset of operations to be generated for each data structure. While the specific process will be presented later in this document, we now define two key concepts needed in order to be able to use Genapp tool.
 
-2. Within the Dataspecer manager, the user needs to find and access the data specfication created / chosen in the previous step. To find the data specification in the list of all available specifications, use the tag or the data specification IRI saved in the previous step. Once the data specification is found, click the "+" button on the right side and choose "Application graph" option from the proposed options list.
-Please refer to the screenshots below for an illustration.
+__Capability:__ A _capability_ is a _type of CRUD operation_, which is relevant within the context of the generated application prototype.
 
-{{% tutorial-image "images/projects/genapp/data-specification-selection.png" %}}
+Simply put, each capability represents an operation performed on a data structure, which is meaningful for the user of the generated prototype and for which it makes sense to be generated.
 
-{{% tutorial-image "images/projects/genapp/app-graph-menu.png" %}}
+__Aggregate:__ An _aggregate_ refers to a _data structure_ defined in a data specification, which is the subject of a specific capability, i.e. the data structure on which the specific operation is performed and for which it makes sense to be included in a generated application prototype.
 
-3. After clicking the `Application graph` button, the user is asked to provide a language-tagged graph name and description. These serve only for easier graph identification within the data specification artifacts list. Click on the `Save changes` button once application graph name is provided. This will lead to a creation of an empty application graph which _needs to be edited_ in order to generate a useful application prototype.
+## Application Graph
 
-{{% tutorial-image "images/projects/genapp/sample-graph-dialog.png" %}}
+By association of capabilities with aggregates, the prototype generator user is given a key tool to specify the model of the application that should be generated by the generator.
 
-## Application graph definition
+The set of (capability, aggregate) tuples defines essential functional units of the generated application prototype. Each such pair results in an generated capability specific for the aggregate. Although the generator could already generate a prototype, the generated functional units would be isolated from each other.
+Therefore, this concept needs to be extended to provide a way to interconnect different functional units.
+This extension leads to the definition of application graph:
 
-As mentioned in the previous step, the created application graph is empty and does _not_ contain any nodes / edges to be generated. Therefore, the user is required to complete the application graph which complies with the specified application graph schema. By modifying the empty application graph, the user is able to capture and express the requirements on the generated application prototype.
+__Application Graph:__ An application graph is a directed graph, which represents a model of the application prototype to be generated.
 
-1. Once the previous step is completed and an empty application graph created, find again the data specification in the Dataspecer manager tool and click on the ">" symbol on the left side of the screen.
-(Tip: Select "Recently modified first" option on the top of the manager window to be able to quickly find the data specification).
+Per the definition, an application graph contains nodes and edges, where:
+- nodes -- set of (capability, aggregate) tuples,
+- edges -- set of directed transitions between nodes.
 
-2. The list of available artifacts for the data specification now contains the empty application graph artifact with the name defined in previous steps. To modify application graph content, click on the "three dots" icon next to the `Generate the application` button on the right side of the screen. Then, click the `Modify raw data` button as shown in the screenshot below.
+Each node represented in the application graph corresponds to a separate and isolated functional unit to be generated. The capability of a node indicates the operation to be generated and aggregate corresponds to a data structure on which the capability should be performed on.
 
-{{% tutorial-image "images/projects/genapp/app-graph-definition-choice.png" %}}
+Each edge tells the generator that the generator user wants to be able to transfer between nodes and thus create an interaction within the generated prototype.
 
-3. An application graph editor will open. The user is now able to edit the JSON format definition of the application graph according to the application graph schema. To facilitate the definition of the application graph, it is highly advised to use its JSON schema &ndash; application graph specification. The user can import the schema to the editor by pasting the following line into the graph editor.
+Since the __Application Graph__ is one of the two inputs of the application prototype generator, it is the __fundamental concept__ needed to be able to work with Genapp application prototype generator tool.
 
-```json
-"$schema": "https://schemas.dataspecer.com/adapters/application-graph-model.v1.0.schema.json"
+### Application Graph Specification
+
+The Application Graph can be defined as a document in JSON format with the structure specified by the [JSON schema](https://schemas.dataspecer.com/adapters/application-graph-model.v1.0.schema.json) or available within [Dataspecer -- Application Graph specification](https://tool.dataspecer.com/specification?dataSpecificationIri=https%3A%2F%2Fofn.gov.cz%2Fdata-specification%2F6148f38e-b688-4c43-9b24-5bc67075a871). The Application Graph interface is translated to the following set of Typescript types:
+
+```ts
+interface ApplicationGraphType {
+    label: string;
+    dataSpecification: string;
+    datasources: Datasource[];
+    nodes: ApplicationGraphNodeType[];
+    edges: ApplicationGraphEdge[];
+}
+
+type ApplicationGraphNodeType = {
+    iri: string;
+    label: LanguageString; // mapping { [ language: string ]: string }
+    structure: string;
+    capability: string;
+    config: NodeConfiguration;
+}
+
+type ApplicationGraphEdge = {
+    iri: string;
+    source: string;
+    target: string;
+    type: ApplicationGraphEdgeType; // enumeration with values "aggregation", "redirect", "transition"
+}
+
+type NodeConfiguration = {
+    starting?: boolean,
+    pageTitle?: LanguageString,
+} & Record<string, any>;
+
+type Datasource = {
+    label: string;
+} & {
+    format: "json" | "rdf" | "csv" | "xml" | "local";
+    endpoint: string | {
+        read: string;
+        write: string;
+    }
+};
 ```
 
-Using the [JSON schema of the application graph](https://schemas.dataspecer.com/adapters/application-graph-model.v1.0.schema.json), the editor will be able to better suggest missing properties and will provide examples of expected values.
+Each __Application Graph__ contains the following properties:
+- `label` represents a graph name or human-readable graph reference,
+- `dataSpecification` string has to contain the [IRI](https://www.oxfordsemantic.tech/faqs/what-is-an-iri-what-does-iri-mean) of the Dataspecer data specification, for which the application will be generated. Data specification IRI can be retrieved from data specification detail found in Dataspecer specification manager.
+- `datasources` represents a collection of objects, where each object describes, where the actual data for the application should be retrieved from / written to. Additionally, it also defines the format of data, and thus specifies the type of the data layer to be generated.
+__NOTE:__ Currently, only first datasource in this collection is considered. Additionally, only `"rdf"` format endpoints are supported despite the possible definition of different formats.
+- `nodes` is a collection of application graph nodes. The more detailed description follows below.
+- `edges` is a collection of application graph edges. The more detailed description follows below.
 
-4. Within the editor, complete the application graph definition by adding all desired application nodes (i.e. functional application units), application edges (i.e. transitions between different nodes) as well as the description of a data source.
+Each Application Graph __Node__ is specified as follows:
+- `iri` is a graph node identifier, which _has to be unique_ within a graph. The supported pattern for node IRI is `"https://example.org/application_graph/nodes/<decimal identifier>"`. A graph with duplicate node IRI identifiers will be considered invalid and will not generate any application prototype.
+- `label` is a user-defined language-mapped label for given node. It serves for human-readable node identification.
+- `config` represents an object for custom node configuration. Currently, using the config, the user can set a custom, lanugage-mapped node title, which will be used by the generator to customize the generated UI of the given node.
+- `structure` refers to an aggregate IRI, which comes from Dataspecer data specification and which is subject to the capability of this node. Structure IRI has to match pattern `"https://ofn.gov.cz/schema/<ID of the structure model from Dataspecer>"`.
+- `capability` refers to the capability to be performed on the aggregate of this node. Capability IRI has to match one of the following values:
+    - `"https://dataspecer.com/application_graph/capability/list"`,
+    - `"https://dataspecer.com/application_graph/capability/detail"`,
+    - `"https://dataspecer.com/application_graph/capability/create-instance"`,
+    - `"https://dataspecer.com/application_graph/capability/edit-instance"`,
+    - `"https://dataspecer.com/application_graph/capability/delete-instance"`.
+
+Each Application Graph __Edge__ is specified as follows:
+- `iri` is a graph edge identifier, which _has to be unique_ within a graph. The supported pattern for edge IRI is `"https://example.org/application_graph/edges/<decimal identifier>"`. A graph with duplicate edge IRI identifiers will be considered invalid and will not generate any application prototype.
+- `source` refers to the graph node IRI where the transition will begin. Has to match one of the nodes of the graph.
+- `target` refers to the graph node IRI where the transition will end. Has to match one of the nodes of the graph.
+- `type` represents the type of the generated transition edge. Supported values are:
+    - `"transition"` -- generates a UI element in the generated prototype, which the user has to interact with in order to trigger the transition from one node to another (usually a button).
+    - `"redirect"` -- generates a transition, which is triggered automatically after a condition is met (e.g. when create capability finishes successfully, a redirect to list capability is triggered).
+    - `"aggregation"` -- __NOTE:__ This type of edge transition is not supported in the current version of Genapp tool.
 
 Below are the examples of an application graph node, an edge and a datasource (in respective order):
 
@@ -104,6 +172,102 @@ OR
 }
 ```
 
+# User manual -- How to generate an application prototype?
+
+The main goal for a user of the Genapp tool is to generate an application prototype. In order to achieve this goal, the
+user has to perform a set of the following steps:
+
+## Data specification and data structure models creation
+
+1. First, the user needs to get a data specification to work with. Using the [Dataspecer tool](https://tool.dataspecer.com/), it is possible to either choose one of the existing specifications from the list or create a specification. Should the user decide to choose one of the existing specifications, then the following steps in this section may be skipped. To create a specfication, the user can click the `Create specification` button, which will lead to the creation of a new, empty, custom-named data specification.
+
+2. To create a custom specification, which will be later used for application prototype generator, you can follow [this tutorial](https://dataspecer.com/docs/tutorial/basic-schema/) despite slight changes in Dataspecer tool UI.
+
+Note / Tip: For easier and faster navigation in the following step, it is recommended to add a tag to a data specification, or copy the data specification IRI (this option is available on data specfication detail screen).
+
+## Using Dataspecer manager
+
+1. Once the user has created or chosen a data specification to work with, the next step is to navigate to [_Dataspecer manager tool_](https://tool.dataspecer.com/manager/) -- (<https://tool.dataspecer.com/manager>).
+
+2. Within the Dataspecer manager, the user needs to find and access the data specfication created / chosen in the previous step. To find the data specification in the list of all available specifications, use the tag or the data specification IRI saved in the previous step. Once the data specification is found, click the "+" button on the right side and choose "Application graph" option from the proposed options list.
+Please refer to the screenshots below for an illustration.
+
+{{% tutorial-image "images/projects/genapp/data-specification-selection.png" %}}
+
+{{% tutorial-image "images/projects/genapp/app-graph-menu.png" %}}
+
+3. After clicking the `Application graph` button, the user is asked to provide a language-tagged graph name and description. These serve only for easier graph identification within the data specification artifacts list. Click on the `Save changes` button once application graph name is provided. This will lead to a creation of an empty application graph which _needs to be edited_ in order to generate a useful application prototype.
+
+{{% tutorial-image "images/projects/genapp/sample-graph-dialog.png" %}}
+
+## Application graph
+
+As mentioned in the previous step, the created application graph is empty and does _not_ contain any nodes / edges to be generated. Therefore, the user is required to complete the application graph which complies with the specified application graph schema. By modifying the empty application graph, the user is able to capture and express the requirements on the generated application prototype.
+
+1. Once the previous step is completed and an empty application graph created, find again the data specification in the Dataspecer manager tool and click on the ">" symbol on the left side of the screen.
+(Tip: Select "Recently modified first" option on the top of the manager window to be able to quickly find the data specification).
+
+2. The list of available artifacts for the data specification now contains the empty application graph artifact with the name defined in previous steps. To modify application graph content, click on the "three dots" icon next to the `Generate the application` button on the right side of the screen. Then, click the `Modify raw data` button as shown in the screenshot below.
+
+{{% tutorial-image "images/projects/genapp/app-graph-definition-choice.png" %}}
+
+3. An application graph editor will open. The user is now able to edit the JSON format definition of the application graph according to the application graph schema. To facilitate the definition of the application graph, it is highly advised to use its JSON schema -- application graph specification. The user can import the schema to the editor by pasting the following line into the graph editor.
+
+```json
+"$schema": "https://schemas.dataspecer.com/adapters/application-graph-model.v1.0.schema.json"
+```
+
+Using the [JSON schema of the application graph](https://schemas.dataspecer.com/adapters/application-graph-model.v1.0.schema.json), the editor will be able to better suggest missing properties and will provide examples of expected values.
+
+4. Within the editor, complete the application graph definition by adding all desired application nodes (i.e. functional application units), application edges (i.e. transitions between different nodes) as well as the remaining application graph properties. For more detailed graph description, interface and expected values, please refer back to [Application Graph Specification](#application-graph-specification).
+
 5. After all application graph modifications are finished, click on `Save` button and exit the graph editor.
-6. Click on the `Generate the application` button on the right side of the page for the corresponding application graph to start application prototype generation. The application prototype generator has now started generating the application prototype based on the provided data specification and the provided application graph.
-7. Wait for the application generator to finish the process of prototype generation. Once the generation has completed, the generated application source files will be provided to the user as a ZIP archive available for download.
+6. Click the `Generate the application` button on the right side of the page for the corresponding application graph to start application prototype generation.
+The application prototype generator has now started generating the application prototype based on the provided data specification and the provided application graph.
+7. Wait for the application generator to finish the process of prototype generation. Please refer to the next section to learn how to run the generated application prototype.
+
+## Running the generated application prototype
+
+The application prototype generated based on the data specification and the user's definition of an application graph is available as a ZIP archive of generated source files. Therefore, it is important to note that the application is __not__ deployed or executed immediately after having been generated and must be built and ran on the user's local machine.
+
+Therefore, this section provides a brief manual on how to run the generated application on a local machine. The user is advised to use a terminal to install and run the application prototype.
+
+1. Once the generation has completed, the generated application source files will be provided to the user as a ZIP archive available for download. Download the ZIP archive and navigate to the location, where the ZIP has been saved.
+
+2. Extract all files from the ZIP archive.
+
+3. Navigate to `generatedApp` subdirectory, which represents the root directory of the generated application.
+4. If not done so, open the terminal in the `generatedApp` directory.
+5. Run `npm install` command to install application dependencies and wait for the installation to complete.
+6. Run `npm run start` command to start the application prototype.
+
+The generated application prototype is currently generated as a [Create React App](https://create-react-app.dev/) project. `npm run start` command internally starts a local React development server, which is responsible for serving the application locally. Usually, <http://localhost:3000> will be used by the server to serve the application.
+
+# Solution overview
+
+- Generated Application Architecture
+
+- Generator architecture
+  - Folder structure
+
+- Generator context, integration and deployment
+
+- missing features, restrictions
+
+## Local Build Instructions
+
+This section provides steps for local build of the entire Dataspecer repository. The repository is a mono repository -- consists of several different packages, applications and services and its content is not limited to this project.
+
+1. Clone dataspecer repository using `git clone`.
+2. After cloning the mono repository, local config files should be created. Please see individual applications or packages what to do.
+3. Navigate to the mono repository root directory and install all packages using `npm install`.
+4. To be able to run the application prototype, the backend service and dataspecer manager application have to be built:
+   1. Please refer to [backend service documentation](https://github.com/mff-uk/dataspecer/blob/main/services/backend/README.md)
+   2.
+
+
+# Dependencies
+
+- node js (npm) >= v20 recommended
+- dependencies installed by the generated prototype
+- dependencies coming from the dataspecer
