@@ -1,5 +1,5 @@
 ---
-title: "Genapp &ndash; Data-model based generator of an application prototype"
+title: "Genapp -- Data-model based generator of an application prototype"
 menu:
   docs:
     parent: "projects"
@@ -29,13 +29,13 @@ Note / Tip: For easier and faster navigation in the following step, it is recomm
 2. Within the Dataspecer manager, the user needs to find and access the data specfication created / chosen in the previous step. To find the data specification in the list of all available specifications, use the tag or the data specification IRI saved in the previous step. Once the data specification is found, click the "+" button on the right side and choose "Application graph" option from the proposed options list.
 Please refer to the screenshots below for an illustration.
 
-{{% data-spec-found "images/projects/genapp/data-specification-selection.png" %}}
+{{% tutorial-image "images/projects/genapp/data-specification-selection.png" %}}
 
-{{% app-graph-choice "images/projects/genapp/app-graph-menu.png" %}}
+{{% tutorial-image "images/projects/genapp/app-graph-menu.png" %}}
 
 3. After clicking the `Application graph` button, the user is asked to provide a language-tagged graph name and description. These serve only for easier graph identification within the data specification artifacts list. Click on the `Save changes` button once application graph name is provided. This will lead to a creation of an empty application graph which _needs to be edited_ in order to generate a useful application prototype.
 
-{{% app-graph-choice "images/projects/genapp/sample-graph-dialog.png" %}}
+{{% tutorial-image "images/projects/genapp/sample-graph-dialog.png" %}}
 
 ## Application graph definition
 
@@ -46,7 +46,7 @@ As mentioned in the previous step, the created application graph is empty and do
 
 2. The list of available artifacts for the data specification now contains the empty application graph artifact with the name defined in previous steps. To modify application graph content, click on the "three dots" icon next to the `Generate the application` button on the right side of the screen. Then, click the `Modify raw data` button as shown in the screenshot below.
 
-{{% app-graph-definition "images/projects/genapp/app-graph-definition-choice.png" %}}
+{{% tutorial-image "images/projects/genapp/app-graph-definition-choice.png" %}}
 
 3. An application graph editor will open. The user is now able to edit the JSON format definition of the application graph according to the application graph schema. To facilitate the definition of the application graph, it is highly advised to use its JSON schema &ndash; application graph specification. The user can import the schema to the editor by pasting the following line into the graph editor.
 
