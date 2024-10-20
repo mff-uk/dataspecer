@@ -8,6 +8,14 @@ weight: 40
 toc: true
 ---
 
+# Introduction
+
+This documentation has been created to document and provide a solution overview of the Genapp tool -- data-model based application prototype generator, which has been developed as a Research Project at Faculty of Mathematics and Physics, Charles University in Prague.
+
+# Motivation
+
+To better grasp the context and motivation for this project, we briefly introduce Dataspecer -- the tool, which has been developed at the Faculty of Mathematics and Physics and is still being maintained and extended for new features. Dataspecer is a tool which aims to standardize the creation, modeling and management of data specifications.
+
 # Key Concepts and Decisions
 
 As stated in the previous section, the aim of this project is to design and implement a tool that can allow a user to automatically generate an application prototype based on a data specification created in Dataspecer. Before generating the actual application prototype code, Dataspecer data specifications were analyzed to determine the scope and range of operations to be generated.
@@ -111,6 +119,7 @@ Each Application Graph __Node__ is specified as follows:
 - `label` is a user-defined language-mapped label for given node. It serves for human-readable node identification.
 - `config` represents an object for custom node configuration. Currently, using the config, the user can set a custom, lanugage-mapped node title, which will be used by the generator to customize the generated UI of the given node.
 - `structure` refers to an aggregate IRI, which comes from Dataspecer data specification and which is subject to the capability of this node. Structure IRI has to match pattern `"https://ofn.gov.cz/schema/<ID of the structure model from Dataspecer>"`.
+  - __NOTE:__ Genapp tool uses aggregate metadata (such as name of the aggregate) to generate human readable labels. Although Genapp tool is able to distinguish different aggregates with the same name (i.e. two aggregates with different IRI identifiers, but with same name), it is recommended to use __unique aggregate names__.
 - `capability` refers to the capability to be performed on the aggregate of this node. Capability IRI has to match one of the following values:
     - `"https://dataspecer.com/application_graph/capability/list"`,
     - `"https://dataspecer.com/application_graph/capability/detail"`,
@@ -181,6 +190,8 @@ OR
     "format": "rdf"
 }
 ```
+
+{{% tutorial-image "images/projects/genapp/generator-inputs.png" %}}
 
 # User manual -- How to generate an application prototype?
 
@@ -315,6 +326,8 @@ The folder structure of the Genapp tool separates the different generators based
 - `data-layer` subdirectory contains generators responsible for generation of data access layer for a supported datasource type.
 Data access layer generator factory instantiates a generator for this layer based on the capability to be generated (i.e. the specific operation) as well as the data format specified in the application graph.
 
+As already mentioned previously, the current version of the Genapp tool only supports the generation of the data layer source code for a single data format -- RDF format.
+
 #### `engine` subdirectory
 
 This subdirectory contains types and classes which are essential for the generation process management.
@@ -333,20 +346,15 @@ This subdirectory contains types and classes which are essential for the generat
 
 #### `utils` subdirectory
 
-- Contains utilityclasses
+- Contains utility classes
 
 #### `templates` directory
 
 - The `templates` directory holds all the source code templates used by the Genapp tool to generate the resulting source files. The template subdirectories are organized by the specific capability they support, and within each capability subdirectory, the templates are further divided based on the layer they are intended for.
 
-#### Integration of Generator with Dataspecer
+#### Integration of Genapp tool with Dataspecer
 
-
-#### Missing features & Restrictions
-
-- Generator context, integration and deployment
-
-- missing features, restrictions
+Genapp -- application prototype generator tool has been integrated to Dataspecer tools ecosystem as one of its packages and has been deployed to the Dataspecer backend service.
 
 ## Local Build Instructions
 
@@ -356,12 +364,34 @@ This section provides steps for local build of the entire Dataspecer repository.
 2. After cloning the mono repository, local config files should be created. Please see individual applications or packages what to do.
 3. Navigate to the mono repository root directory and install all packages using `npm install`.
 4. To be able to run the application prototype, the backend service and dataspecer manager application have to be built:
-   1. Please refer to [backend service documentation](https://github.com/mff-uk/dataspecer/blob/main/services/backend/README.md)
-   2.
-
+   1. Please refer to [backend service documentation](https://github.com/mff-uk/dataspecer/blob/main/services/backend/README.md) or run the following commands:
+      ```
+      npx turbo run build --filter=backend
+      npm --prefix services/backend run update-database
+      npm --prefix services/backend run start
+      ```
+    2. Build Dataspecer manager by running (from mono repository root directory):
+      ```
+      npx turbo run build --filter=backend
+      cd applications/manager
+      echo 'VITE_BACKEND="http://localhost:3100"' > .env.local
+      npm run dev
+      ```
 
 # Dependencies
 
-- node js (npm) >= v20 recommended
+In order to be able to run the Dataspecer tools, Genapp tool as well as the generated application prototype, the following dependencies should be installed:
+
+- Node.js; (`node -v` should be at least v18.19.0, but v20 is recommended)
+  - npm
 - dependencies installed by the generated prototype
-- dependencies coming from the dataspecer
+  - can be found after downloading the ZIP archive with generated source files and navigating to the `generatedApp/package.json` file.
+
+- dependencies coming from Dataspecer tools
+  - can be found in `package.json` files for corresponding packages
+
+# Source code reference
+
+All source code implemented for the purpose of this research project is available on [Github repository](https://github.com/mff-uk/dataspecer).
+
+The Genapp tool source code can be found at `packages/genapp` directory ([link](https://github.com/mff-uk/dataspecer/tree/main/packages/genapp)).
