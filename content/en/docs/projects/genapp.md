@@ -14,7 +14,12 @@ This documentation has been created to document and provide a solution overview 
 
 # Motivation
 
-To better grasp the context and motivation for this project, we briefly introduce Dataspecer -- the tool, which has been developed at the Faculty of Mathematics and Physics and is still being maintained and extended for new features. Dataspecer is a tool which aims to standardize the creation, modeling and management of data specifications.
+In modern software systems, managing and sharing data across different technologies and platforms can be challenging. These difficulties often come from the variety of ways data structures are designed, differences in how details are represented, and issues with compatibility. To address these challenges, Dataspecer tool has been developed at the Faculty of Mathematics and Physics. Its primary goal is to standardize and streamline the process of creation, modeling and management of data specifications. By having standardized and easily created data specifications, it becomes much easier to ensure that the
+data we work are interoperable.
+
+With ongoing development and new features, Dataspecer tool's functionality is now not limited to the creation and management of data specifications. Dataspecer can also generate various artifacts for data structure models defined within a data specification, all that while maintaining semantic relationships. The data-driven approach, along with the tool’s current features, not only helps with designing and managing data specifications, but also makes it possible to use the generated artifacts for other purposes or serve as an example for entirely new generated artifacts.
+
+The main goal of this project is to design and implement a tool that can automatically generate one such new artifact -- an entire application prototype based on a data specification from Dataspecer. This prototype will help verify whether the data model meets business requirements and can serve as a foundation for further system development.
 
 # Key Concepts and Decisions
 
@@ -363,7 +368,7 @@ This section provides steps for local build of the entire Dataspecer repository.
 1. Clone dataspecer repository using `git clone`.
 2. After cloning the mono repository, local config files should be created. Please see individual applications or packages what to do.
 3. Navigate to the mono repository root directory and install all packages using `npm install`.
-4. To be able to run the application prototype, the backend service and dataspecer manager application have to be built:
+4. To be able to generate an application prototype, the backend service and Dataspecer manager application have to be built:
    1. Please refer to [backend service documentation](https://github.com/mff-uk/dataspecer/blob/main/services/backend/README.md) or run the following commands:
       ```
       npx turbo run build --filter=backend
@@ -377,6 +382,11 @@ This section provides steps for local build of the entire Dataspecer repository.
       echo 'VITE_BACKEND="http://localhost:3100"' > .env.local
       npm run dev
       ```
+5. Since initially the local backend service does not contain any data specification, Dataspecer specification editor has to be started.
+   1. Navigate to `applications/client` (from mono repository root directory)
+   2. Run `npm run start` to run specification editor locally
+   3. Create a data specification according to [this tutorial](https://dataspecer.com/docs/tutorial/basic-schema/)
+
 
 # Dependencies
 
