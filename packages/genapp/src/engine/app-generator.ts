@@ -162,7 +162,7 @@ export class ApplicationGenerator {
      * @returns The buffer containing the generated ZIP archive containing generated application source code.
      */
     async generate(): Promise<Buffer> {
-
+        this.restoreGeneratorState();
         const configReader = ConfigurationReaderFactory.createConfigurationReader(this._args);
         const zipFilename = GenappEnvConfig.TmpOutZipName;
 

@@ -1,7 +1,5 @@
 import * as fs from "fs";
-import { DataSourceType } from "./engine/graph/datasource";
 import { ApplicationGraph, ApplicationGraphType } from "./engine/graph/application-graph";
-import { ApplicationGraphEdgeType } from "./engine/graph/application-graph-edge";
 import { GenappConfiguration } from "./engine/app-generator";
 
 export interface ConfigurationReader {
