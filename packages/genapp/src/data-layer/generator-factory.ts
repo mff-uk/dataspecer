@@ -28,10 +28,10 @@ export const ListTemplateDalGeneratorFactory: DataAccessLayerGeneratorFactory = 
                 specificationIri,
                 datasourceConfig
             ),
-            [DataSourceType.JSON]:  null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("json"),
-            [DataSourceType.XML]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("xml"),
-            [DataSourceType.CSV]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("csv"),
-            [DataSourceType.Local]: null as unknown as DalGeneratorStrategy, //new LocalStorageDalGeneratorStrategy()
+            [DataSourceType.JSON]:  null as unknown as DalGeneratorStrategy,
+            [DataSourceType.XML]:   null as unknown as DalGeneratorStrategy,
+            [DataSourceType.CSV]:   null as unknown as DalGeneratorStrategy,
+            [DataSourceType.Local]: null as unknown as DalGeneratorStrategy,
         };
 
         const generator = generators[datasourceConfig.format];
@@ -53,10 +53,10 @@ export const DetailTemplateDalGeneratorFactory: DataAccessLayerGeneratorFactory 
                 specificationIri,
                 datasourceConfig
             ),
-            [DataSourceType.JSON]:  null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("json"),
-            [DataSourceType.XML]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("xml"),
-            [DataSourceType.CSV]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("csv"),
-            [DataSourceType.Local]: null as unknown as DalGeneratorStrategy, //new LocalStorageDalGeneratorStrategy()
+            [DataSourceType.JSON]:  null as unknown as DalGeneratorStrategy,
+            [DataSourceType.XML]:   null as unknown as DalGeneratorStrategy,
+            [DataSourceType.CSV]:   null as unknown as DalGeneratorStrategy,
+            [DataSourceType.Local]: null as unknown as DalGeneratorStrategy,
         };
 
         const generator = generators[datasourceConfig.format];
@@ -77,10 +77,10 @@ export const DeleteInstanceTemplateGeneratorFactory: DataAccessLayerGeneratorFac
                 specificationIri,
                 datasourceConfig
             ),
-            [DataSourceType.JSON]:  null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("json"),
-            [DataSourceType.XML]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("xml"),
-            [DataSourceType.CSV]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("csv"),
-            [DataSourceType.Local]: null as unknown as DalGeneratorStrategy, //new LocalStorageDalGeneratorStrategy()
+            [DataSourceType.JSON]:  null as unknown as DalGeneratorStrategy,
+            [DataSourceType.XML]:   null as unknown as DalGeneratorStrategy,
+            [DataSourceType.CSV]:   null as unknown as DalGeneratorStrategy,
+            [DataSourceType.Local]: null as unknown as DalGeneratorStrategy,
         };
 
         const generator = generators[datasourceConfig.format];
@@ -101,10 +101,10 @@ export const CreateInstanceTemplateGeneratorFactory: DataAccessLayerGeneratorFac
                 specificationIri,
                 datasourceConfig
             ),
-            [DataSourceType.JSON]:  null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("json"),
-            [DataSourceType.XML]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("xml"),
-            [DataSourceType.CSV]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("csv"),
-            [DataSourceType.Local]: null as unknown as DalGeneratorStrategy, //new LocalStorageDalGeneratorStrategy()
+            [DataSourceType.JSON]:  null as unknown as DalGeneratorStrategy,
+            [DataSourceType.XML]:   null as unknown as DalGeneratorStrategy,
+            [DataSourceType.CSV]:   null as unknown as DalGeneratorStrategy,
+            [DataSourceType.Local]: null as unknown as DalGeneratorStrategy,
         };
 
         const generator = generators[datasourceConfig.format];
@@ -125,10 +125,10 @@ export const EditInstanceTemplateGeneratorFactory: DataAccessLayerGeneratorFacto
                 specificationIri,
                 datasourceConfig
             ),
-            [DataSourceType.JSON]:  null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("json"),
-            [DataSourceType.XML]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("xml"),
-            [DataSourceType.CSV]:   null as unknown as DalGeneratorStrategy, //new FileDalGeneratorStrategy("csv"),
-            [DataSourceType.Local]: null as unknown as DalGeneratorStrategy, //new LocalStorageDalGeneratorStrategy()
+            [DataSourceType.JSON]:  null as unknown as DalGeneratorStrategy,
+            [DataSourceType.XML]:   null as unknown as DalGeneratorStrategy,
+            [DataSourceType.CSV]:   null as unknown as DalGeneratorStrategy,
+            [DataSourceType.Local]: null as unknown as DalGeneratorStrategy,
         };
 
         const generator = generators[datasourceConfig.format];
