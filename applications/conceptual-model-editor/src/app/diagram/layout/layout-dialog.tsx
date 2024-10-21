@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { DIRECTION, AlgorithmName, UserGivenConstraintsVersion2, ElkForceAlgType, getDefaultUserGivenAlgorithmConstraint } from "@dataspecer/layout";
+import { DIRECTION, AlgorithmName, UserGivenConstraintsVersion2, ElkForceAlgType, getDefaultUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion2 } from "@dataspecer/layout";
+import _ from "lodash";
 
 
 // TODO:
@@ -8,20 +9,7 @@ import { DIRECTION, AlgorithmName, UserGivenConstraintsVersion2, ElkForceAlgType
 // 3) Style it better - but it is kind of throwaway so it doesn't really matter
 // 4) Have dialog localization
 export const useConfigDialog = () => {
-    const [config, setConfig] = useState<UserGivenConstraintsVersion2>({
-                                            main: {
-                                                ...getDefaultUserGivenAlgorithmConstraint(),
-                                                "should_be_considered": true,
-                                                "constraintedNodes": "ALL",
-                                            },
-                                            general: {
-                                                ...getDefaultUserGivenAlgorithmConstraint(),
-                                                "layout_alg": "elk_layered",        // TODO: Defined as stress in the default
-                                                "should_be_considered": false,
-                                                "constraintedNodes": "GENERALIZATION",
-                                                "double_run": true,
-                                            }
-                                        });
+    const [config, setConfig] = useState<UserGivenConstraintsVersion2>(getDefaultUserGivenConstraintsVersion2());
 
     // const updateConfig = (key: string, e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     //     setConfig({...config, [key]: parseInt(e.target.value)});
@@ -33,6 +21,12 @@ export const useConfigDialog = () => {
     // TODO: So it may be renamed to getConfig instead
     const getValidConfig = () => {
         return config;
+    };
+
+    const resetConfig = () => {
+        if(!_.isEqual(config, getDefaultUserGivenConstraintsVersion2())) {
+            setConfig(getDefaultUserGivenConstraintsVersion2());
+        }
     };
 
 
@@ -48,6 +42,15 @@ export const useConfigDialog = () => {
     //     className="slider" id={`range- + ${props.configName}`} draggable="false" defaultValue={props.defaultValue} onMouseUp={(e) => { setConfig({...config, [props.configName]: parseInt(e.target.value)});}}></input>
     // }
 
+
+    const RunLayeredAfterCombobox = (props: {stateField: keyof UserGivenConstraintsVersion2}) => {
+        return <div>
+                    <input type="checkbox" id="checkbox-run-layered-after" name="checkbox-run-layered-after" checked={config[props.stateField].run_layered_after}
+                    onChange={e => setConfig({...config,
+                                            main: {...config.main, "run_layered_after": e.target.checked }})} />
+                    <label htmlFor="checkbox-run-layered-after">xddd</label>
+                </div>;
+    };
 
     const ForceConfig = (props: {stateField: keyof UserGivenConstraintsVersion2}) =>
         <div>
@@ -69,6 +72,19 @@ export const useConfigDialog = () => {
                                                         (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
                                             }}></input>
                 {config[props.stateField]["min_distance_between_nodes"]}
+                <input type="range" min="0" max="200" step="1" className="slider" id="range-iteration-count" draggable="false"
+                        defaultValue={config[props.stateField]["iteration_count"]}
+                        onMouseUp={(e) => { setConfig({
+                                                       ...config,
+                                                       [props.stateField]: {
+                                                            ...config[props.stateField],
+                                                            "iteration_count": parseInt((e.target as HTMLInputElement).value)
+                                                        }
+                                                    });
+                                                    {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
+                                                        (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
+                                            }}></input>
+                {config[props.stateField]["iteration_count"]}
             </div>
 
 
@@ -87,6 +103,7 @@ export const useConfigDialog = () => {
                     <option value="FRUCHTERMAN_REINGOLD">Fruchterman Reingold</option>
                 </select>
             </div>
+            <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
         </div>;
 
     const StressConfig = (props: {stateField: keyof UserGivenConstraintsVersion2}) =>
@@ -106,7 +123,23 @@ export const useConfigDialog = () => {
                                                     });
                                             }}></input>
                 {config[props.stateField]["stress_edge_len"]}
+            {/* TODO: Copy paste from force algorithm */}
+            <input type="range" min="0" max="200" step="1" className="slider" id="range-iteration-count" draggable="false"
+                        defaultValue={config[props.stateField]["iteration_count"]}
+                        onMouseUp={(e) => { setConfig({
+                                                       ...config,
+                                                       [props.stateField]: {
+                                                            ...config[props.stateField],
+                                                            "iteration_count": parseInt((e.target as HTMLInputElement).value)
+                                                        }
+                                                    });
+                                                    {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
+                                                        (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
+                                            }}></input>
+                {config[props.stateField]["iteration_count"]}
             </div>
+            <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
+
         </div>;
 
 
@@ -188,6 +221,9 @@ export const useConfigDialog = () => {
         </div>;
 
     const renderMainAlgorithmConfig = () => {
+        // TODO: resetConfig is not it, the state has to be solved differently - different algorithms share non-relevant parameters, but it affects them 
+        //       (For example running layered after layered, because I checked it for stress layout)
+        // resetConfig();
         if(config.main["layout_alg"] === "elk_layered") {
             return <LayeredConfig stateField="main"></LayeredConfig>;
         }
@@ -219,6 +255,7 @@ export const useConfigDialog = () => {
                     <option value="elk_layered">Úrovňový</option>
                     <option value="elk_stress">Fyzikální (Stress)</option>
                     <option value="elk_force">Fyzikální (Force - Jen Debug)</option>
+                    <option value="elk_radial">Radiální</option>
                     <option value="random">Náhodný</option>
                 </select>
             </div>
@@ -239,6 +276,7 @@ export const useConfigDialog = () => {
 
     return {
         getValidConfig,
-        ConfigDialog
+        ConfigDialog,
+        resetConfig
     };
 };

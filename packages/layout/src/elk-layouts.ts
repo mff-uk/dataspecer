@@ -1,7 +1,7 @@
 import { GraphTransformer, ExtractedModel, extractModelObjects, getEdgeSourceAndTargetRelationship, getEdgeSourceAndTargetGeneralization, LayoutAlgorithm } from "./layout-iface";
 import { SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { Position, VisualEntities, VisualEntity } from "../../core-v2/lib/visual-model/visual-entity";
-import { GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, MainGraphClassic, VisualEntityComplete } from "./graph-iface";
+import { EdgeEndPoint, GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, MainGraphClassic, VisualEntityComplete } from "./graph-iface";
 
 
 
@@ -17,6 +17,7 @@ import { NodeDimensionQueryHandler } from ".";
 import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { PhantomElementsFactory } from "./util/utils";
 import _, { clone } from "lodash";
+import { GraphAlgorithms } from "./graph-algoritms";
 
 
 
@@ -37,8 +38,8 @@ class ElkGraphTransformer implements GraphTransformer {
         let generalizationLayoutOptions: LayoutOptions;
         if(!this.hasAlgorithmConstraintForAllNodes(constraintContainer)) {
             mainLayoutOptions = {
-                'elk.algorithm': 'layered',
-                'elk.direction': 'UP',
+                "elk.algorithm": "layered",
+                "elk.direction": "UP",
                 "elk.edgeRouting": "SPLINES",
                 "spacing.nodeNodeBetweenLayers": "100",
                 "spacing.nodeNode": "100",
@@ -61,9 +62,21 @@ class ElkGraphTransformer implements GraphTransformer {
             }
         }
 
+        console.log("mainLayoutOptions");
+        console.log(mainLayoutOptions);
+        console.log("generalizationLayoutOptions");
+        console.log(generalizationLayoutOptions);
+
 
         const MAIN_EDGE_DIRECTION: string = mainLayoutOptions['elk.direction'] ?? "UP";
         const GENERALIZATION_EDGE_DIRECTION: string = generalizationLayoutOptions === undefined ? MAIN_EDGE_DIRECTION : generalizationLayoutOptions['elk.direction'];
+
+        if(mainLayoutOptions["elk.algorithm"] === "radial") {
+            // TODO: Should be in pre-constraints
+            new GraphAlgorithms().treeify(graph);
+            // TODO: For now hardcoded
+            mainLayoutOptions["spacing.nodeNode"] = "300";
+        }
 
         // TODO: The above code can be put in separate method (also it doesn't use the graph)
 
@@ -73,7 +86,11 @@ class ElkGraphTransformer implements GraphTransformer {
                 return null;
             }
             else {
-                const elkNode = this.createElkNode(id, true, undefined, node?.node?.iri, node.completeVisualEntity?.coreVisualEntity?.position);     // TODO: Not sure what is the ID (visual or semantic entity id?)
+                if(node.isConsideredInLayout === false) {
+                    return null;
+                }
+
+                const elkNode = this.createElkNode(id, true, undefined, node?.node?.iri, node);     // TODO: Not sure what is the ID (visual or semantic entity id?)
                 if(node instanceof GraphClassic) {
                     this.convertGraphToLibraryRepresentation(node, true, constraintContainer, elkNode);
                 }
@@ -85,7 +102,11 @@ class ElkGraphTransformer implements GraphTransformer {
         // TODO: Same as nodes above, maybe better type the node.node (and access through getter)
         const profileNodes = Object.entries(graph.nodes).map(([id, node]) => {
             if(node.isProfile) {
-                return this.createElkNode(id, true, undefined, "USAGE OF: " + (node.node as SemanticModelClassUsage).usageOf, node.completeVisualEntity?.coreVisualEntity?.position);
+                if(node.isConsideredInLayout === false) {
+                    return null;
+                }
+
+                return this.createElkNode(id, true, undefined, "USAGE OF: " + (node.node as SemanticModelClassUsage).usageOf, node);
             }
             else {
                 return null;
@@ -106,6 +127,11 @@ class ElkGraphTransformer implements GraphTransformer {
             // console.log(node);
             // console.log(node.getAllOutgoingEdges());
             for(const edge of node.getAllOutgoingEdges()) {
+                if(edge.isConsideredInLayout === false) {
+                    continue;
+                }
+                
+
                 // TODO: Remove the commented code after debugging visual model
                 // console.log("Created edge:");
                 // console.log("START:");
@@ -113,12 +139,16 @@ class ElkGraphTransformer implements GraphTransformer {
                 // console.log("END:");
                 // console.log(edge.end.node?.iri ?? edge.end.id);
                 const [sourcePort, targetPort] = this.getSourceAndTargetPortBasedOnDirection(MAIN_EDGE_DIRECTION);
+
+                const source = edge.reverseInLayout === false ? edge.start.id : edge.end.id;
+                const target = edge.reverseInLayout === false ? edge.end.id : edge.start.id;
+
                 let elkEdge: ElkExtendedEdge = {
                     id: edge.id,
                     // sources: [ sourcePort + edge.start.id ],
                     // targets: [ targetPort + edge.end.id ],
-                    sources: [ edge.start.id ],
-                    targets: [ edge.end.id ],
+                    sources: [ source ],
+                    targets: [ target ],
                 }
                 edges.push(elkEdge);
             }
@@ -159,6 +189,8 @@ class ElkGraphTransformer implements GraphTransformer {
         }
 
         console.log("elkGraph after conversion");
+        console.log(_.cloneDeep(elkGraph));
+        console.log("elkGraph layouted");
         console.log(elkGraph);
 
         return elkGraph;
@@ -824,7 +856,7 @@ class ElkGraphTransformer implements GraphTransformer {
 
     getDefaultLayoutOptionsForNode() {
         const portOptions = {
-            "portConstraints": "FIXED_SIDE",
+            // "portConstraints": "FIXED_SIDE",        // TODO: !!! Actually disabling this really improves the layouted graphs (but they are much more compact)
             "nodeLabels.placement": "[H_LEFT, V_TOP, OUTSIDE]",
 
             // TODO: !!! It actually works better without CENTERING (at least I think - should test it again properly)
@@ -836,7 +868,7 @@ class ElkGraphTransformer implements GraphTransformer {
     }
 
 
-    createElkNode(id: string, shouldComputeSize?: boolean, layoutOptions?: LayoutOptions, label?: string, position?: Position): ElkNode {
+    createElkNode(id: string, shouldComputeSize?: boolean, layoutOptions?: LayoutOptions, label?: string, graphNode?: EdgeEndPoint): ElkNode {
         const width: number = shouldComputeSize ? this.NodeDimensionQueryHandler.getWidth(this.graph.findNodeInAllNodes(id)) : 500;
         const height: number = shouldComputeSize ? this.NodeDimensionQueryHandler.getHeight(this.graph.findNodeInAllNodes(id)) : 300;
 
@@ -866,9 +898,12 @@ class ElkGraphTransformer implements GraphTransformer {
                 // ports: ports,
             };
         }
+
+        const position = graphNode?.completeVisualEntity?.coreVisualEntity?.position;
         if(position !== undefined) {
-            node.x = position.x;
-            node.y = position.y;
+            const parentPosition = graphNode.getSourceGraph()?.completeVisualEntity?.coreVisualEntity?.position;
+            node.x = position.x - (parentPosition?.x ?? 0);
+            node.y = position.y - (parentPosition?.y ?? 0);
         }
 
         return node;
@@ -999,6 +1034,8 @@ function isSubgraphID(id: string): boolean {
 }
 
 function shouldPerformGeneralizationTwoRunLayout(algorithmOnlyConstraint: IAlgorithmOnlyConstraint): boolean {
+    console.info(algorithmOnlyConstraint);
+    // TODO: Should be checking for !== null, but I convert it back to undefined in ConstraintContainer - TODO: Fix later
     return algorithmOnlyConstraint !== undefined && algorithmOnlyConstraint.data["double_run"];
 }
 
@@ -1021,6 +1058,7 @@ export class ElkLayout implements LayoutAlgorithm {
     prepareFromGraph(graph: IGraphClassic, constraintContainer: ElkConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
         this.graph = graph
         this.elkGraphTransformer = new ElkGraphTransformer(graph, nodeDimensionQueryHandler, constraintContainer);
+        graph.mainGraph.resetForNewLayout();            // TODO: Maybe should have better interface and should be called every time we are converting graph to library repre
         this.graphInElk = this.elkGraphTransformer.convertGraphToLibraryRepresentation(graph, true, constraintContainer),       // TODO: Why I need to pass the constraintContainer again???
         this.constraintContainer = constraintContainer;
         this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
@@ -1034,6 +1072,7 @@ export class ElkLayout implements LayoutAlgorithm {
             layoutPromise = performGeneralizationTwoRunLayout(this.graphInElk, this.elk);
         }
         else {
+            // throw new Error("TODO: Radial debug");
             layoutPromise = this.elk.layout(this.graphInElk)
                                     .catch(console.error);
         }

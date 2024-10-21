@@ -15,5 +15,11 @@ export class D3ForceConfiguration extends StressConfiguration {
         throw new Error("Initialize (or don't use at all) the d3Data object");
     }
 
+
+    addAdvancedSettingsForUnderlying(advancedSettings: object): void {
+        throw new Error("TODO: Method not implemented.");
+    }
+
+
     d3Data: object = undefined;
 }

@@ -1,20 +1,20 @@
 import { LayoutMethod } from "../layout-iface";
 import { ConstraintContainer } from "./constraint-container";
-import { AlgorithmConfiguration, IAlgorithmOnlyConstraint, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationslVersion2 } from "./constraints";
+import { AlgorithmConfiguration, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraintSimple, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationslVersion2 } from "./constraints";
 import { D3ForceConfiguration } from "./d3js/d3-constraints";
-import { ElkForceConfiguration, ElkLayeredConfiguration, ElkSporeConfiguration, ElkStressConfiguration } from "./elk/elk-constraints";
+import { ElkForceConfiguration, ElkLayeredConfiguration, ElkRadialConfiguration, ElkSporeConfiguration, ElkStressConfiguration } from "./elk/elk-constraints";
 
 class AlgorithmConstraintFactory {
     static getLayoutMethodForAlgorithmConstraint(algConstraint: AlgorithmConfiguration): LayoutMethod {
         if(algConstraint instanceof ElkStressConfiguration) {
-            throw new Error("Unimplemented - Should return the layout method for Elk Stress algorithm");
+            throw new Error("Not implemented - Should return the layout method for Elk Stress algorithm");
         }
         else {
-            throw new Error("Unimplemented - Define for the rest of the Algorithms");
+            throw new Error("Not implemented - Define for the rest of the Algorithms");
         }
     }
 
-    static createAlgorithmConfiguration(userGivenAlgorithmConfiguration: UserGivenAlgorithmConfiguration): IAlgorithmOnlyConstraint | null {
+    static createAlgorithmConfiguration(userGivenAlgorithmConfiguration: UserGivenAlgorithmConfiguration): IAlgorithmConfiguration | null {
         if(!userGivenAlgorithmConfiguration.should_be_considered) {
             return null;
         }
@@ -29,18 +29,61 @@ class AlgorithmConstraintFactory {
                 return {
                     constraintedNodes: userGivenAlgorithmConfiguration.constraintedNodes,
                     algorithmName: "random",
-                    type: "alg",
+                    type: "ALG",
                     constraintTime: "IN-MAIN",
                     name: "Random alg name",
-                    data: undefined
+                    data: undefined,
+                    addAdvancedSettings: () => {},
+                    addAdvancedSettingsForUnderlying: () => {},
                 };
             case "d3_force":
                 return new D3ForceConfiguration(userGivenAlgorithmConfiguration);
             case "sporeCompaction":
                 return new ElkSporeConfiguration(userGivenAlgorithmConfiguration);
+            case "elk_radial":
+                return new ElkRadialConfiguration(userGivenAlgorithmConfiguration);
             default:
                 throw new Error("Implementation error You forgot to extend the AlgorithmConstraintFactory factory for new algorithm");
         }
+    }
+
+
+    static createSimpleConstraintsFromConfiguration(userGivenAlgorithmConfiguration: UserGivenAlgorithmConfiguration): IConstraintSimple[] | null {
+        if(!userGivenAlgorithmConfiguration.should_be_considered) {
+            return null;
+        }
+
+        const result: IConstraintSimple[] = [];
+
+        // TODO: I currently also have to check the type, because there is one state for all algorithms so when I change the algorithm type I still have the data from the old one
+        //       in this case I can for example have iteration_count > 1 for layered algorithm, which isn't what I want, since it is deterministic
+        if(userGivenAlgorithmConfiguration.iteration_count > 1 &&
+            (userGivenAlgorithmConfiguration.layout_alg === "elk_stress" || userGivenAlgorithmConfiguration.layout_alg === "elk_force" )) {
+            const iterationCountConstraint: IConstraintSimple = {
+                constraintedNodes: "ALL",
+                type: "control-flow-change",
+                constraintTime: "IN-MAIN",
+                name: "Best layout iteration count",
+                data: { iterationCount: userGivenAlgorithmConfiguration.iteration_count }
+            };
+            result.push(iterationCountConstraint)
+        }
+
+        Object.entries(userGivenAlgorithmConfiguration).forEach(([key, value]) => {
+            if(key === "run_layered_after" && value === true) {
+                const runLayeredAfterConstraint: IConstraintSimple = {
+                    constraintedNodes: "ALL",
+                    type: "control-flow-change",
+                    constraintTime: "POST-MAIN",
+                    name: "Run layered after",
+                    data: { runLayeredAfter: userGivenAlgorithmConfiguration.run_layered_after }
+                };
+
+                result.push(runLayeredAfterConstraint);
+            }
+        });
+
+        return result
     }
 }
 
@@ -56,9 +99,20 @@ export class ConstraintFactory {
      */
     static createConstraints(config: UserGivenAlgorithmConfigurationslVersion2): ConstraintContainer {
         // TODO: For now, just take it directly, but could also iterate and look for the "is_algorithm_constraint" property
-        let mainConstraint: IAlgorithmOnlyConstraint = AlgorithmConstraintFactory.createAlgorithmConfiguration(config.main);
-        let generalizationConstraint: IAlgorithmOnlyConstraint = AlgorithmConstraintFactory.createAlgorithmConfiguration(config.general);
+        let mainConstraint = AlgorithmConstraintFactory.createAlgorithmConfiguration(config.main);
 
-        return new ConstraintContainer([mainConstraint, generalizationConstraint], undefined, undefined, undefined);
+        console.info("mainConstraint");
+        console.info(mainConstraint);
+        console.info(config);
+        let generalizationConstraint = AlgorithmConstraintFactory.createAlgorithmConfiguration(config.general);
+        console.info("generalizationConstraint");
+        console.info(generalizationConstraint);
+
+
+        const simpleConstraints = AlgorithmConstraintFactory.createSimpleConstraintsFromConfiguration(config.main);
+        const constraintContainer = new ConstraintContainer([mainConstraint, generalizationConstraint], simpleConstraints, undefined, undefined);
+
+        return constraintContainer
     }
 }
+

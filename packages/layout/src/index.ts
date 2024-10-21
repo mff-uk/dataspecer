@@ -3,7 +3,7 @@ import { VisualEntity } from "@dataspecer/core-v2/visual-model";
 import { ExtractedModel, LayoutAlgorithm, LayoutMethod, extractModelObjects } from "./layout-iface";
 
 import { doRandomLayoutAdvanced } from "./basic-layouts";
-import { UserGivenConstraints, UserGivenAlgorithmConfigurationslVersion2, ConstraintTime, IConstraint, IConstraintSimple } from "./configs/constraints";
+import { UserGivenConstraints, UserGivenAlgorithmConfigurationslVersion2, ConstraintTime, IConstraint, IConstraintSimple, getDefaultUserGivenConstraintsVersion2, getDefaultUserGivenAlgorithmConstraint, AlgorithmConfiguration } from "./configs/constraints";
 import { GraphClassic, GraphFactory, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualEntityComplete } from "./graph-iface";
 import { EdgeCrossingMetric } from "./graph-metrics/graph-metrics";
 import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs/constraint-container";
@@ -59,6 +59,8 @@ export async function doEditorLayout(visualModel: VisualEntityModel,
 		nodeDimensionQueryHandler = new ReactflowDimensionsEstimator();
 	}
 
+	console.log("config");
+	console.log(config);
 
 	// TODO: For now for simplicity just concatenate all the semantic models into one
 	let semanticModel: Record<string, SemanticModelEntity> = {};
@@ -105,6 +107,7 @@ export async function doFindBestLayout(inputSemanticModel: Record<string, Semant
 	return doFindBestLayoutFromGraph(graph, config, nodeDimensionQueryHandler, null);
 }
 
+// TODO: Rename
 export async function doFindBestLayoutFromGraph(graph: IMainGraphClassic,
 												config: UserGivenAlgorithmConfigurationslVersion2,
 												nodeDimensionQueryHandler: NodeDimensionQueryHandler,
@@ -136,6 +139,9 @@ const layoutController = (graph: IMainGraphClassic,
 							constraints: ConstraintContainer,
 							nodeDimensionQueryHandler: NodeDimensionQueryHandler,
 							visualModel: VisualEntityModel | null): Promise<IMainGraphClassic> => {
+
+	console.warn("constraints");
+	console.warn(constraints);
 	return runPreMainAlgorithmConstraints(graph, constraints, nodeDimensionQueryHandler).then(_ => {
 		if(constraints.algorithmOnlyConstraints["GENERALIZATION"] !== undefined) {
 			// TODO: For now
@@ -174,10 +180,12 @@ const runPreMainAlgorithmConstraints = async (graph: IMainGraphClassic,
 const runPostMainAlgorithmConstraints = async (graph: IMainGraphClassic,
 												constraintsContainer: ConstraintContainer,
 												nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<void[]> => {
-	const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer.simpleConstraints, "POST-MAIN", nodeDimensionQueryHandler).then(_ => {
-		return runConstraintsInternal(graph, constraintsContainer.constraints, "POST-MAIN", nodeDimensionQueryHandler);
-	});
-	return constraintPromises;
+	return;
+	// TODO: Well it could actually work I just need to move the code with calling layered into CONSTRAINT_MAP
+	// const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer.simpleConstraints, "POST-MAIN", nodeDimensionQueryHandler).then(_ => {
+	// 	return runConstraintsInternal(graph, constraintsContainer.constraints, "POST-MAIN", nodeDimensionQueryHandler);
+	// });
+	// return constraintPromises;
 }
 
 const runConstraintsInternal = async (graph: IMainGraphClassic,
@@ -200,27 +208,146 @@ const runConstraintsInternal = async (graph: IMainGraphClassic,
 const runMainLayoutAlgorithm = async (graph: IMainGraphClassic,
 										constraints: ConstraintContainer,
 										nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<IMainGraphClassic> => {
-	const mainLayoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[constraints.algorithmOnlyConstraints["ALL"].algorithmName];
+	// const mainLayoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[constraints.algorithmOnlyConstraints["ALL"].algorithmName];
+	// mainLayoutAlgorithm.prepareFromGraph(graph, constraints, nodeDimensionQueryHandler);		// TODO: Prepare only once? or in each iteration?
+
+	// console.info(graph);
+	// console.info(graph.todoDebugExtractedModel);
+
+	// const findBestLayoutConstraint = constraints.simpleConstraints.find(constraint => constraint.name === "Best layout iteration count");
+	// if(findBestLayoutConstraint === undefined) {
+	// 	const layoutedGraphPromise: Promise<IMainGraphClassic> = mainLayoutAlgorithm.run(true);
+	// 	await layoutedGraphPromise;
+	// 	// TODO: We can actually have it general to run sequence of algorithms - we just need to set the order - then we actually don't need main/general stuff
+	// 	const shouldRunLayoutAfterConstraint = constraints.simpleConstraints.find(constraint => constraint.name === "Run layered after");
+	// 	if(shouldRunLayoutAfterConstraint !== undefined) {
+	// 		return layoutedGraphPromise.then(layoutedGraph => {
+	// 			const configAfter = getDefaultUserGivenConstraintsVersion2();
+	// 			configAfter.main.layout_alg = "elk_layered";
+
+	// 			// TODO: Note - interactiveLayout is the layout which is used for addition of nodes (I think so at least)
+	// 			configAfter.main.advanced_settings = {
+	// 				"crossingMinimization.semiInteractive": true,
+	// 				"crossingCounterNodeInfluence": 0,
+	// 				"cycleBreaking.strategy": "INTERACTIVE",
+	// 			};
+	// 			const constraintsAfter = ConstraintFactory.createConstraints(configAfter);
+	// 			console.log("constraintsAfter");
+	// 			console.log(constraintsAfter);
+	// 			// throw new Error("Joever");
+	// 			const layeredAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[configAfter.main.layout_alg];
+	// 			layeredAlgorithm.prepareFromGraph(layoutedGraph, constraintsAfter, nodeDimensionQueryHandler);
+	// 			// console.log(configAfter);
+	// 			// throw new Error("Jover");
+	// 			return layeredAlgorithm.run(false);
+	// 		});
+	// 	}
+	// 	return layoutedGraphPromise;
+	// }
+	// else {
+	// 	// TODO: Well it really is overkill, like I could in the same way just have a look, if the given configuration contains iterationCount and if so, just put it here
+	// 	let bestLayoutedVisualEntitiesPromise: Promise<IMainGraphClassic>;
+	// 	let minEdgeCrossCount = 1000000;
+	// 	const edgeCrossingMetric: EdgeCrossingMetric = new EdgeCrossingMetric();
+	// 	const iterationCount = (findBestLayoutConstraint.data as any).iterationCount;
+
+	// 	for(let i = 0; i < iterationCount; i++) {
+	// 		const layoutedGraphPromise: Promise<IMainGraphClassic> = mainLayoutAlgorithm.run(true);
+	// 		const layoutedGraph = await layoutedGraphPromise;
+
+	// 		// const visualEntities = layoutedGraph.convertWholeGraphToDataspecerRepresentation();
+	// 		// console.log(visualEntities);
+
+	// 		const edgeCrossCountForCurrMetric = edgeCrossingMetric.computeMetric(layoutedGraph);
+	// 		console.log("Edge cross count: " + edgeCrossCountForCurrMetric);
+	// 		if(minEdgeCrossCount > edgeCrossCountForCurrMetric) {
+	// 			console.log("MIN Edge cross count: " + edgeCrossCountForCurrMetric);
+	// 			bestLayoutedVisualEntitiesPromise = layoutedGraphPromise;
+	// 			minEdgeCrossCount = edgeCrossCountForCurrMetric;
+	// 		}
+	// 	}
+
+	// 	return bestLayoutedVisualEntitiesPromise;
+	// }
+
+
+
+
+
+	// TODO: Well it really is overkill, like I could in the same way just have a look, if the given configuration contains iterationCount and if so, just put it here
 	let bestLayoutedVisualEntitiesPromise: Promise<IMainGraphClassic>;
 	let minEdgeCrossCount = 1000000;
 	const edgeCrossingMetric: EdgeCrossingMetric = new EdgeCrossingMetric();
+	const findBestLayoutConstraint = constraints.simpleConstraints.find(constraint => constraint.name === "Best layout iteration count");
+	const iterationCount = (findBestLayoutConstraint?.data as any)?.iterationCount ?? 1;
+	const mainLayoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[constraints.algorithmOnlyConstraints["ALL"].algorithmName];
+	// TODO: Another special case for force and stress, because stress needs different initial graph every time, force can prepare it once
+	if(findBestLayoutConstraint === undefined || constraints.algorithmOnlyConstraints["ALL"].algorithmName === "elk_force") {
+		mainLayoutAlgorithm.prepareFromGraph(graph, constraints, nodeDimensionQueryHandler);		// TODO: Prepare only once? or in each iteration?
+	}
 
-	mainLayoutAlgorithm.prepareFromGraph(graph, constraints, nodeDimensionQueryHandler);		// TODO: Prepare only once? or in each iteration?
-	for(let i = 0; i < 1; i++) {
-		const layoutedGraphPromise: Promise<IMainGraphClassic> = mainLayoutAlgorithm.run(true);
+	for(let i = 0; i < iterationCount; i++) {
+		// TODO: Again should be solved better
+		if(findBestLayoutConstraint !== undefined) {
+			if(constraints.algorithmOnlyConstraints.ALL.algorithmName === "elk_stress") {
+				constraints.algorithmOnlyConstraints.ALL.addAdvancedSettings({"interactive": true});
+				const randomLayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING["random"];
+				randomLayoutAlgorithm.prepareFromGraph(graph, constraints, nodeDimensionQueryHandler);
+				// TODO: Can be solved without await
+				await randomLayoutAlgorithm.run(true).then(layoutedGraph => {
+					mainLayoutAlgorithm.prepareFromGraph(layoutedGraph, constraints, nodeDimensionQueryHandler);
+				})
+			}
+		}
+
+		const layoutedGraphPromise: Promise<IMainGraphClassic> = mainLayoutAlgorithm.run(true).then(layoutedGraph => {
+			const shouldRunLayoutAfterConstraint = constraints.simpleConstraints.find(constraint => constraint.name === "Run layered after");
+			if(shouldRunLayoutAfterConstraint === undefined) {
+				return layoutedGraph;
+			}
+			else {
+				const configAfter = getDefaultUserGivenConstraintsVersion2();
+				configAfter.main.layout_alg = "elk_layered";
+				
+				configAfter.main.advanced_settings = {
+					"crossingMinimization.semiInteractive": true,
+					"crossingCounterNodeInfluence": 0,
+					"cycleBreaking.strategy": "INTERACTIVE",
+					"spacing.nodeNodeBetweenLayers": 350,
+     				"spacing.nodeNode": 350,
+				};
+				const constraintsAfter = ConstraintFactory.createConstraints(configAfter);
+
+				// TODO: Another awful workaround .... it really needs like 3 more days of implementation for it to be all in consistent state
+				//       Ideally it would have been passed in another constraint which fixes the generalization graphs
+				if(constraints.algorithmOnlyConstraints.GENERALIZATION !== undefined) {
+					constraintsAfter.algorithmOnlyConstraints.GENERALIZATION = {...constraints.algorithmOnlyConstraints.GENERALIZATION};
+				}
+				console.log("constraintsAfter");
+				console.log(constraintsAfter);
+				const layeredAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[configAfter.main.layout_alg];
+				layeredAlgorithm.prepareFromGraph(layoutedGraph, constraintsAfter, nodeDimensionQueryHandler);
+				// console.log(configAfter);
+				return layeredAlgorithm.run(false);
+			}
+		});
 		const layoutedGraph = await layoutedGraphPromise;
 
-		const visualEntities = layoutedGraph.convertWholeGraphToDataspecerRepresentation();
-		console.log(visualEntities);
+		// const visualEntities = layoutedGraph.convertWholeGraphToDataspecerRepresentation();
+		// console.log(visualEntities);
 
-		const edgeCrossCountForCurrMetric = edgeCrossingMetric.computeMetric(graph);
-		// console.log("Edge cross count: " + edgeCrossCountForCurrMetric);
+		const edgeCrossCountForCurrMetric = edgeCrossingMetric.computeMetric(layoutedGraph);
+		console.log("Edge cross count: " + edgeCrossCountForCurrMetric);
 		if(minEdgeCrossCount > edgeCrossCountForCurrMetric) {
-			// console.log("MIN Edge cross count: " + edgeCrossCountForCurrMetric);
+			console.log("MIN Edge cross count: " + edgeCrossCountForCurrMetric);
 			bestLayoutedVisualEntitiesPromise = layoutedGraphPromise;
 			minEdgeCrossCount = edgeCrossCountForCurrMetric;
 		}
 	}
 
+	console.info("minEdgeCrossCount");
+	console.info(minEdgeCrossCount);
+
 	return bestLayoutedVisualEntitiesPromise;
 }
+

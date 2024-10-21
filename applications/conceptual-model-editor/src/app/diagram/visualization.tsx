@@ -57,6 +57,7 @@ import { useDownload } from "./features/export/download";
 import { type Warning, useWarningsContext } from "./context/warnings-context";
 import { getRandomName } from "../utils/random-gen";
 import { useLayoutDialog } from "./layout/layout-dialog-full";
+import CustomDropdown from "./layout/react-combobox";
 
 // Function that returns SVG for the current model.
 export let getSvgForCurrentView: () => Promise<{
@@ -505,6 +506,7 @@ export const Visualization = () => {
 
             <div className="h-[80vh] w-full md:h-full">
                 <button onClick={e => layoutDialogUse.open()}>Layout</button>
+                {/* <CustomDropdown></CustomDropdown> */}
                 <ReactFlow
                     nodes={nodes}
                     edges={edges}
@@ -523,6 +525,8 @@ export const Visualization = () => {
                     snapToGrid={true}
                     onNodeDragStop={onNodeDragStop}
                     onSelectionDragStop={onSelectionDragStop}
+                    minZoom={0.005}
+                    // minZoom={0.25}
                 >
                     <Controls />
                     <MiniMap

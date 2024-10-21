@@ -5,7 +5,7 @@ import { doEditorLayout } from "@dataspecer/layout";
 import { useReactflowDimensionQueryHandler } from "./reactflow-dimension-query-handler";
 
 export const useLayoutDialog = () => {
-    const { getValidConfig, ConfigDialog } = useConfigDialog();
+    const { getValidConfig, ConfigDialog, resetConfig } = useConfigDialog();
 
     const { aggregatorView, models } = useModelGraphContext();
 
@@ -38,6 +38,7 @@ export const useLayoutDialog = () => {
 
     const [isLayoutDialogOpen, setIsLayoutDialogOpen] = useState<boolean>(false);
     const open = () => {
+        resetConfig();
         setIsLayoutDialogOpen(true);
     };
     const close = () => {

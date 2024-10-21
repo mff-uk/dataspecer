@@ -121,12 +121,14 @@ export interface UserGivenAlgorithmConfigurationSpore {
 export interface UserGivenAlgorithmConfigurationElkForce {
     "min_distance_between_nodes": number,
     "force_alg_type": ElkForceAlgType,
+    "iteration_count": number
 }
 
 
 export interface UserGivenAlgorithmConfigurationExtraData {
     "constraintedNodes": ConstraintedNodesGroupingsType,
     "should_be_considered": boolean,
+    "run_layered_after": boolean
 }
 
 // This actually only used so we type checking for the mapping from the universal parameter names to the library ones (for example to the elk ones)
@@ -134,6 +136,7 @@ export interface UserGivenAlgorithmConfigurationOnlyData extends UserGivenAlgori
                                                                 UserGivenAlgorithmConfigurationStress,
                                                                 UserGivenAlgorithmConfigurationElkForce {
     "layout_alg": AlgorithmName,
+    "advanced_settings": object,
 }
 
 export interface UserGivenAlgorithmConfiguration extends UserGivenAlgorithmConfigurationOnlyData, UserGivenAlgorithmConfigurationExtraData { }
@@ -167,10 +170,13 @@ export function getDefaultUserGivenAlgorithmConstraint(): Omit<UserGivenAlgorith
         "layout_alg": "elk_stress",
     //  "profile-nodes-position-against-source": DIRECTION.DOWN,
         ...LayeredConfiguration.getDefaultObject(),
-        "stress_edge_len": 600,
+        "stress_edge_len": 400,
 
         "force_alg_type": "FRUCHTERMAN_REINGOLD",
         "min_distance_between_nodes": 100,
+        "iteration_count": 50,
+        "run_layered_after": false,
+        advanced_settings: {}
     }
 }
 
@@ -223,7 +229,15 @@ export interface IAlgorithmOnlyConstraint extends IConstraintSimple {
     // modelID: string | null;        // TODO: Is null in case it is meant for whole algorithm, model if for model
 }
 
-export class AlgorithmConfiguration implements IAlgorithmOnlyConstraint {
+interface IAdvancedSettingsForUnderlying {
+    addAdvancedSettingsForUnderlying(advancedSettings: object): void;
+}
+
+export interface IAlgorithmConfiguration extends IAlgorithmOnlyConstraint, IAdvancedSettingsForUnderlying {
+    addAdvancedSettings(advancedSettings: object): void;
+}
+
+export abstract class AlgorithmConfiguration implements IAlgorithmConfiguration {
     algorithmName: AlgorithmName;
     constraintedNodes: ConstraintedNodesGroupingsType;
     data: object;
@@ -253,6 +267,26 @@ export class AlgorithmConfiguration implements IAlgorithmOnlyConstraint {
         this.constraintedNodes = constrainedNodes;
         this.type = "ALG";
     }
+    abstract addAdvancedSettingsForUnderlying(advancedSettings: object): void;
+
+    setData(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
+        this.data = _.pick(givenAlgorithmConstraints, this.getAllConstraintKeys());
+        this.data["advanced_settings"] = givenAlgorithmConstraints.advanced_settings;
+    }
+
+    public addAdvancedSettings(advancedSettings: object) {
+        if(this.data["advanced_settings"] === undefined) {
+            this.data["advanced_settings"] = {...advancedSettings};
+        }
+        else {
+            this.data["advanced_settings"] = {
+                ...this.data["advanced_settings"],
+                ...advancedSettings,
+            };
+        }
+        
+        this.addAdvancedSettingsForUnderlying({"advanced_settings": advancedSettings});
+    }
 }
 
 
@@ -260,7 +294,7 @@ export class AlgorithmConfiguration implements IAlgorithmOnlyConstraint {
  * General Class which has all relevant constraints for the stress like algorithm. The classes extending this should convert the constraints into
  * the representation which will be used in the algorithm (that means renaming, transforming[, etc.] the parameters in the data field)
  */
-export class StressConfiguration extends AlgorithmConfiguration {
+export abstract class StressConfiguration extends AlgorithmConfiguration {
     getAllConstraintKeys(): string[] {
         return super.getAllConstraintKeys().concat([
             "stress_edge_len",
@@ -269,14 +303,14 @@ export class StressConfiguration extends AlgorithmConfiguration {
 
     constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
         super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes);
-        this.data = _.pick(givenAlgorithmConstraints, this.getAllConstraintKeys()) as UserGivenAlgorithmConfigurationStress;
+        this.setData(givenAlgorithmConstraints);
     }
 
     data: UserGivenAlgorithmConfigurationStress = undefined
 }
 
 
-export class LayeredConfiguration extends AlgorithmConfiguration {
+export abstract class LayeredConfiguration extends AlgorithmConfiguration {
     getAllConstraintKeys(): string[] {
         return super.getAllConstraintKeys().concat([
             "alg_direction",
@@ -295,16 +329,7 @@ export class LayeredConfiguration extends AlgorithmConfiguration {
     }
     constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
         super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes);
-        this.data = _.pick(givenAlgorithmConstraints, this.getAllConstraintKeys()) as UserGivenAlgorithmConfigurationLayered;
-        // TODO: I guess that using lodash is just better
-        // let {
-        //     layout_alg,
-        //     alg_direction,
-        //     layer_gap,
-        //     in_layer_gap,
-        //     ...rest
-        // } = givenAlgorithmConstraints;
-        // this.data =
+        this.setData(givenAlgorithmConstraints);    
     }
 
     data: UserGivenAlgorithmConfigurationLayered = undefined;
@@ -312,7 +337,7 @@ export class LayeredConfiguration extends AlgorithmConfiguration {
 
 
 // TODO: Maybe put each class to separate file?
-export class SporeConfiguration extends AlgorithmConfiguration {
+export abstract class SporeConfiguration extends AlgorithmConfiguration {
     getAllConstraintKeys(): string[] {
         return super.getAllConstraintKeys().concat([
             "min_distance_between_nodes",
@@ -321,7 +346,24 @@ export class SporeConfiguration extends AlgorithmConfiguration {
 
     constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
         super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes);
-        this.data = _.pick(givenAlgorithmConstraints, this.getAllConstraintKeys()) as UserGivenAlgorithmConfigurationSpore;
+        this.setData(givenAlgorithmConstraints);
+    }
+
+    data: UserGivenAlgorithmConfigurationSpore = undefined
+}
+
+
+
+export abstract class RadialConfiguration extends AlgorithmConfiguration {
+    getAllConstraintKeys(): string[] {
+        return super.getAllConstraintKeys().concat([
+            "min_distance_between_nodes",
+        ]);
+    }
+
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
+        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes);
+        this.setData(givenAlgorithmConstraints);
     }
 
     data: UserGivenAlgorithmConfigurationSpore = undefined

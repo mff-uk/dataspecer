@@ -1,5 +1,5 @@
 import { LayoutOptions } from "elkjs";
-import { AlgorithmConfiguration, LayeredConfiguration, SporeConfiguration, StressConfiguration, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationElkForce } from "../constraints";
+import { AlgorithmConfiguration, LayeredConfiguration, RadialConfiguration, SporeConfiguration, StressConfiguration, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationElkForce } from "../constraints";
 import { createElkDataObject } from "./elk-utils";
 import _ from "lodash";
 
@@ -22,14 +22,23 @@ export interface ElkConstraint {
 export class ElkLayeredConfiguration extends LayeredConfiguration implements ElkConstraint {
     constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
         super(givenAlgorithmConstraints);
+        console.log("elkData in LayeredConfiguration");
+        console.log(_.cloneDeep(this.elkData));
+
         createElkDataObject(this.data, this.elkData);
         // TODO: For now - hardcoded
         this.elkData['elk.edgeRouting'] = "SPLINES";
         this.elkData['spacing.edgeEdge'] = "25";
 
+        console.log("elkData in ElkLayeredConfiguration");
+        console.log(_.cloneDeep(this.elkData));
         // TODO: DEBUG
         // console.log(this.data);
         // console.log(this.elkData);
+    }
+
+    addAdvancedSettingsForUnderlying(advancedSettings: object) {
+        createElkDataObject(advancedSettings, this.elkData);
     }
 
     elkData: LayoutOptions = {};
@@ -125,6 +134,10 @@ export class ElkStressConfiguration extends StressConfiguration implements ElkCo
         createElkDataObject(this.data, this.elkData);
     }
 
+    addAdvancedSettingsForUnderlying(advancedSettings: object) {
+        createElkDataObject(advancedSettings, this.elkData);
+    }
+
     elkData: LayoutOptions = {};
 }
 
@@ -154,7 +167,12 @@ export class ElkForceConfiguration extends AlgorithmConfiguration implements Elk
             this.elkData["elk.force.temperature"] = "0.1";
         }
         // TODO: For now
+        // Random seed == 0 means that the seed is chosen randomly. Seed sets the initial position of nodes
         this.elkData["org.eclipse.elk.randomSeed"] = "0";
+    }
+
+    addAdvancedSettingsForUnderlying(advancedSettings: object) {
+        createElkDataObject(advancedSettings, this.elkData);
     }
 
     data: UserGivenAlgorithmConfigurationElkForce = undefined;
@@ -168,6 +186,26 @@ export class ElkSporeConfiguration extends SporeConfiguration implements ElkCons
     constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
         super(givenAlgorithmConstraints);
         createElkDataObject(this.data, this.elkData);
+    }
+
+    // TODO: Copy paste of this method for every Elk class, I am not sure if there is way to do it without - some mixin or seomthing
+    addAdvancedSettingsForUnderlying(advancedSettings: object) {
+        createElkDataObject(advancedSettings, this.elkData);
+    }
+
+
+    elkData: LayoutOptions = {};
+}
+
+
+export class ElkRadialConfiguration extends RadialConfiguration implements ElkConstraint {
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
+        super(givenAlgorithmConstraints);
+        createElkDataObject(this.data, this.elkData);
+    }
+
+    addAdvancedSettingsForUnderlying(advancedSettings: object) {
+        createElkDataObject(advancedSettings, this.elkData);
     }
 
     elkData: LayoutOptions = {};

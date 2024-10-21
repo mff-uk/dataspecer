@@ -40,12 +40,19 @@ export class EdgeCrossingMetric implements Metric {
      */
     public static isEdgeCrossForStraightLines(source1: IVisualEntityComplete, target1: IVisualEntityComplete,
                                               source2: IVisualEntityComplete, target2: IVisualEntityComplete): 0 | 1 {
-        const a = source1.coreVisualEntity.position;
-        const b = target1.coreVisualEntity.position;
-        const c = source2.coreVisualEntity.position;
-        const d = target2.coreVisualEntity.position;
+        const a = EdgeCrossingMetric.getMiddle(source1);
+        const b = EdgeCrossingMetric.getMiddle(target1);
+        const c = EdgeCrossingMetric.getMiddle(source2);
+        const d = EdgeCrossingMetric.getMiddle(target2);
         return EdgeCrossingMetric.isCounterClockwise(a, c, d) != EdgeCrossingMetric.isCounterClockwise(b, c, d) &&
                 EdgeCrossingMetric.isCounterClockwise(a, b, c) != EdgeCrossingMetric.isCounterClockwise(a, b, d) ? 1 : 0;
+    }
+
+    public static getMiddle(completeVisualEntity: IVisualEntityComplete): Position {
+        return {
+            x: completeVisualEntity.coreVisualEntity.position.x + completeVisualEntity.width / 2,
+            y: completeVisualEntity.coreVisualEntity.position.y + completeVisualEntity.height / 2,
+        };
     }
 
     public static isCounterClockwise(a: Position, b: Position, c: Position): boolean {

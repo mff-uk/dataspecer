@@ -1,11 +1,11 @@
 
-import { ConstraintedNodesGroupingsType, IAlgorithmOnlyConstraint, IConstraint, IConstraintSimple } from "./constraints";
+import { ConstraintedNodesGroupingsType, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraint, IConstraintSimple } from "./constraints";
 import { LayoutAlgorithm } from "../layout-iface";
 import { ElkLayout } from "../elk-layouts";
 import { RandomLayout } from "../basic-layouts";
 import { ElkConstraint } from "./elk/elk-constraints";
 
-export type AlgorithmName = "elk_stress" | "elk_layered" | "elk_force" | "random" | "d3_force" | "sporeCompaction";
+export type AlgorithmName = "elk_stress" | "elk_layered" | "elk_force" | "random" | "d3_force" | "sporeCompaction" | "elk_radial";
 
 export const ALGORITHM_NAME_TO_LAYOUT_MAPPING: Record<AlgorithmName, LayoutAlgorithm> = {
     "elk_stress": new ElkLayout(),
@@ -14,6 +14,7 @@ export const ALGORITHM_NAME_TO_LAYOUT_MAPPING: Record<AlgorithmName, LayoutAlgor
     "random": new RandomLayout(),
     "d3_force": new ElkLayout(),    // TODO:
     "sporeCompaction": new ElkLayout(),
+    "elk_radial": new ElkLayout(),
 }
 
 type ModelID = string;
@@ -36,7 +37,7 @@ export class ConstraintContainer {
      * Represents the constraints on algorithm - min distance between nodes, type of algorithm, etc.
      * Different graph layouting libraries (for example for Elk {@link ElkConstraint}) can override this for more specific type in the values of Record.
      */
-    algorithmOnlyConstraints: Record<ConstraintedNodesGroupingsType, IAlgorithmOnlyConstraint>;
+    algorithmOnlyConstraints: Record<ConstraintedNodesGroupingsType, IAlgorithmConfiguration>;
 
 
     // TODO: In future maybe only array (and passes completely separately from ConstraintContainer) and IAlgorithmOnlyConstraints instead of ConstraintContainer
@@ -64,19 +65,19 @@ export class ConstraintContainer {
 
 
 
-    constructor(algorithmOnlyConstraints: IAlgorithmOnlyConstraint[],
-                simpleConstraints: IConstraintSimple[],
-                constraints: IConstraint[],
-                underlyingModelsConstraints: Record<ModelID, ConstraintContainer>) {
+    constructor(algorithmOnlyConstraints: IAlgorithmConfiguration[],
+                simpleConstraints?: IConstraintSimple[] | null,
+                constraints?: IConstraint[] | null,
+                underlyingModelsConstraints?: Record<ModelID, ConstraintContainer> | null) {
                     this.algorithmOnlyConstraints = {
                         "ALL": undefined,
                         "GENERALIZATION": undefined,
                         "PROFILE": undefined,
                     };
                     this.addAlgorithmConstraints(...algorithmOnlyConstraints);
-                    this.simpleConstraints = simpleConstraints === undefined ? [] : simpleConstraints;
-                    this.constraints = constraints === undefined ? [] : constraints;
-                    this.underlyingModelsConstraints = underlyingModelsConstraints === undefined ? {} : underlyingModelsConstraints;
+                    this.simpleConstraints = simpleConstraints ?? [];
+                    this.constraints = constraints ?? [];
+                    this.underlyingModelsConstraints = underlyingModelsConstraints ?? {};
 
                     // TODO: For now
                     this.modelID = null;
@@ -89,15 +90,18 @@ export class ConstraintContainer {
     addConstraints(...constraints: IConstraint[]) {
         this.constraints = this.constraints.concat(constraints);
     }
-    addAlgorithmConstraints(...constraints: IAlgorithmOnlyConstraint[]) {
+    addAlgorithmConstraints(...constraints: IAlgorithmConfiguration[]) {
         constraints.forEach(constraint => {
             if(constraint === null) {
                 return;
             }
-            this.algorithmOnlyConstraints[constraint.constraintedNodes] = {
-                ...this.algorithmOnlyConstraints[constraint.constraintedNodes],
-                ...constraint
-            };
+
+            // TODO: Doesn't copy methods
+            // this.algorithmOnlyConstraints[constraint.constraintedNodes] = {
+            //     // ...this.algorithmOnlyConstraints[constraint.constraintedNodes],
+            //     ...constraint
+            // };
+            this.algorithmOnlyConstraints[constraint.constraintedNodes] = constraint;
         });
     }
 }
@@ -106,5 +110,5 @@ export class ConstraintContainer {
  * Constraint container for the Elk graph library. Extends {@link ConstraintContainer} by being more specific about types of algorithmic constraints.
  */
 export class ElkConstraintContainer extends ConstraintContainer {
-    algorithmOnlyConstraints: Record<string, (IAlgorithmOnlyConstraint & ElkConstraint)> = {};
+    algorithmOnlyConstraints: Record<string, (IAlgorithmConfiguration & ElkConstraint)> = {};
 }
