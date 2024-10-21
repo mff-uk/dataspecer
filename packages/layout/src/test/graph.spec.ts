@@ -1,3 +1,8 @@
+test("Test for sake of test", () => {
+    expect(true).toEqual(true);
+});
+
+
 // import { LanguageString, NamedThing, SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 // import { GraphClassic, GraphFactory, MainGraphClassic } from "../graph-iface";
 // import { ExtractedModel, extractModelObjects } from "../layout-iface";
