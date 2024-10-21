@@ -208,72 +208,6 @@ const runConstraintsInternal = async (graph: IMainGraphClassic,
 const runMainLayoutAlgorithm = async (graph: IMainGraphClassic,
 										constraints: ConstraintContainer,
 										nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<IMainGraphClassic> => {
-	// const mainLayoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[constraints.algorithmOnlyConstraints["ALL"].algorithmName];
-	// mainLayoutAlgorithm.prepareFromGraph(graph, constraints, nodeDimensionQueryHandler);		// TODO: Prepare only once? or in each iteration?
-
-	// console.info(graph);
-	// console.info(graph.todoDebugExtractedModel);
-
-	// const findBestLayoutConstraint = constraints.simpleConstraints.find(constraint => constraint.name === "Best layout iteration count");
-	// if(findBestLayoutConstraint === undefined) {
-	// 	const layoutedGraphPromise: Promise<IMainGraphClassic> = mainLayoutAlgorithm.run(true);
-	// 	await layoutedGraphPromise;
-	// 	// TODO: We can actually have it general to run sequence of algorithms - we just need to set the order - then we actually don't need main/general stuff
-	// 	const shouldRunLayoutAfterConstraint = constraints.simpleConstraints.find(constraint => constraint.name === "Run layered after");
-	// 	if(shouldRunLayoutAfterConstraint !== undefined) {
-	// 		return layoutedGraphPromise.then(layoutedGraph => {
-	// 			const configAfter = getDefaultUserGivenConstraintsVersion2();
-	// 			configAfter.main.layout_alg = "elk_layered";
-
-	// 			// TODO: Note - interactiveLayout is the layout which is used for addition of nodes (I think so at least)
-	// 			configAfter.main.advanced_settings = {
-	// 				"crossingMinimization.semiInteractive": true,
-	// 				"crossingCounterNodeInfluence": 0,
-	// 				"cycleBreaking.strategy": "INTERACTIVE",
-	// 			};
-	// 			const constraintsAfter = ConstraintFactory.createConstraints(configAfter);
-	// 			console.log("constraintsAfter");
-	// 			console.log(constraintsAfter);
-	// 			// throw new Error("Joever");
-	// 			const layeredAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[configAfter.main.layout_alg];
-	// 			layeredAlgorithm.prepareFromGraph(layoutedGraph, constraintsAfter, nodeDimensionQueryHandler);
-	// 			// console.log(configAfter);
-	// 			// throw new Error("Jover");
-	// 			return layeredAlgorithm.run(false);
-	// 		});
-	// 	}
-	// 	return layoutedGraphPromise;
-	// }
-	// else {
-	// 	// TODO: Well it really is overkill, like I could in the same way just have a look, if the given configuration contains iterationCount and if so, just put it here
-	// 	let bestLayoutedVisualEntitiesPromise: Promise<IMainGraphClassic>;
-	// 	let minEdgeCrossCount = 1000000;
-	// 	const edgeCrossingMetric: EdgeCrossingMetric = new EdgeCrossingMetric();
-	// 	const iterationCount = (findBestLayoutConstraint.data as any).iterationCount;
-
-	// 	for(let i = 0; i < iterationCount; i++) {
-	// 		const layoutedGraphPromise: Promise<IMainGraphClassic> = mainLayoutAlgorithm.run(true);
-	// 		const layoutedGraph = await layoutedGraphPromise;
-
-	// 		// const visualEntities = layoutedGraph.convertWholeGraphToDataspecerRepresentation();
-	// 		// console.log(visualEntities);
-
-	// 		const edgeCrossCountForCurrMetric = edgeCrossingMetric.computeMetric(layoutedGraph);
-	// 		console.log("Edge cross count: " + edgeCrossCountForCurrMetric);
-	// 		if(minEdgeCrossCount > edgeCrossCountForCurrMetric) {
-	// 			console.log("MIN Edge cross count: " + edgeCrossCountForCurrMetric);
-	// 			bestLayoutedVisualEntitiesPromise = layoutedGraphPromise;
-	// 			minEdgeCrossCount = edgeCrossCountForCurrMetric;
-	// 		}
-	// 	}
-
-	// 	return bestLayoutedVisualEntitiesPromise;
-	// }
-
-
-
-
-
 	// TODO: Well it really is overkill, like I could in the same way just have a look, if the given configuration contains iterationCount and if so, just put it here
 	let bestLayoutedVisualEntitiesPromise: Promise<IMainGraphClassic>;
 	let minEdgeCrossCount = 1000000;
@@ -308,7 +242,7 @@ const runMainLayoutAlgorithm = async (graph: IMainGraphClassic,
 			else {
 				const configAfter = getDefaultUserGivenConstraintsVersion2();
 				configAfter.main.layout_alg = "elk_layered";
-				
+
 				configAfter.main.advanced_settings = {
 					"crossingMinimization.semiInteractive": true,
 					"crossingCounterNodeInfluence": 0,

@@ -148,87 +148,34 @@ export class GraphAlgorithms {
     return nodeToBFSLevelMap;
   }
 
-    // treeify(graph: IGraphClassic, rootNodeIdentifier?: string, edgeType?: "TODO" | "GENERALIZATION"): void {
-    //     // TODO: Maybe only on the subgraph, so graph.resetForNewLayout ... it probably doesn't work with calling on subgraph instead of main graph anyways
-    //     //       .... So the typing should probably be graph: IGraphClassic
-    //     graph.mainGraph.resetForNewLayout();
-    //     let rootNode: INodeClassic;
-    //     if(rootNodeIdentifier === undefined) {
-    //         rootNode = this.findRootNode(graph, "MOST_EDGES");
-    //     }
-    //     else {
-    //         // Empty for now
-    //     }
+  findRootNode(graph: IGraphClassic, heuristic: RootHeuristicType): INodeClassic {
+      switch(heuristic) {
+          case "MOST_EDGES":
+              return this.findRootWithMostEdges(graph);
+      };
+  }
+  findRootWithMostEdges(graph: IGraphClassic): INodeClassic {
+      let root: INodeClassic;
+      let mostRelationships: number = 0;
+      Object.entries(graph.nodes).forEach(([nodeIdentifier, node]) => {
+          const relationshipCountForNode = [...node.getAllOutgoingEdges()].length + [...node.getAllIncomingEdges()].length;
 
-    //     const visitedNodes: Record<string, true> = {};
-    //     const usedEdges: Record<string, true> = {};
+          if(relationshipCountForNode > mostRelationships) {
+              mostRelationships = relationshipCountForNode;
+              root = node;
+          }
+      });
 
-    //     // BFS in first step, DFS then
-    //     for(const edge of [...graph.nodes[rootNode.id].getAllOutgoingEdges()].concat([...graph.nodes[rootNode.id].getAllIncomingEdges()])) {
-    //         edge.isConsideredInLayout = true;
-    //         usedEdges[edge.id] = true;
-    //         visitedNodes[edge.start.id] = true;
-    //         visitedNodes[edge.end.id] = true;
-    //     }
-
-    //     Object.entries(graph.nodes).forEach(([nodeIdentifier, node]) => {
-    //         if(visitedNodes[nodeIdentifier] === undefined) {
-    //             this.treeifyDFS(graph, node, visitedNodes, usedEdges);
-    //         }
-    //     });
-    // }
-    // treeifyDFS(graph: IGraphClassic, node: INodeClassic, visitedNodes: Record<string, true>, usedEdges: Record<string, true>): void {
-    //     if(visitedNodes[node.id] === true) {
-    //         for(const edge of graph.nodes[node.id].getAllOutgoingEdges()) {
-    //             if(usedEdges[edge.id] !== true) {
-    //                 edge.isConsideredInLayout = false;
-    //             }
-    //         }
-    //         return;
-    //     }
-
-    //     visitedNodes[node.id] = true;
-    //     node.isConsideredInLayout = true;
-    //     for(const edge of graph.nodes[node.id].getAllOutgoingEdges()) {
-    //         if(visitedNodes[edge.end.id] !== true && edge.end.getSourceGraph() === graph) {
-    //             edge.isConsideredInLayout = true;
-    //             usedEdges[edge.id] = true;
-    //             this.treeifyDFS(graph, edge.end, visitedNodes, usedEdges);
-    //         }
-    //         else {
-    //             edge.isConsideredInLayout = false;
-    //         }
-    //     }
-    // }
-
-    findRootNode(graph: IGraphClassic, heuristic: RootHeuristicType): INodeClassic {
-        switch(heuristic) {
-            case "MOST_EDGES":
-                return this.findRootWithMostEdges(graph);
-        };
-    }
-    findRootWithMostEdges(graph: IGraphClassic): INodeClassic {
-        let root: INodeClassic;
-        let mostRelationships: number = 0;
-        Object.entries(graph.nodes).forEach(([nodeIdentifier, node]) => {
-            const relationshipCountForNode = [...node.getAllOutgoingEdges()].length + [...node.getAllIncomingEdges()].length;
-
-            if(relationshipCountForNode > mostRelationships) {
-                mostRelationships = relationshipCountForNode;
-                root = node;
-            }
-        });
-
-        return root;
-    }
+      return root;
+  }
 
 
-    getSubgraphUsingBFS(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION", depth: number): GraphClassic {
-        throw new Error("Unimplemented");
-    }
-    findCliques(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION", size: number): GraphClassic {      // TODO:
-        throw new Error("Unimplemented");
-    }
+  getSubgraphUsingBFS(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION", depth: number): GraphClassic {
+      throw new Error("Unimplemented");
+  }
+  findCliques(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION", size: number): GraphClassic {      // TODO:
+      throw new Error("Unimplemented");
+  }
 }
 
 class VisualAlgorithms {
