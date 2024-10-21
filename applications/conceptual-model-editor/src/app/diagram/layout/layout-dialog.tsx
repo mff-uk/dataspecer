@@ -48,7 +48,7 @@ export const useConfigDialog = () => {
                     <input type="checkbox" id="checkbox-run-layered-after" name="checkbox-run-layered-after" checked={config[props.stateField].run_layered_after}
                     onChange={e => setConfig({...config,
                                             main: {...config.main, "run_layered_after": e.target.checked }})} />
-                    <label htmlFor="checkbox-run-layered-after">xddd</label>
+                    <label htmlFor="checkbox-run-layered-after">Run layered after</label>
                 </div>;
     };
 
@@ -72,18 +72,25 @@ export const useConfigDialog = () => {
                                                         (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
                                             }}></input>
                 {config[props.stateField]["min_distance_between_nodes"]}
+
+            </div>
+            {/* TODO: Copy paste from force algorithm */}
+            <div className="flex flex-row">
+                <label htmlFor="range-iteration-count">Počet různých běhů algoritmu: </label>
+            </div>
+            <div className="flex flex-row">
                 <input type="range" min="0" max="200" step="1" className="slider" id="range-iteration-count" draggable="false"
-                        defaultValue={config[props.stateField]["iteration_count"]}
-                        onMouseUp={(e) => { setConfig({
-                                                       ...config,
-                                                       [props.stateField]: {
-                                                            ...config[props.stateField],
-                                                            "iteration_count": parseInt((e.target as HTMLInputElement).value)
-                                                        }
-                                                    });
-                                                    {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
-                                                        (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
-                                            }}></input>
+                    defaultValue={config[props.stateField]["iteration_count"]}
+                    onMouseUp={(e) => { setConfig({
+                                                    ...config,
+                                                    [props.stateField]: {
+                                                        ...config[props.stateField],
+                                                        "iteration_count": parseInt((e.target as HTMLInputElement).value)
+                                                    }
+                                                });
+                                                {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
+                                                    (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
+                                        }}></input>
                 {config[props.stateField]["iteration_count"]}
             </div>
 
@@ -123,19 +130,24 @@ export const useConfigDialog = () => {
                                                     });
                                             }}></input>
                 {config[props.stateField]["stress_edge_len"]}
+            </div>
             {/* TODO: Copy paste from force algorithm */}
-            <input type="range" min="0" max="200" step="1" className="slider" id="range-iteration-count" draggable="false"
-                        defaultValue={config[props.stateField]["iteration_count"]}
-                        onMouseUp={(e) => { setConfig({
-                                                       ...config,
-                                                       [props.stateField]: {
-                                                            ...config[props.stateField],
-                                                            "iteration_count": parseInt((e.target as HTMLInputElement).value)
-                                                        }
-                                                    });
-                                                    {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
-                                                        (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
-                                            }}></input>
+            <div className="flex flex-row">
+                <label htmlFor="range-iteration-count">Počet různých běhů algoritmu: </label>
+            </div>
+            <div className="flex flex-row">
+                <input type="range" min="0" max="200" step="1" className="slider" id="range-iteration-count" draggable="false"
+                    defaultValue={config[props.stateField]["iteration_count"]}
+                    onMouseUp={(e) => { setConfig({
+                                                    ...config,
+                                                    [props.stateField]: {
+                                                        ...config[props.stateField],
+                                                        "iteration_count": parseInt((e.target as HTMLInputElement).value)
+                                                    }
+                                                });
+                                                {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
+                                                    (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
+                                        }}></input>
                 {config[props.stateField]["iteration_count"]}
             </div>
             <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
@@ -190,9 +202,9 @@ export const useConfigDialog = () => {
 
             <div className="flex flex-row">
                  <label htmlFor={`range-${props.stateField}in-layer-gap`}>Prostor mezi třídami uvnitř vrstvy: </label>
-             </div>
-             <div className="flex flex-row ">
-                 <input type="range" min="0" max="1000" step="10" className="slider" id={`range-${props.stateField}-in-layer-gap`} draggable="false"
+            </div>
+            <div className="flex flex-row ">
+                <input type="range" min="0" max="1000" step="10" className="slider" id={`range-${props.stateField}-in-layer-gap`} draggable="false"
                         defaultValue={config[props.stateField]["in_layer_gap"]}
                         onMouseUp={(e) => { setConfig({...config,
                                                         [props.stateField]: {
@@ -205,23 +217,16 @@ export const useConfigDialog = () => {
             </div>
             { props.stateField !== "general" ? null :
                     <div>
-                        <input type="checkbox" id="checkbox-double-run" name="checkbox-double-run" checked={config[props.stateField]["double_run"]}
-                                 onChange={e => setConfig({
-                                                    ...config,
-                                                    [props.stateField]: {
-                                                        ...config[props.stateField],
-                                                        "double_run": e.target.checked
-                                                    }
-                                                })
-                                            } />
-                        <label htmlFor="checkbox-double-run">Spusť dva běhy</label>
+                        {/* // TODO: Remove later since I always do double run */}
+                        <input type="checkbox" id="checkbox-double-run" name="checkbox-double-run" checked={true} disabled={true}/>
+                        <label htmlFor="checkbox-double-run">Spusť dva běhy (Always true)</label>
                     </div>
 
             }
         </div>;
 
     const renderMainAlgorithmConfig = () => {
-        // TODO: resetConfig is not it, the state has to be solved differently - different algorithms share non-relevant parameters, but it affects them 
+        // TODO: resetConfig is not it, the state has to be solved differently - different algorithms share non-relevant parameters, but it affects them
         //       (For example running layered after layered, because I checked it for stress layout)
         // resetConfig();
         if(config.main["layout_alg"] === "elk_layered") {
