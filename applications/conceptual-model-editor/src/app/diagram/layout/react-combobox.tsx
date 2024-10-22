@@ -23,9 +23,9 @@ const LayeredAlgorithmDirectionDropdown = (props: {
   return (
     <div className="custom-select">
       <div className="select-box" onClick={toggleDropdown}>
-        <div className="flex flex-row">
-        <TreeIcon direction={selectedDirection}></TreeIcon>
-        {selectedDirection}
+        <div className="flex flex-row space-x-2">
+          <div><TreeIcon direction={selectedDirection}></TreeIcon></div>
+          <div>{selectedDirection}</div>
         </div>
       </div>
       {isOpen && (
