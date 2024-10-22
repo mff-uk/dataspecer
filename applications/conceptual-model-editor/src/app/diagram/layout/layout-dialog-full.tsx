@@ -38,7 +38,7 @@ export const useLayoutDialog = () => {
 
     const [isLayoutDialogOpen, setIsLayoutDialogOpen] = useState<boolean>(false);
     const open = () => {
-        resetConfig();
+        // resetConfig();
         setIsLayoutDialogOpen(true);
     };
     const close = () => {

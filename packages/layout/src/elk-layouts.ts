@@ -72,10 +72,8 @@ class ElkGraphTransformer implements GraphTransformer {
         const GENERALIZATION_EDGE_DIRECTION: string = generalizationLayoutOptions === undefined ? MAIN_EDGE_DIRECTION : generalizationLayoutOptions['elk.direction'];
 
         if(mainLayoutOptions["elk.algorithm"] === "radial") {
-            // TODO: Should be in pre-constraints
+            // TODO: Should be in pre-constraints and probably static
             new GraphAlgorithms().treeify(graph);
-            // TODO: For now hardcoded
-            mainLayoutOptions["spacing.nodeNode"] = "300";
         }
 
         // TODO: The above code can be put in separate method (also it doesn't use the graph)
@@ -130,7 +128,7 @@ class ElkGraphTransformer implements GraphTransformer {
                 if(edge.isConsideredInLayout === false) {
                     continue;
                 }
-                
+
 
                 // TODO: Remove the commented code after debugging visual model
                 // console.log("Created edge:");

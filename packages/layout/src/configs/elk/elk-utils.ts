@@ -3,7 +3,7 @@ import { AlgorithmName, UserGivenAlgorithmConfigurationOnlyData } from "../..";
 
 
 // Note for myself: alternatively could define the type as Omit<Record<keyof UserGivenConstraints, string[]>, "double_run" | "process_general_separately">
-export const CONFIG_TO_ELK_CONFIG_MAP: Record<keyof Omit<UserGivenAlgorithmConfigurationOnlyData, "iteration_count" | "advanced_settings">, string[]> = {
+export const CONFIG_TO_ELK_CONFIG_MAP: Record<keyof Omit<UserGivenAlgorithmConfigurationOnlyData, "number_of_new_algorithm_runs" | "advanced_settings" | "consider_existing_layout_from_layered">, string[]> = {
     "layout_alg": ["elk.algorithm"],
     "alg_direction": ['elk.direction'],
     "layer_gap": ["spacing.nodeNodeBetweenLayers"],

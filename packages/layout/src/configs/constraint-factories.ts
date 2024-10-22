@@ -56,17 +56,17 @@ class AlgorithmConstraintFactory {
         const result: IConstraintSimple[] = [];
 
         // TODO: I currently also have to check the type, because there is one state for all algorithms so when I change the algorithm type I still have the data from the old one
-        //       in this case I can for example have iteration_count > 1 for layered algorithm, which isn't what I want, since it is deterministic
-        if(userGivenAlgorithmConfiguration.iteration_count > 1 &&
+        //       in this case I can for example have number_of_new_algorithm_runs > 1 for layered algorithm, which isn't what I want, since it is deterministic
+        if(userGivenAlgorithmConfiguration.number_of_new_algorithm_runs > 1 &&
             (userGivenAlgorithmConfiguration.layout_alg === "elk_stress" || userGivenAlgorithmConfiguration.layout_alg === "elk_force" )) {
-            const iterationCountConstraint: IConstraintSimple = {
+            const numberOfAlgorithmRunsConstraint: IConstraintSimple = {
                 constraintedNodes: "ALL",
                 type: "control-flow-change",
                 constraintTime: "IN-MAIN",
                 name: "Best layout iteration count",
-                data: { iterationCount: userGivenAlgorithmConfiguration.iteration_count }
+                data: { numberOfAlgorithmRuns: userGivenAlgorithmConfiguration.number_of_new_algorithm_runs }
             };
-            result.push(iterationCountConstraint)
+            result.push(numberOfAlgorithmRunsConstraint)
         }
 
         Object.entries(userGivenAlgorithmConfiguration).forEach(([key, value]) => {

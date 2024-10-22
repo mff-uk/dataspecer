@@ -854,6 +854,16 @@ class NodeClassic implements INodeClassic {
             return;
         }
 
+        if(visualModel !== null) {
+            this.completeVisualEntity = {
+                coreVisualEntity: {...visualModel.getVisualEntity(this.id)},
+                // TODO: Maybe also set width/height?
+                width: 0,
+                height: 0,
+            };
+
+        }
+
         const visualEntities = visualModel?.getVisualEntities();
 
         let edgeToAddKey: AddEdgeType = "relationshipEdges";

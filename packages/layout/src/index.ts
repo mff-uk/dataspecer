@@ -208,20 +208,30 @@ const runConstraintsInternal = async (graph: IMainGraphClassic,
 const runMainLayoutAlgorithm = async (graph: IMainGraphClassic,
 										constraints: ConstraintContainer,
 										nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<IMainGraphClassic> => {
-	// TODO: Well it really is overkill, like I could in the same way just have a look, if the given configuration contains iterationCount and if so, just put it here
+	// TODO: Well it really is overkill, like I could in the same way just have a look, if the given configuration contains numberOfAlgorithmRuns and if so, just put it here
 	let bestLayoutedVisualEntitiesPromise: Promise<IMainGraphClassic>;
 	let minEdgeCrossCount = 1000000;
 	const edgeCrossingMetric: EdgeCrossingMetric = new EdgeCrossingMetric();
 	const findBestLayoutConstraint = constraints.simpleConstraints.find(constraint => constraint.name === "Best layout iteration count");
-	const iterationCount = (findBestLayoutConstraint?.data as any)?.iterationCount ?? 1;
+	const numberOfAlgorithmRuns = (findBestLayoutConstraint?.data as any)?.numberOfAlgorithmRuns ?? 1;
 	const mainLayoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[constraints.algorithmOnlyConstraints["ALL"].algorithmName];
 	// TODO: Another special case for force and stress, because stress needs different initial graph every time, force can prepare it once
 	if(findBestLayoutConstraint === undefined || constraints.algorithmOnlyConstraints["ALL"].algorithmName === "elk_force") {
+		// TODO: Again special case
+		if(constraints.algorithmOnlyConstraints["ALL"].algorithmName === "elk_layered" && constraints.algorithmOnlyConstraints["ALL"].data["consider_existing_layout_from_layered"]) {
+			// TODO: Copy-paste of the interactive settings
+			constraints.algorithmOnlyConstraints.ALL.addAdvancedSettings({
+				// "crossingMinimization.semiInteractive": true,
+				"crossingMinimization.strategy": "INTERACTIVE",		// This is more aggressive (preserves given input more) than the crossingMinimization.seminteractive property
+				"crossingCounterNodeInfluence": 0,
+				"cycleBreaking.strategy": "INTERACTIVE",})
+		}
 		mainLayoutAlgorithm.prepareFromGraph(graph, constraints, nodeDimensionQueryHandler);		// TODO: Prepare only once? or in each iteration?
 	}
 
-	for(let i = 0; i < iterationCount; i++) {
-		// TODO: Again should be solved better
+	for(let i = 0; i < numberOfAlgorithmRuns; i++) {
+		// TODO: Again should be solved better (in preconditions or something) ...
+		//       I think that I should rewrite so I can just run multiple algorithms in succession and add pre-,post- conditions then I am happy with it
 		if(findBestLayoutConstraint !== undefined) {
 			if(constraints.algorithmOnlyConstraints.ALL.algorithmName === "elk_stress") {
 				constraints.algorithmOnlyConstraints.ALL.addAdvancedSettings({"interactive": true});

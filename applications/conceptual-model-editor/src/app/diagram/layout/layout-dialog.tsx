@@ -43,6 +43,30 @@ export const useConfigDialog = () => {
     // }
 
 
+    const RadialConfig = (props: {stateField: keyof UserGivenConstraintsVersion2}) => {
+        return <div>
+            <h1 className='font-black'>Nastavení radiálního modelu</h1>
+            <div className="flex flex-row">
+                <label htmlFor="range-min-distance-between-nodes">Min vzdálenost mezi vrcholy: </label>
+            </div>
+            <div className="flex flex-row">
+                <input type="range" min="0" max="1000" step="10" className="slider" id="range-min-distance-between-nodes" draggable="false"
+                        defaultValue={config[props.stateField]["min_distance_between_nodes"]}
+                        onMouseUp={(e) => { setConfig({
+                                                    ...config,
+                                                    [props.stateField]: {
+                                                            ...config[props.stateField],
+                                                            "min_distance_between_nodes": parseInt((e.target as HTMLInputElement).value)
+                                                        }
+                                                    });
+                                                    {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
+                                                        (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
+                                            }}></input>
+                {config[props.stateField]["min_distance_between_nodes"]}
+            </div>
+        </div>;
+    };
+
     const RunLayeredAfterCombobox = (props: {stateField: keyof UserGivenConstraintsVersion2}) => {
         return <div>
                     <input type="checkbox" id="checkbox-run-layered-after" name="checkbox-run-layered-after" checked={config[props.stateField].run_layered_after}
@@ -80,18 +104,18 @@ export const useConfigDialog = () => {
             </div>
             <div className="flex flex-row">
                 <input type="range" min="0" max="200" step="1" className="slider" id="range-iteration-count" draggable="false"
-                    defaultValue={config[props.stateField]["iteration_count"]}
+                    defaultValue={config[props.stateField]["number_of_new_algorithm_runs"]}
                     onMouseUp={(e) => { setConfig({
                                                     ...config,
                                                     [props.stateField]: {
                                                         ...config[props.stateField],
-                                                        "iteration_count": parseInt((e.target as HTMLInputElement).value)
+                                                        "number_of_new_algorithm_runs": parseInt((e.target as HTMLInputElement).value)
                                                     }
                                                 });
                                                 {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
                                                     (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
                                         }}></input>
-                {config[props.stateField]["iteration_count"]}
+                {config[props.stateField]["number_of_new_algorithm_runs"]}
             </div>
 
 
@@ -137,18 +161,18 @@ export const useConfigDialog = () => {
             </div>
             <div className="flex flex-row">
                 <input type="range" min="0" max="200" step="1" className="slider" id="range-iteration-count" draggable="false"
-                    defaultValue={config[props.stateField]["iteration_count"]}
+                    defaultValue={config[props.stateField]["number_of_new_algorithm_runs"]}
                     onMouseUp={(e) => { setConfig({
                                                     ...config,
                                                     [props.stateField]: {
                                                         ...config[props.stateField],
-                                                        "iteration_count": parseInt((e.target as HTMLInputElement).value)
+                                                        "number_of_new_algorithm_runs": parseInt((e.target as HTMLInputElement).value)
                                                     }
                                                 });
                                                 {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
                                                     (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
                                         }}></input>
-                {config[props.stateField]["iteration_count"]}
+                {config[props.stateField]["number_of_new_algorithm_runs"]}
             </div>
             <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
 
@@ -179,6 +203,17 @@ export const useConfigDialog = () => {
                     <option value="LEFT">Doleva</option>
                 </select>
             </div>
+
+            <input type="checkbox" id="checkbox-consider_existing_layout_from_layered" name="checkbox-consider_existing_layout_from_layered" checked={config.main.consider_existing_layout_from_layered}
+                    onChange={e => {
+                        setConfig({...config,
+                                    [props.stateField]: {
+                                        ...config[props.stateField],
+                                        "consider_existing_layout_from_layered": e.target.checked,
+                                    }
+                                });
+                        }} />
+            <label htmlFor="checkbox-consider_existing_layout_from_layered">Vezmi v úvahu existující layout</label>
 
             <div className="flex flex-row">
                 { /* It has to be onMouseUp, if I put it onChange then react forces redraw and stops the "drag" event I guess */ }
@@ -237,6 +272,9 @@ export const useConfigDialog = () => {
         }
         else if(config.main["layout_alg"] === "elk_force") {
             return <ForceConfig stateField="main"></ForceConfig>;
+        }
+        else if(config.main["layout_alg"] === "elk_radial") {
+            return <RadialConfig stateField="main"></RadialConfig>;
         }
         else {
             return null;

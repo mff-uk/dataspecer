@@ -38,7 +38,7 @@ export class ElkLayeredConfiguration extends LayeredConfiguration implements Elk
     }
 
     addAdvancedSettingsForUnderlying(advancedSettings: object) {
-        createElkDataObject(advancedSettings, this.elkData);
+        createElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
     }
 
     elkData: LayoutOptions = {};
@@ -135,7 +135,7 @@ export class ElkStressConfiguration extends StressConfiguration implements ElkCo
     }
 
     addAdvancedSettingsForUnderlying(advancedSettings: object) {
-        createElkDataObject(advancedSettings, this.elkData);
+        createElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
     }
 
     elkData: LayoutOptions = {};
@@ -147,8 +147,8 @@ export class ElkStressConfiguration extends StressConfiguration implements ElkCo
 // but I can extend only one of them, I guess that I could create combination, but still it doesn't seem correct 1:1 mapping and the Elk force has
 // the option to set the physical model in configuration, which D3 doesn't have
 export class ElkForceConfiguration extends AlgorithmConfiguration implements ElkConstraint {
-    getAllConstraintKeys(): string[] {
-        return super.getAllConstraintKeys().concat([
+    getAllRelevantConstraintKeys(): string[] {
+        return super.getAllRelevantConstraintKeys().concat([
             "force_alg_type",
             "min_distance_between_nodes",
         ]);
@@ -156,7 +156,7 @@ export class ElkForceConfiguration extends AlgorithmConfiguration implements Elk
 
     constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
         super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes);
-        this.data = _.pick(givenAlgorithmConstraints, this.getAllConstraintKeys()) as UserGivenAlgorithmConfigurationElkForce;
+        this.data = _.pick(givenAlgorithmConstraints, this.getAllRelevantConstraintKeys()) as UserGivenAlgorithmConfigurationElkForce;
         createElkDataObject(this.data, this.elkData);
 
         // TODO: For now - hardcoded
@@ -172,7 +172,7 @@ export class ElkForceConfiguration extends AlgorithmConfiguration implements Elk
     }
 
     addAdvancedSettingsForUnderlying(advancedSettings: object) {
-        createElkDataObject(advancedSettings, this.elkData);
+        createElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
     }
 
     data: UserGivenAlgorithmConfigurationElkForce = undefined;
@@ -190,7 +190,7 @@ export class ElkSporeConfiguration extends SporeConfiguration implements ElkCons
 
     // TODO: Copy paste of this method for every Elk class, I am not sure if there is way to do it without - some mixin or seomthing
     addAdvancedSettingsForUnderlying(advancedSettings: object) {
-        createElkDataObject(advancedSettings, this.elkData);
+        createElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
     }
 
 
@@ -205,7 +205,7 @@ export class ElkRadialConfiguration extends RadialConfiguration implements ElkCo
     }
 
     addAdvancedSettingsForUnderlying(advancedSettings: object) {
-        createElkDataObject(advancedSettings, this.elkData);
+        createElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
     }
 
     elkData: LayoutOptions = {};

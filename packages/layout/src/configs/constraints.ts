@@ -108,10 +108,12 @@ export interface UserGivenAlgorithmConfigurationLayered {
     "alg_direction": DIRECTION,
     "layer_gap": number,
     "in_layer_gap": number,
+    "consider_existing_layout_from_layered": boolean,
 }
 
 export interface UserGivenAlgorithmConfigurationStress {
     "stress_edge_len": number,
+    "number_of_new_algorithm_runs": number,
 }
 
 export interface UserGivenAlgorithmConfigurationSpore {
@@ -121,7 +123,7 @@ export interface UserGivenAlgorithmConfigurationSpore {
 export interface UserGivenAlgorithmConfigurationElkForce {
     "min_distance_between_nodes": number,
     "force_alg_type": ElkForceAlgType,
-    "iteration_count": number
+    "number_of_new_algorithm_runs": number,
 }
 
 
@@ -174,9 +176,9 @@ export function getDefaultUserGivenAlgorithmConstraint(): Omit<UserGivenAlgorith
 
         "force_alg_type": "FRUCHTERMAN_REINGOLD",
         "min_distance_between_nodes": 100,
-        "iteration_count": 50,
+        "number_of_new_algorithm_runs": 50,
         "run_layered_after": false,
-        advanced_settings: {}
+        advanced_settings: {},
     }
 }
 
@@ -246,9 +248,9 @@ export abstract class AlgorithmConfiguration implements IAlgorithmConfiguration 
     constraintTime: ConstraintTime = "IN-MAIN";
     // modelID: string = undefined;        // TODO: For now just undefined no matter what, I am still not sure how will it work with models
 
-    getAllConstraintKeys() {
+    getAllRelevantConstraintKeys() {
         let constraintKeys = [
-            "layout_alg"
+            "layout_alg",
         ];
 
         // TODO: Careful about this, right now it works, but I really don't know if I will use the double_run in future and where.
@@ -257,7 +259,7 @@ export abstract class AlgorithmConfiguration implements IAlgorithmConfiguration 
         }
         else {
             return constraintKeys.concat([
-                "double_run"
+                "double_run",
             ]);
         }
     }
@@ -270,7 +272,7 @@ export abstract class AlgorithmConfiguration implements IAlgorithmConfiguration 
     abstract addAdvancedSettingsForUnderlying(advancedSettings: object): void;
 
     setData(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
-        this.data = _.pick(givenAlgorithmConstraints, this.getAllConstraintKeys());
+        this.data = _.pick(givenAlgorithmConstraints, this.getAllRelevantConstraintKeys());
         this.data["advanced_settings"] = givenAlgorithmConstraints.advanced_settings;
     }
 
@@ -284,8 +286,8 @@ export abstract class AlgorithmConfiguration implements IAlgorithmConfiguration 
                 ...advancedSettings,
             };
         }
-        
-        this.addAdvancedSettingsForUnderlying({"advanced_settings": advancedSettings});
+
+        this.addAdvancedSettingsForUnderlying(advancedSettings);
     }
 }
 
@@ -295,8 +297,8 @@ export abstract class AlgorithmConfiguration implements IAlgorithmConfiguration 
  * the representation which will be used in the algorithm (that means renaming, transforming[, etc.] the parameters in the data field)
  */
 export abstract class StressConfiguration extends AlgorithmConfiguration {
-    getAllConstraintKeys(): string[] {
-        return super.getAllConstraintKeys().concat([
+    getAllRelevantConstraintKeys(): string[] {
+        return super.getAllRelevantConstraintKeys().concat([
             "stress_edge_len",
         ]);
     }
@@ -311,12 +313,9 @@ export abstract class StressConfiguration extends AlgorithmConfiguration {
 
 
 export abstract class LayeredConfiguration extends AlgorithmConfiguration {
-    getAllConstraintKeys(): string[] {
-        return super.getAllConstraintKeys().concat([
-            "alg_direction",
-            "layer_gap",
-            "in_layer_gap"
-        ]);
+    //  TODO: Takhle to prepsat vsude
+    getAllRelevantConstraintKeys(): string[] {
+        return super.getAllRelevantConstraintKeys().concat(Object.keys(LayeredConfiguration.getDefaultObject()));
     }
 
     // TODO: Ideally just export this static function not the whole class, but it seems that it is possible only using aliasing
@@ -324,12 +323,13 @@ export abstract class LayeredConfiguration extends AlgorithmConfiguration {
         return {
             "alg_direction": DIRECTION.UP,
             "layer_gap": 100,
-            "in_layer_gap": 100
+            "in_layer_gap": 100,
+            "consider_existing_layout_from_layered": false,
         }
     }
     constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
         super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes);
-        this.setData(givenAlgorithmConstraints);    
+        this.setData(givenAlgorithmConstraints);
     }
 
     data: UserGivenAlgorithmConfigurationLayered = undefined;
@@ -338,8 +338,8 @@ export abstract class LayeredConfiguration extends AlgorithmConfiguration {
 
 // TODO: Maybe put each class to separate file?
 export abstract class SporeConfiguration extends AlgorithmConfiguration {
-    getAllConstraintKeys(): string[] {
-        return super.getAllConstraintKeys().concat([
+    getAllRelevantConstraintKeys(): string[] {
+        return super.getAllRelevantConstraintKeys().concat([
             "min_distance_between_nodes",
         ]);
     }
@@ -355,8 +355,8 @@ export abstract class SporeConfiguration extends AlgorithmConfiguration {
 
 
 export abstract class RadialConfiguration extends AlgorithmConfiguration {
-    getAllConstraintKeys(): string[] {
-        return super.getAllConstraintKeys().concat([
+    getAllRelevantConstraintKeys(): string[] {
+        return super.getAllRelevantConstraintKeys().concat([
             "min_distance_between_nodes",
         ]);
     }
