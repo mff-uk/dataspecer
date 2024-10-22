@@ -1,19 +1,17 @@
-import {Configuration} from "../configuration";
-import {DataSpecification} from "@dataspecer/core/data-specification/model";
-import {DataSpecificationWithMetadata} from "@dataspecer/backend-utils/interfaces";
-import {DataSpecificationWithStores} from "@dataspecer/backend-utils/interfaces";
-import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
-import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
-import {CoreResourceReader} from "@dataspecer/core/core";
-import {isEqual} from "lodash";
-import {HttpSynchronizedStore} from "@dataspecer/backend-utils/stores";
-import {useAsyncMemo} from "../../hooks/use-async-memo";
-import {useEffect, useMemo, useState} from "react";
-import {getAdapter} from "../adapters/get-adapter";
-import {BackendConnector} from "@dataspecer/backend-utils/connectors";
-import {OperationContext} from "../../operations/context/operation-context";
-import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
+import { BackendConnector } from "@dataspecer/backend-utils/connectors";
+import { DataSpecificationWithMetadata, DataSpecificationWithStores } from "@dataspecer/backend-utils/interfaces";
+import { StoreDescriptor } from "@dataspecer/backend-utils/store-descriptor";
+import { HttpSynchronizedStore } from "@dataspecer/backend-utils/stores";
+import { CoreResourceReader } from "@dataspecer/core/core";
+import { DataSpecification } from "@dataspecer/core/data-specification/model";
+import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
+import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
+import { isEqual } from "lodash";
+import { useEffect, useMemo, useState } from "react";
 import { ClientConfigurator, DefaultClientConfiguration } from "../../../configuration";
+import { useAsyncMemo } from "../../hooks/use-async-memo";
+import { OperationContext } from "../../operations/context/operation-context";
+import { Configuration, useProvidedSourceSemanticModel } from "../configuration";
 
 const DEFAULT_CIM_ADAPTERS_CONFIGURATION = [];
 
@@ -53,7 +51,7 @@ export const useProvidedConfiguration = (
     }, [specification]);
 
     const cimAdaptersConfiguration = specifications?.[dataSpecificationIri]?.cimAdapters ?? DEFAULT_CIM_ADAPTERS_CONFIGURATION;
-    const cim = useMemo(() => enabled ? getAdapter(cimAdaptersConfiguration) : null, [enabled, cimAdaptersConfiguration]);
+    const sourceSemanticModel = useProvidedSourceSemanticModel(dataPsmSchemaIri, dataSpecificationIri, cimAdaptersConfiguration);
 
     if (enabled) {
         return {
@@ -61,7 +59,7 @@ export const useProvidedConfiguration = (
             dataSpecifications: specifications ?? {},
             dataSpecificationIri,
             dataPsmSchemaIri,
-            cim: cim as ReturnType<typeof getAdapter>,
+            sourceSemanticModel,
             operationContext,
         }
     } else {
