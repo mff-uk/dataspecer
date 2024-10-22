@@ -313,7 +313,6 @@ export abstract class StressConfiguration extends AlgorithmConfiguration {
 
 
 export abstract class LayeredConfiguration extends AlgorithmConfiguration {
-    //  TODO: Takhle to prepsat vsude
     getAllRelevantConstraintKeys(): string[] {
         return super.getAllRelevantConstraintKeys().concat(Object.keys(LayeredConfiguration.getDefaultObject()));
     }
