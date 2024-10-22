@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { DIRECTION, AlgorithmName, UserGivenConstraintsVersion2, ElkForceAlgType, getDefaultUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion2 } from "@dataspecer/layout";
 import _ from "lodash";
+import LayeredAlgorithmDirectionDropdown from "./react-combobox";
 
 
 // TODO:
@@ -188,20 +189,15 @@ export const useConfigDialog = () => {
                 <label htmlFor={`${props.stateField}-main-alg-direction`}>Preferovaný směr hran: </label>
             </div>
             <div className="flex flex-row">
-                <select id={`${props.stateField}-main-alg-direction`} value={config[props.stateField]["alg_direction"]} onChange={(event) => {
+                <LayeredAlgorithmDirectionDropdown direction={config[props.stateField]["alg_direction"]} setDirection={(newDirection) => {
                                 // Based on https://stackoverflow.com/questions/17380845/how-do-i-convert-a-string-to-enum-in-typescript
                                 setConfig({...config,
                                             [props.stateField]: {
                                                 ...config[props.stateField],
-                                                "alg_direction": DIRECTION[event.target.value as keyof typeof DIRECTION],
+                                                "alg_direction": newDirection,
                                             }
                                 });
-                        }}>
-                    <option value="UP">Nahoru</option>
-                    <option value="RIGHT">Doprava</option>
-                    <option value="DOWN">Dolu</option>
-                    <option value="LEFT">Doleva</option>
-                </select>
+                            }}></LayeredAlgorithmDirectionDropdown>
             </div>
 
             <input type="checkbox" id="checkbox-consider_existing_layout_from_layered" name="checkbox-consider_existing_layout_from_layered" checked={config.main.consider_existing_layout_from_layered}
