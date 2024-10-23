@@ -118,6 +118,7 @@ export interface IGraphClassic extends INodeClassic {
                 nodeContentOfGraph: Array<EdgeEndPoint> | null,
                 isDummy: boolean,
                 visualModel: VisualEntityModel | null),
+    insertSubgraphToGraph(subgraph: IGraphClassic, nodesInSubgraph: Array<EdgeEndPoint>, shouldRepairEdges: boolean): void,
 }
 
 // export class GraphFactory {
@@ -168,9 +169,12 @@ export class GraphFactory {
                                 inputModel: Record<string, SemanticModelEntity> | ExtractedModel,
                                 nodeContentOfGraph: Array<EdgeEndPoint> | null,
                                 isDummy: boolean,
-                                visualModel: VisualEntityModel | null): IGraphClassic {
+                                visualModel: VisualEntityModel | null,
+                                shouldRepairEdges: boolean): IGraphClassic {
+        // Create subgraph which has given nodes as children (TODO: What if the nodes are not given, i.e. null?)
         const graph = new GraphClassic();
         graph.initialize(mainGraph, sourceGraph, graphIdentifier, inputModel, nodeContentOfGraph, isDummy, visualModel);
+        sourceGraph.insertSubgraphToGraph(graph, nodeContentOfGraph, shouldRepairEdges);
         return graph;
     }
 
@@ -404,20 +408,20 @@ export class GraphClassic implements IGraphClassic {
     createSubgraphAndInsert(nodesInSubraph: Array<EdgeEndPoint>): IGraphClassic {
         const identifier = this.createUniqueGeneralizationSubgraphIdentifier();
 
-        // 1) Take ElkNodes and create one subgraph which has them as children
         // TODO: Using the variable which I shouldnt use (the todoDebugExtractedModel)
-        const subgraph: IGraphClassic = GraphFactory.createGraph(this.mainGraph, this, identifier, this.todoDebugExtractedModel, nodesInSubraph, true, null);
-        // 2) Repair the old graph by substituting the newly created subgraph from 1), while doing that also repair edges by splitting them into two parts
-        //    (part inside subgraph and outside)
-        this.insertSubgraphToGraph(subgraph, nodesInSubraph);
+        const subgraph: IGraphClassic = GraphFactory.createGraph(this.mainGraph, this, identifier, this.todoDebugExtractedModel, nodesInSubraph, true, null, true);
         return subgraph;
     }
 
-    insertSubgraphToGraph(subgraph: IGraphClassic, nodesInSubgraph: Array<EdgeEndPoint>): void {
+    insertSubgraphToGraph(subgraph: IGraphClassic, nodesInSubgraph: Array<EdgeEndPoint>, shouldRepairEdges: boolean): void {
+        // Repair the old graph by substituting the nodes by the newly created subgraph
         this.changeNodesInOriginalGraph(subgraph, nodesInSubgraph);
         console.log("After changeNodesInOriginalGraph");
-        this.repairEdgesInOriginalGraph(subgraph, nodesInSubgraph);
-        console.log("After repairEdgesInOriginalGraph");
+        if(shouldRepairEdges) {
+            // Repair edges by splitting them into two parts
+            this.repairEdgesInOriginalGraph(subgraph, nodesInSubgraph);
+            console.log("After repairEdgesInOriginalGraph");
+        }
     }
 
     changeNodesInOriginalGraph(subgraph: IGraphClassic, nodesInSubgraph: Array<EdgeEndPoint>) : void {
