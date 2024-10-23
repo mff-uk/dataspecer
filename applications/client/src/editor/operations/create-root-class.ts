@@ -1,5 +1,4 @@
 import { SemanticModelClass } from '@dataspecer/core-v2/semantic-model/concepts';
-import {PimClass} from "@dataspecer/core/pim/model";
 import {DataPsmCreateClass, DataPsmSetHumanDescription, DataPsmSetHumanLabel, DataPsmSetRoots} from "@dataspecer/core/data-psm/operation";
 import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-operation";
 import {createPimClassIfMissing} from "./helper/pim";
@@ -45,7 +44,7 @@ export class CreateRootClass implements ComplexOperation {
 
         const dataPsmCreateClass = new DataPsmCreateClass();
         dataPsmCreateClass.dataPsmInterpretation = pimClassIri;
-        dataPsmCreateClass.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(await this.store.readResource(pimClassIri) as PimClass) ?? null;
+        dataPsmCreateClass.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim((await this.store.readResource(pimClassIri) as SemanticModelClass).name) ?? null;
         const dataPsmCreateClassResult = await this.store.applyOperation(this.dataPsmSchemaIri, dataPsmCreateClass);
 
         const dataPsmUpdateSchemaRoots = new DataPsmSetRoots();

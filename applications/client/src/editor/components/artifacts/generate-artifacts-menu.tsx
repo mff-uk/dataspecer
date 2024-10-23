@@ -66,6 +66,7 @@ const useSaveOrCopy = (generator: string, save: boolean) => {
         let memoryStreamDictionary: MemoryStreamDictionary | undefined = undefined;
         try {
             memoryStreamDictionary = await getSingleArtifact(
+                // @ts-ignore
                 configuration.store,
                 configuration.dataSpecificationIri as string,
                 configuration.dataSpecifications,

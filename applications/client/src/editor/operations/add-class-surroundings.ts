@@ -1,15 +1,14 @@
 import { isSemanticModelClass, isSemanticModelRelationPrimitive, isSemanticModelRelationship, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { DataPsmClass } from "@dataspecer/core/data-psm/model";
 import { DataPsmCreateAssociationEnd, DataPsmCreateAttribute, DataPsmCreateClass } from "@dataspecer/core/data-psm/operation";
-import { PimAssociation, PimAssociationEnd, PimAttribute, PimClass, PimResource } from "@dataspecer/core/pim/model";
-import { PimCreateAssociation, PimCreateAttribute, PimSetCardinality } from "@dataspecer/core/pim/operation";
+import { PimAttribute, PimClass } from "@dataspecer/core/pim/model";
 import { OFN, XSD } from '@dataspecer/core/well-known';
 import { ComplexOperation } from "@dataspecer/federated-observable-store/complex-operation";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
 import { TechnicalLabelOperationContext } from "./context/technical-label-operation-context";
-import { copyPimPropertiesFromResourceToOperation } from "./helper/copyPimPropertiesFromResourceToOperation";
-import { createPimClassIfMissing } from "./helper/pim";
 import { extendPimClassesAlongInheritance } from "./helper/extend-pim-classes-along-inheritance";
+import { createPimClassIfMissing } from "./helper/pim";
 
 /**
  * For now, this represents simple mapping between different primitive types used in application.
@@ -70,14 +69,14 @@ export class AddClassSurroundings implements ComplexOperation {
     }
 
     async execute(): Promise<void> {
-        const interpretedPimClass = await this.store.readResource(this.forDataPsmClass.dataPsmInterpretation as string) as PimClass;
+        const interpretedPimClass = await this.store.readResource(this.forDataPsmClass.dataPsmInterpretation as string) as SemanticModelClass;
 
-        const pimSchema = this.store.getSchemaForResource(this.forDataPsmClass.dataPsmInterpretation as string) as string;
+        const pimSchema = this.store.getSchemaForResource(interpretedPimClass.id) as string;
         const dataPsmSchema = this.store.getSchemaForResource(this.forDataPsmClass.iri as string) as string;
 
         let correspondingSourcePimClass: SemanticModelClass | null = null;
         for (const resource of this.sourceSemanticModel) {
-            if (isSemanticModelClass(resource) && resource.id === interpretedPimClass.pimInterpretation) {
+            if (isSemanticModelClass(resource) && resource.id === interpretedPimClass.iri) {
                 correspondingSourcePimClass = resource;
                 break;
             }
@@ -113,15 +112,15 @@ export class AddClassSurroundings implements ComplexOperation {
         await extendPimClassesAlongInheritance(
             correspondingSourcePimClass, ownerClass, pimSchema, this.store, this.sourceSemanticModel);
 
-        const pimAttributeIri = await this.createPimAttributeIfMissing(attribute, pimSchema);
+        const pimAttributeIri = await this.createPimRelationshipIfMissing(attribute, pimSchema);
 
         // PSM attribute
 
         const dataPsmCreateAttribute = new DataPsmCreateAttribute();
         dataPsmCreateAttribute.dataPsmInterpretation = pimAttributeIri;
         dataPsmCreateAttribute.dataPsmOwner = this.forDataPsmClass.iri ?? null;
-        dataPsmCreateAttribute.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(await this.store.readResource(pimAttributeIri) as PimResource) ?? null;
-        dataPsmCreateAttribute.dataPsmDatatype = (await this.store.readResource(pimAttributeIri) as PimAttribute).pimDatatype;
+        dataPsmCreateAttribute.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(attribute.ends[1].name) ?? null;
+        dataPsmCreateAttribute.dataPsmDatatype = (await this.store.readResource(pimAttributeIri) as PimAttribute).pimDatatype ?? null;
         await this.store.applyOperation(dataPsmSchema, dataPsmCreateAttribute);
     }
 
@@ -139,7 +138,7 @@ export class AddClassSurroundings implements ComplexOperation {
         const otherAssociationEndClass = orientation ? rangeAssociationEndClass : domainAssociationEndClass;
 
         // Because the this class may be a parent of the current class, we need to extend the current class to the parent and create parent itself
-        await extendPimClassesAlongInheritance( 
+        await extendPimClassesAlongInheritance(
             correspondingSourcePimClass, thisAssociationEndClass, pimSchema, this.store, this.sourceSemanticModel);
 
         // Pim other class is created always. Mainly because of the association on PIM level.
@@ -149,23 +148,24 @@ export class AddClassSurroundings implements ComplexOperation {
 
         const dataPsmCreateClass = new DataPsmCreateClass();
         dataPsmCreateClass.dataPsmInterpretation = pimOtherClassIri;
-        dataPsmCreateClass.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(await this.store.readResource(pimOtherClassIri) as PimClass) ?? null;
+        dataPsmCreateClass.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim((await this.store.readResource(pimOtherClassIri) as SemanticModelClass).name) ?? null;
         const dataPsmCreateClassResult = await this.store.applyOperation(dataPsmSchema, dataPsmCreateClass);
         const psmEndRefersToIri = dataPsmCreateClassResult.created[0];
 
-        const {associationEnds, associationIri} = await this.createPimAssociationIfMissing(association, pimSchema);
+        const associationIri = await this.createPimRelationshipIfMissing(association, pimSchema);
 
         // Data PSM association end
 
         const dataPsmCreateAssociationEnd = new DataPsmCreateAssociationEnd();
-        dataPsmCreateAssociationEnd.dataPsmInterpretation = associationEnds[orientation ? 1 : 0] as string;
+        dataPsmCreateAssociationEnd.dataPsmInterpretation = associationIri;
+        // todo: missing direction !!!
         dataPsmCreateAssociationEnd.dataPsmPart = psmEndRefersToIri;
         dataPsmCreateAssociationEnd.dataPsmOwner = this.forDataPsmClass.iri ?? null;
-        dataPsmCreateAssociationEnd.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(await this.store.readResource(associationIri) as PimAssociation) ?? null;
+        dataPsmCreateAssociationEnd.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim((await this.store.readResource(associationIri) as SemanticModelRelationship).ends[1].name) ?? null;
         await this.store.applyOperation(dataPsmSchema, dataPsmCreateAssociationEnd);
     }
 
-    private async createPimAttributeIfMissing(
+    private async createPimRelationshipIfMissing(
         resource: SemanticModelRelationship,
         pimSchema: string,
     ): Promise<string> {
@@ -182,87 +182,26 @@ export class AddClassSurroundings implements ComplexOperation {
             throw new Error('Unable to create PimAttribute because its ownerClass has no representative in the PIM store.');
         }
 
-        const pimCreateAttribute = new PimCreateAttribute();
-        copyPimPropertiesFromResourceToOperation(resource, pimCreateAttribute);
-        pimCreateAttribute.pimHumanLabel = resource.ends[1].name;
-        pimCreateAttribute.pimHumanDescription = resource.ends[1].description;
-        pimCreateAttribute.pimOwnerClass = ownerClassIri;
-        pimCreateAttribute.pimCardinalityMin = resource.ends[1].cardinality?.[0] ?? 0;
-        pimCreateAttribute.pimCardinalityMax = resource.ends[1].cardinality?.[1] ?? null;
-        pimCreateAttribute.pimDatatype = PRIMITIVE_TYPE_MAPPING[resource.ends[1].concept] ?? resource.ends[1].concept;
-        const pimCreateAttributeResult = await this.store.applyOperation(pimSchema, pimCreateAttribute);
-        return pimCreateAttributeResult.created[0];
-    }
-
-    /**
-     * Takes a current PimResource and creates it in the store if not exists. If it exists, it does not perform any
-     * checks, so it supposes the CIM is immutable.
-     * @param resource Fresh PimResource to add to the store
-     * @param pimSchema
-     * @return IRI of PimResource in the store
-     */
-    private async createPimAssociationIfMissing(
-        resource: SemanticModelRelationship,
-        pimSchema: string,
-    ): Promise<{
-        associationIri: string,
-        associationEnds: string[]
-    }> {
-        const existingPimIri = await this.store.getPimHavingInterpretation(resource.id as string, PimAssociation.TYPE, pimSchema);
-
-        if (existingPimIri) {
-            // todo it does not perform any checks
-            const association = await this.store.readResource(existingPimIri) as PimAssociation;
-            return {
-                associationIri: existingPimIri,
-                associationEnds: association.pimEnd,
-            }
-        }
-
-        // IRI of local PIM classes from the association ends
-        const pimEndIris: string[] = [];
-        const pimEnds: PimAssociationEnd[] = [];
-        for (const [endNumber, end] of Object.entries(resource.ends)) {
-            const associationEnd = new PimAssociationEnd(resource.id + "#end-" + endNumber);
-            const endClass = await this.sourceSemanticModel.find(e => e.id === end.concept) as SemanticModelClass;
-            const localPimIri = await this.store.getPimHavingInterpretation(endClass.id as string, PimClass.TYPE, pimSchema);
-            associationEnd.pimPart = localPimIri;
-            associationEnd.pimCardinalityMin = end.cardinality?.[0] ?? 0;
-            associationEnd.pimCardinalityMax = end.cardinality?.[1] ?? null;
-            if (localPimIri === null) {
-                throw new Error('Unable to create PimAssociation because its end has no representative in the PIM store.');
-            }
-            pimEndIris.push(localPimIri);
-            pimEnds.push(associationEnd);
-        }
-
-        const pimCreateAssociation = new PimCreateAssociation(); // This operation creates AssociationEnds as well
-        copyPimPropertiesFromResourceToOperation(resource, pimCreateAssociation);
-        pimCreateAssociation.pimHumanLabel = resource.ends[1].name;
-        pimCreateAssociation.pimHumanDescription = resource.ends[1].description;
-        pimCreateAssociation.pimIsOriented = true;
-        pimCreateAssociation.pimAssociationEnds = pimEndIris;
-        const pimCreateAssociationResult = await this.store.applyOperation(pimSchema, pimCreateAssociation);
-        const operationResult =  {
-            associationIri: pimCreateAssociationResult.created[0],
-            associationEnds: pimCreateAssociationResult.created.slice(1)
-        }
-
-        // Set cardinalities of association ends if differs
-        for (let i = 0; i < operationResult.associationEnds.length; i++) {
-            const associationEnd = await this.store.readResource(operationResult.associationEnds[i]) as PimAssociationEnd;
-
-            if (associationEnd.pimCardinalityMin !== pimEnds[i].pimCardinalityMin ||
-                associationEnd.pimCardinalityMax !== pimEnds[i].pimCardinalityMax) {
-
-                const pimSetCardinality = new PimSetCardinality();
-                pimSetCardinality.pimCardinalityMin = pimEnds[i].pimCardinalityMin;
-                pimSetCardinality.pimCardinalityMax = pimEnds[i].pimCardinalityMax;
-                pimSetCardinality.pimResource = associationEnd.iri;
-                await this.store.applyOperation(pimSchema, pimSetCardinality);
-            }
-        }
-
-        return operationResult;
+        const op = createRelationship({
+            ends: [
+                {
+                    iri: resource.ends[0].iri,
+                    cardinality: resource.ends[0].cardinality,
+                    concept: ownerClassIri,
+                    name: resource.ends[0].name,
+                    description: resource.ends[0].description,
+                },
+                {
+                    iri: resource.ends[1].iri,
+                    cardinality: resource.ends[1].cardinality,
+                    concept: PRIMITIVE_TYPE_MAPPING[resource.ends[1].concept] ?? resource.ends[1].concept,
+                    name: resource.ends[1].name,
+                    description: resource.ends[1].description,
+                }
+            ]
+        });
+        // @ts-ignore
+        const {id} = await this.store.applyOperation(pimSchema, op);
+        return id as string;
     }
 }

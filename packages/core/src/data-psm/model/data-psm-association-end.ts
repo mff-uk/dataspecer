@@ -1,4 +1,3 @@
-import { CoreResource } from "../../core";
 import { DataPsmResource } from "./data-psm-resource";
 import * as PSM from "../data-psm-vocabulary";
 
@@ -24,7 +23,7 @@ export class DataPsmAssociationEnd extends DataPsmResource {
     this.types.push(DataPsmAssociationEnd.TYPE);
   }
 
-  static is(resource: CoreResource | null): resource is DataPsmAssociationEnd {
-    return resource?.types.includes(DataPsmAssociationEnd.TYPE);
+  static is(resource: any): resource is DataPsmAssociationEnd {
+    return resource?.types?.includes(DataPsmAssociationEnd.TYPE);
   }
 }

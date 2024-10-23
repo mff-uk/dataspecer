@@ -18,6 +18,7 @@ import { ObjectContext } from "../data-psm-row";
 import { ReplaceAlongInheritanceDialog } from "../replace-along-inheritance/replace-along-inheritance-dialog";
 import { Span, sxStyles } from "../styles";
 import { DataPsmClassSubtree } from "../subtrees/class-subtree";
+import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 
 export const DataPsmClassItem: React.FC<{
   iri: string,
@@ -25,9 +26,9 @@ export const DataPsmClassItem: React.FC<{
 } & RowSlots & ObjectContext> = memo((props) => {
   const {t} = useTranslation("psm");
 
-  const {dataPsmResource: dataPsmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(props.iri);
+  const {dataPsmResource: dataPsmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, SemanticModelClass>(props.iri);
   const readOnly = false;
-  const cimClassIri = pimClass?.pimInterpretation;
+  const cimClassIri = pimClass?.iri;
 
   const AddSurroundings = useDialog(false ? WikidataAddInterpretedSurroundingsDialog : AddInterpretedSurroundingsDialog, ["dataPsmClassIri"]);
 

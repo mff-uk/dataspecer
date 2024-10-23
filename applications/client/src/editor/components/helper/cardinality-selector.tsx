@@ -24,12 +24,11 @@ interface CardinalitySelectorProps {
 }
 
 export function cardinalityFromPim(pimResource: {
-    pimCardinalityMin: number | null,
-    pimCardinalityMax: number | null,
+    cardinality?: [number, number | null],
 }): Cardinality {
     return {
-        cardinalityMin: pimResource?.pimCardinalityMin ?? 0,
-        cardinalityMax: pimResource?.pimCardinalityMax ?? null,
+        cardinalityMin: pimResource?.cardinality?.[0] ?? 0,
+        cardinalityMax: pimResource?.cardinality?.[1] ?? null,
     };
 }
 

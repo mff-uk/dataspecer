@@ -38,7 +38,6 @@ export const DefaultSearchDialogContent: React.FC<DialogParameters & {selected: 
         if (searchText) {
             setLoading(true);
             sourceSemanticModel.search(searchText).then(result => {
-                console.log(result);
                 updateFindResults(result.filter((_, i) => i < MAX_RESULTS));
             }).catch(error => {
                 console.info("Error during search.", error);

@@ -1,30 +1,30 @@
-import React, {FC, useCallback, useContext, useMemo} from "react";
-import {Box, Button, CardContent, Fab, Link, Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import {DataSpecificationsContext} from "../../app";
-import {useConstructedStoresFromDescriptors} from "../../utils/use-stores-by-descriptors";
-import {DataSpecificationName} from "../../name-cells";
-import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
-import {ModifySpecification} from "./modify-specification";
-import {SpecificationTags} from "../../components/specification-tags";
-import {CopyIri} from "./copy-iri";
-import {BackendConnectorContext} from "../../../application";
-import {useDialog} from "../../../editor/dialog";
-import {DeleteDataSchemaForm} from "../../components/delete-data-schema-form";
-import {SearchDialog} from "../../../editor/components/cim-search/search-dialog";
-import {ConfigurationContext} from "../../../editor/components/App";
-import {Configuration} from "../../../editor/configuration/configuration";
-import {getAdapter} from "../../../editor/configuration/adapters/get-adapter";
-import {PimClass} from "@dataspecer/core/pim/model";
-import {DataPsmExternalRoot, DataPsmSchema} from "@dataspecer/core/data-psm/model";
-import {CreateExternalRoot} from "../../../editor/operations/create-external-root";
-import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
-import {SlovnikGovCzGlossary} from "../../../editor/components/slovnik.gov.cz/SlovnikGovCzGlossary";
-import {LanguageStringUndefineable} from "../../../editor/components/helper/LanguageStringComponents";
-import {ExternalArtifactDialog, ExternalArtifactDialogEditableProperties} from "../../components/external-artifact-dialog";
+import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { DataPsmExternalRoot, DataPsmSchema } from "@dataspecer/core/data-psm/model";
 import { DataSpecificationSchema } from "@dataspecer/core/data-specification/model/data-specification-schema";
-import { ArtifactType } from "../../../artifact-types";
+import { useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
+import { useResource } from "@dataspecer/federated-observable-store-react/use-resource";
+import AddIcon from "@mui/icons-material/Add";
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import { Box, Button, CardContent, Fab, Link, Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import React, { FC, useCallback, useContext, useMemo } from "react";
+import { BackendConnectorContext } from "../../../application";
+import { ArtifactType } from "../../../artifact-types";
+import { ConfigurationContext } from "../../../editor/components/App";
+import { SearchDialog } from "../../../editor/components/cim-search/search-dialog";
+import { LanguageStringUndefineable } from "../../../editor/components/helper/LanguageStringComponents";
+import { SlovnikGovCzGlossary } from "../../../editor/components/slovnik.gov.cz/SlovnikGovCzGlossary";
+import { getAdapter } from "../../../editor/configuration/adapters/get-adapter";
+import { Configuration } from "../../../editor/configuration/configuration";
+import { useDialog } from "../../../editor/dialog";
+import { CreateExternalRoot } from "../../../editor/operations/create-external-root";
+import { DataSpecificationsContext } from "../../app";
+import { DeleteDataSchemaForm } from "../../components/delete-data-schema-form";
+import { ExternalArtifactDialog, ExternalArtifactDialogEditableProperties } from "../../components/external-artifact-dialog";
+import { SpecificationTags } from "../../components/specification-tags";
+import { DataSpecificationName } from "../../name-cells";
+import { useConstructedStoresFromDescriptors } from "../../utils/use-stores-by-descriptors";
+import { CopyIri } from "./copy-iri";
+import { ModifySpecification } from "./modify-specification";
 
 /**
  * Single row for one external specification.
@@ -73,7 +73,7 @@ const SchemaRow: FC<{
 
     const {resource: psmSchema} = useResource<DataPsmSchema>(dataPsmSchemaIri);
     const {resource: psmRoot} = useResource<DataPsmExternalRoot>(psmSchema?.dataPsmRoots[0]);
-    const {resource: pimClass} = useResource<PimClass>(psmRoot?.dataPsmTypes[0]);
+    const {resource: pimClass} = useResource<SemanticModelClass>(psmRoot?.dataPsmTypes[0]);
 
     const EditExternalArtifacts = useDialog(ExternalArtifactDialog);
 
@@ -113,13 +113,13 @@ const SchemaRow: FC<{
         <CardContent sx={{display: "flex"}}>
             <Box sx={{flexGrow: 1}}>
                 {pimClass && <Typography sx={{mt: 1}}>
-                    <LanguageStringUndefineable from={pimClass.pimHumanLabel}>
+                    <LanguageStringUndefineable from={pimClass.name}>
                         {label =>
-                            <LanguageStringUndefineable from={pimClass.pimHumanDescription}>
+                            <LanguageStringUndefineable from={pimClass.description}>
                                 {description => <>
                                     <strong>{label}</strong>
                                     {" "}
-                                    <SlovnikGovCzGlossary cimResourceIri={pimClass.pimInterpretation as string}/>
+                                    <SlovnikGovCzGlossary cimResourceIri={pimClass.iri as string}/>
                                     {description && <><br />{description}</>}
                                 </>}
                             </LanguageStringUndefineable>
@@ -216,7 +216,7 @@ export const ExternalSpecification: React.FC<{
     /**
      * Creates a new PSM schema with an external root.
      */
-    const createDataStructure = useCallback(async (pimClass: PimClass) => {
+    const createDataStructure = useCallback(async (pimClass: SemanticModelClass) => {
         const {createdPsmSchemaIri, dataSpecification} = await backendConnector.createDataStructure(dataSpecificationIri);
         setDataSpecifications({...dataSpecifications, [dataSpecification.iri]: dataSpecification});
 

@@ -1,4 +1,4 @@
-import { isSemanticModelRelationPrimitive, isSemanticModelRelationship, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelRelationPrimitive, isSemanticModelRelationship, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { DataPsmClass } from "@dataspecer/core/data-psm/model";
 import { PimClass } from "@dataspecer/core/pim/model";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
@@ -34,8 +34,8 @@ export interface AddInterpretedSurroundingDialogProperties {
 export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundingDialogProperties> = dialog({fullWidth: true, maxWidth: "lg"}, ({isOpen, close, selected, dataPsmClassIri}) => {
     const {t, i18n} = useTranslation("interpretedSurrounding");
 
-    const {pimResource: pimClass, dataPsmResource: dataPsmClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmClassIri);
-    const cimClassIri = pimClass?.pimInterpretation; // ! toto je CIM na kterem stavime
+    const {pimResource: pimClass, dataPsmResource: dataPsmClass} = useDataPsmAndInterpretedPim<DataPsmClass, SemanticModelClass>(dataPsmClassIri);
+    const cimClassIri = pimClass?.iri; // ! toto je CIM na kterem stavime
 
     const {sourceSemanticModel} = React.useContext(ConfigurationContext);
 

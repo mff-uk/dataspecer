@@ -3,6 +3,7 @@ import {PimClass} from "@dataspecer/core/pim/model";
 import {PimCreateClass} from "@dataspecer/core/pim/operation";
 import {copyPimPropertiesFromResourceToOperation} from "./copyPimPropertiesFromResourceToOperation";
 import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
+import { createClass } from '@dataspecer/core-v2/semantic-model/operations';
 
 export async function createPimClassIfMissing(
     resource: SemanticModelClass,
@@ -16,9 +17,18 @@ export async function createPimClassIfMissing(
         return existingPimIri;
     }
 
-    const pimCreateClass = new PimCreateClass();
-    copyPimPropertiesFromResourceToOperation(resource, pimCreateClass);
-    pimCreateClass.pimIsCodelist = false;
-    const pimCreateClassResult = await store.applyOperation(pimSchema, pimCreateClass);
-    return pimCreateClassResult.created[0] as string;
+    // const pimCreateClass = new PimCreateClass();
+    // copyPimPropertiesFromResourceToOperation(resource, pimCreateClass);
+    // pimCreateClass.pimIsCodelist = false;
+    // const pimCreateClassResult = await store.applyOperation(pimSchema, pimCreateClass);
+    // return pimCreateClassResult.created[0] as string;
+
+    const op = createClass({
+        iri: resource.iri,
+        name: resource.name,
+        description: resource.description,
+    });
+    // @ts-ignore
+    const {id} = await store.applyOperation(pimSchema, op);
+    return id as string;
 }

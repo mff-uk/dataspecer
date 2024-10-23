@@ -1,11 +1,12 @@
-import {DataSpecification, DataSpecificationArtefact} from "@dataspecer/core/data-specification/model";
-import {CoreResourceReader} from "@dataspecer/core/core";
-import {PimSchema} from "@dataspecer/core/pim/model";
-import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
-import {Configurator} from "@dataspecer/core/configuration/configurator";
-import {mergeConfigurations} from "@dataspecer/core/configuration/utils";
-import {getSchemaArtifacts} from "./schema-artifacts";
+import { Configurator } from "@dataspecer/core/configuration/configurator";
+import { mergeConfigurations } from "@dataspecer/core/configuration/utils";
+import { CoreResourceReader } from "@dataspecer/core/core";
+import { DataPsmSchema } from "@dataspecer/core/data-psm/model";
 import { DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
+import { DataSpecification, DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
+import { PimSchema } from "@dataspecer/core/pim/model";
+import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
+import { getSchemaArtifacts } from "./schema-artifacts";
 
 /**
  * This class is responsible for setting the artifacts definitions in
@@ -30,12 +31,12 @@ export class DefaultArtifactConfigurator {
 
   constructor(
     dataSpecifications: DataSpecification[],
-    store: CoreResourceReader,
+    store: FederatedObservableStore,
     configurationObject: object,
     configurators: Configurator[],
   ) {
     this.dataSpecifications = dataSpecifications;
-    this.store = store;
+    this.store = store as CoreResourceReader;
     this.configurationObject = configurationObject;
     this.configurators = configurators;
   }

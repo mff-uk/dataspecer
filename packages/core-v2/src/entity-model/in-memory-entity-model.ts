@@ -14,6 +14,8 @@ export class InMemoryEntityModel implements EntityModel {
     /** @internal */
     public listeners: ((updated: Record<string, Entity>, removed: string[]) => void)[] = [];
 
+    public type = [];
+
     constructor(id?: string, alias?: string) {
         this.id = id ?? createId();
         this.alias = alias;
@@ -32,7 +34,7 @@ export class InMemoryEntityModel implements EntityModel {
     }
 
     getEntities(): Record<string, Entity> {
-        return { ...this.entities };
+        return { ...this.entities, [this.id]: this as unknown as Entity };
     }
 
     subscribeToChanges(callback: (updated: Record<string, Entity>, removed: string[]) => void): () => void {

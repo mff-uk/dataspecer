@@ -1,13 +1,16 @@
-import {Resource} from "./resource";
-import {PimResource, PimSchema} from "@dataspecer/core/pim/model";
-import {CoreOperation, CoreOperationResult, CoreResource, CoreResourceReader, CoreResourceWriter} from "@dataspecer/core/core";
-import {FederatedCoreResourceWriter} from "./federated-core-resource-writer";
-import * as PIM from "@dataspecer/core/pim/pim-vocabulary";
+import { Entity, EntityModel, InMemoryEntityModel } from '@dataspecer/core-v2';
+import { isSemanticModelClass, isSemanticModelRelationship } from '@dataspecer/core-v2/semantic-model/concepts';
+import { Operation } from '@dataspecer/core-v2/semantic-model/operations';
+import { CoreOperation, CoreOperationResult, CoreResource, CoreResourceReader, CoreResourceWriter } from "@dataspecer/core/core";
 import * as DataPSM from "@dataspecer/core/data-psm/data-psm-vocabulary";
-import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
-import {ComplexOperation} from "./complex-operation";
-import {ImmediateCoreResourceReader} from "./immediate-core-resource-reader";
-import {cloneDeep} from "lodash";
+import { DataPsmSchema } from "@dataspecer/core/data-psm/model";
+import { PimResource } from "@dataspecer/core/pim/model";
+import * as PIM from "@dataspecer/core/pim/pim-vocabulary";
+import { cloneDeep } from "lodash";
+import { ComplexOperation } from "./complex-operation";
+import { FederatedCoreResourceWriter } from "./federated-core-resource-writer";
+import { ImmediateCoreResourceReader } from "./immediate-core-resource-reader";
+import { Resource } from "./resource";
 
 /**
  * Callback listening for resource changes.
@@ -19,7 +22,7 @@ interface Subscription {
     subscribers: Subscriber[];
 }
 
-export function cloneResource<ResourceType extends CoreResource | null>(from: ResourceType, alreadyExists: ResourceType | null = null): ResourceType {
+export function cloneResource<ResourceType extends CoreResource | Entity | null>(from: ResourceType, alreadyExists: ResourceType | null = null): ResourceType {
     return cloneDeep(from);
 }
 
@@ -28,26 +31,44 @@ export function cloneResource<ResourceType extends CoreResource | null>(from: Re
  *
  * Currently, there are no metadata needed.
  */
-type StoreWrapper = {
+type ModelWrapper = {
     store: CoreResourceReader,
     hasImmediateInterface: false,
 } | {
     store: ImmediateCoreResourceReader & CoreResourceReader,
     hasImmediateInterface: true,
+} | {
+    store: EntityModel,
 };
+
+function isModelWrapperEntityModel(wrapper: ModelWrapper): wrapper is { store: EntityModel } {
+    return wrapper.store["listResources"] === undefined;
+}
+
+function isModelWrapperCoreResourceReader(wrapper: ModelWrapper): wrapper is {
+    store: CoreResourceReader,
+    hasImmediateInterface: false,
+} | {
+    store: ImmediateCoreResourceReader & CoreResourceReader,
+    hasImmediateInterface: true,
+} {
+    return wrapper.store["listResources"] !== undefined;
+}
 
 /**
  * Represents necessary information about a single schema that was obtained from
  * a store.
+ *
+ * @todo schema is a model
  */
-interface CachedSchema {
+interface CachedModel {
     // IRI of the schema's resource that is in the store
     iri: string;
 
     // Type of the schema's resource
     type: string;
 
-    belongsToStore: StoreWrapper;
+    belongsToStore: ModelWrapper;
 
     isLoading: boolean;
 
@@ -65,12 +86,14 @@ function isPromise<T>(value: Promise<T>|T): value is Promise<T> {
  *
  * @see {@link ../README.md README file}
  */
-export class FederatedObservableStore implements CoreResourceReader, FederatedCoreResourceWriter {
-    // Individual source stores that are used to read and write resources
-    private stores: StoreWrapper[] = [];
+export class FederatedObservableStore implements FederatedCoreResourceWriter {
+    /**
+     * Models registered in this aggregator.
+     */
+    private models: ModelWrapper[] = [];
 
     // Schemas indexed by their IRI
-    private schemas: Map<string, CachedSchema> = new Map();
+    private modelSchemas: Map<string, CachedModel> = new Map();
 
     // List of current resource subscriptions
     private subscriptions: Map<string, Subscription> = new Map();
@@ -91,15 +114,15 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
     addStore<HasImmediateInterface extends boolean>(
         store: HasImmediateInterface extends true ? (ImmediateCoreResourceReader) : CoreResourceReader,
         options: { hasImmediateInterface?: HasImmediateInterface } = {}) {
-        if (this.stores.some(wrapper => wrapper.store === store)) {
+        if (this.models.some(wrapper => wrapper.store === store)) {
             throw new Error("Store already presented in FederatedObservableStore.");
         }
 
         const wrappedStore = {
             store,
             hasImmediateInterface: options.hasImmediateInterface,
-        } as StoreWrapper;
-        this.stores.push(wrappedStore);
+        } as ModelWrapper;
+        this.models.push(wrappedStore);
 
         this.getSchemas(wrappedStore).then();
     }
@@ -110,17 +133,17 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
      * @param store
      */
     removeStore(store: CoreResourceReader) {
-        const wrappedStore = this.stores.find(wrapper => wrapper.store === store);
+        const wrappedStore = this.models.find(wrapper => wrapper.store === store);
         if (wrappedStore === undefined) {
             throw new Error("Unable to remove store from FederatedObservableStore because it is not present.");
         }
 
         // Remove all schemas
-        [...this.schemas.values()].filter(s => s.belongsToStore === wrappedStore)
+        [...this.modelSchemas.values()].filter(s => s.belongsToStore === wrappedStore)
             .forEach(s => this.deleteSchema(s.iri));
 
         // Remove from stores
-        this.stores = this.stores.filter(s => s !== wrappedStore);
+        this.models = this.models.filter(s => s !== wrappedStore);
     }
 
     /**
@@ -164,7 +187,7 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
      * subscribe.
      * @param iri
      */
-    getBeforeSubscription<ResourceType extends CoreResource>(iri: string): Resource<ResourceType> {
+    getBeforeSubscription<ResourceType extends CoreResource | Entity>(iri: string): Resource<ResourceType> {
         if (!this.subscriptions.has(iri)) {
             this.createSubscriptionForNewResource(iri);
         }
@@ -173,8 +196,8 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
         return subscription.currentValue as Resource<ResourceType>;
     }
 
-    getStores(): CoreResourceReader[] {
-        return this.stores.map(s => s.store);
+    getStores(): (CoreResourceReader | EntityModel)[] {
+        return this.models.map(s => s.store);
     }
 
     addEventListener(event: string, listener: () => void) {
@@ -196,7 +219,7 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
     }
 
     getSchemaForResource(iri: string): string | null {
-        for (const schema of this.schemas.values()) {
+        for (const schema of this.modelSchemas.values()) {
             if (schema.resources.includes(iri) || schema.iri === iri) {
                 return schema.iri;
             }
@@ -210,13 +233,25 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
      * @param pimSchemaIri
      */
     async getPimHavingInterpretation(cimIri: string, resourceType: string, pimSchemaIri: string): Promise<string|null> {
-        const schema = this.schemas.get(pimSchemaIri);
+        const schema = this.modelSchemas.get(pimSchemaIri);
         if (!schema) {
             return null;
         }
 
+        if (isModelWrapperEntityModel(schema.belongsToStore)) {
+            const entities = Object.values(schema.belongsToStore.store.getEntities());
+            for (const entity of entities) {
+                if (isSemanticModelClass(entity) && entity.iri === cimIri) {
+                    return entity.id;
+                }
+                if (isSemanticModelRelationship(entity) && (entity.ends[1].iri === cimIri || entity.ends[0].iri === cimIri)) {
+                    return entity.id;
+                }
+            }
+        }
+
         for (const resourceIri of schema.resources) {
-            const resource = await this.readResource(resourceIri);
+            const resource = await this.readResource(resourceIri) as CoreResource;
             // Ducktyping for PimResource
             if ((resource as PimResource).pimInterpretation === cimIri && resource.types.includes(resourceType)) {
                 return resourceIri;
@@ -232,14 +267,26 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
      * @param operation The operation to be applied
      */
     async applyOperation(schemaIri: string, operation: CoreOperation): Promise<CoreOperationResult> {
-        const storeWrapper = this.schemas.get(schemaIri)?.belongsToStore;
+        const storeWrapper = this.modelSchemas.get(schemaIri)?.belongsToStore;
         // todo: this checks only the local schemas
 
         if (!storeWrapper) {
             throw new Error(`Internal error: No store found for schema ${schemaIri}.`);
         }
 
-        const result = await (storeWrapper.store as unknown as CoreResourceWriter).applyOperation(operation);
+        let result;
+        if (isModelWrapperEntityModel(storeWrapper)) {
+            const op = operation as unknown as Operation;
+            // @ts-ignore
+            result = (storeWrapper.store).executeOperation(op);
+            // @ts-ignore
+            result.changed = op.type.startsWith("modify") ? [operation.id] : []; // todo: hotfix
+            result.created = op.type.startsWith("create") ? [result.id] : []; // todo: hotfix
+            result.deleted = op.type.startsWith("delete") ? [result.id] : []; // todo: hotfix
+        } else {
+            result = await (storeWrapper.store as unknown as CoreResourceWriter).applyOperation(operation);
+        }
+
 
         for (const changedIri of result.changed) {
             this.loadResource(changedIri, schemaIri);
@@ -248,7 +295,7 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
         // This should not be necessary, because the schema updates as well
         // which causes the resources to be added and removed. Nevertheless,
         // it is crucial to create update as soon as possible.
-        const schema = this.schemas.get(schemaIri) as CachedSchema;
+        const schema = this.modelSchemas.get(schemaIri) as CachedModel;
         schema.resources = [
             ...schema.resources.filter(r => !result.deleted.includes(r)),
             ...result.created,
@@ -277,22 +324,28 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
     async listResources(): Promise<string[]> {
         // todo: this method shall be optimized
         const resources = new Set<string>();
-        for (const store of this.stores) {
-            (await store.store.listResources()).forEach(resource => resources.add(resource));
+        for (const store of this.models) {
+            if (isModelWrapperEntityModel(store)) {
+                Object.values(store.store.getEntities()).forEach(entity => resources.add(entity.id));
+            } else {
+                (await store.store.listResources()).forEach(resource => resources.add(resource));
+            }
         }
         return [...resources];
     }
 
     async listResourcesOfType(typeIri: string): Promise<string[]> {
         const resources = new Set<string>();
-        for (const store of this.stores) {
-            (await store.store.listResourcesOfType(typeIri))
-                .forEach(resource => resources.add(resource));
+        for (const store of this.models) {
+            if (isModelWrapperCoreResourceReader(store)) {
+                (await store.store.listResourcesOfType(typeIri))
+                    .forEach(resource => resources.add(resource));
+            }
         }
         return [...resources];
     }
 
-    readResource(iri: string): Promise<CoreResource|null> {
+    readResource(iri: string): Promise<CoreResource|Entity|null> {
         return new Promise(resolve => {
             const subscriber: Subscriber = (_, resource) => {
                 if (!resource.isLoading) {
@@ -305,7 +358,7 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
     };
 
     async forceReload(iri: string) {
-        const schemaIri = [...this.schemas.values()].find(schema => schema.resources.includes(iri) || schema.iri === iri)?.iri;
+        const schemaIri = [...this.modelSchemas.values()].find(schema => schema.resources.includes(iri) || schema.iri === iri)?.iri;
         if (iri) {
             this.loadResource(iri, schemaIri);
         }
@@ -315,7 +368,7 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
 
     private createSubscriptionForNewResource(iri: string) {
         let schemaIri: string|null = null;
-        for (const schema of this.schemas.values()) {
+        for (const schema of this.modelSchemas.values()) {
             if (schema.resources.includes(iri)) {
                 schemaIri = schema.iri;
                 break;
@@ -376,18 +429,27 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
     private loadResource(
         resourceIri: string, schemaIri: string,
     ) {
+        console.log("Loading resource", resourceIri, schemaIri);
         const subscription = this.subscriptions.get(resourceIri);
         if (!subscription) {
             return;
         }
 
-        const storeWrapper = this.schemas.get(schemaIri).belongsToStore;
+        const storeWrapper = this.modelSchemas.get(schemaIri).belongsToStore;
 
-        let resource: Promise<CoreResource> | CoreResource | null;
-        if (storeWrapper.hasImmediateInterface) {
-            resource = storeWrapper.store.readResourceImmediate(resourceIri);
+        // todo: If the resource is the model itself, it should not be cloned
+        let doNotClone = false;
+
+        let resource: Promise<CoreResource> | CoreResource | Entity | null;
+        if (isModelWrapperEntityModel(storeWrapper)) {
+            resource = storeWrapper.store.getEntities()[resourceIri];
+            doNotClone = resourceIri === schemaIri;
         } else {
-            resource = storeWrapper.store.readResource(resourceIri);
+            if (storeWrapper.hasImmediateInterface) {
+                resource = storeWrapper.store.readResourceImmediate(resourceIri);
+            } else {
+                resource = storeWrapper.store.readResource(resourceIri);
+            }
         }
 
         if (resource instanceof Promise) {
@@ -405,7 +467,7 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
         } else {
             this.updateSubscriptionTo(resourceIri, {
                 isLoading: false,
-                resource: cloneResource(resource),
+                resource: doNotClone ? resource : cloneResource(resource),
             });
         }
     }
@@ -416,7 +478,7 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
      * @private
      */
     private updateResourcesBySchema(
-        schema: CachedSchema, added: string[], removed: string[]) {
+        schema: CachedModel, added: string[], removed: string[]) {
         for (const iri of added) {
             this.loadResource(iri, schema.iri);
         }
@@ -434,30 +496,34 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
      * @param wrappedStore
      * @param updateAll Whether to update all the schemas or just the new ones.
      */
-    private async getSchemas(wrappedStore: StoreWrapper, updateAll: boolean = false): Promise<void> {
-        const pimSchemas = await wrappedStore.store.listResourcesOfType(PIM.SCHEMA);
-        const dataPsmSchemas = await wrappedStore.store.listResourcesOfType(DataPSM.SCHEMA);
+    private async getSchemas(wrappedStore: ModelWrapper, updateAll: boolean = false): Promise<void> {
+        if (isModelWrapperCoreResourceReader(wrappedStore)) {
+            const pimSchemas = await wrappedStore.store.listResourcesOfType(PIM.SCHEMA);
+            const dataPsmSchemas = await wrappedStore.store.listResourcesOfType(DataPSM.SCHEMA);
 
-        // Check if still relevant
-        if (!this.stores.includes(wrappedStore)) {
-            return;
-        }
-
-        for (const schemaIri of pimSchemas) {
-            let schema = this.schemas.get(schemaIri);
-            if (!schema) {
-                this.createSchema(schemaIri, wrappedStore, PIM.SCHEMA);
+            // Check if still relevant
+            if (!this.models.includes(wrappedStore)) {
+                return;
             }
-        }
 
-        for (const schemaIri of dataPsmSchemas) {
-            let schema = this.schemas.get(schemaIri);
-            if (!schema) {
-                this.createSchema(schemaIri, wrappedStore, PIM.SCHEMA);
+            for (const schemaIri of pimSchemas) {
+                let schema = this.modelSchemas.get(schemaIri);
+                if (!schema) {
+                    this.createSchema(schemaIri, wrappedStore, PIM.SCHEMA);
+                }
             }
-        }
 
-        // todo: remove schemas that are registered but not in the current list
+            for (const schemaIri of dataPsmSchemas) {
+                let schema = this.modelSchemas.get(schemaIri);
+                if (!schema) {
+                    this.createSchema(schemaIri, wrappedStore, PIM.SCHEMA);
+                }
+            }
+
+            // todo: remove schemas that are registered but not in the current list
+        } else {
+            this.createSchema(wrappedStore.store.getId(), wrappedStore, "EntityModel");
+        }
     }
 
     /**
@@ -467,7 +533,7 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
      * @param type
      * @private
      */
-    private createSchema(schemaIri: string, store: StoreWrapper, type: string) {
+    private createSchema(schemaIri: string, store: ModelWrapper, type: string) {
         const schema = {
             iri: schemaIri,
             type,
@@ -475,7 +541,7 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
             isLoading: true,
             resources: [],
         };
-        this.schemas.set(schemaIri, schema);
+        this.modelSchemas.set(schemaIri, schema);
         // Because the schema does not exist yet, it is not possible that the
         // resource is cached
         this.addSubscriber(schemaIri, this.schemaUpdateListener);
@@ -484,9 +550,9 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
 
     private deleteSchema(schemaIri: string) {
         this.removeSubscriber(schemaIri, this.schemaUpdateListener);
-        const schema = this.schemas.get(schemaIri);
+        const schema = this.modelSchemas.get(schemaIri);
         this.updateResourcesBySchema(schema, [], [...schema.resources, schemaIri]);
-        this.schemas.delete(schemaIri);
+        this.modelSchemas.delete(schemaIri);
     }
 
     /**
@@ -496,7 +562,7 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
      * @param resource
      */
     private schemaUpdateListener: Subscriber = (iri, resource) => {
-        const schema = this.schemas.get(iri) as CachedSchema; // Schema should be in the cache
+        const schema = this.modelSchemas.get(iri) as CachedModel; // Schema should be in the cache
 
         if (!resource.resource) {
             return;
@@ -510,11 +576,12 @@ export class FederatedObservableStore implements CoreResourceReader, FederatedCo
 
         let iris: string[] = [];
 
-        if (PimSchema.is(resource.resource)) {
-            iris = resource.resource.pimParts;
-        } else if (DataPsmSchema.is(resource.resource)) {
+        if (DataPsmSchema.is(resource.resource)) {
             iris = resource.resource.dataPsmParts;
+        } else if (resource.resource instanceof InMemoryEntityModel) {
+            // todo
         } else {
+            console.log(resource.resource);
             throw new Error(`Internal error: Unknown schema type.`);
         }
 

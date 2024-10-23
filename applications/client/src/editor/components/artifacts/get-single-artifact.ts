@@ -1,9 +1,10 @@
-import {DataSpecification, DataSpecificationArtefact} from "@dataspecer/core/data-specification/model";
-import {Generator} from "@dataspecer/core/generator";
-import {MemoryStreamDictionary} from "@dataspecer/core/io/stream/memory-stream-dictionary";
-import {CoreResourceReader} from "@dataspecer/core/core";
-import {getArtefactGenerators} from "../../../artefact-generators";
-import {getDefaultConfigurators} from "../../../configurators";
+import { CoreResourceReader } from "@dataspecer/core/core/core-reader";
+import { DataSpecification, DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
+import { Generator } from "@dataspecer/core/generator";
+import { MemoryStreamDictionary } from "@dataspecer/core/io/stream/memory-stream-dictionary";
+import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
+import { getArtefactGenerators } from "../../../artefact-generators";
+import { getDefaultConfigurators } from "../../../configurators";
 import { DefaultArtifactConfigurator } from "../../../default-artifact-configurator";
 
 /**
@@ -18,7 +19,7 @@ import { DefaultArtifactConfigurator } from "../../../default-artifact-configura
  * @return [artifact content, filename]
  */
 export async function getSingleArtifact(
-  store: CoreResourceReader,
+  store: FederatedObservableStore,
   forDataSpecificationIri: string,
   dataSpecifications: { [key: string]: DataSpecification },
   artifactSelector: (artifact: DataSpecificationArtefact) => boolean,
@@ -46,7 +47,7 @@ export async function getSingleArtifact(
 
   const generator = new Generator(
       Object.values(dataSpecificationsWithArtifacts),
-      store,
+      store as CoreResourceReader,
       getArtefactGenerators());
   const dict = new MemoryStreamDictionary();
   await generator.generateArtefact(forDataSpecificationIri, artefact?.iri as string, dict);

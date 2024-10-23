@@ -1,12 +1,13 @@
-import {CoreResource, CoreResourceReader} from "@dataspecer/core/core";
-import {Generator} from "@dataspecer/core/generator";
-import {ZipStreamDictionary} from "./zip-stream-dictionary";
-import {StreamDictionary} from "@dataspecer/core/io/stream/stream-dictionary";
-import {DataSpecifications} from "../data-specifications";
-import {ArtifactConfigurator} from "../artifact-configurator";
-import {GenerateReport} from "./generate-report";
-import {getArtefactGenerators} from "../../artefact-generators";
-import {getDefaultConfigurators} from "../../configurators";
+import { CoreResource, CoreResourceReader } from "@dataspecer/core/core";
+import { Generator } from "@dataspecer/core/generator";
+import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
+import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
+import { getArtefactGenerators } from "../../artefact-generators";
+import { getDefaultConfigurators } from "../../configurators";
+import { ArtifactConfigurator } from "../artifact-configurator";
+import { DataSpecifications } from "../data-specifications";
+import { GenerateReport } from "./generate-report";
+import { ZipStreamDictionary } from "./zip-stream-dictionary";
 
 async function writeToStreamDictionary(
   streamDictionary: StreamDictionary,
@@ -45,7 +46,7 @@ export class DefaultArtifactBuilder {
         // Generate artifacts
         const artifactConfigurator = new ArtifactConfigurator(
             Object.values(this.dataSpecifications),
-            this.store,
+            this.store as FederatedObservableStore,
             this.configuration,
             getDefaultConfigurators(),
         );
@@ -80,7 +81,7 @@ export class DefaultArtifactBuilder {
     }
 
     private async writeReadme(writer: ZipStreamDictionary) {
-        const stream = await writer.writePath("README.md");
+        const stream = writer.writePath("README.md");
         await stream.write(`Tento dokument byl vygenerován ${new Date().toLocaleString("cs-CZ")}.`);
         await stream.close();
     }

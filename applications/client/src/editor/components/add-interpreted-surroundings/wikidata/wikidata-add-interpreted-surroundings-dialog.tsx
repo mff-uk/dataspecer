@@ -38,6 +38,7 @@ export const WikidataAddInterpretedSurroundingsDialog: React.FC<AddInterpretedSu
         // @ts-ignore
         const { cim } = React.useContext(ConfigurationContext);
         const { pimResource: pimClass, dataPsmResource: dataPsmClass } =
+        // @ts-ignore
             useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(props.dataPsmClassIri);
         const cimClassIri = pimClass?.pimInterpretation;
 

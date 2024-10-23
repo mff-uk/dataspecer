@@ -1,4 +1,4 @@
-import { SemanticModelClass, SemanticModelEntity } from '@dataspecer/core-v2/semantic-model/concepts';
+import { ExtendedSemanticModelClass, SemanticModelClass, SemanticModelEntity } from '@dataspecer/core-v2/semantic-model/concepts';
 import { DataPsmClass } from "@dataspecer/core/data-psm/model";
 import { DataPsmCreateClass, DataPsmDeleteClass, DataPsmReplaceAlongInheritance } from "@dataspecer/core/data-psm/operation";
 import { PimClass } from "@dataspecer/core/pim/model";
@@ -45,13 +45,13 @@ export class ReplaceAlongInheritance implements ComplexOperation {
 
     async execute(): Promise<void> {
         const fromDataPsmClass = await this.store.readResource(this.fromDataPsmClassIri) as DataPsmClass;
-        const fromPimClass = await this.store.readResource(fromDataPsmClass.dataPsmInterpretation as string) as PimClass;
+        const fromPimClass = await this.store.readResource(fromDataPsmClass.dataPsmInterpretation as string) as ExtendedSemanticModelClass;
         const dataPsmSchemaIri = this.store.getSchemaForResource(fromDataPsmClass.iri as string) as string;
 
-        const sourceFromPimClassIri = fromPimClass.pimInterpretation;
+        const sourceFromPimClassIri = fromPimClass.iri;
 
         // Create all PIM classes
-        const isSpecialization = await isAncestorOf(
+        const isSpecialization = isAncestorOf(
           this.sourceSemanticModel,
           sourceFromPimClassIri,
           this.toSemanticClassId
@@ -77,11 +77,11 @@ export class ReplaceAlongInheritance implements ComplexOperation {
         // Create data PSM class
 
         const toSemanticClassId = await this.store.getPimHavingInterpretation(sourceToPimClass.id as string, PimClass.TYPE, pimSchemaIri);
-        const toPimClass = await this.store.readResource(toSemanticClassId as string) as PimClass;
+        const toPimClass = await this.store.readResource(toSemanticClassId as string) as ExtendedSemanticModelClass;
 
         const dataPsmCreateClass = new DataPsmCreateClass();
         dataPsmCreateClass.dataPsmInterpretation = toSemanticClassId;
-        dataPsmCreateClass.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(toPimClass) ?? null;
+        dataPsmCreateClass.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(toPimClass.name) ?? null;
         const dataPsmCreateClassResult = await this.store.applyOperation(dataPsmSchemaIri, dataPsmCreateClass);
         const toPsmClassIri = dataPsmCreateClassResult.created[0];
 

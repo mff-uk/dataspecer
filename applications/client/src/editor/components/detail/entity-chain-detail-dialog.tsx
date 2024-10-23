@@ -1,23 +1,22 @@
-import React, {FC, memo, useMemo, useState} from "react";
-import {Box, DialogContentText, FormControlLabel, Switch, Tab, Tabs, Typography} from "@mui/material";
-import {useTranslation} from "react-i18next";
-import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmClassReference, DataPsmInclude, DataPsmOr, DataPsmSchema} from "@dataspecer/core/data-psm/model";
-import {PimAssociationEnd, PimAttribute, PimClass} from "@dataspecer/core/pim/model";
-import {useDataPsmAndInterpretedPim} from "../../hooks/use-data-psm-and-interpreted-pim";
-import {selectLanguage} from "../../utils/select-language";
-import {usePimAssociationFromPimAssociationEnd} from "../data-psm/use-pim-association-from-pim-association-end";
-import {LanguageStringFallback} from "../helper/LanguageStringComponents";
-import {useLabelAndDescription} from "../../hooks/use-label-and-description";
-import {CimLinks} from "./components/cim-links";
-import {Show} from "../helper/Show";
-import {dialog, DialogParameters} from "../../dialog";
-import {DialogWrapper} from "./common";
-import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
-import {DataPsmClassCard} from "./components/data-psm-class-card";
-import {DataPsmAssociationEndCard} from "./components/data-psm-association-end-card";
-import {DataPsmAttributeCard} from "./components/data-psm-attribute-card";
-import {ResourceInStore} from "./components/resource-in-store";
-import {DataPsmSchemaCard} from "./components/data-psm-schema-card";
+import { ExtendedSemanticModelClass, ExtendedSemanticModelRelationship, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmClassReference, DataPsmInclude, DataPsmOr, DataPsmSchema } from "@dataspecer/core/data-psm/model";
+import { useResource } from "@dataspecer/federated-observable-store-react/use-resource";
+import { Box, DialogContentText, FormControlLabel, Switch, Tab, Tabs, Typography } from "@mui/material";
+import React, { FC, memo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { DialogParameters, dialog } from "../../dialog";
+import { useDataPsmAndInterpretedPim } from "../../hooks/use-data-psm-and-interpreted-pim";
+import { useLabelAndDescription } from "../../hooks/use-label-and-description";
+import { selectLanguage } from "../../utils/select-language";
+import { LanguageStringFallback } from "../helper/LanguageStringComponents";
+import { Show } from "../helper/Show";
+import { DialogWrapper } from "./common";
+import { CimLinks } from "./components/cim-links";
+import { DataPsmAssociationEndCard } from "./components/data-psm-association-end-card";
+import { DataPsmAttributeCard } from "./components/data-psm-attribute-card";
+import { DataPsmClassCard } from "./components/data-psm-class-card";
+import { DataPsmSchemaCard } from "./components/data-psm-schema-card";
+import { ResourceInStore } from "./components/resource-in-store";
 
 /**
  * Detail and edit dialog for a chain of entities, usually from a single line of
@@ -36,7 +35,7 @@ export const EntityChainDetailDialog: React.FC<{
     return <DialogWrapper close={props.close} title={props.iris.map(iri => <TitleItem iri={iri} key={iri} />)} >
 
         <Box sx={{display: "flex", alignItems: "center"}}>
-            <Tabs sx={{flexGrow: 1}} centered value={tab} onChange={(e, ch) => setTab(ch)}>
+            <Tabs sx={{flexGrow: 1}} centered value={tab} onChange={(_, ch) => setTab(ch)}>
                 {props.iris.map(iri => <Tab label={<TabItem iri={iri} />} key={iri} />)}
             </Tabs>
 
@@ -60,17 +59,14 @@ const StoreInfo : FC<{iri: string}> = (props) => {
 
     const pimIri = (resource as DataPsmClass & DataPsmAttribute & DataPsmAssociationEnd).dataPsmInterpretation ?? null;
 
-    const {resource: pimAssociation} = usePimAssociationFromPimAssociationEnd(pimIri);
-
     return <>
-        <Tabs value={tab} onChange={(e, ch) => setTab(ch)}>
+        <Tabs value={tab} onChange={(_, ch) => setTab(ch)}>
             <Tab label={t('tab data psm')} />
             {(resource as DataPsmClass & DataPsmAttribute & DataPsmAssociationEnd).dataPsmInterpretation && <Tab label={t('tab pim')} />}
-            {pimAssociation && <Tab label={t('tab pim association')} />}
         </Tabs>
 
 
-        <ResourceInStore iri={(tab === 1 && pimIri) ? pimIri : ((tab === 2 && pimAssociation) ? pimAssociation.iri as string : props.iri)} />
+        <ResourceInStore iri={(tab === 1 && pimIri) ? pimIri : props.iri} />
     </>;
 }
 
@@ -118,28 +114,25 @@ const TitleItem: FC<{iri: string}> = ({iri}) => {
 const TitleItemAssociation: FC<{iri: string}> = ({iri}) => {
     const {t, i18n} = useTranslation("detail");
 
-    const associationEnd = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, PimAssociationEnd>(iri);
-    const association = usePimAssociationFromPimAssociationEnd(associationEnd.dataPsmResource?.dataPsmInterpretation ?? null);
+    const associationEnd = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, SemanticModelRelationship>(iri);
 
     const [associationEndLabel, associationEndDescription] = useLabelAndDescription(associationEnd.dataPsmResource, associationEnd.pimResource);
-    const wholeAssociationLabel = useMemo(() => ({...association.resource?.pimHumanLabel, ...associationEndLabel}), [association.resource?.pimHumanLabel, associationEndLabel]);
-    const wholeAssociationDescription = useMemo(() => ({...association.resource?.pimHumanDescription, ...associationEndDescription}), [association.resource?.pimHumanDescription, associationEndDescription]);
 
     return <>
         <div>
             <strong>{t("title association")}: </strong>
-            {selectLanguage(wholeAssociationLabel, i18n.languages) ?? <i>{t("no label")}</i>}
-            {association.resource?.pimInterpretation && <CimLinks iri={association.resource.pimInterpretation}/>}
+            {selectLanguage(associationEndLabel, i18n.languages) ?? <i>{t("no label")}</i>}
+            {associationEnd.relationshipEnd?.iri && <CimLinks iri={associationEnd.relationshipEnd.iri}/>}
         </div>
 
         <DialogContentText>
-            <LanguageStringFallback from={wholeAssociationDescription} fallback={<i>{t("no description")}</i>}/>
+            <LanguageStringFallback from={associationEndDescription} fallback={<i>{t("no description")}</i>}/>
         </DialogContentText>
     </>;
 }
 
 const TitleItemClass: FC<{iri: string}> = ({iri}) => {
-    const resources = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(iri);
+    const resources = useDataPsmAndInterpretedPim<DataPsmClass, ExtendedSemanticModelClass>(iri);
     const {t, i18n} = useTranslation("detail");
 
     const [label, description] = useLabelAndDescription(resources.dataPsmResource, resources.pimResource);
@@ -148,7 +141,7 @@ const TitleItemClass: FC<{iri: string}> = ({iri}) => {
         <div>
             <strong>{t("title class")}: </strong>
             {selectLanguage(label, i18n.languages) ?? <i>{t("no label")}</i>}
-            {resources.pimResource?.pimInterpretation && <CimLinks iri={resources.pimResource.pimInterpretation}/>}
+            {resources.pimResource?.iri && <CimLinks iri={resources.pimResource.iri}/>}
         </div>
 
         <DialogContentText>
@@ -158,7 +151,7 @@ const TitleItemClass: FC<{iri: string}> = ({iri}) => {
 }
 
 const TitleItemAttribute: FC<{iri: string}> = ({iri}) => {
-    const {dataPsmResource: dataPsmAttribute, pimResource: pimAttribute} = useDataPsmAndInterpretedPim<DataPsmAttribute, PimAttribute>(iri);
+    const {dataPsmResource: dataPsmAttribute, pimResource: pimAttribute} = useDataPsmAndInterpretedPim<DataPsmAttribute, ExtendedSemanticModelRelationship>(iri);
     const {t, i18n} = useTranslation("detail");
 
     const [label, description] = useLabelAndDescription(dataPsmAttribute, pimAttribute);
@@ -167,7 +160,7 @@ const TitleItemAttribute: FC<{iri: string}> = ({iri}) => {
         <div>
             <strong>{t("title attribute")}: </strong>
             {selectLanguage(label, i18n.languages) ?? <i>{t("no label")}</i>}
-            {pimAttribute?.pimInterpretation && <CimLinks iri={pimAttribute.pimInterpretation}/>}
+            {pimAttribute?.ends[1]?.iri && <CimLinks iri={pimAttribute.ends[1].iri}/>}
         </div>
 
         <DialogContentText>

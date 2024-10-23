@@ -1,4 +1,3 @@
-import {CoreResource} from "../../core";
 import {ExtendableCoreResource} from "./extendable-core-resource";
 import * as PSM from "../data-psm-vocabulary";
 /**
@@ -22,7 +21,7 @@ export class DataPsmOr extends ExtendableCoreResource {
     this.types.push(DataPsmOr.TYPE);
   }
 
-  static is(resource: CoreResource | null): resource is DataPsmOr {
-    return resource?.types.includes(DataPsmOr.TYPE);
+  static is(resource: any): resource is DataPsmOr {
+    return resource?.types?.includes(DataPsmOr.TYPE);
   }
 }

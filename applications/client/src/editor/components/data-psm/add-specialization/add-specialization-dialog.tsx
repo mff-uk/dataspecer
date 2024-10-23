@@ -23,7 +23,7 @@ export const AddSpecializationDialog = dialog<{
     const store = useFederatedObservableStore();
 
     const {pimResource} = useDataPsmAndInterpretedPim(dataPsmClassIri);
-    const cimIri = pimResource?.pimInterpretation;
+    const cimIri = pimResource?.iri;
 
     const {sourceSemanticModel, operationContext} = React.useContext(ConfigurationContext);
     const [fullInheritance] = useAsyncMemo(async () => cimIri ? await sourceSemanticModel.getFullHierarchy(cimIri) : null, [cimIri]);
@@ -40,7 +40,7 @@ export const AddSpecializationDialog = dialog<{
         const descendants: SemanticModelClass[] = [];
 
         for (const resource of fullInheritance.filter(isSemanticModelClass)) {
-            if (await isAncestorOf(fullInheritance, middleClassIri, resource.id)) {
+            if (isAncestorOf(fullInheritance, middleClassIri, resource.id)) {
                 descendants.push(resource);
             }
         }

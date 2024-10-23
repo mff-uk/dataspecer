@@ -1,18 +1,21 @@
+import { modifyClass } from "@dataspecer/core-v2/semantic-model/operations";
 import {LanguageString} from "@dataspecer/core/core";
-import {PimSetHumanDescription, PimSetHumanLabel} from "@dataspecer/core/pim/operation";
 import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-operation";
 import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 
+/**
+ * todo: This operation can set label only to classes by default as are identified by id.
+ */
 export class SetPimLabelAndDescription implements ComplexOperation {
-  private readonly forPimResourceIri: string;
-  private readonly pimHumanLabel: LanguageString;
-  private readonly pimHumanDescription: LanguageString;
+  private readonly semanticEntityId: string;
+  private readonly label: LanguageString;
+  private readonly description: LanguageString;
   private store!: FederatedObservableStore;
 
-  constructor(forPimResourceIri: string, pimHumanLabel: LanguageString, pimHumanDescription: LanguageString) {
-    this.forPimResourceIri = forPimResourceIri;
-    this.pimHumanLabel = pimHumanLabel;
-    this.pimHumanDescription = pimHumanDescription;
+  constructor(semanticEntityId: string, label: LanguageString, description: LanguageString) {
+    this.semanticEntityId = semanticEntityId;
+    this.label = label;
+    this.description = description;
   }
 
   setStore(store: FederatedObservableStore) {
@@ -20,16 +23,13 @@ export class SetPimLabelAndDescription implements ComplexOperation {
   }
 
   async execute(): Promise<void> {
-    const pimSchema = this.store.getSchemaForResource(this.forPimResourceIri) as string;
+    const pimSchema = this.store.getSchemaForResource(this.semanticEntityId) as string;
 
-    const pimSetHumanLabel = new PimSetHumanLabel();
-    pimSetHumanLabel.pimResource = this.forPimResourceIri;
-    pimSetHumanLabel.pimHumanLabel = this.pimHumanLabel;
-    await this.store.applyOperation(pimSchema, pimSetHumanLabel);
-
-    const pimSetHumanDescription = new PimSetHumanDescription();
-    pimSetHumanDescription.pimResource = this.forPimResourceIri;
-    pimSetHumanDescription.pimHumanDescription = this.pimHumanDescription;
-    await this.store.applyOperation(pimSchema, pimSetHumanDescription);
+    const operation = modifyClass(this.semanticEntityId, {
+      name: this.label,
+      description: this.description,
+    });
+    // @ts-ignore
+    await this.store.applyOperation(pimSchema, operation);
   }
 }

@@ -23,6 +23,8 @@ import {useSaveHandler} from "../../helper/save-handler";
 import {isEqual} from "lodash";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {SetObjectExample} from "../../../operations/set-object-example";
+import { ExtendedSemanticModelClass, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { Entity } from "@dataspecer/core-v2";
 
 function isFaultyJson(str: string) {
     str = (str ?? "").trim();
@@ -51,19 +53,19 @@ export const ClassExamples = memo(({pimClassIri}: {pimClassIri: string | null | 
     const {t} = useTranslation("detail", {keyPrefix: "object examples"});
     const store = useFederatedObservableStore();
 
-    const {resource: rawResource} = useResource(pimClassIri ?? null);
-    const resource = PimClass.is(rawResource) ? rawResource : null;
+    const {resource: rawResource} = useResource<Entity>(pimClassIri ?? null);
+    const resource = isSemanticModelClass(rawResource) ? rawResource as ExtendedSemanticModelClass : null;
 
     const [examples, setExamples] = useState<object[]>([]);
 
     useEffect(() => {
-        setExamples(resource.pimObjectExample ?? []);
-    }, [resource.pimObjectExample]);
+        setExamples(resource?.objectExample ?? []);
+    }, [resource?.objectExample]);
 
     const Dialog = useDialog(ExamplesDialog, ["examples", "setExamples"]);
 
     useSaveHandler(
-        resource && !isEqual(examples, resource.pimObjectExample ?? []),
+        resource && !isEqual(examples, resource.objectExample ?? []),
         async () =>
             resource &&
             await store.executeComplexOperation(new SetObjectExample(resource.iri, examples))

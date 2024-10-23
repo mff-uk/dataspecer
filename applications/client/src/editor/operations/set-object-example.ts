@@ -1,14 +1,15 @@
-import {PimSetObjectExample} from "@dataspecer/core/pim/operation";
+import { ExtendedSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { modifyClass } from "@dataspecer/core-v2/semantic-model/operations";
 import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-operation";
 import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 
 export class SetObjectExample implements ComplexOperation {
-  private readonly iri: string;
+  private readonly semanticEntityId: string;
   private readonly examples: any[] | null;
   private store!: FederatedObservableStore;
 
-  constructor(iri: string, examples: any[] | null) {
-    this.iri = iri;
+  constructor(semanticEntityId: string, examples: any[] | null) {
+    this.semanticEntityId = semanticEntityId;
     this.examples = examples;
   }
 
@@ -17,7 +18,7 @@ export class SetObjectExample implements ComplexOperation {
   }
 
   async execute(): Promise<void> {
-    const schema = this.store.getSchemaForResource(this.iri) as string;
+    const schema = this.store.getSchemaForResource(this.semanticEntityId) as string;
 
     let examples = this.examples;
     if (examples && examples.length === 0) {
@@ -25,9 +26,10 @@ export class SetObjectExample implements ComplexOperation {
       examples = null;
     }
 
-    const pimSetExample = new PimSetObjectExample();
-    pimSetExample.pimResource = this.iri;
-    pimSetExample.pimObjectExample = examples;
-    await this.store.applyOperation(schema, pimSetExample);
+    const operation = modifyClass(this.semanticEntityId, {
+      example: examples,
+    } as ExtendedSemanticModelClass);
+    // @ts-ignore
+    await this.store.applyOperation(schema, operation);
   }
 }

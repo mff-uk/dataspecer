@@ -1,3 +1,4 @@
+import { InMemorySemanticModel } from '@dataspecer/core-v2/semantic-model/in-memory';
 import { MemoryStore } from "@dataspecer/core/core";
 import { dataPsmExecutors } from "@dataspecer/core/data-psm/data-psm-executors";
 import { DataPsmCreateSchema } from "@dataspecer/core/data-psm/operation";
@@ -34,11 +35,13 @@ export const useLocalConfiguration = (
 
     const [dataSpecification] = useAsyncMemo(async () => {
         if (enabled && store) {
+            const semanticModel = new InMemorySemanticModel();
+
             const memoryStore = MemoryStore.create("https://ofn.gov.cz", [...dataPsmExecutors, ...pimExecutors]);
 
-            const createPimSchema = new PimCreateSchema();
-            const createPimSchemaResult = await memoryStore.applyOperation(createPimSchema);
-            const pimSchemaIri = createPimSchemaResult.created[0];
+            // const createPimSchema = new PimCreateSchema();
+            // const createPimSchemaResult = await memoryStore.applyOperation(createPimSchema);
+            // const pimSchemaIri = createPimSchemaResult.created[0];
 
             const createDataPsmSchema = new DataPsmCreateSchema();
             const createDataPsmSchemaResult = await memoryStore.applyOperation(createDataPsmSchema);
@@ -46,9 +49,11 @@ export const useLocalConfiguration = (
 
             const dataSpecification = new DataSpecification();
             dataSpecification.iri = "http://default-data-specification"
-            dataSpecification.pim = pimSchemaIri;
+            dataSpecification.pim = semanticModel.getId();
             dataSpecification.psms = [dataPsmSchemaIri];
 
+            // @ts-ignore
+            store.addStore(semanticModel);
             store.addStore(memoryStore);
 
             return dataSpecification;

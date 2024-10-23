@@ -41,7 +41,7 @@ export class AddSpecialization implements ComplexOperation {
   async execute(): Promise<void> {
     const dataPsmSchema = this.store.getSchemaForResource(this.forDataPsmClassIri) as string;
     const forDataPsmClass = await this.store.readResource(this.forDataPsmClassIri) as DataPsmClass;
-    const interpretedPimClass = await this.store.readResource(forDataPsmClass.dataPsmInterpretation as string) as PimClass;
+    const interpretedPimClass = await this.store.readResource(forDataPsmClass.dataPsmInterpretation as string) as SemanticModelClass;
     const pimSchemaIri = this.store.getSchemaForResource(interpretedPimClass.iri as string) as string;
 
     // FIRST: Get wrapping *OR* or create it
@@ -56,7 +56,7 @@ export class AddSpecialization implements ComplexOperation {
 
     // SECOND: Create all PIM classes
 
-    const sourceFromPimClass = this.sourceStore.find(e => e.id === interpretedPimClass.pimInterpretation) as SemanticModelClass;
+    const sourceFromPimClass = this.sourceStore.find(e => e.id === interpretedPimClass.iri) as SemanticModelClass;
     const sourceToPimClass = this.sourceStore.find(e => e.id === this.sourceClassId) as SemanticModelClass;
 
     const result = await extendPimClassesAlongInheritance(
@@ -73,11 +73,11 @@ export class AddSpecialization implements ComplexOperation {
     // THIRD: Add PSM class
 
     const toPimClassIri = await this.store.getPimHavingInterpretation(sourceToPimClass.id as string, PimClass.TYPE, pimSchemaIri);
-    const toPimClass = await this.store.readResource(toPimClassIri as string) as PimClass;
+    const toPimClass = await this.store.readResource(toPimClassIri as string) as SemanticModelClass;
 
     const dataPsmCreateClass = new DataPsmCreateClass();
     dataPsmCreateClass.dataPsmInterpretation = toPimClassIri;
-    dataPsmCreateClass.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(toPimClass) ?? null;
+    dataPsmCreateClass.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(toPimClass.name) ?? null;
     const dataPsmCreateClassResult = await this.store.applyOperation(dataPsmSchema, dataPsmCreateClass);
     const createdPsmClass = dataPsmCreateClassResult.created[0];
 

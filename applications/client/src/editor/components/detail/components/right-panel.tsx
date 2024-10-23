@@ -1,5 +1,5 @@
+import { ExtendedSemanticModelClass, ExtendedSemanticModelRelationship, ExtendedSemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
 import { DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass } from "@dataspecer/core/data-psm/model";
-import { PimAssociationEnd, PimAttribute, PimClass } from "@dataspecer/core/pim/model";
 import { useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
 import {
     Alert,
@@ -49,7 +49,7 @@ import { StringExamplesField } from "../../helper/string-examples-field";
 export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({iri}) => {
     const store = useFederatedObservableStore();
 
-    const {dataPsmResource: resource, pimResource} = useDataPsmAndInterpretedPim<DataPsmAttribute | DataPsmAssociationEnd | DataPsmClass, PimAttribute | PimAssociationEnd | PimClass>(iri);
+    const {dataPsmResource: resource, pimResource} = useDataPsmAndInterpretedPim<DataPsmAttribute | DataPsmAssociationEnd | DataPsmClass, ExtendedSemanticModelRelationship | ExtendedSemanticModelClass>(iri);
 
     const isAttribute = DataPsmAttribute.is(resource);
     const isAssociationEnd = DataPsmAssociationEnd.is(resource);
@@ -74,6 +74,21 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
         }
     }, [codelistUrl, codelistUrlAddString]);
 
+    /**
+     * The correct end of the relationship that is being edited.
+     * For attributes, this is the second end.
+     * For associations this depends on the direction of the association.
+     */
+    let semanticRelationshipEnd: ExtendedSemanticModelRelationshipEnd | null = null;
+    let semanticRelationshipEndIndex: number | null = null;
+    if (isAttribute) {
+        semanticRelationshipEndIndex = 1;
+        semanticRelationshipEnd = (pimResource as ExtendedSemanticModelRelationship).ends[semanticRelationshipEndIndex];
+    } else if (isAssociationEnd) {
+        semanticRelationshipEndIndex = 1;// todo
+        semanticRelationshipEnd = (pimResource as ExtendedSemanticModelRelationship).ends[semanticRelationshipEndIndex];
+    }
+
     useEffect(() => {
         setTechnicalLabel(resource?.dataPsmTechnicalLabel ?? "");
 
@@ -86,16 +101,17 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
     useEffect(() => {
         if (isClass) {
-            setCodelistUrl((pimResource as PimClass)?.pimIsCodelist ? ((pimResource as PimClass)?.pimCodelistUrl ?? []) : false);
+            setCodelistUrl((pimResource as ExtendedSemanticModelClass)?.isCodelist ? ((pimResource as ExtendedSemanticModelClass)?.codelistUrl ?? []) : false);
         }
     }, [pimResource, isClass]);
 
     useEffect(() => {
+        const entity = semanticRelationshipEnd ?? pimResource as ExtendedSemanticModelClass;
         if (isAttribute || isClass) {
-            setRegex((pimResource as PimAttribute)?.pimRegex ?? "");
-            setExamples((pimResource as PimAttribute)?.pimExample ?? null);
+            setRegex(entity!.regex ?? "");
+            setExamples(entity!.example ?? null);
         }
-    }, [pimResource, isAttribute, isClass]);
+    }, [semanticRelationshipEnd, pimResource, isAttribute, isClass]);
 
     const {t} = useTranslation("detail");
 
@@ -111,38 +127,38 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
     const datatypeLangsArray = useMemo(() => datatypeLangsText.split(",").map(lang => lang.trim()).filter(lang => lang.length > 0), [datatypeLangsText]);
     useEffect(() => {
         if (isAttribute) {
-            const attr = pimResource as PimAttribute;
-            if (attr?.pimDatatype === "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/text") {
-                setDatatypeLangs((attr?.pimLanguageStringRequiredLanguages ?? []));
+            const attr = semanticRelationshipEnd;
+            if (attr?.concept === "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/text") {
+                setDatatypeLangs((attr?.languageStringRequiredLanguages ?? []));
             }
         }
-    }, [pimResource, isAttribute]);
+    }, [semanticRelationshipEnd, isAttribute]);
 
     const isLanguageStringDatatype = isAttribute && getIriFromDatatypeSelectorValue(datatype) === "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/text";
     useSaveHandler(
         resource !== null &&
         isAttribute &&
-        (resource.dataPsmDatatype !== getIriFromDatatypeSelectorValue(datatype) || 
+        (resource.dataPsmDatatype !== getIriFromDatatypeSelectorValue(datatype) ||
         (
             isLanguageStringDatatype &&
-            !isEqual(new Set((pimResource as PimAttribute)?.pimLanguageStringRequiredLanguages ?? []), new Set(datatypeLangsArray))
-        ) 
+            !isEqual(new Set(semanticRelationshipEnd.languageStringRequiredLanguages ?? []), new Set(datatypeLangsArray))
+        )
         ),
         useCallback(async () => {
             if (resource) {
                 await store.executeComplexOperation(new SetDataPsmDatatype(resource.iri as string, getIriFromDatatypeSelectorValue(datatype)));
                 // Todo: let user choose where to set the datatype
                 if (pimResource) {
-                    await store.executeComplexOperation(new SetPimDatatype(pimResource.iri as string, getIriFromDatatypeSelectorValue(datatype), datatypeLangsArray));
+                    await store.executeComplexOperation(new SetPimDatatype(pimResource.id as string, getIriFromDatatypeSelectorValue(datatype), datatypeLangsArray));
                 }
             }
         }, [resource, store, datatype, pimResource, datatypeLangsArray]),
     );
 
     useSaveHandler(
-        isClass && !isEqual(codelistUrl, (pimResource as PimClass)?.pimIsCodelist ? ((pimResource as PimClass)?.pimCodelistUrl ?? []) : false),
+        isClass && !isEqual(codelistUrl, (pimResource as ExtendedSemanticModelClass)?.isCodelist ? ((pimResource as ExtendedSemanticModelClass)?.codelistUrl ?? []) : false),
         useCallback(
-            async () => pimResource && await store.executeComplexOperation(new SetClassCodelist(pimResource.iri as string, codelistUrl !== false, codelistUrl === false ? [] : codelistUrl)),
+            async () => pimResource && await store.executeComplexOperation(new SetClassCodelist(pimResource.id as string, codelistUrl !== false, codelistUrl === false ? [] : codelistUrl)),
             [pimResource, codelistUrl, store]
         ),
     );
@@ -174,20 +190,32 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
         "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/url"
     ].includes(getIriFromDatatypeSelectorValue(datatype));
 
+    let currentRegex = null;
+    let currentExamples = null;
+    if (isStringDatatype || isClass) {
+        if (isClass) {
+            currentRegex = (pimResource as ExtendedSemanticModelClass)?.regex ?? null;
+            currentExamples = (pimResource as ExtendedSemanticModelClass)?.example ?? null;
+        } else if (isAttribute) {
+            currentRegex = semanticRelationshipEnd.regex ?? null;
+            currentExamples = semanticRelationshipEnd.example ?? null;
+        }
+    }
+
     const normalizedRegex = regex === "" ? null : regex;
     useSaveHandler(
-        (isStringDatatype || isClass) && normalizedRegex !== (pimResource as PimAttribute | PimClass)?.pimRegex,
+        (isStringDatatype || isClass) && normalizedRegex !== currentRegex,
         useCallback(async () => {
-            await store.executeComplexOperation(new SetRegex(pimResource.iri as string, normalizedRegex));
-        }, [normalizedRegex, pimResource.iri, store])
+            await store.executeComplexOperation(new SetRegex(pimResource.id as string, normalizedRegex));
+        }, [normalizedRegex, pimResource.id, store])
     );
 
     const normalizedExamples = examples === null || examples.length === 0 ? null : examples;
     useSaveHandler(
-        (isStringDatatype || isClass) && !isEqual(normalizedExamples, (pimResource as PimAttribute | PimClass)?.pimExample),
+        (isStringDatatype || isClass) && !isEqual(normalizedExamples, currentExamples),
         useCallback(async () => {
-            await store.executeComplexOperation(new SetExample(pimResource.iri as string, normalizedExamples));
-        }, [normalizedExamples, pimResource.iri, store])
+            await store.executeComplexOperation(new SetExample(pimResource.id as string, normalizedExamples));
+        }, [normalizedExamples, pimResource.id, store])
     );
 
     // endregion regex and examples
@@ -196,15 +224,15 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
     useEffect(() => {
         if (isAttribute || isAssociationEnd) {
-            setCardinality(cardinalityFromPim(pimResource as PimAttribute & PimAssociationEnd));
+            setCardinality(cardinalityFromPim(semanticRelationshipEnd));
         }
-    }, [pimResource, isAttribute, isAssociationEnd]);
+    }, [semanticRelationshipEnd, isAttribute, isAssociationEnd]);
 
     useSaveHandler(
-        (isAttribute || isAssociationEnd) && !isEqual(cardinality, cardinalityFromPim(pimResource as PimAttribute & PimAssociationEnd)),
+        (isAttribute || isAssociationEnd) && !isEqual(cardinality, cardinalityFromPim(semanticRelationshipEnd)),
         useCallback(
-            async () => (isAttribute || isAssociationEnd) && pimResource && cardinality && await store.executeComplexOperation(new SetCardinality(pimResource.iri as string, cardinality.cardinalityMin, cardinality.cardinalityMax)),
-            [pimResource, cardinality, isAttribute, isAssociationEnd, store]
+            async () => (isAttribute || isAssociationEnd) && pimResource && cardinality && await store.executeComplexOperation(new SetCardinality(pimResource.id as string, semanticRelationshipEndIndex, cardinality.cardinalityMin, cardinality.cardinalityMax)),
+            [semanticRelationshipEndIndex, cardinality, isAttribute, isAssociationEnd, store, pimResource]
         ),
     );
 

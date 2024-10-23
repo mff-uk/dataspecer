@@ -123,6 +123,9 @@ export function useProvidedSourceSemanticModel(
                 const sourceSemanticModel = new SourceSemanticModel(models);
                 return sourceSemanticModel;
             }
+        } else {
+            const {cimAdapter: adapter} = getAdapter(cimAdaptersConfiguration);
+            return wrapCimAdapter(adapter);
         }
     }, [packageIri, cimAdaptersConfiguration]);
 

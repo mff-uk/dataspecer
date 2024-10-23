@@ -2,7 +2,7 @@ import { SemanticModelClass, SemanticModelEntity } from "@dataspecer/core-v2/sem
 import { ASSOCIATION_END } from "@dataspecer/core/data-psm/data-psm-vocabulary";
 import { DataPsmAssociationEnd } from "@dataspecer/core/data-psm/model";
 import { DataPsmCreateClass, DataPsmSetChoice } from "@dataspecer/core/data-psm/operation";
-import { PimAssociationEnd, PimClass, PimResource } from "@dataspecer/core/pim/model";
+import { PimAssociationEnd, PimClass } from "@dataspecer/core/pim/model";
 import { ComplexOperation } from "@dataspecer/federated-observable-store/complex-operation";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
 import { TechnicalLabelOperationContext } from "./context/technical-label-operation-context";
@@ -70,7 +70,7 @@ export class CreateNewClassInOr implements ComplexOperation {
 
     const dataPsmCreateClass = new DataPsmCreateClass();
     dataPsmCreateClass.dataPsmInterpretation = pimClass;
-    dataPsmCreateClass.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(await this.store.readResource(pimClass) as PimResource) ?? null;
+    dataPsmCreateClass.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim((await this.store.readResource(pimClass) as SemanticModelClass).name) ?? null;
     const dataPsmCreateClassResult = await this.store.applyOperation(dataPsmSchema, dataPsmCreateClass);
     const psmClass = dataPsmCreateClassResult.created[0];
 
