@@ -73,7 +73,7 @@ class ElkGraphTransformer implements GraphTransformer {
 
         if(mainLayoutOptions["elk.algorithm"] === "radial") {
             // TODO: Should be in pre-constraints and probably static
-            new GraphAlgorithms().treeify(graph);
+            GraphAlgorithms.treeify(graph);
         }
 
         // TODO: The above code can be put in separate method (also it doesn't use the graph)

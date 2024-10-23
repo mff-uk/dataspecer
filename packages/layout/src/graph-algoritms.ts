@@ -8,30 +8,29 @@ type Dimensions = {
 type RootHeuristicType = "MOST_EDGES";
 
 export class GraphAlgorithms {
-
-    dfs(graph: GraphClassic, root: string, edgeType: "TODO" | "GENERALIZATION"): string[] {
+    static dfs(graph: GraphClassic, root: string, edgeType: "TODO" | "GENERALIZATION"): string[] {
         throw new Error("Unimplemented");
     }
-    bfs(graph: GraphClassic, root: string, edgeType: "TODO" | "GENERALIZATION"): string[][] {
+    static bfs(graph: GraphClassic, root: string, edgeType: "TODO" | "GENERALIZATION"): string[][] {
         throw new Error("Unimplemented");
     }
-    findStrongComponents(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION"): string[][] {
+    static findStrongComponents(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION"): string[][] {
         throw new Error("Unimplemented");
     }
-    findWeakComponents(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION"): string[][] {
+    static findWeakComponents(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION"): string[][] {
         throw new Error("Unimplemented");
     }
-    computeJacardSimilarity(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION"): string[][] {
+    static computeJacardSimilarity(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION"): string[][] {
         throw new Error("Unimplemented");
     }
-    findLeaves(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION"): string[] {
+    static findLeaves(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION"): string[] {
         throw new Error("Unimplemented");
     }
-    treeify(graph: IGraphClassic, rootNodeIdentifier?: string, edgeType?: "TODO" | "GENERALIZATION"): void {
+    static treeify(graph: IGraphClassic, rootNodeIdentifier?: string, edgeType?: "TODO" | "GENERALIZATION"): void {
       // TODO: Maybe only work with the subgraph or maybe only on the main graph, for example graph.resetForNewLayout, I am not sure if it works on subgraph
       let rootNode: INodeClassic;
       if(rootNodeIdentifier === undefined) {
-          rootNode = this.findRootNode(graph, "MOST_EDGES");
+          rootNode = GraphAlgorithms.findRootNode(graph, "MOST_EDGES");
       }
       else {
           // Empty for now
@@ -40,7 +39,7 @@ export class GraphAlgorithms {
       const visitedNodes: Record<string, true> = {};
       const usedEdges: Record<string, true> = {};
 
-      let nodeToBFSLevelMap = this.treeifyBFSPublic(graph, visitedNodes, usedEdges, rootNode.id);
+      let nodeToBFSLevelMap = GraphAlgorithms.treeifyBFSFromRoot(graph, visitedNodes, usedEdges, rootNode.id);
       const maxLevelInOriginalTree = Math.max(...Object.values(nodeToBFSLevelMap));
       Object.entries(graph.nodes).forEach(([nodeIdentifier, node]) => {
           if(visitedNodes[nodeIdentifier] === undefined) {
@@ -52,7 +51,7 @@ export class GraphAlgorithms {
               // addedEdge.isConsideredInLayout = true;
               usedEdges[addedEdge.id] = true;
 
-              const nextNodeToBFSLevelMap = this.treeifyBFSPublic(graph, visitedNodes, usedEdges, nodeIdentifier);
+              const nextNodeToBFSLevelMap = GraphAlgorithms.treeifyBFSFromRoot(graph, visitedNodes, usedEdges, nodeIdentifier);
               Object.keys(nextNodeToBFSLevelMap).forEach(id => {
                 nextNodeToBFSLevelMap[id] += maxLevelInOriginalTree;
               });
@@ -79,10 +78,10 @@ export class GraphAlgorithms {
 
       // TODO: This would be better, but for some reason the radial algorithm doesn't work for larger graphs if we use max DAG (it takes too long and it is really interesting
       //       because on the DCAT-AP it works for the one large component but then we just connect 1 new node to the leaf and we are already in huge recursive call which doesn't stop)
-      // this.addEdgesBackToGraphAndKeepItDAG(graph, usedEdges, nodeToBFSLevelMap);
+      // GraphAlgorithms.addEdgesBackToGraphAndKeepItDAG(graph, usedEdges, nodeToBFSLevelMap);
   }
 
-  addEdgesBackToGraphAndKeepItDAG(graph: IGraphClassic, usedEdges: Record<string, true>, nodeToBFSLevelMap: Record<string, number>): void {
+  private static addEdgesBackToGraphAndKeepItDAG(graph: IGraphClassic, usedEdges: Record<string, true>, nodeToBFSLevelMap: Record<string, number>): void {
     let todoCount = 0;
     let todoCountLoops = 0;
 
@@ -111,11 +110,11 @@ export class GraphAlgorithms {
     console.warn(todoCountLoops);
   }
 
-  treeifyBFSPublic(graph: IGraphClassic, visitedNodes: Record<string, true>, usedEdges: Record<string, true>, rootNodeIdentifier: string): Record<string, number> {
-    return this.treeifyBFS(graph, visitedNodes, usedEdges, [[rootNodeIdentifier, 0]]);
+  static treeifyBFSFromRoot(graph: IGraphClassic, visitedNodes: Record<string, true>, usedEdges: Record<string, true>, rootNodeIdentifier: string): Record<string, number> {
+    return GraphAlgorithms.treeifyBFS(graph, visitedNodes, usedEdges, [[rootNodeIdentifier, 0]]);
   }
 
-  treeifyBFS(graph: IGraphClassic, visitedNodes: Record<string, true>, usedEdges: Record<string, true>, nodesInQueue: [string, number][]): Record<string, number> {
+  private static treeifyBFS(graph: IGraphClassic, visitedNodes: Record<string, true>, usedEdges: Record<string, true>, nodesInQueue: [string, number][]): Record<string, number> {
     const nodeToBFSLevelMap: Record<string, number> = {};
 
     while(nodesInQueue.length > 0) {
@@ -148,13 +147,13 @@ export class GraphAlgorithms {
     return nodeToBFSLevelMap;
   }
 
-  findRootNode(graph: IGraphClassic, heuristic: RootHeuristicType): INodeClassic {
+  static findRootNode(graph: IGraphClassic, heuristic: RootHeuristicType): INodeClassic {
       switch(heuristic) {
           case "MOST_EDGES":
-              return this.findRootWithMostEdges(graph);
+              return GraphAlgorithms.findRootWithMostEdges(graph);
       };
   }
-  findRootWithMostEdges(graph: IGraphClassic): INodeClassic {
+  static findRootWithMostEdges(graph: IGraphClassic): INodeClassic {
       let root: INodeClassic;
       let mostRelationships: number = 0;
       Object.entries(graph.nodes).forEach(([nodeIdentifier, node]) => {
@@ -170,10 +169,10 @@ export class GraphAlgorithms {
   }
 
 
-  getSubgraphUsingBFS(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION", depth: number): GraphClassic {
+  static getSubgraphUsingBFS(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION", depth: number): GraphClassic {
       throw new Error("Unimplemented");
   }
-  findCliques(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION", size: number): GraphClassic {      // TODO:
+  static findCliques(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION", size: number): GraphClassic {      // TODO:
       throw new Error("Unimplemented");
   }
 }
