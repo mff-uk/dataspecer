@@ -51,10 +51,10 @@ export async function doDynamicLayout(visualModel: VisualEntityModel,
 }
 
 
-export async function doEditorLayout(visualModel: VisualEntityModel,
-										semanticModels: Map<string, EntityModel>,
-										config: UserGivenAlgorithmConfigurationslVersion2,
-										nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
+export async function doLayout(visualModel: VisualEntityModel | null,
+								semanticModels: Map<string, EntityModel>,
+								config: UserGivenAlgorithmConfigurationslVersion2,
+								nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
 	if(nodeDimensionQueryHandler === undefined) {
 		nodeDimensionQueryHandler = new ReactflowDimensionsEstimator();
 	}
@@ -72,7 +72,7 @@ export async function doEditorLayout(visualModel: VisualEntityModel,
 	}
 
 	const graph = GraphFactory.createMainGraph(null, semanticModel, null, visualModel);
-	const visualEntitiesPromise = doFindBestLayoutFromGraph(graph, config, nodeDimensionQueryHandler, visualModel);
+	const visualEntitiesPromise = doLayoutFromGraph(graph, config, nodeDimensionQueryHandler, visualModel);
 	// TODO: Repeating code from doLayout
 	if(visualEntitiesPromise == undefined) {
 		console.log("LAYOUT FAILED")
@@ -83,35 +83,10 @@ export async function doEditorLayout(visualModel: VisualEntityModel,
 }
 
 
-export async function doLayout(inputSemanticModel: Record<string, SemanticModelEntity>,
-								config: UserGivenAlgorithmConfigurationslVersion2,
-								nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
-	if(nodeDimensionQueryHandler === undefined) {
-		nodeDimensionQueryHandler = new ReactflowDimensionsEstimator();
-	}
-
-	const visualEntitiesPromise = doFindBestLayout(inputSemanticModel, config, nodeDimensionQueryHandler);
-	if(visualEntitiesPromise == undefined) {
-		console.log("LAYOUT FAILED")
-		throw new Error("Layout Failed");
-	}
-
-	return visualEntitiesPromise;
-}
-
-
-export async function doFindBestLayout(inputSemanticModel: Record<string, SemanticModelEntity>,
+export async function doLayoutFromGraph(graph: IMainGraphClassic,
 										config: UserGivenAlgorithmConfigurationslVersion2,
-										nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<VisualEntities> {
-	const graph = GraphFactory.createMainGraph(null, inputSemanticModel, null, null);
-	return doFindBestLayoutFromGraph(graph, config, nodeDimensionQueryHandler, null);
-}
-
-// TODO: Rename
-export async function doFindBestLayoutFromGraph(graph: IMainGraphClassic,
-												config: UserGivenAlgorithmConfigurationslVersion2,
-												nodeDimensionQueryHandler: NodeDimensionQueryHandler,
-												visualModel: VisualEntityModel | null): Promise<VisualEntities> {
+										nodeDimensionQueryHandler: NodeDimensionQueryHandler,
+										visualModel: VisualEntityModel | null): Promise<VisualEntities> {
 	const constraints = ConstraintFactory.createConstraints(config);
 
 	// TODO: Try this later, now it isn't that important

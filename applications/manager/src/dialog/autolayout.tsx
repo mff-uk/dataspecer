@@ -50,7 +50,7 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
 
     let visualEntities;
     try {
-      visualEntities = await doLayout(entities, getValidConfig());
+      visualEntities = await doLayout(null, entities, getValidConfig());
     } catch (error) {
       alert("LAYOUT WAS NOT SUCCESSFUL");
       console.error(error);
