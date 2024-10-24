@@ -427,7 +427,7 @@ class ElkGraphTransformer implements GraphTransformer {
         let edges = extractedModel.relationships.map(relationship => {
             // TODO: In case of scheme.org the value in the concept field is the Owl#Thing, the actual value I want is in the iri part
             //       But then I should have the nodes inside elk with id as iri (in case of profiles the ids will stay the same)
-            const [source, target, ...rest] = getEdgeSourceAndTargetRelationship(relationship);
+            const {source, target, ...rest} = getEdgeSourceAndTargetRelationship(relationship);
 
             if(!this.isEdgeWithBothEndsInModel(extractedModel, source, target)) {
                 return undefined;
@@ -446,7 +446,7 @@ class ElkGraphTransformer implements GraphTransformer {
         });
 
         edges = edges.concat(extractedModel.generalizations.map(gen => {
-            const [child, parent] = getEdgeSourceAndTargetGeneralization(gen);
+            const {source: child, target: parent} = getEdgeSourceAndTargetGeneralization(gen);
 
             if(!this.isEdgeWithBothEndsInModel(extractedModel, child, parent)) {
                 return undefined;

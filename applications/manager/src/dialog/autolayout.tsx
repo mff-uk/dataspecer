@@ -5,7 +5,7 @@ import { modelTypeToName } from "@/known-models";
 import { BetterModalProps } from "@/lib/better-modal";
 import { ResourcesContext, requestLoadPackage } from "@/package";
 import { LOCAL_VISUAL_MODEL } from "@dataspecer/core-v2/model/known-models";
-import { doLayout } from "@dataspecer/layout";
+import { performLayout } from "@dataspecer/layout";
 import { Loader } from "lucide-react";
 import { useContext, useState } from "react";
 import { useConfigDialog } from "./layout-dialog";
@@ -50,7 +50,7 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
 
     let visualEntities;
     try {
-      visualEntities = await doLayout(null, entities, getValidConfig());
+      visualEntities = await performLayout(null, entities, getValidConfig());
     } catch (error) {
       alert("LAYOUT WAS NOT SUCCESSFUL");
       console.error(error);

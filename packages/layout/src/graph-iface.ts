@@ -84,19 +84,19 @@ export class GraphIncidence implements IGraphIncidence {
         });
 
         extractedModel.relationships.forEach(r => {
-            const [source, target, ...rest] = getEdgeSourceAndTargetRelationship(r);
+            const {source, target, ...rest} = getEdgeSourceAndTargetRelationship(r);
             this.incidenceMatrix[source] = {};
             this.incidenceMatrix[source][target] = {isProfile: false, isGeneralization: false};
         });
 
         extractedModel.relationshipsProfiles.forEach(r => {
-            const [source, target] = getEdgeSourceAndTargetRelationshipUsage(r);
+            const {source, target} = getEdgeSourceAndTargetRelationshipUsage(r);
             this.incidenceMatrix[source] = {};
             this.incidenceMatrix[source][target] = {isProfile: true, isGeneralization: true};
         });
 
         extractedModel.generalizations.forEach(g => {
-            const [source, target] = getEdgeSourceAndTargetGeneralization(g);
+            const {source, target} = getEdgeSourceAndTargetGeneralization(g);
             this.incidenceMatrix[source] = {};
             this.incidenceMatrix[source][target] = {isProfile: false, isGeneralization: true};
         });
@@ -872,7 +872,7 @@ class NodeClassic implements INodeClassic {
 
         let edgeToAddKey: AddEdgeType = "relationshipEdges";
         extractedModel.relationships.forEach(r => {
-            const [source, target, ...rest] = getEdgeSourceAndTargetRelationship(r);
+            const {source, target, ...rest} = getEdgeSourceAndTargetRelationship(r);
             if(semanticEntityRepresentingNode.id === source) {
                 if(isRelationshipInVisualModel(visualModel, visualEntities, r.id, [source, target])) {
                     this.addEdge(sourceGraph, r.id, r, target, extractedModel, edgeToAddKey, visualModel);
@@ -882,7 +882,7 @@ class NodeClassic implements INodeClassic {
 
         edgeToAddKey = "generalizationEdges";
         extractedModel.generalizations.forEach(g => {
-            const [source, target] = getEdgeSourceAndTargetGeneralization(g);
+            const {source, target} = getEdgeSourceAndTargetGeneralization(g);
             if(semanticEntityRepresentingNode.id === source) {
                 if(isGeneralizationInVisualModel(visualModel, visualEntities, g)) {
                     this.addEdge(sourceGraph, g.id, g, target, extractedModel, edgeToAddKey, visualModel);
@@ -892,7 +892,7 @@ class NodeClassic implements INodeClassic {
 
         edgeToAddKey = "profileEdges";
         extractedModel.relationshipsProfiles.forEach(rp => {
-            const [source, target] = getEdgeSourceAndTargetRelationshipUsage(rp);
+            const {source, target} = getEdgeSourceAndTargetRelationshipUsage(rp);
             if(semanticEntityRepresentingNode.id === source) {
                 if(isRelationshipInVisualModel(visualModel, visualEntities, rp.id, [source, target])) {
                     this.addEdge(sourceGraph, rp.id, rp, target, extractedModel, edgeToAddKey, visualModel);
@@ -914,7 +914,7 @@ class NodeClassic implements INodeClassic {
 
         // TODO: We don't really need the whole thing, we just need the attribute so storing the target of the relationship should be enough !
         this.attributes = extractedModel.attributes.filter(a => {
-            const [source, target, ...rest] = getEdgeSourceAndTargetRelationship(a);
+            const {source, target, ...rest} = getEdgeSourceAndTargetRelationship(a);
             return this.node.id === source;
         });
     }

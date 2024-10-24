@@ -38,7 +38,16 @@ export interface NodeDimensionQueryHandler {
 	getHeight(node: INodeClassic);
 }
 
-export async function doDynamicLayout(visualModel: VisualEntityModel,
+
+/**
+ * Perform layout, which puts given nodes on new positions, while preserving layout of the old graph
+ * @param visualModel
+ * @param semanticModels
+ * @param newNodesIdentifiers
+ * @param config
+ * @param nodeDimensionQueryHandler
+ */
+export async function performDynamicLayout(visualModel: VisualEntityModel,
 										semanticModels: Record<string, EntityModel>,
 										newNodesIdentifiers: string[],
 										config: UserGivenAlgorithmConfigurationslVersion2,
@@ -51,10 +60,18 @@ export async function doDynamicLayout(visualModel: VisualEntityModel,
 }
 
 
-export async function doLayout(visualModel: VisualEntityModel | null,
-								semanticModels: Map<string, EntityModel>,
-								config: UserGivenAlgorithmConfigurationslVersion2,
-								nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
+/**
+ * Layout given visual model or all given semantic models if there is no provided visualModel (resp. it is null)
+ * @param visualModel Either the visual model to perform layout on, or null if we want to layout whole given semantic model.
+ * @param semanticModels
+ * @param config
+ * @param nodeDimensionQueryHandler
+ * @returns New positions of the visual entities.
+ */
+export async function performLayout(visualModel: VisualEntityModel | null,
+									semanticModels: Map<string, EntityModel>,
+									config: UserGivenAlgorithmConfigurationslVersion2,
+									nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
 	if(nodeDimensionQueryHandler === undefined) {
 		nodeDimensionQueryHandler = new ReactflowDimensionsEstimator();
 	}
@@ -72,7 +89,7 @@ export async function doLayout(visualModel: VisualEntityModel | null,
 	}
 
 	const graph = GraphFactory.createMainGraph(null, semanticModel, null, visualModel);
-	const visualEntitiesPromise = doLayoutFromGraph(graph, config, nodeDimensionQueryHandler, visualModel);
+	const visualEntitiesPromise = performLayoutFromGraph(graph, config, nodeDimensionQueryHandler, visualModel);
 	// TODO: Repeating code from doLayout
 	if(visualEntitiesPromise == undefined) {
 		console.log("LAYOUT FAILED")
@@ -83,10 +100,18 @@ export async function doLayout(visualModel: VisualEntityModel | null,
 }
 
 
-export async function doLayoutFromGraph(graph: IMainGraphClassic,
-										config: UserGivenAlgorithmConfigurationslVersion2,
-										nodeDimensionQueryHandler: NodeDimensionQueryHandler,
-										visualModel: VisualEntityModel | null): Promise<VisualEntities> {
+/**
+ * Layout given graph based on given layout configuration
+ * @param graph
+ * @param config
+ * @param nodeDimensionQueryHandler
+ * @param visualModel
+ * @returns
+ */
+export async function performLayoutFromGraph(graph: IMainGraphClassic,
+												config: UserGivenAlgorithmConfigurationslVersion2,
+												nodeDimensionQueryHandler: NodeDimensionQueryHandler,
+												visualModel: VisualEntityModel | null): Promise<VisualEntities> {
 	const constraints = ConstraintFactory.createConstraints(config);
 
 	// TODO: Try this later, now it isn't that important
@@ -100,7 +125,7 @@ export async function doLayoutFromGraph(graph: IMainGraphClassic,
 	// };
 	// constraints.addSimpleConstraints(compactifyConstraint);
 
-	const resultingLayoutPromise = layoutController(graph, constraints, nodeDimensionQueryHandler, visualModel);
+	const resultingLayoutPromise = performLayoutingBasedOnConstraints(graph, constraints, nodeDimensionQueryHandler, visualModel);
 
 	// TODO: DEBUG
 	// console.log("THE END");
@@ -110,10 +135,10 @@ export async function doLayoutFromGraph(graph: IMainGraphClassic,
 }
 
 
-const layoutController = (graph: IMainGraphClassic,
-							constraints: ConstraintContainer,
-							nodeDimensionQueryHandler: NodeDimensionQueryHandler,
-							visualModel: VisualEntityModel | null): Promise<IMainGraphClassic> => {
+const performLayoutingBasedOnConstraints = (graph: IMainGraphClassic,
+											constraints: ConstraintContainer,
+											nodeDimensionQueryHandler: NodeDimensionQueryHandler,
+											visualModel: VisualEntityModel | null): Promise<IMainGraphClassic> => {
 
 	console.warn("constraints");
 	console.warn(constraints);

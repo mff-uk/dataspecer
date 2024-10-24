@@ -11,7 +11,7 @@ export class ReactflowDimensionsEstimator implements NodeDimensionQueryHandler {
         const TEST_STRING = TEST_MODEL_STRING + "creepy-office";
         const APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER = 359 / TEST_STRING.length;
         let maxAtrLength = estimatedNode.getAttributes().reduce((currMax, currAttribute) => {
-            const [source, target, sourceIndex, targetIndex] = getEdgeSourceAndTargetRelationship(currAttribute);
+            const {source, target, sourceIndex, targetIndex} = getEdgeSourceAndTargetRelationship(currAttribute);
             return Math.max(currMax, currAttribute.ends[targetIndex].name?.en?.length ?? 0);       // TODO: Just english tag for now
         }, 0);
 
