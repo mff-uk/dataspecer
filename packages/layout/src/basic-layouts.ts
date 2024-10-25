@@ -8,6 +8,10 @@ import { GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, MainGraph
 import { PhantomElementsFactory } from "./util/utils";
 
 
+/**
+ * Performs random layout on classes (not class profiles) from extracted model
+ * @deprecated
+ */
 export async function doRandomLayoutAdvanced(extractedModel: ExtractedModel): Promise<VisualEntities> {
     // TODO: Only classes
     const { entities, classes, classesProfiles, relationships, relationshipsProfiles, generalizations } = extractedModel;
@@ -27,8 +31,11 @@ export async function doRandomLayoutAdvanced(extractedModel: ExtractedModel): Pr
 }
 
 
+/**
+ * Layout nodes of given graph using custom made random layout algorithm.
+ */
 export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic, nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<IMainGraphClassic> {
-    const classNodes = Object.values(graph.nodes).filter(node => !node.isDummy && !node.isProfile);
+    const classNodes = Object.values(graph.nodes).filter(node => !node.isDummy);
     classNodes.forEach(classNode => {
         const visualEntity =  {
             id: Math.random().toString(36).substring(2), // Random unique id of visual entity
@@ -49,6 +56,9 @@ export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic, node
 }
 
 
+/**
+ * The run method of this class performs random layout of prepared graph.
+ */
 export class RandomLayout implements LayoutAlgorithm {
     // TODO: This is cool and all but 2 problems:
     //       1) Working with extractedModel and I store it in the prepare method, think about it if I shouldn't work with the graph instead (but this is kinda special case)
@@ -92,6 +102,10 @@ export interface BlockLayoutOptions {
     colJump: number
 }
 
+/**
+ * Puts nodes into block
+ * @deprecated
+ */
 export async function doBlockLayout(inputSemanticModel: Record<string, SemanticModelEntity>, options: BlockLayoutOptions): Promise<VisualEntities> {
     const { entities, classes, classesProfiles, relationships, relationshipsProfiles, generalizations } = extractModelObjects(inputSemanticModel);
 

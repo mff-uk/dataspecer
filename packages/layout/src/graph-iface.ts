@@ -18,6 +18,9 @@ interface Graph {
     performActionOnNodes(action): void,
 }
 
+/**
+ * Represents visual entity as in the cme visual model, but with 2 additional fields - {@link width} and {@link height}
+ */
 export interface IVisualEntityComplete {
     coreVisualEntity: VisualEntity,
     width: number,

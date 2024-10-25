@@ -23,6 +23,12 @@ export const ALGORITHM_TO_ELK_ALGORITHM_MAP: Pick<Record<AlgorithmName, string>,
 };
 
 
+/**
+ * Helper method which maps relevant properties from {@link data} to elk type data and stores them into {@link elkData}.
+ * Special case is if given {@link data} contains advanced_settings field, then the whole field is copied into the {@link elkData}.
+ * @param data is the input on which is the {@link elkData} changed
+ * @param elkData is the changed object
+ */
 export function createElkDataObject(data: object, elkData: LayoutOptions): void {
     // TODO: Could be rewritten in such a way that when one key is mapped to multiple values, then there is some scaling function, instead
     //       of just setting all of the options to the same value

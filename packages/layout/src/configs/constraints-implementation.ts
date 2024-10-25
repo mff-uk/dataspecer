@@ -12,6 +12,7 @@ export const compactify = async (graph: IMainGraphClassic, nodeDimensionQueryHan
 
 
     const constraints = ConstraintFactory.createConstraints(config);
+    // TODO: It is not main though, I mean it can be, but this usually runs after the main algorithm
     const mainLayoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[constraints.algorithmOnlyConstraints["ALL"].algorithmName];
 
 

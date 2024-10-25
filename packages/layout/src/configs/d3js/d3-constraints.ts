@@ -1,6 +1,10 @@
 import _ from "lodash";
 import { StressConfiguration, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationStress } from "../constraints";
 
+
+/**
+ * Stores configuration for d3 force model
+ */
 export class D3ForceConfiguration extends StressConfiguration {
     // TODO: I noticed that d3 is actually much stronger than the stress in Elk, it is basically combination of Stress and Force from Elk + more
     getAllRelevantConstraintKeys(): string[] {

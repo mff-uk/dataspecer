@@ -138,6 +138,9 @@ export interface UserGivenAlgorithmConfigurationOnlyData extends UserGivenAlgori
                                                                 UserGivenAlgorithmConfigurationStress,
                                                                 UserGivenAlgorithmConfigurationElkForce {
     "layout_alg": AlgorithmName,
+    // The idea is to have fields which are "main" in a way and universal (so they can be actually shared between algorithms) and then just advanced_settings
+    // which contains additional configuration in the JSON format of given library 
+    // (Note: the advanced_settings should override the main one if passed - TODO: Rewrite so it is actually the case)
     "advanced_settings": object,
 }
 

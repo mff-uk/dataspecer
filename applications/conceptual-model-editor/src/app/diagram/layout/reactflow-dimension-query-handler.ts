@@ -2,6 +2,10 @@ import { INodeClassic } from "@dataspecer/layout";
 import { useReactFlow } from "reactflow";
 
 
+/**
+ *
+ * @returns Returns methods to get width and height of node. The returned methods implement the {@link NodeDimensionQueryHandler} interface used in layouting to get width/height of nodes.
+ */
 export const useReactflowDimensionQueryHandler = () => {
     const reactFlowInstance = useReactFlow();
 

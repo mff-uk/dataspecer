@@ -26,6 +26,13 @@ export class GraphAlgorithms {
     static findLeaves(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION"): string[] {
         throw new Error("Unimplemented");
     }
+
+    /**
+     * This method modifies input graph.
+     * Either uses the given {@link rootNodeIdentifier} as root of tree (the node from which starts BFS search) or finds one through heuristic. 
+     * The result of this method is the change of input graph in such a way that the input graph becomes a tree (respectively DAG). 
+     * The method sets the isConsideredInLayout and reverseInLayout properties on edges and may add some dummy edges (for example to connect components)
+     */
     static treeify(graph: IGraphClassic, rootNodeIdentifier?: string, edgeType?: "TODO" | "GENERALIZATION"): void {
       // TODO: Maybe only work with the subgraph or maybe only on the main graph, for example graph.resetForNewLayout, I am not sure if it works on subgraph
       let rootNode: INodeClassic;
@@ -81,10 +88,10 @@ export class GraphAlgorithms {
       // GraphAlgorithms.addEdgesBackToGraphAndKeepItDAG(graph, usedEdges, nodeToBFSLevelMap);
   }
 
-  private static addEdgesBackToGraphAndKeepItDAG(graph: IGraphClassic, usedEdges: Record<string, true>, nodeToBFSLevelMap: Record<string, number>): void {
-    let todoCount = 0;
-    let todoCountLoops = 0;
-
+  /**
+   * Sets the properties of edges - isConsideredInLayout and reverseInLayout - in such a way that the resulting graph is still DAG.
+   */
+  private static addEdgesBackToGraphAndKeepItDAG(graph: IGraphClassic, nodeToBFSLevelMap: Record<string, number>): void {
     Object.entries(nodeToBFSLevelMap).forEach(([nodeIdentifier, level]) => {
       for(const edge of graph.nodes[nodeIdentifier].getAllOutgoingEdges()) {
         const edgeEndLevel = nodeToBFSLevelMap[edge.end.id];
@@ -94,20 +101,13 @@ export class GraphAlgorithms {
         else if(edgeEndLevel >= level) {
           edge.isConsideredInLayout = true;
           edge.reverseInLayout = false;
-          todoCount++;
         }
         else {
           edge.isConsideredInLayout = true;
           edge.reverseInLayout = true;
-          todoCount++;
         }
       }
     });
-
-    console.warn("todoCount");
-    console.warn(todoCount);
-    console.warn("todoCountLoops");
-    console.warn(todoCountLoops);
   }
 
   static treeifyBFSFromRoot(graph: IGraphClassic, visitedNodes: Record<string, true>, usedEdges: Record<string, true>, rootNodeIdentifier: string): Record<string, number> {
@@ -147,6 +147,10 @@ export class GraphAlgorithms {
     return nodeToBFSLevelMap;
   }
 
+  /**
+   * Tries to find root node of tree based on given heuristic.
+   * @returns the root node
+   */
   static findRootNode(graph: IGraphClassic, heuristic: RootHeuristicType): INodeClassic {
       switch(heuristic) {
           case "MOST_EDGES":
@@ -181,12 +185,15 @@ class VisualAlgorithms {
     findClusters(graph: GraphClassic): string[][] {
         throw new Error("Unimplemented");
     }
+    // TODO: Well this is calling layered algorithm with parameters which perform this effect
     layerify(graph: GraphClassic): void {
         throw new Error("Unimplemented");
     }
+    // TODO: well this is basically calling https://eclipse.dev/elk/reference/algorithms/org-eclipse-elk-sporeCompaction.html
     compactify(graph: GraphClassic): void {
         throw new Error("Unimplemented");
     }
+    // TODO: The idea was to do something like layerify but manually, based on node proximities, etc.
     prettify(graph: GraphClassic): void {
         throw new Error("Unimplemented");
     }

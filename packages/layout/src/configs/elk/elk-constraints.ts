@@ -19,6 +19,9 @@ export interface ElkConstraint {
 }
 
 
+/**
+ * Stores configuration for elk layered algorithm
+ */
 export class ElkLayeredConfiguration extends LayeredConfiguration implements ElkConstraint {
     constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
         super(givenAlgorithmConstraints);
@@ -129,6 +132,9 @@ export class ElkLayeredConfiguration extends LayeredConfiguration implements Elk
 }
 
 
+/**
+ * Stores configuration for elk stress algorithm
+ */
 export class ElkStressConfiguration extends StressConfiguration implements ElkConstraint {
     constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
         super(givenAlgorithmConstraints);
@@ -147,6 +153,10 @@ export class ElkStressConfiguration extends StressConfiguration implements ElkCo
 // because right now I am slightly confused what actually is the mapping between the physical based algorithms (d3 = Stress + Force + more)
 // but I can extend only one of them, I guess that I could create combination, but still it doesn't seem correct 1:1 mapping and the Elk force has
 // the option to set the physical model in configuration, which D3 doesn't have
+
+/**
+ * Stores configuration for elk force algorithm
+ */
 export class ElkForceConfiguration extends AlgorithmConfiguration implements ElkConstraint {
     getAllRelevantConstraintKeys(): string[] {
         return super.getAllRelevantConstraintKeys().concat([
@@ -183,6 +193,9 @@ export class ElkForceConfiguration extends AlgorithmConfiguration implements Elk
 }
 
 
+/**
+ * Stores configuration for elk spore algorithm
+ */
 export class ElkSporeConfiguration extends SporeConfiguration implements ElkConstraint {
     constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
         super(givenAlgorithmConstraints);
@@ -199,6 +212,9 @@ export class ElkSporeConfiguration extends SporeConfiguration implements ElkCons
 }
 
 
+/**
+ * Stores configuration for elk radial algorithm
+ */
 export class ElkRadialConfiguration extends RadialConfiguration implements ElkConstraint {
     constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
         super(givenAlgorithmConstraints);

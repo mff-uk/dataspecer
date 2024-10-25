@@ -33,6 +33,12 @@ export type {
 
 export { type ElkForceAlgType } from "./configs/elk/elk-constraints";
 
+/**
+ * The object (class) implementing this interface handles the act of getting width and height of given node. The act has to be separated from the reactflow visualization library,
+ * because either the library may be switched for some other (highly unlikely from my point of view), but more importantly the layouting may be performed outside the diagram/editor.
+ * component, so there has to be other way(s) to get the width and height of nodes needed for layouting.
+ * For such case the implemented variants are (so far) {@link ReactflowDimensionsEstimator} and {@link ReactflowDimensionsConstantEstimator}.
+ */
 export interface NodeDimensionQueryHandler {
 	getWidth(node: INodeClassic);
 	getHeight(node: INodeClassic);
@@ -61,8 +67,8 @@ export async function performDynamicLayout(visualModel: VisualEntityModel,
 
 
 /**
- * Layout given visual model or all given semantic models if there is no provided visualModel (resp. it is null)
- * @param visualModel Either the visual model to perform layout on, or null if we want to layout whole given semantic model.
+ * Layout given visual model or all given semantic models if there is no provided visualModel (resp. it is null).
+ * @param visualModel Either the visual model to perform layout on, or null if we want to layout all given semantic model.
  * @param semanticModels
  * @param config
  * @param nodeDimensionQueryHandler
@@ -135,6 +141,9 @@ export async function performLayoutFromGraph(graph: IMainGraphClassic,
 }
 
 
+/**
+ * Performs all relevant layout operations based on given constraints
+ */
 const performLayoutingBasedOnConstraints = (graph: IMainGraphClassic,
 											constraints: ConstraintContainer,
 											nodeDimensionQueryHandler: NodeDimensionQueryHandler,
@@ -205,6 +214,9 @@ const runConstraintsInternal = async (graph: IMainGraphClassic,
 
 // TODO: Can be called in webworker ... but webworkers in node.js are worker threads and they are non-compatible, so it is too much of a hassle, so maybe later if necessary
 // TODO: Also need a bit think about the iterating to find the best model, so the method will maybe need some small rework
+/**
+ * Run the main layouting algorithm for the given graph. TODO: Well it is not just the main, there may be layerify after, etc.
+ */
 const runMainLayoutAlgorithm = async (graph: IMainGraphClassic,
 										constraints: ConstraintContainer,
 										nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<IMainGraphClassic> => {

@@ -3,6 +3,10 @@ import { NodeDimensionQueryHandler } from "..";
 import { INodeClassic } from "../graph-iface";
 import { getEdgeSourceAndTargetRelationship } from "../layout-iface";
 
+
+/**
+ * Sophisticated dimension query handler, which estimates dimensions based node's content.
+ */
 export class ReactflowDimensionsEstimator implements NodeDimensionQueryHandler {
     getWidth(estimatedNode: INodeClassic): number {
         const WIDTH_OF_EMPTY_ATTR = 10;

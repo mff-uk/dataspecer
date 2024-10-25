@@ -4,6 +4,10 @@ import { AlgorithmConfiguration, IAlgorithmConfiguration, IAlgorithmOnlyConstrai
 import { D3ForceConfiguration } from "./d3js/d3-constraints";
 import { ElkForceConfiguration, ElkLayeredConfiguration, ElkRadialConfiguration, ElkSporeConfiguration, ElkStressConfiguration } from "./elk/elk-constraints";
 
+
+/**
+ * This factory class takes care of creating constraints based on given configuration
+ */
 class AlgorithmConstraintFactory {
     static getLayoutMethodForAlgorithmConstraint(algConstraint: AlgorithmConfiguration): LayoutMethod {
         if(algConstraint instanceof ElkStressConfiguration) {

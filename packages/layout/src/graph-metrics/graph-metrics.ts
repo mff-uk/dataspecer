@@ -14,7 +14,7 @@ export class EdgeCrossingMetric implements Metric {
                     }
                     for(let outNN of nn.getAllOutgoingEdges()) {
                         // TODO: Have to fix, but currently we set only the positions of the entities which are part of the visual model and not the dummy ones
-                        //       (for example generalization subgarphs)
+                        //       (for example generalization subgraphs)
                         if(n.completeVisualEntity === undefined || nn.completeVisualEntity === undefined) {
                             continue;
                         }
@@ -32,10 +32,6 @@ export class EdgeCrossingMetric implements Metric {
     // Based on https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
     /**
      *
-     * @param source1
-     * @param target1
-     * @param source2
-     * @param target2
      * @returns 1 for edge crossing, 0 for no edge crossing
      */
     public static isEdgeCrossForStraightLines(source1: IVisualEntityComplete, target1: IVisualEntityComplete,

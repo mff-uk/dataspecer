@@ -65,7 +65,7 @@ export class ConstraintContainer {
 
 
 
-    constructor(algorithmOnlyConstraints: IAlgorithmConfiguration[],
+    constructor(algorithmOnlyConfiguration: IAlgorithmConfiguration[],
                 simpleConstraints?: IConstraintSimple[] | null,
                 constraints?: IConstraint[] | null,
                 underlyingModelsConstraints?: Record<ModelID, ConstraintContainer> | null) {
@@ -74,7 +74,7 @@ export class ConstraintContainer {
                         "GENERALIZATION": undefined,
                         "PROFILE": undefined,
                     };
-                    this.addAlgorithmConstraints(...algorithmOnlyConstraints);
+                    this.addAlgorithmConstraints(...algorithmOnlyConfiguration);
                     this.simpleConstraints = simpleConstraints ?? [];
                     this.constraints = constraints ?? [];
                     this.underlyingModelsConstraints = underlyingModelsConstraints ?? {};

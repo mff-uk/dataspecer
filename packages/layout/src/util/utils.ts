@@ -14,6 +14,9 @@ export const capitalizeFirstLetter = (string: string): string => {
 
 
 
+/**
+ * This class is used to create unique identifiers of dummy/phantom elements in graph.
+ */
 export class PhantomElementsFactory {
     static phantomNodeIndex: number = 0;
     static phantomEdgeIndex: number = 0;
