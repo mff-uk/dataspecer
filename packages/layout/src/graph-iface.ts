@@ -5,7 +5,6 @@ import { ExtractedModel, extractModelObjects, getEdgeSourceAndTargetGeneralizati
 import { VisualEntity, VisualEntityModel } from "@dataspecer/core-v2/visual-model";
 import { Position, VisualEntities } from "../../core-v2/lib/visual-model/visual-entity";
 import { capitalizeFirstLetter, PhantomElementsFactory } from "./util/utils";
-import { EntityModel } from "@dataspecer/core-v2";
 
 interface Graph {
     getNodes(): INode,

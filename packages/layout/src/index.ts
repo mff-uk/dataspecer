@@ -67,21 +67,17 @@ export async function performDynamicLayout(visualModel: VisualEntityModel,
 
 
 /**
- * Layout given visual model or all given semantic models if there is no provided visualModel (resp. it is null).
- * @param visualModel Either the visual model to perform layout on, or null if we want to layout all given semantic model.
+ * Layout given visual model.
+ * @param visualModel The visual model to perform layout on.
  * @param semanticModels
  * @param config
  * @param nodeDimensionQueryHandler
- * @returns New positions of the visual entities.
+ * @returns Promise with new positions of the visual entities.
  */
-export async function performLayout(visualModel: VisualEntityModel | null,
-									semanticModels: Map<string, EntityModel>,
-									config: UserGivenAlgorithmConfigurationslVersion2,
-									nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
-	if(nodeDimensionQueryHandler === undefined) {
-		nodeDimensionQueryHandler = new ReactflowDimensionsEstimator();
-	}
-
+export async function performLayoutOfVisualModel(visualModel: VisualEntityModel,
+													semanticModels: Map<string, EntityModel>,
+													config: UserGivenAlgorithmConfigurationslVersion2,
+													nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
 	console.log("config");
 	console.log(config);
 
@@ -94,14 +90,38 @@ export async function performLayout(visualModel: VisualEntityModel | null,
 		};
 	}
 
+	const visualEntitiesPromise = performLayoutInternal(visualModel, semanticModel, config, nodeDimensionQueryHandler);
+	return visualEntitiesPromise;
+}
+
+
+// TODO: What about layouting more than one semantic model?
+/**
+ * Layout given semantic model.
+ */
+export async function performLayoutOfSemanticModel(inputSemanticModel: Record<string, SemanticModelEntity>,
+													config: UserGivenAlgorithmConfigurationslVersion2,
+													nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
+	const visualEntitiesPromise = performLayoutInternal(null, inputSemanticModel, config, nodeDimensionQueryHandler);
+	return visualEntitiesPromise;
+}
+
+
+function performLayoutInternal(visualModel: VisualEntityModel | null,
+								semanticModel: Record<string, SemanticModelEntity>,
+								config: UserGivenAlgorithmConfigurationslVersion2,
+								nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
+	if(nodeDimensionQueryHandler === undefined) {
+		nodeDimensionQueryHandler = new ReactflowDimensionsEstimator();
+	}
+
 	const graph = GraphFactory.createMainGraph(null, semanticModel, null, visualModel);
 	const visualEntitiesPromise = performLayoutFromGraph(graph, config, nodeDimensionQueryHandler, visualModel);
-	// TODO: Repeating code from doLayout
+
 	if(visualEntitiesPromise == undefined) {
 		console.log("LAYOUT FAILED")
 		throw new Error("Layout Failed");
 	}
-
 	return visualEntitiesPromise;
 }
 
