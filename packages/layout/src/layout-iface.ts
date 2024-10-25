@@ -18,6 +18,12 @@ import { NodeDimensionQueryHandler } from ".";
 
 export type LayoutMethod = (inputSemanticModel: Record<string, SemanticModelEntity>, options?: object) => Promise<VisualEntities>
 
+
+/**
+ * The object which satisfy this interface can be used for layouting. The codeflow when using the interface is as follows.
+ * Call {@link prepareFromGraph} to prepare the layouting algorithm and then call {@link run} to layout based on the preparation. 
+ * It is also possible to call {@link runGeneralizationLayout} to layout the content the generalization subgraphs.
+ */
 export interface LayoutAlgorithm {
     /**
      * @deprecated
@@ -69,6 +75,9 @@ export interface ExtractedModel {
 
 
 // TODO: Maybe it makes more sense to make the interface a abstract class instead
+/**
+ * This interface defines methods for transformation between our graph representation and layouting library representation.
+ */
 export interface GraphTransformer {
     /** Expected call flow is as follows:
      * 1) Get {@link ExtractedModel} from provided model
@@ -92,9 +101,17 @@ export interface GraphTransformer {
      * 4) Update existing graph representation using {@link updateExistingGraphRepresentationBasedOnLibraryRepresentation} (or create new one using {@link convertLibraryToGraphRepresentation}). Created representations already include VisualModel in form of {@link IVisualEntityComplete} on nodes
      * or just call {@link convertToDataspecerRepresentation} if you no longer need the graph structure
      */
-    convertGraphToLibraryRepresentation(graph: IGraphClassic,
-                                        shouldSetLayoutOptions: boolean): object,
+    convertGraphToLibraryRepresentation(graph: IGraphClassic, shouldSetLayoutOptions: boolean): object,
+
+    /**
+     * Converts library graph representation to our graph representation. 
+     * Creates new graph instance with positions set based on the values in library representation of the graph.
+     */
     convertLibraryToGraphRepresentation(libraryRepresentation: object | null, includeDummies: boolean): IGraphClassic,
+
+    /**
+     * Update positions of visual entities in our graph representation based on the positions in the layout library graph representation.
+     */
     updateExistingGraphRepresentationBasedOnLibraryRepresentation(libraryRepresentation: object | null,
                                                                     graphToBeUpdated: IGraphClassic,
                                                                     includeNewVertices: boolean,
