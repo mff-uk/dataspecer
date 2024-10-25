@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useModelGraphContext } from "../context/model-context";
 import { useConfigDialog } from "./layout-dialog";
-import { doEditorLayout } from "@dataspecer/layout";
+import { performLayoutOfVisualModel } from "@dataspecer/layout";
 import { useReactflowDimensionQueryHandler } from "./reactflow-dimension-query-handler";
 
 export const useLayoutDialog = () => {
@@ -18,22 +18,22 @@ export const useLayoutDialog = () => {
             return;
         }
 
-        doEditorLayout(activeVisualModel,
-                        models,
-                        getValidConfig(),
-                        reactflowDimensionQueryHandler).then(result => {
-                            console.info("Layout result in editor");
-                            console.info(result);
-                            console.info(activeVisualModel.getVisualEntities());
-                            Object.entries(result).forEach(([key, value]) => {
-                                if(activeVisualModel.getVisualEntity(key) === undefined) {
-                                    activeVisualModel.addEntity(value);
-                                }
-                                else {
-                                    activeVisualModel?.updateEntity(key, { position: value.position, visible: true });
-                                }
-                            });
-                        }).catch(console.warn).finally(() => close());
+        performLayoutOfVisualModel(activeVisualModel,
+                                    models,
+                                    getValidConfig(),
+                                    reactflowDimensionQueryHandler).then(result => {
+                                        console.info("Layout result in editor");
+                                        console.info(result);
+                                        console.info(activeVisualModel.getVisualEntities());
+                                        Object.entries(result).forEach(([key, value]) => {
+                                            if(activeVisualModel.getVisualEntity(key) === undefined) {
+                                                activeVisualModel.addEntity(value);
+                                            }
+                                            else {
+                                                activeVisualModel?.updateEntity(key, { position: value.position, visible: true });
+                                            }
+                                        });
+                                    }).catch(console.warn).finally(() => close());
     };
 
     const [isLayoutDialogOpen, setIsLayoutDialogOpen] = useState<boolean>(false);
