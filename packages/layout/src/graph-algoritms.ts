@@ -29,8 +29,8 @@ export class GraphAlgorithms {
 
     /**
      * This method modifies input graph.
-     * Either uses the given {@link rootNodeIdentifier} as root of tree (the node from which starts BFS search) or finds one through heuristic. 
-     * The result of this method is the change of input graph in such a way that the input graph becomes a tree (respectively DAG). 
+     * Either uses the given {@link rootNodeIdentifier} as root of tree (the node from which starts BFS search) or finds one through heuristic.
+     * The result of this method is the change of input graph in such a way that the input graph becomes a tree (respectively DAG).
      * The method sets the isConsideredInLayout and reverseInLayout properties on edges and may add some dummy edges (for example to connect components)
      */
     static treeify(graph: IGraphClassic, rootNodeIdentifier?: string, edgeType?: "TODO" | "GENERALIZATION"): void {
@@ -53,7 +53,7 @@ export class GraphAlgorithms {
               // Have to Add edge because the radial algorithm can not work with graph with multiple components
               // TODO: Alternative solution is to layout each subgraph with radial algorithm, but it is a bit more work to implement
               const leaf = graph.nodes[Object.entries(nodeToBFSLevelMap).find(([_, level]) => level === maxLevelInOriginalTree)[0]];
-              const addedEdge = leaf.addEdgeTODO(null, null, node.id, true, "relationshipEdges");
+              const addedEdge = leaf.addEdgeTODO(null, null, node.id, true, "outgoingRelationshipEdges");
 
               // addedEdge.isConsideredInLayout = true;
               usedEdges[addedEdge.id] = true;
