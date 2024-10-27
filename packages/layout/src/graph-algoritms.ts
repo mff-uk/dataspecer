@@ -210,3 +210,4 @@ class VisualAlgorithms {
         throw new Error("Unimplemented");
     }
 }
+

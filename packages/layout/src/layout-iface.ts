@@ -21,7 +21,7 @@ export type LayoutMethod = (inputSemanticModel: Record<string, SemanticModelEnti
 
 /**
  * The object which satisfy this interface can be used for layouting. The codeflow when using the interface is as follows.
- * Call {@link prepareFromGraph} to prepare the layouting algorithm and then call {@link run} to layout based on the preparation. 
+ * Call {@link prepareFromGraph} to prepare the layouting algorithm and then call {@link run} to layout based on the preparation.
  * It is also possible to call {@link runGeneralizationLayout} to layout the content the generalization subgraphs.
  */
 export interface LayoutAlgorithm {
@@ -104,7 +104,7 @@ export interface GraphTransformer {
     convertGraphToLibraryRepresentation(graph: IGraphClassic, shouldSetLayoutOptions: boolean): object,
 
     /**
-     * Converts library graph representation to our graph representation. 
+     * Converts library graph representation to our graph representation.
      * Creates new graph instance with positions set based on the values in library representation of the graph.
      */
     convertLibraryToGraphRepresentation(libraryRepresentation: object | null, includeDummies: boolean): IGraphClassic,
@@ -197,3 +197,4 @@ export function getEdgeSourceAndTargetRelationshipUsage(relationship: SemanticMo
 export function getEdgeSourceAndTargetGeneralization(relationship: SemanticModelGeneralization): {source: string, target: string} {
     return {source: relationship.child, target: relationship.parent};
 }
+

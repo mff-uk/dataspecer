@@ -116,7 +116,7 @@ function performLayoutInternal(visualModel: VisualEntityModel | null,
 	}
 
 	const graph = GraphFactory.createMainGraph(null, semanticModel, null, visualModel);
-	const visualEntitiesPromise = performLayoutFromGraph(graph, config, nodeDimensionQueryHandler, visualModel);
+	const visualEntitiesPromise = performLayoutFromGraph(graph, config, nodeDimensionQueryHandler);
 
 	if(visualEntitiesPromise == undefined) {
 		console.log("LAYOUT FAILED")
@@ -136,8 +136,7 @@ function performLayoutInternal(visualModel: VisualEntityModel | null,
  */
 export async function performLayoutFromGraph(graph: IMainGraphClassic,
 												config: UserGivenAlgorithmConfigurationslVersion2,
-												nodeDimensionQueryHandler: NodeDimensionQueryHandler,
-												visualModel: VisualEntityModel | null): Promise<VisualEntities> {
+												nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<VisualEntities> {
 	const constraints = ConstraintFactory.createConstraints(config);
 
 	// TODO: Try this later, now it isn't that important
@@ -151,7 +150,7 @@ export async function performLayoutFromGraph(graph: IMainGraphClassic,
 	// };
 	// constraints.addSimpleConstraints(compactifyConstraint);
 
-	const resultingLayoutPromise = performLayoutingBasedOnConstraints(graph, constraints, nodeDimensionQueryHandler, visualModel);
+	const resultingLayoutPromise = performLayoutingBasedOnConstraints(graph, constraints, nodeDimensionQueryHandler);
 
 	// TODO: DEBUG
 	// console.log("THE END");
@@ -166,15 +165,13 @@ export async function performLayoutFromGraph(graph: IMainGraphClassic,
  */
 const performLayoutingBasedOnConstraints = (graph: IMainGraphClassic,
 											constraints: ConstraintContainer,
-											nodeDimensionQueryHandler: NodeDimensionQueryHandler,
-											visualModel: VisualEntityModel | null): Promise<IMainGraphClassic> => {
+											nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<IMainGraphClassic> => {
 
 	console.warn("constraints");
 	console.warn(constraints);
 	return runPreMainAlgorithmConstraints(graph, constraints, nodeDimensionQueryHandler).then(_ => {
 		if(constraints.algorithmOnlyConstraints["GENERALIZATION"] !== undefined) {
-			// TODO: For now
-			(graph as MainGraphClassic).createGeneralizationSubgraphsFromStoredTODOExtractedModel(visualModel);
+			graph.createGeneralizationSubgraphs();
 			console.info("graph.allEdges");
 			console.info(graph.allEdges);
 			// throw new Error("THE END of subgraphs");

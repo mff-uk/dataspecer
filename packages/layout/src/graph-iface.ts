@@ -179,6 +179,13 @@ export interface IMainGraphClassic extends IGraphClassic {
      * This method goes through all the nodes, subgraphs and edges inside this graph and sets properties modifying graph to default state - mainly {@link isConsideredInLayout} and reverseInLayout on edges
      */
     resetForNewLayout(): void,
+
+
+    // TODO: Currently doesn't have reverse operation
+    /**
+     * Create generalization subgraphs.
+     */
+    createGeneralizationSubgraphs(): void,
 }
 
 
@@ -370,16 +377,30 @@ export class GraphClassic implements IGraphClassic {
         addNode(this.mainGraph, semanticEntityRepresentingNode, isProfile, extractedModel, this, visualModel)
     }
 
-    public createGeneralizationSubgraphsFromStoredTODOExtractedModel(visualModel: VisualEntityModel | null) {
-        this.createGeneralizationSubgraphs(this.todoDebugExtractedModel.generalizations, visualModel);
+    private isEdgeInsideGraph(edge: IEdgeClassic): boolean {
+        return edge.start.getSourceGraph() === this || edge.end.getSourceGraph() === this;
     }
+
+    public createGeneralizationSubgraphs() {
+        const generalizationEdges: SemanticModelGeneralization[] = [];
+        this.mainGraph.allEdges.forEach(edge => {
+            // TODO: Not sure if it actually has to be inside the graph or it can go beyond
+            if(isSemanticModelGeneralization(edge.edge) && this.isEdgeInsideGraph(edge)) {
+                generalizationEdges.push(edge.edge);
+            }
+        })
+
+        // We pass in no visual model, since it is expected that the edges in the graph are exactly those which were at the visual model at the time of creation
+        this.createGeneralizationSubgraphsInternal(generalizationEdges, null);
+    }
+
 
 
     // TODO: Only reason why we need visualModel is because in the cme-v1 we can't easily tell if generalization is part of the visual model.
     /**
      * Creates generalization subgraphs. The subgraphs are maximal, meaning any node which can be reached through the generalization path is in the subgraph.
      */
-    public createGeneralizationSubgraphs(generalizationEdges: SemanticModelGeneralization[], visualModel: VisualEntityModel | null): IGraphClassic[] {
+    private createGeneralizationSubgraphsInternal(generalizationEdges: SemanticModelGeneralization[], visualModel: VisualEntityModel | null): IGraphClassic[] {
         // For now 1 whole hierarchy (n levels) == 1 subgraph
         // TODO: Also very slow, but I will probably have my own graph representation later, in such case getting the generalization edges neighbors and
         // performing reachability search is trivial
@@ -735,7 +756,7 @@ export type EdgeEndPoint = INodeClassic | IGraphClassic;
 // TODO: Can create more specific interfaces for generalization, etc, which will be extending this one - they will be different in the fields - edge: type and isProfile value
 export interface IEdgeClassic {
     /**
-     * The graph in which the edge lies, this is relevant for example for ELK layouting library, 
+     * The graph in which the edge lies, this is relevant for example for ELK layouting library,
      * where the edges have to be stored within the relevant wrapper graph.
      */
     sourceGraph: IGraphClassic,
@@ -943,7 +964,7 @@ function addNode(mainGraph: IMainGraphClassic,
 
 
 /**
- * Creates edge and inserts to the given {@link graph}, and the node ends. 
+ * Creates edge and inserts to the given {@link graph}, and the node ends.
  * If the {@link target} node of the edge doesn't exist in the main graph, it is created and added to the graph.
  */
 function addEdge(graph: IGraphClassic,
