@@ -1028,14 +1028,6 @@ function isSubgraphID(id: string): boolean {
 }
 
 
-// TODO: I think that this method or the call of the layouting should be somewhere outside, also remove the double_run property
-function shouldPerformGeneralizationTwoRunLayout(algorithmOnlyConstraint: IAlgorithmOnlyConstraint): boolean {
-    console.info(algorithmOnlyConstraint);
-    // TODO: Should be checking for !== null, but I convert it back to undefined in ConstraintContainer - TODO: Fix later
-    return algorithmOnlyConstraint !== undefined && algorithmOnlyConstraint.data["double_run"];
-}
-
-
 /**
  * Class which handles the act of layouting within the ELK layouting library. For more info check docs of {@link LayoutAlgorithm} interface, which this class implements.
  */
@@ -1065,9 +1057,8 @@ export class ElkLayout implements LayoutAlgorithm {
 
     async run(shouldCreateNewGraph: boolean): Promise<IMainGraphClassic> {
         let layoutPromise: Promise<ElkNode | void>;
-
-        const constraint = this.constraintContainer.algorithmOnlyConstraints["GENERALIZATION"];
-        if(shouldPerformGeneralizationTwoRunLayout(constraint)) {
+        const generalizationConstraint = this.constraintContainer.algorithmOnlyConstraints["GENERALIZATION"];
+        if(generalizationConstraint !== undefined) {
             layoutPromise = performSecondPartGeneralizationTwoRunLayout(this.graphInElk, this.elk);
         }
         else {

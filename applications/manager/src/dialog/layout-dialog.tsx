@@ -157,21 +157,6 @@ export const useConfigDialog = () => {
                                                 }}></input>
                 {config[props.stateField]["in_layer_gap"]}
             </div>
-            { props.stateField !== "general" ? null :
-                    <div>
-                        <input type="checkbox" id="checkbox-double-run" name="checkbox-double-run" checked={config[props.stateField]['double_run']}
-                                 onChange={e => setConfig({
-                                                    ...config,
-                                                    [props.stateField]: {
-                                                        ...config[props.stateField],
-                                                        "double_run": e.target.checked
-                                                    }
-                                                })
-                                            } />
-                        <label htmlFor="checkbox-double-run">Spusť dva běhy</label>
-                    </div>
-
-            }
         </div>
 
     const renderMainAlgorithmConfig = () => {

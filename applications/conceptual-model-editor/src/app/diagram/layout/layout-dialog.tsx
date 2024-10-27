@@ -246,14 +246,6 @@ export const useConfigDialog = () => {
                                                 }}></input>
                 {config[props.stateField]["in_layer_gap"]}
             </div>
-            { props.stateField !== "general" ? null :
-                    <div>
-                        {/* // TODO: Remove later since I always do double run */}
-                        <input type="checkbox" id="checkbox-double-run" name="checkbox-double-run" checked={true} disabled={true}/>
-                        <label htmlFor="checkbox-double-run">Spusť dva běhy (Always true)</label>
-                    </div>
-
-            }
         </div>;
 
     const renderMainAlgorithmConfig = () => {

@@ -139,7 +139,7 @@ export interface UserGivenAlgorithmConfigurationOnlyData extends UserGivenAlgori
                                                                 UserGivenAlgorithmConfigurationElkForce {
     "layout_alg": AlgorithmName,
     // The idea is to have fields which are "main" in a way and universal (so they can be actually shared between algorithms) and then just advanced_settings
-    // which contains additional configuration in the JSON format of given library 
+    // which contains additional configuration in the JSON format of given library
     // (Note: the advanced_settings should override the main one if passed - TODO: Rewrite so it is actually the case)
     "advanced_settings": object,
 }
@@ -148,7 +148,6 @@ export interface UserGivenAlgorithmConfiguration extends UserGivenAlgorithmConfi
 
 
 export interface UserGivenAlgorithmConfigurationForGeneralization extends UserGivenAlgorithmConfiguration {
-    "double_run": boolean,
     "constraintedNodes": "GENERALIZATION"
 }
 
@@ -164,7 +163,6 @@ export function getDefaultUserGivenConstraintsVersion2(): UserGivenConstraintsVe
             "layout_alg": "elk_layered",        // Defined as stress in the default
             "should_be_considered": false,
             "constraintedNodes": "GENERALIZATION",
-            "double_run": true,
         }
     };
 }
@@ -256,15 +254,8 @@ export abstract class AlgorithmConfiguration implements IAlgorithmConfiguration 
             "layout_alg",
         ];
 
-        // TODO: Careful about this, right now it works, but I really don't know if I will use the double_run in future and where.
-        if(this.constraintedNodes === "ALL") {
-            return constraintKeys;
-        }
-        else {
-            return constraintKeys.concat([
-                "double_run",
-            ]);
-        }
+
+        return constraintKeys;
     }
 
     constructor(algorithmName: AlgorithmName, constrainedNodes: ConstraintedNodesGroupingsType) {
