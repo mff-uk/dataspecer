@@ -117,7 +117,6 @@ export class GraphIncidence implements IGraphIncidence {
  */
 export interface IGraphClassic extends INodeClassic {
     nodes: Record<string, EdgeEndPoint>,
-    todoDebugExtractedModel: ExtractedModel,
     initialize(mainGraph: IMainGraphClassic,
                 sourceGraph: IGraphClassic,
                 graphIdentifier: string,
@@ -195,6 +194,7 @@ export interface IMainGraphClassic extends IGraphClassic {
 export class GraphFactory {
     /**
      * Creates graph, which is put into the {@link mainGraph}
+     * @param inputModel if null then {@link nodeContentOfGraph} needs to be set, otherwise behavior is undefined
      * @param nodeContentOfGraph the nodes which are part of the new subgraph.
      *                           The nodes are put inside of the created subgraph and in the {@link sourceGraph} are shown as one node - the newly created graph.
      * ... TODO: for now can't be null, in future it might make sense to be null.
@@ -212,7 +212,7 @@ export class GraphFactory {
     public static createGraph(mainGraph: IMainGraphClassic,
                                 sourceGraph: IGraphClassic,
                                 graphIdentifier: string,
-                                inputModel: Record<string, SemanticModelEntity> | ExtractedModel,
+                                inputModel: Record<string, SemanticModelEntity> | ExtractedModel | null,
                                 nodeContentOfGraph: Array<EdgeEndPoint> | null,
                                 isDummy: boolean,
                                 visualModel: VisualEntityModel | null,
@@ -343,8 +343,6 @@ export class GraphClassic implements IGraphClassic {
         // Just simple check, dont check all elements it is not necessary
         const isExtractedModel = (inputModel as ExtractedModel).entities && (inputModel as ExtractedModel).generalizations;
         const extractedModel = isExtractedModel ? (inputModel as ExtractedModel) : extractModelObjects(inputModel as Record<string, SemanticModelEntity>);
-        this.todoDebugExtractedModel = extractedModel;
-
 
 
         extractedModel.classes.forEach(c => {
@@ -513,7 +511,7 @@ export class GraphClassic implements IGraphClassic {
         const identifier = this.createUniqueGeneralizationSubgraphIdentifier();
 
         // TODO: Using the variable which I shouldnt use (the todoDebugExtractedModel)
-        const subgraph: IGraphClassic = GraphFactory.createGraph(this.mainGraph, this, identifier, this.todoDebugExtractedModel, nodesInSubraph, true, null, true);
+        const subgraph: IGraphClassic = GraphFactory.createGraph(this.mainGraph, this, identifier, null, nodesInSubraph, true, null, true);
         return subgraph;
     }
 
@@ -604,7 +602,7 @@ export class GraphClassic implements IGraphClassic {
                 edge.edge,
                 edge.start,
                 subgraph.id,
-                this.todoDebugExtractedModel,
+                null,
                 getEdgeTypeNameFromEdge(edge),
                 null);
         addEdge(subgraph.getSourceGraph(),
@@ -612,7 +610,7 @@ export class GraphClassic implements IGraphClassic {
                 edge.edge,
                 subgraph,
                 edge.end.id,
-                this.todoDebugExtractedModel,
+                null,
                 getEdgeTypeNameFromEdge(edge),
                 null);
     }
@@ -642,7 +640,6 @@ export class GraphClassic implements IGraphClassic {
 
 
     nodes: Record<string, EdgeEndPoint> = {};
-    todoDebugExtractedModel: ExtractedModel;
 
 
     sourceGraph: IGraphClassic;
@@ -1010,7 +1007,8 @@ function addEdge(graph: IGraphClassic,
         }
 
         // TODO: Maybe sometimes the target node actually isn't part of the source graph of edge, but fix only if it occurs
-        const nodeAdded = addNode(mainGraph, targetEntity, extractedModel.classesProfiles.find(cp => cp.id === target) !== undefined,
+        const nodeAdded = addNode(mainGraph, targetEntity,
+                                    extractedModel.classesProfiles.find(cp => cp.id === target) !== undefined,
                                     extractedModel, graph, visualModel);
         if(nodeAdded === false) {
             return null;
