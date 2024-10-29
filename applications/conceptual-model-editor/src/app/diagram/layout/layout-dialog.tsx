@@ -79,7 +79,7 @@ export const useConfigDialog = () => {
 
     const interactiveCheckbox = (props: {stateField: keyof UserGivenConstraintsVersion2}) => {
         return <div>
-            <input type="checkbox" id="checkbox-interactive" name="checkbox-interactive" checked={config.main.interactive}
+            <input type="checkbox" id={`checkbox-interactive${props.stateField}`} name="checkbox-interactive" checked={config[props.stateField].interactive}
                     onChange={e => {
                         setConfig({...config,
                                     [props.stateField]: {
@@ -88,7 +88,7 @@ export const useConfigDialog = () => {
                                     }
                                 });
                         }} />
-            <label htmlFor="checkbox-interactive">Vezmi v úvahu existující layout</label>
+            <label htmlFor={`checkbox-interactive${props.stateField}`}>Vezmi v úvahu existující layout</label>
         </div>;
     };
 
