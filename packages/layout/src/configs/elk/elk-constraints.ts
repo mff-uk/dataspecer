@@ -1,6 +1,6 @@
 import { LayoutOptions } from "elkjs";
 import { AlgorithmConfiguration, LayeredConfiguration, RadialConfiguration, SporeConfiguration, StressConfiguration, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationElkForce } from "../constraints";
-import { createElkDataObject } from "./elk-utils";
+import { modifyElkDataObject } from "./elk-utils";
 import _ from "lodash";
 
 
@@ -32,7 +32,7 @@ export class ElkLayeredConfiguration extends LayeredConfiguration implements Elk
         this.elkData['elk.edgeRouting'] = "SPLINES";
         this.elkData['spacing.edgeEdge'] = "25";
 
-        createElkDataObject(this.data, this.elkData);
+        modifyElkDataObject(this.data, this.elkData);
 
         console.log("elkData in ElkLayeredConfiguration");
         console.log(_.cloneDeep(this.elkData));
@@ -42,7 +42,11 @@ export class ElkLayeredConfiguration extends LayeredConfiguration implements Elk
     }
 
     addAdvancedSettingsForUnderlying(advancedSettings: object) {
-        createElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
+        modifyElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
+    }
+
+    addAlgorithmConstraintForUnderlying(key: string, value: string): void {
+        modifyElkDataObject({[key]: value, "layout_alg": this.algorithmName}, this.elkData);
     }
 
     elkData: LayoutOptions = {};
@@ -138,11 +142,14 @@ export class ElkLayeredConfiguration extends LayeredConfiguration implements Elk
 export class ElkStressConfiguration extends StressConfiguration implements ElkConstraint {
     constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
         super(givenAlgorithmConstraints);
-        createElkDataObject(this.data, this.elkData);
+        modifyElkDataObject(this.data, this.elkData);
     }
 
     addAdvancedSettingsForUnderlying(advancedSettings: object) {
-        createElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
+        modifyElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
+    }
+    addAlgorithmConstraintForUnderlying(key: string, value: string): void {
+        modifyElkDataObject({[key]: value, "layout_alg": this.algorithmName}, this.elkData);
     }
 
     elkData: LayoutOptions = {};
@@ -168,7 +175,7 @@ export class ElkForceConfiguration extends AlgorithmConfiguration implements Elk
     constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
         super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes);
         this.data = _.pick(givenAlgorithmConstraints, this.getAllRelevantConstraintKeys()) as UserGivenAlgorithmConfigurationElkForce;
-        createElkDataObject(this.data, this.elkData);
+        modifyElkDataObject(this.data, this.elkData);
 
         // TODO: For now - hardcoded
         if(this.elkData["org.eclipse.elk.force.model"] === "EADES") {
@@ -183,7 +190,10 @@ export class ElkForceConfiguration extends AlgorithmConfiguration implements Elk
     }
 
     addAdvancedSettingsForUnderlying(advancedSettings: object) {
-        createElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
+        modifyElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
+    }
+    addAlgorithmConstraintForUnderlying(key: string, value: string): void {
+        modifyElkDataObject({[key]: value, "layout_alg": this.algorithmName}, this.elkData);
     }
 
     data: UserGivenAlgorithmConfigurationElkForce = undefined;
@@ -199,12 +209,15 @@ export class ElkForceConfiguration extends AlgorithmConfiguration implements Elk
 export class ElkSporeConfiguration extends SporeConfiguration implements ElkConstraint {
     constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
         super(givenAlgorithmConstraints);
-        createElkDataObject(this.data, this.elkData);
+        modifyElkDataObject(this.data, this.elkData);
     }
 
-    // TODO: Copy paste of this method for every Elk class, I am not sure if there is way to do it without - some mixin or seomthing
+    // TODO: Copy paste of this method for every Elk class, I am not sure if there is way to do it without - some mixin or seomthing, same for addAlgorithmConstraintForUnderlying
     addAdvancedSettingsForUnderlying(advancedSettings: object) {
-        createElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
+        modifyElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
+    }
+    addAlgorithmConstraintForUnderlying(key: string, value: string): void {
+        modifyElkDataObject({[key]: value, "layout_alg": this.algorithmName}, this.elkData);
     }
 
 
@@ -218,11 +231,14 @@ export class ElkSporeConfiguration extends SporeConfiguration implements ElkCons
 export class ElkRadialConfiguration extends RadialConfiguration implements ElkConstraint {
     constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
         super(givenAlgorithmConstraints);
-        createElkDataObject(this.data, this.elkData);
+        modifyElkDataObject(this.data, this.elkData);
     }
 
     addAdvancedSettingsForUnderlying(advancedSettings: object) {
-        createElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
+        modifyElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
+    }
+    addAlgorithmConstraintForUnderlying(key: string, value: string): void {
+        modifyElkDataObject({[key]: value, "layout_alg": this.algorithmName}, this.elkData);
     }
 
     elkData: LayoutOptions = {};

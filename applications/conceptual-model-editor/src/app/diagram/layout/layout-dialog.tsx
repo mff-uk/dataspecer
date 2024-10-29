@@ -77,6 +77,21 @@ export const useConfigDialog = () => {
                 </div>;
     };
 
+    const interactiveCheckbox = (props: {stateField: keyof UserGivenConstraintsVersion2}) => {
+        return <div>
+            <input type="checkbox" id="checkbox-interactive" name="checkbox-interactive" checked={config.main.interactive}
+                    onChange={e => {
+                        setConfig({...config,
+                                    [props.stateField]: {
+                                        ...config[props.stateField],
+                                        "interactive": e.target.checked,
+                                    }
+                                });
+                        }} />
+            <label htmlFor="checkbox-interactive">Vezmi v úvahu existující layout</label>
+        </div>;
+    };
+
     const ForceConfig = (props: {stateField: keyof UserGivenConstraintsVersion2}) =>
         <div>
             <h1 className='font-black'>Nastavení fyzikálního modelu</h1>
@@ -135,6 +150,7 @@ export const useConfigDialog = () => {
                     <option value="FRUCHTERMAN_REINGOLD">Fruchterman Reingold</option>
                 </select>
             </div>
+            {interactiveCheckbox(props)}
             <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
         </div>;
 
@@ -175,10 +191,10 @@ export const useConfigDialog = () => {
                                         }}></input>
                 {config[props.stateField]["number_of_new_algorithm_runs"]}
             </div>
+            {interactiveCheckbox(props)}
             <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
 
         </div>;
-
 
     const LayeredConfig = (props: {stateField: keyof UserGivenConstraintsVersion2}) =>
         <div>
@@ -200,16 +216,7 @@ export const useConfigDialog = () => {
                             }}></LayeredAlgorithmDirectionDropdown>
             </div>
 
-            <input type="checkbox" id="checkbox-consider_existing_layout_from_layered" name="checkbox-consider_existing_layout_from_layered" checked={config.main.consider_existing_layout_from_layered}
-                    onChange={e => {
-                        setConfig({...config,
-                                    [props.stateField]: {
-                                        ...config[props.stateField],
-                                        "consider_existing_layout_from_layered": e.target.checked,
-                                    }
-                                });
-                        }} />
-            <label htmlFor="checkbox-consider_existing_layout_from_layered">Vezmi v úvahu existující layout</label>
+            {interactiveCheckbox(props)}
 
             <div className="flex flex-row">
                 { /* It has to be onMouseUp, if I put it onChange then react forces redraw and stops the "drag" event I guess */ }

@@ -24,6 +24,10 @@ export class D3ForceConfiguration extends StressConfiguration {
         throw new Error("TODO: Method not implemented.");
     }
 
+    addAlgorithmConstraintForUnderlying(key: string, value: string): void {
+        throw new Error("Method not implemented.");
+    }
+
 
     d3Data: object = undefined;
 }

@@ -108,7 +108,6 @@ export interface UserGivenAlgorithmConfigurationLayered {
     "alg_direction": DIRECTION,
     "layer_gap": number,
     "in_layer_gap": number,
-    "consider_existing_layout_from_layered": boolean,
 }
 
 export interface UserGivenAlgorithmConfigurationStress {
@@ -141,6 +140,7 @@ export interface UserGivenAlgorithmConfigurationOnlyData extends UserGivenAlgori
     // The idea is to have fields which are "main" in a way and universal (so they can be actually shared between algorithms) and then just advanced_settings
     // which contains additional configuration in the JSON format of given library
     // (Note: the advanced_settings should override the main one if passed - TODO: Rewrite so it is actually the case)
+    "interactive": boolean,
     "advanced_settings": object,
 }
 
@@ -179,6 +179,7 @@ export function getDefaultUserGivenAlgorithmConstraint(): Omit<UserGivenAlgorith
         "min_distance_between_nodes": 100,
         "number_of_new_algorithm_runs": 50,
         "run_layered_after": false,
+        "interactive": false,
         advanced_settings: {},
     }
 }
@@ -234,10 +235,12 @@ export interface IAlgorithmOnlyConstraint extends IConstraintSimple {
 
 interface IAdvancedSettingsForUnderlying {
     addAdvancedSettingsForUnderlying(advancedSettings: object): void;
+    addAlgorithmConstraintForUnderlying(key: string, value: string): void;
 }
 
 export interface IAlgorithmConfiguration extends IAlgorithmOnlyConstraint, IAdvancedSettingsForUnderlying {
     addAdvancedSettings(advancedSettings: object): void;
+    addAlgorithmConstraint(key: string, value: string): void;
 }
 
 export abstract class AlgorithmConfiguration implements IAlgorithmConfiguration {
@@ -252,6 +255,7 @@ export abstract class AlgorithmConfiguration implements IAlgorithmConfiguration 
     getAllRelevantConstraintKeys() {
         let constraintKeys = [
             "layout_alg",
+            "interactive",
         ];
 
 
@@ -263,11 +267,17 @@ export abstract class AlgorithmConfiguration implements IAlgorithmConfiguration 
         this.constraintedNodes = constrainedNodes;
         this.type = "ALG";
     }
+    abstract addAlgorithmConstraintForUnderlying(key: string, value: string): void;
     abstract addAdvancedSettingsForUnderlying(advancedSettings: object): void;
 
     setData(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
         this.data = _.pick(givenAlgorithmConstraints, this.getAllRelevantConstraintKeys());
         this.data["advanced_settings"] = givenAlgorithmConstraints.advanced_settings;
+    }
+
+    addAlgorithmConstraint(key: string, value: string): void {
+        this.data[key] = value;
+        this.addAlgorithmConstraintForUnderlying(key, value);
     }
 
     public addAdvancedSettings(advancedSettings: object) {
@@ -317,7 +327,6 @@ export abstract class LayeredConfiguration extends AlgorithmConfiguration {
             "alg_direction": DIRECTION.UP,
             "layer_gap": 100,
             "in_layer_gap": 100,
-            "consider_existing_layout_from_layered": false,
         }
     }
     constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {

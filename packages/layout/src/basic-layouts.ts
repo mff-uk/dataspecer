@@ -6,6 +6,7 @@ import { ConstraintContainer } from "./configs/constraint-container";
 import { NodeDimensionQueryHandler } from ".";
 import { GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, MainGraphClassic } from "./graph-iface";
 import { PhantomElementsFactory } from "./util/utils";
+import _ from "lodash";
 
 
 /**
@@ -34,7 +35,12 @@ export async function doRandomLayoutAdvanced(extractedModel: ExtractedModel): Pr
 /**
  * Layout nodes of given graph using custom made random layout algorithm.
  */
-export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic, nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<IMainGraphClassic> {
+export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic, nodeDimensionQueryHandler: NodeDimensionQueryHandler, shouldCreateNewGraph: boolean): Promise<IMainGraphClassic> {
+    // TOOD: Maybe this should be like "super", because it is always the same - if I want to create new graph then I create copy and change this graph instead of the old one
+    //       Here I do it in place, normally this would be called in the Transformer before conversion from the library representation to the graph representation.
+    if(shouldCreateNewGraph) {
+        graph = _.cloneDeep(graph);
+    }
     const classNodes = Object.values(graph.nodes).filter(node => !node.isDummy);
     classNodes.forEach(classNode => {
         const visualEntity =  {
@@ -79,11 +85,11 @@ export class RandomLayout implements LayoutAlgorithm {
         this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
     }
 
-    runGeneralizationLayout(): Promise<IMainGraphClassic> {
+    runGeneralizationLayout(shouldCreateNewGraph: boolean): Promise<IMainGraphClassic> {
         throw new Error("TODO: Implement me if necessary");
     }
-    run(): Promise<IMainGraphClassic> {
-        return doRandomLayoutAdvancedFromGraph(this.graph, this.nodeDimensionQueryHandler);
+    run(shouldCreateNewGraph: boolean): Promise<IMainGraphClassic> {
+        return doRandomLayoutAdvancedFromGraph(this.graph, this.nodeDimensionQueryHandler, shouldCreateNewGraph);
     }
     stop(): void {
         throw new Error("TODO: Implement me if you want webworkers and parallelization");

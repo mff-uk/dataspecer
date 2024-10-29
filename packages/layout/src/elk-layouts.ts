@@ -27,6 +27,7 @@ import { GraphAlgorithms } from "./graph-algoritms";
  */
 class MultiElkLayoutOptions {
     constructor(constraintContainer?: ElkConstraintContainer) {
+        this.constraintContainer = constraintContainer;
         if(!ElkGraphTransformer.hasAlgorithmConstraintForAllNodes(constraintContainer)) {
             this.mainLayoutOptions = {
                 "elk.algorithm": "layered",
@@ -64,6 +65,7 @@ class MultiElkLayoutOptions {
     generalizationLayoutOptions: LayoutOptions;
     mainEdgeDirection: string;
     generalizationEdgeDirection: string;
+    constraintContainer: ElkConstraintContainer;
 };
 
 
@@ -104,10 +106,10 @@ class ElkGraphTransformer implements GraphTransformer {
             }
 
             if(node.isProfile) {
-                return this.createElkNode(id, true, undefined, "USAGE OF: " + (node.node as SemanticModelClassUsage).usageOf, node);
+                return this.createElkNode(id, true, undefined, "USAGE OF: " + (node.node as SemanticModelClassUsage).usageOf, node, multiElkLayoutOptions);
             }
             else {
-                const elkNode = this.createElkNode(id, true, undefined, node?.node?.iri, node);     // TODO: Not sure what is the ID (visual or semantic entity id?)
+                const elkNode = this.createElkNode(id, true, undefined, node?.node?.iri, node, multiElkLayoutOptions);     // TODO: Not sure what is the ID (visual or semantic entity id?)
                 if(node instanceof GraphClassic) {
                     this.convertGraphToLibraryRepresentationInternal(node, true, multiElkLayoutOptions, elkNode);
                 }
@@ -911,7 +913,8 @@ class ElkGraphTransformer implements GraphTransformer {
     /**
      * Creates node in the ELK library representation (type {@link ElkNode}) based on given data.
      */
-    createElkNode(id: string, shouldComputeSize?: boolean, layoutOptions?: LayoutOptions, label?: string, graphNode?: EdgeEndPoint): ElkNode {
+    createElkNode(id: string, shouldComputeSize?: boolean, layoutOptions?: LayoutOptions,
+                    label?: string, graphNode?: EdgeEndPoint, multiElkLayoutOptions?: MultiElkLayoutOptions): ElkNode {
         const width: number = shouldComputeSize ? this.NodeDimensionQueryHandler.getWidth(this.graph.findNodeInAllNodes(id)) : 500;
         const height: number = shouldComputeSize ? this.NodeDimensionQueryHandler.getHeight(this.graph.findNodeInAllNodes(id)) : 300;
 
@@ -943,7 +946,15 @@ class ElkGraphTransformer implements GraphTransformer {
         }
 
         const position = graphNode?.completeVisualEntity?.coreVisualEntity?.position;
-        if(position !== undefined) {
+        // TOOD: The idea is correct, that we need to use the coordinates only in interactive mode, but again - 1) we are looking for maybe different constraints
+        //       than is the running algorithm; 2) We are accessing data property ... so the reocurring issue and the last thing to fix now.
+        //       3) This doesn't really solve it - we are still using the positions in the first run (layouting of nodes in subgraphs) of the two run algorithm
+        //       What we actually want is a) when generalization layout is run don't use interactive, in the 2nd run set only the positions within subgraphs not the subgraph positions
+        if(position !== undefined &&
+            (multiElkLayoutOptions !== undefined && (
+                multiElkLayoutOptions?.constraintContainer?.algorithmOnlyConstraints?.["GENERALIZATION"] !== undefined
+                  || String(multiElkLayoutOptions?.constraintContainer?.algorithmOnlyConstraints?.["ALL"]?.data?.["interactive"]) === "true"))
+          ) {
             const parentPosition = graphNode.getSourceGraph()?.completeVisualEntity?.coreVisualEntity?.position;
             node.x = position.x - (parentPosition?.x ?? 0);
             node.y = position.y - (parentPosition?.y ?? 0);
@@ -1058,12 +1069,13 @@ export class ElkLayout implements LayoutAlgorithm {
     async run(shouldCreateNewGraph: boolean): Promise<IMainGraphClassic> {
         let layoutPromise: Promise<ElkNode | void>;
         const generalizationConstraint = this.constraintContainer.algorithmOnlyConstraints["GENERALIZATION"];
+        const graphInElkWorkCopy = this.getGraphInElk();
         if(generalizationConstraint !== undefined) {
-            layoutPromise = performSecondPartGeneralizationTwoRunLayout(this.graphInElk, this.elk);
+            layoutPromise = performSecondPartGeneralizationTwoRunLayout(graphInElkWorkCopy, this.elk);
         }
         else {
             // throw new Error("TODO: Radial debug");
-            layoutPromise = this.elk.layout(this.graphInElk)
+            layoutPromise = this.elk.layout(graphInElkWorkCopy)
                                     .catch(console.error);
         }
 
@@ -1077,7 +1089,7 @@ export class ElkLayout implements LayoutAlgorithm {
                                         return this.elkGraphTransformer.convertLibraryToGraphRepresentation(null, false);
                                     }
                                     else {
-                                        this.elkGraphTransformer.updateExistingGraphRepresentationBasedOnLibraryRepresentation(this.graphInElk, this.graph, false, true);
+                                        this.elkGraphTransformer.updateExistingGraphRepresentationBasedOnLibraryRepresentation(graphInElkWorkCopy, this.graph, false, true);
                                         return this.graph.mainGraph;            // TODO: Again main graph
                                     }
                                 });
@@ -1087,9 +1099,11 @@ export class ElkLayout implements LayoutAlgorithm {
         const layoutPromises: Promise<void>[] = [];
         let subgraphAllEdges: [ElkExtendedEdge[], ElkExtendedEdge[]][] = [];
         let subgraphIndices: number[] = [];
+
+        const graphInElkWorkCopy = this.getGraphInElk();
         console.log("GRAPH BEFORE DOUBLE LAYOUTING:");
-        console.log(JSON.stringify(this.graphInElk));
-        for(const [index, subgraph] of this.graphInElk.children.entries()) {
+        console.log(JSON.stringify(graphInElkWorkCopy));
+        for(const [index, subgraph] of graphInElkWorkCopy.children.entries()) {
             console.log(index);
             console.log(subgraph);
             if(isSubgraph(subgraph)) {
@@ -1112,22 +1126,22 @@ export class ElkLayout implements LayoutAlgorithm {
         }
         return Promise.all(layoutPromises).then(result => {
             console.log("GRAPH AFTER FIRST LAYOUTING:");
-            console.log(JSON.stringify(this.graphInElk));
+            console.log(JSON.stringify(graphInElkWorkCopy));
             for(const [i, [keptEdges, removedEdges]] of subgraphAllEdges.entries()) {
                 console.log("Layouted subgraph");
-                console.log(this.graphInElk.children[subgraphIndices[i]]);
-                this.graphInElk.children[subgraphIndices[i]].edges = this.graphInElk.children[subgraphIndices[i]].edges.concat(removedEdges);
+                console.log(graphInElkWorkCopy.children[subgraphIndices[i]]);
+                graphInElkWorkCopy.children[subgraphIndices[i]].edges = graphInElkWorkCopy.children[subgraphIndices[i]].edges.concat(removedEdges);
             }
             console.log("GRAPH AFTER FIRST LAYOUTING AND REPAIRING EDGES:");
-            console.log(this.graphInElk);
-            console.log(JSON.stringify(this.graphInElk));
+            console.log(graphInElkWorkCopy);
+            console.log(JSON.stringify(graphInElkWorkCopy));
             if(shouldCreateNewGraph) {
-                const layoutedGraph = this.elkGraphTransformer.convertLibraryToGraphRepresentation(this.graphInElk, false);
+                const layoutedGraph = this.elkGraphTransformer.convertLibraryToGraphRepresentation(graphInElkWorkCopy, false);
                 // TODO: Alternative solution is just to keep changing the input graph instead of creating copies
                 return layoutedGraph;
             }
             else {
-                this.elkGraphTransformer.updateExistingGraphRepresentationBasedOnLibraryRepresentation(this.graphInElk, this.graph, false, true);
+                this.elkGraphTransformer.updateExistingGraphRepresentationBasedOnLibraryRepresentation(graphInElkWorkCopy, this.graph, false, true);
                 return this.graph.mainGraph;            // TODO: Again main graph
             }
         });
@@ -1141,6 +1155,9 @@ export class ElkLayout implements LayoutAlgorithm {
     private elk: ELKType;
     private graph: IGraphClassic;
     private graphInElk: ElkNode;
+    private getGraphInElk(): ElkNode {
+        return _.cloneDeep(this.graphInElk);
+    }
     constraintContainer: ConstraintContainer;
     private elkGraphTransformer: ElkGraphTransformer;
     nodeDimensionQueryHandler: NodeDimensionQueryHandler;

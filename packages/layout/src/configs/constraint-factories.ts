@@ -39,6 +39,8 @@ class AlgorithmConstraintFactory {
                     data: undefined,
                     addAdvancedSettings: () => {},
                     addAdvancedSettingsForUnderlying: () => {},
+                    addAlgorithmConstraint: () => {},
+                    addAlgorithmConstraintForUnderlying: () => {},
                 };
             case "d3_force":
                 return new D3ForceConfiguration(userGivenAlgorithmConfiguration);

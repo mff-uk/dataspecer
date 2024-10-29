@@ -246,16 +246,7 @@ const runMainLayoutAlgorithm = async (graph: IMainGraphClassic,
 	const mainLayoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[constraints.algorithmOnlyConstraints["ALL"].algorithmName];
 	// TODO: Another special case for force and stress, because stress needs different initial graph every time, force can prepare it once
 	if(findBestLayoutConstraint === undefined || constraints.algorithmOnlyConstraints["ALL"].algorithmName === "elk_force") {
-		// TODO: Again special case
-		if(constraints.algorithmOnlyConstraints["ALL"].algorithmName === "elk_layered" && constraints.algorithmOnlyConstraints["ALL"].data["consider_existing_layout_from_layered"]) {
-			// TODO: Copy-paste of the interactive settings
-			constraints.algorithmOnlyConstraints.ALL.addAdvancedSettings({
-				// "crossingMinimization.semiInteractive": true,
-				"crossingMinimization.strategy": "INTERACTIVE",		// This is more aggressive (preserves given input more) than the crossingMinimization.seminteractive property
-				"crossingCounterNodeInfluence": 0,
-				"cycleBreaking.strategy": "INTERACTIVE",})
-		}
-		mainLayoutAlgorithm.prepareFromGraph(graph, constraints, nodeDimensionQueryHandler);		// TODO: Prepare only once? or in each iteration?
+		mainLayoutAlgorithm.prepareFromGraph(graph, constraints, nodeDimensionQueryHandler);
 	}
 
 	for(let i = 0; i < numberOfAlgorithmRuns; i++) {
@@ -263,7 +254,7 @@ const runMainLayoutAlgorithm = async (graph: IMainGraphClassic,
 		//       I think that I should rewrite so I can just run multiple algorithms in succession and add pre-,post- conditions then I am happy with it
 		if(findBestLayoutConstraint !== undefined) {
 			if(constraints.algorithmOnlyConstraints.ALL.algorithmName === "elk_stress") {
-				constraints.algorithmOnlyConstraints.ALL.addAdvancedSettings({"interactive": true});
+				constraints.algorithmOnlyConstraints.ALL.addAlgorithmConstraint("interactive", "true");
 				const randomLayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING["random"];
 				randomLayoutAlgorithm.prepareFromGraph(graph, constraints, nodeDimensionQueryHandler);
 				// TODO: Can be solved without await
