@@ -189,6 +189,7 @@ const performLayoutingBasedOnConstraints = (graph: IMainGraphClassic,
 			// throw new Error("THE END of subgraphs");
 
 			const generalizationAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[constraints.algorithmOnlyConstraints["GENERALIZATION"].algorithmName];
+			constraints.currentAlgorithmConstraint = "GENERALIZATION";
 			generalizationAlgorithm.prepareFromGraph(graph, constraints, nodeDimensionQueryHandler);
 			return generalizationAlgorithm.runGeneralizationLayout(true).then(generalizationResult => {
 				return runMainLayoutAlgorithm(generalizationResult, constraints, nodeDimensionQueryHandler).then(result => {
@@ -257,6 +258,7 @@ const runMainLayoutAlgorithm = async (graph: IMainGraphClassic,
 	const numberOfAlgorithmRuns = (findBestLayoutConstraint?.data as any)?.numberOfAlgorithmRuns ?? 1;
 	const mainLayoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[constraints.algorithmOnlyConstraints["ALL"].algorithmName];
 	// TODO: Another special case for force and stress, because stress needs different initial graph every time, force can prepare it once
+	constraints.currentAlgorithmConstraint = "ALL";
 	if(findBestLayoutConstraint === undefined || constraints.algorithmOnlyConstraints["ALL"].algorithmName === "elk_force") {
 		mainLayoutAlgorithm.prepareFromGraph(graph, constraints, nodeDimensionQueryHandler);
 	}

@@ -63,6 +63,8 @@ export class ConstraintContainer {
      */
     constraints: IConstraint[];
 
+    currentAlgorithmConstraint: ConstraintedNodesGroupingsType;
+
 
 
     constructor(algorithmOnlyConfiguration: IAlgorithmConfiguration[],
@@ -82,6 +84,8 @@ export class ConstraintContainer {
 
                     // TODO: For now
                     this.modelID = null;
+
+                    this.currentAlgorithmConstraint = "ALL";
                 }
 
 

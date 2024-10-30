@@ -96,7 +96,7 @@ export const useConfigDialog = () => {
     const interactiveCheckbox = (props: {algorithmName: AlgorithmName, stateField: MainOrGeneralType}) => {
         return <div>
             <input type="checkbox" id={`checkbox-interactive${props.stateField}`} name="checkbox-interactive"
-                    checked={(config?.[props.stateField] as Partial<Record<AlgorithmName, UserGivenAlgorithmConfiguration>>)?.[config.chosenMainAlgorithm]?.interactive}
+                    checked={(config?.[props.stateField] as Partial<Record<AlgorithmName, UserGivenAlgorithmConfiguration>>)?.[props.algorithmName]?.interactive}
                     onChange={e => {
                         setConfigWithNewValue(props.algorithmName, props.stateField, "interactive", e.target.checked);
                         }} />
@@ -155,13 +155,13 @@ export const useConfigDialog = () => {
 
     function setConfigWithNewValue<T>(algorithmName: AlgorithmName, stateField: Partial<MainOrGeneralType>, nameOfParameterToChange: string, newValue: T) {
         if(stateField === "general" && algorithmName !== "elk_layered") {
-
             return;
         }
         const algorithmSettings = (config?.[stateField] as Partial<Record<AlgorithmName, UserGivenAlgorithmConfiguration>>)?.[algorithmName];
         if(algorithmSettings === undefined) {
             return;
         }
+
         setConfig({
                     ...config,
                     [stateField]: {

@@ -57,7 +57,6 @@ export class GraphAlgorithms {
 
               // addedEdge.isConsideredInLayout = true;
               usedEdges[addedEdge.id] = true;
-
               const nextNodeToBFSLevelMap = GraphAlgorithms.treeifyBFSFromRoot(graph, visitedNodes, usedEdges, nodeIdentifier);
               Object.keys(nextNodeToBFSLevelMap).forEach(id => {
                 nextNodeToBFSLevelMap[id] += maxLevelInOriginalTree;
@@ -74,7 +73,10 @@ export class GraphAlgorithms {
 
 
       for (const edge of graph.mainGraph.allEdges) {
-        if(Object.keys(usedEdges).find(usedEdge => usedEdge === edge.id) === undefined) {
+        // Otherwise the edges within subgraphs aren't in the final layout, which doesn't actually affect the node positions, but we are missing the edges then
+        // TODO: Or maybe we don't, we can set them from the previous run to the graph and we don't override them in the second run since they are not there ... so maybe unnecessary check
+        const isInSubgraphEdge = graph.nodes[edge.start.id] === undefined || graph.nodes[edge.end.id] === undefined;
+        if(Object.keys(usedEdges).find(usedEdge => usedEdge === edge.id) === undefined && !isInSubgraphEdge) {
           edge.isConsideredInLayout = false;
         }
         else {
@@ -129,14 +131,14 @@ export class GraphAlgorithms {
       nodeToBFSLevelMap[node.id] = currentLevel;
 
       for(const edge of graph.nodes[node.id].getAllIncomingEdges()) {
-        if(visitedNodes[edge.start.id] !== true && nodesInQueue.find(([nodeInQueueIdentifier, _]) => nodeInQueueIdentifier === edge.start.id) === undefined) {
+        if(visitedNodes[edge.start.id] !== true && nodesInQueue.find(([nodeInQueueIdentifier, _]) => nodeInQueueIdentifier === edge.start.id) === undefined && graph.nodes[edge.start.id] !== undefined) {
           usedEdges[edge.id] = true;
           nodesInQueue.push([edge.start.id, currentLevel + 1]);
           edge.reverseInLayout = true;
         }
       }
       for(const edge of graph.nodes[node.id].getAllOutgoingEdges()) {
-        if(visitedNodes[edge.end.id] !== true && nodesInQueue.find(([nodeInQueueIdentifier, _]) => nodeInQueueIdentifier === edge.end.id) === undefined) {
+        if(visitedNodes[edge.end.id] !== true && nodesInQueue.find(([nodeInQueueIdentifier, _]) => nodeInQueueIdentifier === edge.end.id) === undefined && graph.nodes[edge.end.id] !== undefined) {
           usedEdges[edge.id] = true;
           nodesInQueue.push([edge.end.id, currentLevel + 1]);
           edge.reverseInLayout = false;

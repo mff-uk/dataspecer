@@ -92,6 +92,9 @@ export interface BasicUserGivenConstraints {
 // c) We can have uniformity, before that we had to have for the general variant the same fields as for layered algorithm in main
 //    but prefixed with general_ - for example "general_layer_gap" (On a side note - Now we allow the generalization edges to be separately processed by any algorithm)
 // We pay fot it though, when using setState with nested object it gets more complicated than with flat object
+/**
+ * @deprecated
+ */
 export interface UserGivenAlgorithmConfigurationslVersion2 {
     // The information after & can be safely deducted from the field name
     main: MainUserGivenAlgorithmConfiguration,
@@ -103,8 +106,9 @@ export interface UserGivenAlgorithmConfigurationslVersion2 {
     // }]
 }
 
-// The information after & can be safely deducted from the field name
-// TODO: I probably even don't needed ... check in next commit
+// The information after & can be safely deducted from the field name in the actual object
+// TODO: ... I need the should_be_considered field only for the generalization, otherwise not - so I will just take it out and put into the object, simliarly to the chosenAlgorithm
+//       But what about future proofing? ... For now keep it, if I will see in few months that there is no use, just remove the field and and new field, simliarly to the chosenAlgorithm
 type MainUserGivenAlgorithmConfiguration = UserGivenAlgorithmConfiguration & { "should_be_considered": true, "constraintedNodes": "ALL" };
 
 interface AlgorithmConstraint {
