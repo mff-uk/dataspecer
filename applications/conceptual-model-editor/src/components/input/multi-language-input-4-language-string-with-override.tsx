@@ -6,7 +6,7 @@ import type { WithOverrideHandlerType } from "../../util/profile-utils";
 export const MultiLanguageInputForLanguageStringWithOverride = (props: {
     forElement: string;
     ls: LanguageString;
-    setLs: React.Dispatch<React.SetStateAction<LanguageString>>;
+    setLs: (setter:(previous:LanguageString) => LanguageString) => void;
     defaultLang: string;
     inputType: "text" | "textarea";
     disabled?: boolean;

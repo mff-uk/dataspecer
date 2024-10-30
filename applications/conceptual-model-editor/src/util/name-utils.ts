@@ -16,7 +16,7 @@ import {
 import { getIri } from "./iri-utils";
 import type { EntityModel } from "@dataspecer/core-v2";
 import { temporaryDomainRangeHelper } from "./relationship-utils";
-import { EntityProxy } from "./detail-utils";
+import { useEntityProxy } from "./detail-utils";
 
 export const getNameLanguageString = (
     resource:
@@ -134,7 +134,7 @@ export const getDuplicateNames = (
     return new Set(
         Object.entries(
             resources
-                .map((c) => EntityProxy(c).name)
+                .map((c) => useEntityProxy(c).name)
                 .reduce((prev: { [key: string]: number }, curr) => {
                     if (!curr) {
                         return prev;

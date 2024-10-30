@@ -4,7 +4,7 @@ import {
     isSemanticModelAttributeUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
-import { EntityProxy } from "../../../util/detail-utils";
+import { useEntityProxy } from "../../../util/detail-utils";
 import { getLocalizedStringFromLanguageString } from "../../../util/language-utils";
 import { getProfiledEntity } from "../../../util/profile-utils";
 import { useClassesContext } from "../../../context/classes-context";
@@ -50,7 +50,7 @@ export const NewRemovableAttributeProfileRow = (props: {
         if (!profiledEntity) {
             return resource.usageOf;
         }
-        return EntityProxy(profiledEntity, language).name;
+        return useEntityProxy(profiledEntity, language).name;
     };
 
     const attr = resource.ends?.at(1);

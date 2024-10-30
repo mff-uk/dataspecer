@@ -1,7 +1,4 @@
-import { useState } from "react";
-
-import { useModelGraphContext } from "../../context/model-context";
-import { useBaseDialog } from "../../components/base-dialog";
+import { ModelGraphContextType } from "../../context/model-context";
 import { filterInMemoryModels } from "../../util/model-utils";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import {
@@ -9,14 +6,11 @@ import {
     type SemanticModelClass,
     type SemanticModelRelationship,
     type SemanticModelRelationshipEnd,
-    isSemanticModelClass,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
     type SemanticModelClassUsage,
-    type SemanticModelRelationshipEndUsage,
     type SemanticModelRelationshipUsage,
-    isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { DomainRangeComponent } from "../components/domain-range-component";
@@ -24,56 +18,124 @@ import { getDescriptionLanguageString, getNameLanguageString } from "../../util/
 import { temporaryDomainRangeHelper } from "../../util/relationship-utils";
 import { ProfileModificationWarning } from "../../features/warnings/profile-modification-warning";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
-import { EntityProxy, getEntityTypeString } from "../../util/detail-utils";
+import { getEntityTypeString, createEntityProxy } from "../../util/detail-utils";
 import { MultiLanguageInputForLanguageStringWithOverride } from "../../components/input/multi-language-input-4-language-string-with-override";
-import type { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { DialogColoredModelHeaderWithModelSelector } from "../../components/dialog/dialog-colored-model-header";
-import { getIri, getModelIri } from "../../util/iri-utils";
+import { getIri } from "../../util/iri-utils";
 import { getRandomName } from "../../util/random-gen";
 import { IriInput } from "../../components/input/iri-input";
-import { CancelButton } from "../../components/dialog/buttons/cancel-button";
-import { CreateButton } from "../../components/dialog/buttons/create-button";
-import { useClassesContext } from "../../context/classes-context";
-import { type OverriddenFieldsType, getDefaultOverriddenFields } from "../../util/profile-utils";
+import { ClassesContextType } from "../../context/classes-context";
+import { type OverriddenFieldsType, getDefaultOverriddenFields, isSemanticProfile } from "../../util/profile-utils";
 import { t } from "../../application";
 import { prefixForIri } from "../../service/prefix-service";
-import { isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { useActions } from "../../action/actions-react-binding";
-import { useOptions } from "../../application/options";
+import { DialogProps, DialogWrapper } from "../dialog-api";
+import { findSourceModelOfEntity } from "../../service/model-service";
 
-export type ProfileDialogSupportedTypes =
+export type SupportedTypes =
     | SemanticModelClass
     | SemanticModelRelationship
     | SemanticModelClassUsage
     | SemanticModelRelationshipUsage;
 
-export const useCreateProfileDialog = () => {
-    const { isOpen, open, close, BaseDialog } = useBaseDialog();
-    const [entity, setEntity] = useState<ProfileDialogSupportedTypes | null>(null);
+export interface CreateProfileState {
 
-    const localOpen = (entity: ProfileDialogSupportedTypes) => {
-        setEntity(entity);
-        open();
+    entity: SupportedTypes;
+
+    language: string;
+
+    hasDomainAndRange: boolean;
+
+    displayNameOfProfiledEntity: string | null;
+
+    //
+
+    iri: string;
+
+    name: LanguageString;
+
+    description: LanguageString;
+
+    usageNote: LanguageString;
+
+    domain: SemanticModelRelationshipEnd;
+
+    range: SemanticModelRelationshipEnd;
+
+    //
+
+    model: InMemorySemanticModel;
+
+    models: InMemorySemanticModel[];
+
+    changedFields: ChangedFieldsType;
+
+    overriddenFields: OverriddenFieldsType;
+
+}
+
+export type ChangedFieldsType = {
+    name: boolean,
+    description: boolean,
+    iri: boolean,
+    domain: boolean,
+    domainCardinality: boolean,
+    range: boolean,
+    rangeCardinality: boolean,
+};
+
+export const createEntityProfileDialog = (
+    classes: ClassesContextType,
+    graph: ModelGraphContextType,
+    entity: SupportedTypes,
+    language: string,
+    onConfirm: (state: CreateProfileState) => void,
+): DialogWrapper<CreateProfileState> => {
+    return {
+        label: "create-profile-dialog.label",
+        component: CreateProfileDialog,
+        state: createCreateProfileState(classes, graph, entity, language),
+        confirmLabel: "create-profile-dialog.btn-ok",
+        cancelLabel: "create-profile-dialog.btn-close",
+        validate: (state) => true,
+        onConfirm: onConfirm,
+        onClose: null,
     };
+}
 
-    const localClose = () => {
-        setEntity(null);
-        close();
-    };
-
-    const CreateProfileDialog = () => {
-        const { language: preferredLanguage } = useOptions();
-        const { createClassEntityUsage, createRelationshipEntityUsage } = useClassesContext();
-        const { models, aggregatorView } = useModelGraphContext();
-        const inMemoryModels = filterInMemoryModels([...models.values()]);
-        const actions = useActions();
-
-        const [usageNote, setUsageNote] = useState<LanguageString>({});
-        const [name, setName] = useState<LanguageString>(getNameLanguageString(entity) ?? {});
-        const [description, setDescription] = useState<LanguageString>(getDescriptionLanguageString(entity) ?? {});
-        const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.getId() ?? "---");
-        const [newIri, setNewIri] = useState(suggestNewProfileIri(entity));
-        const [changedFields, setChangedFields] = useState({
+function createCreateProfileState(
+    classes: ClassesContextType,
+    graph: ModelGraphContextType,
+    entity: SupportedTypes,
+    language: string,
+) : CreateProfileState {
+    const entityProxy = createEntityProxy(classes, graph, entity);
+    const domainAndRange = entityProxy.canHaveDomainAndRange ? temporaryDomainRangeHelper(entity) : null;
+    const models = filterInMemoryModels([...graph.models.values()]);
+    const owner = findSourceModelOfEntity(entity.id, graph.models);
+    // Check we have an owner as a semantic model we can write to.
+    let model;
+    if (owner === null || !(owner instanceof InMemorySemanticModel)) {
+        model = models[0];
+    } else {
+        model = owner;
+    }
+    return {
+        entity,
+        language,
+        hasDomainAndRange: isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity),
+        displayNameOfProfiledEntity: entity ? entityProxy.name : null,
+        //
+        iri: suggestNewProfileIri(entity),
+        name: getEntityNameOrEmpty(entity),
+        description: getEntityDescriptionOrEmpty(entity),
+        usageNote: getEntityUsageNoteOrEmpty(entity),
+        domain: domainAndRange?.domain ?? {} as SemanticModelRelationshipEnd,
+        range: domainAndRange?.range ?? {} as SemanticModelRelationshipEnd,
+        //
+        model: model,
+        models: models,
+        changedFields: {
             name: false,
             description: false,
             iri: false,
@@ -81,238 +143,24 @@ export const useCreateProfileDialog = () => {
             domainCardinality: false,
             range: false,
             rangeCardinality: false,
-        });
+        },
+        overriddenFields: getDefaultOverriddenFields(),
+    }
+}
 
-        const [overriddenFields, setOverriddenFields] = useState<OverriddenFieldsType>(getDefaultOverriddenFields());
-
-        // --- relationships and relationship profiles --- --- ---
-        const hasDomainAndRange = isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity);
-        const currentDomainAndRange =
-            isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)
-                ? temporaryDomainRangeHelper(entity)
-                : null;
-
-        const [newDomain, setNewDomain] = useState(
-            currentDomainAndRange?.domain ?? ({} as SemanticModelRelationshipEnd)
-        );
-        const [newRange, setNewRange] = useState(currentDomainAndRange?.range ?? ({} as SemanticModelRelationshipEnd));
-
-        // --- model it comes from --- --- ---
-
-        const model = inMemoryModels.find((m) => m.getId() == activeModel);
-        const modelIri = getModelIri(model);
-
-        // --- profiling --- --- ---
-
-        const displayNameOfProfiledEntity = entity ? EntityProxy(entity, preferredLanguage).name : null;
-
-        const changedFieldsAsStringArray = Object.entries(changedFields)
-            .filter(([key, _]) => key != "name" && key != "description")
-            .filter(([_, v]) => v == true)
-            .map(([key, _]) => key);
-
-        if (inMemoryModels.length == 0) {
-            alert("Create a local model first, please");
-            localClose();
-            return;
-        }
-
-        const handleSaveClassProfile = (e: SemanticModelClass | SemanticModelClassUsage, m: InMemorySemanticModel) => {
-            // TODO ACTION Create class entity
-            const { id: classUsageId } = createClassEntityUsage(m, e.type[0], {
-                usageOf: e.id,
-                usageNote: usageNote,
-                description: overriddenFields.description && changedFields.description ? description : null,
-                name: overriddenFields.name && changedFields.name ? name : null,
-                iri: newIri,
-            });
-
-            const visualModel = aggregatorView.getActiveVisualModel();
-            if (classUsageId && isWritableVisualModel(visualModel)) {
-                actions.addNodeToVisualModel(m.getId(), classUsageId);
-            }
-        };
-
-        const handleSaveRelationshipProfile = (
-            e: SemanticModelRelationship | SemanticModelRelationshipUsage,
-            m: InMemorySemanticModel
-        ) => {
-            // TODO ACTION Create relationship entity
-            const domainEnd = {
-                concept: overriddenFields.domain && changedFields.domain ? newDomain.concept : null,
-                name: null,
-                description: null,
-                cardinality:
-                    overriddenFields.domainCardinality && changedFields.domainCardinality
-                        ? newDomain.cardinality ?? null
-                        : null,
-                usageNote: null,
-                iri: null,
-            } satisfies SemanticModelRelationshipEndUsage;
-            const rangeEnd = {
-                concept: overriddenFields.range && changedFields.range ? newRange.concept : null,
-                name: overriddenFields.name && changedFields.name ? name : null,
-                description: overriddenFields.description && changedFields.description ? description : null,
-                cardinality:
-                    overriddenFields.rangeCardinality && changedFields.rangeCardinality
-                        ? newRange.cardinality ?? null
-                        : null,
-                usageNote: null,
-                iri: newIri,
-            } as SemanticModelRelationshipEndUsage;
-
-            let ends: SemanticModelRelationshipEndUsage[];
-            if (currentDomainAndRange?.domainIndex == 1 && currentDomainAndRange.rangeIndex == 0) {
-                ends = [rangeEnd, domainEnd];
-            } else {
-                ends = [domainEnd, rangeEnd];
-            }
-
-            const { id: relationshipUsageId } = createRelationshipEntityUsage(m, e.type[0], {
-                usageOf: e.id,
-                usageNote: usageNote,
-                ends: ends,
-            });
-
-            const visualModel = aggregatorView.getActiveVisualModel();
-            if (relationshipUsageId && isWritableVisualModel(visualModel)) {
-                visualModel.addVisualRelationship({
-                    model: m.getId(),
-                    representedRelationship: relationshipUsageId,
-                    waypoints: [],
-                });
-            }
-        };
-
-        const handleSavingProfile = (m: InMemorySemanticModel) => {
-            if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
-                handleSaveClassProfile(entity, m);
-            } else if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
-                handleSaveRelationshipProfile(entity, m);
-            }
-            localClose();
-        };
-
-        return (
-            <BaseDialog
-                heading={t("create-profile-dialog.label", displayNameOfProfiledEntity)}
-            >
-                <div>
-                    <DialogColoredModelHeaderWithModelSelector
-                        style="grid grid-cols-1 px-1 md:grid-cols-[25%_75%] gap-y-3 bg-slate-100 md:pb-4 md:pl-8 md:pr-16 md:pt-2"
-                        activeModel={activeModel}
-                        onModelSelected={(m) => setActiveModel(m)}
-                    />
-                    <div className="grid grid-cols-1 gap-y-3 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pb-4 md:pl-8 md:pr-16 md:pt-2">
-                        <DialogDetailRow detailKey={t("create-profile-dialog.profiled")}>{displayNameOfProfiledEntity}</DialogDetailRow>
-                        <DialogDetailRow detailKey={t("create-profile-dialog.profiled-type")}>
-                            {getEntityTypeString(entity)}
-                        </DialogDetailRow>
-                    </div>
-                </div>
-                <div className="grid grid-cols-1 gap-y-3 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pb-4 md:pl-8 md:pr-16 md:pt-2">
-
-                    <DialogDetailRow detailKey={t("create-profile-dialog.name")}>
-                        <MultiLanguageInputForLanguageStringWithOverride
-                            forElement="create-profile-name"
-                            ls={name}
-                            setLs={setName}
-                            defaultLang={preferredLanguage}
-                            inputType="text"
-                            withOverride={{
-                                callback: () => setOverriddenFields((prev) => ({ ...prev, name: !prev.name })),
-                                defaultValue: false,
-                            }}
-                            disabled={!overriddenFields.name}
-                            onChange={() => setChangedFields((prev) => ({ ...prev, name: true }))}
-                        />
-                    </DialogDetailRow>
-
-                    <DialogDetailRow detailKey={t("create-profile-dialog.iri")}>
-                        <IriInput
-                            name={name}
-                            newIri={newIri}
-                            setNewIri={(i) => setNewIri(i)}
-                            iriHasChanged={changedFields.iri}
-                            onChange={() => setChangedFields((prev) => ({ ...prev, iri: true }))}
-                            baseIri={modelIri}
-                        />
-                    </DialogDetailRow>
-
-                    <DialogDetailRow detailKey={t("create-profile-dialog.description")}>
-                        <MultiLanguageInputForLanguageStringWithOverride
-                            forElement="create-profile-description"
-                            ls={description}
-                            setLs={setDescription}
-                            defaultLang={preferredLanguage}
-                            inputType="textarea"
-                            withOverride={{
-                                callback: () =>
-                                    setOverriddenFields((prev) => ({ ...prev, description: !prev.description })),
-                                defaultValue: false,
-                            }}
-                            disabled={!overriddenFields.description}
-                            onChange={() => setChangedFields((prev) => ({ ...prev, description: true }))}
-                        />
-                    </DialogDetailRow>
-
-                    <DialogDetailRow detailKey={t("create-profile-dialog.usage-note")}>
-                        <MultiLanguageInputForLanguageString
-                            ls={usageNote}
-                            setLs={setUsageNote}
-                            defaultLang={preferredLanguage}
-                            inputType="textarea"
-                        />
-                    </DialogDetailRow>
-
-                    {hasDomainAndRange && (
-                        <>
-                            <DomainRangeComponent
-                                entity={entity}
-                                domain={newDomain}
-                                setDomain={setNewDomain}
-                                onDomainChange={() => setChangedFields((prev) => ({ ...prev, domain: true }))}
-                                onDomainCardinalityChange={() =>
-                                    setChangedFields((prev) => ({ ...prev, domainCardinality: true }))
-                                }
-                                range={newRange}
-                                setRange={setNewRange}
-                                onRangeChange={() => setChangedFields((prev) => ({ ...prev, range: true }))}
-                                onRangeCardinalityChange={() =>
-                                    setChangedFields((prev) => ({ ...prev, rangeCardinality: true }))
-                                }
-                                withOverride={{ overriddenFields, setOverriddenFields }}
-                                hideCardinality={false}
-                            />
-                        </>
-                    )}
-                    {changedFieldsAsStringArray.length === 0 ? null : (
-                        <DialogDetailRow detailKey={t("create-profile-dialog.warning")}>
-                            <ProfileModificationWarning changedFields={changedFieldsAsStringArray} />
-                        </DialogDetailRow>
-                    )}
-                </div>
-                <div className="mt-auto flex flex-row justify-evenly font-semibold">
-                    {model && entity ? (
-                        <CreateButton onClick={() => handleSavingProfile(model)} />
-                    ) : (
-                        <CreateButton style="cursor-not-allowed" disabled={true} title="You have to select model first" />
-                    )}
-                    <CancelButton onClick={localClose} />
-                </div>
-            </BaseDialog>
-        );
-    };
-
-    return {
-        isCreateProfileDialogOpen: isOpen,
-        closeCreateProfileDialog: close,
-        openCreateProfileDialog: localOpen,
-        CreateProfileDialog,
-    };
+const getEntityNameOrEmpty = (entity: SupportedTypes): LanguageString => {
+    return getNameLanguageString(entity) ?? {};
 };
 
-function suggestNewProfileIri(entity: ProfileDialogSupportedTypes | null) : string {
+const getEntityDescriptionOrEmpty = (entity: SupportedTypes): LanguageString => {
+    return getDescriptionLanguageString(entity) ?? {};
+};
+
+const getEntityUsageNoteOrEmpty = (entity: SupportedTypes): LanguageString => {
+    return isSemanticProfile(entity) ? entity.usageNote ?? {} : {};
+};
+
+function suggestNewProfileIri(entity: SupportedTypes | null) : string {
     const entityIri = getIri(entity);
     if (entityIri === null) {
         return getRandomName(8);
@@ -330,3 +178,185 @@ function suggestNewProfileIri(entity: ProfileDialogSupportedTypes | null) : stri
     }
     return `${prefix}-${tail}`;
 }
+
+const CreateProfileDialog = (props: DialogProps<CreateProfileState>) => {
+    // const { language: preferredLanguage } = useOptions();
+    // const { createClassEntityUsage, createRelationshipEntityUsage } = useClassesContext();
+    // const { models, aggregatorView } = useModelGraphContext();
+    // const inMemoryModels = filterInMemoryModels([...models.values()]);
+    // const actions = useActions();
+    //
+    // const [usageNote, setUsageNote] = useState<LanguageString>({});
+    // const [name, setName] = useState<LanguageString>(getNameLanguageString(entity) ?? {});
+    // const [description, setDescription] = useState<LanguageString>(getDescriptionLanguageString(entity) ?? {});
+    // const [activeModel, setActiveModel] = useState(inMemoryModels.at(0)?.getId() ?? "---");
+    // const [newIri, setNewIri] = useState(suggestNewProfileIri(entity));
+    // const [changedFields, setChangedFields] = useState({
+    //     name: false,
+    //     description: false,
+    //     iri: false,
+    //     domain: false,
+    //     domainCardinality: false,
+    //     range: false,
+    //     rangeCardinality: false,
+    // });
+    //
+    // const [overriddenFields, setOverriddenFields] = useState<OverriddenFieldsType>(getDefaultOverriddenFields());
+
+    const setIri = (next: string) =>
+        props.changeState(prev => ({ ...prev, iri: next }));
+    const setName = (setter: (prev: LanguageString) => LanguageString) =>
+        props.changeState(prev => ({ ...prev, name: setter(prev.name) }));
+    const setDescription = (setter: (prev: LanguageString) => LanguageString) =>
+        props.changeState(prev => ({ ...prev, description: setter(prev.description) }));
+    const setUsageNote = (setter: (prev: LanguageString) => LanguageString) =>
+        props.changeState(prev => ({ ...prev, usageNote: setter(prev.usageNote) }));
+    const setNewDomain = (setter: (prev: SemanticModelRelationshipEnd) => SemanticModelRelationshipEnd) =>
+        props.changeState(state => ({ ...state, domain: setter(state.domain) }));
+    const setNewRange = (setter: (prev: SemanticModelRelationshipEnd) => SemanticModelRelationshipEnd) =>
+        props.changeState(state => ({ ...state, range: setter(state.range) }));
+
+    const setChangedFields = (setter: (prev: ChangedFieldsType) => ChangedFieldsType) =>
+        props.changeState(state => ({ ...state, changedFields: setter(state.changedFields) }));
+    const setOverriddenFields = (setter: (prev: OverriddenFieldsType) => OverriddenFieldsType) =>
+        props.changeState(state => ({ ...state, overriddenFields: setter(state.overriddenFields) }));
+
+    const setActiveModel = (id: string) => {
+
+    };
+
+    // --- relationships and relationship profiles --- --- ---
+    // const hasDomainAndRange = isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity);
+    // const currentDomainAndRange =
+    //     isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)
+    //         ? temporaryDomainRangeHelper(entity)
+    //         : null;
+    //
+    // const [newDomain, setNewDomain] = useState(
+    //     currentDomainAndRange?.domain ?? ({} as SemanticModelRelationshipEnd)
+    // );
+    // const [newRange, setNewRange] = useState(currentDomainAndRange?.range ?? ({} as SemanticModelRelationshipEnd));
+
+    // --- model it comes from --- --- ---
+
+    // const model = inMemoryModels.find((m) => m.getId() == activeModel);
+    // const modelIri = getModelIri(model);
+
+    // --- profiling --- --- ---
+
+    // const displayNameOfProfiledEntity = entity ? useEntityProxy(entity, preferredLanguage).name : null;
+
+    const changedFieldsAsStringArray = Object.entries(props.state.changedFields)
+        .filter(([key, _]) => key != "name" && key != "description")
+        .filter(([_, v]) => v == true)
+        .map(([key, _]) => key);
+
+    // if (inMemoryModels.length == 0) {
+    //     alert("Create a local model first, please");
+    //     localClose();
+    //     return;
+    // }
+
+    return (
+        <>
+            <div>
+                <DialogColoredModelHeaderWithModelSelector
+                    style="grid grid-cols-1 px-1 md:grid-cols-[25%_75%] gap-y-3 bg-slate-100 md:pb-4 md:pl-8 md:pr-16 md:pt-2"
+                    activeModel={props.state.model.getId()}
+                    onModelSelected={setActiveModel}
+                />
+                <div className="grid grid-cols-1 gap-y-3 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pb-4 md:pl-8 md:pr-16 md:pt-2">
+                    <DialogDetailRow detailKey={t("create-profile-dialog.profiled")}>
+                        {props.state.displayNameOfProfiledEntity}
+                        </DialogDetailRow>
+                    <DialogDetailRow detailKey={t("create-profile-dialog.profiled-type")}>
+                        {getEntityTypeString(props.state.entity)}
+                    </DialogDetailRow>
+                </div>
+            </div>
+            <div className="grid grid-cols-1 gap-y-3 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pb-4 md:pl-8 md:pr-16 md:pt-2">
+
+                <DialogDetailRow detailKey={t("create-profile-dialog.name")}>
+                    <MultiLanguageInputForLanguageStringWithOverride
+                        forElement="create-profile-name"
+                        ls={props.state.name}
+                        setLs={setName}
+                        defaultLang={props.state.language}
+                        inputType="text"
+                        withOverride={{
+                            callback: () => setOverriddenFields((prev) => ({ ...prev, name: !prev.name })),
+                            defaultValue: false,
+                        }}
+                        disabled={!props.state.overriddenFields.name}
+                        onChange={() => setChangedFields((prev) => ({ ...prev, name: true }))}
+                    />
+                </DialogDetailRow>
+
+                <DialogDetailRow detailKey={t("create-profile-dialog.iri")}>
+                    <IriInput
+                        name={props.state.name}
+                        newIri={props.state.iri}
+                        setNewIri={(i) => setIri(i)}
+                        iriHasChanged={props.state.changedFields.iri}
+                        onChange={() => setChangedFields((prev) => ({ ...prev, iri: true }))}
+                        baseIri={props.state.model.getBaseIri()}
+                    />
+                </DialogDetailRow>
+
+                <DialogDetailRow detailKey={t("create-profile-dialog.description")}>
+                    <MultiLanguageInputForLanguageStringWithOverride
+                        forElement="create-profile-description"
+                        ls={props.state.description}
+                        setLs={setDescription}
+                        defaultLang={props.state.language}
+                        inputType="textarea"
+                        withOverride={{
+                            callback: () =>
+                                setOverriddenFields((prev) => ({ ...prev, description: !prev.description })),
+                            defaultValue: false,
+                        }}
+                        disabled={!props.state.overriddenFields.description}
+                        onChange={() => setChangedFields((prev) => ({ ...prev, description: true }))}
+                    />
+                </DialogDetailRow>
+
+                <DialogDetailRow detailKey={t("create-profile-dialog.usage-note")}>
+                    <MultiLanguageInputForLanguageString
+                        ls={props.state.usageNote}
+                        setLs={setUsageNote}
+                        defaultLang={props.state.language}
+                        inputType="textarea"
+                    />
+                </DialogDetailRow>
+
+                {props.state.hasDomainAndRange && (
+                    <DomainRangeComponent
+                        entity={props.state.entity as unknown as any}
+                        domain={props.state.domain}
+                        setDomain={setNewDomain}
+                        onDomainChange={() => setChangedFields((prev) => ({ ...prev, domain: true }))}
+                        onDomainCardinalityChange={() =>
+                            setChangedFields((prev) => ({ ...prev, domainCardinality: true }))
+                        }
+                        range={props.state.range}
+                        setRange={setNewRange}
+                        onRangeChange={() => setChangedFields((prev) => ({ ...prev, range: true }))}
+                        onRangeCardinalityChange={() =>
+                            setChangedFields((prev) => ({ ...prev, rangeCardinality: true }))
+                        }
+                        withOverride={{
+                            overriddenFields: props.state.overriddenFields,
+                            setOverriddenFields }}
+                        hideCardinality={false}
+                    />
+                )}
+                {changedFieldsAsStringArray.length === 0 ? null : (
+                    <DialogDetailRow detailKey={t("create-profile-dialog.warning")}>
+                        <ProfileModificationWarning changedFields={changedFieldsAsStringArray} />
+                    </DialogDetailRow>
+                )}
+            </div>
+        </>
+    );
+};
+

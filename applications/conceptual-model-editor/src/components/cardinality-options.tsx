@@ -59,7 +59,7 @@ const CardinalityOptionElement = (props: {
 export const CardinalityOptions = (props: {
     group: "source" | "target";
     defaultCard?: [number, number | null];
-    setCardinality: Dispatch<SetStateAction<SemanticModelRelationshipEnd>>;
+    setCardinality: (setter: (prev:SemanticModelRelationshipEnd) => SemanticModelRelationshipEnd) => void;
     disabled: boolean;
     onChange?: () => void;
     withOverride?: WithOverrideHandlerType;

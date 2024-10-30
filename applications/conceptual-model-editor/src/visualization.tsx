@@ -72,7 +72,6 @@ import { getDomainAndRange } from "./service/relationship-service";
 import { Diagram, type Node, type Edge, type EntityItem, EdgeType } from "./diagram/";
 import { type UseDiagramType } from "./diagram/diagram-hook";
 import { logger } from "./application";
-import { EntityProxy } from "./util/detail-utils";
 import { getDescriptionLanguageString, getFallbackDisplayName, getNameLanguageString, getUsageNoteLanguageString } from "./util/name-utils";
 import { getLocalizedStringFromLanguageString } from "./util/language-utils";
 import { getIri, getModelIri } from "./util/iri-utils";

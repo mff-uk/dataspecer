@@ -2,7 +2,7 @@ import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 
 import type { Entity, EntityModel } from "@dataspecer/core-v2/entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { isVisualModel, isVisualNode, isVisualRelationship, isWritableVisualModel, type VisualModel, VisualModelDataVersion, type WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualModel, isWritableVisualModel, type VisualModel, VisualModelDataVersion, type WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { type AggregatedEntityWrapper, SemanticModelAggregator, type SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 import {
     type SemanticModelClass,
@@ -28,14 +28,12 @@ import { Catalog } from "./catalog/catalog";
 import { Visualization } from "./visualization";
 import { bothEndsHaveAnIri } from "./util/relationship-utils";
 import { getRandomName } from "./util/random-gen";
-import { DialogsContextProvider } from "./context/dialogs-context";
 import { QueryParamsProvider, useQueryParamsContext } from "./context/query-params-context";
 import { DialogContextProvider } from "./dialog/dialog-context";
 import { DialogRenderer } from "./dialog/dialog-renderer";
 import { NotificationList } from "./notification";
 import { ActionsContextProvider } from "./action/actions-react-binding";
 import { createWritableVisualModel } from "./util/visual-model-utils";
-import { findSourceModelOfEntity } from "./service/model-service";
 import { OptionsContextProvider } from "./application/options";
 
 import "./page.css";
@@ -157,18 +155,15 @@ const Page = () => {
                         <WarningsContext.Provider value={{ warnings, setWarnings }}>
                             <DialogContextProvider>
                                 <ActionsContextProvider>
-                                    <DialogsContextProvider>
-                                        <Header />
-                                        <main className="w-full flex-grow bg-teal-50  md:h-[calc(100%-48px)]">
-                                            <div className="my-0 grid grid-rows-[auto_fit] md:h-full md:grid-cols-[25%_75%] md:grid-rows-1 ">
-                                                <Catalog />
-                                                <Visualization />
-                                            </div>
-                                        </main>
-
-                                        <NotificationList />
-                                        <DialogRenderer />
-                                    </DialogsContextProvider>
+                                    <Header />
+                                    <main className="w-full flex-grow bg-teal-50  md:h-[calc(100%-48px)]">
+                                        <div className="my-0 grid grid-rows-[auto_fit] md:h-full md:grid-cols-[25%_75%] md:grid-rows-1 ">
+                                            <Catalog />
+                                            <Visualization />
+                                        </div>
+                                    </main>
+                                    <NotificationList />
+                                    <DialogRenderer />
                                 </ActionsContextProvider>
                             </DialogContextProvider>
                         </WarningsContext.Provider>

@@ -24,14 +24,15 @@ import {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { sourceModelOfEntity } from "./model-utils";
 import { getIri, getModelIri } from "./iri-utils";
-import { useModelGraphContext } from "../context/model-context";
-import { useClassesContext } from "../context/classes-context";
+import { ModelGraphContext, ModelGraphContextType, useModelGraphContext, UseModelGraphContextType } from "../context/model-context";
+import { ClassesContext, ClassesContextType, useClassesContext, UseClassesContextType } from "../context/classes-context";
 import { getTheOriginalProfiledEntity } from "./profile-utils";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 import { temporaryDomainRangeHelper } from "./relationship-utils";
 import { cardinalityToString } from "./utils";
 import { dataTypeUriToName, isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
 import type { Entity, EntityModel } from "@dataspecer/core-v2";
+import { useContext } from "react";
 
 export type EntityDetailSupportedType =
     | SemanticModelClass
@@ -96,9 +97,26 @@ export interface EntityDetailProxy {
     model: EntityModel | null;
 }
 
-export const EntityProxy = (viewedEntity: EntityDetailSupportedType, currentLang?: string) => {
-    const { classes: c, relationships: r, profiles, generalizations, rawEntities } = useClassesContext();
-    const { models: m } = useModelGraphContext();
+/**
+ * @deprecated Use createEntityProxy and explicitly pass the contexts instead.
+ */
+export const useEntityProxy = (
+    viewedEntity: EntityDetailSupportedType,
+    currentLang?: string,
+) => {
+    const classes = useContext(ClassesContext);
+    const graph = useContext(ModelGraphContext);
+    return createEntityProxy(classes, graph, viewedEntity, currentLang);
+}
+
+export const createEntityProxy = (
+    classes: ClassesContextType,
+    graph: ModelGraphContextType,
+    viewedEntity: EntityDetailSupportedType,
+    currentLang?: string,
+) => {
+    const { classes: c, relationships: r, profiles, generalizations, rawEntities } = classes;
+    const { models: m } = graph;
     const models = [...m.values()];
     const sourceModel = sourceModelOfEntity(viewedEntity.id, models);
     const profilingSources = [...c, ...r, ...profiles];

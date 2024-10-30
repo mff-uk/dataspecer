@@ -21,7 +21,7 @@ import { getRange } from "./relationship-service";
 import { getDuplicateNames } from "../util/name-utils";
 
 import { t, configuration } from "../application/";
-import { EntityProxy } from "../util/detail-utils";
+import { useEntityProxy } from "../util/detail-utils";
 import { getModelLabel } from "./model-service";
 
 type GetEntityLabelType = SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationshipUsage;
@@ -59,9 +59,9 @@ export function getEntityLabel(entity: GetEntityLabelType | null, language: stri
 }
 
 /**
- * If value contains prefered language return the value.
+ * If value contains preferred language return the value.
  *
- * If not return value with language tag for first prefered available language or any language.
+ * If not return value with language tag for first preferred available language or any language.
  */
 function languageStringToHumanReadable(value: LanguageString, language: string, languagePreferences: string[]): string | null {
   let result = value[language];
@@ -107,7 +107,7 @@ export const prepareSemanticModelEntitiesForSelect = (entities: LimitedSemanticE
   const duplicateNames = getDuplicateNames(entities);
 
   for (const item of entities) {
-    const { name, iri, model } = EntityProxy(item);
+    const { name, iri, model } = useEntityProxy(item);
     const displayIri = duplicateNames.has(name ?? "");
 
     const nameLabel = name ?? "";

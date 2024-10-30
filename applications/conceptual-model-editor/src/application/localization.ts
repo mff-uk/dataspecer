@@ -83,6 +83,8 @@ const translations: Record<string, string | Function> = {
   "create-profile-dialog.description": "Definition",
   "create-profile-dialog.usage-note": "Usage note",
   "create-profile-dialog.warning": "Warning",
+  "create-profile-dialog.btn-ok": "Create profile",
+  "create-profile-dialog.btn-close": "Cancel",
   //
   "model": "Model",
   "generalization-label": (child: string, parent: string) => `Generalization of '${child}' is '${parent}'`,
@@ -120,6 +122,16 @@ const translations: Record<string, string | Function> = {
   "detail-dialog.title.class-profile": "Class profile detail",
   "detail-dialog.title.relationship-profile": "Relationship profile detail",
   "detail-dialog.title.unknown": "Entity detail",
+  //
+  "modify-dialog.btn-ok": "Modify",
+  "modify-dialog.btn-close": "Close",
+  "modify-dialog.title.attribute": "Edit attribute",
+  "modify-dialog.title.relationship": "Edit relationship",
+  "modify-dialog.title.attribute-profile": "Edit attribute profile",
+  "modify-dialog.title.class-profile": "Edit class profile",
+  "modify-dialog.title.relationship-profile": "Edit relationship profile",
+  "modify-dialog.title.unknown": "Edit entity",
+
 };
 
 export const t = (text: string, ...args: unknown[]) : string => {

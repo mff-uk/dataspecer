@@ -1,6 +1,6 @@
 import type { SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import type { SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { EntityProxy } from "../../../util/detail-utils";
+import { useEntityProxy } from "../../../util/detail-utils";
 import { useOptions } from "../../../application/options";
 
 export const RemovableAttributeRow = (props: {
@@ -11,7 +11,7 @@ export const RemovableAttributeRow = (props: {
     const { attribute, toBeRemoved, addToToBeRemoved } = props;
 
     const { language } = useOptions();
-    const { name, description } = EntityProxy(attribute, language);
+    const { name, description } = useEntityProxy(attribute, language);
 
     return (
         <div className={`flex flex-row ${toBeRemoved ? "line-through" : ""}`} title={description ?? ""}>
@@ -31,7 +31,7 @@ export const RemovableAttributeProfileRow = (props: {
     const { attribute, toBeRemoved, addToToBeRemoved } = props;
 
     const { language } = useOptions();
-    const { name, description, usageNote } = EntityProxy(attribute, language);
+    const { name, description, usageNote } = useEntityProxy(attribute, language);
 
     return (
         <div className={`flex flex-row ${toBeRemoved ? "line-through" : ""}`} title={description ?? ""}>

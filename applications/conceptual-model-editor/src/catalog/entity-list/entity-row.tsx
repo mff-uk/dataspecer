@@ -13,14 +13,13 @@ import {
     isSemanticModelClassUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
-import { EntityProxy } from "../../util/detail-utils";
+import { useEntityProxy } from "../../util/detail-utils";
 import { IriLink } from "../../components/iri-link";
 import { CreateProfileButton } from "../components/create-profile";
 import { DrawOnCanvasButton } from "../components/draw-on-canvas";
 import { ExpandButton } from "../components/expand";
 import { OpenDetailButton } from "../components/open-detail";
 import { RemoveButton } from "../components/remove";
-import { useDialogsContext } from "../../context/dialogs-context";
 import { MoveViewportToEntityButton } from "../components/center-viewport-on-entity";
 import { useOptions } from "../../application/options";
 import { useActions } from "../../action/actions-react-binding";
@@ -55,13 +54,12 @@ export const EntityRow = (props: {
     offset?: number;
     isOnCanvas: boolean;
 }) => {
-    const { openDetailDialog } = useActions();
+    const { openDetailDialog, openModifyDialog, openCreateProfileDialog } = useActions();
 
-    const { openModificationDialog, openProfileDialog } = useDialogsContext();
     const { language: preferredLanguage } = useOptions();
 
     const { entity, offset, drawable, expandable, removable, sourceModel } = props;
-    const { name, iri } = EntityProxy(entity, preferredLanguage);
+    const { name, iri } = useEntityProxy(entity, preferredLanguage);
 
     const [isExpanded, setIsExpanded] = useState(expandable?.expanded());
     const isDraggable = isSemanticModelClass(entity) || isSemanticModelClassUsage(entity);
@@ -92,7 +90,7 @@ export const EntityRow = (props: {
                 )}
                 {removable && <RemoveButton onClickHandler={removable.remove} />}
                 {sourceModelIsLocal && (
-                    <button className="hover:bg-teal-400" title="Modify" onClick={() => openModificationDialog(entity, sourceModel)}>
+                    <button className="hover:bg-teal-400" title="Modify" onClick={() => openModifyDialog(entity.id)}>
                         ✏
                     </button>
                 )}
@@ -104,7 +102,7 @@ export const EntityRow = (props: {
                         removeFromCanvas={drawable?.removeFromViewHandler}
                     />
                 )}
-                <CreateProfileButton onClickHandler={() => openProfileDialog(entity)} />
+                <CreateProfileButton onClickHandler={() => openCreateProfileDialog(entity.id)} />
                 {props.targetable?.isTargetable
                     ? <MoveViewportToEntityButton disabled={!props.isOnCanvas} onClick={props.targetable?.centerViewportOnEntityHandler} />
                     : null}

@@ -3,7 +3,7 @@ import type {
     SemanticModelClassUsage,
     SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { EntityProxy } from "../util/detail-utils";
+import { useEntityProxy } from "../util/detail-utils";
 import { useModelGraphContext } from "../context/model-context";
 import { useClassesContext } from "../context/classes-context";
 import { getIri, getModelIri } from "../util/iri-utils";
@@ -24,7 +24,7 @@ export const ResourceDetailClickThrough = (props: {
     const { aggregatorView, models } = useModelGraphContext();
 
     const { resource, onClick, withCardinality, withIri, detailDialogLanguage } = props;
-    const name = EntityProxy(resource, detailDialogLanguage ?? language).name;
+    const name = useEntityProxy(resource, detailDialogLanguage ?? language).name;
     const modelColor = aggregatorView.getActiveVisualModel()?.getModelColor(sourceModelOfEntityMap.get(resource.id) ?? "") ?? DEFAULT_MODEL_COLOR;
     const iri = withIri ? getIri(resource, getModelIri(sourceModelOfEntity(resource.id, [...models.values()]))) : null;
 

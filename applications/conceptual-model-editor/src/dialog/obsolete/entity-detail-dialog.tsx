@@ -21,16 +21,15 @@ import { IriLink } from "../../components/iri-link";
 import { sourceModelOfEntity } from "../../util/model-utils";
 import { useModelGraphContext } from "../../context/model-context";
 import { ResourceDetailClickThrough } from "../../components/entity-detail-dialog-clicktrough-component";
-import { EntityProxy, getEntityTypeString } from "../../util/detail-utils";
+import { useEntityProxy, getEntityTypeString } from "../../util/detail-utils";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
 import { ScrollableResourceDetailClickThroughList } from "../../components/scrollable-detail-click-through";
 import { DialogColoredModelHeaderWithLanguageSelector } from "../../components/dialog/dialog-colored-model-header";
-import { CloseButton } from "../../components/dialog/buttons/close-button";
 import { t } from "../../application";
 import { useActions } from "../../action/actions-react-binding";
 import { DialogProps, DialogWrapper } from "../dialog-api";
 
-type EntityDialogSupportedType =
+type SupportedTypes =
     | SemanticModelClass
     | SemanticModelRelationship
     | SemanticModelClassUsage
@@ -39,14 +38,14 @@ type EntityDialogSupportedType =
 
 interface EntityDetailState {
 
-    entity: EntityDialogSupportedType;
+    entity: SupportedTypes;
 
     language: string;
 
 }
 
 export const createEntityDetailDialog = (
-    entity: EntityDialogSupportedType,
+    entity: SupportedTypes,
     language: string,
 ): DialogWrapper<EntityDetailState> => {
     return {
@@ -61,7 +60,7 @@ export const createEntityDetailDialog = (
     };
 }
 
-function selectLabel(entity: EntityDialogSupportedType) {
+function selectLabel(entity: SupportedTypes) {
     if (isSemanticModelAttribute(entity)) {
         return "detail-dialog.title.attribute";
     } else if (isSemanticModelRelationship(entity)) {
@@ -78,7 +77,7 @@ function selectLabel(entity: EntityDialogSupportedType) {
 };
 
 function createEntityDetailDialogState(
-    entity: EntityDialogSupportedType,
+    entity: SupportedTypes,
     language: string,
 ): EntityDetailState {
     return {
@@ -95,7 +94,7 @@ const EntityDetailDialog = (props: DialogProps<EntityDetailState>) => {
     const models = [...graph.models.values()];
     const sourceModel = sourceModelOfEntity(entity.id, models);
 
-    const proxy = EntityProxy(entity, language);
+    const proxy = useEntityProxy(entity, language);
 
     const isInActiveView = graph.aggregatorView.getActiveVisualModel()?.getVisualEntityForRepresented(entity.id) !== null;
 
@@ -118,7 +117,7 @@ const EntityDetailDialog = (props: DialogProps<EntityDetailState>) => {
         }
     };
 
-    const handleResourceClickThroughClicked = (next: EntityDialogSupportedType) => {
+    const handleResourceClickThroughClicked = (next: SupportedTypes) => {
         props.changeState({
             entity: next,
             language: props.state.language,

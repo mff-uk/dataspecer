@@ -29,18 +29,18 @@ interface DomainRangeComponentType {
     entity: SemanticModelRelationship | SemanticModelRelationshipUsage;
 
     domain: SemanticModelRelationshipEnd;
-    setDomain: Dispatch<SetStateAction<SemanticModelRelationshipEnd>>;
+    setDomain: (setter: (prev:SemanticModelRelationshipEnd) => SemanticModelRelationshipEnd) => void;
     onDomainChange?: () => void;
     onDomainCardinalityChange?: () => void;
 
     range: SemanticModelRelationshipEnd;
-    setRange: Dispatch<SetStateAction<SemanticModelRelationshipEnd>>;
+    setRange: (setter: (prev:SemanticModelRelationshipEnd) => SemanticModelRelationshipEnd) => void
     onRangeChange?: () => void;
     onRangeCardinalityChange?: () => void;
 
     withOverride?: {
         overriddenFields: OverriddenFieldsType;
-        setOverriddenFields: Dispatch<SetStateAction<OverriddenFieldsType>>;
+        setOverriddenFields: (setter: (prev: OverriddenFieldsType) => OverriddenFieldsType) => void;
     };
     hideCardinality: boolean,
 }
@@ -108,7 +108,7 @@ const renderDomain = (props: DomainRangeComponentType, Component: (props: Select
             <DialogDetailRow detailKey={t("domain")}>
                 <Component
                     value={props.domain.concept}
-                    setValue={(identifier) => props.setDomain({ ...props.domain, concept: identifier })}
+                    setValue={(identifier) => props.setDomain(() => ({ ...props.domain, concept: identifier }))}
                     onChange={props.onDomainChange}
                     disabled={props.withOverride && !props.withOverride.overriddenFields?.domain}
                     withOverride={domainOverride}
@@ -171,7 +171,7 @@ const renderRange = (
             <DialogDetailRow detailKey={t("range")}>
                 <Component
                     value={props.range.concept}
-                    setValue={(identifier) => props.setRange({ ...props.range, concept: identifier })}
+                    setValue={(identifier) => props.setRange(() => ({ ...props.range, concept: identifier }))}
                     onChange={props.onRangeChange}
                     disabled={props.withOverride && !props.withOverride.overriddenFields?.range}
                     withOverride={rangeOverride}

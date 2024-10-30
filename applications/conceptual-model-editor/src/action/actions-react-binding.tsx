@@ -6,10 +6,10 @@ import { type DialogApiContextType } from "../dialog/dialog-service";
 import { DialogApiContext } from "../dialog/dialog-context";
 import { logger } from "../application";
 import { type EditClassState } from "../dialog/class/edit-class-dialog-controller";
-import { type ClassesContextType, ClassesContext } from "../context/classes-context";
+import { type ClassesContextType, ClassesContext, useClassesContext, UseClassesContextType } from "../context/classes-context";
 import { useNotificationServiceWriter } from "../notification";
 import { type UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { ModelGraphContext, type ModelGraphContextType } from "../context/model-context";
+import { ModelGraphContext, UseModelGraphContextType, type ModelGraphContextType } from "../context/model-context";
 import { createAddModelDialog } from "../dialog/model/create-model-dialog";
 import { type CreateModelState } from "../dialog/model/create-model-dialog-controller";
 import { createEditClassDialog } from "../dialog/class/edit-class-dialog";
@@ -23,9 +23,10 @@ import { useDiagram, type DiagramCallbacks } from "../diagram/";
 import type { UseDiagramType } from "../diagram/diagram-hook";
 import { useOptions, type Options } from "../application/options";
 import { centerViewportToVisualEntityAction } from "./center-viewport-to-visual-entity";
-import { createEntityDetailDialog } from "../dialog/obsolete/entity-detail-dialog";
-import { isSemanticModelAttribute, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelAttributeUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { openDetailDialogAction } from "./open-detail-dialog";
+import { openModifyDialogAction } from "./open-modify-dialog";
+import { findSourceModelOfEntity } from "../service/model-service";
+import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
 
 export interface ActionsContextType {
 
@@ -41,10 +42,21 @@ export interface ActionsContextType {
   openDetailDialog: (identifier: string) => void;
 
   /**
+   * Open modification entity dialog, the type of the dialog is determined
+   * based on the entity type.
+   */
+  openModifyDialog: (identifier: string) => void;
+
+  /**
    * Open dialog to create a new class.
    * When position is provided the class is also inserted to the canvas.
    */
   openCreateClassDialog: (model: InMemorySemanticModel) => void;
+
+  /**
+   * Open dialog to create a profile for entity with given identifier.
+   */
+  openCreateProfileDialog: (identifier: string) => void;
 
   /**
    * Position is determined by the action.
@@ -71,7 +83,9 @@ export interface ActionsContextType {
 const noOperationActionsContext = {
   openCreateModelDialog: noOperation,
   openDetailDialog: noOperation,
+  openModifyDialog: noOperation,
   openCreateClassDialog: noOperation,
+  openCreateProfileDialog: noOperation,
   addNodeToVisualModel: noOperation,
   addNodeToVisualModelToPosition: noOperation,
   addRelationToVisualModel: noOperation,
@@ -98,13 +112,15 @@ export const ActionsContextProvider = (props: {
   const options = useOptions();
   const dialogs = useContext(DialogApiContext);
   const classes = useContext(ClassesContext);
+  const useClasses = useClassesContext();
   const notifications = useNotificationServiceWriter();
   const graph = useContext(ModelGraphContext);
   const diagram = useDiagram();
 
   const actions = useMemo(
-    () => createActionsContext(options, dialogs, classes, notifications, graph, diagram),
-    [options, dialogs, classes, notifications, graph, diagram]
+    () => createActionsContext(
+      options, dialogs, classes, useClasses, notifications, graph, diagram),
+    [options, dialogs, classes, useClasses, notifications, graph, diagram]
   );
 
   return (
@@ -125,11 +141,18 @@ function createActionsContext(
   options: Options | null,
   dialogs: DialogApiContextType | null,
   classes: ClassesContextType | null,
+  useClasses: UseClassesContextType | null,
   notifications: UseNotificationServiceWriterType | null,
   graph: ModelGraphContextType | null,
   diagram: UseDiagramType,
 ): ActionsContextType {
-  if (options === null || dialogs === null || classes === null || notifications === null || graph === null || !diagram.areActionsReady) {
+  if (options === null ||
+    dialogs === null ||
+    classes === null ||
+    useClasses == null ||
+    notifications === null ||
+    graph === null ||
+    !diagram.areActionsReady) {
     // We need to return the diagram object so it can be consumed by
     // the Diagram component and initialized.
     return {
@@ -156,32 +179,12 @@ function createActionsContext(
   //
 
   const openDetailDialog = (identifier: string) => {
-    const entity = graph.aggregatorView.getEntities()?.[identifier].rawEntity;
-    if (entity === undefined) {
-      notifications.error(`Can not find the entity with identifier '${identifier}'.`);
-      return;
-    }
-    // In future we should have different dialogs based on the type, for now
-    // we just fall through to a single dialog for all.
-    if (isSemanticModelClass(entity)) {
+    openDetailDialogAction(options, dialogs, notifications, graph, identifier);
+  };
 
-    } else if (isSemanticModelClassUsage(entity)) {
-
-    } else if (isSemanticModelAttribute(entity)) {
-
-    } else if (isSemanticModelAttributeUsage(entity)) {
-
-    } else if (isSemanticModelRelationship(entity)) {
-
-    } else if (isSemanticModelRelationshipUsage(entity)) {
-
-    } else if (isSemanticModelGeneralization(entity)) {
-
-    } else {
-      notifications.error(`Unknown entity type.`);
-      return;
-    }
-    dialogs.openDialog(createEntityDetailDialog(entity, options.language));
+  const openModifyDialog = (identifier: string) => {
+    openModifyDialogAction(
+      options, dialogs, notifications, classes, useClasses, graph, identifier);
   };
 
   const openCreateModelDialog = () => {
@@ -198,6 +201,11 @@ function createActionsContext(
     };
     //
     dialogs?.openDialog(createEditClassDialog(model, options.language, onConfirm));
+  };
+
+  const openCreateProfileDialog = (identifier: string) => {
+    openCreateProfileDialogAction(
+      options, dialogs, notifications, classes, useClasses, graph, identifier);
   };
 
   const addNodeToVisualModel = (model: string, identifier: string) => {
@@ -230,45 +238,39 @@ function createActionsContext(
     centerViewportToVisualEntityAction(notifications, graph, diagram, model, identifier);
   };
 
+  const deleteVisualElement = (identifier: string) => {
+    const model = findSourceModelOfEntity(identifier, graph.models);
+    if (model === null) {
+      notifications.error("Can't find model for entity.");
+      return;
+    }
+    removeFromVisualModel(identifier);
+    deleteFromSemanticModel(model.getId(), identifier);
+  };
+
   // Prepare and set diagram callbacks.
 
   const callbacks: DiagramCallbacks = {
 
     onShowNodeDetail: (id) => openDetailDialog(id),
 
-    onEditNode: (id) => {
-      console.log("Application.onEditNode", { id });
-    },
+    onEditNode: (id) => openModifyDialog(id),
 
-    onCreateNodeProfile: (id) => {
-      console.log("Application.onCreateNodeProfile", { id });
-    },
+    onCreateNodeProfile: (id) => openCreateProfileDialog(id),
 
-    onHideNode: (id) => {
-      console.log("Application.onHideNode", { id });
-    },
+    onHideNode: (id) => removeFromVisualModel(id),
 
-    onDeleteNode: (id) => {
-      console.log("Application.onDeleteNode", { id });
-    },
+    onDeleteNode: (id) => deleteVisualElement(id),
 
     onShowEdgeDetail: (id) => openDetailDialog(id),
 
-    onEditEdge: (id) => {
-      console.log("Application.onEditEdge", { id });
-    },
+    onEditEdge: (id) => openModifyDialog(id),
 
-    onCreateEdgeProfile: (id) => {
-      console.log("Application.onCreateEdgeProfile", { id });
-    },
+    onCreateEdgeProfile: (id) => openCreateProfileDialog(id),
 
-    onHideEdge: (id) => {
-      console.log("Application.onHideEdge", { id });
-    },
+    onHideEdge: (id) => removeFromVisualModel(id),
 
-    onDeleteEdge: (id) => {
-      console.log("Application.onDeleteEdge", { id });
-    },
+    onDeleteEdge: (id) => deleteVisualElement(id),
 
     onCreateConnectionToNode: (source, target) => {
       console.log("Application.onCreateConnectionToNode", { source, target });
@@ -289,7 +291,9 @@ function createActionsContext(
   return {
     openCreateModelDialog,
     openDetailDialog,
+    openModifyDialog,
     openCreateClassDialog,
+    openCreateProfileDialog,
     addNodeToVisualModel,
     addNodeToVisualModelToPosition,
     addRelationToVisualModel,

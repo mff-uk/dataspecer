@@ -1,6 +1,6 @@
 import type { SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useClassesContext } from "../../../context/classes-context";
-import { EntityProxy } from "../../../util/detail-utils";
+import { useEntityProxy } from "../../../util/detail-utils";
 import { useOptions } from "../../../application/options";
 
 const REMOVE_AFTER_SAVE = "after save this resource will no longer be a generalization of the modified resource";
@@ -26,7 +26,7 @@ export const RemovableGeneralizationRow = (props: {
         p.find((prof) => prof.id == parentId);
 
     if (!parent) return;
-    const { name, description, iri } = EntityProxy(parent, language);
+    const { name, description, iri } = useEntityProxy(parent, language);
 
     return (
         <div className={`flex flex-row ${toBeRemoved ? "line-through" : ""}`} title={description ?? ""}>

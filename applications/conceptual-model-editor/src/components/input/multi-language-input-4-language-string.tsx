@@ -26,7 +26,7 @@ const LanguageItem = (props: {
 
 export const MultiLanguageInputForLanguageString = (props: {
     ls: LanguageString;
-    setLs: React.Dispatch<React.SetStateAction<LanguageString>>;
+    setLs: (setter:(previous:LanguageString) => LanguageString) => void;
     defaultLang: string;
     inputType: "text" | "textarea";
     disabled?: boolean;
