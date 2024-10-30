@@ -358,6 +358,10 @@ export abstract class AlgorithmConfiguration implements IAlgorithmConfiguration 
     constraintTime: ConstraintTime = "IN-MAIN";
     // modelID: string = undefined;        // TODO: For now just undefined no matter what, I am still not sure how will it work with models
 
+    /**
+     *
+     * @returns the keys/names (in the general sense, not in the library specific sense), which are relevant for given algorithm. new keys are added in children classes.
+     */
     getAllRelevantConstraintKeys() {
         let constraintKeys = [
             "layout_alg",
@@ -376,6 +380,9 @@ export abstract class AlgorithmConfiguration implements IAlgorithmConfiguration 
     abstract addAlgorithmConstraintForUnderlying(key: string, value: string): void;
     abstract addAdvancedSettingsForUnderlying(advancedSettings: object): void;
 
+    /**
+     * Picks relevant keys from {@link getAllRelevantConstraintKeys} and uses those keys to get values from {@link givenAlgorithmConstraints}, then sets {@link data} based on that.
+     */
     setData(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
         this.data = _.pick(givenAlgorithmConstraints, this.getAllRelevantConstraintKeys());
         this.data["advanced_settings"] = givenAlgorithmConstraints.advanced_settings;
