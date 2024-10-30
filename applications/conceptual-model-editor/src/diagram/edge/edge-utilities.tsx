@@ -58,6 +58,10 @@ export function Waypoints(props: {
   waypoints: Point[],
   data?: EdgeApi,
 }) {
+
+  // TODO Waypoints are disabled for now.
+  return null;
+
   // We need to provide user with ability to create waypoints candidates,
   // we place then in between of each two waypoints.
   const waypointCandidates: Point[] = [];
