@@ -4,14 +4,12 @@
  */
 export interface DiagramActions {
 
-
   // Groups
 
   /**
    * @returns The list of groups registered in diagram.
    */
   getGroups(): Group[];
-
 
   /**
    * Registers new {@link group} to the diagram.
@@ -20,13 +18,11 @@ export interface DiagramActions {
    */
   addGroup(group: Group, content?: string[]): void;
 
-
   /**
    * Removes given groups from diagram.
    * @param groups is list of identifiers of the to be removed groups.
    */
   removeGroups(groups: string[]): void;
-
 
   /**
    * Sets the content of given {@link group} to given {@link content}.
@@ -35,14 +31,12 @@ export interface DiagramActions {
    */
   setGroup(group: Group, content: string[]): void;
 
-
   /**
    * The content of {@link group} as node identifiers.
    * @param group is the group to get content for.
    * @returns The content of group as node identifiers.
    */
   getGroupContent(group: Group): string[];
-
 
   // Nodes
 
@@ -51,13 +45,11 @@ export interface DiagramActions {
    */
   getNodes(): Node[];
 
-
   /**
    * Adds given {@link nodes} to the diagram.
    * @param nodes is the list of nodes to be added to the diagram.
    */
   addNodes(nodes: Node[]): void;
-
 
   /**
    * Updates diagram's nodes matching the given ones.
@@ -65,20 +57,17 @@ export interface DiagramActions {
    */
   updateNodes(nodes: Node[]): void;
 
-
   /**
    * Updates the nodes' positions.
    * @param nodes is map, where identifier of node is mapped to the node's new position.
    */
   updateNodesPosition(nodes: { [identifier: string]: Position }): void;
 
-
   /**
    * Removes nodes whose identifiers match the given ones.
    * @param identifiers are identifiers of the to be removed nodes.
    */
   removeNodes(identifiers: string[]): void;
-
 
   // Edges
 
@@ -93,14 +82,12 @@ export interface DiagramActions {
 
   removeEdges(identifiers: string[]): void;
 
-
   // Selection
 
   /**
    * @returns Currently selected nodes within diagram.
    */
   getSelectedNodes(): Node[];
-
 
   /**
    * Sets diagram's node selection to the given {@link nodes}.
@@ -109,12 +96,10 @@ export interface DiagramActions {
    */
   setSelectedNodes(nodes: string[]): void;
 
-
   /**
    * @returns Currently selected edges within diagram.
    */
   getSelectedEdges(): Edge[];
-
 
   /**
    * Sets diagram's edge selection to the given edges.
@@ -138,7 +123,6 @@ export interface DiagramActions {
    */
   getViewport(): ViewportDimensions;
 
-
   /**
    * Sets the viewport's position to given coordinates.
    * @param x is the new x-coordinate of the viewport.
@@ -146,21 +130,19 @@ export interface DiagramActions {
    */
   setViewportToPosition(x: number, y: number): void;
 
-
   /**
    * Centers diagram's viewport to node with given identifier.
    * @param identifier is the identifier of the node to center viewport to.
    */
   centerViewportToNode(identifier: string): void;
-}
 
+}
 
 export type ViewportDimensions = {
   position: Position;
   width: number;
   height: number;
 }
-
 
 /**
  * Non-visual node used to represent group of other nodes.
@@ -308,12 +290,10 @@ export type Edge = {
 
 }
 
-
 /**
  * Callbacks to owner to handle required user actions.
  */
 export interface DiagramCallbacks {
-
 
   // Node
 
@@ -323,13 +303,11 @@ export interface DiagramCallbacks {
    */
   onShowNodeDetail: (identifier: string) => void;
 
-
   /**
    * This property stores the method, which is called when user starts editing node.
    * @param identifier is the identifier of the node which is being edited.
    */
   onEditNode: (identifier: string) => void;
-
 
   /**
    * This property stores the method, which is called when user starts creating node's profile.
@@ -337,13 +315,11 @@ export interface DiagramCallbacks {
    */
   onCreateNodeProfile: (identifier: string) => void;
 
-
   /**
    * This property stores the method, which is called when user hides node, i. e. removes it from canvas.
    * @param identifier is the identifier of the node, which is newly hidden.
    */
   onHideNode: (identifier: string) => void;
-
 
   /**
    * This property stores the method, which is called when user deletes node.
@@ -351,6 +327,12 @@ export interface DiagramCallbacks {
    */
   onDeleteNode: (identifier: string) => void;
 
+  /**
+   * Called when there is a change in node's positions in result
+   * of user action. This method is not called when position is changed
+   * using an API call.
+   */
+  onChangeNodesPositions: (changes: { [identifier: string] : Position}) => void;
 
   // Edge
 
@@ -383,7 +365,6 @@ export interface DiagramCallbacks {
    * @param targetIdentifier is the identifier of the target node of the connection.
    */
   onCreateConnectionToNode: (sourceIdentifier: string, targetIdentifier: string) => void;
-
 
   /**
    * This property stores the method, which is called when user creates "empty" connection,

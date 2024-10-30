@@ -32,6 +32,7 @@ import {
   type Edge as ApiEdge,
   type ViewportDimensions,
   EdgeType as ApiEdgeType,
+  Position,
 } from "./diagram-api";
 import { type EdgeToolbarProps } from "./edge/edge-toolbar";
 import { EntityNodeName } from "./node/entity-node";
@@ -152,10 +153,9 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
   // Register actions to API.
   useEffect(() => api.setActions(actions), [api, actions]);
 
-
   const onNodeDrag = useCallback(createOnNodeDragHandler(), []);
   const onNodeDragStart = useCallback(createOnNodeDragStartHandler(alignment), [alignment]);
-  const onNodeDragStop = useCallback(createOnNodeDragStopHandler(alignment), [alignment]);
+  const onNodeDragStop = useCallback(createOnNodeDragStopHandler(api, alignment), [api, alignment]);
 
   return {
     nodes,
@@ -170,14 +170,12 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
     onDragOver,
     onDrop,
     isValidConnection,
-
     onNodeDrag,
     onNodeDragStart,
     onNodeDragStop,
     alignmentController: alignment,
   };
 }
-
 
 const createOnNodeDragHandler = () => {
   return (event: React.MouseEvent, node: Node, nodes: Node[]) => {
@@ -191,9 +189,15 @@ const createOnNodeDragStartHandler = (alignment: AlignmentController) => {
   };
 };
 
-const createOnNodeDragStopHandler = (alignment: AlignmentController) => {
+const createOnNodeDragStopHandler = (api: UseDiagramType, alignment: AlignmentController) => {
   return (event: React.MouseEvent, node: Node, nodes: Node[]) => {
     alignment.alignmentCleanUpOnNodeDragStop(node);
+    // At the end of the node drag we report changes in the positions.
+    const changes : Record<string, Position> = {};
+    for (const node of nodes) {
+      changes[node.id] = node.position;
+    }
+    api.callbacks().onChangeNodesPositions(changes);
   };
 };
 
@@ -294,6 +298,7 @@ const createDragOverHandler = (): React.DragEventHandler => {
   return (event: React.DragEvent) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
+    console.log("useDiagramController.createDragOverHandler");
   };
 };
 

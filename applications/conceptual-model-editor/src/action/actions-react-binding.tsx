@@ -19,7 +19,7 @@ import { addNodeToVisualModelAction } from "./add-node-to-visual-model";
 import { addRelationToVisualModelAction } from "./add-relation-to-visual-model";
 import { deleteFromSemanticModelAction } from "./delete-from-semantic-model";
 import { deleteFromVisualModelAction } from "./delete-from-visual-model";
-import { useDiagram, type DiagramCallbacks } from "../diagram/";
+import { Position, useDiagram, type DiagramCallbacks } from "../diagram/";
 import type { UseDiagramType } from "../diagram/diagram-hook";
 import { useOptions, type Options } from "../application/options";
 import { centerViewportToVisualEntityAction } from "./center-viewport-to-visual-entity";
@@ -27,6 +27,7 @@ import { openDetailDialogAction } from "./open-detail-dialog";
 import { openModifyDialogAction } from "./open-modify-dialog";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
+import { isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 export interface ActionsContextType {
 
@@ -133,6 +134,7 @@ export const ActionsContextProvider = (props: {
 let prevOptions: Options | null = null;
 let prevDialogs: DialogApiContextType | null = null;
 let prevClasses: ClassesContextType | null = null;
+let prevUseClasses: UseClassesContextType | null = null;
 let prevNotifications: UseNotificationServiceWriterType | null = null;
 let prevGraph: ModelGraphContextType | null = null;
 let prevDiagram: UseDiagramType | null = null;
@@ -165,7 +167,8 @@ function createActionsContext(
   const changed = [];
   if (prevOptions !== options) changed.push("options");
   if (prevDialogs !== dialogs) changed.push("dialogs");
-  if (classes !== classes) changed.push("classes");
+  if (prevClasses !== classes) changed.push("classes");
+  if (prevUseClasses !== useClasses) changed.push("prevUseClasses");
   if (notifications !== notifications) changed.push("notifications");
   if (graph !== graph) changed.push("graph");
   if (prevDiagram !== diagram) changed.push("diagram");
@@ -173,6 +176,7 @@ function createActionsContext(
   prevOptions = options;
   prevDialogs = dialogs;
   prevClasses = classes;
+  prevUseClasses = useClasses;
   prevNotifications = notifications;
   prevGraph = graph;
   prevDiagram = diagram;
@@ -248,29 +252,47 @@ function createActionsContext(
     deleteFromSemanticModel(model.getId(), identifier);
   };
 
+  const changeNodesPositions = (changes: {[identifier: string]: Position}) => {
+    const visualModel = graph.aggregatorView.getActiveVisualModel();
+    if (visualModel === null) {
+      notifications.error("There is no active visual model.");
+      return;
+    }
+    if (!isWritableVisualModel(visualModel)) {
+      notifications.error("Visual model is not writable.");
+      return;
+    }
+    //
+    for (const [identifier, position] of Object.entries(changes)) {
+      visualModel.updateVisualEntity(identifier, {position});
+    }
+  };
+
   // Prepare and set diagram callbacks.
 
   const callbacks: DiagramCallbacks = {
 
-    onShowNodeDetail: (id) => openDetailDialog(id),
+    onShowNodeDetail: openDetailDialog,
 
-    onEditNode: (id) => openModifyDialog(id),
+    onEditNode: openModifyDialog,
 
-    onCreateNodeProfile: (id) => openCreateProfileDialog(id),
+    onCreateNodeProfile: openCreateProfileDialog,
 
-    onHideNode: (id) => removeFromVisualModel(id),
+    onHideNode: removeFromVisualModel,
 
-    onDeleteNode: (id) => deleteVisualElement(id),
+    onDeleteNode: deleteVisualElement,
 
-    onShowEdgeDetail: (id) => openDetailDialog(id),
+    onChangeNodesPositions: changeNodesPositions,
 
-    onEditEdge: (id) => openModifyDialog(id),
+    onShowEdgeDetail: openDetailDialog,
 
-    onCreateEdgeProfile: (id) => openCreateProfileDialog(id),
+    onEditEdge: openModifyDialog,
 
-    onHideEdge: (id) => removeFromVisualModel(id),
+    onCreateEdgeProfile: openCreateProfileDialog,
 
-    onDeleteEdge: (id) => deleteVisualElement(id),
+    onHideEdge: removeFromVisualModel,
+
+    onDeleteEdge: deleteVisualElement,
 
     onCreateConnectionToNode: (source, target) => {
       console.log("Application.onCreateConnectionToNode", { source, target });
