@@ -7,7 +7,7 @@ import { NodeDimensionQueryHandler, UserGivenConstraintsVersion2 } from "..";
 import { compactify } from "./constraints-implementation";
 
 
-export type ConstraintedNodesGroupingsType = "ALL" | "GENERALIZATION" | "PROFILE";
+export type ConstraintedNodesGroupingsType = "ALL" | "GENERALIZATION" | "PROFILE" | "ALL-TOP-LEVEL";
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,13 +94,109 @@ export interface BasicUserGivenConstraints {
 // We pay fot it though, when using setState with nested object it gets more complicated than with flat object
 export interface UserGivenAlgorithmConfigurationslVersion2 {
     // The information after & can be safely deducted from the field name
-    main: UserGivenAlgorithmConfiguration & { "should_be_considered": true, "constraintedNodes": "ALL" },
+    main: MainUserGivenAlgorithmConfiguration,
     general: UserGivenAlgorithmConfigurationForGeneralization,
     // TODO: if we want to later have run limit
     // maxTime: number,
     // fixModel: [{
     //     modelId: string
     // }]
+}
+
+// The information after & can be safely deducted from the field name
+// TODO: I probably even don't needed ... check in next commit
+type MainUserGivenAlgorithmConfiguration = UserGivenAlgorithmConfiguration & { "should_be_considered": true, "constraintedNodes": "ALL" };
+
+interface AlgorithmConstraint {
+    chosenAlgorithm: AlgorithmName,
+    algorithmSettings: Partial<Record<AlgorithmName, UserGivenAlgorithmConfiguration>>,
+    constraintedNodes: ConstraintedNodesGroupingsType | string[],       // Either grouping or list of individual nodes
+}
+
+interface AlgorithmConversionConstraint {
+    actionName: string,
+    data: object,
+    constraintedNodes: ConstraintedNodesGroupingsType | string[],       // Either grouping or list of individual nodes
+}
+
+export interface UserGivenAlgorithmConfigurationslVersion3 {
+    steps: (AlgorithmConstraint | AlgorithmConversionConstraint)[],
+}
+
+export interface UserGivenAlgorithmConfigurationslVersion3 {
+    steps: (AlgorithmConstraint | AlgorithmConversionConstraint)[],
+}
+
+export function getDefaultUserGivenConstraintsVersion3(): (AlgorithmConstraint | AlgorithmConversionConstraint)[] {
+    return [
+            {
+                actionName: "CREATE_GENERAL_SUBGRAPHS",
+                data: {},
+                constraintedNodes: "ALL",
+            },
+            {
+                chosenAlgorithm: "elk_layered",
+                algorithmSettings: {"elk_layered": {...getDefaultUserGivenAlgorithmConstraint("elk_layered"), constraintedNodes: "ALL", should_be_considered: false}},
+                "constraintedNodes": "GENERALIZATION",
+            },
+            {
+                chosenAlgorithm: "elk_layered",
+                algorithmSettings: {"elk_layered": {...getDefaultUserGivenAlgorithmConstraint("elk_layered"), constraintedNodes: "ALL", should_be_considered: false}},
+                "constraintedNodes": "ALL",
+            },
+    ];
+}
+
+export function getDefaultUserGivenConstraintsVersion4(): UserGivenAlgorithmConfigurationslVersion4 {
+    return {
+        main: {
+            "elk_layered": {
+                ...getDefaultUserGivenAlgorithmConstraint("elk_layered"),
+                "should_be_considered": true,
+                "constraintedNodes": "ALL",
+            }
+        },
+        general: {
+            "elk_layered": {
+                ...getDefaultUserGivenAlgorithmConstraint("elk_layered"),
+                "layout_alg": "elk_layered",        // Defined as stress in the default
+                "should_be_considered": false,
+                "constraintedNodes": "GENERALIZATION",
+            }
+        },
+        chosenMainAlgorithm: "elk_layered",
+        mainStepNumber: 1,
+        generalStepNumber: 0,
+        additionalSteps: {},
+    };
+}
+
+function getDefaultAdditionalStepsForVersion4ExampleImplementation(): Record<number, (UserGivenAlgorithmConfiguration | AlgorithmConversionConstraint)> {
+    return {
+        0: {
+            actionName: "CREATE_GENERALIZATION_SUBGRAPHS",
+            data: {},
+            constraintedNodes: "ALL",
+        },
+        1: {
+            ...getDefaultUserGivenAlgorithmConstraint("elk_layered"), constraintedNodes: "GENERALIZATION", should_be_considered: false,
+        },
+        2: {
+            ...getDefaultUserGivenAlgorithmConstraint("elk_layered"), constraintedNodes: "ALL", should_be_considered: false,
+        },
+    }
+}
+
+
+
+export interface UserGivenAlgorithmConfigurationslVersion4 {
+    main: Partial<Record<AlgorithmName, UserGivenAlgorithmConfiguration>>,
+    chosenMainAlgorithm: AlgorithmName,
+
+    general: {"elk_layered": UserGivenAlgorithmConfigurationForGeneralization},
+    mainStepNumber: number,
+    generalStepNumber: number,
+    additionalSteps: Record<number, (UserGivenAlgorithmConfiguration | AlgorithmConversionConstraint)>,
 }
 
 
@@ -136,7 +232,7 @@ export interface UserGivenAlgorithmConfigurationExtraData {
 export interface UserGivenAlgorithmConfigurationOnlyData extends UserGivenAlgorithmConfigurationLayered,
                                                                 UserGivenAlgorithmConfigurationStress,
                                                                 UserGivenAlgorithmConfigurationElkForce {
-    "layout_alg": AlgorithmName,
+    "layout_alg": AlgorithmName,        // Now it is actually redundant, but it is still to better to keep it here (rewriting takes too much work)
     // The idea is to have fields which are "main" in a way and universal (so they can be actually shared between algorithms) and then just advanced_settings
     // which contains additional configuration in the JSON format of given library
     // (Note: the advanced_settings should override the main one if passed - TODO: Rewrite so it is actually the case)
@@ -154,12 +250,10 @@ export interface UserGivenAlgorithmConfigurationForGeneralization extends UserGi
 export function getDefaultUserGivenConstraintsVersion2(): UserGivenConstraintsVersion2 {
     return {
         main: {
-            ...getDefaultUserGivenAlgorithmConstraint(),
-            "should_be_considered": true,
-            "constraintedNodes": "ALL",
+            ...getDefaultMainUserGivenAlgorithmConstraint("elk_stress"),
         },
         general: {
-            ...getDefaultUserGivenAlgorithmConstraint(),
+            ...getDefaultUserGivenAlgorithmConstraint("elk_stress"),
             "layout_alg": "elk_layered",        // Defined as stress in the default
             "should_be_considered": false,
             "constraintedNodes": "GENERALIZATION",
@@ -168,9 +262,9 @@ export function getDefaultUserGivenConstraintsVersion2(): UserGivenConstraintsVe
 }
 
 // TODO: getDefaultUserGivenAlgorithmConfiguration
-export function getDefaultUserGivenAlgorithmConstraint(): Omit<UserGivenAlgorithmConfiguration, "constraintedNodes" | "should_be_considered"> {
+export function getDefaultUserGivenAlgorithmConstraint(algorithmName: AlgorithmName): Omit<UserGivenAlgorithmConfiguration, "constraintedNodes" | "should_be_considered"> {
     return {
-        "layout_alg": "elk_stress",
+        "layout_alg": algorithmName,
     //  "profile-nodes-position-against-source": DIRECTION.DOWN,
         ...LayeredConfiguration.getDefaultObject(),
         "stress_edge_len": 400,
@@ -182,6 +276,14 @@ export function getDefaultUserGivenAlgorithmConstraint(): Omit<UserGivenAlgorith
         "interactive": false,
         advanced_settings: {},
     }
+}
+
+export function getDefaultMainUserGivenAlgorithmConstraint(algorithmName: AlgorithmName): MainUserGivenAlgorithmConfiguration {
+    return {
+        ...getDefaultUserGivenAlgorithmConstraint(algorithmName),
+        "should_be_considered": true,
+        "constraintedNodes": "ALL",
+    };
 }
 
 export type ConstraintTime = "PRE-MAIN" | "IN-MAIN" | "POST-MAIN";

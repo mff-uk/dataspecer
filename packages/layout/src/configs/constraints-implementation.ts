@@ -1,13 +1,13 @@
-import { getDefaultUserGivenConstraintsVersion2, NodeDimensionQueryHandler, UserGivenConstraintsVersion2 } from "..";
+import { getDefaultUserGivenConstraintsVersion2, getDefaultUserGivenConstraintsVersion4, NodeDimensionQueryHandler, UserGivenConstraintsVersion2, UserGivenConstraintsVersion4 } from "..";
 import { IMainGraphClassic } from "../graph-iface";
 import { LayoutAlgorithm } from "../layout-iface";
 import { ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./constraint-container";
 import { ConstraintFactory } from "./constraint-factories";
 
 export const compactify = async (graph: IMainGraphClassic, nodeDimensionQueryHandler: NodeDimensionQueryHandler) => {
-    const config: UserGivenConstraintsVersion2 = getDefaultUserGivenConstraintsVersion2();
-    config.main.layout_alg = "sporeCompaction";
-    config.main.min_distance_between_nodes = 64;
+    const config: UserGivenConstraintsVersion4 = getDefaultUserGivenConstraintsVersion4();
+    config.chosenMainAlgorithm = "sporeCompaction";
+    config.main["sporeCompaction"].min_distance_between_nodes = 64;
 
 
 

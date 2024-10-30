@@ -5,10 +5,10 @@ import { modelTypeToName } from "@/known-models";
 import { BetterModalProps } from "@/lib/better-modal";
 import { ResourcesContext, requestLoadPackage } from "@/package";
 import { LOCAL_VISUAL_MODEL } from "@dataspecer/core-v2/model/known-models";
-import { performLayoutOfSemanticModel } from "@dataspecer/layout";
+// import { performLayoutOfSemanticModel } from "@dataspecer/layout";
 import { Loader } from "lucide-react";
 import { useContext, useState } from "react";
-import { useConfigDialog } from "./layout-dialog";
+// import { useConfigDialog } from "./layout-dialog";
 
 
 export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, parentIri: string } & BetterModalProps<boolean>) => {
@@ -44,13 +44,14 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
   const [isLoading, setIsLoading] = useState(false);
   const execute = async () => {
     setIsLoading(true);
-    const response = await fetch(import.meta.env.VITE_BACKEND + "/resources/blob?iri=" + encodeURIComponent(iri));
-    const data = await response.json();
-    const entities = data.entities;
+    // const response = await fetch(import.meta.env.VITE_BACKEND + "/resources/blob?iri=" + encodeURIComponent(iri));
+    // const data = await response.json();
+    // const entities = data.entities;
 
     let visualEntities;
     try {
-      visualEntities = await performLayoutOfSemanticModel(entities, getValidConfig());
+      // visualEntities = await performLayoutOfSemanticModel(entities, getValidConfig());
+      throw new Error("TODO");
     } catch (error) {
       alert("LAYOUT WAS NOT SUCCESSFUL");
       console.error(error);
@@ -101,7 +102,7 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
   const type = modelTypeToName[resource.types?.[0]];
 
 
-  const { getValidConfig, ConfigDialog } = useConfigDialog();
+  // const { getValidConfig, ConfigDialog } = useConfigDialog();
 
   return (
     <Modal open={isOpen} onClose={() => isLoading ? null : resolve(false)}>
@@ -121,7 +122,7 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
             { /* cz: Vytvoř nový vizuální model (při nezaškrtnutí se přepíše poslední layout model) */}</label>
           <div className='h-8'></div>
           <div>------------------------</div>
-          <ConfigDialog></ConfigDialog>
+          {/* <ConfigDialog></ConfigDialog> */}
         </ModalBody>
         <ModalFooter>
           <Button variant="default" onClick={execute} disabled={isLoading}>

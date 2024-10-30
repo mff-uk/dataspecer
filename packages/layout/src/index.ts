@@ -3,7 +3,19 @@ import { VisualEntity } from "@dataspecer/core-v2/visual-model";
 import { ExtractedModel, LayoutAlgorithm, LayoutMethod, extractModelObjects } from "./layout-iface";
 
 import { doRandomLayoutAdvanced } from "./basic-layouts";
-import { UserGivenConstraints, UserGivenAlgorithmConfigurationslVersion2, ConstraintTime, IConstraint, IConstraintSimple, getDefaultUserGivenConstraintsVersion2, getDefaultUserGivenAlgorithmConstraint, AlgorithmConfiguration } from "./configs/constraints";
+import {
+	UserGivenConstraints,
+	UserGivenAlgorithmConfigurationslVersion2,
+	ConstraintTime,
+	IConstraint,
+	IConstraintSimple,
+	getDefaultUserGivenConstraintsVersion2,
+	UserGivenAlgorithmConfigurationslVersion4,
+	getDefaultUserGivenAlgorithmConstraint,
+	AlgorithmConfiguration,
+	getDefaultMainUserGivenAlgorithmConstraint,
+	getDefaultUserGivenConstraintsVersion4
+} from "./configs/constraints";
 import { GraphClassic, GraphFactory, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualEntityComplete } from "./graph-iface";
 import { EdgeCrossingMetric } from "./graph-metrics/graph-metrics";
 import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs/constraint-container";
@@ -15,8 +27,8 @@ import { VisualEntities } from "../../core-v2/lib/visual-model/visual-entity";
 import { PhantomElementsFactory } from "./util/utils";
 import { CONSTRAINT_MAP } from "./configs/constraints-mapping";
 
-export type { IConstraintSimple, UserGivenConstraints, UserGivenAlgorithmConfigurationslVersion2 as UserGivenConstraintsVersion2 } from "./configs/constraints";
-export { getDefaultUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion2 } from "./configs/constraints";
+export type { IConstraintSimple, UserGivenConstraints, UserGivenAlgorithmConfigurationslVersion2 as UserGivenConstraintsVersion2, UserGivenAlgorithmConfigurationslVersion4 as UserGivenConstraintsVersion4 } from "./configs/constraints";
+export { getDefaultUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion2, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4 } from "./configs/constraints";
 export type { AlgorithmName } from "./configs/constraint-container";
 export { DIRECTION } from "./util/utils";
 export type { INodeClassic } from "./graph-iface"
@@ -76,7 +88,7 @@ export async function performDynamicLayout(visualModel: VisualEntityModel,
  */
 export async function performLayoutOfVisualModel(visualModel: VisualEntityModel,
 													semanticModels: Map<string, EntityModel>,
-													config: UserGivenAlgorithmConfigurationslVersion2,
+													config: UserGivenAlgorithmConfigurationslVersion4,
 													nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
 	console.log("config");
 	console.log(config);
@@ -100,7 +112,7 @@ export async function performLayoutOfVisualModel(visualModel: VisualEntityModel,
  * Layout given semantic model.
  */
 export async function performLayoutOfSemanticModel(inputSemanticModel: Record<string, SemanticModelEntity>,
-													config: UserGivenAlgorithmConfigurationslVersion2,
+													config: UserGivenAlgorithmConfigurationslVersion4,
 													nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
 	const visualEntitiesPromise = performLayoutInternal(null, inputSemanticModel, config, nodeDimensionQueryHandler);
 	return visualEntitiesPromise;
@@ -109,7 +121,7 @@ export async function performLayoutOfSemanticModel(inputSemanticModel: Record<st
 
 function performLayoutInternal(visualModel: VisualEntityModel | null,
 								semanticModel: Record<string, SemanticModelEntity>,
-								config: UserGivenAlgorithmConfigurationslVersion2,
+								config: UserGivenAlgorithmConfigurationslVersion4,
 								nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
 	if(nodeDimensionQueryHandler === undefined) {
 		nodeDimensionQueryHandler = new ReactflowDimensionsEstimator();
@@ -135,7 +147,7 @@ function performLayoutInternal(visualModel: VisualEntityModel | null,
  * @returns
  */
 export async function performLayoutFromGraph(graph: IMainGraphClassic,
-												config: UserGivenAlgorithmConfigurationslVersion2,
+												config: UserGivenAlgorithmConfigurationslVersion4,
 												nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<VisualEntities> {
 	const constraints = ConstraintFactory.createConstraints(config);
 
@@ -270,10 +282,10 @@ const runMainLayoutAlgorithm = async (graph: IMainGraphClassic,
 				return layoutedGraph;
 			}
 			else {
-				const configAfter = getDefaultUserGivenConstraintsVersion2();
-				configAfter.main.layout_alg = "elk_layered";
+				const configAfter = getDefaultUserGivenConstraintsVersion4();
+				configAfter.chosenMainAlgorithm = "elk_layered";
 
-				configAfter.main.advanced_settings = {
+				configAfter.main.elk_layered.advanced_settings = {
 					"crossingMinimization.semiInteractive": true,
 					"crossingCounterNodeInfluence": 0,
 					"cycleBreaking.strategy": "INTERACTIVE",
@@ -289,7 +301,7 @@ const runMainLayoutAlgorithm = async (graph: IMainGraphClassic,
 				}
 				console.log("constraintsAfter");
 				console.log(constraintsAfter);
-				const layeredAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[configAfter.main.layout_alg];
+				const layeredAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[configAfter.chosenMainAlgorithm];
 				layeredAlgorithm.prepareFromGraph(layoutedGraph, constraintsAfter, nodeDimensionQueryHandler);
 				// console.log(configAfter);
 				return layeredAlgorithm.run(false);

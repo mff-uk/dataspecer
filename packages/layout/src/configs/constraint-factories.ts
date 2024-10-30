@@ -1,6 +1,6 @@
 import { LayoutMethod } from "../layout-iface";
 import { ConstraintContainer } from "./constraint-container";
-import { AlgorithmConfiguration, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraintSimple, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationslVersion2 } from "./constraints";
+import { AlgorithmConfiguration, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraintSimple, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationslVersion2, UserGivenAlgorithmConfigurationslVersion4 } from "./constraints";
 import { D3ForceConfiguration } from "./d3js/d3-constraints";
 import { ElkForceConfiguration, ElkLayeredConfiguration, ElkRadialConfiguration, ElkSporeConfiguration, ElkStressConfiguration } from "./elk/elk-constraints";
 
@@ -103,19 +103,19 @@ export class ConstraintFactory {
      * @param config
      * @returns {@link ConstraintContainer} for the whole graph based on given {@link config}.
      */
-    static createConstraints(config: UserGivenAlgorithmConfigurationslVersion2): ConstraintContainer {
+    static createConstraints(config: UserGivenAlgorithmConfigurationslVersion4): ConstraintContainer {
         // TODO: For now, just take it directly, but could also iterate and look for the "is_algorithm_constraint" property
-        let mainConstraint = AlgorithmConstraintFactory.createAlgorithmConfiguration(config.main);
+        let mainConstraint = AlgorithmConstraintFactory.createAlgorithmConfiguration(config.main[config.chosenMainAlgorithm]);
 
         console.info("mainConstraint");
         console.info(mainConstraint);
         console.info(config);
-        let generalizationConstraint = AlgorithmConstraintFactory.createAlgorithmConfiguration(config.general);
+        let generalizationConstraint = AlgorithmConstraintFactory.createAlgorithmConfiguration(config.general.elk_layered);
         console.info("generalizationConstraint");
         console.info(generalizationConstraint);
 
 
-        const simpleConstraints = AlgorithmConstraintFactory.createSimpleConstraintsFromConfiguration(config.main);
+        const simpleConstraints = AlgorithmConstraintFactory.createSimpleConstraintsFromConfiguration(config.main[config.chosenMainAlgorithm]);
         const constraintContainer = new ConstraintContainer([mainConstraint, generalizationConstraint], simpleConstraints, undefined, undefined);
 
         return constraintContainer
