@@ -7,6 +7,7 @@ import {
   type Edge,
   useReactFlow,
   type InternalNode,
+  Viewport,
 } from "@xyflow/react";
 
 import { arrayReplace, arrayInsert } from "../../util/functions";
@@ -210,3 +211,11 @@ function WaypointCandidate(props: {
     </g>
   );
 }
+
+// Inspired by getNodeToolbarTransform function in xyflow.
+export const computePosition = (x: number, y: number, viewport: Viewport): { x: number, y: number } => {
+  return {
+    x: x * viewport.zoom + viewport.x,
+    y: y * viewport.zoom + viewport.y,
+  };
+};

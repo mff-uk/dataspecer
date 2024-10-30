@@ -83,8 +83,8 @@ interface UseDiagramControllerType {
   /**
    * Model for edge context menu.
    * Can be null when there is nothing to render.
-   * Yet even when not null, the toolbar is rendered
-   * only when the edge is selected.
+   * Even when null the toolbar is rendered only when
+   * the edge is selected.
    */
   edgeToolbar: EdgeToolbarProps | null;
 
@@ -126,7 +126,7 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
   // The initialized is set to false when new node is added and back to true once the size is determined.
   // const reactFlowInitialized = useNodesInitialized();
 
-  const onChangeSelection = useCallback(createChangeSelectionHandler(), [setEdgeToolbar]);
+  const onChangeSelection = useCallback(createChangeSelectionHandler(), []);
   useOnSelectionChange({ onChange: (onChangeSelection) });
 
   const onNodesChange = useCallback(createNodesChangeHandler(setNodes, alignment), [setNodes, alignment]);
@@ -145,10 +145,14 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
 
   const onDrop = useCallback(createDropHandler(reactFlow), [reactFlow.screenToFlowPosition]);
 
-  const actions = useMemo(() => createActions(reactFlow, setNodes, setEdges, alignment), [reactFlow, setNodes, setEdges, alignment]);
+  const actions = useMemo(() => createActions(reactFlow, setNodes, setEdges, alignment),
+    [reactFlow, setNodes, setEdges, alignment]);
 
-  const onOpenEdgeToolbar = useCallback(createOpenEdgeToolbar(setEdgeToolbar), [setEdgeToolbar]);
-  const context = useMemo(() => createDiagramContext(api, onOpenEdgeToolbar), [api]);
+  const onOpenEdgeToolbar = useCallback(
+    createOpenEdgeToolbar(edges, setEdgeToolbar),
+    [edges, setEdgeToolbar]);
+  const context = useMemo(() => createDiagramContext(api, onOpenEdgeToolbar),
+    [api, onOpenEdgeToolbar]);
 
   // Register actions to API.
   useEffect(() => api.setActions(actions), [api, actions]);
@@ -193,7 +197,7 @@ const createOnNodeDragStopHandler = (api: UseDiagramType, alignment: AlignmentCo
   return (event: React.MouseEvent, node: Node, nodes: Node[]) => {
     alignment.alignmentCleanUpOnNodeDragStop(node);
     // At the end of the node drag we report changes in the positions.
-    const changes : Record<string, Position> = {};
+    const changes: Record<string, Position> = {};
     for (const node of nodes) {
       changes[node.id] = node.position;
     }
@@ -313,9 +317,20 @@ const createDropHandler = (reactFlow: ReactFlowInstance<NodeType, EdgeType>): Re
   };
 };
 
-const createOpenEdgeToolbar = (setEdgeToolbar: React.Dispatch<React.SetStateAction<EdgeToolbarProps | null>>): OpenEdgeContextMenuHandler => {
+const createOpenEdgeToolbar = (edges: EdgeType[], setEdgeToolbar: React.Dispatch<React.SetStateAction<EdgeToolbarProps | null>>): OpenEdgeContextMenuHandler => {
   return (edgeIdentifier: string, waypointIndex: number | null, x: number, y: number) => {
-    setEdgeToolbar({ edgeIdentifier, waypointIndex, x, y });
+    for (const edge of edges) {
+      if (edge.id !== edgeIdentifier) {
+        continue;
+      }
+      const edgeType = edge.data?.type;
+      if (edgeType !== undefined) {
+        setEdgeToolbar({ edgeIdentifier, waypointIndex, x, y, edgeType });
+      } else {
+        console.error("Ignore open menu request for edge without data.", { edge });
+      }
+    }
+
   };
 };
 

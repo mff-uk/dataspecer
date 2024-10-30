@@ -13,13 +13,17 @@ import { ConnectionEdge } from "./edge/connection-edge";
 import { EntityNode, EntityNodeName } from "./node/entity-node";
 import { PropertyEdge, PropertyEdgeName } from "./edge/property-edge";
 import { DeveloperTools } from "./developer-tools/";
-import { EdgeToolbar } from "./edge/edge-toolbar";
+
+import { ProfileEdgeToolbar } from "./edge/class-profile-edge-toolbar";
+import { GeneralizationEdgeToolbar } from "./edge/generalization-edge-toolbar";
+import { PropertyEdgeToolbar } from "./edge/property-edge-toolbar";
+
 import { useDiagramController, DiagramContext } from "./diagram-controller";
 import type { UseDiagramType } from "./diagram-hook";
 
 import { configuration } from "../application/configuration";
 import { AlignmentComponent } from "./features/alignment-viewportal";
-import type { Node as ApiNode } from "./diagram-api";
+import { EdgeType, type Node as ApiNode } from "./diagram-api";
 import { ClassProfileEdge, ClassProfileEdgeName } from "./edge/class-profile-edge";
 import { GeneralizationEdge, GeneralizationEdgeName } from "./edge/generalization-edge";
 
@@ -84,7 +88,20 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
           <Background variant={BackgroundVariant.Lines} gap={xSnapGrid} size={1} />
           <DeveloperTools />
         </ReactFlow>
-        <EdgeToolbar value={controller.edgeToolbar} />
+        {/* We render the toolbar based on the edge type. */}
+        {controller.edgeToolbar?.edgeType === EdgeType.ClassProfile
+          ? <ProfileEdgeToolbar value={controller.edgeToolbar} />
+          : null
+        }
+        {controller.edgeToolbar?.edgeType === EdgeType.Generalization
+          ? <GeneralizationEdgeToolbar value={controller.edgeToolbar} />
+          : null
+        }
+        {controller.edgeToolbar?.edgeType === EdgeType.Association ||
+          controller.edgeToolbar?.edgeType === EdgeType.AssociationProfile
+          ? <PropertyEdgeToolbar value={controller.edgeToolbar} />
+          : null
+        }
         <AlignmentComponent {...controller.alignmentController}></AlignmentComponent>
       </DiagramContext.Provider>
     </>
