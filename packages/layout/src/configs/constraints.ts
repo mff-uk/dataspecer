@@ -7,7 +7,7 @@ import { NodeDimensionQueryHandler, UserGivenConstraintsVersion2 } from "..";
 import { compactify } from "./constraints-implementation";
 
 
-export type ConstraintedNodesGroupingsType = "ALL" | "GENERALIZATION" | "PROFILE" | "ALL-TOP-LEVEL";
+export type ConstraintedNodesGroupingsType = "ALL" | "GENERALIZATION" | "PROFILE";
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

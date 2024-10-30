@@ -75,7 +75,6 @@ export class ConstraintContainer {
                         "ALL": undefined,
                         "GENERALIZATION": undefined,
                         "PROFILE": undefined,
-                        "ALL-TOP-LEVEL": undefined,
                     };
                     this.addAlgorithmConstraints(...algorithmOnlyConfiguration);
                     this.simpleConstraints = simpleConstraints ?? [];
