@@ -710,7 +710,7 @@ function onChangeVisualModel(
                 console.error("Missing profile for profile relation.", { entity });
                 continue;
             }
-            const edge = createDiagramEdgeForClassProfile(visualModel, visualEntity);
+            const edge = createDiagramEdgeForClassProfile(visualModel, visualEntity, entity);
             if (edge !== null) {
                 nextEdges.push(edge);
             }
@@ -775,6 +775,7 @@ function createDiagramNode(
 
     return {
         identifier: visualNode.identifier,
+        externalIdentifier: entity.id,
         label: getEntityLabel(language, entity),
         iri: getIri(entity, getModelIri(model)),
         color: visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR,
@@ -824,7 +825,8 @@ function createDiagramEdge(
         return createDiagramEdgeForRelationship(
             options, visualModel, profilingSources, visualNode, entity);
     } else if (isSemanticModelGeneralization(entity)) {
-        return createDiagramEdgeForGeneralization(visualModel, visualNode);
+        return createDiagramEdgeForGeneralization(
+            visualModel, visualNode, entity);
     }
     throw Error(`Unknown entity type ${identifier}.`);
 }
@@ -849,6 +851,7 @@ function createDiagramEdgeForRelationship(
     return {
         type: EdgeType.Association,
         identifier: visualNode.identifier,
+        externalIdentifier: entity.id,
         label: getEntityLabel(language, entity),
         source: visualNode.visualSource,
         cardinalitySource: cardinalityToString(domain?.cardinality),
@@ -866,11 +869,13 @@ function createDiagramEdgeForRelationship(
 function createDiagramEdgeForGeneralization(
     visualModel: VisualModel,
     visualNode: VisualRelationship,
+    entity: SemanticModelGeneralization,
 ): Edge {
 
     return {
         type: EdgeType.Generalization,
         identifier: visualNode.identifier,
+        externalIdentifier: entity.id,
         label: null,
         source: visualNode.visualSource,
         cardinalitySource: null,
@@ -885,11 +890,13 @@ function createDiagramEdgeForGeneralization(
 function createDiagramEdgeForClassProfile(
     visualModel: VisualModel,
     visualNode: VisualProfileRelationship,
+    entity: SemanticModelClassUsage,
 ): Edge | null {
 
     return {
         type: EdgeType.ClassProfile,
         identifier: visualNode.identifier,
+        externalIdentifier: entity.id,
         label: "<<profile>>",
         source: visualNode.visualSource,
         cardinalitySource: null,
@@ -1008,7 +1015,7 @@ function onChangeVisualEntities(
                     continue;
                 }
 
-                const edge = createDiagramEdgeForClassProfile(visualModel, next);
+                const edge = createDiagramEdgeForClassProfile(visualModel, next, entity);
 
                 if (edge === null) {
                     console.error("In visual update created edge is null.", { entity, visual: next });

@@ -19,7 +19,7 @@ import { addNodeToVisualModelAction } from "./add-node-to-visual-model";
 import { addRelationToVisualModelAction } from "./add-relation-to-visual-model";
 import { deleteFromSemanticModelAction } from "./delete-from-semantic-model";
 import { deleteFromVisualModelAction } from "./delete-from-visual-model";
-import { Position, useDiagram, type DiagramCallbacks } from "../diagram/";
+import { EdgeType, Position, useDiagram, type DiagramCallbacks } from "../diagram/";
 import type { UseDiagramType } from "../diagram/diagram-hook";
 import { useOptions, type Options } from "../application/options";
 import { centerViewportToVisualEntityAction } from "./center-viewport-to-visual-entity";
@@ -272,27 +272,27 @@ function createActionsContext(
 
   const callbacks: DiagramCallbacks = {
 
-    onShowNodeDetail: openDetailDialog,
+    onShowNodeDetail: (node) => openDetailDialog(node.externalIdentifier),
 
-    onEditNode: openModifyDialog,
+    onEditNode: (node) => openModifyDialog(node.externalIdentifier),
 
-    onCreateNodeProfile: openCreateProfileDialog,
+    onCreateNodeProfile: (node) => openCreateProfileDialog(node.externalIdentifier),
 
-    onHideNode: removeFromVisualModel,
+    onHideNode: (node) => removeFromVisualModel(node.externalIdentifier),
 
-    onDeleteNode: deleteVisualElement,
+    onDeleteNode: (node) => deleteVisualElement(node.externalIdentifier),
 
     onChangeNodesPositions: changeNodesPositions,
 
-    onShowEdgeDetail: openDetailDialog,
+    onShowEdgeDetail: (node) => openDetailDialog(node.externalIdentifier),
 
-    onEditEdge: openModifyDialog,
+    onEditEdge: (edge) => openModifyDialog(edge.externalIdentifier),
 
-    onCreateEdgeProfile: openCreateProfileDialog,
+    onCreateEdgeProfile: (edge) => openCreateProfileDialog(edge.externalIdentifier),
 
-    onHideEdge: removeFromVisualModel,
+    onHideEdge: (edge) => removeFromVisualModel(edge.externalIdentifier),
 
-    onDeleteEdge: deleteVisualElement,
+    onDeleteEdge: (edge) => deleteVisualElement(edge.externalIdentifier),
 
     onCreateConnectionToNode: (source, target) => {
       console.log("Application.onCreateConnectionToNode", { source, target });

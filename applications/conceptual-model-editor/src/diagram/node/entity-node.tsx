@@ -89,11 +89,11 @@ function SelectedHighlight() {
 
 function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   const context = useContext(DiagramContext);
-  const onShowDetail = () => context?.callbacks().onShowNodeDetail(props.id);
-  const onEdit = () => context?.callbacks().onEditNode(props.id);
-  const onCreateProfile = () => context?.callbacks().onCreateNodeProfile(props.id);
-  const onHide = () => context?.callbacks().onHideNode(props.id);
-  const onDelete = () => context?.callbacks().onDeleteNode(props.id);
+  const onShowDetail = () => context?.callbacks().onShowNodeDetail(props.data);
+  const onEdit = () => context?.callbacks().onEditNode(props.data);
+  const onCreateProfile = () => context?.callbacks().onCreateNodeProfile(props.data);
+  const onHide = () => context?.callbacks().onHideNode(props.data);
+  const onDelete = () => context?.callbacks().onDeleteNode(props.data);
   return (
     <>
       <NodeToolbar position={Position.Top} className="flex gap-2 entity-node-toolbar" >

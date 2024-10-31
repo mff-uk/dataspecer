@@ -164,6 +164,11 @@ export type Node = {
   identifier: string;
 
   /**
+   * Identifier of external entity associated with this node.
+   */
+  externalIdentifier: string;
+
+  /**
    * Human readable label.
    */
   label: string;
@@ -261,6 +266,11 @@ export type Edge = {
   identifier: string;
 
   /**
+   * Identifier of external entity associated with this node.
+   */
+  externalIdentifier: string;
+
+  /**
    * Human readable label.
    */
   label: string | null;
@@ -291,63 +301,67 @@ export type Edge = {
 }
 
 /**
- * Callbacks to owner to handle required user actions.
+ * Node related functionality of the diagram.
  */
-export interface DiagramCallbacks {
-
-  // Node
+interface DiagramNodes {
 
   /**
-   * This property stores the method, which is called when user opens node's detail.
-   * @param identifier is the identifier of the node for which the detail was shown.
-   */
-  onShowNodeDetail: (identifier: string) => void;
+ * This property stores the method, which is called when user opens node's detail.
+ * @param identifier is the identifier of the node for which the detail was shown.
+ */
+  onShowNodeDetail: (diagramNode: Node) => void;
 
   /**
    * This property stores the method, which is called when user starts editing node.
    * @param identifier is the identifier of the node which is being edited.
    */
-  onEditNode: (identifier: string) => void;
+  onEditNode: (diagramNode: Node) => void;
 
   /**
    * This property stores the method, which is called when user starts creating node's profile.
    * @param identifier is the identifier of the node of which the profile is being created.
    */
-  onCreateNodeProfile: (identifier: string) => void;
+  onCreateNodeProfile: (diagramNode: Node) => void;
 
   /**
    * This property stores the method, which is called when user hides node, i. e. removes it from canvas.
    * @param identifier is the identifier of the node, which is newly hidden.
    */
-  onHideNode: (identifier: string) => void;
+  onHideNode: (diagramNode: Node) => void;
 
   /**
    * This property stores the method, which is called when user deletes node.
    * @param identifier is the identifier of the deleted node.
    */
-  onDeleteNode: (identifier: string) => void;
+  onDeleteNode: (diagramNode: Node) => void;
 
   /**
    * Called when there is a change in node's positions in result
    * of user action. This method is not called when position is changed
    * using an API call.
    */
-  onChangeNodesPositions: (changes: { [identifier: string] : Position}) => void;
+  onChangeNodesPositions: (changes: { [identifier: string]: Position }) => void;
 
-  // Edge
+}
 
-  // TODO: Documentation is the same as for nodes, so just copy it after feedback.
-  onShowEdgeDetail: (identifier: string) => void;
+/**
+ * Edge related functionality of the diagram.
+ */
+interface DiagramEdges {
 
-  onEditEdge: (identifier: string) => void;
+  onShowEdgeDetail: (diagramEdge: Edge) => void;
 
-  onCreateEdgeProfile: (identifier: string) => void;
+  onEditEdge: (diagramEdge: Edge) => void;
 
-  onHideEdge: (identifier: string) => void;
+  onCreateEdgeProfile: (diagramEdge: Edge) => void;
 
-  onDeleteEdge: (identifier: string) => void;
+  onHideEdge: (diagramEdge: Edge) => void;
 
-  // Selection
+  onDeleteEdge: (diagramEdge: Edge) => void;
+
+}
+
+interface DiagramSelection {
 
   /**
    * This property stores the method, which is called when user changes the selection.
@@ -357,7 +371,12 @@ export interface DiagramCallbacks {
    */
   onSelectionDidChange: (nodes: string[], edges: string[]) => void;
 
-  // Connections
+}
+
+/**
+ * Callbacks to owner to handle required user actions.
+ */
+export interface DiagramCallbacks extends DiagramNodes, DiagramEdges, DiagramSelection {
 
   /**
    * This property stores the method, which is called when user creates connection inside diagram.

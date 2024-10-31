@@ -6,6 +6,7 @@ import { DiagramContext } from "../diagram-controller";
 import { EdgeToolbarPortal } from "./edge-toolbar-portal";
 import { computePosition } from "./edge-utilities";
 import { EdgeToolbarProps, viewportStoreSelector } from "./edge-toolbar";
+import { Edge } from "../diagram-api";
 
 /**
  * As we can not render edge menu on a single place, like node menu, we
@@ -16,15 +17,15 @@ export function GeneralizationEdgeToolbar({ value }: { value: EdgeToolbarProps |
   const edge = useStore((state: ReactFlowState) => state.edgeLookup.get(value?.edgeIdentifier ?? ""));
   const { x, y, zoom } = useStore(viewportStoreSelector, shallow);
 
-  if (value === null || edge === null || !edge?.selected) {
+  if (value === null || edge?.data === undefined || !edge?.selected) {
     return null;
   }
 
-  const identifier = value.edgeIdentifier;
-  const position = computePosition(value.x, value.y, { x, y, zoom });
+  const data = edge.data as Edge;
+  const onDetail = () => context?.callbacks().onShowEdgeDetail(data);
+  const onDelete = () => context?.callbacks().onDeleteEdge(data);
 
-  const onDetail = () => context?.callbacks().onShowEdgeDetail(identifier);
-  const onDelete = () => context?.callbacks().onDeleteEdge(identifier);
+  const position = computePosition(value.x, value.y, { x, y, zoom });
 
   return (
     <>
