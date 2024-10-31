@@ -276,7 +276,7 @@ const EntityDetailDialog = (props: DialogProps<EntityDetailState>) => {
                             detailDialogLanguage={language}
                             resource={proxy.domain.entity}
                             // it ain't null
-                            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                             
                             onClick={() => handleResourceClickThroughClicked(proxy.domain.entity!)}
                             withCardinality={proxy.domain.cardinality}
                         />
@@ -288,7 +288,7 @@ const EntityDetailDialog = (props: DialogProps<EntityDetailState>) => {
                             resource={proxy.range.entity}
                             detailDialogLanguage={language}
                             // it ain't null
-                            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                             
                             onClick={() => handleResourceClickThroughClicked(proxy.range.entity!)}
                             withCardinality={proxy.range.cardinality}
                         />

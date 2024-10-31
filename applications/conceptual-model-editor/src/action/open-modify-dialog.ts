@@ -235,7 +235,7 @@ const addValueToChangesWhenValueHasChanged = <T,>(
   if (next.hasChanged) {
     // We could setter function instead, alternatively we should refactor
     // the caller function to deal with this instead.
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+     
     changes[name] = next.value;
   }
 };

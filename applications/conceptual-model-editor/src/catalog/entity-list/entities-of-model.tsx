@@ -145,7 +145,7 @@ export const EntitiesOfModel = (props: {
             setVisible([]);
             unsubscribe();
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [activeVisualModel, model]);
 
     /**

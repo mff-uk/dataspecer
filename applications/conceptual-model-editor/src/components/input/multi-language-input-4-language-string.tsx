@@ -99,7 +99,7 @@ export const MultiLanguageInputForLanguageString = (props: {
     // For example when user deleted language it will change it to next one.
     useEffect(() => {
         if (!languages.includes(currentLang) && languages.length > 0) {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+             
             setCurrentLang(languages.at(0)!);
             onChange?.();
         }

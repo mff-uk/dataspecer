@@ -117,7 +117,7 @@ const Page = () => {
                 aggregatorView);
         };
         return aggregatorView?.subscribeToChanges(callback);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [aggregatorView]);
 
     return (

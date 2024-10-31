@@ -143,7 +143,7 @@ export const t = (text: string, ...args: unknown[]) : string => {
     logger.missingTranslation(text);
     return "MISSING: " + text;
   } else  if (result instanceof Function) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+     
     return result(...args);
   } else {
     return result;

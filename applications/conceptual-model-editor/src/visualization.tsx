@@ -252,7 +252,7 @@ export const Visualization = () => {
             unsubscribeSemanticAggregatorCallback?.();
             unsubscribeCanvasCallback?.();
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [options, activeVisualModel, actions, aggregatorView, classesContext, graph]);
 
     // Update canvas content on view change.

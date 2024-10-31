@@ -460,8 +460,8 @@ const nouns = [
 ];
 
 export const generateName = () => {
-    const noun = nouns[getRandomInt(0, nouns.length) % nouns.length]!; // eslint-disable-line  @typescript-eslint/no-non-null-assertion
-    const adj = adjectives[getRandomInt(0, adjectives.length) % adjectives.length]!; // eslint-disable-line  @typescript-eslint/no-non-null-assertion
+    const noun = nouns[getRandomInt(0, nouns.length) % nouns.length]!;  
+    const adj = adjectives[getRandomInt(0, adjectives.length) % adjectives.length]!;  
     const name = capFirst(adj) + " " + capFirst(noun);
     return name;
 };

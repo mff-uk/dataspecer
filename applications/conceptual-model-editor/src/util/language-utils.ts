@@ -45,7 +45,7 @@ export const getStringFromLanguageStringInLang = (
     const languages = getAvailableLanguagesForLanguageString(languageString);
     const anyLanguage = languages.at(0);
     if (anyLanguage) {
-        const value = languageString[anyLanguage]!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
+        const value = languageString[anyLanguage]!;  
         return [value, anyLanguage] as const;
     }
 

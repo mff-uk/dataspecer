@@ -155,14 +155,14 @@ const handleSaveRelationshipProfile = (
     ends: ends,
   });
 
-  const visualModel = graph.aggregatorView.getActiveVisualModel();
-  if (relationshipUsageId && isWritableVisualModel(visualModel)) {
-    visualModel.addVisualRelationship({
-      model: state.model.getId(),
-      representedRelationship: relationshipUsageId,
-      waypoints: [],
-    });
-  }
+  // TODO Add profile to the canvas.
+  // const visualModel = graph.aggregatorView.getActiveVisualModel();
+  // if (relationshipUsageId && isWritableVisualModel(visualModel)) {
+  //   visualModel.addVisualRelationship({
+  //     model: state.model.getId(),
+  //     representedRelationship: relationshipUsageId,
+  //     waypoints: [],
+  //   });
+  // }
 
 };
-

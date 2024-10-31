@@ -21,12 +21,12 @@ export const modelsToWorkspaceString = (
     for (const [_, model] of models) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        modelDescriptors.push(model.serializeModel()); // eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument
+        modelDescriptors.push(model.serializeModel());  
     }
     for (const [_, visualModel] of visualModels) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        modelDescriptors.push(visualModel.serializeModel()); // eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument
+        modelDescriptors.push(visualModel.serializeModel());  
     }
 
     const ws = {

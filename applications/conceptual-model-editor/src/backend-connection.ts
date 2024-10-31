@@ -7,8 +7,8 @@ import type { VisualModel } from "@dataspecer/core-v2/visual-model";
 
 export const useBackendConnection = () => {
     // should fail already when spinning up the next app
-    const service = useMemo(() => new BackendPackageService(import.meta.env.VITE_PUBLIC_APP_BACKEND!, httpFetch), []); // eslint-disable-line @typescript-eslint/no-non-null-assertion
-    const backendPackageRootUrl = useMemo(() => import.meta.env.VITE_PUBLIC_APP_BACKEND_PACKAGE_ROOT!, []); // eslint-disable-line @typescript-eslint/no-non-null-assertion
+    const service = useMemo(() => new BackendPackageService(import.meta.env.VITE_PUBLIC_APP_BACKEND!, httpFetch), []);  
+    const backendPackageRootUrl = useMemo(() => import.meta.env.VITE_PUBLIC_APP_BACKEND_PACKAGE_ROOT!, []);  
 
     const getPackageFromBackend = async (packageId: string) => {
         return service.getPackage(packageId);

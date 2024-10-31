@@ -11,7 +11,7 @@ export interface DialogApiContextType {
   /**
    * Request new dialog to be open.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+   
   openDialog: (dialog: DialogWrapper<any>) => void;
 
   /**
@@ -114,9 +114,9 @@ export const createDialogRendererContext = <S>(state: State, setState: React.Dis
       }
       if (typeof next === "function") {
         // Little help for TypeScript here.
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+         
         const setter: (prevState: S) => S = next as any;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+         
         dialog = {...dialog, state: setter(dialog.state)};
       } else {
         dialog = {...dialog, state: next};
@@ -144,9 +144,9 @@ export const createDialogRendererContext = <S>(state: State, setState: React.Dis
     canConfirm: dialog.validate?.(dialog.state) ?? true,
     confirmLabel: dialog.confirmLabel,
     closeLabel: dialog.cancelLabel,
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+     
     state: dialog.state,
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+     
     component: dialog.component,
     changeState,
     confirm,

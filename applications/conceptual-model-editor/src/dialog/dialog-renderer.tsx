@@ -40,7 +40,7 @@ function Dialog({ reference, context }: {
       <h1 className="text-xl">{t(context.label)}</h1>
       <hr className="my-2" />
       <div>
-        {/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */}
+        { }
         <Component state={context.state} changeState={context.changeState} close={context.close} />
       </div>
       <div className="mt-auto flex flex-row justify-evenly font-semibold">
