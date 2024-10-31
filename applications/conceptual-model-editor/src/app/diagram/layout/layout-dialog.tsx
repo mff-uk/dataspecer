@@ -220,7 +220,7 @@ export const useConfigDialog = () => {
                 <label htmlFor={`${props.stateField}-main-alg-direction`}>Preferovaný směr hran: </label>
             </div>
             <div className="flex flex-row">
-                <LayeredAlgorithmDirectionDropdown direction={config?.[props.stateField]?.["elk_layered"]?.["alg_direction"] ?? DIRECTION.DOWN} setDirection={(newDirection) => {
+                <LayeredAlgorithmDirectionDropdown direction={config?.[props.stateField]?.["elk_layered"]?.["alg_direction"] ?? DIRECTION.DOWN} setDirection={(newDirection: DIRECTION) => {
                             setConfigWithNewValue("elk_layered", props.stateField, "alg_direction", newDirection);
                             }}></LayeredAlgorithmDirectionDropdown>
             </div>

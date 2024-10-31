@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import "./dropdown-styling.css";
 import TreeIcon, { DIRECTION_STRING } from "./TreeIcon";
 import { DIRECTION } from "@dataspecer/layout";
