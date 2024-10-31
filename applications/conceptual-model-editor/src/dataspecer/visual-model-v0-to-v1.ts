@@ -1,10 +1,11 @@
 import { EntityModel } from "@dataspecer/core-v2";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { isVisualNode, isVisualRelationship, VisualEntity, VisualNode, VisualRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isVisualNode, isVisualRelationship, VisualNode, VisualRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { findSourceModelOfEntity } from "../service/model-service";
+import { getDomainAndRange } from "../service/relationship-service";
 
 /**
  * Given visual model in version 0 performs migration to version 1
@@ -15,6 +16,7 @@ export function migrateVisualModelFromV0(
   entities: Record<string, AggregatedEntityWrapper>,
   visualModel: WritableVisualModel,
 ) {
+  console.log("Running migration of visual model version 0 to version 1.")
   for (const entity of visualModel.getVisualEntities().values()) {
     if (isVisualNode(entity)) {
       migrateVisualNode(entities, models, visualModel, entity);
@@ -22,7 +24,6 @@ export function migrateVisualModelFromV0(
       migrateVisualRelationship(entities, models, visualModel, entity);
     }
   }
-
   removeUnusedModelData(models, visualModel);
 }
 
@@ -65,6 +66,8 @@ function migrateVisualNode(
         entity: representedEntity.id,
         model: representedModel.getId(),
         waypoints: [],
+        visualSource: entity.identifier,
+        visualTarget: usageVisual.identifier,
       });
     }
   } else {
@@ -110,9 +113,45 @@ function migrateVisualRelationship(
     return;
   }
 
-  // We add new information that was missing in the previous model version.
-  visualModel.updateVisualEntity(
-    entity.identifier, { model: representedModel.getId() });
+  // We need to find ends of the relationship in the visual model.
+  if (isSemanticModelRelationship(representedEntity) || isSemanticModelRelationshipUsage(representedEntity)) {
+    const { domain, range } = getDomainAndRange(representedEntity);
+    if (domain === null || domain.concept === null || range === null || range.concept === null) {
+      // Invalid entity.
+      visualModel.deleteVisualEntity(entity.identifier);
+      return;
+    }
+    const visualSource = visualModel.getVisualEntityForRepresented(domain.concept);
+    const visualTarget = visualModel.getVisualEntityForRepresented(range.concept);
+    if (visualSource === null || visualTarget === null) {
+      // Ends are not in the visual model.
+      visualModel.deleteVisualEntity(entity.identifier);
+      return;
+    }
+    // We add new information that was missing in the previous model version.
+    visualModel.updateVisualEntity(entity.identifier, {
+      model: representedModel.getId(),
+      visualSource: visualSource.identifier,
+      visualTarget: visualTarget.identifier,
+    });
+  } else if (isSemanticModelGeneralization(representedEntity)) {
+    const visualSource = visualModel.getVisualEntityForRepresented(representedEntity.child);
+    const visualTarget = visualModel.getVisualEntityForRepresented(representedEntity.parent);
+    if (visualSource === null || visualTarget === null) {
+      // Ends are not in the visual model.
+      visualModel.deleteVisualEntity(entity.identifier);
+      return;
+    }
+    // We add new information that was missing in the previous model version.
+    visualModel.updateVisualEntity(entity.identifier, {
+      model: representedModel.getId(),
+      visualSource: visualSource.identifier,
+      visualTarget: visualTarget.identifier,
+    });
+  } else {
+    // Unknown type of visual relation in this version.
+    visualModel.deleteVisualEntity(entity.identifier);
+  }
 }
 
 /**

@@ -1,8 +1,18 @@
-import { isWritableVisualModel, type VisualModel } from "@dataspecer/core-v2/visual-model";
-import type { ModelGraphContextType, UseModelGraphContextType } from "../context/model-context";
+import { isWritableVisualModel, WritableVisualModel, type VisualModel } from "@dataspecer/core-v2/visual-model";
+import type { ModelGraphContextType } from "../context/model-context";
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { isSemanticModelGeneralization, isSemanticModelRelationship, type SemanticModelGeneralization, type SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelRelationshipUsage, type SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+  isSemanticModelGeneralization,
+  isSemanticModelRelationship,
+  type SemanticModelGeneralization,
+  type SemanticModelRelationship,
+} from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+  isSemanticModelClassUsage,
+  isSemanticModelRelationshipUsage,
+  SemanticModelClassUsage,
+  type SemanticModelRelationshipUsage,
+} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { addRelationToVisualModelAction } from "./add-relation-to-visual-model";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { getDomainAndRange } from "../service/relationship-service";
@@ -48,14 +58,16 @@ export function addNodeToVisualModelAction(
   });
   // We need to add all relations.
   const models = graph.models;
-  const entities = Object.values(graph.aggregatorView.getEntities());
-  addRelationships(notifications, graph, visualModel, identifier, entities, models);
+  const entities = graph.aggregatorView.getEntities();
+  addRelationships(
+    notifications, graph, visualModel, identifier,
+    Object.values(entities), models);
 }
 
 function addRelationships(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
-  visualModel: VisualModel,
+  visualModel: WritableVisualModel,
   identifier: string,
   entities: AggregatedEntityWrapper[],
   models: Map<string, EntityModel>,
@@ -80,6 +92,11 @@ function addRelationships(
         addRelationToVisualModelAction(notifications, graph, model.getId(), entity.id);
       }
     }
+    if (isSemanticModelClassUsage(entity)) {
+      if (shouldAddProfile(visualModel, identifier, entity)) {
+        addProfileRelationToVisualModelAction(visualModel, model.getId(), entity.id, entity.usageOf);
+      }
+    }
   }
 }
 
@@ -102,7 +119,7 @@ function shouldAddRelationship(
   identifier: string,
   entity: SemanticModelRelationship | SemanticModelRelationshipUsage,
 ): boolean {
-  const {domain, range} = getDomainAndRange(entity);
+  const { domain, range } = getDomainAndRange(entity);
   if (domain?.concept === identifier) {
     const other = range?.concept ?? null;
     return other !== null && visualModel.getVisualEntityForRepresented(other) !== null;
@@ -112,4 +129,45 @@ function shouldAddRelationship(
   } else {
     return false;
   }
+}
+
+function shouldAddProfile(
+  visualModel: VisualModel,
+  identifier: string,
+  entity: SemanticModelClassUsage,
+): boolean {
+  if (entity.id === identifier) {
+    // The entity we are adding is a class usage, we need
+    // to check for existence of the profiled class.
+    return visualModel.getVisualEntityForRepresented(entity.usageOf) !== null;
+  } else {
+    // Other entity may be specializing our entity.
+    if (entity.usageOf === identifier) {
+      // We return true if the other is in the visual model.
+      return visualModel.getVisualEntityForRepresented(entity.id) !== null;
+    }
+  }
+  return false;
+}
+
+export function addProfileRelationToVisualModelAction(
+  visualModel: WritableVisualModel,
+  modelIdentifier: string,
+  identifier: string,
+  profileOfIdentifier: string,
+) {
+  const visualSource = visualModel.getVisualEntityForRepresented(identifier);
+  const visualTarget = visualModel.getVisualEntityForRepresented(profileOfIdentifier);
+  if (visualSource === null || visualTarget === null) {
+    console.warn("Ignored request to add profile, but ends are missing in visual model.",
+      {visualModel, source: identifier, target: profileOfIdentifier});
+    return;
+  }
+  visualModel.addVisualProfileRelationship({
+    model: modelIdentifier,
+    entity: identifier,
+    waypoints: [],
+    visualSource: visualSource.identifier,
+    visualTarget: visualTarget.identifier,
+  });
 }
