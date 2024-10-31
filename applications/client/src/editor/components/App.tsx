@@ -19,7 +19,6 @@ import {useResource} from "@dataspecer/federated-observable-store-react/use-reso
 import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import {SettingsMenu} from "./settings/settings-menu";
 import {SettingsContext, useApplicationSettings} from "./settings/settings";
-import {Link} from "react-router-dom";
 import {Help} from "../../components/help";
 
 // @ts-ignore default value
@@ -130,8 +129,7 @@ const App: React.FC = () => {
                                   variant="contained"
                                   startIcon={<ArrowBackIcon />}
                                   sx={{mx: 3}}
-                                  component={Link}
-                                  to={dataSpecificationIri ? process.env.REACT_APP_MANAGER_BASE_URL + `/specification?dataSpecificationIri=${encodeURIComponent(dataSpecificationIri)}` : "/"}
+                                  href={dataSpecificationIri ? process.env.REACT_APP_MANAGER_BASE_URL + `specification?dataSpecificationIri=${encodeURIComponent(dataSpecificationIri)}` : "/"}
                                 >
                                     {t("back to specification manager")}
                                 </Button>

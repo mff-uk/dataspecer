@@ -64,6 +64,7 @@ export const DataStructureBox: React.FC<DataStructureRowProps>
                 textOverflow: "ellipsis",
             }}>
                 {selectLanguage(resource?.dataPsmHumanLabel ?? {}, ["en"]) ?? dataStructureIri}
+                {resource?.dataPsmTechnicalLabel && <span style={{fontFamily: "monospace", fontSize: ".8rem", marginLeft: ".5rem"}}>({resource.dataPsmTechnicalLabel})</span>}
             </Typography>
             <Typography sx={{ mb: 1.5 }} color="text.secondary">
                 {t("data structure")}

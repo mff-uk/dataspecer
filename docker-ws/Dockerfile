@@ -1,4 +1,4 @@
-FROM node:22.3.0-alpine AS builder
+FROM node:22.3.0 AS builder
 WORKDIR /usr/src/app
 
 COPY applications/ applications/
@@ -14,11 +14,10 @@ RUN --mount=type=cache,target=/root/.npm \
     sh ./cloudflare.build.sh
 
 # Final stage
-FROM node:22.3.0-alpine3.20 AS node
-FROM nginx:1.27.1-alpine3.20 AS nginx
+FROM node:22.3.0 AS node
+FROM nginx:1.27.1 AS nginx
 
-# Install bash to run multiple commands at once
-RUN apk add --no-cache bash sudo
+RUN apt-get update && apt-get install sudo
 
 WORKDIR /usr/src/app
 

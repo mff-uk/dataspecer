@@ -38,11 +38,11 @@
     "@dataspecer/sgov-adapter": "*",
     "handlebars": "^4.7.8",
     "handlebars-async-helpers": "^1.0.6",
-    "n3": "^1.17.1"
+    "n3": "~1.17.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
-    "@types/n3": "^1.16.3",
+    "@types/n3": "~1.16.0",
     "jest": "^29.5.0",
     "rimraf": "^5.0.1",
     "ts-jest": "^29.1.2",

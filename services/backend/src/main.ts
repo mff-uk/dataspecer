@@ -21,6 +21,9 @@ import { getDocumentation, getLightweightOwl, getSingleFile, getZip, getlightwei
 import { generate } from './routes/generate';
 import { importResource } from './routes/import';
 import { migratePR419 } from './tools/migrate-pr419';
+import { getGenerateApplicationByModelId, getGeneratedApplication } from './routes/genapp';
+import { Migrate } from './migrations/migrate';
+import { getSystemData } from './routes/system';
 
 // Create application models
 
@@ -28,13 +31,14 @@ export const storeModel = new LocalStoreModel("./database/stores");
 export const prismaClient = new PrismaClient();
 export const resourceModel = new ResourceModel(storeModel, prismaClient);
 export const dataSpecificationModel = new DataSpecificationModelAdapted(storeModel, "https://ofn.gov.cz/data-specification/{}", resourceModel);
+const migration = new Migrate(prismaClient);
 
 let basename = new URL(configuration.host).pathname;
 if (basename.endsWith('/')) {
     basename = basename.slice(0, -1);
 }
 if (process.env.BASENAME_OVERRIDE !== undefined) {
-    basename = process.env.BASENAME_OVERRIDE;
+    basename = process.env.BASENAME_OVERRIDE as string;
 }
 
 // Run express
@@ -116,8 +120,20 @@ application.get(basename + '/experimental/documentation.html', getDocumentation)
 application.get(basename + '/generate', generate);
 application.get(basename + '/experimental/output.zip', getZip);
 application.get(basename + '/preview/*', getSingleFile);
+application.get(basename + '/generate/application', getGenerateApplicationByModelId)
+
+// Generate application
+
+application.post(basename + "/generate-app", getGeneratedApplication);
+
+// System routes
+
+application.get(basename + '/system/data', getSystemData); // Downloads database directory as ZIP file
 
 (async () => {
+    // Run migrations or throw
+    await migration.tryUp();
+
     // Command-line arguments
     if (process.argv.length > 2) {
         // Some command line arguments are present
@@ -139,7 +155,7 @@ application.get(basename + '/preview/*', getSingleFile);
             console.log("There is no root package for data specifications from v1 dataspecer. Creating one...");
             await resourceModel.createPackage(null, configuration.v1RootIri, configuration.v1RootMetadata);
         }
-    
+
         application.listen(Number(configuration.port), () => {
             console.log(`Server is listening on port ${Number(configuration.port)}.`);
             console.log(`Try ${configuration.host}/data-specification for a list of data specifications. (should return "[]" for new instances)`);

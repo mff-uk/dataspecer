@@ -1,7 +1,7 @@
 import { SourceCodeWriter, SourceCodeLanguageIdentifier } from "../writers/source-code-writer-model";
 import { TypescriptWriter } from "../writers/typescript-writer";
 
-export function tryGetKnownDictionaryPrefix(iri: string) {
+function tryGetKnownDictionaryPrefix(iri: string) {
     const knownPrefixes: { [key: string]: string } = {
         "http://dbpedia.org/ontology/": "dbo",
         "http://purl.org/dc/elements/1.1/": "dc",
@@ -28,7 +28,7 @@ export function tryGetKnownDictionaryPrefix(iri: string) {
 
         const knownPrefix: string = knownPrefixes[matches[0]] as string;
         const commonIri: string = iri.replace(matches[0], "");
-        
+
         return [knownPrefix, commonIri];
     }
 
@@ -49,12 +49,15 @@ export function getSupportedWriter(sourceCodeLanguageIdentifier: SourceCodeLangu
 }
 
 export function convertToPascalCase(initialName: string): string {
-    return initialName
-        .split(" ")
-        .map(word => {
-            return `${word.charAt(0).toUpperCase()}${word.substring(1).toLowerCase()}`;
-        })
-        .join("");
+    const result = initialName
+        .replaceAll("-", " ")
+        .replace(
+            /(\w)(\w*)/g,
+            (_, g1, g2) => g1.toUpperCase() + g2.toLowerCase()
+        )
+        .replaceAll(" ", "");
+
+    return result;
 }
 
 export function convertToKebabCase(initialName: string): string {

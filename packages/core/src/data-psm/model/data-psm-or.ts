@@ -1,6 +1,6 @@
 import {CoreResource} from "../../core";
-import {ExtendableCoreResource} from "./extendable-core-resource";
 import * as PSM from "../data-psm-vocabulary";
+import { DataPsmResource } from "./data-psm-resource";
 /**
  * Represents PSM OR construct that select one entity from the given set of
  * entities. So far, this OR is "specialization or", meaning that we can derive
@@ -8,7 +8,7 @@ import * as PSM from "../data-psm-vocabulary";
  * be linked to {@link DataPsmAssociationEnd} that requires specialization of
  * the corresponding class type, hence this or may be used.
  */
-export class DataPsmOr extends ExtendableCoreResource {
+export class DataPsmOr extends DataPsmResource {
   private static readonly TYPE = PSM.OR;
 
   /**

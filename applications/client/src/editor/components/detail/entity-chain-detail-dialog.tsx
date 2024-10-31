@@ -18,6 +18,7 @@ import {DataPsmAssociationEndCard} from "./components/data-psm-association-end-c
 import {DataPsmAttributeCard} from "./components/data-psm-attribute-card";
 import {ResourceInStore} from "./components/resource-in-store";
 import {DataPsmSchemaCard} from "./components/data-psm-schema-card";
+import { DataPsmOrCard } from "./components/data-psm-or-card";
 
 /**
  * Detail and edit dialog for a chain of entities, usually from a single line of
@@ -87,6 +88,8 @@ const ContentItem: FC<{iri: string, onClose: () => void}> = (props) => {
         return <DataPsmAssociationEndCard {...props} />;
     } else if (DataPsmSchema.is(resource)) {
         return <DataPsmSchemaCard {...props} />;
+    } else if (DataPsmOr.is(resource)) {
+        return <DataPsmOrCard {...props} />;
     } else {
         return <ContentUnknownItem {...props} />;
     }

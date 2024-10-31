@@ -129,7 +129,11 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
         // @ts-ignore
         cls.pimClass = mergedConceptualModel.classes[cls.pimIri];
         // @ts-ignore
-        cls.inThisSchema = !((cls.structureSchema !== structureModel.psmIri) || cls.isReferenced);
+        cls.isSimpleClass = cls.properties.length === 0;
+        // @ts-ignore
+        cls.inThisSchema = (cls.structureSchema === structureModel.psmIri);
+        // @ts-ignore
+        cls.isFromExternalSchema = cls.structureSchema !== structureModel.psmIri && cls.isReferenced;
         cls.properties.forEach(prop => {
           // @ts-ignore
           prop.pimAssociation = conceptualModelProperties[prop.pimIri];
@@ -157,7 +161,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
         structureModel,
         jsonSchema,
         configuration,
-        classes: await structureModel.getClasses(),
+        classes: await structureModel.getClasses().filter(cls => cls.properties.length !== 0),
         structureModelLinkId: function() {
           function normalizeLabel(label: string) {
             return label.replace(/ /g, "-").toLowerCase();
@@ -172,6 +176,16 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
             //const label = this.humanLabel?.cs ?? this.humanLabel?.en ?? "";
             return `json-schéma-vlastnost-${normalizeLabel(objLabel)}-${normalizeLabel(this.technicalLabel)}`;
           }
+        },
+        /**
+         * Creates a link to a documentation for a given PSM schema.
+         */
+        classSpecificationArtifact: function() {
+          const artefact = context.specifications[this.specification].artefacts.find(a => a.generator === "https://schemas.dataspecer.com/generator/template-artifact");
+          return {
+            link: pathRelative(documentationArtefact.publicUrl, artefact.publicUrl),
+            semanticModel: context.conceptualModels[context.specifications[this.specification].pim],
+          };
         },
         useTemplate: () => (template, render) => {
           if (template.trim() !== "") {
@@ -213,7 +227,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
     {{#cardinalityIsRequired}}povinná{{/cardinalityIsRequired}}
     {{^cardinalityIsRequired}}nepovinná{{/cardinalityIsRequired}}
     ({{cardinalityRange}}) položka typu {{#dataTypes}}
-      {{#isAssociation}}<strong><a href="{{#dataType}}#{{structureModelLinkId}}{{/dataType}}">{{#dataType.humanLabel}}{{translate}}{{/dataType.humanLabel}}</a></strong>{{/isAssociation}}
+      {{#isAssociation}}{{#dataType}}{{#isSimpleClass}}<strong>IRI (<a href="#{{#pimClass}}{{semanticModelLinkId}}{{/pimClass}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>)</strong>{{/isSimpleClass}}{{^isSimpleClass}}<strong><a href="#{{structureModelLinkId}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a></strong>{{/isSimpleClass}}{{/dataType}}{{/isAssociation}}
       {{#isAttribute}} {{#dataType}}<a href="{{{.}}}">{{#.}}{{#getLabelForDataType}}{{translate}}{{/getLabelForDataType}}{{/.}}</a>{{#regex}} dle regulárního výrazu <code>{{{.}}}</code>{{/regex}}{{/dataType}}{{^dataType}}bez datového typu{{/dataType}}{{/isAttribute}}
     {{/dataTypes}}
 </li>
@@ -261,9 +275,18 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
 {{#dataTypes}}
 
 {{#isAssociation}}
+{{#dataType}}
+{{#isSimpleClass}}
+<dd>
+  IRI (<a href="#{{#pimClass}}{{semanticModelLinkId}}{{/pimClass}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>)
+</dd>
+{{/isSimpleClass}}
+{{^isSimpleClass}}
 <dd>
   <a href="{{externalDocumentation}}#{{#dataType}}{{structureModelLinkId}}{{/dataType}}">{{#dataType.humanLabel}}{{translate}}{{/dataType.humanLabel}}</a>
 </dd>
+{{/isSimpleClass}}
+{{/dataType}}
 {{/isAssociation}}
 
 {{#isAttribute}}
@@ -296,6 +319,30 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
 
 </section>
 {{/inThisSchema}}{{/classes}}
+
+{{#classes}}{{#isFromExternalSchema}}
+<section id="{{structureModelLinkId}}">
+<h4>Referencovaný objekt <i>{{#humanLabel}}{{translate}}{{/humanLabel}}</i></h4>
+<dl>
+{{#humanDescription}}{{#translate}}
+<dt>Popis</dt>
+<dd>{{.}}</dd>
+{{/translate}}{{/humanDescription}}
+<dt>Interpretace</dt>
+{{#pimClass}}
+<dd>
+  <a href="#{{semanticModelLinkId}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>
+</dd>
+{{/pimClass}}
+{{#classSpecificationArtifact}}
+<dt>Schéma</dt>
+<dd>
+  Schéma je definováno v  <a href="{{link}}">{{#semanticModel}}{{#humanLabel}}{{translate}}{{/humanLabel}}{{/semanticModel}}</a>.
+</dd>
+{{/classSpecificationArtifact}}
+</dl>
+</section>
+{{/isFromExternalSchema}}{{/classes}}
 </section>`);
             }
 

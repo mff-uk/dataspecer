@@ -56,6 +56,8 @@ class StructureModelAdapter {
           throw new Error(`Unsupported PSM entity '${iri}' in DataPsmOr.`);
         }
         root.classes.push(await this.loadClass(choice));
+        root.orTechnicalLabel = entity.dataPsmTechnicalLabel;
+        root.isInOr = true;
       }
     } else if (DataPsmClass.is(entity)) {
       root.classes.push(await this.loadClass(entity));
@@ -88,7 +90,8 @@ class StructureModelAdapter {
       if (DataPsmClass.is(part)) {
         model.extends.push(await this.loadClass(part));
       } else if (DataPsmClassReference.is(part)) {
-        model.extends.push(await this.loadClassReference(part));
+        const [types, label] = await this.loadClassReference(part);
+        model.extends.push(...types);
       } else {
         throw new Error(`Unsupported PSM class extends entity '${iri}'.`);
       }
@@ -105,7 +108,7 @@ class StructureModelAdapter {
         if (DataPsmClass.is(includedClass)) {
           model.extends.push(await this.loadClass(includedClass));
         } else if (DataPsmClassReference.is(includedClass)) {
-          model.extends.push(await this.loadClassReference(includedClass));
+          model.extends.push(...await this.loadClassReference(includedClass)[0]);
         } else {
           throw new Error(`Unsupported PSM included entity '${iri}'.`);
         }
@@ -130,7 +133,7 @@ class StructureModelAdapter {
 
   private async loadClassReference(
     classReferenceData: DataPsmClassReference
-  ): Promise<StructureModelClass> {
+  ): Promise<[StructureModelClass[], string | null | undefined]> {
     const part = await this.reader.readResource(
       classReferenceData.dataPsmClass
     );
@@ -142,10 +145,24 @@ class StructureModelAdapter {
     );
     if (DataPsmClass.is(part)) {
       const model = await adapter.loadClass(part);
-      return {...model, isReferenced: true};
+      const copiedModel = Object.assign(Object.create(Object.getPrototypeOf(model)), model);
+      copiedModel.isReferenced = true;
+      return [[copiedModel], undefined];
     } else if (DataPsmExternalRoot.is(part)) {
       const model = await adapter.loadExternalRoot(part);
-      return {...model, isReferenced: true};
+      const copiedModel = Object.assign(Object.create(Object.getPrototypeOf(model)), model);
+      copiedModel.isReferenced = true;
+      return [[copiedModel], undefined];
+    } else if (DataPsmOr.is(part)) { // todo this needs to be fixed
+      const references = [];
+      for (const p of part.dataPsmChoices) {
+        const orPart = await this.reader.readResource(p) as DataPsmClass;
+        const model = await adapter.loadClass(orPart);
+        const copiedModel = Object.assign(Object.create(Object.getPrototypeOf(model)), model);
+        copiedModel.isReferenced = true;
+        references.push(copiedModel);
+      }
+      return [references, part.dataPsmTechnicalLabel];
     } else {
       throw new Error(
         `Invalid class reference '${classReferenceData.iri}' target.`
@@ -153,19 +170,27 @@ class StructureModelAdapter {
     }
   }
 
+  /**
+   * Due to bad design of the structure model, the second element of the tuple
+   * contains technical label of the OR. If there is no OR, the value is undefined.
+   * If the OR is unnamed, the value is null.
+   */
   private async loadComplexType(
     complexTypeData: DataPsmClass | DataPsmClassReference
-  ): Promise<StructureModelComplexType> {
-    let loadedClass: StructureModelClass;
+  ): Promise<[StructureModelComplexType[], string | null | undefined]> {
+    let loadedClass: StructureModelClass[] = [];
+    let label: string = undefined;
     if (DataPsmClass.is(complexTypeData)) {
-      loadedClass = await this.loadClass(complexTypeData);
+      loadedClass = [await this.loadClass(complexTypeData)];
     } else if (DataPsmClassReference.is(complexTypeData)) {
-      loadedClass = await this.loadClassReference(complexTypeData);
+      [loadedClass, label] = await this.loadClassReference(complexTypeData);
     }
 
-    const type = new StructureModelComplexType();
-    type.dataType = loadedClass;
-    return type;
+    return [loadedClass.map(cls => {
+      const type = new StructureModelComplexType();
+      type.dataType = cls;
+      return type;
+    }), label];
   }
 
   /**
@@ -210,10 +235,15 @@ class StructureModelAdapter {
         if (!DataPsmClass.is(cls) && !DataPsmClassReference.is(cls)) {
           throw new Error(`Unsupported entity in OR ${choice}.`);
         }
-        model.dataTypes.push(await this.loadComplexType(cls));
+        model.dataTypes.push(...(await this.loadComplexType(cls))[0]);
+        model.orTechnicalLabel = part.dataPsmTechnicalLabel;
+        model.isInOr = true;
       }
     } else if (DataPsmClass.is(part) || DataPsmClassReference.is(part)) {
-      model.dataTypes.push(await this.loadComplexType(part));
+      const [types, label] = await this.loadComplexType(part); // It might be a class or it might be a reference (to or for example)
+      model.dataTypes.push(...types);
+      model.orTechnicalLabel = label;
+      model.isInOr = label !== undefined;
     } else {
       throw new Error(`Unsupported association end '${associationEndData.iri}'.`);
     }

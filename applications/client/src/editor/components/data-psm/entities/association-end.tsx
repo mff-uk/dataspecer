@@ -1,7 +1,7 @@
 import React, {memo, useMemo} from "react";
 import {Span, sxStyles} from "../styles";
-import {DataPsmAssociationEnd} from "@dataspecer/core/data-psm/model";
-import {PimAssociationEnd} from "@dataspecer/core/pim/model";
+import {DataPsmAssociationEnd, DataPsmClass} from "@dataspecer/core/data-psm/model";
+import {PimAssociationEnd, PimClass} from "@dataspecer/core/pim/model";
 import {useTranslation} from "react-i18next";
 import {DataPsmGetLabelAndDescription} from "../common/DataPsmGetLabelAndDescription";
 import {RowSlots} from "../base-row";
@@ -38,7 +38,9 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots> = mem
   const {resource: pimAssociation} = usePimAssociationFromPimAssociationEnd(pimAssociationEnd?.iri ?? null);
   const isBackwardsAssociation = useMemo(() => pimAssociation && pimAssociation.pimEnd[0] === pimAssociationEnd?.iri, [pimAssociation, pimAssociationEnd]);
 
-  const isCodelist = false;
+  const {pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmAssociationEnd?.dataPsmPart);
+  
+  const isCodelist = pimClass?.pimIsCodelist ?? false;
 
   const associationPointsToIri = dataPsmAssociationEnd?.dataPsmPart ?? null;
 

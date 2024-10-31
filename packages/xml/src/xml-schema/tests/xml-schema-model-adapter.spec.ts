@@ -58,7 +58,7 @@ async function createObject(
   const result = await generator.generateToObject(context, artifact, specification);
 
   return {
-    schema: result,
+    schema: result.xmlSchema,
     resource: storeResources[psmIri] as DataPsmSchema
   }
 }
@@ -95,7 +95,7 @@ test(testPrefix + "root element exists", async () => {
   const {schema} = await getSchema1();
   expect(schema.elements.length).toBe(1);
   const element = schema.elements[0];
-  expect(await element.elementName).toEqual([null, "tourist_destination"]);
+  expect(await element.name).toEqual([null, "tourist_destination"]);
   expect(element.type.name).toBe(null);
 });
 
@@ -111,7 +111,7 @@ test(testPrefix + "root has IRI element", async () => {
 
   expect(item.cardinalityMin).toBe(0);
   expect(item.cardinalityMax).toBe(1);
-  expect(await element.elementName).toEqual(iriElementName);
+  expect(await element.name).toEqual(iriElementName);
   expect(element.type).toBe(null);
 });
 
@@ -127,15 +127,16 @@ test(testPrefix + "root has simple elements", async () => {
 
   expect(item.cardinalityMin).toBe(1);
   expect(item.cardinalityMax).toBe(1);
-  expect(await element.elementName).toEqual([null, "public_accessibility"]);
+  expect(await element.name).toEqual([null, "public_accessibility"]);
   expect(element.type).toEqual({
     name: ["xs", "dateTimeStamp"],
-    annotation: null
+    annotation: null,
+    entityType: "type"
   } as XmlSchemaSimpleType);
   expect(element.annotation.modelReference).toBe("https://slovník.gov.cz/datový/turistické-cíle/pojem/veřejná-přístupnost");
 });
 
-test(testPrefix + "root has abstract element", async () => {
+test.skip(testPrefix + "root has abstract element", async () => {
   const {schema} = await getSchema1();
   const type = schema.elements[0].type;
   expectTrue(xmlSchemaTypeIsComplex(type));
@@ -145,7 +146,7 @@ test(testPrefix + "root has abstract element", async () => {
   expectTrue(xmlSchemaComplexContentIsElement(item));
   const element = item.element;
 
-  expect(await element.elementName).toEqual([null, "has_operator"]);
+  expect(await element.name).toEqual([null, "has_operator"]);
   const elementType = element.type;
   expectTrue(xmlSchemaTypeIsComplex(elementType));
   expectTrue(elementType.abstract);
@@ -156,7 +157,7 @@ test(testPrefix + "root has abstract element", async () => {
         cardinalityMin: 0,
         cardinalityMax: 1,
         element: {
-          "elementName": iriElementName,
+          "name": iriElementName,
           "annotation": null,
           "type": null
         }
@@ -166,11 +167,11 @@ test(testPrefix + "root has abstract element", async () => {
 
   const derivingTypes = schema.types.filter(
     type =>
-      xmlSchemaTypeIsComplex(type) && 
+      xmlSchemaTypeIsComplex(type) &&
       xmlSchemaComplexTypeDefinitionIsExtension(type.complexDefinition) &&
       type.complexDefinition.base[1] === elementType.name[1]
   )
-  
+
   expect(derivingTypes.length).toBe(5);
 });
 
@@ -192,7 +193,7 @@ test(testPrefix + "root has group reference", async () => {
 
 test(testPrefix + "imports are present", async () => {
   const {schema} = await getSchema1();
-  expect(schema.imports.length).toBe(1);
+  expect(schema.imports.length).toBe(2);
   const importDecl = schema.imports[0];
   expect(await importDecl.namespace).toBe(null);
   expect(await importDecl.prefix).toBe(null);

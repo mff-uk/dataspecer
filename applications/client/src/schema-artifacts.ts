@@ -196,16 +196,5 @@ export function getSchemaArtifacts(
         artifacts.push(openapi);
     }
 
-    const ldkit = new DataSpecificationSchema();
-    ldkit.iri = `${psmSchemaIri}#LDkit`;
-    ldkit.outputPath = `${basePath}/ldkit-schema.ts`;
-    ldkit.publicUrl = `${baseUrl}/ldkit-schema.ts`;
-    ldkit.generator = "https://schemas.dataspecer.com/generator/LDkit";
-    ldkit.psm = psmSchemaIri;
-    ldkit.configuration = configuration;
-    if ((dataSpecificationConfiguration.useGenerators?.["LDkit"] ?? false) !== false) {
-        artifacts.push(ldkit);
-    }
-
     return artifacts;
 }

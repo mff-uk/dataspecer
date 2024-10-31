@@ -1,0 +1,306 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.dataspecer.com/adapters/application-graph-model.v1.0.schema.json",
+  "title": "Application Graph",
+  "description": "Represents the structure for generator's application graph. Application graph serves as a model of the application to be generated and is a formal representation of user's requirements on the application content.",
+  "type": "object",
+  "required": [
+    "label",
+    "dataSpecification",
+    "datasources",
+    "nodes",
+    "edges"
+  ],
+  "properties": {
+    "label": {
+      "title": "Label",
+      "description": "The label or name of the application graph. Label is a human-readable graph identifier.",
+      "type": "string",
+      "examples": [
+        "Example graph label"
+      ]
+    },
+    "dataSpecification": {
+      "title": "Data Specification",
+      "description": "IRI of a Dataspecer data specification from which the application is to be generated. All IRIs within application graph nodes refer to structural models within the context of this data specification.",
+      "type": "string",
+      "format": "iri",
+      "examples": [
+        "https://ofn.gov.cz/data-specification/<specification UUID>"
+      ]
+    },
+    "nodes": {
+      "title": "Nodes",
+      "description": "Application graph nodes, where each node represents a separate, isolated functional unit of the application, that will be generated.",
+      "type": "array",
+      "items": {
+        "title": "Node",
+        "description": "An application graph node represents a unit of the generated application, i.e. an isolated, functional unit to be generated, through which application users fulfill their needs.",
+        "type": "object",
+        "required": [
+          "iri",
+          "capability",
+          "structure",
+          "label",
+          "config"
+        ],
+        "properties": {
+          "iri": {
+            "title": "IRI",
+            "description": "Unique identification of an application node",
+            "type": "string",
+            "format": "iri",
+            "pattern": "https:\\/\\/example\\.org\\/application_graph\\/nodes\\/[\\d-]+",
+            "examples": [
+              "https://example.org/application_graph/nodes/1"
+            ]
+          },
+          "capability": {
+            "title": "Capability",
+            "description": "IRI of a supported capability to be performed on a data structure model.",
+            "type": "string",
+            "format": "iri",
+            "pattern": "https:\\/\\/dataspecer\\.com\\/application_graph\\/capability\\/((list)|(detail)|(create-instance)|(edit-instance)|(delete-instance))",
+            "examples": [
+              "https://dataspecer.com/application_graph/capability/list"
+            ]
+          },
+          "structure": {
+            "title": "Structure Model",
+            "description": "IRI of a Dataspecer data structure model that this node instance refers to. Represents the subject instance on which a capability will be performed.",
+            "type": "string",
+            "format": "iri",
+            "pattern": "https://ofn.gov.cz/schema/.+",
+            "examples": [
+              "https://ofn.gov.cz/schema/<structure model id>"
+            ]
+          },
+          "label": {
+            "title": "Label",
+            "description": "Custom, user-defined node name. Label is defined as a mapping between language and the label itself.",
+            "type": "object",
+            "required": [
+              "en"
+            ],
+            "properties": {
+              "cs": {
+                "title": "Hodnota v českém jazyce",
+                "type": "string"
+              },
+              "en": {
+                "title": "Hodnota v anglickém jazyce",
+                "type": "string"
+              }
+            }
+          },
+          "config": {
+            "title": "Config",
+            "description": "Custom configuration of a node.",
+            "type": "object",
+            "required": [],
+            "properties": {
+              "starting": {
+                "title": "Starting",
+                "type": "boolean"
+              },
+              "page_title": {
+                "title": "Page Title",
+                "type": "object",
+                "required": [
+                  "en"
+                ],
+                "properties": {
+                  "cs": {
+                    "title": "Hodnota v českém jazyce",
+                    "type": "string"
+                  },
+                  "en": {
+                    "title": "Hodnota v anglickém jazyce",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "edges": {
+      "title": "Edges",
+      "description": "Transitions between different nodes in the graph. Each edge allows the user of the generated application to move from one capability performed on an aggregate to other capability performed on another aggregate.",
+      "type": "array",
+      "items": {
+        "title": "Edge",
+        "description": "An edge represents a transition between the nodes in the graph. An edge allows the user of the generated application to move from one capability performed on an aggregate to other capability performed on another aggregate.",
+        "type": "object",
+        "required": [
+          "iri",
+          "source",
+          "target",
+          "type"
+        ],
+        "properties": {
+          "iri": {
+            "title": "IRI",
+            "description": "Unique identifier of an application edge.",
+            "type": "string",
+            "format": "iri",
+            "pattern": "https:\\/\\/example\\.org\\/application_graph\\/edges\\/[\\d-]+",
+            "examples": [
+              "https://example.org/application_graph/edges/1"
+            ]
+          },
+          "source": {
+            "title": "Source Node",
+            "description": "IRI of the source node - (capability, aggregate) pair, from which the user wants to leave.",
+            "type": "string",
+            "format": "iri",
+            "pattern": "https:\\/\\/example\\.org\\/application_graph\\/nodes\\/[\\d-]+",
+            "examples": [
+              "https://example.org/application_graph/nodes/1"
+            ]
+          },
+          "target": {
+            "title": "Target Node",
+            "description": "IRI of the target node - (capability, aggregate) pair, to which the user wants to arrive.",
+            "type": "string",
+            "format": "iri",
+            "pattern": "https:\\/\\/example\\.org\\/application_graph\\/nodes\\/[\\d-]+",
+            "examples": [
+              "https://example.org/application_graph/nodes/2"
+            ]
+          },
+          "type": {
+            "title": "Edge Type",
+            "description": "A value coming from the enumeration of edge types.",
+            "type": "string",
+            "pattern": "(transition)|(aggregation)|(redirect)",
+            "examples": [
+              "transition"
+            ]
+          }
+        }
+      }
+    },
+    "datasources": {
+      "title": "Datasources",
+      "description": "Data sources to be used. Currently, only first datasource is considered.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "title": "Datasource",
+            "type": "object",
+            "required": [
+              "label",
+              "format"
+            ],
+            "properties": {
+              "label": {
+                "title": "Label",
+                "description": "Name of the datasource.",
+                "type": "string",
+                "examples": [
+                  "Datasource Name"
+                ]
+              },
+              "format": {
+                "title": "Format",
+                "description": "Format enumeration value. One of: \"local\", \"json\", \"rdf\", \"xml\", \"csv\"",
+                "type": "string",
+                "pattern": "(rdf)|(json)|(xml)|(csv)|(local)"
+              }
+            }
+          },
+          {
+            "title": "Datasource",
+            "type": "object",
+            "required": [
+              "label",
+              "format",
+              "endpoint"
+            ],
+            "properties": {
+              "label": {
+                "title": "Label",
+                "description": "Name of the datasource.",
+                "type": "string",
+                "examples": [
+                  "Datasource Name"
+                ]
+              },
+              "format": {
+                "title": "Format",
+                "description": "Format enumeration value. One of: \"local\", \"json\", \"rdf\", \"xml\", \"csv\"",
+                "type": "string",
+                "pattern": "(rdf)|(json)|(xml)|(csv)|(local)"
+              },
+              "endpoint": {
+                "title": "Endpoint URI",
+                "description": "URI of the endpoint which contains data in specified format. This endpoint will be used for both (read and write) operations.",
+                "type": "string",
+                "format": "iri",
+                "examples": [
+                  "http://example.endpoint.com/"
+                ]
+              }
+            }
+          },
+          {
+            "title": "Datasource",
+            "type": "object",
+            "required": [
+              "label",
+              "format",
+              "endpoint"
+            ],
+            "properties": {
+              "label": {
+                "title": "Label",
+                "description": "Name of the datasource.",
+                "type": "string",
+                "examples": [
+                  "Datasource Name"
+                ]
+              },
+              "format": {
+                "title": "Format",
+                "description": "Format enumeration value. One of: \"local\", \"json\", \"rdf\", \"xml\", \"csv\"",
+                "type": "string",
+                "pattern": "(rdf)|(json)|(xml)|(csv)|(local)"
+              },
+              "endpoint": {
+                "title": "read-write URI",
+                "type": "object",
+                "required": [
+                  "read",
+                  "write"
+                ],
+                "properties": {
+                  "read": {
+                    "title": "Read Endpoint URI",
+                    "description": "URI of the endpoint which contains data in specified format. This endpoint will only be used for read operations.",
+                    "type": "string",
+                    "format": "iri",
+                    "examples": [
+                      "http://example.endpoint.com/read"
+                    ]
+                  },
+                  "write": {
+                    "title": "Write Endpoint URI",
+                    "description": "URI of the endpoint which contains data in specified format. This endpoint will only be used for write operations.",
+                    "type": "string",
+                    "format": "iri",
+                    "examples": [
+                      "http://example.endpoint.com/write"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
