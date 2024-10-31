@@ -79,6 +79,9 @@ export const EntityRow = (props: {
                 {name}
             </span>
             <div className="ml-2 flex flex-row px-1 ">
+                {props.targetable?.isTargetable
+                    ? <MoveViewportToEntityButton disabled={!props.isOnCanvas} onClick={props.targetable?.centerViewportOnEntityHandler} />
+                    : null}
                 {expandable && (
                     <ExpandButton
                         onClickHandler={() => {
@@ -103,9 +106,6 @@ export const EntityRow = (props: {
                     />
                 )}
                 <CreateProfileButton onClickHandler={() => openCreateProfileDialog(entity.id)} />
-                {props.targetable?.isTargetable
-                    ? <MoveViewportToEntityButton disabled={!props.isOnCanvas} onClick={props.targetable?.centerViewportOnEntityHandler} />
-                    : null}
             </div>
         </div>
     );
