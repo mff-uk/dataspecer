@@ -45,7 +45,17 @@ export interface VisualNode extends VisualEntity {
 
 }
 
+/**
+ * Used for migration as the model can not be determined from the
+ * visual model alone in version 0.
+ */
 export const UNKNOWN_MODEL = "unknown-model";
+
+/**
+ * Used for migration as the visual entity can not be determined from the
+ * visual model alone in version 0.
+ */
+export const UNKNOWN_ENTITY = "unknown-entity";
 
 export const VISUAL_NODE_TYPE = "visual-node";
 
@@ -87,6 +97,16 @@ export interface VisualRelationship extends VisualEntity {
      */
     waypoints: Waypoint[];
 
+    /**
+     * Source visual entity.
+     */
+    visualSource: EntityIdentifier;
+
+    /**
+     * Target visual entity.
+     */
+    visualTarget: EntityIdentifier;
+
 }
 
 export const VISUAL_RELATIONSHIP_TYPE = "visual-relationship";
@@ -123,6 +143,16 @@ interface VisualNodeRelationship extends VisualEntity {
      * Order of waypoints is defined by the order in the array.
      */
     waypoints: Waypoint[];
+
+    /**
+     * Source visual entity.
+     */
+    visualSource: EntityIdentifier;
+
+    /**
+     * Target visual entity.
+     */
+    visualTarget: EntityIdentifier;
 
 }
 

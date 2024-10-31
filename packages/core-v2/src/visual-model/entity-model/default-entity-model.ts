@@ -104,7 +104,7 @@ class DefaultEntityModel implements DefaultEntityModelType {
         identifier,
       };
       this.entities.set(identifier, newEntity);
-      created.push(newEntity);
+      changed.push(newEntity);
     }
     // Delete.
     const removed: string[] = [];

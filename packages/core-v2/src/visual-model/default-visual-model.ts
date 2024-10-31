@@ -3,6 +3,7 @@ import { LOCAL_VISUAL_MODEL } from "../model/known-models";
 import {
   MODEL_VISUAL_TYPE,
   ModelVisualInformation,
+  UNKNOWN_ENTITY,
   UNKNOWN_MODEL,
   VISUAL_GROUP_TYPE,
   VISUAL_NODE_TYPE,
@@ -316,6 +317,8 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
           representedRelationship: entity.sourceEntityId,
           model: UNKNOWN_MODEL,
           waypoints: [],
+          visualSource: UNKNOWN_ENTITY,
+          visualTarget: UNKNOWN_ENTITY,
         };
         migratedEntities[identifier] = migratedRelationship;
       }
@@ -402,18 +405,23 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
   protected onEntityDidChange(entity: Entity) {
     const previous = this.entities.get(entity.identifier);
     if (isVisualNode(entity)) {
+      this.entities.set(entity.identifier, entity);
       this.notifyObserversOnEntityChangeOrDelete(previous as VisualEntity, entity);
     }
     if (isVisualRelationship(entity)) {
+      this.entities.set(entity.identifier, entity);
       this.notifyObserversOnEntityChangeOrDelete(previous as VisualEntity, entity);
     }
     if (isVisualGroup(entity)) {
+      this.entities.set(entity.identifier, entity);
       this.notifyObserversOnEntityChangeOrDelete(previous as VisualEntity, entity);
     }
     if (isModelVisualInformation(entity)) {
+      this.entities.set(entity.identifier, entity);
       this.notifyObserversOnEntityChangeOrDelete(previous as VisualEntity, entity);
     }
     if (isVisualProfileRelationship(entity)) {
+      this.entities.set(entity.identifier, entity);
       this.notifyObserversOnEntityChangeOrDelete(previous as VisualEntity, entity);
     }
   }
