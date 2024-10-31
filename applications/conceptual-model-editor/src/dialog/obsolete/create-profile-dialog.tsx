@@ -108,7 +108,7 @@ function createCreateProfileState(
     graph: ModelGraphContextType,
     entity: SupportedTypes,
     language: string,
-) : CreateProfileState {
+): CreateProfileState {
     const entityProxy = createEntityProxy(classes, graph, entity);
     const domainAndRange = entityProxy.canHaveDomainAndRange ? temporaryDomainRangeHelper(entity) : null;
     const models = filterInMemoryModels([...graph.models.values()]);
@@ -160,7 +160,7 @@ const getEntityUsageNoteOrEmpty = (entity: SupportedTypes): LanguageString => {
     return isSemanticProfile(entity) ? entity.usageNote ?? {} : {};
 };
 
-function suggestNewProfileIri(entity: SupportedTypes | null) : string {
+function suggestNewProfileIri(entity: SupportedTypes | null): string {
     const entityIri = getIri(entity);
     if (entityIri === null) {
         return getRandomName(8);
@@ -222,7 +222,13 @@ const CreateProfileDialog = (props: DialogProps<CreateProfileState>) => {
         props.changeState(state => ({ ...state, overriddenFields: setter(state.overriddenFields) }));
 
     const setActiveModel = (id: string) => {
-
+        for (const model of props.state.models) {
+            if (model.getId() !== id) {
+                continue;
+            }
+            props.changeState(prev => ({ ...prev, model }));
+            return;
+        }
     };
 
     // --- relationships and relationship profiles --- --- ---
@@ -268,7 +274,7 @@ const CreateProfileDialog = (props: DialogProps<CreateProfileState>) => {
                 <div className="grid grid-cols-1 gap-y-3 bg-slate-100 px-1 md:grid-cols-[25%_75%] md:pb-4 md:pl-8 md:pr-16 md:pt-2">
                     <DialogDetailRow detailKey={t("create-profile-dialog.profiled")}>
                         {props.state.displayNameOfProfiledEntity}
-                        </DialogDetailRow>
+                    </DialogDetailRow>
                     <DialogDetailRow detailKey={t("create-profile-dialog.profiled-type")}>
                         {getEntityTypeString(props.state.entity)}
                     </DialogDetailRow>
@@ -346,7 +352,8 @@ const CreateProfileDialog = (props: DialogProps<CreateProfileState>) => {
                         }
                         withOverride={{
                             overriddenFields: props.state.overriddenFields,
-                            setOverriddenFields }}
+                            setOverriddenFields
+                        }}
                         hideCardinality={false}
                     />
                 )}

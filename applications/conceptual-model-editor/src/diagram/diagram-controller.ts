@@ -265,7 +265,7 @@ const createConnectEndHandler = (reactFlow: ReactFlowInstance<NodeType, EdgeType
   // 1) User dragged the connection to a node.
   // 2) User dragged the connection to an empty space.
   return (event: MouseEvent | TouchEvent, connection: FinalConnectionState) => {
-    const source = connection.fromNode;
+    const source = connection.fromNode as NodeType | null;
     const position = connection.to;
     if (source === null || position === null) {
       // We have no source or position of the target.
@@ -273,18 +273,19 @@ const createConnectEndHandler = (reactFlow: ReactFlowInstance<NodeType, EdgeType
     }
     const targetIsPane = (event.target as Element).classList.contains("react-flow__pane");
     if (targetIsPane) {
-      api.callbacks().onCreateConnectionToNothing(source.id, position);
+      api.callbacks().onCreateConnectionToNothing(source.data, position);
     } else {
-      // If user have not attached the node to the handle, we get no target.
       if (connection.toNode === null) {
+        // If user have not attached the node to the handle, we get no target.
         const nodes = reactFlow.getIntersectingNodes({ x: position.x, y: position.y, width: 1, height: 1 });
         if (nodes.length === 0) {
-          api.callbacks().onCreateConnectionToNothing(source.id, position);
+          api.callbacks().onCreateConnectionToNothing(source.data, position);
         } else {
-          api.callbacks().onCreateConnectionToNode(source.id, nodes[0]!.id);
+          // There is something under it.
+          api.callbacks().onCreateConnectionToNode(source.data, nodes[0].data);
         }
       } else {
-        api.callbacks().onCreateConnectionToNode(source.id, connection.toNode.id);
+        api.callbacks().onCreateConnectionToNode(source.data, connection.toNode.data as any);
       }
     }
   };

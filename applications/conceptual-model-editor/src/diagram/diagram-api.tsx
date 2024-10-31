@@ -380,17 +380,15 @@ export interface DiagramCallbacks extends DiagramNodes, DiagramEdges, DiagramSel
 
   /**
    * This property stores the method, which is called when user creates connection inside diagram.
-   * @param sourceIdentifier is the identifier of the source node of the connection.
-   * @param targetIdentifier is the identifier of the target node of the connection.
    */
-  onCreateConnectionToNode: (sourceIdentifier: string, targetIdentifier: string) => void;
+  onCreateConnectionToNode: (source: Node, target: Node) => void;
 
   /**
    * This property stores the method, which is called when user creates "empty" connection,
    * i. e. connection from node to canvas.
-   * @param sourceIdentifier is the identifier of the node, where the connection started.
+   * @param source
    * @param position is the position on canvas, where the connection ended.
    */
-  onCreateConnectionToNothing: (sourceIdentifier: string, position: Position) => void;
+  onCreateConnectionToNothing: (source: Node, position: Position) => void;
 
 }

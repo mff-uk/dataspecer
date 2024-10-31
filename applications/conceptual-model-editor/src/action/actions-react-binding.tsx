@@ -28,6 +28,7 @@ import { openModifyDialogAction } from "./open-modify-dialog";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
 import { isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { openCreateConnectionDialogAction } from "./open-create-connection";
 
 export interface ActionsContextType {
 
@@ -212,6 +213,11 @@ function createActionsContext(
       options, dialogs, notifications, classes, useClasses, graph, identifier);
   };
 
+  const openCreateConnectionDialog = (source: string, target:string) => {
+    openCreateConnectionDialogAction(
+      options, dialogs, notifications, useClasses, graph, source, target);
+  };
+
   const addNodeToVisualModel = (model: string, identifier: string) => {
     // We position the new node to the center of the viewport.
     const viewport = diagram.actions().getViewport();
@@ -295,7 +301,7 @@ function createActionsContext(
     onDeleteEdge: (edge) => deleteVisualElement(edge.externalIdentifier),
 
     onCreateConnectionToNode: (source, target) => {
-      console.log("Application.onCreateConnectionToNode", { source, target });
+      openCreateConnectionDialog(source.externalIdentifier, target.externalIdentifier);
     },
 
     onCreateConnectionToNothing: (source, position) => {

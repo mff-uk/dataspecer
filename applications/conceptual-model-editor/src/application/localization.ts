@@ -123,15 +123,18 @@ const translations: Record<string, string | Function> = {
   "detail-dialog.title.relationship-profile": "Relationship profile detail",
   "detail-dialog.title.unknown": "Entity detail",
   //
-  "modify-dialog.btn-ok": "Modify",
-  "modify-dialog.btn-close": "Close",
+  "modify-dialog.btn-ok": "✅ Modify",
+  "modify-dialog.btn-close": "❌ Close",
   "modify-dialog.title.attribute": "Edit attribute",
   "modify-dialog.title.relationship": "Edit relationship",
   "modify-dialog.title.attribute-profile": "Edit attribute profile",
   "modify-dialog.title.class-profile": "Edit class profile",
   "modify-dialog.title.relationship-profile": "Edit relationship profile",
   "modify-dialog.title.unknown": "Edit entity",
-
+  //
+  "create-connection-dialog.label" : "Create connection",
+  "create-connection-dialog.btn-ok" : "✅ Create",
+  "create-connection-dialog.btn-close" : "❌ Discard",
 };
 
 export const t = (text: string, ...args: unknown[]) : string => {

@@ -61,7 +61,6 @@ import {
 //     semanticModelRelationshipToReactFlowEdge,
 // } from "./reactflow/simple-floating-edge";
 import { tailwindColorToHex } from "./util/color-utils";
-import { useCreateConnectionDialog } from "./dialog/obsolete/create-connection-dialog";
 import { useModelGraphContext, type UseModelGraphContextType } from "./context/model-context";
 import { useClassesContext, type UseClassesContextType } from "./context/classes-context";
 import { bothEndsHaveAnIri, temporaryDomainRangeHelper } from "./util/relationship-utils";
@@ -99,7 +98,6 @@ export const Visualization = () => {
     const graph = useModelGraphContext();
     const aggregatorView = graph.aggregatorView;
 
-    // const { CreateConnectionDialog, isCreateConnectionDialogOpen, openCreateConnectionDialog } = useCreateConnectionDialog();
     const actions = useActions();
 
     const { downloadImage } = useDownload();
@@ -115,10 +113,6 @@ export const Visualization = () => {
     // const reactFlowInstance = useReactFlow<object, object>();
 
     // HANDLERS
-
-    // const onConnect = useCallback((connection: Connection) => {
-    //     openCreateConnectionDialog(connection);
-    // }, [openCreateConnectionDialog]);
 
     // const onDragOver = useCallback((event: React.DragEvent) => {
     //     event.preventDefault();
@@ -269,7 +263,6 @@ export const Visualization = () => {
 
     return (
         <>
-            {/* {isCreateConnectionDialogOpen && <CreateConnectionDialog />} */}
             <div className="h-[80vh] w-full md:h-full">
                 {actions.diagram === null ? null : <Diagram diagram={actions.diagram} />}
                 {/* <ReactFlow
