@@ -368,6 +368,7 @@ const createActions = (
       return [];
     },
     addNodes(nodes) {
+      reactFlow.addNodes(nodes.map(nodeToNodeType));
       console.log("Diagram.addNodes", { nodes });
     },
     updateNodes(nodes) {
@@ -377,6 +378,7 @@ const createActions = (
       console.log("Diagram.updateNodesPosition", { nodes });
     },
     removeNodes(identifiers) {
+      reactFlow.deleteElements({ nodes: identifiers.map(id => ({ id })) });
       console.log("Diagram.removeNodes", { identifiers });
     },
     //
@@ -395,6 +397,7 @@ const createActions = (
       console.log("Diagram.setEdgesWaypointPosition", { edges });
     },
     removeEdges(identifiers) {
+      reactFlow.deleteElements({ edges: identifiers.map(id => ({ id })) });
       console.log("Diagram.removeEdges", { identifiers });
     },
     //

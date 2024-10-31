@@ -247,11 +247,10 @@ export const Visualization = () => {
                     return;
                 }
                 console.log("[VISUALIZATION] Visual entities has been changed.", { changes });
-                // propagateVisualModelEntitiesChangesToVisualization(
-                //     changes,
-                //     setNodes, setEdges,
-                //     aggregatorView, classesContext,
-                //     activeVisualModel as WritableVisualModel);
+                onChangeVisualEntities(
+                    options, activeVisualModel, actions.diagram, aggregatorView, classesContext, graph,
+                    changes,
+                );
             },
         });
 
@@ -260,7 +259,7 @@ export const Visualization = () => {
             unsubscribeCanvasCallback?.();
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [aggregatorView, classesContext.classes /* changed when new view is used */]);
+    }, [options, activeVisualModel, actions, aggregatorView, classesContext, graph]);
 
     // Update canvas content on view change.
     useEffect(() => {
@@ -716,7 +715,7 @@ function onChangeVisualModel(
                 options, visualModel, profilingSources, visualEntity,
                 entity, profileOf);
             console.log("[VISUALIZATION] isVisualProfileRelationship",
-                {source: visualEntity, target: profileOf},
+                { source: visualEntity, target: profileOf },
                 { edge });
             if (edge !== null) {
                 nextEdges.push(edge);
@@ -939,4 +938,148 @@ function createDiagramEdgeForClassProfile(
         waypoints: [],
         profileOf: null,
     };
+}
+
+function onChangeVisualEntities(
+    options: Options,
+    visualModel: VisualModel | null,
+    diagram: UseDiagramType | null,
+    aggregatorView: SemanticModelAggregatorView,
+    classesContext: UseClassesContextType,
+    graphContext: UseModelGraphContextType,
+    changes: {
+        previous: VisualEntity | null;
+        next: VisualEntity | null;
+    }[]
+) {
+    if (diagram === null || !diagram.areActionsReady) {
+        logger.warn("Visual entities change is ignored as the diagram is not ready!");
+        return;
+    }
+    if (visualModel === null) {
+        // We just set content to nothing and return.
+        void diagram.actions().setContent([], []);
+        return;
+    }
+
+    const models = graphContext.models;
+    const entities = aggregatorView.getEntities();
+    const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
+    const attributeProfiles = classesContext.profiles.filter(isSemanticModelAttributeUsage);
+
+    const profilingSources = [...classesContext.classes, ...classesContext.relationships, ...classesContext.profiles];
+
+    const actions = diagram.actions();
+
+    for (const { previous, next } of changes) {
+        if (next !== null) {
+            // New or changed entity entity.
+            if (isVisualNode(next)) {
+                const entity = entities[next.representedEntity]?.rawEntity ?? null;
+
+                if (!isSemanticModelClass(entity) && !isSemanticModelClassUsage(entity)) {
+                    console.error("In visual update semantic entity is not class or class usage.", { entity, visual: next });
+                    continue;
+                }
+
+                const model = findSourceModelOfEntity(entity.id, models);
+                if (model === null) {
+                    console.error("Ignored entity for missing model.", { entity });
+                    continue;
+                }
+
+                const node = createDiagramNode(
+                    options, visualModel,
+                    attributes, attributeProfiles, profilingSources,
+                    next, entity, model);
+
+                if (previous === null) {
+                    // Create new entity.
+                    actions.addNodes([node]);
+                } else {
+                    // Change of existing.
+                    actions.updateNodes([node]);
+                }
+
+            } else if (isVisualRelationship(next)) {
+                const entity = entities[next.representedRelationship]?.rawEntity ?? null;
+
+                const isRelationship =
+                    isSemanticModelRelationship(entity) ||
+                    isSemanticModelGeneralization(entity);
+                if (!isRelationship) {
+                    console.error("In visual update semantic entity is not a relationship.", { entity, visual: next });
+                    continue;
+                }
+
+                const model = findSourceModelOfEntity(entity.id, models);
+                if (model === null) {
+                    console.error("Ignored entity for missing model.", { entity });
+                    continue;
+                }
+
+                const edge = createDiagramEdge(
+                    options, visualModel, profilingSources,
+                    next, entity, model);
+
+                if (edge === null) {
+                    console.error("In visual update created edge is null.", { entity, visual: next });
+                    continue;
+                }
+
+                if (previous === null) {
+                    // Create new entity.
+                    actions.addEdges([edge]);
+                } else {
+                    // Change of existing.
+                    actions.updateEdges([edge]);
+                }
+
+            } else if (isVisualProfileRelationship(next)) {
+                const entity = entities[next.entity]?.rawEntity ?? null;
+
+                if (!isSemanticModelClassUsage(entity)) {
+                    console.error("In visual update semantic entity is not a profile.", { entity, visual: next });
+                    continue;
+                }
+
+                const profileOf = visualModel.getVisualEntityForRepresented(entity.usageOf);
+                if (profileOf === null) {
+                    console.error("Missing profile for profile relation.", { entity });
+                    continue;
+                }
+
+                const edge = createDiagramEdgeForClassProfile(
+                    options, visualModel, profilingSources, next,
+                    entity, profileOf);
+
+                if (edge === null) {
+                    console.error("In visual update created edge is null.", { entity, visual: next });
+                    continue;
+                }
+
+                if (previous === null) {
+                    // Create new entity.
+                    actions.addEdges([edge]);
+                } else {
+                    // Change of existing.
+                    actions.updateEdges([edge]);
+                }
+
+            } else {
+                // We ignore other properties.
+            }
+        }
+        // ...
+        if (previous !== null && next === null) {
+            // Entity removed
+            if (isVisualNode(previous)) {
+                actions.removeNodes([previous.identifier]);
+            } else if (isVisualRelationship(previous) || isVisualProfileRelationship(previous)) {
+                actions.removeEdges([previous.identifier]);
+            } else {
+                // We ignore other properties.
+            }
+        }
+    }
 }
