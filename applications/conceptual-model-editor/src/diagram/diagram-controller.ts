@@ -369,17 +369,17 @@ const createActions = (
     },
     addNodes(nodes) {
       reactFlow.addNodes(nodes.map(nodeToNodeType));
-      console.log("Diagram.addNodes", { nodes });
+      console.log("Diagram.addNodes", nodes.map(item => item.identifier), nodes);
     },
     updateNodes(nodes) {
-      console.log("Diagram.updateNodes", { nodes });
+      console.log("Diagram.updateNodes", nodes.map(item => item.identifier), nodes);
     },
     updateNodesPosition(nodes) {
-      console.log("Diagram.updateNodesPosition", { nodes });
+      console.log("Diagram.updateNodesPosition", nodes);
     },
     removeNodes(identifiers) {
       reactFlow.deleteElements({ nodes: identifiers.map(id => ({ id })) });
-      console.log("Diagram.removeNodes", { identifiers });
+      console.log("Diagram.removeNodes", identifiers);
     },
     //
     getEdges() {
@@ -388,17 +388,17 @@ const createActions = (
     },
     addEdges(edges) {
       reactFlow.addEdges(edges.map(edgeToEdgeType));
-      console.log("Diagram.addEdges", { edges });
+      console.log("Diagram.addEdges", edges.map(item => item.identifier), edges);
     },
     updateEdges(edges) {
-      console.log("Diagram.updateEdges", { edges });
+      console.log("Diagram.updateEdges", edges.map(item => item.identifier), edges);
     },
     setEdgesWaypointPosition(edges) {
-      console.log("Diagram.setEdgesWaypointPosition", { edges });
+      console.log("Diagram.setEdgesWaypointPosition", edges);
     },
     removeEdges(identifiers) {
       reactFlow.deleteElements({ edges: identifiers.map(id => ({ id })) });
-      console.log("Diagram.removeEdges", { identifiers });
+      console.log("Diagram.removeEdges", identifiers);
     },
     //
     getSelectedNodes() {
@@ -406,14 +406,14 @@ const createActions = (
       return [];
     },
     setSelectedNodes(nodes) {
-      console.log("Diagram.setSelectedNodes", { nodes });
+      console.log("Diagram.setSelectedNodes", nodes);
     },
     getSelectedEdges() {
       console.log("Diagram.getSelectedEdges");
       return [];
     },
     setSelectedEdges(edges) {
-      console.log("Diagram.setSelectedNodes", { edges });
+      console.log("Diagram.setSelectedNodes", edges);
     },
     //
     async setContent(nodes, edges) {
