@@ -188,7 +188,7 @@ const performLayoutingBasedOnConstraints = (graph: IMainGraphClassic,
 	return runPreMainAlgorithmConstraints(workGraph, constraints, nodeDimensionQueryHandler).then(async _ => {
 		for(const action of constraints.layoutActionsIteratorBefore) {
 			if(action instanceof GraphConversionConstraint) {
-				SPECIFIC_ALGORITHM_CONVERSIONS_MAP[action.actionName](action, graph);
+				SPECIFIC_ALGORITHM_CONVERSIONS_MAP[action.actionName](action, workGraph);
 			}
 			else if(action instanceof AlgorithmConfiguration) {		// TODO: Using the actual type instead of interface
 				const layoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[action.algorithmName];
@@ -207,7 +207,7 @@ const performLayoutingBasedOnConstraints = (graph: IMainGraphClassic,
 		}
 
 		return runMainLayoutAlgorithm(workGraph, constraints, nodeDimensionQueryHandler).then(layoutedGraph => {
-			return runPostMainAlgorithmConstraints(layoutedGraph, constraints, nodeDimensionQueryHandler).then(_ => workGraph);
+			return runPostMainAlgorithmConstraints(layoutedGraph, constraints, nodeDimensionQueryHandler).then(_ => layoutedGraph);
 		});
 	});
 
@@ -309,6 +309,6 @@ const runMainLayoutAlgorithm = async (graph: IMainGraphClassic,
 		constraints.resetLayoutActionsIterator();
 	}
 
+	console.log("MIN Edge cross count: " + minEdgeCrossCount);
 	return bestLayoutedVisualEntitiesPromise;
 }
-

@@ -1,6 +1,6 @@
 import { LayoutMethod } from "../layout-iface";
 import { ConstraintContainer } from "./constraint-container";
-import { AlgorithmConfiguration, IGraphConversionConstraint, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraintSimple, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationslVersion2, UserGivenAlgorithmConfigurationslVersion4, GraphConversionConstraint, RandomConfiguration, getDefaultUserGivenConstraintsVersion4, AlgorithmPhases as AlgorithmPhases } from "./constraints";
+import { AlgorithmConfiguration, IGraphConversionConstraint, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraintSimple, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationslVersion2, UserGivenAlgorithmConfigurationslVersion4, GraphConversionConstraint, RandomConfiguration, getDefaultUserGivenConstraintsVersion4, AlgorithmPhases } from "./constraints";
 import { D3ForceConfiguration } from "./d3js/d3-constraints";
 import { ElkForceConfiguration, ElkLayeredConfiguration, ElkRadialConfiguration, ElkSporeConfiguration, ElkStressConfiguration } from "./elk/elk-constraints";
 
@@ -152,4 +152,3 @@ export class ConstraintFactory {
         return constraintContainer
     }
 }
-
