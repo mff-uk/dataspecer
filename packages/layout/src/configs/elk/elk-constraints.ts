@@ -1,5 +1,5 @@
 import { LayoutOptions } from "elkjs";
-import { AlgorithmConfiguration, LayeredConfiguration, RadialConfiguration, SporeConfiguration, StressConfiguration, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationElkForce } from "../constraints";
+import { AlgorithmPhases, AlgorithmConfiguration, LayeredConfiguration, RadialConfiguration, SporeConfiguration, StressConfiguration, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationElkForce } from "../constraints";
 import { modifyElkDataObject } from "./elk-utils";
 import _ from "lodash";
 
@@ -23,8 +23,8 @@ export interface ElkConstraint {
  * Stores configuration for elk layered algorithm
  */
 export class ElkLayeredConfiguration extends LayeredConfiguration implements ElkConstraint {
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean) {
-        super(givenAlgorithmConstraints, shouldCreateNewGraph);
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
+        super(givenAlgorithmConstraints, shouldCreateNewGraph, algorithmPhasesToCall);
         console.log("elkData in LayeredConfiguration");
         console.log(_.cloneDeep(this.elkData));
 
@@ -140,8 +140,8 @@ export class ElkLayeredConfiguration extends LayeredConfiguration implements Elk
  * Stores configuration for elk stress algorithm
  */
 export class ElkStressConfiguration extends StressConfiguration implements ElkConstraint {
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean) {
-        super(givenAlgorithmConstraints, shouldCreateNewGraph);
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
+        super(givenAlgorithmConstraints, shouldCreateNewGraph, algorithmPhasesToCall);
         modifyElkDataObject(this.data, this.elkData);
     }
 
@@ -172,8 +172,8 @@ export class ElkForceConfiguration extends AlgorithmConfiguration implements Elk
         ]);
     }
 
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean) {
-        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph);
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
+        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.data = _.pick(givenAlgorithmConstraints, this.getAllRelevantConstraintKeys()) as UserGivenAlgorithmConfigurationElkForce;
         modifyElkDataObject(this.data, this.elkData);
 
@@ -207,8 +207,8 @@ export class ElkForceConfiguration extends AlgorithmConfiguration implements Elk
  * Stores configuration for elk spore algorithm
  */
 export class ElkSporeConfiguration extends SporeConfiguration implements ElkConstraint {
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean) {
-        super(givenAlgorithmConstraints, shouldCreateNewGraph);
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
+        super(givenAlgorithmConstraints, shouldCreateNewGraph, algorithmPhasesToCall);
         modifyElkDataObject(this.data, this.elkData);
     }
 
@@ -229,8 +229,8 @@ export class ElkSporeConfiguration extends SporeConfiguration implements ElkCons
  * Stores configuration for elk radial algorithm
  */
 export class ElkRadialConfiguration extends RadialConfiguration implements ElkConstraint {
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean) {
-        super(givenAlgorithmConstraints, shouldCreateNewGraph);
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
+        super(givenAlgorithmConstraints, shouldCreateNewGraph, algorithmPhasesToCall);
         modifyElkDataObject(this.data, this.elkData);
     }
 

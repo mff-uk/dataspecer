@@ -1,6 +1,6 @@
 import { LayoutMethod } from "../layout-iface";
 import { ConstraintContainer } from "./constraint-container";
-import { AlgorithmConfiguration, IGraphConversionConstraint, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraintSimple, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationslVersion2, UserGivenAlgorithmConfigurationslVersion4, GraphConversionConstraint, RandomConfiguration, getDefaultUserGivenConstraintsVersion4 } from "./constraints";
+import { AlgorithmConfiguration, IGraphConversionConstraint, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraintSimple, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationslVersion2, UserGivenAlgorithmConfigurationslVersion4, GraphConversionConstraint, RandomConfiguration, getDefaultUserGivenConstraintsVersion4, AlgorithmPhases as AlgorithmPhases } from "./constraints";
 import { D3ForceConfiguration } from "./d3js/d3-constraints";
 import { ElkForceConfiguration, ElkLayeredConfiguration, ElkRadialConfiguration, ElkSporeConfiguration, ElkStressConfiguration } from "./elk/elk-constraints";
 
@@ -20,9 +20,10 @@ class AlgorithmConstraintFactory {
 
 
     private static getRandomLayoutConfiguration(userGivenAlgorithmConfiguration: UserGivenAlgorithmConfiguration,
-                                                shouldCreateNewGraph: boolean): IAlgorithmConfiguration {
+                                                shouldCreateNewGraph: boolean,
+                                                algorithmPhasesToCall?: AlgorithmPhases): IAlgorithmConfiguration {
 
-        return new RandomConfiguration(userGivenAlgorithmConfiguration.constraintedNodes, shouldCreateNewGraph);
+        return new RandomConfiguration(userGivenAlgorithmConfiguration.constraintedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
     }
 
     static addAlgorithmConfiguration(userGivenAlgorithmConfiguration: UserGivenAlgorithmConfiguration,
@@ -33,18 +34,23 @@ class AlgorithmConstraintFactory {
         }
         switch(userGivenAlgorithmConfiguration.layout_alg) {
             case "elk_stress":
+                const elkStress = new ElkStressConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph);
                 if(userGivenAlgorithmConfiguration.number_of_new_algorithm_runs > 1) {
                     layoutActions.push(AlgorithmConstraintFactory.getRandomLayoutConfiguration(userGivenAlgorithmConfiguration, true));
+                    elkStress.addAlgorithmConstraint("interactive", "true");
                 }
-                const elkStress = new ElkStressConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph);
-                elkStress.addAlgorithmConstraint("interactive", "true");
                 layoutActions.push(elkStress);
                 break;
             case "elk_layered":
                 layoutActions.push(new ElkLayeredConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
                 break;
             case "elk_force":
-                layoutActions.push(new ElkForceConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
+                if(userGivenAlgorithmConfiguration.number_of_new_algorithm_runs > 1) {
+                    layoutActions.push(new ElkForceConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph, "ONLY-RUN"));
+                }
+                else {
+                    layoutActions.push(new ElkForceConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
+                }
                 break;
             case "random":
                 layoutActions.push(AlgorithmConstraintFactory.getRandomLayoutConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
@@ -133,6 +139,11 @@ export class ConstraintFactory {
         }
         // TODO: Not using the config.mainStepNumber and config.generalStepNumber, but that is only for future proofing anyways
         AlgorithmConstraintFactory.addAlgorithmConfiguration(config.general.elk_layered, layoutActionsBeforeMainRun, true);
+
+        // TODO: Maybe could be put into the addAlgorithmConfiguration method so it is all in one place
+        if(config.chosenMainAlgorithm === "elk_force" && config.main[config.chosenMainAlgorithm].number_of_new_algorithm_runs > 1) {
+            layoutActionsBeforeMainRun.push(new ElkForceConfiguration(config.main[config.chosenMainAlgorithm], true, "ONLY-PREPARE"));
+        }
         AlgorithmConstraintFactory.addAlgorithmConfiguration(config.main[config.chosenMainAlgorithm], layoutActions, false);
 
         const simpleConstraints = AlgorithmConstraintFactory.createSimpleConstraintsFromConfiguration(config.main[config.chosenMainAlgorithm]);

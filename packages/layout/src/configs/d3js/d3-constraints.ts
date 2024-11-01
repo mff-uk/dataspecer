@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { StressConfiguration, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationStress } from "../constraints";
+import { AlgorithmPhases, StressConfiguration, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationStress } from "../constraints";
 
 
 /**
@@ -13,8 +13,8 @@ export class D3ForceConfiguration extends StressConfiguration {
         ]);
     }
 
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean) {
-        super(givenAlgorithmConstraints, shouldCreateNewGraph);
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
+        super(givenAlgorithmConstraints, shouldCreateNewGraph, algorithmPhasesToCall);
         this.data = _.pick(givenAlgorithmConstraints, this.getAllRelevantConstraintKeys()) as UserGivenAlgorithmConfigurationStress;
         throw new Error("Initialize (or don't use at all) the d3Data object");
     }

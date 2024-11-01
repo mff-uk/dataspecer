@@ -192,12 +192,16 @@ const performLayoutingBasedOnConstraints = (graph: IMainGraphClassic,
 			}
 			else if(action instanceof AlgorithmConfiguration) {		// TODO: Using the actual type instead of interface
 				const layoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[action.algorithmName];
-				layoutAlgorithm.prepareFromGraph(workGraph, constraints, nodeDimensionQueryHandler);
-				if(action.constraintedNodes === "GENERALIZATION") {
-					workGraph = await layoutAlgorithm.runGeneralizationLayout(action.shouldCreateNewGraph);
+				if(action.algorithmPhasesToCall === "ONLY-PREPARE" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
+					layoutAlgorithm.prepareFromGraph(workGraph, constraints, nodeDimensionQueryHandler);
 				}
-				else {
-					workGraph = await layoutAlgorithm.run(action.shouldCreateNewGraph);
+				if(action.algorithmPhasesToCall === "ONLY-RUN" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
+					if(action.constraintedNodes === "GENERALIZATION") {
+						workGraph = await layoutAlgorithm.runGeneralizationLayout(action.shouldCreateNewGraph);
+					}
+					else {
+						workGraph = await layoutAlgorithm.run(action.shouldCreateNewGraph);
+					}
 				}
 			}
 		}
@@ -275,14 +279,18 @@ const runMainLayoutAlgorithm = async (graph: IMainGraphClassic,
 			}
 			else if(action instanceof AlgorithmConfiguration) {		// TODO: Using the actual type instead of interface
 				const layoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[action.algorithmName];
-				layoutAlgorithm.prepareFromGraph(workGraph, constraints, nodeDimensionQueryHandler);
-				if(action.constraintedNodes === "ALL") {
-					layoutedGraphPromise = layoutAlgorithm.run(action.shouldCreateNewGraph);
-					workGraph = await layoutedGraphPromise;
+				if(action.algorithmPhasesToCall === "ONLY-PREPARE" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
+					layoutAlgorithm.prepareFromGraph(workGraph, constraints, nodeDimensionQueryHandler);
 				}
-				else if(action.constraintedNodes === "GENERALIZATION") {
-					layoutedGraphPromise = layoutAlgorithm.runGeneralizationLayout(action.shouldCreateNewGraph);
-					workGraph = await layoutedGraphPromise;
+				if(action.algorithmPhasesToCall === "ONLY-RUN" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
+					if(action.constraintedNodes === "ALL") {
+						layoutedGraphPromise = layoutAlgorithm.run(action.shouldCreateNewGraph);
+						workGraph = await layoutedGraphPromise;
+					}
+					else if(action.constraintedNodes === "GENERALIZATION") {
+						layoutedGraphPromise = layoutAlgorithm.runGeneralizationLayout(action.shouldCreateNewGraph);
+						workGraph = await layoutedGraphPromise;
+					}
 				}
 			}
 		}

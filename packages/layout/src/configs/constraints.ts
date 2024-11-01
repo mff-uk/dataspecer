@@ -389,8 +389,16 @@ export interface IConstraintSimple extends IConstraintType {
 //     data: object,
 // }
 
+export type AlgorithmPhases = "ONLY-PREPARE" | "ONLY-RUN" | "PREPARE-AND-RUN";
+
 export interface IAlgorithmOnlyConstraint extends IConstraintSimple, IAdditionalControlOptions {
     algorithmName: AlgorithmName;
+    /**
+     * Default is "PREPARE-AND-RUN", other values need to be explicitly set in constructor -
+     * You should set it to other value only in case if you know that algorithm can be prepared once and then run multiple times.
+     * - For example force algorithm needs to be prepared only once before going into the main loop where it is iteratively called with different seeds
+     */
+    algorithmPhasesToCall: AlgorithmPhases;
     // modelID: string | null;        // TODO: Is null in case it is meant for whole algorithm, model if for model
 }
 
@@ -413,6 +421,7 @@ export abstract class AlgorithmConfiguration implements IAlgorithmConfiguration 
     constraintTime: ConstraintTime = "IN-MAIN";
     shouldCreateNewGraph: boolean;
     // modelID: string = undefined;        // TODO: For now just undefined no matter what, I am still not sure how will it work with models
+    algorithmPhasesToCall: AlgorithmPhases;
 
     /**
      *
@@ -428,7 +437,13 @@ export abstract class AlgorithmConfiguration implements IAlgorithmConfiguration 
         return constraintKeys;
     }
 
-    constructor(algorithmName: AlgorithmName, constrainedNodes: ConstraintedNodesGroupingsType, shouldCreateNewGraph: boolean) {
+    constructor(algorithmName: AlgorithmName, constrainedNodes: ConstraintedNodesGroupingsType, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
+        if(algorithmPhasesToCall === undefined) {
+            this.algorithmPhasesToCall = "PREPARE-AND-RUN";
+        }
+        else {
+            this.algorithmPhasesToCall = algorithmPhasesToCall;
+        }
         this.shouldCreateNewGraph = shouldCreateNewGraph;
         this.algorithmName = algorithmName;
         this.constraintedNodes = constrainedNodes;
@@ -466,8 +481,8 @@ export abstract class AlgorithmConfiguration implements IAlgorithmConfiguration 
 }
 
 export class RandomConfiguration extends AlgorithmConfiguration {
-    constructor( constrainedNodes: ConstraintedNodesGroupingsType, shouldCreateNewGraph: boolean) {
-        super("random", constrainedNodes, shouldCreateNewGraph);
+    constructor(constrainedNodes: ConstraintedNodesGroupingsType, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
+        super("random", constrainedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
     }
 
     addAlgorithmConstraintForUnderlying(key: string, value: string): void {
@@ -491,8 +506,8 @@ export abstract class StressConfiguration extends AlgorithmConfiguration {
         ]);
     }
 
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean) {
-        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph);
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
+        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.setData(givenAlgorithmConstraints);
     }
 
@@ -513,8 +528,8 @@ export abstract class LayeredConfiguration extends AlgorithmConfiguration {
             "in_layer_gap": 100,
         }
     }
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean) {
-        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph);
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
+        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.setData(givenAlgorithmConstraints);
     }
 
@@ -530,8 +545,8 @@ export abstract class SporeConfiguration extends AlgorithmConfiguration {
         ]);
     }
 
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean) {
-        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph);
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
+        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.setData(givenAlgorithmConstraints);
     }
 
@@ -547,8 +562,8 @@ export abstract class RadialConfiguration extends AlgorithmConfiguration {
         ]);
     }
 
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean) {
-        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph);
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
+        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.setData(givenAlgorithmConstraints);
     }
 
