@@ -17,7 +17,7 @@ export function createDefaultEntityModel(type: string, identifier?: ModelIdentif
   return new DefaultEntityModel(type, identifier ?? createIdentifier());
 }
 
-const VERSION = 0;
+const VERSION = 1;
 
 class DefaultEntityModel implements DefaultEntityModelType {
 
@@ -175,9 +175,11 @@ class DefaultEntityModel implements DefaultEntityModelType {
     if (this.type !== payload.type) {
       throw new Error(`Models do not have same types, actual: '${this.type}', expected: '${payload.type}'.`);
     }
-    // We need to ensure backwards compatibility here.
-    this.identifier = payload.identifier;
-    this.entities = new Map(Object.entries(payload.entities));
+    // Should we need to deal with migration, this is the place to do so.
+    this.entities = new Map();
+    for (const entity of payload.entities) {
+      this.entities.set(entity.identifier, entity);
+    }
     return this;
   }
 

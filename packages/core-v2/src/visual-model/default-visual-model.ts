@@ -281,7 +281,7 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
 
   protected deserializeModelV0(value: VisualModelJsonSerializationV0): void {
     // We can not pass the model to the internal entity directly.
-    // So we perform a migration.
+    // So we perform a migration here instead.
     const migratedEntities: Record<string, VisualEntity> = {};
     for (const [identifier, entity] of Object.entries(value.visualEntities)) {
       if (!entity.type.includes(VISUAL_ENTITY_V0_TYPE)) {
