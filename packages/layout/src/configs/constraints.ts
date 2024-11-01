@@ -5,6 +5,7 @@ import _ from "lodash";
 import { ElkForceAlgType } from "./elk/elk-constraints";
 import { NodeDimensionQueryHandler, UserGivenConstraintsVersion2 } from "..";
 import { compactify } from "./constraints-implementation";
+import { GraphAlgorithms } from "../graph-algoritms";
 
 
 export type ConstraintedNodesGroupingsType = "ALL" | "GENERALIZATION" | "PROFILE";
@@ -111,33 +112,90 @@ export interface UserGivenAlgorithmConfigurationslVersion2 {
 //       But what about future proofing? ... For now keep it, if I will see in few months that there is no use, just remove the field and and new field, simliarly to the chosenAlgorithm
 type MainUserGivenAlgorithmConfiguration = UserGivenAlgorithmConfiguration & { "should_be_considered": true, "constraintedNodes": "ALL" };
 
-interface AlgorithmConstraint {
+
+// TODO: Maybe can think of more specific name
+interface IAdditionalControlOptions {
+    shouldCreateNewGraph: boolean,
+}
+
+
+/**
+ * @deprecated
+ */
+interface IUserGivenAlgorithmConstraint {
     chosenAlgorithm: AlgorithmName,
     algorithmSettings: Partial<Record<AlgorithmName, UserGivenAlgorithmConfiguration>>,
     constraintedNodes: ConstraintedNodesGroupingsType | string[],       // Either grouping or list of individual nodes
 }
 
-interface AlgorithmConversionConstraint {
-    actionName: string,
+// TODO: Probably move somewhere else in code, since it is the converted constraint not the one given from configuration
+export interface IGraphConversionConstraint extends IAdditionalControlOptions {
+    actionName: SpecificGraphConversions,
     data: object,
     constraintedNodes: ConstraintedNodesGroupingsType | string[],       // Either grouping or list of individual nodes
 }
 
-export interface UserGivenAlgorithmConfigurationslVersion3 {
-    steps: (AlgorithmConstraint | AlgorithmConversionConstraint)[],
+type SpecificGraphConversions = "CREATE_GENERALIZATION_SUBGRAPHS" | "TREEIFY";
+
+export class GraphConversionConstraint implements IGraphConversionConstraint {
+    static createSpecificAlgorithmConversionConstraint(name: SpecificGraphConversions): GraphConversionConstraint {
+        if(name === "CREATE_GENERALIZATION_SUBGRAPHS") {
+            return new GraphConversionConstraint(name, {}, "ALL", false);
+        }
+        else if(name === "TREEIFY") {
+            return new GraphConversionConstraint(name, {}, "ALL", false);
+        }
+    }
+
+
+    constructor(actionName: SpecificGraphConversions, data: object, constraintedNodes: ConstraintedNodesGroupingsType | string[], shouldCreateNewGraph: boolean) {
+        this.actionName = actionName;
+        this.data = data;
+        this.constraintedNodes = constraintedNodes;
+        this.shouldCreateNewGraph = shouldCreateNewGraph;
+    }
+
+    actionName: SpecificGraphConversions;
+    data: object;
+    constraintedNodes: ConstraintedNodesGroupingsType | string[];
+    shouldCreateNewGraph: boolean;
 }
 
-export interface UserGivenAlgorithmConfigurationslVersion3 {
-    steps: (AlgorithmConstraint | AlgorithmConversionConstraint)[],
+type SpecificGraphConversionMethod = (algorithmConversionConstraint: GraphConversionConstraint, graph: IMainGraphClassic) => void;
+
+// TODO: Not using the shouldCreateNewGraph property
+export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions, SpecificGraphConversionMethod> = {
+    CREATE_GENERALIZATION_SUBGRAPHS: (algorithmConversionConstraint: GraphConversionConstraint, graph: IMainGraphClassic) => {
+        graph.createGeneralizationSubgraphs();
+    },
+    TREEIFY: (algorithmConversionConstraint: GraphConversionConstraint, graph: IMainGraphClassic) => {
+        GraphAlgorithms.treeify(graph);
+    },
 }
 
-export function getDefaultUserGivenConstraintsVersion3(): (AlgorithmConstraint | AlgorithmConversionConstraint)[] {
+
+/**
+ * @deprecated
+ */
+export interface UserGivenAlgorithmConfigurationslVersion3 {
+    steps: (IUserGivenAlgorithmConstraint | IGraphConversionConstraint)[],
+}
+
+
+/**
+ * @deprecated
+ */
+export interface UserGivenAlgorithmConfigurationslVersion3 {
+    steps: (IUserGivenAlgorithmConstraint | IGraphConversionConstraint)[],
+}
+
+
+/**
+ * @deprecated
+ */
+export function getDefaultUserGivenConstraintsVersion3(): (IUserGivenAlgorithmConstraint | IGraphConversionConstraint)[] {
     return [
-            {
-                actionName: "CREATE_GENERAL_SUBGRAPHS",
-                data: {},
-                constraintedNodes: "ALL",
-            },
+            GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("CREATE_GENERALIZATION_SUBGRAPHS"),
             {
                 chosenAlgorithm: "elk_layered",
                 algorithmSettings: {"elk_layered": {...getDefaultUserGivenAlgorithmConstraint("elk_layered"), constraintedNodes: "ALL", should_be_considered: false}},
@@ -175,13 +233,10 @@ export function getDefaultUserGivenConstraintsVersion4(): UserGivenAlgorithmConf
     };
 }
 
-function getDefaultAdditionalStepsForVersion4ExampleImplementation(): Record<number, (UserGivenAlgorithmConfiguration | AlgorithmConversionConstraint)> {
+
+function getDefaultAdditionalStepsForVersion4ExampleImplementation(): Record<number, (UserGivenAlgorithmConfiguration | IGraphConversionConstraint)> {
     return {
-        0: {
-            actionName: "CREATE_GENERALIZATION_SUBGRAPHS",
-            data: {},
-            constraintedNodes: "ALL",
-        },
+        0: GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("CREATE_GENERALIZATION_SUBGRAPHS"),
         1: {
             ...getDefaultUserGivenAlgorithmConstraint("elk_layered"), constraintedNodes: "GENERALIZATION", should_be_considered: false,
         },
@@ -200,7 +255,7 @@ export interface UserGivenAlgorithmConfigurationslVersion4 {
     general: {"elk_layered": UserGivenAlgorithmConfigurationForGeneralization},
     mainStepNumber: number,
     generalStepNumber: number,
-    additionalSteps: Record<number, (UserGivenAlgorithmConfiguration | AlgorithmConversionConstraint)>,
+    additionalSteps: Record<number, (UserGivenAlgorithmConfiguration | IGraphConversionConstraint)>,
 }
 
 
@@ -334,7 +389,7 @@ export interface IConstraintSimple extends IConstraintType {
 //     data: object,
 // }
 
-export interface IAlgorithmOnlyConstraint extends IConstraintSimple {
+export interface IAlgorithmOnlyConstraint extends IConstraintSimple, IAdditionalControlOptions {
     algorithmName: AlgorithmName;
     // modelID: string | null;        // TODO: Is null in case it is meant for whole algorithm, model if for model
 }
@@ -356,6 +411,7 @@ export abstract class AlgorithmConfiguration implements IAlgorithmConfiguration 
     type: string;
     name: string;
     constraintTime: ConstraintTime = "IN-MAIN";
+    shouldCreateNewGraph: boolean;
     // modelID: string = undefined;        // TODO: For now just undefined no matter what, I am still not sure how will it work with models
 
     /**
@@ -372,7 +428,8 @@ export abstract class AlgorithmConfiguration implements IAlgorithmConfiguration 
         return constraintKeys;
     }
 
-    constructor(algorithmName: AlgorithmName, constrainedNodes: ConstraintedNodesGroupingsType) {
+    constructor(algorithmName: AlgorithmName, constrainedNodes: ConstraintedNodesGroupingsType, shouldCreateNewGraph: boolean) {
+        this.shouldCreateNewGraph = shouldCreateNewGraph;
         this.algorithmName = algorithmName;
         this.constraintedNodes = constrainedNodes;
         this.type = "ALG";
@@ -408,6 +465,20 @@ export abstract class AlgorithmConfiguration implements IAlgorithmConfiguration 
     }
 }
 
+export class RandomConfiguration extends AlgorithmConfiguration {
+    constructor( constrainedNodes: ConstraintedNodesGroupingsType, shouldCreateNewGraph: boolean) {
+        super("random", constrainedNodes, shouldCreateNewGraph);
+    }
+
+    addAlgorithmConstraintForUnderlying(key: string, value: string): void {
+        // EMPTY
+    }
+    addAdvancedSettingsForUnderlying(advancedSettings: object): void {
+        // EMPTY
+    }
+
+}
+
 
 /**
  * General Class which has all relevant constraints for the stress like algorithm. The classes extending this should convert the constraints into
@@ -420,8 +491,8 @@ export abstract class StressConfiguration extends AlgorithmConfiguration {
         ]);
     }
 
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
-        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes);
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean) {
+        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph);
         this.setData(givenAlgorithmConstraints);
     }
 
@@ -442,8 +513,8 @@ export abstract class LayeredConfiguration extends AlgorithmConfiguration {
             "in_layer_gap": 100,
         }
     }
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
-        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes);
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean) {
+        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph);
         this.setData(givenAlgorithmConstraints);
     }
 
@@ -459,8 +530,8 @@ export abstract class SporeConfiguration extends AlgorithmConfiguration {
         ]);
     }
 
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
-        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes);
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean) {
+        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph);
         this.setData(givenAlgorithmConstraints);
     }
 
@@ -476,8 +547,8 @@ export abstract class RadialConfiguration extends AlgorithmConfiguration {
         ]);
     }
 
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
-        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes);
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean) {
+        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph);
         this.setData(givenAlgorithmConstraints);
     }
 

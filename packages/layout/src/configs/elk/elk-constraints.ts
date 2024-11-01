@@ -23,8 +23,8 @@ export interface ElkConstraint {
  * Stores configuration for elk layered algorithm
  */
 export class ElkLayeredConfiguration extends LayeredConfiguration implements ElkConstraint {
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
-        super(givenAlgorithmConstraints);
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean) {
+        super(givenAlgorithmConstraints, shouldCreateNewGraph);
         console.log("elkData in LayeredConfiguration");
         console.log(_.cloneDeep(this.elkData));
 
@@ -140,8 +140,8 @@ export class ElkLayeredConfiguration extends LayeredConfiguration implements Elk
  * Stores configuration for elk stress algorithm
  */
 export class ElkStressConfiguration extends StressConfiguration implements ElkConstraint {
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
-        super(givenAlgorithmConstraints);
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean) {
+        super(givenAlgorithmConstraints, shouldCreateNewGraph);
         modifyElkDataObject(this.data, this.elkData);
     }
 
@@ -172,8 +172,8 @@ export class ElkForceConfiguration extends AlgorithmConfiguration implements Elk
         ]);
     }
 
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
-        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes);
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean) {
+        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph);
         this.data = _.pick(givenAlgorithmConstraints, this.getAllRelevantConstraintKeys()) as UserGivenAlgorithmConfigurationElkForce;
         modifyElkDataObject(this.data, this.elkData);
 
@@ -207,8 +207,8 @@ export class ElkForceConfiguration extends AlgorithmConfiguration implements Elk
  * Stores configuration for elk spore algorithm
  */
 export class ElkSporeConfiguration extends SporeConfiguration implements ElkConstraint {
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
-        super(givenAlgorithmConstraints);
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean) {
+        super(givenAlgorithmConstraints, shouldCreateNewGraph);
         modifyElkDataObject(this.data, this.elkData);
     }
 
@@ -229,8 +229,8 @@ export class ElkSporeConfiguration extends SporeConfiguration implements ElkCons
  * Stores configuration for elk radial algorithm
  */
 export class ElkRadialConfiguration extends RadialConfiguration implements ElkConstraint {
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
-        super(givenAlgorithmConstraints);
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean) {
+        super(givenAlgorithmConstraints, shouldCreateNewGraph);
         modifyElkDataObject(this.data, this.elkData);
     }
 

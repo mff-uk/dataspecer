@@ -1,5 +1,5 @@
 
-import { ConstraintedNodesGroupingsType, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraint, IConstraintSimple } from "./constraints";
+import { IGraphConversionConstraint, ConstraintedNodesGroupingsType, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraint, IConstraintSimple, GraphConversionConstraint } from "./constraints";
 import { LayoutAlgorithm } from "../layout-iface";
 import { ElkLayout } from "../elk-layouts";
 import { RandomLayout } from "../basic-layouts";
@@ -34,10 +34,17 @@ export class ConstraintContainer {
     //             2) Since the whole class is container it should also contain the algorithm constraints for subgraphs (like generalization for example), in case if we want it
     // TODO: In future maybe array since the IAlgorithmOnlyConstraint already has attribute with ConstraintedNodesGroupingsType
     /**
-     * Represents the constraints on algorithm - min distance between nodes, type of algorithm, etc.
+     * Represents the actions used to transform and layout graph -
+     *    Layout - min distance between nodes, type of algorithm, etc.
+     *    Conversion - create generalization subgraph
+     * The actions are in sequential order as how they should be called - they are transformed from user given configuration to
+     * to more specific actions instead of the more general ones given from user
      * Different graph layouting libraries (for example for Elk {@link ElkConstraint}) can override this for more specific type in the values of Record.
      */
-    algorithmOnlyConstraints: Record<ConstraintedNodesGroupingsType, IAlgorithmConfiguration>;
+    layoutActions: (IAlgorithmConfiguration | IGraphConversionConstraint)[];
+
+    // TODO: Add Docs
+    layoutActionsToRunBefore: (IAlgorithmConfiguration | IGraphConversionConstraint)[];
 
 
     // TODO: In future maybe only array (and passes completely separately from ConstraintContainer) and IAlgorithmOnlyConstraints instead of ConstraintContainer
@@ -63,20 +70,41 @@ export class ConstraintContainer {
      */
     constraints: IConstraint[];
 
+    // TODO: Add Docs
     currentAlgorithmConstraint: ConstraintedNodesGroupingsType;
 
+    // TODO: Add Docs
+    currentStepInLayoutActions: number;
+
+    // TODO: Add Docs
+    layoutActionsIterator: Generator<IAlgorithmConfiguration | IGraphConversionConstraint, void, unknown>;
 
 
-    constructor(algorithmOnlyConfiguration: IAlgorithmConfiguration[],
+    // TODO: Add Docs
+    currentStepInLayoutActionsToRunBefore: number;
+
+    // TODO: Add Docs
+    layoutActionsIteratorBefore: Generator<IAlgorithmConfiguration | IGraphConversionConstraint, void, unknown>;
+
+    // TODO: Add Docs
+    currentLayoutAction: {
+        isInActionsBefore: boolean,
+        action: IAlgorithmConfiguration | IGraphConversionConstraint,
+    };
+
+
+
+    constructor(layoutActionsBefore: (IAlgorithmConfiguration | IGraphConversionConstraint)[],
+                layoutActions: (IAlgorithmConfiguration | IGraphConversionConstraint)[],
                 simpleConstraints?: IConstraintSimple[] | null,
                 constraints?: IConstraint[] | null,
                 underlyingModelsConstraints?: Record<ModelID, ConstraintContainer> | null) {
-                    this.algorithmOnlyConstraints = {
-                        "ALL": undefined,
-                        "GENERALIZATION": undefined,
-                        "PROFILE": undefined,
-                    };
-                    this.addAlgorithmConstraints(...algorithmOnlyConfiguration);
+                    this.layoutActionsToRunBefore = layoutActionsBefore;
+                    this.resetLayoutActionsBeforeRunIterator();
+                    this.resetLayoutActionsIterator();
+
+                    this.layoutActions = [];
+                    this.addAlgorithmConstraints(...layoutActions);
                     this.simpleConstraints = simpleConstraints ?? [];
                     this.constraints = constraints ?? [];
                     this.underlyingModelsConstraints = underlyingModelsConstraints ?? {};
@@ -94,7 +122,7 @@ export class ConstraintContainer {
     addConstraints(...constraints: IConstraint[]) {
         this.constraints = this.constraints.concat(constraints);
     }
-    addAlgorithmConstraints(...constraints: IAlgorithmConfiguration[]) {
+    addAlgorithmConstraints(...constraints: (IAlgorithmConfiguration | IGraphConversionConstraint)[]) {
         constraints.forEach(constraint => {
             if(constraint === null) {
                 return;
@@ -105,8 +133,81 @@ export class ConstraintContainer {
             //     // ...this.algorithmOnlyConstraints[constraint.constraintedNodes],
             //     ...constraint
             // };
-            this.algorithmOnlyConstraints[constraint.constraintedNodes] = constraint;
+            this.addAlgorithmConstraint(constraint, this.layoutActions.length);
         });
+    }
+    addAlgorithmConstraint(constraint: IAlgorithmConfiguration | IGraphConversionConstraint, position?: number) {
+        if(position === undefined) {
+            position = this.layoutActions.length;
+        }
+        this.layoutActions.splice(position, 0, constraint);
+    }
+
+
+    // TODO: Add Docs
+    resetLayoutActionsIterator() {
+        this.layoutActionsIterator = this.createLayoutActionsIterator();
+    }
+
+    private *createLayoutActionsIterator() {
+        this.currentStepInLayoutActions = 0;
+
+        for(const layoutAction of this.layoutActions) {
+            this.currentLayoutAction = {
+                isInActionsBefore: true,
+                action: layoutAction
+            };
+            yield layoutAction;
+            this.currentStepInLayoutActions++;
+        }
+    }
+
+
+    // TODO: Add Docs
+    resetLayoutActionsBeforeRunIterator() {
+        this.layoutActionsIteratorBefore = this.createLayoutActionsBeforeRunIterator();
+    }
+
+    private *createLayoutActionsBeforeRunIterator() {
+        this.currentStepInLayoutActionsToRunBefore = 0;
+
+        for(const layoutAction of this.layoutActionsToRunBefore) {
+            this.currentLayoutAction = {
+                isInActionsBefore: false,
+                action: layoutAction
+            };
+            yield layoutAction;
+            this.currentStepInLayoutActionsToRunBefore++;
+        }
+    }
+
+
+    // TODO: Add Docs
+    isGeneralizationPerformedBefore(): boolean {
+        if(this.currentLayoutAction.isInActionsBefore) {
+            for(let i = 0; i < this.currentStepInLayoutActionsToRunBefore; i++) {
+                const currentLayoutAction = this.layoutActionsToRunBefore[i];
+                if((currentLayoutAction instanceof GraphConversionConstraint) && currentLayoutAction.actionName === "CREATE_GENERALIZATION_SUBGRAPHS") {
+                    return true;
+                }
+            }
+        }
+        else {
+            for(const currentLayoutAction of this.layoutActionsToRunBefore) {
+                if((currentLayoutAction instanceof GraphConversionConstraint) && currentLayoutAction.actionName === "CREATE_GENERALIZATION_SUBGRAPHS") {
+                    return true;
+                }
+            }
+
+            for(let i = 0; i < this.currentStepInLayoutActions; i++) {
+                const currentLayoutAction = this.layoutActions[i];
+                if((currentLayoutAction instanceof GraphConversionConstraint) && currentLayoutAction.actionName === "CREATE_GENERALIZATION_SUBGRAPHS") {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
 
@@ -114,5 +215,12 @@ export class ConstraintContainer {
  * Constraint container for the Elk graph library. Extends {@link ConstraintContainer} by being more specific about types of algorithmic constraints.
  */
 export class ElkConstraintContainer extends ConstraintContainer {
-    algorithmOnlyConstraints: Record<string, (IAlgorithmConfiguration & ElkConstraint)> = {};
+    layoutActionsToRunBefore: ((IAlgorithmConfiguration & ElkConstraint) | IGraphConversionConstraint)[] = [];
+    layoutActions: ((IAlgorithmConfiguration & ElkConstraint) | IGraphConversionConstraint)[] = [];
+    currentLayoutAction: {
+        isInActionsBefore: boolean,
+        action: (IAlgorithmConfiguration & ElkConstraint) | IGraphConversionConstraint,
+    } | null = null;
 }
+
+

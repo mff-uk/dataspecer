@@ -13,8 +13,8 @@ export class D3ForceConfiguration extends StressConfiguration {
         ]);
     }
 
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration) {
-        super(givenAlgorithmConstraints);
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean) {
+        super(givenAlgorithmConstraints, shouldCreateNewGraph);
         this.data = _.pick(givenAlgorithmConstraints, this.getAllRelevantConstraintKeys()) as UserGivenAlgorithmConfigurationStress;
         throw new Error("Initialize (or don't use at all) the d3Data object");
     }

@@ -9,7 +9,7 @@ import ELK from 'elkjs/lib/elk.bundled';
 
 import ElkConstructor, { LayoutOptions, ElkNode, ElkExtendedEdge, ElkLabel, ElkPort, type ELK as ELKType } from 'elkjs/lib/elk-api';
 
-import { BasicUserGivenConstraints, ConstraintedNodesGroupingsType, IAlgorithmOnlyConstraint, IConstraint, IConstraintSimple, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationOnlyData, UserGivenConstraints } from "./configs/constraints";
+import { BasicUserGivenConstraints, ConstraintedNodesGroupingsType, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraint, IConstraintSimple, SPECIFIC_ALGORITHM_CONVERSIONS_MAP, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationOnlyData, UserGivenConstraints } from "./configs/constraints";
 import { AlgorithmName, ConstraintContainer, ElkConstraintContainer } from "./configs/constraint-container";
 import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
 import { CONFIG_TO_ELK_CONFIG_MAP } from "./configs/elk/elk-utils";
@@ -18,6 +18,7 @@ import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usag
 import { PhantomElementsFactory } from "./util/utils";
 import _, { clone } from "lodash";
 import { GraphAlgorithms } from "./graph-algoritms";
+import { ElkConstraint } from "./configs/elk/elk-constraints";
 
 
 
@@ -25,53 +26,57 @@ import { GraphAlgorithms } from "./graph-algoritms";
 /**
  * This class holds layout options for the main layouting algorithm and for generalization
  */
+
 class MultiElkLayoutOptions {
     constructor(constraintContainer?: ElkConstraintContainer) {
         this.constraintContainer = constraintContainer;
-        // TODO: Step in right direction but I think that this should be not library specific or maybe it should (that being said this part actually even isn't needed).
-        if(this.constraintContainer.currentAlgorithmConstraint === "GENERALIZATION") {
-            this.generalizationLayoutOptions = constraintContainer.algorithmOnlyConstraints["GENERALIZATION"]?.elkData;
-            this.mainLayoutOptions = constraintContainer?.algorithmOnlyConstraints["ALL"]?.elkData;
-        }
-        else if(this.constraintContainer.currentAlgorithmConstraint === "ALL") {
-            if(!ElkGraphTransformer.hasAlgorithmConstraintForAllNodes(constraintContainer)) {
-                this.mainLayoutOptions = {
-                    "elk.algorithm": "layered",
-                    "elk.direction": "UP",
-                    "elk.edgeRouting": "SPLINES",
-                    "spacing.nodeNodeBetweenLayers": "100",
-                    "spacing.nodeNode": "100",
-                    "spacing.edgeNode": "100",
-                    "spacing.edgeEdge": "25",
-                };
-            }
-            else {
-                this.mainLayoutOptions = constraintContainer.algorithmOnlyConstraints["ALL"]?.elkData;
-            }
-            this.generalizationLayoutOptions = constraintContainer?.algorithmOnlyConstraints["GENERALIZATION"]?.elkData;
-        }
-
-         // TODO: Actually not necessary anymore probably, it was related to fixing the port sides
-        if(this.mainLayoutOptions?.["elk.algorithm"] === "layered" && this.generalizationLayoutOptions !== undefined && this.mainLayoutOptions?.["elk.direction"] !== this.generalizationLayoutOptions["elk.direction"]) {
-            //mainLayoutOptions['org.eclipse.elk.hierarchyHandling'] = "INCLUDE_CHILDREN";
-            this.mainLayoutOptions['elk.edgeRouting'] = "ORTHOGONAL";
-            this.generalizationLayoutOptions['elk.edgeRouting'] = "ORTHOGONAL";
-        }
-
-        console.log("mainLayoutOptions");
-        console.log(this.mainLayoutOptions);
-        console.log("generalizationLayoutOptions");
-        console.log(this.generalizationLayoutOptions);
 
 
-        this.mainEdgeDirection = this.mainLayoutOptions?.['elk.direction'] ?? "UP";
-        this.generalizationEdgeDirection = this.generalizationLayoutOptions === undefined ? this.mainEdgeDirection : this.generalizationLayoutOptions['elk.direction'];
+
+        // // TODO: Step in right direction but I think that this should be not library specific or maybe it should (that being said this part actually even isn't needed).
+        // if(this.constraintContainer.currentAlgorithmConstraint === "GENERALIZATION") {
+        //     this.generalizationLayoutOptions = constraintContainer.algorithmOnlyConstraints["GENERALIZATION"]?.elkData;
+        //     this.mainLayoutOptions = constraintContainer?.algorithmOnlyConstraints["ALL"]?.elkData;
+        // }
+        // else if(this.constraintContainer.currentAlgorithmConstraint === "ALL") {
+        //     if(!ElkGraphTransformer.hasAlgorithmConstraintForAllNodes(constraintContainer)) {
+        //         this.mainLayoutOptions = {
+        //             "elk.algorithm": "layered",
+        //             "elk.direction": "UP",
+        //             "elk.edgeRouting": "SPLINES",
+        //             "spacing.nodeNodeBetweenLayers": "100",
+        //             "spacing.nodeNode": "100",
+        //             "spacing.edgeNode": "100",
+        //             "spacing.edgeEdge": "25",
+        //         };
+        //     }
+        //     else {
+        //         this.mainLayoutOptions = constraintContainer.algorithmOnlyConstraints["ALL"]?.elkData;
+        //     }
+        //     this.generalizationLayoutOptions = constraintContainer?.algorithmOnlyConstraints["GENERALIZATION"]?.elkData;
+        // }
+
+        //  // TODO: Actually not necessary anymore probably, it was related to fixing the port sides
+        // if(this.mainLayoutOptions?.["elk.algorithm"] === "layered" && this.generalizationLayoutOptions !== undefined && this.mainLayoutOptions?.["elk.direction"] !== this.generalizationLayoutOptions["elk.direction"]) {
+        //     //mainLayoutOptions['org.eclipse.elk.hierarchyHandling'] = "INCLUDE_CHILDREN";
+        //     this.mainLayoutOptions['elk.edgeRouting'] = "ORTHOGONAL";
+        //     this.generalizationLayoutOptions['elk.edgeRouting'] = "ORTHOGONAL";
+        // }
+
+        // console.log("mainLayoutOptions");
+        // console.log(this.mainLayoutOptions);
+        // console.log("generalizationLayoutOptions");
+        // console.log(this.generalizationLayoutOptions);
+
+
+        // this.mainEdgeDirection = this.mainLayoutOptions?.['elk.direction'] ?? "UP";
+        // this.generalizationEdgeDirection = this.generalizationLayoutOptions === undefined ? this.mainEdgeDirection : this.generalizationLayoutOptions['elk.direction'];
     }
 
-    mainLayoutOptions: LayoutOptions;
-    generalizationLayoutOptions: LayoutOptions;
-    mainEdgeDirection: string;
-    generalizationEdgeDirection: string;
+    private mainLayoutOptions: LayoutOptions;
+    private generalizationLayoutOptions: LayoutOptions;
+    private mainEdgeDirection: string;
+    private generalizationEdgeDirection: string;
     constraintContainer: ElkConstraintContainer;
 };
 
@@ -93,10 +98,6 @@ class ElkGraphTransformer implements GraphTransformer {
                                         constraintContainer?: ElkConstraintContainer,
                                         elkNodeToSet?: ElkNode): ElkNode {
         const multiElkLayoutOptions = new MultiElkLayoutOptions(constraintContainer);
-        if(multiElkLayoutOptions.constraintContainer.currentAlgorithmConstraint === "ALL" && multiElkLayoutOptions.mainLayoutOptions?.["elk.algorithm"] === "radial") {
-            // TODO: Should be in pre-constraints?
-            GraphAlgorithms.treeify(graph);
-        }
         return this.convertGraphToLibraryRepresentationInternal(graph, shouldSetLayoutOptions, multiElkLayoutOptions, elkNodeToSet);
     }
 
@@ -142,7 +143,10 @@ class ElkGraphTransformer implements GraphTransformer {
                 // console.log(edge.start.node?.iri ?? edge.start.id);
                 // console.log("END:");
                 // console.log(edge.end.node?.iri ?? edge.end.id);
-                const [sourcePort, targetPort] = this.getSourceAndTargetPortBasedOnDirection(multiElkLayoutOptions.mainEdgeDirection);
+
+
+                // TODO: For now just "UP" and use everywhere the multiElkLayoutOptions even though it has no data now
+                const [sourcePort, targetPort] = this.getSourceAndTargetPortBasedOnDirection("UP");
 
                 const source = edge.reverseInLayout === false ? edge.start.id : edge.end.id;
                 const target = edge.reverseInLayout === false ? edge.end.id : edge.start.id;
@@ -184,11 +188,9 @@ class ElkGraphTransformer implements GraphTransformer {
 
         // TODO: I Should pass here the options for subgraph instead of doing this
         if(shouldSetLayoutOptions) {
-            if(multiElkLayoutOptions.generalizationLayoutOptions !== undefined && isSubgraph(this.graph, elkGraph)) {
-                elkGraph.layoutOptions = multiElkLayoutOptions.generalizationLayoutOptions;
-            }
-            else if(graph instanceof MainGraphClassic) {        // TODO: This expects that the wrapper graph is always main
-                elkGraph.layoutOptions = multiElkLayoutOptions.mainLayoutOptions;
+            if((multiElkLayoutOptions.constraintContainer.currentLayoutAction.action.constraintedNodes === "GENERALIZATION" && isSubgraph(this.graph, elkGraph)) ||
+                (multiElkLayoutOptions.constraintContainer.currentLayoutAction.action.constraintedNodes === "ALL" && (graph instanceof MainGraphClassic))) {
+                elkGraph.layoutOptions = (multiElkLayoutOptions.constraintContainer.currentLayoutAction.action as (IAlgorithmConfiguration & ElkConstraint)).elkData;
             }
         }
 
@@ -409,8 +411,9 @@ class ElkGraphTransformer implements GraphTransformer {
 
 
     // TODO: Maybe move somewhere else
+    // TODO: Should I even use it???
     static hasAlgorithmConstraintForAllNodes(constraintContainer: ElkConstraintContainer): boolean {
-        return constraintContainer?.algorithmOnlyConstraints["ALL"] !== undefined;
+        return constraintContainer?.currentLayoutAction.action.constraintedNodes === "ALL";
     }
 
     /**
@@ -431,8 +434,9 @@ class ElkGraphTransformer implements GraphTransformer {
             };
         }
         else {
-            mainLayoutOptions = constraintContainer.algorithmOnlyConstraints["ALL"]?.elkData;
-            generalizationLayoutOptions = constraintContainer.algorithmOnlyConstraints["GENERALIZATION"]?.elkData;
+            // Deprecated so whaterevr
+            mainLayoutOptions = {};
+            generalizationLayoutOptions = {};
 
             // TODO: Don't know the exact reason why this error is happening, but I think that for example if we have
             //       the main algorithm set as layered with direction to LEFT and the generalization to right, then there exists such edges
@@ -954,15 +958,15 @@ class ElkGraphTransformer implements GraphTransformer {
 
         const position = graphNode?.completeVisualEntity?.coreVisualEntity?.position;
         // TODO: Still touching the data and I would like to have more than 1 algorithm in future for example in the "ALL" bracket
-        const isInteractiveGeneralization = multiElkLayoutOptions?.constraintContainer?.currentAlgorithmConstraint === "GENERALIZATION" &&
-                        String(multiElkLayoutOptions?.constraintContainer?.algorithmOnlyConstraints?.["GENERALIZATION"]?.data?.["interactive"]) === "true" &&
+        const isInteractiveGeneralization = multiElkLayoutOptions?.constraintContainer?.currentLayoutAction?.action?.constraintedNodes === "GENERALIZATION" &&
+                        String(multiElkLayoutOptions?.constraintContainer?.currentLayoutAction?.action?.data?.["interactive"]) === "true" &&
                         !isSubgraph(this.graph, node);
-        const isInteractiveAll = multiElkLayoutOptions?.constraintContainer?.currentAlgorithmConstraint === "ALL" &&
-                        String(multiElkLayoutOptions?.constraintContainer?.algorithmOnlyConstraints?.["ALL"]?.data?.["interactive"]) === "true" &&
-                        ((multiElkLayoutOptions?.generalizationLayoutOptions !== undefined && isSubgraph(this.graph, node)) ||
-                            multiElkLayoutOptions?.generalizationLayoutOptions === undefined);
-        const isInteractiveGeneralizationSubgraphs = multiElkLayoutOptions?.constraintContainer?.currentAlgorithmConstraint === "ALL" &&
-                        multiElkLayoutOptions?.generalizationLayoutOptions !== undefined && !isSubgraph(this.graph, node);
+        const isInteractiveAll =  multiElkLayoutOptions?.constraintContainer?.currentLayoutAction.action.constraintedNodes === "ALL" &&
+                        String(multiElkLayoutOptions?.constraintContainer?.currentLayoutAction?.action?.data?.["interactive"]) === "true" &&
+                        ((multiElkLayoutOptions?.constraintContainer.isGeneralizationPerformedBefore() && isSubgraph(this.graph, node)) ||
+                            !multiElkLayoutOptions?.constraintContainer.isGeneralizationPerformedBefore());
+        const isInteractiveGeneralizationSubgraphs = multiElkLayoutOptions?.constraintContainer?.currentLayoutAction.action.constraintedNodes === "ALL" &&
+                        multiElkLayoutOptions?.constraintContainer.isGeneralizationPerformedBefore() && !isSubgraph(this.graph, node);
 
         if(position !== undefined &&
             (multiElkLayoutOptions !== undefined && (
@@ -1073,7 +1077,6 @@ export class ElkLayout implements LayoutAlgorithm {
     prepareFromGraph(graph: IGraphClassic, constraintContainer: ElkConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
         this.graph = graph
         this.elkGraphTransformer = new ElkGraphTransformer(graph, nodeDimensionQueryHandler, constraintContainer);
-        graph.mainGraph.resetForNewLayout();            // TODO: Maybe should have better interface and should be called every time we are converting graph to library repre
         this.graphInElk = this.elkGraphTransformer.convertGraphToLibraryRepresentation(graph, true, constraintContainer),       // TODO: Why I need to pass the constraintContainer again???
         this.constraintContainer = constraintContainer;
         this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
@@ -1081,9 +1084,8 @@ export class ElkLayout implements LayoutAlgorithm {
 
     async run(shouldCreateNewGraph: boolean): Promise<IMainGraphClassic> {
         let layoutPromise: Promise<ElkNode | void>;
-        const generalizationConstraint = this.constraintContainer.algorithmOnlyConstraints["GENERALIZATION"];
         const graphInElkWorkCopy = this.getGraphInElk();
-        if(generalizationConstraint !== undefined) {
+        if(this.constraintContainer.isGeneralizationPerformedBefore()) {
             layoutPromise = performSecondPartGeneralizationTwoRunLayout(this.graph, graphInElkWorkCopy, this.elk);
         }
         else {

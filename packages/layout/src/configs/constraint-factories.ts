@@ -1,6 +1,6 @@
 import { LayoutMethod } from "../layout-iface";
 import { ConstraintContainer } from "./constraint-container";
-import { AlgorithmConfiguration, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraintSimple, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationslVersion2, UserGivenAlgorithmConfigurationslVersion4 } from "./constraints";
+import { AlgorithmConfiguration, IGraphConversionConstraint, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraintSimple, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationslVersion2, UserGivenAlgorithmConfigurationslVersion4, GraphConversionConstraint, RandomConfiguration, getDefaultUserGivenConstraintsVersion4 } from "./constraints";
 import { D3ForceConfiguration } from "./d3js/d3-constraints";
 import { ElkForceConfiguration, ElkLayeredConfiguration, ElkRadialConfiguration, ElkSporeConfiguration, ElkStressConfiguration } from "./elk/elk-constraints";
 
@@ -18,38 +18,57 @@ class AlgorithmConstraintFactory {
         }
     }
 
-    static createAlgorithmConfiguration(userGivenAlgorithmConfiguration: UserGivenAlgorithmConfiguration): IAlgorithmConfiguration | null {
+
+    private static getRandomLayoutConfiguration(userGivenAlgorithmConfiguration: UserGivenAlgorithmConfiguration,
+                                                shouldCreateNewGraph: boolean): IAlgorithmConfiguration {
+
+        return new RandomConfiguration(userGivenAlgorithmConfiguration.constraintedNodes, shouldCreateNewGraph);
+    }
+
+    static addAlgorithmConfiguration(userGivenAlgorithmConfiguration: UserGivenAlgorithmConfiguration,
+                                        layoutActions: (IAlgorithmConfiguration | IGraphConversionConstraint)[],
+                                        shouldCreateNewGraph: boolean): void {
         if(!userGivenAlgorithmConfiguration.should_be_considered) {
             return null;
         }
         switch(userGivenAlgorithmConfiguration.layout_alg) {
             case "elk_stress":
-                return new ElkStressConfiguration(userGivenAlgorithmConfiguration);
+                if(userGivenAlgorithmConfiguration.number_of_new_algorithm_runs > 1) {
+                    layoutActions.push(AlgorithmConstraintFactory.getRandomLayoutConfiguration(userGivenAlgorithmConfiguration, true));
+                }
+                const elkStress = new ElkStressConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph);
+                elkStress.addAlgorithmConstraint("interactive", "true");
+                layoutActions.push(elkStress);
+                break;
             case "elk_layered":
-                return new ElkLayeredConfiguration(userGivenAlgorithmConfiguration);
+                layoutActions.push(new ElkLayeredConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
+                break;
             case "elk_force":
-                return new ElkForceConfiguration(userGivenAlgorithmConfiguration);
+                layoutActions.push(new ElkForceConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
+                break;
             case "random":
-                return {
-                    constraintedNodes: userGivenAlgorithmConfiguration.constraintedNodes,
-                    algorithmName: "random",
-                    type: "ALG",
-                    constraintTime: "IN-MAIN",
-                    name: "Random alg name",
-                    data: undefined,
-                    addAdvancedSettings: () => {},
-                    addAdvancedSettingsForUnderlying: () => {},
-                    addAlgorithmConstraint: () => {},
-                    addAlgorithmConstraintForUnderlying: () => {},
-                };
+                layoutActions.push(AlgorithmConstraintFactory.getRandomLayoutConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
+                break;
             case "d3_force":
-                return new D3ForceConfiguration(userGivenAlgorithmConfiguration);
+                layoutActions.push(new D3ForceConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
+                break;
             case "sporeCompaction":
-                return new ElkSporeConfiguration(userGivenAlgorithmConfiguration);
+                layoutActions.push(new ElkSporeConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
+                break;
             case "elk_radial":
-                return new ElkRadialConfiguration(userGivenAlgorithmConfiguration);
+                layoutActions.push(GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("TREEIFY"));
+                layoutActions.push(new ElkRadialConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
+                break;
             default:
                 throw new Error("Implementation error You forgot to extend the AlgorithmConstraintFactory factory for new algorithm");
+        }
+
+        if(userGivenAlgorithmConfiguration.run_layered_after) {
+            const configLayeredAfter = getDefaultUserGivenConstraintsVersion4();
+            configLayeredAfter.chosenMainAlgorithm = "elk_layered";
+            configLayeredAfter.main.elk_layered.interactive = true;
+            configLayeredAfter.main.elk_layered.constraintedNodes = userGivenAlgorithmConfiguration.constraintedNodes;
+            this.addAlgorithmConfiguration(configLayeredAfter.main.elk_layered, layoutActions, false);
         }
     }
 
@@ -104,19 +123,20 @@ export class ConstraintFactory {
      * @returns {@link ConstraintContainer} for the whole graph based on given {@link config}.
      */
     static createConstraints(config: UserGivenAlgorithmConfigurationslVersion4): ConstraintContainer {
-        // TODO: For now, just take it directly, but could also iterate and look for the "is_algorithm_constraint" property
-        let mainConstraint = AlgorithmConstraintFactory.createAlgorithmConfiguration(config.main[config.chosenMainAlgorithm]);
+        const layoutActionsBeforeMainRun: (IAlgorithmConfiguration | IGraphConversionConstraint)[] = [];
+        const layoutActions: (IAlgorithmConfiguration | IGraphConversionConstraint)[] = [];
 
-        console.info("mainConstraint");
-        console.info(mainConstraint);
-        console.info(config);
-        let generalizationConstraint = AlgorithmConstraintFactory.createAlgorithmConfiguration(config.general.elk_layered);
-        console.info("generalizationConstraint");
-        console.info(generalizationConstraint);
-
+        // TODO: Should be defined elsewhere
+        if(config.general.elk_layered.should_be_considered) {
+            const convertGeneralizationSubgraphs = GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("CREATE_GENERALIZATION_SUBGRAPHS");
+            layoutActionsBeforeMainRun.push(convertGeneralizationSubgraphs);
+        }
+        // TODO: Not using the config.mainStepNumber and config.generalStepNumber, but that is only for future proofing anyways
+        AlgorithmConstraintFactory.addAlgorithmConfiguration(config.general.elk_layered, layoutActionsBeforeMainRun, true);
+        AlgorithmConstraintFactory.addAlgorithmConfiguration(config.main[config.chosenMainAlgorithm], layoutActions, false);
 
         const simpleConstraints = AlgorithmConstraintFactory.createSimpleConstraintsFromConfiguration(config.main[config.chosenMainAlgorithm]);
-        const constraintContainer = new ConstraintContainer([mainConstraint, generalizationConstraint], simpleConstraints, undefined, undefined);
+        const constraintContainer = new ConstraintContainer(layoutActionsBeforeMainRun, layoutActions, simpleConstraints, undefined, undefined);
 
         return constraintContainer
     }
