@@ -55,9 +55,9 @@ const noOperation = () => {
   console.warn("Calling no operation function. You need to wait before the context is ready.");
 };
 
-const noOperationString = () => {
+const noOperationNullAsync = () => {
   console.warn("Calling no operation function. You need to wait before the context is ready.");
-  return "";
+  return Promise.resolve(null);
 };
 
 const noOperationAsync = () => {
@@ -101,7 +101,7 @@ const noOperationDiagramActions: DiagramActions = {
   getSelectedEdges: noOperationArray,
   setSelectedEdges: noOperation,
   getViewport: noOperationThrow,
-  renderToSvgString: noOperationString,
+  renderToSvgString: noOperationNullAsync,
 };
 
 const noOperationCallbacks: DiagramCallbacks = {

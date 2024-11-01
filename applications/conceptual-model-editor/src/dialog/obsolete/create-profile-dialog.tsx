@@ -97,7 +97,7 @@ export const createEntityProfileDialog = (
         state: createCreateProfileState(classes, graph, entity, language),
         confirmLabel: "create-profile-dialog.btn-ok",
         cancelLabel: "create-profile-dialog.btn-close",
-        validate: (state) => true,
+        validate: () => true,
         onConfirm: onConfirm,
         onClose: null,
     };

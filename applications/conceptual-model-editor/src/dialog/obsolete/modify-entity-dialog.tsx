@@ -42,7 +42,6 @@ import { GeneralizationParentsComponent } from "../../components/dialog/generali
 import { ModelGraphContextType, useModelGraphContext } from "../../context/model-context";
 import { t, configuration } from "../../application";
 import { getDomainAndRange } from "../../service/relationship-service";
-import { useOptions } from "../../application/options";
 import { DialogProps, DialogWrapper } from "../dialog-api";
 import { findSourceModelOfEntity } from "../../service/model-service";
 

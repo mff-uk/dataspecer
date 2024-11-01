@@ -21,7 +21,6 @@ import { DialogApiContextType } from "../dialog/dialog-service";
 import { Options } from "../application/options";
 import { ClassesContextType, UseClassesContextType } from "../context/classes-context";
 import { createEntityProfileDialog, CreateProfileState } from "../dialog/obsolete/create-profile-dialog";
-import { isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { temporaryDomainRangeHelper } from "../util/relationship-utils";
 
 export function openCreateProfileDialogAction(

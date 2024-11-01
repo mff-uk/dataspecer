@@ -6,7 +6,6 @@ import type {
     SemanticModelRelationshipEnd,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 
-import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";

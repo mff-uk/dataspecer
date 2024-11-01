@@ -39,8 +39,8 @@ import { OptionsContextProvider } from "./application/options";
 import "./page.css";
 import { migrateVisualModelFromV0 } from "./dataspecer/visual-model-v0-to-v1";
 
-const semanticModelAggregator = new SemanticModelAggregator();
-type SemanticModelAggregatorType = typeof semanticModelAggregator;
+const _semanticModelAggregator = new SemanticModelAggregator();
+type SemanticModelAggregatorType = typeof _semanticModelAggregator;
 
 const Page = () => {
     // URL query
@@ -117,7 +117,7 @@ const Page = () => {
                 aggregatorView);
         };
         return aggregatorView?.subscribeToChanges(callback);
-         
+
     }, [aggregatorView]);
 
     return (

@@ -3,7 +3,6 @@ import {logger} from "./logging";
 /**
  * List of texts used in the application.
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
 const translations: Record<string, string | Function> = {
   "notification.icon-error": "Error icon",
   "notification.icon-sucess": "Check icon",
@@ -143,7 +142,6 @@ export const t = (text: string, ...args: unknown[]) : string => {
     logger.missingTranslation(text);
     return "MISSING: " + text;
   } else  if (result instanceof Function) {
-     
     return result(...args);
   } else {
     return result;

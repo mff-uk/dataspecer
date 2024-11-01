@@ -1,5 +1,4 @@
 import type { SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
-import type { Dispatch, SetStateAction } from "react";
 import { type CardinalityOption, semanticCardinalityToOption } from "../util/relationship-utils";
 import { OverrideFieldCheckbox } from "./input/override-field-checkbox";
 import type { WithOverrideHandlerType } from "../util/profile-utils";

@@ -1,6 +1,6 @@
 
 // TODO: Used mostly for get IRI, we need to respect length.
-export const getRandomName = (length = 12) => {
+export const getRandomName = (_length = 12) => {
     return createUUID();
 };
 

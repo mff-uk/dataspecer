@@ -24,8 +24,8 @@ import {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { sourceModelOfEntity } from "./model-utils";
 import { getIri, getModelIri } from "./iri-utils";
-import { ModelGraphContext, ModelGraphContextType, useModelGraphContext, UseModelGraphContextType } from "../context/model-context";
-import { ClassesContext, ClassesContextType, useClassesContext, UseClassesContextType } from "../context/classes-context";
+import { ModelGraphContext, ModelGraphContextType } from "../context/model-context";
+import { ClassesContext, ClassesContextType } from "../context/classes-context";
 import { getTheOriginalProfiledEntity } from "./profile-utils";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 import { temporaryDomainRangeHelper } from "./relationship-utils";

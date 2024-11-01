@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useEffect, useRef, type Dispatch, type SetStateAction, type MutableRefObject } from "react";
+import { useMemo, useEffect } from "react";
 // import ReactFlow, {
 //     type Connection,
 //     type Edge,
@@ -45,7 +45,6 @@ import {
 } from "@dataspecer/core-v2/visual-model";
 import {
     type SemanticModelAggregatorView,
-    type AggregatedEntityWrapper,
 } from "@dataspecer/core-v2/semantic-model/aggregator";
 
 
@@ -60,12 +59,9 @@ import {
 //     semanticModelGeneralizationToReactFlowEdge,
 //     semanticModelRelationshipToReactFlowEdge,
 // } from "./reactflow/simple-floating-edge";
-import { tailwindColorToHex } from "./util/color-utils";
 import { useModelGraphContext, type UseModelGraphContextType } from "./context/model-context";
 import { useClassesContext, type UseClassesContextType } from "./context/classes-context";
-import { bothEndsHaveAnIri, temporaryDomainRangeHelper } from "./util/relationship-utils";
-import { toSvg } from "html-to-image";
-import { useDownload } from "./features/export/download";
+import { temporaryDomainRangeHelper } from "./util/relationship-utils";
 import { useActions } from "./action/actions-react-binding";
 import { getDomainAndRange } from "./service/relationship-service";
 import { Diagram, type Node, type Edge, type EntityItem, EdgeType } from "./diagram/";

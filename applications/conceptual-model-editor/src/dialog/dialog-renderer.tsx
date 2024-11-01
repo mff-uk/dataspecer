@@ -28,7 +28,7 @@ function Dialog({ reference, context }: {
   useEffect(() => {
     // We need to call this when dialog is open for the first time.
     reference.current?.showModal();
-  }, []);
+  }, [reference]);
 
   const Component = context.component;
   return (

@@ -9,7 +9,7 @@ import { type EditClassState } from "../dialog/class/edit-class-dialog-controlle
 import { type ClassesContextType, ClassesContext, useClassesContext, UseClassesContextType } from "../context/classes-context";
 import { useNotificationServiceWriter } from "../notification";
 import { type UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { ModelGraphContext, UseModelGraphContextType, type ModelGraphContextType } from "../context/model-context";
+import { ModelGraphContext, type ModelGraphContextType } from "../context/model-context";
 import { createAddModelDialog } from "../dialog/model/create-model-dialog";
 import { type CreateModelState } from "../dialog/model/create-model-dialog-controller";
 import { createEditClassDialog } from "../dialog/class/edit-class-dialog";
@@ -19,7 +19,7 @@ import { addNodeToVisualModelAction } from "./add-node-to-visual-model";
 import { addRelationToVisualModelAction } from "./add-relation-to-visual-model";
 import { deleteFromSemanticModelAction } from "./delete-from-semantic-model";
 import { deleteFromVisualModelAction } from "./delete-from-visual-model";
-import { EdgeType, Position, useDiagram, type DiagramCallbacks } from "../diagram/";
+import { Position, useDiagram, type DiagramCallbacks } from "../diagram/";
 import type { UseDiagramType } from "../diagram/diagram-hook";
 import { useOptions, type Options } from "../application/options";
 import { centerViewportToVisualEntityAction } from "./center-viewport-to-visual-entity";
@@ -170,8 +170,8 @@ function createActionsContext(
   if (prevDialogs !== dialogs) changed.push("dialogs");
   if (prevClasses !== classes) changed.push("classes");
   if (prevUseClasses !== useClasses) changed.push("prevUseClasses");
-  if (notifications !== notifications) changed.push("notifications");
-  if (graph !== graph) changed.push("graph");
+  if (prevNotifications !== notifications) changed.push("notifications");
+  if (prevGraph !== graph) changed.push("graph");
   if (prevDiagram !== diagram) changed.push("diagram");
   console.info("[ACTIONS] Creating new context object. ", { changed });
   prevOptions = options;
