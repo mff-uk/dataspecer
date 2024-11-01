@@ -1,0 +1,46 @@
+.edge-toolbar {
+  display: grid;
+  place-content: center;
+  grid-area: 1/1;
+  width: 0;
+  height: 0;
+  /* Variables.  */
+  --btn-size: 2em;
+  --extra-space: 1em;
+}
+
+.edge-toolbar li {
+  display: grid;
+  place-content: center;
+  grid-area: 1/1;
+  --radius: calc(var(--btn-size) + var(--extra-space));
+  transform: translateX(calc(cos(var(--angle)) * var(--radius))) translateY(calc(sin(var(--angle) * -1) * var(--radius)));
+}
+
+.edge-toolbar li:nth-child(1) {
+  --angle: 0deg;
+}
+
+.edge-toolbar li:nth-child(2) {
+  --angle: 60deg;
+}
+
+.edge-toolbar li:nth-child(3) {
+  --angle: 120deg;
+}
+
+.edge-toolbar li:nth-child(4) {
+  --angle: 180deg;
+}
+
+.edge-toolbar li:nth-child(5) {
+  --angle: 240deg;
+}
+
+.edge-toolbar li button {
+  border-radius: 50%;
+  width: var(--btn-size);
+  height: var(--btn-size);
+  font-size: 1.35em;
+  cursor: pointer;
+}
