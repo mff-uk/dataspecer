@@ -24,17 +24,21 @@ export class DeleteInstanceCapabilityMetadata extends InstanceCapabilityMetadata
 export class DeleteInstanceCapability extends BaseCapabilityGenerator {
 
     constructor(constructorInput: CapabilityConstructorInput) {
-        super(constructorInput.dataStructureMetadata, new DeleteInstanceCapabilityMetadata(constructorInput.capabilityLabel));
+        super(constructorInput.structureModelMetadata, new DeleteInstanceCapabilityMetadata(constructorInput.capabilityLabel));
 
-        const dalLayerGeneratorStrategy = DeleteInstanceTemplateGeneratorFactory.getDalGeneratorStrategy(constructorInput.dataStructureMetadata.specificationIri, constructorInput.datasource);
+        const dalLayerGeneratorStrategy = DeleteInstanceTemplateGeneratorFactory.getDalGeneratorStrategy(
+            constructorInput.structureModelMetadata.technicalLabel,
+            constructorInput.structureModelMetadata.specificationIri,
+            constructorInput.datasource
+        );
         const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(
-            constructorInput.dataStructureMetadata.technicalLabel,
+            constructorInput.structureModelMetadata.technicalLabel,
             this.getIdentifier()
         );
 
         const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory
             .getPresentationLayerGenerator(
-                constructorInput.dataStructureMetadata,
+                constructorInput.structureModelMetadata,
                 this.getIdentifier()
             );
 

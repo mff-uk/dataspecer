@@ -1,17 +1,18 @@
 import { InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../../../engine/template-consumer";
-import { GeneratedFilePathCalculator } from "../../../utils/artifact-saver";
+import { TemplateConsumer } from "../../../engine/templates/template-consumer";
 import { InstanceCreatorInterfaceGenerator } from "../reader-interface-generator";
-import { ImportRelativePath, TemplateDescription } from "../../../engine/eta-template-renderer"
+import { DataLayerTemplateDescription, ImportRelativePath } from "../../../engine/templates/template-interfaces";
+import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy";
+import { ReadWriteEndpointUri } from "../../../engine/graph/datasource";
 
-interface CreateLdkitInstanceTemplate extends TemplateDescription {
+export interface CreateLdkitInstanceTemplate extends DataLayerTemplateDescription {
     placeholders: {
         aggregate_name: string,
         exported_object_name: string,
         ldkit_schema: string,
         ldkit_schema_path: ImportRelativePath,
-        ldkit_endpoint_uri: string,
+        sparql_endpoint_uri: string,
         instance_result_type: string,
         instance_result_type_path: ImportRelativePath,
         creator_interface_type: string,
@@ -19,19 +20,18 @@ interface CreateLdkitInstanceTemplate extends TemplateDescription {
     }
 }
 
-interface CreateLdkitInstanceDependencyMap extends TemplateDependencyMap {
-    pathResolver: GeneratedFilePathCalculator,
-    ldkitSchemaArtifact: LayerArtifact,
-    sparqlEndpointUri: string
-}
-
 export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitInstanceTemplate> {
 
-    constructor(templateMetadata: TemplateMetadata) {
-        super(templateMetadata);
+    private static readonly _createLdkitInstanceDataLayerTemplatePath: string = "./create/data-layer/ldkit/instance-creator";
+
+    constructor(outputFilePath: string) {
+        super({
+            filePath: outputFilePath,
+            templatePath: CreateLdkitInstanceGenerator._createLdkitInstanceDataLayerTemplatePath
+        });
     }
 
-    async processTemplate(dependencies: CreateLdkitInstanceDependencyMap): Promise<LayerArtifact> {
+    async processTemplate(dependencies: LdkitDalDependencyMap): Promise<LayerArtifact> {
 
         const creatorInterfaceArtifact = await InstanceCreatorInterfaceGenerator.processTemplate();
 
@@ -51,6 +51,10 @@ export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitIn
             suffix: "LdkitInstanceCreator"
         });
 
+        const updateSparqlEndpointUri: string = typeof dependencies.sparqlEndpointUri === "string"
+                ? dependencies.sparqlEndpointUri
+                : (dependencies.sparqlEndpointUri as ReadWriteEndpointUri).write;
+
         const createTemplate: CreateLdkitInstanceTemplate = {
             templatePath: this._templatePath,
             placeholders: {
@@ -66,7 +70,7 @@ export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitIn
                     from: this._filePath,
                     to: createReturnTypeArtifact.filePath
                 },
-                ldkit_endpoint_uri: `"${dependencies.sparqlEndpointUri}"`,
+                sparql_endpoint_uri: `"${updateSparqlEndpointUri}"`,
                 ldkit_schema: dependencies.ldkitSchemaArtifact.exportedObjectName,
                 ldkit_schema_path: {
                     from: this._filePath,
@@ -81,7 +85,7 @@ export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitIn
             exportedObjectName: createExportedObject,
             filePath: this._filePath,
             sourceText: createInstanceRender,
-            dependencies: [creatorInterfaceArtifact]
+            dependencies: [creatorInterfaceArtifact, dependencies.ldkitSchemaInterfaceArtifact]
         }
 
         return createDalLayerArtifact;

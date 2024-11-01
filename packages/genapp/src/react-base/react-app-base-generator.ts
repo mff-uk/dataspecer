@@ -1,10 +1,10 @@
 import { LayerArtifact } from "../engine/layer-artifact";
-import { ImportRelativePath, TemplateDescription } from "../engine/eta-template-renderer";
-import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../engine/template-consumer";
+import { ImportRelativePath, TemplateModel } from "../engine/templates/template-interfaces";
+import { TemplateConsumer, TemplateDependencyMap, TemplateMetadata } from "../engine/templates/template-consumer";
 import { CopyTemplateProcessor } from "../capabilities/template-generators/capability-interface-generator";
 import { SidebarComponentTemplateProcessor } from "../presentation-layer/template-generators/sidebar-template-processor";
 
-interface ReactAppBaseTemplate extends TemplateDescription {
+interface ReactAppBaseTemplate extends TemplateModel {
     placeholders: {
         error_component_name: string,
         error_component_path: ImportRelativePath,
@@ -37,8 +37,6 @@ export interface ReactAppBaseTemplateDependencyMap extends TemplateDependencyMap
 
 export class ReactApplicationBaseGenerator extends TemplateConsumer<ReactAppBaseTemplate> {
 
-    // <% for (let aggregateName in it.artifacts_map) { %><% for (let capabilityName in it.artifacts_map[aggregateName]) { %><% let item = it.artifacts_map[aggregateName][capabilityName] %>
-    //     import <%= item.componentName %> from <%~ item.filepath %>;<% } %><% } %>
     constructor(templateMetadata: TemplateMetadata) {
         super(templateMetadata)
     }

@@ -42,7 +42,7 @@ type SupportedDataTypes = {
 export type LdkitSchemaProperty = {
     "@id": string;
     "@type"?: keyof SupportedDataTypes; //string | number | boolean | Date;
-    "@schema"?: LdkitSchema;
+    "@context"?: LdkitSchema;
     "@optional"?: true;
     "@array"?: true;
     "@multilang"?: true;

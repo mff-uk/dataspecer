@@ -4,8 +4,9 @@ import { Box, Container, Link, Paper, Typography } from "@mui/material"
 export const Footer = () => {
     return (
         <Paper sx={{
-            marginTop: 'calc(10% + 60px)',
-            width: '100%',
+            marginTop: 'calc(5%)',
+            width: "100%",
+            height: "10%",
             bottom: 0,
             position: "fixed"
         }} component="footer" square variant="outlined">

@@ -120,3 +120,8 @@ model Package {
 
   @@unique([parentPackageId, iriChunk], name: "unique_chunk")
 }
+
+model system {
+  key String @id
+  value String
+}

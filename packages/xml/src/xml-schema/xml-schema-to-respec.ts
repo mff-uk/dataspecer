@@ -37,7 +37,7 @@ export async function createRespecSchema(
     if (allElements.includes(thisElement)) {
       return;
     }
-    
+
     // @ts-ignore
     thisElement.path = [...path];
     if (thisElement.annotation) {

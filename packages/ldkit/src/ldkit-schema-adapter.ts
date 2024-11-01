@@ -4,7 +4,7 @@ import { StructureModelComplexType, StructureModelPrimitiveType } from "@dataspe
 import { assert } from "@dataspecer/core/core";
 import { StructureModel } from "@dataspecer/core/structure-model/model/structure-model";
 import { StructureModelClass } from "@dataspecer/core/structure-model/model/structure-model-class";
-import { xsd, rdf } from "ldkit/namespaces";
+import { OFN } from "@dataspecer/core/well-known"
 
 export interface StructureClassToSchemaAdapter {
     convertStructureModelToLdkitSchema(modelClass: StructureModel): LdkitSchema;
@@ -14,14 +14,15 @@ export class LdkitSchemaAdapter implements StructureClassToSchemaAdapter {
 
     convertAttributeDataTypeToLdkitSupportedDataType<T>(dataTypeIri: string): keyof T {
         const map: { [k: string]: any } = {
-            "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/boolean": "xsd.boolean",
-            "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/datum": "xsd.date",
-            "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/datum-a-čas": "xsd.dateTime",
-            "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/celé-číslo": "xsd.integer",
-            "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/desetinné-číslo": "xsd.decimal",
-            "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/url": "xsd.anyURI",
-            "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/řetězec": "xsd.string",
-            "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/text":  "rdf.langString"
+            [OFN.boolean]: "xsd.boolean",
+            [OFN.date]: "xsd.date",
+            [OFN.dateTime]: "xsd.dateTime",
+            [OFN.integer]: "xsd.integer",
+            [OFN.decimal]: "xsd.decimal",
+            [OFN.url]: "xsd.anyURI",
+            [OFN.string]: "xsd.string",
+            [OFN.text]:  "rdf.langString",
+            [OFN.rdfLangString]: "rdf.langString"
         }
 
         return map[dataTypeIri] ?? "xsd.string";
@@ -34,9 +35,7 @@ export class LdkitSchemaAdapter implements StructureClassToSchemaAdapter {
             return ldkitProperty;
         }
 
-        const multiLangDatatypeIri: string = "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString";
-
-        if (attribute.dataType === multiLangDatatypeIri) {
+        if (attribute.dataType === OFN.rdfLangString) {
             ldkitProperty["@multilang"] = true;
         }
         //ldkitProperty["@type"] = this.convertAttributeDataTypeToLdkitSupportedDataType(attribute.dataType);
@@ -50,7 +49,7 @@ export class LdkitSchemaAdapter implements StructureClassToSchemaAdapter {
 
         const nestedClass: StructureModelClass = association.dataType;
         //ldkitProperty["@type"] = xsd.string; //this.convertDataTypeToLdkitSupportedDataType(association); //nestedClass.cimIri;
-        ldkitProperty["@schema"] = this.convertStructureModelClassToLdkitSchema(nestedClass);
+        ldkitProperty["@context"] = this.convertStructureModelClassToLdkitSchema(nestedClass);
 
         return ldkitProperty;
     }

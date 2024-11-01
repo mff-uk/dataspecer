@@ -5,26 +5,7 @@ import { <%= it.generated_capability_class %>, <%= it.read_return_type %> } from
 export const <%= it.exported_object_name %>: <%= it.generated_capability_class %><<%= it.read_return_type %>> = {
     name: "create",
 
-    async runCapability(instanceIri: string): Promise<<%= it.read_return_type %>> {
-
-        const newInstance = {
-            $id: instanceIri,
-            $type: [
-                "http://www.w3.org/ns/dcat#Dataset"
-            ],
-            title: {
-                "cs": "Novy dataset",
-                "en": "New dataset"
-            },
-            klicove_slovo: {
-                "cs": ["datova sada", "testovani"],
-                "en": ["dataset", "test"]
-            },
-            distribuce: [
-                "<iri nove distribuce 1>",
-                "<iri nove distribuce 2>"
-            ]
-        }
+    async runCapability<T>(newInstance: T): Promise<<%= it.read_return_type %>> {
 
         const creator: <%= it.creator_interface_type %> = new <%= it.instance_creator_type %>();
         const instanceResult: <%= it.read_return_type %> = await creator.createInstance(newInstance);

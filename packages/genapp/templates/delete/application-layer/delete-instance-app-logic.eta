@@ -5,10 +5,10 @@ import { <%= it.generated_capability_class %>, <%= it.read_return_type %> } from
 export const <%= it.exported_object_name %>: <%= it.generated_capability_class %><<%= it.read_return_type %>> = {
     name: "delete",
 
-    async runCapability(instanceIri: string): Promise<<%= it.read_return_type %>> {
+    async runCapability<T>(instanceIri: T): Promise<<%= it.read_return_type %>> {
 
         const mutator: <%= it.delete_mutator_interface_type %> = new <%= it.delete_mutator_instance %>();
-        const deletedInstanceIdResult: <%= it.read_return_type %> = await mutator.deleteInstance(instanceIri);
+        const deletedInstanceIdResult: <%= it.read_return_type %> = await mutator.deleteInstance(instanceIri as string);
 
         return deletedInstanceIdResult;
     },

@@ -1,7 +1,7 @@
-import { TemplateDescription } from "../../engine/eta-template-renderer";
+import { TemplateModel } from "../../engine/templates/template-interfaces";
 import { GenerationContext } from "../../engine/generator-stage-interface";
 import { LayerArtifact } from "../../engine/layer-artifact";
-import { TemplateConsumer, TemplateDependencyMap } from "../../engine/template-consumer";
+import { TemplateConsumer, TemplateDependencyMap } from "../../engine/templates/template-consumer";
 import { GeneratedFilePathCalculator } from "../../utils/artifact-saver";
 import { ApplicationLayerGenerator } from "../strategy-interface";
 
@@ -10,7 +10,7 @@ export interface ApplicationLayerTemplateDependencyMap extends TemplateDependenc
     dataLayerLinkArtifact: LayerArtifact
 }
 
-export abstract class ApplicationLayerTemplateGenerator<TemplateType extends TemplateDescription>
+export abstract class ApplicationLayerTemplateGenerator<TemplateType extends TemplateModel>
     extends TemplateConsumer<TemplateType>
     implements ApplicationLayerGenerator {
 

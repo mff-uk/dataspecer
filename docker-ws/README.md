@@ -9,7 +9,7 @@
 
 Use the following docker run command:
 ```bash
-docker run -it --name dataspecer -eBASE_URL=http://localhost/ -eUSER=1000 --mount ./database:/usr/src/app/database -p80:80 ghcr.io/dataspecer/ws
+docker run -it --name dataspecer -eBASE_URL=http://localhost/ -eUSER=1000 -v ./database:/usr/src/app/database -p80:80 ghcr.io/dataspecer/ws
 ```
 
 Or use following docker-compose file

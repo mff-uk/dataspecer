@@ -98,11 +98,11 @@ export class TypescriptWriter implements SourceCodeWriter {
             throw new Error("Attepmting to use non-valid string as property name");
         }
 
-        if (!name.match(/^[a-z0-9_]+$/i)) {
-            return `"${factory.createStringLiteral(name).text}"`;
-        }
+        // if (!name.match(/^[a-z0-9_]+$/i)) {
+        //     return `"${factory.createStringLiteral(name).text}"`;
+        // }
 
-        return name;
+        return `"${factory.createStringLiteral(name).text}"`;
     }
 
     private getPropertyValueExpression(propertyValue: LdkitSchemaProperty | string | readonly string[] | any): Expression {

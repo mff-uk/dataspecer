@@ -1,7 +1,5 @@
 import * as fs from "fs";
-import { DataSourceType } from "./engine/graph/datasource";
 import { ApplicationGraph, ApplicationGraphType } from "./engine/graph/application-graph";
-import { ApplicationGraphEdgeType } from "./engine/graph/application-graph-edge";
 import { GenappConfiguration } from "./engine/app-generator";
 
 export interface ConfigurationReader {
@@ -36,13 +34,7 @@ export class StaticConfigurationReader implements ConfigurationReader {
             edges: [ ]
         }
 
-        this._graph = new ApplicationGraph(
-            graphInstance.label,
-            graphInstance.datasources,
-            graphInstance.nodes,
-            graphInstance.edges,
-            graphInstance.dataSpecification
-        );
+        this._graph = new ApplicationGraph(graphInstance);
     }
 
     getAppConfiguration(): ApplicationGraph {
@@ -66,13 +58,7 @@ export class FileConfigurationReader implements ConfigurationReader {
 
         const graph = JSON.parse(fileContent) as ApplicationGraphType;
 
-        const appGraph: ApplicationGraph = new ApplicationGraph(
-            graph.label,
-            graph.datasources,
-            graph.nodes,
-            graph.edges,
-            graph.dataSpecification
-        );
+        const appGraph: ApplicationGraph = new ApplicationGraph(graph);
         return appGraph;
     }
 }
@@ -88,13 +74,7 @@ export class StringLiteralConfigurationReader implements ConfigurationReader {
     getAppConfiguration(): ApplicationGraph {
         const graph = this._serializedGraph;
 
-        const appGraph: ApplicationGraph = new ApplicationGraph(
-            graph.label,
-            graph.datasources,
-            graph.nodes,
-            graph.edges,
-            graph.dataSpecification
-        );
+        const appGraph: ApplicationGraph = new ApplicationGraph(graph);
         return appGraph;
     }
 }

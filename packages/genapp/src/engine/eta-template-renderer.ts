@@ -1,16 +1,7 @@
 import path from "path";
 import { Eta } from "eta";
 import { getRelativePath } from "../utils/utils";
-
-export interface ImportRelativePath {
-    from: string;
-    to: string;
-}
-
-export interface TemplateDescription {
-    templatePath: string;
-    placeholders?: { [placeHolderName: string]: string | ImportRelativePath | object | null };
-}
+import { ImportRelativePath, TemplateModel } from "./templates/template-interfaces";
 
 function isImportRelativePath(obj: any): obj is ImportRelativePath {
     if (!obj) {
@@ -23,7 +14,7 @@ function isImportRelativePath(obj: any): obj is ImportRelativePath {
         && relPath.to !== undefined;
 }
 
-export class TemplateGenerator<TTemplate extends TemplateDescription> {
+export class TemplateGenerator<TTemplate extends TemplateModel> {
 
     private readonly _eta: Eta;
     constructor() {

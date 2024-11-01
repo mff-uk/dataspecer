@@ -3,6 +3,6 @@ import { Datasource } from "../engine/graph/datasource";
 
 export type CapabilityConstructorInput = {
     capabilityLabel: string | undefined;
-    dataStructureMetadata: AggregateMetadata;
+    structureModelMetadata: AggregateMetadata;
     datasource: Datasource;
 };

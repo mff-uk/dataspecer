@@ -8,7 +8,8 @@ import {
     LIST_CAPABILITY_ID,
     DETAIL_CAPABILITY_ID,
     CREATE_CAPABILITY_ID,
-    DELETE_CAPABILITY_ID
+    DELETE_CAPABILITY_ID,
+    EDIT_CAPABILITY_ID
 } from "../capabilities";
 import archiver from "archiver";
 import { once } from "events";
@@ -17,7 +18,9 @@ import { LayerArtifact } from "./layer-artifact";
 import { ReactAppBaseGeneratorStage } from "../react-base/react-app-base-stage";
 import { CapabilityConstructorInput } from "../capabilities/constructor-input";
 import { ApplicationGraph, ApplicationGraphNode } from "./graph";
-import { AggregateMetadata } from "../application-config";
+import { AggregateMetadata, AggregateMetadataCache } from "../application-config";
+import { ArtifactCache } from "../utils/artifact-saver";
+import { EditInstanceCapability } from "../capabilities/edit-instance";
 
 export type NodeResult = {
     structure: AggregateMetadata;
@@ -40,18 +43,15 @@ export interface GenappConfiguration extends GenappEnvironmentConfig {
     serializedGraph?: string;
 }
 
-export class GenappEnvConfig
-{
+export class GenappEnvConfig {
     private static _instance: GenappEnvConfig;
     private readonly _envConfig: GenappEnvironmentConfig;
 
-    private constructor(envConfig: GenappEnvironmentConfig)
-    {
+    private constructor(envConfig: GenappEnvironmentConfig) {
         this._envConfig = envConfig;
     }
 
-    public static getInstance(envConfig: GenappEnvironmentConfig): GenappEnvConfig
-    {
+    public static getInstance(envConfig: GenappEnvironmentConfig): GenappEnvConfig {
         if (!this._instance) {
             this._instance = new this(envConfig);
         }
@@ -67,41 +67,23 @@ export class GenappEnvConfig
         return this._instance._envConfig.tmpOutDir;
     }
 
-    public static get TmpOutZipName () {
+    public static get TmpOutZipName() {
         return this._instance._envConfig.tmpOutZipname;
     }
 
 }
 
-export class ApplicationGenerator {
-    private readonly _args: GenappConfiguration;
+class ZipArchiveGenerator {
 
-    constructor(args: GenappConfiguration) {
-        this._args = args;
-        GenappEnvConfig.getInstance({
-            tmpOutDir: args.tmpOutDir,
-            backendHost: args.backendHost,
-            tmpOutZipname: args.tmpOutZipname
-        });
+    private readonly _outDir: string;
+    private readonly _outFile: string;
+
+    constructor(outDir: string, outFile: string) {
+        this._outDir = outDir;
+        this._outFile = outFile;
     }
 
-    private getCapabilityGenerator(capabilityIri: string, constructorInput: CapabilityConstructorInput): CapabilityGenerator {
-
-        switch (capabilityIri) {
-            case LIST_CAPABILITY_ID:
-                return new ListCapability(constructorInput);
-            case DETAIL_CAPABILITY_ID:
-                return new DetailCapability(constructorInput);
-            case CREATE_CAPABILITY_ID:
-                return new CreateInstanceCapability(constructorInput);
-            case DELETE_CAPABILITY_ID:
-                return new DeleteInstanceCapability(constructorInput);
-            default:
-                throw new Error(`"${capabilityIri}" does not correspond to a valid capability identifier.`);
-        }
-    }
-
-    private async generateZipArchive(tempZipFilename: string) {
+    async generateZipArchive(tempZipFilename: string) {
         const output = fs.createWriteStream(tempZipFilename);
         const zipArchive = archiver("zip", {
             statConcurrency: 2,
@@ -122,11 +104,11 @@ export class ApplicationGenerator {
         zipArchive.on("error", err => { throw err; });
 
         zipArchive.pipe(output);
-        zipArchive.directory(`${this._args.tmpOutDir}/`, "generatedApp");
+        zipArchive.directory(`${this._outDir}/`, "generatedApp");
         return zipArchive.finalize();
     }
 
-    private async getZipBuffer(tempZipFilename: string): Promise<Buffer> {
+    async getZipBuffer(tempZipFilename: string): Promise<Buffer> {
         const readStream = fs.createReadStream(tempZipFilename);
         const buffers: Buffer[] = [];
 
@@ -134,26 +116,95 @@ export class ApplicationGenerator {
 
         await once(readStream, "end");
 
-        fs.rmSync(this._args.tmpOutDir, { recursive: true });
-        fs.rmSync(tempZipFilename);
-
         return Buffer.concat(buffers);
     }
+}
 
+export class ApplicationGenerator {
+    private readonly _args: GenappConfiguration;
+
+    constructor(args: GenappConfiguration) {
+        this._args = args;
+        GenappEnvConfig.getInstance({
+            tmpOutDir: args.tmpOutDir,
+            backendHost: args.backendHost,
+            tmpOutZipname: args.tmpOutZipname
+        });
+    }
+
+    private restoreGeneratorState() {
+        ArtifactCache.resetCacheContent();
+        AggregateMetadataCache.resetCacheContent();
+    }
+
+    private getCapabilityGenerator(capabilityIri: string, constructorInput: CapabilityConstructorInput): CapabilityGenerator {
+
+        switch (capabilityIri) {
+            case LIST_CAPABILITY_ID:
+                return new ListCapability(constructorInput);
+            case DETAIL_CAPABILITY_ID:
+                return new DetailCapability(constructorInput);
+            case CREATE_CAPABILITY_ID:
+                return new CreateInstanceCapability(constructorInput);
+            case DELETE_CAPABILITY_ID:
+                return new DeleteInstanceCapability(constructorInput);
+            case EDIT_CAPABILITY_ID:
+                return new EditInstanceCapability(constructorInput);
+            default:
+                throw new Error(`"${capabilityIri}" does not correspond to a valid capability identifier.`);
+        }
+    }
+
+    /**
+     * The entrypoint to the application graph generator. Creates application graph instance,
+     * uses graph's data to generate an application prototype. When generation finishes,
+     * a ZIP archive containing generated source code is created and returned.
+     * @returns The buffer containing the generated ZIP archive containing generated application source code.
+     */
     async generate(): Promise<Buffer> {
+        this.restoreGeneratorState();
         const configReader = ConfigurationReaderFactory.createConfigurationReader(this._args);
+        const zipFilename = GenappEnvConfig.TmpOutZipName;
 
-        const appGraph: ApplicationGraph = configReader
-            .getAppConfiguration();
+        const appGraph: ApplicationGraph = configReader.getAppConfiguration();
+
+        if (!appGraph.nodes || appGraph.nodes.length === 0) {
+            console.error("Provided application graph does not contain any nodes to be generated.");
+
+            const emptyBuffer = Buffer.alloc(0);
+            return emptyBuffer;
+        }
 
         await this.generateAppFromConfig(appGraph);
 
-        const zipFilename = GenappEnvConfig.TmpOutZipName;
-        await this.generateZipArchive(zipFilename);
-        return await this.getZipBuffer(zipFilename);
+        const zipGenerator = new ZipArchiveGenerator(GenappEnvConfig.TmpOutDir, zipFilename)
+
+        await zipGenerator.generateZipArchive(zipFilename);
+
+        const generatedBuffer = await zipGenerator.getZipBuffer(zipFilename);
+
+        setTimeout(() => {
+            if (fs.existsSync(zipFilename)) {
+                console.log("REMOVING zipped application artifact: ", zipFilename);
+                fs.rmSync(zipFilename);
+            }
+
+            if (fs.existsSync(GenappEnvConfig.TmpOutDir)) {
+                console.log("REMOVING temporary app directory: ", GenappEnvConfig.TmpOutDir);
+                fs.rmSync(GenappEnvConfig.TmpOutDir, { recursive: true });
+            }
+        }, 5000);
+
+        return generatedBuffer;
     }
 
     private async generateAppFromConfig(appGraph: ApplicationGraph) {
+
+        if (!appGraph.nodes || appGraph.nodes.length === 0) {
+            console.error("Provided application graph does not contain any nodes to be generated.");
+            return;
+        }
+
         const generationPromises = appGraph.nodes.map(
             async applicationNode => {
 
@@ -168,8 +219,6 @@ export class ApplicationGenerator {
 
         const nodeResultMappings = await Promise.all(generationPromises);
 
-        console.log("MAPPING: ", nodeResultMappings);
-
         await new ReactAppBaseGeneratorStage()
             .generateApplicationBase(nodeResultMappings);
     }
@@ -178,14 +227,15 @@ export class ApplicationGenerator {
         currentNode: ApplicationGraphNode,
         graph: ApplicationGraph
     ): Promise<NodeResult> {
+
         console.log("CURRENT NODE: ", currentNode);
-        const dataStructureMetadata = await currentNode.getNodeDataStructure();
+        const structureModelMetadata = await currentNode.getNodeStructureModel();
         const { iri: capabilityIri, config: capabilityConfig } = currentNode.getCapabilityInfo();
         const capabilityLabel = currentNode.getNodeLabel("en");
 
         const capabilityConstructorInput: CapabilityConstructorInput = {
             capabilityLabel,
-            dataStructureMetadata,
+            structureModelMetadata: structureModelMetadata,
             datasource: currentNode.getDatasource(graph),
         };
 
@@ -193,7 +243,7 @@ export class ApplicationGenerator {
 
         const nodeArtifact = await capabilityGenerator
             .generateCapability({
-                aggregate: dataStructureMetadata,
+                aggregate: structureModelMetadata,
                 graph: graph,
                 node: currentNode,
                 nodeConfig: capabilityConfig,
@@ -201,8 +251,8 @@ export class ApplicationGenerator {
 
         const generatedNodeResult: NodeResult = {
             artifact: nodeArtifact,
-            structure: dataStructureMetadata,
-            nodePath: `${dataStructureMetadata.technicalLabel}/${capabilityGenerator.getLabel()}`,
+            structure: structureModelMetadata,
+            nodePath: `${structureModelMetadata.technicalLabel}/${capabilityGenerator.getLabel()}`,
             capability: {
                 type: capabilityGenerator.getType(),
                 label: capabilityGenerator.getLabel()

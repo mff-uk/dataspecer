@@ -39,6 +39,7 @@
   "error": "error",
   "generate artifacts": "Generate artifacts",
   "generate zip file": "Generate .ZIP file",
+  "generate zip file with relative paths": "Generate with relative paths",
   "import": {
     "action": "Action",
     "button import": "Import",
