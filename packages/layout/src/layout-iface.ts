@@ -101,7 +101,7 @@ export interface GraphTransformer {
      * 4) Update existing graph representation using {@link updateExistingGraphRepresentationBasedOnLibraryRepresentation} (or create new one using {@link convertLibraryToGraphRepresentation}). Created representations already include VisualModel in form of {@link IVisualEntityComplete} on nodes
      * or just call {@link convertToDataspecerRepresentation} if you no longer need the graph structure
      */
-    convertGraphToLibraryRepresentation(graph: IGraphClassic, shouldSetLayoutOptions: boolean): object,
+    convertGraphToLibraryRepresentation(graph: IGraphClassic, shouldSetLayoutOptions: boolean, constraintContainer: ConstraintContainer): object,
 
     /**
      * Converts library graph representation to our graph representation.
