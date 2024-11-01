@@ -136,6 +136,11 @@ export interface DiagramActions {
    */
   centerViewportToNode(identifier: string): void;
 
+  /**
+   * Return content of the current diagram view as a SVG string.
+   */
+  renderToSvgString(): Promise<string | null>;
+
 }
 
 export type ViewportDimensions = {

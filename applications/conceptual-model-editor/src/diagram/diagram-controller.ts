@@ -41,6 +41,7 @@ import { PropertyEdgeName } from "./edge/property-edge";
 import { type AlignmentController, useAlignmentController } from "./features/alignment-controller-v2";
 import { GeneralizationEdgeName } from "./edge/generalization-edge";
 import { ClassProfileEdgeName } from "./edge/class-profile-edge";
+import { diagramContentAsSvg } from "./render-svg";
 
 export type NodeType = Node<ApiNode>;
 
@@ -447,6 +448,9 @@ const createActions = (
       if (node !== undefined) {
         focusNodeAction(reactFlow, node);
       }
+    },
+    renderToSvgString() {
+      return diagramContentAsSvg(reactFlow.getNodes());
     },
   };
 };

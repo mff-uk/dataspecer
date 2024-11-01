@@ -3,7 +3,6 @@ import { useOptions } from "../application/options";
 import { useModelGraphContext } from "../context/model-context";
 import { useNotificationServiceWriter } from "../notification";
 import { usePackageService } from "../service/package-service-context";
-import { getSvgForCurrentView } from "../visualization";
 import { getLocalizedStringFromLanguageString } from "../util/language-utils";
 import { type Package } from "@dataspecer/core-v2/project";
 
@@ -29,18 +28,18 @@ export const usePackageSectionService = (): PackageSectionServiceType => {
             return;
         }
         const result = await updateSemanticModelPackageModels(currentPackageIdentifier, [...models.values()], [...visualModels.values()]);
-        const svgResult = await getSvgForCurrentView();
-        if (svgResult) {
-            const { svg, forModelId } = svgResult;
-            const rawSvg = decodeURIComponent(svg.split(",")[1] ?? "");
-            await fetch((import.meta.env.VITE_PUBLIC_APP_BACKEND ?? "") + "/resources/blob?iri=" + encodeURIComponent(forModelId) + "&name=svg", {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ svg: rawSvg }),
-            });
-        }
+        // const svgResult = await getSvgForCurrentView();
+        // if (svgResult) {
+        //     const { svg, forModelId } = svgResult;
+        //     const rawSvg = decodeURIComponent(svg.split(",")[1] ?? "");
+        //     await fetch((import.meta.env.VITE_PUBLIC_APP_BACKEND ?? "") + "/resources/blob?iri=" + encodeURIComponent(forModelId) + "&name=svg", {
+        //         method: "PUT",
+        //         headers: {
+        //             "Content-Type": "application/json",
+        //         },
+        //         body: JSON.stringify({ svg: rawSvg }),
+        //     });
+        // }
 
         if (result) {
             notifications.success("Package has been saved.");

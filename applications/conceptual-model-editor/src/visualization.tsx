@@ -79,40 +79,16 @@ import { type EntityModel } from "@dataspecer/core-v2";
 import { cardinalityToString } from "./util/utils";
 import { Options, useOptions } from "./application/options";
 
-/**
- * Returns SVG for the current model.
- */
-export let getSvgForCurrentView: () => Promise<{
-    svg: string;
-    forModelId: string;
-} | null>;
-
-// const NODE_TYPES = { classCustomNode: ClassCustomNode };
-
-// const EDGE_TYPES = { floating: SimpleFloatingEdge };
-
 const DEFAULT_MODEL_COLOR = "#ffffff";
 
 export const Visualization = () => {
     const options = useOptions();
     const graph = useModelGraphContext();
-    const aggregatorView = graph.aggregatorView;
-
     const actions = useActions();
-
-    const { downloadImage } = useDownload();
-
     const classesContext = useClassesContext();
 
+    const aggregatorView = graph.aggregatorView;
     const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
-    const changedVisualModel = useRef<boolean>(true);
-
-    // const [nodes, setNodes, onNodesChange] = useNodesState([]);
-    // const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-
-    // const reactFlowInstance = useReactFlow<object, object>();
-
-    // HANDLERS
 
     // const onDragOver = useCallback((event: React.DragEvent) => {
     //     event.preventDefault();
@@ -151,51 +127,6 @@ export const Visualization = () => {
     //         updateVisualEntityIfNecessary(node, activeVisualModel as WritableVisualModel);
     //     }
     // };
-
-    // EXPORT TO SVG : START
-
-    // const getSvg = () => {
-    //     // we calculate a transform for the nodes so that all nodes are visible
-    //     // we then overwrite the transform of the `.react-flow__viewport` element
-    //     // with the style option of the html-to-image library
-    //     const imageWidth = 800;
-    //     const imageHeight = 550;
-    //     const nodesBounds = getRectOfNodes(nodes);
-    //     const transform = getTransformForBounds(nodesBounds, imageWidth, imageHeight, 0.5, 2);
-    //
-    //     const flow__viewport = document.querySelector(".react-flow__viewport") as HTMLElement | null;
-    //
-    //     if (!flow__viewport) {
-    //         return;
-    //     }
-    //
-    //     return toSvg(flow__viewport, {
-    //         backgroundColor: "#ffffff",
-    //         width: imageWidth,
-    //         height: imageHeight,
-    //         style: {
-    //             width: imageWidth.toString(),
-    //             height: imageHeight.toString(),
-    //             transform: `translate(${transform[0]}px, ${transform[1]}px) scale(${transform[2]})`,
-    //         },
-    //     });
-    // };
-
-    const exportCanvasToSvg = () => {
-        // const svg = getSvg();
-        // if (svg) {
-        //     svg.then(downloadImage).catch(console.error);
-        // }
-    };
-
-    // getSvgForCurrentView = () => getSvg()?.then((svg) => {
-    //     return {
-    //         svg: svg,
-    //         forModelId: activeVisualModel?.getId() ?? "",
-    //     };
-    // }) ?? Promise.resolve(null);
-
-    // EXPORT TO SVG : END
 
     // register a callback with aggregator for visualization
     // - remove what has been removed from the visualization state
@@ -252,7 +183,7 @@ export const Visualization = () => {
             unsubscribeSemanticAggregatorCallback?.();
             unsubscribeCanvasCallback?.();
         };
-         
+
     }, [options, activeVisualModel, actions, aggregatorView, classesContext, graph]);
 
     // Update canvas content on view change.
