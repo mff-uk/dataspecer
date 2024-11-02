@@ -1,8 +1,7 @@
 import { SemanticModelEntity, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { VisualEntity } from "@dataspecer/core-v2/visual-model";
+import { VisualEntity, VisualModel } from "@dataspecer/core-v2/visual-model";
 import { ExtractedModel, LayoutAlgorithm, LayoutMethod, extractModelObjects } from "./layout-iface";
 
-import { doRandomLayoutAdvanced } from "./basic-layouts";
 import {
 	UserGivenConstraints,
 	UserGivenAlgorithmConfigurationslVersion2,
@@ -19,16 +18,15 @@ import {
 	IAlgorithmConfiguration,
 	SPECIFIC_ALGORITHM_CONVERSIONS_MAP
 } from "./configs/constraints";
-import { GraphClassic, GraphFactory, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualEntityComplete } from "./graph-iface";
+import { GraphClassic, GraphFactory, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualNodeComplete } from "./graph-iface";
 import { EdgeCrossingMetric } from "./graph-metrics/graph-metrics";
 import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs/constraint-container";
-import { VisualEntityModel } from "@dataspecer/core-v2/visual-model";
 import { EntityModel } from "@dataspecer/core-v2";
 import { ConstraintFactory } from "./configs/constraint-factories";
 import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
-import { VisualEntities } from "../../core-v2/lib/visual-model/visual-entity";
 import { PhantomElementsFactory } from "./util/utils";
 import { CONSTRAINT_MAP } from "./configs/constraints-mapping";
+import { VisualEntities } from "./migration-to-cme-v2";
 
 export type { IConstraintSimple, UserGivenConstraints, UserGivenAlgorithmConfigurationslVersion2 as UserGivenConstraintsVersion2, UserGivenAlgorithmConfigurationslVersion4 as UserGivenConstraintsVersion4 } from "./configs/constraints";
 export { getDefaultUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion2, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4 } from "./configs/constraints";
@@ -68,7 +66,7 @@ export interface NodeDimensionQueryHandler {
  * @param config
  * @param nodeDimensionQueryHandler
  */
-export async function performDynamicLayout(visualModel: VisualEntityModel,
+export async function performDynamicLayout(visualModel: VisualModel,
 										semanticModels: Record<string, EntityModel>,
 										newNodesIdentifiers: string[],
 										config: UserGivenAlgorithmConfigurationslVersion2,
@@ -89,14 +87,14 @@ export async function performDynamicLayout(visualModel: VisualEntityModel,
  * @param nodeDimensionQueryHandler
  * @returns Promise with new positions of the visual entities.
  */
-export async function performLayoutOfVisualModel(visualModel: VisualEntityModel,
+export async function performLayoutOfVisualModel(visualModel: VisualModel,
 													semanticModels: Map<string, EntityModel>,
 													config: UserGivenAlgorithmConfigurationslVersion4,
 													nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
 	console.log("config");
 	console.log(config);
 
-	// TODO: For now for simplicity just concatenate all the semantic models into one
+	// TODO: For now for simplicity just concatenate all the semantic models into one ! ... Now it actually matters with the change of visual model
 	let semanticModel: Record<string, SemanticModelEntity> = {};
 	for(const currSemanticModel of semanticModels)  {
 		semanticModel = {
@@ -122,7 +120,7 @@ export async function performLayoutOfSemanticModel(inputSemanticModel: Record<st
 }
 
 
-function performLayoutInternal(visualModel: VisualEntityModel | null,
+function performLayoutInternal(visualModel: VisualModel | null,
 								semanticModel: Record<string, SemanticModelEntity>,
 								config: UserGivenAlgorithmConfigurationslVersion4,
 								nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {

@@ -1,5 +1,5 @@
 import { VisualEntity } from "@dataspecer/core-v2/visual-model";
-import { GraphClassic, IGraphClassic, IVisualEntityComplete } from "../graph-iface";
+import { GraphClassic, IGraphClassic, IVisualNodeComplete } from "../graph-iface";
 import { AllMetricData, Metric } from "./graph-metrics-iface";
 import { Position } from "../../../core-v2/lib/visual-model/visual-entity";
 
@@ -15,12 +15,12 @@ export class EdgeCrossingMetric implements Metric {
                     for(let outNN of nn.getAllOutgoingEdges()) {
                         // TODO: Have to fix, but currently we set only the positions of the entities which are part of the visual model and not the dummy ones
                         //       (for example generalization subgraphs)
-                        if(n.completeVisualEntity === undefined || nn.completeVisualEntity === undefined) {
+                        if(n.completeVisualNode === undefined || nn.completeVisualNode === undefined) {
                             continue;
                         }
 
-                        edgeCrossingCount += EdgeCrossingMetric.isEdgeCrossForStraightLines(n.completeVisualEntity, outN.end.completeVisualEntity,
-                                                                                            nn.completeVisualEntity, outNN.end.completeVisualEntity);
+                        edgeCrossingCount += EdgeCrossingMetric.isEdgeCrossForStraightLines(n.completeVisualNode, outN.end.completeVisualNode,
+                                                                                            nn.completeVisualNode, outNN.end.completeVisualNode);
                     }
                 }
                 )
@@ -34,8 +34,8 @@ export class EdgeCrossingMetric implements Metric {
      *
      * @returns 1 for edge crossing, 0 for no edge crossing
      */
-    public static isEdgeCrossForStraightLines(source1: IVisualEntityComplete, target1: IVisualEntityComplete,
-                                              source2: IVisualEntityComplete, target2: IVisualEntityComplete): 0 | 1 {
+    public static isEdgeCrossForStraightLines(source1: IVisualNodeComplete, target1: IVisualNodeComplete,
+                                              source2: IVisualNodeComplete, target2: IVisualNodeComplete): 0 | 1 {
         const a = EdgeCrossingMetric.getMiddle(source1);
         const b = EdgeCrossingMetric.getMiddle(target1);
         const c = EdgeCrossingMetric.getMiddle(source2);
@@ -44,10 +44,11 @@ export class EdgeCrossingMetric implements Metric {
                 EdgeCrossingMetric.isCounterClockwise(a, b, c) != EdgeCrossingMetric.isCounterClockwise(a, b, d) ? 1 : 0;
     }
 
-    public static getMiddle(completeVisualEntity: IVisualEntityComplete): Position {
+    public static getMiddle(completeVisualNode: IVisualNodeComplete): Position {
         return {
-            x: completeVisualEntity.coreVisualEntity.position.x + completeVisualEntity.width / 2,
-            y: completeVisualEntity.coreVisualEntity.position.y + completeVisualEntity.height / 2,
+            x: completeVisualNode.coreVisualNode.position.x + completeVisualNode.width / 2,
+            y: completeVisualNode.coreVisualNode.position.y + completeVisualNode.height / 2,
+            anchored: null,
         };
     }
 

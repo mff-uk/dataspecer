@@ -3,6 +3,8 @@ import { useModelGraphContext } from "../context/model-context";
 import { useConfigDialog } from "./layout-dialog";
 import { performLayoutOfVisualModel } from "@dataspecer/layout";
 import { useReactflowDimensionQueryHandler } from "./reactflow-dimension-query-handler";
+import { useActions } from "../action/actions-react-binding";
+import { isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 export const useLayoutDialog = () => {
     const { getValidConfig, ConfigDialog, resetConfig } = useConfigDialog();
@@ -12,6 +14,8 @@ export const useLayoutDialog = () => {
     const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
 
     const reactflowDimensionQueryHandler = useReactflowDimensionQueryHandler();
+
+    const actions = useActions();
 
     const onClickLayout = () => {
         if(activeVisualModel === null) {
@@ -25,12 +29,20 @@ export const useLayoutDialog = () => {
                                         console.info("Layout result in editor");
                                         console.info(result);
                                         console.info(activeVisualModel.getVisualEntities());
+                                        if(!isWritableVisualModel(activeVisualModel)) {
+                                            return;
+                                        }
+
                                         Object.entries(result).forEach(([key, value]) => {
                                             if(activeVisualModel.getVisualEntity(key) === undefined) {
-                                                activeVisualModel.addEntity(value);
+                                                console.info("NEW NODE");
+                                                actions.addNodeToVisualModelToPosition(value.model, value.representedEntity, value.position)
                                             }
                                             else {
-                                                activeVisualModel?.updateEntity(key, { position: value.position, visible: true });
+                                                console.info("UPDATING");
+                                                console.info(value.identifier);
+                                                console.info(value);
+                                                activeVisualModel?.updateVisualEntity(value.identifier, value);
                                             }
                                         });
                                     }).catch(console.warn).finally(() => close());

@@ -1,7 +1,7 @@
 import { GraphTransformer, ExtractedModel, extractModelObjects, getEdgeSourceAndTargetRelationship, getEdgeSourceAndTargetGeneralization, LayoutAlgorithm } from "./layout-iface";
 import { SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { Position, VisualEntities, VisualEntity } from "../../core-v2/lib/visual-model/visual-entity";
-import { EdgeEndPoint, GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualEntityComplete } from "./graph-iface";
+import { Position, VISUAL_NODE_TYPE, VisualEntity, VisualNode } from "@dataspecer/core-v2/visual-model";
+import { EdgeEndPoint, GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualNodeComplete } from "./graph-iface";
 
 
 
@@ -19,6 +19,7 @@ import { PhantomElementsFactory } from "./util/utils";
 import _, { clone } from "lodash";
 import { GraphAlgorithms } from "./graph-algoritms";
 import { ElkConstraint } from "./configs/elk/elk-constraints";
+import { VisualEntities } from "./migration-to-cme-v2";
 
 
 /**
@@ -172,35 +173,35 @@ class ElkGraphTransformer implements GraphTransformer {
         }
 
         const visualEntities = this.recursivelyUpdateGraphBasedOnElkNode(libraryRepresentation, graphToBeUpdated, 0, 0, shouldUpdateEdges);
-        const [leftX, topY] = this.findTopLeftPosition(visualEntities.map(ve => ve.coreVisualEntity));         // TODO: The mapping is unnecesary and slow
+        const [leftX, topY] = this.findTopLeftPosition(visualEntities.map(ve => ve.coreVisualNode));         // TODO: The mapping is unnecesary and slow
         visualEntities.forEach(ve => {
-            ve.coreVisualEntity.position.x -= leftX;
-            ve.coreVisualEntity.position.y -= topY;
+            ve.coreVisualNode.position.x -= leftX;
+            ve.coreVisualNode.position.y -= topY;
         });
 
-        return Object.fromEntries(visualEntities.map(visualEntity => [visualEntity.coreVisualEntity.sourceEntityId, visualEntity.coreVisualEntity])) as VisualEntities;
+        return Object.fromEntries(visualEntities.map(visualEntity => [visualEntity.coreVisualNode.representedEntity, visualEntity.coreVisualNode])) as VisualEntities;
     }
 
 
     /**
      * Recursively updates {@link graphToBeUpdated} based on positions in {@link elkNode}.
      */
-    recursivelyUpdateGraphBasedOnElkNode(elkNode: ElkNode, graphToBeUpdated: IGraphClassic, referenceX: number, referenceY: number, shouldUpdateEdges: boolean): VisualEntityComplete[] {
+    recursivelyUpdateGraphBasedOnElkNode(elkNode: ElkNode, graphToBeUpdated: IGraphClassic, referenceX: number, referenceY: number, shouldUpdateEdges: boolean): VisualNodeComplete[] {
         // TODO: If we add phantom nodes (and later when also draw edges this may stop working)
-        let visualEntities : VisualEntityComplete[] = [];
+        let visualEntities : VisualNodeComplete[] = [];
 
         for(let ch of elkNode.children) {
-            const completeVisualEntity = this.convertElkNodeToCompleteVisualEntity(ch, referenceX, referenceY);
+            const completeVisualEntity = this.convertElkNodeToCompleteVisualEntity(ch, referenceX, referenceY, graphToBeUpdated);
             const node = graphToBeUpdated.mainGraph.findNodeInAllNodes(ch.id);
-            if(node.completeVisualEntity === undefined) {
-                node.completeVisualEntity = completeVisualEntity
+            if(node.completeVisualNode === undefined) {
+                node.completeVisualNode = completeVisualEntity
             }
             else {
-                node.completeVisualEntity.coreVisualEntity.position = completeVisualEntity.coreVisualEntity.position;
-                node.completeVisualEntity.width = completeVisualEntity.width;
-                node.completeVisualEntity.height = completeVisualEntity.height;
+                node.completeVisualNode.coreVisualNode.position = completeVisualEntity.coreVisualNode.position;
+                node.completeVisualNode.width = completeVisualEntity.width;
+                node.completeVisualNode.height = completeVisualEntity.height;
             }
-            visualEntities.push(node.completeVisualEntity);
+            visualEntities.push(node.completeVisualNode);
             if(isSubgraph(this.graph, ch)) {
                 let subgraphReferenceX = referenceX + ch.x;
                 let subgraphReferenceY = referenceY + ch.y;
@@ -267,29 +268,33 @@ class ElkGraphTransformer implements GraphTransformer {
     }
 
     convertToDataspecerRepresentation(libraryRepresentation: object | void): VisualEntities {
-        // TODO: Type void should be solved better (On Fail call random layout or something, idk)
-        if(libraryRepresentation === undefined) {
-            return undefined;
-        }
-        const libraryGraph: ElkNode = libraryRepresentation as ElkNode;
-        const visualEntities = this.convertElkNodeToVisualEntitiesRecursively(libraryGraph, 0, 0);
-        const [leftX, topY] = this.findTopLeftPosition(visualEntities);
-        visualEntities.forEach(ve => {
-            ve.position.x -= leftX;
-            ve.position.y -= topY;
-        });
+        return null;        // The method is deprecated, so no need to bother, I will probably delete it anyways
 
-        return Object.fromEntries(visualEntities.map(entity => [entity.sourceEntityId, entity])) as VisualEntities;
+        // // TODO: Type void should be solved better (On Fail call random layout or something, idk)
+        // if(libraryRepresentation === undefined) {
+        //     return undefined;
+        // }
+        // const libraryGraph: ElkNode = libraryRepresentation as ElkNode;
+        // const visualEntities = this.convertElkNodeToVisualEntitiesRecursively(libraryGraph, 0, 0);
+        // const visualNodes = visualEntities.filter(isVisualNode);
+        // const [leftX, topY] = this.findTopLeftPosition(visualNodes);
+        // // TODO: Must also update stuff which aren't nodes
+        // visualNodes.forEach(ve => {
+        //     ve.position.x -= leftX;
+        //     ve.position.y -= topY;
+        // });
+
+        // return Object.fromEntries(visualEntities.map(entity => [entity.sourceEntityId, entity])) as VisualEntities;
     }
 
 
     /**
      *
-     * @returns Top left corner of the top left entity in given {@link visEntities}
+     * @returns Top left corner of the top left entity in given {@link visualNodes}
      */
-    findTopLeftPosition(visEntities: VisualEntity[]) {
+    findTopLeftPosition(visualNodes: VisualNode[]) {
         let [leftX, topY] = [Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER];
-        for(const visEnt of visEntities) {
+        for(const visEnt of visualNodes) {
             if(visEnt.position.x <= leftX && visEnt.position.y <= topY) {
                 leftX = visEnt.position.x;
                 topY = visEnt.position.y;
@@ -306,7 +311,7 @@ class ElkGraphTransformer implements GraphTransformer {
      * @param referenceY same as {@link referenceX}, but for y coordinate
      * @returns visual entities based on given {@link elkNode}.
      */
-    private convertElkNodeToVisualEntitiesRecursively(elkNode: ElkNode, referenceX: number, referenceY: number): VisualEntity[] {
+    private convertElkNodeToVisualEntitiesRecursively(elkNode: ElkNode, referenceX: number, referenceY: number, graphToBeUpdated: IGraphClassic): VisualEntity[] {
         // TODO: If we add phantom nodes (and later when also draw edges this stops working)
         let visualEntities : VisualEntity[] = [];
 
@@ -314,10 +319,10 @@ class ElkGraphTransformer implements GraphTransformer {
             if(isSubgraph(this.graph, ch)) {
                 let subgraphReferenceX = referenceX + ch.x;
                 let subgraphReferenceY = referenceY + ch.y;
-                visualEntities = visualEntities.concat(this.convertElkNodeToVisualEntitiesRecursively(ch, subgraphReferenceX, subgraphReferenceY));
+                visualEntities = visualEntities.concat(this.convertElkNodeToVisualEntitiesRecursively(ch, subgraphReferenceX, subgraphReferenceY, graphToBeUpdated));
             }
             else {
-                visualEntities.push(this.convertElkNodeToCompleteVisualEntity(ch, referenceX, referenceY).coreVisualEntity);
+                visualEntities.push(this.convertElkNodeToCompleteVisualEntity(ch, referenceX, referenceY, graphToBeUpdated).coreVisualNode);
             }
         }
 
@@ -332,15 +337,20 @@ class ElkGraphTransformer implements GraphTransformer {
      * @param referenceY same as {@link referenceX} but for y coordinate.
      * @returns Complete visual entity which based on the values stored in {@link elkNode}
      */
-    private convertElkNodeToCompleteVisualEntity(elkNode: ElkNode, referenceX: number, referenceY: number): VisualEntityComplete {
+    private convertElkNodeToCompleteVisualEntity(elkNode: ElkNode, referenceX: number, referenceY: number, graphToBeUpdated: IGraphClassic, ): VisualNodeComplete {
         return {
-            coreVisualEntity: {
-                id: Math.random().toString(36).substring(2),
-                type: ["visual-entity"],
-                sourceEntityId: elkNode.id,
-                visible: true,
-                position: { x: referenceX + elkNode.x, y: referenceY + elkNode.y },
-                hiddenAttributes: []
+            coreVisualNode: {
+                identifier: Math.random().toString(36).substring(2),
+                type: [VISUAL_NODE_TYPE],
+                representedEntity: elkNode.id,
+                position: {
+                    x: referenceX + elkNode.x,
+                    y: referenceY + elkNode.y,
+                    anchored: null
+                },
+                content: [],
+                visualModels: [],
+                model: graphToBeUpdated.mainGraph.findNodeInAllNodes(elkNode.id).sourceEntityModelIdentifier ?? "",
             },
             width: elkNode.width,
             height: elkNode.height
@@ -358,161 +368,162 @@ class ElkGraphTransformer implements GraphTransformer {
      * @deprecated
      */
     convertToLibraryRepresentation(extractedModel: ExtractedModel, constraintContainer?: ElkConstraintContainer): ElkNode {
-        let mainLayoutOptions: LayoutOptions;
-        let generalizationLayoutOptions: LayoutOptions;
-        if(!ElkGraphTransformer.hasAlgorithmConstraintForAllNodes(constraintContainer)) {
-            mainLayoutOptions = {
-                'elk.algorithm': 'layered',
-                'elk.direction': 'UP',
-                "elk.edgeRouting": "SPLINES",
-                "spacing.nodeNodeBetweenLayers": "100",
-                "spacing.nodeNode": "100",
-                "spacing.edgeNode": "100",
-                "spacing.edgeEdge": "25",
-            };
-        }
-        else {
-            // Deprecated so whaterevr
-            mainLayoutOptions = {};
-            generalizationLayoutOptions = {};
+        return null; // Deprecated ... remove later
+//         let mainLayoutOptions: LayoutOptions;
+//         let generalizationLayoutOptions: LayoutOptions;
+//         if(!ElkGraphTransformer.hasAlgorithmConstraintForAllNodes(constraintContainer)) {
+//             mainLayoutOptions = {
+//                 'elk.algorithm': 'layered',
+//                 'elk.direction': 'UP',
+//                 "elk.edgeRouting": "SPLINES",
+//                 "spacing.nodeNodeBetweenLayers": "100",
+//                 "spacing.nodeNode": "100",
+//                 "spacing.edgeNode": "100",
+//                 "spacing.edgeEdge": "25",
+//             };
+//         }
+//         else {
+//             // Deprecated so whaterevr
+//             mainLayoutOptions = {};
+//             generalizationLayoutOptions = {};
 
-            // TODO: Don't know the exact reason why this error is happening, but I think that for example if we have
-            //       the main algorithm set as layered with direction to LEFT and the generalization to right, then there exists such edges
-            //       which goes against the flow and can't be drawn using splines, so we need to draw them orthogonally
-            //       Downside of having orthogonal edge routing is that the resulting layout inside CME is slightly worse
-
-
-	    // TODO: Set only when necessary ... just for debug now ... or actually just keep the ORTHOGONAL
-            // if(mainLayoutOptions["elk.algorithm"] === "layered" && generalizationLayoutOptions !== undefined && mainLayoutOptions["elk.direction"] !== generalizationLayoutOptions["elk.direction"]) {
-            //     //mainLayoutOptions['org.eclipse.elk.hierarchyHandling'] = "INCLUDE_CHILDREN";
-            //      mainLayoutOptions['elk.edgeRouting'] = "ORTHOGONAL";
-            //      generalizationLayoutOptions['elk.edgeRouting'] = "ORTHOGONAL";
-            // }
-            mainLayoutOptions['elk.edgeRouting'] = "ORTHOGONAL";
-            generalizationLayoutOptions['elk.edgeRouting'] = "ORTHOGONAL";
-        }
-        const MAIN_EDGE_DIRECTION: string = mainLayoutOptions['elk.direction'] === undefined ? "UP" : mainLayoutOptions['elk.direction'];
-        const GENERALIZATION_EDGE_DIRECTION: string = generalizationLayoutOptions === undefined ? MAIN_EDGE_DIRECTION : generalizationLayoutOptions['elk.direction'];
+//             // TODO: Don't know the exact reason why this error is happening, but I think that for example if we have
+//             //       the main algorithm set as layered with direction to LEFT and the generalization to right, then there exists such edges
+//             //       which goes against the flow and can't be drawn using splines, so we need to draw them orthogonally
+//             //       Downside of having orthogonal edge routing is that the resulting layout inside CME is slightly worse
 
 
-        let nodes = extractedModel.classes.map((cls) => {
-                return this.createElkNode(cls.id, null, true, undefined, cls.iri);
-            }
-        );
-
-        const profileNodes = extractedModel.classesProfiles.map(p => {
-            // TODO: The idea behind not layouting the profile classes is that we put them on correct position in second run (based on preferences, for example always under usageOf class, etc.)
-            // return this.createNode(p.id, true, { "noLayout": "true" });
-
-            return this.createElkNode(p.id, null, true, undefined, "USAGE OF: " + p.usageOf);
-        });
-
-
-        nodes = nodes.concat(profileNodes);
+// 	    // TODO: Set only when necessary ... just for debug now ... or actually just keep the ORTHOGONAL
+//             // if(mainLayoutOptions["elk.algorithm"] === "layered" && generalizationLayoutOptions !== undefined && mainLayoutOptions["elk.direction"] !== generalizationLayoutOptions["elk.direction"]) {
+//             //     //mainLayoutOptions['org.eclipse.elk.hierarchyHandling'] = "INCLUDE_CHILDREN";
+//             //      mainLayoutOptions['elk.edgeRouting'] = "ORTHOGONAL";
+//             //      generalizationLayoutOptions['elk.edgeRouting'] = "ORTHOGONAL";
+//             // }
+//             mainLayoutOptions['elk.edgeRouting'] = "ORTHOGONAL";
+//             generalizationLayoutOptions['elk.edgeRouting'] = "ORTHOGONAL";
+//         }
+//         const MAIN_EDGE_DIRECTION: string = mainLayoutOptions['elk.direction'] === undefined ? "UP" : mainLayoutOptions['elk.direction'];
+//         const GENERALIZATION_EDGE_DIRECTION: string = generalizationLayoutOptions === undefined ? MAIN_EDGE_DIRECTION : generalizationLayoutOptions['elk.direction'];
 
 
-        // TODO: Repeating the same code 3 times - refactor - just needs different direction and method to get source and target, otherwise the same
-        //       Only the class profiles are kind of weird that they don't have releationship ID
-        let edges = extractedModel.relationships.map(relationship => {
-            // TODO: In case of scheme.org the value in the concept field is the Owl#Thing, the actual value I want is in the iri part
-            //       But then I should have the nodes inside elk with id as iri (in case of profiles the ids will stay the same)
-            const {source, target, ...rest} = getEdgeSourceAndTargetRelationship(relationship);
+//         let nodes = extractedModel.classes.map((cls) => {
+//                 return this.createElkNode(cls.id, null, true, undefined, cls.iri);
+//             }
+//         );
 
-            if(!this.isEdgeWithBothEndsInModel(extractedModel, source, target)) {
-                return undefined;
-            }
+//         const profileNodes = extractedModel.classesProfiles.map(p => {
+//             // TODO: The idea behind not layouting the profile classes is that we put them on correct position in second run (based on preferences, for example always under usageOf class, etc.)
+//             // return this.createNode(p.id, true, { "noLayout": "true" });
 
-
-            const [sourcePort, targetPort] = this.getSourceAndTargetPortBasedOnDirection(MAIN_EDGE_DIRECTION);
-
-            let edge: ElkExtendedEdge = {
-                id: relationship.id,
-                sources: [ sourcePort + source ],
-                targets: [ targetPort + target ],
-            }
-
-            return edge;
-        });
-
-        edges = edges.concat(extractedModel.generalizations.map(gen => {
-            const {source: child, target: parent} = getEdgeSourceAndTargetGeneralization(gen);
-
-            if(!this.isEdgeWithBothEndsInModel(extractedModel, child, parent)) {
-                return undefined;
-            }
-
-            const [sourcePort, targetPort] = this.getSourceAndTargetPortBasedOnDirection(GENERALIZATION_EDGE_DIRECTION);
-
-            let edge: ElkExtendedEdge = {
-                id: gen.id,
-                sources: [ sourcePort + child ],
-                targets: [ targetPort + parent ],
-            }
-
-            return edge;
-        }));
-
-        let profileIndex = 0;
-        edges = edges.concat(extractedModel.classesProfiles.map(p => {
-            const [source, target] = [p.id, p.usageOf];
-
-            if(!this.isEdgeWithBothEndsInModel(extractedModel, source, target)) {
-                return undefined;
-            }
-
-            const [sourcePort, targetPort] = this.getSourceAndTargetPortBasedOnDirection(MAIN_EDGE_DIRECTION);
-
-            let edge: ElkExtendedEdge = {
-                id: `${profileIndex++}-${p.id}`,
-                sources: [ sourcePort + source ],
-                targets: [ targetPort + target ],
-            }
-
-            return edge;
-        }));
+//             return this.createElkNode(p.id, null, true, undefined, "USAGE OF: " + p.usageOf);
+//         });
 
 
-        // TODO: fixed SCHEMA.ORG for now - maybe delete later
-        edges = edges.filter(e => e !== undefined);
-
-        // TODO: Profile edges should be done by using agregator probably or something (maybe same for profile classes)
-/*
-        const profileEdges = extractedModel.relationshipsProfiles.map(relationship => {
-            let source, target: string;
-            if(relationship.ends[0].iri == null) {
-                source = relationship.ends[0].concept;
-                target = relationship.ends[1].concept;
-            }
-            else {
-                source = relationship.ends[1].concept;
-                target = relationship.ends[0].concept;
-            }
-            let edge: ElkExtendedEdge = {
-                id: relationship.id,
-                sources: [ source ],
-                targets: [ target ],
-            }
-
-            return edge
-        });
-
-        edges = edges.concat(profileEdges);
-*/
+//         nodes = nodes.concat(profileNodes);
 
 
-        let graph: ElkNode = {
-            id: "root",
-            layoutOptions: mainLayoutOptions,
-            children: nodes,
-            edges: edges
-        };
+//         // TODO: Repeating the same code 3 times - refactor - just needs different direction and method to get source and target, otherwise the same
+//         //       Only the class profiles are kind of weird that they don't have releationship ID
+//         let edges = extractedModel.relationships.map(relationship => {
+//             // TODO: In case of scheme.org the value in the concept field is the Owl#Thing, the actual value I want is in the iri part
+//             //       But then I should have the nodes inside elk with id as iri (in case of profiles the ids will stay the same)
+//             const {source, target, ...rest} = getEdgeSourceAndTargetRelationship(relationship);
+
+//             if(!this.isEdgeWithBothEndsInModel(extractedModel, source, target)) {
+//                 return undefined;
+//             }
 
 
-        if(generalizationLayoutOptions !== undefined) {
-            this.createAndAddGeneralizationSubgraphsInElk(graph, extractedModel.generalizations, generalizationLayoutOptions);
-        }
+//             const [sourcePort, targetPort] = this.getSourceAndTargetPortBasedOnDirection(MAIN_EDGE_DIRECTION);
 
-        return graph;
+//             let edge: ElkExtendedEdge = {
+//                 id: relationship.id,
+//                 sources: [ sourcePort + source ],
+//                 targets: [ targetPort + target ],
+//             }
+
+//             return edge;
+//         });
+
+//         edges = edges.concat(extractedModel.generalizations.map(gen => {
+//             const {source: child, target: parent} = getEdgeSourceAndTargetGeneralization(gen);
+
+//             if(!this.isEdgeWithBothEndsInModel(extractedModel, child, parent)) {
+//                 return undefined;
+//             }
+
+//             const [sourcePort, targetPort] = this.getSourceAndTargetPortBasedOnDirection(GENERALIZATION_EDGE_DIRECTION);
+
+//             let edge: ElkExtendedEdge = {
+//                 id: gen.id,
+//                 sources: [ sourcePort + child ],
+//                 targets: [ targetPort + parent ],
+//             }
+
+//             return edge;
+//         }));
+
+//         let profileIndex = 0;
+//         edges = edges.concat(extractedModel.classesProfiles.map(p => {
+//             const [source, target] = [p.id, p.usageOf];
+
+//             if(!this.isEdgeWithBothEndsInModel(extractedModel, source, target)) {
+//                 return undefined;
+//             }
+
+//             const [sourcePort, targetPort] = this.getSourceAndTargetPortBasedOnDirection(MAIN_EDGE_DIRECTION);
+
+//             let edge: ElkExtendedEdge = {
+//                 id: `${profileIndex++}-${p.id}`,
+//                 sources: [ sourcePort + source ],
+//                 targets: [ targetPort + target ],
+//             }
+
+//             return edge;
+//         }));
+
+
+//         // TODO: fixed SCHEMA.ORG for now - maybe delete later
+//         edges = edges.filter(e => e !== undefined);
+
+//         // TODO: Profile edges should be done by using agregator probably or something (maybe same for profile classes)
+// /*
+//         const profileEdges = extractedModel.relationshipsProfiles.map(relationship => {
+//             let source, target: string;
+//             if(relationship.ends[0].iri == null) {
+//                 source = relationship.ends[0].concept;
+//                 target = relationship.ends[1].concept;
+//             }
+//             else {
+//                 source = relationship.ends[1].concept;
+//                 target = relationship.ends[0].concept;
+//             }
+//             let edge: ElkExtendedEdge = {
+//                 id: relationship.id,
+//                 sources: [ source ],
+//                 targets: [ target ],
+//             }
+
+//             return edge
+//         });
+
+//         edges = edges.concat(profileEdges);
+// */
+
+
+//         let graph: ElkNode = {
+//             id: "root",
+//             layoutOptions: mainLayoutOptions,
+//             children: nodes,
+//             edges: edges
+//         };
+
+
+//         if(generalizationLayoutOptions !== undefined) {
+//             this.createAndAddGeneralizationSubgraphsInElk(graph, extractedModel.generalizations, generalizationLayoutOptions);
+//         }
+
+//         return graph;
     }
 
     // TODO: !!!! Should be ok now and satisfied in the input graph already
@@ -522,8 +533,9 @@ class ElkGraphTransformer implements GraphTransformer {
      * @deprecated
      */
     isEdgeWithBothEndsInModel(extractedModel: ExtractedModel, source: string, target: string): boolean {
-        return (extractedModel.classes.findIndex(e => e.id === source) >= 0 || extractedModel.classesProfiles.findIndex(e => e.id === source) >= 0) &&
-                (extractedModel.classes.findIndex(e => e.id === target) >= 0 || extractedModel.classesProfiles.findIndex(e => e.id === target) >= 0)
+        return false;       // TODO: Deprecated ... remove later
+        // return (extractedModel.classes.findIndex(e => e.id === source) >= 0 || extractedModel.classesProfiles.findIndex(e => e.id === source) >= 0) &&
+        //         (extractedModel.classes.findIndex(e => e.id === target) >= 0 || extractedModel.classesProfiles.findIndex(e => e.id === target) >= 0)
     }
 
     // TODO: Now I am actually not sure, since north isn't always north (it depends on the direction of layout algorithm),
@@ -895,7 +907,7 @@ class ElkGraphTransformer implements GraphTransformer {
             };
         }
 
-        const position = graphNode?.completeVisualEntity?.coreVisualEntity?.position;
+        const position = graphNode?.completeVisualNode?.coreVisualNode?.position;
         // TODO: Still touching the data and I would like to have more than 1 algorithm in future for example in the "ALL" bracket
         const isInteractiveGeneralization = constraintContainer?.currentLayoutAction?.action?.constraintedNodes === "GENERALIZATION" &&
                         String(constraintContainer?.currentLayoutAction?.action?.data?.["interactive"]) === "true" &&
@@ -910,7 +922,7 @@ class ElkGraphTransformer implements GraphTransformer {
         if(position !== undefined &&
             (isInteractiveGeneralization || isInteractiveAll || isInteractiveGeneralizationSubgraphs)
           ) {
-            const parentPosition = graphNode.getSourceGraph()?.completeVisualEntity?.coreVisualEntity?.position;
+            const parentPosition = graphNode.getSourceGraph()?.completeVisualNode?.coreVisualNode?.position;
             node.x = position.x - (parentPosition?.x ?? 0);
             node.y = position.y - (parentPosition?.y ?? 0);
         }

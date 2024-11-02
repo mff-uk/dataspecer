@@ -1,35 +1,13 @@
 import { ExtractedModel, LayoutAlgorithm, extractModelObjects } from "./layout-iface";
 import { SemanticModelEntity, isSemanticModelClass, isSemanticModelRelationship, isSemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
-import { VisualEntities, VisualEntity } from "../../core-v2/lib/visual-model/visual-entity";
+import { VisualEntity, VisualNode } from "../../core-v2/lib/visual-model/visual-entity";
 import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ConstraintContainer } from "./configs/constraint-container";
 import { NodeDimensionQueryHandler } from ".";
 import { GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, MainGraphClassic } from "./graph-iface";
 import { PhantomElementsFactory } from "./util/utils";
 import _ from "lodash";
-
-
-/**
- * Performs random layout on classes (not class profiles) from extracted model
- * @deprecated
- */
-export async function doRandomLayoutAdvanced(extractedModel: ExtractedModel): Promise<VisualEntities> {
-    // TODO: Only classes
-    const { entities, classes, classesProfiles, relationships, relationshipsProfiles, generalizations } = extractedModel;
-
-    const visualEntities = classes.map(cls => ({
-        id: Math.random().toString(36).substring(2), // Random unique id of visual entity
-        type: ["visual-entity"], // Type of visual entity, keep it as is
-        sourceEntityId: cls.id, // ID of the class you want to visualize
-        visible: true,
-        position: { x: Math.ceil(Math.random() * 300 * Math.sqrt(classes.length)), y: Math.ceil(Math.random() * 150 * Math.sqrt(classes.length)) },
-        hiddenAttributes: [],
-    } as VisualEntity));
-
-    console.log(visualEntities);
-
-    return Object.fromEntries(visualEntities.map(entity => [entity.sourceEntityId, entity])) as VisualEntities;
-}
+import { VisualEntities } from "./migration-to-cme-v2";
 
 
 /**
@@ -43,17 +21,22 @@ export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic, node
     }
     const classNodes = Object.values(graph.nodes).filter(node => !node.isDummy);
     classNodes.forEach(classNode => {
-        const visualEntity =  {
-            id: Math.random().toString(36).substring(2), // Random unique id of visual entity
-            type: ["visual-entity"], // Type of visual entity, keep it as is
-            sourceEntityId: classNode.node.id, // ID of the class you want to visualize
-            visible: true,
-            position: { x: Math.ceil(Math.random() * 400 * Math.sqrt(classNodes.length)), y: Math.ceil(Math.random() * 250 * Math.sqrt(classNodes.length)) },
+        const visualNode = {
+            identifier: Math.random().toString(36).substring(2),
+            type: ["visual-entity"],
+            representedEntity: classNode.id,
+            model: classNode.sourceEntityModelIdentifier ?? "",
+            position: {
+                x: Math.ceil(Math.random() * 400 * Math.sqrt(classNodes.length)),
+                y: Math.ceil(Math.random() * 250 * Math.sqrt(classNodes.length)),
+                anchored: null,
+            },
             // position: { x: Math.ceil(Math.random() * 1600), y: Math.ceil(Math.random() * 1000) },
-            hiddenAttributes: [],
-        } as VisualEntity;
-        classNode.completeVisualEntity = {
-            coreVisualEntity: visualEntity,
+            content: [],    // What is this?
+            visualModels: [],
+        } as VisualNode;
+        classNode.completeVisualNode = {
+            coreVisualNode: visualNode,
             width: nodeDimensionQueryHandler.getWidth(classNode),
             height: nodeDimensionQueryHandler.getHeight(classNode),
         };
@@ -126,14 +109,19 @@ export async function doBlockLayout(inputSemanticModel: Record<string, SemanticM
         }
 
         return {
-            id: Math.random().toString(36).substring(2),
+            identifier: Math.random().toString(36).substring(2),
             type: ["visual-entity"],
-            sourceEntityId: cls.id,
-            visible: true,
-            position: { x: currCol * options.colJump, y: currRow * options.rowJump },
-            hiddenAttributes: [],
-        } as VisualEntity
+            representedEntity: cls.sourceEntityModelIdentifier,
+            model: Object.keys(inputSemanticModel)[0],
+            position: {
+                x: currCol * options.colJump,
+                y: currRow * options.rowJump,
+                anchored: null
+            },
+            content: [],
+            visualModels: [],
+        } as VisualNode
     });
 
-    return Object.fromEntries(visualEntities.map(entity => [entity.sourceEntityId, entity])) as VisualEntities;
+    return Object.fromEntries(visualEntities.map(entity => [entity.representedEntity, entity])) as VisualEntities;
 }

@@ -252,7 +252,7 @@ export const Visualization = () => {
             unsubscribeSemanticAggregatorCallback?.();
             unsubscribeCanvasCallback?.();
         };
-         
+
     }, [options, activeVisualModel, actions, aggregatorView, classesContext, graph]);
 
     // Update canvas content on view change.
