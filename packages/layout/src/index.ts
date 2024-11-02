@@ -1,6 +1,6 @@
 import { SemanticModelEntity, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { VisualEntity, VisualModel } from "@dataspecer/core-v2/visual-model";
-import { ExtractedModel, LayoutAlgorithm, LayoutMethod, extractModelObjects } from "./layout-iface";
+import { ExtractedModels, LayoutAlgorithm, LayoutMethod, extractModelObjects } from "./layout-iface";
 
 import {
 	UserGivenConstraints,
@@ -103,7 +103,8 @@ export async function performLayoutOfVisualModel(visualModel: VisualModel,
 		};
 	}
 
-	const visualEntitiesPromise = performLayoutInternal(visualModel, semanticModel, config, nodeDimensionQueryHandler);
+
+	const visualEntitiesPromise = performLayoutInternal(visualModel, semanticModels, config, nodeDimensionQueryHandler);
 	return visualEntitiesPromise;
 }
 
@@ -115,20 +116,21 @@ export async function performLayoutOfVisualModel(visualModel: VisualModel,
 export async function performLayoutOfSemanticModel(inputSemanticModel: Record<string, SemanticModelEntity>,
 													config: UserGivenAlgorithmConfigurationslVersion4,
 													nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
-	const visualEntitiesPromise = performLayoutInternal(null, inputSemanticModel, config, nodeDimensionQueryHandler);
-	return visualEntitiesPromise;
+	throw new Error("TODO: We need to pass the identifier of the semantic model in");
+	// const visualEntitiesPromise = performLayoutInternal(null, inputSemanticModel, config, nodeDimensionQueryHandler);
+	// return visualEntitiesPromise;
 }
 
 
 function performLayoutInternal(visualModel: VisualModel | null,
-								semanticModel: Record<string, SemanticModelEntity>,
+								semanticModels: Map<string, EntityModel>,
 								config: UserGivenAlgorithmConfigurationslVersion4,
 								nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
 	if(nodeDimensionQueryHandler === undefined) {
 		nodeDimensionQueryHandler = new ReactflowDimensionsEstimator();
 	}
 
-	const graph = GraphFactory.createMainGraph(null, semanticModel, null, visualModel);
+	const graph = GraphFactory.createMainGraph(null, semanticModels, null, visualModel);
 	const visualEntitiesPromise = performLayoutFromGraph(graph, config, nodeDimensionQueryHandler);
 
 	if(visualEntitiesPromise == undefined) {

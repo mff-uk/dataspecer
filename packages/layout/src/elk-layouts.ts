@@ -1,4 +1,4 @@
-import { GraphTransformer, ExtractedModel, extractModelObjects, getEdgeSourceAndTargetRelationship, getEdgeSourceAndTargetGeneralization, LayoutAlgorithm } from "./layout-iface";
+import { GraphTransformer, ExtractedModels, extractModelObjects, getEdgeSourceAndTargetRelationship, getEdgeSourceAndTargetGeneralization, LayoutAlgorithm } from "./layout-iface";
 import { SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { Position, VISUAL_NODE_TYPE, VisualEntity, VisualNode } from "@dataspecer/core-v2/visual-model";
 import { EdgeEndPoint, GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualNodeComplete } from "./graph-iface";
@@ -367,7 +367,7 @@ class ElkGraphTransformer implements GraphTransformer {
     /**
      * @deprecated
      */
-    convertToLibraryRepresentation(extractedModel: ExtractedModel, constraintContainer?: ElkConstraintContainer): ElkNode {
+    convertToLibraryRepresentation(extractedModel: ExtractedModels, constraintContainer?: ElkConstraintContainer): ElkNode {
         return null; // Deprecated ... remove later
 //         let mainLayoutOptions: LayoutOptions;
 //         let generalizationLayoutOptions: LayoutOptions;
@@ -532,7 +532,7 @@ class ElkGraphTransformer implements GraphTransformer {
     /**
      * @deprecated
      */
-    isEdgeWithBothEndsInModel(extractedModel: ExtractedModel, source: string, target: string): boolean {
+    isEdgeWithBothEndsInModel(extractedModels: ExtractedModels, source: string, target: string): boolean {
         return false;       // TODO: Deprecated ... remove later
         // return (extractedModel.classes.findIndex(e => e.id === source) >= 0 || extractedModel.classesProfiles.findIndex(e => e.id === source) >= 0) &&
         //         (extractedModel.classes.findIndex(e => e.id === target) >= 0 || extractedModel.classesProfiles.findIndex(e => e.id === target) >= 0)
@@ -1017,9 +1017,9 @@ export class ElkLayout implements LayoutAlgorithm {
     /**
      * @deprecated
      */
-    prepare(extractedModel: ExtractedModel, constraintContainer: ElkConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
-        this.elkGraphTransformer = new ElkGraphTransformer(GraphFactory.createMainGraph(null, extractedModel, null, null), nodeDimensionQueryHandler, constraintContainer);
-        this.graphInElk = this.elkGraphTransformer.convertToLibraryRepresentation(extractedModel, constraintContainer);
+    prepare(extractedModels: ExtractedModels, constraintContainer: ElkConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
+        this.elkGraphTransformer = new ElkGraphTransformer(GraphFactory.createMainGraph(null, extractedModels, null, null), nodeDimensionQueryHandler, constraintContainer);
+        this.graphInElk = this.elkGraphTransformer.convertToLibraryRepresentation(extractedModels, constraintContainer);
         this.constraintContainer = constraintContainer;
         this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
     }

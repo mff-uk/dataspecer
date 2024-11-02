@@ -1,4 +1,4 @@
-import { ExtractedModel, LayoutAlgorithm, extractModelObjects } from "./layout-iface";
+import { ExtractedModels, LayoutAlgorithm, extractModelObjects } from "./layout-iface";
 import { SemanticModelEntity, isSemanticModelClass, isSemanticModelRelationship, isSemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
 import { VisualEntity, VisualNode } from "../../core-v2/lib/visual-model/visual-entity";
 import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
@@ -8,6 +8,7 @@ import { GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, MainGraph
 import { PhantomElementsFactory } from "./util/utils";
 import _ from "lodash";
 import { VisualEntities } from "./migration-to-cme-v2";
+import { EntityModel } from "@dataspecer/core-v2";
 
 
 /**
@@ -55,9 +56,9 @@ export class RandomLayout implements LayoutAlgorithm {
     /**
      * @deprecated
      */
-    prepare(extractedModel: ExtractedModel, constraintContainer: ConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
-        this.extractedModel = extractedModel;
-        this.graph = GraphFactory.createMainGraph(null, extractedModel, null, null);
+    prepare(extractedModels: ExtractedModels, constraintContainer: ConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
+        this.extractedModels = extractedModels;
+        this.graph = GraphFactory.createMainGraph(null, extractedModels, null, null);
         this.constraintContainer = constraintContainer;
         this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
     }
@@ -79,7 +80,7 @@ export class RandomLayout implements LayoutAlgorithm {
     }
 
     graph: IGraphClassic;
-    extractedModel: ExtractedModel;         // TODO: Can remove
+    extractedModels: ExtractedModels;         // TODO: Can remove
     constraintContainer: ConstraintContainer;
     nodeDimensionQueryHandler: NodeDimensionQueryHandler;
 }
@@ -95,8 +96,8 @@ export interface BlockLayoutOptions {
  * Puts nodes into block
  * @deprecated
  */
-export async function doBlockLayout(inputSemanticModel: Record<string, SemanticModelEntity>, options: BlockLayoutOptions): Promise<VisualEntities> {
-    const { entities, classes, classesProfiles, relationships, relationshipsProfiles, generalizations } = extractModelObjects(inputSemanticModel);
+export async function doBlockLayout(inputSemanticModels: Map<string, EntityModel>, options: BlockLayoutOptions): Promise<VisualEntities> {
+    const { entities, classes, classesProfiles, relationships, relationshipsProfiles, generalizations } = extractModelObjects(inputSemanticModels);
 
     let currRow: number = 0;
     let currCol: number = -1;
@@ -112,7 +113,7 @@ export async function doBlockLayout(inputSemanticModel: Record<string, SemanticM
             identifier: Math.random().toString(36).substring(2),
             type: ["visual-entity"],
             representedEntity: cls.sourceEntityModelIdentifier,
-            model: Object.keys(inputSemanticModel)[0],
+            model: Object.values(inputSemanticModels)[0].getId(),
             position: {
                 x: currCol * options.colJump,
                 y: currRow * options.rowJump,

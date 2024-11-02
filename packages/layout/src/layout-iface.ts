@@ -15,7 +15,7 @@ import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage,
 import { ConstraintContainer } from "./configs/constraint-container";
 import { NodeDimensionQueryHandler } from ".";
 import { VisualEntities } from "./migration-to-cme-v2";
-import { Entity } from "@dataspecer/core-v2";
+import { Entity, EntityModel } from "@dataspecer/core-v2";
 
 
 export type LayoutMethod = (inputSemanticModel: Record<string, SemanticModelEntity>, options?: object) => Promise<VisualEntities>
@@ -30,7 +30,7 @@ export interface LayoutAlgorithm {
     /**
      * @deprecated
      */
-    prepare: (extractedModel: ExtractedModel, constraintContainer: ConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler) => void,
+    prepare: (extractedModels: ExtractedModels, constraintContainer: ConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler) => void,
     /**
      * Prepares the algorithm for future layouting. The future layouting will layout given graph and use given constraints.
      * @param graph
@@ -87,21 +87,21 @@ type RelationshipsBundle = {
 
 type RelationshipsProfilesBundle = {
     sourceEntityModelIdentifier: string,
-    semanticModelRelationshipUsage: SemanticModelRelationshipUsage
+    semanticModelRelationshipUsage: SemanticModelRelationshipUsage,
 };
 
 type GeneralizationsBundle = {
     sourceEntityModelIdentifier: string,
-    semanticModelGeneralization: SemanticModelGeneralization
+    semanticModelGeneralization: SemanticModelGeneralization,
 };
 
 type AttributesBundle = {
     sourceEntityModelIdentifier: string,
-    semanticModelRelationship: SemanticModelRelationship
+    semanticModelRelationship: SemanticModelRelationship,
 };
 
 
-export interface ExtractedModel {
+export interface ExtractedModels {
     entities: EntitiesBundle[],
     classes: ClassesBundle[],
     classesProfiles: ClassProfilesBundle[],
@@ -118,12 +118,12 @@ export interface ExtractedModel {
  */
 export interface GraphTransformer {
     /** Expected call flow is as follows:
-     * 1) Get {@link ExtractedModel} from provided model
+     * 1) Get {@link ExtractedModels} from provided model
      * 2) Call this method
      * 3) Perform layouting
      * 4) Convert layouted elements to {@link VisualEntities} using {@link convertToDataspecerRepresentation}, these elements can then be shown in cme (conceptual model editor).
      * @deprecated (not deprecated yet though) Use {@link convertGraphToLibraryRepresentation} instead */
-    convertToLibraryRepresentation(extractedModel: ExtractedModel, options?: object): object,
+    convertToLibraryRepresentation(extractedModels: ExtractedModels, options?: object): object,
 
     /**
      * Not necessarily deprecated, but it is better to just work with the graph instead of having another method which does the same thing, but maybe a little faster
@@ -166,42 +166,49 @@ function filterForExtraction(entities: EntitiesBundle[], predicate: (resource: E
 }
 
 /**
- * Converts entities from given semantic model into concrete data types. Returns them in object of type {@link ExtractedModel}
+ * Converts entities from given semantic model into concrete data types. Returns them in object of type {@link ExtractedModels}
  */
-export function extractModelObjects(inputSemanticModel: Record<string, SemanticModelEntity>): ExtractedModel {
-    const entities = Object.entries(inputSemanticModel).map(([key, value]) => ({
-        sourceEntityModelIdentifier: key,
-        semanticModelEntity: value,
-    }));
+export function extractModelObjects(inputSemanticModels: Map<string, EntityModel>): ExtractedModels {
+    const entitiesInModels: EntitiesBundle[][] = [...inputSemanticModels.entries()].map(([modelIdentifier, model]) => {
+        return Object.entries(model.getEntities() as Record<string, SemanticModelEntity>).map(([key, value]) => ({
+            sourceEntityModelIdentifier: modelIdentifier,
+            semanticModelEntity: value,
+        }));
+    });
+
+    const entities: EntitiesBundle[] = [];
+    entitiesInModels.forEach(model => {
+        entities.push(...model);
+    });
 
     const classes = filterForExtraction(entities, isSemanticModelClass).map((o) => {
         return {
             sourceEntityModelIdentifier: o.sourceEntityModelIdentifier,
-            semanticModelClass: o.semanticModelEntity as SemanticModelClass
+            semanticModelClass: o.semanticModelEntity as SemanticModelClass,
         }
     });
     const classesProfiles = filterForExtraction(entities, isSemanticModelClassUsage).map((o) => {
         return {
             sourceEntityModelIdentifier: o.sourceEntityModelIdentifier,
-            semanticModelClassUsage: o.semanticModelEntity as SemanticModelClassUsage
+            semanticModelClassUsage: o.semanticModelEntity as SemanticModelClassUsage,
         }
     });
     const relationshipsProfiles = filterForExtraction(entities, isSemanticModelRelationshipUsage).map((o) => {
         return {
             sourceEntityModelIdentifier: o.sourceEntityModelIdentifier,
-            semanticModelRelationshipUsage: o.semanticModelEntity as SemanticModelRelationshipUsage
+            semanticModelRelationshipUsage: o.semanticModelEntity as SemanticModelRelationshipUsage,
         }
     });
     const generalizations = filterForExtraction(entities, isSemanticModelGeneralization).map((o) => {
         return {
             sourceEntityModelIdentifier: o.sourceEntityModelIdentifier,
-            semanticModelGeneralization: o.semanticModelEntity as SemanticModelGeneralization
+            semanticModelGeneralization: o.semanticModelEntity as SemanticModelGeneralization,
         }
     });
     const attributes = filterForExtraction(entities, isSemanticModelAttribute).map((o) => {
         return {
             sourceEntityModelIdentifier: o.sourceEntityModelIdentifier,
-            semanticModelRelationship: o.semanticModelEntity as SemanticModelRelationship
+            semanticModelRelationship: o.semanticModelEntity as SemanticModelRelationship,
         }
     });
 
@@ -210,7 +217,7 @@ export function extractModelObjects(inputSemanticModel: Record<string, SemanticM
                                             !isSemanticModelAttribute(o.semanticModelEntity))).map((o) => {
                                                 return {
                                                     sourceEntityModelIdentifier: o.sourceEntityModelIdentifier,
-                                                    semanticModelRelationship: o.semanticModelEntity as SemanticModelRelationship
+                                                    semanticModelRelationship: o.semanticModelEntity as SemanticModelRelationship,
                                                 }
                                             });
 
