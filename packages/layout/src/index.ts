@@ -310,5 +310,6 @@ const runMainLayoutAlgorithm = async (graph: IMainGraphClassic,
 	}
 
 	console.log("MIN Edge cross count: " + minEdgeCrossCount);
+	console.log(await bestLayoutedVisualEntitiesPromise);
 	return bestLayoutedVisualEntitiesPromise;
 }

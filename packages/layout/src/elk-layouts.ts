@@ -215,7 +215,7 @@ class ElkGraphTransformer implements GraphTransformer {
             const completeVisualEntity = this.convertElkNodeToCompleteVisualEntity(ch, referenceX, referenceY, graphToBeUpdated);
             const node = graphToBeUpdated.mainGraph.findNodeInAllNodes(ch.id);
             if(node.completeVisualNode === undefined) {
-                node.completeVisualNode = completeVisualEntity
+                node.completeVisualNode = completeVisualEntity;
             }
             else {
                 node.completeVisualNode.coreVisualNode.position = completeVisualEntity.coreVisualNode.position;
@@ -236,8 +236,13 @@ class ElkGraphTransformer implements GraphTransformer {
                 const visualEdge = this.convertElkEdgeToVisualRelationship(edge, referenceX, referenceY, graphToBeUpdated);
                 const edgeInGraph = graphToBeUpdated.mainGraph.findEdgeInAllEdges(edge.id);
                 // TODO: Update the visual entity of edge or create new one .... But what about the split ones???
-                edgeInGraph.visualEdge.waypoints = visualEdge.waypoints;
-                visualEntities.push(visualEdge);
+                if(edgeInGraph.visualEdge === undefined) {
+                    edgeInGraph.visualEdge = visualEdge;
+                }
+                else {
+                    edgeInGraph.visualEdge.waypoints = visualEdge.waypoints;
+                }
+                visualEntities.push(edgeInGraph.visualEdge);
             }
         }
         return visualEntities;

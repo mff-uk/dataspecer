@@ -1,7 +1,5 @@
 import { ExtractedModels, LayoutAlgorithm, extractModelObjects } from "./layout-iface";
 import { SemanticModelEntity, isSemanticModelClass, isSemanticModelRelationship, isSemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
-import { VisualEntity, VisualNode } from "../../core-v2/lib/visual-model/visual-entity";
-import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ConstraintContainer } from "./configs/constraint-container";
 import { NodeDimensionQueryHandler } from ".";
 import { GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, MainGraphClassic } from "./graph-iface";
@@ -9,6 +7,7 @@ import { PhantomElementsFactory } from "./util/utils";
 import _ from "lodash";
 import { VisualEntities } from "./migration-to-cme-v2";
 import { EntityModel } from "@dataspecer/core-v2";
+import { VISUAL_NODE_TYPE, VisualNode } from "@dataspecer/core-v2/visual-model";
 
 
 /**
@@ -24,7 +23,7 @@ export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic, node
     classNodes.forEach(classNode => {
         const visualNode = {
             identifier: Math.random().toString(36).substring(2),
-            type: ["visual-entity"],
+            type: [VISUAL_NODE_TYPE],
             representedEntity: classNode.id,
             model: classNode.sourceEntityModelIdentifier ?? "",
             position: {
@@ -36,11 +35,22 @@ export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic, node
             content: [],    // What is this?
             visualModels: [],
         } as VisualNode;
-        classNode.completeVisualNode = {
-            coreVisualNode: visualNode,
-            width: nodeDimensionQueryHandler.getWidth(classNode),
-            height: nodeDimensionQueryHandler.getHeight(classNode),
-        };
+
+        const width = nodeDimensionQueryHandler.getWidth(classNode);
+        const height = nodeDimensionQueryHandler.getHeight(classNode);
+        if(classNode.completeVisualNode === undefined) {
+            classNode.completeVisualNode = {
+                coreVisualNode: visualNode,
+                width: width,
+                height: height,
+            };
+        }
+        else {
+            classNode.completeVisualNode.coreVisualNode.position.x = visualNode.position.x;
+            classNode.completeVisualNode.coreVisualNode.position.y = visualNode.position.y;
+            classNode.completeVisualNode.width = width;
+            classNode.completeVisualNode.height = height;
+        }
     });
     return graph.mainGraph;     // TODO: !!! Well should it be mainGraph or not? what should we do if we want to layout only part of the graph - only the given argument?
 }
