@@ -254,7 +254,7 @@ const isRelationshipInVisualModel = (visualModel: VisualModel | null,
                                     relationshipIdentifier: string,
                                     ends: [string, string]): boolean => {
     const visualEntity = visualModel?.getVisualEntityForRepresented(relationshipIdentifier);
-    return visualModel === null || visualEntity !== undefined;
+    return visualModel === null || visualEntity !== null;
 };
 
 
@@ -265,7 +265,7 @@ const isNodeInVisualModel = (visualModel: VisualModel | null,
                                 nodeIdentifier: string): boolean => {
     // TODO: For now ... in future I should use the ids of visual model instead of the semantic ones
     const visualEntity = visualModel?.getVisualEntityForRepresented(nodeIdentifier);
-    return visualModel === null || visualEntity !== undefined;
+    return visualModel === null || visualEntity !== null;
 };
 
 
@@ -278,7 +278,7 @@ const isGeneralizationInVisualModel = (visualModel: VisualModel | null,
     const visualEntityChild = visualModel?.getVisualEntityForRepresented(generalization.child);
     const visualEntityParent = visualModel?.getVisualEntityForRepresented(generalization.parent);
     return (visualModel === null) ||
-                (visualEntityChild !== undefined && visualEntityParent !== undefined);
+                (visualEntityChild !== null && visualEntityParent !== null);
 };
 
 
