@@ -2,7 +2,7 @@ import { isSemanticModelGeneralization, SemanticModelClass, SemanticModelEntity,
 import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { EntitiesBundle, ExtractedModels, extractModelObjects, getEdgeSourceAndTargetGeneralization, getEdgeSourceAndTargetRelationship, getEdgeSourceAndTargetRelationshipUsage } from "./layout-iface";
 
-import { VisualModel, isVisualNode, Position, VisualEntity, VisualNode } from "@dataspecer/core-v2/visual-model";
+import { VisualModel, isVisualNode, Position, VisualEntity, VisualNode, VisualRelationship, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
 import { capitalizeFirstLetter, PhantomElementsFactory } from "./util/utils";
 import { VisualEntities } from "./migration-to-cme-v2";
 import { EntityModel } from "@dataspecer/core-v2";
@@ -731,15 +731,14 @@ export class MainGraphClassic extends GraphClassic implements IMainGraphClassic 
             visualEntities[node.id] = visualEntityForNode;
         }
 
-        // TODO: Wait for Visual-model v2
-        // for(const edge of this.allEdges) {
-        //     if(edge.isDummy) {
-        //         continue;
-        //     }
+        for(const edge of this.allEdges) {
+            if(edge.isDummy) {
+                continue;
+            }
 
-        //     const visualEntityForNode = edge.convertToDataspecerRepresentation();
-        //     visualEntities[edge.id] = visualEntityForNode;
-        // }
+            const visualEntityForEdge = edge.convertToDataspecerRepresentation();
+            visualEntities[edge.id] = visualEntityForEdge;
+        }
 
         return visualEntities;
     }
@@ -758,44 +757,47 @@ export interface IEdgeClassic {
      * The graph in which the edge lies, this is relevant for example for ELK layouting library,
      * where the edges have to be stored within the relevant wrapper graph.
      */
-    sourceGraph: IGraphClassic,
+    sourceGraph: IGraphClassic;
+
+    // TODO: Document property
+    sourceEntityModelIdentifier: string | null;
 
     /**
      * Identifier of the edge, can be different from the edge id, for example when splitting ... TODO: Actually should I use the id of the semantic entity or of the visual one as origin??
      */
-    id: string,                 // TODO: A lot of this data is same for class/edge/graph so it should be in separate interface/class
+    id: string;                 // TODO: A lot of this data is same for class/edge/graph so it should be in separate interface/class
     /**
      * is the edge in the semantic model or null.
      */
-    edge: SemanticModelEntity | null,
+    edge: SemanticModelEntity | null;
     /**
      * If true, then it is dummy edge which doesn't exist in the semantic model.
      */
-    isDummy: boolean,
+    isDummy: boolean;
     /**
      * If the edge represents profile edge ... TODO: Probably will be enum because of the class profile edges
      */
-    isProfile: boolean,
+    isProfile: boolean;
     /**
      * If true then this edge is part of the layouted graph, therefore it should be considered, otherwise it is not considered in layouting.
      */
-    isConsideredInLayout: boolean,
+    isConsideredInLayout: boolean;
     /**
      * If true then the direction of this edge is reversed in the layouting algorithm
      */
-    reverseInLayout: boolean,
+    reverseInLayout: boolean;
 
     /**
      * Represents the source from which the edge goes.
      */
-    start: EdgeEndPoint,
+    start: EdgeEndPoint;
     /**
      * Represents the target from which the edge goes.
      */
-    end: EdgeEndPoint,
+    end: EdgeEndPoint;
 
     // TODO: Actually will just have visual entity in cme-v2 for this - similiar to nodes
-    waypoints: Position[],
+    visualEdge: VisualRelationship | null;
 
     /**
      * Converts the edge into visual entity which can be used in the visual model.
@@ -808,20 +810,24 @@ export interface IEdgeClassic {
  * Represents the graph edge.
  */
 class EdgeClassic implements IEdgeClassic {
-    constructor(id: string, edge: SemanticModelEntity | null, isProfile: boolean, sourceGraph: IGraphClassic, start: EdgeEndPoint, end: EdgeEndPoint) {
+    constructor(id: string, edge: SemanticModelEntity | null, isProfile: boolean, sourceGraph: IGraphClassic,
+                start: EdgeEndPoint, end: EdgeEndPoint, visualEdge: VisualRelationship | null, sourceEntityModelIdentifier: string | null) {
         this.id = id;
         sourceGraph.mainGraph.allEdges.push(this);
         this.sourceGraph = sourceGraph;
         this.isDummy = false;
+        this.sourceEntityModelIdentifier = sourceEntityModelIdentifier;
 
         this.isProfile = isProfile;
         this.edge = edge;
         this.start = start;
         this.end = end;
+        this.visualEdge = visualEdge;
     }
 
     sourceGraph: IGraphClassic;
 
+    sourceEntityModelIdentifier: string | null;
     id: string;
     edge: SemanticModelEntity | null;
     isDummy: boolean;
@@ -832,10 +838,10 @@ class EdgeClassic implements IEdgeClassic {
     start: EdgeEndPoint;
     end: EdgeEndPoint;
 
-    waypoints: Position[];
+    visualEdge: VisualRelationship | null;
 
     convertToDataspecerRepresentation(): VisualEntity {
-        throw new Error("Method not implemented.");
+        return this.visualEdge;
     }
 }
 
@@ -978,13 +984,12 @@ function addEdge(graph: IGraphClassic,
                     visualModel: VisualModel | null): IEdgeClassic | null {
     const reverseEdgeToAddKey: IncomingEdgeType = convertOutgoingEdgeTypeToIncoming(edgeToAddKey);
     console.log("Adding Edge to graph");
-    // console.log(target);
-    // console.log(edge);
-    // console.log(graph);
-    // console.log(edge);
-    // console.log(source);
-    // console.log(target);
-    // console.log(edgeToAddKey);
+//    console.log(graph);
+//    console.log(edge);
+//    console.log(source);
+//    console.log(targetIdentifier);
+//    console.log(edgeToAddKey);
+//    console.log(visualModel);
 
     const mainGraph = graph.mainGraph;
     let targetNode = mainGraph.allNodes.find(n => n.id === targetIdentifier);
@@ -1021,8 +1026,24 @@ function addEdge(graph: IGraphClassic,
         targetNode = mainGraph.nodes[targetIdentifier];
     }
 
+    let visualEdge: VisualRelationship | null = null;
+    if(visualModel !== null) {
+        // TODO: Again the ID of semantic model instead of the visual one
+        const visualEntityForEdge = visualModel.getVisualEntityForRepresented(id);
+        if(isVisualRelationship(visualEntityForEdge)) {
+            visualEdge = visualEntityForEdge;
+        }
+    }
 
-    const edgeClassic: IEdgeClassic = new EdgeClassic(id, edge, edgeToAddKey === "outgoingProfileEdges", graph, source, targetNode);
+
+    // TODO: Maybe can get it from other place then extractedModels? - Can't think of anything better right now
+    let sourceEntityModelIdentifierForEdge = null;
+    if(extractedModels !== null) {
+        sourceEntityModelIdentifierForEdge = extractedModels.entities.find(entity => entity.semanticModelEntity.id === id).sourceEntityModelIdentifier;
+    }
+
+
+    const edgeClassic: IEdgeClassic = new EdgeClassic(id, edge, edgeToAddKey === "outgoingProfileEdges", graph, source, targetNode, visualEdge, sourceEntityModelIdentifierForEdge);
     // TODO: The reverse edge shouldn't be put in the list of all edges.
 
     // const reverseEdgeClassic: IEdgeClassic = new EdgeClassic(id, edge, edgeToAddKey === "profileEdges", graph, targetNode, source);

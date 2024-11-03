@@ -4,7 +4,7 @@ import { useConfigDialog } from "./layout-dialog";
 import { performLayoutOfVisualModel } from "@dataspecer/layout";
 import { useReactflowDimensionQueryHandler } from "./reactflow-dimension-query-handler";
 import { useActions } from "../action/actions-react-binding";
-import { isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualNode, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 export const useLayoutDialog = () => {
     const { getValidConfig, ConfigDialog, resetConfig } = useConfigDialog();
@@ -35,8 +35,13 @@ export const useLayoutDialog = () => {
 
                                         Object.entries(result).forEach(([key, value]) => {
                                             if(activeVisualModel.getVisualEntity(key) === undefined) {
-                                                console.info("NEW NODE");
-                                                actions.addNodeToVisualModelToPosition(value.model, value.representedEntity, value.position)
+                                                if(isVisualNode(value)) {
+                                                    console.info("NEW NODE");
+                                                    actions.addNodeToVisualModelToPosition(value.model, value.representedEntity, value.position)
+                                                }
+                                                else {
+                                                    throw new Error("Not prepared for anything other than nodes when layouting")
+                                                }
                                             }
                                             else {
                                                 console.info("UPDATING");

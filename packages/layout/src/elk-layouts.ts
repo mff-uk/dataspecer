@@ -1,7 +1,7 @@
 import { GraphTransformer, ExtractedModels, extractModelObjects, getEdgeSourceAndTargetRelationship, getEdgeSourceAndTargetGeneralization, LayoutAlgorithm } from "./layout-iface";
 import { SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { Position, VISUAL_NODE_TYPE, VisualEntity, VisualNode } from "@dataspecer/core-v2/visual-model";
-import { EdgeEndPoint, GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualNodeComplete } from "./graph-iface";
+import { isVisualRelationship, Position, VISUAL_NODE_TYPE, VISUAL_RELATIONSHIP_TYPE, VisualEntity, VisualNode, VisualRelationship } from "@dataspecer/core-v2/visual-model";
+import { EdgeEndPoint, GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, INodeClassic, IVisualNodeComplete, MainGraphClassic, VisualNodeComplete } from "./graph-iface";
 
 
 
@@ -173,22 +173,43 @@ class ElkGraphTransformer implements GraphTransformer {
         }
 
         const visualEntities = this.recursivelyUpdateGraphBasedOnElkNode(libraryRepresentation, graphToBeUpdated, 0, 0, shouldUpdateEdges);
-        const [leftX, topY] = this.findTopLeftPosition(visualEntities.map(ve => ve.coreVisualNode));         // TODO: The mapping is unnecesary and slow
-        visualEntities.forEach(ve => {
-            ve.coreVisualNode.position.x -= leftX;
-            ve.coreVisualNode.position.y -= topY;
+        const [leftX, topY] = this.findTopLeftPosition(visualEntities.filter(visualEntity => this.isGraphNode(visualEntity)).map(ve => (ve as VisualNodeComplete).coreVisualNode));         // TODO: The mapping is unnecesary and slow
+        visualEntities.forEach(visualEntity => {
+            if(this.isGraphNode(visualEntity)) {
+                visualEntity.coreVisualNode.position.x -= leftX;
+                visualEntity.coreVisualNode.position.y -= topY;
+            }
+            else if(isVisualRelationship(visualEntity)) {
+                for(let i = 0; i < visualEntity.waypoints.length; i++) {
+                    visualEntity.waypoints[i].x -= leftX;
+                    visualEntity.waypoints[i].y -= topY;
+                }
+            }
         });
 
-        return Object.fromEntries(visualEntities.map(visualEntity => [visualEntity.coreVisualNode.representedEntity, visualEntity.coreVisualNode])) as VisualEntities;
+
+        return Object.fromEntries(visualEntities.map(visualEntity => {
+            if(this.isGraphNode(visualEntity)) {
+                return [visualEntity.coreVisualNode.representedEntity, visualEntity.coreVisualNode];
+            }
+            else if(isVisualRelationship(visualEntity)) {
+                return [visualEntity.representedRelationship, visualEntity];
+            }
+        })) as VisualEntities;
+    }
+
+    // TODO: Method maybe should be defined in the graph instead
+    isGraphNode(possibleNode: object): possibleNode is VisualNodeComplete {
+        return "coreVisualNode" in possibleNode;
     }
 
 
     /**
      * Recursively updates {@link graphToBeUpdated} based on positions in {@link elkNode}.
      */
-    recursivelyUpdateGraphBasedOnElkNode(elkNode: ElkNode, graphToBeUpdated: IGraphClassic, referenceX: number, referenceY: number, shouldUpdateEdges: boolean): VisualNodeComplete[] {
+    recursivelyUpdateGraphBasedOnElkNode(elkNode: ElkNode, graphToBeUpdated: IGraphClassic, referenceX: number, referenceY: number, shouldUpdateEdges: boolean): (VisualNodeComplete | VisualRelationship)[] {
         // TODO: If we add phantom nodes (and later when also draw edges this may stop working)
-        let visualEntities : VisualNodeComplete[] = [];
+        let visualEntities : (VisualNodeComplete | VisualRelationship)[] = [];
 
         for(let ch of elkNode.children) {
             const completeVisualEntity = this.convertElkNodeToCompleteVisualEntity(ch, referenceX, referenceY, graphToBeUpdated);
@@ -208,14 +229,17 @@ class ElkGraphTransformer implements GraphTransformer {
 
                 visualEntities = visualEntities.concat(this.recursivelyUpdateGraphBasedOnElkNode(ch, graphToBeUpdated, subgraphReferenceX, subgraphReferenceY, shouldUpdateEdges));
             }
-            if(shouldUpdateEdges) {
-                for(let edge of elkNode.edges) {
-                    const edgeInOriginalGraph = graphToBeUpdated.mainGraph.findEdgeInAllEdges(edge.id);
-                    // TODO: Update the visual entity of edge or create new one .... But what about the split ones???
-                }
-            }
         }
 
+        if(shouldUpdateEdges) {
+            for(let edge of elkNode.edges) {
+                const visualEdge = this.convertElkEdgeToVisualRelationship(edge, referenceX, referenceY, graphToBeUpdated);
+                const edgeInGraph = graphToBeUpdated.mainGraph.findEdgeInAllEdges(edge.id);
+                // TODO: Update the visual entity of edge or create new one .... But what about the split ones???
+                edgeInGraph.visualEdge.waypoints = visualEdge.waypoints;
+                visualEntities.push(visualEdge);
+            }
+        }
         return visualEntities;
     };
 
@@ -330,6 +354,38 @@ class ElkGraphTransformer implements GraphTransformer {
     }
 
 
+    // TODO: Maybe the referenceX and referenceY have to be also used for edges in case of subgraphs
+    /**
+     * Converts given elk edge to the one used in visual model ({@link VisualRelationship})
+     * @param referenceX is the reference x coordinate used to shift the x position in the resulting visual entity.
+     * This is used because elk returns positions relative to the parent subgraph.
+     * @param referenceY same as {@link referenceX} but for y coordinate.
+     * @returns Complete visual entity which based on the values stored in {@link elkNode}
+     */
+    private convertElkEdgeToVisualRelationship(elkEdge: ElkExtendedEdge, referenceX: number, referenceY: number, graphToBeUpdated: IGraphClassic): VisualRelationship {
+        const edgeInOriginalGraph = graphToBeUpdated.mainGraph.findEdgeInAllEdges(elkEdge.id);
+
+        const bendpoints = elkEdge?.sections?.[0].bendPoints;
+        const waypoints = bendpoints?.map(bendpoint => {
+            return {
+                x: bendpoint.x,
+                y: bendpoint.y,
+                anchored: null
+            };
+        }) ?? [];
+
+        return {
+            identifier: Math.random().toString(36).substring(2),
+            type: [VISUAL_RELATIONSHIP_TYPE],
+            representedRelationship: edgeInOriginalGraph?.edge?.id ?? edgeInOriginalGraph.id,
+            waypoints: waypoints,
+            model: edgeInOriginalGraph.sourceEntityModelIdentifier ?? "",
+            // TODO: Doesn't work from semantic model, because the visual edge will be null, there it will need to be fixed later when creating the nodes
+            visualSource: edgeInOriginalGraph?.visualEdge.visualSource ?? "",
+            visualTarget: edgeInOriginalGraph?.visualEdge.visualTarget ?? "",
+        };
+    }
+
     /**
      *
      * @param referenceX is the reference x coordinate used to shift the x position in the resulting visual entity.
@@ -337,7 +393,7 @@ class ElkGraphTransformer implements GraphTransformer {
      * @param referenceY same as {@link referenceX} but for y coordinate.
      * @returns Complete visual entity which based on the values stored in {@link elkNode}
      */
-    private convertElkNodeToCompleteVisualEntity(elkNode: ElkNode, referenceX: number, referenceY: number, graphToBeUpdated: IGraphClassic, ): VisualNodeComplete {
+    private convertElkNodeToCompleteVisualEntity(elkNode: ElkNode, referenceX: number, referenceY: number, graphToBeUpdated: IGraphClassic, ): IVisualNodeComplete {
         return {
             coreVisualNode: {
                 identifier: Math.random().toString(36).substring(2),
