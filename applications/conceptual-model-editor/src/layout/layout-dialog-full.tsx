@@ -63,11 +63,11 @@ export const useLayoutDialog = () => {
     };
 
     const DialogComponent = () => {
-        return <div>
+        return <dialog className="px-6 py-12 mt-[10vh]" style={{zIndex: 10000}} open={isLayoutDialogOpen}>
                     <ConfigDialog></ConfigDialog>
-                    <button onClick={onClickLayout} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full">Accept</button>
-                    <button onClick={close} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full">Cancel</button>
-                </div>;
+                    <button onClick={onClickLayout} className="bg-transparent hover:bg-green-700 text-green-900 font-semibold hover:text-white py-2 px-4 border border-green-900 hover:border-transparent rounded">Layout</button>
+                    <button onClick={close} className="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded">Close</button>
+                </dialog>;
     };
 
     return {

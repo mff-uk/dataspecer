@@ -117,7 +117,7 @@ const Page = () => {
                 aggregatorView);
         };
         return aggregatorView?.subscribeToChanges(callback);
-         
+
     }, [aggregatorView]);
 
     return (
