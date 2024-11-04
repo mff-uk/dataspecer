@@ -282,7 +282,7 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
   protected deserializeModelV0(value: VisualModelJsonSerializationV0): void {
     // We can not pass the model to the internal entity directly.
     // So we perform a migration here instead.
-    const migratedEntities: Record<string, VisualEntity> = {};
+    const migratedEntities: VisualEntity[] = [];
     for (const [identifier, entity] of Object.entries(value.visualEntities)) {
       if (!entity.type.includes(VISUAL_ENTITY_V0_TYPE)) {
         console.error("Removing unknown visual entity.", { entity });
@@ -308,7 +308,7 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
           visualModels: [],
           position: { ...entity.position, anchored: null },
         };
-        migratedEntities[identifier] = migratedNode;
+        migratedEntities.push(migratedNode);
       } else {
         const migratedRelationship: VisualRelationship = {
           identifier,
@@ -320,7 +320,7 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
           visualSource: UNKNOWN_ENTITY,
           visualTarget: UNKNOWN_ENTITY,
         };
-        migratedEntities[identifier] = migratedRelationship;
+        migratedEntities.push(migratedRelationship);
       }
     }
     const migratedValue = {
