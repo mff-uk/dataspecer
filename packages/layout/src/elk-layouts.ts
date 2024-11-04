@@ -236,7 +236,7 @@ class ElkGraphTransformer implements GraphTransformer {
                 const visualEdge = this.convertElkEdgeToVisualRelationship(edge, referenceX, referenceY, graphToBeUpdated);
                 const edgeInGraph = graphToBeUpdated.mainGraph.findEdgeInAllEdges(edge.id);
                 // TODO: Update the visual entity of edge or create new one .... But what about the split ones???
-                if(edgeInGraph.visualEdge === undefined) {
+                if(edgeInGraph.visualEdge === undefined ||edgeInGraph.visualEdge === null) {
                     edgeInGraph.visualEdge = visualEdge;
                 }
                 else {
@@ -384,10 +384,9 @@ class ElkGraphTransformer implements GraphTransformer {
             type: [VISUAL_RELATIONSHIP_TYPE],
             representedRelationship: edgeInOriginalGraph?.edge?.id ?? edgeInOriginalGraph.id,
             waypoints: waypoints,
-            model: edgeInOriginalGraph.sourceEntityModelIdentifier ?? "",
-            // TODO: Doesn't work from semantic model, because the visual edge will be null, there it will need to be fixed later when creating the nodes
-            visualSource: edgeInOriginalGraph?.visualEdge.visualSource ?? "",
-            visualTarget: edgeInOriginalGraph?.visualEdge.visualTarget ?? "",
+            model: edgeInOriginalGraph?.sourceEntityModelIdentifier ?? "",
+            visualSource: edgeInOriginalGraph?.visualEdge?.visualSource ?? "",
+            visualTarget: edgeInOriginalGraph?.visualEdge?.visualTarget ?? "",
         };
     }
 

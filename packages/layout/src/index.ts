@@ -21,7 +21,7 @@ import {
 import { GraphClassic, GraphFactory, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualNodeComplete } from "./graph-iface";
 import { EdgeCrossingMetric } from "./graph-metrics/graph-metrics";
 import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs/constraint-container";
-import { EntityModel } from "@dataspecer/core-v2";
+import { Entities, Entity, EntityModel } from "@dataspecer/core-v2";
 import { ConstraintFactory } from "./configs/constraint-factories";
 import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
 import { PhantomElementsFactory } from "./util/utils";
@@ -94,16 +94,6 @@ export async function performLayoutOfVisualModel(visualModel: VisualModel,
 	console.log("config");
 	console.log(config);
 
-	// TODO: For now for simplicity just concatenate all the semantic models into one ! ... Now it actually matters with the change of visual model
-	let semanticModel: Record<string, SemanticModelEntity> = {};
-	for(const currSemanticModel of semanticModels)  {
-		semanticModel = {
-			...semanticModel,
-			...(currSemanticModel[1].getEntities() as Record<string, SemanticModelEntity>)
-		};
-	}
-
-
 	const visualEntitiesPromise = performLayoutInternal(visualModel, semanticModels, config, nodeDimensionQueryHandler);
 	return visualEntitiesPromise;
 }
@@ -114,11 +104,30 @@ export async function performLayoutOfVisualModel(visualModel: VisualModel,
  * Layout given semantic model.
  */
 export async function performLayoutOfSemanticModel(inputSemanticModel: Record<string, SemanticModelEntity>,
+													semanticModelId: string,
 													config: UserGivenAlgorithmConfigurationslVersion4,
 													nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
-	throw new Error("TODO: We need to pass the identifier of the semantic model in");
-	// const visualEntitiesPromise = performLayoutInternal(null, inputSemanticModel, config, nodeDimensionQueryHandler);
-	// return visualEntitiesPromise;
+	const entityModelUsedForConversion: EntityModel = {
+		getEntities: function (): Entities {
+			return inputSemanticModel;
+		},
+		subscribeToChanges: function (callback: (updated: Record<string, Entity>, removed: string[]) => void): () => void {
+			throw new Error("Function not implemented.");
+		},
+		getId: function (): string {
+			throw new Error("Function not implemented.");
+		},
+		getAlias: function (): string | null {
+			throw new Error("Function not implemented.");
+		},
+		setAlias: function (alias: string | null): void {
+			throw new Error("Function not implemented.");
+		}
+	};
+	const semanticModel = new Map();
+	semanticModel.set(semanticModelId, entityModelUsedForConversion);
+	const visualEntitiesPromise = performLayoutInternal(null, semanticModel, config, nodeDimensionQueryHandler);
+	return visualEntitiesPromise;
 }
 
 
@@ -137,6 +146,7 @@ function performLayoutInternal(visualModel: VisualModel | null,
 		console.log("LAYOUT FAILED")
 		throw new Error("Layout Failed");
 	}
+
 	return visualEntitiesPromise;
 }
 
@@ -181,9 +191,6 @@ export async function performLayoutFromGraph(graph: IMainGraphClassic,
 const performLayoutingBasedOnConstraints = (graph: IMainGraphClassic,
 											constraints: ConstraintContainer,
 											nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<IMainGraphClassic> => {
-
-	console.warn("constraints");
-	console.warn(constraints);
 	let workGraph = graph;
 	return runPreMainAlgorithmConstraints(workGraph, constraints, nodeDimensionQueryHandler).then(async _ => {
 		for(const action of constraints.layoutActionsIteratorBefore) {

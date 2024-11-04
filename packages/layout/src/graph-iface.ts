@@ -737,6 +737,17 @@ export class MainGraphClassic extends GraphClassic implements IMainGraphClassic 
             }
 
             const visualEntityForEdge = edge.convertToDataspecerRepresentation();
+            // TODO: Now ideal ... we are basically repairing the case of layouting semantic model - at the time of creating of edge, all nodes weren't prepared
+            //       so we are doing it here (or we could still do it while converting from the library representation to the graph one, but a bit later)
+            //       .... In future I think that the ideal solution is to create the visual entity immediately when putting it to graph - we should be using the visual ids anyways
+            if(visualEntityForEdge.visualSource === "") {
+                const sourceGraphNode = this.findNodeInAllNodes(edge.start.id);
+                visualEntityForEdge.visualSource = sourceGraphNode.completeVisualNode.coreVisualNode.identifier;
+            }
+            if(visualEntityForEdge.visualTarget === "") {
+                const targetGraphNode = this.findNodeInAllNodes(edge.end.id);
+                visualEntityForEdge.visualTarget = targetGraphNode.completeVisualNode.coreVisualNode.identifier;
+            }
             visualEntities[edge.id] = visualEntityForEdge;
         }
 
@@ -802,7 +813,7 @@ export interface IEdgeClassic {
     /**
      * Converts the edge into visual entity which can be used in the visual model.
      */
-    convertToDataspecerRepresentation(): VisualEntity;
+    convertToDataspecerRepresentation(): VisualRelationship;
 }
 
 
@@ -840,7 +851,7 @@ class EdgeClassic implements IEdgeClassic {
 
     visualEdge: VisualRelationship | null;
 
-    convertToDataspecerRepresentation(): VisualEntity {
+    convertToDataspecerRepresentation(): VisualRelationship {
         return this.visualEdge;
     }
 }

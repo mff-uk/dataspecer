@@ -47,10 +47,20 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
     const response = await fetch(import.meta.env.VITE_BACKEND + "/resources/blob?iri=" + encodeURIComponent(iri));
     const data = await response.json();
     const entities = data.entities;
+    const semanticModelId = data.modelId;
+
+    console.log(entities);
+    console.log(semanticModelId);
+    console.info("resources");
+    console.info(resources);
+    console.info(resource);
 
     let visualEntities;
     try {
-      visualEntities = await performLayoutOfSemanticModel(entities, getValidConfig());
+      visualEntities = await performLayoutOfSemanticModel(entities, semanticModelId, getValidConfig());
+      console.info("layouted visual entitites");
+      console.info(visualEntities);
+      throw new Error("Implementation of layout is not ready");
     } catch (error) {
       alert("LAYOUT WAS NOT SUCCESSFUL");
       console.error(error);
