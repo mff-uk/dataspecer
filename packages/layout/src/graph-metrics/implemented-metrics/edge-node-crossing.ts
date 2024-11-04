@@ -8,29 +8,24 @@ export class EdgeNodeCrossingMetric implements Metric {
         let edgeNodeCrossingCount: number = 0;
         Object.values(graph.nodes).forEach(n => {
             for(let outN of n.getAllOutgoingEdges()) {
-                Object.values(graph.nodes).forEach(nn => {
-                    if(n === nn) {
+                Object.values(graph.nodes).forEach(possibleCollisionNode => {
+                    if(possibleCollisionNode === n || possibleCollisionNode === outN.end) {
                         return;
                     }
-                    Object.values(graph.nodes).forEach(possibleCollisionNode => {
-                        if(possibleCollisionNode === n || possibleCollisionNode === outN.end) {
-                            return;
-                        }
-                    });
-                }
-                )
+                    edgeNodeCrossingCount += EdgeNodeCrossingMetric.isLineRectangleCollision(outN, possibleCollisionNode);
+                });
             }
         });
 
         const EXTRA_CROSSING_PENALTY = 10;
-        return EXTRA_CROSSING_PENALTY * edgeNodeCrossingCount / 2;
+        return EXTRA_CROSSING_PENALTY * edgeNodeCrossingCount;
     }
 
 
 
     // Based on https://www.jeffreythompson.org/collision-detection/line-rect.php
 
-    public static isLineRectangleCollision(line: IEdgeClassic, rectangle: EdgeEndPoint) {
+    public static isLineRectangleCollision(line: IEdgeClassic, rectangle: EdgeEndPoint): 0 | 1 {
         const start = EdgeCrossingMetric.getMiddle(line.start.completeVisualNode);
         const end = EdgeCrossingMetric.getMiddle(line.end.completeVisualNode);
 
@@ -38,7 +33,7 @@ export class EdgeNodeCrossingMetric implements Metric {
 
         return EdgeNodeCrossingMetric.isLineRectangleCollisionInternal(start.x, start.y, end.x, end.y,
                                                                         rectangleVisual.coreVisualNode.position.x, rectangleVisual.coreVisualNode.position.y,
-                                                                        rectangleVisual.width, rectangleVisual.height);
+                                                                        rectangleVisual.width, rectangleVisual.height) === true ? 1 : 0;
     }
 
 
