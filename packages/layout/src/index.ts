@@ -19,7 +19,6 @@ import {
 	SPECIFIC_ALGORITHM_CONVERSIONS_MAP
 } from "./configs/constraints";
 import { GraphClassic, GraphFactory, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualNodeComplete } from "./graph-iface";
-import { EdgeCrossingMetric } from "./graph-metrics/graph-metrics";
 import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs/constraint-container";
 import { Entities, Entity, EntityModel } from "@dataspecer/core-v2";
 import { ConstraintFactory } from "./configs/constraint-factories";
@@ -27,6 +26,8 @@ import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-d
 import { PhantomElementsFactory } from "./util/utils";
 import { CONSTRAINT_MAP } from "./configs/constraints-mapping";
 import { VisualEntities } from "./migration-to-cme-v2";
+import { EdgeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-crossing";
+import { EdgeNodeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-node-crossing";
 
 export type { IConstraintSimple, UserGivenConstraints, UserGivenAlgorithmConfigurationslVersion2 as UserGivenConstraintsVersion2, UserGivenAlgorithmConfigurationslVersion4 as UserGivenConstraintsVersion4 } from "./configs/constraints";
 export { getDefaultUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion2, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4 } from "./configs/constraints";
@@ -267,8 +268,9 @@ const runMainLayoutAlgorithm = async (graph: IMainGraphClassic,
 										nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<IMainGraphClassic> => {
 											// TODO: Well it really is overkill, like I could in the same way just have a look, if the given configuration contains numberOfAlgorithmRuns and if so, just put it here
 	let bestLayoutedVisualEntitiesPromise: Promise<IMainGraphClassic>;
-	let minEdgeCrossCount = 1000000;
+	let minAbsoluteMetric = 1000000;
 	const edgeCrossingMetric: EdgeCrossingMetric = new EdgeCrossingMetric();
+	const edgeNodeCrossingMetric: EdgeNodeCrossingMetric = new EdgeNodeCrossingMetric();
 	const findBestLayoutConstraint = constraints.simpleConstraints.find(constraint => constraint.name === "Best layout iteration count");
 	const numberOfAlgorithmRuns = (findBestLayoutConstraint?.data as any)?.numberOfAlgorithmRuns ?? 1;
 
@@ -305,18 +307,25 @@ const runMainLayoutAlgorithm = async (graph: IMainGraphClassic,
 		// const visualEntities = layoutedGraph.convertWholeGraphToDataspecerRepresentation();
 		// console.log(visualEntities);
 
-		const edgeCrossCountForCurrMetric = edgeCrossingMetric.computeMetric(workGraph);
-		console.log("Edge cross count: " + edgeCrossCountForCurrMetric);
-		if(minEdgeCrossCount > edgeCrossCountForCurrMetric) {
-			console.log("MIN Edge cross count: " + edgeCrossCountForCurrMetric);
+		const edgeCrossCountForCurrent = edgeCrossingMetric.computeMetric(workGraph);
+		const edgeNodeCrossCountForCurrent = edgeNodeCrossingMetric.computeMetric(workGraph);
+		const absoluteMetricForCurrent = edgeCrossCountForCurrent + edgeNodeCrossCountForCurrent;
+
+		console.log("Edge cross count: " + edgeCrossCountForCurrent);
+		console.log("Edge node cross count: " + edgeNodeCrossCountForCurrent);
+		console.log("Metric total: " + absoluteMetricForCurrent);
+
+
+		if(minAbsoluteMetric > absoluteMetricForCurrent) {
+			console.log("MIN!");
 			bestLayoutedVisualEntitiesPromise = layoutedGraphPromise;
-			minEdgeCrossCount = edgeCrossCountForCurrMetric;
+			minAbsoluteMetric = absoluteMetricForCurrent;
 		}
 
 		constraints.resetLayoutActionsIterator();
 	}
 
-	console.log("MIN Edge cross count: " + minEdgeCrossCount);
+	console.log("MIN Metric total: " + minAbsoluteMetric);
 	console.log(await bestLayoutedVisualEntitiesPromise);
 	return bestLayoutedVisualEntitiesPromise;
 }
