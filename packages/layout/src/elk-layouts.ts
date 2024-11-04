@@ -1,6 +1,6 @@
 import { GraphTransformer, ExtractedModels, extractModelObjects, getEdgeSourceAndTargetRelationship, getEdgeSourceAndTargetGeneralization, LayoutAlgorithm } from "./layout-iface";
 import { SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isVisualRelationship, Position, VISUAL_NODE_TYPE, VISUAL_RELATIONSHIP_TYPE, VisualEntity, VisualNode, VisualRelationship } from "@dataspecer/core-v2/visual-model";
+import { isVisualProfileRelationship, isVisualRelationship, Position, VISUAL_NODE_TYPE, VISUAL_PROFILE_RELATIONSHIP_TYPE, VISUAL_RELATIONSHIP_TYPE, VisualEntity, VisualNode, VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
 import { EdgeEndPoint, GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, INodeClassic, IVisualNodeComplete, MainGraphClassic, VisualNodeComplete } from "./graph-iface";
 
 
@@ -21,6 +21,8 @@ import { GraphAlgorithms } from "./graph-algoritms";
 import { ElkConstraint } from "./configs/elk/elk-constraints";
 import { VisualEntities } from "./migration-to-cme-v2";
 
+
+type VisualEntitiesType = (VisualNodeComplete | VisualRelationship | VisualProfileRelationship)[];
 
 /**
  * The Transformer class for conversion between our graph representation and ELK graph representation. For more info check {@link GraphTransformer} docs.
@@ -179,7 +181,7 @@ class ElkGraphTransformer implements GraphTransformer {
                 visualEntity.coreVisualNode.position.x -= leftX;
                 visualEntity.coreVisualNode.position.y -= topY;
             }
-            else if(isVisualRelationship(visualEntity)) {
+            else if(isVisualRelationship(visualEntity) || isVisualProfileRelationship(visualEntity)) {
                 for(let i = 0; i < visualEntity.waypoints.length; i++) {
                     visualEntity.waypoints[i].x -= leftX;
                     visualEntity.waypoints[i].y -= topY;
@@ -195,6 +197,9 @@ class ElkGraphTransformer implements GraphTransformer {
             else if(isVisualRelationship(visualEntity)) {
                 return [visualEntity.representedRelationship, visualEntity];
             }
+            else if(isVisualProfileRelationship(visualEntity)) {
+                return [visualEntity.entity, visualEntity];
+            }
         })) as VisualEntities;
     }
 
@@ -207,9 +212,9 @@ class ElkGraphTransformer implements GraphTransformer {
     /**
      * Recursively updates {@link graphToBeUpdated} based on positions in {@link elkNode}.
      */
-    recursivelyUpdateGraphBasedOnElkNode(elkNode: ElkNode, graphToBeUpdated: IGraphClassic, referenceX: number, referenceY: number, shouldUpdateEdges: boolean): (VisualNodeComplete | VisualRelationship)[] {
+    recursivelyUpdateGraphBasedOnElkNode(elkNode: ElkNode, graphToBeUpdated: IGraphClassic, referenceX: number, referenceY: number, shouldUpdateEdges: boolean): VisualEntitiesType {
         // TODO: If we add phantom nodes (and later when also draw edges this may stop working)
-        let visualEntities : (VisualNodeComplete | VisualRelationship)[] = [];
+        let visualEntities : VisualEntitiesType = [];
 
         for(let ch of elkNode.children) {
             const completeVisualEntity = this.convertElkNodeToCompleteVisualEntity(ch, referenceX, referenceY, graphToBeUpdated);
@@ -367,7 +372,7 @@ class ElkGraphTransformer implements GraphTransformer {
      * @param referenceY same as {@link referenceX} but for y coordinate.
      * @returns Complete visual entity which based on the values stored in {@link elkNode}
      */
-    private convertElkEdgeToVisualRelationship(elkEdge: ElkExtendedEdge, referenceX: number, referenceY: number, graphToBeUpdated: IGraphClassic): VisualRelationship {
+    private convertElkEdgeToVisualRelationship(elkEdge: ElkExtendedEdge, referenceX: number, referenceY: number, graphToBeUpdated: IGraphClassic): VisualRelationship | VisualProfileRelationship {
         const edgeInOriginalGraph = graphToBeUpdated.mainGraph.findEdgeInAllEdges(elkEdge.id);
 
         const bendpoints = elkEdge?.sections?.[0].bendPoints;
@@ -379,15 +384,25 @@ class ElkGraphTransformer implements GraphTransformer {
             };
         }) ?? [];
 
-        return {
+        // TODO: Again ... Unfortunately it needs rewrite (hopefully last) with visual model to be set when creating the graph not when converting the library represetnation back to graph
+        //      ... Also it makes sense to use the cme methods to create the visual entities? instead of implementing it all again - just define method and call it
+        //      ... for example I am not sure the type should cotnain only the VISUAL_RELATIONSHIP_TYPE or also some other type, so for such cases constistency would be nice
+        const relationshipType = edgeInOriginalGraph.edgeProfileType === "EDGE" ? [VISUAL_RELATIONSHIP_TYPE] : [VISUAL_PROFILE_RELATIONSHIP_TYPE];
+
+        const edgeToReturn: VisualRelationship | VisualProfileRelationship = {
             identifier: Math.random().toString(36).substring(2),
-            type: [VISUAL_RELATIONSHIP_TYPE],
+            type: relationshipType,
             representedRelationship: edgeInOriginalGraph?.edge?.id ?? edgeInOriginalGraph.id,
             waypoints: waypoints,
             model: edgeInOriginalGraph?.sourceEntityModelIdentifier ?? "",
             visualSource: edgeInOriginalGraph?.visualEdge?.visualSource ?? "",
             visualTarget: edgeInOriginalGraph?.visualEdge?.visualTarget ?? "",
         };
+        if(relationshipType[0] === VISUAL_PROFILE_RELATIONSHIP_TYPE) {
+            edgeToReturn["entity"] = edgeInOriginalGraph?.visualEdge?.["entity"] ?? edgeInOriginalGraph.start.id;
+        }
+
+        return edgeToReturn;
     }
 
     /**

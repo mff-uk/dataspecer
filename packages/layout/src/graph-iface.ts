@@ -2,7 +2,7 @@ import { isSemanticModelGeneralization, SemanticModelClass, SemanticModelEntity,
 import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { EntitiesBundle, ExtractedModels, extractModelObjects, getEdgeSourceAndTargetGeneralization, getEdgeSourceAndTargetRelationship, getEdgeSourceAndTargetRelationshipUsage } from "./layout-iface";
 
-import { VisualModel, isVisualNode, Position, VisualEntity, VisualNode, VisualRelationship, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
+import { VisualModel, isVisualNode, Position, VisualEntity, VisualNode, VisualRelationship, isVisualRelationship, isVisualProfileRelationship, VisualProfileRelationship } from "@dataspecer/core-v2/visual-model";
 import { capitalizeFirstLetter, PhantomElementsFactory } from "./util/utils";
 import { VisualEntities } from "./migration-to-cme-v2";
 import { EntityModel } from "@dataspecer/core-v2";
@@ -286,7 +286,6 @@ const isGeneralizationInVisualModel = (visualModel: VisualModel | null,
  * Class which stores (sub)graph.
  */
 export class GraphClassic implements IGraphClassic {
-
     // TODO: the TODO in the name is because I have to change the API to contain just the methods and add it there
     addEdgeTODO(identifier: string | null, edge: SemanticModelEntity | null, target: string, isDummy: boolean, edgeToAddType: OutgoingEdgeType): IEdgeClassic | null {
         if(identifier === null) {
@@ -654,6 +653,14 @@ export class GraphClassic implements IGraphClassic {
     isProfile: boolean = false;
     isConsideredInLayout: boolean = true;     // TODO: Create setter/getter instead (iface vs class ... this will need change on lot of places)
 
+
+    setOutgoingClassProfileEdge(outgoingClassProfileEdge: IEdgeClassic) {
+        throw new Error("Graphs can't be profiled.");
+    }
+
+    outgoingClassProfileEdges: Array<IEdgeClassic> = [];
+    incomingClassProfileEdges: Array<IEdgeClassic> = [];
+
     outgoingRelationshipEdges: Array<IEdgeClassic> = [];
     incomingRelationshipEdges: Array<IEdgeClassic> = [];
 
@@ -762,6 +769,21 @@ export class MainGraphClassic extends GraphClassic implements IMainGraphClassic 
  */
 export type EdgeEndPoint = INodeClassic | IGraphClassic;
 
+type EdgeProfileType = "EDGE" | "EDGE-PROFILE" | "CLASS-PROFILE";
+function convertOutgoingEdgeTypeToEdgeProfileType(outgoingEdgeType: OutgoingEdgeType): EdgeProfileType {
+    switch(outgoingEdgeType) {
+        case "outgoingClassProfileEdges":
+            return "CLASS-PROFILE"
+        case "outgoingEdgeProfileEdges":
+            return "EDGE-PROFILE"
+        case "outgoingGeneralizationEdges":
+        case "outgoingRelationshipEdges":
+            return "EDGE"
+        default:
+            throw new Error(`Invalid OutgoingEdgeType - ${outgoingEdgeType}`);
+    }
+}
+
 // TODO: Can create more specific interfaces for generalization, etc, which will be extending this one - they will be different in the fields - edge: type and isProfile value
 export interface IEdgeClassic {
     /**
@@ -786,9 +808,9 @@ export interface IEdgeClassic {
      */
     isDummy: boolean;
     /**
-     * If the edge represents profile edge ... TODO: Probably will be enum because of the class profile edges
+     * What type of edge this is in profile sense
      */
-    isProfile: boolean;
+    edgeProfileType: EdgeProfileType;
     /**
      * If true then this edge is part of the layouted graph, therefore it should be considered, otherwise it is not considered in layouting.
      */
@@ -808,12 +830,12 @@ export interface IEdgeClassic {
     end: EdgeEndPoint;
 
     // TODO: Actually will just have visual entity in cme-v2 for this - similiar to nodes
-    visualEdge: VisualRelationship | null;
+    visualEdge: VisualRelationship | VisualProfileRelationship | null;
 
     /**
      * Converts the edge into visual entity which can be used in the visual model.
      */
-    convertToDataspecerRepresentation(): VisualRelationship;
+    convertToDataspecerRepresentation(): VisualRelationship | VisualProfileRelationship;
 }
 
 
@@ -821,15 +843,15 @@ export interface IEdgeClassic {
  * Represents the graph edge.
  */
 class EdgeClassic implements IEdgeClassic {
-    constructor(id: string, edge: SemanticModelEntity | null, isProfile: boolean, sourceGraph: IGraphClassic,
-                start: EdgeEndPoint, end: EdgeEndPoint, visualEdge: VisualRelationship | null, sourceEntityModelIdentifier: string | null) {
+    constructor(id: string, edge: SemanticModelEntity | null, edgeType: OutgoingEdgeType, sourceGraph: IGraphClassic,
+                start: EdgeEndPoint, end: EdgeEndPoint, visualEdge: VisualRelationship | VisualProfileRelationship | null, sourceEntityModelIdentifier: string | null) {
         this.id = id;
         sourceGraph.mainGraph.allEdges.push(this);
         this.sourceGraph = sourceGraph;
         this.isDummy = false;
         this.sourceEntityModelIdentifier = sourceEntityModelIdentifier;
 
-        this.isProfile = isProfile;
+        this.edgeProfileType = convertOutgoingEdgeTypeToEdgeProfileType(edgeType);
         this.edge = edge;
         this.start = start;
         this.end = end;
@@ -842,16 +864,16 @@ class EdgeClassic implements IEdgeClassic {
     id: string;
     edge: SemanticModelEntity | null;
     isDummy: boolean;
-    isProfile: boolean;
+    edgeProfileType: EdgeProfileType;
     isConsideredInLayout: boolean = true;
     reverseInLayout: boolean = false;
 
     start: EdgeEndPoint;
     end: EdgeEndPoint;
 
-    visualEdge: VisualRelationship | null;
+    visualEdge: VisualRelationship | VisualProfileRelationship | null;
 
-    convertToDataspecerRepresentation(): VisualRelationship {
+    convertToDataspecerRepresentation(): VisualRelationship | VisualProfileRelationship {
         return this.visualEdge;
     }
 }
@@ -876,9 +898,22 @@ export interface INodeClassic {
     isDummy: boolean;
     isMainEntity: boolean;
     isProfile: boolean;
+    setOutgoingClassProfileEdge(outgoingClassProfileEdge: IEdgeClassic);
+
+    /**
+     * It represents possible class of which this node is profile of.
+     * This is either empty array or array with one element.
+     * We used array for consistency with other types edges.
+     * The actual value should be set using {@link setOutgoingClassProfileEdge}, but it actually doesn't really matter - TODO: So maybe just remove the set method
+     */
+    outgoingClassProfileEdges: Array<IEdgeClassic>;
+    incomingClassProfileEdges: Array<IEdgeClassic>;
+
     isConsideredInLayout: boolean;
 
     sourceEntityModelIdentifier: string | null;
+
+    // TODO: I could actually have the following edges stored in Record/Map, where key would be the property name, so for example outgoingRelationshipEdges
 
     /**
      * The outgoing relationship edges, so the edges, where instance of this node is the source/start.
@@ -949,14 +984,22 @@ export interface INodeClassic {
 }
 
 const getEdgeTypeNameFromEdge = (edge: IEdgeClassic): OutgoingEdgeType => {
-    if(edge.isProfile) {
-        return "outgoingProfileEdges";
+    if(edge.edgeProfileType === "EDGE-PROFILE") {
+        return "outgoingEdgeProfileEdges";
     }
-    else if(isSemanticModelGeneralization(edge.edge)) {
-        return "outgoingGeneralizationEdges";
+    else if(edge.edgeProfileType === "CLASS-PROFILE") {
+        return "outgoingClassProfileEdges"
+    }
+    else if(edge.edgeProfileType === "EDGE") {
+        if(isSemanticModelGeneralization(edge.edge)) {
+            return "outgoingGeneralizationEdges";
+        }
+        else {
+            return "outgoingRelationshipEdges";
+        }
     }
     else {
-        return "outgoingRelationshipEdges";
+        throw new Error(`Edge of this ${edge.edgeProfileType} type doesn't exist`);
     }
 }
 
@@ -1037,12 +1080,33 @@ function addEdge(graph: IGraphClassic,
         targetNode = mainGraph.nodes[targetIdentifier];
     }
 
-    let visualEdge: VisualRelationship | null = null;
+    let visualEdge: VisualRelationship | VisualProfileRelationship | null = null;
     if(visualModel !== null) {
-        // TODO: Again the ID of semantic model instead of the visual one
-        const visualEntityForEdge = visualModel.getVisualEntityForRepresented(id);
-        if(isVisualRelationship(visualEntityForEdge)) {
-            visualEdge = visualEntityForEdge;
+        if(edgeToAddKey === "outgoingEdgeProfileEdges") {
+            // TODO: Again the ID of semantic model instead of the visual one
+            const visualEntityForEdge = visualModel.getVisualEntityForRepresented(id);
+            if(isVisualProfileRelationship(visualEntityForEdge)) {
+                visualEdge = visualEntityForEdge;
+            }
+        }
+        else if(edgeToAddKey === "outgoingClassProfileEdges") {
+            const visualEntityForEdge = [...visualModel.getVisualEntities()].find(([visualEntityIdentifier, visualEntity]) => {
+                if(isVisualProfileRelationship(visualEntity)) {
+                    return visualEntity.entity === source.id;
+                }
+                return false;
+            })?.[1];
+
+            if(isVisualProfileRelationship(visualEntityForEdge)) {
+                visualEdge = visualEntityForEdge;
+            }
+        }
+        else {
+            // TODO: Again the ID of semantic model instead of the visual one
+            const visualEntityForEdge = visualModel.getVisualEntityForRepresented(id);
+            if(isVisualRelationship(visualEntityForEdge)) {
+                visualEdge = visualEntityForEdge;
+            }
         }
     }
 
@@ -1050,17 +1114,27 @@ function addEdge(graph: IGraphClassic,
     // TODO: Maybe can get it from other place then extractedModels? - Can't think of anything better right now
     let sourceEntityModelIdentifierForEdge = null;
     if(extractedModels !== null) {
-        sourceEntityModelIdentifierForEdge = extractedModels.entities.find(entity => entity.semanticModelEntity.id === id).sourceEntityModelIdentifier;
+        if(edgeToAddKey === "outgoingClassProfileEdges") {
+            sourceEntityModelIdentifierForEdge = extractedModels.entities.find(entity => entity.semanticModelEntity.id === source.node.id).sourceEntityModelIdentifier;
+        }
+        else {
+            sourceEntityModelIdentifierForEdge = extractedModels.entities.find(entity => entity.semanticModelEntity.id === id).sourceEntityModelIdentifier;
+        }
     }
 
 
-    const edgeClassic: IEdgeClassic = new EdgeClassic(id, edge, edgeToAddKey === "outgoingProfileEdges", graph, source, targetNode, visualEdge, sourceEntityModelIdentifierForEdge);
+    const edgeClassic: IEdgeClassic = new EdgeClassic(id, edge, edgeToAddKey, graph, source, targetNode, visualEdge, sourceEntityModelIdentifierForEdge);
     // TODO: The reverse edge shouldn't be put in the list of all edges.
 
     // const reverseEdgeClassic: IEdgeClassic = new EdgeClassic(id, edge, edgeToAddKey === "profileEdges", graph, targetNode, source);
     const reverseEdgeClassic: IEdgeClassic = edgeClassic;
 
-    source[edgeToAddKey].push(edgeClassic);
+    if(edgeToAddKey === "outgoingClassProfileEdges") {
+        source.setOutgoingClassProfileEdge(edgeClassic);     // TODO: No need to separate we could use the else branch
+    }
+    else {
+        source[edgeToAddKey].push(edgeClassic);
+    }
     targetNode[reverseEdgeToAddKey].push(reverseEdgeClassic);
 
     return edgeClassic
@@ -1071,15 +1145,17 @@ function addEdge(graph: IGraphClassic,
  * The type which contains field names of the outgoing edges in {@link INodeClassic},
  * this is useful to minimize copy-paste of code, we just access the fields on node through node[key: OutgoingEdgeType].
  */
-type OutgoingEdgeType = "outgoingRelationshipEdges" | "outgoingGeneralizationEdges" | "outgoingProfileEdges";
+type OutgoingEdgeType = "outgoingRelationshipEdges" | "outgoingGeneralizationEdges" | "outgoingEdgeProfileEdges" | "outgoingClassProfileEdges";
 
 
 /**
  * Same as {@link OutgoingEdgeType}, but for incoming edges.
  */
-type IncomingEdgeType = "incomingRelationshipEdges" | "incomingGeneralizationEdges" | "incomingProfileEdges";
+type IncomingEdgeType = "incomingRelationshipEdges" | "incomingGeneralizationEdges" | "incomingEdgeProfileEdges" | "incomingClassProfileEdges" ;
 
-const convertOutgoingEdgeTypeToIncoming = (outgoingEdgeType: OutgoingEdgeType): IncomingEdgeType => "incoming" + capitalizeFirstLetter(outgoingEdgeType.slice("outgoing".length)) as IncomingEdgeType;
+const convertOutgoingEdgeTypeToIncoming = (outgoingEdgeType: OutgoingEdgeType): IncomingEdgeType => {
+    return "incoming" + capitalizeFirstLetter(outgoingEdgeType.slice("outgoing".length)) as IncomingEdgeType
+};
 
 class NodeClassic implements INodeClassic {
     constructor(mainGraph: IMainGraphClassic,
@@ -1137,7 +1213,7 @@ class NodeClassic implements INodeClassic {
             }
         });
 
-        edgeToAddKey = "outgoingProfileEdges";
+        edgeToAddKey = "outgoingEdgeProfileEdges";
         extractedModels.relationshipsProfiles.forEach(rpBundle => {
             const {source, target} = getEdgeSourceAndTargetRelationshipUsage(rpBundle.semanticModelRelationshipUsage);
             if(semanticEntityRepresentingNode.id === source) {
@@ -1149,10 +1225,11 @@ class NodeClassic implements INodeClassic {
 
         // TODO: For now, in future I would like to separate it from the profile edges, since maybe I would like to perform specific operations on profiles
         //       Merge into one node, layout the whole graph, split into original nodes and layout only the profiles
-        edgeToAddKey = "outgoingProfileEdges";
+        edgeToAddKey = "outgoingClassProfileEdges";
         extractedModels.classesProfiles.forEach(cpBundle => {
             if(cpBundle.semanticModelClassUsage.id === semanticEntityRepresentingNode.id) {
                 if(isNodeInVisualModel(visualModel, cpBundle.semanticModelClassUsage.usageOf)) {
+                    // TODO: Nothing new but again using "semantic" edge id instead of the visual one
                     const edgeIdentifier = cpBundle.semanticModelClassUsage.id + "-profile-" + cpBundle.semanticModelClassUsage.usageOf;
                     this.addEdge(sourceGraph, edgeIdentifier, null, cpBundle.semanticModelClassUsage.usageOf, extractedModels, edgeToAddKey, visualModel);
                 }
@@ -1225,9 +1302,18 @@ class NodeClassic implements INodeClassic {
     isDummy: boolean = false;       // TODO: For now just keep false
     isMainEntity: boolean = false;  // TODO: For now just keep false
     isProfile: boolean;
+
+    setOutgoingClassProfileEdge(outgoingClassProfileEdge: IEdgeClassic) {
+        this.isProfile = true;
+        this.outgoingClassProfileEdges = [outgoingClassProfileEdge];
+    }
+
     completeVisualNode: IVisualNodeComplete;     // TODO:
     attributes: SemanticModelRelationship[];
     isConsideredInLayout: boolean = true;
+
+    outgoingClassProfileEdges: Array<IEdgeClassic> = [];
+    incomingClassProfileEdges: Array<IEdgeClassic> = [];
 
     outgoingProfileEdges: IEdgeClassic[] = [];
     incomingProfileEdges: IEdgeClassic[] = [];
@@ -1255,7 +1341,7 @@ class NodeClassic implements INodeClassic {
  * @returns Returns generator which can be iterated to get edges of all types, where {@link node} is target/end.
  */
 function getAllIncomingEdges(node: INodeClassic): Generator<IEdgeClassic, string, unknown> {
-    const internalGenerator = getEdgesInternal([node.incomingRelationshipEdges, node.incomingGeneralizationEdges, node.incomingProfileEdges]);
+    const internalGenerator = getEdgesInternal([node.incomingRelationshipEdges, node.incomingGeneralizationEdges, node.incomingProfileEdges, node.incomingClassProfileEdges]);
     return internalGenerator;
 }
 
@@ -1266,7 +1352,7 @@ function getAllIncomingEdges(node: INodeClassic): Generator<IEdgeClassic, string
 function getAllOutgoingEdges(node: INodeClassic): Generator<IEdgeClassic, string, unknown> {
     // Note: I couldn't find out, why can't I just somehow return the internals of the getEdgesInternal function
     // Answer: I just had to remove the * in front of method to say that it just returns the generator and isn't the generator in itself
-    const internalGenerator = getEdgesInternal([node.outgoingRelationshipEdges, node.outgoingGeneralizationEdges, node.outgoingProfileEdges]);
+    const internalGenerator = getEdgesInternal([node.outgoingRelationshipEdges, node.outgoingGeneralizationEdges, node.outgoingProfileEdges, node.outgoingClassProfileEdges]);
     return internalGenerator;
 }
 
