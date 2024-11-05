@@ -42,7 +42,6 @@ export const ModelItemRow = (props: { modelId: string }) => {
     }, [modelId, activeVisualModel]);
 
     const handleSaveColor = (color: string) => {
-        console.log(color, activeVisualModel);
         setCurrentColor(color);
         activeVisualModel?.setModelColor(modelId, color);
     };
