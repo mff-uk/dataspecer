@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { DIRECTION, AlgorithmName, UserGivenConstraintsVersion4, ElkForceAlgType, getDefaultUserGivenConstraintsVersion4, getDefaultMainUserGivenAlgorithmConstraint, UserGivenAlgorithmConfiguration } from "@dataspecer/layout";
+import { MouseEvent, useState } from "react";
+import { DIRECTION, AlgorithmName, UserGivenConstraintsVersion4, ElkForceAlgType, getDefaultUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4, getDefaultMainUserGivenAlgorithmConstraint, UserGivenAlgorithmConfiguration } from "@dataspecer/layout";
 import _ from "lodash";
-import LayeredAlgorithmDirectionDropdown from "./direction-graphic-combobox/react-combobox";
+import LayeredAlgorithmDirectionDropdown from "./react-combobox";
 
 
 type MainType = "main";

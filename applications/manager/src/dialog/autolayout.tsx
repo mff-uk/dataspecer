@@ -5,7 +5,7 @@ import { modelTypeToName } from "@/known-models";
 import { BetterModalProps } from "@/lib/better-modal";
 import { ResourcesContext, requestLoadPackage } from "@/package";
 import { LOCAL_VISUAL_MODEL } from "@dataspecer/core-v2/model/known-models";
-import { doLayout } from "@dataspecer/layout";
+import { performLayoutOfSemanticModel } from "@dataspecer/layout";
 import { Loader } from "lucide-react";
 import { useContext, useState } from "react";
 import { useConfigDialog } from "./layout-dialog";
@@ -22,7 +22,7 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
   let lastModelVisualizationResource = resources[modelVisualizationId];
 
   const [shouldCreateNewModel, setShouldCreateNewModel] = useState(true);
-  
+
   let index = 0;
   while(modelVisualizationResource) {
     index++;
@@ -32,12 +32,12 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
 
     modelVisualizationId = `${baseModelVisualizationId}-${index}`;
     modelVisualizationResource = resources[modelVisualizationId];
-  }  
+  }
 
   // Take the last used model
   if(!shouldCreateNewModel) {
     modelVisualizationId = lastModelVisualizationId;
-    modelVisualizationResource = lastModelVisualizationResource; 
+    modelVisualizationResource = lastModelVisualizationResource;
   }
 
 
@@ -47,11 +47,22 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
     const response = await fetch(import.meta.env.VITE_BACKEND + "/resources/blob?iri=" + encodeURIComponent(iri));
     const data = await response.json();
     const entities = data.entities;
+    const semanticModelId = data.modelId;
+
+    console.log(entities);
+    console.log(semanticModelId);
+    console.info("resources");
+    console.info(resources);
+    console.info(resource);
 
     let visualEntities;
     try {
-      visualEntities = await doLayout(entities, getValidConfig());
+      visualEntities = await performLayoutOfSemanticModel(entities, semanticModelId, getValidConfig());
+      console.info("layouted visual entitites");
+      console.info(visualEntities);
+      throw new Error("Implementation of layout is not ready");
     } catch (error) {
+      alert("LAYOUT WAS NOT SUCCESSFUL");
       console.error(error);
       setIsLoading(false);
       return;
@@ -110,16 +121,16 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
           <ModalDescription>
            Launches layout from @dataspecer/layout for <strong>{type}</strong>{name && <> with name <strong>{name}</strong></>}.
             {/* cz: Spustí layout z @dataspecer/layout pro <strong>{type}</strong>{name && <> s názvem <strong>{name}</strong></>}. */}
-          </ModalDescription>          
+          </ModalDescription>
         </ModalHeader>
         <ModalBody>
-          <div className='h-8'>------------------------</div>         
-          <input type="checkbox" id="checkbox-shouldCreateNewModel" name="checkbox-shouldCreateNewModel" checked={shouldCreateNewModel} 
+          <div className='h-8'>------------------------</div>
+          <input type="checkbox" id="checkbox-shouldCreateNewModel" name="checkbox-shouldCreateNewModel" checked={shouldCreateNewModel}
                       onChange={(e => setShouldCreateNewModel(e.target.checked))} />
           <label htmlFor="checkbox-shouldCreateNewModel" className="font-black">Create new visual model (If unchecked then last layouted visual model is overridden [i.e. destroyed])
-            { /* cz: Vytvoř nový vizuální model (při nezaškrtnutí se přepíše poslední layout model) */}</label>    
-          <div className='h-8'></div>         
-          <div>------------------------</div>         
+            { /* cz: Vytvoř nový vizuální model (při nezaškrtnutí se přepíše poslední layout model) */}</label>
+          <div className='h-8'></div>
+          <div>------------------------</div>
           <ConfigDialog></ConfigDialog>
         </ModalBody>
         <ModalFooter>

@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@dataspecer/layout": "0.0.0",
     "@dataspecer/core": "*",
     "@dataspecer/core-v2": "^0.0.0",
     "@xyflow/react": "^12.3.4",

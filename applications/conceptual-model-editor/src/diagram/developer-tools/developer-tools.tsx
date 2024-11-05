@@ -18,6 +18,7 @@ import {
 } from "@xyflow/react";
 
 import "./developer-tools.css";
+import { useLayoutDialog } from "../../layout/layout-dialog-full";
 
 /**
  * Provides some internal information.
@@ -28,26 +29,33 @@ export function DeveloperTools() {
   const [changeLoggerActive, setChangeLoggerActive] = useState(false);
   const [viewportLoggerActive, setViewportLoggerActive] = useState(true);
 
+  const layoutDialogUse = useLayoutDialog();
+
+
   return (
-    <div className="react-flow__devtools">
-      <Panel position="top-left">
-        <DevToolButton
-          setActive={setChangeLoggerActive}
-          active={changeLoggerActive}
-          title="Toggle Change Logger"
-        >
-          Change
-        </DevToolButton>
-        <DevToolButton
-          setActive={setViewportLoggerActive}
-          active={viewportLoggerActive}
-          title="Toggle Viewport Logger"
-        >
-          Viewport
-        </DevToolButton>
-      </Panel>
-      {changeLoggerActive && <ChangeLogger />}
-      {viewportLoggerActive && <ViewportLogger />}
+    <div>
+      <div className="react-flow__devtools">
+        <Panel position="top-left">
+          <DevToolButton
+            setActive={setChangeLoggerActive}
+            active={changeLoggerActive}
+            title="Toggle Change Logger"
+          >
+            Change
+          </DevToolButton>
+          <DevToolButton
+            setActive={setViewportLoggerActive}
+            active={viewportLoggerActive}
+            title="Toggle Viewport Logger"
+          >
+            Viewport
+          </DevToolButton>
+          <button onClick={e => layoutDialogUse.open()}>Layout</button>
+        </Panel>
+        {changeLoggerActive && <ChangeLogger />}
+        {viewportLoggerActive && <ViewportLogger />}
+      </div>
+      {layoutDialogUse.isLayoutDialogOpen && <layoutDialogUse.DialogComponent></layoutDialogUse.DialogComponent>}
     </div>
   );
 }
