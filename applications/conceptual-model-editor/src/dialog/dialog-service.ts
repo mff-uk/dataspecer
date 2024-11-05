@@ -11,7 +11,7 @@ export interface DialogApiContextType {
   /**
    * Request new dialog to be open.
    */
-   
+
   openDialog: (dialog: DialogWrapper<any>) => void;
 
   /**
@@ -114,9 +114,7 @@ export const createDialogRendererContext = <S>(state: State, setState: React.Dis
       }
       if (typeof next === "function") {
         // Little help for TypeScript here.
-         
         const setter: (prevState: S) => S = next as any;
-         
         dialog = {...dialog, state: setter(dialog.state)};
       } else {
         dialog = {...dialog, state: next};
@@ -144,9 +142,7 @@ export const createDialogRendererContext = <S>(state: State, setState: React.Dis
     canConfirm: dialog.validate?.(dialog.state) ?? true,
     confirmLabel: dialog.confirmLabel,
     closeLabel: dialog.cancelLabel,
-     
     state: dialog.state,
-     
     component: dialog.component,
     changeState,
     confirm,

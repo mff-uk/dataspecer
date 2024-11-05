@@ -37,7 +37,6 @@ function validate(state: EditClassState): boolean {
 const EditClassDialog = (props: DialogProps<EditClassState>) => {
   const state = props.state;
   const controller = useEditClassController(props);
-
   return (
     <>
       <DialogColoredModelHeaderWithModelSelector

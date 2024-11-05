@@ -15,32 +15,39 @@ export const IriInput = (props: {
      * Name of the entity we are creating IRI for.
      */
     name: LanguageString;
+
     /**
      * Value of the IRI.
      */
     newIri: string | undefined;
+
     /**
      * Base IRI when relative IRI is used.
      */
     baseIri: string | undefined;
+
     /**
      * Callback to set new IRI.
      */
     setNewIri: (iri: string) => void;
+
     /**
-     * Thrue if IRI has been changed by the user.
+     * True if IRI has been changed by the user.
      * If so we stop auto-generating from name.
      */
     iriHasChanged: boolean;
+
     /**
      * Called when newIri change from within this component.
      * Does not pass any value, just to notify the caller.
      */
     onChange?: () => void;
+
     /**
      * True to disable the element.
      */
     disabled?: boolean;
+
     /**
      * Method used to suggest IRI.
      * When undefined there is no generation.

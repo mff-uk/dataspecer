@@ -101,11 +101,11 @@ export function useEditClassController({ state, changeState }: DialogProps<EditC
     };
 
     const setIri = (iri: string) => {
-      changeState({ ...state, iri });
+      changeState((state) => ({ ...state, iri }));
     };
 
     const onUserChangedIri = () => {
-      changeState({ ...state, autoGenerateIri: false });
+      changeState((state) => ({ ...state, autoGenerateIri: false }));
     };
 
     const setName = (value: LanguageString | ((prev: LanguageString) => LanguageString)): void => {
