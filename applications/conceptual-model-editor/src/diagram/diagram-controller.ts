@@ -375,6 +375,12 @@ const createActions = (
     },
     updateNodes(nodes) {
       console.log("Diagram.updateNodes", nodes.map(item => item.identifier), nodes);
+
+      const changed: Record<string, NodeType> = {};
+      nodes.forEach(node => changed[node.identifier] = nodeToNodeType(node));
+      reactFlow.setNodes((prev) => prev.map(node => {
+        return changed[node.data.identifier] ?? node;
+      }));
     },
     updateNodesPosition(nodes) {
       console.log("Diagram.updateNodesPosition", nodes);
@@ -394,6 +400,14 @@ const createActions = (
     },
     updateEdges(edges) {
       console.log("Diagram.updateEdges", edges.map(item => item.identifier), edges);
+
+      const changed: Record<string, EdgeType> = {};
+      edges.forEach(edge => changed[edge.identifier] = edgeToEdgeType(edge));
+      reactFlow.setEdges((prev) => prev.map(edge => {
+        // We need to use asterisk here as data may be undefined.
+        // Not sure why this is not the case for updateNodes.
+        return changed[edge.data!.identifier] ?? edge;
+      }));
     },
     setEdgesWaypointPosition(edges) {
       console.log("Diagram.setEdgesWaypointPosition", edges);
