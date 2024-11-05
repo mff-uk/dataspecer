@@ -68,7 +68,7 @@ export const Catalog = () => {
                     hidden={warnings.length === 0}
                 />
             </div>
-            <div className="m-1 overflow-y-scroll pb-2">
+            <div className="m-1 overflow-y-scroll pb-2 h-full">
                 <Content />
             </div>
         </div>
