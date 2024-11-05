@@ -58,6 +58,12 @@ export interface CreateConnectionState {
 
 }
 
+/**
+ * We store this using just plan JavaScript. The value
+ * determined default connection type on open.
+ */
+let nextOpenConnectionType = ConnectionType.Association;
+
 export const createConnectionDialog = (
     graph: ModelGraphContextType,
     source: SemanticModelClass | SemanticModelClassUsage,
@@ -72,7 +78,10 @@ export const createConnectionDialog = (
         confirmLabel: "create-connection-dialog.btn-ok",
         cancelLabel: "create-connection-dialog.btn-close",
         validate: null,
-        onConfirm: onConfirm,
+        onConfirm: (state) => {
+            nextOpenConnectionType = state.type;
+            onConfirm(state);
+        },
         onClose: null,
     };
 }
@@ -98,7 +107,7 @@ function createCreateProfileState(
         target,
         language,
         //
-        type: ConnectionType.Association,
+        type: nextOpenConnectionType,
         iri: getRandomName(7),
         name: {},
         description: {},
@@ -108,7 +117,6 @@ function createCreateProfileState(
         models,
     };
 }
-
 
 const CreateConnectionDialog = (props: DialogProps<CreateConnectionState>) => {
     const language = props.state.language;
