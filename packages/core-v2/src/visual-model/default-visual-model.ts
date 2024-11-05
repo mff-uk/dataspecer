@@ -392,9 +392,6 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
   }
 
   protected notifyObserversOnModelChange(previous: ModelVisualInformation | null, next: ModelVisualInformation | null) {
-    if (previous?.color !== next?.color) {
-      // There was a change in color.
-    }
     // We know that at leas one of then is not null, unfortunately TS
     // is not capable of detecting that.
     const modelIdentifier = (previous?.representedModel ?? next?.representedModel) as string;
@@ -423,6 +420,7 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
         entity: entity.identifier,
         representedModel: entity.representedModel,
       });
+      this.notifyObserversOnModelChange(previous as ModelVisualInformation, entity);
       this.notifyObserversOnEntityChangeOrDelete(previous as VisualEntity, entity);
     }
     if (isVisualProfileRelationship(entity)) {
