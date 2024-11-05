@@ -157,11 +157,10 @@ export const Visualization = () => {
                 }
                 // We ignore model color changes here for now.
                 console.log("[VISUALIZATION] Model color has been changed.", { model });
-                // propagateVisualModelColorChangesToVisualization(
-                //     model,
-                //     setNodes, setEdges,
-                //     aggregatorView, classesContext,
-                //     activeVisualModel as WritableVisualModel);
+                propagateVisualModelColorChangesToVisualization(
+                    options, activeVisualModel, actions.diagram, aggregatorView, classesContext, graph,
+                    model
+                );
             },
             visualEntitiesDidChange(changes) {
                 if (activeVisualModel === null) {
@@ -429,41 +428,52 @@ export const Visualization = () => {
 //     }
 // }
 
-// function propagateVisualModelColorChangesToVisualization(
-//     changedModelIdentifier: string,
-//     setNodes: Dispatch<SetStateAction<Node<any, string | undefined>[]>>,
-//     setEdges: Dispatch<SetStateAction<Edge<any>[]>>,
-//     aggregatorView: SemanticModelAggregatorView,
-//     classesContext: UseClassesContextType,
-//     visualModel: WritableVisualModel,
-// ) {
-//     // We need to re-render entities from the model.
-//     // We just collect them and use the other visual update method,
-//     // simulating change in the entities.
-//     const changes: {
-//         previous: VisualEntity | null;
-//         next: VisualEntity | null;
-//     }[] = [];
-//
-//     // We need to update all entities from given model.
-//     for (const [identifier, entity] of visualModel.getVisualEntities()) {
-//         if (isVisualNode(entity)) {
-//             if (entity.model === changedModelIdentifier) {
-//                 changes.push({ previous: entity, next: entity });
-//             }
-//         } else if (isVisualRelationship(entity)) {
-//             if (entity.model === changedModelIdentifier) {
-//                 changes.push({ previous: entity, next: entity });
-//             }
-//         }
-//     }
-//
-//     propagateVisualModelEntitiesChangesToVisualization(
-//         changes,
-//         setNodes, setEdges,
-//         aggregatorView, classesContext,
-//         visualModel);
-// }
+function propagateVisualModelColorChangesToVisualization(
+    options: Options,
+    visualModel: VisualModel | null,
+    diagram: UseDiagramType | null,
+    aggregatorView: SemanticModelAggregatorView,
+    classesContext: UseClassesContextType,
+    graphContext: UseModelGraphContextType,
+    changedModelIdentifier: string,
+) {
+    if (visualModel === null) {
+        logger.warn("Visual model change is ignored as visual model is not ready! This should not happen.");
+        return;
+    }
+    if (diagram === null || !diagram.areActionsReady) {
+        logger.warn("Visual model change is ignored as the diagram is not ready!");
+        return;
+    }
+
+    // We need to re-render entities from the model.
+    // We just collect them and use the other visual update method,
+    // simulating change in the entities.
+    // TODO We should not reuse the function in this way, but it was quick solution.
+    const changes: {
+        previous: VisualEntity | null;
+        next: VisualEntity | null;
+    }[] = [];
+
+    // We need to update all entities from given model.
+    // The entities remain the same as the change is in the model.
+    for (const [identifier, entity] of visualModel.getVisualEntities()) {
+        if (isVisualNode(entity)) {
+            if (entity.model === changedModelIdentifier) {
+                changes.push({ previous: entity, next: entity });
+            }
+        } else if (isVisualRelationship(entity)) {
+            if (entity.model === changedModelIdentifier) {
+                changes.push({ previous: entity, next: entity });
+            }
+        }
+    }
+
+    // Call the change method.
+    onChangeVisualEntities(
+        options, visualModel, diagram, aggregatorView, classesContext,
+        graphContext, changes)
+}
 
 // /**
 //  * This method must not evaluate the changes as it is used by
@@ -828,6 +838,9 @@ function createDiagramEdgeForClassProfile(
     };
 }
 
+/**
+ * This method is also called when there is a change in model color!
+ */
 function onChangeVisualEntities(
     options: Options,
     visualModel: VisualModel | null,
