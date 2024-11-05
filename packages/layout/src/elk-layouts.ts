@@ -165,6 +165,11 @@ class ElkGraphTransformer implements GraphTransformer {
     }
 
 
+    private convertPositionToGrid(position: number, grid: number): number {
+        const convertedPosition = position - (position % grid);
+        return convertedPosition;
+    }
+
     updateExistingGraphRepresentationBasedOnLibraryRepresentation(libraryRepresentation: ElkNode | null,
                                                                     graphToBeUpdated: IGraphClassic,        // TODO: Can use this.graph instead
                                                                     includeNewVertices: boolean,
@@ -180,6 +185,15 @@ class ElkGraphTransformer implements GraphTransformer {
             if(this.isGraphNode(visualEntity)) {
                 visualEntity.coreVisualNode.position.x -= leftX;
                 visualEntity.coreVisualNode.position.y -= topY;
+                // TODO: Maybe should have set method on graph instead which does the conversion to grid automatically and maybe should also should update edges?
+                //       Also we can't access the cme configuration (applications/conceptual-model-editor/src/application/configuration.ts) from here
+                //       So I am not sure how one should solve this.
+                //       1) Include the reference to CME so we can access the configuration or put the configuration somewhere out since it is constant
+                //       2) Work without it and put it to the grid only when adding to the visual model (but if we are doing that from the manager we also can't access config)
+                //          Another drawback is that the graph metrics are then working with slightly different graph
+
+                visualEntity.coreVisualNode.position.x = this.convertPositionToGrid(visualEntity.coreVisualNode.position.x, 10);
+                visualEntity.coreVisualNode.position.y = this.convertPositionToGrid(visualEntity.coreVisualNode.position.y, 10);
             }
             else if(isVisualRelationship(visualEntity) || isVisualProfileRelationship(visualEntity)) {
                 for(let i = 0; i < visualEntity.waypoints.length; i++) {

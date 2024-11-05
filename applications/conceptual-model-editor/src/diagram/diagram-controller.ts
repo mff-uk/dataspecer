@@ -373,9 +373,6 @@ const createActions = (
       console.log("Diagram.addNodes", nodes.map(item => item.identifier), nodes);
     },
     updateNodes(nodes) {
-      nodes.forEach(updatedNode => {
-        reactFlow.updateNode(updatedNode.identifier, nodeToNodeType(updatedNode));
-      });
       console.log("Diagram.updateNodes", nodes.map(item => item.identifier), nodes);
     },
     updateNodesPosition(nodes) {
