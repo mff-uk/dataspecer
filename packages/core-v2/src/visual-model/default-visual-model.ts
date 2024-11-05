@@ -166,7 +166,7 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
   }
 
   addVisualNode(entity: Omit<VisualNode, "identifier" | "type">): string {
-    // This will trigger update in underling model and invoke callback.
+    // This will trigger update in underlying model and invoke callback.
     // We react to changes using the callback.
     return this.model.createEntitySync({
       ...entity,
@@ -175,7 +175,7 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
   }
 
   addVisualRelationship(entity: Omit<VisualRelationship, "identifier" | "type">): string {
-    // This will trigger update in underling model and invoke callback.
+    // This will trigger update in underlying model and invoke callback.
     // We react to changes using the callback.
     return this.model.createEntitySync({
       ...entity,
@@ -184,7 +184,7 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
   }
 
   addVisualProfileRelationship(entity: Omit<VisualProfileRelationship, "identifier" | "type">): string {
-    // This will trigger update in underling model and invoke callback.
+    // This will trigger update in underlying model and invoke callback.
     // We react to changes using the callback.
     return this.model.createEntitySync({
       ...entity,
@@ -193,7 +193,7 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
   }
 
   addVisualGroup(entity: Omit<VisualGroup, "identifier" | "identifier">): string {
-    // This will trigger update in underling model and invoke callback.
+    // This will trigger update in underlying model and invoke callback.
     // We react to changes using the callback.
     return this.model.createEntitySync({
       ...entity,
@@ -202,13 +202,13 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
   }
 
   updateVisualEntity<T extends VisualEntity>(identifier: EntityIdentifier, entity: Partial<Omit<T, "identifier" | "type">>): void {
-    // This will trigger update in underling model and invoke callback.
+    // This will trigger update in underlying model and invoke callback.
     // We react to changes using the callback.
     this.model.changeEntitySync(identifier, entity);
   }
 
   deleteVisualEntity(identifier: EntityIdentifier): void {
-    // This will trigger update in underling model and invoke callback.
+    // This will trigger update in underlying model and invoke callback.
     // We react to changes using the callback.
     this.model.deleteEntitySync(identifier);
   }
@@ -218,21 +218,21 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
     if (entityIdentifier === undefined) {
       // We need to create new model entity.
       this.createModelEntity(identifier, color);
-      return;;
+      return;
     }
     const entity = this.model.getEntitySync(entityIdentifier);
     if (entity === null) {
       // We need to create new model entity.
       this.createModelEntity(identifier, color);
-      return;;
+      return;
     }
-    // This will trigger update in underling model and invoke callback.
+    // This will trigger update in underlying model and invoke callback.
     // We react to changes using the callback.
     this.model.changeEntitySync<ModelVisualInformation>(entityIdentifier, { color });
   }
 
   protected createModelEntity(model: string, color: HexColor): void {
-    // This will trigger update in underling model and invoke callback.
+    // This will trigger update in underlying model and invoke callback.
     // We react to changes using the callback.
     // The same way to create a ModelVisualInformation is used in the
     // deserializeModelV0 method!
@@ -255,7 +255,7 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
       return;
     }
     // Now we delete the entity.
-    // This will trigger update in underling model and invoke callback.
+    // This will trigger update in underlying model and invoke callback.
     // We react to changes using the callback.
     this.model.deleteEntitySync(entityIdentifier);
   }
@@ -418,6 +418,11 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
     }
     if (isModelVisualInformation(entity)) {
       this.entities.set(entity.identifier, entity);
+      this.models.set(entity.representedModel, {
+        color: entity.color,
+        entity: entity.identifier,
+        representedModel: entity.representedModel,
+      });
       this.notifyObserversOnEntityChangeOrDelete(previous as VisualEntity, entity);
     }
     if (isVisualProfileRelationship(entity)) {
