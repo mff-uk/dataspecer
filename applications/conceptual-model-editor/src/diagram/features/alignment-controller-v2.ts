@@ -100,6 +100,11 @@ export const useAlignmentController = (props: {
     };
 
     const alignmentNodesChange = (changes: NodeChange<NodeType>[]) => {
+        // If we are moving more than 1 node, then we don't want to perform alignment
+        if(changes.length > 1) {
+            return;
+        }
+
         // To describe the algorithm:
         // We first check if there was already some alignment present and try to set positions based on that
         // Then we check if the position (aligned if there was the alignment) aligns with some node
@@ -136,7 +141,6 @@ export const useAlignmentController = (props: {
 
         // If we were aligning at least one node and still are
         if (changedAlignmentLines.length === 0 && (indexInSortedArray.x >= 0 || indexInSortedArray.y >= 0)) {
-            console.log("If we were aligning at least one node and still are");
             nodePositionChange.position.x = nodePositionCopy.x;
             nodePositionChange.position.y = nodePositionCopy.y;
             return;
