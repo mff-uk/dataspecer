@@ -35,6 +35,13 @@ export type { AlgorithmName } from "./configs/constraint-container";
 export { DIRECTION } from "./util/utils";
 export type { INodeClassic } from "./graph-iface"
 
+export { ReactflowDimensionsEstimator }
+import { ReactflowDimensionsConstantEstimator } from "./dimension-estimators/constant-dimension-estimator";
+export { ReactflowDimensionsConstantEstimator }
+
+import { placePositionOnGrid } from "./util/utils";
+export { placePositionOnGrid }
+
 export type {
 	UserGivenAlgorithmConfiguration,
 	UserGivenAlgorithmConfigurationElkForce,

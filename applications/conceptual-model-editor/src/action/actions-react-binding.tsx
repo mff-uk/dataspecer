@@ -4,7 +4,7 @@ import { type InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/i
 
 import { type DialogApiContextType } from "../dialog/dialog-service";
 import { DialogApiContext } from "../dialog/dialog-context";
-import { logger } from "../application";
+import { configuration, logger } from "../application";
 import { type EditClassState } from "../dialog/class/edit-class-dialog-controller";
 import { type ClassesContextType, ClassesContext, useClassesContext, UseClassesContextType } from "../context/classes-context";
 import { useNotificationServiceWriter } from "../notification";
@@ -29,6 +29,7 @@ import { findSourceModelOfEntity } from "../service/model-service";
 import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
 import { isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { openCreateConnectionDialogAction } from "./open-create-connection";
+import { placePositionOnGrid, ReactflowDimensionsConstantEstimator } from "@dataspecer/layout";
 
 export interface ActionsContextType {
 
@@ -221,10 +222,15 @@ function createActionsContext(
   const addNodeToVisualModel = (model: string, identifier: string) => {
     // We position the new node to the center of the viewport.
     const viewport = diagram.actions().getViewport();
+
     const position = {
       x: viewport.position.x + (viewport.width / 2),
       y: viewport.position.y + (viewport.height / 2),
     };
+    position.x -= ReactflowDimensionsConstantEstimator.getDefaultWidth() / 2;
+    position.y -= ReactflowDimensionsConstantEstimator.getDefaultHeight() / 2;
+    placePositionOnGrid(position, configuration().xSnapGrid, configuration().ySnapGrid);
+
     addNodeToVisualModelAction(notifications, graph, model, identifier, position);
   };
 

@@ -15,7 +15,7 @@ import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-d
 import { CONFIG_TO_ELK_CONFIG_MAP } from "./configs/elk/elk-utils";
 import { NodeDimensionQueryHandler } from ".";
 import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { PhantomElementsFactory } from "./util/utils";
+import { PhantomElementsFactory, placePositionOnGrid } from "./util/utils";
 import _, { clone } from "lodash";
 import { GraphAlgorithms } from "./graph-algoritms";
 import { ElkConstraint } from "./configs/elk/elk-constraints";
@@ -165,11 +165,6 @@ class ElkGraphTransformer implements GraphTransformer {
     }
 
 
-    private convertPositionToGrid(position: number, grid: number): number {
-        const convertedPosition = position - (position % grid);
-        return convertedPosition;
-    }
-
     updateExistingGraphRepresentationBasedOnLibraryRepresentation(libraryRepresentation: ElkNode | null,
                                                                     graphToBeUpdated: IGraphClassic,        // TODO: Can use this.graph instead
                                                                     includeNewVertices: boolean,
@@ -192,8 +187,7 @@ class ElkGraphTransformer implements GraphTransformer {
                 //       2) Work without it and put it to the grid only when adding to the visual model (but if we are doing that from the manager we also can't access config)
                 //          Another drawback is that the graph metrics are then working with slightly different graph
 
-                visualEntity.coreVisualNode.position.x = this.convertPositionToGrid(visualEntity.coreVisualNode.position.x, 10);
-                visualEntity.coreVisualNode.position.y = this.convertPositionToGrid(visualEntity.coreVisualNode.position.y, 10);
+                placePositionOnGrid(visualEntity.coreVisualNode.position, 10, 10);
             }
             else if(isVisualRelationship(visualEntity) || isVisualProfileRelationship(visualEntity)) {
                 for(let i = 0; i < visualEntity.waypoints.length; i++) {
