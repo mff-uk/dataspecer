@@ -68,6 +68,14 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
       return;
     }
 
+    // TODO: The actual layouting is most likely correct, but the JSON object representing visual model should be different
+    // probably like in serializeModelToApiJsonObject method - return {
+    //   identifier: this.identifier,
+    //   version: VERSION,
+    //   type: this.type,
+    //   entities: [...this.entities.values()],
+    // }
+
     const visualizationModel = {
       modelColors: {
         [iri]: "#ffd670",

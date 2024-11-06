@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
-import { API_SPECIFICATION_MODEL, APPLICATION_GRAPH, LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL, V1 } from "@dataspecer/core-v2/model/known-models";
+import { API_SPECIFICATION_MODEL, APPLICATION_GRAPH, LOCAL_PACKAGE, LOCAL_VISUAL_MODEL, V1 } from "@dataspecer/core-v2/model/known-models";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
-import { ChevronDown, ChevronRight, CircuitBoard, Copy, EllipsisVertical, FileText, Folder, FolderDown, NotepadTextDashed, Pencil, Plus, Sparkles, Trash2, WandSparkles } from "lucide-react";
+import { ChevronDown, ChevronRight, CircuitBoard, Copy, EllipsisVertical, FileText, Folder, FolderDown, NotepadTextDashed, Pencil, Plus, Trash2, WandSparkles } from "lucide-react";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getValidTime } from "./components/time";
@@ -9,7 +9,6 @@ import { Translate } from "./components/translate";
 import { Button } from "./components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./components/ui/dropdown-menu";
 import { Skeleton } from "./components/ui/skeleton";
-import { Autolayout } from "./dialog/autolayout";
 import { CreateNew } from "./dialog/create-new";
 import { DeleteResource } from "./dialog/delete-resource";
 import { ProjectWizard } from "./dialog/project-wizard/project-wizard";
@@ -156,7 +155,8 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
               await modifyUserMetadata(iri, {label: result.name, description: result.description});
             }
           }}><Pencil className="mr-2 h-4 w-4" /> Rename</DropdownMenuItem>
-          {resource.types.includes(LOCAL_SEMANTIC_MODEL) && <DropdownMenuItem onClick={() => openModal(Autolayout, {iri, parentIri: parentIri!})}><Sparkles className="mr-2 h-4 w-4" /> {t("autolayout")}</DropdownMenuItem>}
+          {/* // TODO: For now disable */}
+          {/* {resource.types.includes(LOCAL_SEMANTIC_MODEL) && <DropdownMenuItem onClick={() => openModal(Autolayout, {iri, parentIri: parentIri!})}><Sparkles className="mr-2 h-4 w-4" /> {t("autolayout")}</DropdownMenuItem>} */}
           <DropdownMenuItem onClick={() => openModal(ModifyRawDialog, {iri})}><CircuitBoard className="mr-2 h-4 w-4" /> {t("modify raw data")}</DropdownMenuItem>
           <DropdownMenuItem className="bg-destructive text-destructive-foreground hover:bg-destructive" onClick={() => openModal(DeleteResource, {iri})}><Trash2 className="mr-2 h-4 w-4" /> {t("remove")}</DropdownMenuItem>
         </DropdownMenuContent>
