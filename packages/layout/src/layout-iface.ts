@@ -263,22 +263,17 @@ export function getEdgeSourceAndTargetRelationship(relationship: SemanticModelRe
     return {source, target, sourceIndex, targetIndex};
 }
 
-export function getEdgeSourceAndTargetRelationshipUsage(relationship: SemanticModelRelationshipUsage): {source: string, target: string} {
-    let source, target: string;
-
-    // TODO: For now just rely on the order, fix later
-    source = relationship.ends[0].concept;
-    target = relationship.ends[1].concept;
-    // if(relationship.ends[0].iri == null) {
-    //     source = relationship.ends[0].concept;
-    //     target = relationship.ends[1].concept;
-    // }
-    // else {
-    //     source = relationship.ends[1].concept;
-    //     target = relationship.ends[0].concept;
-    // }
-
-    return {source, target};
+export function getEdgeSourceAndTargetRelationshipUsage(relationshipUsage: SemanticModelRelationshipUsage, extractedModels: ExtractedModels): {source: string, target: string} {
+    const usageOf = extractedModels.entities.find(e => e.semanticModelEntity.id === relationshipUsage.usageOf).semanticModelEntity;
+    if(isSemanticModelRelationshipUsage(usageOf)) {
+        return getEdgeSourceAndTargetRelationshipUsage(usageOf, extractedModels);
+    }
+    else if(isSemanticModelRelationship(usageOf)) {
+        return getEdgeSourceAndTargetRelationship(usageOf);
+    }
+    else {
+        throw new Error("Expected the entity to be either relationship usage or relationship");
+    }
 }
 
 

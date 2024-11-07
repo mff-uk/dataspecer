@@ -776,7 +776,7 @@ function convertOutgoingEdgeTypeToEdgeProfileType(outgoingEdgeType: OutgoingEdge
     switch(outgoingEdgeType) {
         case "outgoingClassProfileEdges":
             return "CLASS-PROFILE"
-        case "outgoingEdgeProfileEdges":
+        case "outgoingProfileEdges":
             return "EDGE-PROFILE"
         case "outgoingGeneralizationEdges":
         case "outgoingRelationshipEdges":
@@ -987,7 +987,7 @@ export interface INodeClassic {
 
 const getEdgeTypeNameFromEdge = (edge: IEdgeClassic): OutgoingEdgeType => {
     if(edge.edgeProfileType === "EDGE-PROFILE") {
-        return "outgoingEdgeProfileEdges";
+        return "outgoingProfileEdges";
     }
     else if(edge.edgeProfileType === "CLASS-PROFILE") {
         return "outgoingClassProfileEdges"
@@ -1084,10 +1084,10 @@ function addEdge(graph: IGraphClassic,
 
     let visualEdge: VisualRelationship | VisualProfileRelationship | null = null;
     if(visualModel !== null) {
-        if(edgeToAddKey === "outgoingEdgeProfileEdges") {
+        if(edgeToAddKey === "outgoingProfileEdges") {
             // TODO: Again the ID of semantic model instead of the visual one
             const visualEntityForEdge = visualModel.getVisualEntityForRepresented(id);
-            if(isVisualProfileRelationship(visualEntityForEdge)) {
+            if(isVisualRelationship(visualEntityForEdge)) {
                 visualEdge = visualEntityForEdge;
             }
         }
@@ -1147,13 +1147,13 @@ function addEdge(graph: IGraphClassic,
  * The type which contains field names of the outgoing edges in {@link INodeClassic},
  * this is useful to minimize copy-paste of code, we just access the fields on node through node[key: OutgoingEdgeType].
  */
-type OutgoingEdgeType = "outgoingRelationshipEdges" | "outgoingGeneralizationEdges" | "outgoingEdgeProfileEdges" | "outgoingClassProfileEdges";
+type OutgoingEdgeType = "outgoingRelationshipEdges" | "outgoingGeneralizationEdges" | "outgoingProfileEdges" | "outgoingClassProfileEdges";
 
 
 /**
  * Same as {@link OutgoingEdgeType}, but for incoming edges.
  */
-type IncomingEdgeType = "incomingRelationshipEdges" | "incomingGeneralizationEdges" | "incomingEdgeProfileEdges" | "incomingClassProfileEdges" ;
+type IncomingEdgeType = "incomingRelationshipEdges" | "incomingGeneralizationEdges" | "incomingProfileEdges" | "incomingClassProfileEdges" ;
 
 const convertOutgoingEdgeTypeToIncoming = (outgoingEdgeType: OutgoingEdgeType): IncomingEdgeType => {
     return "incoming" + capitalizeFirstLetter(outgoingEdgeType.slice("outgoing".length)) as IncomingEdgeType
@@ -1215,9 +1215,9 @@ class NodeClassic implements INodeClassic {
             }
         });
 
-        edgeToAddKey = "outgoingEdgeProfileEdges";
+        edgeToAddKey = "outgoingProfileEdges";
         extractedModels.relationshipsProfiles.forEach(rpBundle => {
-            const {source, target} = getEdgeSourceAndTargetRelationshipUsage(rpBundle.semanticModelRelationshipUsage);
+            const {source, target} = getEdgeSourceAndTargetRelationshipUsage(rpBundle.semanticModelRelationshipUsage, extractedModels);
             if(semanticEntityRepresentingNode.id === source) {
                 if(isRelationshipInVisualModel(visualModel, rpBundle.semanticModelRelationshipUsage.id, [source, target])) {
                     this.addEdge(sourceGraph, rpBundle.semanticModelRelationshipUsage.id, rpBundle.semanticModelRelationshipUsage, target, extractedModels, edgeToAddKey, visualModel);
