@@ -1,7 +1,5 @@
 import { ViewportPortal } from "@xyflow/react";
-
 import type { AlignmentController, LineEndPointsForOrthogonal } from "./alignment-controller-v2";
-import type { Point } from "../edge/math";
 
 export const AlignmentComponent = (controller: AlignmentController) => {
   return (

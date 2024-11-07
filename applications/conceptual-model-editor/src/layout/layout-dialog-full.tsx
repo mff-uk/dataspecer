@@ -7,7 +7,7 @@ import { useActions } from "../action/actions-react-binding";
 import { isVisualNode, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 export const useLayoutDialog = () => {
-    const { getValidConfig, ConfigDialog, resetConfig } = useConfigDialog();
+    const { getValidConfig, ConfigDialog } = useConfigDialog();
 
     const { aggregatorView, models } = useModelGraphContext();
 
@@ -55,7 +55,6 @@ export const useLayoutDialog = () => {
 
     const [isLayoutDialogOpen, setIsLayoutDialogOpen] = useState<boolean>(false);
     const open = () => {
-        // resetConfig();
         setIsLayoutDialogOpen(true);
     };
     const close = () => {
