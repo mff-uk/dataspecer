@@ -1,6 +1,6 @@
 import { ViewportPortal } from "@xyflow/react";
 
-import type { AlignmentController } from "./alignment-controller-v2";
+import type { AlignmentController, LineEndPointsForOrthogonal } from "./alignment-controller-v2";
 import type { Point } from "../edge/math";
 
 export const AlignmentComponent = (controller: AlignmentController) => {
@@ -18,15 +18,15 @@ export const AlignmentComponent = (controller: AlignmentController) => {
   );
 };
 
-function HorizontalLine({ line }: { line: Point }) {
+function HorizontalLine({ line }: { line: LineEndPointsForOrthogonal }) {
   return (
     <ViewportPortal>
       <div
         style={{
           position: "absolute",
-          left: `${line.x}px`,
-          top: `${line.y}px`,
-          width: "20000px",
+          left: `${line.start.x}px`,
+          top: `${line.start.y}px`,
+          width: `${line.length}px`,
           height: "2px",
           backgroundColor: "black",
         }}
@@ -36,16 +36,16 @@ function HorizontalLine({ line }: { line: Point }) {
   );
 }
 
-function VerticalLine({ line }: { line: Point }) {
+function VerticalLine({ line }: { line: LineEndPointsForOrthogonal }) {
   return (
     <ViewportPortal>
       <div
         style={{
           position: "absolute",
-          left: `${line.x}px`,
-          top: `${line.y}px`,
+          left: `${line.start.x}px`,
+          top: `${line.start.y}px`,
           width: "2px",
-          height: "20000px",
+          height: `${line.length}px`,
           backgroundColor: "black",
         }}
       >
