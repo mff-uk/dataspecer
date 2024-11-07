@@ -76,6 +76,9 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           connectionLineComponent={ConnectionEdge}
+          // Disable as we use double click for opening dialogs,
+          // a miss click would thus cause a zoom mostly unintended.
+          zoomOnDoubleClick={false}
           // We moved the target to center and by this we sort of simulate connection to a node.
           // Best would be to have custom magnet, but unfortunately there is no easy way too
           // get to the right place, see OnPointerDown at
