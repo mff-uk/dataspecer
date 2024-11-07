@@ -2,11 +2,14 @@ import {
     type SemanticModelClass,
     type SemanticModelRelationship,
     isSemanticModelClass,
+    isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import type {
-    SemanticModelClassUsage,
-    SemanticModelRelationshipUsage,
+import {
+    isSemanticModelClassUsage,
+    isSemanticModelRelationshipUsage,
+    type SemanticModelClassUsage,
+    type SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { type Entity, type EntityModel } from "@dataspecer/core-v2/entity-model";
@@ -15,7 +18,7 @@ import { EntityRow } from "./entity-row";
 import { sourceModelOfEntity } from "../../util/model-utils";
 import { useModelGraphContext } from "../../context/model-context";
 import { useClassesContext } from "../../context/classes-context";
-import { hasBothEndsOnCanvas, isAnAttribute, isAnEdge } from "../../util/relationship-utils";
+import { hasBothEndsOnCanvas } from "../../util/relationship-utils";
 import { findSourceModelOfEntity } from "../../service/model-service";
 
 export const RowHierarchy = (props: {
@@ -39,8 +42,8 @@ export const RowHierarchy = (props: {
 
     const sourceModel = sourceModelOfEntity(entity.id, [...models.values()]);
 
-    const isAttribute = isAnAttribute(entity);
-    const isEdge = isAnEdge(entity);
+    const isClassOrProfile = isSemanticModelClass(entity) || isSemanticModelClassUsage(entity);
+    const isRelationshipOrProfile = isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity);
 
     const expansionHandler =
         isSemanticModelClass(entity) && sourceModel instanceof ExternalSemanticModel
@@ -50,14 +53,11 @@ export const RowHierarchy = (props: {
             }
             : null;
 
-    const drawingHandler =
-        isAttribute ||
-            (isEdge && !hasBothEndsOnCanvas(entity, aggregatorView.getActiveVisualModel()))
-            ? null
-            : {
-                addToViewHandler: () => props.handlers.handleAddEntityToActiveView(entity),
-                removeFromViewHandler: () => props.handlers.handleRemoveEntityFromActiveView(entity.id),
-            };
+    const showDrawingHandler = isClassOrProfile || (isRelationshipOrProfile && hasBothEndsOnCanvas(entity, aggregatorView.getActiveVisualModel()));
+    const drawingHandler = !showDrawingHandler ? null : {
+        addToViewHandler: () => props.handlers.handleAddEntityToActiveView(entity),
+        removeFromViewHandler: () => props.handlers.handleRemoveEntityFromActiveView(entity.id),
+    };
 
     const removalHandler =
         sourceModel instanceof InMemorySemanticModel || sourceModel instanceof ExternalSemanticModel
@@ -68,7 +68,7 @@ export const RowHierarchy = (props: {
 
     const targetHandler = {
         centerViewportOnEntityHandler: () => props.handlers.handleTargeting(entity.id),
-        isTargetable: props.onCanvas.includes(entity.id) && !isAttribute && !isEdge,
+        isTargetable: props.onCanvas.includes(entity.id) && isClassOrProfile,
     };
 
     const model = findSourceModelOfEntity(entity.id, models);

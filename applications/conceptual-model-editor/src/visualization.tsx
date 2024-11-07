@@ -611,6 +611,7 @@ function onChangeVisualModel(
             const entity = entities[visualEntity.representedRelationship]?.aggregatedEntity ?? null;
             const isRelationship =
                 isSemanticModelRelationship(entity) ||
+                isSemanticModelRelationshipUsage(entity) ||
                 isSemanticModelGeneralization(entity);
             if (isRelationship) {
                 const model = findSourceModelOfEntity(entity.id, models);
@@ -748,11 +749,14 @@ function createDiagramEdge(
     visualModel: VisualModel,
     profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
     visualNode: VisualRelationship,
-    entity: SemanticModelRelationship | SemanticModelGeneralization,
+    entity: SemanticModelRelationship | SemanticModelRelationshipUsage | SemanticModelGeneralization ,
 ): Edge | null {
     const identifier = entity.id;
     if (isSemanticModelRelationship(entity)) {
         return createDiagramEdgeForRelationship(
+            options, visualModel, profilingSources, visualNode, entity);
+    } else if (isSemanticModelRelationshipUsage(entity)) {
+        return createDiagramEdgeForRelationshipProfile(
             options, visualModel, profilingSources, visualNode, entity);
     } else if (isSemanticModelGeneralization(entity)) {
         return createDiagramEdgeForGeneralization(
@@ -783,6 +787,41 @@ function createDiagramEdgeForRelationship(
         identifier: visualNode.identifier,
         externalIdentifier: entity.id,
         label: getEntityLabel(language, entity),
+        source: visualNode.visualSource,
+        cardinalitySource: cardinalityToString(domain?.cardinality),
+        target: visualNode.visualTarget,
+        cardinalityTarget: cardinalityToString(range?.cardinality),
+        color: visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR,
+        waypoints: visualNode.waypoints,
+        profileOf: profileOf === null ? null : {
+            label: getEntityLabel(language, profileOf),
+            usageNote: getUsageNote(language, entity),
+        },
+    };
+}
+
+function createDiagramEdgeForRelationshipProfile(
+    options: Options,
+    visualModel: VisualModel,
+    profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
+    visualNode: VisualRelationship,
+    entity: SemanticModelRelationshipUsage,
+): Edge {
+    const language = options.language;
+
+    const profileOf =
+        (isSemanticModelRelationshipUsage(entity)
+            ? profilingSources.find((e) => e.id == entity.usageOf)
+            : null
+        ) ?? null;
+
+    const { domain, range } = getDomainAndRange(entity);
+
+    return {
+        type: EdgeType.Association,
+        identifier: visualNode.identifier,
+        externalIdentifier: entity.id,
+        label: "<<profile>>\n" + getEntityLabel(language, entity),
         source: visualNode.visualSource,
         cardinalitySource: cardinalityToString(domain?.cardinality),
         target: visualNode.visualTarget,
@@ -906,6 +945,7 @@ function onChangeVisualEntities(
 
                 const isRelationship =
                     isSemanticModelRelationship(entity) ||
+                    isSemanticModelRelationshipUsage(entity) ||
                     isSemanticModelGeneralization(entity);
                 if (!isRelationship) {
                     console.error("In visual update semantic entity is not a relationship.", { entity, visual: next });

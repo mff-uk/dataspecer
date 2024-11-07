@@ -28,7 +28,7 @@ import { ExpandModelButton } from "../components/expand-model";
 import { type VisualEntity, isVisualNode, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
 
 export enum EntityType {
-Class = "class",
+    Class = "class",
     Relationship = "relationship",
     Attribute = "attribute",
     Profile = "profile",
@@ -69,7 +69,7 @@ const isUsage = (what: Entity | null): what is SemanticModelClassUsage | Semanti
 export const EntitiesOfModel = (props: {
     model: EntityModel;
     entityType: EntityType;
- }) => {
+}) => {
     const { model, entityType } = props;
     //
     const actions = useActions();
@@ -145,7 +145,7 @@ export const EntitiesOfModel = (props: {
             setVisible([]);
             unsubscribe();
         };
-         
+
     }, [activeVisualModel, model]);
 
     /**
@@ -173,7 +173,7 @@ export const EntitiesOfModel = (props: {
         actions.openCreateClassDialog(model);
     };
 
-    const handleAddToView = (entity: Entity ) => {
+    const handleAddToView = (entity: Entity) => {
         if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
             actions.addNodeToVisualModel(model.getId(), entity.id);
         } else {

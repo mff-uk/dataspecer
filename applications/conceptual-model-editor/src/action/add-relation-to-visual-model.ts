@@ -3,6 +3,7 @@ import type { ModelGraphContextType } from "../context/model-context";
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { getDomainAndRange } from "../service/relationship-service";
+import { isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 /**
  * Add resource to the visual model and by doing so to the canvas as well.
@@ -62,6 +63,28 @@ export function addRelationToVisualModelAction(
     const target = visualModel.getVisualEntityForRepresented(entity.parent);
     if (source === null || target === null) {
       console.error("Ignored generalization as ends are null.", { source, target, entity });
+      return;
+    }
+    //
+    visualModel.addVisualRelationship({
+      model: modelIdentifier,
+      representedRelationship: identifier,
+      waypoints: [],
+      visualSource: source.identifier,
+      visualTarget: target.identifier,
+    });
+  } else if (isSemanticModelRelationshipUsage(entity)) {
+    const { domain, range } = getDomainAndRange(entity);
+    if (domain === null || domain.concept === null || range === null || range.concept === null) {
+      notifications.error("Invalid relationship entity.");
+      console.error("Ignored relationship as ends are null.", { domain, range, entity });
+      return;
+    }
+    const source = visualModel.getVisualEntityForRepresented(domain.concept);
+    const target = visualModel.getVisualEntityForRepresented(range.concept);
+    if (source === null || target === null) {
+      notifications.error("Ends of the relation profile are not in the visual model.");
+      console.warn("Missing visual entities for ends.", { domain, range, entity, source, target });
       return;
     }
     //
