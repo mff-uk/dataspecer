@@ -1,5 +1,3 @@
-import { SemanticModelClass } from '@dataspecer/core-v2/semantic-model/concepts';
-import {PimResource} from "@dataspecer/core/pim/model";
 import { removeDiacritics } from "../../utils/remove-diacritics";
 import { selectLanguage } from "../../utils/select-language";
 import {TechnicalLabelOperationContext} from "./technical-label-operation-context";

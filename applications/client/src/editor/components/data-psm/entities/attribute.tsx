@@ -2,7 +2,6 @@ import React, {memo, useMemo} from "react";
 import {Span, sxStyles} from "../styles";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {DataPsmAttribute} from "@dataspecer/core/data-psm/model";
-import {PimAttribute} from "@dataspecer/core/pim/model";
 import {DataPsmGetLabelAndDescription} from "../common/DataPsmGetLabelAndDescription";
 import {Datatype} from "../common/Datatype";
 import {getCardinalityFromResource} from "../common/cardinality";

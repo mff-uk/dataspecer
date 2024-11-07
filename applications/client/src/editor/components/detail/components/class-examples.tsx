@@ -1,7 +1,6 @@
 import * as React from "react";
 import {memo, useEffect, useState} from "react";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
-import {PimClass} from "@dataspecer/core/pim/model";
 import {
     Alert,
     Box,

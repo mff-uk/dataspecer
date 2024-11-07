@@ -1,8 +1,7 @@
-import { SemanticModelClass, SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { ASSOCIATION_END } from "@dataspecer/core/data-psm/data-psm-vocabulary";
 import { DataPsmAssociationEnd } from "@dataspecer/core/data-psm/model";
 import { DataPsmCreateClass, DataPsmSetChoice } from "@dataspecer/core/data-psm/operation";
-import { PimAssociationEnd, PimClass } from "@dataspecer/core/pim/model";
 import { ComplexOperation } from "@dataspecer/federated-observable-store/complex-operation";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
 import { TechnicalLabelOperationContext } from "./context/technical-label-operation-context";
@@ -54,12 +53,13 @@ export class CreateNewClassInOr implements ComplexOperation {
     let pimSchema: string | null = null;
     if (parentAssociation) {
       const dataPsmAssociationEnd = await this.store.readResource(parentAssociation) as DataPsmAssociationEnd;
-      const pimAssociationEnd = await this.store.readResource(dataPsmAssociationEnd.dataPsmInterpretation as string) as PimAssociationEnd;
-      const typedPimClass = await this.store.readResource(pimAssociationEnd.pimPart as string) as PimClass;
+      const semanticModelRelationship = await this.store.readResource(dataPsmAssociationEnd.dataPsmInterpretation as string) as SemanticModelRelationship;
+      const end = semanticModelRelationship.ends[1]; // todo: find correct end
+      const typedPimClass = await this.store.readResource(end.concept as string) as SemanticModelClass;
       pimSchema = this.store.getSchemaForResource(typedPimClass.iri as string) as string;
 
 
-      const sourceSemanticClass = this.sourceSemanticModel.find((entity) => entity.id === typedPimClass.pimInterpretation) as SemanticModelClass;
+      const sourceSemanticClass = this.sourceSemanticModel.find((entity) => entity.id === typedPimClass.iri) as SemanticModelClass;
       await extendPimClassesAlongInheritance(
         sourceSemanticClass, desiredSemanticClass, pimSchema, this.store, this.sourceSemanticModel);
     }

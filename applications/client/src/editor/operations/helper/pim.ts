@@ -1,7 +1,4 @@
 import { SemanticModelClass } from '@dataspecer/core-v2/semantic-model/concepts';
-import {PimClass} from "@dataspecer/core/pim/model";
-import {PimCreateClass} from "@dataspecer/core/pim/operation";
-import {copyPimPropertiesFromResourceToOperation} from "./copyPimPropertiesFromResourceToOperation";
 import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 import { createClass } from '@dataspecer/core-v2/semantic-model/operations';
 
@@ -10,7 +7,7 @@ export async function createPimClassIfMissing(
     pimSchema: string,
     store: FederatedObservableStore,
 ): Promise<string> {
-    const existingPimIri = await store.getPimHavingInterpretation(resource.id as string, PimClass.TYPE, pimSchema);
+    const existingPimIri = await store.getPimHavingInterpretation(resource.id as string, "", pimSchema);
 
     if (existingPimIri) {
         // todo it does not perform any checks

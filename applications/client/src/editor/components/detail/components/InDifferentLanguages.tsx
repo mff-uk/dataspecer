@@ -1,14 +1,14 @@
 import React, {memo, useCallback, useMemo} from "react";
 import {Button, Card, CardContent, Grid, Typography} from "@mui/material";
-import {LanguageString} from "@dataspecer/core/core";
+import {CoreResource, LanguageString} from "@dataspecer/core/core";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
-import {PimClass} from "@dataspecer/core/pim/model";
 import {DataPsmClass} from "@dataspecer/core/data-psm/model";
 import {SetPimLabelAndDescription} from "../../../operations/set-pim-label-and-description";
 import {DialogAppProviderContext} from "../../dialog-app-provider";
 import {SetDataPsmLabelAndDescription} from "../../../operations/set-data-psm-label-and-description";
 import {useTranslation} from "react-i18next";
 import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
+import { SemanticModelClass, SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
 
 interface Properties {
     label: LanguageString,
@@ -39,9 +39,9 @@ export const InDifferentLanguages: React.FC<Properties> = memo(({label, descript
         }]))
     }, [label, description]);
 
-    const resource = useResource(iri ?? null);
-    const currentLabel = (resourceType === "pim") ? (resource.resource as PimClass)?.pimHumanLabel : (resource.resource as DataPsmClass)?.dataPsmHumanLabel;
-    const currentDescription = (resourceType === "pim") ? (resource.resource as PimClass)?.pimHumanDescription : (resource.resource as DataPsmClass)?.dataPsmHumanDescription;
+    const {resource} = useResource(iri ?? null);
+    const currentLabel = (resourceType === "pim") ? (resource as unknown as SemanticModelClass)?.name : (resource as DataPsmClass)?.dataPsmHumanLabel;
+    const currentDescription = (resourceType === "pim") ? (resource as unknown as SemanticModelClass)?.description : (resource as DataPsmClass)?.dataPsmHumanDescription;
 
     const onEditTranslations = useCallback(() => {
         updateLabels({
@@ -110,7 +110,7 @@ export const InDifferentLanguages: React.FC<Properties> = memo(({label, descript
         </Typography>
         }
 
-        {resource.resource && <Button
+        {resource && <Button
             sx={{ml: "auto", mt: 1}}
             style={{display: "block"}}
             variant="contained"

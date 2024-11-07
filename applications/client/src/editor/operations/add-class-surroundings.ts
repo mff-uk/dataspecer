@@ -1,8 +1,7 @@
-import { isSemanticModelClass, isSemanticModelRelationPrimitive, isSemanticModelRelationship, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { ExtendedSemanticModelRelationship, isSemanticModelClass, isSemanticModelRelationPrimitive, isSemanticModelRelationship, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { DataPsmClass } from "@dataspecer/core/data-psm/model";
 import { DataPsmCreateAssociationEnd, DataPsmCreateAttribute, DataPsmCreateClass } from "@dataspecer/core/data-psm/operation";
-import { PimAttribute, PimClass } from "@dataspecer/core/pim/model";
 import { OFN, XSD } from '@dataspecer/core/well-known';
 import { ComplexOperation } from "@dataspecer/federated-observable-store/complex-operation";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
@@ -120,7 +119,7 @@ export class AddClassSurroundings implements ComplexOperation {
         dataPsmCreateAttribute.dataPsmInterpretation = pimAttributeIri;
         dataPsmCreateAttribute.dataPsmOwner = this.forDataPsmClass.iri ?? null;
         dataPsmCreateAttribute.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(attribute.ends[1].name) ?? null;
-        dataPsmCreateAttribute.dataPsmDatatype = (await this.store.readResource(pimAttributeIri) as PimAttribute).pimDatatype ?? null;
+        dataPsmCreateAttribute.dataPsmDatatype = (await this.store.readResource(pimAttributeIri) as SemanticModelRelationship).ends[1].concept ?? null;
         await this.store.applyOperation(dataPsmSchema, dataPsmCreateAttribute);
     }
 
@@ -169,15 +168,15 @@ export class AddClassSurroundings implements ComplexOperation {
         resource: SemanticModelRelationship,
         pimSchema: string,
     ): Promise<string> {
-        const existingPimIri = await this.store.getPimHavingInterpretation(resource.id as string, PimAttribute.TYPE, pimSchema);
+        const existingPimIri = await this.store.getPimHavingInterpretation(resource.id as string, "", pimSchema);
 
         if (existingPimIri) {
             // todo it does not perform any checks
             return existingPimIri;
         }
 
-        const ownerClassSource = await this.sourceSemanticModel.find(e => e.id === resource.ends[0].concept) as SemanticModelClass;
-        const ownerClassIri = await this.store.getPimHavingInterpretation(ownerClassSource.id as string, PimClass.TYPE, pimSchema);
+        const ownerClassSource = this.sourceSemanticModel.find(e => e.id === resource.ends[0].concept) as SemanticModelClass;
+        const ownerClassIri = await this.store.getPimHavingInterpretation(ownerClassSource.id as string, "", pimSchema);
         if (ownerClassIri === null) {
             throw new Error('Unable to create PimAttribute because its ownerClass has no representative in the PIM store.');
         }

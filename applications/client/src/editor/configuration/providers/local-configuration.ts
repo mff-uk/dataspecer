@@ -3,8 +3,6 @@ import { MemoryStore } from "@dataspecer/core/core";
 import { dataPsmExecutors } from "@dataspecer/core/data-psm/data-psm-executors";
 import { DataPsmCreateSchema } from "@dataspecer/core/data-psm/operation";
 import { DataSpecification } from "@dataspecer/core/data-specification/model";
-import { pimExecutors } from "@dataspecer/core/pim/executor";
-import { PimCreateSchema } from "@dataspecer/core/pim/operation";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
 import { useMemo } from "react";
 import { DefaultClientConfiguration } from "../../../configuration";
@@ -37,11 +35,7 @@ export const useLocalConfiguration = (
         if (enabled && store) {
             const semanticModel = new InMemorySemanticModel();
 
-            const memoryStore = MemoryStore.create("https://ofn.gov.cz", [...dataPsmExecutors, ...pimExecutors]);
-
-            // const createPimSchema = new PimCreateSchema();
-            // const createPimSchemaResult = await memoryStore.applyOperation(createPimSchema);
-            // const pimSchemaIri = createPimSchemaResult.created[0];
+            const memoryStore = MemoryStore.create("https://ofn.gov.cz", [...dataPsmExecutors]); // For PSM classes
 
             const createDataPsmSchema = new DataPsmCreateSchema();
             const createDataPsmSchemaResult = await memoryStore.applyOperation(createDataPsmSchema);
@@ -62,11 +56,11 @@ export const useLocalConfiguration = (
 
     if (enabled) {
         return {
-            store: store as FederatedObservableStore,
+            store: store as FederatedObservableStore, // todo: This is like an aggregator
             dataSpecifications: dataSpecification ? { [dataSpecification.iri as string]: dataSpecification } : {},
             dataSpecificationIri: dataSpecification?.iri ?? null,
             dataPsmSchemaIri: dataSpecification?.psms[0] ?? null,
-            sourceSemanticModel,
+            sourceSemanticModel, // todo: This is "CIM"
             operationContext,
         };
     } else {

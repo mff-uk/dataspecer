@@ -1,5 +1,4 @@
 import { isSemanticModelClass, SemanticModelClass, SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
-import { PimClass } from "@dataspecer/core/pim/model";
 import { useResource } from "@dataspecer/federated-observable-store-react/use-resource";
 import { Box, Button, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import React, { memo, useCallback } from "react";
@@ -18,8 +17,8 @@ export const AddToOrDialog = dialog<{
 }>({maxWidth: "sm", fullWidth: true}, memo(({typePimClassIri, onSelected, close}) => {
     const {t} = useTranslation("psm");
 
-    const {resource: pimResource} = useResource<PimClass>(typePimClassIri);
-    const cimIri = pimResource?.pimInterpretation;
+    const {resource: pimResource} = useResource<SemanticModelClass>(typePimClassIri);
+    const cimIri = pimResource?.iri;
 
     const {sourceSemanticModel} = React.useContext(ConfigurationContext);
     const [fullInheritance] = useAsyncMemo(async () => cimIri ? await sourceSemanticModel.getFullHierarchy(cimIri) : null, [cimIri]);

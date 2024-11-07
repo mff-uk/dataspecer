@@ -1,7 +1,6 @@
 import React, {memo, useMemo} from "react";
 import {Span, sxStyles} from "../styles";
 import {DataPsmAssociationEnd} from "@dataspecer/core/data-psm/model";
-import {PimAssociationEnd, PimResource} from "@dataspecer/core/pim/model";
 import {useTranslation} from "react-i18next";
 import {DataPsmGetLabelAndDescription} from "../common/DataPsmGetLabelAndDescription";
 import {RowSlots} from "../base-row";

@@ -1,5 +1,4 @@
 import { DataPsmClass } from "@dataspecer/core/data-psm/model";
-import { PimClass } from "@dataspecer/core/pim/model";
 import { useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
 import { MenuItem } from "@mui/material";
 import React, { memo, useCallback, useMemo } from "react";

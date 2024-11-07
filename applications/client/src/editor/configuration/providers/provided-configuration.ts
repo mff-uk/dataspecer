@@ -55,11 +55,11 @@ export const useProvidedConfiguration = (
 
     if (enabled) {
         return {
-            store: store as FederatedObservableStore,
+            store: store as FederatedObservableStore, // ! aggregator
             dataSpecifications: specifications ?? {},
             dataSpecificationIri,
             dataPsmSchemaIri,
-            sourceSemanticModel,
+            sourceSemanticModel, // ! CIM
             operationContext,
         }
     } else {

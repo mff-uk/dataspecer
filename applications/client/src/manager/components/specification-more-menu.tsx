@@ -1,5 +1,4 @@
 import { LanguageString } from "@dataspecer/core/core/core-resource";
-import { PimSchema } from "@dataspecer/core/pim/model/pim-schema";
 import { useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
 import { useResource } from "@dataspecer/federated-observable-store-react/use-resource";
 import { Resource } from "@dataspecer/federated-observable-store/resource";
@@ -11,6 +10,7 @@ import { useDialog } from "../../editor/dialog";
 import { DataSpecificationsContext } from "../app";
 import { SetPimLabelAndDescription } from "../shared/set-pim-label-and-description";
 import { SpecificationCloneDialog } from "./specification-clone-dialog";
+import { EntityModel } from "@dataspecer/core-v2";
 
 export const SpecificationMoreMenu = (props: {
     anchorEl: HTMLElement | null,
@@ -31,11 +31,12 @@ export const SpecificationMoreMenu = (props: {
     const specificationIri = props.specificationIri;
 
     const specification = dataSpecifications[specificationIri];
-    const {resource: pimSchema} = useResource<PimSchema>(specification?.pim);
+    const {resource: pimSchema} = useResource(specification?.pim);
+    const entityModel = pimSchema as unknown as EntityModel;
 
     const editableProperties = useMemo(() => ({
-        label: pimSchema?.pimHumanLabel ?? {},
-    }), [pimSchema]);
+        label: {en: entityModel?.getAlias()} ?? {},
+    }), [entityModel]);
 
     const duplicate = useCallback(async (data: {label: LanguageString}) => {
         const dataSpecification = await backendConnector.cloneDataSpecification(specificationIri, {});

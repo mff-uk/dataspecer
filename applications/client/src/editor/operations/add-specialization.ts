@@ -1,7 +1,6 @@
 import { SemanticModelClass, SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
 import { DataPsmClass } from "@dataspecer/core/data-psm/model";
 import { DataPsmCreateClass, DataPsmCreateInclude, DataPsmSetChoice, DataPsmWrapWithOr } from "@dataspecer/core/data-psm/operation";
-import { PimClass } from "@dataspecer/core/pim/model";
 import { ComplexOperation } from "@dataspecer/federated-observable-store/complex-operation";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
 import { TechnicalLabelOperationContext } from "./context/technical-label-operation-context";
@@ -72,7 +71,7 @@ export class AddSpecialization implements ComplexOperation {
 
     // THIRD: Add PSM class
 
-    const toPimClassIri = await this.store.getPimHavingInterpretation(sourceToPimClass.id as string, PimClass.TYPE, pimSchemaIri);
+    const toPimClassIri = await this.store.getPimHavingInterpretation(sourceToPimClass.id as string, "", pimSchemaIri);
     const toPimClass = await this.store.readResource(toPimClassIri as string) as SemanticModelClass;
 
     const dataPsmCreateClass = new DataPsmCreateClass();

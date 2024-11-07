@@ -1,6 +1,5 @@
 import { isSemanticModelRelationPrimitive, isSemanticModelRelationship, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { DataPsmClass } from "@dataspecer/core/data-psm/model";
-import { PimClass } from "@dataspecer/core/pim/model";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import { Button, Checkbox, DialogActions, Grid, IconButton, ListItem, ListItemIcon, ListItemText, Typography } from "@mui/material";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -52,7 +51,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
     /**
      * There can be multiple classes from the class hierarchy. A user can switch between them to select from which
      * class the user can select attributes and associations.
-     * 
+     *
      * ! this is basically going along hierarchy
      */
     const switchCurrentCimClassIri = useCallback((newCurrentCimClassIri: string) => {

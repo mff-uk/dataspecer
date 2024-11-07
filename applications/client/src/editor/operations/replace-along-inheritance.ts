@@ -1,7 +1,6 @@
 import { ExtendedSemanticModelClass, SemanticModelClass, SemanticModelEntity } from '@dataspecer/core-v2/semantic-model/concepts';
 import { DataPsmClass } from "@dataspecer/core/data-psm/model";
 import { DataPsmCreateClass, DataPsmDeleteClass, DataPsmReplaceAlongInheritance } from "@dataspecer/core/data-psm/operation";
-import { PimClass } from "@dataspecer/core/pim/model";
 import { ComplexOperation } from "@dataspecer/federated-observable-store/complex-operation";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
 import { isAncestorOf } from "../utils/is-ancestor-of";
@@ -76,7 +75,7 @@ export class ReplaceAlongInheritance implements ComplexOperation {
 
         // Create data PSM class
 
-        const toSemanticClassId = await this.store.getPimHavingInterpretation(sourceToPimClass.id as string, PimClass.TYPE, pimSchemaIri);
+        const toSemanticClassId = await this.store.getPimHavingInterpretation(sourceToPimClass.id as string, "", pimSchemaIri);
         const toPimClass = await this.store.readResource(toSemanticClassId as string) as ExtendedSemanticModelClass;
 
         const dataPsmCreateClass = new DataPsmCreateClass();
