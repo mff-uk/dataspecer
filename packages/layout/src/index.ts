@@ -33,12 +33,12 @@ import { EdgeNodeCrossingMetric } from "./graph-metrics/implemented-metrics/edge
 export type { IConstraintSimple, UserGivenConstraints, UserGivenAlgorithmConfigurationslVersion2 as UserGivenConstraintsVersion2, UserGivenAlgorithmConfigurationslVersion4 as UserGivenConstraintsVersion4 } from "./configs/constraints";
 export { getDefaultUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion2, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4 } from "./configs/constraints";
 export type { AlgorithmName } from "./configs/constraint-container";
-export { DIRECTION } from "./util/utils";
+
+export { Direction } from "./util/utils";
 export type { INodeClassic } from "./graph-iface"
 
 export { ReactflowDimensionsEstimator }
-import { ReactflowDimensionsConstantEstimator } from "./dimension-estimators/constant-dimension-estimator";
-export { ReactflowDimensionsConstantEstimator }
+export { ReactflowDimensionsConstantEstimator } from "./dimension-estimators/constant-dimension-estimator";
 
 import type { EdgeRouting } from "./configs/constraints";
 export type { EdgeRouting }

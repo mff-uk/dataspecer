@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { DIRECTION, AlgorithmName, UserGivenConstraintsVersion4, ElkForceAlgType, getDefaultUserGivenConstraintsVersion4, getDefaultMainUserGivenAlgorithmConstraint, UserGivenAlgorithmConfiguration } from "@dataspecer/layout";
+import { Direction, AlgorithmName, UserGivenConstraintsVersion4, ElkForceAlgType, getDefaultUserGivenConstraintsVersion4, getDefaultMainUserGivenAlgorithmConstraint, UserGivenAlgorithmConfiguration } from "@dataspecer/layout";
 import _ from "lodash";
 import LayeredAlgorithmDirectionDropdown from "./direction-graphic-combobox/react-combobox";
 
@@ -220,7 +220,7 @@ export const useConfigDialog = () => {
                 <label htmlFor={`${props.stateField}-main-alg-direction`}>Preferovaný směr hran: </label>
             </div>
             <div className="flex flex-row">
-                <LayeredAlgorithmDirectionDropdown direction={config?.[props.stateField]?.["elk_layered"]?.["alg_direction"] ?? DIRECTION.DOWN} setDirection={(newDirection: DIRECTION) => {
+                <LayeredAlgorithmDirectionDropdown direction={config?.[props.stateField]?.["elk_layered"]?.["alg_direction"] ?? Direction.DOWN} setDirection={(newDirection: Direction) => {
                             setConfigWithNewValue("elk_layered", props.stateField, "alg_direction", newDirection);
                             }}></LayeredAlgorithmDirectionDropdown>
             </div>

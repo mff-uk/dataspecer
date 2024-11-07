@@ -3,7 +3,7 @@
 import { Position } from "@dataspecer/core-v2/visual-model";
 
 // TODO: So maybe just do the classic ... type Direction = "UP" | "RIGHT" | "DOWN" | "LEFT";
-export enum DIRECTION {
+export enum Direction {
     UP = "UP",
     RIGHT = "RIGHT",
     DOWN = "DOWN",
@@ -21,7 +21,6 @@ export const capitalizeFirstLetter = (string: string): string => {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-
 export const placeCoordinateOnGrid = (coordinate: number, grid: number): number => {
     const convertedPosition = coordinate - (coordinate % grid);
     return convertedPosition;
@@ -31,7 +30,6 @@ export const placePositionOnGrid = (position: PositionWithOptionalAnchor, gridX:
     position.x = placeCoordinateOnGrid(position.x, gridX);
     position.y = placeCoordinateOnGrid(position.y, gridY);
 }
-
 
 
 /**
