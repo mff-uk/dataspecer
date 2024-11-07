@@ -25,7 +25,8 @@ import { ConstraintFactory } from "./configs/constraint-factories";
 import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
 import { PhantomElementsFactory } from "./util/utils";
 import { CONSTRAINT_MAP } from "./configs/constraints-mapping";
-import { VisualEntities } from "./migration-to-cme-v2";
+import type { VisualEntities, VisualEntitiesAllType } from "./migration-to-cme-v2";
+export type { VisualEntitiesAllType }
 import { EdgeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-crossing";
 import { EdgeNodeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-node-crossing";
 

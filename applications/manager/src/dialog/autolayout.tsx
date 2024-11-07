@@ -5,7 +5,7 @@ import { modelTypeToName } from "@/known-models";
 import { BetterModalProps } from "@/lib/better-modal";
 import { ResourcesContext, requestLoadPackage } from "@/package";
 import { LOCAL_VISUAL_MODEL } from "@dataspecer/core-v2/model/known-models";
-import { performLayoutOfSemanticModel } from "@dataspecer/layout";
+import { performLayoutOfSemanticModel, type VisualEntitiesAllType } from "@dataspecer/layout";
 import { Loader } from "lucide-react";
 import { useContext, useState } from "react";
 import { useConfigDialog } from "./layout-dialog";
@@ -55,18 +55,36 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
     console.info(resources);
     console.info(resource);
 
-    let visualEntities;
+    let visualEntities: VisualEntitiesAllType;
     try {
       visualEntities = await performLayoutOfSemanticModel(entities, semanticModelId, getValidConfig());
+      // TODO: Was just trying to make it work but probably isn't as simple
+      // const generatedIdentifierForModelColor = (Math.random() + 1).toString(36).substring(7);
+      // visualEntities[generatedIdentifierForModelColor] = {
+      //   type: [MODEL_VISUAL_TYPE],
+      //   representedModel: semanticModelId,
+      //   color: "#ff9770",
+      //   identifier: generatedIdentifierForModelColor
+      // }
       console.info("layouted visual entitites");
       console.info(visualEntities);
-      throw new Error("Implementation of layout is not ready");
+      // throw new Error("Implementation of layout is not ready");
     } catch (error) {
       alert("LAYOUT WAS NOT SUCCESSFUL");
       console.error(error);
       setIsLoading(false);
       return;
     }
+
+
+    const visualizationModel = {
+      modelColors: {
+        [iri]: "#ffd670",
+      },
+      modelId: modelVisualizationId,
+      type: LOCAL_VISUAL_MODEL,
+      visualEntities,
+    };
 
     // TODO: The actual layouting is most likely correct, but the JSON object representing visual model should be different
     // probably like in serializeModelToApiJsonObject method - return {
@@ -75,15 +93,14 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
     //   type: this.type,
     //   entities: [...this.entities.values()],
     // }
-
-    const visualizationModel = {
-      modelColors: {
-        [iri]: "#ffd670",
-      },
-      modelId: modelVisualizationId,
-      type: "http://dataspecer.com/resources/local/visual-model",
-      visualEntities,
-    };
+    // TODO: Was just trying to make it work by mapping to the object above but it isn't that simple
+    // const VISUAL_MODEL_VERSION = 1;
+    // const visualizationModel = {
+    //   identifier: modelVisualizationId,
+    //   version: VISUAL_MODEL_VERSION,
+    //   type: LOCAL_VISUAL_MODEL,
+    //   entities: visualEntities,
+    // };
 
     if (!modelVisualizationResource) {
       await fetch(import.meta.env.VITE_BACKEND + "/resources?parentIri=" + encodeURIComponent(parentIri), {

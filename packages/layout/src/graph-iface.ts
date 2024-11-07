@@ -735,7 +735,8 @@ export class MainGraphClassic extends GraphClassic implements IMainGraphClassic 
             }
 
             const visualEntityForNode = node.convertToDataspecerRepresentation();
-            visualEntities[node.id] = visualEntityForNode;
+            // visualEntities[node.id] = visualEntityForNode;           // TODO: In future these 2 lines should be equivalent
+            visualEntities[visualEntityForNode.identifier] = visualEntityForNode;
         }
 
         for(const edge of this.allEdges) {
@@ -755,7 +756,8 @@ export class MainGraphClassic extends GraphClassic implements IMainGraphClassic 
                 const targetGraphNode = this.findNodeInAllNodes(edge.end.id);
                 visualEntityForEdge.visualTarget = targetGraphNode.completeVisualNode.coreVisualNode.identifier;
             }
-            visualEntities[edge.id] = visualEntityForEdge;
+            // visualEntities[edge.id] = visualEntityForEdge;           // TODO: In future these 2 lines should be equivalent
+            visualEntities[visualEntityForEdge.identifier] = visualEntityForEdge;
         }
 
         return visualEntities;
