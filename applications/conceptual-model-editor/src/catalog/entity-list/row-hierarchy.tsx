@@ -40,10 +40,13 @@ export const RowHierarchy = (props: {
     const { profiles, classes, allowedClasses } = useClassesContext();
     const { entity } = props;
 
+    // We need this to get access to ends of the profile.
+    const aggregatedEntity = aggregatorView.getEntities()[props.entity.id]?.aggregatedEntity ?? null;
+
     const sourceModel = sourceModelOfEntity(entity.id, [...models.values()]);
 
-    const isClassOrProfile = isSemanticModelClass(entity) || isSemanticModelClassUsage(entity);
-    const isRelationshipOrProfile = isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity);
+    const isClassOrProfile = isSemanticModelClass(aggregatedEntity) || isSemanticModelClassUsage(aggregatedEntity);
+    const isRelationshipOrProfile = isSemanticModelRelationship(aggregatedEntity) || isSemanticModelRelationshipUsage(aggregatedEntity);
 
     const expansionHandler =
         isSemanticModelClass(entity) && sourceModel instanceof ExternalSemanticModel
@@ -53,7 +56,7 @@ export const RowHierarchy = (props: {
             }
             : null;
 
-    const showDrawingHandler = isClassOrProfile || (isRelationshipOrProfile && hasBothEndsOnCanvas(entity, aggregatorView.getActiveVisualModel()));
+    const showDrawingHandler = isClassOrProfile || (isRelationshipOrProfile && hasBothEndsOnCanvas(aggregatedEntity, aggregatorView.getActiveVisualModel()));
     const drawingHandler = !showDrawingHandler ? null : {
         addToViewHandler: () => props.handlers.handleAddEntityToActiveView(entity),
         removeFromViewHandler: () => props.handlers.handleRemoveEntityFromActiveView(entity.id),
