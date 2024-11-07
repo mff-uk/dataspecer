@@ -525,9 +525,9 @@ function selectEdgeType(edge: ApiEdge) {
 function selectMarkerEnd(edge: ApiEdge) {
   switch (edge.type) {
     case ApiEdgeType.Association:
-      return { type: MarkerType.Arrow, height: 20, width: 20, };
+      return { type: MarkerType.Arrow, height: 20, width: 20, color: edge.color};
     case ApiEdgeType.AssociationProfile:
-      return { type: MarkerType.Arrow, height: 20, width: 20, };
+      return { type: MarkerType.Arrow, height: 20, width: 20, color: edge.color};
     case ApiEdgeType.Generalization:
       return { type: MarkerType.ArrowClosed, height: 20, width: 20, color: edge.color };
     case ApiEdgeType.ClassProfile:
