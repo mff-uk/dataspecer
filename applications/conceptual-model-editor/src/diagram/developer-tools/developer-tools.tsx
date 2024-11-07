@@ -50,7 +50,7 @@ export function DeveloperTools() {
           >
             Viewport
           </DevToolButton>
-          <button onClick={e => layoutDialogUse.open()}>Layout</button>
+          <button onClick={_ => layoutDialogUse.open()}>Layout</button>
         </Panel>
         {changeLoggerActive && <ChangeLogger />}
         {viewportLoggerActive && <ViewportLogger />}

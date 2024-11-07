@@ -326,11 +326,11 @@ export function getDefaultUserGivenAlgorithmConstraint(algorithmName: AlgorithmN
         "layout_alg": algorithmName,
     //  "profile-nodes-position-against-source": DIRECTION.DOWN,
         ...LayeredConfiguration.getDefaultObject(),
-        "stress_edge_len": 400,
+        "stress_edge_len": 800,
 
         "force_alg_type": "FRUCHTERMAN_REINGOLD",
         "min_distance_between_nodes": 100,
-        "number_of_new_algorithm_runs": 50,
+        "number_of_new_algorithm_runs": 10,
         "run_layered_after": false,
         "interactive": false,
         advanced_settings: {},
@@ -524,8 +524,8 @@ export abstract class LayeredConfiguration extends AlgorithmConfiguration {
     static getDefaultObject(): UserGivenAlgorithmConfigurationLayered {
         return {
             "alg_direction": DIRECTION.UP,
-            "layer_gap": 100,
-            "in_layer_gap": 100,
+            "layer_gap": 500,
+            "in_layer_gap": 500,
         }
     }
     constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
