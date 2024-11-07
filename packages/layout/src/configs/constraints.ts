@@ -258,11 +258,13 @@ export interface UserGivenAlgorithmConfigurationslVersion4 {
     additionalSteps: Record<number, (UserGivenAlgorithmConfiguration | IGraphConversionConstraint)>,
 }
 
+export type EdgeRouting = "ORTHOGONAL" | "SPLINES" | "POLYLINE";
 
 export interface UserGivenAlgorithmConfigurationLayered {
     "alg_direction": DIRECTION,
     "layer_gap": number,
     "in_layer_gap": number,
+    "edge_routing": EdgeRouting
 }
 
 export interface UserGivenAlgorithmConfigurationStress {
@@ -526,6 +528,7 @@ export abstract class LayeredConfiguration extends AlgorithmConfiguration {
             "alg_direction": DIRECTION.UP,
             "layer_gap": 500,
             "in_layer_gap": 500,
+            "edge_routing": "ORTHOGONAL",
         }
     }
     constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {

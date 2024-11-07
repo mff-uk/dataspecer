@@ -40,6 +40,9 @@ export { ReactflowDimensionsEstimator }
 import { ReactflowDimensionsConstantEstimator } from "./dimension-estimators/constant-dimension-estimator";
 export { ReactflowDimensionsConstantEstimator }
 
+import type { EdgeRouting } from "./configs/constraints";
+export type { EdgeRouting }
+
 import { placePositionOnGrid } from "./util/utils";
 export { placePositionOnGrid }
 

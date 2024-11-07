@@ -63,7 +63,7 @@ export const useLayoutDialog = () => {
 
     const DialogComponent = () => {
         // The max-h-full makes it finally react to situation when dialog doesn't fit
-        return  <dialog className="px-3 py-3 mt-[10vh] overflow-y-auto max-h-full" style={{zIndex: 10000}} open={isLayoutDialogOpen}>
+        return  <dialog className="px-3 py-3 mt-[1vh] overflow-y-auto max-h-full" style={{zIndex: 10000}} open={isLayoutDialogOpen}>
 
                     <ConfigDialog></ConfigDialog>
                     <div className='h-2'></div>

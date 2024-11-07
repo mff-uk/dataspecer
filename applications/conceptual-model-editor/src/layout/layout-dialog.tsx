@@ -6,7 +6,8 @@ import {
     ElkForceAlgType,
     getDefaultUserGivenConstraintsVersion4,
     getDefaultMainUserGivenAlgorithmConstraint,
-    UserGivenAlgorithmConfiguration
+    UserGivenAlgorithmConfiguration,
+    EdgeRouting
 } from "@dataspecer/layout";
 import _ from "lodash";
 import LayeredAlgorithmDirectionDropdown from "./react-combobox";
@@ -230,6 +231,21 @@ export const useConfigDialog = () => {
                             }}></LayeredAlgorithmDirectionDropdown>
             </div>
 
+            {/* TODO: I should define it as component since I reuse this split on more places */}
+            <hr className="w-48 h-1 mx-auto my-1 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
+
+            <div className="flex flex-row">
+                 <label htmlFor={`${props.stateField}-edge-routing`}>Edge routing: </label>
+            </div>
+            <div className="flex flex-row">
+                <select id={`${props.stateField}-edge-routing`} value={config?.[props.stateField]?.["elk_layered"]?.["edge_routing"]}
+                        onChange={(event) => setConfigWithNewValue("elk_layered", props.stateField, "edge_routing", event.target.value as EdgeRouting)}>
+                    <option value="ORTHOGONAL">Orthogonal</option>
+                    <option value="POLYLINE">Polyline</option>
+                    <option value="SPLINES">Splines</option>
+                </select>
+            </div>
+
             <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
             {/* <div className="my-2"/> */}
             {interactiveCheckbox({...props, algorithmName: "elk_layered"})}
@@ -308,7 +324,7 @@ export const useConfigDialog = () => {
                     <option value="random">Random</option>
                 </select>
             </div>
-            <hr className="my-4"/>
+            <hr className="my-2"/>
             {/* TODO: Just for now */}
             {config.chosenMainAlgorithm === "random" ? <></> : <h3 className="font-black">Algorithm settings </h3>}
             {renderMainAlgorithmConfig()}
