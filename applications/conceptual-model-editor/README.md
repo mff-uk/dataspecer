@@ -1,6 +1,6 @@
 # DataSpecer: Conceptual-Model-Editor Documentation
 Conceptual-Model-Editor (CME) is designed to allow user to create conceptual models.
-You can try the [editor online](https://tool.dataspecer.com/conceptual-model-editor-diagram).
+You can try the [editor online](https://tool.dataspecer.com/conceptual-model-editor/diagram).
 
 # Installation
 CME is installed and deployed as a part of the DataSpecer.
@@ -10,7 +10,7 @@ Just copy `./env.example` as `.env` and update the configuration to your liking.
 
 # Development
 We use eslint to keep the code in shape.
-Please run `npm lint` before every commit if possible.
+Please run `npm run lint` before every commit if possible.
 
 You can start a local development using `npm run dev`.
 As Vite is using caching of sources, changes in the imported packages from this repository may propagate.
