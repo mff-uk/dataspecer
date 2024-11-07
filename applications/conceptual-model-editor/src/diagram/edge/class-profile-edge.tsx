@@ -12,7 +12,8 @@ import { createLogger } from "../../application";
 
 import { type Edge as EdgeApi } from "../diagram-api";
 import { DiagramContext } from "../diagram-controller";
-import { createSvgPath, createWaypoints, findLabelPosition, Waypoints } from "./edge-utilities";
+import { createSvgPath, createWaypoints, findLabelPosition } from "./edge-utilities";
+import { Waypoints } from "./waypoints";
 
 const logger = createLogger(import.meta.url);
 
@@ -28,7 +29,7 @@ export const ClassProfileEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
   }
 
   // Prepare waypoints for the path.
-  const waypoints = createWaypoints(sourceNode, props.data?.waypoints.map(item => item.position) ?? [], targetNode);
+  const waypoints = createWaypoints(sourceNode, props.data?.waypoints ?? [], targetNode);
 
   // Select label position.
   const labelPosition = findLabelPosition(waypoints);
@@ -40,7 +41,7 @@ export const ClassProfileEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
   // is consumed when not selected
   const onPathClick = (event: React.MouseEvent) => {
     const { x, y } = reactFlow.screenToFlowPosition({ x: event.clientX, y: event.clientY });
-    context?.onOpenEdgeContextMenu(props.id, null, x, y);
+    context?.onOpenEdgeContextMenu(props, null, x, y);
   };
 
   const style = {
@@ -54,7 +55,7 @@ export const ClassProfileEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
         <BaseEdge id={props.id} path={path} markerEnd={props.markerEnd} style={style} />
       </g>
       <>
-        {props.selected ? <Waypoints edgeId={props.id} waypoints={waypoints} data={props.data} /> : null}
+        {props.selected ? <Waypoints edge={props} waypoints={waypoints} data={props.data} /> : null}
       </>
       <EdgeLabelRenderer>
         {props.selected || props.label === null ? null : (

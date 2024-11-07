@@ -49,7 +49,7 @@ export type EdgeType = Edge<ApiEdge>;
 
 type ReactFlowContext = ReactFlowInstance<NodeType, EdgeType>;
 
-type OpenEdgeContextMenuHandler = (edgeId: string, waypointIndex: number | null, x: number, y: number) => void;
+type OpenEdgeContextMenuHandler = (edge: EdgeType, waypointIndex: number | null, x: number, y: number) => void;
 
 /**
  * We use context to access to callbacks to diagram content, like nodes and edges.
@@ -320,14 +320,14 @@ const createDropHandler = (reactFlow: ReactFlowInstance<NodeType, EdgeType>): Re
 };
 
 const createOpenEdgeToolbar = (edges: EdgeType[], setEdgeToolbar: React.Dispatch<React.SetStateAction<EdgeToolbarProps | null>>): OpenEdgeContextMenuHandler => {
-  return (edgeIdentifier: string, waypointIndex: number | null, x: number, y: number) => {
+  return (edge: EdgeType, waypointIndex: number | null, x: number, y: number) => {
     for (const edge of edges) {
-      if (edge.id !== edgeIdentifier) {
+      if (edge.id !== edge.id) {
         continue;
       }
       const edgeType = edge.data?.type;
       if (edgeType !== undefined) {
-        setEdgeToolbar({ edgeIdentifier, waypointIndex, x, y, edgeType });
+        setEdgeToolbar({ edgeIdentifier: edge.id, waypointIndex, x, y, edgeType });
       } else {
         console.error("Ignore open menu request for edge without data.", { edge });
       }

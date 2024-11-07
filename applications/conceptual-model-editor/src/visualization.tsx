@@ -788,7 +788,7 @@ function createDiagramEdgeForRelationship(
         target: visualNode.visualTarget,
         cardinalityTarget: cardinalityToString(range?.cardinality),
         color: visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR,
-        waypoints: [],
+        waypoints: visualNode.waypoints,
         profileOf: profileOf === null ? null : {
             label: getEntityLabel(language, profileOf),
             usageNote: getUsageNote(language, entity),
@@ -801,7 +801,6 @@ function createDiagramEdgeForGeneralization(
     visualNode: VisualRelationship,
     entity: SemanticModelGeneralization,
 ): Edge {
-
     return {
         type: EdgeType.Generalization,
         identifier: visualNode.identifier,
@@ -812,7 +811,7 @@ function createDiagramEdgeForGeneralization(
         target: visualNode.visualTarget,
         cardinalityTarget: null,
         color: visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR,
-        waypoints: [],
+        waypoints: visualNode.waypoints,
         profileOf: null,
     };
 }
@@ -833,7 +832,7 @@ function createDiagramEdgeForClassProfile(
         target: visualNode.visualTarget,
         cardinalityTarget: null,
         color: visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR,
-        waypoints: [],
+        waypoints: visualNode.waypoints,
         profileOf: null,
     };
 }

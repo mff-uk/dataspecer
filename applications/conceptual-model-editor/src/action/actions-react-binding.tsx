@@ -27,7 +27,7 @@ import { openDetailDialogAction } from "./open-detail-dialog";
 import { openModifyDialogAction } from "./open-modify-dialog";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
-import { isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel, Waypoint } from "@dataspecer/core-v2/visual-model";
 import { openCreateConnectionDialogAction } from "./open-create-connection";
 
 export interface ActionsContextType {
@@ -213,7 +213,7 @@ function createActionsContext(
       options, dialogs, notifications, classes, useClasses, graph, identifier);
   };
 
-  const openCreateConnectionDialog = (source: string, target:string) => {
+  const openCreateConnectionDialog = (source: string, target: string) => {
     openCreateConnectionDialogAction(
       options, dialogs, notifications, useClasses, graph, source, target);
   };
@@ -258,7 +258,7 @@ function createActionsContext(
     deleteFromSemanticModel(model.getId(), identifier);
   };
 
-  const changeNodesPositions = (changes: {[identifier: string]: Position}) => {
+  const changeNodesPositions = (changes: { [identifier: string]: Position }) => {
     const visualModel = graph.aggregatorView.getActiveVisualModel();
     if (visualModel === null) {
       notifications.error("There is no active visual model.");
@@ -270,7 +270,7 @@ function createActionsContext(
     }
     //
     for (const [identifier, position] of Object.entries(changes)) {
-      visualModel.updateVisualEntity(identifier, {position});
+      visualModel.updateVisualEntity(identifier, { position });
     }
   };
 
@@ -299,6 +299,92 @@ function createActionsContext(
     onHideEdge: (edge) => removeFromVisualModel(edge.externalIdentifier),
 
     onDeleteEdge: (edge) => deleteVisualElement(edge.externalIdentifier),
+
+    onAddWaypoint: (edge, index, waypoint) => {
+      const visualModel = graph.aggregatorView.getActiveVisualModel();
+      if (visualModel === null) {
+        notifications.error("There is no active visual model.");
+        return;
+      }
+      if (!isWritableVisualModel(visualModel)) {
+        notifications.error("Visual model is not writable.");
+        return;
+      }
+      //
+      const visualEdge = visualModel.getVisualEntity(edge.identifier);
+      if (visualEdge === null) {
+        notifications.error("Ignore waypoint update of non-existing visual entity.")
+        return;
+      }
+      if (isVisualRelationship(visualEdge) || isVisualProfileRelationship(visualEdge)) {
+        const waypoints: Waypoint[] = [
+          ...visualEdge.waypoints.slice(0, index),
+          { x: waypoint.x, y: waypoint.y, anchored: null },
+          ...visualEdge.waypoints.slice(index),
+        ];
+        visualModel.updateVisualEntity(edge.identifier, { waypoints });
+      } else {
+        notifications.error("Ignore waypoint update of non-edge visual type.")
+      }
+    },
+
+    onDeleteWaypoint: (edge, index) => {
+      const visualModel = graph.aggregatorView.getActiveVisualModel();
+      if (visualModel === null) {
+        notifications.error("There is no active visual model.");
+        return;
+      }
+      if (!isWritableVisualModel(visualModel)) {
+        notifications.error("Visual model is not writable.");
+        return;
+      }
+      //
+      const visualEdge = visualModel.getVisualEntity(edge.identifier);
+      if (visualEdge === null) {
+        notifications.error("Ignore waypoint update of non-existing visual entity.")
+        return;
+      }
+      if (isVisualRelationship(visualEdge) || isVisualProfileRelationship(visualEdge)) {
+        const waypoints: Waypoint[] = [
+          ...visualEdge.waypoints.slice(0, index),
+          ...visualEdge.waypoints.slice(index + 1),
+        ];
+        visualModel.updateVisualEntity(edge.identifier, { waypoints });
+      } else {
+        notifications.error("Ignore waypoint update of non-edge visual type.")
+      }
+    },
+
+    onChangeWaypointPositions: (changes) => {
+      const visualModel = graph.aggregatorView.getActiveVisualModel();
+      if (visualModel === null) {
+        notifications.error("There is no active visual model.");
+        return;
+      }
+      if (!isWritableVisualModel(visualModel)) {
+        notifications.error("Visual model is not writable.");
+        return;
+      }
+      //
+      for (const [identifier, waypointsChanges] of Object.entries(changes)) {
+        const visualEdge = visualModel.getVisualEntity(identifier);
+        if (visualEdge === null) {
+          notifications.error("Ignore waypoint update of non-existing visual entity.")
+          return;
+        }
+        if (isVisualRelationship(visualEdge) || isVisualProfileRelationship(visualEdge)) {
+          const waypoints: Waypoint[] = [...visualEdge.waypoints];
+          for (const [index, waypoint] of Object.entries(waypointsChanges)) {
+            waypoints[Number(index)] = { ...waypoints[Number(index)], x: waypoint.x, y: waypoint.y };
+          }
+          console.log("onChangeWaypointPositions", {changes: changes, prev: visualEdge.waypoints, next: waypoints});
+          visualModel.updateVisualEntity(identifier, { waypoints });
+        } else {
+          notifications.error("Ignore waypoint update of non-edge visual type.")
+        }
+      }
+      console.log("Application.onChangeWaypointPositions", { changes });
+    },
 
     onCreateConnectionToNode: (source, target) => {
       openCreateConnectionDialog(source.externalIdentifier, target.externalIdentifier);

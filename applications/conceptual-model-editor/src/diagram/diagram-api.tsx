@@ -293,7 +293,7 @@ export type Edge = {
    */
   color: string;
 
-  waypoints: { position: Position }[];
+  waypoints: Waypoint[];
 
   profileOf: null | {
 
@@ -302,6 +302,14 @@ export type Edge = {
     usageNote: string | null;
 
   }
+
+}
+
+export type Waypoint = {
+
+  x: number;
+
+  y: number;
 
 }
 
@@ -345,7 +353,7 @@ interface DiagramNodes {
    * of user action. This method is not called when position is changed
    * using an API call.
    */
-  onChangeNodesPositions: (changes: { [identifier: string]: Position }) => void;
+  onChangeNodesPositions: (changes: { [nodeIdentifier: string]: Position }) => void;
 
 }
 
@@ -363,6 +371,12 @@ interface DiagramEdges {
   onHideEdge: (diagramEdge: Edge) => void;
 
   onDeleteEdge: (diagramEdge: Edge) => void;
+
+  onAddWaypoint: (diagramEdge: Edge, index: number, waypoint: Waypoint) => void;
+
+  onDeleteWaypoint: (diagramEdge: Edge, index: number) => void;
+
+  onChangeWaypointPositions: (changes: { [edgeIdentifier: string]: { [waypointIndex: number]: Waypoint } }) => void;
 
 }
 

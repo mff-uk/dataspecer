@@ -1,68 +1,19 @@
 import React, { useCallback, useContext } from "react";
-import {
-  BaseEdge,
-  EdgeLabelRenderer,
-  useInternalNode,
-  type EdgeProps,
-  type Edge,
-  useReactFlow,
-  type InternalNode,
-  Viewport,
-} from "@xyflow/react";
+import { useReactFlow } from "@xyflow/react";
 
-import { arrayReplace, arrayInsert } from "../../util/functions";
-import { findNodeCenter, type Point, findLineCenter, findRectangleLineIntersection, findNodeBorder } from "./math";
-import { createLogger } from "../../application";
+import { arrayReplace } from "../../util/functions";
+import { type Point, findLineCenter } from "./math";
 
-import { type Edge as EdgeApi, EdgeType, type Position } from "../diagram-api";
-import { DiagramContext } from "../diagram-controller";
+import { type Edge as EdgeApi } from "../diagram-api";
+import { DiagramContext, EdgeType } from "../diagram-controller";
 import type { Waypoint as WaypointType } from "@dataspecer/core-v2/visual-model";
 
-export function createWaypoints(sourceNode: InternalNode, waypoints: Position[], targetNode: InternalNode): Point[] {
-
-  const nextToSource = waypoints[0] ?? findNodeCenter(targetNode);
-  const sourcePosition = findNodeBorder(sourceNode, nextToSource);
-
-  // We need to center target to the border, so the
-  // edge end marker is visible.
-  const prevToTarget = waypoints[waypoints.length - 1] ?? findNodeCenter(sourceNode);
-  const targetPosition = findNodeBorder(targetNode, prevToTarget);
-
-  return [sourcePosition, ...waypoints, targetPosition];
-}
-
-/**
- * Use segment between two central waypoints.
- *
- * @returns Position for the label.
- */
-export function findLabelPosition(waypoints: Point[]): Point {
-  if (waypoints.length === 2) {
-    // Only start and the end.
-    return findLineCenter(waypoints[0]!, waypoints[1]!);
-  }
-  // Since length >= 3, we get at least one ..
-  const index = Math.floor(waypoints.length / 2);
-  return findLineCenter(waypoints[index]!, waypoints[index + 1]!);
-}
-
-export function createSvgPath(waypoints: Point[]): string {
-  let path = `M ${waypoints[0]!.x},${waypoints[0]!.y}`;
-  for (let index = 1; index < waypoints.length; ++index) {
-    path += ` L ${waypoints[index]!.x},${waypoints[index]!.y}`;
-  }
-  return path;
-}
 
 export function Waypoints(props: {
-  edgeId: string,
+  edge: EdgeType,
   waypoints: Point[],
   data?: EdgeApi,
 }) {
-
-  // TODO Waypoints are disabled for now.
-  return null;
-
   // We need to provide user with ability to create waypoints candidates,
   // we place then in between of each two waypoints.
   const waypointCandidates: Point[] = [];
@@ -76,7 +27,7 @@ export function Waypoints(props: {
     <>
       {props.waypoints.slice(1, props.waypoints.length - 1).map((waypoint, index) => (
         <Waypoint key={`waypoint-${index}-${waypoint.x}-${waypoint.y}}`}
-          edgeId={props.edgeId}
+          edge={props.edge}
           index={index}
           x={waypoint.x}
           y={waypoint.y}
@@ -84,7 +35,7 @@ export function Waypoints(props: {
       ))}
       {waypointCandidates.map((waypoint, index) => (
         <WaypointCandidate key={`waypoint-candidate-${index}-${waypoint.x}-${waypoint.y}`}
-          edgeId={props.edgeId}
+          edge={props.edge}
           index={index}
           x={waypoint.x}
           y={waypoint.y} />
@@ -94,7 +45,7 @@ export function Waypoints(props: {
 }
 
 function Waypoint(props: {
-  edgeId: string,
+  edge: EdgeType,
   index: number,
   x: number,
   y: number,
@@ -109,16 +60,19 @@ function Waypoint(props: {
     event.preventDefault();
     const diagram = document.getElementById("reactflow-diagram")!;
     let positionHasChanged = false;
+    // Last moved position.
+    let position = { x: props.x, y: props.y };
 
     const handleMove = (event: MouseEvent) => {
-      const position = reactFlow.screenToFlowPosition({
+      position = reactFlow.screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
       });
 
       positionHasChanged = true;
 
-      reactFlow.updateEdgeData(props.edgeId, (previous) => {
+      // Here we update locally.
+      reactFlow.updateEdgeData(props.edge.id, (previous) => {
         const waypoints = arrayReplace(
           (previous?.data?.waypoints as any as WaypointType[]) ?? [],
           props.index,
@@ -137,8 +91,17 @@ function Waypoint(props: {
     const handleMouseUp = () => {
       removeListeners();
       // In addition if there was no movement it may be just a click.
-      if (!positionHasChanged) {
-        context?.onOpenEdgeContextMenu(props.edgeId, props.index, props.x, props.y);
+      if (positionHasChanged) {
+        // Report position change on end of the operation.
+        context?.callbacks().onChangeWaypointPositions({
+          [props.edge.id]: {
+            [props.index]: { x: position.x, y: position.y }
+          }
+        });
+      } else {
+        // No movement so must be click.
+        console.log("handleMouseUp", positionHasChanged);
+        context?.callbacks().onDeleteWaypoint(props.edge.data!, props.index);
       }
     };
 
@@ -146,10 +109,10 @@ function Waypoint(props: {
     diagram.addEventListener("mouseleave", removeListeners);
     diagram.addEventListener("mouseup", handleMouseUp);
 
-  }, [props.edgeId, props.index]);
+  }, [props.edge, props.index]);
 
   return (
-    <>
+    <g onMouseDown={onStartDrag}>
       <circle
         cx={props.x}
         cy={props.y}
@@ -158,15 +121,20 @@ function Waypoint(props: {
         stroke="black"
         strokeWidth={1.5}
         style={{ pointerEvents: "visibleFill" }}
-        onMouseDown={onStartDrag}
       />
-    </>
+      <path
+        fill="none"
+        stroke="red"
+        strokeWidth={2}
+        d={`M ${props.x - 4},${props.y} L ${props.x + 4},${props.y}`}
+      />
+    </g>
   );
 
 }
 
 function WaypointCandidate(props: {
-  edgeId: string,
+  edge: EdgeType,
   /**
    * Index to place new waypoint to.
    */
@@ -174,20 +142,15 @@ function WaypointCandidate(props: {
   x: number,
   y: number,
 }) {
-  const reactFlow = useReactFlow();
+  const context = useContext(DiagramContext);
 
   /**
    * In reaction to mouse down we add a new waypoint to our parent.
    */
   const onMouseDownHandler = (event: React.MouseEvent) => {
     event.preventDefault();
-
-    reactFlow.updateEdgeData(props.edgeId, (previous) => {
-      const waypoints = arrayInsert(
-        (previous?.data?.waypoints as any as WaypointType[]) ?? [],
-        props.index,
-        { x: props.x, y: props.y, anchored: null });
-      return { ...previous.data, waypoints };
+    context?.callbacks().onAddWaypoint(props.edge.data!, props.index, {
+      x: props.x, y: props.y
     });
   };
 
@@ -211,11 +174,3 @@ function WaypointCandidate(props: {
     </g>
   );
 }
-
-// Inspired by getNodeToolbarTransform function in xyflow.
-export const computePosition = (x: number, y: number, viewport: Viewport): { x: number, y: number } => {
-  return {
-    x: x * viewport.zoom + viewport.x,
-    y: y * viewport.zoom + viewport.y,
-  };
-};
