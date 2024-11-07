@@ -28,29 +28,29 @@ export function PropertyEdgeToolbar({ value }: { value: EdgeToolbarProps | null 
   const onHide = () => context?.callbacks().onHideEdge(data);
   const onDelete = () => context?.callbacks().onDeleteEdge(data);
 
-  const position = computePosition(value.x, value.y, {x, y, zoom});
+  const position = computePosition(value.x, value.y, { x, y, zoom });
 
   return (
     <>
       <EdgeToolbarPortal>
-        <div style={{ transform: `translate(${position.x}px, ${position.y}px)`, position: "absolute", zIndex: 1000 }}>
-          <ul className="edge-toolbar">
-            <li>
-              <button onClick={onDetail}>ℹ</button>
-            </li>
-            <li>
-              <button onClick={onEdit}>✏️</button>
-            </li>
-            <li>
-              <button onClick={onProfile}>🧲</button>
-            </li>
-            <li>
-              <button onClick={onHide}>🕶</button>
-            </li>
-            <li>
-              <button onClick={onDelete}>🗑</button>
-            </li>
-          </ul>
+        <div className="edge-toolbar" style={{ transform: `translate(${position.x}px, ${position.y}px)` }}>
+          <div className="property-edge">
+            <button onClick={onDetail}>ℹ</button>
+            <ul className="edge-toolbar">
+              <li>
+                <button onClick={onEdit}>✏️</button>
+              </li>
+              <li>
+                <button onClick={onProfile}>🧲</button>
+              </li>
+              <li>
+                <button onClick={onHide}>🕶</button>
+              </li>
+              <li>
+                <button onClick={onDelete}>🗑</button>
+              </li>
+            </ul>
+          </div>
         </div>
       </EdgeToolbarPortal>
     </>

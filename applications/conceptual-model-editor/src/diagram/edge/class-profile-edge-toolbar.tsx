@@ -29,12 +29,8 @@ export function ProfileEdgeToolbar({ value }: { value: EdgeToolbarProps | null }
   return (
     <>
       <EdgeToolbarPortal>
-        <div style={{ transform: `translate(${position.x}px, ${position.y}px)`, position: "absolute", zIndex: 1000 }}>
-          <ul>
-            <li>
-              <button onClick={onDetail}>ℹ</button>
-            </li>
-          </ul>
+        <div className="edge-toolbar" style={{ transform: `translate(${position.x}px, ${position.y}px)`}}>
+          <button onClick={onDetail}>ℹ</button>
         </div>
       </EdgeToolbarPortal>
     </>

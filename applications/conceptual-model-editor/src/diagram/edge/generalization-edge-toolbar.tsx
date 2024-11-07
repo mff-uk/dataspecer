@@ -30,15 +30,13 @@ export function GeneralizationEdgeToolbar({ value }: { value: EdgeToolbarProps |
   return (
     <>
       <EdgeToolbarPortal>
-        <div style={{ transform: `translate(${position.x}px, ${position.y}px)`, position: "absolute", zIndex: 1000 }}>
-          <ul className="edge-toolbar">
-            <li>
-              <button onClick={onDetail}>ℹ</button>
-            </li>
-            <li>
-              <button onClick={onDelete}>🗑</button>
-            </li>
-          </ul>
+        <div className="edge-toolbar" style={{ transform: `translate(${position.x}px, ${position.y}px)` }}>
+          <div className="generalization-edge">
+            <button onClick={onDetail}>ℹ</button>
+            <ul>
+              <li><button onClick={onDelete}>🗑</button></li>
+            </ul>
+          </div>
         </div>
       </EdgeToolbarPortal>
     </>
