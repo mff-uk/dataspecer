@@ -49,7 +49,7 @@ export type EdgeType = Edge<ApiEdge>;
 
 type ReactFlowContext = ReactFlowInstance<NodeType, EdgeType>;
 
-type OpenEdgeContextMenuHandler = (edge: EdgeType, waypointIndex: number | null, x: number, y: number) => void;
+type OpenEdgeContextMenuHandler = (edge: EdgeType, x: number, y: number) => void;
 
 /**
  * We use context to access to callbacks to diagram content, like nodes and edges.
@@ -149,9 +149,8 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
   const actions = useMemo(() => createActions(reactFlow, setNodes, setEdges, alignment),
     [reactFlow, setNodes, setEdges, alignment]);
 
-  const onOpenEdgeToolbar = useCallback(
-    createOpenEdgeToolbar(edges, setEdgeToolbar),
-    [edges, setEdgeToolbar]);
+  const onOpenEdgeToolbar = useCallback(createOpenEdgeToolbar(setEdgeToolbar),
+    [setEdgeToolbar]);
   const context = useMemo(() => createDiagramContext(api, onOpenEdgeToolbar),
     [api, onOpenEdgeToolbar]);
 
@@ -319,20 +318,14 @@ const createDropHandler = (reactFlow: ReactFlowInstance<NodeType, EdgeType>): Re
   };
 };
 
-const createOpenEdgeToolbar = (edges: EdgeType[], setEdgeToolbar: React.Dispatch<React.SetStateAction<EdgeToolbarProps | null>>): OpenEdgeContextMenuHandler => {
-  return (edge: EdgeType, waypointIndex: number | null, x: number, y: number) => {
-    for (const edge of edges) {
-      if (edge.id !== edge.id) {
-        continue;
-      }
-      const edgeType = edge.data?.type;
-      if (edgeType !== undefined) {
-        setEdgeToolbar({ edgeIdentifier: edge.id, waypointIndex, x, y, edgeType });
-      } else {
-        console.error("Ignore open menu request for edge without data.", { edge });
-      }
+const createOpenEdgeToolbar = (setEdgeToolbar: React.Dispatch<React.SetStateAction<EdgeToolbarProps | null>>): OpenEdgeContextMenuHandler => {
+  return (edge: EdgeType, x: number, y: number) => {
+    const edgeType = edge.data?.type;
+    if (edgeType !== undefined) {
+      setEdgeToolbar({ edgeIdentifier: edge.id, x, y, edgeType });
+    } else {
+      console.error("Ignore open menu request for edge without data.", { edge });
     }
-
   };
 };
 
@@ -525,9 +518,9 @@ function selectEdgeType(edge: ApiEdge) {
 function selectMarkerEnd(edge: ApiEdge) {
   switch (edge.type) {
     case ApiEdgeType.Association:
-      return { type: MarkerType.Arrow, height: 20, width: 20, color: edge.color};
+      return { type: MarkerType.Arrow, height: 20, width: 20, color: edge.color };
     case ApiEdgeType.AssociationProfile:
-      return { type: MarkerType.Arrow, height: 20, width: 20, color: edge.color};
+      return { type: MarkerType.Arrow, height: 20, width: 20, color: edge.color };
     case ApiEdgeType.Generalization:
       return { type: MarkerType.ArrowClosed, height: 20, width: 20, color: edge.color };
     case ApiEdgeType.ClassProfile:

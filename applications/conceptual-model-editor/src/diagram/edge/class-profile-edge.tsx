@@ -41,7 +41,7 @@ export const ClassProfileEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
   // is consumed when not selected
   const onPathClick = (event: React.MouseEvent) => {
     const { x, y } = reactFlow.screenToFlowPosition({ x: event.clientX, y: event.clientY });
-    context?.onOpenEdgeContextMenu(props, null, x, y);
+    context?.onOpenEdgeContextMenu(props, x, y);
   };
 
   const style = {

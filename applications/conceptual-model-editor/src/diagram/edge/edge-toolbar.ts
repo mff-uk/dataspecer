@@ -19,8 +19,6 @@ export interface EdgeToolbarProps {
 
   edgeType: EdgeType;
 
-  waypointIndex: number | null;
-
 }
 
 /**
