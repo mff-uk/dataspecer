@@ -19,6 +19,7 @@ form:
   description:
     instruction: Popište svůj projekt podrobněji
     name: Popis
+    preset: Předvolba
   name:
     instruction: Zadejte název projektu
     name: Název

@@ -15,6 +15,8 @@ projects:
       Enter the URL of the specification on the internet from which a new
       application profile will be created. The specification is imported into
       the newly created package.
+  schema:
+    create-title: Create data schema
   vocabulary:
     create-title: Create a new vocabulary
     description: >-
