@@ -42,7 +42,15 @@ interface DomainRangeComponentType {
         overriddenFields: OverriddenFieldsType;
         setOverriddenFields: (setter: (prev: OverriddenFieldsType) => OverriddenFieldsType) => void;
     };
+
     hideCardinality: boolean,
+
+    /**
+     * True when the dialog is creating a profile.
+     * We need this as the entity may not be the profile we are creating,
+     * but rather an object we create the profile for.
+     */
+    creatingProfile: boolean | undefined,
 }
 
 /**
@@ -51,7 +59,7 @@ interface DomainRangeComponentType {
 export const DomainRangeComponent = (props: DomainRangeComponentType) => {
     const { entity } = props;
     const isAttribute = isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity);
-    const isProfile = isSemanticModelClassUsage(entity) || isSemanticModelRelationshipUsage(entity);
+    const isProfile = props.creatingProfile || isSemanticModelClassUsage(entity) || isSemanticModelRelationshipUsage(entity) ;
     if (isProfile) {
         if (isAttribute) {
             // Attribute profile
@@ -225,7 +233,7 @@ const NAME_RANGE = "range";
 const SelectDomainForProfile = (props: SelectType) => {
     const { classes, profiles } = useClassesContext();
     const classProfiles: (SemanticModelClass | SemanticModelClassUsage)[] = [...profiles.filter(isSemanticModelClassUsage)];
-    // It may happen, legace reasons, that the current value will be a class, not a profile.
+    // It may happen, legacy reasons, that the current value will be a class, not a profile.
     // In order to support this we check and add it when necessary.
     if (classProfiles.find(item => item.id === props.value) === undefined) {
         // We are missing the class.

@@ -490,6 +490,7 @@ const ModifyEntityDialog = (props: DialogProps<ModifyEntityState>) => {
                                     setChangedFields((prev) => ({ ...prev, rangeCardinality: true }))
                                 }
                                 hideCardinality={hideCardinality}
+                                creatingProfile={isProfile}
                             />
                         </>
                     )}

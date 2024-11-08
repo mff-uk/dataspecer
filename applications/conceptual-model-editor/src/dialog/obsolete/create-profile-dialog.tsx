@@ -355,6 +355,7 @@ const CreateProfileDialog = (props: DialogProps<CreateProfileState>) => {
                             setOverriddenFields
                         }}
                         hideCardinality={false}
+                        creatingProfile={true}
                     />
                 )}
                 {changedFieldsAsStringArray.length === 0 ? null : (
