@@ -112,14 +112,8 @@ function createCreateProfileState(
     const entityProxy = createEntityProxy(classes, graph, entity);
     const domainAndRange = entityProxy.canHaveDomainAndRange ? temporaryDomainRangeHelper(entity) : null;
     const models = filterInMemoryModels([...graph.models.values()]);
-    const owner = findSourceModelOfEntity(entity.id, graph.models);
-    // Check we have an owner as a semantic model we can write to.
-    let model;
-    if (owner === null || !(owner instanceof InMemorySemanticModel)) {
-        model = models[0];
-    } else {
-        model = owner;
-    }
+    // By default we need to create a model in the first model not the model of the entity.
+    let model = models[0];
     return {
         entity,
         language,
