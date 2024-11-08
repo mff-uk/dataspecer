@@ -51,7 +51,7 @@ const ERROR_MESSAGE_TTL_MS = 5000;
 const MESSAGE_UPDATE_INTERVAL_MS = 1000;
 
 /**
- * The sirvice register an interval to remove older notifications.
+ * The service register an interval to remove older notifications.
  * Every write operation creates new array in order to be easily used with React.
  */
 class DefaultNotificationService implements NotificationService {
@@ -71,7 +71,7 @@ class DefaultNotificationService implements NotificationService {
       return;
     }
     this.notifications = nextNotifications;
-    this.notifiListeners();
+    this.notifyListeners();
   }
 
   addSuccess(label: string) {
@@ -80,10 +80,10 @@ class DefaultNotificationService implements NotificationService {
       type: NotificationType.Success,
       timeToLive: Date.now() + SUCCESS_MESSAGE_TTL_MS,
     }];
-    this.notifiListeners();
+    this.notifyListeners();
   }
 
-  private notifiListeners() {
+  private notifyListeners() {
     this.listeners.forEach(listener => listener(this));
   }
 
@@ -93,7 +93,7 @@ class DefaultNotificationService implements NotificationService {
       type: NotificationType.Error,
       timeToLive: Date.now() + ERROR_MESSAGE_TTL_MS,
     }];
-    this.notifiListeners();
+    this.notifyListeners();
   }
 
   addListener(listener: EventChangeListener) {

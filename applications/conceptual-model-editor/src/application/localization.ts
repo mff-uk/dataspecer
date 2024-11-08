@@ -5,7 +5,7 @@ import {logger} from "./logging";
  */
 const translations: Record<string, string | Function> = {
   "notification.icon-error": "Error icon",
-  "notification.icon-sucess": "Check icon",
+  "notification.icon-success": "Check icon",
   //
   "header.package.label": (name:string) => `Package: ${name}`,
   "header.package.missing": "Package of unknown name",

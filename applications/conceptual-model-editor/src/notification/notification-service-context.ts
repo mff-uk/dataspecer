@@ -42,7 +42,7 @@ export const useNotificationService = (): UseNotificationServiceType => {
 
 const writer: UseNotificationServiceWriterType = {
   success: (label: string) => notificationService.addSuccess(label),
-  error: (label: string) => notificationService.addSuccess(label),
+  error: (label: string) => notificationService.addError(label),
 };
 
 /**

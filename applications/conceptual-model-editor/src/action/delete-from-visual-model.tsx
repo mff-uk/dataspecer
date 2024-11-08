@@ -35,8 +35,9 @@ export function deleteFromVisualModelAction(
   // Delete the visual entity.
   const visualEntity = visualModel.getVisualEntityForRepresented(identifier);
   if (visualEntity === null) {
-    notifications.error("Entity is not part of the visual model.");
-    console.log("Missing visual entity.", { identifier, visualModel });
+    // The entity is not part of the visual model and thus should not be visible.
+    // We ignore the operation but only show an error.
+    console.error("Missing visual entity.", { identifier, visualModel });
     return;
   }
   const entitiesToRemove = [
