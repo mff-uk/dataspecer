@@ -1,6 +1,6 @@
 
 import { type InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { createClass as createClassInSemanticModel } from "@dataspecer/core-v2/semantic-model/operations";
+import { createClass } from "@dataspecer/core-v2/semantic-model/operations";
 import { isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { logger } from "../application";
@@ -8,14 +8,14 @@ import { type EditClassState } from "../dialog/class/edit-class-dialog-controlle
 import { type UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { type ModelGraphContextType } from "../context/model-context";
 
-export function createClass(
+export function createClassAction(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   model: InMemorySemanticModel,
   position: { x: number, y: number } | null,
   state: EditClassState) {
 
-  const operation = createClassInSemanticModel({
+  const operation = createClass({
     iri: state.iri,
     name: state.name,
     description: state.description,

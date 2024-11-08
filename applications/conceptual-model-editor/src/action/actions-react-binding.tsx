@@ -14,7 +14,7 @@ import { createAddModelDialog } from "../dialog/model/create-model-dialog";
 import { type CreateModelState } from "../dialog/model/create-model-dialog-controller";
 import { createEditClassDialog } from "../dialog/class/edit-class-dialog";
 import { createVocabulary } from "./create-vocabulary";
-import { createClass } from "./create-class";
+import { createClassAction } from "./create-class";
 import { addNodeToVisualModelAction } from "./add-node-to-visual-model";
 import { addRelationToVisualModelAction } from "./add-relation-to-visual-model";
 import { deleteFromSemanticModelAction } from "./delete-from-semantic-model";
@@ -201,8 +201,14 @@ function createActionsContext(
   };
 
   const openCreateClassDialog = (model: InMemorySemanticModel) => {
+    const viewport = diagram.actions().getViewport();
+    const position = {
+      x: viewport.position.x + (viewport.width / 2),
+      y: viewport.position.y + (viewport.height / 2),
+    };
+    //
     const onConfirm = (state: EditClassState) => {
-      createClass(notifications, graph, model, null, state);
+      createClassAction(notifications, graph, model, position, state);
     };
     //
     dialogs?.openDialog(createEditClassDialog(model, options.language, onConfirm));
