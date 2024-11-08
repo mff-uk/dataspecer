@@ -69,6 +69,16 @@ export interface NodeDimensionQueryHandler {
 	getHeight(node: INodeClassic);
 }
 
+// The layout works like this. The layout package gets configuration from user, usually inserted through dialog.
+// This configuration is converted to different set of constraints (this might have been a bit of overengineering, but it is not that bad).
+// There are different set of constraints:
+// 1) Actions which should be performed before we start the layouting. Meaning layouting in sense that we enter the loop which runs the algorithm 1 or more times to find the best layout.
+// 2) Then actions which should be performed in the loop (For example run random layout, followed by stress layout, followed by layered algorithm)
+// The actions in 1) and 2) are either GraphConversionConstraint or AlgorithmConfiguration, depending on the type of action
+// But that isn't all, we also have pre- and post- conditions, which are special actions which should be performed before, respectively after the steps 1), 2)
+// TODO: This feels like overengineering. ... I don't think that there is a reason to do this, it should be the same as in step 1
+//       So in future it will be probably the mentioned 1), 2) and then in the same way stuff, which will be run post-layout
+
 
 /**
  * Perform layout, which puts given nodes on new positions, while preserving layout of the old graph
