@@ -395,7 +395,7 @@ class ElkGraphTransformer implements GraphTransformer {
         // TODO: Again ... Unfortunately it needs rewrite (hopefully last) with visual model to be set when creating the graph not when converting the library represetnation back to graph
         //      ... Also it makes sense to use the cme methods to create the visual entities? instead of implementing it all again - just define method and call it
         //      ... for example I am not sure the type should cotnain only the VISUAL_RELATIONSHIP_TYPE or also some other type, so for such cases constistency would be nice
-        const relationshipType = edgeInOriginalGraph.edgeProfileType === "EDGE" ? [VISUAL_RELATIONSHIP_TYPE] : [VISUAL_PROFILE_RELATIONSHIP_TYPE];
+        const relationshipType = edgeInOriginalGraph.edgeProfileType === "CLASS-PROFILE" ? [VISUAL_PROFILE_RELATIONSHIP_TYPE] : [VISUAL_RELATIONSHIP_TYPE];
 
         const edgeToReturn: VisualRelationship | VisualProfileRelationship = {
             identifier: Math.random().toString(36).substring(2),
@@ -406,7 +406,7 @@ class ElkGraphTransformer implements GraphTransformer {
             visualSource: edgeInOriginalGraph?.visualEdge?.visualSource ?? "",
             visualTarget: edgeInOriginalGraph?.visualEdge?.visualTarget ?? "",
         };
-        if(relationshipType[0] === VISUAL_PROFILE_RELATIONSHIP_TYPE) {
+        if(edgeInOriginalGraph.edgeProfileType === "CLASS-PROFILE" || edgeInOriginalGraph.edgeProfileType === "EDGE-PROFILE") {
             edgeToReturn["entity"] = edgeInOriginalGraph?.visualEdge?.["entity"] ?? edgeInOriginalGraph.start.id;
         }
 

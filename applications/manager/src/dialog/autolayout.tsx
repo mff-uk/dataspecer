@@ -9,6 +9,7 @@ import { performLayoutOfSemanticModel, type VisualEntitiesAllType } from "@datas
 import { Loader } from "lucide-react";
 import { useContext, useState } from "react";
 import { useConfigDialog } from "./layout-dialog";
+import { MODEL_VISUAL_TYPE } from "@dataspecer/core-v2/visual-model";
 
 
 export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, parentIri: string } & BetterModalProps<boolean>) => {
@@ -58,17 +59,15 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
     let visualEntities: VisualEntitiesAllType;
     try {
       visualEntities = await performLayoutOfSemanticModel(entities, semanticModelId, getValidConfig());
-      // TODO: Was just trying to make it work but probably isn't as simple
-      // const generatedIdentifierForModelColor = (Math.random() + 1).toString(36).substring(7);
-      // visualEntities[generatedIdentifierForModelColor] = {
-      //   type: [MODEL_VISUAL_TYPE],
-      //   representedModel: semanticModelId,
-      //   color: "#ff9770",
-      //   identifier: generatedIdentifierForModelColor
-      // }
+      const generatedIdentifierForModelColor = (Math.random() + 1).toString(36).substring(7);
+      visualEntities[generatedIdentifierForModelColor] = {
+        type: [MODEL_VISUAL_TYPE],
+        representedModel: semanticModelId,
+        color: "#ff9770",
+        identifier: generatedIdentifierForModelColor
+      }
       console.info("layouted visual entitites");
       console.info(visualEntities);
-      // throw new Error("Implementation of layout is not ready");
     } catch (error) {
       alert("LAYOUT WAS NOT SUCCESSFUL");
       console.error(error);
@@ -76,31 +75,13 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
       return;
     }
 
-
+    const VISUAL_MODEL_VERSION = 1;
     const visualizationModel = {
-      modelColors: {
-        [iri]: "#ffd670",
-      },
-      modelId: modelVisualizationId,
+      identifier: modelVisualizationId,
+      version: VISUAL_MODEL_VERSION,
       type: LOCAL_VISUAL_MODEL,
-      visualEntities,
+      entities: Object.values(visualEntities),
     };
-
-    // TODO: The actual layouting is most likely correct, but the JSON object representing visual model should be different
-    // probably like in serializeModelToApiJsonObject method - return {
-    //   identifier: this.identifier,
-    //   version: VERSION,
-    //   type: this.type,
-    //   entities: [...this.entities.values()],
-    // }
-    // TODO: Was just trying to make it work by mapping to the object above but it isn't that simple
-    // const VISUAL_MODEL_VERSION = 1;
-    // const visualizationModel = {
-    //   identifier: modelVisualizationId,
-    //   version: VISUAL_MODEL_VERSION,
-    //   type: LOCAL_VISUAL_MODEL,
-    //   entities: visualEntities,
-    // };
 
     if (!modelVisualizationResource) {
       await fetch(import.meta.env.VITE_BACKEND + "/resources?parentIri=" + encodeURIComponent(parentIri), {
@@ -142,20 +123,19 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
     <Modal open={isOpen} onClose={() => isLoading ? null : resolve(false)}>
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Autolayout (Work in progress - sometimes crashes, etc.)</ModalTitle>
+          <ModalTitle>Autolayout preview ⚠️Work in progress⚠️</ModalTitle>
           <ModalDescription>
            Launches layout from @dataspecer/layout for <strong>{type}</strong>{name && <> with name <strong>{name}</strong></>}.
             {/* cz: Spustí layout z @dataspecer/layout pro <strong>{type}</strong>{name && <> s názvem <strong>{name}</strong></>}. */}
           </ModalDescription>
         </ModalHeader>
         <ModalBody>
-          <div className='h-8'>------------------------</div>
+        <hr className="my-2"/>
           <input type="checkbox" id="checkbox-shouldCreateNewModel" name="checkbox-shouldCreateNewModel" checked={shouldCreateNewModel}
                       onChange={(e => setShouldCreateNewModel(e.target.checked))} />
           <label htmlFor="checkbox-shouldCreateNewModel" className="font-black">Create new visual model (If unchecked then last layouted visual model is overridden [i.e. destroyed])
             { /* cz: Vytvoř nový vizuální model (při nezaškrtnutí se přepíše poslední layout model) */}</label>
-          <div className='h-8'></div>
-          <div>------------------------</div>
+            <hr className="my-4"/>
           <ConfigDialog></ConfigDialog>
         </ModalBody>
         <ModalFooter>

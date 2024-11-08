@@ -3,7 +3,7 @@ import { SemanticModelEntity, isSemanticModelClass, isSemanticModelRelationship,
 import { ConstraintContainer } from "./configs/constraint-container";
 import { NodeDimensionQueryHandler } from ".";
 import { GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, MainGraphClassic } from "./graph-iface";
-import { PhantomElementsFactory } from "./util/utils";
+import { PhantomElementsFactory, placePositionOnGrid } from "./util/utils";
 import _ from "lodash";
 import { VisualEntities } from "./migration-to-cme-v2";
 import { EntityModel } from "@dataspecer/core-v2";
@@ -51,6 +51,7 @@ export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic, node
             classNode.completeVisualNode.width = width;
             classNode.completeVisualNode.height = height;
         }
+        placePositionOnGrid(classNode.completeVisualNode.coreVisualNode.position, 10, 10);
     });
     return graph.mainGraph;     // TODO: !!! Well should it be mainGraph or not? what should we do if we want to layout only part of the graph - only the given argument?
 }

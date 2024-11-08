@@ -2,7 +2,7 @@ import { isSemanticModelGeneralization, SemanticModelClass, SemanticModelEntity,
 import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { EntitiesBundle, ExtractedModels, extractModelObjects, getEdgeSourceAndTargetGeneralization, getEdgeSourceAndTargetRelationship, getEdgeSourceAndTargetRelationshipUsage } from "./layout-iface";
 
-import { VisualModel, isVisualNode, Position, VisualEntity, VisualNode, VisualRelationship, isVisualRelationship, isVisualProfileRelationship, VisualProfileRelationship } from "@dataspecer/core-v2/visual-model";
+import { VisualModel, isVisualNode, Position, VisualEntity, VisualNode, VisualRelationship, isVisualRelationship, isVisualProfileRelationship, VisualProfileRelationship, VISUAL_PROFILE_RELATIONSHIP_TYPE, VISUAL_RELATIONSHIP_TYPE } from "@dataspecer/core-v2/visual-model";
 import { capitalizeFirstLetter, PhantomElementsFactory } from "./util/utils";
 import { VisualEntities } from "./migration-to-cme-v2";
 import { EntityModel } from "@dataspecer/core-v2";
@@ -634,8 +634,8 @@ export class GraphClassic implements IGraphClassic {
     }
 
 
-    convertToDataspecerRepresentation(): VisualNode {
-        return this.completeVisualNode.coreVisualNode;
+    convertToDataspecerRepresentation(): VisualNode | null {
+        return this.completeVisualNode?.coreVisualNode ?? null;
     }
 
 
@@ -735,6 +735,9 @@ export class MainGraphClassic extends GraphClassic implements IMainGraphClassic 
             }
 
             const visualEntityForNode = node.convertToDataspecerRepresentation();
+            if(visualEntityForNode === null) {
+                continue;
+            }
             // visualEntities[node.id] = visualEntityForNode;           // TODO: In future these 2 lines should be equivalent
             visualEntities[visualEntityForNode.identifier] = visualEntityForNode;
         }
@@ -744,7 +747,24 @@ export class MainGraphClassic extends GraphClassic implements IMainGraphClassic 
                 continue;
             }
 
-            const visualEntityForEdge = edge.convertToDataspecerRepresentation();
+            let visualEntityForEdge = edge.convertToDataspecerRepresentation();
+            if(visualEntityForEdge === null) {
+                // TODO: Kind of copy-pasted from elk-layouts.ts (conrectely this method - convertElkEdgeToVisualRelationship )
+                const relationshipType = edge.edgeProfileType === "CLASS-PROFILE" ? [VISUAL_PROFILE_RELATIONSHIP_TYPE] : [VISUAL_RELATIONSHIP_TYPE];
+
+                visualEntityForEdge = {
+                    identifier: Math.random().toString(36).substring(2),
+                    type: relationshipType,
+                    representedRelationship: edge?.edge?.id ?? edge.id,
+                    waypoints: [],
+                    model: edge?.sourceEntityModelIdentifier ?? "",
+                    visualSource: edge?.visualEdge?.visualSource ?? "",
+                    visualTarget: edge?.visualEdge?.visualTarget ?? "",
+                };
+                if(edge.edgeProfileType === "CLASS-PROFILE" || edge.edgeProfileType === "EDGE-PROFILE") {
+                    visualEntityForEdge["entity"] = edge?.visualEdge?.["entity"] ?? edge.start.id;
+                }
+            }
             // TODO: Now ideal ... we are basically repairing the case of layouting semantic model - at the time of creating of edge, all nodes weren't prepared
             //       so we are doing it here (or we could still do it while converting from the library representation to the graph one, but a bit later)
             //       .... In future I think that the ideal solution is to create the visual entity immediately when putting it to graph - we should be using the visual ids anyways
@@ -837,7 +857,7 @@ export interface IEdgeClassic {
     /**
      * Converts the edge into visual entity which can be used in the visual model.
      */
-    convertToDataspecerRepresentation(): VisualRelationship | VisualProfileRelationship;
+    convertToDataspecerRepresentation(): VisualRelationship | VisualProfileRelationship | null;
 }
 
 
@@ -875,8 +895,8 @@ class EdgeClassic implements IEdgeClassic {
 
     visualEdge: VisualRelationship | VisualProfileRelationship | null;
 
-    convertToDataspecerRepresentation(): VisualRelationship | VisualProfileRelationship {
-        return this.visualEdge;
+    convertToDataspecerRepresentation(): VisualRelationship | VisualProfileRelationship | null {
+        return this.visualEdge ?? null;
     }
 }
 
@@ -976,7 +996,7 @@ export interface INodeClassic {
      */
     setSourceGraph(sourceGraph: IGraphClassic) : void;
 
-    convertToDataspecerRepresentation(): VisualNode;
+    convertToDataspecerRepresentation(): VisualNode | null;
 
     /**
      * Adds new edge to the graph.
@@ -1290,8 +1310,8 @@ class NodeClassic implements INodeClassic {
         // graph.nodes[target][reverseEdgeToAddKey].push(reverseEdgeClassic);
     }
 
-    convertToDataspecerRepresentation(): VisualNode {
-        return this.completeVisualNode.coreVisualNode;
+    convertToDataspecerRepresentation(): VisualNode | null {
+        return this.completeVisualNode?.coreVisualNode ?? null;
     }
 
     mainGraph: IMainGraphClassic;
