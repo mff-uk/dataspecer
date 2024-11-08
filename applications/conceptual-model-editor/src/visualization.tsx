@@ -914,7 +914,7 @@ function onChangeVisualEntities(
         if (next !== null) {
             // New or changed entity entity.
             if (isVisualNode(next)) {
-                const entity = entities[next.representedEntity]?.rawEntity ?? null;
+                const entity = entities[next.representedEntity]?.aggregatedEntity ?? null;
 
                 if (!isSemanticModelClass(entity) && !isSemanticModelClassUsage(entity)) {
                     console.error("In visual update semantic entity is not class or class usage.", { entity, visual: next });
@@ -941,7 +941,7 @@ function onChangeVisualEntities(
                 }
 
             } else if (isVisualRelationship(next)) {
-                const entity = entities[next.representedRelationship]?.rawEntity ?? null;
+                const entity = entities[next.representedRelationship]?.aggregatedEntity ?? null;
 
                 const isRelationship =
                     isSemanticModelRelationship(entity) ||
@@ -974,7 +974,7 @@ function onChangeVisualEntities(
                 }
 
             } else if (isVisualProfileRelationship(next)) {
-                const entity = entities[next.entity]?.rawEntity ?? null;
+                const entity = entities[next.entity]?.aggregatedEntity ?? null;
 
                 if (!isSemanticModelClassUsage(entity)) {
                     console.error("In visual update semantic entity is not a profile.", { entity, visual: next });
