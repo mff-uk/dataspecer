@@ -127,6 +127,7 @@ const translations: Record<string, string | Function> = {
   "modify-dialog.title.attribute": "Edit attribute",
   "modify-dialog.title.relationship": "Edit relationship",
   "modify-dialog.title.attribute-profile": "Edit attribute profile",
+  "modify-dialog.title.class": "Edit class",
   "modify-dialog.title.class-profile": "Edit class profile",
   "modify-dialog.title.relationship-profile": "Edit relationship profile",
   "modify-dialog.title.unknown": "Edit entity",

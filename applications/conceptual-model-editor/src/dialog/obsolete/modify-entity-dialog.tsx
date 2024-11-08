@@ -7,6 +7,7 @@ import {
     isSemanticModelRelationship,
     isSemanticModelClass,
     isSemanticModelAttribute,
+    isSemanticModelRelationPrimitive,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useMemo } from "react";
 import { ClassesContextType } from "../../context/classes-context";
@@ -44,6 +45,7 @@ import { t, configuration } from "../../application";
 import { getDomainAndRange } from "../../service/relationship-service";
 import { DialogProps, DialogWrapper } from "../dialog-api";
 import { findSourceModelOfEntity } from "../../service/model-service";
+import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
 
 export type SupportedTypes =
     | SemanticModelClass
@@ -104,10 +106,13 @@ export const createEntityModifyDialog = (
     language: string,
     onConfirm: (state: ModifyEntityState) => void,
 ): DialogWrapper<ModifyEntityState> => {
+    const entityProxy = createEntityProxy(classes, graph, entity);
+    const aggregatedEntity = graph.aggregatorView.getEntities()[entity.id];
+
     return {
-        label: selectLabel(entity),
+        label: selectLabel(aggregatedEntity),
         component: ModifyEntityDialog,
-        state: createModifyEntityDialogState(classes, graph, entity, language),
+        state: createModifyEntityDialogState(entityProxy, entity, language),
         confirmLabel: "modify-dialog.btn-ok",
         cancelLabel: "modify-dialog.btn-close",
         validate: (state) => !state.wantsToAddNewAttributes,
@@ -116,7 +121,8 @@ export const createEntityModifyDialog = (
     };
 }
 
-function selectLabel(entity: SupportedTypes) {
+function selectLabel(aggregatedEntity: AggregatedEntityWrapper) {
+    const entity = aggregatedEntity.aggregatedEntity;
     if (isSemanticModelAttribute(entity)) {
         return "modify-dialog.title.attribute";
     } else if (isSemanticModelRelationship(entity)) {
@@ -127,19 +133,20 @@ function selectLabel(entity: SupportedTypes) {
         return "modify-dialog.title.class-profile";
     } else if (isSemanticModelRelationshipUsage(entity)) {
         return "modify-dialog.title.relationship-profile";
+    } else if (isSemanticModelClass(entity)) {
+        return "modify-dialog.title.class";
     } else {
         return "modify-dialog.title.unknown";
     }
 };
 
 function createModifyEntityDialogState(
-    classes: ClassesContextType,
-    graph: ModelGraphContextType,
+    entityProxy: EntityDetailProxy,
     entity: SupportedTypes,
     language: string,
 ): ModifyEntityState {
     const isProfile = isSemanticProfile(entity);
-    const entityProxy = createEntityProxy(classes, graph, entity);
+
     const domainAndRange = entityProxy.canHaveDomainAndRange ? temporaryDomainRangeHelper(entity) : null;
     return {
         entity,
