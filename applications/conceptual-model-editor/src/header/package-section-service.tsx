@@ -5,6 +5,7 @@ import { useNotificationServiceWriter } from "../notification";
 import { usePackageService } from "../service/package-service-context";
 import { getLocalizedStringFromLanguageString } from "../util/language-utils";
 import { type Package } from "@dataspecer/core-v2/project";
+import { useActions } from "../action/actions-react-binding";
 
 const MGR_REDIRECT_PATH = import.meta.env.VITE_PUBLIC_MANAGER_PATH;
 
@@ -16,8 +17,9 @@ export interface PackageSectionServiceType {
 }
 
 export const usePackageSectionService = (): PackageSectionServiceType => {
+    const actions = useActions();
     const { updateSemanticModelPackageModels } = useBackendConnection();
-    const { models, visualModels } = useModelGraphContext();
+    const { models, visualModels, aggregatorView } = useModelGraphContext();
 
     const { currentPackage, currentPackageIdentifier } = usePackageService();
     const options = useOptions();
@@ -28,18 +30,21 @@ export const usePackageSectionService = (): PackageSectionServiceType => {
             return;
         }
         const result = await updateSemanticModelPackageModels(currentPackageIdentifier, [...models.values()], [...visualModels.values()]);
-        // const svgResult = await getSvgForCurrentView();
-        // if (svgResult) {
-        //     const { svg, forModelId } = svgResult;
-        //     const rawSvg = decodeURIComponent(svg.split(",")[1] ?? "");
-        //     await fetch((import.meta.env.VITE_PUBLIC_APP_BACKEND ?? "") + "/resources/blob?iri=" + encodeURIComponent(forModelId) + "&name=svg", {
-        //         method: "PUT",
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //         },
-        //         body: JSON.stringify({ svg: rawSvg }),
-        //     });
-        // }
+        const svg = await actions.diagram?.actions().renderToSvgString();
+        const activeVisualModel = aggregatorView.getActiveVisualModel();
+
+        if (activeVisualModel !== null && svg !== undefined && svg !== null) {
+            // Remove header "data:image/svg+xml;charset=utf-8,"
+            const rawSvg = decodeURIComponent(svg.split(",")[1] ?? "");
+            const iri = encodeURIComponent(activeVisualModel.getIdentifier());
+            await fetch((import.meta.env.VITE_PUBLIC_APP_BACKEND ?? "") + "/resources/blob?iri=" + iri + "&name=svg", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ svg: rawSvg }),
+            });
+        }
 
         if (result) {
             notifications.success("Package has been saved.");
