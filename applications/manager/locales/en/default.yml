@@ -21,6 +21,7 @@ form:
   description:
     instruction: Describe your project in more detail
     name: Description
+    preset: Preset
   name:
     instruction: Enter the name of the project
     name: Name
