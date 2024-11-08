@@ -59,7 +59,7 @@ export const useConfigDialog = () => {
     const RadialConfig = (props: {stateField: MainType}) => {
         return <div>
             <div className="flex flex-row">
-                <label htmlFor="range-min-distance-between-nodes">Minimal(⚠️) distance between nodes: </label>
+                <label htmlFor="range-min-distance-between-nodes">Minimal distance between nodes ⚠️WIP⚠️: </label>
             </div>
             <div className="flex flex-row">
                 <input type="range" min="0" max="1000" step="10" className="slider" id="range-min-distance-between-nodes" draggable="false"
