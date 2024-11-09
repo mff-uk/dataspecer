@@ -19,7 +19,7 @@ import { type WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { IriLink } from "../../components/iri-link";
 import { sourceModelOfEntity } from "../../util/model-utils";
-import { useModelGraphContext } from "../../context/model-context";
+import { ModelGraphContextType, useModelGraphContext } from "../../context/model-context";
 import { ResourceDetailClickThrough } from "../../components/entity-detail-dialog-clicktrough-component";
 import { useEntityProxy, getEntityTypeString } from "../../util/detail-utils";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
@@ -28,6 +28,7 @@ import { DialogColoredModelHeaderWithLanguageSelector } from "../../components/d
 import { t } from "../../application";
 import { useActions } from "../../action/actions-react-binding";
 import { DialogProps, DialogWrapper } from "../dialog-api";
+import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
 
 type SupportedTypes =
     | SemanticModelClass
@@ -45,11 +46,14 @@ interface EntityDetailState {
 }
 
 export const createEntityDetailDialog = (
+    graph: ModelGraphContextType,
     entity: SupportedTypes,
     language: string,
 ): DialogWrapper<EntityDetailState> => {
+    const aggregatedEntity = graph.aggregatorView.getEntities()[entity.id];
+
     return {
-        label: selectLabel(entity),
+        label: selectLabel(aggregatedEntity),
         component: EntityDetailDialog,
         state: createEntityDetailDialogState(entity, language),
         confirmLabel: null,
@@ -60,7 +64,9 @@ export const createEntityDetailDialog = (
     };
 }
 
-function selectLabel(entity: SupportedTypes) {
+function selectLabel(aggregatedEntity: AggregatedEntityWrapper) {
+    const entity = aggregatedEntity.aggregatedEntity;
+
     if (isSemanticModelAttribute(entity)) {
         return "detail-dialog.title.attribute";
     } else if (isSemanticModelRelationship(entity)) {
@@ -276,7 +282,7 @@ const EntityDetailDialog = (props: DialogProps<EntityDetailState>) => {
                             detailDialogLanguage={language}
                             resource={proxy.domain.entity}
                             // it ain't null
-                             
+
                             onClick={() => handleResourceClickThroughClicked(proxy.domain.entity!)}
                             withCardinality={proxy.domain.cardinality}
                         />
@@ -288,7 +294,7 @@ const EntityDetailDialog = (props: DialogProps<EntityDetailState>) => {
                             resource={proxy.range.entity}
                             detailDialogLanguage={language}
                             // it ain't null
-                             
+
                             onClick={() => handleResourceClickThroughClicked(proxy.range.entity!)}
                             withCardinality={proxy.range.cardinality}
                         />

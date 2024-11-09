@@ -65,6 +65,8 @@ export interface ModifyEntityState {
 
     entityProxy: EntityDetailProxy;
 
+    aggregatedEntity: AggregatedEntityWrapper
+
     initialOverriddenFields: OverriddenFieldsType;
 
     // State from the dialog.
@@ -112,7 +114,7 @@ export const createEntityModifyDialog = (
     return {
         label: selectLabel(aggregatedEntity),
         component: ModifyEntityDialog,
-        state: createModifyEntityDialogState(entityProxy, entity, language),
+        state: createModifyEntityDialogState(entityProxy, aggregatedEntity, entity, language),
         confirmLabel: "modify-dialog.btn-ok",
         cancelLabel: "modify-dialog.btn-close",
         validate: (state) => !state.wantsToAddNewAttributes,
@@ -142,6 +144,7 @@ function selectLabel(aggregatedEntity: AggregatedEntityWrapper) {
 
 function createModifyEntityDialogState(
     entityProxy: EntityDetailProxy,
+    aggregatedEntity: AggregatedEntityWrapper,
     entity: SupportedTypes,
     language: string,
 ): ModifyEntityState {
@@ -154,6 +157,7 @@ function createModifyEntityDialogState(
         wantsToAddNewAttributes: false,
         //
         entityProxy: entityProxy,
+        aggregatedEntity: aggregatedEntity,
         initialOverriddenFields: getInitialOverriddenFields(entity, isProfile),
         //
         isProfile: isProfile,
@@ -497,7 +501,8 @@ const ModifyEntityDialog = (props: DialogProps<ModifyEntityState>) => {
                                     setChangedFields((prev) => ({ ...prev, rangeCardinality: true }))
                                 }
                                 hideCardinality={hideCardinality}
-                                creatingProfile={isProfile}
+                                isProfile={isAttribute}
+                                isAttribute={isAttribute || isRelationshipProfile}
                             />
                         </>
                     )}

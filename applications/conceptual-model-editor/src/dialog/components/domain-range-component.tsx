@@ -2,15 +2,12 @@ import { type ChangeEvent } from "react";
 
 import {
     type SemanticModelClass,
-    isSemanticModelAttribute,
     type SemanticModelRelationship,
     type SemanticModelRelationshipEnd,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
     type SemanticModelClassUsage,
-    isSemanticModelAttributeUsage,
     isSemanticModelClassUsage,
-    isSemanticModelRelationshipUsage,
     type SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
@@ -29,12 +26,12 @@ interface DomainRangeComponentType {
     entity: SemanticModelRelationship | SemanticModelRelationshipUsage;
 
     domain: SemanticModelRelationshipEnd;
-    setDomain: (setter: (prev:SemanticModelRelationshipEnd) => SemanticModelRelationshipEnd) => void;
+    setDomain: (setter: (prev: SemanticModelRelationshipEnd) => SemanticModelRelationshipEnd) => void;
     onDomainChange?: () => void;
     onDomainCardinalityChange?: () => void;
 
     range: SemanticModelRelationshipEnd;
-    setRange: (setter: (prev:SemanticModelRelationshipEnd) => SemanticModelRelationshipEnd) => void
+    setRange: (setter: (prev: SemanticModelRelationshipEnd) => SemanticModelRelationshipEnd) => void
     onRangeChange?: () => void;
     onRangeCardinalityChange?: () => void;
 
@@ -45,21 +42,16 @@ interface DomainRangeComponentType {
 
     hideCardinality: boolean,
 
-    /**
-     * True when the dialog is creating a profile.
-     * We need this as the entity may not be the profile we are creating,
-     * but rather an object we create the profile for.
-     */
-    creatingProfile: boolean | undefined,
+    isAttribute: boolean;
+
+    isProfile: boolean;
 }
 
 /**
  * This component render domain and optionally range for attributes, associations, and their profiles.
  */
 export const DomainRangeComponent = (props: DomainRangeComponentType) => {
-    const { entity } = props;
-    const isAttribute = isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity);
-    const isProfile = props.creatingProfile || isSemanticModelClassUsage(entity) || isSemanticModelRelationshipUsage(entity) ;
+    const { isAttribute, isProfile } = props;
     if (isProfile) {
         if (isAttribute) {
             // Attribute profile

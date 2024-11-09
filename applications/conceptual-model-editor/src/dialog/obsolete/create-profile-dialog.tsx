@@ -6,11 +6,13 @@ import {
     type SemanticModelClass,
     type SemanticModelRelationship,
     type SemanticModelRelationshipEnd,
+    isSemanticModelAttribute,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
     type SemanticModelClassUsage,
     type SemanticModelRelationshipUsage,
+    isSemanticModelAttributeUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { DomainRangeComponent } from "../components/domain-range-component";
@@ -43,6 +45,8 @@ export interface CreateProfileState {
     entity: SupportedTypes;
 
     language: string;
+
+    isAttribute: boolean;
 
     hasDomainAndRange: boolean;
 
@@ -117,6 +121,7 @@ function createCreateProfileState(
     return {
         entity,
         language,
+        isAttribute: isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity),
         hasDomainAndRange: isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity),
         displayNameOfProfiledEntity: entity ? entityProxy.name : null,
         //
@@ -349,7 +354,8 @@ const CreateProfileDialog = (props: DialogProps<CreateProfileState>) => {
                             setOverriddenFields
                         }}
                         hideCardinality={false}
-                        creatingProfile={true}
+                        isProfile={true}
+                        isAttribute={props.state.isAttribute}
                     />
                 )}
                 {changedFieldsAsStringArray.length === 0 ? null : (
