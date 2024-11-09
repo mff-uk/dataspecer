@@ -71,8 +71,6 @@ const saveChanges = (
   graph: ModelGraphContextType,
   state: CreateProfileState,
 ) => {
-  console.log("saveChanges:", { state });
-  //
   const entity = state.entity;
   if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
     handleSaveClassProfile(classes, graph, state, entity);
@@ -113,25 +111,22 @@ const handleSaveRelationshipProfile = (
 ) => {
 
   const domainEnd = {
-    concept: state.overriddenFields.domain && state.changedFields.domain ? state.domain.concept : null,
+    concept: state.overriddenFields.domain ? state.domain.concept : null,
     name: null,
     description: null,
     cardinality:
-    state.overriddenFields.domainCardinality && state.changedFields.domainCardinality
-        ? state.domain.cardinality ?? null
+    state.overriddenFields.domainCardinality ? state.domain.cardinality ?? null
         : null,
     usageNote: null,
     iri: null,
   } satisfies SemanticModelRelationshipEndUsage;
 
   const rangeEnd = {
-    concept: state.overriddenFields.range && state.changedFields.range ? state.range.concept : null,
-    name: state.overriddenFields.name && state.changedFields.name ? name : null,
-    description: state.overriddenFields.description && state.changedFields.description ? state.description : null,
+    concept: state.overriddenFields.range ? state.range.concept : null,
+    name: state.overriddenFields.name ? name : null,
+    description: state.overriddenFields.description ? state.description : null,
     cardinality:
-    state.overriddenFields.rangeCardinality && state.changedFields.rangeCardinality
-        ? state.range.cardinality ?? null
-        : null,
+    state.overriddenFields.rangeCardinality ? state.range.cardinality ?? null : null,
     usageNote: null,
     iri: state.iri,
   } as SemanticModelRelationshipEndUsage;

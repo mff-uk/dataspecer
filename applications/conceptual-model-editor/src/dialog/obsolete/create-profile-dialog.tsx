@@ -117,7 +117,7 @@ function createCreateProfileState(
     const domainAndRange = entityProxy.canHaveDomainAndRange ? temporaryDomainRangeHelper(entity) : null;
     const models = filterInMemoryModels([...graph.models.values()]);
     // By default we need to create a model in the first model not the model of the entity.
-    let model = models[0];
+    const model = models[0];
     return {
         entity,
         language,

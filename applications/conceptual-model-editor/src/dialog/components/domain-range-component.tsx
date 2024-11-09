@@ -239,7 +239,8 @@ const SelectDomainForProfile = (props: SelectType) => {
 };
 
 const renderSelect = (props: SelectType, forElement: string, values: SelectItem[]) => {
-    const value = props.value == null || props.value == "" ? NULL_VALUE : props.value;
+
+    const value = props.value == null || props.value == "" || props.value == "http://www.w3.org/2002/07/owl#Thing" ? NULL_VALUE : props.value;
 
     const onChange = (e: ChangeEvent<HTMLSelectElement>) => {
         if (e.target.value == NULL_VALUE) {
@@ -307,7 +308,7 @@ const SelectRangeForAssociation = (props: SelectType) => {
 const SelectRangeForAssociationProfile = (props: SelectType) => {
     const { classes, profiles } = useClassesContext();
     const classProfiles: (SemanticModelClass | SemanticModelClassUsage)[] = [...profiles.filter(isSemanticModelClassUsage)];
-    // It may happen, legace reasons, that the current value will be a class, not a profile.
+    // It may happen, legacy reasons, that the current value will be a class, not a profile.
     // In order to support this we check and add it when necessary.
     if (classProfiles.find(item => item.id === props.value) === undefined) {
         // We are missing the class.
