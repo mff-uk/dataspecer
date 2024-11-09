@@ -140,14 +140,25 @@ export class ConstraintFactory {
         // TODO: Not using the config.mainStepNumber and config.generalStepNumber, but that is only for future proofing anyways
         AlgorithmConstraintFactory.addAlgorithmConfiguration(config.general.elk_layered, layoutActionsBeforeMainRun, true);
 
+
+        // We can't both have interactive layout and perform search for best algorithm
+        // TODO: So just a bit of a hack now, to use only 1 run in such case and then set it back to original value so dialog doesn't change on reopen
+        const originalNumberOfNewAlgorithmRuns = config.main[config.chosenMainAlgorithm].number_of_new_algorithm_runs;
+        if(config.main[config.chosenMainAlgorithm].interactive === true) {
+            config.main[config.chosenMainAlgorithm].number_of_new_algorithm_runs = 1;
+        }
+
         // TODO: Maybe could be put into the addAlgorithmConfiguration method so it is all in one place
-        if(config.chosenMainAlgorithm === "elk_force" && config.main[config.chosenMainAlgorithm].number_of_new_algorithm_runs > 1) {
+        if(config.chosenMainAlgorithm === "elk_force") {
             layoutActionsBeforeMainRun.push(new ElkForceConfiguration(config.main[config.chosenMainAlgorithm], true, "ONLY-PREPARE"));
         }
         AlgorithmConstraintFactory.addAlgorithmConfiguration(config.main[config.chosenMainAlgorithm], layoutActions, false);
 
         const simpleConstraints = AlgorithmConstraintFactory.createSimpleConstraintsFromConfiguration(config.main[config.chosenMainAlgorithm]);
         const constraintContainer = new ConstraintContainer(layoutActionsBeforeMainRun, layoutActions, simpleConstraints, undefined, undefined);
+
+
+        config.main[config.chosenMainAlgorithm].number_of_new_algorithm_runs = originalNumberOfNewAlgorithmRuns;
 
         return constraintContainer
     }

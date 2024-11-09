@@ -13,12 +13,13 @@ export const CONFIG_TO_ELK_CONFIG_MAP: Record<keyof Omit<UserGivenAlgorithmConfi
 
     "force_alg_type": ["org.eclipse.elk.force.model"],
     "min_distance_between_nodes": ["spacing.nodeNode"],
+    "edge_routing": ["elk.edgeRouting"],
 };
 
 /**
  * This is for example for the interactive option, which 1) the conversion depends on the algorithm, 2) the mapping isn't just mapping of keys as in the {@link CONFIG_TO_ELK_CONFIG_MAP}
  */
-export const configToElkConfigSpecialCasesConvertor = (algorithm: AlgorithmName, configKey: string, configValue: any): Record<string, string> | null => {    
+export const configToElkConfigSpecialCasesConvertor = (algorithm: AlgorithmName, configKey: string, configValue: any): Record<string, string> | null => {
     if(configKey === "interactive" && String(configValue) === "true")  {
         return CONFIG_TO_ELK_CONFIG_SPECIAL_CASES_CONVERTOR[configKey]?.[algorithm] ?? null;
     }

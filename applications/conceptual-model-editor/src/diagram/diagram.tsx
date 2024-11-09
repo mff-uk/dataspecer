@@ -26,7 +26,6 @@ import { AlignmentComponent } from "./features/alignment-viewportal";
 import { EdgeType, type Node as ApiNode } from "./diagram-api";
 import { ClassProfileEdge, ClassProfileEdgeName } from "./edge/class-profile-edge";
 import { GeneralizationEdge, GeneralizationEdgeName } from "./edge/generalization-edge";
-import { useLayoutDialog } from "../layout/layout-dialog-full";
 
 export function Diagram(props: { diagram: UseDiagramType }) {
   // We use ReactFlowProvider as otherwise use of ReactFlow hooks,

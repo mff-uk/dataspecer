@@ -27,8 +27,8 @@ type RelevantAlignmentDataForCoordinate = {
     alignmentNode: InternalNode | null,
     setAlignmentNode: Dispatch<SetStateAction<InternalNode | null>>,
     sortedNodes: [string, number][],
-    alignmentHelperLine: Point | null,
-    setAlignmentHelperLine: Dispatch<SetStateAction<Point | null>>,
+    alignmentHelperLine: LineEndPointsForOrthogonal | null,
+    setAlignmentHelperLine: Dispatch<SetStateAction<LineEndPointsForOrthogonal | null>>,
     alignmentSnapGrid: number
 };
 
@@ -45,9 +45,14 @@ export type AlignmentController = {
     alignmentSetUpOnNodeDragStart: (node: Node) => void,
     alignmentCleanUpOnNodeDragStop: (node: Node) => void,
     alignmentNodesChange: (changes: NodeChange<NodeType>[]) => void,
-    horizontalAlignmentLine: Point | null,
-    verticalAlignmentLine: Point | null,
+    horizontalAlignmentLine: LineEndPointsForOrthogonal | null,
+    verticalAlignmentLine: LineEndPointsForOrthogonal | null,
 };
+
+export type LineEndPointsForOrthogonal = {
+    start: Point,
+    length: number,
+}
 
 
 export const useAlignmentController = (props: {
@@ -61,8 +66,8 @@ export const useAlignmentController = (props: {
     const [xAlignmentNode, setXAlignmentNode] = useState<InternalNode | null>(null);
     const [yAlignmentNode, setYAlignmentNode] = useState<InternalNode | null>(null);
 
-    const [horizontalAlignmentLine, setHorizontalAlignmentLine] = useState<Point | null>(null);
-    const [verticalAlignmentLine, setVerticalAlignmentLine] = useState<Point | null>(null);
+    const [horizontalAlignmentLine, setHorizontalAlignmentLine] = useState<LineEndPointsForOrthogonal | null>(null);
+    const [verticalAlignmentLine, setVerticalAlignmentLine] = useState<LineEndPointsForOrthogonal | null>(null);
 
     const onReset = () => {
         setHorizontalAlignmentLine(null);
@@ -100,6 +105,11 @@ export const useAlignmentController = (props: {
     };
 
     const alignmentNodesChange = (changes: NodeChange<NodeType>[]) => {
+        // If we are moving more than 1 node, then we don't want to perform alignment
+        if(changes.length > 1) {
+            return;
+        }
+
         // To describe the algorithm:
         // We first check if there was already some alignment present and try to set positions based on that
         // Then we check if the position (aligned if there was the alignment) aligns with some node
@@ -136,7 +146,6 @@ export const useAlignmentController = (props: {
 
         // If we were aligning at least one node and still are
         if (changedAlignmentLines.length === 0 && (indexInSortedArray.x >= 0 || indexInSortedArray.y >= 0)) {
-            console.log("If we were aligning at least one node and still are");
             nodePositionChange.position.x = nodePositionCopy.x;
             nodePositionChange.position.y = nodePositionCopy.y;
             return;
@@ -195,17 +204,44 @@ export const useAlignmentController = (props: {
         }
     };
 
-    const setNewAlignmentLine = (coordinate: Coordinate, coordinatePosition: number): void => {
+    const setNewAlignmentLine = (coordinate: Coordinate, coordinatePosition: number, draggedNodePosition: XYPosition): void => {
         const otherCoordinate = getOtherCoordinate(coordinate);
-        const { setAlignmentHelperLine } = getRelevantDataForCoordinate(coordinate);
+        const { alignmentHelperLine, setAlignmentHelperLine } = getRelevantDataForCoordinate(coordinate);
         const { sortedNodes: otherCoordinateSortedNodes } = getRelevantDataForCoordinate(otherCoordinate);
 
-        const point = { x: 0, y: 0 };
-        point[otherCoordinate] = otherCoordinateSortedNodes[0]?.[1] as number - 1000;
-        point[coordinate] = coordinatePosition;
+        const ADDITIONAL_SPACE_FOR_HELPER_LINE = 10000;
+        const helperLineEndPoints = {
+            start: {x: 0, y: 0},
+            length: 0,
+        };
+        helperLineEndPoints.start[otherCoordinate] = (otherCoordinateSortedNodes[0]?.[1] ?? 0) as number - ADDITIONAL_SPACE_FOR_HELPER_LINE;
+        helperLineEndPoints.start[coordinate] = coordinatePosition;
 
-        // TODO: Could also have the end-point as in the old version
-        setAlignmentHelperLine(point);
+        // Check if we aren't too far away with the dragging, if we are then draw the line using the dragged node's position
+        // Also we only call this method once the alignment changes, therefore if user keeps dragging to the left without changing alignment he will still reach the end
+        // The of condtition: If the current position of dragged node is before (more on "left" if we are in horizontal alignment) the start of current helper line, which has additional space cut by half
+        // Then use the position of node as new base for the start of alignment helper line
+        if(draggedNodePosition[otherCoordinate] < helperLineEndPoints.start[otherCoordinate] + ADDITIONAL_SPACE_FOR_HELPER_LINE / 2) {
+            helperLineEndPoints.start[otherCoordinate] = draggedNodePosition[otherCoordinate] - ADDITIONAL_SPACE_FOR_HELPER_LINE;
+        }
+
+        helperLineEndPoints.length = (otherCoordinateSortedNodes.at(-1)?.[1] ?? 0) as number + ADDITIONAL_SPACE_FOR_HELPER_LINE;
+        helperLineEndPoints.length -= helperLineEndPoints.start[otherCoordinate];
+
+        const possibleLengthCandidate = (draggedNodePosition[otherCoordinate] + ADDITIONAL_SPACE_FOR_HELPER_LINE) - helperLineEndPoints.start[otherCoordinate];
+        // If the new end, where the additional space cut by is still after the current end then swap
+        if(possibleLengthCandidate - ADDITIONAL_SPACE_FOR_HELPER_LINE / 2 > helperLineEndPoints.length) {
+            helperLineEndPoints.length = possibleLengthCandidate;
+        }
+
+        // Optimization to update only when necessary
+        if(alignmentHelperLine?.start.x === helperLineEndPoints.start.x &&
+            alignmentHelperLine?.start.y === helperLineEndPoints.start.y &&
+            alignmentHelperLine?.length === helperLineEndPoints.length) {
+            return;
+        }
+
+        setAlignmentHelperLine(helperLineEndPoints);
     };
 
     const checkForAlignment = (absolutePosition: XYPosition, coordinate: Coordinate, changedAlignmentLines: Coordinate[]): [boolean, number] => {
@@ -218,7 +254,7 @@ export const useAlignmentController = (props: {
             const offsetForHandler = 0;
             const coordinatePositionForAlignmentHelperNodes = sortedNodes[indexInSortedArray]?.[1] as number + offsetForHandler;
 
-            setNewAlignmentLine(coordinate, coordinatePositionForAlignmentHelperNodes);
+            setNewAlignmentLine(coordinate, coordinatePositionForAlignmentHelperNodes, absolutePosition);
             changedAlignmentLines.push(coordinate);
             return [false, indexInSortedArray];
         }

@@ -1,5 +1,5 @@
 import { IGraphClassic, IMainGraphClassic } from "../graph-iface"
-import { DIRECTION } from "../util/utils";
+import { Direction } from "../util/utils";
 import { AlgorithmName } from "./constraint-container";
 import _ from "lodash";
 import { ElkForceAlgType } from "./elk/elk-constraints";
@@ -41,7 +41,7 @@ export interface UserGivenConstraintsChangingCodeFlow {
 export interface BasicUserGivenConstraints {
         "main_layout_alg": AlgorithmName,
 //                                            "profile-nodes-position-against-source": DIRECTION.DOWN,
-        "main_alg_direction": DIRECTION,
+        "main_alg_direction": Direction,
         "layer_gap": number,
         "in_layer_gap": number,
 
@@ -50,7 +50,7 @@ export interface BasicUserGivenConstraints {
         "min_distance_between_nodes": number,
         "force_alg_type": ElkForceAlgType,
 
-        "general_main_alg_direction": DIRECTION,
+        "general_main_alg_direction": Direction,
         "general_layer_gap": number,
         "general_in_layer_gap": number,
 }
@@ -258,11 +258,13 @@ export interface UserGivenAlgorithmConfigurationslVersion4 {
     additionalSteps: Record<number, (UserGivenAlgorithmConfiguration | IGraphConversionConstraint)>,
 }
 
+export type EdgeRouting = "ORTHOGONAL" | "SPLINES" | "POLYLINE";
 
 export interface UserGivenAlgorithmConfigurationLayered {
-    "alg_direction": DIRECTION,
+    "alg_direction": Direction,
     "layer_gap": number,
     "in_layer_gap": number,
+    "edge_routing": EdgeRouting
 }
 
 export interface UserGivenAlgorithmConfigurationStress {
@@ -326,11 +328,11 @@ export function getDefaultUserGivenAlgorithmConstraint(algorithmName: AlgorithmN
         "layout_alg": algorithmName,
     //  "profile-nodes-position-against-source": DIRECTION.DOWN,
         ...LayeredConfiguration.getDefaultObject(),
-        "stress_edge_len": 400,
+        "stress_edge_len": 800,
 
         "force_alg_type": "FRUCHTERMAN_REINGOLD",
         "min_distance_between_nodes": 100,
-        "number_of_new_algorithm_runs": 50,
+        "number_of_new_algorithm_runs": 10,
         "run_layered_after": false,
         "interactive": false,
         advanced_settings: {},
@@ -523,9 +525,10 @@ export abstract class LayeredConfiguration extends AlgorithmConfiguration {
     // TODO: Ideally just export this static function not the whole class, but it seems that it is possible only using aliasing
     static getDefaultObject(): UserGivenAlgorithmConfigurationLayered {
         return {
-            "alg_direction": DIRECTION.UP,
-            "layer_gap": 100,
-            "in_layer_gap": 100,
+            "alg_direction": Direction.UP,
+            "layer_gap": 500,
+            "in_layer_gap": 500,
+            "edge_routing": "ORTHOGONAL",
         }
     }
     constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {

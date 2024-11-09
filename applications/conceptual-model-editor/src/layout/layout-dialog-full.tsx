@@ -7,7 +7,7 @@ import { useActions } from "../action/actions-react-binding";
 import { isVisualNode, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 export const useLayoutDialog = () => {
-    const { getValidConfig, ConfigDialog, resetConfig } = useConfigDialog();
+    const { getValidConfig, ConfigDialog } = useConfigDialog();
 
     const { aggregatorView, models } = useModelGraphContext();
 
@@ -55,7 +55,6 @@ export const useLayoutDialog = () => {
 
     const [isLayoutDialogOpen, setIsLayoutDialogOpen] = useState<boolean>(false);
     const open = () => {
-        // resetConfig();
         setIsLayoutDialogOpen(true);
     };
     const close = () => {
@@ -63,8 +62,11 @@ export const useLayoutDialog = () => {
     };
 
     const DialogComponent = () => {
-        return <dialog className="px-6 py-12 mt-[10vh]" style={{zIndex: 10000}} open={isLayoutDialogOpen}>
+        // The max-h-full makes it finally react to situation when dialog doesn't fit
+        return  <dialog className="px-3 py-3 mt-[1vh] overflow-y-auto max-h-full" style={{zIndex: 10000}} open={isLayoutDialogOpen}>
+
                     <ConfigDialog></ConfigDialog>
+                    <div className='h-2'></div>
                     <button onClick={onClickLayout} className="bg-transparent hover:bg-green-700 text-green-900 font-semibold hover:text-white py-2 px-4 border border-green-900 hover:border-transparent rounded">Layout</button>
                     <button onClick={close} className="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded">Close</button>
                 </dialog>;

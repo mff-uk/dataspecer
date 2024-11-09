@@ -1,21 +1,21 @@
 import { useState } from "react";
 import "./dropdown-styling.css";
-import TreeIcon, { DIRECTION_STRING } from "./TreeIcon";
-import { DIRECTION } from "@dataspecer/layout";
+import TreeIcon, { DirectionString } from "./TreeIcon";
+import { Direction } from "@dataspecer/layout";
 
 const LayeredAlgorithmDirectionDropdown = (props: {
-  direction: DIRECTION,
-  setDirection: (direction: DIRECTION) => void,
+  direction: Direction,
+  setDirection: (direction: Direction) => void,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const selectedDirection: DIRECTION_STRING = DIRECTION[props.direction];
+  const selectedDirection: DirectionString = Direction[props.direction];
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleOptionClick = (option: DIRECTION_STRING) => {
-    props.setDirection(DIRECTION[option as keyof typeof DIRECTION]);
+  const handleOptionClick = (option: DirectionString) => {
+    props.setDirection(Direction[option as keyof typeof Direction]);
     // setSelectedOption(option);
     setIsOpen(false);
   };

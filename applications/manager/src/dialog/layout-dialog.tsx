@@ -1,5 +1,14 @@
 import { useState } from "react";
-import { DIRECTION, AlgorithmName, UserGivenConstraintsVersion4, ElkForceAlgType, getDefaultUserGivenConstraintsVersion4, getDefaultMainUserGivenAlgorithmConstraint, UserGivenAlgorithmConfiguration } from "@dataspecer/layout";
+import {
+    AlgorithmName,
+    UserGivenConstraintsVersion4,
+    ElkForceAlgType,
+    getDefaultUserGivenConstraintsVersion4,
+    getDefaultMainUserGivenAlgorithmConstraint,
+    UserGivenAlgorithmConfiguration,
+    EdgeRouting,
+    Direction
+} from "@dataspecer/layout";
 import _ from "lodash";
 import LayeredAlgorithmDirectionDropdown from "./direction-graphic-combobox/react-combobox";
 
@@ -49,9 +58,8 @@ export const useConfigDialog = () => {
 
     const RadialConfig = (props: {stateField: MainType}) => {
         return <div>
-            <h1 className='font-black'>Nastavení radiálního modelu</h1>
             <div className="flex flex-row">
-                <label htmlFor="range-min-distance-between-nodes">Min vzdálenost mezi vrcholy: </label>
+                <label htmlFor="range-min-distance-between-nodes">Minimal distance between nodes ⚠️WIP⚠️: </label>
             </div>
             <div className="flex flex-row">
                 <input type="range" min="0" max="1000" step="10" className="slider" id="range-min-distance-between-nodes" draggable="false"
@@ -93,22 +101,10 @@ export const useConfigDialog = () => {
                 </div>;
     };
 
-    const interactiveCheckbox = (props: {algorithmName: AlgorithmName, stateField: MainOrGeneralType}) => {
-        return <div>
-            <input type="checkbox" id={`checkbox-interactive${props.stateField}`} name="checkbox-interactive"
-                    checked={(config?.[props.stateField] as Partial<Record<AlgorithmName, UserGivenAlgorithmConfiguration>>)?.[props.algorithmName]?.interactive}
-                    onChange={e => {
-                        setConfigWithNewValue(props.algorithmName, props.stateField, "interactive", e.target.checked);
-                        }} />
-            <label htmlFor={`checkbox-interactive${props.stateField}`}>Vezmi v úvahu existující layout</label>
-        </div>;
-    };
-
     const ForceConfig = (props: {stateField: MainType}) =>
         <div>
-            <h1 className='font-black'>Nastavení fyzikálního modelu</h1>
             <div className="flex flex-row">
-                <label htmlFor="range-min-distance-between-nodes">Min vzdálenost mezi vrcholy: </label>
+                <label htmlFor="range-min-distance-between-nodes">Minimal distance between nodes: </label>
             </div>
             <div className="flex flex-row">
                 <input type="range" min="0" max="1000" step="10" className="slider" id="range-min-distance-between-nodes" draggable="false"
@@ -121,10 +117,10 @@ export const useConfigDialog = () => {
             </div>
             {/* TODO: Copy paste from force algorithm */}
             <div className="flex flex-row">
-                <label htmlFor="range-iteration-count">Počet různých běhů algoritmu: </label>
+                <label htmlFor="range-iteration-count">Number of runs (may take several seconds for high numbers):</label>
             </div>
             <div className="flex flex-row">
-                <input type="range" min="0" max="200" step="1" className="slider" id="range-iteration-count" draggable="false"
+                <input type="range" min="1" max="200" step="1" className="slider" id="range-iteration-count" draggable="false"
                     defaultValue={config?.[props.stateField].elk_force?.["number_of_new_algorithm_runs"]}
                     onMouseUp={(e) => {
                         setConfigWithNewValue("elk_force", props.stateField, "number_of_new_algorithm_runs", parseInt((e.target as HTMLInputElement).value));
@@ -133,8 +129,9 @@ export const useConfigDialog = () => {
             </div>
 
 
+            <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
             <div className="flex flex-row">
-                <label htmlFor="force-alg-type">Typ výpočtu: </label>
+                <label htmlFor="force-alg-type">Force model: </label>
             </div>
             <div className="flex flex-row">
                 <select id="force-alg-type" value={config?.[props.stateField].elk_force?.["force_alg_type"]} onChange={(event) => {
@@ -149,7 +146,7 @@ export const useConfigDialog = () => {
                     <option value="FRUCHTERMAN_REINGOLD">Fruchterman Reingold</option>
                 </select>
             </div>
-            {interactiveCheckbox({...props, algorithmName: "elk_force"})}
+            <hr className="w-48 h-1 mx-auto my-3 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
             <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
         </div>;
 
@@ -178,9 +175,8 @@ export const useConfigDialog = () => {
 
     const StressConfig = (props: {stateField: MainType}) =>
         <div>
-            <h1 className='font-black'>Nastavení fyzikálního modelu</h1>
             <div className="flex flex-row">
-                <label htmlFor="range-stress-edge-len">Ideální délka hran: </label>
+                <label htmlFor="range-stress-edge-len">Ideal edge length: </label>
             </div>
             <div className="flex flex-row">
                 <input type="range" min="0" max="1000" step="10" className="slider" id="range-stress-edge-len" draggable="false"
@@ -194,10 +190,10 @@ export const useConfigDialog = () => {
             </div>
             {/* TODO: Copy paste from force algorithm */}
             <div className="flex flex-row">
-                <label htmlFor="range-iteration-count">Počet různých běhů algoritmu: </label>
+                <label htmlFor="range-iteration-count">Number of runs (may take several seconds for high numbers):</label>
             </div>
             <div className="flex flex-row">
-                <input type="range" min="0" max="200" step="1" className="slider" id="range-iteration-count" draggable="false"
+                <input type="range" min="1" max="200" step="1" className="slider" id="range-iteration-count" draggable="false"
                     defaultValue={config?.[props.stateField]?.elk_stress?.["number_of_new_algorithm_runs"]}
                     onMouseUp={(e) => {
                         // Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
@@ -206,31 +202,43 @@ export const useConfigDialog = () => {
                             }}></input>
                 {config?.[props.stateField]?.elk_stress?.["number_of_new_algorithm_runs"]}
             </div>
-            {interactiveCheckbox({...props, algorithmName: "elk_stress"})}
+            <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
             <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
 
         </div>;
 
     const LayeredConfig = (props: {stateField: MainOrGeneralType}) =>
         <div>
-            <h1 className='font-black'>
-                {props.stateField === "main" ? "Nastavení pro hlavní algoritmus" : "Nastavení pro generalizační vztahy"}
-            </h1>
             <div className="flex flex-row">
-                <label htmlFor={`${props.stateField}-main-alg-direction`}>Preferovaný směr hran: </label>
+                <label htmlFor={`${props.stateField}-main-alg-direction`}>Preferred edge direction: </label>
             </div>
             <div className="flex flex-row">
-                <LayeredAlgorithmDirectionDropdown direction={config?.[props.stateField]?.["elk_layered"]?.["alg_direction"] ?? DIRECTION.DOWN} setDirection={(newDirection: DIRECTION) => {
+                <LayeredAlgorithmDirectionDropdown direction={config?.[props.stateField]?.["elk_layered"]?.["alg_direction"] ?? Direction.DOWN} setDirection={(newDirection: Direction) => {
                             setConfigWithNewValue("elk_layered", props.stateField, "alg_direction", newDirection);
                             }}></LayeredAlgorithmDirectionDropdown>
             </div>
 
-            {interactiveCheckbox({...props, algorithmName: "elk_layered"})}
+            {/* TODO: I should define it as component since I reuse this split on more places */}
+            <hr className="w-48 h-1 mx-auto my-1 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
+
+            <div className="flex flex-row">
+                 <label htmlFor={`${props.stateField}-edge-routing`}>Edge routing: </label>
+            </div>
+            <div className="flex flex-row">
+                <select id={`${props.stateField}-edge-routing`} value={config?.[props.stateField]?.["elk_layered"]?.["edge_routing"]}
+                        onChange={(event) => setConfigWithNewValue("elk_layered", props.stateField, "edge_routing", event.target.value as EdgeRouting)}>
+                    <option value="ORTHOGONAL">Orthogonal</option>
+                    <option value="POLYLINE">Polyline</option>
+                    <option value="SPLINES">Splines</option>
+                </select>
+            </div>
+
+            <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
 
             <div className="flex flex-row">
                 { /* It has to be onMouseUp, if I put it onChange then react forces redraw and stops the "drag" event I guess */ }
                 { /* TOOD: Rewrite like this or similar <ConfigSlider min={0} max={1000} step={10} configName='layer-gap' defaultValue={100} setConfig={setConfig}></ConfigSlider> */}
-                <label htmlFor={`range-${props.stateField}-layer-gap`}>Prostor mezi vrstvami: </label>
+                <label htmlFor={`range-${props.stateField}-layer-gap`}>Distance between layers: </label>
             </div>
             <div className="flex flex-row">
                 <input type="range" min="0" max="1000" step="10" className="slider" id={`range-${props.stateField}-layer-gap`} draggable="false"
@@ -243,7 +251,7 @@ export const useConfigDialog = () => {
 
 
             <div className="flex flex-row">
-                 <label htmlFor={`range-${props.stateField}in-layer-gap`}>Prostor mezi třídami uvnitř vrstvy: </label>
+                 <label htmlFor={`range-${props.stateField}in-layer-gap`}>Distance within layer: </label>
             </div>
             <div className="flex flex-row ">
                 <input type="range" min="0" max="1000" step="10" className="slider" id={`range-${props.stateField}-in-layer-gap`} draggable="false"
@@ -283,7 +291,7 @@ export const useConfigDialog = () => {
     const ConfigDialog = () =>
         <div>
             <div className="flex flex-row">
-                <label htmlFor="main-layout-alg" className='font-black'>Hlavní layoutovací algoritmus: </label>
+                <label htmlFor="main-layout-alg" className="font-black text-base">Main layouting algorithm: </label>
             </div>
             <div className="flex flex-row">
                 <select id="main-layout-alg" value={config["chosenMainAlgorithm"]}
@@ -291,16 +299,18 @@ export const useConfigDialog = () => {
                                                         "chosenMainAlgorithm": event.target.value as AlgorithmName
                                                         })
                                                     }>
-                    <option value="elk_layered">Úrovňový</option>
-                    <option value="elk_stress">Fyzikální (Stress)</option>
-                    <option value="elk_force">Fyzikální (Force - Jen Debug)</option>
-                    <option value="elk_radial">Radiální</option>
-                    <option value="random">Náhodný</option>
+                    <option value="elk_layered">Layered (Hierarchical)</option>
+                    <option value="elk_stress">Elk Stress (Force-based algorithm)</option>
+                    <option value="elk_force">Elk Force (Force-based algorithm)</option>
+                    <option value="elk_radial">Radial</option>
+                    <option value="random">Random</option>
                 </select>
             </div>
-            <div className='h-8'>------------------------</div>
+            <hr className="my-2"/>
+            {/* TODO: Just for now */}
+            {config.chosenMainAlgorithm === "random" ? <></> : <h3 className="font-black">Algorithm settings </h3>}
             {renderMainAlgorithmConfig()}
-            <div className='h-8'>------------------------</div>
+            <hr className="my-4"/>
             <input type="checkbox" id="checkbox-main-layout-alg" name="checkbox-main-layout-alg" checked={config.general.elk_layered.should_be_considered}
                     onChange={e => setConfig({...config,
                                               general: {
@@ -310,7 +320,7 @@ export const useConfigDialog = () => {
                                                     "should_be_considered": e.target.checked
                                                 }
                                                  }})} />
-            <label htmlFor="checkbox-main-layout-alg">Zpracuj generalizační vztahy zvlášť (Zatím ne moc funkční ... s fyzikálním téměř vůbec)</label>
+            <label htmlFor="checkbox-main-layout-alg">Process generalization hierarchies separately ⚠️ WIP ⚠️</label>
             {config.general.elk_layered.should_be_considered === false ? null :
                 <div>
                     <div className='h-2'></div>
