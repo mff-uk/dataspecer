@@ -46,7 +46,7 @@ export const Catalog = () => {
                 <CatalogTabButton
                     active={activeTab === CatalogTabs.Associations}
                     onClick={() => setActiveTab(CatalogTabs.Associations)}
-                    label={t("model.associations")}
+                    label={t("model.relationship")}
                     hidden={associations.length === 0}
                 />
                 <CatalogTabButton
