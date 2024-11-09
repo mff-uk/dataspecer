@@ -22,7 +22,7 @@ import { GraphClassic, GraphFactory, IMainGraphClassic, INodeClassic, MainGraphC
 import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs/constraint-container";
 import { Entities, Entity, EntityModel } from "@dataspecer/core-v2";
 import { ConstraintFactory } from "./configs/constraint-factories";
-import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
+import { ReactflowNodeDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
 import { PhantomElementsFactory } from "./util/utils";
 import { CONSTRAINT_MAP } from "./configs/constraints-mapping";
 import type { VisualEntities, VisualEntitiesAllType } from "./migration-to-cme-v2";
@@ -35,10 +35,11 @@ export { getDefaultUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsV
 export type { AlgorithmName } from "./configs/constraint-container";
 
 export { Direction } from "./util/utils";
-export type { INodeClassic } from "./graph-iface"
+export type { INodeClassic } from "./graph-iface";
 
-export { ReactflowDimensionsEstimator }
-export { ReactflowDimensionsConstantEstimator } from "./dimension-estimators/constant-dimension-estimator";
+export { ReactflowNodeDimensionsEstimator };
+import { ReactflowNodeDimensionsConstantEstimator } from "./dimension-estimators/constant-dimension-estimator";
+export { ReactflowNodeDimensionsConstantEstimator };
 
 import type { EdgeRouting } from "./configs/constraints";
 export type { EdgeRouting }
@@ -62,7 +63,7 @@ export { type ElkForceAlgType } from "./configs/elk/elk-constraints";
  * The object (class) implementing this interface handles the act of getting width and height of given node. The act has to be separated from the reactflow visualization library,
  * because either the library may be switched for some other (highly unlikely from my point of view), but more importantly the layouting may be performed outside the diagram/editor.
  * component, so there has to be other way(s) to get the width and height of nodes needed for layouting.
- * For such case the implemented variants are (so far) {@link ReactflowDimensionsEstimator} and {@link ReactflowDimensionsConstantEstimator}.
+ * For such case the implemented variants are (so far) {@link ReactflowNodeDimensionsEstimator} and {@link ReactflowNodeDimensionsConstantEstimator}.
  */
 export interface NodeDimensionQueryHandler {
 	getWidth(node: INodeClassic);
@@ -94,7 +95,7 @@ export async function performDynamicLayout(visualModel: VisualModel,
 										config: UserGivenAlgorithmConfigurationslVersion2,
 										nodeDimensionQueryHandler?: NodeDimensionQueryHandler) {
 	if(nodeDimensionQueryHandler === undefined) {
-		nodeDimensionQueryHandler = new ReactflowDimensionsEstimator();
+		nodeDimensionQueryHandler = new ReactflowNodeDimensionsEstimator();
 	}
 
 	// TODO: Here perform dynamic layouting on top of visual model
@@ -158,7 +159,7 @@ function performLayoutInternal(visualModel: VisualModel | null,
 								config: UserGivenAlgorithmConfigurationslVersion4,
 								nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
 	if(nodeDimensionQueryHandler === undefined) {
-		nodeDimensionQueryHandler = new ReactflowDimensionsEstimator();
+		nodeDimensionQueryHandler = new ReactflowNodeDimensionsEstimator();
 	}
 
 	const graph = GraphFactory.createMainGraph(null, semanticModels, null, visualModel);

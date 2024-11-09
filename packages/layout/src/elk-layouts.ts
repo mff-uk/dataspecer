@@ -11,7 +11,6 @@ import ElkConstructor, { LayoutOptions, ElkNode, ElkExtendedEdge, ElkLabel, ElkP
 
 import { BasicUserGivenConstraints, ConstraintedNodesGroupingsType, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraint, IConstraintSimple, SPECIFIC_ALGORITHM_CONVERSIONS_MAP, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationOnlyData, UserGivenConstraints } from "./configs/constraints";
 import { AlgorithmName, ConstraintContainer, ElkConstraintContainer } from "./configs/constraint-container";
-import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
 import { CONFIG_TO_ELK_CONFIG_MAP } from "./configs/elk/elk-utils";
 import { NodeDimensionQueryHandler } from ".";
 import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";

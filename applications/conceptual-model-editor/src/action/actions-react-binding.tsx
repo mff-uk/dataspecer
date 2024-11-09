@@ -29,7 +29,7 @@ import { findSourceModelOfEntity } from "../service/model-service";
 import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
 import { isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel, Waypoint } from "@dataspecer/core-v2/visual-model";
 import { openCreateConnectionDialogAction } from "./open-create-connection";
-import { placePositionOnGrid, ReactflowDimensionsConstantEstimator } from "@dataspecer/layout";
+import { placePositionOnGrid, ReactflowNodeDimensionsConstantEstimator, } from "@dataspecer/layout";
 
 
 const getCenterOfViewport = (diagram: UseDiagramType) => {
@@ -39,8 +39,8 @@ const getCenterOfViewport = (diagram: UseDiagramType) => {
     x: viewport.position.x + (viewport.width / 2),
     y: viewport.position.y + (viewport.height / 2),
   };
-  position.x -= ReactflowDimensionsConstantEstimator.getDefaultWidth() / 2;
-  position.y -= ReactflowDimensionsConstantEstimator.getDefaultHeight() / 2;
+  position.x -= ReactflowNodeDimensionsConstantEstimator.getDefaultWidth() / 2;
+  position.y -= ReactflowNodeDimensionsConstantEstimator.getDefaultHeight() / 2;
 
   placePositionOnGrid(position, configuration().xSnapGrid, configuration().ySnapGrid);
 
