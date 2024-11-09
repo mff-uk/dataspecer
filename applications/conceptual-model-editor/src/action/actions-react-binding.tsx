@@ -31,6 +31,23 @@ import { isVisualProfileRelationship, isVisualRelationship, isWritableVisualMode
 import { openCreateConnectionDialogAction } from "./open-create-connection";
 import { placePositionOnGrid, ReactflowDimensionsConstantEstimator } from "@dataspecer/layout";
 
+
+const getCenterOfViewport = (diagram: UseDiagramType) => {
+  const viewport = diagram.actions().getViewport();
+
+  const position = {
+    x: viewport.position.x + (viewport.width / 2),
+    y: viewport.position.y + (viewport.height / 2),
+  };
+  position.x -= ReactflowDimensionsConstantEstimator.getDefaultWidth() / 2;
+  position.y -= ReactflowDimensionsConstantEstimator.getDefaultHeight() / 2;
+
+  placePositionOnGrid(position, configuration().xSnapGrid, configuration().ySnapGrid);
+
+  return position;
+};
+
+
 export interface ActionsContextType {
 
   /**
@@ -202,11 +219,8 @@ function createActionsContext(
   };
 
   const openCreateClassDialog = (model: InMemorySemanticModel) => {
-    const viewport = diagram.actions().getViewport();
-    const position = {
-      x: viewport.position.x + (viewport.width / 2),
-      y: viewport.position.y + (viewport.height / 2),
-    };
+    const position = getCenterOfViewport(diagram);
+
     //
     const onConfirm = (state: EditClassState) => {
       createClassAction(notifications, graph, model, position, state);
@@ -227,15 +241,7 @@ function createActionsContext(
 
   const addNodeToVisualModel = (model: string, identifier: string) => {
     // We position the new node to the center of the viewport.
-    const viewport = diagram.actions().getViewport();
-
-    const position = {
-      x: viewport.position.x + (viewport.width / 2),
-      y: viewport.position.y + (viewport.height / 2),
-    };
-    position.x -= ReactflowDimensionsConstantEstimator.getDefaultWidth() / 2;
-    position.y -= ReactflowDimensionsConstantEstimator.getDefaultHeight() / 2;
-    placePositionOnGrid(position, configuration().xSnapGrid, configuration().ySnapGrid);
+    const position = getCenterOfViewport(diagram);
 
     addNodeToVisualModelAction(notifications, graph, model, identifier, position);
   };
