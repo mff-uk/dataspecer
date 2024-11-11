@@ -1,10 +1,35 @@
 import { Entity } from "ldkit/types/library/lens/types";
-import { Context, SchemaInterface, createLens } from "ldkit";
+import { Context, SchemaInterface, createLens, QueryEngine } from "ldkit";
 import { <%= it.instance_result_type %> } from <%~ it.instance_result_type_path %>;
 import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 import { <%= it.editor_interface_type %> } from <%~ it.editor_interface_type_path %>;
 
+class LdkitEditorQueryEngine extends QueryEngine {
+
+    override query(query: string, responseType: string, context?: Context): Promise<Response> {
+        const endpoint = this.getSparqlEndpoint(context);
+        const fetchFn = this.getFetch(context);
+        return fetchFn(endpoint, {
+            method: "POST",
+            headers: {
+                "accept": responseType,
+                "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+            },
+            body: new URLSearchParams({
+                update: query,
+            }),
+        });
+    }
+
+}
+
 export class <%= it.exported_object_name %> implements <%= it.editor_interface_type %>  {
+
+    private _customEngine: QueryEngine;
+
+    constructor() {
+        this._customEngine = new LdkitEditorQueryEngine();
+    }
 
     private mapFormDataToLdkitSchema(formData: any): Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> {
         console.log("input form data: ", formData);
@@ -50,11 +75,11 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
             sources: ["<%~ it.sparql_endpoint_uri %>"]
         }
 
-        const lens = createLens(<%= it.ldkit_schema %>, context);
+        const lens = createLens(<%= it.ldkit_schema %>, context, this._customEngine);
         const updatedInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> = this.mapFormDataToLdkitSchema(formData);
 
         try {
-            //await lens.update(updatedInstance);
+            await lens.update(updatedInstance);
             console.log("update success");
 
             const result: <%= it.instance_result_type %> = {

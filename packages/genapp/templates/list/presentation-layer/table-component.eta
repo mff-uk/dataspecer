@@ -80,7 +80,7 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
                 open={isLoading}
             >
                 <CircularProgress color="inherit" />
-            </Backdrop><% const defaultTablePageTitle = "List of <%= it.aggregate_name %> items" %>
+            </Backdrop><% const defaultTablePageTitle = "List of items" %>
             <Typography variant="h3">
                 <%~ it.page_title ?? defaultTablePageTitle %>
             </Typography>

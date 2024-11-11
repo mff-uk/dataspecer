@@ -1,9 +1,34 @@
-import { Context, createLens } from "ldkit";
+import { Context, createLens, QueryEngine } from "ldkit";
 import { <%= it.instance_result_type %> } from <%~ it.instance_result_type_path %>;
 import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 import { <%= it.delete_mutator_interface_type %> } from <%~ it.delete_mutator_interface_type_path %>;
 
+class LdkitDeleteQueryEngine extends QueryEngine {
+
+    override query(query: string, responseType: string, context?: Context): Promise<Response> {
+        const endpoint = this.getSparqlEndpoint(context);
+        const fetchFn = this.getFetch(context);
+        return fetchFn(endpoint, {
+            method: "POST",
+            headers: {
+                "accept": responseType,
+                "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+            },
+            body: new URLSearchParams({
+                update: query,
+            }),
+        });
+    }
+
+}
+
 export class <%= it.exported_object_name %> implements <%= it.delete_mutator_interface_type %> {
+
+    private _customEngine: QueryEngine;
+
+    constructor() {
+        this._customEngine = new LdkitDeleteQueryEngine();
+    }
 
     async deleteInstance(instanceIri: string): Promise<<%= it.instance_result_type %>> {
 
@@ -29,7 +54,7 @@ export class <%= it.exported_object_name %> implements <%= it.delete_mutator_int
         try {
             const deleteLens = createLens(<%= it.ldkit_schema %>, {
                 sources: ["<%~ it.sparql_endpoint_uri.write %>"]
-            })
+            }, this._customEngine);
             await deleteLens.delete(toDelete);
 
             result = {
