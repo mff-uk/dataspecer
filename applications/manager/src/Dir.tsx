@@ -9,7 +9,6 @@ import { Translate } from "./components/translate";
 import { Button } from "./components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./components/ui/dropdown-menu";
 import { Skeleton } from "./components/ui/skeleton";
-import { Autolayout } from "./dialog/autolayout";
 import { CreateNew } from "./dialog/create-new";
 import { DeleteResource } from "./dialog/delete-resource";
 import { ProjectWizard } from "./dialog/project-wizard/project-wizard";
@@ -24,6 +23,7 @@ import { defaultConfiguration } from "@dataspecer/core-v2/documentation-generato
 import React from "react";
 import { SortModelsContext } from "./components/sort-models";
 import { ModifyRawDialog } from "./dialog/modify-raw";
+import { Autolayout } from "./dialog/autolayout";
 
 export function lng(text: LanguageString | undefined): string | undefined {
   return text?.["cs"] ?? text?.["en"];

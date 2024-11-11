@@ -125,7 +125,7 @@ export async function generateDocumentation(
     if (!iri) {
       return iri;
     }
-    
+
     const last = Math.max(iri.lastIndexOf("#"), iri.lastIndexOf("/"));
     if (last === -1) {
       return iri;
@@ -218,7 +218,7 @@ export async function generateDocumentation(
     } else {
       result += HANDLEBARS_MARK_DISABLE;
     }
-    
+
     result += options.fn(context);
     result += HANDLEBARS_MARK_DISABLE;
 
@@ -267,7 +267,7 @@ export async function generateDocumentation(
       }
     }
 
-    // Fallback 
+    // Fallback
     return null;
   }
 
@@ -304,7 +304,7 @@ export async function generateDocumentation(
           const anchor = getAnchorForLocalEntity(entity);
           return inModel.documentationUrl + "#" + anchor;
         } else {
-          return entity.iri;
+          return input;
         }
       }
     }
@@ -315,7 +315,7 @@ export async function generateDocumentation(
 
   /**
    * Generates anchor for the given entity that can be used as a link target.
-   * 
+   *
    * It does not contain the # character. It is intended to be used as an id attribute.
    */
   handlebars.registerHelper('anchor', function(this: SemanticModelEntity) {
@@ -357,7 +357,7 @@ export async function generateDocumentation(
       if (typeof value === 'object' && value !== null) {
         // Duplicate reference found, discard key
         if (cache.includes(value)) return;
-    
+
         // Store value in our collection
         cache.push(value);
       }

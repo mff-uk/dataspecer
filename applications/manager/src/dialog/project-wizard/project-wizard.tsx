@@ -7,8 +7,9 @@ import imgAp from "@/graphics/undraw_solution_mindset_re_57bf.svg";
 import imgApDark from "@/graphics/undraw_solution_mindset_re_57bf_dark.svg";
 import { BetterModalProps, useBetterModal } from "@/lib/better-modal";
 import { useTranslation } from "react-i18next";
-import { Vocabulary } from "./vocabulary";
 import { Profile } from "./profile";
+import { Schema } from "./schema";
+import { Vocabulary } from "./vocabulary";
 
 export const ProjectWizard = ({ isOpen, resolve, iri }: { iri: string } & BetterModalProps) => {
   const {t} = useTranslation("project-wizard");
@@ -22,6 +23,12 @@ export const ProjectWizard = ({ isOpen, resolve, iri }: { iri: string } & Better
 
   const createProfile = async () => {
     if (await openModal(Profile, {iri})) {
+      resolve();
+    }
+  }
+
+  const createSchema = async () => {
+    if (await openModal(Schema, {iri})) {
       resolve();
     }
   }
@@ -59,7 +66,7 @@ export const ProjectWizard = ({ isOpen, resolve, iri }: { iri: string } & Better
               </p>
             </div>
           </button>
-          <button className="group cursor-pointer rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800">
+          <button className="group cursor-pointer rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800" onClick={createSchema}>
             <div className="hidden md:block relative aspect-[4/3] bg-gray-100 dark:bg-stone-900/20 group-hover:opacity-80 transition-opacity p-10 -z-10">
               <img src={imgDsDark} alt="Template 3" className="object-cover hidden dark:block" />
               <img src={imgDs} alt="Template 3" className="object-cover dark:hidden" />
