@@ -216,8 +216,15 @@ function createActionsContext(
   };
 
   const openCreateProfileDialog = (identifier: string) => {
+    const viewport = diagram.actions().getViewport();
+    const position = {
+      x: viewport.position.x + (viewport.width / 2),
+      y: viewport.position.y + (viewport.height / 2),
+    };
+    //
     openCreateProfileDialogAction(
-      options, dialogs, notifications, classes, useClasses, graph, identifier);
+      options, dialogs, notifications, classes, useClasses, graph,
+      position, identifier);
   };
 
   const openCreateConnectionDialog = (source: string, target: string) => {
@@ -389,7 +396,7 @@ function createActionsContext(
           for (const [index, waypoint] of Object.entries(waypointsChanges)) {
             waypoints[Number(index)] = { ...waypoints[Number(index)], x: waypoint.x, y: waypoint.y };
           }
-          console.log("onChangeWaypointPositions", {changes: changes, prev: visualEdge.waypoints, next: waypoints});
+          console.log("onChangeWaypointPositions", { changes: changes, prev: visualEdge.waypoints, next: waypoints });
           visualModel.updateVisualEntity(identifier, { waypoints });
         } else {
           notifications.error("Ignore waypoint update of non-edge visual type.")

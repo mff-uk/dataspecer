@@ -22,6 +22,8 @@ import { Options } from "../application/options";
 import { ClassesContextType, UseClassesContextType } from "../context/classes-context";
 import { createEntityProfileDialog, CreateProfileState } from "../dialog/obsolete/create-profile-dialog";
 import { temporaryDomainRangeHelper } from "../util/relationship-utils";
+import { addNodeToVisualModelAction } from "./add-node-to-visual-model";
+import { addRelationToVisualModelAction } from "./add-relation-to-visual-model";
 
 export function openCreateProfileDialogAction(
   options: Options,
@@ -30,6 +32,7 @@ export function openCreateProfileDialogAction(
   classes: ClassesContextType,
   useClasses: UseClassesContextType,
   graph: ModelGraphContextType,
+  position: { x: number, y: number },
   identifier: string,
 ) {
   const entity = graph.aggregatorView.getEntities()?.[identifier].rawEntity;
@@ -60,33 +63,37 @@ export function openCreateProfileDialogAction(
   }
   //
   const onConfirm = (state: CreateProfileState) => {
-    saveChanges(useClasses, graph, state);
+    saveChanges(notifications, useClasses, graph, state, position);
   };
   dialogs.openDialog(createEntityProfileDialog(
     classes, graph, entity, options.language, onConfirm));
 }
 
 const saveChanges = (
+  notifications: UseNotificationServiceWriterType,
   classes: UseClassesContextType,
   graph: ModelGraphContextType,
   state: CreateProfileState,
+  position: { x: number, y: number },
 ) => {
   const entity = state.entity;
   if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
-    handleSaveClassProfile(classes, graph, state, entity);
+    handleSaveClassProfile(notifications, classes, graph, state, entity, position);
   } else if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
-    handleSaveRelationshipProfile(classes, graph, state, entity);
+    handleSaveRelationshipProfile(notifications, classes, graph, state, entity);
   }
 }
 
 const handleSaveClassProfile = (
+  notifications: UseNotificationServiceWriterType,
   classes: UseClassesContextType,
   graph: ModelGraphContextType,
   state: CreateProfileState,
   entity: SemanticModelClass | SemanticModelClassUsage,
+  position: { x: number, y: number },
   // model: InMemorySemanticModel,
 ) => {
-  // TODO ACTION Create class entity
+  // Create class entity
   const { id: classUsageId } = classes.createClassEntityUsage(state.model, entity.type[0], {
     usageOf: entity.id,
     usageNote: state.usageNote,
@@ -95,14 +102,16 @@ const handleSaveClassProfile = (
     iri: state.iri,
   });
 
-  // TODO Add profile to the canvas.
-  // const visualModel = graph.aggregatorView.getActiveVisualModel();
-  // if (classUsageId && isWritableVisualModel(visualModel)) {
-  //   actions.addNodeToVisualModel(model.getId(), classUsageId);
-  // }
+  // Add profile to the canvas.
+  if (classUsageId !== undefined) {
+    addNodeToVisualModelAction(
+      notifications, graph, state.model.getId(),
+      classUsageId, position);
+  }
 };
 
 const handleSaveRelationshipProfile = (
+  notifications: UseNotificationServiceWriterType,
   classes: UseClassesContextType,
   graph: ModelGraphContextType,
   state: CreateProfileState,
@@ -149,14 +158,10 @@ const handleSaveRelationshipProfile = (
     ends: ends,
   });
 
-  // TODO Add profile to the canvas.
-  // const visualModel = graph.aggregatorView.getActiveVisualModel();
-  // if (relationshipUsageId && isWritableVisualModel(visualModel)) {
-  //   visualModel.addVisualRelationship({
-  //     model: state.model.getId(),
-  //     representedRelationship: relationshipUsageId,
-  //     waypoints: [],
-  //   });
-  // }
-
+  // Add profile to the canvas.
+  if (relationshipUsageId !== undefined) {
+    addRelationToVisualModelAction(
+      notifications, graph, state.model.getId(),
+      relationshipUsageId);
+  }
 };
