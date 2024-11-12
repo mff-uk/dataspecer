@@ -42,6 +42,7 @@ import { type AlignmentController, useAlignmentController } from "./features/ali
 import { GeneralizationEdgeName } from "./edge/generalization-edge";
 import { ClassProfileEdgeName } from "./edge/class-profile-edge";
 import { diagramContentAsSvg } from "./render-svg";
+import { CanvasToolbarProps } from "./canvas/canvas-toolbar-props";
 
 export type NodeType = Node<ApiNode>;
 
@@ -50,6 +51,8 @@ export type EdgeType = Edge<ApiEdge>;
 type ReactFlowContext = ReactFlowInstance<NodeType, EdgeType>;
 
 type OpenEdgeContextMenuHandler = (edge: EdgeType, x: number, y: number) => void;
+
+type OpenCanvasContextMenuHandler = (sourceClassNode: ApiNode, x: number, y: number) => void;
 
 /**
  * We use context to access to callbacks to diagram content, like nodes and edges.
@@ -60,6 +63,7 @@ interface DiagramContextType {
 
   onOpenEdgeContextMenu: OpenEdgeContextMenuHandler;
 
+  onOpenCanvasContextMenu: OpenCanvasContextMenuHandler;
 }
 
 export const DiagramContext = createContext<DiagramContextType | null>(null);
@@ -89,6 +93,8 @@ interface UseDiagramControllerType {
    */
   edgeToolbar: EdgeToolbarProps | null;
 
+  canvasToolbar: CanvasToolbarProps | null;
+
   onNodesChange: OnNodesChange<NodeType>;
 
   onEdgesChange: OnEdgesChange<EdgeType>;
@@ -111,6 +117,8 @@ interface UseDiagramControllerType {
 
   onNodeDragStop: (event: React.MouseEvent, node: Node, nodes: Node[]) => void;
 
+  onPaneClick: (event: React.MouseEvent) => void;
+
   alignmentController: AlignmentController;
 
 }
@@ -121,6 +129,7 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
   const [nodes, setNodes] = useNodesState<NodeType>([]);
   const [edges, setEdges] = useEdgesState<EdgeType>([]);
   const [edgeToolbar, setEdgeToolbar] = useState<EdgeToolbarProps | null>(null);
+  const [canvasToolbar, setCanvasToolbar] = useState<CanvasToolbarProps | null>(null);
 
   const alignment = useAlignmentController({ reactFlowInstance: reactFlow });
 
@@ -146,13 +155,16 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
 
   const onDrop = useCallback(createDropHandler(reactFlow), [reactFlow.screenToFlowPosition]);
 
-  const actions = useMemo(() => createActions(reactFlow, setNodes, setEdges, alignment),
-    [reactFlow, setNodes, setEdges, alignment]);
+  const onOpenEdgeToolbar = useCallback(createOpenEdgeToolbar(setEdgeToolbar), [setEdgeToolbar]);
 
-  const onOpenEdgeToolbar = useCallback(createOpenEdgeToolbar(setEdgeToolbar),
-    [setEdgeToolbar]);
-  const context = useMemo(() => createDiagramContext(api, onOpenEdgeToolbar),
-    [api, onOpenEdgeToolbar]);
+  const onOpenCanvasToolbar = useCallback(createOpenCanvasToolbar(setCanvasToolbar), [setCanvasToolbar]);
+
+  const context = useMemo(() => createDiagramContext(api, onOpenEdgeToolbar, onOpenCanvasToolbar),
+    [api, onOpenEdgeToolbar, onOpenCanvasToolbar]);
+
+  // We newly pass in the context, because we need it to open the openCanvasToolbar
+  const actions = useMemo(() => createActions(reactFlow, setNodes, setEdges, alignment, context),
+    [reactFlow, setNodes, setEdges, alignment, context]);
 
   // Register actions to API.
   useEffect(() => api.setActions(actions), [api, actions]);
@@ -161,11 +173,14 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
   const onNodeDragStart = useCallback(createOnNodeDragStartHandler(alignment), [alignment]);
   const onNodeDragStop = useCallback(createOnNodeDragStopHandler(api, alignment), [api, alignment]);
 
+  const onPaneClick = useCallback(createOnPaneClick(setCanvasToolbar), [setCanvasToolbar]);
+
   return {
     nodes,
     edges,
     context,
     edgeToolbar,
+    canvasToolbar,
     onNodesChange,
     onEdgesChange,
     onConnect,
@@ -177,6 +192,7 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
     onNodeDrag,
     onNodeDragStart,
     onNodeDragStop,
+    onPaneClick,
     alignmentController: alignment,
   };
 }
@@ -329,6 +345,19 @@ const createOpenEdgeToolbar = (setEdgeToolbar: React.Dispatch<React.SetStateActi
   };
 };
 
+const createOpenCanvasToolbar = (setCanvasToolbar: React.Dispatch<React.SetStateAction<CanvasToolbarProps | null>>): OpenCanvasContextMenuHandler => {
+  return (sourceClassNode: ApiNode, x: number, y: number) => {
+    const closeCanvasToolbar = () => setCanvasToolbar(null);
+    setCanvasToolbar({ sourceClassNode, x, y, closeCanvasToolbar });
+  };
+};
+
+const createOnPaneClick = (setCanvasToolbar: React.Dispatch<React.SetStateAction<CanvasToolbarProps | null>>) => {
+  return () => {
+    setCanvasToolbar(null);
+  };
+};
+
 /**
  * Creates implementation of action that could be called from the owner.
  */
@@ -336,7 +365,8 @@ const createActions = (
   reactFlow: ReactFlowInstance<NodeType, EdgeType>,
   setNodes: React.Dispatch<React.SetStateAction<NodeType[]>>,
   setEdges: React.Dispatch<React.SetStateAction<EdgeType[]>>,
-  alignment: AlignmentController
+  alignment: AlignmentController,
+  context: DiagramContextType,
 ): DiagramActions => {
   return {
     getGroups() {
@@ -459,6 +489,10 @@ const createActions = (
     renderToSvgString() {
       return diagramContentAsSvg(reactFlow.getNodes());
     },
+    openCanvasToolbar(sourceClassNode: ApiNode, position: Position) {
+      console.log("openCanvasToolbar", {sourceClassNode, position});
+      context?.onOpenCanvasContextMenu(sourceClassNode, position.x, position.y);
+    },
   };
 };
 
@@ -540,9 +574,10 @@ const focusNodeAction = (reactFlow: ReactFlowContext, node: Node) => {
   void reactFlow.setCenter(x, y, { zoom, duration: 1000 });
 };
 
-const createDiagramContext = (api: UseDiagramType, onOpenEdgeContextMenu: OpenEdgeContextMenuHandler): DiagramContextType => {
+const createDiagramContext = (api: UseDiagramType, onOpenEdgeContextMenu: OpenEdgeContextMenuHandler, onOpenCanvasContextMenu: OpenCanvasContextMenuHandler): DiagramContextType => {
   return {
     callbacks: api.callbacks,
     onOpenEdgeContextMenu,
+    onOpenCanvasContextMenu
   };
 };

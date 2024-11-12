@@ -1,6 +1,6 @@
 import React, { useContext, useMemo } from "react";
 
-import { type InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 
 import { type DialogApiContextType } from "../dialog/dialog-service";
 import { DialogApiContext } from "../dialog/dialog-context";
@@ -30,6 +30,8 @@ import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
 import { isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel, Waypoint } from "@dataspecer/core-v2/visual-model";
 import { openCreateConnectionDialogAction } from "./open-create-connection";
 import { placePositionOnGrid, ReactflowDimensionsConstantEstimator } from "@dataspecer/layout";
+import { filterInMemoryModels } from "../util/model-utils";
+import { useDiagramController } from "../diagram/diagram-controller";
 
 export interface ActionsContextType {
 
@@ -332,7 +334,7 @@ function createActionsContext(
       //
       const visualEdge = visualModel.getVisualEntity(edge.identifier);
       if (visualEdge === null) {
-        notifications.error("Ignore waypoint update of non-existing visual entity.")
+        notifications.error("Ignore waypoint update of non-existing visual entity.");
         return;
       }
       if (isVisualRelationship(visualEdge) || isVisualProfileRelationship(visualEdge)) {
@@ -343,7 +345,7 @@ function createActionsContext(
         ];
         visualModel.updateVisualEntity(edge.identifier, { waypoints });
       } else {
-        notifications.error("Ignore waypoint update of non-edge visual type.")
+        notifications.error("Ignore waypoint update of non-edge visual type.");
       }
     },
 
@@ -360,7 +362,7 @@ function createActionsContext(
       //
       const visualEdge = visualModel.getVisualEntity(edge.identifier);
       if (visualEdge === null) {
-        notifications.error("Ignore waypoint update of non-existing visual entity.")
+        notifications.error("Ignore waypoint update of non-existing visual entity.");
         return;
       }
       if (isVisualRelationship(visualEdge) || isVisualProfileRelationship(visualEdge)) {
@@ -370,7 +372,7 @@ function createActionsContext(
         ];
         visualModel.updateVisualEntity(edge.identifier, { waypoints });
       } else {
-        notifications.error("Ignore waypoint update of non-edge visual type.")
+        notifications.error("Ignore waypoint update of non-edge visual type.");
       }
     },
 
@@ -388,7 +390,7 @@ function createActionsContext(
       for (const [identifier, waypointsChanges] of Object.entries(changes)) {
         const visualEdge = visualModel.getVisualEntity(identifier);
         if (visualEdge === null) {
-          notifications.error("Ignore waypoint update of non-existing visual entity.")
+          notifications.error("Ignore waypoint update of non-existing visual entity.");
           return;
         }
         if (isVisualRelationship(visualEdge) || isVisualProfileRelationship(visualEdge)) {
@@ -399,7 +401,7 @@ function createActionsContext(
           console.log("onChangeWaypointPositions", { changes: changes, prev: visualEdge.waypoints, next: waypoints });
           visualModel.updateVisualEntity(identifier, { waypoints });
         } else {
-          notifications.error("Ignore waypoint update of non-edge visual type.")
+          notifications.error("Ignore waypoint update of non-edge visual type.");
         }
       }
       console.log("Application.onChangeWaypointPositions", { changes });
@@ -411,12 +413,35 @@ function createActionsContext(
 
     onCreateConnectionToNothing: (source, position) => {
       console.log("Application.onCreateConnectionToNothing", { source, position });
+      diagram.actions().openCanvasToolbar(source, position);
     },
 
     onSelectionDidChange: (nodes, edges) => {
       console.log("Application.onSelectionDidChange", { nodes, edges });
     },
+    onCanvasOpenCreateClassDialog: function (sourceClassNode): void {
+      // TODO: Maybe should be action - openCreateClassDialogWithModelDerivedFromClass
 
+      let model = findSourceModelOfEntity(sourceClassNode.externalIdentifier, graph.models);
+      if (model === null || !(model instanceof InMemorySemanticModel)) {
+        // Take the first model in memory model ... It is done the same way in create connection dialog
+        // TODO: Note that this causes crash, if there is no InMemorySemanticModel at all - I will make issue
+        filterInMemoryModels([...graph.models.values()])[0];
+        model = filterInMemoryModels([...graph.models.values()])?.[0] ?? null;
+      }
+
+      if (model === null) {
+        console.warn("Can't find InMemorySemanticModel to put the association in");
+        return;
+      }
+
+      // TODO:
+      //        1) It would be nice to pass in position to the create dialog, where should be the added class put
+      //        2) If (Only If!) we want to add in the option to open CreateConnection dialog right after then we want to either:
+      //            a) somehow wait for dialog to finish through promises, but the promise would have to return the created class or null if nothing was created
+      //            b) Pass in callback
+      openCreateClassDialog(model as InMemorySemanticModel);
+    }
   };
 
   diagram.setCallbacks(callbacks);

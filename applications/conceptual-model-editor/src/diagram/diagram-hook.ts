@@ -102,6 +102,7 @@ const noOperationDiagramActions: DiagramActions = {
   setSelectedEdges: noOperation,
   getViewport: noOperationThrow,
   renderToSvgString: noOperationNullAsync,
+  openCanvasToolbar: noOperation,
 };
 
 const noOperationCallbacks: DiagramCallbacks = {
@@ -122,4 +123,5 @@ const noOperationCallbacks: DiagramCallbacks = {
   onSelectionDidChange: noOperation,
   onCreateConnectionToNode: noOperation,
   onCreateConnectionToNothing: noOperation,
+  onCanvasOpenCreateClassDialog: noOperation,
 };

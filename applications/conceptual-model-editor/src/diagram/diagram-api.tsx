@@ -141,6 +141,10 @@ export interface DiagramActions {
    */
   renderToSvgString(): Promise<string | null>;
 
+  /**
+   * Open the canvas toolbar. The toolbar appears when user drags edge to empty space on canvas.
+   */
+  openCanvasToolbar(sourceClassDiagramNode: Node, position: Position): void;
 }
 
 export type ViewportDimensions = {
@@ -347,6 +351,11 @@ interface DiagramNodes {
    * @param identifier is the identifier of the deleted node.
    */
   onDeleteNode: (diagramNode: Node) => void;
+
+  /**
+   * This property stores the method, which is called when user tries to create new class from diagram's canvas menu (toolbar).
+   */
+  onCanvasOpenCreateClassDialog: (diagramNode: Node) => void;
 
   /**
    * Called when there is a change in node's positions in result
