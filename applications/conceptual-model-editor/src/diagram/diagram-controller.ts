@@ -52,7 +52,7 @@ type ReactFlowContext = ReactFlowInstance<NodeType, EdgeType>;
 
 type OpenEdgeContextMenuHandler = (edge: EdgeType, x: number, y: number) => void;
 
-type OpenCanvasContextMenuHandler = (sourceClassNode: ApiNode, x: number, y: number) => void;
+type OpenCanvasContextMenuHandler = (sourceClassNode: ApiNode, x: number, y: number,  positionToPlaceClassOn: Position) => void;
 
 /**
  * We use context to access to callbacks to diagram content, like nodes and edges.
@@ -282,20 +282,21 @@ const createConnectEndHandler = (reactFlow: ReactFlowInstance<NodeType, EdgeType
   // 2) User dragged the connection to an empty space.
   return (event: MouseEvent | TouchEvent, connection: FinalConnectionState) => {
     const source = connection.fromNode as NodeType | null;
-    const position = connection.to;
-    if (source === null || position === null) {
+    const positionRelativeToViewport = connection.to;
+    if (source === null || positionRelativeToViewport === null) {
       // We have no source or position of the target.
       return;
     }
     const targetIsPane = (event.target as Element).classList.contains("react-flow__pane");
+    const flowPosititon = reactFlow.screenToFlowPosition({x: (event as unknown as React.MouseEvent)?.clientX, y: (event as unknown as React.MouseEvent)?.clientY});
     if (targetIsPane) {
-      api.callbacks().onCreateConnectionToNothing(source.data, position);
+      api.callbacks().onCreateConnectionToNothing(source.data, positionRelativeToViewport, flowPosititon);
     } else {
       if (connection.toNode === null) {
         // If user have not attached the node to the handle, we get no target.
-        const nodes = reactFlow.getIntersectingNodes({ x: position.x, y: position.y, width: 1, height: 1 });
+        const nodes = reactFlow.getIntersectingNodes({ x: positionRelativeToViewport.x, y: positionRelativeToViewport.y, width: 1, height: 1 });
         if (nodes.length === 0) {
-          api.callbacks().onCreateConnectionToNothing(source.data, position);
+          api.callbacks().onCreateConnectionToNothing(source.data, positionRelativeToViewport, flowPosititon);
         } else {
           // There is something under it.
           api.callbacks().onCreateConnectionToNode(source.data, nodes[0].data);
@@ -346,9 +347,9 @@ const createOpenEdgeToolbar = (setEdgeToolbar: React.Dispatch<React.SetStateActi
 };
 
 const createOpenCanvasToolbar = (setCanvasToolbar: React.Dispatch<React.SetStateAction<CanvasToolbarProps | null>>): OpenCanvasContextMenuHandler => {
-  return (sourceClassNode: ApiNode, x: number, y: number) => {
+  return (sourceClassNode: ApiNode, x: number, y: number, positionToPlaceClassOn: Position) => {
     const closeCanvasToolbar = () => setCanvasToolbar(null);
-    setCanvasToolbar({ sourceClassNode, x, y, closeCanvasToolbar });
+    setCanvasToolbar({ sourceClassNode, x, y, closeCanvasToolbar, positionToPlaceClassOn });
   };
 };
 
@@ -489,9 +490,9 @@ const createActions = (
     renderToSvgString() {
       return diagramContentAsSvg(reactFlow.getNodes());
     },
-    openCanvasToolbar(sourceClassNode: ApiNode, position: Position) {
-      console.log("openCanvasToolbar", {sourceClassNode, position});
-      context?.onOpenCanvasContextMenu(sourceClassNode, position.x, position.y);
+    openCanvasToolbar(sourceClassNode: ApiNode, relativePositionToViewport: Position, positionToPlaceClassOn: Position) {
+      console.log("openCanvasToolbar", {sourceClassNode, relativePositionToViewport, positionToPlaceClassOn});
+      context?.onOpenCanvasContextMenu(sourceClassNode, relativePositionToViewport.x, relativePositionToViewport.y, positionToPlaceClassOn);
     },
   };
 };

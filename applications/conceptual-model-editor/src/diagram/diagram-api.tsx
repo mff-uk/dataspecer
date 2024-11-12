@@ -144,7 +144,7 @@ export interface DiagramActions {
   /**
    * Open the canvas toolbar. The toolbar appears when user drags edge to empty space on canvas.
    */
-  openCanvasToolbar(sourceClassDiagramNode: Node, position: Position): void;
+  openCanvasToolbar(sourceClassDiagramNode: Node, relativePositionToViewport: Position, positionToPlaceClassOn: Position): void;
 }
 
 export type ViewportDimensions = {
@@ -355,7 +355,7 @@ interface DiagramNodes {
   /**
    * This property stores the method, which is called when user tries to create new class from diagram's canvas menu (toolbar).
    */
-  onCanvasOpenCreateClassDialog: (diagramNode: Node) => void;
+  onCanvasOpenCreateClassDialog: (diagramNode: Node, positionToPlaceClassOn: Position) => void;
 
   /**
    * Called when there is a change in node's positions in result
@@ -415,8 +415,10 @@ export interface DiagramCallbacks extends DiagramNodes, DiagramEdges, DiagramSel
    * This property stores the method, which is called when user creates "empty" connection,
    * i. e. connection from node to canvas.
    * @param source
-   * @param position is the position on canvas, where the connection ended.
+   * @param positionRelativeToViewport is relative position in the current viewport where the connection ended.
+   * It can be used to place the canvas toolbar on.
+   * @param flowPosition is the position on canvas, where the connection ended.
    */
-  onCreateConnectionToNothing: (source: Node, position: Position) => void;
+  onCreateConnectionToNothing: (source: Node, positionRelativeToViewport: Position, flowPosition: Position) => void;
 
 }

@@ -2,7 +2,7 @@
 
 import { ReactFlowState } from "@xyflow/react";
 
-import { Node as ApiNode } from "../diagram-api";
+import { Node as ApiNode, Position } from "../diagram-api";
 
 import "./canvas-toolbar.css";
 
@@ -16,6 +16,8 @@ export interface CanvasToolbarProps {
   x: number;
 
   y: number;
+
+  positionToPlaceClassOn: Position;
 
   sourceClassNode: ApiNode;
 

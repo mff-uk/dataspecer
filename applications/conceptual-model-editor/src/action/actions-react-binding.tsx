@@ -411,15 +411,16 @@ function createActionsContext(
       openCreateConnectionDialog(source.externalIdentifier, target.externalIdentifier);
     },
 
-    onCreateConnectionToNothing: (source, position) => {
-      console.log("Application.onCreateConnectionToNothing", { source, position });
-      diagram.actions().openCanvasToolbar(source, position);
+    onCreateConnectionToNothing: (source, positionRelativeToViewport, flowPosition) => {
+      console.log("Application.onCreateConnectionToNothing", { source, positionRelativeToViewport, flowPosition });
+      diagram.actions().openCanvasToolbar(source, positionRelativeToViewport, flowPosition);
     },
 
     onSelectionDidChange: (nodes, edges) => {
       console.log("Application.onSelectionDidChange", { nodes, edges });
     },
-    onCanvasOpenCreateClassDialog: function (sourceClassNode): void {
+
+    onCanvasOpenCreateClassDialog: function (sourceClassNode, positionToPlaceClassOn): void {
       // TODO: Maybe should be action - openCreateClassDialogWithModelDerivedFromClass
 
       let model = findSourceModelOfEntity(sourceClassNode.externalIdentifier, graph.models);
@@ -431,16 +432,19 @@ function createActionsContext(
       }
 
       if (model === null) {
-        console.warn("Can't find InMemorySemanticModel to put the association in");
+        notifications.error("Can't find InMemorySemanticModel to put the association in");
         return;
       }
 
-      // TODO:
-      //        1) It would be nice to pass in position to the create dialog, where should be the added class put
-      //        2) If (Only If!) we want to add in the option to open CreateConnection dialog right after then we want to either:
+      placePositionOnGrid(positionToPlaceClassOn, configuration().xSnapGrid, configuration().ySnapGrid);
+      const onConfirm = (state: EditClassState) => {
+        createClassAction(notifications, graph, model as InMemorySemanticModel, positionToPlaceClassOn, state);
+      };
+
+      // If (Only If!) we want to add in the option to open CreateConnection dialog right after then we want to either:
       //            a) somehow wait for dialog to finish through promises, but the promise would have to return the created class or null if nothing was created
       //            b) Pass in callback
-      openCreateClassDialog(model as InMemorySemanticModel);
+      dialogs?.openDialog(createEditClassDialog(model, options.language, onConfirm));
     }
   };
 

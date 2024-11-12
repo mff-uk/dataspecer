@@ -1,4 +1,6 @@
 import { useContext } from "react";
+import { shallow } from "zustand/shallow";
+import { useStore } from "@xyflow/react";
 
 import { DiagramContext } from "../diagram-controller";
 import { CanvasToolbarPortal } from "./canvas-toolbar-portal";
@@ -13,13 +15,14 @@ import { CanvasToolbarProps, viewportStoreSelector } from "./canvas-toolbar-prop
  */
 export function CanvasToolbar({ value }: { value: CanvasToolbarProps | null }) {
   const context = useContext(DiagramContext);
+  const { x, y, zoom } = useStore(viewportStoreSelector, shallow);      // We actually have to call this?! Even if we don't use the data.
   if (value === null) {
     return null;
   }
 
   const onCanvasMenuAddClassDialog = () => {
     value.closeCanvasToolbar();
-    context?.callbacks().onCanvasOpenCreateClassDialog(value.sourceClassNode);
+    context?.callbacks().onCanvasOpenCreateClassDialog(value.sourceClassNode, value.positionToPlaceClassOn);
   };
   const onCanvasMenuAddClassDialogAndThenOpenCreateConnectionDialog = () => {
     value.closeCanvasToolbar();
