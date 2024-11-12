@@ -235,7 +235,6 @@ const addValueToChangesWhenValueHasChanged = <T,>(
   if (next.hasChanged) {
     // We could setter function instead, alternatively we should refactor
     // the caller function to deal with this instead.
-     
     changes[name] = next.value;
   }
 };

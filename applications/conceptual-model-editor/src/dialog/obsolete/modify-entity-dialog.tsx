@@ -568,19 +568,24 @@ export const getInitialOverriddenFields = (
         return result;
     }
 
-    result.name = entity?.name !== null;
-    result.description = entity?.description !== null;
-    if (!isSemanticModelRelationshipUsage(entity)) {
+    if (isSemanticModelRelationshipUsage(entity)) {
+        const domainAndRange = getDomainAndRange(entity);
+        // Name and description are stored using the range.
+        result.name = domainAndRange.range?.name !== null;
+        result.description = domainAndRange.range?.description !== null;
+
+        result.domain = domainAndRange.domain !== null;
+        result.domainCardinality = domainAndRange.domain?.cardinality !== null;
+        result.range = domainAndRange.range !== null;
+        result.rangeCardinality = domainAndRange.range?.cardinality !== null;
+
+        return result;
+    } else {
+        result.name = entity?.name !== null;
+        result.description = entity?.description !== null;
+
         return result;
     }
-
-    const domainAndRange = getDomainAndRange(entity);
-    result.domain = domainAndRange.domain !== null;
-    result.domainCardinality = domainAndRange.domain?.cardinality !== null;
-    result.range = domainAndRange.range !== null;
-    result.rangeCardinality = domainAndRange.range?.cardinality !== null;
-
-    return result;
 };
 
 const prepareDialogOptions = (
