@@ -12,6 +12,9 @@ import { DiagramContext } from "../diagram-controller";
 
 import "./entity-node.css";
 import { usePrefixForIri } from "../../service/prefix-service";
+import { useActions } from "../../action/actions-react-binding";
+import { useModelGraphContext } from "../../context/model-context";
+import { VisualNode } from "@dataspecer/core-v2/visual-model";
 
 // We can select zoom option and hide content when zoom is on given threshold.
 // const zoomSelector = (state: ReactFlowState) => state.transform[2] >= 0.9;
@@ -39,6 +42,10 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
     usageNote = data.profileOf.usageNote;
   }
 
+  // TODO: For now
+  const graph = useModelGraphContext();
+  const isAnchored = (graph.aggregatorView?.getActiveVisualModel()?.getVisualEntity(props.data.identifier) as VisualNode).position?.anchored ?? false;
+
   return (
     <>
       {props.selected ? <SelectedHighlight /> : null}
@@ -65,7 +72,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
           </div>
 
           <div className="overflow-x-clip text-gray-500 px-1">
-            {usePrefixForIri(data.iri)}
+            {usePrefixForIri(data.iri) + (isAnchored ? "⚓": "")}
           </div>
 
           <ul className="px-1">
@@ -89,11 +96,16 @@ function SelectedHighlight() {
 
 function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   const context = useContext(DiagramContext);
+  const actions = useActions();
   const onShowDetail = () => context?.callbacks().onShowNodeDetail(props.data);
   const onEdit = () => context?.callbacks().onEditNode(props.data);
   const onCreateProfile = () => context?.callbacks().onCreateNodeProfile(props.data);
   const onHide = () => context?.callbacks().onHideNode(props.data);
   const onDelete = () => context?.callbacks().onDeleteNode(props.data);
+  const onAnchor = () => {
+    actions.changeAnchor(props.data.externalIdentifier);
+  };
+
   return (
     <>
       <NodeToolbar position={Position.Top} className="flex gap-2 entity-node-toolbar" >
@@ -102,6 +114,8 @@ function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
         <button onClick={onEdit}>✏️</button>
         &nbsp;
         <button onClick={onCreateProfile}>🧲</button>
+        &nbsp;
+        <button onClick={onAnchor}>⚓</button>
         &nbsp;
       </NodeToolbar>
       <NodeToolbar position={Position.Right} className="flex gap-2 entity-node-toolbar" >

@@ -119,7 +119,7 @@ const EntityDetailDialog = (props: DialogProps<EntityDetailState>) => {
         if (isRelationship) {
             actions.addRelationToVisualModel(sourceModel.getId(), entityId);
         } else {
-            actions.addNodeToVisualModel(sourceModel.getId(), entityId);
+            actions.addNodeToVisualModel(sourceModel.getId(), entityId, false);
         }
     };
 

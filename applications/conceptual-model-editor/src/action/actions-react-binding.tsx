@@ -27,9 +27,12 @@ import { openDetailDialogAction } from "./open-detail-dialog";
 import { openModifyDialogAction } from "./open-modify-dialog";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
-import { isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel, Waypoint } from "@dataspecer/core-v2/visual-model";
+import { isVisualNode, isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel, Waypoint } from "@dataspecer/core-v2/visual-model";
 import { openCreateConnectionDialogAction } from "./open-create-connection";
-import { placePositionOnGrid, ReactflowDimensionsConstantEstimator } from "@dataspecer/layout";
+import { ExplicitAnchors, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4, placePositionOnGrid, ReactflowDimensionsConstantEstimator, UserGivenConstraintsVersion4 } from "@dataspecer/layout";
+import { computeMiddleOfRelatedAssociationsPositionAction } from "./utils";
+import { layoutActiveVisualModelAction } from "./layout-visual-model";
+import { changeAnchorAction } from "./change-anchor";
 
 export interface ActionsContextType {
 
@@ -64,7 +67,7 @@ export interface ActionsContextType {
   /**
    * Position is determined by the action.
    */
-  addNodeToVisualModel: (model: string, identifier: string) => void;
+  addNodeToVisualModel: (model: string, identifier: string, TODO_DEBUG_shouldUseLayoutingAlgorithm: boolean) => void;
 
   addNodeToVisualModelToPosition: (model: string, identifier: string, position: { x: number, y: number }) => void;
 
@@ -75,6 +78,10 @@ export interface ActionsContextType {
   removeFromVisualModel: (identifier: string) => void;
 
   centerViewportToVisualEntity: (model: string, identifier: string) => void;
+
+  layoutActiveVisualModel: (configuration: UserGivenConstraintsVersion4) => Promise<void>;
+
+  changeAnchor: (semanticEntityIdentifier: string) => void;
 
   /**
    * As this context requires two way communication it is created and shared via the actions.
@@ -95,6 +102,8 @@ const noOperationActionsContext = {
   deleteFromSemanticModel: noOperationAsync,
   removeFromVisualModel: noOperation,
   centerViewportToVisualEntity: noOperation,
+  layoutActiveVisualModel: noOperationAsync,
+  changeAnchor: noOperation,
   diagram: null,
 };
 
@@ -207,6 +216,9 @@ function createActionsContext(
       x: viewport.position.x + (viewport.width / 2),
       y: viewport.position.y + (viewport.height / 2),
     };
+    position.x -= ReactflowDimensionsConstantEstimator.getDefaultWidth() / 2;
+    position.y -= ReactflowDimensionsConstantEstimator.getDefaultHeight() / 2;
+    placePositionOnGrid(position, configuration().xSnapGrid, configuration().ySnapGrid);
     //
     const onConfirm = (state: EditClassState) => {
       createClassAction(notifications, graph, model, position, state);
@@ -225,19 +237,44 @@ function createActionsContext(
       options, dialogs, notifications, useClasses, graph, source, target);
   };
 
-  const addNodeToVisualModel = (model: string, identifier: string) => {
+  const addNodeToVisualModel = (model: string, identifier: string, TODO_DEBUG_shouldUseLayoutingAlgorithm: boolean) => {
     // We position the new node to the center of the viewport.
     const viewport = diagram.actions().getViewport();
 
-    const position = {
-      x: viewport.position.x + (viewport.width / 2),
-      y: viewport.position.y + (viewport.height / 2),
-    };
-    position.x -= ReactflowDimensionsConstantEstimator.getDefaultWidth() / 2;
-    position.y -= ReactflowDimensionsConstantEstimator.getDefaultHeight() / 2;
-    placePositionOnGrid(position, configuration().xSnapGrid, configuration().ySnapGrid);
+    const position = computeMiddleOfRelatedAssociationsPositionAction(identifier, notifications, graph, diagram, classes);
 
     addNodeToVisualModelAction(notifications, graph, model, identifier, position);
+
+    if(TODO_DEBUG_shouldUseLayoutingAlgorithm) {
+      // TODO: I have to call the layouting it after the class is added to the visual model - that still isn't enough, because for a brief moment the node is in the original position
+      //       So either:
+      //       1) Somehow put it to the callback in diagram
+      //       2) Actually compute the position without the node existing in visual model - that means
+      //           a) Add special flag to the layouting, the flag contains the to be added nodes and layouting somehow should deal with that
+      //           b) take only the position
+      //       3) Maybe something else?
+      // ..................... 2) Is the right solution, because this is in a way dynamic layouting (the layouting which inserts node(s) into already existing graph)
+      const configuration = getDefaultUserGivenConstraintsVersion4();
+      configuration.chosenMainAlgorithm = "elk_stress";
+      configuration.main.elk_stress = getDefaultMainUserGivenAlgorithmConstraint("elk_stress");
+      configuration.main.elk_stress.interactive = true;
+
+      const explicitAnchors: ExplicitAnchors = {
+          notAnchored: [identifier],
+          anchored: [],
+          shouldAnchorEverythingExceptNotAnchored: "anchor-everything-except-notAnchored",
+      };
+
+      layoutActiveVisualModelAction(
+          notifications,
+          diagram,
+          graph,
+          configuration,
+          explicitAnchors);
+    }
+
+    console.warn("POSITIONS!");
+    console.warn(JSON.stringify([...graph.aggregatorView.getActiveVisualModel()?.getVisualEntities().values() ?? []].filter(isVisualNode).map(n => [n.identifier, n.position])));
   };
 
   const addNodeToVisualModelToPosition = (model: string, identifier: string, position: { x: number, y: number }) => {
@@ -285,6 +322,14 @@ function createActionsContext(
       visualModel.updateVisualEntity(identifier, { position });
     }
   };
+
+  const layoutActiveVisualModel = (configuration: UserGivenConstraintsVersion4) => {
+    return layoutActiveVisualModelAction(notifications, diagram, graph, configuration);
+  }
+
+  const changeAnchor = (semanticEntityIdentifier: string) => {
+    changeAnchorAction(notifications, graph, semanticEntityIdentifier);
+  }
 
   // Prepare and set diagram callbacks.
 
@@ -426,6 +471,8 @@ function createActionsContext(
     deleteFromSemanticModel,
     removeFromVisualModel,
     centerViewportToVisualEntity,
+    layoutActiveVisualModel,
+    changeAnchor,
     diagram,
   };
 

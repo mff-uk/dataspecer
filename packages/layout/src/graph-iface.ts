@@ -6,6 +6,27 @@ import { VisualModel, isVisualNode, Position, VisualEntity, VisualNode, VisualRe
 import { capitalizeFirstLetter, PhantomElementsFactory } from "./util/utils";
 import { VisualEntities } from "./migration-to-cme-v2";
 import { EntityModel } from "@dataspecer/core-v2";
+import { ExplicitAnchors } from ".";
+import { XY } from "./elk-layouts";
+
+/**
+ * This is special type for situations, when we want to layout the current visual model, but we also want to find positions for nodes, which are not yet in the visual model,
+ * use-case is for example when adding existing class back to canvas. Because if we perform the usual 2 step addition, that is:
+ *    1) Add node to visual modle together with all its edges
+ *    2) Layout visual model
+ * Then the node has to be added to some position in step 1), but we move it in step 2). That results in node jumping, which is unwanted behavior.
+ *
+ * The type could be in future extended with filters against visual model - when we want to layout only part of the visual model.
+ * The question for this is if should just completely remove the filtered nodes from graph or set the {@link isConsideredInLayout} variable to false.
+ *
+ */
+type VisualModelWithOutsiders = {
+    visualModel: VisualModel,
+    outsiders: {
+        identifier: string,
+        position?: XY,
+    }[],
+} | null;
 
 
 interface Graph {
@@ -20,23 +41,38 @@ interface Graph {
 }
 
 /**
- * Represents visual entity as in the cme visual model, but with 2 additional fields - {@link width} and {@link height}
+ * Represents visual node as in the cme visual model, but with 3 additional fields - {@link width} and {@link height} and {@link isAnchored}, which is internal anchor,
+ * because in some cases we want to anchor nodes which were not originally and anchored and also the other way around.
  */
 export interface IVisualNodeComplete {
     coreVisualNode: VisualNode,
     width: number,
     height: number,
+    isAnchored: boolean,
 }
 
 export class VisualNodeComplete implements IVisualNodeComplete {
     coreVisualNode: VisualNode;
     width: number;
     height: number;
+    isAnchored: boolean;
 
-    constructor(coreVisualNode: VisualNode, width: number, height: number) {
-        this.coreVisualNode = coreVisualNode;
+    constructor(coreVisualNode: VisualNode, width: number, height: number, useCopyOfCoreVisualNode: boolean, isAnchored?: boolean) {
+        if(useCopyOfCoreVisualNode) {
+            // TODO: Maybe deep copy?
+            this.coreVisualNode = {...coreVisualNode};
+        }
+        else {
+            this.coreVisualNode = coreVisualNode;
+        }
         this.width = width;
         this.height = height;
+        if(isAnchored === undefined) {
+            this.isAnchored = coreVisualNode?.position?.anchored ?? false;
+        }
+        else {
+            this.isAnchored = isAnchored;
+        }
     }
 }
 
@@ -235,12 +271,13 @@ export class GraphFactory {
     public static createMainGraph(graphIdentifier: string | null,
                                     inputModels: Map<string, EntityModel> | ExtractedModels | null,
                                     nodeContentOfGraph: Array<EdgeEndPoint> | null,
-                                    visualModel: VisualModel | null): IMainGraphClassic {
+                                    visualModel: VisualModel | null,
+                                    explicitAnchors?: ExplicitAnchors): IMainGraphClassic {
         if(graphIdentifier === null) {
             graphIdentifier = PhantomElementsFactory.createUniquePhanomNodeIdentifier();
         }
         const graph = new MainGraphClassic();
-        graph.initialize(graph, graph, graphIdentifier, inputModels, nodeContentOfGraph, false, visualModel);
+        graph.initialize(graph, graph, graphIdentifier, inputModels, nodeContentOfGraph, false, visualModel, explicitAnchors);
         return graph;
     }
 
@@ -310,7 +347,8 @@ export class GraphClassic implements IGraphClassic {
                 inputModels: Map<string, EntityModel> | ExtractedModels | null,
                 nodeContentOfGraph: Array<EdgeEndPoint> | null,
                 isDummy: boolean,
-                visualModel: VisualModel | null) {
+                visualModel: VisualModel | null,
+                explicitAnchors?: ExplicitAnchors) {
         this.sourceGraph = sourceGraph;
         if(!(this instanceof MainGraphClassic)) {
             mainGraph.allNodes.push(this);
@@ -338,21 +376,21 @@ export class GraphClassic implements IGraphClassic {
 
         // https://stackoverflow.com/questions/46703364/why-does-instanceof-in-typescript-give-me-the-error-foo-only-refers-to-a-ty
         // Just simple check, dont check all elements it is not necessary
-        const isExtractedModel = (inputModels as ExtractedModels).entities && (inputModels as ExtractedModels).generalizations;
-        const extractedModel = isExtractedModel ? (inputModels as ExtractedModels) : extractModelObjects(inputModels as Map<string, EntityModel>);
+        const isExtractedModels = (inputModels as ExtractedModels).entities && (inputModels as ExtractedModels).generalizations;
+        const extractedModels = isExtractedModels ? (inputModels as ExtractedModels) : extractModelObjects(inputModels as Map<string, EntityModel>);
 
 
-        console.info("extractedModel");
-        console.info(extractedModel);
+        console.info("extractedModels");
+        console.info(extractedModels);
 
-        extractedModel.classes.forEach(classBundle => {
+        extractedModels.classes.forEach(classBundle => {
             if(this.nodes[classBundle.semanticModelClass.id] === undefined) {
-                this.addNode(classBundle.semanticModelClass, false, classBundle.sourceEntityModelIdentifier, extractedModel, visualModel);
+                this.addNode(classBundle.semanticModelClass, false, classBundle.sourceEntityModelIdentifier, extractedModels, visualModel, explicitAnchors);
             }
         });
-        extractedModel.classesProfiles.forEach(cpBundle => {
+        extractedModels.classesProfiles.forEach(cpBundle => {
             if(this.nodes[cpBundle.semanticModelClassUsage.id] === undefined) {
-                this.addNode(cpBundle.semanticModelClassUsage, true, cpBundle.sourceEntityModelIdentifier, extractedModel, visualModel);
+                this.addNode(cpBundle.semanticModelClassUsage, true, cpBundle.sourceEntityModelIdentifier, extractedModels, visualModel, explicitAnchors);
             }
         });
 
@@ -372,8 +410,9 @@ export class GraphClassic implements IGraphClassic {
             isProfile: boolean,
             sourceEntityModelIdentifier: string,
             extractedModels: ExtractedModels,
-            visualModel: VisualModel | null): void {
-        addNode(this.mainGraph, semanticEntityRepresentingNode, isProfile, sourceEntityModelIdentifier, extractedModels, this, visualModel);
+            visualModel: VisualModel | null,
+            explicitAnchors?: ExplicitAnchors): void {
+        addNode(this.mainGraph, semanticEntityRepresentingNode, isProfile, sourceEntityModelIdentifier, extractedModels, this, visualModel, explicitAnchors);
     }
 
     private isEdgeInsideGraph(edge: IEdgeClassic): boolean {
@@ -1036,9 +1075,13 @@ function addNode(mainGraph: IMainGraphClassic,
                 sourceEntityModelIdentifier: string,
                 extractedModels: ExtractedModels,
                 sourceGraph: IGraphClassic,
-                visualModel: VisualModel | null): boolean {
+                visualModel: VisualModel | null,
+                explicitAnchors?: ExplicitAnchors): boolean {
     if(isNodeInVisualModel(visualModel, semanticEntityRepresentingNode.id)) {
-        sourceGraph.nodes[semanticEntityRepresentingNode.id] = new NodeClassic(mainGraph, semanticEntityRepresentingNode, isProfile, sourceEntityModelIdentifier, extractedModels, sourceGraph, visualModel);
+        sourceGraph.nodes[semanticEntityRepresentingNode.id] = new NodeClassic(mainGraph, semanticEntityRepresentingNode,
+                                                                                isProfile, sourceEntityModelIdentifier,
+                                                                                extractedModels, sourceGraph, visualModel,
+                                                                                explicitAnchors);
         return true;
     }
 
@@ -1057,7 +1100,8 @@ function addEdge(graph: IGraphClassic,
                     targetIdentifier: string,
                     extractedModels: ExtractedModels | null,
                     edgeToAddKey: OutgoingEdgeType,
-                    visualModel: VisualModel | null): IEdgeClassic | null {
+                    visualModel: VisualModel | null,
+                    explicitAnchors?: ExplicitAnchors): IEdgeClassic | null {
     const reverseEdgeToAddKey: IncomingEdgeType = convertOutgoingEdgeTypeToIncoming(edgeToAddKey);
     console.log("Adding Edge to graph");
 //    console.log(graph);
@@ -1094,7 +1138,7 @@ function addEdge(graph: IGraphClassic,
         // TODO: Maybe sometimes the target node actually isn't part of the source graph of edge, but fix only if it occurs
         const nodeAdded = addNode(mainGraph, target.semanticModelEntity,
                                     extractedModels.classesProfiles.find(cpBundle => cpBundle.semanticModelClassUsage.id === targetIdentifier) !== undefined,
-                                    target.sourceEntityModelIdentifier, extractedModels, graph, visualModel);
+                                    target.sourceEntityModelIdentifier, extractedModels, graph, visualModel, explicitAnchors);
         if(nodeAdded === false) {
             return null;
         }
@@ -1186,7 +1230,8 @@ class NodeClassic implements INodeClassic {
                     sourceEntityModelIdentifier: string | null,
                     extractedModels: ExtractedModels | null,
                     sourceGraph: IGraphClassic,
-                    visualModel: VisualModel | null) {
+                    visualModel: VisualModel | null,
+                    explicitAnchors?: ExplicitAnchors) {
         mainGraph.allNodes.push(this);
         this.mainGraph = mainGraph;
         this.id = semanticEntityRepresentingNode.id;
@@ -1207,12 +1252,51 @@ class NodeClassic implements INodeClassic {
             if(!isVisualNode(visualEntity)) {
                 throw new Error("Something is very wrong, visual node isn't of type visual node");
             }
-            this.completeVisualNode = {
-                coreVisualNode: {...visualEntity},
-                // TODO: Maybe also set width/height instead of setting it after the layout?
-                width: 0,
-                height: 0,
-            };
+            // TODO: Put into separate method, which returns isAnchored
+
+            // TODO: For now just expect that anchors work on top of visual model (It really isn't much of a limitation)
+            let isAnchored: boolean = visualEntity.position.anchored ?? false;
+            if(explicitAnchors !== undefined) {
+                switch(explicitAnchors.shouldAnchorEverythingExceptNotAnchored) {
+                    case "merge-with-original-anchors":
+                        if(explicitAnchors.anchored.find(id => this.id === id)) {
+                            isAnchored = true;
+                        }
+                        else {
+                            if(explicitAnchors.notAnchored.find(id => this.id === id)) {
+                                isAnchored = false;
+                            }
+                            // Else keep the old value
+                        }
+                        break;
+                    case "only-given-anchors":
+                        if(explicitAnchors.anchored.find(id => this.id === id)) {
+                            isAnchored = true;
+                        }
+                        else {
+                            isAnchored = false;
+                        }
+                        break;
+                    case "only-original-anchors":
+                        if(explicitAnchors.notAnchored.find(id => this.id === id)) {
+                            isAnchored = false;
+                        }
+                        break;
+                    case "anchor-everything-except-notAnchored":
+                        if(explicitAnchors.notAnchored.find(id => this.id === id)) {
+                            isAnchored = false;
+                        }
+                        else {
+                            isAnchored = true;
+                        }
+                        break;
+                    default:
+                        throw new Error("Forgot to extend switch for Explicit Anchors");
+                }
+            }
+
+            // TODO: Maybe also set width/height instead of setting it after the layout?
+            this.completeVisualNode = new VisualNodeComplete(visualEntity, 0, 0, true, isAnchored);
         }
 
         let edgeToAddKey: OutgoingEdgeType = "outgoingRelationshipEdges";
@@ -1220,7 +1304,7 @@ class NodeClassic implements INodeClassic {
             const {source, target, ...rest} = getEdgeSourceAndTargetRelationship(rBundle.semanticModelRelationship);
             if(semanticEntityRepresentingNode.id === source) {
                 if(isRelationshipInVisualModel(visualModel, rBundle.semanticModelRelationship.id, [source, target])) {
-                    this.addEdge(sourceGraph, rBundle.semanticModelRelationship.id, rBundle.semanticModelRelationship, target, extractedModels, edgeToAddKey, visualModel);
+                    this.addEdge(sourceGraph, rBundle.semanticModelRelationship.id, rBundle.semanticModelRelationship, target, extractedModels, edgeToAddKey, visualModel, explicitAnchors);
                 }
             }
         });
@@ -1230,7 +1314,7 @@ class NodeClassic implements INodeClassic {
             const {source, target} = getEdgeSourceAndTargetGeneralization(gBundle.semanticModelGeneralization);
             if(semanticEntityRepresentingNode.id === source) {
                 if(isGeneralizationInVisualModel(visualModel, gBundle.semanticModelGeneralization)) {
-                    this.addEdge(sourceGraph, gBundle.semanticModelGeneralization.id, gBundle.semanticModelGeneralization, target, extractedModels, edgeToAddKey, visualModel);
+                    this.addEdge(sourceGraph, gBundle.semanticModelGeneralization.id, gBundle.semanticModelGeneralization, target, extractedModels, edgeToAddKey, visualModel, explicitAnchors);
                 }
             }
         });
@@ -1240,7 +1324,7 @@ class NodeClassic implements INodeClassic {
             const {source, target} = getEdgeSourceAndTargetRelationshipUsage(rpBundle.semanticModelRelationshipUsage, extractedModels);
             if(semanticEntityRepresentingNode.id === source) {
                 if(isRelationshipInVisualModel(visualModel, rpBundle.semanticModelRelationshipUsage.id, [source, target])) {
-                    this.addEdge(sourceGraph, rpBundle.semanticModelRelationshipUsage.id, rpBundle.semanticModelRelationshipUsage, target, extractedModels, edgeToAddKey, visualModel);
+                    this.addEdge(sourceGraph, rpBundle.semanticModelRelationshipUsage.id, rpBundle.semanticModelRelationshipUsage, target, extractedModels, edgeToAddKey, visualModel, explicitAnchors);
                 }
             }
         });
@@ -1253,7 +1337,7 @@ class NodeClassic implements INodeClassic {
                 if(isNodeInVisualModel(visualModel, cpBundle.semanticModelClassUsage.usageOf)) {
                     // TODO: Nothing new but again using "semantic" edge id instead of the visual one
                     const edgeIdentifier = cpBundle.semanticModelClassUsage.id + "-profile-" + cpBundle.semanticModelClassUsage.usageOf;
-                    this.addEdge(sourceGraph, edgeIdentifier, null, cpBundle.semanticModelClassUsage.usageOf, extractedModels, edgeToAddKey, visualModel);
+                    this.addEdge(sourceGraph, edgeIdentifier, null, cpBundle.semanticModelClassUsage.usageOf, extractedModels, edgeToAddKey, visualModel, explicitAnchors);
                 }
             }
         });
@@ -1264,6 +1348,7 @@ class NodeClassic implements INodeClassic {
             return this.node.id === source;
         }).map(attributeBundle => attributeBundle.semanticModelRelationship);
     }
+
     addEdgeTODO(identifier: string | null, edge: SemanticModelEntity | null, target: string, isDummy: boolean, edgeToAddType: OutgoingEdgeType): IEdgeClassic | null {
         if(identifier === null) {
             identifier = PhantomElementsFactory.createUniquePhanomEdgeIdentifier();
@@ -1271,9 +1356,11 @@ class NodeClassic implements INodeClassic {
 
         return this.addEdge(this.getSourceGraph(), identifier, edge, target, null, edgeToAddType, null);
     }
+
     getSourceGraph(): IGraphClassic {
         return this.sourceGraph;
     }
+
     setSourceGraph(sourceGraph: IGraphClassic): void {
         this.sourceGraph = sourceGraph;
     }
@@ -1287,8 +1374,9 @@ class NodeClassic implements INodeClassic {
             target: string,
             extractedModels: ExtractedModels,
             edgeToAddKey: OutgoingEdgeType,
-            visualModel: VisualModel | null): IEdgeClassic | null {
-        return addEdge(graph, identifier, edge, this, target, extractedModels, edgeToAddKey, visualModel);
+            visualModel: VisualModel | null,
+            explicitAnchors?: ExplicitAnchors): IEdgeClassic | null {
+        return addEdge(graph, identifier, edge, this, target, extractedModels, edgeToAddKey, visualModel, explicitAnchors);
         // const reverseEdgeToAddKey: ReverseAddEdgeType = "reverse" + capitalizeFirstLetter(edgeToAddKey) as ReverseAddEdgeType;
         // if(graph.nodes[target] === undefined) {
         //     // TODO: I think that the issue with scheme.org is generalization which has node http://www.w3.org/2000/01/rdf-schema#Class but it isn't in the model

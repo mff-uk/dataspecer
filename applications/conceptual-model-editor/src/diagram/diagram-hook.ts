@@ -95,6 +95,8 @@ const noOperationDiagramActions: DiagramActions = {
   setGroup: noOperation,
   getGroupContent: noOperationArray,
   updateNodesPosition: noOperation,
+  getNodeWidth: noOperationThrow,
+  getNodeHeight: noOperationThrow,
   setEdgesWaypointPosition: noOperation,
   getSelectedNodes: noOperationArray,
   setSelectedNodes: noOperation,

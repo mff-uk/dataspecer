@@ -2,7 +2,7 @@ import { ExtractedModels, LayoutAlgorithm, extractModelObjects } from "./layout-
 import { SemanticModelEntity, isSemanticModelClass, isSemanticModelRelationship, isSemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
 import { ConstraintContainer } from "./configs/constraint-container";
 import { NodeDimensionQueryHandler } from ".";
-import { GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, MainGraphClassic } from "./graph-iface";
+import { GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, MainGraphClassic, VisualNodeComplete } from "./graph-iface";
 import { PhantomElementsFactory, placePositionOnGrid } from "./util/utils";
 import _ from "lodash";
 import { VisualEntities } from "./migration-to-cme-v2";
@@ -39,11 +39,7 @@ export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic, node
         const width = nodeDimensionQueryHandler.getWidth(classNode);
         const height = nodeDimensionQueryHandler.getHeight(classNode);
         if(classNode.completeVisualNode === undefined) {
-            classNode.completeVisualNode = {
-                coreVisualNode: visualNode,
-                width: width,
-                height: height,
-            };
+            classNode.completeVisualNode = new VisualNodeComplete(visualNode, width, height, false);
         }
         else {
             classNode.completeVisualNode.coreVisualNode.position.x = visualNode.position.x;

@@ -24,6 +24,12 @@ import { VisualEntities } from "./migration-to-cme-v2";
 
 type VisualEntitiesType = (VisualNodeComplete | VisualRelationship | VisualProfileRelationship)[];
 
+// TODO: extract type somewhere else
+export type XY = {
+    x: number,
+    y: number,
+ };
+
 /**
  * The Transformer class for conversion between our graph representation and ELK graph representation. For more info check {@link GraphTransformer} docs.
  */
@@ -55,6 +61,8 @@ class ElkGraphTransformer implements GraphTransformer {
                 return null;
             }
 
+            console.warn("Visual node copy before createElkNode");
+            console.warn(_.cloneDeep(node));
             if(node.isProfile) {
                 return this.createElkNode(id, constraintContainer, true, undefined, "USAGE OF: " + (node.node as SemanticModelClassUsage).usageOf, node);
             }
@@ -137,8 +145,6 @@ class ElkGraphTransformer implements GraphTransformer {
 
         console.log("elkGraph after conversion");
         console.log(_.cloneDeep(elkGraph));
-        console.log("elkGraph layouted");
-        console.log(elkGraph);
 
         return elkGraph;
     }
@@ -174,28 +180,58 @@ class ElkGraphTransformer implements GraphTransformer {
             return {};
         }
 
+        const anchoredNode = this.findAnchoredNode(graphToBeUpdated);
+        const tmpPos = anchoredNode?.completeVisualNode?.coreVisualNode?.position ?? {x: 0, y: 0};
+        const anchoredPositionBeforeLayout: XY = {...tmpPos};
+
+
         const visualEntities = this.recursivelyUpdateGraphBasedOnElkNode(libraryRepresentation, graphToBeUpdated, 0, 0, shouldUpdateEdges);
-        const [leftX, topY] = this.findTopLeftPosition(visualEntities.filter(visualEntity => this.isGraphNode(visualEntity)).map(ve => (ve as VisualNodeComplete).coreVisualNode));         // TODO: The mapping is unnecesary and slow
+        const visualNodes = visualEntities.filter(visualEntity => this.isGraphNode(visualEntity)).map(ve => (ve as VisualNodeComplete).coreVisualNode);
+        // TODO: Actually moving all to the origin point [0, 0] is sometimes unwanted - For example when using the elk.stress algorithm to find position for 1 element
+        //       We don't to move everything, but just the 1 node. So either 1) remove it | or | 2) It should be GraphTransformation action ... probably 2)
+        const [leftX, topY] = this.findTopLeftPosition(visualNodes);
+        console.warn("POSITIONS AGAIN !");
+        console.warn(JSON.stringify(Object.values(visualEntities).filter(this.isGraphNode).map(n => [n.coreVisualNode.representedEntity, n.coreVisualNode.position])));
+
+        let positionShiftDueToAnchors: XY = {x: 0, y: 0};
+        if(anchoredNode !== null) {
+            positionShiftDueToAnchors.x = anchoredNode.completeVisualNode.coreVisualNode.position.x - anchoredPositionBeforeLayout.x;
+            positionShiftDueToAnchors.y = anchoredNode.completeVisualNode.coreVisualNode.position.y - anchoredPositionBeforeLayout.y;
+        }
+
         visualEntities.forEach(visualEntity => {
             if(this.isGraphNode(visualEntity)) {
-                visualEntity.coreVisualNode.position.x -= leftX;
-                visualEntity.coreVisualNode.position.y -= topY;
+                // TODO: Comment the code for now, as said above
+                // visualEntity.coreVisualNode.position.x -= leftX;
+                // visualEntity.coreVisualNode.position.y -= topY;
+
                 // TODO: Maybe should have set method on graph instead which does the conversion to grid automatically and maybe should also should update edges?
+                //       (It is most likely the case !! - After realizing that I want have moving to top left position as GraphTransformation action)
                 //       Also we can't access the cme configuration (applications/conceptual-model-editor/src/application/configuration.ts) from here
                 //       So I am not sure how one should solve this.
                 //       1) Include the reference to CME so we can access the configuration or put the configuration somewhere out since it is constant
                 //       2) Work without it and put it to the grid only when adding to the visual model (but if we are doing that from the manager we also can't access config)
                 //          Another drawback is that the graph metrics are then working with slightly different graph
 
+                visualEntity.coreVisualNode.position.x -= positionShiftDueToAnchors.x;
+                visualEntity.coreVisualNode.position.y -= positionShiftDueToAnchors.y;
+
+
                 placePositionOnGrid(visualEntity.coreVisualNode.position, 10, 10);
             }
             else if(isVisualRelationship(visualEntity) || isVisualProfileRelationship(visualEntity)) {
                 for(let i = 0; i < visualEntity.waypoints.length; i++) {
-                    visualEntity.waypoints[i].x -= leftX;
-                    visualEntity.waypoints[i].y -= topY;
+                    // TODO: Comment the code for now, as said above
+                    // visualEntity.waypoints[i].x -= leftX;
+                    // visualEntity.waypoints[i].y -= topY;
+                    visualEntity.waypoints[i].x -= positionShiftDueToAnchors.x;
+                    visualEntity.waypoints[i].y -= positionShiftDueToAnchors.y;
                 }
             }
         });
+
+        console.warn("POSITIONS for the third time !");
+        console.warn(JSON.stringify(Object.values(visualEntities).filter(this.isGraphNode).map(n => [n.coreVisualNode.representedEntity, n.coreVisualNode.position])));
 
 
         return Object.fromEntries(visualEntities.map(visualEntity => {
@@ -223,6 +259,10 @@ class ElkGraphTransformer implements GraphTransformer {
     recursivelyUpdateGraphBasedOnElkNode(elkNode: ElkNode, graphToBeUpdated: IGraphClassic, referenceX: number, referenceY: number, shouldUpdateEdges: boolean): VisualEntitiesType {
         // TODO: If we add phantom nodes (and later when also draw edges this may stop working)
         let visualEntities : VisualEntitiesType = [];
+        console.info("referenceX");
+        console.info(elkNode);
+        console.info(referenceX);
+        console.info(referenceY);
 
         for(let ch of elkNode.children) {
             const completeVisualEntity = this.convertElkNodeToCompleteVisualEntity(ch, referenceX, referenceY, graphToBeUpdated);
@@ -231,6 +271,13 @@ class ElkGraphTransformer implements GraphTransformer {
                 node.completeVisualNode = completeVisualEntity;
             }
             else {
+                console.info("------------------------------------------------------------------------------");
+                console.info(ch?.x);
+                console.info(ch?.y);
+                console.info("OLD POSITION:");
+                console.info({...node.completeVisualNode.coreVisualNode.position});
+                console.info("NEW POSITION:");
+                console.info({...completeVisualEntity.coreVisualNode.position});
                 node.completeVisualNode.coreVisualNode.position = completeVisualEntity.coreVisualNode.position;
                 node.completeVisualNode.width = completeVisualEntity.width;
                 node.completeVisualNode.height = completeVisualEntity.height;
@@ -331,7 +378,6 @@ class ElkGraphTransformer implements GraphTransformer {
 
 
     /**
-     *
      * @returns Top left corner of the top left entity in given {@link visualNodes}
      */
     findTopLeftPosition(visualNodes: VisualNode[]) {
@@ -344,6 +390,22 @@ class ElkGraphTransformer implements GraphTransformer {
         }
 
         return [leftX, topY];
+    }
+
+
+    /**
+     * We have to do this, because Elk is being funny. Because even when node is anchored it can be moved.
+     * The relative positions are kept, but the absolute ones are not, so we have to
+     * shift it all back if there was anchored node in the visual model (alternative solution could be to move the viewport in editor after layout).
+     */
+    private findAnchoredNode(graph: IGraphClassic): EdgeEndPoint | null {
+        for(const [identifier, node] of Object.entries(graph.nodes)) {
+            if(node.completeVisualNode.isAnchored === true) {
+                return node;
+            }
+        }
+
+        return null;
     }
 
 
@@ -421,23 +483,21 @@ class ElkGraphTransformer implements GraphTransformer {
      * @returns Complete visual entity which based on the values stored in {@link elkNode}
      */
     private convertElkNodeToCompleteVisualEntity(elkNode: ElkNode, referenceX: number, referenceY: number, graphToBeUpdated: IGraphClassic, ): IVisualNodeComplete {
-        return {
-            coreVisualNode: {
-                identifier: Math.random().toString(36).substring(2),
-                type: [VISUAL_NODE_TYPE],
-                representedEntity: elkNode.id,
-                position: {
-                    x: referenceX + elkNode.x,
-                    y: referenceY + elkNode.y,
-                    anchored: null
-                },
-                content: [],
-                visualModels: [],
-                model: graphToBeUpdated.mainGraph.findNodeInAllNodes(elkNode.id).sourceEntityModelIdentifier ?? "",
+        const nodeInGraph = graphToBeUpdated.mainGraph.findNodeInAllNodes(elkNode.id);
+        const coreVisualNode = {
+            identifier: Math.random().toString(36).substring(2),
+            type: [VISUAL_NODE_TYPE],
+            representedEntity: elkNode.id,
+            position: {
+                x: referenceX + elkNode.x,
+                y: referenceY + elkNode.y,
+                anchored: nodeInGraph.completeVisualNode?.coreVisualNode?.position?.anchored ?? null,
             },
-            width: elkNode.width,
-            height: elkNode.height
+            content: [],
+            visualModels: [],
+            model: nodeInGraph.sourceEntityModelIdentifier ?? "",
         };
+        return new VisualNodeComplete(coreVisualNode, elkNode.width, elkNode.height, false, nodeInGraph.completeVisualNode.isAnchored);
     }
 
 
@@ -1008,6 +1068,9 @@ class ElkGraphTransformer implements GraphTransformer {
             const parentPosition = graphNode.getSourceGraph()?.completeVisualNode?.coreVisualNode?.position;
             node.x = position.x - (parentPosition?.x ?? 0);
             node.y = position.y - (parentPosition?.y ?? 0);
+            if((constraintContainer.currentLayoutAction?.action as (IAlgorithmConfiguration & ElkConstraint))?.algorithmName === "elk_stress") {
+                node.layoutOptions["fixed"] = graphNode.completeVisualNode.isAnchored.toString();
+            }
         }
 
         return node;
@@ -1126,6 +1189,9 @@ export class ElkLayout implements LayoutAlgorithm {
             layoutPromise = this.elk.layout(graphInElkWorkCopy)
                                     .catch(console.error);
         }
+
+        console.log("elkGraph layouted");
+        console.log(graphInElkWorkCopy);
 
 
         return layoutPromise.then(layoutedGraph => {

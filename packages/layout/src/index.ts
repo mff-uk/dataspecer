@@ -101,22 +101,40 @@ export async function performDynamicLayout(visualModel: VisualModel,
 }
 
 
+type AnchorOverrideSetting = "only-original-anchors" | "merge-with-original-anchors" | "only-given-anchors" | "anchor-everything-except-notAnchored";
+
+
+export type ExplicitAnchors = {
+	/**
+	 * The identifiers of nodes, which should not be anchored.
+	 */
+	notAnchored: string[],
+	/**
+	 * The identifiers of nodes, which should not be anchored. NOT Used only if {@link shouldAnchorEverythingExceptNotAnchored} is set to "only-original-anchors".
+	 */
+	anchored: string[],
+	
+	shouldAnchorEverythingExceptNotAnchored: AnchorOverrideSetting,
+};
+
 /**
  * Layout given visual model.
  * @param visualModel The visual model to perform layout on.
  * @param semanticModels
  * @param config
  * @param nodeDimensionQueryHandler
+ * @param explicitAnchors If this is undefined then use the anchors of visual model, otherwise it depends on the given anchors' settings.
  * @returns Promise with new positions of the visual entities.
  */
 export async function performLayoutOfVisualModel(visualModel: VisualModel,
 													semanticModels: Map<string, EntityModel>,
 													config: UserGivenAlgorithmConfigurationslVersion4,
-													nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
+													nodeDimensionQueryHandler?: NodeDimensionQueryHandler,
+													explicitAnchors?: ExplicitAnchors): Promise<VisualEntities> {
 	console.log("config");
 	console.log(config);
 
-	const visualEntitiesPromise = performLayoutInternal(visualModel, semanticModels, config, nodeDimensionQueryHandler);
+	const visualEntitiesPromise = performLayoutInternal(visualModel, semanticModels, config, nodeDimensionQueryHandler, explicitAnchors);
 	return visualEntitiesPromise;
 }
 
@@ -156,12 +174,13 @@ export async function performLayoutOfSemanticModel(inputSemanticModel: Record<st
 function performLayoutInternal(visualModel: VisualModel | null,
 								semanticModels: Map<string, EntityModel>,
 								config: UserGivenAlgorithmConfigurationslVersion4,
-								nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
+								nodeDimensionQueryHandler?: NodeDimensionQueryHandler,
+								explicitAnchors?: ExplicitAnchors): Promise<VisualEntities> {
 	if(nodeDimensionQueryHandler === undefined) {
 		nodeDimensionQueryHandler = new ReactflowDimensionsEstimator();
 	}
 
-	const graph = GraphFactory.createMainGraph(null, semanticModels, null, visualModel);
+	const graph = GraphFactory.createMainGraph(null, semanticModels, null, visualModel, explicitAnchors);
 	const visualEntitiesPromise = performLayoutFromGraph(graph, config, nodeDimensionQueryHandler);
 
 	if(visualEntitiesPromise == undefined) {
