@@ -21,20 +21,27 @@ export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic, node
     }
     const classNodes = Object.values(graph.nodes).filter(node => !node.isDummy);
     classNodes.forEach(classNode => {
-        const visualNode = {
-            identifier: Math.random().toString(36).substring(2),
-            type: [VISUAL_NODE_TYPE],
-            representedEntity: classNode.id,
-            model: classNode.sourceEntityModelIdentifier ?? "",
-            position: {
-                x: Math.ceil(Math.random() * 400 * Math.sqrt(classNodes.length)),
-                y: Math.ceil(Math.random() * 250 * Math.sqrt(classNodes.length)),
-                anchored: null,
-            },
-            // position: { x: Math.ceil(Math.random() * 1600), y: Math.ceil(Math.random() * 1000) },
-            content: [],    // What is this?
-            visualModels: [],
-        } as VisualNode;
+        let visualNode: VisualNode;
+        // TODO; I think that the undefined check will be unnecessary later, once we initialize vis entity in graph instead when converting back
+        if(classNode?.completeVisualNode?.isAnchored === true && classNode?.completeVisualNode?.coreVisualNode !== undefined) {
+            visualNode = classNode.completeVisualNode.coreVisualNode;
+        }
+        else {
+            visualNode = {
+                identifier: Math.random().toString(36).substring(2),
+                type: [VISUAL_NODE_TYPE],
+                representedEntity: classNode.id,
+                model: classNode.sourceEntityModelIdentifier ?? "",
+                position: {
+                    x: Math.ceil(Math.random() * 400 * Math.sqrt(classNodes.length)),
+                    y: Math.ceil(Math.random() * 250 * Math.sqrt(classNodes.length)),
+                    anchored: null,
+                },
+                // position: { x: Math.ceil(Math.random() * 1600), y: Math.ceil(Math.random() * 1000) },
+                content: [],    // What is this?
+                visualModels: [],
+            } as VisualNode;
+        }
 
         const width = nodeDimensionQueryHandler.getWidth(classNode);
         const height = nodeDimensionQueryHandler.getHeight(classNode);
