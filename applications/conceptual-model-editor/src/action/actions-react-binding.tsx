@@ -439,11 +439,14 @@ function createActionsContext(
       placePositionOnGrid(positionToPlaceClassOn, configuration().xSnapGrid, configuration().ySnapGrid);
       const onConfirm = (state: EditClassState) => {
         createClassAction(notifications, graph, model as InMemorySemanticModel, positionToPlaceClassOn, state);
+        // If (Only If!) we want to add in the option to open CreateConnection dialog right after then we need 2 things:
+        //            1) Get the result of createClassAction. There are 2 ways to do this.
+        //                    a) Wait for dialog to finish here, but we also need to get the result and the "classes" variable is not updated, so we would have to get result somehow
+        //                    b) Pass in callback
+        //            2) Currently when we open new dialog here it is not opened - The issue is because when the current dialog (so CreateEditClass) is closed it also closes
+        //               all the following which are to be put in the stack - the problem is that we are not using the old state but just setting the new one
       };
 
-      // If (Only If!) we want to add in the option to open CreateConnection dialog right after then we want to either:
-      //            a) somehow wait for dialog to finish through promises, but the promise would have to return the created class or null if nothing was created
-      //            b) Pass in callback
       dialogs?.openDialog(createEditClassDialog(model, options.language, onConfirm));
     }
   };
