@@ -73,13 +73,15 @@ export function createExactNodeDimensionsQueryHandler(diagram: UseDiagramType,
 
     const getWidth = (node: INodeClassic) => {
         const visualNodeIdentifier = activeVisualModel?.getVisualEntityForRepresented(node.id)?.identifier ?? "";
-        // The question is what does it mean if the ndoe isn't in editor? I think that it means that there is mistake in program. Same for height
-        const width = diagram.actions().getNodeWidth(visualNodeIdentifier) ?? ReactflowDimensionsConstantEstimator.getDefaultWidth();
+        // The question is what does it mean if the node isn't in editor? Same for height
+        // Actually it is not error, it can be valid state when we are layouting elements which are not yet part of visual model
+        // TODO: Not sure if the estimator is better than the ReactflowDimensionsConstantEstimator
+        const width = diagram.actions().getNodeWidth(visualNodeIdentifier) ?? new ReactflowDimensionsEstimator().getWidth(node);
         return width;
     };
     const getHeight = (node: INodeClassic) => {
         const visualNodeIdentifier = activeVisualModel?.getVisualEntityForRepresented(node.id)?.identifier ?? "";
-        const height = diagram.actions().getNodeHeight(visualNodeIdentifier) ?? ReactflowDimensionsConstantEstimator.getDefaultHeight();
+        const height = diagram.actions().getNodeHeight(visualNodeIdentifier) ?? new ReactflowDimensionsEstimator().getHeight(node);
         return height;
     };
 

@@ -13,7 +13,7 @@ import { VISUAL_NODE_TYPE, VisualNode } from "@dataspecer/core-v2/visual-model";
 /**
  * Layout nodes of given graph using custom made random layout algorithm.
  */
-export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic, nodeDimensionQueryHandler: NodeDimensionQueryHandler, shouldCreateNewGraph: boolean): Promise<IMainGraphClassic> {
+export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic, shouldCreateNewGraph: boolean): Promise<IMainGraphClassic> {
     // TOOD: Maybe this should be like "super", because it is always the same - if I want to create new graph then I create copy and change this graph instead of the old one
     //       Here I do it in place, normally this would be called in the Transformer before conversion from the library representation to the graph representation.
     if(shouldCreateNewGraph) {
@@ -43,16 +43,15 @@ export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic, node
             } as VisualNode;
         }
 
-        const width = nodeDimensionQueryHandler.getWidth(classNode);
-        const height = nodeDimensionQueryHandler.getHeight(classNode);
+        // TODO: From the next commit, it is not possible for completeVisualNode to be undefined
         if(classNode.completeVisualNode === undefined) {
-            classNode.completeVisualNode = new VisualNodeComplete(visualNode, width, height, false);
+            classNode.completeVisualNode = new VisualNodeComplete(visualNode, classNode.completeVisualNode.width, classNode.completeVisualNode.height, false);
         }
         else {
             classNode.completeVisualNode.coreVisualNode.position.x = visualNode.position.x;
             classNode.completeVisualNode.coreVisualNode.position.y = visualNode.position.y;
-            classNode.completeVisualNode.width = width;
-            classNode.completeVisualNode.height = height;
+            classNode.completeVisualNode.width = classNode.completeVisualNode.width;
+            classNode.completeVisualNode.height = classNode.completeVisualNode.height;
         }
         placePositionOnGrid(classNode.completeVisualNode.coreVisualNode.position, 10, 10);
     });
@@ -74,20 +73,20 @@ export class RandomLayout implements LayoutAlgorithm {
         this.extractedModels = extractedModels;
         this.graph = GraphFactory.createMainGraph(null, extractedModels, null, null);
         this.constraintContainer = constraintContainer;
-        this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
+        // TODO: Deprecated for good
+        // this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
     }
 
-    prepareFromGraph(graph: IGraphClassic, constraintContainer: ConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
+    prepareFromGraph(graph: IGraphClassic, constraintContainer: ConstraintContainer): void {
         this.graph = graph;
         this.constraintContainer = constraintContainer;
-        this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
     }
 
     runGeneralizationLayout(shouldCreateNewGraph: boolean): Promise<IMainGraphClassic> {
         throw new Error("TODO: Implement me if necessary");
     }
     run(shouldCreateNewGraph: boolean): Promise<IMainGraphClassic> {
-        return doRandomLayoutAdvancedFromGraph(this.graph, this.nodeDimensionQueryHandler, shouldCreateNewGraph);
+        return doRandomLayoutAdvancedFromGraph(this.graph, shouldCreateNewGraph);
     }
     stop(): void {
         throw new Error("TODO: Implement me if you want webworkers and parallelization");
@@ -96,7 +95,6 @@ export class RandomLayout implements LayoutAlgorithm {
     graph: IGraphClassic;
     extractedModels: ExtractedModels;         // TODO: Can remove
     constraintContainer: ConstraintContainer;
-    nodeDimensionQueryHandler: NodeDimensionQueryHandler;
 }
 
 

@@ -8,6 +8,7 @@ import { VisualEntities } from "./migration-to-cme-v2";
 import { EntityModel } from "@dataspecer/core-v2";
 import { XY } from "./elk-layouts";
 import { ExplicitAnchors, isEntityWithIdentifierAnchored } from "./explicit-anchors";
+import { NodeDimensionQueryHandler, ReactflowDimensionsEstimator } from ".";
 
 /**
  * This is special type for situations, when we want to layout the current visual model, but we also want to find positions for nodes, which are not yet in the visual model,
@@ -41,32 +42,42 @@ interface Graph {
 }
 
 /**
- * Represents visual node as in the cme visual model, but with 3 additional fields - {@link width} and {@link height} and {@link isAnchored}, which is internal anchor,
+ * Represents visual node as in the cme visual model, but with couple of additional fields - {@link width}, {@link height}, {@link isInVisualModel} and {@link isAnchored}, which is internal anchor,
  * because in some cases we want to anchor nodes which were not originally and anchored and also the other way around.
+ * The {@link isInVisualModel} is used to mark nodes, which were part of given visual model. We have this variable, because sometimes we want to layout nodes
+ * which are not (yet) part of the visual model. Or when we didn't have any visual model on input at all. (TODO: Well I have to do the same thing for edges then I guess)
  */
 export interface IVisualNodeComplete {
-    coreVisualNode: VisualNode,
+    coreVisualNode: VisualNode | null,          // TODO: | null is only for now !!!
     width: number,
     height: number,
     isAnchored: boolean,
+    // isInVisualModel: boolean,
 }
 
 export class VisualNodeComplete implements IVisualNodeComplete {
-    coreVisualNode: VisualNode;
+    coreVisualNode: VisualNode | null;
     width: number;
     height: number;
     isAnchored: boolean;
+    // isInVisualModel: boolean;
 
-    constructor(coreVisualNode: VisualNode, width: number, height: number, useCopyOfCoreVisualNode: boolean, isAnchored?: boolean) {
-        if(useCopyOfCoreVisualNode) {
-            // TODO: Maybe deep copy?
-            this.coreVisualNode = {...coreVisualNode};
+    constructor(coreVisualNode: VisualNode | null, width: number, height: number, useCopyOfCoreVisualNode: boolean, isAnchored?: boolean) {
+        if(coreVisualNode === null) {
+            this.coreVisualNode = null
         }
         else {
-            this.coreVisualNode = coreVisualNode;
+            if(useCopyOfCoreVisualNode) {
+                // TODO: Maybe deep copy?
+                this.coreVisualNode = {...coreVisualNode};
+            }
+            else {
+                this.coreVisualNode = coreVisualNode;
+            }
         }
         this.width = width;
         this.height = height;
+        // this.isInVisualModel = isInVisualModel;
         if(isAnchored === undefined) {
             this.isAnchored = coreVisualNode?.position?.anchored ?? false;
         }
@@ -162,8 +173,10 @@ export interface IGraphClassic extends INodeClassic {
                 inputModels: Map<string, EntityModel> | ExtractedModels | null,
                 nodeContentOfGraph: Array<EdgeEndPoint> | null,
                 isDummy: boolean,
-                visualModel: VisualModel | null),
-    insertSubgraphToGraph(subgraph: IGraphClassic, nodesInSubgraph: Array<EdgeEndPoint>, shouldSplitEdges: boolean): void,
+                visualModel: VisualModel | null,
+                nodeDimensionQueryHandler?: NodeDimensionQueryHandler | null,
+                explicitAnchors?: ExplicitAnchors);
+    insertSubgraphToGraph(subgraph: IGraphClassic, nodesInSubgraph: Array<EdgeEndPoint>, shouldSplitEdges: boolean): void;
 }
 
 // export class GraphFactory {
@@ -203,6 +216,8 @@ export interface IMainGraphClassic extends IGraphClassic {
      */
     allEdges: IEdgeClassic[],       // TODO: Kdyz uz mam tyhle edges, tak to potencionalne muzu mit jako mapu a v ramci tech nodu si jen pamatovat ID misto celych objektu, ale je to celkem jedno
                                     //       (+ tohle pak nebude pole, respektvie bych si ho musel ziskavat skrz Object.values)
+
+    nodeDimensionQueryHandler: NodeDimensionQueryHandler;
 
     // TODO: Maybe map to make it faster
     findNodeInAllNodes(nodeIdentifier: string): EdgeEndPoint | null,
@@ -255,10 +270,11 @@ export class GraphFactory {
                                 nodeContentOfGraph: Array<EdgeEndPoint> | null,
                                 isDummy: boolean,
                                 visualModel: VisualModel | null,
-                                shouldSplitEdges: boolean): IGraphClassic {
+                                shouldSplitEdges: boolean,
+                                explicitAnchors?: ExplicitAnchors): IGraphClassic {
         // Create subgraph which has given nodes as children (TODO: What if the nodes are not given, i.e. null?)
         const graph = new GraphClassic();
-        graph.initialize(mainGraph, sourceGraph, graphIdentifier, inputModels, nodeContentOfGraph, isDummy, visualModel);
+        graph.initialize(mainGraph, sourceGraph, graphIdentifier, inputModels, nodeContentOfGraph, isDummy, visualModel, null, explicitAnchors);
         sourceGraph.insertSubgraphToGraph(graph, nodeContentOfGraph, shouldSplitEdges);
         return graph;
     }
@@ -272,12 +288,13 @@ export class GraphFactory {
                                     inputModels: Map<string, EntityModel> | ExtractedModels | null,
                                     nodeContentOfGraph: Array<EdgeEndPoint> | null,
                                     visualModel: VisualModel | null,
+                                    nodeDimensionQueryHandler?: NodeDimensionQueryHandler | null,
                                     explicitAnchors?: ExplicitAnchors): IMainGraphClassic {
         if(graphIdentifier === null) {
             graphIdentifier = PhantomElementsFactory.createUniquePhanomNodeIdentifier();
         }
         const graph = new MainGraphClassic();
-        graph.initialize(graph, graph, graphIdentifier, inputModels, nodeContentOfGraph, false, visualModel, explicitAnchors);
+        graph.initialize(graph, graph, graphIdentifier, inputModels, nodeContentOfGraph, false, visualModel, nodeDimensionQueryHandler, explicitAnchors);
         return graph;
     }
 
@@ -348,10 +365,17 @@ export class GraphClassic implements IGraphClassic {
                 nodeContentOfGraph: Array<EdgeEndPoint> | null,
                 isDummy: boolean,
                 visualModel: VisualModel | null,
+                nodeDimensionQueryHandler?: NodeDimensionQueryHandler | null,
                 explicitAnchors?: ExplicitAnchors) {
         this.sourceGraph = sourceGraph;
         if(!(this instanceof MainGraphClassic)) {
             mainGraph.allNodes.push(this);
+        }
+        else {
+            if(nodeDimensionQueryHandler === undefined || nodeDimensionQueryHandler === null) {
+                nodeDimensionQueryHandler = new ReactflowDimensionsEstimator();
+            }
+            this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
         }
         this.mainGraph = mainGraph;
         this.id = graphIdentifier;
@@ -680,7 +704,6 @@ export class GraphClassic implements IGraphClassic {
 
     nodes: Record<string, EdgeEndPoint> = {};
 
-
     sourceGraph: IGraphClassic;
     mainGraph: IMainGraphClassic;
 
@@ -737,6 +760,7 @@ export class GraphClassic implements IGraphClassic {
 export class MainGraphClassic extends GraphClassic implements IMainGraphClassic {
     allNodes: EdgeEndPoint[] = [];
     allEdges: IEdgeClassic[] = [];
+    nodeDimensionQueryHandler: NodeDimensionQueryHandler;
 
     findNodeInAllNodes(nodeIdentifier: string): EdgeEndPoint | null {
         return this.allNodes.find(node => node.id === nodeIdentifier);
@@ -1246,6 +1270,20 @@ class NodeClassic implements INodeClassic {
             return;
         }
 
+
+
+        // TODO: We don't really need the whole thing, we just need the attribute so storing the target of the relationship should be enough !
+        //       But we store it all for now.
+        this.attributes = extractedModels.attributes.filter(attributesBundle => {
+            const {source, target, ...rest} = getEdgeSourceAndTargetRelationship(attributesBundle.semanticModelRelationship);
+            return this.node.id === source;
+        }).map(attributeBundle => attributeBundle.semanticModelRelationship);
+
+        // Notice that we need to set the attributes first to correctly estimate the width/height of node if necessary.
+        // The visual entities probably have to be created here, because if we want to support layouting of entities to be added to visual model, we also need to create visual edges
+        // The edges must have visualSource and visualTarget !!!
+        const width = this.mainGraph.nodeDimensionQueryHandler.getWidth(this);
+        const height = this.mainGraph.nodeDimensionQueryHandler.getHeight(this);
         if(visualModel !== null) {
             // TODO: What should happen once we have 1 represented entity on canvas twice ... then we will also need different ID in this.id
             const visualEntity = visualModel.getVisualEntityForRepresented(this.id);
@@ -1260,7 +1298,10 @@ class NodeClassic implements INodeClassic {
             }
 
             // TODO: Maybe also set width/height instead of setting it after the layout?
-            this.completeVisualNode = new VisualNodeComplete(visualEntity, 0, 0, true, isAnchored);
+            this.completeVisualNode = new VisualNodeComplete(visualEntity, width, height, true, isAnchored);
+        }
+        else {
+            this.completeVisualNode = new VisualNodeComplete(null, width, height, true, false);
         }
 
         let edgeToAddKey: OutgoingEdgeType = "outgoingRelationshipEdges";
@@ -1305,12 +1346,6 @@ class NodeClassic implements INodeClassic {
                 }
             }
         });
-
-        // TODO: We don't really need the whole thing, we just need the attribute so storing the target of the relationship should be enough !
-        this.attributes = extractedModels.attributes.filter(attributesBundle => {
-            const {source, target, ...rest} = getEdgeSourceAndTargetRelationship(attributesBundle.semanticModelRelationship);
-            return this.node.id === source;
-        }).map(attributeBundle => attributeBundle.semanticModelRelationship);
     }
 
     addEdgeTODO(identifier: string | null, edge: SemanticModelEntity | null, target: string, isDummy: boolean, edgeToAddType: OutgoingEdgeType): IEdgeClassic | null {

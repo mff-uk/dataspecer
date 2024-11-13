@@ -38,7 +38,7 @@ export interface LayoutAlgorithm {
      * @param nodeDimensionQueryHandler
      * @returns
      */
-    prepareFromGraph: (graph: IGraphClassic, constraintContainer: ConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler) => void,
+    prepareFromGraph: (graph: IGraphClassic, constraintContainer: ConstraintContainer) => void,
     /**
      * Runs the layouting algorithm on the graph prepared earlier.
      * @param shouldCreateNewGraph if true then new graph is created, otherwise the one passed in preparation phase is changed in place
@@ -61,7 +61,6 @@ export interface LayoutAlgorithm {
 
     // TODO: Again - why am I putting properties into interface??
     constraintContainer: ConstraintContainer;
-    nodeDimensionQueryHandler: NodeDimensionQueryHandler;
 }
 
 

@@ -13,7 +13,7 @@ import { BasicUserGivenConstraints, ConstraintedNodesGroupingsType, IAlgorithmCo
 import { AlgorithmName, ConstraintContainer, ElkConstraintContainer } from "./configs/constraint-container";
 import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
 import { CONFIG_TO_ELK_CONFIG_MAP } from "./configs/elk/elk-utils";
-import { NodeDimensionQueryHandler } from ".";
+import { NodeDimensionQueryHandler, ReactflowDimensionsConstantEstimator } from ".";
 import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { PhantomElementsFactory, placePositionOnGrid } from "./util/utils";
 import _, { clone } from "lodash";
@@ -35,11 +35,10 @@ export type XY = {
  */
 class ElkGraphTransformer implements GraphTransformer {
     // TODO: Either I will actually store the representation inside the class or not, If not then constructor should be empty
-    constructor(graph: IGraphClassic, NodeDimensionQueryHandler: NodeDimensionQueryHandler, options?: object) {
+    constructor(graph: IGraphClassic, options?: object) {
         console.log("graph in ElkGraphTransformer");
         console.log(graph);
         this.graph = graph.mainGraph;
-        this.NodeDimensionQueryHandler = NodeDimensionQueryHandler;
     }
 
     convertGraphToLibraryRepresentation(graph: IGraphClassic,
@@ -64,10 +63,10 @@ class ElkGraphTransformer implements GraphTransformer {
             console.warn("Visual node copy before createElkNode");
             console.warn(_.cloneDeep(node));
             if(node.isProfile) {
-                return this.createElkNode(id, constraintContainer, true, undefined, "USAGE OF: " + (node.node as SemanticModelClassUsage).usageOf, node);
+                return this.createElkNode(id, constraintContainer, node, true, undefined, "USAGE OF: " + (node.node as SemanticModelClassUsage).usageOf);
             }
             else {
-                const elkNode = this.createElkNode(id, constraintContainer, true, undefined, node?.node?.iri, node);     // TODO: Not sure what is the ID (visual or semantic entity id?)
+                const elkNode = this.createElkNode(id, constraintContainer, node, true, undefined, node?.node?.iri);     // TODO: Not sure what is the ID (visual or semantic entity id?)
                 if(node instanceof GraphClassic) {
                     this.convertGraphToLibraryRepresentationInternal(node, true, constraintContainer, elkNode);
                 }
@@ -311,8 +310,6 @@ class ElkGraphTransformer implements GraphTransformer {
 
     // TODO: Actually should we even store the graph, shouldn't we pass it in methods?
     private graph: IMainGraphClassic;
-
-    private NodeDimensionQueryHandler;
 
     // TODO: It makes sense for this method to be part of interface
     /**
@@ -730,8 +727,8 @@ class ElkGraphTransformer implements GraphTransformer {
         };
 
 
-        // Deprecated ... so we didn't bother with fixing ... we will just remove it in later commit
-        const subgraph: ElkNode = this.createElkNode(`subgraph${this.subgraphCurrID++}`, null, false, layoutOptions);
+        // Deprecated ... so we didn't bother with fixing ... we will just remove it in later commit !!
+        const subgraph: ElkNode = this.createElkNode(`subgraph${this.subgraphCurrID++}`, null, null, false, layoutOptions);
         subgraph.children = subgraphNodes;
         return subgraph;
     }
@@ -1018,10 +1015,16 @@ class ElkGraphTransformer implements GraphTransformer {
     /**
      * Creates node in the ELK library representation (type {@link ElkNode}) based on given data.
      */
-    createElkNode(id: string, constraintContainer: ElkConstraintContainer, shouldComputeSize?: boolean, layoutOptions?: LayoutOptions,
-                    label?: string, graphNode?: EdgeEndPoint): ElkNode {
-        const width: number = shouldComputeSize ? this.NodeDimensionQueryHandler.getWidth(this.graph.findNodeInAllNodes(id)) : 500;
-        const height: number = shouldComputeSize ? this.NodeDimensionQueryHandler.getHeight(this.graph.findNodeInAllNodes(id)) : 300;
+    createElkNode(id: string, constraintContainer: ElkConstraintContainer, graphNode: EdgeEndPoint, shouldComputeSize?: boolean, layoutOptions?: LayoutOptions,
+                    label?: string): ElkNode {
+        const width: number = shouldComputeSize ? graphNode?.completeVisualNode?.width : ReactflowDimensionsConstantEstimator.getDefaultWidth();
+        const height: number = shouldComputeSize ? graphNode?.completeVisualNode?.height : ReactflowDimensionsConstantEstimator.getDefaultHeight();
+
+        // TODO: This if can be removed later
+        if(graphNode?.completeVisualNode?.width === undefined) {
+            throw new Error("Something wrong, the width and height should be always present on graph node");
+        }
+
 
         const ports: ElkPort[] = this.createDefaultPorts(id);
         const portOptions = this.getDefaultLayoutOptionsForNode();
@@ -1164,18 +1167,18 @@ export class ElkLayout implements LayoutAlgorithm {
      * @deprecated
      */
     prepare(extractedModels: ExtractedModels, constraintContainer: ElkConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
-        this.elkGraphTransformer = new ElkGraphTransformer(GraphFactory.createMainGraph(null, extractedModels, null, null), nodeDimensionQueryHandler, constraintContainer);
+        this.elkGraphTransformer = new ElkGraphTransformer(GraphFactory.createMainGraph(null, extractedModels, null, null), constraintContainer);
         this.graphInElk = this.elkGraphTransformer.convertToLibraryRepresentation(extractedModels, constraintContainer);
         this.constraintContainer = constraintContainer;
-        this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
+        // TODO: Deprecated ... and from now it will actually stop working
+        // this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
     }
 
-    prepareFromGraph(graph: IGraphClassic, constraintContainer: ElkConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
+    prepareFromGraph(graph: IGraphClassic, constraintContainer: ElkConstraintContainer): void {
         this.graph = graph
-        this.elkGraphTransformer = new ElkGraphTransformer(graph, nodeDimensionQueryHandler, constraintContainer);
+        this.elkGraphTransformer = new ElkGraphTransformer(graph, constraintContainer);
         this.graphInElk = this.elkGraphTransformer.convertGraphToLibraryRepresentation(graph, true, constraintContainer),       // TODO: Why I need to pass the constraintContainer again???
         this.constraintContainer = constraintContainer;
-        this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
     }
 
     async run(shouldCreateNewGraph: boolean): Promise<IMainGraphClassic> {
@@ -1274,5 +1277,4 @@ export class ElkLayout implements LayoutAlgorithm {
     }
     constraintContainer: ConstraintContainer;
     private elkGraphTransformer: ElkGraphTransformer;
-    nodeDimensionQueryHandler: NodeDimensionQueryHandler;
 }
