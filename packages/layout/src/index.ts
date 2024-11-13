@@ -44,7 +44,10 @@ import type { EdgeRouting } from "./configs/constraints";
 export type { EdgeRouting }
 
 import { placePositionOnGrid } from "./util/utils";
+import { ExplicitAnchors } from "./explicit-anchors";
 export { placePositionOnGrid }
+
+export { type ExplicitAnchors } from "./explicit-anchors";
 
 export type {
 	UserGivenAlgorithmConfiguration,
@@ -100,22 +103,6 @@ export async function performDynamicLayout(visualModel: VisualModel,
 	// TODO: Here perform dynamic layouting on top of visual model
 }
 
-
-type AnchorOverrideSetting = "only-original-anchors" | "merge-with-original-anchors" | "only-given-anchors" | "anchor-everything-except-notAnchored";
-
-
-export type ExplicitAnchors = {
-	/**
-	 * The identifiers of nodes, which should not be anchored.
-	 */
-	notAnchored: string[],
-	/**
-	 * The identifiers of nodes, which should not be anchored. NOT Used only if {@link shouldAnchorEverythingExceptNotAnchored} is set to "only-original-anchors".
-	 */
-	anchored: string[],
-	
-	shouldAnchorEverythingExceptNotAnchored: AnchorOverrideSetting,
-};
 
 /**
  * Layout given visual model.

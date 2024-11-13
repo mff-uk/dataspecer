@@ -6,8 +6,8 @@ import { VisualModel, isVisualNode, Position, VisualEntity, VisualNode, VisualRe
 import { capitalizeFirstLetter, PhantomElementsFactory } from "./util/utils";
 import { VisualEntities } from "./migration-to-cme-v2";
 import { EntityModel } from "@dataspecer/core-v2";
-import { ExplicitAnchors } from ".";
 import { XY } from "./elk-layouts";
+import { ExplicitAnchors, isEntityWithIdentifierAnchored } from "./explicit-anchors";
 
 /**
  * This is special type for situations, when we want to layout the current visual model, but we also want to find positions for nodes, which are not yet in the visual model,
@@ -1252,47 +1252,11 @@ class NodeClassic implements INodeClassic {
             if(!isVisualNode(visualEntity)) {
                 throw new Error("Something is very wrong, visual node isn't of type visual node");
             }
-            // TODO: Put into separate method, which returns isAnchored
 
             // TODO: For now just expect that anchors work on top of visual model (It really isn't much of a limitation)
             let isAnchored: boolean = visualEntity.position.anchored ?? false;
             if(explicitAnchors !== undefined) {
-                switch(explicitAnchors.shouldAnchorEverythingExceptNotAnchored) {
-                    case "merge-with-original-anchors":
-                        if(explicitAnchors.anchored.find(id => this.id === id)) {
-                            isAnchored = true;
-                        }
-                        else {
-                            if(explicitAnchors.notAnchored.find(id => this.id === id)) {
-                                isAnchored = false;
-                            }
-                            // Else keep the old value
-                        }
-                        break;
-                    case "only-given-anchors":
-                        if(explicitAnchors.anchored.find(id => this.id === id)) {
-                            isAnchored = true;
-                        }
-                        else {
-                            isAnchored = false;
-                        }
-                        break;
-                    case "only-original-anchors":
-                        if(explicitAnchors.notAnchored.find(id => this.id === id)) {
-                            isAnchored = false;
-                        }
-                        break;
-                    case "anchor-everything-except-notAnchored":
-                        if(explicitAnchors.notAnchored.find(id => this.id === id)) {
-                            isAnchored = false;
-                        }
-                        else {
-                            isAnchored = true;
-                        }
-                        break;
-                    default:
-                        throw new Error("Forgot to extend switch for Explicit Anchors");
-                }
+                isAnchored = isEntityWithIdentifierAnchored(this.id, explicitAnchors);
             }
 
             // TODO: Maybe also set width/height instead of setting it after the layout?
