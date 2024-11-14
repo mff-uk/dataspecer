@@ -323,9 +323,13 @@ export class GraphFactory {
 const isRelationshipInVisualModel = (visualModel: VisualModelWithOutsiders,
                                     relationshipIdentifier: string,
                                     ends: [string, string]): boolean => {
-    const visualEntity = visualModel?.visualModel.getVisualEntityForRepresented(relationshipIdentifier);
+    if(visualModel === null) {
+        return true;
+    }
+
+    const visualEntity = visualModel.visualModel.getVisualEntityForRepresented(relationshipIdentifier);
     const isPresentInVisualModel = visualEntity !== null || (isNodeInVisualModel(visualModel, ends[0]) && isNodeInVisualModel(visualModel, ends[1]));
-    return visualModel === null || isPresentInVisualModel;
+    return isPresentInVisualModel;
 };
 
 
@@ -334,10 +338,14 @@ const isRelationshipInVisualModel = (visualModel: VisualModelWithOutsiders,
  */
 const isNodeInVisualModel = (visualModel: VisualModelWithOutsiders,
                                 nodeIdentifier: string): boolean => {
+    if(visualModel === null) {
+        return true;
+    }
+
     // TODO: For now ... in future I should use the ids of visual model instead of the semantic ones
-    const visualEntity = visualModel?.visualModel.getVisualEntityForRepresented(nodeIdentifier);
+    const visualEntity = visualModel.visualModel.getVisualEntityForRepresented(nodeIdentifier);
     const isPresentInVisualModel = visualEntity !== null || visualModel?.outsiders[nodeIdentifier] !== undefined;
-    return visualModel === null || isPresentInVisualModel;
+    return isPresentInVisualModel;
 };
 
 
@@ -347,10 +355,13 @@ const isNodeInVisualModel = (visualModel: VisualModelWithOutsiders,
  */
 const isGeneralizationInVisualModel = (visualModel: VisualModelWithOutsiders,
                                         generalization: SemanticModelGeneralization): boolean => {
+    if(visualModel === null) {
+        return true;
+    }
+
     const isChildPresentInVisualModel = isNodeInVisualModel(visualModel, generalization.child);
     const isParentPresentInVisualModel = isNodeInVisualModel(visualModel, generalization.parent);
-    return (visualModel === null) ||
-                (isChildPresentInVisualModel && isParentPresentInVisualModel);
+    return isChildPresentInVisualModel && isParentPresentInVisualModel;
 };
 
 
@@ -1392,7 +1403,8 @@ class NodeClassic implements INodeClassic {
         }
         else {
             const coreVisualNode = this.createNewVisualNodeBasedOnSemanticData(null);
-
+            // Checking for explicit anchors and using it doesn't make sense, because in this case we don't have position or anything
+            // Basically we are just layouting semantic model.
             this.completeVisualNode = new VisualNodeComplete(coreVisualNode, width, height, false, false, false);
         }
 
