@@ -25,6 +25,7 @@ export function layoutActiveVisualModelAdvancedAction(
     graph: ModelGraphContextType,
     configuration: UserGivenConstraintsVersion4,
     explicitAnchors?: ExplicitAnchors,
+    shouldUpdatePositionsInVisualModel?: boolean,
     outsiders?: Record<string, XY | null>,
     shouldPutOutsidersInVisualModel?: boolean,
 ) {
@@ -57,6 +58,9 @@ export function layoutActiveVisualModelAdvancedAction(
                                     console.info(result);
                                     console.info(activeVisualModel.getVisualEntities());
                                     if(!isWritableVisualModel(activeVisualModel)) {
+                                        return result;
+                                    }
+                                    if(shouldUpdatePositionsInVisualModel === false) {
                                         return result;
                                     }
 
@@ -106,7 +110,7 @@ export function layoutActiveVisualModelAction(
     configuration: UserGivenConstraintsVersion4,
     explicitAnchors?: ExplicitAnchors,
 ) {
-    return layoutActiveVisualModelAdvancedAction(notifications, diagram, graph, configuration, explicitAnchors, {}, false);
+    return layoutActiveVisualModelAdvancedAction(notifications, diagram, graph, configuration, explicitAnchors, true, {}, false);
 }
 
 

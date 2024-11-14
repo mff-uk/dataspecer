@@ -261,6 +261,7 @@ function createActionsContext(
           graph,
           configuration,
           explicitAnchors,
+          false,
           {[identifier]: position},
           false);
 
