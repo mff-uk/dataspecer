@@ -38,6 +38,8 @@ export type { AlgorithmName } from "./configs/constraint-container";
 export { Direction } from "./util/utils";
 export type { INodeClassic } from "./graph-iface";
 
+export { type XY } from "./elk-layouts"
+
 export { ReactflowDimensionsEstimator };
 export { ReactflowDimensionsConstantEstimator } from "./dimension-estimators/constant-dimension-estimator";
 

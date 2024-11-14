@@ -26,8 +26,10 @@ export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic, shou
         else {
             classNode.completeVisualNode.setPositionInCoreVisualNode(Math.ceil(Math.random() * 400 * Math.sqrt(classNodes.length)),
                                                                      Math.ceil(Math.random() * 250 * Math.sqrt(classNodes.length)));
+            for (const edge of classNode.getAllOutgoingEdges()) {
+                edge.visualEdge.visualEdge.waypoints = [];
+            }
         }
-
     });
     return graph.mainGraph;     // TODO: !!! Well should it be mainGraph or not? what should we do if we want to layout only part of the graph - only the given argument?
 }

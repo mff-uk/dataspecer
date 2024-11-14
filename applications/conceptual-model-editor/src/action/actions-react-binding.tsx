@@ -255,6 +255,8 @@ function createActionsContext(
           shouldAnchorEverythingExceptNotAnchored: "anchor-everything-except-notAnchored",
       };
 
+      // We only want to get the new position, so we don't update the visual model. We save some performance by that, but more importantly elk can move nodes even if they are
+      // anchored (for example when they are not connected by any edge).
       const layoutResults = await layoutActiveVisualModelAdvancedAction(
           notifications,
           diagram,

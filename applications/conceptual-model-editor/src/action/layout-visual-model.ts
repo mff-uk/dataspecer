@@ -5,7 +5,7 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { ActionsContextType } from "./actions-react-binding";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { addNodeToVisualModelAction } from "./add-node-to-visual-model";
-import { XY } from "../../../../packages/layout/lib/elk-layouts";
+import { XY } from "@dataspecer/layout";
 
 
 /**
@@ -78,6 +78,7 @@ export function layoutActiveVisualModelAdvancedAction(
                                             return;
                                         }
 
+                                        // TODO: I am not sure if the if ever passes, maybe we should keep only the else branch.
                                         if(activeVisualModel.getVisualEntity(key) === undefined) {
                                             if(isVisualNode(visualEntity)) {
                                                 console.info("NEW NODE");
@@ -88,7 +89,7 @@ export function layoutActiveVisualModelAdvancedAction(
                                             }
                                         }
                                         else {
-                                            // TODO: Should update all at once
+                                            // TODO: Should update all entities at once
                                             // If the entity isn't there, then nothing happens (at least for current implementation)
                                             activeVisualModel?.updateVisualEntity(visualEntity.identifier, visualEntity);
                                         }
