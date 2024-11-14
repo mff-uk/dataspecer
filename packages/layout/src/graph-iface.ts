@@ -327,8 +327,9 @@ const isRelationshipInVisualModel = (visualModel: VisualModelWithOutsiders,
         return true;
     }
 
+    const isAtLeastOneEndOutsider = checkIfEdgeHasAtLeastOneOutsider(visualModel.outsiders, ends[0], ends[1]);
     const visualEntity = visualModel.visualModel.getVisualEntityForRepresented(relationshipIdentifier);
-    const isPresentInVisualModel = visualEntity !== null || (isNodeInVisualModel(visualModel, ends[0]) && isNodeInVisualModel(visualModel, ends[1]));
+    const isPresentInVisualModel = visualEntity !== null || isAtLeastOneEndOutsider;
     return isPresentInVisualModel;
 };
 
@@ -1036,7 +1037,7 @@ class EdgeClassic implements IEdgeClassic {
     private setVisualEdgeBasedOnStoredData(visualModel: VisualModelWithOutsiders) {
         this.visualEdge = null;
         if(visualModel !== null) {
-            const isAtLeastOneEndOutsider = visualModel.outsiders[this.start.id] !== undefined || visualModel.outsiders[this.end.id] !== undefined;
+            const isAtLeastOneEndOutsider = checkIfEdgeHasAtLeastOneOutsider(visualModel.outsiders, this.start.id, this.end.id);
             if(this.edgeType === "outgoingProfileEdges") {
                 if(isAtLeastOneEndOutsider) {
                     this.visualEdge = this.createNewVisualRelationshipBasedOnSemanticData();
@@ -1081,6 +1082,11 @@ class EdgeClassic implements IEdgeClassic {
         }
     }
 }
+
+
+const checkIfEdgeHasAtLeastOneOutsider = (outsiders: Record<string, XY | null>, start: string, end: string): boolean => {
+        return outsiders[start] !== undefined || outsiders[end] !== undefined;
+    }
 
 /**
  * Interface which represents graph node ... Note that subgraph is also graph node.
