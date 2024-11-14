@@ -18,7 +18,7 @@ import {
 	IAlgorithmConfiguration,
 	SPECIFIC_ALGORITHM_CONVERSIONS_MAP
 } from "./configs/constraints";
-import { GraphClassic, GraphFactory, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualNodeComplete } from "./graph-iface";
+import { GraphClassic, GraphFactory, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualModelWithOutsiders, VisualNodeComplete } from "./graph-iface";
 import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs/constraint-container";
 import { Entities, Entity, EntityModel } from "@dataspecer/core-v2";
 import { ConstraintFactory } from "./configs/constraint-factories";
@@ -26,6 +26,7 @@ import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-d
 import { PhantomElementsFactory } from "./util/utils";
 import { CONSTRAINT_MAP } from "./configs/constraints-mapping";
 import type { VisualEntities, VisualEntitiesAllType } from "./migration-to-cme-v2";
+export { type VisualEntities } from "./migration-to-cme-v2";
 export type { VisualEntitiesAllType }
 import { EdgeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-crossing";
 import { EdgeNodeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-node-crossing";
@@ -35,19 +36,20 @@ export { getDefaultUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsV
 export type { AlgorithmName } from "./configs/constraint-container";
 
 export { Direction } from "./util/utils";
-export type { INodeClassic } from "./graph-iface"
+export type { INodeClassic } from "./graph-iface";
 
-export { ReactflowDimensionsEstimator }
+export { ReactflowDimensionsEstimator };
 export { ReactflowDimensionsConstantEstimator } from "./dimension-estimators/constant-dimension-estimator";
 
 import type { EdgeRouting } from "./configs/constraints";
-export type { EdgeRouting }
+export type { EdgeRouting };
 
 import { placePositionOnGrid } from "./util/utils";
 import { ExplicitAnchors } from "./explicit-anchors";
-export { placePositionOnGrid }
+export { placePositionOnGrid };
 
 export { type ExplicitAnchors } from "./explicit-anchors";
+export { type VisualModelWithOutsiders } from "./graph-iface";
 
 export type {
 	UserGivenAlgorithmConfiguration,
@@ -109,7 +111,7 @@ export async function performDynamicLayout(visualModel: VisualModel,
  * @param explicitAnchors If this is undefined then use the anchors of visual model, otherwise it depends on the given anchors' settings.
  * @returns Promise with new positions of the visual entities.
  */
-export async function performLayoutOfVisualModel(visualModel: VisualModel,
+export async function performLayoutOfVisualModel(visualModel: VisualModelWithOutsiders,
 													semanticModels: Map<string, EntityModel>,
 													config: UserGivenAlgorithmConfigurationslVersion4,
 													nodeDimensionQueryHandler?: NodeDimensionQueryHandler,
@@ -154,7 +156,7 @@ export async function performLayoutOfSemanticModel(inputSemanticModel: Record<st
 }
 
 
-function performLayoutInternal(visualModel: VisualModel | null,
+function performLayoutInternal(visualModel: VisualModelWithOutsiders,
 								semanticModels: Map<string, EntityModel>,
 								config: UserGivenAlgorithmConfigurationslVersion4,
 								nodeDimensionQueryHandler?: NodeDimensionQueryHandler,

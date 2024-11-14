@@ -3,7 +3,6 @@ import { SemanticModelEntity, isSemanticModelClass, isSemanticModelRelationship,
 import { ConstraintContainer } from "./configs/constraint-container";
 import { NodeDimensionQueryHandler } from ".";
 import { GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, MainGraphClassic, VisualNodeComplete } from "./graph-iface";
-import { PhantomElementsFactory, placePositionOnGrid } from "./util/utils";
 import _ from "lodash";
 import { VisualEntities } from "./migration-to-cme-v2";
 import { EntityModel } from "@dataspecer/core-v2";
@@ -23,37 +22,14 @@ export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic, shou
     classNodes.forEach(classNode => {
         let visualNode: VisualNode;
         // TODO; I think that the undefined check will be unnecessary later, once we initialize vis entity in graph instead when converting back
-        if(classNode?.completeVisualNode?.isAnchored === true && classNode?.completeVisualNode?.coreVisualNode !== undefined) {
+        if(classNode?.completeVisualNode?.isAnchored === true) {
             visualNode = classNode.completeVisualNode.coreVisualNode;
         }
         else {
-            visualNode = {
-                identifier: Math.random().toString(36).substring(2),
-                type: [VISUAL_NODE_TYPE],
-                representedEntity: classNode.id,
-                model: classNode.sourceEntityModelIdentifier ?? "",
-                position: {
-                    x: Math.ceil(Math.random() * 400 * Math.sqrt(classNodes.length)),
-                    y: Math.ceil(Math.random() * 250 * Math.sqrt(classNodes.length)),
-                    anchored: null,
-                },
-                // position: { x: Math.ceil(Math.random() * 1600), y: Math.ceil(Math.random() * 1000) },
-                content: [],    // What is this?
-                visualModels: [],
-            } as VisualNode;
+            classNode.completeVisualNode.setPositionInCoreVisualNode(Math.ceil(Math.random() * 400 * Math.sqrt(classNodes.length)),
+                                                                     Math.ceil(Math.random() * 250 * Math.sqrt(classNodes.length)));
         }
 
-        // TODO: From the next commit, it is not possible for completeVisualNode to be undefined
-        if(classNode.completeVisualNode === undefined) {
-            classNode.completeVisualNode = new VisualNodeComplete(visualNode, classNode.completeVisualNode.width, classNode.completeVisualNode.height, false);
-        }
-        else {
-            classNode.completeVisualNode.coreVisualNode.position.x = visualNode.position.x;
-            classNode.completeVisualNode.coreVisualNode.position.y = visualNode.position.y;
-            classNode.completeVisualNode.width = classNode.completeVisualNode.width;
-            classNode.completeVisualNode.height = classNode.completeVisualNode.height;
-        }
-        placePositionOnGrid(classNode.completeVisualNode.coreVisualNode.position, 10, 10);
     });
     return graph.mainGraph;     // TODO: !!! Well should it be mainGraph or not? what should we do if we want to layout only part of the graph - only the given argument?
 }

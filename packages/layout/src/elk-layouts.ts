@@ -212,11 +212,7 @@ class ElkGraphTransformer implements GraphTransformer {
                 //       2) Work without it and put it to the grid only when adding to the visual model (but if we are doing that from the manager we also can't access config)
                 //          Another drawback is that the graph metrics are then working with slightly different graph
 
-                visualEntity.coreVisualNode.position.x -= positionShiftDueToAnchors.x;
-                visualEntity.coreVisualNode.position.y -= positionShiftDueToAnchors.y;
-
-
-                placePositionOnGrid(visualEntity.coreVisualNode.position, 10, 10);
+                visualEntity.addToPositionInCoreVisualNode(-positionShiftDueToAnchors.x, -positionShiftDueToAnchors.y);
             }
             else if(isVisualRelationship(visualEntity) || isVisualProfileRelationship(visualEntity)) {
                 for(let i = 0; i < visualEntity.waypoints.length; i++) {
@@ -264,23 +260,12 @@ class ElkGraphTransformer implements GraphTransformer {
         console.info(referenceY);
 
         for(let ch of elkNode.children) {
-            const completeVisualEntity = this.convertElkNodeToCompleteVisualEntity(ch, referenceX, referenceY, graphToBeUpdated);
+            const newPosition = this.convertElkNodeToPosition(ch, referenceX, referenceY);
             const node = graphToBeUpdated.mainGraph.findNodeInAllNodes(ch.id);
-            if(node.completeVisualNode === undefined) {
-                node.completeVisualNode = completeVisualEntity;
-            }
-            else {
-                console.info("------------------------------------------------------------------------------");
-                console.info(ch?.x);
-                console.info(ch?.y);
-                console.info("OLD POSITION:");
-                console.info({...node.completeVisualNode.coreVisualNode.position});
-                console.info("NEW POSITION:");
-                console.info({...completeVisualEntity.coreVisualNode.position});
-                node.completeVisualNode.coreVisualNode.position = completeVisualEntity.coreVisualNode.position;
-                node.completeVisualNode.width = completeVisualEntity.width;
-                node.completeVisualNode.height = completeVisualEntity.height;
-            }
+            node.completeVisualNode.coreVisualNode.position = {
+                ...newPosition,
+                anchored: node.completeVisualNode.coreVisualNode.position.anchored,
+            };
             visualEntities.push(node.completeVisualNode);
             if(isSubgraph(this.graph, ch)) {
                 let subgraphReferenceX = referenceX + ch.x;
@@ -292,15 +277,10 @@ class ElkGraphTransformer implements GraphTransformer {
 
         if(shouldUpdateEdges) {
             for(let edge of elkNode.edges) {
-                const visualEdge = this.convertElkEdgeToVisualRelationship(edge, referenceX, referenceY, graphToBeUpdated);
+                const waypoints = this.convertElkEdgeToWaypoints(edge, referenceX, referenceY);
                 const edgeInGraph = graphToBeUpdated.mainGraph.findEdgeInAllEdges(edge.id);
                 // TODO: Update the visual entity of edge or create new one .... But what about the split ones???
-                if(edgeInGraph.visualEdge === undefined ||edgeInGraph.visualEdge === null) {
-                    edgeInGraph.visualEdge = visualEdge;
-                }
-                else {
-                    edgeInGraph.visualEdge.waypoints = visualEdge.waypoints;
-                }
+                edgeInGraph.visualEdge.waypoints = waypoints;
                 visualEntities.push(edgeInGraph.visualEdge);
             }
         }
@@ -423,7 +403,10 @@ class ElkGraphTransformer implements GraphTransformer {
                 visualEntities = visualEntities.concat(this.convertElkNodeToVisualEntitiesRecursively(ch, subgraphReferenceX, subgraphReferenceY, graphToBeUpdated));
             }
             else {
-                visualEntities.push(this.convertElkNodeToCompleteVisualEntity(ch, referenceX, referenceY, graphToBeUpdated).coreVisualNode);
+                const position = this.convertElkNodeToPosition(ch, referenceX, referenceY);
+                const node = graphToBeUpdated.nodes[ch.id];
+                node.completeVisualNode.setPositionInCoreVisualNode(position.x, position.y);
+                visualEntities.push(node.completeVisualNode.coreVisualNode);
             }
         }
 
@@ -431,19 +414,18 @@ class ElkGraphTransformer implements GraphTransformer {
     }
 
 
+    // TODO: Maybe in future we will have also return the start/end points instead of just the waypoints
     // TODO: Maybe the referenceX and referenceY have to be also used for edges in case of subgraphs
     /**
-     * Converts given elk edge to the one used in visual model ({@link VisualRelationship})
+     * Converts given {@link elEdge} to the waypoints within the edge
      * @param referenceX is the reference x coordinate used to shift the x position in the resulting visual entity.
      * This is used because elk returns positions relative to the parent subgraph.
      * @param referenceY same as {@link referenceX} but for y coordinate.
-     * @returns Complete visual entity which based on the values stored in {@link elkNode}
+     * @returns Waypoints from the given {@link elkEdge}
      */
-    private convertElkEdgeToVisualRelationship(elkEdge: ElkExtendedEdge, referenceX: number, referenceY: number, graphToBeUpdated: IGraphClassic): VisualRelationship | VisualProfileRelationship {
-        const edgeInOriginalGraph = graphToBeUpdated.mainGraph.findEdgeInAllEdges(elkEdge.id);
-
+    private convertElkEdgeToWaypoints(elkEdge: ElkExtendedEdge, referenceX: number, referenceY: number): Position[] {
         const bendpoints = elkEdge?.sections?.[0].bendPoints;
-        const waypoints = bendpoints?.map(bendpoint => {
+        const waypoints: Position[] = bendpoints?.map(bendpoint => {
             return {
                 x: bendpoint.x,
                 y: bendpoint.y,
@@ -451,25 +433,7 @@ class ElkGraphTransformer implements GraphTransformer {
             };
         }) ?? [];
 
-        // TODO: Again ... Unfortunately it needs rewrite (hopefully last) with visual model to be set when creating the graph not when converting the library represetnation back to graph
-        //      ... Also it makes sense to use the cme methods to create the visual entities? instead of implementing it all again - just define method and call it
-        //      ... for example I am not sure the type should cotnain only the VISUAL_RELATIONSHIP_TYPE or also some other type, so for such cases constistency would be nice
-        const relationshipType = edgeInOriginalGraph.edgeProfileType === "CLASS-PROFILE" ? [VISUAL_PROFILE_RELATIONSHIP_TYPE] : [VISUAL_RELATIONSHIP_TYPE];
-
-        const edgeToReturn: VisualRelationship | VisualProfileRelationship = {
-            identifier: Math.random().toString(36).substring(2),
-            type: relationshipType,
-            representedRelationship: edgeInOriginalGraph?.edge?.id ?? edgeInOriginalGraph.id,
-            waypoints: waypoints,
-            model: edgeInOriginalGraph?.sourceEntityModelIdentifier ?? "",
-            visualSource: edgeInOriginalGraph?.visualEdge?.visualSource ?? "",
-            visualTarget: edgeInOriginalGraph?.visualEdge?.visualTarget ?? "",
-        };
-        if(edgeInOriginalGraph.edgeProfileType === "CLASS-PROFILE" || edgeInOriginalGraph.edgeProfileType === "EDGE-PROFILE") {
-            edgeToReturn["entity"] = edgeInOriginalGraph?.visualEdge?.["entity"] ?? edgeInOriginalGraph.start.id;
-        }
-
-        return edgeToReturn;
+        return waypoints;
     }
 
     /**
@@ -477,24 +441,13 @@ class ElkGraphTransformer implements GraphTransformer {
      * @param referenceX is the reference x coordinate used to shift the x position in the resulting visual entity.
      * This is used because elk returns positions relative to the parent subgraph.
      * @param referenceY same as {@link referenceX} but for y coordinate.
-     * @returns Complete visual entity which based on the values stored in {@link elkNode}
+     * @returns Position for the given {@link elkNode}, the position should be put into corresponding graph node.
      */
-    private convertElkNodeToCompleteVisualEntity(elkNode: ElkNode, referenceX: number, referenceY: number, graphToBeUpdated: IGraphClassic, ): IVisualNodeComplete {
-        const nodeInGraph = graphToBeUpdated.mainGraph.findNodeInAllNodes(elkNode.id);
-        const coreVisualNode = {
-            identifier: Math.random().toString(36).substring(2),
-            type: [VISUAL_NODE_TYPE],
-            representedEntity: elkNode.id,
-            position: {
-                x: referenceX + elkNode.x,
-                y: referenceY + elkNode.y,
-                anchored: nodeInGraph.completeVisualNode?.coreVisualNode?.position?.anchored ?? null,
-            },
-            content: [],
-            visualModels: [],
-            model: nodeInGraph.sourceEntityModelIdentifier ?? "",
+    private convertElkNodeToPosition(elkNode: ElkNode, referenceX: number, referenceY: number): XY {
+        return {
+            x: referenceX + elkNode.x,
+            y: referenceY + elkNode.y,
         };
-        return new VisualNodeComplete(coreVisualNode, elkNode.width, elkNode.height, false, nodeInGraph.completeVisualNode.isAnchored);
     }
 
 

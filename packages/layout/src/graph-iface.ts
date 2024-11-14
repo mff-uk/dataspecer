@@ -2,8 +2,8 @@ import { isSemanticModelGeneralization, SemanticModelClass, SemanticModelEntity,
 import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { EntitiesBundle, ExtractedModels, extractModelObjects, getEdgeSourceAndTargetGeneralization, getEdgeSourceAndTargetRelationship, getEdgeSourceAndTargetRelationshipUsage } from "./layout-iface";
 
-import { VisualModel, isVisualNode, Position, VisualEntity, VisualNode, VisualRelationship, isVisualRelationship, isVisualProfileRelationship, VisualProfileRelationship, VISUAL_PROFILE_RELATIONSHIP_TYPE, VISUAL_RELATIONSHIP_TYPE } from "@dataspecer/core-v2/visual-model";
-import { capitalizeFirstLetter, PhantomElementsFactory } from "./util/utils";
+import { VisualModel, isVisualNode, Position, VisualEntity, VisualNode, VisualRelationship, isVisualRelationship, isVisualProfileRelationship, VisualProfileRelationship, VISUAL_PROFILE_RELATIONSHIP_TYPE, VISUAL_RELATIONSHIP_TYPE, VISUAL_NODE_TYPE } from "@dataspecer/core-v2/visual-model";
+import { capitalizeFirstLetter, PhantomElementsFactory, placePositionOnGrid } from "./util/utils";
 import { VisualEntities } from "./migration-to-cme-v2";
 import { EntityModel } from "@dataspecer/core-v2";
 import { XY } from "./elk-layouts";
@@ -12,7 +12,8 @@ import { NodeDimensionQueryHandler, ReactflowDimensionsEstimator } from ".";
 
 /**
  * This is special type for situations, when we want to layout the current visual model, but we also want to find positions for nodes, which are not yet in the visual model,
- * use-case is for example when adding existing class back to canvas. Because if we perform the usual 2 step addition, that is:
+ * those are stored in {@link outsiders}.
+ * Use-case is for example when adding existing class back to canvas. Because if we perform the usual 2 step addition, that is:
  *    1) Add node to visual modle together with all its edges
  *    2) Layout visual model
  * Then the node has to be added to some position in step 1), but we move it in step 2). That results in node jumping, which is unwanted behavior.
@@ -21,12 +22,15 @@ import { NodeDimensionQueryHandler, ReactflowDimensionsEstimator } from ".";
  * The question for this is if should just completely remove the filtered nodes from graph or set the {@link isConsideredInLayout} variable to false.
  *
  */
-type VisualModelWithOutsiders = {
+export type VisualModelWithOutsiders = {
+    /**
+     * The visual model.
+     */
     visualModel: VisualModel,
-    outsiders: {
-        identifier: string,
-        position?: XY,
-    }[],
+    /**
+     * Nodes which are not part of the visual model, but should be layouted. The key is the identifier of semantic entity
+     */
+    outsiders: Record<string, XY | null>,
 } | null;
 
 
@@ -48,42 +52,54 @@ interface Graph {
  * which are not (yet) part of the visual model. Or when we didn't have any visual model on input at all. (TODO: Well I have to do the same thing for edges then I guess)
  */
 export interface IVisualNodeComplete {
-    coreVisualNode: VisualNode | null,          // TODO: | null is only for now !!!
+    coreVisualNode: VisualNode,
     width: number,
     height: number,
     isAnchored: boolean,
-    // isInVisualModel: boolean,
+    isInVisualModel: boolean,
+
+    /**
+     * Sets the position to given one, and puts the result on grid.
+     */
+    setPositionInCoreVisualNode(newX: number, newY: number);
+    addToPositionInCoreVisualNode(x: number, y: number);
 }
 
 export class VisualNodeComplete implements IVisualNodeComplete {
-    coreVisualNode: VisualNode | null;
+    coreVisualNode: VisualNode;
     width: number;
     height: number;
     isAnchored: boolean;
-    // isInVisualModel: boolean;
+    isInVisualModel: boolean;
 
-    constructor(coreVisualNode: VisualNode | null, width: number, height: number, useCopyOfCoreVisualNode: boolean, isAnchored?: boolean) {
-        if(coreVisualNode === null) {
-            this.coreVisualNode = null
+    constructor(coreVisualNode: VisualNode, width: number, height: number, useCopyOfCoreVisualNode: boolean, isInVisualModel: boolean, isAnchored?: boolean) {
+        if(useCopyOfCoreVisualNode) {
+            // TODO: Maybe deep copy?
+            this.coreVisualNode = {...coreVisualNode};
         }
         else {
-            if(useCopyOfCoreVisualNode) {
-                // TODO: Maybe deep copy?
-                this.coreVisualNode = {...coreVisualNode};
-            }
-            else {
-                this.coreVisualNode = coreVisualNode;
-            }
+            this.coreVisualNode = coreVisualNode;
         }
         this.width = width;
         this.height = height;
-        // this.isInVisualModel = isInVisualModel;
+        this.isInVisualModel = isInVisualModel;
         if(isAnchored === undefined) {
             this.isAnchored = coreVisualNode?.position?.anchored ?? false;
         }
         else {
             this.isAnchored = isAnchored;
         }
+    }
+    setPositionInCoreVisualNode(newX: number, newY: number) {
+        this.coreVisualNode.position.x = newX;
+        this.coreVisualNode.position.y = newY;
+        placePositionOnGrid(this.coreVisualNode.position, 10, 10);
+    }
+
+    addToPositionInCoreVisualNode(x: number, y: number) {
+        const newX = this.coreVisualNode.position.x + x;
+        const newY = this.coreVisualNode.position.y + y;
+        this.setPositionInCoreVisualNode(newX, newY);
     }
 }
 
@@ -173,7 +189,7 @@ export interface IGraphClassic extends INodeClassic {
                 inputModels: Map<string, EntityModel> | ExtractedModels | null,
                 nodeContentOfGraph: Array<EdgeEndPoint> | null,
                 isDummy: boolean,
-                visualModel: VisualModel | null,
+                visualModel: VisualModelWithOutsiders,
                 nodeDimensionQueryHandler?: NodeDimensionQueryHandler | null,
                 explicitAnchors?: ExplicitAnchors);
     insertSubgraphToGraph(subgraph: IGraphClassic, nodesInSubgraph: Array<EdgeEndPoint>, shouldSplitEdges: boolean): void;
@@ -269,7 +285,7 @@ export class GraphFactory {
                                 inputModels: Map<string, EntityModel> | ExtractedModels | null,
                                 nodeContentOfGraph: Array<EdgeEndPoint> | null,
                                 isDummy: boolean,
-                                visualModel: VisualModel | null,
+                                visualModel: VisualModelWithOutsiders,
                                 shouldSplitEdges: boolean,
                                 explicitAnchors?: ExplicitAnchors): IGraphClassic {
         // Create subgraph which has given nodes as children (TODO: What if the nodes are not given, i.e. null?)
@@ -287,7 +303,7 @@ export class GraphFactory {
     public static createMainGraph(graphIdentifier: string | null,
                                     inputModels: Map<string, EntityModel> | ExtractedModels | null,
                                     nodeContentOfGraph: Array<EdgeEndPoint> | null,
-                                    visualModel: VisualModel | null,
+                                    visualModel: VisualModelWithOutsiders,
                                     nodeDimensionQueryHandler?: NodeDimensionQueryHandler | null,
                                     explicitAnchors?: ExplicitAnchors): IMainGraphClassic {
         if(graphIdentifier === null) {
@@ -304,22 +320,24 @@ export class GraphFactory {
 /**
  * @returns Returns true if the relationship is inside the visual model or the model is null.
  */
-const isRelationshipInVisualModel = (visualModel: VisualModel | null,
+const isRelationshipInVisualModel = (visualModel: VisualModelWithOutsiders,
                                     relationshipIdentifier: string,
                                     ends: [string, string]): boolean => {
-    const visualEntity = visualModel?.getVisualEntityForRepresented(relationshipIdentifier);
-    return visualModel === null || visualEntity !== null;
+    const visualEntity = visualModel?.visualModel.getVisualEntityForRepresented(relationshipIdentifier);
+    const isPresentInVisualModel = visualEntity !== null || (isNodeInVisualModel(visualModel, ends[0]) && isNodeInVisualModel(visualModel, ends[1]));
+    return visualModel === null || isPresentInVisualModel;
 };
 
 
 /**
  * @returns Returns true if the node is inside the visual model or if the model is null.
  */
-const isNodeInVisualModel = (visualModel: VisualModel | null,
+const isNodeInVisualModel = (visualModel: VisualModelWithOutsiders,
                                 nodeIdentifier: string): boolean => {
     // TODO: For now ... in future I should use the ids of visual model instead of the semantic ones
-    const visualEntity = visualModel?.getVisualEntityForRepresented(nodeIdentifier);
-    return visualModel === null || visualEntity !== null;
+    const visualEntity = visualModel?.visualModel.getVisualEntityForRepresented(nodeIdentifier);
+    const isPresentInVisualModel = visualEntity !== null || visualModel?.outsiders[nodeIdentifier] !== undefined;
+    return visualModel === null || isPresentInVisualModel;
 };
 
 
@@ -327,12 +345,12 @@ const isNodeInVisualModel = (visualModel: VisualModel | null,
 /**
  * @returns Returns true if both ends of the generalization exists in the visual model
  */
-const isGeneralizationInVisualModel = (visualModel: VisualModel | null,
+const isGeneralizationInVisualModel = (visualModel: VisualModelWithOutsiders,
                                         generalization: SemanticModelGeneralization): boolean => {
-    const visualEntityChild = visualModel?.getVisualEntityForRepresented(generalization.child);
-    const visualEntityParent = visualModel?.getVisualEntityForRepresented(generalization.parent);
+    const isChildPresentInVisualModel = isNodeInVisualModel(visualModel, generalization.child);
+    const isParentPresentInVisualModel = isNodeInVisualModel(visualModel, generalization.parent);
     return (visualModel === null) ||
-                (visualEntityChild !== null && visualEntityParent !== null);
+                (isChildPresentInVisualModel && isParentPresentInVisualModel);
 };
 
 
@@ -364,7 +382,7 @@ export class GraphClassic implements IGraphClassic {
                 inputModels: Map<string, EntityModel> | ExtractedModels | null,
                 nodeContentOfGraph: Array<EdgeEndPoint> | null,
                 isDummy: boolean,
-                visualModel: VisualModel | null,
+                visualModel: VisualModelWithOutsiders,
                 nodeDimensionQueryHandler?: NodeDimensionQueryHandler | null,
                 explicitAnchors?: ExplicitAnchors) {
         this.sourceGraph = sourceGraph;
@@ -434,7 +452,7 @@ export class GraphClassic implements IGraphClassic {
             isProfile: boolean,
             sourceEntityModelIdentifier: string,
             extractedModels: ExtractedModels,
-            visualModel: VisualModel | null,
+            visualModel: VisualModelWithOutsiders,
             explicitAnchors?: ExplicitAnchors): void {
         addNode(this.mainGraph, semanticEntityRepresentingNode, isProfile, sourceEntityModelIdentifier, extractedModels, this, visualModel, explicitAnchors);
     }
@@ -462,7 +480,7 @@ export class GraphClassic implements IGraphClassic {
     /**
      * Creates generalization subgraphs. The subgraphs are maximal, meaning any node which can be reached through the generalization path is in the subgraph.
      */
-    private createGeneralizationSubgraphsInternal(generalizationEdges: SemanticModelGeneralization[], visualModel: VisualModel | null): IGraphClassic[] {
+    private createGeneralizationSubgraphsInternal(generalizationEdges: SemanticModelGeneralization[], visualModel: VisualModelWithOutsiders,): IGraphClassic[] {
         // For now 1 whole hierarchy (n levels) == 1 subgraph
         // TODO: Also very slow, but I will probably have my own graph representation later, in such case getting the generalization edges neighbors and
         // performing reachability search is trivial
@@ -921,6 +939,16 @@ export interface IEdgeClassic {
      * Converts the edge into visual entity which can be used in the visual model.
      */
     convertToDataspecerRepresentation(): VisualRelationship | VisualProfileRelationship | null;
+
+    /**
+     * True if edge comes from visual, false if it was artificially created.
+     */
+    isInVisualModel: boolean;
+
+    /**
+     * Represents the type of edge.
+     */
+    edgeType: OutgoingEdgeType
 }
 
 
@@ -928,19 +956,22 @@ export interface IEdgeClassic {
  * Represents the graph edge.
  */
 class EdgeClassic implements IEdgeClassic {
-    constructor(id: string, edge: SemanticModelEntity | null, edgeType: OutgoingEdgeType, sourceGraph: IGraphClassic,
-                start: EdgeEndPoint, end: EdgeEndPoint, visualEdge: VisualRelationship | VisualProfileRelationship | null, sourceEntityModelIdentifier: string | null) {
+    constructor(id: string, edge: SemanticModelEntity | null, edgeType: OutgoingEdgeType, sourceGraph: IGraphClassic, isInVisualModel: boolean,
+                start: EdgeEndPoint, end: EdgeEndPoint, sourceEntityModelIdentifier: string | null, visualModel: VisualModelWithOutsiders) {
         this.id = id;
         sourceGraph.mainGraph.allEdges.push(this);
         this.sourceGraph = sourceGraph;
         this.isDummy = false;
         this.sourceEntityModelIdentifier = sourceEntityModelIdentifier;
+        this.isInVisualModel = isInVisualModel;
 
         this.edgeProfileType = convertOutgoingEdgeTypeToEdgeProfileType(edgeType);
+        this.edgeType = edgeType
         this.edge = edge;
         this.start = start;
         this.end = end;
-        this.visualEdge = visualEdge;
+
+        this.setVisualEdgeBasedOnStoredData(visualModel);
     }
 
     sourceGraph: IGraphClassic;
@@ -958,8 +989,85 @@ class EdgeClassic implements IEdgeClassic {
 
     visualEdge: VisualRelationship | VisualProfileRelationship | null;
 
+    isInVisualModel: boolean;
+    edgeType: OutgoingEdgeType;
+
     convertToDataspecerRepresentation(): VisualRelationship | VisualProfileRelationship | null {
         return this.visualEdge ?? null;
+    }
+
+
+    private createNewVisualRelationshipBasedOnSemanticData(): VisualRelationship | VisualProfileRelationship {
+        // TODO: It makes sense to use the cme methods to create the visual entities? instead of implementing it all again - just define method and call it
+        //      ... for example I am not sure the type should cotnain only the VISUAL_RELATIONSHIP_TYPE or also some other type, so for such cases constistency would be nice
+        const relationshipType = this.edgeProfileType === "CLASS-PROFILE" ? [VISUAL_PROFILE_RELATIONSHIP_TYPE] : [VISUAL_RELATIONSHIP_TYPE];
+
+        const edgeToReturn: VisualRelationship | VisualProfileRelationship = {
+            identifier: Math.random().toString(36).substring(2),
+            type: relationshipType,
+            representedRelationship: this?.edge?.id ?? this.id,
+            waypoints: [],
+            model: this?.sourceEntityModelIdentifier ?? "",
+            visualSource: this?.start?.completeVisualNode?.coreVisualNode?.identifier ?? "",
+            visualTarget: this?.end?.completeVisualNode?.coreVisualNode?.identifier ?? "",
+        };
+        if(this.edgeProfileType === "CLASS-PROFILE" || this.edgeProfileType === "EDGE-PROFILE") {
+            edgeToReturn["entity"] = this.start.id;
+        }
+
+        return edgeToReturn;
+    }
+
+
+    /**
+     * Either sets it newly created one or uses the one from visual model
+     */
+    private setVisualEdgeBasedOnStoredData(visualModel: VisualModelWithOutsiders) {
+        this.visualEdge = null;
+        if(visualModel !== null) {
+            const isAtLeastOneEndOutsider = visualModel.outsiders[this.start.id] !== undefined || visualModel.outsiders[this.end.id] !== undefined;
+            if(this.edgeType === "outgoingProfileEdges") {
+                if(isAtLeastOneEndOutsider) {
+                    this.visualEdge = this.createNewVisualRelationshipBasedOnSemanticData();
+                }
+                else {
+                    // TODO: Again the ID of semantic model instead of the visual one
+                    const visualEntityForEdge = visualModel.visualModel.getVisualEntityForRepresented(this.id);
+                    if(isVisualRelationship(visualEntityForEdge)) {
+                        this.visualEdge = visualEntityForEdge;
+                    }
+                }
+            }
+            else if(this.edgeType === "outgoingClassProfileEdges") {
+                if(isAtLeastOneEndOutsider) {
+                    this.visualEdge = this.createNewVisualRelationshipBasedOnSemanticData();
+                }
+                else {
+                    const visualEntityForEdge = [...visualModel.visualModel.getVisualEntities()].find(([visualEntityIdentifier, visualEntity]) => {
+                        if(isVisualProfileRelationship(visualEntity)) {
+                            return visualEntity.entity === this.start.id;
+                        }
+                        return false;
+                    })?.[1];
+
+                    if(isVisualProfileRelationship(visualEntityForEdge)) {
+                        this.visualEdge = visualEntityForEdge;
+                    }
+                }
+            }
+            else {
+                if(isAtLeastOneEndOutsider) {
+                    this.visualEdge = this.createNewVisualRelationshipBasedOnSemanticData();
+                }
+                else {
+                    // TODO: Again the ID of semantic model instead of the visual one
+                    const visualEntityForEdge = visualModel.visualModel.getVisualEntityForRepresented(this.id);
+                    if(isVisualRelationship(visualEntityForEdge)) {
+                        this.visualEdge = visualEntityForEdge;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -1099,7 +1207,7 @@ function addNode(mainGraph: IMainGraphClassic,
                 sourceEntityModelIdentifier: string,
                 extractedModels: ExtractedModels,
                 sourceGraph: IGraphClassic,
-                visualModel: VisualModel | null,
+                visualModel: VisualModelWithOutsiders,
                 explicitAnchors?: ExplicitAnchors): boolean {
     if(isNodeInVisualModel(visualModel, semanticEntityRepresentingNode.id)) {
         sourceGraph.nodes[semanticEntityRepresentingNode.id] = new NodeClassic(mainGraph, semanticEntityRepresentingNode,
@@ -1124,7 +1232,7 @@ function addEdge(graph: IGraphClassic,
                     targetIdentifier: string,
                     extractedModels: ExtractedModels | null,
                     edgeToAddKey: OutgoingEdgeType,
-                    visualModel: VisualModel | null,
+                    visualModel: VisualModelWithOutsiders,
                     explicitAnchors?: ExplicitAnchors): IEdgeClassic | null {
     const reverseEdgeToAddKey: IncomingEdgeType = convertOutgoingEdgeTypeToIncoming(edgeToAddKey);
     console.log("Adding Edge to graph");
@@ -1170,36 +1278,6 @@ function addEdge(graph: IGraphClassic,
         targetNode = mainGraph.nodes[targetIdentifier];
     }
 
-    let visualEdge: VisualRelationship | VisualProfileRelationship | null = null;
-    if(visualModel !== null) {
-        if(edgeToAddKey === "outgoingProfileEdges") {
-            // TODO: Again the ID of semantic model instead of the visual one
-            const visualEntityForEdge = visualModel.getVisualEntityForRepresented(id);
-            if(isVisualRelationship(visualEntityForEdge)) {
-                visualEdge = visualEntityForEdge;
-            }
-        }
-        else if(edgeToAddKey === "outgoingClassProfileEdges") {
-            const visualEntityForEdge = [...visualModel.getVisualEntities()].find(([visualEntityIdentifier, visualEntity]) => {
-                if(isVisualProfileRelationship(visualEntity)) {
-                    return visualEntity.entity === source.id;
-                }
-                return false;
-            })?.[1];
-
-            if(isVisualProfileRelationship(visualEntityForEdge)) {
-                visualEdge = visualEntityForEdge;
-            }
-        }
-        else {
-            // TODO: Again the ID of semantic model instead of the visual one
-            const visualEntityForEdge = visualModel.getVisualEntityForRepresented(id);
-            if(isVisualRelationship(visualEntityForEdge)) {
-                visualEdge = visualEntityForEdge;
-            }
-        }
-    }
-
 
     // TODO: Maybe can get it from other place then extractedModels? - Can't think of anything better right now
     let sourceEntityModelIdentifierForEdge = null;
@@ -1213,7 +1291,8 @@ function addEdge(graph: IGraphClassic,
     }
 
 
-    const edgeClassic: IEdgeClassic = new EdgeClassic(id, edge, edgeToAddKey, graph, source, targetNode, visualEdge, sourceEntityModelIdentifierForEdge);
+    const isInVisualModel = source.completeVisualNode.isInVisualModel && targetNode.completeVisualNode.isInVisualModel;
+    const edgeClassic: IEdgeClassic = new EdgeClassic(id, edge, edgeToAddKey, graph, isInVisualModel, source, targetNode, sourceEntityModelIdentifierForEdge, visualModel);
     // TODO: The reverse edge shouldn't be put in the list of all edges.
 
     // const reverseEdgeClassic: IEdgeClassic = new EdgeClassic(id, edge, edgeToAddKey === "profileEdges", graph, targetNode, source);
@@ -1254,7 +1333,7 @@ class NodeClassic implements INodeClassic {
                     sourceEntityModelIdentifier: string | null,
                     extractedModels: ExtractedModels | null,
                     sourceGraph: IGraphClassic,
-                    visualModel: VisualModel | null,
+                    visualModel: VisualModelWithOutsiders,
                     explicitAnchors?: ExplicitAnchors) {
         mainGraph.allNodes.push(this);
         this.mainGraph = mainGraph;
@@ -1285,23 +1364,36 @@ class NodeClassic implements INodeClassic {
         const width = this.mainGraph.nodeDimensionQueryHandler.getWidth(this);
         const height = this.mainGraph.nodeDimensionQueryHandler.getHeight(this);
         if(visualModel !== null) {
-            // TODO: What should happen once we have 1 represented entity on canvas twice ... then we will also need different ID in this.id
-            const visualEntity = visualModel.getVisualEntityForRepresented(this.id);
-            if(!isVisualNode(visualEntity)) {
-                throw new Error("Something is very wrong, visual node isn't of type visual node");
+            const outsiderPosition = visualModel.outsiders[this.node.id];
+            if(outsiderPosition !== undefined) {
+                const coreVisualNode = this.createNewVisualNodeBasedOnSemanticData(outsiderPosition);
+                let isAnchored = false;
+                if(explicitAnchors !== undefined) {
+                    isAnchored = isEntityWithIdentifierAnchored(this.node.id, explicitAnchors);
+                }
+                this.completeVisualNode = new VisualNodeComplete(coreVisualNode, width, height, false, false, isAnchored);
+            }
+            else {
+                // TODO: What should happen once we have 1 represented entity on canvas twice ... then we will also need different ID in this.id
+                const visualEntity = visualModel.visualModel.getVisualEntityForRepresented(this.node.id);
+                if(!isVisualNode(visualEntity)) {
+                    throw new Error("Something is very wrong, visual node isn't of type visual node");
+                }
+
+                // TODO: For now just expect that anchors work on top of visual model (It really isn't much of a limitation)
+                let isAnchored: boolean = visualEntity.position.anchored ?? false;
+                if(explicitAnchors !== undefined) {
+                    isAnchored = isEntityWithIdentifierAnchored(this.id, explicitAnchors);
+                }
+
+                this.completeVisualNode = new VisualNodeComplete(visualEntity, width, height, true, true, isAnchored);
             }
 
-            // TODO: For now just expect that anchors work on top of visual model (It really isn't much of a limitation)
-            let isAnchored: boolean = visualEntity.position.anchored ?? false;
-            if(explicitAnchors !== undefined) {
-                isAnchored = isEntityWithIdentifierAnchored(this.id, explicitAnchors);
-            }
-
-            // TODO: Maybe also set width/height instead of setting it after the layout?
-            this.completeVisualNode = new VisualNodeComplete(visualEntity, width, height, true, isAnchored);
         }
         else {
-            this.completeVisualNode = new VisualNodeComplete(null, width, height, true, false);
+            const coreVisualNode = this.createNewVisualNodeBasedOnSemanticData(null);
+
+            this.completeVisualNode = new VisualNodeComplete(coreVisualNode, width, height, false, false, false);
         }
 
         let edgeToAddKey: OutgoingEdgeType = "outgoingRelationshipEdges";
@@ -1348,6 +1440,26 @@ class NodeClassic implements INodeClassic {
         });
     }
 
+    private createNewVisualNodeBasedOnSemanticData(position: XY | null) {
+        if(position === null) {
+            position = {x: 0, y: 0};
+        }
+        return {
+            identifier: Math.random().toString(36).substring(2),
+            type: [VISUAL_NODE_TYPE],
+            representedEntity: this.node.id,
+            position: {
+                x: position.x,
+                y: position.y,
+                anchored: null,
+            },
+            content: [],
+            visualModels: [],
+            model: this.sourceEntityModelIdentifier ?? "",
+        };
+    }
+
+
     addEdgeTODO(identifier: string | null, edge: SemanticModelEntity | null, target: string, isDummy: boolean, edgeToAddType: OutgoingEdgeType): IEdgeClassic | null {
         if(identifier === null) {
             identifier = PhantomElementsFactory.createUniquePhanomEdgeIdentifier();
@@ -1373,7 +1485,7 @@ class NodeClassic implements INodeClassic {
             target: string,
             extractedModels: ExtractedModels,
             edgeToAddKey: OutgoingEdgeType,
-            visualModel: VisualModel | null,
+            visualModel: VisualModelWithOutsiders,
             explicitAnchors?: ExplicitAnchors): IEdgeClassic | null {
         return addEdge(graph, identifier, edge, this, target, extractedModels, edgeToAddKey, visualModel, explicitAnchors);
         // const reverseEdgeToAddKey: ReverseAddEdgeType = "reverse" + capitalizeFirstLetter(edgeToAddKey) as ReverseAddEdgeType;

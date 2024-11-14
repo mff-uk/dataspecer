@@ -1,18 +1,32 @@
 import { isVisualNode, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { ExplicitAnchors, INodeClassic, NodeDimensionQueryHandler, performLayoutOfVisualModel, ReactflowDimensionsConstantEstimator, ReactflowDimensionsEstimator, UserGivenConstraintsVersion4 } from "@dataspecer/layout";
+import { ExplicitAnchors, INodeClassic, NodeDimensionQueryHandler, performLayoutOfVisualModel, ReactflowDimensionsConstantEstimator, ReactflowDimensionsEstimator, UserGivenConstraintsVersion4, VisualModelWithOutsiders } from "@dataspecer/layout";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { ActionsContextType } from "./actions-react-binding";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { addNodeToVisualModelAction } from "./add-node-to-visual-model";
+import { XY } from "../../../../packages/layout/lib/elk-layouts";
 
 
-export function layoutActiveVisualModelAction(
+/**
+ *
+ * @param notifications
+ * @param diagram
+ * @param graph
+ * @param configuration
+ * @param explicitAnchors
+ * @param outsiders are elements which are not part of visual model, but we want to layout them anyways. Use-case is for example elements which to be added to visual model.
+ * @param shouldPutOutsidersInVisualModel
+ * @returns
+ */
+export function layoutActiveVisualModelAdvancedAction(
     notifications: UseNotificationServiceWriterType,
     diagram: UseDiagramType,
     graph: ModelGraphContextType,
     configuration: UserGivenConstraintsVersion4,
     explicitAnchors?: ExplicitAnchors,
+    outsiders?: Record<string, XY | null>,
+    shouldPutOutsidersInVisualModel?: boolean,
 ) {
     const activeVisualModel = graph.aggregatorView.getActiveVisualModel();
     if (activeVisualModel === null) {
@@ -28,7 +42,13 @@ export function layoutActiveVisualModelAction(
 
     const reactflowDimensionQueryHandler = createExactNodeDimensionsQueryHandler(diagram, graph, notifications);
 
-    return performLayoutOfVisualModel(activeVisualModel,
+    outsiders = outsiders ?? {};
+    const activeVisualModelWithOutsiders: VisualModelWithOutsiders = {
+        visualModel: activeVisualModel,
+        outsiders,
+    };
+
+    return performLayoutOfVisualModel(activeVisualModelWithOutsiders,
                                 models,
                                 configuration,
                                 reactflowDimensionQueryHandler,
@@ -37,17 +57,26 @@ export function layoutActiveVisualModelAction(
                                     console.info(result);
                                     console.info(activeVisualModel.getVisualEntities());
                                     if(!isWritableVisualModel(activeVisualModel)) {
-                                        return;
+                                        return result;
                                     }
 
                                     Object.entries(result).forEach(([key, value]) => {
+                                        if(isVisualNode(value)) {
+                                            if(activeVisualModelWithOutsiders.outsiders[value.representedEntity] !== undefined) {
+                                                if(shouldPutOutsidersInVisualModel) {
+                                                    addNodeToVisualModelAction(notifications, graph, value.model, value.representedEntity, value.position);
+                                                }
+                                                return;
+                                            }
+                                        }
+
                                         if(activeVisualModel.getVisualEntity(key) === undefined) {
                                             if(isVisualNode(value)) {
                                                 console.info("NEW NODE");
                                                 addNodeToVisualModelAction(notifications, graph, value.model, value.representedEntity, value.position);
                                             }
                                             else {
-                                                throw new Error("Not prepared for anything other than nodes when layouting")
+                                                throw new Error("Not prepared for creating new elements which are not nodes when layouting");
                                             }
                                         }
                                         else {
@@ -55,10 +84,29 @@ export function layoutActiveVisualModelAction(
                                             console.info("UPDATING");
                                             console.info(value.identifier);
                                             console.info(value);
-                                            activeVisualModel?.updateVisualEntity(value.identifier, value);
+                                            if(activeVisualModel.getVisualEntity(value.identifier) !== null) {
+                                                activeVisualModel?.updateVisualEntity(value.identifier, value);
+                                            }
                                         }
                                     });
-                            }).catch(console.warn);
+
+                                    return result;
+                            }).catch((e) => {
+                                console.warn(e);
+                                return Promise.resolve();
+                            });
+}
+
+
+// TODO: Should be separate file?
+export function layoutActiveVisualModelAction(
+    notifications: UseNotificationServiceWriterType,
+    diagram: UseDiagramType,
+    graph: ModelGraphContextType,
+    configuration: UserGivenConstraintsVersion4,
+    explicitAnchors?: ExplicitAnchors,
+) {
+    return layoutActiveVisualModelAdvancedAction(notifications, diagram, graph, configuration, explicitAnchors, {}, false);
 }
 
 
@@ -75,7 +123,6 @@ export function createExactNodeDimensionsQueryHandler(diagram: UseDiagramType,
         const visualNodeIdentifier = activeVisualModel?.getVisualEntityForRepresented(node.id)?.identifier ?? "";
         // The question is what does it mean if the node isn't in editor? Same for height
         // Actually it is not error, it can be valid state when we are layouting elements which are not yet part of visual model
-        // TODO: Not sure if the estimator is better than the ReactflowDimensionsConstantEstimator
         const width = diagram.actions().getNodeWidth(visualNodeIdentifier) ?? new ReactflowDimensionsEstimator().getWidth(node);
         return width;
     };
