@@ -238,9 +238,9 @@ function createActionsContext(
   };
 
   const addNodeToVisualModel = async (model: string, identifier: string, TODO_DEBUG_shouldUseLayoutingAlgorithm: boolean) => {
-    let position = computeMiddleOfRelatedAssociationsPositionAction(identifier, notifications, graph, diagram, classes);
+    let [position, isInMiddleofViewport] = computeMiddleOfRelatedAssociationsPositionAction(identifier, notifications, graph, diagram, classes);
 
-    if(TODO_DEBUG_shouldUseLayoutingAlgorithm) {
+    if(TODO_DEBUG_shouldUseLayoutingAlgorithm && !isInMiddleofViewport) {
       const maxDeviation = 100;
       position.x += Math.floor(Math.random() * maxDeviation) - maxDeviation / 2;
       position.y += Math.floor(Math.random() * maxDeviation) - maxDeviation / 2;

@@ -4,18 +4,38 @@ import { UseDiagramType } from "../diagram/diagram-hook";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { ClassesContextType } from "../context/classes-context";
+import { placePositionOnGrid, ReactflowDimensionsConstantEstimator, XY } from "@dataspecer/layout";
+import { configuration } from "../application";
+
+
+
+
+export const getCenterOfViewport = (diagram: UseDiagramType) => {
+    const viewport = diagram.actions().getViewport();
+
+    const position = {
+      x: viewport.position.x + (viewport.width / 2),
+      y: viewport.position.y + (viewport.height / 2),
+    };
+    position.x -= ReactflowDimensionsConstantEstimator.getDefaultWidth() / 2;
+    position.y -= ReactflowDimensionsConstantEstimator.getDefaultHeight() / 2;
+
+    placePositionOnGrid(position, configuration().xSnapGrid, configuration().ySnapGrid);
+
+    return position;
+  };
 
 
 
 // TOOD: Maybe put profile on top of profile class?
 /**
- * @returns The barycenter of nodes associated to {@link nodeToFindAssociationsFor}.
+ * @returns The barycenter of nodes associated to {@link nodeToFindAssociationsFor} and boolean variable saying if the position was explicitly put to middle of viewport.
  */
 export const computeMiddleOfRelatedAssociationsPositionAction = (nodeToFindAssociationsFor: string,
                                                             notifications: UseNotificationServiceWriterType,
                                                             graph: ModelGraphContextType,
                                                             diagram: UseDiagramType,
-                                                            classesContext: ClassesContextType) => {
+                                                            classesContext: ClassesContextType): [XY, boolean] => {
     // TODO: !!!! Use this ... the variant with selection, this is just so I have something which works for this branch
     // const associatedClasses: string[] = findAssociatedClassesAndClassUsages(nodeToFindAssociationsFor);
     const associatedClasses: string[] = findAssociatedClasses(nodeToFindAssociationsFor, classesContext.classes, classesContext.relationships).map(classs => classs.id);
@@ -27,8 +47,7 @@ export const computeMiddleOfRelatedAssociationsPositionAction = (nodeToFindAssoc
         // TODO: 1) Maybe it would be nice to kind of unify the notifiactions? SInce this check for visual model being null is done on like 5 different places
         // TODO: 2) I actually don't need the active visual model, since I can take the same data from editor ... but idk?
         notifications.error("There is no active visual model");
-        // TODO: return getMiddleOfViewportForNodePositionAction(diagram);
-        return {x: 0, y: 0};
+        return [getCenterOfViewport(diagram), true];
     }
 
     const associatedPositions = associatedClasses.map(associatedClassIdentifier => {
@@ -57,9 +76,9 @@ export const computeMiddleOfRelatedAssociationsPositionAction = (nodeToFindAssoc
  *
  * @param positions
  * @param editorAPI
- * @returns The barycenter of given positions.
+ * @returns The barycenter of given positions and boolean saying if the barycenter was put to middle of viewport, because there is 0 neighbors.
  */
-const computeBarycenter = (positions: Position[], diagram: UseDiagramType): Position => {
+const computeBarycenter = (positions: Position[], diagram: UseDiagramType): [Position, boolean] => {
     const barycenter = positions.reduce((accumulator: Position, currentValue: Position) => {
         accumulator.x += currentValue.x;
         accumulator.y += currentValue.y;
@@ -67,21 +86,21 @@ const computeBarycenter = (positions: Position[], diagram: UseDiagramType): Posi
         return accumulator;
     }, {x: 0, y: 0, anchored: null});
 
-    if(positions.length > 1) {
+
+    let isInCenterOfViewport;
+    if(positions.length >= 1) {
+        isInCenterOfViewport = false;
         barycenter.x /= positions.length;
         barycenter.y /= positions.length;
     }
     else {
-        barycenter.x = 0;
-        barycenter.y = 0;
-        // TODO: Return middle of viewport instead !!
-
-        // const viewportMiddle = getMiddleOfViewportForNodePositionAction(diagram);
-        // barycenter.x = viewportMiddle.x;
-        // barycenter.y = viewportMiddle.y;
+        isInCenterOfViewport = true;
+        const viewportMiddle = getCenterOfViewport(diagram);
+        barycenter.x = viewportMiddle.x;
+        barycenter.y = viewportMiddle.y;
     }
 
-    return barycenter;
+    return [barycenter, isInCenterOfViewport];
 };
 
 
