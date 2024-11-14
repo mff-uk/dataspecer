@@ -6,16 +6,16 @@ import {
     isSemanticModelGeneralization,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 import {
     type SemanticModelClassUsage,
     type SemanticModelRelationshipUsage,
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { getIri } from "./iri-utils";
 import type { EntityModel } from "@dataspecer/core-v2";
-import { temporaryDomainRangeHelper } from "./relationship-utils";
+
+import { getIri } from "./iri-utils";
+import { getDomainAndRange } from "./relationship-utils";
 import { useEntityProxy } from "./detail-utils";
 
 export const getNameLanguageString = (
@@ -33,8 +33,7 @@ export const getNameLanguageString = (
         const range = getDomainAndRange(resource)?.range;
         return range?.name ?? null;
     } else if (isSemanticModelRelationshipUsage(resource)) {
-        const r = resource as SemanticModelRelationship & SemanticModelRelationshipUsage;
-        const name = getDomainAndRange(r)?.range.name;
+        const name = getDomainAndRange(resource).range?.name;
         return name ?? resource.name;
     } else if (isSemanticModelGeneralization(resource)) {
         return {
@@ -60,8 +59,7 @@ export const getDescriptionLanguageString = (
         const range = getDomainAndRange(resource)?.range;
         return range?.description ?? null;
     } else if (isSemanticModelRelationshipUsage(resource)) {
-        const r = resource as SemanticModelRelationship & SemanticModelRelationshipUsage;
-        const description = temporaryDomainRangeHelper(r)?.range.description;
+        const description = getDomainAndRange(resource).range?.description;
         return description ?? resource.description;
     } else {
         return null;
@@ -460,8 +458,8 @@ const nouns = [
 ];
 
 export const generateName = () => {
-    const noun = nouns[getRandomInt(0, nouns.length) % nouns.length]!;  
-    const adj = adjectives[getRandomInt(0, adjectives.length) % adjectives.length]!;  
+    const noun = nouns[getRandomInt(0, nouns.length) % nouns.length]!;
+    const adj = adjectives[getRandomInt(0, adjectives.length) % adjectives.length]!;
     const name = capFirst(adj) + " " + capFirst(noun);
     return name;
 };

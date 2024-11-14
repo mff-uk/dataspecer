@@ -18,7 +18,7 @@ import { DialogColoredModelHeaderWithModelSelector } from "../../components/dial
 import { getEntityLabel } from "../../service/entity-service";
 import { t, configuration } from "../../application";
 import { DialogProps, DialogWrapper } from "../dialog-api";
-import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { SemanticModelClassUsage, SemanticModelRelationshipEndUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { filterInMemoryModels } from "../../util/model-utils";
 import { findSourceModelOfEntity } from "../../service/model-service";
 
@@ -224,11 +224,11 @@ const AssociationSection = (props: DialogProps<CreateConnectionState>) => {
         props.changeState(prev => ({ ...prev, name: setter(prev.name) }));
     const setDescription = (setter: (prev: LanguageString) => LanguageString) =>
         props.changeState(prev => ({ ...prev, description: setter(prev.description) }));
-    const setSource = (setter: (value: SemanticModelRelationshipEnd) => SemanticModelRelationshipEnd) => {
+    const setSource = (setter: (value: SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage) => SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage) => {
         const sourceCardinality = setter({} as SemanticModelRelationshipEnd).cardinality ?? null;
         props.changeState(prev => ({ ...prev, sourceCardinality }));
     };
-    const setTarget = (setter: (value: SemanticModelRelationshipEnd) => SemanticModelRelationshipEnd) => {
+    const setTarget = (setter: (value: SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage) => SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage) => {
         const targetCardinality = setter({} as SemanticModelRelationshipEnd).cardinality ?? null;
         props.changeState(prev => ({ ...prev, targetCardinality }));
     };

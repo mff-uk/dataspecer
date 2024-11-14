@@ -9,6 +9,7 @@ import {
     type SemanticModelClassUsage,
     isSemanticModelClassUsage,
     type SemanticModelRelationshipUsage,
+    SemanticModelRelationshipEndUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { CardinalityOptions } from "../../components/cardinality-options";
@@ -25,13 +26,13 @@ import { DataTypeURIs, dataTypeUriToName } from "@dataspecer/core-v2/semantic-mo
 interface DomainRangeComponentType {
     entity: SemanticModelRelationship | SemanticModelRelationshipUsage;
 
-    domain: SemanticModelRelationshipEnd;
-    setDomain: (setter: (prev: SemanticModelRelationshipEnd) => SemanticModelRelationshipEnd) => void;
+    domain: SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage;
+    setDomain: (setter: (prev: SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage) => SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage) => void;
     onDomainChange?: () => void;
     onDomainCardinalityChange?: () => void;
 
-    range: SemanticModelRelationshipEnd;
-    setRange: (setter: (prev: SemanticModelRelationshipEnd) => SemanticModelRelationshipEnd) => void
+    range: SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage;
+    setRange: (setter: (prev: SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage ) => SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage) => void
     onRangeChange?: () => void;
     onRangeCardinalityChange?: () => void;
 

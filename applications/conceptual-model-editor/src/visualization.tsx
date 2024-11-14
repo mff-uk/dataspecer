@@ -61,9 +61,8 @@ import {
 // } from "./reactflow/simple-floating-edge";
 import { useModelGraphContext, type UseModelGraphContextType } from "./context/model-context";
 import { useClassesContext, type UseClassesContextType } from "./context/classes-context";
-import { temporaryDomainRangeHelper } from "./util/relationship-utils";
+import { cardinalityToHumanLabel, getDomainAndRange } from "./util/relationship-utils";
 import { useActions } from "./action/actions-react-binding";
-import { getDomainAndRange } from "./service/relationship-service";
 import { Diagram, type Node, type Edge, type EntityItem, EdgeType } from "./diagram/";
 import { type UseDiagramType } from "./diagram/diagram-hook";
 import { logger } from "./application";
@@ -72,7 +71,6 @@ import { getLocalizedStringFromLanguageString } from "./util/language-utils";
 import { getIri, getModelIri } from "./util/iri-utils";
 import { findSourceModelOfEntity } from "./service/model-service";
 import { type EntityModel } from "@dataspecer/core-v2";
-import { cardinalityToString } from "./util/utils";
 import { Options, useOptions } from "./application/options";
 
 const DEFAULT_MODEL_COLOR = "#ffffff";
@@ -670,7 +668,7 @@ function createDiagramNode(
 
     const nodeAttributeProfiles = attributesProfiles
         .filter(isSemanticModelAttributeUsage)
-        .filter((attr) => temporaryDomainRangeHelper(attr)?.domain.concept == entity.id);
+        .filter((attr) => getDomainAndRange(attr).domain?.concept == entity.id);
 
     const items: EntityItem[] = [];
     for (const attribute of nodeAttributes) {
@@ -788,9 +786,9 @@ function createDiagramEdgeForRelationship(
         externalIdentifier: entity.id,
         label: getEntityLabel(language, entity),
         source: visualNode.visualSource,
-        cardinalitySource: cardinalityToString(domain?.cardinality),
+        cardinalitySource: cardinalityToHumanLabel(domain?.cardinality),
         target: visualNode.visualTarget,
-        cardinalityTarget: cardinalityToString(range?.cardinality),
+        cardinalityTarget: cardinalityToHumanLabel(range?.cardinality),
         color: visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR,
         waypoints: visualNode.waypoints,
         profileOf: profileOf === null ? null : {
@@ -823,9 +821,9 @@ function createDiagramEdgeForRelationshipProfile(
         externalIdentifier: entity.id,
         label: "<<profile>>\n" + getEntityLabel(language, entity),
         source: visualNode.visualSource,
-        cardinalitySource: cardinalityToString(domain?.cardinality),
+        cardinalitySource: cardinalityToHumanLabel(domain?.cardinality),
         target: visualNode.visualTarget,
-        cardinalityTarget: cardinalityToString(range?.cardinality),
+        cardinalityTarget: cardinalityToHumanLabel(range?.cardinality),
         color: visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR,
         waypoints: visualNode.waypoints,
         profileOf: profileOf === null ? null : {

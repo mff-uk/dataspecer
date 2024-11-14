@@ -21,7 +21,7 @@ import { DialogApiContextType } from "../dialog/dialog-service";
 import { Options } from "../application/options";
 import { ClassesContextType, UseClassesContextType } from "../context/classes-context";
 import { createEntityProfileDialog, CreateProfileState } from "../dialog/obsolete/create-profile-dialog";
-import { temporaryDomainRangeHelper } from "../util/relationship-utils";
+import { getDomainAndRange } from "../util/relationship-utils";
 import { addNodeToVisualModelAction } from "./add-node-to-visual-model";
 import { addRelationToVisualModelAction } from "./add-relation-to-visual-model";
 
@@ -124,7 +124,7 @@ const handleSaveRelationshipProfile = (
     name: null,
     description: null,
     cardinality:
-    state.overriddenFields.domainCardinality ? state.domain.cardinality ?? null
+      state.overriddenFields.domainCardinality ? state.domain.cardinality ?? null
         : null,
     usageNote: null,
     iri: null,
@@ -135,27 +135,32 @@ const handleSaveRelationshipProfile = (
     name: state.overriddenFields.name ? name : null,
     description: state.overriddenFields.description ? state.description : null,
     cardinality:
-    state.overriddenFields.rangeCardinality ? state.range.cardinality ?? null : null,
+      state.overriddenFields.rangeCardinality ? state.range.cardinality ?? null : null,
     usageNote: null,
     iri: state.iri,
   } as SemanticModelRelationshipEndUsage;
 
-  const currentDomainAndRange =
-  isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)
-      ? temporaryDomainRangeHelper(entity)
-      : null;
-
   let ends: SemanticModelRelationshipEndUsage[];
-  if (currentDomainAndRange?.domainIndex == 1 && currentDomainAndRange.rangeIndex == 0) {
-    ends = [rangeEnd, domainEnd];
-  } else {
-    ends = [domainEnd, rangeEnd];
+  if (isSemanticModelRelationship(entity)) {
+    const domainAndRange = getDomainAndRange(entity);
+    if (domainAndRange.domainIndex == 1 && domainAndRange.rangeIndex == 0) {
+      ends = [rangeEnd, domainEnd];
+    } else {
+      ends = [domainEnd, rangeEnd];
+    }
+  } else if (isSemanticModelRelationshipUsage(entity)) {
+    const domainAndRange = getDomainAndRange(entity);
+    if (domainAndRange.domainIndex == 1 && domainAndRange.rangeIndex == 0) {
+      ends = [rangeEnd, domainEnd];
+    } else {
+      ends = [domainEnd, rangeEnd];
+    }
   }
 
   const { id: relationshipUsageId } = classes.createRelationshipEntityUsage(state.model, entity.type[0], {
     usageOf: entity.id,
     usageNote: state.usageNote,
-    ends: ends,
+    ends: ends!,
   });
 
   // Add profile to the canvas.

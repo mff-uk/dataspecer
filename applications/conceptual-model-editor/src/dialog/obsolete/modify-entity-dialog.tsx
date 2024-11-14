@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+
 import {
     type LanguageString,
     type SemanticModelClass,
@@ -7,9 +9,9 @@ import {
     isSemanticModelRelationship,
     isSemanticModelClass,
     isSemanticModelAttribute,
-    isSemanticModelRelationPrimitive,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { useMemo } from "react";
+import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
+
 import { ClassesContextType } from "../../context/classes-context";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import {
@@ -18,13 +20,13 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
     isSemanticModelAttributeUsage,
+    SemanticModelRelationshipEndUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { getIri, getModelIri } from "../../util/iri-utils";
 import { IriInput } from "../../components/input/iri-input";
 import { AddAttributesComponent } from "../../components/dialog/attributes-component";
 import { DomainRangeComponent } from "../components/domain-range-component";
 import { getDescriptionLanguageString, getNameLanguageString } from "../../util/name-utils";
-import { temporaryDomainRangeHelper } from "../../util/relationship-utils";
 import { ProfileModificationWarning } from "../../features/warnings/profile-modification-warning";
 import {
     RemovableAttributeProfileRow,
@@ -42,10 +44,9 @@ import { EntityDetailProxy, createEntityProxy, getEntityTypeString } from "../..
 import { GeneralizationParentsComponent } from "../../components/dialog/generalization-parents-component";
 import { ModelGraphContextType, useModelGraphContext } from "../../context/model-context";
 import { t, configuration } from "../../application";
-import { getDomainAndRange } from "../../service/relationship-service";
+import { getDomainAndRange } from "../../util/relationship-utils";
 import { DialogProps, DialogWrapper } from "../dialog-api";
 import { findSourceModelOfEntity } from "../../service/model-service";
-import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
 
 export type SupportedTypes =
     | SemanticModelClass
@@ -81,9 +82,9 @@ export interface ModifyEntityState {
 
     usageNote: LanguageString;
 
-    domain: SemanticModelRelationshipEnd;
+    domain: SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage;
 
-    range: SemanticModelRelationshipEnd;
+    range: SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage;
 
     newAttributes: Partial<Omit<SemanticModelRelationship, "type">>[];
 
@@ -150,7 +151,13 @@ function createModifyEntityDialogState(
 ): ModifyEntityState {
     const isProfile = isSemanticProfile(entity);
 
-    const domainAndRange = entityProxy.canHaveDomainAndRange ? temporaryDomainRangeHelper(entity) : null;
+    let domainAndRange = null;
+    if (isSemanticModelRelationship(entity)) {
+        domainAndRange = getDomainAndRange(entity);
+    } else if (isSemanticModelRelationshipUsage(entity)) {
+        domainAndRange = getDomainAndRange(entity);
+    }
+
     return {
         entity,
         language,
@@ -241,9 +248,9 @@ const ModifyEntityDialog = (props: DialogProps<ModifyEntityState>) => {
         props.changeState(prev => ({ ...prev, usageNote: setter(prev.usageNote) }));
     const toggleWantsToAddNewAttributes = () =>
         props.changeState(state => ({ ...state, wantsToAddNewAttributes: !state.wantsToAddNewAttributes }));
-    const setNewDomain = (setter: (prev: SemanticModelRelationshipEnd) => SemanticModelRelationshipEnd) =>
+    const setNewDomain = (setter: (prev: SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage) => SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage) =>
         props.changeState(state => ({ ...state, domain: setter(state.domain) }));
-    const setNewRange = (setter: (prev: SemanticModelRelationshipEnd) => SemanticModelRelationshipEnd) =>
+    const setNewRange = (setter: (prev: SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage) => SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage) =>
         props.changeState(state => ({ ...state, range: setter(state.range) }));
     const setNewAttributes = (setter: (prev: Partial<Omit<SemanticModelRelationship, "type">>[]) => Partial<Omit<SemanticModelRelationship, "type">>[]) =>
         props.changeState(state => ({ ...state, newAttributes: setter(state.newAttributes) }));

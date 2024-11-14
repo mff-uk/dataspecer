@@ -2,7 +2,7 @@ import { isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import type { ModelGraphContextType } from "../context/model-context";
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { getDomainAndRange } from "../service/relationship-service";
+import { getDomainAndRange } from "../util/relationship-utils";
 import { isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 /**

@@ -15,7 +15,7 @@ import {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { addRelationToVisualModelAction } from "./add-relation-to-visual-model";
 import { findSourceModelOfEntity } from "../service/model-service";
-import { getDomainAndRange } from "../service/relationship-service";
+import { getDomainAndRange } from "../util/relationship-utils";
 import type { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
 import type { EntityModel } from "@dataspecer/core-v2";
 
@@ -87,8 +87,13 @@ function addRelationships(
         addRelationToVisualModelAction(notifications, graph, model.getId(), entity.id);
       }
     }
-    if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
+    if (isSemanticModelRelationship(entity)) {
       if (shouldAddRelationship(visualModel, identifier, entity)) {
+        addRelationToVisualModelAction(notifications, graph, model.getId(), entity.id);
+      }
+    }
+    if (isSemanticModelRelationshipUsage(entity)) {
+      if (shouldAddRelationshipUsage(visualModel, identifier, entity)) {
         addRelationToVisualModelAction(notifications, graph, model.getId(), entity.id);
       }
     }
@@ -117,7 +122,24 @@ function shouldAddGeneralization(
 function shouldAddRelationship(
   visualModel: VisualModel,
   identifier: string,
-  entity: SemanticModelRelationship | SemanticModelRelationshipUsage,
+  entity: SemanticModelRelationship,
+): boolean {
+  const { domain, range } = getDomainAndRange(entity);
+  if (domain?.concept === identifier) {
+    const other = range?.concept ?? null;
+    return other !== null && visualModel.getVisualEntityForRepresented(other) !== null;
+  } else if (range?.concept === identifier) {
+    const other = domain?.concept ?? null;
+    return other !== null && visualModel.getVisualEntityForRepresented(other) !== null;
+  } else {
+    return false;
+  }
+}
+
+function shouldAddRelationshipUsage(
+  visualModel: VisualModel,
+  identifier: string,
+  entity: SemanticModelRelationshipUsage,
 ): boolean {
   const { domain, range } = getDomainAndRange(entity);
   if (domain?.concept === identifier) {

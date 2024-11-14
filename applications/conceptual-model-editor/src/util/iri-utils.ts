@@ -14,10 +14,10 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { temporaryDomainRangeHelper } from "./relationship-utils";
 import type { EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
+
+import { getDomainAndRange } from "./relationship-utils";
 import { IRI } from "iri";
 
 /**
@@ -53,7 +53,7 @@ export const getIri = (
     } else if (isSemanticModelClassUsage(entity)) {
         iri = (entity as SemanticModelClass & SemanticModelClassUsage)?.iri ?? null;
     } else if (isSemanticModelRelationshipUsage(entity)) {
-        iri = temporaryDomainRangeHelper(entity)?.range?.iri ?? null;
+        iri = getDomainAndRange(entity).range?.iri ?? null;
     } else {
         iri = null;
     }
@@ -104,9 +104,17 @@ export const entityWithOverriddenIri = <T extends EntityDetailSupportedType | Se
 ): T => {
     if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
         return { ...entity, iri: iri };
-    } else if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
-        const currentEnds = temporaryDomainRangeHelper(entity);
-        if (!currentEnds) {
+    } else if (isSemanticModelRelationship(entity)) {
+        const currentEnds = getDomainAndRange(entity);
+        if (currentEnds.rangeIndex === null || currentEnds.range === null) {
+            return entity;
+        }
+        const newEnds = entity.ends;
+        newEnds[currentEnds.rangeIndex] = { ...currentEnds.range, iri: iri };
+        return { ...entity, ends: newEnds };
+    } else if (isSemanticModelRelationshipUsage(entity)) {
+        const currentEnds = getDomainAndRange(entity);
+        if (currentEnds.rangeIndex === null || currentEnds.range === null) {
             return entity;
         }
         const newEnds = entity.ends;

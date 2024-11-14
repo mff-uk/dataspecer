@@ -31,7 +31,7 @@ import { createRelationshipUsage, modifyClassUsage, modifyRelationshipUsage } fr
 import { OverriddenFieldsType } from "../util/profile-utils";
 import { createGeneralization, createRelationship, deleteEntity, modifyClass, modifyRelation, Operation } from "@dataspecer/core-v2/semantic-model/operations";
 import { EntityModel } from "@dataspecer/core-v2";
-import { temporaryDomainRangeHelper } from "../util/relationship-utils";
+import { DomainAndRange, getDomainAndRange } from "../util/relationship-utils";
 
 export function openModifyDialogAction(
   options: Options,
@@ -117,19 +117,23 @@ const saveChanges = (
       overriddenFields, initialOverriddenFields,
       iri, name, description, usageNote));
   } else if (isSemanticModelRelationship(modifiedEntity)) {
-    const currentDomainAndRange = temporaryDomainRangeHelper(modifiedEntity);
+    const currentDomainAndRange = getDomainAndRange(modifiedEntity);
 
     operations.push(...relationshipChangesToOperations(
       modifiedEntity, changedFields,
-      iri, name, description, domain!, range!,
+      iri, name, description,
+      domain as SemanticModelRelationshipEnd,
+      range as SemanticModelRelationshipEnd,
       currentDomainAndRange));
   } else if (isSemanticModelRelationshipUsage(modifiedEntity)) {
-    const currentDomainAndRange = temporaryDomainRangeHelper(modifiedEntity);
+    const currentDomainAndRange = getDomainAndRange(modifiedEntity);
 
     operations.push(...relationshipUsageChangesToOperations(
       modifiedEntity, changedFields,
       overriddenFields, initialOverriddenFields,
-      iri, name, description, domain!, range!,
+      iri, name, description,
+      domain as SemanticModelRelationshipEndUsage,
+      range as SemanticModelRelationshipEndUsage,
       currentDomainAndRange, usageNote));
   }
   operations.push(...getAdditionalOperationsToExecute(
@@ -279,7 +283,7 @@ const relationshipChangesToOperations = (
   description: LanguageString,
   domain: SemanticModelRelationshipEnd,
   range: SemanticModelRelationshipEnd,
-  initialDomainAndRange: DomainAndRangeContainer | null,
+  initialDomainAndRange: DomainAndRange<SemanticModelRelationshipEnd>,
 ): Operation[] => {
 
   // Get changes for the domain.
@@ -297,11 +301,11 @@ const relationshipChangesToOperations = (
 
   // Merge original values with the changes, to construct full objects.
   const domainEnd: SemanticModelRelationshipEnd = {
-    ...initialDomainAndRange!.domain,
+    ...initialDomainAndRange.domain!,
     ...domainChanges,
   };
   const rangeEnd: SemanticModelRelationshipEnd = {
-    ...initialDomainAndRange!.range,
+    ...initialDomainAndRange.range!,
     ...rangeChanges,
   };
 
@@ -376,20 +380,20 @@ const relationshipUsageChangesToOperations = (
   iri: string | undefined,
   name: LanguageString,
   description: LanguageString,
-  domain: SemanticModelRelationshipEnd,
-  range: SemanticModelRelationshipEnd,
-  initialDomainAndRange: DomainAndRangeContainer | null,
+  domain: SemanticModelRelationshipEndUsage,
+  range: SemanticModelRelationshipEndUsage,
+  initialDomainAndRange: DomainAndRange<SemanticModelRelationshipEndUsage>,
   usageNote: LanguageString,
 ) => {
   // Get changes for the domain.
   const domainChanges = {} as Partial<Omit<SemanticModelRelationshipEndUsage, "type" | "id">>;
   addValueToChangesWhenValueHasChanged(
     changedFields.domain, overriddenFields.domain, initialOverriddenFields.domain,
-    domain.concept, initialDomainAndRange?.domain.concept,
+    domain.concept, initialDomainAndRange.domain?.concept,
     domainChanges, "concept");
   addValueToChangesWhenValueHasChanged(
     changedFields.domainCardinality, overriddenFields.domainCardinality, initialOverriddenFields.domainCardinality,
-    domain.cardinality, initialDomainAndRange?.domain.cardinality,
+    domain.cardinality, initialDomainAndRange.domain?.cardinality,
     domainChanges, "cardinality");
 
   // Get range changes.
@@ -405,11 +409,11 @@ const relationshipUsageChangesToOperations = (
     rangeChanges, "description");
   addValueToChangesWhenValueHasChanged(
     changedFields.range, overriddenFields.range, initialOverriddenFields.range,
-    range.concept, initialDomainAndRange?.range.concept,
+    range.concept, initialDomainAndRange.range?.concept,
     rangeChanges, "concept");
   addValueToChangesWhenValueHasChanged(
     changedFields.rangeCardinality, overriddenFields.rangeCardinality, initialOverriddenFields.rangeCardinality,
-    range.cardinality, initialDomainAndRange?.range.cardinality,
+    range.cardinality, initialDomainAndRange.range?.cardinality,
     rangeChanges, "cardinality");
   rangeChanges = changedFields.usageNote ? { ...rangeChanges, usageNote: usageNote } : rangeChanges;
 

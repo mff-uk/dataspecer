@@ -11,18 +11,20 @@ import {
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
     type SemanticModelClassUsage,
+    SemanticModelRelationshipEndUsage,
     type SemanticModelRelationshipUsage,
     isSemanticModelAttributeUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+
 import { DomainRangeComponent } from "../components/domain-range-component";
 import { getDescriptionLanguageString, getNameLanguageString } from "../../util/name-utils";
-import { temporaryDomainRangeHelper } from "../../util/relationship-utils";
+import { getDomainAndRange } from "../../util/relationship-utils";
 import { ProfileModificationWarning } from "../../features/warnings/profile-modification-warning";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
 import { getEntityTypeString, createEntityProxy } from "../../util/detail-utils";
 import { MultiLanguageInputForLanguageStringWithOverride } from "../../components/input/multi-language-input-4-language-string-with-override";
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { DialogColoredModelHeaderWithModelSelector } from "../../components/dialog/dialog-colored-model-header";
 import { getIri } from "../../util/iri-utils";
 import { getRandomName } from "../../util/random-gen";
@@ -32,7 +34,6 @@ import { type OverriddenFieldsType, getDefaultOverriddenFields, isSemanticProfil
 import { t } from "../../application";
 import { prefixForIri } from "../../service/prefix-service";
 import { DialogProps, DialogWrapper } from "../dialog-api";
-import { findSourceModelOfEntity } from "../../service/model-service";
 
 export type SupportedTypes =
     | SemanticModelClass
@@ -62,9 +63,9 @@ export interface CreateProfileState {
 
     usageNote: LanguageString;
 
-    domain: SemanticModelRelationshipEnd;
+    domain: SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage;
 
-    range: SemanticModelRelationshipEnd;
+    range: SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage;
 
     //
 
@@ -114,7 +115,14 @@ function createCreateProfileState(
     language: string,
 ): CreateProfileState {
     const entityProxy = createEntityProxy(classes, graph, entity);
-    const domainAndRange = entityProxy.canHaveDomainAndRange ? temporaryDomainRangeHelper(entity) : null;
+
+    let domainAndRange = null;
+    if (isSemanticModelRelationship(entity)) {
+        domainAndRange = getDomainAndRange(entity);
+    } else if (isSemanticModelRelationshipUsage(entity)) {
+        domainAndRange = getDomainAndRange(entity);
+    }
+
     const models = filterInMemoryModels([...graph.models.values()]);
     // By default we need to create a model in the first model not the model of the entity.
     const model = models[0];
@@ -210,9 +218,9 @@ const CreateProfileDialog = (props: DialogProps<CreateProfileState>) => {
         props.changeState(prev => ({ ...prev, description: setter(prev.description) }));
     const setUsageNote = (setter: (prev: LanguageString) => LanguageString) =>
         props.changeState(prev => ({ ...prev, usageNote: setter(prev.usageNote) }));
-    const setNewDomain = (setter: (prev: SemanticModelRelationshipEnd) => SemanticModelRelationshipEnd) =>
+    const setNewDomain = (setter: (prev: SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage) => SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage) =>
         props.changeState(state => ({ ...state, domain: setter(state.domain) }));
-    const setNewRange = (setter: (prev: SemanticModelRelationshipEnd) => SemanticModelRelationshipEnd) =>
+    const setNewRange = (setter: (prev: SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage) => SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage) =>
         props.changeState(state => ({ ...state, range: setter(state.range) }));
 
     const setChangedFields = (setter: (prev: ChangedFieldsType) => ChangedFieldsType) =>
