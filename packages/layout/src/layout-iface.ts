@@ -120,7 +120,7 @@ export interface GraphTransformer {
      * 1) Get {@link ExtractedModels} from provided model
      * 2) Call this method
      * 3) Perform layouting
-     * 4) Convert layouted elements to {@link VisualEntities} using {@link convertToDataspecerRepresentation}, these elements can then be shown in cme (conceptual model editor).
+     * 4) Convert layouted elements to {@link LayoutedVisualEntities} using {@link convertToDataspecerRepresentation}, these elements can then be shown in cme (conceptual model editor).
      * @deprecated (not deprecated yet though) Use {@link convertGraphToLibraryRepresentation} instead */
     convertToLibraryRepresentation(extractedModels: ExtractedModels, options?: object): object,
 

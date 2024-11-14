@@ -55,10 +55,14 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
     console.info("resources");
     console.info(resources);
     console.info(resource);
-
-    let visualEntities: VisualEntitiesAllType;
+    const visualEntities: VisualEntitiesAllType = {};
     try {
-      visualEntities = await performLayoutOfSemanticModel(entities, semanticModelId, getValidConfig());
+      const layoutedVisualEntities = await performLayoutOfSemanticModel(entities, semanticModelId, getValidConfig());
+      Object.entries(layoutedVisualEntities).forEach(([key, layoutedVisualEntity]) => {
+        visualEntities[key] = layoutedVisualEntity.visualEntity;
+      });
+
+
       const generatedIdentifierForModelColor = (Math.random() + 1).toString(36).substring(7);
       visualEntities[generatedIdentifierForModelColor] = {
         type: [MODEL_VISUAL_TYPE],

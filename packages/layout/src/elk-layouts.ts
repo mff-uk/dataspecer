@@ -280,8 +280,8 @@ class ElkGraphTransformer implements GraphTransformer {
                 const waypoints = this.convertElkEdgeToWaypoints(edge, referenceX, referenceY);
                 const edgeInGraph = graphToBeUpdated.mainGraph.findEdgeInAllEdges(edge.id);
                 // TODO: Update the visual entity of edge or create new one .... But what about the split ones???
-                edgeInGraph.visualEdge.waypoints = waypoints;
-                visualEntities.push(edgeInGraph.visualEdge);
+                edgeInGraph.visualEdge.visualEdge.waypoints = waypoints;
+                visualEntities.push(edgeInGraph.visualEdge.visualEdge);
             }
         }
         return visualEntities;

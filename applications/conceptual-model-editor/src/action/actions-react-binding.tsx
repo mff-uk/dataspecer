@@ -29,11 +29,10 @@ import { findSourceModelOfEntity } from "../service/model-service";
 import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
 import { isVisualNode, isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel, Waypoint } from "@dataspecer/core-v2/visual-model";
 import { openCreateConnectionDialogAction } from "./open-create-connection";
-import { ExplicitAnchors, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4, placePositionOnGrid, ReactflowDimensionsConstantEstimator, UserGivenConstraintsVersion4 } from "@dataspecer/layout";
+import { ExplicitAnchors, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4, LayoutedVisualEntities, placePositionOnGrid, ReactflowDimensionsConstantEstimator, UserGivenConstraintsVersion4 } from "@dataspecer/layout";
 import { computeMiddleOfRelatedAssociationsPositionAction } from "./utils";
 import { layoutActiveVisualModelAction, layoutActiveVisualModelAdvancedAction } from "./layout-visual-model";
 import { changeAnchorAction } from "./change-anchor";
-import { VisualEntities } from "@dataspecer/layout";
 
 export interface ActionsContextType {
 
@@ -80,7 +79,7 @@ export interface ActionsContextType {
 
   centerViewportToVisualEntity: (model: string, identifier: string) => void;
 
-  layoutActiveVisualModel: (configuration: UserGivenConstraintsVersion4) => Promise<VisualEntities | void>;
+  layoutActiveVisualModel: (configuration: UserGivenConstraintsVersion4) => Promise<LayoutedVisualEntities | void>;
 
   changeAnchor: (semanticEntityIdentifier: string) => void;
 
@@ -269,11 +268,11 @@ function createActionsContext(
       // https://stackoverflow.com/questions/50959135/detecting-that-a-function-returned-void-rather-than-undefined
       if(layoutResults !== null && typeof layoutResults === 'object') {
         const newVisualEntityForNewNode = Object.entries(layoutResults).find(([visualEntityIdentifier, visualEntity]) => {
-          if(isVisualNode(visualEntity)) {
-            return visualEntity.representedEntity === identifier;
+          if(isVisualNode(visualEntity.visualEntity)) {
+            return visualEntity.visualEntity.representedEntity === identifier;
           }
           return false;
-        })?.[1];
+        })?.[1].visualEntity;
 
         console.info("layoutResults");
         console.info(layoutResults);
@@ -284,8 +283,8 @@ function createActionsContext(
       }
     }
 
-    console.warn("POSITIONS!");
-    console.warn(JSON.stringify([...graph.aggregatorView.getActiveVisualModel()?.getVisualEntities().values() ?? []].filter(isVisualNode).map(n => [n.identifier, n.position])));
+    console.info("POSITIONS!");
+    console.info(JSON.stringify([...graph.aggregatorView.getActiveVisualModel()?.getVisualEntities().values() ?? []].filter(isVisualNode).map(n => [n.identifier, n.position])));
 
     addNodeToVisualModelAction(notifications, graph, model, identifier, position);
   };

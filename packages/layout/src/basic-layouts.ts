@@ -4,9 +4,7 @@ import { ConstraintContainer } from "./configs/constraint-container";
 import { NodeDimensionQueryHandler } from ".";
 import { GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, MainGraphClassic, VisualNodeComplete } from "./graph-iface";
 import _ from "lodash";
-import { VisualEntities } from "./migration-to-cme-v2";
-import { EntityModel } from "@dataspecer/core-v2";
-import { VISUAL_NODE_TYPE, VisualNode } from "@dataspecer/core-v2/visual-model";
+import { VisualNode } from "@dataspecer/core-v2/visual-model";
 
 
 /**
@@ -71,46 +69,4 @@ export class RandomLayout implements LayoutAlgorithm {
     graph: IGraphClassic;
     extractedModels: ExtractedModels;         // TODO: Can remove
     constraintContainer: ConstraintContainer;
-}
-
-
-export interface BlockLayoutOptions {
-    colCount: number,
-    rowJump: number,
-    colJump: number
-}
-
-/**
- * Puts nodes into block
- * @deprecated
- */
-export async function doBlockLayout(inputSemanticModels: Map<string, EntityModel>, options: BlockLayoutOptions): Promise<VisualEntities> {
-    const { entities, classes, classesProfiles, relationships, relationshipsProfiles, generalizations } = extractModelObjects(inputSemanticModels);
-
-    let currRow: number = 0;
-    let currCol: number = -1;
-
-    const visualEntities = classes.map(cls => {
-        currCol++;
-        if (currCol % options.colCount == 0) {
-            currCol = 0;
-            currRow++;
-        }
-
-        return {
-            identifier: Math.random().toString(36).substring(2),
-            type: ["visual-entity"],
-            representedEntity: cls.sourceEntityModelIdentifier,
-            model: Object.values(inputSemanticModels)[0].getId(),
-            position: {
-                x: currCol * options.colJump,
-                y: currRow * options.rowJump,
-                anchored: null
-            },
-            content: [],
-            visualModels: [],
-        } as VisualNode
-    });
-
-    return Object.fromEntries(visualEntities.map(entity => [entity.representedEntity, entity])) as VisualEntities;
 }

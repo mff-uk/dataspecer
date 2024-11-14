@@ -61,19 +61,23 @@ export function layoutActiveVisualModelAdvancedAction(
                                     }
 
                                     Object.entries(result).forEach(([key, value]) => {
-                                        if(isVisualNode(value)) {
-                                            if(activeVisualModelWithOutsiders.outsiders[value.representedEntity] !== undefined) {
-                                                if(shouldPutOutsidersInVisualModel) {
-                                                    addNodeToVisualModelAction(notifications, graph, value.model, value.representedEntity, value.position);
+                                        const visualEntity = value.visualEntity
+                                        if(value.isOutsider) {
+                                            if(shouldPutOutsidersInVisualModel) {
+                                                if(isVisualNode(visualEntity)) {
+                                                    addNodeToVisualModelAction(notifications, graph, visualEntity.model, visualEntity.representedEntity, visualEntity.position);
                                                 }
-                                                return;
+                                                else {
+                                                    throw new Error("Not prepared for creating new elements which are not nodes when layouting");
+                                                }
                                             }
+                                            return;
                                         }
 
                                         if(activeVisualModel.getVisualEntity(key) === undefined) {
-                                            if(isVisualNode(value)) {
+                                            if(isVisualNode(visualEntity)) {
                                                 console.info("NEW NODE");
-                                                addNodeToVisualModelAction(notifications, graph, value.model, value.representedEntity, value.position);
+                                                addNodeToVisualModelAction(notifications, graph, visualEntity.model, visualEntity.representedEntity, visualEntity.position);
                                             }
                                             else {
                                                 throw new Error("Not prepared for creating new elements which are not nodes when layouting");
@@ -81,12 +85,8 @@ export function layoutActiveVisualModelAdvancedAction(
                                         }
                                         else {
                                             // TODO: Should update all at once
-                                            console.info("UPDATING");
-                                            console.info(value.identifier);
-                                            console.info(value);
-                                            if(activeVisualModel.getVisualEntity(value.identifier) !== null) {
-                                                activeVisualModel?.updateVisualEntity(value.identifier, value);
-                                            }
+                                            // If the entity isn't there, then nothing happens (at least for current implementation)
+                                            activeVisualModel?.updateVisualEntity(visualEntity.identifier, visualEntity);
                                         }
                                     });
 

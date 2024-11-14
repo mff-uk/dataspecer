@@ -25,8 +25,8 @@ import { ConstraintFactory } from "./configs/constraint-factories";
 import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
 import { PhantomElementsFactory } from "./util/utils";
 import { CONSTRAINT_MAP } from "./configs/constraints-mapping";
-import type { VisualEntities, VisualEntitiesAllType } from "./migration-to-cme-v2";
-export { type VisualEntities } from "./migration-to-cme-v2";
+import type { LayoutedVisualEntities, VisualEntitiesAllType } from "./migration-to-cme-v2";
+export { type LayoutedVisualEntities } from "./migration-to-cme-v2";
 export type { VisualEntitiesAllType }
 import { EdgeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-crossing";
 import { EdgeNodeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-node-crossing";
@@ -115,7 +115,7 @@ export async function performLayoutOfVisualModel(visualModel: VisualModelWithOut
 													semanticModels: Map<string, EntityModel>,
 													config: UserGivenAlgorithmConfigurationslVersion4,
 													nodeDimensionQueryHandler?: NodeDimensionQueryHandler,
-													explicitAnchors?: ExplicitAnchors): Promise<VisualEntities> {
+													explicitAnchors?: ExplicitAnchors): Promise<LayoutedVisualEntities> {
 	console.log("config");
 	console.log(config);
 
@@ -131,7 +131,7 @@ export async function performLayoutOfVisualModel(visualModel: VisualModelWithOut
 export async function performLayoutOfSemanticModel(inputSemanticModel: Record<string, SemanticModelEntity>,
 													semanticModelId: string,
 													config: UserGivenAlgorithmConfigurationslVersion4,
-													nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
+													nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<LayoutedVisualEntities> {
 	const entityModelUsedForConversion: EntityModel = {
 		getEntities: function (): Entities {
 			return inputSemanticModel;
@@ -160,7 +160,7 @@ function performLayoutInternal(visualModel: VisualModelWithOutsiders,
 								semanticModels: Map<string, EntityModel>,
 								config: UserGivenAlgorithmConfigurationslVersion4,
 								nodeDimensionQueryHandler?: NodeDimensionQueryHandler,
-								explicitAnchors?: ExplicitAnchors): Promise<VisualEntities> {
+								explicitAnchors?: ExplicitAnchors): Promise<LayoutedVisualEntities> {
 	const graph = GraphFactory.createMainGraph(null, semanticModels, null, visualModel, nodeDimensionQueryHandler, explicitAnchors);
 	const visualEntitiesPromise = performLayoutFromGraph(graph, config);
 
@@ -182,7 +182,7 @@ function performLayoutInternal(visualModel: VisualModelWithOutsiders,
  * @returns
  */
 export async function performLayoutFromGraph(graph: IMainGraphClassic,
-												config: UserGivenAlgorithmConfigurationslVersion4): Promise<VisualEntities> {
+												config: UserGivenAlgorithmConfigurationslVersion4): Promise<LayoutedVisualEntities> {
 	const constraints = ConstraintFactory.createConstraints(config);
 
 	// TODO: Try this later, now it isn't that important
