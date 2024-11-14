@@ -1074,6 +1074,9 @@ class EdgeClassic implements IEdgeClassic {
                 }
             }
         }
+        else {
+            this.visualEdge = new VisualEdge(this.createNewVisualRelationshipBasedOnSemanticData(), false);
+        }
     }
 }
 
