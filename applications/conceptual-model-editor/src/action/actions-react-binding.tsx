@@ -32,11 +32,10 @@ import { openCreateConnectionDialogAction } from "./open-create-connection";
 import { placePositionOnGrid, ReactflowDimensionsConstantEstimator } from "@dataspecer/layout";
 import { reductionTotalFilterAction, TotalFilter } from "./filter-selection-action";
 import { extendSelectionAction, ExtensionType, VisibilityFilter } from "./extend-selection-action";
-import { createSelectClassesDialog } from "../dialog/select-classes/select-classes-dialog";
-import { ExtendSelectionState } from "../dialog/select-classes/extend-selection-dialog-controller";
-import { createExtendSelectionDialog } from "../dialog/select-classes/extend-selection-dialog";
-import { FilterSelectionState } from "../dialog/select-classes/filter-selection-dialog-controller";
-import { createFilterSelectionDialog } from "../dialog/select-classes/filter-selection-dialog";
+import { ExtendSelectionState } from "../dialog/selection/extend-selection-dialog-controller";
+import { createExtendSelectionDialog } from "../dialog/selection/extend-selection-dialog";
+import { FilterSelectionState } from "../dialog/selection/filter-selection-dialog-controller";
+import { createFilterSelectionDialog } from "../dialog/selection/filter-selection-dialog";
 
 export interface ActionsContextType {
 
@@ -358,7 +357,7 @@ function createActionsContext(
             return checkboxState.totalFilterType;
         }
         return null;
-    }).filter(e => e !== null);
+    }).filter(checkbox => checkbox !== null);
 
       const reduction = reductionTotalFilterAction(state.selection, relevantTotalFilterTypes, "ONLY-VISIBLE", null, graph, notifications, classes);
       diagram.actions().setSelectedNodes(reduction);
