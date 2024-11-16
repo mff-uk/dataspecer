@@ -103,24 +103,6 @@ export const getFallbackDisplayName = (
     return getIri(resource, modelBaseIri) ?? resource?.id ?? null;
 };
 
-/**
- * Returns the name of the `model` to be displayed
- * @param model
- * @returns 1. <alias> (<model-id>), 2. <model-id>, 3. null for undefined/null model
- */
-export const getModelDisplayName = (model: EntityModel | null | undefined) => {
-    if (!model) {
-        return null;
-    }
-
-    const modelAlias = model.getAlias();
-    if (modelAlias) {
-        return `${modelAlias} (${model.getId()})`;
-    } else {
-        return model.getId();
-    }
-};
-
 export const getDuplicateNames = (
     resources: (
         | SemanticModelClass
