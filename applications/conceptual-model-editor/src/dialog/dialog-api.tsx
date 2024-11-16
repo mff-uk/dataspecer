@@ -48,6 +48,12 @@ export interface DialogWrapper<S> {
    */
   onClose: null | ((state: S) => void);
 
+
+  /**
+   * Used to specify possible class names to style dialog (for example to make it smaller or appear somewhere else).
+   */
+  dialogClassNames?: string;
+
 }
 
 /**

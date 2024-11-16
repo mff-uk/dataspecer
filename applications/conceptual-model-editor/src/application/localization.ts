@@ -135,6 +135,14 @@ const translations: Record<string, string | Function> = {
   "create-connection-dialog.label" : "Create connection",
   "create-connection-dialog.btn-ok" : "✅ Create",
   "create-connection-dialog.btn-close" : "❌ Discard",
+  //
+  "filter-selection-dialog.label": "Filter selection",
+  "filter-selection-dialog.btn-ok": "✅ Filter",
+  "filter-selection-dialog.btn-cancel": "❌ Cancel",
+  //
+  "extend-selection-dialog.label": "Extend selection",
+  "extend-selection-dialog.btn-ok": "✅ Accept",
+  "extend-selection-dialog.btn-cancel": "❌ Cancel",
 };
 
 export const t = (text: string, ...args: unknown[]) : string => {

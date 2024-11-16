@@ -416,6 +416,14 @@ const createActions = (
     },
     setSelectedNodes(nodes) {
       console.log("Diagram.setSelectedNodes", nodes);
+      reactFlow.setNodes(prevNodes => {
+        return prevNodes.map(node => {
+          if(nodes.find(selected => selected === node.data.externalIdentifier) !== undefined) {
+            return {...node, selected: true};
+          }
+          return {...node, selected: false};
+        });
+      });
     },
     getSelectedEdges() {
       console.log("Diagram.getSelectedEdges");

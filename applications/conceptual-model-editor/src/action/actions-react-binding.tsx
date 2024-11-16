@@ -1,6 +1,6 @@
 import React, { useContext, useMemo } from "react";
 
-import { type InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 
 import { type DialogApiContextType } from "../dialog/dialog-service";
 import { DialogApiContext } from "../dialog/dialog-context";
@@ -30,6 +30,13 @@ import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
 import { isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel, Waypoint } from "@dataspecer/core-v2/visual-model";
 import { openCreateConnectionDialogAction } from "./open-create-connection";
 import { placePositionOnGrid, ReactflowDimensionsConstantEstimator } from "@dataspecer/layout";
+import { reductionTotalFilterAction, TotalFilter } from "./filter-selection-action";
+import { extendSelectionAction, ExtensionType, VisibilityFilter } from "./extend-selection-action";
+import { createSelectClassesDialog } from "../dialog/select-classes/select-classes-dialog";
+import { ExtendSelectionState } from "../dialog/select-classes/extend-selection-dialog-controller";
+import { createExtendSelectionDialog } from "../dialog/select-classes/extend-selection-dialog";
+import { FilterSelectionState } from "../dialog/select-classes/filter-selection-dialog-controller";
+import { createFilterSelectionDialog } from "../dialog/select-classes/filter-selection-dialog";
 
 export interface ActionsContextType {
 
@@ -76,6 +83,34 @@ export interface ActionsContextType {
 
   centerViewportToVisualEntity: (model: string, identifier: string) => void;
 
+
+  /**
+   * Open dialog to extend current selection.
+   */
+  openExtendSelectionDialog: (selection: string[]) => void;
+
+
+  /**
+   * Open dialog to filter current selection.
+   */
+  openFilterSelectionDialog: (selection: string[]) => void;
+
+
+  /**
+   * Calls action {@link extendSelectionAction} with correct context
+   * @returns The extended selection
+   */
+  extendSelection: (selection: string[],
+                          extensionTypes: ExtensionType[],
+                          visible: VisibilityFilter,
+                          semanticModelFilter: Record<string, boolean> | null) => Promise<string[]>;
+
+
+  reductionTotalFilter: (selection: string[],
+                              allowedClasses: TotalFilter[],
+                              visibilityFilter: VisibilityFilter,
+                              semanticModelFilter: Record<string, boolean> | null) => string[];
+
   /**
    * As this context requires two way communication it is created and shared via the actions.
    */
@@ -95,6 +130,11 @@ const noOperationActionsContext = {
   deleteFromSemanticModel: noOperationAsync,
   removeFromVisualModel: noOperation,
   centerViewportToVisualEntity: noOperation,
+  openExtendSelectionDialog: noOperation,
+  openFilterSelectionDialog: noOperation,
+  // TODO: How to define this
+  extendSelection: async () => [],
+  reductionTotalFilter: () => [],
   diagram: null,
 };
 
@@ -293,6 +333,61 @@ function createActionsContext(
     }
   };
 
+
+  const openExtendSelectionDialog = (selection: string[]) => {
+    const onConfirm = (state: ExtendSelectionState) => {
+      diagram.actions().setSelectedNodes(state.selection);
+    };
+
+    const onClose = () => {
+      diagram.actions().setSelectedNodes(selection);
+    };
+
+    dialogs?.openDialog(createExtendSelectionDialog(
+                                                    onConfirm,
+                                                    onClose,
+                                                    selection,
+                                                    diagram.actions().setSelectedNodes));
+  };
+
+
+  const openFilterSelectionDialog = (selection: string[]) => {
+    const onConfirm = (state: FilterSelectionState) => {
+      const relevantTotalFilterTypes = state.filters.map(checkboxState => {
+        if(checkboxState.checked) {
+            return checkboxState.totalFilterType;
+        }
+        return null;
+    }).filter(e => e !== null);
+
+      const reduction = reductionTotalFilterAction(state.selection, relevantTotalFilterTypes, "ONLY-VISIBLE", null, graph, notifications, classes);
+      diagram.actions().setSelectedNodes(reduction);
+    };
+
+    dialogs?.openDialog(createFilterSelectionDialog(
+                                                    onConfirm,
+                                                    selection,
+                                                    diagram.actions().setSelectedNodes));
+  };
+
+
+  const extendSelection = async (selection: string[],
+                                  extensionTypes: ExtensionType[],
+                                  visible: VisibilityFilter,
+                                  semanticModelFilter: Record<string, boolean> | null) => {
+    return await extendSelectionAction(selection, extensionTypes, visible, false, semanticModelFilter, classes, graph);
+  };
+
+
+  const reductionTotalFilter = (selection: string[],
+                                        allowedClasses: TotalFilter[],
+                                        visibilityFilter: VisibilityFilter,
+                                        semanticModelFilter: Record<string, boolean> | null) => {
+    return reductionTotalFilterAction(selection, allowedClasses, visibilityFilter, semanticModelFilter,
+                                      graph, notifications, classes);
+  };
+
+
   // Prepare and set diagram callbacks.
 
   const callbacks: DiagramCallbacks = {
@@ -433,6 +528,12 @@ function createActionsContext(
     deleteFromSemanticModel,
     removeFromVisualModel,
     centerViewportToVisualEntity,
+
+    openExtendSelectionDialog,
+    openFilterSelectionDialog,
+    extendSelection,
+    reductionTotalFilter,
+
     diagram,
   };
 

@@ -26,6 +26,7 @@ import { AlignmentComponent } from "./features/alignment-viewportal";
 import { EdgeType, type Node as ApiNode } from "./diagram-api";
 import { ClassProfileEdge, ClassProfileEdgeName } from "./edge/class-profile-edge";
 import { GeneralizationEdge, GeneralizationEdgeName } from "./edge/generalization-edge";
+import { useActions } from "../action/actions-react-binding";
 
 export function Diagram(props: { diagram: UseDiagramType }) {
   // We use ReactFlowProvider as otherwise use of ReactFlow hooks,
@@ -51,8 +52,17 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
   const controller = useDiagramController(props.diagram);
   const { xSnapGrid, ySnapGrid } = configuration();
 
+  // TODO: For now
+  const actions = useActions();
+
   return (
     <>
+      <div>
+        <button onClick={() => actions.openExtendSelectionDialog(controller.nodes.filter(n => n.selected === true).map(n => n.data.externalIdentifier))}>Extend selection</button>
+      </div>
+      <div>
+        <button onClick={() => actions.openFilterSelectionDialog(controller.nodes.filter(n => n.selected === true).map(n => n.data.externalIdentifier))}>Filter selection</button>
+      </div>
       <DiagramContext.Provider value={controller.context}>
         <CustomEdgeMarkers />
         <ReactFlow
