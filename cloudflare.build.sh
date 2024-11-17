@@ -11,20 +11,20 @@ set -e # Exit with nonzero exit code if anything fails
 
 if [ -n "$USE_NEW_MANAGER" ]; then
   NEW_MANAGER="/"
-  OLD_MANAGER="data-specification-manager"
+  OLD_MANAGER="$BASE_PATH/data-specification-manager"
 else
   NEW_MANAGER="/manager"
-  OLD_MANAGER=""
+  OLD_MANAGER="$BASE_PATH"
 fi
 
 npm ci
 
-printf "REACT_APP_BACKEND=$BACKEND\nREACT_APP_DEBUG_VERSION=$CF_PAGES_BRANCH@$(echo $CF_PAGES_COMMIT_SHA | head -c7) $(date -u +%F\ %H:%M:%S)\nREACT_APP_MANAGER_BASE_URL=$BASE_PATH/$OLD_MANAGER\nREACT_APP_WIKIDATA_ONTOLOGY_BACKEND=$WIKIDATA_ONTOLOGY_BACKEND\nREACT_APP_STRUCTURE_EDITOR_BASE_URL=$BASE_PATH/editor\n" > applications/client/.env.local
+printf "REACT_APP_BACKEND=$BACKEND\nREACT_APP_DEBUG_VERSION=$CF_PAGES_BRANCH@$(echo $CF_PAGES_COMMIT_SHA | head -c7) $(date -u +%F\ %H:%M:%S)\nREACT_APP_MANAGER_BASE_URL=$OLD_MANAGER/\nREACT_APP_WIKIDATA_ONTOLOGY_BACKEND=$WIKIDATA_ONTOLOGY_BACKEND\nREACT_APP_STRUCTURE_EDITOR_BASE_URL=$BASE_PATH/editor\n" > applications/client/.env.local
 
 printf "VITE_PUBLIC_BASE_PATH=$BASE_PATH/conceptual-model-editor\nVITE_PUBLIC_APP_BACKEND=$BACKEND\nVITE_PUBLIC_APP_BACKEND_PACKAGE_ROOT=http://dataspecer.com/packages/local-root\nVITE_PUBLIC_MANAGER_PATH=$BASE_PATH$NEW_MANAGER\nVITE_PUBLIC_DSCME_LOGO_LINK=$BASE_PATH$NEW_MANAGER\n" > applications/conceptual-model-editor/.env.local
 printf "VITE_PUBLIC_APP_AUTOSAVE_ENABLED_BY_DEFAULT=0\n" >> applications/conceptual-model-editor/.env.local
 
-printf "VITE_BACKEND=$BACKEND\nVITE_CME=$BASE_PATH/conceptual-model-editor\nVITE_API_SPECIFICATION_APPLICATION=$BASE_PATH/api-specification\nVITE_SCHEMA_EDITOR=$BASE_PATH/editor\n" > applications/manager/.env.local
+printf "VITE_BACKEND=$BACKEND\nVITE_CME=$BASE_PATH/conceptual-model-editor\nVITE_API_SPECIFICATION_APPLICATION=$BASE_PATH/api-specification\nVITE_SCHEMA_EDITOR=$BASE_PATH/editor\nVITE_DATA_SPECIFICATION_DETAIL=$OLD_MANAGER/specification\n" > applications/manager/.env.local
 
 printf "VITE_BACKEND=$BACKEND\n" > applications/api-specification/.env.local
 

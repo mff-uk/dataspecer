@@ -38,7 +38,9 @@ async function generateDsv(models: ModelDescription[]): Promise<string> {
             baseIri: model.baseIri,
             entities: Object.values(model.entities),
         });
-        Object.values(model.entities).forEach(entity => modelForExport.entities.push(entity));
+        if (model.isPrimary) {
+            Object.values(model.entities).forEach(entity => modelForExport.entities.push(entity));
+        }
     }
     // Create context.
     const context = DataSpecificationVocabulary.createContext(contextModels, value => value ?? null);
@@ -358,7 +360,7 @@ export const getZip = asyncHandler(async (request: express.Request, response: ex
     const zip = new ZipStreamDictionary();
 
     await generateArtifacts(query.iri, zip as any);
-    
+
     // Send zip file
     response.type("application/zip").send(await zip.save());
     return;
