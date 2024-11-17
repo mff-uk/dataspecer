@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { EntityCatalog } from "./class-catalog";
+import { ClassCatalog } from "./class-catalog";
 import { ModelCatalog } from "./model-catalog";
 import { AttributeCatalog } from "./attribute-catalog";
 import { RelationshipCatalog } from "./relationship-catalog";
@@ -104,7 +104,7 @@ const selectTabConcent = (active: CatalogTabs) => {
         case CatalogTabs.Attributes:
             return AttributeCatalog;
         case CatalogTabs.Classes:
-            return EntityCatalog;
+            return ClassCatalog;
         case CatalogTabs.Profiles:
             return ProfileCatalog;
         case CatalogTabs.Warnings:
