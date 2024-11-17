@@ -36,7 +36,6 @@ export function centerViewportToVisualEntityAction(
     }
   }
 
-
   const visualModel = graph.aggregatorView.getActiveVisualModel();
   if (visualModel === null) {
     notifications.error("There is no active visual model.");

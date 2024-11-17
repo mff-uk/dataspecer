@@ -547,11 +547,11 @@ const focusNodeAction = (reactFlow: ReactFlowContext, node: Node) => {
   void reactFlow.setCenter(x, y, { zoom, duration: 1000 });
 };
 
-// TODO: I think that this is superset of the focusNodeAction
+// Should be superset of the focusNodeAction
 const focusNodesAction = (reactFlow: ReactFlowContext, nodes: Node[]) => {
   reactFlow.fitView({nodes: nodes,
-    duration: 1000, 
-    minZoom: 0.25
+    duration: 1000,
+    minZoom: 0.125
   });
 };
 
