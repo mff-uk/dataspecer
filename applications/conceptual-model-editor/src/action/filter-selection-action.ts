@@ -1,6 +1,6 @@
 import { EntityModel } from "@dataspecer/core-v2";
 import { sourceModelOfEntity } from "../util/model-utils";
-import { isSemanticModelClassUsage, SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { isSemanticModelClass, SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { ClassesContextEntities, isEntityInVisualModel, VisibilityFilter } from "./extend-selection-action";
 import { ClassesContextType } from "../context/classes-context";
@@ -11,70 +11,94 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 /**
  * Type representing total filter on the type of entity.
  */
-export type TotalFilter = "PROFILE" | "NORMAL";
+export type TotalFilter = "PROFILE-CLASS" | "NORMAL-CLASS" | "PROFILE-EDGE" | "NORMAL-EDGE" | "GENERALIZATION";
 
-type TotalFilterMethod = (selection: string[], filteredSelection: string[], contextEntities: ClassesContextEntities) => void;
+/**
+ * Appends to {@link filteredNodeSelection} the classes from {@link nodeSelection} passing filter
+ * and into {@link filteredEdgeSelection} the edges from {@link edgeSelection} passing filter.
+ * Note that filter is usually either for nodes or for edges. So usually either {@link filteredNodeSelection} or {@link filteredEdgeSelection} is unchanged.
+ */
+type TotalFilterMethod = (nodeSelection: string[], filteredNodeSelection: string[],
+                            edgeSelection: string[], filteredEdgeSelection: string[],
+                            contextEntities: ClassesContextEntities) => void;
 
+
+export type Selections = {
+    nodeSelection: string[],
+    edgeSelection: string[],
+}
 
 
 /**
  *
- * @returns Filters {@link selection} based on {@link allowedClasses} and {@link visibilityFilter} and {@link semanticModelFilter}
+ * @returns Filtered nodeSelection and edgeSelection stored inside {@link selections} based on {@link filters} and {@link visibilityFilter} and {@link semanticModelFilter}
  */
-export function reductionTotalFilterAction(selection: string[],
-                                allowedClasses: TotalFilter[],
+export function reductionTotalFilterAction(selections: Selections,
+                                filters: TotalFilter[],
                                 visibilityFilter: VisibilityFilter,
                                 semanticModelFilter: Record<string, boolean> | null,
                                 graph: ModelGraphContextType,
                                 notifications: UseNotificationServiceWriterType,
-                                classesContext: ClassesContextType | null): string[] {
+                                classesContext: ClassesContextType | null): Selections {
     if(classesContext === null) {
-        return [];
+        notifications.error("Classes context is null, can't filter the selection");
+        return {
+            nodeSelection: [...selections.nodeSelection],
+            edgeSelection: [...selections.edgeSelection]
+        };
     }
 
-    let filteredSelection: string[] = [];
+    let filteredNodeSelection: string[] = [];
+    let filteredEdgeSelection: string[] = [];
     const allowedClassesFilterMethods: TotalFilterMethod[] = [];
     const contextEntities: ClassesContextEntities = classesContext;
 
-    allowedClasses.forEach(allowedClass => {
-        switch(allowedClass) {
-            case "NORMAL":
-                allowedClassesFilterMethods.push(classFilter);
-                break;
-            case "PROFILE":
-                allowedClassesFilterMethods.push(profileFilter);
-                break;
+    for (const filter of filters) {
+        const filterMethod = ALLOWED_FILTERS[filter];
+        if(filterMethod === undefined) {
+            notifications.error("The filter for selection is not defined, probably programmer error");
         }
-    });
+        else {
+            allowedClassesFilterMethods.push(ALLOWED_FILTERS[filter]);
+        }
+    };
 
 
     allowedClassesFilterMethods.forEach(filterMethod => {
-        filterMethod(selection, filteredSelection, contextEntities);
+        filterMethod(selections.nodeSelection, filteredNodeSelection, selections.edgeSelection, filteredEdgeSelection, contextEntities);
     });
 
     const activeVisualModel = graph.aggregatorView.getActiveVisualModel();
     if((visibilityFilter === "ONLY-NON-VISIBLE" || visibilityFilter === "ONLY-VISIBLE") && activeVisualModel === null) {
-        notifications.error("No active visual model, can't filter based on visual model.");
-        return filteredSelection;
+        notifications.error("No active visual model, can't filter based on visual model. Returning current result without visibility filter.");
+        return {
+            nodeSelection: filteredNodeSelection,
+            edgeSelection: filteredEdgeSelection,
+        };
     }
 
     const models = graph.models;
 
-    filteredSelection = visibilityConditionFilter(filteredSelection, visibilityFilter, activeVisualModel);
+    filteredNodeSelection = visibilityConditionFilter(filteredNodeSelection, visibilityFilter, activeVisualModel);
+    filteredEdgeSelection = visibilityConditionFilter(filteredEdgeSelection, visibilityFilter, activeVisualModel);
     if(semanticModelFilter !== null) {
-        filteredSelection = totalFilterOnlyRelevantSemanticModelEntities(selection, filteredSelection, semanticModelFilter, models);
+        filteredNodeSelection = totalFilterOnlyRelevantSemanticModelEntities(selections.nodeSelection, filteredNodeSelection, semanticModelFilter, models);
+        filteredEdgeSelection = totalFilterOnlyRelevantSemanticModelEntities(selections.edgeSelection, filteredEdgeSelection, semanticModelFilter, models);
     }
 
-    return filteredSelection;
+    return {
+        nodeSelection: filteredNodeSelection,
+        edgeSelection: filteredEdgeSelection,
+    };
 }
 
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
 /**
- * @returns The {@link originalSelectionToFilter} after the filtering, concatened with the {@link reducedSelection}
+ * @returns The {@link selectionToFilter} after the filtering, concatened with the {@link selectionAfterFiltering}
  */
-function totalFilterOnlyRelevantSemanticModelEntities(originalSelectionToFilter: string[], reducedSelection: string[],
+function totalFilterOnlyRelevantSemanticModelEntities(selectionToFilter: string[], selectionAfterFiltering: string[],
                                                         semanticModelFilter: Record<string, boolean>,
                                                         models: Map<string, EntityModel>): string[] {
     const finalReduction: string[] = [];
@@ -95,14 +119,14 @@ function totalFilterOnlyRelevantSemanticModelEntities(originalSelectionToFilter:
     });
 
 
-    originalSelectionToFilter.forEach(originalSelectionClass => {
+    selectionToFilter.forEach(originalSelectionClass => {
         if(sourceModelOfEntity(originalSelectionClass, notConsideredModels) !== undefined) {
             finalReduction.push(originalSelectionClass);
         }
     });
 
     // Use "Set" to remove duplicates (as in https://stackoverflow.com/questions/9229645/remove-duplicate-values-from-js-array)
-    return [...new Set(finalReduction.concat(reducedSelection))];
+    return [...new Set(finalReduction.concat(selectionAfterFiltering))];
 }
 
 
@@ -139,27 +163,61 @@ function visibilityConditionFilter(arrayToFilter: string[], visibilityFilter: Vi
 }
 
 
+const ALLOWED_FILTERS: Record<TotalFilter, TotalFilterMethod> = {
+    "NORMAL-CLASS": classFilter,
+    "PROFILE-CLASS": profileClassFilter,
+    "NORMAL-EDGE": normalEdgeFilter,
+    "PROFILE-EDGE": profileEdgeFilter,
+    "GENERALIZATION": generalizationFilter,
+}
 
 
-/**
- * Puts into {@link filteredSelection} the classes from {@link selection}
- */
-function classFilter(selection: string[], filteredSelection: string[], contextEntities: ClassesContextEntities): void {
-    selection.map(selectedClassId => {
+function classFilter(nodeSelection: string[], filteredNodeSelection: string[],
+                        edgeSelection: string[], filteredEdgeSelection: string[],
+                        contextEntities: ClassesContextEntities): void {
+    nodeSelection.map(selectedClassId => {
         if(contextEntities.classes.findIndex(cclass => cclass.id === selectedClassId) >= 0) {
-            filteredSelection.push(selectedClassId);
+            filteredNodeSelection.push(selectedClassId);
         }
     });
 }
 
-
-/**
- * Puts into {@link filteredSelection} the profiles from {@link selection}
- */
-function profileFilter(selection: string[], filteredSelection: string[], contextEntities: ClassesContextEntities): void {
-    selection.map(selectedClassId => {
+function profileClassFilter(nodeSelection: string[], filteredNodeSelection: string[],
+                            edgeSelection: string[], filteredEdgeSelection: string[],
+                            contextEntities: ClassesContextEntities): void {
+    nodeSelection.map(selectedClassId => {
         if(contextEntities.profiles.findIndex(profile => profile.id === selectedClassId) >= 0) {
-            filteredSelection.push(selectedClassId);
+            filteredNodeSelection.push(selectedClassId);
+        }
+    });
+}
+
+function normalEdgeFilter(nodeSelection: string[], filteredNodeSelection: string[],
+                            edgeSelection: string[], filteredEdgeSelection: string[],
+                            contextEntities: ClassesContextEntities): void {
+    edgeSelection.map(selectedEdgeId => {
+        if(contextEntities.relationships.findIndex(relationship => relationship.id === selectedEdgeId) >= 0) {
+            filteredEdgeSelection.push(selectedEdgeId);
+        }
+    });
+}
+
+function profileEdgeFilter(nodeSelection: string[], filteredNodeSelection: string[],
+                            edgeSelection: string[], filteredEdgeSelection: string[],
+                            contextEntities: ClassesContextEntities): void {
+    edgeSelection.map(selectedEdgeId => {
+        if(contextEntities.profiles.findIndex(relationshipProfile => relationshipProfile.id === selectedEdgeId && isSemanticModelRelationshipUsage(relationshipProfile)) >= 0) {
+            filteredEdgeSelection.push(selectedEdgeId);
+        }
+    });
+}
+
+function generalizationFilter(nodeSelection: string[], filteredNodeSelection: string[],
+                            edgeSelection: string[], filteredEdgeSelection: string[],
+                            contextEntities: ClassesContextEntities): void {
+    edgeSelection.map(selectedEdgeId => {
+        if(contextEntities.generalizations.findIndex(generalization => generalization.id === selectedEdgeId) >= 0) {
+            filteredEdgeSelection.push(selectedEdgeId);
         }
     });
 }

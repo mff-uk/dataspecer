@@ -1,6 +1,15 @@
 import { Dispatch, SetStateAction, useMemo, useState } from "react";
 import { type DialogProps } from "../dialog-api";
-import { TotalFilter } from "../../action/filter-selection-action";
+import { Selections, TotalFilter } from "../../action/filter-selection-action";
+
+
+const TOTAL_FILTER_TO_CHECKBOX_NAME_MAP: Record<TotalFilter, string> = {
+  "NORMAL-CLASS": "Include non-profile classes in result",
+  "PROFILE-CLASS": "Include class profiles in result",
+  "NORMAL-EDGE": "Include normal relationships (associations)",
+  "PROFILE-EDGE": "Include profiled relationships",
+  "GENERALIZATION": "Include generalizations",
+}
 
 
 type TotalFilterData = {
@@ -11,8 +20,8 @@ type TotalFilterData = {
 }
 
 export interface FilterSelectionState {
-    selection: string[];
-    setSelectionInDiagram: (newSelection: string[]) => void;
+    selections: Selections,
+    setSelectionsInDiagram: (newSelections: Selections) => void;
     filters: TotalFilterData[];
 }
 
@@ -21,7 +30,7 @@ export interface FilterSelectionState {
  * @returns The created element
  */
 const createTotalFilterDataStateAndSaveIt = (checkboxStates: TotalFilterData[], totalFilterType: TotalFilter): TotalFilterData => {
-  const checkboxText = totalFilterType === "NORMAL" ? "Include non-profiles in result" : "Include profiles in result";
+  const checkboxText = TOTAL_FILTER_TO_CHECKBOX_NAME_MAP[totalFilterType];
   const filterData = {
       checked: true,
       checkboxText,
@@ -33,20 +42,24 @@ const createTotalFilterDataStateAndSaveIt = (checkboxStates: TotalFilterData[], 
   return filterData;
 };
 
-export function createFilterSelectionState(selection: string[], setSelectionInDiagram: (newSelection: string[]) => void): FilterSelectionState {
+export function createFilterSelectionState(selections: Selections, setSelectionsInDiagram: (newSelections: Selections) => void): FilterSelectionState {
   const filters: TotalFilterData[] = [];
-  createTotalFilterDataStateAndSaveIt(filters, "NORMAL");
-  createTotalFilterDataStateAndSaveIt(filters, "PROFILE");
+  createTotalFilterDataStateAndSaveIt(filters, "NORMAL-CLASS");
+  createTotalFilterDataStateAndSaveIt(filters, "PROFILE-CLASS");
+
+  createTotalFilterDataStateAndSaveIt(filters, "NORMAL-EDGE");
+  createTotalFilterDataStateAndSaveIt(filters, "PROFILE-EDGE");
+  createTotalFilterDataStateAndSaveIt(filters, "GENERALIZATION");
 
   return {
-    selection: selection,
-    setSelectionInDiagram: setSelectionInDiagram,
+    selections: selections,
+    setSelectionsInDiagram: setSelectionsInDiagram,
     filters
   };
 }
 
 export interface CreateFilterSelectionControllerType {
-    setSelection: (next: string[]) => void;
+    setSelections: (next: Selections) => void;
     setFilterActivness: (next: {index: number, isActive: boolean}) => void;
 }
 
@@ -54,9 +67,13 @@ export interface CreateFilterSelectionControllerType {
 export function useFilterSelectionController({ state, changeState }: DialogProps<FilterSelectionState>): CreateFilterSelectionControllerType {
   return useMemo(() => {
 
-    const setSelection = (next: string[]) => {
-      next = [...new Set(next)];    // Removes duplicates
-      changeState({ ...state, selection: next });
+    const setSelections = (next: Selections) => {
+      // Set Removes duplicates
+      next = {
+        nodeSelection: [...new Set(next.nodeSelection)],
+        edgeSelection: [...new Set(next.edgeSelection)],
+      };
+      changeState({ ...state, selections: next });
     };
 
     const setFilterActivness = (next: {index: number, isActive: boolean}) => {
@@ -66,7 +83,7 @@ export function useFilterSelectionController({ state, changeState }: DialogProps
     };
 
     return {
-        setSelection,
+        setSelections,
         setFilterActivness
     };
   }, [state, changeState]);

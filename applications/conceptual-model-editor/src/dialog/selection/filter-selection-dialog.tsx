@@ -7,7 +7,7 @@ import { createFilterSelectionState, FilterSelectionState, useFilterSelectionCon
 import { stat } from "fs";
 import { ReactFlowInstance } from "@xyflow/react";
 import { EdgeType, NodeType } from "../../diagram/diagram-controller";
-import { TotalFilter } from "../../action/filter-selection-action";
+import { Selections, TotalFilter } from "../../action/filter-selection-action";
 
 
 
@@ -32,39 +32,18 @@ type TotalFilterData = {
     totalFilterType: TotalFilter;
 }
 
-
-/**
- * Creates element of type {@link TotalFilterData} from given arguments and puts it at the end of {@link checkboxStates} parameter.
- * @returns The created element
- */
-const useCreateTotalFilterDataStateAndSaveIt = (checkboxStates: TotalFilterData[], totalFilterType: TotalFilter): TotalFilterData => {
-    const checkboxText = totalFilterType === "NORMAL" ? "Include non-profiles in result" : "Include profiles in result";
-    const [isFilterActive, setIsFilterActive] = useState<boolean>(true);
-    const filterData = {
-        checked: isFilterActive,
-        setChecked: setIsFilterActive,
-        checkboxText,
-        checkboxTooltip: "",
-        totalFilterType
-    };
-
-    checkboxStates.push(filterData);
-    return filterData;
-};
-
-
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 
 export const createFilterSelectionDialog = (
     onConfirm: (state: FilterSelectionState) => void | null,
-    selection: string[],
-    setSelectionInDiagram: (newSelection: string[]) => void,
+    selections: Selections,
+    setSelectionInDiagram: (selections: Selections) => void,
   ): DialogWrapper<FilterSelectionState> => {
     return {
       label: "filter-selection-dialog.label",
       component: CreateFilterSelectionDialog,
-      state: createFilterSelectionState(selection, setSelectionInDiagram),
+      state: createFilterSelectionState(selections, setSelectionInDiagram),
       confirmLabel: "filter-selection-dialog.btn-ok",
       cancelLabel: "filter-selection-dialog.btn-cancel",
       validate: null,

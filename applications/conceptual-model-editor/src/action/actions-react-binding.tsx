@@ -30,7 +30,7 @@ import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
 import { isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel, Waypoint } from "@dataspecer/core-v2/visual-model";
 import { openCreateConnectionDialogAction } from "./open-create-connection";
 import { placePositionOnGrid, ReactflowDimensionsConstantEstimator } from "@dataspecer/layout";
-import { reductionTotalFilterAction, TotalFilter } from "./filter-selection-action";
+import { reductionTotalFilterAction, Selections, TotalFilter } from "./filter-selection-action";
 import { extendSelectionAction, ExtensionType, VisibilityFilter } from "./extend-selection-action";
 import { ExtendSelectionState } from "../dialog/selection/extend-selection-dialog-controller";
 import { createExtendSelectionDialog } from "../dialog/selection/extend-selection-dialog";
@@ -92,7 +92,7 @@ export interface ActionsContextType {
   /**
    * Open dialog to filter current selection.
    */
-  openFilterSelectionDialog: (selection: string[]) => void;
+  openFilterSelectionDialog: (selections: Selections) => void;
 
 
   /**
@@ -105,10 +105,10 @@ export interface ActionsContextType {
                           semanticModelFilter: Record<string, boolean> | null) => Promise<string[]>;
 
 
-  reductionTotalFilter: (selection: string[],
-                              allowedClasses: TotalFilter[],
-                              visibilityFilter: VisibilityFilter,
-                              semanticModelFilter: Record<string, boolean> | null) => string[];
+  reductionTotalFilter: (selections: Selections,
+                          allowedClasses: TotalFilter[],
+                          visibilityFilter: VisibilityFilter,
+                          semanticModelFilter: Record<string, boolean> | null) => Selections;
 
   /**
    * As this context requires two way communication it is created and shared via the actions.
@@ -133,7 +133,7 @@ const noOperationActionsContext = {
   openFilterSelectionDialog: noOperation,
   // TODO: How to define this
   extendSelection: async () => [],
-  reductionTotalFilter: () => [],
+  reductionTotalFilter: () => ({nodeSelection: [], edgeSelection: []}),
   diagram: null,
 };
 
@@ -350,7 +350,7 @@ function createActionsContext(
   };
 
 
-  const openFilterSelectionDialog = (selection: string[]) => {
+  const openFilterSelectionDialog = (selections: Selections) => {
     const onConfirm = (state: FilterSelectionState) => {
       const relevantTotalFilterTypes = state.filters.map(checkboxState => {
         if(checkboxState.checked) {
@@ -359,14 +359,19 @@ function createActionsContext(
         return null;
     }).filter(checkbox => checkbox !== null);
 
-      const reduction = reductionTotalFilterAction(state.selection, relevantTotalFilterTypes, "ONLY-VISIBLE", null, graph, notifications, classes);
-      diagram.actions().setSelectedNodes(reduction);
+      const reduction = reductionTotalFilterAction(state.selections, relevantTotalFilterTypes, "ONLY-VISIBLE", null, graph, notifications, classes);
+      diagram.actions().setSelectedNodes(reduction.nodeSelection);
+      diagram.actions().setSelectedEdges(reduction.edgeSelection);
     };
 
+    const setSelections = (selections: Selections) => {
+      diagram.actions().setSelectedNodes(selections.nodeSelection);
+      diagram.actions().setSelectedEdges(selections.edgeSelection);
+    };
     dialogs?.openDialog(createFilterSelectionDialog(
                                                     onConfirm,
-                                                    selection,
-                                                    diagram.actions().setSelectedNodes));
+                                                    selections,
+                                                    setSelections));
   };
 
 
@@ -378,11 +383,11 @@ function createActionsContext(
   };
 
 
-  const reductionTotalFilter = (selection: string[],
-                                        allowedClasses: TotalFilter[],
-                                        visibilityFilter: VisibilityFilter,
-                                        semanticModelFilter: Record<string, boolean> | null) => {
-    return reductionTotalFilterAction(selection, allowedClasses, visibilityFilter, semanticModelFilter,
+  const reductionTotalFilter = (selections: Selections,
+                                allowedClasses: TotalFilter[],
+                                visibilityFilter: VisibilityFilter,
+                                semanticModelFilter: Record<string, boolean> | null) => {
+    return reductionTotalFilterAction(selections, allowedClasses, visibilityFilter, semanticModelFilter,
                                       graph, notifications, classes);
   };
 

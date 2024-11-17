@@ -61,7 +61,12 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
         <button onClick={() => actions.openExtendSelectionDialog(controller.nodes.filter(n => n.selected === true).map(n => n.data.externalIdentifier))}>Extend selection</button>
       </div>
       <div>
-        <button onClick={() => actions.openFilterSelectionDialog(controller.nodes.filter(n => n.selected === true).map(n => n.data.externalIdentifier))}>Filter selection</button>
+        <button onClick={() => actions.openFilterSelectionDialog({
+          nodeSelection: controller.nodes.filter(node => node.selected === true).map(node => node.data.externalIdentifier),
+          edgeSelection: controller.edges.filter(edge => edge.selected === true).map(edge => edge.data?.externalIdentifier ?? edge.data?.identifier ?? edge.id)
+        }
+        )}>
+          Filter selection</button>
       </div>
       <DiagramContext.Provider value={controller.context}>
         <CustomEdgeMarkers />
