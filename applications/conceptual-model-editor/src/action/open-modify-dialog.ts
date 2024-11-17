@@ -23,7 +23,7 @@ import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { Options } from "../application/options";
-import { ChangedFieldsType, createEntityModifyDialog, DomainAndRangeContainer, getInitialOverriddenFields, ModifyEntityState, SupportedTypes } from "../dialog/obsolete/modify-entity-dialog";
+import { ChangedFieldsType, createEntityModifyDialog, ModifyEntityState } from "../dialog/obsolete/modify-entity-dialog";
 import { ClassesContextType, UseClassesContextType } from "../context/classes-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { findSourceModelOfEntity } from "../service/model-service";

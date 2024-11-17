@@ -1,14 +1,28 @@
-import { type EntityModel } from "@dataspecer/core-v2";
+import { createRdfsModel, createSgovModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { EntityModel } from "@dataspecer/core-v2";
+import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 
-import { logger } from "../application";
-import { type ModelGraphContextType } from "../context/model-context";
-import { type CreateModelState, TabType } from "../dialog/model/create-model-dialog-controller";
-import { createRdfsModel, createSgovModel } from "@dataspecer/core-v2/semantic-model/simplified";
-import { type WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { randomColorFromPalette } from "../util/color-utils";
+import { createLogger } from "../application";
+import { ModelGraphContextType } from "../context/model-context";
+import { DialogApiContextType } from "../dialog/dialog-service";
+import { createAddModelDialog } from "../dialog/model/create-model-dialog";
+import { CreateModelState, TabType } from "../dialog/model/create-model-dialog-controller";
 import { createWritableVisualModel } from "../util/visual-model-utils";
+import { randomColorFromPalette } from "../util/color-utils";
+
+const LOG = createLogger(import.meta.url);
+
+export function openCreateVocabularyAction(
+  dialogs: DialogApiContextType,
+  graph: ModelGraphContextType,
+) {
+  const onConfirm = (state: CreateModelState) => {
+    createVocabulary(graph, state);
+  };
+  dialogs.openDialog(createAddModelDialog(onConfirm));
+}
 
 const SGOV_IDENTIFIER = "sgov";
 
@@ -52,7 +66,7 @@ export function createVocabulary(
         } else if (model.identifier === SGOV_IDENTIFIER) {
           addSgov();
         } else {
-          logger.error("Invalid predefined model.", { model });
+          LOG.error("Invalid predefined model.", { model });
         }
       }
       break;
@@ -64,7 +78,6 @@ export function createVocabulary(
 }
 
 function addModelsToGraph(graph: ModelGraphContextType, models: EntityModel[]) {
-
   // If there is no visual model, we create a default one.
   if (graph.aggregatorView.getActiveVisualModel() === null) {
     const defaultVisualModel = createWritableVisualModel();

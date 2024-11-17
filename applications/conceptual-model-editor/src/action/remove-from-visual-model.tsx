@@ -11,13 +11,9 @@ import type { ModelGraphContextType } from "../context/model-context";
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 
 /**
- * Delete resource from visual model and thus from the canvas.
- *
- * @param notifications
- * @param graph
- * @param identifier Identifier of semantic entity to remove visual entity for.
+ * Remove entity and related entities from visual model.
  */
-export function deleteFromVisualModelAction(
+export function removeFromVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   identifier: string,

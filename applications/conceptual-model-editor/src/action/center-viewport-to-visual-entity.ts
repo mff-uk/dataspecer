@@ -10,15 +10,15 @@ export function centerViewportToVisualEntityAction(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   diagram: UseDiagramType,
-  model: string,
-  identifier: string,
+  entityIdentifier: string,
+  _modelIdentifier: string,
 ) {
   const visualModel = graph.aggregatorView.getActiveVisualModel();
   if (visualModel === null) {
     notifications.error("There is no active visual model.");
     return;
   }
-  const entity = visualModel.getVisualEntityForRepresented(identifier);
+  const entity = visualModel.getVisualEntityForRepresented(entityIdentifier);
   if (entity === null) {
     notifications.error("There is no visual representation of the entity.");
     return;

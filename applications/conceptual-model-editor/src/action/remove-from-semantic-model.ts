@@ -3,18 +3,11 @@ import type { UseNotificationServiceWriterType } from "../notification/notificat
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { deleteEntity } from "@dataspecer/core-v2/semantic-model/operations";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
-import { deleteFromVisualModelAction } from "./delete-from-visual-model";
 
 /**
  * Removes an entity from the given semantic model.
- * Once deleted, the action call an action to make sure the entity is removed from visual model.
- *
- * @param notifications
- * @param graph
- * @param modelIdentifier
- * @param identifier
  */
-export async function deleteFromSemanticModelAction(
+export async function removeFromSemanticModelAction(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   modelIdentifier: string,
@@ -42,6 +35,4 @@ export async function deleteFromSemanticModelAction(
     notifications.error("We can not use this model type.");
     return;
   }
-  // We also need to remove from visual model.
-  deleteFromVisualModelAction(notifications, graph, identifier);
 }

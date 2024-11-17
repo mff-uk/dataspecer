@@ -60,7 +60,7 @@ type CardinalityOptionType = "unset" | "0x" | "01" | "11" | "1x" | "xx";
 export const CardinalityOptions = (props: {
     group: "source" | "target";
     defaultCard?: [number, number | null] | null;
-    setCardinality: (setter: (prev:SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage) => SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage) => void;
+    setCardinality: (setter: <T = SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage>(prev: T) => T) => void;
     disabled: boolean;
     onChange?: () => void;
     withOverride?: WithOverrideHandlerType;
