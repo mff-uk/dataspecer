@@ -82,7 +82,6 @@ export const isIriAbsolute = (iri: string | null) => {
 };
 
 export const getModelIri = (model: EntityModel | undefined | null) => {
-    // console.log("getting base iri", model);
     if (model instanceof InMemorySemanticModel) {
         if (model.getBaseIri()?.length > 0) {
             return model.getBaseIri();
