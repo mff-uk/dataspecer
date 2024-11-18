@@ -7,7 +7,7 @@ export interface ResourceModel {
    * Resource may be a package or a model.
    * Each resource may have name, description, type and other metadata that are recognized in the Dataspecer ecosystem.
    */
-  getResource(id: string): Promise<Resource>;
+  getResource(id: string): Promise<any>;
 }
 
 export interface ModelModel {

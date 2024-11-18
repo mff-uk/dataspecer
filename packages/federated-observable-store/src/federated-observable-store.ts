@@ -11,6 +11,7 @@ import { ComplexOperation } from "./complex-operation";
 import { FederatedCoreResourceWriter } from "./federated-core-resource-writer";
 import { ImmediateCoreResourceReader } from "./immediate-core-resource-reader";
 import { Resource } from "./resource";
+import { InMemorySemanticModel } from '@dataspecer/core-v2/semantic-model/in-memory';
 
 /**
  * Callback listening for resource changes.
@@ -327,6 +328,7 @@ export class FederatedObservableStore implements FederatedCoreResourceWriter {
         for (const store of this.models) {
             if (isModelWrapperEntityModel(store)) {
                 Object.values(store.store.getEntities()).forEach(entity => resources.add(entity.id));
+                resources.add(store.store.getId());
             } else {
                 (await store.store.listResources()).forEach(resource => resources.add(resource));
             }
@@ -442,8 +444,13 @@ export class FederatedObservableStore implements FederatedCoreResourceWriter {
 
         let resource: Promise<CoreResource> | CoreResource | Entity | null;
         if (isModelWrapperEntityModel(storeWrapper)) {
-            resource = storeWrapper.store.getEntities()[resourceIri];
-            doNotClone = resourceIri === schemaIri;
+            if (resourceIri === schemaIri) {
+                doNotClone = resourceIri === schemaIri;
+                // @ts-ignore
+                resource = storeWrapper.store;
+            } else {
+                resource = storeWrapper.store.getEntities()[resourceIri];
+            }
         } else {
             if (storeWrapper.hasImmediateInterface) {
                 resource = storeWrapper.store.readResourceImmediate(resourceIri);
@@ -578,8 +585,9 @@ export class FederatedObservableStore implements FederatedCoreResourceWriter {
 
         if (DataPsmSchema.is(resource.resource)) {
             iris = resource.resource.dataPsmParts;
-        } else if (resource.resource instanceof InMemoryEntityModel) {
+        } else if (resource.resource instanceof InMemoryEntityModel || resource.resource instanceof InMemorySemanticModel) {
             iris = Object.keys(resource.resource.getEntities());
+            iris.push(resource.resource.getId())
         } else {
             console.log(resource.resource);
             throw new Error(`Internal error: Unknown schema type.`);

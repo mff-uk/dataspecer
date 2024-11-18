@@ -6,6 +6,8 @@ import { FederatedObservableStore } from "@dataspecer/federated-observable-store
 import { getArtefactGenerators } from "../../../artefact-generators";
 import { getDefaultConfigurators } from "../../../configurators";
 import { DefaultArtifactConfigurator } from "../../../default-artifact-configurator";
+import { DataSpecificationNameCell } from "../../../manager/name-cells";
+import { DataSpecification as CoreDataSpecification } from "@dataspecer/core/data-specification/model";
 
 /**
  * Returns a single generated artifact with its name based on the given artifact
@@ -45,8 +47,21 @@ export async function getSingleArtifact(
 
   // Generate the artifact and return it
 
+  // Convert data specification
+  const ds = Object.values(dataSpecificationsWithArtifacts).map(specification => ({
+    iri: specification.id,
+    pim: specification.localSemanticModelIds[0],
+    psms: specification.dataStructures.map(ds => ds.id),
+    type: CoreDataSpecification.TYPE_DOCUMENTATION,
+    importsDataSpecifications: specification.importsDataSpecificationIds,
+    artefacts: specification.artefacts,
+    // @ts-ignore
+    artefactConfiguration: specification.artefactConfiguration,
+    cimAdapters: [],
+  })) as CoreDataSpecification[];
+
   const generator = new Generator(
-      Object.values(dataSpecificationsWithArtifacts),
+      ds,
       store as CoreResourceReader,
       getArtefactGenerators());
   const dict = new MemoryStreamDictionary();

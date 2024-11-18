@@ -34,7 +34,7 @@ export class InMemoryEntityModel implements EntityModel {
     }
 
     getEntities(): Record<string, Entity> {
-        return { ...this.entities, [this.id]: this as unknown as Entity };
+        return { ...this.entities };
     }
 
     subscribeToChanges(callback: (updated: Record<string, Entity>, removed: string[]) => void): () => void {

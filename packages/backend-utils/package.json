@@ -17,7 +17,6 @@
     "typescript": "~5.4.2"
   },
   "dependencies": {
-    "@dataspecer/core": "*",
-    "@dataspecer/core-v2": "*"
+    "@dataspecer/core": "*"
   }
 }
