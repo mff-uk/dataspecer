@@ -69,6 +69,7 @@ const useSaveOrCopy = (generator: string, save: boolean) => {
                 // @ts-ignore
                 configuration.store,
                 configuration.dataSpecificationIri as string,
+                // @ts-ignore
                 configuration.dataSpecifications,
                 artefact =>
                     artefact.generator === generator &&

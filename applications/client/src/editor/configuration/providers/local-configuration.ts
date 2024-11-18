@@ -2,13 +2,13 @@ import { InMemorySemanticModel } from '@dataspecer/core-v2/semantic-model/in-mem
 import { MemoryStore } from "@dataspecer/core/core";
 import { dataPsmExecutors } from "@dataspecer/core/data-psm/data-psm-executors";
 import { DataPsmCreateSchema } from "@dataspecer/core/data-psm/operation";
-import { DataSpecification } from "@dataspecer/core/data-specification/model";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
 import { useMemo } from "react";
 import { DefaultClientConfiguration } from "../../../configuration";
 import { useAsyncMemo } from "../../hooks/use-async-memo";
 import { OperationContext } from "../../operations/context/operation-context";
 import { Configuration, useProvidedSourceSemanticModel } from "../configuration";
+import { DataSpecification } from '../../../specification';
 
 /**
  * Creates a configuration, that is purely local and does not require any
@@ -41,10 +41,21 @@ export const useLocalConfiguration = (
             const createDataPsmSchemaResult = await memoryStore.applyOperation(createDataPsmSchema);
             const dataPsmSchemaIri = createDataPsmSchemaResult.created[0];
 
-            const dataSpecification = new DataSpecification();
-            dataSpecification.iri = "http://default-data-specification"
-            dataSpecification.pim = semanticModel.getId();
-            dataSpecification.psms = [dataPsmSchemaIri];
+            const dataSpecification = {
+                id: "http://default-data-specification",
+                type: "todo",
+                label: {},
+                tags: [],
+                sourceSemanticModelIds: [],
+                localSemanticModelIds: [semanticModel.getId()],
+                dataStructures: [{
+                    id: dataPsmSchemaIri,
+                    label: {},
+                }],
+                importsDataSpecificationIds: [],
+                artifactConfigurations: [],
+                userPreferences: {},
+            } as DataSpecification;
 
             // @ts-ignore
             store.addStore(semanticModel);
@@ -59,7 +70,7 @@ export const useLocalConfiguration = (
             store: store as FederatedObservableStore, // todo: This is like an aggregator
             dataSpecifications: dataSpecification ? { [dataSpecification.iri as string]: dataSpecification } : {},
             dataSpecificationIri: dataSpecification?.iri ?? null,
-            dataPsmSchemaIri: dataSpecification?.psms[0] ?? null,
+            dataPsmSchemaIri: dataSpecification?.dataStructures[0].id ?? null,
             sourceSemanticModel, // todo: This is "CIM"
             operationContext,
         };

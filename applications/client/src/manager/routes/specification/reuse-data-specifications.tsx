@@ -51,7 +51,7 @@ export const ReuseDataSpecifications: React.FC<{
         });
 
         dialog.close();
-    }, [backendPackageService, dataSpecificationIri, dataSpecifications, selectedSpecificationIds, setDataSpecifications, dialog]);
+    }, [backendPackageService, dataSpecificationIri, dataSpecifications, selectedSpecificationIds, setDataSpecifications, dialog, specification]);
 
     return <>
         <Fab variant="extended" size="medium" color={"primary"} onClick={dialog.open}>

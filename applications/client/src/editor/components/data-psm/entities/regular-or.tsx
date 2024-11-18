@@ -53,12 +53,12 @@ export const RegularOr: React.FC<{ iri: string} & ObjectContext & RowSlots> = me
 
   const onSearchClass = useCallback(async (semanticClass: SemanticModelClass) => {
     if (semanticClass) {
-      const op = new CreateNewClassInOr(props.iri, semanticClass.iri as string, [semanticClass], dataSpecification.pim);
+      const op = new CreateNewClassInOr(props.iri, semanticClass.iri as string, [semanticClass], dataSpecification.localSemanticModelIds[0]); // todo better decide which semantic model
       op.setContext(operationContext);
       await store.executeComplexOperation(op);
       SearchToOr.close();
     }
-  }, [SearchToOr, props.iri, store, dataSpecification.pim, operationContext]);
+  }, [SearchToOr, props.iri, store, dataSpecification.localSemanticModelIds, operationContext]);
 
   const thisStartRow = <>
     <Span sx={sxStyles.or}>{t("OR")}</Span>

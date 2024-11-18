@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { HttpSynchronizedStore } from "@dataspecer/backend-utils/stores";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { PimClass } from "@dataspecer/core/pim/model/pim-class";

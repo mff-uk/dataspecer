@@ -86,7 +86,7 @@ const ConceptualModelSourcesWithData: FC<ConceptualModelSourcesWithDataProps> = 
             sourceSemanticModelIds: newAdapters
         }});
         enqueueSnackbar("Sources configuration saved", {variant: "success"});
-    }, [radio, urls, selectedModels, backendPackageService, dataSpecification]);
+    }, [radio, urls, selectedModels, backendPackageService, dataSpecification, dataSpecifications, enqueueSnackbar, setDataSpecifications]);
 
     return <>
         <Typography variant="h5" component="div" gutterBottom sx={{mt: 5}}>

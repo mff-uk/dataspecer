@@ -1,16 +1,15 @@
 import { EntityModel } from '@dataspecer/core-v2';
-import { BackendPackageService } from "@dataspecer/core-v2/project";
 import { isSemanticModelClass, SemanticModelClass, SemanticModelEntity } from '@dataspecer/core-v2/semantic-model/concepts';
 import { wrapCimAdapter } from '@dataspecer/core-v2/semantic-model/simplified';
+import { PrefixIriProvider } from "@dataspecer/core/cim";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
+import { RdfsFileAdapter } from "@dataspecer/rdfs-adapter";
+import { SgovAdapter } from "@dataspecer/sgov-adapter";
+import { WikidataAdapter } from "@dataspecer/wikidata-experimental-adapter";
+import { DataSpecification, StructureEditorBackendService } from '../../specification';
 import { useAsyncMemo } from '../hooks/use-async-memo';
 import { OperationContext } from "../operations/context/operation-context";
-import { DataSpecification, StructureEditorBackendService } from '../../specification';
-import {PrefixIriProvider} from "@dataspecer/core/cim";
-import {RdfsFileAdapter} from "@dataspecer/rdfs-adapter";
-import {SgovAdapter} from "@dataspecer/sgov-adapter";
-import {WikidataAdapter} from "@dataspecer/wikidata-experimental-adapter";
 
 /**
  * Editor's configuration (or context) that specifies how the editor should work.
@@ -101,7 +100,7 @@ class SourceSemanticModel implements SourceSemanticModelInterface {
 /**
  * Service to query backend under new v2 version.
  */
-const service = new StructureEditorBackendService(process.env.REACT_APP_BACKEND, httpFetch);
+const service = new StructureEditorBackendService(process.env.REACT_APP_BACKEND, httpFetch, "http://dataspecer.com/packages/local-root");
 
 const DEFAULT_CONFIG = [];
 

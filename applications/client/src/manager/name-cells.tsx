@@ -2,7 +2,6 @@ import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {Skeleton, Typography} from "@mui/material";
 import React, {ReactElement, useContext} from "react";
-import {PimSchema} from "@dataspecer/core/pim/model";
 import {DataSpecificationsContext} from "./app";
 import {LanguageString} from "@dataspecer/core/core";
 

@@ -1,5 +1,4 @@
 import { DataSpecification } from "@dataspecer/core/data-specification/model/data-specification";
-import { useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
 import AddIcon from '@mui/icons-material/Add';
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import PublicIcon from '@mui/icons-material/Public';
@@ -29,7 +28,6 @@ export const CreateSpecificationButton = memo(({onSpecificationCreated}: {onSpec
         setRootDataSpecificationIris,
     } = useContext(DataSpecificationsContext);
     const backendConnector = useContext(BackendConnectorContext);
-    const store = useFederatedObservableStore();
     const create = useCallback(async ({label, tags, ...rest}: Partial<SpecificationEditDialogEditableProperties>) => {
         const options = {...rest, label, tags};
         const dataSpecification = await backendConnector.createDataSpecification(options);
@@ -39,7 +37,8 @@ export const CreateSpecificationButton = memo(({onSpecificationCreated}: {onSpec
         });
         Dialog.close();
         onSpecificationCreated?.(dataSpecification.iri as string);
-    }, [backendConnector, Dialog, onSpecificationCreated, store, setDataSpecifications, dataSpecifications, setRootDataSpecificationIris, rootDataSpecificationIris]);
+        setRootDataSpecificationIris([...rootDataSpecificationIris, dataSpecification.iri]);
+    }, [backendConnector, Dialog, onSpecificationCreated, setDataSpecifications, dataSpecifications, setRootDataSpecificationIris, rootDataSpecificationIris]);
 
     const buttonRef = useRef(null);
     const menuOpen = useToggle(false);

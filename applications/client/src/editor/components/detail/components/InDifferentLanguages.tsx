@@ -1,14 +1,14 @@
-import React, {memo, useCallback, useMemo} from "react";
-import {Button, Card, CardContent, Grid, Typography} from "@mui/material";
-import {CoreResource, LanguageString} from "@dataspecer/core/core";
-import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
-import {DataPsmClass} from "@dataspecer/core/data-psm/model";
-import {SetPimLabelAndDescription} from "../../../operations/set-pim-label-and-description";
-import {DialogAppProviderContext} from "../../dialog-app-provider";
-import {SetDataPsmLabelAndDescription} from "../../../operations/set-data-psm-label-and-description";
-import {useTranslation} from "react-i18next";
-import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
-import { SemanticModelClass, SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { LanguageString } from "@dataspecer/core/core";
+import { DataPsmClass } from "@dataspecer/core/data-psm/model";
+import { useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
+import { useResource } from "@dataspecer/federated-observable-store-react/use-resource";
+import { Button, Card, CardContent, Grid, Typography } from "@mui/material";
+import React, { memo, useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { SetDataPsmLabelAndDescription } from "../../../operations/set-data-psm-label-and-description";
+import { SetPimLabelAndDescription } from "../../../operations/set-pim-label-and-description";
+import { DialogAppProviderContext } from "../../dialog-app-provider";
 
 interface Properties {
     label: LanguageString,

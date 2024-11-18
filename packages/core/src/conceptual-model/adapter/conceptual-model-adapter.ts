@@ -1,4 +1,6 @@
+// @ts-ignore
 import { Entity, EntityModel } from "@dataspecer/core-v2";
+// @ts-ignore
 import { ExtendedSemanticModelClass, ExtendedSemanticModelRelationship, isSemanticModelAttribute, isSemanticModelClass, isSemanticModelRelationship, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { CoreResourceReader } from "../../core";
 import { OFN } from "../../well-known";

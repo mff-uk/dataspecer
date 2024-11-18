@@ -1,13 +1,13 @@
 import { CoreResourceReader } from "@dataspecer/core/core/core-reader";
-import { DataSpecification, DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
+import { DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
 import { Generator } from "@dataspecer/core/generator";
 import { MemoryStreamDictionary } from "@dataspecer/core/io/stream/memory-stream-dictionary";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
 import { getArtefactGenerators } from "../../../artefact-generators";
 import { getDefaultConfigurators } from "../../../configurators";
 import { DefaultArtifactConfigurator } from "../../../default-artifact-configurator";
-import { DataSpecificationNameCell } from "../../../manager/name-cells";
 import { DataSpecification as CoreDataSpecification } from "@dataspecer/core/data-specification/model";
+import { DataSpecification } from "../../../specification";
 
 /**
  * Returns a single generated artifact with its name based on the given artifact
@@ -35,6 +35,7 @@ export async function getSingleArtifact(
   for (const dataSpecification of Object.values(dataSpecifications)) {
     dataSpecificationsWithArtifacts[dataSpecification.iri as string] = {
       ...dataSpecification,
+      // @ts-ignore
       artefacts: await defaultArtifactConfigurator.generateFor(dataSpecification.iri as string),
     };
   }
@@ -42,7 +43,8 @@ export async function getSingleArtifact(
   // Find the correct artifact
 
   const artefact = dataSpecificationsWithArtifacts[forDataSpecificationIri]
-    ?.artefacts
+      // @ts-ignore
+      ?.artefacts
     ?.find(artifactSelector);
 
   // Generate the artifact and return it
@@ -54,6 +56,7 @@ export async function getSingleArtifact(
     psms: specification.dataStructures.map(ds => ds.id),
     type: CoreDataSpecification.TYPE_DOCUMENTATION,
     importsDataSpecifications: specification.importsDataSpecificationIds,
+    // @ts-ignore
     artefacts: specification.artefacts,
     // @ts-ignore
     artefactConfiguration: specification.artefactConfiguration,

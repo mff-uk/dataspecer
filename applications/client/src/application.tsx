@@ -37,7 +37,7 @@ const useDefaultConfiguration = (backendConnector: StructureEditorBackendService
     return context;
 }
 
-const PACKAGE_ROOT = "http://dataspecer.com/packages/local-root";
+export const PACKAGE_ROOT = "http://dataspecer.com/packages/local-root";
 
 export const Application = () => {
     const [backendConnector, setBackendConnector] = useState(new StructureEditorBackendService(process.env.REACT_APP_BACKEND, httpFetch, PACKAGE_ROOT));

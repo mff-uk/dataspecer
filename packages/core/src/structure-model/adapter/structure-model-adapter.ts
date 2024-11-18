@@ -1,7 +1,9 @@
+// @ts-ignore
 import { ExtendedSemanticModelRelationship, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import {CoreResourceReader} from "../../core";
 import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmClassReference, DataPsmExternalRoot, DataPsmInclude, DataPsmOr, DataPsmSchema,} from "../../data-psm/model";
 import {StructureModel, StructureModelClass, StructureModelComplexType, StructureModelPrimitiveType, StructureModelProperty, StructureModelSchemaRoot} from "../model";
+// @ts-ignore
 import { Entity } from "@dataspecer/core-v2";
 
 /**

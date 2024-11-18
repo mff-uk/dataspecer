@@ -68,12 +68,10 @@ export const PimAssociationToClassDetailDialog: React.FC<{parentIri: string, iri
         {tab === 1 && <>
             <Tabs value={storeTab} onChange={(_, ch) => setStoreTab(ch)} sx={{ mb: 3 }}>
                 <Tab label={t('tab pim association')} value={"pimAssociation"} />
-                <Tab label={t('tab pim association end')} value={"pimAssociationEnd"} />
                 <Tab label={t('tab pim child')} value={"pimChild"} />
             </Tabs>
 
             {storeTab === "pimAssociation" && <ResourceInStore iri={iri} />}
-            {storeTab === "pimAssociationEnd" && associationEnd && <ResourceInStore iri={associationEnd} />}
             {storeTab === "pimChild" && childIri && <ResourceInStore iri={childIri} />}
         </>}
     </DialogWrapper>;

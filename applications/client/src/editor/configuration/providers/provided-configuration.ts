@@ -33,7 +33,6 @@ export const useProvidedConfiguration = (
     const descriptors = useStoreDescriptorsFromSpecifications(specifications ?? null, dataSpecificationIri, dataPsmSchemaIri);
     useConstructedStoresFromDescriptors(descriptors ?? [], store);
 
-    const specification = specifications?.[dataSpecificationIri ?? ""] ?? null;
     const operationContext = useMemo(() => {
         const configuration = ClientConfigurator.merge(
             DefaultClientConfiguration,
@@ -47,7 +46,7 @@ export const useProvidedConfiguration = (
             specialCharacters: configuration.technicalLabelSpecialCharacters,
         };
         return context;
-    }, [specification]);
+    }, []);
 
     const cimAdaptersConfiguration = specifications?.[dataSpecificationIri]?.sourceSemanticModelIds ?? DEFAULT_CIM_ADAPTERS_CONFIGURATION;
     const sourceSemanticModel = useProvidedSourceSemanticModel(dataPsmSchemaIri, dataSpecificationIri, cimAdaptersConfiguration);
@@ -66,7 +65,7 @@ export const useProvidedConfiguration = (
     }
 }
 
-const backendPackageService = new StructureEditorBackendService(process.env.REACT_APP_BACKEND as string, httpFetch);
+const backendPackageService = new StructureEditorBackendService(process.env.REACT_APP_BACKEND as string, httpFetch, "http://dataspecer.com/packages/local-root");
 
 const useLoadedDataSpecification = (dataSpecificationIri: string|null) => {
     return useAsyncMemo(async () => {
