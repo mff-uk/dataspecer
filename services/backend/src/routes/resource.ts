@@ -2,6 +2,7 @@ import { resourceModel } from "../main";
 import { asyncHandler } from "../utils/async-handler";
 import express from "express";
 import { z } from "zod";
+import { v4 as uuidv4 } from 'uuid';
 
 export const getResource = asyncHandler(async (request: express.Request, response: express.Response) => {
     const querySchema = z.object({
@@ -27,15 +28,17 @@ export const createResource = asyncHandler(async (request: express.Request, resp
     const query = querySchema.parse(request.query);
 
     const bodySchema = z.object({
-        iri: z.string().min(1),
+        iri: z.string().min(1).optional(),
         type: z.string().min(1),
         userMetadata: z.optional(z.record(z.unknown())),
     }).strict();
     const body = bodySchema.parse(request.body);
 
-    await resourceModel.createResource(query.parentIri, body.iri, body.type, body.userMetadata ?? {});
+    const iri = body.iri ?? uuidv4();
 
-    response.send(await resourceModel.getResource(body.iri));
+    await resourceModel.createResource(query.parentIri, iri, body.type, body.userMetadata ?? {});
+
+    response.send(await resourceModel.getResource(iri));
     return;
 });
 
@@ -120,7 +123,7 @@ export const updateBlob = asyncHandler(async (request: express.Request, response
     const query = querySchema.parse(request.query);
 
     const buffer = await (await resourceModel.getOrCreateResourceModelStore(query.iri, query.name)).setJson(request.body);
-    
+
     response.sendStatus(200);
     return;
 });
@@ -162,14 +165,16 @@ export const createPackageResource = asyncHandler(async (request: express.Reques
     const query = querySchema.parse(request.query);
 
     const bodySchema = z.object({
-        iri: z.string().min(1),
+        iri: z.string().min(1).optional(),
         userMetadata: z.optional(z.record(z.unknown())),
     }).strict();
     const body = bodySchema.parse(request.body);
 
-    await resourceModel.createPackage(query.parentIri, body.iri, body.userMetadata ?? {});
+    const iri = body.iri ?? uuidv4();
 
-    response.send(await resourceModel.getPackage(body.iri));
+    await resourceModel.createPackage(query.parentIri, iri, body.userMetadata ?? {});
+
+    response.send(await resourceModel.getPackage(iri));
     return;
 });
 

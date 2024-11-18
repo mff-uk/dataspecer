@@ -1,12 +1,12 @@
 import { Configurator } from "@dataspecer/core/configuration/configurator";
 import { mergeConfigurations } from "@dataspecer/core/configuration/utils";
-import { CoreResourceReader } from "@dataspecer/core/core";
+import { CoreResourceReader, LanguageString } from "@dataspecer/core/core";
 import { DataPsmSchema } from "@dataspecer/core/data-psm/model";
 import { DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
-import { DataSpecification, DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
-import { PimSchema } from "@dataspecer/core/pim/model";
+import { DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
 import { getSchemaArtifacts } from "./schema-artifacts";
+import { DataSpecification } from "./specification";
 
 /**
  * This class is responsible for setting the artifacts definitions in
@@ -56,6 +56,7 @@ export class DefaultArtifactConfigurator {
       throw new Error(`Data specification with IRI ${dataSpecificationIri} not found.`);
     }
 
+    // @ts-ignore
     const localConfiguration = dataSpecification.artefactConfiguration;
     const configuration = mergeConfigurations(this.configurators, this.configurationObject, localConfiguration);
 
@@ -69,15 +70,16 @@ export class DefaultArtifactConfigurator {
     }
 
     // Generate schemas
-    if (dataSpecification.type === DataSpecification.TYPE_EXTERNAL) {
+    if (false) { // dataSpecification.type === DataSpecification.TYPE_EXTERNAL
       // @ts-ignore
       return configuration.artifacts ?? [];
-    } else if (dataSpecification.type === DataSpecification.TYPE_DOCUMENTATION) {
+    } else if (true) { // dataSpecification.type === DataSpecification.TYPE_DOCUMENTATION
       const currentSchemaArtefacts: DataSpecificationArtefact[] = [];
-      for (const psmSchemaIri of dataSpecification.psms) {
+      for (const dataStructure of dataSpecification.dataStructures) {
+        const psmSchemaIri = dataStructure.id;
         let subdirectory = "/" + await this.getSchemaDirectoryName(dataSpecificationIri, psmSchemaIri);
 
-        if (dataSpecificationConfiguration.skipStructureNameIfOnlyOne && dataSpecification.psms.length === 1) {
+        if (dataSpecificationConfiguration.skipStructureNameIfOnlyOne && dataSpecification.dataStructures.length === 1) {
           subdirectory = "";
         }
 
@@ -104,7 +106,7 @@ export class DefaultArtifactConfigurator {
   }
 
   /**
-   * Creates a directory name for data specification
+   * Creates a directory name for data specification. The name should be taken from the package name.
    * @param dataSpecificationIri
    * @protected
    */
@@ -113,14 +115,14 @@ export class DefaultArtifactConfigurator {
         dataSpecification => dataSpecification.iri === dataSpecificationIri,
     ) as DataSpecification;
 
-    const schema = await this.store.readResource(dataSpecification.pim as string) as PimSchema;
+    const name = dataSpecification.label ?? {en: "unnamed"} satisfies LanguageString;
 
-    if (schema && schema.pimHumanLabel) {
-      if (schema.pimHumanLabel["en"]) {
-        return this.normalizeName(schema.pimHumanLabel["en"]);
+    if (name) {
+      if (name["en"]) {
+        return this.normalizeName(name["en"]);
       }
       // Get any value from object
-      const anyValue = Object.values(schema.pimHumanLabel)?.[0];
+      const anyValue = Object.values(name)?.[0];
       if (anyValue) {
         return this.normalizeName(anyValue);
       }

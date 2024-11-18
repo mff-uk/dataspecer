@@ -24,12 +24,17 @@ async function createHttpSemanticModel(data: any, httpFetch: HttpFetch): Promise
  * Implementation of PackageService that communicates with backend and provides semantic models.
  */
 export class BackendPackageService implements PackageService, SemanticModelPackageService {
-    private readonly backendUrl: string;
+    protected readonly backendUrl: string;
     protected readonly httpFetch: HttpFetch;
 
     constructor(backendUrl: string, httpFetch: HttpFetch) {
         this.backendUrl = backendUrl;
         this.httpFetch = httpFetch;
+    }
+
+    async getResource(resourceId: string): Promise<BaseResource> {
+        const result = await this.httpFetch(this.getResourceUrl(resourceId));
+        return (await result.json()) as BaseResource;
     }
 
     async getPackage(packageId: string): Promise<Package> {
@@ -41,7 +46,18 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         return (await result.json()) as Package;
     }
 
-    async createPackage(parentPackageId: string, data: ResourceEditable): Promise<Package> {
+    async createResource(parentPackageId: string, data: Partial<ResourceEditable> & {type?: string}): Promise<BaseResource> {
+        const result = await this.httpFetch(this.getResourceUrl(parentPackageId, true), {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+        return (await result.json()) as BaseResource;
+    }
+
+    async createPackage(parentPackageId: string, data: Partial<ResourceEditable>): Promise<Package> {
         const result = await this.httpFetch(this.getPackageUrl(parentPackageId, true), {
             method: "POST",
             headers: {
@@ -75,18 +91,33 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         });
     }
 
+    async getResourceJsonData(id: string, blobId?: string): Promise<object | null> {
+        const result = await this.httpFetch(this.getBlobUrl(id, blobId));
+        return (result.status >= 200 && result.status < 300) ? (await result.json() as object) : null;
+    }
+
+    async setResourceJsonData(id: string, data: any, blobId?: string) {
+        await this.httpFetch(this.getBlobUrl(id, blobId), {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+    }
+
     /**
      * This method is used by CME editor for transparently loading all models from a given package.
-     * @todo It should not be a package, but a model itself with all its dependencies. Now it is a model. 
-     * @param packageId 
-     * @returns 
+     * @todo It should not be a package, but a model itself with all its dependencies. Now it is a model.
+     * @param packageId
+     * @returns
      */
     async constructSemanticModelPackageModels(
         packageId: string
     ): Promise<readonly [EntityModel[], VisualEntityModel[]]> {
         const entityModels: EntityModel[] = [];
         const visualModels: VisualEntityModel[] = [];
-        
+
         const recursivellyLoadPackage = async (packageId: string) => {
             const pckg = await this.getPackage(packageId);
             const [entity, visual] = await this.getModelsFromResources(pckg.subResources!);
@@ -107,7 +138,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
 
     /**
      * Simplified operation for updating a list of models on backend.
-     * 
+     *
      * If some models (semantic or visual) are ommited, they will be deleted.
      */
     async updateSemanticModelPackageModels(
@@ -183,6 +214,23 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         }
         return true;
         // return null as any as Package; // todo
+    }
+
+    /**
+     * Performs only update of a single model. It will not delete any other models.
+     */
+    async updateSingleModel(model: EntityModel): Promise<void> {
+        // @ts-ignore
+        const modelSerialization = model.serializeModel();
+        const iri = model.getId();
+
+        await this.httpFetch(this.getBlobUrl(iri), {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(modelSerialization),
+        });
     }
 
     async createRemoteSemanticModel(packageId: string) {

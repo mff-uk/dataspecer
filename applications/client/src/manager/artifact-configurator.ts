@@ -19,6 +19,7 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
       throw new Error(`Data specification with IRI ${dataSpecificationIri} not found.`);
     }
 
+    // @ts-ignore
     const localConfiguration = dataSpecification.artefactConfiguration;
     const configuration = mergeConfigurations(this.configurators, this.configurationObject, localConfiguration);
 

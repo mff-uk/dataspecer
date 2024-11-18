@@ -579,7 +579,7 @@ export class FederatedObservableStore implements FederatedCoreResourceWriter {
         if (DataPsmSchema.is(resource.resource)) {
             iris = resource.resource.dataPsmParts;
         } else if (resource.resource instanceof InMemoryEntityModel) {
-            // todo
+            iris = Object.keys(resource.resource.getEntities());
         } else {
             console.log(resource.resource);
             throw new Error(`Internal error: Unknown schema type.`);

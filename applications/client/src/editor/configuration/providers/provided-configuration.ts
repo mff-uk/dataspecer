@@ -1,9 +1,6 @@
-import { BackendConnector } from "@dataspecer/backend-utils/connectors";
-import { DataSpecificationWithMetadata, DataSpecificationWithStores } from "@dataspecer/backend-utils/interfaces";
-import { StoreDescriptor } from "@dataspecer/backend-utils/store-descriptor";
+import { HttpStoreDescriptor, StoreDescriptor } from "@dataspecer/backend-utils/store-descriptor";
 import { HttpSynchronizedStore } from "@dataspecer/backend-utils/stores";
 import { CoreResourceReader } from "@dataspecer/core/core";
-import { DataSpecification } from "@dataspecer/core/data-specification/model";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
 import { isEqual } from "lodash";
@@ -12,8 +9,10 @@ import { ClientConfigurator, DefaultClientConfiguration } from "../../../configu
 import { useAsyncMemo } from "../../hooks/use-async-memo";
 import { OperationContext } from "../../operations/context/operation-context";
 import { Configuration, useProvidedSourceSemanticModel } from "../configuration";
+import { DataSpecification, HttpSemanticModelStoreDescriptor, StructureEditorBackendService } from "../../../specification";
+import { EntityModel } from "@dataspecer/core-v2";
 
-const DEFAULT_CIM_ADAPTERS_CONFIGURATION = [];
+const DEFAULT_CIM_ADAPTERS_CONFIGURATION = ["https://dataspecer.com/adapters/sgov"];
 
 /**
  * Loads the configuration from the given IRIs and registers the stores properly
@@ -38,7 +37,7 @@ export const useProvidedConfiguration = (
     const operationContext = useMemo(() => {
         const configuration = ClientConfigurator.merge(
             DefaultClientConfiguration,
-            ClientConfigurator.getFromObject(specification?.artefactConfiguration)
+            ClientConfigurator.getFromObject({}) // todo specification?.artefactConfiguration
         )
 
         const context = new OperationContext();
@@ -50,7 +49,7 @@ export const useProvidedConfiguration = (
         return context;
     }, [specification]);
 
-    const cimAdaptersConfiguration = specifications?.[dataSpecificationIri]?.cimAdapters ?? DEFAULT_CIM_ADAPTERS_CONFIGURATION;
+    const cimAdaptersConfiguration = specifications?.[dataSpecificationIri]?.sourceSemanticModelIds ?? DEFAULT_CIM_ADAPTERS_CONFIGURATION;
     const sourceSemanticModel = useProvidedSourceSemanticModel(dataPsmSchemaIri, dataSpecificationIri, cimAdaptersConfiguration);
 
     if (enabled) {
@@ -67,9 +66,7 @@ export const useProvidedConfiguration = (
     }
 }
 
-// So far only supported connector
-const backendConnector = new BackendConnector(process.env.REACT_APP_BACKEND as string, httpFetch);
-const connector = backendConnector;
+const backendPackageService = new StructureEditorBackendService(process.env.REACT_APP_BACKEND as string, httpFetch);
 
 const useLoadedDataSpecification = (dataSpecificationIri: string|null) => {
     return useAsyncMemo(async () => {
@@ -82,10 +79,11 @@ const useLoadedDataSpecification = (dataSpecificationIri: string|null) => {
 
         for (let i = 0; i < dataSpecificationIrisToLoad.length; i++) {
             const dataSpecificationIri = dataSpecificationIrisToLoad[i];
-            const dataSpecification = await connector.readDataSpecification(dataSpecificationIri);
+            // const dataSpecification = await connector.readDataSpecification(dataSpecificationIri);
+            const dataSpecification = await backendPackageService.getDataSpecification(dataSpecificationIri);
             if (dataSpecification) {
                 dataSpecifications[dataSpecificationIri] = dataSpecification;
-                dataSpecification.importsDataSpecifications.forEach(importIri => {
+                dataSpecification.importsDataSpecificationIds.forEach(importIri => {
                     if (!dataSpecificationIrisToLoad.includes(importIri)) {
                         dataSpecificationIrisToLoad.push(importIri);
                     }
@@ -97,6 +95,9 @@ const useLoadedDataSpecification = (dataSpecificationIri: string|null) => {
     }, [dataSpecificationIri])[0];
 }
 
+/**
+ * For a given data structure (dataPsmSchemaIri) it returns all store descriptors that are necessary.
+ */
 const useStoreDescriptorsFromSpecifications = (
     specifications: { [iri: string]: DataSpecification }|null,
     dataSpecificationIri: string|null,
@@ -104,15 +105,15 @@ const useStoreDescriptorsFromSpecifications = (
 ) =>
     useMemo(() => {
         if (specifications && dataSpecificationIri && dataPsmSchemaIri) {
-            const getDS = (iri: string) => specifications[iri] as DataSpecification & DataSpecificationWithMetadata & DataSpecificationWithStores;
+            const getDS = (iri: string) => specifications[iri] as DataSpecification;
 
             // Gather all data specifications
-            const fullDataSpecificationIris = getDS(dataSpecificationIri).importsDataSpecifications;
+            const fullDataSpecificationIris = getDS(dataSpecificationIri).importsDataSpecificationIds;
             for (let i = 0; i < fullDataSpecificationIris.length; i++) {
                 const dsIri = fullDataSpecificationIris[i];
                 const dataSpecification = getDS(dsIri);
                 if (dataSpecification) {
-                    dataSpecification.importsDataSpecifications.forEach(dsIri => {
+                    dataSpecification.importsDataSpecificationIds.forEach(dsIri => {
                         if (!fullDataSpecificationIris.includes(dsIri)) {
                             fullDataSpecificationIris.push(dsIri);
                         }
@@ -124,15 +125,17 @@ const useStoreDescriptorsFromSpecifications = (
             const stores: StoreDescriptor[] = [];
             fullDataSpecificationIris.forEach(dsIri => {
                 const dataSpecification = getDS(dsIri);
-                stores.push(...dataSpecification.pimStores);
-                Object.values(dataSpecification.psmStores).forEach(psm => {
+                const descriptors = backendPackageService.getStoreDescriptorsForDataSpecification(dataSpecification);
+                stores.push(...descriptors.pimStores);
+                Object.values(descriptors.psmStores).forEach(psm => {
                     stores.push(...psm);
                 });
             });
             if (!fullDataSpecificationIris.includes(dataSpecificationIri)) {
                 const dataSpecification = getDS(dataSpecificationIri);
-                stores.push(...dataSpecification.pimStores);
-                stores.push(...dataSpecification.psmStores[dataPsmSchemaIri]);
+                const descriptors = backendPackageService.getStoreDescriptorsForDataSpecification(dataSpecification);
+                stores.push(...descriptors.pimStores);
+                stores.push(...descriptors.psmStores[dataPsmSchemaIri]);
             }
 
             return stores;
@@ -152,7 +155,11 @@ export const useConstructedStoresFromDescriptors = (
         if (federatedObservableStore) {
             const listener = () => {
                 for (const [,store] of constructedStoreCache) {
-                    (store as HttpSynchronizedStore).save().then();
+                    if (store["save"]) { // todo
+                        (store as HttpSynchronizedStore).save().then();
+                    } else { // It is semantic model
+                        backendPackageService.updateSingleModel(store as unknown as EntityModel).then();
+                    }
                 }
             }
             federatedObservableStore.addEventListener("afterOperationExecuted", listener);
@@ -175,13 +182,22 @@ export const useConstructedStoresFromDescriptors = (
                     }
 
                     if (!found) {
-                        const store = HttpSynchronizedStore.createFromDescriptor(descriptor, httpFetch);
-                        constructedStoreCache.set(descriptor, store);
-                        store.load().then(() => {
-                            if ([...constructedStoreCache.values()].includes(store)) {
-                                federatedObservableStore.addStore(store);
-                            }
-                        })
+                        if (HttpStoreDescriptor.is(descriptor)) {
+                            const store = HttpSynchronizedStore.createFromDescriptor(descriptor, httpFetch);
+                            constructedStoreCache.set(descriptor, store);
+                            store.load().then(() => {
+                                if ([...constructedStoreCache.values()].includes(store)) {
+                                    federatedObservableStore.addStore(store);
+                                }
+                            })
+                        } else if (HttpSemanticModelStoreDescriptor.is(descriptor)) { // It is PIM store
+                            backendPackageService.constructSemanticModelFromIds([descriptor.modelId!]).then(([model]) => {
+                                // @ts-ignore
+                                constructedStoreCache.set(descriptor, model);
+                                // @ts-ignore
+                                federatedObservableStore.addStore(model);
+                            });
+                        }
                     }
                 }
             }

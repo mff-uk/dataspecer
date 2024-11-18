@@ -1,11 +1,12 @@
 import { CoreResource, CoreResourceReader } from "@dataspecer/core/core";
+import { DataSpecification as CoreDataSpecification } from "@dataspecer/core/data-specification/model";
 import { Generator } from "@dataspecer/core/generator";
 import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
 import { getArtefactGenerators } from "../../artefact-generators";
 import { getDefaultConfigurators } from "../../configurators";
+import { DataSpecification } from "../../specification";
 import { ArtifactConfigurator } from "../artifact-configurator";
-import { DataSpecifications } from "../data-specifications";
 import { GenerateReport } from "./generate-report";
 import { ZipStreamDictionary } from "./zip-stream-dictionary";
 
@@ -24,14 +25,15 @@ async function writeToStreamDictionary(
  */
 export class DefaultArtifactBuilder {
     private readonly store: CoreResourceReader;
-    private readonly dataSpecifications: DataSpecifications;
+    private readonly dataSpecifications: Record<string, DataSpecification & {artefacts: any}>;
     private dataSpecificationIris: string[] = [];
     private reportCallback: ((report: GenerateReport) => void) | undefined;
     private artifactReport: GenerateReport = [];
     private configuration: object;
 
-    public constructor(store: CoreResourceReader, dataSpecifications: DataSpecifications, configuration: object) {
+    public constructor(store: CoreResourceReader, dataSpecifications: Record<string, DataSpecification>, configuration: object) {
         this.store = store;
+        // @ts-ignore
         this.dataSpecifications = dataSpecifications;
         this.configuration = configuration;
     }
@@ -95,8 +97,21 @@ export class DefaultArtifactBuilder {
           JSON.stringify(this.dataSpecifications, null, 4),
         );
 
+        // Convert data specification
+        const dataSpecifications = Object.values(this.dataSpecifications).map(specification => ({
+            iri: specification.id,
+            pim: specification.localSemanticModelIds[0],
+            psms: specification.dataStructures.map(ds => ds.id),
+            type: CoreDataSpecification.TYPE_DOCUMENTATION,
+            importsDataSpecifications: specification.importsDataSpecificationIds,
+            artefacts: specification.artefacts,
+            // @ts-ignore
+            artefactConfiguration: specification.artefactConfiguration,
+            cimAdapters: [],
+        })) as CoreDataSpecification[];
+
         const generator = new Generator(
-            Object.values(this.dataSpecifications),
+            dataSpecifications,
             this.store,
             getArtefactGenerators()
         );

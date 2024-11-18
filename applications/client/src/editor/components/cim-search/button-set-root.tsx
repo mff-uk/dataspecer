@@ -64,8 +64,8 @@ const ButtonSetRoot: React.FC = () => {
       )
     );
 
-    if (dataSpecificationIri && dataPsmSchemaIri && dataSpecifications[dataSpecificationIri].pim) {
-      const op = new CreateRootClass(cls, dataSpecifications[dataSpecificationIri].pim as string, dataPsmSchemaIri, newSchemaLabel, newSchemaDescription);
+    if (dataSpecificationIri && dataPsmSchemaIri && dataSpecifications[dataSpecificationIri].localSemanticModelIds.length > 0) {
+      const op = new CreateRootClass(cls, dataSpecifications[dataSpecificationIri].localSemanticModelIds[0] as string, dataPsmSchemaIri, newSchemaLabel, newSchemaDescription);
       op.setContext(operationContext);
       store.executeComplexOperation(op).then();
     }

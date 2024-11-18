@@ -8,15 +8,15 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { isEqual } from "lodash";
 import { useSnackbar } from "notistack";
 import React, { memo, useContext } from "react";
-import { getAdapter } from "../../editor/configuration/adapters/get-adapter";
 import { DataSpecificationsContext } from "../app";
 import { PimAttribute } from "@dataspecer/core/pim/model/pim-attribute";
 import { PimAssociation } from "@dataspecer/core/pim/model/pim-association";
+import { getAdapter } from "../../editor/configuration/configuration";
 
 export const UpdatePim = memo(({dataSpecificationIri} : {dataSpecificationIri: string}) => {
     const {dataSpecifications} = useContext(DataSpecificationsContext);
     const {enqueueSnackbar} = useSnackbar();
-    
+
     const [loading, setLoading] = React.useState(false);
     const run = async () => {
         setLoading(true);
@@ -37,7 +37,7 @@ export const UpdatePim = memo(({dataSpecificationIri} : {dataSpecificationIri: s
             if (!pimClass.pimInterpretation) {
                 continue;
             }
-            
+
             const cimClass = await cimAdapter.getClass(pimClass.pimInterpretation);
             if (!cimClass) {
                 continue;
@@ -68,7 +68,7 @@ export const UpdatePim = memo(({dataSpecificationIri} : {dataSpecificationIri: s
                     }
                 }
             }
-            
+
         }
 
         for (const [pimResource, cimResource] of diffPairs) {
@@ -80,7 +80,7 @@ export const UpdatePim = memo(({dataSpecificationIri} : {dataSpecificationIri: s
                 await store.applyOperation(op);
             }
             if (!isEqual(pimResource.pimHumanDescription, cimResource.pimHumanDescription)) {
-                console.log("Updating human description for ", pimResource, " from description ", pimResource.pimHumanDescription, " to ", cimResource.pimHumanDescription); 
+                console.log("Updating human description for ", pimResource, " from description ", pimResource.pimHumanDescription, " to ", cimResource.pimHumanDescription);
                 const op = new PimSetHumanDescription();
                 op.pimResource = pimResource.iri;
                 op.pimHumanDescription = cimResource.pimHumanDescription;

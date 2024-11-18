@@ -39,7 +39,6 @@ class ConceptualModelAdapter {
 
   private async loadPimPart(partIri: string) {
     const part = await this.reader.readResource(partIri) as unknown as Entity;
-    console.log("Loading PIM part", partIri, part);
     // let isKnown = false;
     // if (PimAssociation.is(part)) {
     //   await this.loadPimAssociation(part);
@@ -148,9 +147,7 @@ export async function coreResourcesToConceptualModel(
   reader: CoreResourceReader,
   pimSchemaIri: string
 ): Promise<ConceptualModel | null> {
-  console.log("🌱 Loading conceptual model from PIM schema", pimSchemaIri);
   const adapter = new ConceptualModelAdapter(reader);
   const data = await adapter.load(pimSchemaIri);
-  console.log("Conceptual model", data);
   return data;
 }

@@ -1,11 +1,10 @@
-import {Box, Button, Card, CardActions, CardContent, TableCell, TableRow, Typography} from "@mui/material";
-import React from "react";
-import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
-import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
-import {DataSchemaNameCell, selectLanguage} from "../../name-cells";
-import {getEditorLink} from "../../shared/get-schema-generator-link";
-import {Link} from "react-router-dom";
-import {useTranslation} from "react-i18next";
+import { Button, Card, CardActions, CardContent, Typography } from "@mui/material";
+import React, { useContext } from "react";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import { DataSpecificationsContext } from "../../app";
+import { selectLanguage } from "../../name-cells";
+import { getEditorLink } from "../../shared/get-schema-generator-link";
 
 export interface DataStructureRowProps {
     specificationIri: string;
@@ -13,48 +12,13 @@ export interface DataStructureRowProps {
     onDelete: () => void;
 }
 
-export const DataStructureRow: React.FC<DataStructureRowProps>
-    = ({specificationIri, dataStructureIri, onDelete}) => {
-
-    const {resource} = useResource<DataPsmSchema>(dataStructureIri);
-
-    return <TableRow>
-        <TableCell component="th" scope="row" sx={{width: "25%"}}>
-            <DataSchemaNameCell dataPsmSchemaIri={dataStructureIri as string} />
-        </TableCell>
-        <TableCell>
-            <Typography>{resource?.dataPsmParts.length ?? "-"}</Typography>
-        </TableCell>
-
-        <TableCell align="right">
-            <Box
-                sx={{
-                    display: "flex",
-                    gap: "1rem",
-                    justifyContent: "flex-end"
-                }}>
-                <Button
-                    variant={"contained"}
-                    color={"primary"}
-                    component={Link}
-                    to={getEditorLink(specificationIri, dataStructureIri)}
-                >
-                    Edit
-                </Button>
-                <Button
-                    variant="outlined"
-                    color={"error"}
-                    onClick={onDelete}>Delete</Button>
-            </Box>
-        </TableCell>
-    </TableRow>;
-};
-
 export const DataStructureBox: React.FC<DataStructureRowProps>
     = ({specificationIri, dataStructureIri, onDelete}) => {
     const {t} = useTranslation("ui");
 
-    const {resource} = useResource<DataPsmSchema>(dataStructureIri);
+    const {dataSpecifications} = useContext(DataSpecificationsContext);
+    const specification = dataSpecifications[specificationIri as string];
+    const dataStructure = specification?.dataStructures.find(structure => structure.id === dataStructureIri);
 
     return <Card variant="outlined" sx={{height: "4.75cm"}}>
         <CardContent>
@@ -63,12 +27,11 @@ export const DataStructureBox: React.FC<DataStructureRowProps>
                 overflow: "hidden",
                 textOverflow: "ellipsis",
             }}>
-                {selectLanguage(resource?.dataPsmHumanLabel ?? {}, ["en"]) ?? dataStructureIri}
+                {selectLanguage(dataStructure.label ?? {}, ["en"]) ?? dataStructureIri}
             </Typography>
             <Typography sx={{ mb: 1.5 }} color="text.secondary">
                 {t("data structure")}
             </Typography>
-            <Typography variant="body2">{resource?.dataPsmParts.length ?? "-"} items</Typography>
         </CardContent>
         <CardActions>
             <div style={{flexGrow: 1}} />

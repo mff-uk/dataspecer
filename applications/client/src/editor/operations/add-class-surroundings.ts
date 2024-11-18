@@ -1,4 +1,4 @@
-import { ExtendedSemanticModelRelationship, isSemanticModelClass, isSemanticModelRelationPrimitive, isSemanticModelRelationship, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelClass, isSemanticModelRelationPrimitive, isSemanticModelRelationship, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { DataPsmClass } from "@dataspecer/core/data-psm/model";
 import { DataPsmCreateAssociationEnd, DataPsmCreateAttribute, DataPsmCreateClass } from "@dataspecer/core/data-psm/operation";
