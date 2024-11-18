@@ -1,6 +1,6 @@
 import React, {memo, useMemo} from "react";
 import {Span, sxStyles} from "../styles";
-import {DataPsmAssociationEnd} from "@dataspecer/core/data-psm/model";
+import {DataPsmAssociationEnd, DataPsmClass} from "@dataspecer/core/data-psm/model";
 import {useTranslation} from "react-i18next";
 import {DataPsmGetLabelAndDescription} from "../common/DataPsmGetLabelAndDescription";
 import {RowSlots} from "../base-row";
@@ -14,7 +14,7 @@ import {getCardinalityFromResource} from "../common/cardinality";
 import {useDialog} from "../../../dialog";
 import {ReplaceAssociationWithReferenceDialog} from "../replace-association-with-reference/replace-association-with-reference-dialog";
 import {ReplaceAssociationEndWithReference} from "../replace-association-with-reference/replace-association-end-with-reference";
-import { SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { ExtendedSemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 
 const StrikeOut: React.FC<{
   children: React.ReactNode,
@@ -38,7 +38,9 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots> = mem
   const isBackwardsAssociation = false; // todo: there is no way to determine this yet
   const correctEnd = pimSemanticRelationship?.ends[isBackwardsAssociation ? 0 : 1];
 
-  const isCodelist = false;
+  const {pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, ExtendedSemanticModelClass>(dataPsmAssociationEnd?.dataPsmPart);
+
+  const isCodelist = pimClass?.isCodelist ?? false;
 
   const associationPointsToIri = dataPsmAssociationEnd?.dataPsmPart ?? null;
 

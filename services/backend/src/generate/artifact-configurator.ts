@@ -5,9 +5,12 @@ import { DataPsmSchema } from "@dataspecer/core/data-psm/model";
 import { DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
 import {
   DataSpecification,
-  DataSpecificationArtefact
+  DataSpecificationArtefact,
+  DataSpecificationSchema
 } from "@dataspecer/core/data-specification/model";
 import { PimSchema } from "@dataspecer/core/pim/model";
+import { JSON_SCHEMA } from "@dataspecer/json/json-schema";
+import { LDkitGenerator } from "@dataspecer/ldkit";
 
 export class ArtifactConfigurator {
   protected readonly dataSpecifications: DataSpecification[];
@@ -67,16 +70,20 @@ export class ArtifactConfigurator {
     // const generatorsEnabledByDefault =
     //   dataSpecificationConfiguration.generatorsEnabledByDefault!;
 
-    //if ((dataSpecificationConfiguration.useGenerators?.["LDkit"] ?? generatorsEnabledByDefault) === true) {
-      const artifact: DataSpecificationArtefact = new DataSpecificationArtefact();
-      artifact.iri = `${dataSpecificationIri}#LDkit`;
-      artifact.generator = "https://schemas.dataspecer.com/generator/LDkit";
-      const artifactFileName = dataSpecificationConfiguration.renameArtifacts?.[artifact.generator] ?? "LDkit/";
-      artifact.outputPath = `${dataSpecificationName}/${artifactFileName}`;
-      artifact.publicUrl = `${this.baseURL}/${artifactFileName}`;
-      //artifact.configuration = configuration;
-      artifacts.push(artifact);
-    //}
+    for (const psmSchemaIri of dataSpecification.psms) {
+      let subdirectory = "/" + await this.getSchemaDirectoryName(dataSpecificationIri, psmSchemaIri);
+
+      if (dataSpecificationConfiguration.skipStructureNameIfOnlyOne && dataSpecification.psms.length === 1) {
+        subdirectory = "";
+      }
+
+      artifacts.push(...getSchemaArtifacts(
+        psmSchemaIri,
+        `${this.baseURL}${subdirectory}`,
+        `${dataSpecificationName}${subdirectory}`,
+        configuration
+      ));
+    }
 
     return artifacts;
   }
@@ -140,4 +147,42 @@ export class ArtifactConfigurator {
 
     return this.nameFromIri(dataSpecificationIri);
   }
+}
+
+export function getSchemaArtifacts(
+  psmSchemaIri: string,
+  baseUrl: string,
+  basePath: string,
+  configuration: object
+) {
+  const dataSpecificationConfiguration = DataSpecificationConfigurator.getFromObject(configuration);
+  const generatorsEnabledByDefault = dataSpecificationConfiguration.generatorsEnabledByDefault!;
+
+  const artifacts: DataSpecificationArtefact[] = [];
+
+  const ldkitArtifact: DataSpecificationSchema = new DataSpecificationSchema();
+  ldkitArtifact.iri = `${psmSchemaIri}#ldkit`;
+  ldkitArtifact.generator = LDkitGenerator.IDENTIFIER;
+  const ldkitArtifactFileName = dataSpecificationConfiguration.renameArtifacts?.[ldkitArtifact.generator] ?? `ldkit-schema.ts`;
+  ldkitArtifact.outputPath = `${basePath}/${ldkitArtifactFileName}`;
+  ldkitArtifact.publicUrl = `${baseUrl}/${ldkitArtifactFileName}`;
+  ldkitArtifact.psm = psmSchemaIri;
+  ldkitArtifact.configuration = configuration;
+  if ((dataSpecificationConfiguration.useGenerators?.["json"] ?? generatorsEnabledByDefault) !== false) {
+    artifacts.push(ldkitArtifact);
+  }
+
+  const jsonSchema = new DataSpecificationSchema();
+  jsonSchema.iri = `${psmSchemaIri}#jsonschema`;
+  jsonSchema.generator = JSON_SCHEMA.Generator;
+  const jsonSchemaFileName = dataSpecificationConfiguration.renameArtifacts?.[jsonSchema.generator] ?? `schema.json`;
+  jsonSchema.outputPath = `${basePath}/${jsonSchemaFileName}`;
+  jsonSchema.publicUrl = `${baseUrl}/${jsonSchemaFileName}`;
+  jsonSchema.psm = psmSchemaIri;
+  jsonSchema.configuration = configuration;
+  if ((dataSpecificationConfiguration.useGenerators?.["json"] ?? generatorsEnabledByDefault) !== false) {
+    artifacts.push(jsonSchema);
+  }
+
+  return artifacts;
 }

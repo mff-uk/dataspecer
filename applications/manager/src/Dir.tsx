@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { API_SPECIFICATION_MODEL, LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL, V1 } from "@dataspecer/core-v2/model/known-models";
+import { API_SPECIFICATION_MODEL, APPLICATION_GRAPH, LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL, V1 } from "@dataspecer/core-v2/model/known-models";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
 import { ChevronDown, ChevronRight, CircuitBoard, Copy, EllipsisVertical, FileText, Folder, FolderDown, NotepadTextDashed, Pencil, Plus, Sparkles, Trash2, WandSparkles } from "lucide-react";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
@@ -9,7 +9,6 @@ import { Translate } from "./components/translate";
 import { Button } from "./components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./components/ui/dropdown-menu";
 import { Skeleton } from "./components/ui/skeleton";
-import { Autolayout } from "./dialog/autolayout";
 import { CreateNew } from "./dialog/create-new";
 import { DeleteResource } from "./dialog/delete-resource";
 import { ProjectWizard } from "./dialog/project-wizard/project-wizard";
@@ -24,6 +23,7 @@ import { defaultConfiguration } from "@dataspecer/core-v2/documentation-generato
 import React from "react";
 import { SortModelsContext } from "./components/sort-models";
 import { ModifyRawDialog } from "./dialog/modify-raw";
+import { Autolayout } from "./dialog/autolayout";
 
 export function lng(text: LanguageString | undefined): string | undefined {
   return text?.["cs"] ?? text?.["en"];
@@ -93,7 +93,7 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
     <div className="flex items-center space-x-4 hover:bg-accent">
        {resource.types.includes(LOCAL_PACKAGE) ? <div className="flex"><button onClick={stopPropagation(() => isOpen ? setIsOpen(false) : open())}>
         {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-      </button><Folder className="text-gray-400 ml-1" /></div> : <div><ModelIcon type={resource.types} /></div>}       
+      </button><Folder className="text-gray-400 ml-1" /></div> : <div><ModelIcon type={resource.types} /></div>}
 
       <div className="grow min-w-0">
         <div className="font-medium">
@@ -118,6 +118,13 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
 
       {resource.userMetadata?.tags?.map(tag => <Badge variant="secondary" key={tag}>{tag}</Badge>)}
 
+      {resource.types.includes(APPLICATION_GRAPH) &&
+        <Button asChild variant={"ghost"} onClick={stopPropagation()}>
+          <a href={import.meta.env.VITE_BACKEND + "/generate/application?iri=" + encodeURIComponent(iri)}>
+            {t("generate application")}
+          </a>
+        </Button>
+      }
       {resource.types.includes(V1.PSM) && <Button asChild variant={"ghost"} onClick={stopPropagation()}><a href={import.meta.env.VITE_CME + "/../editor?data-specification=" + encodeURIComponent(parentIri ?? "") + "&data-psm-schema=" + encodeURIComponent(iri)}>{t("open")}</a></Button>}
       {resource.types.includes(LOCAL_VISUAL_MODEL) && <Button asChild variant={"ghost"} onClick={stopPropagation()}><a href={import.meta.env.VITE_CME + "/diagram?package-id=" + encodeURIComponent(parentIri ?? "") + "&view-id=" + encodeURIComponent(iri) }>{t("open")}</a></Button>}
       {resource.types.includes(API_SPECIFICATION_MODEL) && <Button asChild variant={"ghost"} onClick={stopPropagation()}><a href={import.meta.env.VITE_API_SPECIFICATION_APPLICATION + "?package-iri=" + encodeURIComponent(parentIri ?? "") + "&model-iri=" + encodeURIComponent(iri) }>{t("open")}</a></Button>}

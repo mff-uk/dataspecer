@@ -31,7 +31,7 @@ export const RegularOr: React.FC<{ iri: string} & ObjectContext & RowSlots> = me
 
   const {resource} = useResource<DataPsmOr>(props.iri);
 
-  const collapseSubtree = useToggle(true);
+  const collapseSubtree = useToggle(props.contextType !== "reference");
 
   // Unwrapping the OR: All references to this OR will be replaced with the single class that is in the OR.
   const unwrap = useCallback(() =>
@@ -62,6 +62,9 @@ export const RegularOr: React.FC<{ iri: string} & ObjectContext & RowSlots> = me
 
   const thisStartRow = <>
     <Span sx={sxStyles.or}>{t("OR")}</Span>
+    {typeof resource.dataPsmTechnicalLabel === "string" && resource.dataPsmTechnicalLabel.length > 0 &&
+      <> (<Span sx={sxStyles.technicalLabel}>{resource.dataPsmTechnicalLabel}</Span>)</>
+    }
   </>;
 
   const thisMenu = <>

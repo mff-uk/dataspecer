@@ -17,7 +17,7 @@ import { ObjectContext } from "../data-psm-row";
 import { ReplaceAlongInheritanceDialog } from "../replace-along-inheritance/replace-along-inheritance-dialog";
 import { Span, sxStyles } from "../styles";
 import { DataPsmClassSubtree } from "../subtrees/class-subtree";
-import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { ExtendedSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 
 export const DataPsmClassItem: React.FC<{
   iri: string,
@@ -25,8 +25,9 @@ export const DataPsmClassItem: React.FC<{
 } & RowSlots & ObjectContext> = memo((props) => {
   const {t} = useTranslation("psm");
 
-  const {dataPsmResource: dataPsmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, SemanticModelClass>(props.iri);
+  const {dataPsmResource: dataPsmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, ExtendedSemanticModelClass>(props.iri);
   const readOnly = false;
+  const isCodelist = pimClass?.isCodelist ?? false;
   const cimClassIri = pimClass?.iri;
 
   const AddSurroundings = useDialog(false ? WikidataAddInterpretedSurroundingsDialog : AddInterpretedSurroundingsDialog, ["dataPsmClassIri"]);
@@ -55,7 +56,7 @@ export const DataPsmClassItem: React.FC<{
   </>;
 
   const thisMenu = <>
-    {cimClassIri && !readOnly && <DataPsmClassAddSurroundingsButton open={AddSurroundings.open} />}
+    {cimClassIri && !readOnly && !isCodelist && <DataPsmClassAddSurroundingsButton open={AddSurroundings.open} />}
   </>;
 
   const ReplaceAlongHierarchy = useDialog(ReplaceAlongInheritanceDialog);

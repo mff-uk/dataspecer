@@ -43,6 +43,7 @@
   "error": "chyba",
   "generate artifacts": "Generovat artefakty",
   "generate zip file": "Generovat do .ZIP souboru",
+  "generate zip file with relative paths": "Generovat s relativními cestami",
   "import": {
     "action": "Akce",
     "button import": "Importovat",

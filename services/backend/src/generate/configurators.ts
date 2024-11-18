@@ -1,5 +1,6 @@
 import { Configurator } from "@dataspecer/core/configuration/configurator";
 import { DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
+import { JsonConfigurator } from "@dataspecer/json/configuration";
 
 /**
  * Returns all configurators for generator families that will be used in the
@@ -9,5 +10,6 @@ import { DataSpecificationConfigurator } from "@dataspecer/core/data-specificati
 export function getDefaultConfigurators(): Configurator[] {
     return [
         DataSpecificationConfigurator,
+        JsonConfigurator,
     ]
 }

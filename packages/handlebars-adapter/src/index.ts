@@ -1,0 +1,1 @@
+export {HandlebarsAdapter} from "./adapter";

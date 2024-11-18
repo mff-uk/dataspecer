@@ -206,16 +206,16 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
     useSaveHandler(
         (isStringDatatype || isClass) && normalizedRegex !== currentRegex,
         useCallback(async () => {
-            await store.executeComplexOperation(new SetRegex(pimResource.id as string, normalizedRegex));
-        }, [normalizedRegex, pimResource.id, store])
+            await store.executeComplexOperation(new SetRegex(pimResource?.id as string, normalizedRegex));
+        }, [normalizedRegex, pimResource?.id, store])
     );
 
     const normalizedExamples = examples === null || examples.length === 0 ? null : examples;
     useSaveHandler(
         (isStringDatatype || isClass) && !isEqual(normalizedExamples, currentExamples),
         useCallback(async () => {
-            await store.executeComplexOperation(new SetExample(pimResource.id as string, normalizedExamples));
-        }, [normalizedExamples, pimResource.id, store])
+            await store.executeComplexOperation(new SetExample(pimResource?.id as string, normalizedExamples));
+        }, [normalizedExamples, pimResource?.id, store])
     );
 
     // endregion regex and examples

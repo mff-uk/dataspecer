@@ -68,7 +68,6 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
       artifacts.push(respec);
     }
 
-
     return artifacts;
   }
 }

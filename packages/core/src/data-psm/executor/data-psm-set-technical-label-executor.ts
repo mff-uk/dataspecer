@@ -11,6 +11,8 @@ import {
   DataPsmExternalRoot,
   DataPsmClass,
   DataPsmSchema,
+  DataPsmOr,
+  DataPsmResource,
 } from "../model";
 
 export async function executeDataPsmSetTechnicalLabel(
@@ -35,7 +37,7 @@ export async function executeDataPsmSetTechnicalLabel(
       {
         ...resource,
         dataPsmTechnicalLabel: operation.dataPsmTechnicalLabel,
-      } as CoreResource,
+      } as DataPsmResource,
     ]
   );
 }
@@ -46,6 +48,7 @@ function hasTechnicalLabel(resource: CoreResource) {
     DataPsmAttribute.is(resource) ||
     DataPsmClass.is(resource) ||
     DataPsmSchema.is(resource) ||
-    DataPsmExternalRoot.is(resource)
+    DataPsmExternalRoot.is(resource) ||
+    DataPsmOr.is(resource)
   );
 }

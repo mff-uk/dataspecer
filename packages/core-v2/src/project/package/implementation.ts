@@ -7,7 +7,7 @@ import { createInMemorySemanticModel } from "../../semantic-model/simplified/in-
 import { createVisualModel } from "../../semantic-model/simplified/visual-model";
 import { PimStoreWrapper } from "../../semantic-model/v1-adapters";
 import { WritableSemanticModelAdapter } from "../../semantic-model/writable-semantic-model-adapter";
-import { VisualEntityModel } from "../../visual-model";
+import { VisualModel } from "../../visual-model";
 import { BaseResource, Package, ResourceEditable } from "../resource/resource";
 import { PackageService, SemanticModelPackageService } from "./package-service";
 
@@ -114,9 +114,9 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
      */
     async constructSemanticModelPackageModels(
         packageId: string
-    ): Promise<readonly [EntityModel[], VisualEntityModel[]]> {
+    ): Promise<readonly [EntityModel[], VisualModel[]]> {
         const entityModels: EntityModel[] = [];
-        const visualModels: VisualEntityModel[] = [];
+        const visualModels: VisualModel[] = [];
 
         const recursivellyLoadPackage = async (packageId: string) => {
             const pckg = await this.getPackage(packageId);
@@ -144,7 +144,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
     async updateSemanticModelPackageModels(
         packageId: string,
         models: EntityModel[],
-        visualModels: VisualEntityModel[]
+        visualModels: VisualModel[]
     ): Promise<boolean> {
         const responseStatuses = new Set<number>();
         for (const visualModel of [...models, ...visualModels]) {
@@ -270,7 +270,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
         return { resource, ...modelData };
     }
 
-    async getModelsFromResources(resources: BaseResource[]): Promise<readonly [EntityModel[], VisualEntityModel[]]> {
+    async getModelsFromResources(resources: BaseResource[]): Promise<readonly [EntityModel[], VisualModel[]]> {
         const entityModels = [];
         const visualModels = [];
 
@@ -327,7 +327,7 @@ export class BackendPackageService implements PackageService, SemanticModelPacka
      */
     async getModelsFromModelDescriptors(modelDescriptors: any[]) {
         const constructedEntityModels: EntityModel[] = [];
-        const constructedVisualModels: VisualEntityModel[] = [];
+        const constructedVisualModels: VisualModel[] = [];
         // todo: use more robust approach
         for (const modelDescriptor of modelDescriptors) {
             if (modelDescriptor.type === "https://dataspecer.com/core/model-descriptor/sgov") {

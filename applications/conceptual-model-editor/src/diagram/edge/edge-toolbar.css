@@ -1,0 +1,56 @@
+.edge-toolbar {
+  display: grid;
+  place-content: center;
+  grid-area: 1/1;
+  width: 0;
+  height: 0;
+  position: absolute;
+  z-index: 8;
+  /* Variables.  */
+  --btn-size: 2em;
+  --extra-space: 1em;
+}
+
+.edge-toolbar button {
+  border-radius: 50%;
+  width: var(--btn-size);
+  height: var(--btn-size);
+  font-size: 1.35em;
+  cursor: pointer;
+}
+
+.edge-toolbar .generalization-edge ul {
+  position: absolute;
+}
+
+.edge-toolbar .property-edge ul {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.edge-toolbar .generalization-edge ul,
+.edge-toolbar .property-edge li {
+  display: grid;
+  place-content: center;
+  grid-area: 1/1;
+  --radius: calc(var(--btn-size) + var(--extra-space));
+  transform: translateX(calc(cos(var(--angle)) * var(--radius))) translateY(calc(sin(var(--angle) * -1) * var(--radius)));
+}
+
+.edge-toolbar .property-edge li:nth-child(1) {
+  --angle: 0deg;
+}
+
+.edge-toolbar .property-edge li:nth-child(2) {
+  --angle: 90deg;
+}
+
+.edge-toolbar .property-edge li:nth-child(3) {
+  --angle: 180deg;
+}
+
+.edge-toolbar .property-edge li:nth-child(4) {
+  --angle: 270deg;
+}
+

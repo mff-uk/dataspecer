@@ -92,4 +92,12 @@ export const knownDatatypes: KnownDatatype[] = [
             "en": "Language tagged string"
         }
     },
+    {
+        "iri": "http://www.w3.org/2001/XMLSchema#base64Binary",
+        "documentation": "https://www.w3.org/TR/xmlschema-2/#base64Binary",
+        "label": {
+            "cs": "Base64 kódovaný binární obsah",
+            "en": "Base64 encoded binary content"
+        }
+    },
 ];

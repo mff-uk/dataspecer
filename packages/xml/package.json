@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "@dataspecer/bikeshed": "*",
-    "@dataspecer/core": "*"
+    "@dataspecer/core": "*",
+    "@dataspecer/handlebars-adapter": "*"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",

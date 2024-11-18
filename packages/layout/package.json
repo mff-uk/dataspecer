@@ -4,7 +4,8 @@
     "scripts": {
       "build": "tsc",
       "dev": "tsc -w",
-      "prebuild": "rimraf lib"
+      "prebuild": "rimraf lib",
+      "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests --silent"
     },
     "exports": {
       ".": "./lib/index.js"
@@ -16,7 +17,7 @@
     },
     "devDependencies": {
       "rimraf": "^5.0.5",
-      "typescript": "~5.4.2"
+      "typescript": "~5.4.2",
+      "ts-jest": "^29.1.0"
     }
   }
-  

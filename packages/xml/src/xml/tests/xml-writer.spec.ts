@@ -72,7 +72,7 @@ test(testPrefix + "escaping", async () => {
   await writer.writeLocalAttributeValue("attr", " <\"'&> ");
   await writer.writeText(" <\"'&> ");
   await writer.writeElementEnd(null, "elem");
-  expect(buffer.join("")).toBe('<elem attr=" &#60;&#34;\'&#38;&#62; ">\n &#60;&#34;\'&#38;&#62; </elem>\n');
+  expect(buffer.join("")).toBe('<elem attr=" &#60;&#34;\'&#38;&#62; ">\n   &#60;&#34;\'&#38;&#62; </elem>\n');
 });
 
 test(testPrefix + "namespace declaration", async () => {

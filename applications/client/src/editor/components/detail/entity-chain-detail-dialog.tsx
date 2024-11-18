@@ -15,6 +15,7 @@ import { CimLinks } from "./components/cim-links";
 import { DataPsmAssociationEndCard } from "./components/data-psm-association-end-card";
 import { DataPsmAttributeCard } from "./components/data-psm-attribute-card";
 import { DataPsmClassCard } from "./components/data-psm-class-card";
+import { DataPsmOrCard } from "./components/data-psm-or-card";
 import { DataPsmSchemaCard } from "./components/data-psm-schema-card";
 import { ResourceInStore } from "./components/resource-in-store";
 
@@ -83,6 +84,8 @@ const ContentItem: FC<{iri: string, onClose: () => void}> = (props) => {
         return <DataPsmAssociationEndCard {...props} />;
     } else if (DataPsmSchema.is(resource)) {
         return <DataPsmSchemaCard {...props} />;
+    } else if (DataPsmOr.is(resource)) {
+        return <DataPsmOrCard {...props} />;
     } else {
         return <ContentUnknownItem {...props} />;
     }

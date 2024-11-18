@@ -48,6 +48,7 @@ import { ModifySpecification } from "./modify-specification";
 import { RedirectDialog } from "./redirect-dialog";
 import { ReuseDataSpecifications } from "./reuse-data-specifications";
 import { EntityModelAsCoreResourceReader } from "@dataspecer/core-v2/entity-model";
+import { DataSpecificationConfiguration, DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
 
 export const DocumentationSpecification = memo(({dataSpecificationIri}: {
     dataSpecificationIri: string;
@@ -77,7 +78,7 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
     const [generateDialogOpen, setGenerateDialogOpen] = React.useState<boolean>(false);
     const [generateState, setGenerateState] = React.useState<GenerateReport>([]);
     const constructedStoreCache = useContext(ConstructedStoreCacheContext);
-    const generateZip = async (configurationId: string) => {
+    const generateZip = async (configurationId: string, overrideBasePathsToNull: boolean = false) => {
         setZipLoading("stores-loading");
         setGenerateState([]);
         setGenerateDialogOpen(true);
@@ -85,7 +86,7 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
         // Gather all data specifications
 
         // We know, that the current data specification must be present
-        const gatheredDataSpecifications: Record<string, DataSpecification> = {};
+        let gatheredDataSpecifications: Record<string, DataSpecification> = {};
 
         const toProcessDataSpecification = [dataSpecificationIri as string];
         for (let i = 0; i < toProcessDataSpecification.length; i++) {
@@ -98,6 +99,18 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
             });
             // @ts-ignore
             dataSpecification.artefactConfiguration = await backendConnector.getArtifactConfiguration(dataSpecification.artifactConfigurations[0].id);
+        }
+
+        // Override base urls to null
+        if (overrideBasePathsToNull) {
+            gatheredDataSpecifications = structuredClone(gatheredDataSpecifications);
+            for (const ds of Object.values(gatheredDataSpecifications)) {
+                // @ts-ignore
+                if (ds.artefactConfiguration[DataSpecificationConfigurator.KEY]) {
+                    // @ts-ignore
+                    (ds.artefactConfiguration[DataSpecificationConfigurator.KEY] as DataSpecificationConfiguration).publicBaseUrl = null;
+                }
+            }
         }
 
         // Gather all store descriptors
@@ -221,7 +234,7 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
                                     gap: "1rem",
                                 }}>
                                     <Button variant="outlined" color={"primary"} component={Link}
-                                            to={`/specification?dataSpecificationIri=${encodeURIComponent(specification)}`}>{t("detail")}</Button>
+                                            to={`${process.env.REACT_APP_MANAGER_BASE_URL}specification?dataSpecificationIri=${encodeURIComponent(specification)}`}>{t("detail")}</Button>
                                 </Box>
                             </TableCell>
                         </TableRow>
@@ -243,9 +256,10 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
             alignItems: "center",
             gap: "1rem",
         }}>
-                {dataSpecificationIri && <ConfigureArtifacts dataSpecificationId={dataSpecificationIri} configurationId={configuration.id} />}
-                <LoadingButton variant="contained" onClick={() => generateZip(configuration.id)} loading={zipLoading !== false}>{t("generate zip file")}</LoadingButton>
-                <Button variant="contained" href={process.env.REACT_APP_BACKEND + "/generate?iri=" + encodeURIComponent(dataSpecificationIri)}>Generate sample application</Button>
+            {dataSpecificationIri && <ConfigureArtifacts dataSpecificationId={dataSpecificationIri} configurationId={configuration.id} />}
+            <LoadingButton variant="contained" onClick={() => generateZip(configuration.id, false)} loading={zipLoading !== false}>{t("generate zip file")}</LoadingButton>
+            <LoadingButton onClick={() => generateZip(configuration.id, true)} loading={zipLoading !== false}>{t("generate zip file with relative paths")}</LoadingButton>
+            <Button variant="contained" href={process.env.REACT_APP_BACKEND + "/generate?iri=" + encodeURIComponent(dataSpecificationIri)}>Generate sample application</Button>
         </Box>)}
 
         <ConceptualModelSources dataSpecificationIri={dataSpecificationIri} />

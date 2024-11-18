@@ -21,6 +21,7 @@ form:
   description:
     instruction: Describe your project in more detail
     name: Description
+    preset: Preset
   name:
     instruction: Enter the name of the project
     name: Name
@@ -28,6 +29,8 @@ form:
     instruction: URL publicly accessible from the internet
     name: URL
 format as json: Format as json
+generate application: Generate the application
+ID: ID
 mode-toggle:
   dark: Dark
   light: Light

@@ -134,6 +134,10 @@ export class DefaultArtifactConfigurator {
   protected async getSchemaDirectoryName(dataSpecificationIri: string, dataPsmSchemaIri: string) {
     const psmSchema = await this.store.readResource(dataPsmSchemaIri) as DataPsmSchema;
 
+    if (psmSchema?.dataPsmTechnicalLabel && psmSchema.dataPsmTechnicalLabel.length > 0) {
+      return psmSchema.dataPsmTechnicalLabel;
+    }
+
     if (psmSchema && psmSchema.dataPsmHumanLabel) {
       if (psmSchema.dataPsmHumanLabel["en"]) {
         return this.normalizeName(psmSchema.dataPsmHumanLabel["en"]);

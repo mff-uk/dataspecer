@@ -11,21 +11,20 @@ set -e # Exit with nonzero exit code if anything fails
 
 if [ -n "$USE_NEW_MANAGER" ]; then
   NEW_MANAGER="/"
-  OLD_MANAGER="/data-specification-manager"
+  OLD_MANAGER="$BASE_PATH/data-specification-manager"
 else
   NEW_MANAGER="/manager"
-  OLD_MANAGER=""
+  OLD_MANAGER="$BASE_PATH"
 fi
 
 npm ci
 
-printf "REACT_APP_BACKEND=$BACKEND\nREACT_APP_DEBUG_VERSION=$CF_PAGES_BRANCH@$(echo $CF_PAGES_COMMIT_SHA | head -c7) $(date -u +%F\ %H:%M:%S)\nREACT_APP_MANAGER_BASE_URL=$BASE_PATH$OLD_MANAGER\nREACT_APP_WIKIDATA_ONTOLOGY_BACKEND=$WIKIDATA_ONTOLOGY_BACKEND\nREACT_APP_STRUCTURE_EDITOR_BASE_URL=$BASE_PATH/editor\n" > applications/client/.env.local
+printf "REACT_APP_BACKEND=$BACKEND\nREACT_APP_DEBUG_VERSION=$CF_PAGES_BRANCH@$(echo $CF_PAGES_COMMIT_SHA | head -c7) $(date -u +%F\ %H:%M:%S)\nREACT_APP_MANAGER_BASE_URL=$OLD_MANAGER/\nREACT_APP_WIKIDATA_ONTOLOGY_BACKEND=$WIKIDATA_ONTOLOGY_BACKEND\nREACT_APP_STRUCTURE_EDITOR_BASE_URL=$BASE_PATH/editor\n" > applications/client/.env.local
 
-printf "NEXT_PUBLIC_BASE_PATH=$BASE_PATH/conceptual-model-editor\nNEXT_PUBLIC_APP_BACKEND=$BACKEND\nNEXT_PUBLIC_APP_BACKEND_PACKAGE_ROOT=http://dataspecer.com/packages/local-root\nNEXT_PUBLIC_MANAGER_PATH=$BASE_PATH$NEW_MANAGER\nNEXT_PUBLIC_DSCME_LOGO_LINK=$BASE_PATH$NEW_MANAGER\n" > applications/conceptual-model-editor/.env.local
-# Autosave configuration.
-printf "NEXT_PUBLIC_APP_AUTOSAVE_INTERVAL_MS=15000\nNEXT_PUBLIC_APP_AUTOSAVE_ENABLED_BY_DEFAULT=1\n" >> applications/conceptual-model-editor/.env.local
+printf "VITE_PUBLIC_BASE_PATH=$BASE_PATH/conceptual-model-editor\nVITE_PUBLIC_APP_BACKEND=$BACKEND\nVITE_PUBLIC_APP_BACKEND_PACKAGE_ROOT=http://dataspecer.com/packages/local-root\nVITE_PUBLIC_MANAGER_PATH=$BASE_PATH$NEW_MANAGER\nVITE_PUBLIC_DSCME_LOGO_LINK=$BASE_PATH$NEW_MANAGER\n" > applications/conceptual-model-editor/.env.local
+printf "VITE_PUBLIC_APP_AUTOSAVE_ENABLED_BY_DEFAULT=0\n" >> applications/conceptual-model-editor/.env.local
 
-printf "VITE_BACKEND=$BACKEND\nVITE_CME=$BASE_PATH/conceptual-model-editor\nVITE_API_SPECIFICATION_APPLICATION=$BASE_PATH/api-specification\nVITE_SCHEMA_EDITOR=$BASE_PATH/editor\n" > applications/manager/.env.local
+printf "VITE_BACKEND=$BACKEND\nVITE_CME=$BASE_PATH/conceptual-model-editor\nVITE_API_SPECIFICATION_APPLICATION=$BASE_PATH/api-specification\nVITE_SCHEMA_EDITOR=$BASE_PATH/editor\nVITE_DATA_SPECIFICATION_DETAIL=$OLD_MANAGER/specification\n" > applications/manager/.env.local
 
 printf "VITE_BACKEND=$BACKEND\n" > applications/api-specification/.env.local
 
@@ -38,10 +37,10 @@ if [ -n "$BASE_PATH" ]; then
 fi
 
 if [ -n "$DO_BUILD_BACKEND" ]; then
-  npx turbo run build --concurrency 100% --filter=client --filter=conceptual-model-editor --filter=manager --filter=api-specification --filter=genapp --filter=backend^...
+  npx turbo run build --concurrency 100% --filter=client --filter=conceptual-model-editor --filter=manager --filter=api-specification --filter=backend^...
   (cd services/backend && npx npm run build-pack)
 else
-  npx turbo run build --concurrency 100% --filter=client --filter=conceptual-model-editor --filter=manager --filter=api-specification --filter=genapp
+  npx turbo run build --concurrency 100% --filter=client --filter=conceptual-model-editor --filter=manager --filter=api-specification
 fi
 
 rm -rf .dist
@@ -57,7 +56,7 @@ fi
 
 # Copy conceptual-model-editor application
 mkdir .dist/conceptual-model-editor
-cp -r applications/conceptual-model-editor/out/* .dist/conceptual-model-editor
+cp -r applications/conceptual-model-editor/dist/* .dist/conceptual-model-editor
 
 # Copy manager application
 mkdir .dist/manager
@@ -66,7 +65,3 @@ cp -r applications/manager/dist/* .dist$NEW_MANAGER
 # Copy api-specification application
 mkdir .dist/api-specification
 cp -r applications/api-specification/dist/* .dist/api-specification
-
-# Copy genapp application
-mkdir .dist/genapp
-cp -r applications/genapp/dist/* .dist/genapp

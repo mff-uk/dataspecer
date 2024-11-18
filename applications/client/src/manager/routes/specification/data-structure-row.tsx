@@ -27,7 +27,7 @@ export const DataStructureBox: React.FC<DataStructureRowProps>
                 overflow: "hidden",
                 textOverflow: "ellipsis",
             }}>
-                {selectLanguage(dataStructure.label ?? {}, ["en"]) ?? dataStructureIri}
+                {selectLanguage(dataStructure?.label ?? {}, ["en"]) ?? dataStructureIri}
             </Typography>
             <Typography sx={{ mb: 1.5 }} color="text.secondary">
                 {t("data structure")}
