@@ -9,7 +9,15 @@ import * as PSM from "../data-psm-vocabulary";
 export class DataPsmAssociationEnd extends DataPsmResource {
   private static readonly TYPE = PSM.ASSOCIATION_END;
 
+  /**
+   * This is semantic model relationship.
+   */
   dataPsmPart: string | null = null;
+
+  /**
+   * If true, the end points to index zero in ends.
+   */
+  dataPsmIsReverse: boolean | null = null;
 
   /**
    * If true, the content of this association end should be imported

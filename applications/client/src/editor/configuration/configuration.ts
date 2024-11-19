@@ -1,5 +1,5 @@
 import { EntityModel } from '@dataspecer/core-v2';
-import { isSemanticModelClass, SemanticModelClass, SemanticModelEntity } from '@dataspecer/core-v2/semantic-model/concepts';
+import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship, SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, SemanticModelRelationship } from '@dataspecer/core-v2/semantic-model/concepts';
 import { wrapCimAdapter } from '@dataspecer/core-v2/semantic-model/simplified';
 import { PrefixIriProvider } from "@dataspecer/core/cim";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
@@ -68,8 +68,12 @@ class SourceSemanticModel implements SourceSemanticModelInterface {
         for (const model of this.models) {
             const entities = model.getEntities();
             for (const entity of Object.values(entities)) {
-                if (isSemanticModelClass(entity) && entity.name.en.toLowerCase().includes(searchQuery.toLowerCase())) {
-                    filteredEntities.push(entity);
+                if (isSemanticModelClass(entity)) {
+                    for (const name of Object.values(entity.name)) {
+                        if (name.toLowerCase().includes(searchQuery.toLowerCase())) {
+                            filteredEntities.push(entity);
+                        }
+                    }
                 }
             }
         }
@@ -80,20 +84,62 @@ class SourceSemanticModel implements SourceSemanticModelInterface {
     /**
      * Returns surroudings of the entity with the given IRI.
      */
-    async getSurroundings(iri: string): Promise<SemanticModelEntity[]> {
+    async getSurroundings(): Promise<SemanticModelEntity[]> {
         let result = {};
         for (const model of this.models) {
             result = {...result, ...model.getEntities()};
         }
-        return Object.values(result);
+        return this.changeIdsOfEntitiesToIris(Object.values(result));
     }
 
-    async getFullHierarchy(iri: string): Promise<SemanticModelEntity[]> {
+    async getFullHierarchy(): Promise<SemanticModelEntity[]> {
         let result = {};
         for (const model of this.models) {
             result = {...result, ...model.getEntities()};
         }
-        return Object.values(result);
+        return this.changeIdsOfEntitiesToIris(Object.values(result));
+    }
+
+    /**
+     * This is a trick to replace ids with iris so you can use local model as a source semantic model.
+     */
+    private changeIdsOfEntitiesToIris(entities: SemanticModelEntity[]): SemanticModelEntity[] {
+        // Gather dictionary
+
+        const dictionary = {};
+        for (const entity of entities) {
+            if (isSemanticModelClass(entity) && entity.iri) {
+                dictionary[entity.id] = entity.iri;
+            }
+            if (isSemanticModelRelationship(entity) && entity.ends[1]?.iri) {
+                dictionary[entity.id] = entity.ends[1]?.iri;
+            }
+        }
+
+        // Translate everything
+
+        const translation: SemanticModelEntity[] = [];
+        for (const entity of entities) {
+            if (isSemanticModelClass(entity)) {
+                translation.push({...entity, id: dictionary[entity.id] ?? entity.id});
+            }
+            if (isSemanticModelRelationship(entity)) {
+                translation.push({
+                    ...entity,
+                    id: dictionary[entity.id] ?? entity.id,
+                    ends: entity.ends.map(end => ({...end, concept: dictionary[end.concept] ?? end.concept}))
+                } as SemanticModelRelationship);
+            }
+            if (isSemanticModelGeneralization(entity)) {
+                translation.push({
+                    ...entity,
+                    child: dictionary[entity.child] ?? entity.child,
+                    parent: dictionary[entity.parent] ?? entity.parent
+                } as SemanticModelGeneralization);
+            }
+        }
+
+        return translation;
     }
 }
 

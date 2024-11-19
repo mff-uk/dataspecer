@@ -213,6 +213,7 @@ class StructureModelAdapter {
     model.humanDescription = associationEndData.dataPsmHumanDescription;
     model.technicalLabel = associationEndData.dataPsmTechnicalLabel;
     model.dematerialize = associationEndData.dataPsmIsDematerialize === true;
+    model.isReverse = associationEndData.dataPsmIsReverse === true;
 
     const semanticRelationship = await this.reader.readResource(
       associationEndData.dataPsmInterpretation

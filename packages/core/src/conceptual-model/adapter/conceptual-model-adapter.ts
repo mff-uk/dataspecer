@@ -52,7 +52,7 @@ class ConceptualModelAdapter {
       await this.loadPimAssociation(part as ExtendedSemanticModelRelationship);
     }
     if (isSemanticModelClass(part)) {
-      await this.loadPimClass(part as ExtendedSemanticModelClass);
+      this.loadPimClass(part as ExtendedSemanticModelClass);
     }
     // if (!isKnown) {
     //   throw new Error(`Unsupported PIM part entity '${partIri}'.`);
@@ -65,7 +65,7 @@ class ConceptualModelAdapter {
     const rightClass = this.getClass(associationData.ends[1].concept);
 
     this.createAssociationEnd(leftClass, rightClass, associationData, 1);
-    this.createAssociationEnd(rightClass, leftClass, associationData, 0, false);
+    this.createAssociationEnd(rightClass, leftClass, associationData, 0, true);
   }
 
   private createAssociationEnd(

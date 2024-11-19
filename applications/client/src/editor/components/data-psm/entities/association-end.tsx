@@ -35,8 +35,9 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots> = mem
 
   // PIM Association and check if it is backward association
 
-  const isBackwardsAssociation = false; // todo: there is no way to determine this yet
+  const isBackwardsAssociation = dataPsmAssociationEnd?.dataPsmIsReverse === true;
   const correctEnd = pimSemanticRelationship?.ends[isBackwardsAssociation ? 0 : 1];
+  const incorrectEnd = pimSemanticRelationship?.ends[isBackwardsAssociation ? 1 : 0];
 
   const {pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, ExtendedSemanticModelClass>(dataPsmAssociationEnd?.dataPsmPart);
 
@@ -65,9 +66,9 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots> = mem
           }
         </DataPsmGetLabelAndDescription>
         :
-        <LanguageStringUndefineable from={correctEnd?.name ?? null}>
+        <LanguageStringUndefineable from={incorrectEnd?.name ?? null}>
           {label =>
-            <LanguageStringUndefineable from={correctEnd?.description ?? null}>
+            <LanguageStringUndefineable from={incorrectEnd?.description ?? null}>
               {description => <>
                 {isBackwardsAssociation && <strong>{t("backwards association")}{" "}</strong>}
                 <Span title={description} sx={isCodelist ? sxStyles.attribute : sxStyles.association}>{label}</Span>

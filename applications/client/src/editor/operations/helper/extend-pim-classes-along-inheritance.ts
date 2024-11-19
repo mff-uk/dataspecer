@@ -13,11 +13,11 @@ import { createGeneralization } from '@dataspecer/core-v2/semantic-model/operati
  * @param sourcePimModel
  */
 export async function extendPimClassesAlongInheritance(
-    fromClass: SemanticModelClass, // This is the Semantic model class we want to go from, and it is already in the store
-    toClass: SemanticModelClass,// This is the Semantic model class we want to go to, and it is from the source store
+    fromClass: SemanticModelClass, // This is the Semantic model class we want to go from, it is external, but locally it exists
+    toClass: SemanticModelClass,// This is the Semantic model class we want to go to, it is external
     pimSchema: string,
-    store: FederatedObservableStore,
-    sourcePimModel: SemanticModelEntity[], // This is the whole store
+    store: FederatedObservableStore, // This is local store
+    sourcePimModel: SemanticModelEntity[], // This is the whole source store
 ): Promise<boolean> {
     // Find all classes which needs to be created or checked in order from most generic to most specific.
     const classesToProcess: string[] = [];

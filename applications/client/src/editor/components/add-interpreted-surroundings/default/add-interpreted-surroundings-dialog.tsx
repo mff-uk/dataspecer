@@ -16,6 +16,7 @@ import { LoadingDialog } from "../../helper/LoadingDialog";
 import { SlovnikGovCzGlossary } from "../../slovnik.gov.cz/SlovnikGovCzGlossary";
 import { AncestorSelectorPanel } from "./ancestor-selector-panel";
 import { AssociationItem } from "./association-item";
+import { ReadOnlyFederatedStore } from "@dataspecer/core/core/store/federated-store/read-only-federated-store";
 
 export interface AddInterpretedSurroundingDialogProperties {
     isOpen: boolean,
@@ -193,7 +194,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
                 onClick={async () => {
                     selected({
                         resourcesToAdd: selectedResources,
-                        sourcePimModel: currentSurroundings,
+                        sourcePimModel: [...(hierarchyStore ?? []), ...Object.values(surroundings).flat()],
                         forDataPsmClass: dataPsmClass as DataPsmClass,
                     });
                     close();

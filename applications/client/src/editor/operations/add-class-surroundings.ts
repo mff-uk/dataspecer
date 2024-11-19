@@ -157,8 +157,8 @@ export class AddClassSurroundings implements ComplexOperation {
 
         const dataPsmCreateAssociationEnd = new DataPsmCreateAssociationEnd();
         dataPsmCreateAssociationEnd.dataPsmInterpretation = associationIri;
-        // todo: missing direction !!!
         dataPsmCreateAssociationEnd.dataPsmPart = psmEndRefersToIri;
+        dataPsmCreateAssociationEnd.dataPsmIsReverse = !orientation;
         dataPsmCreateAssociationEnd.dataPsmOwner = this.forDataPsmClass.iri ?? null;
         dataPsmCreateAssociationEnd.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim((await this.store.readResource(associationIri) as SemanticModelRelationship).ends[1].name) ?? null;
         await this.store.applyOperation(dataPsmSchema, dataPsmCreateAssociationEnd);
@@ -181,6 +181,9 @@ export class AddClassSurroundings implements ComplexOperation {
             throw new Error('Unable to create PimAttribute because its ownerClass has no representative in the PIM store.');
         }
 
+        const targetClassSource = this.sourceSemanticModel.find(e => e.id === resource.ends[1].concept) as SemanticModelClass;
+        const targetClassIri = targetClassSource ? await this.store.getPimHavingInterpretation(targetClassSource.id as string, "", pimSchema) : null;
+
         const op = createRelationship({
             ends: [
                 {
@@ -193,7 +196,7 @@ export class AddClassSurroundings implements ComplexOperation {
                 {
                     iri: resource.ends[1].iri,
                     cardinality: resource.ends[1].cardinality,
-                    concept: PRIMITIVE_TYPE_MAPPING[resource.ends[1].concept] ?? resource.ends[1].concept,
+                    concept: PRIMITIVE_TYPE_MAPPING[resource.ends[1].concept] ?? targetClassIri,
                     name: resource.ends[1].name,
                     description: resource.ends[1].description,
                 }
