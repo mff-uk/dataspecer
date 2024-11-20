@@ -31,6 +31,11 @@ export class PimStoreWrapper extends InMemoryEntityModel {
     private pimStore: CoreResourceReader;
     private urls?: string[];
 
+    /**
+     * Maps the old id of PimAssociationEnd to the new id of SemanticModelRelationship and if it is a source (true) or target (false).
+     */
+    public relationshipMapping: Record<string, [string, boolean]> = {};
+
     constructor(pimStore: CoreResourceReader, id?: string, alias?: string, urls?: string[]) {
         super(id);
         this.pimStore = pimStore;
@@ -39,7 +44,7 @@ export class PimStoreWrapper extends InMemoryEntityModel {
     }
 
     public fetchFromPimStore() {
-        const result = transformCoreResources((this.pimStore as any).resources);
+        const result = transformCoreResources((this.pimStore as any).resources, this.relationshipMapping);
 
         const deleted: string[] = [];
         const updated: Record<string, Entity> = {};

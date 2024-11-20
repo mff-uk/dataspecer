@@ -16,7 +16,6 @@ import { LoadingDialog } from "../../helper/LoadingDialog";
 import { SlovnikGovCzGlossary } from "../../slovnik.gov.cz/SlovnikGovCzGlossary";
 import { AncestorSelectorPanel } from "./ancestor-selector-panel";
 import { AssociationItem } from "./association-item";
-import { ReadOnlyFederatedStore } from "@dataspecer/core/core/store/federated-store/read-only-federated-store";
 
 export interface AddInterpretedSurroundingDialogProperties {
     isOpen: boolean,

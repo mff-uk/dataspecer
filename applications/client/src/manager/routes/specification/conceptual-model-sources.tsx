@@ -128,7 +128,7 @@ const ConceptualModelSourcesWithData: FC<ConceptualModelSourcesWithDataProps> = 
 
                         fullWidth
 
-                        disabled={radio !== "files"}
+                        disabled={radio !== "__files"}
                         value={urls.join("\n")}
                         onChange={event => setUrls(event.target.value.split("\n"))}
                     />
