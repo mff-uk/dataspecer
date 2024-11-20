@@ -4,8 +4,7 @@
   "scripts": {
     "build": "tsc",
     "prebuild": "node ./build/prebuild.js",
-    "build:watch": "tsc -w",
-    "prebuild:watch": "npm run prebuild",
+    "dev": "tsc -w",
     "lint": "eslint ./src",
     "prettier": "prettier -w ./src",
     "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests"
