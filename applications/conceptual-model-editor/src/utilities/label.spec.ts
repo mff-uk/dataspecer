@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 
 import { Entities, EntityModel } from "@dataspecer/core-v2";
 
-import { createGetModelLabel, sanitizeDuplicitiesInEntityLabels } from "./label";
+import { createGetModelLabel, sanitizeDuplicitiesInRepresentativeLabels } from "./label";
 
 class EntityModelMock implements EntityModel {
 
@@ -59,7 +59,7 @@ test("Sanitize label duplicities.", () => {
   const modelOne = new EntityModelMock("model-1", null);
   const modelTwo = new EntityModelMock("model-2", null);
 
-  const actual = sanitizeDuplicitiesInEntityLabels([
+  const actual = sanitizeDuplicitiesInRepresentativeLabels([
     { identifier: "model-1", label: { "": "one" } },
     { identifier: "model-2", label: { "": "two" } },
   ], [

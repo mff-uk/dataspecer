@@ -45,7 +45,7 @@ interface LabeledEntity extends Labeled {
 /**
  * Return a new array, where not two entities have identical label.
  */
-export function sanitizeDuplicitiesInEntityLabels<Type extends LabeledEntity>(
+export function sanitizeDuplicitiesInRepresentativeLabels<Type extends LabeledEntity>(
   models: Labeled[],
   entities: Type[],
 ): Type[] {
