@@ -1,7 +1,10 @@
+// @ts-ignore
+import { ExtendedSemanticModelRelationship, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import {CoreResourceReader} from "../../core";
 import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmClassReference, DataPsmExternalRoot, DataPsmInclude, DataPsmOr, DataPsmSchema,} from "../../data-psm/model";
-import {PimAssociationEnd, PimAttribute} from "../../pim/model";
 import {StructureModel, StructureModelClass, StructureModelComplexType, StructureModelPrimitiveType, StructureModelProperty, StructureModelSchemaRoot} from "../model";
+// @ts-ignore
+import { Entity } from "@dataspecer/core-v2";
 
 /**
  * Adapter that converts given schema from PIM and Data PSM models to Structure
@@ -12,7 +15,7 @@ class StructureModelAdapter {
 
   private readonly classes: { [iri: string]: StructureModelClass };
 
-  private psmSchemaIri;
+  private psmSchemaIri: string;
 
   constructor(
     reader: CoreResourceReader,
@@ -210,16 +213,18 @@ class StructureModelAdapter {
     model.humanDescription = associationEndData.dataPsmHumanDescription;
     model.technicalLabel = associationEndData.dataPsmTechnicalLabel;
     model.dematerialize = associationEndData.dataPsmIsDematerialize === true;
+    model.isReverse = associationEndData.dataPsmIsReverse === true;
 
-    const pimAssociationEndData = await this.reader.readResource(
+    const semanticRelationship = await this.reader.readResource(
       associationEndData.dataPsmInterpretation
-    );
-    if (pimAssociationEndData === null) {
+    ) as unknown as ExtendedSemanticModelRelationship | null;
+    const end = semanticRelationship?.ends[1] ?? null; // todo
+    if (end === null) {
       model.cardinalityMin = 0;
       model.cardinalityMax = null;
-    } else if (PimAssociationEnd.is(pimAssociationEndData)) {
-      model.cardinalityMin = pimAssociationEndData.pimCardinalityMin ?? 0;
-      model.cardinalityMax = pimAssociationEndData.pimCardinalityMax;
+    } else if (isSemanticModelRelationship(semanticRelationship)) {
+      model.cardinalityMin = end.cardinality?.[0] ?? 0;
+      model.cardinalityMax = end.cardinality?.[1] ?? null;
     } else {
       throw new Error(
         `Invalid association end '${associationEndData.iri}' interpretation.`
@@ -263,13 +268,13 @@ class StructureModelAdapter {
 
     const pimAttributeData = await this.reader.readResource(
       attributeData.dataPsmInterpretation
-    );
+    ) as unknown as Entity;
     if (pimAttributeData === null) {
       model.cardinalityMin = 0;
       model.cardinalityMax = null;
-    } else if (PimAttribute.is(pimAttributeData)) {
-      model.cardinalityMin = pimAttributeData.pimCardinalityMin ?? 0;
-      model.cardinalityMax = pimAttributeData.pimCardinalityMax;
+    } else if (isSemanticModelRelationship(pimAttributeData)) {
+      model.cardinalityMin = pimAttributeData.ends[1].cardinality?.[0] ?? 0;
+      model.cardinalityMax = pimAttributeData.ends[1].cardinality?.[1];
     } else {
       throw new Error(
         `Invalid attribute '${attributeData.iri}' interpretation.`

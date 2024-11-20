@@ -1,18 +1,16 @@
-import {Alert, Box, Button, DialogActions, DialogContent, DialogTitle, Grid, ListItem, Typography} from "@mui/material";
-import React, {memo, useCallback, useEffect} from "react";
-import {useTranslation} from "react-i18next";
-import {dialog, useDialog} from "../../../dialog";
-import {useAsyncMemo} from "../../../hooks/use-async-memo";
-import {Item} from "./item";
-import {CLASS} from "@dataspecer/core/pim/pim-vocabulary";
-import {isPimAncestorOf} from "../../../utils/is-ancestor-of";
-import {getPimHavingInterpretation} from "../../../utils/get-pim-having-interpretation";
-import {ReplaceAlongInheritance} from "../../../operations/replace-along-inheritance";
-import {PimClassDetailDialog} from "../../detail/pim-class-detail-dialog";
-import {StoreContext, useFederatedObservableStore, useNewFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
-import {ConfigurationContext} from "../../App";
-import {ReadOnlyMemoryStoreWithDummyPimSchema} from "@dataspecer/federated-observable-store/read-only-memory-store-with-dummy-pim-schema";
-import {useDataPsmAndInterpretedPim} from "../../../hooks/use-data-psm-and-interpreted-pim";
+import { isSemanticModelClass, SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { StoreContext, useFederatedObservableStore, useNewFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
+import { Alert, Box, Button, DialogActions, DialogContent, DialogTitle, Grid, ListItem, Typography } from "@mui/material";
+import React, { memo, useCallback } from "react";
+import { useTranslation } from "react-i18next";
+import { dialog, useDialog } from "../../../dialog";
+import { useAsyncMemo } from "../../../hooks/use-async-memo";
+import { useDataPsmAndInterpretedPim } from "../../../hooks/use-data-psm-and-interpreted-pim";
+import { ReplaceAlongInheritance } from "../../../operations/replace-along-inheritance";
+import { isAncestorOf } from "../../../utils/is-ancestor-of";
+import { ConfigurationContext } from "../../App";
+import { PimClassDetailDialog } from "../../detail/pim-class-detail-dialog";
+import { Item } from "./item";
 
 /**
  * This dialog prompts the user to select one class, descendant or ancestor of
@@ -32,43 +30,34 @@ export const ReplaceAlongInheritanceDialog = dialog<{
     const previewStore = useNewFederatedObservableStore();
 
     const {pimResource} = useDataPsmAndInterpretedPim(dataPsmClassIri);
-    const cimIri = pimResource?.pimInterpretation;
+    const cimIri = pimResource?.iri;
 
-    const {cim: {cimAdapter}, operationContext} = React.useContext(ConfigurationContext);
-    const [fullInheritance] = useAsyncMemo(async () => cimIri ? await cimAdapter.getFullHierarchy(cimIri) : null, [cimIri]);
+    const {operationContext, sourceSemanticModel} = React.useContext(ConfigurationContext);
+    const [fullInheritance] = useAsyncMemo(async () => cimIri ? await sourceSemanticModel.getFullHierarchy(cimIri) : null, [cimIri, sourceSemanticModel]);
 
     const PimClassDetail = useDialog(PimClassDetailDialog);
-
-    // Register new store into the context
-    useEffect(() => {
-        if (fullInheritance) {
-            const wrappedStore = new ReadOnlyMemoryStoreWithDummyPimSchema(fullInheritance, "http://dummy-schema/");
-            previewStore.addStore(wrappedStore);
-            return () => previewStore.removeStore(wrappedStore);
-        }
-    }, [fullInheritance, previewStore]);
 
     const [[ancestors, descendants]] = useAsyncMemo(async () => {
         if (!fullInheritance || !cimIri) {
             return [[],[]];
         }
 
-        const middleClassIri = await getPimHavingInterpretation(fullInheritance, cimIri) as string;
+        const middleClassIri = cimIri;
 
-        const ancestors: string[] = [];
-        const descendants: string[] = [];
+        const ancestors: SemanticModelClass[] = [];
+        const descendants: SemanticModelClass[] = [];
 
-        const resources = await fullInheritance.listResourcesOfType(CLASS);
-        for (const resourceIri of resources) {
-            if (await isPimAncestorOf(fullInheritance, middleClassIri, resourceIri)) {
-                descendants.push(resourceIri);
-            } else if (await isPimAncestorOf(fullInheritance, resourceIri, middleClassIri)) {
-                ancestors.push(resourceIri);
+        const resources = fullInheritance.filter(isSemanticModelClass);
+        for (const resource of resources) {
+            if (isAncestorOf(fullInheritance, middleClassIri, resource.id)) {
+                descendants.push(resource);
+            } else if (isAncestorOf(fullInheritance, resource.id, middleClassIri)) {
+                ancestors.push(resource);
             }
         }
 
         return [ancestors, descendants];
-    }, [fullInheritance], [[],[]]) as [[string[], string[]], boolean];
+    }, [fullInheritance], [[],[]]) as [[SemanticModelClass[], SemanticModelClass[]], boolean];
 
     const onSelected = useCallback((selectedPimIriFromStore: string) => {
         if (!fullInheritance) {
@@ -100,9 +89,9 @@ export const ReplaceAlongInheritanceDialog = dialog<{
 
                         <Box style={{maxHeight: 400, overflow: 'auto'}}>
                             {ancestors.map(resource => <Item
-                                pimClassIri={resource}
-                                onClick={() => onSelected(resource)}
-                                onInfo={() => PimClassDetail.open({iri: resource})}
+                                semanticModelClass={resource}
+                                onClick={() => onSelected(resource.id)}
+                                onInfo={() => PimClassDetail.open({iri: resource.id})}
                             />)}
                             {ancestors.length === 0 &&
                                 <Typography variant="body2" gutterBottom>
@@ -118,9 +107,9 @@ export const ReplaceAlongInheritanceDialog = dialog<{
 
                         <Box style={{maxHeight: 400, overflow: 'auto'}}>
                             {descendants.map(resource => <Item
-                                pimClassIri={resource}
-                                onClick={() => onSelected(resource)}
-                                onInfo={() => PimClassDetail.open({iri: resource})}
+                                semanticModelClass={resource}
+                                onClick={() => onSelected(resource.id)}
+                                onInfo={() => PimClassDetail.open({iri: resource.id})}
                             />)}
                             {descendants.length === 0 &&
                                 <ListItem disabled>

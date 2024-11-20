@@ -1,12 +1,10 @@
 import React, {memo, useMemo} from "react";
 import {Span, sxStyles} from "../styles";
 import {DataPsmAssociationEnd, DataPsmClass} from "@dataspecer/core/data-psm/model";
-import {PimAssociationEnd, PimClass} from "@dataspecer/core/pim/model";
 import {useTranslation} from "react-i18next";
 import {DataPsmGetLabelAndDescription} from "../common/DataPsmGetLabelAndDescription";
 import {RowSlots} from "../base-row";
 import {useDataPsmAndInterpretedPim} from "../../../hooks/use-data-psm-and-interpreted-pim";
-import {usePimAssociationFromPimAssociationEnd} from "../use-pim-association-from-pim-association-end";
 import {LanguageStringUndefineable} from "../../helper/LanguageStringComponents";
 import {LanguageString} from "@dataspecer/core/core";
 import ListRoundedIcon from "@mui/icons-material/ListRounded";
@@ -16,6 +14,7 @@ import {getCardinalityFromResource} from "../common/cardinality";
 import {useDialog} from "../../../dialog";
 import {ReplaceAssociationWithReferenceDialog} from "../replace-association-with-reference/replace-association-with-reference-dialog";
 import {ReplaceAssociationEndWithReference} from "../replace-association-with-reference/replace-association-end-with-reference";
+import { ExtendedSemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 
 const StrikeOut: React.FC<{
   children: React.ReactNode,
@@ -29,25 +28,27 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots> = mem
 
   // Data PSM association end
 
-  const {dataPsmResource: dataPsmAssociationEnd, pimResource: pimAssociationEnd} = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, PimAssociationEnd>(props.iri);
+  const {dataPsmResource: dataPsmAssociationEnd, pimResource: pimSemanticRelationship} = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, SemanticModelRelationship>(props.iri);
+  console.log(dataPsmAssociationEnd, pimSemanticRelationship);
   //const readOnly = false;
   const isDematerialized = !!dataPsmAssociationEnd?.dataPsmIsDematerialize;
 
   // PIM Association and check if it is backward association
 
-  const {resource: pimAssociation} = usePimAssociationFromPimAssociationEnd(pimAssociationEnd?.iri ?? null);
-  const isBackwardsAssociation = useMemo(() => pimAssociation && pimAssociation.pimEnd[0] === pimAssociationEnd?.iri, [pimAssociation, pimAssociationEnd]);
+  const isBackwardsAssociation = dataPsmAssociationEnd?.dataPsmIsReverse === true;
+  const correctEnd = pimSemanticRelationship?.ends[isBackwardsAssociation ? 0 : 1];
+  const incorrectEnd = pimSemanticRelationship?.ends[isBackwardsAssociation ? 1 : 0];
 
-  const {pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(dataPsmAssociationEnd?.dataPsmPart);
-  
-  const isCodelist = pimClass?.pimIsCodelist ?? false;
+  const {pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, ExtendedSemanticModelClass>(dataPsmAssociationEnd?.dataPsmPart);
+
+  const isCodelist = pimClass?.isCodelist ?? false;
 
   const associationPointsToIri = dataPsmAssociationEnd?.dataPsmPart ?? null;
 
   // We need to decide whether there is a human label on Data PSM association end or PIM association end.
   // If no, we show a label of PIM association with extra information about the direction.
 
-  const associationEndHumanLabel: LanguageString = useMemo(() => ({...pimAssociationEnd?.pimHumanLabel, ...dataPsmAssociationEnd?.dataPsmHumanLabel}), [pimAssociationEnd?.pimHumanLabel, dataPsmAssociationEnd?.dataPsmHumanLabel]);
+  const associationEndHumanLabel: LanguageString = useMemo(() => ({...correctEnd?.name, ...dataPsmAssociationEnd?.dataPsmHumanLabel}), [correctEnd?.name, dataPsmAssociationEnd?.dataPsmHumanLabel]);
   const hasHumanLabelOnAssociationEnd = Object.keys(associationEndHumanLabel).length > 0;
 
   const ReplaceDialog = useDialog(ReplaceAssociationWithReferenceDialog);
@@ -65,9 +66,9 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots> = mem
           }
         </DataPsmGetLabelAndDescription>
         :
-        <LanguageStringUndefineable from={pimAssociation?.pimHumanLabel ?? null}>
+        <LanguageStringUndefineable from={incorrectEnd?.name ?? null}>
           {label =>
-            <LanguageStringUndefineable from={pimAssociation?.pimHumanDescription ?? null}>
+            <LanguageStringUndefineable from={incorrectEnd?.description ?? null}>
               {description => <>
                 {isBackwardsAssociation && <strong>{t("backwards association")}{" "}</strong>}
                 <Span title={description} sx={isCodelist ? sxStyles.attribute : sxStyles.association}>{label}</Span>
@@ -88,7 +89,7 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots> = mem
         <>(<Span sx={sxStyles.technicalLabel}>{dataPsmAssociationEnd.dataPsmTechnicalLabel}</Span>)</>
     }
 
-    {pimAssociationEnd && (" " + getCardinalityFromResource(pimAssociationEnd))}
+    {pimSemanticRelationship && (" " + getCardinalityFromResource(pimSemanticRelationship))}
   </>;
 
   const startRow = props.startRow ? [...props.startRow, thisStartRow] : [thisStartRow];
@@ -97,7 +98,7 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots> = mem
 
   const iris = useMemo(() => [...props.iris ?? [], props.iri as string], [props.iris, props.iri]);
 
-  const typePimClassIri = pimAssociationEnd?.pimPart;
+  const typePimClassIri = correctEnd?.concept;
 
   const context = useMemo(() => ({
     contextType: "association",

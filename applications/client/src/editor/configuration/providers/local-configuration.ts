@@ -1,16 +1,14 @@
-import {MemoryStore} from "@dataspecer/core/core";
-import {dataPsmExecutors} from "@dataspecer/core/data-psm/data-psm-executors";
-import {pimExecutors} from "@dataspecer/core/pim/executor";
-import {PimCreateSchema} from "@dataspecer/core/pim/operation";
-import {DataPsmCreateSchema} from "@dataspecer/core/data-psm/operation";
-import {DataSpecification} from "@dataspecer/core/data-specification/model";
-import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
-import {useAsyncMemo} from "../../hooks/use-async-memo";
-import {useMemo} from "react";
-import {getAdapter} from "../adapters/get-adapter";
-import {Configuration} from "../configuration";
-import {OperationContext} from "../../operations/context/operation-context";
+import { InMemorySemanticModel } from '@dataspecer/core-v2/semantic-model/in-memory';
+import { MemoryStore } from "@dataspecer/core/core";
+import { dataPsmExecutors } from "@dataspecer/core/data-psm/data-psm-executors";
+import { DataPsmCreateSchema } from "@dataspecer/core/data-psm/operation";
+import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
+import { useMemo } from "react";
 import { DefaultClientConfiguration } from "../../../configuration";
+import { useAsyncMemo } from "../../hooks/use-async-memo";
+import { OperationContext } from "../../operations/context/operation-context";
+import { Configuration, useProvidedSourceSemanticModel } from "../configuration";
+import { DataSpecification } from '../../../specification';
 
 /**
  * Creates a configuration, that is purely local and does not require any
@@ -22,7 +20,7 @@ export const useLocalConfiguration = (
     enabled: boolean,
 ): Configuration | null => {
     const store = useMemo(() => enabled ? new FederatedObservableStore() : null, [enabled]);
-    const cim = useMemo(() => enabled ? getAdapter([]) : null, [enabled]);
+    const sourceSemanticModel = useProvidedSourceSemanticModel(null, null);
     const operationContext = useMemo(() => {
         const context = new OperationContext();
         context.labelRules = {
@@ -35,21 +33,32 @@ export const useLocalConfiguration = (
 
     const [dataSpecification] = useAsyncMemo(async () => {
         if (enabled && store) {
-            const memoryStore = MemoryStore.create("https://ofn.gov.cz", [...dataPsmExecutors, ...pimExecutors]);
+            const semanticModel = new InMemorySemanticModel();
 
-            const createPimSchema = new PimCreateSchema();
-            const createPimSchemaResult = await memoryStore.applyOperation(createPimSchema);
-            const pimSchemaIri = createPimSchemaResult.created[0];
+            const memoryStore = MemoryStore.create("https://ofn.gov.cz", [...dataPsmExecutors]); // For PSM classes
 
             const createDataPsmSchema = new DataPsmCreateSchema();
             const createDataPsmSchemaResult = await memoryStore.applyOperation(createDataPsmSchema);
             const dataPsmSchemaIri = createDataPsmSchemaResult.created[0];
 
-            const dataSpecification = new DataSpecification();
-            dataSpecification.iri = "http://default-data-specification"
-            dataSpecification.pim = pimSchemaIri;
-            dataSpecification.psms = [dataPsmSchemaIri];
+            const dataSpecification = {
+                id: "http://default-data-specification",
+                type: "todo",
+                label: {},
+                tags: [],
+                sourceSemanticModelIds: [],
+                localSemanticModelIds: [semanticModel.getId()],
+                dataStructures: [{
+                    id: dataPsmSchemaIri,
+                    label: {},
+                }],
+                importsDataSpecificationIds: [],
+                artifactConfigurations: [],
+                userPreferences: {},
+            } as DataSpecification;
 
+            // @ts-ignore
+            store.addStore(semanticModel);
             store.addStore(memoryStore);
 
             return dataSpecification;
@@ -58,11 +67,11 @@ export const useLocalConfiguration = (
 
     if (enabled) {
         return {
-            store: store as FederatedObservableStore,
+            store: store as FederatedObservableStore, // todo: This is like an aggregator
             dataSpecifications: dataSpecification ? { [dataSpecification.iri as string]: dataSpecification } : {},
             dataSpecificationIri: dataSpecification?.iri ?? null,
-            dataPsmSchemaIri: dataSpecification?.psms[0] ?? null,
-            cim: cim as ReturnType<typeof getAdapter>,
+            dataPsmSchemaIri: dataSpecification?.dataStructures[0].id ?? null,
+            sourceSemanticModel, // todo: This is "CIM"
             operationContext,
         };
     } else {

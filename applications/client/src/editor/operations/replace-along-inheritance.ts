@@ -1,13 +1,11 @@
-import {DataPsmClass} from "@dataspecer/core/data-psm/model";
-import {CoreResourceReader} from "@dataspecer/core/core";
-import {PimClass} from "@dataspecer/core/pim/model";
-import {DataPsmCreateClass, DataPsmDeleteClass, DataPsmReplaceAlongInheritance} from "@dataspecer/core/data-psm/operation";
-import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-operation";
-import {isPimAncestorOf} from "../utils/is-ancestor-of";
-import {getPimHavingInterpretation} from "../utils/get-pim-having-interpretation";
-import {extendPimClassesAlongInheritance} from "./helper/extend-pim-classes-along-inheritance";
-import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
-import {TechnicalLabelOperationContext} from "./context/technical-label-operation-context";
+import { ExtendedSemanticModelClass, SemanticModelClass, SemanticModelEntity } from '@dataspecer/core-v2/semantic-model/concepts';
+import { DataPsmClass } from "@dataspecer/core/data-psm/model";
+import { DataPsmCreateClass, DataPsmDeleteClass, DataPsmReplaceAlongInheritance } from "@dataspecer/core/data-psm/operation";
+import { ComplexOperation } from "@dataspecer/federated-observable-store/complex-operation";
+import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
+import { isAncestorOf } from "../utils/is-ancestor-of";
+import { TechnicalLabelOperationContext } from "./context/technical-label-operation-context";
+import { extendPimClassesAlongInheritance } from "./helper/extend-pim-classes-along-inheritance";
 
 /**
  * Replaces an existing DataPSM class with a new one that interprets given CIM
@@ -16,24 +14,24 @@ import {TechnicalLabelOperationContext} from "./context/technical-label-operatio
  */
 export class ReplaceAlongInheritance implements ComplexOperation {
     private readonly fromDataPsmClassIri: string;
-    private readonly toPimClassIri: string;
-    private readonly sourcePimModel: CoreResourceReader;
+    private readonly toSemanticClassId: string;
+    private readonly sourceSemanticModel: SemanticModelEntity[];
     private store!: FederatedObservableStore;
     private context: TechnicalLabelOperationContext|null = null;
 
     /**
      * @param fromDataPsmClassIri Class IRI from the local store that is to be replaced and removed.
-     * @param toPimClassIri Class IRI from the {@link sourcePimModel} that is to be used as replacement.
-     * @param sourcePimModel The PIM model that contains the replacement class and full inheritance hierarchy.
+     * @param toSemanticClassId Class IRI from the {@link sourceSemanticModel} that is to be used as replacement.
+     * @param sourceSemanticModel The PIM model that contains the replacement class and full inheritance hierarchy.
      */
     constructor(
       fromDataPsmClassIri: string,
-      toPimClassIri: string,
-      sourcePimModel: CoreResourceReader,
+      toSemanticClassId: string,
+      sourceSemanticModel: SemanticModelEntity[],
       ) {
         this.fromDataPsmClassIri = fromDataPsmClassIri;
-        this.toPimClassIri = toPimClassIri;
-        this.sourcePimModel = sourcePimModel;
+        this.toSemanticClassId = toSemanticClassId;
+        this.sourceSemanticModel = sourceSemanticModel;
     }
 
     setStore(store: FederatedObservableStore) {
@@ -46,21 +44,21 @@ export class ReplaceAlongInheritance implements ComplexOperation {
 
     async execute(): Promise<void> {
         const fromDataPsmClass = await this.store.readResource(this.fromDataPsmClassIri) as DataPsmClass;
-        const fromPimClass = await this.store.readResource(fromDataPsmClass.dataPsmInterpretation as string) as PimClass;
+        const fromPimClass = await this.store.readResource(fromDataPsmClass.dataPsmInterpretation as string) as ExtendedSemanticModelClass;
         const dataPsmSchemaIri = this.store.getSchemaForResource(fromDataPsmClass.iri as string) as string;
 
-        const sourceFromPimClassIri = await getPimHavingInterpretation(this.sourcePimModel, fromPimClass.pimInterpretation as string) as string;
+        const sourceFromPimClassIri = fromPimClass.iri;
 
         // Create all PIM classes
-        const isSpecialization = await isPimAncestorOf(
-          this.sourcePimModel,
+        const isSpecialization = isAncestorOf(
+          this.sourceSemanticModel,
           sourceFromPimClassIri,
-          this.toPimClassIri
+          this.toSemanticClassId
         );
 
 
-        const sourceFromPimClass = await this.sourcePimModel.readResource(sourceFromPimClassIri) as PimClass;
-        const sourceToPimClass = await this.sourcePimModel.readResource(this.toPimClassIri) as PimClass; //vec
+        const sourceFromPimClass = this.sourceSemanticModel.find(entity => entity.id === sourceFromPimClassIri) as SemanticModelClass;
+        const sourceToPimClass = this.sourceSemanticModel.find(entity => entity.id === this.toSemanticClassId) as SemanticModelClass;
         const pimSchemaIri = this.store.getSchemaForResource(fromPimClass.iri as string) as string;
 
         const result = await extendPimClassesAlongInheritance(
@@ -68,7 +66,7 @@ export class ReplaceAlongInheritance implements ComplexOperation {
             isSpecialization ? sourceFromPimClass : sourceToPimClass,
             pimSchemaIri,
             this.store,
-            this.sourcePimModel
+            this.sourceSemanticModel
         );
         if (!result) {
             throw new Error("Could not extend PIM classes along inheritance.");
@@ -77,12 +75,12 @@ export class ReplaceAlongInheritance implements ComplexOperation {
 
         // Create data PSM class
 
-        const toPimClassIri = await this.store.getPimHavingInterpretation(sourceToPimClass.pimInterpretation as string, PimClass.TYPE, pimSchemaIri);
-        const toPimClass = await this.store.readResource(toPimClassIri as string) as PimClass;
+        const toSemanticClassId = await this.store.getPimHavingInterpretation(sourceToPimClass.id as string, "", pimSchemaIri);
+        const toPimClass = await this.store.readResource(toSemanticClassId as string) as ExtendedSemanticModelClass;
 
         const dataPsmCreateClass = new DataPsmCreateClass();
-        dataPsmCreateClass.dataPsmInterpretation = toPimClassIri;
-        dataPsmCreateClass.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(toPimClass) ?? null;
+        dataPsmCreateClass.dataPsmInterpretation = toSemanticClassId;
+        dataPsmCreateClass.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(toPimClass.name) ?? null;
         const dataPsmCreateClassResult = await this.store.applyOperation(dataPsmSchemaIri, dataPsmCreateClass);
         const toPsmClassIri = dataPsmCreateClassResult.created[0];
 

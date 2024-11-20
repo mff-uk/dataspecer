@@ -26,7 +26,7 @@ export function propagateLabel(
       ...classData.humanDescription,
     };
     classData.properties.forEach((property) => {
-      const conceptualProperty = propertyMap[property.pimIri];
+      const conceptualProperty = propertyMap[property.pimIri][property.isReverse ? 1 : 0];
       property.humanLabel = {
         ...conceptualProperty?.humanLabel,
         ...property.humanLabel,
@@ -41,10 +41,13 @@ export function propagateLabel(
 }
 
 function buildPropertyMap(conceptual: ConceptualModel) {
-  const result: Record<string, ConceptualModelProperty> = {};
+  const result: Record<string, [ConceptualModelProperty | null, ConceptualModelProperty | null]> = {};
   for (const entity of Object.values(conceptual.classes)) {
     for (const property of entity.properties) {
-      result[property.pimIri] = property;
+      if (!result[property.pimIri]) {
+        result[property.pimIri] = [null, null];
+      }
+      result[property.pimIri][property.isReverse ? 1 : 0] = property;
     }
   }
   return result;

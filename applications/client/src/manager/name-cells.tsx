@@ -2,11 +2,14 @@ import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {Skeleton, Typography} from "@mui/material";
 import React, {ReactElement, useContext} from "react";
-import {PimSchema} from "@dataspecer/core/pim/model";
 import {DataSpecificationsContext} from "./app";
 import {LanguageString} from "@dataspecer/core/core";
 
 export function selectLanguage(input: LanguageString, languages: readonly string[]): string | undefined {
+    if (!input) {
+        return undefined;
+    }
+
     for (const language of languages) {
         if (input[language]) {
             return input[language];
@@ -27,11 +30,10 @@ export const DataSpecificationName: React.FC<{
 }> = ({iri, children}) => {
     const {dataSpecifications} = useContext(DataSpecificationsContext);
     const specification = dataSpecifications[iri];
-    const {resource, isLoading} = useResource<PimSchema>(specification?.pim);
 
     return children(
-        resource?.pimHumanLabel ? selectLanguage(resource.pimHumanLabel, ["en"]) ?? null : null,
-        specification && isLoading,
+        specification?.label ? selectLanguage(specification.label, ["en"]) ?? null : null,
+        false,
     );
 }
 
@@ -54,9 +56,9 @@ export const DataSpecificationDetailInfoCell: React.FC<{
     const specification = dataSpecifications[dataSpecificationIri];
 
     return <>
-        {specification.psms.length} structure{specification.psms.length !== 1 && "s"}
-        {specification.importsDataSpecifications.length > 0 && <>
-        , {specification.importsDataSpecifications.length} reuse{specification.importsDataSpecifications.length !== 1 && "s"}
+        {specification.dataStructures.length} structure{specification.dataStructures.length !== 1 && "s"}
+        {specification.importsDataSpecificationIds.length > 0 && <>
+        , {specification.importsDataSpecificationIds.length} reuse{specification.importsDataSpecificationIds.length !== 1 && "s"}
         </>}
     </>;
 };

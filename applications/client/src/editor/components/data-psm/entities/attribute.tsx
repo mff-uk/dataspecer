@@ -2,16 +2,16 @@ import React, {memo, useMemo} from "react";
 import {Span, sxStyles} from "../styles";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {DataPsmAttribute} from "@dataspecer/core/data-psm/model";
-import {PimAttribute} from "@dataspecer/core/pim/model";
 import {DataPsmGetLabelAndDescription} from "../common/DataPsmGetLabelAndDescription";
 import {Datatype} from "../common/Datatype";
 import {getCardinalityFromResource} from "../common/cardinality";
 import {DataPsmBaseRow, RowSlots} from "../base-row";
 import RemoveIcon from "@mui/icons-material/Remove";
+import { SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 
 export const DataPsmAttributeItem: React.FC<{iri: string} & RowSlots> = memo((props) => {
   const {resource: dataPsmAttribute} = useResource<DataPsmAttribute>(props.iri);
-  const {resource: pimAttribute} = useResource<PimAttribute>(dataPsmAttribute?.dataPsmInterpretation ?? null);
+  const {resource: pimAttribute} = useResource<SemanticModelRelationship>(dataPsmAttribute?.dataPsmInterpretation ?? null);
 
   const thisStartRow = <>
     <DataPsmGetLabelAndDescription dataPsmResourceIri={props.iri}>

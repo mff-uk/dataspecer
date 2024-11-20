@@ -1,8 +1,7 @@
-import {PimClass} from "@dataspecer/core/pim/model";
-import {createPimClassIfMissing} from "./pim";
-import {PimSetExtends} from "@dataspecer/core/pim/operation";
-import {CoreResourceReader} from "@dataspecer/core/core";
-import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
+import { isSemanticModelGeneralization, SemanticModelClass, SemanticModelEntity } from '@dataspecer/core-v2/semantic-model/concepts';
+import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
+import { createPimClassIfMissing } from "./pim";
+import { createGeneralization } from '@dataspecer/core-v2/semantic-model/operations';
 
 /**
  * Adds necessary PIM classes to the store, that there will be a path from
@@ -14,23 +13,24 @@ import {FederatedObservableStore} from "@dataspecer/federated-observable-store/f
  * @param sourcePimModel
  */
 export async function extendPimClassesAlongInheritance(
-    fromClass: PimClass,
-    toClass: PimClass,
+    fromClass: SemanticModelClass, // This is the Semantic model class we want to go from, it is external, but locally it exists
+    toClass: SemanticModelClass,// This is the Semantic model class we want to go to, it is external
     pimSchema: string,
-    store: FederatedObservableStore,
-    sourcePimModel: CoreResourceReader,
+    store: FederatedObservableStore, // This is local store
+    sourcePimModel: SemanticModelEntity[], // This is the whole source store
 ): Promise<boolean> {
     // Find all classes which needs to be created or checked in order from most generic to most specific.
     const classesToProcess: string[] = [];
 
     // DFS that finds a SINGLE (random, if multiple exists) path
-    const traverseFunction = async (currentClass: PimClass, path: Set<string> = new Set()): Promise<boolean> => {
-        let success = currentClass.iri === toClass.iri;
+    const traverseFunction = async (currentClass: SemanticModelClass, path: Set<string> = new Set()): Promise<boolean> => {
+        let success = currentClass.id === toClass.id;
 
         if (currentClass !== toClass) {
-            path.add(currentClass.iri as string);
-            for (const ext of currentClass.pimExtends) {
-                const extClass = await sourcePimModel.readResource(ext) as PimClass;
+            path.add(currentClass.id as string);
+            const thisClassExtends = sourcePimModel.filter(isSemanticModelGeneralization).filter(g => g.child === currentClass.id).map(g => g.parent);
+            for (const ext of thisClassExtends) {
+                const extClass = sourcePimModel.find(e => e.id === ext) as SemanticModelClass;
                 if (!extClass) {
                     continue;
                 }
@@ -54,28 +54,22 @@ export async function extendPimClassesAlongInheritance(
     const success = await traverseFunction(fromClass);
 
     // Create each class and fix its extends
-    let parentClassInChain: PimClass | null = null; // This is the parent class of the current one from the CIM
-    let parentLocalClassInChain: PimClass | null = null; // Patent of the current one but from the local store
+    let parentLocalClassInChain: SemanticModelClass | null = null; // Patent of the current one but from the local store
     for (const classToProcessIri of classesToProcess) {
-        const classToProcess = await sourcePimModel.readResource(classToProcessIri) as PimClass;
+        const classToProcess = sourcePimModel.find(e => e.iri === classToProcessIri) as SemanticModelClass;
 
         const iri = await createPimClassIfMissing(classToProcess, pimSchema, store);
-        const localClass = await store.readResource(iri) as PimClass;
+        const localClass = await store.readResource(iri) as SemanticModelClass;
 
-        if (parentClassInChain &&
-            !classToProcess.pimExtends.includes(parentClassInChain?.iri as string)) {
-            throw new Error(`Assert error in AddClassSurroundings: class in chain does not extend parent class.`);
-        }
+        // todo: Here we need to check whether class with id as iri has parentLocalClassInChain in its parent
+        const op = createGeneralization({
+            child: localClass.id as string,
+            parent: parentLocalClassInChain?.id as string,
+        });
 
-        const missingExtends = parentLocalClassInChain && !localClass.pimExtends.includes(parentLocalClassInChain.iri as string);
-        if (missingExtends) {
-            const pimSetExtends = new PimSetExtends();
-            pimSetExtends.pimResource = iri;
-            pimSetExtends.pimExtends = [...localClass.pimExtends, (parentLocalClassInChain as PimClass).iri as string];
-            await store.applyOperation(pimSchema, pimSetExtends);
-        }
+        // @ts-ignore
+        await store.applyOperation(pimSchema, op);
 
-        parentClassInChain = classToProcess;
         parentLocalClassInChain = localClass;
     }
 

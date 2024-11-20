@@ -1,4 +1,4 @@
-import {PimClass} from "@dataspecer/core/pim/model";
+import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import {DataPsmCreateExternalRoot, DataPsmSetRoots} from "@dataspecer/core/data-psm/operation";
 import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-operation";
 import {createPimClassIfMissing} from "./helper/pim";
@@ -10,7 +10,7 @@ import {TechnicalLabelOperationContext} from "./context/technical-label-operatio
  * For the given pimClass and given schema, it creates an external root
  */
 export class CreateExternalRoot implements ComplexOperation {
-    private readonly pimClass: PimClass;
+    private readonly pimClass: SemanticModelClass;
     private readonly pimSchemaIri: string;
     private readonly dataPsmSchemaIri: string;
     private readonly schemaHumanLabel?: LanguageString;
@@ -18,7 +18,7 @@ export class CreateExternalRoot implements ComplexOperation {
     private store!: FederatedObservableStore;
     private context: TechnicalLabelOperationContext|null = null;
 
-    constructor(pimClass: PimClass, pimSchemaIri: string, dataPsmSchemaIri: string, schemaHumanLabel?: LanguageString, schemaHumanDescription?: LanguageString) {
+    constructor(pimClass: SemanticModelClass, pimSchemaIri: string, dataPsmSchemaIri: string, schemaHumanLabel?: LanguageString, schemaHumanDescription?: LanguageString) {
         this.pimClass = pimClass;
         this.pimSchemaIri = pimSchemaIri;
         this.dataPsmSchemaIri = dataPsmSchemaIri;
@@ -35,11 +35,12 @@ export class CreateExternalRoot implements ComplexOperation {
     }
 
     async execute(): Promise<void> {
+        // @ts-ignore
         const pimClassIri = await createPimClassIfMissing(this.pimClass, this.pimSchemaIri, this.store);
 
         const dataPsmCreateExternalRoot = new DataPsmCreateExternalRoot();
         dataPsmCreateExternalRoot.dataPsmTypes = [pimClassIri];
-        dataPsmCreateExternalRoot.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(this.pimClass) ?? null;
+        dataPsmCreateExternalRoot.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(this.pimClass.name) ?? null;
         const dataPsmCreateExternalRootResult = await this.store.applyOperation(this.dataPsmSchemaIri, dataPsmCreateExternalRoot);
 
         const dataPsmUpdateSchemaRoots = new DataPsmSetRoots();

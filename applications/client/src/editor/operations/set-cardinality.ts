@@ -1,17 +1,20 @@
 import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-operation";
-import {PimSetCardinality} from "@dataspecer/core/pim/operation/pim-set-cardinality";
 import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
+import { modifyRelation } from "@dataspecer/core-v2/semantic-model/operations";
+import { SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 
 export class SetCardinality implements ComplexOperation {
-  readonly pimResource: string;
-  readonly pimCardinalityMin: number | null;
-  readonly pimCardinalityMax: number | null;
+  readonly semanticModelRelationshipId: string;
+  readonly end: number;
+  readonly min: number | null;
+  readonly max: number | null;
   private store!: FederatedObservableStore;
 
-  constructor(pimResource: string, pimCardinalityMin: number | null, pimCardinalityMax: number | null) {
-    this.pimResource = pimResource;
-    this.pimCardinalityMin = pimCardinalityMin;
-    this.pimCardinalityMax = pimCardinalityMax;
+  constructor(semanticModelRelationshipId: string, end: number, min: number | null, max: number | null) {
+    this.semanticModelRelationshipId = semanticModelRelationshipId;
+    this.end = end;
+    this.min = min;
+    this.max = max;
   }
 
   setStore(store: FederatedObservableStore) {
@@ -19,12 +22,23 @@ export class SetCardinality implements ComplexOperation {
   }
 
   async execute(): Promise<void> {
-    const schema = this.store.getSchemaForResource(this.pimResource) as string;
+    const schema = this.store.getSchemaForResource(this.semanticModelRelationshipId) as string;
+    const relation = await this.store.readResource(this.semanticModelRelationshipId) as SemanticModelRelationship;
 
-    const pimSetCardinality = new PimSetCardinality();
-    pimSetCardinality.pimResource = this.pimResource;
-    pimSetCardinality.pimCardinalityMin = this.pimCardinalityMin;
-    pimSetCardinality.pimCardinalityMax = this.pimCardinalityMax;
-    await this.store.applyOperation(schema, pimSetCardinality);
+    const operation = modifyRelation(this.semanticModelRelationshipId, {
+      ...relation,
+      ends: relation.ends.map((end, index) => {
+        if (index === this.end) {
+          return {
+            ...end,
+            cardinality: [this.min ?? 0, this.max ?? null],
+          };
+        }
+        return end;
+      })
+    });
+
+    // @ts-ignore
+    await this.store.applyOperation(schema, operation);
   }
 }

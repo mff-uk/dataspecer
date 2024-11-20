@@ -46,6 +46,7 @@ test("Create data PSM association-end.", async () => {
       dataPsmHumanLabel: operation.dataPsmHumanLabel,
       dataPsmHumanDescription: operation.dataPsmHumanDescription,
       dataPsmPart: null,
+      dataPsmIsReverse: null,
       dataPsmIsDematerialize: operation.dataPsmIsDematerialize,
     },
   });

@@ -1,4 +1,3 @@
-import { CoreResource } from "../../core";
 import * as PSM from "../data-psm-vocabulary";
 import {ExtendableCoreResource} from "./extendable-core-resource";
 
@@ -25,7 +24,7 @@ export class DataPsmExternalRoot extends ExtendableCoreResource {
         this.types.push(DataPsmExternalRoot.TYPE);
     }
 
-    static is(resource: CoreResource | null): resource is DataPsmExternalRoot {
-        return resource?.types.includes(DataPsmExternalRoot.TYPE);
+    static is(resource: any): resource is DataPsmExternalRoot {
+        return resource?.types?.includes(DataPsmExternalRoot.TYPE);
     }
 }

@@ -1,7 +1,7 @@
-import {PimResource} from "@dataspecer/core/pim/model";
 import { removeDiacritics } from "../../utils/remove-diacritics";
 import { selectLanguage } from "../../utils/select-language";
 import {TechnicalLabelOperationContext} from "./technical-label-operation-context";
+import { LanguageString } from '@dataspecer/core/core/core-resource';
 
 export const CASINGS = ["camelCase", "PascalCase", "kebab-case", "snake_case"] as const;
 
@@ -22,10 +22,10 @@ export class OperationContext implements TechnicalLabelOperationContext {
      * special characters, etc.) based on naming of PimResource.
      * @param pimResource
      */
-    public getTechnicalLabelFromPim(pimResource: PimResource): string | null {
+    public getTechnicalLabelFromPim(name: LanguageString): string | null {
         if (this.labelRules === null) return null;
 
-        let text = selectLanguage(pimResource.pimHumanLabel ?? {}, this.labelRules.languages);
+        let text = selectLanguage(name ?? {}, this.labelRules.languages);
 
         if (text === undefined || text === null) return null;
 
