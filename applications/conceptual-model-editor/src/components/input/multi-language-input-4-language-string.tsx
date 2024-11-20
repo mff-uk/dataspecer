@@ -31,6 +31,7 @@ export const MultiLanguageInputForLanguageString = (props: {
     inputType: "text" | "textarea";
     disabled?: boolean;
     onChange?: () => void;
+    className?: string
 }) => {
     const { disabled, defaultLang: preferredLanguage } = props;
 
@@ -99,7 +100,7 @@ export const MultiLanguageInputForLanguageString = (props: {
     // For example when user deleted language it will change it to next one.
     useEffect(() => {
         if (!languages.includes(currentLang) && languages.length > 0) {
-             
+
             setCurrentLang(languages.at(0)!);
             onChange?.();
         }
@@ -108,7 +109,7 @@ export const MultiLanguageInputForLanguageString = (props: {
     const displayString = ls[currentLang] ?? "";
 
     return (
-        <div>
+        <div className={props.className}>
             <ul className="flex flex-row text-base [&>*]:mx-1">
                 {languages
                     .map((lang, i) => (

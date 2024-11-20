@@ -425,7 +425,7 @@ const ModifyEntityDialog = (props: DialogProps<ModifyEntityState>) => {
 
                     {state.entityProxy.canHaveAttributes && (
                         <>
-                            <DialogDetailRow style="flex flex-col" detailKey={t("modify-entity-dialog.attributes")}>
+                            <DialogDetailRow className="flex flex-col" detailKey={t("modify-entity-dialog.attributes")}>
                                 <>
                                     {state.entityProxy.attributes.map((v) => (
                                         <RemovableAttributeRow
@@ -448,7 +448,7 @@ const ModifyEntityDialog = (props: DialogProps<ModifyEntityState>) => {
                                     ))}
                                 </>
                             </DialogDetailRow>
-                            <DialogDetailRow style="flex flex-col" detailKey={t("modify-entity-dialog.attributes-profiles")}>
+                            <DialogDetailRow className="flex flex-col" detailKey={t("modify-entity-dialog.attributes-profiles")}>
                                 <>
                                     {state.entityProxy.attributeProfiles.map((ap) => (
                                         <RemovableAttributeProfileRow
