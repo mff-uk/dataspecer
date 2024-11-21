@@ -1,8 +1,9 @@
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 
-import { EntityRepresentative } from "../../dialog-utilities";
+import { EntityRepresentative } from "../../utilities/dialog-utilities";
 import { configuration, t } from "../../../application";
 import { languageStringToString } from "../../../utilities/string";
+import { SelectEntity } from "./select-entity";
 
 export interface Specialization {
 
@@ -67,7 +68,7 @@ export const SpecializationSelect = (props: {
               <button onClick={() => setAdding(!adding)}>
                 Cancel
               </button>
-              <SelectClass
+              <SelectEntity
                 language={props.language}
                 items={candidatesToAdd}
                 value={selected}
@@ -85,41 +86,6 @@ export const SpecializationSelect = (props: {
           ))}
       </div>
     </div>
-  );
-};
-
-const SelectClass = (props: {
-  language: string,
-  items: EntityRepresentative[],
-  value: EntityRepresentative,
-  onChange: (value: EntityRepresentative) => void,
-}) => {
-
-  const onChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const identifier = event.target.value;
-    for (const item of props.items) {
-      if (item.identifier === identifier) {
-        props.onChange(item);
-      }
-    }
-  };
-
-  const languagePreferences = configuration().languagePreferences;
-
-  return (
-    <select
-      className="w-full"
-      onChange={onChange}
-      value={props.value.identifier}
-    >
-      {props.items.map(item => (
-        <option key={item.identifier} value={item.identifier}>
-          {languageStringToString(
-            languagePreferences,
-            props.language, item.label)}
-        </option>
-      ))}
-    </select>
   );
 };
 

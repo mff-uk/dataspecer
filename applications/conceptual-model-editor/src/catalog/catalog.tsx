@@ -5,7 +5,6 @@ import { AttributeCatalog } from "./attribute-catalog";
 import { RelationshipCatalog } from "./relationship-catalog";
 import { useClassesContext } from "../context/classes-context";
 import { ProfileCatalog } from "./profile-catalog";
-import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
 import { WarningCatalog } from "./warning-catalog";
 import { useWarningsContext } from "../context/warnings-context";
 import { t } from "../application";
@@ -20,13 +19,10 @@ enum CatalogTabs {
 }
 
 export const Catalog = () => {
-    const { relationships, profiles } = useClassesContext();
+    const { profiles } = useClassesContext();
     const { warnings } = useWarningsContext();
 
     const [activeTab, setActiveTab] = useState(CatalogTabs.Models);
-
-    const associations = relationships.filter(item => !isSemanticModelAttribute(item));
-    const attributes = relationships.filter(isSemanticModelAttribute);
 
     const Content = selectTabConcent(activeTab);
 
@@ -47,13 +43,11 @@ export const Catalog = () => {
                     active={activeTab === CatalogTabs.Associations}
                     onClick={() => setActiveTab(CatalogTabs.Associations)}
                     label={t("model.relationship")}
-                    hidden={associations.length === 0}
                 />
                 <CatalogTabButton
                     active={activeTab === CatalogTabs.Attributes}
                     onClick={() => setActiveTab(CatalogTabs.Attributes)}
                     label={t("model.attributes")}
-                    hidden={attributes.length === 0}
                 />
                 <CatalogTabButton
                     active={activeTab === CatalogTabs.Profiles}

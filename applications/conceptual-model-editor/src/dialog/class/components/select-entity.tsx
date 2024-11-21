@@ -1,16 +1,14 @@
 import { ChangeEvent } from "react";
 
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-
-import { EntityModelRepresentative } from "../../dialog-utilities";
+import { EntityRepresentative } from "../../utilities/dialog-utilities";
 import { configuration } from "../../../application";
 import { languageStringToString } from "../../../utilities/string";
 
-export const ModelSelect = (props: {
+export const SelectEntity = (props: {
   language: string,
-  items: EntityModelRepresentative<InMemorySemanticModel>[],
-  value: EntityModelRepresentative<InMemorySemanticModel>,
-  onChange: (value: EntityModelRepresentative<InMemorySemanticModel>) => void,
+  items: EntityRepresentative[],
+  value: EntityRepresentative,
+  onChange: (value: EntityRepresentative) => void,
 }) => {
 
   const onChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -27,8 +25,6 @@ export const ModelSelect = (props: {
   return (
     <select
       className="w-full"
-      name="models"
-      id="models"
       onChange={onChange}
       value={props.value.identifier}
     >

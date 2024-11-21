@@ -38,15 +38,15 @@ export function openCreateClassDialogAction(
 
   const onConfirm = (state: CreateClassDialogState) => {
     // Create class.
-    const createClassResult = createSemanticClass(notifications, state);
-    if (createClassResult === null) {
+    const createResult = createSemanticClass(notifications, state);
+    if (createResult === null) {
       return;
     }
     // Add to visual model if possible.
     if (isWritableVisualModel(visualModel)) {
       addSemanticClassToVisualModelAction(
         notifications, graph, visualModel, diagram,
-        createClassResult.identifier, createClassResult.model.getId(),
+        createResult.identifier, createResult.model.getId(),
         position);
     }
   };

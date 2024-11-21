@@ -29,6 +29,8 @@ import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relatio
 import { getViewportCenter } from "./utilities";
 import { removeFromVisualModelAction } from "./remove-from-visual-model";
 import { removeFromSemanticModelAction } from "./remove-from-semantic-model";
+import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
+import { openCreateAssociationDialogAction } from "./open-create-association-dialog";
 
 const LOG = createLogger(import.meta.url);
 
@@ -42,13 +44,9 @@ interface DialogActions {
 
   openCreateClassDialog: (model: string) => void;
 
-  openCreateClassProfileDialog: (model: string, identifier: string) => void;
-
   openCreateAssociationDialog: (model: string) => void;
 
   openCreateAttributeDialog: (model: string) => void;
-
-  openCreateRelationProfileDialog: (model: string, identifier: string) => void;
 
   /**
    * @deprecated Use specialized method for given entity type.
@@ -94,10 +92,8 @@ const noOperationActionsContext = {
   openDetailDialog: noOperation,
   openModifyDialog: noOperation,
   openCreateClassDialog: noOperation,
-  openCreateClassProfileDialog: noOperation,
   openCreateAssociationDialog: noOperation,
   openCreateAttributeDialog: noOperation,
-  openCreateRelationProfileDialog: noOperation,
   openCreateProfileDialog: noOperation,
   //
   addClassToVisualModel: noOperation,
@@ -195,7 +191,7 @@ function createActionsContext(
       const position = getViewportCenter(diagram);
       openCreateProfileDialogAction(
         options, dialogs, notifications, classes, useClasses, graph,
-        visualModel, position, identifier);
+        visualModel, diagram, position, identifier);
     });
   };
 
@@ -313,20 +309,28 @@ function createActionsContext(
     }
   };
 
-  const openCreateClassProfileDialog = (model: string, identifier: string) => {
-
-  };
-
   const openCreateAssociationDialog = (model: string) => {
-
+    const visualModel = graph.aggregatorView.getActiveVisualModel();
+    const modelInstance = graph.models.get(model);
+    if (modelInstance === null || modelInstance instanceof InMemorySemanticModel) {
+      openCreateAssociationDialogAction(
+        options, dialogs, classes, graph, notifications, visualModel,
+        modelInstance);
+    } else {
+      notifications.error("Can not add to given model.");
+    }
   };
 
   const openCreateAttributeDialog = (model: string) => {
-
-  };
-
-  const openCreateRelationProfileDialog = (model: string, identifier: string) => {
-
+    const visualModel = graph.aggregatorView.getActiveVisualModel();
+    const modelInstance = graph.models.get(model);
+    if (modelInstance === null || modelInstance instanceof InMemorySemanticModel) {
+      openCreateAttributeDialogAction(
+        options, dialogs, classes, graph, notifications, visualModel,
+        modelInstance);
+    } else {
+      notifications.error("Can not add to given model.");
+    }
   };
 
   // Visual model actions.
@@ -435,10 +439,8 @@ function createActionsContext(
     openDetailDialog,
     openModifyDialog,
     openCreateClassDialog,
-    openCreateClassProfileDialog,
     openCreateAssociationDialog,
     openCreateAttributeDialog,
-    openCreateRelationProfileDialog,
     openCreateProfileDialog,
     //
     addClassToVisualModel,

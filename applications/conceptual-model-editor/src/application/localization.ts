@@ -26,7 +26,11 @@ const translations: Record<string, string | Function> = {
   "create-class-dialog.btn-cancel": "❌ cancel",
   "create-class-dialog.add-specialization": "Add specialization",
   //
+  "create-attribute-dialog.label": "Create a new attribute",
+  //
   "create-profile-button.title": "Create profile",
+  //
+  "create-association-dialog.label": "Create a new association",
   //
   "modify-entity-dialog.label-class": "Class modification",
   "modify-entity-dialog.label-class-profile": "Class profile modification",
@@ -138,6 +142,12 @@ const translations: Record<string, string | Function> = {
   "create-connection-dialog.label" : "Create connection",
   "create-connection-dialog.btn-ok" : "✅ Create",
   "create-connection-dialog.btn-close" : "❌ Discard",
+  //
+  "create-class-profile-dialog.label": "Create a profile",
+  "modify-class-profile-dialog.profile-of": "Profile of",
+  //
+  "undefined": "Undefined",
+  "change-in-profile": "Change in profile",
 };
 
 export type TranslationFunction = (text: string, ...args: unknown[]) => string;

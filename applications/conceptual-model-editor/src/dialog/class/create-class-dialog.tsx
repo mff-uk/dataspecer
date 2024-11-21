@@ -1,11 +1,11 @@
 import { type DialogWrapper, type DialogProps } from "../dialog-api";
-import { t, configuration } from "../../application";
+import { t } from "../../application";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
-import { IriInput } from "../../components/input/iri-input";
 import { CreateClassDialogState, useCreateClassDialogController } from "./create-class-dialog-controller";
-import { ModelSelect } from "./components/model-select";
-import { SpecializationSelect } from "./components/specialization-select";
+import { SelectModel } from "./components/select-model";
+import { SpecializationSelect } from "./components/select-specialization";
+import { InputIri } from "./components/input-iri";
 
 export const createCreateClassDialog = (
   state: CreateClassDialogState,
@@ -37,7 +37,7 @@ const CreateClassDialog = (props: DialogProps<CreateClassDialogState>) => {
         style={{ backgroundColor: state.model.color }}
       >
         <DialogDetailRow detailKey={t("model")}>
-          <ModelSelect
+          <SelectModel
             language={state.language}
             items={state.writableModels}
             value={state.model}
@@ -46,7 +46,7 @@ const CreateClassDialog = (props: DialogProps<CreateClassDialogState>) => {
         </DialogDetailRow>
       </div>
       <div className="grid bg-slate-100 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
-        <DialogDetailRow detailKey={t("create-class-dialog.name")} style="text-xl">
+        <DialogDetailRow detailKey={t("create-class-dialog.name")} className="text-xl">
           <MultiLanguageInputForLanguageString
             ls={state.name}
             setLs={controller.setName}
@@ -55,20 +55,18 @@ const CreateClassDialog = (props: DialogProps<CreateClassDialogState>) => {
           />
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("create-class-dialog.iri")}>
-          <IriInput
-            name={state.name}
-            newIri={state.iri}
-            setNewIri={controller.setIri}
-            iriHasChanged={state.iriHasChanged}
-            onChange={controller.onIriChanged}
-            baseIri={state.baseIri}
-            nameSuggestion={configuration().nameToClassIri}
+          <InputIri
+            iriPrefix={state.iriPrefix}
+            isRelative={state.isIriRelative}
+            setIsRelative={controller.setIsRelative}
+            value={state.iri}
+            onChange={controller.setIri}
           />
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("modify-entity-dialog.specialization-of")}>
           <SpecializationSelect
             language={state.language}
-            items={state.availableClasses}
+            items={state.availableSpecializations}
             specializations={state.specializations}
             addSpecialization={controller.addSpecialization}
             removeSpecialization={controller.removeSpecialization}
