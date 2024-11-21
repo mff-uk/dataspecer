@@ -1,7 +1,7 @@
 import {DataPsmClass, DataPsmInclude, DataPsmOr} from "@dataspecer/core/data-psm/model";
 import {useResourcesInMemo} from "@dataspecer/federated-observable-store-react/use-resources-in-memo";
-import {PimClass} from "@dataspecer/core/pim/model";
 import {CoreResource} from "@dataspecer/core/core";
+import { SemanticModelClass, SemanticModelEntity, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 
 export interface InheritanceOrTree {
   dataPsmObjectIri: string;
@@ -21,7 +21,7 @@ async function getInheritanceOr(dataPsmOrIri: string, getResource: <ResourceType
   let rootParent: string | null = null;
   let cache: Record<string, {
     dataPsmClass: DataPsmClass,
-    pimClass: PimClass,
+    pimClass: SemanticModelClass,
     includeIri: string | null,
     includesDataPsmClassIri: string | null,
   }> = {}
@@ -35,8 +35,8 @@ async function getInheritanceOr(dataPsmOrIri: string, getResource: <ResourceType
     if (!choice.dataPsmInterpretation) {
       return false;
     }
-    const interpretation = await getResource<PimClass>(choice.dataPsmInterpretation);
-    if (!interpretation || !PimClass.is(interpretation)) {
+    const interpretation = await getResource(choice.dataPsmInterpretation) as unknown as SemanticModelEntity;
+    if (!interpretation || !isSemanticModelClass(interpretation)) {
       return false;
     }
 

@@ -1,7 +1,7 @@
 import {DataPsmClass, DataPsmSchema} from "@dataspecer/core/data-psm/model";
-import {PimClass} from "@dataspecer/core/pim/model";
 import {selectLanguage} from "./select-language";
 import {CoreResourceReader} from "@dataspecer/core/core";
+import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 
 /**
  * For a given schema, store and languages, it tries to find a most suitable name for the current schema.
@@ -24,7 +24,7 @@ export async function getNameForSchema(store: CoreResourceReader, dataPsmSchemaI
     if (name) return name;
 
     if (!dataPsmRoot.dataPsmInterpretation) return undefined;
-    const pimRoot = await store.readResource(dataPsmRoot.dataPsmInterpretation) as PimClass;
+    const pimRoot = await store.readResource(dataPsmRoot.dataPsmInterpretation) as unknown as SemanticModelClass;
     if (!pimRoot) return undefined;
-    return selectLanguage(pimRoot.pimHumanLabel ?? {}, languages);
+    return selectLanguage(pimRoot.name ?? {}, languages);
 }

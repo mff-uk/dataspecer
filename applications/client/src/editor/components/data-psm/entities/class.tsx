@@ -1,39 +1,36 @@
-import React, {memo, useCallback, useMemo} from "react";
-import {Span, sxStyles} from "../styles";
-import {DataPsmClass} from "@dataspecer/core/data-psm/model";
-import {PimClass} from "@dataspecer/core/pim/model";
-import {useToggle} from "../../../hooks/use-toggle";
-import {useTranslation} from "react-i18next";
-import {DataPsmGetLabelAndDescription} from "../common/DataPsmGetLabelAndDescription";
-import {DataPsmBaseRow, RowSlots} from "../base-row";
-import {useDataPsmAndInterpretedPim} from "../../../hooks/use-data-psm-and-interpreted-pim";
-import {useDialog} from "../../../dialog";
-import {AddInterpretedSurroundingsDialog, WikidataAddInterpretedSurroundingsDialog} from "../../add-interpreted-surroundings";
-import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
-import {CreateInclude} from "../../../operations/create-include";
-import {DataPsmClassAddSurroundingsButton} from "../class/DataPsmClassAddSurroundingsButton";
-import {MenuItem} from "@mui/material";
-import {DataPsmClassSubtree} from "../subtrees/class-subtree";
-import {ReplaceAlongInheritanceDialog} from "../replace-along-inheritance/replace-along-inheritance-dialog";
-import {InheritanceOrTree} from "../common/use-inheritance-or";
-import {ObjectContext} from "../data-psm-row";
-import {AddSpecializationDialog} from "../add-specialization/add-specialization-dialog";
-import {isWikidataAdapter} from "@dataspecer/wikidata-experimental-adapter";
-import { ConfigurationContext } from "../../App";
+import { DataPsmClass } from "@dataspecer/core/data-psm/model";
+import { useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
+import { MenuItem } from "@mui/material";
+import React, { memo, useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { useDialog } from "../../../dialog";
+import { useDataPsmAndInterpretedPim } from "../../../hooks/use-data-psm-and-interpreted-pim";
+import { useToggle } from "../../../hooks/use-toggle";
+import { CreateInclude } from "../../../operations/create-include";
+import { AddInterpretedSurroundingsDialog, WikidataAddInterpretedSurroundingsDialog } from "../../add-interpreted-surroundings";
+import { AddSpecializationDialog } from "../add-specialization/add-specialization-dialog";
+import { DataPsmBaseRow, RowSlots } from "../base-row";
+import { DataPsmClassAddSurroundingsButton } from "../class/DataPsmClassAddSurroundingsButton";
+import { DataPsmGetLabelAndDescription } from "../common/DataPsmGetLabelAndDescription";
+import { InheritanceOrTree } from "../common/use-inheritance-or";
+import { ObjectContext } from "../data-psm-row";
+import { ReplaceAlongInheritanceDialog } from "../replace-along-inheritance/replace-along-inheritance-dialog";
+import { Span, sxStyles } from "../styles";
+import { DataPsmClassSubtree } from "../subtrees/class-subtree";
+import { ExtendedSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 
 export const DataPsmClassItem: React.FC<{
   iri: string,
   inheritanceOrTree?: InheritanceOrTree
 } & RowSlots & ObjectContext> = memo((props) => {
   const {t} = useTranslation("psm");
-  const {cim} = React.useContext(ConfigurationContext);
 
-  const {dataPsmResource: dataPsmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(props.iri);
+  const {dataPsmResource: dataPsmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, ExtendedSemanticModelClass>(props.iri);
   const readOnly = false;
-  const isCodelist = pimClass?.pimIsCodelist ?? false;
-  const cimClassIri = pimClass?.pimInterpretation;
+  const isCodelist = pimClass?.isCodelist ?? false;
+  const cimClassIri = pimClass?.iri;
 
-  const AddSurroundings = useDialog(isWikidataAdapter(cim.cimAdapter) ? WikidataAddInterpretedSurroundingsDialog : AddInterpretedSurroundingsDialog, ["dataPsmClassIri"]);
+  const AddSurroundings = useDialog(false ? WikidataAddInterpretedSurroundingsDialog : AddInterpretedSurroundingsDialog, ["dataPsmClassIri"]);
 
   const store = useFederatedObservableStore();
   const include = useCallback(() =>

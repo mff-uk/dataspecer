@@ -99,7 +99,6 @@ export const createModelInstructions = {
           "dataPsmParts": []
         }
       }}))(context);
-
       const pckg = await packageService.getPackage(context.parentIri);
       if (!pckg.subResources?.some(r => r.types.includes(V1.PIM))) {
         await getHookForStandardModel(V1.PIM, iri => ({operations: [], resources: {

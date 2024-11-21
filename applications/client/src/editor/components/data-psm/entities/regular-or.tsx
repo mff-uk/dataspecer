@@ -1,24 +1,23 @@
-import React, {memo, useCallback, useContext, useMemo} from "react";
-import {ObjectContext} from "../data-psm-row";
-import {DataPsmBaseRow, RowSlots} from "../base-row";
-import {useTranslation} from "react-i18next";
-import {Span, sxStyles} from "../styles";
-import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
-import {useToggle} from "../../../hooks/use-toggle";
-import {UnwrapOr} from "../../../operations/unwrap-or";
-import {useDialog} from "../../../dialog";
-import {AddToOrDialog} from "../add-to-or/add-to-or-dialog";
-import {SearchDialog} from "../../cim-search/search-dialog";
-import {CoreResourceReader, ReadOnlyMemoryStore} from "@dataspecer/core/core";
-import {CreateNewClassInOr} from "../../../operations/create-new-class-in-or";
-import {PimClass} from "@dataspecer/core/pim/model";
-import {MenuItem} from "@mui/material";
+import { SemanticModelClass, SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
+import { DataPsmOr } from "@dataspecer/core/data-psm/model";
+import { useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
+import { useResource } from "@dataspecer/federated-observable-store-react/use-resource";
 import AddIcon from "@mui/icons-material/Add";
 import CallSplitIcon from "@mui/icons-material/CallSplit";
-import {DataPsmOrSubtree} from "../subtrees/or-subtree";
-import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
-import {DataPsmOr} from "@dataspecer/core/data-psm/model";
-import {ConfigurationContext} from "../../App";
+import { MenuItem } from "@mui/material";
+import React, { memo, useCallback, useContext, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { useDialog } from "../../../dialog";
+import { useToggle } from "../../../hooks/use-toggle";
+import { CreateNewClassInOr } from "../../../operations/create-new-class-in-or";
+import { UnwrapOr } from "../../../operations/unwrap-or";
+import { ConfigurationContext } from "../../App";
+import { SearchDialog } from "../../cim-search/search-dialog";
+import { AddToOrDialog } from "../add-to-or/add-to-or-dialog";
+import { DataPsmBaseRow, RowSlots } from "../base-row";
+import { ObjectContext } from "../data-psm-row";
+import { Span, sxStyles } from "../styles";
+import { DataPsmOrSubtree } from "../subtrees/or-subtree";
 
 /**
  * Represents a regular PSM OR entity (not the inheritance OR visualization)
@@ -43,26 +42,23 @@ export const RegularOr: React.FC<{ iri: string} & ObjectContext & RowSlots> = me
   const SearchToOr = useDialog(SearchDialog, ["selected"]);
 
   // When user selects class to add to OR that is in context of Association
-  const onAddClass = useCallback(async (pimClassIri: string, pimStore: CoreResourceReader) => {
+  const onAddClass = useCallback(async (pimClassIri: string, sourceSemanticModel: SemanticModelEntity[]) => {
     if (props.iri) {
-      const op = new CreateNewClassInOr(props.iri, pimClassIri, pimStore);
+      const op = new CreateNewClassInOr(props.iri, pimClassIri, sourceSemanticModel);
       op.setContext(operationContext);
       await store.executeComplexOperation(op);
       AddToOr.close();
     }
   }, [AddToOr, props.iri, store, operationContext]);
 
-  const onSearchClass = useCallback(async (pimClass: PimClass) => {
-    if (pimClass) {
-      const pimStore = ReadOnlyMemoryStore.create({
-        [pimClass.iri as string]: pimClass
-      });
-      const op = new CreateNewClassInOr(props.iri, pimClass.iri as string, pimStore, dataSpecification.pim);
+  const onSearchClass = useCallback(async (semanticClass: SemanticModelClass) => {
+    if (semanticClass) {
+      const op = new CreateNewClassInOr(props.iri, semanticClass.iri as string, [semanticClass], dataSpecification.localSemanticModelIds[0]); // todo better decide which semantic model
       op.setContext(operationContext);
       await store.executeComplexOperation(op);
       SearchToOr.close();
     }
-  }, [SearchToOr, props.iri, store, dataSpecification.pim, operationContext]);
+  }, [SearchToOr, props.iri, store, dataSpecification.localSemanticModelIds, operationContext]);
 
   const thisStartRow = <>
     <Span sx={sxStyles.or}>{t("OR")}</Span>

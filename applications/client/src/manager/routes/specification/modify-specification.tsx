@@ -1,48 +1,42 @@
-import React, {useCallback, useContext, useMemo} from "react";
 import EditIcon from "@mui/icons-material/Edit";
-import {Fab} from "@mui/material";
-import {useToggle} from "../../use-toggle";
-import {DataSpecificationsContext} from "../../app";
-import {SetPimLabelAndDescription} from "../../shared/set-pim-label-and-description";
-import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
-import {SpecificationEditDialog, SpecificationEditDialogEditableProperties} from "../../components/specification-edit-dialog";
-import {PimSchema} from "@dataspecer/core/pim/model";
-import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
-import {BackendConnectorContext} from "../../../application";
+import { Fab } from "@mui/material";
+import React, { useCallback, useContext, useMemo } from "react";
+import { BackendConnectorContext } from "../../../application";
+import { DataSpecificationsContext } from "../../app";
+import { SpecificationEditDialog, SpecificationEditDialogEditableProperties } from "../../components/specification-edit-dialog";
+import { useToggle } from "../../use-toggle";
 
 export const ModifySpecification: React.FC<{ iri: string }> = ({iri}) => {
     const dialog = useToggle();
 
     const {dataSpecifications, setDataSpecifications} = useContext(DataSpecificationsContext);
     const specification = dataSpecifications[iri as string];
-    const store = useFederatedObservableStore();
-    const {resource: pimSchema} = useResource<PimSchema>(specification?.pim);
     const backendConnector = useContext(BackendConnectorContext);
 
 
     const editableProperties = useMemo(() => ({
-        label: pimSchema?.pimHumanLabel ?? {},
+        label: specification?.label ?? {},
         tags: specification?.tags ?? [],
-    }), [pimSchema, specification?.tags]);
-    
+    }), [specification?.label, specification?.tags]);
+
     const modify = useCallback(async ({label, tags}: Partial<SpecificationEditDialogEditableProperties>) => {
-        const pim = specification.pim as string;
-        
+        const changes = {};
+
         if (label) {
-            const op = new SetPimLabelAndDescription(pim, label, {});
-            await store.executeComplexOperation(op);
+            changes["label"] = label;
         }
 
         if (tags) {
-            const newSpecification = await backendConnector.updateDataSpecification(
-                iri, {tags});
-            setDataSpecifications({
-                ...dataSpecifications,
-                [iri]: newSpecification,
-            });
+            changes["tags"] = tags;
         }
+
+        const newSpecification = await backendConnector.updateSpecificationMetadata(iri, changes);
+        setDataSpecifications({
+            ...dataSpecifications,
+            [iri]: newSpecification,
+        });
         dialog.close();
-    }, [specification?.pim, dialog, store, backendConnector, iri, setDataSpecifications, dataSpecifications]);
+    }, [dialog, backendConnector, iri, setDataSpecifications, dataSpecifications]);
 
     return <>
         <Fab variant="extended" size="medium" color={"primary"} onClick={dialog.open}>

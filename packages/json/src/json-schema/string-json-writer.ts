@@ -60,7 +60,7 @@ class StringJsonObjectWriter implements JsonObjectWriter {
     key: string,
     value: string | number | boolean | null
   ): Promise<void> {
-    if (value === null) {
+    if (value === null || value === undefined) {
       return;
     }
     return this.value(key, value);

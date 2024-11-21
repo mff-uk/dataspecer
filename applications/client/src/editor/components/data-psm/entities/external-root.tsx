@@ -1,25 +1,25 @@
 import React, {memo, useMemo} from "react";
 import {Span, sxStyles} from "../styles";
 import {DataPsmExternalRoot} from "@dataspecer/core/data-psm/model";
-import {PimClass} from "@dataspecer/core/pim/model";
 import {DataPsmBaseRow, RowSlots} from "../base-row";
 import {ObjectContext} from "../data-psm-row";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {LanguageStringUndefineable} from "../../helper/LanguageStringComponents";
+import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 
 export const DataPsmExternalRootItem: React.FC<{
   iri: string
 } & RowSlots & ObjectContext> = memo((props) => {
   const {resource: dataPsmExternalRoot} = useResource<DataPsmExternalRoot>(props.iri);
-  const {resource: pimClass} = useResource<PimClass>(dataPsmExternalRoot?.dataPsmTypes[0]);
+  const {resource: pimClass} = useResource<SemanticModelClass>(dataPsmExternalRoot?.dataPsmTypes[0]);
 
 
   const thisStartRow = <>
     {dataPsmExternalRoot &&
         <>
-          <LanguageStringUndefineable from={pimClass?.pimHumanLabel}>
+          <LanguageStringUndefineable from={pimClass?.name}>
             {label =>
-                <LanguageStringUndefineable from={pimClass?.pimHumanDescription}>
+                <LanguageStringUndefineable from={pimClass?.description}>
                   {description =>
                       <Span sx={sxStyles.class} title={description}>{label}</Span>
                   }

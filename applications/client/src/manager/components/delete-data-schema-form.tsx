@@ -1,11 +1,11 @@
-import React, {FC, useCallback, useContext} from "react";
-import {dialog} from "../../editor/dialog";
-import {Button, DialogActions, DialogContent, DialogTitle, Typography} from "@mui/material";
-import {CloseDialogButton} from "../../editor/components/detail/components/close-dialog-button";
-import {useTranslation} from "react-i18next";
-import {DataSpecificationsContext} from "../app";
-import {BackendConnectorContext} from "../../application";
-import {DataSchemaNameCell} from "../name-cells";
+import { Button, DialogActions, DialogContent, DialogTitle, Typography } from "@mui/material";
+import { FC, useCallback, useContext } from "react";
+import { useTranslation } from "react-i18next";
+import { BackendConnectorContext } from "../../application";
+import { CloseDialogButton } from "../../editor/components/detail/components/close-dialog-button";
+import { dialog } from "../../editor/dialog";
+import { DataSpecificationsContext } from "../app";
+import { DataSchemaNameCell } from "../name-cells";
 
 export const DeleteDataSchemaForm: FC<{
     isOpen: boolean,
@@ -19,22 +19,19 @@ export const DeleteDataSchemaForm: FC<{
         dataSpecifications,
         setDataSpecifications,
     } = useContext(DataSpecificationsContext);
-    const backendConnector = useContext(BackendConnectorContext);
+    const backendPackageService = useContext(BackendConnectorContext);
 
     const del = useCallback(async () => {
-        await backendConnector.deleteDataStructure(dataSpecificationIri, dataStructureIri);
+        await backendPackageService.deleteResource(dataStructureIri);
         setDataSpecifications({
             ...dataSpecifications,
             [dataSpecificationIri]: {
                 ...dataSpecifications[dataSpecificationIri],
-                psms: dataSpecifications[dataSpecificationIri].psms.filter(psm => psm !== dataStructureIri),
-                psmStores: Object.fromEntries(
-                    Object.entries(dataSpecifications[dataSpecificationIri].psmStores).filter(([psmIri, storeInfo]) => psmIri !== dataStructureIri)
-                ),
+                dataStructures: dataSpecifications[dataSpecificationIri].dataStructures.filter(structure => structure.id !== dataStructureIri),
             }
         });
         close();
-    }, [backendConnector, dataSpecificationIri, dataStructureIri, setDataSpecifications, dataSpecifications, close]);
+    }, [backendPackageService, dataSpecificationIri, dataStructureIri, setDataSpecifications, dataSpecifications, close]);
 
     return <>
         <DialogTitle>

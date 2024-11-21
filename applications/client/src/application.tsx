@@ -5,14 +5,16 @@ import ManagerPage from "./manager/app";
 import {Home} from "./manager/routes/home/home";
 import {Specification} from "./manager/routes/specification/specification";
 import EditorPage from "./editor/components/App";
-import {BackendConnector} from "@dataspecer/backend-utils/connectors";
 import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 import {getDefaultConfiguration, mergeConfigurations} from "@dataspecer/core/configuration/utils";
 import {getDefaultConfigurators} from "./configurators";
-import {Generate} from "./manager/routes/specification/generate/generate";
 import { SnackbarProvider } from "notistack";
+import { StructureEditorBackendService } from "./specification";
 
-export const BackendConnectorContext = React.createContext(null as unknown as BackendConnector);
+export const BackendConnectorContext = React.createContext(null as unknown as StructureEditorBackendService);
+
+// This is the class that will be used to fetch data from the backend.
+export const BackendPackageServiceContext = React.createContext(null as unknown as StructureEditorBackendService);
 export const RefreshContext = React.createContext(null as unknown as () => void);
 /**
  * Contains merged default configuration from the source code and the configuration from the backend.
@@ -21,7 +23,7 @@ export const RefreshContext = React.createContext(null as unknown as () => void)
 export const DefaultConfigurationContext = createContext<object>(null);
 
 
-const useDefaultConfiguration = (backendConnector: BackendConnector) => {
+const useDefaultConfiguration = (backendConnector: StructureEditorBackendService) => {
     const [context, setContext] = useState<object>(() => getDefaultConfiguration(getDefaultConfigurators()));
     useEffect(() => {
         backendConnector.readDefaultConfiguration().then(configuration =>
@@ -35,9 +37,12 @@ const useDefaultConfiguration = (backendConnector: BackendConnector) => {
     return context;
 }
 
+export const PACKAGE_ROOT = "http://dataspecer.com/packages/local-root";
+
 export const Application = () => {
-    const [backendConnector, setBackendConnector] = useState(new BackendConnector(process.env.REACT_APP_BACKEND, httpFetch));
-    const refresh = useCallback(() => setBackendConnector(new BackendConnector(process.env.REACT_APP_BACKEND, httpFetch)), []);
+    const [backendConnector, setBackendConnector] = useState(new StructureEditorBackendService(process.env.REACT_APP_BACKEND, httpFetch, PACKAGE_ROOT));
+    const refresh = useCallback(() => setBackendConnector(new StructureEditorBackendService(process.env.REACT_APP_BACKEND, httpFetch, PACKAGE_ROOT)), []);
+
     const defaultConfiguration = useDefaultConfiguration(backendConnector);
 
     useEffect(() => {
@@ -74,7 +79,6 @@ const MainRouter = () => {
     const Page = () => useRoutes([
         {path: process.env.REACT_APP_MANAGER_BASE_URL + "", element: <ManagerPage><Home/></ManagerPage>},
         {path: process.env.REACT_APP_MANAGER_BASE_URL + "specification", element: <ManagerPage><Specification/></ManagerPage>},
-        {path: process.env.REACT_APP_MANAGER_BASE_URL + "specification/generate", element: <ManagerPage><Generate/></ManagerPage>},
         {path: process.env.REACT_APP_STRUCTURE_EDITOR_BASE_URL, element: <EditorPage/>}
     ]);
 

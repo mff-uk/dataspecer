@@ -1,22 +1,22 @@
-import React, {useCallback, useContext, useRef} from "react";
-import {Button, ButtonGroup, ListItemIcon, ListItemText, Menu, MenuItem} from "@mui/material";
+import { useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
-import {SearchDialog} from "./search-dialog";
-import {useToggle} from "../../hooks/use-toggle";
-import {useTranslation} from "react-i18next";
-import {ConfigurationContext} from "../App";
-import {PimClass} from "@dataspecer/core/pim/model";
-import {CreateRootClass} from "../../operations/create-root-class";
-import {selectLanguage} from "../../utils/select-language";
-import {languages} from "../../../i18n";
-import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import { Button, ButtonGroup, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
+import React, { useCallback, useContext, useRef } from "react";
+import { useTranslation } from "react-i18next";
+import { languages } from "../../../i18n";
+import { useToggle } from "../../hooks/use-toggle";
+import { CreateRootClass } from "../../operations/create-root-class";
+import { selectLanguage } from "../../utils/select-language";
+import { ConfigurationContext } from "../App";
+import { SearchDialog } from "./search-dialog";
 
-import SearchIcon from '@mui/icons-material/Search';
-import CallSplitIcon from '@mui/icons-material/CallSplit';
+import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import AutorenewIcon from '@mui/icons-material/Autorenew'; // ref
+import CallSplitIcon from '@mui/icons-material/CallSplit';
 import CodeIcon from '@mui/icons-material/Code';
-import {CreateRootOr} from "../../operations/create-root-or";
+import SearchIcon from '@mui/icons-material/Search';
+import { CreateRootOr } from "../../operations/create-root-or";
 
 function formatString(input: string, args: {[key: string]: string}): string {
     return input.replace(/{([^}]+)}/g, (match, key) => args[key]);
@@ -33,7 +33,7 @@ const ButtonSetRoot: React.FC = () => {
   const buttonRef = useRef(null);
   const menuOpen = useToggle(false);
 
-  const setRootClass = useCallback(async (cls: PimClass) => {
+  const setRootClass = useCallback(async (cls: SemanticModelClass) => {
     const newSchemaLabel = Object.fromEntries(
       languages.map(
         lang => [
@@ -41,8 +41,8 @@ const ButtonSetRoot: React.FC = () => {
           formatString(
             i18n.getFixedT([lang], "ui")('new schema label format'),
             {
-              label: selectLanguage(cls.pimHumanLabel ?? {}, [lang]) ?? "",
-              description: selectLanguage(cls.pimHumanDescription ?? {}, [lang]) ?? "",
+              label: selectLanguage(cls.name ?? {}, [lang]) ?? "",
+              description: selectLanguage(cls.description ?? {}, [lang]) ?? "",
             }
           )
         ]
@@ -56,16 +56,16 @@ const ButtonSetRoot: React.FC = () => {
           formatString(
             i18n.getFixedT([lang], "ui")('new schema description format'),
             {
-              label: selectLanguage(cls.pimHumanLabel ?? {}, [lang]) ?? "",
-              description: selectLanguage(cls.pimHumanDescription ?? {}, [lang]) ?? "",
+              label: selectLanguage(cls.name ?? {}, [lang]) ?? "",
+              description: selectLanguage(cls.description ?? {}, [lang]) ?? "",
             }
           )
         ]
       )
     );
 
-    if (dataSpecificationIri && dataPsmSchemaIri && dataSpecifications[dataSpecificationIri].pim) {
-      const op = new CreateRootClass(cls, dataSpecifications[dataSpecificationIri].pim as string, dataPsmSchemaIri, newSchemaLabel, newSchemaDescription);
+    if (dataSpecificationIri && dataPsmSchemaIri && dataSpecifications[dataSpecificationIri].localSemanticModelIds.length > 0) {
+      const op = new CreateRootClass(cls, dataSpecifications[dataSpecificationIri].localSemanticModelIds[0] as string, dataPsmSchemaIri, newSchemaLabel, newSchemaDescription);
       op.setContext(operationContext);
       store.executeComplexOperation(op).then();
     }
@@ -73,7 +73,7 @@ const ButtonSetRoot: React.FC = () => {
 
   const setRootOr = useCallback(() => {
     if (dataSpecificationIri && dataPsmSchemaIri) {
-      store.executeComplexOperation(new CreateRootOr(dataSpecifications[dataSpecificationIri].pim as string, dataPsmSchemaIri));
+      store.executeComplexOperation(new CreateRootOr(dataSpecifications[dataSpecificationIri].localSemanticModelIds[0] as string, dataPsmSchemaIri));
       menuOpen.close();
     }
   }, [dataSpecificationIri, dataPsmSchemaIri, store, dataSpecifications, menuOpen]);

@@ -1,16 +1,10 @@
-import React, {memo, useCallback, useContext, useMemo, useState} from "react";
-import {Link, useNavigate} from "react-router-dom";
-import {BackendConnectorContext, DefaultConfigurationContext} from "../../../application";
-import {ConstructedStoreCacheContext, DataSpecificationsContext} from "../../app";
-import {useConstructedStoresFromDescriptors} from "../../utils/use-stores-by-descriptors";
-import {getEditorLink} from "../../shared/get-schema-generator-link";
-import {GenerateReport} from "../../artifacts/generate-report";
-import {DataSpecifications} from "../../data-specifications";
-import {isEqual} from "lodash";
-import {DefaultArtifactBuilder} from "../../artifacts/default-artifact-builder";
-import {saveAs} from "file-saver";
-import {useDialog} from "../../../editor/dialog";
-import {DeleteDataSchemaForm} from "../../components/delete-data-schema-form";
+import { HttpStoreDescriptor, StoreDescriptor } from "@dataspecer/backend-utils/store-descriptor";
+import { HttpSynchronizedStore } from "@dataspecer/backend-utils/stores";
+import { CoreResourceReader } from "@dataspecer/core/core/core-reader";
+import { ReadOnlyFederatedStore } from "@dataspecer/core/core/store/federated-store/read-only-federated-store";
+import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
+import AddIcon from "@mui/icons-material/Add";
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
     Box,
     Button,
@@ -25,29 +19,35 @@ import {
     TableRow,
     Typography
 } from "@mui/material";
-import {DataSpecificationName, DataSpecificationNameCell} from "../../name-cells";
-import {CopyIri} from "./copy-iri";
-import {ModifySpecification} from "./modify-specification";
-import {SpecificationTags} from "../../components/specification-tags";
-import AddIcon from "@mui/icons-material/Add";
-import {DataStructureBox} from "./data-structure-row";
-import {ReuseDataSpecifications} from "./reuse-data-specifications";
-import {GeneratingDialog} from "./generating-dialog";
-import {ConfigureArtifacts} from "../../artifacts/configuration/configure-artifacts";
-import LoadingButton from "@mui/lab/LoadingButton";
-import {RedirectDialog} from "./redirect-dialog";
-import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
-import {CoreResourceReader} from "@dataspecer/core/core/core-reader";
-import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
-import {HttpSynchronizedStore} from "@dataspecer/backend-utils/stores";
-import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
-import {ReadOnlyFederatedStore} from "@dataspecer/core/core/store/federated-store/read-only-federated-store";
-import {ConceptualModelSources} from "./conceptual-model-sources";
-import {useTranslation} from "react-i18next";
-import {GarbageCollection} from "./garbage-collection";
+import { saveAs } from "file-saver";
+import { isEqual } from "lodash";
+import React, { memo, useCallback, useContext, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Link, useNavigate } from "react-router-dom";
+import { BackendConnectorContext, DefaultConfigurationContext } from "../../../application";
+import { useDialog } from "../../../editor/dialog";
+import { DataSpecification, HttpSemanticModelStoreDescriptor } from "../../../specification";
+import { ConstructedStoreCacheContext, DataSpecificationsContext } from "../../app";
+import { ConfigureArtifacts } from "../../artifacts/configuration/configure-artifacts";
 import { ConfigureButton } from "../../artifacts/configuration/configure-button";
-import { ConsistencyFix } from "./consistency-fix";
+import { DefaultArtifactBuilder } from "../../artifacts/default-artifact-builder";
+import { GenerateReport } from "../../artifacts/generate-report";
+import { DeleteDataSchemaForm } from "../../components/delete-data-schema-form";
+import { SpecificationTags } from "../../components/specification-tags";
 import { UpdatePim } from "../../components/update-pim";
+import { DataSpecificationName, DataSpecificationNameCell } from "../../name-cells";
+import { getEditorLink } from "../../shared/get-schema-generator-link";
+import { ConceptualModelSources } from "./conceptual-model-sources";
+import { ConceptualModelTargets } from "./conceptual-model-targets";
+import { ConsistencyFix } from "./consistency-fix";
+import { CopyIri } from "./copy-iri";
+import { DataStructureBox } from "./data-structure-row";
+import { GarbageCollection } from "./garbage-collection";
+import { GeneratingDialog } from "./generating-dialog";
+import { ModifySpecification } from "./modify-specification";
+import { RedirectDialog } from "./redirect-dialog";
+import { ReuseDataSpecifications } from "./reuse-data-specifications";
+import { EntityModelAsCoreResourceReader } from "@dataspecer/core-v2/entity-model";
 import { DataSpecificationConfiguration, DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
 
 export const DocumentationSpecification = memo(({dataSpecificationIri}: {
@@ -61,10 +61,6 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
     const backendConnector = useContext(BackendConnectorContext);
 
     const specification = dataSpecifications[dataSpecificationIri as string];
-
-    const store = useFederatedObservableStore();
-    const stores = useMemo(() => Object.values(specification?.psmStores ?? []).flat(1), [specification?.psmStores]);
-    useConstructedStoresFromDescriptors(stores, store);
 
     const navigate = useNavigate();
 
@@ -82,7 +78,7 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
     const [generateDialogOpen, setGenerateDialogOpen] = React.useState<boolean>(false);
     const [generateState, setGenerateState] = React.useState<GenerateReport>([]);
     const constructedStoreCache = useContext(ConstructedStoreCacheContext);
-    const generateZip = async (overrideBasePathsToNull: boolean = false) => {
+    const generateZip = async (configurationId: string, overrideBasePathsToNull: boolean = false) => {
         setZipLoading("stores-loading");
         setGenerateState([]);
         setGenerateDialogOpen(true);
@@ -90,24 +86,28 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
         // Gather all data specifications
 
         // We know, that the current data specification must be present
-        let gatheredDataSpecifications: DataSpecifications = {};
+        let gatheredDataSpecifications: Record<string, DataSpecification> = {};
 
         const toProcessDataSpecification = [dataSpecificationIri as string];
         for (let i = 0; i < toProcessDataSpecification.length; i++) {
             const dataSpecification = dataSpecifications[toProcessDataSpecification[i]];
-            gatheredDataSpecifications[dataSpecification.iri as string] = dataSpecification;
-            dataSpecification.importsDataSpecifications.forEach(importedDataSpecificationIri => {
-                if (!toProcessDataSpecification.includes(importedDataSpecificationIri)) {
-                    toProcessDataSpecification.push(importedDataSpecificationIri);
+            gatheredDataSpecifications[dataSpecification.id as string] = dataSpecification;
+            dataSpecification.importsDataSpecificationIds.forEach(importedDataSpecificationId => {
+                if (!toProcessDataSpecification.includes(importedDataSpecificationId)) {
+                    toProcessDataSpecification.push(importedDataSpecificationId);
                 }
             });
+            // @ts-ignore
+            dataSpecification.artefactConfiguration = await backendConnector.getArtifactConfiguration(dataSpecification.artifactConfigurations[0].id);
         }
 
         // Override base urls to null
         if (overrideBasePathsToNull) {
             gatheredDataSpecifications = structuredClone(gatheredDataSpecifications);
             for (const ds of Object.values(gatheredDataSpecifications)) {
+                // @ts-ignore
                 if (ds.artefactConfiguration[DataSpecificationConfigurator.KEY]) {
+                    // @ts-ignore
                     (ds.artefactConfiguration[DataSpecificationConfigurator.KEY] as DataSpecificationConfiguration).publicBaseUrl = null;
                 }
             }
@@ -115,9 +115,12 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
 
         // Gather all store descriptors
 
-        const storeDescriptors = Object.values(gatheredDataSpecifications).reduce((acc, dataSpecification) => {
-            return [...acc, ...dataSpecification.pimStores, ...Object.values(dataSpecification.psmStores).flat(1)];
-        }, [] as StoreDescriptor[]);
+        const storeDescriptors: StoreDescriptor[] = [];
+        for (const dataSpecification of Object.values(gatheredDataSpecifications)) {
+            const stores = backendConnector.getStoreDescriptorsForDataSpecification(dataSpecification);
+            storeDescriptors.push(...stores.pimStores);
+            storeDescriptors.push(...Object.values(stores.psmStores).flat(1));
+        }
 
         // Create stores or use the cache.
 
@@ -140,10 +143,16 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
                 continue;
             }
 
+
             // Build store
-            const store = HttpSynchronizedStore.createFromDescriptor(storeDescriptor, httpFetch);
-            await store.load();
-            constructedStores.push(store);
+            if (HttpStoreDescriptor.is(storeDescriptor)) {
+                const store = HttpSynchronizedStore.createFromDescriptor(storeDescriptor, httpFetch);
+                await store.load();
+                constructedStores.push(store);
+            } else if (HttpSemanticModelStoreDescriptor.is(storeDescriptor)) { // It is PIM store
+                const [store] = await backendConnector.constructSemanticModelFromIds([storeDescriptor.modelId!])!;
+                constructedStores.push(new EntityModelAsCoreResourceReader(store));
+            }
         }
 
         const federatedStore = ReadOnlyFederatedStore.createLazy(constructedStores);
@@ -181,12 +190,12 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
 
         <Box display="flex" flexDirection="row" justifyContent="space-between" sx={{mt: 10}}>
             <Grid container spacing={3}>
-                {specification?.psms.map(psm =>
-                    <Grid item xs={4} key={psm}>
+                {specification?.dataStructures.map(psm =>
+                    <Grid item xs={4} key={psm.id}>
                         <DataStructureBox
-                            dataStructureIri={psm}
+                            dataStructureIri={psm.id}
                             specificationIri={dataSpecificationIri as string}
-                            onDelete={() => DeleteForm.open({dataStructureIri: psm})}
+                            onDelete={() => DeleteForm.open({dataStructureIri: psm.id})}
                         />
                     </Grid>
                 )}
@@ -214,7 +223,7 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {specification?.importsDataSpecifications.map(specification =>
+                    {specification?.importsDataSpecificationIds.map(specification =>
                         <TableRow key={specification}>
                             <TableCell component="th" scope="row" sx={{width: "25%"}}>
                                 <DataSpecificationNameCell dataSpecificationIri={specification as string} />
@@ -239,20 +248,23 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
             {t("generate artifacts")}
         </Typography>
         <GeneratingDialog isOpen={generateDialogOpen} close={() => setGenerateDialogOpen(false)} inProgress={!!zipLoading} generateReport={generateState} />
-        <Box sx={{
+        {specification && specification.artifactConfigurations.map(configuration => <Box key={configuration.id}
+        sx={{
             height: "5rem",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             gap: "1rem",
         }}>
-            {dataSpecificationIri && <ConfigureArtifacts dataSpecificationIri={dataSpecificationIri} />}
-            <LoadingButton variant="contained" onClick={() => generateZip(false)} loading={zipLoading !== false}>{t("generate zip file")}</LoadingButton>
-            <LoadingButton onClick={() => generateZip(true)} loading={zipLoading !== false}>{t("generate zip file with relative paths")}</LoadingButton>
+            {dataSpecificationIri && <ConfigureArtifacts dataSpecificationId={dataSpecificationIri} configurationId={configuration.id} />}
+            <LoadingButton variant="contained" onClick={() => generateZip(configuration.id, false)} loading={zipLoading !== false}>{t("generate zip file")}</LoadingButton>
+            <LoadingButton onClick={() => generateZip(configuration.id, true)} loading={zipLoading !== false}>{t("generate zip file with relative paths")}</LoadingButton>
             <Button variant="contained" href={process.env.REACT_APP_BACKEND + "/generate?iri=" + encodeURIComponent(dataSpecificationIri)}>Generate sample application</Button>
-        </Box>
+        </Box>)}
 
         <ConceptualModelSources dataSpecificationIri={dataSpecificationIri} />
+
+        <ConceptualModelTargets dataSpecificationIri={dataSpecificationIri} />
 
         <Typography variant="h5" component="div" gutterBottom sx={{mt: 5}}>
             Advanced

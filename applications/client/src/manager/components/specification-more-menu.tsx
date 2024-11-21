@@ -1,15 +1,10 @@
 import { LanguageString } from "@dataspecer/core/core/core-resource";
-import { PimSchema } from "@dataspecer/core/pim/model/pim-schema";
-import { useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
-import { useResource } from "@dataspecer/federated-observable-store-react/use-resource";
-import { Resource } from "@dataspecer/federated-observable-store/resource";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
 import { useCallback, useContext, useMemo } from "react";
 import { BackendConnectorContext } from "../../application";
 import { useDialog } from "../../editor/dialog";
 import { DataSpecificationsContext } from "../app";
-import { SetPimLabelAndDescription } from "../shared/set-pim-label-and-description";
 import { SpecificationCloneDialog } from "./specification-clone-dialog";
 
 export const SpecificationMoreMenu = (props: {
@@ -27,43 +22,25 @@ export const SpecificationMoreMenu = (props: {
         setRootDataSpecificationIris,
     } = useContext(DataSpecificationsContext);
     const backendConnector = useContext(BackendConnectorContext);
-    const store = useFederatedObservableStore();
     const specificationIri = props.specificationIri;
 
     const specification = dataSpecifications[specificationIri];
-    const {resource: pimSchema} = useResource<PimSchema>(specification?.pim);
 
     const editableProperties = useMemo(() => ({
-        label: pimSchema?.pimHumanLabel ?? {},
-    }), [pimSchema]);
+        label: specification.label ?? {},
+    }), [specification.label]);
 
     const duplicate = useCallback(async (data: {label: LanguageString}) => {
-        const dataSpecification = await backendConnector.cloneDataSpecification(specificationIri, {});
-        const pim = dataSpecification.pim as string;
+        const dataSpecification = await backendConnector.cloneDataSpecification(specificationIri, {label: data.label});
 
-        // Wait for store to be initialized
-        await new Promise<void>(resolve => {
-            const subscriber = (iri: string, resource: Resource) => {
-                if (resource.resource) {
-                    store.removeSubscriber(pim, subscriber);
-                    resolve();
-                }
-            }
-            store.addSubscriber(pim, subscriber);
-
-            setDataSpecifications({
-                ...dataSpecifications,
-                [dataSpecification.iri as string]: dataSpecification
-            });
-            setRootDataSpecificationIris([...rootDataSpecificationIris, dataSpecification.iri as string]);
+        setDataSpecifications({
+            ...dataSpecifications,
+            [dataSpecification.iri as string]: dataSpecification
         });
-
-
-        const op = new SetPimLabelAndDescription(pim, data.label, {});
-        await store.executeComplexOperation(op);
+        setRootDataSpecificationIris([...rootDataSpecificationIris, dataSpecification.iri as string]);
 
         CloneDialog.close();
-    }, [CloneDialog, backendConnector, dataSpecifications, rootDataSpecificationIris, setDataSpecifications, setRootDataSpecificationIris, specificationIri, store]);
+    }, [CloneDialog, backendConnector, dataSpecifications, rootDataSpecificationIris, setDataSpecifications, setRootDataSpecificationIris, specificationIri]);
 
 
     return <>

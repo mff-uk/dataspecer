@@ -14,7 +14,7 @@ export const ReuseDataSpecifications: React.FC<{
 
     const {dataSpecifications, setDataSpecifications} = useContext(DataSpecificationsContext);
     const specification = dataSpecifications[dataSpecificationIri];
-    const backendConnector = useContext(BackendConnectorContext);
+    const backendPackageService = useContext(BackendConnectorContext);
 
     const [selectedSpecificationIds, setSelectedSpecificationIds] = useState<string[]>([]);
 
@@ -32,25 +32,26 @@ export const ReuseDataSpecifications: React.FC<{
     };
 
     useEffect(() => {
-        if (specification?.importsDataSpecifications) {
-            setSelectedSpecificationIds(specification?.importsDataSpecifications);
+        if (specification?.importsDataSpecificationIds) {
+            setSelectedSpecificationIds(specification?.importsDataSpecificationIds);
         }
-    }, [specification?.importsDataSpecifications]);
+    }, [specification?.importsDataSpecificationIds]);
 
     const save = useCallback(async () => {
-        const newSpecification = await backendConnector.updateDataSpecification(
+        await backendPackageService.updateImportedDataSpecifications(
             dataSpecificationIri,
-            {
-                importsDataSpecifications: selectedSpecificationIds,
-            }
+            selectedSpecificationIds,
         );
         setDataSpecifications({
             ...dataSpecifications,
-            [dataSpecificationIri]: newSpecification,
+            [dataSpecificationIri]: {
+                ...specification,
+                importsDataSpecificationIds: selectedSpecificationIds
+            },
         });
 
         dialog.close();
-    }, [backendConnector, dataSpecificationIri, dataSpecifications, selectedSpecificationIds, setDataSpecifications, dialog]);
+    }, [backendPackageService, dataSpecificationIri, dataSpecifications, selectedSpecificationIds, setDataSpecifications, dialog, specification]);
 
     return <>
         <Fab variant="extended" size="medium" color={"primary"} onClick={dialog.open}>
@@ -63,19 +64,19 @@ export const ReuseDataSpecifications: React.FC<{
                 <List>
                     {specification && Object.values(dataSpecifications).map(spec => {
                         return (
-                            <ListItem key={spec.iri} disablePadding>
-                                <ListItemButton role={undefined} onClick={handleToggle(spec.iri as string)} dense>
+                            <ListItem key={spec.id} disablePadding>
+                                <ListItemButton role={undefined} onClick={handleToggle(spec.id as string)} dense>
                                     <ListItemIcon>
                                         <Checkbox
                                             edge="start"
-                                            checked={selectedSpecificationIds.indexOf(spec.iri as string) !== -1}
+                                            checked={selectedSpecificationIds.indexOf(spec.id as string) !== -1}
                                             tabIndex={-1}
                                             disableRipple
                                         />
                                     </ListItemIcon>
-                                    <DataSpecificationName iri={spec.iri as string}>
+                                    <DataSpecificationName iri={spec.id as string}>
                                         {(label, isLoading) =>
-                                            <>{isLoading ? <Skeleton /> : (label ? label : <small>{spec.iri}</small>)}</>
+                                            <>{isLoading ? <Skeleton /> : (label ? label : <small>{spec.id}</small>)}</>
                                         }
                                     </DataSpecificationName>
                                 </ListItemButton>

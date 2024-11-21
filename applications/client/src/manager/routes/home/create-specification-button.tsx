@@ -1,21 +1,17 @@
-import React, {memo, useCallback, useContext, useRef} from "react";
-import {Button, ButtonGroup, ListItemIcon, ListItemText, Menu, MenuItem} from "@mui/material";
-import {useToggle} from "../../use-toggle";
-import {DataSpecificationsContext} from "../../app";
-import {SetPimLabelAndDescription} from "../../shared/set-pim-label-and-description";
-import {Resource} from "@dataspecer/federated-observable-store/resource";
-import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
-import {SpecificationEditDialog, SpecificationEditDialogEditableProperties} from "../../components/specification-edit-dialog";
-import {UpdateDataSpecification} from "@dataspecer/backend-utils/interfaces";
-import {BackendConnectorContext} from "../../../application";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import SearchIcon from "@mui/icons-material/Search";
-import PublicIcon from '@mui/icons-material/Public';
-import {useDialog} from "../../../editor/dialog";
-import {DataSpecification} from "@dataspecer/core/data-specification/model/data-specification";
-import {FilterContext} from "./filter-by-tag-select";
-import {useTranslation} from "react-i18next";
+import { DataSpecification } from "@dataspecer/core/data-specification/model/data-specification";
 import AddIcon from '@mui/icons-material/Add';
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import PublicIcon from '@mui/icons-material/Public';
+import SearchIcon from "@mui/icons-material/Search";
+import { Button, ButtonGroup, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
+import React, { memo, useCallback, useContext, useRef } from "react";
+import { useTranslation } from "react-i18next";
+import { BackendConnectorContext } from "../../../application";
+import { useDialog } from "../../../editor/dialog";
+import { DataSpecificationsContext } from "../../app";
+import { SpecificationEditDialog, SpecificationEditDialogEditableProperties } from "../../components/specification-edit-dialog";
+import { useToggle } from "../../use-toggle";
+import { FilterContext } from "./filter-by-tag-select";
 
 /**
  * Button for creating a new data specification.
@@ -32,40 +28,17 @@ export const CreateSpecificationButton = memo(({onSpecificationCreated}: {onSpec
         setRootDataSpecificationIris,
     } = useContext(DataSpecificationsContext);
     const backendConnector = useContext(BackendConnectorContext);
-    const store = useFederatedObservableStore();
     const create = useCallback(async ({label, tags, ...rest}: Partial<SpecificationEditDialogEditableProperties>) => {
-        const options: UpdateDataSpecification = {...rest};
-        if (tags) {
-            options.tags = tags;
-        }
-
+        const options = {...rest, label, tags};
         const dataSpecification = await backendConnector.createDataSpecification(options);
-        const pim = dataSpecification.pim as string;
-
-        // Wait for store to be initialized
-        await new Promise<void>(resolve => {
-            const subscriber = (iri: string, resource: Resource) => {
-                if (resource.resource) {
-                    store.removeSubscriber(pim, subscriber);
-                    resolve();
-                }
-            }
-            store.addSubscriber(pim, subscriber);
-
-            setDataSpecifications({
-                ...dataSpecifications,
-                [dataSpecification.iri as string]: dataSpecification
-            });
-            setRootDataSpecificationIris([...rootDataSpecificationIris, dataSpecification.iri as string]);
+        setDataSpecifications({
+            ...dataSpecifications,
+            [dataSpecification.iri]: dataSpecification,
         });
-
-        if (label) {
-            const op = new SetPimLabelAndDescription(pim, label, {});
-            await store.executeComplexOperation(op);
-        }
         Dialog.close();
         onSpecificationCreated?.(dataSpecification.iri as string);
-    }, [backendConnector, Dialog, onSpecificationCreated, store, setDataSpecifications, dataSpecifications, setRootDataSpecificationIris, rootDataSpecificationIris]);
+        setRootDataSpecificationIris([...rootDataSpecificationIris, dataSpecification.iri]);
+    }, [backendConnector, Dialog, onSpecificationCreated, setDataSpecifications, dataSpecifications, setRootDataSpecificationIris, rootDataSpecificationIris]);
 
     const buttonRef = useRef(null);
     const menuOpen = useToggle(false);

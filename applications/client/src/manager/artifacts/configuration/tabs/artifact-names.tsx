@@ -107,6 +107,7 @@ export const ArtifactNames: FC<{
 
   const [currentArtifactConfiguration] = useAsyncMemo(async () => {
     const modifiedDataSpecification = cloneDeep(dataSpecifications);
+    // @ts-ignore
     modifiedDataSpecification[dataSpecificationIri].artefactConfiguration = currentConfiguration;
 
     // We know, that the current data specification and its stores are present

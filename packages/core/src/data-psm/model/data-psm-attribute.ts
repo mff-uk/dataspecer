@@ -1,4 +1,3 @@
-import { CoreResource } from "../../core";
 import { DataPsmResource } from "./data-psm-resource";
 import * as PSM from "../data-psm-vocabulary";
 
@@ -15,7 +14,7 @@ export class DataPsmAttribute extends DataPsmResource {
     this.types.push(DataPsmAttribute.TYPE);
   }
 
-  static is(resource: CoreResource | null): resource is DataPsmAttribute {
-    return resource?.types.includes(DataPsmAttribute.TYPE);
+  static is(resource: any): resource is DataPsmAttribute {
+    return resource?.types?.includes(DataPsmAttribute.TYPE);
   }
 }

@@ -1,3 +1,4 @@
+import { Entity } from "@dataspecer/core-v2";
 import {CoreResource} from "@dataspecer/core/core";
 
 /**
@@ -8,7 +9,7 @@ import {CoreResource} from "@dataspecer/core/core";
  * render at least obsoleted value.
  * @immutable
  */
-export interface Resource<ResourceType extends CoreResource = CoreResource> {
+export interface Resource<ResourceType extends CoreResource | Entity = CoreResource | Entity> {
     /**
      * The {@link CoreResource} or null, if error or loading for the first time.
      * If the resource is being reloaded, the old value is still stored here.

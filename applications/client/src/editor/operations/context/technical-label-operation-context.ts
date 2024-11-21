@@ -1,5 +1,5 @@
-import {PimResource} from "@dataspecer/core/pim/model";
+import { LanguageString } from '@dataspecer/core/core/core-resource';
 
 export interface TechnicalLabelOperationContext {
-    getTechnicalLabelFromPim(pimResource: PimResource): string | null;
+    getTechnicalLabelFromPim(name: LanguageString): string | null;
 }

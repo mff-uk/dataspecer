@@ -1,10 +1,13 @@
-import {DataSpecification, DataSpecificationArtefact} from "@dataspecer/core/data-specification/model";
-import {Generator} from "@dataspecer/core/generator";
-import {MemoryStreamDictionary} from "@dataspecer/core/io/stream/memory-stream-dictionary";
-import {CoreResourceReader} from "@dataspecer/core/core";
-import {getArtefactGenerators} from "../../../artefact-generators";
-import {getDefaultConfigurators} from "../../../configurators";
+import { CoreResourceReader } from "@dataspecer/core/core/core-reader";
+import { DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
+import { Generator } from "@dataspecer/core/generator";
+import { MemoryStreamDictionary } from "@dataspecer/core/io/stream/memory-stream-dictionary";
+import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
+import { getArtefactGenerators } from "../../../artefact-generators";
+import { getDefaultConfigurators } from "../../../configurators";
 import { DefaultArtifactConfigurator } from "../../../default-artifact-configurator";
+import { DataSpecification as CoreDataSpecification } from "@dataspecer/core/data-specification/model";
+import { DataSpecification } from "../../../specification";
 
 /**
  * Returns a single generated artifact with its name based on the given artifact
@@ -18,7 +21,7 @@ import { DefaultArtifactConfigurator } from "../../../default-artifact-configura
  * @return [artifact content, filename]
  */
 export async function getSingleArtifact(
-  store: CoreResourceReader,
+  store: FederatedObservableStore,
   forDataSpecificationIri: string,
   dataSpecifications: { [key: string]: DataSpecification },
   artifactSelector: (artifact: DataSpecificationArtefact) => boolean,
@@ -32,6 +35,7 @@ export async function getSingleArtifact(
   for (const dataSpecification of Object.values(dataSpecifications)) {
     dataSpecificationsWithArtifacts[dataSpecification.iri as string] = {
       ...dataSpecification,
+      // @ts-ignore
       artefacts: await defaultArtifactConfigurator.generateFor(dataSpecification.iri as string),
     };
   }
@@ -39,14 +43,29 @@ export async function getSingleArtifact(
   // Find the correct artifact
 
   const artefact = dataSpecificationsWithArtifacts[forDataSpecificationIri]
-    ?.artefacts
+      // @ts-ignore
+      ?.artefacts
     ?.find(artifactSelector);
 
   // Generate the artifact and return it
 
+  // Convert data specification
+  const ds = Object.values(dataSpecificationsWithArtifacts).map(specification => ({
+    iri: specification.id,
+    pim: specification.localSemanticModelIds[0],
+    psms: specification.dataStructures.map(ds => ds.id),
+    type: CoreDataSpecification.TYPE_DOCUMENTATION,
+    importsDataSpecifications: specification.importsDataSpecificationIds,
+    // @ts-ignore
+    artefacts: specification.artefacts,
+    // @ts-ignore
+    artefactConfiguration: specification.artefactConfiguration,
+    cimAdapters: [],
+  })) as CoreDataSpecification[];
+
   const generator = new Generator(
-      Object.values(dataSpecificationsWithArtifacts),
-      store,
+      ds,
+      store as CoreResourceReader,
       getArtefactGenerators());
   const dict = new MemoryStreamDictionary();
   await generator.generateArtefact(forDataSpecificationIri, artefact?.iri as string, dict);

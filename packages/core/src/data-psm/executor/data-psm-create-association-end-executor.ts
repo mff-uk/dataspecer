@@ -34,6 +34,7 @@ export async function executeDataPsmCreateAssociationEnd(
   result.dataPsmInterpretation = operation.dataPsmInterpretation;
   result.dataPsmTechnicalLabel = operation.dataPsmTechnicalLabel;
   result.dataPsmPart = operation.dataPsmPart;
+  result.dataPsmIsReverse = operation.dataPsmIsReverse;
   result.dataPsmIsDematerialize = operation.dataPsmIsDematerialize;
 
   return CoreExecutorResult.createSuccess(

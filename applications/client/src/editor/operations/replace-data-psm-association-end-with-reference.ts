@@ -2,6 +2,7 @@ import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-o
 import {DataPsmCreateClassReference, DataPsmDeleteClass, DataPsmSetPart} from "@dataspecer/core/data-psm/operation";
 import {DataPsmAssociationEnd, DataPsmSchema} from "@dataspecer/core/data-psm/model";
 import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
+import { CoreResource } from "@dataspecer/core/core/core-resource";
 
 export class ReplaceDataPsmAssociationEndWithReference implements ComplexOperation {
     private readonly dataPsmAssociationEnd: string;
@@ -18,8 +19,8 @@ export class ReplaceDataPsmAssociationEndWithReference implements ComplexOperati
     }
 
     async execute(): Promise<void> {
-        const schema = await this.store.readResource(this.referencedDataPsmSchema);
-        const associationEnd = await this.store.readResource(this.dataPsmAssociationEnd);
+        const schema = await this.store.readResource(this.referencedDataPsmSchema) as CoreResource | null;
+        const associationEnd = await this.store.readResource(this.dataPsmAssociationEnd) as CoreResource | null;
 
         if (!schema || !DataPsmSchema.is(schema)) {
             throw new Error(`Schema '${this.referencedDataPsmSchema}' is not a schema.`);

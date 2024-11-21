@@ -73,12 +73,12 @@ export class DataSpecificationModelAdapted {
       return null;
     }
 
-    const cimResource = dataSpecificationPackage.subResources.find(subResource => subResource.types.includes(V1.CIM));
+    const cimResource = dataSpecificationPackage.subResources.find(subResource => subResource.types.includes(V1.CIM)) ?? null;
     const pimResource = dataSpecificationPackage.subResources.find(subResource => subResource.types.includes(V1.PIM));
     const psmResources = dataSpecificationPackage.subResources.filter(subResource => subResource.types.includes(V1.PSM));
-    const generatorConfigurationResource = dataSpecificationPackage.subResources.find(subResource => subResource.types.includes(V1.GENERATOR_CONFIGURATION));
+    const generatorConfigurationResource = dataSpecificationPackage.subResources.find(subResource => subResource.types.includes(V1.GENERATOR_CONFIGURATION)) ?? null;
 
-    if (!cimResource || !pimResource || !generatorConfigurationResource) {
+    if (!pimResource) {
       // This is not a valid data specification, nor it is an error. We just cannot interpret it.
       return null;
     }
@@ -109,16 +109,16 @@ export class DataSpecificationModelAdapted {
       iri: dataSpecificationPackage.iri,
       pim: pimResource.iri,
       psms: dataSpecificationPackage!.subResources.filter(subResource => subResource.types.includes(V1.PSM)).map(subResource => subResource.iri),
-      importsDataSpecifications: JSON.parse((await this.storeModel.get(dataSpecificationPackage.dataStores.model))!.toString()).dataStructuresImportPackages ?? [],
+      importsDataSpecifications: dataSpecificationPackage.dataStores.model ? JSON.parse((await this.storeModel.get(dataSpecificationPackage.dataStores.model))!.toString()).dataStructuresImportPackages ?? [] : [],
       artefacts: [],
-      artefactConfiguration: JSON.parse((await this.storeModel.get(generatorConfigurationResource.dataStores.model))!.toString()),
+      artefactConfiguration: generatorConfigurationResource ? JSON.parse((await this.storeModel.get(generatorConfigurationResource.dataStores.model))!.toString()) : {},
       pimStores: [
         this.storeModel.getById(pimResource.dataStores.model)
       ],
       psmStores: Object.fromEntries(psmResources.map(psmResource => [psmResource.iri, [this.storeModel.getById(psmResource.dataStores.model)]])),
       tags: dataSpecificationPackage.userMetadata.tags ?? [],
       type: "http://dataspecer.com/vocabularies/data-specification/documentation",
-      cimAdapters: JSON.parse((await this.storeModel.get(cimResource.dataStores.model))!.toString()).models ?? [],
+      cimAdapters: cimResource ? JSON.parse((await this.storeModel.get(cimResource.dataStores.model))!.toString()).models ?? [] : [],
     };
   }
 
@@ -199,7 +199,7 @@ export class DataSpecificationModelAdapted {
       await this.resourceModel.updateResource(iri, {...dataSpecificationPackage.userMetadata, tags: dataSpecification.tags});
     }
 
-    if (dataSpecification.artefactConfiguration) {
+    if (dataSpecification.artefactConfiguration && generatorConfigurationResource) {
       await this.storeModel.set(generatorConfigurationResource.dataStores.model, JSON.stringify(dataSpecification.artefactConfiguration));
     }
 
@@ -207,7 +207,7 @@ export class DataSpecificationModelAdapted {
       //throw new Error("Not implemented.");
     }
 
-    if (dataSpecification.cimAdapters) {
+    if (dataSpecification.cimAdapters && cimResource) {
       const modelStore = await this.storeModel.getModelStore(cimResource.dataStores.model);
       await modelStore.setJson({
         ...await modelStore.getJson(),

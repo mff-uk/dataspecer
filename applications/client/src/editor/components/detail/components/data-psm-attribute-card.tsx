@@ -4,11 +4,11 @@ import {InDifferentLanguages} from "./InDifferentLanguages";
 import {RightPanel} from "./right-panel";
 import {useDataPsmAndInterpretedPim} from "../../../hooks/use-data-psm-and-interpreted-pim";
 import {DataPsmAttribute} from "@dataspecer/core/data-psm/model";
-import {PimAttribute} from "@dataspecer/core/pim/model";
 import {useLabelAndDescription} from "../../../hooks/use-label-and-description";
+import { ExtendedSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 
 export const DataPsmAttributeCard: React.FC<{ iri: string, onClose: () => void  }> = memo(({iri, onClose}) => {
-    const resources = useDataPsmAndInterpretedPim<DataPsmAttribute, PimAttribute>(iri);
+    const resources = useDataPsmAndInterpretedPim<DataPsmAttribute, ExtendedSemanticModelRelationship>(iri);
     const [label, description] = useLabelAndDescription(resources.dataPsmResource, resources.pimResource);
 
     return <>

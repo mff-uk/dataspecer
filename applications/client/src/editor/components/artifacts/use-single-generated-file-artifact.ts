@@ -28,6 +28,7 @@ export const useSingleGeneratedFileArtifact = (generatorId: string) => {
             return await getSingleArtifact(
                 store,
                 dataSpecificationIri as string,
+                // @ts-ignore
                 dataSpecifications,
                 artefact =>
                     artefact.generator === generatorId &&

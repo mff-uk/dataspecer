@@ -13,7 +13,7 @@
     "strict": false,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
+    "module": "Node16",
     "moduleResolution": "Node16",
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -24,9 +24,7 @@
     "declaration": true,
     "types": [
       "node",
-      "webpack-env",
-      "react/next",
-      "react-dom/next"
+      "webpack-env"
     ]
   },
   "include": [

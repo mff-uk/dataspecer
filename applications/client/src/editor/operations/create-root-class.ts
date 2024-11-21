@@ -1,4 +1,4 @@
-import {PimClass} from "@dataspecer/core/pim/model";
+import { SemanticModelClass } from '@dataspecer/core-v2/semantic-model/concepts';
 import {DataPsmCreateClass, DataPsmSetHumanDescription, DataPsmSetHumanLabel, DataPsmSetRoots} from "@dataspecer/core/data-psm/operation";
 import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-operation";
 import {createPimClassIfMissing} from "./helper/pim";
@@ -15,7 +15,7 @@ import {TechnicalLabelOperationContext} from "./context/technical-label-operatio
  * schema.
  */
 export class CreateRootClass implements ComplexOperation {
-    private readonly pimClass: PimClass;
+    private readonly sourceClass: SemanticModelClass;
     private readonly pimSchemaIri: string;
     private readonly dataPsmSchemaIri: string;
     private readonly schemaHumanLabel?: LanguageString;
@@ -23,8 +23,8 @@ export class CreateRootClass implements ComplexOperation {
     private store!: FederatedObservableStore;
     private context: TechnicalLabelOperationContext|null = null;
 
-    constructor(pimClass: PimClass, pimSchemaIri: string, dataPsmSchemaIri: string, schemaHumanLabel?: LanguageString, schemaHumanDescription?: LanguageString) {
-        this.pimClass = pimClass;
+    constructor(sourceClass: SemanticModelClass, pimSchemaIri: string, dataPsmSchemaIri: string, schemaHumanLabel?: LanguageString, schemaHumanDescription?: LanguageString) {
+        this.sourceClass = sourceClass;
         this.pimSchemaIri = pimSchemaIri;
         this.dataPsmSchemaIri = dataPsmSchemaIri;
         this.schemaHumanLabel = schemaHumanLabel;
@@ -40,11 +40,11 @@ export class CreateRootClass implements ComplexOperation {
     }
 
     async execute(): Promise<void> {
-        const pimClassIri = await createPimClassIfMissing(this.pimClass, this.pimSchemaIri, this.store);
+        const pimClassIri = await createPimClassIfMissing(this.sourceClass, this.pimSchemaIri, this.store);
 
         const dataPsmCreateClass = new DataPsmCreateClass();
         dataPsmCreateClass.dataPsmInterpretation = pimClassIri;
-        dataPsmCreateClass.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim(this.pimClass) ?? null;
+        dataPsmCreateClass.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim((await this.store.readResource(pimClassIri) as SemanticModelClass).name) ?? null;
         const dataPsmCreateClassResult = await this.store.applyOperation(this.dataPsmSchemaIri, dataPsmCreateClass);
 
         const dataPsmUpdateSchemaRoots = new DataPsmSetRoots();
