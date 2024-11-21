@@ -31,9 +31,9 @@ class EntityModelMock implements EntityModel {
 
 test("Select first in-memory semantic model.", () => {
   const expected = new InMemorySemanticModel();
-  const models = new Map();
+  const models = new Map<string, EntityModel>();
   models.set("one", new EntityModelMock());
-  models.set("two", expect);
+  models.set("two", expected);
   const actual = firstInMemorySemanticModel(models);
-  expect(actual).toStrictEqual(expected);
+  expect(actual).toBe(expected);
 });
