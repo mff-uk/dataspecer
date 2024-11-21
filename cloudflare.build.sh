@@ -19,7 +19,7 @@ fi
 
 npm ci
 
-printf "REACT_APP_BACKEND=$BACKEND\nREACT_APP_DEBUG_VERSION=$CF_PAGES_BRANCH@$(echo $CF_PAGES_COMMIT_SHA | head -c7) $(date -u +%F\ %H:%M:%S)\nREACT_APP_MANAGER_BASE_URL=$OLD_MANAGER/\nREACT_APP_WIKIDATA_ONTOLOGY_BACKEND=$WIKIDATA_ONTOLOGY_BACKEND\nREACT_APP_STRUCTURE_EDITOR_BASE_URL=$BASE_PATH/editor\n" > applications/client/.env.local
+printf "VITE_BACKEND=$BACKEND\nVITE_DEBUG_VERSION=$CF_PAGES_BRANCH@$(echo $CF_PAGES_COMMIT_SHA | head -c7) $(date -u +%F\ %H:%M:%S)\nVITE_MANAGER_BASE_URL=$OLD_MANAGER/\nVITE_WIKIDATA_ONTOLOGY_BACKEND=$WIKIDATA_ONTOLOGY_BACKEND\nVITE_STRUCTURE_EDITOR_BASE_URL=$BASE_PATH/editor\n" > applications/data-specification-editor/.env.local
 
 printf "VITE_PUBLIC_BASE_PATH=$BASE_PATH/conceptual-model-editor\nVITE_PUBLIC_APP_BACKEND=$BACKEND\nVITE_PUBLIC_APP_BACKEND_PACKAGE_ROOT=http://dataspecer.com/packages/local-root\nVITE_PUBLIC_MANAGER_PATH=$BASE_PATH$NEW_MANAGER\nVITE_PUBLIC_DSCME_LOGO_LINK=$BASE_PATH$NEW_MANAGER\n" > applications/conceptual-model-editor/.env.local
 printf "VITE_PUBLIC_APP_AUTOSAVE_ENABLED_BY_DEFAULT=0\n" >> applications/conceptual-model-editor/.env.local
@@ -33,21 +33,21 @@ if [ $CF_PAGES_BRANCH != "main" ]; then
 fi
 
 if [ -n "$BASE_PATH" ]; then
-  sed -i "2i\  \"homepage\": \"$BASE_PATH\"," applications/client/package.json
+  sed -i "2i\  \"homepage\": \"$BASE_PATH\"," applications/data-specification-editor/package.json
 fi
 
 if [ -n "$DO_BUILD_BACKEND" ]; then
-  npx turbo run build --concurrency 100% --filter=client --filter=conceptual-model-editor --filter=manager --filter=api-specification --filter=backend^...
+  npx turbo run build --concurrency 100% --filter=data-specification-editor --filter=conceptual-model-editor --filter=manager --filter=api-specification --filter=backend^...
   (cd services/backend && npx npm run build-pack)
 else
-  npx turbo run build --concurrency 100% --filter=client --filter=conceptual-model-editor --filter=manager --filter=api-specification
+  npx turbo run build --concurrency 100% --filter=data-specification-editor --filter=conceptual-model-editor --filter=manager --filter=api-specification
 fi
 
 rm -rf .dist
 
-# Copy client application
+# Copy data-specification-editor application
 mkdir .dist
-cp -r applications/client/build/* .dist
+cp -r applications/data-specification-editor/dist/* .dist
 
 if [ -n "$USE_NEW_MANAGER" ]; then
   # Hack: If old manager is not in root. Needs to be configured in you webserver
