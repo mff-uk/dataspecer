@@ -49,7 +49,7 @@ const CreateAttributeDialog = (props: DialogProps<CreateAttributeDialogState>) =
         </DialogDetailRow>
       </div>
       <div className="grid bg-slate-100 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
-        <DialogDetailRow detailKey={t("create-class-dialog.name")} style="text-xl">
+        <DialogDetailRow detailKey={t("create-class-dialog.name")} className="text-xl">
           <MultiLanguageInputForLanguageString
             ls={state.name}
             setLs={controller.setName}
