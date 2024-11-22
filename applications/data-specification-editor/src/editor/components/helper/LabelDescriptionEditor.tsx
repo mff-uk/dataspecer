@@ -22,7 +22,7 @@ export interface LabelAndDescriptionLanguageStrings {
     description: LanguageString;
 }
 
-interface LabelDescriptionEditorParameters {
+export interface LabelDescriptionEditorParameters {
     isOpen: boolean;
     close: () => void;
 

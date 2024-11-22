@@ -9,6 +9,7 @@ import {
   DataPsmAssociationEnd,
   DataPsmAttribute,
   DataPsmClass,
+  DataPsmResource,
   DataPsmSchema,
 } from "../model";
 
@@ -34,7 +35,7 @@ export async function executeDataPsmSetHumanDescription(
       {
         ...resource,
         dataPsmHumanDescription: operation.dataPsmHumanDescription,
-      } as CoreResource,
+      } as DataPsmResource,
     ]
   );
 }

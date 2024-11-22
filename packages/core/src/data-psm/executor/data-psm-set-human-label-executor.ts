@@ -9,6 +9,7 @@ import {
   DataPsmAssociationEnd,
   DataPsmAttribute,
   DataPsmClass,
+  DataPsmResource,
   DataPsmSchema,
 } from "../model";
 
@@ -34,7 +35,7 @@ export async function executeDataPsmSetHumanLabel(
       {
         ...resource,
         dataPsmHumanLabel: operation.dataPsmHumanLabel,
-      } as CoreResource,
+      } as DataPsmResource,
     ]
   );
 }

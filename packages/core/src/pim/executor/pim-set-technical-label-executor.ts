@@ -5,7 +5,7 @@ import {
   CoreResource,
 } from "../../core";
 import { PimSetTechnicalLabel } from "../operation";
-import { PimAssociation, PimAttribute, PimClass } from "../model";
+import { PimAssociation, PimAttribute, PimClass, PimResource } from "../model";
 
 export async function executePimSetTechnicalLabel(
   reader: CoreResourceReader,
@@ -29,7 +29,7 @@ export async function executePimSetTechnicalLabel(
       {
         ...resource,
         pimTechnicalLabel: operation.pimTechnicalLabel,
-      } as CoreResource,
+      } as PimResource,
     ]
   );
 }
