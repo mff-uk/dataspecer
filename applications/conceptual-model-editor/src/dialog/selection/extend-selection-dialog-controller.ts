@@ -1,35 +1,40 @@
 import { useMemo } from "react";
 import { type DialogProps } from "../dialog-api";
+import { Selections } from "../../action/filter-selection-action";
 
 
 export interface ExtendSelectionState {
-    selection: string[];
-    setSelectionInDiagram: (newSelection: string[]) => void;
+    selections: Selections;
+    setSelectionsInDiagram: (newSelection: Selections) => void;
 }
 
-export function createExtendSelectionState(selection: string[], setSelectionInDiagram: (newSelection: string[]) => void): ExtendSelectionState {
+export function createExtendSelectionState(selections: Selections, setSelectionsInDiagram: (newSelection: Selections) => void): ExtendSelectionState {
   return {
-    selection: selection,
-    setSelectionInDiagram: setSelectionInDiagram
+    selections: selections,
+    setSelectionsInDiagram: setSelectionsInDiagram
   };
 }
 
 export interface CreateExtendSelectionControllerType {
-    setSelection: (next: string[]) => void;
+    setSelections: (next: Selections) => void;
 }
 
 
 export function useExtendSelectionController({ state, changeState }: DialogProps<ExtendSelectionState>): CreateExtendSelectionControllerType {
   return useMemo(() => {
 
-    const setSelection = (next: string[]) => {
-      next = [...new Set(next)];    // Remove duplicates
-      changeState({ ...state, selection: next });
-      state.setSelectionInDiagram(next);
+    const setSelections = (next: Selections) => {
+      // Set Removes duplicates
+      next = {
+        nodeSelection: [...new Set(next.nodeSelection)],
+        edgeSelection: [...new Set(next.edgeSelection)],
+      };
+      changeState({ ...state, selections: next });
+      state.setSelectionsInDiagram(next);
     };
 
     return {
-        setSelection,
+        setSelections,
     };
   }, [state, changeState]);
 }

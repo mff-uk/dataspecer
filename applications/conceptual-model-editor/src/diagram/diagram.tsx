@@ -54,18 +54,19 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
 
   // TODO: For now
   const actions = useActions();
+  // TODO: For now ... put into controller or something
+  const selections = {
+    nodeSelection: controller.nodes.filter(node => node.selected === true).map(node => node.data.externalIdentifier),
+    edgeSelection: controller.edges.filter(edge => edge.selected === true).map(edge => edge.data?.externalIdentifier ?? edge.data?.identifier ?? edge.id)
+  };
 
   return (
     <>
       <div>
-        <button onClick={() => actions.openExtendSelectionDialog(controller.nodes.filter(n => n.selected === true).map(n => n.data.externalIdentifier))}>Extend selection</button>
+        <button onClick={() => actions.openExtendSelectionDialog(selections)}>Extend selection</button>
       </div>
       <div>
-        <button onClick={() => actions.openFilterSelectionDialog({
-          nodeSelection: controller.nodes.filter(node => node.selected === true).map(node => node.data.externalIdentifier),
-          edgeSelection: controller.edges.filter(edge => edge.selected === true).map(edge => edge.data?.externalIdentifier ?? edge.data?.identifier ?? edge.id)
-        }
-        )}>
+        <button onClick={() => actions.openFilterSelectionDialog(selections)}>
           Filter selection</button>
       </div>
       <DiagramContext.Provider value={controller.context}>

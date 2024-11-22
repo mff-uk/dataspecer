@@ -3,6 +3,7 @@ import { createExtendSelectionState, ExtendSelectionState, useExtendSelectionCon
 import { DialogProps, DialogWrapper } from "../dialog-api";
 import { useActions } from "../../action/actions-react-binding";
 import { ExtensionType } from "../../action/extend-selection-action";
+import { Selections } from "../../action/filter-selection-action";
 
 /**
  * Represents one concrete extension/filter data used to render checkbox for the extension/filter.
@@ -51,13 +52,13 @@ const useCreateExtensionDataStateAndSaveIt = (checkboxStates: ExtensionData[], d
 export const createExtendSelectionDialog = (
     onConfirm: (state: ExtendSelectionState) => void | null,
     onClose: () => void,
-    selection: string[],
-    setSelectionInDiagram: (newSelection: string[]) => void,
+    selections: Selections,
+    setSelectionsInDiagram: (newSelection: Selections) => void,
   ): DialogWrapper<ExtendSelectionState> => {
     return {
       label: "extend-selection-dialog.label",
       component: CreateExtendSelectionDialog,
-      state: createExtendSelectionState(selection, setSelectionInDiagram),
+      state: createExtendSelectionState(selections, setSelectionsInDiagram),
       confirmLabel: "extend-selection-dialog.btn-ok",
       cancelLabel: "extend-selection-dialog.btn-cancel",
       validate: null,
@@ -173,8 +174,11 @@ export const CreateExtendSelectionDialog = (props: DialogProps<ExtendSelectionSt
                                 return null;
                             }).filter(e => e !== null);
 
-                            extendSelection(state.selection, relevantExtensionTypes, "ONLY-VISIBLE", null).then(extension => {
-                                    controller.setSelection(state.selection.concat(extension));
+                            extendSelection(state.selections.nodeSelection, relevantExtensionTypes, "ONLY-VISIBLE", null).then(extension => {
+                                    controller.setSelections({
+                                        nodeSelection: state.selections.nodeSelection.concat(extension.nodeSelection),
+                                        edgeSelection: state.selections.edgeSelection.concat(extension.edgeSelection),
+                                    })
                                 }).catch(console.error);
                         }}>
                     Extend

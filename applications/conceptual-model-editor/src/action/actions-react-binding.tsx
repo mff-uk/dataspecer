@@ -86,7 +86,7 @@ export interface ActionsContextType {
   /**
    * Open dialog to extend current selection.
    */
-  openExtendSelectionDialog: (selection: string[]) => void;
+  openExtendSelectionDialog: (selections: Selections) => void;
 
 
   /**
@@ -96,13 +96,12 @@ export interface ActionsContextType {
 
 
   /**
-   * Calls action {@link extendSelectionAction} with correct context
-   * @returns The extended selection
+   * Calls action {@link extendSelectionAction} with correct context. For more info check {@link extendSelectionAction}
    */
-  extendSelection: (selection: string[],
-                          extensionTypes: ExtensionType[],
-                          visible: VisibilityFilter,
-                          semanticModelFilter: Record<string, boolean> | null) => Promise<string[]>;
+  extendSelection: (nodeSelection: string[],
+                    extensionTypes: ExtensionType[],
+                    visibilityFilter: VisibilityFilter,
+                    semanticModelFilter: Record<string, boolean> | null) => Promise<Selections>;
 
 
   reductionTotalFilter: (selections: Selections,
@@ -132,7 +131,7 @@ const noOperationActionsContext = {
   openExtendSelectionDialog: noOperation,
   openFilterSelectionDialog: noOperation,
   // TODO: How to define this
-  extendSelection: async () => [],
+  extendSelection: async () => ({nodeSelection: [], edgeSelection: []}),
   reductionTotalFilter: () => ({nodeSelection: [], edgeSelection: []}),
   diagram: null,
 };
@@ -333,20 +332,26 @@ function createActionsContext(
   };
 
 
-  const openExtendSelectionDialog = (selection: string[]) => {
+  const openExtendSelectionDialog = (selections: Selections) => {
+    const setSelectionsInDiagram = (selectionsToSetWith: Selections) => {
+      diagram.actions().setSelectedNodes(selectionsToSetWith.nodeSelection);
+      diagram.actions().setSelectedEdges(selectionsToSetWith.edgeSelection);
+    }
+
     const onConfirm = (state: ExtendSelectionState) => {
-      diagram.actions().setSelectedNodes(state.selection);
+      setSelectionsInDiagram(state.selections);
     };
 
     const onClose = () => {
-      diagram.actions().setSelectedNodes(selection);
+      setSelectionsInDiagram(selections);
     };
+
 
     dialogs?.openDialog(createExtendSelectionDialog(
                                                     onConfirm,
                                                     onClose,
-                                                    selection,
-                                                    diagram.actions().setSelectedNodes));
+                                                    selections,
+                                                    setSelectionsInDiagram));
   };
 
 
@@ -375,11 +380,12 @@ function createActionsContext(
   };
 
 
-  const extendSelection = async (selection: string[],
+  const extendSelection = async (nodeSelection: string[],
                                   extensionTypes: ExtensionType[],
-                                  visible: VisibilityFilter,
+                                  visibilityFilter: VisibilityFilter,
                                   semanticModelFilter: Record<string, boolean> | null) => {
-    return await extendSelectionAction(selection, extensionTypes, visible, false, semanticModelFilter, classes, graph);
+    const selectionExtension = await extendSelectionAction(nodeSelection, extensionTypes, visibilityFilter, false, semanticModelFilter, classes, graph);
+    return selectionExtension.selectionExtension;
   };
 
 
