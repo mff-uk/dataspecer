@@ -5,7 +5,7 @@ import {
   CoreResource,
 } from "../../core";
 import { PimSetHumanDescription } from "../operation";
-import { PimAssociation, PimAttribute, PimClass, PimSchema } from "../model";
+import { PimAssociation, PimAttribute, PimClass, PimResource, PimSchema } from "../model";
 
 export async function executePimSetHumanDescription(
   reader: CoreResourceReader,
@@ -29,7 +29,7 @@ export async function executePimSetHumanDescription(
       {
         ...resource,
         pimHumanDescription: operation.pimHumanDescription,
-      } as CoreResource,
+      } as PimResource,
     ]
   );
 }

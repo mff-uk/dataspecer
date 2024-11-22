@@ -13,11 +13,11 @@
   "dependencies": {
     "@dataspecer/core": "*",
     "mustache": "^4.2.0"
-    
+
   },
   "devDependencies": {
     "@types/mustache": "^4.2.5",
     "rimraf": "^5.0.5",
-    "typescript": "~5.4.2"
+    "typescript": "^5.6.3"
   }
 }
