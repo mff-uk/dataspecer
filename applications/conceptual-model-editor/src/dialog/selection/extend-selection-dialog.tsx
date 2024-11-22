@@ -52,13 +52,14 @@ const useCreateExtensionDataStateAndSaveIt = (checkboxStates: ExtensionData[], d
 export const createExtendSelectionDialog = (
     onConfirm: (state: ExtendSelectionState) => void | null,
     onClose: () => void,
+    areIdentifiersFromVisualModel: boolean,
     selections: Selections,
     setSelectionsInDiagram: (newSelection: Selections) => void,
   ): DialogWrapper<ExtendSelectionState> => {
     return {
       label: "extend-selection-dialog.label",
       component: CreateExtendSelectionDialog,
-      state: createExtendSelectionState(selections, setSelectionsInDiagram),
+      state: createExtendSelectionState(selections, setSelectionsInDiagram, areIdentifiersFromVisualModel),
       confirmLabel: "extend-selection-dialog.btn-ok",
       cancelLabel: "extend-selection-dialog.btn-cancel",
       validate: null,
@@ -174,7 +175,7 @@ export const CreateExtendSelectionDialog = (props: DialogProps<ExtendSelectionSt
                                 return null;
                             }).filter(e => e !== null);
 
-                            extendSelection(state.selections.nodeSelection, relevantExtensionTypes, "ONLY-VISIBLE", null).then(extension => {
+                            extendSelection({identifiers: state.selections.nodeSelection, areIdentifiersFromVisualModel: state.areIdentifiersFromVisualModel}, relevantExtensionTypes, "ONLY-VISIBLE", null).then(extension => {
                                     controller.setSelections({
                                         nodeSelection: state.selections.nodeSelection.concat(extension.nodeSelection),
                                         edgeSelection: state.selections.edgeSelection.concat(extension.edgeSelection),

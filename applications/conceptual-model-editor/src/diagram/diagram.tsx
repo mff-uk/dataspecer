@@ -56,8 +56,8 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
   const actions = useActions();
   // TODO: For now ... put into controller or something
   const selections = {
-    nodeSelection: controller.nodes.filter(node => node.selected === true).map(node => node.data.externalIdentifier),
-    edgeSelection: controller.edges.filter(edge => edge.selected === true).map(edge => edge.data?.externalIdentifier ?? edge.data?.identifier ?? edge.id)
+    nodeSelection: controller.nodes.filter(node => node.selected === true).map(node => node.id),
+    edgeSelection: controller.edges.filter(edge => edge.selected === true).map(edge => edge.id)
   };
 
   return (

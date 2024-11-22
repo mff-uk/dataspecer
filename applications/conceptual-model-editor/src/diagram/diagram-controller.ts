@@ -418,7 +418,7 @@ const createActions = (
       console.log("Diagram.setSelectedNodes", nodes);
       reactFlow.setNodes(prevNodes => {
         return prevNodes.map(node => {
-          if(nodes.find(selectedNode => selectedNode === node.data.externalIdentifier) !== undefined) {
+          if(nodes.find(selectedNode => selectedNode === node.id) !== undefined) {
             return {...node, selected: true};
           }
           return {...node, selected: false};
@@ -433,7 +433,7 @@ const createActions = (
       console.log("Diagram.setSelectedEdges", edges);
       reactFlow.setEdges(prevEdges => {
         return prevEdges.map(edge => {
-          if(edges.find(selectedEdge => selectedEdge === edge.data?.externalIdentifier) !== undefined) {
+          if(edges.find(selectedEdge => selectedEdge === edge.id) !== undefined) {
             return {...edge, selected: true};
           }
           return {...edge, selected: false};

@@ -6,12 +6,14 @@ import { Selections } from "../../action/filter-selection-action";
 export interface ExtendSelectionState {
     selections: Selections;
     setSelectionsInDiagram: (newSelection: Selections) => void;
+    areIdentifiersFromVisualModel: boolean;
 }
 
-export function createExtendSelectionState(selections: Selections, setSelectionsInDiagram: (newSelection: Selections) => void): ExtendSelectionState {
+export function createExtendSelectionState(selections: Selections, setSelectionsInDiagram: (newSelection: Selections) => void, areIdentifiersFromVisualModel: boolean): ExtendSelectionState {
   return {
     selections: selections,
-    setSelectionsInDiagram: setSelectionsInDiagram
+    setSelectionsInDiagram: setSelectionsInDiagram,
+    areIdentifiersFromVisualModel
   };
 }
 

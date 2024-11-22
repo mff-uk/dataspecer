@@ -31,7 +31,7 @@ import { isVisualProfileRelationship, isVisualRelationship, isWritableVisualMode
 import { openCreateConnectionDialogAction } from "./open-create-connection";
 import { placePositionOnGrid, ReactflowDimensionsConstantEstimator } from "@dataspecer/layout";
 import { reductionTotalFilterAction, Selections, TotalFilter } from "./filter-selection-action";
-import { extendSelectionAction, ExtensionType, VisibilityFilter } from "./extend-selection-action";
+import { extendSelectionAction, ExtensionType, NodeSelection, VisibilityFilter } from "./extend-selection-action";
 import { ExtendSelectionState } from "../dialog/selection/extend-selection-dialog-controller";
 import { createExtendSelectionDialog } from "../dialog/selection/extend-selection-dialog";
 import { FilterSelectionState } from "../dialog/selection/filter-selection-dialog-controller";
@@ -98,7 +98,7 @@ export interface ActionsContextType {
   /**
    * Calls action {@link extendSelectionAction} with correct context. For more info check {@link extendSelectionAction}
    */
-  extendSelection: (nodeSelection: string[],
+  extendSelection: (nodeSelection: NodeSelection,
                     extensionTypes: ExtensionType[],
                     visibilityFilter: VisibilityFilter,
                     semanticModelFilter: Record<string, boolean> | null) => Promise<Selections>;
@@ -350,6 +350,7 @@ function createActionsContext(
     dialogs?.openDialog(createExtendSelectionDialog(
                                                     onConfirm,
                                                     onClose,
+                                                    true,
                                                     selections,
                                                     setSelectionsInDiagram));
   };
@@ -380,11 +381,11 @@ function createActionsContext(
   };
 
 
-  const extendSelection = async (nodeSelection: string[],
+  const extendSelection = async (nodeSelection: NodeSelection,
                                   extensionTypes: ExtensionType[],
                                   visibilityFilter: VisibilityFilter,
                                   semanticModelFilter: Record<string, boolean> | null) => {
-    const selectionExtension = await extendSelectionAction(nodeSelection, extensionTypes, visibilityFilter, false, semanticModelFilter, classes, graph);
+    const selectionExtension = await extendSelectionAction(nodeSelection, extensionTypes, visibilityFilter, false, semanticModelFilter, classes, graph, notifications);
     return selectionExtension.selectionExtension;
   };
 
