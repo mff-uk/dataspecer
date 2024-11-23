@@ -10,13 +10,13 @@ import { getModelIri } from "../../util/iri-utils";
 import { DialogProps } from "../dialog-api";
 import { createCreateEntityController, createEntityController, CreateEntityState, CreateEntityStateController, EntityState, EntityStateController, isRelativeIri } from "../utilities/entity-utilities";
 import { createProfileController, ProfileState, ProfileStateController } from "../utilities/profile-utilities";
-import { Cardinality, EntityRepresentative, isRepresentingAssociation, isRepresentingAttribute, representCardinalities, representCardinality, representClasses, representClassProfiles, representModels, representOwlThing, representRelationshipProfiles, representRelationships, representUndefinedCardinality, representUndefinedClass, selectWritableModels, sortRepresentatives } from "../utilities/dialog-utilities";
+import { Cardinality, DataTypeRepresentative, EntityRepresentative, isRepresentingAttribute, representCardinalities, representCardinality, representClasses, representClassProfiles, representDataTypes, representModels, representOwlThing, representRelationshipProfiles, representRelationships, representUndefinedCardinality, representUndefinedDataType, selectWritableModels, sortRepresentatives } from "../utilities/dialog-utilities";
 import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { sanitizeDuplicitiesInRepresentativeLabels } from "../../utilities/label";
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { validationNoProblem, ValidationState, validationWarning } from "../utilities/validation-utilities";
 
-export interface CreateAssociationProfileDialogState extends EntityState, CreateEntityState, ProfileState {
+export interface CreateAttributeProfileDialogState extends EntityState, CreateEntityState, ProfileState {
 
   language: string;
 
@@ -54,9 +54,9 @@ export interface CreateAssociationProfileDialogState extends EntityState, Create
   /**
    * Range.
    */
-  range: EntityRepresentative;
+  range: DataTypeRepresentative;
 
-  initialRange: EntityRepresentative;
+  initialRange: DataTypeRepresentative;
 
   overrideRange: boolean;
 
@@ -76,19 +76,19 @@ export interface CreateAssociationProfileDialogState extends EntityState, Create
   /**
    * Available range items.
    */
-  availableRangeItems: EntityRepresentative[];
+  availableRangeItems: DataTypeRepresentative[];
 
   availableCardinalities: Cardinality[];
 
 }
 
-export function createCreateAssociationProfileDialogState(
+export function createCreateAttributeProfileDialogState(
   classesContext: ClassesContextType,
   graphContext: ModelGraphContextType,
   visualModel: VisualModel | null,
   language: string,
   entity: SemanticModelRelationship | SemanticModelRelationshipUsage,
-): CreateAssociationProfileDialogState {
+): CreateAttributeProfileDialogState {
   const models = [...graphContext.models.values()];
   const availableModels = representModels(visualModel, models);
   const writableModels = representModels(visualModel, selectWritableModels(models));
@@ -96,13 +96,13 @@ export function createCreateAssociationProfileDialogState(
 
   const entities = graphContext.aggregatorView.getEntities();
 
-  // Prepare list of associations and class profiles we can profile.
+  // Prepare list of Attributes and class profiles we can profile.
   const availableProfiles = sanitizeDuplicitiesInRepresentativeLabels(availableModels, [
     ...representRelationships(models,
       classesContext.relationships),
     ...representRelationshipProfiles(entities, models,
       classesContext.profiles.filter(item => isSemanticModelRelationshipUsage(item))),
-  ]).filter(isRepresentingAssociation);
+  ]).filter(isRepresentingAttribute);
   sortRepresentatives(language, availableProfiles);
 
   // Prepare list of class and class profiles we can profile.
@@ -112,6 +112,9 @@ export function createCreateAssociationProfileDialogState(
       classesContext.profiles.filter(item => isSemanticModelClassUsage(item))),
   ]);
   sortRepresentatives(language, availableProfiles);
+
+  const availableDataTypes = representDataTypes();
+  sortRepresentatives(language, availableDataTypes);
 
   // Find representation of entity to profile.
   const profileOf =
@@ -125,6 +128,8 @@ export function createCreateAssociationProfileDialogState(
   }
 
   const owlThing = representOwlThing();
+
+  const undefinedDataTyp = representUndefinedDataType();
 
   // Rest of this function depends of what we are profiling.
   const isProfilingProfile = profileOf.profileOfIdentifiers.length > 0;
@@ -141,8 +146,8 @@ export function createCreateAssociationProfileDialogState(
     const domainRepresentation = availableClassProfiles
       .find(item => item.identifier === domain?.concept) ?? owlThing;
 
-    const rangeRepresentation = availableClassProfiles
-      .find(item => item.identifier === range?.concept) ?? owlThing;
+    const rangeRepresentation = availableDataTypes
+      .find(item => item.identifier === range?.concept) ?? undefinedDataTyp;
 
     const availableCardinalities = [...representCardinalities()];
 
@@ -177,29 +182,29 @@ export function createCreateAssociationProfileDialogState(
       domainValidation: validationNoProblem(),
       domainCardinality,
       initialDomainCardinality: domainCardinality,
-      domainCardinalityValidation: validationNoProblem(),
       overrideDomainCardinality: false,
+      domainCardinalityValidation: validationNoProblem(),
       availableDomainItems: [owlThing, ...availableClassProfiles],
       range: rangeRepresentation,
       initialRange: rangeRepresentation,
       overrideRange: false,
       rangeValidation: validationNoProblem(),
       rangeCardinality,
-      initialRangeCardinality: rangeCardinality,
       overrideRangeCardinality: false,
+      initialRangeCardinality: rangeCardinality,
       rangeCardinalityValidation: validationNoProblem(),
-      availableRangeItems: [owlThing, ...availableClassProfiles],
+      availableRangeItems: [undefinedDataTyp, ...availableDataTypes],
       availableCardinalities: [representUndefinedCardinality(), ...representCardinalities()],
     });
   } else {
-    // We profile an association, little help for TypeScript as well.
+    // We profile an Attribute, little help for TypeScript as well.
     const { domain, range } = getDomainAndRange(entity as SemanticModelRelationship);
 
     const domainRepresentation = availableClassProfiles
       .find(item => item.identifier === domain?.concept) ?? owlThing;
 
-    const rangeRepresentation = availableClassProfiles
-      .find(item => item.identifier === range?.concept) ?? owlThing;
+    const rangeRepresentation = availableDataTypes
+      .find(item => item.identifier === range?.concept) ?? undefinedDataTyp;
 
     const domainCardinality = representCardinality(domain?.cardinality);
 
@@ -237,16 +242,16 @@ export function createCreateAssociationProfileDialogState(
       overrideRange: false,
       rangeValidation: validationNoProblem(),
       rangeCardinality,
-      initialRangeCardinality: rangeCardinality,
       overrideRangeCardinality: false,
+      initialRangeCardinality: rangeCardinality,
       rangeCardinalityValidation: validationNoProblem(),
-      availableRangeItems: [owlThing, ...availableClassProfiles],
+      availableRangeItems: [undefinedDataTyp, ...availableDataTypes],
       availableCardinalities: [representUndefinedCardinality(), ...representCardinalities()],
     });
   }
 }
 
-export interface CreateAssociationProfileDialogController extends EntityStateController, CreateEntityStateController, ProfileStateController {
+export interface CreateAttributeProfileDialogController extends EntityStateController, CreateEntityStateController, ProfileStateController {
 
   toggleNameOverride: () => void;
 
@@ -260,7 +265,7 @@ export interface CreateAssociationProfileDialogController extends EntityStateCon
 
   toggleDomainCardinalityOverride: () => void;
 
-  setRange: (value: EntityRepresentative) => void;
+  setRange: (value: DataTypeRepresentative) => void;
 
   toggleRangeOverride: () => void;
 
@@ -270,7 +275,7 @@ export interface CreateAssociationProfileDialogController extends EntityStateCon
 
 }
 
-export function useCreateAssociationProfileDialogController({ changeState }: DialogProps<CreateAssociationProfileDialogState>): CreateAssociationProfileDialogController {
+export function useCreateAttributeProfileDialogController({ changeState }: DialogProps<CreateAttributeProfileDialogState>): CreateAttributeProfileDialogController {
 
   return useMemo(() => {
 
@@ -305,7 +310,7 @@ export function useCreateAssociationProfileDialogController({ changeState }: Dia
       changeState((state) => validate({ ...state, overrideDomainCardinality: !state.overrideDomainCardinality }));
     };
 
-    const setRange = (value: EntityRepresentative) => {
+    const setRange = (value: DataTypeRepresentative) => {
       changeState((state) => validate({ ...state, range: value }));
     };
 
@@ -339,7 +344,7 @@ export function useCreateAssociationProfileDialogController({ changeState }: Dia
   }, [changeState]);
 }
 
-function validate(state: CreateAssociationProfileDialogState): CreateAssociationProfileDialogState {
+function validate(state: CreateAttributeProfileDialogState): CreateAttributeProfileDialogState {
 
   const domainValidation = state.initialDomain.identifier === state.domain.identifier || !state.overrideDomain ?
     validationNoProblem() : validationWarning("warning-change-domain");

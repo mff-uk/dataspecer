@@ -148,6 +148,12 @@ const translations: Record<string, string | Function> = {
   //
   "undefined": "Undefined",
   "change-in-profile": "Change in profile",
+  //
+  "warning": "Warning",
+  "warning-change-domain": "Change of the domain may introduce a breaking change in the profile.",
+  "warning-change-domain-cardinality": "Change of cardinality may introduce a breaking change in the profile.",
+  "warning-change-range": "Change of the range may introduce a breaking change in the profile.",
+  "warning-change-range-cardinality": "Change of cardinality may introduce a breaking change in the profile.",
 };
 
 export type TranslationFunction = (text: string, ...args: unknown[]) => string;

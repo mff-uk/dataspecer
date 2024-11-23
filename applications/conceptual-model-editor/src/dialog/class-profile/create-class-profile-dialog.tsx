@@ -1,12 +1,12 @@
 import { type DialogWrapper, type DialogProps } from "../dialog-api";
-import { t } from "../../application";
+import { configuration, t } from "../../application";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
 import { CreateClassProfileDialogState, useCreateClassProfileDialogController } from "./create-class-profile-dialog-controller";
 import { SelectModel } from "../class/components/select-model";
-import { SelectEntity } from "../class/components/select-entity";
 import { OverrideCheckbox } from "./components/checkbox-override";
 import { InputIri } from "../class/components/input-iri";
+import { languageStringToString } from "../../utilities/string";
 
 export const createCreateClassProfileDialog = (
   state: CreateClassProfileDialogState,
@@ -16,8 +16,8 @@ export const createCreateClassProfileDialog = (
     label: "create-class-profile-dialog.label",
     component: CreateClassProfileDialog,
     state,
-    confirmLabel: "create-class-dialog.btn-ok",
-    cancelLabel: "create-class-dialog.btn-cancel",
+    confirmLabel: "create-profile-dialog.btn-ok",
+    cancelLabel: "create-profile-dialog.btn-close",
     validate: validate,
     onConfirm,
     onClose: null,
@@ -31,6 +31,7 @@ function validate(state: CreateClassProfileDialogState): boolean {
 const CreateClassProfileDialog = (props: DialogProps<CreateClassProfileDialogState>) => {
   const controller = useCreateClassProfileDialogController(props);
   const state = props.state;
+  const languagePreferences = configuration().languagePreferences;
   return (
     <>
       <div
@@ -48,12 +49,11 @@ const CreateClassProfileDialog = (props: DialogProps<CreateClassProfileDialogSta
       </div>
       <div className="grid bg-slate-100 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
         <DialogDetailRow detailKey={t("modify-class-profile-dialog.profile-of")}>
-          <SelectEntity
-            language={state.language}
-            items={state.availableProfiles}
-            value={state.profileOf}
-            onChange={controller.setProfileOf}
-          />
+          <div>
+            {languageStringToString(
+              languagePreferences,
+              state.language, state.profileOf.label)}
+          </div>
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("create-class-dialog.name")} className="flex">
           <MultiLanguageInputForLanguageString

@@ -11,7 +11,7 @@ import { configuration } from "../../application";
 import { getModelIri } from "../../util/iri-utils";
 import { DialogProps } from "../dialog-api";
 import { createCreateEntityController, createEntityController, CreateEntityState, CreateEntityStateController, EntityState, EntityStateController } from "../utilities/entity-utilities";
-import { Cardinality, DataTypeRepresentative, EntityRepresentative, representCardinalities, representClasses, representDataTypes, representModels, representOwlThing, representUndefinedCardinality, representUndefinedClass, representUndefinedDataType, selectWritableModels, sortRepresentatives } from "../utilities/dialog-utilities";
+import { Cardinality, DataTypeRepresentative, EntityRepresentative, representCardinalities, representClasses, representDataTypes, representModels, representOwlThing, representUndefinedCardinality, selectWritableModels, sortRepresentatives } from "../utilities/dialog-utilities";
 
 export interface CreateAttributeDialogState extends EntityState, CreateEntityState {
 

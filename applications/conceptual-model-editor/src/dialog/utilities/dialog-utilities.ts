@@ -151,6 +151,10 @@ export interface RelationshipRepresentative extends EntityRepresentative {
 
 }
 
+export function isRepresentingAssociation(representation: RelationshipRepresentative): boolean {
+  return !isRepresentingAttribute(representation);
+}
+
 export function isRepresentingAttribute(representation: RelationshipRepresentative): boolean {
   const range = representation.range;
   // We have multiple ways to detect an attribute.
@@ -390,8 +394,8 @@ export function representCardinalities(): Cardinality[] {
   return CARDINALITIES;
 };
 
-export function representCardinality(cardinality: [number, number | null] | undefined): Cardinality {
-  if (cardinality === undefined) {
+export function representCardinality(cardinality: [number, number | null] | null | undefined): Cardinality {
+  if (cardinality === undefined || cardinality === null) {
     return representUndefinedCardinality();
   }
   const [from, to] = cardinality;
