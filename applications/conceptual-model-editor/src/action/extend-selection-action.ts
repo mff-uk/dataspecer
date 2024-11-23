@@ -5,7 +5,7 @@ import { sourceModelOfEntity } from "../util/model-utils";
 import { Entity, EntityModel } from "@dataspecer/core-v2";
 import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship, SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticModelClassUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { isVisualNode, isVisualProfileRelationship, VisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualNode, isVisualProfileRelationship, isVisualRelationship, VisualEntity, VisualModel } from "@dataspecer/core-v2/visual-model";
 import { Selections } from "./filter-selection-action";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 
@@ -233,14 +233,20 @@ function filterExtensionUsingSemanticModelFilters(extension: SelectionExtension,
 
 /**
  * @param visualModel
- * @param semanticEntityId
+ * @param entityId
  * @param extendedNode TODO: For future if 1 semantic entity could be represented by multiple visual ones
  * @param isExtendedNodeVisualId TODO: For future if 1 semantic entity could be represented by multiple visual ones
- * @returns Returns true if given {@link semanticEntityId} can be found in given {@link visualModel}. False otherwise.
+ * @returns Returns true if given {@link entityId} can be found in given {@link visualModel}. False otherwise.
  */
-export function isEntityInVisualModel(visualModel: VisualModel, semanticEntityId: string, extendedNode?: string, isExtendedNodeVisualId?: boolean): boolean {
+export function isEntityInVisualModel(visualModel: VisualModel, entityId: string, isEntityIdVisualId: boolean, extendedNode?: string, isExtendedNodeVisualId?: boolean): boolean {
     // Maybe issues with edges, which are defined by both ends being in visual model, but I think that was changed in cme-v2 (+ currently this method is only for nodes).
-    const visualEntity = visualModel.getVisualEntityForRepresented(semanticEntityId);
+    let visualEntity: VisualEntity | null;
+    if(isEntityIdVisualId) {
+        visualEntity = visualModel.getVisualEntity(entityId);
+    }
+    else {
+        visualEntity = visualModel.getVisualEntityForRepresented(entityId);
+    }
     const isInVisualModel = visualEntity !== null;
     return isInVisualModel;
 }
@@ -282,7 +288,7 @@ function addToExtensionIfSatisfiesVisibilityCondition(extension: SelectionExtens
     // TODO: If in future there will be multiple visual entities per one semantic, this is the only place you need to change
     //       (meaning from here to the end of method and the isEntityInVisualModel method) -
     //       you need to add only the visual entities where the extendedNode identifier from visual model is either a source or a target
-    const isClassInVisualModel = isEntityInVisualModel(visualModel, classIdToAdd, extendedNode, isExtendedNodeVisualId);
+    const isClassInVisualModel = isEntityInVisualModel(visualModel, classIdToAdd, false, extendedNode, isExtendedNodeVisualId);
     const isProfileClassEdge = isEdgeWhichAddedClassClassProfileEdge(edgeWhichAddedClass);
     let isEdgeInVisualModel = false;
     if(isProfileClassEdge) {
@@ -310,7 +316,7 @@ function addToExtensionIfSatisfiesVisibilityCondition(extension: SelectionExtens
         }
     }
     else {
-        isEdgeInVisualModel = isEntityInVisualModel(visualModel, edgeWhichAddedClass, extendedNode, isExtendedNodeVisualId);
+        isEdgeInVisualModel = isEntityInVisualModel(visualModel, edgeWhichAddedClass, false, extendedNode, isExtendedNodeVisualId);
     }
     if(visibilityFilter === "ONLY-VISIBLE" && isClassInVisualModel && isEdgeInVisualModel) {
         if(isExtendedNodeVisualId) {
@@ -711,7 +717,7 @@ async function extendThroughGeneralizationChildren(nodeSelection: NodeSelection,
 ////////////////////////////////////////
 ////////////////////////////////////////
 
-function getSemanticClassIdentifier(nodeIdentifier: string, isNodeIdentifierFromVisualModel: boolean, visualModel: VisualModel | null): string | null {
+export function getSemanticClassIdentifier(nodeIdentifier: string, isNodeIdentifierFromVisualModel: boolean, visualModel: VisualModel | null): string | null {
     let semanticClassId = nodeIdentifier;
     if(isNodeIdentifierFromVisualModel) {
         const visualEntity = visualModel?.getVisualEntity(nodeIdentifier);
@@ -723,6 +729,30 @@ function getSemanticClassIdentifier(nodeIdentifier: string, isNodeIdentifierFrom
     }
 
     return semanticClassId;
+}
+
+
+export function getSemanticEdgeIdentifier(edgeIdentifier: string, isEdgeIdentifierFromVisualModel: boolean, visualModel: VisualModel | null): string | null | "CLASS-PROFILE-EDGE" {
+    let semanticEdgeId = edgeIdentifier;
+    if(isEdgeIdentifierFromVisualModel) {
+        const visualEntity = visualModel?.getVisualEntity(edgeIdentifier);
+        if(visualEntity === null || visualEntity === undefined) {
+            console.warn("Entity is null");
+            return null;
+        }
+        if(isVisualProfileRelationship(visualEntity)) {
+            return "CLASS-PROFILE-EDGE";
+        }
+        if(!isVisualRelationship(visualEntity)) {
+            console.warn("Entity is not visual relationship");
+            console.warn(visualEntity);
+            return null;
+        }
+
+        semanticEdgeId = visualEntity.representedRelationship;
+    }
+
+    return semanticEdgeId;
 }
 
 /**

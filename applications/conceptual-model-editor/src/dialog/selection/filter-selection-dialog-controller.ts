@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useMemo, useState } from "react";
 import { type DialogProps } from "../dialog-api";
-import { Selections, TotalFilter } from "../../action/filter-selection-action";
+import { Selections, SelectionsWithIdInfo, TotalFilter } from "../../action/filter-selection-action";
 
 
 const TOTAL_FILTER_TO_CHECKBOX_NAME_MAP: Record<TotalFilter, string> = {
@@ -20,7 +20,7 @@ type TotalFilterData = {
 }
 
 export interface FilterSelectionState {
-    selections: Selections,
+    selections: SelectionsWithIdInfo,
     setSelectionsInDiagram: (newSelections: Selections) => void;
     filters: TotalFilterData[];
 }
@@ -42,7 +42,7 @@ const createTotalFilterDataStateAndSaveIt = (checkboxStates: TotalFilterData[], 
   return filterData;
 };
 
-export function createFilterSelectionState(selections: Selections, setSelectionsInDiagram: (newSelections: Selections) => void): FilterSelectionState {
+export function createFilterSelectionState(selections: SelectionsWithIdInfo, setSelectionsInDiagram: (newSelections: Selections) => void): FilterSelectionState {
   const filters: TotalFilterData[] = [];
   createTotalFilterDataStateAndSaveIt(filters, "NORMAL-CLASS");
   createTotalFilterDataStateAndSaveIt(filters, "PROFILE-CLASS");
@@ -59,7 +59,7 @@ export function createFilterSelectionState(selections: Selections, setSelections
 }
 
 export interface CreateFilterSelectionControllerType {
-    setSelections: (next: Selections) => void;
+    setSelections: (next: SelectionsWithIdInfo) => void;
     setFilterActivness: (next: {index: number, isActive: boolean}) => void;
 }
 
@@ -67,11 +67,12 @@ export interface CreateFilterSelectionControllerType {
 export function useFilterSelectionController({ state, changeState }: DialogProps<FilterSelectionState>): CreateFilterSelectionControllerType {
   return useMemo(() => {
 
-    const setSelections = (next: Selections) => {
+    const setSelections = (next: SelectionsWithIdInfo) => {
       // Set Removes duplicates
       next = {
         nodeSelection: [...new Set(next.nodeSelection)],
         edgeSelection: [...new Set(next.edgeSelection)],
+        areVisualModelIdentifiers: next.areVisualModelIdentifiers,
       };
       changeState({ ...state, selections: next });
     };

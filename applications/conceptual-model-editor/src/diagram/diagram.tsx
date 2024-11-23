@@ -27,6 +27,7 @@ import { EdgeType, type Node as ApiNode } from "./diagram-api";
 import { ClassProfileEdge, ClassProfileEdgeName } from "./edge/class-profile-edge";
 import { GeneralizationEdge, GeneralizationEdgeName } from "./edge/generalization-edge";
 import { useActions } from "../action/actions-react-binding";
+import { SelectionsWithIdInfo } from "../action/filter-selection-action";
 
 export function Diagram(props: { diagram: UseDiagramType }) {
   // We use ReactFlowProvider as otherwise use of ReactFlow hooks,
@@ -55,9 +56,10 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
   // TODO: For now
   const actions = useActions();
   // TODO: For now ... put into controller or something
-  const selections = {
+  const selections: SelectionsWithIdInfo = {
     nodeSelection: controller.nodes.filter(node => node.selected === true).map(node => node.id),
-    edgeSelection: controller.edges.filter(edge => edge.selected === true).map(edge => edge.id)
+    edgeSelection: controller.edges.filter(edge => edge.selected === true).map(edge => edge.id),
+    areVisualModelIdentifiers: true,
   };
 
   return (

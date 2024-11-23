@@ -7,7 +7,7 @@ import { createFilterSelectionState, FilterSelectionState, useFilterSelectionCon
 import { stat } from "fs";
 import { ReactFlowInstance } from "@xyflow/react";
 import { EdgeType, NodeType } from "../../diagram/diagram-controller";
-import { Selections, TotalFilter } from "../../action/filter-selection-action";
+import { Selections, SelectionsWithIdInfo, TotalFilter } from "../../action/filter-selection-action";
 
 
 
@@ -37,7 +37,7 @@ type TotalFilterData = {
 
 export const createFilterSelectionDialog = (
     onConfirm: (state: FilterSelectionState) => void | null,
-    selections: Selections,
+    selections: SelectionsWithIdInfo,
     setSelectionInDiagram: (selections: Selections) => void,
   ): DialogWrapper<FilterSelectionState> => {
     return {

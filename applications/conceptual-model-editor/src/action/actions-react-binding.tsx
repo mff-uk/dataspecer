@@ -30,12 +30,20 @@ import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
 import { isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel, Waypoint } from "@dataspecer/core-v2/visual-model";
 import { openCreateConnectionDialogAction } from "./open-create-connection";
 import { placePositionOnGrid, ReactflowDimensionsConstantEstimator } from "@dataspecer/layout";
-import { reductionTotalFilterAction, Selections, TotalFilter } from "./filter-selection-action";
+import { reductionTotalFilterAction, Selections, SelectionsWithIdInfo, TotalFilter } from "./filter-selection-action";
 import { extendSelectionAction, ExtensionType, NodeSelection, VisibilityFilter } from "./extend-selection-action";
 import { ExtendSelectionState } from "../dialog/selection/extend-selection-dialog-controller";
 import { createExtendSelectionDialog } from "../dialog/selection/extend-selection-dialog";
 import { FilterSelectionState } from "../dialog/selection/filter-selection-dialog-controller";
 import { createFilterSelectionDialog } from "../dialog/selection/filter-selection-dialog";
+
+
+// TODO: Put into utils.ts or somewhere?
+const setSelectionsInDiagram = (selectionsToSetWith: Selections, diagram: UseDiagramType) => {
+  diagram.actions().setSelectedNodes(selectionsToSetWith.nodeSelection);
+  diagram.actions().setSelectedEdges(selectionsToSetWith.edgeSelection);
+}
+
 
 export interface ActionsContextType {
 
@@ -92,7 +100,7 @@ export interface ActionsContextType {
   /**
    * Open dialog to filter current selection.
    */
-  openFilterSelectionDialog: (selections: Selections) => void;
+  openFilterSelectionDialog: (selections: SelectionsWithIdInfo) => void;
 
 
   /**
@@ -104,7 +112,7 @@ export interface ActionsContextType {
                     semanticModelFilter: Record<string, boolean> | null) => Promise<Selections>;
 
 
-  reductionTotalFilter: (selections: Selections,
+  reductionTotalFilter: (selections: SelectionsWithIdInfo,
                           allowedClasses: TotalFilter[],
                           visibilityFilter: VisibilityFilter,
                           semanticModelFilter: Record<string, boolean> | null) => Selections;
@@ -333,17 +341,16 @@ function createActionsContext(
 
 
   const openExtendSelectionDialog = (selections: Selections) => {
-    const setSelectionsInDiagram = (selectionsToSetWith: Selections) => {
-      diagram.actions().setSelectedNodes(selectionsToSetWith.nodeSelection);
-      diagram.actions().setSelectedEdges(selectionsToSetWith.edgeSelection);
-    }
-
     const onConfirm = (state: ExtendSelectionState) => {
-      setSelectionsInDiagram(state.selections);
+      setSelectionsInDiagram(state.selections, diagram);
     };
 
     const onClose = () => {
-      setSelectionsInDiagram(selections);
+      setSelectionsInDiagram(selections, diagram);
+    };
+
+    const setSelections = (selectionsToSetWith: Selections) => {
+      setSelectionsInDiagram(selectionsToSetWith, diagram);
     };
 
 
@@ -352,11 +359,11 @@ function createActionsContext(
                                                     onClose,
                                                     true,
                                                     selections,
-                                                    setSelectionsInDiagram));
+                                                    setSelections));
   };
 
 
-  const openFilterSelectionDialog = (selections: Selections) => {
+  const openFilterSelectionDialog = (selections: SelectionsWithIdInfo) => {
     const onConfirm = (state: FilterSelectionState) => {
       const relevantTotalFilterTypes = state.filters.map(checkboxState => {
         if(checkboxState.checked) {
@@ -365,14 +372,12 @@ function createActionsContext(
         return null;
     }).filter(checkbox => checkbox !== null);
 
-      const reduction = reductionTotalFilterAction(state.selections, relevantTotalFilterTypes, "ONLY-VISIBLE", null, graph, notifications, classes);
-      diagram.actions().setSelectedNodes(reduction.nodeSelection);
-      diagram.actions().setSelectedEdges(reduction.edgeSelection);
+      const reduction = reductionTotalFilter(state.selections, relevantTotalFilterTypes, "ONLY-VISIBLE", null);
+      setSelectionsInDiagram(reduction, diagram);
     };
 
     const setSelections = (selections: Selections) => {
-      diagram.actions().setSelectedNodes(selections.nodeSelection);
-      diagram.actions().setSelectedEdges(selections.edgeSelection);
+      setSelectionsInDiagram(selections, diagram);
     };
     dialogs?.openDialog(createFilterSelectionDialog(
                                                     onConfirm,
@@ -390,7 +395,7 @@ function createActionsContext(
   };
 
 
-  const reductionTotalFilter = (selections: Selections,
+  const reductionTotalFilter = (selections: SelectionsWithIdInfo,
                                 allowedClasses: TotalFilter[],
                                 visibilityFilter: VisibilityFilter,
                                 semanticModelFilter: Record<string, boolean> | null) => {
