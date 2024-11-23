@@ -9,6 +9,7 @@ export const SelectEntity = (props: {
   items: EntityRepresentative[],
   value: EntityRepresentative,
   onChange: (value: EntityRepresentative) => void,
+  disabled?: boolean,
 }) => {
 
   const onChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -27,6 +28,7 @@ export const SelectEntity = (props: {
       className="w-full"
       onChange={onChange}
       value={props.value.identifier}
+      disabled={props.disabled}
     >
       {props.items.map(item => (
         <option key={item.identifier} value={item.identifier}>
