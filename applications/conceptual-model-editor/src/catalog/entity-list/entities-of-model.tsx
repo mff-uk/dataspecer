@@ -198,6 +198,7 @@ export const EntitiesOfModel = (props: {
             <div className="flex flex-row justify-between">
                 <h4>Ⓜ {displayName}</h4>
                 <div className="flex flex-row">
+                    {renderAddButton(actions, entityType, model)}
                     <ExpandModelButton isOpen={listCollapsed} onClick={() => setListCollapsed(!listCollapsed)} />
                 </div>
             </div>
@@ -219,7 +220,6 @@ export const EntitiesOfModel = (props: {
                         />
                     ))}
                     {renderExternalSemanticModelSearch(entityType, model)}
-                    {renderAddButton(actions, entityType, model)}
                 </ul>
             )}
         </li>
