@@ -9,6 +9,7 @@ export const SelectDataType = (props: {
   items: DataTypeRepresentative[],
   value: DataTypeRepresentative,
   onChange: (value: DataTypeRepresentative) => void,
+  disabled?: boolean,
 }) => {
 
   const onChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -27,6 +28,7 @@ export const SelectDataType = (props: {
       className="w-full"
       onChange={onChange}
       value={props.value.identifier}
+      disabled={props.disabled}
     >
       {props.items.map(item => (
         <option key={item.identifier} value={item.identifier}>
