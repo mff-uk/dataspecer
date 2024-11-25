@@ -25,18 +25,15 @@ export const getDomainAndRange = <EndType extends { iri: string | null }>(
 ): DomainAndRange<EndType> => {
     const [first, second] = relationship.ends;
 
-    const bothEndsAreUndefined = first === undefined || second === undefined;
-    if (bothEndsAreUndefined) {
+    // We use the end's iri to determine which one denotes the range.
+    const firstIri = first?.iri ?? null;
+    const secondIri = second?.iri ?? null;
+
+    if (firstIri === null && secondIri === null) {
         return emptyDomainAndRange();
     }
 
-    const bothEndsHaveIri = first.iri !== null && second.iri !== null;
-    if (bothEndsHaveIri) {
-        return emptyDomainAndRange();
-    }
-
-    if (first.iri !== null) {
-        // Only the first is null.
+    if (firstIri !== null) {
         return {
             domain: second,
             domainIndex: 1,
@@ -44,7 +41,6 @@ export const getDomainAndRange = <EndType extends { iri: string | null }>(
             rangeIndex: 0,
         };
     } else {
-        // Only the second in null.
         return {
             domain: first,
             domainIndex: 0,
@@ -110,8 +106,8 @@ export const cardinalityToHumanLabel = (cardinality: [number, number | null] | u
  */
 export const bothEndsHaveAnIri = (entity: SemanticModelRelationship | SemanticModelRelationshipUsage) => {
     if (isSemanticModelRelationship(entity)) {
-        const [end1, end2] = entity.ends;
-        return end1?.iri && end1.iri.length > 0 && end2?.iri && end2.iri.length > 0;
+        const [first, second] = entity.ends;
+        return first?.iri && first.iri.length > 0 && second?.iri && second.iri.length > 0;
     } else {
         return false;
     }
