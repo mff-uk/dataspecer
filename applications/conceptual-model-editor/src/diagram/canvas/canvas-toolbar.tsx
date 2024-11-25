@@ -4,25 +4,26 @@ import { useStore } from "@xyflow/react";
 
 import { DiagramContext } from "../diagram-controller";
 import { CanvasToolbarPortal } from "./canvas-toolbar-portal";
-import { CanvasToolbarProps, viewportStoreSelector } from "./canvas-toolbar-props";
+import { CanvasToolbarProps as CanvasToolbarGeneralProps, viewportStoreSelector } from "./canvas-toolbar-props";
+import { computePosition } from "../edge/edge-utilities";
 
 
 // Inspired by edge-toolbar.ts
 
 /**
- * As we can not render edge menu on a single place, like node menu, we
+ * As we can not render menu on a single place, like node menu, we
  * extracted the menu into a separate component.
  */
-export function CanvasToolbar({ value }: { value: CanvasToolbarProps | null }) {
+export function CanvasToolbarGeneral({ value }: { value: CanvasToolbarGeneralProps | null }) {
   const context = useContext(DiagramContext);
-  const { x, y, zoom } = useStore(viewportStoreSelector, shallow);      // We actually have to call this?! Even if we don't use the data.
+  const { x, y, zoom } = useStore(viewportStoreSelector, shallow);
   if (value === null) {
     return null;
   }
 
   const onCanvasMenuAddClassDialog = () => {
     value.closeCanvasToolbar();
-    context?.callbacks().onCanvasOpenCreateClassDialog(value.sourceClassNode, value.positionToPlaceClassOn);
+    context?.callbacks().onCanvasOpenCreateClassDialog(value.sourceClassNode, value.abosluteFlowPosition);
   };
   const onCanvasMenuAddClassDialogAndThenOpenCreateConnectionDialog = () => {
     value.closeCanvasToolbar();
@@ -33,12 +34,12 @@ export function CanvasToolbar({ value }: { value: CanvasToolbarProps | null }) {
     alert("Open list of classes and choose class which you want to be the target class of connection.");
   };
 
+  const position = computePosition(value.abosluteFlowPosition.x, value.abosluteFlowPosition.y, { x, y, zoom });
 
   return (
     <>
       <CanvasToolbarPortal>
-        {/* There is no need for conversion like in case of edge toolbar, we can use the given coordinates */}
-        <div className="canvas-toolbar" style={{ transform: `translate(${value.x}px, ${value.y}px)` }}>
+        <div className="canvas-toolbar" style={{ transform: `translate(${position.x}px, ${position.y}px)` }}>
           <ul className="canvas-toolbar">
             <li>
               <button onClick={onCanvasMenuAddClassDialog}>➕</button>

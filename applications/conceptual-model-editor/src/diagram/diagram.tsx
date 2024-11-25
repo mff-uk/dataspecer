@@ -26,7 +26,7 @@ import { AlignmentComponent } from "./features/alignment-viewportal";
 import { EdgeType, type Node as ApiNode } from "./diagram-api";
 import { ClassProfileEdge, ClassProfileEdgeName } from "./edge/class-profile-edge";
 import { GeneralizationEdge, GeneralizationEdgeName } from "./edge/generalization-edge";
-import { CanvasToolbar } from "./canvas/canvas-toolbar";
+import { CanvasToolbarGeneral } from "./canvas/canvas-toolbar";
 
 export function Diagram(props: { diagram: UseDiagramType }) {
   // We use ReactFlowProvider as otherwise use of ReactFlow hooks,
@@ -109,7 +109,7 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
           : null
         }
         {controller.canvasToolbar
-        ? <CanvasToolbar value={controller.canvasToolbar} />
+        ? <CanvasToolbarGeneral value={controller.canvasToolbar} />
         : null}
         <AlignmentComponent {...controller.alignmentController}></AlignmentComponent>
       </DiagramContext.Provider>

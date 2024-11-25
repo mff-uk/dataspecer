@@ -144,7 +144,7 @@ export interface DiagramActions {
   /**
    * Open the canvas toolbar. The toolbar appears when user drags edge to empty space on canvas.
    */
-  openCanvasToolbar(sourceClassDiagramNode: Node, relativePositionToViewport: Position, positionToPlaceClassOn: Position): void;
+  openCanvasToolbar(sourceClassDiagramNode: Node, relativePositionToViewport: Position, absoluteFlowPosition: Position): void;
 }
 
 export type ViewportDimensions = {
@@ -355,7 +355,7 @@ interface DiagramNodes {
   /**
    * This property stores the method, which is called when user tries to create new class from diagram's canvas menu (toolbar).
    */
-  onCanvasOpenCreateClassDialog: (diagramNode: Node, positionToPlaceClassOn: Position) => void;
+  onCanvasOpenCreateClassDialog: (diagramNode: Node, abosluteFlowPosition: Position) => void;
 
   /**
    * Called when there is a change in node's positions in result

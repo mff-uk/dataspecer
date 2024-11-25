@@ -13,11 +13,11 @@ import "./canvas-toolbar.css";
  */
 export interface CanvasToolbarProps {
 
-  x: number;
+  relativePositionToViewportX: number;
 
-  y: number;
+  relativePositionToViewportY: number;
 
-  positionToPlaceClassOn: Position;
+  abosluteFlowPosition: Position;
 
   sourceClassNode: ApiNode;
 

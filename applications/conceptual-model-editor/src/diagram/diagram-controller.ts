@@ -52,7 +52,7 @@ type ReactFlowContext = ReactFlowInstance<NodeType, EdgeType>;
 
 type OpenEdgeContextMenuHandler = (edge: EdgeType, x: number, y: number) => void;
 
-type OpenCanvasContextMenuHandler = (sourceClassNode: ApiNode, x: number, y: number,  positionToPlaceClassOn: Position) => void;
+type OpenCanvasContextMenuHandler = (sourceClassNode: ApiNode, relativePositionToViewportX: number, relativePositionToViewportY: number,  abosluteFlowPosition: Position) => void;
 
 /**
  * We use context to access to callbacks to diagram content, like nodes and edges.
@@ -347,9 +347,9 @@ const createOpenEdgeToolbar = (setEdgeToolbar: React.Dispatch<React.SetStateActi
 };
 
 const createOpenCanvasToolbar = (setCanvasToolbar: React.Dispatch<React.SetStateAction<CanvasToolbarProps | null>>): OpenCanvasContextMenuHandler => {
-  return (sourceClassNode: ApiNode, x: number, y: number, positionToPlaceClassOn: Position) => {
+  return (sourceClassNode: ApiNode, relativePositionToViewportX: number, relativePositionToViewportY: number, abosluteFlowPosition: Position) => {
     const closeCanvasToolbar = () => setCanvasToolbar(null);
-    setCanvasToolbar({ sourceClassNode, x, y, closeCanvasToolbar, positionToPlaceClassOn });
+    setCanvasToolbar({ sourceClassNode, relativePositionToViewportX, relativePositionToViewportY, closeCanvasToolbar, abosluteFlowPosition });
   };
 };
 
@@ -490,9 +490,9 @@ const createActions = (
     renderToSvgString() {
       return diagramContentAsSvg(reactFlow.getNodes());
     },
-    openCanvasToolbar(sourceClassNode: ApiNode, relativePositionToViewport: Position, positionToPlaceClassOn: Position) {
-      console.log("openCanvasToolbar", {sourceClassNode, relativePositionToViewport, positionToPlaceClassOn});
-      context?.onOpenCanvasContextMenu(sourceClassNode, relativePositionToViewport.x, relativePositionToViewport.y, positionToPlaceClassOn);
+    openCanvasToolbar(sourceClassNode: ApiNode, relativePositionToViewport: Position, abosluteFlowPosition: Position) {
+      console.log("openCanvasToolbar", {sourceClassNode, relativePositionToViewport, abosluteFlowPosition});
+      context?.onOpenCanvasContextMenu(sourceClassNode, relativePositionToViewport.x, relativePositionToViewport.y, abosluteFlowPosition);
     },
   };
 };
