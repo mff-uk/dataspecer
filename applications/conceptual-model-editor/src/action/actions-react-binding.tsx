@@ -31,6 +31,12 @@ import { removeFromVisualModelAction } from "./remove-from-visual-model";
 import { removeFromSemanticModelAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
 import { openCreateAssociationDialogAction } from "./open-create-association-dialog";
+import { changeSelectionVisibilityAction } from "./change-selection-visibility";
+import { removeSelectionFromSemanticModelAction } from "./remove-selection-from-semantic-model";
+import { changeSemanticModelVisibilityAction } from "./change-semantic-model-visibility";
+import { createNewVisualModelFromSelectionAction } from "./create-new-visual-model-from-selection";
+import { addNodeNeighborhoodToVisualModelAction } from "./add-node-neighborhood-to-visual-model";
+import { profileSelectionAction } from "./create-profile-of-selection";
 
 const LOG = createLogger(import.meta.url);
 
@@ -69,6 +75,19 @@ interface VisualModelActions {
 
   removeFromVisualModel: (identifier: string) => void;
 
+  //
+  changeSelectionVisibility: (selection: string[], visibility: boolean) => void;
+
+  deleteSelectionFromSemanticModel: (selection: string[]) => void;
+  //
+
+  createNewVisualModelFromSelection: (selection: string[], keepPositionsFromCurrentVisualModel: boolean) => void;
+
+  //
+  changeSemanticModelVisibility: (semanticModelIdentifier: string, visibility: boolean) => void;
+
+  addNodeNeighborhoodToVisualModel: (nodeIdentifier: string) => void;
+
 }
 
 export interface ActionsContextType extends DialogActions, VisualModelActions {
@@ -105,6 +124,16 @@ const noOperationActionsContext = {
   //
   removeFromVisualModel: noOperation,
   centerViewportToVisualEntity: noOperation,
+  //
+  changeSelectionVisibility: noOperation,
+  deleteSelectionFromSemanticModel: noOperation,
+
+  //
+  createNewVisualModelFromSelection: noOperation,
+
+  //
+  changeSemanticModelVisibility: noOperation,
+  addNodeNeighborhoodToVisualModel: noOperation,
   diagram: null,
 };
 
@@ -386,6 +415,26 @@ function createActionsContext(
     centerViewportToVisualEntityAction(notifications, graph, diagram, model, identifier);
   };
 
+  const changeSelectionVisibility = (selection: string[], visibility: boolean) => {
+    changeSelectionVisibilityAction(selection, notifications, graph, visibility);
+  };
+
+  const deleteSelectionFromSemanticModel = (selection: string[]) => {
+    removeSelectionFromSemanticModelAction(selection, notifications, graph);
+  };
+
+  const changeSemanticModelVisibility = (semanticModelIdentifier: string, visibility: boolean) => {
+    changeSemanticModelVisibilityAction(semanticModelIdentifier, graph, notifications, visibility);
+  };
+
+  const addNodeNeighborhoodToVisualModel = (nodeIdentifier: string) => {
+    addNodeNeighborhoodToVisualModelAction(nodeIdentifier, graph, notifications);
+  };
+
+  const createNewVisualModelFromSelection = (selectionIdentifiers: string[], keepPositionsFromCurrentVisualModel: boolean) => {
+    createNewVisualModelFromSelectionAction(selectionIdentifiers, keepPositionsFromCurrentVisualModel, graph, notifications);
+  };
+
   // Prepare and set diagram callbacks.
 
   const callbacks: DiagramCallbacks = {
@@ -429,6 +478,36 @@ function createActionsContext(
     onSelectionDidChange: (nodes, edges) => {
       console.log("Application.onSelectionDidChange", { nodes, edges });
     },
+    onAnchorNode: (diagramNode) => {
+      alert("Anchoring node");
+    },
+    onShowSelectionActions: () => {
+      // const nodeSelection = diagram.actions().getSelectedNodes().map(node => node.externalIdentifier);
+      // const edgeSelection = diagram.actions().getSelectedEdges().map(edge => edge.externalIdentifier);
+      // // console.info("Removing selection from view: ", [selection]);
+      // // changeSelectionVisibilityAction(selection, notifications, graph, false);
+      // //
+      // // console.info("Removing selection from view: ", [selection]);
+      // // removeSelectionFromSemanticModelAction(selection, notifications, graph);
+      // console.info("Create profile of selection: ", [nodeSelection]);
+      // withVisualModel(notifications, graph, (visualModel) => {
+      //   profileSelectionAction(nodeSelection, edgeSelection, classes, graph, visualModel, notifications, options);
+      // });
+
+      alert("TODO: currently does nothing (In future - Showing selection actions)");
+    },
+    onLayoutSelection: () => {
+      alert("TODO: currently does nothing (In future - Layouting selection)");
+    },
+    onCreateGroup: () => {
+      alert("TODO: currently does nothing (In future - Creating group)");
+    },
+    onShowExpandSelection: () => {
+      alert("TODO: currently does nothing (In future - Showing expansion dialog)");
+    },
+    onShowFilterSelection: () => {
+      alert("TODO: currently does nothing (In future - Showing filter dialog)");
+    }
 
   };
 
@@ -452,7 +531,13 @@ function createActionsContext(
     //
     deleteFromSemanticModel,
     centerViewportToVisualEntity,
-    //
+
+    changeSelectionVisibility,
+    deleteSelectionFromSemanticModel,
+    createNewVisualModelFromSelection,
+    changeSemanticModelVisibility,
+    addNodeNeighborhoodToVisualModel,
+
     diagram,
   };
 

@@ -355,6 +355,12 @@ interface DiagramNodes {
    */
   onChangeNodesPositions: (changes: { [nodeIdentifier: string]: Position }) => void;
 
+  /**
+   * (Un)Anchors given node {@link diagramNode}
+   * @param diagramNode is the node to be (un)anchored
+   */
+  onAnchorNode: (diagramNode: Node) => void;
+
 }
 
 /**
@@ -390,6 +396,13 @@ interface DiagramSelection {
    */
   onSelectionDidChange: (nodes: string[], edges: string[]) => void;
 
+
+  // TODO: Document (if these methods will be "approved")
+  onShowSelectionActions: () => void;
+  onLayoutSelection: () => void;
+  onCreateGroup: () => void;
+  onShowExpandSelection: () => void;
+  onShowFilterSelection: () => void;
 }
 
 /**

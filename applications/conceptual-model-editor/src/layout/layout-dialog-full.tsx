@@ -42,6 +42,7 @@ export const useLayoutDialog = () => {
                     console.info(value.identifier);
                     console.info(value);
                     activeVisualModel?.updateVisualEntity(value.identifier, value);
+                    return;
                 }
 
                 if (!isVisualNode(value)) {
@@ -51,7 +52,7 @@ export const useLayoutDialog = () => {
                 const represented = aggregatorView.getEntities()[value.representedEntity]?.rawEntity;
                 if (isSemanticModelClass(represented)) {
                     actions.addClassToVisualModel(value.model, value.representedEntity, value.position);
-                } if (isSemanticModelClassUsage(represented)) {
+                } else if (isSemanticModelClassUsage(represented)) {
                     actions.addClassProfileToVisualModel(value.model, value.representedEntity, value.position);
                 } else {
                     throw new Error("Unexpected node type.");
