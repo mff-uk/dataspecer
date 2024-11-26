@@ -94,7 +94,7 @@ function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   const reactFlow = useReactFlow();
   const onShowDetail = (event: React.MouseEvent) => {
     const absoluteFlowPosition = reactFlow.screenToFlowPosition({x: event.clientX, y: event.clientY});
-    context?.onOpenNodeSecondaryToolbarMenu(props.data, event.clientX, event.clientY, absoluteFlowPosition);
+    context?.onOpenCanvasContextMenu(props.data, event.clientX, event.clientY, absoluteFlowPosition, "NODE-SECONDARY-TOOLBAR");
     // context?.callbacks().onShowNodeDetail(props.data);
   };
   const onEdit = () => context?.callbacks().onEditNode(props.data);
