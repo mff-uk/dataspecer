@@ -13,7 +13,7 @@ export const changeSelectionVisibilityAction = (nodeSelection: string[], edgeSel
                                                 graph: ModelGraphContextType,
                                                 visibility: boolean): void => {
     // TODO: Since I concat, maybe I don't need to distinguish between edges and nodes, so I can just pass in 1 argument named selection
-    for(const selectedEntityId of nodeSelection.concat(edgeSelection)) {
+    for(const selectedEntityId of edgeSelection.concat(nodeSelection)) {
         // TODO: Again we can delete all at once instead of removing sequentially
         if(visibility === false) {
             removeFromVisualModelAction(notifications, graph, selectedEntityId);

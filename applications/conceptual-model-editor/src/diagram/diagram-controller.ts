@@ -75,7 +75,7 @@ interface DiagramContextType {
 
   setLastSelected: (newLastSelected: string | null) => void;
 
-  getNumberOfSelectedNodes: () => number;
+  shouldShowSelectionToolbar: () => boolean;
 }
 
 export const DiagramContext = createContext<DiagramContextType | null>(null);
@@ -145,26 +145,30 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
 
   const alignment = useAlignmentController({ reactFlowInstance: reactFlow });
 
-  const [last, setLast] = useState<string | null>(null);
+  const lastSelected = useRef<string | null>(null);
 
   // TODO: Rewrite into methods
   // const lastSelectedState = useCallback(createLastSelectedeHandler(last, setLast), [last, setLast]);
-  const setLastSelected = useCallback((newLast: string | null) => {
-    setLast(newLast);
-  }, [setLast]);
-  const getLastSelected = useCallback(() => last, [last]);
+  const getLastSelected = useCallback(() => lastSelected.current, [lastSelected]);
+  const setLastSelected = (newLast: string | null) => {
+    lastSelected.current = newLast;
+  }
 
-  const selectedNodes = useRef<string[]>([]);
+  const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const [selectedEdges, setSelectedEdges] = useState<string[]>([]);
-  const getNumberOfSelectedNodes = useCallback(() => selectedNodes.current.length, [selectedNodes]);
-
 
 
   // The initialized is set to false when new node is added and back to true once the size is determined.
   // const reactFlowInitialized = useNodesInitialized();
 
-  const onChangeSelection = useCallback(createChangeSelectionHandler(reactFlow, selectedNodes, setLast), [reactFlow, selectedNodes, setLast]);
+  const onChangeSelection = useCallback(createChangeSelectionHandler(reactFlow, setSelectedNodes, setSelectedEdges, lastSelected),
+    [reactFlow, setSelectedNodes, setSelectedEdges, lastSelected]);
+
   useOnSelectionChange({ onChange: (onChangeSelection) });
+
+  const shouldShowSelectionToolbar = useCallback(() => {
+    return selectedNodes.length > 1 || (selectedNodes.length === 1 && selectedEdges.length > 0);
+  }, [selectedNodes, selectedEdges]);
 
   const onNodesChange = useCallback(createNodesChangeHandler(setNodes, alignment), [setNodes, alignment]);
 
@@ -187,8 +191,8 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
   const onOpenEdgeToolbar = useCallback(createOpenEdgeToolbarHandler(setEdgeToolbar),
     [setEdgeToolbar]);
   const context = useMemo(() => createDiagramContext(api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar?.toolbarType ?? null,
-                                                      getLastSelected, setLastSelected, getNumberOfSelectedNodes,),
-    [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, getLastSelected, setLastSelected, getNumberOfSelectedNodes]);
+                                                      getLastSelected, setLastSelected, shouldShowSelectionToolbar,),
+    [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, getLastSelected, setLastSelected, shouldShowSelectionToolbar]);
 
   // We newly pass in the context, because we need it to open the openCanvasToolbar
   const actions = useMemo(() => createActions(reactFlow, setNodes, setEdges, alignment, context, setCanvasToolbar),
@@ -250,7 +254,9 @@ const createOnNodeDragStopHandler = (api: UseDiagramType, alignment: AlignmentCo
 };
 
 const createChangeSelectionHandler = (reactFlow: ReactFlowInstance<NodeType, EdgeType>,
-                                      selectedNodes: React.MutableRefObject<string[]>, setLastSelected: (newLast: string | null) => void) => {
+                                      setSelectedNodes: React.Dispatch<React.SetStateAction<string[]>>,
+                                      setSelectedEdges: React.Dispatch<React.SetStateAction<string[]>>,
+                                      lastSelected: React.MutableRefObject<string | null>,) => {
   return ({nodes, edges}: OnSelectionChangeParams) => {
     // We can react on change events here.
 
@@ -262,54 +268,57 @@ const createChangeSelectionHandler = (reactFlow: ReactFlowInstance<NodeType, Edg
     // The solution of choice was to draw an inspiration from NodeToolbar
     // and watch for edge selection in EdgeToolbar.
 
+    setSelectedNodes(prevSelectedNodes => {
+      const diagramNodes = reactFlow.getNodes();
+      const newlySelected = [];
+      const newlyRemovedFromSelection = [];
 
-    const diagramNodes = reactFlow.getNodes();
-    const newlySelected = [];
-    const newlyRemovedFromSelection = [];
-
-    for (const node of diagramNodes) {
-      const wasSelected = selectedNodes.current.find(selectedNodeIdentifier => selectedNodeIdentifier === node.id) !== undefined;
-      if(wasSelected) {
-        const sameNodeFromSelection = nodes.find(nnode => node.id === nnode.id);
-        const isNoLongerSelected = sameNodeFromSelection === undefined;
-        if(isNoLongerSelected) {
-          newlyRemovedFromSelection.push(node);
+      for (const node of diagramNodes) {
+        const wasSelected = prevSelectedNodes.find(selectedNodeIdentifier => selectedNodeIdentifier === node.id) !== undefined;
+        if(wasSelected) {
+          const sameNodeFromSelection = nodes.find(nnode => node.id === nnode.id);
+          const isNoLongerSelected = sameNodeFromSelection === undefined;
+          if(isNoLongerSelected) {
+            newlyRemovedFromSelection.push(node);
+          }
+        }
+        else {
+          const sameNodeFromSelection = nodes.find(nnode => node.id === nnode.id);
+          const isNewlySelected = sameNodeFromSelection !== undefined;
+          if(isNewlySelected) {
+            newlySelected.push(node);
+          }
         }
       }
-      else {
-        const sameNodeFromSelection = nodes.find(nnode => node.id === nnode.id);
-        const isNewlySelected = sameNodeFromSelection !== undefined;
-        if(isNewlySelected) {
-          newlySelected.push(node);
+
+      const newSelectedNodes = nodes.map((node) => node.id);
+      let insertPosition = 0;
+      for(let i = 0; i < prevSelectedNodes.length; i++) {
+        const indexInNewArray = newSelectedNodes.findIndex(node => node === prevSelectedNodes[i]);
+        const alreadyExistedInSelection = indexInNewArray >= 0;
+        if(alreadyExistedInSelection) {
+          newSelectedNodes.splice(indexInNewArray, 1);
+          newSelectedNodes.splice(insertPosition, 0, prevSelectedNodes[i]);
+          insertPosition++;
         }
       }
-    }
 
-    const newSelectedNodes = nodes.map((node) => node.id);
-    let insertPosition = 0;
-    for(let i = 0; i < selectedNodes.current.length; i++) {
-      const indexInNewArray = newSelectedNodes.findIndex(node => node === selectedNodes.current[i]);
-      const alreadyExistedInSelection = indexInNewArray >= 0;
-      if(alreadyExistedInSelection) {
-        newSelectedNodes.splice(indexInNewArray, 1);
-        newSelectedNodes.splice(insertPosition, 0, selectedNodes.current[i]);
-        insertPosition++;
+
+      if(newlySelected.length > 0) {
+        const newLastSelectedIdentifier = newlySelected[0].id;
+        lastSelected.current = newLastSelectedIdentifier;
       }
-    }
+      else if(nodes.length === 0 && newlyRemovedFromSelection.length > 0) {
+        lastSelected.current = null;
+      }
+      else if(newSelectedNodes.length > 0 && newlyRemovedFromSelection.length > 0) {
+        const newLastSelectedIdentifier = newSelectedNodes.at(-1) ?? null;
+        lastSelected.current = newLastSelectedIdentifier;
+      }
 
-    selectedNodes.current = newSelectedNodes;
-
-    if(newlySelected.length > 0) {
-      const newLastSelectedIdentifier = newlySelected[0].id;
-      setLastSelected(newLastSelectedIdentifier);
-    }
-    else if(nodes.length === 0 && newlyRemovedFromSelection.length > 0) {
-      setLastSelected(null);
-    }
-    else if(selectedNodes.current.length > 0 && newlyRemovedFromSelection.length > 0) {
-      const newLastSelectedIdentifier = selectedNodes.current.at(-1) ?? null;
-      setLastSelected(newLastSelectedIdentifier);
-    }
+      setSelectedEdges(edges.map(edge => edge.id));
+      return newSelectedNodes;
+    });
   };
 };
 
@@ -665,7 +674,7 @@ const createDiagramContext = (api: UseDiagramType, onOpenEdgeContextMenu: OpenEd
                               onOpenCanvasContextMenu: OpenCanvasContextMenuHandler,
                               openedCanvasToolbar: OpenedCanvasToolbar,
                               getLastSelected: () => string | null,
-                              setLastSelected: (newLast: string | null) => void, getNumberOfSelectedNodes: () => number): DiagramContextType => {
+                              setLastSelected: (newLast: string | null) => void, shouldShowSelectionToolbar: () => boolean): DiagramContextType => {
   return {
     callbacks: api.callbacks,
     onOpenEdgeContextMenu,
@@ -673,6 +682,6 @@ const createDiagramContext = (api: UseDiagramType, onOpenEdgeContextMenu: OpenEd
     openedCanvasToolbar,
     getLastSelected,
     setLastSelected,
-    getNumberOfSelectedNodes,
+    shouldShowSelectionToolbar,
   };
 };

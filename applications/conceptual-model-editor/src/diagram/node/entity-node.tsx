@@ -121,7 +121,7 @@ function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
 
   // const isVisible = props.selected === true && props.data.isLastSelected;
   const isLastSelected = props.selected === true && context?.getLastSelected() === props.id;
-  if((context?.getNumberOfSelectedNodes() ?? 0) === 1) {
+  if(context?.shouldShowSelectionToolbar() === false) {
     return (
       <>
       <NodeToolbar isVisible={props.selected === true} position={Position.Top} className="flex gap-2 entity-node-toolbar" >
