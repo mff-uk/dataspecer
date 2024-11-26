@@ -1,5 +1,5 @@
 import type React from "react";
-import { useCallback, useEffect, useState, useMemo, createContext } from "react";
+import { useCallback, useEffect, useState, useMemo, createContext, useRef } from "react";
 import {
   useReactFlow,
   useNodesState,
@@ -70,6 +70,12 @@ interface DiagramContextType {
   onOpenCanvasContextMenu: OpenCanvasContextMenuHandler;
 
   openedCanvasToolbar: OpenedCanvasToolbar;
+
+  getLastSelected: () => string | null;
+
+  setLastSelected: (newLastSelected: string | null) => void;
+
+  getNumberOfSelectedNodes: () => number;
 }
 
 export const DiagramContext = createContext<DiagramContextType | null>(null);
@@ -139,10 +145,25 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
 
   const alignment = useAlignmentController({ reactFlowInstance: reactFlow });
 
+  const [last, setLast] = useState<string | null>(null);
+
+  // TODO: Rewrite into methods
+  // const lastSelectedState = useCallback(createLastSelectedeHandler(last, setLast), [last, setLast]);
+  const setLastSelected = useCallback((newLast: string | null) => {
+    setLast(newLast);
+  }, [setLast]);
+  const getLastSelected = useCallback(() => last, [last]);
+
+  const selectedNodes = useRef<string[]>([]);
+  const [selectedEdges, setSelectedEdges] = useState<string[]>([]);
+  const getNumberOfSelectedNodes = useCallback(() => selectedNodes.current.length, [selectedNodes]);
+
+
+
   // The initialized is set to false when new node is added and back to true once the size is determined.
   // const reactFlowInitialized = useNodesInitialized();
 
-  const onChangeSelection = useCallback(createChangeSelectionHandler(), []);
+  const onChangeSelection = useCallback(createChangeSelectionHandler(reactFlow, selectedNodes, setLast), [reactFlow, selectedNodes, setLast]);
   useOnSelectionChange({ onChange: (onChangeSelection) });
 
   const onNodesChange = useCallback(createNodesChangeHandler(setNodes, alignment), [setNodes, alignment]);
@@ -161,12 +182,13 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
 
   const onDrop = useCallback(createDropHandler(reactFlow), [reactFlow.screenToFlowPosition]);
 
-  const onOpenEdgeToolbar = useCallback(createOpenEdgeToolbarHandler(setEdgeToolbar), [setEdgeToolbar]);
-
   const onOpenCanvasToolbar = useCallback(createOpenCanvasToolbarHandler(setCanvasToolbar), [setCanvasToolbar]);
 
-  const context = useMemo(() => createDiagramContext(api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar?.toolbarType ?? null),
-    [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar]);
+  const onOpenEdgeToolbar = useCallback(createOpenEdgeToolbarHandler(setEdgeToolbar),
+    [setEdgeToolbar]);
+  const context = useMemo(() => createDiagramContext(api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar?.toolbarType ?? null,
+                                                      getLastSelected, setLastSelected, getNumberOfSelectedNodes,),
+    [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, getLastSelected, setLastSelected, getNumberOfSelectedNodes]);
 
   // We newly pass in the context, because we need it to open the openCanvasToolbar
   const actions = useMemo(() => createActions(reactFlow, setNodes, setEdges, alignment, context),
@@ -227,8 +249,9 @@ const createOnNodeDragStopHandler = (api: UseDiagramType, alignment: AlignmentCo
   };
 };
 
-const createChangeSelectionHandler = () => {
-  return (_: OnSelectionChangeParams) => {
+const createChangeSelectionHandler = (reactFlow: ReactFlowInstance<NodeType, EdgeType>,
+                                      selectedNodes: React.MutableRefObject<string[]>, setLastSelected: (newLast: string | null) => void) => {
+  return ({nodes, edges}: OnSelectionChangeParams) => {
     // We can react on change events here.
 
     // Originally the idea was to call setEdgeToolbar(null),
@@ -238,6 +261,55 @@ const createChangeSelectionHandler = () => {
     // As a result the toolbar was open and closed, causing a blink.
     // The solution of choice was to draw an inspiration from NodeToolbar
     // and watch for edge selection in EdgeToolbar.
+
+
+    const diagramNodes = reactFlow.getNodes();
+    const newlySelected = [];
+    const newlyRemovedFromSelection = [];
+
+    for (const node of diagramNodes) {
+      const wasSelected = selectedNodes.current.find(selectedNodeIdentifier => selectedNodeIdentifier === node.id) !== undefined;
+      if(wasSelected) {
+        const sameNodeFromSelection = nodes.find(nnode => node.id === nnode.id);
+        const isNoLongerSelected = sameNodeFromSelection === undefined;
+        if(isNoLongerSelected) {
+          newlyRemovedFromSelection.push(node);
+        }
+      }
+      else {
+        const sameNodeFromSelection = nodes.find(nnode => node.id === nnode.id);
+        const isNewlySelected = sameNodeFromSelection !== undefined;
+        if(isNewlySelected) {
+          newlySelected.push(node);
+        }
+      }
+    }
+
+    const newSelectedNodes = nodes.map((node) => node.id);
+    let insertPosition = 0;
+    for(let i = 0; i < selectedNodes.current.length; i++) {
+      const indexInNewArray = newSelectedNodes.findIndex(node => node === selectedNodes.current[i]);
+      const alreadyExistedInSelection = indexInNewArray >= 0;
+      if(alreadyExistedInSelection) {
+        newSelectedNodes.splice(indexInNewArray, 1);
+        newSelectedNodes.splice(insertPosition, 0, selectedNodes.current[i]);
+        insertPosition++;
+      }
+    }
+
+    selectedNodes.current = newSelectedNodes;
+
+    if(newlySelected.length > 0) {
+      const newLastSelectedIdentifier = newlySelected[0].id;
+      setLastSelected(newLastSelectedIdentifier);
+    }
+    else if(nodes.length === 0 && newlyRemovedFromSelection.length > 0) {
+      setLastSelected(null);
+    }
+    else if(selectedNodes.current.length > 0 && newlyRemovedFromSelection.length > 0) {
+      const newLastSelectedIdentifier = selectedNodes.current.at(-1) ?? null;
+      setLastSelected(newLastSelectedIdentifier);
+    }
   };
 };
 
@@ -449,14 +521,15 @@ const createActions = (
     //
     getSelectedNodes() {
       console.log("Diagram.getSelectedNodes");
-      return [];
+      return reactFlow.getNodes().filter(node => node.selected === true).map(node => node.data);
     },
     setSelectedNodes(nodes) {
       console.log("Diagram.setSelectedNodes", nodes);
     },
     getSelectedEdges() {
       console.log("Diagram.getSelectedEdges");
-      return [];
+      // Not sure why I have to check for undefined here, but in the case of selected nodes
+      return reactFlow.getEdges().filter(edge => edge.selected === true).map(edge => edge.data).filter(edge => edge !== undefined);
     },
     setSelectedEdges(edges) {
       console.log("Diagram.setSelectedNodes", edges);
@@ -581,13 +654,20 @@ const focusNodeAction = (reactFlow: ReactFlowContext, node: Node) => {
   void reactFlow.setCenter(x, y, { zoom, duration: 1000 });
 };
 
+
+// TODO: Rewrite to types
 const createDiagramContext = (api: UseDiagramType, onOpenEdgeContextMenu: OpenEdgeContextMenuHandler,
                               onOpenCanvasContextMenu: OpenCanvasContextMenuHandler,
-                              openedCanvasToolbar: OpenedCanvasToolbar): DiagramContextType => {
+                              openedCanvasToolbar: OpenedCanvasToolbar,
+                              getLastSelected: () => string | null,
+                              setLastSelected: (newLast: string | null) => void, getNumberOfSelectedNodes: () => number): DiagramContextType => {
   return {
     callbacks: api.callbacks,
     onOpenEdgeContextMenu,
     onOpenCanvasContextMenu,
     openedCanvasToolbar,
+    getLastSelected,
+    setLastSelected,
+    getNumberOfSelectedNodes,
   };
 };

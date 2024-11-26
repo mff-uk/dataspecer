@@ -14,6 +14,8 @@ export class InMemoryEntityModel implements EntityModel {
     /** @internal */
     public listeners: ((updated: Record<string, Entity>, removed: string[]) => void)[] = [];
 
+    public type = [];
+
     constructor(id?: string, alias?: string) {
         this.id = id ?? createId();
         this.alias = alias;

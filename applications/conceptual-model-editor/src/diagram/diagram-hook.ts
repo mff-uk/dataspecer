@@ -123,5 +123,11 @@ const noOperationCallbacks: DiagramCallbacks = {
   onSelectionDidChange: noOperation,
   onCreateConnectionToNode: noOperation,
   onCreateConnectionToNothing: noOperation,
+  onAnchorNode: noOperation,
+  onShowSelectionActions: noOperation,
+  onLayoutSelection: noOperation,
+  onCreateGroup: noOperation,
+  onShowExpandSelection: noOperation,
+  onShowFilterSelection: noOperation,
   onCanvasOpenCreateClassDialog: noOperation,
 };

@@ -4,8 +4,7 @@
   "scripts": {
     "build": "tsc",
     "prebuild": "node ./build/prebuild.js",
-    "build:watch": "tsc -w",
-    "prebuild:watch": "npm run prebuild",
+    "dev": "tsc -w",
     "lint": "eslint ./src",
     "prettier": "prettier -w ./src",
     "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests"
@@ -673,6 +672,9 @@
     "rimraf": "^5.0.5",
     "ts-jest": "^29.1.2",
     "typescript": "~5.4.2"
+  },
+  "peerDependencies": {
+    "@dataspecer/core-v2": "*"
   },
   "browser": {
     "buffer": false

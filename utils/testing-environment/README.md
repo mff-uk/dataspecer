@@ -4,9 +4,8 @@ The purpose of the environment is to test generated artifacts. One possible exam
 
 Please keep in mind that this is still an experimental feature. More details are in the [Github discussion](https://github.com/mff-uk/dataspecer/discussions/183).
 
-To build the Docker image, first, build the [cli](../../applications/cli) application. Then, execute
+To build the Docker image, execute
 ```shell
-sh ./pre-build.sh
 sudo docker build -t dataspecer .
 ```
 

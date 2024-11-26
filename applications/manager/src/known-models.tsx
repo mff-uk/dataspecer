@@ -10,7 +10,7 @@ export function getCMELink(packageId: string, viewId: string) {
 }
 
 export function getSchemaLink(packageId: string) {
-  return import.meta.env.VITE_SCHEMA_EDITOR + "/../specification?dataSpecificationIri=" + encodeURIComponent(packageId);
+  return (import.meta.env.VITE_DATA_SPECIFICATION_DETAIL ?? "") + "?dataSpecificationIri=" + encodeURIComponent(packageId);
 }
 
 export interface createModelContext {
@@ -99,7 +99,6 @@ export const createModelInstructions = {
           "dataPsmParts": []
         }
       }}))(context);
-
       const pckg = await packageService.getPackage(context.parentIri);
       if (!pckg.subResources?.some(r => r.types.includes(V1.PIM))) {
         await getHookForStandardModel(V1.PIM, iri => ({operations: [], resources: {

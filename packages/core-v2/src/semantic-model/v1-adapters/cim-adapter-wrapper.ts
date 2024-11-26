@@ -19,7 +19,9 @@ export class CimAdapterWrapper implements AsyncQueryableEntityModel {
         if (queryIri.startsWith("surroundings:")) {
             const iri = queryIri.substring("surroundings:".length);
             const reader = await this.cimAdapter.getSurroundings(iri);
-            return  transformCoreResources((reader as any).resources);
+            // todo hotfix to include the class itself
+            const cls = await this.cimAdapter.getClass(iri);
+            return  transformCoreResources({...(reader as any).resources, [iri]: cls});
         }
         if (queryIri.startsWith("search:")) {
             const searchQuery = queryIri.substring("search:".length);
@@ -31,7 +33,7 @@ export class CimAdapterWrapper implements AsyncQueryableEntityModel {
             } as SearchQueryEntity;
             return {
                 [queryIri]: searchResult,
-                ...Object.fromEntries(result.map(r => [r.iri, r])),
+                ...transformCoreResources(Object.fromEntries(result.map(r => [r.iri, r]))),
             }
         }
         if (queryIri.startsWith("class:")) {
@@ -42,6 +44,11 @@ export class CimAdapterWrapper implements AsyncQueryableEntityModel {
             } else {
                 return {};
             }
+        }
+        if (queryIri.startsWith("hierarchy:")) {
+            const iri = queryIri.substring("hierarchy:".length);
+            const reader = await this.cimAdapter.getFullHierarchy(iri);
+            return transformCoreResources((reader as any).resources);
         }
         throw new Error(`Query ${queryIri} is not supported.`);
     }

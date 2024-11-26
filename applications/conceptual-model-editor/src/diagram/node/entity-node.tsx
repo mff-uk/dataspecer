@@ -107,9 +107,24 @@ function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   if(context?.openedCanvasToolbar !== null && context?.openedCanvasToolbar !== undefined) {
     return <></>;
   }
-  return (
-    <>
-      <NodeToolbar position={Position.Top} className="flex gap-2 entity-node-toolbar" >
+
+
+  const onAnchor = () => context?.callbacks().onAnchorNode(props.data);
+  // TODO: Might be better to create 2 components - EntitySelectionToolbar, EntityNodeToolbar
+  //
+  const onShowSelectionActions = () => context?.callbacks().onShowSelectionActions();
+  const onLayoutSelection = () => context?.callbacks().onLayoutSelection();
+  const onCreateGroup = () => context?.callbacks().onCreateGroup();
+  const onShowExpandSelection = () => context?.callbacks().onShowExpandSelection();
+  const onShowFilterSelection = () => context?.callbacks().onShowFilterSelection();
+
+
+  // const isVisible = props.selected === true && props.data.isLastSelected;
+  const isLastSelected = props.selected === true && context?.getLastSelected() === props.id;
+  if((context?.getNumberOfSelectedNodes() ?? 0) === 1) {
+    return (
+      <>
+      <NodeToolbar isVisible={props.selected === true} position={Position.Top} className="flex gap-2 entity-node-toolbar" style={{marginTop: `${(props?.height ?? 0) / 2}px`}}>
         <button onClick={onShowDetail}>ℹ</button>
         &nbsp;
         <button onClick={onEdit}>✏️</button>
@@ -117,17 +132,40 @@ function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
         <button onClick={onCreateProfile}>🧲</button>
         &nbsp;
       </NodeToolbar>
-      <NodeToolbar position={Position.Right} className="flex gap-2 entity-node-toolbar" >
+      <NodeToolbar isVisible={props.selected === true} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
         <Handle type="source" position={Position.Right}>🔗</Handle>
       </NodeToolbar>
-      <NodeToolbar position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
+      <NodeToolbar isVisible={props.selected === true} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
         <button onClick={onHide}>🕶</button>
         &nbsp;
         <button onClick={onDelete}>🗑</button>
         &nbsp;
+        <button onClick={onAnchor}>⚓</button>
+        &nbsp;
+      </NodeToolbar>
+    </>);
+  }
+  if (isLastSelected === true && context?.getLastSelected() === props.id) {
+    return (<>
+      <NodeToolbar isVisible={isLastSelected} position={Position.Top} className="flex gap-2 entity-node-toolbar" >
+        <button onClick={onShowSelectionActions}>🎬</button>
+        &nbsp;
+        <button onClick={onLayoutSelection}>🔀</button>
+        &nbsp;
+      </NodeToolbar>
+      <NodeToolbar isVisible={isLastSelected} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
+      <button onClick={onCreateGroup}>🤝</button>
+      </NodeToolbar>
+      <NodeToolbar isVisible={isLastSelected} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
+        <button onClick={onShowExpandSelection}>📈</button>
+        &nbsp;
+        <button onClick={onShowFilterSelection}>📉</button>
+        &nbsp;
       </NodeToolbar>
     </>
-  );
+    );
+  }
+  return <></>;
 }
 
 function EntityNodeItem({ item }: {

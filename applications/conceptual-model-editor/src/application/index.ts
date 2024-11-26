@@ -1,3 +1,5 @@
-export {configuration} from "./configuration";
+export { configuration } from "./configuration";
 export { t } from "./localization";
+export type { TranslationFunction } from "./localization";
 export { logger, createLogger } from "./logging";
+export type { Options } from "./options";

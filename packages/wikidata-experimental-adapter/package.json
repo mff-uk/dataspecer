@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "scripts": {
     "build": "tsc",
-    "build:watch": "tsc --watch",
     "dev": "tsc -w",
     "prebuild": "node ./build/prebuild.js",
     "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests",

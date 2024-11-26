@@ -1,21 +1,22 @@
 import {FederatedObservableStore, Subscriber} from "./federated-observable-store";
 import {ReadOnlyMemoryStore} from "@dataspecer/core/core";
-import {PimSchema} from "@dataspecer/core/pim/model";
-import * as PIM from "@dataspecer/core/pim/pim-vocabulary";
+import * as PSM from "@dataspecer/core/data-psm/data-psm-vocabulary";
+import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
+import { DataPsmClass } from "@dataspecer/core/data-psm/model/data-psm-class";
 
 describe("FederatedObservableStore reading", () => {
     let store: FederatedObservableStore = null;
     let coreReader = ReadOnlyMemoryStore.create({
         "http://schema": {
             iri: "http://schema",
-            types: [PIM.SCHEMA],
-            pimParts: ["http://resource/1"],
-        } as PimSchema,
+            types: [PSM.SCHEMA],
+            dataPsmParts: ["http://resource/1"],
+        } as DataPsmSchema,
 
         "http://resource/1": {
             iri: "http://resource/1",
-            types: [PIM.CLASS],
-        } as PimSchema,
+            types: [PSM.CLASS],
+        } as DataPsmClass,
     });
 
     beforeAll(() => {

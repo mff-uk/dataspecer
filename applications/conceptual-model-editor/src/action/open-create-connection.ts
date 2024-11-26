@@ -4,6 +4,7 @@ import {
 import {
   isSemanticModelClassUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
@@ -12,7 +13,8 @@ import { Options } from "../application/options";
 import { ConnectionType, createConnectionDialog, CreateConnectionState } from "../dialog/obsolete/create-connection-dialog";
 import { AssociationConnectionType, GeneralizationConnectionType } from "../util/edge-connection";
 import { UseClassesContextType } from "../context/classes-context";
-import { addRelationToVisualModelAction } from "./add-relation-to-visual-model";
+import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
+import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 
 export function openCreateConnectionDialogAction(
   options: Options,
@@ -20,6 +22,7 @@ export function openCreateConnectionDialogAction(
   notifications: UseNotificationServiceWriterType,
   useClasses: UseClassesContextType,
   graph: ModelGraphContextType,
+  visualModel: WritableVisualModel,
   sourceIdentifier: string,
   targetIdentifier: string,
 ) {
@@ -53,9 +56,16 @@ export function openCreateConnectionDialogAction(
       saveAssociationConnection(useClasses, state) :
       saveGeneralizationConnection(useClasses, state);
     //
-    if (result !== null && result.id !== null && result.id !== undefined) {
-      // TODO Do not invoke other action, move to a command.
-      addRelationToVisualModelAction(notifications, graph, state.model.getId(), result.id);
+    if (result === null || result.id === null || result.id === undefined) {
+      return;
+    }
+    // Add visual representation.
+    if (state.type === ConnectionType.Association) {
+      addSemanticRelationshipToVisualModelAction(
+        notifications, graph, visualModel, result.id, state.model.getId());
+    } else {
+      addSemanticGeneralizationToVisualModelAction(
+        notifications, graph, visualModel, result.id, state.model.getId());
     }
   };
   dialogs.openDialog(createConnectionDialog(

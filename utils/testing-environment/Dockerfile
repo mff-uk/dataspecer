@@ -25,8 +25,5 @@ RUN gem install rdf-turtle
 RUN apt-get install -y python3-pip
 RUN pip3 install Pygments
 
-# Install dataspacecer cli (you need to build the project first)
-COPY dataspecer /bin/dataspecer
-
 ENTRYPOINT []
 CMD ["bash"]
