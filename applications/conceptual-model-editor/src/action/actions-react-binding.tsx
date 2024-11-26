@@ -39,7 +39,7 @@ import { addNodeNeighborhoodToVisualModelAction } from "./add-node-neighborhood-
 import { profileSelectionAction } from "./create-profile-of-selection";
 import { filterInMemoryModels } from "../util/model-utils";
 import { placePositionOnGrid } from "@dataspecer/layout";
-import { CreateClassDialogState } from "../dialog/class/create-class-dialog-controller";
+import { addSemanticEntityToVisualModelAction } from "./add-semantic-entity-to-visual-model-action";
 
 const LOG = createLogger(import.meta.url);
 
@@ -65,6 +65,8 @@ interface DialogActions {
 }
 
 interface VisualModelActions {
+
+  addSemanticEntityToVisualModel: (identifier: string, position?: { x: number, y: number } | null) => void;
 
   addClassToVisualModel: (model: string, identifier: string, position: { x: number, y: number } | null) => void;
 
@@ -118,6 +120,7 @@ const noOperationActionsContext = {
   openCreateAttributeDialog: noOperation,
   openCreateProfileDialog: noOperation,
   //
+  addSemanticEntityToVisualModel: noOperation,
   addClassToVisualModel: noOperation,
   addClassProfileToVisualModel: noOperation,
   addGeneralizationToVisualModel: noOperation,
@@ -367,6 +370,13 @@ function createActionsContext(
 
   // Visual model actions.
 
+  const addSemanticEntityToVisualModel = (identifier: string, position?: { x: number, y: number } | null): void => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      addSemanticEntityToVisualModelAction(
+        notifications, graph, visualModel, diagram, identifier, position ?? null);
+    });
+  };
+
   const addClassToVisualModel = (model: string, identifier: string, position: { x: number, y: number } | null): void => {
     withVisualModel(notifications, graph, (visualModel) => {
       addSemanticClassToVisualModelAction(
@@ -578,6 +588,7 @@ function createActionsContext(
     openCreateAttributeDialog,
     openCreateProfileDialog,
     //
+    addSemanticEntityToVisualModel,
     addClassToVisualModel,
     addClassProfileToVisualModel,
     addGeneralizationToVisualModel,

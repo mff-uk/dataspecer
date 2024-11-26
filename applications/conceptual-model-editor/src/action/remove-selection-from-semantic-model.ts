@@ -21,7 +21,10 @@ export const removeSelectionFromSemanticModelAction = (nodeSelection: string[], 
             notifications.error("Entity from selection is not present in semantic model.");
             return;
         }
-        // TODO: Or maybe delete all at once, we need to reimplement the action but call executeOperations instead of executeOperation
+        // At first I thought that it will be enough to just put all the operations into array and call executeOperations instead of executeOperation.
+        // So if we wanted to undo it we had it registered as one action, but we actually can't do that, at least not this way, because:
+        //    1) Not all entities are from the same model
+        //    2) Even if they were, the model can be external, which means we will sequentially call (but in asynchronous manner) the releaseClass method
         const promise = removeFromSemanticModelAction(notifications, graph, model.getId(), selectedEntityId);
         removeEntitiesPromises[selectedEntityId] = promise;
     });
