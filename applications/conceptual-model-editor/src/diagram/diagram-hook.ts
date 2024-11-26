@@ -103,6 +103,7 @@ const noOperationDiagramActions: DiagramActions = {
   getViewport: noOperationThrow,
   renderToSvgString: noOperationNullAsync,
   openCanvasToolbar: noOperation,
+  closeCanvasToolbar: noOperation,
 };
 
 const noOperationCallbacks: DiagramCallbacks = {
@@ -130,4 +131,8 @@ const noOperationCallbacks: DiagramCallbacks = {
   onShowExpandSelection: noOperation,
   onShowFilterSelection: noOperation,
   onCanvasOpenCreateClassDialog: noOperation,
+  onCreateNewViewFromSelection: noOperation,
+  onProfileSelection: noOperation,
+  onHideSelection: noOperation,
+  onDeleteSelection: noOperation,
 };

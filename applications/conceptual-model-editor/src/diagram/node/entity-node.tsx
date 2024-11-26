@@ -92,11 +92,7 @@ function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   const context = useContext(DiagramContext);
   // TODO: Put all handler code into controller (... but what about the screenToFlowPosition method on reactflow
   const reactFlow = useReactFlow();
-  const onShowDetail = (event: React.MouseEvent) => {
-    const absoluteFlowPosition = reactFlow.screenToFlowPosition({x: event.clientX, y: event.clientY});
-    context?.onOpenCanvasContextMenu(props.data, event.clientX, event.clientY, absoluteFlowPosition, "NODE-SECONDARY-TOOLBAR");
-    // context?.callbacks().onShowNodeDetail(props.data);
-  };
+  const onShowDetail = () => context?.callbacks().onShowNodeDetail(props.data);
   const onEdit = () => context?.callbacks().onEditNode(props.data);
   const onCreateProfile = () => context?.callbacks().onCreateNodeProfile(props.data);
   const onHide = () => context?.callbacks().onHideNode(props.data);
@@ -112,7 +108,11 @@ function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   const onAnchor = () => context?.callbacks().onAnchorNode(props.data);
   // TODO: Might be better to create 2 components - EntitySelectionToolbar, EntityNodeToolbar
   //
-  const onShowSelectionActions = () => context?.callbacks().onShowSelectionActions();
+  const onShowSelectionActions = (event: React.MouseEvent) => {
+    const absoluteFlowPosition = reactFlow.screenToFlowPosition({x: event.clientX, y: event.clientY});
+    // TODO: I probably don't need the relative position to the viewport (and I don't have it here), so just remove it from the method signature and props
+    context?.callbacks().onShowSelectionActions(props.data, {x: event.clientX, y: event.clientY}, absoluteFlowPosition);
+  }
   const onLayoutSelection = () => context?.callbacks().onLayoutSelection();
   const onCreateGroup = () => context?.callbacks().onCreateGroup();
   const onShowExpandSelection = () => context?.callbacks().onShowExpandSelection();
@@ -124,7 +124,7 @@ function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   if((context?.getNumberOfSelectedNodes() ?? 0) === 1) {
     return (
       <>
-      <NodeToolbar isVisible={props.selected === true} position={Position.Top} className="flex gap-2 entity-node-toolbar" style={{marginTop: `${(props?.height ?? 0) / 2}px`}}>
+      <NodeToolbar isVisible={props.selected === true} position={Position.Top} className="flex gap-2 entity-node-toolbar" >
         <button onClick={onShowDetail}>ℹ</button>
         &nbsp;
         <button onClick={onEdit}>✏️</button>

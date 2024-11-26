@@ -1,4 +1,4 @@
-import { Position, VisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualProfileRelationship, isWritableVisualModel, Position, VisualModel } from "@dataspecer/core-v2/visual-model";
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { ClassesContextType } from "../context/classes-context";
 import { ModelGraphContextType } from "../context/model-context";
@@ -14,11 +14,14 @@ import { sourceModelIdOfEntity } from "../util/model-utils";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
+import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
+import { UseDiagramType } from "../diagram/diagram-hook";
+import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
 
 
 export const profileSelectionAction = (nodeSelection: string[], edgeSelection: string[], classesContext: ClassesContextType, graph: ModelGraphContextType,
-                                      visualModel: VisualModel | null, notifications: UseNotificationServiceWriterType, options: Options): void => {
-  const createdClassesAndClassesProfiles: Record<string, string> = {}
+                                      visualModel: VisualModel | null, diagram: UseDiagramType, notifications: UseNotificationServiceWriterType, options: Options): void => {
+  const createdClassesAndClassesProfiles: Record<string, string> = {};
   for(const selectedEntityId of nodeSelection) {
     const classOrClassProfileToBeProfiled = graph.aggregatorView.getEntities()?.[selectedEntityId]?.aggregatedEntity;
     if(classOrClassProfileToBeProfiled === undefined) {
@@ -44,6 +47,10 @@ export const profileSelectionAction = (nodeSelection: string[], edgeSelection: s
     }
 
     createdClassesAndClassesProfiles[selectedEntityId] = createdClassProfile.identifier;
+
+    if(isWritableVisualModel(visualModel)) {
+      addSemanticClassProfileToVisualModelAction(notifications, graph, visualModel, diagram, createdClassProfile.identifier, createdClassProfile.model.getId(), null);
+    }
   }
 
   for(const selectedEntityId of edgeSelection) {
@@ -52,8 +59,11 @@ export const profileSelectionAction = (nodeSelection: string[], edgeSelection: s
       notifications.error("The entity (edge) to be profiled from selection is not present in aggregatorView");
       continue;
     }
+    if(isSemanticModelClassUsage(associationOrAssociationProfileToBeProfiled)) {    // The visual edge representing class profile
+      continue;
+    }
     if(!isSemanticModelRelationship(associationOrAssociationProfileToBeProfiled) && !isSemanticModelRelationshipUsage(associationOrAssociationProfileToBeProfiled)) {
-      notifications.error("The entity to be profiled from selection is not a assocation or assocation profile");
+      notifications.error("The entity to be profiled from selection is not a association or association profile");
       continue;
     }
 
@@ -97,6 +107,11 @@ export const profileSelectionAction = (nodeSelection: string[], edgeSelection: s
 
     if (!(identifier !== undefined && success)) {
       notifications.error("The operation of creating association profiled failed on semantic level");
+      continue;
+    }
+
+    if(isWritableVisualModel(visualModel)) {
+      addSemanticRelationshipProfileToVisualModelAction(notifications, graph, visualModel, identifier, model.getId());
     }
   }
 };

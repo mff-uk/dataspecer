@@ -6,6 +6,7 @@ export const addNodeNeighborhoodToVisualModelAction = (nodeIdentifier: string,
                                                 graph: ModelGraphContextType,
                                                 notifications: UseNotificationServiceWriterType): void => {
     // TODO: Get the selection through the systematic selection feature
-    const neighborhoodEntitiesIdentifiers: string[] = [];
-    changeSelectionVisibilityAction(neighborhoodEntitiesIdentifiers, notifications, graph, true);
+    const neighborhoodNodeIdentifiers: string[] = [];
+    const neighborhoodEdgeIdentifiers: string[] = [];
+    changeSelectionVisibilityAction(neighborhoodNodeIdentifiers, neighborhoodEdgeIdentifiers, notifications, graph, true);
 };

@@ -191,8 +191,8 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
     [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, getLastSelected, setLastSelected, getNumberOfSelectedNodes]);
 
   // We newly pass in the context, because we need it to open the openCanvasToolbar
-  const actions = useMemo(() => createActions(reactFlow, setNodes, setEdges, alignment, context),
-    [reactFlow, setNodes, setEdges, alignment, context]);
+  const actions = useMemo(() => createActions(reactFlow, setNodes, setEdges, alignment, context, setCanvasToolbar),
+    [reactFlow, setNodes, setEdges, alignment, context, setCanvasToolbar]);
 
   // Register actions to API.
   useEffect(() => api.setActions(actions), [api, actions]);
@@ -446,6 +446,7 @@ const createActions = (
   setEdges: React.Dispatch<React.SetStateAction<EdgeType[]>>,
   alignment: AlignmentController,
   context: DiagramContextType,
+  setCanvasToolbar: React.Dispatch<React.SetStateAction<CanvasToolbarGeneralProps | null>>,
 ): DiagramActions => {
   return {
     getGroups() {
@@ -569,9 +570,13 @@ const createActions = (
     renderToSvgString() {
       return diagramContentAsSvg(reactFlow.getNodes());
     },
-    openCanvasToolbar(sourceClassNode: ApiNode, relativePositionToViewport: Position, abosluteFlowPosition: Position) {
+    openCanvasToolbar(sourceClassNode: ApiNode, relativePositionToViewport: Position, abosluteFlowPosition: Position, toolbarType: CanvasToolbarTypes) {
       console.log("openCanvasToolbar", {sourceClassNode, relativePositionToViewport, abosluteFlowPosition});
-      context?.onOpenCanvasContextMenu(sourceClassNode, relativePositionToViewport.x, relativePositionToViewport.y, abosluteFlowPosition, "EDGE-DRAG-CANVAS-MENU-TOOLBAR");
+      context?.onOpenCanvasContextMenu(sourceClassNode, relativePositionToViewport.x, relativePositionToViewport.y, abosluteFlowPosition, toolbarType);
+    },
+    closeCanvasToolbar() {
+      console.log("closeCanvasToolbar");
+      setCanvasToolbar(null);
     },
   };
 };

@@ -1,3 +1,4 @@
+import { CanvasToolbarTypes } from "./canvas/canvas-toolbar-props";
 
 /**
  * Actions that can be executed on the editor component.
@@ -142,9 +143,15 @@ export interface DiagramActions {
   renderToSvgString(): Promise<string | null>;
 
   /**
-   * Open the canvas toolbar. The toolbar appears when user drags edge to empty space on canvas.
+   * Open the canvas toolbar. The type of toolbar is decided by {@link toolbarType} argument.
+   * @param toolbarType For example drag edge variant opens the toolbar, which appears when user drags edge to empty space on canvas.
    */
-  openCanvasToolbar(sourceClassDiagramNode: Node, relativePositionToViewport: Position, absoluteFlowPosition: Position): void;
+  openCanvasToolbar(sourceClassDiagramNode: Node, relativePositionToViewport: Position, absoluteFlowPosition: Position, toolbarType: CanvasToolbarTypes): void;
+
+  /**
+   * Close any opened canvas toolbar, if none was open, then doesn't do anything.
+   */
+  closeCanvasToolbar(): void;
 }
 
 export type ViewportDimensions = {
@@ -407,11 +414,16 @@ interface DiagramSelection {
 
 
   // TODO: Document (if these methods will be "approved")
-  onShowSelectionActions: () => void;
+  onShowSelectionActions: (source: Node, positionRelativeToViewport: Position, flowPosition: Position) => void;
   onLayoutSelection: () => void;
   onCreateGroup: () => void;
   onShowExpandSelection: () => void;
   onShowFilterSelection: () => void;
+  //
+  onCreateNewViewFromSelection: () => void;
+  onProfileSelection: () => void;
+  onHideSelection: () => void;
+  onDeleteSelection: () => void;
 }
 
 /**

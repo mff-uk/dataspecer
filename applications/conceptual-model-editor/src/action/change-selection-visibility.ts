@@ -6,18 +6,14 @@ import { addSemanticClassToVisualModelAction } from "./add-class-to-visual-model
 import { removeFromVisualModelAction } from "./remove-from-visual-model";
 
 /**
- * Changes visibility of given {@link selection} to given {@link visibility}.
- * @param selection
- * @param notifications
- * @param graph
- * @param classesContext
- * @param visibility
+ * Changes visibility of given {@link nodeSelection} and {@link edgeSelection} to given {@link visibility}.
  */
-export const changeSelectionVisibilityAction = (selection: string[],
+export const changeSelectionVisibilityAction = (nodeSelection: string[], edgeSelection: string[],
                                                 notifications: UseNotificationServiceWriterType,
                                                 graph: ModelGraphContextType,
                                                 visibility: boolean): void => {
-    for(const selectedEntityId of selection) {
+    // TODO: Since I concat, maybe I don't need to distinguish between edges and nodes, so I can just pass in 1 argument named selection
+    for(const selectedEntityId of nodeSelection.concat(edgeSelection)) {
         // TODO: Again we can delete all at once instead of removing sequentially
         if(visibility === false) {
             removeFromVisualModelAction(notifications, graph, selectedEntityId);
