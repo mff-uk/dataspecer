@@ -1,48 +1,12 @@
-/* Basically the edge-toolbar.css */
-
 .canvas-toolbar {
-  display: grid;
-  place-content: center;
-  grid-area: 1/1;
-  width: 0;
-  height: 0;
-  position: absolute;
-  z-index: 8;
-  /* Variables.  */
-  --btn-size: 2em;
-  --extra-space: 1em;
-}
-
-.canvas-toolbar button {
-  border-radius: 50%;
-  width: var(--btn-size);
-  height: var(--btn-size);
-  font-size: 1.35em;
-  cursor: pointer;
-}
-
-.canvas-toolbar ul {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-}
-
-.canvas-toolbar li {
-  display: grid;
-  place-content: center;
-  grid-area: 1/1;
-  --radius: calc(var(--btn-size) + var(--extra-space));
-  transform: translateX(calc(cos(var(--angle)) * var(--radius))) translateY(calc(sin(var(--angle) * -1) * var(--radius)));
-}
-
-.canvas-toolbar li:nth-child(1) {
-  --angle: 120deg;
-}
-
-.canvas-toolbar li:nth-child(2) {
-  --angle: 240deg;
-}
-
-.canvas-toolbar li:nth-child(3) {
-  --angle: 0deg;
-}
+    display: grid;
+    place-content: center;
+    grid-area: 1/1;
+    width: 0;
+    height: 0;
+    z-index: 8;
+    position: absolute;
+    /* Variables.  */
+    --btn-size: 2em;
+    --extra-space: 1em;
+  }

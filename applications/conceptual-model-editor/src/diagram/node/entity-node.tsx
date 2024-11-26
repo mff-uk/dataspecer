@@ -5,6 +5,7 @@ import {
   NodeToolbar,
   type NodeProps,
   type Node,
+  useReactFlow,
 } from "@xyflow/react";
 
 import type { Node as ApiNode, EntityItem } from "../diagram-api";
@@ -89,11 +90,23 @@ function SelectedHighlight() {
 
 function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   const context = useContext(DiagramContext);
-  const onShowDetail = () => context?.callbacks().onShowNodeDetail(props.data);
+  // TODO: Put all handler code into controller (... but what about the screenToFlowPosition method on reactflow
+  const reactFlow = useReactFlow();
+  const onShowDetail = (event: React.MouseEvent) => {
+    const absoluteFlowPosition = reactFlow.screenToFlowPosition({x: event.clientX, y: event.clientY});
+    context?.onOpenNodeSecondaryToolbarMenu(props.data, event.clientX, event.clientY, absoluteFlowPosition);
+    // context?.callbacks().onShowNodeDetail(props.data);
+  };
   const onEdit = () => context?.callbacks().onEditNode(props.data);
   const onCreateProfile = () => context?.callbacks().onCreateNodeProfile(props.data);
   const onHide = () => context?.callbacks().onHideNode(props.data);
   const onDelete = () => context?.callbacks().onDeleteNode(props.data);
+  // TODO: Or should it NOT be part of context? and therefore the information of not showing toolbar because other one is shown, should be on the node?
+  //       Also we may keep opening menu from menu from menu, etc... But that probably doesn't matter from the node's view.
+  //       Also if we don't want to have opened canvas toolbar and node toolbar at the same time then we need to store the information inside the context.
+  if(context?.openedCanvasToolbar !== null && context?.openedCanvasToolbar !== undefined) {
+    return <></>;
+  }
   return (
     <>
       <NodeToolbar position={Position.Top} className="flex gap-2 entity-node-toolbar" >
