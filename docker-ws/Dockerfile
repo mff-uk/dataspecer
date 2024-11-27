@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 COPY applications/ applications/
 COPY services/ services/
 COPY packages/ packages/
-COPY .npmrc cloudflare.build.sh package-lock.json package.json turbo.json ./
+COPY .npmrc cloudflare.build.sh package-lock.json package.json turbo.json docker-ws/get-vcs-version.sh ./
 
 # Build app
 RUN --mount=type=cache,target=/root/.npm \
