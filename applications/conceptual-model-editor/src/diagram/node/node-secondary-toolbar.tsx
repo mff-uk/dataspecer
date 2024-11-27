@@ -3,8 +3,8 @@ import { CanvasToolbarGeneralProps } from "../canvas/canvas-toolbar-props";
 import { DiagramContext } from "../diagram-controller";
 import { useContext } from "react";
 
-export function SecondaryNodeToolbar({ value }: { value: CanvasToolbarGeneralProps | null }) {
-    if(value === null || value.toolbarType !== "NODE-SECONDARY-TOOLBAR") {
+export function NodeSelectionActionsSecondaryToolbar({ value }: { value: CanvasToolbarGeneralProps | null }) {
+    if(value === null || value.toolbarType !== "NODE-SELECTION-ACTIONS-SECONDARY-TOOLBAR") {
         return null;
     }
 

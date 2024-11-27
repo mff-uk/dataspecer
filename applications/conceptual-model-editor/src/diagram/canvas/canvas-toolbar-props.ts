@@ -8,7 +8,7 @@ import "./canvas-toolbar.css";
 import "../node/node-secondary-toolbar.css";
 import "./canvas-toolbar-drag-edge.css";
 
-export type CanvasToolbarTypes = "EDGE-DRAG-CANVAS-MENU-TOOLBAR" | "NODE-SECONDARY-TOOLBAR";
+export type CanvasToolbarTypes = "EDGE-DRAG-CANVAS-MENU-TOOLBAR" | "NODE-SELECTION-ACTIONS-SECONDARY-TOOLBAR";
 
 /**
  * We do not copy the whole edge information here.

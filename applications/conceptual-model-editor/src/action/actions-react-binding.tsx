@@ -497,7 +497,7 @@ function createActionsContext(
     },
     onShowSelectionActions: (source, flowPosition) => {
       console.log("Application.onShowSelectionActions", { source, flowPosition });
-      diagram.actions().openCanvasToolbar(source, flowPosition, "NODE-SECONDARY-TOOLBAR");
+      diagram.actions().openCanvasToolbar(source, flowPosition, "NODE-SELECTION-ACTIONS-SECONDARY-TOOLBAR");
     },
     onLayoutSelection: () => {
       alert("TODO: currently does nothing (In future - Layouting selection)");

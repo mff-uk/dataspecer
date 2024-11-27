@@ -7,7 +7,7 @@ import { CanvasToolbarPortal } from "./canvas-toolbar-portal";
 import { CanvasToolbarGeneralProps, viewportStoreSelector } from "./canvas-toolbar-props";
 import { computePosition } from "../edge/edge-utilities";
 import { CanvasToolbarCreatedByEdgeDrag } from "./canvas-toolbar-drag-edge";
-import { SecondaryNodeToolbar } from "../node/node-secondary-toolbar";
+import { NodeSelectionActionsSecondaryToolbar } from "../node/node-secondary-toolbar";
 
 
 // Inspired by edge-toolbar.ts
@@ -28,8 +28,8 @@ export function CanvasToolbarGeneral({ value }: { value: CanvasToolbarGeneralPro
   if(value.toolbarType === "EDGE-DRAG-CANVAS-MENU-TOOLBAR") {
     canvasToolbarContent = <CanvasToolbarCreatedByEdgeDrag value={value}/>;
   }
-  else if(value.toolbarType === "NODE-SECONDARY-TOOLBAR") {
-    canvasToolbarContent = <SecondaryNodeToolbar value={value}/>;
+  else if(value.toolbarType === "NODE-SELECTION-ACTIONS-SECONDARY-TOOLBAR") {
+    canvasToolbarContent = <NodeSelectionActionsSecondaryToolbar value={value}/>;
   }
 
   return <div>

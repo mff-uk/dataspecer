@@ -72,8 +72,6 @@ interface DiagramContextType {
 
   getLastSelected: () => string | null;
 
-  setLastSelected: (newLastSelected: string | null) => void;
-
   shouldShowSelectionToolbar: () => boolean;
 }
 
@@ -144,16 +142,12 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
 
   const alignment = useAlignmentController({ reactFlowInstance: reactFlow });
 
-  const lastSelected = useRef<string | null>(null);
-
-  // TODO: Rewrite into methods?
-  const getLastSelected = useCallback(() => lastSelected.current, [lastSelected]);
-  const setLastSelected = useCallback((newLast: string | null) => {
-    lastSelected.current = newLast;
-  }, [lastSelected]);
 
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const [selectedEdges, setSelectedEdges] = useState<string[]>([]);
+  const getLastSelected = useCallback(() => {
+    return selectedNodes.at(-1) ?? null;
+  }, [selectedNodes]);
 
   const shouldShowSelectionToolbar = useCallback(() => {
     return selectedNodes.length > 1 || (selectedNodes.length === 1 && selectedEdges.length > 0);
@@ -163,8 +157,8 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
   // The initialized is set to false when new node is added and back to true once the size is determined.
   // const reactFlowInitialized = useNodesInitialized();
 
-  const onChangeSelection = useCallback(createChangeSelectionHandler(reactFlow, setSelectedNodes, setSelectedEdges, lastSelected),
-    [reactFlow, setSelectedNodes, setSelectedEdges, lastSelected]);
+  const onChangeSelection = useCallback(createChangeSelectionHandler(reactFlow, setSelectedNodes, setSelectedEdges),
+    [reactFlow, setSelectedNodes, setSelectedEdges]);
 
   useOnSelectionChange({ onChange: (onChangeSelection) });
 
@@ -189,8 +183,8 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
   const onOpenEdgeToolbar = useCallback(createOpenEdgeToolbarHandler(setEdgeToolbar),
     [setEdgeToolbar]);
   const context = useMemo(() => createDiagramContext(api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar?.toolbarType ?? null,
-                                                      getLastSelected, setLastSelected, shouldShowSelectionToolbar,),
-    [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, getLastSelected, setLastSelected, shouldShowSelectionToolbar]);
+                                                      getLastSelected, shouldShowSelectionToolbar,),
+    [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, getLastSelected, shouldShowSelectionToolbar]);
 
   // We newly pass in the context, because we need it to open the openCanvasToolbar
   const actions = useMemo(() => createActions(reactFlow, setNodes, setEdges, alignment, context, setCanvasToolbar),
@@ -253,8 +247,7 @@ const createOnNodeDragStopHandler = (api: UseDiagramType, alignment: AlignmentCo
 
 const createChangeSelectionHandler = (reactFlow: ReactFlowInstance<NodeType, EdgeType>,
                                       setSelectedNodes: React.Dispatch<React.SetStateAction<string[]>>,
-                                      setSelectedEdges: React.Dispatch<React.SetStateAction<string[]>>,
-                                      lastSelected: React.MutableRefObject<string | null>,) => {
+                                      setSelectedEdges: React.Dispatch<React.SetStateAction<string[]>>,) => {
   return ({nodes, edges}: OnSelectionChangeParams) => {
     // We can react on change events here.
 
@@ -299,20 +292,7 @@ const createChangeSelectionHandler = (reactFlow: ReactFlowInstance<NodeType, Edg
           newSelectedNodes.splice(insertPosition, 0, prevSelectedNodes[i]);
           insertPosition++;
         }
-      }
-
-
-      if(newlySelected.length > 0) {
-        const newLastSelectedIdentifier = newlySelected[0].id;
-        lastSelected.current = newLastSelectedIdentifier;
-      }
-      else if(nodes.length === 0 && newlyRemovedFromSelection.length > 0) {
-        lastSelected.current = null;
-      }
-      else if(newSelectedNodes.length > 0 && newlyRemovedFromSelection.length > 0) {
-        const newLastSelectedIdentifier = newSelectedNodes.at(-1) ?? null;
-        lastSelected.current = newLastSelectedIdentifier;
-      }
+      }     
 
       setSelectedEdges(edges.map(edge => edge.id));
       return newSelectedNodes;
@@ -669,7 +649,6 @@ const createDiagramContext = (api: UseDiagramType, onOpenEdgeContextMenu: OpenEd
                               onOpenCanvasContextMenu: OpenCanvasContextMenuHandler,
                               openedCanvasToolbar: OpenedCanvasToolbar,
                               getLastSelected: () => string | null,
-                              setLastSelected: (newLast: string | null) => void,
                               shouldShowSelectionToolbar: () => boolean): DiagramContextType => {
   return {
     callbacks: api.callbacks,
@@ -677,7 +656,6 @@ const createDiagramContext = (api: UseDiagramType, onOpenEdgeContextMenu: OpenEd
     onOpenCanvasContextMenu,
     openedCanvasToolbar,
     getLastSelected,
-    setLastSelected,
     shouldShowSelectionToolbar,
   };
 };
