@@ -27,7 +27,7 @@ API_SPECIFICATION="/api-specification"
 API_SPECIFICATION_BASE_PATH="$BASE_PATH$API_SPECIFICATION"
 API_SPECIFICATION_URL="$API_SPECIFICATION_BASE_PATH"
 
-VCS_VERSION=`./docker-ws/get-vcs-version.sh`
+VCS_VERSION=`${0%/*}/docker-ws/get-vcs-version.sh`
 
 npm ci
 
