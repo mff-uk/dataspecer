@@ -154,7 +154,6 @@ function SelectionToolbar(props: NodeProps<Node<ApiNode>>) {
     //       a) Separate controller for this component - But we have only 1 method
     //       b) Exposing the conversion from screen to canvas position in diagram API - not sure if that is something which should be part of API
     const absoluteFlowPosition = reactFlow.screenToFlowPosition({x: event.clientX, y: event.clientY});
-    // TODO: I probably don't need the relative position to the viewport (and I don't have it here), so just remove it from the method signature and props
     context?.callbacks().onShowSelectionActions(props.data, absoluteFlowPosition);
   }
   const onLayoutSelection = () => context?.callbacks().onLayoutSelection();
