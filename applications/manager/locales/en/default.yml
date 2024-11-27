@@ -1,4 +1,5 @@
 '--lang-name': English
+$datetime: '{{val, datetime(dateStyle: long; timeStyle: short)}}'
 autolayout: Auto layout
 changed: 'Changed on {{val, datetime(dateStyle: short; timeStyle: short)}}'
 close: Close
