@@ -234,7 +234,7 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
                                     gap: "1rem",
                                 }}>
                                     <Button variant="outlined" color={"primary"} component={Link}
-                                            to={`${import.meta.env.VITE_MANAGER_BASE_URL}specification?dataSpecificationIri=${encodeURIComponent(specification)}`}>{t("detail")}</Button>
+                                            to={`/specification?dataSpecificationIri=${encodeURIComponent(specification)}`}>{t("detail")}</Button>
                                 </Box>
                             </TableCell>
                         </TableRow>

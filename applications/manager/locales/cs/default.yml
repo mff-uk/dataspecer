@@ -3,6 +3,7 @@ autolayout: Automatický layout
 changed: 'Změněno {{val, datetime(dateStyle: short; timeStyle: short)}}'
 close: Zavřít
 created: 'Vytvořeno {{val, datetime(dateStyle: short)}}'
+data specification detail: detail DS
 dataspecer-packages: správce projektů
 delete-resource:
   title: Odstranit

@@ -2,8 +2,11 @@ import path from "path"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 import i18nextLoader from 'vite-plugin-i18next-loader'
- 
+
 export default defineConfig({
+  server: {
+    port: 5174,
+  },
   base: "",
   plugins: [
     react(),

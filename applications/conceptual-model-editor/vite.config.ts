@@ -4,6 +4,9 @@ import react from "@vitejs/plugin-react";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  server: {
+    port: 5173,
+  },
   base: "./",
   plugins: [react()],
   // See https://vitejs.dev/guide/dep-pre-bundling#monorepos-and-linked-dependencies

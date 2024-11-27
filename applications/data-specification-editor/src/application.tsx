@@ -77,12 +77,12 @@ export const Application = () => {
  */
 const MainRouter = () => {
     const Page = () => useRoutes([
-        {path: import.meta.env.VITE_MANAGER_BASE_URL + "", element: <ManagerPage><Home/></ManagerPage>},
-        {path: import.meta.env.VITE_MANAGER_BASE_URL + "specification", element: <ManagerPage><Specification/></ManagerPage>},
-        {path: import.meta.env.VITE_STRUCTURE_EDITOR_BASE_URL, element: <EditorPage/>}
+        {path: "/", element: <ManagerPage><Home/></ManagerPage>},
+        {path: "specification", element: <ManagerPage><Specification/></ManagerPage>},
+        {path: "editor", element: <EditorPage/>}
     ]);
 
-    return <BrowserRouter basename={"/"}>
+    return <BrowserRouter basename={(import.meta.env.VITE_BASE_PATH ?? "") + "/"}>
         <Page/>
     </BrowserRouter>;
 }

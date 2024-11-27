@@ -10,7 +10,7 @@ export function getCMELink(packageId: string, viewId: string) {
 }
 
 export function getSchemaLink(packageId: string) {
-  return (import.meta.env.VITE_DATA_SPECIFICATION_DETAIL ?? "") + "?dataSpecificationIri=" + encodeURIComponent(packageId);
+  return (import.meta.env.VITE_DATA_SPECIFICATION_EDITOR ?? "") + "/specification?data-specification=" + encodeURIComponent(packageId);
 }
 
 export interface createModelContext {
