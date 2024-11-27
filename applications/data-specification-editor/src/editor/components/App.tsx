@@ -129,7 +129,7 @@ const App: React.FC = () => {
                                   variant="contained"
                                   startIcon={<ArrowBackIcon />}
                                   sx={{mx: 3}}
-                                  href={dataSpecificationIri ? import.meta.env.VITE_MANAGER_BASE_URL + `specification?dataSpecificationIri=${encodeURIComponent(dataSpecificationIri)}` : "/"}
+                                  href={dataSpecificationIri ? import.meta.env.VITE_BASE_PATH + `/specification?dataSpecificationIri=${encodeURIComponent(dataSpecificationIri)}` : "/"}
                                 >
                                     {t("back to specification manager")}
                                 </Button>

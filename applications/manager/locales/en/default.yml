@@ -3,6 +3,7 @@ autolayout: Auto layout
 changed: 'Changed on {{val, datetime(dateStyle: short; timeStyle: short)}}'
 close: Close
 created: 'Created on {{val, datetime(dateStyle: short)}}'
+data specification detail: DS detail
 dataspecer-packages: packages
 delete-resource:
   title: Remove
