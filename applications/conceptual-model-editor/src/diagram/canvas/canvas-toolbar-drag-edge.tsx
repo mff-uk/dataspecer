@@ -18,15 +18,12 @@ export function CanvasToolbarCreatedByEdgeDrag({ value }: { value: CanvasToolbar
   }
 
   const onCanvasMenuAddClassDialog = () => {
-    value.closeCanvasToolbar();
     context?.callbacks().onCanvasOpenCreateClassDialog(value.sourceClassNode, value.abosluteFlowPosition);
   };
   const onCanvasMenuAddClassDialogAndThenOpenCreateConnectionDialog = () => {
-    value.closeCanvasToolbar();
     alert("Open add class dialog and then right after that open create connection dialog.");
   };
   const onCanvasMenuChooseConnectionTargetFromExisitngClasses = () => {
-    value.closeCanvasToolbar();
     alert("Open list of classes and choose class which you want to be the target class of connection.");
   };
 

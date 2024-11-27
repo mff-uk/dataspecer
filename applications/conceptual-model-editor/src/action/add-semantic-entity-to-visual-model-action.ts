@@ -21,12 +21,12 @@ export function addSemanticEntityToVisualModelAction(
   ) {
     const model = sourceModelOfEntity(entityIdentifier, [...graph.models.values()]);
     if(model === undefined) {
-        notifications.error(`The selected entity ${entityIdentifier} doesn't have model`);
+        notifications.error(`The entity ${entityIdentifier} which should have been added to visual model doesn't have source semantic model`);
         return;
     }
     const modelIdentifier = model.getId();
 
-    const entity = model?.getEntities()[entityIdentifier];
+    const entity = model.getEntities()[entityIdentifier];
     if(isSemanticModelClass(entity)) {
         addSemanticClassToVisualModelAction(notifications, graph, visualModel, diagram, entityIdentifier, modelIdentifier, position);
     }

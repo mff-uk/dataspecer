@@ -5,7 +5,7 @@ import { ModelGraphContextType } from "../context/model-context";
 import { createCreateProfileClassDialogState } from "../dialog/class-profile/create-class-profile-dialog-controller";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { Options } from "../application";
-import { isSemanticModelClass, isSemanticModelRelationship, SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship, SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticModelRelationshipEndUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { createClassProfile } from "./open-create-profile-dialog";
 import { createCreateAssociationProfileDialogState } from "../dialog/association-profile/create-association-profile-dialog-controller";
@@ -60,6 +60,9 @@ export const profileSelectionAction = (nodeSelection: string[], edgeSelection: s
       continue;
     }
     if(isSemanticModelClassUsage(associationOrAssociationProfileToBeProfiled)) {    // The visual edge representing class profile
+      continue;
+    }
+    if(isSemanticModelGeneralization(associationOrAssociationProfileToBeProfiled)) {
       continue;
     }
     if(!isSemanticModelRelationship(associationOrAssociationProfileToBeProfiled) && !isSemanticModelRelationshipUsage(associationOrAssociationProfileToBeProfiled)) {

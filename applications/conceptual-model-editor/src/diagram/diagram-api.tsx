@@ -146,7 +146,7 @@ export interface DiagramActions {
    * Open the canvas toolbar. The type of toolbar is decided by {@link toolbarType} argument.
    * @param toolbarType For example drag edge variant opens the toolbar, which appears when user drags edge to empty space on canvas.
    */
-  openCanvasToolbar(sourceClassDiagramNode: Node, relativePositionToViewport: Position, absoluteFlowPosition: Position, toolbarType: CanvasToolbarTypes): void;
+  openCanvasToolbar(sourceClassDiagramNode: Node, absoluteFlowPosition: Position, toolbarType: CanvasToolbarTypes): void;
 
   /**
    * Close any opened canvas toolbar, if none was open, then doesn't do anything.
@@ -414,7 +414,7 @@ interface DiagramSelection {
 
 
   // TODO: Document (if these methods will be "approved")
-  onShowSelectionActions: (source: Node, positionRelativeToViewport: Position, flowPosition: Position) => void;
+  onShowSelectionActions: (source: Node, flowPosition: Position) => void;
   onLayoutSelection: () => void;
   onCreateGroup: () => void;
   onShowExpandSelection: () => void;
@@ -444,6 +444,6 @@ export interface DiagramCallbacks extends DiagramNodes, DiagramEdges, DiagramSel
    * It can be used to place the canvas toolbar on.
    * @param flowPosition is the position on canvas, where the connection ended.
    */
-  onCreateConnectionToNothing: (source: Node, positionRelativeToViewport: Position, flowPosition: Position) => void;
+  onCreateConnectionToNothing: (source: Node, flowPosition: Position) => void;
 
 }

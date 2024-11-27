@@ -28,8 +28,8 @@ export async function removeFromSemanticModelAction(
     try {
       await model.releaseClass(identifier);
     } catch (error) {
-      console.error("Can not entity delete from external model.", error);
-      notifications.error("Can not entity delete from external model.");
+      console.error("Can not delete entity from external model.", error);
+      notifications.error("Can not delete entity from external model.");
     }
   } else {
     notifications.error("We can not use this model type.");

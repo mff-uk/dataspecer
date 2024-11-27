@@ -4,7 +4,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { deleteEntity } from "@dataspecer/core-v2/semantic-model/operations";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 
-export async function createNewVisualModelFromSelectionAction(
+export function createNewVisualModelFromSelectionAction(
   selectionIdentifiers: string[],
   keepPositionsFromCurrentVisualModel: boolean,
   graph: ModelGraphContextType,

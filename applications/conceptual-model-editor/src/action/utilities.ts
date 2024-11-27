@@ -3,7 +3,8 @@ import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggr
 
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
-import { createLogger } from "../application";
+import { configuration, createLogger } from "../application";
+import { placePositionOnGrid, ReactflowDimensionsConstantEstimator } from "@dataspecer/layout";
 
 const LOG = createLogger(import.meta.url);
 
@@ -40,4 +41,30 @@ export function getViewportCenter(diagram: UseDiagramType) {
     x: viewport.position.x + (viewport.width / 2),
     y: viewport.position.y + (viewport.height / 2),
   };
+}
+
+/**
+ * @returns Return slightly changed position of current viewport's center. The position is shifted so the class appears more in the middle.
+ */
+export function getViewportCenterForClassPlacement(diagram: UseDiagramType) {
+  const position = getViewportCenter(diagram);
+
+  position.x -= ReactflowDimensionsConstantEstimator.getDefaultWidth() / 2;
+  position.y -= ReactflowDimensionsConstantEstimator.getDefaultHeight() / 2;
+  placePositionOnGrid(position, configuration().xSnapGrid, configuration().ySnapGrid);
+
+  return position;
+}
+
+
+// TODO: This exact type is defined in another branch so unify in future
+type Selections = {
+  nodeSelection: string[],
+  edgeSelection: string[],
+}
+
+export function getSelections(diagram: UseDiagramType): Selections {
+  const nodeSelection = diagram.actions().getSelectedNodes().map(node => node.externalIdentifier);
+  const edgeSelection = diagram.actions().getSelectedEdges().map(edge => edge.externalIdentifier);
+  return {nodeSelection, edgeSelection};
 }

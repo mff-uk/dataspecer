@@ -26,7 +26,7 @@ import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
-import { getViewportCenter } from "./utilities";
+import { getSelections, getViewportCenterForClassPlacement } from "./utilities";
 import { removeFromVisualModelAction } from "./remove-from-visual-model";
 import { removeFromSemanticModelAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
@@ -81,7 +81,7 @@ interface VisualModelActions {
   removeFromVisualModel: (identifier: string) => void;
 
   //
-  changeSelectionVisibility: (selection: string[], edgeSelection: string[], visibility: boolean) => void;
+  changeSelectionVisibility: (nodeSelection: string[], edgeSelection: string[], visibility: boolean) => void;
 
   deleteSelectionFromSemanticModel: (nodeSelection: string[], edgeSelection: string[]) => void;
   //
@@ -223,7 +223,7 @@ function createActionsContext(
 
   const openCreateProfileDialog = (identifier: string) => {
     withVisualModel(notifications, graph, (visualModel) => {
-      const position = getViewportCenter(diagram);
+      const position = getViewportCenterForClassPlacement(diagram);
       openCreateProfileDialogAction(
         options, dialogs, notifications, classes, useClasses, graph,
         visualModel, diagram, position, identifier);
@@ -428,8 +428,8 @@ function createActionsContext(
     centerViewportToVisualEntityAction(notifications, graph, diagram, model, identifier);
   };
 
-  const changeSelectionVisibility = (selection: string[], edgeSelection: string[], visibility: boolean) => {
-    changeSelectionVisibilityAction(selection, edgeSelection, notifications, graph, visibility);
+  const changeSelectionVisibility = (nodeSelection: string[], edgeSelection: string[], visibility: boolean) => {
+    changeSelectionVisibilityAction(nodeSelection, edgeSelection, notifications, graph, visibility);
   };
 
   const deleteSelectionFromSemanticModel = (nodeSelection: string[], edgeSelection: string[]) => {
@@ -484,9 +484,9 @@ function createActionsContext(
       openCreateConnectionDialog(source.externalIdentifier, target.externalIdentifier);
     },
 
-    onCreateConnectionToNothing: (source, positionRelativeToViewport, flowPosition) => {
-      console.log("Application.onCreateConnectionToNothing", { source, positionRelativeToViewport, flowPosition });
-      diagram.actions().openCanvasToolbar(source, positionRelativeToViewport, flowPosition, "EDGE-DRAG-CANVAS-MENU-TOOLBAR");
+    onCreateConnectionToNothing: (source, flowPosition) => {
+      console.log("Application.onCreateConnectionToNothing", { source, flowPosition });
+      diagram.actions().openCanvasToolbar(source, flowPosition, "EDGE-DRAG-CANVAS-MENU-TOOLBAR");
     },
 
     onSelectionDidChange: (nodes, edges) => {
@@ -495,9 +495,9 @@ function createActionsContext(
     onAnchorNode: (diagramNode) => {
       alert("Anchoring node");
     },
-    onShowSelectionActions: (source, positionRelativeToViewport, flowPosition) => {
-      console.log("Application.onShowSelectionActions", { source, positionRelativeToViewport, flowPosition });
-      diagram.actions().openCanvasToolbar(source, positionRelativeToViewport, flowPosition, "NODE-SECONDARY-TOOLBAR");
+    onShowSelectionActions: (source, flowPosition) => {
+      console.log("Application.onShowSelectionActions", { source, flowPosition });
+      diagram.actions().openCanvasToolbar(source, flowPosition, "NODE-SECONDARY-TOOLBAR");
     },
     onLayoutSelection: () => {
       alert("TODO: currently does nothing (In future - Layouting selection)");
@@ -512,7 +512,8 @@ function createActionsContext(
       alert("TODO: currently does nothing (In future - Showing filter dialog)");
     },
     onCanvasOpenCreateClassDialog: (sourceClassNode, positionToPlaceClassOn) => {
-      // TODO: Maybe should be action - openCreateClassDialogWithModelDerivedFromClass
+      diagram.actions().closeCanvasToolbar();
+      // TODO: Maybe all of this should be in action - openCreateClassDialogWithModelDerivedFromClassAction
 
       let model = findSourceModelOfEntity(sourceClassNode.externalIdentifier, graph.models);
       if (model === null || !(model instanceof InMemorySemanticModel)) {
@@ -548,30 +549,27 @@ function createActionsContext(
       });
     },
     onCreateNewViewFromSelection: () => {
-      const nodeSelection = diagram.actions().getSelectedNodes().map(node => node.externalIdentifier);
-      const edgeSelection = diagram.actions().getSelectedEdges().map(edge => edge.externalIdentifier);
+      const {nodeSelection, edgeSelection} = getSelections(diagram);
       alert("The view functionality currently doesn't work");
+      createNewVisualModelFromSelection(nodeSelection.concat(edgeSelection), true); // TODO: Mock-up implementation
       diagram.actions().closeCanvasToolbar();
     },
     onProfileSelection: () => {
-      const nodeSelection = diagram.actions().getSelectedNodes().map(node => node.externalIdentifier);
-      const edgeSelection = diagram.actions().getSelectedEdges().map(edge => edge.externalIdentifier);
+      const {nodeSelection, edgeSelection} = getSelections(diagram);
       withVisualModel(notifications, graph, (visualModel) => {
         profileSelectionAction(nodeSelection, edgeSelection, classes, graph, visualModel, diagram, notifications, options);
       });
       diagram.actions().closeCanvasToolbar();
     },
     onHideSelection: () => {
-      const nodeSelection = diagram.actions().getSelectedNodes().map(node => node.externalIdentifier);
-      const edgeSelection = diagram.actions().getSelectedEdges().map(edge => edge.externalIdentifier);
-      console.info("Removing selection from view: ", [nodeSelection]);
+      const {nodeSelection, edgeSelection} = getSelections(diagram);
+      console.info("Hiding selection from view: ", [nodeSelection]);
       changeSelectionVisibilityAction(nodeSelection, edgeSelection, notifications, graph, false);
       diagram.actions().closeCanvasToolbar();
     },
     onDeleteSelection: () => {
-      const nodeSelection = diagram.actions().getSelectedNodes().map(node => node.externalIdentifier);
-      const edgeSelection = diagram.actions().getSelectedEdges().map(edge => edge.externalIdentifier);
-      console.info("Removing selection from view: ", [nodeSelection]);
+      const {nodeSelection, edgeSelection} = getSelections(diagram);
+      console.info("Removing selection from semantic model: ", [nodeSelection]);
       removeSelectionFromSemanticModelAction(nodeSelection, edgeSelection, notifications, graph);
       diagram.actions().closeCanvasToolbar();
     },

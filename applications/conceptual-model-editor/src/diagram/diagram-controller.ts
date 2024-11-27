@@ -52,9 +52,7 @@ type ReactFlowContext = ReactFlowInstance<NodeType, EdgeType>;
 
 type OpenEdgeContextMenuHandler = (edge: EdgeType, x: number, y: number) => void;
 
-type OpenCanvasContextMenuHandler = (sourceClassNode: ApiNode, relativePositionToViewportX: number,
-                                      relativePositionToViewportY: number, abosluteFlowPosition: Position,
-                                      toolbarType: CanvasToolbarTypes) => void;
+type OpenCanvasContextMenuHandler = (sourceClassNode: ApiNode, abosluteFlowPosition: Position, toolbarType: CanvasToolbarTypes) => void;
 
 export type OpenedCanvasToolbar = CanvasToolbarTypes | null;
 
@@ -69,6 +67,7 @@ interface DiagramContextType {
 
   onOpenCanvasContextMenu: OpenCanvasContextMenuHandler;
 
+  // Stored in context because the idea is to allow max one opened canvas toolbar
   openedCanvasToolbar: OpenedCanvasToolbar;
 
   getLastSelected: () => string | null;
@@ -147,15 +146,18 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
 
   const lastSelected = useRef<string | null>(null);
 
-  // TODO: Rewrite into methods
-  // const lastSelectedState = useCallback(createLastSelectedeHandler(last, setLast), [last, setLast]);
+  // TODO: Rewrite into methods?
   const getLastSelected = useCallback(() => lastSelected.current, [lastSelected]);
-  const setLastSelected = (newLast: string | null) => {
+  const setLastSelected = useCallback((newLast: string | null) => {
     lastSelected.current = newLast;
-  }
+  }, [lastSelected]);
 
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const [selectedEdges, setSelectedEdges] = useState<string[]>([]);
+
+  const shouldShowSelectionToolbar = useCallback(() => {
+    return selectedNodes.length > 1 || (selectedNodes.length === 1 && selectedEdges.length > 0);
+  }, [selectedNodes, selectedEdges]);
 
 
   // The initialized is set to false when new node is added and back to true once the size is determined.
@@ -165,10 +167,6 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
     [reactFlow, setSelectedNodes, setSelectedEdges, lastSelected]);
 
   useOnSelectionChange({ onChange: (onChangeSelection) });
-
-  const shouldShowSelectionToolbar = useCallback(() => {
-    return selectedNodes.length > 1 || (selectedNodes.length === 1 && selectedEdges.length > 0);
-  }, [selectedNodes, selectedEdges]);
 
   const onNodesChange = useCallback(createNodesChangeHandler(setNodes, alignment), [setNodes, alignment]);
 
@@ -205,7 +203,7 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
   const onNodeDragStart = useCallback(createOnNodeDragStartHandler(alignment), [alignment]);
   const onNodeDragStop = useCallback(createOnNodeDragStopHandler(api, alignment), [api, alignment]);
 
-  const onPaneClick = useCallback(createOnPaneClick(setCanvasToolbar), [setCanvasToolbar]);
+  const onPaneClick = useCallback(createOnPaneClickHandler(actions.closeCanvasToolbar), [actions.closeCanvasToolbar]);
 
   return {
     nodes,
@@ -377,13 +375,13 @@ const createConnectEndHandler = (reactFlow: ReactFlowInstance<NodeType, EdgeType
     const targetIsPane = (event.target as Element).classList.contains("react-flow__pane");
     const flowPosititon = reactFlow.screenToFlowPosition({x: (event as unknown as React.MouseEvent)?.clientX, y: (event as unknown as React.MouseEvent)?.clientY});
     if (targetIsPane) {
-      api.callbacks().onCreateConnectionToNothing(source.data, positionRelativeToViewport, flowPosititon);
+      api.callbacks().onCreateConnectionToNothing(source.data, flowPosititon);
     } else {
       if (connection.toNode === null) {
         // If user have not attached the node to the handle, we get no target.
         const nodes = reactFlow.getIntersectingNodes({ x: positionRelativeToViewport.x, y: positionRelativeToViewport.y, width: 1, height: 1 });
         if (nodes.length === 0) {
-          api.callbacks().onCreateConnectionToNothing(source.data, positionRelativeToViewport, flowPosititon);
+          api.callbacks().onCreateConnectionToNothing(source.data, flowPosititon);
         } else {
           // There is something under it.
           api.callbacks().onCreateConnectionToNode(source.data, nodes[0].data);
@@ -434,15 +432,14 @@ const createOpenEdgeToolbarHandler = (setEdgeToolbar: React.Dispatch<React.SetSt
 };
 
 const createOpenCanvasToolbarHandler = (setCanvasToolbar: React.Dispatch<React.SetStateAction<CanvasToolbarGeneralProps | null>>): OpenCanvasContextMenuHandler => {
-  return (sourceClassNode: ApiNode, relativePositionToViewportX: number, relativePositionToViewportY: number, abosluteFlowPosition: Position, toolbarType: CanvasToolbarTypes) => {
-    const closeCanvasToolbar = () => setCanvasToolbar(null);
-    setCanvasToolbar({ sourceClassNode, relativePositionToViewportX, relativePositionToViewportY, closeCanvasToolbar, abosluteFlowPosition, toolbarType });
+  return (sourceClassNode: ApiNode, abosluteFlowPosition: Position, toolbarType: CanvasToolbarTypes) => {
+    setCanvasToolbar({ sourceClassNode, abosluteFlowPosition, toolbarType });
   };
 };
 
-const createOnPaneClick = (setCanvasToolbar: React.Dispatch<React.SetStateAction<CanvasToolbarGeneralProps | null>>) => {
+const createOnPaneClickHandler = (closeCanvasToolbar: () => void) => {
   return () => {
-    setCanvasToolbar(null);
+    closeCanvasToolbar();
   };
 };
 
@@ -579,9 +576,9 @@ const createActions = (
     renderToSvgString() {
       return diagramContentAsSvg(reactFlow.getNodes());
     },
-    openCanvasToolbar(sourceClassNode: ApiNode, relativePositionToViewport: Position, abosluteFlowPosition: Position, toolbarType: CanvasToolbarTypes) {
-      console.log("openCanvasToolbar", {sourceClassNode, relativePositionToViewport, abosluteFlowPosition});
-      context?.onOpenCanvasContextMenu(sourceClassNode, relativePositionToViewport.x, relativePositionToViewport.y, abosluteFlowPosition, toolbarType);
+    openCanvasToolbar(sourceClassNode: ApiNode, abosluteFlowPosition: Position, toolbarType: CanvasToolbarTypes) {
+      console.log("openCanvasToolbar", {sourceClassNode, abosluteFlowPosition});
+      context?.onOpenCanvasContextMenu(sourceClassNode, abosluteFlowPosition, toolbarType);
     },
     closeCanvasToolbar() {
       console.log("closeCanvasToolbar");
@@ -668,13 +665,12 @@ const focusNodeAction = (reactFlow: ReactFlowContext, node: Node) => {
   void reactFlow.setCenter(x, y, { zoom, duration: 1000 });
 };
 
-
-// TODO: Rewrite to types
 const createDiagramContext = (api: UseDiagramType, onOpenEdgeContextMenu: OpenEdgeContextMenuHandler,
                               onOpenCanvasContextMenu: OpenCanvasContextMenuHandler,
                               openedCanvasToolbar: OpenedCanvasToolbar,
                               getLastSelected: () => string | null,
-                              setLastSelected: (newLast: string | null) => void, shouldShowSelectionToolbar: () => boolean): DiagramContextType => {
+                              setLastSelected: (newLast: string | null) => void,
+                              shouldShowSelectionToolbar: () => boolean): DiagramContextType => {
   return {
     callbacks: api.callbacks,
     onOpenEdgeContextMenu,

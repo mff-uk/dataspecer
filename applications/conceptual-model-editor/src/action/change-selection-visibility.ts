@@ -11,10 +11,10 @@ export const changeSelectionVisibilityAction = (nodeSelection: string[], edgeSel
                                                 graph: ModelGraphContextType,
                                                 visibility: boolean): void => {
     for(const selectedEntityId of edgeSelection.concat(nodeSelection)) {
-        // TODO: We could delete all at once instead of removing sequentially - same for adding to visual model
-        //       but I am not sure if there is currently support for that (I thought there is, but can't find it now).
-        //       Also it might not be as simple (for reference can check the comment in remove-selection-from-semantic-model.ts
         if(visibility === false) {
+            // TODO: Maybe we could remove all entities at once instead of removing sequentially (same for the else branch when adding to visual model)
+            //       but I am not sure if there is currently support for that (I thought there is, but can't find it now).
+            //       Also it might not be as simple - for reference you can check the comment in remove-selection-from-semantic-model.ts
             removeFromVisualModelAction(notifications, graph, selectedEntityId);
         }
         else {

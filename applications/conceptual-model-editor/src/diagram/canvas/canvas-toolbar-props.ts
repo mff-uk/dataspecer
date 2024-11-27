@@ -17,16 +17,9 @@ export type CanvasToolbarTypes = "EDGE-DRAG-CANVAS-MENU-TOOLBAR" | "NODE-SECONDA
  */
 export interface CanvasToolbarGeneralProps {
 
-  relativePositionToViewportX: number;
-
-  relativePositionToViewportY: number;
-
   abosluteFlowPosition: Position;
 
   sourceClassNode: ApiNode;
-
-  // TODO: Not sure how should I propagate this, maybe it should be on better place - maybe context (DiagramContextType)?
-  closeCanvasToolbar: () => void;
 
   toolbarType: CanvasToolbarTypes;
 }
