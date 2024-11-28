@@ -19,5 +19,8 @@
   },
   "dependencies": {
     "@dataspecer/core": "*"
+  },
+  "peerDependencies": {
+    "@dataspecer/core-v2": "*"
   }
 }

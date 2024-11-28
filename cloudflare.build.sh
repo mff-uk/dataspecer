@@ -27,6 +27,24 @@ API_SPECIFICATION="/api-specification"
 API_SPECIFICATION_BASE_PATH="$BASE_PATH$API_SPECIFICATION"
 API_SPECIFICATION_URL="$API_SPECIFICATION_BASE_PATH"
 
+if [ -d .git ]; then
+  if [ -z "$GIT_COMMIT" ]; then
+    GIT_COMMIT=$(git rev-parse HEAD)
+  fi
+  if [ -z "$GIT_REF" ]; then
+    GIT_REF=$(git rev-parse --abbrev-ref HEAD)
+  fi
+  if [ -z "$GIT_COMMIT_DATE" ]; then
+    GIT_COMMIT_DATE=$(git show -s --format=%ci)
+  fi
+  if [ -z "$GIT_COMMIT_NUMBER" ]; then
+    GIT_COMMIT_NUMBER=$(git rev-list HEAD --count)
+    if [ "$GIT_COMMIT_NUMBER" -eq 1 ]; then
+      GIT_COMMIT_NUMBER=""
+    fi
+  fi
+fi
+
 npm ci
 
 printf "VITE_BACKEND=$BACKEND\nVITE_DEBUG_VERSION=$CF_PAGES_BRANCH@$(echo $CF_PAGES_COMMIT_SHA | head -c7) $(date -u +%F\ %H:%M:%S)\nVITE_MANAGER_URL=$MANAGER_URL\nVITE_WIKIDATA_ONTOLOGY_BACKEND=$WIKIDATA_ONTOLOGY_BACKEND\nVITE_BASE_PATH=$DATA_SPECIFICATION_EDITOR_BASE_PATH\n" > applications/data-specification-editor/.env.local
