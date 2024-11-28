@@ -1,9 +1,7 @@
+// @ts-nocheck due to circular dependencies
 import { HttpStoreDescriptor, StoreDescriptor } from "../../store-descriptor";
-// @ts-ignore
 import { EntityModel } from "@dataspecer/core-v2";
-// @ts-ignore
 import { LOCAL_SEMANTIC_MODEL, V1 } from "@dataspecer/core-v2/model/known-models";
-// @ts-ignore
 import { BackendPackageService, Package } from "@dataspecer/core-v2/project";
 import { CoreResource, LanguageString } from "@dataspecer/core/core/core-resource";
 import { DataSpecification as LegacyDataSpecification } from "@dataspecer/core/data-specification/model";
