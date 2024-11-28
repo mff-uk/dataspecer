@@ -1,10 +1,14 @@
 FROM node:22.3.0 AS builder
 WORKDIR /usr/src/app
 
+ARG GIT_COMMIT
+ARG GIT_REF
+ARG GIT_COMMIT_DATE
+ARG GIT_COMMIT_NUMBER
+
 COPY applications/ applications/
 COPY services/ services/
 COPY packages/ packages/
-COPY docker-ws/ docker-ws/
 COPY .npmrc cloudflare.build.sh package-lock.json package.json turbo.json ./
 
 # Build app
@@ -12,6 +16,10 @@ RUN --mount=type=cache,target=/root/.npm \
   DO_BUILD_BACKEND=true \
   BASE_PATH=/_BASE_PATH_DOCKER_REPLACE__ \
   BACKEND=/_BASE_PATH_DOCKER_REPLACE__/api \
+  GIT_COMMIT=$GIT_COMMIT \
+  GIT_REF=$GIT_REF \
+  GIT_COMMIT_DATE=$GIT_COMMIT_DATE \
+  GIT_COMMIT_NUMBER=$GIT_COMMIT_NUMBER \
     sh ./cloudflare.build.sh
 
 # Final stage

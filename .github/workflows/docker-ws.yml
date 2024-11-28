@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch the full history for git describe
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
@@ -30,6 +32,13 @@ jobs:
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=branch
+      - name: Get commit metadata
+        id: commit_meta
+        run: |
+          COMMIT_DATE=$(git log -1 --format=%cd --date=iso)
+          COMMIT_NUMBER=$(git rev-list --count HEAD)
+          echo "COMMIT_DATE=${COMMIT_DATE}" >> $GITHUB_ENV
+          echo "COMMIT_NUMBER=${COMMIT_NUMBER}" >> $GITHUB_ENV
       - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@v6
@@ -39,4 +48,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
+            GIT_REF=${{ github.ref }}
+            GIT_COMMIT_DATE=${{ env.COMMIT_DATE }}
+            GIT_COMMIT_NUMBER=${{ env.COMMIT_NUMBER }}
