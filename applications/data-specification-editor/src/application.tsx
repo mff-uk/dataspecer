@@ -9,7 +9,7 @@ import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 import {getDefaultConfiguration, mergeConfigurations} from "@dataspecer/core/configuration/utils";
 import {getDefaultConfigurators} from "./configurators";
 import { SnackbarProvider } from "notistack";
-import { StructureEditorBackendService } from "./specification";
+import { StructureEditorBackendService } from "@dataspecer/backend-utils/connectors/specification";
 
 export const BackendConnectorContext = React.createContext(null as unknown as StructureEditorBackendService);
 

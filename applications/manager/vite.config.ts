@@ -16,7 +16,7 @@ export default defineConfig({
     })
   ],
   optimizeDeps: {
-    include: ["@dataspecer/core-v2/**", "@dataspecer/core-v2/project"]
+    include: ["@dataspecer/core-v2/**", "@dataspecer/core-v2/project", "@dataspecer/backend-utils/connectors/specification"]
   },
   build: {
     commonjsOptions: {

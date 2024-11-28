@@ -20,8 +20,9 @@ export default defineConfig(({ command, mode }) => {
       })
     ],
     optimizeDeps: {
-      // grep -roh @dataspecer/[^\"\']* | sort | uniq
+      // grep -roh @dataspecer/[^\"\']* | sort | uniq | xargs -I- echo "        \"-\","
       include: [
+        "@dataspecer/backend-utils/connectors/specification",
         "@dataspecer/backend-utils/interfaces",
         "@dataspecer/backend-utils/store-descriptor",
         "@dataspecer/backend-utils/stores",
@@ -29,7 +30,6 @@ export default defineConfig(({ command, mode }) => {
         "@dataspecer/core-v2",
         "@dataspecer/core-v2/entity-model",
         "@dataspecer/core-v2/model/known-models",
-        "@dataspecer/core-v2/project",
         "@dataspecer/core-v2/semantic-model/concepts",
         "@dataspecer/core-v2/semantic-model/in-memory",
         "@dataspecer/core-v2/semantic-model/operations",
@@ -58,7 +58,6 @@ export default defineConfig(({ command, mode }) => {
         "@dataspecer/core/data-specification/model/data-specification-artefact",
         "@dataspecer/core/data-specification/model/data-specification-schema",
         "@dataspecer/core/generator",
-        "@dataspecer/core/io/fetch/fetch-api",
         "@dataspecer/core/io/fetch/fetch-browser",
         "@dataspecer/core/io/stream/input-stream",
         "@dataspecer/core/io/stream/memory-stream-dictionary",

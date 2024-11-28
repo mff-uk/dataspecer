@@ -8,6 +8,7 @@
   },
   "exports": {
     "./connectors": "./lib/connectors/index.js",
+    "./connectors/specification": "./lib/connectors/specification/index.js",
     "./interfaces": "./lib/interfaces/index.js",
     "./store-descriptor": "./lib/store-descriptor/index.js",
     "./stores": "./lib/stores/index.js"

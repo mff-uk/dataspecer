@@ -9,7 +9,7 @@ import {useLocalStorage} from "./utils/use-local-storage";
 import {BackendConnectorContext} from "../application";
 import {Help} from "../components/help";
 import {ReturnBackButton} from "../components/return-back/return-back-button";
-import { DataSpecification, StructureEditorBackendService } from '../specification';
+import { DataSpecification, StructureEditorBackendService } from '@dataspecer/backend-utils/connectors/specification';
 
 export const DataSpecificationsContext = React.createContext({
     dataSpecifications: {} as Record<string, DataSpecification>,

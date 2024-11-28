@@ -6,7 +6,7 @@ import { DataSpecificationConfigurator } from "@dataspecer/core/data-specificati
 import { DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
 import { getSchemaArtifacts } from "./schema-artifacts";
-import { DataSpecification } from "./specification";
+import { DataSpecification } from "@dataspecer/backend-utils/connectors/specification";
 
 /**
  * This class is responsible for setting the artifacts definitions in

@@ -9,7 +9,7 @@ import { ClientConfigurator, DefaultClientConfiguration } from "../../../configu
 import { useAsyncMemo } from "../../hooks/use-async-memo";
 import { OperationContext } from "../../operations/context/operation-context";
 import { Configuration, useProvidedSourceSemanticModel } from "../configuration";
-import { DataSpecification, HttpSemanticModelStoreDescriptor, StructureEditorBackendService } from "../../../specification";
+import { DataSpecification, HttpSemanticModelStoreDescriptor, StructureEditorBackendService } from "@dataspecer/backend-utils/connectors/specification";
 import { EntityModel } from "@dataspecer/core-v2";
 
 const DEFAULT_CIM_ADAPTERS_CONFIGURATION = ["https://dataspecer.com/adapters/sgov"];

@@ -7,7 +7,7 @@ import { getArtefactGenerators } from "../../../artefact-generators";
 import { getDefaultConfigurators } from "../../../configurators";
 import { DefaultArtifactConfigurator } from "../../../default-artifact-configurator";
 import { DataSpecification as CoreDataSpecification } from "@dataspecer/core/data-specification/model";
-import { DataSpecification } from "../../../specification";
+import { DataSpecification } from "@dataspecer/backend-utils/connectors/specification";
 
 /**
  * Returns a single generated artifact with its name based on the given artifact

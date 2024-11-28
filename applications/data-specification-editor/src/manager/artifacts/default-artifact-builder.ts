@@ -5,7 +5,7 @@ import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
 import { getArtefactGenerators } from "../../artefact-generators";
 import { getDefaultConfigurators } from "../../configurators";
-import { DataSpecification } from "../../specification";
+import { DataSpecification } from "@dataspecer/backend-utils/connectors/specification";
 import { ArtifactConfigurator } from "../artifact-configurator";
 import { GenerateReport } from "./generate-report";
 import { ZipStreamDictionary } from "./zip-stream-dictionary";
