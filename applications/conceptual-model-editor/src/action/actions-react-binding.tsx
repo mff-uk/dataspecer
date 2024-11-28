@@ -26,7 +26,7 @@ import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
-import { getSelections, getViewportCenterForClassPlacement } from "./utilities";
+import { filterOutProfileClassEdges, getSelections, getViewportCenterForClassPlacement } from "./utilities";
 import { removeFromVisualModelAction } from "./remove-from-visual-model";
 import { removeFromSemanticModelAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
@@ -555,21 +555,28 @@ function createActionsContext(
       diagram.actions().closeCanvasToolbar();
     },
     onProfileSelection: () => {
-      const {nodeSelection, edgeSelection} = getSelections(diagram);
+      let {nodeSelection, edgeSelection} = getSelections(diagram);
       withVisualModel(notifications, graph, (visualModel) => {
+        edgeSelection = filterOutProfileClassEdges(edgeSelection, visualModel);
         profileSelectionAction(nodeSelection, edgeSelection, classes, graph, visualModel, diagram, notifications, options);
       });
       diagram.actions().closeCanvasToolbar();
     },
     onHideSelection: () => {
-      const {nodeSelection, edgeSelection} = getSelections(diagram);
-      console.info("Hiding selection from view: ", [nodeSelection]);
+      let {nodeSelection, edgeSelection} = getSelections(diagram);
+      withVisualModel(notifications, graph, (visualModel) => {
+        edgeSelection = filterOutProfileClassEdges(edgeSelection, visualModel);
+      });
+      console.info("Hiding selection from view: ", {nodeSelection, edgeSelection});
       changeSelectionVisibilityAction(nodeSelection, edgeSelection, notifications, graph, false);
       diagram.actions().closeCanvasToolbar();
     },
     onDeleteSelection: () => {
-      const {nodeSelection, edgeSelection} = getSelections(diagram);
-      console.info("Removing selection from semantic model: ", [nodeSelection]);
+      let {nodeSelection, edgeSelection} = getSelections(diagram);
+      withVisualModel(notifications, graph, (visualModel) => {
+        edgeSelection = filterOutProfileClassEdges(edgeSelection, visualModel);
+      });
+      console.info("Removing selection from semantic model: ", {nodeSelection, edgeSelection});
       removeSelectionFromSemanticModelAction(nodeSelection, edgeSelection, notifications, graph);
       diagram.actions().closeCanvasToolbar();
     },

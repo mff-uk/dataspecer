@@ -15,7 +15,7 @@ export const removeSelectionFromSemanticModelAction = (nodeSelection: string[], 
     const removeEntitiesPromises: Record<string, Promise<void>> = {};
 
     // TODO: Since I concat, maybe I don't need to distinguish between edges and nodes, so I can just pass in 1 argument named selection
-    nodeSelection.concat(edgeSelection).forEach(selectedEntityId => {
+    edgeSelection.concat(nodeSelection).forEach(selectedEntityId => {
         const model = sourceModelOfEntity(selectedEntityId, [...graph.models.values()]);
         if(model === undefined) {
             notifications.error("Entity from selection is not present in semantic model.");

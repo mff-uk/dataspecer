@@ -5,6 +5,7 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { configuration, createLogger } from "../application";
 import { placePositionOnGrid, ReactflowDimensionsConstantEstimator } from "@dataspecer/layout";
+import { isVisualRelationship, VisualModel } from "@dataspecer/core-v2/visual-model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -67,4 +68,14 @@ export function getSelections(diagram: UseDiagramType): Selections {
   const nodeSelection = diagram.actions().getSelectedNodes().map(node => node.externalIdentifier);
   const edgeSelection = diagram.actions().getSelectedEdges().map(edge => edge.externalIdentifier);
   return {nodeSelection, edgeSelection};
+}
+
+
+// TODO: Maybe this method should be called every time when working with edge selection?
+//       Right now I don't see any case when we want to work with the edges representing class profile (except for setting waypoints)
+export function filterOutProfileClassEdges(edgeSemanticIdentifiers: string[], visualModel: VisualModel): string[] {
+  return edgeSemanticIdentifiers.filter(edgeIdentifier => {
+    const visualEntity = visualModel.getVisualEntityForRepresented(edgeIdentifier);
+    return visualEntity !== null && isVisualRelationship(visualEntity);
+  });
 }
