@@ -8,7 +8,7 @@ type VisualEntityIdentifier = string;
 export type LayoutedVisualEntity = {
     visualEntity: VisualEntity,
     isOutsider: boolean,
-}
+};
 export type LayoutedVisualEntities = Record<VisualEntityIdentifier, LayoutedVisualEntity>;
 export type VisualEntities = Record<VisualEntityIdentifier, VisualEntity>;
-export type VisualEntitiesAllType = Record<VisualEntityIdentifier, VisualEntity | ModelVisualInformation>;
+export type VisualEntitiesWithModelVisualInformation = Record<VisualEntityIdentifier, VisualEntity | ModelVisualInformation>;

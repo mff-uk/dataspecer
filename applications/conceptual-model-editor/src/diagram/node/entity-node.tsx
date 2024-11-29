@@ -42,7 +42,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
     usageNote = data.profileOf.usageNote;
   }
 
-  // TODO: For now
+  // TODO: Where should be the access to the information saying that the node is anchored so we can visualize it? Should it be action? Or should it be like this?
   const graph = useModelGraphContext();
   const isAnchored = (graph.aggregatorView?.getActiveVisualModel()?.getVisualEntity(props.data.identifier) as VisualNode).position?.anchored ?? false;
 
@@ -102,9 +102,7 @@ function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   const onCreateProfile = () => context?.callbacks().onCreateNodeProfile(props.data);
   const onHide = () => context?.callbacks().onHideNode(props.data);
   const onDelete = () => context?.callbacks().onDeleteNode(props.data);
-  const onAnchor = () => {
-    actions.changeAnchor(props.data.externalIdentifier);
-  };
+  const onAnchor = () => context?.callbacks().onAnchorNode(props.data);
 
   return (
     <>

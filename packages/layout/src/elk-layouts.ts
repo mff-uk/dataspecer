@@ -13,7 +13,7 @@ import { BasicUserGivenConstraints, ConstraintedNodesGroupingsType, IAlgorithmCo
 import { AlgorithmName, ConstraintContainer, ElkConstraintContainer } from "./configs/constraint-container";
 import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
 import { CONFIG_TO_ELK_CONFIG_MAP } from "./configs/elk/elk-utils";
-import { NodeDimensionQueryHandler, ReactflowDimensionsConstantEstimator } from ".";
+import { NodeDimensionQueryHandler, ReactflowDimensionsConstantEstimator, XY } from ".";
 import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { PhantomElementsFactory, placePositionOnGrid } from "./util/utils";
 import _, { clone } from "lodash";
@@ -23,12 +23,6 @@ import { VisualEntities } from "./migration-to-cme-v2";
 
 
 type VisualEntitiesType = (VisualNodeComplete | VisualRelationship | VisualProfileRelationship)[];
-
-// TODO: extract type somewhere else
-export type XY = {
-    x: number,
-    y: number,
- };
 
 /**
  * The Transformer class for conversion between our graph representation and ELK graph representation. For more info check {@link GraphTransformer} docs.
@@ -187,9 +181,10 @@ class ElkGraphTransformer implements GraphTransformer {
         const visualEntities = this.recursivelyUpdateGraphBasedOnElkNode(libraryRepresentation, graphToBeUpdated, 0, 0, shouldUpdateEdges);
         const visualNodes = visualEntities.filter(visualEntity => this.isGraphNode(visualEntity)).map(ve => (ve as VisualNodeComplete).coreVisualNode);
         // TODO: Actually moving all to the origin point [0, 0] is sometimes unwanted - For example when using the elk.stress algorithm to find position for 1 element
-        //       We don't to move everything, but just the 1 node. So either 1) remove it | or | 2) It should be GraphTransformation action ... probably 2)
+        //       We don't want to move everything, but just the 1 node. So either 1) remove it or
+        //                                                                        2) It should be GraphTransformation action ... probably 2)
         const [leftX, topY] = this.findTopLeftPosition(visualNodes);
-        console.warn("POSITIONS AGAIN !");
+        console.warn("Positions before performing anchor shift");
         console.warn(JSON.stringify(Object.values(visualEntities).filter(this.isGraphNode).map(n => [n.coreVisualNode.representedEntity, n.coreVisualNode.position])));
 
         let positionShiftDueToAnchors: XY = {x: 0, y: 0};
@@ -205,7 +200,7 @@ class ElkGraphTransformer implements GraphTransformer {
                 // visualEntity.coreVisualNode.position.y -= topY;
 
                 // TODO: Maybe should have set method on graph instead which does the conversion to grid automatically and maybe should also should update edges?
-                //       (It is most likely the case !! - After realizing that I want have moving to top left position as GraphTransformation action)
+                //       (It is most likely the case - After realizing that I want have moving to top left position as GraphTransformation action)
                 //       Also we can't access the cme configuration (applications/conceptual-model-editor/src/application/configuration.ts) from here
                 //       So I am not sure how one should solve this.
                 //       1) Include the reference to CME so we can access the configuration or put the configuration somewhere out since it is constant
@@ -225,7 +220,7 @@ class ElkGraphTransformer implements GraphTransformer {
             }
         });
 
-        console.warn("POSITIONS for the third time !");
+        console.warn("Positions after performing anchor shift");
         console.warn(JSON.stringify(Object.values(visualEntities).filter(this.isGraphNode).map(n => [n.coreVisualNode.representedEntity, n.coreVisualNode.position])));
 
 

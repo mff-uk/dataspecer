@@ -6,15 +6,14 @@ import { VisualModel, isVisualNode, Position, VisualEntity, VisualNode, VisualRe
 import { capitalizeFirstLetter, PhantomElementsFactory, placePositionOnGrid } from "./util/utils";
 import { LayoutedVisualEntity, LayoutedVisualEntities } from "./migration-to-cme-v2";
 import { EntityModel } from "@dataspecer/core-v2";
-import { XY } from "./elk-layouts";
 import { ExplicitAnchors, isEntityWithIdentifierAnchored } from "./explicit-anchors";
-import { NodeDimensionQueryHandler, ReactflowDimensionsEstimator } from ".";
+import { NodeDimensionQueryHandler, ReactflowDimensionsEstimator, XY } from ".";
 
 /**
  * This is special type for situations, when we want to layout the current visual model, but we also want to find positions for nodes, which are not yet in the visual model,
  * those are stored in {@link outsiders}.
  * Use-case is for example when adding existing class back to canvas. Because if we perform the usual 2 step addition, that is:
- *    1) Add node to visual modle together with all its edges
+ *    1) Add node to visual model together with all its edges
  *    2) Layout visual model
  * Then the node has to be added to some position in step 1), but we move it in step 2). That results in node jumping, which is unwanted behavior.
  *
@@ -430,8 +429,8 @@ export class GraphClassic implements IGraphClassic {
 
         // https://stackoverflow.com/questions/46703364/why-does-instanceof-in-typescript-give-me-the-error-foo-only-refers-to-a-ty
         // Just simple check, dont check all elements it is not necessary
-        const isExtractedModels = (inputModels as ExtractedModels).entities && (inputModels as ExtractedModels).generalizations;
-        const extractedModels = isExtractedModels ? (inputModels as ExtractedModels) : extractModelObjects(inputModels as Map<string, EntityModel>);
+        const areInputModelsExtractedModels = (inputModels as ExtractedModels).entities && (inputModels as ExtractedModels).generalizations;
+        const extractedModels = areInputModelsExtractedModels ? (inputModels as ExtractedModels) : extractModelObjects(inputModels as Map<string, EntityModel>);
 
 
         console.info("extractedModels");
@@ -842,9 +841,7 @@ export class MainGraphClassic extends GraphClassic implements IMainGraphClassic 
             }
 
             const visualEntityForEdge = edge.convertToDataspecerRepresentation();
-            // TODO: Now ideal ... we are basically repairing the case of layouting semantic model - at the time of creating of edge, all nodes weren't prepared
-            //       so we are doing it here (or we could still do it while converting from the library representation to the graph one, but a bit later)
-            //       .... In future I think that the ideal solution is to create the visual entity immediately when putting it to graph - we should be using the visual ids anyways
+            // TODO: Just in case look-up if not set, but I think that in current version this never occurs, we always have the visual node to use
             if(visualEntityForEdge.visualSource === "") {
                 const sourceGraphNode = this.findNodeInAllNodes(edge.start.id);
                 visualEntityForEdge.visualSource = sourceGraphNode.completeVisualNode.coreVisualNode.identifier;
@@ -1004,29 +1001,38 @@ class EdgeClassic implements IEdgeClassic {
 
 
     private createNewVisualRelationshipBasedOnSemanticData(): VisualRelationship | VisualProfileRelationship {
-        // TODO: It makes sense to use the cme methods to create the visual entities? instead of implementing it all again - just define method and call it
+        // TODO: It makes sense to use the cme methods to create the visual entities - Instead of implementing it all again - just define method and call it
         //      ... for example I am not sure the type should cotnain only the VISUAL_RELATIONSHIP_TYPE or also some other type, so for such cases constistency would be nice
-        const relationshipType = this.edgeProfileType === "CLASS-PROFILE" ? [VISUAL_PROFILE_RELATIONSHIP_TYPE] : [VISUAL_RELATIONSHIP_TYPE];
+        if(this.edgeProfileType === "CLASS-PROFILE") {
+            const edgeToReturn: VisualProfileRelationship = {
+                identifier: Math.random().toString(36).substring(2),
+                entity: this.start.node.id,
+                type: [VISUAL_PROFILE_RELATIONSHIP_TYPE],
+                waypoints: [],
+                model: this?.sourceEntityModelIdentifier ?? "",
+                visualSource: this?.start?.completeVisualNode?.coreVisualNode?.identifier ?? "",
+                visualTarget: this?.end?.completeVisualNode?.coreVisualNode?.identifier ?? "",
+            };
 
-        const edgeToReturn: VisualRelationship | VisualProfileRelationship = {
+            return edgeToReturn;
+        }
+
+        const edgeToReturn: VisualRelationship = {
             identifier: Math.random().toString(36).substring(2),
-            type: relationshipType,
+            type: [VISUAL_RELATIONSHIP_TYPE],
             representedRelationship: this?.edge?.id ?? this.id,
             waypoints: [],
             model: this?.sourceEntityModelIdentifier ?? "",
             visualSource: this?.start?.completeVisualNode?.coreVisualNode?.identifier ?? "",
             visualTarget: this?.end?.completeVisualNode?.coreVisualNode?.identifier ?? "",
         };
-        if(this.edgeProfileType === "CLASS-PROFILE" || this.edgeProfileType === "EDGE-PROFILE") {
-            edgeToReturn["entity"] = this.start.id;
-        }
 
         return edgeToReturn;
     }
 
 
     /**
-     * Either sets it newly created one or uses the one from visual model
+     * Either sets it to newly created visual edge or uses the one from visual model
      */
     private setVisualEdgeBasedOnStoredData(visualModel: VisualModelWithOutsiders) {
         this.visualEdge = null;
@@ -1373,8 +1379,6 @@ class NodeClassic implements INodeClassic {
         }).map(attributeBundle => attributeBundle.semanticModelRelationship);
 
         // Notice that we need to set the attributes first to correctly estimate the width/height of node if necessary.
-        // The visual entities probably have to be created here, because if we want to support layouting of entities to be added to visual model, we also need to create visual edges
-        // The edges must have visualSource and visualTarget !!!
         const width = this.mainGraph.nodeDimensionQueryHandler.getWidth(this);
         const height = this.mainGraph.nodeDimensionQueryHandler.getHeight(this);
         if(visualModel !== null) {
@@ -1383,30 +1387,30 @@ class NodeClassic implements INodeClassic {
                 const coreVisualNode = this.createNewVisualNodeBasedOnSemanticData(outsiderPosition);
                 let isAnchored = false;
                 if(explicitAnchors !== undefined) {
-                    isAnchored = isEntityWithIdentifierAnchored(this.node.id, explicitAnchors);
+                    isAnchored = isEntityWithIdentifierAnchored(this.node.id, explicitAnchors, isAnchored);
                 }
                 this.completeVisualNode = new VisualNodeComplete(coreVisualNode, width, height, false, true, isAnchored);
             }
             else {
                 // TODO: What should happen once we have 1 represented entity on canvas twice ... then we will also need different ID in this.id
-                const visualEntity = visualModel.visualModel.getVisualEntityForRepresented(this.node.id);
-                if(!isVisualNode(visualEntity)) {
+                const visualNode = visualModel.visualModel.getVisualEntityForRepresented(this.node.id);
+                if(!isVisualNode(visualNode)) {
                     throw new Error("Something is very wrong, visual node isn't of type visual node");
                 }
 
-                // TODO: For now just expect that anchors work on top of visual model (It really isn't much of a limitation)
-                let isAnchored: boolean = visualEntity.position.anchored ?? false;
+                // Just expect that anchors work on top of visual model (It really isn't much of a limitation)
+                let isAnchored: boolean = visualNode.position.anchored ?? false;
                 if(explicitAnchors !== undefined) {
-                    isAnchored = isEntityWithIdentifierAnchored(this.id, explicitAnchors);
+                    isAnchored = isEntityWithIdentifierAnchored(this.id, explicitAnchors, isAnchored);
                 }
 
-                this.completeVisualNode = new VisualNodeComplete(visualEntity, width, height, true, false, isAnchored);
+                this.completeVisualNode = new VisualNodeComplete(visualNode, width, height, true, false, isAnchored);
             }
 
         }
         else {
             const coreVisualNode = this.createNewVisualNodeBasedOnSemanticData(null);
-            // Checking for explicit anchors and using it doesn't make sense, because in this case we don't have position or anything
+            // Here we don't check for explicit anchors, since it doesn't make sense to use them, because in this case we don't have position or anything
             // Basically we are just layouting semantic model.
             this.completeVisualNode = new VisualNodeComplete(coreVisualNode, width, height, false, false, false);
         }

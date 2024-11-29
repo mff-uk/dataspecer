@@ -8,6 +8,7 @@ import { placePositionOnGrid, ReactflowDimensionsConstantEstimator, XY } from "@
 import { configuration } from "../application";
 
 
+// TODO: After merge the content of this file should be in utilites.ts (and don't forget to remove getCenterOfViewport, respectively use the old variant without shifting)
 
 
 export const getCenterOfViewport = (diagram: UseDiagramType) => {
@@ -23,11 +24,10 @@ export const getCenterOfViewport = (diagram: UseDiagramType) => {
     placePositionOnGrid(position, configuration().xSnapGrid, configuration().ySnapGrid);
 
     return position;
-  };
+};
 
 
-
-// TOOD: Maybe put profile on top of profile class?
+// TODO: Call this method using the withVisualModel method after we merge with main (it solves the issue of repeating the same error notifications for visual model)
 /**
  * @returns The barycenter of nodes associated to {@link nodeToFindAssociationsFor} and boolean variable saying if the position was explicitly put to middle of viewport.
  */
@@ -36,16 +36,13 @@ export const computeMiddleOfRelatedAssociationsPositionAction = (nodeToFindAssoc
                                                             graph: ModelGraphContextType,
                                                             diagram: UseDiagramType,
                                                             classesContext: ClassesContextType): [XY, boolean] => {
-    // TODO: !!!! Use this ... the variant with selection, this is just so I have something which works for this branch
+    // TODO: !!!! Use this commented code after merge ... the variant with systematic selection, this is just so I have something which works for this branch
     // const associatedClasses: string[] = findAssociatedClassesAndClassUsages(nodeToFindAssociationsFor);
     const associatedClasses: string[] = findAssociatedClasses(nodeToFindAssociationsFor, classesContext.classes, classesContext.relationships).map(classs => classs.id);
-
 
     // TODO: I should probably rewrite so it works with visual model only (because right now we are using the diagram component to compute barycenter).
     const visualModel = graph.aggregatorView.getActiveVisualModel();
     if(visualModel === null) {
-        // TODO: 1) Maybe it would be nice to kind of unify the notifiactions? SInce this check for visual model being null is done on like 5 different places
-        // TODO: 2) I actually don't need the active visual model, since I can take the same data from editor ... but idk?
         notifications.error("There is no active visual model");
         return [getCenterOfViewport(diagram), true];
     }
@@ -64,14 +61,9 @@ export const computeMiddleOfRelatedAssociationsPositionAction = (nodeToFindAssoc
     }).filter(position => position !== null);
 
     const barycenter = computeBarycenter(associatedPositions.filter(pos => pos !== undefined), diagram);
-    // TODO: Maybe here also call physical layout algorithm to improve the barycenter
-    // TODO: Or maybe also shift like in the case of the middle of viewport
-
     return barycenter;
 };
 
-
-// TODO: Help method, maybe can be put somewhere else
 /**
  *
  * @param positions
@@ -105,7 +97,7 @@ const computeBarycenter = (positions: Position[], diagram: UseDiagramType): [Pos
 
 
 
-// TODO: !!! For now ... We can replace the following methods by the systematic selection later (using the following commented code) !!!
+// TODO: !!! For now ... We can replace all of the following methods by the systematic selection later (using the following commented code) !!!
 
 // export const findAssociatedClassesAndClassUsages = (nodeToFindAssociationsFor: string) => {
 //     // TODO: Actually if the passed semantic models are null, then the function isn't async

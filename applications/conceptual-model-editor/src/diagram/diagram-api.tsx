@@ -75,8 +75,7 @@ export interface DiagramActions {
    */
   getNodeWidth(identifier: string): number | null;
 
-   /**
-   * Returns The height of given node in the diagram component.
+  /**
    * @param identifier is the id of the node.
    * @returns The height of given node in the diagram component. Null if the height couldn't be measured. For example when the node isn't in diagram, etc.
    */
@@ -368,6 +367,10 @@ interface DiagramNodes {
    */
   onChangeNodesPositions: (changes: { [nodeIdentifier: string]: Position }) => void;
 
+  /**
+   * TODO: Defined in other git branch
+   */
+  onAnchorNode: (diagramNode: Node) => void;
 }
 
 /**

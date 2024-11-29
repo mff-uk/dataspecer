@@ -11,6 +11,7 @@ export function changeAnchorAction(
   identifier: string,
 ) {
 
+  // TODO: After merge to main - again change the method signature to contain visual model - which we get by using the withVisualModel method
   const visualModel = graph.aggregatorView.getActiveVisualModel();
   if (visualModel === null) {
     notifications.error("There is no active visual model.");

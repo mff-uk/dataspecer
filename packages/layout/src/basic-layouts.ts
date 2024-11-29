@@ -19,7 +19,6 @@ export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic, shou
     const classNodes = Object.values(graph.nodes).filter(node => !node.isDummy);
     classNodes.forEach(classNode => {
         let visualNode: VisualNode;
-        // TODO; I think that the undefined check will be unnecessary later, once we initialize vis entity in graph instead when converting back
         if(classNode?.completeVisualNode?.isAnchored === true) {
             visualNode = classNode.completeVisualNode.coreVisualNode;
         }

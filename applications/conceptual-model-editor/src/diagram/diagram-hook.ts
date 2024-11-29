@@ -124,4 +124,5 @@ const noOperationCallbacks: DiagramCallbacks = {
   onSelectionDidChange: noOperation,
   onCreateConnectionToNode: noOperation,
   onCreateConnectionToNothing: noOperation,
+  onAnchorNode: noOperation,
 };

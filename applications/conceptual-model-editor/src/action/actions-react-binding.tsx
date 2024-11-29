@@ -81,8 +81,6 @@ export interface ActionsContextType {
 
   layoutActiveVisualModel: (configuration: UserGivenConstraintsVersion4) => Promise<LayoutedVisualEntities | void>;
 
-  changeAnchor: (semanticEntityIdentifier: string) => void;
-
   /**
    * As this context requires two way communication it is created and shared via the actions.
    */
@@ -103,7 +101,6 @@ const noOperationActionsContext = {
   removeFromVisualModel: noOperation,
   centerViewportToVisualEntity: noOperation,
   layoutActiveVisualModel: noOperationAsync,
-  changeAnchor: noOperation,
   diagram: null,
 };
 
@@ -240,6 +237,8 @@ function createActionsContext(
   const addNodeToVisualModel = async (model: string, identifier: string, TODO_DEBUG_shouldUseLayoutingAlgorithm: boolean) => {
     let [position, isInMiddleofViewport] = computeMiddleOfRelatedAssociationsPositionAction(identifier, notifications, graph, diagram, classes);
 
+    // TODO: Remove the TODO_DEBUG after (or maybe before) merge
+    // TODO: Also this code should be probably part of some new .*Action.ts file
     if(TODO_DEBUG_shouldUseLayoutingAlgorithm && !isInMiddleofViewport) {
       const maxDeviation = 100;
       position.x += Math.floor(Math.random() * maxDeviation) - maxDeviation / 2;
@@ -286,7 +285,7 @@ function createActionsContext(
       }
     }
 
-    console.info("POSITIONS!");
+    console.info("Positions in active visual model after adding the new node to visual model");
     console.info(JSON.stringify([...graph.aggregatorView.getActiveVisualModel()?.getVisualEntities().values() ?? []].filter(isVisualNode).map(n => [n.identifier, n.position])));
 
     addNodeToVisualModelAction(notifications, graph, model, identifier, position);
@@ -340,10 +339,6 @@ function createActionsContext(
 
   const layoutActiveVisualModel = (configuration: UserGivenConstraintsVersion4) => {
     return layoutActiveVisualModelAction(notifications, diagram, graph, configuration);
-  }
-
-  const changeAnchor = (semanticEntityIdentifier: string) => {
-    changeAnchorAction(notifications, graph, semanticEntityIdentifier);
   }
 
   // Prepare and set diagram callbacks.
@@ -470,6 +465,11 @@ function createActionsContext(
       console.log("Application.onSelectionDidChange", { nodes, edges });
     },
 
+    onAnchorNode: (diagramNode) => {
+      console.log("Application.onAnchorNode", { diagramNode });
+      changeAnchorAction(notifications, graph, diagramNode.externalIdentifier);
+    },
+
   };
 
   diagram.setCallbacks(callbacks);
@@ -487,7 +487,6 @@ function createActionsContext(
     removeFromVisualModel,
     centerViewportToVisualEntity,
     layoutActiveVisualModel,
-    changeAnchor,
     diagram,
   };
 

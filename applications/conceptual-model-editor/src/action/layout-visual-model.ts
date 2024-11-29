@@ -9,14 +9,11 @@ import { XY } from "@dataspecer/layout";
 
 
 /**
- *
- * @param notifications
- * @param diagram
- * @param graph
- * @param configuration
- * @param explicitAnchors
- * @param outsiders are elements which are not part of visual model, but we want to layout them anyways. Use-case is for example elements which to be added to visual model.
- * @param shouldPutOutsidersInVisualModel
+ * @param configuration The configuration for layouting algorithm.
+ * @param explicitAnchors For more context check the type {@link ExplicitAnchors}. But in short it is used to override the anchors stored in visual model.
+ * @param shouldUpdatePositionsInVisualModel If set to true, then update the visual model. If false then not and only return the result of layouting, default is true.
+ * @param outsiders are elements which are not part of visual model, but we want to layout them anyways. Use-case is for example elements which are to be added to visual model.
+ * @param shouldPutOutsidersInVisualModel If set to true, then the outsiders will be put into visual model, if false then not, but user can still see them in the returned result. Default is false
  * @returns
  */
 export function layoutActiveVisualModelAdvancedAction(
@@ -53,18 +50,19 @@ export function layoutActiveVisualModelAdvancedAction(
                                 models,
                                 configuration,
                                 reactflowDimensionQueryHandler,
-                                explicitAnchors).then(result => {
+                                explicitAnchors).then(layoutResult => {
+                                    // TODO: After merge rewrite in the same way it was changed by PeSk
                                     console.info("Layout result in editor");
-                                    console.info(result);
+                                    console.info(layoutResult);
                                     console.info(activeVisualModel.getVisualEntities());
                                     if(!isWritableVisualModel(activeVisualModel)) {
-                                        return result;
+                                        return layoutResult;
                                     }
                                     if(shouldUpdatePositionsInVisualModel === false) {
-                                        return result;
+                                        return layoutResult;
                                     }
 
-                                    Object.entries(result).forEach(([key, value]) => {
+                                    Object.entries(layoutResult).forEach(([key, value]) => {
                                         const visualEntity = value.visualEntity
                                         if(value.isOutsider) {
                                             if(shouldPutOutsidersInVisualModel) {
@@ -78,7 +76,7 @@ export function layoutActiveVisualModelAdvancedAction(
                                             return;
                                         }
 
-                                        // TODO: I am not sure if the if ever passes, maybe we should keep only the else branch.
+                                        // TODO: I am not sure if this "if" ever passes for non-outsiders, maybe we should keep only the else branch.
                                         if(activeVisualModel.getVisualEntity(key) === undefined) {
                                             if(isVisualNode(visualEntity)) {
                                                 console.info("NEW NODE");
@@ -89,13 +87,13 @@ export function layoutActiveVisualModelAdvancedAction(
                                             }
                                         }
                                         else {
-                                            // TODO: Should update all entities at once
+                                            // TODO: Maybe we should somehow update all entities at once
                                             // If the entity isn't there, then nothing happens (at least for current implementation)
                                             activeVisualModel?.updateVisualEntity(visualEntity.identifier, visualEntity);
                                         }
                                     });
 
-                                    return result;
+                                    return layoutResult;
                             }).catch((e) => {
                                 console.warn(e);
                                 return Promise.resolve();
@@ -125,14 +123,14 @@ export function createExactNodeDimensionsQueryHandler(diagram: UseDiagramType,
     }
 
     const getWidth = (node: INodeClassic) => {
-        const visualNodeIdentifier = activeVisualModel?.getVisualEntityForRepresented(node.id)?.identifier ?? "";
+        const visualNodeIdentifier = activeVisualModel.getVisualEntityForRepresented(node.id)?.identifier ?? "";
         // The question is what does it mean if the node isn't in editor? Same for height
         // Actually it is not error, it can be valid state when we are layouting elements which are not yet part of visual model
         const width = diagram.actions().getNodeWidth(visualNodeIdentifier) ?? new ReactflowDimensionsEstimator().getWidth(node);
         return width;
     };
     const getHeight = (node: INodeClassic) => {
-        const visualNodeIdentifier = activeVisualModel?.getVisualEntityForRepresented(node.id)?.identifier ?? "";
+        const visualNodeIdentifier = activeVisualModel.getVisualEntityForRepresented(node.id)?.identifier ?? "";
         const height = diagram.actions().getNodeHeight(visualNodeIdentifier) ?? new ReactflowDimensionsEstimator().getHeight(node);
         return height;
     };

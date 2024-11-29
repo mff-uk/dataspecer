@@ -1,5 +1,5 @@
 import { SemanticModelEntity, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { VisualEntity, VisualModel } from "@dataspecer/core-v2/visual-model";
+import { Position, VisualEntity, VisualModel } from "@dataspecer/core-v2/visual-model";
 import { ExtractedModels, LayoutAlgorithm, LayoutMethod, extractModelObjects } from "./layout-iface";
 
 import {
@@ -25,9 +25,9 @@ import { ConstraintFactory } from "./configs/constraint-factories";
 import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
 import { PhantomElementsFactory } from "./util/utils";
 import { CONSTRAINT_MAP } from "./configs/constraints-mapping";
-import type { LayoutedVisualEntities, VisualEntitiesAllType } from "./migration-to-cme-v2";
+import type { LayoutedVisualEntities, VisualEntitiesWithModelVisualInformation } from "./migration-to-cme-v2";
 export { type LayoutedVisualEntities } from "./migration-to-cme-v2";
-export type { VisualEntitiesAllType }
+export type { VisualEntitiesWithModelVisualInformation };
 import { EdgeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-crossing";
 import { EdgeNodeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-node-crossing";
 
@@ -37,8 +37,6 @@ export type { AlgorithmName } from "./configs/constraint-container";
 
 export { Direction } from "./util/utils";
 export type { INodeClassic } from "./graph-iface";
-
-export { type XY } from "./elk-layouts"
 
 export { ReactflowDimensionsEstimator };
 export { ReactflowDimensionsConstantEstimator } from "./dimension-estimators/constant-dimension-estimator";
@@ -76,6 +74,8 @@ export interface NodeDimensionQueryHandler {
 	getHeight(node: INodeClassic);
 }
 
+export type XY = Omit<Position, "anchored">;
+
 // The layout works like this. The layout package gets configuration from user, usually inserted through dialog.
 // This configuration is converted to different set of constraints (this might have been a bit of overengineering, but it is not that bad).
 // There are different set of constraints:
@@ -104,6 +104,9 @@ export async function performDynamicLayout(visualModel: VisualModel,
 }
 
 
+// TODO: Maybe just return VisualEntities - so without the information about entity being an outsider
+//       On one side, I have the info in nice format so why shouldn't I give it out
+//       On other side, the caller should know about the outsiders, and the API - especially here should be probably minimal
 /**
  * Layout given visual model.
  * @param visualModel The visual model to perform layout on.
@@ -255,6 +258,11 @@ const runPostMainAlgorithmConstraints = async (graph: IMainGraphClassic,
 												constraintsContainer: ConstraintContainer): Promise<void[]> => {
 	return;
 	// TODO: Already Invalid comment - Well it could actually work I just need to move the code with calling layered into CONSTRAINT_MAP
+	//       To re-explain what this comments means - I wanted to have code which runs after the main alforithm - for example running layered algorithm
+	//       which takes into consideration existing positions - which we currently support, but I decided that it was better to just have it within the main loop
+	//       so POST-MAIN stuff will be probably only the stuff which will be run once after ALL! of the algorithms finish running.
+	//       It can be then only used once we have the result which want to pass to the caller. So it will be some conversions, etc. but not the mentioned layered algorithm
+	//       which runs algorithm in each iteration of loop that is finding best algorithm. The post-constraints are called only after the loop finishes.
 	// const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer.simpleConstraints, "POST-MAIN", nodeDimensionQueryHandler).then(_ => {
 	// 	return runConstraintsInternal(graph, constraintsContainer.constraints, "POST-MAIN", nodeDimensionQueryHandler);
 	// });
