@@ -1,90 +1,78 @@
-import { Dispatch, SetStateAction, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { type DialogProps } from "../dialog-api";
-import { Selections, SelectionsWithIdInfo, TotalFilter } from "../../action/filter-selection-action";
+import { Selections, SelectionsWithIdInfo, SelectionFilter } from "../../action/filter-selection-action";
 
 
-const TOTAL_FILTER_TO_CHECKBOX_NAME_MAP: Record<TotalFilter, string> = {
+const SELECTION_FILTER_TO_CHECKBOX_NAME_MAP: Record<SelectionFilter, string> = {
   "NORMAL-CLASS": "Include non-profile classes in result",
   "PROFILE-CLASS": "Include class profiles in result",
-  "NORMAL-EDGE": "Include normal relationships (associations)",
-  "PROFILE-EDGE": "Include profiled relationships",
+  "RELATIONSHIP": "Include normal relationships (associations)",
+  "RELATIONSHIP-PROFILE": "Include profiled relationships",
   "GENERALIZATION": "Include generalizations",
-}
+};
 
 
-type TotalFilterData = {
+type SelectionFilterCheckboxData = {
   checked: boolean;
   checkboxText: string;
   checkboxTooltip: string;
-  totalFilterType: TotalFilter;
-}
+  selectionFilter: SelectionFilter;
+};
 
-export interface FilterSelectionState {
+export interface SelectionFilterState {
     selections: SelectionsWithIdInfo,
     setSelectionsInDiagram: (newSelections: Selections) => void;
-    filters: TotalFilterData[];
-}
+    selectionFilters: SelectionFilterCheckboxData[];
+};
 
 /**
- * Creates element of type {@link TotalFilterData} from given arguments and puts it at the end of {@link checkboxStates} parameter.
+ * Creates element of type {@link SelectionFilterCheckboxData} from given arguments and puts it at the end of {@link checkboxStates} parameter.
  * @returns The created element
  */
-const createTotalFilterDataStateAndSaveIt = (checkboxStates: TotalFilterData[], totalFilterType: TotalFilter): TotalFilterData => {
-  const checkboxText = TOTAL_FILTER_TO_CHECKBOX_NAME_MAP[totalFilterType];
+const createSelectionFilterCheckboxDataAndSaveIt = (checkboxStates: SelectionFilterCheckboxData[], selectionFilter: SelectionFilter): SelectionFilterCheckboxData => {
+  const checkboxText = SELECTION_FILTER_TO_CHECKBOX_NAME_MAP[selectionFilter];
   const filterData = {
       checked: true,
       checkboxText,
       checkboxTooltip: "",
-      totalFilterType
+      selectionFilter
   };
 
   checkboxStates.push(filterData);
   return filterData;
 };
 
-export function createFilterSelectionState(selections: SelectionsWithIdInfo, setSelectionsInDiagram: (newSelections: Selections) => void): FilterSelectionState {
-  const filters: TotalFilterData[] = [];
-  createTotalFilterDataStateAndSaveIt(filters, "NORMAL-CLASS");
-  createTotalFilterDataStateAndSaveIt(filters, "PROFILE-CLASS");
+export function createFilterSelectionState(selections: SelectionsWithIdInfo, setSelectionsInDiagram: (newSelections: Selections) => void): SelectionFilterState {
+  const filters: SelectionFilterCheckboxData[] = [];
+  createSelectionFilterCheckboxDataAndSaveIt(filters, "NORMAL-CLASS");
+  createSelectionFilterCheckboxDataAndSaveIt(filters, "PROFILE-CLASS");
 
-  createTotalFilterDataStateAndSaveIt(filters, "NORMAL-EDGE");
-  createTotalFilterDataStateAndSaveIt(filters, "PROFILE-EDGE");
-  createTotalFilterDataStateAndSaveIt(filters, "GENERALIZATION");
+  createSelectionFilterCheckboxDataAndSaveIt(filters, "RELATIONSHIP");
+  createSelectionFilterCheckboxDataAndSaveIt(filters, "RELATIONSHIP-PROFILE");
+  createSelectionFilterCheckboxDataAndSaveIt(filters, "GENERALIZATION");
 
   return {
-    selections: selections,
-    setSelectionsInDiagram: setSelectionsInDiagram,
-    filters
+    selections,
+    setSelectionsInDiagram,
+    selectionFilters: filters
   };
 }
 
 export interface CreateFilterSelectionControllerType {
-    setSelections: (next: SelectionsWithIdInfo) => void;
     setFilterActivness: (next: {index: number, isActive: boolean}) => void;
 }
 
 
-export function useFilterSelectionController({ state, changeState }: DialogProps<FilterSelectionState>): CreateFilterSelectionControllerType {
+export function useFilterSelectionController({ state, changeState }: DialogProps<SelectionFilterState>): CreateFilterSelectionControllerType {
   return useMemo(() => {
 
-    const setSelections = (next: SelectionsWithIdInfo) => {
-      // Set Removes duplicates
-      next = {
-        nodeSelection: [...new Set(next.nodeSelection)],
-        edgeSelection: [...new Set(next.edgeSelection)],
-        areVisualModelIdentifiers: next.areVisualModelIdentifiers,
-      };
-      changeState({ ...state, selections: next });
-    };
-
     const setFilterActivness = (next: {index: number, isActive: boolean}) => {
-      const newFilters = [...state.filters];
+      const newFilters = [...state.selectionFilters];
       newFilters[next.index]!.checked = next.isActive;
-      changeState({ ...state, filters: newFilters });
+      changeState({ ...state, selectionFilters: newFilters });
     };
 
     return {
-        setSelections,
         setFilterActivness
     };
   }, [state, changeState]);

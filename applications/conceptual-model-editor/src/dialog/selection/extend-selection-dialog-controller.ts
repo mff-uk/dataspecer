@@ -26,7 +26,7 @@ export function useExtendSelectionController({ state, changeState }: DialogProps
   return useMemo(() => {
 
     const setSelections = (next: Selections) => {
-      // Set Removes duplicates
+      // Using Set to remove duplicates
       next = {
         nodeSelection: [...new Set(next.nodeSelection)],
         edgeSelection: [...new Set(next.edgeSelection)],

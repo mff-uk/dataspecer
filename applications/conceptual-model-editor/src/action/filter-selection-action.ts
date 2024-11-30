@@ -1,7 +1,6 @@
 import { EntityModel } from "@dataspecer/core-v2";
 import { sourceModelOfEntity } from "../util/model-utils";
-import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { isSemanticModelClass, SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelRelationshipUsage, } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ClassesContextEntities, getSemanticClassIdentifier, getSemanticEdgeIdentifier, isEntityInVisualModel, VisibilityFilter } from "./extend-selection-action";
 import { ClassesContextType } from "../context/classes-context";
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
@@ -9,38 +8,37 @@ import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 
 /**
- * Type representing total filter on the type of entity.
+ * Type representing filter on the type of entity.
  */
-export type TotalFilter = "PROFILE-CLASS" | "NORMAL-CLASS" | "PROFILE-EDGE" | "NORMAL-EDGE" | "GENERALIZATION";
+export type SelectionFilter = "PROFILE-CLASS" | "NORMAL-CLASS" | "RELATIONSHIP-PROFILE" | "RELATIONSHIP" | "GENERALIZATION";
 
 /**
  * Appends to {@link filteredNodeSelection} the classes from {@link nodeSelection} passing filter
  * and into {@link filteredEdgeSelection} the edges from {@link edgeSelection} passing filter.
- * Note that filter is usually either for nodes or for edges. So usually either {@link filteredNodeSelection} or {@link filteredEdgeSelection} is unchanged.
+ * Note that filter is usually either for nodes or for edges. So usually either {@link filteredNodeSelection} or {@link filteredEdgeSelection} is kept unchanged.
  */
-type TotalFilterMethod = (nodeSelection: string[], areVisualModelIdentifiers: boolean,
+type SelectionFilterMethod = (nodeSelection: string[], areVisualModelIdentifiers: boolean,
                             filteredNodeSelection: string[],
                             edgeSelection: string[], filteredEdgeSelection: string[],
                             contextEntities: ClassesContextEntities,
                             visualModel: VisualModel | null) => void;
-
 
 export type Selections = {
     nodeSelection: string[],
     edgeSelection: string[],
 };
 
-
 export type SelectionsWithIdInfo = Selections & {areVisualModelIdentifiers: boolean};
 
-
+//
+//
 
 /**
  *
  * @returns Filtered nodeSelection and edgeSelection stored inside {@link selections} based on {@link filters} and {@link visibilityFilter} and {@link semanticModelFilter}
  */
-export function reductionTotalFilterAction(selections: SelectionsWithIdInfo,
-                                            filters: TotalFilter[],
+export function filterSelectionAction(selections: SelectionsWithIdInfo,
+                                            filters: SelectionFilter[],
                                             visibilityFilter: VisibilityFilter,
                                             semanticModelFilter: Record<string, boolean> | null,
                                             graph: ModelGraphContextType,
@@ -57,40 +55,40 @@ export function reductionTotalFilterAction(selections: SelectionsWithIdInfo,
 
     let filteredNodeSelection: string[] = [];
     let filteredEdgeSelection: string[] = [];
-    const allowedClassesFilterMethods: TotalFilterMethod[] = [];
+    const selectionFilterMethods: SelectionFilterMethod[] = [];
     const contextEntities: ClassesContextEntities = classesContext;
 
     const activeVisualModel = graph.aggregatorView.getActiveVisualModel();
     if((visibilityFilter === "ONLY-NON-VISIBLE" || visibilityFilter === "ONLY-VISIBLE") && activeVisualModel === null) {
-        notifications.error("No active visual model, can't filter based on visual model. Returning current result without visibility filter.");
+        notifications.error("No active visual model, can't filter based on visual model.");
         return {
-            nodeSelection: filteredNodeSelection,
-            edgeSelection: filteredEdgeSelection,
+            nodeSelection: [...selections.nodeSelection],
+            edgeSelection: [...selections.edgeSelection]
         };
     }
 
     for (const filter of filters) {
-        const filterMethod = ALLOWED_FILTERS[filter];
+        const filterMethod = FILTER_NAME_TO_FILTER_METHOD_MAP[filter];
         if(filterMethod === undefined) {
             notifications.error("The filter for selection is not defined, probably programmer error");
         }
         else {
-            allowedClassesFilterMethods.push(ALLOWED_FILTERS[filter]);
+            selectionFilterMethods.push(FILTER_NAME_TO_FILTER_METHOD_MAP[filter]);
         }
     };
 
 
-    allowedClassesFilterMethods.forEach(filterMethod => {
+    selectionFilterMethods.forEach(filterMethod => {
         filterMethod(selections.nodeSelection, selections.areVisualModelIdentifiers, filteredNodeSelection, selections.edgeSelection, filteredEdgeSelection, contextEntities, activeVisualModel);
     });
 
     const models = graph.models;
 
-    filteredNodeSelection = visibilityConditionFilter(filteredNodeSelection, selections.areVisualModelIdentifiers, visibilityFilter, activeVisualModel);
-    filteredEdgeSelection = visibilityConditionFilter(filteredEdgeSelection, selections.areVisualModelIdentifiers, visibilityFilter, activeVisualModel);
+    filteredNodeSelection = filterBasedOnVisibility(filteredNodeSelection, selections.areVisualModelIdentifiers, visibilityFilter, activeVisualModel);
+    filteredEdgeSelection = filterBasedOnVisibility(filteredEdgeSelection, selections.areVisualModelIdentifiers, visibilityFilter, activeVisualModel);
     if(semanticModelFilter !== null) {
-        filteredNodeSelection = totalFilterOnlyRelevantSemanticModelEntities(selections.nodeSelection, filteredNodeSelection, semanticModelFilter, models);
-        filteredEdgeSelection = totalFilterOnlyRelevantSemanticModelEntities(selections.edgeSelection, filteredEdgeSelection, semanticModelFilter, models);
+        filteredNodeSelection = filterBasedOnAllowedSemanticModels(selections.nodeSelection, filteredNodeSelection, semanticModelFilter, models);
+        filteredEdgeSelection = filterBasedOnAllowedSemanticModels(selections.edgeSelection, filteredEdgeSelection, semanticModelFilter, models);
     }
 
     return {
@@ -99,21 +97,20 @@ export function reductionTotalFilterAction(selections: SelectionsWithIdInfo,
     };
 }
 
-///////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////
+//
+//
 
 /**
- * @returns The {@link selectionToFilter} after the filtering, concatened with the {@link selectionAfterFiltering}
+ * @returns The {@link selectionToFilter} after the filtering, concatenated with the {@link selectionToBaseOutputOn}, but that selection itself isn't changed.
+ * The returned array is new instance without duplicates.
  */
-function totalFilterOnlyRelevantSemanticModelEntities(selectionToFilter: string[], selectionAfterFiltering: string[],
-                                                        semanticModelFilter: Record<string, boolean>,
-                                                        models: Map<string, EntityModel>): string[] {
-    const finalReduction: string[] = [];
-
+function filterBasedOnAllowedSemanticModels(selectionToFilter: string[], selectionToBaseOutputOn: string[],
+                                            allowedSemanticModels: Record<string, boolean>,
+                                            semanticModels: Map<string, EntityModel>): string[] {
     const consideredModels: EntityModel[] = [];
     const notConsideredModels: EntityModel[] = [];
-    Object.entries(semanticModelFilter).forEach(([modelId, isConsidered]) => {
-        const model = models.get(modelId);
+    Object.entries(allowedSemanticModels).forEach(([modelId, isConsidered]) => {
+        const model = semanticModels.get(modelId);
         if(model === undefined) {
             return;
         }
@@ -125,22 +122,22 @@ function totalFilterOnlyRelevantSemanticModelEntities(selectionToFilter: string[
         }
     });
 
-
-    selectionToFilter.forEach(originalSelectionClass => {
-        if(sourceModelOfEntity(originalSelectionClass, notConsideredModels) !== undefined) {
-            finalReduction.push(originalSelectionClass);
+    const entitiesPassingFilter: string[] = [];
+    selectionToFilter.forEach(entityFromSelection => {
+        if(sourceModelOfEntity(entityFromSelection, notConsideredModels) !== undefined) {
+            entitiesPassingFilter.push(entityFromSelection);
         }
     });
 
     // Use "Set" to remove duplicates (as in https://stackoverflow.com/questions/9229645/remove-duplicate-values-from-js-array)
-    return [...new Set(finalReduction.concat(selectionAfterFiltering))];
+    return [...new Set(entitiesPassingFilter.concat(selectionToBaseOutputOn))];
 }
 
 
 /**
  * @returns Returns identifiers from {@link identifiersToFilter} matching the {@link visibilityFilter}.
  */
-function visibilityConditionFilter(identifiersToFilter: string[], areIdentifiersFromVisualModel: boolean,
+function filterBasedOnVisibility(identifiersToFilter: string[], areIdentifiersFromVisualModel: boolean,
                                     visibilityFilter: VisibilityFilter, visualModel: VisualModel | null): string[] {
     const filteredArray: string[] = identifiersToFilter.filter(entity => {
         if(visibilityFilter === "ALL") {
@@ -148,11 +145,7 @@ function visibilityConditionFilter(identifiersToFilter: string[], areIdentifiers
         }
 
         if(visualModel === null) {
-            // Can just return the condition, but I felt like this is better
-            if(visibilityFilter === "ONLY-NON-VISIBLE") {
-                return true;
-            }
-            return false;
+            return visibilityFilter === "ONLY-NON-VISIBLE";
         }
 
         const isInVisualModel = isEntityInVisualModel(visualModel, entity, areIdentifiersFromVisualModel);
@@ -171,13 +164,13 @@ function visibilityConditionFilter(identifiersToFilter: string[], areIdentifiers
 }
 
 
-const ALLOWED_FILTERS: Record<TotalFilter, TotalFilterMethod> = {
+const FILTER_NAME_TO_FILTER_METHOD_MAP: Record<SelectionFilter, SelectionFilterMethod> = {
     "NORMAL-CLASS": classFilter,
     "PROFILE-CLASS": profileClassFilter,
-    "NORMAL-EDGE": normalEdgeFilter,
-    "PROFILE-EDGE": profileEdgeFilter,
+    "RELATIONSHIP": normalEdgeFilter,
+    "RELATIONSHIP-PROFILE": profileEdgeFilter,
     "GENERALIZATION": generalizationFilter,
-}
+};
 
 
 function classFilter(nodeSelection: string[],

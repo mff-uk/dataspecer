@@ -30,19 +30,13 @@ import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
 import { isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel, Waypoint } from "@dataspecer/core-v2/visual-model";
 import { openCreateConnectionDialogAction } from "./open-create-connection";
 import { placePositionOnGrid, ReactflowDimensionsConstantEstimator } from "@dataspecer/layout";
-import { reductionTotalFilterAction, Selections, SelectionsWithIdInfo, TotalFilter } from "./filter-selection-action";
+import { filterSelectionAction, SelectionFilter, Selections, SelectionsWithIdInfo } from "./filter-selection-action";
 import { extendSelectionAction, ExtensionType, NodeSelection, VisibilityFilter } from "./extend-selection-action";
 import { ExtendSelectionState } from "../dialog/selection/extend-selection-dialog-controller";
 import { createExtendSelectionDialog } from "../dialog/selection/extend-selection-dialog";
-import { FilterSelectionState } from "../dialog/selection/filter-selection-dialog-controller";
+import { SelectionFilterState } from "../dialog/selection/filter-selection-dialog-controller";
 import { createFilterSelectionDialog } from "../dialog/selection/filter-selection-dialog";
-
-
-// TODO: Put into utils.ts or somewhere?
-const setSelectionsInDiagram = (selectionsToSetWith: Selections, diagram: UseDiagramType) => {
-  diagram.actions().setSelectedNodes(selectionsToSetWith.nodeSelection);
-  diagram.actions().setSelectedEdges(selectionsToSetWith.edgeSelection);
-}
+import { setSelectionsInDiagram } from "./utilities";
 
 
 export interface ActionsContextType {
@@ -112,10 +106,10 @@ export interface ActionsContextType {
                     semanticModelFilter: Record<string, boolean> | null) => Promise<Selections>;
 
 
-  reductionTotalFilter: (selections: SelectionsWithIdInfo,
-                          allowedClasses: TotalFilter[],
-                          visibilityFilter: VisibilityFilter,
-                          semanticModelFilter: Record<string, boolean> | null) => Selections;
+  filterSelection: (selections: SelectionsWithIdInfo,
+                      filters: SelectionFilter[],
+                      visibilityFilter: VisibilityFilter,
+                      semanticModelFilter: Record<string, boolean> | null) => Selections;
 
   /**
    * As this context requires two way communication it is created and shared via the actions.
@@ -138,9 +132,9 @@ const noOperationActionsContext = {
   centerViewportToVisualEntity: noOperation,
   openExtendSelectionDialog: noOperation,
   openFilterSelectionDialog: noOperation,
-  // TODO: How to define this
+  // TODO: How to define this - Should actions return values?, shouldn't it be just function defined in utils?
   extendSelection: async () => ({nodeSelection: [], edgeSelection: []}),
-  reductionTotalFilter: () => ({nodeSelection: [], edgeSelection: []}),
+  filterSelection: () => ({nodeSelection: [], edgeSelection: []}),
   diagram: null,
 };
 
@@ -352,8 +346,6 @@ function createActionsContext(
     const setSelections = (selectionsToSetWith: Selections) => {
       setSelectionsInDiagram(selectionsToSetWith, diagram);
     };
-
-
     dialogs?.openDialog(createExtendSelectionDialog(
                                                     onConfirm,
                                                     onClose,
@@ -364,16 +356,16 @@ function createActionsContext(
 
 
   const openFilterSelectionDialog = (selections: SelectionsWithIdInfo) => {
-    const onConfirm = (state: FilterSelectionState) => {
-      const relevantTotalFilterTypes = state.filters.map(checkboxState => {
-        if(checkboxState.checked) {
-            return checkboxState.totalFilterType;
+    const onConfirm = (state: SelectionFilterState) => {
+      const relevantSelectionFilters = state.selectionFilters.map(selectionFilter => {
+        if(selectionFilter.checked) {
+            return selectionFilter.selectionFilter;
         }
         return null;
-    }).filter(checkbox => checkbox !== null);
+    }).filter(selectionFilter => selectionFilter !== null);
 
-      const reduction = reductionTotalFilter(state.selections, relevantTotalFilterTypes, "ONLY-VISIBLE", null);
-      setSelectionsInDiagram(reduction, diagram);
+      const filteredSelection = filterSelection(state.selections, relevantSelectionFilters, "ONLY-VISIBLE", null);
+      setSelectionsInDiagram(filteredSelection, diagram);
     };
 
     const setSelections = (selections: Selections) => {
@@ -395,12 +387,12 @@ function createActionsContext(
   };
 
 
-  const reductionTotalFilter = (selections: SelectionsWithIdInfo,
-                                allowedClasses: TotalFilter[],
+  const filterSelection = (selections: SelectionsWithIdInfo,
+                                allowedClasses: SelectionFilter[],
                                 visibilityFilter: VisibilityFilter,
                                 semanticModelFilter: Record<string, boolean> | null) => {
-    return reductionTotalFilterAction(selections, allowedClasses, visibilityFilter, semanticModelFilter,
-                                      graph, notifications, classes);
+    return filterSelectionAction(selections, allowedClasses, visibilityFilter, semanticModelFilter,
+                                  graph, notifications, classes);
   };
 
 
@@ -548,7 +540,7 @@ function createActionsContext(
     openExtendSelectionDialog,
     openFilterSelectionDialog,
     extendSelection,
-    reductionTotalFilter,
+    filterSelection,
 
     diagram,
   };

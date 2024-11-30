@@ -53,9 +53,9 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
   const controller = useDiagramController(props.diagram);
   const { xSnapGrid, ySnapGrid } = configuration();
 
-  // TODO: For now
+  // TODO: For now until merge to main  ... this code will be in react-actions-binding
   const actions = useActions();
-  // TODO: For now ... put into controller or something
+  // TODO: For now until merge to main  ... this code will be in react-actions-binding, same for the buttons
   const selections: SelectionsWithIdInfo = {
     nodeSelection: controller.nodes.filter(node => node.selected === true).map(node => node.id),
     edgeSelection: controller.edges.filter(edge => edge.selected === true).map(edge => edge.id),
@@ -64,6 +64,7 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
 
   return (
     <>
+      {/* TODO: After merge to main remove - there will be 2 new methods in diagram-api - extendSelection, filterSelection without arguments, which will call this code */}
       <div>
         <button onClick={() => actions.openExtendSelectionDialog(selections)}>Extend selection</button>
       </div>

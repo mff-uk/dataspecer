@@ -36,7 +36,7 @@ function Dialog({ reference, context }: {
   return (
     <dialog
       ref={reference}
-      className={context.dialogClassNames !== undefined ? context.dialogClassNames : defaultClassNames}
+      className={context.dialogClassNames === undefined ? defaultClassNames : context.dialogClassNames}
       onCancel={context.close}
     >
       <h1 className="text-xl">{t(context.label)}</h1>

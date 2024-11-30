@@ -140,7 +140,7 @@ const translations: Record<string, string | Function> = {
   "filter-selection-dialog.btn-ok": "✅ Filter",
   "filter-selection-dialog.btn-cancel": "❌ Cancel",
   //
-  "extend-selection-dialog.label": "Extend selection",
+  "extend-selection-dialog.label": "Extend current selection",
   "extend-selection-dialog.btn-ok": "✅ Accept",
   "extend-selection-dialog.btn-cancel": "❌ Cancel",
 };
