@@ -35,7 +35,7 @@ const createSelectionFilterCheckboxDataAndSaveIt = (checkboxStates: SelectionFil
       checked: true,
       checkboxText,
       checkboxTooltip: "",
-      selectionFilter
+      selectionFilter,
   };
 
   checkboxStates.push(filterData);
