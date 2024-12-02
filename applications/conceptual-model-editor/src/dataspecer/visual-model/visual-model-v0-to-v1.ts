@@ -4,12 +4,11 @@ import { isVisualNode, isVisualRelationship, VisualNode, VisualRelationship, Wri
 import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
-import { findSourceModelOfEntity } from "../service/model-service";
-import { getDomainAndRange, getDomainAndRangeConcepts } from "../util/relationship-utils";
+import { findSourceModelOfEntity } from "../../service/model-service";
+import { getDomainAndRangeConcepts } from "../../util/relationship-utils";
 
 /**
- * Given visual model in version 0 performs migration to version 1
- * changing content of the model.
+ * Given visual model in version 0 performs migration to version 1, changing content of the model.
  */
 export function migrateVisualModelFromV0(
   models: Map<string, EntityModel>,
