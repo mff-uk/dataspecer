@@ -8,27 +8,16 @@ import { generateName } from "../../util/name-utils";
 import { getModelIri } from "../../util/iri-utils";
 import { configuration } from "../../application";
 import { ModelGraphContextType } from "../../context/model-context";
-import { EntityRepresentative, representClasses, representModels, selectWritableModels, sortRepresentatives } from "../utilities/dialog-utilities";
+import { EntityRepresentative, representClasses, representModels, selectWritableModels, sortRepresentatives, Specialization } from "../utilities/dialog-utilities";
 import { ClassesContextType } from "../../context/classes-context";
 import { removeFromArray } from "../../utilities/functional";
 import { sanitizeDuplicitiesInRepresentativeLabels } from "../../utilities/label";
 import { getRandomName } from "../../util/random-gen";
-import { Specialization } from "./components/select-specialization";
-import { createCreateEntityController, createEntityController, CreateEntityState, CreateEntityStateController, EntityState, EntityStateController } from "../utilities/entity-utilities";
+import { createCreateEntityController, createEntityController, CreateEntityState, CreateEntityStateController, createSpecializationController, EntityState, EntityStateController, SpecializationState, SpecializationStateController } from "../utilities/entity-utilities";
 
-export interface CreateClassDialogState extends EntityState, CreateEntityState {
+export interface CreateClassDialogState extends EntityState, CreateEntityState, SpecializationState {
 
   language: string;
-
-  /**
-   * List of all available specializations.
-   */
-  availableSpecializations: EntityRepresentative[];
-
-  /**
-   * List of active specializations.
-   */
-  specializations: Specialization[];
 
 }
 
@@ -65,11 +54,7 @@ export function createCreateClassDialogState(
     specializations: [],
   };
 }
-export interface CreateClassDialogController extends EntityStateController, CreateEntityStateController {
-
-  addSpecialization: (specialized: string) => void;
-
-  removeSpecialization: (value: Specialization) => void;
+export interface CreateClassDialogController extends EntityStateController, CreateEntityStateController, SpecializationStateController {
 
 }
 
@@ -82,27 +67,12 @@ export function useCreateClassDialogController({ changeState }: DialogProps<Crea
     const newEntityController = createCreateEntityController(
       changeState, entityController, configuration().nameToClassIri);
 
-    const addSpecialization = (specialized: string): void => {
-      changeState((state) => ({
-        ...state, specializations: [...state.specializations, {
-          specialized,
-          iri: getRandomName(10),
-        }]
-      }));
-    };
-
-    const removeSpecialization = (value: Specialization): void => {
-      changeState((state) => ({
-        ...state,
-        specializations: removeFromArray(state.specializations, value),
-      }));
-    };
+      const specializationController = createSpecializationController(changeState);
 
     return {
       ...entityController,
       ...newEntityController,
-      addSpecialization,
-      removeSpecialization,
+      ...specializationController,
     };
   }, [changeState]);
 }

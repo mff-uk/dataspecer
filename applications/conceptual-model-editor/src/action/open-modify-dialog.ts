@@ -32,6 +32,10 @@ import { OverriddenFieldsType } from "../util/profile-utils";
 import { createGeneralization, createRelationship, deleteEntity, modifyClass, modifyRelation, Operation } from "@dataspecer/core-v2/semantic-model/operations";
 import { EntityModel } from "@dataspecer/core-v2";
 import { DomainAndRange, getDomainAndRange } from "../util/relationship-utils";
+import { VisualModel } from "@dataspecer/core-v2/visual-model";
+import { isInMemorySemanticModel } from "../utilities/model";
+import { openEditAssociationDialogAction } from "./open-edit-association-dialog";
+import { openEditAssociationProfileDialogAction } from "./open-edit-association-profile-dialog";
 
 export function openModifyDialogAction(
   options: Options,
@@ -40,13 +44,22 @@ export function openModifyDialogAction(
   classes: ClassesContextType,
   useClasses: UseClassesContextType,
   graph: ModelGraphContextType,
+  visualModel: VisualModel | null,
   identifier: string,
 ) {
-  const entity = graph.aggregatorView.getEntities()?.[identifier].rawEntity;
-  if (entity === undefined) {
+  const aggregate = graph.aggregatorView.getEntities()?.[identifier];
+
+  const entity = aggregate.aggregatedEntity;
+  if (entity === undefined || entity === null) {
     notifications.error(`Can not find the entity with identifier '${identifier}'.`);
     return;
   }
+  const model = findSourceModelOfEntity(entity.id, graph.models);
+  if (model === null || !isInMemorySemanticModel(model)) {
+    notifications.error("Model is not writable, can not modify entity.");
+    return;
+  }
+
   // In future we should have different dialogs based on the type, for now
   // we just fall through to a single dialog for all.
   if (isSemanticModelClass(entity)) {
@@ -58,9 +71,15 @@ export function openModifyDialogAction(
   } else if (isSemanticModelAttributeUsage(entity)) {
 
   } else if (isSemanticModelRelationship(entity)) {
-
+    openEditAssociationDialogAction(
+      options, dialogs, classes, graph, notifications, visualModel, model,
+      aggregate.rawEntity as SemanticModelRelationship);
+    return;
   } else if (isSemanticModelRelationshipUsage(entity)) {
-
+    openEditAssociationProfileDialogAction(
+      options, dialogs, classes, graph, notifications, visualModel, model,
+      aggregate.rawEntity as SemanticModelRelationshipUsage);
+    return;
   } else if (isSemanticModelGeneralization(entity)) {
     notifications.error(`Generalization modification is not supported!`);
     return;

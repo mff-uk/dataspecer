@@ -3,18 +3,35 @@ import { configuration, t } from "../../application";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
 import { SelectModel } from "../class/components/select-model";
-import { CreateAssociationDialogState, useCreateAssociationDialogController } from "./create-association-dialog-controller";
+import { EditAssociationDialogState, useEditAssociationDialogController } from "./edit-association-dialog-controller";
 import { SelectEntity } from "../class/components/select-entity";
 import { SelectCardinality } from "../attribute/components/select-cardinality";
 import { InputIri } from "../class/components/input-iri";
+import { SpecializationSelect } from "../class/components/select-specialization";
 
-export const createCreateAssociationDialog = (
-  state: CreateAssociationDialogState,
-  onConfirm: (state: CreateAssociationDialogState) => void,
-): DialogWrapper<CreateAssociationDialogState> => {
+export const createNewAssociationDialog = (
+  state: EditAssociationDialogState,
+  onConfirm: (state: EditAssociationDialogState) => void,
+): DialogWrapper<EditAssociationDialogState> => {
   return {
     label: "create-association-dialog.label",
-    component: CreateAssociationDialog,
+    component: EditAssociationDialog,
+    state,
+    confirmLabel: "create-dialog.btn-ok",
+    cancelLabel: "modify-dialog.btn-close",
+    validate: validate,
+    onConfirm: onConfirm,
+    onClose: null,
+  };
+}
+
+export const createEditAssociationDialog = (
+  state: EditAssociationDialogState,
+  onConfirm: (state: EditAssociationDialogState) => void,
+): DialogWrapper<EditAssociationDialogState> => {
+  return {
+    label: "edit-association-dialog.label",
+    component: EditAssociationDialog,
     state,
     confirmLabel: "modify-dialog.btn-ok",
     cancelLabel: "modify-dialog.btn-close",
@@ -24,12 +41,12 @@ export const createCreateAssociationDialog = (
   };
 }
 
-function validate(state: CreateAssociationDialogState): boolean {
+function validate(state: EditAssociationDialogState): boolean {
   return state.iri.trim() !== "";
 }
 
-const CreateAssociationDialog = (props: DialogProps<CreateAssociationDialogState>) => {
-  const controller = useCreateAssociationDialogController(props);
+const EditAssociationDialog = (props: DialogProps<EditAssociationDialogState>) => {
+  const controller = useEditAssociationDialogController(props);
   const state = props.state;
   return (
     <>
@@ -46,7 +63,7 @@ const CreateAssociationDialog = (props: DialogProps<CreateAssociationDialogState
           />
         </DialogDetailRow>
       </div>
-      <div className="grid bg-slate-100 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
+      <div className="grid pb-3 bg-slate-100 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
         <DialogDetailRow detailKey={t("create-class-dialog.name")} className="text-xl">
           <MultiLanguageInputForLanguageString
             ls={state.name}
@@ -62,6 +79,15 @@ const CreateAssociationDialog = (props: DialogProps<CreateAssociationDialogState
             setIsRelative={controller.setIsRelative}
             value={state.iri}
             onChange={controller.setIri}
+          />
+        </DialogDetailRow>
+        <DialogDetailRow detailKey={t("modify-entity-dialog.specialization-of")}>
+          <SpecializationSelect
+            language={state.language}
+            items={state.availableSpecializations}
+            specializations={state.specializations}
+            addSpecialization={controller.addSpecialization}
+            removeSpecialization={controller.removeSpecialization}
           />
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("create-class-dialog.description")}>

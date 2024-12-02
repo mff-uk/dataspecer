@@ -30,9 +30,7 @@ export const InputIri = (props: {
       </div>
       {/* Text input. */}
       <div className="flex flex-col md:flex-row">
-        {props.isRelative ? null :
-          <div className="text-nowrap">{props.iriPrefix}</div>
-        }
+        {props.isRelative ? <div className="text-nowrap">{props.iriPrefix}</div> : null}
         <input
           value={props.value}
           onChange={(event) => props.onChange(event.target.value)}

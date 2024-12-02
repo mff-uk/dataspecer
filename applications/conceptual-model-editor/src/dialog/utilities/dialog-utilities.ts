@@ -1,6 +1,6 @@
-import { EntityModel } from "@dataspecer/core-v2";
+import { Entity, EntityModel } from "@dataspecer/core-v2";
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
-import { isSemanticModelClass, isSemanticModelRelationship, LanguageString, SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { LanguageString, SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
 
@@ -9,6 +9,9 @@ import { getModelLabel as getModelLabelString } from "../../service/model-servic
 import { DataTypeURIs, dataTypeUriToName, isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
 import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticModelClassUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { getDomainAndRange } from "../../util/relationship-utils";
+import { ModelGraphContextType } from "../../context/model-context";
+import { isInMemorySemanticModel } from "../../utilities/model";
+import { sanitizeDuplicitiesInRepresentativeLabels } from "../../utilities/label";
 
 const LOG = createLogger(import.meta.url);
 
@@ -38,12 +41,22 @@ export function representModels<ModelType extends EntityModel>(
   visualModel: VisualModel | null,
   models: ModelType[],
 ): EntityModelRepresentative<ModelType>[] {
-  return models.map(model => ({
+  return models.map(model => representModel(visualModel, model));
+}
+
+/**
+ * Return representation of given model.
+ */
+export function representModel<ModelType extends EntityModel>(
+  visualModel: VisualModel | null,
+  model: ModelType,
+): EntityModelRepresentative<ModelType> {
+  return {
     identifier: model.getId(),
     label: getModelLabel(model),
     model,
     color: visualModel?.getModelColor(model.getId()) ?? configuration().defaultModelColor,
-  }));
+  };
 }
 
 const DEFAULT_MODEL_LABEL_LANGUAGE = "";
@@ -429,4 +442,151 @@ export function sortRepresentatives<T extends { label: LanguageString }>(
     const rightLabel = right.label[language] ?? right.label[""] ?? "";
     return leftLabel.localeCompare(rightLabel);
   });
+}
+
+/**
+ * Base exception for handling dialog related exceptions.
+ */
+export class CanNotCreateDialog extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+export class NoWritableModelFound extends Error {
+  constructor() {
+    super("exception.there-is-no-writable-model");
+  }
+}
+
+export class InvalidEntityType extends CanNotCreateDialog {
+  constructor(_entity: Entity) {
+    super("exception.invalid-entity-type");
+  }
+}
+
+export class InvalidEntity extends CanNotCreateDialog {
+  constructor(_entity: Entity) {
+    super("exception.invalid-entity");
+  }
+}
+
+/**
+ * Return representations for all models, writable models and a default write model.
+ */
+export function prepareModels(
+  graphContext: ModelGraphContextType,
+  visualModel: VisualModel | null,
+): {
+  raw: EntityModel[],
+  all: EntityModelRepresentative<EntityModel>[],
+  writable: EntityModelRepresentative<InMemorySemanticModel>[],
+} {
+  const raw = [...graphContext.models.values()];
+  const all = representModels(visualModel, raw);
+  const writable = all.
+    filter(item => isInMemorySemanticModel(item.model)) as EntityModelRepresentative<InMemorySemanticModel>[];
+  return {
+    raw,
+    all,
+    writable,
+  };
+}
+
+/**
+ * Return and entity and its model with given identifier or throw an exception
+ */
+export const findEntityByIdentifierOrThrow = (models: EntityModelRepresentative<EntityModel>[], entityIdentifier: string): {
+  model: EntityModelRepresentative<EntityModel>,
+  entity: Entity,
+} => {
+  const { model, entity } = findEntityByIdentifier(models, entityIdentifier);
+  if (model === null || entity === null) {
+    throw new EntityNotFound(entityIdentifier);
+  }
+  return {
+    model,
+    entity,
+  };
+}
+
+/**
+ * Find and return an entity and its model.
+ */
+const findEntityByIdentifier = (models: EntityModelRepresentative<EntityModel>[], entityIdentifier: string): {
+  model: EntityModelRepresentative<EntityModel> | null,
+  entity: Entity | null,
+} => {
+  for (const model of models) {
+    const entity = model.model.getEntities()[entityIdentifier];
+    if (entity === undefined) {
+      continue;
+    }
+    return {
+      entity,
+      model,
+    }
+  }
+  return {
+    entity: null,
+    model: null,
+  };
+};
+
+class EntityNotFound extends CanNotCreateDialog {
+  constructor(_entityIdentifier: string) {
+    super("exception.entity-not-found");
+  }
+}
+
+/**
+ * Cast the model to in-memory or throw an exception.
+ */
+export const asInMemoryModel = (model: EntityModelRepresentative<EntityModel>): EntityModelRepresentative<InMemorySemanticModel> => {
+  if (model === null || isInMemorySemanticModel(model.model)) {
+    return model as EntityModelRepresentative<InMemorySemanticModel>;
+  } else {
+    throw new ModelIsReadOnly();
+  }
+}
+
+class ModelIsReadOnly extends CanNotCreateDialog {
+  constructor() {
+    super("exception.model-is-read-only");
+  }
+}
+
+/**
+ * Find and return representative of entity with given identifier.
+ */
+export function findRepresentative(entities: EntityRepresentative[], identifier: string | null | undefined): EntityRepresentative | null {
+  if (identifier === null || identifier === undefined) {
+    return null;
+  }
+  return entities.find(item => item.identifier === identifier) ?? null;
+}
+
+export interface Specialization {
+
+  /**
+   * Identification of an entity representing the specialization.
+   */
+  identifier: string | undefined;
+
+  specialized: string;
+
+  iri: string;
+
+}
+
+export function representSpecializations(
+  identifier: string,
+  generalizations: SemanticModelGeneralization[],
+): Specialization[] {
+  return generalizations.filter(item => item.child === identifier)
+    .map(item => ({
+      identifier: item.id,
+      iri: item.iri ?? "",
+      specialized: item.parent,
+    }));
 }

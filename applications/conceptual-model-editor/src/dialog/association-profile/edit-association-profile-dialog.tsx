@@ -3,7 +3,7 @@ import { configuration, t } from "../../application";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
 import { SelectModel } from "../class/components/select-model";
-import { CreateAssociationProfileDialogState, useCreateAssociationProfileDialogController } from "./create-association-profile-dialog-controller";
+import { EditAssociationProfileDialogState as EditAssociationProfileDialogState, useEditAssociationProfileDialogController } from "./edit-association-profile-dialog-controller";
 import { SelectEntity } from "../class/components/select-entity";
 import { SelectCardinality } from "../attribute/components/select-cardinality";
 import { InputIri } from "../class/components/input-iri";
@@ -12,15 +12,15 @@ import { languageStringToString } from "../../utilities/string";
 import { ValidationMessage } from "./components/validation-message";
 import { isValid } from "../utilities/validation-utilities";
 
-export const createCreateAssociationProfileDialog = (
-  state: CreateAssociationProfileDialogState,
-  onConfirm: (state: CreateAssociationProfileDialogState) => void,
-): DialogWrapper<CreateAssociationProfileDialogState> => {
+export const createNewAssociationProfileDialog = (
+  state: EditAssociationProfileDialogState,
+  onConfirm: (state: EditAssociationProfileDialogState) => void,
+): DialogWrapper<EditAssociationProfileDialogState> => {
   return {
-    label: "create-association-dialog.label",
-    component: CreateAssociationProfileDialog,
+    label: "create-association-profile-dialog.label",
+    component: EditAssociationProfileDialog,
     state,
-    confirmLabel: "create-profile-dialog.btn-ok",
+    confirmLabel: "create-dialog.btn-ok",
     cancelLabel: "create-profile-dialog.btn-close",
     validate: validate,
     onConfirm: onConfirm,
@@ -28,7 +28,23 @@ export const createCreateAssociationProfileDialog = (
   };
 }
 
-function validate(state: CreateAssociationProfileDialogState): boolean {
+export const createEditAssociationProfileDialog = (
+  state: EditAssociationProfileDialogState,
+  onConfirm: (state: EditAssociationProfileDialogState) => void,
+): DialogWrapper<EditAssociationProfileDialogState> => {
+  return {
+    label: "edit-association-profile-dialog.label",
+    component: EditAssociationProfileDialog,
+    state,
+    confirmLabel: "modify-dialog.btn-ok",
+    cancelLabel: "create-profile-dialog.btn-close",
+    validate: validate,
+    onConfirm: onConfirm,
+    onClose: null,
+  };
+}
+
+function validate(state: EditAssociationProfileDialogState): boolean {
   return state.iri.trim() !== ""
     && isValid(state.domainValidation)
     && isValid(state.domainCardinalityValidation)
@@ -36,8 +52,8 @@ function validate(state: CreateAssociationProfileDialogState): boolean {
     && isValid(state.rangeCardinalityValidation);
 }
 
-const CreateAssociationProfileDialog = (props: DialogProps<CreateAssociationProfileDialogState>) => {
-  const controller = useCreateAssociationProfileDialogController(props);
+const EditAssociationProfileDialog = (props: DialogProps<EditAssociationProfileDialogState>) => {
+  const controller = useEditAssociationProfileDialogController(props);
   const state = props.state;
   const languagePreferences = configuration().languagePreferences;
   return (

@@ -1,17 +1,9 @@
 import { useState } from "react";
 
-import { EntityRepresentative } from "../../utilities/dialog-utilities";
+import { EntityRepresentative, Specialization } from "../../utilities/dialog-utilities";
 import { configuration, t } from "../../../application";
 import { languageStringToString } from "../../../utilities/string";
 import { SelectEntity } from "./select-entity";
-
-export interface Specialization {
-
-  specialized: string;
-
-  iri: string;
-
-}
 
 export const SpecializationSelect = (props: {
   language: string,
