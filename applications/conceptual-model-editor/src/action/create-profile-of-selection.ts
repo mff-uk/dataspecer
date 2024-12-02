@@ -1,16 +1,12 @@
-import { isVisualProfileRelationship, isWritableVisualModel, Position, VisualModel } from "@dataspecer/core-v2/visual-model";
-import { DialogApiContextType } from "../dialog/dialog-service";
+import { isWritableVisualModel, VisualModel } from "@dataspecer/core-v2/visual-model";
 import { ClassesContextType } from "../context/classes-context";
 import { ModelGraphContextType } from "../context/model-context";
 import { createCreateProfileClassDialogState } from "../dialog/class-profile/create-class-profile-dialog-controller";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { Options } from "../application";
-import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship, SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticModelRelationshipEndUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { createClassProfile } from "./open-create-profile-dialog";
-import { createCreateAssociationProfileDialogState } from "../dialog/association-profile/create-association-profile-dialog-controller";
-import { EntityRepresentative } from "../dialog/utilities/dialog-utilities";
-import { sourceModelIdOfEntity } from "../util/model-utils";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
