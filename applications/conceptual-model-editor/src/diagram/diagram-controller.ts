@@ -457,7 +457,6 @@ const createActions = (
       }
     },
     fitToView(identifiers) {
-      console.log("Diagram.fitToView", { identifiers });
       const nodes = identifiers.map(identifier => reactFlow.getNode(identifier)).filter(node => node !== undefined);
       if (nodes.length > 0) {
         focusNodesAction(reactFlow, nodes);

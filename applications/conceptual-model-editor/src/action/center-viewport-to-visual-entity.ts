@@ -7,7 +7,7 @@ import { isSemanticModelRelationshipUsage, SemanticModelRelationshipUsage } from
 import { ClassesContextType } from "../context/classes-context";
 import { isAnAttribute, temporaryDomainRangeHelper } from "../util/relationship-utils";
 
-// TODO: Falls apart if we want to represent 1 semantic entities by more visual ones, in such case we want to pass in identifiers of both semantic and the visual entity.
+
 /**
  * Center diagram editor view to the visual entity representing given semantic entity, identified by {@link identifier}.
  * In case of attribute, the visual entity is node, which corresponds to the attribute's domain.
