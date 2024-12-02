@@ -150,9 +150,10 @@ function SelectionToolbar(props: NodeProps<Node<ApiNode>>) {
   }
 
   const onShowSelectionActions = (event: React.MouseEvent) => {
-    // TODO: Don't know where to put this conversion code -
-    //       a) Separate controller for this component - But we have only 1 method
-    //       b) Exposing the conversion from screen to canvas position in diagram API - not sure if that is something which should be part of API
+    // TODO: Don't know where to put this conversion line of code -
+    //       a) It is probably the best to keep it here.
+    //       b) Separate controller for this component - But we have only 1 method
+    //       c) Exposing the conversion from screen to canvas position in diagram API - not sure if that is something which should be part of API
     const absoluteFlowPosition = reactFlow.screenToFlowPosition({x: event.clientX, y: event.clientY});
     context?.callbacks().onShowSelectionActions(props.data, absoluteFlowPosition);
   }

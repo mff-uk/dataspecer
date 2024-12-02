@@ -500,7 +500,7 @@ function createActionsContext(
       diagram.actions().openCanvasToolbar(source, flowPosition, "NODE-SELECTION-ACTIONS-SECONDARY-TOOLBAR");
     },
     onLayoutSelection: () => {
-      alert("TODO: currently does nothing (In future - Layouting selection)");
+      alert("TODO: currently does nothing (In future - Opens layouting menu - 3 buttons - alignments + layouting)");
     },
     onCreateGroup: () => {
       alert("TODO: currently does nothing (In future - Creating group)");
@@ -551,7 +551,7 @@ function createActionsContext(
     onCreateNewViewFromSelection: () => {
       const {nodeSelection, edgeSelection} = getSelections(diagram);
       alert("The view functionality currently doesn't work");
-      createNewVisualModelFromSelection(nodeSelection.concat(edgeSelection), true); // TODO: Mock-up implementation
+      createNewVisualModelFromSelection(nodeSelection.concat(edgeSelection), true);
       diagram.actions().closeCanvasToolbar();
     },
     onProfileSelection: () => {

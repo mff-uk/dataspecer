@@ -1,9 +1,10 @@
 import { useContext } from "react";
 
-import { DiagramContext } from "../diagram-controller";
+import { DiagramContext, EdgeType, NodeType } from "../diagram-controller";
 import { CanvasToolbarGeneralProps } from "./canvas-toolbar-props";
 
 import "./canvas-toolbar-drag-edge.css";
+import { ReactFlowInstance, useReactFlow } from "@xyflow/react";
 
 // Inspired by edge-toolbar.ts
 
@@ -13,15 +14,17 @@ import "./canvas-toolbar-drag-edge.css";
  */
 export function CanvasToolbarCreatedByEdgeDrag({ value }: { value: CanvasToolbarGeneralProps | null }) {
   const context = useContext(DiagramContext);
+  const reactFlow: ReactFlowInstance<NodeType, EdgeType> = useReactFlow();
+
   if (value === null || value.toolbarType !== "EDGE-DRAG-CANVAS-MENU-TOOLBAR") {
     return null;
   }
 
   const onCanvasMenuAddClassDialog = () => {
-    context?.callbacks().onCanvasOpenCreateClassDialog(value.sourceClassNode, value.abosluteFlowPosition);
-  };
-  const onCanvasMenuAddClassDialogAndThenOpenCreateConnectionDialog = () => {
-    alert("Open add class dialog and then right after that open create connection dialog.");
+    const node = reactFlow.getNode(value.sourceClassNodeIdentifier);
+    if(node !== undefined) {
+      context?.callbacks().onCanvasOpenCreateClassDialog(node.data, value.abosluteFlowPosition);
+    }
   };
   const onCanvasMenuChooseConnectionTargetFromExisitngClasses = () => {
     alert("Open list of classes and choose class which you want to be the target class of connection.");
@@ -35,9 +38,6 @@ export function CanvasToolbarCreatedByEdgeDrag({ value }: { value: CanvasToolbar
             </li>
             <li>
                 <button onClick={onCanvasMenuChooseConnectionTargetFromExisitngClasses}>🕮</button>
-            </li>
-            <li>
-                <button onClick={onCanvasMenuAddClassDialogAndThenOpenCreateConnectionDialog}>➕🔗</button>
             </li>
         </ul>
     </div>;

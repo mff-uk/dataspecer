@@ -292,7 +292,7 @@ const createChangeSelectionHandler = (reactFlow: ReactFlowInstance<NodeType, Edg
           newSelectedNodes.splice(insertPosition, 0, prevSelectedNodes[i]);
           insertPosition++;
         }
-      }     
+      }
 
       setSelectedEdges(edges.map(edge => edge.id));
       return newSelectedNodes;
@@ -413,7 +413,8 @@ const createOpenEdgeToolbarHandler = (setEdgeToolbar: React.Dispatch<React.SetSt
 
 const createOpenCanvasToolbarHandler = (setCanvasToolbar: React.Dispatch<React.SetStateAction<CanvasToolbarGeneralProps | null>>): OpenCanvasContextMenuHandler => {
   return (sourceClassNode: ApiNode, abosluteFlowPosition: Position, toolbarType: CanvasToolbarTypes) => {
-    setCanvasToolbar({ sourceClassNode, abosluteFlowPosition, toolbarType });
+    const sourceClassNodeIdentifier = sourceClassNode.identifier;
+    setCanvasToolbar({ sourceClassNodeIdentifier, abosluteFlowPosition, toolbarType });
   };
 };
 
@@ -645,7 +646,8 @@ const focusNodeAction = (reactFlow: ReactFlowContext, node: Node) => {
   void reactFlow.setCenter(x, y, { zoom, duration: 1000 });
 };
 
-const createDiagramContext = (api: UseDiagramType, onOpenEdgeContextMenu: OpenEdgeContextMenuHandler,
+const createDiagramContext = (api: UseDiagramType,
+                              onOpenEdgeContextMenu: OpenEdgeContextMenuHandler,
                               onOpenCanvasContextMenu: OpenCanvasContextMenuHandler,
                               openedCanvasToolbar: OpenedCanvasToolbar,
                               getLastSelected: () => string | null,

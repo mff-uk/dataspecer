@@ -10,5 +10,5 @@ export function createNewVisualModelFromSelectionAction(
   graph: ModelGraphContextType,
   notifications: UseNotificationServiceWriterType,
 ) {
-  // TODO:
+  // TODO: Implement me
 }
