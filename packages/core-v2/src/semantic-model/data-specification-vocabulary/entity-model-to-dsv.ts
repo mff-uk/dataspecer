@@ -4,8 +4,6 @@ import {
   SemanticModelEntity,
   isSemanticModelClass,
   isSemanticModelRelationship,
-  isSemanticModelAttribute,
-  SemanticModelRelationship,
 } from "../concepts";
 
 import {
@@ -68,11 +66,11 @@ export function entityListContainerToConceptualModel(
     iri: conceptualModelIri,
     profiles: [],
   };
-  (new EntityListCOntainerToConceptualModel(context)).loadToConceptualModel(entityListContainer, result);
+  (new EntityListContainerToConceptualModel(context)).loadToConceptualModel(entityListContainer, result);
   return result;
 }
 
-class EntityListCOntainerToConceptualModel {
+class EntityListContainerToConceptualModel {
 
   readonly context: EntityListContainerToConceptualModelContext;
 
@@ -243,7 +241,7 @@ function resolveIri(baseIri: string | null, identifier: string, iri: string | nu
 
 /**
  * We have only tree values: 0, 1, and many.
- * We map 0 to 0, 1 to 1, and evnything else to many.
+ * We map 0 to 0, 1 to 1, and everything else to many.
  */
 function cardinalityToCardinalityEnum(cardinality: [number, number | null] | null): Cardinality | null {
   if (cardinality === null) {
@@ -294,7 +292,7 @@ function extentToObjectPropertyProfile(property: PropertyProfile): ObjectPropert
  * Create context from all given models.
  */
 export function createContext(containers: EntityListContainer[], languageFilter: (value: LanguageString | null | undefined) => LanguageString | null): EntityListContainerToConceptualModelContext {
-  // Builde index.
+  // Build index.
   const entityMap: { [identifier: string]: { entity: Entity, container: EntityListContainer } } = {};
   for (const container of containers) {
     for (const entity of container.entities) {
@@ -310,8 +308,15 @@ export function createContext(containers: EntityListContainer[], languageFilter:
       return entityMap[identifier]?.entity ?? null;
     },
     entityToIri: (entity: SemanticModelEntity): string => {
+      let iri = entity.iri;
+      // Relations store IRI in the range end.
+      if (isSemanticModelRelationship(entity)) {
+        const [_, range] = entity.ends;
+        iri = range?.iri ?? iri;
+      }
+      //
       const baseIri = entityMap[entity.id]?.container?.baseIri ?? null;
-      return resolveIri(baseIri, entity.id, entity.iri);
+      return resolveIri(baseIri, entity.id, iri);
     },
     languageFilter
   }

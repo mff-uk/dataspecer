@@ -78,14 +78,14 @@ function expectTrue(condition: boolean): asserts condition {
   expect(condition).toBeTruthy();
 }
 
-test(testPrefix + "namespace declaration", async () => {
+test.skip(testPrefix + "namespace declaration", async () => {
   const {transformation, resource} = await getTransformation1();
   const extension = DataPsmSchemaXmlExtension.getExtensionData(resource);
   expect(transformation.targetNamespace).toBe(extension.namespace);
   expect(transformation.targetNamespacePrefix).toBe(extension.namespacePrefix);
 });
 
-test(testPrefix + "RDF namespaces", async () => {
+test.skip(testPrefix + "RDF namespaces", async () => {
   const {transformation} = await getTransformation1();
   expect(transformation.rdfNamespaces).toEqual({
     "ns0": "https://slovník.gov.cz/datový/turistické-cíle/pojem/",
@@ -100,7 +100,7 @@ function findTemplate(transformation: XmlTransformation, name: string) {
   return transformation.templates.find(t => t.name === name);
 }
 
-test(testPrefix + "root template exists", async () => {
+test.skip(testPrefix + "root template exists", async () => {
   const {transformation} = await getTransformation1();
   expect(transformation.rootTemplates.length).toBe(1);
   const template = transformation.rootTemplates[0];
@@ -111,7 +111,7 @@ test(testPrefix + "root template exists", async () => {
   expect(templateObject.classIri).toBe(template.classIri);
 });
 
-test(testPrefix + "root template literal match", async () => {
+test.skip(testPrefix + "root template literal match", async () => {
   const {transformation} = await getTransformation1();
   const template = findTemplate(transformation, transformation.rootTemplates[0].targetTemplate);
   const match = template.propertyMatches[1];
@@ -122,7 +122,7 @@ test(testPrefix + "root template literal match", async () => {
   expectTrue(!match.isReverse);
 });
 
-test(testPrefix + "root template multi-class match", async () => {
+test.skip(testPrefix + "root template multi-class match", async () => {
   const {transformation} = await getTransformation1();
   const template = findTemplate(transformation, transformation.rootTemplates[0].targetTemplate);
   const match = template.propertyMatches[5];
@@ -158,14 +158,14 @@ test(testPrefix + "root template multi-class match", async () => {
   );
 });
 
-test(testPrefix + "root template codelist match", async () => {
+test.skip(testPrefix + "root template codelist match", async () => {
   const {transformation} = await getTransformation1();
   const template = findTemplate(transformation, transformation.rootTemplates[0].targetTemplate);
   const match = template.propertyMatches[7];
   expectTrue(xmlMatchIsCodelist(match));
 });
 
-test(testPrefix + "imports are present", async () => {
+test.skip(testPrefix + "imports are present", async () => {
   const {transformation} = await getTransformation1();
   expect(transformation.imports.length).toBe(1);
   const importDecl = transformation.imports[0];

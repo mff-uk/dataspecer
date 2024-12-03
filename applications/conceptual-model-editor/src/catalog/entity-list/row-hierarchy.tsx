@@ -20,7 +20,7 @@ import { EntityRow } from "./entity-row";
 import { sourceModelOfEntity } from "../../util/model-utils";
 import { useModelGraphContext } from "../../context/model-context";
 import { useClassesContext } from "../../context/classes-context";
-import { hasBothEndsOnCanvas } from "../../util/relationship-utils";
+import { hasBothEndsInVisualModel } from "../../util/relationship-utils";
 import { findSourceModelOfEntity } from "../../service/model-service";
 
 export const RowHierarchy = (props: {
@@ -58,7 +58,7 @@ export const RowHierarchy = (props: {
             }
             : null;
 
-    const showDrawingHandler = isClassOrProfile || (isRelationshipOrProfile && hasBothEndsOnCanvas(aggregatedEntity, aggregatorView.getActiveVisualModel()));
+    const showDrawingHandler = isClassOrProfile || (isRelationshipOrProfile && hasBothEndsInVisualModel(aggregatedEntity, aggregatorView.getActiveVisualModel()));
     const drawingHandler = !showDrawingHandler ? null : {
         addToViewHandler: () => props.handlers.handleAddEntityToActiveView(entity),
         removeFromViewHandler: () => props.handlers.handleRemoveEntityFromActiveView(entity.id),

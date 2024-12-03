@@ -24,7 +24,7 @@ test("Issue #608", () => {
                     "relationship-usage"
                 ],
                 "iri": null,
-                "usageOf": "http://purl.org/dc/terms/title#attribute",
+                "usageOf": "http://purl.org/dc/terms/title",
                 "name": null,
                 "description": null,
                 "ends": [
@@ -67,7 +67,7 @@ test("Issue #608", () => {
                 ]
             },
             {
-                "id": "http://purl.org/dc/terms/title#attribute",
+                "id": "http://purl.org/dc/terms/title",
                 "iri": null,
                 "type": [
                     "relationship"
@@ -133,7 +133,7 @@ test("Issue #608", () => {
                         },
                         "usageNote": null,
                         "profileOfIri": null,
-                        "profiledPropertyIri": "http://purl.org/dc/terms/title#attribute",
+                        "profiledPropertyIri": "http://purl.org/dc/terms/title",
                         "$type": [
                             "datatype-property-profile"
                         ],

@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "scripts": {
     "build": "tsc",
-    "build:watch": "tsc --watch",
     "dev": "tsc -w",
     "prebuild": "rimraf lib",
     "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests",
@@ -43,6 +42,6 @@
     "jest": "^29.5.0",
     "rimraf": "^5.0.5",
     "ts-jest": "^29.1.2",
-    "typescript": "~5.4.2"
+    "typescript": "^5.6.3"
   }
 }

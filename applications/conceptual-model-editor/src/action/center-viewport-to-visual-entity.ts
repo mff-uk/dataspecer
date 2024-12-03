@@ -18,8 +18,8 @@ export function centerViewportToVisualEntityAction(
   graph: ModelGraphContextType,
   classesContext: ClassesContextType,
   diagram: UseDiagramType,
-  model: string,
-  identifier: string,
+  entityIdentifier: string,
+  _modelIdentifier: string,
 ) {
   const attribute = findRelationshipOrRelationshipUsageWithIdentifier(identifier, classesContext);
   if(attribute !== undefined) {
@@ -41,7 +41,7 @@ export function centerViewportToVisualEntityAction(
     notifications.error("There is no active visual model.");
     return;
   }
-  const entity = visualModel.getVisualEntityForRepresented(identifier);
+  const entity = visualModel.getVisualEntityForRepresented(entityIdentifier);
   if (entity === null) {
     notifications.error("There is no visual representation of the entity.");
     return;

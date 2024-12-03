@@ -5,7 +5,7 @@ import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRel
 import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { findSourceModelOfEntity } from "../service/model-service";
-import { getDomainAndRange } from "../service/relationship-service";
+import { getDomainAndRange, getDomainAndRangeConcepts } from "../util/relationship-utils";
 
 /**
  * Given visual model in version 0 performs migration to version 1
@@ -115,14 +115,14 @@ function migrateVisualRelationship(
 
   // We need to find ends of the relationship in the visual model.
   if (isSemanticModelRelationship(representedEntity) || isSemanticModelRelationshipUsage(representedEntity)) {
-    const { domain, range } = getDomainAndRange(representedEntity);
-    if (domain === null || domain.concept === null || range === null || range.concept === null) {
+    const { domain, range } = getDomainAndRangeConcepts(representedEntity);
+    if (domain === null || range === null) {
       // Invalid entity.
       visualModel.deleteVisualEntity(entity.identifier);
       return;
     }
-    const visualSource = visualModel.getVisualEntityForRepresented(domain.concept);
-    const visualTarget = visualModel.getVisualEntityForRepresented(range.concept);
+    const visualSource = visualModel.getVisualEntityForRepresented(domain);
+    const visualTarget = visualModel.getVisualEntityForRepresented(range);
     if (visualSource === null || visualTarget === null) {
       // Ends are not in the visual model.
       visualModel.deleteVisualEntity(entity.identifier);

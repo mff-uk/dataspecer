@@ -2,8 +2,11 @@ import path from "path"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 import i18nextLoader from 'vite-plugin-i18next-loader'
- 
+
 export default defineConfig({
+  server: {
+    port: 5174,
+  },
   base: "",
   plugins: [
     react(),
@@ -13,7 +16,7 @@ export default defineConfig({
     })
   ],
   optimizeDeps: {
-    include: ["@dataspecer/core-v2/**", "@dataspecer/core-v2/project"]
+    include: ["@dataspecer/core-v2/**", "@dataspecer/core-v2/project", "@dataspecer/backend-utils/connectors/specification"]
   },
   build: {
     commonjsOptions: {

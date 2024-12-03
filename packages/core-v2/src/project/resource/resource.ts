@@ -3,6 +3,7 @@ import { LanguageString } from "@dataspecer/core/core/core-resource";
 export interface BaseResource {
     /**
      * Unique identifier of the resource.
+     * todo: This should be ID rather than IRI.
      */
     iri: string;
 

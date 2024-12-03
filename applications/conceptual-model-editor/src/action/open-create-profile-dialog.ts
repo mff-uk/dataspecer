@@ -3,25 +3,35 @@ import {
   isSemanticModelClass,
   isSemanticModelGeneralization,
   isSemanticModelRelationship,
-  SemanticModelClass,
   SemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
   isSemanticModelAttributeUsage,
   isSemanticModelClassUsage,
   isSemanticModelRelationshipUsage,
-  SemanticModelClassUsage,
   SemanticModelRelationshipEndUsage,
   SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isWritableVisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { createClassUsage, createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
 
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { Options } from "../application/options";
 import { ClassesContextType, UseClassesContextType } from "../context/classes-context";
-import { createEntityProfileDialog, CreateProfileState } from "../dialog/obsolete/create-profile-dialog";
-import { temporaryDomainRangeHelper } from "../util/relationship-utils";
+import { UseDiagramType } from "../diagram/diagram-hook";
+import { getDomainAndRange } from "../util/relationship-utils";
+import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
+import { CreateClassProfileDialogState, createCreateProfileClassDialogState } from "../dialog/class-profile/create-class-profile-dialog-controller";
+import { createCreateClassProfileDialog } from "../dialog/class-profile/create-class-profile-dialog";
+import { EditAssociationProfileDialogState } from "../dialog/association-profile/edit-association-profile-dialog-controller";
+import { createEditAssociationProfileDialog, createNewAssociationProfileDialog } from "../dialog/association-profile/edit-association-profile-dialog";
+import { CreateAttributeProfileDialogState, createCreateAttributeProfileDialogState } from "../dialog/attribute-profile/create-attribute-profile-dialog-controller";
+import { createCreateAttributeProfileDialog } from "../dialog/attribute-profile/create-attribute-profile-dialog";
+import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
+import { createNewAssociationProfileDialogState } from "../dialog/association-profile/create-new-association-profile-dialog-state";
 
 export function openCreateProfileDialogAction(
   options: Options,
@@ -30,133 +40,150 @@ export function openCreateProfileDialogAction(
   classes: ClassesContextType,
   useClasses: UseClassesContextType,
   graph: ModelGraphContextType,
+  visualModel: WritableVisualModel,
+  diagram: UseDiagramType,
+  position: { x: number, y: number },
   identifier: string,
 ) {
-  const entity = graph.aggregatorView.getEntities()?.[identifier].rawEntity;
+  const entity = graph.aggregatorView.getEntities()?.[identifier].aggregatedEntity;
   if (entity === undefined) {
     notifications.error(`Can not find the entity with identifier '${identifier}'.`);
     return;
   }
-  // In future we should have different dialogs based on the type, for now
-  // we just fall through to a single dialog for all.
-  if (isSemanticModelClass(entity)) {
+  //
+  if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
+    const state = createCreateProfileClassDialogState(
+      classes, graph, visualModel, options.language, entity);
+    const onConfirm = (state: CreateClassProfileDialogState) => {
+      const createResult = createClassProfile(state);
+      if (createResult === null) {
+        return;
+      }
+      // Add to visual model if possible.
+      if (isWritableVisualModel(visualModel)) {
+        addSemanticClassProfileToVisualModelAction(
+          notifications, graph, visualModel, diagram,
+          createResult.identifier, createResult.model.getId(),
+          position);
+      }
+    };
+    dialogs.openDialog(createCreateClassProfileDialog(state, onConfirm));
+    return;
+  }
 
-  } else if (isSemanticModelClassUsage(entity)) {
+  if (isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity)) {
+    const state = createCreateAttributeProfileDialogState(
+      classes, graph, visualModel, options.language, entity);
+    const onConfirm = (state: CreateAttributeProfileDialogState) => {
+      createRelationshipProfile(state, entity);
+      // We do not update visual model here as attribute is part of  a class.
+    };
+    dialogs.openDialog(createCreateAttributeProfileDialog(state, onConfirm));
+    return;
+  }
 
-  } else if (isSemanticModelAttribute(entity)) {
+  if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
+    const state = createNewAssociationProfileDialogState(
+      classes, graph, visualModel, options.language, entity);
+    const onConfirm = (state: EditAssociationProfileDialogState) => {
+      const createResult = createRelationshipProfile(state, entity);
+      if (createResult === null) {
+        return;
+      }
+      // Add to visual model if possible.
+      if (isWritableVisualModel(visualModel)) {
+        addSemanticRelationshipProfileToVisualModelAction(
+          notifications, graph, visualModel,
+          createResult.identifier, createResult.model.getId());
+      }
+    };
+    dialogs.openDialog(createNewAssociationProfileDialog(state, onConfirm));
+    return;
+  }
 
-  } else if (isSemanticModelAttributeUsage(entity)) {
-
-  } else if (isSemanticModelRelationship(entity)) {
-
-  } else if (isSemanticModelRelationshipUsage(entity)) {
-
-  } else if (isSemanticModelGeneralization(entity)) {
+  if (isSemanticModelGeneralization(entity)) {
     notifications.error(`Generalization modification is not supported!`);
     return;
-  } else {
-    notifications.error(`Unknown entity type.`);
-    return;
   }
-  //
-  const onConfirm = (state: CreateProfileState) => {
-    saveChanges(useClasses, graph, state);
-  };
-  dialogs.openDialog(createEntityProfileDialog(
-    classes, graph, entity, options.language, onConfirm));
+
+  notifications.error(`Unknown entity type.`);
 }
 
-const saveChanges = (
-  classes: UseClassesContextType,
-  graph: ModelGraphContextType,
-  state: CreateProfileState,
-) => {
-  const entity = state.entity;
-  if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
-    handleSaveClassProfile(classes, graph, state, entity);
-  } else if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
-    handleSaveRelationshipProfile(classes, graph, state, entity);
-  }
-}
+const createClassProfile = (
+  state: CreateClassProfileDialogState,
+): {
+  identifier: string,
+  model: InMemorySemanticModel,
+} | null => {
 
-const handleSaveClassProfile = (
-  classes: UseClassesContextType,
-  graph: ModelGraphContextType,
-  state: CreateProfileState,
-  entity: SemanticModelClass | SemanticModelClassUsage,
-  // model: InMemorySemanticModel,
-) => {
-  // TODO ACTION Create class entity
-  const { id: classUsageId } = classes.createClassEntityUsage(state.model, entity.type[0], {
-    usageOf: entity.id,
-    usageNote: state.usageNote,
-    description: state.overriddenFields.description && state.changedFields.description ? state.description : null,
-    name: state.overriddenFields.name && state.changedFields.name ? state.name : null,
+  const { success, id: identifier } = state.model.model.executeOperation(createClassUsage({
+    usageOf: state.profileOf.identifier,
     iri: state.iri,
-  });
+    name: state.overrideName ? state.name : null,
+    description: state.overrideDescription ? state.description : null,
+    usageNote: state.overrideUsageNote ? state.usageNote : null,
+  }));
 
-  // TODO Add profile to the canvas.
-  // const visualModel = graph.aggregatorView.getActiveVisualModel();
-  // if (classUsageId && isWritableVisualModel(visualModel)) {
-  //   actions.addNodeToVisualModel(model.getId(), classUsageId);
-  // }
-};
+  if (identifier !== undefined && success) {
+    return { identifier, model: state.model.model };
+  } else {
+    return null;
+  }
+}
 
-const handleSaveRelationshipProfile = (
-  classes: UseClassesContextType,
-  graph: ModelGraphContextType,
-  state: CreateProfileState,
+const createRelationshipProfile = (
+  state: CreateAttributeProfileDialogState | EditAssociationProfileDialogState,
   entity: SemanticModelRelationship | SemanticModelRelationshipUsage,
-  // model: InMemorySemanticModel,
-) => {
+): {
+  identifier: string,
+  model: InMemorySemanticModel,
+} | null => {
 
-  const domainEnd = {
-    concept: state.overriddenFields.domain ? state.domain.concept : null,
+  const domain = {
+    concept: state.overrideDomain ? state.domain.identifier : null,
     name: null,
     description: null,
-    cardinality:
-    state.overriddenFields.domainCardinality ? state.domain.cardinality ?? null
-        : null,
+    cardinality: state.overrideDomainCardinality ? state.domainCardinality.cardinality ?? null : null,
     usageNote: null,
     iri: null,
   } satisfies SemanticModelRelationshipEndUsage;
 
-  const rangeEnd = {
-    concept: state.overriddenFields.range ? state.range.concept : null,
-    name: state.overriddenFields.name ? name : null,
-    description: state.overriddenFields.description ? state.description : null,
-    cardinality:
-    state.overriddenFields.rangeCardinality ? state.range.cardinality ?? null : null,
+  const range = {
+    concept: state.overrideRange ? state.range.identifier : null,
+    name: state.overrideName ? state.name : null,
+    description: state.overrideDescription ? state.description : null,
+    cardinality: state.overrideRangeCardinality ? state.rangeCardinality.cardinality ?? null : null,
     usageNote: null,
     iri: state.iri,
   } as SemanticModelRelationshipEndUsage;
 
-  const currentDomainAndRange =
-  isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)
-      ? temporaryDomainRangeHelper(entity)
-      : null;
-
-  let ends: SemanticModelRelationshipEndUsage[];
-  if (currentDomainAndRange?.domainIndex == 1 && currentDomainAndRange.rangeIndex == 0) {
-    ends = [rangeEnd, domainEnd];
-  } else {
-    ends = [domainEnd, rangeEnd];
+  // We need to preserve the order of domain and range.
+  let ends: SemanticModelRelationshipEndUsage[] | undefined = undefined;
+  if (isSemanticModelRelationship(entity)) {
+    const domainAndRange = getDomainAndRange(entity);
+    if (domainAndRange.domainIndex == 1 && domainAndRange.rangeIndex == 0) {
+      ends = [range, domain];
+    } else {
+      ends = [domain, range];
+    }
+  } else if (isSemanticModelRelationshipUsage(entity)) {
+    const domainAndRange = getDomainAndRange(entity);
+    if (domainAndRange.domainIndex == 1 && domainAndRange.rangeIndex == 0) {
+      ends = [range, domain];
+    } else {
+      ends = [domain, range];
+    }
   }
 
-  const { id: relationshipUsageId } = classes.createRelationshipEntityUsage(state.model, entity.type[0], {
+  const { success, id: identifier } = state.model.model.executeOperation(createRelationshipUsage({
     usageOf: entity.id,
     usageNote: state.usageNote,
     ends: ends,
-  });
+  }));
 
-  // TODO Add profile to the canvas.
-  // const visualModel = graph.aggregatorView.getActiveVisualModel();
-  // if (relationshipUsageId && isWritableVisualModel(visualModel)) {
-  //   visualModel.addVisualRelationship({
-  //     model: state.model.getId(),
-  //     representedRelationship: relationshipUsageId,
-  //     waypoints: [],
-  //   });
-  // }
-
-};
+  if (identifier !== undefined && success) {
+    return { identifier, model: state.model.model };
+  } else {
+    return null;
+  }
+}

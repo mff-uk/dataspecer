@@ -11,7 +11,7 @@ const translations: Record<string, string | Function> = {
   "header.package.missing": "Package of unknown name",
   "header.package.save": "💾 Save",
   "header.package.save.title": "Save package",
-  "header.package.disable": "To be able to save to backend, make sure you are in a package.  Start with visiting tjhe manager.",
+  "header.package.disable": "To be able to save to backend, make sure you are in a package. Start with visiting the manager.",
   "header.package.save-and-leave": "💾👋 Save and leave",
   "header.package.save-and-leave.title": "Save package and go back to manager",
   //
@@ -24,8 +24,17 @@ const translations: Record<string, string | Function> = {
   "create-class-dialog.error-iri-not-set": "iri not set",
   "create-class-dialog.btn-ok": "✅ create",
   "create-class-dialog.btn-cancel": "❌ cancel",
+  "create-class-dialog.add-specialization": "Add specialization",
+  //
+  "create-attribute-dialog.label": "Create a new attribute",
   //
   "create-profile-button.title": "Create profile",
+  //
+  "create-association-dialog.label": "Create a new association",
+  "edit-association-dialog.label": "Edit an association",
+  "create-dialog.btn-ok": "✅ Create",
+  "create-association-profile-dialog.label": "Create a new association profile",
+  "edit-association-profile-dialog.label": "Edit an association profile",
   //
   "modify-entity-dialog.label-class": "Class modification",
   "modify-entity-dialog.label-class-profile": "Class profile modification",
@@ -36,12 +45,14 @@ const translations: Record<string, string | Function> = {
   "modify-entity-dialog.type": "Name",
   "modify-entity-dialog.id": "Identifier",
   "modify-entity-dialog.iri": "IRI",
-  "modify-entity-dialog.specialization-of": "Specialization of",
+  "modify-entity-dialog.specialization-of": "Specializations",
   "modify-entity-dialog.specialization-of-property": "Subproperty of",
   "modify-entity-dialog.description": "Definition",
   "modify-entity-dialog.usage-note": "Usage note",
   "modify-entity-dialog.attributes": "Attributes",
   "modify-entity-dialog.attributes-profiles": "Attribute profiles",
+  "modify-entity-dialog.relationships": "Relationships",
+  "modify-entity-dialog.relationships-profiles": "Relationships profiles",
   //
   "attributes-component.name": "Name",
   "attributes-component.description": "Definition",
@@ -112,7 +123,7 @@ const translations: Record<string, string | Function> = {
   "model.attributes": "Attributes",
   "model.profiles": "Profiles",
   "model.warnings": "⚠️&nbsp;Warnings",
-  "model-catalog.add-vocabulary": "➕ Vocabulary",
+  "model-catalog.add-vocabulary": "➕",
   //
   "detail-dialog.btn-close": "Close",
   "detail-dialog.title.attribute": "Attribute detail",
@@ -135,13 +146,27 @@ const translations: Record<string, string | Function> = {
   "create-connection-dialog.label" : "Create connection",
   "create-connection-dialog.btn-ok" : "✅ Create",
   "create-connection-dialog.btn-close" : "❌ Discard",
+  //
+  "create-class-profile-dialog.label": "Create a profile",
+  "modify-class-profile-dialog.profile-of": "Profile of",
+  //
+  "undefined": "Undefined",
+  "change-in-profile": "Change in profile",
+  //
+  "warning": "Warning",
+  "warning-change-domain": "Change of the domain may introduce a breaking change in the profile.",
+  "warning-change-domain-cardinality": "Change of cardinality may introduce a breaking change in the profile.",
+  "warning-change-range": "Change of the range may introduce a breaking change in the profile.",
+  "warning-change-range-cardinality": "Change of cardinality may introduce a breaking change in the profile.",
 };
+
+export type TranslationFunction = (text: string, ...args: unknown[]) => string;
 
 export const t = (text: string, ...args: unknown[]) : string => {
   const result = translations[text];
   if (result === undefined) {
     logger.missingTranslation(text);
-    return "MISSING: " + text;
+    return text;
   } else  if (result instanceof Function) {
     return result(...args);
   } else {

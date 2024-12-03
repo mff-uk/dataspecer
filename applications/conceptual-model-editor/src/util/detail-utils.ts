@@ -1,3 +1,5 @@
+import { useContext } from "react";
+
 import {
     type SemanticModelClass,
     type SemanticModelGeneralization,
@@ -17,22 +19,21 @@ import {
 } from "./name-utils";
 import {
     type SemanticModelClassUsage,
+    SemanticModelRelationshipEndUsage,
     type SemanticModelRelationshipUsage,
     isSemanticModelAttributeUsage,
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { dataTypeUriToName, isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
+import type { Entity, EntityModel } from "@dataspecer/core-v2";
+
 import { sourceModelOfEntity } from "./model-utils";
 import { getIri, getModelIri } from "./iri-utils";
 import { ModelGraphContext, ModelGraphContextType } from "../context/model-context";
 import { ClassesContext, ClassesContextType } from "../context/classes-context";
 import { getTheOriginalProfiledEntity } from "./profile-utils";
-import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
-import { temporaryDomainRangeHelper } from "./relationship-utils";
-import { cardinalityToString } from "./utils";
-import { dataTypeUriToName, isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
-import type { Entity, EntityModel } from "@dataspecer/core-v2";
-import { useContext } from "react";
+import { cardinalityToHumanLabel, getDomainAndRange } from "../util/relationship-utils";
 
 export type EntityDetailSupportedType =
     | SemanticModelClass
@@ -60,17 +61,17 @@ export interface EntityDetailProxy {
         | SemanticModelRelationshipUsage
     )[];
     profileOf:
-        | SemanticModelClass
-        | SemanticModelRelationship
-        | SemanticModelClassUsage
-        | SemanticModelRelationshipUsage
-        | undefined;
+    | SemanticModelClass
+    | SemanticModelRelationship
+    | SemanticModelClassUsage
+    | SemanticModelRelationshipUsage
+    | undefined;
     originalProfile:
-        | SemanticModelClass
-        | SemanticModelRelationship
-        | SemanticModelClassUsage
-        | SemanticModelRelationshipUsage
-        | undefined;
+    | SemanticModelClass
+    | SemanticModelRelationship
+    | SemanticModelClassUsage
+    | SemanticModelRelationshipUsage
+    | undefined;
     profiledBy: (
         | SemanticModelClass
         | SemanticModelRelationship
@@ -241,11 +242,26 @@ export const createEntityProxy = (
                     | SemanticModelClassUsage => p != undefined
             );
 
-    let ends: { domain: SemanticModelRelationshipEnd; range: SemanticModelRelationshipEnd } | null = null;
+    let ends: {
+        domain: SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage;
+        range: SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage;
+    } | null = null;
     if (isSemanticModelRelationship(viewedEntity)) {
-        ends = getDomainAndRange(viewedEntity);
+        const domainAndRange = getDomainAndRange(viewedEntity);
+        if (domainAndRange.domain !== null && domainAndRange.range !== null) {
+            ends = {
+                domain: domainAndRange.domain,
+                range: domainAndRange.range,
+            };
+        }
     } else if (isSemanticModelRelationshipUsage(viewedEntity)) {
-        ends = temporaryDomainRangeHelper(viewedEntity);
+        const domainAndRange = getDomainAndRange(viewedEntity);
+        if (domainAndRange.domain !== null && domainAndRange.range !== null) {
+            ends = {
+                domain: domainAndRange.domain,
+                range: domainAndRange.range,
+            };
+        }
     } else if (isSemanticModelGeneralization(viewedEntity)) {
         ends = {
             domain: {
@@ -271,16 +287,16 @@ export const createEntityProxy = (
             .filter((a) =>
                 isSemanticModelAttributeUsage(a as SemanticModelRelationshipUsage & SemanticModelRelationship)
             )
-            .filter((v) => temporaryDomainRangeHelper(v)?.domain.concept == viewedEntity.id);
+            .filter((v) => getDomainAndRange(v).domain?.concept == viewedEntity.id);
 
     const getDomain = () => ({
         entity: c.find((cls) => cls.id == ends?.domain?.concept) ?? profiles.find((v) => v.id == ends?.domain?.concept),
-        cardinality: cardinalityToString(ends?.domain?.cardinality),
+        cardinality: cardinalityToHumanLabel(ends?.domain?.cardinality),
     });
 
     const getRange = () => ({
         entity: c.find((cls) => cls.id == ends?.range.concept) ?? profiles.find((v) => v.id == ends?.range?.concept),
-        cardinality: cardinalityToString(ends?.range?.cardinality),
+        cardinality: cardinalityToHumanLabel(ends?.range?.cardinality),
     });
 
     const getDataType = () => {
