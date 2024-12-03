@@ -80,7 +80,7 @@ export const EntityRow = (props: {
             </span>
             <div className="ml-2 flex flex-row px-1 ">
                 {props.targetable?.isTargetable
-                    ? <MoveViewportToEntityButton disabled={!props.isOnCanvas} onClick={props.targetable?.centerViewportOnEntityHandler} />
+                    ? <MoveViewportToEntityButton onClick={props.targetable?.centerViewportOnEntityHandler} />
                     : null}
                 {expandable && (
                     <ExpandButton

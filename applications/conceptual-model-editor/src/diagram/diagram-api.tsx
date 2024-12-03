@@ -137,6 +137,12 @@ export interface DiagramActions {
   centerViewportToNode(identifier: string): void;
 
   /**
+   * Fits (change zoom and move) diagram's viewport to nodes with given identifiers.
+   * @param identifiers are the identifiers of the nodes to fit into view
+   */
+  fitToView(identifiers: string[]): void;
+
+  /**
    * Return content of the current diagram view as a SVG string.
    */
   renderToSvgString(): Promise<string | null>;

@@ -1,11 +1,13 @@
 import {
     type SemanticModelClass,
     type SemanticModelRelationship,
+    isSemanticModelAttribute,
     isSemanticModelClass,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import {
+    isSemanticModelAttributeUsage,
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
     type SemanticModelClassUsage,
@@ -71,7 +73,7 @@ export const RowHierarchy = (props: {
 
     const targetHandler = {
         centerViewportOnEntityHandler: () => props.handlers.handleTargeting(entity.id),
-        isTargetable: props.onCanvas.includes(entity.id) && isClassOrProfile,
+        isTargetable: props.onCanvas.includes(entity.id) || isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity),
     };
 
     const model = findSourceModelOfEntity(entity.id, models);
