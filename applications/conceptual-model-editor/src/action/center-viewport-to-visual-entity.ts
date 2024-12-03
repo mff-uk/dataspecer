@@ -2,10 +2,10 @@ import { isVisualGroup, isVisualNode, isVisualRelationship } from "@dataspecer/c
 import { ModelGraphContextType } from "../context/model-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelAttribute, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelRelationshipUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ClassesContextType } from "../context/classes-context";
-import { isAnAttribute, temporaryDomainRangeHelper } from "../util/relationship-utils";
+import { getDomainAndRange } from "../util/relationship-utils";
 
 
 /**
@@ -21,18 +21,18 @@ export function centerViewportToVisualEntityAction(
   entityIdentifier: string,
   _modelIdentifier: string,
 ) {
-  const attribute = findRelationshipOrRelationshipUsageWithIdentifier(identifier, classesContext);
+  const attribute = findRelationshipOrRelationshipUsageWithIdentifier(entityIdentifier, classesContext);
   if(attribute !== undefined) {
     // It can be attribute or association
-    if(isAnAttribute(attribute)) {
-      const domainNodeIdentifier = temporaryDomainRangeHelper(attribute)?.domain?.concept ?? null;
+    if(isSemanticModelAttribute(attribute)) {
+      const domainNodeIdentifier = getDomainAndRange(attribute)?.domain?.concept ?? null;
 
       if(domainNodeIdentifier === null) {
           notifications.error("Focused attribute doesn't have domain node");
           return;
       }
 
-      identifier = domainNodeIdentifier;
+      entityIdentifier = domainNodeIdentifier;
     }
   }
 

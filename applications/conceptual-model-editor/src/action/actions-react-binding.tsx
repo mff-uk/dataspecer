@@ -386,7 +386,7 @@ function createActionsContext(
   };
 
   const centerViewportToVisualEntity = (model: string, identifier: string) => {
-    centerViewportToVisualEntityAction(notifications, graph, classes, diagram, model, identifier);
+    centerViewportToVisualEntityAction(notifications, graph, classes, diagram, identifier, model);
   };
 
   // Prepare and set diagram callbacks.
