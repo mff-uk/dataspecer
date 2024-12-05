@@ -43,18 +43,44 @@ import { addSemanticEntityToVisualModelAction } from "./add-semantic-entity-to-v
 
 const LOG = createLogger(import.meta.url);
 
+/**
+ * Contains actions used for dialog manipulation.
+ */
 interface DialogActions {
 
+  /**
+   * Opens dialog, which purpose is to add new model into editor.
+   */
   openCreateModelDialog: () => void;
 
+  /**
+   * Opens dialog, which purpose is to show the detail information of entity identified by {@link identifier}.
+   * @param identifier is the identifier of the semantic entity.
+   */
   openDetailDialog: (identifier: string) => void;
 
+  /**
+   * Opens dialog, which purpose is to modification of entity identified by {@link identifier}.
+   * @param identifier is the identifier of the semantic entity.
+   */
   openModifyDialog: (identifier: string) => void;
 
+  /**
+   * Opens dialog, which purpose is to create new class in model identified by {@link model}.
+   * @param model is the identifier of the semantic model.
+   */
   openCreateClassDialog: (model: string) => void;
 
+  /**
+   * Opens dialog, which purpose is to create new association in model identified by {@link model}.
+   * @param model is the identifier of the semantic model.
+   */
   openCreateAssociationDialog: (model: string) => void;
 
+  /**
+   * Opens dialog, which purpose is to create new attribute in model identified by {@link model}.
+   * @param model is the identifier of the semantic model.
+   */
   openCreateAttributeDialog: (model: string) => void;
 
   /**
@@ -64,37 +90,95 @@ interface DialogActions {
 
 }
 
-interface VisualModelActions {
 
+/**
+ * Contains actions used for manipulation with visual model .
+ */
+interface VisualModelActions {
+// TODO PRQuestion: How should we document these action methods? Since their implementation is usually
+//                  within the .*Action methods defined in different files in this directory.
+//                  So should the actual documentation look like: For further information about the action see {@link ...Action} method.
+//                  Can be seen on the centerViewportToVisualEntity method, where the Action method is already documented
+
+  /**
+   * Adds semantic entity identified by {@link identifier} to currently active visual model at given {@link position}.
+   * @param identifier identifies the semantic entity to be added to visual model.
+   * @param position is the position to put the newly created visual entity at.
+   * If the position is null or undefined (TODO: RadStr) then default placement is chosen based on given entity.
+   */
   addSemanticEntityToVisualModel: (identifier: string, position?: { x: number, y: number } | null) => void;
 
+  /**
+   * Adds semantic class identified by {@link identifier} to currently active visual model at given {@link position}.
+   * @param model identifies the semantic (TODO PRQuestion: Just double checking if it is semantic and not visual) model, where the semantic entity resides.
+   * @param identifier identifies the semantic class to be added to visual model.
+   * @param position is the position to put the newly created visual node at.
+   * If the position is null then default placement is chosen.
+   */
   addClassToVisualModel: (model: string, identifier: string, position: { x: number, y: number } | null) => void;
 
+  /**
+   * Adds semantic class profile identified by {@link identifier} to currently active visual model at given {@link position}.
+   * @param model identifies the semantic model, where the semantic entity resides.
+   * @param identifier identifies the semantic class profile to be added to visual model.
+   * @param position is the position to put the newly created visual node at.
+   * If the position is null then default placement is chosen.
+   */
   addClassProfileToVisualModel: (model: string, identifier: string, position: { x: number, y: number } | null) => void;
 
+  /**
+   * Adds generalization identified by {@link identifier} to currently active visual model at given {@link position}.
+   * @param model identifies the semantic model, where the semantic entity resides.
+   * @param identifier identifies the generalization to be added to visual model.
+   */
   addGeneralizationToVisualModel: (model: string, identifier: string) => void;
 
+  /**
+   * Adds relation (association) identified by {@link identifier} to currently active visual model at given {@link position}.
+   * @param model identifies the semantic model, where the semantic entity resides.
+   * @param identifier identifies the relation to be added to visual model.
+   */
   addRelationToVisualModel: (model: string, identifier: string) => void;
 
+  /**
+   * Adds relation (association) profile identified by {@link identifier} to currently active visual model at given {@link position}.
+   * @param model identifies the semantic model, where the semantic entity resides.
+   * @param identifier identifies the relation profile to be added to visual model.
+   */
   addRelationProfileToVisualModel: (model: string, identifier: string) => void;
 
+  /**
+   * Removes the visual entity identified by given {@link identifier}.
+   * @param identifier identifies the SEMANTIC entity, which visual representation will be removed from visual model.
+   */
   removeFromVisualModel: (identifier: string) => void;
 
   //
+  // TODO RadStr: Document after rewrite
   changeSelectionVisibility: (nodeSelection: string[], edgeSelection: string[], visibility: boolean) => void;
-
+  // TODO RadStr: Document after rewrite
   deleteSelectionFromSemanticModel: (nodeSelection: string[], edgeSelection: string[]) => void;
   //
-
+  // TODO RadStr: Document after rewrite
   createNewVisualModelFromSelection: (selection: string[], keepPositionsFromCurrentVisualModel: boolean) => void;
 
   //
+  // TODO RadStr: Document after rewrite
   changeSemanticModelVisibility: (semanticModelIdentifier: string, visibility: boolean) => void;
 
+  // TODO RadStr: Rename nodeIdentifier to something else, since iti si semantic identifier
+  /**
+   * Puts node's neighborhood to visual model. That is classes connected to semantic class or class profile identified by {@link nodeIdentifier}.
+   * @param nodeIdentifier is the identifier of the semantic class or class profile, whose neighborhood we will add to visual model.
+   */
   addNodeNeighborhoodToVisualModel: (nodeIdentifier: string) => void;
 
 }
 
+
+/**
+ * Contains actions, which are stored in the context for further use.
+ */
 export interface ActionsContextType extends DialogActions, VisualModelActions {
 
   /**
@@ -102,6 +186,7 @@ export interface ActionsContextType extends DialogActions, VisualModelActions {
    */
   deleteFromSemanticModel: (model: string, identifier: string) => void;
 
+  // TODO RadStr: Document based on PRQuestion
   centerViewportToVisualEntity: (model: string, identifier: string) => void;
 
   /**

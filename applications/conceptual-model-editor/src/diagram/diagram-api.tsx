@@ -396,8 +396,17 @@ interface DiagramEdges {
 
   onAddWaypoint: (diagramEdge: Edge, index: number, waypoint: Waypoint) => void;
 
+  /**
+   * This method is called when edge's waypoint is deleted.
+   * @param diagramEdge is the edge containing deletd waypoint.
+   * @param index is the index of the deleted waypoint
+   */
   onDeleteWaypoint: (diagramEdge: Edge, index: number) => void;
 
+  /**
+   * This method is called when edges' waypoints change.
+   * @param changes represent the changes. That is for each changed edge there is map of changed waypoints.
+   */
   onChangeWaypointPositions: (changes: { [edgeIdentifier: string]: { [waypointIndex: number]: Waypoint } }) => void;
 
 }
@@ -405,24 +414,61 @@ interface DiagramEdges {
 interface DiagramSelection {
 
   /**
-   * This property stores the method, which is called when user changes the selection.
+   * This method is called when user changes the selection.
    * Callback is registered on both node and edge selection.
    * @param nodes are identifiers of the nodes representing the new node selection.
    * @param edges are identifiers of the edges representing the new edge selection.
    */
   onSelectionDidChange: (nodes: string[], edges: string[]) => void;
 
-
-  // TODO RadStr: Document (if these methods will be "approved")
+  // TODO RadStr: Maybe don't have to put in the source argument
+  /**
+   * This method is called when user wants to see list of actions on selection.
+   * @param source is the last selected node
+   * @param flowPosition is the position on canvas, where should be the list of actions shown.
+   */
   onShowSelectionActions: (source: Node, flowPosition: Position) => void;
+
+  /**
+   * This method is called when user wants to layout selection.
+   */
   onLayoutSelection: () => void;
+
+  /**
+   * This method is called when user wants to create group selection.
+   */
   onCreateGroup: () => void;
+
+  /**
+   * This method is called when user wants to show the dialog for expansion of selection.
+   */
   onShowExpandSelection: () => void;
+
+  /**
+   * This method is called when user wants to show the dialog to filter the selection.
+   */
   onShowFilterSelection: () => void;
+
   //
+
+  /**
+   * This method is called when user wants to create new visual model containing selection.
+   */
   onCreateNewViewFromSelection: () => void;
+
+  /**
+   * This method is called when user wants to profile elements in selection.
+   */
   onProfileSelection: () => void;
+
+  /**
+   * This method is called when user wants to remove selection from visual model, i.e. hide.
+   */
   onHideSelection: () => void;
+
+  /**
+   * This method is called when user wants to remove selection from both semantic and visual model.
+   */
   onDeleteSelection: () => void;
 }
 
