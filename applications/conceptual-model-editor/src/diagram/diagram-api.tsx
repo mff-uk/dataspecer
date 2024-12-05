@@ -72,7 +72,7 @@ export interface DiagramActions {
 
   // Edges
 
-  // TODO: Same as nodes, so just copy after feedback to the node documentation.
+  // TODO RadStr: Same as nodes, so just copy after feedback to the node documentation.
   getEdges(): Edge[];
 
   addEdges(edges: Edge[]): void;
@@ -413,7 +413,7 @@ interface DiagramSelection {
   onSelectionDidChange: (nodes: string[], edges: string[]) => void;
 
 
-  // TODO: Document (if these methods will be "approved")
+  // TODO RadStr: Document (if these methods will be "approved")
   onShowSelectionActions: (source: Node, flowPosition: Position) => void;
   onLayoutSelection: () => void;
   onCreateGroup: () => void;

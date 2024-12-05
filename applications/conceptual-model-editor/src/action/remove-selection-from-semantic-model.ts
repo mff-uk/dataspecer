@@ -14,7 +14,7 @@ export const removeSelectionFromSemanticModelAction = (nodeSelection: string[], 
                                                         graph: ModelGraphContextType): Record<string, Promise<void>> => {
     const removeEntitiesPromises: Record<string, Promise<void>> = {};
 
-    // TODO: Since I concat, maybe I don't need to distinguish between edges and nodes, so I can just pass in 1 argument named selection
+    // TODO RadStr: Since I concat, maybe I don't need to distinguish between edges and nodes, so I can just pass in 1 argument named selection
     edgeSelection.concat(nodeSelection).forEach(selectedEntityId => {
         const model = sourceModelOfEntity(selectedEntityId, [...graph.models.values()]);
         if(model === undefined) {

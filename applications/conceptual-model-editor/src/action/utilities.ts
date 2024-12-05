@@ -58,7 +58,7 @@ export function getViewportCenterForClassPlacement(diagram: UseDiagramType) {
 }
 
 
-// TODO: This exact type is defined in another branch so unify in future
+// TODO RadStr: This exact type is defined in another branch so unify in future
 type Selections = {
   nodeSelection: string[],
   edgeSelection: string[],
@@ -71,8 +71,8 @@ export function getSelections(diagram: UseDiagramType): Selections {
 }
 
 
-// TODO: Maybe this method should be called every time when working with edge selection?
-//       Right now I don't see any case when we want to work with the edges representing class profile (except for setting waypoints)
+// TODO RadStr: Maybe this method should be called every time when working with edge selection?
+//              Right now I don't see any case when we want to work with the edges representing class profile (except for setting waypoints)
 export function filterOutProfileClassEdges(edgeSemanticIdentifiers: string[], visualModel: VisualModel): string[] {
   return edgeSemanticIdentifiers.filter(edgeIdentifier => {
     const visualEntity = visualModel.getVisualEntityForRepresented(edgeIdentifier);

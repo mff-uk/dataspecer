@@ -135,7 +135,7 @@ export const useAlignmentController = (props: {
         setNodeAbsolutePositionBasedOnPreviousAlignmentNodes(nodePositionCopy, "x");
         setNodeAbsolutePositionBasedOnPreviousAlignmentNodes(nodePositionCopy, "y");
 
-        // TODO: We just info that alignment node changed, so we just need booleans
+        // TODO RadStr: We just info that alignment node changed, so we just need booleans
         const changedAlignmentLines: Coordinate[] = [];
         const indexInSortedArray = {
             x: -1,

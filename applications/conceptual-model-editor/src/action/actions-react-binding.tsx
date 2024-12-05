@@ -500,26 +500,24 @@ function createActionsContext(
       diagram.actions().openCanvasToolbar(source, flowPosition, "NODE-SELECTION-ACTIONS-SECONDARY-TOOLBAR");
     },
     onLayoutSelection: () => {
-      alert("TODO: currently does nothing (In future - Opens layouting menu - 3 buttons - alignments + layouting)");
+      alert("TODO RadStr: currently does nothing (In future - Opens layouting menu - 3 buttons - alignments + layouting)");
     },
     onCreateGroup: () => {
-      alert("TODO: currently does nothing (In future - Creating group)");
+      alert("TODO RadStr: currently does nothing (In future - Creating group)");
     },
     onShowExpandSelection: () => {
-      alert("TODO: currently does nothing (In future - Showing expansion dialog)");
+      alert("TODO RadStr: currently does nothing (In future - Showing expansion dialog)");
     },
     onShowFilterSelection: () => {
-      alert("TODO: currently does nothing (In future - Showing filter dialog)");
+      alert("TODO RadStr: currently does nothing (In future - Showing filter dialog)");
     },
     onCanvasOpenCreateClassDialog: (sourceClassNode, positionToPlaceClassOn) => {
       diagram.actions().closeCanvasToolbar();
-      // TODO: Maybe all of this should be in action - openCreateClassDialogWithModelDerivedFromClassAction
+      // TODO RadStr: Maybe all of this should be in action - openCreateClassDialogWithModelDerivedFromClassAction
 
       let model = findSourceModelOfEntity(sourceClassNode.externalIdentifier, graph.models);
       if (model === null || !(model instanceof InMemorySemanticModel)) {
-        // Take the first model in memory model ... It is done the same way in create connection dialog
-        // TODO: Note that this causes crash, if there is no InMemorySemanticModel at all - I will make issue
-        filterInMemoryModels([...graph.models.values()])[0];
+        // Take the first model in memory model
         model = filterInMemoryModels([...graph.models.values()])?.[0] ?? null;
       }
 
@@ -530,7 +528,7 @@ function createActionsContext(
 
       placePositionOnGrid(positionToPlaceClassOn, configuration().xSnapGrid, configuration().ySnapGrid);
 
-      // TODO: The way of creating dialog changed
+      // TODO RadStr: The way of creating dialogs changed
 
       // const onConfirm = (state: CreateClassDialogState) => {
       //   createClassAction(notifications, graph, model as InMemorySemanticModel, positionToPlaceClassOn, state);

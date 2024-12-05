@@ -9,7 +9,7 @@ export const changeSemanticModelVisibilityAction = (semanticModelIdentifier: str
                                                 graph: ModelGraphContextType,
                                                 notifications: UseNotificationServiceWriterType,
                                                 visibility: boolean): void => {
-    // TODO: Get the selection through the systematic selection feature
+    // TODO RadStr: Get the selection through the systematic selection feature
     const semanticModelNodeIdentifiers: string[] = [];
     const semanticModelEdgeIdentifiers: string[] = [];
     changeSelectionVisibilityAction(semanticModelNodeIdentifiers, semanticModelEdgeIdentifiers, notifications, graph, visibility);
