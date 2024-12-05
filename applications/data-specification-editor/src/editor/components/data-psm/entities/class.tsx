@@ -71,8 +71,8 @@ export const DataPsmClassItem: React.FC<{
               }
             </DataPsmGetLabelAndDescription>
 
-          {typeof dataPsmClass.dataPsmTechnicalLabel === "string" && dataPsmClass.dataPsmTechnicalLabel.length > 0 &&
-              <> (<Span sx={sxStyles.technicalLabel}>{dataPsmClass.dataPsmTechnicalLabel}</Span>)</>
+          {typeof dataPsmClass?.dataPsmTechnicalLabel === "string" && dataPsmClass?.dataPsmTechnicalLabel.length > 0 &&
+              <> (<Span sx={sxStyles.technicalLabel}>{dataPsmClass?.dataPsmTechnicalLabel}</Span>)</>
           }
         </>
     }
@@ -144,7 +144,7 @@ export const DataPsmClassItem: React.FC<{
     <DataPsmBaseRow
       {...props}
       startRow={startRow}
-      subtree={<DataPsmClassSubtree {...props as ObjectContext} iri={props.iri} parentDataPsmClassIri={dataPsmClass.iri} isOpen={collapseSubtree.isOpen} inheritanceOrTree={props.inheritanceOrTree ?? undefined} />}
+      subtree={<DataPsmClassSubtree {...props as ObjectContext} iri={props.iri} parentDataPsmClassIri={dataPsmClass?.iri} isOpen={collapseSubtree.isOpen} inheritanceOrTree={props.inheritanceOrTree ?? undefined} />}
       collapseToggle={collapseSubtree}
       menu={menu}
       hiddenMenu={hiddenMenu}
