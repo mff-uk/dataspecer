@@ -2,19 +2,19 @@ import { type DialogWrapper, type DialogProps } from "../dialog-api";
 import { configuration, t } from "../../application";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
-import { CreateClassProfileDialogState, useCreateClassProfileDialogController } from "./create-class-profile-dialog-controller";
 import { SelectModel } from "../class/components/select-model";
 import { OverrideCheckbox } from "./components/checkbox-override";
 import { InputIri } from "../class/components/input-iri";
 import { languageStringToString } from "../../utilities/string";
+import { EditClassProfileDialogState, useEditClassProfileDialogController } from "./edit-class-profile-dialog-controller";
 
-export const createCreateClassProfileDialog = (
-  state: CreateClassProfileDialogState,
-  onConfirm: (state: CreateClassProfileDialogState) => void | null,
-): DialogWrapper<CreateClassProfileDialogState> => {
+export const createEditClassProfileDialog = (
+  state: EditClassProfileDialogState,
+  onConfirm: (state: EditClassProfileDialogState) => void | null,
+): DialogWrapper<EditClassProfileDialogState> => {
   return {
     label: "create-class-profile-dialog.label",
-    component: CreateClassProfileDialog,
+    component: EditClassProfileDialog,
     state,
     confirmLabel: "create-profile-dialog.btn-ok",
     cancelLabel: "create-profile-dialog.btn-close",
@@ -24,12 +24,12 @@ export const createCreateClassProfileDialog = (
   };
 };
 
-function validate(state: CreateClassProfileDialogState): boolean {
+function validate(state: EditClassProfileDialogState): boolean {
   return state.iri.trim() !== "";
 }
 
-const CreateClassProfileDialog = (props: DialogProps<CreateClassProfileDialogState>) => {
-  const controller = useCreateClassProfileDialogController(props);
+const EditClassProfileDialog = (props: DialogProps<EditClassProfileDialogState>) => {
+  const controller = useEditClassProfileDialogController(props);
   const state = props.state;
   const languagePreferences = configuration().languagePreferences;
   return (

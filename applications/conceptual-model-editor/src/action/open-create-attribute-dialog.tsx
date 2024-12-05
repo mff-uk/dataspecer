@@ -7,10 +7,10 @@ import { ModelGraphContextType } from "../context/model-context";
 import { Options, createLogger } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { firstInMemorySemanticModel } from "../utilities/model";
-import { createCreateAttributeDialog } from "../dialog/attribute/edit-attribute-dialog";
+import { createEditAttributeDialog } from "../dialog/attribute/edit-attribute-dialog";
 import { createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { createNewAttributeDialogState } from "../dialog/attribute/create-new-attribute-dialog-state";
-import { CreateAttributeDialogState } from "../dialog/attribute/edit-attribute-dialog-controller";
+import { EditAttributeDialogState } from "../dialog/attribute/edit-attribute-dialog-controller";
 
 const LOG = createLogger(import.meta.url);
 
@@ -33,7 +33,7 @@ export function openCreateAttributeDialogAction(
     return;
   }
 
-  const onConfirm = (state: CreateAttributeDialogState) => {
+  const onConfirm = (state: EditAttributeDialogState) => {
     // Create attribute.
     createSemanticAttribute(notifications, state);
   };
@@ -48,7 +48,7 @@ function getDefaultModel(graph: ModelGraphContextType): InMemorySemanticModel | 
 
 function createSemanticAttribute(
   notifications: UseNotificationServiceWriterType,
-  state: CreateAttributeDialogState): {
+  state: EditAttributeDialogState): {
     identifier: string,
     model: InMemorySemanticModel
   } | null {
@@ -90,9 +90,9 @@ function openCreateAttributeDialog(
   graph: ModelGraphContextType,
   visualModel: VisualModel | null,
   model: InMemorySemanticModel,
-  onConfirm: (state: CreateAttributeDialogState) => void,
+  onConfirm: (state: EditAttributeDialogState) => void,
 ) {
   const state = createNewAttributeDialogState(
     classes, graph, visualModel, options.language, model);
-  dialogs.openDialog(createCreateAttributeDialog(state, onConfirm));
+  dialogs.openDialog(createEditAttributeDialog(state, onConfirm));
 }

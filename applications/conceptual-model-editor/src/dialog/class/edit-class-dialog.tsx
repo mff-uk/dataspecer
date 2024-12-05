@@ -2,18 +2,18 @@ import { type DialogWrapper, type DialogProps } from "../dialog-api";
 import { t } from "../../application";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
-import { CreateClassDialogState, useCreateClassDialogController } from "./create-class-dialog-controller";
 import { SelectModel } from "./components/select-model";
 import { SpecializationSelect } from "./components/select-specialization";
 import { InputIri } from "./components/input-iri";
+import { EditClassDialogState, useEditClassDialogController } from "./edit-class-dialog-controller";
 
-export const createCreateClassDialog = (
-  state: CreateClassDialogState,
-  onConfirm: (state: CreateClassDialogState) => void | null,
-): DialogWrapper<CreateClassDialogState> => {
+export const createEditClassDialog = (
+  state: EditClassDialogState,
+  onConfirm: (state: EditClassDialogState) => void | null,
+): DialogWrapper<EditClassDialogState> => {
   return {
     label: "create-class-dialog.label",
-    component: CreateClassDialog,
+    component: EditClassDialog,
     state,
     confirmLabel: "create-class-dialog.btn-ok",
     cancelLabel: "create-class-dialog.btn-cancel",
@@ -23,12 +23,12 @@ export const createCreateClassDialog = (
   };
 };
 
-function validate(state: CreateClassDialogState): boolean {
+function validate(state: EditClassDialogState): boolean {
   return state.iri.trim() !== "";
 }
 
-const CreateClassDialog = (props: DialogProps<CreateClassDialogState>) => {
-  const controller = useCreateClassDialogController(props);
+const EditClassDialog = (props: DialogProps<EditClassDialogState>) => {
+  const controller = useEditClassDialogController(props);
   const state = props.state;
   return (
     <>

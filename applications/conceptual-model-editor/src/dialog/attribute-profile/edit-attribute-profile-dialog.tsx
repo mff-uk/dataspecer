@@ -3,7 +3,7 @@ import { configuration, t } from "../../application";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
 import { SelectModel } from "../class/components/select-model";
-import { CreateAttributeProfileDialogState, useCreateAttributeProfileDialogController } from "./edit-attribute-profile-dialog-controller";
+import { EditAttributeProfileDialogState, useEditAttributeProfileDialogController } from "./edit-attribute-profile-dialog-controller";
 import { SelectEntity } from "../class/components/select-entity";
 import { SelectCardinality } from "../attribute/components/select-cardinality";
 import { InputIri } from "../class/components/input-iri";
@@ -13,10 +13,10 @@ import { ValidationMessage } from "../association-profile/components/validation-
 import { SelectDataType } from "../attribute/components/select-data-type";
 import { isValid } from "../utilities/validation-utilities";
 
-export const createCreateAttributeProfileDialog = (
-  state: CreateAttributeProfileDialogState,
-  onConfirm: (state: CreateAttributeProfileDialogState) => void,
-): DialogWrapper<CreateAttributeProfileDialogState> => {
+export const createEditAttributeProfileDialog = (
+  state: EditAttributeProfileDialogState,
+  onConfirm: (state: EditAttributeProfileDialogState) => void,
+): DialogWrapper<EditAttributeProfileDialogState> => {
   return {
     label: "create-attribute-dialog.label",
     component: CreateAttributeProfileDialog,
@@ -29,7 +29,7 @@ export const createCreateAttributeProfileDialog = (
   };
 }
 
-function validate(state: CreateAttributeProfileDialogState): boolean {
+function validate(state: EditAttributeProfileDialogState): boolean {
   return state.iri.trim() !== ""
     && isValid(state.domainValidation)
     && isValid(state.domainCardinalityValidation)
@@ -37,8 +37,8 @@ function validate(state: CreateAttributeProfileDialogState): boolean {
     && isValid(state.rangeCardinalityValidation);
 }
 
-const CreateAttributeProfileDialog = (props: DialogProps<CreateAttributeProfileDialogState>) => {
-  const controller = useCreateAttributeProfileDialogController(props);
+const CreateAttributeProfileDialog = (props: DialogProps<EditAttributeProfileDialogState>) => {
+  const controller = useEditAttributeProfileDialogController(props);
   const state = props.state;
   const languagePreferences = configuration().languagePreferences;
   return (
@@ -56,7 +56,7 @@ const CreateAttributeProfileDialog = (props: DialogProps<CreateAttributeProfileD
           />
         </DialogDetailRow>
       </div>
-      <div className="grid bg-slate-100 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
+      <div className="grid pb-3 bg-slate-100 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
         <DialogDetailRow detailKey={t("modify-class-profile-dialog.profile-of")}>
           <div>
             {languageStringToString(

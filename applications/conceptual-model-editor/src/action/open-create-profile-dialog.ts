@@ -24,15 +24,16 @@ import { ClassesContextType, UseClassesContextType } from "../context/classes-co
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { getDomainAndRange } from "../util/relationship-utils";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
-import { CreateClassProfileDialogState, createCreateProfileClassDialogState } from "../dialog/class-profile/create-class-profile-dialog-controller";
-import { createCreateClassProfileDialog } from "../dialog/class-profile/create-class-profile-dialog";
+import { createEditClassProfileDialog } from "../dialog/class-profile/edit-class-profile-dialog";
 import { EditAssociationProfileDialogState } from "../dialog/association-profile/edit-association-profile-dialog-controller";
 import { createNewAssociationProfileDialog } from "../dialog/association-profile/edit-association-profile-dialog";
-import { CreateAttributeProfileDialogState } from "../dialog/attribute-profile/edit-attribute-profile-dialog-controller";
-import { createCreateAttributeProfileDialog } from "../dialog/attribute-profile/edit-attribute-profile-dialog";
+import { EditAttributeProfileDialogState } from "../dialog/attribute-profile/edit-attribute-profile-dialog-controller";
+import { createEditAttributeProfileDialog } from "../dialog/attribute-profile/edit-attribute-profile-dialog";
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
 import { createNewAssociationProfileDialogState } from "../dialog/association-profile/create-new-association-profile-dialog-state";
 import { createNewAttributeProfileDialogState } from "../dialog/attribute-profile/create-new-attribute-profile-dialog-state";
+import { EditClassProfileDialogState } from "../dialog/class-profile/edit-class-profile-dialog-controller";
+import { createNewProfileClassDialogState } from "../dialog/class-profile/create-new-class-profile-dialog-state";
 
 export function openCreateProfileDialogAction(
   options: Options,
@@ -53,9 +54,9 @@ export function openCreateProfileDialogAction(
   }
   //
   if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
-    const state = createCreateProfileClassDialogState(
+    const state = createNewProfileClassDialogState(
       classes, graph, visualModel, options.language, entity);
-    const onConfirm = (state: CreateClassProfileDialogState) => {
+    const onConfirm = (state: EditClassProfileDialogState) => {
       const createResult = createClassProfile(state);
       if (createResult === null) {
         return;
@@ -68,18 +69,18 @@ export function openCreateProfileDialogAction(
           position);
       }
     };
-    dialogs.openDialog(createCreateClassProfileDialog(state, onConfirm));
+    dialogs.openDialog(createEditClassProfileDialog(state, onConfirm));
     return;
   }
 
   if (isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity)) {
     const state = createNewAttributeProfileDialogState(
       classes, graph, visualModel, options.language, entity);
-    const onConfirm = (state: CreateAttributeProfileDialogState) => {
+    const onConfirm = (state: EditAttributeProfileDialogState) => {
       createRelationshipProfile(state, entity);
       // We do not update visual model here as attribute is part of  a class.
     };
-    dialogs.openDialog(createCreateAttributeProfileDialog(state, onConfirm));
+    dialogs.openDialog(createEditAttributeProfileDialog(state, onConfirm));
     return;
   }
 
@@ -111,7 +112,7 @@ export function openCreateProfileDialogAction(
 }
 
 const createClassProfile = (
-  state: CreateClassProfileDialogState,
+  state: EditClassProfileDialogState,
 ): {
   identifier: string,
   model: InMemorySemanticModel,
@@ -133,7 +134,7 @@ const createClassProfile = (
 }
 
 const createRelationshipProfile = (
-  state: CreateAttributeProfileDialogState | EditAssociationProfileDialogState,
+  state: EditAttributeProfileDialogState | EditAssociationProfileDialogState,
   entity: SemanticModelRelationship | SemanticModelRelationshipUsage,
 ): {
   identifier: string,

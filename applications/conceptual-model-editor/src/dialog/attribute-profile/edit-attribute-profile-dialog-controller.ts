@@ -7,7 +7,7 @@ import { createProfileController, ProfileState, ProfileStateController } from ".
 import { Cardinality, DataTypeRepresentative, EntityRepresentative } from "../utilities/dialog-utilities";
 import { validationNoProblem, ValidationState, validationWarning } from "../utilities/validation-utilities";
 
-export interface CreateAttributeProfileDialogState extends EntityState, CreateEntityState, ProfileState {
+export interface EditAttributeProfileDialogState extends EntityState, CreateEntityState, ProfileState {
 
   language: string;
 
@@ -73,7 +73,7 @@ export interface CreateAttributeProfileDialogState extends EntityState, CreateEn
 
 }
 
-export interface CreateAttributeProfileDialogController extends EntityStateController, CreateEntityStateController, ProfileStateController {
+export interface EditAttributeProfileDialogController extends EntityStateController, CreateEntityStateController, ProfileStateController {
 
   toggleNameOverride: () => void;
 
@@ -97,7 +97,7 @@ export interface CreateAttributeProfileDialogController extends EntityStateContr
 
 }
 
-export function useCreateAttributeProfileDialogController({ changeState }: DialogProps<CreateAttributeProfileDialogState>): CreateAttributeProfileDialogController {
+export function useEditAttributeProfileDialogController({ changeState }: DialogProps<EditAttributeProfileDialogState>): EditAttributeProfileDialogController {
 
   return useMemo(() => {
 
@@ -166,7 +166,7 @@ export function useCreateAttributeProfileDialogController({ changeState }: Dialo
   }, [changeState]);
 }
 
-function validate(state: CreateAttributeProfileDialogState): CreateAttributeProfileDialogState {
+function validate(state: EditAttributeProfileDialogState): EditAttributeProfileDialogState {
 
   const domainValidation = state.initialDomain.identifier === state.domain.identifier || !state.overrideDomain ?
     validationNoProblem() : validationWarning("warning-change-domain");

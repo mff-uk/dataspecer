@@ -59,7 +59,8 @@ export function createEditAssociationDialogState(
   return {
     language,
     availableModels: models.all,
-    writableModels: models.writable,
+    // Provide only one option to select a model.
+    writableModels: [asInMemoryModel(model)],
     model: asInMemoryModel(model),
     iri: range.iri ?? "",
     iriPrefix: getModelIri(model.model),

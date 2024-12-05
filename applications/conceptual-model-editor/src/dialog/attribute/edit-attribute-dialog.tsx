@@ -7,15 +7,16 @@ import { SelectEntity } from "../class/components/select-entity";
 import { SelectDataType } from "./components/select-data-type";
 import { SelectCardinality } from "./components/select-cardinality";
 import { InputIri } from "../class/components/input-iri";
-import { CreateAttributeDialogState, useCreateAttributeDialogController } from "./edit-attribute-dialog-controller";
+import { EditAttributeDialogState, useEditAttributeDialogController } from "./edit-attribute-dialog-controller";
+import { SpecializationSelect } from "../class/components/select-specialization";
 
-export const createCreateAttributeDialog = (
-  state: CreateAttributeDialogState,
-  onConfirm: (state: CreateAttributeDialogState) => void,
-): DialogWrapper<CreateAttributeDialogState> => {
+export const createEditAttributeDialog = (
+  state: EditAttributeDialogState,
+  onConfirm: (state: EditAttributeDialogState) => void,
+): DialogWrapper<EditAttributeDialogState> => {
   return {
     label: "create-attribute-dialog.label",
-    component: CreateAttributeDialog,
+    component: EditAttributeDialog,
     state,
     confirmLabel: "modify-dialog.btn-ok",
     cancelLabel: "modify-dialog.btn-close",
@@ -25,12 +26,12 @@ export const createCreateAttributeDialog = (
   };
 }
 
-function validate(state: CreateAttributeDialogState): boolean {
+function validate(state: EditAttributeDialogState): boolean {
   return state.iri.trim() !== "";
 }
 
-const CreateAttributeDialog = (props: DialogProps<CreateAttributeDialogState>) => {
-  const controller = useCreateAttributeDialogController(props);
+const EditAttributeDialog = (props: DialogProps<EditAttributeDialogState>) => {
+  const controller = useEditAttributeDialogController(props);
   const state = props.state;
   return (
     <>
@@ -47,7 +48,7 @@ const CreateAttributeDialog = (props: DialogProps<CreateAttributeDialogState>) =
           />
         </DialogDetailRow>
       </div>
-      <div className="grid bg-slate-100 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
+      <div className="grid pb-3 bg-slate-100 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
         <DialogDetailRow detailKey={t("create-class-dialog.name")} className="text-xl">
           <MultiLanguageInputForLanguageString
             ls={state.name}
@@ -63,6 +64,15 @@ const CreateAttributeDialog = (props: DialogProps<CreateAttributeDialogState>) =
             setIsRelative={controller.setIsRelative}
             value={state.iri}
             onChange={controller.setIri}
+          />
+        </DialogDetailRow>
+        <DialogDetailRow detailKey={t("modify-entity-dialog.specialization-of")}>
+          <SpecializationSelect
+            language={state.language}
+            items={state.availableSpecializations}
+            specializations={state.specializations}
+            addSpecialization={controller.addSpecialization}
+            removeSpecialization={controller.removeSpecialization}
           />
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("create-class-dialog.description")}>

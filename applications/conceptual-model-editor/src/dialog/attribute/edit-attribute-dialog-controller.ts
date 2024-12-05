@@ -2,10 +2,10 @@ import { useMemo } from "react";
 
 import { configuration } from "../../application";
 import { DialogProps } from "../dialog-api";
-import { createCreateEntityController, createEntityController, CreateEntityState, CreateEntityStateController, EntityState, EntityStateController } from "../utilities/entity-utilities";
+import { createCreateEntityController, createEntityController, CreateEntityState, CreateEntityStateController, createSpecializationController, EntityState, EntityStateController, SpecializationState, SpecializationStateController } from "../utilities/entity-utilities";
 import { Cardinality, DataTypeRepresentative, EntityRepresentative } from "../utilities/dialog-utilities";
 
-export interface CreateAttributeDialogState extends EntityState, CreateEntityState {
+export interface EditAttributeDialogState extends EntityState, CreateEntityState, SpecializationState {
 
   language: string;
 
@@ -44,7 +44,7 @@ export interface CreateAttributeDialogState extends EntityState, CreateEntitySta
 }
 
 
-export interface CreateAttributeDialogController extends EntityStateController, CreateEntityStateController {
+export interface EditAttributeDialogController extends EntityStateController, CreateEntityStateController, SpecializationStateController {
 
   setDomain: (value: EntityRepresentative) => void;
 
@@ -56,7 +56,7 @@ export interface CreateAttributeDialogController extends EntityStateController, 
 
 }
 
-export function useCreateAttributeDialogController({ changeState }: DialogProps<CreateAttributeDialogState>): CreateAttributeDialogController {
+export function useEditAttributeDialogController({ changeState }: DialogProps<EditAttributeDialogState>): EditAttributeDialogController {
 
   return useMemo(() => {
 
@@ -64,6 +64,8 @@ export function useCreateAttributeDialogController({ changeState }: DialogProps<
 
     const newEntityController = createCreateEntityController(
       changeState, entityController, configuration().nameToIri);
+
+    const specializationController = createSpecializationController(changeState);
 
     const setDomain = (value: EntityRepresentative) => {
       changeState((state) => ({ ...state, domain: value }));
@@ -84,6 +86,7 @@ export function useCreateAttributeDialogController({ changeState }: DialogProps<
     return {
       ...entityController,
       ...newEntityController,
+      ...specializationController,
       setDomain,
       setDomainCardinality,
       setRange,

@@ -4,14 +4,15 @@ import { isWritableVisualModel, VisualModel } from "@dataspecer/core-v2/visual-m
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { ClassesContextType } from "../context/classes-context";
 import { ModelGraphContextType } from "../context/model-context";
-import { CreateClassDialogState, createCreateClassDialogState } from "../dialog/class/create-class-dialog-controller";
 import { Options, createLogger } from "../application";
-import { createCreateClassDialog } from "../dialog/class/create-class-dialog";
+import { createEditClassDialog } from "../dialog/class/edit-class-dialog";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { firstInMemorySemanticModel } from "../utilities/model";
 import { createClass as createClassOperation, createGeneralization } from "@dataspecer/core-v2/semantic-model/operations";
 import { addSemanticClassToVisualModelAction } from "./add-class-to-visual-model";
 import { UseDiagramType } from "../diagram/diagram-hook";
+import { EditClassDialogState } from "../dialog/class/edit-class-dialog-controller";
+import { createNewClassDialogState } from "../dialog/class/create-new-class-dialog-state";
 
 const LOG = createLogger(import.meta.url);
 
@@ -36,7 +37,7 @@ export function openCreateClassDialogAction(
     return;
   }
 
-  const onConfirm = (state: CreateClassDialogState) => {
+  const onConfirm = (state: EditClassDialogState) => {
     // Create class.
     const createResult = createSemanticClass(notifications, state);
     if (createResult === null) {
@@ -61,7 +62,7 @@ function getDefaultModel(graph: ModelGraphContextType): InMemorySemanticModel | 
 
 function createSemanticClass(
   notifications: UseNotificationServiceWriterType,
-  state: CreateClassDialogState): {
+  state: EditClassDialogState): {
     identifier: string,
     model: InMemorySemanticModel
   } | null {
@@ -105,9 +106,9 @@ function openCreateClassDialog(
   graph: ModelGraphContextType,
   visualModel: VisualModel | null,
   model: InMemorySemanticModel,
-  onConfirm: (state: CreateClassDialogState) => void,
+  onConfirm: (state: EditClassDialogState) => void,
 ) {
-  const state = createCreateClassDialogState(
+  const state = createNewClassDialogState(
     classes, graph, visualModel, options.language, model);
-  dialogs.openDialog(createCreateClassDialog(state, onConfirm));
+  dialogs.openDialog(createEditClassDialog(state, onConfirm));
 }
