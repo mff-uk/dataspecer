@@ -9,7 +9,7 @@ import {
   DataPsmExecutorResultFactory,
   loadDataPsmClass,
 } from "./data-psm-executor-utils";
-import { DataPsmClass } from "../model";
+import { DataPsmClass, DataPsmContainer } from "../model";
 
 export async function executeDataPsmSetOrder(
   reader: CoreResourceReader,
@@ -54,7 +54,7 @@ export async function executeDataPsmSetOrder(
 }
 
 function moveToFirstPosition(
-  ownerClass: DataPsmClass,
+  ownerClass: DataPsmClass | DataPsmContainer,
   partsWithoutTheOneToMove: string[],
   operation: DataPsmSetOrder
 ): CoreExecutorResult {
@@ -64,12 +64,12 @@ function moveToFirstPosition(
       operation.dataPsmResourceToMove,
       ...partsWithoutTheOneToMove,
     ],
-  } as CoreResource;
+  } as DataPsmContainer;
   return CoreExecutorResult.createSuccess([], [result]);
 }
 
 function moveAfter(
-  ownerClass: DataPsmClass,
+  ownerClass: DataPsmClass | DataPsmContainer,
   partsWithoutTheOneToMove: string[],
   operation: DataPsmSetOrder
 ): CoreExecutorResult {
@@ -88,7 +88,7 @@ function moveAfter(
       operation.dataPsmResourceToMove,
       ...partsWithoutTheOneToMove.slice(indexToMoveAfter + 1),
     ],
-  } as CoreResource;
+  } as DataPsmContainer;
 
   return CoreExecutorResult.createSuccess([], [result]);
 }

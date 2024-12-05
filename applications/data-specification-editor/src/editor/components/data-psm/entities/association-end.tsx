@@ -9,7 +9,7 @@ import {LanguageStringUndefineable} from "../../helper/LanguageStringComponents"
 import {LanguageString} from "@dataspecer/core/core";
 import ListRoundedIcon from "@mui/icons-material/ListRounded";
 import AccountTreeTwoToneIcon from "@mui/icons-material/AccountTreeTwoTone";
-import {AssociationContext, DataPsmObjectType} from "../data-psm-row";
+import {AssociationContext, ClassPartContext, DataPsmObjectType} from "../data-psm-row";
 import {getCardinalityFromResource} from "../common/cardinality";
 import {useDialog} from "../../../dialog";
 import {ReplaceAssociationWithReferenceDialog} from "../replace-association-with-reference/replace-association-with-reference-dialog";
@@ -22,7 +22,7 @@ const StrikeOut: React.FC<{
 }> = ({children, strikeOut}) =>
   strikeOut ? <del>{children}</del> : <>{children}</>;
 
-export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots> = memo((props) => {
+export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots & ClassPartContext> = memo((props) => {
   const {t} = useTranslation("psm");
   //const store = useFederatedObservableStore();
 
@@ -62,7 +62,7 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots> = mem
       {hasHumanLabelOnAssociationEnd ?
         <DataPsmGetLabelAndDescription dataPsmResourceIri={props.iri}>
           {(label, description) =>
-            <Span title={description} sx={isCodelist ? sxStyles.attribute : sxStyles.association}>{label}</Span>
+            <Span title={description} sx={isCodelist ? sxStyles.attribute : sxStyles.association}>{label ?? "[unnamed association]"}</Span>
           }
         </DataPsmGetLabelAndDescription>
         :
@@ -71,7 +71,7 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots> = mem
             <LanguageStringUndefineable from={incorrectEnd?.description ?? null}>
               {description => <>
                 {isBackwardsAssociation && <strong>{t("backwards association")}{" "}</strong>}
-                <Span title={description} sx={isCodelist ? sxStyles.attribute : sxStyles.association}>{label}</Span>
+                <Span title={description} sx={isCodelist ? sxStyles.attribute : sxStyles.association}>{label ?? "[unnamed association]"}</Span>
               </>}
             </LanguageStringUndefineable>
           }
@@ -103,7 +103,8 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots> = mem
   const context = useMemo(() => ({
     contextType: "association",
     parentDataPsmAssociationEndIri: props.iri,
-    parentTypePimIri: typePimClassIri
+    parentTypePimIri: typePimClassIri,
+    parentDataPsmClassIri: props.parentDataPsmClassIri,
   } as AssociationContext), [props.iri, typePimClassIri]);
 
   return <>

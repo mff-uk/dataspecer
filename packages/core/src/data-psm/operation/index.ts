@@ -1,6 +1,7 @@
 export * from "./data-psm-create-association-end";
 export * from "./data-psm-create-attribute";
 export * from "./data-psm-create-class";
+export * from "./data-psm-create-container";
 export * from "./data-psm-create-class-reference";
 export * from "./data-psm-create-external-root";
 export * from "./data-psm-create-include";
@@ -9,6 +10,7 @@ export * from "./data-psm-create-schema";
 export * from "./data-psm-delete-association-end";
 export * from "./data-psm-delete-attribute";
 export * from "./data-psm-delete-class";
+export * from "./data-psm-delete-container";
 export * from "./data-psm-delete-class-reference";
 export * from "./data-psm-delete-external-root";
 export * from "./data-psm-delete-include";

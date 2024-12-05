@@ -4,18 +4,21 @@ import {
   CoreExecutorResult,
   CoreResource,
 } from "../../core";
-import { DataPsmCreateAssociationEnd } from "../operation";
+import {
+  DataPsmCreateContainer,
+  DataPsmCreateContainerResult,
+} from "../operation";
 import {
   DataPsmExecutorResultFactory,
   loadDataPsmClass,
   loadDataPsmSchema,
 } from "./data-psm-executor-utils";
-import { DataPsmAssociationEnd, DataPsmClass } from "../model";
+import { DataPsmClass, DataPsmContainer } from "../model";
 
-export async function executeDataPsmCreateAssociationEnd(
+export async function executeDataPsmCreateContainer(
   reader: CoreResourceReader,
   createNewIdentifier: CreateNewIdentifier,
-  operation: DataPsmCreateAssociationEnd
+  operation: DataPsmCreateContainer
 ): Promise<CoreExecutorResult> {
   const schema = await loadDataPsmSchema(reader);
   if (schema === null) {
@@ -27,15 +30,9 @@ export async function executeDataPsmCreateAssociationEnd(
     return DataPsmExecutorResultFactory.missingOwner(operation.dataPsmOwner);
   }
 
-  const iri = operation.dataPsmNewIri ?? createNewIdentifier("association");
-  const result = new DataPsmAssociationEnd(iri);
-  result.dataPsmHumanLabel = operation.dataPsmHumanLabel;
-  result.dataPsmHumanDescription = operation.dataPsmHumanDescription;
-  result.dataPsmInterpretation = operation.dataPsmInterpretation;
-  result.dataPsmTechnicalLabel = operation.dataPsmTechnicalLabel;
-  result.dataPsmPart = operation.dataPsmPart;
-  result.dataPsmIsReverse = operation.dataPsmIsReverse;
-  result.dataPsmIsDematerialize = operation.dataPsmIsDematerialize;
+  const iri = operation.dataPsmNewIri ?? createNewIdentifier("Container");
+  const result = new DataPsmContainer(iri);
+  result.dataPsmContainerType = operation.dataPsmContainerType;
 
   return CoreExecutorResult.createSuccess(
     [result],
@@ -48,6 +45,8 @@ export async function executeDataPsmCreateAssociationEnd(
         ...owner,
         dataPsmParts: [...owner.dataPsmParts, iri],
       } as DataPsmClass,
-    ]
+    ],
+    [],
+    new DataPsmCreateContainerResult(iri)
   );
 }

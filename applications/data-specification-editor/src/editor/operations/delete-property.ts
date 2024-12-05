@@ -1,5 +1,5 @@
-import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmInclude} from "@dataspecer/core/data-psm/model";
-import {DataPsmDeleteAssociationEnd, DataPsmDeleteAttribute, DataPsmDeleteInclude} from "@dataspecer/core/data-psm/operation";
+import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmContainer, DataPsmInclude} from "@dataspecer/core/data-psm/model";
+import {DataPsmDeleteAssociationEnd, DataPsmDeleteAttribute, DataPsmDeleteContainer, DataPsmDeleteInclude} from "@dataspecer/core/data-psm/operation";
 import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-operation";
 import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 
@@ -42,6 +42,11 @@ export class DeleteProperty implements ComplexOperation {
       dataPsmDeleteInclude.dataPsmOwner = this.ownerClassIri;
       await this.store.applyOperation(schema, dataPsmDeleteInclude);
       // todo garbage collect associated object
+    } else if (DataPsmContainer.is(property)) {
+      const dataPsmDeleteContainer = new DataPsmDeleteContainer();
+      dataPsmDeleteContainer.dataPsmContainer = this.propertyIri;
+      dataPsmDeleteContainer.dataPsmOwner = this.ownerClassIri;
+      await this.store.applyOperation(schema, dataPsmDeleteContainer);
     } else {
       throw new Error("Unknown class property to delete.")
     }

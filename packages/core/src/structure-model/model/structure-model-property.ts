@@ -9,6 +9,14 @@ export class StructureModelProperty {
   cimIri: string | null = null;
 
   /**
+   * If the property is a container, this will represent the type of the container,
+   * it will have single data type with "abstract" class with content of the container.
+   *
+   * Used mainly for XML xs:sequence and xs:choice.
+   */
+  propertyAsContainer: string | false = false;
+
+  /**
    * The pim level is optional is data-psm level may not have an interpretation.
    */
   pimIri: string | null = null;

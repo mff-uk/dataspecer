@@ -49,7 +49,8 @@ import { StringExamplesField } from "../../helper/string-examples-field";
 export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({iri}) => {
     const store = useFederatedObservableStore();
 
-    const {dataPsmResource: resource, pimResource} = useDataPsmAndInterpretedPim<DataPsmAttribute | DataPsmAssociationEnd | DataPsmClass, ExtendedSemanticModelRelationship | ExtendedSemanticModelClass>(iri);
+    const {dataPsmResource: resource, pimResource} = useDataPsmAndInterpretedPim<DataPsmAttribute | DataPsmAssociationEnd | DataPsmClass, ExtendedSemanticModelRelationship | ExtendedSemanticModelClass | null>(iri);
+    // pim resource may not exist if the entity has no interpretation
 
     const isAttribute = DataPsmAttribute.is(resource);
     const isAssociationEnd = DataPsmAssociationEnd.is(resource);
@@ -83,10 +84,10 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
     let semanticRelationshipEndIndex: number | null = null;
     if (isAttribute) {
         semanticRelationshipEndIndex = 1;
-        semanticRelationshipEnd = (pimResource as ExtendedSemanticModelRelationship).ends[semanticRelationshipEndIndex];
+        semanticRelationshipEnd = (pimResource as ExtendedSemanticModelRelationship)?.ends[semanticRelationshipEndIndex] ?? null;
     } else if (isAssociationEnd) {
         semanticRelationshipEndIndex = 1;// todo
-        semanticRelationshipEnd = (pimResource as ExtendedSemanticModelRelationship).ends[semanticRelationshipEndIndex];
+        semanticRelationshipEnd = (pimResource as ExtendedSemanticModelRelationship)?.ends[semanticRelationshipEndIndex] ?? null;
     }
 
     useEffect(() => {
@@ -100,14 +101,14 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
     }, [resource, isAttribute]);
 
     useEffect(() => {
-        if (isClass) {
+        if (isClass && pimResource) {
             setCodelistUrl((pimResource as ExtendedSemanticModelClass)?.isCodelist ? ((pimResource as ExtendedSemanticModelClass)?.codelistUrl ?? []) : false);
         }
     }, [pimResource, isClass]);
 
     useEffect(() => {
         const entity = semanticRelationshipEnd ?? pimResource as ExtendedSemanticModelClass;
-        if (isAttribute || isClass) {
+        if ((isAttribute || isClass) && entity) {
             setRegex(entity!.regex ?? "");
             setExamples(entity!.example ?? null);
         }
