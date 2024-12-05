@@ -2,13 +2,12 @@ import { type DialogWrapper, type DialogProps } from "../dialog-api";
 import { t, configuration } from "../../application";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
-import { IriInput } from "../../components/input/iri-input";
 import { SelectModel } from "../class/components/select-model";
-import { CreateAttributeDialogState, useCreateAttributeDialogController } from "./create-attribute-dialog-controller";
 import { SelectEntity } from "../class/components/select-entity";
 import { SelectDataType } from "./components/select-data-type";
 import { SelectCardinality } from "./components/select-cardinality";
 import { InputIri } from "../class/components/input-iri";
+import { CreateAttributeDialogState, useCreateAttributeDialogController } from "./edit-attribute-dialog-controller";
 
 export const createCreateAttributeDialog = (
   state: CreateAttributeDialogState,

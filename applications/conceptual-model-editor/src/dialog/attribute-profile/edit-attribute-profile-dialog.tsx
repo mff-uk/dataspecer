@@ -3,7 +3,7 @@ import { configuration, t } from "../../application";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
 import { SelectModel } from "../class/components/select-model";
-import { CreateAttributeProfileDialogState, useCreateAttributeProfileDialogController } from "./create-attribute-profile-dialog-controller";
+import { CreateAttributeProfileDialogState, useCreateAttributeProfileDialogController } from "./edit-attribute-profile-dialog-controller";
 import { SelectEntity } from "../class/components/select-entity";
 import { SelectCardinality } from "../attribute/components/select-cardinality";
 import { InputIri } from "../class/components/input-iri";

@@ -7,9 +7,10 @@ import { ModelGraphContextType } from "../context/model-context";
 import { Options, createLogger } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { firstInMemorySemanticModel } from "../utilities/model";
-import { CreateAttributeDialogState, createCreateAttributeDialogState } from "../dialog/attribute/create-attribute-dialog-controller";
-import { createCreateAttributeDialog } from "../dialog/attribute/create-attribute-dialog";
+import { createCreateAttributeDialog } from "../dialog/attribute/edit-attribute-dialog";
 import { createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
+import { createNewAttributeDialogState } from "../dialog/attribute/create-new-attribute-dialog-state";
+import { CreateAttributeDialogState } from "../dialog/attribute/edit-attribute-dialog-controller";
 
 const LOG = createLogger(import.meta.url);
 
@@ -91,7 +92,7 @@ function openCreateAttributeDialog(
   model: InMemorySemanticModel,
   onConfirm: (state: CreateAttributeDialogState) => void,
 ) {
-  const state = createCreateAttributeDialogState(
+  const state = createNewAttributeDialogState(
     classes, graph, visualModel, options.language, model);
   dialogs.openDialog(createCreateAttributeDialog(state, onConfirm));
 }
