@@ -1,8 +1,6 @@
-// Heavily inspired by edge-toolbar.ts
-
 import { ReactFlowState } from "@xyflow/react";
 
-import { Node as ApiNode, Position } from "../diagram-api";
+import { Position } from "../diagram-api";
 
 import "./canvas-toolbar.css";
 import "../node/node-secondary-toolbar.css";
@@ -19,7 +17,7 @@ export interface CanvasToolbarGeneralProps {
 
   abosluteFlowPosition: Position;
 
-  sourceClassNodeIdentifier: string;
+  sourceNodeIdentifier: string;
 
   toolbarType: CanvasToolbarTypes;
 }

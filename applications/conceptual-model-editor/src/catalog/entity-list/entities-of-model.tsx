@@ -180,7 +180,7 @@ export const EntitiesOfModel = (props: {
     };
 
     const handleDeleteFromView = (identifier: string) => {
-        actions.removeFromVisualModel(identifier);
+        actions.removeFromVisualModel([identifier]);
     };
 
     const handleDeleteEntity = async (model: InMemorySemanticModel | ExternalSemanticModel, identifier: string) => {

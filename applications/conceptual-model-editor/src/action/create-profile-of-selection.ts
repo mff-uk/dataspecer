@@ -15,8 +15,16 @@ import { UseDiagramType } from "../diagram/diagram-hook";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
 
 
-export const profileSelectionAction = (nodeSelection: string[], edgeSelection: string[], classesContext: ClassesContextType, graph: ModelGraphContextType,
-                                      visualModel: VisualModel | null, diagram: UseDiagramType, notifications: UseNotificationServiceWriterType, options: Options): void => {
+export const profileSelectionAction = (
+  notifications: UseNotificationServiceWriterType,
+  graph: ModelGraphContextType,
+  diagram: UseDiagramType,
+  options: Options,
+  classesContext: ClassesContextType,
+  visualModel: VisualModel | null,
+  nodeSelection: string[],
+  edgeSelection: string[]
+): void => {
   const createdClassesAndClassesProfiles: Record<string, string> = {};
   for(const selectedEntityId of nodeSelection) {
     const classOrClassProfileToBeProfiled = graph.aggregatorView.getEntities()?.[selectedEntityId]?.aggregatedEntity;

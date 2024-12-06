@@ -13,6 +13,7 @@ import { DiagramContext } from "../diagram-controller";
 
 import "./entity-node.css";
 import { usePrefixForIri } from "../../service/prefix-service";
+import { t } from "../../application";
 
 // We can select zoom option and hide content when zoom is on given threshold.
 // const zoomSelector = (state: ReactFlowState) => state.transform[2] >= 0.9;
@@ -90,13 +91,16 @@ function SelectedHighlight() {
 
 function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   const context = useContext(DiagramContext);
-
-  // If canvas toolbar is opened then don't show toolbar
-  if((context?.openedCanvasToolbar ?? null) !== null) {
-    return <></>;
+  if(context === null) {
+    return null;
   }
 
-  if(context?.shouldShowSelectionToolbar()) {
+  const isCanvasToolbarOpen = context.openedCanvasToolbar !== null;
+  if(isCanvasToolbarOpen) {
+    return null;
+  }
+
+  if(context.shouldShowSelectionToolbar()) {
     return <SelectionToolbar {...props}/>;
   }
   else {
@@ -118,22 +122,22 @@ function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   return (
     <>
     <NodeToolbar isVisible={props.selected === true} position={Position.Top} className="flex gap-2 entity-node-toolbar" >
-      <button onClick={onShowDetail}>ℹ</button>
+      <button onClick={onShowDetail} title={t("class-detail-button")}>ℹ</button>
       &nbsp;
-      <button onClick={onEdit}>✏️</button>
+      <button onClick={onEdit} title={t("class-edit-button")}>✏️</button>
       &nbsp;
-      <button onClick={onCreateProfile}>🧲</button>
+      <button onClick={onCreateProfile} title={t("class-profile-button")}>🧲</button>
       &nbsp;
     </NodeToolbar>
     <NodeToolbar isVisible={props.selected === true} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
-      <Handle type="source" position={Position.Right}>🔗</Handle>
+      <Handle type="source" position={Position.Right} title={t("node-connection-handle")}>🔗</Handle>
     </NodeToolbar>
     <NodeToolbar isVisible={props.selected === true} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
-      <button onClick={onHide}>🕶</button>
+      <button onClick={onHide} title={t("class-hide-button")}>🕶</button>
       &nbsp;
-      <button onClick={onDelete}>🗑</button>
+      <button onClick={onDelete} title={t("class-remove-button")}>🗑</button>
       &nbsp;
-      <button onClick={onAnchor}>⚓</button>
+      <button onClick={onAnchor} title={t("node-anchor-button")} disabled>⚓</button>
       &nbsp;
     </NodeToolbar>
   </>);
@@ -164,18 +168,18 @@ function SelectionToolbar(props: NodeProps<Node<ApiNode>>) {
 
   return (<>
     <NodeToolbar isVisible={isLastSelected} position={Position.Top} className="flex gap-2 entity-node-toolbar" >
-      <button onClick={onShowSelectionActions}>🎬</button>
+      <button onClick={onShowSelectionActions} title={t("selection-action-button")}>🎬</button>
       &nbsp;
-      <button onClick={onLayoutSelection}>🔀</button>
+      <button onClick={onLayoutSelection} title={t("selection-layout-button")} disabled>🔀</button>
       &nbsp;
     </NodeToolbar>
     <NodeToolbar isVisible={isLastSelected} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
-    <button onClick={onCreateGroup}>🤝</button>
+    <button onClick={onCreateGroup} title={t("selection-group-button")} disabled>🤝</button>
     </NodeToolbar>
     <NodeToolbar isVisible={isLastSelected} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
-      <button onClick={onShowExpandSelection}>📈</button>
+      <button onClick={onShowExpandSelection} title={t("selection-extend-button")} disabled>📈</button>
       &nbsp;
-      <button onClick={onShowFilterSelection}>📉</button>
+      <button onClick={onShowFilterSelection} title={t("selection-filter-button")} disabled>📉</button>
       &nbsp;
     </NodeToolbar>
   </>

@@ -9,9 +9,12 @@ import { removeFromSemanticModelAction } from "./remove-from-semantic-model";
  * Removes the given {@link nodeSelection} and {@link edgeSelection} from the semantic models.
  * @returns Removed entities, i.e. the entities which were part of some local model.
  */
-export const removeSelectionFromSemanticModelAction = (nodeSelection: string[], edgeSelection: string[],
-                                                        notifications: UseNotificationServiceWriterType,
-                                                        graph: ModelGraphContextType): Record<string, Promise<void>> => {
+export const removeSelectionFromSemanticModelAction = (
+    notifications: UseNotificationServiceWriterType,
+    graph: ModelGraphContextType,
+    nodeSelection: string[],
+    edgeSelection: string[]
+): Record<string, Promise<void>> => {
     const removeEntitiesPromises: Record<string, Promise<void>> = {};
 
     // TODO RadStr: Since I concat, maybe I don't need to distinguish between edges and nodes, so I can just pass in 1 argument named selection

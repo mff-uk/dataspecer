@@ -3,14 +3,12 @@ import { shallow } from "zustand/shallow";
 import { useStore } from "@xyflow/react";
 
 import { DiagramContext } from "../diagram-controller";
-import { CanvasToolbarPortal } from "./canvas-toolbar-portal";
+import { ToolbarPortal } from "./toolbar-portal";
 import { CanvasToolbarGeneralProps, viewportStoreSelector } from "./canvas-toolbar-props";
 import { computePosition } from "../edge/edge-utilities";
 import { CanvasToolbarCreatedByEdgeDrag } from "./canvas-toolbar-drag-edge";
 import { NodeSelectionActionsSecondaryToolbar } from "../node/node-secondary-toolbar";
 
-
-// Inspired by edge-toolbar.ts
 
 /**
  * As we can not render menu on a single place, like node menu, we
@@ -33,10 +31,10 @@ export function CanvasToolbarGeneral({ value }: { value: CanvasToolbarGeneralPro
   }
 
   return <div>
-      <CanvasToolbarPortal>
+      <ToolbarPortal>
         <div className="canvas-toolbar" style={{ transform: `translate(${position.x}px, ${position.y}px)` }}>
           {canvasToolbarContent}
         </div>
-      </CanvasToolbarPortal>
+      </ToolbarPortal>
     </div>;
 }

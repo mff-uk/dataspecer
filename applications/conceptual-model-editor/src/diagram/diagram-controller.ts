@@ -157,8 +157,8 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
   // The initialized is set to false when new node is added and back to true once the size is determined.
   // const reactFlowInitialized = useNodesInitialized();
 
-  const onChangeSelection = useCallback(createChangeSelectionHandler(reactFlow, setSelectedNodes, setSelectedEdges),
-    [reactFlow, setSelectedNodes, setSelectedEdges]);
+  const onChangeSelection = useCallback(createChangeSelectionHandler(setSelectedNodes, setSelectedEdges),
+    [setSelectedNodes, setSelectedEdges]);
 
   useOnSelectionChange({ onChange: (onChangeSelection) });
 
@@ -197,7 +197,7 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
   const onNodeDragStart = useCallback(createOnNodeDragStartHandler(alignment), [alignment]);
   const onNodeDragStop = useCallback(createOnNodeDragStopHandler(api, alignment), [api, alignment]);
 
-  const onPaneClick = useCallback(createOnPaneClickHandler(actions.closeCanvasToolbar), [actions.closeCanvasToolbar]);
+  const onPaneClick = useCallback(actions.closeCanvasToolbar, [actions.closeCanvasToolbar]);
 
   return {
     nodes,
@@ -245,9 +245,10 @@ const createOnNodeDragStopHandler = (api: UseDiagramType, alignment: AlignmentCo
   };
 };
 
-const createChangeSelectionHandler = (reactFlow: ReactFlowInstance<NodeType, EdgeType>,
-                                      setSelectedNodes: React.Dispatch<React.SetStateAction<string[]>>,
-                                      setSelectedEdges: React.Dispatch<React.SetStateAction<string[]>>,) => {
+const createChangeSelectionHandler = (
+  setSelectedNodes: React.Dispatch<React.SetStateAction<string[]>>,
+  setSelectedEdges: React.Dispatch<React.SetStateAction<string[]>>
+) => {
   return ({nodes, edges}: OnSelectionChangeParams) => {
     // We can react on change events here.
 
@@ -260,28 +261,6 @@ const createChangeSelectionHandler = (reactFlow: ReactFlowInstance<NodeType, Edg
     // and watch for edge selection in EdgeToolbar.
 
     setSelectedNodes(prevSelectedNodes => {
-      const diagramNodes = reactFlow.getNodes();
-      const newlySelected = [];
-      const newlyRemovedFromSelection = [];
-
-      for (const node of diagramNodes) {
-        const wasSelected = prevSelectedNodes.find(selectedNodeIdentifier => selectedNodeIdentifier === node.id) !== undefined;
-        if(wasSelected) {
-          const sameNodeFromSelection = nodes.find(nnode => node.id === nnode.id);
-          const isNoLongerSelected = sameNodeFromSelection === undefined;
-          if(isNoLongerSelected) {
-            newlyRemovedFromSelection.push(node);
-          }
-        }
-        else {
-          const sameNodeFromSelection = nodes.find(nnode => node.id === nnode.id);
-          const isNewlySelected = sameNodeFromSelection !== undefined;
-          if(isNewlySelected) {
-            newlySelected.push(node);
-          }
-        }
-      }
-
       const newSelectedNodes = nodes.map((node) => node.id);
       let insertPosition = 0;
       for(let i = 0; i < prevSelectedNodes.length; i++) {
@@ -300,7 +279,10 @@ const createChangeSelectionHandler = (reactFlow: ReactFlowInstance<NodeType, Edg
   };
 };
 
-const createNodesChangeHandler = (setNodes: React.Dispatch<React.SetStateAction<NodeType[]>>, alignment: AlignmentController) => {
+const createNodesChangeHandler = (
+  setNodes: React.Dispatch<React.SetStateAction<NodeType[]>>,
+  alignment: AlignmentController
+) => {
   return (changes: NodeChange<NodeType>[]) => {
     // We can alter the change here ... for example allow only x-movement.
     // changes.forEach(change => {
@@ -413,14 +395,8 @@ const createOpenEdgeToolbarHandler = (setEdgeToolbar: React.Dispatch<React.SetSt
 
 const createOpenCanvasToolbarHandler = (setCanvasToolbar: React.Dispatch<React.SetStateAction<CanvasToolbarGeneralProps | null>>): OpenCanvasContextMenuHandler => {
   return (sourceClassNode: ApiNode, abosluteFlowPosition: Position, toolbarType: CanvasToolbarTypes) => {
-    const sourceClassNodeIdentifier = sourceClassNode.identifier;
-    setCanvasToolbar({ sourceClassNodeIdentifier, abosluteFlowPosition, toolbarType });
-  };
-};
-
-const createOnPaneClickHandler = (closeCanvasToolbar: () => void) => {
-  return () => {
-    closeCanvasToolbar();
+    const sourceNodeIdentifier = sourceClassNode.identifier;
+    setCanvasToolbar({ sourceNodeIdentifier, abosluteFlowPosition, toolbarType });
   };
 };
 
@@ -516,7 +492,7 @@ const createActions = (
     },
     getSelectedEdges() {
       console.log("Diagram.getSelectedEdges");
-      // Not sure why I have to check for undefined here, but in the case of selected nodes
+      // Have to filter afterwards, because in reactflow the edges' data are optional
       return reactFlow.getEdges().filter(edge => edge.selected === true).map(edge => edge.data).filter(edge => edge !== undefined);
     },
     setSelectedEdges(edges) {
@@ -646,12 +622,14 @@ const focusNodeAction = (reactFlow: ReactFlowContext, node: Node) => {
   void reactFlow.setCenter(x, y, { zoom, duration: 1000 });
 };
 
-const createDiagramContext = (api: UseDiagramType,
-                              onOpenEdgeContextMenu: OpenEdgeContextMenuHandler,
-                              onOpenCanvasContextMenu: OpenCanvasContextMenuHandler,
-                              openedCanvasToolbar: OpenedCanvasToolbar,
-                              getLastSelected: () => string | null,
-                              shouldShowSelectionToolbar: () => boolean): DiagramContextType => {
+const createDiagramContext = (
+  api: UseDiagramType,
+  onOpenEdgeContextMenu: OpenEdgeContextMenuHandler,
+  onOpenCanvasContextMenu: OpenCanvasContextMenuHandler,
+  openedCanvasToolbar: OpenedCanvasToolbar,
+  getLastSelected: () => string | null,
+  shouldShowSelectionToolbar: () => boolean
+): DiagramContextType => {
   return {
     callbacks: api.callbacks,
     onOpenEdgeContextMenu,

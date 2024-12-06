@@ -154,11 +154,33 @@ const translations: Record<string, string | Function> = {
   "warning-change-domain-cardinality": "Change of cardinality may introduce a breaking change in the profile.",
   "warning-change-range": "Change of the range may introduce a breaking change in the profile.",
   "warning-change-range-cardinality": "Change of cardinality may introduce a breaking change in the profile.",
+  //
+  //
+  "class-detail-button": "Class detail",
+  "class-edit-button": "Edit class",
+  "class-hide-button": "Remove class from canvas",
+  "class-profile-button": "Create class profile",
+  "class-remove-button": "Remove class from semantic model",
+  //
+  "node-anchor-button": "(Un)anchor node for layouting using force-directed layouting algorithm",
+  "node-connection-handle": "Drag from this button to create connection (Dragging to canvas shows menu)",
+  //
+  "selection-action-button": "Show menu with actions on top of selection",
+  "selection-layout-button": "Show menu with layout actions on top of selection",
+  "selection-extend-button": "Show dialog to extend selection",
+  "selection-filter-button": "Show dialog to filter selection",
+  "selection-group-button": "Create group from selection",
+  //
+  "selection-new-view-button": "Creates new visual model, which will contain selected nodes and edges",
+  "selection-profile-button": "Creates profiles from selected nodes and edges",
+  "selection-hide-button": "Removes selected nodes and edges from canvas",
+  "selection-remove-button": "Delete selected nodes and edges from semantic model",
+
 };
 
 export type TranslationFunction = (text: string, ...args: unknown[]) => string;
-
-export const t = (text: string, ...args: unknown[]) : string => {
+// TODO PRQuestion: Is this fine?
+export const t: TranslationFunction = (text, ...args) => {
   const result = translations[text];
   if (result === undefined) {
     logger.missingTranslation(text);

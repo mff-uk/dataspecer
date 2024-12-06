@@ -35,7 +35,7 @@ import { changeSelectionVisibilityAction } from "./change-selection-visibility";
 import { removeSelectionFromSemanticModelAction } from "./remove-selection-from-semantic-model";
 import { changeSemanticModelVisibilityAction } from "./change-semantic-model-visibility";
 import { createNewVisualModelFromSelectionAction } from "./create-new-visual-model-from-selection";
-import { addNodeNeighborhoodToVisualModelAction } from "./add-node-neighborhood-to-visual-model";
+import { addClassNeighborhoodToVisualModelAction } from "./add-class-neighborhood-to-visual-model";
 import { profileSelectionAction } from "./create-profile-of-selection";
 import { filterInMemoryModels } from "../util/model-utils";
 import { placePositionOnGrid } from "@dataspecer/layout";
@@ -147,31 +147,36 @@ interface VisualModelActions {
    */
   addRelationProfileToVisualModel: (model: string, identifier: string) => void;
 
+  // TODO PRQuestion - different docs from this method and for the actual action
   /**
-   * Removes the visual entity identified by given {@link identifier}.
-   * @param identifier identifies the SEMANTIC entity, which visual representation will be removed from visual model.
+   * Removes the visual entities identified by given {@link identifier} from visual model.
+   * Also removes related visual relationships from the visual model.
+   * @param identifiers identify the SEMANTIC entities, which visual representations will be removed from visual model.
    */
-  removeFromVisualModel: (identifier: string) => void;
+  removeFromVisualModel: (identifiers: string[]) => void;
 
   //
   // TODO RadStr: Document after rewrite
-  changeSelectionVisibility: (nodeSelection: string[], edgeSelection: string[], visibility: boolean) => void;
+  changeSelectionVisibility: (nodeIdentifiers: string[], edgeIdentifiers: string[], visibility: boolean) => void;
   // TODO RadStr: Document after rewrite
   deleteSelectionFromSemanticModel: (nodeSelection: string[], edgeSelection: string[]) => void;
   //
-  // TODO RadStr: Document after rewrite
-  createNewVisualModelFromSelection: (selection: string[], keepPositionsFromCurrentVisualModel: boolean) => void;
+  // TODO RadStr: We will see what will this do, maybe will be openDialog instead, where we provide options as mentioned in code review by PeSk:
+  //              I would even imagine that this would open the dialog where user can provide:
+  //              - name of the new model
+  //              - whether to copy model colors
+  //              - whether to keep position (relative / absolute)
+  createNewVisualModelFromSelection: (selectionIdentifiers: string[]) => void;
 
   //
   // TODO RadStr: Document after rewrite
   changeSemanticModelVisibility: (semanticModelIdentifier: string, visibility: boolean) => void;
 
-  // TODO RadStr: Rename nodeIdentifier to something else, since iti si semantic identifier
   /**
-   * Puts node's neighborhood to visual model. That is classes connected to semantic class or class profile identified by {@link nodeIdentifier}.
-   * @param nodeIdentifier is the identifier of the semantic class or class profile, whose neighborhood we will add to visual model.
+   * Puts class's neighborhood to visual model. That is classes connected to semantic class or class profile identified by {@link classIdentifier}.
+   * @param identifier is the identifier of the semantic class or class profile, whose neighborhood we will add to visual model.
    */
-  addNodeNeighborhoodToVisualModel: (nodeIdentifier: string) => void;
+  addClassNeighborhoodToVisualModel: (identifier: string) => void;
 
 }
 
@@ -224,7 +229,7 @@ const noOperationActionsContext = {
 
   //
   changeSemanticModelVisibility: noOperation,
-  addNodeNeighborhoodToVisualModel: noOperation,
+  addClassNeighborhoodToVisualModel: noOperation,
   diagram: null,
 };
 
@@ -323,13 +328,17 @@ function createActionsContext(
     });
   };
 
+  // TODO PRQuestion: Rewrite so it works with identifierS instead?
+  //                  ... Probably just do it, not really a question
   const deleteVisualElement = (identifier: string) => {
     const model = findSourceModelOfEntity(identifier, graph.models);
     if (model === null) {
       notifications.error("Can't find model for entity.");
       return;
     }
-    removeFromVisualModelAction(notifications, graph, identifier);
+    withVisualModel(notifications, graph, (visualModel) => {
+      removeFromVisualModelAction(notifications, visualModel, [identifier]);
+    });
     removeFromSemanticModelAction(notifications, graph, model.getId(), identifier);
   };
 
@@ -497,15 +506,19 @@ function createActionsContext(
     });
   };
 
-  const removeFromVisualModel = (identifier: string): void => {
-    removeFromVisualModelAction(notifications, graph, identifier);
+  const removeFromVisualModel = (identifiers: string[]): void => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      removeFromVisualModelAction(notifications, visualModel, identifiers);
+    });
   };
 
   // ...
 
   const deleteFromSemanticModel = (model: string, identifier: string) => {
     // We start be removing from the visual model.
-    removeFromVisualModelAction(notifications, graph, identifier);
+    withVisualModel(notifications, graph, (visualModel) => {
+      removeFromVisualModelAction(notifications, visualModel, [identifier]);
+    });
     removeFromSemanticModelAction(notifications, graph, model, identifier);
   };
 
@@ -513,24 +526,24 @@ function createActionsContext(
     centerViewportToVisualEntityAction(notifications, graph, diagram, model, identifier);
   };
 
-  const changeSelectionVisibility = (nodeSelection: string[], edgeSelection: string[], visibility: boolean) => {
-    changeSelectionVisibilityAction(nodeSelection, edgeSelection, notifications, graph, visibility);
+  const changeSelectionVisibility = (nodeIdentifiers: string[], edgeIdentifiers: string[], visibility: boolean) => {
+    changeSelectionVisibilityAction(notifications, graph, visibility, nodeIdentifiers, edgeIdentifiers);
   };
 
   const deleteSelectionFromSemanticModel = (nodeSelection: string[], edgeSelection: string[]) => {
-    removeSelectionFromSemanticModelAction(nodeSelection, edgeSelection, notifications, graph);
+    removeSelectionFromSemanticModelAction(notifications, graph, nodeSelection, edgeSelection);
   };
 
   const changeSemanticModelVisibility = (semanticModelIdentifier: string, visibility: boolean) => {
-    changeSemanticModelVisibilityAction(semanticModelIdentifier, graph, notifications, visibility);
+    changeSemanticModelVisibilityAction(notifications, graph, visibility, semanticModelIdentifier);
   };
 
-  const addNodeNeighborhoodToVisualModel = (nodeIdentifier: string) => {
-    addNodeNeighborhoodToVisualModelAction(nodeIdentifier, graph, notifications);
+  const addClassNeighborhoodToVisualModel = (identifier: string) => {
+    addClassNeighborhoodToVisualModelAction(graph, notifications, identifier);
   };
 
-  const createNewVisualModelFromSelection = (selectionIdentifiers: string[], keepPositionsFromCurrentVisualModel: boolean) => {
-    createNewVisualModelFromSelectionAction(selectionIdentifiers, keepPositionsFromCurrentVisualModel, graph, notifications);
+  const createNewVisualModelFromSelection = (selectionIdentifiers: string[]) => {
+    createNewVisualModelFromSelectionAction(notifications, graph, selectionIdentifiers);
   };
 
   // Prepare and set diagram callbacks.
@@ -543,7 +556,7 @@ function createActionsContext(
 
     onCreateNodeProfile: (node) => openCreateProfileDialog(node.externalIdentifier),
 
-    onHideNode: (node) => removeFromVisualModel(node.externalIdentifier),
+    onHideNode: (node) => removeFromVisualModel([node.externalIdentifier]),
 
     onDeleteNode: (node) => deleteVisualElement(node.externalIdentifier),
 
@@ -555,7 +568,7 @@ function createActionsContext(
 
     onCreateEdgeProfile: (edge) => openCreateProfileDialog(edge.externalIdentifier),
 
-    onHideEdge: (edge) => removeFromVisualModel(edge.externalIdentifier),
+    onHideEdge: (edge) => removeFromVisualModel([edge.externalIdentifier]),
 
     onDeleteEdge: (edge) => deleteVisualElement(edge.externalIdentifier),
 
@@ -569,32 +582,32 @@ function createActionsContext(
       openCreateConnectionDialog(source.externalIdentifier, target.externalIdentifier);
     },
 
-    onCreateConnectionToNothing: (source, flowPosition) => {
-      console.log("Application.onCreateConnectionToNothing", { source, flowPosition });
-      diagram.actions().openCanvasToolbar(source, flowPosition, "EDGE-DRAG-CANVAS-MENU-TOOLBAR");
+    onCreateConnectionToNothing: (source, canvasPosition) => {
+      console.log("Application.onCreateConnectionToNothing", { source, canvasPosition });
+      diagram.actions().openCanvasToolbar(source, canvasPosition, "EDGE-DRAG-CANVAS-MENU-TOOLBAR");
     },
 
     onSelectionDidChange: (nodes, edges) => {
       console.log("Application.onSelectionDidChange", { nodes, edges });
     },
     onAnchorNode: (diagramNode) => {
-      alert("Anchoring node");
+      // TODO RadStr: - Functionality of toggling node anchor on/off is currently unavailable
     },
-    onShowSelectionActions: (source, flowPosition) => {
-      console.log("Application.onShowSelectionActions", { source, flowPosition });
-      diagram.actions().openCanvasToolbar(source, flowPosition, "NODE-SELECTION-ACTIONS-SECONDARY-TOOLBAR");
+    onShowSelectionActions: (source, canvasPosition) => {
+      console.log("Application.onShowSelectionActions", { source, canvasPosition });
+      diagram.actions().openCanvasToolbar(source, canvasPosition, "NODE-SELECTION-ACTIONS-SECONDARY-TOOLBAR");
     },
     onLayoutSelection: () => {
-      alert("TODO RadStr: currently does nothing (In future - Opens layouting menu - 3 buttons - alignments + layouting)");
+      // TODO RadStr: Currently does nothing (In future - Opens layouting menu - 3 buttons - alignments + layouting)
     },
     onCreateGroup: () => {
-      alert("TODO RadStr: currently does nothing (In future - Creating group)");
+      // TODO RadStr: Currently does nothing (In future - Creating group)
     },
     onShowExpandSelection: () => {
-      alert("TODO RadStr: currently does nothing (In future - Showing expansion dialog)");
+      // TODO RadStr: currently does nothing (In future - Showing expansion dialog)
     },
     onShowFilterSelection: () => {
-      alert("TODO RadStr: currently does nothing (In future - Showing filter dialog)");
+      // TODO RadStr: currently does nothing (In future - Showing filter dialog)
     },
     onCanvasOpenCreateClassDialog: (sourceClassNode, positionToPlaceClassOn) => {
       diagram.actions().closeCanvasToolbar();
@@ -634,14 +647,14 @@ function createActionsContext(
     onCreateNewViewFromSelection: () => {
       const {nodeSelection, edgeSelection} = getSelections(diagram);
       alert("The view functionality currently doesn't work");
-      createNewVisualModelFromSelection(nodeSelection.concat(edgeSelection), true);
+      createNewVisualModelFromSelection(nodeSelection.concat(edgeSelection));
       diagram.actions().closeCanvasToolbar();
     },
     onProfileSelection: () => {
       let {nodeSelection, edgeSelection} = getSelections(diagram);
       withVisualModel(notifications, graph, (visualModel) => {
         edgeSelection = filterOutProfileClassEdges(edgeSelection, visualModel);
-        profileSelectionAction(nodeSelection, edgeSelection, classes, graph, visualModel, diagram, notifications, options);
+        profileSelectionAction(notifications, graph, diagram, options, classes, visualModel, nodeSelection, edgeSelection);
       });
       diagram.actions().closeCanvasToolbar();
     },
@@ -651,7 +664,7 @@ function createActionsContext(
         edgeSelection = filterOutProfileClassEdges(edgeSelection, visualModel);
       });
       console.info("Hiding selection from view: ", {nodeSelection, edgeSelection});
-      changeSelectionVisibilityAction(nodeSelection, edgeSelection, notifications, graph, false);
+      removeFromVisualModel(nodeSelection.concat(edgeSelection));
       diagram.actions().closeCanvasToolbar();
     },
     onDeleteSelection: () => {
@@ -660,7 +673,7 @@ function createActionsContext(
         edgeSelection = filterOutProfileClassEdges(edgeSelection, visualModel);
       });
       console.info("Removing selection from semantic model: ", {nodeSelection, edgeSelection});
-      removeSelectionFromSemanticModelAction(nodeSelection, edgeSelection, notifications, graph);
+      removeSelectionFromSemanticModelAction(notifications, graph, nodeSelection, edgeSelection);
       diagram.actions().closeCanvasToolbar();
     },
   };
@@ -691,7 +704,7 @@ function createActionsContext(
     deleteSelectionFromSemanticModel,
     createNewVisualModelFromSelection,
     changeSemanticModelVisibility,
-    addNodeNeighborhoodToVisualModel,
+    addClassNeighborhoodToVisualModel,
 
     diagram,
   };

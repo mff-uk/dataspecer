@@ -483,13 +483,10 @@ export interface DiagramCallbacks extends DiagramNodes, DiagramEdges, DiagramSel
   onCreateConnectionToNode: (source: Node, target: Node) => void;
 
   /**
-   * This property stores the method, which is called when user creates "empty" connection,
-   * i. e. connection from node to canvas.
-   * @param source
-   * @param positionRelativeToViewport is relative position in the current viewport where the connection ended.
-   * It can be used to place the canvas toolbar on.
-   * @param flowPosition is the position on canvas, where the connection ended.
+   * This method is called when user creates "empty" connection, i.e. connection from node to canvas.
+   * @param source is the node at which the connection started
+   * @param canvasPosition is the position on canvas, where the connection ended.
    */
-  onCreateConnectionToNothing: (source: Node, flowPosition: Position) => void;
+  onCreateConnectionToNothing: (source: Node, canvasPosition: Position) => void;
 
 }

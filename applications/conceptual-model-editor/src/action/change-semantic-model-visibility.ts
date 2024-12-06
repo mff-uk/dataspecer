@@ -5,12 +5,14 @@ import { changeSelectionVisibilityAction } from "./change-selection-visibility";
 /**
  * Changes visibility of given {@link selection} to given {@link visibility}.
  */
-export const changeSemanticModelVisibilityAction = (semanticModelIdentifier: string,
-                                                graph: ModelGraphContextType,
-                                                notifications: UseNotificationServiceWriterType,
-                                                visibility: boolean): void => {
+export const changeSemanticModelVisibilityAction = (
+    notifications: UseNotificationServiceWriterType,
+    graph: ModelGraphContextType,
+    visibility: boolean,
+    semanticModelIdentifier: string
+): void => {
     // TODO RadStr: Get the selection through the systematic selection feature
     const semanticModelNodeIdentifiers: string[] = [];
     const semanticModelEdgeIdentifiers: string[] = [];
-    changeSelectionVisibilityAction(semanticModelNodeIdentifiers, semanticModelEdgeIdentifiers, notifications, graph, visibility);
+    changeSelectionVisibilityAction(notifications, graph, visibility, semanticModelNodeIdentifiers, semanticModelEdgeIdentifiers);
 };

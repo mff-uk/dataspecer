@@ -308,7 +308,7 @@ export const useConfigDialog = () => {
             </div>
             <hr className="my-2"/>
             {/* TODO RadStr: Just for now */}
-            {config.chosenMainAlgorithm === "random" ? <></> : <h3 className="font-black">Algorithm settings </h3>}
+            {config.chosenMainAlgorithm === "random" ? null : <h3 className="font-black">Algorithm settings </h3>}
             {renderMainAlgorithmConfig()}
             <hr className="my-4"/>
             <input type="checkbox" id="checkbox-main-layout-alg" name="checkbox-main-layout-alg" checked={config.general.elk_layered.should_be_considered}

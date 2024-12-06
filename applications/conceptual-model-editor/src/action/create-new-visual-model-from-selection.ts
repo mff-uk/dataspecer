@@ -5,10 +5,9 @@ import { deleteEntity } from "@dataspecer/core-v2/semantic-model/operations";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 
 export function createNewVisualModelFromSelectionAction(
-  selectionIdentifiers: string[],
-  keepPositionsFromCurrentVisualModel: boolean,
-  graph: ModelGraphContextType,
   notifications: UseNotificationServiceWriterType,
+  graph: ModelGraphContextType,
+  selectionIdentifiers: string[],
 ) {
   // TODO RadStr: Implement me
 }
