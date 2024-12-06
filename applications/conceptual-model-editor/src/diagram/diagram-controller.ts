@@ -67,7 +67,9 @@ interface DiagramContextType {
 
   onOpenCanvasContextMenu: OpenCanvasContextMenuHandler;
 
-  // Stored in context because the idea is to allow max one opened canvas toolbar
+  /**
+   * Stored in context because the idea is to allow max one opened canvas toolbar
+   */
   openedCanvasToolbar: OpenedCanvasToolbar;
 
   getLastSelected: () => string | null;
@@ -132,27 +134,32 @@ interface UseDiagramControllerType {
 
 }
 
-export function useDiagramController(api: UseDiagramType): UseDiagramControllerType {
-  // We can use useStore get low level access.
-  const reactFlow = useReactFlow<NodeType, EdgeType>();
+function useCreateReactStates() {
   const [nodes, setNodes] = useNodesState<NodeType>([]);
   const [edges, setEdges] = useEdgesState<EdgeType>([]);
   const [edgeToolbar, setEdgeToolbar] = useState<EdgeToolbarProps | null>(null);
   const [canvasToolbar, setCanvasToolbar] = useState<CanvasToolbarGeneralProps | null>(null);
-
-  const alignment = useAlignmentController({ reactFlowInstance: reactFlow });
-
-
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const [selectedEdges, setSelectedEdges] = useState<string[]>([]);
-  const getLastSelected = useCallback(() => {
-    return selectedNodes.at(-1) ?? null;
-  }, [selectedNodes]);
 
-  const shouldShowSelectionToolbar = useCallback(() => {
-    return selectedNodes.length > 1 || (selectedNodes.length === 1 && selectedEdges.length > 0);
-  }, [selectedNodes, selectedEdges]);
+  return {
+    nodes, setNodes,
+    edges, setEdges,
+    edgeToolbar, setEdgeToolbar,
+    canvasToolbar, setCanvasToolbar,
+    selectedNodes, setSelectedNodes,
+    selectedEdges, setSelectedEdges,
+  };
+}
 
+function useCreateDiagramControllerActionsAndContextIndependent(
+  api: UseDiagramType,
+  reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
+  createdReactStates: ReturnType<typeof useCreateReactStates>,
+) {
+  const { setNodes, setEdges, setEdgeToolbar, setCanvasToolbar, setSelectedNodes, setSelectedEdges } = createdReactStates;
+
+  const alignmentController = useAlignmentController({ reactFlowInstance: reactFlowInstance });
 
   // The initialized is set to false when new node is added and back to true once the size is determined.
   // const reactFlowInitialized = useNodesInitialized();
@@ -162,7 +169,7 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
 
   useOnSelectionChange({ onChange: (onChangeSelection) });
 
-  const onNodesChange = useCallback(createNodesChangeHandler(setNodes, alignment), [setNodes, alignment]);
+  const onNodesChange = useCallback(createNodesChangeHandler(setNodes, alignmentController), [setNodes, alignmentController]);
 
   const onEdgesChange = useCallback(createEdgesChangeHandler(setEdges), [setEdges]);
 
@@ -170,54 +177,96 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
 
   const onConnectStart = useCallback(createConnectStartHandler(), []);
 
-  const onConnectEnd = useCallback(createConnectEndHandler(reactFlow, api), [reactFlow, api]);
+  const onConnectEnd = useCallback(createConnectEndHandler(reactFlowInstance, api), [reactFlowInstance, api]);
 
   const isValidConnection = useCallback(createIsValidConnection(), []);
 
   const onDragOver = useCallback(createDragOverHandler(), []);
 
-  const onDrop = useCallback(createDropHandler(reactFlow), [reactFlow.screenToFlowPosition]);
+  const onDrop = useCallback(createDropHandler(reactFlowInstance), [reactFlowInstance.screenToFlowPosition]);
 
   const onOpenCanvasToolbar = useCallback(createOpenCanvasToolbarHandler(setCanvasToolbar), [setCanvasToolbar]);
 
   const onOpenEdgeToolbar = useCallback(createOpenEdgeToolbarHandler(setEdgeToolbar),
     [setEdgeToolbar]);
-  const context = useMemo(() => createDiagramContext(api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar?.toolbarType ?? null,
-                                                      getLastSelected, shouldShowSelectionToolbar,),
-    [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, getLastSelected, shouldShowSelectionToolbar]);
-
-  // We newly pass in the context, because we need it to open the openCanvasToolbar
-  const actions = useMemo(() => createActions(reactFlow, setNodes, setEdges, alignment, context, setCanvasToolbar),
-    [reactFlow, setNodes, setEdges, alignment, context, setCanvasToolbar]);
-
-  // Register actions to API.
-  useEffect(() => api.setActions(actions), [api, actions]);
 
   const onNodeDrag = useCallback(createOnNodeDragHandler(), []);
-  const onNodeDragStart = useCallback(createOnNodeDragStartHandler(alignment), [alignment]);
-  const onNodeDragStop = useCallback(createOnNodeDragStopHandler(api, alignment), [api, alignment]);
+  const onNodeDragStart = useCallback(createOnNodeDragStartHandler(alignmentController), [alignmentController]);
+  const onNodeDragStop = useCallback(createOnNodeDragStopHandler(api, alignmentController), [api, alignmentController]);
 
-  const onPaneClick = useCallback(actions.closeCanvasToolbar, [actions.closeCanvasToolbar]);
 
   return {
-    nodes,
-    edges,
-    context,
-    edgeToolbar,
-    canvasToolbar,
+    alignmentController,
     onNodesChange,
     onEdgesChange,
     onConnect,
     onConnectStart,
     onConnectEnd,
+    isValidConnection,
     onDragOver,
     onDrop,
-    isValidConnection,
+    onOpenCanvasToolbar,
+    onOpenEdgeToolbar,
     onNodeDrag,
     onNodeDragStart,
     onNodeDragStop,
+  };
+}
+
+function useCreateDiagramControllerActionsAndContextDependent(
+  api: UseDiagramType,
+  reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
+  createdReactStates: ReturnType<typeof useCreateReactStates>,
+  createdPartOfDiagramController: ReturnType<typeof useCreateDiagramControllerActionsAndContextIndependent>,
+) {
+  const { setNodes, setEdges, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges } = createdReactStates;
+  const { onOpenEdgeToolbar, onOpenCanvasToolbar, alignmentController } = createdPartOfDiagramController;
+
+  const context = useMemo(() => createDiagramContext(api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar?.toolbarType ?? null, selectedNodes, selectedEdges),
+    [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, selectedNodes, selectedEdges]);
+
+  const actions = useMemo(() => createActions(reactFlowInstance, setNodes, setEdges, alignmentController, context, setCanvasToolbar),
+    [reactFlowInstance, setNodes, setEdges, alignmentController, context, setCanvasToolbar]);
+
+  // Register actions to API.
+  useEffect(() => api.setActions(actions), [api, actions]);
+
+  const onPaneClick = useCallback(actions.closeCanvasToolbar, [actions.closeCanvasToolbar]);
+
+  return {
+    context,
+    actions,
     onPaneClick,
-    alignmentController: alignment,
+  };
+}
+
+
+export function useDiagramController(api: UseDiagramType): UseDiagramControllerType {
+  const reactStates = useCreateReactStates();
+  // We can use useStore get low level access.
+  const reactFlowInstance = useReactFlow<NodeType, EdgeType>();
+  const independentPartOfDiagramController = useCreateDiagramControllerActionsAndContextIndependent(api, reactFlowInstance, reactStates);
+  const dependentPartOfDiagramController = useCreateDiagramControllerActionsAndContextDependent(api, reactFlowInstance, reactStates, independentPartOfDiagramController);
+
+  return {
+    nodes: reactStates.nodes,
+    edges: reactStates.edges,
+    context: dependentPartOfDiagramController.context,
+    edgeToolbar: reactStates.edgeToolbar,
+    canvasToolbar: reactStates.canvasToolbar,
+    onNodesChange: independentPartOfDiagramController.onNodesChange,
+    onEdgesChange: independentPartOfDiagramController.onEdgesChange,
+    onConnect: independentPartOfDiagramController.onConnect,
+    onConnectStart: independentPartOfDiagramController.onConnectStart,
+    onConnectEnd: independentPartOfDiagramController.onConnectEnd,
+    onDragOver: independentPartOfDiagramController.onDragOver,
+    onDrop: independentPartOfDiagramController.onDrop,
+    isValidConnection: independentPartOfDiagramController.isValidConnection,
+    onNodeDrag: independentPartOfDiagramController.onNodeDrag,
+    onNodeDragStart: independentPartOfDiagramController.onNodeDragStart,
+    onNodeDragStop: independentPartOfDiagramController.onNodeDragStop,
+    onPaneClick: dependentPartOfDiagramController.onPaneClick,
+    alignmentController: independentPartOfDiagramController.alignmentController,
   };
 }
 
@@ -227,15 +276,18 @@ const createOnNodeDragHandler = () => {
   };
 };
 
-const createOnNodeDragStartHandler = (alignment: AlignmentController) => {
+const createOnNodeDragStartHandler = (alignmentController: AlignmentController) => {
   return (event: React.MouseEvent, node: Node, nodes: Node[]) => {
-    alignment.alignmentSetUpOnNodeDragStart(node);
+    alignmentController.alignmentSetUpOnNodeDragStart(node);
   };
 };
 
-const createOnNodeDragStopHandler = (api: UseDiagramType, alignment: AlignmentController) => {
+const createOnNodeDragStopHandler = (
+  api: UseDiagramType,
+  alignmentController: AlignmentController
+) => {
   return (event: React.MouseEvent, node: Node, nodes: Node[]) => {
-    alignment.alignmentCleanUpOnNodeDragStop(node);
+    alignmentController.alignmentCleanUpOnNodeDragStop(node);
     // At the end of the node drag we report changes in the positions.
     const changes: Record<string, Position> = {};
     for (const node of nodes) {
@@ -281,7 +333,7 @@ const createChangeSelectionHandler = (
 
 const createNodesChangeHandler = (
   setNodes: React.Dispatch<React.SetStateAction<NodeType[]>>,
-  alignment: AlignmentController
+  alignmentController: AlignmentController
 ) => {
   return (changes: NodeChange<NodeType>[]) => {
     // We can alter the change here ... for example allow only x-movement.
@@ -293,7 +345,7 @@ const createNodesChangeHandler = (
     //   }
     // });
 
-    alignment.alignmentNodesChange(changes);
+    alignmentController.alignmentNodesChange(changes);
     setNodes((prevNodes) => applyNodeChanges(changes, prevNodes));
   };
 };
@@ -321,7 +373,10 @@ const createConnectStartHandler = (): OnConnectStart => {
   };
 };
 
-const createConnectEndHandler = (reactFlow: ReactFlowInstance<NodeType, EdgeType>, api: UseDiagramType): OnConnectEnd => {
+const createConnectEndHandler = (
+  reactFlow: ReactFlowInstance<NodeType, EdgeType>,
+  api: UseDiagramType
+): OnConnectEnd => {
   // This handler is called when user finish dragging a new connection.
   // We need to handle this action using the API, notifying the owner about an event.
   // There are two possible events:
@@ -627,9 +682,16 @@ const createDiagramContext = (
   onOpenEdgeContextMenu: OpenEdgeContextMenuHandler,
   onOpenCanvasContextMenu: OpenCanvasContextMenuHandler,
   openedCanvasToolbar: OpenedCanvasToolbar,
-  getLastSelected: () => string | null,
-  shouldShowSelectionToolbar: () => boolean
+  selectedNodes: string[],
+  selectedEdges: string[]
 ): DiagramContextType => {
+  const getLastSelected = () => {
+    return selectedNodes.at(-1) ?? null;
+  };
+  const shouldShowSelectionToolbar = () => {
+    return selectedNodes.length > 1 || (selectedNodes.length === 1 && selectedEdges.length > 0);
+  };
+
   return {
     callbacks: api.callbacks,
     onOpenEdgeContextMenu,
