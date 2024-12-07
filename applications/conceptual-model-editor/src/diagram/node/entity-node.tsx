@@ -42,7 +42,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
     usageNote = data.profileOf.usageNote;
   }
 
-  // TODO: Where should be the access to the information saying that the node is anchored so we can visualize it? Should it be action? Or should it be like this?
+  // TODO PRQuestion: How should we get access to the information saying that the node is anchored so we can visualize it? Should it be action? Or should it be like this?
   const graph = useModelGraphContext();
   const isAnchored = (graph.aggregatorView?.getActiveVisualModel()?.getVisualEntity(props.data.identifier) as VisualNode).position?.anchored ?? false;
 
@@ -68,11 +68,14 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
                 </span>
               </div>
             )}
-            {data.label}
+            <div className="relative flex w-full flex-row justify-between">
+                <div>{data.label}</div>
+                {isAnchored ? <div>⚓</div>: null}
+            </div>
           </div>
 
           <div className="overflow-x-clip text-gray-500 px-1">
-            {usePrefixForIri(data.iri) + (isAnchored ? "⚓": "")}
+            {usePrefixForIri(data.iri)}
           </div>
 
           <ul className="px-1">
@@ -102,7 +105,7 @@ function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   const onCreateProfile = () => context?.callbacks().onCreateNodeProfile(props.data);
   const onHide = () => context?.callbacks().onHideNode(props.data);
   const onDelete = () => context?.callbacks().onDeleteNode(props.data);
-  const onAnchor = () => context?.callbacks().onAnchorNode(props.data);
+  const onAnchor = () => context?.callbacks().onToggleAnchorForNode(props.data);
 
   return (
     <>

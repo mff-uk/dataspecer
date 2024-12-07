@@ -8,7 +8,7 @@ import { placePositionOnGrid, ReactflowDimensionsConstantEstimator, XY } from "@
 import { configuration } from "../application";
 
 
-// TODO: After merge the content of this file should be in utilites.ts (and don't forget to remove getCenterOfViewport, respectively use the old variant without shifting)
+// TODO RadStr: After merge the content of this file should be in utilites.ts (and don't forget to remove getCenterOfViewport, respectively use the old variant without shifting)
 
 
 export const getCenterOfViewport = (diagram: UseDiagramType) => {
@@ -26,25 +26,33 @@ export const getCenterOfViewport = (diagram: UseDiagramType) => {
     return position;
 };
 
+type ComputedPositionForNodePlacement = {
+    position: XY,
+    isInCenterOfViewport: boolean,
+};
 
-// TODO: Call this method using the withVisualModel method after we merge with main (it solves the issue of repeating the same error notifications for visual model)
+// TODO RadStr: Call this method using the withVisualModel method after we merge with main (it solves the issue of repeating the same error notifications for visual model)
 /**
  * @returns The barycenter of nodes associated to {@link nodeToFindAssociationsFor} and boolean variable saying if the position was explicitly put to middle of viewport.
  */
-export const computeMiddleOfRelatedAssociationsPositionAction = (nodeToFindAssociationsFor: string,
-                                                            notifications: UseNotificationServiceWriterType,
-                                                            graph: ModelGraphContextType,
-                                                            diagram: UseDiagramType,
-                                                            classesContext: ClassesContextType): [XY, boolean] => {
-    // TODO: !!!! Use this commented code after merge ... the variant with systematic selection, this is just so I have something which works for this branch
+export const computeMiddleOfRelatedAssociationsPositionAction = (
+    nodeToFindAssociationsFor: string,
+    notifications: UseNotificationServiceWriterType,
+    graph: ModelGraphContextType,
+    diagram: UseDiagramType,
+    classesContext: ClassesContextType
+): ComputedPositionForNodePlacement => {
+    // TODO RadStr: !!!! Use this commented code after merge with systematic selection, this is just so I have something which works for this branch
     // const associatedClasses: string[] = findAssociatedClassesAndClassUsages(nodeToFindAssociationsFor);
     const associatedClasses: string[] = findAssociatedClasses(nodeToFindAssociationsFor, classesContext.classes, classesContext.relationships).map(classs => classs.id);
 
-    // TODO: I should probably rewrite so it works with visual model only (because right now we are using the diagram component to compute barycenter).
     const visualModel = graph.aggregatorView.getActiveVisualModel();
     if(visualModel === null) {
         notifications.error("There is no active visual model");
-        return [getCenterOfViewport(diagram), true];
+        return {
+            position: getCenterOfViewport(diagram),
+            isInCenterOfViewport: true,
+        };
     }
 
     const associatedPositions = associatedClasses.map(associatedClassIdentifier => {
@@ -65,12 +73,9 @@ export const computeMiddleOfRelatedAssociationsPositionAction = (nodeToFindAssoc
 };
 
 /**
- *
- * @param positions
- * @param editorAPI
  * @returns The barycenter of given positions and boolean saying if the barycenter was put to middle of viewport, because there is 0 neighbors.
  */
-const computeBarycenter = (positions: Position[], diagram: UseDiagramType): [Position, boolean] => {
+const computeBarycenter = (positions: Position[], diagram: UseDiagramType): ComputedPositionForNodePlacement => {
     const barycenter = positions.reduce((accumulator: Position, currentValue: Position) => {
         accumulator.x += currentValue.x;
         accumulator.y += currentValue.y;
@@ -92,12 +97,16 @@ const computeBarycenter = (positions: Position[], diagram: UseDiagramType): [Pos
         barycenter.y = viewportMiddle.y;
     }
 
-    return [barycenter, isInCenterOfViewport];
+    return {
+        position: barycenter,
+        isInCenterOfViewport
+    };
 };
 
 
 
-// TODO: !!! For now ... We can replace all of the following methods by the systematic selection later (using the following commented code) !!!
+// TODO RadStr: !!! After merge with systematic selection -
+//                  We can replace all of the following methods using the following commented code !!!
 
 // export const findAssociatedClassesAndClassUsages = (nodeToFindAssociationsFor: string) => {
 //     // TODO: Actually if the passed semantic models are null, then the function isn't async
@@ -109,12 +118,21 @@ const computeBarycenter = (positions: Position[], diagram: UseDiagramType): [Pos
 //////
 // Helper methods
 
+/**
+ * @deprecated Will be replaced by systematic selection
+ */
 type ZeroOrOne = 0 | 1;
 
+/**
+ * @deprecated Will be replaced by systematic selection
+ */
 const getSecondEnd = (end: ZeroOrOne) => {
     return 1 - end;
 };
 
+/**
+ * @deprecated Will be replaced by systematic selection
+ */
 const checkForAssociatedClass = (id: string, end: ZeroOrOne, classes: SemanticModelClass[], relationship: SemanticModelRelationship) => {
     if(relationship.ends[end]?.concept === id && relationship.ends[getSecondEnd(end)]?.concept !== null) {
         return classes.find(cclass => cclass.id === relationship.ends[getSecondEnd(end)]?.concept);
@@ -124,7 +142,9 @@ const checkForAssociatedClass = (id: string, end: ZeroOrOne, classes: SemanticMo
     }
 };
 
-
+/**
+ * @deprecated Will be replaced by systematic selection
+ */
 const findAssociatedClasses = (id: string, classes: SemanticModelClass[],
                                 relationships: SemanticModelRelationship[]): SemanticModelClass[] => {
     // TODO: Don't forget about profiles, also I think that I wrote the same method for the selection !!!!!

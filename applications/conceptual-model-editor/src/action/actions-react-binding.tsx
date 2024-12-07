@@ -29,10 +29,9 @@ import { findSourceModelOfEntity } from "../service/model-service";
 import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
 import { isVisualNode, isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel, Waypoint } from "@dataspecer/core-v2/visual-model";
 import { openCreateConnectionDialogAction } from "./open-create-connection";
-import { ExplicitAnchors, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4, LayoutedVisualEntities, placePositionOnGrid, ReactflowDimensionsConstantEstimator, UserGivenConstraintsVersion4 } from "@dataspecer/layout";
-import { computeMiddleOfRelatedAssociationsPositionAction } from "./utils";
-import { layoutActiveVisualModelAction, layoutActiveVisualModelAdvancedAction } from "./layout-visual-model";
-import { changeAnchorAction } from "./change-anchor";
+import { LayoutedVisualEntities, placePositionOnGrid, ReactflowDimensionsConstantEstimator, UserGivenConstraintsVersion4 } from "@dataspecer/layout";
+import { findPositionForNewNodeUsingLayouting, layoutActiveVisualModelAction } from "./layout-visual-model";
+import { toggleAnchorAction } from "./change-anchor";
 
 export interface ActionsContextType {
 
@@ -67,7 +66,7 @@ export interface ActionsContextType {
   /**
    * Position is determined by the action.
    */
-  addNodeToVisualModel: (model: string, identifier: string, TODO_DEBUG_shouldUseLayoutingAlgorithm: boolean) => void;
+  addNodeToVisualModel: (model: string, identifier: string) => void;
 
   addNodeToVisualModelToPosition: (model: string, identifier: string, position: { x: number, y: number }) => void;
 
@@ -234,60 +233,10 @@ function createActionsContext(
       options, dialogs, notifications, useClasses, graph, source, target);
   };
 
-  const addNodeToVisualModel = async (model: string, identifier: string, TODO_DEBUG_shouldUseLayoutingAlgorithm: boolean) => {
-    let [position, isInMiddleofViewport] = computeMiddleOfRelatedAssociationsPositionAction(identifier, notifications, graph, diagram, classes);
-
-    // TODO: Remove the TODO_DEBUG after (or maybe before) merge
-    // TODO: Also this code should be probably part of some new .*Action.ts file
-    if(TODO_DEBUG_shouldUseLayoutingAlgorithm && !isInMiddleofViewport) {
-      const maxDeviation = 100;
-      position.x += Math.floor(Math.random() * maxDeviation) - maxDeviation / 2;
-      position.y += Math.floor(Math.random() * maxDeviation) - maxDeviation / 2;
-      const configuration = getDefaultUserGivenConstraintsVersion4();
-      configuration.chosenMainAlgorithm = "elk_stress";
-      configuration.main.elk_stress = getDefaultMainUserGivenAlgorithmConstraint("elk_stress");
-      configuration.main.elk_stress.interactive = true;
-
-      const explicitAnchors: ExplicitAnchors = {
-          notAnchored: [identifier],
-          anchored: [],
-          shouldAnchorEverythingExceptNotAnchored: "anchor-everything-except-notAnchored",
-      };
-
-      // We only want to get the new position, so we don't update the visual model. We save some performance by that, but more importantly elk can move nodes even if they are
-      // anchored (for example when they are not connected by any edge).
-      const layoutResults = await layoutActiveVisualModelAdvancedAction(
-          notifications,
-          diagram,
-          graph,
-          configuration,
-          explicitAnchors,
-          false,
-          {[identifier]: position},
-          false);
-
-
-      // https://stackoverflow.com/questions/50959135/detecting-that-a-function-returned-void-rather-than-undefined
-      if(layoutResults !== null && typeof layoutResults === 'object') {
-        const newVisualEntityForNewNode = Object.entries(layoutResults).find(([visualEntityIdentifier, visualEntity]) => {
-          if(isVisualNode(visualEntity.visualEntity)) {
-            return visualEntity.visualEntity.representedEntity === identifier;
-          }
-          return false;
-        })?.[1].visualEntity;
-
-        console.info("layoutResults");
-        console.info(layoutResults);
-        console.info(newVisualEntityForNewNode);
-        if(newVisualEntityForNewNode !== undefined && isVisualNode(newVisualEntityForNewNode)) {
-          position = newVisualEntityForNewNode.position;
-        }
-      }
-    }
-
+  const addNodeToVisualModel = async (model: string, identifier: string) => {
+    const position = await findPositionForNewNodeUsingLayouting(notifications, diagram, graph, classes, identifier);
     console.info("Positions in active visual model after adding the new node to visual model");
     console.info(JSON.stringify([...graph.aggregatorView.getActiveVisualModel()?.getVisualEntities().values() ?? []].filter(isVisualNode).map(n => [n.identifier, n.position])));
-
     addNodeToVisualModelAction(notifications, graph, model, identifier, position);
   };
 
@@ -465,9 +414,9 @@ function createActionsContext(
       console.log("Application.onSelectionDidChange", { nodes, edges });
     },
 
-    onAnchorNode: (diagramNode) => {
-      console.log("Application.onAnchorNode", { diagramNode });
-      changeAnchorAction(notifications, graph, diagramNode.externalIdentifier);
+    onToggleAnchorForNode: (diagramNode) => {
+      console.log("Application.onToggleAnchorForNode", { diagramNode });
+      toggleAnchorAction(notifications, graph, diagramNode.externalIdentifier);
     },
 
   };

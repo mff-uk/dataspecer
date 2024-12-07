@@ -23,7 +23,6 @@ import { RemoveButton } from "../components/remove";
 import { MoveViewportToEntityButton } from "../components/center-viewport-on-entity";
 import { useOptions } from "../../application/options";
 import { useActions } from "../../action/actions-react-binding";
-import { DrawOnCanvasButtonTODO } from "../components/draw-on-canvas-layout-todo";
 
 const TreeLikeOffset = (props: { offset?: number }) => {
     const { offset } = props;
@@ -59,8 +58,7 @@ export const EntityRow = (props: {
 
     const { language: preferredLanguage } = useOptions();
 
-    // TODO: model variable used just for debug
-    const { entity, offset, drawable, expandable, removable, sourceModel, model } = props;
+    const { entity, offset, drawable, expandable, removable, sourceModel } = props;
     const { name, iri } = useEntityProxy(entity, preferredLanguage);
 
     const [isExpanded, setIsExpanded] = useState(expandable?.expanded());
@@ -106,14 +104,6 @@ export const EntityRow = (props: {
                     <DrawOnCanvasButton
                         visible={props.isOnCanvas}
                         addToCanvas={drawable?.addToViewHandler}
-                        removeFromCanvas={drawable?.removeFromViewHandler}
-                    />
-                )}
-                {/* TODO: Just for now to choose the better option */}
-                {drawable && (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) && (
-                    <DrawOnCanvasButtonTODO
-                        visible={props.isOnCanvas}
-                        addToCanvas={(() => actions.addNodeToVisualModel(model, entity.id, true))}
                         removeFromCanvas={drawable?.removeFromViewHandler}
                     />
                 )}

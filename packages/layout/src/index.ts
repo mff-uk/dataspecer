@@ -87,26 +87,10 @@ export type XY = Omit<Position, "anchored">;
 //       So in future it will be probably the mentioned 1), 2) and then in the same way stuff, which will be run post-layout
 
 
-/**
- * Perform layout, which puts given nodes on new positions, while preserving layout of the old graph
- * @param visualModel
- * @param semanticModels
- * @param newNodesIdentifiers
- * @param config
- * @param nodeDimensionQueryHandler
- */
-export async function performDynamicLayout(visualModel: VisualModel,
-										semanticModels: Record<string, EntityModel>,
-										newNodesIdentifiers: string[],
-										config: UserGivenAlgorithmConfigurationslVersion2,
-										nodeDimensionQueryHandler?: NodeDimensionQueryHandler) {
-	// TODO: Here perform dynamic layouting on top of visual model
-}
 
-
-// TODO: Maybe just return VisualEntities - so without the information about entity being an outsider
-//       On one side, I have the info in nice format so why shouldn't I give it out
-//       On other side, the caller should know about the outsiders, and the API - especially here should be probably minimal
+// TODO PRQuestion: Maybe just return VisualEntities - so without the information about entity being an outsider
+//                  On one side, I have the info in nice format so why shouldn't I give it out
+//                  On other side, the caller should know about the outsiders, and the API - especially here should be probably minimal
 /**
  * Layout given visual model.
  * @param visualModel The visual model to perform layout on.
@@ -116,11 +100,13 @@ export async function performDynamicLayout(visualModel: VisualModel,
  * @param explicitAnchors If this is undefined then use the anchors of visual model, otherwise it depends on the given anchors' settings.
  * @returns Promise with new positions of the visual entities.
  */
-export async function performLayoutOfVisualModel(visualModel: VisualModelWithOutsiders,
-													semanticModels: Map<string, EntityModel>,
-													config: UserGivenAlgorithmConfigurationslVersion4,
-													nodeDimensionQueryHandler?: NodeDimensionQueryHandler,
-													explicitAnchors?: ExplicitAnchors): Promise<LayoutedVisualEntities> {
+export async function performLayoutOfVisualModel(
+	visualModel: VisualModelWithOutsiders,
+	semanticModels: Map<string, EntityModel>,
+	config: UserGivenAlgorithmConfigurationslVersion4,
+	nodeDimensionQueryHandler?: NodeDimensionQueryHandler,
+	explicitAnchors?: ExplicitAnchors
+): Promise<LayoutedVisualEntities> {
 	console.log("config");
 	console.log(config);
 
@@ -133,10 +119,12 @@ export async function performLayoutOfVisualModel(visualModel: VisualModelWithOut
 /**
  * Layout given semantic model.
  */
-export async function performLayoutOfSemanticModel(inputSemanticModel: Record<string, SemanticModelEntity>,
-													semanticModelId: string,
-													config: UserGivenAlgorithmConfigurationslVersion4,
-													nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<LayoutedVisualEntities> {
+export async function performLayoutOfSemanticModel(
+	inputSemanticModel: Record<string, SemanticModelEntity>,
+	semanticModelId: string,
+	config: UserGivenAlgorithmConfigurationslVersion4,
+	nodeDimensionQueryHandler?: NodeDimensionQueryHandler
+): Promise<LayoutedVisualEntities> {
 	const entityModelUsedForConversion: EntityModel = {
 		getEntities: function (): Entities {
 			return inputSemanticModel;
@@ -161,11 +149,13 @@ export async function performLayoutOfSemanticModel(inputSemanticModel: Record<st
 }
 
 
-function performLayoutInternal(visualModel: VisualModelWithOutsiders,
-								semanticModels: Map<string, EntityModel>,
-								config: UserGivenAlgorithmConfigurationslVersion4,
-								nodeDimensionQueryHandler?: NodeDimensionQueryHandler,
-								explicitAnchors?: ExplicitAnchors): Promise<LayoutedVisualEntities> {
+function performLayoutInternal(
+	visualModel: VisualModelWithOutsiders,
+	semanticModels: Map<string, EntityModel>,
+	config: UserGivenAlgorithmConfigurationslVersion4,
+	nodeDimensionQueryHandler?: NodeDimensionQueryHandler,
+	explicitAnchors?: ExplicitAnchors
+): Promise<LayoutedVisualEntities> {
 	const graph = GraphFactory.createMainGraph(null, semanticModels, null, visualModel, nodeDimensionQueryHandler, explicitAnchors);
 	const visualEntitiesPromise = performLayoutFromGraph(graph, config);
 
@@ -186,8 +176,10 @@ function performLayoutInternal(visualModel: VisualModelWithOutsiders,
  * @param visualModel
  * @returns
  */
-export async function performLayoutFromGraph(graph: IMainGraphClassic,
-												config: UserGivenAlgorithmConfigurationslVersion4): Promise<LayoutedVisualEntities> {
+export async function performLayoutFromGraph(
+	graph: IMainGraphClassic,
+	config: UserGivenAlgorithmConfigurationslVersion4
+): Promise<LayoutedVisualEntities> {
 	const constraints = ConstraintFactory.createConstraints(config);
 
 	// TODO: Try this later, now it isn't that important
@@ -214,8 +206,10 @@ export async function performLayoutFromGraph(graph: IMainGraphClassic,
 /**
  * Performs all relevant layout operations based on given constraints
  */
-const performLayoutingBasedOnConstraints = (graph: IMainGraphClassic,
-											constraints: ConstraintContainer): Promise<IMainGraphClassic> => {
+const performLayoutingBasedOnConstraints = (
+	graph: IMainGraphClassic,
+	constraints: ConstraintContainer
+): Promise<IMainGraphClassic> => {
 	let workGraph = graph;
 	return runPreMainAlgorithmConstraints(workGraph, constraints).then(async _ => {
 		for(const action of constraints.layoutActionsIteratorBefore) {
@@ -246,8 +240,10 @@ const performLayoutingBasedOnConstraints = (graph: IMainGraphClassic,
 }
 
 
-const runPreMainAlgorithmConstraints = async (graph: IMainGraphClassic,
-												constraintsContainer: ConstraintContainer): Promise<void[]> => {
+const runPreMainAlgorithmConstraints = async (
+	graph: IMainGraphClassic,
+	constraintsContainer: ConstraintContainer
+): Promise<void[]> => {
 	const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer, constraintsContainer.simpleConstraints, "PRE-MAIN").then(_ => {
 		return runConstraintsInternal(graph, constraintsContainer, constraintsContainer.constraints, "PRE-MAIN");
 	});
@@ -269,10 +265,12 @@ const runPostMainAlgorithmConstraints = async (graph: IMainGraphClassic,
 	// return constraintPromises;
 }
 
-const runConstraintsInternal = async (graph: IMainGraphClassic,
-										constraintContainer: ConstraintContainer,
-										constraints: IConstraintSimple[] | IConstraint[],
-										constraintTime: Omit<ConstraintTime, "IN-MAIN">): Promise<void[]> => {
+const runConstraintsInternal = async (
+	graph: IMainGraphClassic,
+	constraintContainer: ConstraintContainer,
+	constraints: IConstraintSimple[] | IConstraint[],
+	constraintTime: Omit<ConstraintTime, "IN-MAIN">
+): Promise<void[]> => {
 	const constraintPromises: Promise<void>[] = [];
 	for(const constraint of constraints) {
 		if(constraint.constraintTime === constraintTime) {
@@ -289,8 +287,10 @@ const runConstraintsInternal = async (graph: IMainGraphClassic,
 /**
  * Run the main layouting algorithm for the given graph. TODO: Well it is not just the main, there may be layerify after, etc.
  */
-const runMainLayoutAlgorithm = async (graph: IMainGraphClassic,
-										constraints: ConstraintContainer): Promise<IMainGraphClassic> => {
+const runMainLayoutAlgorithm = async (
+	graph: IMainGraphClassic,
+	constraints: ConstraintContainer
+): Promise<IMainGraphClassic> => {
 											// TODO: Well it really is overkill, like I could in the same way just have a look, if the given configuration contains numberOfAlgorithmRuns and if so, just put it here
 	let bestLayoutedVisualEntitiesPromise: Promise<IMainGraphClassic>;
 	let minAbsoluteMetric = 1000000;

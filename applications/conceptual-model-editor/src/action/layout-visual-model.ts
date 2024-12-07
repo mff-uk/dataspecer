@@ -1,13 +1,15 @@
-import { isVisualNode, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { ExplicitAnchors, INodeClassic, NodeDimensionQueryHandler, performLayoutOfVisualModel, ReactflowDimensionsConstantEstimator, ReactflowDimensionsEstimator, UserGivenConstraintsVersion4, VisualModelWithOutsiders } from "@dataspecer/layout";
+import { isVisualNode, isWritableVisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { ExplicitAnchors, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4, INodeClassic, LayoutedVisualEntities, NodeDimensionQueryHandler, performLayoutOfVisualModel, ReactflowDimensionsConstantEstimator, ReactflowDimensionsEstimator, UserGivenAlgorithmConfigurationStress, UserGivenConstraintsVersion4, VisualModelWithOutsiders } from "@dataspecer/layout";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { ActionsContextType } from "./actions-react-binding";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { addNodeToVisualModelAction } from "./add-node-to-visual-model";
 import { XY } from "@dataspecer/layout";
+import { computeMiddleOfRelatedAssociationsPositionAction } from "./utils";
+import { ClassesContextType } from "../context/classes-context";
 
-
+// TODO RadStr: After merge call using withVisualModel instead
 /**
  * @param configuration The configuration for layouting algorithm.
  * @param explicitAnchors For more context check the type {@link ExplicitAnchors}. But in short it is used to override the anchors stored in visual model.
@@ -46,62 +48,24 @@ export function layoutActiveVisualModelAdvancedAction(
         outsiders,
     };
 
-    return performLayoutOfVisualModel(activeVisualModelWithOutsiders,
-                                models,
-                                configuration,
-                                reactflowDimensionQueryHandler,
-                                explicitAnchors).then(layoutResult => {
-                                    // TODO: After merge rewrite in the same way it was changed by PeSk
-                                    console.info("Layout result in editor");
-                                    console.info(layoutResult);
-                                    console.info(activeVisualModel.getVisualEntities());
-                                    if(!isWritableVisualModel(activeVisualModel)) {
-                                        return layoutResult;
-                                    }
-                                    if(shouldUpdatePositionsInVisualModel === false) {
-                                        return layoutResult;
-                                    }
-
-                                    Object.entries(layoutResult).forEach(([key, value]) => {
-                                        const visualEntity = value.visualEntity
-                                        if(value.isOutsider) {
-                                            if(shouldPutOutsidersInVisualModel) {
-                                                if(isVisualNode(visualEntity)) {
-                                                    addNodeToVisualModelAction(notifications, graph, visualEntity.model, visualEntity.representedEntity, visualEntity.position);
-                                                }
-                                                else {
-                                                    throw new Error("Not prepared for creating new elements which are not nodes when layouting");
-                                                }
-                                            }
-                                            return;
-                                        }
-
-                                        // TODO: I am not sure if this "if" ever passes for non-outsiders, maybe we should keep only the else branch.
-                                        if(activeVisualModel.getVisualEntity(key) === undefined) {
-                                            if(isVisualNode(visualEntity)) {
-                                                console.info("NEW NODE");
-                                                addNodeToVisualModelAction(notifications, graph, visualEntity.model, visualEntity.representedEntity, visualEntity.position);
-                                            }
-                                            else {
-                                                throw new Error("Not prepared for creating new elements which are not nodes when layouting");
-                                            }
-                                        }
-                                        else {
-                                            // TODO: Maybe we should somehow update all entities at once
-                                            // If the entity isn't there, then nothing happens (at least for current implementation)
-                                            activeVisualModel?.updateVisualEntity(visualEntity.identifier, visualEntity);
-                                        }
-                                    });
-
-                                    return layoutResult;
-                            }).catch((e) => {
-                                console.warn(e);
-                                return Promise.resolve();
-                            });
+    return performLayoutOfVisualModel(
+        activeVisualModelWithOutsiders,
+        models,
+        configuration,
+        reactflowDimensionQueryHandler,
+        explicitAnchors
+    ).then(layoutResult => {
+        processLayoutResult(notifications, graph, activeVisualModel, shouldUpdatePositionsInVisualModel ?? true, shouldPutOutsidersInVisualModel ?? false, layoutResult);
+        return layoutResult;
+    }).catch((e) => {
+        console.warn(e);
+        return Promise.resolve();
+    });
 }
 
+//
 
-// TODO: Should be separate file?
+// TODO PRQuestion: Should be separate file? same for the method under
 export function layoutActiveVisualModelAction(
     notifications: UseNotificationServiceWriterType,
     diagram: UseDiagramType,
@@ -112,10 +76,78 @@ export function layoutActiveVisualModelAction(
     return layoutActiveVisualModelAdvancedAction(notifications, diagram, graph, configuration, explicitAnchors, true, {}, false);
 }
 
+//
 
-export function createExactNodeDimensionsQueryHandler(diagram: UseDiagramType,
-                                                      graph: ModelGraphContextType,
-                                                      notifications: UseNotificationServiceWriterType): NodeDimensionQueryHandler {
+export async function findPositionForNewNodeUsingLayouting(
+    notifications: UseNotificationServiceWriterType,
+    diagram: UseDiagramType,
+    graph: ModelGraphContextType,
+    classes: ClassesContextType,
+    identifier: string
+) {
+    let {position, isInCenterOfViewport} = computeMiddleOfRelatedAssociationsPositionAction(identifier, notifications, graph, diagram, classes);
+
+    if(!isInCenterOfViewport) {
+      const maxDeviation = 100;
+      position.x += Math.floor(Math.random() * maxDeviation) - maxDeviation / 2;
+      position.y += Math.floor(Math.random() * maxDeviation) - maxDeviation / 2;
+      const configuration = getDefaultUserGivenConstraintsVersion4();
+      configuration.chosenMainAlgorithm = "elk_stress";
+      configuration.main.elk_stress = getDefaultMainUserGivenAlgorithmConstraint("elk_stress");
+      configuration.main.elk_stress.interactive = true;
+      // TODO RadStr: We can do better by using average edge length in graph.
+      (configuration.main.elk_stress as UserGivenAlgorithmConfigurationStress).stress_edge_len = 500;
+
+      const explicitAnchors: ExplicitAnchors = {
+          notAnchored: [identifier],
+          anchored: [],
+          shouldAnchorEverythingExceptNotAnchored: "anchor-everything-except-notAnchored",
+      };
+
+      // We only want to get the new position, so we don't update the visual model.
+      // We save some performance by that, but more importantly elk can move nodes even if they are
+      // anchored (for example when they are not connected by any edge).
+      const layoutResults = await layoutActiveVisualModelAdvancedAction(
+        notifications,
+        diagram,
+        graph,
+        configuration,
+        explicitAnchors,
+        false,
+        {[identifier]: position},
+        false
+      );
+
+
+      // https://stackoverflow.com/questions/50959135/detecting-that-a-function-returned-void-rather-than-undefined
+      if(layoutResults !== null && typeof layoutResults === 'object') {
+        const newVisualEntityForNewNode = Object.entries(layoutResults).find(([visualEntityIdentifier, visualEntity]) => {
+          if(isVisualNode(visualEntity.visualEntity)) {
+            return visualEntity.visualEntity.representedEntity === identifier;
+          }
+          return false;
+        })?.[1].visualEntity;
+
+        console.info("layoutResults");
+        console.info(layoutResults);
+        console.info(newVisualEntityForNewNode);
+        if(newVisualEntityForNewNode !== undefined && isVisualNode(newVisualEntityForNewNode)) {
+          position = newVisualEntityForNewNode.position;
+        }
+      }
+    }
+
+    return position;
+}
+
+//
+//
+
+export function createExactNodeDimensionsQueryHandler(
+    diagram: UseDiagramType,
+    graph: ModelGraphContextType,
+    notifications: UseNotificationServiceWriterType
+): NodeDimensionQueryHandler {
     const activeVisualModel = graph.aggregatorView.getActiveVisualModel();
     if(activeVisualModel === null) {
         notifications.error("No active visual model");
@@ -139,4 +171,53 @@ export function createExactNodeDimensionsQueryHandler(diagram: UseDiagramType,
         getWidth,
         getHeight
     };
+}
+
+
+function processLayoutResult(
+    notifications: UseNotificationServiceWriterType,
+    graph: ModelGraphContextType,
+    visualModel: WritableVisualModel,
+    shouldUpdatePositionsInVisualModel: boolean,
+    shouldPutOutsidersInVisualModel: boolean,
+    layoutResult: LayoutedVisualEntities
+) {
+    // TODO RadStr: After merge rewrite in the same way it was changed by PeSk
+    console.info("Layout result in editor");
+    console.info(layoutResult);
+    console.info(visualModel.getVisualEntities());
+    if(shouldUpdatePositionsInVisualModel === false) {
+        return;
+    }
+
+    Object.entries(layoutResult).forEach(([key, value]) => {
+        const visualEntity = value.visualEntity
+        if(value.isOutsider) {
+            if(shouldPutOutsidersInVisualModel) {
+                if(isVisualNode(visualEntity)) {
+                    addNodeToVisualModelAction(notifications, graph, visualEntity.model, visualEntity.representedEntity, visualEntity.position);
+                }
+                else {
+                    throw new Error("Not prepared for creating new elements which are not nodes when layouting");
+                }
+            }
+            return;
+        }
+
+        // TODO RadStr: I am not sure if this "if" ever passes for non-outsiders, maybe we should keep only the else branch. - anyways fix after the merge change described above
+        if(visualModel.getVisualEntity(key) === undefined) {
+            if(isVisualNode(visualEntity)) {
+                console.info("NEW NODE");
+                addNodeToVisualModelAction(notifications, graph, visualEntity.model, visualEntity.representedEntity, visualEntity.position);
+            }
+            else {
+                throw new Error("Not prepared for creating new elements which are not nodes when layouting");
+            }
+        }
+        else {
+            // TODO RadStr: Maybe we should somehow update all entities at once
+            // If the entity isn't there, then nothing happens (at least for current implementation)
+            visualModel?.updateVisualEntity(visualEntity.identifier, visualEntity);
+        }
+    });
 }

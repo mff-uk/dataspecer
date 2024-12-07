@@ -368,9 +368,9 @@ interface DiagramNodes {
   onChangeNodesPositions: (changes: { [nodeIdentifier: string]: Position }) => void;
 
   /**
-   * TODO: Defined in other git branch
+   * TODO RadStr: Defined in other git branch - Fix in merge
    */
-  onAnchorNode: (diagramNode: Node) => void;
+  onToggleAnchorForNode: (diagramNode: Node) => void;
 }
 
 /**

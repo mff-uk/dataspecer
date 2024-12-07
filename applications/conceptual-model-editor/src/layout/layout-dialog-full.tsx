@@ -8,7 +8,6 @@ import { isVisualNode, isWritableVisualModel } from "@dataspecer/core-v2/visual-
 
 export const useLayoutDialog = () => {
     const { getValidConfig, ConfigDialog } = useConfigDialog();
-
     const actions = useActions();
 
     const onClickLayout = () => {
