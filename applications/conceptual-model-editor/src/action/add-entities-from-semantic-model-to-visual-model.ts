@@ -1,6 +1,8 @@
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 
+// TODO RadStr: Again put in withVisualModel and change documentation of action based on that.
+
 /**
  * Adds entities from given semantic model identified by {@link semanticModelIdentifier} to currently active visual model.
  */

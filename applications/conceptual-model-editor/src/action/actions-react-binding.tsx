@@ -16,7 +16,7 @@ import { useOptions, type Options } from "../application/options";
 import { centerViewportToVisualEntityAction } from "./center-viewport-to-visual-entity";
 import { openDetailDialogAction } from "./open-detail-dialog";
 import { openModifyDialogAction } from "./open-modify-dialog";
-import { findSourceModelOfEntity } from "../service/model-service";
+import { findSourceModelOfEntity, findSourceModelsOfEntities } from "../service/model-service";
 import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
 import { openCreateConnectionDialogAction } from "./open-create-connection";
 import { openCreateClassDialogAction } from "./open-create-class-dialog";
@@ -26,12 +26,11 @@ import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
-import { filterOutProfileClassEdges, getSelections, getViewportCenterForClassPlacement } from "./utilities";
+import { getSelections, getViewportCenterForClassPlacement } from "./utilities";
 import { removeFromVisualModelAction } from "./remove-from-visual-model";
-import { removeFromSemanticModelAction } from "./remove-from-semantic-model";
+import { removeFromSemanticModelsAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
 import { openCreateAssociationDialogAction } from "./open-create-association-dialog";
-import { removeSelectionFromSemanticModelAction } from "./remove-selection-from-semantic-model";
 import { addEntitiesFromSemanticModelToVisualModelAction } from "./add-entities-from-semantic-model-to-visual-model";
 import { createNewVisualModelFromSelectionAction } from "./create-new-visual-model-from-selection";
 import { addClassNeighborhoodToVisualModelAction } from "./add-class-neighborhood-to-visual-model";
@@ -153,18 +152,22 @@ interface VisualModelActions {
   removeFromVisualModel: (identifiers: string[]) => void;
 
   //
-  // TODO RadStr: Document after rewrite
-  deleteSelectionFromSemanticModel: (nodeSelection: string[], edgeSelection: string[]) => void;
+
   //
   // TODO RadStr: We will see what will this do, maybe will be openDialog instead, where we provide options as mentioned in code review by PeSk:
   //              I would even imagine that this would open the dialog where user can provide:
   //              - name of the new model
   //              - whether to copy model colors
   //              - whether to keep position (relative / absolute)
+  // TODO RadStr: The API should be probably nodes and edges, because what should happen if we select edge without ends? - then probably the ends should be put to the model
+  //              So we have to differ between the nodes and edges, but that can be decided in future, since creation of new views doesn't work right now anyways
+  /**
+   * Creates new visual model with content equal to {@link selectionIdentifiers}.
+   */
   createNewVisualModelFromSelection: (selectionIdentifiers: string[]) => void;
 
   //
-  // TODO RadStr: Document after rewrite
+  // TODO PRQuestion: Again document using {@link .*Action} or not?
   addEntitiesFromSemanticModelToVisualModel: (semanticModelIdentifier: string) => void;
 
   /**
@@ -175,16 +178,19 @@ interface VisualModelActions {
 
 }
 
-
 /**
  * Contains actions, which are stored in the context for further use.
  */
 export interface ActionsContextType extends DialogActions, VisualModelActions {
 
+
+  // Alternatively we could have object which contains the identifier and sourceModel, but creating such objects is a bit annoying.
+  // TODO PRQuestion: But maybe we should use the object anyways? that is EntitityToDelete = {sourceModel: string, identifier: string}
+
   /**
    * TODO: Rename to delete entity as it removes from semantic model as well as from visual.
    */
-  deleteFromSemanticModel: (model: string, identifier: string) => void;
+  deleteFromSemanticModels: (sourceModels: string[], identifiers: string[]) => void;
 
   // TODO RadStr: Document based on PRQuestion
   centerViewportToVisualEntity: (model: string, identifier: string) => void;
@@ -211,16 +217,12 @@ const noOperationActionsContext = {
   addGeneralizationToVisualModel: noOperation,
   addRelationToVisualModel: noOperation,
   addRelationProfileToVisualModel: noOperation,
-  deleteFromSemanticModel: noOperation,
+  deleteFromSemanticModels: noOperation,
   //
   removeFromVisualModel: noOperation,
   centerViewportToVisualEntity: noOperation,
   //
-  deleteSelectionFromSemanticModel: noOperation,
-
-  //
   createNewVisualModelFromSelection: noOperation,
-
   //
   addEntitiesFromSemanticModelToVisualModel: noOperation,
   addClassNeighborhoodToVisualModel: noOperation,
@@ -333,7 +335,7 @@ function createActionsContext(
     withVisualModel(notifications, graph, (visualModel) => {
       removeFromVisualModelAction(notifications, visualModel, [identifier]);
     });
-    removeFromSemanticModelAction(notifications, graph, model.getId(), identifier);
+    removeFromSemanticModelsAction(notifications, graph, [model.getId()], [identifier]);
   };
 
   const changeNodesPositions = (changes: { [identifier: string]: Position }) => {
@@ -508,20 +510,16 @@ function createActionsContext(
 
   // ...
 
-  const deleteFromSemanticModel = (model: string, identifier: string) => {
+  const deleteFromSemanticModels = (sourceModels: string[], identifiers: string[]) => {
     // We start be removing from the visual model.
     withVisualModel(notifications, graph, (visualModel) => {
-      removeFromVisualModelAction(notifications, visualModel, [identifier]);
+      removeFromVisualModelAction(notifications, visualModel, identifiers);
     });
-    removeFromSemanticModelAction(notifications, graph, model, identifier);
+    removeFromSemanticModelsAction(notifications, graph, sourceModels, identifiers);
   };
 
   const centerViewportToVisualEntity = (model: string, identifier: string) => {
     centerViewportToVisualEntityAction(notifications, graph, diagram, model, identifier);
-  };
-
-  const deleteSelectionFromSemanticModel = (nodeSelection: string[], edgeSelection: string[]) => {
-    removeSelectionFromSemanticModelAction(notifications, graph, nodeSelection, edgeSelection);
   };
 
   const addEntitiesFromSemanticModelToVisualModel = (semanticModelIdentifier: string) => {
@@ -623,7 +621,9 @@ function createActionsContext(
     onDeleteSelection: () => {
       const {nodeSelection, edgeSelection} = getSelections(diagram, true, false);
       console.info("Removing selection from semantic model: ", {nodeSelection, edgeSelection});
-      removeSelectionFromSemanticModelAction(notifications, graph, nodeSelection, edgeSelection);
+      const selectionIdentifiers = nodeSelection.concat(edgeSelection);
+      const models = findSourceModelsOfEntities(selectionIdentifiers, graph.models);
+      removeFromSemanticModelsAction(notifications, graph, models.map(model => model?.getId()).filter(id => id !== undefined), selectionIdentifiers);
     },
   };
 
@@ -646,10 +646,9 @@ function createActionsContext(
     addRelationProfileToVisualModel,
     removeFromVisualModel,
     //
-    deleteFromSemanticModel,
+    deleteFromSemanticModels,
     centerViewportToVisualEntity,
 
-    deleteSelectionFromSemanticModel,
     createNewVisualModelFromSelection,
     addEntitiesFromSemanticModelToVisualModel,
     addClassNeighborhoodToVisualModel,
