@@ -1,12 +1,15 @@
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 
-export const addClassNeighborhoodToVisualModelAction = (
-    graph: ModelGraphContextType,
+/**
+ * Adds entities from given semantic model identified by {@link semanticModelIdentifier} to currently active visual model.
+ */
+export const addEntitiesFromSemanticModelToVisualModelAction = (
     notifications: UseNotificationServiceWriterType,
-    identifier: string
+    graph: ModelGraphContextType,
+    semanticModelIdentifier: string
 ): void => {
     // TODO RadStr: Get the selection through the systematic selection feature and use addSemanticEntitiesToVisualModelAction for the actual addition
-    const nodeNeighborhoodOfClassIdentifiers: string[] = [];
-    const edgeNeighborhoodofClassIndetifiers: string[] = [];
+    const semanticModelNodeIdentifiers: string[] = [];
+    const semanticModelEdgeIdentifiers: string[] = [];
 };

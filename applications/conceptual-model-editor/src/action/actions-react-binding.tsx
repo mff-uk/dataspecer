@@ -31,16 +31,13 @@ import { removeFromVisualModelAction } from "./remove-from-visual-model";
 import { removeFromSemanticModelAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
 import { openCreateAssociationDialogAction } from "./open-create-association-dialog";
-import { changeSelectionVisibilityAction } from "./change-selection-visibility";
 import { removeSelectionFromSemanticModelAction } from "./remove-selection-from-semantic-model";
-import { changeSemanticModelVisibilityAction } from "./change-semantic-model-visibility";
+import { addEntitiesFromSemanticModelToVisualModelAction } from "./add-entities-from-semantic-model-to-visual-model";
 import { createNewVisualModelFromSelectionAction } from "./create-new-visual-model-from-selection";
 import { addClassNeighborhoodToVisualModelAction } from "./add-class-neighborhood-to-visual-model";
-import { profileSelectionAction } from "./create-profile-of-selection";
-import { filterInMemoryModels } from "../util/model-utils";
-import { placePositionOnGrid } from "@dataspecer/layout";
-import { addSemanticEntityToVisualModelAction } from "./add-semantic-entity-to-visual-model-action";
+import { createDefaultProfilesAction } from "./create-default-profiles";
 import { openCreateClassDialogWithModelDerivedFromClassAction } from "./open-create-class-dialog-with-derived-model";
+import { addSemanticEntitiesToVisualModelAction, EntityToAddToVisualModel } from "./add-semantic-entities-to-visual-model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -101,13 +98,12 @@ interface VisualModelActions {
 //                  So should the actual documentation look like: For further information about the action see {@link ...Action} method.
 //                  Can be seen on the centerViewportToVisualEntity method, where the Action method is already documented
 
+
   /**
-   * Adds semantic entity identified by {@link identifier} to currently active visual model at given {@link position}.
-   * @param identifier identifies the semantic entity to be added to visual model.
-   * @param position is the position to put the newly created visual entity at.
-   * If the position is null or undefined (TODO: RadStr) then default placement is chosen based on given entity.
+   * Adds semantic entities identified by identifier to currently active visual model at optional position.
+   * @param entities are the semantic entities to be added to visual model. For further info check the docs of {@link EntityToAddToVisualModel}
    */
-  addSemanticEntityToVisualModel: (identifier: string, position?: { x: number, y: number } | null) => void;
+  addSemanticEntitiesToVisualModel: (entities: EntityToAddToVisualModel[]) => void;
 
   /**
    * Adds semantic class identified by {@link identifier} to currently active visual model at given {@link position}.
@@ -158,8 +154,6 @@ interface VisualModelActions {
 
   //
   // TODO RadStr: Document after rewrite
-  changeSelectionVisibility: (nodeIdentifiers: string[], edgeIdentifiers: string[], visibility: boolean) => void;
-  // TODO RadStr: Document after rewrite
   deleteSelectionFromSemanticModel: (nodeSelection: string[], edgeSelection: string[]) => void;
   //
   // TODO RadStr: We will see what will this do, maybe will be openDialog instead, where we provide options as mentioned in code review by PeSk:
@@ -171,10 +165,10 @@ interface VisualModelActions {
 
   //
   // TODO RadStr: Document after rewrite
-  changeSemanticModelVisibility: (semanticModelIdentifier: string, visibility: boolean) => void;
+  addEntitiesFromSemanticModelToVisualModel: (semanticModelIdentifier: string) => void;
 
   /**
-   * Puts class's neighborhood to visual model. That is classes connected to semantic class or class profile identified by {@link classIdentifier}.
+   * Puts class' neighborhood to visual model. That is classes connected to semantic class or class profile identified by {@link classIdentifier}.
    * @param identifier is the identifier of the semantic class or class profile, whose neighborhood we will add to visual model.
    */
   addClassNeighborhoodToVisualModel: (identifier: string) => void;
@@ -211,7 +205,7 @@ const noOperationActionsContext = {
   openCreateAttributeDialog: noOperation,
   openCreateProfileDialog: noOperation,
   //
-  addSemanticEntityToVisualModel: noOperation,
+  addSemanticEntitiesToVisualModel: noOperation,
   addClassToVisualModel: noOperation,
   addClassProfileToVisualModel: noOperation,
   addGeneralizationToVisualModel: noOperation,
@@ -222,14 +216,13 @@ const noOperationActionsContext = {
   removeFromVisualModel: noOperation,
   centerViewportToVisualEntity: noOperation,
   //
-  changeSelectionVisibility: noOperation,
   deleteSelectionFromSemanticModel: noOperation,
 
   //
   createNewVisualModelFromSelection: noOperation,
 
   //
-  changeSemanticModelVisibility: noOperation,
+  addEntitiesFromSemanticModelToVisualModel: noOperation,
   addClassNeighborhoodToVisualModel: noOperation,
   diagram: null,
 };
@@ -465,10 +458,10 @@ function createActionsContext(
 
   // Visual model actions.
 
-  const addSemanticEntityToVisualModel = (identifier: string, position?: { x: number, y: number } | null): void => {
+  const addSemanticEntitiesToVisualModel = (entities: EntityToAddToVisualModel[]): void => {
     withVisualModel(notifications, graph, (visualModel) => {
-      addSemanticEntityToVisualModelAction(
-        notifications, graph, visualModel, diagram, identifier, position ?? null);
+      addSemanticEntitiesToVisualModelAction(
+        notifications, graph, visualModel, diagram, entities);
     });
   };
 
@@ -527,16 +520,12 @@ function createActionsContext(
     centerViewportToVisualEntityAction(notifications, graph, diagram, model, identifier);
   };
 
-  const changeSelectionVisibility = (nodeIdentifiers: string[], edgeIdentifiers: string[], visibility: boolean) => {
-    changeSelectionVisibilityAction(notifications, graph, visibility, nodeIdentifiers, edgeIdentifiers);
-  };
-
   const deleteSelectionFromSemanticModel = (nodeSelection: string[], edgeSelection: string[]) => {
     removeSelectionFromSemanticModelAction(notifications, graph, nodeSelection, edgeSelection);
   };
 
-  const changeSemanticModelVisibility = (semanticModelIdentifier: string, visibility: boolean) => {
-    changeSemanticModelVisibilityAction(notifications, graph, visibility, semanticModelIdentifier);
+  const addEntitiesFromSemanticModelToVisualModel = (semanticModelIdentifier: string) => {
+    addEntitiesFromSemanticModelToVisualModelAction(notifications, graph, semanticModelIdentifier);
   };
 
   const addClassNeighborhoodToVisualModel = (identifier: string) => {
@@ -623,7 +612,7 @@ function createActionsContext(
     onProfileSelection: () => {
       const {nodeSelection, edgeSelection} = getSelections(diagram, true, false);
       withVisualModel(notifications, graph, (visualModel) => {
-        profileSelectionAction(notifications, graph, diagram, options, classes, visualModel, nodeSelection, edgeSelection);
+        createDefaultProfilesAction(notifications, graph, diagram, options, classes, visualModel, nodeSelection, edgeSelection, true);
       });
     },
     onHideSelection: () => {
@@ -649,7 +638,7 @@ function createActionsContext(
     openCreateAttributeDialog,
     openCreateProfileDialog,
     //
-    addSemanticEntityToVisualModel,
+    addSemanticEntitiesToVisualModel,
     addClassToVisualModel,
     addClassProfileToVisualModel,
     addGeneralizationToVisualModel,
@@ -660,10 +649,9 @@ function createActionsContext(
     deleteFromSemanticModel,
     centerViewportToVisualEntity,
 
-    changeSelectionVisibility,
     deleteSelectionFromSemanticModel,
     createNewVisualModelFromSelection,
-    changeSemanticModelVisibility,
+    addEntitiesFromSemanticModelToVisualModel,
     addClassNeighborhoodToVisualModel,
 
     diagram,
