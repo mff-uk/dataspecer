@@ -117,7 +117,7 @@ function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   const onCreateProfile = () => context?.callbacks().onCreateNodeProfile(props.data);
   const onHide = () => context?.callbacks().onHideNode(props.data);
   const onDelete = () => context?.callbacks().onDeleteNode(props.data);
-  const onAnchor = () => context?.callbacks().onAnchorNode(props.data);
+  const onAnchor = () => context?.callbacks().onToggleAnchorForNode(props.data);
 
   return (
     <>

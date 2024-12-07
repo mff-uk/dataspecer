@@ -40,6 +40,7 @@ import { profileSelectionAction } from "./create-profile-of-selection";
 import { filterInMemoryModels } from "../util/model-utils";
 import { placePositionOnGrid } from "@dataspecer/layout";
 import { addSemanticEntityToVisualModelAction } from "./add-semantic-entity-to-visual-model-action";
+import { openCreateClassDialogWithModelDerivedFromClassAction } from "./open-create-class-dialog-with-derived-model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -590,7 +591,7 @@ function createActionsContext(
     onSelectionDidChange: (nodes, edges) => {
       console.log("Application.onSelectionDidChange", { nodes, edges });
     },
-    onAnchorNode: (diagramNode) => {
+    onToggleAnchorForNode: (diagramNode) => {
       // TODO RadStr: - Functionality of toggling node anchor on/off is currently unavailable
     },
     onShowSelectionActions: (source, canvasPosition) => {
@@ -610,71 +611,30 @@ function createActionsContext(
       // TODO RadStr: currently does nothing (In future - Showing filter dialog)
     },
     onCanvasOpenCreateClassDialog: (sourceClassNode, positionToPlaceClassOn) => {
-      diagram.actions().closeCanvasToolbar();
-      // TODO RadStr: Maybe all of this should be in action - openCreateClassDialogWithModelDerivedFromClassAction
-
-      let model = findSourceModelOfEntity(sourceClassNode.externalIdentifier, graph.models);
-      if (model === null || !(model instanceof InMemorySemanticModel)) {
-        // Take the first model in memory model
-        model = filterInMemoryModels([...graph.models.values()])?.[0] ?? null;
-      }
-
-      if (model === null) {
-        notifications.error("Can't find InMemorySemanticModel to put the association in");
-        return;
-      }
-
-      placePositionOnGrid(positionToPlaceClassOn, configuration().xSnapGrid, configuration().ySnapGrid);
-
-      // TODO RadStr: The way of creating dialogs changed
-
-      // const onConfirm = (state: CreateClassDialogState) => {
-      //   createClassAction(notifications, graph, model as InMemorySemanticModel, positionToPlaceClassOn, state);
-      //   // If (Only If!) we want to add in the option to open CreateConnection dialog right after then we need 2 things:
-      //   //            1) Get the result of createClassAction. There are 2 ways to do this.
-      //   //                    a) Wait for dialog to finish here, but we also need to get the result and the "classes" variable is not updated, so we would have to get result somehow
-      //   //                    b) Pass in callback
-      //   //            2) Currently when we open new dialog here it is not opened - The issue is because when the current dialog (so CreateEditClass) is closed it also closes
-      //   //               all the following which are to be put in the stack - the problem is that we are not using the old state but just setting the new one
-      // };
-
-      // dialogs?.openDialog(createEditClassDialog(model, options.language, onConfirm));
-
       withVisualModel(notifications, graph, (visualModel) => {
-        openCreateClassDialogAction(options, dialogs, classes, graph, notifications, visualModel, diagram, model as InMemorySemanticModel, positionToPlaceClassOn);
+        openCreateClassDialogWithModelDerivedFromClassAction(notifications, graph, dialogs, classes, options, diagram, visualModel, sourceClassNode, positionToPlaceClassOn);
       });
     },
     onCreateNewViewFromSelection: () => {
-      const {nodeSelection, edgeSelection} = getSelections(diagram);
+      const {nodeSelection, edgeSelection} = getSelections(diagram, true, false);
       alert("The view functionality currently doesn't work");
       createNewVisualModelFromSelection(nodeSelection.concat(edgeSelection));
-      diagram.actions().closeCanvasToolbar();
     },
     onProfileSelection: () => {
-      let {nodeSelection, edgeSelection} = getSelections(diagram);
+      const {nodeSelection, edgeSelection} = getSelections(diagram, true, false);
       withVisualModel(notifications, graph, (visualModel) => {
-        edgeSelection = filterOutProfileClassEdges(edgeSelection, visualModel);
         profileSelectionAction(notifications, graph, diagram, options, classes, visualModel, nodeSelection, edgeSelection);
       });
-      diagram.actions().closeCanvasToolbar();
     },
     onHideSelection: () => {
-      let {nodeSelection, edgeSelection} = getSelections(diagram);
-      withVisualModel(notifications, graph, (visualModel) => {
-        edgeSelection = filterOutProfileClassEdges(edgeSelection, visualModel);
-      });
+      const {nodeSelection, edgeSelection} = getSelections(diagram, true, false);
       console.info("Hiding selection from view: ", {nodeSelection, edgeSelection});
       removeFromVisualModel(nodeSelection.concat(edgeSelection));
-      diagram.actions().closeCanvasToolbar();
     },
     onDeleteSelection: () => {
-      let {nodeSelection, edgeSelection} = getSelections(diagram);
-      withVisualModel(notifications, graph, (visualModel) => {
-        edgeSelection = filterOutProfileClassEdges(edgeSelection, visualModel);
-      });
+      const {nodeSelection, edgeSelection} = getSelections(diagram, true, false);
       console.info("Removing selection from semantic model: ", {nodeSelection, edgeSelection});
       removeSelectionFromSemanticModelAction(notifications, graph, nodeSelection, edgeSelection);
-      diagram.actions().closeCanvasToolbar();
     },
   };
 

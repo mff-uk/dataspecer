@@ -54,8 +54,6 @@ type OpenEdgeContextMenuHandler = (edge: EdgeType, x: number, y: number) => void
 
 type OpenCanvasContextMenuHandler = (sourceClassNode: ApiNode, abosluteFlowPosition: Position, toolbarType: CanvasToolbarTypes) => void;
 
-export type OpenedCanvasToolbar = CanvasToolbarTypes | null;
-
 /**
  * We use context to access to callbacks to diagram content, like nodes and edges.
  */
@@ -70,7 +68,12 @@ interface DiagramContextType {
   /**
    * Stored in context because the idea is to allow max one opened canvas toolbar
    */
-  openedCanvasToolbar: OpenedCanvasToolbar;
+  openedCanvasToolbar: CanvasToolbarTypes | null;
+
+  /**
+   * Close any opened canvas toolbar, if none was open, then doesn't do anything.
+   */
+  closeCanvasToolbar(): void;
 
   getLastSelected: () => string | null;
 
@@ -157,15 +160,15 @@ function useCreateDiagramControllerActionsAndContextIndependent(
   reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
   createdReactStates: ReturnType<typeof useCreateReactStates>,
 ) {
-  const { setNodes, setEdges, setEdgeToolbar, setCanvasToolbar, setSelectedNodes, setSelectedEdges } = createdReactStates;
+  const { setNodes, setEdges, setEdgeToolbar, setCanvasToolbar, selectedNodes, setSelectedNodes, setSelectedEdges } = createdReactStates;
 
   const alignmentController = useAlignmentController({ reactFlowInstance: reactFlowInstance });
 
   // The initialized is set to false when new node is added and back to true once the size is determined.
   // const reactFlowInitialized = useNodesInitialized();
 
-  const onChangeSelection = useCallback(createChangeSelectionHandler(setSelectedNodes, setSelectedEdges),
-    [setSelectedNodes, setSelectedEdges]);
+  const onChangeSelection = useCallback(createChangeSelectionHandler(selectedNodes, setSelectedNodes, setSelectedEdges),
+    [selectedNodes, setSelectedNodes, setSelectedEdges]);
 
   useOnSelectionChange({ onChange: (onChangeSelection) });
 
@@ -222,8 +225,10 @@ function useCreateDiagramControllerActionsAndContextDependent(
   const { setNodes, setEdges, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges } = createdReactStates;
   const { onOpenEdgeToolbar, onOpenCanvasToolbar, alignmentController } = createdPartOfDiagramController;
 
-  const context = useMemo(() => createDiagramContext(api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar?.toolbarType ?? null, selectedNodes, selectedEdges),
-    [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, selectedNodes, selectedEdges]);
+  const context = useMemo(() => createDiagramContext(
+    api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar?.toolbarType ?? null, setCanvasToolbar, selectedNodes, selectedEdges),
+    [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges]
+  );
 
   const actions = useMemo(() => createActions(reactFlowInstance, setNodes, setEdges, alignmentController, context, setCanvasToolbar),
     [reactFlowInstance, setNodes, setEdges, alignmentController, context, setCanvasToolbar]);
@@ -231,7 +236,7 @@ function useCreateDiagramControllerActionsAndContextDependent(
   // Register actions to API.
   useEffect(() => api.setActions(actions), [api, actions]);
 
-  const onPaneClick = useCallback(actions.closeCanvasToolbar, [actions.closeCanvasToolbar]);
+  const onPaneClick = useCallback(context.closeCanvasToolbar, [context.closeCanvasToolbar]);
 
   return {
     context,
@@ -298,8 +303,9 @@ const createOnNodeDragStopHandler = (
 };
 
 const createChangeSelectionHandler = (
-  setSelectedNodes: React.Dispatch<React.SetStateAction<string[]>>,
-  setSelectedEdges: React.Dispatch<React.SetStateAction<string[]>>
+  previouslySelectedNodes: string[],
+  setSelectedNodes: (newNodeSelection: string[]) => void,
+  setSelectedEdges: (newEdgeSelection: string[]) => void,
 ) => {
   return ({nodes, edges}: OnSelectionChangeParams) => {
     // We can react on change events here.
@@ -312,22 +318,20 @@ const createChangeSelectionHandler = (
     // The solution of choice was to draw an inspiration from NodeToolbar
     // and watch for edge selection in EdgeToolbar.
 
-    setSelectedNodes(prevSelectedNodes => {
-      const newSelectedNodes = nodes.map((node) => node.id);
-      let insertPosition = 0;
-      for(let i = 0; i < prevSelectedNodes.length; i++) {
-        const indexInNewArray = newSelectedNodes.findIndex(node => node === prevSelectedNodes[i]);
-        const alreadyExistedInSelection = indexInNewArray >= 0;
-        if(alreadyExistedInSelection) {
-          newSelectedNodes.splice(indexInNewArray, 1);
-          newSelectedNodes.splice(insertPosition, 0, prevSelectedNodes[i]);
-          insertPosition++;
-        }
+    const newSelectedNodes = nodes.map((node) => node.id);
+    let insertPosition = 0;
+    for(let i = 0; i < previouslySelectedNodes.length; i++) {
+      const indexInNewArray = newSelectedNodes.findIndex(node => node === previouslySelectedNodes[i]);
+      const alreadyExistedInSelection = indexInNewArray >= 0;
+      if(alreadyExistedInSelection) {
+        newSelectedNodes.splice(indexInNewArray, 1);
+        newSelectedNodes.splice(insertPosition, 0, previouslySelectedNodes[i]);
+        insertPosition++;
       }
+    }
 
-      setSelectedEdges(edges.map(edge => edge.id));
-      return newSelectedNodes;
-    });
+    setSelectedEdges(edges.map(edge => edge.id));
+    setSelectedNodes(newSelectedNodes)
   };
 };
 
@@ -437,7 +441,7 @@ const createDropHandler = (reactFlow: ReactFlowInstance<NodeType, EdgeType>): Re
   };
 };
 
-const createOpenEdgeToolbarHandler = (setEdgeToolbar: React.Dispatch<React.SetStateAction<EdgeToolbarProps | null>>): OpenEdgeContextMenuHandler => {
+const createOpenEdgeToolbarHandler = (setEdgeToolbar: (edgeToolbarProps: EdgeToolbarProps | null) => void): OpenEdgeContextMenuHandler => {
   return (edge: EdgeType, x: number, y: number) => {
     const edgeType = edge.data?.type;
     if (edgeType !== undefined) {
@@ -448,7 +452,7 @@ const createOpenEdgeToolbarHandler = (setEdgeToolbar: React.Dispatch<React.SetSt
   };
 };
 
-const createOpenCanvasToolbarHandler = (setCanvasToolbar: React.Dispatch<React.SetStateAction<CanvasToolbarGeneralProps | null>>): OpenCanvasContextMenuHandler => {
+const createOpenCanvasToolbarHandler = (setCanvasToolbar: (canvasToolbarProps: CanvasToolbarGeneralProps | null) => void): OpenCanvasContextMenuHandler => {
   return (sourceClassNode: ApiNode, abosluteFlowPosition: Position, toolbarType: CanvasToolbarTypes) => {
     const sourceNodeIdentifier = sourceClassNode.identifier;
     setCanvasToolbar({ sourceNodeIdentifier, abosluteFlowPosition, toolbarType });
@@ -592,10 +596,6 @@ const createActions = (
       console.log("openCanvasToolbar", {sourceClassNode, abosluteFlowPosition});
       context?.onOpenCanvasContextMenu(sourceClassNode, abosluteFlowPosition, toolbarType);
     },
-    closeCanvasToolbar() {
-      console.log("closeCanvasToolbar");
-      setCanvasToolbar(null);
-    },
   };
 };
 
@@ -681,7 +681,8 @@ const createDiagramContext = (
   api: UseDiagramType,
   onOpenEdgeContextMenu: OpenEdgeContextMenuHandler,
   onOpenCanvasContextMenu: OpenCanvasContextMenuHandler,
-  openedCanvasToolbar: OpenedCanvasToolbar,
+  openedCanvasToolbar: CanvasToolbarTypes | null,
+  setCanvasToolbar: (_: null) => void,
   selectedNodes: string[],
   selectedEdges: string[]
 ): DiagramContextType => {
@@ -691,12 +692,14 @@ const createDiagramContext = (
   const shouldShowSelectionToolbar = () => {
     return selectedNodes.length > 1 || (selectedNodes.length === 1 && selectedEdges.length > 0);
   };
+  const closeCanvasToolbar = () => setCanvasToolbar(null);
 
   return {
     callbacks: api.callbacks,
     onOpenEdgeContextMenu,
     onOpenCanvasContextMenu,
     openedCanvasToolbar,
+    closeCanvasToolbar,
     getLastSelected,
     shouldShowSelectionToolbar,
   };

@@ -15,10 +15,11 @@ import { NodeSelectionActionsSecondaryToolbar } from "../node/node-secondary-too
  * extracted the menu into a separate component.
  */
 export function CanvasToolbarGeneral({ value }: { value: CanvasToolbarGeneralProps | null }) {
-  const { x, y, zoom } = useStore(viewportStoreSelector, shallow);
   if (value === null) {
     return null;
   }
+
+  const { x, y, zoom } = useStore(viewportStoreSelector, shallow);
 
   const position = computePosition(value.abosluteFlowPosition.x, value.abosluteFlowPosition.y, { x, y, zoom });
 

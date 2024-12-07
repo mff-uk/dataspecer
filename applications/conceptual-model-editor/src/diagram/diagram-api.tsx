@@ -72,15 +72,33 @@ export interface DiagramActions {
 
   // Edges
 
-  // TODO RadStr: Same as nodes, so just copy after feedback to the node documentation.
+  /**
+   * @returns The Edges registered inside diagram.
+   */
   getEdges(): Edge[];
 
+  /**
+   * Adds given {@link edges} to the diagram.
+   * @param edges is the list of edges to be added to the diagram.
+   */
   addEdges(edges: Edge[]): void;
 
+  /**
+   * Updates diagram's edges matching the given ones.
+   * @param edges are the updated versions of the matching edges.
+   */
   updateEdges(edges: Edge[]): void;
 
+  /**
+   * Sets edges' waypoints.
+   * @param positions is the map of the edges together with new waypoints for them.
+   */
   setEdgesWaypointPosition(positions: { [identifier: string]: Position[] }): void;
 
+  /**
+   * Removes edges whose identifiers match the given ones.
+   * @param identifiers are identifiers of the to be removed edges.
+   */
   removeEdges(identifiers: string[]): void;
 
   // Selection
@@ -142,16 +160,13 @@ export interface DiagramActions {
    */
   renderToSvgString(): Promise<string | null>;
 
+  // TODO RadStr: maybe just keep opening through context before we call the on... handler and don't expose through API?, similiarly to the closeCanvasToolbar,
+  //              .... Wait for it a bit after I add more canvas toolbars
   /**
    * Open the canvas toolbar. The type of toolbar is decided by {@link toolbarType} argument.
    * @param toolbarType For example drag edge variant opens the toolbar, which appears when user drags edge to empty space on canvas.
    */
   openCanvasToolbar(sourceClassDiagramNode: Node, absoluteFlowPosition: Position, toolbarType: CanvasToolbarTypes): void;
-
-  /**
-   * Close any opened canvas toolbar, if none was open, then doesn't do anything.
-   */
-  closeCanvasToolbar(): void;
 }
 
 export type ViewportDimensions = {
@@ -330,37 +345,37 @@ export type Waypoint = {
 interface DiagramNodes {
 
   /**
- * This property stores the method, which is called when user opens node's detail.
- * @param identifier is the identifier of the node for which the detail was shown.
- */
+   * Called when user opens node's detail.
+   * @param identifier is the identifier of the node for which the detail was shown.
+   */
   onShowNodeDetail: (diagramNode: Node) => void;
 
   /**
-   * This property stores the method, which is called when user starts editing node.
+   * Called when user starts editing node.
    * @param identifier is the identifier of the node which is being edited.
    */
   onEditNode: (diagramNode: Node) => void;
 
   /**
-   * This property stores the method, which is called when user starts creating node's profile.
+   * Called when user starts creating node's profile.
    * @param identifier is the identifier of the node of which the profile is being created.
    */
   onCreateNodeProfile: (diagramNode: Node) => void;
 
   /**
-   * This property stores the method, which is called when user hides node, i. e. removes it from canvas.
+   * Called when user hides node, i. e. removes it from canvas.
    * @param identifier is the identifier of the node, which is newly hidden.
    */
   onHideNode: (diagramNode: Node) => void;
 
   /**
-   * This property stores the method, which is called when user deletes node.
+   * Called when user deletes node.
    * @param identifier is the identifier of the deleted node.
    */
   onDeleteNode: (diagramNode: Node) => void;
 
   /**
-   * This property stores the method, which is called when user tries to create new class from diagram's canvas menu (toolbar).
+   * Called when user choses to create new class from diagram's canvas menu (toolbar).
    */
   onCanvasOpenCreateClassDialog: (diagramNode: Node, abosluteFlowPosition: Position) => void;
 
@@ -375,7 +390,7 @@ interface DiagramNodes {
    * (Un)Anchors given node {@link diagramNode}
    * @param diagramNode is the node to be (un)anchored
    */
-  onAnchorNode: (diagramNode: Node) => void;
+  onToggleAnchorForNode: (diagramNode: Node) => void;
 
 }
 

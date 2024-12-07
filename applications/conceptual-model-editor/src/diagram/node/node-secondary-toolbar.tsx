@@ -10,10 +10,22 @@ export function NodeSelectionActionsSecondaryToolbar({ value }: { value: CanvasT
     }
 
     const context = useContext(DiagramContext);
-    const onCreateNewView = () => context?.callbacks().onCreateNewViewFromSelection();
-    const onProfileSelection = () => context?.callbacks().onProfileSelection();
-    const onHideSelection = () => context?.callbacks().onHideSelection();
-    const onRemoveSelection = () => context?.callbacks().onDeleteSelection();
+    const onCreateNewView = () => {
+        context?.closeCanvasToolbar();
+        context?.callbacks().onCreateNewViewFromSelection();
+    };
+    const onProfileSelection = () => {
+        context?.closeCanvasToolbar();
+        context?.callbacks().onProfileSelection();
+    };
+    const onHideSelection = () => {
+        context?.closeCanvasToolbar();
+        context?.callbacks().onHideSelection();
+    };
+    const onRemoveSelection = () => {
+        context?.closeCanvasToolbar();
+        context?.callbacks().onDeleteSelection();
+    };
 
     return (<>
         <ul className="node-secondary-toolbar">

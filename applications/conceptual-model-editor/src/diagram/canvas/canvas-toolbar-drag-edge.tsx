@@ -19,6 +19,7 @@ export function CanvasToolbarCreatedByEdgeDrag({ value }: { value: CanvasToolbar
   }
 
   const onCanvasMenuAddClassDialog = () => {
+    context?.closeCanvasToolbar();
     const node = reactFlow.getNode(value.sourceNodeIdentifier);
     if(node !== undefined) {
       context?.callbacks().onCanvasOpenCreateClassDialog(node.data, value.abosluteFlowPosition);

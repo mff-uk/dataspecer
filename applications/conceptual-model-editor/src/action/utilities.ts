@@ -6,6 +6,7 @@ import { UseDiagramType } from "../diagram/diagram-hook";
 import { configuration, createLogger } from "../application";
 import { placePositionOnGrid, ReactflowDimensionsConstantEstimator } from "@dataspecer/layout";
 import { isVisualRelationship, VisualModel } from "@dataspecer/core-v2/visual-model";
+import { Edge, EdgeType, Node } from "../diagram";
 
 const LOG = createLogger(import.meta.url);
 
@@ -64,10 +65,29 @@ type Selections = {
   edgeSelection: string[],
 }
 
-export function getSelections(diagram: UseDiagramType): Selections {
-  const nodeSelection = diagram.actions().getSelectedNodes().map(node => node.externalIdentifier);
-  const edgeSelection = diagram.actions().getSelectedEdges().map(edge => edge.externalIdentifier);
-  return {nodeSelection, edgeSelection};
+export function getSelections(diagram: UseDiagramType, shouldFilterOutProfileClassEdges: boolean, shouldGetVisualIdentifiers: boolean): Selections {
+  let nodeSelection = diagram.actions().getSelectedNodes();
+  let edgeSelection = diagram.actions().getSelectedEdges();
+
+  if(shouldFilterOutProfileClassEdges) {
+    edgeSelection = edgeSelection.filter(edge => edge.type !== EdgeType.ClassProfile);
+  }
+
+  return {
+    nodeSelection: extractIdentifiers(nodeSelection, shouldGetVisualIdentifiers),
+    edgeSelection: extractIdentifiers(edgeSelection, shouldGetVisualIdentifiers)
+  };
+}
+
+function getMapFunctionToExtractIdentifier(shouldGetVisualIdentifiers: boolean) {
+  return shouldGetVisualIdentifiers ?
+    ((entity: Node | Edge) => entity.identifier) :
+    ((entity: Node | Edge) => entity.externalIdentifier);
+}
+
+export function extractIdentifiers(arrayToExtractFrom: Node[] | Edge[], shouldGetVisualIdentifiers: boolean) {
+  const identifierMap = getMapFunctionToExtractIdentifier(shouldGetVisualIdentifiers);
+  return arrayToExtractFrom.map(identifierMap);
 }
 
 
