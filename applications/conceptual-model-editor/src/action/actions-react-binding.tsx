@@ -31,7 +31,7 @@ import { isVisualNode, isVisualProfileRelationship, isVisualRelationship, isWrit
 import { openCreateConnectionDialogAction } from "./open-create-connection";
 import { LayoutedVisualEntities, placePositionOnGrid, ReactflowDimensionsConstantEstimator, UserGivenConstraintsVersion4 } from "@dataspecer/layout";
 import { findPositionForNewNodeUsingLayouting, layoutActiveVisualModelAction } from "./layout-visual-model";
-import { toggleAnchorAction } from "./change-anchor";
+import { toggleAnchorAction } from "./toggle-anchor";
 
 export interface ActionsContextType {
 
