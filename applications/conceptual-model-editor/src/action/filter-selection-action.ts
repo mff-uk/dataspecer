@@ -17,11 +17,15 @@ export type SelectionFilter = "PROFILE-CLASS" | "NORMAL-CLASS" | "RELATIONSHIP-P
  * and into {@link filteredEdgeSelection} the edges from {@link edgeSelection} passing filter.
  * Note that filter is usually either for nodes or for edges. So usually either {@link filteredNodeSelection} or {@link filteredEdgeSelection} is kept unchanged.
  */
-type SelectionFilterMethod = (nodeSelection: string[], areVisualModelIdentifiers: boolean,
-                            filteredNodeSelection: string[],
-                            edgeSelection: string[], filteredEdgeSelection: string[],
-                            contextEntities: ClassesContextEntities,
-                            visualModel: VisualModel | null) => void;
+type SelectionFilterMethod = (
+    nodeSelection: string[],
+    areVisualModelIdentifiers: boolean,
+    filteredNodeSelection: string[],
+    edgeSelection: string[],
+    filteredEdgeSelection: string[],
+    contextEntities: ClassesContextEntities,
+    visualModel: VisualModel | null
+) => void;
 
 export type Selections = {
     nodeSelection: string[],
@@ -37,13 +41,15 @@ export type SelectionsWithIdInfo = Selections & {areVisualModelIdentifiers: bool
  *
  * @returns Filtered nodeSelection and edgeSelection stored inside {@link selections} based on {@link filters} and {@link visibilityFilter} and {@link semanticModelFilter}
  */
-export function filterSelectionAction(selections: SelectionsWithIdInfo,
-                                            filters: SelectionFilter[],
-                                            visibilityFilter: VisibilityFilter,
-                                            semanticModelFilter: Record<string, boolean> | null,
-                                            graph: ModelGraphContextType,
-                                            notifications: UseNotificationServiceWriterType,
-                                            classesContext: ClassesContextType | null): Selections {
+export function filterSelectionAction(
+    notifications: UseNotificationServiceWriterType,
+    graph: ModelGraphContextType,
+    classesContext: ClassesContextType | null,
+    selections: SelectionsWithIdInfo,
+    filters: SelectionFilter[],
+    visibilityFilter: VisibilityFilter,
+    semanticModelFilter: Record<string, boolean> | null,
+): Selections {
     if(classesContext === null) {
         notifications.error("Classes context is null, can't filter the selection");
         return {
@@ -104,9 +110,12 @@ export function filterSelectionAction(selections: SelectionsWithIdInfo,
  * @returns The {@link selectionToFilter} after the filtering, concatenated with the {@link selectionToBaseOutputOn}, but that selection itself isn't changed.
  * The returned array is new instance without duplicates.
  */
-function filterBasedOnAllowedSemanticModels(selectionToFilter: string[], selectionToBaseOutputOn: string[],
-                                            allowedSemanticModels: Record<string, boolean>,
-                                            semanticModels: Map<string, EntityModel>): string[] {
+function filterBasedOnAllowedSemanticModels(
+    selectionToFilter: string[],
+    selectionToBaseOutputOn: string[],
+    allowedSemanticModels: Record<string, boolean>,
+    semanticModels: Map<string, EntityModel>
+): string[] {
     const consideredModels: EntityModel[] = [];
     const notConsideredModels: EntityModel[] = [];
     Object.entries(allowedSemanticModels).forEach(([modelId, isConsidered]) => {
@@ -137,8 +146,12 @@ function filterBasedOnAllowedSemanticModels(selectionToFilter: string[], selecti
 /**
  * @returns Returns identifiers from {@link identifiersToFilter} matching the {@link visibilityFilter}.
  */
-function filterBasedOnVisibility(identifiersToFilter: string[], areIdentifiersFromVisualModel: boolean,
-                                    visibilityFilter: VisibilityFilter, visualModel: VisualModel | null): string[] {
+function filterBasedOnVisibility(
+    identifiersToFilter: string[],
+    areIdentifiersFromVisualModel: boolean,
+    visibilityFilter: VisibilityFilter,
+    visualModel: VisualModel | null
+): string[] {
     const filteredArray: string[] = identifiersToFilter.filter(entity => {
         if(visibilityFilter === "ALL") {
             return true;
@@ -173,13 +186,15 @@ const FILTER_NAME_TO_FILTER_METHOD_MAP: Record<SelectionFilter, SelectionFilterM
 };
 
 
-function classFilter(nodeSelection: string[],
-                        areVisualModelIdentifiers: boolean,
-                        filteredNodeSelection: string[],
-                        edgeSelection: string[],
-                        filteredEdgeSelection: string[],
-                        contextEntities: ClassesContextEntities,
-                        visualModel: VisualModel | null): void {
+function classFilter(
+    nodeSelection: string[],
+    areVisualModelIdentifiers: boolean,
+    filteredNodeSelection: string[],
+    edgeSelection: string[],
+    filteredEdgeSelection: string[],
+    contextEntities: ClassesContextEntities,
+    visualModel: VisualModel | null
+): void {
     nodeSelection.map(selectedClassId => {
         const selectedClassSemanticId = getSemanticClassIdentifier(selectedClassId, areVisualModelIdentifiers, visualModel);
         if(contextEntities.classes.findIndex(cclass => cclass.id === selectedClassSemanticId) >= 0) {
@@ -188,13 +203,15 @@ function classFilter(nodeSelection: string[],
     });
 }
 
-function profileClassFilter(nodeSelection: string[],
-                            areVisualModelIdentifiers: boolean,
-                            filteredNodeSelection: string[],
-                            edgeSelection: string[],
-                            filteredEdgeSelection: string[],
-                            contextEntities: ClassesContextEntities,
-                            visualModel: VisualModel | null): void {
+function profileClassFilter(
+    nodeSelection: string[],
+    areVisualModelIdentifiers: boolean,
+    filteredNodeSelection: string[],
+    edgeSelection: string[],
+    filteredEdgeSelection: string[],
+    contextEntities: ClassesContextEntities,
+    visualModel: VisualModel | null
+): void {
     nodeSelection.map(selectedClassId => {
         const selectedClassSemanticId = getSemanticClassIdentifier(selectedClassId, areVisualModelIdentifiers, visualModel);
         if(contextEntities.profiles.findIndex(profile => profile.id === selectedClassSemanticId) >= 0) {
@@ -211,13 +228,15 @@ function profileClassFilter(nodeSelection: string[],
     });
 }
 
-function normalEdgeFilter(nodeSelection: string[],
-                            areVisualModelIdentifiers: boolean,
-                            filteredNodeSelection: string[],
-                            edgeSelection: string[],
-                            filteredEdgeSelection: string[],
-                            contextEntities: ClassesContextEntities,
-                            visualModel: VisualModel | null): void {
+function normalEdgeFilter(
+    nodeSelection: string[],
+    areVisualModelIdentifiers: boolean,
+    filteredNodeSelection: string[],
+    edgeSelection: string[],
+    filteredEdgeSelection: string[],
+    contextEntities: ClassesContextEntities,
+    visualModel: VisualModel | null
+): void {
     edgeSelection.map(selectedEdgeId => {
         const selectedEdgeSemanticId = getSemanticEdgeIdentifier(selectedEdgeId, areVisualModelIdentifiers, visualModel);
         if(contextEntities.relationships.findIndex(relationship => relationship.id === selectedEdgeSemanticId) >= 0) {
@@ -226,13 +245,15 @@ function normalEdgeFilter(nodeSelection: string[],
     });
 }
 
-function profileEdgeFilter(nodeSelection: string[],
-                            areVisualModelIdentifiers: boolean,
-                            filteredNodeSelection: string[],
-                            edgeSelection: string[],
-                            filteredEdgeSelection: string[],
-                            contextEntities: ClassesContextEntities,
-                            visualModel: VisualModel | null): void {
+function profileEdgeFilter(
+    nodeSelection: string[],
+    areVisualModelIdentifiers: boolean,
+    filteredNodeSelection: string[],
+    edgeSelection: string[],
+    filteredEdgeSelection: string[],
+    contextEntities: ClassesContextEntities,
+    visualModel: VisualModel | null
+): void {
     edgeSelection.map(selectedEdgeId => {
         const selectedEdgeSemanticId = getSemanticEdgeIdentifier(selectedEdgeId, areVisualModelIdentifiers, visualModel);
         if(contextEntities.profiles.findIndex(relationshipProfile => relationshipProfile.id === selectedEdgeSemanticId && isSemanticModelRelationshipUsage(relationshipProfile)) >= 0) {
@@ -241,13 +262,15 @@ function profileEdgeFilter(nodeSelection: string[],
     });
 }
 
-function generalizationFilter(nodeSelection: string[],
-                                areVisualModelIdentifiers: boolean,
-                                filteredNodeSelection: string[],
-                                edgeSelection: string[],
-                                filteredEdgeSelection: string[],
-                                contextEntities: ClassesContextEntities,
-                                visualModel: VisualModel | null): void {
+function generalizationFilter(
+    nodeSelection: string[],
+    areVisualModelIdentifiers: boolean,
+    filteredNodeSelection: string[],
+    edgeSelection: string[],
+    filteredEdgeSelection: string[],
+    contextEntities: ClassesContextEntities,
+    visualModel: VisualModel | null
+): void {
     edgeSelection.map(selectedEdgeId => {
         const selectedEdgeSemanticId = getSemanticEdgeIdentifier(selectedEdgeId, areVisualModelIdentifiers, visualModel);
         if(contextEntities.generalizations.findIndex(generalization => generalization.id === selectedEdgeSemanticId) >= 0) {

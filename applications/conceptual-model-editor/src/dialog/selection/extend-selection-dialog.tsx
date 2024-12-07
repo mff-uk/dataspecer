@@ -44,7 +44,7 @@ export const CreateExtendSelectionDialog = (props: DialogProps<ExtendSelectionSt
                         </input>
                         {checkboxData.checkboxText}
                     </label>
-        </div>;
+                </div>;
     };
 
 
@@ -77,7 +77,7 @@ export const CreateExtendSelectionDialog = (props: DialogProps<ExtendSelectionSt
                     })}
                 </div>
 
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-0 px-4 border border-blue-700 rounded ml-12"                        
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-0 px-4 border border-blue-700 rounded ml-12"
                         onClick={controller.performExtensionBasedOnExtensionState}>
                     Extend
                 </button>
@@ -91,7 +91,6 @@ export const CreateExtendSelectionDialog = (props: DialogProps<ExtendSelectionSt
     const SimpleHorizontalLineSeparator = () => {
         return <div className="mb-2 mt-2 border-t border-gray-300"></div>;
     };
-
 
     /**
      * Component with the main content of dialog. So everything except header and footer.

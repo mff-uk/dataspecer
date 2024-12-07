@@ -20,16 +20,19 @@ type SelectionFilterCheckboxData = {
 };
 
 export interface SelectionFilterState {
-    selections: SelectionsWithIdInfo,
-    setSelectionsInDiagram: (newSelections: Selections) => void;
-    selectionFilters: SelectionFilterCheckboxData[];
+  selections: SelectionsWithIdInfo,
+  setSelectionsInDiagram: (newSelections: Selections) => void;
+  selectionFilters: SelectionFilterCheckboxData[];
 };
 
 /**
  * Creates element of type {@link SelectionFilterCheckboxData} from given arguments and puts it at the end of {@link checkboxStates} parameter.
  * @returns The created element
  */
-const createSelectionFilterCheckboxDataAndSaveIt = (checkboxStates: SelectionFilterCheckboxData[], selectionFilter: SelectionFilter): SelectionFilterCheckboxData => {
+const createSelectionFilterCheckboxDataAndSaveIt = (
+  checkboxStates: SelectionFilterCheckboxData[],
+  selectionFilter: SelectionFilter
+): SelectionFilterCheckboxData => {
   const checkboxText = SELECTION_FILTER_TO_CHECKBOX_NAME_MAP[selectionFilter];
   const filterData = {
       checked: true,
@@ -42,7 +45,10 @@ const createSelectionFilterCheckboxDataAndSaveIt = (checkboxStates: SelectionFil
   return filterData;
 };
 
-export function createFilterSelectionState(selections: SelectionsWithIdInfo, setSelectionsInDiagram: (newSelections: Selections) => void): SelectionFilterState {
+export function createFilterSelectionState(
+  selections: SelectionsWithIdInfo,
+  setSelectionsInDiagram: (newSelections: Selections) => void
+): SelectionFilterState {
   const filters: SelectionFilterCheckboxData[] = [];
   createSelectionFilterCheckboxDataAndSaveIt(filters, "NORMAL-CLASS");
   createSelectionFilterCheckboxDataAndSaveIt(filters, "PROFILE-CLASS");

@@ -19,19 +19,19 @@ export const createFilterSelectionDialog = (
     onConfirm: (state: SelectionFilterState) => void | null,
     selections: SelectionsWithIdInfo,
     setSelectionInDiagram: (selections: Selections) => void,
-  ): DialogWrapper<SelectionFilterState> => {
+): DialogWrapper<SelectionFilterState> => {
     return {
-      label: "filter-selection-dialog.label",
-      component: CreateFilterSelectionDialog,
-      state: createFilterSelectionState(selections, setSelectionInDiagram),
-      confirmLabel: "filter-selection-dialog.btn-ok",
-      cancelLabel: "filter-selection-dialog.btn-cancel",
-      validate: null,
-      onConfirm,
-      onClose: null,
-      dialogClassNames: "",
+        label: "filter-selection-dialog.label",
+        component: CreateFilterSelectionDialog,
+        state: createFilterSelectionState(selections, setSelectionInDiagram),
+        confirmLabel: "filter-selection-dialog.btn-ok",
+        cancelLabel: "filter-selection-dialog.btn-cancel",
+        validate: null,
+        onConfirm,
+        onClose: null,
+        dialogClassNames: "",
     };
-  };
+};
 
 
 export const CreateFilterSelectionDialog = (props: DialogProps<SelectionFilterState>) => {

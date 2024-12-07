@@ -100,16 +100,20 @@ export interface ActionsContextType {
   /**
    * Calls action {@link extendSelectionAction} with correct context. For more info check {@link extendSelectionAction}
    */
-  extendSelection: (nodeSelection: NodeSelection,
-                    extensionTypes: ExtensionType[],
-                    visibilityFilter: VisibilityFilter,
-                    semanticModelFilter: Record<string, boolean> | null) => Promise<Selections>;
+  extendSelection: (
+    nodeSelection: NodeSelection,
+    extensionTypes: ExtensionType[],
+    visibilityFilter: VisibilityFilter,
+    semanticModelFilter: Record<string, boolean> | null
+  ) => Promise<Selections>;
 
 
-  filterSelection: (selections: SelectionsWithIdInfo,
-                      filters: SelectionFilter[],
-                      visibilityFilter: VisibilityFilter,
-                      semanticModelFilter: Record<string, boolean> | null) => Selections;
+  filterSelection: (
+    selections: SelectionsWithIdInfo,
+    filters: SelectionFilter[],
+    visibilityFilter: VisibilityFilter,
+    semanticModelFilter: Record<string, boolean> | null
+  ) => Selections;
 
   /**
    * As this context requires two way communication it is created and shared via the actions.
@@ -132,7 +136,7 @@ const noOperationActionsContext = {
   centerViewportToVisualEntity: noOperation,
   openExtendSelectionDialog: noOperation,
   openFilterSelectionDialog: noOperation,
-  // TODO: How to define this - Should actions return values?, shouldn't it be just function defined in utils?
+  // TODO PRQuestion: How to define this - Should actions return values?, shouldn't it be just function defined in utils?
   extendSelection: async () => ({nodeSelection: [], edgeSelection: []}),
   filterSelection: () => ({nodeSelection: [], edgeSelection: []}),
   diagram: null,
@@ -346,12 +350,7 @@ function createActionsContext(
     const setSelections = (selectionsToSetWith: Selections) => {
       setSelectionsInDiagram(selectionsToSetWith, diagram);
     };
-    dialogs?.openDialog(createExtendSelectionDialog(
-                                                    onConfirm,
-                                                    onClose,
-                                                    true,
-                                                    selections,
-                                                    setSelections));
+    dialogs?.openDialog(createExtendSelectionDialog(onConfirm, onClose, true, selections, setSelections));
   };
 
 
@@ -371,28 +370,28 @@ function createActionsContext(
     const setSelections = (selections: Selections) => {
       setSelectionsInDiagram(selections, diagram);
     };
-    dialogs?.openDialog(createFilterSelectionDialog(
-                                                    onConfirm,
-                                                    selections,
-                                                    setSelections));
+    dialogs?.openDialog(createFilterSelectionDialog(onConfirm, selections, setSelections));
   };
 
 
-  const extendSelection = async (nodeSelection: NodeSelection,
-                                  extensionTypes: ExtensionType[],
-                                  visibilityFilter: VisibilityFilter,
-                                  semanticModelFilter: Record<string, boolean> | null) => {
-    const selectionExtension = await extendSelectionAction(nodeSelection, extensionTypes, visibilityFilter, false, semanticModelFilter, classes, graph, notifications);
+  const extendSelection = async (
+    nodeSelection: NodeSelection,
+    extensionTypes: ExtensionType[],
+    visibilityFilter: VisibilityFilter,
+    semanticModelFilter: Record<string, boolean> | null
+  ) => {
+    const selectionExtension = await extendSelectionAction(notifications, graph, classes, nodeSelection, extensionTypes, visibilityFilter, false, semanticModelFilter);
     return selectionExtension.selectionExtension;
   };
 
 
-  const filterSelection = (selections: SelectionsWithIdInfo,
-                                allowedClasses: SelectionFilter[],
-                                visibilityFilter: VisibilityFilter,
-                                semanticModelFilter: Record<string, boolean> | null) => {
-    return filterSelectionAction(selections, allowedClasses, visibilityFilter, semanticModelFilter,
-                                  graph, notifications, classes);
+  const filterSelection = (
+    selections: SelectionsWithIdInfo,
+    allowedClasses: SelectionFilter[],
+    visibilityFilter: VisibilityFilter,
+    semanticModelFilter: Record<string, boolean> | null
+  ) => {
+    return filterSelectionAction(notifications, graph, classes, selections, allowedClasses, visibilityFilter, semanticModelFilter);
   };
 
 

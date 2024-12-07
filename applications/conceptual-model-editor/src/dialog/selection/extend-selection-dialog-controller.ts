@@ -23,8 +23,13 @@ export type ExtensionData = ExtensionCheckboxData & {extensionType: ExtensionTyp
 * Creates element of type {@link ExtensionData} from given arguments and puts it at the end of {@link checkboxStates} parameter.
 * @returns The created element
 */
-const useCreateExtensionDataStateAndSaveIt = (checkboxStates: ExtensionData[], defaultStateValue: boolean, checkboxText: string,
-                                              checkboxTooltip: string, extensionType: ExtensionType): ExtensionData => {
+const useCreateExtensionDataStateAndSaveIt = (
+  checkboxStates: ExtensionData[],
+  defaultStateValue: boolean,
+  checkboxText: string,
+  checkboxTooltip: string,
+  extensionType: ExtensionType
+): ExtensionData => {
   const checkboxData = {
       checked: defaultStateValue,
       checkboxText,
@@ -40,13 +45,17 @@ const useCreateExtensionDataStateAndSaveIt = (checkboxStates: ExtensionData[], d
 //
 
 export interface ExtendSelectionState {
-    selections: Selections;
-    setSelectionsInDiagram: (newSelection: Selections) => void;
-    areIdentifiersFromVisualModel: boolean;
-    extensionCheckboxes: ExtensionData[];
+  selections: Selections;
+  setSelectionsInDiagram: (newSelection: Selections) => void;
+  areIdentifiersFromVisualModel: boolean;
+  extensionCheckboxes: ExtensionData[];
 }
 
-export function createExtendSelectionState(selections: Selections, setSelectionsInDiagram: (newSelection: Selections) => void, areIdentifiersFromVisualModel: boolean): ExtendSelectionState {
+export function createExtendSelectionState(
+  selections: Selections,
+  setSelectionsInDiagram: (newSelection: Selections) => void,
+  areIdentifiersFromVisualModel: boolean
+): ExtendSelectionState {
   const extensionCheckboxStates: ExtensionData[] = [];
 
   useCreateExtensionDataStateAndSaveIt(extensionCheckboxStates, true, "🔵⭢🔴", "Extend by association targets", "ASSOCIATION-TARGET");
@@ -70,9 +79,9 @@ export function createExtendSelectionState(selections: Selections, setSelections
 }
 
 export interface CreateExtendSelectionControllerType {
-    setSelections: (next: Selections) => void;
-    setExtensionCheckboxActivness: (next: {index: number, isActive: boolean}) => void;
-    performExtensionBasedOnExtensionState: () => void;
+  setSelections: (next: Selections) => void;
+  setExtensionCheckboxActivness: (next: {index: number, isActive: boolean}) => void;
+  performExtensionBasedOnExtensionState: () => void;
 }
 
 
@@ -103,7 +112,7 @@ export function useExtendSelectionController({ state, changeState }: DialogProps
             return checkboxState.extensionType;
         }
         return null;
-    }).filter(extensionType => extensionType !== null);
+      }).filter(extensionType => extensionType !== null);
 
       extendSelection({identifiers: state.selections.nodeSelection, areIdentifiersFromVisualModel: state.areIdentifiersFromVisualModel}, relevantExtensionTypes, "ONLY-VISIBLE", null).then(extension => {
             setSelections({
@@ -114,9 +123,9 @@ export function useExtendSelectionController({ state, changeState }: DialogProps
     }
 
     return {
-        setSelections,
-        setExtensionCheckboxActivness,
-        performExtensionBasedOnExtensionState
+      setSelections,
+      setExtensionCheckboxActivness,
+      performExtensionBasedOnExtensionState
     };
   }, [state, changeState, extendSelection]);
 }
