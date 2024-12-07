@@ -1,4 +1,4 @@
-import { Entity } from "@dataspecer/core-v2";
+import { Entity, EntityModel } from "@dataspecer/core-v2";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
 
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
@@ -7,8 +7,36 @@ import { configuration, createLogger } from "../application";
 import { placePositionOnGrid, ReactflowDimensionsConstantEstimator } from "@dataspecer/layout";
 import { isVisualRelationship, VisualModel } from "@dataspecer/core-v2/visual-model";
 import { Edge, EdgeType, Node } from "../diagram";
+import { findSourceModelOfEntity } from "../service/model-service";
 
 const LOG = createLogger(import.meta.url);
+
+export type EntityToDelete = {
+  sourceModel: string,
+  identifier: string,
+};
+
+export function convertToEntitiesToDeleteType(
+  entityIdentifiers: string[],
+  allModels: Map<string, EntityModel>,
+  notifications: UseNotificationServiceWriterType | null
+): EntityToDelete[] {
+    const entitiesToDelete: EntityToDelete[] = [];
+    for(const entityIdentifier of entityIdentifiers) {
+      const sourceModel = findSourceModelOfEntity(entityIdentifier, allModels);
+      if(sourceModel === null) {
+        if(notifications !== null) {
+          notifications.error("Entity doesn't have source semantic model.");
+        }
+        continue;
+      }
+      entitiesToDelete.push({
+        identifier: entityIdentifier,
+        sourceModel: sourceModel.getId()
+      });
+    }
+    return entitiesToDelete;
+}
 
 /**
  * Can handler with aggregated entity of given identifier and type.

@@ -184,7 +184,7 @@ export const EntitiesOfModel = (props: {
     };
 
     const handleDeleteEntity = async (model: InMemorySemanticModel | ExternalSemanticModel, identifier: string) => {
-        await actions.deleteFromSemanticModels([model.getId()], [identifier]);
+        await actions.deleteFromSemanticModels([{identifier, sourceModel: model.getId()}]);
     };
 
     const handleSetViewportToEntity = (identifier: string) => {

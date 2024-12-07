@@ -3,6 +3,7 @@ import type { UseNotificationServiceWriterType } from "../notification/notificat
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { deleteEntity } from "@dataspecer/core-v2/semantic-model/operations";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
+import { EntityToDelete } from "./utilities";
 
 /**
  * Removes entities from the given semantic models.
@@ -10,16 +11,9 @@ import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simpli
 export async function removeFromSemanticModelsAction(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
-  modelIdentifiers: string[],
-  identifiers: string[],
+  entitiesToDelete: EntityToDelete[],
 ) {
-  for(let i = 0; i < identifiers.length; i++) {
-    const identifier = identifiers[i];
-    if(i >= modelIdentifiers.length) {
-      notifications.error(`Given semantic entity doesn't have source model in given arguments`);
-      continue;
-    }
-    const modelIdentifier = modelIdentifiers[i];
+  for(const {identifier, sourceModel: modelIdentifier} of entitiesToDelete) {
     const model = graph.models.get(modelIdentifier);
     if (model === undefined) {
       notifications.error(`Can not find model with identifier '${modelIdentifier}'.`);

@@ -26,7 +26,7 @@ import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
-import { getSelections, getViewportCenterForClassPlacement } from "./utilities";
+import { convertToEntitiesToDeleteType, EntityToDelete, getSelections, getViewportCenterForClassPlacement } from "./utilities";
 import { removeFromVisualModelAction } from "./remove-from-visual-model";
 import { removeFromSemanticModelsAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
@@ -183,14 +183,10 @@ interface VisualModelActions {
  */
 export interface ActionsContextType extends DialogActions, VisualModelActions {
 
-
-  // Alternatively we could have object which contains the identifier and sourceModel, but creating such objects is a bit annoying.
-  // TODO PRQuestion: But maybe we should use the object anyways? that is EntitityToDelete = {sourceModel: string, identifier: string}
-
   /**
    * TODO: Rename to delete entity as it removes from semantic model as well as from visual.
    */
-  deleteFromSemanticModels: (sourceModels: string[], identifiers: string[]) => void;
+  deleteFromSemanticModels: (entitiesToDelete: EntityToDelete[]) => void;
 
   // TODO RadStr: Document based on PRQuestion
   centerViewportToVisualEntity: (model: string, identifier: string) => void;
@@ -335,7 +331,7 @@ function createActionsContext(
     withVisualModel(notifications, graph, (visualModel) => {
       removeFromVisualModelAction(notifications, visualModel, [identifier]);
     });
-    removeFromSemanticModelsAction(notifications, graph, [model.getId()], [identifier]);
+    removeFromSemanticModelsAction(notifications, graph, [{identifier, sourceModel: model.getId()}]);
   };
 
   const changeNodesPositions = (changes: { [identifier: string]: Position }) => {
@@ -510,12 +506,12 @@ function createActionsContext(
 
   // ...
 
-  const deleteFromSemanticModels = (sourceModels: string[], identifiers: string[]) => {
+  const deleteFromSemanticModels = (entitiesToDelete: EntityToDelete[]) => {
     // We start be removing from the visual model.
     withVisualModel(notifications, graph, (visualModel) => {
-      removeFromVisualModelAction(notifications, visualModel, identifiers);
+      removeFromVisualModelAction(notifications, visualModel, entitiesToDelete.map(entitiesToDelete => entitiesToDelete.identifier));
     });
-    removeFromSemanticModelsAction(notifications, graph, sourceModels, identifiers);
+    removeFromSemanticModelsAction(notifications, graph, entitiesToDelete);
   };
 
   const centerViewportToVisualEntity = (model: string, identifier: string) => {
@@ -622,8 +618,8 @@ function createActionsContext(
       const {nodeSelection, edgeSelection} = getSelections(diagram, true, false);
       console.info("Removing selection from semantic model: ", {nodeSelection, edgeSelection});
       const selectionIdentifiers = nodeSelection.concat(edgeSelection);
-      const models = findSourceModelsOfEntities(selectionIdentifiers, graph.models);
-      removeFromSemanticModelsAction(notifications, graph, models.map(model => model?.getId()).filter(id => id !== undefined), selectionIdentifiers);
+      const entitiesToDelete = convertToEntitiesToDeleteType(selectionIdentifiers, graph.models, notifications);
+      removeFromSemanticModelsAction(notifications, graph, entitiesToDelete);
     },
   };
 
