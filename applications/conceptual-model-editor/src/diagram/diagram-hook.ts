@@ -102,7 +102,8 @@ const noOperationDiagramActions: DiagramActions = {
   setSelectedEdges: noOperation,
   getViewport: noOperationThrow,
   renderToSvgString: noOperationNullAsync,
-  openCanvasToolbar: noOperation,
+  openDragEdgeToCanvasToolbar: noOperation,
+  openSelectionActionsToolbar: noOperation,
 };
 
 const noOperationCallbacks: DiagramCallbacks = {

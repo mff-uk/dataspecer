@@ -2,26 +2,34 @@ import { ReactFlowState } from "@xyflow/react";
 
 import { Position } from "../diagram-api";
 
-import "./canvas-toolbar.css";
+// We have to import all of the allowed canvas toolbar css styles here
+import "./canvas-toolbar-general.css";
 import "../node/node-secondary-toolbar.css";
 import "./canvas-toolbar-drag-edge.css";
 
-export type CanvasToolbarTypes = "EDGE-DRAG-CANVAS-MENU-TOOLBAR" | "NODE-SELECTION-ACTIONS-SECONDARY-TOOLBAR";
+export type CanvasToolbarContentType = ({value}: {value: CanvasToolbarContentProps}) => JSX.Element | null;
 
 /**
- * The canvas toolbar is always caused by action on some node.
- * Either by opening next level of toolbar or by dragging edge to canvas.
- * We do not copy the node information here.
- * Instead a toolbar is expected to retrieve it from the xyflow.
- * Thus we have one less place to update when there is a change.
+ * Represents the toolbar for general canvas. General canvas is component, which gets
+ * {@link toolbarContent} and shows it on given {@link canvasPosition}.
  */
-export interface CanvasToolbarGeneralProps {
+export interface CanvasToolbarGeneralProps extends CanvasToolbarContentProps {
+  toolbarContent: CanvasToolbarContentType;
+}
 
-  abosluteFlowPosition: Position;
-
+// TODO RadStr: Actually if we played with the typing a bit this could probably be probably also used for edges
+//              This meaning this whole general canvnas toolbar component, but that is for future, when more stuff gets added.
+/**
+ * Stores the props for the content of general toolbar
+ */
+export interface CanvasToolbarContentProps {
+  canvasPosition: Position;
+  /**
+   * Is the identifier of the node which caused the toolbar to appear.
+   * For example when dragging edge to canvas, then it is the source node of the connection.
+   * Or when clicking on action button on top of selection, then it is the lastly selected button.
+   */
   sourceNodeIdentifier: string;
-
-  toolbarType: CanvasToolbarTypes;
 }
 
 /**

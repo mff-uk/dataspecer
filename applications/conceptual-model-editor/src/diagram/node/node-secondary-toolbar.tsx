@@ -1,14 +1,13 @@
 import "./node-secondary-toolbar.css";
-import { CanvasToolbarGeneralProps } from "../canvas/canvas-toolbar-props";
+import { CanvasToolbarContentProps } from "../canvas/canvas-toolbar-props";
 import { DiagramContext } from "../diagram-controller";
 import { useContext } from "react";
 import { t } from "../../application";
 
-export function NodeSelectionActionsSecondaryToolbar({ value }: { value: CanvasToolbarGeneralProps | null }) {
-    if(value === null || value.toolbarType !== "NODE-SELECTION-ACTIONS-SECONDARY-TOOLBAR") {
-        return null;
-    }
-
+/**
+ * This is react component representing toolbar menu, which appears when user clicks on the actions button on selection.
+ */
+export function NodeSelectionActionsSecondaryToolbar({ value }: { value: CanvasToolbarContentProps }) {
     const context = useContext(DiagramContext);
     const onCreateNewView = () => {
         context?.closeCanvasToolbar();

@@ -42,7 +42,9 @@ import { type AlignmentController, useAlignmentController } from "./features/ali
 import { GeneralizationEdgeName } from "./edge/generalization-edge";
 import { ClassProfileEdgeName } from "./edge/class-profile-edge";
 import { diagramContentAsSvg } from "./render-svg";
-import { CanvasToolbarGeneralProps, CanvasToolbarTypes } from "./canvas/canvas-toolbar-props";
+import { CanvasToolbarGeneralProps, CanvasToolbarContentType } from "./canvas/canvas-toolbar-props";
+import { CanvasToolbarCreatedByEdgeDrag } from "./canvas/canvas-toolbar-drag-edge";
+import { NodeSelectionActionsSecondaryToolbar } from "./node/node-secondary-toolbar";
 
 export type NodeType = Node<ApiNode>;
 
@@ -52,7 +54,7 @@ type ReactFlowContext = ReactFlowInstance<NodeType, EdgeType>;
 
 type OpenEdgeContextMenuHandler = (edge: EdgeType, x: number, y: number) => void;
 
-type OpenCanvasContextMenuHandler = (sourceClassNode: ApiNode, abosluteFlowPosition: Position, toolbarType: CanvasToolbarTypes) => void;
+type OpenCanvasContextMenuHandler = (sourceClassNode: ApiNode, canvasPosition: Position, toolbarContent: CanvasToolbarContentType) => void;
 
 /**
  * We use context to access to callbacks to diagram content, like nodes and edges.
@@ -68,7 +70,7 @@ interface DiagramContextType {
   /**
    * Stored in context because the idea is to allow max one opened canvas toolbar
    */
-  openedCanvasToolbar: CanvasToolbarTypes | null;
+  openedCanvasToolbar: CanvasToolbarContentType | null;
 
   /**
    * Close any opened canvas toolbar, if none was open, then doesn't do anything.
@@ -155,13 +157,12 @@ function useCreateReactStates() {
   };
 }
 
-function useCreateDiagramControllerActionsAndContextIndependent(
+function useCreateDiagramControllerIndependentOnActionsAndContext(
   api: UseDiagramType,
   reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
   createdReactStates: ReturnType<typeof useCreateReactStates>,
 ) {
   const { setNodes, setEdges, setEdgeToolbar, setCanvasToolbar, selectedNodes, setSelectedNodes, setSelectedEdges } = createdReactStates;
-
   const alignmentController = useAlignmentController({ reactFlowInstance: reactFlowInstance });
 
   // The initialized is set to false when new node is added and back to true once the size is determined.
@@ -216,22 +217,22 @@ function useCreateDiagramControllerActionsAndContextIndependent(
   };
 }
 
-function useCreateDiagramControllerActionsAndContextDependent(
+function useCreateDiagramControllerDependentOnActionsAndContext(
   api: UseDiagramType,
   reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
   createdReactStates: ReturnType<typeof useCreateReactStates>,
-  createdPartOfDiagramController: ReturnType<typeof useCreateDiagramControllerActionsAndContextIndependent>,
+  createdPartOfDiagramController: ReturnType<typeof useCreateDiagramControllerIndependentOnActionsAndContext>,
 ) {
   const { setNodes, setEdges, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges } = createdReactStates;
   const { onOpenEdgeToolbar, onOpenCanvasToolbar, alignmentController } = createdPartOfDiagramController;
 
   const context = useMemo(() => createDiagramContext(
-    api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar?.toolbarType ?? null, setCanvasToolbar, selectedNodes, selectedEdges),
+    api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar?.toolbarContent ?? null, setCanvasToolbar, selectedNodes, selectedEdges),
     [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges]
   );
 
-  const actions = useMemo(() => createActions(reactFlowInstance, setNodes, setEdges, alignmentController, context, setCanvasToolbar),
-    [reactFlowInstance, setNodes, setEdges, alignmentController, context, setCanvasToolbar]);
+  const actions = useMemo(() => createActions(reactFlowInstance, setNodes, setEdges, alignmentController, context),
+    [reactFlowInstance, setNodes, setEdges, alignmentController, context]);
 
   // Register actions to API.
   useEffect(() => api.setActions(actions), [api, actions]);
@@ -250,8 +251,8 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
   const reactStates = useCreateReactStates();
   // We can use useStore get low level access.
   const reactFlowInstance = useReactFlow<NodeType, EdgeType>();
-  const independentPartOfDiagramController = useCreateDiagramControllerActionsAndContextIndependent(api, reactFlowInstance, reactStates);
-  const dependentPartOfDiagramController = useCreateDiagramControllerActionsAndContextDependent(api, reactFlowInstance, reactStates, independentPartOfDiagramController);
+  const independentPartOfDiagramController = useCreateDiagramControllerIndependentOnActionsAndContext(api, reactFlowInstance, reactStates);
+  const dependentPartOfDiagramController = useCreateDiagramControllerDependentOnActionsAndContext(api, reactFlowInstance, reactStates, independentPartOfDiagramController);
 
   return {
     nodes: reactStates.nodes,
@@ -453,9 +454,9 @@ const createOpenEdgeToolbarHandler = (setEdgeToolbar: (edgeToolbarProps: EdgeToo
 };
 
 const createOpenCanvasToolbarHandler = (setCanvasToolbar: (canvasToolbarProps: CanvasToolbarGeneralProps | null) => void): OpenCanvasContextMenuHandler => {
-  return (sourceClassNode: ApiNode, abosluteFlowPosition: Position, toolbarType: CanvasToolbarTypes) => {
+  return (sourceClassNode: ApiNode, canvasPosition: Position, toolbarContent: CanvasToolbarContentType) => {
     const sourceNodeIdentifier = sourceClassNode.identifier;
-    setCanvasToolbar({ sourceNodeIdentifier, abosluteFlowPosition, toolbarType });
+    setCanvasToolbar({ sourceNodeIdentifier, canvasPosition, toolbarContent });
   };
 };
 
@@ -468,7 +469,6 @@ const createActions = (
   setEdges: React.Dispatch<React.SetStateAction<EdgeType[]>>,
   alignment: AlignmentController,
   context: DiagramContextType,
-  setCanvasToolbar: React.Dispatch<React.SetStateAction<CanvasToolbarGeneralProps | null>>,
 ): DiagramActions => {
   return {
     getGroups() {
@@ -592,9 +592,13 @@ const createActions = (
     renderToSvgString() {
       return diagramContentAsSvg(reactFlow.getNodes());
     },
-    openCanvasToolbar(sourceClassNode: ApiNode, abosluteFlowPosition: Position, toolbarType: CanvasToolbarTypes) {
-      console.log("openCanvasToolbar", {sourceClassNode, abosluteFlowPosition});
-      context?.onOpenCanvasContextMenu(sourceClassNode, abosluteFlowPosition, toolbarType);
+    openDragEdgeToCanvasToolbar(sourceNode, canvasPosition) {
+      console.log("openCanvasToolbar", {sourceNode, canvasPosition});
+      context?.onOpenCanvasContextMenu(sourceNode, canvasPosition, CanvasToolbarCreatedByEdgeDrag);
+    },
+    openSelectionActionsToolbar(sourceNode, canvasPosition) {
+      console.log("openCanvasToolbar", {sourceNode, canvasPosition});
+      context?.onOpenCanvasContextMenu(sourceNode, canvasPosition, NodeSelectionActionsSecondaryToolbar);
     },
   };
 };
@@ -681,7 +685,7 @@ const createDiagramContext = (
   api: UseDiagramType,
   onOpenEdgeContextMenu: OpenEdgeContextMenuHandler,
   onOpenCanvasContextMenu: OpenCanvasContextMenuHandler,
-  openedCanvasToolbar: CanvasToolbarTypes | null,
+  openedCanvasToolbar: CanvasToolbarContentType | null,
   setCanvasToolbar: (_: null) => void,
   selectedNodes: string[],
   selectedEdges: string[]

@@ -1,5 +1,3 @@
-import { CanvasToolbarTypes } from "./canvas/canvas-toolbar-props";
-
 /**
  * Actions that can be executed on the editor component.
  */
@@ -160,13 +158,21 @@ export interface DiagramActions {
    */
   renderToSvgString(): Promise<string | null>;
 
-  // TODO RadStr: maybe just keep opening through context before we call the on... handler and don't expose through API?, similiarly to the closeCanvasToolbar,
+  // TODO RadStr: maybe just keep opening the canvas toolbars through context before we call the on... handler and don't expose through API?, similiarly to the closeCanvasToolbar,
   //              .... Wait for it a bit after I add more canvas toolbars
+
   /**
-   * Open the canvas toolbar. The type of toolbar is decided by {@link toolbarType} argument.
-   * @param toolbarType For example drag edge variant opens the toolbar, which appears when user drags edge to empty space on canvas.
+   * Opens toolbar on given {@link canvasPosition}, which represents the menu that appears when user drags edge to canvas.
+   * @param sourceDiagramNode is the node from which the connection dragging started
+   * @param position is the canvas position where user dragged the connection and on which will the menu appear
    */
-  openCanvasToolbar(sourceClassDiagramNode: Node, absoluteFlowPosition: Position, toolbarType: CanvasToolbarTypes): void;
+  openDragEdgeToCanvasToolbar(sourceNode: Node, canvasPosition: Position): void;
+  /**
+   * Opens toolbar on given {@link canvasPosition}, which represents the menu that appears when user clicks the actions button on selection.
+   * @param sourceDiagramNode is the node on which the user clicked the button.
+   * @param position is the canvas position where the toolbar will appear.
+   */
+  openSelectionActionsToolbar(sourceNode: Node, canvasPosition: Position): void;
 }
 
 export type ViewportDimensions = {
@@ -377,7 +383,7 @@ interface DiagramNodes {
   /**
    * Called when user choses to create new class from diagram's canvas menu (toolbar).
    */
-  onCanvasOpenCreateClassDialog: (diagramNode: Node, abosluteFlowPosition: Position) => void;
+  onCanvasOpenCreateClassDialog: (diagramNode: Node, canvasPosition: Position) => void;
 
   /**
    * Called when there is a change in node's positions in result

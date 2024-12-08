@@ -568,7 +568,7 @@ function createActionsContext(
 
     onCreateConnectionToNothing: (source, canvasPosition) => {
       console.log("Application.onCreateConnectionToNothing", { source, canvasPosition });
-      diagram.actions().openCanvasToolbar(source, canvasPosition, "EDGE-DRAG-CANVAS-MENU-TOOLBAR");
+      diagram.actions().openDragEdgeToCanvasToolbar(source, canvasPosition);
     },
 
     onSelectionDidChange: (nodes, edges) => {
@@ -579,7 +579,7 @@ function createActionsContext(
     },
     onShowSelectionActions: (source, canvasPosition) => {
       console.log("Application.onShowSelectionActions", { source, canvasPosition });
-      diagram.actions().openCanvasToolbar(source, canvasPosition, "NODE-SELECTION-ACTIONS-SECONDARY-TOOLBAR");
+      diagram.actions().openSelectionActionsToolbar(source, canvasPosition);
     },
     onLayoutSelection: () => {
       // TODO RadStr: Currently does nothing (In future - Opens layouting menu - 3 buttons - alignments + layouting)
