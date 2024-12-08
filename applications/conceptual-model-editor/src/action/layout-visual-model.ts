@@ -1,14 +1,18 @@
-import { isVisualNode, isWritableVisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualNode, isWritableVisualModel, VisualEntity, VisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { ExplicitAnchors, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4, INodeClassic, LayoutedVisualEntities, NodeDimensionQueryHandler, performLayoutOfVisualModel, ReactflowDimensionsConstantEstimator, ReactflowDimensionsEstimator, UserGivenAlgorithmConfigurationStress, UserGivenConstraintsVersion4, VisualModelWithOutsiders } from "@dataspecer/layout";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { ActionsContextType } from "./actions-react-binding";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { XY } from "@dataspecer/layout";
-import { computeMiddleOfRelatedAssociationsPositionAction } from "./utils";
 import { ClassesContextType } from "../context/classes-context";
+import { computeMiddleOfRelatedAssociationsPositionAction } from "./utilities";
+import { isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { addSemanticClassToVisualModelAction } from "./add-class-to-visual-model";
+import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
+import { LayoutedVisualEntity } from "../../../../packages/layout/lib/migration-to-cme-v2";
 
-// TODO RadStr: After merge call using withVisualModel instead
 /**
  * @param configuration The configuration for layouting algorithm.
  * @param explicitAnchors For more context check the type {@link ExplicitAnchors}. But in short it is used to override the anchors stored in visual model.
@@ -19,31 +23,23 @@ import { ClassesContextType } from "../context/classes-context";
  */
 export function layoutActiveVisualModelAdvancedAction(
     notifications: UseNotificationServiceWriterType,
+    classes: ClassesContextType,
     diagram: UseDiagramType,
     graph: ModelGraphContextType,
+    visualModel: WritableVisualModel,
     configuration: UserGivenConstraintsVersion4,
     explicitAnchors?: ExplicitAnchors,
     shouldUpdatePositionsInVisualModel?: boolean,
     outsiders?: Record<string, XY | null>,
     shouldPutOutsidersInVisualModel?: boolean,
 ) {
-    const activeVisualModel = graph.aggregatorView.getActiveVisualModel();
-    if (activeVisualModel === null) {
-      notifications.error("There is no active visual model.");
-      return Promise.resolve();
-    }
-    if (!isWritableVisualModel(activeVisualModel)) {
-      notifications.error("The active visual model is not writable.");
-      return Promise.resolve();
-    }
-
     const models = graph.models;
 
     const reactflowDimensionQueryHandler = createExactNodeDimensionsQueryHandler(diagram, graph, notifications);
 
     outsiders = outsiders ?? {};
     const activeVisualModelWithOutsiders: VisualModelWithOutsiders = {
-        visualModel: activeVisualModel,
+        visualModel,
         outsiders,
     };
 
@@ -54,7 +50,7 @@ export function layoutActiveVisualModelAdvancedAction(
         reactflowDimensionQueryHandler,
         explicitAnchors
     ).then(layoutResult => {
-        processLayoutResult(notifications, graph, activeVisualModel, shouldUpdatePositionsInVisualModel ?? true, shouldPutOutsidersInVisualModel ?? false, layoutResult);
+        processLayoutResult(notifications, classes, diagram, graph, visualModel, shouldUpdatePositionsInVisualModel ?? true, shouldPutOutsidersInVisualModel ?? false, layoutResult);
         return layoutResult;
     }).catch((e) => {
         console.warn(e);
@@ -67,12 +63,14 @@ export function layoutActiveVisualModelAdvancedAction(
 // TODO PRQuestion: Should be separate file? same for the method under
 export function layoutActiveVisualModelAction(
     notifications: UseNotificationServiceWriterType,
+    classes: ClassesContextType,
     diagram: UseDiagramType,
     graph: ModelGraphContextType,
+    visualModel: WritableVisualModel,
     configuration: UserGivenConstraintsVersion4,
     explicitAnchors?: ExplicitAnchors,
 ) {
-    return layoutActiveVisualModelAdvancedAction(notifications, diagram, graph, configuration, explicitAnchors, true, {}, false);
+    return layoutActiveVisualModelAdvancedAction(notifications, classes, diagram, graph, visualModel, configuration, explicitAnchors, true, {}, false);
 }
 
 //
@@ -81,10 +79,11 @@ export async function findPositionForNewNodeUsingLayouting(
     notifications: UseNotificationServiceWriterType,
     diagram: UseDiagramType,
     graph: ModelGraphContextType,
+    visualModel: WritableVisualModel,
     classes: ClassesContextType,
     identifier: string
 ) {
-    let {position, isInCenterOfViewport} = computeMiddleOfRelatedAssociationsPositionAction(identifier, notifications, graph, diagram, classes);
+    let {position, isInCenterOfViewport} = computeMiddleOfRelatedAssociationsPositionAction(identifier, notifications, visualModel, diagram, classes);
 
     if(!isInCenterOfViewport) {
       const maxDeviation = 100;
@@ -108,8 +107,10 @@ export async function findPositionForNewNodeUsingLayouting(
       // anchored (for example when they are not connected by any edge).
       const layoutResults = await layoutActiveVisualModelAdvancedAction(
         notifications,
+        classes,
         diagram,
         graph,
+        visualModel,
         configuration,
         explicitAnchors,
         false,
@@ -175,13 +176,14 @@ export function createExactNodeDimensionsQueryHandler(
 
 function processLayoutResult(
     notifications: UseNotificationServiceWriterType,
+    classes: ClassesContextType,
+    diagram: UseDiagramType,
     graph: ModelGraphContextType,
     visualModel: WritableVisualModel,
     shouldUpdatePositionsInVisualModel: boolean,
     shouldPutOutsidersInVisualModel: boolean,
     layoutResult: LayoutedVisualEntities
 ) {
-    // TODO RadStr: After merge rewrite in the same way it was changed by PeSk
     console.info("Layout result in editor");
     console.info(layoutResult);
     console.info(visualModel.getVisualEntities());
@@ -189,12 +191,12 @@ function processLayoutResult(
         return;
     }
 
-    Object.entries(layoutResult).forEach(([key, value]) => {
-        const visualEntity = value.visualEntity
-        if(value.isOutsider) {
+    Object.entries(layoutResult).forEach(([visualIdentifer, layouredVisualEntity]) => {
+        const visualEntity = layouredVisualEntity.visualEntity
+        if(layouredVisualEntity.isOutsider) {
             if(shouldPutOutsidersInVisualModel) {
                 if(isVisualNode(visualEntity)) {
-                    addNodeToVisualModelAction(notifications, graph, visualEntity.model, visualEntity.representedEntity, visualEntity.position);
+                    addClassOrClassProfileToVisualModel(notifications, classes, diagram, graph, visualModel, visualEntity);
                 }
                 else {
                     throw new Error("Not prepared for creating new elements which are not nodes when layouting");
@@ -203,11 +205,11 @@ function processLayoutResult(
             return;
         }
 
-        // TODO RadStr: I am not sure if this "if" ever passes for non-outsiders, maybe we should keep only the else branch. - anyways fix after the merge change described above
-        if(visualModel.getVisualEntity(key) === undefined) {
+        // TODO RadStr: I am not sure if this "if" ever passes for non-outsiders, maybe we should keep only the else branch.
+        if(visualModel.getVisualEntity(visualIdentifer) === undefined) {
             if(isVisualNode(visualEntity)) {
                 console.info("NEW NODE");
-                addNodeToVisualModelAction(notifications, graph, visualEntity.model, visualEntity.representedEntity, visualEntity.position);
+                addClassOrClassProfileToVisualModel(notifications, classes, diagram, graph, visualModel, visualEntity);
             }
             else {
                 throw new Error("Not prepared for creating new elements which are not nodes when layouting");
@@ -219,4 +221,23 @@ function processLayoutResult(
             visualModel?.updateVisualEntity(visualEntity.identifier, visualEntity);
         }
     });
+}
+
+
+function addClassOrClassProfileToVisualModel(
+    notifications: UseNotificationServiceWriterType,
+    classes: ClassesContextType,
+    diagram: UseDiagramType,
+    graph: ModelGraphContextType,
+    visualModel: WritableVisualModel,
+    visualNode: VisualNode
+): void {
+    const represented = graph.aggregatorView.getEntities()[visualNode.representedEntity]?.rawEntity;
+    if (isSemanticModelClass(represented)) {
+        addSemanticClassToVisualModelAction(notifications, graph, classes, visualModel, diagram, visualNode.representedEntity, visualNode.model, visualNode.position);
+    } else if (isSemanticModelClassUsage(represented)) {
+        addSemanticClassProfileToVisualModelAction(notifications, graph, classes, visualModel, diagram, visualNode.representedEntity, visualNode.model, visualNode.position);
+    } else {
+        throw new Error("Unexpected node type.");
+    }
 }

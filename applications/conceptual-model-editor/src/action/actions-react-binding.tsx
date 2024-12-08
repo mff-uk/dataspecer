@@ -524,8 +524,10 @@ function createActionsContext(
     centerViewportToVisualEntityAction(notifications, graph, classes, diagram, identifier, model);
   };
 
-  const layoutActiveVisualModel = (configuration: UserGivenConstraintsVersion4) => {
-    return layoutActiveVisualModelAction(notifications, diagram, graph, configuration);
+  const layoutActiveVisualModel = async (configuration: UserGivenConstraintsVersion4) => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      return layoutActiveVisualModelAction(notifications, classes, diagram, graph, visualModel, configuration);
+    });
   }
 
   const addEntitiesFromSemanticModelToVisualModel = (semanticModelIdentifier: string) => {
@@ -586,7 +588,9 @@ function createActionsContext(
     },
     onToggleAnchorForNode: (diagramNode) => {
       console.log("Application.onToggleAnchorForNode", { diagramNode });
-      toggleAnchorAction(notifications, graph, diagramNode.externalIdentifier);
+      withVisualModel(notifications, graph, (visualModel) => {
+        toggleAnchorAction(notifications, visualModel, diagramNode.externalIdentifier);
+      });
     },
     onShowSelectionActions: (source, canvasPosition) => {
       console.log("Application.onShowSelectionActions", { source, canvasPosition });
