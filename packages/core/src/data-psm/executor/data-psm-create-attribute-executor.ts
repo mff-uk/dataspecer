@@ -13,7 +13,7 @@ import {
   loadDataPsmClass,
   loadDataPsmSchema,
 } from "./data-psm-executor-utils";
-import { DataPsmAttribute } from "../model";
+import { DataPsmAttribute, DataPsmClass } from "../model";
 
 export async function executeDataPsmCreateAttribute(
   reader: CoreResourceReader,
@@ -48,7 +48,7 @@ export async function executeDataPsmCreateAttribute(
       {
         ...owner,
         dataPsmParts: [...owner.dataPsmParts, iri],
-      } as CoreResource,
+      } as DataPsmClass,
     ],
     [],
     new DataPsmCreateAttributeResult(iri)

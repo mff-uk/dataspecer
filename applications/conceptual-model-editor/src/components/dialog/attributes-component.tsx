@@ -15,6 +15,7 @@ import { MultiLanguageInputForLanguageString } from "../input/multi-language-inp
 import { DialogDetailRow } from "./dialog-detail-row";
 import { SelectDatatype } from "../input/select-datatype";
 import { t, configuration } from "../../application/";
+import { SemanticModelRelationshipEndUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 export const AddAttributesComponent = (props: {
     preferredLanguage: string;
@@ -28,7 +29,7 @@ export const AddAttributesComponent = (props: {
     const [newAttribute, setNewAttribute] = useState<Partial<Omit<SemanticModelRelationship, "type">>>({});
     const [name, setName] = useState({} as LanguageString);
     const [description, setDescription] = useState({} as LanguageString);
-    const [cardinality, setCardinality] = useState({} as SemanticModelRelationshipEnd);
+    const [cardinality, setCardinality] = useState<SemanticModelRelationshipEnd | SemanticModelRelationshipEndUsage>({} as SemanticModelRelationshipEnd);
     const [dataType, setDataType] = useState<string | null>(null);
     const [iri, setIri] = useState(getRandomName(7));
     const [changedFields, setChangedFields] = useState({
@@ -45,7 +46,8 @@ export const AddAttributesComponent = (props: {
         setNewAttribute({
             ends: [
                 {
-                    cardinality: cardinality.cardinality,
+                    // TODO This bad ...
+                    cardinality: cardinality.cardinality!,
                     name: {},
                     description: {},
                     concept: modifiedClassId,

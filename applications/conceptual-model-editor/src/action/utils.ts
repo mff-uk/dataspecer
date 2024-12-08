@@ -6,9 +6,10 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { ClassesContextType } from "../context/classes-context";
 import { placePositionOnGrid, ReactflowDimensionsConstantEstimator, XY } from "@dataspecer/layout";
 import { configuration } from "../application";
+import { getViewportCenterForClassPlacement } from "./utilities";
 
 
-// TODO RadStr: After merge the content of this file should be in utilites.ts (and don't forget to remove getCenterOfViewport, respectively use the old variant without shifting)
+// TODO RadStr: After merge the content of this file should be in utilites.ts (and don't forget to remove getCenterOfViewport, respectively use the old variant without shifting
 
 
 export const getCenterOfViewport = (diagram: UseDiagramType) => {
@@ -50,7 +51,7 @@ export const computeMiddleOfRelatedAssociationsPositionAction = (
     if(visualModel === null) {
         notifications.error("There is no active visual model");
         return {
-            position: getCenterOfViewport(diagram),
+            position: getViewportCenterForClassPlacement(diagram),
             isInCenterOfViewport: true,
         };
     }
@@ -92,7 +93,7 @@ const computeBarycenter = (positions: Position[], diagram: UseDiagramType): Comp
     }
     else {
         isInCenterOfViewport = true;
-        const viewportMiddle = getCenterOfViewport(diagram);
+        const viewportMiddle = getViewportCenterForClassPlacement(diagram);
         barycenter.x = viewportMiddle.x;
         barycenter.y = viewportMiddle.y;
     }

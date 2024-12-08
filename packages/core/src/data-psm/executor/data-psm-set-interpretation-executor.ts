@@ -9,6 +9,7 @@ import {
   DataPsmAssociationEnd,
   DataPsmAttribute,
   DataPsmClass,
+  DataPsmResource,
 } from "../model";
 
 export async function executeDataPsmSetInterpretation(
@@ -33,7 +34,7 @@ export async function executeDataPsmSetInterpretation(
       {
         ...resource,
         dataPsmInterpretation: operation.dataPsmInterpretation,
-      } as CoreResource,
+      } as DataPsmResource,
     ]
   );
 }

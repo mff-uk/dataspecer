@@ -1,36 +1,102 @@
 import {
     type SemanticModelRelationship,
-    isSemanticModelAttribute,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 import {
     type SemanticModelRelationshipUsage,
-    isSemanticModelAttributeUsage,
-    isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import type { VisualModel } from "@dataspecer/core-v2/visual-model";
-import type { EntityDetailSupportedType } from "./detail-utils";
 
-export type CardinalityOption = "unset" | "0x" | "01" | "11" | "1x" | "xx";
+export type DomainAndRange<EndType> = {
+    domain: EndType | null,
+    domainIndex: number | null,
+    range: EndType | null,
+    rangeIndex: number | null
+}
 
-export const semanticCardinalityToOption = (v: null | [number, number | null]): CardinalityOption => {
-    if (v == null) {
-        return "unset";
-    } else if (v[0] == 0 && v[1] == null) {
-        return "0x";
-    } else if (v[0] == 1 && v[1] == null) {
-        return "1x";
-    } else if (v[0] == 0 && v[1] == 1) {
-        return "01";
-    } else if (v[0] == 1 && v[1] == 1) {
-        return "11";
-    } else if (v[0] == null && v[1] == null) {
-        return "xx";
-    } else {
-        alert("unknown cardinality option for [" + v[0].toString() + "," + (v[1]?.toString() ?? ""));
-        return "unset";
+/**
+ * For given relation returns domain and range.
+ *
+ * The domain and range are determined based on their value.
+ * Only the range has iri set to non-null value.
+ */
+export const getDomainAndRange = <EndType extends { iri: string | null }>(
+    relationship: { ends: EndType[] },
+): DomainAndRange<EndType> => {
+    const [first, second] = relationship.ends;
+
+    // We use the end's iri to determine which one denotes the range.
+    const firstIri = first?.iri ?? null;
+    const secondIri = second?.iri ?? null;
+
+    if (firstIri === null && secondIri === null) {
+        return emptyDomainAndRange();
     }
+
+    if (firstIri !== null) {
+        return {
+            domain: second,
+            domainIndex: 1,
+            range: first,
+            rangeIndex: 0,
+        };
+    } else {
+        return {
+            domain: first,
+            domainIndex: 0,
+            range: second,
+            rangeIndex: 1,
+        };
+    }
+};
+
+/**
+ * @returns Representation of empty domain and range.
+ */
+function emptyDomainAndRange() {
+    return {
+        domain: null,
+        domainIndex: null,
+        range: null,
+        rangeIndex: null,
+    };
+}
+
+export type DomainAndRangeConcepts = {
+    domain: string | null;
+    range: string | null;
+};
+
+/**
+ * Specialization of universal getDomainAndRange function to work with both
+ * relationship as well as relationship profile.
+ */
+export const getDomainAndRangeConcepts = (
+    relationship: SemanticModelRelationship | SemanticModelRelationshipUsage,
+): DomainAndRangeConcepts => {
+    if (isSemanticModelRelationship(relationship)) {
+        const domainAndRange = getDomainAndRange(relationship);
+        return {
+            domain: domainAndRange.domain?.concept ?? null,
+            range: domainAndRange.domain?.concept ?? null,
+        };
+    } else {
+        const domainAndRange = getDomainAndRange(relationship);
+        return {
+            domain: domainAndRange.domain?.concept ?? null,
+            range: domainAndRange.domain?.concept ?? null,
+        };
+    }
+};
+
+/**
+ * For given cardinality return human readable representation.
+ */
+export const cardinalityToHumanLabel = (cardinality: [number, number | null] | undefined | null): string | null => {
+    if (cardinality === null || cardinality === undefined) {
+        return null;
+    }
+    return `[${cardinality[0] ?? "*"}..${cardinality[1] ?? "*"}]`;
 };
 
 /**
@@ -40,48 +106,35 @@ export const semanticCardinalityToOption = (v: null | [number, number | null]): 
  */
 export const bothEndsHaveAnIri = (entity: SemanticModelRelationship | SemanticModelRelationshipUsage) => {
     if (isSemanticModelRelationship(entity)) {
-        const [end1, end2] = entity.ends;
-        return end1?.iri && end1.iri.length > 0 && end2?.iri && end2.iri.length > 0;
+        const [first, second] = entity.ends;
+        return first?.iri && first.iri.length > 0 && second?.iri && second.iri.length > 0;
     } else {
         return false;
     }
 };
 
-export const isAnEdge = (
-    entity: EntityDetailSupportedType
-): entity is SemanticModelRelationship | SemanticModelRelationshipUsage => {
-    return !isAnAttribute(entity) && (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity));
-};
-
-export const isAnAttribute = (entity: EntityDetailSupportedType) =>
-    isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity);
-
 /**
- * Returns the domain and range of an `entity`
- * @param entity
- * @returns
+ * Return true, when both ends of a relationship are on the canvas.
  */
-export const temporaryDomainRangeHelper = (entity: EntityDetailSupportedType) => {
-    if (isSemanticModelRelationship(entity)) {
-        return getDomainAndRange(entity);
-    } else if (isSemanticModelRelationshipUsage(entity)) {
-        const e = entity as SemanticModelRelationship & SemanticModelRelationshipUsage;
-        return getDomainAndRange(e);
-    } else {
-        return null;
-    }
-};
-
-export const hasBothEndsOnCanvas = (
+export const hasBothEndsInVisualModel = (
     entity: SemanticModelRelationship | SemanticModelRelationshipUsage,
     visualModel: VisualModel | null,
 ) => {
     if (visualModel === null) {
         return false;
     }
-    const domainAndRange = temporaryDomainRangeHelper(entity);
-    const domainConcept = domainAndRange?.domain.concept ?? "";
-    const rangeConcept = domainAndRange?.range.concept ?? "";
+
+    let domainConcept = "";
+    let rangeConcept = "";
+    if (isSemanticModelRelationship(entity)) {
+        const domainAndRange = getDomainAndRange(entity);
+        domainConcept = domainAndRange.domain?.concept ?? "";
+        rangeConcept = domainAndRange.range?.concept ?? "";
+    } else {
+        const domainAndRange = getDomainAndRange(entity);
+        domainConcept = domainAndRange.domain?.concept ?? "";
+        rangeConcept = domainAndRange.range?.concept ?? "";
+    }
 
     const domainOnCanvas = visualModel.getVisualEntityForRepresented(domainConcept);
     const rangeOnCanvas = visualModel.getVisualEntityForRepresented(rangeConcept);

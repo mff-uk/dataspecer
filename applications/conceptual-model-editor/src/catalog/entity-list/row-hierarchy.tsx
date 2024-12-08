@@ -1,11 +1,13 @@
 import {
     type SemanticModelClass,
     type SemanticModelRelationship,
+    isSemanticModelAttribute,
     isSemanticModelClass,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import {
+    isSemanticModelAttributeUsage,
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
     type SemanticModelClassUsage,
@@ -18,7 +20,7 @@ import { EntityRow } from "./entity-row";
 import { sourceModelOfEntity } from "../../util/model-utils";
 import { useModelGraphContext } from "../../context/model-context";
 import { useClassesContext } from "../../context/classes-context";
-import { hasBothEndsOnCanvas } from "../../util/relationship-utils";
+import { hasBothEndsInVisualModel } from "../../util/relationship-utils";
 import { findSourceModelOfEntity } from "../../service/model-service";
 
 export const RowHierarchy = (props: {
@@ -56,7 +58,7 @@ export const RowHierarchy = (props: {
             }
             : null;
 
-    const showDrawingHandler = isClassOrProfile || (isRelationshipOrProfile && hasBothEndsOnCanvas(aggregatedEntity, aggregatorView.getActiveVisualModel()));
+    const showDrawingHandler = isClassOrProfile || (isRelationshipOrProfile && hasBothEndsInVisualModel(aggregatedEntity, aggregatorView.getActiveVisualModel()));
     const drawingHandler = !showDrawingHandler ? null : {
         addToViewHandler: () => props.handlers.handleAddEntityToActiveView(entity),
         removeFromViewHandler: () => props.handlers.handleRemoveEntityFromActiveView(entity.id),
@@ -71,7 +73,7 @@ export const RowHierarchy = (props: {
 
     const targetHandler = {
         centerViewportOnEntityHandler: () => props.handlers.handleTargeting(entity.id),
-        isTargetable: props.onCanvas.includes(entity.id) && isClassOrProfile,
+        isTargetable: props.onCanvas.includes(entity.id) || isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity),
     };
 
     const model = findSourceModelOfEntity(entity.id, models);

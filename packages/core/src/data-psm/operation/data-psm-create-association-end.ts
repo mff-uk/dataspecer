@@ -9,6 +9,8 @@ export class DataPsmCreateAssociationEnd extends DataPsmCreate {
 
   dataPsmPart: string | null = null;
 
+  dataPsmIsReverse: boolean | null = null;
+
   dataPsmIsDematerialize: boolean | null = null;
 
   constructor() {

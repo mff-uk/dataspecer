@@ -5,7 +5,7 @@ import {
   CoreResource,
 } from "../../core";
 import { PimSetHumanLabel } from "../operation";
-import { PimAssociation, PimAttribute, PimClass, PimSchema } from "../model";
+import { PimAssociation, PimAttribute, PimClass, PimResource, PimSchema } from "../model";
 
 export async function executePimSetHumanLabel(
   reader: CoreResourceReader,
@@ -29,7 +29,7 @@ export async function executePimSetHumanLabel(
       {
         ...resource,
         pimHumanLabel: operation.pimHumanLabel,
-      } as CoreResource,
+      } as PimResource,
     ]
   );
 }

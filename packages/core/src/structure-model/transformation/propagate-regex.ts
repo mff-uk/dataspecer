@@ -1,6 +1,6 @@
 import {ConceptualModel, ConceptualModelPrimitiveType} from "../../conceptual-model";
 import {StructureModel} from "../model";
-import {assert, clone} from "../../core";
+import {clone} from "../../core";
 import {buildPropertyMap} from "../../conceptual-model/utils";
 
 /**
@@ -21,13 +21,14 @@ export function propagateRegex(
     classData.regex = classData.regex ?? conceptualClass.regex ?? null;
     classData.properties.forEach(property => {
       const conceptualProperty = propertyMap[property.pimIri];
-      assert(!!conceptualProperty, `propagateRegex: Conceptual property ${property.pimIri} should exists.`);
-
-      for (const dataType of property.dataTypes) {
-        if (dataType.isAttribute()) {
-          dataType.regex = dataType.regex ?? (conceptualProperty.dataTypes[0] as ConceptualModelPrimitiveType)?.regex ?? null;
+      if (conceptualProperty) {
+        for (const dataType of property.dataTypes) {
+          if (dataType.isAttribute()) {
+            dataType.regex = dataType.regex ?? (conceptualProperty.dataTypes[0] as ConceptualModelPrimitiveType)?.regex ?? null;
+          }
         }
       }
+
     });
   }
   return result;

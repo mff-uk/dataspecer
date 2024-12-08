@@ -61,21 +61,29 @@ export interface Configuration {
    * Specifies the distance after which should the alignment line disappear (should be multiple of ySnapGrid) - y coordinate
    */
   alignmentYSnapGrid: number;
+
+  /**
+   * This color should be used for models without any color.
+   */
+  defaultModelColor: string;
 }
+
+const DEFAULT_CONFIGURATION : Configuration = Object.freeze({
+  languagePreferences: ["en", "es", "de", "cs", "sk"],
+  nameToIri: NamingConventions.lowerCamelCase,
+  nameToClassIri: NamingConventions.upperCamelCase,
+  hideIdentifier: true,
+  hideRelationCardinality: true,
+  xSnapGrid: 10,
+  ySnapGrid: 10,
+  alignmentXSnapGrid: 20,
+  alignmentYSnapGrid: 20,
+  defaultModelColor: "#000069",
+});
 
 /**
  * Instance wide configuration.
  */
 export const configuration = (): Configuration => {
-  return {
-    languagePreferences: ["en", "es", "de", "cs", "sk"],
-    nameToIri: NamingConventions.lowerCamelCase,
-    nameToClassIri: NamingConventions.upperCamelCase,
-    hideIdentifier: true,
-    hideRelationCardinality: true,
-    xSnapGrid: 10,
-    ySnapGrid: 10,
-    alignmentXSnapGrid: 20,
-    alignmentYSnapGrid: 20,
-  };
+  return DEFAULT_CONFIGURATION;
 };

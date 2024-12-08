@@ -358,8 +358,8 @@ export const DEFAULT_TEMPLATE = `
             {{/if}}
             <a href="{{xml-href name type="element" structure=referencesStructure}}"><code>{{xml-qname name}}</code></a> [{{../cardinalityMin}}..{{#if ../cardinalityMax}}{{../cardinalityMax}}{{else}}*{{/if}}]
             {{else}}
-            {{#if (equals xsType "sequence")}}
-              sekvence [{{../cardinalityMin}}..{{#if ../cardinalityMax}}{{../cardinalityMax}}{{else}}*{{/if}}]
+            {{#if (or (equals xsType "sequence") (equals xsType "choice") )}}
+              {{#if (equals xsType "sequence")}}sekvence{{/if}}{{#if (equals xsType "choice")}}výběr jednoho prvku{{/if}} [{{../cardinalityMin}}..{{#if ../cardinalityMax}}{{../cardinalityMax}}{{else}}*{{/if}}]
               <ul>
                 {{xml-schema-complex-content contents}}
               </ul>

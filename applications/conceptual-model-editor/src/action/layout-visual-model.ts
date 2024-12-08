@@ -4,7 +4,6 @@ import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { ActionsContextType } from "./actions-react-binding";
 import { UseDiagramType } from "../diagram/diagram-hook";
-import { addNodeToVisualModelAction } from "./add-node-to-visual-model";
 import { XY } from "@dataspecer/layout";
 import { computeMiddleOfRelatedAssociationsPositionAction } from "./utils";
 import { ClassesContextType } from "../context/classes-context";

@@ -8,6 +8,7 @@ import {
     type SemanticModelRelationship,
     isSemanticModelAttribute,
     isSemanticModelClass,
+    isSemanticModelGeneralization,
     isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
@@ -19,11 +20,10 @@ import {
 
 import { useClassesContext } from "../../context/classes-context";
 import { useModelGraphContext } from "../../context/model-context";
-import { AddConceptRow } from "../components/add-concept-row";
 import { InputEntityRow } from "../components/input-row";
 import { RowHierarchy } from "./row-hierarchy";
 import { shortenStringTo } from "../../util/utils";
-import { useActions } from "../../action/actions-react-binding";
+import { ActionsContextType, useActions } from "../../action/actions-react-binding";
 import { ExpandModelButton } from "../components/expand-model";
 import { type VisualEntity, isVisualNode, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
 
@@ -165,29 +165,26 @@ export const EntitiesOfModel = (props: {
         }
     };
 
-    /**
-     * Open dialog to create a new class in given model.
-     * The model is in fact this model, so we can remove the argument in the future.
-     */
-    const handleAddClass = (model: InMemorySemanticModel) => {
-        actions.openCreateClassDialog(model);
-    };
-
     const handleAddToView = (entity: Entity) => {
-        if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
-            actions.addNodeToVisualModel(model.getId(), entity.id);
-        } else {
+        if (isSemanticModelClass(entity)) {
+            actions.addClassToVisualModel(model.getId(), entity.id, null);
+        } else if (isSemanticModelClassUsage(entity)) {
+            actions.addClassProfileToVisualModel(model.getId(), entity.id, null);
+        } else if (isSemanticModelRelationship(entity)) {
             actions.addRelationToVisualModel(model.getId(), entity.id);
+        } else if (isSemanticModelRelationshipUsage(entity)) {
+            actions.addRelationProfileToVisualModel(model.getId(), entity.id);
+        } else if (isSemanticModelGeneralization(entity)) {
+            actions.addGeneralizationToVisualModel(model.getId(), entity.id);
         }
     };
 
-
     const handleDeleteFromView = (identifier: string) => {
-        actions.removeFromVisualModel(identifier);
+        actions.removeFromVisualModel([identifier]);
     };
 
     const handleDeleteEntity = async (model: InMemorySemanticModel | ExternalSemanticModel, identifier: string) => {
-        await actions.deleteFromSemanticModel(model.getId(), identifier);
+        await actions.deleteFromSemanticModels([{identifier, sourceModel: model.getId()}]);
     };
 
     const handleSetViewportToEntity = (identifier: string) => {
@@ -201,6 +198,7 @@ export const EntitiesOfModel = (props: {
             <div className="flex flex-row justify-between">
                 <h4>Ⓜ {displayName}</h4>
                 <div className="flex flex-row">
+                    {renderAddButton(actions, entityType, model)}
                     <ExpandModelButton isOpen={listCollapsed} onClick={() => setListCollapsed(!listCollapsed)} />
                 </div>
             </div>
@@ -221,7 +219,7 @@ export const EntitiesOfModel = (props: {
                             onCanvas={visible}
                         />
                     ))}
-                    {renderExternalSemanticModelSearch(entityType, model, handleAddClass)}
+                    {renderExternalSemanticModelSearch(entityType, model)}
                 </ul>
             )}
         </li>
@@ -242,32 +240,51 @@ function getRepresented(entity: VisualEntity): string | null {
  * Render input to add a class.
  * This is search box for ExternalSemanticModel and a "add" button for InMemorySemanticModel.
  */
-function renderExternalSemanticModelSearch(type: EntityType, model: EntityModel, onAddClass: (model: InMemorySemanticModel) => void) {
+function renderExternalSemanticModelSearch(type: EntityType, model: EntityModel) {
     if (type !== EntityType.Class) {
         return null;
     }
     if (model instanceof ExternalSemanticModel) {
-
         const onClick = (search: string) => {
-            model.search(search)
-                .then(async found => {
-                    for (const item of found) {
-                        // We need to use IRI as ExternalSemanticModel,
-                        // or sgov in time of writing, does not support identifier.
-                        if (item.iri === null) {
-                            continue;
-                        }
-                        await model.allowClass(item.iri);
+            model.search(search).then(async found => {
+                for (const item of found) {
+                    // We need to use IRI as ExternalSemanticModel,
+                    // or sgov in time of writing, does not support identifier.
+                    if (item.iri === null) {
+                        continue;
                     }
-                })
-                .catch(console.error);
+                    await model.allowClass(item.iri);
+                }
+            }).catch(console.error);
         };
-
-        return (
-            <InputEntityRow onClickHandler={onClick} />
-        );
-    } else if (model instanceof InMemorySemanticModel) {
-        return <AddConceptRow onClick={() => onAddClass(model)} />;
+        return <InputEntityRow onClickHandler={onClick} />;
     }
     return null;
+}
+
+function renderAddButton(actions: ActionsContextType, type: EntityType, model: EntityModel) {
+    if (!(model instanceof InMemorySemanticModel) || type === EntityType.Profile) {
+        return null;
+    }
+
+    const onAdd = () => {
+        switch (type) {
+            case EntityType.Class:
+                actions.openCreateClassDialog(model.getId());
+                break;
+            case EntityType.Attribute:
+                actions.openCreateAttributeDialog(model.getId());
+                break;
+            case EntityType.Relationship:
+                actions.openCreateAssociationDialog(model.getId());
+                break;
+        }
+    };
+
+    return (
+        <div className="flex flex-row justify-between whitespace-nowrap pb-1 pt-0.5">
+            &nbsp;
+            <button className="ml-2 px-1" onClick={onAdd}>➕</button>
+        </div>
+    )
 }

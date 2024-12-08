@@ -2,6 +2,7 @@ import { BackendPackageService } from "@dataspecer/core-v2/project";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
 import { createContext, useRef, useState } from "react";
 import { Package } from "../../../packages/core-v2/lib/project/resource/resource";
+import { StructureEditorBackendService } from "@dataspecer/backend-utils/connectors/specification";
 
 const backendUrl = import.meta.env.VITE_BACKEND;
 
@@ -10,6 +11,8 @@ type ResourceWithIris = Package & { subResourcesIri: string[] };
 export const ResourcesContext = createContext<Record<string, ResourceWithIris>>({});
 
 export const packageService = new BackendPackageService(backendUrl, (...p) => fetch(...p));
+
+export const getSpecificationService = (parentPackage: string) => new StructureEditorBackendService(backendUrl, (...p) => fetch(...p), parentPackage);
 
 const resourcesBeingFetched = new Set<string>();
 
@@ -22,7 +25,7 @@ export async function requestLoadPackage(iri: string, forceUpdate = false) {
         return;
     }
     resourcesBeingFetched.add(iri);
-    
+
     const pckg = await packageService.getPackage(iri) as ResourceWithIris;
     resourcesBeingFetched.delete(iri);
 
@@ -39,7 +42,7 @@ export async function requestLoadPackage(iri: string, forceUpdate = false) {
         }
         delete pckg.subResources;
     }
-    
+
     copiedResourcesMemory[iri] = pckg;
     setResourcesReact(copiedResourcesMemory);
     resourcesMemory.current = copiedResourcesMemory;

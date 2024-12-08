@@ -20,7 +20,7 @@ This repository is a monorepo - consisting of several packages, applications, an
 
 For more information about individual packages, applications, and services, please see the given directory. Each contains a README.md file with build instructions and additional documentation.
 
-- [applications](./applications) - web and cli clients
+- [applications](./applications) - web clients
 - [packages](./packages) - core and helper packages and individual generators
 - [services](./services) - backend service (used by both web and cli clients)
 

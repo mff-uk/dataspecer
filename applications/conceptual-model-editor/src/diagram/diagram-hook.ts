@@ -89,6 +89,7 @@ const noOperationDiagramActions: DiagramActions = {
   setContent: noOperationAsync,
   setViewportToPosition: noOperation,
   centerViewportToNode: noOperation,
+  fitToView: noOperation,
   getGroups: noOperationArray,
   addGroup: noOperation,
   removeGroups: noOperation,
@@ -104,6 +105,8 @@ const noOperationDiagramActions: DiagramActions = {
   setSelectedEdges: noOperation,
   getViewport: noOperationThrow,
   renderToSvgString: noOperationNullAsync,
+  openDragEdgeToCanvasToolbar: noOperation,
+  openSelectionActionsToolbar: noOperation,
 };
 
 const noOperationCallbacks: DiagramCallbacks = {
@@ -125,4 +128,14 @@ const noOperationCallbacks: DiagramCallbacks = {
   onCreateConnectionToNode: noOperation,
   onCreateConnectionToNothing: noOperation,
   onToggleAnchorForNode: noOperation,
+  onShowSelectionActions: noOperation,
+  onLayoutSelection: noOperation,
+  onCreateGroup: noOperation,
+  onShowExpandSelection: noOperation,
+  onShowFilterSelection: noOperation,
+  onCanvasOpenCreateClassDialog: noOperation,
+  onCreateNewViewFromSelection: noOperation,
+  onProfileSelection: noOperation,
+  onHideSelection: noOperation,
+  onDeleteSelection: noOperation,
 };
