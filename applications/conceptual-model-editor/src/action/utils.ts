@@ -147,7 +147,6 @@ const checkForAssociatedClass = (id: string, end: ZeroOrOne, classes: SemanticMo
  */
 const findAssociatedClasses = (id: string, classes: SemanticModelClass[],
                                 relationships: SemanticModelRelationship[]): SemanticModelClass[] => {
-    // TODO: Don't forget about profiles, also I think that I wrote the same method for the selection !!!!!
     const theClass = classes.find(cclass => cclass.id === id);
     if(theClass === undefined) {
         return [];

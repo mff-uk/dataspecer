@@ -66,8 +66,6 @@ export const EntityRow = (props: {
 
     const sourceModelIsLocal = sourceModel instanceof InMemorySemanticModel;
 
-    const actions = useActions();
-
     return (
         <div
             className="flex flex-row justify-between flex-wrap whitespace-nowrap hover:shadow"
