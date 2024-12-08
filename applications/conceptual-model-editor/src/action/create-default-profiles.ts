@@ -102,7 +102,7 @@ function createDefaultClassProfile(
 
   if(shouldBeAddedToVisualModel) {
     if(isWritableVisualModel(visualModel)) {
-      addSemanticClassProfileToVisualModelAction(notifications, graph, visualModel, diagram, createdClassProfile.identifier, createdClassProfile.model.getId(), null);
+      addSemanticClassProfileToVisualModelAction(notifications, graph, classesContext, visualModel, diagram, createdClassProfile.identifier, createdClassProfile.model.getId(), null);
     }
   }
 

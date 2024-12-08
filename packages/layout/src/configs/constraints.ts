@@ -496,7 +496,7 @@ export class RandomConfiguration extends AlgorithmConfiguration {
 
 }
 
-
+// TODO RadStr: I can return default object in the same way as for LayeredConfiguration.
 /**
  * General Class which has all relevant constraints for the stress like algorithm. The classes extending this should convert the constraints into
  * the representation which will be used in the algorithm (that means renaming, transforming[, etc.] the parameters in the data field)

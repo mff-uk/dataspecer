@@ -28,6 +28,10 @@ export class ReactflowDimensionsEstimator implements NodeDimensionQueryHandler {
                           Math.max(iriLen * APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER,
                                    WIDTH_OF_EMPTY_ATTR + maxAtrLength * APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER);
 
+        // Fallback just in case, I don't think it should happen
+        if(MAX_WIDTH <= 0) {
+            ReactflowDimensionsConstantEstimator.getDefaultWidth();
+        }
         return MAX_WIDTH;
     }
 
@@ -45,6 +49,11 @@ export class ReactflowDimensionsEstimator implements NodeDimensionQueryHandler {
         }
 
         const height: number = HEIGHT_AFTER_FIRST_ATTRIBUTE + ATTR_COUNT * ATTR_HEIGHT;
+
+        // Fallback just in case, I don't think it should happen
+        if(height <= 0) {
+            ReactflowDimensionsConstantEstimator.getDefaultHeight();
+        }
         return height;
     }
 }

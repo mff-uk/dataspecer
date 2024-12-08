@@ -5,7 +5,7 @@ import { modelTypeToName } from "@/known-models";
 import { BetterModalProps } from "@/lib/better-modal";
 import { ResourcesContext, requestLoadPackage } from "@/package";
 import { LOCAL_VISUAL_MODEL } from "@dataspecer/core-v2/model/known-models";
-import { performLayoutOfSemanticModel, type VisualEntitiesAllType } from "@dataspecer/layout";
+import { performLayoutOfSemanticModel, type VisualEntitiesWithModelVisualInformation } from "@dataspecer/layout";
 import { Loader } from "lucide-react";
 import { useContext, useState } from "react";
 import { useConfigDialog } from "./layout-dialog";
@@ -55,10 +55,14 @@ export const Autolayout = ({ iri, isOpen, resolve, parentIri }: { iri: string, p
     console.info("resources");
     console.info(resources);
     console.info(resource);
-
-    let visualEntities: VisualEntitiesAllType;
+    const visualEntities: VisualEntitiesWithModelVisualInformation = {};
     try {
-      visualEntities = await performLayoutOfSemanticModel(entities, semanticModelId, getValidConfig());
+      const layoutedVisualEntities = await performLayoutOfSemanticModel(entities, semanticModelId, getValidConfig());
+      Object.entries(layoutedVisualEntities).forEach(([visualEntityIdentifier, layoutedVisualEntity]) => {
+        visualEntities[visualEntityIdentifier] = layoutedVisualEntity.visualEntity;
+      });
+
+
       const generatedIdentifierForModelColor = (Math.random() + 1).toString(36).substring(7);
       visualEntities[generatedIdentifierForModelColor] = {
         type: [MODEL_VISUAL_TYPE],
