@@ -26,7 +26,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { BackendConnectorContext, DefaultConfigurationContext } from "../../../application";
 import { useDialog } from "../../../editor/dialog";
-import { DataSpecification, HttpSemanticModelStoreDescriptor } from "../../../specification";
+import { DataSpecification, HttpSemanticModelStoreDescriptor } from "@dataspecer/backend-utils/connectors/specification";
 import { ConstructedStoreCacheContext, DataSpecificationsContext } from "../../app";
 import { ConfigureArtifacts } from "../../artifacts/configuration/configure-artifacts";
 import { ConfigureButton } from "../../artifacts/configuration/configure-button";
@@ -234,7 +234,7 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
                                     gap: "1rem",
                                 }}>
                                     <Button variant="outlined" color={"primary"} component={Link}
-                                            to={`${import.meta.env.VITE_MANAGER_BASE_URL}specification?dataSpecificationIri=${encodeURIComponent(specification)}`}>{t("detail")}</Button>
+                                            to={`/specification?dataSpecificationIri=${encodeURIComponent(specification)}`}>{t("detail")}</Button>
                                 </Box>
                             </TableCell>
                         </TableRow>

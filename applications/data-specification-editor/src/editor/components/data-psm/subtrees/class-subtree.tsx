@@ -18,7 +18,7 @@ import {DeleteProperty} from "../../../operations/delete-property";
  *   1. can be removed by delete button
  *   2. can be moved by drag-and-drop
  */
-export const DataPsmClassSubtree: React.FC<{iri: string, isOpen: boolean, inheritanceOrTree?: InheritanceOrTree} & ObjectContext> = memo(({iri, isOpen, ...props}) => {
+export const DataPsmClassSubtree: React.FC<{iri: string, parentDataPsmClassIri: string, isOpen: boolean, inheritanceOrTree?: InheritanceOrTree} & ObjectContext> = memo(({iri, isOpen, ...props}) => {
   const store = useFederatedObservableStore();
   const {resource} = useResource<DataPsmClass>(iri);
   const readOnly = false;
@@ -39,7 +39,8 @@ export const DataPsmClassSubtree: React.FC<{iri: string, isOpen: boolean, inheri
                   <DataPsmPropertyType
                       iri={part}
                       dragHandleProps={readOnly ? undefined : provided.dragHandleProps}
-                      parentDataPsmClassIri={iri}
+                      parentDataPsmClassIri={props.parentDataPsmClassIri}
+                      nearestContainerIri={iri}
                       index={index}
                       menu={[
                         <DataPsmDeleteButton onClick={() => deleteProperty(part)} />

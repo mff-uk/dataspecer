@@ -9,7 +9,7 @@ import {httpFetch} from "@dataspecer/core/io/fetch/fetch-browser";
 import {getDefaultConfiguration, mergeConfigurations} from "@dataspecer/core/configuration/utils";
 import {getDefaultConfigurators} from "./configurators";
 import { SnackbarProvider } from "notistack";
-import { StructureEditorBackendService } from "./specification";
+import { StructureEditorBackendService } from "@dataspecer/backend-utils/connectors/specification";
 
 export const BackendConnectorContext = React.createContext(null as unknown as StructureEditorBackendService);
 
@@ -77,12 +77,12 @@ export const Application = () => {
  */
 const MainRouter = () => {
     const Page = () => useRoutes([
-        {path: import.meta.env.VITE_MANAGER_BASE_URL + "", element: <ManagerPage><Home/></ManagerPage>},
-        {path: import.meta.env.VITE_MANAGER_BASE_URL + "specification", element: <ManagerPage><Specification/></ManagerPage>},
-        {path: import.meta.env.VITE_STRUCTURE_EDITOR_BASE_URL, element: <EditorPage/>}
+        {path: "/", element: <ManagerPage><Home/></ManagerPage>},
+        {path: "specification", element: <ManagerPage><Specification/></ManagerPage>},
+        {path: "editor", element: <EditorPage/>}
     ]);
 
-    return <BrowserRouter basename={"/"}>
+    return <BrowserRouter basename={(import.meta.env.VITE_BASE_PATH ?? "") + "/"}>
         <Page/>
     </BrowserRouter>;
 }

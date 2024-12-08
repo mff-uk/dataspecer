@@ -11,7 +11,7 @@ const translations: Record<string, string | Function> = {
   "header.package.missing": "Package of unknown name",
   "header.package.save": "💾 Save",
   "header.package.save.title": "Save package",
-  "header.package.disable": "To be able to save to backend, make sure you are in a package.  Start with visiting tjhe manager.",
+  "header.package.disable": "To be able to save to backend, make sure you are in a package. Start with visiting the manager.",
   "header.package.save-and-leave": "💾👋 Save and leave",
   "header.package.save-and-leave.title": "Save package and go back to manager",
   //
@@ -31,6 +31,10 @@ const translations: Record<string, string | Function> = {
   "create-profile-button.title": "Create profile",
   //
   "create-association-dialog.label": "Create a new association",
+  "edit-association-dialog.label": "Edit an association",
+  "create-dialog.btn-ok": "✅ Create",
+  "create-association-profile-dialog.label": "Create a new association profile",
+  "edit-association-profile-dialog.label": "Edit an association profile",
   //
   "modify-entity-dialog.label-class": "Class modification",
   "modify-entity-dialog.label-class-profile": "Class profile modification",
@@ -184,7 +188,7 @@ export const t: TranslationFunction = (text, ...args) => {
   const result = translations[text];
   if (result === undefined) {
     logger.missingTranslation(text);
-    return "MISSING: " + text;
+    return text;
   } else  if (result instanceof Function) {
     return result(...args);
   } else {

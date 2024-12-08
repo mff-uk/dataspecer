@@ -7,7 +7,7 @@ import { FederatedObservableStore } from "@dataspecer/federated-observable-store
 import { RdfsFileAdapter } from "@dataspecer/rdfs-adapter";
 import { SgovAdapter } from "@dataspecer/sgov-adapter";
 import { WikidataAdapter } from "@dataspecer/wikidata-experimental-adapter";
-import { DataSpecification, StructureEditorBackendService } from '../../specification';
+import { DataSpecification, StructureEditorBackendService } from '@dataspecer/backend-utils/connectors/specification';
 import { useAsyncMemo } from '../hooks/use-async-memo';
 import { OperationContext } from "../operations/context/operation-context";
 

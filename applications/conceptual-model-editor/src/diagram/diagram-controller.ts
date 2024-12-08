@@ -589,6 +589,12 @@ const createActions = (
         focusNodeAction(reactFlow, node);
       }
     },
+    fitToView(identifiers) {
+      const nodes = identifiers.map(identifier => reactFlow.getNode(identifier)).filter(node => node !== undefined);
+      if (nodes.length > 0) {
+        focusNodesAction(reactFlow, nodes);
+      }
+    },
     renderToSvgString() {
       return diagramContentAsSvg(reactFlow.getNodes());
     },
@@ -679,6 +685,14 @@ const focusNodeAction = (reactFlow: ReactFlowContext, node: Node) => {
   const zoom = 1.85;
   // TODO We can return the promise to allow caller to react on it.
   void reactFlow.setCenter(x, y, { zoom, duration: 1000 });
+};
+
+// Should be superset of the focusNodeAction
+const focusNodesAction = (reactFlow: ReactFlowContext, nodes: Node[]) => {
+  reactFlow.fitView({nodes: nodes,
+    duration: 1000,
+    minZoom: 0.125
+  });
 };
 
 const createDiagramContext = (

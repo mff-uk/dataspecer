@@ -36,6 +36,10 @@ export const sxStyles = {
         fontWeight: "bold",
         color: "#b57e3f",
     },
+    container: {
+        fontWeight: "bold",
+        color: "#a90079",
+    },
     or: {
         fontWeight: "bold",
         color: "#4caf50",

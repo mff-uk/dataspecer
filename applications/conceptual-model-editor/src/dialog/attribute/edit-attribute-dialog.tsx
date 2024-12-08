@@ -1,20 +1,21 @@
 import { type DialogWrapper, type DialogProps } from "../dialog-api";
-import { configuration, t } from "../../application";
+import { t, configuration } from "../../application";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
 import { SelectModel } from "../class/components/select-model";
-import { CreateAssociationDialogState, useCreateAssociationDialogController } from "./create-association-dialog-controller";
 import { SelectEntity } from "../class/components/select-entity";
-import { SelectCardinality } from "../attribute/components/select-cardinality";
+import { SelectDataType } from "./components/select-data-type";
+import { SelectCardinality } from "./components/select-cardinality";
 import { InputIri } from "../class/components/input-iri";
+import { CreateAttributeDialogState, useCreateAttributeDialogController } from "./edit-attribute-dialog-controller";
 
-export const createCreateAssociationDialog = (
-  state: CreateAssociationDialogState,
-  onConfirm: (state: CreateAssociationDialogState) => void,
-): DialogWrapper<CreateAssociationDialogState> => {
+export const createCreateAttributeDialog = (
+  state: CreateAttributeDialogState,
+  onConfirm: (state: CreateAttributeDialogState) => void,
+): DialogWrapper<CreateAttributeDialogState> => {
   return {
-    label: "create-association-dialog.label",
-    component: CreateAssociationDialog,
+    label: "create-attribute-dialog.label",
+    component: CreateAttributeDialog,
     state,
     confirmLabel: "modify-dialog.btn-ok",
     cancelLabel: "modify-dialog.btn-close",
@@ -24,12 +25,12 @@ export const createCreateAssociationDialog = (
   };
 }
 
-function validate(state: CreateAssociationDialogState): boolean {
+function validate(state: CreateAttributeDialogState): boolean {
   return state.iri.trim() !== "";
 }
 
-const CreateAssociationDialog = (props: DialogProps<CreateAssociationDialogState>) => {
-  const controller = useCreateAssociationDialogController(props);
+const CreateAttributeDialog = (props: DialogProps<CreateAttributeDialogState>) => {
+  const controller = useCreateAttributeDialogController(props);
   const state = props.state;
   return (
     <>
@@ -90,7 +91,7 @@ const CreateAssociationDialog = (props: DialogProps<CreateAssociationDialogState
           </DialogDetailRow>
         }
         <DialogDetailRow detailKey={t("range")}>
-          <SelectEntity
+          <SelectDataType
             language={state.language}
             items={state.availableRangeItems}
             value={state.range}

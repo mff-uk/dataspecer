@@ -89,6 +89,7 @@ const noOperationDiagramActions: DiagramActions = {
   setContent: noOperationAsync,
   setViewportToPosition: noOperation,
   centerViewportToNode: noOperation,
+  fitToView: noOperation,
   getGroups: noOperationArray,
   addGroup: noOperation,
   removeGroups: noOperation,

@@ -10,7 +10,7 @@ import {
 import { useSnackbar } from "notistack";
 import { FC, useCallback, useContext, useState } from "react";
 import { BackendConnectorContext } from "../../../application";
-import { DataSpecification } from "../../../specification";
+import { DataSpecification } from "@dataspecer/backend-utils/connectors/specification";
 import { DataSpecificationsContext } from "../../app";
 import { selectLanguage } from "../../name-cells";
 

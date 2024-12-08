@@ -405,8 +405,11 @@ function createActionsContext(
   };
 
   const openModifyDialog = (identifier: string) => {
-    openModifyDialogAction(
-      options, dialogs, notifications, classes, useClasses, graph, identifier);
+    withVisualModel(notifications, graph, (visualModel) => {
+      openModifyDialogAction(
+        options, dialogs, notifications, classes, useClasses, graph,
+        visualModel, identifier);
+    });
   };
 
   const openCreateClassDialog = (model: string) => {
@@ -506,7 +509,7 @@ function createActionsContext(
   };
 
   const centerViewportToVisualEntity = (model: string, identifier: string) => {
-    centerViewportToVisualEntityAction(notifications, graph, diagram, model, identifier);
+    centerViewportToVisualEntityAction(notifications, graph, classes, diagram, identifier, model);
   };
 
   const addEntitiesFromSemanticModelToVisualModel = (semanticModelIdentifier: string) => {

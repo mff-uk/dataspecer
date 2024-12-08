@@ -1,6 +1,6 @@
 import {ConceptualModel} from "../../conceptual-model";
 import {StructureModel} from "../model";
-import {assert, clone} from "../../core";
+import {clone} from "../../core";
 import {buildPropertyMap} from "../../conceptual-model/utils";
 
 /**
@@ -29,8 +29,9 @@ export function propagateReverse(
         }
 
         const conceptualProperty = propertyMap[property.pimIri];
-        assert(!!conceptualProperty, `propagateReverse: Conceptual property ${property.pimIri} should exists.`);
-        property.isReverse = conceptualProperty.isReverse;
+        if (conceptualProperty) {
+          property.isReverse = conceptualProperty.isReverse;
+        }
       }
     );
   }

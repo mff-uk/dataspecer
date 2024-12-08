@@ -10,7 +10,7 @@ export function getCMELink(packageId: string, viewId: string) {
 }
 
 export function getSchemaLink(packageId: string) {
-  return (import.meta.env.VITE_DATA_SPECIFICATION_DETAIL ?? "") + "?dataSpecificationIri=" + encodeURIComponent(packageId);
+  return (import.meta.env.VITE_DATA_SPECIFICATION_EDITOR ?? "") + "/specification?dataSpecificationIri=" + encodeURIComponent(packageId);
 }
 
 export interface createModelContext {
@@ -99,21 +99,7 @@ export const createModelInstructions = {
           "dataPsmParts": []
         }
       }}))(context);
-      const pckg = await packageService.getPackage(context.parentIri);
-      if (!pckg.subResources?.some(r => r.types.includes(V1.PIM))) {
-        await getHookForStandardModel(V1.PIM, iri => ({operations: [], resources: {
-          [iri]: {
-            "types": [
-                "https://ofn.gov.cz/slovník/pim/Schema"
-            ],
-            "iri": iri,
-            "pimHumanLabel": null,
-            "pimHumanDescription": null,
-            "pimParts": []
-          }
-        }}))(context);
-      }
-  },
+    },
   },
   [LOCAL_VISUAL_MODEL]: {
     needsNaming: false,
@@ -147,33 +133,12 @@ export const createModelInstructions = {
       "entities": {}
     })),
   },
-  [V1.PIM]: {
-    needsNaming: true,
-    createHook: async (context: createModelContext) => {
-      await getHookForStandardModel(V1.PIM, iri => ({operations: [], resources: {
-        [iri]: {
-          "types": [
-              "https://ofn.gov.cz/slovník/pim/Schema"
-          ],
-          "iri": iri,
-          "pimHumanLabel": context.label,
-          "pimHumanDescription": context.description,
-          "pimParts": []
-        }
-      }}))(context);
-
-      await getHookForStandardModel(V1.CIM, () => [])({...context, iri: context.parentIri + "/cim", label: undefined});
-      await getHookForStandardModel(V1.GENERATOR_CONFIGURATION, () => ({}))({...context, iri: context.parentIri + "/default-generator-configuration", label: undefined});
-    },
-  },
 }
 
 export const modelTypeToName = {
     [LOCAL_PACKAGE]: "Directory",
     [LOCAL_VISUAL_MODEL]: "Visual model",
     [LOCAL_SEMANTIC_MODEL]: "Semantic model",
-    [V1.CIM]: "CIM",
-    [V1.PIM]: "PIM",
     [V1.PSM]: "PSM",
     [V1.GENERATOR_CONFIGURATION]: "Generator configuration",
     "https://dataspecer.com/core/model-descriptor/sgov": "SSP",
@@ -194,12 +159,6 @@ export const ModelIcon = ({ type, className }: { type: string[], className?: str
   }
   if (type.includes(LOCAL_SEMANTIC_MODEL)) {
     return <LibraryBig className={cn("text-yellow-400", className)} />;
-  }
-  if (type.includes(V1.CIM)) {
-    return <Globe2 className={cn("text-green-400", className)} />;
-  }
-  if (type.includes(V1.PIM)) {
-    return <LibraryBig className={cn("text-orange-400", className)} />;
   }
   if (type.includes(V1.PSM)) {
     return <Code className={cn("text-red-400", className)} />;

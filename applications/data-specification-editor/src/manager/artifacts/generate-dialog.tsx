@@ -9,7 +9,7 @@ import { saveAs } from "file-saver";
 import { clone, isEqual } from "lodash";
 import React, { FC, useContext, useEffect, useState } from "react";
 import { BackendConnectorContext, DefaultConfigurationContext } from "../../application";
-import { DataSpecification, HttpSemanticModelStoreDescriptor } from "../../specification";
+import { DataSpecification, HttpSemanticModelStoreDescriptor } from "@dataspecer/backend-utils/connectors/specification";
 import { ConstructedStoreCacheContext, DataSpecificationsContext } from "../app";
 import { ConfigureArtifactsConfiguration } from "./configuration/configure-artifacts-configuration";
 import { DefaultArtifactBuilder } from "./default-artifact-builder";

@@ -8,7 +8,7 @@ import { DefaultClientConfiguration } from "../../../configuration";
 import { useAsyncMemo } from "../../hooks/use-async-memo";
 import { OperationContext } from "../../operations/context/operation-context";
 import { Configuration, useProvidedSourceSemanticModel } from "../configuration";
-import { DataSpecification } from '../../../specification';
+import { DataSpecification } from '@dataspecer/backend-utils/connectors/specification';
 
 /**
  * Creates a configuration, that is purely local and does not require any

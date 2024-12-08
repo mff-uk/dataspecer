@@ -64,7 +64,7 @@ export function sanitizeDuplicitiesInRepresentativeLabels<Type extends LabeledEn
     }
   }
 
-  const getModelLabel = (language: string, model:string) : string => {
+  const getModelLabel = (language: string, model: string): string => {
     const modelKey = createModelKey(language, model);
     const defaultModelKey = createModelKey("", model);
     return modelLabelMap[modelKey] ?? modelLabelMap[defaultModelKey] ?? "";

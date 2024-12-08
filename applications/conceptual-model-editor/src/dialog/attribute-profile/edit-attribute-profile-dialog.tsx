@@ -3,22 +3,23 @@ import { configuration, t } from "../../application";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
 import { SelectModel } from "../class/components/select-model";
-import { CreateAssociationProfileDialogState, useCreateAssociationProfileDialogController } from "./create-association-profile-dialog-controller";
+import { CreateAttributeProfileDialogState, useCreateAttributeProfileDialogController } from "./edit-attribute-profile-dialog-controller";
 import { SelectEntity } from "../class/components/select-entity";
 import { SelectCardinality } from "../attribute/components/select-cardinality";
 import { InputIri } from "../class/components/input-iri";
 import { OverrideCheckbox } from "../class-profile/components/checkbox-override";
 import { languageStringToString } from "../../utilities/string";
-import { ValidationMessage } from "./components/validation-message";
+import { ValidationMessage } from "../association-profile/components/validation-message";
+import { SelectDataType } from "../attribute/components/select-data-type";
 import { isValid } from "../utilities/validation-utilities";
 
-export const createCreateAssociationProfileDialog = (
-  state: CreateAssociationProfileDialogState,
-  onConfirm: (state: CreateAssociationProfileDialogState) => void,
-): DialogWrapper<CreateAssociationProfileDialogState> => {
+export const createCreateAttributeProfileDialog = (
+  state: CreateAttributeProfileDialogState,
+  onConfirm: (state: CreateAttributeProfileDialogState) => void,
+): DialogWrapper<CreateAttributeProfileDialogState> => {
   return {
-    label: "create-association-dialog.label",
-    component: CreateAssociationProfileDialog,
+    label: "create-attribute-dialog.label",
+    component: CreateAttributeProfileDialog,
     state,
     confirmLabel: "create-profile-dialog.btn-ok",
     cancelLabel: "create-profile-dialog.btn-close",
@@ -28,7 +29,7 @@ export const createCreateAssociationProfileDialog = (
   };
 }
 
-function validate(state: CreateAssociationProfileDialogState): boolean {
+function validate(state: CreateAttributeProfileDialogState): boolean {
   return state.iri.trim() !== ""
     && isValid(state.domainValidation)
     && isValid(state.domainCardinalityValidation)
@@ -36,8 +37,8 @@ function validate(state: CreateAssociationProfileDialogState): boolean {
     && isValid(state.rangeCardinalityValidation);
 }
 
-const CreateAssociationProfileDialog = (props: DialogProps<CreateAssociationProfileDialogState>) => {
-  const controller = useCreateAssociationProfileDialogController(props);
+const CreateAttributeProfileDialog = (props: DialogProps<CreateAttributeProfileDialogState>) => {
+  const controller = useCreateAttributeProfileDialogController(props);
   const state = props.state;
   const languagePreferences = configuration().languagePreferences;
   return (
@@ -149,7 +150,7 @@ const CreateAssociationProfileDialog = (props: DialogProps<CreateAssociationProf
         </DialogDetailRow>
         <DialogDetailRow detailKey={"Range"}>
           <div className="flex">
-            <SelectEntity
+            <SelectDataType
               language={state.language}
               items={state.availableRangeItems}
               value={state.range}

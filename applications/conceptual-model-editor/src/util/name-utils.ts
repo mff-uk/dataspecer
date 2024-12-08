@@ -12,7 +12,6 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import type { EntityModel } from "@dataspecer/core-v2";
 
 import { getIri } from "./iri-utils";
 import { getDomainAndRange } from "./relationship-utils";

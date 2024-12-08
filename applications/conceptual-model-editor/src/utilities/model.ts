@@ -13,6 +13,6 @@ export function firstInMemorySemanticModel(models: Map<string, EntityModel>): In
   return null;
 }
 
-function isInMemorySemanticModel(model: EntityModel): model is InMemorySemanticModel {
+export function isInMemorySemanticModel(model: EntityModel): model is InMemorySemanticModel {
   return model instanceof InMemorySemanticModel;
 }

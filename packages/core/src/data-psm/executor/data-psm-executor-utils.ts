@@ -3,7 +3,7 @@ import {
   CoreResource,
   CoreExecutorResult,
 } from "../../core";
-import { DataPsmSchema, DataPsmClass } from "../model";
+import { DataPsmSchema, DataPsmClass, DataPsmContainer } from "../model";
 
 export async function loadDataPsmSchema(
   reader: CoreResourceReader
@@ -20,9 +20,9 @@ export async function loadDataPsmSchema(
 export async function loadDataPsmClass(
   reader: CoreResourceReader,
   iri: string
-): Promise<DataPsmClass | null> {
+): Promise<DataPsmClass | DataPsmContainer | null> {
   const result = await reader.readResource(iri);
-  if (DataPsmClass.is(result)) {
+  if (DataPsmClass.is(result) || DataPsmContainer.is(result)) {
     return result;
   }
   return null;

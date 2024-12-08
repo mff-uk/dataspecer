@@ -37,7 +37,7 @@ import { createWritableVisualModel } from "./util/visual-model-utils";
 import { OptionsContextProvider } from "./application/options";
 
 import "./page.css";
-import { migrateVisualModelFromV0 } from "./dataspecer/visual-model-v0-to-v1";
+import { migrateVisualModelFromV0 } from "./dataspecer/visual-model/visual-model-v0-to-v1";
 
 const _semanticModelAggregator = new SemanticModelAggregator();
 type SemanticModelAggregatorType = typeof _semanticModelAggregator;

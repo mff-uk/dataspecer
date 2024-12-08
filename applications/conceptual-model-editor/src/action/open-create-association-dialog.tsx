@@ -7,10 +7,11 @@ import { ModelGraphContextType } from "../context/model-context";
 import { Options, createLogger } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { firstInMemorySemanticModel } from "../utilities/model";
-import { CreateAssociationDialogState, createCreateAssociationDialogState } from "../dialog/association/create-association-dialog-controller";
-import { createCreateAssociationDialog } from "../dialog/association/create-association-dialog";
-import { createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
+import { createNewAssociationDialog } from "../dialog/association/edit-association-dialog";
+import { createGeneralization, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
+import { createCreateAssociationDialogState } from "../dialog/association/create-new-association-dialog-state";
+import { EditAssociationDialogState } from "../dialog/association/edit-association-dialog-controller";
 
 const LOG = createLogger(import.meta.url);
 
@@ -27,13 +28,16 @@ export function openCreateAssociationDialogAction(
   defaultModel: InMemorySemanticModel | null,
 ) {
 
-  const model = defaultModel ?? getDefaultModel(graph);
+  const model = defaultModel ?? firstInMemorySemanticModel(graph.models);
   if (model === null) {
     notifications.error("You have to create a writable vocabulary first!");
     return;
   }
 
-  const onConfirm = (state: CreateAssociationDialogState) => {
+  const state = createCreateAssociationDialogState(
+    classes, graph, visualModel, options.language, model);
+
+  const onConfirm = (state: EditAssociationDialogState) => {
     // Create association.
     const createResult = createSemanticAssociation(notifications, state);
     if (createResult === null) {
@@ -52,17 +56,12 @@ export function openCreateAssociationDialogAction(
     }
   };
 
-  openCreateAssociationDialog(
-    options, dialogs, classes, graph, visualModel, model, onConfirm);
-}
-
-function getDefaultModel(graph: ModelGraphContextType): InMemorySemanticModel | null {
-  return firstInMemorySemanticModel(graph.models);
+  dialogs.openDialog(createNewAssociationDialog(state, onConfirm));
 }
 
 function createSemanticAssociation(
   notifications: UseNotificationServiceWriterType,
-  state: CreateAssociationDialogState): {
+  state: EditAssociationDialogState): {
     identifier: string,
     model: InMemorySemanticModel
   } | null {
@@ -91,22 +90,19 @@ function createSemanticAssociation(
     return null;
   }
 
+  // Perform additional modifications for which we need to have the class identifier.
+  const operations = [];
+  for (const specialization of state.specializations) {
+    operations.push(createGeneralization({
+      parent: specialization.specialized,
+      child: newAssociation.id,
+      iri: specialization.iri,
+    }));
+  }
+  model.executeOperations(operations);
+
   return {
     identifier: newAssociation.id,
     model,
   };
-}
-
-function openCreateAssociationDialog(
-  options: Options,
-  dialogs: DialogApiContextType,
-  classes: ClassesContextType,
-  graph: ModelGraphContextType,
-  visualModel: VisualModel | null,
-  model: InMemorySemanticModel,
-  onConfirm: (state: CreateAssociationDialogState) => void,
-) {
-  const state = createCreateAssociationDialogState(
-    classes, graph, visualModel, options.language, model);
-  dialogs.openDialog(createCreateAssociationDialog(state, onConfirm));
 }

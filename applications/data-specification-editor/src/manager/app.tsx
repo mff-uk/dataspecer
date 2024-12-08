@@ -1,6 +1,5 @@
 import React, {useContext, useEffect, useMemo, useState} from 'react';
-import {AppBar, Box, Container, Divider, Toolbar, Typography} from "@mui/material";
-import {Link} from "react-router-dom";
+import {AppBar, Box, Container, Divider, Link, Toolbar, Typography} from "@mui/material";
 import {StoreContext, useNewFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
 import {StoreDescriptor} from "@dataspecer/backend-utils/store-descriptor";
 import {useConstructedStoresFromDescriptors} from "./utils/use-stores-by-descriptors";
@@ -10,7 +9,7 @@ import {useLocalStorage} from "./utils/use-local-storage";
 import {BackendConnectorContext} from "../application";
 import {Help} from "../components/help";
 import {ReturnBackButton} from "../components/return-back/return-back-button";
-import { DataSpecification, StructureEditorBackendService } from '../specification';
+import { DataSpecification, StructureEditorBackendService } from '@dataspecer/backend-utils/connectors/specification';
 
 export const DataSpecificationsContext = React.createContext({
     dataSpecifications: {} as Record<string, DataSpecification>,
@@ -92,7 +91,7 @@ function App(props: {children: React.ReactNode}) {
                             <FilterContext.Provider value={filter}>
                                 <AppBar position="static" sx={{background: "#3f51b5 linear-gradient(5deg, #5d2f86, #3f51b5);"}}>
                                     <Toolbar>
-                                        <Typography variant="h6" component={Link} to={import.meta.env.VITE_MANAGER_BASE_URL} sx={{color: "white", textDecoration: "none", fontWeight: "normal"}}>
+                                        <Typography variant="h6" component={Link} href={import.meta.env.VITE_MANAGER_URL + "/"} sx={{color: "white", textDecoration: "none", fontWeight: "normal"}}>
                                             <strong>Dataspecer</strong> specification manager
                                         </Typography>
                                         <ReturnBackButton />

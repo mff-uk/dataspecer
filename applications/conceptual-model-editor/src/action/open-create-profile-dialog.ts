@@ -13,6 +13,8 @@ import {
   SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { isWritableVisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { createClassUsage, createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
 
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
@@ -24,13 +26,13 @@ import { getDomainAndRange } from "../util/relationship-utils";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
 import { CreateClassProfileDialogState, createCreateProfileClassDialogState } from "../dialog/class-profile/create-class-profile-dialog-controller";
 import { createCreateClassProfileDialog } from "../dialog/class-profile/create-class-profile-dialog";
-import { CreateAssociationProfileDialogState, createCreateAssociationProfileDialogState } from "../dialog/association-profile/create-association-profile-dialog-controller";
-import { createCreateAssociationProfileDialog } from "../dialog/association-profile/create-association-profile-dialog";
-import { CreateAttributeProfileDialogState, createCreateAttributeProfileDialogState } from "../dialog/attribute-profile/create-attribute-profile-dialog-controller";
-import { createCreateAttributeProfileDialog } from "../dialog/attribute-profile/create-attribute-profile-dialog";
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { createClassUsage, createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
+import { EditAssociationProfileDialogState } from "../dialog/association-profile/edit-association-profile-dialog-controller";
+import { createNewAssociationProfileDialog } from "../dialog/association-profile/edit-association-profile-dialog";
+import { CreateAttributeProfileDialogState } from "../dialog/attribute-profile/edit-attribute-profile-dialog-controller";
+import { createCreateAttributeProfileDialog } from "../dialog/attribute-profile/edit-attribute-profile-dialog";
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
+import { createNewAssociationProfileDialogState } from "../dialog/association-profile/create-new-association-profile-dialog-state";
+import { createNewAttributeProfileDialogState } from "../dialog/attribute-profile/create-new-attribute-profile-dialog-state";
 
 export function openCreateProfileDialogAction(
   options: Options,
@@ -71,7 +73,7 @@ export function openCreateProfileDialogAction(
   }
 
   if (isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity)) {
-    const state = createCreateAttributeProfileDialogState(
+    const state = createNewAttributeProfileDialogState(
       classes, graph, visualModel, options.language, entity);
     const onConfirm = (state: CreateAttributeProfileDialogState) => {
       createRelationshipProfile(state, entity);
@@ -82,9 +84,9 @@ export function openCreateProfileDialogAction(
   }
 
   if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
-    const state = createCreateAssociationProfileDialogState(
+    const state = createNewAssociationProfileDialogState(
       classes, graph, visualModel, options.language, entity);
-    const onConfirm = (state: CreateAssociationProfileDialogState) => {
+    const onConfirm = (state: EditAssociationProfileDialogState) => {
       const createResult = createRelationshipProfile(state, entity);
       if (createResult === null) {
         return;
@@ -96,7 +98,7 @@ export function openCreateProfileDialogAction(
           createResult.identifier, createResult.model.getId());
       }
     };
-    dialogs.openDialog(createCreateAssociationProfileDialog(state, onConfirm));
+    dialogs.openDialog(createNewAssociationProfileDialog(state, onConfirm));
     return;
   }
 
@@ -131,7 +133,7 @@ export const createClassProfile = (
 }
 
 const createRelationshipProfile = (
-  state: CreateAttributeProfileDialogState | CreateAssociationProfileDialogState,
+  state: CreateAttributeProfileDialogState | EditAssociationProfileDialogState,
   entity: SemanticModelRelationship | SemanticModelRelationshipUsage,
 ): {
   identifier: string,

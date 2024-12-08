@@ -1,7 +1,7 @@
 // @ts-ignore
 import { ExtendedSemanticModelRelationship, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import {CoreResourceReader} from "../../core";
-import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmClassReference, DataPsmExternalRoot, DataPsmInclude, DataPsmOr, DataPsmSchema,} from "../../data-psm/model";
+import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmClassReference, DataPsmContainer, DataPsmExternalRoot, DataPsmInclude, DataPsmOr, DataPsmSchema,} from "../../data-psm/model";
 import {StructureModel, StructureModelClass, StructureModelComplexType, StructureModelPrimitiveType, StructureModelProperty, StructureModelSchemaRoot} from "../model";
 // @ts-ignore
 import { Entity } from "@dataspecer/core-v2";
@@ -74,7 +74,7 @@ class StructureModelAdapter {
   }
 
   private async loadClass(
-    classData: DataPsmClass
+    classData: DataPsmClass | DataPsmContainer
   ): Promise<StructureModelClass> {
     // There can be a cycle in extends or properties, so we keep track
     // of what has already been loaded.
@@ -88,15 +88,17 @@ class StructureModelAdapter {
     this.psmClassToModel(classData, model);
     // When loading extends we may end up in another specification,
     // to deal with that we may need to change here.
-    for (const iri of classData.dataPsmExtends) {
-      const part = await this.reader.readResource(iri);
-      if (DataPsmClass.is(part)) {
-        model.extends.push(await this.loadClass(part));
-      } else if (DataPsmClassReference.is(part)) {
-        const [types, label] = await this.loadClassReference(part);
-        model.extends.push(...types);
-      } else {
-        throw new Error(`Unsupported PSM class extends entity '${iri}'.`);
+    if (DataPsmClass.is(classData)) {
+      for (const iri of classData?.dataPsmExtends) {
+        const part = await this.reader.readResource(iri);
+        if (DataPsmClass.is(part)) {
+          model.extends.push(await this.loadClass(part));
+        } else if (DataPsmClassReference.is(part)) {
+          const [types] = await this.loadClassReference(part);
+          model.extends.push(...types);
+        } else {
+          throw new Error(`Unsupported PSM class extends entity '${iri}'.`);
+        }
       }
     }
     for (const iri of classData.dataPsmParts) {
@@ -115,6 +117,8 @@ class StructureModelAdapter {
         } else {
           throw new Error(`Unsupported PSM included entity '${iri}'.`);
         }
+      } else if (DataPsmContainer.is(part)) {
+        model.properties.push(await this.loadContainer(part));
       } else {
         throw new Error(`Unsupported PSM class member entity '${iri}'.`);
       }
@@ -122,16 +126,18 @@ class StructureModelAdapter {
     return model;
   }
 
-  private psmClassToModel(classData: DataPsmClass, model: StructureModelClass) {
+  private psmClassToModel(classData: DataPsmClass | DataPsmContainer, model: StructureModelClass) {
     model.psmIri = classData.iri;
     model.pimIri = classData.dataPsmInterpretation;
     model.humanLabel = classData.dataPsmHumanLabel;
     model.humanDescription = classData.dataPsmHumanDescription;
     model.technicalLabel = classData.dataPsmTechnicalLabel;
     model.structureSchema = this.psmSchemaIri;
-    model.isClosed = classData.dataPsmIsClosed;
-    model.instancesHaveIdentity = classData.instancesHaveIdentity;
-    model.instancesSpecifyTypes = classData.instancesSpecifyTypes;
+    if (DataPsmClass.is(classData)) {
+      model.isClosed = classData.dataPsmIsClosed;
+      model.instancesHaveIdentity = classData.instancesHaveIdentity;
+      model.instancesSpecifyTypes = classData.instancesSpecifyTypes;
+    }
   }
 
   private async loadClassReference(
@@ -179,11 +185,11 @@ class StructureModelAdapter {
    * If the OR is unnamed, the value is null.
    */
   private async loadComplexType(
-    complexTypeData: DataPsmClass | DataPsmClassReference
+    complexTypeData: DataPsmClass | DataPsmClassReference | DataPsmContainer
   ): Promise<[StructureModelComplexType[], string | null | undefined]> {
     let loadedClass: StructureModelClass[] = [];
     let label: string = undefined;
-    if (DataPsmClass.is(complexTypeData)) {
+    if (DataPsmClass.is(complexTypeData) || DataPsmContainer.is(complexTypeData)) {
       loadedClass = [await this.loadClass(complexTypeData)];
     } else if (DataPsmClassReference.is(complexTypeData)) {
       [loadedClass, label] = await this.loadClassReference(complexTypeData);
@@ -286,6 +292,24 @@ class StructureModelAdapter {
     model.dataTypes.push(type);
 
     return model;
+  }
+
+  private async loadContainer(
+    containerData: DataPsmContainer
+  ): Promise<StructureModelProperty> {
+    const property = new StructureModelProperty();
+    property.psmIri = containerData.iri;
+    // This says that the property is actually a container
+    property.propertyAsContainer = containerData.dataPsmContainerType;
+
+    // So far the cardinality for these containers is always 1..1
+    property.cardinalityMin = 1;
+    property.cardinalityMax = 1;
+
+    const [part] = await this.loadComplexType(containerData);
+    property.dataTypes = part;
+
+    return property;
   }
 
   /**
