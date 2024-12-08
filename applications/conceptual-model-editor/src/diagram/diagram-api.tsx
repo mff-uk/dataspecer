@@ -446,9 +446,9 @@ interface DiagramSelection {
   /**
    * This method is called when user wants to see list of actions on selection.
    * @param source is the last selected node
-   * @param flowPosition is the position on canvas, where should be the list of actions shown.
+   * @param canvasPosition is the position on canvas, where should be the list of actions shown.
    */
-  onShowSelectionActions: (source: Node, flowPosition: Position) => void;
+  onShowSelectionActions: (source: Node, canvasPosition: Position) => void;
 
   /**
    * This method is called when user wants to layout selection.
