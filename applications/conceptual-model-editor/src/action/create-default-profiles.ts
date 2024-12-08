@@ -48,15 +48,15 @@ function createDefaultClassProfiles(
   nodesToProfile: string[],
   shouldBeAddedToVisualModel: boolean
 ): Record<string, string> {
-  const createdClassesAndClassesProfiles: Record<string, string> = {};
+  const createdClassProfiles: Record<string, string> = {};
   for(const selectedEntityId of nodesToProfile) {
-    const createdProfile = createDefaultClassProfile(notifications, graph, diagram, options, classesContext, visualModel, selectedEntityId, shouldBeAddedToVisualModel);
-    if(createdProfile !== null) {
-      createdClassesAndClassesProfiles[selectedEntityId] = createdProfile;
+    const createdClassProfile = createDefaultClassProfile(notifications, graph, diagram, options, classesContext, visualModel, selectedEntityId, shouldBeAddedToVisualModel);
+    if(createdClassProfile !== null) {
+      createdClassProfiles[selectedEntityId] = createdClassProfile;
     }
   }
 
-  return createdClassesAndClassesProfiles;
+  return createdClassProfiles;
 }
 
 
