@@ -16,7 +16,7 @@ import LayeredAlgorithmDirectionDropdown from "./react-combobox";
 type MainType = "main";
 type MainOrGeneralType = MainType | "general";
 
-// TODO:
+// TODO RadStr:
 // 1) Make it more general - a lot of repeating code and the same strings on multiple of places (create new react components or something)
 // 2) Make it map to the Constraint interface (and pass only the relevant settings further) ... and better typing - kinda done
 // 3) Style it better - but it is kind of throwaway so it doesn't really matter
@@ -31,7 +31,7 @@ export const useConfigDialog = () => {
 
 
     // Before V2 we tried filtering, right now just put in everything and pick the correct ones, the responsibility on picking correct one should lie in the layout package anyways
-    // TODO: So it may be renamed to getConfig instead
+    // TODO RadStr: So it may be renamed to getConfig instead
     const getValidConfig = () => {
         return config;
     };
@@ -126,7 +126,7 @@ export const useConfigDialog = () => {
                 {config?.[props.stateField].elk_force?.["min_distance_between_nodes"]}
 
             </div>
-            {/* TODO: Copy paste from force algorithm */}
+            {/* TODO RadStr: Copy paste from force algorithm */}
             <div className="flex flex-row">
                 <label htmlFor="range-iteration-count">Number of runs (may take several seconds for high numbers):</label>
             </div>
@@ -200,7 +200,7 @@ export const useConfigDialog = () => {
                                 ></input>
                 {config?.[props.stateField]?.elk_stress?.["stress_edge_len"]}
             </div>
-            {/* TODO: Copy paste from force algorithm */}
+            {/* TODO RadStr: Copy paste from force algorithm */}
             <div className="flex flex-row">
                 <label htmlFor="range-iteration-count">Number of runs (may take several seconds for high numbers):</label>
             </div>
@@ -231,7 +231,7 @@ export const useConfigDialog = () => {
                             }}></LayeredAlgorithmDirectionDropdown>
             </div>
 
-            {/* TODO: I should define it as component since I reuse this split on more places */}
+            {/* TODO RadStr: I should define it as component since I reuse this split on more places */}
             <hr className="w-48 h-1 mx-auto my-1 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
 
             <div className="flex flex-row">
@@ -280,7 +280,7 @@ export const useConfigDialog = () => {
         </div>;
 
     const renderMainAlgorithmConfig = () => {
-        // TODO: resetConfig is not it, the state has to be solved differently - different algorithms share non-relevant parameters, but it affects them
+        // TODO RadStr: resetConfig is not it, the state has to be solved differently - different algorithms share non-relevant parameters, but it affects them
         //       (For example running layered after layered, because I checked it for stress layout)
         // resetConfig();
         if(config.main[config.chosenMainAlgorithm ] === undefined) {
@@ -325,8 +325,8 @@ export const useConfigDialog = () => {
                 </select>
             </div>
             <hr className="my-2"/>
-            {/* TODO: Just for now */}
-            {config.chosenMainAlgorithm === "random" ? <></> : <h3 className="font-black">Algorithm settings </h3>}
+            {/* TODO RadStr: Just for now */}
+            {config.chosenMainAlgorithm === "random" ? null : <h3 className="font-black">Algorithm settings </h3>}
             {renderMainAlgorithmConfig()}
             <hr className="my-4"/>
             <input type="checkbox" id="checkbox-main-layout-alg" name="checkbox-main-layout-alg" checked={config.general.elk_layered.should_be_considered}

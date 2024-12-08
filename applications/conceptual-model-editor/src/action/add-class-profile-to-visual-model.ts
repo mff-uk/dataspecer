@@ -4,7 +4,7 @@ import { isSemanticModelClassUsage, SemanticModelClassUsage } from "@dataspecer/
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
-import { getViewportCenter, withAggregatedEntity } from "./utilities";
+import { getViewportCenterForClassPlacement, withAggregatedEntity } from "./utilities";
 import { addRelatedEntitiesAction } from "./add-related-entities-to-visual-model";
 
 export function addSemanticClassProfileToVisualModelAction(
@@ -22,7 +22,7 @@ export function addSemanticClassProfileToVisualModelAction(
     isSemanticModelClassUsage, (entity) => {
       addSemanticClassProfileToVisualModelCommand(
         visualModel, entity, modelIdentifier,
-        position ?? getViewportCenter(diagram));
+        position ?? getViewportCenterForClassPlacement(diagram));
       addRelatedEntitiesAction(
         notifications, graph, visualModel, Object.values(entities),
         graph.models, entity);

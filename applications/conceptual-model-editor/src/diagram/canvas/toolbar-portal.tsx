@@ -8,9 +8,9 @@ const selector = (state: ReactFlowState) => state.domNode?.querySelector(".react
  * Alternative to NodeToolbarPortal based on
  * https://github.com/xyflow/xyflow/blob/main/packages/react/src/additional-components/NodeToolbar/NodeToolbarPortal.tsx
  *
- * We use this as a part of our implementation of EdgeToolbar.
+ * We use this as a part of our implementation of CanvasToolbar and EdgeToolbar.
  */
-export function EdgeToolbarPortal({ children }: { children: ReactNode }) {
+export function ToolbarPortal({ children }: { children: ReactNode }) {
   const wrapperRef = useStore(selector);
 
   if (!wrapperRef) {
