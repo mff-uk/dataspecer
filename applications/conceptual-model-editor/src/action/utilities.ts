@@ -88,10 +88,12 @@ export function getViewportCenterForClassPlacement(diagram: UseDiagramType) {
 
 
 // TODO RadStr: This exact type is defined in another branch so unify in future
+// TODO RadStr: Also use the other type defined in the other branch which has additional information about type of IDs
+//              (visual or semantic)
 type Selections = {
   nodeSelection: string[],
   edgeSelection: string[],
-}
+};
 
 export function getSelections(diagram: UseDiagramType, shouldFilterOutProfileClassEdges: boolean, shouldGetVisualIdentifiers: boolean): Selections {
   let nodeSelection = diagram.actions().getSelectedNodes();

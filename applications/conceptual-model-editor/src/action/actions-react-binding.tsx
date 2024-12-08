@@ -106,7 +106,7 @@ interface VisualModelActions {
 
   /**
    * Adds semantic class identified by {@link identifier} to currently active visual model at given {@link position}.
-   * @param model identifies the semantic (TODO PRQuestion: Just double checking if it is semantic and not visual) model, where the semantic entity resides.
+   * @param model identifies the semantic model, where the semantic entity resides.
    * @param identifier identifies the semantic class to be added to visual model.
    * @param position is the position to put the newly created visual node at.
    * If the position is null then default placement is chosen.
@@ -320,18 +320,9 @@ function createActionsContext(
     });
   };
 
-  // TODO PRQuestion: Rewrite so it works with identifierS instead?
-  //                  ... Probably just do it, not really a question
-  const deleteVisualElement = (identifier: string) => {
-    const model = findSourceModelOfEntity(identifier, graph.models);
-    if (model === null) {
-      notifications.error("Can't find model for entity.");
-      return;
-    }
-    withVisualModel(notifications, graph, (visualModel) => {
-      removeFromVisualModelAction(notifications, visualModel, [identifier]);
-    });
-    removeFromSemanticModelsAction(notifications, graph, [{identifier, sourceModel: model.getId()}]);
+  const deleteVisualElements = (identifiers: string[]) => {
+    const entitiesToDelete = convertToEntitiesToDeleteType(identifiers, graph.models, notifications);
+    deleteFromSemanticModels(entitiesToDelete);
   };
 
   const changeNodesPositions = (changes: { [identifier: string]: Position }) => {
@@ -542,7 +533,7 @@ function createActionsContext(
 
     onHideNode: (node) => removeFromVisualModel([node.externalIdentifier]),
 
-    onDeleteNode: (node) => deleteVisualElement(node.externalIdentifier),
+    onDeleteNode: (node) => deleteVisualElements([node.externalIdentifier]),
 
     onChangeNodesPositions: changeNodesPositions,
 
@@ -554,7 +545,7 @@ function createActionsContext(
 
     onHideEdge: (edge) => removeFromVisualModel([edge.externalIdentifier]),
 
-    onDeleteEdge: (edge) => deleteVisualElement(edge.externalIdentifier),
+    onDeleteEdge: (edge) => deleteVisualElements([edge.externalIdentifier]),
 
     onAddWaypoint: addWaypoint,
 
@@ -618,8 +609,7 @@ function createActionsContext(
       const {nodeSelection, edgeSelection} = getSelections(diagram, true, false);
       console.info("Removing selection from semantic model: ", {nodeSelection, edgeSelection});
       const selectionIdentifiers = nodeSelection.concat(edgeSelection);
-      const entitiesToDelete = convertToEntitiesToDeleteType(selectionIdentifiers, graph.models, notifications);
-      removeFromSemanticModelsAction(notifications, graph, entitiesToDelete);
+      deleteVisualElements(selectionIdentifiers);
     },
   };
 
