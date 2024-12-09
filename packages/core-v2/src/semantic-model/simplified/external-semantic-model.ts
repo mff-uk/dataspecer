@@ -1,4 +1,4 @@
-import { SemanticModelClass } from "../concepts/concepts";
+import { SemanticModelClass, SemanticModelEntity } from "../concepts/concepts";
 import { classQuery, classSurroundingsQuery, searchQuery, SearchQueryEntity } from "../async-queryable/queries";
 import {
     AsyncQueryableEntityModel,
@@ -77,6 +77,12 @@ export class ExternalSemanticModel implements EntityModel {
         await this.observableModel.releaseQuery(query);
     }
 
+    async getSurroundings(id: string): Promise<SemanticModelEntity[]> {
+        const query = classSurroundingsQuery(id);
+        const result = await this.model.query(query);
+        return Object.values(result) as unknown as SemanticModelEntity[];
+    }
+
     async allowClassSurroundings(id: string) {
         const query = classSurroundingsQuery(id);
         await this.observableModel.addQuery(query);
@@ -85,5 +91,10 @@ export class ExternalSemanticModel implements EntityModel {
     async releaseClassSurroundings(id: string) {
         const query = classSurroundingsQuery(id);
         await this.observableModel.releaseQuery(query);
+    }
+
+    async getFullHierarchy(id: string): Promise<SemanticModelEntity[]> {
+        const query = "hierarchy:" + id;
+        return Object.values(await this.model.query(query)) as unknown as SemanticModelEntity[];
     }
 }

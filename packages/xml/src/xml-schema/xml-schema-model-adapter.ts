@@ -392,6 +392,7 @@ class XmlSchemaAdapter {
     skipIri?: boolean
   ): Promise<XmlSchemaComplexItem> {
     skipIri ||= classData.instancesHaveIdentity === "NEVER";
+    skipIri ||= classData.cimIri === null;
     if (this.classIsImported(classData)) {
       // For an imported type, construct a reference to its group.
       const name = await this.resolveImportedClassName(classData);
@@ -475,7 +476,7 @@ class XmlSchemaAdapter {
       cardinalityMax: propertyData.cardinalityMax,
       element: await this.propertyToElement(propertyData),
     };
-    if (propertyData.dematerialize) {
+    if (propertyData.dematerialize || propertyData.propertyAsContainer) {
       const type = elementContent.element.type;
       if (xmlSchemaTypeIsComplex(type)) {
         // A dematerialized property item is its type definition.
@@ -484,6 +485,10 @@ class XmlSchemaAdapter {
           cardinalityMax: elementContent.cardinalityMax,
           item: type.complexDefinition,
         };
+
+        // This will take the constructed item and changes the container type
+        item.item.xsType = propertyData.propertyAsContainer as string;
+
         return item;
       } else {
         throw new Error(

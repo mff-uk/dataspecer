@@ -17,7 +17,7 @@ import {
   type SemanticModelClass,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 
-import { getRange } from "./relationship-service";
+import { getDomainAndRange } from "../util/relationship-utils";
 import { getDuplicateNames } from "../util/name-utils";
 
 import { t, configuration } from "../application/";
@@ -48,7 +48,7 @@ export function getEntityLabel(entity: GetEntityLabelType | null, language: stri
     name = entity.name;
   } else if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
     // For relationship we need to read data from range.
-    name = getRange(entity)?.name ?? null;
+    name = getDomainAndRange(entity).range?.name ?? null;
   }
 
   if (name === null) {

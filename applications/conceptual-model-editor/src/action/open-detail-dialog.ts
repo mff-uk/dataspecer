@@ -30,23 +30,17 @@ export function openDetailDialogAction(
   }
   // In future we should have different dialogs based on the type, for now
   // we just fall through to a single dialog for all.
-  if (isSemanticModelClass(entity)) {
-
-  } else if (isSemanticModelClassUsage(entity)) {
-
-  } else if (isSemanticModelAttribute(entity)) {
-
-  } else if (isSemanticModelAttributeUsage(entity)) {
-
-  } else if (isSemanticModelRelationship(entity)) {
-
-  } else if (isSemanticModelRelationshipUsage(entity)) {
-
-  } else if (isSemanticModelGeneralization(entity)) {
-
+  if (isSemanticModelClass(entity)
+    || isSemanticModelClassUsage(entity)
+    || isSemanticModelAttribute(entity)
+    || isSemanticModelAttributeUsage(entity)
+    || isSemanticModelRelationship(entity)
+    || isSemanticModelRelationshipUsage(entity)
+    || isSemanticModelGeneralization(entity)
+  ) {
+    dialogs.openDialog(createEntityDetailDialog(graph, entity, options.language));
   } else {
     notifications.error(`Unknown entity type.`);
     return;
   }
-  dialogs.openDialog(createEntityDetailDialog(graph, entity, options.language));
 };

@@ -4,9 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
-import { createModelInstructions, getSchemaLink } from "@/known-models";
+import { getSchemaLink } from "@/known-models";
 import { BetterModalProps } from "@/lib/better-modal";
-import { LOCAL_PACKAGE, V1 } from "@dataspecer/core-v2/model/known-models";
+import { getSpecificationService } from "@/package";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -22,25 +22,17 @@ export const Schema = ({ isOpen, resolve, iri }: { iri: string } & BetterModalPr
 
     try {
       const name = (event.target as any)["name"].value;
-      const description = (event.target as any)["description"].value;
+      //const description = (event.target as any)["description"].value;
 
-      // Create package
-      const packageIri = await createModelInstructions[LOCAL_PACKAGE].createHook({
-        parentIri: iri,
+      const specService = getSpecificationService(iri);
+
+      const dataSpecification = await specService.createDataSpecification({
         label: {[i18n.language]: name},
-        description: {[i18n.language]: (event.target as any)["description"].value},
-      }) as string;
-
-      // Create semantic model
-      await createModelInstructions[V1.PIM].createHook({
-        parentIri: packageIri,
-        label: {en: name},
-        description: {en: description},
-        modelAlias: name,
+        tags: [],
       });
 
       // Redirect to url
-      window.location.href = getSchemaLink(packageIri);
+      window.location.href = getSchemaLink(dataSpecification.id);
 
       // Never resolve as we need to redirect!
       // resolve(true);

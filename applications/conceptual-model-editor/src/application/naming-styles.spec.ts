@@ -1,3 +1,5 @@
+import { expect, test } from "vitest";
+
 import { lowerCamelCase, upperCamelCase, kebabCase } from "./naming-styles";
 
 test("Test lowerCamelCase.", () => {

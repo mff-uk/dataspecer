@@ -1,3 +1,4 @@
+import { Entity } from '@dataspecer/core-v2';
 import {CoreResource} from "@dataspecer/core/core";
 import {useFederatedObservableStore} from "./store";
 import {Resource} from "@dataspecer/federated-observable-store/resource";
@@ -26,7 +27,7 @@ class IrrelevantExecution {
  * @param deps Dependency array
  * @returns [memoized_result, is_loading]
  */
-export function useResourcesInMemo<ReturnValue>(fnc: (getResource: <ResourceType extends CoreResource>(iri: string) => Promise<ResourceType | null>) => Promise<ReturnValue>, deps: any[]): [ReturnValue|undefined, boolean] {
+export function useResourcesInMemo<ReturnValue>(fnc: (getResource: <ResourceType extends CoreResource | Entity>(iri: string) => Promise<ResourceType | null>) => Promise<ReturnValue>, deps: any[]): [ReturnValue|undefined, boolean] {
   const store = useFederatedObservableStore();
 
   // List of IRIs the function depends on
@@ -65,7 +66,7 @@ export function useResourcesInMemo<ReturnValue>(fnc: (getResource: <ResourceType
 
     let isRelevant = true;
 
-    const getResource = async <ResourceType extends CoreResource>(iri: string) => {
+    const getResource = async <ResourceType extends CoreResource | Entity>(iri: string) => {
       if (!cache.current.has(iri)) {
         ignoreUpdate.current = true;
         store.addSubscriber(iri, cacheUpdater);

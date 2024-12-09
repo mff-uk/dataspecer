@@ -5,5 +5,10 @@ import { ModelVisualInformation, VisualEntity, VisualNode } from "@dataspecer/co
 
 // Newly the actual mapping in cme-v2 is using the id of visual entity as key
 type VisualEntityIdentifier = string;
+export type LayoutedVisualEntity = {
+    visualEntity: VisualEntity,
+    isOutsider: boolean,
+};
+export type LayoutedVisualEntities = Record<VisualEntityIdentifier, LayoutedVisualEntity>;
 export type VisualEntities = Record<VisualEntityIdentifier, VisualEntity>;
-export type VisualEntitiesAllType = Record<VisualEntityIdentifier, VisualEntity | ModelVisualInformation>;
+export type VisualEntitiesWithModelVisualInformation = Record<VisualEntityIdentifier, VisualEntity | ModelVisualInformation>;

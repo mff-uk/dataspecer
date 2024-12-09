@@ -8,15 +8,19 @@
   },
   "exports": {
     "./connectors": "./lib/connectors/index.js",
+    "./connectors/specification": "./lib/connectors/specification/index.js",
     "./interfaces": "./lib/interfaces/index.js",
     "./store-descriptor": "./lib/store-descriptor/index.js",
     "./stores": "./lib/stores/index.js"
   },
   "devDependencies": {
     "rimraf": "^5.0.5",
-    "typescript": "~5.4.2"
+    "typescript": "^5.6.3"
   },
   "dependencies": {
     "@dataspecer/core": "*"
+  },
+  "peerDependencies": {
+    "@dataspecer/core-v2": "*"
   }
 }

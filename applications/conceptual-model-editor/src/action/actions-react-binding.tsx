@@ -1,92 +1,103 @@
 import React, { useContext, useMemo } from "react";
 
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel, Waypoint, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { type DialogApiContextType } from "../dialog/dialog-service";
 import { DialogApiContext } from "../dialog/dialog-context";
-import { configuration, logger } from "../application";
-import { type EditClassState } from "../dialog/class/edit-class-dialog-controller";
+import { configuration, createLogger } from "../application";
 import { type ClassesContextType, ClassesContext, useClassesContext, UseClassesContextType } from "../context/classes-context";
 import { useNotificationServiceWriter } from "../notification";
 import { type UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { ModelGraphContext, type ModelGraphContextType } from "../context/model-context";
-import { createAddModelDialog } from "../dialog/model/create-model-dialog";
-import { type CreateModelState } from "../dialog/model/create-model-dialog-controller";
-import { createEditClassDialog } from "../dialog/class/edit-class-dialog";
-import { createVocabulary } from "./create-vocabulary";
-import { createClassAction } from "./create-class";
-import { addNodeToVisualModelAction } from "./add-node-to-visual-model";
-import { addRelationToVisualModelAction } from "./add-relation-to-visual-model";
-import { deleteFromSemanticModelAction } from "./delete-from-semantic-model";
-import { deleteFromVisualModelAction } from "./delete-from-visual-model";
-import { Position, useDiagram, type DiagramCallbacks } from "../diagram/";
+import { Edge, Position, useDiagram, type DiagramCallbacks, type Waypoint as DiagramWaypoint } from "../diagram/";
 import type { UseDiagramType } from "../diagram/diagram-hook";
 import { useOptions, type Options } from "../application/options";
 import { centerViewportToVisualEntityAction } from "./center-viewport-to-visual-entity";
 import { openDetailDialogAction } from "./open-detail-dialog";
 import { openModifyDialogAction } from "./open-modify-dialog";
-import { findSourceModelOfEntity } from "../service/model-service";
+import { findSourceModelOfEntity, findSourceModelsOfEntities } from "../service/model-service";
 import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
-import { isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel, Waypoint } from "@dataspecer/core-v2/visual-model";
 import { openCreateConnectionDialogAction } from "./open-create-connection";
-import { placePositionOnGrid, ReactflowDimensionsConstantEstimator } from "@dataspecer/layout";
-import { filterSelectionAction, SelectionFilter, Selections, SelectionsWithIdInfo } from "./filter-selection-action";
-import { extendSelectionAction, ExtensionType, NodeSelection, VisibilityFilter } from "./extend-selection-action";
-import { ExtendSelectionState } from "../dialog/selection/extend-selection-dialog-controller";
-import { createExtendSelectionDialog } from "../dialog/selection/extend-selection-dialog";
+import { openCreateClassDialogAction } from "./open-create-class-dialog";
+import { openCreateVocabularyAction } from "./open-create-vocabulary";
+import { addSemanticClassToVisualModelAction } from "./add-class-to-visual-model";
+import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
+import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
+import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
+import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
+import { convertToEntitiesToDeleteType, EntityToDelete, getSelections, getViewportCenterForClassPlacement, setSelectionsInDiagram } from "./utilities";
+import { removeFromVisualModelAction } from "./remove-from-visual-model";
+import { removeFromSemanticModelsAction } from "./remove-from-semantic-model";
+import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
+import { openCreateAssociationDialogAction } from "./open-create-association-dialog";
+import { addEntitiesFromSemanticModelToVisualModelAction } from "./add-entities-from-semantic-model-to-visual-model";
+import { createNewVisualModelFromSelectionAction } from "./create-new-visual-model-from-selection";
+import { addClassNeighborhoodToVisualModelAction } from "./add-class-neighborhood-to-visual-model";
+import { createDefaultProfilesAction } from "./create-default-profiles";
+import { openCreateClassDialogWithModelDerivedFromClassAction } from "./open-create-class-dialog-with-derived-model";
+import { addSemanticEntitiesToVisualModelAction, EntityToAddToVisualModel } from "./add-semantic-entities-to-visual-model";
+import { LayoutedVisualEntities, UserGivenConstraintsVersion4 } from "@dataspecer/layout";
+import { layoutActiveVisualModelAction } from "./layout-visual-model";
+import { toggleAnchorAction } from "./toggle-anchor";
 import { SelectionFilterState } from "../dialog/selection/filter-selection-dialog-controller";
+import { filterSelectionAction, SelectionFilter, Selections, SelectionsWithIdInfo } from "./filter-selection-action";
+import { createExtendSelectionDialog } from "../dialog/selection/extend-selection-dialog";
+import { ExtendSelectionState } from "../dialog/selection/extend-selection-dialog-controller";
+import { extendSelectionAction, ExtensionType, NodeSelection, VisibilityFilter } from "./extend-selection-action";
 import { createFilterSelectionDialog } from "../dialog/selection/filter-selection-dialog";
-import { setSelectionsInDiagram } from "./utilities";
 
+const LOG = createLogger(import.meta.url);
 
-export interface ActionsContextType {
+/**
+ * Contains actions used for dialog manipulation.
+ */
+interface DialogActions {
 
   /**
-   * Open dialog to add a new model.
+   * Opens dialog, which purpose is to add new model into editor.
    */
   openCreateModelDialog: () => void;
 
   /**
-   * Open detail dialog, the type of the dialog is determined based on the
-   * entity type.
+   * Opens dialog, which purpose is to show the detail information of entity identified by {@link identifier}.
+   * @param identifier is the identifier of the semantic entity.
    */
   openDetailDialog: (identifier: string) => void;
 
   /**
-   * Open modification entity dialog, the type of the dialog is determined
-   * based on the entity type.
+   * Opens dialog, which purpose is to modification of entity identified by {@link identifier}.
+   * @param identifier is the identifier of the semantic entity.
    */
   openModifyDialog: (identifier: string) => void;
 
   /**
-   * Open dialog to create a new class.
-   * When position is provided the class is also inserted to the canvas.
+   * Opens dialog, which purpose is to create new class in model identified by {@link model}.
+   * @param model is the identifier of the semantic model.
    */
-  openCreateClassDialog: (model: InMemorySemanticModel) => void;
+  openCreateClassDialog: (model: string) => void;
 
   /**
-   * Open dialog to create a profile for entity with given identifier.
+   * Opens dialog, which purpose is to create new association in model identified by {@link model}.
+   * @param model is the identifier of the semantic model.
+   */
+  openCreateAssociationDialog: (model: string) => void;
+
+  /**
+   * Opens dialog, which purpose is to create new attribute in model identified by {@link model}.
+   * @param model is the identifier of the semantic model.
+   */
+  openCreateAttributeDialog: (model: string) => void;
+
+  /**
+   * @deprecated Use specialized method for given entity type.
    */
   openCreateProfileDialog: (identifier: string) => void;
-
-  /**
-   * Position is determined by the action.
-   */
-  addNodeToVisualModel: (model: string, identifier: string) => void;
-
-  addNodeToVisualModelToPosition: (model: string, identifier: string, position: { x: number, y: number }) => void;
-
-  addRelationToVisualModel: (model: string, identifier: string) => void;
-
-  deleteFromSemanticModel: (model: string, identifier: string) => Promise<void>;
-
-  removeFromVisualModel: (identifier: string) => void;
-
-  centerViewportToVisualEntity: (model: string, identifier: string) => void;
 
 
   /**
    * Open dialog to extend current selection.
+   * @param selections are the visual identifiers of the selection.
    */
   openExtendSelectionDialog: (selections: Selections) => void;
 
@@ -96,6 +107,113 @@ export interface ActionsContextType {
    */
   openFilterSelectionDialog: (selections: SelectionsWithIdInfo) => void;
 
+}
+
+
+/**
+ * Contains actions used for manipulation with visual model .
+ */
+interface VisualModelActions {
+// TODO PRQuestion: How should we document these action methods? Since their implementation is usually
+//                  within the .*Action methods defined in different files in this directory.
+//                  So should the actual documentation look like: For further information about the action see {@link ...Action} method.
+//                  Can be seen on the centerViewportToVisualEntity method, where the Action method is already documented
+
+
+  /**
+   * Adds semantic entities identified by identifier to currently active visual model at optional position.
+   * @param entities are the semantic entities to be added to visual model. For further info check the docs of {@link EntityToAddToVisualModel}
+   */
+  addSemanticEntitiesToVisualModel: (entities: EntityToAddToVisualModel[]) => void;
+
+  /**
+   * Adds semantic class identified by {@link identifier} to currently active visual model at given {@link position}.
+   * @param model identifies the semantic model, where the semantic entity resides.
+   * @param identifier identifies the semantic class to be added to visual model.
+   * @param position is the position to put the newly created visual node at.
+   * If the position is null then default placement is chosen.
+   */
+  addClassToVisualModel: (model: string, identifier: string, position: { x: number, y: number } | null) => void;
+
+  /**
+   * Adds semantic class profile identified by {@link identifier} to currently active visual model at given {@link position}.
+   * @param model identifies the semantic model, where the semantic entity resides.
+   * @param identifier identifies the semantic class profile to be added to visual model.
+   * @param position is the position to put the newly created visual node at.
+   * If the position is null then default placement is chosen.
+   */
+  addClassProfileToVisualModel: (model: string, identifier: string, position: { x: number, y: number } | null) => void;
+
+  /**
+   * Adds generalization identified by {@link identifier} to currently active visual model at given {@link position}.
+   * @param model identifies the semantic model, where the semantic entity resides.
+   * @param identifier identifies the generalization to be added to visual model.
+   */
+  addGeneralizationToVisualModel: (model: string, identifier: string) => void;
+
+  /**
+   * Adds relation (association) identified by {@link identifier} to currently active visual model at given {@link position}.
+   * @param model identifies the semantic model, where the semantic entity resides.
+   * @param identifier identifies the relation to be added to visual model.
+   */
+  addRelationToVisualModel: (model: string, identifier: string) => void;
+
+  /**
+   * Adds relation (association) profile identified by {@link identifier} to currently active visual model at given {@link position}.
+   * @param model identifies the semantic model, where the semantic entity resides.
+   * @param identifier identifies the relation profile to be added to visual model.
+   */
+  addRelationProfileToVisualModel: (model: string, identifier: string) => void;
+
+  // TODO PRQuestion - different docs from this method and for the actual action
+  /**
+   * Removes the visual entities identified by given {@link identifier} from visual model.
+   * Also removes related visual relationships from the visual model.
+   * @param identifiers identify the SEMANTIC entities, which visual representations will be removed from visual model.
+   */
+  removeFromVisualModel: (identifiers: string[]) => void;
+
+  //
+
+  //
+  // TODO RadStr: We will see what will this do, maybe will be openDialog instead, where we provide options as mentioned in code review by PeSk:
+  //              I would even imagine that this would open the dialog where user can provide:
+  //              - name of the new model
+  //              - whether to copy model colors
+  //              - whether to keep position (relative / absolute)
+  // TODO RadStr: The API should be probably nodes and edges, because what should happen if we select edge without ends? - then probably the ends should be put to the model
+  //              So we have to differ between the nodes and edges, but that can be decided in future, since creation of new views doesn't work right now anyways
+  /**
+   * Creates new visual model with content equal to {@link selectionIdentifiers}.
+   */
+  createNewVisualModelFromSelection: (selectionIdentifiers: string[]) => void;
+
+  //
+  // TODO PRQuestion: Again document using {@link .*Action} or not?
+  addEntitiesFromSemanticModelToVisualModel: (semanticModelIdentifier: string) => void;
+
+  /**
+   * Puts class' neighborhood to visual model. That is classes connected to semantic class or class profile identified by {@link classIdentifier}.
+   * @param identifier is the identifier of the semantic class or class profile, whose neighborhood we will add to visual model.
+   */
+  addClassNeighborhoodToVisualModel: (identifier: string) => void;
+
+}
+
+/**
+ * Contains actions, which are stored in the context for further use.
+ */
+export interface ActionsContextType extends DialogActions, VisualModelActions {
+
+  /**
+   * TODO: Rename to delete entity as it removes from semantic model as well as from visual.
+   */
+  deleteFromSemanticModels: (entitiesToDelete: EntityToDelete[]) => void;
+
+  // TODO RadStr: Document based on PRQuestion
+  centerViewportToVisualEntity: (model: string, identifier: string) => void;
+
+  layoutActiveVisualModel: (configuration: UserGivenConstraintsVersion4) => Promise<LayoutedVisualEntities | void>;
 
   /**
    * Calls action {@link extendSelectionAction} with correct context. For more info check {@link extendSelectionAction}
@@ -127,13 +245,27 @@ const noOperationActionsContext = {
   openDetailDialog: noOperation,
   openModifyDialog: noOperation,
   openCreateClassDialog: noOperation,
+  openCreateAssociationDialog: noOperation,
+  openCreateAttributeDialog: noOperation,
   openCreateProfileDialog: noOperation,
-  addNodeToVisualModel: noOperation,
-  addNodeToVisualModelToPosition: noOperation,
+  //
+  addSemanticEntitiesToVisualModel: noOperation,
+  addClassToVisualModel: noOperation,
+  addClassProfileToVisualModel: noOperation,
+  addGeneralizationToVisualModel: noOperation,
   addRelationToVisualModel: noOperation,
-  deleteFromSemanticModel: noOperationAsync,
+  addRelationProfileToVisualModel: noOperation,
+  deleteFromSemanticModels: noOperation,
+  //
   removeFromVisualModel: noOperation,
   centerViewportToVisualEntity: noOperation,
+  //
+  createNewVisualModelFromSelection: noOperation,
+  //
+  addEntitiesFromSemanticModelToVisualModel: noOperation,
+  addClassNeighborhoodToVisualModel: noOperation,
+  layoutActiveVisualModel: noOperationAsync,
+  //
   openExtendSelectionDialog: noOperation,
   openFilterSelectionDialog: noOperation,
   // TODO PRQuestion: How to define this - Should actions return values?, shouldn't it be just function defined in utils?
@@ -142,16 +274,17 @@ const noOperationActionsContext = {
   diagram: null,
 };
 
-export const ActionContext = React.createContext<ActionsContextType>(noOperationActionsContext);
-
 function noOperation() {
-  logger.error("[ACTIONS] Using uninitialized actions context!");
+  LOG.error("[ACTIONS] Using uninitialized actions context!");
 }
 
+// TODO PRQuestion: I added back the async operation for layout action (but maybe it isn't action?).
 function noOperationAsync() {
-  logger.error("[ACTIONS] Using uninitialized actions context!");
+  LOG.error("[ACTIONS] Using uninitialized actions context!");
   return Promise.resolve();
 }
+
+export const ActionContext = React.createContext<ActionsContextType>(noOperationActionsContext);
 
 export const ActionsContextProvider = (props: {
   children: React.ReactNode,
@@ -194,12 +327,9 @@ function createActionsContext(
   graph: ModelGraphContextType | null,
   diagram: UseDiagramType,
 ): ActionsContextType {
-  if (options === null ||
-    dialogs === null ||
-    classes === null ||
-    useClasses == null ||
-    notifications === null ||
-    graph === null ||
+
+  if (options === null || dialogs === null || classes === null ||
+    useClasses == null || notifications === null || graph === null ||
     !diagram.areActionsReady) {
     // We need to return the diagram object so it can be consumed by
     // the Diagram component and initialized.
@@ -209,7 +339,7 @@ function createActionsContext(
     };
   }
 
-  //
+  // Monitoring before we get all the dependencies fixed.
   const changed = [];
   if (prevOptions !== options) changed.push("options");
   if (prevDialogs !== dialogs) changed.push("dialogs");
@@ -228,115 +358,232 @@ function createActionsContext(
   prevDiagram = diagram;
   //
 
+  const openCreateProfileDialog = (identifier: string) => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      const position = getViewportCenterForClassPlacement(diagram);
+      openCreateProfileDialogAction(
+        options, dialogs, notifications, classes, useClasses, graph,
+        visualModel, diagram, position, identifier);
+    });
+  };
+
+  const openCreateConnectionDialog = (source: string, target: string) => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      openCreateConnectionDialogAction(
+        options, dialogs, notifications, useClasses, graph,
+        visualModel, source, target);
+    });
+  };
+
+  const deleteVisualElements = (identifiers: string[]) => {
+    const entitiesToDelete = convertToEntitiesToDeleteType(identifiers, graph.models, notifications);
+    deleteFromSemanticModels(entitiesToDelete);
+  };
+
+  const changeNodesPositions = (changes: { [identifier: string]: Position }) => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      for (const [identifier, position] of Object.entries(changes)) {
+        visualModel.updateVisualEntity(identifier, { position });
+      }
+    });
+  };
+
+  const addWaypoint = (edge: Edge, index: number, waypoint: DiagramWaypoint) => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      const visualEdge = visualModel.getVisualEntity(edge.identifier);
+      if (visualEdge === null) {
+        notifications.error("Ignore waypoint update of non-existing visual entity.")
+        return;
+      }
+      if (isVisualRelationship(visualEdge) || isVisualProfileRelationship(visualEdge)) {
+        const waypoints: Waypoint[] = [
+          ...visualEdge.waypoints.slice(0, index),
+          { x: waypoint.x, y: waypoint.y, anchored: null },
+          ...visualEdge.waypoints.slice(index),
+        ];
+        visualModel.updateVisualEntity(edge.identifier, { waypoints });
+      } else {
+        notifications.error("Ignore waypoint update of non-edge visual type.")
+      }
+    });
+  }
+
+  const deleteWaypoint = (edge: Edge, index: number) => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      const visualEdge = visualModel.getVisualEntity(edge.identifier);
+      if (visualEdge === null) {
+        notifications.error("Ignore waypoint update of non-existing visual entity.")
+        return;
+      }
+      if (isVisualRelationship(visualEdge) || isVisualProfileRelationship(visualEdge)) {
+        const waypoints: Waypoint[] = [
+          ...visualEdge.waypoints.slice(0, index),
+          ...visualEdge.waypoints.slice(index + 1),
+        ];
+        visualModel.updateVisualEntity(edge.identifier, { waypoints });
+      } else {
+        notifications.error("Ignore waypoint update of non-edge visual type.")
+      }
+    });
+  }
+
+  const changeWaypointPositions = (changes: { [edgeIdentifier: string]: { [waypointIndex: number]: DiagramWaypoint } }) => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      for (const [identifier, waypointsChanges] of Object.entries(changes)) {
+        const visualEdge = visualModel.getVisualEntity(identifier);
+        if (visualEdge === null) {
+          notifications.error("Ignore waypoint update of non-existing visual entity.")
+          return;
+        }
+        if (isVisualRelationship(visualEdge) || isVisualProfileRelationship(visualEdge)) {
+          const waypoints: Waypoint[] = [...visualEdge.waypoints];
+          for (const [index, waypoint] of Object.entries(waypointsChanges)) {
+            waypoints[Number(index)] = { ...waypoints[Number(index)], x: waypoint.x, y: waypoint.y };
+          }
+          console.log("onChangeWaypointPositions", { changes: changes, prev: visualEdge.waypoints, next: waypoints });
+          visualModel.updateVisualEntity(identifier, { waypoints });
+        } else {
+          notifications.error("Ignore waypoint update of non-edge visual type.")
+        }
+      }
+    });
+  }
+
+  // Dialog actions.
+
+  const openCreateModelDialog = () => {
+    openCreateVocabularyAction(dialogs, graph);
+  };
+
   const openDetailDialog = (identifier: string) => {
     openDetailDialogAction(options, dialogs, notifications, graph, identifier);
   };
 
   const openModifyDialog = (identifier: string) => {
-    openModifyDialogAction(
-      options, dialogs, notifications, classes, useClasses, graph, identifier);
+    withVisualModel(notifications, graph, (visualModel) => {
+      openModifyDialogAction(
+        options, dialogs, notifications, classes, useClasses, graph,
+        visualModel, identifier);
+    });
   };
 
-  const openCreateModelDialog = () => {
-    const onConfirm = (state: CreateModelState) => {
-      createVocabulary(graph, state);
-    };
-    //
-    dialogs?.openDialog(createAddModelDialog(onConfirm));
+  const openCreateClassDialog = (model: string) => {
+    const visualModel = graph.aggregatorView.getActiveVisualModel();
+    const modelInstance = graph.models.get(model);
+    if (modelInstance === null || modelInstance instanceof InMemorySemanticModel) {
+      openCreateClassDialogAction(
+        options, dialogs, classes, graph, notifications, visualModel,
+        diagram, modelInstance, null);
+    } else {
+      notifications.error("Can not add to given model.");
+    }
   };
 
-  const openCreateClassDialog = (model: InMemorySemanticModel) => {
-    const viewport = diagram.actions().getViewport();
-    const position = {
-      x: viewport.position.x + (viewport.width / 2),
-      y: viewport.position.y + (viewport.height / 2),
-    };
-    //
-    const onConfirm = (state: EditClassState) => {
-      createClassAction(notifications, graph, model, position, state);
-    };
-    //
-    dialogs?.openDialog(createEditClassDialog(model, options.language, onConfirm));
+  const openCreateAssociationDialog = (model: string) => {
+    const visualModel = graph.aggregatorView.getActiveVisualModel();
+    const modelInstance = graph.models.get(model);
+    if (modelInstance === null || modelInstance instanceof InMemorySemanticModel) {
+      openCreateAssociationDialogAction(
+        options, dialogs, classes, graph, notifications, visualModel,
+        modelInstance);
+    } else {
+      notifications.error("Can not add to given model.");
+    }
   };
 
-  const openCreateProfileDialog = (identifier: string) => {
-    const viewport = diagram.actions().getViewport();
-    const position = {
-      x: viewport.position.x + (viewport.width / 2),
-      y: viewport.position.y + (viewport.height / 2),
-    };
-    //
-    openCreateProfileDialogAction(
-      options, dialogs, notifications, classes, useClasses, graph,
-      position, identifier);
+  const openCreateAttributeDialog = (model: string) => {
+    const visualModel = graph.aggregatorView.getActiveVisualModel();
+    const modelInstance = graph.models.get(model);
+    if (modelInstance === null || modelInstance instanceof InMemorySemanticModel) {
+      openCreateAttributeDialogAction(
+        options, dialogs, classes, graph, notifications, visualModel,
+        modelInstance);
+    } else {
+      notifications.error("Can not add to given model.");
+    }
   };
 
-  const openCreateConnectionDialog = (source: string, target: string) => {
-    openCreateConnectionDialogAction(
-      options, dialogs, notifications, useClasses, graph, source, target);
+  // Visual model actions.
+
+  const addSemanticEntitiesToVisualModel = (entities: EntityToAddToVisualModel[]): void => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      addSemanticEntitiesToVisualModelAction(
+        notifications, graph, classes, visualModel, diagram, entities);
+    });
   };
 
-  const addNodeToVisualModel = (model: string, identifier: string) => {
-    // We position the new node to the center of the viewport.
-    const viewport = diagram.actions().getViewport();
-
-    const position = {
-      x: viewport.position.x + (viewport.width / 2),
-      y: viewport.position.y + (viewport.height / 2),
-    };
-    position.x -= ReactflowDimensionsConstantEstimator.getDefaultWidth() / 2;
-    position.y -= ReactflowDimensionsConstantEstimator.getDefaultHeight() / 2;
-    placePositionOnGrid(position, configuration().xSnapGrid, configuration().ySnapGrid);
-
-    addNodeToVisualModelAction(notifications, graph, model, identifier, position);
+  const addClassToVisualModel = (model: string, identifier: string, position: { x: number, y: number } | null): void => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      addSemanticClassToVisualModelAction(
+        notifications, graph, classes, visualModel, diagram, identifier, model, position);
+    });
   };
 
-  const addNodeToVisualModelToPosition = (model: string, identifier: string, position: { x: number, y: number }) => {
-    addNodeToVisualModelAction(notifications, graph, model, identifier, position);
+  const addClassProfileToVisualModel = (model: string, identifier: string, position: { x: number, y: number } | null): void => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      addSemanticClassProfileToVisualModelAction(
+        notifications, graph, classes, visualModel, diagram, identifier, model, position);
+    });
+  }
+
+  const addGeneralizationToVisualModel = (model: string, identifier: string): void => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      addSemanticGeneralizationToVisualModelAction(
+        notifications, graph, visualModel, identifier, model);
+    });
+  }
+
+  const addRelationToVisualModel = (model: string, identifier: string): void => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      addSemanticRelationshipToVisualModelAction(
+        notifications, graph, visualModel, identifier, model);
+    });
   };
 
-  const addRelationToVisualModel = (model: string, identifier: string) => {
-    addRelationToVisualModelAction(notifications, graph, model, identifier);
+  const addRelationProfileToVisualModel = (model: string, identifier: string): void => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      addSemanticRelationshipProfileToVisualModelAction(
+        notifications, graph, visualModel, identifier, model);
+    });
   };
 
-  const deleteFromSemanticModel = (model: string, identifier: string) => {
-    return deleteFromSemanticModelAction(notifications, graph, model, identifier);
+  const removeFromVisualModel = (identifiers: string[]): void => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      removeFromVisualModelAction(notifications, visualModel, identifiers);
+    });
   };
 
-  const removeFromVisualModel = (identifier: string) => {
-    deleteFromVisualModelAction(notifications, graph, identifier);
+  // ...
+
+  const deleteFromSemanticModels = (entitiesToDelete: EntityToDelete[]) => {
+    // We start be removing from the visual model.
+    withVisualModel(notifications, graph, (visualModel) => {
+      removeFromVisualModelAction(notifications, visualModel, entitiesToDelete.map(entitiesToDelete => entitiesToDelete.identifier));
+    });
+    removeFromSemanticModelsAction(notifications, graph, entitiesToDelete);
   };
 
   const centerViewportToVisualEntity = (model: string, identifier: string) => {
-    centerViewportToVisualEntityAction(notifications, graph, diagram, model, identifier);
+    centerViewportToVisualEntityAction(notifications, graph, classes, diagram, identifier, model);
   };
 
-  const deleteVisualElement = (identifier: string) => {
-    const model = findSourceModelOfEntity(identifier, graph.models);
-    if (model === null) {
-      notifications.error("Can't find model for entity.");
-      return;
-    }
-    removeFromVisualModel(identifier);
-    deleteFromSemanticModel(model.getId(), identifier);
+  const layoutActiveVisualModel = async (configuration: UserGivenConstraintsVersion4) => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      return layoutActiveVisualModelAction(notifications, classes, diagram, graph, visualModel, configuration);
+    });
+  }
+
+  const addEntitiesFromSemanticModelToVisualModel = (semanticModelIdentifier: string) => {
+    addEntitiesFromSemanticModelToVisualModelAction(notifications, graph, semanticModelIdentifier);
   };
 
-  const changeNodesPositions = (changes: { [identifier: string]: Position }) => {
-    const visualModel = graph.aggregatorView.getActiveVisualModel();
-    if (visualModel === null) {
-      notifications.error("There is no active visual model.");
-      return;
-    }
-    if (!isWritableVisualModel(visualModel)) {
-      notifications.error("Visual model is not writable.");
-      return;
-    }
-    //
-    for (const [identifier, position] of Object.entries(changes)) {
-      visualModel.updateVisualEntity(identifier, { position });
-    }
+  const addClassNeighborhoodToVisualModel = (identifier: string) => {
+    addClassNeighborhoodToVisualModelAction(graph, notifications, identifier);
   };
 
+  const createNewVisualModelFromSelection = (selectionIdentifiers: string[]) => {
+    createNewVisualModelFromSelectionAction(notifications, graph, selectionIdentifiers);
+  };
 
   const openExtendSelectionDialog = (selections: Selections) => {
     const onConfirm = (state: ExtendSelectionState) => {
@@ -394,7 +641,6 @@ function createActionsContext(
     return filterSelectionAction(notifications, graph, classes, selections, allowedClasses, visibilityFilter, semanticModelFilter);
   };
 
-
   // Prepare and set diagram callbacks.
 
   const callbacks: DiagramCallbacks = {
@@ -405,9 +651,9 @@ function createActionsContext(
 
     onCreateNodeProfile: (node) => openCreateProfileDialog(node.externalIdentifier),
 
-    onHideNode: (node) => removeFromVisualModel(node.externalIdentifier),
+    onHideNode: (node) => removeFromVisualModel([node.externalIdentifier]),
 
-    onDeleteNode: (node) => deleteVisualElement(node.externalIdentifier),
+    onDeleteNode: (node) => deleteVisualElements([node.externalIdentifier]),
 
     onChangeNodesPositions: changeNodesPositions,
 
@@ -417,108 +663,79 @@ function createActionsContext(
 
     onCreateEdgeProfile: (edge) => openCreateProfileDialog(edge.externalIdentifier),
 
-    onHideEdge: (edge) => removeFromVisualModel(edge.externalIdentifier),
+    onHideEdge: (edge) => removeFromVisualModel([edge.externalIdentifier]),
 
-    onDeleteEdge: (edge) => deleteVisualElement(edge.externalIdentifier),
+    onDeleteEdge: (edge) => deleteVisualElements([edge.externalIdentifier]),
 
-    onAddWaypoint: (edge, index, waypoint) => {
-      const visualModel = graph.aggregatorView.getActiveVisualModel();
-      if (visualModel === null) {
-        notifications.error("There is no active visual model.");
-        return;
-      }
-      if (!isWritableVisualModel(visualModel)) {
-        notifications.error("Visual model is not writable.");
-        return;
-      }
-      //
-      const visualEdge = visualModel.getVisualEntity(edge.identifier);
-      if (visualEdge === null) {
-        notifications.error("Ignore waypoint update of non-existing visual entity.")
-        return;
-      }
-      if (isVisualRelationship(visualEdge) || isVisualProfileRelationship(visualEdge)) {
-        const waypoints: Waypoint[] = [
-          ...visualEdge.waypoints.slice(0, index),
-          { x: waypoint.x, y: waypoint.y, anchored: null },
-          ...visualEdge.waypoints.slice(index),
-        ];
-        visualModel.updateVisualEntity(edge.identifier, { waypoints });
-      } else {
-        notifications.error("Ignore waypoint update of non-edge visual type.")
-      }
-    },
+    onAddWaypoint: addWaypoint,
 
-    onDeleteWaypoint: (edge, index) => {
-      const visualModel = graph.aggregatorView.getActiveVisualModel();
-      if (visualModel === null) {
-        notifications.error("There is no active visual model.");
-        return;
-      }
-      if (!isWritableVisualModel(visualModel)) {
-        notifications.error("Visual model is not writable.");
-        return;
-      }
-      //
-      const visualEdge = visualModel.getVisualEntity(edge.identifier);
-      if (visualEdge === null) {
-        notifications.error("Ignore waypoint update of non-existing visual entity.")
-        return;
-      }
-      if (isVisualRelationship(visualEdge) || isVisualProfileRelationship(visualEdge)) {
-        const waypoints: Waypoint[] = [
-          ...visualEdge.waypoints.slice(0, index),
-          ...visualEdge.waypoints.slice(index + 1),
-        ];
-        visualModel.updateVisualEntity(edge.identifier, { waypoints });
-      } else {
-        notifications.error("Ignore waypoint update of non-edge visual type.")
-      }
-    },
+    onDeleteWaypoint: deleteWaypoint,
 
-    onChangeWaypointPositions: (changes) => {
-      const visualModel = graph.aggregatorView.getActiveVisualModel();
-      if (visualModel === null) {
-        notifications.error("There is no active visual model.");
-        return;
-      }
-      if (!isWritableVisualModel(visualModel)) {
-        notifications.error("Visual model is not writable.");
-        return;
-      }
-      //
-      for (const [identifier, waypointsChanges] of Object.entries(changes)) {
-        const visualEdge = visualModel.getVisualEntity(identifier);
-        if (visualEdge === null) {
-          notifications.error("Ignore waypoint update of non-existing visual entity.")
-          return;
-        }
-        if (isVisualRelationship(visualEdge) || isVisualProfileRelationship(visualEdge)) {
-          const waypoints: Waypoint[] = [...visualEdge.waypoints];
-          for (const [index, waypoint] of Object.entries(waypointsChanges)) {
-            waypoints[Number(index)] = { ...waypoints[Number(index)], x: waypoint.x, y: waypoint.y };
-          }
-          console.log("onChangeWaypointPositions", { changes: changes, prev: visualEdge.waypoints, next: waypoints });
-          visualModel.updateVisualEntity(identifier, { waypoints });
-        } else {
-          notifications.error("Ignore waypoint update of non-edge visual type.")
-        }
-      }
-      console.log("Application.onChangeWaypointPositions", { changes });
-    },
+    onChangeWaypointPositions: changeWaypointPositions,
 
     onCreateConnectionToNode: (source, target) => {
       openCreateConnectionDialog(source.externalIdentifier, target.externalIdentifier);
     },
 
-    onCreateConnectionToNothing: (source, position) => {
-      console.log("Application.onCreateConnectionToNothing", { source, position });
+    onCreateConnectionToNothing: (source, canvasPosition) => {
+      console.log("Application.onCreateConnectionToNothing", { source, canvasPosition });
+      diagram.actions().openDragEdgeToCanvasToolbar(source, canvasPosition);
     },
 
     onSelectionDidChange: (nodes, edges) => {
       console.log("Application.onSelectionDidChange", { nodes, edges });
     },
-
+    onToggleAnchorForNode: (diagramNode) => {
+      console.log("Application.onToggleAnchorForNode", { diagramNode });
+      withVisualModel(notifications, graph, (visualModel) => {
+        toggleAnchorAction(notifications, visualModel, diagramNode.externalIdentifier);
+      });
+    },
+    onShowSelectionActions: (source, canvasPosition) => {
+      console.log("Application.onShowSelectionActions", { source, canvasPosition });
+      diagram.actions().openSelectionActionsToolbar(source, canvasPosition);
+    },
+    onLayoutSelection: () => {
+      // TODO RadStr: Currently does nothing (In future - Opens layouting menu - 3 buttons - alignments + layouting)
+    },
+    onCreateGroup: () => {
+      // TODO RadStr: Currently does nothing (In future - Creating group)
+    },
+    onShowExpandSelection: () => {
+      const selectionToExpand = getSelections(diagram, false, true);
+      openExtendSelectionDialog(selectionToExpand);
+    },
+    onShowFilterSelection: () => {
+      const selectionToFilter = getSelections(diagram, false, true);
+      openFilterSelectionDialog({nodeSelection: selectionToFilter.nodeSelection, edgeSelection: selectionToFilter.edgeSelection, areVisualModelIdentifiers: true});
+    },
+    onCanvasOpenCreateClassDialog: (sourceClassNode, positionToPlaceClassOn) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        openCreateClassDialogWithModelDerivedFromClassAction(notifications, graph, dialogs, classes, options, diagram, visualModel, sourceClassNode, positionToPlaceClassOn);
+      });
+    },
+    onCreateNewViewFromSelection: () => {
+      const {nodeSelection, edgeSelection} = getSelections(diagram, true, false);
+      alert("The view functionality currently doesn't work");
+      createNewVisualModelFromSelection(nodeSelection.concat(edgeSelection));
+    },
+    onProfileSelection: () => {
+      const {nodeSelection, edgeSelection} = getSelections(diagram, true, false);
+      withVisualModel(notifications, graph, (visualModel) => {
+        createDefaultProfilesAction(notifications, graph, diagram, options, classes, visualModel, nodeSelection, edgeSelection, true);
+      });
+    },
+    onHideSelection: () => {
+      const {nodeSelection, edgeSelection} = getSelections(diagram, true, false);
+      console.info("Hiding selection from view: ", {nodeSelection, edgeSelection});
+      removeFromVisualModel(nodeSelection.concat(edgeSelection));
+    },
+    onDeleteSelection: () => {
+      const {nodeSelection, edgeSelection} = getSelections(diagram, true, false);
+      console.info("Removing selection from semantic model: ", {nodeSelection, edgeSelection});
+      const selectionIdentifiers = nodeSelection.concat(edgeSelection);
+      deleteVisualElements(selectionIdentifiers);
+    },
   };
 
   diagram.setCallbacks(callbacks);
@@ -528,22 +745,51 @@ function createActionsContext(
     openDetailDialog,
     openModifyDialog,
     openCreateClassDialog,
+    openCreateAssociationDialog,
+    openCreateAttributeDialog,
     openCreateProfileDialog,
-    addNodeToVisualModel,
-    addNodeToVisualModelToPosition,
+    //
+    addSemanticEntitiesToVisualModel,
+    addClassToVisualModel,
+    addClassProfileToVisualModel,
+    addGeneralizationToVisualModel,
     addRelationToVisualModel,
-    deleteFromSemanticModel,
+    addRelationProfileToVisualModel,
     removeFromVisualModel,
+    //
+    deleteFromSemanticModels,
     centerViewportToVisualEntity,
 
+    createNewVisualModelFromSelection,
+    addEntitiesFromSemanticModelToVisualModel,
+    addClassNeighborhoodToVisualModel,
+
+    layoutActiveVisualModel,
+    //
     openExtendSelectionDialog,
     openFilterSelectionDialog,
     extendSelection,
     filterSelection,
-
     diagram,
   };
 
+}
+
+function withVisualModel(
+  notifications: UseNotificationServiceWriterType,
+  graph: ModelGraphContextType,
+  callback: (visualModel: WritableVisualModel) => void,
+): void {
+  const visualModel = graph.aggregatorView.getActiveVisualModel();
+  if (visualModel === null) {
+    notifications.error("There is no active visual model.");
+    return;
+  }
+  if (!isWritableVisualModel(visualModel)) {
+    notifications.error("Visual model is not writable.");
+    return;
+  }
+  callback(visualModel);
 }
 
 export const useActions = (): ActionsContextType => {

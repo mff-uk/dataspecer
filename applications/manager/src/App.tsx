@@ -8,6 +8,7 @@ import { BetterModalProvider } from './lib/better-modal';
 import { ResourcesContext, useResourcesContext } from './package';
 import { useTranslation } from "react-i18next";
 import { Toaster } from "@/components/ui/sonner"
+import { VersionInformation } from './components/version-information';
 
 const version = import.meta.env.VITE_VERSION || null;
 
@@ -22,8 +23,11 @@ function App() {
           <header className='sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
             <div className='container flex h-14 items-center justify-between'>
               <div className='flex gap-2'>
-                <div>
-                  <strong>Dataspecer</strong> {t('dataspecer-packages')}
+                <div className='flex items-center gap-2'>
+                  <span>
+                    <strong>Dataspecer</strong> {t('dataspecer-packages')}
+                  </span>
+                  <VersionInformation />
                 </div>
                 {version &&
                   <div className='inline-flex items-center rounded-full px-2.5 py-1 text-sm bg-purple-500/10 text-purple-800 dark:text-purple-400'>

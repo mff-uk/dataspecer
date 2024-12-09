@@ -39,7 +39,7 @@ export function transformPimClass(cls: PimClass) {
     return result;
 }
 
-export function transformCoreResources(resources: Record<string, CoreResource>) {
+export function transformCoreResources(resources: Record<string, CoreResource>, relationshipMapping: Record<string, [string, boolean]> = {}) {
     let result: Entities = {};
 
     // Transform classes
@@ -60,6 +60,8 @@ export function transformCoreResources(resources: Record<string, CoreResource>) 
         if (PimAssociation.is(resource)) {
             const left = resources[resource.pimEnd[0]!] as PimAssociationEnd;
             const right = resources[resource.pimEnd[1]!] as PimAssociationEnd;
+            relationshipMapping[left.iri!] = [resource.iri!, true];
+            relationshipMapping[right.iri!] = [resource.iri!, false];
             const association = {
                 id: resource.iri as string,
                 iri: null,
@@ -86,6 +88,7 @@ export function transformCoreResources(resources: Record<string, CoreResource>) 
             result[association.id] = association;
         }
         if (PimAttribute.is(resource)) {
+            relationshipMapping[resource.iri!] = [resource.iri!, false];
             const attribute = {
                 id: resource.iri as string,
                 iri: null,

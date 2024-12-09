@@ -1,3 +1,4 @@
+import { Entity } from '@dataspecer/core-v2';
 import {CoreResource} from "@dataspecer/core/core";
 import {useCallback, useContext, useEffect, useState} from "react";
 import {StoreContext} from "./store";
@@ -15,7 +16,7 @@ const loadingEmptyLink = {
  *
  * @param iri
  */
-export const useResource = <ResourceType extends CoreResource>(iri: string | null) => {
+export const useResource = <ResourceType extends CoreResource | Entity = CoreResource>(iri: string | null) => {
     const store = useContext(StoreContext);
     const [state, setState] = useState<Resource<ResourceType>>(() => {
         if (iri) {

@@ -23,6 +23,8 @@ export const ATTRIBUTE = PSM + "Attribute";
 
 export const CLASS = PSM + "Class";
 
+export const CONTAINER = PSM + "Container";
+
 export const SCHEMA = PSM + "Schema";
 
 export const EXTERNAL_ROOT = PSM + "ExternalRoot";
@@ -55,6 +57,10 @@ export const CREATE_CLASS = PSM + "CreateClass";
 
 export const CREATE_CLASS_RESULT = PSM + "CreateClassResult";
 
+export const CREATE_CONTAINER = PSM + "CreateContainer";
+
+export const CREATE_CONTAINER_RESULT = PSM + "CreateContainerResult";
+
 export const CREATE_EXTERNAL_ROOT = PSM + "CreateExternalRoot";
 
 export const CREATE_EXTERNAL_ROOT_RESULT = PSM + "CreateExternalRootResult";
@@ -80,6 +86,8 @@ export const DELETE_ASSOCIATION_END = PSM + "DeleteAssociationEnd";
 export const DELETE_ATTRIBUTE = PSM + "DeleteAttribute";
 
 export const DELETE_CLASS = PSM + "DeleteClass";
+
+export const DELETE_CONTAINER = PSM + "DeleteContainer";
 
 export const DELETE_EXTERNAL_ROOT = PSM + "DeleteExternalRoot";
 

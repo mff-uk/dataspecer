@@ -26,8 +26,7 @@ import { AlignmentComponent } from "./features/alignment-viewportal";
 import { EdgeType, type Node as ApiNode } from "./diagram-api";
 import { ClassProfileEdge, ClassProfileEdgeName } from "./edge/class-profile-edge";
 import { GeneralizationEdge, GeneralizationEdgeName } from "./edge/generalization-edge";
-import { useActions } from "../action/actions-react-binding";
-import { SelectionsWithIdInfo } from "../action/filter-selection-action";
+import { CanvasToolbarGeneral } from "./canvas/canvas-toolbar-general";
 
 export function Diagram(props: { diagram: UseDiagramType }) {
   // We use ReactFlowProvider as otherwise use of ReactFlow hooks,
@@ -53,25 +52,8 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
   const controller = useDiagramController(props.diagram);
   const { xSnapGrid, ySnapGrid } = configuration();
 
-  // TODO RadStr: For now until merge to main  ... this code will be in react-actions-binding
-  const actions = useActions();
-  // TODO RadStr: For now until merge to main  ... this code will be in react-actions-binding, same for the buttons
-  const selections: SelectionsWithIdInfo = {
-    nodeSelection: controller.nodes.filter(node => node.selected === true).map(node => node.id),
-    edgeSelection: controller.edges.filter(edge => edge.selected === true).map(edge => edge.id),
-    areVisualModelIdentifiers: true,
-  };
-
   return (
     <>
-      {/* TODO RadStr: After merge to main remove - there will be 2 new methods in diagram-api - extendSelection, filterSelection without arguments, which will call this code */}
-      <div>
-        <button onClick={() => actions.openExtendSelectionDialog(selections)}>Extend selection</button>
-      </div>
-      <div>
-        <button onClick={() => actions.openFilterSelectionDialog(selections)}>
-          Filter selection</button>
-      </div>
       <DiagramContext.Provider value={controller.context}>
         <CustomEdgeMarkers />
         <ReactFlow
@@ -105,6 +87,7 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
           onNodeDrag={controller.onNodeDrag}
           onNodeDragStart={controller.onNodeDragStart}
           onNodeDragStop={controller.onNodeDragStop}
+          onPaneClick={controller.onPaneClick}
         >
           <Controls />
           <MiniMap nodeColor={miniMapNodeColor} pannable zoomable />
@@ -123,6 +106,10 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
         {controller.edgeToolbar?.edgeType === EdgeType.Association ||
           controller.edgeToolbar?.edgeType === EdgeType.AssociationProfile
           ? <PropertyEdgeToolbar value={controller.edgeToolbar} />
+          : null
+        }
+        {(controller.canvasToolbar !== null)
+          ? <CanvasToolbarGeneral value={controller.canvasToolbar} canvasContent={controller.canvasToolbar.toolbarContent} />
           : null
         }
         <AlignmentComponent {...controller.alignmentController}></AlignmentComponent>

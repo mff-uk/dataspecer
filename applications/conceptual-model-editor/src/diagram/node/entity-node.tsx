@@ -5,6 +5,7 @@ import {
   NodeToolbar,
   type NodeProps,
   type Node,
+  useReactFlow,
 } from "@xyflow/react";
 
 import type { Node as ApiNode, EntityItem } from "../diagram-api";
@@ -12,6 +13,9 @@ import { DiagramContext } from "../diagram-controller";
 
 import "./entity-node.css";
 import { usePrefixForIri } from "../../service/prefix-service";
+import { t } from "../../application";
+import { useModelGraphContext } from "../../context/model-context";
+import { VisualNode } from "@dataspecer/core-v2/visual-model";
 
 // We can select zoom option and hide content when zoom is on given threshold.
 // const zoomSelector = (state: ReactFlowState) => state.transform[2] >= 0.9;
@@ -39,6 +43,10 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
     usageNote = data.profileOf.usageNote;
   }
 
+  // TODO PRQuestion: How should we get access to the information saying that the node is anchored so we can visualize it? Should it be action? Or should it be like this?
+  const graph = useModelGraphContext();
+  const isAnchored = (graph.aggregatorView?.getActiveVisualModel()?.getVisualEntity(props.data.identifier) as VisualNode).position?.anchored ?? false;
+
   return (
     <>
       {props.selected ? <SelectedHighlight /> : null}
@@ -61,7 +69,10 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
                 </span>
               </div>
             )}
-            {data.label}
+            <div className="relative flex w-full flex-row justify-between">
+                <div>{data.label}</div>
+                {isAnchored ? <div>⚓</div>: null}
+            </div>
           </div>
 
           <div className="overflow-x-clip text-gray-500 px-1">
@@ -89,31 +100,98 @@ function SelectedHighlight() {
 
 function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   const context = useContext(DiagramContext);
+  if(context === null) {
+    return null;
+  }
+
+  const isCanvasToolbarOpen = context.openedCanvasToolbar !== null;
+  if(isCanvasToolbarOpen) {
+    return null;
+  }
+
+  if(context.shouldShowSelectionToolbar()) {
+    return <SelectionToolbar {...props}/>;
+  }
+  else {
+    return <PrimaryNodeToolbar {...props}/>;
+  }
+}
+
+
+function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
+  const context = useContext(DiagramContext);
+
   const onShowDetail = () => context?.callbacks().onShowNodeDetail(props.data);
   const onEdit = () => context?.callbacks().onEditNode(props.data);
   const onCreateProfile = () => context?.callbacks().onCreateNodeProfile(props.data);
   const onHide = () => context?.callbacks().onHideNode(props.data);
   const onDelete = () => context?.callbacks().onDeleteNode(props.data);
+  const onAnchor = () => context?.callbacks().onToggleAnchorForNode(props.data);
+
   return (
     <>
-      <NodeToolbar position={Position.Top} className="flex gap-2 entity-node-toolbar" >
-        <button onClick={onShowDetail}>ℹ</button>
-        &nbsp;
-        <button onClick={onEdit}>✏️</button>
-        &nbsp;
-        <button onClick={onCreateProfile}>🧲</button>
-        &nbsp;
-      </NodeToolbar>
-      <NodeToolbar position={Position.Right} className="flex gap-2 entity-node-toolbar" >
-        <Handle type="source" position={Position.Right}>🔗</Handle>
-      </NodeToolbar>
-      <NodeToolbar position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
-        <button onClick={onHide}>🕶</button>
-        &nbsp;
-        <button onClick={onDelete}>🗑</button>
-        &nbsp;
-      </NodeToolbar>
-    </>
+    <NodeToolbar isVisible={props.selected === true} position={Position.Top} className="flex gap-2 entity-node-toolbar" >
+      <button onClick={onShowDetail} title={t("class-detail-button")}>ℹ</button>
+      &nbsp;
+      <button onClick={onEdit} title={t("class-edit-button")}>✏️</button>
+      &nbsp;
+      <button onClick={onCreateProfile} title={t("class-profile-button")}>🧲</button>
+      &nbsp;
+    </NodeToolbar>
+    <NodeToolbar isVisible={props.selected === true} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
+      <Handle type="source" position={Position.Right} title={t("node-connection-handle")}>🔗</Handle>
+    </NodeToolbar>
+    <NodeToolbar isVisible={props.selected === true} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
+      <button onClick={onHide} title={t("class-hide-button")}>🕶</button>
+      &nbsp;
+      <button onClick={onDelete} title={t("class-remove-button")}>🗑</button>
+      &nbsp;
+      <button onClick={onAnchor} title={t("node-anchor-button")} >⚓</button>
+      &nbsp;
+    </NodeToolbar>
+  </>);
+}
+
+
+function SelectionToolbar(props: NodeProps<Node<ApiNode>>) {
+  const context = useContext(DiagramContext);
+  const reactFlow = useReactFlow();
+  const isLastSelected = props.selected === true && context?.getLastSelected() === props.id;
+
+  if (!(isLastSelected === true && context?.getLastSelected() === props.id)) {
+    return null;
+  }
+
+  const onShowSelectionActions = (event: React.MouseEvent) => {
+    // TODO: Don't know where to put this conversion line of code -
+    //       a) It is probably the best to keep it here.
+    //       b) Separate controller for this component - But we have only 1 method
+    //       c) Exposing the conversion from screen to canvas position in diagram API - not sure if that is something which should be part of API
+    const absoluteFlowPosition = reactFlow.screenToFlowPosition({x: event.clientX, y: event.clientY});
+    context?.callbacks().onShowSelectionActions(props.data, absoluteFlowPosition);
+  }
+  const onLayoutSelection = () => context?.callbacks().onLayoutSelection();
+  const onCreateGroup = () => context?.callbacks().onCreateGroup();
+  const onShowExpandSelection = () => context?.callbacks().onShowExpandSelection();
+  const onShowFilterSelection = () => context?.callbacks().onShowFilterSelection();
+
+  return (<>
+    <NodeToolbar isVisible={isLastSelected} position={Position.Top} className="flex gap-2 entity-node-toolbar" >
+      <button onClick={onShowSelectionActions} title={t("selection-action-button")}>🎬</button>
+      &nbsp;
+      <button onClick={onLayoutSelection} title={t("selection-layout-button")} disabled>🔀</button>
+      &nbsp;
+    </NodeToolbar>
+    <NodeToolbar isVisible={isLastSelected} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
+    <button onClick={onCreateGroup} title={t("selection-group-button")} disabled>🤝</button>
+    </NodeToolbar>
+    <NodeToolbar isVisible={isLastSelected} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
+      <button onClick={onShowExpandSelection} title={t("selection-extend-button")} >📈</button>
+      &nbsp;
+      <button onClick={onShowFilterSelection} title={t("selection-filter-button")} >📉</button>
+      &nbsp;
+    </NodeToolbar>
+  </>
   );
 }
 

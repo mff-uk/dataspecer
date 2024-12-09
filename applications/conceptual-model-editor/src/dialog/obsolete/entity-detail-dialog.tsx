@@ -4,7 +4,6 @@ import {
     type SemanticModelGeneralization,
     type SemanticModelClass,
     type SemanticModelRelationship,
-    isSemanticModelClass,
     isSemanticModelRelationship,
     isSemanticModelAttribute,
 } from "@dataspecer/core-v2/semantic-model/concepts";
@@ -15,7 +14,6 @@ import {
     isSemanticModelClassUsage,
     isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { type WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { IriLink } from "../../components/iri-link";
 import { sourceModelOfEntity } from "../../util/model-utils";
@@ -26,7 +24,6 @@ import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
 import { ScrollableResourceDetailClickThroughList } from "../../components/scrollable-detail-click-through";
 import { DialogColoredModelHeaderWithLanguageSelector } from "../../components/dialog/dialog-colored-model-header";
 import { t } from "../../application";
-import { useActions } from "../../action/actions-react-binding";
 import { DialogProps, DialogWrapper } from "../dialog-api";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
 
@@ -104,31 +101,14 @@ const EntityDetailDialog = (props: DialogProps<EntityDetailState>) => {
 
     const isInActiveView = graph.aggregatorView.getActiveVisualModel()?.getVisualEntityForRepresented(entity.id) !== null;
 
-    const [addToActiveViewButtonClicked, setAddToActiveViewButtonClicked] = useState(isInActiveView);
-    const canBeAddedToActiveView = isSemanticModelClass(entity) || isSemanticModelClassUsage(entity);
     const isRelationship = isSemanticModelRelationship(entity);
     const isRelationshipProfile = isSemanticModelRelationshipUsage(entity);
-
-    const actions = useActions();
-
-    const handleAddEntityToActiveView = (entityId: string) => {
-        const visualModel = graph.aggregatorView.getActiveVisualModel() as WritableVisualModel;
-        if (visualModel === null || sourceModel?.getId() === undefined) {
-            return;
-        }
-        if (isRelationship) {
-            actions.addRelationToVisualModel(sourceModel.getId(), entityId);
-        } else {
-            actions.addNodeToVisualModel(sourceModel.getId(), entityId);
-        }
-    };
 
     const handleResourceClickThroughClicked = (next: SupportedTypes) => {
         props.changeState({
             entity: next,
             language: props.state.language,
         });
-        setAddToActiveViewButtonClicked(false);
     };
 
     return (
@@ -152,18 +132,6 @@ const EntityDetailDialog = (props: DialogProps<EntityDetailState>) => {
                     <h5 className="text-xl">
                         Detail of: <span className="font-semibold">{proxy.name}</span>
                     </h5>
-                    {canBeAddedToActiveView && !isInActiveView && !addToActiveViewButtonClicked && (
-                        <button
-                            className="w-min text-nowrap"
-                            onClick={() => {
-                                handleAddEntityToActiveView(entity.id);
-                                setAddToActiveViewButtonClicked(true);
-                                props.close();
-                            }}
-                        >
-                            add to view
-                        </button>
-                    )}
                 </div>
                 <p className="flex flex-row pl-8 text-gray-500" title={proxy.iri ?? ""}>
                     <IriLink iri={proxy.iri} />

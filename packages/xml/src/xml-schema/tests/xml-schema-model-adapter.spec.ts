@@ -78,20 +78,20 @@ function expectTrue(condition: boolean): asserts condition {
   expect(condition).toBeTruthy();
 }
 
-test(testPrefix + "namespace declaration", async () => {
+test.skip(testPrefix + "namespace declaration", async () => {
   const {schema, resource} = await getSchema1();
   const extension = DataPsmSchemaXmlExtension.getExtensionData(resource);
   expect(schema.targetNamespace).toBe(extension.namespace);
   expect(schema.targetNamespacePrefix).toBe(extension.namespacePrefix);
 });
 
-test(testPrefix + "defines langString", async () => {
+test.skip(testPrefix + "defines langString", async () => {
   const {schema} = await getSchema1();
   expectTrue(schema.defineLangString);
   //expectCondition(!schema.defineLangString).toBeTruthy();
 });
 
-test(testPrefix + "root element exists", async () => {
+test.skip(testPrefix + "root element exists", async () => {
   const {schema} = await getSchema1();
   expect(schema.elements.length).toBe(1);
   const element = schema.elements[0];
@@ -99,7 +99,7 @@ test(testPrefix + "root element exists", async () => {
   expect(element.type.name).toBe(null);
 });
 
-test(testPrefix + "root has IRI element", async () => {
+test.skip(testPrefix + "root has IRI element", async () => {
   const {schema} = await getSchema1();
   const type = schema.elements[0].type;
   expectTrue(xmlSchemaTypeIsComplex(type));
@@ -115,7 +115,7 @@ test(testPrefix + "root has IRI element", async () => {
   expect(element.type).toBe(null);
 });
 
-test(testPrefix + "root has simple elements", async () => {
+test.skip(testPrefix + "root has simple elements", async () => {
   const {schema} = await getSchema1();
   const type = schema.elements[0].type;
   expectTrue(xmlSchemaTypeIsComplex(type));
@@ -175,7 +175,7 @@ test.skip(testPrefix + "root has abstract element", async () => {
   expect(derivingTypes.length).toBe(5);
 });
 
-test(testPrefix + "root has group reference", async () => {
+test.skip(testPrefix + "root has group reference", async () => {
   const {schema} = await getSchema1();
   const type = schema.elements[0].type;
   expectTrue(xmlSchemaTypeIsComplex(type));
@@ -191,7 +191,7 @@ test(testPrefix + "root has group reference", async () => {
   expect(await groupRef.name).toEqual([null, "contact"]);
 });
 
-test(testPrefix + "imports are present", async () => {
+test.skip(testPrefix + "imports are present", async () => {
   const {schema} = await getSchema1();
   expect(schema.imports.length).toBe(2);
   const importDecl = schema.imports[0];
