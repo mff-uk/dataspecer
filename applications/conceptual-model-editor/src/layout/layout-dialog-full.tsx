@@ -5,60 +5,13 @@ import { performLayoutOfVisualModel } from "@dataspecer/layout";
 import { useReactflowDimensionQueryHandler } from "./reactflow-dimension-query-handler";
 import { useActions } from "../action/actions-react-binding";
 import { isVisualNode, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 export const useLayoutDialog = () => {
     const { getValidConfig, ConfigDialog } = useConfigDialog();
-
-    const { aggregatorView, models } = useModelGraphContext();
-
-    const activeVisualModel = useMemo(() => aggregatorView.getActiveVisualModel(), [aggregatorView]);
-
-    const reactflowDimensionQueryHandler = useReactflowDimensionQueryHandler();
-
     const actions = useActions();
 
     const onClickLayout = () => {
-        if (activeVisualModel === null) {
-            return;
-        }
-
-        performLayoutOfVisualModel(
-            activeVisualModel, models, getValidConfig(),
-            reactflowDimensionQueryHandler,
-        ).then(result => {
-            console.info("Layout result in editor");
-            console.info(result);
-            console.info(activeVisualModel.getVisualEntities());
-            if (!isWritableVisualModel(activeVisualModel)) {
-                return;
-            }
-
-            Object.entries(result).forEach(([key, value]) => {
-                if (activeVisualModel.getVisualEntity(key) !== undefined) {
-                    // The entity already exists.
-                    console.info("UPDATING");
-                    console.info(value.identifier);
-                    console.info(value);
-                    activeVisualModel?.updateVisualEntity(value.identifier, value);
-                    return;
-                }
-
-                if (!isVisualNode(value)) {
-                    throw new Error("Not prepared for anything other than nodes when layouting.")
-                }
-
-                const represented = aggregatorView.getEntities()[value.representedEntity]?.rawEntity;
-                if (isSemanticModelClass(represented)) {
-                    actions.addClassToVisualModel(value.model, value.representedEntity, value.position);
-                } else if (isSemanticModelClassUsage(represented)) {
-                    actions.addClassProfileToVisualModel(value.model, value.representedEntity, value.position);
-                } else {
-                    throw new Error("Unexpected node type.");
-                }
-            });
-        }).catch(console.warn).finally(() => close());
+        actions.layoutActiveVisualModel(getValidConfig()).catch(console.warn).finally(() => close());
     };
 
     const [isLayoutDialogOpen, setIsLayoutDialogOpen] = useState<boolean>(false);
@@ -71,13 +24,12 @@ export const useLayoutDialog = () => {
 
     const DialogComponent = () => {
         // The max-h-full makes it finally react to situation when dialog doesn't fit
-        return <dialog className="px-3 py-3 mt-[1vh] overflow-y-auto max-h-full" style={{ zIndex: 10000 }} open={isLayoutDialogOpen}>
-
-            <ConfigDialog></ConfigDialog>
-            <div className='h-2'></div>
-            <button onClick={onClickLayout} className="bg-transparent hover:bg-green-700 text-green-900 font-semibold hover:text-white py-2 px-4 border border-green-900 hover:border-transparent rounded">Layout</button>
-            <button onClick={close} className="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded">Close</button>
-        </dialog>;
+        return  <dialog className="px-3 py-3 mt-[1vh] overflow-y-auto max-h-full" style={{zIndex: 10000}} open={isLayoutDialogOpen}>
+                    <ConfigDialog></ConfigDialog>
+                    <div className='h-2'></div>
+                    <button onClick={onClickLayout} className="bg-transparent hover:bg-green-700 text-green-900 font-semibold hover:text-white py-2 px-4 border border-green-900 hover:border-transparent rounded">Layout</button>
+                    <button onClick={close} className="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded">Close</button>
+                </dialog>;
     };
 
     return {

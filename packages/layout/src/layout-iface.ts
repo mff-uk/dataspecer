@@ -38,7 +38,7 @@ export interface LayoutAlgorithm {
      * @param nodeDimensionQueryHandler
      * @returns
      */
-    prepareFromGraph: (graph: IGraphClassic, constraintContainer: ConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler) => void,
+    prepareFromGraph: (graph: IGraphClassic, constraintContainer: ConstraintContainer) => void,
     /**
      * Runs the layouting algorithm on the graph prepared earlier.
      * @param shouldCreateNewGraph if true then new graph is created, otherwise the one passed in preparation phase is changed in place
@@ -61,7 +61,6 @@ export interface LayoutAlgorithm {
 
     // TODO: Again - why am I putting properties into interface??
     constraintContainer: ConstraintContainer;
-    nodeDimensionQueryHandler: NodeDimensionQueryHandler;
 }
 
 
@@ -121,7 +120,7 @@ export interface GraphTransformer {
      * 1) Get {@link ExtractedModels} from provided model
      * 2) Call this method
      * 3) Perform layouting
-     * 4) Convert layouted elements to {@link VisualEntities} using {@link convertToDataspecerRepresentation}, these elements can then be shown in cme (conceptual model editor).
+     * 4) Convert layouted elements to {@link LayoutedVisualEntities} using {@link convertToDataspecerRepresentation}, these elements can then be shown in cme (conceptual model editor).
      * @deprecated (not deprecated yet though) Use {@link convertGraphToLibraryRepresentation} instead */
     convertToLibraryRepresentation(extractedModels: ExtractedModels, options?: object): object,
 
