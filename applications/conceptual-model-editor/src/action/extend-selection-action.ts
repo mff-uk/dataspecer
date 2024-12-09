@@ -26,9 +26,10 @@ export type ExtensionType = "ASSOCIATION" | "ASSOCIATION-SOURCE" | "ASSOCIATION-
                                 "PROFILE-CLASS" | "PROFILE-CLASS-PARENT" | "PROFILE-CLASS-CHILD";
 
 /**
- * Type representing additional visibility filter on the result
+ * Type representing additional visibility filter on the result. The visibility filter is almost always applied to both nodes and edges.
+ * Only in the "ONLY-VISIBLE-NODES" option, the visibility of edges is ignored - This option is used fror example when we want to find edge of to be added node
  */
-export type VisibilityFilter = "ONLY-VISIBLE" | "ONLY-NON-VISIBLE" | "ALL";
+export type VisibilityFilter = "ONLY-VISIBLE" | "ONLY-NON-VISIBLE" | "ALL" | "ONLY-VISIBLE-NODES";
 
 
 type SelectionExtension = {
@@ -296,7 +297,7 @@ function addToExtensionIfSatisfiesVisibilityFilter(
         return;
     }
 
-    // TODO RadStr: If in future there will be multiple visual entities per one semantic, this is the only place that needs to be changed
+    // TODO: If in future there will be multiple visual entities per one semantic, this is the only place that needs to be changed
     //              (meaning from here to the end of method and the isEntityInVisualModel method) -
     //              you need to add only the visual entities, where the identifier (from visual model) of the extended node is either a source or a target
     const isClassInVisualModel = isEntityInVisualModel(visualModel, classIdToAdd, false);
@@ -330,8 +331,8 @@ function addToExtensionIfSatisfiesVisibilityFilter(
         isEdgeInVisualModel = isEntityInVisualModel(visualModel, edgeWhichAddedClass, false);
     }
 
-    if(visibilityFilter === "ONLY-VISIBLE" && isClassInVisualModel && isEdgeInVisualModel) {
-        if(isExtendedNodeVisualId) {
+    if((visibilityFilter === "ONLY-VISIBLE" && isClassInVisualModel && isEdgeInVisualModel) || (visibilityFilter === "ONLY-VISIBLE-NODES" && isClassInVisualModel)) {
+        if(isExtendedNodeVisualId && visibilityFilter === "ONLY-VISIBLE") {     // Then we want visual IDs
             const classToAddVisualEntity = visualModel.getVisualEntityForRepresented(classIdToAdd);
             let edgeWhichAddedClassVisualEntity;
             if(isProfileClassEdge) {
@@ -348,7 +349,7 @@ function addToExtensionIfSatisfiesVisibilityFilter(
             }
             addToSelectionExtension(extension, classToAddVisualEntity.identifier, edgeWhichAddedClassVisualEntity.identifier);
         }
-        else {
+        else {          // We want semantic IDs
             addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass);
         }
     }
