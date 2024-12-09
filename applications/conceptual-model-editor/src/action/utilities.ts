@@ -12,6 +12,7 @@ import { ModelGraphContextType } from "../context/model-context";
 import { ClassesContextType } from "../context/classes-context";
 import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { extendSelectionAction } from "./extend-selection-action";
+import { Selections } from "./filter-selection-action";
 
 const LOG = createLogger(import.meta.url);
 
@@ -91,14 +92,10 @@ export function getViewportCenterForClassPlacement(diagram: UseDiagramType) {
 }
 
 
-// TODO RadStr: This exact type is defined in another branch so unify in future
-// TODO RadStr: Also use the other type defined in the other branch which has additional information about type of IDs
-//              (visual or semantic)
-type Selections = {
-  nodeSelection: string[],
-  edgeSelection: string[],
-};
-
+/**
+ *
+ * @param selectionsToSetWith the {@link Selections} object with visual identifiers to be used as new selection.
+ */
 export function setSelectionsInDiagram(selectionsToSetWith: Selections, diagram: UseDiagramType) {
     diagram.actions().setSelectedNodes(selectionsToSetWith.nodeSelection);
     diagram.actions().setSelectedEdges(selectionsToSetWith.edgeSelection);
