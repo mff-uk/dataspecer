@@ -83,7 +83,7 @@ export async function findPositionForNewNodeUsingLayouting(
     classes: ClassesContextType,
     identifier: string
 ) {
-    let {position, isInCenterOfViewport} = computeMiddleOfRelatedAssociationsPositionAction(identifier, notifications, visualModel, diagram, classes);
+    let {position, isInCenterOfViewport} = await computeMiddleOfRelatedAssociationsPositionAction(notifications, graph, visualModel, diagram, classes, identifier);
 
     if(!isInCenterOfViewport) {
       const maxDeviation = 100;

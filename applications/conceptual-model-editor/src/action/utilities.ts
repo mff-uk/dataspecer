@@ -11,6 +11,8 @@ import { findSourceModelOfEntity } from "../service/model-service";
 import { ModelGraphContextType } from "../context/model-context";
 import { ClassesContextType } from "../context/classes-context";
 import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { extendSelectionAction } from "./extend-selection-action";
+import { Selections } from "./filter-selection-action";
 
 const LOG = createLogger(import.meta.url);
 
@@ -90,13 +92,14 @@ export function getViewportCenterForClassPlacement(diagram: UseDiagramType) {
 }
 
 
-// TODO RadStr: This exact type is defined in another branch so unify in future
-// TODO RadStr: Also use the other type defined in the other branch which has additional information about type of IDs
-//              (visual or semantic)
-type Selections = {
-  nodeSelection: string[],
-  edgeSelection: string[],
-};
+/**
+ *
+ * @param selectionsToSetWith the {@link Selections} object with visual identifiers to be used as new selection.
+ */
+export function setSelectionsInDiagram(selectionsToSetWith: Selections, diagram: UseDiagramType) {
+    diagram.actions().setSelectedNodes(selectionsToSetWith.nodeSelection);
+    diagram.actions().setSelectedEdges(selectionsToSetWith.edgeSelection);
+}
 
 export function getSelections(diagram: UseDiagramType, shouldFilterOutProfileClassEdges: boolean, shouldGetVisualIdentifiers: boolean): Selections {
   let nodeSelection = diagram.actions().getSelectedNodes();
@@ -141,18 +144,17 @@ type ComputedPositionForNodePlacement = {
 /**
  * @returns The barycenter of nodes associated to {@link nodeToFindAssociationsFor} and boolean variable saying if the position was explicitly put to middle of viewport.
  */
-export const computeMiddleOfRelatedAssociationsPositionAction = (
-    nodeToFindAssociationsFor: string,
-    notifications: UseNotificationServiceWriterType,
-    visualModel: WritableVisualModel,
-    diagram: UseDiagramType,
-    classesContext: ClassesContextType
-): ComputedPositionForNodePlacement => {
-    // TODO RadStr: !!!! Use this commented code after merge with systematic selection, this is just so I have something which works for this branch
-    // const associatedClasses: string[] = findAssociatedClassesAndClassUsages(nodeToFindAssociationsFor);
-    const associatedClasses: string[] = findAssociatedClasses(nodeToFindAssociationsFor, classesContext.classes, classesContext.relationships).map(classs => classs.id);
-    const associatedPositions = associatedClasses.map(associatedClassIdentifier => {
-        const visualNode = visualModel.getVisualEntityForRepresented(associatedClassIdentifier);
+export const computeMiddleOfRelatedAssociationsPositionAction = async (
+  notifications: UseNotificationServiceWriterType,
+  graph: ModelGraphContextType,
+  visualModel: WritableVisualModel,
+  diagram: UseDiagramType,
+  classesContext: ClassesContextType,
+  nodeToFindAssociationsFor: string,
+): Promise<ComputedPositionForNodePlacement> => {
+    const associatedClasses: string[] = (await findAssociatedClassesAndClassUsages(notifications, graph, classesContext, nodeToFindAssociationsFor)).selectionExtension.nodeSelection;
+    const associatedPositions = associatedClasses.map(associatedNodeIdentifier => {
+        const visualNode = visualModel.getVisualEntityForRepresented(associatedNodeIdentifier);
         if(visualNode === null) {
             return null;
         }
@@ -199,68 +201,15 @@ const computeBarycenter = (positions: Position[], diagram: UseDiagramType): Comp
     };
 };
 
-
-
-// TODO RadStr: !!! After merge with systematic selection -
-//                  We can replace all of the following methods using the following commented code !!!
-
-// export const findAssociatedClassesAndClassUsages = (nodeToFindAssociationsFor: string) => {
-//     // TODO: Actually if the passed semantic models are null, then the function isn't async
-//     const selection = extendSelection([nodeToFindAssociationsFor], ["ASSOCIATION"], "ONLY-VISIBLE", null);
-//     return selection;
-// }
-
-
-//////
-// Helper methods
-
-/**
- * @deprecated Will be replaced by systematic selection
- */
-type ZeroOrOne = 0 | 1;
-
-/**
- * @deprecated Will be replaced by systematic selection
- */
-const getSecondEnd = (end: ZeroOrOne) => {
-    return 1 - end;
-};
-
-/**
- * @deprecated Will be replaced by systematic selection
- */
-const checkForAssociatedClass = (id: string, end: ZeroOrOne, classes: SemanticModelClass[], relationship: SemanticModelRelationship) => {
-    if(relationship.ends[end]?.concept === id && relationship.ends[getSecondEnd(end)]?.concept !== null) {
-        return classes.find(cclass => cclass.id === relationship.ends[getSecondEnd(end)]?.concept);
-    }
-    else {
-        return null;
-    }
-};
-
-/**
- * @deprecated Will be replaced by systematic selection
- */
-const findAssociatedClasses = (id: string, classes: SemanticModelClass[],
-                                relationships: SemanticModelRelationship[]): SemanticModelClass[] => {
-    const theClass = classes.find(cclass => cclass.id === id);
-    if(theClass === undefined) {
-        return [];
-    }
-
-    const associatedClasses = relationships.map(relationship => {
-        const firstCandidate = checkForAssociatedClass(id, 0, classes, relationship);
-        if(firstCandidate !== null) {
-            return firstCandidate;
-        }
-
-        const secondCandidate = checkForAssociatedClass(id, 1, classes, relationship);
-        if(secondCandidate !== null) {
-            return secondCandidate;
-        }
-
-        return null;
-    }).filter(cclass => cclass !== null && cclass !== undefined);
-
-    return associatedClasses;
-};
+const findAssociatedClassesAndClassUsages = async (
+  notifications: UseNotificationServiceWriterType,
+  graph: ModelGraphContextType,
+  classesContext: ClassesContextType,
+  classToFindAssociationsFor: string
+) => {
+    // Is synchronous for this case
+    const selection = await extendSelectionAction(notifications, graph, classesContext,
+      {areIdentifiersFromVisualModel: false, identifiers: [classToFindAssociationsFor]},
+      ["ASSOCIATION", "GENERALIZATION"], "ONLY-VISIBLE-NODES", false, null);
+    return selection;
+}

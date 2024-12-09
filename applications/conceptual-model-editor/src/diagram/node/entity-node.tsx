@@ -186,9 +186,9 @@ function SelectionToolbar(props: NodeProps<Node<ApiNode>>) {
     <button onClick={onCreateGroup} title={t("selection-group-button")} disabled>🤝</button>
     </NodeToolbar>
     <NodeToolbar isVisible={isLastSelected} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
-      <button onClick={onShowExpandSelection} title={t("selection-extend-button")} disabled>📈</button>
+      <button onClick={onShowExpandSelection} title={t("selection-extend-button")} >📈</button>
       &nbsp;
-      <button onClick={onShowFilterSelection} title={t("selection-filter-button")} disabled>📉</button>
+      <button onClick={onShowFilterSelection} title={t("selection-filter-button")} >📉</button>
       &nbsp;
     </NodeToolbar>
   </>

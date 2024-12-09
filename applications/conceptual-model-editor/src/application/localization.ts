@@ -179,7 +179,14 @@ const translations: Record<string, string | Function> = {
   "selection-profile-button": "Creates profiles from selected nodes and edges",
   "selection-hide-button": "Removes selected nodes and edges from canvas",
   "selection-remove-button": "Delete selected nodes and edges from semantic model",
-
+  //
+  "filter-selection-dialog.label": "Filter selection",
+  "filter-selection-dialog.btn-ok": "✅ Filter",
+  "filter-selection-dialog.btn-cancel": "❌ Cancel",
+  //
+  "extend-selection-dialog.label": "Extend current selection",
+  "extend-selection-dialog.btn-ok": "✅ Accept",
+  "extend-selection-dialog.btn-cancel": "❌ Cancel",
 };
 
 export type TranslationFunction = (text: string, ...args: unknown[]) => string;

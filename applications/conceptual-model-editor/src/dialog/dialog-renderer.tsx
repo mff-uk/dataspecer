@@ -30,11 +30,13 @@ function Dialog({ reference, context }: {
     reference.current?.showModal();
   }, [reference]);
 
+  const defaultClassNames = "base-dialog z-30 flex min-h-[70%] w-[97%] flex-col p-1 md:max-h-[95%] md:w-[70%] md:p-4";
+
   const Component = context.component;
   return (
     <dialog
       ref={reference}
-      className="base-dialog z-30 flex min-h-[70%] w-[97%] flex-col p-1 md:max-h-[95%] md:w-[70%] md:p-4"
+      className={context.dialogClassNames === undefined ? defaultClassNames : context.dialogClassNames}
       onCancel={context.close}
     >
       <h1 className="text-xl">{t(context.label)}</h1>
