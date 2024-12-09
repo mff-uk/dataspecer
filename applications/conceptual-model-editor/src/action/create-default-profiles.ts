@@ -15,7 +15,7 @@ import { UseDiagramType } from "../diagram/diagram-hook";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
 
 
-export function createDefaultProfilesAction(
+export async function createDefaultProfilesAction(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   diagram: UseDiagramType,
@@ -25,8 +25,9 @@ export function createDefaultProfilesAction(
   nodesToProfile: string[],
   edgesToProfile: string[],
   shouldBeAddedToVisualModel: boolean
-): void {
-  const createdClassProfiles = createDefaultClassProfiles(notifications, graph, diagram, options, classesContext, visualModel, nodesToProfile, shouldBeAddedToVisualModel);
+): Promise<void> {
+  // We have to wait otherwise we might start creating relation profiles for non-existing class profiles
+  const createdClassProfiles = await createDefaultClassProfiles(notifications, graph, diagram, options, classesContext, visualModel, nodesToProfile, shouldBeAddedToVisualModel);
   createDefaultRelationshipProfiles(notifications, graph, visualModel, edgesToProfile, createdClassProfiles, shouldBeAddedToVisualModel)
 };
 
@@ -38,7 +39,7 @@ export function createDefaultProfilesAction(
  * Creates classes and class profiles from given {@link nodesToProfile} containing semantic identifiers of entities to profile and adds the profiles to the visual model.
  * @returns The created map of created class and class profiles. Key is the identifier from {@link nodesToProfile} and value is the identifier of the created profile.
  */
-function createDefaultClassProfiles(
+async function createDefaultClassProfiles(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   diagram: UseDiagramType,
@@ -47,10 +48,10 @@ function createDefaultClassProfiles(
   visualModel: VisualModel | null,
   nodesToProfile: string[],
   shouldBeAddedToVisualModel: boolean
-): Record<string, string> {
+): Promise<Record<string, string>> {
   const createdClassProfiles: Record<string, string> = {};
   for(const selectedEntityId of nodesToProfile) {
-    const createdClassProfile = createDefaultClassProfile(notifications, graph, diagram, options, classesContext, visualModel, selectedEntityId, shouldBeAddedToVisualModel);
+    const createdClassProfile = await createDefaultClassProfile(notifications, graph, diagram, options, classesContext, visualModel, selectedEntityId, shouldBeAddedToVisualModel);
     if(createdClassProfile !== null) {
       createdClassProfiles[selectedEntityId] = createdClassProfile;
     }
@@ -65,7 +66,7 @@ function createDefaultClassProfiles(
  * that it is the resulting class profile is the same as if the user opened the dialog and clicked accept without changing anything.
  * @returns The identifier of the created class profile or null if the creation of profile failed
  */
-function createDefaultClassProfile(
+async function createDefaultClassProfile(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   diagram: UseDiagramType,
@@ -74,7 +75,7 @@ function createDefaultClassProfile(
   visualModel: VisualModel | null,
   entityToProfile: string,
   shouldBeAddedToVisualModel: boolean
-): string | null {
+): Promise<string | null> {
   const classOrClassProfileToBeProfiled = graph.aggregatorView.getEntities()?.[entityToProfile]?.aggregatedEntity;
   if(classOrClassProfileToBeProfiled === undefined || classOrClassProfileToBeProfiled === null) {
     notifications.error("The entity (node) to be profiled from selection is not present in aggregatorView");
