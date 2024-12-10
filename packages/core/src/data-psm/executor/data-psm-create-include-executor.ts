@@ -13,7 +13,7 @@ import {
   loadDataPsmClass,
   loadDataPsmSchema,
 } from "./data-psm-executor-utils";
-import { DataPsmInclude } from "../model";
+import { DataPsmClass, DataPsmInclude } from "../model";
 
 export async function executeDataPsmCreateInclude(
   reader: CoreResourceReader,
@@ -54,7 +54,7 @@ export async function executeDataPsmCreateInclude(
       {
         ...owner,
         dataPsmParts: [...owner.dataPsmParts, iri],
-      } as CoreResource,
+      } as DataPsmClass,
     ],
     [],
     new DataPsmCreateIncludeResult(iri)

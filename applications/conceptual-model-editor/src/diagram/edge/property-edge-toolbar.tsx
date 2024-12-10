@@ -3,10 +3,10 @@ import { shallow } from "zustand/shallow";
 import { useStore, type ReactFlowState } from "@xyflow/react";
 
 import { DiagramContext } from "../diagram-controller";
-import { EdgeToolbarPortal } from "./edge-toolbar-portal";
 import { computePosition } from "./edge-utilities";
 import { EdgeToolbarProps, viewportStoreSelector } from "./edge-toolbar";
 import { Edge } from "../diagram-api";
+import { ToolbarPortal } from "../canvas/toolbar-portal";
 
 /**
  * As we can not render edge menu on a single place, like node menu, we
@@ -32,7 +32,7 @@ export function PropertyEdgeToolbar({ value }: { value: EdgeToolbarProps | null 
 
   return (
     <>
-      <EdgeToolbarPortal>
+      <ToolbarPortal>
         <div className="edge-toolbar" style={{ transform: `translate(${position.x}px, ${position.y}px)` }}>
           <div className="property-edge">
             <button onClick={onDetail}>ℹ</button>
@@ -52,7 +52,7 @@ export function PropertyEdgeToolbar({ value }: { value: EdgeToolbarProps | null 
             </ul>
           </div>
         </div>
-      </EdgeToolbarPortal>
+      </ToolbarPortal>
     </>
   );
 }

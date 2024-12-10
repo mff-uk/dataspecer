@@ -16,12 +16,15 @@ import { LoadingDialog } from "../../helper/LoadingDialog";
 import { SlovnikGovCzGlossary } from "../../slovnik.gov.cz/SlovnikGovCzGlossary";
 import { AncestorSelectorPanel } from "./ancestor-selector-panel";
 import { AssociationItem } from "./association-item";
+import { useResource } from "@dataspecer/federated-observable-store-react/use-resource";
 
 export interface AddInterpretedSurroundingDialogProperties {
     isOpen: boolean,
     close: () => void,
 
     dataPsmClassIri: string,
+    // If it actually goes for another PIM class than the class is interpreted to
+    forPimClassIri?: string,
 
     selected: (operation: {
         resourcesToAdd: [string, boolean][],
@@ -30,11 +33,12 @@ export interface AddInterpretedSurroundingDialogProperties {
     }) => void,
 }
 
-export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundingDialogProperties> = dialog({fullWidth: true, maxWidth: "lg"}, ({isOpen, close, selected, dataPsmClassIri}) => {
+export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundingDialogProperties> = dialog({fullWidth: true, maxWidth: "lg"}, ({isOpen, close, selected, dataPsmClassIri, forPimClassIri}) => {
     const {t, i18n} = useTranslation("interpretedSurrounding");
 
+    const {resource: forPimClass} = useResource(forPimClassIri);
     const {pimResource: pimClass, dataPsmResource: dataPsmClass} = useDataPsmAndInterpretedPim<DataPsmClass, SemanticModelClass>(dataPsmClassIri);
-    const cimClassIri = pimClass?.iri; // ! toto je CIM na kterem stavime
+    const cimClassIri = forPimClass?.iri ?? pimClass?.iri; // ! toto je CIM na kterem stavime
 
     const {sourceSemanticModel} = React.useContext(ConfigurationContext);
 

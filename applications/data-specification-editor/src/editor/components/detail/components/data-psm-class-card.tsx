@@ -10,7 +10,7 @@ import {ClassExamples} from "./class-examples";
 import {InstanceType} from "./instance-type";
 
 export const DataPsmClassCard: React.FC<{ iri: string, onClose: () => void  }> = memo(({iri, onClose}) => {
-    const resources = useDataPsmAndInterpretedPim<DataPsmClass, SemanticModelClass>(iri);
+    const resources = useDataPsmAndInterpretedPim<DataPsmClass, SemanticModelClass | null>(iri);
     const [label, description] = useLabelAndDescription(resources.dataPsmResource, resources.pimResource);
 
     return <>
@@ -20,7 +20,7 @@ export const DataPsmClassCard: React.FC<{ iri: string, onClose: () => void  }> =
             </Grid>
             <Grid item xs={6}>
                 <RightPanel iri={iri} close={onClose}/>
-                <ClassExamples pimClassIri={resources.pimResource.id} />
+                {resources.pimResource && <ClassExamples pimClassIri={resources.pimResource.id} />}
                 <InstanceType psmClassIri={iri} />
             </Grid>
         </Grid>

@@ -3,6 +3,7 @@ import {
   isVisualProfileRelationship,
   isVisualRelationship,
   isWritableVisualModel,
+  WritableVisualModel,
   type VisualEntity,
   type VisualModel,
 } from "@dataspecer/core-v2/visual-model";
@@ -10,37 +11,32 @@ import {
 import type { ModelGraphContextType } from "../context/model-context";
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 
+
+// TODO: PRQuestion - Added visualModel argument so it can be called with withVisualModel
 /**
  * Remove entity and related entities from visual model.
  */
 export function removeFromVisualModelAction(
   notifications: UseNotificationServiceWriterType,
-  graph: ModelGraphContextType,
-  identifier: string,
+  visualModel: WritableVisualModel,
+  identifiers: string[],
 ) {
-  const visualModel = graph.aggregatorView.getActiveVisualModel();
-  if (visualModel === null) {
-    notifications.error("There is no active visual model.");
-    return;
-  }
-  if (!isWritableVisualModel(visualModel)) {
-    notifications.error("Visual model is not writable.");
-    return;
-  }
+  const entitiesToRemove: string[] = [];
+  for (const identifier of identifiers) {
+    // Find the visual entities.
+    const visualEntity = visualModel.getVisualEntityForRepresented(identifier);
+    if (visualEntity === null) {
+      // The entity is not part of the visual model and thus should not be visible.
+      // We ignore the operation for such entity and show an error.
+      // TODO PRQuestion: Only error? not notification error?
+      console.error("Missing visual entity.", { identifier, visualModel });
+      continue;
+    }
 
-  // Delete the visual entity.
-  const visualEntity = visualModel.getVisualEntityForRepresented(identifier);
-  if (visualEntity === null) {
-    // The entity is not part of the visual model and thus should not be visible.
-    // We ignore the operation but only show an error.
-    console.error("Missing visual entity.", { identifier, visualModel });
-    return;
+    entitiesToRemove.push(...collectVisualEntitiesToRemove(visualModel, visualEntity));
+    entitiesToRemove.push(visualEntity.identifier);
   }
-  const entitiesToRemove = [
-    ...collectVisualEntitiesToRemove(visualModel, visualEntity),
-    visualEntity.identifier
-  ];
-  // Perform the delete operation.
+  // Perform the delete operation of collected visual entities.
   entitiesToRemove.forEach(id => visualModel.deleteVisualEntity(id));
 }
 

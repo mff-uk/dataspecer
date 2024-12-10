@@ -111,7 +111,8 @@ export function openCreateProfileDialogAction(
   notifications.error(`Unknown entity type.`);
 }
 
-const createClassProfile = (
+// TODO PeSk: This should not be exported, move to Dataspecer layer.
+export const createClassProfile = (
   state: EditClassProfileDialogState,
 ): {
   identifier: string,

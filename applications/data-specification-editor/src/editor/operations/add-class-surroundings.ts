@@ -43,6 +43,7 @@ export type AssociationOrientation = boolean;
  */
 export class AddClassSurroundings implements ComplexOperation {
     private readonly forDataPsmClass: DataPsmClass;
+    private readonly forSemanticClass: SemanticModelClass;
     private readonly sourceSemanticModel: SemanticModelEntity[];
     private readonly resourcesToAdd: [string, AssociationOrientation][];
     private store!: FederatedObservableStore;
@@ -53,8 +54,9 @@ export class AddClassSurroundings implements ComplexOperation {
      * @param sourceSemanticModel
      * @param resourcesToAdd true - the edge is outgoing (from source to this resource)
      */
-    constructor(forDataPsmClass: DataPsmClass, sourceSemanticModel: SemanticModelEntity[], resourcesToAdd: [string, boolean][]) {
+    constructor(forDataPsmClass: DataPsmClass, forSemanticClass: SemanticModelClass, sourceSemanticModel: SemanticModelEntity[], resourcesToAdd: [string, boolean][]) {
         this.forDataPsmClass = forDataPsmClass;
+        this.forSemanticClass = forSemanticClass;
         this.sourceSemanticModel = sourceSemanticModel;
         this.resourcesToAdd = resourcesToAdd;
     }
@@ -68,14 +70,12 @@ export class AddClassSurroundings implements ComplexOperation {
     }
 
     async execute(): Promise<void> {
-        const interpretedPimClass = await this.store.readResource(this.forDataPsmClass.dataPsmInterpretation as string) as SemanticModelClass;
-
-        const pimSchema = this.store.getSchemaForResource(interpretedPimClass.id) as string;
+        const pimSchema = this.store.getSchemaForResource(this.forSemanticClass.id) as string;
         const dataPsmSchema = this.store.getSchemaForResource(this.forDataPsmClass.iri as string) as string;
 
         let correspondingSourcePimClass: SemanticModelClass | null = null;
         for (const resource of this.sourceSemanticModel) {
-            if (isSemanticModelClass(resource) && resource.id === interpretedPimClass.iri) {
+            if (isSemanticModelClass(resource) && resource.id === this.forSemanticClass.iri) {
                 correspondingSourcePimClass = resource;
                 break;
             }

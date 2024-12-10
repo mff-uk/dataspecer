@@ -1,6 +1,6 @@
 import React, {useCallback, useMemo} from "react";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
-import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmClassReference, DataPsmExternalRoot, DataPsmInclude, DataPsmOr} from "@dataspecer/core/data-psm/model";
+import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmClassReference, DataPsmContainer, DataPsmExternalRoot, DataPsmInclude, DataPsmOr} from "@dataspecer/core/data-psm/model";
 import {DraggableProvidedDragHandleProps} from "react-beautiful-dnd";
 import {DataPsmAttributeItem} from "./entities/attribute";
 import {DataPsmUnknownItem} from "./entities/unknown";
@@ -24,6 +24,9 @@ export interface ClassPartContext {
    * Owning class
    */
   parentDataPsmClassIri: string;
+
+  // Nearest owning container
+  nearestContainerIri: string;
 
   dragHandleProps?: DraggableProvidedDragHandleProps;
   index?: number;
@@ -51,6 +54,11 @@ export interface AssociationContext {
   contextType: "association";
   parentDataPsmAssociationEndIri: string;
   parentTypePimIri: string;
+
+  /**
+   * Owning class
+   */
+  parentDataPsmClassIri: string;
 }
 
 export type ObjectContext = RootContext | ORContext | IncludeContext | AssociationContext | ReferenceContext;
@@ -74,6 +82,8 @@ export const DataPsmPropertyType: React.FC<RowSlots & ClassPartContext & {
     return <DataPsmAssociationEndItem {...typedProps} />;
   } else if (DataPsmInclude.is(resource)) {
     return <DataPsmIncludeItem {...typedProps} />;
+  } else if (DataPsmContainer.is(resource)) {
+    return <DataPsmClassItem {...typedProps} />
   } else {
     return <DataPsmUnknownItem {...typedProps}/>
   }

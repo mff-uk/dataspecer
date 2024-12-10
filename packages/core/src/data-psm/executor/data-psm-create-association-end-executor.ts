@@ -10,7 +10,7 @@ import {
   loadDataPsmClass,
   loadDataPsmSchema,
 } from "./data-psm-executor-utils";
-import { DataPsmAssociationEnd } from "../model";
+import { DataPsmAssociationEnd, DataPsmClass } from "../model";
 
 export async function executeDataPsmCreateAssociationEnd(
   reader: CoreResourceReader,
@@ -47,7 +47,7 @@ export async function executeDataPsmCreateAssociationEnd(
       {
         ...owner,
         dataPsmParts: [...owner.dataPsmParts, iri],
-      } as CoreResource,
+      } as DataPsmClass,
     ]
   );
 }
