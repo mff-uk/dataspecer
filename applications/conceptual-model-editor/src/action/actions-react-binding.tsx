@@ -37,6 +37,9 @@ import { addClassNeighborhoodToVisualModelAction } from "./add-class-neighborhoo
 import { createDefaultProfilesAction } from "./create-default-profiles";
 import { openCreateClassDialogWithModelDerivedFromClassAction } from "./open-create-class-dialog-with-derived-model";
 import { addSemanticEntitiesToVisualModelAction, EntityToAddToVisualModel } from "./add-semantic-entities-to-visual-model";
+import { LayoutedVisualEntities, UserGivenConstraintsVersion4 } from "@dataspecer/layout";
+import { layoutActiveVisualModelAction } from "./layout-visual-model";
+import { toggleAnchorAction } from "./toggle-anchor";
 
 const LOG = createLogger(import.meta.url);
 
@@ -191,6 +194,8 @@ export interface ActionsContextType extends DialogActions, VisualModelActions {
   // TODO RadStr: Document based on PRQuestion
   centerViewportToVisualEntity: (model: string, identifier: string) => void;
 
+  layoutActiveVisualModel: (configuration: UserGivenConstraintsVersion4) => Promise<LayoutedVisualEntities | void>;
+
   /**
    * As this context requires two way communication it is created and shared via the actions.
    */
@@ -222,11 +227,18 @@ const noOperationActionsContext = {
   //
   addEntitiesFromSemanticModelToVisualModel: noOperation,
   addClassNeighborhoodToVisualModel: noOperation,
+  layoutActiveVisualModel: noOperationAsync,
   diagram: null,
 };
 
 function noOperation() {
   LOG.error("[ACTIONS] Using uninitialized actions context!");
+}
+
+// TODO PRQuestion: I added back the async operation for layout action (but maybe it isn't action?).
+function noOperationAsync() {
+  LOG.error("[ACTIONS] Using uninitialized actions context!");
+  return Promise.resolve();
 }
 
 export const ActionContext = React.createContext<ActionsContextType>(noOperationActionsContext);
@@ -453,21 +465,21 @@ function createActionsContext(
   const addSemanticEntitiesToVisualModel = (entities: EntityToAddToVisualModel[]): void => {
     withVisualModel(notifications, graph, (visualModel) => {
       addSemanticEntitiesToVisualModelAction(
-        notifications, graph, visualModel, diagram, entities);
+        notifications, graph, classes, visualModel, diagram, entities);
     });
   };
 
   const addClassToVisualModel = (model: string, identifier: string, position: { x: number, y: number } | null): void => {
     withVisualModel(notifications, graph, (visualModel) => {
       addSemanticClassToVisualModelAction(
-        notifications, graph, visualModel, diagram, identifier, model, position);
+        notifications, graph, classes, visualModel, diagram, identifier, model, position);
     });
   };
 
   const addClassProfileToVisualModel = (model: string, identifier: string, position: { x: number, y: number } | null): void => {
     withVisualModel(notifications, graph, (visualModel) => {
       addSemanticClassProfileToVisualModelAction(
-        notifications, graph, visualModel, diagram, identifier, model, position);
+        notifications, graph, classes, visualModel, diagram, identifier, model, position);
     });
   }
 
@@ -511,6 +523,12 @@ function createActionsContext(
   const centerViewportToVisualEntity = (model: string, identifier: string) => {
     centerViewportToVisualEntityAction(notifications, graph, classes, diagram, identifier, model);
   };
+
+  const layoutActiveVisualModel = async (configuration: UserGivenConstraintsVersion4) => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      return layoutActiveVisualModelAction(notifications, classes, diagram, graph, visualModel, configuration);
+    });
+  }
 
   const addEntitiesFromSemanticModelToVisualModel = (semanticModelIdentifier: string) => {
     addEntitiesFromSemanticModelToVisualModelAction(notifications, graph, semanticModelIdentifier);
@@ -569,7 +587,10 @@ function createActionsContext(
       console.log("Application.onSelectionDidChange", { nodes, edges });
     },
     onToggleAnchorForNode: (diagramNode) => {
-      // TODO RadStr: - Functionality of toggling node anchor on/off is currently unavailable
+      console.log("Application.onToggleAnchorForNode", { diagramNode });
+      withVisualModel(notifications, graph, (visualModel) => {
+        toggleAnchorAction(notifications, visualModel, diagramNode.externalIdentifier);
+      });
     },
     onShowSelectionActions: (source, canvasPosition) => {
       console.log("Application.onShowSelectionActions", { source, canvasPosition });
@@ -642,6 +663,7 @@ function createActionsContext(
     addEntitiesFromSemanticModelToVisualModel,
     addClassNeighborhoodToVisualModel,
 
+    layoutActiveVisualModel,
     diagram,
   };
 

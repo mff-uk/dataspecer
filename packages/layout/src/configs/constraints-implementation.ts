@@ -4,7 +4,7 @@ import { LayoutAlgorithm } from "../layout-iface";
 import { ALGORITHM_NAME_TO_LAYOUT_MAPPING, ConstraintContainer } from "./constraint-container";
 import { ConstraintFactory } from "./constraint-factories";
 
-export const compactify = async (graph: IMainGraphClassic, mainConstraintContainer: ConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler) => {
+export const compactify = async (graph: IMainGraphClassic, mainConstraintContainer: ConstraintContainer) => {
     // TODO: Remake this !!!!!!!!
 
 

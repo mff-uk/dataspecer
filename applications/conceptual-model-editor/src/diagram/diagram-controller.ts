@@ -514,6 +514,14 @@ const createActions = (
       reactFlow.deleteElements({ nodes: identifiers.map(id => ({ id })) });
       console.log("Diagram.removeNodes", identifiers);
     },
+    getNodeWidth(identifier) {
+      const width = reactFlow.getNode(identifier)?.measured?.width ?? null;
+      return width;
+    },
+    getNodeHeight(identifier) {
+      const height = reactFlow.getNode(identifier)?.measured?.height ?? null;
+      return height;
+    },
     //
     getEdges() {
       console.log("Diagram.getEdges");

@@ -1,5 +1,5 @@
 import { SemanticModelEntity, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { VisualEntity, VisualModel } from "@dataspecer/core-v2/visual-model";
+import { Position, VisualEntity, VisualModel } from "@dataspecer/core-v2/visual-model";
 import { ExtractedModels, LayoutAlgorithm, LayoutMethod, extractModelObjects } from "./layout-iface";
 
 import {
@@ -18,15 +18,16 @@ import {
 	IAlgorithmConfiguration,
 	SPECIFIC_ALGORITHM_CONVERSIONS_MAP
 } from "./configs/constraints";
-import { GraphClassic, GraphFactory, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualNodeComplete } from "./graph-iface";
+import { GraphClassic, GraphFactory, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualModelWithOutsiders, VisualNodeComplete } from "./graph-iface";
 import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs/constraint-container";
 import { Entities, Entity, EntityModel } from "@dataspecer/core-v2";
 import { ConstraintFactory } from "./configs/constraint-factories";
 import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
 import { PhantomElementsFactory } from "./util/utils";
 import { CONSTRAINT_MAP } from "./configs/constraints-mapping";
-import type { VisualEntities, VisualEntitiesAllType } from "./migration-to-cme-v2";
-export type { VisualEntitiesAllType }
+import type { LayoutedVisualEntities, VisualEntitiesWithModelVisualInformation } from "./migration-to-cme-v2";
+export { type LayoutedVisualEntities } from "./migration-to-cme-v2";
+export type { VisualEntitiesWithModelVisualInformation };
 import { EdgeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-crossing";
 import { EdgeNodeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-node-crossing";
 
@@ -35,16 +36,20 @@ export { getDefaultUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsV
 export type { AlgorithmName } from "./configs/constraint-container";
 
 export { Direction } from "./util/utils";
-export type { INodeClassic } from "./graph-iface"
+export type { INodeClassic } from "./graph-iface";
 
-export { ReactflowDimensionsEstimator }
+export { ReactflowDimensionsEstimator };
 export { ReactflowDimensionsConstantEstimator } from "./dimension-estimators/constant-dimension-estimator";
 
 import type { EdgeRouting } from "./configs/constraints";
-export type { EdgeRouting }
+export type { EdgeRouting };
 
 import { placePositionOnGrid } from "./util/utils";
-export { placePositionOnGrid }
+import { ExplicitAnchors } from "./explicit-anchors";
+export { placePositionOnGrid };
+
+export { type ExplicitAnchors } from "./explicit-anchors";
+export { type VisualModelWithOutsiders } from "./graph-iface";
 
 export type {
 	UserGivenAlgorithmConfiguration,
@@ -69,6 +74,8 @@ export interface NodeDimensionQueryHandler {
 	getHeight(node: INodeClassic);
 }
 
+export type XY = Omit<Position, "anchored">;
+
 // The layout works like this. The layout package gets configuration from user, usually inserted through dialog.
 // This configuration is converted to different set of constraints (this might have been a bit of overengineering, but it is not that bad).
 // There are different set of constraints:
@@ -80,43 +87,30 @@ export interface NodeDimensionQueryHandler {
 //       So in future it will be probably the mentioned 1), 2) and then in the same way stuff, which will be run post-layout
 
 
-/**
- * Perform layout, which puts given nodes on new positions, while preserving layout of the old graph
- * @param visualModel
- * @param semanticModels
- * @param newNodesIdentifiers
- * @param config
- * @param nodeDimensionQueryHandler
- */
-export async function performDynamicLayout(visualModel: VisualModel,
-										semanticModels: Record<string, EntityModel>,
-										newNodesIdentifiers: string[],
-										config: UserGivenAlgorithmConfigurationslVersion2,
-										nodeDimensionQueryHandler?: NodeDimensionQueryHandler) {
-	if(nodeDimensionQueryHandler === undefined) {
-		nodeDimensionQueryHandler = new ReactflowDimensionsEstimator();
-	}
 
-	// TODO: Here perform dynamic layouting on top of visual model
-}
-
-
+// TODO PRQuestion: Maybe just return VisualEntities - so without the information about entity being an outsider
+//                  On one side, I have the info in nice format so why shouldn't I give it out
+//                  On other side, the caller should know about the outsiders, and the API - especially here should be probably minimal
 /**
  * Layout given visual model.
  * @param visualModel The visual model to perform layout on.
  * @param semanticModels
  * @param config
  * @param nodeDimensionQueryHandler
+ * @param explicitAnchors If this is undefined then use the anchors of visual model, otherwise it depends on the given anchors' settings.
  * @returns Promise with new positions of the visual entities.
  */
-export async function performLayoutOfVisualModel(visualModel: VisualModel,
-													semanticModels: Map<string, EntityModel>,
-													config: UserGivenAlgorithmConfigurationslVersion4,
-													nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
+export async function performLayoutOfVisualModel(
+	visualModel: VisualModelWithOutsiders,
+	semanticModels: Map<string, EntityModel>,
+	config: UserGivenAlgorithmConfigurationslVersion4,
+	nodeDimensionQueryHandler?: NodeDimensionQueryHandler,
+	explicitAnchors?: ExplicitAnchors
+): Promise<LayoutedVisualEntities> {
 	console.log("config");
 	console.log(config);
 
-	const visualEntitiesPromise = performLayoutInternal(visualModel, semanticModels, config, nodeDimensionQueryHandler);
+	const visualEntitiesPromise = performLayoutInternal(visualModel, semanticModels, config, nodeDimensionQueryHandler, explicitAnchors);
 	return visualEntitiesPromise;
 }
 
@@ -125,10 +119,12 @@ export async function performLayoutOfVisualModel(visualModel: VisualModel,
 /**
  * Layout given semantic model.
  */
-export async function performLayoutOfSemanticModel(inputSemanticModel: Record<string, SemanticModelEntity>,
-													semanticModelId: string,
-													config: UserGivenAlgorithmConfigurationslVersion4,
-													nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
+export async function performLayoutOfSemanticModel(
+	inputSemanticModel: Record<string, SemanticModelEntity>,
+	semanticModelId: string,
+	config: UserGivenAlgorithmConfigurationslVersion4,
+	nodeDimensionQueryHandler?: NodeDimensionQueryHandler
+): Promise<LayoutedVisualEntities> {
 	const entityModelUsedForConversion: EntityModel = {
 		getEntities: function (): Entities {
 			return inputSemanticModel;
@@ -153,16 +149,15 @@ export async function performLayoutOfSemanticModel(inputSemanticModel: Record<st
 }
 
 
-function performLayoutInternal(visualModel: VisualModel | null,
-								semanticModels: Map<string, EntityModel>,
-								config: UserGivenAlgorithmConfigurationslVersion4,
-								nodeDimensionQueryHandler?: NodeDimensionQueryHandler): Promise<VisualEntities> {
-	if(nodeDimensionQueryHandler === undefined) {
-		nodeDimensionQueryHandler = new ReactflowDimensionsEstimator();
-	}
-
-	const graph = GraphFactory.createMainGraph(null, semanticModels, null, visualModel);
-	const visualEntitiesPromise = performLayoutFromGraph(graph, config, nodeDimensionQueryHandler);
+function performLayoutInternal(
+	visualModel: VisualModelWithOutsiders,
+	semanticModels: Map<string, EntityModel>,
+	config: UserGivenAlgorithmConfigurationslVersion4,
+	nodeDimensionQueryHandler?: NodeDimensionQueryHandler,
+	explicitAnchors?: ExplicitAnchors
+): Promise<LayoutedVisualEntities> {
+	const graph = GraphFactory.createMainGraph(null, semanticModels, null, visualModel, nodeDimensionQueryHandler, explicitAnchors);
+	const visualEntitiesPromise = performLayoutFromGraph(graph, config);
 
 	if(visualEntitiesPromise == undefined) {
 		console.log("LAYOUT FAILED")
@@ -181,9 +176,10 @@ function performLayoutInternal(visualModel: VisualModel | null,
  * @param visualModel
  * @returns
  */
-export async function performLayoutFromGraph(graph: IMainGraphClassic,
-												config: UserGivenAlgorithmConfigurationslVersion4,
-												nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<VisualEntities> {
+export async function performLayoutFromGraph(
+	graph: IMainGraphClassic,
+	config: UserGivenAlgorithmConfigurationslVersion4
+): Promise<LayoutedVisualEntities> {
 	const constraints = ConstraintFactory.createConstraints(config);
 
 	// TODO: Try this later, now it isn't that important
@@ -197,7 +193,7 @@ export async function performLayoutFromGraph(graph: IMainGraphClassic,
 	// };
 	// constraints.addSimpleConstraints(compactifyConstraint);
 
-	const resultingLayoutPromise = performLayoutingBasedOnConstraints(graph, constraints, nodeDimensionQueryHandler);
+	const resultingLayoutPromise = performLayoutingBasedOnConstraints(graph, constraints);
 
 	// TODO: DEBUG
 	// console.log("THE END");
@@ -210,11 +206,12 @@ export async function performLayoutFromGraph(graph: IMainGraphClassic,
 /**
  * Performs all relevant layout operations based on given constraints
  */
-const performLayoutingBasedOnConstraints = (graph: IMainGraphClassic,
-											constraints: ConstraintContainer,
-											nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<IMainGraphClassic> => {
+const performLayoutingBasedOnConstraints = (
+	graph: IMainGraphClassic,
+	constraints: ConstraintContainer
+): Promise<IMainGraphClassic> => {
 	let workGraph = graph;
-	return runPreMainAlgorithmConstraints(workGraph, constraints, nodeDimensionQueryHandler).then(async _ => {
+	return runPreMainAlgorithmConstraints(workGraph, constraints).then(async _ => {
 		for(const action of constraints.layoutActionsIteratorBefore) {
 			if(action instanceof GraphConversionConstraint) {
 				SPECIFIC_ALGORITHM_CONVERSIONS_MAP[action.actionName](action, workGraph);
@@ -222,7 +219,7 @@ const performLayoutingBasedOnConstraints = (graph: IMainGraphClassic,
 			else if(action instanceof AlgorithmConfiguration) {		// TODO: Using the actual type instead of interface
 				const layoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[action.algorithmName];
 				if(action.algorithmPhasesToCall === "ONLY-PREPARE" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
-					layoutAlgorithm.prepareFromGraph(workGraph, constraints, nodeDimensionQueryHandler);
+					layoutAlgorithm.prepareFromGraph(workGraph, constraints);
 				}
 				if(action.algorithmPhasesToCall === "ONLY-RUN" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
 					if(action.constraintedNodes === "GENERALIZATION") {
@@ -235,43 +232,49 @@ const performLayoutingBasedOnConstraints = (graph: IMainGraphClassic,
 			}
 		}
 
-		return runMainLayoutAlgorithm(workGraph, constraints, nodeDimensionQueryHandler).then(layoutedGraph => {
-			return runPostMainAlgorithmConstraints(layoutedGraph, constraints, nodeDimensionQueryHandler).then(_ => layoutedGraph);
+		return runMainLayoutAlgorithm(workGraph, constraints).then(layoutedGraph => {
+			return runPostMainAlgorithmConstraints(layoutedGraph, constraints).then(_ => layoutedGraph);
 		});
 	});
 
 }
 
 
-const runPreMainAlgorithmConstraints = async (graph: IMainGraphClassic,
-												constraintsContainer: ConstraintContainer,
-												nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<void[]> => {
-	const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer, constraintsContainer.simpleConstraints, "PRE-MAIN", nodeDimensionQueryHandler).then(_ => {
-		return runConstraintsInternal(graph, constraintsContainer, constraintsContainer.constraints, "PRE-MAIN", nodeDimensionQueryHandler);
+const runPreMainAlgorithmConstraints = async (
+	graph: IMainGraphClassic,
+	constraintsContainer: ConstraintContainer
+): Promise<void[]> => {
+	const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer, constraintsContainer.simpleConstraints, "PRE-MAIN").then(_ => {
+		return runConstraintsInternal(graph, constraintsContainer, constraintsContainer.constraints, "PRE-MAIN");
 	});
 	return constraintPromises;
 }
 
 const runPostMainAlgorithmConstraints = async (graph: IMainGraphClassic,
-												constraintsContainer: ConstraintContainer,
-												nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<void[]> => {
+												constraintsContainer: ConstraintContainer): Promise<void[]> => {
 	return;
 	// TODO: Already Invalid comment - Well it could actually work I just need to move the code with calling layered into CONSTRAINT_MAP
+	//       To re-explain what this comments means - I wanted to have code which runs after the main alforithm - for example running layered algorithm
+	//       which takes into consideration existing positions - which we currently support, but I decided that it was better to just have it within the main loop
+	//       so POST-MAIN stuff will be probably only the stuff which will be run once after ALL! of the algorithms finish running.
+	//       It can be then only used once we have the result which want to pass to the caller. So it will be some conversions, etc. but not the mentioned layered algorithm
+	//       which runs algorithm in each iteration of loop that is finding best algorithm. The post-constraints are called only after the loop finishes.
 	// const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer.simpleConstraints, "POST-MAIN", nodeDimensionQueryHandler).then(_ => {
 	// 	return runConstraintsInternal(graph, constraintsContainer.constraints, "POST-MAIN", nodeDimensionQueryHandler);
 	// });
 	// return constraintPromises;
 }
 
-const runConstraintsInternal = async (graph: IMainGraphClassic,
-										constraintContainer: ConstraintContainer,
-										constraints: IConstraintSimple[] | IConstraint[],
-										constraintTime: Omit<ConstraintTime, "IN-MAIN">,
-										nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<void[]> => {
+const runConstraintsInternal = async (
+	graph: IMainGraphClassic,
+	constraintContainer: ConstraintContainer,
+	constraints: IConstraintSimple[] | IConstraint[],
+	constraintTime: Omit<ConstraintTime, "IN-MAIN">
+): Promise<void[]> => {
 	const constraintPromises: Promise<void>[] = [];
 	for(const constraint of constraints) {
 		if(constraint.constraintTime === constraintTime) {
-			constraintPromises.push(CONSTRAINT_MAP[constraint.name](graph, constraintContainer, nodeDimensionQueryHandler));
+			constraintPromises.push(CONSTRAINT_MAP[constraint.name](graph, constraintContainer));
 		}
 	}
 
@@ -284,9 +287,10 @@ const runConstraintsInternal = async (graph: IMainGraphClassic,
 /**
  * Run the main layouting algorithm for the given graph. TODO: Well it is not just the main, there may be layerify after, etc.
  */
-const runMainLayoutAlgorithm = async (graph: IMainGraphClassic,
-										constraints: ConstraintContainer,
-										nodeDimensionQueryHandler: NodeDimensionQueryHandler): Promise<IMainGraphClassic> => {
+const runMainLayoutAlgorithm = async (
+	graph: IMainGraphClassic,
+	constraints: ConstraintContainer
+): Promise<IMainGraphClassic> => {
 											// TODO: Well it really is overkill, like I could in the same way just have a look, if the given configuration contains numberOfAlgorithmRuns and if so, just put it here
 	let bestLayoutedVisualEntitiesPromise: Promise<IMainGraphClassic>;
 	let minAbsoluteMetric = 1000000;
@@ -310,7 +314,7 @@ const runMainLayoutAlgorithm = async (graph: IMainGraphClassic,
 			else if(action instanceof AlgorithmConfiguration) {		// TODO: Using the actual type instead of interface
 				const layoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[action.algorithmName];
 				if(action.algorithmPhasesToCall === "ONLY-PREPARE" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
-					layoutAlgorithm.prepareFromGraph(workGraph, constraints, nodeDimensionQueryHandler);
+					layoutAlgorithm.prepareFromGraph(workGraph, constraints);
 				}
 				if(action.algorithmPhasesToCall === "ONLY-RUN" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
 					if(action.constraintedNodes === "ALL") {
