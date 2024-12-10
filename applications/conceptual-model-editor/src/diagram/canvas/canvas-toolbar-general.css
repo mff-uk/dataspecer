@@ -1,0 +1,12 @@
+.canvas-toolbar {
+  display: grid;
+  place-content: center;
+  grid-area: 1/1;
+  width: 0;
+  height: 0;
+  z-index: 8;
+  position: absolute;
+  /* Variables.  */
+  --btn-size: 2em;
+  --extra-space: 1em;
+}

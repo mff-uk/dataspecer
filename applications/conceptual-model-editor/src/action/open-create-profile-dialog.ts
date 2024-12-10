@@ -110,7 +110,7 @@ export function openCreateProfileDialogAction(
   notifications.error(`Unknown entity type.`);
 }
 
-const createClassProfile = (
+export const createClassProfile = (
   state: CreateClassProfileDialogState,
 ): {
   identifier: string,

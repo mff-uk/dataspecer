@@ -1,4 +1,3 @@
-
 /**
  * Actions that can be executed on the editor component.
  */
@@ -71,15 +70,33 @@ export interface DiagramActions {
 
   // Edges
 
-  // TODO: Same as nodes, so just copy after feedback to the node documentation.
+  /**
+   * @returns The Edges registered inside diagram.
+   */
   getEdges(): Edge[];
 
+  /**
+   * Adds given {@link edges} to the diagram.
+   * @param edges is the list of edges to be added to the diagram.
+   */
   addEdges(edges: Edge[]): void;
 
+  /**
+   * Updates diagram's edges matching the given ones.
+   * @param edges are the updated versions of the matching edges.
+   */
   updateEdges(edges: Edge[]): void;
 
+  /**
+   * Sets edges' waypoints.
+   * @param positions is the map of the edges together with new waypoints for them.
+   */
   setEdgesWaypointPosition(positions: { [identifier: string]: Position[] }): void;
 
+  /**
+   * Removes edges whose identifiers match the given ones.
+   * @param identifiers are identifiers of the to be removed edges.
+   */
   removeEdges(identifiers: string[]): void;
 
   // Selection
@@ -147,6 +164,21 @@ export interface DiagramActions {
    */
   renderToSvgString(): Promise<string | null>;
 
+  // TODO RadStr: maybe just keep opening the canvas toolbars through context before we call the on... handler and don't expose through API?, similiarly to the closeCanvasToolbar,
+  //              .... Wait for it a bit after I add more canvas toolbars
+
+  /**
+   * Opens toolbar on given {@link canvasPosition}, which represents the menu that appears when user drags edge to canvas.
+   * @param sourceDiagramNode is the node from which the connection dragging started
+   * @param position is the canvas position where user dragged the connection and on which will the menu appear
+   */
+  openDragEdgeToCanvasToolbar(sourceNode: Node, canvasPosition: Position): void;
+  /**
+   * Opens toolbar on given {@link canvasPosition}, which represents the menu that appears when user clicks the actions button on selection.
+   * @param sourceDiagramNode is the node on which the user clicked the button.
+   * @param position is the canvas position where the toolbar will appear.
+   */
+  openSelectionActionsToolbar(sourceNode: Node, canvasPosition: Position): void;
 }
 
 export type ViewportDimensions = {
@@ -325,34 +357,39 @@ export type Waypoint = {
 interface DiagramNodes {
 
   /**
- * This property stores the method, which is called when user opens node's detail.
- * @param identifier is the identifier of the node for which the detail was shown.
- */
+   * Called when user opens node's detail.
+   * @param identifier is the identifier of the node for which the detail was shown.
+   */
   onShowNodeDetail: (diagramNode: Node) => void;
 
   /**
-   * This property stores the method, which is called when user starts editing node.
+   * Called when user starts editing node.
    * @param identifier is the identifier of the node which is being edited.
    */
   onEditNode: (diagramNode: Node) => void;
 
   /**
-   * This property stores the method, which is called when user starts creating node's profile.
+   * Called when user starts creating node's profile.
    * @param identifier is the identifier of the node of which the profile is being created.
    */
   onCreateNodeProfile: (diagramNode: Node) => void;
 
   /**
-   * This property stores the method, which is called when user hides node, i. e. removes it from canvas.
+   * Called when user hides node, i. e. removes it from canvas.
    * @param identifier is the identifier of the node, which is newly hidden.
    */
   onHideNode: (diagramNode: Node) => void;
 
   /**
-   * This property stores the method, which is called when user deletes node.
+   * Called when user deletes node.
    * @param identifier is the identifier of the deleted node.
    */
   onDeleteNode: (diagramNode: Node) => void;
+
+  /**
+   * Called when user choses to create new class from diagram's canvas menu (toolbar).
+   */
+  onCanvasOpenCreateClassDialog: (diagramNode: Node, canvasPosition: Position) => void;
 
   /**
    * Called when there is a change in node's positions in result
@@ -360,6 +397,12 @@ interface DiagramNodes {
    * using an API call.
    */
   onChangeNodesPositions: (changes: { [nodeIdentifier: string]: Position }) => void;
+
+  /**
+   * (Un)Anchors given node {@link diagramNode}
+   * @param diagramNode is the node to be (un)anchored
+   */
+  onToggleAnchorForNode: (diagramNode: Node) => void;
 
 }
 
@@ -380,8 +423,17 @@ interface DiagramEdges {
 
   onAddWaypoint: (diagramEdge: Edge, index: number, waypoint: Waypoint) => void;
 
+  /**
+   * This method is called when edge's waypoint is deleted.
+   * @param diagramEdge is the edge containing deletd waypoint.
+   * @param index is the index of the deleted waypoint
+   */
   onDeleteWaypoint: (diagramEdge: Edge, index: number) => void;
 
+  /**
+   * This method is called when edges' waypoints change.
+   * @param changes represent the changes. That is for each changed edge there is map of changed waypoints.
+   */
   onChangeWaypointPositions: (changes: { [edgeIdentifier: string]: { [waypointIndex: number]: Waypoint } }) => void;
 
 }
@@ -389,13 +441,62 @@ interface DiagramEdges {
 interface DiagramSelection {
 
   /**
-   * This property stores the method, which is called when user changes the selection.
+   * This method is called when user changes the selection.
    * Callback is registered on both node and edge selection.
    * @param nodes are identifiers of the nodes representing the new node selection.
    * @param edges are identifiers of the edges representing the new edge selection.
    */
   onSelectionDidChange: (nodes: string[], edges: string[]) => void;
 
+  // TODO RadStr: Maybe don't have to put in the source argument
+  /**
+   * This method is called when user wants to see list of actions on selection.
+   * @param source is the last selected node
+   * @param canvasPosition is the position on canvas, where should be the list of actions shown.
+   */
+  onShowSelectionActions: (source: Node, canvasPosition: Position) => void;
+
+  /**
+   * This method is called when user wants to layout selection.
+   */
+  onLayoutSelection: () => void;
+
+  /**
+   * This method is called when user wants to create group selection.
+   */
+  onCreateGroup: () => void;
+
+  /**
+   * This method is called when user wants to show the dialog for expansion of selection.
+   */
+  onShowExpandSelection: () => void;
+
+  /**
+   * This method is called when user wants to show the dialog to filter the selection.
+   */
+  onShowFilterSelection: () => void;
+
+  //
+
+  /**
+   * This method is called when user wants to create new visual model containing selection.
+   */
+  onCreateNewViewFromSelection: () => void;
+
+  /**
+   * This method is called when user wants to profile elements in selection.
+   */
+  onProfileSelection: () => void;
+
+  /**
+   * This method is called when user wants to remove selection from visual model, i.e. hide.
+   */
+  onHideSelection: () => void;
+
+  /**
+   * This method is called when user wants to remove selection from both semantic and visual model.
+   */
+  onDeleteSelection: () => void;
 }
 
 /**
@@ -409,11 +510,10 @@ export interface DiagramCallbacks extends DiagramNodes, DiagramEdges, DiagramSel
   onCreateConnectionToNode: (source: Node, target: Node) => void;
 
   /**
-   * This property stores the method, which is called when user creates "empty" connection,
-   * i. e. connection from node to canvas.
-   * @param source
-   * @param position is the position on canvas, where the connection ended.
+   * This method is called when user creates "empty" connection, i.e. connection from node to canvas.
+   * @param source is the node at which the connection started
+   * @param canvasPosition is the position on canvas, where the connection ended.
    */
-  onCreateConnectionToNothing: (source: Node, position: Position) => void;
+  onCreateConnectionToNothing: (source: Node, canvasPosition: Position) => void;
 
 }

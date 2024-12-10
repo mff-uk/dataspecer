@@ -1,7 +1,7 @@
 import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { isSemanticModelClass, SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 
-import { getViewportCenter, withAggregatedEntity } from "./utilities";
+import { getViewportCenterForClassPlacement, withAggregatedEntity } from "./utilities";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
@@ -22,7 +22,7 @@ export function addSemanticClassToVisualModelAction(
     isSemanticModelClass, (entity) => {
       addSemanticClassToVisualModelCommand(
         visualModel, entity, modelIdentifier,
-        position ?? getViewportCenter(diagram));
+        position ?? getViewportCenterForClassPlacement(diagram));
       addRelatedEntitiesAction(
         notifications, graph, visualModel, Object.values(entities),
         graph.models, entity);
