@@ -16,7 +16,6 @@
     width: var(--btn-size);
     height: var(--btn-size);
     font-size: 1.35em;
-    cursor: pointer;
   }
 
   .node-secondary-toolbar ul {

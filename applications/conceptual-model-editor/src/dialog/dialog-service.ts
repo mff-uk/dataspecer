@@ -47,6 +47,11 @@ export interface DialogRendererContextType<S> {
 
   close: () => void;
 
+  /**
+   * Used to specify possible class names to style dialog (for example to make it smaller or appear somewhere else).
+   * If not given then use the default ones.
+   */
+  dialogClassNames?: string;
 }
 
 /**
@@ -147,5 +152,6 @@ export const createDialogRendererContext = <S>(state: State, setState: React.Dis
     changeState,
     confirm,
     close,
+    dialogClassNames: dialog.dialogClassNames
   };
 };

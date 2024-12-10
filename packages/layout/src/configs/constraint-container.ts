@@ -71,9 +71,6 @@ export class ConstraintContainer {
     constraints: IConstraint[];
 
     // TODO: Add Docs
-    currentAlgorithmConstraint: ConstraintedNodesGroupingsType;
-
-    // TODO: Add Docs
     currentStepInLayoutActions: number;
 
     // TODO: Add Docs
@@ -111,8 +108,6 @@ export class ConstraintContainer {
 
                     // TODO: For now
                     this.modelID = null;
-
-                    this.currentAlgorithmConstraint = "ALL";
                 }
 
 

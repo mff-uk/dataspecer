@@ -4,10 +4,15 @@ import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggr
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { configuration, createLogger } from "../application";
-import { placePositionOnGrid, ReactflowDimensionsConstantEstimator } from "@dataspecer/layout";
-import { isVisualRelationship, VisualModel } from "@dataspecer/core-v2/visual-model";
+import { placePositionOnGrid, ReactflowDimensionsConstantEstimator, XY } from "@dataspecer/layout";
+import { isVisualNode, isVisualRelationship, Position, VisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { Edge, EdgeType, Node } from "../diagram";
 import { findSourceModelOfEntity } from "../service/model-service";
+import { ModelGraphContextType } from "../context/model-context";
+import { ClassesContextType } from "../context/classes-context";
+import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { extendSelectionAction, ExtensionType, VisibilityFilter } from "./extend-selection-action";
+import { Selections } from "./filter-selection-action";
 
 const LOG = createLogger(import.meta.url);
 
@@ -87,13 +92,14 @@ export function getViewportCenterForClassPlacement(diagram: UseDiagramType) {
 }
 
 
-// TODO RadStr: This exact type is defined in another branch so unify in future
-// TODO RadStr: Also use the other type defined in the other branch which has additional information about type of IDs
-//              (visual or semantic)
-type Selections = {
-  nodeSelection: string[],
-  edgeSelection: string[],
-};
+/**
+ *
+ * @param selectionsToSetWith the {@link Selections} object with visual identifiers to be used as new selection.
+ */
+export function setSelectionsInDiagram(selectionsToSetWith: Selections, diagram: UseDiagramType) {
+    diagram.actions().setSelectedNodes(selectionsToSetWith.nodeSelection);
+    diagram.actions().setSelectedEdges(selectionsToSetWith.edgeSelection);
+}
 
 export function getSelections(diagram: UseDiagramType, shouldFilterOutProfileClassEdges: boolean, shouldGetVisualIdentifiers: boolean): Selections {
   let nodeSelection = diagram.actions().getSelectedNodes();
@@ -120,12 +126,90 @@ export function extractIdentifiers(arrayToExtractFrom: Node[] | Edge[], shouldGe
   return arrayToExtractFrom.map(identifierMap);
 }
 
-
-// TODO RadStr: Maybe this method should be called every time when working with edge selection?
-//              Right now I don't see any case when we want to work with the edges representing class profile (except for setting waypoints)
 export function filterOutProfileClassEdges(edgeSemanticIdentifiers: string[], visualModel: VisualModel): string[] {
   return edgeSemanticIdentifiers.filter(edgeIdentifier => {
     const visualEntity = visualModel.getVisualEntityForRepresented(edgeIdentifier);
     return visualEntity !== null && isVisualRelationship(visualEntity);
   });
+}
+
+//
+//
+
+type ComputedPositionForNodePlacement = {
+    position: XY,
+    isInCenterOfViewport: boolean,
+};
+
+/**
+ * @returns The barycenter of nodes associated to {@link classToFindAssociationsFor} and boolean variable saying if the position was explicitly put to middle of viewport.
+ */
+export const computeMiddleOfRelatedAssociationsPositionAction = async (
+  notifications: UseNotificationServiceWriterType,
+  graph: ModelGraphContextType,
+  visualModel: WritableVisualModel,
+  diagram: UseDiagramType,
+  classesContext: ClassesContextType,
+  classToFindAssociationsFor: string,
+): Promise<ComputedPositionForNodePlacement> => {
+    const associatedClasses: string[] = (await findAssociatedClassesAndClassUsages(notifications, graph, classesContext, classToFindAssociationsFor)).selectionExtension.nodeSelection;
+    const associatedPositions = associatedClasses.map(associatedNodeIdentifier => {
+        const visualNode = visualModel.getVisualEntityForRepresented(associatedNodeIdentifier);
+        if(visualNode === null) {
+            return null;
+        }
+        if(!isVisualNode(visualNode)) {
+            notifications.error("One of the associated nodes is actually not a node for unknown reason");
+            return null;
+        }
+
+        return visualNode.position;
+    }).filter(position => position !== null);
+
+    const barycenter = computeBarycenter(associatedPositions.filter(pos => pos !== undefined), diagram);
+    return barycenter;
+};
+
+/**
+ * @returns The barycenter of given positions and boolean saying if the barycenter was put to middle of viewport, because there is 0 neighbors.
+ */
+const computeBarycenter = (positions: Position[], diagram: UseDiagramType): ComputedPositionForNodePlacement => {
+    const barycenter = positions.reduce((accumulator: Position, currentValue: Position) => {
+        accumulator.x += currentValue.x;
+        accumulator.y += currentValue.y;
+
+        return accumulator;
+    }, {x: 0, y: 0, anchored: null});
+
+
+    let isInCenterOfViewport;
+    if(positions.length >= 1) {
+        isInCenterOfViewport = false;
+        barycenter.x /= positions.length;
+        barycenter.y /= positions.length;
+    }
+    else {
+        isInCenterOfViewport = true;
+        const viewportMiddle = getViewportCenterForClassPlacement(diagram);
+        barycenter.x = viewportMiddle.x;
+        barycenter.y = viewportMiddle.y;
+    }
+
+    return {
+        position: barycenter,
+        isInCenterOfViewport
+    };
+};
+
+const findAssociatedClassesAndClassUsages = async (
+  notifications: UseNotificationServiceWriterType,
+  graph: ModelGraphContextType,
+  classesContext: ClassesContextType,
+  classToFindAssociationsFor: string
+) => {
+    // Is synchronous for this case
+    const selection = await extendSelectionAction(notifications, graph, classesContext,
+      {areIdentifiersFromVisualModel: false, identifiers: [classToFindAssociationsFor]},
+      [ExtensionType.ASSOCIATION, ExtensionType.GENERALIZATION], VisibilityFilter.ONLY_VISIBLE_NODES, false, null);
+    return selection;
 }
