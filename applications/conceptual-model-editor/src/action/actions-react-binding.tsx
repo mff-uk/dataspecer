@@ -716,7 +716,6 @@ function createActionsContext(
     },
     onCreateNewViewFromSelection: () => {
       const {nodeSelection, edgeSelection} = getSelections(diagram, true, false);
-      alert("The view functionality currently doesn't work");
       createNewVisualModelFromSelection(nodeSelection.concat(edgeSelection));
     },
     onProfileSelection: () => {

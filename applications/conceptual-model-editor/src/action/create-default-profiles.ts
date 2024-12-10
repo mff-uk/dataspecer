@@ -38,6 +38,7 @@ export async function createDefaultProfilesAction(
 /**
  * Creates classes and class profiles from given {@link nodesToProfile} containing semantic identifiers of entities to profile and adds the profiles to the visual model.
  * @returns The created map of created class and class profiles. Key is the identifier from {@link nodesToProfile} and value is the identifier of the created profile.
+ * Or null, if it is explictly null, then it means that we failed to create the class profile for some reason.
  */
 async function createDefaultClassProfiles(
   notifications: UseNotificationServiceWriterType,
@@ -48,13 +49,11 @@ async function createDefaultClassProfiles(
   visualModel: VisualModel | null,
   nodesToProfile: string[],
   shouldBeAddedToVisualModel: boolean
-): Promise<Record<string, string>> {
-  const createdClassProfiles: Record<string, string> = {};
+): Promise<Record<string, string | null>> {
+  const createdClassProfiles: Record<string, string | null> = {};
   for(const selectedEntityId of nodesToProfile) {
     const createdClassProfile = await createDefaultClassProfile(notifications, graph, diagram, options, classesContext, visualModel, selectedEntityId, shouldBeAddedToVisualModel);
-    if(createdClassProfile !== null) {
-      createdClassProfiles[selectedEntityId] = createdClassProfile;
-    }
+    createdClassProfiles[selectedEntityId] = createdClassProfile;
   }
 
   return createdClassProfiles;
@@ -103,7 +102,7 @@ async function createDefaultClassProfile(
 
   if(shouldBeAddedToVisualModel) {
     if(isWritableVisualModel(visualModel)) {
-      addSemanticClassProfileToVisualModelAction(notifications, graph, classesContext, visualModel, diagram, createdClassProfile.identifier, createdClassProfile.model.getId(), null);
+      await addSemanticClassProfileToVisualModelAction(notifications, graph, classesContext, visualModel, diagram, createdClassProfile.identifier, createdClassProfile.model.getId(), null);
     }
   }
 
@@ -120,7 +119,7 @@ function createDefaultRelationshipProfiles(
   graph: ModelGraphContextType,
   visualModel: VisualModel | null,
   edgesToProfile: string[],
-  createdClassProfiles: Record<string, string>,
+  createdClassProfiles: Record<string, string | null>,
   shouldBeAddedToVisualModel: boolean
 ) {
   for(const selectedEntityId of edgesToProfile) {
@@ -138,7 +137,7 @@ function createDefaultRelationshipProfile(
   graph: ModelGraphContextType,
   visualModel: VisualModel | null,
   entityToProfile: string,
-  createdClassProfiles: Record<string, string>,
+  createdClassProfiles: Record<string, string | null>,
   shouldBeAddedToVisualModel: boolean
 ) {
   const validatedData = getAndValidateRelationshipOrRelationshipProfileToBeProfiled(notifications, graph, entityToProfile);
@@ -150,6 +149,11 @@ function createDefaultRelationshipProfile(
   const ends: SemanticModelRelationshipEndUsage[] | undefined = [];
   for (const end of relationshipOrRelationshipProfileToBeProfiled.ends) {
     if(end.concept === null) {
+      return;
+    }
+    // The creation of the class profile failed, so the created profiled association should fail as well
+    if(createdClassProfiles[end.concept] === null) {
+      notifications.error("Relationship is not profiled, since one of the end classes couldn't be profiled");
       return;
     }
 

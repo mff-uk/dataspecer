@@ -29,7 +29,7 @@ export function NodeSelectionActionsSecondaryToolbar({ value }: { value: CanvasT
     return (<>
         <ul className="node-secondary-toolbar">
             <li>
-                <button onClick={onCreateNewView} title={t("selection-new-view-button")}>🖼️</button>
+                <button onClick={onCreateNewView} title={t("selection-new-view-button")} disabled >🖼️</button>
             </li>
             <li>
                 <button onClick={onProfileSelection} title={t("selection-profile-button")}>🧲</button>
