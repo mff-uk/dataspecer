@@ -20,11 +20,10 @@ export type ExtensionCheckboxData = {
 export type ExtensionData = ExtensionCheckboxData & {extensionType: ExtensionType};
 
 /**
-* Creates element of type {@link ExtensionData} from given arguments and puts it at the end of {@link checkboxStates} parameter.
+* Creates element of type {@link ExtensionData} from given arguments.
 * @returns The created element
 */
-const useCreateExtensionDataStateAndSaveIt = (
-  checkboxStates: ExtensionData[],
+const createExtensionData = (
   defaultStateValue: boolean,
   checkboxText: string,
   checkboxTooltip: string,
@@ -37,8 +36,25 @@ const useCreateExtensionDataStateAndSaveIt = (
       extensionType
   };
 
-  checkboxStates.push(checkboxData);
   return checkboxData;
+};
+
+const createExtensionCheckboxesData = (): ExtensionData[] => {
+  const extensionCheckboxesStates: ExtensionData[] = [];
+
+  extensionCheckboxesStates.push(createExtensionData(true, "🔵⭢🔴", "extend-selection-association-target-tooltip", "ASSOCIATION-TARGET"));
+  extensionCheckboxesStates.push(createExtensionData(true, "🔴⭢🔵", "extend-selection-association-source-tooltip", "ASSOCIATION-SOURCE"));
+
+  extensionCheckboxesStates.push(createExtensionData(false, "🔵⇒🔴", "extend-selection-generalization-parent-tooltip", "GENERALIZATION-PARENT"));
+  extensionCheckboxesStates.push(createExtensionData(false, "🔴⇒🔵", "extend-selection-generalization-child-tooltip", "GENERALIZATION-CHILD"));
+
+  extensionCheckboxesStates.push(createExtensionData(false, "🔵⇢🔴", "extend-selection-association-profile-target-tooltip", "PROFILE-EDGE-TARGET"));
+  extensionCheckboxesStates.push(createExtensionData(false, "🔴⇢🔵", "extend-selection-association-profile-source-tooltip", "PROFILE-EDGE-SOURCE"));
+
+  extensionCheckboxesStates.push(createExtensionData(false, "🟦⇢🟥", "extend-selection-class-profile-parent-tooltip", "PROFILE-CLASS-PARENT"));
+  extensionCheckboxesStates.push(createExtensionData(false, "🟥⇢🟦", "extend-selection-class-profile-child-source-tooltip", "PROFILE-CLASS-CHILD"));
+
+  return extensionCheckboxesStates;
 };
 
 //
@@ -56,19 +72,7 @@ export function createExtendSelectionState(
   setSelectionsInDiagram: (newSelection: Selections) => void,
   areIdentifiersFromVisualModel: boolean
 ): ExtendSelectionState {
-  const extensionCheckboxStates: ExtensionData[] = [];
-
-  useCreateExtensionDataStateAndSaveIt(extensionCheckboxStates, true, "🔵⭢🔴", "Extend by association targets", "ASSOCIATION-TARGET");
-  useCreateExtensionDataStateAndSaveIt(extensionCheckboxStates, true, "🔴⭢🔵", "Extend by association sources", "ASSOCIATION-SOURCE");
-
-  useCreateExtensionDataStateAndSaveIt(extensionCheckboxStates, false, "🔵⇒🔴", "Extend by generalization parents", "GENERALIZATION-PARENT");
-  useCreateExtensionDataStateAndSaveIt(extensionCheckboxStates, false, "🔴⇒🔵", "Extend by generalization children", "GENERALIZATION-CHILD");
-
-  useCreateExtensionDataStateAndSaveIt(extensionCheckboxStates, false, "🔵⇢🔴", "Extend by profiled edge targets", "PROFILE-EDGE-TARGET");
-  useCreateExtensionDataStateAndSaveIt(extensionCheckboxStates, false, "🔴⇢🔵", "Extend by profiled edge sources", "PROFILE-EDGE-SOURCE");
-
-  useCreateExtensionDataStateAndSaveIt(extensionCheckboxStates, false, "🟦⇢🟥", "Extend by profiled classes (\"Parents\")", "PROFILE-CLASS-PARENT");
-  useCreateExtensionDataStateAndSaveIt(extensionCheckboxStates, false, "🟥⇢🟦", "Extend by class profiles (\"Children\")", "PROFILE-CLASS-CHILD");
+  const extensionCheckboxStates: ExtensionData[] = createExtensionCheckboxesData();
 
   return {
     selections: selections,

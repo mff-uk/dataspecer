@@ -1,6 +1,7 @@
 import { DialogProps, DialogWrapper } from "../dialog-api";
-import { createFilterSelectionState, SelectionFilterState, useFilterSelectionController } from "./filter-selection-dialog-controller";
+import { CreateFilterSelectionControllerType, createFilterSelectionState, SelectionFilterState, useFilterSelectionController } from "./filter-selection-dialog-controller";
 import { Selections, SelectionsWithIdInfo } from "../../action/filter-selection-action";
+import { t } from "../../application";
 
 
 /**
@@ -38,52 +39,47 @@ export const CreateFilterSelectionDialog = (props: DialogProps<SelectionFilterSt
     const state = props.state;
     const controller = useFilterSelectionController(props);
 
-
-    /**
-     * Component which renders given {@link CheckboxData} as checkbox.
-     */
-    const createCheckboxComponent = (checkboxData: CheckboxData, index: number) => {
-        return <div>
-                    <label title={checkboxData.checkboxTooltip}>
-                        <input type="checkbox"
-                                checked={checkboxData.checked}
-                                onChange={(event) => {
-                                    controller.setFilterActivness({index, isActive: event.target.checked});
-                                }}>
-                        </input>
-                        {checkboxData.checkboxText}
-                    </label>
-        </div>;
-    };
-
-
-    /**
-     * Component with controls for the reduction of current selection.
-     */
-    const FilterControls = () => {
-        return <div>
-            {state.selectionFilters.map((checkboxState, index) => {
-                return createCheckboxComponent(checkboxState, index);
-            })}
-        </div>;
-    };
-
-
-    const SimpleHorizontalLineSeparator = () => {
-        return <div className="mb-2 mt-2 border-t border-gray-300"></div>;
-    };
-
-
-    /**
-     * Component with the main content of dialog. So everything except header and footer.
-     */
-    const DialogContent = () => {
-        return <div>
-            <FilterControls/>
+    return <div>
+            <FilterControls controller={controller} state={state}/>
             <SimpleHorizontalLineSeparator/>
         </div>;
-    };
+};
 
 
-    return <DialogContent/>;
+/**
+ * Component with controls for the reduction of current selection.
+ */
+const FilterControls = (props: { state: SelectionFilterState, controller: CreateFilterSelectionControllerType }) => {
+    return <div>
+        {props.state.selectionFilters.map((checkboxState, index) => {
+            return createCheckboxComponent(props.controller, checkboxState, index);
+        })}
+    </div>;
+};
+
+
+/**
+     * Component which renders given {@link CheckboxData} as checkbox.
+     */
+const createCheckboxComponent = (
+    controller: CreateFilterSelectionControllerType,
+    checkboxData: CheckboxData,
+    index: number
+) => {
+    return <div>
+                <label title={t(checkboxData.checkboxTooltip)}>
+                    <input type="checkbox"
+                            checked={checkboxData.checked}
+                            onChange={(event) => {
+                                controller.setFilterActivness({index, isActive: event.target.checked});
+                            }}>
+                    </input>
+                    {t(checkboxData.checkboxText)}
+                </label>
+    </div>;
+};
+
+
+const SimpleHorizontalLineSeparator = () => {
+    return <div className="mb-2 mt-2 border-t border-gray-300"></div>;
 };

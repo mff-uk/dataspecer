@@ -3,12 +3,12 @@ import { type DialogProps } from "../dialog-api";
 import { Selections, SelectionsWithIdInfo, SelectionFilter } from "../../action/filter-selection-action";
 
 
-const SELECTION_FILTER_TO_CHECKBOX_NAME_MAP: Record<SelectionFilter, string> = {
-  [SelectionFilter.NORMAL_CLASS]: "Include non-profile classes in result",
-  [SelectionFilter.PROFILE_CLASS]: "Include class profiles in result",
-  [SelectionFilter.RELATIONSHIP]: "Include normal relationships (associations)",
-  [SelectionFilter.RELATIONSHIP_PROFILE]: "Include profiled relationships",
-  [SelectionFilter.GENERALIZATION]: "Include generalizations",
+const SELECTION_FILTER_TO_CHECKBOX_TEXT_MAP: Record<SelectionFilter, string> = {
+  [SelectionFilter.NORMAL_CLASS]: "filter-selection-class-filter-text",
+  [SelectionFilter.PROFILE_CLASS]: "filter-selection-class-profile-filter-text",
+  [SelectionFilter.RELATIONSHIP]: "filter-selection-association-filter-text",
+  [SelectionFilter.RELATIONSHIP_PROFILE]: "filter-selection-association-profile-filter-text",
+  [SelectionFilter.GENERALIZATION]: "filter-selection-generalization-filter-text",
 };
 
 
@@ -26,14 +26,13 @@ export interface SelectionFilterState {
 };
 
 /**
- * Creates element of type {@link SelectionFilterCheckboxData} from given arguments and puts it at the end of {@link checkboxStates} parameter.
+ * Creates element of type {@link SelectionFilterCheckboxData} from given arguments.
  * @returns The created element
  */
-const createSelectionFilterCheckboxDataAndSaveIt = (
-  checkboxStates: SelectionFilterCheckboxData[],
+const createSelectionFilterCheckboxData = (
   selectionFilter: SelectionFilter
 ): SelectionFilterCheckboxData => {
-  const checkboxText = SELECTION_FILTER_TO_CHECKBOX_NAME_MAP[selectionFilter];
+  const checkboxText = SELECTION_FILTER_TO_CHECKBOX_TEXT_MAP[selectionFilter];
   const filterData = {
       checked: true,
       checkboxText,
@@ -41,21 +40,28 @@ const createSelectionFilterCheckboxDataAndSaveIt = (
       selectionFilter,
   };
 
-  checkboxStates.push(filterData);
   return filterData;
 };
+
+const createFilterCheckboxesData = (): SelectionFilterCheckboxData[] => {
+  const filters: SelectionFilterCheckboxData[] = [];
+
+  filters.push(createSelectionFilterCheckboxData(SelectionFilter.NORMAL_CLASS));
+  filters.push(createSelectionFilterCheckboxData(SelectionFilter.PROFILE_CLASS));
+
+  filters.push(createSelectionFilterCheckboxData(SelectionFilter.RELATIONSHIP));
+  filters.push(createSelectionFilterCheckboxData(SelectionFilter.RELATIONSHIP_PROFILE));
+  filters.push(createSelectionFilterCheckboxData(SelectionFilter.GENERALIZATION));
+
+  return filters;
+};
+
 
 export function createFilterSelectionState(
   selections: SelectionsWithIdInfo,
   setSelectionsInDiagram: (newSelections: Selections) => void
 ): SelectionFilterState {
-  const filters: SelectionFilterCheckboxData[] = [];
-  createSelectionFilterCheckboxDataAndSaveIt(filters, SelectionFilter.NORMAL_CLASS);
-  createSelectionFilterCheckboxDataAndSaveIt(filters, SelectionFilter.PROFILE_CLASS);
-
-  createSelectionFilterCheckboxDataAndSaveIt(filters, SelectionFilter.RELATIONSHIP);
-  createSelectionFilterCheckboxDataAndSaveIt(filters, SelectionFilter.RELATIONSHIP_PROFILE);
-  createSelectionFilterCheckboxDataAndSaveIt(filters, SelectionFilter.GENERALIZATION);
+  const filters: SelectionFilterCheckboxData[] = createFilterCheckboxesData();
 
   return {
     selections,
