@@ -27,9 +27,14 @@ export type ExtensionType = "ASSOCIATION" | "ASSOCIATION-SOURCE" | "ASSOCIATION-
 
 /**
  * Type representing additional visibility filter on the result. The visibility filter is almost always applied to both nodes and edges.
- * Only in the "ONLY-VISIBLE-NODES" option, the visibility of edges is ignored - This option is used fror example when we want to find edge of to be added node
+ * Only in the ONLY_VISIBLE_NODES option, the visibility of edges is ignored - This option is used fror example when we want to find edge of to be added node
  */
-export type VisibilityFilter = "ONLY-VISIBLE" | "ONLY-NON-VISIBLE" | "ALL" | "ONLY-VISIBLE-NODES";
+export enum VisibilityFilter {
+    ONLY_VISIBLE,
+    ONLY_NON_VISIBLE,
+    ALL,
+    ONLY_VISIBLE_NODES
+};
 
 
 type SelectionExtension = {
@@ -296,13 +301,13 @@ function addToExtensionIfSatisfiesVisibilityFilter(
     extendedNode: string,
     isExtendedNodeVisualId: boolean
 ): void {
-    if(visibilityFilter === "ALL") {
+    if(visibilityFilter === VisibilityFilter.ALL) {
         addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass);
         return;
     }
 
     if(visualModel === null) {
-        if(visibilityFilter === "ONLY-NON-VISIBLE") {
+        if(visibilityFilter === VisibilityFilter.ONLY_NON_VISIBLE) {
             addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass);
         }
         return;
@@ -315,7 +320,7 @@ function addToExtensionIfSatisfiesVisibilityFilter(
     const isProfileClassEdge = !isEdgeWhichAddedClassNotClassProfileEdge(edgeWhichAddedClass);
     let isEdgeInVisualModel = false;
     if(isProfileClassEdge) {
-        if(visualModel === null || visibilityFilter !== "ONLY-VISIBLE" || !isExtendedNodeVisualId) {
+        if(visualModel === null || visibilityFilter !== VisibilityFilter.ONLY_VISIBLE || !isExtendedNodeVisualId) {
             isEdgeInVisualModel = true;
         }
         else {
@@ -343,8 +348,9 @@ function addToExtensionIfSatisfiesVisibilityFilter(
         isEdgeInVisualModel = isEntityInVisualModel(visualModel, edgeWhichAddedClass as string, false);
     }
 
-    if((visibilityFilter === "ONLY-VISIBLE" && isClassInVisualModel && isEdgeInVisualModel) || (visibilityFilter === "ONLY-VISIBLE-NODES" && isClassInVisualModel)) {
-        if(isExtendedNodeVisualId && visibilityFilter === "ONLY-VISIBLE") {     // Then we want visual IDs
+    if((visibilityFilter === VisibilityFilter.ONLY_VISIBLE && isClassInVisualModel && isEdgeInVisualModel) ||
+        (visibilityFilter === VisibilityFilter.ONLY_VISIBLE_NODES && isClassInVisualModel)) {
+        if(isExtendedNodeVisualId && visibilityFilter === VisibilityFilter.ONLY_VISIBLE) {     // Then we want visual IDs
             const classToAddVisualEntity = visualModel.getVisualEntityForRepresented(classIdToAdd);
             let edgeWhichAddedClassVisualEntity;
             if(isProfileClassEdge) {
@@ -367,7 +373,7 @@ function addToExtensionIfSatisfiesVisibilityFilter(
             addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass);
         }
     }
-    else if(visibilityFilter === "ONLY-NON-VISIBLE" && !isClassInVisualModel) {     // Not sure about the semantics of the filters for edges,
+    else if(visibilityFilter === VisibilityFilter.ONLY_NON_VISIBLE && !isClassInVisualModel) {     // Not sure about the semantics of the filters for edges,
         addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass);      // so we just check the visibility of the class
     }
 }
@@ -382,7 +388,7 @@ async function allowSurrondingsInExternalModels(
     contextEntities: ClassesContextEntities,
     visibilityFilter: VisibilityFilter
 ): Promise<ExternalSemanticModel | null> {
-    if(relevantExternalModels === null || visibilityFilter === "ONLY-VISIBLE") {
+    if(relevantExternalModels === null || visibilityFilter === VisibilityFilter.ONLY_VISIBLE || visibilityFilter === VisibilityFilter.ONLY_VISIBLE_NODES) {
         return null;
     }
 
@@ -416,7 +422,7 @@ async function tryAllowClassInExternalModelsIfNotFound(
     contextEntities: ClassesContextEntities,
     visibilityFilter: VisibilityFilter
 ): Promise<boolean> {
-    if(relevantExternalModels === null || visibilityFilter === "ONLY-VISIBLE") {
+    if(relevantExternalModels === null || visibilityFilter === VisibilityFilter.ONLY_VISIBLE || visibilityFilter === VisibilityFilter.ONLY_VISIBLE_NODES) {
         return false;
     }
 

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { type DialogProps } from "../dialog-api";
 import { Selections } from "../../action/filter-selection-action";
-import { ExtensionType } from "../../action/extend-selection-action";
+import { ExtensionType, VisibilityFilter } from "../../action/extend-selection-action";
 import { useActions } from "../../action/actions-react-binding";
 
 
@@ -114,11 +114,19 @@ export function useExtendSelectionController({ state, changeState }: DialogProps
         return null;
       }).filter(extensionType => extensionType !== null);
 
-      extendSelection({identifiers: state.selections.nodeSelection, areIdentifiersFromVisualModel: state.areIdentifiersFromVisualModel}, relevantExtensionTypes, "ONLY-VISIBLE", null).then(extension => {
-            setSelections({
-                nodeSelection: state.selections.nodeSelection.concat(extension.nodeSelection),
-                edgeSelection: state.selections.edgeSelection.concat(extension.edgeSelection),
-            })
+      extendSelection(
+        {
+          identifiers: state.selections.nodeSelection,
+          areIdentifiersFromVisualModel: state.areIdentifiersFromVisualModel
+        },
+        relevantExtensionTypes,
+        VisibilityFilter.ONLY_VISIBLE,
+        null
+      ).then(extension => {
+        setSelections({
+            nodeSelection: state.selections.nodeSelection.concat(extension.nodeSelection),
+            edgeSelection: state.selections.edgeSelection.concat(extension.edgeSelection),
+        });
         }).catch(console.error);
     }
 

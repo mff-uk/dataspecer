@@ -11,7 +11,7 @@ import { findSourceModelOfEntity } from "../service/model-service";
 import { ModelGraphContextType } from "../context/model-context";
 import { ClassesContextType } from "../context/classes-context";
 import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { extendSelectionAction } from "./extend-selection-action";
+import { extendSelectionAction, VisibilityFilter } from "./extend-selection-action";
 import { Selections } from "./filter-selection-action";
 
 const LOG = createLogger(import.meta.url);
@@ -142,7 +142,7 @@ type ComputedPositionForNodePlacement = {
 };
 
 /**
- * @returns The barycenter of nodes associated to {@link nodeToFindAssociationsFor} and boolean variable saying if the position was explicitly put to middle of viewport.
+ * @returns The barycenter of nodes associated to {@link classToFindAssociationsFor} and boolean variable saying if the position was explicitly put to middle of viewport.
  */
 export const computeMiddleOfRelatedAssociationsPositionAction = async (
   notifications: UseNotificationServiceWriterType,
@@ -150,9 +150,9 @@ export const computeMiddleOfRelatedAssociationsPositionAction = async (
   visualModel: WritableVisualModel,
   diagram: UseDiagramType,
   classesContext: ClassesContextType,
-  nodeToFindAssociationsFor: string,
+  classToFindAssociationsFor: string,
 ): Promise<ComputedPositionForNodePlacement> => {
-    const associatedClasses: string[] = (await findAssociatedClassesAndClassUsages(notifications, graph, classesContext, nodeToFindAssociationsFor)).selectionExtension.nodeSelection;
+    const associatedClasses: string[] = (await findAssociatedClassesAndClassUsages(notifications, graph, classesContext, classToFindAssociationsFor)).selectionExtension.nodeSelection;
     const associatedPositions = associatedClasses.map(associatedNodeIdentifier => {
         const visualNode = visualModel.getVisualEntityForRepresented(associatedNodeIdentifier);
         if(visualNode === null) {
@@ -210,6 +210,6 @@ const findAssociatedClassesAndClassUsages = async (
     // Is synchronous for this case
     const selection = await extendSelectionAction(notifications, graph, classesContext,
       {areIdentifiersFromVisualModel: false, identifiers: [classToFindAssociationsFor]},
-      ["ASSOCIATION", "GENERALIZATION"], "ONLY-VISIBLE-NODES", false, null);
+      ["ASSOCIATION", "GENERALIZATION"], VisibilityFilter.ONLY_VISIBLE_NODES, false, null);
     return selection;
 }

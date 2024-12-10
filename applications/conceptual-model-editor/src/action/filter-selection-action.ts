@@ -71,7 +71,7 @@ export function filterSelectionAction(
     const contextEntities: ClassesContextEntities = classesContext;
 
     const activeVisualModel = graph.aggregatorView.getActiveVisualModel();
-    if((visibilityFilter === "ONLY-NON-VISIBLE" || visibilityFilter === "ONLY-VISIBLE") && activeVisualModel === null) {
+    if((visibilityFilter === VisibilityFilter.ONLY_NON_VISIBLE || visibilityFilter === VisibilityFilter.ONLY_VISIBLE) && activeVisualModel === null) {
         notifications.error("No active visual model, can't filter based on visual model.");
         return {
             nodeSelection: [...selections.nodeSelection],
@@ -159,19 +159,19 @@ function filterBasedOnVisibility(
     visualModel: VisualModel | null
 ): string[] {
     const filteredArray: string[] = identifiersToFilter.filter(entity => {
-        if(visibilityFilter === "ALL") {
+        if(visibilityFilter === VisibilityFilter.ALL) {
             return true;
         }
 
         if(visualModel === null) {
-            return visibilityFilter === "ONLY-NON-VISIBLE";
+            return visibilityFilter === VisibilityFilter.ONLY_NON_VISIBLE;
         }
 
         const isInVisualModel = isEntityInVisualModel(visualModel, entity, areIdentifiersFromVisualModel);
-        if(visibilityFilter === "ONLY-VISIBLE" && isInVisualModel) {
+        if(visibilityFilter === VisibilityFilter.ONLY_VISIBLE && isInVisualModel) {
             return true;
         }
-        else if(visibilityFilter === "ONLY-NON-VISIBLE" && !isInVisualModel) {
+        else if(visibilityFilter === VisibilityFilter.ONLY_NON_VISIBLE && !isInVisualModel) {
             return true;
         }
 

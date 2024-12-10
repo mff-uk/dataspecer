@@ -610,7 +610,7 @@ function createActionsContext(
         return null;
     }).filter(selectionFilter => selectionFilter !== null);
 
-      const filteredSelection = filterSelection(state.selections, relevantSelectionFilters, "ONLY-VISIBLE", null);
+      const filteredSelection = filterSelection(state.selections, relevantSelectionFilters, VisibilityFilter.ONLY_VISIBLE, null);
       setSelectionsInDiagram(filteredSelection, diagram);
     };
 
