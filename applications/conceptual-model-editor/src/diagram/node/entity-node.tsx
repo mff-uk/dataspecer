@@ -45,7 +45,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
 
   // TODO PRQuestion: How should we get access to the information saying that the node is anchored so we can visualize it? Should it be action? Or should it be like this?
   const graph = useModelGraphContext();
-  const isAnchored = (graph.aggregatorView?.getActiveVisualModel()?.getVisualEntity(props.data.identifier) as VisualNode).position?.anchored ?? false;
+  const isAnchored = (graph.aggregatorView?.getActiveVisualModel()?.getVisualEntity(props.data.identifier) as VisualNode)?.position?.anchored ?? false;
 
   return (
     <>
