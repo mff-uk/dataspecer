@@ -204,7 +204,7 @@ const translations: Record<string, string | Function> = {
   "extend-selection-generalization-child-tooltip": "Extend by generalization children",
 
   "extend-selection-association-profile-target-tooltip": "Extend by profiled association targets",
-  "extend-selection-association-profile-source-tooltip": "Extend by profiled association edge sources",
+  "extend-selection-association-profile-source-tooltip": "Extend by profiled association sources",
 
   "extend-selection-class-profile-parent-tooltip": "Extend by profiled classes (\"Parents\")",
   "extend-selection-class-profile-child-source-tooltip": "Extend by class profiles (\"Children\")",
