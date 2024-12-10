@@ -4,11 +4,11 @@ import { Selections, SelectionsWithIdInfo, SelectionFilter } from "../../action/
 
 
 const SELECTION_FILTER_TO_CHECKBOX_NAME_MAP: Record<SelectionFilter, string> = {
-  "NORMAL-CLASS": "Include non-profile classes in result",
-  "PROFILE-CLASS": "Include class profiles in result",
-  "RELATIONSHIP": "Include normal relationships (associations)",
-  "RELATIONSHIP-PROFILE": "Include profiled relationships",
-  "GENERALIZATION": "Include generalizations",
+  [SelectionFilter.NORMAL_CLASS]: "Include non-profile classes in result",
+  [SelectionFilter.PROFILE_CLASS]: "Include class profiles in result",
+  [SelectionFilter.RELATIONSHIP]: "Include normal relationships (associations)",
+  [SelectionFilter.RELATIONSHIP_PROFILE]: "Include profiled relationships",
+  [SelectionFilter.GENERALIZATION]: "Include generalizations",
 };
 
 
@@ -50,12 +50,12 @@ export function createFilterSelectionState(
   setSelectionsInDiagram: (newSelections: Selections) => void
 ): SelectionFilterState {
   const filters: SelectionFilterCheckboxData[] = [];
-  createSelectionFilterCheckboxDataAndSaveIt(filters, "NORMAL-CLASS");
-  createSelectionFilterCheckboxDataAndSaveIt(filters, "PROFILE-CLASS");
+  createSelectionFilterCheckboxDataAndSaveIt(filters, SelectionFilter.NORMAL_CLASS);
+  createSelectionFilterCheckboxDataAndSaveIt(filters, SelectionFilter.PROFILE_CLASS);
 
-  createSelectionFilterCheckboxDataAndSaveIt(filters, "RELATIONSHIP");
-  createSelectionFilterCheckboxDataAndSaveIt(filters, "RELATIONSHIP-PROFILE");
-  createSelectionFilterCheckboxDataAndSaveIt(filters, "GENERALIZATION");
+  createSelectionFilterCheckboxDataAndSaveIt(filters, SelectionFilter.RELATIONSHIP);
+  createSelectionFilterCheckboxDataAndSaveIt(filters, SelectionFilter.RELATIONSHIP_PROFILE);
+  createSelectionFilterCheckboxDataAndSaveIt(filters, SelectionFilter.GENERALIZATION);
 
   return {
     selections,

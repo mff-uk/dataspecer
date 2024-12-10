@@ -10,7 +10,13 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 /**
  * Type representing filter on the type of entity.
  */
-export type SelectionFilter = "PROFILE-CLASS" | "NORMAL-CLASS" | "RELATIONSHIP-PROFILE" | "RELATIONSHIP" | "GENERALIZATION";
+export enum SelectionFilter {
+    PROFILE_CLASS,
+    NORMAL_CLASS,
+    RELATIONSHIP_PROFILE,
+    RELATIONSHIP,
+    GENERALIZATION
+};
 
 /**
  * Appends to {@link filteredNodeSelection} the classes from {@link nodeSelection} passing filter
@@ -79,7 +85,7 @@ export function filterSelectionAction(
             notifications.error("The filter for selection is not defined, probably programmer error");
         }
         else {
-            selectionFilterMethods.push(FILTER_NAME_TO_FILTER_METHOD_MAP[filter]);
+            selectionFilterMethods.push(filterMethod);
         }
     };
 
@@ -178,11 +184,11 @@ function filterBasedOnVisibility(
 
 
 const FILTER_NAME_TO_FILTER_METHOD_MAP: Record<SelectionFilter, SelectionFilterMethod> = {
-    "NORMAL-CLASS": classFilter,
-    "PROFILE-CLASS": profileClassFilter,
-    "RELATIONSHIP": normalEdgeFilter,
-    "RELATIONSHIP-PROFILE": profileEdgeFilter,
-    "GENERALIZATION": generalizationFilter,
+    [SelectionFilter.NORMAL_CLASS]: classFilter,
+    [SelectionFilter.PROFILE_CLASS]: profileClassFilter,
+    [SelectionFilter.RELATIONSHIP]: normalEdgeFilter,
+    [SelectionFilter.RELATIONSHIP_PROFILE]: profileEdgeFilter,
+    [SelectionFilter.GENERALIZATION]: generalizationFilter,
 };
 
 
