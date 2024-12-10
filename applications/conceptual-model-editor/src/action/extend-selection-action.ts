@@ -20,10 +20,23 @@ export type ClassesContextEntities = {
 /**
  * Type representing all the possible extensions of the selection.
  */
-export type ExtensionType = "ASSOCIATION" | "ASSOCIATION-SOURCE" | "ASSOCIATION-TARGET" |
-                                "GENERALIZATION" | "GENERALIZATION-PARENT" | "GENERALIZATION-CHILD" |
-                                "PROFILE-EDGE" | "PROFILE-EDGE-SOURCE" | "PROFILE-EDGE-TARGET" |
-                                "PROFILE-CLASS" | "PROFILE-CLASS-PARENT" | "PROFILE-CLASS-CHILD";
+export enum ExtensionType {
+    ASSOCIATION,
+    ASSOCIATION_SOURCE,
+    ASSOCIATION_TARGET,
+
+    GENERALIZATION,
+    GENERALIZATION_PARENT,
+    GENERALIZATION_CHILD,
+
+    PROFILE_EDGE,
+    PROFILE_EDGE_SOURCE,
+    PROFILE_EDGE_TARGET,
+
+    PROFILE_CLASS,
+    PROFILE_CLASS_PARENT,
+    PROFILE_CLASS_CHILD
+};
 
 /**
  * Type representing additional visibility filter on the result. The visibility filter is almost always applied to both nodes and edges.
@@ -133,44 +146,44 @@ export const extendSelectionAction = async (
 
     for(const extensionType of extensionTypes) {
         switch(extensionType) {
-            case "ASSOCIATION":
+            case ExtensionType.ASSOCIATION:
                 await extendThroughAssociationSources(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
                 await extendThroughAssociationTargets(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
                 break;
-            case "ASSOCIATION-TARGET":
+            case ExtensionType.ASSOCIATION_TARGET:
                 await extendThroughAssociationTargets(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
                 break;
-            case "ASSOCIATION-SOURCE":
+            case ExtensionType.ASSOCIATION_SOURCE:
                 await extendThroughAssociationSources(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
                 break;
-            case "PROFILE-EDGE":
+            case ExtensionType.PROFILE_EDGE:
                 await extendThroughProfileEdgeSources(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
                 await extendThroughProfileEdgeTargets(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
                 break;
-            case "PROFILE-EDGE-SOURCE":
+            case ExtensionType.PROFILE_EDGE_SOURCE:
                 await extendThroughProfileEdgeSources(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
                 break;
-            case "PROFILE-EDGE-TARGET":
+            case ExtensionType.PROFILE_EDGE_TARGET:
                 await extendThroughProfileEdgeTargets(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
                 break;
-            case "GENERALIZATION":
+            case ExtensionType.GENERALIZATION:
                 await extendThroughGeneralizationParents(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
                 await extendThroughGeneralizationChildren(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
                 break;
-            case "GENERALIZATION-CHILD":
+            case ExtensionType.GENERALIZATION_CHILD:
                 await extendThroughGeneralizationChildren(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
                 break;
-            case "GENERALIZATION-PARENT":
+            case ExtensionType.GENERALIZATION_PARENT:
                 await extendThroughGeneralizationParents(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
                 break;
-            case "PROFILE-CLASS":
+            case ExtensionType.PROFILE_CLASS:
                 await extendThroughClassProfileParents(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
                 await extendThroughClassProfileChildren(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
                 break;
-            case "PROFILE-CLASS-PARENT":
+            case ExtensionType.PROFILE_CLASS_PARENT:
                 await extendThroughClassProfileParents(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
                 break;
-            case "PROFILE-CLASS-CHILD":
+            case ExtensionType.PROFILE_CLASS_CHILD:
                 await extendThroughClassProfileChildren(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
                 break;
         }

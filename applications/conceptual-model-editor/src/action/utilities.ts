@@ -11,7 +11,7 @@ import { findSourceModelOfEntity } from "../service/model-service";
 import { ModelGraphContextType } from "../context/model-context";
 import { ClassesContextType } from "../context/classes-context";
 import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { extendSelectionAction, VisibilityFilter } from "./extend-selection-action";
+import { extendSelectionAction, ExtensionType, VisibilityFilter } from "./extend-selection-action";
 import { Selections } from "./filter-selection-action";
 
 const LOG = createLogger(import.meta.url);
@@ -210,6 +210,6 @@ const findAssociatedClassesAndClassUsages = async (
     // Is synchronous for this case
     const selection = await extendSelectionAction(notifications, graph, classesContext,
       {areIdentifiersFromVisualModel: false, identifiers: [classToFindAssociationsFor]},
-      ["ASSOCIATION", "GENERALIZATION"], VisibilityFilter.ONLY_VISIBLE_NODES, false, null);
+      [ExtensionType.ASSOCIATION, ExtensionType.GENERALIZATION], VisibilityFilter.ONLY_VISIBLE_NODES, false, null);
     return selection;
 }
