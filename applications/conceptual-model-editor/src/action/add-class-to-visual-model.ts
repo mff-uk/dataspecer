@@ -6,10 +6,13 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { ModelGraphContextType } from "../context/model-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { addRelatedEntitiesAction } from "./add-related-entities-to-visual-model";
+import { findPositionForNewNodeUsingLayouting } from "./layout-visual-model";
+import { ClassesContextType } from "../context/classes-context";
 
-export function addSemanticClassToVisualModelAction(
+export async function addSemanticClassToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
+  classes: ClassesContextType,
   visualModel: WritableVisualModel,
   diagram: UseDiagramType,
   entityIdentifier: string,
@@ -17,12 +20,16 @@ export function addSemanticClassToVisualModelAction(
   position: { x: number, y: number } | null,
 ) {
   const entities = graph.aggregatorView.getEntities();
+  if(position === null) {
+    position = await findPositionForNewNodeUsingLayouting(notifications, diagram, graph, visualModel, classes, entityIdentifier);
+  }
+
   withAggregatedEntity(notifications, entities,
     entityIdentifier, modelIdentifier,
     isSemanticModelClass, (entity) => {
       addSemanticClassToVisualModelCommand(
         visualModel, entity, modelIdentifier,
-        position ?? getViewportCenterForClassPlacement(diagram));
+        position);
       addRelatedEntitiesAction(
         notifications, graph, visualModel, Object.values(entities),
         graph.models, entity);

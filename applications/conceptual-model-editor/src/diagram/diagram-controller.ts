@@ -514,6 +514,14 @@ const createActions = (
       reactFlow.deleteElements({ nodes: identifiers.map(id => ({ id })) });
       console.log("Diagram.removeNodes", identifiers);
     },
+    getNodeWidth(identifier) {
+      const width = reactFlow.getNode(identifier)?.measured?.width ?? null;
+      return width;
+    },
+    getNodeHeight(identifier) {
+      const height = reactFlow.getNode(identifier)?.measured?.height ?? null;
+      return height;
+    },
     //
     getEdges() {
       console.log("Diagram.getEdges");
@@ -548,6 +556,14 @@ const createActions = (
     },
     setSelectedNodes(nodes) {
       console.log("Diagram.setSelectedNodes", nodes);
+      reactFlow.setNodes(prevNodes => {
+        return prevNodes.map(node => {
+          if(nodes.find(selectedNode => selectedNode === node.id) !== undefined) {
+            return {...node, selected: true};
+          }
+          return {...node, selected: false};
+        });
+      });
     },
     getSelectedEdges() {
       console.log("Diagram.getSelectedEdges");
@@ -555,7 +571,15 @@ const createActions = (
       return reactFlow.getEdges().filter(edge => edge.selected === true).map(edge => edge.data).filter(edge => edge !== undefined);
     },
     setSelectedEdges(edges) {
-      console.log("Diagram.setSelectedNodes", edges);
+      console.log("Diagram.setSelectedEdges", edges);
+      reactFlow.setEdges(prevEdges => {
+        return prevEdges.map(edge => {
+          if(edges.find(selectedEdge => selectedEdge === edge.id) !== undefined) {
+            return {...edge, selected: true};
+          }
+          return {...edge, selected: false};
+        });
+      });
     },
     //
     async setContent(nodes, edges) {

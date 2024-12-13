@@ -47,7 +47,7 @@ export function openCreateClassDialogAction(
     // Add to visual model if possible.
     if (isWritableVisualModel(visualModel)) {
       addSemanticClassToVisualModelAction(
-        notifications, graph, visualModel, diagram,
+        notifications, graph, classes, visualModel, diagram,
         createResult.identifier, createResult.model.getId(),
         position);
     }

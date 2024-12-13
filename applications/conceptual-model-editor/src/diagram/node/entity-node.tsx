@@ -14,6 +14,8 @@ import { DiagramContext } from "../diagram-controller";
 import "./entity-node.css";
 import { usePrefixForIri } from "../../service/prefix-service";
 import { t } from "../../application";
+import { useModelGraphContext } from "../../context/model-context";
+import { VisualNode } from "@dataspecer/core-v2/visual-model";
 
 // We can select zoom option and hide content when zoom is on given threshold.
 // const zoomSelector = (state: ReactFlowState) => state.transform[2] >= 0.9;
@@ -41,6 +43,10 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
     usageNote = data.profileOf.usageNote;
   }
 
+  // TODO PRQuestion: How should we get access to the information saying that the node is anchored so we can visualize it? Should it be action? Or should it be like this?
+  const graph = useModelGraphContext();
+  const isAnchored = (graph.aggregatorView?.getActiveVisualModel()?.getVisualEntity(props.data.identifier) as VisualNode)?.position?.anchored ?? false;
+
   return (
     <>
       {props.selected ? <SelectedHighlight /> : null}
@@ -63,7 +69,10 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
                 </span>
               </div>
             )}
-            {data.label}
+            <div className="relative flex w-full flex-row justify-between">
+                <div>{data.label}</div>
+                {isAnchored ? <div>⚓</div>: null}
+            </div>
           </div>
 
           <div className="overflow-x-clip text-gray-500 px-1">
@@ -137,7 +146,7 @@ function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
       &nbsp;
       <button onClick={onDelete} title={t("class-remove-button")}>🗑</button>
       &nbsp;
-      <button onClick={onAnchor} title={t("node-anchor-button")} disabled>⚓</button>
+      <button onClick={onAnchor} title={t("node-anchor-button")} >⚓</button>
       &nbsp;
     </NodeToolbar>
   </>);
@@ -177,9 +186,9 @@ function SelectionToolbar(props: NodeProps<Node<ApiNode>>) {
     <button onClick={onCreateGroup} title={t("selection-group-button")} disabled>🤝</button>
     </NodeToolbar>
     <NodeToolbar isVisible={isLastSelected} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
-      <button onClick={onShowExpandSelection} title={t("selection-extend-button")} disabled>📈</button>
+      <button onClick={onShowExpandSelection} title={t("selection-extend-button")} >📈</button>
       &nbsp;
-      <button onClick={onShowFilterSelection} title={t("selection-filter-button")} disabled>📉</button>
+      <button onClick={onShowFilterSelection} title={t("selection-filter-button")} >📉</button>
       &nbsp;
     </NodeToolbar>
   </>

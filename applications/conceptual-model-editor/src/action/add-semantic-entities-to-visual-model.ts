@@ -11,6 +11,7 @@ import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-t
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { EntityModel } from "@dataspecer/core-v2";
+import { ClassesContextType } from "../context/classes-context";
 
 
 export type EntityToAddToVisualModel = {
@@ -28,6 +29,7 @@ export type EntityToAddToVisualModel = {
 export function addSemanticEntitiesToVisualModelAction(
     notifications: UseNotificationServiceWriterType,
     graph: ModelGraphContextType,
+    classes: ClassesContextType,
     visualModel: WritableVisualModel,
     diagram: UseDiagramType,
     entities: EntityToAddToVisualModel[],
@@ -57,10 +59,10 @@ export function addSemanticEntitiesToVisualModelAction(
         const entity = model.getEntities()[entityIdentifier];
         const modelIdentifier = model.getId();
         if(isSemanticModelClass(entity)) {
-            addSemanticClassToVisualModelAction(notifications, graph, visualModel, diagram, entityIdentifier, modelIdentifier, position);
+            addSemanticClassToVisualModelAction(notifications, graph, classes, visualModel, diagram, entityIdentifier, modelIdentifier, position);
         }
         else if(isSemanticModelClassUsage(entity)) {
-            addSemanticClassProfileToVisualModelAction(notifications, graph, visualModel, diagram, entityIdentifier, modelIdentifier, position);
+            addSemanticClassProfileToVisualModelAction(notifications, graph, classes, visualModel, diagram, entityIdentifier, modelIdentifier, position);
         }
         else if(isSemanticModelRelationship(entity)) {
             addSemanticRelationshipToVisualModelAction(notifications, graph, visualModel, entityIdentifier, modelIdentifier);
