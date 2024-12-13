@@ -346,7 +346,7 @@ function addToExtensionIfSatisfiesVisibilityFilter(
                         // TODO RadStr: Maybe should throw error, since this shouldn't happen
                         return;
                     }
-                    const ends = edgeWhichAddedClass === "FROM-CLASS-PROFILE-TO-PROFILED-CLASS" ? [visualSource, visualTarget] : [visualTarget, visualSource];
+                    const ends = edgeWhichAddedClass === SpecialEdge.FROM_CLASS_PROFILE_TO_PROFILED_CLASS ? [visualSource, visualTarget] : [visualTarget, visualSource];
                     if(ends[0].identifier === extendedNode && ends[1].representedEntity === classIdToAdd) {
                         isEdgeInVisualModel = true;
                         edgeWhichAddedClass = visualEntity.identifier;
@@ -886,7 +886,7 @@ async function extendThroughClassProfile(
             contextEntities.profiles.forEach(entity => {
                 if(entity.usageOf === selectedClassSemanticId) {
                     addToExtensionIfSatisfiesVisibilityFilter(outputToExtend, visibilityFilter, entity.id,
-                        "FROM-PROFILED-CLASS-TO-CLASS-PROFILE", visualModel, selectedClassId, nodeSelection.areIdentifiersFromVisualModel);
+                        SpecialEdge.FROM_PROFILED_CLASS_TO_CLASS_PROFILE, visualModel, selectedClassId, nodeSelection.areIdentifiersFromVisualModel);
                 }
             });
         }
@@ -898,7 +898,7 @@ async function extendThroughClassProfile(
 
             await tryAllowClassInExternalModelsIfNotFound(selectedClassAsProfile.usageOf, relevantExternalModels, contextEntities, visibilityFilter);
             addToExtensionIfSatisfiesVisibilityFilter(outputToExtend, visibilityFilter, selectedClassAsProfile.usageOf,
-                "FROM-CLASS-PROFILE-TO-PROFILED-CLASS", visualModel, selectedClassId, nodeSelection.areIdentifiersFromVisualModel);
+                SpecialEdge.FROM_CLASS_PROFILE_TO_PROFILED_CLASS, visualModel, selectedClassId, nodeSelection.areIdentifiersFromVisualModel);
         }
     }
 }

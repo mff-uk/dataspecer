@@ -66,8 +66,8 @@ const createCheckboxComponent = (
     checkboxData: CheckboxData,
     index: number
 ) => {
-    return <div>
-                <label title={t(checkboxData.checkboxTooltip)}>
+    return <div key={`filter-checkbox-div${index}`}>
+                <label title={checkboxData.checkboxTooltip === "" ? "" : t(checkboxData.checkboxTooltip)}>
                     <input type="checkbox"
                             checked={checkboxData.checked}
                             onChange={(event) => {
@@ -76,7 +76,7 @@ const createCheckboxComponent = (
                     </input>
                     {t(checkboxData.checkboxText)}
                 </label>
-    </div>;
+        </div>;
 };
 
 
