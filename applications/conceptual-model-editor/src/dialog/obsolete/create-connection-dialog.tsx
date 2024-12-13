@@ -9,7 +9,6 @@ import type {
 import { ModelGraphContextType } from "../../context/model-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
-import { getRandomName } from "../../util/random-gen";
 import { IriInput } from "../../components/input/iri-input";
 import { getModelIri } from "../../util/iri-utils";
 import { CardinalityOptions } from "../../components/cardinality-options";
@@ -21,6 +20,7 @@ import { DialogProps, DialogWrapper } from "../dialog-api";
 import { SemanticModelClassUsage, SemanticModelRelationshipEndUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { filterInMemoryModels } from "../../util/model-utils";
 import { findSourceModelOfEntity } from "../../service/model-service";
+import { generateName } from "../../util/name-utils";
 
 
 export enum ConnectionType {
@@ -102,14 +102,16 @@ function createCreateProfileState(
         model = owner;
     }
 
+    const name = generateName();
+
     return {
         source,
         target,
         language,
         //
         type: nextOpenConnectionType,
-        iri: getRandomName(7),
-        name: {},
+        iri: configuration().nameToIri(name),
+        name: {[language]: name},
         description: {},
         sourceCardinality: null,
         targetCardinality: null,
