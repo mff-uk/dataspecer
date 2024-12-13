@@ -23,6 +23,7 @@ import { RemoveButton } from "../components/remove";
 import { MoveViewportToEntityButton } from "../components/center-viewport-on-entity";
 import { useOptions } from "../../application/options";
 import { useActions } from "../../action/actions-react-binding";
+import { AddNeighborhoodButton } from "../components/add-neighborhood-button";
 
 const TreeLikeOffset = (props: { offset?: number }) => {
     const { offset } = props;
@@ -106,6 +107,7 @@ export const EntityRow = (props: {
                     />
                 )}
                 <CreateProfileButton onClickHandler={() => openCreateProfileDialog(entity.id)} />
+                <AddNeighborhoodButton entity={entity}></AddNeighborhoodButton>
             </div>
         </div>
     );

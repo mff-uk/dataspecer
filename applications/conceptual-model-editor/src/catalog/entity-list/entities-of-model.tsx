@@ -26,6 +26,8 @@ import { shortenStringTo } from "../../util/utils";
 import { ActionsContextType, useActions } from "../../action/actions-react-binding";
 import { ExpandModelButton } from "../components/expand-model";
 import { type VisualEntity, isVisualNode, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
+import { ShowAllClassesFromSemanticModelButton } from "../components/add-entities-from-semantic-model-to-visual-button";
+import { HideAllClassesFromSemanticModelButton } from "../components/remove-entities-in-semantic-model-from-visual-button";
 
 export enum EntityType {
     Class = "class",
@@ -199,6 +201,8 @@ export const EntitiesOfModel = (props: {
                 <h4>Ⓜ {displayName}</h4>
                 <div className="flex flex-row">
                     {renderAddButton(actions, entityType, model)}
+                    <ShowAllClassesFromSemanticModelButton semanticModel={model}></ShowAllClassesFromSemanticModelButton>
+                    <HideAllClassesFromSemanticModelButton semanticModel={model}></HideAllClassesFromSemanticModelButton>
                     <ExpandModelButton isOpen={listCollapsed} onClick={() => setListCollapsed(!listCollapsed)} />
                 </div>
             </div>

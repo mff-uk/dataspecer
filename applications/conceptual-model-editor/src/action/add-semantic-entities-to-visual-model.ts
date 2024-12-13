@@ -12,6 +12,7 @@ import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relatio
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { EntityModel } from "@dataspecer/core-v2";
 import { ClassesContextType } from "../context/classes-context";
+import { XY } from "@dataspecer/layout";
 
 
 export type EntityToAddToVisualModel = {
@@ -19,31 +20,34 @@ export type EntityToAddToVisualModel = {
      * Identifies the semantic entity to be added to visual model.
      */
     identifier: string,
-    // TODO RadStr: I have XY type defined in layouting, but it is probably in differnet branch.
     /**
      * The position to put the newly created visual entity at if the position is null or undefined then default placement is chosen based on type of entity.
      */
-    position?: { x: number, y: number } | null
+    position?: XY | null
 };
 
-export function addSemanticEntitiesToVisualModelAction(
+export async function addSemanticEntitiesToVisualModelAction(
     notifications: UseNotificationServiceWriterType,
-    graph: ModelGraphContextType,
     classes: ClassesContextType,
+    graph: ModelGraphContextType,
     visualModel: WritableVisualModel,
     diagram: UseDiagramType,
     entities: EntityToAddToVisualModel[],
   ) {
-    // TODO RadStr: Again the XY type
     const validatedEntitiesToAddToVisualModel: {
         entityIdentifier: string,
         model: EntityModel,
-        position: { x: number, y: number } | null,
+        position: XY | null,
     }[] = [];
 
     for (const entityToAddToVisualModel of entities) {
         const entityIdentifier = entityToAddToVisualModel.identifier;
         const position = entityToAddToVisualModel.position ?? null;
+
+        const isAlreadyInVisualModel = visualModel.getVisualEntityForRepresented(entityIdentifier) !== null;
+        if(isAlreadyInVisualModel) {
+            continue;
+        }
 
         const model = sourceModelOfEntity(entityIdentifier, [...graph.models.values()]);
         if(model === undefined) {
@@ -55,14 +59,14 @@ export function addSemanticEntitiesToVisualModelAction(
         validatedEntitiesToAddToVisualModel.push({entityIdentifier, model, position});
     }
 
-    validatedEntitiesToAddToVisualModel.forEach(({entityIdentifier, model, position}) => {
+    for(const {entityIdentifier, model, position} of validatedEntitiesToAddToVisualModel) {
         const entity = model.getEntities()[entityIdentifier];
         const modelIdentifier = model.getId();
         if(isSemanticModelClass(entity)) {
-            addSemanticClassToVisualModelAction(notifications, graph, classes, visualModel, diagram, entityIdentifier, modelIdentifier, position);
+            await addSemanticClassToVisualModelAction(notifications, graph, classes, visualModel, diagram, entityIdentifier, modelIdentifier, position);
         }
         else if(isSemanticModelClassUsage(entity)) {
-            addSemanticClassProfileToVisualModelAction(notifications, graph, classes, visualModel, diagram, entityIdentifier, modelIdentifier, position);
+            await addSemanticClassProfileToVisualModelAction(notifications, graph, classes, visualModel, diagram, entityIdentifier, modelIdentifier, position);
         }
         else if(isSemanticModelRelationship(entity)) {
             addSemanticRelationshipToVisualModelAction(notifications, graph, visualModel, entityIdentifier, modelIdentifier);
@@ -76,5 +80,5 @@ export function addSemanticEntitiesToVisualModelAction(
         else {
             notifications.error("The added semantic entity is of unknown type within the semantic model");
         }
-    });
+    }
 }
