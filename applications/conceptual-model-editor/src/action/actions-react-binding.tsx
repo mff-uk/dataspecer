@@ -16,7 +16,6 @@ import { useOptions, type Options } from "../application/options";
 import { centerViewportToVisualEntityAction } from "./center-viewport-to-visual-entity";
 import { openDetailDialogAction } from "./open-detail-dialog";
 import { openModifyDialogAction } from "./open-modify-dialog";
-import { findSourceModelOfEntity, findSourceModelsOfEntities } from "../service/model-service";
 import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
 import { openCreateConnectionDialogAction } from "./open-create-connection";
 import { openCreateClassDialogAction } from "./open-create-class-dialog";
@@ -307,7 +306,7 @@ function createActionsContext(
     withVisualModel(notifications, graph, (visualModel) => {
       const position = getViewportCenterForClassPlacement(diagram);
       openCreateProfileDialogAction(
-        options, dialogs, notifications, classes, useClasses, graph,
+        options, dialogs, notifications, classes, graph,
         visualModel, diagram, position, identifier);
     });
   };

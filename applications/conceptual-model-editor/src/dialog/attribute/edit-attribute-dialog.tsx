@@ -9,40 +9,21 @@ import { SelectCardinality } from "./components/select-cardinality";
 import { InputIri } from "../class/components/input-iri";
 import { EditAttributeDialogState, useEditAttributeDialogController } from "./edit-attribute-dialog-controller";
 import { SpecializationSelect } from "../class/components/select-specialization";
+import { ValidationMessage } from "../association-profile/components/validation-message";
 
-export const createEditAttributeDialog = (
-  state: EditAttributeDialogState,
-  onConfirm: (state: EditAttributeDialogState) => void,
-): DialogWrapper<EditAttributeDialogState> => {
-  return {
-    label: "create-attribute-dialog.label",
-    component: EditAttributeDialog,
-    state,
-    confirmLabel: "modify-dialog.btn-ok",
-    cancelLabel: "modify-dialog.btn-close",
-    validate: validate,
-    onConfirm: onConfirm,
-    onClose: null,
-  };
-}
-
-function validate(state: EditAttributeDialogState): boolean {
-  return state.iri.trim() !== "";
-}
-
-const EditAttributeDialog = (props: DialogProps<EditAttributeDialogState>) => {
+export const EditAttributeDialog = (props: DialogProps<EditAttributeDialogState>) => {
   const controller = useEditAttributeDialogController(props);
   const state = props.state;
   return (
     <>
       <div
         className="grid gap-y-2 md:grid-cols-[25%_75%] md:gap-y-3 bg-slate-100 md:pb-4 md:pl-8 md:pr-16 md:pt-2"
-        style={{ backgroundColor: state.model.color }}
+        style={{ backgroundColor: state.model.displayColor }}
       >
         <DialogDetailRow detailKey={t("model")}>
           <SelectModel
             language={state.language}
-            items={state.writableModels}
+            items={state.availableModels}
             value={state.model}
             onChange={controller.setModel}
           />
@@ -59,12 +40,13 @@ const EditAttributeDialog = (props: DialogProps<EditAttributeDialogState>) => {
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("create-class-dialog.iri")}>
           <InputIri
-            iriPrefix={state.iriPrefix}
+            iriPrefix={state.model.baseIri ?? ""}
             isRelative={state.isIriRelative}
-            setIsRelative={controller.setIsRelative}
+            setIsRelative={controller.setIsIriRelative}
             value={state.iri}
             onChange={controller.setIri}
           />
+          <ValidationMessage value={state.iriValidation} />
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("modify-entity-dialog.specialization-of")}>
           <SpecializationSelect

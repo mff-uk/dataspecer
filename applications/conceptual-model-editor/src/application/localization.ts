@@ -179,7 +179,8 @@ const translations: Record<string, string | Function> = {
   "selection-profile-button": "Creates profiles from selected nodes and edges",
   "selection-hide-button": "Removes selected nodes and edges from canvas",
   "selection-remove-button": "Delete selected nodes and edges from semantic model",
-
+  //
+  "iri-must-not-be-empty": "IRI must not be an empty string."
 };
 
 export type TranslationFunction = (text: string, ...args: unknown[]) => string;

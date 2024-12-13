@@ -1,6 +1,7 @@
 import { EntityModel } from "@dataspecer/core-v2";
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { type TranslationFunction } from "../application";
+import { CmeModel } from "../cme-model";
 
 /**
  * Return a label that should be used for a model.
@@ -38,7 +39,10 @@ interface LabeledEntity extends Labeled {
 
   iri: string | null;
 
-  model: EntityModel;
+  /**
+   * Identifier of the owner vocabulary.
+   */
+  vocabularyDsIdentifier: string;
 
 }
 
@@ -46,28 +50,28 @@ interface LabeledEntity extends Labeled {
  * Return a new array, where not two entities have identical label.
  */
 export function sanitizeDuplicitiesInRepresentativeLabels<Type extends LabeledEntity>(
-  models: Labeled[],
+  vocabularies: CmeModel[],
   entities: Type[],
 ): Type[] {
-  // Local functions to create model key.
-  const createModelKey = (language: string, model: string): string =>
-    language + ":" + model;
+  // Local functions to create vocabulary key.
+  const createVocabularyKey = (language: string, vocabulary: string): string =>
+    language + ":" + vocabulary;
 
-  // Create model label map.
-  // For a model key "language:identifier" we store a label.
+  // Create label map for vocabularies.
+  // For a key "language:identifier" we store a label.
   // Label can be provided, default, or empty string.
-  const modelLabelMap: Record<string, string> = {};
-  for (const model of models) {
-    for (const language in model.label) {
-      modelLabelMap[createModelKey(language, model.identifier)] =
-        model.label[language];
+  const vocabularyLabelMap: Record<string, string> = {};
+  for (const vocabulary of vocabularies) {
+    for (const language in vocabulary.displayLabel) {
+      vocabularyLabelMap[createVocabularyKey(language, vocabulary.dsIdentifier)] =
+        vocabulary.displayLabel[language];
     }
   }
 
-  const getModelLabel = (language: string, model: string): string => {
-    const modelKey = createModelKey(language, model);
-    const defaultModelKey = createModelKey("", model);
-    return modelLabelMap[modelKey] ?? modelLabelMap[defaultModelKey] ?? "";
+  const getVocabularyLabel = (language: string, vocabulary: string): string => {
+    const vocabularyKey = createVocabularyKey(language, vocabulary);
+    const defaultVocabularyKey = createVocabularyKey("", vocabulary);
+    return vocabularyLabelMap[vocabularyKey] ?? vocabularyLabelMap[defaultVocabularyKey] ?? "";
   }
 
   // Local function to create entity collision keys.
@@ -77,10 +81,10 @@ export function sanitizeDuplicitiesInRepresentativeLabels<Type extends LabeledEn
   } => {
     const label = entity.label[language];
     // We know models are not really using languages.
-    const modelLabel = getModelLabel(language, entity.model.getId());
+    const vocabularyLabel = getVocabularyLabel(language, entity.vocabularyDsIdentifier);
     return {
       collisionKey: language + ":" + label,
-      modelCollisionKey: language + ":" + label + ":" + modelLabel,
+      modelCollisionKey: language + ":" + label + ":" + vocabularyLabel,
     };
   };
 
@@ -88,7 +92,7 @@ export function sanitizeDuplicitiesInRepresentativeLabels<Type extends LabeledEn
   // First we store collisions for "language:entity-label".
   // Second for "language:entity-label:model-label".
   const collisions: Record<string, number> = {};
-  const modelCollisions: Record<string, number> = {};
+  const vocabularyCollisions: Record<string, number> = {};
   for (const entity of entities) {
     for (const language in entity.label) {
       // Obtain collision keys.
@@ -96,8 +100,8 @@ export function sanitizeDuplicitiesInRepresentativeLabels<Type extends LabeledEn
         createCollisionKeys(language, entity);
       // Store information in a collision map.
       collisions[collisionKey] = (collisions[collisionKey] ?? 0) + 1;
-      modelCollisions[modelCollisionKey] =
-        (modelCollisions[modelCollisionKey] ?? 0) + 1;
+      vocabularyCollisions[modelCollisionKey] =
+        (vocabularyCollisions[modelCollisionKey] ?? 0) + 1;
     }
   }
 
@@ -120,13 +124,13 @@ export function sanitizeDuplicitiesInRepresentativeLabels<Type extends LabeledEn
       }
       // Ok add model label.
       // We know models are not really using languages.
-      const modelLabel = getModelLabel(language, entity.model.getId());
+      const modelLabel = getVocabularyLabel(language, entity.vocabularyDsIdentifier);
       if (nextLabel[language].length > 0) {
         nextLabel[language] += " ";
       }
       nextLabel[language] += "[" + modelLabel + "]";
       // Check for collisions again.
-      if (modelCollisions[modelCollisionKey] === 1) {
+      if (vocabularyCollisions[modelCollisionKey] === 1) {
         // There is collision only on label level, second level label.
         continue;
       }

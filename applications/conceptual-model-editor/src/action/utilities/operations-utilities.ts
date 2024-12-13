@@ -1,8 +1,8 @@
 import { Entity } from "@dataspecer/core-v2";
 import { createGeneralization, deleteEntity, Operation } from "@dataspecer/core-v2/semantic-model/operations";
 
-import { SpecializationState } from "../../dialog/utilities/entity-utilities";
 import { getDomainAndRange } from "../../util/relationship-utils";
+import { SpecializationState } from "../../dialog/utilities/specialization-utilities";
 
 /**
  * Produce operations to reflect changes in specializations.

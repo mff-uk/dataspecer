@@ -9,9 +9,9 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { modifyRelation, Operation } from "@dataspecer/core-v2/semantic-model/operations";
 import { SemanticModelRelationship, SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
 import { mergeEndsUpdate, specializationStateToOperations } from "./utilities/operations-utilities";
-import { createEditAttributeDialogState } from "../dialog/attribute/create-edit-attribute-dialog-state";
+import { createEditAttributeDialog, createEditAttributeDialogState } from "../dialog/attribute/create-edit-attribute-dialog-state";
 import { EditAttributeDialogState } from "../dialog/attribute/edit-attribute-dialog-controller";
-import { createEditAttributeDialog } from "../dialog/attribute/edit-attribute-dialog";
+import { EntityModel } from "@dataspecer/core-v2";
 
 /**
  * Open and handle edit Attribute dialog.
@@ -30,7 +30,7 @@ export function openEditAttributeDialogAction(
     classes, graph, visualModel, options.language, model, entity);
 
   const onConfirm = (nextState: EditAttributeDialogState) => {
-    updateSemanticAttribute(notifications, entity, state, nextState);
+    updateSemanticAttribute(notifications, graph.models, entity, state, nextState);
   };
 
   dialogs.openDialog(createEditAttributeDialog(state, onConfirm));
@@ -40,6 +40,7 @@ type SemanticModelRelationshipChange = Partial<Omit<SemanticModelRelationshipEnd
 
 function updateSemanticAttribute(
   notifications: UseNotificationServiceWriterType,
+  models: Map<string, EntityModel>,
   entity: SemanticModelRelationship,
   prevState: EditAttributeDialogState,
   nextState: EditAttributeDialogState,
@@ -80,6 +81,6 @@ function updateSemanticAttribute(
   operations.push(modifyRelation(entity.id, { ends }));
   operations.push(...specializationStateToOperations(entity, prevState, nextState));
 
-  const model = prevState.model.model;
+  const model: InMemorySemanticModel = models.get(nextState.model.dsIdentifier) as InMemorySemanticModel;
   model.executeOperations(operations);
 }

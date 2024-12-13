@@ -9,9 +9,8 @@ import { ModelGraphContextType } from "../context/model-context";
 import { Options } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { specializationStateToOperations } from "./utilities/operations-utilities";
-import { createEditClassDialogState } from "../dialog/class/create-edit-class-dialog-state";
+import { createEditClassDialog, createEditClassDialogState } from "../dialog/class/create-edit-class-dialog";
 import { EditClassDialogState } from "../dialog/class/edit-class-dialog-controller";
-import { createEditClassDialog } from "../dialog/class/edit-class-dialog";
 
 export function openEditClassDialogAction(
   options: Options,
@@ -27,7 +26,7 @@ export function openEditClassDialogAction(
     classes, graph, visualModel, options.language, model, entity);
 
   const onConfirm = (nextState: EditClassDialogState) => {
-    updateSemanticClass(notifications, entity, state, nextState);
+    updateSemanticClass(notifications, entity, model, state, nextState);
   };
 
   dialogs.openDialog(createEditClassDialog(state, onConfirm));
@@ -36,10 +35,11 @@ export function openEditClassDialogAction(
 function updateSemanticClass(
   notifications: UseNotificationServiceWriterType,
   entity: SemanticModelClass,
+  model: InMemorySemanticModel,
   prevState: EditClassDialogState,
   nextState: EditClassDialogState,
 ) {
-  if (prevState.model !== nextState.model) {
+  if (prevState.model.dsIdentifier !== nextState.model.dsIdentifier) {
     notifications.error("Change of model is not supported!");
   }
 
@@ -52,7 +52,5 @@ function updateSemanticClass(
   }));
 
   operations.push(...specializationStateToOperations(entity, prevState, nextState));
-
-  const model = prevState.model.model;
   model.executeOperations(operations);
 }

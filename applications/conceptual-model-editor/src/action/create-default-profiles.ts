@@ -1,7 +1,7 @@
+
 import { isWritableVisualModel, VisualModel } from "@dataspecer/core-v2/visual-model";
 import { ClassesContextType } from "../context/classes-context";
 import { ModelGraphContextType } from "../context/model-context";
-import { createCreateProfileClassDialogState } from "../dialog/class-profile/create-class-profile-dialog-controller";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { Options } from "../application";
 import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
@@ -13,6 +13,7 @@ import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usag
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
+import { createNewProfileClassDialogState } from "../dialog/class-profile/create-new-class-profile-dialog-state";
 
 
 export function createDefaultProfilesAction(
@@ -30,9 +31,7 @@ export function createDefaultProfilesAction(
   createDefaultRelationshipProfiles(notifications, graph, visualModel, edgesToProfile, createdClassProfiles, shouldBeAddedToVisualModel)
 };
 
-
 //
-
 
 /**
  * Creates classes and class profiles from given {@link nodesToProfile} containing semantic identifiers of entities to profile and adds the profiles to the visual model.
@@ -87,14 +86,14 @@ function createDefaultClassProfile(
     return null;
   }
 
-  const profileClassState = createCreateProfileClassDialogState(
+  const profileClassState = createNewProfileClassDialogState(
     classesContext,
     graph,
     visualModel,
     options.language,
     classOrClassProfileToBeProfiled,
   );
-  const createdClassProfile = createClassProfile(profileClassState);
+  const createdClassProfile = createClassProfile(profileClassState, graph.models);
   if(createdClassProfile === null) {
     notifications.error("Failed while performing the actual operation of adding the class profile into semantic model.");
     return null;

@@ -3,6 +3,7 @@ import { expect, test } from "vitest";
 import { Entities, EntityModel } from "@dataspecer/core-v2";
 
 import { createGetModelLabel, sanitizeDuplicitiesInRepresentativeLabels } from "./label";
+import { CmeModelType } from "../cme-model";
 
 class EntityModelMock implements EntityModel {
 
@@ -56,46 +57,57 @@ test("Get model label from identifier.", () => {
 });
 
 test("Sanitize label duplicities.", () => {
-  const modelOne = new EntityModelMock("model-1", null);
-  const modelTwo = new EntityModelMock("model-2", null);
 
-  const actual = sanitizeDuplicitiesInRepresentativeLabels([
-    { identifier: "model-1", label: { "": "one" } },
-    { identifier: "model-2", label: { "": "two" } },
-  ], [
-    {
-      identifier: "1",
-      iri: "iri-1",
-      label: { "cs": "", "en": "", "de": "eins" },
-      model: modelOne
-    }, {
-      identifier: "2",
-      iri: "iri-2",
-      label: { "cs": "", "en": "", "de": "zwei" },
-      model: modelTwo
-    }, {
-      identifier: "3",
-      iri: "iri-3",
-      label: { "cs": "", "en": "Different", "de": "drei" },
-      model: modelTwo
-    }
-  ]);
+  const one = {
+    dsIdentifier: "vocabulary-1",
+    displayLabel: { "": "one" },
+    displayDescription: null,
+    dsModelType: CmeModelType.Default,
+    displayColor: "",
+    baseIri: null,
+  };
 
-  const expected = [    {
+  const two = {
+    dsIdentifier: "vocabulary-2",
+    displayLabel: { "": "two" },
+    displayDescription: null,
+    dsModelType: CmeModelType.Default,
+    displayColor: "",
+    baseIri: null,
+  };
+
+  const actual = sanitizeDuplicitiesInRepresentativeLabels([one, two], [{
+    identifier: "1",
+    iri: "iri-1",
+    label: { "cs": "", "en": "", "de": "eins" },
+    vocabularyDsIdentifier: one.dsIdentifier,
+  }, {
+    identifier: "2",
+    iri: "iri-2",
+    label: { "cs": "", "en": "", "de": "zwei" },
+    vocabularyDsIdentifier: two.dsIdentifier,
+  }, {
+    identifier: "3",
+    iri: "iri-3",
+    label: { "cs": "", "en": "Different", "de": "drei" },
+    vocabularyDsIdentifier: two.dsIdentifier,
+  }]);
+
+  const expected = [{
     identifier: "1",
     iri: "iri-1",
     label: { "cs": "[one]", "en": "[one]", "de": "eins" },
-    model: modelOne
+    vocabularyDsIdentifier: one.dsIdentifier,
   }, {
     identifier: "2",
     iri: "iri-2",
     label: { "cs": "[two] (iri-2)", "en": "[two]", "de": "zwei" },
-    model: modelTwo
+    vocabularyDsIdentifier: two.dsIdentifier,
   }, {
     identifier: "3",
     iri: "iri-3",
     label: { "cs": "[two] (iri-3)", "en": "Different", "de": "drei" },
-    model: modelTwo
+    vocabularyDsIdentifier: two.dsIdentifier,
   }];
 
   expect(actual).toStrictEqual(expected);

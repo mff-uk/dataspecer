@@ -2,20 +2,11 @@ import { useMemo } from "react";
 
 import { type DialogProps } from "../dialog-api";
 import { configuration } from "../../application";
-import { createCreateEntityController, createEntityController, CreateEntityState, CreateEntityStateController, EntityState, EntityStateController } from "../utilities/entity-utilities";
-import { createProfileController, ProfileState, ProfileStateController } from "../utilities/profile-utilities";
+import { createEntityProfileController, EntityProfileState, EntityProfileStateController } from "../utilities/entity-profile-utilities";
 
-export interface EditClassProfileDialogState extends EntityState, CreateEntityState, ProfileState {
+export interface EditClassProfileDialogState extends EntityProfileState { }
 
-  language: string;
-
-  overrideName: boolean;
-
-  overrideDescription: boolean;
-
-}
-
-export interface EditClassProfileDialogController extends EntityStateController, CreateEntityStateController, ProfileStateController {
+export interface EditClassProfileDialogController extends EntityProfileStateController {
 
   toggleNameOverride: () => void;
 
@@ -27,28 +18,10 @@ export function useEditClassProfileDialogController({ changeState }: DialogProps
 
   return useMemo(() => {
 
-    const entityController = createEntityController(changeState);
-
-    const newEntityController = createCreateEntityController(
-      changeState, entityController, configuration().nameToClassIri);
-
-    const profileController = createProfileController(changeState);
-
-    const toggleNameOverride = () => {
-      changeState((state) => ({ ...state, overrideName: !state.overrideName }));
-    };
-
-    const toggleDescriptionOverride = () => {
-      changeState((state) => ({ ...state, overrideDescription: !state.overrideDescription }));
-    };
-
+    const entityProfileController = createEntityProfileController(changeState, configuration().nameToClassIri);
 
     return {
-      ...entityController,
-      ...profileController,
-      ...newEntityController,
-      toggleNameOverride,
-      toggleDescriptionOverride,
+      ...entityProfileController
     };
   }, [changeState]);
 };

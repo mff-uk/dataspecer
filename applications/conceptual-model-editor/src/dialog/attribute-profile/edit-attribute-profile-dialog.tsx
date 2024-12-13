@@ -1,4 +1,4 @@
-import { type DialogWrapper, type DialogProps } from "../dialog-api";
+import { type DialogProps } from "../dialog-api";
 import { configuration, t } from "../../application";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
@@ -11,33 +11,8 @@ import { OverrideCheckbox } from "../class-profile/components/checkbox-override"
 import { languageStringToString } from "../../utilities/string";
 import { ValidationMessage } from "../association-profile/components/validation-message";
 import { SelectDataType } from "../attribute/components/select-data-type";
-import { isValid } from "../utilities/validation-utilities";
 
-export const createEditAttributeProfileDialog = (
-  state: EditAttributeProfileDialogState,
-  onConfirm: (state: EditAttributeProfileDialogState) => void,
-): DialogWrapper<EditAttributeProfileDialogState> => {
-  return {
-    label: "create-attribute-dialog.label",
-    component: CreateAttributeProfileDialog,
-    state,
-    confirmLabel: "create-profile-dialog.btn-ok",
-    cancelLabel: "create-profile-dialog.btn-close",
-    validate: validate,
-    onConfirm: onConfirm,
-    onClose: null,
-  };
-}
-
-function validate(state: EditAttributeProfileDialogState): boolean {
-  return state.iri.trim() !== ""
-    && isValid(state.domainValidation)
-    && isValid(state.domainCardinalityValidation)
-    && isValid(state.rangeValidation)
-    && isValid(state.rangeCardinalityValidation);
-}
-
-const CreateAttributeProfileDialog = (props: DialogProps<EditAttributeProfileDialogState>) => {
+export const EditAttributeProfileDialog = (props: DialogProps<EditAttributeProfileDialogState>) => {
   const controller = useEditAttributeProfileDialogController(props);
   const state = props.state;
   const languagePreferences = configuration().languagePreferences;
@@ -45,12 +20,12 @@ const CreateAttributeProfileDialog = (props: DialogProps<EditAttributeProfileDia
     <>
       <div
         className="grid gap-y-2 md:grid-cols-[25%_75%] md:gap-y-3 bg-slate-100 md:pb-4 md:pl-8 md:pr-16 md:pt-2"
-        style={{ backgroundColor: state.model.color }}
+        style={{ backgroundColor: state.model.displayColor }}
       >
         <DialogDetailRow detailKey={t("model")}>
           <SelectModel
             language={state.language}
-            items={state.writableModels}
+            items={state.availableModels}
             value={state.model}
             onChange={controller.setModel}
           />
@@ -79,13 +54,14 @@ const CreateAttributeProfileDialog = (props: DialogProps<EditAttributeProfileDia
           />
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("create-class-dialog.iri")}>
-          <InputIri
-            iriPrefix={state.iriPrefix}
+        <InputIri
+            iriPrefix={state.model.baseIri ?? ""}
             isRelative={state.isIriRelative}
-            setIsRelative={controller.setIsRelative}
+            setIsRelative={controller.setIsIriRelative}
             value={state.iri}
             onChange={controller.setIri}
           />
+          <ValidationMessage value={state.iriValidation} />
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("create-class-dialog.description")} className="flex">
           <MultiLanguageInputForLanguageString

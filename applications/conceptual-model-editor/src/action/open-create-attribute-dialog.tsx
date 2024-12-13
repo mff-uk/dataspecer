@@ -7,10 +7,10 @@ import { ModelGraphContextType } from "../context/model-context";
 import { Options, createLogger } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { firstInMemorySemanticModel } from "../utilities/model";
-import { createEditAttributeDialog } from "../dialog/attribute/edit-attribute-dialog";
 import { createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
-import { createNewAttributeDialogState } from "../dialog/attribute/create-new-attribute-dialog-state";
+import { createEditAttributeDialog, createNewAttributeDialogState } from "../dialog/attribute/create-new-attribute-dialog-state";
 import { EditAttributeDialogState } from "../dialog/attribute/edit-attribute-dialog-controller";
+import { EntityModel } from "@dataspecer/core-v2";
 
 const LOG = createLogger(import.meta.url);
 
@@ -35,7 +35,7 @@ export function openCreateAttributeDialogAction(
 
   const onConfirm = (state: EditAttributeDialogState) => {
     // Create attribute.
-    createSemanticAttribute(notifications, state);
+    createSemanticAttribute(notifications, graph.models, state);
   };
 
   openCreateAttributeDialog(
@@ -48,6 +48,7 @@ function getDefaultModel(graph: ModelGraphContextType): InMemorySemanticModel | 
 
 function createSemanticAttribute(
   notifications: UseNotificationServiceWriterType,
+  models: Map<string, EntityModel>,
   state: EditAttributeDialogState): {
     identifier: string,
     model: InMemorySemanticModel
@@ -69,7 +70,7 @@ function createSemanticAttribute(
     }]
   });
 
-  const model: InMemorySemanticModel = state.model.model;
+  const model: InMemorySemanticModel = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
   const newAttribute = model.executeOperation(operation);
   if (newAttribute.success === false || newAttribute.id === undefined) {
     notifications.error("We have not received the id of newly created attribute. See logs for more detail.");
@@ -93,6 +94,6 @@ function openCreateAttributeDialog(
   onConfirm: (state: EditAttributeDialogState) => void,
 ) {
   const state = createNewAttributeDialogState(
-    classes, graph, visualModel, options.language, model);
+    classes, graph, visualModel, options.language);
   dialogs.openDialog(createEditAttributeDialog(state, onConfirm));
 }

@@ -11,8 +11,8 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { mergeEndsUpdate } from "./utilities/operations-utilities";
 import { SemanticModelRelationshipEndUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { EditAttributeProfileDialogState } from "../dialog/attribute-profile/edit-attribute-profile-dialog-controller";
-import { createEditAttributeProfileDialog } from "../dialog/attribute-profile/edit-attribute-profile-dialog";
-import { createEditAttributeProfileDialogState } from "../dialog/attribute-profile/create-edit-attribute-profile-dialog-state";
+import { createEditAttributeProfileDialog, createEditAttributeProfileDialogState } from "../dialog/attribute-profile/create-edit-attribute-profile-dialog-state";
+import { EntityModel } from "@dataspecer/core-v2";
 
 /**
  * Open and handle edit Attribute dialog.
@@ -31,7 +31,7 @@ export function openEditAttributeProfileDialogAction(
     classes, graph, visualModel, options.language, model, entity);
 
   const onConfirm = (nextState: EditAttributeProfileDialogState) => {
-    updateSemanticAttributeProfile(notifications, entity, state, nextState);
+    updateSemanticAttributeProfile(notifications, graph.models, entity, state, nextState);
   };
 
   dialogs.openDialog(createEditAttributeProfileDialog(state, onConfirm));
@@ -41,6 +41,7 @@ type SemanticModelRelationshipChange = Partial<Omit<SemanticModelRelationshipEnd
 
 function updateSemanticAttributeProfile(
   notifications: UseNotificationServiceWriterType,
+  models: Map<string, EntityModel>,
   entity: SemanticModelRelationshipUsage,
   prevState: EditAttributeProfileDialogState,
   nextState: EditAttributeProfileDialogState,
@@ -85,6 +86,6 @@ function updateSemanticAttributeProfile(
   const ends = mergeEndsUpdate(entity, nextDomain, nextRange);
   operations.push(modifyRelationshipUsage(entity.id, { ends }));
 
-  const model = prevState.model.model;
+  const model: InMemorySemanticModel = models.get(nextState.model.dsIdentifier) as InMemorySemanticModel;
   model.executeOperations(operations);
 }

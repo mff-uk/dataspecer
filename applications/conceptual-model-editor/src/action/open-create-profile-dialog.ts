@@ -20,27 +20,25 @@ import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { Options } from "../application/options";
-import { ClassesContextType, UseClassesContextType } from "../context/classes-context";
+import { ClassesContextType } from "../context/classes-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { getDomainAndRange } from "../util/relationship-utils";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
-import { createEditClassProfileDialog } from "../dialog/class-profile/edit-class-profile-dialog";
 import { EditAssociationProfileDialogState } from "../dialog/association-profile/edit-association-profile-dialog-controller";
-import { createNewAssociationProfileDialog } from "../dialog/association-profile/edit-association-profile-dialog";
 import { EditAttributeProfileDialogState } from "../dialog/attribute-profile/edit-attribute-profile-dialog-controller";
-import { createEditAttributeProfileDialog } from "../dialog/attribute-profile/edit-attribute-profile-dialog";
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
-import { createNewAssociationProfileDialogState } from "../dialog/association-profile/create-new-association-profile-dialog-state";
-import { createNewAttributeProfileDialogState } from "../dialog/attribute-profile/create-new-attribute-profile-dialog-state";
+import { createNewAssociationProfileDialog, createNewAssociationProfileDialogState } from "../dialog/association-profile/create-new-association-profile-dialog-state";
+import { createEditAttributeProfileDialog, createNewAttributeProfileDialogState } from "../dialog/attribute-profile/create-new-attribute-profile-dialog-state";
 import { EditClassProfileDialogState } from "../dialog/class-profile/edit-class-profile-dialog-controller";
 import { createNewProfileClassDialogState } from "../dialog/class-profile/create-new-class-profile-dialog-state";
+import { createEditClassProfileDialog } from "../dialog/class-profile/create-edit-class-profile-dialog-state";
+import { EntityModel } from "@dataspecer/core-v2";
 
 export function openCreateProfileDialogAction(
   options: Options,
   dialogs: DialogApiContextType,
   notifications: UseNotificationServiceWriterType,
   classes: ClassesContextType,
-  useClasses: UseClassesContextType,
   graph: ModelGraphContextType,
   visualModel: WritableVisualModel,
   diagram: UseDiagramType,
@@ -57,7 +55,7 @@ export function openCreateProfileDialogAction(
     const state = createNewProfileClassDialogState(
       classes, graph, visualModel, options.language, entity);
     const onConfirm = (state: EditClassProfileDialogState) => {
-      const createResult = createClassProfile(state);
+      const createResult = createClassProfile(state, graph.models);
       if (createResult === null) {
         return;
       }
@@ -77,7 +75,7 @@ export function openCreateProfileDialogAction(
     const state = createNewAttributeProfileDialogState(
       classes, graph, visualModel, options.language, entity);
     const onConfirm = (state: EditAttributeProfileDialogState) => {
-      createRelationshipProfile(state, entity);
+      createRelationshipProfile(state, graph.models, entity);
       // We do not update visual model here as attribute is part of  a class.
     };
     dialogs.openDialog(createEditAttributeProfileDialog(state, onConfirm));
@@ -88,7 +86,7 @@ export function openCreateProfileDialogAction(
     const state = createNewAssociationProfileDialogState(
       classes, graph, visualModel, options.language, entity);
     const onConfirm = (state: EditAssociationProfileDialogState) => {
-      const createResult = createRelationshipProfile(state, entity);
+      const createResult = createRelationshipProfile(state, graph.models, entity);
       if (createResult === null) {
         return;
       }
@@ -114,12 +112,14 @@ export function openCreateProfileDialogAction(
 // TODO PeSk: This should not be exported, move to Dataspecer layer.
 export const createClassProfile = (
   state: EditClassProfileDialogState,
+  models: Map<string, EntityModel>,
 ): {
   identifier: string,
   model: InMemorySemanticModel,
 } | null => {
+  const model: InMemorySemanticModel = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
 
-  const { success, id: identifier } = state.model.model.executeOperation(createClassUsage({
+  const { success, id: identifier } = model.executeOperation(createClassUsage({
     usageOf: state.profileOf.identifier,
     iri: state.iri,
     name: state.overrideName ? state.name : null,
@@ -128,7 +128,7 @@ export const createClassProfile = (
   }));
 
   if (identifier !== undefined && success) {
-    return { identifier, model: state.model.model };
+    return { identifier, model: model };
   } else {
     return null;
   }
@@ -136,11 +136,13 @@ export const createClassProfile = (
 
 const createRelationshipProfile = (
   state: EditAttributeProfileDialogState | EditAssociationProfileDialogState,
+  models: Map<string, EntityModel>,
   entity: SemanticModelRelationship | SemanticModelRelationshipUsage,
 ): {
   identifier: string,
   model: InMemorySemanticModel,
 } | null => {
+  const model: InMemorySemanticModel = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
 
   const domain = {
     concept: state.overrideDomain ? state.domain.identifier : null,
@@ -178,14 +180,14 @@ const createRelationshipProfile = (
     }
   }
 
-  const { success, id: identifier } = state.model.model.executeOperation(createRelationshipUsage({
+  const { success, id: identifier } = model.executeOperation(createRelationshipUsage({
     usageOf: entity.id,
     usageNote: state.usageNote,
     ends: ends,
   }));
 
   if (identifier !== undefined && success) {
-    return { identifier, model: state.model.model };
+    return { identifier, model: model };
   } else {
     return null;
   }
