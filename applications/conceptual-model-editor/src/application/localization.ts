@@ -166,7 +166,7 @@ const translations: Record<string, string | Function> = {
   "class-profile-button": "Create class profile",
   "class-remove-button": "Remove class from semantic model",
   //
-  "add-neighborhood-button.title": "Add entity's neighborhood",
+  "add-neighborhood-button.title": "Add entity's neighborhood (Classes or class profiles connected by either association or generalization)",
   //
   "node-anchor-button": "(Un)anchor node for layouting using force-directed layouting algorithm",
   "node-connection-handle": "Drag from this button to create connection (Dragging to canvas shows menu)",

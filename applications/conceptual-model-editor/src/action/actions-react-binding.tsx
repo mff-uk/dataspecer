@@ -193,7 +193,7 @@ interface VisualModelActions {
   // TODO PRQuestion: Again document using {@link .*Action} or not?
   addEntitiesFromSemanticModelToVisualModel: (semanticModel: EntityModel) => void;
 
-  // TODO RadStr: Document
+  // TODO PRQuestion: Again document using {@link .*Action} or not?
   removeEntitiesInSemanticModelFromVisualModel: (semanticModel: EntityModel) => void;
 
   /**
