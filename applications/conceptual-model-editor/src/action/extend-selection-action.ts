@@ -58,8 +58,31 @@ type SelectionExtension = {
     nodesToEdgesMapping: Record<string, string[]>,
 }
 
-const addToSelectionExtension = (selectionExtensionToExtend: SelectionExtension, classId: string, edgeWhichAddedClass: EdgeWhichAddedClass) => {
-    selectionExtensionToExtend.selectionExtension.nodeSelection.push(classId);
+/**
+ * @param usingSemanticIdentifiers If set to true, we also check all classes and class profiles in {@link contextEntities}
+ * (if the {@link contextEntities} are null then the check is skipped), if the semantic entity represented by {@link classId} is part of it.
+ * (if set to false, then we don't check because we expect that since we know the visual entity, we already checked that the semantic exists).
+ * We do that to filter out things like owl:Thing which are not part of the model.
+ */
+const addToSelectionExtension = (
+    selectionExtensionToExtend: SelectionExtension,
+    classId: string,
+    edgeWhichAddedClass: EdgeWhichAddedClass,
+    usingSemanticIdentifiers: boolean,
+    contextEntities: ClassesContextEntities | null
+) => {
+    const nodeSelection = selectionExtensionToExtend.selectionExtension.nodeSelection;
+    if(nodeSelection.includes(classId)) {
+        return;
+    }
+    if(usingSemanticIdentifiers && contextEntities !== null) {
+        const existsInEntities = contextEntities.classes.find(classEntity => classEntity.id === classId) !== undefined ||
+            contextEntities.profiles.find(profile => profile.id === classId && isSemanticModelClassUsage(profile)) !== undefined
+        if(!existsInEntities) {
+            return;
+        }
+    }
+    nodeSelection.push(classId);
     if(isEdgeWhichAddedClassNotClassProfileEdge(edgeWhichAddedClass)) {
         selectionExtensionToExtend.selectionExtension.edgeSelection.push(edgeWhichAddedClass);
         if(selectionExtensionToExtend.nodesToEdgesMapping[classId] === undefined) {
@@ -312,16 +335,17 @@ function addToExtensionIfSatisfiesVisibilityFilter(
     edgeWhichAddedClass: EdgeWhichAddedClass,
     visualModel: VisualModel | null,
     extendedNode: string,
-    isExtendedNodeVisualId: boolean
+    isExtendedNodeVisualId: boolean,
+    contextEntities: ClassesContextEntities | null,
 ): void {
     if(visibilityFilter === VisibilityFilter.ALL) {
-        addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass);
+        addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass, true, contextEntities);
         return;
     }
 
     if(visualModel === null) {
         if(visibilityFilter === VisibilityFilter.ONLY_NON_VISIBLE) {
-            addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass);
+            addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass, true, contextEntities);
         }
         return;
     }
@@ -380,14 +404,14 @@ function addToExtensionIfSatisfiesVisibilityFilter(
                 console.warn("Entities which should be part of visual model are not");
                 return;
             }
-            addToSelectionExtension(extension, classToAddVisualEntity.identifier, edgeWhichAddedClassVisualEntity.identifier);
+            addToSelectionExtension(extension, classToAddVisualEntity.identifier, edgeWhichAddedClassVisualEntity.identifier, false, null);
         }
         else {          // We want semantic IDs
-            addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass);
+            addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass, true, contextEntities);
         }
     }
     else if(visibilityFilter === VisibilityFilter.ONLY_NON_VISIBLE && !isClassInVisualModel) {     // Not sure about the semantics of the filters for edges,
-        addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass);      // so we just check the visibility of the class
+        addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass, true, contextEntities);      // so we just check the visibility of the class
     }
 }
 
@@ -635,7 +659,7 @@ async function extendThroughAssociation(
 
         extension.forEach(({classInExtension, edgeAddingClass}) => {
             addToExtensionIfSatisfiesVisibilityFilter(outputToExtend, visibilityFilter, classInExtension.id, edgeAddingClass,
-                visualModel, selectedClassId, nodeSelection.areIdentifiersFromVisualModel);
+                visualModel, selectedClassId, nodeSelection.areIdentifiersFromVisualModel, contextEntities);
         });
     }
 }
@@ -767,7 +791,7 @@ async function extendThroughGeneralization(
                 const otherEndId = generalization[theOtherEndOfGeneralization];
                 await tryAllowClassInExternalModelsIfNotFound(otherEndId, relevantExternalModels, contextEntities, visibilityFilter);
                 addToExtensionIfSatisfiesVisibilityFilter(outputToExtend, visibilityFilter, otherEndId, generalization.id, visualModel,
-                    selectedClassId, nodeSelection.areIdentifiersFromVisualModel);
+                    selectedClassId, nodeSelection.areIdentifiersFromVisualModel, contextEntities);
             }
         }
     }
@@ -886,7 +910,8 @@ async function extendThroughClassProfile(
             contextEntities.profiles.forEach(entity => {
                 if(entity.usageOf === selectedClassSemanticId) {
                     addToExtensionIfSatisfiesVisibilityFilter(outputToExtend, visibilityFilter, entity.id,
-                        SpecialEdge.FROM_PROFILED_CLASS_TO_CLASS_PROFILE, visualModel, selectedClassId, nodeSelection.areIdentifiersFromVisualModel);
+                        SpecialEdge.FROM_PROFILED_CLASS_TO_CLASS_PROFILE, visualModel, selectedClassId,
+                        nodeSelection.areIdentifiersFromVisualModel, contextEntities);
                 }
             });
         }
@@ -898,7 +923,8 @@ async function extendThroughClassProfile(
 
             await tryAllowClassInExternalModelsIfNotFound(selectedClassAsProfile.usageOf, relevantExternalModels, contextEntities, visibilityFilter);
             addToExtensionIfSatisfiesVisibilityFilter(outputToExtend, visibilityFilter, selectedClassAsProfile.usageOf,
-                SpecialEdge.FROM_CLASS_PROFILE_TO_PROFILED_CLASS, visualModel, selectedClassId, nodeSelection.areIdentifiersFromVisualModel);
+                SpecialEdge.FROM_CLASS_PROFILE_TO_PROFILED_CLASS, visualModel, selectedClassId,
+                nodeSelection.areIdentifiersFromVisualModel, contextEntities);
         }
     }
 }
