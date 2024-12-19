@@ -180,19 +180,12 @@ class ElkGraphTransformer implements GraphTransformer {
         const tmpPos = anchoredNode?.completeVisualNode?.coreVisualNode?.position ?? {x: 0, y: 0};
         const anchoredPositionBeforeLayout: XY = {...tmpPos};
 
-        // TODO RadStr: DEBUG
-        const anchoredPositionsBeforeLayoutDebug: XY[] = [];
-        for(const anchoredNodeDebug of this.findAnchoredNodes(graphToBeUpdated)) {
-            anchoredPositionsBeforeLayoutDebug.push(anchoredNodeDebug?.completeVisualNode?.coreVisualNode?.position ?? {x: 0, y: 0});
-        }
-
-
         const visualEntities = this.recursivelyUpdateGraphBasedOnElkNode(libraryRepresentation, graphToBeUpdated, 0, 0, shouldUpdateEdges);
         const visualNodes = visualEntities.filter(visualEntity => this.isGraphNode(visualEntity)).map(ve => (ve as VisualNodeComplete).coreVisualNode);
         // TODO: Actually moving all to the origin point [0, 0] is sometimes unwanted - For example when using the elk.stress algorithm to find position for 1 element
         //       We don't want to move everything, but just the 1 node. So either 1) remove it or
         //                                                                        2) It should be GraphTransformation action ... probably 2)
-        const [leftX, topY] = this.findTopLeftPosition(visualNodes);
+        // const [leftX, topY] = this.findTopLeftPosition(visualNodes);
         console.warn("Positions before performing anchor shift");
         console.warn(JSON.stringify(Object.values(visualEntities).filter(this.isGraphNode).map(n => [n.coreVisualNode.representedEntity, n.coreVisualNode.position])));
 
@@ -201,29 +194,6 @@ class ElkGraphTransformer implements GraphTransformer {
             positionShiftDueToAnchors.x = anchoredNode.completeVisualNode.coreVisualNode.position.x - anchoredPositionBeforeLayout.x;
             positionShiftDueToAnchors.y = anchoredNode.completeVisualNode.coreVisualNode.position.y - anchoredPositionBeforeLayout.y;
         }
-
-        // TODO RadStr: DEBUG
-        // positionShiftDueToAnchors.x = 0;
-        // positionShiftDueToAnchors.y = 0;
-        // const alreadyAddedDifferences: XY[] = [];
-        // for(let i = 0; i < anchoredPositionsBeforeLayoutDebug.length; i++) {
-        //     console.info("debug anchored nodes");
-        //     console.info(this.findAnchoredNodes(graphToBeUpdated)[i].node.iri);
-        //     const xDif = this.findAnchoredNodes(graphToBeUpdated)[i].completeVisualNode.coreVisualNode.position.x - anchoredPositionsBeforeLayoutDebug[i].x;
-        //     const yDif = this.findAnchoredNodes(graphToBeUpdated)[i].completeVisualNode.coreVisualNode.position.y - anchoredPositionsBeforeLayoutDebug[i].y;
-        //     const newDif = {
-        //         x: xDif,
-        //         y: yDif,
-        //     };
-        //     if(alreadyAddedDifferences.find(oldDif => this.approximatelyEqual(oldDif, newDif)) === undefined) {
-        //         positionShiftDueToAnchors.x -= xDif;
-        //         positionShiftDueToAnchors.y -= yDif;
-        //         alreadyAddedDifferences.push(newDif);
-        //     }
-        //     else {
-        //         console.warn("SAME");
-        //     }
-        // }
 
         visualEntities.forEach(visualEntity => {
             if(this.isGraphNode(visualEntity)) {
@@ -438,18 +408,6 @@ class ElkGraphTransformer implements GraphTransformer {
         }
 
         return null;
-    }
-
-    private findAnchoredNodes(graph: IGraphClassic): EdgeEndPoint[] {
-        const anchoredNodes = [];
-
-        for(const [identifier, node] of Object.entries(graph.nodes)) {
-            if(node.completeVisualNode.isAnchored === true) {
-                anchoredNodes.push(node);
-            }
-        }
-
-        return anchoredNodes;
     }
 
 
