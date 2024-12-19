@@ -1,11 +1,16 @@
 /**
  * This type is used together with the {@link ExplicitAnchors} type. What the values mean:
- * - "only-original-anchors" - The original anchors are kept, unless explicitly overriden by notAnchored property inside the {@link ExplicitAnchors}
- * - "merge-with-original-anchors" - Use the values in {@link ExplicitAnchors} and if some value is missing, use the original value in visual model.
- * - "only-given-anchors" - Only the values given in anchored are anchored.
- * - "anchor-everything-except-notAnchored" - Everything which is not part of the notAnchored property will be anchored
+ * - ONLY_ORIGINAL_ANCHORS - The original anchors are kept, unless explicitly overriden by notAnchored property inside the {@link ExplicitAnchors}
+ * - MERGE_WITH_ORIGINAL_ANCHORS - Use the values in {@link ExplicitAnchors} and if some value is missing, use the original value in visual model.
+ * - ONLY_GIVEN_ANCHORS - Only the values given in anchored are anchored.
+ * - ANCHOR_EVERYTHING_EXCEPT_NOT_ANCHORED - Everything which is not part of the notAnchored property will be anchored
  */
-type AnchorOverrideSetting = "only-original-anchors" | "merge-with-original-anchors" | "only-given-anchors" | "anchor-everything-except-notAnchored";
+export enum AnchorOverrideSetting {
+    ONLY_ORIGINAL_ANCHORS,
+    MERGE_WITH_ORIGINAL_ANCHORS,
+    ONLY_GIVEN_ANCHORS,
+    ANCHOR_EVERYTHING_EXCEPT_NOT_ANCHORED
+};
 
 export type ExplicitAnchors = {
 	/**
@@ -34,7 +39,7 @@ export type ExplicitAnchors = {
 export function isEntityWithIdentifierAnchored(identifier: string, explicitAnchors: ExplicitAnchors, defaultAnchorValue: boolean): boolean {
     let isAnchored: boolean = defaultAnchorValue;
     switch(explicitAnchors.shouldAnchorEverythingExceptNotAnchored) {
-        case "merge-with-original-anchors":
+        case AnchorOverrideSetting.MERGE_WITH_ORIGINAL_ANCHORS:
             if(explicitAnchors.anchored.find(id => identifier === id)) {
                 isAnchored = true;
             }
@@ -45,7 +50,7 @@ export function isEntityWithIdentifierAnchored(identifier: string, explicitAncho
                 // Else keep the old value
             }
             break;
-        case "only-given-anchors":
+        case AnchorOverrideSetting.ONLY_GIVEN_ANCHORS:
             if(explicitAnchors.anchored.find(id => identifier=== id)) {
                 isAnchored = true;
             }
@@ -53,12 +58,12 @@ export function isEntityWithIdentifierAnchored(identifier: string, explicitAncho
                 isAnchored = false;
             }
             break;
-        case "only-original-anchors":
+        case AnchorOverrideSetting.ONLY_ORIGINAL_ANCHORS:
             if(explicitAnchors.notAnchored.find(id => identifier === id)) {
                 isAnchored = false;
             }
             break;
-        case "anchor-everything-except-notAnchored":
+        case AnchorOverrideSetting.ANCHOR_EVERYTHING_EXCEPT_NOT_ANCHORED:
             if(explicitAnchors.notAnchored.find(id => identifier === id)) {
                 isAnchored = false;
             }

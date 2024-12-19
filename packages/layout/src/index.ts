@@ -46,6 +46,7 @@ export type { EdgeRouting };
 
 import { placePositionOnGrid } from "./util/utils";
 import { ExplicitAnchors } from "./explicit-anchors";
+export { AnchorOverrideSetting } from "./explicit-anchors";
 export { placePositionOnGrid };
 
 export { type ExplicitAnchors } from "./explicit-anchors";

@@ -1,5 +1,5 @@
 import { isVisualNode, isWritableVisualModel, VisualEntity, VisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { ExplicitAnchors, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4, INodeClassic, LayoutedVisualEntities, NodeDimensionQueryHandler, performLayoutOfVisualModel, ReactflowDimensionsConstantEstimator, ReactflowDimensionsEstimator, UserGivenAlgorithmConfigurationStress, UserGivenConstraintsVersion4, VisualModelWithOutsiders } from "@dataspecer/layout";
+import { AnchorOverrideSetting, ExplicitAnchors, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4, INodeClassic, LayoutedVisualEntities, NodeDimensionQueryHandler, performLayoutOfVisualModel, ReactflowDimensionsConstantEstimator, ReactflowDimensionsEstimator, UserGivenAlgorithmConfigurationStress, UserGivenConstraintsVersion4, VisualModelWithOutsiders } from "@dataspecer/layout";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { ActionsContextType } from "./actions-react-binding";
@@ -88,7 +88,7 @@ export async function findPositionForNewNodesUsingLayouting(
     const explicitAnchors: ExplicitAnchors = {
         notAnchored: [],
         anchored: [],
-        shouldAnchorEverythingExceptNotAnchored: "anchor-everything-except-notAnchored",
+        shouldAnchorEverythingExceptNotAnchored: AnchorOverrideSetting.ANCHOR_EVERYTHING_EXCEPT_NOT_ANCHORED,
     };
     for(const identifier of identifiers) {
         const computedInitialPosition = await computeMiddleOfRelatedAssociationsPositionAction(notifications, graph, visualModel, diagram, classes, identifier);

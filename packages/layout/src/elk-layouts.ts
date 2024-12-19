@@ -181,10 +181,10 @@ class ElkGraphTransformer implements GraphTransformer {
         const anchoredPositionBeforeLayout: XY = {...tmpPos};
 
         const visualEntities = this.recursivelyUpdateGraphBasedOnElkNode(libraryRepresentation, graphToBeUpdated, 0, 0, shouldUpdateEdges);
-        const visualNodes = visualEntities.filter(visualEntity => this.isGraphNode(visualEntity)).map(ve => (ve as VisualNodeComplete).coreVisualNode);
         // TODO: Actually moving all to the origin point [0, 0] is sometimes unwanted - For example when using the elk.stress algorithm to find position for 1 element
         //       We don't want to move everything, but just the 1 node. So either 1) remove it or
         //                                                                        2) It should be GraphTransformation action ... probably 2)
+        // const visualNodes = visualEntities.filter(visualEntity => this.isGraphNode(visualEntity)).map(ve => (ve as VisualNodeComplete).coreVisualNode);
         // const [leftX, topY] = this.findTopLeftPosition(visualNodes);
         console.warn("Positions before performing anchor shift");
         console.warn(JSON.stringify(Object.values(visualEntities).filter(this.isGraphNode).map(n => [n.coreVisualNode.representedEntity, n.coreVisualNode.position])));
