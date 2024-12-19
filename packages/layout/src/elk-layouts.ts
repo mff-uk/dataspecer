@@ -163,6 +163,9 @@ class ElkGraphTransformer implements GraphTransformer {
         return clonedGraph;
     }
 
+    private approximatelyEqual(xy1: XY, xy2: XY, epsilon: number = 0.001) {
+        return Math.abs(xy1.x - xy2.x) < epsilon && Math.abs(xy1.y - xy2.y) < epsilon ;
+    }
 
     updateExistingGraphRepresentationBasedOnLibraryRepresentation(libraryRepresentation: ElkNode | null,
                                                                     graphToBeUpdated: IGraphClassic,        // TODO: Can use this.graph instead
@@ -173,9 +176,15 @@ class ElkGraphTransformer implements GraphTransformer {
             return {};
         }
 
-        const anchoredNode = this.findAnchoredNode(graphToBeUpdated);
+        const anchoredNode = this.findAnchoredNodeWithUnchanchoredEnd(graphToBeUpdated);
         const tmpPos = anchoredNode?.completeVisualNode?.coreVisualNode?.position ?? {x: 0, y: 0};
         const anchoredPositionBeforeLayout: XY = {...tmpPos};
+
+        // TODO RadStr: DEBUG
+        const anchoredPositionsBeforeLayoutDebug: XY[] = [];
+        for(const anchoredNodeDebug of this.findAnchoredNodes(graphToBeUpdated)) {
+            anchoredPositionsBeforeLayoutDebug.push(anchoredNodeDebug?.completeVisualNode?.coreVisualNode?.position ?? {x: 0, y: 0});
+        }
 
 
         const visualEntities = this.recursivelyUpdateGraphBasedOnElkNode(libraryRepresentation, graphToBeUpdated, 0, 0, shouldUpdateEdges);
@@ -192,6 +201,29 @@ class ElkGraphTransformer implements GraphTransformer {
             positionShiftDueToAnchors.x = anchoredNode.completeVisualNode.coreVisualNode.position.x - anchoredPositionBeforeLayout.x;
             positionShiftDueToAnchors.y = anchoredNode.completeVisualNode.coreVisualNode.position.y - anchoredPositionBeforeLayout.y;
         }
+
+        // TODO RadStr: DEBUG
+        // positionShiftDueToAnchors.x = 0;
+        // positionShiftDueToAnchors.y = 0;
+        // const alreadyAddedDifferences: XY[] = [];
+        // for(let i = 0; i < anchoredPositionsBeforeLayoutDebug.length; i++) {
+        //     console.info("debug anchored nodes");
+        //     console.info(this.findAnchoredNodes(graphToBeUpdated)[i].node.iri);
+        //     const xDif = this.findAnchoredNodes(graphToBeUpdated)[i].completeVisualNode.coreVisualNode.position.x - anchoredPositionsBeforeLayoutDebug[i].x;
+        //     const yDif = this.findAnchoredNodes(graphToBeUpdated)[i].completeVisualNode.coreVisualNode.position.y - anchoredPositionsBeforeLayoutDebug[i].y;
+        //     const newDif = {
+        //         x: xDif,
+        //         y: yDif,
+        //     };
+        //     if(alreadyAddedDifferences.find(oldDif => this.approximatelyEqual(oldDif, newDif)) === undefined) {
+        //         positionShiftDueToAnchors.x -= xDif;
+        //         positionShiftDueToAnchors.y -= yDif;
+        //         alreadyAddedDifferences.push(newDif);
+        //     }
+        //     else {
+        //         console.warn("SAME");
+        //     }
+        // }
 
         visualEntities.forEach(visualEntity => {
             if(this.isGraphNode(visualEntity)) {
@@ -369,15 +401,55 @@ class ElkGraphTransformer implements GraphTransformer {
      * We have to do this, because Elk is being funny. Because even when node is anchored it can be moved.
      * The relative positions are kept, but the absolute ones are not, so we have to
      * shift it all back if there was anchored node in the visual model (alternative solution could be to move the viewport in editor after layout).
+     * To make it more clear why we need this: For performance reasons, in the visual model we update only those nodes, which were not anchored
+     * Therefore we have to perform the shift, otherwise we add nodes to wrong positions.
+     *
+     * Not only that, there is difference between nodes with at least 1 edge and nodes without edges.
+     * Those without edges are layouted as if there was no anchor.
+     * Since we don't care about those no edges node, we have to find the one with at least one edge.
+     * Edit: On top of that, there is difference between nodes which are connected to only anchored nodes and those which are not.
+     * (Or maybe when the whole subgraph is anchored ... I didn't check that)
      */
-    private findAnchoredNode(graph: IGraphClassic): EdgeEndPoint | null {
+    private findAnchoredNodeWithUnchanchoredEnd(graph: IGraphClassic): EdgeEndPoint | null {
         for(const [identifier, node] of Object.entries(graph.nodes)) {
             if(node.completeVisualNode.isAnchored === true) {
-                return node;
+                (node.getAllOutgoingEdges().next().done !== true || node.getAllIncomingEdges().next().done !== true);
+                let hasUnanchoredEnd = false;
+                for(const outgoingEdge of node.getAllOutgoingEdges()) {
+                    if(outgoingEdge.isConsideredInLayout && !outgoingEdge.end.completeVisualNode.isAnchored) {
+                        hasUnanchoredEnd = true;
+                        break;
+                    }
+                }
+                if(hasUnanchoredEnd) {
+                    return node;
+                }
+
+                for(const incomingEdge of node.getAllIncomingEdges()) {
+                    if(incomingEdge.isConsideredInLayout && !incomingEdge.start.completeVisualNode.isAnchored) {
+                        hasUnanchoredEnd = true;
+                        break;
+                    }
+                }
+                if(hasUnanchoredEnd) {
+                    return node;
+                }
             }
         }
 
         return null;
+    }
+
+    private findAnchoredNodes(graph: IGraphClassic): EdgeEndPoint[] {
+        const anchoredNodes = [];
+
+        for(const [identifier, node] of Object.entries(graph.nodes)) {
+            if(node.completeVisualNode.isAnchored === true) {
+                anchoredNodes.push(node);
+            }
+        }
+
+        return anchoredNodes;
     }
 
 
@@ -1020,7 +1092,7 @@ class ElkGraphTransformer implements GraphTransformer {
             node.x = position.x - (parentPosition?.x ?? 0);
             node.y = position.y - (parentPosition?.y ?? 0);
             if((constraintContainer.currentLayoutAction?.action as (IAlgorithmConfiguration & ElkConstraint))?.algorithmName === "elk_stress") {
-                node.layoutOptions["fixed"] = graphNode.completeVisualNode.isAnchored.toString();
+                node.layoutOptions["org.eclipse.elk.stress.fixed"] = graphNode.completeVisualNode.isAnchored.toString();
             }
         }
 

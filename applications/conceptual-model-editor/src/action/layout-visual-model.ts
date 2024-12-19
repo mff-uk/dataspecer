@@ -50,7 +50,8 @@ export function layoutActiveVisualModelAdvancedAction(
         reactflowDimensionQueryHandler,
         explicitAnchors
     ).then(layoutResult => {
-        processLayoutResult(notifications, classes, diagram, graph, visualModel, shouldUpdatePositionsInVisualModel ?? true, shouldPutOutsidersInVisualModel ?? false, layoutResult);
+        processLayoutResult(notifications, classes, diagram, graph, visualModel,
+            shouldUpdatePositionsInVisualModel ?? true, shouldPutOutsidersInVisualModel ?? false, layoutResult);
         return layoutResult;
     }).catch((e) => {
         console.warn(e);
@@ -75,37 +76,47 @@ export function layoutActiveVisualModelAction(
 
 //
 
-export async function findPositionForNewNodeUsingLayouting(
+export async function findPositionForNewNodesUsingLayouting(
     notifications: UseNotificationServiceWriterType,
     diagram: UseDiagramType,
     graph: ModelGraphContextType,
     visualModel: WritableVisualModel,
     classes: ClassesContextType,
-    identifier: string
-) {
-    let {position, isInCenterOfViewport} = await computeMiddleOfRelatedAssociationsPositionAction(notifications, graph, visualModel, diagram, classes, identifier);
+    identifiers: string[],
+): Promise<Record<string, XY>> {
+    const identifiersWithPositions: Record<string, XY> = {};
+    const explicitAnchors: ExplicitAnchors = {
+        notAnchored: [],
+        anchored: [],
+        shouldAnchorEverythingExceptNotAnchored: "anchor-everything-except-notAnchored",
+    };
+    for(const identifier of identifiers) {
+        const computedInitialPosition = await computeMiddleOfRelatedAssociationsPositionAction(notifications, graph, visualModel, diagram, classes, identifier);
+        // If there is more than 1 identifier on input, we will just layout it somewhere, so we don't have multiple entities in the middle
+        // Otherwise put it in the middle (respectively return the middle position)
+        if(computedInitialPosition.isInCenterOfViewport && identifiers.length === 1) {
+            return {
+                [identifier]: computedInitialPosition.position
+            };
+        }
+        const maxDeviation = 100;
+        computedInitialPosition.position.x += Math.floor(Math.random() * maxDeviation) - maxDeviation / 2;
+        computedInitialPosition.position.y += Math.floor(Math.random() * maxDeviation) - maxDeviation / 2;
+        explicitAnchors.notAnchored.push(identifier);
+        identifiersWithPositions[identifier] = computedInitialPosition.position;
+    }
 
-    if(!isInCenterOfViewport) {
-      const maxDeviation = 100;
-      position.x += Math.floor(Math.random() * maxDeviation) - maxDeviation / 2;
-      position.y += Math.floor(Math.random() * maxDeviation) - maxDeviation / 2;
-      const configuration = getDefaultUserGivenConstraintsVersion4();
-      configuration.chosenMainAlgorithm = "elk_stress";
-      configuration.main.elk_stress = getDefaultMainUserGivenAlgorithmConstraint("elk_stress");
-      configuration.main.elk_stress.interactive = true;
-      // TODO RadStr: We can do better by using average edge length in graph.
-      (configuration.main.elk_stress as UserGivenAlgorithmConfigurationStress).stress_edge_len = 500;
+    const configuration = getDefaultUserGivenConstraintsVersion4();
+    configuration.chosenMainAlgorithm = "elk_stress";
+    configuration.main.elk_stress = getDefaultMainUserGivenAlgorithmConstraint("elk_stress");
+    configuration.main.elk_stress.interactive = true;
+    // TODO RadStr: We can do better by using average edge length in graph.
+    (configuration.main.elk_stress as UserGivenAlgorithmConfigurationStress).stress_edge_len = 500;
 
-      const explicitAnchors: ExplicitAnchors = {
-          notAnchored: [identifier],
-          anchored: [],
-          shouldAnchorEverythingExceptNotAnchored: "anchor-everything-except-notAnchored",
-      };
-
-      // We only want to get the new position, so we don't update the visual model.
-      // We save some performance by that, but more importantly elk can move nodes even if they are
-      // anchored (for example when they are not connected by any edge).
-      const layoutResults = await layoutActiveVisualModelAdvancedAction(
+    // We only want to get the new positions, so we don't update the visual model.
+    // We save some performance by that, but more importantly elk can move nodes even if they are
+    // anchored (for example when they are not connected by any edge).
+    const layoutResults = await layoutActiveVisualModelAdvancedAction(
         notifications,
         classes,
         diagram,
@@ -114,30 +125,33 @@ export async function findPositionForNewNodeUsingLayouting(
         configuration,
         explicitAnchors,
         false,
-        {[identifier]: position},
+        identifiersWithPositions,
         false
-      );
+    );
+
+    console.info("layoutResults");
+    console.info(layoutResults);
 
 
-      // https://stackoverflow.com/questions/50959135/detecting-that-a-function-returned-void-rather-than-undefined
-      if(layoutResults !== null && typeof layoutResults === 'object') {
-        const newVisualEntityForNewNode = Object.entries(layoutResults).find(([visualEntityIdentifier, visualEntity]) => {
-          if(isVisualNode(visualEntity.visualEntity)) {
-            return visualEntity.visualEntity.representedEntity === identifier;
-          }
-          return false;
-        })?.[1].visualEntity;
+    for(const identifier of identifiers) {
+        // https://stackoverflow.com/questions/50959135/detecting-that-a-function-returned-void-rather-than-undefined
+        if(layoutResults !== null && typeof layoutResults === 'object') {
+            const newVisualEntityForNewNode = Object.entries(layoutResults).find(([visualEntityIdentifier, visualEntity]) => {
+                if(isVisualNode(visualEntity.visualEntity)) {
+                    return visualEntity.visualEntity.representedEntity === identifier;
+                }
+                return false;
+            })?.[1].visualEntity;
 
-        console.info("layoutResults");
-        console.info(layoutResults);
-        console.info(newVisualEntityForNewNode);
-        if(newVisualEntityForNewNode !== undefined && isVisualNode(newVisualEntityForNewNode)) {
-          position = newVisualEntityForNewNode.position;
+            console.info("newVisualEntityForNewNode");
+            console.info(newVisualEntityForNewNode);
+            if(newVisualEntityForNewNode !== undefined && isVisualNode(newVisualEntityForNewNode)) {
+                identifiersWithPositions[identifier] = newVisualEntityForNewNode.position;
+            }
         }
-      }
     }
 
-    return position;
+    return identifiersWithPositions;
 }
 
 //
