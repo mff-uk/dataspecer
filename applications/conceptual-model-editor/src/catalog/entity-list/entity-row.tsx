@@ -24,6 +24,9 @@ import { MoveViewportToEntityButton } from "../components/center-viewport-on-ent
 import { useOptions } from "../../application/options";
 import { useActions } from "../../action/actions-react-binding";
 import { AddNeighborhoodButton } from "../components/add-neighborhood-button";
+import { useCatalogHighlightingController } from "../../diagram/features/highlighting/exploration/catalog/catalog-highlighting-controller";
+import "../../diagram/features/highlighting/exploration/catalog/highlighting-catalog-styles.css";
+import "../../diagram/features/highlighting/exploration/context/exploration-highlighting-styles.css";
 
 const TreeLikeOffset = (props: { offset?: number }) => {
     const { offset } = props;
@@ -67,10 +70,24 @@ export const EntityRow = (props: {
 
     const sourceModelIsLocal = sourceModel instanceof InMemorySemanticModel;
 
-    return (
-        <div
-            className="flex flex-row justify-between flex-wrap whitespace-nowrap hover:shadow"
+    const explorationHighlightingController = useCatalogHighlightingController();
+
+    const actions = useActions();
+    const shouldShrinkThisRow = explorationHighlightingController.shouldShrinkCatalog &&
+                                !explorationHighlightingController.isEntityHighlighted(entity.id) &&
+                                explorationHighlightingController.isAnyEntityHighlighted;
+
+    const onMouseEnter = (_: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        if(explorationHighlightingController.isHighlightingEnabled()) {
+            actions.highlightNodeInExplorationModeFromCatalog(entity.id);
+        }
+    };
+    return (shouldShrinkThisRow ? null :
+        (<div
+            className={explorationHighlightingController.getClassNames(entity.id)}
             draggable={isDraggable}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={(_) => explorationHighlightingController.resetHighlight()}
             // TODO Fix to use editor API.
             // onDragStart={(e) => onDragStart(e as unknown as DragEvent, props.model, entity.id, "classNode")}
         >
@@ -109,6 +126,6 @@ export const EntityRow = (props: {
                 <CreateProfileButton onClickHandler={() => openCreateProfileDialog(entity.id)} />
                 <AddNeighborhoodButton entity={entity}></AddNeighborhoodButton>
             </div>
-        </div>
+        </div>)
     );
 };

@@ -76,11 +76,12 @@ export const setHighlightingStylesBasedOnSelection = (
                 e.style = {...e.style, stroke: highlightColor};
             }
         });
-        // TODO RadStr: Possible optimization is to create copy of only edges, which actually changed style ... same for nodes
+        // TODO RadStr: Possible optimization is to create copy of only those edges, which actually changed style ... same for nodes
         return prevEdges.map(e => ({...e}));
     });
 };
 
+// TODO RadStr: Can be done better by using the already existing method for marker ends
 function setMarkerEndForEdge(edge: Edge<any>, color: string) {
     const arrowType = (edge.markerEnd as unknown as {type: string})?.["type"] ?? "arrow";
     edge.markerEnd = { type: arrowType === "arrow" ? MarkerType.Arrow : MarkerType.ArrowClosed, height: 20, width: 20, color };

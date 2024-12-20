@@ -1,0 +1,48 @@
+ .node-highlight-classic {
+   /* transition: background-color 1s; */
+   /* background-color: rgba(0, 0, 0, 0); */
+  /* animation-name: node-unhighlight-animation;
+  animation-duration: 3s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards; */
+
+  transition: outline-color 1s, opacity 1s;
+  outline: rgb(0, 0, 0, 0);
+}
+
+.node-highlight-main {
+    /* animation-name: node-highlight-main-animation;
+    animation-duration: 3s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards; */
+
+    transition: outline-color 1.5s;
+    outline: 0.25em solid rgba(238, 58, 115, 1);
+  }
+
+  .node-highlight-secondary {
+    /* animation-name: node-highlight-secondary-animation;
+    animation-duration: 3s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards; */
+
+    transition: outline-color 1.5s;
+    outline: 0.25em solid rgba(0, 0, 0, 1);
+  }
+
+  @keyframes node-highlight-main-animation {
+     /* from {background-color: rgba(0, 0, 0, 0)} */
+    to {outline-color: 0.25em solid rgba(238, 58, 115, 1)}
+  }
+
+  @keyframes node-highlight-secondary-animation {
+    /* from {background-color: rgba(0, 0, 0, 0)} */
+    /* to {background-color: rgba(38, 158, 15, 1)} */
+    /* to {backdrop-filter: brightness(00%)}; */
+    to {outline-color: rgba(0, 0, 0, 1)}
+  }
+
+  @keyframes node-unhighlight-animation {
+    to {outline-color:rgb(207, 14, 14)}
+
+  }

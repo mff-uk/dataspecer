@@ -38,6 +38,7 @@ import { OptionsContextProvider } from "./application/options";
 
 import "./page.css";
 import { migrateVisualModelFromV0 } from "./dataspecer/visual-model/visual-model-v0-to-v1";
+import { ExplorationContextProvider } from "./diagram/features/highlighting/exploration/context/highlighting-exploration-mode";
 
 const _semanticModelAggregator = new SemanticModelAggregator();
 type SemanticModelAggregatorType = typeof _semanticModelAggregator;
@@ -122,54 +123,56 @@ const Page = () => {
 
     return (
         <QueryParamsProvider>
-            <OptionsContextProvider>
-                <ModelGraphContext.Provider
-                    value={{
-                        aggregator,
-                        aggregatorView,
-                        setAggregatorView,
-                        models,
-                        setModels,
-                        visualModels,
-                        setVisualModels,
-                    }}
-                >
-                    <ClassesContext.Provider
+            <ExplorationContextProvider>
+                <OptionsContextProvider>
+                    <ModelGraphContext.Provider
                         value={{
-                            classes,
-                            setClasses,
-                            allowedClasses,
-                            setAllowedClasses,
-                            relationships,
-                            setRelationships,
-                            generalizations,
-                            setGeneralizations,
-                            profiles: usages,
-                            setProfiles: setUsages,
-                            sourceModelOfEntityMap,
-                            setSourceModelOfEntityMap,
-                            rawEntities,
-                            setRawEntities,
+                            aggregator,
+                            aggregatorView,
+                            setAggregatorView,
+                            models,
+                            setModels,
+                            visualModels,
+                            setVisualModels,
                         }}
                     >
-                        <WarningsContext.Provider value={{ warnings, setWarnings }}>
-                            <DialogContextProvider>
-                                <ActionsContextProvider>
-                                    <Header />
-                                    <main className="w-full flex-grow bg-teal-50  md:h-[calc(100%-48px)]">
-                                        <div className="my-0 grid grid-rows-[auto_fit] md:h-full md:grid-cols-[25%_75%] md:grid-rows-1 ">
-                                            <Catalog />
-                                            <Visualization />
-                                        </div>
-                                    </main>
-                                    <NotificationList />
-                                    <DialogRenderer />
-                                </ActionsContextProvider>
-                            </DialogContextProvider>
-                        </WarningsContext.Provider>
-                    </ClassesContext.Provider>
-                </ModelGraphContext.Provider>
-            </OptionsContextProvider>
+                        <ClassesContext.Provider
+                            value={{
+                                classes,
+                                setClasses,
+                                allowedClasses,
+                                setAllowedClasses,
+                                relationships,
+                                setRelationships,
+                                generalizations,
+                                setGeneralizations,
+                                profiles: usages,
+                                setProfiles: setUsages,
+                                sourceModelOfEntityMap,
+                                setSourceModelOfEntityMap,
+                                rawEntities,
+                                setRawEntities,
+                            }}
+                        >
+                            <WarningsContext.Provider value={{ warnings, setWarnings }}>
+                                <DialogContextProvider>
+                                    <ActionsContextProvider>
+                                        <Header />
+                                        <main className="w-full flex-grow bg-teal-50  md:h-[calc(100%-48px)]">
+                                            <div className="my-0 grid grid-rows-[auto_fit] md:h-full md:grid-cols-[25%_75%] md:grid-rows-1 ">
+                                                <Catalog />
+                                                <Visualization />
+                                            </div>
+                                        </main>
+                                        <NotificationList />
+                                        <DialogRenderer />
+                                    </ActionsContextProvider>
+                                </DialogContextProvider>
+                            </WarningsContext.Provider>
+                        </ClassesContext.Provider>
+                    </ModelGraphContext.Provider>
+                </OptionsContextProvider>
+            </ExplorationContextProvider>
         </QueryParamsProvider>
     );
 };

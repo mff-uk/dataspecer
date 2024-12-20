@@ -46,7 +46,9 @@ import { diagramContentAsSvg } from "./render-svg";
 import { CanvasToolbarGeneralProps, CanvasToolbarContentType } from "./canvas/canvas-toolbar-props";
 import { CanvasToolbarCreatedByEdgeDrag } from "./canvas/canvas-toolbar-drag-edge";
 import { NodeSelectionActionsSecondaryToolbar } from "./node/node-secondary-toolbar";
-import { setHighlightingStylesBasedOnSelection } from "./features/highlighting/set-highlighting-styles";
+import { setHighlightingStylesBasedOnSelection } from "./features/highlighting/set-selection-highlighting-styles";
+import { useCanvasHighlightingController } from "./features/highlighting/exploration/canvas/canvas-exploration-highlighting-controller";
+import { useExploration } from "./features/highlighting/exploration/context/highlighting-exploration-mode";
 
 export type NodeType = Node<ApiNode>;
 
@@ -141,6 +143,9 @@ interface UseDiagramControllerType {
 
   alignmentController: AlignmentController;
 
+  onNodeMouseEnter: (event: React.MouseEvent, node: Node) => void;
+
+  onNodeMouseLeave: (event: React.MouseEvent, node: Node) => void;
 }
 
 function useCreateReactStates() {
@@ -215,6 +220,10 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
   const onNodeDragStart = useCallback(createOnNodeDragStartHandler(alignmentController), [alignmentController]);
   const onNodeDragStop = useCallback(createOnNodeDragStopHandler(api, alignmentController), [api, alignmentController]);
 
+  const canvasHighlighting = useCanvasHighlightingController(setNodes, setEdges);
+  const onNodeMouseEnter = useCallback(createOnNodeMouseEnterHandler(canvasHighlighting.changeHighlight, reactFlowInstance), [canvasHighlighting.changeHighlight, reactFlowInstance]);
+  const onNodeMouseLeave = useCallback(createOnNodeMouseLeaveHandler(canvasHighlighting.resetHighlight), [canvasHighlighting.resetHighlight]);
+
 
   return {
     alignmentController,
@@ -231,6 +240,8 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
     onNodeDrag,
     onNodeDragStart,
     onNodeDragStop,
+    onNodeMouseEnter,
+    onNodeMouseLeave,
   };
 }
 
@@ -248,8 +259,9 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
     [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges]
   );
 
-  const actions = useMemo(() => createActions(reactFlowInstance, setNodes, setEdges, alignmentController, context, setSelectedNodes, setSelectedEdges),
-    [reactFlowInstance, setNodes, setEdges, alignmentController, context, setSelectedNodes, setSelectedEdges]);
+  const canvasHighlighting = useCanvasHighlightingController(setNodes, setEdges);
+  const actions = useMemo(() => createActions(reactFlowInstance, setNodes, setEdges, alignmentController, context, setSelectedNodes, setSelectedEdges, canvasHighlighting.changeHighlight),
+    [reactFlowInstance, setNodes, setEdges, alignmentController, context, setSelectedNodes, setSelectedEdges, canvasHighlighting.changeHighlight]);
 
   // Register actions to API.
   useEffect(() => api.setActions(actions), [api, actions]);
@@ -292,6 +304,8 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
     onNodeDragStop: independentPartOfDiagramController.onNodeDragStop,
     onPaneClick: dependentPartOfDiagramController.onPaneClick,
     alignmentController: independentPartOfDiagramController.alignmentController,
+    onNodeMouseEnter: independentPartOfDiagramController.onNodeMouseEnter,
+    onNodeMouseLeave: independentPartOfDiagramController.onNodeMouseLeave,
   };
 }
 
@@ -304,6 +318,22 @@ const createOnNodeDragHandler = () => {
 const createOnNodeDragStartHandler = (alignmentController: AlignmentController) => {
   return (event: React.MouseEvent, node: Node, nodes: Node[]) => {
     alignmentController.alignmentSetUpOnNodeDragStart(node);
+  };
+};
+
+
+const createOnNodeMouseEnterHandler = (
+  changeHighlight: (startingNodeId: string, reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>, isSourceOfEventCanvas: boolean) => void,
+  reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>
+) => {
+  return (_: React.MouseEvent, node: Node) => {
+    changeHighlight(node.id, reactFlowInstance, true);
+  };
+};
+
+const createOnNodeMouseLeaveHandler = (resetHighlight: () => void) => {
+  return (_: React.MouseEvent, node: Node) => {
+    resetHighlight();
   };
 };
 
@@ -541,6 +571,7 @@ const createActions = (
   context: DiagramContextType,
   setSelectedNodesInternal: (newSelection: string[]) => void,
   setSelectedEdgesInternal: (newSelection: string[]) => void,
+  changeHighlight: (startingNodeId: string, reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>, isSourceOfEventCanvas: boolean) => void,
 ): DiagramActions => {
   return {
     getGroups() {
@@ -705,6 +736,9 @@ const createActions = (
       console.log("openCanvasToolbar", {sourceNode, canvasPosition});
       context?.onOpenCanvasContextMenu(sourceNode, canvasPosition, NodeSelectionActionsSecondaryToolbar);
     },
+    highlightNodeInExplorationModeFromCatalog(nodeIdentifier) {
+      changeHighlight(nodeIdentifier, reactFlow, false);
+    }
   };
 };
 
