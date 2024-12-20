@@ -173,6 +173,7 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
 ) {
   const { setNodes, setEdges, setEdgeToolbar, setCanvasToolbar, selectedNodes, setSelectedNodes, setSelectedEdges, selectedEdges } = createdReactStates;
   const alignmentController = useAlignmentController({ reactFlowInstance });
+  const canvasHighlighting = useCanvasHighlightingController(setNodes, setEdges);
 
   // The initialized is set to false when new node is added and back to true once the size is determined.
   // const reactFlowInitialized = useNodesInitialized();
@@ -217,10 +218,9 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
     [setEdgeToolbar]);
 
   const onNodeDrag = useCallback(createOnNodeDragHandler(), []);
-  const onNodeDragStart = useCallback(createOnNodeDragStartHandler(alignmentController), [alignmentController]);
-  const onNodeDragStop = useCallback(createOnNodeDragStopHandler(api, alignmentController), [api, alignmentController]);
+  const onNodeDragStart = useCallback(createOnNodeDragStartHandler(alignmentController, canvasHighlighting.disableTemporarily), [alignmentController, canvasHighlighting.disableTemporarily]);
+  const onNodeDragStop = useCallback(createOnNodeDragStopHandler(api, alignmentController, canvasHighlighting.enableTemporarily), [api, alignmentController, canvasHighlighting.enableTemporarily]);
 
-  const canvasHighlighting = useCanvasHighlightingController(setNodes, setEdges);
   const onNodeMouseEnter = useCallback(createOnNodeMouseEnterHandler(canvasHighlighting.changeHighlight, reactFlowInstance), [canvasHighlighting.changeHighlight, reactFlowInstance]);
   const onNodeMouseLeave = useCallback(createOnNodeMouseLeaveHandler(canvasHighlighting.resetHighlight), [canvasHighlighting.resetHighlight]);
 
@@ -315,8 +315,9 @@ const createOnNodeDragHandler = () => {
   };
 };
 
-const createOnNodeDragStartHandler = (alignmentController: AlignmentController) => {
+const createOnNodeDragStartHandler = (alignmentController: AlignmentController, disableExplorationModeHighlightingChanges: () => void) => {
   return (event: React.MouseEvent, node: Node, nodes: Node[]) => {
+    disableExplorationModeHighlightingChanges();
     alignmentController.alignmentSetUpOnNodeDragStart(node);
   };
 };
@@ -324,7 +325,7 @@ const createOnNodeDragStartHandler = (alignmentController: AlignmentController) 
 
 const createOnNodeMouseEnterHandler = (
   changeHighlight: (startingNodeId: string, reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>, isSourceOfEventCanvas: boolean) => void,
-  reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>
+  reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
 ) => {
   return (_: React.MouseEvent, node: Node) => {
     changeHighlight(node.id, reactFlowInstance, true);
@@ -339,9 +340,11 @@ const createOnNodeMouseLeaveHandler = (resetHighlight: () => void) => {
 
 const createOnNodeDragStopHandler = (
   api: UseDiagramType,
-  alignmentController: AlignmentController
+  alignmentController: AlignmentController,
+  enableExplorationModeHighlightingChanges: () => void
 ) => {
   return (event: React.MouseEvent, node: Node, nodes: Node[]) => {
+    enableExplorationModeHighlightingChanges();
     alignmentController.alignmentCleanUpOnNodeDragStop(node);
     // At the end of the node drag we report changes in the positions.
     const changes: Record<string, Position> = {};

@@ -78,7 +78,7 @@ export const EntityRow = (props: {
                                 explorationHighlightingController.isAnyEntityHighlighted;
 
     const onMouseEnter = (_: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        if(explorationHighlightingController.isHighlightingEnabled()) {
+        if(explorationHighlightingController.isHighlightingChangeAllowed()) {
             actions.highlightNodeInExplorationModeFromCatalog(entity.id);
         }
     };

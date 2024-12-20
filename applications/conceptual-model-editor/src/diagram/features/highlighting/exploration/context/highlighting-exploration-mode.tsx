@@ -128,12 +128,11 @@ export const useExploration = () => {
             return;
         }
 
-        resetHighlight();
         setIsHighlightingInternallyOn(false);
     };
 
     const enableTemporarily = () => {
-        if (!isHighlightingInternallyOn) {
+        if (isHighlightingInternallyOn) {
             return;
         }
 
@@ -141,10 +140,10 @@ export const useExploration = () => {
     };
 
     const isHighlightingPresent = () => {
-        return isHighlightingEnabled() && Object.keys(highlightLevels).length !== 0;
+        return isHighlightingChangeAllowed() && Object.keys(highlightLevels).length !== 0;
     };
 
-    const isHighlightingEnabled = () => {
+    const isHighlightingChangeAllowed = () => {
         return isHighlightingOn && isHighlightingInternallyOn;
     }
 
@@ -153,8 +152,9 @@ export const useExploration = () => {
         disableTemporarily, enableTemporarily,
         isHighlightingPresent,
         toggleHighlighting,
-        isHighlightingEnabled,
+        isHighlightingChangeAllowed,
         semanticToVisualIdentifierMap,
         shouldShrinkCatalog,
+        isHighlightingOn,
     };
 }

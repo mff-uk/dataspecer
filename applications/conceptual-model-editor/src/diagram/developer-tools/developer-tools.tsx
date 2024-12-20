@@ -55,7 +55,7 @@ export function DeveloperTools() {
           <button onClick={_ => layoutDialogUse.open()}>Layout</button>
           <DevToolButton
             setActive={explorationMode.toggleHighlighting}
-            active={explorationMode.isHighlightingEnabled()}
+            active={explorationMode.isHighlightingOn}
             title="Toggle highlighting exploration mode"
           >
             Exploration
