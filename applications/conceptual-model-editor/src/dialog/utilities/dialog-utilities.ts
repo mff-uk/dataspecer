@@ -8,7 +8,7 @@ import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticMo
 import { createLogger } from "../../application";
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { ModelGraphContextType } from "../../context/model-context";
-import { CmeModel, filterWritableModels, OwlVocabulary, UndefinedCmeVocabulary } from "../../cme-model";
+import { CmeModel, filterWritableModels, OwlVocabulary, UndefinedCmeVocabulary } from "../../dataspecer/cme-model";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { IRI } from "iri";
 

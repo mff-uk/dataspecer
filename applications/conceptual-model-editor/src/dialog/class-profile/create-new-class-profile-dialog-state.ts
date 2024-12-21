@@ -10,7 +10,7 @@ import { DialogWrapper } from "../dialog-api";
 import { EditClassProfileDialog } from "./edit-class-profile-dialog";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { createEntityProfileStateForNew } from "../utilities/entity-profile-utilities";
-import { CmeModel } from "../../cme-model";
+import { CmeModel } from "../../dataspecer/cme-model";
 
 export function createNewProfileClassDialogState(
   classesContext: ClassesContextType,

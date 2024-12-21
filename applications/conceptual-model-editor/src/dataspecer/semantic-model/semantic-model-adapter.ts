@@ -4,7 +4,7 @@ import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 
-import { CmeModelType, CmeModel } from "../../cme-model";
+import { CmeModelType, CmeModel } from "../cme-model";
 import { t, configuration } from "../../application";
 
 

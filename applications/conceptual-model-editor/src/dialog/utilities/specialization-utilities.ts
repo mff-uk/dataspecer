@@ -1,4 +1,4 @@
-import { CmeModel } from "../../cme-model";
+import { CmeModel } from "../../dataspecer/cme-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { getRandomName } from "../../util/random-gen";
 import { removeFromArray } from "../../utilities/functional";

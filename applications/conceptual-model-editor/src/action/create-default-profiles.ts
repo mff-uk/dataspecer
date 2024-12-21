@@ -7,14 +7,14 @@ import { Options } from "../application";
 import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticModelRelationshipEndUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { createClassProfile } from "./open-create-profile-dialog";
-import { findSourceModelOfEntity } from "../service/model-service";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
 import { createNewProfileClassDialogState } from "../dialog/class-profile/create-new-class-profile-dialog-state";
-import { CmeModel, findAnyWritableModelFromRawInput } from "../cme-model";
+import { findAnyWritableModelFromRawInput } from "../cme-model/cme-model-utilities";
+import { CmeModel } from "../dataspecer/cme-model";
 
 
 export async function createDefaultProfilesAction(

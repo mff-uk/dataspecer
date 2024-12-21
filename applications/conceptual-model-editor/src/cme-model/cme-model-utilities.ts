@@ -1,7 +1,7 @@
 import { EntityModel } from "@dataspecer/core-v2";
 import { entityModelsMapToCmeVocabulary } from "../dataspecer/semantic-model/semantic-model-adapter";
-import { CmeModelType, CmeModel } from "./cme-model";
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
+import { CmeModel, CmeModelType } from "../dataspecer/cme-model";
 
 
 export function findAnyWritableModelFromRawInput(models: Map<string, EntityModel>, visualModel: VisualModel | null): CmeModel | null {

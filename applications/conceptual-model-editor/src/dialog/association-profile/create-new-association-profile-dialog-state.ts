@@ -10,7 +10,7 @@ import { EntityRepresentative, RelationshipRepresentative, representClassProfile
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { InvalidAggregation, MissingEntity, MissingRelationshipEnds } from "../../application/error";
-import { CmeModel } from "../../cme-model";
+import { CmeModel } from "../../dataspecer/cme-model";
 import { createRelationshipProfileStateForNew } from "../utilities/relationship-profile-utilities";
 import { EditAssociationProfileDialog } from "./edit-association-profile-dialog";
 import { DialogWrapper } from "../dialog-api";

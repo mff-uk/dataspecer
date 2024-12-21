@@ -1,9 +1,9 @@
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { createEntityController, EntityState, EntityStateController } from "./entity-utilities";
-import { CmeModel, CmeModelType, filterWritableModels, ModelDsIdentifier } from "../../cme-model";
 import { EntityRepresentative, isRelativeIri } from "./dialog-utilities";
 import { MissingModel, MissingProfile, NoWritableModelFound } from "../../application/error";
 import { validationNoProblem } from "./validation-utilities";
+import { CmeModel, filterWritableModels, ModelDsIdentifier } from "../../dataspecer/cme-model";
 
 /**
  * Should be used instead of EntityState for profiles.

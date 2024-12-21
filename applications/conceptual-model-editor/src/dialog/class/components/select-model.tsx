@@ -2,7 +2,7 @@ import { ChangeEvent } from "react";
 
 import { configuration } from "../../../application";
 import { languageStringToString } from "../../../utilities/string";
-import { CmeModel } from "../../../cme-model";
+import { CmeModel } from "../../../dataspecer/cme-model";
 
 export const SelectModel = (props: {
   language: string,

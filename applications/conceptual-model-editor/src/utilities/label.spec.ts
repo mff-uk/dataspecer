@@ -3,7 +3,7 @@ import { expect, test } from "vitest";
 import { Entities, EntityModel } from "@dataspecer/core-v2";
 
 import { createGetModelLabel, sanitizeDuplicitiesInRepresentativeLabels } from "./label";
-import { CmeModelType } from "../cme-model";
+import { CmeModelType } from "../dataspecer/cme-model";
 
 class EntityModelMock implements EntityModel {
 

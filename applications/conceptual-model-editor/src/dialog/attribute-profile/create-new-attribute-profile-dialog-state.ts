@@ -10,7 +10,7 @@ import { getDomainAndRange } from "../../util/relationship-utils";
 import { EditAttributeProfileDialogState } from "./edit-attribute-profile-dialog-controller";
 import { EditAttributeProfileDialog } from "./edit-attribute-profile-dialog";
 import { DialogWrapper } from "../dialog-api";
-import { CmeModel } from "../../cme-model";
+import { CmeModel } from "../../dataspecer/cme-model";
 import { InvalidAggregation, MissingEntity, MissingRelationshipEnds } from "../../application/error";
 import { createEntityProfileStateForNew } from "../utilities/entity-profile-utilities";
 import { createRelationshipProfileStateForNew } from "../utilities/relationship-profile-utilities";

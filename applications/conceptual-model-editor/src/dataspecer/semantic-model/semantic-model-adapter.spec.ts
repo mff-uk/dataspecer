@@ -4,7 +4,7 @@ import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { EntityModel } from "@dataspecer/core-v2";
 
 import { setTranslateFunction, entityModelToCmeVocabulary, entityModelsMapToCmeVocabulary, setDefaultModelColor } from "./semantic-model-adapter";
-import { CmeModelType } from "../../cme-model";
+import { CmeModelType } from "../cme-model";
 
 // Disable translation.
 setTranslateFunction(text => `t:${text}`);
