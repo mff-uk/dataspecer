@@ -1,6 +1,6 @@
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { createEntityController, EntityState, EntityStateController } from "./entity-utilities";
-import { CmeModel, CmeModelType, ModelDsIdentifier } from "../../cme-model";
+import { CmeModel, CmeModelType, filterWritableModels, ModelDsIdentifier } from "../../cme-model";
 import { EntityRepresentative, isRelativeIri } from "./dialog-utilities";
 import { MissingModel, MissingProfile, NoWritableModelFound } from "../../application/error";
 import { validationNoProblem } from "./validation-utilities";
@@ -41,7 +41,7 @@ export function createEntityProfileStateForNew(
   profiles: EntityRepresentative[],
   profiledIdentifier: string,
 ): EntityProfileState {
-  const writableVocabularies = vocabularies.filter(item => item.dsModelType === CmeModelType.InMemorySemanticModel);
+  const writableVocabularies = filterWritableModels(vocabularies);
   if (writableVocabularies.length === 0) {
     throw new NoWritableModelFound();
   }
@@ -87,7 +87,7 @@ export function createEntityProfileStateForEdit(
   description: LanguageString | null,
   usageNote: LanguageString | null,
 ): EntityProfileState {
-  const writableVocabularies = vocabularies.filter(item => item.dsModelType === CmeModelType.InMemorySemanticModel);
+  const writableVocabularies = filterWritableModels(vocabularies);
   const selectedVocabulary = writableVocabularies.find(item => item.dsIdentifier === vocabularyDsIdentifier);
   if (selectedVocabulary === undefined) {
     throw new MissingModel(vocabularyDsIdentifier);
