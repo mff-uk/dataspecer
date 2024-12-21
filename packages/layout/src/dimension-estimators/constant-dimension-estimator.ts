@@ -5,6 +5,10 @@ import { INodeClassic } from "../graph-iface";
  * Simple dimension query handler, which returns constant values as estimation of node dimensions.
  */
 export class ReactflowDimensionsConstantEstimator implements NodeDimensionQueryHandler {
+    static getMinimumWidth() {
+        return 224;
+    }
+
     static getDefaultWidth() {
         return 400;
     }

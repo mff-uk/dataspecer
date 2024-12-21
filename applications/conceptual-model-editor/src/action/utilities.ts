@@ -84,7 +84,7 @@ export function getViewportCenter(diagram: UseDiagramType) {
 export function getViewportCenterForClassPlacement(diagram: UseDiagramType) {
   const position = getViewportCenter(diagram);
 
-  position.x -= ReactflowDimensionsConstantEstimator.getDefaultWidth() / 2;
+  position.x -= ReactflowDimensionsConstantEstimator.getMinimumWidth() / 2;
   position.y -= ReactflowDimensionsConstantEstimator.getDefaultHeight() / 2;
   placePositionOnGrid(position, configuration().xSnapGrid, configuration().ySnapGrid);
 
@@ -156,7 +156,8 @@ export const computeMiddleOfRelatedAssociationsPositionAction = async (
     const associatedPositions = associatedClasses.map(associatedNodeIdentifier => {
         const visualNode = visualModel.getVisualEntityForRepresented(associatedNodeIdentifier);
         if(visualNode === null) {
-            return null;
+            notifications.error("The associated visual entity is not present in visual model, even though it should");
+            return null
         }
         if(!isVisualNode(visualNode)) {
             notifications.error("One of the associated nodes is actually not a node for unknown reason");
@@ -166,7 +167,7 @@ export const computeMiddleOfRelatedAssociationsPositionAction = async (
         return visualNode.position;
     }).filter(position => position !== null);
 
-    const barycenter = computeBarycenter(associatedPositions.filter(pos => pos !== undefined), diagram);
+    const barycenter = computeBarycenter(associatedPositions, diagram);
     return barycenter;
 };
 

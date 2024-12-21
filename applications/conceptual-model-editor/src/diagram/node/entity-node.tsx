@@ -105,7 +105,7 @@ function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   }
 
   const isCanvasToolbarOpen = context.openedCanvasToolbar !== null;
-  if(isCanvasToolbarOpen) {
+  if(isCanvasToolbarOpen || !context.getIsSelectionStateChangeFinished()) {
     return null;
   }
 

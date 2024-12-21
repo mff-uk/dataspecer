@@ -16,7 +16,7 @@ export const useReactflowDimensionQueryHandler = () => {
     const getWidth = (node: INodeClassic) => {
         const visualNodeIdentifier = activeVisualModel?.getVisualEntityForRepresented(node.id)?.identifier ?? "";
         // The question is what does it mean if the node isn't in editor? I think that it means that there is mistake in program. Same for height
-        const width = reactFlowInstance.getNode(visualNodeIdentifier)?.measured?.width ?? ReactflowDimensionsConstantEstimator.getDefaultWidth();
+        const width = reactFlowInstance.getNode(visualNodeIdentifier)?.measured?.width ?? ReactflowDimensionsConstantEstimator.getMinimumWidth();
         return width;
     };
 	const getHeight = (node: INodeClassic) => {

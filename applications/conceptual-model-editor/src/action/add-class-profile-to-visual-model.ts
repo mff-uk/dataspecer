@@ -7,7 +7,7 @@ import { UseDiagramType } from "../diagram/diagram-hook";
 import { getViewportCenterForClassPlacement, withAggregatedEntity } from "./utilities";
 import { addRelatedEntitiesAction } from "./add-related-entities-to-visual-model";
 import { ClassesContextType } from "../context/classes-context";
-import { findPositionForNewNodeUsingLayouting } from "./layout-visual-model";
+import { findPositionForNewNodesUsingLayouting } from "./layout-visual-model";
 
 export async function addSemanticClassProfileToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
@@ -21,7 +21,7 @@ export async function addSemanticClassProfileToVisualModelAction(
 ) {
   const entities = graph.aggregatorView.getEntities();
   if(position === null) {
-    position = await findPositionForNewNodeUsingLayouting(notifications, diagram, graph, visualModel, classes, entityIdentifier);
+    position = (await findPositionForNewNodesUsingLayouting(notifications, diagram, graph, visualModel, classes, [entityIdentifier]))[entityIdentifier];
   }
 
   withAggregatedEntity(notifications, entities,

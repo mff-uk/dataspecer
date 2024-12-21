@@ -17,7 +17,7 @@ export function PropertyEdgeToolbar({ value }: { value: EdgeToolbarProps | null 
   const edge = useStore((state: ReactFlowState) => state.edgeLookup.get(value?.edgeIdentifier ?? ""));
   const { x, y, zoom } = useStore(viewportStoreSelector, shallow);
 
-  if (value === null || edge?.data === undefined || !edge?.selected) {
+  if (value === null || edge?.data === undefined || !edge?.selected || context === null || context.shouldShowSelectionToolbar() || !context.getIsSelectionStateChangeFinished()) {
     return null;
   }
 

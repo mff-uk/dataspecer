@@ -82,7 +82,7 @@ const createExtensionCheckbox = (
     checkboxData: ExtensionCheckboxData,
     index: number
 ) => {
-    return <div>
+    return <div key={`extension-checkbox-div${index}`}>
                 <label title={t(checkboxData.checkboxTooltip)}>
                     <input type="checkbox"
                             checked={checkboxData.checked}

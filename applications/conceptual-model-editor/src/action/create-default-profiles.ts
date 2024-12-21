@@ -14,6 +14,7 @@ import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
 import { createNewProfileClassDialogState } from "../dialog/class-profile/create-new-class-profile-dialog-state";
+import { CmeModel, findAnyWritableModelFromRawInput } from "../cme-model";
 
 
 export async function createDefaultProfilesAction(
@@ -27,9 +28,14 @@ export async function createDefaultProfilesAction(
   edgesToProfile: string[],
   shouldBeAddedToVisualModel: boolean
 ): Promise<void> {
+  const writableSemanticModel = findAnyWritableModelFromRawInput(graph.models, visualModel);
+  if(writableSemanticModel === null) {
+    notifications.error("There is no InMemorySemanticModel to put the profiles into.");
+    return;
+  }
   // We have to wait otherwise we might start creating relation profiles for non-existing class profiles
   const createdClassProfiles = await createDefaultClassProfiles(notifications, graph, diagram, options, classesContext, visualModel, nodesToProfile, shouldBeAddedToVisualModel);
-  createDefaultRelationshipProfiles(notifications, graph, visualModel, edgesToProfile, createdClassProfiles, shouldBeAddedToVisualModel)
+  createDefaultRelationshipProfiles(notifications, graph, visualModel, writableSemanticModel, edgesToProfile, createdClassProfiles, shouldBeAddedToVisualModel)
 };
 
 //
@@ -117,12 +123,14 @@ function createDefaultRelationshipProfiles(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   visualModel: VisualModel | null,
+  writableCmeModel: CmeModel,
   edgesToProfile: string[],
   createdClassProfiles: Record<string, string | null>,
   shouldBeAddedToVisualModel: boolean
 ) {
-  for(const selectedEntityId of edgesToProfile) {
-    createDefaultRelationshipProfile(notifications, graph, visualModel, selectedEntityId, createdClassProfiles, shouldBeAddedToVisualModel);
+  const writableSemanticModel = graph.models.get(writableCmeModel.dsIdentifier) as InMemorySemanticModel;   // Casting ... the correctness should be already validated
+  for(const edgeToProfile of edgesToProfile) {
+    createDefaultRelationshipProfile(notifications, graph, writableSemanticModel, visualModel, edgeToProfile, createdClassProfiles, shouldBeAddedToVisualModel);
   }
 }
 
@@ -134,16 +142,16 @@ function createDefaultRelationshipProfiles(
 function createDefaultRelationshipProfile(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
+  model: InMemorySemanticModel,
   visualModel: VisualModel | null,
   entityToProfile: string,
   createdClassProfiles: Record<string, string | null>,
   shouldBeAddedToVisualModel: boolean
 ) {
-  const validatedData = getAndValidateRelationshipOrRelationshipProfileToBeProfiled(notifications, graph, entityToProfile);
-  if(validatedData === null) {
+  const relationshipOrRelationshipProfileToBeProfiled = getAndValidateRelationshipOrRelationshipProfileToBeProfiled(notifications, graph, entityToProfile);
+  if(relationshipOrRelationshipProfileToBeProfiled === null) {
     return;
   }
-  const {relationshipOrRelationshipProfileToBeProfiled, model} = validatedData;
 
   const ends: SemanticModelRelationshipEndUsage[] | undefined = [];
   for (const end of relationshipOrRelationshipProfileToBeProfiled.ends) {
@@ -194,10 +202,7 @@ function getAndValidateRelationshipOrRelationshipProfileToBeProfiled(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   entityToProfile: string
-): {
-  relationshipOrRelationshipProfileToBeProfiled: SemanticModelRelationship | SemanticModelRelationshipUsage,
-  model: InMemorySemanticModel
-} | null {
+): SemanticModelRelationship | SemanticModelRelationshipUsage | null {
   const relationshipOrRelationshipProfileToBeProfiled = graph.aggregatorView.getEntities()?.[entityToProfile]?.aggregatedEntity;
   if(relationshipOrRelationshipProfileToBeProfiled === undefined || relationshipOrRelationshipProfileToBeProfiled === null) {
     notifications.error("The entity (edge) to be profiled from selection is not present in aggregatorView");
@@ -214,15 +219,6 @@ function getAndValidateRelationshipOrRelationshipProfileToBeProfiled(
     return null;
   }
 
-  const model = findSourceModelOfEntity(relationshipOrRelationshipProfileToBeProfiled.id, graph.models);
-  if (model === null) {
-    notifications.error(`Can not find model for '${relationshipOrRelationshipProfileToBeProfiled.id}'.`);
-    return null;
-  }
-  if (!(model instanceof InMemorySemanticModel)) {
-    notifications.error(`Model for '${relationshipOrRelationshipProfileToBeProfiled.id} is not semantic'.`);
-    return null;
-  }
 
-  return {relationshipOrRelationshipProfileToBeProfiled, model};
+  return relationshipOrRelationshipProfileToBeProfiled;
 }

@@ -22,6 +22,7 @@ import {
   type IsValidConnection,
   type FinalConnectionState,
   MarkerType,
+  useKeyPress,
 } from "@xyflow/react";
 
 import { type UseDiagramType } from "./diagram-hook";
@@ -80,6 +81,10 @@ interface DiagramContextType {
   getLastSelected: () => string | null;
 
   shouldShowSelectionToolbar: () => boolean;
+
+  getAreOnlyEdgesSelected: () => boolean;
+
+  getIsSelectionStateChangeFinished: () => boolean;
 }
 
 export const DiagramContext = createContext<DiagramContextType | null>(null);
@@ -146,6 +151,7 @@ function useCreateReactStates() {
   const [canvasToolbar, setCanvasToolbar] = useState<CanvasToolbarGeneralProps | null>(null);
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const [selectedEdges, setSelectedEdges] = useState<string[]>([]);
+  const [selectionSerialNumber, setSelectionSerialNumber] = useState<number>(0);
 
   return {
     nodes, setNodes,
@@ -154,6 +160,7 @@ function useCreateReactStates() {
     canvasToolbar, setCanvasToolbar,
     selectedNodes, setSelectedNodes,
     selectedEdges, setSelectedEdges,
+    selectionSerialNumber, setSelectionSerialNumber
   };
 }
 
@@ -162,14 +169,17 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
   reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
   createdReactStates: ReturnType<typeof useCreateReactStates>,
 ) {
-  const { setNodes, setEdges, setEdgeToolbar, setCanvasToolbar, selectedNodes, setSelectedNodes, setSelectedEdges } = createdReactStates;
+  const { setNodes, setEdges, setEdgeToolbar, setCanvasToolbar, selectedNodes, setSelectedNodes, setSelectedEdges, setSelectionSerialNumber } = createdReactStates;
   const alignmentController = useAlignmentController({ reactFlowInstance: reactFlowInstance });
 
   // The initialized is set to false when new node is added and back to true once the size is determined.
   // const reactFlowInitialized = useNodesInitialized();
 
-  const onChangeSelection = useCallback(createChangeSelectionHandler(selectedNodes, setSelectedNodes, setSelectedEdges),
-    [selectedNodes, setSelectedNodes, setSelectedEdges]);
+  // https://reactflow.dev/api-reference/hooks/use-key-press
+  const isShiftPressed = useKeyPress('Shift');
+
+  const onChangeSelection = useCallback(createChangeSelectionHandler(selectedNodes, setSelectedNodes, setSelectedEdges, setSelectionSerialNumber, isShiftPressed),
+    [selectedNodes, setSelectedNodes, setSelectedEdges, setSelectionSerialNumber, isShiftPressed]);
 
   useOnSelectionChange({ onChange: (onChangeSelection) });
 
@@ -223,12 +233,12 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
   createdReactStates: ReturnType<typeof useCreateReactStates>,
   createdPartOfDiagramController: ReturnType<typeof useCreateDiagramControllerIndependentOnActionsAndContext>,
 ) {
-  const { setNodes, setEdges, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges } = createdReactStates;
+  const { setNodes, setEdges, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges, selectionSerialNumber } = createdReactStates;
   const { onOpenEdgeToolbar, onOpenCanvasToolbar, alignmentController } = createdPartOfDiagramController;
 
   const context = useMemo(() => createDiagramContext(
-    api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar?.toolbarContent ?? null, setCanvasToolbar, selectedNodes, selectedEdges),
-    [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges]
+    api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar?.toolbarContent ?? null, setCanvasToolbar, selectedNodes, selectedEdges, selectionSerialNumber),
+    [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges, selectionSerialNumber]
   );
 
   const actions = useMemo(() => createActions(reactFlowInstance, setNodes, setEdges, alignmentController, context),
@@ -307,6 +317,8 @@ const createChangeSelectionHandler = (
   previouslySelectedNodes: string[],
   setSelectedNodes: (newNodeSelection: string[]) => void,
   setSelectedEdges: (newEdgeSelection: string[]) => void,
+  setSelectionSerialNumber: React.Dispatch<React.SetStateAction<number>>,
+  isShiftPressed: boolean,
 ) => {
   return ({nodes, edges}: OnSelectionChangeParams) => {
     // We can react on change events here.
@@ -331,8 +343,17 @@ const createChangeSelectionHandler = (
       }
     }
 
+    // We have to do this because when we are using useOnSelectionChange and selected node using shift - there are 2 calls - first for the node and the for the edges
+    // So we if we are selecting using shift we disable the updating of toolbars by checking selectionSerialNumber % 2 === 0
+    // And we have to do it because otherwise the other toolbars flicker 
+    if(isShiftPressed) {
+      setSelectionSerialNumber((prev) => prev + 1);
+      // This is nice hack, which handles special cases (shift without drag) and hovering over node without edges
+      setTimeout(() => setSelectionSerialNumber(prev => prev + (prev % 2)), 10);
+    }
+
+    setSelectedNodes(newSelectedNodes);
     setSelectedEdges(edges.map(edge => edge.id));
-    setSelectedNodes(newSelectedNodes)
   };
 };
 
@@ -726,7 +747,8 @@ const createDiagramContext = (
   openedCanvasToolbar: CanvasToolbarContentType | null,
   setCanvasToolbar: (_: null) => void,
   selectedNodes: string[],
-  selectedEdges: string[]
+  selectedEdges: string[],
+  selectionSerialNumber: number,
 ): DiagramContextType => {
   const getLastSelected = () => {
     return selectedNodes.at(-1) ?? null;
@@ -735,6 +757,12 @@ const createDiagramContext = (
     return selectedNodes.length > 1 || (selectedNodes.length === 1 && selectedEdges.length > 0);
   };
   const closeCanvasToolbar = () => setCanvasToolbar(null);
+  const getAreOnlyEdgesSelected = () => {
+    return selectedNodes.length === 0 && selectedEdges.length !== 0;
+  };
+  const getIsSelectionStateChangeFinished = () => {
+    return selectionSerialNumber % 2 === 0;
+  };
 
   return {
     callbacks: api.callbacks,
@@ -744,5 +772,8 @@ const createDiagramContext = (
     closeCanvasToolbar,
     getLastSelected,
     shouldShowSelectionToolbar,
+
+    getAreOnlyEdgesSelected,
+    getIsSelectionStateChangeFinished,
   };
 };

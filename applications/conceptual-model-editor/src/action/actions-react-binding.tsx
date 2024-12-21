@@ -43,8 +43,9 @@ import { SelectionFilterState } from "../dialog/selection/filter-selection-dialo
 import { filterSelectionAction, SelectionFilter, Selections, SelectionsWithIdInfo } from "./filter-selection-action";
 import { createExtendSelectionDialog } from "../dialog/selection/extend-selection-dialog";
 import { ExtendSelectionState } from "../dialog/selection/extend-selection-dialog-controller";
-import { extendSelectionAction, ExtensionType, NodeSelection, VisibilityFilter } from "./extend-selection-action";
+import { extendSelectionAction, ExtensionType, getSelectionForWholeSemanticModel, NodeSelection, VisibilityFilter } from "./extend-selection-action";
 import { createFilterSelectionDialog } from "../dialog/selection/filter-selection-dialog";
+import { EntityModel } from "@dataspecer/core-v2";
 
 const LOG = createLogger(import.meta.url);
 
@@ -189,7 +190,10 @@ interface VisualModelActions {
 
   //
   // TODO PRQuestion: Again document using {@link .*Action} or not?
-  addEntitiesFromSemanticModelToVisualModel: (semanticModelIdentifier: string) => void;
+  addEntitiesFromSemanticModelToVisualModel: (semanticModel: EntityModel) => void;
+
+  // TODO PRQuestion: Again document using {@link .*Action} or not?
+  removeEntitiesInSemanticModelFromVisualModel: (semanticModel: EntityModel) => void;
 
   /**
    * Puts class' neighborhood to visual model. That is classes connected to semantic class or class profile identified by {@link classIdentifier}.
@@ -262,6 +266,7 @@ const noOperationActionsContext = {
   createNewVisualModelFromSelection: noOperation,
   //
   addEntitiesFromSemanticModelToVisualModel: noOperation,
+  removeEntitiesInSemanticModelFromVisualModel: noOperation,
   addClassNeighborhoodToVisualModel: noOperation,
   layoutActiveVisualModel: noOperationAsync,
   //
@@ -507,7 +512,7 @@ function createActionsContext(
   const addSemanticEntitiesToVisualModel = (entities: EntityToAddToVisualModel[]): void => {
     withVisualModel(notifications, graph, (visualModel) => {
       addSemanticEntitiesToVisualModelAction(
-        notifications, graph, classes, visualModel, diagram, entities);
+        notifications, classes, graph, visualModel, diagram, entities);
     });
   };
 
@@ -572,12 +577,23 @@ function createActionsContext(
     });
   }
 
-  const addEntitiesFromSemanticModelToVisualModel = (semanticModelIdentifier: string) => {
-    addEntitiesFromSemanticModelToVisualModelAction(notifications, graph, semanticModelIdentifier);
+  const addEntitiesFromSemanticModelToVisualModel = (semanticModel: EntityModel) => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      addEntitiesFromSemanticModelToVisualModelAction(notifications, classes, graph, diagram, visualModel, semanticModel);
+    });
+  };
+
+  const removeEntitiesInSemanticModelFromVisualModel = (semanticModel: EntityModel) => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      const identifiers = getSelectionForWholeSemanticModel(semanticModel, false, visualModel).nodeSelection;
+      removeFromVisualModel(identifiers);
+    });
   };
 
   const addClassNeighborhoodToVisualModel = (identifier: string) => {
-    addClassNeighborhoodToVisualModelAction(graph, notifications, identifier);
+    withVisualModel(notifications, graph, (visualModel) => {
+      addClassNeighborhoodToVisualModelAction(notifications, classes, graph, diagram, visualModel, identifier);
+    });
   };
 
   const createNewVisualModelFromSelection = (selectionIdentifiers: string[]) => {
@@ -760,6 +776,7 @@ function createActionsContext(
 
     createNewVisualModelFromSelection,
     addEntitiesFromSemanticModelToVisualModel,
+    removeEntitiesInSemanticModelFromVisualModel,
     addClassNeighborhoodToVisualModel,
 
     layoutActiveVisualModel,
