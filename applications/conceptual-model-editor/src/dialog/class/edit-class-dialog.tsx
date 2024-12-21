@@ -1,45 +1,26 @@
-import { type DialogWrapper, type DialogProps } from "../dialog-api";
+import { type DialogProps } from "../dialog-api";
 import { t } from "../../application";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
-import { CreateClassDialogState, useCreateClassDialogController } from "./create-class-dialog-controller";
 import { SelectModel } from "./components/select-model";
 import { SpecializationSelect } from "./components/select-specialization";
 import { InputIri } from "./components/input-iri";
+import { EditClassDialogState, useEditClassDialogController } from "./edit-class-dialog-controller";
+import { ValidationMessage } from "../association-profile/components/validation-message";
 
-export const createCreateClassDialog = (
-  state: CreateClassDialogState,
-  onConfirm: (state: CreateClassDialogState) => void | null,
-): DialogWrapper<CreateClassDialogState> => {
-  return {
-    label: "create-class-dialog.label",
-    component: CreateClassDialog,
-    state,
-    confirmLabel: "create-class-dialog.btn-ok",
-    cancelLabel: "create-class-dialog.btn-cancel",
-    validate: validate,
-    onConfirm,
-    onClose: null,
-  };
-};
-
-function validate(state: CreateClassDialogState): boolean {
-  return state.iri.trim() !== "";
-}
-
-const CreateClassDialog = (props: DialogProps<CreateClassDialogState>) => {
-  const controller = useCreateClassDialogController(props);
+export const EditClassDialog = (props: DialogProps<EditClassDialogState>) => {
+  const controller = useEditClassDialogController(props);
   const state = props.state;
   return (
     <>
       <div
         className="grid gap-y-2 md:grid-cols-[25%_75%] md:gap-y-3 bg-slate-100 md:pb-4 md:pl-8 md:pr-16 md:pt-2"
-        style={{ backgroundColor: state.model.color }}
+        style={{ backgroundColor: state.model.displayColor }}
       >
         <DialogDetailRow detailKey={t("model")}>
           <SelectModel
             language={state.language}
-            items={state.writableModels}
+            items={state.availableModels}
             value={state.model}
             onChange={controller.setModel}
           />
@@ -56,12 +37,13 @@ const CreateClassDialog = (props: DialogProps<CreateClassDialogState>) => {
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("create-class-dialog.iri")}>
           <InputIri
-            iriPrefix={state.iriPrefix}
+            iriPrefix={state.model.baseIri ?? ""}
             isRelative={state.isIriRelative}
-            setIsRelative={controller.setIsRelative}
+            setIsRelative={controller.setIsIriRelative}
             value={state.iri}
             onChange={controller.setIri}
           />
+          <ValidationMessage value={state.iriValidation} />
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("modify-entity-dialog.specialization-of")}>
           <SpecializationSelect

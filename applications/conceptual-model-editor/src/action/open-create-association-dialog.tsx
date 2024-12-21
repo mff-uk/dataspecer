@@ -7,11 +7,11 @@ import { ModelGraphContextType } from "../context/model-context";
 import { Options, createLogger } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { firstInMemorySemanticModel } from "../utilities/model";
-import { createNewAssociationDialog } from "../dialog/association/edit-association-dialog";
 import { createGeneralization, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
-import { createCreateAssociationDialogState } from "../dialog/association/create-new-association-dialog-state";
+import { createCreateAssociationDialogState, createNewAssociationDialog } from "../dialog/association/create-new-association-dialog-state";
 import { EditAssociationDialogState } from "../dialog/association/edit-association-dialog-controller";
+import { EntityModel } from "@dataspecer/core-v2";
 
 const LOG = createLogger(import.meta.url);
 
@@ -35,11 +35,11 @@ export function openCreateAssociationDialogAction(
   }
 
   const state = createCreateAssociationDialogState(
-    classes, graph, visualModel, options.language, model);
+    classes, graph, visualModel, options.language);
 
   const onConfirm = (state: EditAssociationDialogState) => {
     // Create association.
-    const createResult = createSemanticAssociation(notifications, state);
+    const createResult = createSemanticAssociation(notifications, graph.models, state);
     if (createResult === null) {
       return;
     }
@@ -61,6 +61,7 @@ export function openCreateAssociationDialogAction(
 
 function createSemanticAssociation(
   notifications: UseNotificationServiceWriterType,
+  models: Map<string, EntityModel>,
   state: EditAssociationDialogState): {
     identifier: string,
     model: InMemorySemanticModel
@@ -82,7 +83,7 @@ function createSemanticAssociation(
     }]
   });
 
-  const model: InMemorySemanticModel = state.model.model;
+  const model: InMemorySemanticModel = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
   const newAssociation = model.executeOperation(operation);
   if (newAssociation.success === false || newAssociation.id === undefined) {
     notifications.error("We have not received the id of newly created association. See logs for more detail.");

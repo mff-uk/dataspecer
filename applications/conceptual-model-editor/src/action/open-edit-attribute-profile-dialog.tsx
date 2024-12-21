@@ -2,7 +2,6 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { Operation } from "@dataspecer/core-v2/semantic-model/operations";
 import { modifyRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
-import { EntityModel } from "@dataspecer/core-v2";
 
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { ClassesContextType } from "../context/classes-context";
@@ -11,13 +10,14 @@ import { Options } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { mergeEndsUpdate } from "./utilities/operations-utilities";
 import { SemanticModelRelationshipEndUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { EditAssociationProfileDialogState } from "../dialog/association-profile/edit-association-profile-dialog-controller";
-import { createEditAssociationProfileDialog, createEditAssociationProfileDialogState } from "../dialog/association-profile/create-edit-association-profile-dialog-state";
+import { EditAttributeProfileDialogState } from "../dialog/attribute-profile/edit-attribute-profile-dialog-controller";
+import { createEditAttributeProfileDialog, createEditAttributeProfileDialogState } from "../dialog/attribute-profile/create-edit-attribute-profile-dialog-state";
+import { EntityModel } from "@dataspecer/core-v2";
 
 /**
- * Open and handle edit association dialog.
+ * Open and handle edit Attribute dialog.
  */
-export function openEditAssociationProfileDialogAction(
+export function openEditAttributeProfileDialogAction(
   options: Options,
   dialogs: DialogApiContextType,
   classes: ClassesContextType,
@@ -27,24 +27,24 @@ export function openEditAssociationProfileDialogAction(
   model: InMemorySemanticModel,
   entity: SemanticModelRelationshipUsage,
 ) {
-  const state = createEditAssociationProfileDialogState(
+  const state = createEditAttributeProfileDialogState(
     classes, graph, visualModel, options.language, model, entity);
 
-  const onConfirm = (nextState: EditAssociationProfileDialogState) => {
-    updateSemanticAssociationProfile(notifications, graph.models, entity, state, nextState);
+  const onConfirm = (nextState: EditAttributeProfileDialogState) => {
+    updateSemanticAttributeProfile(notifications, graph.models, entity, state, nextState);
   };
 
-  dialogs.openDialog(createEditAssociationProfileDialog(state, onConfirm));
+  dialogs.openDialog(createEditAttributeProfileDialog(state, onConfirm));
 }
 
 type SemanticModelRelationshipChange = Partial<Omit<SemanticModelRelationshipEndUsage, "type" | "id">>;
 
-function updateSemanticAssociationProfile(
+function updateSemanticAttributeProfile(
   notifications: UseNotificationServiceWriterType,
   models: Map<string, EntityModel>,
   entity: SemanticModelRelationshipUsage,
-  prevState: EditAssociationProfileDialogState,
-  nextState: EditAssociationProfileDialogState,
+  prevState: EditAttributeProfileDialogState,
+  nextState: EditAttributeProfileDialogState,
 ) {
   if (prevState.model !== nextState.model) {
     notifications.error("Change of model is not supported!");

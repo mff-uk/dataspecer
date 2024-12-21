@@ -102,7 +102,7 @@ export function setSelectionsInDiagram(selectionsToSetWith: Selections, diagram:
 }
 
 export function getSelections(diagram: UseDiagramType, shouldFilterOutProfileClassEdges: boolean, shouldGetVisualIdentifiers: boolean): Selections {
-  let nodeSelection = diagram.actions().getSelectedNodes();
+  const nodeSelection = diagram.actions().getSelectedNodes();
   let edgeSelection = diagram.actions().getSelectedEdges();
 
   if(shouldFilterOutProfileClassEdges) {

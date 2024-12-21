@@ -28,7 +28,7 @@ const PREDEFINED_MODELS: PredefinedModel[] = [{
 }, {
   "identifier": "dcat",
   "label": "DCAT - Data Catalog Vocabulary",
-  "url": "https://www.w3.org/ns/dcat.ttl",
+  "url": "https://www.w3.org/ns/dcat3.ttl",
 }, {
   "identifier": "sgov",
   "label": "Czech Semantic Dictionary of terms",
