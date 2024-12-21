@@ -10,7 +10,6 @@ import { CmeModelType, CmeModel } from "./cme-model";
 export const UndefinedCmeVocabulary : CmeModel = {
   dsIdentifier: "undefined-cme-vocabulary",
   displayLabel: {},
-  displayDescription: null,
   displayColor: "#000069",
   dsModelType: CmeModelType.Default,
   baseIri: null,
@@ -23,7 +22,6 @@ export const UndefinedCmeVocabulary : CmeModel = {
 export const OwlVocabulary : CmeModel = {
   dsIdentifier: "https://www.w3.org/2002/07/owl",
   displayLabel: {"": "owl"},
-  displayDescription: null,
   displayColor: "#000069",
   dsModelType: CmeModelType.Default,
   baseIri: "https://www.w3.org/2002/07/owl",

@@ -33,7 +33,6 @@ export function entityModelToCmeVocabulary(model: EntityModel, visualModel: Visu
   return {
     dsIdentifier: model.getId(),
     displayLabel: getModelLabel(model),
-    displayDescription: null,
     dsModelType: getModelType(model),
     displayColor: visualModel?.getModelColor(model.getId()) ?? defaultModelColor,
     baseIri: getModelBaseIri(model),

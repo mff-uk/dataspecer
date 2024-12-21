@@ -61,7 +61,6 @@ test("Sanitize label duplicities.", () => {
   const one = {
     dsIdentifier: "vocabulary-1",
     displayLabel: { "": "one" },
-    displayDescription: null,
     dsModelType: CmeModelType.Default,
     displayColor: "",
     baseIri: null,
@@ -70,7 +69,6 @@ test("Sanitize label duplicities.", () => {
   const two = {
     dsIdentifier: "vocabulary-2",
     displayLabel: { "": "two" },
-    displayDescription: null,
     dsModelType: CmeModelType.Default,
     displayColor: "",
     baseIri: null,

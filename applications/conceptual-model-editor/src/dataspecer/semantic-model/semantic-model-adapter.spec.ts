@@ -26,7 +26,6 @@ describe("entityModelsMapToCmeVocabulary", () => {
     expect(actual).toStrictEqual([{
       dsIdentifier: "abcd",
       displayLabel: { "": "mock model" },
-      displayDescription: null,
       displayColor: "#111111",
       dsModelType: CmeModelType.Default,
       baseIri: null,
@@ -51,7 +50,6 @@ describe("entityModelToCmeModel", () => {
     expect(actual).toStrictEqual({
       dsIdentifier: "abcd",
       displayLabel: { "": "mock model" },
-      displayDescription: null,
       displayColor: "abcd-blue",
       dsModelType: CmeModelType.Default,
       baseIri: "http://base",
@@ -71,7 +69,6 @@ describe("entityModelToCmeModel", () => {
     expect(actual).toStrictEqual({
       dsIdentifier: "abcd",
       displayLabel: { "": "t:model-service.model-label-from-id" },
-      displayDescription: null,
       displayColor: "abcd-blue",
       dsModelType: CmeModelType.Default,
       baseIri: null,
@@ -87,7 +84,6 @@ describe("entityModelToCmeModel", () => {
     expect(actual).toStrictEqual({
       dsIdentifier: "abcd",
       displayLabel: { "": "mock model" },
-      displayDescription: null,
       displayColor: "#111111",
       dsModelType: CmeModelType.Default,
       baseIri: null,
