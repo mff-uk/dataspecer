@@ -1,6 +1,7 @@
 import { Edge, getConnectedEdges, MarkerType, Node, ReactFlowInstance } from "@xyflow/react";
 import { Dispatch, SetStateAction } from "react";
 import { NodeType, selectMarkerEnd } from "../../diagram-controller";
+import { nodesHighlightingLevelToClassnameMap, replaceClassNameWith } from "./exploration/canvas/canvas-exploration-highlighting-controller";
 
 // TODO RadStr: Improve the dispatch types
 export const setHighlightingStylesBasedOnSelection = (
@@ -45,7 +46,13 @@ export const setHighlightingStylesBasedOnSelection = (
             const isChanged = changedNodesBasedOnEdgeSelection.find(nodeId => nodeId === node.id);
             const isHighlighted = nodes.find(id => node.id === id) !== undefined;
 
+            // Commented the code with classnames - we unfortunately have to use the style property, because for some reason
+            // the classname property takes effect only after something happens (for example user moves the viewport)
+            // This fact actually also takes effect in the exploration highlighting mode - When user selects new class
+            // using ctrl-selection then when the user doesn't do anything else, the node is not highlighting
+            // (after sure for example moves the viewport, it is highlighted again)
             if(isHighlighted) {
+                // node.className = replaceClassNameWith(node.className, nodesHighlightingLevelToClassnameMap[0], false, true);
                 node.style = {
                     ...node.style,
                     outline: `0.25em solid ${highlightColor}`,
@@ -53,6 +60,7 @@ export const setHighlightingStylesBasedOnSelection = (
                 };
             }
             else if(isChanged !== undefined) {
+                // node.className = replaceClassNameWith(node.className, nodesHighlightingLevelToClassnameMap[1], false, true);
                 node.style = {
                     ...node.style,
                     outline: `0.25em solid ${nextToHighlightedElementColor}`,
@@ -60,6 +68,7 @@ export const setHighlightingStylesBasedOnSelection = (
                 };
             }
             else {
+                // node.className = replaceClassNameWith(node.className, nodesHighlightingLevelToClassnameMap["no-highlight"], false, true);
                 node.style = {
                     ...node.style,
                     outline: undefined,

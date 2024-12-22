@@ -7,10 +7,6 @@ import { highlightColorMap, HighlightLevel } from "../../set-selection-highlight
 import { selectMarkerEnd } from "../../../../diagram-controller";
 import { ReactPrevSetStateType } from "../../../../utilities";
 
-// TODO RadStr: Try to unify with the selection highlighting (so probably change to classnames too)
-// TODO RadStr: Probably somehow disable the selection highlighting when the exploration mode is on -
-//              respectively do it through the classnames - and in here remove it in the replace part
-//              It will be the same thing almost - just without the transitions (it will be additional something like classname-highlighting and classname-highlighting-animation)
 // TODO RadStr: when it comes to performance - https://web.dev/articles/animations-guide - so if I understand it correctly the opacity and transform are cheap
 //              (Does it apply only when I change classname or also just when setting style? or is the setting of any of those expensive? It probably does)
 //              Anyways so based on that we should have the outline always visible and just change its opacity, which means we should probably have
@@ -62,6 +58,33 @@ export const useExplorationCanvasHighlightingController = (
         };
     }, [highlightLevels, isHighlightingOn]);
 
+    // Reset the possible selection highlighting
+    useEffect(() => {
+        return () => {
+            if(!isHighlightingOn) {
+                setNodes(prevNodes => {
+                    return prevNodes.map(prevNode => {
+                        return {
+                            ...prevNode,
+                            style: {...prevNode.style, outline: undefined},
+                        };
+                    });
+                });
+
+                // TODO RadStr: If we will use the black color for edges, then there is no need to reset the edges here,
+                // because we have to change the color anyways
+                setEdges(prevEdges => {
+                    return prevEdges.map(edge => {
+                        return {
+                            ...edge,
+                            style: {...edge.style, stroke: edge.data.color},
+                        };
+                    });
+                });
+            }
+        }
+    }, [isHighlightingOn]);
+
     return {
         changeHighlight,
         resetHighlight,
@@ -110,7 +133,6 @@ function setEdgesHighlighting(
                 ...edge,
                 animated: true,     // We are using animated property instead of setting color to highlightColorMap[1] (that is black)
                 markerEnd: selectMarkerEnd(edge.data, highlightColorMap[1]),
-
             });
         });
 
@@ -125,7 +147,7 @@ function setEdgesHighlighting(
                         ...prevEdge,
                         markerEnd: selectMarkerEnd(prevEdge.data, prevEdge.data.color),
                         animated: false,
-                        style: {...prevEdge.style, opacity: 0.1}
+                        style: {...prevEdge.style, opacity: edgeHighlightOpacityMap["highlight-opposite"]}
                     };
                 }
                 return prevEdge;
@@ -141,14 +163,12 @@ function resetHighlightingToDefault(
 ) {
     setEdges(prevEdges => {
         return prevEdges.map(edge => {
-            // TODO: CopyPaste of the above and no animation
-
             if(edge?.data?.color !== undefined) {
                 return {
                     ...edge,
                     markerEnd: selectMarkerEnd(edge.data, null),
                     animated: false,
-                    style: {...edge.style, opacity: 1}
+                    style: {...edge.style, opacity: edgeHighlightOpacityMap["no-highlight"]}
                 };
             }
             return edge;
@@ -166,13 +186,10 @@ function resetHighlightingToDefault(
 }
 
 
-// TODO RadStr: Remove not used stuff
-
-
 /**
  * @param isReplacingNodeClassNames If set to false then replacing edge class names
  */
-const replaceClassNameWith = (
+export const replaceClassNameWith = (
     className: string | undefined,
     replaceClassName: string,
     shouldAddAdditionalAnimation: boolean,
@@ -217,55 +234,17 @@ const RegExpForRemoval: Record<RemovalTypes, RegExp> = {
 
 
 
-const highlightOpacityMap: Record<HighlightLevel, number> = {
+const edgeHighlightOpacityMap: Record<HighlightLevel, number> = {
     "no-highlight": 1,
     0: 1,
     1: 0.3,
     "highlight-opposite": 0.1
 };
 
-const nodesHighlightingLevelToStyleMap: Record<HighlightLevel, object> = {
-    "no-highlight": {
-      outline: undefined,
-      opacity: highlightOpacityMap["no-highlight"],
-    },
-    0: {
-      outline: `0.25em solid ${highlightColorMap[0]}`,
-      opacity: highlightOpacityMap[0],
-    },
-    1: {
-      outline: `0.25em solid ${highlightColorMap[1]}`,
-      opacity: highlightOpacityMap[1],
-    },
-    "highlight-opposite": {},
-};
-
-const nodesHighlightingLevelToClassnameMap: Record<HighlightLevel, string> = {
+// Actually probably no need to export, because we are using styles instead of classnames for the highlighting selection
+export const nodesHighlightingLevelToClassnameMap: Record<HighlightLevel, string> = Object.freeze({
     "no-highlight": "node-highlight-classic",
     "highlight-opposite": "node-highlight-opposite",
     0: "node-highlight-main",
     1: "node-highlight-secondary",
-};
-
-const edgesHighlightingLevelToClassnameMap: Record<HighlightLevel, string> = {
-    "no-highlight": "edge-highlight-classic",
-    "highlight-opposite": "edge-highlight-opposite",
-    0: "edge-highlight-main",
-    1: "edge-highlight-secondary",
-};
-
-const edgesHighlightingLevelToStyleMap: Record<HighlightLevel, object> = {
-    "no-highlight": {
-        stroke: null,
-        opacity: highlightOpacityMap["no-highlight"],
-    },
-    0: {
-        stroke: highlightColorMap[0],
-        opacity: highlightOpacityMap[0],
-    },
-    1: {
-        stroke: highlightColorMap[1],
-        opacity: highlightOpacityMap[1],
-    },
-    "highlight-opposite": {},
-};
+});
