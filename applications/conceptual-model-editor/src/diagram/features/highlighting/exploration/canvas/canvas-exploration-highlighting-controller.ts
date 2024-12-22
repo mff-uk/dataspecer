@@ -11,7 +11,6 @@ import { ReactPrevSetStateType } from "../../../../utilities";
 // TODO RadStr: Probably somehow disable the selection highlighting when the exploration mode is on -
 //              respectively do it through the classnames - and in here remove it in the replace part
 //              It will be the same thing almost - just without the transitions (it will be additional something like classname-highlighting and classname-highlighting-animation)
-// TODO RadStr: Use class names for edges
 // TODO RadStr: when it comes to performance - https://web.dev/articles/animations-guide - so if I understand it correctly the opacity and transform are cheap
 //              (Does it apply only when I change classname or also just when setting style? or is the setting of any of those expensive? It probably does)
 //              Anyways so based on that we should have the outline always visible and just change its opacity, which means we should probably have
@@ -19,6 +18,11 @@ import { ReactPrevSetStateType } from "../../../../utilities";
 //              For now just do it like this, the performance can be checked later (we can't do it in pure css since we need to compute the neighbors anyways)
 //              So I guess that 2 places take performance - the change of outline (and change of edges' color) and the change of backdrop-filter for catalog
 // TODO RadStr: Maybe not optimal algorithm-wise? but can't think of anything much better now
+
+// Also note that we can't use classnames to set styles of edges, we have to use the style property.
+// We can use classname to set some properties, but mostly it is ignored, because we are using explicit style anyways to set the stroke property for example
+// And we also can't set the style of the label of edge - we would probably have to pass in another property in the data property of edge
+// and that it is too complicated with almost nothing to gain
 export const useExplorationCanvasHighlightingController = (
     setNodes: ReactPrevSetStateType<Node<any>[]>,
     setEdges: ReactPrevSetStateType<Edge<any>[]>
@@ -41,9 +45,13 @@ export const useExplorationCanvasHighlightingController = (
                         return highlightedNode;
                     }
                     else {
+                        const newClassName = replaceClassNameWith(prevNode.className, nodesHighlightingLevelToClassnameMap["highlight-opposite"], true, true);
+                        if(newClassName === prevNode.className) {
+                            return prevNode;
+                        }
                         return {
                             ...prevNode,
-                            className: replaceNodeClassnameWith(prevNode.className, nodesHighlightingLevelToClassnameMap["highlight-opposite"]),
+                            className: newClassName,
                         };
                     }
                 });
@@ -79,15 +87,11 @@ function createHighlightedNodes(nodes: Node<any>[], highlightLevels: Record<stri
         }
 
         if(level === 0) {
-            // TODO RadStr: Debug
-            console.log("MAIN: " + `${nodeId} ` + String(node.className));
-            highlightedNodes.push({...node, className: replaceNodeClassnameWith(node.className, nodesHighlightingLevelToClassnameMap[0])});
+            highlightedNodes.push({...node, className: replaceClassNameWith(node.className, nodesHighlightingLevelToClassnameMap[0], true, true)});
             mainHighlightedNodes.push(node);
         }
         else if(level === 1) {
-            // TODO RadStr: Debug
-            console.log("SECONDARY: " + `${nodeId} ` + String(node.className));
-            highlightedNodes.push({...node, className: replaceNodeClassnameWith(node.className, nodesHighlightingLevelToClassnameMap[1])});
+            highlightedNodes.push({...node, className: replaceClassNameWith(node.className, nodesHighlightingLevelToClassnameMap[1], true, true)});
         }
     });
 
@@ -104,8 +108,9 @@ function setEdgesHighlighting(
         connectedEdges.forEach(edge => {
             highlightedEdges.push({
                 ...edge,
-                style: {...edge.style, stroke: highlightColorMap[1]},
+                animated: true,     // We are using animated property instead of setting color to highlightColorMap[1] (that is black)
                 markerEnd: selectMarkerEnd(edge.data, highlightColorMap[1]),
+
             });
         });
 
@@ -119,7 +124,8 @@ function setEdgesHighlighting(
                     return {
                         ...prevEdge,
                         markerEnd: selectMarkerEnd(prevEdge.data, prevEdge.data.color),
-                        style: {...prevEdge.style, stroke: prevEdge.data.color, opacity: 0.1}
+                        animated: false,
+                        style: {...prevEdge.style, opacity: 0.1}
                     };
                 }
                 return prevEdge;
@@ -141,7 +147,8 @@ function resetHighlightingToDefault(
                 return {
                     ...edge,
                     markerEnd: selectMarkerEnd(edge.data, null),
-                    style: {...edge.style, stroke: edge.data.color, opacity: 1}
+                    animated: false,
+                    style: {...edge.style, opacity: 1}
                 };
             }
             return edge;
@@ -152,7 +159,7 @@ function resetHighlightingToDefault(
         return prevNodes.map((node) => {
             return {
                 ...node,
-                className: replaceNodeClassnameWith(node.className, nodesHighlightingLevelToClassnameMap["no-highlight"]),
+                className: replaceClassNameWith(node.className, nodesHighlightingLevelToClassnameMap["no-highlight"], true, true),
             };
         });
     });
@@ -160,14 +167,55 @@ function resetHighlightingToDefault(
 
 
 // TODO RadStr: Remove not used stuff
-const replaceNodeClassnameWith = (className: string | undefined, replaceClassName: string) => {
+
+
+/**
+ * @param isReplacingNodeClassNames If set to false then replacing edge class names
+ */
+const replaceClassNameWith = (
+    className: string | undefined,
+    replaceClassName: string,
+    shouldAddAdditionalAnimation: boolean,
+    isReplacingNodeClassNames: boolean,
+) => {
     // No quotes for regexp
-    return (className?.replace(/ node-highlight-secondary| node-highlight-main| node-highlight-opposite| node-highlight-classic/g, "") ?? "") + " " + replaceClassName;
+    const replacedClassname = removeHighlightingClassnames(className ?? null, isReplacingNodeClassNames) + " " + replaceClassName;
+    if(shouldAddAdditionalAnimation) {
+        return replacedClassname + ` ${replaceClassName + "-animation"}`;
+    }
+    return replacedClassname;
 }
 
-const replaceEdgeClassnameWith = (className: string | undefined, replaceClassName: string) => {
-    return (className?.replace(/ node-highlight-secondary| node-highlight-main| highlight-opposite| node-highlight-classic/g, "") ?? "") + " " + replaceClassName;
+const removeHighlightingClassnames = (
+    className: string | null,
+    isReplacingNodeClassNames: boolean,
+): string => {
+    const keyForRegexMap = isReplacingNodeClassNames ? RemovalTypes.NODE_REMOVAL : RemovalTypes.EDGE_REMOVAL;
+    const classnameAfterRemoval = className?.replace(RegExpForRemoval[keyForRegexMap], "") ?? "";
+    return classnameAfterRemoval;
 }
+
+const createRegExpForClassNamesRemoval = (isReplacingNodeClassNames: boolean) => {
+    const classNamePrefix = isReplacingNodeClassNames ? "node" : "edge";
+    const nonAnimationClassNames = ` ${classNamePrefix}-highlight-secondary| ${classNamePrefix}-highlight-main| ${classNamePrefix}-highlight-opposite| ${classNamePrefix}-highlight-classic`;
+    const animationClassNames = ` ${classNamePrefix}-highlight-secondary-animation| ${classNamePrefix}-highlight-main-animation| ${classNamePrefix}-highlight-opposite-animation| ${classNamePrefix}-highlight-classic-animation`;
+    // Order matters
+    return RegExp(animationClassNames + "|" + nonAnimationClassNames, "g");
+}
+
+
+enum RemovalTypes {
+    NODE_REMOVAL,
+    EDGE_REMOVAL,
+};
+
+// Hopefully JS compiler knows that all of this is constant (even though it may not look like it) so it can be remembered (meaning all tehe flow not just this record)
+const RegExpForRemoval: Record<RemovalTypes, RegExp> = {
+    [RemovalTypes.NODE_REMOVAL]: createRegExpForClassNamesRemoval(true),
+    [RemovalTypes.EDGE_REMOVAL]: createRegExpForClassNamesRemoval(false),
+};
+
+
 
 const highlightOpacityMap: Record<HighlightLevel, number> = {
     "no-highlight": 1,

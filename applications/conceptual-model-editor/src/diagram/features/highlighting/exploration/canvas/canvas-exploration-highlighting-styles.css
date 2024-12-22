@@ -6,6 +6,7 @@
   transition: opacity 1s;
 }
 
+
 .node-highlight-opposite {
   outline: rgb(0, 0, 0, 0);
   opacity: 0.3;
@@ -15,6 +16,7 @@
   transition: opacity 2s;
 }
 
+
 .node-highlight-main {
   outline: 0.25em solid rgba(238, 58, 115, 1);
 }
@@ -22,6 +24,7 @@
 .node-highlight-main-animation {
   transition: outline-color 1.5s;
 }
+
 
 .node-highlight-secondary {
   outline: 0.25em solid rgba(0, 0, 0, 1);
