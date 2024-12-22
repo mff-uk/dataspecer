@@ -196,7 +196,7 @@ export interface DiagramActions {
    * Sets correct highlighting values in context. We have to call it through the diagram API, because we have access to the rendering library (reactflow) only in diagram component.
    * @param nodeIdentifier is the identifier of the node to highlight
    */
-  highlightNodeInExplorationModeFromCatalog(nodeIdentifier: string): void;
+  highlightNodeInExplorationModeFromCatalog(nodeIdentifier: string, modelOfClassWhichStartedHighlighting: string): void;
 }
 
 export type ViewportDimensions = {

@@ -237,7 +237,7 @@ export interface ActionsContextType extends DialogActions, VisualModelActions {
     semanticModelFilter: Record<string, boolean> | null
   ) => Selections;
 
-  highlightNodeInExplorationModeFromCatalog: (classIdentifier: string) => void;
+  highlightNodeInExplorationModeFromCatalog: (classIdentifier: string, modelOfClassWhichStartedHighlighting: string) => void;
 
   /**
    * As this context requires two way communication it is created and shared via the actions.
@@ -660,7 +660,7 @@ function createActionsContext(
     return filterSelectionAction(notifications, graph, classes, selections, allowedClasses, visibilityFilter, semanticModelFilter);
   };
 
-  const highlightNodeInExplorationModeFromCatalog = (classIdentifier: string) => {
+  const highlightNodeInExplorationModeFromCatalog = (classIdentifier: string, modelOfClassWhichStartedHighlighting: string) => {
     withVisualModel(notifications, graph, (visualModel) => {
       const nodeIdentifier = visualModel.getVisualEntityForRepresented(classIdentifier)?.identifier;
       const isClassInVisualModel = nodeIdentifier !== undefined;
@@ -668,7 +668,7 @@ function createActionsContext(
         return;
       }
 
-      diagram.actions().highlightNodeInExplorationModeFromCatalog(nodeIdentifier);
+      diagram.actions().highlightNodeInExplorationModeFromCatalog(nodeIdentifier, modelOfClassWhichStartedHighlighting);
     });
   }
 

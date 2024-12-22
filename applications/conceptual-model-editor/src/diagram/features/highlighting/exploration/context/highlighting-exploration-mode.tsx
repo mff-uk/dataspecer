@@ -8,23 +8,21 @@ import { EdgeType, NodeType } from "../../../../diagram-controller";
  */
 export interface Exploration {
   isHighlightingOn: boolean;
-
   toggleHighlighting: () => void;
-
+  //
   highlightLevels: Record<string, number>;
-
   setHighlightLevels: React.Dispatch<React.SetStateAction<Record<string, number>>>;
-
+  //
+  modelOfClassWhichStartedHighlighting: string | null;
+  setModelOfClassWhichStartedHighlighting: React.Dispatch<string | null>;
+  //
   semanticToVisualIdentifierMap: Record<string, string>;
-
   setSemanticToVisualIdentifierMap: React.Dispatch<React.SetStateAction<Record<string, string>>>;
-
+  //
   isHighlightingInternallyOn: boolean;
-
   setIsHighlightingInternallyOn: React.Dispatch<React.SetStateAction<boolean>>;
-
+  //
   shouldShrinkCatalog: boolean;
-
   setShouldShrinkCatalog: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -36,6 +34,7 @@ export const ExplorationContextProvider = (props: { children: React.ReactNode })
   const [isHighlightingInternallyOn, setIsHighlightingInternallyOn] = useState<boolean>(true);
   const [semanticToVisualIdentifierMap, setSemanticToVisualIdentifierMap] = useState<Record<string, string>>({});
   const [shouldShrinkCatalog, setShouldShrinkCatalog] = useState<boolean>(false);
+  const [modelOfClassWhichStartedHighlighting, setModelOfClassWhichStartedHighlighting] = useState<string | null>(null);
 
   // TODO RadStr: Probably not the best use of memo
   const context = useMemo(() => {
@@ -45,6 +44,9 @@ export const ExplorationContextProvider = (props: { children: React.ReactNode })
 
         highlightLevels,
         setHighlightLevels,
+
+        modelOfClassWhichStartedHighlighting,
+        setModelOfClassWhichStartedHighlighting,
 
         semanticToVisualIdentifierMap,
         setSemanticToVisualIdentifierMap,
@@ -56,6 +58,7 @@ export const ExplorationContextProvider = (props: { children: React.ReactNode })
         setShouldShrinkCatalog
     };
   }, [isHighlightingOn, setIsHighlightingOn, highlightLevels, setHighlightLevels,
+    modelOfClassWhichStartedHighlighting, setModelOfClassWhichStartedHighlighting,
     isHighlightingInternallyOn, setIsHighlightingInternallyOn, semanticToVisualIdentifierMap, setSemanticToVisualIdentifierMap,
     shouldShrinkCatalog, setShouldShrinkCatalog]);
 
@@ -93,11 +96,18 @@ export const useExploration = () => {
         isHighlightingOn,
         toggleHighlighting,
         shouldShrinkCatalog,
-        setShouldShrinkCatalog
+        setShouldShrinkCatalog,
+        modelOfClassWhichStartedHighlighting,
+        setModelOfClassWhichStartedHighlighting,
     } = useContext(ExplorationContext);
 
 
-    const changeHighlight = (startingNodeId: string, reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>, isSourceOfEventCanvas: boolean) => {
+    const changeHighlight = (
+        startingNodeId: string,
+        reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
+        isSourceOfEventCanvas: boolean,
+        modelOfClassWhichStartedHighlighting: string | null
+    ) => {
         if(!isHighlightingInternallyOn || !isHighlightingOn) {
             return;
         }
@@ -139,6 +149,7 @@ export const useExploration = () => {
         setSemanticToVisualIdentifierMap(newVisualIdentifierToSemanticIdentifierMap);
         setHighlightLevels(newHighlightLevelsMap);
         setShouldShrinkCatalog(isSourceOfEventCanvas);
+        setModelOfClassWhichStartedHighlighting(modelOfClassWhichStartedHighlighting);
     };
 
     const resetHighlight = () => {
@@ -175,6 +186,7 @@ export const useExploration = () => {
 
     return {
         highlightLevels, resetHighlight, changeHighlight,
+        modelOfClassWhichStartedHighlighting,
         disableTemporarily, enableTemporarily,
         isHighlightingPresent,
         toggleHighlighting,

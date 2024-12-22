@@ -325,11 +325,16 @@ const createOnNodeDragStartHandler = (
 
 
 const createOnNodeMouseEnterHandler = (
-  changeHighlight: (startingNodeId: string, reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>, isSourceOfEventCanvas: boolean) => void,
+  changeHighlight: (
+    startingNodeId: string,
+    reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
+    isSourceOfEventCanvas: boolean,
+    modelOfClassWhichStartedHighlighting: string | null
+  ) => void,
   reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
 ) => {
   return (_: React.MouseEvent, node: Node) => {
-    changeHighlight(node.id, reactFlowInstance, true);
+    changeHighlight(node.id, reactFlowInstance, true, null);
   };
 };
 
@@ -582,7 +587,10 @@ const createActions = (
   context: DiagramContextType,
   setSelectedNodesInternal: (newSelection: string[]) => void,
   setSelectedEdgesInternal: (newSelection: string[]) => void,
-  changeHighlight: (startingNodeId: string, reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>, isSourceOfEventCanvas: boolean) => void,
+  changeHighlight: (
+    startingNodeId: string,
+    reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>, isSourceOfEventCanvas: boolean, modelOfClassWhichStartedHighlighting: string | null
+  ) => void,
 ): DiagramActions => {
   return {
     getGroups() {
@@ -747,8 +755,8 @@ const createActions = (
       console.log("openCanvasToolbar", {sourceNode, canvasPosition});
       context?.onOpenCanvasContextMenu(sourceNode, canvasPosition, NodeSelectionActionsSecondaryToolbar);
     },
-    highlightNodeInExplorationModeFromCatalog(nodeIdentifier) {
-      changeHighlight(nodeIdentifier, reactFlow, false);
+    highlightNodeInExplorationModeFromCatalog(nodeIdentifier, modelOfClassWhichStartedHighlighting) {
+      changeHighlight(nodeIdentifier, reactFlow, false, modelOfClassWhichStartedHighlighting);
     }
   };
 };
