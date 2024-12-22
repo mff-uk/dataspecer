@@ -1,33 +1,9 @@
 .catalog-highlight-main {
-  /* animation-name: highlight-catalog-main-animation;
-  animation-duration: 2s;
-  animation-iteration-count: 1;
-  animation-fill-mode: forwards; */
-
   backdrop-filter: brightness(50%);
   transition: backdrop-filter 2s;
 }
 
 .catalog-highlight-secondary {
-  /* animation-name: highlight-catalog-secondary-animation;
-  animation-duration: 2s;
-  animation-iteration-count: 1;
-  animation-fill-mode: forwards; */
-
   backdrop-filter: brightness(80%);
   transition: backdrop-filter 2s;
-}
-
-@keyframes highlight-catalog-main-animation {
-  /*from {background-color: red;}*/
-  /* to {background-color: yellow;} */
-  to {backdrop-filter: brightness(50%)}
-}
-
-@keyframes highlight-catalog-secondary-animation {
-  /*from {background-color: black;}*/
-  /* to {background-color: blue;} */
-  /* to {filter: brightness(175%)} */
-  /* to {background-color: hsl(0, 100%, 0%)}; */
-  to {backdrop-filter: brightness(80%)}
 }

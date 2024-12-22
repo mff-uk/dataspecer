@@ -6,7 +6,7 @@ export const ShowAllClassesFromSemanticModelButton = (props: { semanticModel: En
     const {addEntitiesFromSemanticModelToVisualModel} = useActions();
     const onClick = () => {
         addEntitiesFromSemanticModelToVisualModel(props.semanticModel);
-    }
+    };
 
     return (
         <button className="hover:bg-teal-400" title={t("show-all-classes-from-semantic-model-to-visual-model-button.title")} onClick={onClick}>

@@ -47,8 +47,8 @@ import { CanvasToolbarGeneralProps, CanvasToolbarContentType } from "./canvas/ca
 import { CanvasToolbarCreatedByEdgeDrag } from "./canvas/canvas-toolbar-drag-edge";
 import { NodeSelectionActionsSecondaryToolbar } from "./node/node-secondary-toolbar";
 import { setHighlightingStylesBasedOnSelection } from "./features/highlighting/set-selection-highlighting-styles";
-import { useCanvasHighlightingController } from "./features/highlighting/exploration/canvas/canvas-exploration-highlighting-controller";
-import { useExploration } from "./features/highlighting/exploration/context/highlighting-exploration-mode";
+import { useExplorationCanvasHighlightingController } from "./features/highlighting/exploration/canvas/canvas-exploration-highlighting-controller";
+import { ReactPrevSetStateType } from "./utilities";
 
 export type NodeType = Node<ApiNode>;
 
@@ -173,14 +173,10 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
 ) {
   const { setNodes, setEdges, setEdgeToolbar, setCanvasToolbar, selectedNodes, setSelectedNodes, setSelectedEdges, selectedEdges } = createdReactStates;
   const alignmentController = useAlignmentController({ reactFlowInstance });
-  const canvasHighlighting = useCanvasHighlightingController(setNodes, setEdges);
+  const canvasHighlighting = useExplorationCanvasHighlightingController(setNodes, setEdges);
 
   // The initialized is set to false when new node is added and back to true once the size is determined.
   // const reactFlowInitialized = useNodesInitialized();
-
-  // https://reactflow.dev/api-reference/hooks/use-key-press
-  const isShiftPressed = useKeyPress('Shift');
-
 
   const onChangeSelection = useCallback(createChangeSelectionHandler(
       setSelectedNodes, setSelectedEdges),
@@ -197,8 +193,10 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
     [setEdges, setSelectedEdges]);
 
   useEffect(() => {
-    setHighlightingStylesBasedOnSelection(reactFlowInstance, selectedNodes, selectedEdges, setNodes, setEdges);
-  }, [selectedNodes, selectedEdges]);
+    if(!canvasHighlighting.isHighlightingOn) {
+      setHighlightingStylesBasedOnSelection(reactFlowInstance, selectedNodes, selectedEdges, setNodes, setEdges);
+    }
+  }, [selectedNodes, selectedEdges, canvasHighlighting.isHighlightingOn]);
 
   const onConnect = useCallback(createConnectHandler(), [setEdges]);
 
@@ -259,7 +257,7 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
     [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges]
   );
 
-  const canvasHighlighting = useCanvasHighlightingController(setNodes, setEdges);
+  const canvasHighlighting = useExplorationCanvasHighlightingController(setNodes, setEdges);
   const actions = useMemo(() => createActions(reactFlowInstance, setNodes, setEdges, alignmentController, context, setSelectedNodes, setSelectedEdges, canvasHighlighting.changeHighlight),
     [reactFlowInstance, setNodes, setEdges, alignmentController, context, setSelectedNodes, setSelectedEdges, canvasHighlighting.changeHighlight]);
 
@@ -315,7 +313,10 @@ const createOnNodeDragHandler = () => {
   };
 };
 
-const createOnNodeDragStartHandler = (alignmentController: AlignmentController, disableExplorationModeHighlightingChanges: () => void) => {
+const createOnNodeDragStartHandler = (
+  alignmentController: AlignmentController,
+  disableExplorationModeHighlightingChanges: () => void
+) => {
   return (event: React.MouseEvent, node: Node, nodes: Node[]) => {
     disableExplorationModeHighlightingChanges();
     alignmentController.alignmentSetUpOnNodeDragStart(node);
@@ -395,9 +396,9 @@ const createChangeSelectionHandler = (
 };
 
 const createNodesChangeHandler = (
-  setNodes: React.Dispatch<React.SetStateAction<NodeType[]>>,
+  setNodes: ReactPrevSetStateType<NodeType[]>,
   alignmentController: AlignmentController,
-  setSelectedNodes: React.Dispatch<React.SetStateAction<string[]>>,
+  setSelectedNodes: ReactPrevSetStateType<string[]>,
 ) => {
   return (changes: NodeChange<NodeType>[]) => {
     // We can alter the change here ... for example allow only x-movement.
@@ -417,8 +418,8 @@ const createNodesChangeHandler = (
 };
 
 const createEdgesChangeHandler = (
-  setEdges: React.Dispatch<React.SetStateAction<EdgeType[]>>,
-  setSelectedEdges: React.Dispatch<React.SetStateAction<string[]>>
+  setEdges: ReactPrevSetStateType<EdgeType[]>,
+  setSelectedEdges: ReactPrevSetStateType<string[]>
 ) => {
   return (changes: EdgeChange<EdgeType>[]) => {
     setSelectedBasedOnChanges(setSelectedEdges, changes);
@@ -430,7 +431,10 @@ const createEdgesChangeHandler = (
  * Helper method, sets selected elements based on changes. Elements are either nodes or edges, same for changes -
  * the changes and the elements should be for the same type (so either only for nodes or only for edges)
  */
-const setSelectedBasedOnChanges = (setSelected: React.Dispatch<React.SetStateAction<string[]>>, changes: NodeChange<NodeType>[] | EdgeChange<EdgeType>[]) => {
+const setSelectedBasedOnChanges = (
+  setSelected: ReactPrevSetStateType<string[]>,
+  changes: NodeChange<NodeType>[] | EdgeChange<EdgeType>[]
+) => {
   setSelected(previouslySelected => {
     const newlySelected: string[] = [];
     const newlyRemoved: string[] = [];
@@ -555,7 +559,11 @@ const createOpenCanvasToolbarHandler = (setCanvasToolbar: (canvasToolbarProps: C
 
 type OnPaneClickHandler = (event: React.MouseEvent) => void;
 
-const createOnPaneClickHandler = (closeCanvasToolbar: () => void, setSelectedNodes: (newSelection: string[]) => void, setSelectedEdges: (newSelection: string[]) => void): OnPaneClickHandler => {
+const createOnPaneClickHandler = (
+  closeCanvasToolbar: () => void,
+  setSelectedNodes: (newSelection: string[]) => void,
+  setSelectedEdges: (newSelection: string[]) => void
+): OnPaneClickHandler => {
   return (_: React.MouseEvent) => {
     closeCanvasToolbar();
     setSelectedNodes([]);
@@ -774,7 +782,7 @@ const edgeToEdgeType = (edge: ApiEdge): EdgeType => {
     label: edge.label,
     // We need to assign the marker here as the value is transformed.
     // In addition reactflow use this value.
-    markerEnd: selectMarkerEnd(edge),
+    markerEnd: selectMarkerEnd(edge, null),
     style: {
       strokeWidth: 2,
       stroke: edge.color,
@@ -798,16 +806,19 @@ function selectEdgeType(edge: ApiEdge) {
   }
 }
 
-function selectMarkerEnd(edge: ApiEdge) {
+/**
+ * @param color If null is given then the original edge color is used
+ */
+export function selectMarkerEnd(edge: ApiEdge, color: string | null) {
   switch (edge.type) {
     case ApiEdgeType.Association:
-      return { type: MarkerType.Arrow, height: 20, width: 20, color: edge.color };
+      return { type: MarkerType.Arrow, height: 20, width: 20, color: color ?? edge.color };
     case ApiEdgeType.AssociationProfile:
-      return { type: MarkerType.Arrow, height: 20, width: 20, color: edge.color };
+      return { type: MarkerType.Arrow, height: 20, width: 20, color: color ?? edge.color };
     case ApiEdgeType.Generalization:
-      return { type: MarkerType.ArrowClosed, height: 20, width: 20, color: edge.color };
+      return { type: MarkerType.ArrowClosed, height: 20, width: 20, color: color ?? edge.color };
     case ApiEdgeType.ClassProfile:
-      return { type: MarkerType.ArrowClosed, height: 20, width: 20, color: edge.color };
+      return { type: MarkerType.ArrowClosed, height: 20, width: 20, color: color ?? edge.color };
   }
 }
 

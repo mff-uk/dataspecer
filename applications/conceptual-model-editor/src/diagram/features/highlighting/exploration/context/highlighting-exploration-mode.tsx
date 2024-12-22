@@ -67,6 +67,21 @@ export const ExplorationContextProvider = (props: { children: React.ReactNode })
 };
 
 
+const setHighlightLevelDataForNode = (
+    node: NodeType,
+    newVisualIdentifierToSemanticIdentifierMap: Record<string, string>,
+    newHighlightLevelsMap: Record<string, number>,
+    highlightLevel: 0 | 1
+) => {
+    newVisualIdentifierToSemanticIdentifierMap[node.data.externalIdentifier] = node.id;
+    newHighlightLevelsMap[node.id] = highlightLevel;
+};
+
+const isInMainHighlight = (
+    mainHighlightedNodes: NodeType[],
+    mainHighlightCandidateIdentifier: string
+) => mainHighlightedNodes.find(mainHighlightedNode => mainHighlightCandidateIdentifier === mainHighlightedNode.id) !== undefined;
+
 export const useExploration = () => {
     const {
         highlightLevels,
@@ -88,26 +103,37 @@ export const useExploration = () => {
         }
 
         const newVisualIdentifierToSemanticIdentifierMap: Record<string, string> = {};
+        const newHighlightLevelsMap = {};
 
-        const newHighlightLevelsMap = { [startingNodeId]: 0 };
         const reactflowNode = reactFlowInstance.getNode(startingNodeId);
-
         if(reactflowNode === undefined) {
             return;
         }
-        newVisualIdentifierToSemanticIdentifierMap[reactflowNode.data.externalIdentifier] = startingNodeId;
+        const changingHighlightingForSelection = reactflowNode.selected === true;
 
-        const connectedEdges = getConnectedEdges([reactflowNode], reactFlowInstance.getEdges());
+        let mainHighlightedNodes: NodeType[];
+        if(changingHighlightingForSelection) {
+            mainHighlightedNodes = reactFlowInstance.getNodes().filter(node => node.selected === true);
+        }
+        else {
+            mainHighlightedNodes = [reactflowNode];
+        }
+
+        const connectedEdges = getConnectedEdges(mainHighlightedNodes, reactFlowInstance.getEdges());
         connectedEdges.forEach(edge => {
-            const otherNodeId = edge.source === startingNodeId ? edge.target : edge.source;
+            const isSourceInMainHighlight = isInMainHighlight(mainHighlightedNodes, edge.source);
+            const otherNodeId = isSourceInMainHighlight ? edge.target : edge.source;
             const otherNode = reactFlowInstance.getNode(otherNodeId);
 
-            if(otherNode === undefined || otherNodeId === startingNodeId) {
+            if(otherNode === undefined || isInMainHighlight(mainHighlightedNodes, otherNodeId)) {
                 return;
             }
 
-            newVisualIdentifierToSemanticIdentifierMap[otherNode.data.externalIdentifier] = otherNode.id;
-            newHighlightLevelsMap[otherNode.id] = 1;
+            setHighlightLevelDataForNode(otherNode, newVisualIdentifierToSemanticIdentifierMap, newHighlightLevelsMap, 1);
+        });
+
+        mainHighlightedNodes.forEach(mainHighlightedNode => {
+            setHighlightLevelDataForNode(mainHighlightedNode, newVisualIdentifierToSemanticIdentifierMap, newHighlightLevelsMap, 0);
         });
 
         setSemanticToVisualIdentifierMap(newVisualIdentifierToSemanticIdentifierMap);

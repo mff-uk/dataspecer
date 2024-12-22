@@ -1,6 +1,6 @@
 import { Edge, getConnectedEdges, MarkerType, Node, ReactFlowInstance } from "@xyflow/react";
 import { Dispatch, SetStateAction } from "react";
-import { NodeType } from "../../diagram-controller";
+import { NodeType, selectMarkerEnd } from "../../diagram-controller";
 
 // TODO RadStr: Improve the dispatch types
 export const setHighlightingStylesBasedOnSelection = (
@@ -10,15 +10,15 @@ export const setHighlightingStylesBasedOnSelection = (
     setNodes: Dispatch<SetStateAction<NodeType[]>>,
     setEdges: Dispatch<SetStateAction<Edge<any>[]>>
 ) => {
-    const nextToHighlightedElementColor = "black";
-    const highlightColor = "rgba(238, 58, 115, 1)";
+    const highlightColor = highlightColorMap[0];
+    const nextToHighlightedElementColor = highlightColorMap[1];
 
     setEdges(prevEdges => {
         const changedNodesBasedOnEdgeSelection: string[] = [];
         // Reset edges style
         prevEdges.forEach(edge => {
-            edge.style = {...edge.style, stroke: edge.data?.color ?? undefined };
-            setMarkerEndForEdge(edge, edge.data?.color ?? "maroon");
+            edge.style = {...edge.style, stroke: edge.data.color };
+            edge.markerEnd = selectMarkerEnd(edge.data, null);
         });
         // Set style of edges going from selected nodes
         nodes.forEach(nodeIdentifier => {
@@ -26,7 +26,7 @@ export const setHighlightingStylesBasedOnSelection = (
             const connectedEdges = getConnectedEdges([reactflowNode], prevEdges);
             connectedEdges.forEach(edge => {
                 edge.style = {...edge.style, stroke: nextToHighlightedElementColor};
-                setMarkerEndForEdge(edge, nextToHighlightedElementColor);
+                edge.markerEnd = selectMarkerEnd(edge.data, nextToHighlightedElementColor);
             });
         });
         // Set style of selected edges
@@ -36,7 +36,7 @@ export const setHighlightingStylesBasedOnSelection = (
                 return;
             }
             edge.style = {...edge.style, stroke: highlightColor};
-            setMarkerEndForEdge(edge, highlightColor);
+            edge.markerEnd = selectMarkerEnd(edge.data, highlightColor);
             changedNodesBasedOnEdgeSelection.push(edge.source);
             changedNodesBasedOnEdgeSelection.push(edge.target);
         });
@@ -48,7 +48,6 @@ export const setHighlightingStylesBasedOnSelection = (
             if(isHighlighted) {
                 node.style = {
                     ...node.style,
-
                     outline: `0.25em solid ${highlightColor}`,
                     // boxShadow: `0 0 0.25em 0.25em ${highlightColor}`         // Alternative to outline
                 };
@@ -56,7 +55,6 @@ export const setHighlightingStylesBasedOnSelection = (
             else if(isChanged !== undefined) {
                 node.style = {
                     ...node.style,
-
                     outline: `0.25em solid ${nextToHighlightedElementColor}`,
                     // boxShadow: `0 0 0.25em 0.25em ${color}`         // Alternative to outline
                 };
@@ -81,8 +79,11 @@ export const setHighlightingStylesBasedOnSelection = (
     });
 };
 
-// TODO RadStr: Can be done better by using the already existing method for marker ends
-function setMarkerEndForEdge(edge: Edge<any>, color: string) {
-    const arrowType = (edge.markerEnd as unknown as {type: string})?.["type"] ?? "arrow";
-    edge.markerEnd = { type: arrowType === "arrow" ? MarkerType.Arrow : MarkerType.ArrowClosed, height: 20, width: 20, color };
-}
+export type HighlightLevel = 0 | 1 | "no-highlight" | "highlight-opposite";
+
+export const highlightColorMap: Record<HighlightLevel, string> = {
+  "no-highlight": "rgba(0, 0, 0, 0)",
+  "highlight-opposite": "rgba(0, 0, 0, 0)",
+  0: "rgba(238, 58, 115, 1)",
+  1: "rgba(0, 0, 0, 1)",
+};

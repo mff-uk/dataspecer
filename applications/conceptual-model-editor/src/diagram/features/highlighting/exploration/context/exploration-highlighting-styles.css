@@ -1,19 +1,11 @@
 .highlight-opposite {
-    /* animation-name: highlight-opposite-animation;
-    animation-duration: 2s;
-    animation-iteration-count: 1;
-    animation-fill-mode: forwards; */
+  opacity: 0.3;
+}
 
-    transition: opacity 2s;
-    opacity: 0.3;
-  }
-
-@keyframes highlight-opposite-animation {
-  from {opacity: 1;}
-  to {opacity: 0.3;}
+.highlight-opposite-animation {
+  transition: opacity 2s;
 }
 
 .highlight-catalog-transition-default {
   transition: opacity 1s, backdrop-filter 1s;
-  /* opacity: 0.3; */
 }
