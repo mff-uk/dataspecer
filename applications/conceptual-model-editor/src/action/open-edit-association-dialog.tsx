@@ -6,12 +6,12 @@ import { ClassesContextType } from "../context/classes-context";
 import { ModelGraphContextType } from "../context/model-context";
 import { Options } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { createEditAssociationDialog } from "../dialog/association/edit-association-dialog";
 import { modifyRelation, Operation } from "@dataspecer/core-v2/semantic-model/operations";
 import { EditAssociationDialogState } from "../dialog/association/edit-association-dialog-controller";
 import { SemanticModelRelationship, SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
-import { createEditAssociationDialogState } from "../dialog/association/create-edit-association-dialog-state";
+import { createEditAssociationDialog, createEditAssociationDialogState } from "../dialog/association/create-edit-association-dialog-state";
 import { mergeEndsUpdate, specializationStateToOperations } from "./utilities/operations-utilities";
+import { EntityModel } from "@dataspecer/core-v2";
 
 /**
  * Open and handle edit association dialog.
@@ -30,7 +30,7 @@ export function openEditAssociationDialogAction(
     classes, graph, visualModel, options.language, model, entity);
 
   const onConfirm = (nextState: EditAssociationDialogState) => {
-    updateSemanticAssociation(notifications, entity, state, nextState);
+    updateSemanticAssociation(notifications, graph.models, entity, state, nextState);
   };
 
   dialogs.openDialog(createEditAssociationDialog(state, onConfirm));
@@ -40,6 +40,7 @@ type SemanticModelRelationshipChange = Partial<Omit<SemanticModelRelationshipEnd
 
 function updateSemanticAssociation(
   notifications: UseNotificationServiceWriterType,
+  models: Map<string, EntityModel>,
   entity: SemanticModelRelationship,
   prevState: EditAssociationDialogState,
   nextState: EditAssociationDialogState,
@@ -76,10 +77,9 @@ function updateSemanticAssociation(
   }
 
   const ends = mergeEndsUpdate(entity, nextDomain, nextRange);
-  console.log(">", { nextDomain, nextRange, ends });
   operations.push(modifyRelation(entity.id, { ends }));
   operations.push(...specializationStateToOperations(entity, prevState, nextState));
 
-  const model = prevState.model.model;
+  const model: InMemorySemanticModel = models.get(nextState.model.dsIdentifier) as InMemorySemanticModel;
   model.executeOperations(operations);
 }

@@ -2,6 +2,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { Operation } from "@dataspecer/core-v2/semantic-model/operations";
 import { modifyRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
+import { EntityModel } from "@dataspecer/core-v2";
 
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { ClassesContextType } from "../context/classes-context";
@@ -10,9 +11,8 @@ import { Options } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { mergeEndsUpdate } from "./utilities/operations-utilities";
 import { SemanticModelRelationshipEndUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { createEditAssociationProfileDialog } from "../dialog/association-profile/edit-association-profile-dialog";
 import { EditAssociationProfileDialogState } from "../dialog/association-profile/edit-association-profile-dialog-controller";
-import { createEditAssociationProfileDialogState } from "../dialog/association-profile/create-edit-association-profile-dialog-state";
+import { createEditAssociationProfileDialog, createEditAssociationProfileDialogState } from "../dialog/association-profile/create-edit-association-profile-dialog-state";
 
 /**
  * Open and handle edit association dialog.
@@ -28,10 +28,10 @@ export function openEditAssociationProfileDialogAction(
   entity: SemanticModelRelationshipUsage,
 ) {
   const state = createEditAssociationProfileDialogState(
-    classes, graph, visualModel, options.language, entity, model);
+    classes, graph, visualModel, options.language, model, entity);
 
   const onConfirm = (nextState: EditAssociationProfileDialogState) => {
-    updateSemanticAssociationProfile(notifications, entity, state, nextState);
+    updateSemanticAssociationProfile(notifications, graph.models, entity, state, nextState);
   };
 
   dialogs.openDialog(createEditAssociationProfileDialog(state, onConfirm));
@@ -41,6 +41,7 @@ type SemanticModelRelationshipChange = Partial<Omit<SemanticModelRelationshipEnd
 
 function updateSemanticAssociationProfile(
   notifications: UseNotificationServiceWriterType,
+  models: Map<string, EntityModel>,
   entity: SemanticModelRelationshipUsage,
   prevState: EditAssociationProfileDialogState,
   nextState: EditAssociationProfileDialogState,
@@ -85,6 +86,6 @@ function updateSemanticAssociationProfile(
   const ends = mergeEndsUpdate(entity, nextDomain, nextRange);
   operations.push(modifyRelationshipUsage(entity.id, { ends }));
 
-  const model = prevState.model.model;
+  const model: InMemorySemanticModel = models.get(nextState.model.dsIdentifier) as InMemorySemanticModel;
   model.executeOperations(operations);
 }

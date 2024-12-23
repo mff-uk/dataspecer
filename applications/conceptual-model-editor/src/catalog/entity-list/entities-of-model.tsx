@@ -198,11 +198,13 @@ export const EntitiesOfModel = (props: {
     return (
         <li style={{ backgroundColor: color }}>
             <div className="flex flex-row justify-between">
-                <h4>Ⓜ {displayName}</h4>
-                <div className="flex flex-row">
-                    {renderAddButton(actions, entityType, model)}
+                <h4>
+                    Ⓜ {displayName}
                     <ShowAllClassesFromSemanticModelButton semanticModel={model}></ShowAllClassesFromSemanticModelButton>
                     <HideAllClassesFromSemanticModelButton semanticModel={model}></HideAllClassesFromSemanticModelButton>
+                </h4>
+                <div className="flex flex-row">
+                    {renderAddButton(actions, entityType, model)}
                     <ExpandModelButton isOpen={listCollapsed} onClick={() => setListCollapsed(!listCollapsed)} />
                 </div>
             </div>

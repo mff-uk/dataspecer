@@ -166,7 +166,7 @@ const translations: Record<string, string | Function> = {
   "class-profile-button": "Create class profile",
   "class-remove-button": "Remove class from semantic model",
   //
-  "add-neighborhood-button.title": "Add entity's neighborhood",
+  "add-neighborhood-button.title": "Add entity's neighborhood (Classes or class profiles connected by either association or generalization)",
   //
   "node-anchor-button": "(Un)anchor node for layouting using force-directed layouting algorithm",
   "node-connection-handle": "Drag from this button to create connection (Dragging to canvas shows menu)",
@@ -182,13 +182,13 @@ const translations: Record<string, string | Function> = {
   "selection-hide-button": "Removes selected nodes and edges from canvas",
   "selection-remove-button": "Delete selected nodes and edges from semantic model",
   //
+  "iri-must-not-be-empty": "IRI must not be an empty string.",
+  //
   "filter-selection-dialog.label": "Filtered selection includes",
   "filter-selection-dialog.btn-ok": "✅ Filter",
   "filter-selection-dialog.btn-cancel": "❌ Cancel",
-
   "filter-selection-class-filter-text": "Classes",
   "filter-selection-class-profile-filter-text": "Class profiles",
-
   "filter-selection-association-filter-text": "Relationships",
   "filter-selection-association-profile-filter-text": "Relationship profiles ",
   "filter-selection-generalization-filter-text": "Generalizations",
@@ -196,18 +196,13 @@ const translations: Record<string, string | Function> = {
   "extend-selection-dialog.label": "Extend current selection",
   "extend-selection-dialog.btn-ok": "✅ Accept",
   "extend-selection-dialog.btn-cancel": "❌ Cancel",
-
   "extend-selection-tooltip": "Blue color (🔵) indicates selected element, Red color (🔴) indicates element which was not selected, but will be. For example:\n🔵⭢🔴=Extend current selection by association targets",
-
   "extend-selection-association-target-tooltip": "Extend by association targets",
   "extend-selection-association-source-tooltip": "Extend by association sources",
-
   "extend-selection-generalization-parent-tooltip": "Extend by generalization parents",
   "extend-selection-generalization-child-tooltip": "Extend by generalization children",
-
   "extend-selection-association-profile-target-tooltip": "Extend by profiled association targets",
   "extend-selection-association-profile-source-tooltip": "Extend by profiled association sources",
-
   "extend-selection-class-profile-parent-tooltip": "Extend by profiled classes (\"Parents\")",
   "extend-selection-class-profile-child-source-tooltip": "Extend by class profiles (\"Children\")",
   //

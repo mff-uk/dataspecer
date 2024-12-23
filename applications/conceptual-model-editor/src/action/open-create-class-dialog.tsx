@@ -4,14 +4,16 @@ import { isWritableVisualModel, VisualModel } from "@dataspecer/core-v2/visual-m
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { ClassesContextType } from "../context/classes-context";
 import { ModelGraphContextType } from "../context/model-context";
-import { CreateClassDialogState, createCreateClassDialogState } from "../dialog/class/create-class-dialog-controller";
 import { Options, createLogger } from "../application";
-import { createCreateClassDialog } from "../dialog/class/create-class-dialog";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { firstInMemorySemanticModel } from "../utilities/model";
 import { createClass as createClassOperation, createGeneralization } from "@dataspecer/core-v2/semantic-model/operations";
 import { addSemanticClassToVisualModelAction } from "./add-class-to-visual-model";
 import { UseDiagramType } from "../diagram/diagram-hook";
+import { EditClassDialogState } from "../dialog/class/edit-class-dialog-controller";
+import { createNewClassDialogState } from "../dialog/class/create-new-class-dialog";
+import { EntityModel } from "@dataspecer/core-v2";
+import { createEditClassDialog } from "../dialog/class/create-edit-class-dialog";
 
 const LOG = createLogger(import.meta.url);
 
@@ -36,9 +38,9 @@ export function openCreateClassDialogAction(
     return;
   }
 
-  const onConfirm = (state: CreateClassDialogState) => {
+  const onConfirm = (state: EditClassDialogState) => {
     // Create class.
-    const createResult = createSemanticClass(notifications, state);
+    const createResult = createSemanticClass(notifications, graph.models, state);
     if (createResult === null) {
       return;
     }
@@ -61,7 +63,8 @@ function getDefaultModel(graph: ModelGraphContextType): InMemorySemanticModel | 
 
 function createSemanticClass(
   notifications: UseNotificationServiceWriterType,
-  state: CreateClassDialogState): {
+  models: Map<string, EntityModel>,
+  state: EditClassDialogState): {
     identifier: string,
     model: InMemorySemanticModel
   } | null {
@@ -72,7 +75,7 @@ function createSemanticClass(
     description: state.description,
   });
 
-  const model: InMemorySemanticModel = state.model.model;
+  const model: InMemorySemanticModel = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
   const newClass = model.executeOperation(operation);
   if (newClass.success === false || newClass.id === undefined) {
     notifications.error("We have not received the id of newly created class. See logs for more detail.");
@@ -105,9 +108,9 @@ function openCreateClassDialog(
   graph: ModelGraphContextType,
   visualModel: VisualModel | null,
   model: InMemorySemanticModel,
-  onConfirm: (state: CreateClassDialogState) => void,
+  onConfirm: (state: EditClassDialogState) => void,
 ) {
-  const state = createCreateClassDialogState(
-    classes, graph, visualModel, options.language, model);
-  dialogs.openDialog(createCreateClassDialog(state, onConfirm));
+  const state = createNewClassDialogState(
+    classes, graph, visualModel, options.language);
+  dialogs.openDialog(createEditClassDialog(state, onConfirm));
 }

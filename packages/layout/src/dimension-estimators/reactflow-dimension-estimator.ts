@@ -23,16 +23,27 @@ export class ReactflowDimensionsEstimator implements NodeDimensionQueryHandler {
 
 
         // Profiles also have IRI so this should always work
-        const iriLen = estimatedNode?.node?.iri?.length ?? 200;
-        const MAX_WIDTH = TEST_MODEL_STRING.length * APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER +
-                          Math.max(iriLen * APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER,
-                                   WIDTH_OF_EMPTY_ATTR + maxAtrLength * APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER);
+        const iri = usePrefixForIri(estimatedNode?.node?.iri ?? null);
+
+        const iriLen = iri?.length ?? 200;
+        let maxWidth = Math.max(iriLen * APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER,
+                                WIDTH_OF_EMPTY_ATTR + maxAtrLength * APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER);
+        // If it is not known prefix, then use the the default one used for estimation
+        // Note that the prefix part should be probably part of model iri, but currently
+        // the prefix part is stored in the iri of entity itself for some of the well-known vocabularies
+        if(iri === estimatedNode?.node?.iri) {
+            maxWidth += TEST_MODEL_STRING.length * APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER;
+        }
 
         // Fallback just in case, I don't think it should happen
-        if(MAX_WIDTH <= 0) {
+        if(maxWidth <= 0) {
             ReactflowDimensionsConstantEstimator.getDefaultWidth();
         }
-        return MAX_WIDTH;
+        const minWidth = ReactflowDimensionsConstantEstimator.getMinimumWidth();
+        if(maxWidth < minWidth) {
+          maxWidth = minWidth;
+        }
+        return maxWidth;
     }
 
 
@@ -57,3 +68,42 @@ export class ReactflowDimensionsEstimator implements NodeDimensionQueryHandler {
         return height;
     }
 }
+
+
+// TODO PRQuestion: Copy-pasted
+// TODO PRQuestion: I Can't access this, since the CME is dependent on layout package not the other way around.
+// So either have it here copy-pasted or put somewhere, where it can be accessed
+const vocabulary : [string, string][] = [
+    ["http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf"],
+    ["http://www.w3.org/2000/01/rdf-schema#", "rdfs"],
+    ["http://purl.org/dc/terms/", "dct"],
+    ["https://w3id.org/dsv#", "dsv"],
+    ["http://www.w3.org/2002/07/owl#", "owl"],
+    ["http://www.w3.org/2004/02/skos/core#", "skos"],
+    ["http://www.w3.org/ns/dcat#", "dcat"],
+  ];
+
+  /**
+   * Given IRI return a prefix or null when no prefix is found.
+   */
+  export const prefixForIri = (iri: string | null) : string | null => {
+    for (const [prefix, shortcut] of vocabulary) {
+      if (iri?.startsWith(prefix)) {
+        return shortcut;
+      }
+    }
+    return null;
+  };
+
+  /**
+   * Given an absolute URL replace the absolute part with a prefix.
+   * If there is no prefix match, returns the original.
+   */
+  export const usePrefixForIri = (iri: string | null) : string | null => {
+    for (const [prefix, shortcut] of vocabulary) {
+      if (iri?.startsWith(prefix)) {
+        return shortcut + ":" + iri.substring(prefix.length);
+      }
+    }
+    return iri;
+  };

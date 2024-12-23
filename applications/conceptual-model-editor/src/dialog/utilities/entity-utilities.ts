@@ -1,155 +1,32 @@
-import { EntityModel } from "@dataspecer/core-v2";
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 
-import { EntityModelRepresentative, EntityRepresentative, Specialization } from "./dialog-utilities";
-import { getModelIri } from "../../util/iri-utils";
-import { IRI } from "iri";
-import { getRandomName } from "../../util/random-gen";
-import { removeFromArray } from "../../utilities/functional";
+import { CmeModelType, CmeModel, ModelDsIdentifier, filterWritableModels } from "../../cme-model";
+import { isRelativeIri } from "./dialog-utilities";
+import { generateName } from "../../util/name-utils";
 import { getAvailableLanguagesForLanguageString } from "../../util/language-utils";
+import { MissingModel, NoWritableModelFound } from "../../application/error";
+import { isValid, validationError, validationNoProblem, ValidationState } from "./validation-utilities";
 
-export function isRelativeIri(iri: string | undefined | null): boolean {
-  if (iri === undefined || iri === null) {
-    return true;
-  }
-  return (new IRI(iri).scheme()?.length ?? 0) === 0;
-}
-
-/**
- * Shared interface for entity dialogs.
- */
 export interface EntityState {
 
-  /**
-   * Available models.
-   */
-  availableModels: EntityModelRepresentative<EntityModel>[];
+  language: string;
 
   /**
-   * Available writable models.
-   * Those can be set as owners.
+   * List of all models.
    */
-  writableModels: EntityModelRepresentative<InMemorySemanticModel>[];
+  allModels: CmeModel[];
+
+  /**
+   * List of all writable models which can be selected to own the entity.
+   */
+  availableModels: CmeModel[];
 
   /**
    * Entity owner.
    */
-  model: EntityModelRepresentative<InMemorySemanticModel>;
+  model: CmeModel;
 
   iri: string;
-
-  name: LanguageString;
-
-  description: LanguageString;
-
-}
-
-export interface EntityStateController {
-
-  setModel: (model: EntityModelRepresentative<InMemorySemanticModel>) => void;
-
-  setIri: (iri: string) => void;
-
-  setName: (setter: (value: LanguageString) => LanguageString) => void;
-
-  setDescription: (setter: (value: LanguageString) => LanguageString) => void;
-
-}
-
-export function createEntityController<State extends EntityState>(
-  changeState: (next: State | ((prevState: State) => State)) => void,
-): EntityStateController {
-
-  const setModel = (model: EntityModelRepresentative<InMemorySemanticModel>) => {
-    changeState((state) => {
-      return {
-        ...state,
-        model: model,
-        baseIri: getModelIri(model.model),
-      };
-    });
-  };
-
-  const setIri = (iri: string) => {
-    changeState((state) => ({ ...state, iri }));
-  };
-
-  const setName = (setter: (value: LanguageString) => LanguageString): void => {
-    changeState((state) => ({ ...state, name: setter(state.name) }));
-  };
-
-  const setDescription = (setter: (value: LanguageString) => LanguageString): void => {
-    changeState((state) => ({ ...state, description: setter(state.description) }));
-  };
-
-  return {
-    setModel,
-    setIri,
-    setName,
-    setDescription,
-  };
-}
-
-export interface SpecializationState {
-
-  /**
-   * List of all available specializations.
-   */
-  availableSpecializations: EntityRepresentative[];
-
-  /**
-   * List of active specializations.
-   */
-  specializations: Specialization[];
-
-}
-
-export interface SpecializationStateController {
-
-  addSpecialization: (specialized: string) => void;
-
-  removeSpecialization: (value: Specialization) => void;
-
-}
-
-export function createSpecializationController<State extends SpecializationState>(
-  changeState: (next: State | ((prevState: State) => State)) => void,
-): SpecializationStateController {
-
-  const addSpecialization = (specialized: string): void => {
-    changeState((state) => ({
-      ...state, specializations: [...state.specializations, {
-        specialized,
-        iri: getRandomName(10),
-      }]
-    }));
-  };
-
-  const removeSpecialization = (value: Specialization): void => {
-    changeState((state) => ({
-      ...state,
-      specializations: removeFromArray(state.specializations, value),
-    }));
-  };
-
-  return {
-    addSpecialization,
-    removeSpecialization,
-  };
-}
-
-/**
- * Shared for interface for new entities.
- */
-export interface CreateEntityState {
-
-  iri: string;
-
-  /**
-   * IRI prefix.
-   */
-  iriPrefix: string;
 
   /**
    * If true, change in name result in generation of IRI.
@@ -161,83 +38,175 @@ export interface CreateEntityState {
    */
   isIriRelative: boolean;
 
+  /**
+   * Validation message for IRI.
+   */
+  iriValidation: ValidationState;
+
+  name: LanguageString;
+
+  description: LanguageString;
+
 }
 
-export interface CreateEntityStateController {
+/**
+ * Create state for new entity in the default model.
+ * @throws
+ */
+export function createEntityStateForNew(
+  language: string,
+  vocabularies: CmeModel[],
+  generateIriFromName: (name: string) => string,
+): EntityState {
+  const writableVocabularies = filterWritableModels(vocabularies);
+  if (writableVocabularies.length === 0) {
+    throw new NoWritableModelFound();
+  }
+  const selectedVocabulary = writableVocabularies[0];
 
-  setModel: (model: EntityModelRepresentative<InMemorySemanticModel>) => void;
+  const name = generateName();
+
+  return {
+    language,
+    allModels: vocabularies,
+    availableModels: writableVocabularies,
+    model: selectedVocabulary,
+    iri: generateIriFromName(name),
+    isIriAutogenerated: true,
+    isIriRelative: true,
+    iriValidation: validationNoProblem(),
+    name: { [language]: name },
+    description: {},
+  };
+}
+
+/**
+ * Create state for existing entity that exists in given model.
+ * Change of model is not allowed.
+ * @throws
+ */
+export function createEntityStateForEdit(
+  language: string,
+  vocabularies: CmeModel[],
+  vocabularyDsIdentifier: ModelDsIdentifier,
+  iri: string,
+  name: LanguageString,
+  description: LanguageString,
+): EntityState {
+  const writableVocabularies = filterWritableModels(vocabularies);
+  const selectedVocabulary = writableVocabularies.find(item => item.dsIdentifier === vocabularyDsIdentifier);
+  if (selectedVocabulary === undefined) {
+    throw new MissingModel(vocabularyDsIdentifier);
+  }
+
+  return {
+    language,
+    allModels: vocabularies,
+    // We allow only the model the entity is already in.
+    availableModels: [selectedVocabulary],
+    model: selectedVocabulary,
+    iri,
+    isIriAutogenerated: false,
+    isIriRelative: isRelativeIri(iri),
+    iriValidation: validationNoProblem(),
+    name,
+    description,
+  };
+}
+
+export interface EntityStateController {
+
+  setModel: (model: CmeModel) => void;
 
   setIri: (iri: string) => void;
 
-  setIsRelative: (value: boolean) => void;
+  setIsIriRelative: (value: boolean) => void;
 
   setName: (setter: (value: LanguageString) => LanguageString) => void;
 
+  setDescription: (setter: (value: LanguageString) => LanguageString) => void;
+
 }
 
-export function createCreateEntityController<State extends (EntityState & CreateEntityState)>(
+export function createEntityController<State extends EntityState>(
   changeState: (next: State | ((prevState: State) => State)) => void,
-  controller: EntityStateController,
-  /**
-   * Function used to generate IRI from a name.
-   */
   generateIriFromName: (name: string) => string,
-): CreateEntityStateController {
+): EntityStateController {
 
-  const setModel = (model: EntityModelRepresentative<InMemorySemanticModel>) => {
-    controller.setModel(model);
-    // Update IRI prefix.
-    const iriPrefix = getModelIri(model.model);
-    changeState(state => ({ ...state, iriPrefix }));
+  const setModel = (model: CmeModel) => {
+    changeState((state) => {
+      return {
+        ...state,
+        model: model,
+      };
+    });
   };
 
   const setIri = (iri: string) => {
-    controller.setIri(iri);
-    // Turn off generation.
-    changeState(state => ({ ...state, isIriAutogenerated: false }));
+    changeState((state) => validateEntityState({ ...state, iri, isIriAutogenerated: false }));
   };
 
-  const setIsRelative = (value: boolean) => {
+  const setIsIriRelative = (value: boolean) => {
     // We also need to change value of the IRI.
     changeState(state => {
       let iri;
       if (value) {
         // We change from absolute to relative.
-        iri = state.iri.replace(state.iriPrefix, "");
+        iri = state.iri.replace(state.model.baseIri ?? "", "");
       } else {
         // We change form relative to absolute.
-        iri = state.iriPrefix + state.iri;
+        iri = (state.model.baseIri ?? "") + state.iri;
       }
-      return {
+      return validateEntityState({
         ...state,
         iri,
         isIriRelative: value,
-      };
+      });
     });
   };
 
   const setName = (setter: (value: LanguageString) => LanguageString): void => {
-    controller.setName(setter);
     changeState(state => {
+      const name = setter(state.name);
       if (!state.isIriAutogenerated) {
-        return state;
+        return { ...state, name };
       }
-      const languages = getAvailableLanguagesForLanguageString(state.name);
+      //
+      const languages = getAvailableLanguagesForLanguageString(name);
       if (languages.length === 0) {
         return state;
       }
-      const name = state.name[languages[0]] ?? "";
-      return {
+      return validateEntityState({
         ...state,
-        iri: generateIriFromName(name),
-      };
+        iri: generateIriFromName(name[languages[0]] ?? ""),
+      });
     });
+  };
+
+  const setDescription = (setter: (value: LanguageString) => LanguageString): void => {
+    changeState((state) => ({ ...state, description: setter(state.description) }));
   };
 
   return {
     setModel,
     setIri,
-    setIsRelative,
+    setIsIriRelative,
     setName,
+    setDescription,
   };
+}
+
+export function validateEntityState<State extends EntityState>(state: State): State {
+
+  const iriValidation = state.iri.trim() !== "" ?
+    validationNoProblem() : validationError("iri-must-not-be-empty");
+
+  return {
+    ...state,
+    iriValidation,
+  };
+}
+
+export function isEntityStateValid(state: EntityState) : boolean {
+  return isValid(state.iriValidation);
 }

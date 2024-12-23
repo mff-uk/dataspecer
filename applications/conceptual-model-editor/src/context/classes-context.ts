@@ -87,75 +87,10 @@ export interface UseClassesContextType {
 
     //
 
-    createAClass: (
-        model: InMemorySemanticModel,
-        name: LanguageString,
-        iri: string,
-        description: LanguageString | undefined,
-    ) => ResultType;
-
     createConnection: (
         model: InMemorySemanticModel,
         connection: ConnectionType,
     ) => ResultType | null;
-
-    createClassEntityUsage: (
-        model: InMemorySemanticModel,
-        entityType: "class" | "class-usage",
-        entity: Partial<Omit<SemanticModelClassUsage, "type">> & Pick<SemanticModelClassUsage, "usageOf">
-    ) => ResultType;
-
-    createRelationshipEntityUsage: (
-        model: InMemorySemanticModel,
-        entityType: "relationship" | "relationship-usage",
-        entity: Partial<Omit<SemanticModelRelationshipUsage, "type">> & Pick<SemanticModelRelationshipUsage, "usageOf">
-    ) => ResultType;
-
-    createAttribute: (
-        model: InMemorySemanticModel,
-        attr: Partial<Omit<SemanticModelRelationship, "type">>,
-    ) => boolean | undefined;
-
-    updateAClass: (
-        model: InMemorySemanticModel,
-        classId: string,
-        newClass: Partial<Omit<SemanticModelClass, "type" | "id">>,
-    ) => boolean;
-
-    updateRelationship: (
-        model: InMemorySemanticModel,
-        entityId: string,
-        newEntity: Partial<Omit<SemanticModelRelationship, "type" | "id">>,
-    ) => boolean;
-
-    updateAttribute: (
-        model: InMemorySemanticModel,
-        attributeId: string,
-        updatedAttribute: Partial<Omit<SemanticModelRelationship, "type" | "id">>
-    ) => boolean;
-
-    updateEntityUsage: (
-        model: InMemorySemanticModel,
-        entityType: "class" | "relationship" | "class-usage" | "relationship-usage",
-        id: string,
-        entity: Partial<Omit<SemanticModelRelationshipUsage, "usageOf" | "type">>
-    ) => boolean;
-
-    updateAttributeUsage: (
-        model: InMemorySemanticModel,
-        attributeId: string,
-        updatedAttribute: Partial<Omit<SemanticModelRelationshipUsage, "type" | "id">>
-    ) => boolean;
-
-    deleteEntityFromModel: (
-        model: InMemorySemanticModel,
-        entityId: string,
-    ) => boolean;
-
-    executeMultipleOperations: (
-        model: InMemorySemanticModel,
-        operations: Operation[],
-    ) => void;
 
 }
 
@@ -180,22 +115,6 @@ export const useClassesContext = (): UseClassesContextType => {
         rawEntities,
     } = useContext(ClassesContext);
 
-    const createAClass = (
-        model: InMemorySemanticModel,
-        name: LanguageString,
-        iri: string,
-        description: LanguageString | undefined
-    ) => {
-        const result = model.executeOperation(
-            createClass({
-                name: name,
-                iri: iri,
-                description: description,
-            })
-        );
-        return result;
-    };
-
     const createConnection = (model: InMemorySemanticModel, connection: ConnectionType) => {
         if (!model || !(model instanceof InMemorySemanticModel)) {
             alert("no local model found or is not of type InMemoryLocal");
@@ -209,106 +128,6 @@ export const useClassesContext = (): UseClassesContextType => {
             const result = model.executeOperation(createGeneralization({ ...connection }));
             return result;
         }
-    };
-
-    const createClassEntityUsage = (
-        model: InMemorySemanticModel,
-        entityType: "class" | "class-usage",
-        entity: Partial<Omit<SemanticModelClassUsage, "type">> & Pick<SemanticModelClassUsage, "usageOf">
-    ) => {
-        if (entityType != "class" && entityType != "class-usage") {
-            console.error("createClassEntityUsage failed.", model, entityType, entity);
-            throw new Error("unexpected entityType");
-        }
-        const result = model.executeOperation(createClassUsage(entity));
-        return result;
-    };
-
-    const createRelationshipEntityUsage = (
-        model: InMemorySemanticModel,
-        entityType: "relationship" | "relationship-usage",
-        entity: Partial<Omit<SemanticModelRelationshipUsage, "type">> & Pick<SemanticModelRelationshipUsage, "usageOf">
-    ) => {
-        if (!(entityType == "relationship" || entityType == "relationship-usage")) {
-            console.error(model, entityType, entity);
-            throw new Error("unexpected entityType");
-        }
-        const result = model.executeOperation(createRelationshipUsage(entity));
-        return result;
-    };
-
-    const createAttribute = (model: InMemorySemanticModel, attr: Partial<Omit<SemanticModelRelationship, "type">>) => {
-        if (!model || !(model instanceof InMemorySemanticModel)) {
-            alert("no local model found or is not of type InMemoryLocal");
-            return;
-        }
-        const result = model.executeOperation(createRelationship(attr));
-        return result.success;
-    };
-
-    const updateAClass = (
-        model: InMemorySemanticModel,
-        classId: string,
-        newClass: Partial<Omit<SemanticModelClass, "type" | "id">>
-    ) => {
-        const result = model.executeOperation(
-            modifyClass(classId, {
-                ...newClass,
-            })
-        );
-        return result.success;
-    };
-
-    const updateRelationship = (
-        model: InMemorySemanticModel,
-        entityId: string,
-        newEntity: Partial<Omit<SemanticModelRelationship, "type" | "id">>
-    ) => {
-        return model.executeOperation(modifyRelation(entityId, newEntity)).success;
-    };
-
-    const updateAttribute = (
-        model: InMemorySemanticModel,
-        attributeId: string,
-        updatedAttribute: Partial<Omit<SemanticModelRelationship, "type" | "id">>
-    ) => {
-        const result = model.executeOperation(modifyRelation(attributeId, updatedAttribute));
-        return result.success;
-    };
-
-    const updateEntityUsage = (
-        model: InMemorySemanticModel,
-        entityType: "class" | "relationship" | "class-usage" | "relationship-usage",
-        id: string,
-        entity: Partial<Omit<SemanticModelRelationshipUsage, "usageOf" | "type">>
-    ) => {
-        if (entityType == "relationship-usage") {
-            const result = model.executeOperation(modifyRelationshipUsage(id, entity));
-            return result.success;
-        } else if (entityType == "class-usage") {
-            const result = model.executeOperation(modifyClassUsage(id, entity));
-            return result.success;
-        }
-        return false;
-    };
-
-    const updateAttributeUsage = (
-        model: InMemorySemanticModel,
-        attributeId: string,
-        updatedAttribute: Partial<Omit<SemanticModelRelationshipUsage, "type" | "id">>
-    ) => {
-        const result = model.executeOperation(modifyRelationshipUsage(attributeId, updatedAttribute));
-        return result.success;
-    };
-
-    const deleteEntityFromModel = (model: InMemorySemanticModel, entityId: string) => {
-        const result = model.executeOperation(deleteEntity(entityId));
-        return result.success;
-    };
-
-    const executeMultipleOperations = (model: InMemorySemanticModel, operations: Operation[]) => {
-        console.log("[classes-context] We are about to execute operations.", { operations });
-        model.executeOperations(operations);
     };
 
     return {
@@ -325,17 +144,6 @@ export const useClassesContext = (): UseClassesContextType => {
         sourceModelOfEntityMap,
         setSourceModelOfEntityMap,
         rawEntities,
-        createAClass,
         createConnection,
-        createClassEntityUsage,
-        createRelationshipEntityUsage,
-        createAttribute,
-        updateAClass,
-        updateRelationship,
-        updateAttribute,
-        updateEntityUsage,
-        updateAttributeUsage,
-        deleteEntityFromModel,
-        executeMultipleOperations,
     };
 };

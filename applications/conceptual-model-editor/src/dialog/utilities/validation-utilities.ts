@@ -37,6 +37,16 @@ export function validationWarning(message: string, ...args: unknown[]): Validati
   };
 }
 
+export function validationError(message: string, ...args: unknown[]): ValidationState {
+  return {
+    message: {
+      level: Level.ERROR,
+      message,
+      args,
+    },
+  };
+}
+
 export function isValid(state: ValidationState) {
-  return state.message === null;
+  return (state?.message?.level ?? Level.INFO) !== Level.ERROR
 }
