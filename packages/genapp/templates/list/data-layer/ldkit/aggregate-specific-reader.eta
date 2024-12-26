@@ -1,4 +1,4 @@
-import { QueryContext, setGlobalOptions } from "ldkit";
+import { createLens, type QueryContext, setGlobalOptions } from "ldkit";
 import { <%= it.ldkit_list_reader_base_class %> } from <%~ it.ldkit_list_reader_base_class_path %>;
 import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 
