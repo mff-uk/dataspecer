@@ -47,7 +47,6 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
   const graph = useModelGraphContext();
   const isAnchored = (graph.aggregatorView?.getActiveVisualModel()?.getVisualEntity(props.data.identifier) as VisualNode)?.position?.anchored ?? false;
 
-  // TODO RadStr: Experimenting with manually clicking the node - using id={props.id} in the first div ... remove this comment later
   return (
     <>
       <div className={"border border-black entity-node min-h-14 min-w-56"}>

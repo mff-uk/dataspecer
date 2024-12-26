@@ -156,8 +156,6 @@ interface UseDiagramControllerType {
 
   // TODO RadStr: DEBUG
   onSelectionDrag: (event: React.MouseEvent, nodes: Node[]) => void;
-
-  todoDebugCreateGroup: () => void;
 }
 
 function useCreateReactStates() {
@@ -334,127 +332,6 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
   };
 }
 
-// TODO RadStr: Testing reactflow groups
-const todoDebugCreateGroup = (setNodes: React.Dispatch<React.SetStateAction<NodeType[]>>, groupIdSuffix: React.MutableRefObject<number>) => {
-  const getTopLeftPosition = (nodes: Node<any>[]) => {
-    const topLeft = {x: 10000000, y: 10000000};
-    nodes.forEach(node => {
-        if(node.position.x < topLeft.x) {
-            topLeft.x = node.position.x;
-        }
-        if(node.position.y < topLeft.y) {
-            topLeft.y = node.position.y;
-        }
-    });
-
-    return topLeft;
-};
-
-const getBotRightPosition = (nodes: Node<any>[]) => {
-    const botRight = {x: -10000000, y: -10000000};
-    nodes.forEach(node => {
-        const x = node.position.x + (node.measured?.width ?? 0);
-        if(x > botRight.x) {
-            botRight.x = x;
-        }
-        const y = node.position.y + (node.measured?.height ?? 0);
-        if(y > botRight.y) {
-            botRight.y = y;
-        }
-    });
-
-    return botRight;
-};
-
-
-  setNodes(prevNodes => {
-    const selectedNodes = prevNodes.map(n => n.selected === true ? n : null).filter(n => n !== null).filter(n => n.parentId === undefined);
-
-    const groupNodePosition = getTopLeftPosition(selectedNodes);
-    const botRightGroupNodePosition = getBotRightPosition(selectedNodes);
-
-    console.info("groupNodePosition");
-    console.info(groupNodePosition);
-    console.info(botRightGroupNodePosition);
-
-
-    const groupId = "grupa" + groupIdSuffix.current.toString();
-
-    const groupNode: Node<any> = {
-          id: groupId,
-          position: groupNodePosition,
-          // className: 'light',
-          draggable: false,
-          selectable: false,
-          style: {
-              zIndex: -1000,
-              // backgroundColor: "rgba(255, 0, 255, 0.04)",
-              backgroundColor: "rgba(255, 0, 0, 0)",
-              width: botRightGroupNodePosition.x - groupNodePosition.x,
-              height: botRightGroupNodePosition.y - groupNodePosition.y,
-              // border: "none",
-              // borderStyle: "none",
-
-//                     background: '#fff',
-//   border: '1px solid black',
-//   borderRadius: 15,
-//   fontSize: 12,
-
-// background: "#fff",
-//   fontSize: 12,
-//   border: "1px solid black",
-//   padding: 5,
-//   borderRadius: 15,
-//   height: 100,
-          },
-          type: "resizableNode",
-          // type: "classCustomNode",
-          // type: EntityNodeName,
-          data: {
-              cls: undefined,
-              color: "#694025",
-              attributes: [],
-              attributeUsages: [],
-          },
-          // expandParent: true,
-      };
-
-      selectedNodes.forEach(node => {
-          node.parentId = groupId;
-          node.extent = "parent";
-          node.style = {
-              ...node.style,
-              zIndex: 1,
-          };
-      });
-
-      groupIdSuffix.current += 1;
-
-      // return prevNodes.map(node => {
-      //     const replacementNode = selectedNodes.find(n => n.id === node.id);
-      //     if(replacementNode !== undefined) {
-      //         return {...replacementNode};
-      //     }
-
-      //     return node;
-      // }).concat([groupNode]);
-
-      // !!!!! The order matters - groups have to be first !!!!!!
-      return [groupNode].concat(prevNodes.map(node => {
-          const replacementNode = selectedNodes.find(n => n.id === node.id);
-          if(replacementNode !== undefined) {
-              replacementNode.position.x -= groupNodePosition.x;
-              replacementNode.position.y -= groupNodePosition.y;
-              return {...replacementNode};
-          }
-
-          return node;
-      }));
-
-  });
-
-}
-
 
 export function useDiagramController(api: UseDiagramType): UseDiagramControllerType {
   const reactStates = useCreateReactStates();
@@ -462,10 +339,6 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
   const reactFlowInstance = useReactFlow<NodeType, EdgeType>();
   const independentPartOfDiagramController = useCreateDiagramControllerIndependentOnActionsAndContext(api, reactFlowInstance, reactStates);
   const dependentPartOfDiagramController = useCreateDiagramControllerDependentOnActionsAndContext(api, reactFlowInstance, reactStates, independentPartOfDiagramController);
-
-  // TODO RadStr: Testing reactflow groups
-  const groupIdSuffix = useRef<number>(0);
-  const todoDebugCreateGroupCallback = useCallback(() => todoDebugCreateGroup(reactStates.setNodes, groupIdSuffix), [reactStates.setNodes, groupIdSuffix]);
 
   return {
     nodes: reactStates.nodes,
@@ -488,7 +361,6 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
     alignmentController: independentPartOfDiagramController.alignmentController,
     onNodeMouseEnter: independentPartOfDiagramController.onNodeMouseEnter,
     onNodeMouseLeave: independentPartOfDiagramController.onNodeMouseLeave,
-    todoDebugCreateGroup: todoDebugCreateGroupCallback,
 
     // TODO RadStr: Debug
     onSelectionDrag: (event: React.MouseEvent, nodes: Node[]) => console.info("onSelectionDrag", nodes),
@@ -612,73 +484,6 @@ const createChangeSelectionHandler = (
   }
 };
 
-//////
-
-
-// TODO RadStr: Experimenting with manually clicking the node ... remove these commented lines later
-//              Copy-pasted and slightly changed from https://stackoverflow.com/questions/6157929/how-to-simulate-a-mouse-click
-
-// function simulate(element: any, eventName: any) {
-//   var options = extend(defaultOptions, arguments[2] || {});
-//   var oEvent, eventType = null;
-
-//   for (var name in eventMatchers) {
-//     if (eventMatchers[name].test(eventName)) {
-//       eventType = name;
-//       break;
-//     }
-//   }
-
-//   if (!eventType)
-//     throw new SyntaxError('Only HTMLEvents and MouseEvents interfaces are supported');
-
-//   if (document.createEvent) {
-//     oEvent = document.createEvent(eventType);
-//     if (eventType == 'HTMLEvents') {
-//       oEvent.initEvent(eventName, options.bubbles, options.cancelable);
-//     } else {
-//       if(document.defaultView === null) {
-//         return;
-//       }
-//       (oEvent as MouseEvent).initMouseEvent(eventName, options.bubbles, options.cancelable, document.defaultView,
-//         options.button, options.pointerX, options.pointerY, options.pointerX, options.pointerY,
-//         options.ctrlKey, options.altKey, options.shiftKey, options.metaKey, options.button, element);
-//     }
-//     element.dispatchEvent(oEvent);
-//   } else {
-//     options.clientX = options.pointerX;
-//     options.clientY = options.pointerY;
-//     var evt = document.createEvent("MouseEvent");     // TODO RadStr: Changed
-//     oEvent = extend(evt, options);
-//     element.fireEvent('on' + eventName, oEvent);
-//   }
-//   return element;
-// }
-
-// function extend(destination: any, source: any) {
-//   for (var property in source)
-//     destination[property] = source[property];
-//   return destination;
-// }
-
-// var eventMatchers: Record<string, RegExp> = {
-//   "HTMLEvents": /^(?:load|unload|abort|error|select|change|submit|reset|focus|blur|resize|scroll)$/,
-//   "MouseEvents": /^(?:click|dblclick|mouse(?:down|up|over|move|out))$/
-// }
-// var defaultOptions = {
-//   pointerX: 0,
-//   pointerY: 0,
-//   button: 0,
-//   ctrlKey: false,
-//   altKey: false,
-//   shiftKey: false,
-//   metaKey: false,
-//   bubbles: true,
-//   cancelable: true
-// }
-
-
-//////
 
 const createNodesChangeHandler = (
   nodes: NodeType[],
@@ -739,6 +544,7 @@ const createNodesChangeHandler = (
       }
     }
 
+    // TODO RadStr: Commented code just for now to play with - remove after "final" commit
     // setNodes(prevNodes => {
     //   return prevNodes.map(node => {
     //     if(newlySelectedNodesBasedOnGroups.includes(node.id)) {
@@ -761,61 +567,6 @@ const createNodesChangeHandler = (
 
     changeGroupSelection(setNodes, newlyUnselectedNodesBasedOnGroups, changedSelectionByUser, false, changes);
     changeGroupSelection(setNodes, newlySelectedNodesBasedOnGroups, changedSelectionByUser, true, changes);
-
-    // let positionDifference;
-    // for (const change of changes) {
-    //   if(change.type === "position" && change.dragging === true && alreadySelected.includes(change.id)) {
-    //     positionDifference = {...change.position};                // TODO: For now position, but should be absolute probably
-    //     const sourceNode = nodes.find(node => node.id === change.id);   // TODO: Should probably use the prevNodes instead. Therefore I don't even need the nodes
-    //     if(positionDifference.x === undefined) {
-    //       positionDifference.x = 0;
-    //     }
-    //     if(positionDifference.y === undefined) {
-    //       positionDifference.y = 0;
-    //     }
-    //     positionDifference.x -= sourceNode?.position.x ?? 0;
-    //     positionDifference.y -= sourceNode?.position.y ?? 0;
-
-
-    //     console.info("positionDifference");
-    //     console.info(positionDifference);
-    //     console.info(sourceNode?.position);
-    //     console.info({...change.position});
-    //     for(const node of nodes) {
-    //       if(node.id === change.id) {
-    //         continue;
-    //       }
-    //       changes.push({
-    //         type: "position",
-    //         id: node.id,
-    //         position: {
-    //           x: node.position.x + (positionDifference.x ?? 0),
-    //           y: node.position.y + (positionDifference.y ?? 0),
-    //         },
-    //         dragging: false,
-    //       });
-    //     }
-
-    //   }
-    // }
-
-    // if(positionDifference !== undefined) {
-    //   for(const node of nodes) {
-    //     if(alreadySelected.includes(node.id)) {
-    //       continue;
-    //     }
-
-    //     changes.push({
-    //       type: "position",
-    //       id: node.id,
-    //       position: {
-    //         x: node.position.x + (positionDifference.x ?? 0),
-    //         y: node.position.y + (positionDifference.y ?? 0),
-    //       },
-    //       dragging: false,
-    //     });
-    //   }
-    // }
 
 
 
@@ -863,31 +614,6 @@ const createNodesChangeHandler = (
               },
               dragging: false,
             });
-
-
-
-            // TODO RadStr: Experimenting with manually clicking the node ... remove this comment later
-
-            // // simulate(document.getElementById(node.id), "mouseup");
-            // // // simulate(document.getElementById(node.id), "mousedown");
-            // // simulate(document.getElementById(node.id), "click");
-
-            // let evt = new MouseEvent("mouseup", {
-            //   view: window,
-            //   bubbles: true,
-            //   cancelable: true,
-            //   /* whatever properties you want to give it */
-            // });
-            // document.getElementById(node.id)?.dispatchEvent(evt);
-
-            // evt = new MouseEvent("mousedown", {
-            //   view: window,
-            //   bubbles: true,
-            //   cancelable: true,
-            //   /* whatever properties you want to give it */
-            // });
-            // document.getElementById(node.id)?.dispatchEvent(evt);
-            // return;
           }
 
 
@@ -942,26 +668,6 @@ const changeGroupSelection = (
     nodeChanges.push(newSelectionChange);
     addedAtLeastOneChange = true;
   }
-
-  // TODO RadStr: Just testing with this condition, I tihnk that this is the way to work with it, but the condition is jstu for testing
-  // TODO RadStr: Testing reactflow groups
-  // if(addedAtLeastOneChange && isNewlySelected) {
-  // // if(!isNewlySelected || addedAtLeastOneChange) {
-  //   setNodes(prevNodes => {
-  //     return prevNodes.map(node => {
-  //       if(node.id.startsWith("grupa")) {
-  //         return {
-  //           ...node,
-  //           draggable: isNewlySelected,
-  //           selectable: isNewlySelected,
-  //           selected: isNewlySelected,
-  //           style: {...node.style, backgroundColor: isNewlySelected ? "rgba(255, 0, 255, 0.04)" : "rgba(255, 0, 0, 0)"},
-  //         };
-  //       }
-  //       return node;
-  //     });
-  //   });
-  // }
 }
 
 const createEdgesChangeHandler = (

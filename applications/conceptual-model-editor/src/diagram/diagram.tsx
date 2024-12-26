@@ -55,8 +55,6 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
   return (
     <>
       <DiagramContext.Provider value={controller.context}>
-      // TODO RadStr: Testing reactflow groups
-      <button onClick={e => controller.todoDebugCreateGroup()}>Add Group</button>
         <CustomEdgeMarkers />
         <ReactFlow
           id="reactflow-diagram"
