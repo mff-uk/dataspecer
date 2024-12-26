@@ -15,7 +15,8 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Backdrop, CircularProgress } from "@mui/material";
 import { <%= it.navigation_hook %> } from <%~ it.navigation_hook_path %>;<% const hasTransitions = it.instance_capability_options != null && it.instance_capability_options_path != null; %>
-import { <%= it.list_capability_app_layer %> } from <%~ it.list_app_layer_path %>;<% if (hasTransitions) { %>
+import { <%= it.list_capability_app_layer %> } from <%~ it.list_app_layer_path %>;
+import { <%= it.aggregate_pagination %> } from <%~ it.aggregate_pagination_path %>;<% if (hasTransitions) { %>
 import { <%= it.instance_capability_options %> } from <%~ it.instance_capability_options_path %>;
 <% } %>
 <%
@@ -39,6 +40,12 @@ import { <%= it.instance_capability_options %> } from <%~ it.instance_capability
 %>
 export default function <%= it.presentation_layer_component_name %>({ aggregateName }: { aggregateName: string }) {
 
+    const pageState = useState(0);
+    const pageRowsState = useState(10);
+    const currentPage = pageState[0];
+    const rowsPerPage = pageRowsState[0];
+    const [itemsCount, setItemsCount] = useState<number | undefined>(undefined);
+
     const [instanceList, setInstanceList] = useState(undefined as unknown as object[]);
     const [isLoading, setisLoading] = useState<boolean>(true);
     const { handleCollectionCapabilityRedirect } = <%= it.navigation_hook %>();
@@ -51,17 +58,19 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
 
     useEffect(() => {
         const fetchInstancesList = async () => {
-            if (!instanceList) {
-                const listResult = await <%= it.list_capability_app_layer %>.runCapability("<%= it.aggregate_name %>");
+            if (!instanceList || currentPage || rowsPerPage || !itemsCount) {
+                let listReader = new <%= it.list_capability_app_layer %>();
 
-                if (!listResult ||
-                    !listResult.entities ||
-                    listResult.entities.length === 0) {
+                const instanceCount = listReader.readInstanceCount();
 
+                if (!instanceCount || instanceCount === 0) {
                     console.error("No objects available");
                 } else {
-                    console.log(`Found ${listResult.entities.length} corresponding objects`);
+                    setItemsCount(instanceCount);
+                    console.log(`Found ${instanceCount} corresponding objects`);
                 }
+
+                const listResult = await listReader.runCapability("<%= it.aggregate_name %>");
 
                 const instances = listResult.entities.map(res => res.raw);
                 setisLoading(false);
@@ -70,7 +79,7 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
         }
 
         fetchInstancesList();
-    }, [isLoading, aggregateName, instanceList]);
+    }, [isLoading, aggregateName, instanceList, currentPage, rowsPerPage, itemsCount]);
 
     return (
 
@@ -139,6 +148,11 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
                     </React.Fragment>
                 }
             </TableContainer>
+            <DatasetPagination
+                totalCount={itemsCount ?? -1}
+                pageState={pageState}
+                pageRowsState={pageRowsState}
+            />
         </>
     )
 }

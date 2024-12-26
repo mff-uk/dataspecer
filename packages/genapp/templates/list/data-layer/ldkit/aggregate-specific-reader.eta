@@ -4,6 +4,11 @@ import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 
 export default class <%= it.aggregate_name %> extends <%= it.ldkit_list_reader_base_class %> {
 
+    async readInstanceCount(): Promise<number | undefined> {
+        const lens = createLens(<%= it.ldkit_schema %>);
+        return lens.count();
+    }
+
     async readInstanceList<T>(): Promise<T> {
 
         const context: QueryContext = {

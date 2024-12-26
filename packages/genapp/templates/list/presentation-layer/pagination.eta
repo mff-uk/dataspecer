@@ -1,0 +1,41 @@
+import * as React from 'react';
+import Pagination from '@mui/material/Pagination';
+import TablePagination from '@mui/material/TablePagination';
+
+export interface <%= it.aggregate_name %>PaginationProps {
+  totalCount: number,
+  pageState: [number, React.Dispatch<React.SetStateAction<number>>];
+  pageRowsState: [number, React.Dispatch<React.SetStateAction<number>>];
+
+}
+
+export default function <%= it.aggregate_name %>Pagination({ totalCount, pageState, pageRowsState }: <%= it.aggregate_name %>PaginationProps) {
+  const [page, setPage] = pageState;
+  const [rowsPerPage, setRowsPerPage] = pageRowsState;
+
+  const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  return (
+    <>
+      <Pagination
+        count={totalCount / rowsPerPage}
+        color="primary"
+      />
+      <TablePagination
+        component="div"
+        count={-1}
+        page={page}
+        onPageChange={handleChangePage}
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+    </>
+  );
+}
