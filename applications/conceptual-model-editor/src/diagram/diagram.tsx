@@ -55,6 +55,8 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
   return (
     <>
       <DiagramContext.Provider value={controller.context}>
+      // TODO RadStr: Testing reactflow groups
+      <button onClick={e => controller.todoDebugCreateGroup()}>Add Group</button>
         <CustomEdgeMarkers />
         <ReactFlow
           id="reactflow-diagram"
@@ -90,6 +92,9 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
           onPaneClick={controller.onPaneClick}
           onNodeMouseEnter={controller.onNodeMouseEnter}
           onNodeMouseLeave={controller.onNodeMouseLeave}
+
+          // TODO RadStr: DEBUG
+          onSelectionDrag={controller.onSelectionDrag}
         >
           <Controls />
           <MiniMap nodeColor={miniMapNodeColor} pannable zoomable />

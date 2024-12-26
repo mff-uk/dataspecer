@@ -9,7 +9,7 @@ import {
 } from "@xyflow/react";
 
 import type { Node as ApiNode, EntityItem } from "../diagram-api";
-import { DiagramContext } from "../diagram-controller";
+import { DiagramContext, NodeToolbarType } from "../diagram-controller";
 
 import "./entity-node.css";
 import { usePrefixForIri } from "../../service/prefix-service";
@@ -47,6 +47,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
   const graph = useModelGraphContext();
   const isAnchored = (graph.aggregatorView?.getActiveVisualModel()?.getVisualEntity(props.data.identifier) as VisualNode)?.position?.anchored ?? false;
 
+  // TODO RadStr: Experimenting with manually clicking the node - using id={props.id} in the first div ... remove this comment later
   return (
     <>
       <div className={"border border-black entity-node min-h-14 min-w-56"}>
@@ -102,11 +103,18 @@ function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
     return null;
   }
 
-  if(context.shouldShowSelectionToolbar()) {
+  if(context.getShownNodeToolbarType() === NodeToolbarType.SELECTION_TOOLBAR) {
     return <SelectionToolbar {...props}/>;
   }
-  else {
+  else if(context.getShownNodeToolbarType() === NodeToolbarType.GROUP_TOOLBAR) {
+    return <GroupToolbar {...props}/>;
+  }
+  else if(context.getShownNodeToolbarType() === NodeToolbarType.SINGLE_NODE_TOOLBAR) {
     return <PrimaryNodeToolbar {...props}/>;
+  }
+  else {
+    console.error("Missing node toolbar");
+    return null;
   }
 }
 
@@ -156,10 +164,6 @@ function SelectionToolbar(props: NodeProps<Node<ApiNode>>) {
   }
 
   const onShowSelectionActions = (event: React.MouseEvent) => {
-    // TODO: Don't know where to put this conversion line of code -
-    //       a) It is probably the best to keep it here.
-    //       b) Separate controller for this component - But we have only 1 method
-    //       c) Exposing the conversion from screen to canvas position in diagram API - not sure if that is something which should be part of API
     const absoluteFlowPosition = reactFlow.screenToFlowPosition({x: event.clientX, y: event.clientY});
     context?.callbacks().onShowSelectionActions(props.data, absoluteFlowPosition);
   }
@@ -176,7 +180,46 @@ function SelectionToolbar(props: NodeProps<Node<ApiNode>>) {
       &nbsp;
     </NodeToolbar>
     <NodeToolbar isVisible={isLastSelected} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
-    <button onClick={onCreateGroup} title={t("selection-group-button")} disabled>🤝</button>
+    <button onClick={onCreateGroup} title={t("selection-group-button")}>🤝</button>
+    </NodeToolbar>
+    <NodeToolbar isVisible={isLastSelected} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
+      <button onClick={onShowExpandSelection} title={t("selection-extend-button")} >📈</button>
+      &nbsp;
+      <button onClick={onShowFilterSelection} title={t("selection-filter-button")} >📉</button>
+      &nbsp;
+    </NodeToolbar>
+  </>
+  );
+}
+
+// TODO RadStr: Copy-pasted selection toolbar - it shares most buttons, so we could probably unify it
+function GroupToolbar(props: NodeProps<Node<ApiNode>>) {
+  const context = useContext(DiagramContext);
+  const reactFlow = useReactFlow();
+  const isLastSelected = props.selected === true && context?.getLastSelected() === props.id;
+
+  if (!(isLastSelected === true && context?.getLastSelected() === props.id)) {
+    return null;
+  }
+
+  const onShowSelectionActions = (event: React.MouseEvent) => {
+    const absoluteFlowPosition = reactFlow.screenToFlowPosition({x: event.clientX, y: event.clientY});
+    context?.callbacks().onShowSelectionActions(props.data, absoluteFlowPosition);
+  }
+  const onLayoutSelection = () => context?.callbacks().onLayoutSelection();
+  const onCreateGroup = () => context?.callbacks().onCreateGroup();
+  const onShowExpandSelection = () => context?.callbacks().onShowExpandSelection();
+  const onShowFilterSelection = () => context?.callbacks().onShowFilterSelection();
+
+  return (<>
+    <NodeToolbar isVisible={isLastSelected} position={Position.Top} className="flex gap-2 entity-node-toolbar" >
+      <button onClick={onShowSelectionActions} title={t("selection-action-button")}>🎬</button>
+      &nbsp;
+      <button onClick={onLayoutSelection} title={t("selection-layout-button")} disabled>🔀</button>
+      &nbsp;
+    </NodeToolbar>
+    <NodeToolbar isVisible={isLastSelected} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
+    <button onClick={onCreateGroup} title={t("selection-group-button")}>❌</button>
     </NodeToolbar>
     <NodeToolbar isVisible={isLastSelected} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
       <button onClick={onShowExpandSelection} title={t("selection-extend-button")} >📈</button>

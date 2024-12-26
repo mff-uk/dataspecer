@@ -25,6 +25,8 @@ import {
     type VisualRelationship,
     isVisualProfileRelationship,
     type VisualProfileRelationship,
+    isVisualGroup,
+    VisualGroup,
 } from "@dataspecer/core-v2/visual-model";
 import {
     type SemanticModelAggregatorView,
@@ -34,7 +36,7 @@ import { useModelGraphContext, type UseModelGraphContextType } from "./context/m
 import { useClassesContext, type UseClassesContextType } from "./context/classes-context";
 import { cardinalityToHumanLabel, getDomainAndRange } from "./util/relationship-utils";
 import { useActions } from "./action/actions-react-binding";
-import { Diagram, type Node, type Edge, type EntityItem, EdgeType } from "./diagram/";
+import { Diagram, type Node, type Edge, type EntityItem, EdgeType, Group } from "./diagram/";
 import { type UseDiagramType } from "./diagram/diagram-hook";
 import { logger } from "./application";
 import { getDescriptionLanguageString, getFallbackDisplayName, getNameLanguageString, getUsageNoteLanguageString } from "./util/name-utils";
@@ -210,7 +212,10 @@ function onChangeVisualModel(
 
     const visualEntities = visualModel.getVisualEntities().values();
     for (const visualEntity of visualEntities) {
-        if (isVisualNode(visualEntity)) {
+        if(isVisualGroup(visualEntity)) {
+            console.error("Groups are not yet supported for persistent storage", { visualEntity });
+            continue;
+        } else if (isVisualNode(visualEntity)) {
             const entity = entities[visualEntity.representedEntity]?.aggregatedEntity ?? null;
             if (isSemanticModelClassUsage(entity) || isSemanticModelClass(entity)) {
                 const model = findSourceModelOfEntity(entity.id, models);
@@ -221,7 +226,7 @@ function onChangeVisualModel(
                 const node = createDiagramNode(
                     options, visualModel,
                     attributes, attributeProfiles, profilingSources,
-                    visualEntity, entity, model);
+                    visualEntity, entity, model, null);
                 nextNodes.push(node);
             }
         } else if (isVisualRelationship(visualEntity)) {
@@ -269,6 +274,14 @@ function onChangeVisualModel(
     void diagram.actions().setContent(nextNodes, nextEdges);
 }
 
+function createGroupNode(
+    visualGroup: VisualGroup,
+): Group {
+    return {
+        identifier: visualGroup.identifier,
+    };
+}
+
 function createDiagramNode(
     options: Options,
     visualModel: VisualModel,
@@ -278,6 +291,7 @@ function createDiagramNode(
     visualNode: VisualNode,
     entity: SemanticModelClass | SemanticModelClassUsage,
     model: EntityModel,
+    nodeIdToParentGroupIdMap: Record<string, string> | null,           // TOOO RadStr: We will see about the null
 ): Node {
     const language = options.language;
 
@@ -328,7 +342,7 @@ function createDiagramNode(
         iri: getIri(entity, getModelIri(model)),
         color: visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR,
         description: getEntityDescription(language, entity),
-        group: null,
+        group: nodeIdToParentGroupIdMap?.[visualNode.identifier] ?? null,
         position: {
             x: visualNode.position.x,
             y: visualNode.position.y,
@@ -527,9 +541,37 @@ function onChangeVisualEntities(
 
     const actions = diagram.actions();
 
+    // We have to process groups first - It is mandatory for reactflow for the groups to be first in the nodes array (even though it is not documented anywhere)
+    // TODO RadStr: Handle deletion
+    const groups = changes.filter(({previous, next}) => next !== null && isVisualGroup(next));
+    const nodeIdToParentGroupIdMap: Record<string, string> = {};
+    for(const {previous, next} of groups) {
+        if (previous !== null && next === null) {
+            // Entity removed
+            actions.removeGroups([previous.identifier]);
+            continue;
+        }
+
+        if(next === null) {
+            continue;
+        }
+        const nextVisualGroup = next as VisualGroup;        // Have to cast, even though we know the type
+        const group = createGroupNode(nextVisualGroup);
+
+        if (previous === null) {
+            // Create new entity.
+            actions.addGroup(group, nextVisualGroup.content);
+            nextVisualGroup.content.forEach(nodeIdGroupId => {
+                nodeIdToParentGroupIdMap[nodeIdGroupId] = group.identifier;
+            });
+        }
+        // Else change of existing - not suppoted.
+    }
+
+
     for (const { previous, next } of changes) {
         if (next !== null) {
-            // New or changed entity entity.
+            // New or changed entity.
             if (isVisualNode(next)) {
                 const entity = entities[next.representedEntity]?.aggregatedEntity ?? null;
 
@@ -547,7 +589,7 @@ function onChangeVisualEntities(
                 const node = createDiagramNode(
                     options, visualModel,
                     attributes, attributeProfiles, profilingSources,
-                    next, entity, model);
+                    next, entity, model, nodeIdToParentGroupIdMap);
 
                 if (previous === null) {
                     // Create new entity.
@@ -620,7 +662,7 @@ function onChangeVisualEntities(
                 }
 
             } else {
-                // We ignore other properties.
+                // We ignore other entities.
             }
         }
         // ...

@@ -141,7 +141,7 @@ export interface WritableVisualModel extends VisualModel {
     /**
      * @returns Identifier for the new entity.
      */
-    addVisualGroup(entity: Omit<VisualGroup, "identifier" | "identifier">): string;
+    addVisualGroup(entity: Omit<VisualGroup, "identifier" | "type">): string;
 
     /**
      * Perform update of a visual entity with given identifier.

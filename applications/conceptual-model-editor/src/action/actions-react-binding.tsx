@@ -46,6 +46,7 @@ import { ExtendSelectionState } from "../dialog/selection/extend-selection-dialo
 import { extendSelectionAction, ExtensionType, getSelectionForWholeSemanticModel, NodeSelection, VisibilityFilter } from "./extend-selection-action";
 import { createFilterSelectionDialog } from "../dialog/selection/filter-selection-dialog";
 import { EntityModel } from "@dataspecer/core-v2";
+import { addGroupToVisualModelAction } from "./add-group-to-visual-model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -729,7 +730,10 @@ function createActionsContext(
       // TODO RadStr: Currently does nothing (In future - Opens layouting menu - 3 buttons - alignments + layouting)
     },
     onCreateGroup: () => {
-      // TODO RadStr: Currently does nothing (In future - Creating group)
+      withVisualModel(notifications, graph, (visualModel) => {
+        const {nodeSelection} = getSelections(diagram, false, true);
+        addGroupToVisualModelAction(visualModel, nodeSelection);
+      });
     },
     onShowExpandSelection: () => {
       const selectionToExpand = getSelections(diagram, false, true);

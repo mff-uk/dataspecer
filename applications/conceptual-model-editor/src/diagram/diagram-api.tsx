@@ -13,9 +13,9 @@ export interface DiagramActions {
   /**
    * Registers new {@link group} to the diagram.
    * @param group is the group to be registered.
-   * @param content is optional content of the group.
+   * @param content is content of the group.
    */
-  addGroup(group: Group, content?: string[]): void;
+  addGroup(group: Group, content: string[]): void;
 
   /**
    * Removes given groups from diagram.
