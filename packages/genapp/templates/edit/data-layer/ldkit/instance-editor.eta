@@ -1,12 +1,12 @@
 import { Entity } from "ldkit/types/library/lens/types";
-import { Context, SchemaInterface, createLens, QueryEngine } from "ldkit";
+import { QueryContext, SchemaInterface, createLens, QueryEngine } from "ldkit";
 import { <%= it.instance_result_type %> } from <%~ it.instance_result_type_path %>;
 import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 import { <%= it.editor_interface_type %> } from <%~ it.editor_interface_type_path %>;
 
 class LdkitEditorQueryEngine extends QueryEngine {
 
-    override query(query: string, responseType: string, context?: Context): Promise<Response> {
+    override query(query: string, responseType: string, context?: QueryContext): Promise<Response> {
         const endpoint = this.getSparqlEndpoint(context);
         const fetchFn = this.getFetch(context);
         return fetchFn(endpoint, {
@@ -71,7 +71,7 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
 
     async updateInstance(formData: any): Promise<<%= it.instance_result_type %>> {
 
-        const context: Context = {
+        const context: QueryContext = {
             sources: ["<%~ it.sparql_endpoint_uri %>"]
         }
 

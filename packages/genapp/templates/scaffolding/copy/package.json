@@ -16,7 +16,7 @@
     "@types/node": "^16.18.82",
     "@types/react": "^18.2.57",
     "@types/react-dom": "^18.2.19",
-    "ldkit": "^1.1.0",
+    "ldkit": "^2.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.1",

@@ -1,11 +1,11 @@
-import { Context, createLens, QueryEngine } from "ldkit";
+import { QueryContext, createLens, QueryEngine } from "ldkit";
 import { <%= it.instance_result_type %> } from <%~ it.instance_result_type_path %>;
 import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 import { <%= it.delete_mutator_interface_type %> } from <%~ it.delete_mutator_interface_type_path %>;
 
 class LdkitDeleteQueryEngine extends QueryEngine {
 
-    override query(query: string, responseType: string, context?: Context): Promise<Response> {
+    override query(query: string, responseType: string, context?: QueryContext): Promise<Response> {
         const endpoint = this.getSparqlEndpoint(context);
         const fetchFn = this.getFetch(context);
         return fetchFn(endpoint, {
@@ -32,7 +32,7 @@ export class <%= it.exported_object_name %> implements <%= it.delete_mutator_int
 
     async deleteInstance(instanceIri: string): Promise<<%= it.instance_result_type %>> {
 
-        const context: Context = {
+        const context: QueryContext = {
             sources: ["<%~ it.sparql_endpoint_uri.read %>"]
         }
 

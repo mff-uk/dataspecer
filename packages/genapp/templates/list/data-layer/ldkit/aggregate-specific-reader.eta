@@ -1,4 +1,4 @@
-import { Context, setDefaultContext } from "ldkit";
+import { QueryContext, setGlobalOptions } from "ldkit";
 import { <%= it.ldkit_list_reader_base_class %> } from <%~ it.ldkit_list_reader_base_class_path %>;
 import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 
@@ -6,11 +6,11 @@ export default class <%= it.aggregate_name %> extends <%= it.ldkit_list_reader_b
 
     async readInstanceList<T>(): Promise<T> {
 
-        const context: Context = {
+        const context: QueryContext = {
             sources: [<%~ it.ldkit_endpoint_uri %>]
         }
 
-        setDefaultContext(context);
+        setGlobalOptions(context);
         <% const instanceListVariableName = it.aggregate_name.toLowerCase() + "Instances"; %>
         const <%= instanceListVariableName %> = await this.ldkitFind(".", <%= it.ldkit_schema %>, 0);
 

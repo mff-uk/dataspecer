@@ -1,6 +1,5 @@
-import { SchemaInterface, createLens } from "ldkit";
 import { dbo, rdfs, xsd, dcterms, createNamespace } from "ldkit/namespaces";
-import { type Context, setDefaultContext } from "ldkit";
+import { type QueryContext, seetGlobalOptions, createLens, SchemaInterface } from "ldkit";
 import { AggregateMetadata } from "./readers/aggregate-data-provider-model";
 import { LdkitArtefactGenerator } from "./ldkit-generator";
 import { CatalogSchema } from "./schemas/catalog-schema";
@@ -22,10 +21,10 @@ async function demo() {
         keyword: "http://www.w3.org/ns/dcat#keyword"
     } as const;
 
-    const context: Context = {
+    const context: QueryContext = {
         sources: ["https://data.cssz.cz/sparql"]
     }
-    setDefaultContext(context);
+    seetGlobalOptions(context);
 
     const lens = createLens(DatasetSchema);
 
@@ -83,7 +82,7 @@ async function main() {
 //             sources: [${ldkitSourceURLs}]
 //         }
 //         setDefaultContext(context);
-    
+
 //         const EntityLens = createLens(${generatedSchemaNamePlaceholder});
 //         const fetchedEntities = await EntityLens.find();
 
