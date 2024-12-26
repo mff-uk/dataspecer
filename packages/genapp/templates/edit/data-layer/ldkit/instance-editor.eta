@@ -79,7 +79,8 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
         const updatedInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> = this.mapFormDataToLdkitSchema(formData);
 
         try {
-            await lens.update(updatedInstance);
+            await lens.delete(updatedInstance);
+            await lens.insert(updatedInstance);
             console.log("update success");
 
             const result: <%= it.instance_result_type %> = {
