@@ -25,11 +25,12 @@ export function prepareDataSpecification(
 
     // Sort properties in conceptual model
     // Link classes to properties
+    // Remove reverse properties
     for (const c of Object.values(conceptualModel.classes)) {
         c.properties = [
             ...c.properties.filter(p => p.dataTypes[0]?.isAttribute()),
             ...c.properties.filter(p => !p.dataTypes[0]?.isAttribute()),
-        ];
+        ].filter(p => !p.isReverse);
         c.properties.forEach(p => {
             p.dataTypes.filter(dt => dt.isAssociation()).forEach((dt: ConceptualModelComplexType) => {
                 // @ts-ignore

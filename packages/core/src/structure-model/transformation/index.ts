@@ -1,4 +1,5 @@
 export * from "./add-codelists";
+export * from "./add-semantic-paths";
 export * from "./dematerialize";
 export * from "./default-transformation";
 export * from "./instantiate-properties";

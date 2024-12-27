@@ -2,7 +2,7 @@ import { StructureModelClass, StructureModelComplexType, StructureModelPrimitive
 
 import { XmlStructureModel as StructureModel } from "../xml-structure-model/model/xml-structure-model";
 
-import { XmlSchema, XmlSchemaAnnotation, XmlSchemaComplexContainer, XmlSchemaComplexContent, XmlSchemaComplexContentElement, XmlSchemaComplexContentItem, XmlSchemaComplexGroup, XmlSchemaComplexItem, XmlSchemaComplexSequence, XmlSchemaComplexType, XmlSchemaElement, XmlSchemaGroupDefinition, XmlSchemaImportDeclaration, XmlSchemaSimpleItem, XmlSchemaSimpleType, XmlSchemaType, xmlSchemaTypeIsComplex } from "./xml-schema-model";
+import { XmlSchema, XmlSchemaAnnotation, XmlSchemaComplexContainer, XmlSchemaComplexContent, XmlSchemaComplexContentElement, xmlSchemaComplexContentIsElement, xmlSchemaComplexContentIsItem, XmlSchemaComplexContentItem, XmlSchemaComplexGroup, XmlSchemaComplexItem, XmlSchemaComplexSequence, XmlSchemaComplexType, XmlSchemaElement, XmlSchemaGroupDefinition, XmlSchemaImportDeclaration, XmlSchemaSimpleItem, XmlSchemaSimpleType, XmlSchemaType, xmlSchemaTypeIsComplex } from "./xml-schema-model";
 
 import { DataSpecification, DataSpecificationArtefact, DataSpecificationSchema, } from "@dataspecer/core/data-specification/model";
 
@@ -68,6 +68,7 @@ const anyUriType: StructureModelPrimitiveType = (function () {
 const iriProperty: XmlSchemaComplexContentElement = {
   cardinalityMin: 0,
   cardinalityMax: 1,
+  semanticRelationToParentElement: null,
   element: {
     entityType: "element",
     name: iriElementName,
@@ -474,6 +475,7 @@ class XmlSchemaAdapter {
     const elementContent: XmlSchemaComplexContentElement = {
       cardinalityMin: propertyData.cardinalityMin ?? 0,
       cardinalityMax: propertyData.cardinalityMax,
+      semanticRelationToParentElement: propertyData.semanticPath ?? [], // It is a relation from complex content to this relation
       element: await this.propertyToElement(propertyData),
     };
     if (propertyData.dematerialize || propertyData.propertyAsContainer) {
@@ -486,8 +488,21 @@ class XmlSchemaAdapter {
           item: type.complexDefinition,
         };
 
+        // // Propagate semantic relation to parent element by finding all elements
+        // const lookupContents = [...(item.item as XmlSchemaComplexContainer)?.contents];
+        // for (const content of lookupContents) {
+        //   if (xmlSchemaComplexContentIsElement(content)) {
+        //     content.semanticRelationToParentElement = [StructureModelProperty, ...content.semanticRelationToParentElement];
+        //   } else if (xmlSchemaComplexContentIsItem(content)) {
+        //     const lookup = [...(content.item as XmlSchemaComplexContainer)?.contents];
+        //     lookupContents.push(...lookup);
+        //   }
+        // }
+
         // This will take the constructed item and changes the container type
-        item.item.xsType = propertyData.propertyAsContainer as string;
+        if (propertyData.propertyAsContainer) {
+          item.item.xsType = propertyData.propertyAsContainer as string;
+        }
 
         return item;
       } else {
@@ -517,6 +532,7 @@ class XmlSchemaAdapter {
       return {
         entityType: "element",
         name: [null, propertyData.technicalLabel],
+        semanticRelationToParentElement: null,
         type: {
           entityType: "type",
           name: await this.resolveImportedOrName(propertyData),
@@ -679,6 +695,7 @@ class XmlSchemaAdapter {
         contents: [{
           cardinalityMin: 1,
           cardinalityMax: 1,
+          semanticRelationToParentElement: null,
           element: {
             elementName: [null, orTechnicalLabel],
             annotation: null,
