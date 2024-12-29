@@ -6,6 +6,7 @@ import { ImportRelativePath, TemplateModel } from "../../engine/templates/templa
 import { JsonSchemaProvider } from "../../data-layer/schema-providers/json-schema-provider";
 import { CapabilityType } from "../../capabilities";
 import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
+import { PaginationComponentGenerator } from "./pagination-processor";
 
 interface ListTableTemplate extends TemplateModel {
     placeholders: {
@@ -20,6 +21,8 @@ interface ListTableTemplate extends TemplateModel {
         list_collection_transitions: any[];
         navigation_hook: string;
         navigation_hook_path: ImportRelativePath;
+        aggregate_pagination: string;
+        aggregate_pagination_path: ImportRelativePath;
     };
 }
 
@@ -29,11 +32,16 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
 
     private static readonly _listComponentTemplatePath: string = "./list/presentation-layer/table-component";
 
+    /**
+     * Creates an instance of `ListTableTemplateProcessor`.
+     *
+     * @param {string} outputFilePath - The output file path where the generated template will be saved.
+     */
     constructor(outputFilePath: string) {
         super({
             filePath: outputFilePath,
             templatePath: ListTableTemplateProcessor._listComponentTemplatePath
-        })
+        });
     }
 
     async processTemplate(dependencies: PresentationLayerDependencyMap): Promise<LayerArtifact> {
@@ -43,15 +51,24 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
         const instanceTransitions = groupedTransitions[CapabilityType.Instance.toString()]!;
         const hasAnyInstanceTransitions = instanceTransitions.length > 0;
 
-        const listItemOptionsArtifact = await new ListItemOptionsGenerator({
-            filePath: `./${dependencies.aggregate.getAggregateNamePascalCase({ "suffix": "ListItemOptions" })}.tsx`,
-            templatePath: "./list/presentation-layer/item-capability-options"
-        }).processTemplate({
+        console.log("AGGREGATE: ", dependencies.aggregate);
+        const listItemOptionsArtifact = await (new ListItemOptionsGenerator(
+            `./${dependencies.aggregate.getAggregateNamePascalCase({ suffix: "ListItemOptions" })}.tsx`
+        ).processTemplate({
             aggregate: dependencies.aggregate,
             transitions: instanceTransitions
-        } as ListItemCapabilityOptionsDependencyMap);
+        } as ListItemCapabilityOptionsDependencyMap));
 
+        console.log("Before hook");
         const useNavigationHook = await UseNavigationHookGenerator.processTemplate();
+        console.log("AFTER HOOK: ", useNavigationHook);
+
+        let pagination = await new PaginationComponentGenerator(
+            `./${dependencies.aggregate.getAggregateNamePascalCase({ suffix: "Pagination" })}.tsx`
+        )
+        .processTemplate({
+            aggregate: dependencies.aggregate
+        });
 
         const listTableComponentName: string = dependencies.aggregate.getAggregateNamePascalCase({ suffix: "ListTable" });
 
@@ -86,6 +103,11 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
                     from: this._filePath,
                     to: useNavigationHook.filePath
                 },
+                aggregate_pagination: pagination.exportedObjectName,
+                aggregate_pagination_path: {
+                    from: this._filePath,
+                    to: pagination.filePath
+                }
             }
         };
 

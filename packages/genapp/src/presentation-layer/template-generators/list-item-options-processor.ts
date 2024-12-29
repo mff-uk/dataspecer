@@ -20,6 +20,15 @@ export interface ListItemCapabilityOptionsDependencyMap extends TemplateDependen
 
 export class ListItemCapabilityOptionsGenerator extends TemplateConsumer<ListItemCapabilityOptionsTemplate> {
 
+    private static readonly _optionsListTemplatePath: "./list/presentation-layer/item-capability-options";
+
+    constructor(outputFilePath: string) {
+        super({
+            filePath: outputFilePath,
+            templatePath: ListItemCapabilityOptionsGenerator._optionsListTemplatePath
+        });
+    }
+
     async processTemplate(dependencies: ListItemCapabilityOptionsDependencyMap): Promise<LayerArtifact> {
 
         const exportedObjectName: string = dependencies.aggregate.getAggregateNamePascalCase({

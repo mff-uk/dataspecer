@@ -3,7 +3,7 @@ import Pagination from '@mui/material/Pagination';
 import TablePagination from '@mui/material/TablePagination';
 
 export interface <%= it.aggregate_name %>PaginationProps {
-  totalCount: number,
+  totalCount: number | undefined,
   pageState: [number, React.Dispatch<React.SetStateAction<number>>];
   pageRowsState: [number, React.Dispatch<React.SetStateAction<number>>];
 

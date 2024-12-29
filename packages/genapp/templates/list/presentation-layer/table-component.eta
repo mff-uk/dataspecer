@@ -148,7 +148,7 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
                     </React.Fragment>
                 }
             </TableContainer>
-            <DatasetPagination
+            <<%= it.aggregate_pagination %>
                 totalCount={itemsCount ?? -1}
                 pageState={pageState}
                 pageRowsState={pageRowsState}
