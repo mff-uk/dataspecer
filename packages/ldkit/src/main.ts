@@ -1,5 +1,5 @@
 import { dbo, rdfs, xsd, dcterms, createNamespace } from "ldkit/namespaces";
-import { type QueryContext, seetGlobalOptions, createLens, SchemaInterface } from "ldkit";
+import { type QueryContext, setGlobalOptions, createLens, SchemaInterface } from "ldkit";
 import { AggregateMetadata } from "./readers/aggregate-data-provider-model";
 import { LdkitArtefactGenerator } from "./ldkit-generator";
 import { CatalogSchema } from "./schemas/catalog-schema";
@@ -24,7 +24,7 @@ async function demo() {
     const context: QueryContext = {
         sources: ["https://data.cssz.cz/sparql"]
     }
-    seetGlobalOptions(context);
+    setGlobalOptions(context);
 
     const lens = createLens(DatasetSchema);
 
