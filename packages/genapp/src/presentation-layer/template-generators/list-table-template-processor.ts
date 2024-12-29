@@ -51,7 +51,6 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
         const instanceTransitions = groupedTransitions[CapabilityType.Instance.toString()]!;
         const hasAnyInstanceTransitions = instanceTransitions.length > 0;
 
-        console.log("AGGREGATE: ", dependencies.aggregate);
         const listItemOptionsArtifact = await (new ListItemOptionsGenerator(
             `./${dependencies.aggregate.getAggregateNamePascalCase({ suffix: "ListItemOptions" })}.tsx`
         ).processTemplate({
@@ -59,9 +58,7 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
             transitions: instanceTransitions
         } as ListItemCapabilityOptionsDependencyMap));
 
-        console.log("Before hook");
         const useNavigationHook = await UseNavigationHookGenerator.processTemplate();
-        console.log("AFTER HOOK: ", useNavigationHook);
 
         let pagination = await new PaginationComponentGenerator(
             `./${dependencies.aggregate.getAggregateNamePascalCase({ suffix: "Pagination" })}.tsx`
@@ -112,7 +109,7 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
         };
 
         const presentationLayerRender = this._templateRenderer.renderTemplate(tableTemplate);
-        const dependentArtifacts = [dependencies.appLogicArtifact, useNavigationHook];
+        const dependentArtifacts = [dependencies.appLogicArtifact, useNavigationHook, pagination];
 
         if (hasAnyInstanceTransitions) {
             dependentArtifacts.push(listItemOptionsArtifact);

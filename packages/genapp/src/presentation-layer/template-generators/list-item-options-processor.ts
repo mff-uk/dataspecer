@@ -20,7 +20,7 @@ export interface ListItemCapabilityOptionsDependencyMap extends TemplateDependen
 
 export class ListItemCapabilityOptionsGenerator extends TemplateConsumer<ListItemCapabilityOptionsTemplate> {
 
-    private static readonly _optionsListTemplatePath: "./list/presentation-layer/item-capability-options";
+    private static readonly _optionsListTemplatePath: string = "./list/presentation-layer/item-capability-options";
 
     constructor(outputFilePath: string) {
         super({

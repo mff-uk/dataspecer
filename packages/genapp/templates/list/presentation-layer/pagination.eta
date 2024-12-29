@@ -2,40 +2,51 @@ import * as React from 'react';
 import Pagination from '@mui/material/Pagination';
 import TablePagination from '@mui/material/TablePagination';
 
-export interface <%= it.aggregate_name %>PaginationProps {
+export interface <%= it.pagination_component_name %>PaginationProps {
   totalCount: number | undefined,
   pageState: [number, React.Dispatch<React.SetStateAction<number>>];
   pageRowsState: [number, React.Dispatch<React.SetStateAction<number>>];
-
+  refetch: () => Promise<void> | undefined;
 }
 
-export default function <%= it.aggregate_name %>Pagination({ totalCount, pageState, pageRowsState }: <%= it.aggregate_name %>PaginationProps) {
+export default function <%= it.pagination_component_name %>Pagination({ totalCount, pageState, pageRowsState, refetch }: <%= it.pagination_component_name %>PaginationProps) {
   const [page, setPage] = pageState;
   const [rowsPerPage, setRowsPerPage] = pageRowsState;
 
-  const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+  const handleChangePage = (_: any, newPage: number) => {
     setPage(newPage);
+    refetch();
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+    refetch();
   };
 
   return (
     <>
-      <Pagination
-        count={totalCount / rowsPerPage}
-        color="primary"
-      />
-      <TablePagination
-        component="div"
-        count={-1}
-        page={page}
-        onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
+      {
+        totalCount && (
+          <>
+            <Pagination
+              count={Math.floor(totalCount / rowsPerPage) + 1}
+              color="primary"
+              showFirstButton
+              showLastButton
+              onChange={(e, newPage) => handleChangePage(e, newPage === 1 ? 0 : newPage)}
+            />
+            <TablePagination
+              component="div"
+              count={totalCount}
+              page={page}
+              onPageChange={handleChangePage}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          </>
+        )
+      }
     </>
   );
 }

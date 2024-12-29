@@ -5,15 +5,23 @@ import { <%= it.generated_capability_class %>, <%= it.read_return_type %> } from
 export class <%= it.list_app_layer_export_name %> implements <%= it.generated_capability_class %><<%= it.read_return_type %>> {
     name = "list";
 
-    async readInstanceCount(): Promise<number | undefined> {
-        return 0;
+    private readonly reader: <%= it.list_reader_interface %>;
+
+    constructor() {
+        this.reader = new ReaderImplementation();
     }
 
-    async runCapability<T>(request: T): Promise<<%= it.read_return_type %>> {
+    async readInstanceCount(): Promise<number | undefined> {
+        const count = this.reader.readInstanceCount()
+        .then(
+            result => result ?? 0,
+            _ => 0
+        );
 
-        const reader: <%= it.list_reader_interface %> = new ReaderImplementation();
-        const listResult = reader.readInstanceList();
+        return count;
+    }
 
-        return listResult;
+    async runCapability<T>(request: T): Promise<ListResult> {
+        return this.reader.readInstanceList(request);
     }
 }

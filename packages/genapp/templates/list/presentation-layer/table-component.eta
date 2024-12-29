@@ -45,6 +45,7 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
     const currentPage = pageState[0];
     const rowsPerPage = pageRowsState[0];
     const [itemsCount, setItemsCount] = useState<number | undefined>(undefined);
+    const [refetch, setRefetchInstances] = useState<boolean>(false);
 
     const [instanceList, setInstanceList] = useState(undefined as unknown as object[]);
     const [isLoading, setisLoading] = useState<boolean>(true);
@@ -58,19 +59,24 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
 
     useEffect(() => {
         const fetchInstancesList = async () => {
-            if (!instanceList || currentPage || rowsPerPage || !itemsCount) {
+            if (!instanceList || !itemsCount) {
                 let listReader = new <%= it.list_capability_app_layer %>();
 
-                const instanceCount = listReader.readInstanceCount();
+                const instanceCount = await listReader.readInstanceCount();
 
                 if (!instanceCount || instanceCount === 0) {
                     console.error("No objects available");
                 } else {
                     setItemsCount(instanceCount);
                     console.log(`Found ${instanceCount} corresponding objects`);
+                    setRefetchInstances(false);
                 }
 
-                const listResult = await listReader.runCapability("<%= it.aggregate_name %>");
+                const listResult = await listReader.runCapability(
+                    "<%= it.aggregate_name %>",
+                    currentPage,
+                    rowsPerPage
+                );
 
                 const instances = listResult.entities.map(res => res.raw);
                 setisLoading(false);
@@ -79,7 +85,7 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
         }
 
         fetchInstancesList();
-    }, [isLoading, aggregateName, instanceList, currentPage, rowsPerPage, itemsCount]);
+    }, [isLoading, aggregateName, instanceList, itemsCount, refetch, currentPage, rowsPerPage]);
 
     return (
 
@@ -98,9 +104,7 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
                 id="<%= collectionTransition.id %>-transition-button"
                 disabled={isLoading}
                 variant="contained"
-                sx={{
-                    marginRight: 1
-                }}
+                sx={{ marginRight: 1 }}
                 startIcon={<%~  getCapabilityButtonIcon(collectionTransition.targetId) %>}
                 onClick={() => handleCollectionCapabilityRedirect("<%= collectionTransition.id %>")}
             >
@@ -149,9 +153,10 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
                 }
             </TableContainer>
             <<%= it.aggregate_pagination %>
-                totalCount={itemsCount ?? -1}
+                totalCount={itemsCount}
                 pageState={pageState}
                 pageRowsState={pageRowsState}
+                refetch={async () => setRefetchInstances(true)}
             />
         </>
     )
