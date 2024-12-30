@@ -41,6 +41,11 @@ export const setHighlightingStylesBasedOnSelection = (
             changedNodesBasedOnEdgeSelection.push(edge.target);
         });
         // Set style of nodes
+        // We unfortunately have to use the style property, because for some reason
+        // the classname property takes effect only after something happens (for example user moves the viewport)
+        // This fact actually also takes effect in the exploration highlighting mode - When user selects new class
+        // using ctrl-selection then when the user doesn't do anything else, the node is not highlighting
+        // (after sure for example moves the viewport, it is highlighted again)
         setNodes(prevNodes => prevNodes.map(node => {
             const isChangedBasedOnSelectedEdge = changedNodesBasedOnEdgeSelection.find(nodeId => nodeId === node.id) !== undefined;
             const isHighlighted = nodes.find(id => node.id === id) !== undefined;
