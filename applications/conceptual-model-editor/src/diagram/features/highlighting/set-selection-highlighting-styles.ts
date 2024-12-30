@@ -1,9 +1,7 @@
-import { Edge, getConnectedEdges, MarkerType, Node, ReactFlowInstance } from "@xyflow/react";
-import { Dispatch, SetStateAction } from "react";
+import { Edge, getConnectedEdges, ReactFlowInstance } from "@xyflow/react";
 import { NodeType, selectMarkerEnd } from "../../diagram-controller";
 import { ReactPrevSetStateType } from "../../utilities";
 
-// TODO RadStr: Improve the dispatch types
 export const setHighlightingStylesBasedOnSelection = (
     reactflowInstance: ReactFlowInstance<any, any>,
     nodes: string[],
