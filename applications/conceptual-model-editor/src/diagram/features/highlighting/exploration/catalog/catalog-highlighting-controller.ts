@@ -7,10 +7,6 @@ export const getDefaultClassNamesForEntityCatalogRow = () => {
     return "flex flex-row justify-between flex-wrap whitespace-nowrap hover:shadow highlight-catalog-transition-default";
 };
 
-export const getClassNamesForHiddenEntityCatalogRow = () => {
-    return getDefaultClassNamesForEntityCatalogRow() + " highlight-opposite";
-};
-
 const getClassNamesBasedOnHighlighting = (
     highlightLevels: Record<string, number>,
     semanticEntityId: string
@@ -56,13 +52,13 @@ export const useCatalogHighlightingController = () => {
         changeHighlight(entityId, reactFlowInstance, false, modelOfClassWhichStartedHighlighting);
     };
 
-    const getClassNames = useCallback((entityId: string) => {
-        entityId = semanticToVisualIdentifierMap[entityId];
-        return getClassNamesBasedOnHighlighting(highlightLevels, entityId);
+    const getClassNames = useCallback((semanticEntityId: string) => {
+        semanticEntityId = semanticToVisualIdentifierMap[semanticEntityId];
+        return getClassNamesBasedOnHighlighting(highlightLevels, semanticEntityId);
     }, [highlightLevels]);
 
-    const isEntityHighlighted = useCallback((entityId: string) => {
-        return semanticToVisualIdentifierMap[entityId] != undefined;
+    const isEntityHighlighted = useCallback((semanticEntityId: string) => {
+        return semanticToVisualIdentifierMap[semanticEntityId] != undefined;
     }, [highlightLevels]);
 
     const isAnyEntityHighlighted = useMemo(() => Object.values(highlightLevels).length, [highlightLevels]);

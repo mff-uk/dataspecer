@@ -13,9 +13,8 @@ import { ReactPrevSetStateType } from "../../../../utilities";
 //              some kind of render helper element around node with the correct color and just change its opacity
 //              For now just do it like this, the performance can be checked later (we can't do it in pure css since we need to compute the neighbors anyways)
 //              So I guess that 2 places take performance - the change of outline (and change of edges' color) and the change of backdrop-filter for catalog
-// TODO RadStr: Maybe not optimal algorithm-wise? but can't think of anything much better now
 
-// Also note that we can't use classnames to set styles of edges, we have to use the style property.
+// Also note that we can't use classnames to set styles of edges, we have to use the style property. And transitions/animations are straight up ignored.
 // We can use classname to set some properties, but mostly it is ignored, because we are using explicit style anyways to set the stroke property for example
 // And we also can't set the style of the label of edge - we would probably have to pass in another property in the data property of edge
 // and that it is too complicated with almost nothing to gain
@@ -27,10 +26,6 @@ export const useExplorationCanvasHighlightingController = (
 
     useEffect(() => {
         if(Object.keys(highlightLevels).length > 0) {
-            // TODO RadStr: Debug
-            console.info("highlightLevels in useExplorationCanvasHighlightingController");
-            console.info(highlightLevels);
-
             setNodes(prevNodes => {
                 const {highlightedNodes, mainHighlightedNodes} = createHighlightedNodes(prevNodes, highlightLevels);
                 setEdgesHighlighting(mainHighlightedNodes, setEdges);

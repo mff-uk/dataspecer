@@ -173,7 +173,7 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
 ) {
   const { setNodes, setEdges, setEdgeToolbar, setCanvasToolbar, selectedNodes, setSelectedNodes, setSelectedEdges, selectedEdges } = createdReactStates;
   const alignmentController = useAlignmentController({ reactFlowInstance });
-  const canvasHighlighting = useExplorationCanvasHighlightingController(setNodes, setEdges);
+  const explorationCanvasHighlighting = useExplorationCanvasHighlightingController(setNodes, setEdges);
 
   // The initialized is set to false when new node is added and back to true once the size is determined.
   // const reactFlowInitialized = useNodesInitialized();
@@ -193,10 +193,10 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
     [setEdges, setSelectedEdges]);
 
   useEffect(() => {
-    if(!canvasHighlighting.isHighlightingOn) {
+    if(!explorationCanvasHighlighting.isHighlightingOn) {
       setHighlightingStylesBasedOnSelection(reactFlowInstance, selectedNodes, selectedEdges, setNodes, setEdges);
     }
-  }, [selectedNodes, selectedEdges, canvasHighlighting.isHighlightingOn]);
+  }, [selectedNodes, selectedEdges, explorationCanvasHighlighting.isHighlightingOn]);
 
   const onConnect = useCallback(createConnectHandler(), [setEdges]);
 
@@ -216,11 +216,11 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
     [setEdgeToolbar]);
 
   const onNodeDrag = useCallback(createOnNodeDragHandler(), []);
-  const onNodeDragStart = useCallback(createOnNodeDragStartHandler(alignmentController, canvasHighlighting.disableTemporarily), [alignmentController, canvasHighlighting.disableTemporarily]);
-  const onNodeDragStop = useCallback(createOnNodeDragStopHandler(api, alignmentController, canvasHighlighting.enableTemporarily), [api, alignmentController, canvasHighlighting.enableTemporarily]);
+  const onNodeDragStart = useCallback(createOnNodeDragStartHandler(alignmentController, explorationCanvasHighlighting.disableTemporarily), [alignmentController, explorationCanvasHighlighting.disableTemporarily]);
+  const onNodeDragStop = useCallback(createOnNodeDragStopHandler(api, alignmentController, explorationCanvasHighlighting.enableTemporarily), [api, alignmentController, explorationCanvasHighlighting.enableTemporarily]);
 
-  const onNodeMouseEnter = useCallback(createOnNodeMouseEnterHandler(canvasHighlighting.changeHighlight, reactFlowInstance), [canvasHighlighting.changeHighlight, reactFlowInstance]);
-  const onNodeMouseLeave = useCallback(createOnNodeMouseLeaveHandler(canvasHighlighting.resetHighlight), [canvasHighlighting.resetHighlight]);
+  const onNodeMouseEnter = useCallback(createOnNodeMouseEnterHandler(explorationCanvasHighlighting.changeHighlight, reactFlowInstance), [explorationCanvasHighlighting.changeHighlight, reactFlowInstance]);
+  const onNodeMouseLeave = useCallback(createOnNodeMouseLeaveHandler(explorationCanvasHighlighting.resetHighlight), [explorationCanvasHighlighting.resetHighlight]);
 
 
   return {
@@ -257,9 +257,9 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
     [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges]
   );
 
-  const canvasHighlighting = useExplorationCanvasHighlightingController(setNodes, setEdges);
-  const actions = useMemo(() => createActions(reactFlowInstance, setNodes, setEdges, alignmentController, context, setSelectedNodes, setSelectedEdges, canvasHighlighting.changeHighlight),
-    [reactFlowInstance, setNodes, setEdges, alignmentController, context, setSelectedNodes, setSelectedEdges, canvasHighlighting.changeHighlight]);
+  const explorationCanvasHighlighting = useExplorationCanvasHighlightingController(setNodes, setEdges);
+  const actions = useMemo(() => createActions(reactFlowInstance, setNodes, setEdges, alignmentController, context, setSelectedNodes, setSelectedEdges, explorationCanvasHighlighting.changeHighlight),
+    [reactFlowInstance, setNodes, setEdges, alignmentController, context, setSelectedNodes, setSelectedEdges, explorationCanvasHighlighting.changeHighlight]);
 
   // Register actions to API.
   useEffect(() => api.setActions(actions), [api, actions]);
@@ -387,12 +387,7 @@ const createChangeSelectionHandler = (
     //     2) It isn't one call - If we shift-select node it is actually split into 3 calls - select only nodes, only edges, select both - so we have to solve it specifically
     //                  - and even worse for ctrl selection it is again different and it seems that sometimes they might be different amount of calls etc.
     //        So the issue is that there are many ways to change selection and the behavior is different for each
-    // Maybe there exists better solution, but I tried many and this was the first one which seems to work almost always (except for one TODO:) without much hassle
-
-    // TODO RadStr: Currently there is issue that if user shift selects group of nodes and then moves them and then control select any node, the old selection is highlighted
-    //              This is related to the fact that currently ending the node drag event ends the node selection (because they are changed in visual model and the callback remades the nodes)
-    //              But it is not the same case for edges .... So I feel like it doesn't make sense to try it fix now, since the callbacks might change and this will become non-issue
-    //              ...... Because the actual behavior should be that the nodes are still selected even after dragging, so after fixing it in visual model, this will become non-issue
+    // Maybe there exists better solution, but I tried many and this was the first one which seems to work almost always without much hassle
     if(nodes.length === 0 && edges.length === 0) {
       setSelectedNodes([]);
       setSelectedEdges([]);

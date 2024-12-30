@@ -20,6 +20,7 @@ import {
 import "./developer-tools.css";
 import { useLayoutDialog } from "../../layout/layout-dialog-full";
 import { useExploration } from "../features/highlighting/exploration/context/highlighting-exploration-mode";
+import { t } from "../../application";
 
 /**
  * Provides some internal information.
@@ -56,9 +57,9 @@ export function DeveloperTools() {
           <DevToolButton
             setActive={explorationMode.toggleHighlighting}
             active={explorationMode.isHighlightingOn}
-            title="Toggle highlighting exploration mode"
+            title={t("exploration-mode-button.title")}
           >
-            Exploration
+            {t("exploration-mode-button.name")}
           </DevToolButton>
         </Panel>
         {changeLoggerActive && <ChangeLogger />}

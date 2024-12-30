@@ -57,10 +57,12 @@ export const ExplorationContextProvider = (props: { children: React.ReactNode })
         shouldShrinkCatalog,
         setShouldShrinkCatalog
     };
-  }, [isHighlightingOn, setIsHighlightingOn, highlightLevels, setHighlightLevels,
-    modelOfClassWhichStartedHighlighting, setModelOfClassWhichStartedHighlighting,
-    isHighlightingInternallyOn, setIsHighlightingInternallyOn, semanticToVisualIdentifierMap, setSemanticToVisualIdentifierMap,
-    shouldShrinkCatalog, setShouldShrinkCatalog]);
+  }, [
+        isHighlightingOn, setIsHighlightingOn, highlightLevels, setHighlightLevels,
+        modelOfClassWhichStartedHighlighting, setModelOfClassWhichStartedHighlighting,
+        isHighlightingInternallyOn, setIsHighlightingInternallyOn, semanticToVisualIdentifierMap, setSemanticToVisualIdentifierMap,
+        shouldShrinkCatalog, setShouldShrinkCatalog
+    ]);
 
   return (
     <ExplorationContext.Provider value={context}>
@@ -108,7 +110,7 @@ export const useExploration = () => {
         isSourceOfEventCanvas: boolean,
         modelOfClassWhichStartedHighlighting: string | null
     ) => {
-        if(!isHighlightingInternallyOn || !isHighlightingOn) {
+        if(!isHighlightingChangeAllowed()) {
             return;
         }
 
@@ -130,6 +132,7 @@ export const useExploration = () => {
         }
 
         const connectedEdges = getConnectedEdges(mainHighlightedNodes, reactFlowInstance.getEdges());
+        // Setting the style of nodes which are connected to the main (level 0) ones
         connectedEdges.forEach(edge => {
             const isSourceInMainHighlight = isInMainHighlight(mainHighlightedNodes, edge.source);
             const otherNodeId = isSourceInMainHighlight ? edge.target : edge.source;
@@ -153,7 +156,7 @@ export const useExploration = () => {
     };
 
     const resetHighlight = () => {
-        if(!isHighlightingInternallyOn || !isHighlightingOn) {
+        if(!isHighlightingChangeAllowed()) {
             return;
         }
 

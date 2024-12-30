@@ -1,33 +1,32 @@
 import { Edge, getConnectedEdges, MarkerType, Node, ReactFlowInstance } from "@xyflow/react";
 import { Dispatch, SetStateAction } from "react";
 import { NodeType, selectMarkerEnd } from "../../diagram-controller";
-import { nodesHighlightingLevelToClassnameMap, replaceClassNameWith } from "./exploration/canvas/canvas-exploration-highlighting-controller";
+import { ReactPrevSetStateType } from "../../utilities";
 
 // TODO RadStr: Improve the dispatch types
 export const setHighlightingStylesBasedOnSelection = (
     reactflowInstance: ReactFlowInstance<any, any>,
     nodes: string[],
     edges: string[],
-    setNodes: Dispatch<SetStateAction<NodeType[]>>,
-    setEdges: Dispatch<SetStateAction<Edge<any>[]>>
+    setNodes: ReactPrevSetStateType<NodeType[]>,
+    setEdges: ReactPrevSetStateType<Edge<any>[]>,
 ) => {
     const highlightColor = highlightColorMap[0];
     const nextToHighlightedElementColor = highlightColorMap[1];
 
     setEdges(prevEdges => {
         const changedNodesBasedOnEdgeSelection: string[] = [];
+        const changedCopiesOfPreviousEdges: Record<string, Edge<any>> = {};
         // Reset edges style
         prevEdges.forEach(edge => {
-            edge.style = {...edge.style, stroke: edge.data.color };
-            edge.markerEnd = selectMarkerEnd(edge.data, null);
+            storeEdgeCopyToGivenMap(edge, null, changedCopiesOfPreviousEdges);
         });
         // Set style of edges going from selected nodes
         nodes.forEach(nodeIdentifier => {
             const reactflowNode = reactflowInstance.getNode(nodeIdentifier);
             const connectedEdges = getConnectedEdges([reactflowNode], prevEdges);
             connectedEdges.forEach(edge => {
-                edge.style = {...edge.style, stroke: nextToHighlightedElementColor};
-                edge.markerEnd = selectMarkerEnd(edge.data, nextToHighlightedElementColor);
+                storeEdgeCopyToGivenMap(edge, nextToHighlightedElementColor, changedCopiesOfPreviousEdges);
             });
         });
         // Set style of selected edges
@@ -36,55 +35,40 @@ export const setHighlightingStylesBasedOnSelection = (
             if(edge === undefined) {
                 return;
             }
-            edge.style = {...edge.style, stroke: highlightColor};
-            edge.markerEnd = selectMarkerEnd(edge.data, highlightColor);
+
+            storeEdgeCopyToGivenMap(edge, highlightColor, changedCopiesOfPreviousEdges);
             changedNodesBasedOnEdgeSelection.push(edge.source);
             changedNodesBasedOnEdgeSelection.push(edge.target);
         });
         // Set style of nodes
         setNodes(prevNodes => prevNodes.map(node => {
-            const isChanged = changedNodesBasedOnEdgeSelection.find(nodeId => nodeId === node.id);
+            const isChangedBasedOnSelectedEdge = changedNodesBasedOnEdgeSelection.find(nodeId => nodeId === node.id) !== undefined;
             const isHighlighted = nodes.find(id => node.id === id) !== undefined;
 
-            // Commented the code with classnames - we unfortunately have to use the style property, because for some reason
-            // the classname property takes effect only after something happens (for example user moves the viewport)
-            // This fact actually also takes effect in the exploration highlighting mode - When user selects new class
-            // using ctrl-selection then when the user doesn't do anything else, the node is not highlighting
-            // (after sure for example moves the viewport, it is highlighted again)
+            let newOutline: string | undefined = undefined;
             if(isHighlighted) {
-                // node.className = replaceClassNameWith(node.className, nodesHighlightingLevelToClassnameMap[0], false, true);
-                node.style = {
-                    ...node.style,
-                    outline: `0.25em solid ${highlightColor}`,
-                    // boxShadow: `0 0 0.25em 0.25em ${highlightColor}`         // Alternative to outline
-                };
+                newOutline = `0.25em solid ${highlightColor}`;
             }
-            else if(isChanged !== undefined) {
-                // node.className = replaceClassNameWith(node.className, nodesHighlightingLevelToClassnameMap[1], false, true);
-                node.style = {
-                    ...node.style,
-                    outline: `0.25em solid ${nextToHighlightedElementColor}`,
-                    // boxShadow: `0 0 0.25em 0.25em ${color}`         // Alternative to outline
-                };
+            else if(isChangedBasedOnSelectedEdge) {
+                newOutline = `0.25em solid ${nextToHighlightedElementColor}`;
             }
-            else {
-                // node.className = replaceClassNameWith(node.className, nodesHighlightingLevelToClassnameMap["no-highlight"], false, true);
-                node.style = {
-                    ...node.style,
-                    outline: undefined,
-                    // boxShadow: undefined                         // Alternative to outline
-                };
+            // Else undefined
+
+            if(newOutline === node.style?.outline) {
+                return node;
             }
-            return {...node};
+            return {
+                ...node,
+                style: {
+                    ...node.style,
+                    outline: newOutline,
+                },
+            };
         }));
 
-        prevEdges.forEach(e => {
-            if(edges.find(id => id === e.id) !== undefined) {
-                e.style = {...e.style, stroke: highlightColor};
-            }
+        return prevEdges.map(edge => {
+            return changedCopiesOfPreviousEdges[edge.id].style?.stroke === edge.style?.stroke ? edge : changedCopiesOfPreviousEdges[edge.id];
         });
-        // TODO RadStr: Possible optimization is to create copy of only those edges, which actually changed style ... same for nodes
-        return prevEdges.map(e => ({...e}));
     });
 };
 
@@ -96,3 +80,17 @@ export const highlightColorMap: Record<HighlightLevel, string> = {
   0: "rgba(238, 58, 115, 1)",
   1: "rgba(0, 0, 0, 1)",
 };
+
+function storeEdgeCopyToGivenMap(
+    edge: Edge<any>, newEdgeColor: string | null,
+    changedCopiesOfPreviousEdges: Record<string, Edge<any>>
+): void {
+    if(newEdgeColor === null) {
+        newEdgeColor = edge?.data?.color;
+    }
+
+    const changedEdge = changedCopiesOfPreviousEdges[edge.id] ?? ({...edge});
+    changedEdge.style = {...changedEdge.style, stroke: newEdgeColor ?? undefined};
+    changedEdge.markerEnd = selectMarkerEnd(changedEdge.data, newEdgeColor);
+    changedCopiesOfPreviousEdges[changedEdge.id] = changedEdge;
+}
