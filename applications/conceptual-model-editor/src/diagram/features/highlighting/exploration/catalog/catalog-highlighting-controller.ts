@@ -41,7 +41,6 @@ export const useCatalogHighlightingController = () => {
         semanticToVisualIdentifierMap,
         shouldShrinkCatalog,
         isHighlightingChangeAllowed,
-        modelOfClassWhichStartedHighlighting,
     } = useExploration();
 
     const highlightEntity = (
@@ -71,6 +70,5 @@ export const useCatalogHighlightingController = () => {
         isEntityHighlighted,
         isAnyEntityHighlighted,
         isHighlightingChangeAllowed,
-        modelOfClassWhichStartedHighlighting,
     };
 };

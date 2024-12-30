@@ -13,9 +13,6 @@ export interface Exploration {
   highlightLevels: Record<string, number>;
   setHighlightLevels: React.Dispatch<React.SetStateAction<Record<string, number>>>;
   //
-  modelOfClassWhichStartedHighlighting: string | null;
-  setModelOfClassWhichStartedHighlighting: React.Dispatch<string | null>;
-  //
   semanticToVisualIdentifierMap: Record<string, string>;
   setSemanticToVisualIdentifierMap: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   //
@@ -34,7 +31,6 @@ export const ExplorationContextProvider = (props: { children: React.ReactNode })
   const [isHighlightingInternallyOn, setIsHighlightingInternallyOn] = useState<boolean>(true);
   const [semanticToVisualIdentifierMap, setSemanticToVisualIdentifierMap] = useState<Record<string, string>>({});
   const [shouldShrinkCatalog, setShouldShrinkCatalog] = useState<boolean>(false);
-  const [modelOfClassWhichStartedHighlighting, setModelOfClassWhichStartedHighlighting] = useState<string | null>(null);
 
   // TODO RadStr: Probably not the best use of memo
   const context = useMemo(() => {
@@ -44,9 +40,6 @@ export const ExplorationContextProvider = (props: { children: React.ReactNode })
 
         highlightLevels,
         setHighlightLevels,
-
-        modelOfClassWhichStartedHighlighting,
-        setModelOfClassWhichStartedHighlighting,
 
         semanticToVisualIdentifierMap,
         setSemanticToVisualIdentifierMap,
@@ -59,8 +52,8 @@ export const ExplorationContextProvider = (props: { children: React.ReactNode })
     };
   }, [
         isHighlightingOn, setIsHighlightingOn, highlightLevels, setHighlightLevels,
-        modelOfClassWhichStartedHighlighting, setModelOfClassWhichStartedHighlighting,
-        isHighlightingInternallyOn, setIsHighlightingInternallyOn, semanticToVisualIdentifierMap, setSemanticToVisualIdentifierMap,
+        isHighlightingInternallyOn, setIsHighlightingInternallyOn,
+        semanticToVisualIdentifierMap, setSemanticToVisualIdentifierMap,
         shouldShrinkCatalog, setShouldShrinkCatalog
     ]);
 
@@ -99,8 +92,6 @@ export const useExploration = () => {
         toggleHighlighting,
         shouldShrinkCatalog,
         setShouldShrinkCatalog,
-        modelOfClassWhichStartedHighlighting,
-        setModelOfClassWhichStartedHighlighting,
     } = useContext(ExplorationContext);
 
 
@@ -152,7 +143,6 @@ export const useExploration = () => {
         setSemanticToVisualIdentifierMap(newVisualIdentifierToSemanticIdentifierMap);
         setHighlightLevels(newHighlightLevelsMap);
         setShouldShrinkCatalog(isSourceOfEventCanvas);
-        setModelOfClassWhichStartedHighlighting(modelOfClassWhichStartedHighlighting);
     };
 
     const resetHighlight = () => {
@@ -189,7 +179,6 @@ export const useExploration = () => {
 
     return {
         highlightLevels, resetHighlight, changeHighlight,
-        modelOfClassWhichStartedHighlighting,
         disableTemporarily, enableTemporarily,
         isHighlightingPresent,
         toggleHighlighting,

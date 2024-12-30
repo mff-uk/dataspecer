@@ -73,14 +73,11 @@ export const EntityRow = (props: {
     const explorationHighlightingController = useCatalogHighlightingController();
 
     const actions = useActions();
-    // Either we can shrink the catalog (the highlighting started from the canvas) or not, then we are shrinking only different models
-    // TODO RadStr: The idea is nice, unfortunately if we shrink the models above the current (in the catalog), we will start the flickering
-    //              (because the models shift up, which result in new classes (un)entering the cursor) -
-    // So either do some trick, or just never shrink as it was before
-    const shouldShrinkThisRow = (
-                                    explorationHighlightingController.shouldShrinkCatalog ||
-                                    explorationHighlightingController.modelOfClassWhichStartedHighlighting !== props.model
-                                ) &&
+    // Either we can shrink the catalog (the highlighting started from the canvas) or not.
+    // There was an idea to shrink all the models except the one where the main entity resides, but
+    // unfortunately if we shrink the models above the current (in the catalog), we will start the flickering
+    // (because the models shift up, which result in new classes (un)entering the cursor)
+    const shouldShrinkThisRow = explorationHighlightingController.shouldShrinkCatalog &&
                                 !explorationHighlightingController.isEntityHighlighted(entity.id) &&
                                 explorationHighlightingController.isAnyEntityHighlighted;
 
