@@ -6,7 +6,7 @@ import { ObjectModelTypeGeneratorHelper } from "./object-model-generator-helper"
 
 interface LdkitObjectModelTypeTemplate extends DataLayerTemplateDescription {
     placeholders: {
-        object_model_type: object;
+        object_model_type: string;
         object_model_type_name: string;
     }
 }
@@ -66,35 +66,35 @@ export class LdkitObjectModelTypeGenerator extends TemplateConsumer<LdkitObjectM
 
     private convertSerializedTypeToTypescriptType(obj: any): string {
         const result = Object.entries(obj)
-            .map(([propName, typeName]) => {
+            .map(([propName, typeName]: [string, any]): string | null => {
 
-                if (propName.startsWith("@")) {
-                    return null;
+            if (propName.startsWith("@")) {
+                return null;
+            }
+
+            if (typeName.endsWith("[]")) {
+                const nestedStr = typeName.substring(0, typeName.length - "[]".length);
+                try {
+                const nested = JSON.parse(nestedStr);
+                return `"${propName}": ${this.convertSerializedTypeToTypescriptType(nested)}[],`
+                } catch {
+                return `"${propName}": ${nestedStr}[],`
                 }
+            }
 
-                if (typeName.endsWith("[]")) {
-                    const nestedStr = typeName.substring(0, typeName.length - "[]".length);
-                    try {
-                        const nested = JSON.parse(nestedStr);
-                        return `${propName}: ${this.convertSerializedTypeToTypescriptType(nested)}[],`
-                    } catch {
-                        return `${propName}: ${nestedStr}[],`
-                    }
-                }
+            if (typeName.startsWith("{")) {
+                const nested = JSON.parse(typeName);
+                return `"${propName}": ${this.convertSerializedTypeToTypescriptType(nested)}`
+            }
 
-                if (typeName.startsWith("{")) {
-                    const nested = JSON.parse(typeName);
-                    return `${propName}: { ${this.convertSerializedTypeToTypescriptType(nested)} }`
-                }
+            if (typeName.startsWith("Record")) {
+                const [keyTypeName, valueTypeName] = this.splitRecordToKeyAndValueTypes(typeName);
+                return `"${propName}": { [key: ${keyTypeName}]: ${valueTypeName} },`
+            }
 
-                if (typeName.startsWith("Record")) {
-                    const [keyTypeName, valueTypeName] = this.splitRecordToKeyAndValueTypes(typeName);
-                    return `${propName}: { [key: ${keyTypeName}]: ${valueTypeName} },`
-                }
-
-                return `"${propName}": ${typeName},`
+            return `"${propName}": ${typeName},`
             })
-            .filter(item =>  item !== undefined && item !== null)
+            .filter((item: string | null): item is string => item !== null)
             .join("\n");
 
         return `{
