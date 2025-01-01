@@ -45,6 +45,63 @@ export class LdkitObjectModelTypeGenerator extends TemplateConsumer<LdkitObjectM
         return ldkitSchemaInterface;
     }
 
+    private splitRecordToKeyAndValueTypes(recordTypeName: any): [string, string] {
+
+        const recordTypeBeginMarker = "<";
+        const recordTypeEndMarker = ">";
+        const recordKeyValueTypeSeparator = ", ";
+
+        const keyTypeName = recordTypeName.substring(
+            recordTypeName.indexOf(recordTypeBeginMarker) + recordTypeBeginMarker.length,
+            recordTypeName.lastIndexOf(recordKeyValueTypeSeparator)
+        );
+
+        const valueTypeName = recordTypeName.substring(
+            recordTypeName.indexOf(recordKeyValueTypeSeparator) + recordKeyValueTypeSeparator.length,
+            recordTypeName.lastIndexOf(recordTypeEndMarker)
+        );
+
+        return [keyTypeName, valueTypeName];
+    }
+
+    private convertSerializedTypeToTypescriptType(obj: any): string {
+        const result = Object.entries(obj)
+            .map(([propName, typeName]) => {
+
+                if (propName.startsWith("@")) {
+                    return null;
+                }
+
+                if (typeName.endsWith("[]")) {
+                    const nestedStr = typeName.substring(0, typeName.length - "[]".length);
+                    try {
+                        const nested = JSON.parse(nestedStr);
+                        return `${propName}: ${this.convertSerializedTypeToTypescriptType(nested)}[],`
+                    } catch {
+                        return `${propName}: ${nestedStr}[],`
+                    }
+                }
+
+                if (typeName.startsWith("{")) {
+                    const nested = JSON.parse(typeName);
+                    return `${propName}: { ${this.convertSerializedTypeToTypescriptType(nested)} }`
+                }
+
+                if (typeName.startsWith("Record")) {
+                    const [keyTypeName, valueTypeName] = this.splitRecordToKeyAndValueTypes(typeName);
+                    return `${propName}: { [key: ${keyTypeName}]: ${valueTypeName} },`
+                }
+
+                return `"${propName}": ${typeName},`
+            })
+            .filter(item =>  item !== undefined && item !== null)
+            .join("\n");
+
+        return `{
+            ${result}
+        }`;
+    }
+
     processTemplate(dependencies: LdkitObjectModelDependencyMap): Promise<LayerArtifact> {
 
         const ldkitArtifact = dependencies.ldkitSchemaArtifact;
@@ -55,10 +112,12 @@ export class LdkitObjectModelTypeGenerator extends TemplateConsumer<LdkitObjectM
 
         const ldkitSchemaInterface = this.generateAndSaveLdkitSchemaInterface(ldkitArtifact, dependencies.aggregate.technicalLabel);
 
+        const convertedType = this.convertSerializedTypeToTypescriptType(ldkitSchemaInterface);
+
         const modelTypeTemplate: LdkitObjectModelTypeTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                object_model_type: ldkitSchemaInterface,
+                object_model_type: convertedType,
                 object_model_type_name: objectModelTypeName
             }
         };
