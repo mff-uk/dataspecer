@@ -49,7 +49,6 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
 
   return (
     <>
-      {props.selected ? <SelectedHighlight /> : null}
       <div className={"border border-black entity-node min-h-14 min-w-56"}>
         <EntityNodeToolbar {...props} />
         <div className="entity-node-content">
@@ -92,12 +91,6 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
   );
 };
 
-function SelectedHighlight() {
-  return (
-    <div style={{ position: "fixed", zIndex: -1, left: "-.25em", top: "-.25em", bottom: "-.25em", right: "-.25em" }} className={"entity-node selected"} />
-  );
-}
-
 function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   const context = useContext(DiagramContext);
   if(context === null) {
@@ -105,7 +98,7 @@ function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   }
 
   const isCanvasToolbarOpen = context.openedCanvasToolbar !== null;
-  if(isCanvasToolbarOpen || !context.getIsSelectionStateChangeFinished()) {
+  if(isCanvasToolbarOpen) {
     return null;
   }
 

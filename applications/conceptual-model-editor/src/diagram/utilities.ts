@@ -1,0 +1,1 @@
+export type ReactPrevSetStateType<S> = (value: (prevState: S) => S) => void;

@@ -19,6 +19,8 @@ import {
 
 import "./developer-tools.css";
 import { useLayoutDialog } from "../../layout/layout-dialog-full";
+import { useExploration } from "../features/highlighting/exploration/context/highlighting-exploration-mode";
+import { t } from "../../application";
 
 /**
  * Provides some internal information.
@@ -28,6 +30,7 @@ import { useLayoutDialog } from "../../layout/layout-dialog-full";
 export function DeveloperTools() {
   const [changeLoggerActive, setChangeLoggerActive] = useState(false);
   const [viewportLoggerActive, setViewportLoggerActive] = useState(true);
+  const explorationMode = useExploration();
 
   const layoutDialogUse = useLayoutDialog();
 
@@ -51,6 +54,13 @@ export function DeveloperTools() {
             Viewport
           </DevToolButton>
           <button onClick={_ => layoutDialogUse.open()}>Layout</button>
+          <DevToolButton
+            setActive={explorationMode.toggleHighlighting}
+            active={explorationMode.isHighlightingOn}
+            title={t("exploration-mode-button.title")}
+          >
+            {t("exploration-mode-button.name")}
+          </DevToolButton>
         </Panel>
         {changeLoggerActive && <ChangeLogger />}
         {viewportLoggerActive && <ViewportLogger />}

@@ -46,6 +46,9 @@ import { diagramContentAsSvg } from "./render-svg";
 import { CanvasToolbarGeneralProps, CanvasToolbarContentType } from "./canvas/canvas-toolbar-props";
 import { CanvasToolbarCreatedByEdgeDrag } from "./canvas/canvas-toolbar-drag-edge";
 import { NodeSelectionActionsSecondaryToolbar } from "./node/node-secondary-toolbar";
+import { setHighlightingStylesBasedOnSelection } from "./features/highlighting/set-selection-highlighting-styles";
+import { useExplorationCanvasHighlightingController } from "./features/highlighting/exploration/canvas/canvas-exploration-highlighting-controller";
+import { ReactPrevSetStateType } from "./utilities";
 
 export type NodeType = Node<ApiNode>;
 
@@ -83,8 +86,6 @@ interface DiagramContextType {
   shouldShowSelectionToolbar: () => boolean;
 
   getAreOnlyEdgesSelected: () => boolean;
-
-  getIsSelectionStateChangeFinished: () => boolean;
 }
 
 export const DiagramContext = createContext<DiagramContextType | null>(null);
@@ -142,6 +143,9 @@ interface UseDiagramControllerType {
 
   alignmentController: AlignmentController;
 
+  onNodeMouseEnter: (event: React.MouseEvent, node: Node) => void;
+
+  onNodeMouseLeave: (event: React.MouseEvent, node: Node) => void;
 }
 
 function useCreateReactStates() {
@@ -151,7 +155,6 @@ function useCreateReactStates() {
   const [canvasToolbar, setCanvasToolbar] = useState<CanvasToolbarGeneralProps | null>(null);
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const [selectedEdges, setSelectedEdges] = useState<string[]>([]);
-  const [selectionSerialNumber, setSelectionSerialNumber] = useState<number>(0);
 
   return {
     nodes, setNodes,
@@ -160,7 +163,6 @@ function useCreateReactStates() {
     canvasToolbar, setCanvasToolbar,
     selectedNodes, setSelectedNodes,
     selectedEdges, setSelectedEdges,
-    selectionSerialNumber, setSelectionSerialNumber
   };
 }
 
@@ -169,23 +171,32 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
   reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
   createdReactStates: ReturnType<typeof useCreateReactStates>,
 ) {
-  const { setNodes, setEdges, setEdgeToolbar, setCanvasToolbar, selectedNodes, setSelectedNodes, setSelectedEdges, setSelectionSerialNumber } = createdReactStates;
-  const alignmentController = useAlignmentController({ reactFlowInstance: reactFlowInstance });
+  const { setNodes, setEdges, setEdgeToolbar, setCanvasToolbar, selectedNodes, setSelectedNodes, setSelectedEdges, selectedEdges } = createdReactStates;
+  const alignmentController = useAlignmentController({ reactFlowInstance });
+  const explorationCanvasHighlighting = useExplorationCanvasHighlightingController(setNodes, setEdges);
 
   // The initialized is set to false when new node is added and back to true once the size is determined.
   // const reactFlowInitialized = useNodesInitialized();
 
-  // https://reactflow.dev/api-reference/hooks/use-key-press
-  const isShiftPressed = useKeyPress('Shift');
-
-  const onChangeSelection = useCallback(createChangeSelectionHandler(selectedNodes, setSelectedNodes, setSelectedEdges, setSelectionSerialNumber, isShiftPressed),
-    [selectedNodes, setSelectedNodes, setSelectedEdges, setSelectionSerialNumber, isShiftPressed]);
+  const onChangeSelection = useCallback(createChangeSelectionHandler(
+      setSelectedNodes, setSelectedEdges),
+      [setSelectedNodes, setSelectedEdges]);
 
   useOnSelectionChange({ onChange: (onChangeSelection) });
 
-  const onNodesChange = useCallback(createNodesChangeHandler(setNodes, alignmentController), [setNodes, alignmentController]);
+  const onNodesChange = useCallback(createNodesChangeHandler(
+    setNodes, alignmentController, setSelectedNodes),
+    [setNodes, alignmentController, setSelectedNodes]);
 
-  const onEdgesChange = useCallback(createEdgesChangeHandler(setEdges), [setEdges]);
+  const onEdgesChange = useCallback(createEdgesChangeHandler(
+    setEdges, setSelectedEdges),
+    [setEdges, setSelectedEdges]);
+
+  useEffect(() => {
+    if(!explorationCanvasHighlighting.isHighlightingOn) {
+      setHighlightingStylesBasedOnSelection(reactFlowInstance, selectedNodes, selectedEdges, setNodes, setEdges);
+    }
+  }, [selectedNodes, selectedEdges, explorationCanvasHighlighting.isHighlightingOn]);
 
   const onConnect = useCallback(createConnectHandler(), [setEdges]);
 
@@ -205,8 +216,11 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
     [setEdgeToolbar]);
 
   const onNodeDrag = useCallback(createOnNodeDragHandler(), []);
-  const onNodeDragStart = useCallback(createOnNodeDragStartHandler(alignmentController), [alignmentController]);
-  const onNodeDragStop = useCallback(createOnNodeDragStopHandler(api, alignmentController), [api, alignmentController]);
+  const onNodeDragStart = useCallback(createOnNodeDragStartHandler(alignmentController, explorationCanvasHighlighting.disableTemporarily), [alignmentController, explorationCanvasHighlighting.disableTemporarily]);
+  const onNodeDragStop = useCallback(createOnNodeDragStopHandler(api, alignmentController, explorationCanvasHighlighting.enableTemporarily), [api, alignmentController, explorationCanvasHighlighting.enableTemporarily]);
+
+  const onNodeMouseEnter = useCallback(createOnNodeMouseEnterHandler(explorationCanvasHighlighting.changeHighlight, reactFlowInstance), [explorationCanvasHighlighting.changeHighlight, reactFlowInstance]);
+  const onNodeMouseLeave = useCallback(createOnNodeMouseLeaveHandler(explorationCanvasHighlighting.resetHighlight), [explorationCanvasHighlighting.resetHighlight]);
 
 
   return {
@@ -224,6 +238,8 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
     onNodeDrag,
     onNodeDragStart,
     onNodeDragStop,
+    onNodeMouseEnter,
+    onNodeMouseLeave,
   };
 }
 
@@ -233,21 +249,24 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
   createdReactStates: ReturnType<typeof useCreateReactStates>,
   createdPartOfDiagramController: ReturnType<typeof useCreateDiagramControllerIndependentOnActionsAndContext>,
 ) {
-  const { setNodes, setEdges, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges, selectionSerialNumber } = createdReactStates;
+  const { setNodes, setEdges, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges, setSelectedNodes, setSelectedEdges } = createdReactStates;
   const { onOpenEdgeToolbar, onOpenCanvasToolbar, alignmentController } = createdPartOfDiagramController;
 
   const context = useMemo(() => createDiagramContext(
-    api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar?.toolbarContent ?? null, setCanvasToolbar, selectedNodes, selectedEdges, selectionSerialNumber),
-    [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges, selectionSerialNumber]
+    api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar?.toolbarContent ?? null, setCanvasToolbar, selectedNodes, selectedEdges),
+    [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges]
   );
 
-  const actions = useMemo(() => createActions(reactFlowInstance, setNodes, setEdges, alignmentController, context),
-    [reactFlowInstance, setNodes, setEdges, alignmentController, context]);
+  const explorationCanvasHighlighting = useExplorationCanvasHighlightingController(setNodes, setEdges);
+  const actions = useMemo(() => createActions(reactFlowInstance, setNodes, setEdges, alignmentController, context, setSelectedNodes, setSelectedEdges, explorationCanvasHighlighting.changeHighlight),
+    [reactFlowInstance, setNodes, setEdges, alignmentController, context, setSelectedNodes, setSelectedEdges, explorationCanvasHighlighting.changeHighlight]);
 
   // Register actions to API.
   useEffect(() => api.setActions(actions), [api, actions]);
 
-  const onPaneClick = useCallback(context.closeCanvasToolbar, [context.closeCanvasToolbar]);
+  const onPaneClick = useCallback(createOnPaneClickHandler(
+    context.closeCanvasToolbar, setSelectedNodes, setSelectedEdges),
+    [context.closeCanvasToolbar, setSelectedNodes, setSelectedEdges]);
 
   return {
     context,
@@ -283,6 +302,8 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
     onNodeDragStop: independentPartOfDiagramController.onNodeDragStop,
     onPaneClick: dependentPartOfDiagramController.onPaneClick,
     alignmentController: independentPartOfDiagramController.alignmentController,
+    onNodeMouseEnter: independentPartOfDiagramController.onNodeMouseEnter,
+    onNodeMouseLeave: independentPartOfDiagramController.onNodeMouseLeave,
   };
 }
 
@@ -292,17 +313,44 @@ const createOnNodeDragHandler = () => {
   };
 };
 
-const createOnNodeDragStartHandler = (alignmentController: AlignmentController) => {
+const createOnNodeDragStartHandler = (
+  alignmentController: AlignmentController,
+  disableExplorationModeHighlightingChanges: () => void
+) => {
   return (event: React.MouseEvent, node: Node, nodes: Node[]) => {
+    disableExplorationModeHighlightingChanges();
     alignmentController.alignmentSetUpOnNodeDragStart(node);
+  };
+};
+
+
+const createOnNodeMouseEnterHandler = (
+  changeHighlight: (
+    startingNodeId: string,
+    reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
+    isSourceOfEventCanvas: boolean,
+    modelOfClassWhichStartedHighlighting: string | null
+  ) => void,
+  reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
+) => {
+  return (_: React.MouseEvent, node: Node) => {
+    changeHighlight(node.id, reactFlowInstance, true, null);
+  };
+};
+
+const createOnNodeMouseLeaveHandler = (resetHighlight: () => void) => {
+  return (_: React.MouseEvent, node: Node) => {
+    resetHighlight();
   };
 };
 
 const createOnNodeDragStopHandler = (
   api: UseDiagramType,
-  alignmentController: AlignmentController
+  alignmentController: AlignmentController,
+  enableExplorationModeHighlightingChanges: () => void
 ) => {
   return (event: React.MouseEvent, node: Node, nodes: Node[]) => {
+    enableExplorationModeHighlightingChanges();
     alignmentController.alignmentCleanUpOnNodeDragStop(node);
     // At the end of the node drag we report changes in the positions.
     const changes: Record<string, Position> = {};
@@ -314,11 +362,8 @@ const createOnNodeDragStopHandler = (
 };
 
 const createChangeSelectionHandler = (
-  previouslySelectedNodes: string[],
-  setSelectedNodes: (newNodeSelection: string[]) => void,
-  setSelectedEdges: (newEdgeSelection: string[]) => void,
-  setSelectionSerialNumber: React.Dispatch<React.SetStateAction<number>>,
-  isShiftPressed: boolean,
+    setSelectedNodes: (newNodeSelection: string[]) => void,
+    setSelectedEdges: (newEdgeSelection: string[]) => void,
 ) => {
   return ({nodes, edges}: OnSelectionChangeParams) => {
     // We can react on change events here.
@@ -331,35 +376,29 @@ const createChangeSelectionHandler = (
     // The solution of choice was to draw an inspiration from NodeToolbar
     // and watch for edge selection in EdgeToolbar.
 
-    const newSelectedNodes = nodes.map((node) => node.id);
-    let insertPosition = 0;
-    for(let i = 0; i < previouslySelectedNodes.length; i++) {
-      const indexInNewArray = newSelectedNodes.findIndex(node => node === previouslySelectedNodes[i]);
-      const alreadyExistedInSelection = indexInNewArray >= 0;
-      if(alreadyExistedInSelection) {
-        newSelectedNodes.splice(indexInNewArray, 1);
-        newSelectedNodes.splice(insertPosition, 0, previouslySelectedNodes[i]);
-        insertPosition++;
-      }
-    }
+    //
 
-    // We have to do this because when we are using useOnSelectionChange and selected node using shift - there are 2 calls - first for the node and the for the edges
-    // So we if we are selecting using shift we disable the updating of toolbars by checking selectionSerialNumber % 2 === 0
-    // And we have to do it because otherwise the other toolbars flicker 
-    if(isShiftPressed) {
-      setSelectionSerialNumber((prev) => prev + 1);
-      // This is nice hack, which handles special cases (shift without drag) and hovering over node without edges
-      setTimeout(() => setSelectionSerialNumber(prev => prev + (prev % 2)), 10);
-    }
+    // This solves the issue that when user drags single node, the node itself becomes selected but it is not separate selection event in the onNodesChange
+    // So the trick is to just empty the selection if both selections are empty
 
-    setSelectedNodes(newSelectedNodes);
-    setSelectedEdges(edges.map(edge => edge.id));
-  };
+    // You might be asking why not just do everything here? Why split into 3 different methods (this, onNodesChange, onEdgesChange).
+    // Well there are many reasons -
+    //     1) This method is called later, which results in flickering of the highlighting and onSelection toolbar menu (it shows for a while the classic menu instead of the selection one)
+    //     2) It isn't one call - If we shift-select node it is actually split into 3 calls - select only nodes, only edges, select both - so we have to solve it specifically
+    //                  - and even worse for ctrl selection it is again different and it seems that sometimes they might be different amount of calls etc.
+    //        So the issue is that there are many ways to change selection and the behavior is different for each
+    // Maybe there exists better solution, but I tried many and this was the first one which seems to work almost always without much hassle
+    if(nodes.length === 0 && edges.length === 0) {
+      setSelectedNodes([]);
+      setSelectedEdges([]);
+    }
+  }
 };
 
 const createNodesChangeHandler = (
-  setNodes: React.Dispatch<React.SetStateAction<NodeType[]>>,
-  alignmentController: AlignmentController
+  setNodes: ReactPrevSetStateType<NodeType[]>,
+  alignmentController: AlignmentController,
+  setSelectedNodes: ReactPrevSetStateType<string[]>,
 ) => {
   return (changes: NodeChange<NodeType>[]) => {
     // We can alter the change here ... for example allow only x-movement.
@@ -371,16 +410,53 @@ const createNodesChangeHandler = (
     //   }
     // });
 
+
+    setSelectedBasedOnChanges(setSelectedNodes, changes);
     alignmentController.alignmentNodesChange(changes);
     setNodes((prevNodes) => applyNodeChanges(changes, prevNodes));
   };
 };
 
-const createEdgesChangeHandler = (setEdges: React.Dispatch<React.SetStateAction<EdgeType[]>>) => {
+const createEdgesChangeHandler = (
+  setEdges: ReactPrevSetStateType<EdgeType[]>,
+  setSelectedEdges: ReactPrevSetStateType<string[]>
+) => {
   return (changes: EdgeChange<EdgeType>[]) => {
+    setSelectedBasedOnChanges(setSelectedEdges, changes);
     setEdges((prevEdges) => applyEdgeChanges(changes, prevEdges));
   };
 };
+
+/**
+ * Helper method, sets selected elements based on changes. Elements are either nodes or edges, same for changes -
+ * the changes and the elements should be for the same type (so either only for nodes or only for edges)
+ */
+const setSelectedBasedOnChanges = (
+  setSelected: ReactPrevSetStateType<string[]>,
+  changes: NodeChange<NodeType>[] | EdgeChange<EdgeType>[]
+) => {
+  setSelected(previouslySelected => {
+    const newlySelected: string[] = [];
+    const newlyRemoved: string[] = [];
+    for(const change of changes) {
+      if(change.type === "select") {
+        if(change.selected) {
+          newlySelected.push(change.id);
+        }
+        else {
+          newlyRemoved.push(change.id);
+        }
+      }
+    }
+
+    if(newlySelected.length === 0 && newlyRemoved.length === 0) {
+      return previouslySelected;
+    }
+    previouslySelected = previouslySelected.filter(previouslySelected => !newlyRemoved.includes(previouslySelected));
+    previouslySelected.push(...newlySelected);
+    return previouslySelected.map(id => id);
+  });
+}
 
 const createConnectHandler = () => {
   return (_: Connection) => {
@@ -481,6 +557,20 @@ const createOpenCanvasToolbarHandler = (setCanvasToolbar: (canvasToolbarProps: C
   };
 };
 
+type OnPaneClickHandler = (event: React.MouseEvent) => void;
+
+const createOnPaneClickHandler = (
+  closeCanvasToolbar: () => void,
+  setSelectedNodes: (newSelection: string[]) => void,
+  setSelectedEdges: (newSelection: string[]) => void
+): OnPaneClickHandler => {
+  return (_: React.MouseEvent) => {
+    closeCanvasToolbar();
+    setSelectedNodes([]);
+    setSelectedEdges([]);
+  };
+};
+
 /**
  * Creates implementation of action that could be called from the owner.
  */
@@ -490,6 +580,12 @@ const createActions = (
   setEdges: React.Dispatch<React.SetStateAction<EdgeType[]>>,
   alignment: AlignmentController,
   context: DiagramContextType,
+  setSelectedNodesInternal: (newSelection: string[]) => void,
+  setSelectedEdgesInternal: (newSelection: string[]) => void,
+  changeHighlight: (
+    startingNodeId: string,
+    reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>, isSourceOfEventCanvas: boolean, modelOfClassWhichStartedHighlighting: string | null
+  ) => void,
 ): DiagramActions => {
   return {
     getGroups() {
@@ -585,6 +681,7 @@ const createActions = (
           return {...node, selected: false};
         });
       });
+      setSelectedNodesInternal(nodes);
     },
     getSelectedEdges() {
       console.log("Diagram.getSelectedEdges");
@@ -601,6 +698,8 @@ const createActions = (
           return {...edge, selected: false};
         });
       });
+
+      setSelectedEdgesInternal(edges);
     },
     //
     async setContent(nodes, edges) {
@@ -651,6 +750,9 @@ const createActions = (
       console.log("openCanvasToolbar", {sourceNode, canvasPosition});
       context?.onOpenCanvasContextMenu(sourceNode, canvasPosition, NodeSelectionActionsSecondaryToolbar);
     },
+    highlightNodeInExplorationModeFromCatalog(nodeIdentifier, modelOfClassWhichStartedHighlighting) {
+      changeHighlight(nodeIdentifier, reactFlow, false, modelOfClassWhichStartedHighlighting);
+    }
   };
 };
 
@@ -683,7 +785,7 @@ const edgeToEdgeType = (edge: ApiEdge): EdgeType => {
     label: edge.label,
     // We need to assign the marker here as the value is transformed.
     // In addition reactflow use this value.
-    markerEnd: selectMarkerEnd(edge),
+    markerEnd: selectMarkerEnd(edge, null),
     style: {
       strokeWidth: 2,
       stroke: edge.color,
@@ -707,16 +809,19 @@ function selectEdgeType(edge: ApiEdge) {
   }
 }
 
-function selectMarkerEnd(edge: ApiEdge) {
+/**
+ * @param color If null is given then the original edge color is used
+ */
+export function selectMarkerEnd(edge: ApiEdge, color: string | null) {
   switch (edge.type) {
     case ApiEdgeType.Association:
-      return { type: MarkerType.Arrow, height: 20, width: 20, color: edge.color };
+      return { type: MarkerType.Arrow, height: 20, width: 20, color: color ?? edge.color };
     case ApiEdgeType.AssociationProfile:
-      return { type: MarkerType.Arrow, height: 20, width: 20, color: edge.color };
+      return { type: MarkerType.Arrow, height: 20, width: 20, color: color ?? edge.color };
     case ApiEdgeType.Generalization:
-      return { type: MarkerType.ArrowClosed, height: 20, width: 20, color: edge.color };
+      return { type: MarkerType.ArrowClosed, height: 20, width: 20, color: color ?? edge.color };
     case ApiEdgeType.ClassProfile:
-      return { type: MarkerType.ArrowClosed, height: 20, width: 20, color: edge.color };
+      return { type: MarkerType.ArrowClosed, height: 20, width: 20, color: color ?? edge.color };
   }
 }
 
@@ -748,7 +853,6 @@ const createDiagramContext = (
   setCanvasToolbar: (_: null) => void,
   selectedNodes: string[],
   selectedEdges: string[],
-  selectionSerialNumber: number,
 ): DiagramContextType => {
   const getLastSelected = () => {
     return selectedNodes.at(-1) ?? null;
@@ -759,9 +863,6 @@ const createDiagramContext = (
   const closeCanvasToolbar = () => setCanvasToolbar(null);
   const getAreOnlyEdgesSelected = () => {
     return selectedNodes.length === 0 && selectedEdges.length !== 0;
-  };
-  const getIsSelectionStateChangeFinished = () => {
-    return selectionSerialNumber % 2 === 0;
   };
 
   return {
@@ -774,6 +875,5 @@ const createDiagramContext = (
     shouldShowSelectionToolbar,
 
     getAreOnlyEdgesSelected,
-    getIsSelectionStateChangeFinished,
   };
 };

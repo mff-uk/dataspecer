@@ -107,6 +107,7 @@ const noOperationDiagramActions: DiagramActions = {
   renderToSvgString: noOperationNullAsync,
   openDragEdgeToCanvasToolbar: noOperation,
   openSelectionActionsToolbar: noOperation,
+  highlightNodeInExplorationModeFromCatalog: noOperation,
 };
 
 const noOperationCallbacks: DiagramCallbacks = {
