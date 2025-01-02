@@ -1,12 +1,12 @@
 import { LanguageString } from "@dataspecer/core/core/core-resource";
 
+import { ModelDsIdentifier } from "../entity-model";
+
 export enum CmeModelType {
   Default,
   InMemorySemanticModel,
   ExternalSemanticModel,
 }
-
-export type ModelDsIdentifier = string;
 
 export interface CmeModel {
 

@@ -5,7 +5,8 @@ import { generateName } from "../../util/name-utils";
 import { getAvailableLanguagesForLanguageString } from "../../util/language-utils";
 import { MissingModel, NoWritableModelFound } from "../../application/error";
 import { isValid, validationError, validationNoProblem, ValidationState } from "./validation-utilities";
-import { CmeModel, filterWritableModels, ModelDsIdentifier } from "../../dataspecer/cme-model";
+import { CmeModel, filterWritableModels } from "../../dataspecer/cme-model";
+import { ModelDsIdentifier } from "../../dataspecer/entity-model";
 
 export interface EntityState {
 
