@@ -1,4 +1,5 @@
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { StoreContext } from "@dataspecer/federated-observable-store-react/store";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
@@ -7,6 +8,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { isSourceSemanticModelSearchableSync } from "../../../configuration/configuration";
 import { DialogParameters, useDialog } from "../../../dialog";
+import { useNewFederatedObservableStoreFromSemanticEntities } from "../../../hooks/use-new-federated-observable-store-from-semantic-entities";
 import { ConfigurationContext } from "../../App";
 import { PimClassDetailDialog } from "../../detail/pim-class-detail-dialog";
 import { translateFrom } from "../../helper/LanguageStringComponents";
@@ -32,6 +34,8 @@ export const DefaultSearchDialogContent: React.FC<DialogParameters & {selected: 
     const [searchText, setSearchText] = useState("");
 
     const DetailDialog = useDialog(PimClassDetailDialog);
+
+    const newStore = useNewFederatedObservableStoreFromSemanticEntities(findResults ?? []);
 
     useDebounceEffect(() => {
         setError(false);
@@ -104,7 +108,9 @@ export const DefaultSearchDialogContent: React.FC<DialogParameters & {selected: 
                     {findResults && <><SearchOffIcon sx={{display: "block", height: "4rem", width: "4rem"}} />{t('info panel nothing found')}</>}
                 </Box>}
             </List>
-            <DetailDialog.Component />
+            <StoreContext.Provider value={newStore}>
+                <DetailDialog.Component />
+            </StoreContext.Provider>
         </>
     );
 }

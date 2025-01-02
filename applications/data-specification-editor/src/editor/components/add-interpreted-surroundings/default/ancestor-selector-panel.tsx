@@ -1,10 +1,12 @@
 import { isSemanticModelGeneralization, SemanticModelClass, SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
+import { StoreContext } from "@dataspecer/federated-observable-store-react/store";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import { IconButton, List, ListItem, ListItemText, Tooltip, Typography } from "@mui/material";
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useAsyncMemo } from "../../../hooks/use-async-memo";
 import { useDialog } from "../../../hooks/use-dialog";
+import { useNewFederatedObservableStoreFromSemanticEntities } from "../../../hooks/use-new-federated-observable-store-from-semantic-entities";
 import { ConfigurationContext } from "../../App";
 import { PimClassDetailDialog } from "../../detail/pim-class-detail-dialog";
 import { LanguageStringFallback, LanguageStringText } from "../../helper/LanguageStringComponents";
@@ -59,6 +61,8 @@ export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = 
 
     const ClassDetailDialog = useDialog(PimClassDetailDialog, ["iri"]);
 
+    const newStore = useNewFederatedObservableStoreFromSemanticEntities(hierarchyStore);
+
     return <>
         <Typography variant="subtitle1" component="h2">{t('ancestors title')}</Typography>
         {(loading || hierarchyStore === null) ? <LoadingDialog /> :
@@ -77,6 +81,8 @@ export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = 
             </List>
         }
 
-        <ClassDetailDialog.Component />
+        <StoreContext.Provider value={newStore}>
+            <ClassDetailDialog.Component />
+        </StoreContext.Provider>
     </>;
 };
