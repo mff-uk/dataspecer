@@ -208,6 +208,9 @@ const translations: Record<string, string | Function> = {
   //
   "show-all-classes-from-semantic-model-to-visual-model-button.title": "Add all entities from semantic model to visual model",
   "remove-all-classes-contained-semantic-model-from-visual-model-button.title": "Remove all entities from semantic model from the visual model",
+  //
+  "exploration-mode-button.title": "Toggle highlighting exploration mode",
+  "exploration-mode-button.name": "Exploration",
 };
 
 export type TranslationFunction = (text: string, ...args: unknown[]) => string;

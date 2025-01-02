@@ -88,6 +88,8 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
           onNodeDragStart={controller.onNodeDragStart}
           onNodeDragStop={controller.onNodeDragStop}
           onPaneClick={controller.onPaneClick}
+          onNodeMouseEnter={controller.onNodeMouseEnter}
+          onNodeMouseLeave={controller.onNodeMouseLeave}
         >
           <Controls />
           <MiniMap nodeColor={miniMapNodeColor} pannable zoomable />

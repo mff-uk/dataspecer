@@ -67,6 +67,7 @@ export const PropertyEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
               // Round the edges.
               padding: "5px",
               borderRadius: "15px",
+              opacity: props.style?.opacity,
             }}
           >
             {props.label}

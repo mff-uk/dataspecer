@@ -236,6 +236,8 @@ export interface ActionsContextType extends DialogActions, VisualModelActions {
     semanticModelFilter: Record<string, boolean> | null
   ) => Selections;
 
+  highlightNodeInExplorationModeFromCatalog: (classIdentifier: string, modelOfClassWhichStartedHighlighting: string) => void;
+
   /**
    * As this context requires two way communication it is created and shared via the actions.
    */
@@ -275,6 +277,7 @@ const noOperationActionsContext = {
   // TODO PRQuestion: How to define this - Should actions return values?, shouldn't it be just function defined in utils?
   extendSelection: async () => ({nodeSelection: [], edgeSelection: []}),
   filterSelection: () => ({nodeSelection: [], edgeSelection: []}),
+  highlightNodeInExplorationModeFromCatalog: noOperation,
   diagram: null,
 };
 
@@ -656,6 +659,18 @@ function createActionsContext(
     return filterSelectionAction(notifications, graph, classes, selections, allowedClasses, visibilityFilter, semanticModelFilter);
   };
 
+  const highlightNodeInExplorationModeFromCatalog = (classIdentifier: string, modelOfClassWhichStartedHighlighting: string) => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      const nodeIdentifier = visualModel.getVisualEntityForRepresented(classIdentifier)?.identifier;
+      const isClassInVisualModel = nodeIdentifier !== undefined;
+      if(!isClassInVisualModel) {
+        return;
+      }
+
+      diagram.actions().highlightNodeInExplorationModeFromCatalog(nodeIdentifier, modelOfClassWhichStartedHighlighting);
+    });
+  }
+
   // Prepare and set diagram callbacks.
 
   const callbacks: DiagramCallbacks = {
@@ -785,6 +800,7 @@ function createActionsContext(
     openFilterSelectionDialog,
     extendSelection,
     filterSelection,
+    highlightNodeInExplorationModeFromCatalog,
     diagram,
   };
 
