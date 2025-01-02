@@ -1,5 +1,5 @@
 # Architecture
-The Conceptual-Model-Editor (CME) consists of several main components:
+The Conceptual-Model-Editor (CME) consists of several main components.
 
 *DataSpecer binding* is an interface and a communication layer with DataSpecer service.
 
