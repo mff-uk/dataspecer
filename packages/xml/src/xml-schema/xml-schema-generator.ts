@@ -7,7 +7,7 @@ import {
 } from "@dataspecer/core/data-specification/model";
 import { ArtefactGenerator, ArtefactGeneratorContext } from "@dataspecer/core/generator";
 import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
-import { defaultStructureTransformations, transformStructureModel } from "@dataspecer/core/structure-model/transformation";
+import { defaultStructureTransformations, structureModelTransformCodelists, transformStructureModel } from "@dataspecer/core/structure-model/transformation";
 import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties";
 import { generateDocumentation } from "./xml-schema-documentation";
 import { structureModelToXmlSchema } from "./xml-schema-model-adapter";
@@ -67,6 +67,8 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
       null,
       transformations
     );
+
+    model = structureModelTransformCodelists(model);
 
     const xmlModel = await structureModelAddXmlProperties(
       model, context.reader

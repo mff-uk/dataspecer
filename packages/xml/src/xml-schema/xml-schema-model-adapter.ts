@@ -54,15 +54,6 @@ export async function structureModelToXmlSchema(
 }
 
 /**
- * This type shall be used inside a codelist type in a property.
- */
-const anyUriType: StructureModelPrimitiveType = (function () {
-  const type = new StructureModelPrimitiveType();
-  type.dataType = XSD.anyURI;
-  return type;
-})();
-
-/**
  * The &lt;iri&gt; property defined at the beginning of every element.
  */
 const iriProperty: XmlSchemaComplexContentElement = {
@@ -570,14 +561,17 @@ class XmlSchemaAdapter {
   }
 
   /**
-   * Replaces a codelist datatype with {@link anyUriType}.
+   * Replaces a codelist datatype.
    */
   replaceCodelistWithUri(dataType: StructureModelType): StructureModelType {
     if (
       dataType.isAssociation() &&
       dataType.dataType.isCodelist
     ) {
-      return anyUriType;
+      const type = new StructureModelPrimitiveType();
+      type.dataType = XSD.anyURI;
+      type.regex = dataType.dataType.regex;
+      return type;
     }
     return dataType;
   }
@@ -752,7 +746,7 @@ class XmlSchemaAdapter {
     dataTypes: StructureModelPrimitiveType[]
   ): Promise<XmlSchemaType> {
     if (dataTypes.length === 1 && !propertyData.isInOr) {
-      if (dataTypes[0].regex && dataTypes[0].dataType === OFN.string) { // todo: check whether regex is shown
+      if (dataTypes[0].regex && [OFN.string, XSD.anyURI].includes(dataTypes[0].dataType)) { // todo: check whether regex is shown
         return {
           name: null,
           annotation: null,
