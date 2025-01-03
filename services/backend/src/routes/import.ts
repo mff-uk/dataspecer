@@ -82,7 +82,7 @@ async function importRdfsAndDsv(parentIri: string, rdfsUrl: string | null, dsvUr
   } as any;
 
   // Vocabulary
-  if (rdfsUrl) {   
+  if (rdfsUrl) {
     const wrapper = await createRdfsModel([rdfsUrl], httpFetch);
     const serialization = wrapper.serializeModel();
     const model = new PimStoreWrapper(serialization.pimStore, serialization.id, serialization.alias, serialization.urls);
@@ -218,9 +218,12 @@ async function importFromUrl(parentIri: string, url: string) {
       documentBaseUrl: url,
     });
 
-    const vocabularies = store.getObjects(baseIri, "https://w3id.org/dsv#usedVocabularies", null);
-    for (const vocabulary of vocabularies) {
-      const urlToImport = vocabulary.id;
+    const vocabularies = [...new Set([
+      ...store.getObjects(baseIri, "https://w3id.org/dsv#usedVocabularies", null).map(v => v.id),
+      ...store.getObjects(baseIri, "https://w3id.org/dsv-dap#dct-references", null).map(v => v.id),
+    ])];
+    for (const vocabularyId of vocabularies) {
+      const urlToImport = vocabularyId;
       await importFromUrl(newPackageIri, urlToImport);
     }
 

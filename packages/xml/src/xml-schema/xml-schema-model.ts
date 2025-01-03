@@ -1,6 +1,7 @@
 import { StructureModel } from "@dataspecer/core/structure-model/model/structure-model";
 import { QName } from "../conventions";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
+import { SemanticPathStep } from "@dataspecer/core/structure-model/model";
 
 /**
  * Represents an xs:schema definition.
@@ -346,6 +347,11 @@ export class XmlSchemaComplexContentElement extends XmlSchemaComplexContent {
    * The element represented by this item.
    */
   element: XmlSchemaElement;
+
+  /**
+   * Defines how the parent complex content is related to this element on a semantic level.
+   */
+  semanticRelationToParentElement: SemanticPathStep[] | null = null;
 }
 
 /**

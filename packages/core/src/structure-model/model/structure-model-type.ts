@@ -1,4 +1,5 @@
 import {StructureModelClass} from "./structure-model-class";
+import { SemanticPathStep } from "./structure-model-property";
 
 export interface StructureModelType {
   isAttribute(): this is StructureModelPrimitiveType;
@@ -35,6 +36,15 @@ export class StructureModelPrimitiveType implements StructureModelType {
 
 export class StructureModelComplexType implements StructureModelType {
   dataType: StructureModelClass = null;
+
+  /**
+   * Because the structure data type belongs to one property, this represents the path in semantic graph model from the property to an object.
+   * The path does not contain the property itself.
+   * Examples:
+   *  - only the object if it is directly in the association
+   *  - path to child class
+   */
+  semanticPath: SemanticPathStep[] | null = null;
 
   isAttribute(): this is StructureModelPrimitiveType {
     return false;

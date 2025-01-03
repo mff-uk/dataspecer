@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { API_SPECIFICATION_MODEL, APPLICATION_GRAPH, LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL, V1 } from "@dataspecer/core-v2/model/known-models";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
-import { ChevronDown, ChevronRight, CircuitBoard, Copy, EllipsisVertical, FileText, Folder, FolderDown, NotepadTextDashed, Pencil, Plus, Sparkles, Trash2, WandSparkles } from "lucide-react";
+import { ChevronDown, ChevronRight, CircuitBoard, Code, Copy, EllipsisVertical, FileText, Folder, FolderDown, NotepadTextDashed, Pencil, Plus, Shapes, Sparkles, Trash2, WandSparkles } from "lucide-react";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getValidTime } from "./components/time";
@@ -24,6 +24,7 @@ import React from "react";
 import { SortModelsContext } from "./components/sort-models";
 import { ModifyRawDialog } from "./dialog/modify-raw";
 import { Autolayout } from "./dialog/autolayout";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./components/ui/tooltip";
 
 export function lng(text: LanguageString | undefined): string | undefined {
   return text?.["cs"] ?? text?.["en"];
@@ -130,7 +131,33 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
       {resource.types.includes(API_SPECIFICATION_MODEL) && <Button asChild variant={"ghost"} onClick={stopPropagation()}><a href={import.meta.env.VITE_API_SPECIFICATION_APPLICATION + "?package-iri=" + encodeURIComponent(parentIri ?? "") + "&model-iri=" + encodeURIComponent(iri) }>{t("open")}</a></Button>}
 
       {resource.types.includes(LOCAL_PACKAGE) &&
-        <Button asChild variant={"ghost"} onClick={stopPropagation()}><a href={import.meta.env.VITE_DATA_SPECIFICATION_EDITOR + "/specification?dataSpecificationIri=" + encodeURIComponent(iri ?? "") }>{t("data specification detail")}</a></Button>
+        <Tooltip>
+          <TooltipTrigger>
+            <Button asChild variant="ghost" size="icon" className="shrink-0" onClick={stopPropagation()}>
+              <a href={import.meta.env.VITE_DATA_SPECIFICATION_EDITOR + "/specification?dataSpecificationIri=" + encodeURIComponent(iri ?? "") }>
+                <Code className="h-4 w-4" />
+              </a>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{t("data specification button")}</p>
+          </TooltipContent>
+        </Tooltip>
+      }
+
+      {resource.types.includes(LOCAL_PACKAGE) &&
+        <Tooltip>
+          <TooltipTrigger>
+            <Button asChild variant="ghost" size="icon" className="shrink-0" onClick={stopPropagation()}>
+              <a href={import.meta.env.VITE_CME + "/diagram?package-id=" + encodeURIComponent(iri ?? "")}>
+                <Shapes className="h-4 w-4" />
+              </a>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{t("conceptual editor button")}</p>
+          </TooltipContent>
+        </Tooltip>
       }
 
       {resource.types.includes(LOCAL_PACKAGE) &&

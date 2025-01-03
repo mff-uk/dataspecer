@@ -41,6 +41,10 @@ export class HandlebarsAdapter {
       return result;
     });
 
+    this.engine.registerHelper('not', function (value: any[]) {
+      return !value;
+    });
+
     this.engine.registerHelper('non-empty', function(o) {
       return o && Object.keys(o).length > 0;
     });

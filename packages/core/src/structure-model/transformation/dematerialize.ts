@@ -48,6 +48,7 @@ function dematerializeClassProperties(
     const isOptional = isPropertyOptional(property);
     for (const type of collectComplexTypes(classData, property)) {
       const typeClassData = type.dataType;
+      const dematerializedProperty = property;
       dematerializeClassProperties(structure, typeClassData, visited).forEach(
         (property) => {
           const propertyClone = { ...property } as StructureModelProperty;
@@ -58,6 +59,11 @@ function dematerializeClassProperties(
             psmProperty: property.psmIri,
             psmTargetClass: typeClassData.psmIri,
           });
+          propertyClone.semanticPath = [
+            ...dematerializedProperty.semanticPath,
+            ...type.semanticPath,
+            ...propertyClone.semanticPath,
+          ];
           result.push(propertyClone);
         }
       );

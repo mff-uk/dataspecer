@@ -2,7 +2,7 @@ import { StructureModelClass, StructureModelComplexType, StructureModelPrimitive
 
 import { XmlStructureModel as StructureModel } from "../xml-structure-model/model/xml-structure-model";
 
-import { XmlSchema, XmlSchemaAnnotation, XmlSchemaComplexContainer, XmlSchemaComplexContent, XmlSchemaComplexContentElement, XmlSchemaComplexContentItem, XmlSchemaComplexGroup, XmlSchemaComplexItem, XmlSchemaComplexSequence, XmlSchemaComplexType, XmlSchemaElement, XmlSchemaGroupDefinition, XmlSchemaImportDeclaration, XmlSchemaSimpleItem, XmlSchemaSimpleType, XmlSchemaType, xmlSchemaTypeIsComplex } from "./xml-schema-model";
+import { XmlSchema, XmlSchemaAnnotation, XmlSchemaComplexContainer, XmlSchemaComplexContent, XmlSchemaComplexContentElement, xmlSchemaComplexContentIsElement, xmlSchemaComplexContentIsItem, XmlSchemaComplexContentItem, XmlSchemaComplexGroup, XmlSchemaComplexItem, XmlSchemaComplexSequence, XmlSchemaComplexType, XmlSchemaElement, XmlSchemaGroupDefinition, XmlSchemaImportDeclaration, XmlSchemaSimpleItem, XmlSchemaSimpleType, XmlSchemaType, xmlSchemaTypeIsComplex } from "./xml-schema-model";
 
 import { DataSpecification, DataSpecificationArtefact, DataSpecificationSchema, } from "@dataspecer/core/data-specification/model";
 
@@ -54,20 +54,12 @@ export async function structureModelToXmlSchema(
 }
 
 /**
- * This type shall be used inside a codelist type in a property.
- */
-const anyUriType: StructureModelPrimitiveType = (function () {
-  const type = new StructureModelPrimitiveType();
-  type.dataType = XSD.anyURI;
-  return type;
-})();
-
-/**
  * The &lt;iri&gt; property defined at the beginning of every element.
  */
 const iriProperty: XmlSchemaComplexContentElement = {
   cardinalityMin: 0,
   cardinalityMax: 1,
+  semanticRelationToParentElement: null,
   element: {
     entityType: "element",
     name: iriElementName,
@@ -474,6 +466,7 @@ class XmlSchemaAdapter {
     const elementContent: XmlSchemaComplexContentElement = {
       cardinalityMin: propertyData.cardinalityMin ?? 0,
       cardinalityMax: propertyData.cardinalityMax,
+      semanticRelationToParentElement: propertyData.semanticPath ?? [], // It is a relation from complex content to this relation
       element: await this.propertyToElement(propertyData),
     };
     if (propertyData.dematerialize || propertyData.propertyAsContainer) {
@@ -486,8 +479,21 @@ class XmlSchemaAdapter {
           item: type.complexDefinition,
         };
 
+        // // Propagate semantic relation to parent element by finding all elements
+        // const lookupContents = [...(item.item as XmlSchemaComplexContainer)?.contents];
+        // for (const content of lookupContents) {
+        //   if (xmlSchemaComplexContentIsElement(content)) {
+        //     content.semanticRelationToParentElement = [StructureModelProperty, ...content.semanticRelationToParentElement];
+        //   } else if (xmlSchemaComplexContentIsItem(content)) {
+        //     const lookup = [...(content.item as XmlSchemaComplexContainer)?.contents];
+        //     lookupContents.push(...lookup);
+        //   }
+        // }
+
         // This will take the constructed item and changes the container type
-        item.item.xsType = propertyData.propertyAsContainer as string;
+        if (propertyData.propertyAsContainer) {
+          item.item.xsType = propertyData.propertyAsContainer as string;
+        }
 
         return item;
       } else {
@@ -517,6 +523,7 @@ class XmlSchemaAdapter {
       return {
         entityType: "element",
         name: [null, propertyData.technicalLabel],
+        semanticRelationToParentElement: null,
         type: {
           entityType: "type",
           name: await this.resolveImportedOrName(propertyData),
@@ -554,14 +561,17 @@ class XmlSchemaAdapter {
   }
 
   /**
-   * Replaces a codelist datatype with {@link anyUriType}.
+   * Replaces a codelist datatype.
    */
   replaceCodelistWithUri(dataType: StructureModelType): StructureModelType {
     if (
       dataType.isAssociation() &&
       dataType.dataType.isCodelist
     ) {
-      return anyUriType;
+      const type = new StructureModelPrimitiveType();
+      type.dataType = XSD.anyURI;
+      type.regex = dataType.dataType.regex;
+      return type;
     }
     return dataType;
   }
@@ -679,6 +689,7 @@ class XmlSchemaAdapter {
         contents: [{
           cardinalityMin: 1,
           cardinalityMax: 1,
+          semanticRelationToParentElement: null,
           element: {
             elementName: [null, orTechnicalLabel],
             annotation: null,
@@ -735,7 +746,7 @@ class XmlSchemaAdapter {
     dataTypes: StructureModelPrimitiveType[]
   ): Promise<XmlSchemaType> {
     if (dataTypes.length === 1 && !propertyData.isInOr) {
-      if (dataTypes[0].regex && dataTypes[0].dataType === OFN.string) { // todo: check whether regex is shown
+      if (dataTypes[0].regex && [OFN.string, XSD.anyURI].includes(dataTypes[0].dataType)) { // todo: check whether regex is shown
         return {
           name: null,
           annotation: null,

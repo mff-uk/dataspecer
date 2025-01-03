@@ -77,9 +77,10 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots & Clas
           }
         </LanguageStringUndefineable>
       }
-      {": "}
+      {":"}
     </StrikeOut>
-    {isDematerialized && ` [${t("is dematerialized")}]`}
+    {" "}
+    {isDematerialized && ` [${t("is dematerialized")}] `}
   </>;
 
   const thisEndRow = <>

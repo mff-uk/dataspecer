@@ -95,7 +95,7 @@ export class Generator {
         `Can't load conceptual model '${specification.pim}'.`
       );
       conceptualModels[specification.pim] = conceptualModel;
-      
+
       // todo: It seems that there is a problem that multiple classes can have the same CIM IRI
       // this is a workaround for now
       const pimMapping = new Map<string, string>();
@@ -103,7 +103,7 @@ export class Generator {
         const properties = cls.properties;
         cls.properties = [];
         for (const p of properties) {
-          const found = cls.properties.find(cp => cp.cimIri === p.cimIri)
+          const found = cls.properties.find(cp => cp.cimIri === p.cimIri && cp.cimIri)
           if (!found) {
             cls.properties.push(p);
           } else {

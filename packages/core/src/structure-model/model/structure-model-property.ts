@@ -1,5 +1,34 @@
+import { ConceptualModelProperty, ConceptualModelClass } from "../../conceptual-model";
 import {LanguageString} from "../../core";
 import {StructureModelType} from "./structure-model-type";
+
+/**
+ * Represents one step in the semantic graph from one entity to another.
+ * The step is represented as a relation (association or generalization) and the target entity.
+ */
+export type SemanticPathStep =
+  SemanticPathStepClass |
+  SemanticPathStepProperty |
+  SemanticPathStepGeneralization |
+  SemanticPathStepSpecialization;
+
+export type SemanticPathStepClass = {
+  type: "class";
+  class: ConceptualModelClass;
+}
+
+export type SemanticPathStepProperty = {
+  type: "property";
+  property: ConceptualModelProperty;
+}
+
+export type SemanticPathStepGeneralization = {
+  type: "generalization";
+}
+
+export type SemanticPathStepSpecialization = {
+  type: "specialization";
+}
 
 export class StructureModelProperty {
   /**
@@ -86,4 +115,13 @@ export class StructureModelProperty {
      */
     psmTargetClass: string;
   }[] = [];
+
+  /**
+   * Because the structure property belongs to one object, this represents the path in semantic graph model from the object to this property.
+   * The path does not contain the object itself.
+   * Examples:
+   *  - only the property if it belongs directly to the class
+   *  - path to parent class and then the property if the property belongs to the parent class
+   */
+  semanticPath: SemanticPathStep[] | null = null;
 }

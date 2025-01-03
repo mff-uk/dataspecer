@@ -39,6 +39,39 @@ function traverseXmlSchemaComplexContainer(container: XmlSchemaComplexContainer,
           min: content.cardinalityMin,
           max: content.cardinalityMax,
         };
+
+        // Prepare path to parent entity in more human readable form
+        const semanticPath = [];
+        for (let i = 0; i < content.semanticRelationToParentElement.length; i++) {
+          const step = content.semanticRelationToParentElement[i];
+          const nextStep = content.semanticRelationToParentElement[i + 1] ?? null;
+
+          if (step.type === "class") {
+            semanticPath.push({
+              type: "class",
+              entity: step.class,
+            })
+          } else if (step.type === "property") {
+            semanticPath.push({
+              type: "property",
+              entity: step.property,
+            })
+          } else if (step.type === "generalization" && nextStep?.type === "class") {
+            semanticPath.push({
+              type: "generalization",
+              entity: nextStep.class,
+            });
+            i++;
+          } else if (step.type === "specialization" && nextStep?.type === "class") {
+            semanticPath.push({
+              type: "specialization",
+              entity: nextStep.class,
+            });
+            i++;
+          }
+        }
+        // @ts-ignore
+        element.pathFromParentEntity = semanticPath;
         // @ts-ignore
         element.parentEntityInDocumentation = path[path.length - 1];
       }
@@ -224,6 +257,8 @@ class XmlSchemaDocumentationGenerator {
       return [1,2,34,6, annotation.modelReference];
     });
 
+    this.generator.engine.registerHelper("json", (data: unknown) => JSON.stringify(data, null, 2));
+
     this.generator.compile(DEFAULT_TEMPLATE);
     const data = await this.prepareData();
     return this.generator.render(data);
@@ -324,15 +359,11 @@ export const DEFAULT_TEMPLATE = `
   {{#if (or (get-semantic-class annotation) (non-empty annotation.metaTitle) (non-empty annotation.metaDescription))}}
     <dt>Význam</dt>
     {{#if (or (non-empty annotation.metaTitle) (non-empty annotation.metaDescription))}}
-    <dd style="font-style: italic;">
-      {{translate annotation.metaTitle}}
-
-      {{#if (and (non-empty annotation.metaTitle) (non-empty annotation.metaDescription))}} - {{/if}}
-
-      {{translate annotation.metaDescription}}
+      <dd>
+        <a href="#{{#get-semantic-class annotation}}{{@root/semanticModelLinkId}}{{/get-semantic-class}}">{{translate annotation.metaTitle}}</a>
+        {{#if (non-empty annotation.metaDescription)}}({{translate annotation.metaDescription}}){{/if}}
       </dd>
     {{/if}}
-    <dd>V konceptuálním odpovídá pojmu <a href="#{{#get-semantic-class annotation}}{{@root/semanticModelLinkId}}{{/get-semantic-class}}">{{#get-semantic-class annotation}}{{translate humanLabel}}{{/get-semantic-class}}</a>.</dd>
   {{/if}}
 {{/def}}
 
@@ -429,8 +460,10 @@ export const DEFAULT_TEMPLATE = `
 </p>
 
 {{#xmlSchema.targetNamespace}}
-  <dt>Definováno v namespace</dt>
-  <dd><code>{{.}}</code> (preferovaný prefix: <code>{{@root.xmlSchema.targetNamespacePrefix}}</code>)</dd>
+  <dl>
+    <dt>Definováno v namespace</dt>
+    <dd><code>{{.}}</code> (preferovaný prefix: <code>{{@root.xmlSchema.targetNamespacePrefix}}</code>)</dd>
+  </dl>
 {{/xmlSchema.targetNamespace}}
 
 <section>
@@ -490,44 +523,68 @@ export const DEFAULT_TEMPLATE = `
 {{#def "xml-non-root-element" "element"}}
 <section id="{{xml-id-anchor .}}">
   <h4>Element {{^name.[0]}}{{#path}}{{#if (equals entityType "element")}}<code>&lt;{{name.[1]}}&gt;</code> / {{/if}}{{/path}}{{/name.[0]}}<code>&lt;{{name.[1]}}&gt;</code></h4>
-  {{xml-meaning annotation}}
 
-  {{#cardinalityFromParentContainer}}
-    <dt>Kardinalita elementu v nadřazeném kontejneru</dt>
-    <dd>{{min}}..{{#if max}}{{max}}{{else}}*{{/if}}</dd>
-  {{/cardinalityFromParentContainer}}
-  {{#parentEntityInDocumentation}}
-    <dt>Nadřazený element</dt>
-    <dd><a href="{{xml-href .}}"></a></dd>
-  {{/parentEntityInDocumentation}}
+  <dl>
+    <dt>Význam</dt>
+    <dd>
+      {{#each pathFromParentEntity}}
+        <i>
+          {{#if (equals type "class")}}odkazující na třídu{{/if}}
+          {{#if (equals type "property")}}{{#if @first}}vlastnost{{else}}mající vlastnost{{/if}}{{/if}}
+          {{#if (equals type "generalization")}}{{#if @first}}z obecnější třídy{{else}}mající obecnější třídu{{/if}}{{/if}}
+          {{#if (equals type "specialization")}}{{#if @first}}z konkrétnější třídy{{else}}mající konkrétnější třídu{{/if}}{{/if}}
+        </i>
 
-  {{#if type}}{{#with type}}
-    <dt>Typ elementu</dt>
-    {{xml-type}}
-  {{/with}}{{else}}
-    <i>Element nemá definovaný typ.</i>
-  {{/if}}
+        {{#with entity}}
+          <a href="#{{@root/semanticModelLinkId}}"><strong>{{translate humanLabel}}</strong></a>
+          {{#if (non-empty humanDescription)}}({{translate humanDescription}}){{/if}}
+        {{/with}}
 
-  {{#if annotation.structureModelEntity.dataTypes.[0].example}}
-    <dt>Příklady dat</dt>
-    {{#each annotation.structureModelEntity.dataTypes.[0].example}}
-      <dd>{{.}}</dd>
-    {{/each}}
-  {{/if}}
+        {{#if (not @last)}}
+          <span style="margin: 0 1rem">→</span>
+        {{/if}}
+      {{/each}}
+    </dd>
+
+    {{#cardinalityFromParentContainer}}
+      <dt>Kardinalita elementu v nadřazeném kontejneru</dt>
+      <dd>{{min}}..{{#if max}}{{max}}{{else}}*{{/if}}</dd>
+    {{/cardinalityFromParentContainer}}
+    {{#parentEntityInDocumentation}}
+      <dt>Nadřazený element</dt>
+      <dd><a href="{{xml-href .}}"></a></dd>
+    {{/parentEntityInDocumentation}}
+
+    {{#if type}}{{#with type}}
+      <dt>Typ elementu</dt>
+      {{xml-type}}
+    {{/with}}{{else}}
+      <i>Element nemá definovaný typ.</i>
+    {{/if}}
+
+    {{#if annotation.structureModelEntity.dataTypes.[0].example}}
+      <dt>Příklady dat</dt>
+      {{#each annotation.structureModelEntity.dataTypes.[0].example}}
+        <dd>{{.}}</dd>
+      {{/each}}
+    {{/if}}
+  </dl>
 </section>
 {{/def}}
 
 {{#rootElements}}
 <section id="{{xml-id-anchor .}}">
   <h4>Kořenový element <code>&lt;{{name.[1]}}&gt;</code></h4>
-  {{xml-meaning annotation}}
+  <dl>
+    {{xml-meaning annotation}}
 
-  {{#if type}}{{#with type}}
-    <dt>Typ elementu</dt>
-    {{xml-type}}
-  {{/with}}{{else}}
-    <i>Element nemá definovaný typ.</i>
-  {{/if}}
+    {{#if type}}{{#with type}}
+      <dt>Typ elementu</dt>
+      {{xml-type}}
+    {{/with}}{{else}}
+      <dd><i>Element nemá definovaný typ.</i></dd>
+    {{/if}}
+  </dl>
 </section>
 {{#linkedChildElements}}{{xml-non-root-element .}}{{/linkedChildElements}}
 {{/rootElements}}
@@ -535,8 +592,9 @@ export const DEFAULT_TEMPLATE = `
 {{#rootGroups}}
 <section id="{{xml-id-anchor .}}">
   <h4>Kořenová skupina {{#if name}}<code>{{name}}</code>{{else}}bez pojmenování{{/if}}</h4>
-
-  {{xml-complex-definition definition}}
+  <dl>
+    {{xml-complex-definition definition}}
+  </dl>
 </section>
 {{#linkedChildElements}}{{xml-non-root-element .}}{{/linkedChildElements}}
 {{/rootGroups}}
@@ -544,10 +602,11 @@ export const DEFAULT_TEMPLATE = `
 {{#rootTypes}}
 <section id="{{xml-id-anchor .}}">
   <h4>Kořenový {{#if complexDefinition}}komplexní{{/if}}{{#if simpleDefinition}}jednoduchý{{/if}} typ {{#if name}}<code>{{xml-qname name}}</code>{{else}}bez pojmenování{{/if}}</h4>
+  <dl>
+    {{xml-meaning annotation}}
 
-  {{xml-meaning annotation}}
-
-  {{xml-complex-definition complexDefinition}}
+    {{xml-complex-definition complexDefinition}}
+  </dl>
 </section>
 {{#linkedChildElements}}{{xml-non-root-element .}}{{/linkedChildElements}}
 {{/rootTypes}}
