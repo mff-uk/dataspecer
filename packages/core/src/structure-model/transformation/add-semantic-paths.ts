@@ -14,6 +14,10 @@ export function addSemanticPaths(conceptual: ConceptualModel, structure: Structu
 
   for (const classData of classes) {
     const conceptualClass = conceptual.classes[classData.pimIri];
+    if (!conceptualClass) {
+      // todo: This makes issues when re-using structure models
+      continue;
+    }
     for (const property of classData.properties) {
       const pathToPropertyEnd: SemanticPathStep[] = [];
 
