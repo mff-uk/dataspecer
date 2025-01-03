@@ -1,9 +1,93 @@
 
+function prefix<T>(prefix: string, items: Record<string, T>): Record<string, T> {
+  const result: Record<string, T> = {};
+  for (const [key, value] of Object.entries(items)) {
+    result[prefix + key] = value;
+  }
+  return result;
+}
+
+const dialogAssociation = prefix<string | Function>(
+  "dialog.association.", {
+  "cancel": "❌ Cancel",
+  // Edit
+  "label-edit": "Edit a relationship",
+  "ok-edit": "✅ Save changes",
+  // Create
+  "label-create": "Create a new relationship",
+  "ok-create": "✅ Create",
+});
+
+const dialogAssociationProfile = prefix<string | Function>(
+  "dialog.association-profile.", {
+  "cancel": "❌ Cancel",
+  // Edit
+  "label-edit": "Edit a relationship profile",
+  "ok-edit": "✅ Save changes",
+  // Create
+  "label-create": "Create a new relationship profile",
+  "ok-create": "✅ Create",
+});
+
+const dialogAttribute = prefix<string | Function>(
+  "dialog.attribute.", {
+  "cancel": "❌ Cancel",
+  // Edit
+  "label-edit": "Edit an attribute",
+  "ok-edit": "✅ Save changes",
+  // Create
+  "label-create": "Create a new attribute",
+  "ok-create": "✅ Create",
+});
+
+const dialogAttributeProfile = prefix<string | Function>(
+  "dialog.attribute-profile.", {
+  "cancel": "❌ Cancel",
+  // Edit
+  "label-edit": "Edit an attribute profile",
+  "ok-edit": "✅ Save changes",
+  // Create
+  "label-create": "Create a new attribute profile",
+  "ok-create": "✅ Create",
+});
+
+const dialogClass = prefix<string | Function>(
+  "dialog.class.", {
+  "cancel": "❌ Cancel",
+  // Edit
+  "label-edit": "Edit a class",
+  "ok-edit": "✅ Save changes",
+  // Create
+  "label-create": "Create a new class",
+  "ok-create": "✅ Create",
+});
+
+const dialogClassProfile = prefix<string | Function>(
+  "dialog.class-profile.", {
+  "cancel": "❌ Cancel",
+  // Edit
+  "label-edit": "Edit a class profile",
+  "ok-edit": "✅ Save changes",
+  // Create
+  "label-create": "Create a class profile",
+  "ok-create": "✅ Create",
+});
+
+//
+//
+
 export const translations: Record<string, string | Function> = {
+  ...dialogAssociation,
+  ...dialogAssociationProfile,
+  ...dialogAttribute,
+  ...dialogAttributeProfile,
+  ...dialogClass,
+  ...dialogClassProfile,
+  //
   "notification.icon-error": "Error icon",
   "notification.icon-success": "Check icon",
   //
-  "header.package.label": (name:string) => `Package: ${name}`,
+  "header.package.label": (name: string) => `Package: ${name}`,
   "header.package.missing": "Package of unknown name",
   "header.package.save": "💾 Save",
   "header.package.save.title": "Save package",
@@ -13,7 +97,6 @@ export const translations: Record<string, string | Function> = {
   //
   "header.logo-title": "Leave to manager without saving",
   //
-  "create-class-dialog.label": "Create a new class",
   "create-class-dialog.name": "Name",
   "create-class-dialog.iri": "IRI",
   "create-class-dialog.description": "Definition",
@@ -22,15 +105,7 @@ export const translations: Record<string, string | Function> = {
   "create-class-dialog.btn-cancel": "❌ cancel",
   "create-class-dialog.add-specialization": "Add specialization",
   //
-  "create-attribute-dialog.label": "Create a new attribute",
-  //
   "create-profile-button.title": "Create profile",
-  //
-  "create-association-dialog.label": "Create a new association",
-  "edit-association-dialog.label": "Edit an association",
-  "create-dialog.btn-ok": "✅ Create",
-  "create-association-profile-dialog.label": "Create a new association profile",
-  "edit-association-profile-dialog.label": "Edit an association profile",
   //
   "modify-entity-dialog.label-class": "Class modification",
   "modify-entity-dialog.label-class-profile": "Class profile modification",
@@ -139,9 +214,9 @@ export const translations: Record<string, string | Function> = {
   "modify-dialog.title.relationship-profile": "Edit relationship profile",
   "modify-dialog.title.unknown": "Edit entity",
   //
-  "create-connection-dialog.label" : "Create connection",
-  "create-connection-dialog.btn-ok" : "✅ Create",
-  "create-connection-dialog.btn-close" : "❌ Discard",
+  "create-connection-dialog.label": "Create connection",
+  "create-connection-dialog.btn-ok": "✅ Create",
+  "create-connection-dialog.btn-close": "❌ Discard",
   //
   "create-class-profile-dialog.label": "Create a profile",
   "modify-class-profile-dialog.profile-of": "Profile of",

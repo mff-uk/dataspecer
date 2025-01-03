@@ -75,11 +75,11 @@ export const createNewClassProfileDialog = (
   onConfirm: (state: EditClassProfileDialogState) => void | null,
 ): DialogWrapper<EditClassProfileDialogState> => {
   return {
-    label: "create-class-profile-dialog.label",
+    label: "dialog.class-profile.label-create",
     component: EditClassProfileDialog,
     state,
-    confirmLabel: "create-profile-dialog.btn-ok",
-    cancelLabel: "create-profile-dialog.btn-close",
+    confirmLabel: "dialog.class-profile.ok-create",
+    cancelLabel: "dialog.class-profile.cancel",
     validate: () => true,
     onConfirm,
     onClose: null,

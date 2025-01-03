@@ -38,22 +38,16 @@ export function createNewClassDialogState(
   };
 }
 
-/**
- *
- * @param state
- * @param onConfirm
- * @returns
- */
 export const createNewClassDialog = (
   state: EditClassDialogState,
   onConfirm: (state: EditClassDialogState) => void | null,
 ): DialogWrapper<EditClassDialogState> => {
   return {
-    label: "create-class-dialog.label",
+    label: "dialog.class.label-create",
     component: EditClassDialog,
     state,
-    confirmLabel: "create-class-dialog.btn-ok",
-    cancelLabel: "create-class-dialog.btn-cancel",
+    confirmLabel: "dialog.class.ok-create",
+    cancelLabel: "dialog.class.cancel",
     validate: () => true,
     onConfirm,
     onClose: null,

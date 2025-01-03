@@ -11,7 +11,7 @@ import { createClass as createClassOperation, createGeneralization } from "@data
 import { addSemanticClassToVisualModelAction } from "./add-class-to-visual-model";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { EditClassDialogState } from "../dialog/class/edit-class-dialog-controller";
-import { createNewClassDialogState } from "../dialog/class/create-new-class-dialog";
+import { createNewClassDialog, createNewClassDialogState } from "../dialog/class/create-new-class-dialog";
 import { EntityModel } from "@dataspecer/core-v2";
 import { createEditClassDialog } from "../dialog/class/create-edit-class-dialog";
 
@@ -112,5 +112,5 @@ function openCreateClassDialog(
 ) {
   const state = createNewClassDialogState(
     classes, graph, visualModel, options.language);
-  dialogs.openDialog(createEditClassDialog(state, onConfirm));
+  dialogs.openDialog(createNewClassDialog(state, onConfirm));
 }

@@ -53,16 +53,16 @@ export function createNewAttributeDialogState(
   };
 }
 
-export const createEditAttributeDialog = (
+export const createNewAttributeDialog = (
   state: EditAttributeDialogState,
   onConfirm: (state: EditAttributeDialogState) => void,
 ): DialogWrapper<EditAttributeDialogState> => {
   return {
-    label: "create-attribute-dialog.label",
+    label: "dialog.attribute.label-create",
     component: EditAttributeDialog,
     state,
-    confirmLabel: "modify-dialog.btn-ok",
-    cancelLabel: "modify-dialog.btn-close",
+    confirmLabel: "dialog.attribute.ok-create",
+    cancelLabel: "dialog.attribute.cancel",
     validate: () => true,
     onConfirm: onConfirm,
     onClose: null,

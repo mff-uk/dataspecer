@@ -30,7 +30,7 @@ import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-
 import { createNewAssociationProfileDialog, createNewAssociationProfileDialogState } from "../dialog/association-profile/create-new-association-profile-dialog-state";
 import { createEditAttributeProfileDialog, createNewAttributeProfileDialogState } from "../dialog/attribute-profile/create-new-attribute-profile-dialog-state";
 import { EditClassProfileDialogState } from "../dialog/class-profile/edit-class-profile-dialog-controller";
-import { createNewProfileClassDialogState } from "../dialog/class-profile/create-new-class-profile-dialog-state";
+import { createNewClassProfileDialog, createNewProfileClassDialogState } from "../dialog/class-profile/create-new-class-profile-dialog-state";
 import { createEditClassProfileDialog } from "../dialog/class-profile/create-edit-class-profile-dialog-state";
 import { EntityModel } from "@dataspecer/core-v2";
 
@@ -67,7 +67,7 @@ export function openCreateProfileDialogAction(
           position);
       }
     };
-    dialogs.openDialog(createEditClassProfileDialog(state, onConfirm));
+    dialogs.openDialog(createNewClassProfileDialog(state, onConfirm));
     return;
   }
 
