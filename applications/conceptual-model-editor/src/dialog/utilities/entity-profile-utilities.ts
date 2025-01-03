@@ -36,7 +36,7 @@ export interface EntityProfileState extends EntityState {
 
 }
 
-export function createEntityProfileStateForNew(
+export function createEntityProfileStateForNewEntityProfile(
   language: string,
   vocabularies: CmeModel[],
   profiles: EntityRepresentative[],
@@ -63,15 +63,29 @@ export function createEntityProfileStateForNew(
     isIriRelative: isRelativeIri(profileOf.iri ?? ""),
     iriValidation: validationNoProblem(),
     name: profileOf.label,
-    description:profileOf.description,
+    description: profileOf.description,
     overrideName: false,
     overrideDescription: false,
     availableProfiles: profiles,
     profileOf,
     usageNote: {},
-    overrideUsageNote: false,
+    overrideUsageNote: true,
     disableOverrideUsageNote: true,
   };
+}
+
+export function createEntityProfileStateForNewProfileOfProfile(
+  language: string,
+  vocabularies: CmeModel[],
+  profiles: EntityRepresentative[],
+  profiledIdentifier: string,
+): EntityProfileState {
+  const result = createEntityProfileStateForNewEntityProfile(
+    language, vocabularies, profiles, profiledIdentifier);
+  // As we profile a profile, we can inherit the usage note.
+  result.overrideUsageNote = false;
+  result.disableOverrideUsageNote = false;
+  return result;
 }
 
 /**

@@ -15,7 +15,7 @@ import { createRelationshipProfileStateForNew } from "../utilities/relationship-
 import { EditAssociationProfileDialog } from "./edit-association-profile-dialog";
 import { DialogWrapper } from "../dialog-api";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { createEntityProfileStateForNew } from "../utilities/entity-profile-utilities";
+import { createEntityProfileStateForNewEntityProfile, createEntityProfileStateForNewProfileOfProfile } from "../utilities/entity-profile-utilities";
 
 /**
  * @param classesContext
@@ -85,7 +85,7 @@ function createForAssociation(
 
   // EntityProfileState
 
-  const entityProfileState = createEntityProfileStateForNew(
+  const entityProfileState = createEntityProfileStateForNewEntityProfile(
     language, vocabularies, profiles, profileOf.identifier);
 
   // RelationshipState<EntityRepresentative>
@@ -124,7 +124,7 @@ function createForAssociationProfile(
 
   // EntityProfileState
 
-  const entityProfileState = createEntityProfileStateForNew(
+  const entityProfileState = createEntityProfileStateForNewProfileOfProfile(
     language, vocabularies, profiles, profileOf.identifier);
 
   // RelationshipState<EntityRepresentative>

@@ -12,10 +12,10 @@ import { EditAttributeProfileDialog } from "./edit-attribute-profile-dialog";
 import { DialogWrapper } from "../dialog-api";
 import { CmeModel } from "../../dataspecer/cme-model";
 import { InvalidAggregation, MissingEntity, MissingRelationshipEnds } from "../../application/error";
-import { createEntityProfileStateForNew } from "../utilities/entity-profile-utilities";
 import { createRelationshipProfileStateForNew } from "../utilities/relationship-profile-utilities";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { EntityRepresentative, RelationshipRepresentative, representClassProfiles, representDataTypes, representOwlThing, representRelationshipProfiles, representRelationships, representUndefinedDataType } from "../utilities/dialog-utilities";
+import { createEntityProfileStateForNewEntityProfile, createEntityProfileStateForNewProfileOfProfile } from "../utilities/entity-profile-utilities";
 
 /**
  * @param classesContext
@@ -85,7 +85,7 @@ function createForAttribute(
 
   // EntityProfileState
 
-  const entityProfileState = createEntityProfileStateForNew(
+  const entityProfileState = createEntityProfileStateForNewEntityProfile(
     language, vocabularies, profiles, profileOf.identifier);
 
   // RelationshipState<EntityRepresentative>
@@ -127,7 +127,7 @@ function createForAttributeProfile(
 
   // EntityProfileState
 
-  const entityProfileState = createEntityProfileStateForNew(
+  const entityProfileState = createEntityProfileStateForNewProfileOfProfile(
     language, vocabularies, profiles, profileOf.identifier);
 
   // RelationshipState<EntityRepresentative>

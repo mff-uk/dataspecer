@@ -9,8 +9,8 @@ import { EntityRepresentative, representClasses, representClassProfiles } from "
 import { DialogWrapper } from "../dialog-api";
 import { EditClassProfileDialog } from "./edit-class-profile-dialog";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
-import { createEntityProfileStateForNew } from "../utilities/entity-profile-utilities";
 import { CmeModel } from "../../dataspecer/cme-model";
+import { createEntityProfileStateForNewEntityProfile, createEntityProfileStateForNewProfileOfProfile } from "../utilities/entity-profile-utilities";
 
 export function createNewProfileClassDialogState(
   classesContext: ClassesContextType,
@@ -46,7 +46,7 @@ function createForSemanticClass(
   profiles: EntityRepresentative[],
   entity: SemanticModelClass,
 ) {
-  const entityProfileState = createEntityProfileStateForNew(
+  const entityProfileState = createEntityProfileStateForNewEntityProfile(
     language, vocabularies, profiles, entity.id);
 
   return {
@@ -62,7 +62,7 @@ function createForSemanticClassProfile(
 ) {
   // We can get all the information from the profile representation.
 
-  const entityProfileState = createEntityProfileStateForNew(
+  const entityProfileState = createEntityProfileStateForNewProfileOfProfile(
     language, vocabularies, profiles, entity.id);
 
   return {
