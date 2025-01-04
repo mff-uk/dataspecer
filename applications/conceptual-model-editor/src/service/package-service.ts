@@ -11,10 +11,8 @@ export interface PackageService {
    */
   getRootPackage: (identifier: string) => Promise<Package>;
 }
-
  
 const backendService = new BackendPackageService(import.meta.env.VITE_PUBLIC_APP_BACKEND!, fetchService.fetch);
-
  
 const backendPackageRootUrl = import.meta.env.VITE_PUBLIC_APP_BACKEND_PACKAGE_ROOT!;
 

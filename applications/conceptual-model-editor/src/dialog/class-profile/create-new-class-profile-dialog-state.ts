@@ -1,11 +1,11 @@
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
-import { isSemanticModelClass, SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelClassUsage, SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { SemanticModelClass, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelClassUsage, isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { EditClassProfileDialogState } from "./edit-class-profile-dialog-controller";
-import { EntityRepresentative, representClasses, representClassProfiles } from "../utilities/dialog-utilities";
+import { EntityRepresentative, representClassProfiles, representClasses } from "../utilities/dialog-utilities";
 import { DialogWrapper } from "../dialog-api";
 import { EditClassProfileDialog } from "./edit-class-profile-dialog";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";

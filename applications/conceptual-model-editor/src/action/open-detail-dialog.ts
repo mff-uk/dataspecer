@@ -40,7 +40,7 @@ export function openDetailDialogAction(
   ) {
     dialogs.openDialog(createEntityDetailDialog(graph, entity, options.language));
   } else {
-    notifications.error(`Unknown entity type.`);
+    notifications.error("Unknown entity type.");
     return;
   }
 };

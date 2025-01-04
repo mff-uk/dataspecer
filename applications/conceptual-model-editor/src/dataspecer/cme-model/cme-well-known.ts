@@ -1,4 +1,4 @@
-import { CmeModelType, CmeModel } from "./cme-model";
+import { CmeModel, CmeModelType } from "./cme-model";
 
 /**
  * We should not need this, yet due to current design

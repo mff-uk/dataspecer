@@ -1,6 +1,6 @@
 import { Cardinality, EntityRepresentative, representCardinalities, representCardinality, representUndefinedCardinality } from "./dialog-utilities";
-import { createRelationshipController, RelationshipController, RelationshipState } from "./relationship-utilities";
-import { validationNoProblem, ValidationState } from "./validation-utilities";
+import { RelationshipController, RelationshipState, createRelationshipController } from "./relationship-utilities";
+import { ValidationState, validationNoProblem } from "./validation-utilities";
 
 export interface RelationshipProfileState<RangeType> extends RelationshipState<RangeType> {
 

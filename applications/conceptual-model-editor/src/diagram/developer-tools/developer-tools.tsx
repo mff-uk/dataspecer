@@ -1,20 +1,20 @@
 import {
-  useState,
+  type Dispatch,
   type HTMLAttributes,
+  type ReactNode,
+  type SetStateAction,
   useEffect,
   useRef,
-  type Dispatch,
-  type SetStateAction,
-  type ReactNode,
+  useState,
 } from "react";
 import {
   type EdgeChange,
+  type NodeChange,
   type OnEdgesChange,
+  type OnNodesChange,
   Panel,
   useStore,
   useStoreApi,
-  type NodeChange,
-  type OnNodesChange,
 } from "@xyflow/react";
 
 import "./developer-tools.css";
@@ -33,7 +33,6 @@ export function DeveloperTools() {
   const explorationMode = useExploration();
 
   const layoutDialogUse = useLayoutDialog();
-
 
   return (
     <div>

@@ -8,7 +8,6 @@ import { type Edge as EdgeApi } from "../diagram-api";
 import { DiagramContext, EdgeType } from "../diagram-controller";
 import type { Waypoint as WaypointType } from "@dataspecer/core-v2/visual-model";
 
-
 export function Waypoints(props: {
   edge: EdgeType,
   waypoints: Point[],
@@ -109,7 +108,7 @@ function Waypoint(props: {
     diagram.addEventListener("mouseleave", removeListeners);
     diagram.addEventListener("mouseup", handleMouseUp);
 
-  }, [props.edge, props.index]);
+  }, [props.edge, props.index, props.x, props.y, context, reactFlow]);
 
   return (
     <g onMouseDown={onStartDrag}>

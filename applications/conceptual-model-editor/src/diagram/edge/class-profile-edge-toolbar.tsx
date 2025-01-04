@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { shallow } from "zustand/shallow";
-import { useStore, type ReactFlowState } from "@xyflow/react";
+import { type ReactFlowState, useStore } from "@xyflow/react";
 
 import { DiagramContext } from "../diagram-controller";
 import { computePosition } from "./edge-utilities";

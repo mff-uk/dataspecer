@@ -1,18 +1,18 @@
 import React, { useContext, useMemo } from "react";
 
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel, Waypoint, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { Waypoint, WritableVisualModel, isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { type DialogApiContextType } from "../dialog/dialog-service";
 import { DialogApiContext } from "../dialog/dialog-context";
-import { configuration, createLogger } from "../application";
-import { type ClassesContextType, ClassesContext, useClassesContext, UseClassesContextType } from "../context/classes-context";
+import { createLogger } from "../application";
+import { ClassesContext, type ClassesContextType, UseClassesContextType, useClassesContext } from "../context/classes-context";
 import { useNotificationServiceWriter } from "../notification";
 import { type UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { ModelGraphContext, type ModelGraphContextType } from "../context/model-context";
-import { Edge, Position, useDiagram, type DiagramCallbacks, type Waypoint as DiagramWaypoint } from "../diagram/";
+import { type DiagramCallbacks, type Waypoint as DiagramWaypoint, Edge, Position, useDiagram } from "../diagram/";
 import type { UseDiagramType } from "../diagram/diagram-hook";
-import { useOptions, type Options } from "../application/options";
+import { type Options, useOptions } from "../application/options";
 import { centerViewportToVisualEntityAction } from "./center-viewport-to-visual-entity";
 import { openDetailDialogAction } from "./open-detail-dialog";
 import { openModifyDialogAction } from "./open-modify-dialog";
@@ -25,7 +25,7 @@ import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
-import { convertToEntitiesToDeleteType, EntityToDelete, getSelections, getViewportCenterForClassPlacement, setSelectionsInDiagram } from "./utilities";
+import { EntityToDelete, convertToEntitiesToDeleteType, getSelections, getViewportCenterForClassPlacement, setSelectionsInDiagram } from "./utilities";
 import { removeFromVisualModelAction } from "./remove-from-visual-model";
 import { removeFromSemanticModelsAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
@@ -35,15 +35,15 @@ import { createNewVisualModelFromSelectionAction } from "./create-new-visual-mod
 import { addClassNeighborhoodToVisualModelAction } from "./add-class-neighborhood-to-visual-model";
 import { createDefaultProfilesAction } from "./create-default-profiles";
 import { openCreateClassDialogWithModelDerivedFromClassAction } from "./open-create-class-dialog-with-derived-model";
-import { addSemanticEntitiesToVisualModelAction, EntityToAddToVisualModel } from "./add-semantic-entities-to-visual-model";
+import { EntityToAddToVisualModel, addSemanticEntitiesToVisualModelAction } from "./add-semantic-entities-to-visual-model";
 import { LayoutedVisualEntities, UserGivenConstraintsVersion4 } from "@dataspecer/layout";
 import { layoutActiveVisualModelAction } from "./layout-visual-model";
 import { toggleAnchorAction } from "./toggle-anchor";
 import { SelectionFilterState } from "../dialog/selection/filter-selection-dialog-controller";
-import { filterSelectionAction, SelectionFilter, Selections, SelectionsWithIdInfo } from "./filter-selection-action";
+import { SelectionFilter, Selections, SelectionsWithIdInfo, filterSelectionAction } from "./filter-selection-action";
 import { createExtendSelectionDialog } from "../dialog/selection/extend-selection-dialog";
 import { ExtendSelectionState } from "../dialog/selection/extend-selection-dialog-controller";
-import { extendSelectionAction, ExtensionType, getSelectionForWholeSemanticModel, NodeSelection, VisibilityFilter } from "./extend-selection-action";
+import { ExtensionType, NodeSelection, VisibilityFilter, extendSelectionAction, getSelectionForWholeSemanticModel } from "./extend-selection-action";
 import { createFilterSelectionDialog } from "../dialog/selection/filter-selection-dialog";
 import { EntityModel } from "@dataspecer/core-v2";
 
@@ -94,13 +94,11 @@ interface DialogActions {
    */
   openCreateProfileDialog: (identifier: string) => void;
 
-
   /**
    * Open dialog to extend current selection.
    * @param selections are the visual identifiers of the selection.
    */
   openExtendSelectionDialog: (selections: Selections) => void;
-
 
   /**
    * Open dialog to filter current selection.
@@ -109,16 +107,14 @@ interface DialogActions {
 
 }
 
-
 /**
  * Contains actions used for manipulation with visual model .
  */
 interface VisualModelActions {
-// TODO PRQuestion: How should we document these action methods? Since their implementation is usually
-//                  within the .*Action methods defined in different files in this directory.
-//                  So should the actual documentation look like: For further information about the action see {@link ...Action} method.
-//                  Can be seen on the centerViewportToVisualEntity method, where the Action method is already documented
-
+  // TODO PRQuestion: How should we document these action methods? Since their implementation is usually
+  //                  within the .*Action methods defined in different files in this directory.
+  //                  So should the actual documentation look like: For further information about the action see {@link ...Action} method.
+  //                  Can be seen on the centerViewportToVisualEntity method, where the Action method is already documented
 
   /**
    * Adds semantic entities identified by identifier to currently active visual model at optional position.
@@ -228,7 +224,6 @@ export interface ActionsContextType extends DialogActions, VisualModelActions {
     semanticModelFilter: Record<string, boolean> | null
   ) => Promise<Selections>;
 
-
   filterSelection: (
     selections: SelectionsWithIdInfo,
     filters: SelectionFilter[],
@@ -275,8 +270,8 @@ const noOperationActionsContext = {
   openExtendSelectionDialog: noOperation,
   openFilterSelectionDialog: noOperation,
   // TODO PRQuestion: How to define this - Should actions return values?, shouldn't it be just function defined in utils?
-  extendSelection: async () => ({nodeSelection: [], edgeSelection: []}),
-  filterSelection: () => ({nodeSelection: [], edgeSelection: []}),
+  extendSelection: async () => ({ nodeSelection: [], edgeSelection: [] }),
+  filterSelection: () => ({ nodeSelection: [], edgeSelection: [] }),
   highlightNodeInExplorationModeFromCatalog: noOperation,
   diagram: null,
 };
@@ -336,7 +331,7 @@ function createActionsContext(
 ): ActionsContextType {
 
   if (options === null || dialogs === null || classes === null ||
-    useClasses == null || notifications === null || graph === null ||
+    useClasses === null || notifications === null || graph === null ||
     !diagram.areActionsReady) {
     // We need to return the diagram object so it can be consumed by
     // the Diagram component and initialized.
@@ -618,15 +613,14 @@ function createActionsContext(
     dialogs?.openDialog(createExtendSelectionDialog(onConfirm, onClose, true, selections, setSelections));
   };
 
-
   const openFilterSelectionDialog = (selections: SelectionsWithIdInfo) => {
     const onConfirm = (state: SelectionFilterState) => {
       const relevantSelectionFilters = state.selectionFilters.map(selectionFilter => {
-        if(selectionFilter.checked) {
-            return selectionFilter.selectionFilter;
+        if (selectionFilter.checked) {
+          return selectionFilter.selectionFilter;
         }
         return null;
-    }).filter(selectionFilter => selectionFilter !== null);
+      }).filter(selectionFilter => selectionFilter !== null);
 
       const filteredSelection = filterSelection(state.selections, relevantSelectionFilters, VisibilityFilter.ONLY_VISIBLE, null);
       setSelectionsInDiagram(filteredSelection, diagram);
@@ -638,7 +632,6 @@ function createActionsContext(
     dialogs?.openDialog(createFilterSelectionDialog(onConfirm, selections, setSelections));
   };
 
-
   const extendSelection = async (
     nodeSelection: NodeSelection,
     extensionTypes: ExtensionType[],
@@ -648,7 +641,6 @@ function createActionsContext(
     const selectionExtension = await extendSelectionAction(notifications, graph, classes, nodeSelection, extensionTypes, visibilityFilter, false, semanticModelFilter);
     return selectionExtension.selectionExtension;
   };
-
 
   const filterSelection = (
     selections: SelectionsWithIdInfo,
@@ -663,7 +655,7 @@ function createActionsContext(
     withVisualModel(notifications, graph, (visualModel) => {
       const nodeIdentifier = visualModel.getVisualEntityForRepresented(classIdentifier)?.identifier;
       const isClassInVisualModel = nodeIdentifier !== undefined;
-      if(!isClassInVisualModel) {
+      if (!isClassInVisualModel) {
         return;
       }
 
@@ -737,7 +729,7 @@ function createActionsContext(
     },
     onShowFilterSelection: () => {
       const selectionToFilter = getSelections(diagram, false, true);
-      openFilterSelectionDialog({nodeSelection: selectionToFilter.nodeSelection, edgeSelection: selectionToFilter.edgeSelection, areVisualModelIdentifiers: true});
+      openFilterSelectionDialog({ nodeSelection: selectionToFilter.nodeSelection, edgeSelection: selectionToFilter.edgeSelection, areVisualModelIdentifiers: true });
     },
     onCanvasOpenCreateClassDialog: (sourceClassNode, positionToPlaceClassOn) => {
       withVisualModel(notifications, graph, (visualModel) => {
@@ -745,23 +737,23 @@ function createActionsContext(
       });
     },
     onCreateNewViewFromSelection: () => {
-      const {nodeSelection, edgeSelection} = getSelections(diagram, true, false);
+      const { nodeSelection, edgeSelection } = getSelections(diagram, true, false);
       createNewVisualModelFromSelection(nodeSelection.concat(edgeSelection));
     },
     onProfileSelection: () => {
-      const {nodeSelection, edgeSelection} = getSelections(diagram, true, false);
+      const { nodeSelection, edgeSelection } = getSelections(diagram, true, false);
       withVisualModel(notifications, graph, (visualModel) => {
         createDefaultProfilesAction(notifications, graph, diagram, options, classes, visualModel, nodeSelection, edgeSelection, true);
       });
     },
     onHideSelection: () => {
-      const {nodeSelection, edgeSelection} = getSelections(diagram, true, false);
-      console.info("Hiding selection from view: ", {nodeSelection, edgeSelection});
+      const { nodeSelection, edgeSelection } = getSelections(diagram, true, false);
+      console.info("Hiding selection from view: ", { nodeSelection, edgeSelection });
       removeFromVisualModel(nodeSelection.concat(edgeSelection));
     },
     onDeleteSelection: () => {
-      const {nodeSelection, edgeSelection} = getSelections(diagram, true, false);
-      console.info("Removing selection from semantic model: ", {nodeSelection, edgeSelection});
+      const { nodeSelection, edgeSelection } = getSelections(diagram, true, false);
+      console.info("Removing selection from semantic model: ", { nodeSelection, edgeSelection });
       const selectionIdentifiers = nodeSelection.concat(edgeSelection);
       deleteVisualElements(selectionIdentifiers);
     },

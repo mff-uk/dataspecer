@@ -1,5 +1,5 @@
-import { type DialogWrapper, type DialogProps } from "../dialog-api";
-import { t, configuration } from "../../application";
+import { type DialogProps } from "../dialog-api";
+import { configuration, t } from "../../application";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
 import { SelectModel } from "../class/components/select-model";

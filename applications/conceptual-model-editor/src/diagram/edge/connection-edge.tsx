@@ -1,4 +1,4 @@
-import type { XYPosition, ConnectionLineComponent } from "@xyflow/react";
+import type { ConnectionLineComponent, XYPosition } from "@xyflow/react";
 
 import { findRectangleLineIntersection } from "./math";
 

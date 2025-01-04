@@ -148,4 +148,3 @@ export function sanitizeDuplicitiesInRepresentativeLabels<Type extends LabeledEn
   return result;
 }
 
-

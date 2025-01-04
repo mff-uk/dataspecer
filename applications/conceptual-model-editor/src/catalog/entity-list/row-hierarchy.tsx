@@ -1,17 +1,17 @@
 import {
-    type SemanticModelClass,
-    type SemanticModelRelationship,
-    isSemanticModelAttribute,
-    isSemanticModelClass,
-    isSemanticModelRelationship,
+  type SemanticModelClass,
+  type SemanticModelRelationship,
+  isSemanticModelAttribute,
+  isSemanticModelClass,
+  isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import {
-    isSemanticModelAttributeUsage,
-    isSemanticModelClassUsage,
-    isSemanticModelRelationshipUsage,
-    type SemanticModelClassUsage,
-    type SemanticModelRelationshipUsage,
+  type SemanticModelClassUsage,
+  type SemanticModelRelationshipUsage,
+  isSemanticModelAttributeUsage,
+  isSemanticModelClassUsage,
+  isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { type Entity, type EntityModel } from "@dataspecer/core-v2/entity-model";
@@ -38,84 +38,84 @@ export const RowHierarchy = (props: {
      */
     onCanvas: string[];
 }) => {
-    const { models, aggregatorView } = useModelGraphContext();
-    const { profiles, classes, allowedClasses } = useClassesContext();
-    const { entity } = props;
+  const { models, aggregatorView } = useModelGraphContext();
+  const { profiles, classes, allowedClasses } = useClassesContext();
+  const { entity } = props;
 
-    // We need this to get access to ends of the profile.
-    const aggregatedEntity = aggregatorView.getEntities()[props.entity.id]?.aggregatedEntity ?? null;
+  // We need this to get access to ends of the profile.
+  const aggregatedEntity = aggregatorView.getEntities()[props.entity.id]?.aggregatedEntity ?? null;
 
-    const sourceModel = sourceModelOfEntity(entity.id, [...models.values()]);
+  const sourceModel = sourceModelOfEntity(entity.id, [...models.values()]);
 
-    const isClassOrProfile = isSemanticModelClass(aggregatedEntity) || isSemanticModelClassUsage(aggregatedEntity);
-    const isRelationshipOrProfile = isSemanticModelRelationship(aggregatedEntity) || isSemanticModelRelationshipUsage(aggregatedEntity);
+  const isClassOrProfile = isSemanticModelClass(aggregatedEntity) || isSemanticModelClassUsage(aggregatedEntity);
+  const isRelationshipOrProfile = isSemanticModelRelationship(aggregatedEntity) || isSemanticModelRelationshipUsage(aggregatedEntity);
 
-    const expansionHandler =
+  const expansionHandler =
         isSemanticModelClass(entity) && sourceModel instanceof ExternalSemanticModel
-            ? {
-                toggleHandler: () => props.handlers.handleExpansion(sourceModel, entity.id),
-                expanded: () => allowedClasses.includes(entity.id),
-            }
-            : null;
+          ? {
+            toggleHandler: () => props.handlers.handleExpansion(sourceModel, entity.id),
+            expanded: () => allowedClasses.includes(entity.id),
+          }
+          : null;
 
-    const showDrawingHandler = isClassOrProfile || (isRelationshipOrProfile && hasBothEndsInVisualModel(aggregatedEntity, aggregatorView.getActiveVisualModel()));
-    const drawingHandler = !showDrawingHandler ? null : {
-        addToViewHandler: () => props.handlers.handleAddEntityToActiveView(entity),
-        removeFromViewHandler: () => props.handlers.handleRemoveEntityFromActiveView(entity.id),
-    };
+  const showDrawingHandler = isClassOrProfile || (isRelationshipOrProfile && hasBothEndsInVisualModel(aggregatedEntity, aggregatorView.getActiveVisualModel()));
+  const drawingHandler = !showDrawingHandler ? null : {
+    addToViewHandler: () => props.handlers.handleAddEntityToActiveView(entity),
+    removeFromViewHandler: () => props.handlers.handleRemoveEntityFromActiveView(entity.id),
+  };
 
-    const removalHandler =
+  const removalHandler =
         sourceModel instanceof InMemorySemanticModel || sourceModel instanceof ExternalSemanticModel
-            ? { remove: () => props.handlers.handleRemoval(sourceModel, entity.id) }
-            : null;
+          ? { remove: () => props.handlers.handleRemoval(sourceModel, entity.id) }
+          : null;
 
-    const thisEntityProfiles = profiles.filter((p) => p.usageOf == entity.id);
+  const thisEntityProfiles = profiles.filter((p) => p.usageOf === entity.id);
 
-    const targetHandler = {
-        centerViewportOnEntityHandler: () => props.handlers.handleTargeting(entity.id),
-        isTargetable: props.onCanvas.includes(entity.id) || isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity),
-    };
+  const targetHandler = {
+    centerViewportOnEntityHandler: () => props.handlers.handleTargeting(entity.id),
+    isTargetable: props.onCanvas.includes(entity.id) || isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity),
+  };
 
-    const model = findSourceModelOfEntity(entity.id, models);
-    if (model === null) {
-        console.error("Entity was not rendered as model is null.", { entity });
-        return null;
-    }
+  const model = findSourceModelOfEntity(entity.id, models);
+  if (model === null) {
+    console.error("Entity was not rendered as model is null.", { entity });
+    return null;
+  }
 
-    return (
-        <div
-            className="flex flex-col"
-            style={
-                props.indent > 0 && sourceModel
-                    ? { backgroundColor: aggregatorView.getActiveVisualModel()?.getModelColor(sourceModel?.getId()) ?? "white" }
-                    : {}
-            }
-        >
-            <EntityRow
-                offset={props.indent}
-                model={model.getId()}
-                entity={entity}
-                key={
-                    entity.id +
+  return (
+    <div
+      className="flex flex-col"
+      style={
+        props.indent > 0 && sourceModel
+          ? { backgroundColor: aggregatorView.getActiveVisualModel()?.getModelColor(sourceModel?.getId()) ?? "white" }
+          : {}
+      }
+    >
+      <EntityRow
+        offset={props.indent}
+        model={model.getId()}
+        entity={entity}
+        key={
+          entity.id +
                     (aggregatorView.getActiveVisualModel()?.getId() ?? "mId") +
                     classes.length.toString()
-                }
-                expandable={expansionHandler}
-                drawable={drawingHandler}
-                removable={removalHandler}
-                targetable={targetHandler}
-                sourceModel={sourceModel}
-                isOnCanvas={props.onCanvas.includes(entity.id)}
-            />
-            {thisEntityProfiles.map((p) => (
-                <RowHierarchy
-                    key={p.id + entity.id + (aggregatorView.getActiveViewId() ?? "view-id")}
-                    entity={p}
-                    indent={props.indent + 1}
-                    handlers={props.handlers}
-                    onCanvas={props.onCanvas}
-                />
-            ))}
-        </div>
-    );
+        }
+        expandable={expansionHandler}
+        drawable={drawingHandler}
+        removable={removalHandler}
+        targetable={targetHandler}
+        sourceModel={sourceModel}
+        isOnCanvas={props.onCanvas.includes(entity.id)}
+      />
+      {thisEntityProfiles.map((p) => (
+        <RowHierarchy
+          key={p.id + entity.id + (aggregatorView.getActiveViewId() ?? "view-id")}
+          entity={p}
+          indent={props.indent + 1}
+          handlers={props.handlers}
+          onCanvas={props.onCanvas}
+        />
+      ))}
+    </div>
+  );
 };

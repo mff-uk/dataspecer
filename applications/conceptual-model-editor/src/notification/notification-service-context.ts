@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { type Notification, type EventChangeListener, notificationService } from "./notification-service";
+import { useEffect, useState } from "react";
+import { type EventChangeListener, type Notification, notificationService } from "./notification-service";
 
 export interface UseNotificationServiceType {
   /**

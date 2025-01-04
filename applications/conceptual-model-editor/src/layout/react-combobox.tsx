@@ -16,7 +16,7 @@ const LayeredAlgorithmDirectionDropdown = (props: {
 
   const handleOptionClick = (option: DirectionString) => {
     props.setDirection(Direction[option as keyof typeof Direction]);
-    // setSelectedOption(option);
+    // SetSelectedOption(option);
     setIsOpen(false);
   };
 

@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { type DialogProps } from "../dialog-api";
-import { Selections, SelectionsWithIdInfo, SelectionFilter } from "../../action/filter-selection-action";
-
+import { SelectionFilter, Selections, SelectionsWithIdInfo } from "../../action/filter-selection-action";
 
 const SELECTION_FILTER_TO_CHECKBOX_TEXT_MAP: Record<SelectionFilter, string> = {
   [SelectionFilter.NORMAL_CLASS]: "filter-selection-class-filter-text",
@@ -10,7 +9,6 @@ const SELECTION_FILTER_TO_CHECKBOX_TEXT_MAP: Record<SelectionFilter, string> = {
   [SelectionFilter.RELATIONSHIP_PROFILE]: "filter-selection-association-profile-filter-text",
   [SelectionFilter.GENERALIZATION]: "filter-selection-generalization-filter-text",
 };
-
 
 type SelectionFilterCheckboxData = {
   checked: boolean;
@@ -34,10 +32,10 @@ const createSelectionFilterCheckboxData = (
 ): SelectionFilterCheckboxData => {
   const checkboxText = SELECTION_FILTER_TO_CHECKBOX_TEXT_MAP[selectionFilter];
   const filterData = {
-      checked: true,
-      checkboxText,
-      checkboxTooltip: "",
-      selectionFilter,
+    checked: true,
+    checkboxText,
+    checkboxTooltip: "",
+    selectionFilter,
   };
 
   return filterData;
@@ -56,7 +54,6 @@ const createFilterCheckboxesData = (): SelectionFilterCheckboxData[] => {
   return filters;
 };
 
-
 export function createFilterSelectionState(
   selections: SelectionsWithIdInfo,
   setSelectionsInDiagram: (newSelections: Selections) => void
@@ -74,7 +71,6 @@ export interface CreateFilterSelectionControllerType {
     setFilterActivness: (next: {index: number, isActive: boolean}) => void;
 }
 
-
 export function useFilterSelectionController({ state, changeState }: DialogProps<SelectionFilterState>): CreateFilterSelectionControllerType {
   return useMemo(() => {
 
@@ -85,7 +81,7 @@ export function useFilterSelectionController({ state, changeState }: DialogProps
     };
 
     return {
-        setFilterActivness
+      setFilterActivness
     };
   }, [state, changeState]);
 }

@@ -1,15 +1,12 @@
-import { Entity, EntityModel } from "@dataspecer/core-v2";
-import { VisualModel } from "@dataspecer/core-v2/visual-model";
+import { EntityModel } from "@dataspecer/core-v2";
 import { LanguageString, SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { DataTypeURIs, dataTypeUriToName, isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
-import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticModelClassUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { createLogger } from "../../application";
 import { getDomainAndRange } from "../../util/relationship-utils";
-import { ModelGraphContextType } from "../../context/model-context";
-import { CmeModel, filterWritableModels, OwlVocabulary, UndefinedCmeVocabulary } from "../../dataspecer/cme-model";
-import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
+import { CmeModel, OwlVocabulary, UndefinedCmeVocabulary } from "../../dataspecer/cme-model";
 import { IRI } from "iri";
 
 const LOG = createLogger(import.meta.url);
@@ -394,32 +391,4 @@ export function representSpecializations(
       iri: item.iri ?? "",
       specialized: item.parent,
     }));
-}
-
-//
-// In the following section are refactored methods.
-//
-
-/**
- * Prepare and return vocabularies to be used in create entity dialog.
- */
-function prepareVocabulariesForNew(
-  graphContext: ModelGraphContextType,
-  visualModel: VisualModel | null,
-): {
-  /**
-   * List of all models.
-   */
-  all: CmeModel[],
-  /**
-   * List of all writable models.
-   */
-  writable: CmeModel[],
-} {
-  const all = entityModelsMapToCmeVocabulary(graphContext.models, visualModel);
-  const writable = filterWritableModels(all);
-  return {
-    all,
-    writable,
-  };
 }

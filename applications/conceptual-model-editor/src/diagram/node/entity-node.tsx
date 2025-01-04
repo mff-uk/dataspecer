@@ -1,10 +1,10 @@
 import { useContext } from "react";
 import {
   Handle,
-  Position,
-  NodeToolbar,
-  type NodeProps,
   type Node,
+  type NodeProps,
+  NodeToolbar,
+  Position,
   useReactFlow,
 } from "@xyflow/react";
 
@@ -69,8 +69,8 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
               </div>
             )}
             <div className="relative flex w-full flex-row justify-between">
-                <div>{data.label}</div>
-                {isAnchored ? <div>⚓</div>: null}
+              <div>{data.label}</div>
+              {isAnchored ? <div>⚓</div>: null}
             </div>
           </div>
 
@@ -110,7 +110,6 @@ function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   }
 }
 
-
 function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   const context = useContext(DiagramContext);
 
@@ -123,28 +122,27 @@ function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
 
   return (
     <>
-    <NodeToolbar isVisible={props.selected === true} position={Position.Top} className="flex gap-2 entity-node-toolbar" >
-      <button onClick={onShowDetail} title={t("class-detail-button")}>ℹ</button>
+      <NodeToolbar isVisible={props.selected === true} position={Position.Top} className="flex gap-2 entity-node-toolbar" >
+        <button onClick={onShowDetail} title={t("class-detail-button")}>ℹ</button>
       &nbsp;
-      <button onClick={onEdit} title={t("class-edit-button")}>✏️</button>
+        <button onClick={onEdit} title={t("class-edit-button")}>✏️</button>
       &nbsp;
-      <button onClick={onCreateProfile} title={t("class-profile-button")}>🧲</button>
+        <button onClick={onCreateProfile} title={t("class-profile-button")}>🧲</button>
       &nbsp;
-    </NodeToolbar>
-    <NodeToolbar isVisible={props.selected === true} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
-      <Handle type="source" position={Position.Right} title={t("node-connection-handle")}>🔗</Handle>
-    </NodeToolbar>
-    <NodeToolbar isVisible={props.selected === true} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
-      <button onClick={onHide} title={t("class-hide-button")}>🕶</button>
+      </NodeToolbar>
+      <NodeToolbar isVisible={props.selected === true} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
+        <Handle type="source" position={Position.Right} title={t("node-connection-handle")}>🔗</Handle>
+      </NodeToolbar>
+      <NodeToolbar isVisible={props.selected === true} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
+        <button onClick={onHide} title={t("class-hide-button")}>🕶</button>
       &nbsp;
-      <button onClick={onDelete} title={t("class-remove-button")}>🗑</button>
+        <button onClick={onDelete} title={t("class-remove-button")}>🗑</button>
       &nbsp;
-      <button onClick={onAnchor} title={t("node-anchor-button")} >⚓</button>
+        <button onClick={onAnchor} title={t("node-anchor-button")} >⚓</button>
       &nbsp;
-    </NodeToolbar>
-  </>);
+      </NodeToolbar>
+    </>);
 }
-
 
 function SelectionToolbar(props: NodeProps<Node<ApiNode>>) {
   const context = useContext(DiagramContext);
@@ -176,7 +174,7 @@ function SelectionToolbar(props: NodeProps<Node<ApiNode>>) {
       &nbsp;
     </NodeToolbar>
     <NodeToolbar isVisible={isLastSelected} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
-    <button onClick={onCreateGroup} title={t("selection-group-button")} disabled>🤝</button>
+      <button onClick={onCreateGroup} title={t("selection-group-button")} disabled>🤝</button>
     </NodeToolbar>
     <NodeToolbar isVisible={isLastSelected} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
       <button onClick={onShowExpandSelection} title={t("selection-extend-button")} >📈</button>

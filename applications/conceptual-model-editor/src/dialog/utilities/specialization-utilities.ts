@@ -3,7 +3,7 @@ import { ClassesContextType } from "../../context/classes-context";
 import { getRandomName } from "../../util/random-gen";
 import { removeFromArray } from "../../utilities/functional";
 import { sanitizeDuplicitiesInRepresentativeLabels } from "../../utilities/label";
-import { EntityRepresentative, representSpecializations, sortRepresentatives, Specialization } from "./dialog-utilities";
+import { EntityRepresentative, Specialization, representSpecializations, sortRepresentatives } from "./dialog-utilities";
 
 export interface SpecializationState {
 

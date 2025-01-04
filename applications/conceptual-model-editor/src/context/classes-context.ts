@@ -1,31 +1,19 @@
 import type {
-    LanguageString,
-    SemanticModelClass,
-    SemanticModelGeneralization,
-    SemanticModelRelationship,
+  SemanticModelClass,
+  SemanticModelGeneralization,
+  SemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import {
-    createClass,
-    createGeneralization,
-    createRelationship,
-    deleteEntity,
-    modifyClass,
-    modifyRelation,
+  createGeneralization,
+  createRelationship,
 } from "@dataspecer/core-v2/semantic-model/operations";
 import React, { useContext } from "react";
 import type { ConnectionType } from "../util/edge-connection";
 import type {
-    SemanticModelClassUsage,
-    SemanticModelRelationshipUsage,
+  SemanticModelClassUsage,
+  SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import {
-    createClassUsage,
-    createRelationshipUsage,
-    modifyClassUsage,
-    modifyRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/operations";
-import type { Operation } from "@dataspecer/core-v2/semantic-model/operations";
 import type { Entity } from "@dataspecer/core-v2";
 
 export type ClassesContextType = {
@@ -95,55 +83,55 @@ export interface UseClassesContextType {
 }
 
 /**
- * provides all concepts we work with
+ * Provides all concepts we work with
  * also provides concept manipulating functions (eg create, modify, delete, ..)
  */
 export const useClassesContext = (): UseClassesContextType => {
-    const {
-        classes,
-        setClasses,
-        allowedClasses,
-        setAllowedClasses,
-        relationships,
-        setRelationships,
-        generalizations,
-        setGeneralizations,
-        profiles,
-        setProfiles,
-        sourceModelOfEntityMap,
-        setSourceModelOfEntityMap,
-        rawEntities,
-    } = useContext(ClassesContext);
+  const {
+    classes,
+    setClasses,
+    allowedClasses,
+    setAllowedClasses,
+    relationships,
+    setRelationships,
+    generalizations,
+    setGeneralizations,
+    profiles,
+    setProfiles,
+    sourceModelOfEntityMap,
+    setSourceModelOfEntityMap,
+    rawEntities,
+  } = useContext(ClassesContext);
 
-    const createConnection = (model: InMemorySemanticModel, connection: ConnectionType) => {
-        if (!model || !(model instanceof InMemorySemanticModel)) {
-            alert("no local model found or is not of type InMemoryLocal");
-            return null;
-        }
+  const createConnection = (model: InMemorySemanticModel, connection: ConnectionType) => {
+    if (!model || !(model instanceof InMemorySemanticModel)) {
+      console.error("no local model found or is not of type InMemoryLocal");
+      return null;
+    }
 
-        if (connection.type == "association") {
-            const result = model.executeOperation(createRelationship({ ...connection }));
-            return result;
-        } else {
-            const result = model.executeOperation(createGeneralization({ ...connection }));
-            return result;
-        }
-    };
+    if (connection.type === "association") {
+      const result = model.executeOperation(createRelationship({ ...connection }));
+      return result;
+    } else {
+      const result = model.executeOperation(createGeneralization({ ...connection }));
+      return result;
+    }
+  };
 
-    return {
-        classes,
-        setClasses,
-        allowedClasses,
-        setAllowedClasses,
-        relationships,
-        setRelationships,
-        generalizations,
-        setGeneralizations,
-        profiles,
-        setProfiles,
-        sourceModelOfEntityMap,
-        setSourceModelOfEntityMap,
-        rawEntities,
-        createConnection,
-    };
+  return {
+    classes,
+    setClasses,
+    allowedClasses,
+    setAllowedClasses,
+    relationships,
+    setRelationships,
+    generalizations,
+    setGeneralizations,
+    profiles,
+    setProfiles,
+    sourceModelOfEntityMap,
+    setSourceModelOfEntityMap,
+    rawEntities,
+    createConnection,
+  };
 };

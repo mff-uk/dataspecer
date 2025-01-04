@@ -1,23 +1,20 @@
 import {
+  type VisualEntity,
+  type VisualModel,
+  WritableVisualModel,
   isVisualNode,
   isVisualProfileRelationship,
   isVisualRelationship,
-  isWritableVisualModel,
-  WritableVisualModel,
-  type VisualEntity,
-  type VisualModel,
 } from "@dataspecer/core-v2/visual-model";
 
-import type { ModelGraphContextType } from "../context/model-context";
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-
 
 // TODO: PRQuestion - Added visualModel argument so it can be called with withVisualModel
 /**
  * Remove entity and related entities from visual model.
  */
 export function removeFromVisualModelAction(
-  notifications: UseNotificationServiceWriterType,
+  _notifications: UseNotificationServiceWriterType,
   visualModel: WritableVisualModel,
   identifiers: string[],
 ) {

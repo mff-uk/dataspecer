@@ -1,39 +1,38 @@
 import type React from "react";
-import { useCallback, useEffect, useState, useMemo, createContext, useRef } from "react";
+import { createContext, useCallback, useEffect, useMemo, useState } from "react";
 import {
-  useReactFlow,
-  useNodesState,
-  useEdgesState,
-  useOnSelectionChange,
-  applyNodeChanges,
-  applyEdgeChanges,
-  type ReactFlowInstance,
-  type Node,
-  type Edge,
-  type OnNodesChange,
-  type OnEdgesChange,
-  type OnConnect,
   type Connection,
+  type Edge,
   type EdgeChange,
-  type NodeChange,
-  type OnSelectionChangeParams,
-  type OnConnectStart,
-  type OnConnectEnd,
-  type IsValidConnection,
   type FinalConnectionState,
+  type IsValidConnection,
   MarkerType,
-  useKeyPress,
+  type Node,
+  type NodeChange,
+  type OnConnect,
+  type OnConnectEnd,
+  type OnConnectStart,
+  type OnEdgesChange,
+  type OnNodesChange,
+  type OnSelectionChangeParams,
+  type ReactFlowInstance,
+  applyEdgeChanges,
+  applyNodeChanges,
+  useEdgesState,
+  useNodesState,
+  useOnSelectionChange,
+  useReactFlow,
 } from "@xyflow/react";
 
 import { type UseDiagramType } from "./diagram-hook";
 import {
+  type Edge as ApiEdge,
+  EdgeType as ApiEdgeType,
+  type Node as ApiNode,
   type DiagramActions,
   type DiagramCallbacks,
-  type Node as ApiNode,
-  type Edge as ApiEdge,
-  type ViewportDimensions,
-  EdgeType as ApiEdgeType,
   Position,
+  type ViewportDimensions,
 } from "./diagram-api";
 import { type EdgeToolbarProps } from "./edge/edge-toolbar";
 import { EntityNodeName } from "./node/entity-node";
@@ -43,7 +42,7 @@ import { type AlignmentController, useAlignmentController } from "./features/ali
 import { GeneralizationEdgeName } from "./edge/generalization-edge";
 import { ClassProfileEdgeName } from "./edge/class-profile-edge";
 import { diagramContentAsSvg } from "./render-svg";
-import { CanvasToolbarGeneralProps, CanvasToolbarContentType } from "./canvas/canvas-toolbar-props";
+import { CanvasToolbarContentType, CanvasToolbarGeneralProps } from "./canvas/canvas-toolbar-props";
 import { CanvasToolbarCreatedByEdgeDrag } from "./canvas/canvas-toolbar-drag-edge";
 import { NodeSelectionActionsSecondaryToolbar } from "./node/node-secondary-toolbar";
 import { setHighlightingStylesBasedOnSelection } from "./features/highlighting/set-selection-highlighting-styles";
@@ -179,18 +178,18 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
   // const reactFlowInitialized = useNodesInitialized();
 
   const onChangeSelection = useCallback(createChangeSelectionHandler(
-      setSelectedNodes, setSelectedEdges),
-      [setSelectedNodes, setSelectedEdges]);
+    setSelectedNodes, setSelectedEdges),
+  [setSelectedNodes, setSelectedEdges]);
 
   useOnSelectionChange({ onChange: (onChangeSelection) });
 
   const onNodesChange = useCallback(createNodesChangeHandler(
     setNodes, alignmentController, setSelectedNodes),
-    [setNodes, alignmentController, setSelectedNodes]);
+  [setNodes, alignmentController, setSelectedNodes]);
 
   const onEdgesChange = useCallback(createEdgesChangeHandler(
     setEdges, setSelectedEdges),
-    [setEdges, setSelectedEdges]);
+  [setEdges, setSelectedEdges]);
 
   useEffect(() => {
     if(!explorationCanvasHighlighting.isHighlightingOn) {
@@ -221,7 +220,6 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
 
   const onNodeMouseEnter = useCallback(createOnNodeMouseEnterHandler(explorationCanvasHighlighting.changeHighlight, reactFlowInstance), [explorationCanvasHighlighting.changeHighlight, reactFlowInstance]);
   const onNodeMouseLeave = useCallback(createOnNodeMouseLeaveHandler(explorationCanvasHighlighting.resetHighlight), [explorationCanvasHighlighting.resetHighlight]);
-
 
   return {
     alignmentController,
@@ -254,7 +252,7 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
 
   const context = useMemo(() => createDiagramContext(
     api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar?.toolbarContent ?? null, setCanvasToolbar, selectedNodes, selectedEdges),
-    [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges]
+  [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges]
   );
 
   const explorationCanvasHighlighting = useExplorationCanvasHighlightingController(setNodes, setEdges);
@@ -266,7 +264,7 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
 
   const onPaneClick = useCallback(createOnPaneClickHandler(
     context.closeCanvasToolbar, setSelectedNodes, setSelectedEdges),
-    [context.closeCanvasToolbar, setSelectedNodes, setSelectedEdges]);
+  [context.closeCanvasToolbar, setSelectedNodes, setSelectedEdges]);
 
   return {
     context,
@@ -274,7 +272,6 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
     onPaneClick,
   };
 }
-
 
 export function useDiagramController(api: UseDiagramType): UseDiagramControllerType {
   const reactStates = useCreateReactStates();
@@ -308,7 +305,7 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
 }
 
 const createOnNodeDragHandler = () => {
-  return (event: React.MouseEvent, node: Node, nodes: Node[]) => {
+  return (_: React.MouseEvent, _node: Node, _nodes: Node[]) => {
     // EMPTY
   };
 };
@@ -317,12 +314,11 @@ const createOnNodeDragStartHandler = (
   alignmentController: AlignmentController,
   disableExplorationModeHighlightingChanges: () => void
 ) => {
-  return (event: React.MouseEvent, node: Node, nodes: Node[]) => {
+  return (_: React.MouseEvent, node: Node, _nodes: Node[]) => {
     disableExplorationModeHighlightingChanges();
     alignmentController.alignmentSetUpOnNodeDragStart(node);
   };
 };
-
 
 const createOnNodeMouseEnterHandler = (
   changeHighlight: (
@@ -339,7 +335,7 @@ const createOnNodeMouseEnterHandler = (
 };
 
 const createOnNodeMouseLeaveHandler = (resetHighlight: () => void) => {
-  return (_: React.MouseEvent, node: Node) => {
+  return (_: React.MouseEvent, _node: Node) => {
     resetHighlight();
   };
 };
@@ -349,7 +345,7 @@ const createOnNodeDragStopHandler = (
   alignmentController: AlignmentController,
   enableExplorationModeHighlightingChanges: () => void
 ) => {
-  return (event: React.MouseEvent, node: Node, nodes: Node[]) => {
+  return (_event: React.MouseEvent, node: Node, nodes: Node[]) => {
     enableExplorationModeHighlightingChanges();
     alignmentController.alignmentCleanUpOnNodeDragStop(node);
     // At the end of the node drag we report changes in the positions.
@@ -362,8 +358,8 @@ const createOnNodeDragStopHandler = (
 };
 
 const createChangeSelectionHandler = (
-    setSelectedNodes: (newNodeSelection: string[]) => void,
-    setSelectedEdges: (newEdgeSelection: string[]) => void,
+  setSelectedNodes: (newNodeSelection: string[]) => void,
+  setSelectedEdges: (newEdgeSelection: string[]) => void,
 ) => {
   return ({nodes, edges}: OnSelectionChangeParams) => {
     // We can react on change events here.
@@ -409,7 +405,6 @@ const createNodesChangeHandler = (
     //     positionChange.position.y = node?.position.y;
     //   }
     // });
-
 
     setSelectedBasedOnChanges(setSelectedNodes, changes);
     alignmentController.alignmentNodesChange(changes);
@@ -492,15 +487,15 @@ const createConnectEndHandler = (
       return;
     }
     const targetIsPane = (event.target as Element).classList.contains("react-flow__pane");
-    const flowPosititon = reactFlow.screenToFlowPosition({x: (event as unknown as React.MouseEvent)?.clientX, y: (event as unknown as React.MouseEvent)?.clientY});
+    const flowPosition = reactFlow.screenToFlowPosition({x: (event as unknown as React.MouseEvent)?.clientX, y: (event as unknown as React.MouseEvent)?.clientY});
     if (targetIsPane) {
-      api.callbacks().onCreateConnectionToNothing(source.data, flowPosititon);
+      api.callbacks().onCreateConnectionToNothing(source.data, flowPosition);
     } else {
       if (connection.toNode === null) {
         // If user have not attached the node to the handle, we get no target.
         const nodes = reactFlow.getIntersectingNodes({ x: positionRelativeToViewport.x, y: positionRelativeToViewport.y, width: 1, height: 1 });
         if (nodes.length === 0) {
-          api.callbacks().onCreateConnectionToNothing(source.data, flowPosititon);
+          api.callbacks().onCreateConnectionToNothing(source.data, flowPosition);
         } else {
           // There is something under it.
           api.callbacks().onCreateConnectionToNode(source.data, nodes[0].data);
@@ -799,13 +794,13 @@ const edgeToEdgeType = (edge: ApiEdge): EdgeType => {
 
 function selectEdgeType(edge: ApiEdge) {
   switch (edge.type) {
-    case ApiEdgeType.Association:
-    case ApiEdgeType.AssociationProfile:
-      return PropertyEdgeName;
-    case ApiEdgeType.Generalization:
-      return GeneralizationEdgeName;
-    case ApiEdgeType.ClassProfile:
-      return ClassProfileEdgeName;
+  case ApiEdgeType.Association:
+  case ApiEdgeType.AssociationProfile:
+    return PropertyEdgeName;
+  case ApiEdgeType.Generalization:
+    return GeneralizationEdgeName;
+  case ApiEdgeType.ClassProfile:
+    return ClassProfileEdgeName;
   }
 }
 
@@ -814,14 +809,14 @@ function selectEdgeType(edge: ApiEdge) {
  */
 export function selectMarkerEnd(edge: ApiEdge, color: string | null) {
   switch (edge.type) {
-    case ApiEdgeType.Association:
-      return { type: MarkerType.Arrow, height: 20, width: 20, color: color ?? edge.color };
-    case ApiEdgeType.AssociationProfile:
-      return { type: MarkerType.Arrow, height: 20, width: 20, color: color ?? edge.color };
-    case ApiEdgeType.Generalization:
-      return { type: MarkerType.ArrowClosed, height: 20, width: 20, color: color ?? edge.color };
-    case ApiEdgeType.ClassProfile:
-      return { type: MarkerType.ArrowClosed, height: 20, width: 20, color: color ?? edge.color };
+  case ApiEdgeType.Association:
+    return { type: MarkerType.Arrow, height: 20, width: 20, color: color ?? edge.color };
+  case ApiEdgeType.AssociationProfile:
+    return { type: MarkerType.Arrow, height: 20, width: 20, color: color ?? edge.color };
+  case ApiEdgeType.Generalization:
+    return { type: MarkerType.ArrowClosed, height: 20, width: 20, color: color ?? edge.color };
+  case ApiEdgeType.ClassProfile:
+    return { type: MarkerType.ArrowClosed, height: 20, width: 20, color: color ?? edge.color };
   }
 }
 

@@ -1,4 +1,4 @@
-import { CmeModelType, CmeModel } from "./cme-model";
+import { CmeModel, CmeModelType } from "./cme-model";
 
 export function filterWritableModels(items: CmeModel[]): CmeModel [] {
   return items.filter(isModelWritable);

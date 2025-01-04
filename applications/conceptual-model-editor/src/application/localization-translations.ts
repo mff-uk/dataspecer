@@ -7,75 +7,73 @@ function prefix<T>(prefix: string, items: Record<string, T>): Record<string, T> 
   return result;
 }
 
-const dialogAssociation = prefix<string | Function>(
+const dialogAssociation = prefix(
   "dialog.association.", {
-  "cancel": "❌ Cancel",
-  // Edit
-  "label-edit": "Edit a relationship",
-  "ok-edit": "✅ Save changes",
-  // Create
-  "label-create": "Create a new relationship",
-  "ok-create": "✅ Create",
-});
+    "cancel": "❌ Cancel",
+    // Edit
+    "label-edit": "Edit a relationship",
+    "ok-edit": "✅ Save changes",
+    // Create
+    "label-create": "Create a new relationship",
+    "ok-create": "✅ Create",
+  });
 
-const dialogAssociationProfile = prefix<string | Function>(
+const dialogAssociationProfile = prefix(
   "dialog.association-profile.", {
-  "cancel": "❌ Cancel",
-  // Edit
-  "label-edit": "Edit a relationship profile",
-  "ok-edit": "✅ Save changes",
-  // Create
-  "label-create": "Create a new relationship profile",
-  "ok-create": "✅ Create",
-});
+    "cancel": "❌ Cancel",
+    // Edit
+    "label-edit": "Edit a relationship profile",
+    "ok-edit": "✅ Save changes",
+    // Create
+    "label-create": "Create a new relationship profile",
+    "ok-create": "✅ Create",
+  });
 
-const dialogAttribute = prefix<string | Function>(
+const dialogAttribute = prefix(
   "dialog.attribute.", {
-  "cancel": "❌ Cancel",
-  // Edit
-  "label-edit": "Edit an attribute",
-  "ok-edit": "✅ Save changes",
-  // Create
-  "label-create": "Create a new attribute",
-  "ok-create": "✅ Create",
-});
+    "cancel": "❌ Cancel",
+    // Edit
+    "label-edit": "Edit an attribute",
+    "ok-edit": "✅ Save changes",
+    // Create
+    "label-create": "Create a new attribute",
+    "ok-create": "✅ Create",
+  });
 
-const dialogAttributeProfile = prefix<string | Function>(
+const dialogAttributeProfile = prefix(
   "dialog.attribute-profile.", {
-  "cancel": "❌ Cancel",
-  // Edit
-  "label-edit": "Edit an attribute profile",
-  "ok-edit": "✅ Save changes",
-  // Create
-  "label-create": "Create a new attribute profile",
-  "ok-create": "✅ Create",
-});
+    "cancel": "❌ Cancel",
+    // Edit
+    "label-edit": "Edit an attribute profile",
+    "ok-edit": "✅ Save changes",
+    // Create
+    "label-create": "Create a new attribute profile",
+    "ok-create": "✅ Create",
+  });
 
-const dialogClass = prefix<string | Function>(
+const dialogClass = prefix(
   "dialog.class.", {
-  "cancel": "❌ Cancel",
-  // Edit
-  "label-edit": "Edit a class",
-  "ok-edit": "✅ Save changes",
-  // Create
-  "label-create": "Create a new class",
-  "ok-create": "✅ Create",
-});
+    "cancel": "❌ Cancel",
+    // Edit
+    "label-edit": "Edit a class",
+    "ok-edit": "✅ Save changes",
+    // Create
+    "label-create": "Create a new class",
+    "ok-create": "✅ Create",
+  });
 
-const dialogClassProfile = prefix<string | Function>(
+const dialogClassProfile = prefix(
   "dialog.class-profile.", {
-  "cancel": "❌ Cancel",
-  // Edit
-  "label-edit": "Edit a class profile",
-  "ok-edit": "✅ Save changes",
-  // Create
-  "label-create": "Create a class profile",
-  "ok-create": "✅ Create",
-});
+    "cancel": "❌ Cancel",
+    // Edit
+    "label-edit": "Edit a class profile",
+    "ok-edit": "✅ Save changes",
+    // Create
+    "label-create": "Create a class profile",
+    "ok-create": "✅ Create",
+  });
 
-//
-//
-
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export const translations: Record<string, string | Function> = {
   ...dialogAssociation,
   ...dialogAssociationProfile,

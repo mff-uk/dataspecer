@@ -1,14 +1,14 @@
 
-import { Label, Input, Checkbox, Tab, Tabs } from "../components";
-import { type DialogWrapper, type DialogProps } from "../dialog-api";
+import { Checkbox, Input, Label, Tab, Tabs } from "../components";
+import { type DialogProps, type DialogWrapper } from "../dialog-api";
 import { t } from "../../application";
 
 import {
   type CreateModelState,
-  useCreateModelController,
-  TabType,
   type PredefinedModel,
+  TabType,
   createCreateModelState,
+  useCreateModelController,
 } from "./create-model-dialog-controller";
 
 export const createAddModelDialog = (

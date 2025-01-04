@@ -2,11 +2,10 @@ import { isVisualGroup, isVisualNode, isVisualRelationship } from "@dataspecer/c
 import { ModelGraphContextType } from "../context/model-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { isSemanticModelAttribute, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelRelationshipUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { SemanticModelRelationship, isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelRelationshipUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ClassesContextType } from "../context/classes-context";
 import { getDomainAndRange } from "../util/relationship-utils";
-
 
 /**
  * Center diagram editor view to the visual entity representing given semantic entity, identified by {@link identifier}.
@@ -28,8 +27,8 @@ export function centerViewportToVisualEntityAction(
       const domainNodeIdentifier = getDomainAndRange(attribute)?.domain?.concept ?? null;
 
       if(domainNodeIdentifier === null) {
-          notifications.error("Focused attribute doesn't have domain node");
-          return;
+        notifications.error("Focused attribute doesn't have domain node");
+        return;
       }
 
       entityIdentifier = domainNodeIdentifier;
@@ -54,13 +53,12 @@ export function centerViewportToVisualEntityAction(
   }
 };
 
-
 /**
  * @returns undefined if the relationship with given identifier wasn't found. Otherwise the found relationship or relationship usage -
  * Note that the returned type depends on the actual entity
  */
 export function findRelationshipOrRelationshipUsageWithIdentifier(identifier: string, classesContext: ClassesContextType) {
   const entity = (classesContext.relationships as (SemanticModelRelationship | SemanticModelRelationshipUsage)[]).
-                    concat(classesContext.profiles.filter(isSemanticModelRelationshipUsage)).find(entity => entity?.id === identifier);
+    concat(classesContext.profiles.filter(isSemanticModelRelationshipUsage)).find(entity => entity?.id === identifier);
   return entity;
 }

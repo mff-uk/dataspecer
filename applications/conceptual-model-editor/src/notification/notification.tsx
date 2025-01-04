@@ -22,7 +22,7 @@ export const NotificationList = () => {
 const renderNotification = (notification: Notification) => {
   const key = String(notification.timeToLive) + notification.label;
   const Icon = iconForNotification(notification);
-  // flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800
+  // Flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800
   return (
     <div key={key} className="flex items-center w-full max-w-xs p-4 space-x-4 text-gray-500 bg-white divide-x rtl:divide-x-reverse divide-gray-200 rounded-lg shadow dark:text-gray-400 dark:divide-gray-700 dark:bg-gray-800" role="alert">
       <Icon />
@@ -35,10 +35,10 @@ const renderNotification = (notification: Notification) => {
 
 const iconForNotification = (notification: Notification) => {
   switch (notification.type) {
-    case NotificationType.Success:
-      return IconSuccess;
-    case NotificationType.Error:
-      return IconError;
+  case NotificationType.Success:
+    return IconSuccess;
+  case NotificationType.Error:
+    return IconError;
   }
 };
 

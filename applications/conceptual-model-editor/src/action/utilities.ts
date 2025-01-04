@@ -4,14 +4,13 @@ import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggr
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { configuration, createLogger } from "../application";
-import { placePositionOnGrid, ReactflowDimensionsConstantEstimator, XY } from "@dataspecer/layout";
-import { isVisualNode, isVisualRelationship, Position, VisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { ReactflowDimensionsConstantEstimator, XY, placePositionOnGrid } from "@dataspecer/layout";
+import { Position, VisualModel, WritableVisualModel, isVisualNode, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
 import { Edge, EdgeType, Node } from "../diagram";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { ModelGraphContextType } from "../context/model-context";
 import { ClassesContextType } from "../context/classes-context";
-import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { extendSelectionAction, ExtensionType, VisibilityFilter } from "./extend-selection-action";
+import { ExtensionType, VisibilityFilter, extendSelectionAction } from "./extend-selection-action";
 import { Selections } from "./filter-selection-action";
 
 const LOG = createLogger(import.meta.url);
@@ -26,21 +25,21 @@ export function convertToEntitiesToDeleteType(
   allModels: Map<string, EntityModel>,
   notifications: UseNotificationServiceWriterType | null
 ): EntityToDelete[] {
-    const entitiesToDelete: EntityToDelete[] = [];
-    for(const entityIdentifier of entityIdentifiers) {
-      const sourceModel = findSourceModelOfEntity(entityIdentifier, allModels);
-      if(sourceModel === null) {
-        if(notifications !== null) {
-          notifications.error("Entity doesn't have source semantic model.");
-        }
-        continue;
+  const entitiesToDelete: EntityToDelete[] = [];
+  for(const entityIdentifier of entityIdentifiers) {
+    const sourceModel = findSourceModelOfEntity(entityIdentifier, allModels);
+    if(sourceModel === null) {
+      if(notifications !== null) {
+        notifications.error("Entity doesn't have source semantic model.");
       }
-      entitiesToDelete.push({
-        identifier: entityIdentifier,
-        sourceModel: sourceModel.getId()
-      });
+      continue;
     }
-    return entitiesToDelete;
+    entitiesToDelete.push({
+      identifier: entityIdentifier,
+      sourceModel: sourceModel.getId()
+    });
+  }
+  return entitiesToDelete;
 }
 
 /**
@@ -91,14 +90,13 @@ export function getViewportCenterForClassPlacement(diagram: UseDiagramType) {
   return position;
 }
 
-
 /**
  *
  * @param selectionsToSetWith the {@link Selections} object with visual identifiers to be used as new selection.
  */
 export function setSelectionsInDiagram(selectionsToSetWith: Selections, diagram: UseDiagramType) {
-    diagram.actions().setSelectedNodes(selectionsToSetWith.nodeSelection);
-    diagram.actions().setSelectedEdges(selectionsToSetWith.edgeSelection);
+  diagram.actions().setSelectedNodes(selectionsToSetWith.nodeSelection);
+  diagram.actions().setSelectedEdges(selectionsToSetWith.edgeSelection);
 }
 
 export function getSelections(diagram: UseDiagramType, shouldFilterOutProfileClassEdges: boolean, shouldGetVisualIdentifiers: boolean): Selections {
@@ -152,54 +150,53 @@ export const computeMiddleOfRelatedAssociationsPositionAction = async (
   classesContext: ClassesContextType,
   classToFindAssociationsFor: string,
 ): Promise<ComputedPositionForNodePlacement> => {
-    const associatedClasses: string[] = (await findAssociatedClassesAndClassUsages(notifications, graph, classesContext, classToFindAssociationsFor)).selectionExtension.nodeSelection;
-    const associatedPositions = associatedClasses.map(associatedNodeIdentifier => {
-        const visualNode = visualModel.getVisualEntityForRepresented(associatedNodeIdentifier);
-        if(visualNode === null) {
-            notifications.error("The associated visual entity is not present in visual model, even though it should");
-            return null
-        }
-        if(!isVisualNode(visualNode)) {
-            notifications.error("One of the associated nodes is actually not a node for unknown reason");
-            return null;
-        }
+  const associatedClasses: string[] = (await findAssociatedClassesAndClassUsages(notifications, graph, classesContext, classToFindAssociationsFor)).selectionExtension.nodeSelection;
+  const associatedPositions = associatedClasses.map(associatedNodeIdentifier => {
+    const visualNode = visualModel.getVisualEntityForRepresented(associatedNodeIdentifier);
+    if(visualNode === null) {
+      notifications.error("The associated visual entity is not present in visual model, even though it should");
+      return null
+    }
+    if(!isVisualNode(visualNode)) {
+      notifications.error("One of the associated nodes is actually not a node for unknown reason");
+      return null;
+    }
 
-        return visualNode.position;
-    }).filter(position => position !== null);
+    return visualNode.position;
+  }).filter(position => position !== null);
 
-    const barycenter = computeBarycenter(associatedPositions, diagram);
-    return barycenter;
+  const barycenter = computeBarycenter(associatedPositions, diagram);
+  return barycenter;
 };
 
 /**
  * @returns The barycenter of given positions and boolean saying if the barycenter was put to middle of viewport, because there is 0 neighbors.
  */
 const computeBarycenter = (positions: Position[], diagram: UseDiagramType): ComputedPositionForNodePlacement => {
-    const barycenter = positions.reduce((accumulator: Position, currentValue: Position) => {
-        accumulator.x += currentValue.x;
-        accumulator.y += currentValue.y;
+  const barycenter = positions.reduce((accumulator: Position, currentValue: Position) => {
+    accumulator.x += currentValue.x;
+    accumulator.y += currentValue.y;
 
-        return accumulator;
-    }, {x: 0, y: 0, anchored: null});
+    return accumulator;
+  }, {x: 0, y: 0, anchored: null});
 
+  let isInCenterOfViewport;
+  if(positions.length >= 1) {
+    isInCenterOfViewport = false;
+    barycenter.x /= positions.length;
+    barycenter.y /= positions.length;
+  }
+  else {
+    isInCenterOfViewport = true;
+    const viewportMiddle = getViewportCenterForClassPlacement(diagram);
+    barycenter.x = viewportMiddle.x;
+    barycenter.y = viewportMiddle.y;
+  }
 
-    let isInCenterOfViewport;
-    if(positions.length >= 1) {
-        isInCenterOfViewport = false;
-        barycenter.x /= positions.length;
-        barycenter.y /= positions.length;
-    }
-    else {
-        isInCenterOfViewport = true;
-        const viewportMiddle = getViewportCenterForClassPlacement(diagram);
-        barycenter.x = viewportMiddle.x;
-        barycenter.y = viewportMiddle.y;
-    }
-
-    return {
-        position: barycenter,
-        isInCenterOfViewport
-    };
+  return {
+    position: barycenter,
+    isInCenterOfViewport
+  };
 };
 
 const findAssociatedClassesAndClassUsages = async (
@@ -208,9 +205,9 @@ const findAssociatedClassesAndClassUsages = async (
   classesContext: ClassesContextType,
   classToFindAssociationsFor: string
 ) => {
-    // Is synchronous for this case
-    const selection = await extendSelectionAction(notifications, graph, classesContext,
-      {areIdentifiersFromVisualModel: false, identifiers: [classToFindAssociationsFor]},
-      [ExtensionType.ASSOCIATION, ExtensionType.GENERALIZATION], VisibilityFilter.ONLY_VISIBLE_NODES, false, null);
-    return selection;
+  // Is synchronous for this case
+  const selection = await extendSelectionAction(notifications, graph, classesContext,
+    {areIdentifiersFromVisualModel: false, identifiers: [classToFindAssociationsFor]},
+    [ExtensionType.ASSOCIATION, ExtensionType.GENERALIZATION], VisibilityFilter.ONLY_VISIBLE_NODES, false, null);
+  return selection;
 }

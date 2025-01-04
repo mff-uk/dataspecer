@@ -1,7 +1,7 @@
 import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { isSemanticModelClass, SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelClass, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 
-import { getViewportCenterForClassPlacement, withAggregatedEntity } from "./utilities";
+import { withAggregatedEntity } from "./utilities";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseDiagramType } from "../diagram/diagram-hook";

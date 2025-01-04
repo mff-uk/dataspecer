@@ -54,7 +54,7 @@ export const EditAttributeProfileDialog = (props: DialogProps<EditAttributeProfi
           />
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("create-class-dialog.iri")}>
-        <InputIri
+          <InputIri
             iriPrefix={state.model.baseIri ?? ""}
             isRelative={state.isIriRelative}
             setIsRelative={controller.setIsIriRelative}

@@ -22,10 +22,10 @@ export function CanvasToolbarCreatedByEdgeDrag({ value }: { value: CanvasToolbar
   };
 
   return <div>
-        <ul className="canvas-toolbar-edge-drag">
-            <li>
-                <button onClick={onCanvasMenuAddClassDialog}>➕</button>
-            </li>
-        </ul>
-    </div>;
+    <ul className="canvas-toolbar-edge-drag">
+      <li>
+        <button onClick={onCanvasMenuAddClassDialog}>➕</button>
+      </li>
+    </ul>
+  </div>;
 }

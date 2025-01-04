@@ -3,8 +3,8 @@ import { useMemo } from "react";
 import { configuration } from "../../application";
 import { DialogProps } from "../dialog-api";
 import { EntityRepresentative } from "../utilities/dialog-utilities";
-import { createEntityProfileController, EntityProfileState, EntityProfileStateController } from "../utilities/entity-profile-utilities";
-import { createRelationshipProfileController, RelationshipProfileState, RelationshipProfileStateController } from "../utilities/relationship-profile-utilities";
+import { EntityProfileState, EntityProfileStateController, createEntityProfileController } from "../utilities/entity-profile-utilities";
+import { RelationshipProfileState, RelationshipProfileStateController, createRelationshipProfileController } from "../utilities/relationship-profile-utilities";
 
 export interface EditAssociationProfileDialogState extends EntityProfileState, RelationshipProfileState<EntityRepresentative> { }
 

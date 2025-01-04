@@ -4,7 +4,6 @@ import { Selections } from "../../action/filter-selection-action";
 import { ExtensionType, VisibilityFilter } from "../../action/extend-selection-action";
 import { useActions } from "../../action/actions-react-binding";
 
-
 /**
  * Represents one concrete data used to render checkbox for the extension.
  */
@@ -30,10 +29,10 @@ const createExtensionData = (
   extensionType: ExtensionType
 ): ExtensionData => {
   const checkboxData = {
-      checked: defaultStateValue,
-      checkboxText,
-      checkboxTooltip,
-      extensionType
+    checked: defaultStateValue,
+    checkboxText,
+    checkboxTooltip,
+    extensionType
   };
 
   return checkboxData;
@@ -88,7 +87,6 @@ export interface CreateExtendSelectionControllerType {
   performExtensionBasedOnExtensionState: () => void;
 }
 
-
 export function useExtendSelectionController({ state, changeState }: DialogProps<ExtendSelectionState>): CreateExtendSelectionControllerType {
   const { extendSelection } = useActions();
 
@@ -113,7 +111,7 @@ export function useExtendSelectionController({ state, changeState }: DialogProps
     const performExtensionBasedOnExtensionState = () => {
       const relevantExtensionTypes = state.extensionCheckboxes.map(checkboxState => {
         if(checkboxState.checked) {
-            return checkboxState.extensionType;
+          return checkboxState.extensionType;
         }
         return null;
       }).filter(extensionType => extensionType !== null);
@@ -128,10 +126,10 @@ export function useExtendSelectionController({ state, changeState }: DialogProps
         null
       ).then(extension => {
         setSelections({
-            nodeSelection: state.selections.nodeSelection.concat(extension.nodeSelection),
-            edgeSelection: state.selections.edgeSelection.concat(extension.edgeSelection),
+          nodeSelection: state.selections.nodeSelection.concat(extension.nodeSelection),
+          edgeSelection: state.selections.edgeSelection.concat(extension.edgeSelection),
         });
-        }).catch(console.error);
+      }).catch(console.error);
     }
 
     return {

@@ -3,9 +3,9 @@ import { useMemo } from "react";
 import { configuration } from "../../application";
 import { DialogProps } from "../dialog-api";
 import { DataTypeRepresentative } from "../utilities/dialog-utilities";
-import { createEntityController, EntityState, EntityStateController } from "../utilities/entity-utilities";
-import { createSpecializationController, SpecializationState, SpecializationStateController } from "../utilities/specialization-utilities";
-import { createRelationshipController, RelationshipController, RelationshipState } from "../utilities/relationship-utilities";
+import { EntityState, EntityStateController, createEntityController } from "../utilities/entity-utilities";
+import { SpecializationState, SpecializationStateController, createSpecializationController } from "../utilities/specialization-utilities";
+import { RelationshipController, RelationshipState, createRelationshipController } from "../utilities/relationship-utilities";
 
 export interface EditAttributeDialogState extends
   EntityState, SpecializationState, RelationshipState<DataTypeRepresentative> { }

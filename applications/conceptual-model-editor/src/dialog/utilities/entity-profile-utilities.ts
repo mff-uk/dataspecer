@@ -1,5 +1,5 @@
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
-import { createEntityController, EntityState, EntityStateController } from "./entity-utilities";
+import { EntityState, EntityStateController, createEntityController } from "./entity-utilities";
 import { EntityRepresentative, isRelativeIri } from "./dialog-utilities";
 import { MissingModel, MissingProfile, NoWritableModelFound } from "../../application/error";
 import { validationNoProblem } from "./validation-utilities";

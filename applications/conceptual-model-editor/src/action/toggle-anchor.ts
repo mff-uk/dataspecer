@@ -1,9 +1,9 @@
-import { isVisualNode, isWritableVisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { ModelGraphContextType } from "../context/model-context";
+import { WritableVisualModel, isVisualNode } from "@dataspecer/core-v2/visual-model";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 
 /**
- * Changes anchor to the opposite state. So if the node was not anchored then anchor it and otherway around.
+ * Changes anchor to the opposite state.
+ * So if the node was not anchored then anchor it and other way around.
  */
 export function toggleAnchorAction(
   notifications: UseNotificationServiceWriterType,

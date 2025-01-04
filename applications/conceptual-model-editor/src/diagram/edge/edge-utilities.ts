@@ -1,6 +1,6 @@
 import { type InternalNode, Viewport } from "@xyflow/react";
 
-import { findNodeCenter, type Point, findLineCenter, findNodeBorder } from "./math";
+import { type Point, findLineCenter, findNodeBorder, findNodeCenter } from "./math";
 import { type Position } from "../diagram-api";
 
 export function createWaypoints(sourceNode: InternalNode, waypoints: Position[], targetNode: InternalNode): Point[] {
@@ -38,7 +38,6 @@ export function createSvgPath(waypoints: Point[]): string {
   }
   return path;
 }
-
 
 // Inspired by getNodeToolbarTransform function in xyflow.
 export const computePosition = (x: number, y: number, viewport: Viewport): { x: number, y: number } => {

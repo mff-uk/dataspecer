@@ -9,91 +9,91 @@ const AUTOSAVE_INTERVAL = parseInt(import.meta.env.VITE_PUBLIC_APP_AUTOSAVE_INTE
 const AUTOSAVE_ENABLED_BY_DEFAULT = false;
 
 export const useAutoSave = () => {
-    const { models, visualModels } = useModelGraphContext();
-    const { packageId } = useQueryParamsContext();
+  const { models, visualModels } = useModelGraphContext();
+  const { packageId } = useQueryParamsContext();
 
-    const { updateSemanticModelPackageModels } = useBackendConnection();
-    const [autosaveActive, setAutosaveActive] = useState(AUTOSAVE_ENABLED_BY_DEFAULT);
-    const [autosaveInterval, setAutosaveInterval] = useState<NodeJS.Timeout | null>(null);
-    const [autosaveButtonLabel, setAutosaveButtonLabel] = useState(getAutosaveLabel(AUTOSAVE_ENABLED_BY_DEFAULT));
+  const { updateSemanticModelPackageModels } = useBackendConnection();
+  const [autosaveActive, setAutosaveActive] = useState(AUTOSAVE_ENABLED_BY_DEFAULT);
+  const [autosaveInterval, setAutosaveInterval] = useState<NodeJS.Timeout | null>(null);
+  const [autosaveButtonLabel, setAutosaveButtonLabel] = useState(getAutosaveLabel(AUTOSAVE_ENABLED_BY_DEFAULT));
 
-    useEffect(() => {
+  useEffect(() => {
 
-        // We create the handler here to emphasize that it captures the
-        // same variables as the callback. The reason is that since we allow
-        // autoload from the start, models, visualModels may change later.
-        const handleAutoSavePackage = () => {
-            // TODO This method is disabled for safety.
-            // Using 1 === 1 to not trigger inaccessible code warning.
-            // eslint-disable-next-line no-constant-condition
-            if (1 === 1) {
-                return;
-            }
+    // We create the handler here to emphasize that it captures the
+    // same variables as the callback. The reason is that since we allow
+    // autoload from the start, models, visualModels may change later.
+    const handleAutoSavePackage = () => {
+      // TODO This method is disabled for safety.
+      // Using 1 === 1 to not trigger inaccessible code warning.
+      // eslint-disable-next-line no-constant-condition
+      if (1 === 1) {
+        return;
+      }
 
-            if (!packageId) {
-                return;
-            }
-            updateSemanticModelPackageModels(packageId, [...models.values()], [...visualModels.values()])
-                .then(status => {
-                    setAutosaveButtonLabel(`... ${status ? "success" : "fail"}`);
-                    // Keep the label for some time and then return back.
-                    setTimeout(() => setAutosaveButtonLabel(getAutosaveLabel(autosaveActive)), 750);
-                })
-                .catch(console.error);
-        };
+      if (!packageId) {
+        return;
+      }
+      updateSemanticModelPackageModels(packageId, [...models.values()], [...visualModels.values()])
+        .then(status => {
+          setAutosaveButtonLabel(`... ${status ? "success" : "fail"}`);
+          // Keep the label for some time and then return back.
+          setTimeout(() => setAutosaveButtonLabel(getAutosaveLabel(autosaveActive)), 750);
+        })
+        .catch(console.error);
+    };
 
-        setAutosaveButtonLabel(getAutosaveLabel(autosaveActive));
+    setAutosaveButtonLabel(getAutosaveLabel(autosaveActive));
 
-        if (!autosaveActive) {
-            clearInterval(autosaveInterval ?? undefined);
-            setAutosaveInterval(null);
-            return;
-        }
-        handleAutoSavePackage();
-
-        // Unregister so we do not register twice.
-        clearInterval(autosaveInterval ?? undefined);
-        const timeout = setInterval(() => handleAutoSavePackage(), AUTOSAVE_INTERVAL);
-        setAutosaveInterval(timeout);
-
-        // We can not list all properties (autosaveInterval) as this would cycle since
-        // we set the value in this function.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [autosaveActive, models, visualModels]);
-
-    let autosaveButtonTitle: string;
-    if (!packageId) {
-        autosaveButtonTitle =
-            "you can only use autosave when you are inside a package\ngo to /manager and start from there";
-    } else if (autosaveActive) {
-        autosaveButtonTitle = "autosave: active, stop autosave";
-    } else {
-        autosaveButtonTitle = "autosave: inactive, start autosave";
+    if (!autosaveActive) {
+      clearInterval(autosaveInterval ?? undefined);
+      setAutosaveInterval(null);
+      return;
     }
+    handleAutoSavePackage();
 
-    const AutoSaveButton = () => {
-        return (
-            <ExportButton
-                title={autosaveButtonTitle}
-                onClick={() => setAutosaveActive((prev) => !prev)}
-                disabled={!packageId}
-                withDisabledHelpCursor={true}
-            >
-                {autosaveButtonLabel}
-            </ExportButton>
-        );
-    };
+    // Unregister so we do not register twice.
+    clearInterval(autosaveInterval ?? undefined);
+    const timeout = setInterval(() => handleAutoSavePackage(), AUTOSAVE_INTERVAL);
+    setAutosaveInterval(timeout);
 
-    return {
-        isAutoSaveActive: autosaveActive,
-        AutoSaveButton,
-    };
+    // We can not list all properties (autosaveInterval) as this would cycle since
+    // we set the value in this function.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autosaveActive, models, visualModels]);
+
+  let autosaveButtonTitle: string;
+  if (!packageId) {
+    autosaveButtonTitle =
+            "you can only use autosave when you are inside a package\ngo to /manager and start from there";
+  } else if (autosaveActive) {
+    autosaveButtonTitle = "autosave: active, stop autosave";
+  } else {
+    autosaveButtonTitle = "autosave: inactive, start autosave";
+  }
+
+  const AutoSaveButton = () => {
+    return (
+      <ExportButton
+        title={autosaveButtonTitle}
+        onClick={() => setAutosaveActive((prev) => !prev)}
+        disabled={!packageId}
+        withDisabledHelpCursor={true}
+      >
+        {autosaveButtonLabel}
+      </ExportButton>
+    );
+  };
+
+  return {
+    isAutoSaveActive: autosaveActive,
+    AutoSaveButton,
+  };
 };
 
 const getAutosaveLabel = (active: boolean) => {
-    if (active) {
-        return "🟢autosave";
-    }
-    return "🔴autosave";
+  if (active) {
+    return "🟢autosave";
+  }
+  return "🔴autosave";
 };
 

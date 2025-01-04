@@ -1,9 +1,9 @@
-import { expect, describe, test } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { EntityModel } from "@dataspecer/core-v2";
 
-import { setTranslateFunction, entityModelToCmeVocabulary, entityModelsMapToCmeVocabulary, setDefaultModelColor } from "./semantic-model-adapter";
+import { entityModelToCmeVocabulary, entityModelsMapToCmeVocabulary, setDefaultModelColor, setTranslateFunction } from "./semantic-model-adapter";
 import { CmeModelType } from "../cme-model";
 
 // Disable translation.

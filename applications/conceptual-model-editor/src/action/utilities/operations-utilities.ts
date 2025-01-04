@@ -1,5 +1,5 @@
 import { Entity } from "@dataspecer/core-v2";
-import { createGeneralization, deleteEntity, Operation } from "@dataspecer/core-v2/semantic-model/operations";
+import { Operation, createGeneralization, deleteEntity } from "@dataspecer/core-v2/semantic-model/operations";
 
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { SpecializationState } from "../../dialog/utilities/specialization-utilities";
@@ -53,7 +53,7 @@ export function mergeEndsUpdate<EndType extends { iri: string | null }, EndUpdat
     ...domainAndRange.range!,
     ...rangeUpdate,
   };
-  if (domainAndRange.domainIndex == 1 && domainAndRange.rangeIndex == 0) {
+  if (domainAndRange.domainIndex === 1 && domainAndRange.rangeIndex === 0) {
     return [range, domain];
   } else {
     return [domain, range];
