@@ -1,0 +1,42 @@
+import * as React from 'react';
+import TablePagination from '@mui/material/TablePagination';
+
+export interface <%= it.pagination_component_name %>Props {
+  totalCount: number | undefined,
+  pageState: [number, React.Dispatch<React.SetStateAction<number>>];
+  pageRowsState: [number, React.Dispatch<React.SetStateAction<number>>];
+  refetch: () => Promise<void> | undefined;
+}
+
+export default function <%= it.pagination_component_name %>({ totalCount, pageState, pageRowsState, refetch }: <%= it.pagination_component_name %>Props) {
+  const [page, setPage] = pageState;
+  const [rowsPerPage, setRowsPerPage] = pageRowsState;
+
+  const handleChangePage = (_: any, newPage: number) => {
+    setPage(newPage);
+    refetch();
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+    refetch();
+  };
+
+  return (
+    <>
+      {
+        totalCount && (
+          <TablePagination
+            component="div"
+            count={totalCount}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        )
+      }
+    </>
+  );
+}
