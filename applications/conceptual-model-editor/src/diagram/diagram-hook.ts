@@ -132,6 +132,7 @@ const noOperationCallbacks: DiagramCallbacks = {
   onShowSelectionActions: noOperation,
   onLayoutSelection: noOperation,
   onCreateGroup: noOperation,
+  onDissolveGroup: noOperation,
   onShowExpandSelection: noOperation,
   onShowFilterSelection: noOperation,
   onCanvasOpenCreateClassDialog: noOperation,

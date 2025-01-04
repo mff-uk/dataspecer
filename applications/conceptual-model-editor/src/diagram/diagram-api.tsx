@@ -485,6 +485,11 @@ interface DiagramSelection {
   onCreateGroup: () => void;
 
   /**
+   * This method is called when user wants to dissolve (destroy) existing group.
+   */
+  onDissolveGroup: (groupIdentifier: string | null) => void;
+
+  /**
    * This method is called when user wants to show the dialog for expansion of selection.
    */
   onShowExpandSelection: () => void;

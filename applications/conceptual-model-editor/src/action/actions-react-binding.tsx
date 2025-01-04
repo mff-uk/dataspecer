@@ -47,6 +47,7 @@ import { extendSelectionAction, ExtensionType, getSelectionForWholeSemanticModel
 import { createFilterSelectionDialog } from "../dialog/selection/filter-selection-dialog";
 import { EntityModel } from "@dataspecer/core-v2";
 import { addGroupToVisualModelAction } from "./add-group-to-visual-model";
+import { removeGroupFromVisualModelAction } from "./remove-group-from-visual-model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -733,6 +734,12 @@ function createActionsContext(
       withVisualModel(notifications, graph, (visualModel) => {
         const {nodeSelection} = getSelections(diagram, false, true);
         addGroupToVisualModelAction(visualModel, nodeSelection);
+      });
+    },
+    onDissolveGroup: (groupIdentifier: string | null) => {
+      console.info("diagram.actions().getNodes()", diagram.actions().getNodes());
+      withVisualModel(notifications, graph, (visualModel) => {
+        removeGroupFromVisualModelAction(notifications, visualModel, groupIdentifier);
       });
     },
     onShowExpandSelection: () => {

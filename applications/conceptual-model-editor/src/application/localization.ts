@@ -176,6 +176,7 @@ const translations: Record<string, string | Function> = {
   "selection-extend-button": "Show dialog to extend selection",
   "selection-filter-button": "Show dialog to filter selection",
   "selection-group-button": "Create group from selection",
+  "dissolve-group-button": "Dissolve group",
   //
   "selection-new-view-button": "Creates new visual model, which will contain selected nodes and edges",
   "selection-profile-button": "Creates profiles from selected nodes and edges",

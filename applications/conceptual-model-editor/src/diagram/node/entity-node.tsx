@@ -71,6 +71,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
             <div className="relative flex w-full flex-row justify-between">
                 <div>{data.label}</div>
                 {isAnchored ? <div>⚓</div>: null}
+                {props.selected === true ? <div>SELECTED</div>: null}
             </div>
           </div>
 
@@ -103,10 +104,10 @@ function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   }
 
   if(context.getShownNodeToolbarType() === NodeToolbarType.SELECTION_TOOLBAR) {
-    return <SelectionToolbar {...props}/>;
+    return <SelectionToolbar {...props} isGroupToolbar={false}/>;
   }
   else if(context.getShownNodeToolbarType() === NodeToolbarType.GROUP_TOOLBAR) {
-    return <GroupToolbar {...props}/>;
+    return <SelectionToolbar {...props} isGroupToolbar={true}/>;
   }
   else if(context.getShownNodeToolbarType() === NodeToolbarType.SINGLE_NODE_TOOLBAR) {
     return <PrimaryNodeToolbar {...props}/>;
@@ -128,9 +129,22 @@ function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   const onDelete = () => context?.callbacks().onDeleteNode(props.data);
   const onAnchor = () => context?.callbacks().onToggleAnchorForNode(props.data);
 
+  // const shouldShowToolbar = context?.getNodeWithToolbar() === props.id;   // TODO RadStr: Maybe also && props.selected === true?
+  const shouldShowToolbar = props.selected === true;
+
+  // if(props.selected === true) {
+  //   console.info(context);
+  //   console.info(context?.getNodeWithToolbar());
+  //   alert("About to show NodeToolbar");
+  // }
+
+  // if(shouldShowToolbar) {
+  //   alert("About to show NodeToolbar");
+  // }
+
   return (
     <>
-    <NodeToolbar isVisible={props.selected === true} position={Position.Top} className="flex gap-2 entity-node-toolbar" >
+    <NodeToolbar isVisible={shouldShowToolbar} position={Position.Top} className="flex gap-2 entity-node-toolbar" >
       <button onClick={onShowDetail} title={t("class-detail-button")}>ℹ</button>
       &nbsp;
       <button onClick={onEdit} title={t("class-edit-button")}>✏️</button>
@@ -138,10 +152,10 @@ function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
       <button onClick={onCreateProfile} title={t("class-profile-button")}>🧲</button>
       &nbsp;
     </NodeToolbar>
-    <NodeToolbar isVisible={props.selected === true} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
+    <NodeToolbar isVisible={shouldShowToolbar} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
       <Handle type="source" position={Position.Right} title={t("node-connection-handle")}>🔗</Handle>
     </NodeToolbar>
-    <NodeToolbar isVisible={props.selected === true} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
+    <NodeToolbar isVisible={shouldShowToolbar} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
       <button onClick={onHide} title={t("class-hide-button")}>🕶</button>
       &nbsp;
       <button onClick={onDelete} title={t("class-remove-button")}>🗑</button>
@@ -152,15 +166,17 @@ function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   </>);
 }
 
+type SelectionToolbarProps = NodeProps<Node<ApiNode>> & {isGroupToolbar: boolean};
 
-function SelectionToolbar(props: NodeProps<Node<ApiNode>>) {
+function SelectionToolbar(props: SelectionToolbarProps) {
   const context = useContext(DiagramContext);
   const reactFlow = useReactFlow();
-  const isLastSelected = props.selected === true && context?.getLastSelected() === props.id;
+  const shouldShowToolbar = context?.getNodeWithToolbar() === props.id;
 
-  if (!(isLastSelected === true && context?.getLastSelected() === props.id)) {
+  if (!shouldShowToolbar) {
     return null;
   }
+
 
   const onShowSelectionActions = (event: React.MouseEvent) => {
     const absoluteFlowPosition = reactFlow.screenToFlowPosition({x: event.clientX, y: event.clientY});
@@ -168,59 +184,30 @@ function SelectionToolbar(props: NodeProps<Node<ApiNode>>) {
   }
   const onLayoutSelection = () => context?.callbacks().onLayoutSelection();
   const onCreateGroup = () => context?.callbacks().onCreateGroup();
+  const onDissolveGroup = () => {
+    console.info("props.data");
+    console.info(props.data);
+    context?.callbacks().onDissolveGroup(props.data.group);
+  };
   const onShowExpandSelection = () => context?.callbacks().onShowExpandSelection();
   const onShowFilterSelection = () => context?.callbacks().onShowFilterSelection();
 
   return (<>
-    <NodeToolbar isVisible={isLastSelected} position={Position.Top} className="flex gap-2 entity-node-toolbar" >
+    <NodeToolbar isVisible={shouldShowToolbar} position={Position.Top} className="flex gap-2 entity-node-toolbar" >
       <button onClick={onShowSelectionActions} title={t("selection-action-button")}>🎬</button>
       &nbsp;
       <button onClick={onLayoutSelection} title={t("selection-layout-button")} disabled>🔀</button>
       &nbsp;
     </NodeToolbar>
-    <NodeToolbar isVisible={isLastSelected} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
-    <button onClick={onCreateGroup} title={t("selection-group-button")}>🤝</button>
+    <NodeToolbar isVisible={shouldShowToolbar} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
+      {
+        props.isGroupToolbar ?
+          <button onClick={onDissolveGroup} title={t("dissolve-group-button")}>❌</button>
+          :
+          <button onClick={onCreateGroup} title={t("selection-group-button")}>🤝</button>
+      }
     </NodeToolbar>
-    <NodeToolbar isVisible={isLastSelected} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
-      <button onClick={onShowExpandSelection} title={t("selection-extend-button")} >📈</button>
-      &nbsp;
-      <button onClick={onShowFilterSelection} title={t("selection-filter-button")} >📉</button>
-      &nbsp;
-    </NodeToolbar>
-  </>
-  );
-}
-
-// TODO RadStr: Copy-pasted selection toolbar - it shares most buttons, so we could probably unify it
-function GroupToolbar(props: NodeProps<Node<ApiNode>>) {
-  const context = useContext(DiagramContext);
-  const reactFlow = useReactFlow();
-  const isLastSelected = props.selected === true && context?.getLastSelected() === props.id;
-
-  if (!(isLastSelected === true && context?.getLastSelected() === props.id)) {
-    return null;
-  }
-
-  const onShowSelectionActions = (event: React.MouseEvent) => {
-    const absoluteFlowPosition = reactFlow.screenToFlowPosition({x: event.clientX, y: event.clientY});
-    context?.callbacks().onShowSelectionActions(props.data, absoluteFlowPosition);
-  }
-  const onLayoutSelection = () => context?.callbacks().onLayoutSelection();
-  const onCreateGroup = () => context?.callbacks().onCreateGroup();
-  const onShowExpandSelection = () => context?.callbacks().onShowExpandSelection();
-  const onShowFilterSelection = () => context?.callbacks().onShowFilterSelection();
-
-  return (<>
-    <NodeToolbar isVisible={isLastSelected} position={Position.Top} className="flex gap-2 entity-node-toolbar" >
-      <button onClick={onShowSelectionActions} title={t("selection-action-button")}>🎬</button>
-      &nbsp;
-      <button onClick={onLayoutSelection} title={t("selection-layout-button")} disabled>🔀</button>
-      &nbsp;
-    </NodeToolbar>
-    <NodeToolbar isVisible={isLastSelected} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
-    <button onClick={onCreateGroup} title={t("selection-group-button")}>❌</button>
-    </NodeToolbar>
-    <NodeToolbar isVisible={isLastSelected} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
+    <NodeToolbar isVisible={shouldShowToolbar} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
       <button onClick={onShowExpandSelection} title={t("selection-extend-button")} >📈</button>
       &nbsp;
       <button onClick={onShowFilterSelection} title={t("selection-filter-button")} >📉</button>
