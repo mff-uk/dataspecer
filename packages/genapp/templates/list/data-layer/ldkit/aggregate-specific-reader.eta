@@ -9,31 +9,38 @@ export default class <%= it.aggregate_name %> extends <%= it.ldkit_list_reader_b
         return lens.count();
     }
 
-    async readInstanceList<T>(): Promise<T> {
+    async readInstanceList<T>(request?: any): Promise<T> {
 
         const context: QueryContext = {
             sources: [<%~ it.ldkit_endpoint_uri %>]
         }
 
         setGlobalOptions(context);
-        <% const instanceListVariableName = it.aggregate_name.toLowerCase() + "Instances"; %>
-        const <%= instanceListVariableName %> = await this.ldkitFind(".", <%= it.ldkit_schema %>, 0);
+        try{<% const instanceListVariableName = it.aggregate_name.toLowerCase() + "Instances"; %>
+            const <%= instanceListVariableName %> = await this.ldkitFind(".", <%= it.ldkit_schema %>, 0, request);
 
-        if (!<%= instanceListVariableName %>) {
-            throw new Error("Error on data read.");
+            if (!<%= instanceListVariableName %>) {
+                throw new Error("Error on data read.");
+            }
+
+            const aggInstances = <%= instanceListVariableName %>.map(entity => {
+                return {
+                    aggregateName: "<%= it.aggregate_name %>",
+                    raw: entity
+                };
+            })
+
+            const result: T = {
+                entities: aggInstances
+            } as unknown as T
+
+            return result;
+        } catch {
+            const emptyResult: T = {
+                entities: []
+            } as unknown as T
+
+            return emptyResult;
         }
-
-        const aggInstances = <%= instanceListVariableName %>.map(entity => {
-            return {
-                aggregateName: "<%= it.aggregate_name %>",
-                raw: entity
-            };
-        })
-
-        const result: T = {
-            entities: aggInstances
-        } as unknown as T
-
-        return result;
     }
 }

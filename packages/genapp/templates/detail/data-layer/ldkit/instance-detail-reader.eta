@@ -40,11 +40,11 @@ export default class <%= it.exported_name_object %> implements <%= it.ldkit_inst
         const lens = createLens(schema);
         let instanceDetail = await lens.findByIri(iri);
 
-        await this.populateNestedDetails(instanceDetail, schema);
-
         if (!instanceDetail) {
             return null;
         }
+
+        await this.populateNestedDetails(instanceDetail, schema);
 
         instanceDetail = this.removeLdkitProperties(instanceDetail);
 

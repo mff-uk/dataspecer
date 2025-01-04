@@ -1,4 +1,4 @@
-import React from "react";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import Table from "@mui/material/Table";
 import Button from "@mui/material/Button";
 import TableRow from "@mui/material/TableRow";
@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 import { Backdrop, CircularProgress } from "@mui/material";
 import { <%= it.navigation_hook %> } from <%~ it.navigation_hook_path %>;<% const hasTransitions = it.instance_capability_options != null && it.instance_capability_options_path != null; %>
 import { <%= it.list_capability_app_layer %> } from <%~ it.list_app_layer_path %>;
-import { <%= it.aggregate_pagination %> } from <%~ it.aggregate_pagination_path %>;<% if (hasTransitions) { %>
+import <%= it.aggregate_pagination %> from <%~ it.aggregate_pagination_path %>;<% if (hasTransitions) { %>
 import { <%= it.instance_capability_options %> } from <%~ it.instance_capability_options_path %>;
 <% } %>
 <%
@@ -38,7 +38,12 @@ import { <%= it.instance_capability_options %> } from <%~ it.instance_capability
         return "<></>";
     }
 %>
-export default function <%= it.presentation_layer_component_name %>({ aggregateName }: { aggregateName: string }) {
+
+type ListTableProps = {
+    aggregateName: string
+}
+
+const <%= it.presentation_layer_component_name %>: React.FC<ListTableProps> = ({ aggregateName }: ListTableProps): ReactNode => {
 
     const pageState = useState(0);
     const pageRowsState = useState(10);
@@ -48,7 +53,7 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
     const [refetch, setRefetchInstances] = useState<boolean>(false);
 
     const [instanceList, setInstanceList] = useState(undefined as unknown as object[]);
-    const [isLoading, setisLoading] = useState<boolean>(true);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const { handleCollectionCapabilityRedirect } = <%= it.navigation_hook %>();
 
     const stringify = (objectKey) => {
@@ -59,28 +64,26 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
 
     useEffect(() => {
         const fetchInstancesList = async () => {
-            if (!instanceList || !itemsCount) {
+            if (!instanceList || !itemsCount || refetch) {
                 let listReader = new <%= it.list_capability_app_layer %>();
 
                 const instanceCount = await listReader.readInstanceCount();
 
-                if (!instanceCount || instanceCount === 0) {
-                    console.error("No objects available");
-                } else {
-                    setItemsCount(instanceCount);
-                    console.log(`Found ${instanceCount} corresponding objects`);
-                    setRefetchInstances(false);
-                }
+                setItemsCount(instanceCount);
+                console.log(`Found ${instanceCount} corresponding objects`);
 
-                const listResult = await listReader.runCapability(
-                    "<%= it.aggregate_name %>",
+                const listResult = await listReader.runCapability({
+                    aggregateName: "<%= it.aggregate_name %>",
                     currentPage,
                     rowsPerPage
-                );
+                });
 
-                const instances = listResult.entities.map(res => res.raw);
-                setisLoading(false);
+                const instances = instanceCount === 0
+                    ? []
+                    : listResult.entities.map(res => res.raw);
+                setIsLoading(false);
                 setInstanceList(instances);
+                setRefetchInstances(false);
             }
         }
 
@@ -111,9 +114,9 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
                 <%= collectionTransition.label %>: <%= it.aggregate_name %>
             </Button><% } %><% const defaultPageTitle = "List of \"\" items" %>
             <TableContainer>
-                <Table sx={{ minWidth: 650 }} aria-label="<%= it.aggregate_name %> table"></Table>
+                <Table sx={{ minWidth: 650 }} aria-label="<%= it.aggregate_name %> table">
                 {instanceList &&
-                    <React.Fragment>
+                    <>
                         <TableHead>
                             <TableRow>
                                 <TableCell align="left">
@@ -149,8 +152,9 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
                                 )
                             }
                         </TableBody>
-                    </React.Fragment>
+                    </>
                 }
+                </Table>
             </TableContainer>
             <<%= it.aggregate_pagination %>
                 totalCount={itemsCount}
@@ -161,3 +165,5 @@ export default function <%= it.presentation_layer_component_name %>({ aggregateN
         </>
     )
 }
+
+export default <%= it.presentation_layer_component_name %>;

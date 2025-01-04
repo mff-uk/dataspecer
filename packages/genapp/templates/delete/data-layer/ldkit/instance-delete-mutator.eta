@@ -1,4 +1,4 @@
-import { QueryContext, createLens, QueryEngine } from "ldkit";
+import { QueryContext, createLens, QueryEngine, Options } from "ldkit";
 import { <%= it.instance_result_type %> } from <%~ it.instance_result_type_path %>;
 import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 import { <%= it.delete_mutator_interface_type %> } from <%~ it.delete_mutator_interface_type_path %>;
@@ -32,7 +32,7 @@ export class <%= it.exported_object_name %> implements <%= it.delete_mutator_int
 
     async deleteInstance(instanceIri: string): Promise<<%= it.instance_result_type %>> {
 
-        const context: QueryContext = {
+        const context: Options = {
             sources: ["<%~ it.sparql_endpoint_uri.read %>"]
         }
 
@@ -53,8 +53,9 @@ export class <%= it.exported_object_name %> implements <%= it.delete_mutator_int
 
         try {
             const deleteLens = createLens(<%= it.ldkit_schema %>, {
-                sources: ["<%~ it.sparql_endpoint_uri.write %>"]
-            }, this._customEngine);
+                sources: ["<%~ it.sparql_endpoint_uri.write %>"],
+                engine: this._customEngine
+            });
             await deleteLens.delete(toDelete);
 
             result = {

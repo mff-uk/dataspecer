@@ -2,5 +2,5 @@ import { <%= it.read_return_type %> } from <%~ it.read_return_type_path %>;
 
 export interface ListReader {
     readInstanceCount(): Promise<number | undefined>;
-    readInstanceList(): Promise<<%= it.read_return_type %>>;
+    readInstanceList<T>(request: T): Promise<<%= it.read_return_type %>>;
 }

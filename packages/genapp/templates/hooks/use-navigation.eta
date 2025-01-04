@@ -1,4 +1,4 @@
-import { createSearchParams, useNavigate } from 'react-router-dom';
+import { createSearchParams, useNavigate } from "react-router-dom";
 
 export const useGenappNavigation = () => {
 

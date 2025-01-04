@@ -6,6 +6,11 @@ type NestedResultsMap = {
     [attrName: string]: SchemaInterface<any>[];
 }
 
+export type PaginatedReaderRequest = {
+    currentPage: number,
+    rowsPerPage: number
+}
+
 export abstract class <%= it.exported_object_name %> implements <%= it.list_reader_interface %> {
 
     private readonly _nestedResultsCache: NestedResultsMap;
@@ -17,6 +22,7 @@ export abstract class <%= it.exported_object_name %> implements <%= it.list_read
     }
 
     abstract readInstanceList(): Promise<ListResult>;
+    abstract readInstanceCount(): Promise<number | undefined>;
 
     private getNestedSchemas(schema: object): { [attrName: string]: object } {
 
@@ -75,7 +81,7 @@ export abstract class <%= it.exported_object_name %> implements <%= it.list_read
         );
     }
 
-    protected async ldkitFind(baseAttrName: string, schema: any, recursionDepth: number): Promise<SchemaInterface<any>[]> {
+    protected async ldkitFind(baseAttrName: string, schema: any, recursionDepth: number, request?: PaginatedReaderRequest): Promise<SchemaInterface<any>[]> {
 
         console.log("USING SCHEMA: ", schema);
 
@@ -88,9 +94,14 @@ export abstract class <%= it.exported_object_name %> implements <%= it.list_read
         }
 
         const lens = createLens(schema);
-        const itemsCount = await lens.count();
-        console.log(`Total items count for: ${schema["@type"]}`, itemsCount);
-        const instances = (await lens.find(undefined, 1000))                 // ; //15000));
+        let instances = (request === null || request == undefined)
+            ? await lens.find()
+            : await lens.find({
+                take: request.rowsPerPage,
+                skip: request.rowsPerPage * request.currentPage
+            });
+
+        instances = instances
             .filter(instance => instance !== null && instance !== undefined)
             .map(instance => {
 

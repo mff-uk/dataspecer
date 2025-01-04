@@ -1,5 +1,5 @@
 import { Entity } from "ldkit/types/library/lens/types";
-import { QueryContext, SchemaInterface, createLens, QueryEngine } from "ldkit";
+import { QueryContext, SchemaInterface, createLens, QueryEngine, Options } from "ldkit";
 import { <%= it.instance_result_type %> } from <%~ it.instance_result_type_path %>;
 import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 import { <%= it.editor_interface_type %> } from <%~ it.editor_interface_type_path %>;
@@ -71,11 +71,12 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
 
     async updateInstance(formData: any): Promise<<%= it.instance_result_type %>> {
 
-        const context: QueryContext = {
-            sources: ["<%~ it.sparql_endpoint_uri %>"]
-        }
+        const options: Options = {
+            sources: ["<%~ it.sparql_endpoint_uri %>"],
+            engine: this._customEngine
+        };
 
-        const lens = createLens(<%= it.ldkit_schema %>, context, this._customEngine);
+        const lens = createLens(<%= it.ldkit_schema %>, options);
         const updatedInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> = this.mapFormDataToLdkitSchema(formData);
 
         try {

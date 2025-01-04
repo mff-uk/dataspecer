@@ -2,14 +2,14 @@ import * as React from 'react';
 import Pagination from '@mui/material/Pagination';
 import TablePagination from '@mui/material/TablePagination';
 
-export interface <%= it.pagination_component_name %>PaginationProps {
+export interface <%= it.pagination_component_name %>Props {
   totalCount: number | undefined,
   pageState: [number, React.Dispatch<React.SetStateAction<number>>];
   pageRowsState: [number, React.Dispatch<React.SetStateAction<number>>];
   refetch: () => Promise<void> | undefined;
 }
 
-export default function <%= it.pagination_component_name %>Pagination({ totalCount, pageState, pageRowsState, refetch }: <%= it.pagination_component_name %>PaginationProps) {
+export default function <%= it.pagination_component_name %>({ totalCount, pageState, pageRowsState, refetch }: <%= it.pagination_component_name %>Props) {
   const [page, setPage] = pageState;
   const [rowsPerPage, setRowsPerPage] = pageRowsState;
 
