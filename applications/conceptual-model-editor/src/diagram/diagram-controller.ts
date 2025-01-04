@@ -416,7 +416,8 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
     [setEdges, setSelectedEdges]);
 
   useEffect(() => {
-    console.info("RadStr DEBUG: USE EFFECT", [...selectedNodes], [...selectedEdges], selectedNodesRef.current, [...selectedNodesRef.current], [...userSelectedNodes], [...userSelectedNodesRef.current]);
+    // TODO RadStr: Just debug prints
+    // console.info("RadStr DEBUG: USE EFFECT", [...selectedNodes], [...selectedEdges], selectedNodesRef.current, [...selectedNodesRef.current], [...userSelectedNodes], [...userSelectedNodesRef.current]);
     if(!canvasHighlighting.isHighlightingOn) {
       setHighlightingStylesBasedOnSelection(reactFlowInstance, selectedNodes, selectedEdges, setNodes, setEdges);
     }
@@ -774,7 +775,7 @@ const createNodesChangeHandler = (
     );
     changes = tmpResult.changes;
     const nodesWhichWereActuallyNotUnselected = tmpResult.nodesWhichWereActuallyNotUnselected;
-    extractedDataFromChanges.newlySelectedNodesBasedOnGroups = tmpResult.newlyUnselectedNodesBasedOnGroups
+    extractedDataFromChanges.newlyUnselectedNodesBasedOnGroups = tmpResult.newlyUnselectedNodesBasedOnGroups
 
     // TODO RadStr: The explicit variant
     // const newSelectedNodes = updatedNodes.filter(node => node.selected === true).map(node => node.id);
@@ -807,7 +808,7 @@ const createNodesChangeHandler = (
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // TODO RadStr: Maybe should call when actual change occurs so we don't update, when we don't need to
-    // setSelectedBasedOnNewData(setSelectedNodes, updatedNodes, selectedNodesRef, nodes);    
+    // setSelectedBasedOnNewData(setSelectedNodes, updatedNodes, selectedNodesRef, nodes);
     setSelectedNodes(previouslySelectedNodes => {
       const newSelectedNodes = updateSelectedNodesBasedOnNodeChanges(
         previouslySelectedNodes,
@@ -909,20 +910,21 @@ const removeNotCompleteGroupUnselections = (
       groupToUnselectedCountMap[nodeToGroupMapping[newlyUnselectedNode]]--;
     }
 
-    console.info("WHEN LOOKING FOR FAILED GROUP UNSELECTION");
-    console.info([...unselectChanges]);
-    console.info([...selectChanges]);
-    console.info([...changedSelectionByUser]);
-    console.info([...debug]);
-    console.info({...groupToUnselectedCountMap});
-    console.info({...nodeToGroupMapping});
-    console.info([...newlySelectedNodesBasedOnGroups]);
-    console.info([...newlyUnselectedNodesBasedOnGroups]);
-    console.info({...groupsNewlyContainedInSelectionChange});
-    console.info([...userSelectedNodes]);
-    console.info([...userSelectedNodesRef.current]);
-    console.info([nodes.filter(n => n.selected === true)]);
-    console.info([nodes]);
+    // TODO RadStr: Just debug prints
+    // console.info("WHEN LOOKING FOR FAILED GROUP UNSELECTION");
+    // console.info([...unselectChanges]);
+    // console.info([...selectChanges]);
+    // console.info([...changedSelectionByUser]);
+    // console.info([...debug]);
+    // console.info({...groupToUnselectedCountMap});
+    // console.info({...nodeToGroupMapping});
+    // console.info([...newlySelectedNodesBasedOnGroups]);
+    // console.info([...newlyUnselectedNodesBasedOnGroups]);
+    // console.info({...groupsNewlyContainedInSelectionChange});
+    // console.info([...userSelectedNodes]);
+    // console.info([...userSelectedNodesRef.current]);
+    // console.info([nodes.filter(n => n.selected === true)]);
+    // console.info([nodes]);
 
     Object.entries(groupToUnselectedCountMap).forEach(([groupIdentifier, unselectedNodesCount]) => {
       let userSelectedNodesInGroupCountBefore = 0;
@@ -944,19 +946,22 @@ const removeNotCompleteGroupUnselections = (
         // Add in the unselect actions for the group - because we need to apply them to the nodes
         addNewChangesBasedOnGroups(groupToUnselectedMap[groupIdentifier], [], false, changes);
 
-        console.info("changes after filter", changes);
-        console.info("newlyUnselectedNodesBasedOnGroups after filter", newlyUnselectedNodesBasedOnGroups);
+        // TODO RadStr: Just debug prints
+        // console.info("changes after filter", changes);
+        // console.info("newlyUnselectedNodesBasedOnGroups after filter", newlyUnselectedNodesBasedOnGroups);
       }
       else {
-        console.info("ELSE");
+        // TODO RadStr: Just debug prints
+        // console.info("ELSE");
       }
     });
   }
 
 
-  console.info("newlyUnselectedNodesBasedOnGroups");
-  console.info(newlyUnselectedNodesBasedOnGroups);
-  console.info(newlySelectedNodesBasedOnGroups);
+  // TODO RadStr: Just debug prints
+  // console.info("newlyUnselectedNodesBasedOnGroups");
+  // console.info(newlyUnselectedNodesBasedOnGroups);
+  // console.info(newlySelectedNodesBasedOnGroups);
 
   return {
     nodesWhichWereActuallyNotUnselected,
@@ -972,7 +977,8 @@ const getDataFromChanges = (
   nodeToGroupMapping: Record<string, string>,
   onChangeEventsDebugRef: React.MutableRefObject<NodeChange[][]>,
 ) => {
-  console.info("changes", {...changes});
+  // TODO RadStr: Just debug prints
+  // console.info("changes", {...changes});
   const newlySelectedNodesBasedOnGroups: string[] = [];
   let newlyUnselectedNodesBasedOnGroups: string[] = [];
   const groupsNewlyContainedInSelectionChange: Record<string, true> = {};
@@ -1077,8 +1083,9 @@ const updateChangesByGroupDragEvents = (
   directlyDraggedGroup: string | null,
   nodesInGroupWhichAreNotPartOfDragging: React.MutableRefObject<string[]>,   // TODO RadStr: Probably not needed, we can be fine with draggedGroups
 ) => {
-  console.info("nodesInGroupWhichAreNotPartOfDragging.current.length");
-  console.info(nodesInGroupWhichAreNotPartOfDragging.current.length);
+  // TODO RadStr: Just debug prints
+  // console.info("nodesInGroupWhichAreNotPartOfDragging.current.length");
+  // console.info(nodesInGroupWhichAreNotPartOfDragging.current.length);
   // TODO RadStr: Probably can put away the nodesInGroupWhichAreNotPartOfDragging.current.length and directlyDraggedGroup !== null condition
   const draggedGroups = [...new Set(changes.filter(change => change.type === "position").map(change => nodeToGroupMapping[change.id])
                           .concat(nodesInGroupWhichAreNotPartOfDragging.current.map(n => nodeToGroupMapping[n])).filter(group => group !== undefined))];
@@ -1098,14 +1105,15 @@ const updateChangesByGroupDragEvents = (
 
 
         // TODO RadStr: Debug prints
-        console.info("positionDifference");
-        console.info({...nodes.filter(n => n.selected === true)});
-        console.info(positionDifference);
-        console.info(sourceNode?.position);
-        console.info({...change.position});
-        console.warn(nodesInGroupWhichAreNotPartOfDragging.current);
-        console.warn({...nodes.filter(n => n.selected === true)});
-        console.info(directlyDraggedGroup);
+        // TODO RadStr: Just debug prints
+        // console.info("positionDifference");
+        // console.info({...nodes.filter(n => n.selected === true)});
+        // console.info(positionDifference);
+        // console.info(sourceNode?.position);
+        // console.info({...change.position});
+        // console.warn(nodesInGroupWhichAreNotPartOfDragging.current);
+        // console.warn({...nodes.filter(n => n.selected === true)});
+        // console.info(directlyDraggedGroup);
 
 
         for(const node of nodes) {
@@ -1144,7 +1152,8 @@ const updateChangesByGroupDragEvents = (
     }
   }
 
-  console.info("Changes after:", changes);
+  // TODO RadStr: Just debug prints
+  // console.info("Changes after:", changes);
 };
 
 
@@ -1165,7 +1174,8 @@ const updateUserSelectedNodesBasedOnNodeChanges = (
       // const newUserSelectedNodes = updatedNodes.filter(node => node.selected === true).map(node => node.id);
 
       userSelectedNodesRef.current = newUserSelectedNodes;
-      console.info("newUserSelectedNodes", newUserSelectedNodes);
+      // TODO RadStr: Just debug prints
+      // console.info("newUserSelectedNodes", newUserSelectedNodes);
       return newUserSelectedNodes;
 };
 
@@ -1195,12 +1205,13 @@ const updateSelectedNodesBasedOnNodeChanges = (
   nodesInGroupWhichAreNotPartOfDragging.current = newSelectedNodes.filter(newSelectedNode => !userSelectedNodesRef.current.includes(newSelectedNode));
 
   // TODO RadStr: DEBUG
-  if(newSelectedNodes.length !== applyNodeChanges(changes, nodes).filter(n => n.selected === true).length) {
-    console.info("if(newSelectedNodes.length !== applyNodeChanges(changes, nodes).filter(n => n.selected === true).length)");
-    console.info(newSelectedNodes.length);
-    console.info(applyNodeChanges(changes, nodes).filter(n => n.selected === true).length);
-    console.info(applyNodeChanges(changes, nodes).filter(n => n.selected === true));
-  }
+  // TODO RadStr: Just debug prints
+  // if(newSelectedNodes.length !== applyNodeChanges(changes, nodes).filter(n => n.selected === true).length) {
+  //   console.info("if(newSelectedNodes.length !== applyNodeChanges(changes, nodes).filter(n => n.selected === true).length)");
+  //   console.info(newSelectedNodes.length);
+  //   console.info(applyNodeChanges(changes, nodes).filter(n => n.selected === true).length);
+  //   console.info(applyNodeChanges(changes, nodes).filter(n => n.selected === true));
+  // }
 
 
   // TODO RadStr: Old version
@@ -1208,10 +1219,11 @@ const updateSelectedNodesBasedOnNodeChanges = (
   // selectedNodesRef.current = newSelectedNodes;
   // return newSelectedNodes;
 
-  console.info("newSelectedNodes - newlyUnselectedNodesBasedOnGroups", newlyUnselectedNodesBasedOnGroups);
-  console.info("newSelectedNodes - nodesWhichWereActuallyNotUnselected", nodesWhichWereActuallyNotUnselected);
-  console.info("newSelectedNodes - nodesInGroupWhichAreNotPartOfDragging.current", [...nodesInGroupWhichAreNotPartOfDragging.current]);
-  console.info("newSelectedNodes", newSelectedNodes);
+  // TODO RadStr: Just debug prints
+  // console.info("newSelectedNodes - newlyUnselectedNodesBasedOnGroups", newlyUnselectedNodesBasedOnGroups);
+  // console.info("newSelectedNodes - nodesWhichWereActuallyNotUnselected", nodesWhichWereActuallyNotUnselected);
+  // console.info("newSelectedNodes - nodesInGroupWhichAreNotPartOfDragging.current", [...nodesInGroupWhichAreNotPartOfDragging.current]);
+  // console.info("newSelectedNodes", newSelectedNodes);
   return newSelectedNodes;
 };
 
@@ -1229,25 +1241,28 @@ const updateNodesBasedOnNodeChanges = (
   onChangeEventsDebugRef: React.MutableRefObject<NodeChange[][]>,
 ) => {
   addNewChangesBasedOnGroups(newlyUnselectedNodesBasedOnGroups, unselectChanges, false, changes);
-  console.info("Changes after after:", changes);
+  // TODO RadStr: Just debug prints
+  // console.info("Changes after after:", changes);
   onChangeEventsDebugRef.current.push([...changes]);
-  console.info("onChangeEventsDebugRef", {...onChangeEventsDebugRef});
-  console.info("onChangeEventsDebugRef.current len: ", onChangeEventsDebugRef.current.length);
-  console.info(onChangeEventsDebugRef.current.length);
+  // TODO RadStr: Just debug prints
+  // console.info("onChangeEventsDebugRef", {...onChangeEventsDebugRef});
+  // console.info("onChangeEventsDebugRef.current len: ", onChangeEventsDebugRef.current.length);
+  // console.info(onChangeEventsDebugRef.current.length);
   const updatedNodes = applyNodeChanges(changes, prevNodes);
 
   // TODO RadStr: Debug prints
-  if(userSelectedNodesRef.current.length !== updatedNodes.filter(node => node.selected === true).length) {
-    console.info("!!! INCORRECT !!!");
-    console.warn(userSelectedNodes);
-    console.warn(userSelectedNodesRef.current);
-    console.warn(updatedNodes.filter(node => node.selected === true));
-    console.warn(selectChanges);
-    console.warn(unselectChanges);
-  }
-  else {
-    console.info("!!!CORRECT !!!");
-  }
+  // TODO RadStr: Just debug prints
+  // if(userSelectedNodesRef.current.length !== updatedNodes.filter(node => node.selected === true).length) {
+  //   console.info("!!! INCORRECT !!!");
+  //   console.warn(userSelectedNodes);
+  //   console.warn(userSelectedNodesRef.current);
+  //   console.warn(updatedNodes.filter(node => node.selected === true));
+  //   console.warn(selectChanges);
+  //   console.warn(unselectChanges);
+  // }
+  // else {
+  //   console.info("!!!CORRECT !!!");
+  // }
 
 
   if(Object.entries(groupsNewlyContainedInSelectionChange).length > 0) {
@@ -1280,7 +1295,8 @@ const updateNodesBasedOnNodeChanges = (
       // updatedNodes.unshift(groupNode);
     }
 
-    console.info("updated groups - updatedNodes", [...updatedNodes]);
+    // TODO RadStr: Just debug prints
+    // console.info("updated groups - updatedNodes", [...updatedNodes]);
   }
 
   for(const newlyUnselectedNode of newlyUnselectedNodesBasedOnGroups) {
@@ -1298,7 +1314,8 @@ const updateNodesBasedOnNodeChanges = (
     }
   }
 
-  console.info("updated nodes", updatedNodes);
+  // TODO RadStr: Just debug prints
+  // console.info("updated nodes", updatedNodes);
   return updatedNodes;
 };
 
@@ -1309,9 +1326,10 @@ const addNewChangesBasedOnGroups = (
   nodeChanges: NodeChange<NodeType>[],
 ) => {
   // TODO RadStr: Debug prints
-  console.warn("changeGroupSelection");
-  console.warn(elementsWithAlreadyChangedSelection);
-  console.warn(selectionChangeBasedOnGroup);
+  // TODO RadStr: Just debug prints
+  // console.warn("changeGroupSelection");
+  // console.warn(elementsWithAlreadyChangedSelection);
+  // console.warn(selectionChangeBasedOnGroup);
   for (const newlyChangedNode of selectionChangeBasedOnGroup) {
     if(elementsWithAlreadyChangedSelection.includes(newlyChangedNode)) {
       continue;
@@ -1334,7 +1352,8 @@ const createEdgesChangeHandler = (
     // setSelectedBasedOnChanges(setSelectedEdges, changes, null, null);
     setEdges((prevEdges) => {
       const edgesAfterChanges = applyEdgeChanges(changes, prevEdges);
-      console.info("previouslySelectedEdges all edges ", changes, [...prevEdges], [...edgesAfterChanges]);
+      // TODO RadStr: Just debug prints
+      // console.info("previouslySelectedEdges all edges ", changes, [...prevEdges], [...edgesAfterChanges]);
       const newlyRemoved: string[] = changes.filter(change => change.type === "remove").map(change => change.id);
       setSelectedBasedOnNewData(setSelectedEdges, edgesAfterChanges, null, newlyRemoved, null);
       return edgesAfterChanges;
@@ -1423,22 +1442,25 @@ const setSelectedBasedOnNewData = (
     const result = previouslySelected.filter(previouslySelectedElement => !newlyUnselected.includes(previouslySelectedElement));
     result.push(...newlySelected);
     // TODO RadStr: DEBUG
-    if(nodes !== undefined && selectedNodesRef !== null) {
-      console.info("setSelectedBasedOnChanges BEFORE - nodes");
-      console.info({...nodes});
-      console.info("setSelectedBasedOnChanges BEFORE");
-      console.info({...selectedNodesRef.current});
-      console.info("setSelectedBasedOnChanges AFTER");
-      console.info({...result});
-    }
+    // TODO RadStr: Just debug prints
+    // if(nodes !== undefined && selectedNodesRef !== null) {
+    //   console.info("setSelectedBasedOnChanges BEFORE - nodes");
+    //   console.info({...nodes});
+    //   console.info("setSelectedBasedOnChanges BEFORE");
+    //   console.info({...selectedNodesRef.current});
+    //   console.info("setSelectedBasedOnChanges AFTER");
+    //   console.info({...result});
+    // }
 
     if(selectedNodesRef !== null) {
       selectedNodesRef.current = result;
-      console.info("result");
-      console.info(result);
+      // TODO RadStr: Just debug prints
+      // console.info("result");
+      // console.info(result);
     }
 
-    console.info("previouslySelectedEdges", result);
+    // TODO RadStr: Just debug prints
+    // console.info("previouslySelectedEdges", result);
     return result;
   });
 }
