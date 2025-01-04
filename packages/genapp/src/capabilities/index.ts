@@ -3,7 +3,7 @@ import { DetailCapability, DetailCapabilityMetadata } from "./detail";
 import { DeleteInstanceCapability, DeleteInstanceCapabilityMetadata } from "./delete-instance";
 import { CreateInstanceCapability, CreateInstanceCapabilityMetadata } from "./create-instance";
 import { CapabilityGenerator } from "./capability-generator-interface";
-import { EditInstanceCapabilityMetadata } from "./edit-instance";
+import { EditInstanceCapability, EditInstanceCapabilityMetadata } from "./edit-instance";
 
 const CAPABILITY_BASE_IRI = "https://dataspecer.com/application_graph/capability/" as const;
 const LIST_CAPABILITY_ID = `${CAPABILITY_BASE_IRI}list` as const;
@@ -45,6 +45,7 @@ export {
     DetailCapability,
     DeleteInstanceCapability,
     CreateInstanceCapability,
+    EditInstanceCapability,
     LIST_CAPABILITY_ID,
     DETAIL_CAPABILITY_ID,
     CREATE_CAPABILITY_ID,

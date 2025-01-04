@@ -5,14 +5,13 @@ import {
     DetailCapability,
     CreateInstanceCapability,
     DeleteInstanceCapability,
+    EditInstanceCapability,
     LIST_CAPABILITY_ID,
     DETAIL_CAPABILITY_ID,
     CREATE_CAPABILITY_ID,
     DELETE_CAPABILITY_ID,
     EDIT_CAPABILITY_ID
 } from "../capabilities";
-import archiver from "archiver";
-import { once } from "events";
 import { ConfigurationReaderFactory } from "../config-reader";
 import { LayerArtifact } from "./layer-artifact";
 import { ReactAppBaseGeneratorStage } from "../react-base/react-app-base-stage";
@@ -20,7 +19,8 @@ import { CapabilityConstructorInput } from "../capabilities/constructor-input";
 import { ApplicationGraph, ApplicationGraphNode } from "./graph";
 import { AggregateMetadata, AggregateMetadataCache } from "../application-config";
 import { ArtifactCache } from "../utils/artifact-saver";
-import { EditInstanceCapability } from "../capabilities/edit-instance";
+import { GenappEnvConfig, GenappEnvironmentConfig } from "./generator-env-config";
+import { ZipArchiveGenerator } from "./zip-archive-generator";
 
 export type NodeResult = {
     structure: AggregateMetadata;
@@ -32,94 +32,15 @@ export type NodeResult = {
     };
 };
 
-interface GenappEnvironmentConfig {
-    backendHost: string;
-    tmpOutZipname: string;
-    tmpOutDir: string;
-}
-
 export interface GenappConfiguration extends GenappEnvironmentConfig {
     appGraphFile?: string;
     serializedGraph?: string;
 }
 
-export class GenappEnvConfig {
-    private static _instance: GenappEnvConfig;
-    private readonly _envConfig: GenappEnvironmentConfig;
-
-    private constructor(envConfig: GenappEnvironmentConfig) {
-        this._envConfig = envConfig;
-    }
-
-    public static getInstance(envConfig: GenappEnvironmentConfig): GenappEnvConfig {
-        if (!this._instance) {
-            this._instance = new this(envConfig);
-        }
-
-        return this._instance;
-    }
-
-    public static get Host() {
-        return this._instance._envConfig.backendHost;
-    }
-
-    public static get TmpOutDir() {
-        return this._instance._envConfig.tmpOutDir;
-    }
-
-    public static get TmpOutZipName() {
-        return this._instance._envConfig.tmpOutZipname;
-    }
-
-}
-
-class ZipArchiveGenerator {
-
-    private readonly _outDir: string;
-    private readonly _outFile: string;
-
-    constructor(outDir: string, outFile: string) {
-        this._outDir = outDir;
-        this._outFile = outFile;
-    }
-
-    async generateZipArchive(tempZipFilename: string) {
-        const output = fs.createWriteStream(tempZipFilename);
-        const zipArchive = archiver("zip", {
-            statConcurrency: 2,
-            zlib: { level: 9 }
-        });
-
-        output.on("close", () => { console.log(`${zipArchive.pointer()} B written`) });
-
-        zipArchive.on("warning", function (err) {
-            if (err.code === 'ENOENT') {
-                // log warning
-            } else {
-                // throw error
-                throw err;
-            }
-        });
-
-        zipArchive.on("error", err => { throw err; });
-
-        zipArchive.pipe(output);
-        zipArchive.directory(`${this._outDir}/`, "generatedApp");
-        return zipArchive.finalize();
-    }
-
-    async getZipBuffer(tempZipFilename: string): Promise<Buffer> {
-        const readStream = fs.createReadStream(tempZipFilename);
-        const buffers: Buffer[] = [];
-
-        readStream.on("data", (d: any) => { buffers.push(Buffer.from(d)); });
-
-        await once(readStream, "end");
-
-        return Buffer.concat(buffers);
-    }
-}
-
+/**
+ * The `ApplicationGenerator` is main class responsible for application generation based on a given configuration - application graph.
+ * It processes application graph nodes to generate the application prototype. The generated application is then packaged into a ZIP archive.
+ */
 export class ApplicationGenerator {
     private readonly _args: GenappConfiguration;
 
@@ -132,34 +53,38 @@ export class ApplicationGenerator {
         });
     }
 
+    /**
+     * Restores application generator caches.
+     * This method is called before starting a new generation process to ensure that no stale data is used.
+     */
     private restoreGeneratorState() {
         ArtifactCache.resetCacheContent();
         AggregateMetadataCache.resetCacheContent();
     }
 
     private getCapabilityGenerator(capabilityIri: string, constructorInput: CapabilityConstructorInput): CapabilityGenerator {
+        const capabilityMap: { [key: string]: new (input: CapabilityConstructorInput) => CapabilityGenerator } = {
+            [LIST_CAPABILITY_ID]: ListCapability,
+            [DETAIL_CAPABILITY_ID]: DetailCapability,
+            [CREATE_CAPABILITY_ID]: CreateInstanceCapability,
+            [DELETE_CAPABILITY_ID]: DeleteInstanceCapability,
+            [EDIT_CAPABILITY_ID]: EditInstanceCapability,
+        };
 
-        switch (capabilityIri) {
-            case LIST_CAPABILITY_ID:
-                return new ListCapability(constructorInput);
-            case DETAIL_CAPABILITY_ID:
-                return new DetailCapability(constructorInput);
-            case CREATE_CAPABILITY_ID:
-                return new CreateInstanceCapability(constructorInput);
-            case DELETE_CAPABILITY_ID:
-                return new DeleteInstanceCapability(constructorInput);
-            case EDIT_CAPABILITY_ID:
-                return new EditInstanceCapability(constructorInput);
-            default:
-                throw new Error(`"${capabilityIri}" does not correspond to a valid capability identifier.`);
+        const capabilityClass = capabilityMap[capabilityIri];
+        if (!capabilityClass) {
+            throw new Error(`"${capabilityIri}" does not correspond to a valid capability identifier.`);
         }
+
+        return new capabilityClass(constructorInput);
     }
 
     /**
      * The entrypoint to the application graph generator. Creates application graph instance,
      * uses graph's data to generate an application prototype. When generation finishes,
      * a ZIP archive containing generated source code is created and returned.
-     * @returns The buffer containing the generated ZIP archive containing generated application source code.
+
+    * @returns The buffer containing the generated ZIP archive containing generated application source code.
      */
     async generate(): Promise<Buffer> {
         this.restoreGeneratorState();
@@ -177,7 +102,7 @@ export class ApplicationGenerator {
 
         await this.generateAppFromConfig(appGraph);
 
-        const zipGenerator = new ZipArchiveGenerator(GenappEnvConfig.TmpOutDir, zipFilename)
+        const zipGenerator = new ZipArchiveGenerator(GenappEnvConfig.TmpOutDir, zipFilename);
 
         await zipGenerator.generateZipArchive(zipFilename);
 
@@ -198,35 +123,48 @@ export class ApplicationGenerator {
         return generatedBuffer;
     }
 
-    private async generateAppFromConfig(appGraph: ApplicationGraph) {
-
-        if (!appGraph.nodes || appGraph.nodes.length === 0) {
-            console.error("Provided application graph does not contain any nodes to be generated.");
-            return;
-        }
+    /**
+     * Generates an application from the provided application graph.
+     * This method processes each node in the given application graph by calling the `generateApplicationNode` method.
+     * After all application graph nodes are generated, `ReactAppBaseGeneratorStage` is used to generate the
+     * application base.
+     *
+     * @param appGraph - The application graph containing nodes to be processed.
+     * @returns A promise that resolves when the application generation is complete.
+     */
+    private async generateAppFromConfig(appGraph: ApplicationGraph): Promise<void> {
 
         const generationPromises = appGraph.nodes.map(
             async applicationNode => {
-
-                const nodeResult = await this.generateApplicationNode(
-                    applicationNode,
-                    appGraph
-                );
-
-                return nodeResult;
+                try {
+                    const nodeResult = await this.generateApplicationNode(
+                        applicationNode,
+                        appGraph
+                    );
+                    return nodeResult;
+                } catch (error) {
+                    console.error(`Failed to generate node: ${applicationNode.getIri()}`, error);
+                    return null;
+                }
             }
         );
 
-        const nodeResultMappings = await Promise.all(generationPromises);
+        const validNodeResults = (await Promise.allSettled(generationPromises))
+            .filter(result => result.status === "fulfilled")
+            .map(result => (result as PromiseFulfilledResult<NodeResult>).value);
 
         await new ReactAppBaseGeneratorStage()
-            .generateApplicationBase(nodeResultMappings);
+            .generateApplicationBase(validNodeResults);
     }
 
-    private async generateApplicationNode(
-        currentNode: ApplicationGraphNode,
-        graph: ApplicationGraph
-    ): Promise<NodeResult> {
+    /**
+     * Launches generation operation for an application node based on the provided graph node and application graph.
+
+     * @param currentNode - The current node in the application graph to be generated.
+     * @param graph - The application graph containing all nodes and their relationships.
+     * @returns A promise that resolves to the result of the currently generated node, including artifacts as well as node metadata.
+     */
+    private async generateApplicationNode(currentNode: ApplicationGraphNode, graph: ApplicationGraph): Promise<NodeResult> {
 
         console.log("CURRENT NODE: ", currentNode);
         const structureModelMetadata = await currentNode.getNodeStructureModel();

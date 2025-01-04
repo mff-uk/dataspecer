@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import path from "path";
-import { GenappEnvConfig } from "../engine/app-generator";
+import { GenappEnvConfig } from "../engine/generator-env-config";
 import { LayerArtifact } from "../engine/layer-artifact";
 import { Cache } from "./cache";
 
