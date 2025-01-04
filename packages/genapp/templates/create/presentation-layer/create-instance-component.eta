@@ -28,7 +28,7 @@ const <%= it.exported_object_name %> = () => {
         event.preventDefault();
 
         const { formData } = data;
-        const createdInstanceResult = await <%= it.create_capability_app_layer %>.runCapability(formData);
+        const createdInstanceResult = await new <%= it.create_capability_app_layer %>().runCapability(formData);
 
         if (!createdInstanceResult?.instance?.raw) {
             setErrorMessage(createdInstanceResult?.message ?? "Creation failed");

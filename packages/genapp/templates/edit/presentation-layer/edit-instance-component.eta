@@ -39,7 +39,7 @@ const <%= it.exported_object_name %> = () => {
                     return;
                 }
 
-                const result = await <%= it.edit_get_detail_app_layer %>.runCapability(id);
+                const result = await new <%= it.edit_get_detail_app_layer %>().runCapability(id);
 
                 setIsLoading(false);
 
@@ -59,7 +59,7 @@ const <%= it.exported_object_name %> = () => {
         event.preventDefault();
 
         const { formData } = data;
-        const editedInstanceResult = await <%= it.edit_capability_app_layer %>.runCapability(formData);
+        const editedInstanceResult = await new <%= it.edit_capability_app_layer %>().runCapability(formData);
 
         if (!editedInstanceResult?.instance?.raw) {
             setErrorMessage(editedInstanceResult?.message ?? "Update failed");

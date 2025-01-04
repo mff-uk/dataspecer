@@ -316,7 +316,7 @@ export default function <%= it.export_name %>() {
                     return;
                 }
 
-                const result = await <%= it.detail_capability_app_layer %>.runCapability(id);
+                const result = await new <%= it.detail_capability_app_layer %>().runCapability(id);
 
                 setIsLoading(false);
                 if (!result?.instance?.raw) {

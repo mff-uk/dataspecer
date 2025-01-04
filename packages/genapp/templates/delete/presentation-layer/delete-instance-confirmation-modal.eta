@@ -20,7 +20,7 @@ const <%= it.exported_name_object %> = () => {
 
     const handleDeletion = async (id: string) => {
 
-        const result = await <%= it.delete_app_layer %>.runCapability(id);
+        const result = await new <%= it.delete_app_layer %>().runCapability(id);
 
         if (!result?.instance?.raw) {
             setResultMessage(<Alert severity="error">{result.message ?? "Error occurred on deletion"}</Alert>);

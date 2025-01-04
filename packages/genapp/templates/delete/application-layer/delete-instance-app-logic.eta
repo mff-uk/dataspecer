@@ -2,8 +2,8 @@ import { <%= it.delete_mutator_instance %> } from <%~ it.delete_mutator_instance
 import { <%= it.delete_mutator_interface_type %> } from <%~ it.delete_mutator_interface_type_path %>;
 import { <%= it.generated_capability_class %>, <%= it.read_return_type %> } from <%~ it.read_return_type_path %>;
 
-export const <%= it.exported_object_name %>: <%= it.generated_capability_class %><<%= it.read_return_type %>> = {
-    name: "delete",
+export class <%= it.exported_object_name %> implements <%= it.generated_capability_class %><<%= it.read_return_type %>> {
+    name = "delete";
 
     async runCapability<T>(instanceIri: T): Promise<<%= it.read_return_type %>> {
 
@@ -11,5 +11,5 @@ export const <%= it.exported_object_name %>: <%= it.generated_capability_class %
         const deletedInstanceIdResult: <%= it.read_return_type %> = await mutator.deleteInstance(instanceIri as string);
 
         return deletedInstanceIdResult;
-    },
+    }
 }

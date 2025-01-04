@@ -2,8 +2,8 @@ import { <%= it.creator_interface_type %> } from <%~ it.creator_interface_type_p
 import { <%= it.instance_creator_type %> } from <%~ it.instance_creator_type_path %>;
 import { <%= it.generated_capability_class %>, <%= it.read_return_type %> } from <%~ it.read_return_type_path %>;
 
-export const <%= it.exported_object_name %>: <%= it.generated_capability_class %><<%= it.read_return_type %>> = {
-    name: "create",
+export class <%= it.exported_object_name %> implements <%= it.generated_capability_class %><<%= it.read_return_type %>> {
+    name = "create";
 
     async runCapability<T>(newInstance: T): Promise<<%= it.read_return_type %>> {
 
