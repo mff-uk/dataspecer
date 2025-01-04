@@ -3,6 +3,9 @@ import { AggregateMetadata } from "../application-config";
 import { ApplicationGraph, ApplicationGraphNode, NodeConfiguration } from "../engine/graph";
 import { ArtifactSaver } from "../utils/artifact-saver";
 
+/**
+ * Represents the context in which a generation process occurs.
+ */
 export type GenerationContext = {
     aggregate: AggregateMetadata,
     config: NodeConfiguration;

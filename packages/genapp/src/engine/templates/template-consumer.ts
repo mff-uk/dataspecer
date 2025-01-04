@@ -25,6 +25,13 @@ export abstract class TemplateConsumer<TemplateType extends TemplateModel> {
 
     abstract processTemplate(dependencies: TemplateDependencyMap): Promise<LayerArtifact>;
 
+    /**
+     * Retrieves the title of a template page in the specified language.
+     *
+     * @param pageTitleLanguageString - An object containing language-specific titles.
+     * @param languageId - The language identifier for the title. Defaults to "en", if not provided.
+     * @returns The page title in the specified language, or the first available language if not found.
+     */
     protected getTemplatePageTitle(pageTitleLanguageString: LanguageString | undefined, languageId: string = "en"): string | null {
         if (!pageTitleLanguageString || Object.keys(pageTitleLanguageString).length === 0) {
             return null;

@@ -16,15 +16,22 @@ function isImportRelativePath(obj: any): obj is ImportRelativePath {
 
 export class TemplateGenerator<TTemplate extends TemplateModel> {
 
+    /** Eta renderer instance used for rendering templates */
     private readonly _eta: Eta;
     constructor() {
         this._eta = new Eta({
-            views: path.join(__dirname, "..", "..", "templates"),
+            views: path.resolve(__dirname, "..", "..", "templates"),
             autoTrim: false,
             cache: true
         });
     }
 
+    /**
+     * Renders a template using the template model provided as parameter.
+
+     * @param {TTemplate} template - The template model containing the template path and placeholders.
+     * @returns {string} - The rendered template string.
+     */
     renderTemplate(template: TTemplate): string {
 
         if (!template) {
@@ -32,15 +39,14 @@ export class TemplateGenerator<TTemplate extends TemplateModel> {
         }
 
         if (template.placeholders) {
-            Object.entries(template.placeholders)
-                .forEach(([placeholderName, placeholderValue]) => {
-                    if (!isImportRelativePath(placeholderValue)) {
-                        return;
-                    }
+            for (const [placeholderName, placeholderValue] of Object.entries(template.placeholders)) {
+                if (!isImportRelativePath(placeholderValue)) {
+                    continue;
+                }
 
-                    const relativePath = getRelativePath(placeholderValue.from, placeholderValue.to);
-                    template.placeholders![placeholderName] = `"${relativePath}"`;
-                });
+                const relativePath = getRelativePath(placeholderValue.from, placeholderValue.to);
+                template.placeholders![placeholderName] = `"${relativePath}"`;
+            }
         }
 
         const renderedSourceCode: string = this._eta.render(
