@@ -90,6 +90,7 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
           onPaneClick={controller.onPaneClick}
           onNodeMouseEnter={controller.onNodeMouseEnter}
           onNodeMouseLeave={controller.onNodeMouseLeave}
+          onNodeClick={controller.onNodeClick}
 
           // TODO RadStr: DEBUG
           onSelectionDrag={controller.onSelectionDrag}
