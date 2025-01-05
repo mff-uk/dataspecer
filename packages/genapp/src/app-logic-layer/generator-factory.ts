@@ -15,12 +15,30 @@ import {
     EditAppLayerGenerator
 } from "./template-generators";
 
+/**
+ * A factory interface for creating instances of ApplicationLayerGenerator.
+ */
 export type ApplicationLayerGeneratorFactory = {
+    /**
+     * Retrieves the appropriate application layer generator from the provided capability identifier.
+     *
+     * @param technicalAggregateName - The technical name of the aggregate for which the application layer generator is needed.
+     * @param capabilityIri - The IRI identifier of the capability. The identifier determines which application layer generator should be used.
+     * @returns The corresponding application layer generator instance.
+     */
     getApplicationLayerGenerator: (technicalAggregateName: string, capabilityIri: string) => ApplicationLayerGenerator;
 }
 
+/**
+ * Factory object used for instantiation of application layer generator for the requested
+ * capability identified by its IRI identifier.
+ */
 export const TemplateApplicationLayerGeneratorFactory: ApplicationLayerGeneratorFactory = {
 
+    /**
+     * @inheritdoc
+     * @throws Throws an error in case no matching application layer generator is found for the requested capability.
+     */
     getApplicationLayerGenerator(technicalAggregateName: string, capabilityIri: string) {
 
         const appLayerGenerators: Record<string, ApplicationLayerGenerator> = {

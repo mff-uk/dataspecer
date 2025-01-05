@@ -4,19 +4,30 @@ import { LayerArtifact } from "../../engine/layer-artifact";
 import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "./template-app-layer-generator";
 import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
 
+/**
+ * Interface which represents the template model for rendering the creation capability template within the application layer.
+ */
 interface CreateInstanceCapabilityAppLayerTemplate extends TemplateModel {
+    /** @inheritdoc */
     placeholders: {
-        exported_object_name: string,
-        instance_creator_type: string,
-        instance_creator_type_path: ImportRelativePath,
-        creator_interface_type: string,
-        creator_interface_type_path: ImportRelativePath,
-        generated_capability_class: string,
-        read_return_type: string,
-        read_return_type_path: ImportRelativePath,
+        exported_object_name: string;
+        instance_creator_type: string;
+        instance_creator_type_path: ImportRelativePath;
+        creator_interface_type: string;
+        creator_interface_type_path: ImportRelativePath;
+        generated_capability_class: string;
+        read_return_type: string;
+        read_return_type_path: ImportRelativePath;
     };
 }
 
+/**
+ * `CreateInstanceAppLayerTemplateProcessor` class is responsible for generating the application layer using
+ * template approach for instance creation capability. This class provides specific logic for the generation of
+ * template and dependencies needed for the application layer of the creation capability of the generated application.
+ *
+ * @template CreateInstanceCapabilityAppLayerTemplate - The type of the creation capability application layer template model.
+ */
 export class CreateInstanceAppLayerTemplateProcessor extends ApplicationLayerTemplateGenerator<CreateInstanceCapabilityAppLayerTemplate> {
 
     private static readonly _createAppLayerTemplatePath: string = "./create/application-layer/create-instance-app-logic";
@@ -27,6 +38,14 @@ export class CreateInstanceAppLayerTemplateProcessor extends ApplicationLayerTem
         })
     }
 
+    /**
+     * This method is responsible for the population of the application layer template for instance creation capability.
+     * When all dependencies needed by template (@see {CreateInstanceCapabilityAppLayerTemplate} for more details) are populated,
+     * the template renderer is invoked to generate the resulting code.
+     *
+     * @param dependencies
+     * @returns The promise which results to a `LayerArtifact` instance - the application layer code of the instance creation capability.
+     */
     async processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): Promise<LayerArtifact> {
 
         const generatedCapabilityInterface = await GeneratedCapabilityInterfaceGenerator.processTemplate();

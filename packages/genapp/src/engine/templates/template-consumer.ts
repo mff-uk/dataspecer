@@ -11,7 +11,12 @@ export type TemplateMetadata = {
     filePath: string
 };
 
-
+/**
+ * Abstract class which provides a way to consume templates. This is used mostly by different generators responsible for populating
+ * the source code templates with appropriate values.
+ *
+ * @template TemplateType - Specific template model. @see {TemplateModel} for more details.
+ */
 export abstract class TemplateConsumer<TemplateType extends TemplateModel> {
     protected readonly _templateRenderer: TemplateGenerator<TemplateType>;
     protected readonly _filePath: string;
@@ -23,6 +28,10 @@ export abstract class TemplateConsumer<TemplateType extends TemplateModel> {
         this._templatePath = templateMetadata?.templatePath;
     }
 
+    /**
+     * Method to be implemented by specific template consumers; within this method the specific
+     * generator will populate the template and invoke the template renderer to generate an artifact.
+     */
     abstract processTemplate(dependencies: TemplateDependencyMap): Promise<LayerArtifact>;
 
     /**

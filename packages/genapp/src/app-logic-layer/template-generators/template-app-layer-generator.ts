@@ -10,12 +10,27 @@ export interface ApplicationLayerTemplateDependencyMap extends TemplateDependenc
     dataLayerLinkArtifact: LayerArtifact
 }
 
+/**
+ * Abstract class which acts as a base for application layer generators.
+ * This class provides a method to generate an application layer using template approach. It ensures that the required
+ * dependencies are provided in the context before invoking the specific template generator for the given capability.
+ *
+ * @extends TemplateConsumer<TemplateType>
+ * @implements ApplicationLayerGenerator
+ */
 export abstract class ApplicationLayerTemplateGenerator<TemplateType extends TemplateModel>
     extends TemplateConsumer<TemplateType>
     implements ApplicationLayerGenerator {
 
     strategyIdentifier: string = "";
 
+    /**
+     * @inheritdoc
+     *
+     * Within this class, this method uses specific layer generation approach - generating using templates.
+     * Besides invoking the specific template generator for specific apability, this method performs a check, whether
+     * required dependencies needed for generation are provided.
+     */
     async generateApplicationLayer(context: GenerationContext): Promise<LayerArtifact> {
 
         if (!context.previousResult) {
@@ -32,7 +47,7 @@ export abstract class ApplicationLayerTemplateGenerator<TemplateType extends Tem
             dataLayerLinkArtifact: context.previousResult
         });
 
-        return Promise.resolve(applicationLayer);
+        return applicationLayer;
     }
 
 }

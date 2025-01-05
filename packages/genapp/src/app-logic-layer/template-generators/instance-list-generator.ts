@@ -1,23 +1,34 @@
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { ListReaderInterfaceGenerator } from "../../data-layer/template-generators/reader-interface-generator";
 import { GeneratedCapabilityInterfaceGenerator, ListResultReturnInterfaceGenerator } from "../../capabilities/template-generators/capability-interface-generator";
-import { TemplateMetadata } from "../../engine/templates/template-consumer";
 import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "./template-app-layer-generator";
 import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
 
+/**
+ * Interface which represents the template model for rendering the list capability template within the application layer.
+ */
 interface ListCapabilityAppLayerTemplate extends TemplateModel {
-    templatePath: string,
+    /**
+     * @inheritdoc
+     */
     placeholders: {
-        list_reader_interface: string,
-        list_reader_interface_path: ImportRelativePath,
-        reader_implementation_path: ImportRelativePath,
-        generated_capability_class: string,
-        read_return_type: string,
-        list_app_layer_export_name: string,
-        read_return_type_path: ImportRelativePath
-    }
+        list_reader_interface: string;
+        list_reader_interface_path: ImportRelativePath;
+        reader_implementation_path: ImportRelativePath;
+        generated_capability_class: string;
+        read_return_type: string;
+        list_app_layer_export_name: string;
+        read_return_type_path: ImportRelativePath;
+    };
 }
 
+/**
+ * `ListAppLayerTemplateProcessor` class is responsible for generating the application layer using
+ * template approach for list capability. This class provides specific logic for the generation of
+ * template and dependencies needed for the application layer of the list capability of the generated application.
+ *
+ * @template ListCapabilityAppLayerTemplate - The type of the list capability application layer template model.
+ */
 export class ListAppLayerTemplateProcessor extends ApplicationLayerTemplateGenerator<ListCapabilityAppLayerTemplate> {
 
     strategyIdentifier: string = "list-app-template-generator";
@@ -32,6 +43,14 @@ export class ListAppLayerTemplateProcessor extends ApplicationLayerTemplateGener
 
     }
 
+    /**
+     * This method is responsible for the population of the application layer template for list capability.
+     * When all dependencies needed by template (@see {ListCapabilityAppLayerTemplate} for more details) are populated,
+     * the template renderer is invoked to generate the resulting code.
+     *
+     * @param dependencies
+     * @returns The promise which results to a `LayerArtifact` instance - the application layer code of the list capability.
+     */
     async processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): Promise<LayerArtifact> {
 
         const readerInterfaceArtifact = await ListReaderInterfaceGenerator.processTemplate();

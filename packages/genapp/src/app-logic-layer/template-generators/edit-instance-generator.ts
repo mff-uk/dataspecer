@@ -4,19 +4,30 @@ import { InstanceEditorInterfaceGenerator } from "../../data-layer/template-gene
 import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "./template-app-layer-generator";
 import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
 
+/**
+ * Interface which represents the template model for rendering the edit capability template within the application layer.
+ */
 interface EditInstanceCapabilityAppLayerTemplate extends TemplateModel {
+    /** @inheritdoc */
     placeholders: {
-        exported_object_name: string,
-        instance_editor_type: string,
-        instance_editor_type_path: ImportRelativePath,
-        editor_interface_type: string,
-        editor_interface_type_path: ImportRelativePath,
-        generated_capability_class: string,
-        read_return_type: string,
-        read_return_type_path: ImportRelativePath,
+        exported_object_name: string;
+        instance_editor_type: string;
+        instance_editor_type_path: ImportRelativePath;
+        editor_interface_type: string;
+        editor_interface_type_path: ImportRelativePath;
+        generated_capability_class: string;
+        read_return_type: string;
+        read_return_type_path: ImportRelativePath;
     };
 }
 
+/**
+ * `EditInstanceAppLayerTemplateProcessor` class is responsible for generating the application layer using
+ * template approach for update / edit capability. This class provides specific logic for the generation of
+ * template and dependencies needed for the application layer of the edit capability of the generated application.
+ *
+ * @template EditInstanceCapabilityAppLayerTemplate - The type of the update capability application layer template model.
+ */
 export class EditInstanceAppLayerTemplateProcessor extends ApplicationLayerTemplateGenerator<EditInstanceCapabilityAppLayerTemplate> {
 
     private static readonly _editAppLayerTemplatePath: string = "./edit/application-layer/edit-instance-app-logic"
@@ -28,6 +39,14 @@ export class EditInstanceAppLayerTemplateProcessor extends ApplicationLayerTempl
         })
     }
 
+    /**
+     * This method is responsible for the population of the application layer template for instance edit capability.
+     * When all dependencies needed by template (@see {EditInstanceCapabilityAppLayerTemplate} for more details) are populated,
+     * the template renderer is invoked to generate the resulting code.
+     *
+     * @param dependencies
+     * @returns The promise which results to a `LayerArtifact` instance - the application layer code of the instance edit capability.
+     */
     async processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): Promise<LayerArtifact> {
 
         const generatedCapabilityInterface = await GeneratedCapabilityInterfaceGenerator.processTemplate();

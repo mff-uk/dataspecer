@@ -1,22 +1,32 @@
 import { LayerArtifact } from "../../engine/layer-artifact";
-import { TemplateMetadata } from "../../engine/templates/template-consumer";
 import { DetailReaderInterfaceGenerator } from "../../data-layer/template-generators/reader-interface-generator";
 import { ApplicationLayerTemplateDependencyMap, ApplicationLayerTemplateGenerator } from "./template-app-layer-generator";
 import { GeneratedCapabilityInterfaceGenerator, InstanceResultReturnInterfaceGenerator } from "../../capabilities/template-generators/capability-interface-generator";
 import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
 
+/**
+ * Interface which represents the template model for rendering the detail capability template within the application layer.
+ */
 interface DetailCapabilityAppLayerTemplate extends TemplateModel {
+    /** @inheritdoc */
     placeholders: {
-        detail_app_layer_exported_name: string,
-        instance_reader_interface: string,
-        generated_capability_class: string,
-        read_return_type: string,
-        read_return_type_path: ImportRelativePath,
-        reader_implementation_path: ImportRelativePath,
-        instance_reader_interface_path: ImportRelativePath,
+        detail_app_layer_exported_name: string;
+        instance_reader_interface: string;
+        generated_capability_class: string;
+        read_return_type: string;
+        read_return_type_path: ImportRelativePath;
+        reader_implementation_path: ImportRelativePath;
+        instance_reader_interface_path: ImportRelativePath;
     };
 }
 
+/**
+ * `DetailAppLayerTemplateProcessor` class is responsible for generating the application layer using
+ * template approach for detail capability. This class provides specific logic for the generation of
+ * template and dependencies needed for the application layer of the detail capability of the generated application.
+ *
+ * @template DetailCapabilityAppLayerTemplate - The type of the detail capability application layer template model.
+ */
 export class DetailAppLayerTemplateProcessor extends ApplicationLayerTemplateGenerator<DetailCapabilityAppLayerTemplate> {
 
     strategyIdentifier: string = "detail-app-template-generator";
@@ -30,6 +40,14 @@ export class DetailAppLayerTemplateProcessor extends ApplicationLayerTemplateGen
         });
     }
 
+    /**
+     * This method is responsible for the population of the application layer template for detail capability.
+     * When all dependencies needed by template (@see {DetailCapabilityAppLayerTemplate} for more details) are populated,
+     * the template renderer is invoked to generate the resulting code.
+     *
+     * @param dependencies
+     * @returns The promise which results to a `LayerArtifact` instance - the application layer code of the detail capability.
+     */
     async processTemplate(dependencies: ApplicationLayerTemplateDependencyMap): Promise<LayerArtifact> {
 
         const detailAppLayerExportedName: string = dependencies.aggregate.getAggregateNamePascalCase({
