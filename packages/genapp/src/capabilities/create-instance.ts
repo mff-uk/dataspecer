@@ -20,20 +20,33 @@ export class CreateInstanceCapabilityMetadata extends AggregateCapabilityMetadat
     getIdentifier = (): string => CREATE_CAPABILITY_ID;
 }
 
+/**
+ * This class acts as a definition for the "instance creation" capability, i.e. the capability to create new instance of a corresponding class.
+ * The purpose of this class is to provide the `BaseCapabilityGenerator` with the layers required for the creation capability to be generated.
+ *
+ * @remarks
+ * This class initializes the capability stages generator pipeline with
+ * data layer, application layer and presentation layer.
+ */
 export class CreateInstanceCapability extends BaseCapabilityGenerator {
 
     constructor(constructorInput: CapabilityConstructorInput) {
         super(constructorInput.structureModelMetadata, new CreateInstanceCapabilityMetadata(constructorInput.capabilityLabel));
 
+        // instantiates the data layer generator based from the configuration-provided datasource
         const dalLayerGeneratorStrategy = CreateInstanceTemplateGeneratorFactory.getDalGeneratorStrategy(
             constructorInput.structureModelMetadata.technicalLabel,
             constructorInput.structureModelMetadata.specificationIri,
             constructorInput.datasource
         );
+
+        // instantiates the instance creation application layer generator based on the capability identifier
         const appLayerGeneratorStrategy = TemplateApplicationLayerGeneratorFactory.getApplicationLayerGenerator(
             constructorInput.structureModelMetadata.technicalLabel,
             this.getIdentifier()
         );
+
+        // instantiates the instance creation presentation layer generator based on the capability identifier
         const presentationLayerGeneratorStrategy = PresentationLayerTemplateGeneratorFactory.getPresentationLayerGenerator(
             constructorInput.structureModelMetadata,
             this.getIdentifier()
