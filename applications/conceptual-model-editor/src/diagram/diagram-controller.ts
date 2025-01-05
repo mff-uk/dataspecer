@@ -116,7 +116,7 @@ const createGroupNode = (groupId: string, content: Node<any>[], hidden: boolean)
     position: groupNodePosition,
     // className: 'light',
     draggable: true,
-    selectable: true,
+    selectable: false,
     hidden,
     type: "group",
     style: {
