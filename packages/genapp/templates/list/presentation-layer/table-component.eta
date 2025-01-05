@@ -43,7 +43,7 @@ type ListTableProps = {
     aggregateName: string
 }
 
-const <%= it.presentation_layer_component_name %>: React.FC<ListTableProps> = ({ aggregateName }: ListTableProps): ReactNode => {
+const <%= it.presentation_layer_component_name %>: React.FC<ListTableProps> = ({ aggregateName }: ListTableProps) => {
 
     const pageState = useState(0);
     const pageRowsState = useState(10);

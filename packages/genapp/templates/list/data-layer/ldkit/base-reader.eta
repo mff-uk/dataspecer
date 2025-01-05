@@ -94,7 +94,7 @@ export abstract class <%= it.exported_object_name %> implements <%= it.list_read
         }
 
         const lens = createLens(schema);
-        let instances = (request === null || request == undefined)
+        let instances = (request === null || request === undefined)
             ? await lens.find()
             : await lens.find({
                 take: request.rowsPerPage,

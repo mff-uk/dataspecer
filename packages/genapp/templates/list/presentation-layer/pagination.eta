@@ -23,20 +23,12 @@ export default function <%= it.pagination_component_name %>({ totalCount, pageSt
     refetch();
   };
 
-  return (
-    <>
-      {
-        totalCount && (
-          <TablePagination
-            component="div"
-            count={totalCount}
-            page={page}
-            onPageChange={handleChangePage}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        )
-      }
-    </>
-  );
+  return <TablePagination
+    component="div"
+    count={totalCount ?? 0}
+    page={page}
+    onPageChange={handleChangePage}
+    rowsPerPage={rowsPerPage}
+    onRowsPerPageChange={handleChangeRowsPerPage}
+  />;
 }

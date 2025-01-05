@@ -32,11 +32,11 @@ export class <%= it.exported_object_name %> implements <%= it.delete_mutator_int
 
     async deleteInstance(instanceIri: string): Promise<<%= it.instance_result_type %>> {
 
-        const context: Options = {
+        const options: Options = {
             sources: ["<%~ it.sparql_endpoint_uri.read %>"]
         }
 
-        const lens = createLens(<%= it.ldkit_schema %>, context);
+        const lens = createLens(<%= it.ldkit_schema %>, options);
         const toDelete = await lens.findByIri(instanceIri);
 
         if (!toDelete) {
