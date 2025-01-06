@@ -75,7 +75,7 @@ export const EntityRow = (props: {
     const actions = useActions();
     // Either we can shrink the catalog (the highlighting started from the canvas) or not, then we are shrinking only different models
     // TODO RadStr: The idea is nice, unfortunately if we shrink the models above the current (in the catalog), we will start the flickering
-    //              (because the models shift up, which result in new classes (un)entering the cursor) - 
+    //              (because the models shift up, which result in new classes (un)entering the cursor) -
     // So either do some trick, or just never shrink as it was before
     const shouldShrinkThisRow = (
                                     explorationHighlightingController.shouldShrinkCatalog ||
