@@ -363,8 +363,6 @@ function useCreateReactStates() {
   const [userSelectedNodes, setUserSelectedNodes] = useState<string[]>([]);
   const userSelectedNodesRef = useRef<string[]>([]);
 
-  const onChangeEventsDebugRef = useRef<NodeChange[][]>([]);
-
   return {
     nodes, setNodes,
     edges, setEdges,
@@ -376,7 +374,6 @@ function useCreateReactStates() {
     nodeToGroupMapping, setNodeToGroupMapping,
     nodesInGroupWhichAreNotPartOfDragging,
     userSelectedNodes, setUserSelectedNodes, userSelectedNodesRef,
-    onChangeEventsDebugRef,
   };
 }
 
@@ -392,7 +389,6 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
     nodesInGroupWhichAreNotPartOfDragging,
     selectedNodesRef,
     userSelectedNodes, setUserSelectedNodes, userSelectedNodesRef,
-    onChangeEventsDebugRef,
    } = createdReactStates;
   const alignmentController = useAlignmentController({ reactFlowInstance });
   const canvasHighlighting = useExplorationCanvasHighlightingController(setNodes, setEdges);
@@ -408,8 +404,8 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
   useOnSelectionChange({ onChange: (onChangeSelection) });
 
   const onNodesChange = useCallback(createNodesChangeHandler(
-    nodes, setNodes, alignmentController, setSelectedNodes, groups, nodeToGroupMapping, nodesInGroupWhichAreNotPartOfDragging, selectedNodesRef, isCtrlPressed, userSelectedNodes, setUserSelectedNodes, userSelectedNodesRef, onChangeEventsDebugRef, selectedNodes),
-    [nodes, setNodes, alignmentController, setSelectedNodes, groups, nodeToGroupMapping, nodesInGroupWhichAreNotPartOfDragging, selectedNodesRef, isCtrlPressed, userSelectedNodes, setUserSelectedNodes, userSelectedNodesRef, onChangeEventsDebugRef, selectedNodes]);
+    nodes, setNodes, alignmentController, setSelectedNodes, groups, nodeToGroupMapping, nodesInGroupWhichAreNotPartOfDragging, selectedNodesRef, isCtrlPressed, userSelectedNodes, setUserSelectedNodes, userSelectedNodesRef, selectedNodes),
+    [nodes, setNodes, alignmentController, setSelectedNodes, groups, nodeToGroupMapping, nodesInGroupWhichAreNotPartOfDragging, selectedNodesRef, isCtrlPressed, userSelectedNodes, setUserSelectedNodes, userSelectedNodesRef, selectedNodes]);
 
   const onEdgesChange = useCallback(createEdgesChangeHandler(
     setEdges, setSelectedEdges),
@@ -422,11 +418,6 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
       setHighlightingStylesBasedOnSelection(reactFlowInstance, selectedNodes, selectedEdges, setNodes, setEdges);
     }
   }, [reactFlowInstance, setNodes, setEdges, selectedNodes, selectedEdges, canvasHighlighting.isHighlightingOn]);
-
-  // TODO RadStr: Debug
-  useEffect(() => {
-    onChangeEventsDebugRef.current = [];
-  }, [isCtrlPressed])
 
   const onConnect = useCallback(createConnectHandler(), [setEdges]);
 
@@ -556,16 +547,16 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
     onNodeClick: independentPartOfDiagramController.onNodeClick,
 
     // TODO RadStr: Debug
-    onSelectionDrag: (event: React.MouseEvent, nodes: Node[]) => console.info("onSelectionDrag", nodes),
+    // onSelectionDrag: (event: React.MouseEvent, nodes: Node[]) => console.info("onSelectionDrag", nodes),
+    onSelectionDrag: (event: React.MouseEvent, nodes: Node[]) => {},
   };
 }
 
 const createOnNodeDragHandler = () => {
   return (event: React.MouseEvent, node: Node, nodes: Node[]) => {
     // TODO RadStr: Debug
-    console.info("OnNodeDrag node", node);
-    console.info("OnNodeDrag nodes", nodes);
-
+    // console.info("OnNodeDrag node", node);
+    // console.info("OnNodeDrag nodes", nodes);
   };
 };
 
@@ -603,7 +594,8 @@ const createOnNodeMouseLeaveHandler = (resetHighlight: () => void) => {
 
 const createOnNodeClickHandler = () => {
   return (mouseEvent: React.MouseEvent, node: Node) => {
-    console.info("Clicked node", node);
+    // TODO RadStr: Debug
+    // console.info("Clicked node", node);
   };
 };
 
@@ -684,7 +676,6 @@ const createNodesChangeHandler = (
   userSelectedNodes: string[],
   setUserSelectedNodes: ReactPrevSetStateType<string[]>,
   userSelectedNodesRef: React.MutableRefObject<string[]>,
-  onChangeEventsDebugRef: React.MutableRefObject<NodeChange[][]>,
   selectedNodes: string[],
 ) => {
   return (changes: NodeChange<NodeType>[]) => {
@@ -715,10 +706,6 @@ const createNodesChangeHandler = (
     //   return;
     // }
 
-    // TODO RadStr: Debug
-    console.info("changes", {...changes});
-    onChangeEventsDebugRef.current.push([...changes]);
-    console.info("onChangeEventsDebugRef", onChangeEventsDebugRef, [...changes], [...selectedNodes], [...selectedNodesRef.current], [...userSelectedNodes], [...userSelectedNodesRef.current], [...nodes], [...nodesInGroupWhichAreNotPartOfDragging.current]);
     // Solves the situation when we are starting to drag the "pink" group node
     const groupCount = Object.entries(groups).length;
     if(groupCount > 0 && nodes.length === changes.length) {
@@ -827,7 +814,6 @@ const createNodesChangeHandler = (
       changes,
       groups,
       nodeToGroupMapping,
-      onChangeEventsDebugRef,
       selectedNodesRef,
       nodes
     );
@@ -985,7 +971,6 @@ const createNodesChangeHandler = (
         userSelectedNodes,
         extractedDataFromChanges.groupsNewlyContainedInSelectionChange,
         userSelectedNodesRef,
-        onChangeEventsDebugRef,
         groups,
       );
       return updatedNodes;
@@ -1067,7 +1052,6 @@ const removeNotCompleteGroupUnselections = (
         }
       }
 
-      console.info(`${groups[groupIdentifier].length}--**${userSelectedNodesInGroupCountBefore}--**--${unselectedNodesCount}`);
       if(userSelectedNodesInGroupCountBefore > unselectedNodesCount) {
         newlyUnselectedNodesBasedOnGroups = newlyUnselectedNodesBasedOnGroups.filter(unselected => !groups[groupIdentifier].includes(unselected));
         nodesWhichWereActuallyNotUnselected.push(...Object.values(groupToUnselectedMap[groupIdentifier]));
@@ -1108,7 +1092,6 @@ const getDataFromChanges = (
   changes: NodeChange<NodeType>[],
   groups: Record<string, string[]>,
   nodeToGroupMapping: Record<string, string>,
-  onChangeEventsDebugRef: React.MutableRefObject<NodeChange[][]>,
   selectedNodesRef: React.MutableRefObject<string[]>,
   nodes: NodeType[],
 ) => {
@@ -1401,13 +1384,11 @@ const updateNodesBasedOnNodeChanges = (
   userSelectedNodes: string[],
   groupsNewlyContainedInSelectionChange: Record<string, true>,
   userSelectedNodesRef: React.MutableRefObject<string[]>,
-  onChangeEventsDebugRef: React.MutableRefObject<NodeChange[][]>,
   groups: Record<string, string[]>,
 ) => {
   addNewChangesBasedOnGroups(newlyUnselectedNodesBasedOnGroups, unselectChanges, false, changes);
   // TODO RadStr: Just debug prints
   // console.info("Changes after after:", changes);
-  onChangeEventsDebugRef.current.push([...changes]);
   // TODO RadStr: Just debug prints
   // console.info("onChangeEventsDebugRef", {...onChangeEventsDebugRef});
   // console.info("onChangeEventsDebugRef.current len: ", onChangeEventsDebugRef.current.length);
