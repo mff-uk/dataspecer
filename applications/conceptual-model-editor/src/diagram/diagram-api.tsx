@@ -72,13 +72,13 @@ export interface DiagramActions {
    * @param identifier is the id of the node.
    * @returns The width of given node in the diagram component. Null if the width couldn't be measured. For example when the node isn't in diagram, etc.
    */
-    getNodeWidth(identifier: string): number | null;
+  getNodeWidth(identifier: string): number | null;
 
-    /**
-     * @param identifier is the id of the node.
-     * @returns The height of given node in the diagram component. Null if the height couldn't be measured. For example when the node isn't in diagram, etc.
-     */
-    getNodeHeight(identifier: string): number | null;
+  /**
+   * @param identifier is the id of the node.
+   * @returns The height of given node in the diagram component. Null if the height couldn't be measured. For example when the node isn't in diagram, etc.
+   */
+  getNodeHeight(identifier: string): number | null;
 
   // Edges
 
