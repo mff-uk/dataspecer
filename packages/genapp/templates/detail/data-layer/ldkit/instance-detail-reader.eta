@@ -44,7 +44,7 @@ export default class <%= it.exported_name_object %> implements <%= it.ldkit_inst
             return null;
         }
 
-        await this.populateNestedDetails(instanceDetail, schema);
+        //await this.populateNestedDetails(instanceDetail, schema);
 
         instanceDetail = this.removeLdkitProperties(instanceDetail);
 

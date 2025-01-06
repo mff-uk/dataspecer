@@ -9,7 +9,7 @@ type SchemaInterface = {
 type ValidLdkitPropertyValueType = {
     "@id": string;
     "@type"?: keyof SupportedDataTypes;
-    "@context"?: SchemaPrototype;
+    "@schema"?: SchemaPrototype;
     "@optional"?: true;
     "@array"?: true;
     "@multilang"?: true;
@@ -27,41 +27,41 @@ function isValidPropertyValue(obj: any): obj is ValidLdkitPropertyValueType {
 /**
 * Taken from ldkit library
 */
-declare const SupportedDataTypesPrototype: {
-    "xsd:dateTime": Date;
-    "xsd:date": Date;
-    "xsd:gDay": Date;
-    "xsd:gMonthDay": Date;
-    "xsd:gYear": Date;
-    "xsd:gYearMonth": Date;
-    "xsd:boolean": boolean;
-    "xsd:double": number;
-    "xsd:decimal": number;
-    "xsd:float": number;
-    "xsd:integer": number;
-    "xsd:long": number;
-    "xsd:int": number;
-    "xsd:byte": number;
-    "xsd:short": number;
-    "xsd:negativeInteger": number;
-    "xsd:nonNegativeInteger": number;
-    "xsd:nonPositiveInteger": number;
-    "xsd:positiveInteger": number;
-    "xsd:unsignedByte": number;
-    "xsd:unsignedInt": number;
-    "xsd:unsignedLong": number;
-    "xsd:unsignedShort": number;
-    "xsd:string": string;
-    "xsd:normalizedString": string;
-    "xsd:anyURI": string;
-    "xsd:base64Binary": string;
-    "xsd:language": string;
-    "xsd:Name": string;
-    "xsd:NCName": string;
-    "xsd:NMTOKEN": string;
-    "xsd:token": string;
-    "xsd:hexBinary": string;
-    "rdf:langString": string;
+const SupportedDataTypesPrototype: { [key: string]: StringConstructor | NumberConstructor | BooleanConstructor | DateConstructor } = {
+    "xsd.dateTime": Date,
+    "xsd.date": Date,
+    "xsd.gDay": Date,
+    "xsd.gMonthDay": Date,
+    "xsd.gYear": Date,
+    "xsd.gYearMonth": Date,
+    "xsd.boolean": Boolean,
+    "xsd.double": Number,
+    "xsd.decimal": Number,
+    "xsd.float": Number,
+    "xsd.integer": Number,
+    "xsd.long": Number,
+    "xsd.int": Number,
+    "xsd.byte": Number,
+    "xsd.short": Number,
+    "xsd.negativeInteger": Number,
+    "xsd.nonNegativeInteger": Number,
+    "xsd.nonPositiveInteger": Number,
+    "xsd.positiveInteger": Number,
+    "xsd.unsignedByte": Number,
+    "xsd.unsignedInt": Number,
+    "xsd.unsignedLong": Number,
+    "xsd.unsignedShort": Number,
+    "xsd.string": String,
+    "xsd.normalizedString": String,
+    "xsd.anyURI": String,
+    "xsd.base64Binary": String,
+    "xsd.language": String,
+    "xsd.Name": String,
+    "xsd.NCName": String,
+    "xsd.NMTOKEN": String,
+    "xsd.token": String,
+    "xsd.hexBinary": String,
+    "rdf.langString": String,
 };
 
 export type SupportedDataTypes = typeof SupportedDataTypesPrototype;
@@ -127,8 +127,8 @@ export class ObjectModelTypeGeneratorHelper {
     }
 
     private convertValueAsType(value: ValidLdkitPropertyValueType): string | number | boolean | SchemaInterface | Date {
-        if (isSchemaPrototype(value["@context"])) {
-            return this.getInterfaceFromLdkitSchemaInstance(value["@context"]);
+        if (isSchemaPrototype(value["@schema"])) {
+            return this.getInterfaceFromLdkitSchemaInstance(value["@schema"]);
         }
 
         if (!value["@type"]) {
@@ -136,7 +136,7 @@ export class ObjectModelTypeGeneratorHelper {
         }
 
         return value["@type"] in SupportedDataTypesPrototype
-            ? SupportedDataTypesPrototype[value["@type"]]
+            ? SupportedDataTypesPrototype[value["@type"]]!.name.toLowerCase()
             : "string";
     }
 }

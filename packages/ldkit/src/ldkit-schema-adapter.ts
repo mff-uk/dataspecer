@@ -38,7 +38,7 @@ export class LdkitSchemaAdapter implements StructureClassToSchemaAdapter {
         if (attribute.dataType === OFN.rdfLangString) {
             ldkitProperty["@multilang"] = true;
         }
-        //ldkitProperty["@type"] = this.convertAttributeDataTypeToLdkitSupportedDataType(attribute.dataType);
+        ldkitProperty["@type"] = this.convertAttributeDataTypeToLdkitSupportedDataType(attribute.dataType);
         return ldkitProperty;
     }
 
@@ -49,7 +49,7 @@ export class LdkitSchemaAdapter implements StructureClassToSchemaAdapter {
 
         const nestedClass: StructureModelClass = association.dataType;
         //ldkitProperty["@type"] = xsd.string; //this.convertDataTypeToLdkitSupportedDataType(association); //nestedClass.cimIri;
-        ldkitProperty["@context"] = this.convertStructureModelClassToLdkitSchema(nestedClass);
+        ldkitProperty["@schema"] = this.convertStructureModelClassToLdkitSchema(nestedClass);
 
         return ldkitProperty;
     }
