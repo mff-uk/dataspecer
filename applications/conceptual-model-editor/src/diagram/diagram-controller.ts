@@ -49,10 +49,11 @@ import { ClassProfileEdgeName } from "./edge/class-profile-edge";
 import { diagramContentAsSvg } from "./render-svg";
 import { CanvasToolbarGeneralProps, CanvasToolbarContentType } from "./canvas/canvas-toolbar-props";
 import { CanvasToolbarCreatedByEdgeDrag } from "./canvas/canvas-toolbar-drag-edge";
-import { NodeSelectionActionsSecondaryToolbar } from "./node/node-secondary-toolbar";
+import { SelectionActionsMenu } from "./node/selection-actions-menu";
 import { setHighlightingStylesBasedOnSelection } from "./features/highlighting/set-selection-highlighting-styles";
 import { useExplorationCanvasHighlightingController } from "./features/highlighting/exploration/canvas/canvas-exploration-highlighting-controller";
 import { ReactPrevSetStateType } from "./utilities";
+import { GroupMenu } from "./node/group-menu";
 
 
 // TODO RadStr: DEBUG TESTING
@@ -218,6 +219,7 @@ type ReactFlowContext = ReactFlowInstance<NodeType, EdgeType>;
 
 type OpenEdgeContextMenuHandler = (edge: EdgeType, x: number, y: number) => void;
 
+// TODO RadStr: Before PR - try to use object or something, so we can use the identifier of the group instead of the node (I mean the version with node would still work)
 type OpenCanvasContextMenuHandler = (sourceClassNode: ApiNode, canvasPosition: Position, toolbarContent: CanvasToolbarContentType) => void;
 
 /**
@@ -447,8 +449,6 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
   const onNodeMouseEnter = useCallback(createOnNodeMouseEnterHandler(canvasHighlighting.changeHighlight, reactFlowInstance), [canvasHighlighting.changeHighlight, reactFlowInstance]);
   const onNodeMouseLeave = useCallback(createOnNodeMouseLeaveHandler(canvasHighlighting.resetHighlight), [canvasHighlighting.resetHighlight]);
 
-  const onNodeClick = useCallback(createOnNodeClickHandler(), []);
-
 
   return {
     alignmentController,
@@ -467,7 +467,6 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
     onNodeDragStop,
     onNodeMouseEnter,
     onNodeMouseLeave,
-    onNodeClick,
   };
 }
 
@@ -483,14 +482,14 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
     selectedNodes, selectedEdges,
     setSelectedNodes, setSelectedEdges,
     groups, setGroups,
-    nodeToGroupMapping, setNodeToGroupMapping,
+    setNodeToGroupMapping,
     userSelectedNodes,
   } = createdReactStates;
   const { onOpenEdgeToolbar, onOpenCanvasToolbar, alignmentController } = createdPartOfDiagramController;
 
   const context = useMemo(() => createDiagramContext(
-    api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar?.toolbarContent ?? null, setCanvasToolbar, selectedNodes, selectedEdges, groups, nodeToGroupMapping, userSelectedNodes),
-    [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges, groups, nodeToGroupMapping, userSelectedNodes]
+    api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar?.toolbarContent ?? null, setCanvasToolbar, selectedNodes, selectedEdges, userSelectedNodes),
+    [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges, userSelectedNodes]
   );
 
   const canvasHighlighting = useExplorationCanvasHighlightingController(setNodes, setEdges);
@@ -506,10 +505,13 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
     context.closeCanvasToolbar, setSelectedNodes, setSelectedEdges),
     [context.closeCanvasToolbar, setSelectedNodes, setSelectedEdges]);
 
+  const onNodeClick = useCallback(createOnNodeClickHandler(reactFlowInstance, actions.openGroupMenu), [reactFlowInstance, actions.openGroupMenu, groups]);
+
   return {
     context,
     actions,
     onPaneClick,
+    onNodeClick
   };
 }
 
@@ -544,7 +546,7 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
     alignmentController: independentPartOfDiagramController.alignmentController,
     onNodeMouseEnter: independentPartOfDiagramController.onNodeMouseEnter,
     onNodeMouseLeave: independentPartOfDiagramController.onNodeMouseLeave,
-    onNodeClick: independentPartOfDiagramController.onNodeClick,
+    onNodeClick: dependentPartOfDiagramController.onNodeClick,
 
     // TODO RadStr: Debug
     // onSelectionDrag: (event: React.MouseEvent, nodes: Node[]) => console.info("onSelectionDrag", nodes),
@@ -592,10 +594,22 @@ const createOnNodeMouseLeaveHandler = (resetHighlight: () => void) => {
   };
 };
 
-const createOnNodeClickHandler = () => {
+const createOnNodeClickHandler = (
+  reactflowInstance: ReactFlowInstance<NodeType, EdgeType>,
+  // TODO RadStr: Before PR - use groupIdentifier instead
+  openGroupMenu: (node: ApiNode, canvasPosition: Position) => void,
+) => {
   return (mouseEvent: React.MouseEvent, node: Node) => {
     // TODO RadStr: Debug
-    // console.info("Clicked node", node);
+    console.info("Clicked node", node);
+
+    if(node.type === "group") {
+      const position = reactflowInstance.screenToFlowPosition({
+        x: mouseEvent.clientX,
+        y: mouseEvent.clientY,
+      });
+      openGroupMenu(node.data as ApiNode, position);
+    }
   };
 };
 
@@ -687,7 +701,6 @@ const createNodesChangeHandler = (
     //     positionChange.position.y = node?.position.y;
     //   }
     // });
-
 
     if(handleStartOfGroupDraggingThroughGroupNode(nodes, changes, userSelectedNodesRef, setNodes,
         setUserSelectedNodes, setSelectedNodes, groups, nodesInGroupWhichAreNotPartOfDragging)) {
@@ -1950,17 +1963,21 @@ const createActions = (
     renderToSvgString() {
       return diagramContentAsSvg(reactFlow.getNodes());
     },
-    openDragEdgeToCanvasToolbar(sourceNode, canvasPosition) {
-      console.log("openCanvasToolbar", {sourceNode, canvasPosition});
+    openDragEdgeToCanvasMenu(sourceNode, canvasPosition) {
+      console.log("openDragEdgeToCanvasToolbar", {sourceNode, canvasPosition});
       context?.onOpenCanvasContextMenu(sourceNode, canvasPosition, CanvasToolbarCreatedByEdgeDrag);
     },
-    openSelectionActionsToolbar(sourceNode, canvasPosition) {
-      console.log("openCanvasToolbar", {sourceNode, canvasPosition});
-      context?.onOpenCanvasContextMenu(sourceNode, canvasPosition, NodeSelectionActionsSecondaryToolbar);
+    openSelectionActionsMenu(sourceNode, canvasPosition) {
+      console.log("openSelectionActionsMenu", {sourceNode, canvasPosition});
+      context?.onOpenCanvasContextMenu(sourceNode, canvasPosition, SelectionActionsMenu);
+    },
+    openGroupMenu(sourceNode, canvasPosition) {
+      console.log("openGroupMenu", {sourceNode, canvasPosition});
+      context?.onOpenCanvasContextMenu(sourceNode, canvasPosition, GroupMenu);
     },
     highlightNodeInExplorationModeFromCatalog(nodeIdentifier, modelOfClassWhichStartedHighlighting) {
       changeHighlight(nodeIdentifier, reactFlow, false, modelOfClassWhichStartedHighlighting);
-    }
+    },
   };
 };
 
@@ -2054,34 +2071,10 @@ const focusNodesAction = (reactFlow: ReactFlowContext, nodes: Node[]) => {
 };
 
 const computeShownNodeToolbarType = (
-  selectedNodes: string[],
+  userSelectedNodes: string[],
   selectedEdges: string[],
-  groups: Record<string, string[]>,
-  nodeToGroupMapping: Record<string, string>,
 ) => {
-  let areAllSelectedNodesPartOfSomeGroup = true;
-  let theGroup: string | null = null;
-  // TODO RadStr: Debug - remove later
-  // console.info("getShownNodeToolbarType");
-  // console.info(selectedNodes);
-  for(const selectedNode of selectedNodes) {
-    const groupOfTheSelectedNode = nodeToGroupMapping[selectedNode];
-    if(theGroup === null) {
-      theGroup = groupOfTheSelectedNode;
-    }
-    if (groupOfTheSelectedNode === undefined || groupOfTheSelectedNode !== theGroup) {
-      areAllSelectedNodesPartOfSomeGroup = false;
-      break;
-    }
-  }
-  if(theGroup === null || groups[theGroup]?.length !== selectedNodes.length) {
-    areAllSelectedNodesPartOfSomeGroup = false;
-  }
-
-  if(areAllSelectedNodesPartOfSomeGroup) {
-    return NodeToolbarType.GROUP_TOOLBAR;
-  }
-  if(selectedNodes.length > 1 || (selectedNodes.length === 1 && selectedEdges.length > 0)) {
+  if(userSelectedNodes.length > 1 || (userSelectedNodes.length === 1 && selectedEdges.length > 0)) {
     return NodeToolbarType.SELECTION_TOOLBAR;
   }
   else {
@@ -2097,14 +2090,11 @@ const createDiagramContext = (
   setCanvasToolbar: (_: null) => void,
   selectedNodes: string[],
   selectedEdges: string[],
-  groups: Record<string, string[]>,
-  nodeToGroupMapping: Record<string, string>,
   userSelectedNodes: string[],
 ): DiagramContextType => {
 
-  console.info("TEST CONTEXT");
   // TODO RadStr: Maybe return just the value in context
-  const shownNodeToolbarType = computeShownNodeToolbarType(selectedNodes, selectedEdges, groups, nodeToGroupMapping);
+  const shownNodeToolbarType = computeShownNodeToolbarType(userSelectedNodes, selectedEdges);
   const closeCanvasToolbar = () => setCanvasToolbar(null);
   const getAreOnlyEdgesSelected = () => {
     return selectedNodes.length === 0 && selectedEdges.length !== 0;

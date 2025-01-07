@@ -177,10 +177,9 @@ function SelectionToolbar(props: SelectionToolbarProps) {
     return null;
   }
 
-
   const onShowSelectionActions = (event: React.MouseEvent) => {
     const absoluteFlowPosition = reactFlow.screenToFlowPosition({x: event.clientX, y: event.clientY});
-    context?.callbacks().onShowSelectionActions(props.data, absoluteFlowPosition);
+    context?.callbacks().onShowSelectionActionsMenu(props.data, absoluteFlowPosition);
   }
   const onLayoutSelection = () => context?.callbacks().onLayoutSelection();
   const onCreateGroup = () => context?.callbacks().onCreateGroup();

@@ -181,16 +181,24 @@ export interface DiagramActions {
 
   /**
    * Opens toolbar on given {@link canvasPosition}, which represents the menu that appears when user drags edge to canvas.
-   * @param sourceDiagramNode is the node from which the connection dragging started
+   * @param sourceNode is the node from which the connection dragging started
    * @param position is the canvas position where user dragged the connection and on which will the menu appear
    */
-  openDragEdgeToCanvasToolbar(sourceNode: Node, canvasPosition: Position): void;
+  openDragEdgeToCanvasMenu(sourceNode: Node, canvasPosition: Position): void;
   /**
    * Opens toolbar on given {@link canvasPosition}, which represents the menu that appears when user clicks the actions button on selection.
-   * @param sourceDiagramNode is the node on which the user clicked the button.
+   * @param sourceNode is the node on which the user clicked the button.
    * @param position is the canvas position where the toolbar will appear.
    */
-  openSelectionActionsToolbar(sourceNode: Node, canvasPosition: Position): void;
+  openSelectionActionsMenu(sourceNode: Node, canvasPosition: Position): void;
+
+  // TODO RadStr: Before PR - use groupIdentifier instead
+  /**
+   * Opens toolbar on given {@link canvasPosition}, which represents group with given {@link groupIdentifier}.
+   * @param groupIdentifier is the identifier of the group.
+   * @param position is the position where the toolbar will appear.
+   */
+  openGroupMenu(sourceNode: Node, canvasPosition: Position): void;
 
   /**
    * Sets correct highlighting values in context. We have to call it through the diagram API, because we have access to the rendering library (reactflow) only in diagram component.
@@ -472,7 +480,12 @@ interface DiagramSelection {
    * @param source is the last selected node
    * @param canvasPosition is the position on canvas, where should be the list of actions shown.
    */
-  onShowSelectionActions: (source: Node, canvasPosition: Position) => void;
+  onShowSelectionActionsMenu: (source: Node, canvasPosition: Position) => void;
+
+  /**
+   * Similiar to {@link onShowSelectionActionsMenu}, but for group.
+   */
+  onShowGroupActionsMenu: (groupIdentifier: string, canvasPosition: Position) => void;
 
   /**
    * This method is called when user wants to layout selection.

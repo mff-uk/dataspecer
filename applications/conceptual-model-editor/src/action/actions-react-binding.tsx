@@ -10,7 +10,7 @@ import { type ClassesContextType, ClassesContext, useClassesContext, UseClassesC
 import { useNotificationServiceWriter } from "../notification";
 import { type UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { ModelGraphContext, type ModelGraphContextType } from "../context/model-context";
-import { Edge, Position, useDiagram, type DiagramCallbacks, type Waypoint as DiagramWaypoint } from "../diagram/";
+import { Edge, Node, Position, useDiagram, type DiagramCallbacks, type Waypoint as DiagramWaypoint } from "../diagram/";
 import type { UseDiagramType } from "../diagram/diagram-hook";
 import { useOptions, type Options } from "../application/options";
 import { centerViewportToVisualEntityAction } from "./center-viewport-to-visual-entity";
@@ -676,7 +676,6 @@ function createActionsContext(
   // Prepare and set diagram callbacks.
 
   const callbacks: DiagramCallbacks = {
-
     onShowNodeDetail: (node) => openDetailDialog(node.externalIdentifier),
 
     onEditNode: (node) => openModifyDialog(node.externalIdentifier),
@@ -711,7 +710,7 @@ function createActionsContext(
 
     onCreateConnectionToNothing: (source, canvasPosition) => {
       console.log("Application.onCreateConnectionToNothing", { source, canvasPosition });
-      diagram.actions().openDragEdgeToCanvasToolbar(source, canvasPosition);
+      diagram.actions().openDragEdgeToCanvasMenu(source, canvasPosition);
     },
 
     onSelectionDidChange: (nodes, edges) => {
@@ -723,16 +722,21 @@ function createActionsContext(
         toggleAnchorAction(notifications, visualModel, diagramNode.externalIdentifier);
       });
     },
-    onShowSelectionActions: (source, canvasPosition) => {
+    onShowSelectionActionsMenu: (source, canvasPosition) => {
       console.log("Application.onShowSelectionActions", { source, canvasPosition });
-      diagram.actions().openSelectionActionsToolbar(source, canvasPosition);
+      diagram.actions().openSelectionActionsMenu(source, canvasPosition);
+    },
+    onShowGroupActionsMenu: (groupIdentifier, canvasPosition) => {
+      console.log("Application.onShowGroupActionsMenu", { groupIdentifier, canvasPosition });
+      // TODO RadStr: Before PR - Fix this call
+      // diagram.actions().openGroupActionsMenu(groupIdentifier, canvasPosition);
     },
     onLayoutSelection: () => {
       // TODO RadStr: Currently does nothing (In future - Opens layouting menu - 3 buttons - alignments + layouting)
     },
     onCreateGroup: () => {
       withVisualModel(notifications, graph, (visualModel) => {
-        const {nodeSelection} = getSelections(diagram, false, true);
+        const { nodeSelection } = getSelections(diagram, false, true);
         addGroupToVisualModelAction(visualModel, nodeSelection);
       });
     },
@@ -748,7 +752,7 @@ function createActionsContext(
     },
     onShowFilterSelection: () => {
       const selectionToFilter = getSelections(diagram, false, true);
-      openFilterSelectionDialog({nodeSelection: selectionToFilter.nodeSelection, edgeSelection: selectionToFilter.edgeSelection, areVisualModelIdentifiers: true});
+      openFilterSelectionDialog({ nodeSelection: selectionToFilter.nodeSelection, edgeSelection: selectionToFilter.edgeSelection, areVisualModelIdentifiers: true });
     },
     onCanvasOpenCreateClassDialog: (sourceClassNode, positionToPlaceClassOn) => {
       withVisualModel(notifications, graph, (visualModel) => {
@@ -756,23 +760,23 @@ function createActionsContext(
       });
     },
     onCreateNewViewFromSelection: () => {
-      const {nodeSelection, edgeSelection} = getSelections(diagram, true, false);
+      const { nodeSelection, edgeSelection } = getSelections(diagram, true, false);
       createNewVisualModelFromSelection(nodeSelection.concat(edgeSelection));
     },
     onProfileSelection: () => {
-      const {nodeSelection, edgeSelection} = getSelections(diagram, true, false);
+      const { nodeSelection, edgeSelection } = getSelections(diagram, true, false);
       withVisualModel(notifications, graph, (visualModel) => {
         createDefaultProfilesAction(notifications, graph, diagram, options, classes, visualModel, nodeSelection, edgeSelection, true);
       });
     },
     onHideSelection: () => {
-      const {nodeSelection, edgeSelection} = getSelections(diagram, true, false);
-      console.info("Hiding selection from view: ", {nodeSelection, edgeSelection});
+      const { nodeSelection, edgeSelection } = getSelections(diagram, true, false);
+      console.info("Hiding selection from view: ", { nodeSelection, edgeSelection });
       removeFromVisualModel(nodeSelection.concat(edgeSelection));
     },
     onDeleteSelection: () => {
-      const {nodeSelection, edgeSelection} = getSelections(diagram, true, false);
-      console.info("Removing selection from semantic model: ", {nodeSelection, edgeSelection});
+      const { nodeSelection, edgeSelection } = getSelections(diagram, true, false);
+      console.info("Removing selection from semantic model: ", { nodeSelection, edgeSelection });
       const selectionIdentifiers = nodeSelection.concat(edgeSelection);
       deleteVisualElements(selectionIdentifiers);
     },

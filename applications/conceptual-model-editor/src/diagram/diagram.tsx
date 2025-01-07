@@ -115,7 +115,7 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
           : null
         }
         {(controller.canvasToolbar !== null)
-          ? <CanvasToolbarGeneral value={controller.canvasToolbar} canvasContent={controller.canvasToolbar.toolbarContent} />
+          ? <CanvasToolbarGeneral toolbarProps={controller.canvasToolbar} toolbarContent={controller.canvasToolbar.toolbarContent} />
           : null
         }
         <AlignmentComponent {...controller.alignmentController}></AlignmentComponent>

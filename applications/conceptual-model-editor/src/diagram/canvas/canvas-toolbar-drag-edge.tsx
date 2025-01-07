@@ -9,15 +9,15 @@ import { ReactFlowInstance, useReactFlow } from "@xyflow/react";
 /**
  * This toolbar represents menu which appears when user drags edge to canvas.
  */
-export function CanvasToolbarCreatedByEdgeDrag({ value }: { value: CanvasToolbarContentProps }) {
+export function CanvasToolbarCreatedByEdgeDrag({ toolbarProps }: { toolbarProps: CanvasToolbarContentProps }) {
   const context = useContext(DiagramContext);
   const reactFlow: ReactFlowInstance<NodeType, EdgeType> = useReactFlow();
 
   const onCanvasMenuAddClassDialog = () => {
     context?.closeCanvasToolbar();
-    const node = reactFlow.getNode(value.sourceNodeIdentifier);
+    const node = reactFlow.getNode(toolbarProps.sourceNodeIdentifier);
     if(node !== undefined) {
-      context?.callbacks().onCanvasOpenCreateClassDialog(node.data, value.canvasPosition);
+      context?.callbacks().onCanvasOpenCreateClassDialog(node.data, toolbarProps.canvasPosition);
     }
   };
 

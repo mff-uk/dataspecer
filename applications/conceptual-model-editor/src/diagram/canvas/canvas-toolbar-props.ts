@@ -2,12 +2,9 @@ import { ReactFlowState } from "@xyflow/react";
 
 import { Position } from "../diagram-api";
 
-// We have to import all of the allowed canvas toolbar css styles here
 import "./canvas-toolbar-general.css";
-import "../node/node-secondary-toolbar.css";
-import "./canvas-toolbar-drag-edge.css";
 
-export type CanvasToolbarContentType = ({value}: {value: CanvasToolbarContentProps}) => JSX.Element | null;
+export type CanvasToolbarContentType = ({toolbarProps}: {toolbarProps: CanvasToolbarContentProps}) => JSX.Element | null;
 
 /**
  * Represents the toolbar for general canvas. General canvas is component, which gets
@@ -24,6 +21,9 @@ export interface CanvasToolbarGeneralProps extends CanvasToolbarContentProps {
  */
 export interface CanvasToolbarContentProps {
   canvasPosition: Position;
+
+
+  // TODO RadStr: Before PR - Maybe again use object or something
   /**
    * Is the identifier of the node which caused the toolbar to appear.
    * For example when dragging edge to canvas, then it is the source node of the connection.
