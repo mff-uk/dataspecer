@@ -23,6 +23,7 @@ import { ClassPartContext, ObjectContext } from "../data-psm-row";
 import { ReplaceAlongInheritanceDialog } from "../replace-along-inheritance/replace-along-inheritance-dialog";
 import { Span, sxStyles } from "../styles";
 import { DataPsmClassSubtree } from "../subtrees/class-subtree";
+import { SearchDialog } from "../../cim-search/search-dialog";
 
 /**
  * Because classes and containers are so similar, they share this component to make implementation simpler.
@@ -33,6 +34,7 @@ export const DataPsmClassItem: React.FC<{
 } & RowSlots & (ObjectContext | ClassPartContext)> = memo((props) => {
   const {t} = useTranslation("psm");
 
+
   // Decide on the type of the entity
   let type: string | null = null;
   const {resource: bareEntity} = useResource(props.iri);
@@ -42,7 +44,7 @@ export const DataPsmClassItem: React.FC<{
   const objectContext = props as ObjectContext;
   const partContext = props as ClassPartContext;
 
-  const {operationContext} = useContext(ConfigurationContext);
+  const {dataSpecificationIri, dataSpecifications, operationContext} = useContext(ConfigurationContext);
 
   const {dataPsmResource: dataPsmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, ExtendedSemanticModelClass>(type === "class" ? props.iri : (type === "container" ? partContext.parentDataPsmClassIri : null));
   const readOnly = false;
@@ -60,6 +62,13 @@ export const DataPsmClassItem: React.FC<{
   , [store, props.iri, operationContext]);
   const addContainer = useCallback((type: string) => store.executeComplexOperation(new CreateContainer(props.iri, type)), [store, props.iri]);
 
+  const searchDialogToggle = useToggle();
+  const selectedClassFromSearchDialog = useCallback(async (cls: SemanticModelClass) => {
+    const op = new CreateNonInterpretedAssociationToClass(props.iri, cls, dataSpecifications[dataSpecificationIri].localSemanticModelIds[0] as string);
+    op.setContext(operationContext);
+    store.executeComplexOperation(op).then();
+  }, [store, props, operationContext, dataSpecifications, dataSpecificationIri]);
+
   const collapseSubtree = useToggle(objectContext.contextType !== "reference");
 
   const thisStartRow = <>
@@ -67,7 +76,7 @@ export const DataPsmClassItem: React.FC<{
         <>
             <DataPsmGetLabelAndDescription dataPsmResourceIri={props.iri}>
               {(label, description) =>
-                <Span sx={sxStyles.class} title={description}>{label ?? "[unnamed class]"}</Span>
+                <Span sx={sxStyles.class} title={description}>{label ?? "[class]"}</Span>
               }
             </DataPsmGetLabelAndDescription>
 
@@ -129,6 +138,7 @@ export const DataPsmClassItem: React.FC<{
       {t("Add import")}
     </MenuItem>
     <MenuItem onClick={() => { close(); addNonInterpretedAssociationClass(); }}>{t("Add non-interpreted class")}</MenuItem>
+    <MenuItem onClick={() => { close(); searchDialogToggle.open(); }}>{t("Add interpreted class")}</MenuItem>
     <MenuItem onClick={() => { close(); addContainer("sequence"); }}>{t("Add xs:sequence container")}</MenuItem>
     <MenuItem onClick={() => { close(); addContainer("choice"); }}>{t("Add xs:choice container")}</MenuItem>
     {/* <MenuItem onClick={() => { close(); addContainer("all"); }}>{t("Add xs:all container")}</MenuItem> */}
@@ -154,5 +164,6 @@ export const DataPsmClassItem: React.FC<{
     <AddSurroundings.Component dataPsmClassIri={props.iri} forPimClassIri={pimClassIdForSurroundings} />
     <ReplaceAlongHierarchy.Component />
     <AddSpecialization.Component wrappedOrIri={objectContext.contextType === "or" ? objectContext.parentDataPsmOrIri : undefined} />
+    <SearchDialog isOpen={searchDialogToggle.isOpen} close={searchDialogToggle.close} selected={selectedClassFromSearchDialog}/>
   </>;
 });

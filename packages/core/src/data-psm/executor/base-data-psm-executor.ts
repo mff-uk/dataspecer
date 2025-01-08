@@ -1,41 +1,43 @@
-import {CoreOperation, CoreOperationExecutor} from "../../core";
+import { CoreOperation, CoreOperationExecutor } from "../../core";
 import * as Operations from "../operation";
-import {executeDataPsmCreateAssociationEnd} from "./data-psm-create-association-end-executor";
-import {executeDataPsmCreateAttribute} from "./data-psm-create-attribute-executor";
-import {executeDataPsmCreateClass} from "./data-psm-create-class-executor";
-import {executeDataPsmCreateSchema} from "./data-psm-create-schema-executor";
-import {executeDataPsmDeleteAssociationEnd} from "./data-psm-delete-association-end-executor";
-import {executeDataPsmDeleteAttribute} from "./data-psm-delete-attribute-executor";
-import {executeDataPsmDeleteClass} from "./data-psm-delete-class-executor";
-import {executeDataPsmSetHumanDescription} from "./data-psm-set-human-description-executor";
-import {executeDataPsmSetHumanLabel} from "./data-psm-set-human-label-executor";
-import {executeDataPsmSetInterpretation} from "./data-psm-set-interpretation-executor";
-import {executeDataPsmSetOrder} from "./data-psm-set-order-executor";
-import {executeDataPsmSetTechnicalLabel} from "./data-psm-set-technical-label-executor";
-import {executeDataPsmSetRoots} from "./data-psm-set-roots-executor";
-import {executeDataPsmSetDatatype} from "./data-psm-set-datatype-executor";
-import {executeDataPsmCreateClassReference} from "./data-psm-create-class-reference-executor";
-import {executeDataPsmDeleteClassReference} from "./data-psm-delete-class-reference-executor";
-import {executeDataPsmSetPart} from "./data-psm-set-part-executor";
-import {executeDataPsmSetDematerialize} from "./data-psm-set-dematerialize-executor";
-import {executeDataPsmReplaceAlongInheritance} from "./data-psm-replace-along-inheritance";
-import {executeDataPsmCreateInclude} from "./data-psm-create-include-executor";
-import {executeDataPsmDeleteInclude} from "./data-psm-delete-include-executor";
-import {executeDataPsmCreateOr} from "./data-psm-create-or-executor";
-import {executeDataPsmDeleteOr} from "./data-psm-delete-or-executor";
-import {executeDataPsmUnwrapOr} from "./data-psm-unwrap-or-executor";
-import {executeDataPsmWrapWithOr} from "./data-psm-wrap-with-or-executor";
-import {executeDataPsmSetChoice} from "./data-psm-set-choice-executor";
-import {executeDataPsmUnsetChoice} from "./data-psm-unset-choice-executor";
-import {executeDataPsmCreateExternalRoot} from "./data-psm-create-external-root-executor";
-import {executeDataPsmDeleteExternalRoot} from "./data-psm-delete-external-root-executor";
-import {executeDataPsmSetExternalRootTypes} from "./data-psm-set-external-root-types-executor";
-import {executeDataPsmSetIsClosed} from "./data-psm-set-is-closed-executor";
-import {executeDataPsmSetIdType} from "./data-psm-set-idtype-executor";
-import {executeDataPsmSetInstancesHaveIdentity} from "./data-psm-set-instances-have-identity";
-import {executeDataPsmSetInstancesSpecifyTypes} from "./data-psm-set-instances-specify-type";
-import {executeDataPsmCreateContainer} from "./data-psm-create-container-executor";
-import {executeDataPsmDeleteContainer} from "./data-psm-delete-container-executor";
+import { executeDataPsmCreateAssociationEnd } from "./data-psm-create-association-end-executor";
+import { executeDataPsmCreateAttribute } from "./data-psm-create-attribute-executor";
+import { executeDataPsmCreateClass } from "./data-psm-create-class-executor";
+import { executeDataPsmCreateClassReference } from "./data-psm-create-class-reference-executor";
+import { executeDataPsmCreateContainer } from "./data-psm-create-container-executor";
+import { executeDataPsmCreateExternalRoot } from "./data-psm-create-external-root-executor";
+import { executeDataPsmCreateInclude } from "./data-psm-create-include-executor";
+import { executeDataPsmCreateOr } from "./data-psm-create-or-executor";
+import { executeDataPsmCreateSchema } from "./data-psm-create-schema-executor";
+import { executeDataPsmDeleteAssociationEnd } from "./data-psm-delete-association-end-executor";
+import { executeDataPsmDeleteAttribute } from "./data-psm-delete-attribute-executor";
+import { executeDataPsmDeleteClass } from "./data-psm-delete-class-executor";
+import { executeDataPsmDeleteClassReference } from "./data-psm-delete-class-reference-executor";
+import { executeDataPsmDeleteContainer } from "./data-psm-delete-container-executor";
+import { executeDataPsmDeleteExternalRoot } from "./data-psm-delete-external-root-executor";
+import { executeDataPsmDeleteInclude } from "./data-psm-delete-include-executor";
+import { executeDataPsmDeleteOr } from "./data-psm-delete-or-executor";
+import { executeDataPsmReplaceAlongInheritance } from "./data-psm-replace-along-inheritance";
+import { executeDataPsmSetCardinality } from "./data-psm-set-cardinality-executor";
+import { executeDataPsmSetChoice } from "./data-psm-set-choice-executor";
+import { executeDataPsmSetDatatype } from "./data-psm-set-datatype-executor";
+import { executeDataPsmSetDematerialize } from "./data-psm-set-dematerialize-executor";
+import { executeDataPsmSetExternalRootTypes } from "./data-psm-set-external-root-types-executor";
+import { executeDataPsmSetHumanDescription } from "./data-psm-set-human-description-executor";
+import { executeDataPsmSetHumanLabel } from "./data-psm-set-human-label-executor";
+import { executeDataPsmSetIdType } from "./data-psm-set-idtype-executor";
+import { executeDataPsmSetInstancesHaveIdentity } from "./data-psm-set-instances-have-identity";
+import { executeDataPsmSetInstancesSpecifyTypes } from "./data-psm-set-instances-specify-type";
+import { executeDataPsmSetInterpretation } from "./data-psm-set-interpretation-executor";
+import { executeDataPsmSetIsClosed } from "./data-psm-set-is-closed-executor";
+import { executeDataPsmSetOrder } from "./data-psm-set-order-executor";
+import { executeDataPsmSetPart } from "./data-psm-set-part-executor";
+import { executeDataPsmSetRootCollection } from "./data-psm-set-root-collection-executor";
+import { executeDataPsmSetRoots } from "./data-psm-set-roots-executor";
+import { executeDataPsmSetTechnicalLabel } from "./data-psm-set-technical-label-executor";
+import { executeDataPsmUnsetChoice } from "./data-psm-unset-choice-executor";
+import { executeDataPsmUnwrapOr } from "./data-psm-unwrap-or-executor";
+import { executeDataPsmWrapWithOr } from "./data-psm-wrap-with-or-executor";
 
 export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
   CoreOperationExecutor.create(
@@ -59,9 +61,9 @@ export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.DataPsmCreateClassReference.TYPE
   ),
   CoreOperationExecutor.create(
-      Operations.DataPsmCreateExternalRoot.is,
-      executeDataPsmCreateExternalRoot,
-      Operations.DataPsmCreateExternalRoot.TYPE
+    Operations.DataPsmCreateExternalRoot.is,
+    executeDataPsmCreateExternalRoot,
+    Operations.DataPsmCreateExternalRoot.TYPE
   ),
   CoreOperationExecutor.create(
     Operations.DataPsmCreateInclude.is,
@@ -99,9 +101,9 @@ export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.DataPsmDeleteClassReference.TYPE
   ),
   CoreOperationExecutor.create(
-      Operations.DataPsmDeleteExternalRoot.is,
-      executeDataPsmDeleteExternalRoot,
-      Operations.DataPsmDeleteExternalRoot.TYPE
+    Operations.DataPsmDeleteExternalRoot.is,
+    executeDataPsmDeleteExternalRoot,
+    Operations.DataPsmDeleteExternalRoot.TYPE
   ),
   CoreOperationExecutor.create(
     Operations.DataPsmDeleteInclude.is,
@@ -117,6 +119,11 @@ export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.DataPsmReplaceAlongInheritance.is,
     executeDataPsmReplaceAlongInheritance,
     Operations.DataPsmReplaceAlongInheritance.TYPE
+  ),
+  CoreOperationExecutor.create(
+    Operations.DataPsmSetCardinality.is,
+    executeDataPsmSetCardinality,
+    Operations.DataPsmSetCardinality.TYPE
   ),
   CoreOperationExecutor.create(
     Operations.DataPsmSetChoice.is,
@@ -139,19 +146,19 @@ export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.DataPsmSetHumanLabel.TYPE
   ),
   CoreOperationExecutor.create(
-      Operations.DataPsmSetIdType.is,
-      executeDataPsmSetIdType,
-      Operations.DataPsmSetIdType.TYPE
+    Operations.DataPsmSetIdType.is,
+    executeDataPsmSetIdType,
+    Operations.DataPsmSetIdType.TYPE
   ),
   CoreOperationExecutor.create(
-      Operations.DataPsmSetInstancesHaveIdentity.is,
-      executeDataPsmSetInstancesHaveIdentity,
-      Operations.DataPsmSetInstancesHaveIdentity.TYPE
+    Operations.DataPsmSetInstancesHaveIdentity.is,
+    executeDataPsmSetInstancesHaveIdentity,
+    Operations.DataPsmSetInstancesHaveIdentity.TYPE
   ),
   CoreOperationExecutor.create(
-      Operations.DataPsmSetInstancesSpecifyTypes.is,
-      executeDataPsmSetInstancesSpecifyTypes,
-      Operations.DataPsmSetInstancesSpecifyTypes.TYPE
+    Operations.DataPsmSetInstancesSpecifyTypes.is,
+    executeDataPsmSetInstancesSpecifyTypes,
+    Operations.DataPsmSetInstancesSpecifyTypes.TYPE
   ),
   CoreOperationExecutor.create(
     Operations.DataPsmSetInterpretation.is,
@@ -159,9 +166,9 @@ export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.DataPsmSetInterpretation.TYPE
   ),
   CoreOperationExecutor.create(
-      Operations.DataPsmSetIsClosed.is,
-      executeDataPsmSetIsClosed,
-      Operations.DataPsmSetIsClosed.TYPE
+    Operations.DataPsmSetIsClosed.is,
+    executeDataPsmSetIsClosed,
+    Operations.DataPsmSetIsClosed.TYPE
   ),
   CoreOperationExecutor.create(
     Operations.DataPsmSetOrder.is,
@@ -179,6 +186,11 @@ export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.DataPsmSetTechnicalLabel.TYPE
   ),
   CoreOperationExecutor.create(
+    Operations.DataPsmSetRootCollection.is,
+    executeDataPsmSetRootCollection,
+    Operations.DataPsmSetRootCollection.TYPE
+  ),
+  CoreOperationExecutor.create(
     Operations.DataPsmSetRoots.is,
     executeDataPsmSetRoots,
     Operations.DataPsmSetRoots.TYPE
@@ -189,9 +201,9 @@ export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.DataPsmSetDematerialized.TYPE
   ),
   CoreOperationExecutor.create(
-      Operations.DataPsmSetExternalRootTypes.is,
-      executeDataPsmSetExternalRootTypes,
-      Operations.DataPsmSetExternalRootTypes.TYPE
+    Operations.DataPsmSetExternalRootTypes.is,
+    executeDataPsmSetExternalRootTypes,
+    Operations.DataPsmSetExternalRootTypes.TYPE
   ),
   CoreOperationExecutor.create(
     Operations.DataPsmUnsetChoice.is,

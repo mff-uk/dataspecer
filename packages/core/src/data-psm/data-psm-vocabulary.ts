@@ -99,6 +99,8 @@ export const DELETE_OR = PSM + "DeleteOr";
 
 export const REPLACE_ALONG_INHERITANCE = PSM + "ReplaceAlongInheritance";
 
+export const SET_CARDINALITY = PSM + "SetCardinality";
+
 export const SET_CHOICE = PSM + "SetChoice";
 
 export const SET_DATATYPE = PSM + "SetDataType";
@@ -122,6 +124,8 @@ export const SET_IS_CLOSED = PSM + "SetIsClosed";
 export const SET_ORDER = PSM + "SetOrder";
 
 export const SET_PART = PSM + "SetPart";
+
+export const SET_ROOT_COLLECTION = PSM + "SetRootCollection";
 
 export const SET_MATERIALIZED = PSM + "SetMaterialized";
 

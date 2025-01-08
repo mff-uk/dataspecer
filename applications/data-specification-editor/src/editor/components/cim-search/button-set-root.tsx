@@ -71,6 +71,12 @@ const ButtonSetRoot: React.FC = () => {
     }
   }, [dataSpecificationIri, dataPsmSchemaIri, dataSpecifications, i18n, operationContext, store]);
 
+  const setStructuredClass = useCallback(() => {
+    const operation = new CreateRootClass(null, null, dataPsmSchemaIri);
+    operation.setContext(operationContext);
+    store.executeComplexOperation(operation).then();
+  }, [dataPsmSchemaIri, operationContext, store]);
+
   const setRootOr = useCallback(() => {
     if (dataSpecificationIri && dataPsmSchemaIri) {
       store.executeComplexOperation(new CreateRootOr(dataSpecifications[dataSpecificationIri].localSemanticModelIds[0] as string, dataPsmSchemaIri));
@@ -111,7 +117,7 @@ const ButtonSetRoot: React.FC = () => {
         <ListItemText>{t("set root.use class reference")}</ListItemText>
       </MenuItem>
 
-      <MenuItem disabled>
+      <MenuItem onClick={setStructuredClass}>
         <ListItemIcon>
           <CodeIcon fontSize="small" />
         </ListItemIcon>
