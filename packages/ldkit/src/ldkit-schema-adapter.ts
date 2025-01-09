@@ -4,7 +4,8 @@ import { StructureModelComplexType, StructureModelPrimitiveType } from "@dataspe
 import { assert } from "@dataspecer/core/core";
 import { StructureModel } from "@dataspecer/core/structure-model/model/structure-model";
 import { StructureModelClass } from "@dataspecer/core/structure-model/model/structure-model-class";
-import { OFN } from "@dataspecer/core/well-known"
+import { OFN } from "@dataspecer/core/well-known";
+import { wellKnownTypesMap } from "./utils/utils";
 
 export interface StructureClassToSchemaAdapter {
     convertStructureModelToLdkitSchema(modelClass: StructureModel): LdkitSchema;
@@ -13,19 +14,7 @@ export interface StructureClassToSchemaAdapter {
 export class LdkitSchemaAdapter implements StructureClassToSchemaAdapter {
 
     convertAttributeDataTypeToLdkitSupportedDataType<T>(dataTypeIri: string): keyof T {
-        const map: { [k: string]: any } = {
-            [OFN.boolean]: "xsd.boolean",
-            [OFN.date]: "xsd.date",
-            [OFN.dateTime]: "xsd.dateTime",
-            [OFN.integer]: "xsd.integer",
-            [OFN.decimal]: "xsd.decimal",
-            [OFN.url]: "xsd.anyURI",
-            [OFN.string]: "xsd.string",
-            [OFN.text]:  "rdf.langString",
-            [OFN.rdfLangString]: "rdf.langString"
-        }
-
-        return map[dataTypeIri] ?? "xsd.string";
+        return wellKnownTypesMap[dataTypeIri] ?? "xsd.string";
     }
 
     convertAttributePropertyToLdkitProperty(attribute: StructureModelPrimitiveType, ldkitProperty: LdkitSchemaProperty): LdkitSchemaProperty {
@@ -48,7 +37,6 @@ export class LdkitSchemaAdapter implements StructureClassToSchemaAdapter {
         }
 
         const nestedClass: StructureModelClass = association.dataType;
-        //ldkitProperty["@type"] = xsd.string; //this.convertDataTypeToLdkitSupportedDataType(association); //nestedClass.cimIri;
         ldkitProperty["@schema"] = this.convertStructureModelClassToLdkitSchema(nestedClass);
 
         return ldkitProperty;
@@ -77,7 +65,6 @@ export class LdkitSchemaAdapter implements StructureClassToSchemaAdapter {
         }
     }
 
-    // TODO: generate property based on dataTypes - rewrite
     convertClassPropertyToLdkitProperty(classProperty: StructureModelProperty): string | LdkitSchemaProperty | readonly string[] {
 
         if (!classProperty.cimIri) {

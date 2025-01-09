@@ -1,5 +1,18 @@
+import { OFN } from "@dataspecer/core/well-known/ofn";
 import { SourceCodeWriter, SourceCodeLanguageIdentifier } from "../writers/source-code-writer-model";
 import { TypescriptWriter } from "../writers/typescript-writer";
+
+export const wellKnownTypesMap: { [k: string]: any } = {
+    [OFN.boolean]: "xsd.boolean",
+    [OFN.date]: "xsd.date",
+    [OFN.dateTime]: "xsd.dateTime",
+    [OFN.integer]: "xsd.integer",
+    [OFN.decimal]: "xsd.decimal",
+    [OFN.url]: "xsd.anyURI",
+    [OFN.string]: "xsd.string",
+    [OFN.text]: "rdf.langString",
+    [OFN.rdfLangString]: "rdf.langString"
+};
 
 function tryGetKnownDictionaryPrefix(iri: string) {
     const knownPrefixes: { [key: string]: string } = {

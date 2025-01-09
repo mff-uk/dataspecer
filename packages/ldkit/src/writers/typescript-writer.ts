@@ -1,5 +1,5 @@
 import { printNode } from "ts-morph";
-import ts, {
+import {
     factory,
     Expression,
     Node,
@@ -11,13 +11,14 @@ import ts, {
     ObjectLiteralElementLike
 } from "typescript";
 import { LdkitSchema, LdkitSchemaProperty } from "../ldkit-schema-model";
-import { convertToKebabCase } from "../utils/utils";
+import { convertToKebabCase, wellKnownTypesMap } from "../utils/utils";
 import { SourceCodeWriter } from "./source-code-writer-model";
 import { AggregateMetadata } from "../readers/aggregate-data-provider-model";
 
 export class TypescriptWriter implements SourceCodeWriter {
 
     fileExtension: string = "ts";
+    private readonly namespacesDefaultExportIdentifier: string = "namespaces";
 
     generateSourceFilePath(directoryPath: string, outputFileName: string) {
         const kebabCaseOutputFileName = convertToKebabCase(`${outputFileName} ldkitschema`);
@@ -30,9 +31,12 @@ export class TypescriptWriter implements SourceCodeWriter {
 
     getSourceCodeFromMetadata(aggregateMetadata: AggregateMetadata): string {
         const ldkitSchemaRootNode = this.getLdkitSchemaRootNode(aggregateMetadata);
-        const printed: string = printNode(ldkitSchemaRootNode);
+        const initImportStatement = this.getLdkitDefaultImportStatement();
 
-        return printed;
+        const printedImport: string = printNode(initImportStatement);
+        const printedSchema: string = printNode(ldkitSchemaRootNode);
+
+        return [printedImport, printedSchema].join("\n");
     }
 
     private getLdkitSchemaRootNode(metadata: AggregateMetadata): Node {
@@ -50,6 +54,21 @@ export class TypescriptWriter implements SourceCodeWriter {
         );
 
         return this.getExportStatement(declaration);
+    }
+
+    private getLdkitDefaultImportStatement(): Node {
+        const ldkitLibraryImportPath: string = "ldkit/namespaces";
+
+        return factory.createImportDeclaration(
+            undefined,
+            factory.createImportClause(
+                false,
+                factory.createIdentifier(this.namespacesDefaultExportIdentifier),
+                undefined
+            ),
+            factory.createStringLiteral(ldkitLibraryImportPath),
+            undefined
+        );
     }
 
     private getExportStatement(node: readonly VariableDeclaration[] | VariableDeclarationList) {
@@ -98,10 +117,6 @@ export class TypescriptWriter implements SourceCodeWriter {
             throw new Error("Attepmting to use non-valid string as property name");
         }
 
-        // if (!name.match(/^[a-z0-9_]+$/i)) {
-        //     return `"${factory.createStringLiteral(name).text}"`;
-        // }
-
         return `"${factory.createStringLiteral(name).text}"`;
     }
 
@@ -109,6 +124,18 @@ export class TypescriptWriter implements SourceCodeWriter {
 
         switch (typeof propertyValue) {
             case "string":
+                if (Object.values(wellKnownTypesMap).includes(propertyValue)) {
+                    const [namespace, name] = propertyValue.split(".", 2);
+
+                    return factory.createPropertyAccessExpression(
+                        factory.createPropertyAccessExpression(
+                            factory.createIdentifier(this.namespacesDefaultExportIdentifier),
+                            factory.createIdentifier(namespace!)
+                        ),
+                        factory.createIdentifier(name!)
+                    );
+                }
+
                 return factory.createStringLiteral(propertyValue);
             case "boolean":
                 return propertyValue
