@@ -57,14 +57,18 @@ const <%= it.presentation_layer_component_name %>: React.FC<ListTableProps> = ({
     const { handleCollectionCapabilityRedirect } = <%= it.navigation_hook %>();
 
     const stringify = (objectKey) => {
-        return typeof objectKey == 'object'
-            ? Object.keys(objectKey).filter(key => !["$id", "$type"].includes(key)).map(k => stringify(objectKey[k])).join(" || ")
+        return typeof objectKey == "object"
+            ? Object
+                .keys(objectKey)
+                .filter(key => !["$id", "$type"].includes(key))
+                .map(k => stringify(objectKey[k]))
+                .join(" | ")
             : objectKey.toString();
     }
 
     useEffect(() => {
         const fetchInstancesList = async () => {
-            if (!instanceList || !itemsCount || refetch) {
+            if (!instanceList || refetch) {
                 let listReader = new <%= it.list_capability_app_layer %>();
 
                 const instanceCount = await listReader.readInstanceCount();

@@ -31,13 +31,45 @@ export class <%= it.exported_object_name %> implements <%= it.delete_mutator_int
     }
 
     async deleteInstance(instanceIri: string): Promise<<%= it.instance_result_type %>> {
+        return this.executeDelete(instanceIri, <%= it.ldkit_schema %>);
+    }
 
+    private async getInstanceByIri(iri: string, schema: any) {
         const options: Options = {
             sources: ["<%~ it.sparql_endpoint_uri.read %>"]
         }
 
-        const lens = createLens(<%= it.ldkit_schema %>, options);
-        const toDelete = await lens.findByIri(instanceIri);
+        const lens = createLens(schema, options);
+        return lens.findByIri(iri);
+    }
+
+    private async deleteNestedObjects(toDelete: object, schema: any) {
+        for (const [key, value] of Object.entries<any>(schema)) {
+            if ((typeof value === "string") || !value["@schema"]) {
+                continue;
+            }
+
+            const nestedSchema = value["@schema"];
+            const nestedValue = toDelete[key];
+
+            if (!nestedValue) {
+                continue;
+            }
+
+            if (Array.isArray(nestedValue)) {
+                for (const nestedItem of nestedValue) {
+                    const nestedIri = nestedItem["$id"];
+                    await this.executeDelete(nestedIri, nestedSchema);
+                }
+            } else {
+                const nestedIri = nestedValue["$id"];
+                await this.executeDelete(nestedIri, nestedSchema);
+            }
+        }
+    }
+
+    private async executeDelete(instanceIri: string, schema: any): Promise<<%= it.instance_result_type %>> {
+        const toDelete = await this.getInstanceByIri(instanceIri, schema);
 
         if (!toDelete) {
             const notFoundResult: <%= it.instance_result_type %> = {
@@ -52,7 +84,9 @@ export class <%= it.exported_object_name %> implements <%= it.delete_mutator_int
         let result: <%= it.instance_result_type %>;
 
         try {
-            const deleteLens = createLens(<%= it.ldkit_schema %>, {
+            await this.deleteNestedObjects(toDelete, schema);
+
+            const deleteLens = createLens(schema, {
                 sources: ["<%~ it.sparql_endpoint_uri.write %>"],
                 engine: this._customEngine
             });

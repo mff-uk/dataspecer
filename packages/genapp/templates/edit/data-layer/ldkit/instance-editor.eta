@@ -1,5 +1,4 @@
-import { Entity } from "ldkit/types/library/lens/types";
-import { QueryContext, SchemaInterface, createLens, QueryEngine, Options } from "ldkit";
+import { QueryContext, createLens, QueryEngine, Options } from "ldkit";
 import { <%= it.instance_result_type %> } from <%~ it.instance_result_type_path %>;
 import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 import { <%= it.editor_interface_type %> } from <%~ it.editor_interface_type_path %>;
@@ -31,10 +30,50 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
         this._customEngine = new LdkitEditorQueryEngine();
     }
 
-    private mapFormDataToLdkitSchema(formData: any): Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> {
+    async updateInstance(formData: any): Promise<<%= it.instance_result_type %>> {
+        return this.executeUpdate(formData, <%= it.ldkit_schema %>);
+    }
+
+    private async executeUpdate(formData: any, schema: any): Promise<<%= it.instance_result_type %>> {
+
+        const options: Options = {
+            sources: ["<%~ it.sparql_endpoint_uri %>"],
+            engine: this._customEngine
+        };
+
+        const lens = createLens(<%= it.ldkit_schema %>, options);
+        try {
+            await this.updateNestedObjects(formData, schema);
+
+            const updatedInstance = this.mapFormDataToLdkitSchema(formData);
+            await lens.update(updatedInstance);
+            console.log("update success");
+
+            const result: <%= it.instance_result_type %> = {
+                instance: {
+                    aggregateName: "<%= it.aggregate_name %>",
+                    raw: updatedInstance.$id
+                },
+                message: "Instance updated successfully",
+                redirectUrl: "/"
+            }
+
+            return result;
+        } catch (error) {
+            const errorResult: <%= it.instance_result_type %> = {
+                instance: null,
+                message: "Instance update failed",
+                redirectUrl: "/"
+            };
+
+            return errorResult;
+        }
+    }
+
+    private mapFormDataToLdkitSchema(formData: any) {
         console.log("input form data: ", formData);
 
-        const updatedInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> =  this.updateLdkitProperties(formData);
+        const updatedInstance = this.updateLdkitProperties(formData);
 
         return updatedInstance;
     }
@@ -69,39 +108,26 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
         return Object.fromEntries(transformed);
     }
 
-    async updateInstance(formData: any): Promise<<%= it.instance_result_type %>> {
-
-        const options: Options = {
-            sources: ["<%~ it.sparql_endpoint_uri %>"],
-            engine: this._customEngine
-        };
-
-        const lens = createLens(<%= it.ldkit_schema %>, options);
-        const updatedInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> = this.mapFormDataToLdkitSchema(formData);
-
-        try {
-            await lens.delete(updatedInstance);
-            await lens.insert(updatedInstance);
-            console.log("update success");
-
-            const result: <%= it.instance_result_type %> = {
-                instance: {
-                    aggregateName: "<%= it.aggregate_name %>",
-                    raw: updatedInstance.$id
-                },
-                message: "Instance updated successfully",
-                redirectUrl: "/"
+    private async updateNestedObjects(toUpdate: object, schema: any) {
+        for (const [key, value] of Object.entries<any>(schema)) {
+            if ((typeof value === "string") || !value["@schema"]) {
+                continue;
             }
 
-            return result;
-        } catch (error) {
-            const errorResult: <%= it.instance_result_type %> = {
-                instance: null,
-                message: "Instance update failed",
-                redirectUrl: "/"
-            };
+            const nestedSchema = value["@schema"];
+            const nestedValue = toUpdate[key];
 
-            return errorResult;
+            if (!nestedValue) {
+                continue;
+            }
+
+            if (Array.isArray(nestedValue)) {
+                for (const nestedItem of nestedValue) {
+                    await this.executeUpdate(nestedItem, nestedSchema);
+                }
+            } else {
+                await this.executeUpdate(nestedValue, nestedSchema);
+            }
         }
     }
 }

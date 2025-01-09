@@ -32,7 +32,10 @@ export class LdkitObjectModelTypeGenerator extends TemplateConsumer<LdkitObjectM
         const objectStartIndex = ldkitSchemaSource.indexOf("{");
         const objectEndIndex = ldkitSchemaSource.indexOf(" as const;");
 
-        return ldkitSchemaSource.substring(objectStartIndex, objectEndIndex);
+        const result = ldkitSchemaSource.substring(objectStartIndex, objectEndIndex)
+            .replace(/"@type": \s*(\w+)\.(\w+).(\w+)/g, '"@type": "$1.$2.$3"');
+        console.log(result);
+        return result;
     }
 
     private generateAndSaveLdkitSchemaInterface(ldkitArtifact: LayerArtifact, aggregateTechnicalLabel: string) {
