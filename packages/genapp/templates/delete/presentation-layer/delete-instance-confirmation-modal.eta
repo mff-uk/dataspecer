@@ -1,7 +1,17 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Alert, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
+import {
+    Alert,
+    Backdrop,
+    Button,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle
+} from "@mui/material";
 import { <%= it.navigation_hook %> } from <%~ it.navigation_hook_path %>;
 import { <%= it.delete_app_layer %> } from <%~ it.delete_app_layer_path %>;
 
@@ -12,6 +22,7 @@ const <%= it.exported_name_object %> = () => {
     const [searchParams, _] = useSearchParams();
     const [hasInstanceId, setHasInstanceId] = useState<boolean>(false);
     const [resultMessage, setResultMessage] = useState(<></>);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigationHooks = <%= it.navigation_hook %>();
 
     const handleDialogClose = () => {
@@ -20,7 +31,9 @@ const <%= it.exported_name_object %> = () => {
 
     const handleDeletion = async (id: string) => {
 
+        setIsLoading(true);
         const result = await new <%= it.delete_app_layer %>().runCapability(id);
+        setIsLoading(false);
 
         if (!result?.instance?.raw) {
             setResultMessage(<Alert severity="error">{result.message ?? "Error occurred on deletion"}</Alert>);
@@ -50,37 +63,45 @@ const <%= it.exported_name_object %> = () => {
     }, [searchParams]);
 
     return (
-        <Dialog
-            open={openDialog}
-            onClose={handleDialogClose}
-            aria-labelledby="<%= it.aggregate_name %>-delete-dialog-title"
-            aria-describedby="<%= it.aggregate_name %>-delete-dialog-description"
-        >
-            <DialogTitle id="<%= it.aggregate_name %>-delete-dialog-title">
-                {"Do you really want to delete <%= it.aggregate_display_name %> instance?"}
-            </DialogTitle>
-            <DialogContent>
-                {resultMessage}
-                <DialogContentText id="<%= it.aggregate_name %>-delete-dialog-description">
-                    {instanceId
-                        ? `Please make sure you really wish to delete the <%= it.aggregate_display_name %> instance with id: "${instanceId}"`
-                        : "Please provide an instance identifier to delete."
-                    }
-                </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={handleDialogClose} autoFocus variant="outlined">Cancel</Button>
-                <Button
-                    color="error"
-                    variant="contained"
-                    onClick={() => handleDeletion(instanceId)}
-                    startIcon={<DeleteIcon />}
-                    disabled={!hasInstanceId}
-                >
-                    Confirm
-                </Button>
-            </DialogActions>
-        </Dialog>
+        <>
+            <Backdrop
+                sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+                open={isLoading}
+            >
+                <CircularProgress color="inherit" />
+            </Backdrop>
+            <Dialog
+                open={openDialog}
+                onClose={handleDialogClose}
+                aria-labelledby="<%= it.aggregate_name %>-delete-dialog-title"
+                aria-describedby="<%= it.aggregate_name %>-delete-dialog-description"
+            >
+                <DialogTitle id="<%= it.aggregate_name %>-delete-dialog-title">
+                    {"Do you really want to delete <%= it.aggregate_display_name %> instance?"}
+                </DialogTitle>
+                <DialogContent>
+                    {resultMessage}
+                    <DialogContentText id="<%= it.aggregate_name %>-delete-dialog-description">
+                        {instanceId
+                            ? `Please make sure you really wish to delete the <%= it.aggregate_display_name %> instance with id: "${instanceId}"`
+                            : "Please provide an instance identifier to delete."
+                        }
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleDialogClose} autoFocus variant="outlined">Cancel</Button>
+                    <Button
+                        color="error"
+                        variant="contained"
+                        onClick={() => handleDeletion(instanceId)}
+                        startIcon={<DeleteIcon />}
+                        disabled={!hasInstanceId}
+                    >
+                        Confirm
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </>
     )
 }
 

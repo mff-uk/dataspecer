@@ -1,7 +1,7 @@
 // https://rjsf-team.github.io/react-jsonschema-form/
 import { useState } from "react";
 import Form from "@rjsf/mui";
-import { Button } from "@mui/material";
+import { Button, Backdrop, CircularProgress } from "@mui/material";
 import Alert from '@mui/material/Alert';
 import validator from "@rjsf/validator-ajv8";
 import SendIcon from "@mui/icons-material/Send";
@@ -15,6 +15,7 @@ const <%= it.exported_object_name %> = () => {
 
     const [formData, setFormData] = useState<RJSFSchema>({});
     const [errorMessage, setErrorMessage] = useState<string>(null!);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigationHooks = <%= it.navigation_hook %>();
 
     const schema: RJSFSchema = <%~ it.json_schema %> as RJSFSchema;
@@ -28,7 +29,9 @@ const <%= it.exported_object_name %> = () => {
         event.preventDefault();
 
         const { formData } = data;
+        setIsLoading(true);
         const createdInstanceResult = await new <%= it.create_capability_app_layer %>().runCapability(formData);
+        setIsLoading(false);
 
         if (!createdInstanceResult?.instance?.raw) {
             setErrorMessage(createdInstanceResult?.message ?? "Creation failed");
@@ -56,6 +59,12 @@ const <%= it.exported_object_name %> = () => {
 
     return (
         <div>
+            <Backdrop
+                sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+                open={isLoading}
+            >
+                <CircularProgress color="inherit" />
+            </Backdrop>
             { errorMessage && <Alert onClose={() => {}} severity="error">{ errorMessage }</Alert> }<% const defaultPageTitle = `Create new "${it.aggregate_name}"` %>
             <Typography variant="h3">
                 <%~ it.page_title ?? defaultPageTitle  %>

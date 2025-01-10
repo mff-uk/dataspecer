@@ -45,7 +45,7 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
         try {
             await this.updateNestedObjects(formData, schema);
 
-            const updatedInstance = this.mapFormDataToLdkitSchema(formData);
+            const updatedInstance = this.mapFormDataToLdkitSchema(formData, schema);
             await lens.update(updatedInstance);
             console.log("update success");
 
@@ -70,15 +70,15 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
         }
     }
 
-    private mapFormDataToLdkitSchema(formData: any) {
+    private mapFormDataToLdkitSchema(formData: any, schema: any) {
         console.log("input form data: ", formData);
 
-        const updatedInstance = this.updateLdkitProperties(formData);
+        const updatedInstance = this.updateLdkitProperties(formData, schema);
 
         return updatedInstance;
     }
 
-    private updateLdkitProperties(obj: any) {
+    private updateLdkitProperties(obj: any, schema: any) {
 
         if (typeof obj !== "object") {
             return obj;
@@ -95,15 +95,16 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
                 }
 
                 if (Array.isArray(value)) {
-                    return [key, value.map(item => this.updateLdkitProperties(item))];
+                    return [key, value.map(item => this.updateLdkitProperties(item, schema))];
                 }
 
                 if (typeof value === "object") {
-                    return [key, this.updateLdkitProperties(value)];
+                    return [key, this.updateLdkitProperties(value, schema)];
                 }
 
                 return [key, value];
-            });
+            })
+            .concat([["$type", schema["@type"]]]);
 
         return Object.fromEntries(transformed);
     }
