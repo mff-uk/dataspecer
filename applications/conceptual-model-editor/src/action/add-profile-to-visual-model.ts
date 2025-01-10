@@ -3,23 +3,25 @@ import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 /**
  * Add visual representation for a profile relation.
+ *
+ * The given entities must be raw entities not aggregates.
  */
 export function addSemanticProfileToVisualModelAction(
   visualModel: WritableVisualModel,
   profiled: SemanticModelEntity,
-  profileOf: SemanticModelEntity,
+  profile: SemanticModelEntity,
   modelIdentifier: string,
 ) {
   const visualSource = visualModel.getVisualEntityForRepresented(profiled.id);
-  const visualTarget = visualModel.getVisualEntityForRepresented(profileOf.id);
+  const visualTarget = visualModel.getVisualEntityForRepresented(profile.id);
   if (visualSource === null || visualTarget === null) {
-    console.warn("Ignored request to add profile, but ends are missing in visual model.",
-      {visualModel, profiled, profileOf});
+    console.warn("Ignored request to add profile as ends are missing in visual model.",
+      {visualModel, profiled, profile});
     return;
   }
   visualModel.addVisualProfileRelationship({
     model: modelIdentifier,
-    entity: profiled.id,
+    entity: profile.id,
     waypoints: [],
     visualSource: visualSource.identifier,
     visualTarget: visualTarget.identifier,
