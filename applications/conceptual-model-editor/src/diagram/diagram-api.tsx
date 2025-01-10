@@ -185,6 +185,7 @@ export interface DiagramActions {
    * @param position is the canvas position where user dragged the connection and on which will the menu appear
    */
   openDragEdgeToCanvasToolbar(sourceNode: Node, canvasPosition: Position): void;
+
   /**
    * Opens toolbar on given {@link canvasPosition}, which represents the menu that appears when user clicks the actions button on selection.
    * @param sourceDiagramNode is the node on which the user clicked the button.
@@ -421,6 +422,11 @@ interface DiagramNodes {
    * @param diagramNode is the node to be (un)anchored
    */
   onToggleAnchorForNode: (diagramNode: Node) => void;
+
+  /**
+   * Called when user starts creation of a new attribute for given node.
+   */
+  onAddAttributeForNode: (diagramNode: Node) => void;
 
 }
 

@@ -82,6 +82,7 @@ export function createEditAttributeProfileDialogState(
     dataTypes);
 
   return {
+    enableProfilChange: false,
     ...entityProfileState,
     ...relationshipProfileState,
   };

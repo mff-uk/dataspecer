@@ -77,7 +77,6 @@ function updateSemanticAttribute(
   }
 
   const ends = mergeEndsUpdate(entity, nextDomain, nextRange);
-  console.log(">", { nextDomain, nextRange, ends });
   operations.push(modifyRelation(entity.id, { ends }));
   operations.push(...specializationStateToOperations(entity, prevState, nextState));
 

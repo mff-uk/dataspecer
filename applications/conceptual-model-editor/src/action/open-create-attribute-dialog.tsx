@@ -34,7 +34,6 @@ export function openCreateAttributeDialogAction(
   }
 
   const onConfirm = (state: EditAttributeDialogState) => {
-    // Create attribute.
     createSemanticAttribute(notifications, graph.models, state);
   };
 

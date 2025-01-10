@@ -2,7 +2,7 @@
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { SemanticModelRelationship, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
@@ -11,26 +11,20 @@ import { EditAttributeProfileDialogState } from "./edit-attribute-profile-dialog
 import { EditAttributeProfileDialog } from "./edit-attribute-profile-dialog";
 import { DialogWrapper } from "../dialog-api";
 import { CmeModel } from "../../dataspecer/cme-model";
-import { InvalidAggregation, MissingEntity, MissingRelationshipEnds } from "../../application/error";
+import { InvalidAggregation, MissingRelationshipEnds, RuntimeError } from "../../application/error";
 import { createRelationshipProfileStateForNew } from "../utilities/relationship-profile-utilities";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
-import { EntityRepresentative, RelationshipRepresentative, representClassProfiles, representDataTypes, representOwlThing, representRelationshipProfiles, representRelationships, representUndefinedDataType } from "../utilities/dialog-utilities";
+import { EntityRepresentative, isRepresentingAttribute, RelationshipRepresentative, representClassProfiles, representDataTypes, representOwlThing, representRelationshipProfiles, representRelationships, representUndefinedDataType } from "../utilities/dialog-utilities";
 import { createEntityProfileStateForNewEntityProfile, createEntityProfileStateForNewProfileOfProfile } from "../utilities/entity-profile-utilities";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 
-/**
- * @param classesContext
- * @param graphContext
- * @param visualModel
- * @param language
- * @param entity Raw entity to create profile for.
- * @returns
- */
-export function createNewAttributeProfileDialogState(
+export function createAddAttributeProfileDialogState(
   classesContext: ClassesContextType,
   graphContext: ModelGraphContextType,
   visualModel: VisualModel | null,
   language: string,
-  entity: SemanticModelRelationship | SemanticModelRelationshipUsage,
+  _model: InMemorySemanticModel,
+  entity: SemanticModelClassUsage,
 ): EditAttributeProfileDialogState {
   const entities = graphContext.aggregatorView.getEntities();
 
@@ -43,29 +37,37 @@ export function createNewAttributeProfileDialogState(
       classesContext.relationships),
     ...representRelationshipProfiles(entities, models, vocabularies,
       classesContext.profiles.filter(item => isSemanticModelRelationshipUsage(item))),
-  ];
+  ].filter(isRepresentingAttribute);
 
-  // Find representation of entity to profile.
-  const profileOf = profiles.find(item => item.identifier === entity.id)
-    ?? profiles[0]
-    ?? null;
+  // We just profile the first available attribute.
+  const profileOf = profiles[0] ?? null;
+  const profileOfEntity = entities[profileOf.identifier]?.aggregatedEntity;
 
   if (profileOf === null) {
-    throw new MissingEntity(entity.id);
+    throw new RuntimeError("There is nothing to profile.");
   }
 
   const classProfiles = [
     ...representClassProfiles(entities, models, vocabularies,
       classesContext.profiles.filter(item => isSemanticModelClassUsage(item))),
   ];
+  const domain = classProfiles.find(item => item.identifier === entity.id) ?? null;
+
+  if (domain === null) {
+    throw new RuntimeError("Missing profile domain.");
+  }
 
   // Rest of this function depends of what we are profiling.
-  if (isSemanticModelRelationship(entity)) {
+  if (isSemanticModelRelationship(profileOfEntity)) {
     return createForAttribute(
-      language, vocabularies, entity, profiles, profileOf, classProfiles);
-  } else {
+      language, vocabularies, profileOfEntity, profiles, profileOf, classProfiles,
+      domain);
+  } else if (isSemanticModelRelationshipUsage(profileOfEntity)) {
     return createForAttributeProfile(
-      language, vocabularies, entity, profiles, profileOf, classProfiles, entities);
+      language, vocabularies, profileOfEntity, profiles, profileOf, classProfiles,
+      entities, domain);
+  } else {
+    throw new RuntimeError("Invalid profile type.");
   }
 }
 
@@ -76,6 +78,7 @@ function createForAttribute(
   profiles: RelationshipRepresentative[],
   profileOf: RelationshipRepresentative,
   classProfiles: EntityRepresentative[],
+  domainConcept: EntityRepresentative,
 ): EditAttributeProfileDialogState {
 
   const { domain, range } = getDomainAndRange(entity);
@@ -100,9 +103,11 @@ function createForAttribute(
     range.concept, undefinedDataType, range.cardinality, dataTypes);
 
   return {
-    enableProfilChange: false,
+    enableProfilChange: true,
     ...entityProfileState,
     ...relationshipProfileState,
+    domain: domainConcept,
+    overrideDomain: true,
   };
 
 }
@@ -114,7 +119,8 @@ function createForAttributeProfile(
   profiles: RelationshipRepresentative[],
   profileOf: RelationshipRepresentative,
   classProfiles: EntityRepresentative[],
-  entities: Record<string, AggregatedEntityWrapper>
+  entities: Record<string, AggregatedEntityWrapper>,
+  domainConcept: EntityRepresentative,
 ): EditAttributeProfileDialogState {
   const aggregated = entities[entity.id]?.aggregatedEntity;
   if (!isSemanticModelRelationshipUsage(aggregated)) {
@@ -143,13 +149,15 @@ function createForAttributeProfile(
     range.concept, undefinedDataType, range.cardinality, dataTypes);
 
   return {
-    enableProfilChange: false,
+    enableProfilChange: true,
     ...entityProfileState,
     ...relationshipProfileState,
+    domain: domainConcept,
+    overrideDomain: true,
   };
 }
 
-export const createEditAttributeProfileDialog = (
+export const createAddAttributeProfileDialog = (
   state: EditAttributeProfileDialogState,
   onConfirm: (state: EditAttributeProfileDialogState) => void,
 ): DialogWrapper<EditAttributeProfileDialogState> => {

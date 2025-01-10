@@ -46,6 +46,7 @@ import { ExtendSelectionState } from "../dialog/selection/extend-selection-dialo
 import { ExtensionType, NodeSelection, VisibilityFilter, extendSelectionAction, getSelectionForWholeSemanticModel } from "./extend-selection-action";
 import { createFilterSelectionDialog } from "../dialog/selection/filter-selection-dialog";
 import { EntityModel } from "@dataspecer/core-v2";
+import { openCreateAttributeForEntityDialogAction } from "./open-add-attribute-for-entity-dialog";
 
 const LOG = createLogger(import.meta.url);
 
@@ -451,6 +452,14 @@ function createActionsContext(
     });
   }
 
+  const addAttributeForNode = (identifier: string) => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      openCreateAttributeForEntityDialogAction(
+        options, dialogs, classes, graph, notifications,
+        visualModel, identifier);
+    });
+  };
+
   // Dialog actions.
 
   const openCreateModelDialog = () => {
@@ -694,6 +703,8 @@ function createActionsContext(
     onDeleteWaypoint: deleteWaypoint,
 
     onChangeWaypointPositions: changeWaypointPositions,
+
+    onAddAttributeForNode: (node) => addAttributeForNode(node.externalIdentifier),
 
     onCreateConnectionToNode: (source, target) => {
       openCreateConnectionDialog(source.externalIdentifier, target.externalIdentifier);

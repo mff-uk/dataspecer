@@ -4,13 +4,13 @@ import { EntityRepresentative } from "../../utilities/dialog-utilities";
 import { configuration } from "../../../application";
 import { languageStringToString } from "../../../utilities/string";
 
-export const SelectEntity = (props: {
+export function SelectEntity<ValueType extends EntityRepresentative>(props: {
   language: string,
-  items: EntityRepresentative[],
-  value: EntityRepresentative,
-  onChange: (value: EntityRepresentative) => void,
+  items: ValueType[],
+  value: ValueType,
+  onChange: (value: ValueType) => void,
   disabled?: boolean,
-}) => {
+}) {
 
   const onChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const identifier = event.target.value;

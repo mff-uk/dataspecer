@@ -70,7 +70,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
             )}
             <div className="relative flex w-full flex-row justify-between">
               <div>{data.label}</div>
-              {isAnchored ? <div>⚓</div>: null}
+              {isAnchored ? <div>⚓</div> : null}
             </div>
           </div>
 
@@ -93,20 +93,20 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
 
 function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   const context = useContext(DiagramContext);
-  if(context === null) {
+  if (context === null) {
     return null;
   }
 
   const isCanvasToolbarOpen = context.openedCanvasToolbar !== null;
-  if(isCanvasToolbarOpen) {
+  if (isCanvasToolbarOpen) {
     return null;
   }
 
-  if(context.shouldShowSelectionToolbar()) {
-    return <SelectionToolbar {...props}/>;
+  if (context.shouldShowSelectionToolbar()) {
+    return <SelectionToolbar {...props} />;
   }
   else {
-    return <PrimaryNodeToolbar {...props}/>;
+    return <PrimaryNodeToolbar {...props} />;
   }
 }
 
@@ -119,27 +119,33 @@ function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   const onHide = () => context?.callbacks().onHideNode(props.data);
   const onDelete = () => context?.callbacks().onDeleteNode(props.data);
   const onAnchor = () => context?.callbacks().onToggleAnchorForNode(props.data);
+  const onAddAttribute = () => context?.callbacks().onAddAttributeForNode(props.data);
+
+  const addAttributeTitle = props.data.profileOf === null ?
+    t("node-add-attribute") : t("node-add-attribute-profile");
 
   return (
     <>
       <NodeToolbar isVisible={props.selected === true} position={Position.Top} className="flex gap-2 entity-node-toolbar" >
         <button onClick={onShowDetail} title={t("class-detail-button")}>ℹ</button>
-      &nbsp;
+        &nbsp;
         <button onClick={onEdit} title={t("class-edit-button")}>✏️</button>
-      &nbsp;
+        &nbsp;
         <button onClick={onCreateProfile} title={t("class-profile-button")}>🧲</button>
-      &nbsp;
+        &nbsp;
       </NodeToolbar>
       <NodeToolbar isVisible={props.selected === true} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
         <Handle type="source" position={Position.Right} title={t("node-connection-handle")}>🔗</Handle>
       </NodeToolbar>
       <NodeToolbar isVisible={props.selected === true} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
         <button onClick={onHide} title={t("class-hide-button")}>🕶</button>
-      &nbsp;
+        &nbsp;
         <button onClick={onDelete} title={t("class-remove-button")}>🗑</button>
-      &nbsp;
+        &nbsp;
         <button onClick={onAnchor} title={t("node-anchor-button")} >⚓</button>
-      &nbsp;
+        &nbsp;
+        <button onClick={onAddAttribute} title={addAttributeTitle} >➕</button>
+        &nbsp;
       </NodeToolbar>
     </>);
 }
@@ -158,7 +164,7 @@ function SelectionToolbar(props: NodeProps<Node<ApiNode>>) {
     //       a) It is probably the best to keep it here.
     //       b) Separate controller for this component - But we have only 1 method
     //       c) Exposing the conversion from screen to canvas position in diagram API - not sure if that is something which should be part of API
-    const absoluteFlowPosition = reactFlow.screenToFlowPosition({x: event.clientX, y: event.clientY});
+    const absoluteFlowPosition = reactFlow.screenToFlowPosition({ x: event.clientX, y: event.clientY });
     context?.callbacks().onShowSelectionActions(props.data, absoluteFlowPosition);
   }
   const onLayoutSelection = () => context?.callbacks().onLayoutSelection();

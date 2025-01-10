@@ -10,12 +10,20 @@ import { createRelationshipStateForNew } from "../utilities/relationship-utiliti
 import { DialogWrapper } from "../dialog-api";
 import { EditAttributeDialog } from "./edit-attribute-dialog";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
+import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 
-export function createNewAttributeDialogState(
+/**
+ * Creates a dialog to add an attribute to an existing entity.
+ * Same as create new attribute just set the default domain to the entity.
+ */
+export function createAddAttributeDialogState(
   classesContext: ClassesContextType,
   graphContext: ModelGraphContextType,
   visualModel: VisualModel | null,
   language: string,
+  _model: InMemorySemanticModel,
+  entity: SemanticModelClass,
 ): EditAttributeDialogState {
 
   const models = [...graphContext.models.values()];
@@ -46,14 +54,19 @@ export function createNewAttributeDialogState(
   const relationshipState = createRelationshipStateForNew(
     owlThing, classes, range, dataTypes);
 
+  // We try to use the given entity as a default value.
+  const domain = relationshipState.availableDomainItems.find(
+    item => item.identifier === entity.id) ?? owlThing;
+
   return {
     ...entityState,
     ...specializationState,
     ...relationshipState,
+    domain,
   };
 }
 
-export const createNewAttributeDialog = (
+export const createAddAttributeDialog = (
   state: EditAttributeDialogState,
   onConfirm: (state: EditAttributeDialogState) => void,
 ): DialogWrapper<EditAttributeDialogState> => {

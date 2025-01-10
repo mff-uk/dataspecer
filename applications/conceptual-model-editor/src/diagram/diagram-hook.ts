@@ -117,6 +117,7 @@ const noOperationCallbacks: DiagramCallbacks = {
   onHideNode: noOperation,
   onDeleteNode: noOperation,
   onChangeNodesPositions: noOperation,
+  onAddAttributeForNode: noOperation,
   onShowEdgeDetail: noOperation,
   onEditEdge: noOperation,
   onCreateEdgeProfile: noOperation,

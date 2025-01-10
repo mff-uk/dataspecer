@@ -9,7 +9,8 @@ import { ModelDsIdentifier } from "../../dataspecer/entity-model";
 /**
  * Should be used instead of EntityState for profiles.
  */
-export interface EntityProfileState extends EntityState {
+export interface EntityProfileState
+  <ProfileType extends EntityRepresentative> extends EntityState {
 
   overrideName: boolean;
 
@@ -18,9 +19,9 @@ export interface EntityProfileState extends EntityState {
   /**
    * List of entities that can be profiles.
    */
-  availableProfiles: EntityRepresentative[];
+  availableProfiles: ProfileType[];
 
-  profileOf: EntityRepresentative;
+  profileOf: ProfileType;
 
   /**
    * Usage note.
@@ -36,12 +37,13 @@ export interface EntityProfileState extends EntityState {
 
 }
 
-export function createEntityProfileStateForNewEntityProfile(
-  language: string,
-  vocabularies: CmeModel[],
-  profiles: EntityRepresentative[],
-  profiledIdentifier: string,
-): EntityProfileState {
+export function createEntityProfileStateForNewEntityProfile
+  <ProfileType extends EntityRepresentative>(
+    language: string,
+    vocabularies: CmeModel[],
+    profiles: ProfileType[],
+    profiledIdentifier: string,
+  ): EntityProfileState<ProfileType> {
   const writableVocabularies = filterWritableModels(vocabularies);
   if (writableVocabularies.length === 0) {
     throw new NoWritableModelFound();
@@ -74,12 +76,13 @@ export function createEntityProfileStateForNewEntityProfile(
   };
 }
 
-export function createEntityProfileStateForNewProfileOfProfile(
-  language: string,
-  vocabularies: CmeModel[],
-  profiles: EntityRepresentative[],
-  profiledIdentifier: string,
-): EntityProfileState {
+export function createEntityProfileStateForNewProfileOfProfile
+  <ProfileType extends EntityRepresentative>(
+    language: string,
+    vocabularies: CmeModel[],
+    profiles: ProfileType[],
+    profiledIdentifier: string,
+  ): EntityProfileState<ProfileType> {
   const result = createEntityProfileStateForNewEntityProfile(
     language, vocabularies, profiles, profiledIdentifier);
   // As we profile a profile, we can inherit the usage note.
@@ -91,17 +94,18 @@ export function createEntityProfileStateForNewProfileOfProfile(
 /**
  * Load aggregated values from the profile representation.
  */
-export function createEntityProfileStateForEdit(
-  language: string,
-  vocabularies: CmeModel[],
-  vocabularyDsIdentifier: ModelDsIdentifier,
-  profiles: EntityRepresentative[],
-  profiledIdentifier: string,
-  iri: string,
-  name: LanguageString | null,
-  description: LanguageString | null,
-  usageNote: LanguageString | null,
-): EntityProfileState {
+export function createEntityProfileStateForEdit
+  <ProfileType extends EntityRepresentative>(
+    language: string,
+    vocabularies: CmeModel[],
+    vocabularyDsIdentifier: ModelDsIdentifier,
+    profiles: ProfileType[],
+    profiledIdentifier: string,
+    iri: string,
+    name: LanguageString | null,
+    description: LanguageString | null,
+    usageNote: LanguageString | null,
+  ): EntityProfileState<ProfileType> {
   const writableVocabularies = filterWritableModels(vocabularies);
   const selectedVocabulary = writableVocabularies.find(item => item.dsIdentifier === vocabularyDsIdentifier);
   if (selectedVocabulary === undefined) {
@@ -149,10 +153,13 @@ export interface EntityProfileStateController extends EntityStateController {
 }
 
 // TODO PeSk Implement validation!
-export function createEntityProfileController<State extends EntityProfileState>(
-  changeState: (next: State | ((prevState: State) => State)) => void,
-  generateIriFromName: (name: string) => string,
-): EntityProfileStateController {
+export function createEntityProfileController<
+  ProfileType extends EntityRepresentative,
+  State extends EntityProfileState<ProfileType>>
+  (
+    changeState: (next: State | ((prevState: State) => State)) => void,
+    generateIriFromName: (name: string) => string,
+  ): EntityProfileStateController {
 
   // We use dummy IRI generator function as we do not generate IRI here.
   const entityController = createEntityController(changeState, generateIriFromName);

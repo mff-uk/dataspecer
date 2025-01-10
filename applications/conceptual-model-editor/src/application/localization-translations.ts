@@ -239,6 +239,8 @@ export const translations: Record<string, string | Function> = {
   //
   "node-anchor-button": "(Un)anchor node for layouting using force-directed layouting algorithm",
   "node-connection-handle": "Drag from this button to create connection (Dragging to canvas shows menu)",
+  "node-add-attribute": "Add a new attribute",
+  "node-add-attribute-profile": "Add an attribute profile",
   //
   "selection-action-button": "Show menu with actions on top of selection",
   "selection-layout-button": "Show menu with layout actions on top of selection",

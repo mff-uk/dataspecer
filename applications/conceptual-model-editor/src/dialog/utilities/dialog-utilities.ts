@@ -121,7 +121,11 @@ export interface RelationshipRepresentative extends EntityRepresentative {
 
   domain: string | null;
 
+  domainCardinality: Cardinality;
+
   range: string | null;
+
+  rangeCardinality: Cardinality;
 
 }
 
@@ -166,7 +170,9 @@ export function representRelationships(
       profileOfIdentifiers: [],
       usageNote: null,
       domain: domain.concept,
-      range: range.concept
+      domainCardinality: representCardinality(domain.cardinality),
+      range: range.concept,
+      rangeCardinality: representCardinality(range.cardinality),
     });
   }
   return result;
@@ -207,7 +213,9 @@ export function representRelationshipProfiles(
       profileOfIdentifiers: [entity.usageOf],
       usageNote: range.usageNote,
       domain: domain.concept,
-      range: range.concept
+      domainCardinality: representCardinality(domain.cardinality),
+      range: range.concept,
+      rangeCardinality: representCardinality(range.cardinality),
     });
   }
   return result;
@@ -272,6 +280,15 @@ export function representDataTypes(): DataTypeRepresentative[] {
     label: { "": dataTypeUriToName(iri) ?? iri },
   }));
   return values;
+}
+
+const RDFS_LITERAL = "http://www.w3.org/2000/01/rdf-schema#Literal";
+
+/**
+ * Return representation for rdfs:Literal.
+ */
+export function selectRdfLiteral(dataTypes: DataTypeRepresentative[]): DataTypeRepresentative {
+  return dataTypes.find(item => item.identifier === RDFS_LITERAL)!;
 }
 
 /**
