@@ -18,6 +18,18 @@ import { commonXmlNamespace, commonXmlPrefix, iriElementName, langStringName, QN
 import { XML_COMMON_SCHEMA_GENERATOR } from "../xml-common-schema/index";
 import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties";
 
+function multiplyMinCardinality(a: number, b: number): number {
+  return a * b;
+}
+
+function multiplyMaxCardinality(a: number | null, b: number | null): number | null {
+  if (a === null || b === null) {
+    return null;
+  }
+  return a * b;
+}
+
+
 /**
  * Converts a {@link StructureModel} to an {@link XmlSchema}.
  */
@@ -58,7 +70,9 @@ export async function structureModelToXmlSchema(
  */
 const iriProperty: XmlSchemaComplexContentElement = {
   cardinalityMin: 0,
+  effectiveCardinalityMin: 0,
   cardinalityMax: 1,
+  effectiveCardinalityMax: 1,
   semanticRelationToParentElement: null,
   element: {
     entityType: "element",
@@ -124,9 +138,14 @@ class XmlSchemaAdapter {
     this.groups = {};
     this.types = {};
     this.wasCommonXmlImportUsed = false;
-    const elements = (await Promise.all(roots
-      .map(this.rootToElement, this)))
-      .map(this.extractTypeFromRoot, this);
+
+    const elements: XmlSchemaElement[] = [];
+    for (const root of roots) {
+      let rootElement = await this.rootToElement(root);
+      rootElement = this.extractTypesIfConfigured(rootElement);
+      elements.push(rootElement);
+    }
+
     if (this.wasCommonXmlImportUsed) {
       this.imports[commonXmlNamespace] = {
         namespace: commonXmlNamespace,
@@ -148,29 +167,27 @@ class XmlSchemaAdapter {
   }
 
   /**
-   * If allowed, registers the type of the root element and uses it by name.
+   * If allowed, registers the type of the root element and other elements and uses it by name.
    */
-  extractTypeFromRoot(
-    element: XmlSchemaElement
+  extractTypesIfConfigured(
+    rootElement: XmlSchemaElement
   ): XmlSchemaElement {
-    if (this.options.rootClass.extractType) {
+    const extractType = (element: XmlSchemaElement) => {
       const typeName = element.name[1];
       const type = element.type;
       type.name = [null, typeName];
       this.types[typeName] = type;
 
-      return {
-        entityType: "element",
-        name: element.name,
-        type: {
-          entityType: "type",
-          name: [this.model.namespacePrefix, typeName],
-          annotation: null
-        },
-        annotation: element.annotation,
-      } satisfies XmlSchemaElement;
+      element.type = {
+        entityType: "type",
+        name: [this.model.namespacePrefix, typeName],
+        annotation: null
+      };
     }
-    return element;
+    if (this.options.rootClass.extractType) {
+      extractType(rootElement);
+    }
+    return rootElement;
   }
 
   findArtefactForImport(
@@ -346,28 +363,35 @@ class XmlSchemaAdapter {
     } as XmlSchemaElement;
   }
 
+  /**
+   * Returns a single XmlSchemaElement from a root structure model.
+   * Root can be either a single class or a set of classes in OR relation.
+   * This does not handle the type extraction, this only returns XmlSchemaElement.
+   */
   async rootToElement(root: StructureModelSchemaRoot): Promise<XmlSchemaElement> {
     const classes = root.classes;
 
     if (classes.length === 1 && !root.isInOr) {
+      // Single class - return the element
       return await this.classToElement(classes[0]);
     }
 
-    const [el, _] = await this.oRToSingleType(classes, true, undefined, undefined, root.isInOr);
+    const [el] = await this.oRToSingleType(classes, true, undefined, undefined, root.isInOr);
     const complexType = {
       entityType: "type",
-      name: [null, root.orTechnicalLabel],
+      //name: [null, root.orTechnicalLabel],
+      name: null,
       complexDefinition: el,
       annotation: null,
     } as XmlSchemaComplexType;
-    this.types[root.orTechnicalLabel] = complexType;
+    //!this.types[root.orTechnicalLabel] = complexType;
+
+    // Return element that references the type even if the type is not extracted
+    // todo this is weird.
     return {
       entityType: "element",
       name: [null, root.orTechnicalLabel],
-      type: {
-        name: [this.model.namespacePrefix, root.orTechnicalLabel],
-        annotation: null
-      },
+      type: complexType,
       annotation: null,
     } as XmlSchemaElement;
   }
@@ -466,6 +490,8 @@ class XmlSchemaAdapter {
     const elementContent: XmlSchemaComplexContentElement = {
       cardinalityMin: propertyData.cardinalityMin ?? 0,
       cardinalityMax: propertyData.cardinalityMax,
+      effectiveCardinalityMin: propertyData.cardinalityMin ?? 0,
+      effectiveCardinalityMax: propertyData.cardinalityMax,
       semanticRelationToParentElement: propertyData.semanticPath ?? [], // It is a relation from complex content to this relation
       element: await this.propertyToElement(propertyData),
     };
@@ -479,16 +505,23 @@ class XmlSchemaAdapter {
           item: type.complexDefinition,
         };
 
-        // // Propagate semantic relation to parent element by finding all elements
-        // const lookupContents = [...(item.item as XmlSchemaComplexContainer)?.contents];
-        // for (const content of lookupContents) {
-        //   if (xmlSchemaComplexContentIsElement(content)) {
-        //     content.semanticRelationToParentElement = [StructureModelProperty, ...content.semanticRelationToParentElement];
-        //   } else if (xmlSchemaComplexContentIsItem(content)) {
-        //     const lookup = [...(content.item as XmlSchemaComplexContainer)?.contents];
-        //     lookupContents.push(...lookup);
-        //   }
-        // }
+        // Propagate effective cardinality by finding all elements
+        const lookupContents = [...(item.item as XmlSchemaComplexContainer)?.contents];
+        for (const content of lookupContents) {
+          if (xmlSchemaComplexContentIsElement(content)) {
+            content.effectiveCardinalityMin = multiplyMinCardinality(
+              content.effectiveCardinalityMin,
+              item.cardinalityMin
+            );
+            content.effectiveCardinalityMax = multiplyMaxCardinality(
+              content.effectiveCardinalityMax,
+              item.cardinalityMax
+            );
+          } else if (xmlSchemaComplexContentIsItem(content)) {
+            const lookup = [...(content.item as XmlSchemaComplexContainer)?.contents];
+            lookupContents.push(...lookup);
+          }
+        }
 
         // This will take the constructed item and changes the container type
         if (propertyData.propertyAsContainer) {

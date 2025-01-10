@@ -35,39 +35,41 @@ function traverseXmlSchemaComplexContainer(container: XmlSchemaComplexContainer,
       if (!skipElement) {
         elements.push(element);
         // @ts-ignore
-        element.cardinalityFromParentContainer = {
-          min: content.cardinalityMin,
-          max: content.cardinalityMax,
+        element.effectiveCardinalityFromParentContainer = {
+          min: content.effectiveCardinalityMin,
+          max: content.effectiveCardinalityMax,
         };
 
         // Prepare path to parent entity in more human readable form
         const semanticPath = [];
-        for (let i = 0; i < content.semanticRelationToParentElement.length; i++) {
-          const step = content.semanticRelationToParentElement[i];
-          const nextStep = content.semanticRelationToParentElement[i + 1] ?? null;
+        if (content.semanticRelationToParentElement) {
+          for (let i = 0; i < content.semanticRelationToParentElement.length; i++) {
+            const step = content.semanticRelationToParentElement[i];
+            const nextStep = content.semanticRelationToParentElement[i + 1] ?? null;
 
-          if (step.type === "class") {
-            semanticPath.push({
-              type: "class",
-              entity: step.class,
-            })
-          } else if (step.type === "property") {
-            semanticPath.push({
-              type: "property",
-              entity: step.property,
-            })
-          } else if (step.type === "generalization" && nextStep?.type === "class") {
-            semanticPath.push({
-              type: "generalization",
-              entity: nextStep.class,
-            });
-            i++;
-          } else if (step.type === "specialization" && nextStep?.type === "class") {
-            semanticPath.push({
-              type: "specialization",
-              entity: nextStep.class,
-            });
-            i++;
+            if (step.type === "class") {
+              semanticPath.push({
+                type: "class",
+                entity: step.class,
+              })
+            } else if (step.type === "property") {
+              semanticPath.push({
+                type: "property",
+                entity: step.property,
+              })
+            } else if (step.type === "generalization" && nextStep?.type === "class") {
+              semanticPath.push({
+                type: "generalization",
+                entity: nextStep.class,
+              });
+              i++;
+            } else if (step.type === "specialization" && nextStep?.type === "class") {
+              semanticPath.push({
+                type: "specialization",
+                entity: nextStep.class,
+              });
+              i++;
+            }
           }
         }
         // @ts-ignore
@@ -546,10 +548,10 @@ export const DEFAULT_TEMPLATE = `
       {{/each}}
     </dd>
 
-    {{#cardinalityFromParentContainer}}
-      <dt>Kardinalita elementu v nadřazeném kontejneru</dt>
+    {{#effectiveCardinalityFromParentContainer}}
+      <dt>Efektivní kardinalita elementu vůči nadřazeném elementu</dt>
       <dd>{{min}}..{{#if max}}{{max}}{{else}}*{{/if}}</dd>
-    {{/cardinalityFromParentContainer}}
+    {{/effectiveCardinalityFromParentContainer}}
     {{#parentEntityInDocumentation}}
       <dt>Nadřazený element</dt>
       <dd><a href="{{xml-href .}}"></a></dd>

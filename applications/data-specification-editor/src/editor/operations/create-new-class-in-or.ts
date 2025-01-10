@@ -56,7 +56,7 @@ export class CreateNewClassInOr implements ComplexOperation {
       const semanticModelRelationship = await this.store.readResource(dataPsmAssociationEnd.dataPsmInterpretation as string) as SemanticModelRelationship;
       const end = semanticModelRelationship.ends[1]; // todo: find correct end
       const typedPimClass = await this.store.readResource(end.concept as string) as SemanticModelClass;
-      pimSchema = this.store.getSchemaForResource(typedPimClass.iri as string) as string;
+      pimSchema = this.store.getSchemaForResource(typedPimClass.id as string) as string;
 
 
       const sourceSemanticClass = this.sourceSemanticModel.find((entity) => entity.id === typedPimClass.iri) as SemanticModelClass;
