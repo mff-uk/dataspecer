@@ -23,8 +23,7 @@ const <%= it.exported_object_name %> = () => {
     const schema: RJSFSchema = <%~ it.json_schema %> as RJSFSchema;
 
     const handleFormChange = (data: any, id?: string) => {
-      console.log("element id: ", id);
-      console.log("DATA: ", data);
+      console.log(data);
     }
 
     useEffect(() => {
@@ -105,8 +104,21 @@ const <%= it.exported_object_name %> = () => {
                             formData={formData}
                             showErrorList="top"
                         >
-                            <Button type="button" variant="outlined" startIcon={<DeleteIcon />}>Cancel</Button>
-                            <Button type="submit" variant="contained" endIcon={<SendIcon />} sx={{ margin: "10px"}}>Submit</Button>
+                            <Button
+                                type="button"
+                                variant="outlined"
+                                startIcon={<DeleteIcon />}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                endIcon={<SendIcon />}
+                                sx={{ margin: "10px"}}
+                            >
+                                Submit
+                            </Button>
                         </Form>
                     </>
                 )

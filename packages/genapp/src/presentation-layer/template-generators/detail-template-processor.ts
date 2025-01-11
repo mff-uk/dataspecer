@@ -13,7 +13,7 @@ interface DetailReactComponentTemplate extends TemplateModel {
         export_name: string;
         detail_capability_app_layer: string;
         detail_app_layer_path: ImportRelativePath;
-        schema: object,
+        json_schema: string,
         capability_transitions: AllowedTransition[];
         capability_aggregations: AllowedTransition[];
         navigation_hook: string;
@@ -33,19 +33,6 @@ export class DetailComponentTemplateProcessor extends PresentationLayerTemplateG
         })
     }
 
-    private tryRestoreAggregateDataModelInterface(aggregateTechnicalLabel: string): object {
-        const aggregateSchemaInterface = ArtifactCache.content[`__${aggregateTechnicalLabel}DataModelInterface`];
-
-        if (!aggregateSchemaInterface) {
-            return { id: "string" };
-        }
-
-        const schemaInterface = JSON.parse(aggregateSchemaInterface);
-        console.log(schemaInterface);
-
-        return schemaInterface;
-    }
-
     async processTemplate(dependencies: PresentationLayerDependencyMap): Promise<LayerArtifact> {
 
         const detailExportedName = dependencies.aggregate.getAggregateNamePascalCase({
@@ -53,7 +40,7 @@ export class DetailComponentTemplateProcessor extends PresentationLayerTemplateG
         });
 
         const useNavigationHook = await UseNavigationHookGenerator.processTemplate();
-        const dataSchemaInterface = this.tryRestoreAggregateDataModelInterface(dependencies.aggregate.technicalLabel);
+        const dataSchemaInterface = this.restoreAggregateDataModelInterface(dependencies.aggregate);
 
         const transitions = dependencies.transitions.groupByTransitionType()[ApplicationGraphEdgeType.Transition.toString()]!;
         const aggregations = dependencies.transitions.groupByTransitionType()[ApplicationGraphEdgeType.Aggregation.toString()]!;
@@ -69,7 +56,7 @@ export class DetailComponentTemplateProcessor extends PresentationLayerTemplateG
                     to: dependencies.appLogicArtifact.filePath
                 },
                 detail_capability_app_layer: dependencies.appLogicArtifact.exportedObjectName,
-                schema: dataSchemaInterface,
+                json_schema: JSON.stringify(dataSchemaInterface, null, 2),
                 capability_transitions: transitions,
                 capability_aggregations: aggregations,
                 navigation_hook: useNavigationHook.exportedObjectName,

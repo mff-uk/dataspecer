@@ -27,6 +27,9 @@ const <%= it.exported_name_object %> = () => {
 
     const handleDialogClose = () => {
         setOpenDialog(false);
+        setTimeout(() => {
+            navigationHooks.handleCollectionCapabilityRedirect("/");
+        }, 1000);
     };
 
     const handleDeletion = async (id: string) => {

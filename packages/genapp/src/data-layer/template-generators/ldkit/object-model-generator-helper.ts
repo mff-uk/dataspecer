@@ -135,8 +135,12 @@ export class ObjectModelTypeGeneratorHelper {
             return "string";
         }
 
-        return value["@type"] in SupportedDataTypesPrototype
-            ? SupportedDataTypesPrototype[value["@type"]]!.name.toLowerCase()
-            : "string";
+        const typeValue = value["@type"] in SupportedDataTypesPrototype
+            ? SupportedDataTypesPrototype[value["@type"]]!
+            : String;
+
+        return typeValue.name !== "Date"
+            ? typeValue.name.toLowerCase()
+            : typeValue.name;
     }
 }

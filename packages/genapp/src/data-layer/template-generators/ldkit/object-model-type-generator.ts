@@ -28,12 +28,23 @@ export class LdkitObjectModelTypeGenerator extends TemplateConsumer<LdkitObjectM
         this._generatorHelper = new ObjectModelTypeGeneratorHelper();
     }
 
+    private getSecondOccurenceIndex(str: string, subString: string): number {
+
+        const firstOccurrence = str.indexOf(subString);
+
+        if (firstOccurrence === -1) {
+            return -1;
+        }
+
+        return str.indexOf(subString, firstOccurrence + 1);
+    }
+
     private getSerializedLdkitSchema(ldkitSchemaSource: string): string {
-        const objectStartIndex = ldkitSchemaSource.indexOf("{");
+        const objectStartIndex = this.getSecondOccurenceIndex(ldkitSchemaSource, "{");
         const objectEndIndex = ldkitSchemaSource.indexOf(" as const;");
 
         const result = ldkitSchemaSource.substring(objectStartIndex, objectEndIndex)
-            .replace(/"@type": \s*(\w+)\.(\w+).(\w+)/g, '"@type": "$1.$2.$3"');
+            .replace(/"@type": \s*(\w+)\.(\w+)/g, '"@type": "$1.$2"');
         console.log(result);
         return result;
     }
@@ -75,27 +86,33 @@ export class LdkitObjectModelTypeGenerator extends TemplateConsumer<LdkitObjectM
                 return null;
             }
 
+            let optionalFlag: string = "";
+            if (typeName.endsWith(" | undefined")) {
+                optionalFlag = "?";
+                typeName = typeName.substring(0, typeName.lastIndexOf(" | undefined"));
+            }
+
             if (typeName.endsWith("[]")) {
                 const nestedStr = typeName.substring(0, typeName.length - "[]".length);
                 try {
-                const nested = JSON.parse(nestedStr);
-                return `"${propName}": ${this.convertSerializedTypeToTypescriptType(nested)}[],`
-                } catch {
-                return `"${propName}": ${nestedStr}[],`
+                    const nested = JSON.parse(nestedStr);
+                    return `"${propName}"${optionalFlag}: ${this.convertSerializedTypeToTypescriptType(nested)}[],`
+                } catch(error) {
+                    return `"${propName}"${optionalFlag}: ${nestedStr}[],`
                 }
             }
 
             if (typeName.startsWith("{")) {
                 const nested = JSON.parse(typeName);
-                return `"${propName}": ${this.convertSerializedTypeToTypescriptType(nested)}`
+                return `"${propName}"${optionalFlag}: ${this.convertSerializedTypeToTypescriptType(nested)}`
             }
 
             if (typeName.startsWith("Record")) {
                 const [keyTypeName, valueTypeName] = this.splitRecordToKeyAndValueTypes(typeName);
-                return `"${propName}": { [key: ${keyTypeName}]: ${valueTypeName} },`
+                return `"${propName}"${optionalFlag}: { [key: ${keyTypeName}]: ${valueTypeName} },`
             }
 
-            return `"${propName}": ${typeName},`
+            return `"${propName}"${optionalFlag}: ${typeName},`
             })
             .filter((item: string | null): item is string => item !== null)
             .join("\n");

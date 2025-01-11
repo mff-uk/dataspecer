@@ -51,7 +51,7 @@ export default class <%= it.exported_name_object %> implements <%= it.ldkit_inst
 
     private removeLdkitProperties(instanceDetail: any) {
 
-        if (typeof instanceDetail !== "object") {
+        if (!instanceDetail || typeof instanceDetail !== "object") {
             return instanceDetail;
         }
 
@@ -70,7 +70,7 @@ export default class <%= it.exported_name_object %> implements <%= it.ldkit_inst
                     return [key, value.map(item => this.removeLdkitProperties(item))];
                 }
 
-                if (typeof value === "object") {
+                if (typeof value === "object" && !(value instanceof Date)) {
                     return [key, this.removeLdkitProperties(value)];
                 }
 
