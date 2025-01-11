@@ -122,16 +122,21 @@ function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
 function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   const context = useContext(DiagramContext);
 
+  const isPartOfGroup = props.data.group !== null;
+
   const onShowDetail = () => context?.callbacks().onShowNodeDetail(props.data);
   const onEdit = () => context?.callbacks().onEditNode(props.data);
   const onCreateProfile = () => context?.callbacks().onCreateNodeProfile(props.data);
   const onHide = () => context?.callbacks().onHideNode(props.data);
   const onDelete = () => context?.callbacks().onDeleteNode(props.data);
-  const onAnchor = () => context?.callbacks().onToggleAnchorForNode(props.data);
+  const onAnchor = () => context?.callbacks().onToggleAnchorForNode(props.data.identifier);
+  const onDissolveGroup = () => context?.callbacks().onDissolveGroup(props.data.group);
 
+  // TODO RadStr: It seems to work with the selected, so again remove commented code
   // const shouldShowToolbar = context?.getNodeWithToolbar() === props.id;   // TODO RadStr: Maybe also && props.selected === true?
   const shouldShowToolbar = props.selected === true;
 
+  // TODO RadStr: Commented code remove
   // if(props.selected === true) {
   //   console.info(context);
   //   console.info(context?.getNodeWithToolbar());
@@ -155,12 +160,18 @@ function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
     <NodeToolbar isVisible={shouldShowToolbar} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
       <Handle type="source" position={Position.Right} title={t("node-connection-handle")}>🔗</Handle>
     </NodeToolbar>
+    {
+      !isPartOfGroup ? null :
+        <NodeToolbar isVisible={shouldShowToolbar} position={Position.Left} className="flex gap-2 entity-node-toolbar" >
+          <button onClick={onDissolveGroup} title={t("dissolve-group-button")}>❌</button>
+        </NodeToolbar>
+    }
     <NodeToolbar isVisible={shouldShowToolbar} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
       <button onClick={onHide} title={t("class-hide-button")}>🕶</button>
       &nbsp;
       <button onClick={onDelete} title={t("class-remove-button")}>🗑</button>
       &nbsp;
-      <button onClick={onAnchor} title={t("node-anchor-button")} >⚓</button>
+      <button onClick={onAnchor} title={isPartOfGroup ? t("group-anchor-button") : t("node-anchor-button")} >⚓</button>
       &nbsp;
     </NodeToolbar>
   </>);
@@ -182,7 +193,9 @@ function SelectionToolbar(props: SelectionToolbarProps) {
     context?.callbacks().onShowSelectionActionsMenu(props.data, absoluteFlowPosition);
   }
   const onLayoutSelection = () => context?.callbacks().onLayoutSelection();
-  const onCreateGroup = () => context?.callbacks().onCreateGroup();
+  const onCreateGroup = () => {
+    context?.callbacks().onCreateGroup();
+  };
   const onDissolveGroup = () => {
     console.info("props.data");
     console.info(props.data);

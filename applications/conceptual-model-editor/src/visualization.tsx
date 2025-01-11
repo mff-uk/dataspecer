@@ -45,6 +45,7 @@ import { getIri, getModelIri } from "./util/iri-utils";
 import { findSourceModelOfEntity } from "./service/model-service";
 import { type EntityModel } from "@dataspecer/core-v2";
 import { Options, useOptions } from "./application/options";
+import { getGroupMappings } from "./action/utilities";
 
 const DEFAULT_MODEL_COLOR = "#ffffff";
 
@@ -196,7 +197,7 @@ function onChangeVisualModel(
     }
     if (visualModel === null) {
         // We just set content to nothing and return.
-        void diagram.actions().setContent([], []);
+        void diagram.actions().setContent([], [], []);
         return;
     }
 
@@ -209,11 +210,14 @@ function onChangeVisualModel(
 
     const nextNodes: Node[] = [];
     const nextEdges: Edge[] = [];
+    const nextGroups: VisualGroup[] = [];
 
     const visualEntities = visualModel.getVisualEntities().values();
+    const {nodeToGroupMapping} = getGroupMappings(visualModel);
+
     for (const visualEntity of visualEntities) {
         if(isVisualGroup(visualEntity)) {
-            console.error("Groups are not yet supported for persistent storage", { visualEntity });
+            nextGroups.push(visualEntity);
             continue;
         } else if (isVisualNode(visualEntity)) {
             const entity = entities[visualEntity.representedEntity]?.aggregatedEntity ?? null;
@@ -226,7 +230,7 @@ function onChangeVisualModel(
                 const node = createDiagramNode(
                     options, visualModel,
                     attributes, attributeProfiles, profilingSources,
-                    visualEntity, entity, model, null);
+                    visualEntity, entity, model, nodeToGroupMapping[visualEntity.identifier] ?? null);
                 nextNodes.push(node);
             }
         } else if (isVisualRelationship(visualEntity)) {
@@ -271,7 +275,13 @@ function onChangeVisualModel(
         // For now we ignore all other.
     }
 
-    void diagram.actions().setContent(nextNodes, nextEdges);
+    const groupToSetContentWith = nextGroups.map(visualGroup => {
+        return {
+            group: createGroupNode(visualGroup),
+            content: visualGroup.content,
+        };
+    });
+    void diagram.actions().setContent(nextNodes, nextEdges, groupToSetContentWith);
 }
 
 function createGroupNode(
@@ -291,7 +301,7 @@ function createDiagramNode(
     visualNode: VisualNode,
     entity: SemanticModelClass | SemanticModelClassUsage,
     model: EntityModel,
-    nodeIdToParentGroupIdMap: Record<string, string> | null,           // TOOO RadStr: We will see about the null
+    group: string | null,
 ): Node {
     const language = options.language;
 
@@ -342,7 +352,7 @@ function createDiagramNode(
         iri: getIri(entity, getModelIri(model)),
         color: visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR,
         description: getEntityDescription(language, entity),
-        group: nodeIdToParentGroupIdMap?.[visualNode.identifier] ?? null,
+        group,
         position: {
             x: visualNode.position.x,
             y: visualNode.position.y,
@@ -528,7 +538,7 @@ function onChangeVisualEntities(
     }
     if (visualModel === null) {
         // We just set content to nothing and return.
-        void diagram.actions().setContent([], []);
+        void diagram.actions().setContent([], [], []);
         return;
     }
 
@@ -549,6 +559,8 @@ function onChangeVisualEntities(
     for(const {previous, next} of groups) {
         if (previous !== null && next === null) {
             // Entity removed
+            // TODO RadStr: DEBUG
+            console.warn("removed, group", previous);
             actions.removeGroups([previous.identifier]);
             continue;
         }
@@ -561,12 +573,21 @@ function onChangeVisualEntities(
 
         if (previous === null) {
             // Create new entity.
-            actions.addGroup(group, nextVisualGroup.content);
+            // TODO RadStr: DEBUG
+            console.info("nextVisualGroup.content", nextVisualGroup.content);
+            console.warn("creating new entity", previous, next);
+            actions.addGroups([{group, content: nextVisualGroup.content}], false);
             nextVisualGroup.content.forEach(nodeIdGroupId => {
                 nodeIdToParentGroupIdMap[nodeIdGroupId] = group.identifier;
             });
         }
-        // Else change of existing - not supported.
+        else {          // Change of existing - occurs when removing node from canvas
+            // TODO RadStr: DEBUG
+            console.info("nextVisualGroup.content", nextVisualGroup.content);
+            console.warn("SETTING GROUP CONTENT", previous, next);
+            // TODO RadStr: Maybe not enough?
+            actions.setGroup(group, nextVisualGroup.content);
+        }
     }
 
 
@@ -587,16 +608,27 @@ function onChangeVisualEntities(
                     continue;
                 }
 
+                let group: string | null = null;
+                if(nodeIdToParentGroupIdMap[next.identifier] !== undefined) {
+                    group = nodeIdToParentGroupIdMap[next.identifier];
+                }    
                 const node = createDiagramNode(
                     options, visualModel,
                     attributes, attributeProfiles, profilingSources,
-                    next, entity, model, nodeIdToParentGroupIdMap);
+                    next, entity, model, group);
 
                 if (previous === null) {
                     // Create new entity.
                     actions.addNodes([node]);
                 } else {
                     // Change of existing.
+                    // TODO RadStr: It would be probably better update every time the change wasn't position change by user
+                    //       because for position change by user, the change is already registered in diagram.
+                    //       If we do that, the selection code needs to be changed to not remove the selected
+                    //       elements, right now we are doing that explicitly so it is consistent with this code.
+                    //       It might have negative side-effects though for non-user updates by layouting, etc. 
+                    //       Also might be difficult to check if it was position change. So wait a bit with implementation.
+                    //       Maybe won't even implement it.
                     actions.updateNodes([node]);
                 }
 

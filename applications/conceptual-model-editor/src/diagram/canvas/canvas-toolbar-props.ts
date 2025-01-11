@@ -23,7 +23,6 @@ export interface CanvasToolbarContentProps {
   canvasPosition: Position;
 
 
-  // TODO RadStr: Before PR - Maybe again use object or something
   /**
    * Is the identifier of the node which caused the toolbar to appear.
    * For example when dragging edge to canvas, then it is the source node of the connection.

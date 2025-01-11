@@ -79,6 +79,7 @@ export const useAlignmentController = (props: {
     const alignmentSetUpOnNodeDragStart = (node: Node) => {
         const nodesOnCanvas = (reactFlowInstance.getNodes() as InternalNode[])
             .filter(n => n.id !== node.id)
+            .filter(n => n.type !== "group")
             .map(n => getInternalNodeFromNode(n, reactFlowInstance));
 
         const xNodes: [string, number][] = nodesOnCanvas.map(n => {
