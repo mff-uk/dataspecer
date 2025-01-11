@@ -4,7 +4,6 @@ import {
     Expression,
     Node,
     NodeFlags,
-    PropertyAccessExpression,
     SyntaxKind,
     VariableDeclaration,
     VariableDeclarationList,
@@ -43,8 +42,8 @@ export class TypescriptWriter implements SourceCodeWriter {
 
         const ldkitSchemaDeclaration = factory.createVariableDeclaration(
             `${metadata.aggregateName}Schema`,
-            undefined, // ts.ExclamationToken
-            undefined, // type reference undefined to match ldkit's library type
+            undefined,
+            undefined,
             this.getSchemaAsObjectLiteral(metadata.dataSchema)
         );
 
@@ -147,12 +146,5 @@ export class TypescriptWriter implements SourceCodeWriter {
                 console.log("Not supported yet: ", propertyValue);
                 throw Error(`Not implemented yet for ${propertyValue}`)
         }
-    }
-
-    private getObjectAccessExpression(objName: string, memberName: string): PropertyAccessExpression {
-        return factory.createPropertyAccessExpression(
-            factory.createIdentifier(objName),
-            factory.createIdentifier(memberName)
-        );
     }
 }
