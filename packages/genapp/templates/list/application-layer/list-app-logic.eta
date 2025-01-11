@@ -1,8 +1,8 @@
 import { <%= it.list_reader_interface %> } from <%~ it.list_reader_interface_path %>;
 import ReaderImplementation from <%~ it.reader_implementation_path %>;
-import { <%= it.generated_capability_class %>, <%= it.read_return_type %> } from <%~ it.read_return_type_path %>;
+import { <%= it.generated_capability_class %>, <%= it.return_type %> } from <%~ it.return_type_path %>;
 
-export class <%= it.list_app_layer_export_name %> implements <%= it.generated_capability_class %><<%= it.read_return_type %>> {
+export class <%= it.list_app_layer_export_name %> implements <%= it.generated_capability_class %><<%= it.return_type %>> {
     name = "list";
 
     private readonly reader: <%= it.list_reader_interface %>;

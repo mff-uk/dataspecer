@@ -16,9 +16,9 @@ interface ListCapabilityAppLayerTemplate extends TemplateModel {
         list_reader_interface_path: ImportRelativePath;
         reader_implementation_path: ImportRelativePath;
         generated_capability_class: string;
-        read_return_type: string;
+        return_type: string;
         list_app_layer_export_name: string;
-        read_return_type_path: ImportRelativePath;
+        return_type_path: ImportRelativePath;
     };
 }
 
@@ -75,8 +75,8 @@ export class ListAppLayerTemplateProcessor extends ApplicationLayerTemplateGener
             placeholders: {
                 list_app_layer_export_name: listAppLayerExportName,
                 list_reader_interface: readerInterfaceArtifact.exportedObjectName,
-                read_return_type: listReturnTypeArtifact.exportedObjectName,
-                read_return_type_path: {
+                return_type: listReturnTypeArtifact.exportedObjectName,
+                return_type_path: {
                     from: this._filePath,
                     to: listReturnTypeArtifact.filePath
                 },

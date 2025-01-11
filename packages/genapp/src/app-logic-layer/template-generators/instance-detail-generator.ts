@@ -13,8 +13,8 @@ interface DetailCapabilityAppLayerTemplate extends TemplateModel {
         detail_app_layer_exported_name: string;
         instance_reader_interface: string;
         generated_capability_class: string;
-        read_return_type: string;
-        read_return_type_path: ImportRelativePath;
+        return_type: string;
+        return_type_path: ImportRelativePath;
         reader_implementation_path: ImportRelativePath;
         instance_reader_interface_path: ImportRelativePath;
     };
@@ -73,7 +73,7 @@ export class DetailAppLayerTemplateProcessor extends ApplicationLayerTemplateGen
             placeholders: {
                 detail_app_layer_exported_name: detailAppLayerExportedName,
                 instance_reader_interface: instanceReaderInterfaceArtifact.exportedObjectName,
-                read_return_type: instanceReturnTypeArtifact.exportedObjectName,
+                return_type: instanceReturnTypeArtifact.exportedObjectName,
                 generated_capability_class: generatedCapabilityInterface.exportedObjectName,
                 instance_reader_interface_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
@@ -82,7 +82,7 @@ export class DetailAppLayerTemplateProcessor extends ApplicationLayerTemplateGen
                         instanceReaderInterfaceArtifact.exportedObjectName
                     )
                 },
-                read_return_type_path: {
+                return_type_path: {
                     from: this._filePath,
                     to: instanceReturnTypeArtifact.filePath
                 },

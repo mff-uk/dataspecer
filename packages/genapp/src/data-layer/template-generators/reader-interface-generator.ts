@@ -10,8 +10,8 @@ import { ImportRelativePath, TemplateModel } from "../../engine/templates/templa
 interface ReaderInterfaceTemplate extends TemplateModel {
     templatePath: string;
     placeholders: {
-        read_return_type: string;
-        read_return_type_path: ImportRelativePath;
+        return_type: string;
+        return_type_path: ImportRelativePath;
     };
 }
 
@@ -38,8 +38,8 @@ class ReaderInterfaceGenerator extends TemplateConsumer<ReaderInterfaceTemplate>
         const readerInterfaceTemplate: ReaderInterfaceTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                read_return_type: capabilityResultArtifact.exportedObjectName,
-                read_return_type_path: {
+                return_type: capabilityResultArtifact.exportedObjectName,
+                return_type_path: {
                     from: this._filePath,
                     to: capabilityResultArtifact.filePath
                 }

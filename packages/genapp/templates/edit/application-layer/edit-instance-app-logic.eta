@@ -1,14 +1,14 @@
 import { <%= it.editor_interface_type %> } from <%~ it.editor_interface_type_path %>;
 import { <%= it.instance_editor_type %> } from <%~ it.instance_editor_type_path %>;
-import { <%= it.generated_capability_class %>, <%= it.read_return_type %> } from <%~ it.read_return_type_path %>;
+import { <%= it.generated_capability_class %>, <%= it.return_type %> } from <%~ it.return_type_path %>;
 
-export class <%= it.exported_object_name %> implements <%= it.generated_capability_class %><<%= it.read_return_type %>> {
+export class <%= it.exported_object_name %> implements <%= it.generated_capability_class %><<%= it.return_type %>> {
     name = "update";
 
-    async runCapability<T>(updatedInstance: T): Promise<<%= it.read_return_type %>> {
+    async runCapability<T>(updatedInstance: T): Promise<<%= it.return_type %>> {
 
         const editor: <%= it.editor_interface_type %> = new <%= it.instance_editor_type %>();
-        const instanceResult: <%= it.read_return_type %> = await editor.updateInstance(updatedInstance);
+        const instanceResult: <%= it.return_type %> = await editor.updateInstance(updatedInstance);
 
         return instanceResult;
     }

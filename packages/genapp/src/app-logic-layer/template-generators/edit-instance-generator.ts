@@ -16,8 +16,8 @@ interface EditInstanceCapabilityAppLayerTemplate extends TemplateModel {
         editor_interface_type: string;
         editor_interface_type_path: ImportRelativePath;
         generated_capability_class: string;
-        read_return_type: string;
-        read_return_type_path: ImportRelativePath;
+        return_type: string;
+        return_type_path: ImportRelativePath;
     };
 }
 
@@ -84,8 +84,8 @@ export class EditInstanceAppLayerTemplateProcessor extends ApplicationLayerTempl
                     )
                 },
                 generated_capability_class: generatedCapabilityInterface.exportedObjectName,
-                read_return_type: editReturnTypeArtifact.exportedObjectName,
-                read_return_type_path: {
+                return_type: editReturnTypeArtifact.exportedObjectName,
+                return_type_path: {
                     from: this._filePath,
                     to: editReturnTypeArtifact.filePath
                 }

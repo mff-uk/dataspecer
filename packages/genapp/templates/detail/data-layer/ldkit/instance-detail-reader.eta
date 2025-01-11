@@ -44,8 +44,6 @@ export default class <%= it.exported_name_object %> implements <%= it.ldkit_inst
             return null;
         }
 
-        //await this.populateNestedDetails(instanceDetail, schema);
-
         instanceDetail = this.removeLdkitProperties(instanceDetail);
 
         return instanceDetail;
@@ -82,53 +80,5 @@ export default class <%= it.exported_name_object %> implements <%= it.ldkit_inst
         .filter(([key, _]) => key !== null);
 
         return Object.fromEntries(transformed);
-    }
-
-    private async populateNestedDetails(instanceDetail: SchemaInterface<any> | undefined, schema: object) {
-
-        if (!instanceDetail || !("$id" in instanceDetail)) {
-            return;
-        }
-
-        instanceDetail["id"] = instanceDetail["$id"];
-        const promises = Object.entries(schema)
-            .map(async ([attrName, attrValue]) => {
-                const nestedSchema = attrValue["@schema"];
-
-                if (!nestedSchema) {
-                    return;
-                }
-
-                const instanceValue = instanceDetail[attrName];
-
-                if (Array.isArray(instanceValue)) {
-                    const resultPromises = instanceValue
-                        .filter(str => typeof str === "string" && (str.startsWith("http")))
-                        .map(async iri => {
-                            const nestedItem = await this.getInstanceDetail(iri, nestedSchema);
-
-                            return nestedItem
-                                ? nestedItem
-                                : iri;
-                        });
-
-                    const nestedItems = await Promise.all(resultPromises);
-                    instanceDetail[attrName] = nestedItems;
-                    return;
-                }
-
-                if (typeof instanceValue === "string" && instanceValue.startsWith("http")) {
-                    const subInstanceIri: string = instanceValue;
-                    const nestedItem = await this.getInstanceDetail(subInstanceIri, nestedSchema);
-
-                    if (!nestedItem) {
-                        return;
-                    }
-
-                    instanceDetail[attrName] = nestedItem;
-                }
-            })
-
-        await Promise.all(promises);
     }
 }

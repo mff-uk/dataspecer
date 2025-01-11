@@ -16,8 +16,8 @@ interface DeleteCapabilityAppLayerTemplate extends TemplateModel {
         delete_mutator_interface_type: string;
         delete_mutator_interface_type_path: ImportRelativePath;
         generated_capability_class: string;
-        read_return_type: string;
-        read_return_type_path: ImportRelativePath;
+        return_type: string;
+        return_type_path: ImportRelativePath;
     };
 }
 
@@ -88,8 +88,8 @@ export class DeleteAppLayerTemplateProcessor extends ApplicationLayerTemplateGen
                     )
                 },
                 generated_capability_class: generatedCapabilityInterface.exportedObjectName,
-                read_return_type: deleteReturnTypeArtifact.exportedObjectName,
-                read_return_type_path: {
+                return_type: deleteReturnTypeArtifact.exportedObjectName,
+                return_type_path: {
                     from: this._filePath,
                     to: deleteReturnTypeArtifact.filePath
                 }

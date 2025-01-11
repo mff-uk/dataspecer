@@ -1,14 +1,14 @@
 import { <%= it.creator_interface_type %> } from <%~ it.creator_interface_type_path %>;
 import { <%= it.instance_creator_type %> } from <%~ it.instance_creator_type_path %>;
-import { <%= it.generated_capability_class %>, <%= it.read_return_type %> } from <%~ it.read_return_type_path %>;
+import { <%= it.generated_capability_class %>, <%= it.return_type %> } from <%~ it.return_type_path %>;
 
-export class <%= it.exported_object_name %> implements <%= it.generated_capability_class %><<%= it.read_return_type %>> {
+export class <%= it.exported_object_name %> implements <%= it.generated_capability_class %><<%= it.return_type %>> {
     name = "create";
 
-    async runCapability<T>(newInstance: T): Promise<<%= it.read_return_type %>> {
+    async runCapability<T>(newInstance: T): Promise<<%= it.return_type %>> {
 
         const creator: <%= it.creator_interface_type %> = new <%= it.instance_creator_type %>();
-        const instanceResult: <%= it.read_return_type %> = await creator.createInstance(newInstance);
+        const instanceResult: <%= it.return_type %> = await creator.createInstance(newInstance);
 
         return instanceResult;
     }

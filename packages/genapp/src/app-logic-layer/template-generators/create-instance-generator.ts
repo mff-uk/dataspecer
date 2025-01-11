@@ -16,8 +16,8 @@ interface CreateInstanceCapabilityAppLayerTemplate extends TemplateModel {
         creator_interface_type: string;
         creator_interface_type_path: ImportRelativePath;
         generated_capability_class: string;
-        read_return_type: string;
-        read_return_type_path: ImportRelativePath;
+        return_type: string;
+        return_type_path: ImportRelativePath;
     };
 }
 
@@ -83,8 +83,8 @@ export class CreateInstanceAppLayerTemplateProcessor extends ApplicationLayerTem
                     )
                 },
                 generated_capability_class: generatedCapabilityInterface.exportedObjectName,
-                read_return_type: createReturnTypeArtifact.exportedObjectName,
-                read_return_type_path: {
+                return_type: createReturnTypeArtifact.exportedObjectName,
+                return_type_path: {
                     from: this._filePath,
                     to: createReturnTypeArtifact.filePath
                 }
