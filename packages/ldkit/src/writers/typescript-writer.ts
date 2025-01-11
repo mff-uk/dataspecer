@@ -17,7 +17,7 @@ import { AggregateMetadata } from "../readers/aggregate-data-provider-model";
 export class TypescriptWriter implements SourceCodeWriter {
 
     fileExtension: string = "ts";
-    private readonly namespacesDefaultExportIdentifier: string = "namespaces";
+    private readonly ldkitImports = new Set<string>();
 
     generateSourceFilePath(directoryPath: string, outputFileName: string) {
         const kebabCaseOutputFileName = convertToKebabCase(`${outputFileName} ldkitschema`);
@@ -62,8 +62,15 @@ export class TypescriptWriter implements SourceCodeWriter {
             undefined,
             factory.createImportClause(
                 false,
-                factory.createIdentifier(this.namespacesDefaultExportIdentifier),
-                undefined
+                undefined,
+                factory.createNamedImports(
+                    Array.from(this.ldkitImports)
+                        .map(importId => factory.createImportSpecifier(
+                            false,
+                            undefined,
+                            factory.createIdentifier(importId)
+                        ))
+                )
             ),
             factory.createStringLiteral(ldkitLibraryImportPath),
             undefined
@@ -126,11 +133,9 @@ export class TypescriptWriter implements SourceCodeWriter {
                 if (Object.values(wellKnownTypesMap).includes(propertyValue)) {
                     const [namespace, name] = propertyValue.split(".", 2);
 
+                    this.ldkitImports.add(namespace!);
                     return factory.createPropertyAccessExpression(
-                        factory.createPropertyAccessExpression(
-                            factory.createIdentifier(this.namespacesDefaultExportIdentifier),
-                            factory.createIdentifier(namespace!)
-                        ),
+                        factory.createIdentifier(namespace!),
                         factory.createIdentifier(name!)
                     );
                 }

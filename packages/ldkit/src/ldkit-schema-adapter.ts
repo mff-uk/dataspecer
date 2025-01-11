@@ -44,7 +44,7 @@ export class LdkitSchemaAdapter implements StructureClassToSchemaAdapter {
 
     setCardinalityRelatedProperties(cardMin: number | null, cardMax: number | null, property: LdkitSchemaProperty): void {
 
-        if (!cardMax || !cardMin) {
+        if (!cardMax || (!cardMin && cardMin !== 0)) {
             // cardMax is null == no upper bound == array expected
             property["@array"] = true;
             property["@optional"] = true;

@@ -6,6 +6,7 @@ export const wellKnownTypesMap: { [k: string]: any } = {
     [OFN.boolean]: "xsd.boolean",
     [OFN.date]: "xsd.date",
     [OFN.dateTime]: "xsd.dateTime",
+    [OFN.time]: "xsd.dateTime",
     [OFN.integer]: "xsd.integer",
     [OFN.decimal]: "xsd.decimal",
     [OFN.url]: "xsd.anyURI",
