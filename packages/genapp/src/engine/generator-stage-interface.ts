@@ -16,6 +16,9 @@ export type GenerationContext = {
 };
 
 export interface GeneratorStage {
+    /**
+     * An instance of `ArtifactSaver` used to save generated artifacts.
+     */
     artifactSaver?: ArtifactSaver;
     generateStage(context: GenerationContext): Promise<LayerArtifact>;
 }

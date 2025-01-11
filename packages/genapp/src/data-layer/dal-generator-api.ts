@@ -15,6 +15,14 @@ export default class DalApi {
         this.endpointBaseUri = GenappEnvConfig.Host;
     }
 
+    /**
+     * Performs a call to generate Dataspecer artifacts for all data structure models included in the data specification
+     * represented by its IRI identifier.
+     *
+     * @param dataSpecificationIri - The IRI of the data specification for which artifacts will be generated.
+     * @returns Backend service response object which contains the ZIP represented as a Buffer object, which contains the generated
+     * artifacts.
+     */
     async generateDalLayerArtifact(dataSpecificationIri: string):
         Promise<AxiosResponse<Buffer, any>> {
 
@@ -28,6 +36,12 @@ export default class DalApi {
         return promise;
     }
 
+    /**
+     * Fetches a data specification representation data from Dataspecer backend service which corresponds to the provided IRI.
+     *
+     * @param dataSpecificationIri - The IRI of the data specification to fetch.
+     * @returns Promise which, when resolved, returns the fetched DataSpecification instance.
+     */
     async getDataSpecification(dataSpecificationIri: string): Promise<DataSpecification> {
 
         const url = `${this.endpointBaseUri}/data-specification?dataSpecificationIri=${dataSpecificationIri}`;
@@ -43,6 +57,14 @@ export default class DalApi {
         return dataSpecficiationModel;
     }
 
+
+    /**
+     * Fetches a Resource from the specified dataspecer backend endpoint based on the provided resource IRI.
+     *
+     * @param {string} resourceIri - The IRI of the resource to fetch.
+     * @returns {Promise<any>} A promise that resolves to the data of the fetched resource.
+     * @throws {Error} Throws an error if the resource cannot be fetched.
+     */
     async getResource(resourceIri: string) {
         const url = `${this.endpointBaseUri}/resources/blob?iri=${encodeURIComponent(resourceIri)}`;
         console.log("URL", url);
@@ -56,6 +78,15 @@ export default class DalApi {
         return resourceResponse.data.resources;
     }
 
+
+    /**
+     * Retrieves a data structure model data for a given structure model included within the data specification.
+     *
+     * @param structureIri - The IRI identifier of the data structure model within the data specification.
+     * @returns A promise that resolves to the data structure model representation object - DataPsmSchema instance.
+     * @throws Throws an error if the specified data structure is not found within the data specification.
+     * @throws Throws an error when the IRI does not reference any valid data structure model instance.
+     */
     async getStructureInfo(dataSpecificationIri: string, structureIri: string): Promise<DataPsmSchema> {
 
         const specificationModel = await this.getDataSpecification(dataSpecificationIri);

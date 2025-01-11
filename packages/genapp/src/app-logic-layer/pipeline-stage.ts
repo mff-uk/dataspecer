@@ -9,9 +9,6 @@ import { ApplicationLayerGenerator } from "./strategy-interface";
  */
 export class ApplicationLayerStage implements GeneratorStage {
 
-    /**
-     * An instance of `ArtifactSaver` used to save generated artifacts.
-     */
     artifactSaver: ArtifactSaver;
 
     /**
@@ -28,7 +25,7 @@ export class ApplicationLayerStage implements GeneratorStage {
      * Method responsible for the management of the application layer stage generation process.
      *
      * @param context - The generation context.
-     * @returns A promise that resolves to a `LayerArtifact`.
+     * @returns A promise that resolves to a `LayerArtifact` instance which contains data about the main generated artifact of this layer.
      * @throws Will throw an error if the application layer could not be generated.
      */
     async generateStage(context: GenerationContext): Promise<LayerArtifact> {

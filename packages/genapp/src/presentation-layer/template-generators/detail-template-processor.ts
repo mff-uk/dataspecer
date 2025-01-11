@@ -76,7 +76,7 @@ export class DetailComponentTemplateProcessor extends PresentationLayerTemplateG
                 navigation_hook_path: {
                     from: this._filePath,
                     to: useNavigationHook.filePath
-                },
+                }
             }
         }
 

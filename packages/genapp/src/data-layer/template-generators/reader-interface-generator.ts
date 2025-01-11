@@ -7,7 +7,6 @@ import {
 } from "../../capabilities/template-generators/capability-interface-generator";
 import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
 
-// TODO: Change / use more generic interfaceTemplate and placeholder names (e.g. InterfaceTemplate and return_type)
 interface ReaderInterfaceTemplate extends TemplateModel {
     templatePath: string;
     placeholders: {
@@ -52,7 +51,7 @@ class ReaderInterfaceGenerator extends TemplateConsumer<ReaderInterfaceTemplate>
         const readerInterfaceArtifact: LayerArtifact = {
             sourceText: readerInterfaceRender,
             exportedObjectName: this._readerInterfaceName,
-            filePath: this._filePath, //this.getThisArtifactFilepath(this._readerInterfaceName),
+            filePath: this._filePath,
             dependencies: [capabilityResultArtifact]
         }
 
@@ -74,7 +73,6 @@ export const DetailReaderInterfaceGenerator = new ReaderInterfaceGenerator({
     listReturnTypeInterfaceGenerator: InstanceResultReturnInterfaceGenerator
 })
 
-// TODO: Change name of interface generator
 export const DeleteInstanceMutatorInterfaceGenerator = new ReaderInterfaceGenerator({
     filePath: "./writers/instance-delete-mutator.ts",
     queryExportedObjectName: "AggregateInstanceDeleteMutator",

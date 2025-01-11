@@ -16,7 +16,8 @@ import {
 } from "./template-generators";
 
 /**
- * A factory interface for creating instances of ApplicationLayerGenerator.
+ * A definition of the factory for creating instances of ApplicationLayerGenerator type. The factories of this type implement
+ * the method responsible for the instantiation of the specific application layer generators.
  */
 export type ApplicationLayerGeneratorFactory = {
     /**

@@ -16,11 +16,26 @@ import { DataSourceType, DatasourceConfig } from "../engine/graph/datasource";
 import { TemplateDataLayerGeneratorStrategy } from "./strategies/ldkit-template-strategy";
 
 export type DataAccessLayerGeneratorFactory = {
+    /**
+     * Returns the data layer generator from the provided data source.
+     *
+     * @param technicalLabel - The technical name of the aggregate for which the data layer generator is requested.
+     * @param specificationIri - The IRI identifier of the data specification for which the data layer is to be generated.
+     * @param datasourceConfig - Configuration of the data source coming from the application graph based on which the data layer generator will be selected.
+     * @returns Data layer generator instance that corresponds to the provided data source.
+     */
     getDalGeneratorStrategy: (technicalLabel: string, specificationIri: string, datasourceConfig: DatasourceConfig) => DalGeneratorStrategy;
 }
 
+
+/**
+ * Factory instance for instantiation of data access layer generators for list capability.
+ * This factory provides a method to get the appropriate data access layer generator based
+ * on the type of the data source specified in the application graph configuration.
+ */
 export const ListTemplateDalGeneratorFactory: DataAccessLayerGeneratorFactory = {
 
+    /** @inheritdoc */
     getDalGeneratorStrategy(technicalLabel: string, specificationIri: string, datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
         const generators = {
             [DataSourceType.RDF]: new TemplateDataLayerGeneratorStrategy<ListTemplate>(
@@ -44,8 +59,14 @@ export const ListTemplateDalGeneratorFactory: DataAccessLayerGeneratorFactory = 
     }
 }
 
+/**
+ * Factory instance for instantiation of data access layer generators for detail capability.
+ * This factory provides a method to get the appropriate data access layer generator based
+ * on the type of the data source specified in the application graph configuration.
+ */
 export const DetailTemplateDalGeneratorFactory: DataAccessLayerGeneratorFactory = {
 
+    /** @inheritdoc */
     getDalGeneratorStrategy(technicalLabel: string, specificationIri: string, datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
         const generators = {
             [DataSourceType.RDF]: new TemplateDataLayerGeneratorStrategy<DetailTemplate>(
@@ -69,7 +90,14 @@ export const DetailTemplateDalGeneratorFactory: DataAccessLayerGeneratorFactory 
     }
 }
 
+/**
+ * Factory instance for instantiation of data access layer generators for deletion capability.
+ * This factory provides a method to get the appropriate data access layer generator based
+ * on the type of the data source specified in the application graph configuration.
+ */
 export const DeleteInstanceTemplateGeneratorFactory: DataAccessLayerGeneratorFactory = {
+
+    /** @inheritdoc */
     getDalGeneratorStrategy(technicalLabel: string, specificationIri: string, datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
         const generators = {
             [DataSourceType.RDF]: new TemplateDataLayerGeneratorStrategy<DeleteTemplate>(
@@ -93,7 +121,14 @@ export const DeleteInstanceTemplateGeneratorFactory: DataAccessLayerGeneratorFac
     }
 }
 
+/**
+ * Factory instance for instantiation of data access layer generators for creation capability.
+ * This factory provides a method to get the appropriate data access layer generator based
+ * on the type of the data source specified in the application graph configuration.
+ */
 export const CreateInstanceTemplateGeneratorFactory: DataAccessLayerGeneratorFactory = {
+
+    /** @inheritdoc */
     getDalGeneratorStrategy(technicalLabel: string, specificationIri: string, datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
         const generators = {
             [DataSourceType.RDF]: new TemplateDataLayerGeneratorStrategy<CreateTemplate>(
@@ -117,7 +152,14 @@ export const CreateInstanceTemplateGeneratorFactory: DataAccessLayerGeneratorFac
     }
 }
 
+/**
+ * Factory instance for instantiation of data access layer generators for edit capability.
+ * This factory provides a method to get the appropriate data access layer generator based
+ * on the type of the data source specified in the application graph configuration.
+ */
 export const EditInstanceTemplateGeneratorFactory: DataAccessLayerGeneratorFactory = {
+
+    /** @inheritdoc */
     getDalGeneratorStrategy(technicalLabel: string, specificationIri: string, datasourceConfig: DatasourceConfig): DalGeneratorStrategy {
         const generators = {
             [DataSourceType.RDF]: new TemplateDataLayerGeneratorStrategy<EditTemplate>(

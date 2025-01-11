@@ -46,9 +46,7 @@ export class EditLdkitInstanceGenerator extends TemplateConsumer<EditLdkitInstan
             editReturnTypeArtifact = await InstanceResultReturnInterfaceGenerator.processTemplate();
         }
 
-        const editExportedObject = dependencies.aggregate.getAggregateNamePascalCase({
-            suffix: "LdkitInstanceEditor"
-        });
+        const editExportedObject = dependencies.aggregate.getAggregateNamePascalCase({ suffix: "LdkitInstanceEditor" });
 
         const sparqlUpdateEndpointUri: string = typeof dependencies.sparqlEndpointUri === "string"
             ? dependencies.sparqlEndpointUri
