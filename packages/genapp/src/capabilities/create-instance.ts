@@ -9,6 +9,11 @@ import { PresentationLayerStage } from "../presentation-layer/pipeline-stage";
 import { AggregateCapabilityMetadata, BaseCapabilityGenerator } from "./capability-generator-interface";
 import { CapabilityConstructorInput } from "./constructor-input";
 
+/**
+ * Represents metadata for the instance creation capability such as its identifier and label.
+ * @class CreateInstanceCapabilityMetadata
+ * @extends {AggregateCapabilityMetadata}
+ */
 export class CreateInstanceCapabilityMetadata extends AggregateCapabilityMetadata {
 
     constructor(humanLabel: string | undefined) {

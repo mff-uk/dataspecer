@@ -31,7 +31,6 @@ export class AggregateMetadata {
     public readonly roots: string[];
 
     /**
-     * @constructor
      * @param {string} specificationIri - The IRI identifier of the specification.
      * @param {DataPsmSchema} structure - The data structure model.
      */
@@ -103,8 +102,7 @@ export class AggregateMetadata {
     }
 
     /**
-     * Gets current aggregate name's pascal case version. Suitable for object naming.
-     * @param
+     * Gets current aggregate name's pascal case version.
      * @returns The pascal case version of this aggregate name. Prepended by prefix (if exists) and suffix-appended (if exists).
      */
     public getAggregateNamePascalCase({ prefix, suffix }: { prefix?: string, suffix?: string } = {}): string {

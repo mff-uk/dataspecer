@@ -88,6 +88,11 @@ export interface CapabilityGenerator extends CapabilityGeneratorMetadata {
 export abstract class BaseCapabilityGenerator implements CapabilityGenerator, CapabilityGeneratorMetadata {
 
     private readonly _capabilityMetadata: CapabilityGeneratorMetadata;
+
+    /**
+     * Pipeline responsible for executing all stages of capability-based code generation.
+     * @protected
+     */
     protected _capabilityStagesGeneratorPipeline: GeneratorPipeline = null!;
     protected readonly _aggregateMetadata: AggregateMetadata;
 

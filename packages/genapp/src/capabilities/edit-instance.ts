@@ -10,6 +10,11 @@ import { PresentationLayerStage } from "../presentation-layer/pipeline-stage";
 import { BaseCapabilityGenerator, InstanceCapabilityMetadata } from "./capability-generator-interface";
 import { CapabilityConstructorInput } from "./constructor-input";
 
+/**
+ * Represents metadata for the edit capability such as its identifier and label.
+ * @class EditInstanceCapabilityMetadata
+ * @extends {InstanceCapabilityMetadata}
+ */
 export class EditInstanceCapabilityMetadata extends InstanceCapabilityMetadata {
 
     constructor(humanLabel: string | undefined) {

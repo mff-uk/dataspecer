@@ -10,6 +10,11 @@ import { PresentationLayerStage } from "../presentation-layer/pipeline-stage";
 import { BaseCapabilityGenerator, InstanceCapabilityMetadata } from "./capability-generator-interface";
 import { CapabilityConstructorInput } from "./constructor-input";
 
+/**
+ * Represents metadata for the deletion capability such as its identifier and label.
+ * @class DeleteInstanceCapabilityMetadata
+ * @extends {InstanceCapabilityMetadata}
+ */
 export class DeleteInstanceCapabilityMetadata extends InstanceCapabilityMetadata {
 
     constructor(humanLabel: string | undefined) {

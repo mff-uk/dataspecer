@@ -9,6 +9,11 @@ import { PresentationLayerStage } from "../presentation-layer/pipeline-stage";
 import { BaseCapabilityGenerator, InstanceCapabilityMetadata } from "./capability-generator-interface";
 import { CapabilityConstructorInput } from "./constructor-input";
 
+/**
+ * Represents metadata for the detail capability such as its identifier and label.
+ * @class DetailCapabilityMetadata
+ * @extends {InstanceCapabilityMetadata}
+ */
 export class DetailCapabilityMetadata extends InstanceCapabilityMetadata {
 
     constructor(label: string | undefined) {
