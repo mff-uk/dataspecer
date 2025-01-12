@@ -17,12 +17,35 @@ export interface PresentationLayerDependencyMap extends TemplateDependencyMap {
     detailNodeConfig: DetailNodeConfiguration;
 }
 
+/**
+ * An abstract base class that defines a the base for presentation layer artifact generators
+ * which use template population approach. The class extends the generic {@link TemplateConsumer}
+ * to reuse shared functionality for populating templates. Additionally, it implements the
+ * {@link PresentationLayerGenerator} interface to provide the methods used within the presentation layer
+ * generation process.
+ *
+ * The {@link PresentationLayerTemplateGenerator} is the base class for concrete
+ * presentation layer template processors. Each derived class generates the source code
+ * for a specific capability by providing its own template and values for the required placeholders.
+ *
+ * @see {@link CreateInstanceComponentTemplateProcessor}
+ * @see {@link DeleteInstanceComponentTemplateProcessor}
+ * @see {@link DetailComponentTemplateProcessor}
+ * @see {@link EditInstanceComponentTemplateProcessor}
+ * @see {@link ListTableTemplateProcessor}
+ */
 export abstract class PresentationLayerTemplateGenerator<TemplateType extends TemplateModel>
     extends TemplateConsumer<TemplateType>
     implements PresentationLayerGenerator {
 
     strategyIdentifier: string = "";
 
+    /**
+     * Restores the data model interface for an aggregate and converts it to the corresponding JSON schema.
+     *
+     * @param aggregate - The metadata of the aggregate for which the data model interface needs to be restored.
+     * @returns The restored schema as a JSON Schema object.
+     */
     protected restoreAggregateDataModelInterface(aggregate: AggregateMetadata): Schema {
 
         const typeModelName = aggregate.getAggregateNamePascalCase({ suffix: "ModelType" });
@@ -39,6 +62,13 @@ export abstract class PresentationLayerTemplateGenerator<TemplateType extends Te
         return convertedSchema;
     }
 
+    /**
+     * Converts an LDkit schema type to a JSON schema.
+     *
+     * @param ldkitSchemaTypeName - The name of the LDkit schema type to convert.
+     * @param ldkitSchemaTypeFilePath - The file path to the LDkit schema type.
+     * @returns The converted JSON schema.
+     */
     private convertLdkitSchemaTypeToJsonSchema(ldkitSchemaTypeName: string, ldkitSchemaTypeFilePath: string): Schema {
         const config: Config = {
             path: ldkitSchemaTypeFilePath,
@@ -58,6 +88,13 @@ export abstract class PresentationLayerTemplateGenerator<TemplateType extends Te
         }
     }
 
+    /**
+     * Manages the presentation layer artifact generation process which is invoked within the presentation layer
+     * generation stage.
+     *
+     * @param context - The generation context which contains necessary data including the application graph context.
+     * @returns A promise that resolves to a `LayerArtifact` representing the generated presentation layer.
+     */
     async generatePresentationLayer(context: GenerationContext): Promise<LayerArtifact> {
         if (!context.previousResult) {
             const errorArtifact: LayerArtifact = {

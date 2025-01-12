@@ -1,4 +1,3 @@
-// TODO: merge / reduce imports
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "./presentation-layer-template-generator";
 import { ListItemCapabilityOptionsDependencyMap, ListItemCapabilityOptionsGenerator as ListItemOptionsGenerator } from "./list-item-options-processor";
@@ -8,6 +7,11 @@ import { CapabilityType } from "../../capabilities";
 import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
 import { PaginationComponentGenerator } from "./pagination-processor";
 
+/**
+ * Represents a template definition for rendering the React component used within list capability.
+ *
+ * @interface ListTableTemplate
+ */
 interface ListTableTemplate extends TemplateModel {
     placeholders: {
         aggregate_name: string;
@@ -26,6 +30,14 @@ interface ListTableTemplate extends TemplateModel {
     };
 }
 
+/**
+ * The `ListTableTemplateProcessor` class is responsible for rendering the React component from a template
+ * and thus generating the presentation layer code for the capability to display the list of corresponding items.
+ * It extends the `PresentationLayerTemplateGenerator` class and makes use of `ListTableTemplate`
+ * for template population and rendering.
+ *
+ * @extends PresentationLayerTemplateGenerator<ListTableTemplate>
+ */
 export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerator<ListTableTemplate> {
 
     strategyIdentifier: string = "list-table-react-generator";
@@ -44,6 +56,14 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
         });
     }
 
+    /**
+     * This method is responsible for the population and rendering of the React component template for the list capability implementation.
+     * After all dependencies needed by template (@see {ListTableTemplate} for more details) are populated,
+     * the template renderer is invoked to generate the resulting React component.
+     *
+     * @param dependencies - Dependencies providing the information about the aggregate and context for the template.
+     * @returns A promise that resolves to the artifact which contains generated React component to enable the list capability.
+     */
     async processTemplate(dependencies: PresentationLayerDependencyMap): Promise<LayerArtifact> {
 
         const groupedTransitions = dependencies.transitions.groupByCapabilityType();
@@ -63,9 +83,9 @@ export class ListTableTemplateProcessor extends PresentationLayerTemplateGenerat
         let pagination = await new PaginationComponentGenerator(
             `./${dependencies.aggregate.getAggregateNamePascalCase({ suffix: "Pagination" })}.tsx`
         )
-        .processTemplate({
-            aggregate: dependencies.aggregate
-        });
+            .processTemplate({
+                aggregate: dependencies.aggregate
+            });
 
         const listTableComponentName: string = dependencies.aggregate.getAggregateNamePascalCase({ suffix: "ListTable" });
 

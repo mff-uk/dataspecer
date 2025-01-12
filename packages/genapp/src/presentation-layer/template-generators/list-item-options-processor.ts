@@ -4,7 +4,14 @@ import { LayerArtifact } from "../../engine/layer-artifact";
 import { TemplateConsumer, TemplateDependencyMap } from "../../engine/templates/template-consumer";
 import { AllowedTransition } from "../../engine/transitions/transitions-generator";
 
+/**
+ * Represents a template definition for rendering the React component which contains the configuration of
+ * a list item options.
+ *
+ * @interface ListItemCapabilityOptionsTemplate
+ */
 interface ListItemCapabilityOptionsTemplate extends TemplateModel {
+    /** @inheritdoc */
     placeholders: {
         export_name: string;
         aggregate_technical_label: string;
@@ -18,6 +25,14 @@ export interface ListItemCapabilityOptionsDependencyMap extends TemplateDependen
     transitions: AllowedTransition[];
 }
 
+/**
+ * The `ListItemCapabilityOptionsGenerator` class is responsible for rendering the React component from a template
+ * and thus generating the presentation layer code to display the list of available actions for a list item.
+ * It extends the template generator class and makes use of `ListItemCapabilityOptionsTemplate`
+ * for template population and rendering.
+ *
+ * @extends TemplateConsumer<ListItemCapabilityOptionsTemplate>
+ */
 export class ListItemCapabilityOptionsGenerator extends TemplateConsumer<ListItemCapabilityOptionsTemplate> {
 
     private static readonly _optionsListTemplatePath: string = "./list/presentation-layer/item-capability-options";
@@ -29,6 +44,15 @@ export class ListItemCapabilityOptionsGenerator extends TemplateConsumer<ListIte
         });
     }
 
+    /**
+     * This method is responsible for the population and rendering of the React component template used within the list capability
+     * to display the list of available actions on a list item.
+     * After all dependencies needed by template (@see {ListItemCapabilityOptionsTemplate} for more details) are populated,
+     * the template renderer is invoked to generate the resulting React component.
+     *
+     * @param dependencies - Dependencies providing the information about the aggregate and context for the template.
+     * @returns A promise that resolves to the artifact which contains generated React component.
+     */
     async processTemplate(dependencies: ListItemCapabilityOptionsDependencyMap): Promise<LayerArtifact> {
 
         const exportedObjectName: string = dependencies.aggregate.getAggregateNamePascalCase({

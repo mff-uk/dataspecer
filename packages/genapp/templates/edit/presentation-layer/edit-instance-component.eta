@@ -33,7 +33,6 @@ const <%= it.exported_object_name %> = () => {
                 const id = searchParams.get("instanceId");
 
                 if (!id) {
-                    // setMissingInstance(true);
                     setIsLoading(false);
                     return;
                 }
@@ -43,7 +42,6 @@ const <%= it.exported_object_name %> = () => {
                 setIsLoading(false);
 
                 if (!result?.instance?.raw) {
-                    // setMissingInstance(true);
                     return;
                 }
 

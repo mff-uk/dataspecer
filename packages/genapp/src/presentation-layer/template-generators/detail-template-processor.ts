@@ -1,4 +1,3 @@
-import { ArtifactCache } from "../../utils/artifact-saver";
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { AllowedTransition } from "../../engine/transitions/transitions-generator";
 import { ApplicationGraphEdgeType } from "../../engine/graph";
@@ -6,7 +5,13 @@ import { UseNavigationHookGenerator } from "../../capabilities/template-generato
 import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "./presentation-layer-template-generator";
 
+/**
+ * Interface representing the template model for rendering the React component for detail capability.
+ *
+ * @interface DetailReactComponentTemplate
+ */
 interface DetailReactComponentTemplate extends TemplateModel {
+    /** @inheritdoc */
     placeholders: {
         page_title: string | null;
         aggregate_name: string;
@@ -21,6 +26,14 @@ interface DetailReactComponentTemplate extends TemplateModel {
     };
 }
 
+/**
+ * The `DetailComponentTemplateProcessor` class is responsible for rendering the React component from a template
+ * and thus generating the presentation layer code for detail capability.
+ * It extends the `PresentationLayerTemplateGenerator` class and makes use of `DetailReactComponentTemplate`
+ * for template population and rendering.
+ *
+ * @extends PresentationLayerTemplateGenerator<DetailReactComponentTemplate>
+ */
 export class DetailComponentTemplateProcessor extends PresentationLayerTemplateGenerator<DetailReactComponentTemplate> {
     strategyIdentifier: string = "detail-react-component-generator";
 
@@ -33,6 +46,14 @@ export class DetailComponentTemplateProcessor extends PresentationLayerTemplateG
         })
     }
 
+    /**
+     * This method is responsible for the population and rendering of the React component template for the detail capability.
+     * After all dependencies needed by template (@see {DetailReactComponentTemplate} for more details) are populated,
+     * the template renderer is invoked to generate the resulting React component.
+     *
+     * @param dependencies - Dependencies providing the information about the aggregate and context for the template.
+     * @returns A promise that resolves to the artifact which contains generated React component for detail capability.
+     */
     async processTemplate(dependencies: PresentationLayerDependencyMap): Promise<LayerArtifact> {
 
         const detailExportedName = dependencies.aggregate.getAggregateNamePascalCase({

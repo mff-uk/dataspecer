@@ -3,11 +3,19 @@ import { TemplateModel } from "../../engine/templates/template-interfaces";
 import { TemplateConsumer, TemplateDependencyMap } from "../../engine/templates/template-consumer";
 
 interface PaginationComponentTemplate extends TemplateModel {
+    /** @inheritdoc */
     placeholders: {
         pagination_component_name: string;
     };
 }
 
+/**
+ * The `PaginationComponentGenerator` class is responsible for rendering the React component used
+ * to display and enable the pagination. It extends the template generator class and makes use of
+ * `PaginationComponentTemplate` for template population and rendering.
+ *
+ * @extends TemplateConsumer<PaginationComponentTemplate>
+ */
 export class PaginationComponentGenerator extends TemplateConsumer<PaginationComponentTemplate> {
 
     private static readonly _paginationTemplatePath: string = "./list/presentation-layer/pagination";
@@ -19,14 +27,21 @@ export class PaginationComponentGenerator extends TemplateConsumer<PaginationCom
         });
     }
 
+    /**
+     * This method is responsible for the population and rendering of the React component template used within the list capability
+     * to display a pagination component.
+     * After all dependencies needed by template (@see {PaginationComponentTemplate} for more details) are populated,
+     * the template renderer is invoked to generate the resulting React component.
+     *
+     * @param dependencies - Dependencies providing the information about the aggregate and context for the template.
+     * @returns A promise that resolves to the artifact which contains generated React component for pagination.
+     */
     async processTemplate(dependencies: TemplateDependencyMap): Promise<LayerArtifact> {
 
-        console.log("Before pagination");
         const exportedObjectName: string = dependencies.aggregate.getAggregateNamePascalCase({
             suffix: "Pagination"
         });
 
-        console.log("Filling pagination template");
         const paginationTemplate: PaginationComponentTemplate = {
             templatePath: this._templatePath,
             placeholders: {
@@ -34,9 +49,7 @@ export class PaginationComponentGenerator extends TemplateConsumer<PaginationCom
             }
         }
 
-        console.log("Rendering pagination template ...");
         const paginationRender = this._templateRenderer.renderTemplate(paginationTemplate);
-        console.log("Rendered pagination template!");
 
         const listItemOptionsArtifact: LayerArtifact = {
             exportedObjectName: exportedObjectName,
@@ -45,7 +58,6 @@ export class PaginationComponentGenerator extends TemplateConsumer<PaginationCom
             dependencies: []
         }
 
-        console.log("After pagination");
         return listItemOptionsArtifact;
     }
 }

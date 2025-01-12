@@ -5,7 +5,13 @@ import { ApplicationGraphEdgeType } from "../../engine/graph";
 import { AllowedTransition } from "../../engine/transitions/transitions-generator";
 import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
 
+/**
+ * Interface representing the template model for rendering a React component used for create capability.
+ *
+ * @extends TemplateModel
+ */
 interface CreateInstanceReactComponentTemplate extends TemplateModel {
+    /** @inheritdoc */
     placeholders: {
         aggregate_name: string,
         page_title: string | null,
@@ -19,6 +25,14 @@ interface CreateInstanceReactComponentTemplate extends TemplateModel {
     };
 }
 
+/**
+ * The `CreateInstanceComponentTemplateProcessor` class is responsible for rendering the React component from a template
+ * and thus generating the presentation layer code for instance creation capability.
+ * It extends the `PresentationLayerTemplateGenerator` class and makes use of `CreateInstanceReactComponentTemplate`
+ * for template population and rendering.
+ *
+ * @extends PresentationLayerTemplateGenerator<CreateInstanceReactComponentTemplate>
+ */
 export class CreateInstanceComponentTemplateProcessor extends PresentationLayerTemplateGenerator<CreateInstanceReactComponentTemplate> {
     strategyIdentifier: string = "create-react-component-generator";
 
@@ -31,6 +45,14 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
         })
     }
 
+    /**
+     * This method is responsible for the population and rendering of the React component template for the create capability implementation.
+     * After all dependencies needed by template (@see {CreateInstanceReactComponentTemplate} for more details) are populated,
+     * the template renderer is invoked to generate the resulting React component.
+     *
+     * @param dependencies - Dependencies providing the information about the aggregate and context for the template.
+     * @returns A promise that resolves to the artifact which contains generated React component for instance creation capability.
+     */
     async processTemplate(dependencies: PresentationLayerDependencyMap): Promise<LayerArtifact> {
 
         const createExportedName = dependencies.aggregate.getAggregateNamePascalCase({

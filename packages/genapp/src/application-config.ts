@@ -9,6 +9,10 @@ export const AggregateMetadataCache: Cache<DataPsmSchema> = {
     }
 }
 
+/**
+ * Instances of this class contain metadata for an aggregate and provide
+ * methods to retrieve and generate names and labels for a given data structure model.
+ */
 export class AggregateMetadata {
     private readonly _structureModel: DataPsmSchema;
     public readonly iri: string;
@@ -26,6 +30,11 @@ export class AggregateMetadata {
     public readonly technicalLabel: string;
     public readonly roots: string[];
 
+    /**
+     * @constructor
+     * @param {string} specificationIri - The IRI identifier of the specification.
+     * @param {DataPsmSchema} structure - The data structure model.
+     */
     constructor(specificationIri: string, structure: DataPsmSchema) {
 
         this._structureModel = structure;
@@ -37,6 +46,13 @@ export class AggregateMetadata {
         this.roots = structure.dataPsmRoots;
     }
 
+    /**
+     * Retrieves the aggregate name for a given data structure model.
+     *
+     * @param structure - The `DataPsmSchema` data structure model for which the name is to be retrieved.
+     * @returns The aggregate name as a string.
+     * @throws Will throw an error if the data structure is missing a human-readable label.
+     */
     private getAggregateName(structure: DataPsmSchema): string {
 
         if (structure.dataPsmTechnicalLabel) {
@@ -60,6 +76,15 @@ export class AggregateMetadata {
         return aggregateName;
     }
 
+    /**
+     * Generates a technical label for a given structure model. First, the `dataPsmTechnicalLabel`
+     * is used to derive the name; if the property is not defined, the lowercase version of the `aggregateName`
+     * is used. The method also handles multiple structure models with the same name - in this case, suffix "-1"
+     * is appended to the technical label to ensure uniqueness.
+     *
+     * @param structure - The DataPsmSchema structure model for which the technical label is generated.
+     * @returns The generated technical label.
+     */
     private getTechnicalLabel(structure: DataPsmSchema): string {
 
         let techLabel = structure.dataPsmTechnicalLabel ?? this.aggregateName.toLowerCase();

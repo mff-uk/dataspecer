@@ -5,7 +5,13 @@ import { AllowedTransition } from "../../engine/transitions/transitions-generato
 import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
 import { ApplicationGraphEdgeType } from "../../engine/graph";
 
+/**
+ * Interface representing the template model for rendering the delete instance capability React Component.
+ *
+ * @extends TemplateModel
+ */
 interface DeleteInstanceReactComponentTemplate extends TemplateModel {
+    /** @inheritdoc */
     placeholders: {
         aggregate_name: string;
         exported_name_object: string;
@@ -18,6 +24,14 @@ interface DeleteInstanceReactComponentTemplate extends TemplateModel {
     };
 }
 
+/**
+ * The `DeleteInstanceComponentTemplateProcessor` class is responsible for generating the React component from a template
+ * and thus generating the presentation layer code for instance deletion capability.
+ * It extends the `PresentationLayerTemplateGenerator` class and makes use of `DeleteInstanceReactComponentTemplate`
+ * for template population and rendering.
+ *
+ * @extends PresentationLayerTemplateGenerator<DeleteInstanceReactComponentTemplate>
+ */
 export class DeleteInstanceComponentTemplateProcessor extends PresentationLayerTemplateGenerator<DeleteInstanceReactComponentTemplate> {
 
     private static readonly  _detailComponentTemplatePath: string = "./delete/presentation-layer/delete-instance-confirmation-modal";
@@ -29,6 +43,14 @@ export class DeleteInstanceComponentTemplateProcessor extends PresentationLayerT
         })
     }
 
+    /**
+     * This method is responsible for the population and rendering of the React component template for the deletion implementation.
+     * After all dependencies needed by template (@see {DeleteInstanceReactComponentTemplate} for more details) are populated,
+     * the template renderer is invoked to generate the resulting React component.
+     *
+     * @param dependencies - Dependencies providing the information about the aggregate and context for the template.
+     * @returns A promise that resolves to the artifact which contains generated React component for instance deletion capability.
+     */
     async processTemplate(dependencies: PresentationLayerDependencyMap): Promise<LayerArtifact> {
 
         const exportName = dependencies.aggregate.getAggregateNamePascalCase({

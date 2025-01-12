@@ -7,7 +7,13 @@ import { UseNavigationHookGenerator } from "../../capabilities/template-generato
 import { AggregateMetadata } from "../../application-config";
 import { ArtifactCache } from "../../utils/artifact-saver";
 
+/**
+ * Interface representing the template model for rendering the React component for edit instance capability.
+ *
+ * @interface EditInstanceReactComponentTemplate
+ */
 interface EditInstanceReactComponentTemplate extends TemplateModel {
+    /** @inheritdoc */
     placeholders: {
         aggregate_name: string,
         page_title: string | null,
@@ -23,6 +29,14 @@ interface EditInstanceReactComponentTemplate extends TemplateModel {
     };
 }
 
+/**
+ * The `EditInstanceComponentTemplateProcessor` class is a generator responsible for generating
+ * React component source code to enable edit instance capability for a given aggregate instance.
+ * It extends the `PresentationLayerTemplateGenerator` template generator and makes use of `EditInstanceReactComponentTemplate`
+ * for template population and rendering.
+ *
+ * @extends PresentationLayerTemplateGenerator<EditInstanceReactComponentTemplate>
+ */
 export class EditInstanceComponentTemplateProcessor extends PresentationLayerTemplateGenerator<EditInstanceReactComponentTemplate> {
     strategyIdentifier: string = "edit-react-component-generator";
 
@@ -35,6 +49,12 @@ export class EditInstanceComponentTemplateProcessor extends PresentationLayerTem
         })
     }
 
+    /**
+     * Retrieves the detail capability logic name and artifact path for a given aggregate.
+     * @param aggregate - The aggregate metadata containing information about the aggregate.
+     * @returns A tuple containing the detail capability logic exported name and its corresponding artifact path.
+     * @throws Error if the detail capability logic artifact path is not found in the ArtifactCache.
+     */
     private readInstanceDetail(aggregate: AggregateMetadata): [string, string] {
         const detailAppLayerExportedName: string = aggregate.getAggregateNamePascalCase({ suffix: "DetailCapabilityLogic" });
 
@@ -47,6 +67,16 @@ export class EditInstanceComponentTemplateProcessor extends PresentationLayerTem
         return [detailAppLayerExportedName, detailAppLayerArtifactPath];
     }
 
+
+    /**
+     * This method is responsible for processing and rendering of the template to generate a React component source code
+     * for editing an instance of the specified aggregate. This method prepares necessary placeholders to be populated and
+     * applies template rendering. After rendering, the artifact which includes the component source code as well as other
+     * metadata for the generated component is created.
+     *
+     * @param dependencies - Dependencies providing the information about the aggregate and context for the template.
+     * @returns A Promise which resolves to a LayerArtifact that contains generated React component for instance edit capability.
+     */
     async processTemplate(dependencies: PresentationLayerDependencyMap): Promise<LayerArtifact> {
 
         const editExportedName = dependencies.aggregate.getAggregateNamePascalCase({

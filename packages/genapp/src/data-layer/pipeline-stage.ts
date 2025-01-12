@@ -18,7 +18,7 @@ export class DataLayerGeneratorStage implements GeneratorStage {
     }
 
     /**
-     * Method responsible for handling of the data layer stage generation process.
+     * Method responsible for management of the data layer stage generation process.
      *
      * @param context - The generation context.
      * @returns A promise that resolves to a `LayerArtifact` instance which contains data about the main generated artifact of this layer.

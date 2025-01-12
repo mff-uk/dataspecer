@@ -15,6 +15,9 @@ export type GenerationContext = {
     _: Record<string, any>;
 };
 
+/**
+ * Represents a stage in the generation process; typically, a stage corresponds to a separate layer of the generated application.
+ */
 export interface GeneratorStage {
     /**
      * An instance of `ArtifactSaver` used to save generated artifacts.
