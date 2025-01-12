@@ -69,7 +69,7 @@ Since the __Application Graph__ is one of the two inputs of the application prot
 
 ### Application Graph Specification
 
-The Application Graph can be defined as a document in JSON format with the structure specified by the [JSON schema](https://schemas.dataspecer.com/adapters/application-graph-model.v1.0.schema.json) or available within [Dataspecer -- Application Graph specification](https://tool.dataspecer.com/specification?dataSpecificationIri=https%3A%2F%2Fofn.gov.cz%2Fdata-specification%2F6148f38e-b688-4c43-9b24-5bc67075a871). The Application Graph interface is translated to the following set of Typescript types:
+The Application Graph can be defined as a document in JSON format with the structure specified by the [JSON schema](https://schemas.dataspecer.com/adapters/application-graph-model.v1.0.schema.json) or available within [Dataspecer -- Application Graph specification](https://tool.dataspecer.com/data-specification-editor/specification?dataSpecificationIri=https%3A%2F%2Fofn.gov.cz%2Fdata-specification%2F6148f38e-b688-4c43-9b24-5bc67075a871). The Application Graph interface is translated to the following set of Typescript types:
 
 ```ts
 interface ApplicationGraphType {
@@ -205,7 +205,7 @@ user has to perform a set of the following steps:
 
 ## Data specification and data structure models creation
 
-1. First, the user needs to get a data specification to work with. Using the [Dataspecer tool](https://tool.dataspecer.com/), it is possible to either choose one of the existing specifications from the list or create a specification. Should the user decide to choose one of the existing specifications, then the following steps in this section may be skipped. To create a specfication, the user can click the `Create specification` button, which will lead to the creation of a new, empty, custom-named data specification.
+1. First, the user needs to get a data specification to work with. Using the [Dataspecer tool](https://preview.dataspecer.com/), it is possible to either choose one of the existing specifications from the list or create a specification. Should the user decide to choose one of the existing specifications, then the following steps in this section may be skipped. To create a specfication, the user can click the `Create specification` button, which will lead to the creation of a new, empty, custom-named data specification.
 
 2. To create a custom specification, which will be later used for application prototype generator, you can follow [this tutorial](https://dataspecer.com/docs/tutorial/basic-schema/) despite slight changes in Dataspecer tool UI.
 
@@ -213,7 +213,7 @@ Note / Tip: For easier and faster navigation in the following step, it is recomm
 
 ## Using Dataspecer manager to launch generator
 
-1. Once the user has created or chosen a data specification to work with, the next step is to navigate to [_Dataspecer manager tool_](https://tool.dataspecer.com/manager/) -- (<https://tool.dataspecer.com/manager>).
+1. Once the user has created or chosen a data specification to work with, the next step is to navigate to [_Dataspecer manager tool_](https://preview.dataspecer.com/manager).
 
 2. Within the Dataspecer manager, the user needs to find and access the data specfication created / chosen in the previous step. To find the data specification in the list of all available specifications, use the tag or the data specification IRI saved in the previous step. Once the data specification is found, click the "+" button on the right side and choose "Application graph" option from the proposed options list.
 Please refer to the screenshots below for an illustration.
