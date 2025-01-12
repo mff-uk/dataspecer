@@ -37,22 +37,28 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
     private async executeUpdate(formData: any, schema: any): Promise<<%= it.instance_result_type %>> {
 
         const options: Options = {
-            sources: ["<%~ it.sparql_endpoint_uri %>"],
+            sources: ["<%~ it.sparql_endpoint_uri.write %>"],
             engine: this._customEngine
         };
 
-        const lens = createLens(<%= it.ldkit_schema %>, options);
         try {
             await this.updateNestedObjects(formData, schema);
+            const toUpdate = this.mapFormDataToLdkitSchema(formData, schema);
 
-            const updatedInstance = this.mapFormDataToLdkitSchema(formData, schema);
-            await lens.update(updatedInstance);
-            console.log("update success");
+            let lens = createLens(schema, { sources: ["<%~ it.sparql_endpoint_uri.read %>"] });
+            const existingInstance = await lens.findByIri(toUpdate.$id);
+
+            lens = createLens(schema, options);
+
+            const promise: Promise<void> = !existingInstance
+                ? lens.insert(toUpdate)
+                : lens.update(toUpdate);
+            await promise;
 
             const result: <%= it.instance_result_type %> = {
                 instance: {
                     aggregateName: "<%= it.aggregate_name %>",
-                    raw: updatedInstance.$id
+                    raw: toUpdate.$id
                 },
                 message: "Instance updated successfully",
                 redirectUrl: "/"
@@ -73,9 +79,9 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
     private mapFormDataToLdkitSchema(formData: any, schema: any) {
         console.log("input form data: ", formData);
 
-        const updatedInstance = this.updateLdkitProperties(formData, schema);
+        const toUpdate = this.updateLdkitProperties(formData, schema);
 
-        return updatedInstance;
+        return toUpdate;
     }
 
     private updateLdkitProperties(obj: any, schema: any) {
@@ -98,7 +104,7 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
                     return [key, value.map(item => this.updateLdkitProperties(item, schema))];
                 }
 
-                if (typeof value === "object") {
+                if (typeof value === "object"  && !(value instanceof Date)) {
                     return [key, this.updateLdkitProperties(value, schema)];
                 }
 

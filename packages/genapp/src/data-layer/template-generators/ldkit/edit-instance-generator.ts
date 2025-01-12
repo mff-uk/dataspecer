@@ -1,6 +1,7 @@
 import { InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { TemplateConsumer } from "../../../engine/templates/template-consumer";
+import { ReadWriteEndpointUri } from "../../../engine/graph/datasource";
 import { InstanceEditorInterfaceGenerator } from "../reader-interface-generator";
 import { ImportRelativePath, DataLayerTemplateDescription } from "../../../engine/templates/template-interfaces";
 import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy";
@@ -11,7 +12,7 @@ export interface EditLdkitInstanceTemplate extends DataLayerTemplateDescription 
         exported_object_name: string,
         ldkit_schema: string,
         ldkit_schema_path: ImportRelativePath,
-        sparql_endpoint_uri: string,
+        sparql_endpoint_uri: ReadWriteEndpointUri,
         instance_result_type: string,
         instance_result_type_path: ImportRelativePath,
         editor_interface_type: string,
@@ -48,9 +49,12 @@ export class EditLdkitInstanceGenerator extends TemplateConsumer<EditLdkitInstan
 
         const editExportedObject = dependencies.aggregate.getAggregateNamePascalCase({ suffix: "LdkitInstanceEditor" });
 
-        const sparqlUpdateEndpointUri: string = typeof dependencies.sparqlEndpointUri === "string"
-            ? dependencies.sparqlEndpointUri
-            : dependencies.sparqlEndpointUri.write
+        const sparqlUpdateEndpointUri: ReadWriteEndpointUri = typeof dependencies.sparqlEndpointUri === "string"
+            ? {
+                read: dependencies.sparqlEndpointUri,
+                write: dependencies.sparqlEndpointUri
+            } as ReadWriteEndpointUri
+            : dependencies.sparqlEndpointUri
 
         const editInstanceTemplate: EditLdkitInstanceTemplate = {
             templatePath: this._templatePath,
