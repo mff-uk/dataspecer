@@ -7,7 +7,7 @@ import {
 } from "../../capabilities/template-generators/capability-interface-generator";
 import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
 
-interface ReaderInterfaceTemplate extends TemplateModel {
+interface InterfaceTemplate extends TemplateModel {
     templatePath: string;
     placeholders: {
         return_type: string;
@@ -15,27 +15,42 @@ interface ReaderInterfaceTemplate extends TemplateModel {
     };
 }
 
-// TODO: Change interface name
-class ReaderInterfaceGenerator extends TemplateConsumer<ReaderInterfaceTemplate> {
+/**
+ * The class responsible for generating an interface based on a provided interface template model.
+ *
+ * @extends TemplateConsumer<InterfaceTemplate>
+ */
+class InterfaceGenerator extends TemplateConsumer<InterfaceTemplate> {
 
-    private readonly _readerInterfaceName: string;
+    /**
+     * The name of the interface to be generated.
+     */
+    private readonly _interfaceName: string;
+    /**
+     * Generator for the return type of the capability.
+     */
     private readonly _capabilityReturnTypeGenerator: CapabilityInterfaceGeneratorType;
 
     constructor(templateMetadata:
-        TemplateMetadata & { queryExportedObjectName: string, listReturnTypeInterfaceGenerator: CapabilityInterfaceGeneratorType }) {
+        TemplateMetadata & { queryExportedObjectName: string, returnTypeInterfaceGenerator: CapabilityInterfaceGeneratorType }) {
         super({
             templatePath: templateMetadata.templatePath,
             filePath: templateMetadata.filePath
         });
-        this._readerInterfaceName = templateMetadata.queryExportedObjectName;
-        this._capabilityReturnTypeGenerator = templateMetadata.listReturnTypeInterfaceGenerator;
+        this._interfaceName = templateMetadata.queryExportedObjectName;
+        this._capabilityReturnTypeGenerator = templateMetadata.returnTypeInterfaceGenerator;
     }
 
+    /**
+     * Processes the specified template to generate an artifact.
+     *
+     * @returns {Promise<LayerArtifact>} A promise that resolves to the generated reader interface artifact.
+     */
     async processTemplate(): Promise<LayerArtifact> {
 
         const capabilityResultArtifact = await this._capabilityReturnTypeGenerator.processTemplate();
 
-        const readerInterfaceTemplate: ReaderInterfaceTemplate = {
+        const readerInterfaceTemplate: InterfaceTemplate = {
             templatePath: this._templatePath,
             placeholders: {
                 return_type: capabilityResultArtifact.exportedObjectName,
@@ -46,50 +61,59 @@ class ReaderInterfaceGenerator extends TemplateConsumer<ReaderInterfaceTemplate>
             }
         };
 
-        const readerInterfaceRender: string = this._templateRenderer.renderTemplate(readerInterfaceTemplate);
+        const interfaceRender: string = this._templateRenderer.renderTemplate(readerInterfaceTemplate);
 
-        const readerInterfaceArtifact: LayerArtifact = {
-            sourceText: readerInterfaceRender,
-            exportedObjectName: this._readerInterfaceName,
+        const interfaceArtifact: LayerArtifact = {
+            sourceText: interfaceRender,
+            exportedObjectName: this._interfaceName,
             filePath: this._filePath,
             dependencies: [capabilityResultArtifact]
         }
 
-        return readerInterfaceArtifact;
+        return interfaceArtifact;
     }
 }
 
-export const ListReaderInterfaceGenerator = new ReaderInterfaceGenerator({
+/**
+ * An `InterfaceGenerator` instance which generates the `ListReader` interface.
+ *
+ * @type {InterfaceGenerator}
+ * @property {string} filePath - The path to the file where the generated `ListReader` interface will be saved.
+ * @property {string} templatePath - The path to the template used for the interface generation.
+ * @property {string} queryExportedObjectName - The name of the interface which will be used by dependent artifacts to reference this interface.
+ * @property {InterfaceGenerator} returnTypeInterfaceGenerator - The generator used to define the specific return type of the interface.
+ */
+export const ListReaderInterfaceGenerator = new InterfaceGenerator({
     filePath: "./readers/list-reader.ts",
     templatePath: "./list/data-layer/reader-interface",
     queryExportedObjectName: "ListReader",
-    listReturnTypeInterfaceGenerator: ListResultReturnInterfaceGenerator
+    returnTypeInterfaceGenerator: ListResultReturnInterfaceGenerator
 })
 
-export const DetailReaderInterfaceGenerator = new ReaderInterfaceGenerator({
+export const DetailReaderInterfaceGenerator = new InterfaceGenerator({
     filePath: "./readers/instance-reader.ts",
     templatePath: "./detail/data-layer/reader-interface",
     queryExportedObjectName: "InstanceDetailReader",
-    listReturnTypeInterfaceGenerator: InstanceResultReturnInterfaceGenerator
+    returnTypeInterfaceGenerator: InstanceResultReturnInterfaceGenerator
 })
 
-export const DeleteInstanceMutatorInterfaceGenerator = new ReaderInterfaceGenerator({
+export const DeleteInstanceMutatorInterfaceGenerator = new InterfaceGenerator({
     filePath: "./writers/instance-delete-mutator.ts",
     queryExportedObjectName: "AggregateInstanceDeleteMutator",
     templatePath: "./delete/data-layer/instance-delete-interface",
-    listReturnTypeInterfaceGenerator: InstanceResultReturnInterfaceGenerator
+    returnTypeInterfaceGenerator: InstanceResultReturnInterfaceGenerator
 })
 
-export const InstanceCreatorInterfaceGenerator = new ReaderInterfaceGenerator({
+export const InstanceCreatorInterfaceGenerator = new InterfaceGenerator({
     filePath: "./writers/instance-creator.ts",
     queryExportedObjectName: "AggregateInstanceCreator",
     templatePath: "./create/data-layer/instance-create-interface",
-    listReturnTypeInterfaceGenerator: InstanceResultReturnInterfaceGenerator
+    returnTypeInterfaceGenerator: InstanceResultReturnInterfaceGenerator
 })
 
-export const InstanceEditorInterfaceGenerator = new ReaderInterfaceGenerator({
+export const InstanceEditorInterfaceGenerator = new InterfaceGenerator({
     filePath: "./writers/instance-editor.ts",
     queryExportedObjectName: "AggregateInstanceEditor",
     templatePath: "./edit/data-layer/edit-instance-interface",
-    listReturnTypeInterfaceGenerator: InstanceResultReturnInterfaceGenerator
+    returnTypeInterfaceGenerator: InstanceResultReturnInterfaceGenerator
 })

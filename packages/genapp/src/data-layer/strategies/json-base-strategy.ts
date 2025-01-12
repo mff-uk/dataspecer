@@ -1,4 +1,3 @@
-import { AxiosResponse } from "axios";
 import { GenerationContext } from "../../engine/generator-stage-interface";
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { DalGeneratorStrategy } from "../strategy-interface";
@@ -22,6 +21,9 @@ class JsonDalStrategy implements DalGeneratorStrategy {
         this._jsonUri = datasourceConfig.endpoint;
     }
 
+    /**
+     * @inheritdoc
+     */
     async generateDataLayer(context: GenerationContext): Promise<LayerArtifact> {
         const jsonSchemaArtifact = await this._schemaProvider.getSchemaArtifact(context.aggregate);
 

@@ -6,7 +6,13 @@ import { TemplateConsumer } from "../../../engine/templates/template-consumer";
 import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy";
 import { ReadWriteEndpointUri } from "../../../engine/graph/datasource";
 
+/**
+ * Interface representing the template model for rendering the deletion capability template.
+ *
+ * @interface InstanceDeleteLdkitTemplate
+ */
 export interface InstanceDeleteLdkitTemplate extends DataLayerTemplateDescription {
+    /** @inheritdoc */
     placeholders: {
         aggregate_name: string,
         exported_object_name: string;
@@ -20,6 +26,13 @@ export interface InstanceDeleteLdkitTemplate extends DataLayerTemplateDescriptio
     }
 }
 
+/**
+ * The `InstanceDeleteLdkitGenerator` class is responsible for generating the implementation of the instance deletion capability
+ * using the LDkit library. This class provides specific logic for template population and generation of dependencies needed
+ * for the data layer of the instance deletion capability of the generated application.
+ *
+ * @extends TemplateConsumer<InstanceDeleteLdkitTemplate>
+ */
 export class InstanceDeleteLdkitGenerator extends TemplateConsumer<InstanceDeleteLdkitTemplate> {
 
     private static readonly _deleteLdkitInstanceDataLayerTemplatePath: string = "./delete/data-layer/ldkit/instance-delete-mutator";
@@ -31,6 +44,15 @@ export class InstanceDeleteLdkitGenerator extends TemplateConsumer<InstanceDelet
         });
     }
 
+    /**
+     * This method is responsible for the population and rendering of the template for instance deletion capability implementation.
+     * After all dependencies needed by template (@see {InstanceDeleteLdkitTemplate} for more details) are populated,
+     * the template renderer is invoked to generate the resulting code.
+     *
+     * @param dependencies - Dependencies providing the information about the aggregate and context for the template.
+     * @returns A promise that resolves to the artifact which contains generated implementation for instance deletion capability.
+     * @throws An error if the deletion interface artifact or its dependencies are not found or valid.
+     */
     async processTemplate(dependencies: LdkitDalDependencyMap): Promise<LayerArtifact> {
 
         const deleteMutatorInterfaceArtifact = await DeleteInstanceMutatorInterfaceGenerator.processTemplate();

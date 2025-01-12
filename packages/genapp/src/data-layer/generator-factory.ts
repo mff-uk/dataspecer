@@ -15,6 +15,9 @@ import { DalGeneratorStrategy } from "./strategy-interface";
 import { DataSourceType, DatasourceConfig } from "../engine/graph/datasource";
 import { TemplateDataLayerGeneratorStrategy } from "./strategies/ldkit-template-strategy";
 
+/**
+ * Factory interface for creating data access layer generators based on the provided data source configuration.
+ */
 export type DataAccessLayerGeneratorFactory = {
     /**
      * Returns the data layer generator from the provided data source.

@@ -6,6 +6,7 @@ import { PimSchema } from "@dataspecer/core/pim/model";
 import { LayerArtifact } from "../../engine/layer-artifact";
 import { AggregateMetadata } from "../../application-config";
 
+/** @ignore */
 function isAxiosResponse(
     dataLayerResult: LayerArtifact | AxiosResponse<LayerArtifact, any> | AxiosResponse<Buffer, any>
 ): dataLayerResult is AxiosResponse<LayerArtifact, any> {
@@ -16,6 +17,15 @@ export interface SchemaProvider {
     getSchemaArtifact(aggregate: AggregateMetadata): Promise<LayerArtifact>;
 }
 
+/**
+ * Abstract base class for providing schema-related functionalities in the Dataspecer application.
+ *
+ * This class serves as a foundation for schema providers, offering methods to retrieve schema artifacts
+ * and handle schema files for specific aggregates. It interacts with a remote server to fetch the necessary
+ * data and processes it to extract schema information.
+ *
+ * @abstract
+ */
 export abstract class DataspecerBaseSchemaProvider {
 
     protected readonly _api: DalApi;
@@ -29,6 +39,13 @@ export abstract class DataspecerBaseSchemaProvider {
         this._schemaFilename = schemaFilename;
     }
 
+    /**
+     * Retrieves the schema artifact for a given aggregate.
+     *
+     * @param aggregate - The metadata for an aggregate for which the schemas should be retrieved.
+     * @returns A promise that resolves to the layer artifact file describing the schema of the aggregate. The schema is format-specific and is defined within the configuration.
+     * @throws Throw an error if no corresponding schemas is found for the given aggregate or if multiple schema files are found.
+     */
     async getSchemaArtifact(aggregate: AggregateMetadata): Promise<LayerArtifact> {
 
         const zipSubdirectory = await this.getAggregateSchemaFile(aggregate);
@@ -43,8 +60,17 @@ export abstract class DataspecerBaseSchemaProvider {
         return this.getSchemaLayerArtifact(aggregateSchemaFile, aggregate);
     }
 
+
+    /**
+     * Retrieves schema files for the structure models defined within a data specification and navigates to the subdirectory
+     * which contains the schemas for a specified aggregate. Currently, the schemas are provided by Dataspecer backend service.
+     *
+     * @param aggregate - The metadata for an aggregate for which the schemas should be retrieved.
+     * @returns A promise that resolves to a JSZip object containing the schemas for the specified aggregate.
+     * @throws Throws an error if the Dataspecer backend service response is not valid or if the requested schemas are missing in the zip archive.
+     */
     protected async getAggregateSchemaFile(aggregate: AggregateMetadata): Promise<JSZip> {
-        const response = await this._api.generateDalLayerArtifact(this._dataSpecificationIri);
+        const response = await this._api.generatePsmSchemaArtifacts(this._dataSpecificationIri);
 
         if (!isAxiosResponse(response) || response.status !== 200) {
             throw new Error("Invalid artifact returned from server");
@@ -66,6 +92,12 @@ export abstract class DataspecerBaseSchemaProvider {
         return zip.folder(subdirectory)!;
     }
 
+    /**
+     * This method attempts to retrieve a human-readable label for specified data specification which is represented by IRI.
+     *
+     * @param dataSpecificationIri - The IRI identifier of the data specification.
+     * @returns A promise that resolves as normalized directory name.
+     */
     protected async getNormalizedSpecificationDirectoryName(dataSpecificationIri: string): Promise<string> {
 
         const fallbackName: string = dataSpecificationIri.split("/").pop() as string
@@ -95,6 +127,13 @@ export abstract class DataspecerBaseSchemaProvider {
         return fallbackName;
     }
 
+    /**
+     * Generates a layer artifact which contains the data schema for the specified aggregate.
+     * The classes which implement this method generate a format-specific schema artifacts.
+     *
+     * @param file - The JSZipObject representing the file to be processed.
+     * @param aggregate - The aggregate metadata for which the schema is being generated.
+     * @returns A promise that resolves to a LayerArtifact containing the schema.
+     */
     protected abstract getSchemaLayerArtifact(file: JSZip.JSZipObject, aggregate: AggregateMetadata): Promise<LayerArtifact>;
-
 }

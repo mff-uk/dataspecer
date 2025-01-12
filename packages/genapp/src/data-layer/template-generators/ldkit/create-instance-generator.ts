@@ -6,7 +6,13 @@ import { DataLayerTemplateDescription, ImportRelativePath } from "../../../engin
 import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy";
 import { ReadWriteEndpointUri } from "../../../engine/graph/datasource";
 
+/**
+ * Interface representing the template model for rendering the create capability template.
+ *
+ * @interface CreateLdkitInstanceTemplate
+ */
 export interface CreateLdkitInstanceTemplate extends DataLayerTemplateDescription {
+    /** @inheritdoc */
     placeholders: {
         aggregate_name: string,
         exported_object_name: string,
@@ -20,6 +26,13 @@ export interface CreateLdkitInstanceTemplate extends DataLayerTemplateDescriptio
     }
 }
 
+/**
+ * The `CreateLdkitInstanceGenerator` class is responsible for generating the implementation of the instance creation capability
+ * using the LDkit library. This class provides specific logic for template population and generation of dependencies needed
+ * for the data layer of the instance creation capability of the generated application.
+ *
+ * @extends TemplateConsumer<CreateLdkitInstanceTemplate>
+ */
 export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitInstanceTemplate> {
 
     private static readonly _createLdkitInstanceDataLayerTemplatePath: string = "./create/data-layer/ldkit/instance-creator";
@@ -31,6 +44,15 @@ export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitIn
         });
     }
 
+    /**
+     * This method is responsible for the population and rendering of the template for create capability implementation.
+     * After all dependencies needed by template (@see {CreateLdkitInstanceTemplate} for more details) are populated,
+     * the template renderer is invoked to generate the resulting code.
+     *
+     * @param dependencies - Dependencies providing the information about the aggregate and context for the template.
+     * @returns A promise that resolves to the artifact which contains generated implementation for instance creation capability.
+     * @throws An error if the creator interface artifact or its dependencies are not found or valid.
+     */
     async processTemplate(dependencies: LdkitDalDependencyMap): Promise<LayerArtifact> {
 
         const creatorInterfaceArtifact = await InstanceCreatorInterfaceGenerator.processTemplate();

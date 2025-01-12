@@ -6,7 +6,13 @@ import { ImportRelativePath, DataLayerTemplateDescription } from "../../../engin
 import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy";
 import { ReadWriteEndpointUri } from "../../../engine/graph/datasource";
 
+/**
+ * Interface representing the template model for rendering an instance detail capability.
+ *
+ * @interface InstanceDetailLdkitReaderTemplate
+ */
 export interface InstanceDetailLdkitReaderTemplate extends DataLayerTemplateDescription {
+    /** @inheritdoc */
     placeholders: {
         ldkit_instance_reader: string,
         exported_name_object: string;
@@ -20,6 +26,13 @@ export interface InstanceDetailLdkitReaderTemplate extends DataLayerTemplateDesc
     };
 }
 
+/**
+ * The `InstanceDetailLdkitReaderGenerator` class is responsible for generating the aggregate-specific implementation
+ * part of the list capability using the LDkit library. This class provides specific logic for template population
+ * and generation of dependencies needed for the data layer of the list capability of the generated application.
+ *
+ * @extends TemplateConsumer<InstanceDetailLdkitReaderTemplate>
+ */
 export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<InstanceDetailLdkitReaderTemplate> {
 
     private static readonly _instanceDetailLdkitDataLayerTemplatePath = "./detail/data-layer/ldkit/instance-detail-reader";
@@ -45,6 +58,14 @@ export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<Instanc
         return instanceReturnTypeArtifact;
     }
 
+    /**
+     * This method is responsible for the population and rendering of the template for the implementation of the detail capability.
+     * When all dependencies needed by template (@see {InstanceDetailLdkitReaderTemplate} for more details) are populated,
+     * the template renderer is invoked to generate the resulting code.
+     *
+     * @param dependencies - Dependencies providing the information about the aggregate and context for the template.
+     * @returns A promise that resolves to a LayerArtifact instance containing the generated source code for the aggregate-specific detail capability.
+     */
     async processTemplate(dependencies: LdkitDalDependencyMap): Promise<LayerArtifact> {
 
         const instanceReaderInterfaceArtifact = await DetailReaderInterfaceGenerator.processTemplate();
@@ -83,9 +104,6 @@ export class InstanceDetailLdkitReaderGenerator extends TemplateConsumer<Instanc
                 }
             }
         }
-
-        console.log("INTERFACE PATH: ", instanceLdkitReaderTemplate.placeholders.ldkit_instance_reader_path);
-        console.log("FULL COMPUTED: ", dependencies.pathResolver.getFullSavePath(this._filePath));
 
         const ldkitInstanceDetailReader: string = this._templateRenderer.renderTemplate(instanceLdkitReaderTemplate);
 

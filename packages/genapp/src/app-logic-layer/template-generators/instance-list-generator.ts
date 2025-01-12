@@ -24,7 +24,7 @@ interface ListCapabilityAppLayerTemplate extends TemplateModel {
 
 /**
  * `ListAppLayerTemplateProcessor` class is responsible for generating the application layer using
- * template approach for list capability. This class provides specific logic for the generation of
+ * template population approach for list capability. This class provides specific logic for the population of
  * template and dependencies needed for the application layer of the list capability of the generated application.
  *
  * @template ListCapabilityAppLayerTemplate - The type of the list capability application layer template model.

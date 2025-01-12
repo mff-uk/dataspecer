@@ -1,9 +1,14 @@
-import { ImportRelativePath, DataLayerTemplateDescription } from "../../../engine/templates/template-interfaces";
+import { DataLayerTemplateDescription } from "../../../engine/templates/template-interfaces";
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { TemplateConsumer, TemplateDependencyMap } from "../../../engine/templates/template-consumer";
 import { ArtifactCache } from "../../../utils/artifact-saver";
 import { ObjectModelTypeGeneratorHelper } from "./object-model-generator-helper";
 
+/**
+ * Interface representing the template model for rendering object model interface from the aggregate LDkit schema.
+ *
+ * @interface LdkitObjectModelTypeTemplate
+ */
 interface LdkitObjectModelTypeTemplate extends DataLayerTemplateDescription {
     placeholders: {
         object_model_type: string;
@@ -15,6 +20,12 @@ interface LdkitObjectModelDependencyMap extends TemplateDependencyMap {
     ldkitSchemaArtifact: LayerArtifact
 }
 
+/**
+ * The `LdkitObjectModelTypeGenerator` class is responsible for rendering a TypeScript object types
+ * based on LDkit schema.
+ *
+ * @extends TemplateConsumer<LdkitObjectModelTypeTemplate>
+ */
 export class LdkitObjectModelTypeGenerator extends TemplateConsumer<LdkitObjectModelTypeTemplate> {
 
     private readonly _generatorHelper: ObjectModelTypeGeneratorHelper;
@@ -28,6 +39,7 @@ export class LdkitObjectModelTypeGenerator extends TemplateConsumer<LdkitObjectM
         this._generatorHelper = new ObjectModelTypeGeneratorHelper();
     }
 
+    /** @ignore */
     private getSecondOccurenceIndex(str: string, subString: string): number {
 
         const firstOccurrence = str.indexOf(subString);
@@ -39,6 +51,12 @@ export class LdkitObjectModelTypeGenerator extends TemplateConsumer<LdkitObjectM
         return str.indexOf(subString, firstOccurrence + 1);
     }
 
+    /**
+     * Extracts the LDkit schema object from its source string.
+     *
+     * @param ldkitSchemaSource - The source string of the LDKit schema.
+     * @returns The serialized LDkit schema object.
+     */
     private getSerializedLdkitSchema(ldkitSchemaSource: string): string {
         const objectStartIndex = this.getSecondOccurenceIndex(ldkitSchemaSource, "{");
         const objectEndIndex = ldkitSchemaSource.indexOf(" as const;");
@@ -59,6 +77,7 @@ export class LdkitObjectModelTypeGenerator extends TemplateConsumer<LdkitObjectM
         return ldkitSchemaInterface;
     }
 
+    /** @ignore */
     private splitRecordToKeyAndValueTypes(recordTypeName: any): [string, string] {
 
         const recordTypeBeginMarker = "<";
@@ -78,6 +97,41 @@ export class LdkitObjectModelTypeGenerator extends TemplateConsumer<LdkitObjectM
         return [keyTypeName, valueTypeName];
     }
 
+    /**
+     * The function processes each property of the input object and converts it to a TypeScript type using a set of predefined rules:
+     * - Properties starting with "@" are ignored,
+     * - Properties with types ending in "undefined" are converted to an optional type,
+     * - Array types and nested objects are processed recursively,
+     * - "Record" types are converted to a <key, value> types
+     *
+     * @param obj - The serialized object to convert.
+     * @returns The TypeScript type definition as a string.
+     *
+     * Example input:
+     * ```json
+     * {
+     *   "name": "string",
+     *   "age": "number | undefined",
+     *   "tags": "string[]",
+     *   "address": "{ \"street\": \"string\", \"city\": \"string\" }",
+     *   "additionalInfo": "Record<string, any>"
+     * }
+     * ```
+     *
+     * Example output:
+     * ```typescript
+     * {
+     *   "name": string,
+     *   "age"?: number,
+     *   "tags": string[],
+     *   "address": {
+     *     "street": string,
+     *     "city": string
+     *   },
+     *   "additionalInfo": { [key: string]: any },
+     * }
+     * ```
+     */
     private convertSerializedTypeToTypescriptType(obj: any): string {
         const result = Object.entries(obj)
             .map(([propName, typeName]: [string, any]): string | null => {
@@ -122,6 +176,12 @@ export class LdkitObjectModelTypeGenerator extends TemplateConsumer<LdkitObjectM
         }`;
     }
 
+    /**
+     * Processes the template to render an aggregate type based on its LDkit schema.
+     *
+     * @param dependencies - An object containing the dependencies required for generating the object model type.
+     * @returns A promise that resolves to a LayerArtifact containing the generated object type definition.
+     */
     processTemplate(dependencies: LdkitObjectModelDependencyMap): Promise<LayerArtifact> {
 
         const ldkitArtifact = dependencies.ldkitSchemaArtifact;

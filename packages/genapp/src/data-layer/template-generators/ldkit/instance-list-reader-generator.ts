@@ -5,7 +5,13 @@ import { DataLayerTemplateDescription, ImportRelativePath } from "../../../engin
 import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy";
 import { ReadWriteEndpointUri } from "../../../engine/graph/datasource";
 
+/**
+ * Describes the template model for generating an aggregate-specific LDkit list reader implementation.
+ *
+ * @interface InstanceListLdkitReaderTemplate
+ */
 export interface InstanceListLdkitReaderTemplate extends DataLayerTemplateDescription {
+    /** @inheritdoc */
     placeholders: {
         ldkit_list_reader_base_class: string,
         ldkit_list_reader_base_class_path: ImportRelativePath,
@@ -16,10 +22,18 @@ export interface InstanceListLdkitReaderTemplate extends DataLayerTemplateDescri
     };
 }
 
+/** @ignore */
 function isInstanceListLdkitReaderDependencyList(obj: TemplateDependencyMap): obj is LdkitDalDependencyMap {
     return (obj as LdkitDalDependencyMap) !== undefined;
 }
 
+/**
+ * The `InstanceListLdkitReaderGenerator` class is responsible for generating the aggregate-specific implementation
+ * part of the list capability using the LDkit library. This class provides specific logic for template population
+ * and generation of dependencies needed for the data layer of the list capability of the generated application.
+ *
+ * @extends TemplateConsumer<InstanceListLdkitReaderTemplate>
+ */
 export class InstanceListLdkitReaderGenerator extends TemplateConsumer<InstanceListLdkitReaderTemplate> {
 
     private static readonly _ldkitListDataLayerTemplatePath = "./list/data-layer/ldkit/aggregate-specific-reader";
@@ -31,6 +45,15 @@ export class InstanceListLdkitReaderGenerator extends TemplateConsumer<InstanceL
         });
     }
 
+    /**
+     * This method is responsible for the population and rendering of the template for aggregate-specific implementation part of the list capability.
+     * When all dependencies needed by template (@see {InstanceListLdkitReaderTemplate} for more details) are populated,
+     * the template renderer is invoked to generate the resulting code.
+     *
+     * @param dependencies - Dependencies providing the information about the aggregate and context for the template.
+     * @returns A promise that resolves to the generated aggregate-specific implementation for list capability.
+     * @throws {Error} If the dependencies list parameter is invalid.
+     */
     async processTemplate(dependencies: LdkitDalDependencyMap): Promise<LayerArtifact> {
 
         if (!dependencies || !isInstanceListLdkitReaderDependencyList(dependencies)) {

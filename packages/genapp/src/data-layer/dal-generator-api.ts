@@ -8,6 +8,11 @@ type ResourceMap<TResource extends CoreResource> = {
     [resourceIri: string]: TResource
 }
 
+/**
+ * DalApi class provides methods to interact with the Dataspecer backend service.
+ * These methods provide a way to retrieve data about data specifications,
+ * backend generated artifacts as well as fetching data structure model resources.
+ */
 export default class DalApi {
     private readonly endpointBaseUri: string;
 
@@ -23,7 +28,7 @@ export default class DalApi {
      * @returns Backend service response object which contains the ZIP represented as a Buffer object, which contains the generated
      * artifacts.
      */
-    async generateDalLayerArtifact(dataSpecificationIri: string):
+    async generatePsmSchemaArtifacts(dataSpecificationIri: string):
         Promise<AxiosResponse<Buffer, any>> {
 
         const url = `${this.endpointBaseUri}/generate?iri=${dataSpecificationIri}`;
