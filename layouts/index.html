@@ -6,7 +6,8 @@
     </div>
     <div class="col-lg-9 col-xl-8 text-center">
       <p class="lead">{{ .Params.lead | safeHTML }}</p>
-      <a class="btn btn-primary btn-lg px-4 mb-2" href="/docs/tutorial/start/" role="button">Read the documentation</a>
+      <a class="btn btn-primary btn-lg px-4 mb-2" href="/docs/tutorial/start/" role="button">Read documentation</a>
+      <a class="btn btn-danger btn-lg px-4 mb-2" href="https://demo.dataspecer.com" role="button">Go to demo instance</a>
     </div>
   </div>
 </section>
@@ -16,63 +17,72 @@
   {{ if eq $.Site.Language.LanguageName "English" }}
   <section class="section section-sm">
     <div class="container">
-      <div class="row justify-content-center text-start">
-        <div class="col-lg-8">
-          <h2 class="h4">Your domain ontology<br>to data schemas easily</h2>
+      <div class="row justify-content-center text-lg-center">
+        <div class="col-lg-4">
+          <h2 class="h4">Reusable vocabularies</h2>
           <p>
-            Use your own domain ontology to easily create data schemas in different formats such as XML, JSON, CSV.
-            All this without the need to write any code. The tool understands the structure of your data and suggests
-            the correct entities to use.
+            Define new classes, properties and their relationships as well as their relationships to exisitng vocabularies as semantic data specifications, fostering semantic data interoperability.
+            Dataspecer provides a lightweight editor efficiently supporting the most common needs when creating RDF Schema based vocabularies.
           </p>
         </div>
-        <div class="col-lg-8 d-flex justify-content-center">
-          {{ $diagramLight := resources.Get "images/diagram-light.png" }}
-          <img src="{{ $diagramLight.RelPermalink }}" style="max-width: 25rem; width: 100%;" class="light-only img-fluid">
-          {{ $diagramDark := resources.Get "images/diagram-dark.png" }}
-          <img src="{{ $diagramDark.RelPermalink }}" style="max-width: 25rem; width: 100%;" class="dark-only img-fluid">
+        <div class="col-lg-4">
+          <h2 class="h4">Application profiles for narrower contexts</h2>
+          <p>
+            Combine terms from existing vocabularies and adjust them to your specific context, without breaking their original semantics.
+            Dataspecer uses the <a href="https://w3id.org/dsv">Data Specification Vocabulary (DSV)</a> to represent context-specific adjustments to existing classes and properties in compliance with the <a href="https://semiceu.github.io/style-guide/1.0.0/index.html">SEMIC Style Guide</a>.
+          </p>
+        </div>
+        <div class="col-lg-4">
+          <h2 class="h4">Semantically compliant technical artifacts</h2>
+          <p>
+            Use your domain ontology or vocabulary to semi-automatically derive semantically compliant data schemas for different data formats such as XML, JSON and CSV and let Dataspecer guide you in the process, fostering technical data interoperability.
+          </p>
         </div>
       </div>
     </div>
   </section>
-  <section class="section section-sm mt-4">
-    <div class="container">
-      <div class="row justify-content-center text-lg-end">
-        <div class="col-lg-8 order-lg-2">
-          <h2 class="h4">With data transformations,<br>documentation, plantUML,<br>diagrams, and more...</h2>
-          <p>
-            We intend to create a tool that can generate transformation scripts converting data between different data
-            schemas and serialization technologies, generate Bikeshed documentation with examples, images, and
-            descriptions, small webapps working with the data, and many other things.
-          </p>
-        </div>
-        <div class="col-lg-8 order-lg-1 d-flex justify-content-center">
-          {{ $technologiesLight := resources.Get "images/technologies-light.png" }}
-          <img src="{{ $technologiesLight.RelPermalink }}" style="max-width: 25rem; width: 100%;" class="light-only img-fluid">
-          {{ $technologiesDark := resources.Get "images/technologies-dark.png" }}
-          <img src="{{ $technologiesDark.RelPermalink }}" style="max-width: 25rem; width: 100%;" class="dark-only img-fluid">
-        </div>
-      </div>
-    </div>
-  </section>
+  <hr/>
   <section class="section section-sm mt-4">
     <div class="container">
       <div class="row justify-content-center text-lg-center">
-        <div class="col-lg-5">
-          <h2 class="h4">Presented as a demo at ESWC 2022</h2>
+        <div class="col-lg-6">
+          <h2 class="h4">Used for Czech national data specifications</h2>
           <p>
-            Our paper "DataSpecer: A Model-Driven Approach to Managing Data Specifications" was presented at the
-            ESWC 2022 conference.
+            The tool is currently in use by the Czech Digital and Information Agency for management of several national data specifications, e.g. for <a href="https://ofn.gov.cz/dokumenty-z-formulářů-ZoPDS/">electronic document metadata in XML (in Czech)</a>, or the <a href="https://ofn.gov.cz/registr-práv-a-povinností/dokumenty-převodu-agend/2024-09-01/">datasets of the Czech Registry of Rights and Duties in RDF and JSON-LD (in Czech)</a>.
           </p>
         </div>
         <div class="col-lg-6">
-          <h2 class="h4">Already used in Czechia</h2>
+          <h2 class="h4">Developed at Charles University and the Czech Digital and Information Agency</h2>
+          <p>We are a group of researchers/developers at the Faculty of Mathematics and Physics, Charles University, and at the department of Data Management of the Czech Digital and Information Agency, who are involved in the development of the tool.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <hr/>
+
+  <section class="section section-sm mt-4">
+    <div class="container">
+      <div class="row justify-content-center text-lg-center">
+        
+        <div class="col-lg-4">
+          <h2 class="h4">Presented at ISWC&nbsp;2024</h2>
           <p>
-            The tool is tested and in use by the Ministry of the Interior of the Czech Republic to create recommendations for publishing open data based on the Semantic Government Vocabulary (SGOV).
+            Our paper <a href="https://ceur-ws.org/Vol-3828/paper33.pdf">Authoring of Vocabularies and Application Profiles using Dataspecer</a> was presented at the
+            ISWC 2024 conference Posters and Demos session. <a href="papers/iswc2024">See the demo for yourself</a>.
           </p>
         </div>
-        <div class="col-lg-5">
-          <h2 class="h4">Actively developed at Charles University ⚡</h2>
-          <p>We have a group of active researchers/developers at the Faculty of Mathematics and Physics, Charles University, who are involved in the development of the tool.</p>
+        <div class="col-lg-4">
+          <h2 class="h4">Presented at MODELS'23</h2>
+          <p>
+            Dataspecer was presented as a part of <a href="https://doi.ieeecomputersociety.org/10.1109/MODELS-C59198.2023.00009">Atlas: A Toolset for Efficient Model-Driven Data Exchange in Data Spaces</a> at MODELS'23 demo session.
+          </p>
+        </div>
+        <div class="col-lg-4">
+          <h2 class="h4">Presented at ESWC&nbsp;2022</h2>
+          <p>
+            Our paper <a href="https://2022.eswc-conferences.org/wp-content/uploads/2022/05/pd_Stenchlak_et_al_paper_228.pdf">DataSpecer: A Model-Driven Approach to Managing Data Specifications</a> was presented at the
+            ESWC 2022 conference Posters and Demos session.
+          </p>
         </div>
       </div>
     </div>

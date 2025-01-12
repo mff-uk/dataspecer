@@ -1,5 +1,5 @@
 ---
-title : "A tool for the management of data structures."
-description: "Dataspecer is a tool for the management and modeling of data structures. The structures may be mapped to user-provided ontologies and exported into various formats."
-lead: "Dataspecer is a tool for the management and modeling of data structures. The structures may be mapped to user-provided ontologies and exported into various formats."
+title : "A tool for management of semantic data specifications"
+description: "Dataspecer is a tool for management of semantic data specifications, from vocabularies and application profiles to derived technical artifacts such as data schemas, validation rules, APIs and application prototypes."
+lead: "Dataspecer is a tool for management of semantic data specifications, from vocabularies and application profiles to derived technical artifacts such as data schemas, validation rules, APIs and application prototypes."
 ---
