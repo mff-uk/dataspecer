@@ -306,6 +306,15 @@ Within this project, the generated presentation layer components correspond to t
 
 ## Prototype Generator Architecture
 
+{{% tutorial-image "images/projects/genapp/code_architecture.png" %}}
+
+The architecture of the generator is structured into multiple logical components, which partially correspond to the individual steps required for prototype generation.
+One of the main goals of this logical separation of the generator's code structure was to ensure an easy extensibility for new types of supported operations (i.e., the ability to add new capabilities), including the ability to define their internal structure and layers independently of remaining capabilities.
+Current architecture of the generator enables this by allowing for separate definitions of operations, within which it is possible to specify the layers to be generated as well as the instances of generators responsible for the actual generation process.
+
+
+For a more detailed overview of the code structure and the logical separation of different components, along with a comprehensive description of the classes and methods, please visit [the technical documentation page](https://viktor-bujko.github.io/genapp-tech-docs/).
+
 ### Generator Engine Component
 
 #### `ApplicationGenerator`
@@ -343,7 +352,7 @@ This subdirectory contains types and classes which are essential for the generat
 
 #### `presentation-layer` subdirectory
 
-- Similarily to the `app-logic-layer` and `data-layer` subdirectories, this subdirectory contains template generators used to generate UI components and their elements for different capabilities.
+- Similarly to the `app-logic-layer` and `data-layer` subdirectories, this subdirectory contains template generators used to generate UI components and their elements for different capabilities.
 
 #### `react-base` subdirectory
 
@@ -363,11 +372,11 @@ Genapp -- application prototype generator tool has been integrated to Dataspecer
 
 ## Local Build Instructions
 
-This section provides steps for local build of the entire Dataspecer repository. The repository is a mono repository -- consists of several different packages, applications and services and its content is not limited to this project.
+This section provides steps for local build of the entire Dataspecer repository. The repository is a monorepository -- consists of several different packages, applications and services and its content is not limited to this project.
 
 1. Clone dataspecer repository using `git clone`.
-2. After cloning the mono repository, local config files should be created. Please see individual applications or packages what to do.
-3. Navigate to the mono repository root directory and install all packages using `npm install`.
+2. After cloning the monorepository, local config files should be created. Please see individual applications or packages what to do.
+3. Navigate to the monorepository root directory and install all packages using `npm install`.
 4. To be able to generate an application prototype, the backend service and Dataspecer manager application have to be built:
    1. Please refer to [backend service documentation](https://github.com/mff-uk/dataspecer/blob/main/services/backend/README.md) or run the following commands:
       ```
@@ -375,7 +384,7 @@ This section provides steps for local build of the entire Dataspecer repository.
       npm --prefix services/backend run update-database
       npm --prefix services/backend run start
       ```
-    2. Build Dataspecer manager by running (from mono repository root directory):
+    2. Build Dataspecer manager by running (from monorepository root directory):
       ```
       npx turbo run build --filter=backend
       cd applications/manager
@@ -383,7 +392,7 @@ This section provides steps for local build of the entire Dataspecer repository.
       npm run dev
       ```
 5. Since initially the local backend service does not contain any data specification, Dataspecer specification editor has to be started.
-   1. Navigate to `applications/client` (from mono repository root directory)
+   1. Navigate to `applications/client` (from monorepository root directory)
    2. Run `npm run start` to run specification editor locally
    3. Create a data specification according to [this tutorial](https://dataspecer.com/docs/tutorial/basic-schema/)
    4. Continue with the next steps as mentioned in the [User manual](#user-manual----how-to-generate-an-application-prototype) section of this document.
