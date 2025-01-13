@@ -9,5 +9,5 @@ const factory = createDefaultVisualModelFactory();
  */
 export const createVisualModel = (iri: string) => {
     const internalModel = createDefaultEntityModel(LOCAL_VISUAL_MODEL, iri);
-    return factory.createWritableVisualModelSync(internalModel);;
+    return factory.createWritableVisualModelSync(internalModel);
 };

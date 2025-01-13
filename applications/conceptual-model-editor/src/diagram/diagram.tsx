@@ -91,9 +91,6 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
           onNodeMouseEnter={controller.onNodeMouseEnter}
           onNodeMouseLeave={controller.onNodeMouseLeave}
           onNodeDoubleClick={controller.onNodeDoubleClick}
-
-          // TODO RadStr: DEBUG
-          onSelectionDrag={controller.onSelectionDrag}
         >
           <Controls />
           <MiniMap nodeColor={miniMapNodeColor} pannable zoomable />

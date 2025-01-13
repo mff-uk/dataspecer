@@ -259,9 +259,6 @@ interface UseDiagramControllerType {
 
   onNodeDoubleClick: (event: React.MouseEvent, node: Node) => void;
 
-
-  // TODO RadStr: DEBUG
-  onSelectionDrag: (event: React.MouseEvent, nodes: Node[]) => void;
 }
 
 type NodeIdentifierWithType = {
@@ -475,8 +472,8 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
   useEffect(() => api.setActions(actions), [api, actions]);
 
   const onPaneClick = useCallback(createOnPaneClickHandler(
-    context.closeCanvasToolbar),
-    [context.closeCanvasToolbar]);
+    context.closeCanvasToolbar, cleanSelection),
+    [context.closeCanvasToolbar, cleanSelection]);
 
   const onNodeDoubleClick = useCallback(createOnNodeDoubleClickHandler(reactFlowInstance, actions.openGroupMenu), [reactFlowInstance, actions.openGroupMenu]);
 
@@ -525,10 +522,6 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
     onNodeMouseEnter: independentPartOfDiagramController.onNodeMouseEnter,
     onNodeMouseLeave: independentPartOfDiagramController.onNodeMouseLeave,
     onNodeDoubleClick: dependentPartOfDiagramController.onNodeDoubleClick,
-
-    // TODO RadStr: Debug
-    // onSelectionDrag: (event: React.MouseEvent, nodes: Node[]) => console.info("onSelectionDrag", nodes),
-    onSelectionDrag: (event: React.MouseEvent, nodes: Node[]) => {},
   };
 }
 
@@ -1753,9 +1746,11 @@ type OnPaneClickHandler = (event: React.MouseEvent) => void;
 
 const createOnPaneClickHandler = (
   closeCanvasToolbar: () => void,
+  cleanSelection: () => void,
 ): OnPaneClickHandler => {
   return (_: React.MouseEvent) => {
     closeCanvasToolbar();
+    cleanSelection();       // This isn't needed, it is just as safety measure if there is some bug in selection code
   };
 };
 

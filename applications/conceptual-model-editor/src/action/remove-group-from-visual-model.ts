@@ -3,6 +3,10 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { removePartOfGroupContentAction } from "./remove-part-of-group-content";
 import { findTopLevelGroupFromVisualModel, getGroupMappings } from "./utilities";
 
+/**
+ * Removes the top level group for given {@link identifier}
+ * @param identifier If null - no group is dissolved
+ */
 export function removeTopLevelGroupFromVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   visualModel: WritableVisualModel,
