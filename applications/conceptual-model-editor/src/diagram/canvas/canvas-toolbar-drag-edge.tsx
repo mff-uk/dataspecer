@@ -1,19 +1,19 @@
 import { useContext } from "react";
 
 import { DiagramContext } from "../diagram-controller";
-import { CanvasToolbarContentProps } from "./canvas-toolbar-props";
+import { CanvasMenuContentProps } from "./canvas-toolbar-props";
 
 import "./canvas-toolbar-drag-edge.css";
 
 /**
  * This toolbar represents menu which appears when user drags edge to canvas.
  */
-export function CanvasToolbarCreatedByEdgeDrag({ toolbarProps }: { toolbarProps: CanvasToolbarContentProps }) {
+export function CanvasMenuCreatedByEdgeDrag({ menuProps }: { menuProps: CanvasMenuContentProps }) {
   const context = useContext(DiagramContext);
 
   const onCanvasMenuAddClassDialog = () => {
-    context?.closeCanvasToolbar();
-    context?.callbacks().onCanvasOpenCreateClassDialog(toolbarProps.sourceNodeIdentifier, toolbarProps.canvasPosition);
+    context?.closeCanvasMenu();
+    context?.callbacks().onCanvasOpenCreateClassDialog(menuProps.sourceNodeIdentifier, menuProps.canvasPosition);
   };
 
   return <div>

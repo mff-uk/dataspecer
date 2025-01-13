@@ -189,9 +189,6 @@ export interface DiagramActions {
    */
   renderToSvgString(): Promise<string | null>;
 
-  // TODO RadStr: maybe just keep opening the canvas toolbars through context before we call the on... handler and don't expose through API?, similiarly to the closeCanvasToolbar,
-  //              .... Wait for it a bit after I add more canvas toolbars
-
   /**
    * Opens toolbar on given {@link canvasPosition}, which represents the menu that appears when user drags edge to canvas.
    * @param sourceNode is the node from which the connection dragging started

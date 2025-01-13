@@ -4,14 +4,14 @@ import { Position } from "../diagram-api";
 
 import "./canvas-toolbar-general.css";
 
-export type CanvasToolbarContentType = ({toolbarProps}: {toolbarProps: CanvasToolbarContentProps}) => JSX.Element | null;
+export type CanvasMenuContentType = ({menuProps}: {menuProps: CanvasMenuContentProps}) => JSX.Element | null;
 
 /**
  * Represents the general toolbar for canvas. General toolbar is component, which gets
- * {@link toolbarContent} and shows it on given {@link canvasPosition}.
+ * {@link menuContent} and shows it on given {@link canvasPosition}.
  */
-export interface CanvasToolbarGeneralProps {
-  toolbarContent: CanvasToolbarContentType;
+export interface CanvasGeneralMenuProps {
+  menuContent: CanvasMenuContentType;
 }
 
 // TODO RadStr: Actually if we played with the typing a bit this could probably be probably also used for edges
@@ -19,7 +19,7 @@ export interface CanvasToolbarGeneralProps {
 /**
  * Stores the props for the content of general toolbar
  */
-export interface CanvasToolbarContentProps {
+export interface CanvasMenuContentProps {
   canvasPosition: Position;
 
   /**

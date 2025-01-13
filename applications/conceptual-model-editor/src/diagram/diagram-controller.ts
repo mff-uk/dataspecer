@@ -45,15 +45,15 @@ import { type AlignmentController, useAlignmentController } from "./features/ali
 import { GeneralizationEdgeName } from "./edge/generalization-edge";
 import { ClassProfileEdgeName } from "./edge/class-profile-edge";
 import { diagramContentAsSvg } from "./render-svg";
-import { CanvasToolbarContentType } from "./canvas/canvas-toolbar-props";
-import { CanvasToolbarCreatedByEdgeDrag } from "./canvas/canvas-toolbar-drag-edge";
+import { CanvasMenuContentType } from "./canvas/canvas-toolbar-props";
+import { CanvasMenuCreatedByEdgeDrag } from "./canvas/canvas-toolbar-drag-edge";
 import { SelectionActionsMenu } from "./node/selection-actions-menu";
 import { setHighlightingStylesBasedOnSelection } from "./features/highlighting/set-selection-highlighting-styles";
 import { useExplorationCanvasHighlightingController } from "./features/highlighting/exploration/canvas/canvas-exploration-highlighting-controller";
 import { ReactPrevSetStateType } from "./utilities";
 import { GroupMenu } from "./node/group-menu";
 import { findTopLevelGroup } from "../action/utilities";
-import { CanvasToolbarGeneralComponentProps } from "./canvas/canvas-toolbar-general";
+import { GeneralCanvasMenuComponentProps } from "./canvas/canvas-toolbar-general";
 
 const getTopLeftPosition = (nodes: Node<any>[]) => {
   const topLeft = {x: 10000000, y: 10000000};
@@ -163,7 +163,7 @@ type ReactFlowContext = ReactFlowInstance<NodeType, EdgeType>;
 
 type OpenEdgeContextMenuHandler = (edge: EdgeType, x: number, y: number) => void;
 
-type OpenCanvasContextMenuHandler = (sourceNodeIdentifier: string, canvasPosition: Position, toolbarContent: CanvasToolbarContentType) => void;
+type OpenCanvasContextMenuHandler = (sourceNodeIdentifier: string, canvasPosition: Position, menuContent: CanvasMenuContentType) => void;
 
 /**
  * We use context to access to callbacks to diagram content, like nodes and edges.
@@ -179,12 +179,12 @@ interface DiagramContextType {
   /**
    * Stored in context because the idea is to allow max one opened canvas toolbar
    */
-  openedCanvasToolbar: CanvasToolbarContentType | null;
+  openedCanvasMenu: CanvasMenuContentType | null;
 
   /**
-   * Close any opened canvas toolbar, if none was open, then doesn't do anything.
+   * Close any opened canvas toolbar (menu), if none was open, then doesn't do anything.
    */
-  closeCanvasToolbar(): void;
+  closeCanvasMenu(): void;
 
   getNodeWithToolbar: () => string | null;
 
@@ -220,7 +220,7 @@ interface UseDiagramControllerType {
    */
   edgeToolbar: EdgeToolbarProps | null;
 
-  canvasToolbar: CanvasToolbarGeneralComponentProps | null;
+  canvasMenu: GeneralCanvasMenuComponentProps | null;
 
   onNodesChange: OnNodesChange<NodeType>;
 
@@ -265,7 +265,7 @@ function useCreateReactStates() {
   const [nodes, setNodes] = useNodesState<NodeType>([]);
   const [edges, setEdges] = useEdgesState<EdgeType>([]);
   const [edgeToolbar, setEdgeToolbar] = useState<EdgeToolbarProps | null>(null);
-  const [canvasToolbar, setCanvasToolbar] = useState<CanvasToolbarGeneralComponentProps | null>(null);
+  const [canvasMenu, setCanvasMenu] = useState<GeneralCanvasMenuComponentProps | null>(null);
 
   /*
    * Says if the node is selected - having the reactflow property is not enough,
@@ -332,7 +332,7 @@ function useCreateReactStates() {
     nodes, setNodes,
     edges, setEdges,
     edgeToolbar, setEdgeToolbar,
-    canvasToolbar, setCanvasToolbar,
+    canvasMenu, setCanvasMenu,
     selectedNodes, setSelectedNodes, selectedNodesRef,
     selectedEdges, setSelectedEdges,
     groups, setGroups,
@@ -349,7 +349,7 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
   createdReactStates: ReturnType<typeof useCreateReactStates>,
 ) {
   const {
-    nodes, setNodes, setEdges, setEdgeToolbar, setCanvasToolbar,
+    nodes, setNodes, setEdges, setEdgeToolbar, setCanvasMenu,
     selectedNodes, setSelectedNodes, setSelectedEdges, selectedEdges,
     groups, nodeToGroupMapping,
     nodesInGroupWhichAreNotPartOfDragging,
@@ -379,8 +379,6 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
   [setEdges, setSelectedEdges]);
 
   useEffect(() => {
-  // TODO: DEBUG
-    // console.info("RadStr DEBUG: USE EFFECT", [...selectedNodes], [...selectedEdges], selectedNodesRef.current, [...selectedNodesRef.current], [...userSelectedNodes], [...userSelectedNodesRef.current]);
     if(!canvasHighlighting.isHighlightingOn) {
       setHighlightingStylesBasedOnSelection(reactFlowInstance, selectedNodes, selectedEdges, setNodes, setEdges);
     }
@@ -398,7 +396,7 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
 
   const onDrop = useCallback(createDropHandler(reactFlowInstance), [reactFlowInstance.screenToFlowPosition]);
 
-  const onOpenCanvasToolbar = useCallback(createOpenCanvasToolbarHandler(setCanvasToolbar), [setCanvasToolbar]);
+  const onOpenCanvasMenu = useCallback(createOpenCanvasMenuHandler(setCanvasMenu), [setCanvasMenu]);
 
   const onOpenEdgeToolbar = useCallback(createOpenEdgeToolbarHandler(setEdgeToolbar),
     [setEdgeToolbar]);
@@ -421,7 +419,7 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
     isValidConnection,
     onDragOver,
     onDrop,
-    onOpenCanvasToolbar,
+    onOpenCanvasMenu,
     onOpenEdgeToolbar,
     onNodeDrag,
     onNodeDragStop,
@@ -438,7 +436,7 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
 ) {
   const {
     setNodes, setEdges,
-    canvasToolbar, setCanvasToolbar,
+    canvasMenu, setCanvasMenu,
     selectedNodes, selectedEdges,
     setSelectedNodes, setSelectedEdges,
     setGroups,
@@ -448,11 +446,11 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
     nodesInGroupWhichAreNotPartOfDragging,
 
   } = createdReactStates;
-  const { onOpenEdgeToolbar, onOpenCanvasToolbar, alignmentController } = createdPartOfDiagramController;
+  const { onOpenEdgeToolbar, onOpenCanvasMenu, alignmentController } = createdPartOfDiagramController;
 
   const context = useMemo(() => createDiagramContext(
-    api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar?.toolbarContent ?? null, setCanvasToolbar, selectedNodes, selectedEdges, userSelectedNodes),
-  [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges, userSelectedNodes]
+    api, onOpenEdgeToolbar, onOpenCanvasMenu, canvasMenu?.menuContent ?? null, setCanvasMenu, selectedNodes, selectedEdges, userSelectedNodes),
+  [api, onOpenEdgeToolbar, onOpenCanvasMenu, canvasMenu, setCanvasMenu, selectedNodes, selectedEdges, userSelectedNodes]
   );
 
   const canvasHighlighting = useExplorationCanvasHighlightingController(setNodes, setEdges);
@@ -466,14 +464,14 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
   useEffect(() => api.setActions(actions), [api, actions]);
 
   const onPaneClick = useCallback(createOnPaneClickHandler(
-    context.closeCanvasToolbar, cleanSelection),
-  [context.closeCanvasToolbar, cleanSelection]);
+    context.closeCanvasMenu, cleanSelection),
+  [context.closeCanvasMenu, cleanSelection]);
 
   const onNodeDoubleClick = useCallback(createOnNodeDoubleClickHandler(reactFlowInstance, actions.openGroupMenu), [reactFlowInstance, actions.openGroupMenu]);
 
   const onNodeDragStart = useCallback(createOnNodeDragStartHandler(
-    alignmentController, canvasHighlighting.disableTemporarily, nodesInGroupWhichAreNotPartOfDragging, context.closeCanvasToolbar),
-  [alignmentController, canvasHighlighting.disableTemporarily, nodesInGroupWhichAreNotPartOfDragging, context.closeCanvasToolbar]);
+    alignmentController, canvasHighlighting.disableTemporarily, nodesInGroupWhichAreNotPartOfDragging, context.closeCanvasMenu),
+  [alignmentController, canvasHighlighting.disableTemporarily, nodesInGroupWhichAreNotPartOfDragging, context.closeCanvasMenu]);
 
   return {
     context,
@@ -498,7 +496,7 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
     edges: reactStates.edges,
     context: dependentPartOfDiagramController.context,
     edgeToolbar: reactStates.edgeToolbar,
-    canvasToolbar: reactStates.canvasToolbar,
+    canvasMenu: reactStates.canvasMenu,
     onNodesChange: independentPartOfDiagramController.onNodesChange,
     onEdgesChange: independentPartOfDiagramController.onEdgesChange,
     onConnect: independentPartOfDiagramController.onConnect,
@@ -530,10 +528,10 @@ const createOnNodeDragStartHandler = (
   alignmentController: AlignmentController,
   disableExplorationModeHighlightingChanges: () => void,
   selectedNodesRef: React.MutableRefObject<string[]>,
-  closeCanvasToolbar: () => void,
+  closeCanvasMenu: () => void,
 ) => {
   return (_: React.MouseEvent, node: Node, _nodes: Node[]) => {
-    closeCanvasToolbar();
+    closeCanvasMenu();
     disableExplorationModeHighlightingChanges();
     alignmentController.alignmentSetUpOnNodeDragStart(node);
   };
@@ -1617,30 +1615,30 @@ const createOpenEdgeToolbarHandler = (setEdgeToolbar: (edgeToolbarProps: EdgeToo
   };
 };
 
-const createOpenCanvasToolbarHandler = (
-  setCanvasToolbar: (canvasToolbarProps: CanvasToolbarGeneralComponentProps | null) => void
+const createOpenCanvasMenuHandler = (
+  setCanvasMenu: (menuProps: GeneralCanvasMenuComponentProps | null) => void
 ): OpenCanvasContextMenuHandler => {
-  return (sourceNodeIdentifier: string, canvasPosition: Position, toolbarContent: CanvasToolbarContentType) => {
-    const newCanvasToolbar: CanvasToolbarGeneralComponentProps = {
-      toolbarProps: {
+  return (sourceNodeIdentifier: string, canvasPosition: Position, menuContent: CanvasMenuContentType) => {
+    const newCanvasMenu: GeneralCanvasMenuComponentProps = {
+      menuProps: {
         canvasPosition,
         sourceNodeIdentifier,
       },
-      toolbarContent,
+      menuContent,
     };
 
-    setCanvasToolbar(newCanvasToolbar);
+    setCanvasMenu(newCanvasMenu);
   };
 };
 
 type OnPaneClickHandler = (event: React.MouseEvent) => void;
 
 const createOnPaneClickHandler = (
-  closeCanvasToolbar: () => void,
+  closeCanvasMenu: () => void,
   cleanSelection: () => void,
 ): OnPaneClickHandler => {
   return (_: React.MouseEvent) => {
-    closeCanvasToolbar();
+    closeCanvasMenu();
     cleanSelection();       // This isn't needed, it is just as safety measure if there is some bug in selection code
   };
 };
@@ -2009,7 +2007,7 @@ const createActions = (
     },
     openDragEdgeToCanvasMenu(sourceNode, canvasPosition) {
       console.log("openDragEdgeToCanvasToolbar", {sourceNode, canvasPosition});
-      context?.onOpenCanvasContextMenu(sourceNode.identifier, canvasPosition, CanvasToolbarCreatedByEdgeDrag);
+      context?.onOpenCanvasContextMenu(sourceNode.identifier, canvasPosition, CanvasMenuCreatedByEdgeDrag);
     },
     openSelectionActionsMenu(sourceNode, canvasPosition) {
       console.log("openSelectionActionsMenu", {sourceNode, canvasPosition});
@@ -2130,8 +2128,8 @@ const createDiagramContext = (
   api: UseDiagramType,
   onOpenEdgeContextMenu: OpenEdgeContextMenuHandler,
   onOpenCanvasContextMenu: OpenCanvasContextMenuHandler,
-  openedCanvasToolbar: CanvasToolbarContentType | null,
-  setCanvasToolbar: (_: null) => void,
+  openedCanvasMenu: CanvasMenuContentType | null,
+  setCanvasMenu: (_: null) => void,
   selectedNodes: string[],
   selectedEdges: string[],
   userSelectedNodes: string[],
@@ -2139,7 +2137,7 @@ const createDiagramContext = (
 
   // TODO RadStr: Maybe return just the value in context
   const shownNodeToolbarType = computeShownNodeToolbarType(userSelectedNodes, selectedEdges);
-  const closeCanvasToolbar = () => setCanvasToolbar(null);
+  const closeCanvasMenu = () => setCanvasMenu(null);
   const getAreOnlyEdgesSelected = () => {
     return selectedNodes.length === 0 && selectedEdges.length !== 0;
   };
@@ -2148,8 +2146,8 @@ const createDiagramContext = (
     callbacks: api.callbacks,
     onOpenEdgeContextMenu,
     onOpenCanvasContextMenu,
-    openedCanvasToolbar,
-    closeCanvasToolbar,
+    openedCanvasMenu,
+    closeCanvasMenu,
     getNodeWithToolbar: () => userSelectedNodes.at(-1) ?? null,
     getShownNodeToolbarType: () => shownNodeToolbarType,
 

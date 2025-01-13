@@ -98,7 +98,7 @@ function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
     return null;
   }
 
-  const isCanvasToolbarOpen = context.openedCanvasToolbar !== null;
+  const isCanvasToolbarOpen = context.openedCanvasMenu !== null;
   if (isCanvasToolbarOpen) {
     return null;
   }
@@ -181,7 +181,7 @@ function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
         <button onClick={onAddAttribute} title={addAttributeTitle} >➕</button>
         &nbsp;
       </NodeToolbar>
-    </>);  
+    </>);
 }
 
 type SelectionToolbarProps = NodeProps<Node<ApiNode>> & {isGroupToolbar: boolean};

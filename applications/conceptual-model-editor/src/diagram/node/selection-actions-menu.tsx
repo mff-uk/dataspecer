@@ -1,5 +1,5 @@
 import "./selection-actions-menu.css";
-import { CanvasToolbarContentProps } from "../canvas/canvas-toolbar-props";
+import { CanvasMenuContentProps } from "../canvas/canvas-toolbar-props";
 import { DiagramContext } from "../diagram-controller";
 import { useContext } from "react";
 import { t } from "../../application";
@@ -7,22 +7,22 @@ import { t } from "../../application";
 /**
  * This is react component representing toolbar menu, which appears when user clicks on the actions button on selection.
  */
-export function SelectionActionsMenu(_: { toolbarProps: CanvasToolbarContentProps }) {
+export function SelectionActionsMenu(_: { menuProps: CanvasMenuContentProps }) {
   const context = useContext(DiagramContext);
   const onCreateNewView = () => {
-    context?.closeCanvasToolbar();
+    context?.closeCanvasMenu();
     context?.callbacks().onCreateNewViewFromSelection();
   };
   const onProfileSelection = () => {
-    context?.closeCanvasToolbar();
+    context?.closeCanvasMenu();
     context?.callbacks().onProfileSelection();
   };
   const onHideSelection = () => {
-    context?.closeCanvasToolbar();
+    context?.closeCanvasMenu();
     context?.callbacks().onHideSelection();
   };
   const onRemoveSelection = () => {
-    context?.closeCanvasToolbar();
+    context?.closeCanvasMenu();
     context?.callbacks().onDeleteSelection();
   };
 

@@ -1,20 +1,19 @@
 import "./group-menu.css";
-import { CanvasToolbarContentProps } from "../canvas/canvas-toolbar-props";
+import { CanvasMenuContentProps as CanvasMenuContentProps } from "../canvas/canvas-toolbar-props";
 import { DiagramContext } from "../diagram-controller";
 import { useContext } from "react";
 import { t } from "../../application";
 
-// TODO RadStr: Rename every toolbar to menu
-export function GroupMenu({ toolbarProps }: { toolbarProps: CanvasToolbarContentProps }) {
+export function GroupMenu({ menuProps }: { menuProps: CanvasMenuContentProps }) {
   const context = useContext(DiagramContext);
 
   const onDissolveGroup = () => {
-    context?.closeCanvasToolbar();
-    context?.callbacks().onDissolveGroup(toolbarProps.sourceNodeIdentifier);
+    context?.closeCanvasMenu();
+    context?.callbacks().onDissolveGroup(menuProps.sourceNodeIdentifier);
   };
   const onAnchor = () => {
-    context?.closeCanvasToolbar();
-    context?.callbacks().onToggleAnchorForNode(toolbarProps.sourceNodeIdentifier);
+    context?.closeCanvasMenu();
+    context?.callbacks().onToggleAnchorForNode(menuProps.sourceNodeIdentifier);
   };
 
   return (<>
