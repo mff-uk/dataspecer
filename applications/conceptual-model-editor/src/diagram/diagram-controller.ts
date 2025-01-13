@@ -58,16 +58,15 @@ import { GroupMenu } from "./node/group-menu";
 import { findTopLevelGroup } from "../action/utilities";
 import { CanvasToolbarGeneralComponentProps } from "./canvas/canvas-toolbar-general";
 
-
 const getTopLeftPosition = (nodes: Node<any>[]) => {
   const topLeft = {x: 10000000, y: 10000000};
   nodes.forEach(node => {
-      if(node.position.x < topLeft.x) {
-          topLeft.x = node.position.x;
-      }
-      if(node.position.y < topLeft.y) {
-          topLeft.y = node.position.y;
-      }
+    if(node.position.x < topLeft.x) {
+      topLeft.x = node.position.x;
+    }
+    if(node.position.y < topLeft.y) {
+      topLeft.y = node.position.y;
+    }
   });
 
   return topLeft;
@@ -76,14 +75,14 @@ const getTopLeftPosition = (nodes: Node<any>[]) => {
 const getBotRightPosition = (nodes: Node<any>[]) => {
   const botRight = {x: -10000000, y: -10000000};
   nodes.forEach(node => {
-      const x = node.position.x + (node.measured?.width ?? 0);
-      if(x > botRight.x) {
-          botRight.x = x;
-      }
-      const y = node.position.y + (node.measured?.height ?? 0);
-      if(y > botRight.y) {
-          botRight.y = y;
-      }
+    const x = node.position.x + (node.measured?.width ?? 0);
+    if(x > botRight.x) {
+      botRight.x = x;
+    }
+    const y = node.position.y + (node.measured?.height ?? 0);
+    if(y > botRight.y) {
+      botRight.y = y;
+    }
   });
 
   return botRight;
@@ -142,7 +141,7 @@ const createGroupNode = (groupId: string, content: Node<any>[], hidden: boolean)
       border: "none",
     },
     data: {
-  // TODO: DEBUG Just keep the color
+      // TODO: DEBUG Just keep the color
       cls: undefined,
       color: "#694025",
       attributes: [],
@@ -152,7 +151,6 @@ const createGroupNode = (groupId: string, content: Node<any>[], hidden: boolean)
 
   return groupNode
 };
-
 
 export type NodeType = Node<ApiNode>;
 
@@ -361,7 +359,7 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
     selectedNodesRef,
     userSelectedNodes, setUserSelectedNodes, userSelectedNodesRef,
     cleanSelection,
-   } = createdReactStates;
+  } = createdReactStates;
   const alignmentController = useAlignmentController({ reactFlowInstance });
   const canvasHighlighting = useExplorationCanvasHighlightingController(setNodes, setEdges);
   const isCtrlPressed = useKeyPress("Control");
@@ -381,7 +379,7 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
 
   const onEdgesChange = useCallback(createEdgesChangeHandler(
     setEdges, setSelectedEdges),
-    [setEdges, setSelectedEdges]);
+  [setEdges, setSelectedEdges]);
 
   useEffect(() => {
   // TODO: DEBUG
@@ -415,7 +413,6 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
 
   const onNodeMouseEnter = useCallback(createOnNodeMouseEnterHandler(canvasHighlighting.changeHighlight, reactFlowInstance), [canvasHighlighting.changeHighlight, reactFlowInstance]);
   const onNodeMouseLeave = useCallback(createOnNodeMouseLeaveHandler(canvasHighlighting.resetHighlight), [canvasHighlighting.resetHighlight]);
-
 
   return {
     alignmentController,
@@ -479,7 +476,7 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
 
   const onNodeDragStart = useCallback(createOnNodeDragStartHandler(
     alignmentController, canvasHighlighting.disableTemporarily, nodesInGroupWhichAreNotPartOfDragging, context.closeCanvasToolbar),
-    [alignmentController, canvasHighlighting.disableTemporarily, nodesInGroupWhichAreNotPartOfDragging, context.closeCanvasToolbar]);
+  [alignmentController, canvasHighlighting.disableTemporarily, nodesInGroupWhichAreNotPartOfDragging, context.closeCanvasToolbar]);
 
   return {
     context,
@@ -489,7 +486,6 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
     onNodeDragStart
   };
 }
-
 
 export function useDiagramController(api: UseDiagramType): UseDiagramControllerType {
   const reactStates = useCreateReactStates();
@@ -545,7 +541,6 @@ const createOnNodeDragStartHandler = (
     alignmentController.alignmentSetUpOnNodeDragStart(node);
   };
 };
-
 
 const createOnNodeMouseEnterHandler = (
   changeHighlight: (
@@ -616,11 +611,9 @@ const createChangeSelectionHandler = (
   }
 };
 
-
 const isNodeChangeChangingSelection = (change: NodeChange<NodeType>): change is (NodePositionChange | NodeSelectionChange) => {
   return change.type === "select" || (change.type === "position" && change.dragging === false);
 };
-
 
 const createNodesChangeHandler = (
   nodes: NodeType[],
@@ -654,11 +647,11 @@ const createNodesChangeHandler = (
     console.info("nodes", nodes);
 
     if(handleStartOfGroupDraggingThroughGroupNode(nodes, changes, userSelectedNodesRef, setNodes,
-        setUserSelectedNodes, setSelectedNodes, groups, nodesInGroupWhichAreNotPartOfDragging)) {
+      setUserSelectedNodes, setSelectedNodes, groups, nodesInGroupWhichAreNotPartOfDragging)) {
       return;
     }
     if(handleGroupDraggingThroughNotSelectedNode(changes, userSelectedNodesRef, isSelectingThroughCtrl, setNodes,
-        setUserSelectedNodes, setSelectedNodes, groups, nodesInGroupWhichAreNotPartOfDragging, selectedNodes, selectedNodesRef)) {
+      setUserSelectedNodes, setSelectedNodes, groups, nodesInGroupWhichAreNotPartOfDragging, selectedNodes, selectedNodesRef)) {
       return;
     }
     const extractedDataFromChanges = getDataFromChanges(changes, groups, nodeToGroupMapping, selectedNodesRef, nodes);
@@ -666,12 +659,9 @@ const createNodesChangeHandler = (
     // TODO: DEBUG
     console.info(extractedDataFromChanges, {...extractedDataFromChanges});
 
-
     // TODO RadStr: Using the selected in data instead ... remove
     // addNewChangesBasedOnGroups(newlySelectedNodesBasedOnGroups, changedSelectionByUser, true, changes);
     // addNewChangesBasedOnGroups(newlyUnselectedNodesBasedOnGroups, changedSelectionByUser, false, changes);
-
-
 
     updateChangesByGroupDragEvents(changes, nodes, groups, nodeToGroupMapping,
       extractedDataFromChanges.directlyDraggedGroup, nodesInGroupWhichAreNotPartOfDragging);
@@ -720,7 +710,6 @@ const createNodesChangeHandler = (
     // setSelectedNodes(p => newSelectedNodes);
     // selectedNodesRef.current = newSelectedNodes;
 
-
     // if(lastSelectedNode !== null) {
     //   setNodeWithToolbar(lastSelectedNode);
     // }
@@ -743,7 +732,6 @@ const createNodesChangeHandler = (
       );
       return newUserSelectedNodes;
     });
-
 
     setSelectedNodes(previouslySelectedNodes => {
       const newSelectedNodes = updateSelectedNodesBasedOnNodeChanges(
@@ -776,7 +764,7 @@ const createNodesChangeHandler = (
     //   }
     // }
     // nodesInGroupWhichAreNotPartOfDragging.current = newNodesInGroupWhichAreNotPartOfDragging;
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     alignmentController.alignmentNodesChange(changes);
     ////////////////////////////////////////////////////////////////
@@ -820,7 +808,6 @@ const createNodesChangeHandler = (
   }
 };
 
-
 /**
  * Solves the situation when we are starting to drag the "pink" group node
  * @returns True if such situation occured, false if not
@@ -856,7 +843,6 @@ const handleStartOfGroupDraggingThroughGroupNode = (
   return false;
 };
 
-
 /**
  * Solves the situation when we are starting to drag selected node which isn't selected in reactflow, but is selected because it is part of group
  * @returns True if there is dragging by not selected node as source. False otherwise
@@ -873,7 +859,7 @@ const handleGroupDraggingThroughNotSelectedNode = (
   selectedNodes: string[],
   selectedNodesRef: React.MutableRefObject<string[]>,
 ): boolean => {
-if(!isSelectingThroughCtrl && changes.length === userSelectedNodesRef.current.length + 1 && userSelectedNodesRef.current.length > 0) {
+  if(!isSelectingThroughCtrl && changes.length === userSelectedNodesRef.current.length + 1 && userSelectedNodesRef.current.length > 0) {
     let isPossibleSelectionKeeper: boolean = true;
     let newlySelected: NodeSelectionChange | null = null;
     for(const change of changes) {
@@ -1054,7 +1040,6 @@ const removeNotCompleteGroupUnselections = (
     });
   }
 
-
   // TODO RadStr: Just debug prints
   // console.info("newlyUnselectedNodesBasedOnGroups");
   // console.info(newlyUnselectedNodesBasedOnGroups);
@@ -1065,7 +1050,6 @@ const removeNotCompleteGroupUnselections = (
     newlyUnselectedNodesBasedOnGroups,
   };
 }
-
 
 const getDataFromChanges = (
   changes: NodeChange<NodeType>[],
@@ -1225,7 +1209,7 @@ const updateChangesByGroupDragEvents = (
   // TODO RadStr: Probably can put away the nodesInGroupWhichAreNotPartOfDragging.current.length and directlyDraggedGroup !== null condition
   // Alternatively you could just compute the nodesInGroupWhichAreNotPartOfDragging from the user selected and selected nodes here on demand.
   const draggedGroups = [...new Set(changes.filter(change => change.type === "position").map(change => findTopLevelGroup(change.id, groups, nodeToGroupMapping))
-                          .concat(nodesInGroupWhichAreNotPartOfDragging.current.map(node => findTopLevelGroup(node, groups, nodeToGroupMapping))).filter(group => group !== null))];
+    .concat(nodesInGroupWhichAreNotPartOfDragging.current.map(node => findTopLevelGroup(node, groups, nodeToGroupMapping))).filter(group => group !== null))];
   // TODO RadStr: Putting away directlyDraggedGroup
   // if(nodesInGroupWhichAreNotPartOfDragging.current.length > 0 || directlyDraggedGroup !== null || draggedGroups.length > 0) {
   if(draggedGroups.length > 0) {
@@ -1251,7 +1235,6 @@ const updateChangesByGroupDragEvents = (
         positionDifference.x -= sourceNode?.position?.x ?? 0;
         positionDifference.y -= sourceNode?.position?.y ?? 0;
 
-
         // TODO RadStr: Debug prints
         // TODO RadStr: Just debug prints
         // console.info("positionDifference");
@@ -1263,10 +1246,9 @@ const updateChangesByGroupDragEvents = (
         // console.warn({...nodes.filter(n => n.selected === true)});
         // console.info(directlyDraggedGroup);
 
-
         for(const node of nodes) {
           if(!(nodesInGroupWhichAreNotPartOfDragging.current.includes(node.id) ||
-// TODO RadStr: Commented code
+          // TODO RadStr: Commented code
           // TODO RadStr: Putting away directlyDraggedGroup
               // (directlyDraggedGroup !== null && groups[change.id].includes(node.id)) ||
               (isGroup(node.id, groups) && draggedGroups.includes(node.id)))) {
@@ -1286,7 +1268,6 @@ const updateChangesByGroupDragEvents = (
             dragging: change.dragging,
           });
         }
-
 
         // TODO RadStr: Commented code just for now to play with - remove after "final" commit
         // setNodes(prevNodes => {
@@ -1341,7 +1322,6 @@ const updateUserSelectedNodesBasedOnNodeChanges = (
   return newUserSelectedNodes;
 };
 
-
 const updateSelectedNodesBasedOnNodeChanges = (
   previouslySelectedNodes: string[],
   newlyUnselectedNodesBasedOnGroups: string[],
@@ -1378,7 +1358,6 @@ const updateSelectedNodesBasedOnNodeChanges = (
   //   console.info(applyNodeChanges(changes, nodes).filter(n => n.selected === true));
   // }
 
-
   // TODO RadStr: Old version
   // const newSelectedNodes = newUserSelectedNodes.concat(nodesInGroupWhichAreNotPartOfDragging.current);
   // selectedNodesRef.current = newSelectedNodes;
@@ -1391,7 +1370,6 @@ const updateSelectedNodesBasedOnNodeChanges = (
   // console.info("newSelectedNodes", newSelectedNodes);
   return newSelectedNodes;
 };
-
 
 const updateNodesBasedOnNodeChanges = (
   prevNodes: NodeType[],
@@ -1429,7 +1407,6 @@ const updateNodesBasedOnNodeChanges = (
   //   console.info("!!!CORRECT !!!");
   // }
 
-
   if(Object.entries(groupsNewlyContainedInSelectionChange).length > 0) {
     for(const group of Object.keys(groupsNewlyContainedInSelectionChange)) {
       const groupNodeIndex = updatedNodes.findIndex(node => node.id === group);
@@ -1437,8 +1414,6 @@ const updateNodesBasedOnNodeChanges = (
         continue;
       }
       updatedNodes[groupNodeIndex] = showGroupNode(updatedNodes[groupNodeIndex], groups, updatedNodes);
-
-
 
       // if(updatedNodes.find(node => node.id === group) !== undefined) {
       //   continue;
@@ -1528,7 +1503,6 @@ const createEdgesChangeHandler = (
     });
   };
 };
-
 
 // // TODO RadStr: If I actually keep it this way then I should definitely at least document it better - when the values are null and when not
 /**
@@ -1632,7 +1606,6 @@ const setSelectedBasedOnNewData = (
     return result;
   });
 }
-
 
 const createConnectHandler = () => {
   return (_: Connection) => {

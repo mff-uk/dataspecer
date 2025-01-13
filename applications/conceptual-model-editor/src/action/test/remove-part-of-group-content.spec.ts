@@ -39,7 +39,6 @@ test("Test dissolving top level groups", () => {
   expect(visualModel.getVisualEntities().size).toEqual(4);
 });
 
-
 test("Test dissolving group through visibility", () => {
   const visualModel: WritableVisualModel = createDefaultVisualModelFactory().createNewWritableVisualModelSync();
   const model = "TEST MODEL";
@@ -58,7 +57,6 @@ test("Test dissolving group through visibility", () => {
   removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0", "1"]);
   expect(visualModel.getVisualEntities().size).toEqual(1);
 });
-
 
 test("Test dissolving multi-group through visibility of one whole group", () => {
   const visualModel: WritableVisualModel = createDefaultVisualModelFactory().createNewWritableVisualModelSync();
@@ -86,7 +84,6 @@ test("Test dissolving multi-group through visibility of one whole group", () => 
   removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0", "1"]);
   expect(visualModel.getVisualEntities().size).toEqual(3);
 });
-
 
 test("Test dissolving multi-group through visibility sequentially", () => {
   const visualModel: WritableVisualModel = createDefaultVisualModelFactory().createNewWritableVisualModelSync();
@@ -177,7 +174,6 @@ test("Test dissolving everything through visiblity", () => {
   expect(visualModel.getVisualEntities().size).toEqual(0);
 });
 
-
 test("Test removing part of visual group", () => {
   const visualModel: WritableVisualModel = createDefaultVisualModelFactory().createNewWritableVisualModelSync();
   const model = "TEST MODEL";
@@ -211,8 +207,6 @@ test("Test removing part of visual group", () => {
   expect(visualModel.getVisualEntity(group3)).toEqual(null);      // Because the group will have only 1 underlying group therefore it can be destroyed
   expect(visualModel.getVisualEntities().size).toEqual(5);
 });
-
-
 
 //
 

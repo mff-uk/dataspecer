@@ -22,7 +22,6 @@ export interface CanvasToolbarGeneralProps {
 export interface CanvasToolbarContentProps {
   canvasPosition: Position;
 
-
   /**
    * Is the identifier of the node which caused the toolbar to appear.
    * For example when dragging edge to canvas, then it is the source node of the connection.

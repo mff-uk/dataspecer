@@ -220,22 +220,22 @@ function onChangeVisualModel(
       nextGroups.push(visualEntity);
       continue;
     } else if (isVisualNode(visualEntity)) {
-       const entity = entities[visualEntity.representedEntity]?.aggregatedEntity ?? null;
-       if (isSemanticModelClassUsage(entity) || isSemanticModelClass(entity)) {
-         const model = findSourceModelOfEntity(entity.id, models);
-         if (model === null) {
-           console.error("Ignored entity for missing model.", { entity });
-           continue;
-         }
-         const node = createDiagramNode(
-           options, visualModel,
-           attributes, attributeProfiles, profilingSources,
-           visualEntity, entity, model, nodeToGroupMapping[visualEntity.identifier] ?? null);
-         nextNodes.push(node);
+      const entity = entities[visualEntity.representedEntity]?.aggregatedEntity ?? null;
+      if (isSemanticModelClassUsage(entity) || isSemanticModelClass(entity)) {
+        const model = findSourceModelOfEntity(entity.id, models);
+        if (model === null) {
+          console.error("Ignored entity for missing model.", { entity });
+          continue;
         }
-      } else if (isVisualRelationship(visualEntity)) {
-        const entity = entities[visualEntity.representedRelationship]?.aggregatedEntity ?? null;
-        const isRelationship =
+        const node = createDiagramNode(
+          options, visualModel,
+          attributes, attributeProfiles, profilingSources,
+          visualEntity, entity, model, nodeToGroupMapping[visualEntity.identifier] ?? null);
+        nextNodes.push(node);
+      }
+    } else if (isVisualRelationship(visualEntity)) {
+      const entity = entities[visualEntity.representedRelationship]?.aggregatedEntity ?? null;
+      const isRelationship =
                 isSemanticModelRelationship(entity) ||
                 isSemanticModelRelationshipUsage(entity) ||
                 isSemanticModelGeneralization(entity);
@@ -551,7 +551,6 @@ function onChangeVisualEntities(
 
   const actions = diagram.actions();
 
-
   // TODO RadStr: Probably remove some of it - the map most likely
   // We have to process groups first - It is mandatory for reactflow for the groups to be first in the nodes array (even though it is not documented anywhere)
   const groups = changes.filter(({previous, next}) => (previous !== null && isVisualGroup(previous)) || (next !== null && isVisualGroup(next)));
@@ -590,7 +589,6 @@ function onChangeVisualEntities(
       actions.setGroup(group, nextVisualGroup.content);
     }
   }
-
 
   for (const { previous, next } of changes) {
     if (next !== null) {

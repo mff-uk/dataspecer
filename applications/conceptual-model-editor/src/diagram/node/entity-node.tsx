@@ -120,7 +120,6 @@ function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   }
 }
 
-
 function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   const context = useContext(DiagramContext);
 
@@ -152,7 +151,6 @@ function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
 
   const addAttributeTitle = props.data.profileOf === null ?
     t("node-add-attribute") : t("node-add-attribute-profile");
-
 
   return (
     <>
