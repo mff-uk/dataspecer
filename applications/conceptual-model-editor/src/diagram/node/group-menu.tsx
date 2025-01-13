@@ -3,7 +3,6 @@ import { CanvasToolbarContentProps } from "../canvas/canvas-toolbar-props";
 import { DiagramContext } from "../diagram-controller";
 import { useContext } from "react";
 import { t } from "../../application";
-import { useReactFlow } from "@xyflow/react";
 
 // TODO RadStr: Rename every toolbar to menu
 export function GroupMenu({ toolbarProps }: { toolbarProps: CanvasToolbarContentProps }) {

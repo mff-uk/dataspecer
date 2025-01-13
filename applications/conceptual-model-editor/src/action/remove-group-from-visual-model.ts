@@ -1,4 +1,4 @@
-import { isVisualGroup, isVisualNode, VisualEntity, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { removePartOfGroupContentAction } from "./remove-part-of-group-content";
 import { findTopLevelGroupFromVisualModel, getGroupMappings } from "./utilities";
@@ -40,7 +40,7 @@ export function removeGroupFromVisualModelAction(
   const { existingGroups } = getGroupMappings(visualModel);
 
   visualModel.deleteVisualEntity(identifier);
-  for(const [existingGroupIdentifier, group] of Object.entries(existingGroups)) {
+  for(const [existingGroupIdentifier] of Object.entries(existingGroups)) {
     // We have to look for the entity into the visual model again, because it might have been removed in cascade
     if(existingGroupIdentifier === identifier || visualModel.getVisualEntity(existingGroupIdentifier) === null) {
       continue;

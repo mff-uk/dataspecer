@@ -7,7 +7,7 @@ import { t } from "../../application";
 /**
  * This is react component representing toolbar menu, which appears when user clicks on the actions button on selection.
  */
-export function SelectionActionsMenu({ toolbarProps }: { toolbarProps: CanvasToolbarContentProps }) {
+export function SelectionActionsMenu(_: { toolbarProps: CanvasToolbarContentProps }) {
   const context = useContext(DiagramContext);
   const onCreateNewView = () => {
     context?.closeCanvasToolbar();

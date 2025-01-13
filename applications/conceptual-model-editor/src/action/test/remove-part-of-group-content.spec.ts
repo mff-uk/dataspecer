@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import { noActionNotificationServiceWriter } from "../../notification/notification-service-context";
 import { addGroupToVisualModelAction } from "../add-group-to-visual-model";
-import { createDefaultVisualModelFactory, MODEL_VISUAL_TYPE, VisualGroup, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { createDefaultVisualModelFactory, VisualGroup, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { removeTopLevelGroupFromVisualModelAction } from "../remove-group-from-visual-model";
 import { removeFromVisualModelAction } from "../remove-from-visual-model";
 import { removePartOfGroupContentAction } from "../remove-part-of-group-content";
@@ -23,7 +23,7 @@ test("Test dissolving top level groups", () => {
     visualModel,
     [visualIdentifiers[2], visualIdentifiers[3]],
   );
-  const group3 = addGroupToVisualModelAction(
+  addGroupToVisualModelAction(
     visualModel,
     [group1, group2],
   );
@@ -48,7 +48,7 @@ test("Test dissolving group through visibility", () => {
     const visualIdentifier = createNewVisualNodeForTesting(visualModel, model, i);
     visualIdentifiers.push(visualIdentifier);
   }
-  const group1 = addGroupToVisualModelAction(
+  addGroupToVisualModelAction(
     visualModel,
     [visualIdentifiers[0], visualIdentifiers[1]],
   );
@@ -75,7 +75,7 @@ test("Test dissolving multi-group through visibility of one whole group", () => 
     visualModel,
     [visualIdentifiers[2], visualIdentifiers[3]],
   );
-  const group3 = addGroupToVisualModelAction(
+  addGroupToVisualModelAction(
     visualModel,
     [group1, group2],
   );
@@ -133,7 +133,7 @@ test("Test dissolving multi-group through visibility sequentially again", () => 
     visualModel,
     [visualIdentifiers[2], visualIdentifiers[3]],
   );
-  const group3 = addGroupToVisualModelAction(
+  addGroupToVisualModelAction(
     visualModel,
     [group1, group2],
   );
@@ -164,7 +164,7 @@ test("Test dissolving everything through visiblity", () => {
     visualModel,
     [visualIdentifiers[2], visualIdentifiers[3]],
   );
-  const group3 = addGroupToVisualModelAction(
+  addGroupToVisualModelAction(
     visualModel,
     [group1, group2],
   );

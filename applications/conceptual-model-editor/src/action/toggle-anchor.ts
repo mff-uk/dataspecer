@@ -1,10 +1,10 @@
-import { isVisualGroup, isVisualNode, isWritableVisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualGroup, isVisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 
 /**
- * Changes anchor to the opposite state or given {@link isNewlyAnchored} value. 
+ * Changes anchor to the opposite state or given {@link isNewlyAnchored} value.
  * So if the node was not anchored then anchor it and otherway around.
- * If the identifier is group, 
+ * If the identifier is group,
  * then is sets anchors of all the underlying elements to the same value.
  */
 export function toggleAnchorAction(

@@ -15,11 +15,12 @@ export type CanvasToolbarGeneralComponentProps = {
  * stored inside {@link value}
  */
 export function CanvasToolbarGeneral({canvasToolbar}: {canvasToolbar: CanvasToolbarGeneralComponentProps | null}) {
+  const { x, y, zoom } = useStore(viewportStoreSelector, shallow);
+
   if(canvasToolbar === null) {
     return null;
   }
 
-  const { x, y, zoom } = useStore(viewportStoreSelector, shallow);
   const position = computePosition(canvasToolbar.toolbarProps.canvasPosition.x, canvasToolbar.toolbarProps.canvasPosition.y, { x, y, zoom });
 
   return <div>

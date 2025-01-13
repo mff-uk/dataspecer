@@ -1,10 +1,9 @@
 import { useContext } from "react";
 
-import { DiagramContext, EdgeType, NodeType } from "../diagram-controller";
+import { DiagramContext } from "../diagram-controller";
 import { CanvasToolbarContentProps } from "./canvas-toolbar-props";
 
 import "./canvas-toolbar-drag-edge.css";
-import { ReactFlowInstance, useReactFlow } from "@xyflow/react";
 
 /**
  * This toolbar represents menu which appears when user drags edge to canvas.

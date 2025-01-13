@@ -23,10 +23,7 @@ import {
   type FinalConnectionState,
   MarkerType,
   useKeyPress,
-  NodeAddChange,
   NodeSelectionChange,
-  NodePositionChange,
-  XYPosition,
 } from "@xyflow/react";
 
 import { type UseDiagramType } from "./diagram-hook";
@@ -48,7 +45,7 @@ import { type AlignmentController, useAlignmentController } from "./features/ali
 import { GeneralizationEdgeName } from "./edge/generalization-edge";
 import { ClassProfileEdgeName } from "./edge/class-profile-edge";
 import { diagramContentAsSvg } from "./render-svg";
-import { CanvasToolbarContentType, CanvasToolbarContentProps } from "./canvas/canvas-toolbar-props";
+import { CanvasToolbarContentType } from "./canvas/canvas-toolbar-props";
 import { CanvasToolbarCreatedByEdgeDrag } from "./canvas/canvas-toolbar-drag-edge";
 import { SelectionActionsMenu } from "./node/selection-actions-menu";
 import { setHighlightingStylesBasedOnSelection } from "./features/highlighting/set-selection-highlighting-styles";
@@ -128,7 +125,7 @@ const createGroupNode = (groupId: string, content: Node<any>[], hidden: boolean)
   const groupNode: Node<any> = {
     id: groupId,
     position: groupNodePosition,
-    // className: 'light',
+    // ClassName: 'light',
     draggable: true,
     selectable: false,
     hidden,
@@ -444,7 +441,7 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
     canvasToolbar, setCanvasToolbar,
     selectedNodes, selectedEdges,
     setSelectedNodes, setSelectedEdges,
-    groups, setGroups,
+    setGroups,
     setNodeToGroupMapping,
     userSelectedNodes,
     cleanSelection,
@@ -595,8 +592,8 @@ const createOnNodeDragStopHandler = (
 };
 
 const createChangeSelectionHandler = (
-  setSelectedNodes: (newNodeSelection: string[]) => void,
-  setSelectedEdges: (newEdgeSelection: string[]) => void,
+  _setSelectedNodes: (newNodeSelection: string[]) => void,
+  _setSelectedEdges: (newEdgeSelection: string[]) => void,
 ) => {
   return ({nodes, edges}: OnSelectionChangeParams) => {
     // We can react on change events here.
@@ -609,10 +606,6 @@ const createChangeSelectionHandler = (
     // The solution of choice was to draw an inspiration from NodeToolbar
     // and watch for edge selection in EdgeToolbar.
   }
-};
-
-const isNodeChangeChangingSelection = (change: NodeChange<NodeType>): change is (NodePositionChange | NodeSelectionChange) => {
-  return change.type === "select" || (change.type === "position" && change.dragging === false);
 };
 
 const createNodesChangeHandler = (
@@ -666,7 +659,7 @@ const createNodesChangeHandler = (
     updateChangesByGroupDragEvents(changes, nodes, groups, nodeToGroupMapping,
       extractedDataFromChanges.directlyDraggedGroup, nodesInGroupWhichAreNotPartOfDragging);
 
-    // setSelectedBasedOnChanges(setSelectedNodes, changes, selectedNodesRef, nodes);
+    // SetSelectedBasedOnChanges(setSelectedNodes, changes, selectedNodesRef, nodes);
 
     // if(lastSelectedNode !== null) {
     //   setNodeWithToolbar(lastSelectedNode);
@@ -750,7 +743,7 @@ const createNodesChangeHandler = (
       );
       return newSelectedNodes;
     });
-    // const newNodesInGroupWhichAreNotPartOfDragging: string[] = [...nodesInGroupWhichAreNotPartOfDragging.current];  // TODO RadStr: Not optimal - can change only small part instead of everything
+    // Const newNodesInGroupWhichAreNotPartOfDragging: string[] = [...nodesInGroupWhichAreNotPartOfDragging.current];  // TODO RadStr: Not optimal - can change only small part instead of everything
     // newNodesInGroupWhichAreNotPartOfDragging.push(...newlySelectedNodesBasedOnGroups);
     // // Also remove duplicates - TODO RadStr: Maybe not necessary
     // nodesInGroupWhichAreNotPartOfDragging.current = [...new Set(newNodesInGroupWhichAreNotPartOfDragging
@@ -918,7 +911,7 @@ const handleGroupDraggingThroughNotSelectedNode = (
             let newSelectedNodes: string[];
             if(prevSelectedNodes.includes(newlySelected.id)) {
               newSelectedNodes = [...prevSelectedNodes];
-              nodesInGroupWhichAreNotPartOfDragging.current = prevSelectedNodes.filter(selectedNode => selectedNode != newlySelected.id);
+              nodesInGroupWhichAreNotPartOfDragging.current = prevSelectedNodes.filter(selectedNode => selectedNode !== newlySelected.id);
             }
             else {
               newSelectedNodes = prevSelectedNodes.concat([newlySelected.id]);
@@ -1035,7 +1028,7 @@ const removeNotCompleteGroupUnselections = (
       }
       // TODO RadStr: Just debug prints
       else {
-        // console.info("ELSE");
+        // Console.info("ELSE");
       }
     });
   }
@@ -1122,7 +1115,7 @@ const getDataFromChanges = (
             // TODO RadStr: Is it necessary? maybe we can deal possible duplications even without checking through ref
             // if(nodeInGroup !== changeId) {
             if(nodeInGroup !== changeId && !selectedNodesRef.current.includes(nodeInGroup)) {
-            // if(nodeInGroup !== changeId && !nodes.filter(node => node.selected === true).map(node => node.id).includes(nodeInGroup)) {
+            // If(nodeInGroup !== changeId && !nodes.filter(node => node.selected === true).map(node => node.id).includes(nodeInGroup)) {
               newlySelectedNodesBasedOnGroups.push(nodeInGroup);
               groupsNewlyContainedInSelectionChange[groupIdentifier] = true;
             }
@@ -1141,7 +1134,7 @@ const getDataFromChanges = (
             // TODO RadStr: Commented code
             // if(nodeInGroup !== changeId) {
             if(nodeInGroup !== changeId && selectedNodesRef.current.includes(nodeInGroup)) {
-            // if(nodeInGroup !== changeId && nodes.filter(node => node.selected === true).map(node => node.id).includes(nodeInGroup)) {
+            // If(nodeInGroup !== changeId && nodes.filter(node => node.selected === true).map(node => node.id).includes(nodeInGroup)) {
               newlyUnselectedNodesBasedOnGroups.push(nodeInGroup);
               groupsNewlyContainedInSelectionChange[groupIdentifier] = true;
             }
@@ -1305,7 +1298,7 @@ const updateUserSelectedNodesBasedOnNodeChanges = (
     console.info(nodeSelectChanges);
     console.info(unselectChanges);
   }
-  // let newUserSelectedNodes = previouslyUserSelectedNodes
+  // Let newUserSelectedNodes = previouslyUserSelectedNodes
   let newUserSelectedNodes = previouslyUserSelectedNodes
     .filter(previouslySelectedNode => !unselectChanges.includes(previouslySelectedNode))
     .filter(previouslySelectedNode => !newlyUnselectedNodesBasedOnGroups.includes(previouslySelectedNode))
@@ -1314,7 +1307,7 @@ const updateUserSelectedNodesBasedOnNodeChanges = (
 
   newUserSelectedNodes.push(...nodeSelectChanges);
   newUserSelectedNodes = [... new Set(newUserSelectedNodes)];
-  // const newUserSelectedNodes = updatedNodes.filter(node => node.selected === true).map(node => node.id);
+  // Const newUserSelectedNodes = updatedNodes.filter(node => node.selected === true).map(node => node.id);
 
   userSelectedNodesRef.current = newUserSelectedNodes;
   // TODO RadStr: Just debug prints
@@ -1415,7 +1408,7 @@ const updateNodesBasedOnNodeChanges = (
       }
       updatedNodes[groupNodeIndex] = showGroupNode(updatedNodes[groupNodeIndex], groups, updatedNodes);
 
-      // if(updatedNodes.find(node => node.id === group) !== undefined) {
+      // If(updatedNodes.find(node => node.id === group) !== undefined) {
       //   continue;
       // }
       // const groupContent: Node<any>[] = [];
@@ -1462,30 +1455,6 @@ const updateNodesBasedOnNodeChanges = (
   return updatedNodes;
 };
 
-const addNewChangesBasedOnGroups = (
-  selectionChangeBasedOnGroup: string[],
-  elementsWithAlreadyChangedSelection: string[],
-  isNewlySelected: boolean,
-  nodeChanges: NodeChange<NodeType>[],
-) => {
-  // TODO RadStr: Debug prints
-  // TODO RadStr: Just debug prints
-  // console.warn("changeGroupSelection");
-  // console.warn(elementsWithAlreadyChangedSelection);
-  // console.warn(selectionChangeBasedOnGroup);
-  for (const newlyChangedNode of selectionChangeBasedOnGroup) {
-    if(elementsWithAlreadyChangedSelection.includes(newlyChangedNode)) {
-      continue;
-    }
-    const newSelectionChange: NodeChange<NodeType> = {
-      id: newlyChangedNode,
-      type: "select",
-      selected: isNewlySelected,
-    }
-    nodeChanges.push(newSelectionChange);
-  }
-}
-
 const createEdgesChangeHandler = (
   setEdges: ReactPrevSetStateType<EdgeType[]>,
   setSelectedEdges: ReactPrevSetStateType<string[]>,
@@ -1503,57 +1472,6 @@ const createEdgesChangeHandler = (
     });
   };
 };
-
-// // TODO RadStr: If I actually keep it this way then I should definitely at least document it better - when the values are null and when not
-/**
- * Helper method, sets selected elements based on changes. Elements are either nodes or edges, same for changes -
- * the changes and the elements should be for the same type (so either only for nodes or only for edges)
- * @deprecated Replaced by {@link setSelectedBasedOnNewData} - Remove later
- */
-const setSelectedBasedOnChanges = (
-  setSelected: ReactPrevSetStateType<string[]>,
-  changes: NodeChange<NodeType>[] | EdgeChange<EdgeType>[],
-  selectedNodesRef: React.MutableRefObject<string[]> | null,
-
-  // TODO RadStr: DEBUG -
-  nodes: NodeType[] | null
-) => {
-  setSelected(previouslySelected => {
-    const newlySelected: string[] = [];
-    const newlyRemoved: string[] = [];
-    for(const change of changes) {
-      if(change.type === "select") {
-        if(change.selected) {
-          newlySelected.push(change.id);
-        }
-        else {
-          newlyRemoved.push(change.id);
-        }
-      }
-    }
-
-    if(newlySelected.length === 0 && newlyRemoved.length === 0) {
-      return previouslySelected;
-    }
-    previouslySelected = previouslySelected.filter(previouslySelected => !newlyRemoved.includes(previouslySelected));
-    previouslySelected.push(...newlySelected);
-    const result = previouslySelected.map(id => id);
-    // TODO RadStr: DEBUG
-    if(nodes !== undefined && selectedNodesRef !== null) {
-      console.info("setSelectedBasedOnChanges BEFORE - nodes");
-      console.info({...nodes});
-      console.info("setSelectedBasedOnChanges BEFORE");
-      console.info({...selectedNodesRef.current});
-      console.info("setSelectedBasedOnChanges AFTER");
-      console.info({...result});
-    }
-
-    if(selectedNodesRef !== null) {
-      selectedNodesRef.current = result;
-    }
-    return result;
-  });
-}
 
 // TODO RadStr: Maybe improve the interface - we definitely don't need the nodes, but what about the selectedNodesRef - do we need it in the new program?
 const setSelectedBasedOnNewData = (
