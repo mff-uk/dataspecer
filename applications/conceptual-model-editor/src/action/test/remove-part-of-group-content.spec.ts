@@ -207,7 +207,6 @@ test("Test removing part of visual group", () => {
   expect(visualModel.getVisualEntities().size).toEqual(7);
   expect((visualModel.getVisualEntity(group1) as VisualGroup).content).toEqual([visualIdentifiers[0]]);
   removePartOfGroupContentAction(noActionNotificationServiceWriter, visualModel, group1, [visualIdentifiers[0]], false);
-  console.info(visualModel.getVisualEntities());
   expect(visualModel.getVisualEntity(group1)).toEqual(null);
   expect(visualModel.getVisualEntity(group3)).toEqual(null);      // Because the group will have only 1 underlying group therefore it can be destroyed
   expect(visualModel.getVisualEntities().size).toEqual(5);
