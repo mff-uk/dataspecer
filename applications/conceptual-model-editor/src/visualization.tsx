@@ -18,10 +18,12 @@ import {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import {
   type VisualEntity,
+  VisualGroup,
   type VisualModel,
   type VisualNode,
   type VisualProfileRelationship,
   type VisualRelationship,
+  isVisualGroup,
   isVisualNode,
   isVisualProfileRelationship,
   isVisualRelationship,
@@ -586,7 +588,7 @@ function onChangeVisualEntities(
       console.warn("SETTING GROUP CONTENT", previous, next);
       // TODO RadStr: Maybe not enough?
       actions.setGroup(group, nextVisualGroup.content);
-    }  
+    }
   }
 
 
@@ -610,7 +612,7 @@ function onChangeVisualEntities(
         let group: string | null = null;
         if(nodeIdToParentGroupIdMap[next.identifier] !== undefined) {
           group = nodeIdToParentGroupIdMap[next.identifier];
-        }   
+        }
         const node = createDiagramNode(
           options, visualModel,
           attributes, attributeProfiles, profilingSources,
@@ -625,7 +627,7 @@ function onChangeVisualEntities(
           //       because for position change by user, the change is already registered in diagram.
           //       If we do that, the selection code needs to be changed to not remove the selected
           //       elements, right now we are doing that explicitly so it is consistent with this code.
-          //       It might have negative side-effects though for non-user updates by layouting, etc. 
+          //       It might have negative side-effects though for non-user updates by layouting, etc.
           //       Also might be difficult to check if it was position change. So wait a bit with implementation.
           //       Maybe won't even implement it.
           actions.updateNodes([node]);

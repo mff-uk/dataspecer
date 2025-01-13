@@ -247,11 +247,13 @@ export const translations: Record<string, string | Function> = {
   "selection-extend-button": "Show dialog to extend selection",
   "selection-filter-button": "Show dialog to filter selection",
   "selection-group-button": "Create group from selection",
+  "group-anchor-button": "Toggle anchors of group to opposite value",
   //
   "selection-new-view-button": "Creates new visual model, which will contain selected nodes and edges",
   "selection-profile-button": "Creates profiles from selected nodes and edges",
   "selection-hide-button": "Removes selected nodes and edges from canvas",
   "selection-remove-button": "Delete selected nodes and edges from semantic model",
+  "dissolve-group-button": "Dissolve group",
   //
   "iri-must-not-be-empty": "IRI must not be an empty string.",
   //

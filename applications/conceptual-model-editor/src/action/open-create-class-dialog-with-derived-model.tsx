@@ -6,10 +6,10 @@ import { filterInMemoryModels } from "../util/model-utils";
 import { placePositionOnGrid } from "@dataspecer/layout";
 import { Options, configuration } from "../application";
 import { openCreateClassDialogAction } from "./open-create-class-dialog";
-import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { ClassesContextType } from "../context/classes-context";
 import { DialogApiContextType } from "../dialog/dialog-service";
-import { Node, Position } from "../diagram";
+import { Position } from "../diagram";
 import { UseDiagramType } from "../diagram/diagram-hook";
 
 export function openCreateClassDialogWithModelDerivedFromClassAction(
@@ -20,7 +20,7 @@ export function openCreateClassDialogWithModelDerivedFromClassAction(
   options: Options,
   diagram: UseDiagramType,
   visualModel: WritableVisualModel,
-  sourceClassNode: Node,
+  nodeIdentifier: string,
   positionToPlaceClassOn: Position,
 ) {
   const node = visualModel.getVisualEntity(nodeIdentifier);
