@@ -7,10 +7,10 @@ import "./canvas-toolbar-general.css";
 export type CanvasToolbarContentType = ({toolbarProps}: {toolbarProps: CanvasToolbarContentProps}) => JSX.Element | null;
 
 /**
- * Represents the toolbar for general canvas. General canvas is component, which gets
+ * Represents the general toolbar for canvas. General toolbar is component, which gets
  * {@link toolbarContent} and shows it on given {@link canvasPosition}.
  */
-export interface CanvasToolbarGeneralProps extends CanvasToolbarContentProps {
+export interface CanvasToolbarGeneralProps {
   toolbarContent: CanvasToolbarContentType;
 }
 

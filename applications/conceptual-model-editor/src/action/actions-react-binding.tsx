@@ -757,9 +757,9 @@ function createActionsContext(
       const selectionToFilter = getSelections(diagram, false, true);
       openFilterSelectionDialog({ nodeSelection: selectionToFilter.nodeSelection, edgeSelection: selectionToFilter.edgeSelection, areVisualModelIdentifiers: true });
     },
-    onCanvasOpenCreateClassDialog: (sourceClassNode, positionToPlaceClassOn) => {
+    onCanvasOpenCreateClassDialog: (nodeIdentifier, positionToPlaceClassOn) => {
       withVisualModel(notifications, graph, (visualModel) => {
-        openCreateClassDialogWithModelDerivedFromClassAction(notifications, graph, dialogs, classes, options, diagram, visualModel, sourceClassNode, positionToPlaceClassOn);
+        openCreateClassDialogWithModelDerivedFromClassAction(notifications, graph, dialogs, classes, options, diagram, visualModel, nodeIdentifier, positionToPlaceClassOn);
       });
     },
     onCreateNewViewFromSelection: () => {

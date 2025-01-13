@@ -114,10 +114,7 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
           ? <PropertyEdgeToolbar value={controller.edgeToolbar} />
           : null
         }
-        {(controller.canvasToolbar !== null)
-          ? <CanvasToolbarGeneral toolbarProps={controller.canvasToolbar} toolbarContent={controller.canvasToolbar.toolbarContent} />
-          : null
-        }
+        <CanvasToolbarGeneral canvasToolbar={controller.canvasToolbar} />
         <AlignmentComponent {...controller.alignmentController}></AlignmentComponent>
       </DiagramContext.Provider>
     </>

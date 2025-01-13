@@ -48,7 +48,7 @@ import { type AlignmentController, useAlignmentController } from "./features/ali
 import { GeneralizationEdgeName } from "./edge/generalization-edge";
 import { ClassProfileEdgeName } from "./edge/class-profile-edge";
 import { diagramContentAsSvg } from "./render-svg";
-import { CanvasToolbarGeneralProps, CanvasToolbarContentType } from "./canvas/canvas-toolbar-props";
+import { CanvasToolbarContentType, CanvasToolbarContentProps } from "./canvas/canvas-toolbar-props";
 import { CanvasToolbarCreatedByEdgeDrag } from "./canvas/canvas-toolbar-drag-edge";
 import { SelectionActionsMenu } from "./node/selection-actions-menu";
 import { setHighlightingStylesBasedOnSelection } from "./features/highlighting/set-selection-highlighting-styles";
@@ -56,6 +56,7 @@ import { useExplorationCanvasHighlightingController } from "./features/highlight
 import { ReactPrevSetStateType } from "./utilities";
 import { GroupMenu } from "./node/group-menu";
 import { findTopLevelGroup } from "../action/utilities";
+import { CanvasToolbarGeneralComponentProps } from "./canvas/canvas-toolbar-general";
 
 
 const getTopLeftPosition = (nodes: Node<any>[]) => {
@@ -100,7 +101,7 @@ function showGroupNode(groupNode: Node<any>, groups: Record<string, NodeIdentifi
   const nodesInGroup = nodes.filter(node => flattenedGroup.includes(node.id));
   const groupNodePosition = getTopLeftPosition(nodesInGroup);
   const botRightGroupNodePosition = getBotRightPosition(nodesInGroup);
-  // We have to also set the position, keeping the old one is not enough - 
+  // We have to also set the position, keeping the old one is not enough -
   // because for example layouting was performed or group was dissolved,
   // therefore the old position is incorrect since only the position of the dissolved group was changed on dragging
   newGroupNode.position = groupNodePosition;
@@ -224,7 +225,7 @@ interface UseDiagramControllerType {
    */
   edgeToolbar: EdgeToolbarProps | null;
 
-  canvasToolbar: CanvasToolbarGeneralProps | null;
+  canvasToolbar: CanvasToolbarGeneralComponentProps | null;
 
   onNodesChange: OnNodesChange<NodeType>;
 
@@ -272,7 +273,7 @@ function useCreateReactStates() {
   const [nodes, setNodes] = useNodesState<NodeType>([]);
   const [edges, setEdges] = useEdgesState<EdgeType>([]);
   const [edgeToolbar, setEdgeToolbar] = useState<EdgeToolbarProps | null>(null);
-  const [canvasToolbar, setCanvasToolbar] = useState<CanvasToolbarGeneralProps | null>(null);
+  const [canvasToolbar, setCanvasToolbar] = useState<CanvasToolbarGeneralComponentProps | null>(null);
 
   /*
    * Says if the node is selected - having the reactflow property is not enough,
@@ -411,9 +412,6 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
     [setEdgeToolbar]);
 
   const onNodeDrag = useCallback(createOnNodeDragHandler(), []);
-  const onNodeDragStart = useCallback(createOnNodeDragStartHandler(
-    alignmentController, canvasHighlighting.disableTemporarily, nodesInGroupWhichAreNotPartOfDragging),
-    [alignmentController, canvasHighlighting.disableTemporarily, nodesInGroupWhichAreNotPartOfDragging]);
   const onNodeDragStop = useCallback(createOnNodeDragStopHandler(
     api, alignmentController, canvasHighlighting.enableTemporarily, nodesInGroupWhichAreNotPartOfDragging, cleanSelection),
     [api, alignmentController, canvasHighlighting.enableTemporarily, nodesInGroupWhichAreNotPartOfDragging, cleanSelection]);
@@ -435,7 +433,6 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
     onOpenCanvasToolbar,
     onOpenEdgeToolbar,
     onNodeDrag,
-    onNodeDragStart,
     onNodeDragStop,
     onNodeMouseEnter,
     onNodeMouseLeave,
@@ -457,6 +454,8 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
     setNodeToGroupMapping,
     userSelectedNodes,
     cleanSelection,
+    nodesInGroupWhichAreNotPartOfDragging,
+
   } = createdReactStates;
   const { onOpenEdgeToolbar, onOpenCanvasToolbar, alignmentController } = createdPartOfDiagramController;
 
@@ -479,13 +478,18 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
     context.closeCanvasToolbar),
     [context.closeCanvasToolbar]);
 
-  const onNodeDoubleClick = useCallback(createOnNodeDoubleClickHandler(reactFlowInstance, actions.openGroupMenu), [reactFlowInstance, actions.openGroupMenu, groups]);
+  const onNodeDoubleClick = useCallback(createOnNodeDoubleClickHandler(reactFlowInstance, actions.openGroupMenu), [reactFlowInstance, actions.openGroupMenu]);
+
+  const onNodeDragStart = useCallback(createOnNodeDragStartHandler(
+    alignmentController, canvasHighlighting.disableTemporarily, nodesInGroupWhichAreNotPartOfDragging, context.closeCanvasToolbar),
+    [alignmentController, canvasHighlighting.disableTemporarily, nodesInGroupWhichAreNotPartOfDragging, context.closeCanvasToolbar]);
 
   return {
     context,
     actions,
     onPaneClick,
-    onNodeDoubleClick
+    onNodeDoubleClick,
+    onNodeDragStart
   };
 }
 
@@ -514,7 +518,7 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
     onDrop: independentPartOfDiagramController.onDrop,
     isValidConnection: independentPartOfDiagramController.isValidConnection,
     onNodeDrag: independentPartOfDiagramController.onNodeDrag,
-    onNodeDragStart: independentPartOfDiagramController.onNodeDragStart,
+    onNodeDragStart: dependentPartOfDiagramController.onNodeDragStart,
     onNodeDragStop: independentPartOfDiagramController.onNodeDragStop,
     onPaneClick: dependentPartOfDiagramController.onPaneClick,
     alignmentController: independentPartOfDiagramController.alignmentController,
@@ -540,8 +544,10 @@ const createOnNodeDragStartHandler = (
   alignmentController: AlignmentController,
   disableExplorationModeHighlightingChanges: () => void,
   selectedNodesRef: React.MutableRefObject<string[]>,
+  closeCanvasToolbar: () => void,
 ) => {
   return (event: React.MouseEvent, node: Node, nodes: Node[]) => {
+    closeCanvasToolbar();
     disableExplorationModeHighlightingChanges();
     alignmentController.alignmentSetUpOnNodeDragStart(node);
   };
@@ -1728,10 +1734,18 @@ const createOpenEdgeToolbarHandler = (setEdgeToolbar: (edgeToolbarProps: EdgeToo
 };
 
 const createOpenCanvasToolbarHandler = (
-  setCanvasToolbar: (canvasToolbarProps: CanvasToolbarGeneralProps | null) => void
+  setCanvasToolbar: (canvasToolbarProps: CanvasToolbarGeneralComponentProps | null) => void
 ): OpenCanvasContextMenuHandler => {
   return (sourceNodeIdentifier: string, canvasPosition: Position, toolbarContent: CanvasToolbarContentType) => {
-    setCanvasToolbar({ sourceNodeIdentifier, canvasPosition, toolbarContent });
+    const newCanvasToolbar: CanvasToolbarGeneralComponentProps = {
+      toolbarProps: {
+        canvasPosition,
+        sourceNodeIdentifier,
+      },
+      toolbarContent,
+    };
+
+    setCanvasToolbar(newCanvasToolbar);
   };
 };
 

@@ -427,7 +427,7 @@ interface DiagramNodes {
   /**
    * Called when user choses to create new class from diagram's canvas menu (toolbar).
    */
-  onCanvasOpenCreateClassDialog: (diagramNode: Node, canvasPosition: Position) => void;
+  onCanvasOpenCreateClassDialog: (nodeIdentifier: string, canvasPosition: Position) => void;
 
   /**
    * Called when there is a change in node's positions in result

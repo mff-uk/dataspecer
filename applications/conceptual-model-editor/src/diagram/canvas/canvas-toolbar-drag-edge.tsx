@@ -11,21 +11,17 @@ import { ReactFlowInstance, useReactFlow } from "@xyflow/react";
  */
 export function CanvasToolbarCreatedByEdgeDrag({ toolbarProps }: { toolbarProps: CanvasToolbarContentProps }) {
   const context = useContext(DiagramContext);
-  const reactFlow: ReactFlowInstance<NodeType, EdgeType> = useReactFlow();
 
   const onCanvasMenuAddClassDialog = () => {
     context?.closeCanvasToolbar();
-    const node = reactFlow.getNode(toolbarProps.sourceNodeIdentifier);
-    if(node !== undefined) {
-      context?.callbacks().onCanvasOpenCreateClassDialog(node.data, toolbarProps.canvasPosition);
-    }
+    context?.callbacks().onCanvasOpenCreateClassDialog(toolbarProps.sourceNodeIdentifier, toolbarProps.canvasPosition);
   };
 
   return <div>
-        <ul className="canvas-toolbar-edge-drag">
-            <li>
-                <button onClick={onCanvasMenuAddClassDialog}>➕</button>
-            </li>
-        </ul>
+      <ul className="canvas-toolbar-edge-drag">
+        <li>
+          <button onClick={onCanvasMenuAddClassDialog}>➕</button>
+        </li>
+      </ul>
     </div>;
 }
