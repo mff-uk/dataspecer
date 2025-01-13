@@ -39,11 +39,11 @@ export interface EntityProfileState
 
 export function createEntityProfileStateForNewEntityProfile
   <ProfileType extends EntityRepresentative>(
-    language: string,
-    vocabularies: CmeModel[],
-    profiles: ProfileType[],
-    profiledIdentifier: string,
-  ): EntityProfileState<ProfileType> {
+  language: string,
+  vocabularies: CmeModel[],
+  profiles: ProfileType[],
+  profiledIdentifier: string,
+): EntityProfileState<ProfileType> {
   const writableVocabularies = filterWritableModels(vocabularies);
   if (writableVocabularies.length === 0) {
     throw new NoWritableModelFound();
@@ -78,11 +78,11 @@ export function createEntityProfileStateForNewEntityProfile
 
 export function createEntityProfileStateForNewProfileOfProfile
   <ProfileType extends EntityRepresentative>(
-    language: string,
-    vocabularies: CmeModel[],
-    profiles: ProfileType[],
-    profiledIdentifier: string,
-  ): EntityProfileState<ProfileType> {
+  language: string,
+  vocabularies: CmeModel[],
+  profiles: ProfileType[],
+  profiledIdentifier: string,
+): EntityProfileState<ProfileType> {
   const result = createEntityProfileStateForNewEntityProfile(
     language, vocabularies, profiles, profiledIdentifier);
   // As we profile a profile, we can inherit the usage note.
@@ -96,16 +96,16 @@ export function createEntityProfileStateForNewProfileOfProfile
  */
 export function createEntityProfileStateForEdit
   <ProfileType extends EntityRepresentative>(
-    language: string,
-    vocabularies: CmeModel[],
-    vocabularyDsIdentifier: ModelDsIdentifier,
-    profiles: ProfileType[],
-    profiledIdentifier: string,
-    iri: string,
-    name: LanguageString | null,
-    description: LanguageString | null,
-    usageNote: LanguageString | null,
-  ): EntityProfileState<ProfileType> {
+  language: string,
+  vocabularies: CmeModel[],
+  vocabularyDsIdentifier: ModelDsIdentifier,
+  profiles: ProfileType[],
+  profiledIdentifier: string,
+  iri: string,
+  name: LanguageString | null,
+  description: LanguageString | null,
+  usageNote: LanguageString | null,
+): EntityProfileState<ProfileType> {
   const writableVocabularies = filterWritableModels(vocabularies);
   const selectedVocabulary = writableVocabularies.find(item => item.dsIdentifier === vocabularyDsIdentifier);
   if (selectedVocabulary === undefined) {
@@ -156,10 +156,10 @@ export interface EntityProfileStateController extends EntityStateController {
 export function createEntityProfileController<
   ProfileType extends EntityRepresentative,
   State extends EntityProfileState<ProfileType>>
-  (
-    changeState: (next: State | ((prevState: State) => State)) => void,
-    generateIriFromName: (name: string) => string,
-  ): EntityProfileStateController {
+(
+  changeState: (next: State | ((prevState: State) => State)) => void,
+  generateIriFromName: (name: string) => string,
+): EntityProfileStateController {
 
   // We use dummy IRI generator function as we do not generate IRI here.
   const entityController = createEntityController(changeState, generateIriFromName);
