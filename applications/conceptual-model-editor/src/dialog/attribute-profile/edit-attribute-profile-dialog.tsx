@@ -33,11 +33,20 @@ export const EditAttributeProfileDialog = (props: DialogProps<EditAttributeProfi
       </div>
       <div className="grid pb-3 bg-slate-100 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
         <DialogDetailRow detailKey={t("modify-class-profile-dialog.profile-of")}>
-          <div>
-            {languageStringToString(
-              languagePreferences,
-              state.language, state.profileOf.label)}
-          </div>
+          {state.enableProfilChange ?
+            <SelectEntity
+              language={state.language}
+              items={state.availableProfiles}
+              value={state.profileOf}
+              onChange={controller.onChangeProfile}
+            />
+            :
+            <div>
+              {languageStringToString(
+                languagePreferences,
+                state.language, state.profileOf.label)}
+            </div>
+          }
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("create-class-dialog.name")} className="flex">
           <MultiLanguageInputForLanguageString
@@ -54,7 +63,7 @@ export const EditAttributeProfileDialog = (props: DialogProps<EditAttributeProfi
           />
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("create-class-dialog.iri")}>
-        <InputIri
+          <InputIri
             iriPrefix={state.model.baseIri ?? ""}
             isRelative={state.isIriRelative}
             setIsRelative={controller.setIsIriRelative}

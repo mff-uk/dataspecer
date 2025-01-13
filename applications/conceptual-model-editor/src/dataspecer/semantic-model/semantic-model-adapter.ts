@@ -4,9 +4,8 @@ import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 
-import { CmeModelType, CmeModel } from "../../cme-model";
-import { t, configuration } from "../../application";
-
+import { CmeModel, CmeModelType } from "../cme-model";
+import { configuration, t } from "../../application";
 
 /**
  * We keep the translation function local so it can be change.
@@ -33,7 +32,6 @@ export function entityModelToCmeVocabulary(model: EntityModel, visualModel: Visu
   return {
     dsIdentifier: model.getId(),
     displayLabel: getModelLabel(model),
-    displayDescription: null,
     dsModelType: getModelType(model),
     displayColor: visualModel?.getModelColor(model.getId()) ?? defaultModelColor,
     baseIri: getModelBaseIri(model),

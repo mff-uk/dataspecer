@@ -41,8 +41,8 @@ PropertyShape - not generated separately atm, is included in NodeShape
 Core Constraint Components
 
     4.1 Value Type Constraint Components
-        4.1.1 sh:class - TODO The type of all value nodes. The values of sh:class in a shape are IRIs. Note that multiple values for sh:class are 
-        interpreted as a conjunction, i.e. the values need to be SHACL instances of all of them. 
+        4.1.1 sh:class - TODO The type of all value nodes. The values of sh:class in a shape are IRIs. Note that multiple values for sh:class are
+        interpreted as a conjunction, i.e. the values need to be SHACL instances of all of them.
         4.1.2 sh:datatype DONE
         4.1.3 sh:nodeKind DONE
     4.2 Cardinality Constraint Components
@@ -77,12 +77,12 @@ Core Constraint Components
         4.8.1 sh:closed, sh:ignoredProperties - DONE
         4.8.2 sh:hasValue - Is for checking specific values at the ends of paths = WILL NOT BE IMPLEMENTED
         4.8.3 sh:in - Is for checking specific values belonging to a list of options = WILL NOT BE IMPLEMENTED
-DONE použít knihovnu na vytváření .ttl dokumentu. 
+DONE použít knihovnu na vytváření .ttl dokumentu.
 TODO: typed/untyped instances in SHACL - can't rely on sh:targetClass, needs to use nested shapes.
 
 TODO: zalamování sh:comments?
 TODO: informace o celé datové struktuře - popis v rámci RDF tvrzení, které netvoří shape. - po diskuzi nebude implementováno.
-TODO: dataspecer z nějakého důvodu modře přebarvuje kusy jmen, které jsou v namespace ofn - ofn:1643145411464-5579-b52f-9602 - myslí si, že je to matematický výraz. Tyto 
+TODO: dataspecer z nějakého důvodu modře přebarvuje kusy jmen, které jsou v namespace ofn - ofn:1643145411464-5579-b52f-9602 - myslí si, že je to matematický výraz. Tyto
 názvy nebudu používat - místo toho vložit cim.
 
 */
@@ -96,7 +96,7 @@ type StructureModelClassOrProperty = StructureModelClass | StructureModelPropert
 const { DataFactory } = N3;
 const { namedNode, literal, defaultGraph, triple } = DataFactory;
 
-export class ShaclAdapter { 
+export class ShaclAdapter {
   protected model: StructureModel;
   protected context: ArtefactGeneratorContext;
   protected artefact: DataSpecificationArtefact;
@@ -130,7 +130,7 @@ export class ShaclAdapter {
     this.artefact = artefact;
     this.baseURL = this.artefact.configuration["publicBaseUrl"];
     // UNCOMMENT WHEN N3.Writer handles baseIRI properly and delete the next line
-    //this.writer  =  (this.baseURL != null) ? new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}, baseIRI: this.baseURL  }) : new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}}); 
+    //this.writer  =  (this.baseURL != null) ? new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}, baseIRI: this.baseURL  }) : new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}});
       this.writer  =  new N3.Writer({ prefixes: { sh: 'http://www.w3.org/ns/shacl#', rdfs: "http://www.w3.org/2000/01/rdf-schema#"}});
   }
 
@@ -138,7 +138,7 @@ export class ShaclAdapter {
    * Function accessed from the frontend applications for generating the SHACL artifact.
    */
   public generate = async () => {
-    
+
     if (this.model.roots.length > 1) {
       console.warn("SHACL generator: Multiple schema roots not supported yet.");
     }
@@ -147,11 +147,11 @@ export class ShaclAdapter {
     // Iterate over all classes in root OR
     for (const root of rootClasses) {
       this.root = root;
-      
+
       this.generateClassConstraints(root, null);
     }
     var resultString = "";
-    
+
     this.writer.end((error, result) => resultString = result);
 
     // Add @base definition to the turtle output as N3 does not support that feature right now
@@ -174,7 +174,7 @@ export class ShaclAdapter {
    */
   generateClassConstraints(root: StructureModelClass, objectOf : String): string{
     var nodeName : string;
-    
+
     nodeName = this.getIRIforShape(root);
     this.rootName = (objectOf == null) ? nodeName : this.rootName;
     const classNameIri = nodeName;
@@ -215,14 +215,14 @@ export class ShaclAdapter {
       );
     }
     switch(root.instancesSpecifyTypes){
-      case "ALWAYS": { 
+      case "ALWAYS": {
           if(objectOf == null){
             this.decideHowToTarget(root, classNameIri);
             this.writer.addQuad(
               namedNode( classNameIri ),
               namedNode('http://www.w3.org/ns/shacl#class'),
               namedNode( root.cimIri )
-            );} 
+            );}
           else{
             this.writer.addQuad(
               namedNode( classNameIri ),
@@ -250,7 +250,7 @@ export class ShaclAdapter {
         default: {
         }
     }
-    
+
     if(root.regex != null && root.regex != undefined && root.regex != ""){
       this.writer.addQuad(
         namedNode( classNameIri ),
@@ -275,7 +275,7 @@ export class ShaclAdapter {
               namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
             ])
           );
-        }       
+        }
     }
 
     var nodeType = "";
@@ -315,10 +315,10 @@ export class ShaclAdapter {
             namedNode(predicate),
             literal(language , languageTag )
           );
-          
+
         }
       }
-    } 
+    }
   }
 
   /**
@@ -336,7 +336,7 @@ export class ShaclAdapter {
         const humanLabel = prop.humanLabel;
         const humandesc = prop.humanDescription;
         const isReverse = prop.isReverse;
-        
+
         //Create PropertyNode to connect to
         const nodeIRI = this.getIRIforShape(prop);
 
@@ -381,7 +381,7 @@ export class ShaclAdapter {
               namedNode( cimiri )
             );
           }
-    
+
           // Add datatype for the PopertyNode
           this.getObjectForPropType(prop.dataTypes, nodeIRI, cimiri);
 
@@ -396,7 +396,7 @@ export class ShaclAdapter {
     // FOR TARGETTING in lower levels
     if(root == this.uniquePredicateClass || root == this.uniquePredicatePredicate){
       this.writer.addQuad(
-        namedNode( classNameIri.toString() ), 
+        namedNode( classNameIri.toString() ),
         namedNode('http://www.w3.org/ns/shacl#property'),
         this.writer.blank([{
           predicate: namedNode('http://www.w3.org/ns/shacl#path'),
@@ -406,7 +406,7 @@ export class ShaclAdapter {
         }])}, {
           predicate: namedNode('http://www.w3.org/ns/shacl#node'),
           object: namedNode( this.rootName ),
-        } 
+        }
       ])
       );
     }
@@ -423,7 +423,7 @@ export class ShaclAdapter {
       irifiedString = root.technicalLabel.replaceAll(/\s/g,"");
     } else{
       irifiedString = "";
-    }   
+    }
     return irifiedString;
   }
 
@@ -452,7 +452,7 @@ export class ShaclAdapter {
     // setting other properties according to the type of datatype
     for (var dt of datatypes) {
       if(dt.isAssociation() == true){
-        // create new NodeShape and tie this property to it if its not just an empty class     
+        // create new NodeShape and tie this property to it if its not just an empty class
         const dtcasted = <StructureModelComplexType> dt;
 
         var nodeType = "";
@@ -476,25 +476,25 @@ export class ShaclAdapter {
               namedNode('http://www.w3.org/ns/shacl#pattern'),
               literal(dtcasted.dataType.regex.toString()));
           }
-        if(dtcasted.dataType.properties === undefined || dtcasted.dataType.properties.length == 0){                 
+        if(dtcasted.dataType.properties === undefined || dtcasted.dataType.properties.length == 0){
         } else{
           const nameForAnotherClass = this.generateClassConstraints(dtcasted.dataType, objectOf);
-   
+
           this.writer.addQuad(
             namedNode( propertyNodeIRI ),
             namedNode('http://www.w3.org/ns/shacl#node'),
             namedNode( nameForAnotherClass ));
         }
-        
+
       } else if(dt.isAttribute() == true){
         // If the datatype is set, try to match it to xsd datatypes. If unable, use its IRI.
         const dtcasted = <StructureModelPrimitiveType> dt;
         if(dtcasted != null){
           const datatypeFromMap = simpleTypeMapQName[dtcasted.dataType];
           var datatypeString = "";
-          console.log("Datatype from map consideration: " + dtcasted.dataType);
+          //console.log("Datatype from map consideration: " + dtcasted.dataType);
           if(datatypeFromMap != undefined){
-            console.log("adding prefix to prefixes");
+            //console.log("adding prefix to prefixes");
             if(!this.addedXSDPrefix){
               this.writer.addPrefix("xsd","http://www.w3.org/2001/XMLSchema#");
               this.addedXSDPrefix = true;
@@ -518,7 +518,7 @@ export class ShaclAdapter {
           } else{
             if(dtcasted.dataType != null){
               if(dtcasted.dataType.includes("http://www.w3.org/2001/XMLSchema#") && !this.addedXSDPrefix){
-                console.log("adding prefix to prefixes")
+                //console.log("adding prefix to prefixes")
                 this.writer.addPrefix("xsd","http://www.w3.org/2001/XMLSchema#");
                 this.addedXSDPrefix = true;
               }
@@ -526,21 +526,21 @@ export class ShaclAdapter {
                 namedNode( propertyNodeIRI ),
                 namedNode('http://www.w3.org/ns/shacl#datatype'),
                 namedNode( dtcasted.dataType ));
-            } 
+            }
             if(dtcasted.regex != null && dtcasted.regex != undefined && dtcasted.regex != ""){
               this.writer.addQuad(
                 namedNode( propertyNodeIRI ),
                 namedNode('http://www.w3.org/ns/shacl#pattern'),
                 literal(dtcasted.regex.toString()));
             }
-          }        
-        }   
+          }
+        }
       } else if(dt.isCustomType() == true){
         // CUSTOM TYPE IS NOT USED AT THE MOMENT
         console.warn("SHACL generator: Custom Type is not supported.");
       } else{
         throw new Error("Datatype must be one of the 3 basic types.");
-      }    
+      }
     }
   }
 
@@ -568,10 +568,10 @@ export class ShaclAdapter {
       );
     } else if(anyPredicateHasUniqueType(cls, this.root.cimIri)){
       // USE CASE #3
-      this.uniquePredicateClass = getAnyPredicateUniqueType(cls, this.root.cimIri);  
+      this.uniquePredicateClass = getAnyPredicateUniqueType(cls, this.root.cimIri);
     } else if(anyPredicateHasUniquePredicates(cls)){
       // USE CASE #4
-      this.uniquePredicatePredicate = getAnyPredicateUniquePredicate(cls); 
+      this.uniquePredicatePredicate = getAnyPredicateUniquePredicate(cls);
     } else{
       // CANNOT TARGET THE SHAPE, fail to generate the artifact
       throw new Error('Unable to target the Data structure defined with SHACL shape. Either define at least one unique type of class with instance typing mandatory or define at least one unique attribute going from the root or its associations with cardinality bigger than 0.');

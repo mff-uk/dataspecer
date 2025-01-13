@@ -2,7 +2,7 @@ import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { EditAttributeDialogState } from "./edit-attribute-dialog-controller";
-import { isRepresentingAttribute, representClasses, representDataTypes, representOwlThing, representRelationships, representUndefinedDataType } from "../utilities/dialog-utilities";
+import { isRepresentingAttribute, representClasses, representDataTypes, representOwlThing, representRelationships, selectRdfLiteral } from "../utilities/dialog-utilities";
 import { configuration } from "../../application";
 import { createEntityStateForNew } from "../utilities/entity-utilities";
 import { createSpecializationStateForNew } from "../utilities/specialization-utilities";
@@ -40,11 +40,11 @@ export function createNewAttributeDialogState(
   const owlThing = representOwlThing();
   const classes = [owlThing, ...representClasses(models, entityState.allModels, classesContext.classes)];
 
-  const undefinedDataType = representUndefinedDataType();
-  const dataTypes = [undefinedDataType, ...representDataTypes(),];
+  const dataTypes = [...representDataTypes()];
+  const range = selectRdfLiteral(dataTypes);
 
   const relationshipState = createRelationshipStateForNew(
-    owlThing, classes, undefinedDataType, dataTypes);
+    owlThing, classes, range, dataTypes);
 
   return {
     ...entityState,
@@ -53,16 +53,16 @@ export function createNewAttributeDialogState(
   };
 }
 
-export const createEditAttributeDialog = (
+export const createNewAttributeDialog = (
   state: EditAttributeDialogState,
   onConfirm: (state: EditAttributeDialogState) => void,
 ): DialogWrapper<EditAttributeDialogState> => {
   return {
-    label: "create-attribute-dialog.label",
+    label: "dialog.attribute.label-create",
     component: EditAttributeDialog,
     state,
-    confirmLabel: "modify-dialog.btn-ok",
-    cancelLabel: "modify-dialog.btn-close",
+    confirmLabel: "dialog.attribute.ok-create",
+    cancelLabel: "dialog.attribute.cancel",
     validate: () => true,
     onConfirm: onConfirm,
     onClose: null,

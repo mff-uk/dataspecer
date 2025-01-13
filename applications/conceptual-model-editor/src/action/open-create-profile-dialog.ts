@@ -1,18 +1,18 @@
 import {
+  SemanticModelRelationship,
   isSemanticModelAttribute,
   isSemanticModelClass,
   isSemanticModelGeneralization,
   isSemanticModelRelationship,
-  SemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
+  SemanticModelRelationshipEndUsage,
+  SemanticModelRelationshipUsage,
   isSemanticModelAttributeUsage,
   isSemanticModelClassUsage,
   isSemanticModelRelationshipUsage,
-  SemanticModelRelationshipEndUsage,
-  SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { isWritableVisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { WritableVisualModel, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { createClassUsage, createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
 
@@ -30,8 +30,7 @@ import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-
 import { createNewAssociationProfileDialog, createNewAssociationProfileDialogState } from "../dialog/association-profile/create-new-association-profile-dialog-state";
 import { createEditAttributeProfileDialog, createNewAttributeProfileDialogState } from "../dialog/attribute-profile/create-new-attribute-profile-dialog-state";
 import { EditClassProfileDialogState } from "../dialog/class-profile/edit-class-profile-dialog-controller";
-import { createNewProfileClassDialogState } from "../dialog/class-profile/create-new-class-profile-dialog-state";
-import { createEditClassProfileDialog } from "../dialog/class-profile/create-edit-class-profile-dialog-state";
+import { createNewClassProfileDialog, createNewProfileClassDialogState } from "../dialog/class-profile/create-new-class-profile-dialog-state";
 import { EntityModel } from "@dataspecer/core-v2";
 
 export function openCreateProfileDialogAction(
@@ -67,7 +66,7 @@ export function openCreateProfileDialogAction(
           position);
       }
     };
-    dialogs.openDialog(createEditClassProfileDialog(state, onConfirm));
+    dialogs.openDialog(createNewClassProfileDialog(state, onConfirm));
     return;
   }
 
@@ -102,11 +101,11 @@ export function openCreateProfileDialogAction(
   }
 
   if (isSemanticModelGeneralization(entity)) {
-    notifications.error(`Generalization modification is not supported!`);
+    notifications.error("Generalization modification is not supported!");
     return;
   }
 
-  notifications.error(`Unknown entity type.`);
+  notifications.error("Unknown entity type.");
 }
 
 // TODO PeSk: This should not be exported, move to Dataspecer layer.
@@ -166,14 +165,14 @@ const createRelationshipProfile = (
   let ends: SemanticModelRelationshipEndUsage[] | undefined = undefined;
   if (isSemanticModelRelationship(entity)) {
     const domainAndRange = getDomainAndRange(entity);
-    if (domainAndRange.domainIndex == 1 && domainAndRange.rangeIndex == 0) {
+    if (domainAndRange.domainIndex === 1 && domainAndRange.rangeIndex === 0) {
       ends = [range, domain];
     } else {
       ends = [domain, range];
     }
   } else if (isSemanticModelRelationshipUsage(entity)) {
     const domainAndRange = getDomainAndRange(entity);
-    if (domainAndRange.domainIndex == 1 && domainAndRange.rangeIndex == 0) {
+    if (domainAndRange.domainIndex === 1 && domainAndRange.rangeIndex === 0) {
       ends = [range, domain];
     } else {
       ends = [domain, range];

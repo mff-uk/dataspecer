@@ -1,10 +1,10 @@
-import { expect, describe, test } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { EntityModel } from "@dataspecer/core-v2";
 
-import { setTranslateFunction, entityModelToCmeVocabulary, entityModelsMapToCmeVocabulary, setDefaultModelColor } from "./semantic-model-adapter";
-import { CmeModelType } from "../../cme-model";
+import { entityModelToCmeVocabulary, entityModelsMapToCmeVocabulary, setDefaultModelColor, setTranslateFunction } from "./semantic-model-adapter";
+import { CmeModelType } from "../cme-model";
 
 // Disable translation.
 setTranslateFunction(text => `t:${text}`);
@@ -26,7 +26,6 @@ describe("entityModelsMapToCmeVocabulary", () => {
     expect(actual).toStrictEqual([{
       dsIdentifier: "abcd",
       displayLabel: { "": "mock model" },
-      displayDescription: null,
       displayColor: "#111111",
       dsModelType: CmeModelType.Default,
       baseIri: null,
@@ -51,7 +50,6 @@ describe("entityModelToCmeModel", () => {
     expect(actual).toStrictEqual({
       dsIdentifier: "abcd",
       displayLabel: { "": "mock model" },
-      displayDescription: null,
       displayColor: "abcd-blue",
       dsModelType: CmeModelType.Default,
       baseIri: "http://base",
@@ -71,7 +69,6 @@ describe("entityModelToCmeModel", () => {
     expect(actual).toStrictEqual({
       dsIdentifier: "abcd",
       displayLabel: { "": "t:model-service.model-label-from-id" },
-      displayDescription: null,
       displayColor: "abcd-blue",
       dsModelType: CmeModelType.Default,
       baseIri: null,
@@ -87,7 +84,6 @@ describe("entityModelToCmeModel", () => {
     expect(actual).toStrictEqual({
       dsIdentifier: "abcd",
       displayLabel: { "": "mock model" },
-      displayDescription: null,
       displayColor: "#111111",
       dsModelType: CmeModelType.Default,
       baseIri: null,

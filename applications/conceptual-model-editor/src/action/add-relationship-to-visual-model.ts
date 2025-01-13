@@ -1,11 +1,10 @@
 import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { isSemanticModelRelationship, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelRelationship, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { getDomainAndRange } from "../util/relationship-utils";
 import { ModelGraphContextType } from "../context/model-context";
 import { withAggregatedEntity } from "./utilities";
-
 
 export function addSemanticRelationshipToVisualModelAction(
   notifications: UseNotificationServiceWriterType,

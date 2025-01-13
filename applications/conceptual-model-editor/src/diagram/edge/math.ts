@@ -11,30 +11,41 @@ export function findRectangleLineIntersection(
   rectangle: { width: number, height: number },
   target: Point,
 ): Point {
-  // Calculate the rectangle edges and direction vector.
-  const left = source.x - (rectangle.width / 2);
-  const right = source.x + (rectangle.width / 2);
-  const top = source.y - (rectangle.height / 2);
-  const bottom = source.y + (rectangle.height / 2);
+  // We need half of the rectangle sizes.
+  const width = rectangle.width / 2;
+  const height = rectangle.height / 2;
+
+  // Calculate the rectangle edges.
+  const left = source.x - width;
+  const right = source.x + width;
+  const top = source.y - height;
+  const bottom = source.y + height;
+
+  // Calculate direction vector.
   const direction = { x: target.x - source.x, y: target.y - source.y };
+  if (Math.abs(direction.x) < width && Math.abs(direction.y) < height) {
+    // The point is in the rectangle, we just return the center.
+    return source;
+  }
+
   // We may have collision on right, left, top, bottom.
   // We use rectangle sides instead of center thus is the line
   // is horizontal or vertical we get no collision candidates.
   let horizontal: number | null = null;
   if (right > target.x) {
     // Leaving rectangle to the right.
-    horizontal = - (rectangle.width / 2) / direction.x;
+    horizontal = - width / direction.x;
   } else if (left < target.x) {
     // Leaving rectangle to the left.
-    horizontal = (rectangle.width / 2) / direction.x;
+    horizontal = width / direction.x;
   }
   let vertical: number | null = null;
   if (top > target.y) {
     // Leaving rectangle to the top.
-    vertical = - (rectangle.height / 2) / direction.y;
+    vertical = - height / direction.y;
   } else if (bottom < target.y) {
     // Leaving rectangle to the bottom.
-    vertical = (rectangle.height / 2) / direction.y;
+    vertical = height / direction.y;
   }
   // Now we have horizontal and vertical step toward collision
   // with a side. As the collision can be outside of the rectangle,

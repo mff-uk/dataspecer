@@ -1,7 +1,7 @@
 import {
-  type HttpFetch,
   type FetchOptions,
-  type FetchResponse
+  type FetchResponse,
+  type HttpFetch
 } from "@dataspecer/core/io/fetch/fetch-api";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 

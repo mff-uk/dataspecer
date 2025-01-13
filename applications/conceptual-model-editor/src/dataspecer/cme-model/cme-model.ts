@@ -1,15 +1,6 @@
 import { LanguageString } from "@dataspecer/core/core/core-resource";
 
-/**
- * Represents na ability to be displayed in the user interface.
- */
-export interface CmeDisplayable {
-
-  displayLabel: LanguageString;
-
-  displayDescription: LanguageString | null;
-
-}
+import { ModelDsIdentifier } from "../entity-model";
 
 export enum CmeModelType {
   Default,
@@ -17,12 +8,7 @@ export enum CmeModelType {
   ExternalSemanticModel,
 }
 
-export type ModelDsIdentifier = string;
-
-/**
- * Specialized representation for Dataspecer EntityModels.
- */
-export interface CmeModel extends CmeDisplayable {
+export interface CmeModel {
 
   /**
    * Dataspecer identifier.
@@ -33,6 +19,8 @@ export interface CmeModel extends CmeDisplayable {
    * Type of underlying model representation.
    */
   dsModelType: CmeModelType;
+
+  displayLabel: LanguageString;
 
   /**
    * Display color can be retrieved from the visual model.

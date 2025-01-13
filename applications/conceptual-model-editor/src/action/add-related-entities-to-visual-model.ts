@@ -1,8 +1,8 @@
 import { VisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import {  EntityModel } from "@dataspecer/core-v2";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticModelClassUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { isSemanticModelGeneralization, isSemanticModelRelationship, SemanticModelEntity, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { SemanticModelEntity, SemanticModelGeneralization, SemanticModelRelationship, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { getDomainAndRange } from "../util/relationship-utils";
@@ -29,6 +29,7 @@ export function addRelatedEntitiesAction(
   entity: SemanticModelEntity,
 ) {
   const identifier = entity.id;
+  const addingProfile = isSemanticModelClassUsage(entity);
   for (const wrapper of entities) {
     const candidate = wrapper.aggregatedEntity;
     if (candidate === null) {
@@ -63,18 +64,25 @@ export function addRelatedEntitiesAction(
           visualModel, entity, candidate, model.getId());
       }
     }
+    if (addingProfile && isSemanticModelClass(candidate)) {
+      // We are adding profile and the entity is a class.
+      if (entity.usageOf === candidate.id) {
+        addSemanticProfileToVisualModelAction(
+          visualModel, candidate, entity, model.getId());
+      }
+    }
   }
 }
 
 function shouldAddGeneralization(
   visualModel: VisualModel,
   identifier: string,
-  entity: SemanticModelGeneralization,
+  candidate: SemanticModelGeneralization,
 ): boolean {
-  if (entity.parent === identifier) {
-    return visualModel.getVisualEntityForRepresented(entity.child) !== null;
-  } else if (entity.child === identifier) {
-    return visualModel.getVisualEntityForRepresented(entity.parent) !== null;
+  if (candidate.parent === identifier) {
+    return visualModel.getVisualEntityForRepresented(candidate.child) !== null;
+  } else if (candidate.child === identifier) {
+    return visualModel.getVisualEntityForRepresented(candidate.parent) !== null;
   } else {
     return false;
   }
@@ -83,9 +91,9 @@ function shouldAddGeneralization(
 function shouldAddRelationship(
   visualModel: VisualModel,
   identifier: string,
-  entity: SemanticModelRelationship,
+  candidate: SemanticModelRelationship,
 ): boolean {
-  const { domain, range } = getDomainAndRange(entity);
+  const { domain, range } = getDomainAndRange(candidate);
   if (domain?.concept === identifier) {
     const other = range?.concept ?? null;
     return other !== null && visualModel.getVisualEntityForRepresented(other) !== null;
@@ -100,9 +108,9 @@ function shouldAddRelationship(
 function shouldAddRelationshipUsage(
   visualModel: VisualModel,
   identifier: string,
-  entity: SemanticModelRelationshipUsage,
+  candidate: SemanticModelRelationshipUsage,
 ): boolean {
-  const { domain, range } = getDomainAndRange(entity);
+  const { domain, range } = getDomainAndRange(candidate);
   if (domain?.concept === identifier) {
     const other = range?.concept ?? null;
     return other !== null && visualModel.getVisualEntityForRepresented(other) !== null;
@@ -117,18 +125,16 @@ function shouldAddRelationshipUsage(
 function shouldAddProfile(
   visualModel: VisualModel,
   identifier: string,
-  entity: SemanticModelClassUsage,
+  candidate: SemanticModelClassUsage,
 ): boolean {
-  if (entity.id === identifier) {
-    // The entity we are adding is a class usage, we need
-    // to check for existence of the profiled class.
-    return visualModel.getVisualEntityForRepresented(entity.usageOf) !== null;
-  } else {
-    // Other entity may be specializing our entity.
-    if (entity.usageOf === identifier) {
-      // We return true if the other is in the visual model.
-      return visualModel.getVisualEntityForRepresented(entity.id) !== null;
-    }
+  if (candidate.id === identifier) {
+    // We do not support self profiles.
+    return false;
+  }
+  // The candidate may be specialization of what we are adding.
+  if (candidate.usageOf === identifier) {
+    // We return true if the other is in the visual model.
+    return visualModel.getVisualEntityForRepresented(candidate.id) !== null;
   }
   return false;
 }

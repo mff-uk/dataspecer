@@ -4,7 +4,8 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 /**
  * Changes anchor to the opposite state or given {@link isNewlyAnchored} value. 
  * So if the node was not anchored then anchor it and otherway around.
- * If the identifier is group is sets anchors of all the underlying elements to the same value.
+ * If the identifier is group, 
+ * then is sets anchors of all the underlying elements to the same value.
  */
 export function toggleAnchorAction(
   notifications: UseNotificationServiceWriterType,

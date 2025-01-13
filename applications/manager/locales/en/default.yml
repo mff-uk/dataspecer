@@ -3,8 +3,9 @@ $datetime: '{{val, datetime(dateStyle: long; timeStyle: short)}}'
 autolayout: Auto layout
 changed: 'Changed on {{val, datetime(dateStyle: short; timeStyle: short)}}'
 close: Close
+conceptual editor button: Edit conceptual models, vocabularies and profiles
 created: 'Created on {{val, datetime(dateStyle: short)}}'
-data specification detail: DS detail
+data specification button: Edit and manage data specification
 dataspecer-packages: packages
 delete-resource:
   title: Remove

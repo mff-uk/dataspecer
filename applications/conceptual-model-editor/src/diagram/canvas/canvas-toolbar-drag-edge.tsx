@@ -18,10 +18,10 @@ export function CanvasToolbarCreatedByEdgeDrag({ toolbarProps }: { toolbarProps:
   };
 
   return <div>
-      <ul className="canvas-toolbar-edge-drag">
-        <li>
-          <button onClick={onCanvasMenuAddClassDialog}>➕</button>
-        </li>
-      </ul>
-    </div>;
+    <ul className="canvas-toolbar-edge-drag">
+      <li>
+        <button onClick={onCanvasMenuAddClassDialog}>➕</button>
+      </li>
+    </ul>
+  </div>;
 }

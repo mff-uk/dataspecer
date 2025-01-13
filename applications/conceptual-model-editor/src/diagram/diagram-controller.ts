@@ -370,14 +370,14 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
   // const reactFlowInitialized = useNodesInitialized();
 
   const onChangeSelection = useCallback(createChangeSelectionHandler(
-      setSelectedNodes, setSelectedEdges),
-      [setSelectedNodes, setSelectedEdges]);
+    setSelectedNodes, setSelectedEdges),
+  [setSelectedNodes, setSelectedEdges]);
 
   useOnSelectionChange({ onChange: (onChangeSelection) });
 
   const onNodesChange = useCallback(createNodesChangeHandler(
     nodes, setNodes, alignmentController, setSelectedNodes, groups, nodeToGroupMapping, nodesInGroupWhichAreNotPartOfDragging, selectedNodesRef, isCtrlPressed, userSelectedNodes, setUserSelectedNodes, userSelectedNodesRef, selectedNodes, api),
-    [nodes, setNodes, alignmentController, setSelectedNodes, groups, nodeToGroupMapping, nodesInGroupWhichAreNotPartOfDragging, selectedNodesRef, isCtrlPressed, userSelectedNodes, setUserSelectedNodes, userSelectedNodesRef, selectedNodes, api]);
+  [nodes, setNodes, alignmentController, setSelectedNodes, groups, nodeToGroupMapping, nodesInGroupWhichAreNotPartOfDragging, selectedNodesRef, isCtrlPressed, userSelectedNodes, setUserSelectedNodes, userSelectedNodesRef, selectedNodes, api]);
 
   const onEdgesChange = useCallback(createEdgesChangeHandler(
     setEdges, setSelectedEdges),
@@ -411,7 +411,7 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
   const onNodeDrag = useCallback(createOnNodeDragHandler(), []);
   const onNodeDragStop = useCallback(createOnNodeDragStopHandler(
     api, alignmentController, canvasHighlighting.enableTemporarily, nodesInGroupWhichAreNotPartOfDragging, cleanSelection),
-    [api, alignmentController, canvasHighlighting.enableTemporarily, nodesInGroupWhichAreNotPartOfDragging, cleanSelection]);
+  [api, alignmentController, canvasHighlighting.enableTemporarily, nodesInGroupWhichAreNotPartOfDragging, cleanSelection]);
 
   const onNodeMouseEnter = useCallback(createOnNodeMouseEnterHandler(canvasHighlighting.changeHighlight, reactFlowInstance), [canvasHighlighting.changeHighlight, reactFlowInstance]);
   const onNodeMouseLeave = useCallback(createOnNodeMouseLeaveHandler(canvasHighlighting.resetHighlight), [canvasHighlighting.resetHighlight]);
@@ -458,22 +458,22 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
 
   const context = useMemo(() => createDiagramContext(
     api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar?.toolbarContent ?? null, setCanvasToolbar, selectedNodes, selectedEdges, userSelectedNodes),
-    [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges, userSelectedNodes]
+  [api, onOpenEdgeToolbar, onOpenCanvasToolbar, canvasToolbar, setCanvasToolbar, selectedNodes, selectedEdges, userSelectedNodes]
   );
 
   const canvasHighlighting = useExplorationCanvasHighlightingController(setNodes, setEdges);
   const actions = useMemo(() => createActions(reactFlowInstance, setNodes, setEdges, alignmentController, context,
     selectedNodes, setSelectedNodes, setSelectedEdges, canvasHighlighting.changeHighlight, setGroups, setNodeToGroupMapping, cleanSelection),
-    [reactFlowInstance, setNodes, setEdges, alignmentController, context,
-      selectedNodes, setSelectedNodes, setSelectedEdges,
-      canvasHighlighting.changeHighlight, setGroups, setNodeToGroupMapping, cleanSelection]);
+  [reactFlowInstance, setNodes, setEdges, alignmentController, context,
+    selectedNodes, setSelectedNodes, setSelectedEdges,
+    canvasHighlighting.changeHighlight, setGroups, setNodeToGroupMapping, cleanSelection]);
 
   // Register actions to API.
   useEffect(() => api.setActions(actions), [api, actions]);
 
   const onPaneClick = useCallback(createOnPaneClickHandler(
     context.closeCanvasToolbar, cleanSelection),
-    [context.closeCanvasToolbar, cleanSelection]);
+  [context.closeCanvasToolbar, cleanSelection]);
 
   const onNodeDoubleClick = useCallback(createOnNodeDoubleClickHandler(reactFlowInstance, actions.openGroupMenu), [reactFlowInstance, actions.openGroupMenu]);
 
@@ -526,7 +526,7 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
 }
 
 const createOnNodeDragHandler = () => {
-  return (event: React.MouseEvent, node: Node, nodes: Node[]) => {
+  return (_: React.MouseEvent, _node: Node, _nodes: Node[]) => {
     // TODO RadStr: Debug
     // console.info("OnNodeDrag node", node);
     // console.info("OnNodeDrag nodes", nodes);
@@ -539,7 +539,7 @@ const createOnNodeDragStartHandler = (
   selectedNodesRef: React.MutableRefObject<string[]>,
   closeCanvasToolbar: () => void,
 ) => {
-  return (event: React.MouseEvent, node: Node, nodes: Node[]) => {
+  return (_: React.MouseEvent, node: Node, _nodes: Node[]) => {
     closeCanvasToolbar();
     disableExplorationModeHighlightingChanges();
     alignmentController.alignmentSetUpOnNodeDragStart(node);
@@ -562,7 +562,7 @@ const createOnNodeMouseEnterHandler = (
 };
 
 const createOnNodeMouseLeaveHandler = (resetHighlight: () => void) => {
-  return (_: React.MouseEvent, node: Node) => {
+  return (_: React.MouseEvent, _node: Node) => {
     resetHighlight();
   };
 };
@@ -592,7 +592,7 @@ const createOnNodeDragStopHandler = (
   nodesInGroupWhichAreNotPartOfDragging: React.MutableRefObject<string[]>,
   cleanSelection: () => void,
 ) => {
-  return (event: React.MouseEvent, node: Node, nodes: Node[]) => {
+  return (_event: React.MouseEvent, node: Node, _nodes: Node[]) => {
     enableExplorationModeHighlightingChanges();
     alignmentController.alignmentCleanUpOnNodeDragStop(node);
     cleanSelection();
@@ -600,8 +600,8 @@ const createOnNodeDragStopHandler = (
 };
 
 const createChangeSelectionHandler = (
-    setSelectedNodes: (newNodeSelection: string[]) => void,
-    setSelectedEdges: (newEdgeSelection: string[]) => void,
+  setSelectedNodes: (newNodeSelection: string[]) => void,
+  setSelectedEdges: (newEdgeSelection: string[]) => void,
 ) => {
   return ({nodes, edges}: OnSelectionChangeParams) => {
     // We can react on change events here.
@@ -1668,15 +1668,15 @@ const createConnectEndHandler = (
       return;
     }
     const targetIsPane = (event.target as Element).classList.contains("react-flow__pane");
-    const flowPosititon = reactFlow.screenToFlowPosition({x: (event as unknown as React.MouseEvent)?.clientX, y: (event as unknown as React.MouseEvent)?.clientY});
+    const flowPosition = reactFlow.screenToFlowPosition({x: (event as unknown as React.MouseEvent)?.clientX, y: (event as unknown as React.MouseEvent)?.clientY});
     if (targetIsPane) {
-      api.callbacks().onCreateConnectionToNothing(source.data, flowPosititon);
+      api.callbacks().onCreateConnectionToNothing(source.data, flowPosition);
     } else {
       if (connection.toNode === null) {
         // If user have not attached the node to the handle, we get no target.
         const nodes = reactFlow.getIntersectingNodes({ x: positionRelativeToViewport.x, y: positionRelativeToViewport.y, width: 1, height: 1 });
         if (nodes.length === 0) {
-          api.callbacks().onCreateConnectionToNothing(source.data, flowPosititon);
+          api.callbacks().onCreateConnectionToNothing(source.data, flowPosition);
         } else {
           // There is something under it.
           api.callbacks().onCreateConnectionToNode(source.data, nodes[0].data);
@@ -2177,13 +2177,13 @@ const edgeToEdgeType = (edge: ApiEdge): EdgeType => {
 
 function selectEdgeType(edge: ApiEdge) {
   switch (edge.type) {
-    case ApiEdgeType.Association:
-    case ApiEdgeType.AssociationProfile:
-      return PropertyEdgeName;
-    case ApiEdgeType.Generalization:
-      return GeneralizationEdgeName;
-    case ApiEdgeType.ClassProfile:
-      return ClassProfileEdgeName;
+  case ApiEdgeType.Association:
+  case ApiEdgeType.AssociationProfile:
+    return PropertyEdgeName;
+  case ApiEdgeType.Generalization:
+    return GeneralizationEdgeName;
+  case ApiEdgeType.ClassProfile:
+    return ClassProfileEdgeName;
   }
 }
 
@@ -2192,14 +2192,14 @@ function selectEdgeType(edge: ApiEdge) {
  */
 export function selectMarkerEnd(edge: ApiEdge, color: string | null) {
   switch (edge.type) {
-    case ApiEdgeType.Association:
-      return { type: MarkerType.Arrow, height: 20, width: 20, color: color ?? edge.color };
-    case ApiEdgeType.AssociationProfile:
-      return { type: MarkerType.Arrow, height: 20, width: 20, color: color ?? edge.color };
-    case ApiEdgeType.Generalization:
-      return { type: MarkerType.ArrowClosed, height: 20, width: 20, color: color ?? edge.color };
-    case ApiEdgeType.ClassProfile:
-      return { type: MarkerType.ArrowClosed, height: 20, width: 20, color: color ?? edge.color };
+  case ApiEdgeType.Association:
+    return { type: MarkerType.Arrow, height: 20, width: 20, color: color ?? edge.color };
+  case ApiEdgeType.AssociationProfile:
+    return { type: MarkerType.Arrow, height: 20, width: 20, color: color ?? edge.color };
+  case ApiEdgeType.Generalization:
+    return { type: MarkerType.ArrowClosed, height: 20, width: 20, color: color ?? edge.color };
+  case ApiEdgeType.ClassProfile:
+    return { type: MarkerType.ArrowClosed, height: 20, width: 20, color: color ?? edge.color };
   }
 }
 

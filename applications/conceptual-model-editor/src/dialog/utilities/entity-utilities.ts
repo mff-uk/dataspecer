@@ -1,11 +1,12 @@
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 
-import { CmeModelType, CmeModel, ModelDsIdentifier, filterWritableModels } from "../../cme-model";
 import { isRelativeIri } from "./dialog-utilities";
 import { generateName } from "../../util/name-utils";
 import { getAvailableLanguagesForLanguageString } from "../../util/language-utils";
 import { MissingModel, NoWritableModelFound } from "../../application/error";
-import { isValid, validationError, validationNoProblem, ValidationState } from "./validation-utilities";
+import { ValidationState, isValid, validationError, validationNoProblem } from "./validation-utilities";
+import { CmeModel, filterWritableModels } from "../../dataspecer/cme-model";
+import { ModelDsIdentifier } from "../../dataspecer/entity-model";
 
 export interface EntityState {
 

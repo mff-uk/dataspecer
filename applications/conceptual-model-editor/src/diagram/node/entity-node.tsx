@@ -1,10 +1,10 @@
 import { useContext } from "react";
 import {
   Handle,
-  Position,
-  NodeToolbar,
-  type NodeProps,
   type Node,
+  type NodeProps,
+  NodeToolbar,
+  Position,
   useReactFlow,
 } from "@xyflow/react";
 
@@ -69,9 +69,9 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
               </div>
             )}
             <div className="relative flex w-full flex-row justify-between">
-                <div>{data.label}</div>
-                {isAnchored ? <div>⚓</div>: null}
-                {props.selected === true ? <div>SELECTED</div>: null}
+              <div>{data.label}</div>
+              {isAnchored ? <div>⚓</div> : null}
+              {props.selected === true ? <div>SELECTED</div>: null}
             </div>
           </div>
 
@@ -94,22 +94,24 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
 
 function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   const context = useContext(DiagramContext);
-  if(context === null) {
+  if (context === null) {
     return null;
   }
 
   const isCanvasToolbarOpen = context.openedCanvasToolbar !== null;
-  if(isCanvasToolbarOpen) {
+  if (isCanvasToolbarOpen) {
     return null;
   }
 
-  if(context.getShownNodeToolbarType() === NodeToolbarType.SELECTION_TOOLBAR) {
+  // TODO RadStr: Actually I think that I no longer use the SelectionToolbar as group toolbar.
+
+  if (context.getShownNodeToolbarType() === NodeToolbarType.SELECTION_TOOLBAR) {
     return <SelectionToolbar {...props} isGroupToolbar={false}/>;
   }
-  else if(context.getShownNodeToolbarType() === NodeToolbarType.GROUP_TOOLBAR) {
+  else if (context.getShownNodeToolbarType() === NodeToolbarType.GROUP_TOOLBAR) {
     return <SelectionToolbar {...props} isGroupToolbar={true}/>;
   }
-  else if(context.getShownNodeToolbarType() === NodeToolbarType.SINGLE_NODE_TOOLBAR) {
+  else if (context.getShownNodeToolbarType() === NodeToolbarType.SINGLE_NODE_TOOLBAR) {
     return <PrimaryNodeToolbar {...props}/>;
   }
   else {
@@ -131,6 +133,7 @@ function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   const onDelete = () => context?.callbacks().onDeleteNode(props.data);
   const onAnchor = () => context?.callbacks().onToggleAnchorForNode(props.data.identifier);
   const onDissolveGroup = () => context?.callbacks().onDissolveGroup(props.data.group);
+  const onAddAttribute = () => context?.callbacks().onAddAttributeForNode(props.data);
 
   // TODO RadStr: It seems to work with the selected, so again remove commented code
   // const shouldShowToolbar = context?.getNodeWithToolbar() === props.id;   // TODO RadStr: Maybe also && props.selected === true?
@@ -147,34 +150,40 @@ function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   //   alert("About to show NodeToolbar");
   // }
 
+  const addAttributeTitle = props.data.profileOf === null ?
+    t("node-add-attribute") : t("node-add-attribute-profile");
+
+
   return (
     <>
-    <NodeToolbar isVisible={shouldShowToolbar} position={Position.Top} className="flex gap-2 entity-node-toolbar" >
-      <button onClick={onShowDetail} title={t("class-detail-button")}>ℹ</button>
-      &nbsp;
-      <button onClick={onEdit} title={t("class-edit-button")}>✏️</button>
-      &nbsp;
-      <button onClick={onCreateProfile} title={t("class-profile-button")}>🧲</button>
-      &nbsp;
-    </NodeToolbar>
-    <NodeToolbar isVisible={shouldShowToolbar} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
-      <Handle type="source" position={Position.Right} title={t("node-connection-handle")}>🔗</Handle>
-    </NodeToolbar>
-    {
-      !isPartOfGroup ? null :
-        <NodeToolbar isVisible={shouldShowToolbar} position={Position.Left} className="flex gap-2 entity-node-toolbar" >
-          <button onClick={onDissolveGroup} title={t("dissolve-group-button")}>❌</button>
-        </NodeToolbar>
-    }
-    <NodeToolbar isVisible={shouldShowToolbar} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
-      <button onClick={onHide} title={t("class-hide-button")}>🕶</button>
-      &nbsp;
-      <button onClick={onDelete} title={t("class-remove-button")}>🗑</button>
-      &nbsp;
-      <button onClick={onAnchor} title={isPartOfGroup ? t("group-anchor-button") : t("node-anchor-button")} >⚓</button>
-      &nbsp;
-    </NodeToolbar>
-  </>);
+      <NodeToolbar isVisible={shouldShowToolbar} position={Position.Top} className="flex gap-2 entity-node-toolbar" >
+        <button onClick={onShowDetail} title={t("class-detail-button")}>ℹ</button>
+        &nbsp;
+        <button onClick={onEdit} title={t("class-edit-button")}>✏️</button>
+        &nbsp;
+        <button onClick={onCreateProfile} title={t("class-profile-button")}>🧲</button>
+        &nbsp;
+      </NodeToolbar>
+      <NodeToolbar isVisible={shouldShowToolbar} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
+        <Handle type="source" position={Position.Right} title={t("node-connection-handle")}>🔗</Handle>
+      </NodeToolbar>
+      {
+        !isPartOfGroup ? null :
+          <NodeToolbar isVisible={shouldShowToolbar} position={Position.Left} className="flex gap-2 entity-node-toolbar" >
+            <button onClick={onDissolveGroup} title={t("dissolve-group-button")}>❌</button>
+          </NodeToolbar>
+      }
+      <NodeToolbar isVisible={shouldShowToolbar} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
+        <button onClick={onHide} title={t("class-hide-button")}>🕶</button>
+        &nbsp;
+        <button onClick={onDelete} title={t("class-remove-button")}>🗑</button>
+        &nbsp;
+        <button onClick={onAnchor} title={isPartOfGroup ? t("group-anchor-button") : t("node-anchor-button")} >⚓</button>
+        &nbsp;
+        <button onClick={onAddAttribute} title={addAttributeTitle} >➕</button>
+        &nbsp;
+      </NodeToolbar>
+    </>);  
 }
 
 type SelectionToolbarProps = NodeProps<Node<ApiNode>> & {isGroupToolbar: boolean};

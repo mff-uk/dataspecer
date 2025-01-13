@@ -26,17 +26,17 @@ export function binarySearch(arr: [string, number][], val: number) {
   let end = arr.length - 1;
 
   while (start <= end) {
-      const mid = Math.floor((start + end) / 2);
+    const mid = Math.floor((start + end) / 2);
 
-      if (arr[mid]?.[1] === val) {
-          return mid;
-      }
+    if (arr[mid]?.[1] === val) {
+      return mid;
+    }
 
-      if (val < (arr[mid]?.[1] as number)) {
-          end = mid - 1;
-      } else {
-          start = mid + 1;
-      }
+    if (val < (arr[mid]?.[1] as number)) {
+      end = mid - 1;
+    } else {
+      start = mid + 1;
+    }
   }
 
   return -1;

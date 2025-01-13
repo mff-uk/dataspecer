@@ -1,17 +1,17 @@
-import { expect, describe, test } from "vitest";
+import { describe, expect, test } from "vitest";
 import { filterWritableModels } from "./cme-model-utilities";
-import { CmeModelType } from "./cme-model";
+import { CmeModel, CmeModelType } from "./cme-model";
 
 describe("filterWritableModels", () => {
 
   test("Filter.", () => {
     const actual = filterWritableModels([{
       dsModelType: CmeModelType.Default,
-    } as any, {
+    } as CmeModel, {
       dsModelType: CmeModelType.InMemorySemanticModel,
-    } as any, {
+    } as CmeModel, {
       dsModelType: CmeModelType.ExternalSemanticModel,
-    } as any]);
+    } as CmeModel]);
     expect(actual).toEqual([{ dsModelType: CmeModelType.InMemorySemanticModel }]);
   });
 

@@ -1,7 +1,7 @@
 
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
@@ -82,6 +82,7 @@ export function createEditAttributeProfileDialogState(
     dataTypes);
 
   return {
+    enableProfilChange: false,
     ...entityProfileState,
     ...relationshipProfileState,
   };
@@ -92,11 +93,11 @@ export const createEditAttributeProfileDialog = (
   onConfirm: (state: EditAttributeProfileDialogState) => void,
 ): DialogWrapper<EditAttributeProfileDialogState> => {
   return {
-    label: "create-attribute-dialog.label",
+    label: "dialog.attribute-profile.label-edit",
     component: EditAttributeProfileDialog,
     state,
-    confirmLabel: "create-profile-dialog.btn-ok",
-    cancelLabel: "create-profile-dialog.btn-close",
+    confirmLabel: "dialog.attribute-profile.ok-edit",
+    cancelLabel: "dialog.attribute-profile.cancel",
     validate: () => true,
     onConfirm: onConfirm,
     onClose: null,

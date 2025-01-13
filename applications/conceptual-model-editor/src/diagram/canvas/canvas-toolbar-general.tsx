@@ -23,10 +23,10 @@ export function CanvasToolbarGeneral({canvasToolbar}: {canvasToolbar: CanvasTool
   const position = computePosition(canvasToolbar.toolbarProps.canvasPosition.x, canvasToolbar.toolbarProps.canvasPosition.y, { x, y, zoom });
 
   return <div>
-      <ToolbarPortal>
-        <div className="canvas-toolbar" style={{ transform: `translate(${position.x}px, ${position.y}px)` }}>
-          {canvasToolbar.toolbarContent({toolbarProps: canvasToolbar.toolbarProps})}
-        </div>
-      </ToolbarPortal>
-    </div>;
+    <ToolbarPortal>
+      <div className="canvas-toolbar" style={{ transform: `translate(${position.x}px, ${position.y}px)` }}>
+        {canvasToolbar.toolbarContent({toolbarProps: canvasToolbar.toolbarProps})}
+      </div>
+    </ToolbarPortal>
+  </div>;
 }

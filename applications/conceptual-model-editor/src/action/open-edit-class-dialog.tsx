@@ -1,6 +1,6 @@
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
-import { modifyClass, Operation } from "@dataspecer/core-v2/semantic-model/operations";
+import { Operation, modifyClass } from "@dataspecer/core-v2/semantic-model/operations";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 
 import { DialogApiContextType } from "../dialog/dialog-service";

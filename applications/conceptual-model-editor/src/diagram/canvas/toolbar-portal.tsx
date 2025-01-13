@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { useStore, type ReactFlowState } from "@xyflow/react";
+import { type ReactFlowState, useStore } from "@xyflow/react";
 
 const selector = (state: ReactFlowState) => state.domNode?.querySelector(".react-flow__renderer");
 

@@ -1,21 +1,20 @@
 
-import { isWritableVisualModel, VisualModel } from "@dataspecer/core-v2/visual-model";
+import { VisualModel, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { ClassesContextType } from "../context/classes-context";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { Options } from "../application";
-import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticModelRelationshipEndUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { SemanticModelRelationship, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelRelationshipEndUsage, SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { createClassProfile } from "./open-create-profile-dialog";
-import { findSourceModelOfEntity } from "../service/model-service";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
 import { createNewProfileClassDialogState } from "../dialog/class-profile/create-new-class-profile-dialog-state";
-import { CmeModel, findAnyWritableModelFromRawInput } from "../cme-model";
-
+import { findAnyWritableModelFromRawInput } from "../cme-model/cme-model-utilities";
+import { CmeModel } from "../dataspecer/cme-model";
 
 export async function createDefaultProfilesAction(
   notifications: UseNotificationServiceWriterType,
@@ -63,7 +62,6 @@ async function createDefaultClassProfiles(
 
   return createdClassProfiles;
 }
-
 
 /**
  * Creates class profile of given entity with default parameters,
@@ -114,10 +112,8 @@ async function createDefaultClassProfile(
   return createdClassProfile.identifier;
 }
 
-
 //
 //
-
 
 function createDefaultRelationshipProfiles(
   notifications: UseNotificationServiceWriterType,
@@ -133,7 +129,6 @@ function createDefaultRelationshipProfiles(
     createDefaultRelationshipProfile(notifications, graph, writableSemanticModel, visualModel, edgeToProfile, createdClassProfiles, shouldBeAddedToVisualModel);
   }
 }
-
 
 /**
  * Creates relationship profile of given entity with default parameters,
@@ -197,7 +192,6 @@ function createDefaultRelationshipProfile(
   }
 }
 
-
 function getAndValidateRelationshipOrRelationshipProfileToBeProfiled(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
@@ -218,7 +212,6 @@ function getAndValidateRelationshipOrRelationshipProfileToBeProfiled(
     notifications.error("The entity to be profiled from selection is not a association or association profile");
     return null;
   }
-
 
   return relationshipOrRelationshipProfileToBeProfiled;
 }

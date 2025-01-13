@@ -59,7 +59,7 @@ export class ReplaceAlongInheritance implements ComplexOperation {
 
         const sourceFromPimClass = this.sourceSemanticModel.find(entity => entity.id === sourceFromPimClassIri) as SemanticModelClass;
         const sourceToPimClass = this.sourceSemanticModel.find(entity => entity.id === this.toSemanticClassId) as SemanticModelClass;
-        const pimSchemaIri = this.store.getSchemaForResource(fromPimClass.iri as string) as string;
+        const pimSchemaIri = this.store.getSchemaForResource(fromPimClass.id as string) as string;
 
         const result = await extendPimClassesAlongInheritance(
             !isSpecialization ? sourceFromPimClass : sourceToPimClass,

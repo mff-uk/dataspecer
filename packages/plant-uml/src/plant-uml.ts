@@ -103,6 +103,8 @@ export class PlantUml {
     }
 
     const associations: {
+      id: string;
+
       label: string;
       ends: [string, string];
       cardinality: [
@@ -111,33 +113,47 @@ export class PlantUml {
       ];
     }[] = [];
 
-    // Collect associations
+    // Collect forward associations
     for (const cls of Object.values(this.conceptualModel.classes)) {
       for (const prop of cls.properties) {
         if (prop.dataTypes.length !== 1) {
+          continue;
+        }
+        if (prop.isReverse) {
           continue;
         }
         const dataType = prop.dataTypes[0];
         if (dataType.isAssociation()) {
           const target =
             this.conceptualModel.classes[dataType.pimClassIri as string];
-          const existingAssociation = associations.find(
-            (association) =>
-              association.ends[0] === target.pimIri &&
-              association.ends[1] === cls.pimIri
-          );
+          associations.push({
+            id: prop.pimIri as string,
+            label: this.getEntityPlantUMLIdentifier(prop),
+            ends: [cls.pimIri as string, target.pimIri as string],
+            cardinality: [
+              { min: null, max: null },
+              { min: prop.cardinalityMin, max: prop.cardinalityMax },
+            ],
+          });
+        }
+      }
+    }
+
+    // Collect reverse associations
+    for (const cls of Object.values(this.conceptualModel.classes)) {
+      for (const prop of cls.properties) {
+        if (prop.dataTypes.length !== 1) {
+          continue;
+        }
+        if (!prop.isReverse) {
+          continue;
+        }
+        const dataType = prop.dataTypes[0];
+        if (dataType.isAssociation()) {
+          const existingAssociation = associations.find(a => a.id === prop.pimIri);
           if (existingAssociation) {
             existingAssociation.cardinality[0].min = prop.cardinalityMin;
             existingAssociation.cardinality[0].max = prop.cardinalityMax;
-          } else {
-            associations.push({
-              label: this.getEntityPlantUMLIdentifier(prop),
-              ends: [cls.pimIri as string, target.pimIri as string],
-              cardinality: [
-                { min: null, max: null },
-                { min: prop.cardinalityMin, max: prop.cardinalityMax },
-              ],
-            });
           }
         }
       }

@@ -1,8 +1,8 @@
 
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
-import { isSemanticModelRelationship, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelRelationship, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
@@ -10,12 +10,12 @@ import { getDomainAndRange } from "../../util/relationship-utils";
 import { EditAttributeProfileDialogState } from "./edit-attribute-profile-dialog-controller";
 import { EditAttributeProfileDialog } from "./edit-attribute-profile-dialog";
 import { DialogWrapper } from "../dialog-api";
-import { CmeModel } from "../../cme-model";
+import { CmeModel } from "../../dataspecer/cme-model";
 import { InvalidAggregation, MissingEntity, MissingRelationshipEnds } from "../../application/error";
-import { createEntityProfileStateForNew } from "../utilities/entity-profile-utilities";
 import { createRelationshipProfileStateForNew } from "../utilities/relationship-profile-utilities";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { EntityRepresentative, RelationshipRepresentative, representClassProfiles, representDataTypes, representOwlThing, representRelationshipProfiles, representRelationships, representUndefinedDataType } from "../utilities/dialog-utilities";
+import { createEntityProfileStateForNewEntityProfile, createEntityProfileStateForNewProfileOfProfile } from "../utilities/entity-profile-utilities";
 
 /**
  * @param classesContext
@@ -85,7 +85,7 @@ function createForAttribute(
 
   // EntityProfileState
 
-  const entityProfileState = createEntityProfileStateForNew(
+  const entityProfileState = createEntityProfileStateForNewEntityProfile(
     language, vocabularies, profiles, profileOf.identifier);
 
   // RelationshipState<EntityRepresentative>
@@ -100,6 +100,7 @@ function createForAttribute(
     range.concept, undefinedDataType, range.cardinality, dataTypes);
 
   return {
+    enableProfilChange: false,
     ...entityProfileState,
     ...relationshipProfileState,
   };
@@ -127,7 +128,7 @@ function createForAttributeProfile(
 
   // EntityProfileState
 
-  const entityProfileState = createEntityProfileStateForNew(
+  const entityProfileState = createEntityProfileStateForNewProfileOfProfile(
     language, vocabularies, profiles, profileOf.identifier);
 
   // RelationshipState<EntityRepresentative>
@@ -142,6 +143,7 @@ function createForAttributeProfile(
     range.concept, undefinedDataType, range.cardinality, dataTypes);
 
   return {
+    enableProfilChange: false,
     ...entityProfileState,
     ...relationshipProfileState,
   };
@@ -152,11 +154,11 @@ export const createEditAttributeProfileDialog = (
   onConfirm: (state: EditAttributeProfileDialogState) => void,
 ): DialogWrapper<EditAttributeProfileDialogState> => {
   return {
-    label: "create-attribute-dialog.label",
+    label: "dialog.attribute-profile.label-create",
     component: EditAttributeProfileDialog,
     state,
-    confirmLabel: "create-profile-dialog.btn-ok",
-    cancelLabel: "create-profile-dialog.btn-close",
+    confirmLabel: "dialog.attribute-profile.ok-create",
+    cancelLabel: "dialog.attribute-profile.cancel",
     validate: () => true,
     onConfirm: onConfirm,
     onClose: null,

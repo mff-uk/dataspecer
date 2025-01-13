@@ -1,5 +1,4 @@
 import {
-  type SemanticModelRelationship,
   isSemanticModelClass,
   isSemanticModelGeneralization,
   isSemanticModelRelationship,
@@ -18,11 +17,8 @@ import {
 } from "@dataspecer/core-v2/semantic-model/concepts";
 
 import { getDomainAndRange } from "../util/relationship-utils";
-import { getDuplicateNames } from "../util/name-utils";
 
-import { t, configuration } from "../application/";
-import { useEntityProxy } from "../util/detail-utils";
-import { getModelLabel } from "./model-service";
+import { configuration, t } from "../application/";
 
 type GetEntityLabelType = SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationshipUsage;
 
@@ -70,12 +66,12 @@ function languageStringToHumanReadable(value: LanguageString, language: string, 
   }
 
   // Preferences.
-  for (const preferedLanguage of languagePreferences) {
+  for (const preferredLanguage of languagePreferences) {
     result = value[language];
     if (result === undefined) {
       continue;
     }
-    return `${result}@${preferedLanguage}`;
+    return `${result}@${preferredLanguage}`;
   }
 
   // Anything.
@@ -86,41 +82,7 @@ function languageStringToHumanReadable(value: LanguageString, language: string, 
   return null;
 }
 
-// We use this as older part of the utils is not cable
-// working with SemanticModelEntity.
-type LimitedSemanticEntity = SemanticModelClass
-  | SemanticModelRelationship
-  | SemanticModelClassUsage
-  | SemanticModelRelationshipUsage;
-
 export type SelectItem = {
   identifier: string;
   label: string;
-};
-
-/**
- * Given list of semantic model entities (limited version) prepares
- * values for the selection component.
- */
-export const prepareSemanticModelEntitiesForSelect = (entities: LimitedSemanticEntity[]): SelectItem[] => {
-  const result: SelectItem[] = [];
-  const duplicateNames = getDuplicateNames(entities);
-
-  for (const item of entities) {
-    const { name, iri, model } = useEntityProxy(item);
-    const displayIri = duplicateNames.has(name ?? "");
-
-    const nameLabel = name ?? "";
-    const modelLabel = model === null ? "" : `[${getModelLabel(model)}]`;
-    const iriLabel = displayIri && iri !== null ? `(${iri})` : "";
-
-    result.push({
-      identifier: item.id,
-      label: `${nameLabel} ${modelLabel} ${iriLabel}`,
-    });
-  }
-
-  result.sort((left, right) => left.label.localeCompare(right.label));
-
-  return result;
 };

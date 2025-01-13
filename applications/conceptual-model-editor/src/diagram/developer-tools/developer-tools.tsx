@@ -1,25 +1,26 @@
 import {
-  useState,
+  type Dispatch,
   type HTMLAttributes,
+  type ReactNode,
+  type SetStateAction,
   useEffect,
   useRef,
-  type Dispatch,
-  type SetStateAction,
-  type ReactNode,
+  useState,
 } from "react";
 import {
   type EdgeChange,
+  type NodeChange,
   type OnEdgesChange,
+  type OnNodesChange,
   Panel,
   useStore,
   useStoreApi,
-  type NodeChange,
-  type OnNodesChange,
 } from "@xyflow/react";
 
 import "./developer-tools.css";
 import { useLayoutDialog } from "../../layout/layout-dialog-full";
 import { useExploration } from "../features/highlighting/exploration/context/highlighting-exploration-mode";
+import { t } from "../../application";
 
 /**
  * Provides some internal information.
@@ -32,7 +33,6 @@ export function DeveloperTools() {
   const explorationMode = useExploration();
 
   const layoutDialogUse = useLayoutDialog();
-
 
   return (
     <div>
@@ -56,9 +56,9 @@ export function DeveloperTools() {
           <DevToolButton
             setActive={explorationMode.toggleHighlighting}
             active={explorationMode.isHighlightingOn}
-            title="Toggle highlighting exploration mode"
+            title={t("exploration-mode-button.title")}
           >
-            Exploration
+            {t("exploration-mode-button.name")}
           </DevToolButton>
         </Panel>
         {changeLoggerActive && <ChangeLogger />}

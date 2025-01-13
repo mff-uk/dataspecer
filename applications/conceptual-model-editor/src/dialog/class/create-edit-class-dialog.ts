@@ -48,11 +48,11 @@ export const createEditClassDialog = (
   onConfirm: (state: EditClassDialogState) => void | null,
 ): DialogWrapper<EditClassDialogState> => {
   return {
-    label: "create-class-dialog.label",
+    label: "dialog.class.label-edit",
     component: EditClassDialog,
     state,
-    confirmLabel: "create-class-dialog.btn-ok",
-    cancelLabel: "create-class-dialog.btn-cancel",
+    confirmLabel: "dialog.class.ok-edit",
+    cancelLabel: "dialog.class.cancel",
     validate: () => true,
     onConfirm,
     onClose: null,

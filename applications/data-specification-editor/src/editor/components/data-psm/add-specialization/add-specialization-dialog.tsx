@@ -1,11 +1,12 @@
 import { isSemanticModelClass, SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
+import { StoreContext, useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
 import { Alert, Box, Button, DialogActions, DialogContent, DialogTitle, ListItem } from "@mui/material";
 import React, { memo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { dialog, useDialog } from "../../../dialog";
 import { useAsyncMemo } from "../../../hooks/use-async-memo";
 import { useDataPsmAndInterpretedPim } from "../../../hooks/use-data-psm-and-interpreted-pim";
+import { useNewFederatedObservableStoreFromSemanticEntities } from "../../../hooks/use-new-federated-observable-store-from-semantic-entities";
 import { AddSpecialization } from "../../../operations/add-specialization";
 import { isAncestorOf } from "../../../utils/is-ancestor-of";
 import { ConfigurationContext } from "../../App";
@@ -64,6 +65,8 @@ export const AddSpecializationDialog = dialog<{
         close();
     }, [fullInheritance, dataPsmClassIri, wrappedOrIri, operationContext, store, close]);
 
+    const newStore = useNewFederatedObservableStoreFromSemanticEntities(fullInheritance);
+
     return <>
         <DialogTitle>
             {t("add specialization.title")}
@@ -86,6 +89,8 @@ export const AddSpecializationDialog = dialog<{
         <DialogActions>
             <Button onClick={close}>{t("cancel")}</Button>
         </DialogActions>
-        <PimClassDetail.Component />
+        <StoreContext.Provider value={newStore}>
+            <PimClassDetail.Component />
+        </StoreContext.Provider>
     </>
 }));

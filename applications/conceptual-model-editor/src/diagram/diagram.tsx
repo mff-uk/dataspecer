@@ -1,10 +1,10 @@
 import {
-  type Node,
-  ReactFlow,
-  Controls,
-  MiniMap,
   Background,
   BackgroundVariant,
+  Controls,
+  MiniMap,
+  type Node,
+  ReactFlow,
   ReactFlowProvider,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
@@ -18,12 +18,12 @@ import { ProfileEdgeToolbar } from "./edge/class-profile-edge-toolbar";
 import { GeneralizationEdgeToolbar } from "./edge/generalization-edge-toolbar";
 import { PropertyEdgeToolbar } from "./edge/property-edge-toolbar";
 
-import { useDiagramController, DiagramContext } from "./diagram-controller";
+import { DiagramContext, useDiagramController } from "./diagram-controller";
 import type { UseDiagramType } from "./diagram-hook";
 
 import { configuration } from "../application/configuration";
 import { AlignmentComponent } from "./features/alignment-viewportal";
-import { EdgeType, type Node as ApiNode } from "./diagram-api";
+import { type Node as ApiNode, EdgeType } from "./diagram-api";
 import { ClassProfileEdge, ClassProfileEdgeName } from "./edge/class-profile-edge";
 import { GeneralizationEdge, GeneralizationEdgeName } from "./edge/generalization-edge";
 import { CanvasToolbarGeneral } from "./canvas/canvas-toolbar-general";

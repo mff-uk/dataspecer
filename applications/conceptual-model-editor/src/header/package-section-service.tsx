@@ -17,63 +17,63 @@ export interface PackageSectionServiceType {
 }
 
 export const usePackageSectionService = (): PackageSectionServiceType => {
-    const actions = useActions();
-    const { updateSemanticModelPackageModels } = useBackendConnection();
-    const { models, visualModels, aggregatorView } = useModelGraphContext();
+  const actions = useActions();
+  const { updateSemanticModelPackageModels } = useBackendConnection();
+  const { models, visualModels, aggregatorView } = useModelGraphContext();
 
-    const { currentPackage, currentPackageIdentifier } = usePackageService();
-    const options = useOptions();
-    const notifications = useNotificationServiceWriter();
+  const { currentPackage, currentPackageIdentifier } = usePackageService();
+  const options = useOptions();
+  const notifications = useNotificationServiceWriter();
 
-    const save = async () => {
-        if (currentPackageIdentifier === null) {
-            return;
-        }
-        const result = await updateSemanticModelPackageModels(currentPackageIdentifier, [...models.values()], [...visualModels.values()]);
-        const svg = await actions.diagram?.actions().renderToSvgString();
-        const activeVisualModel = aggregatorView.getActiveVisualModel();
+  const save = async () => {
+    if (currentPackageIdentifier === null) {
+      return;
+    }
+    const result = await updateSemanticModelPackageModels(currentPackageIdentifier, [...models.values()], [...visualModels.values()]);
+    const svg = await actions.diagram?.actions().renderToSvgString();
+    const activeVisualModel = aggregatorView.getActiveVisualModel();
 
-        if (activeVisualModel !== null && svg !== undefined && svg !== null) {
-            // Remove header "data:image/svg+xml;charset=utf-8,"
-            const rawSvg = decodeURIComponent(svg.split(",")[1] ?? "");
-            const iri = encodeURIComponent(activeVisualModel.getIdentifier());
-            await fetch((import.meta.env.VITE_PUBLIC_APP_BACKEND ?? "") + "/resources/blob?iri=" + iri + "&name=svg", {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ svg: rawSvg }),
-            });
-        }
+    if (activeVisualModel !== null && svg !== undefined && svg !== null) {
+      // Remove header "data:image/svg+xml;charset=utf-8,"
+      const rawSvg = decodeURIComponent(svg.split(",")[1] ?? "");
+      const iri = encodeURIComponent(activeVisualModel.getIdentifier());
+      await fetch((import.meta.env.VITE_PUBLIC_APP_BACKEND ?? "") + "/resources/blob?iri=" + iri + "&name=svg", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ svg: rawSvg }),
+      });
+    }
 
-        if (result) {
-            notifications.success("Package has been saved.");
-        } else {
-            notifications.success("Can't save the package!");
-        }
-    };
+    if (result) {
+      notifications.success("Package has been saved.");
+    } else {
+      notifications.success("Can't save the package!");
+    }
+  };
 
-    const handleSavePackageAndLeave = async () => {
-        await save();
-        if (!MGR_REDIRECT_PATH) {
-            console.error("manager path not set", MGR_REDIRECT_PATH);
-            return;
-        }
-        const a = document.createElement("a");
-        a.setAttribute("href", MGR_REDIRECT_PATH);
-        a.click();
-    };
+  const handleSavePackageAndLeave = async () => {
+    await save();
+    if (!MGR_REDIRECT_PATH) {
+      console.error("manager path not set", MGR_REDIRECT_PATH);
+      return;
+    }
+    const a = document.createElement("a");
+    a.setAttribute("href", MGR_REDIRECT_PATH);
+    a.click();
+  };
 
-    const packageLabel = selectPackageName(currentPackage, options.language);
+  const packageLabel = selectPackageName(currentPackage, options.language);
 
-    return {
-        packageHasIdentifier: currentPackageIdentifier !== null,
-        packageLabel,
-        save,
-        saveAndClose: handleSavePackageAndLeave,
-    };
+  return {
+    packageHasIdentifier: currentPackageIdentifier !== null,
+    packageLabel,
+    save,
+    saveAndClose: handleSavePackageAndLeave,
+  };
 };
 
 const selectPackageName = (currentPackage: Package | null, language: string): string | null => {
-    return getLocalizedStringFromLanguageString(currentPackage?.userMetadata?.label ?? null, language);
+  return getLocalizedStringFromLanguageString(currentPackage?.userMetadata?.label ?? null, language);
 };

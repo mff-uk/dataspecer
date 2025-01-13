@@ -1,19 +1,19 @@
+import { BIKESHED, BikeshedAdapterArtefactContext } from "@dataspecer/bikeshed";
+import { assertFailed, assertNot } from "@dataspecer/core/core";
 import {
   DataSpecification,
   DataSpecificationArtefact,
   DataSpecificationSchema,
 } from "@dataspecer/core/data-specification/model";
-import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
 import { ArtefactGenerator, ArtefactGeneratorContext } from "@dataspecer/core/generator";
-import { writeXmlSchema } from "./xml-schema-writer";
-import { structureModelToXmlSchema } from "./xml-schema-model-adapter";
-import { assertFailed, assertNot } from "@dataspecer/core/core";
-import { defaultStructureTransformations, structureModelDematerialize, transformStructureModel } from "@dataspecer/core/structure-model/transformation";
-import { BIKESHED, BikeshedAdapterArtefactContext } from "@dataspecer/bikeshed";
-import { XML_SCHEMA } from "./xml-schema-vocabulary";
-import { createBikeshedSchemaXml } from "./xml-schema-to-bikeshed";
-import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties"
+import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
+import { defaultStructureTransformations, structureModelTransformCodelists, transformStructureModel } from "@dataspecer/core/structure-model/transformation";
+import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties";
 import { generateDocumentation } from "./xml-schema-documentation";
+import { structureModelToXmlSchema } from "./xml-schema-model-adapter";
+import { createBikeshedSchemaXml } from "./xml-schema-to-bikeshed";
+import { XML_SCHEMA } from "./xml-schema-vocabulary";
+import { writeXmlSchema } from "./xml-schema-writer";
 
 export const NEW_DOC_GENERATOR = "https://schemas.dataspecer.com/generator/template-artifact";
 
@@ -56,9 +56,9 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
     );
 
     const transformations = defaultStructureTransformations.filter(
-      transformation =>
+      transformation => true
         //transformation !== structureModelFlattenInheritance &&
-        transformation !== structureModelDematerialize
+        //transformation !== structureModelDematerialize
     );
     model = transformStructureModel(
       conceptualModel,
@@ -67,6 +67,8 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
       null,
       transformations
     );
+
+    model = structureModelTransformCodelists(model);
 
     const xmlModel = await structureModelAddXmlProperties(
       model, context.reader

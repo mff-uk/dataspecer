@@ -41,8 +41,6 @@ export class OpenapiGenerator implements ArtefactGenerator {
         // Transformations help us to add additional information to the structure model from the conceptual model
         // and simplify the structure model for the generator.
         structureModel = transformStructureModel(conceptualModel, structureModel);
-        console.log(structureModel);
-        console.log(conceptualModel);
         // Create the output stream for the artefact
         const stream = output.writePath(artefact.outputPath!);
 

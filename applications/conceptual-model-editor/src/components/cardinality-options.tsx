@@ -6,25 +6,25 @@ import { SemanticModelRelationshipEndUsage } from "@dataspecer/core-v2/semantic-
 const cardinalityOptionToCardinalityMap: {
     [K in CardinalityOptionType]: [number, number | null] | undefined;
 } = {
-    unset: undefined,
-    "0x": [0, null],
-    "01": [0, 1],
-    "11": [1, 1],
-    "1x": [1, null],
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore this really happens, cardinalities like this come from sgov
-    "xx": [null, null],
+  unset: undefined,
+  "0x": [0, null],
+  "01": [0, 1],
+  "11": [1, 1],
+  "1x": [1, null],
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore this really happens, cardinalities like this come from sgov
+  "xx": [null, null],
 };
 
 const cardinalityOptionToStringMap: {
     [K in CardinalityOptionType]: string;
 } = {
-    unset: "unset",
-    "0x": "0..*",
-    "01": "0..1",
-    "11": "1..1",
-    "1x": "1..*",
-    xx: "*..*",
+  unset: "unset",
+  "0x": "0..*",
+  "01": "0..1",
+  "11": "1..1",
+  "1x": "1..*",
+  xx: "*..*",
 };
 
 const CardinalityOptionElement = (props: {
@@ -34,25 +34,25 @@ const CardinalityOptionElement = (props: {
     disabled?: boolean;
     onSelected: () => void;
 }) => {
-    const { group, value, checked, disabled, onSelected } = props;
-    const optionId = group + value;
-    const displayName = cardinalityOptionToStringMap[value];
-    return (
-        <div className="mr-3">
-            <input
-                id={optionId}
-                disabled={disabled}
-                type="radio"
-                value={value}
-                name={props.group}
-                onChange={onSelected}
-                checked={checked}
-            />
-            <label className="ml-1 font-mono" htmlFor={props.group + value}>
-                {displayName}
-            </label>
-        </div>
-    );
+  const { group, value, checked, disabled, onSelected } = props;
+  const optionId = group + value;
+  const displayName = cardinalityOptionToStringMap[value];
+  return (
+    <div className="mr-3">
+      <input
+        id={optionId}
+        disabled={disabled}
+        type="radio"
+        value={value}
+        name={props.group}
+        onChange={onSelected}
+        checked={checked}
+      />
+      <label className="ml-1 font-mono" htmlFor={props.group + value}>
+        {displayName}
+      </label>
+    </div>
+  );
 };
 
 type CardinalityOptionType = "unset" | "0x" | "01" | "11" | "1x" | "xx";
@@ -65,57 +65,56 @@ export const CardinalityOptions = (props: {
     onChange?: () => void;
     withOverride?: WithOverrideHandlerType;
 }) => {
-    const { group, defaultCard, disabled, onChange, withOverride } = props;
-    const defaultCardinality = semanticCardinalityToOption(defaultCard ?? null);
+  const { group, defaultCard, disabled, onChange, withOverride } = props;
+  const defaultCardinality = semanticCardinalityToOption(defaultCard ?? null);
 
-    const cardinalitySelected = (value: CardinalityOptionType) => {
-        // @ts-ignore We need to add one version for a profile and one for relationship.
-        props.setCardinality((prev) => ({ ...prev, cardinality: cardinalityOptionToCardinalityMap[value] as any }));
-    };
+  const cardinalitySelected = (value: CardinalityOptionType) => {
+    props.setCardinality((prev) => ({ ...prev, cardinality: cardinalityOptionToCardinalityMap[value] as any }));
+  };
 
-    return (
-        <div className="flex flex-row">
-            <fieldset id={props.group} className="flex flex-grow flex-row">
-                {(["unset", "0x", "01", "11", "1x"] as CardinalityOptionType[]).map((k) => (
-                    <CardinalityOptionElement
-                        key={k + group}
-                        group={group}
-                        checked={defaultCardinality == k}
-                        disabled={disabled}
-                        value={k}
-                        onSelected={() => {
-                            cardinalitySelected(k);
-                            onChange?.();
-                        }}
-                    />
-                ))}
-            </fieldset>
-            {withOverride && (
-                <OverrideFieldCheckbox
-                    forElement={group + "override"}
-                    onChecked={withOverride.callback}
-                    defaultChecked={withOverride.defaultValue}
-                />
-            )}
-        </div>
-    );
+  return (
+    <div className="flex flex-row">
+      <fieldset id={props.group} className="flex flex-grow flex-row">
+        {(["unset", "0x", "01", "11", "1x"] as CardinalityOptionType[]).map((k) => (
+          <CardinalityOptionElement
+            key={k + group}
+            group={group}
+            checked={defaultCardinality === k}
+            disabled={disabled}
+            value={k}
+            onSelected={() => {
+              cardinalitySelected(k);
+              onChange?.();
+            }}
+          />
+        ))}
+      </fieldset>
+      {withOverride && (
+        <OverrideFieldCheckbox
+          forElement={group + "override"}
+          onChecked={withOverride.callback}
+          defaultChecked={withOverride.defaultValue}
+        />
+      )}
+    </div>
+  );
 };
 
-const semanticCardinalityToOption = (v: null | [number, number | null]): CardinalityOptionType => {
-    if (v == null) {
-        return "unset";
-    } else if (v[0] == 0 && v[1] == null) {
-        return "0x";
-    } else if (v[0] == 1 && v[1] == null) {
-        return "1x";
-    } else if (v[0] == 0 && v[1] == 1) {
-        return "01";
-    } else if (v[0] == 1 && v[1] == 1) {
-        return "11";
-    } else if (v[0] == null && v[1] == null) {
-        return "xx";
-    } else {
-        alert("unknown cardinality option for [" + v[0].toString() + "," + (v[1]?.toString() ?? ""));
-        return "unset";
-    }
+const semanticCardinalityToOption = (value: null | [number, number | null]): CardinalityOptionType => {
+  if (value === null) {
+    return "unset";
+  } else if (value[0] === 0 && value[1] === null) {
+    return "0x";
+  } else if (value[0] === 1 && value[1] === null) {
+    return "1x";
+  } else if (value[0] === 0 && value[1] === 1) {
+    return "01";
+  } else if (value[0] === 1 && value[1] === 1) {
+    return "11";
+  } else if (value[0] === null && value[1] === null) {
+    return "xx";
+  } else {
+    console.error("unknown cardinality option for [" + value[0].toString() + "," + (value[1]?.toString() ?? ""));
+    return "unset";
+  }
 };

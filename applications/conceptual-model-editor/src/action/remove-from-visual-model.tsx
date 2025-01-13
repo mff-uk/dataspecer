@@ -1,22 +1,19 @@
 import {
-  isVisualGroup,
+  type VisualEntity,
+  type VisualModel,
+  WritableVisualModel,
   isVisualNode,
   isVisualProfileRelationship,
   isVisualRelationship,
-  WritableVisualModel,
-  type VisualEntity,
-  type VisualModel,
 } from "@dataspecer/core-v2/visual-model";
 
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { removePartOfGroupContentAction } from "./remove-part-of-group-content";
-
 
 /**
  * Remove entity and related entities from visual model.
  */
 export function removeFromVisualModelAction(
-  notifications: UseNotificationServiceWriterType,
+  _notifications: UseNotificationServiceWriterType,
   visualModel: WritableVisualModel,
   identifiers: string[],
 ) {

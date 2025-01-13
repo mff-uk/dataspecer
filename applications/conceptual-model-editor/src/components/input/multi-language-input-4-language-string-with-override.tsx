@@ -14,29 +14,29 @@ export const MultiLanguageInputForLanguageStringWithOverride = (props: {
     withOverride?: WithOverrideHandlerType;
     style?: string;
 }) => {
-    const { forElement, ls, setLs, disabled, inputType, defaultLang, onChange, style, withOverride } = props;
+  const { forElement, ls, setLs, disabled, inputType, defaultLang, onChange, style, withOverride } = props;
 
-    return (
-        <div className="flex flex-col md:flex-row">
-            <div className={`flex-grow ${style ?? ""}`}>
-                <MultiLanguageInputForLanguageString
-                    ls={ls}
-                    setLs={setLs}
-                    defaultLang={defaultLang}
-                    inputType={inputType}
-                    disabled={disabled}
-                    onChange={onChange}
-                />
-            </div>
-            {withOverride && (
-                <div className="mt-2 md:my-auto md:ml-2 md:mt-0">
-                    <OverrideFieldCheckbox
-                        forElement={forElement}
-                        onChecked={withOverride.callback}
-                        defaultChecked={withOverride.defaultValue}
-                    />
-                </div>
-            )}
+  return (
+    <div className="flex flex-col md:flex-row">
+      <div className={`flex-grow ${style ?? ""}`}>
+        <MultiLanguageInputForLanguageString
+          ls={ls}
+          setLs={setLs}
+          defaultLang={defaultLang}
+          inputType={inputType}
+          disabled={disabled}
+          onChange={onChange}
+        />
+      </div>
+      {withOverride && (
+        <div className="mt-2 md:my-auto md:ml-2 md:mt-0">
+          <OverrideFieldCheckbox
+            forElement={forElement}
+            onChecked={withOverride.callback}
+            defaultChecked={withOverride.defaultValue}
+          />
         </div>
-    );
+      )}
+    </div>
+  );
 };

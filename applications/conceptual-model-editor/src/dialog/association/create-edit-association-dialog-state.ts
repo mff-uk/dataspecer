@@ -66,11 +66,11 @@ export const createEditAssociationDialog = (
   onConfirm: (state: EditAssociationDialogState) => void,
 ): DialogWrapper<EditAssociationDialogState> => {
   return {
-    label: "edit-association-dialog.label",
+    label: "dialog.association.label-edit",
     component: EditAssociationDialog,
     state,
-    confirmLabel: "modify-dialog.btn-ok",
-    cancelLabel: "modify-dialog.btn-close",
+    confirmLabel: "dialog.association.ok-edit",
+    cancelLabel: "dialog.association.cancel",
     validate: () => true,
     onConfirm: onConfirm,
     onClose: null,

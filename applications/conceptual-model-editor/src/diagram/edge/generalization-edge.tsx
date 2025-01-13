@@ -1,10 +1,10 @@
 import React, { useContext } from "react";
 import {
   BaseEdge,
-  EdgeLabelRenderer,
-  useInternalNode,
-  type EdgeProps,
   type Edge,
+  EdgeLabelRenderer,
+  type EdgeProps,
+  useInternalNode,
   useReactFlow,
 } from "@xyflow/react";
 

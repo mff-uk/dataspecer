@@ -1,7 +1,7 @@
 // @ts-ignore
 import { Entity, EntityModel } from "@dataspecer/core-v2";
 // @ts-ignore
-import { ExtendedSemanticModelClass, ExtendedSemanticModelRelationship, isSemanticModelAttribute, isSemanticModelClass, isSemanticModelRelationship, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { ExtendedSemanticModelClass, ExtendedSemanticModelRelationship, isSemanticModelAttribute, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { CoreResourceReader } from "../../core";
 import { OFN } from "../../well-known";
 import {
@@ -29,6 +29,12 @@ class ConceptualModelAdapter {
     for (const entity of Object.keys(pimSchema.getEntities())) {
       await this.loadPimPart(entity);
     }
+    for (const entityId of Object.keys(pimSchema.getEntities())) {
+      const entity = await this.reader.readResource(entityId) as unknown as Entity;
+      if (isSemanticModelGeneralization(entity)) {
+        await this.loadGeneralization(entity);
+      }
+    }
     result.classes = { ...this.classes };
     return result;
   }
@@ -50,8 +56,7 @@ class ConceptualModelAdapter {
       await this.loadPimAttribute(part as ExtendedSemanticModelRelationship);
     } else if (isSemanticModelRelationship(part)) {
       await this.loadPimAssociation(part as ExtendedSemanticModelRelationship);
-    }
-    if (isSemanticModelClass(part)) {
+    } else if (isSemanticModelClass(part)) {
       this.loadPimClass(part as ExtendedSemanticModelClass);
     }
     // if (!isKnown) {
@@ -66,6 +71,14 @@ class ConceptualModelAdapter {
 
     this.createAssociationEnd(leftClass, rightClass, associationData, 1);
     this.createAssociationEnd(rightClass, leftClass, associationData, 0, true);
+  }
+
+  private async loadGeneralization(generalization: SemanticModelGeneralization) {
+    const child = this.classes[generalization.child];
+    const parent = this.classes[generalization.parent];
+    if (child && parent) {
+      child.extends.push(parent);
+    }
   }
 
   private createAssociationEnd(

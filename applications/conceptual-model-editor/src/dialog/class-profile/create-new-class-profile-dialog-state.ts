@@ -1,16 +1,16 @@
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
-import { isSemanticModelClass, SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelClassUsage, SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { SemanticModelClass, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelClassUsage, isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { EditClassProfileDialogState } from "./edit-class-profile-dialog-controller";
-import { EntityRepresentative, representClasses, representClassProfiles } from "../utilities/dialog-utilities";
+import { EntityRepresentative, representClassProfiles, representClasses } from "../utilities/dialog-utilities";
 import { DialogWrapper } from "../dialog-api";
 import { EditClassProfileDialog } from "./edit-class-profile-dialog";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
-import { createEntityProfileStateForNew } from "../utilities/entity-profile-utilities";
-import { CmeModel } from "../../cme-model";
+import { CmeModel } from "../../dataspecer/cme-model";
+import { createEntityProfileStateForNewEntityProfile, createEntityProfileStateForNewProfileOfProfile } from "../utilities/entity-profile-utilities";
 
 export function createNewProfileClassDialogState(
   classesContext: ClassesContextType,
@@ -46,7 +46,7 @@ function createForSemanticClass(
   profiles: EntityRepresentative[],
   entity: SemanticModelClass,
 ) {
-  const entityProfileState = createEntityProfileStateForNew(
+  const entityProfileState = createEntityProfileStateForNewEntityProfile(
     language, vocabularies, profiles, entity.id);
 
   return {
@@ -62,7 +62,7 @@ function createForSemanticClassProfile(
 ) {
   // We can get all the information from the profile representation.
 
-  const entityProfileState = createEntityProfileStateForNew(
+  const entityProfileState = createEntityProfileStateForNewProfileOfProfile(
     language, vocabularies, profiles, entity.id);
 
   return {
@@ -75,11 +75,11 @@ export const createNewClassProfileDialog = (
   onConfirm: (state: EditClassProfileDialogState) => void | null,
 ): DialogWrapper<EditClassProfileDialogState> => {
   return {
-    label: "create-class-profile-dialog.label",
+    label: "dialog.class-profile.label-create",
     component: EditClassProfileDialog,
     state,
-    confirmLabel: "create-profile-dialog.btn-ok",
-    cancelLabel: "create-profile-dialog.btn-close",
+    confirmLabel: "dialog.class-profile.ok-create",
+    cancelLabel: "dialog.class-profile.cancel",
     validate: () => true,
     onConfirm,
     onClose: null,

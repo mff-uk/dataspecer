@@ -6,7 +6,7 @@ import { ClassesContextType } from "../context/classes-context";
 import { ModelGraphContextType } from "../context/model-context";
 import { Options } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { modifyRelation, Operation } from "@dataspecer/core-v2/semantic-model/operations";
+import { Operation, modifyRelation } from "@dataspecer/core-v2/semantic-model/operations";
 import { EditAssociationDialogState } from "../dialog/association/edit-association-dialog-controller";
 import { SemanticModelRelationship, SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
 import { createEditAssociationDialog, createEditAssociationDialogState } from "../dialog/association/create-edit-association-dialog-state";

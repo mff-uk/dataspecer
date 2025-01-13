@@ -443,6 +443,11 @@ interface DiagramNodes {
    */
   onToggleAnchorForNode: (nodeIdentifier: string) => void;
 
+  /**
+   * Called when user starts creation of a new attribute for given node.
+   */
+  onAddAttributeForNode: (diagramNode: Node) => void;
+
 }
 
 /**

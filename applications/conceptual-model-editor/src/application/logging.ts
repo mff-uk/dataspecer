@@ -48,7 +48,6 @@ export const createLogger = (url: string | undefined): Logger => {
   return logger;
 };
 
-
 /**
  * We use this as a single place to log events. The idea is that we have
  * all logging coming through our interface.

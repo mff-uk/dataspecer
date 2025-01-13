@@ -1,7 +1,7 @@
 import { EntityModel } from "@dataspecer/core-v2";
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { type TranslationFunction } from "../application";
-import { CmeModel } from "../cme-model";
+import { CmeModel } from "../dataspecer/cme-model";
 
 /**
  * Return a label that should be used for a model.
@@ -147,5 +147,4 @@ export function sanitizeDuplicitiesInRepresentativeLabels<Type extends LabeledEn
 
   return result;
 }
-
 

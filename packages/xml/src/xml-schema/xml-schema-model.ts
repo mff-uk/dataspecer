@@ -1,6 +1,7 @@
 import { StructureModel } from "@dataspecer/core/structure-model/model/structure-model";
 import { QName } from "../conventions";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
+import { SemanticPathStep } from "@dataspecer/core/structure-model/model";
 
 /**
  * Represents an xs:schema definition.
@@ -28,24 +29,28 @@ export class XmlSchema {
   imports: XmlSchemaImportDeclaration[];
 
   /**
-   * The array of defined types.
+   * Location of XML file containing shared things for XML.
+   */
+  commonXmlSchemaLocation: string;
+
+  /**
+   * The array of defined types in the root of the schema.
+   * Such as xs:complexType and xs:simpleType.
    */
   types: XmlSchemaType[];
 
   /**
    * The array of defined groups.
+   * Such as xs:group.
+   * todo: There should be no reason to use groups.
    */
   groups: XmlSchemaGroupDefinition[];
 
   /**
    * The array of root elements.
+   * Such as xs:element.
    */
   elements: XmlSchemaElement[];
-
-  /**
-   * Location of XML file containing shared things for XML.
-   */
-  commonXmlSchemaLocation: string;
 }
 
 /**
@@ -346,6 +351,26 @@ export class XmlSchemaComplexContentElement extends XmlSchemaComplexContent {
    * The element represented by this item.
    */
   element: XmlSchemaElement;
+
+  /**
+   * Defines how the parent complex content is related to this element on a semantic level.
+   */
+  semanticRelationToParentElement: SemanticPathStep[] | null = null;
+
+  /**
+   * The effective cardinality of the element, taking into account the parent container.
+   *
+   * For documentation purposes only.
+   */
+  effectiveCardinalityMin: number;
+
+  /**
+   * The effective maximum cardinality of the element, taking into account the parent
+   * container.
+   *
+   * For documentation purposes only.
+   */
+  effectiveCardinalityMax: number | null;
 }
 
 /**

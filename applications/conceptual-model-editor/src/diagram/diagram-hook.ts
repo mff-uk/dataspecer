@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 
-import type { DiagramCallbacks, DiagramActions, Node, Position } from "./diagram-api";
+import type { DiagramCallbacks, DiagramActions } from "./diagram-api";
 
 export interface UseDiagramType {
 
@@ -118,6 +118,7 @@ const noOperationCallbacks: DiagramCallbacks = {
   onHideNode: noOperation,
   onDeleteNode: noOperation,
   onChangeNodesPositions: noOperation,
+  onAddAttributeForNode: noOperation,
   onShowEdgeDetail: noOperation,
   onEditEdge: noOperation,
   onCreateEdgeProfile: noOperation,

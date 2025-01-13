@@ -50,15 +50,15 @@ function updateSemanticClassProfile(
 
   const nextClass: SemanticModelClassProfileChange =  {};
   if (prevState.iri !== nextState.iri) {
-      nextClass.iri = nextState.iri;
+    nextClass.iri = nextState.iri;
   }
   if (prevState.name !== nextState.name
     || prevState.overrideName !== nextState.overrideName) {
-      nextClass.name = nextState.overrideName ? nextState.name : null;
+    nextClass.name = nextState.overrideName ? nextState.name : null;
   }
   if (prevState.description !== nextState.description
     || prevState.overrideDescription !== nextState.overrideDescription) {
-      nextClass.description = nextState.overrideDescription ? nextState.description : null;
+    nextClass.description = nextState.overrideDescription ? nextState.description : null;
   }
 
   operations.push(modifyClassUsage(entity.id, nextClass));

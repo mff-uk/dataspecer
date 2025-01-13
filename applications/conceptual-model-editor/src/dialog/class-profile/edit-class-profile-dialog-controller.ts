@@ -2,9 +2,10 @@ import { useMemo } from "react";
 
 import { type DialogProps } from "../dialog-api";
 import { configuration } from "../../application";
-import { createEntityProfileController, EntityProfileState, EntityProfileStateController } from "../utilities/entity-profile-utilities";
+import { EntityProfileState, EntityProfileStateController, createEntityProfileController } from "../utilities/entity-profile-utilities";
+import { EntityRepresentative } from "../utilities/dialog-utilities";
 
-export interface EditClassProfileDialogState extends EntityProfileState { }
+export type EditClassProfileDialogState = EntityProfileState<EntityRepresentative>;
 
 export interface EditClassProfileDialogController extends EntityProfileStateController {
 

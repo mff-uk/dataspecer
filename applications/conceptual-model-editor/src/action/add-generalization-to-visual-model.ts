@@ -1,5 +1,5 @@
 import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { isSemanticModelGeneralization, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelGeneralization, isSemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
 
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { ModelGraphContextType } from "../context/model-context";

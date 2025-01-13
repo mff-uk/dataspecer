@@ -1,5 +1,5 @@
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { isWritableVisualModel, VisualModel } from "@dataspecer/core-v2/visual-model";
+import { VisualModel, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { ClassesContextType } from "../context/classes-context";
@@ -11,9 +11,8 @@ import { createClass as createClassOperation, createGeneralization } from "@data
 import { addSemanticClassToVisualModelAction } from "./add-class-to-visual-model";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { EditClassDialogState } from "../dialog/class/edit-class-dialog-controller";
-import { createNewClassDialogState } from "../dialog/class/create-new-class-dialog";
+import { createNewClassDialog, createNewClassDialogState } from "../dialog/class/create-new-class-dialog";
 import { EntityModel } from "@dataspecer/core-v2";
-import { createEditClassDialog } from "../dialog/class/create-edit-class-dialog";
 
 const LOG = createLogger(import.meta.url);
 
@@ -112,5 +111,5 @@ function openCreateClassDialog(
 ) {
   const state = createNewClassDialogState(
     classes, graph, visualModel, options.language);
-  dialogs.openDialog(createEditClassDialog(state, onConfirm));
+  dialogs.openDialog(createNewClassDialog(state, onConfirm));
 }

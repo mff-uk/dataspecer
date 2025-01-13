@@ -4,77 +4,71 @@ import { ReactFlowInstance } from "@xyflow/react";
 import { EdgeType, NodeType } from "../../../../diagram-controller";
 
 export const getDefaultClassNamesForEntityCatalogRow = () => {
-    return "flex flex-row justify-between flex-wrap whitespace-nowrap hover:shadow highlight-catalog-transition-default";
-};
-
-export const getClassNamesForHiddenEntityCatalogRow = () => {
-    return getDefaultClassNamesForEntityCatalogRow() + " highlight-opposite";
+  return "flex flex-row justify-between flex-wrap whitespace-nowrap hover:shadow highlight-catalog-transition-default";
 };
 
 const getClassNamesBasedOnHighlighting = (
-    highlightLevels: Record<string, number>,
-    semanticEntityId: string
+  highlightLevels: Record<string, number>,
+  semanticEntityId: string
 ): string => {
-    let classNamesSuffix = "";
-    let classNames = getDefaultClassNamesForEntityCatalogRow();
+  let classNamesSuffix = "";
+  let classNames = getDefaultClassNamesForEntityCatalogRow();
 
-    if(Object.values(highlightLevels).length === 0) {
-        classNamesSuffix = "";
+  if(Object.values(highlightLevels).length === 0) {
+    classNamesSuffix = "";
+  }
+  else {
+    if(highlightLevels[semanticEntityId] === 0) {
+      classNamesSuffix = " catalog-highlight-main";
+    }
+    else if(highlightLevels[semanticEntityId] === 1) {
+      classNamesSuffix = " catalog-highlight-secondary";
     }
     else {
-        if(highlightLevels[semanticEntityId] === 0) {
-            classNamesSuffix = " catalog-highlight-main";
-        }
-        else if(highlightLevels[semanticEntityId] === 1) {
-            classNamesSuffix = " catalog-highlight-secondary";
-        }
-        else {
-            classNamesSuffix = " highlight-opposite";
-        }
+      classNamesSuffix = " highlight-opposite";
     }
+  }
 
-    classNames = classNames + classNamesSuffix;
-    return classNames;
+  classNames = classNames + classNamesSuffix;
+  return classNames;
 };
 
 export const useCatalogHighlightingController = () => {
-    const {
-        highlightLevels,
-        changeHighlight,
-        resetHighlight,
-        semanticToVisualIdentifierMap,
-        shouldShrinkCatalog,
-        isHighlightingChangeAllowed,
-        modelOfClassWhichStartedHighlighting,
-    } = useExploration();
+  const {
+    highlightLevels,
+    changeHighlight,
+    resetHighlight,
+    semanticToVisualIdentifierMap,
+    shouldShrinkCatalog,
+    isHighlightingChangeAllowed,
+  } = useExploration();
 
-    const highlightEntity = (
-        entityId: string,
-        reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
-        modelOfClassWhichStartedHighlighting: string | null
-    ) => {
-        changeHighlight(entityId, reactFlowInstance, false, modelOfClassWhichStartedHighlighting);
-    };
+  const highlightEntity = (
+    entityId: string,
+    reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
+    modelOfClassWhichStartedHighlighting: string | null
+  ) => {
+    changeHighlight(entityId, reactFlowInstance, false, modelOfClassWhichStartedHighlighting);
+  };
 
-    const getClassNames = useCallback((entityId: string) => {
-        entityId = semanticToVisualIdentifierMap[entityId];
-        return getClassNamesBasedOnHighlighting(highlightLevels, entityId);
-    }, [highlightLevels]);
+  const getClassNames = useCallback((semanticEntityId: string) => {
+    semanticEntityId = semanticToVisualIdentifierMap[semanticEntityId];
+    return getClassNamesBasedOnHighlighting(highlightLevels, semanticEntityId);
+  }, [highlightLevels]);
 
-    const isEntityHighlighted = useCallback((entityId: string) => {
-        return semanticToVisualIdentifierMap[entityId] != undefined;
-    }, [highlightLevels]);
+  const isEntityHighlighted = useCallback((semanticEntityId: string) => {
+    return semanticToVisualIdentifierMap[semanticEntityId] !== undefined;
+  }, [highlightLevels]);
 
-    const isAnyEntityHighlighted = useMemo(() => Object.values(highlightLevels).length, [highlightLevels]);
+  const isAnyEntityHighlighted = useMemo(() => Object.values(highlightLevels).length, [highlightLevels]);
 
-    return {
-        highlightEntity,
-        resetHighlight,
-        getClassNames,
-        shouldShrinkCatalog,
-        isEntityHighlighted,
-        isAnyEntityHighlighted,
-        isHighlightingChangeAllowed,
-        modelOfClassWhichStartedHighlighting,
-    };
+  return {
+    highlightEntity,
+    resetHighlight,
+    getClassNames,
+    shouldShrinkCatalog,
+    isEntityHighlighted,
+    isAnyEntityHighlighted,
+    isHighlightingChangeAllowed,
+  };
 };

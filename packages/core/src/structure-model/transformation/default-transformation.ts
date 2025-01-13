@@ -6,12 +6,13 @@ import { structureModelDematerialize } from "./dematerialize";
 import { propagateLabel } from "./propagate-label";
 import { DataSpecification } from "../../data-specification/model";
 import { addDataSpecification } from "./add-data-specification";
-import {propagateCimIri} from "./propagate-cim-iri";
-import {StructureModel} from "../model";
-import {propagateReverse} from "./propagate-reverse";
+import { propagateCimIri } from "./propagate-cim-iri";
+import { StructureModel } from "../model";
+import { propagateReverse } from "./propagate-reverse";
 import { propagateRegex } from "./propagate-regex";
 import { propagateExample } from "./propagate-example";
 import { propagateLanguageStringRequiredLanguages } from "./propagate-language-string-required-languages";
+import { addSemanticPaths } from "./add-semantic-paths";
 
 type ConceptualTransformation = (
   conceptualModel: ConceptualModel,
@@ -35,6 +36,7 @@ export const defaultConceptualTransformations: ConceptualTransformation[] = [
   propagateRegex,
   propagateExample,
   propagateLanguageStringRequiredLanguages,
+  addSemanticPaths,
 ];
 
 /**

@@ -12,59 +12,59 @@ export type ExportedConfigurationType = {
 };
 
 export const modelsToWorkspaceString = (
-    models: Map<string, EntityModel>,
-    visualModels: Map<string, VisualModel>,
-    timestamp: number,
-    activeView?: string
+  models: Map<string, EntityModel>,
+  visualModels: Map<string, VisualModel>,
+  timestamp: number,
+  activeView?: string
 ) => {
-    const modelDescriptors: object[] = [];
-    for (const [_, model] of models) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        modelDescriptors.push(model.serializeModel());  
-    }
-    for (const [_, visualModel] of visualModels) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        modelDescriptors.push(visualModel.serializeModel());  
-    }
+  const modelDescriptors: object[] = [];
+  for (const [_, model] of models) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    modelDescriptors.push(model.serializeModel());  
+  }
+  for (const [_, visualModel] of visualModels) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    modelDescriptors.push(visualModel.serializeModel());  
+  }
 
-    const ws = {
-        packageId: "",
-        modelDescriptors: modelDescriptors,
-        timestamp: timestamp,
-        activeView,
-    } satisfies ExportedConfigurationType;
+  const ws = {
+    packageId: "",
+    modelDescriptors: modelDescriptors,
+    timestamp: timestamp,
+    activeView,
+  } satisfies ExportedConfigurationType;
 
-    return JSON.stringify(ws);
+  return JSON.stringify(ws);
 };
 
 export const useLocalStorage = () => {
-    const WORKSPACE_STATE_KEY = "dscme-workspace-autosave-key";
-    const service = useMemo(() => new BackendPackageService("fail-if-needed", httpFetch), []);
+  const WORKSPACE_STATE_KEY = "dscme-workspace-autosave-key";
+  const service = useMemo(() => new BackendPackageService("fail-if-needed", httpFetch), []);
 
-    const saveWorkspaceState = (
-        models: Map<string, EntityModel>,
-        visualModels: Map<string, VisualModel>,
-        activeView?: string
-    ) => {
-        localStorage.setItem(
-            WORKSPACE_STATE_KEY,
-            modelsToWorkspaceString(models, visualModels, Date.now(), activeView)
-        );
-    };
+  const saveWorkspaceState = (
+    models: Map<string, EntityModel>,
+    visualModels: Map<string, VisualModel>,
+    activeView?: string
+  ) => {
+    localStorage.setItem(
+      WORKSPACE_STATE_KEY,
+      modelsToWorkspaceString(models, visualModels, Date.now(), activeView)
+    );
+  };
 
-    const getWorkspaceState = async () => {
-        const ws = localStorage.getItem(WORKSPACE_STATE_KEY);
-        if (!ws) {
-            return;
-        }
+  const getWorkspaceState = async () => {
+    const ws = localStorage.getItem(WORKSPACE_STATE_KEY);
+    if (!ws) {
+      return;
+    }
 
-        const { packageId, modelDescriptors, activeView } = JSON.parse(ws) as ExportedConfigurationType;
-        const [entityModels, visualModels] = await service.getModelsFromModelDescriptors(modelDescriptors);
+    const { packageId, modelDescriptors, activeView } = JSON.parse(ws) as ExportedConfigurationType;
+    const [entityModels, visualModels] = await service.getModelsFromModelDescriptors(modelDescriptors);
 
-        return { packageId, entityModels, visualModels, activeView };
-    };
+    return { packageId, entityModels, visualModels, activeView };
+  };
 
-    return { saveWorkspaceState, getWorkspaceState };
+  return { saveWorkspaceState, getWorkspaceState };
 };

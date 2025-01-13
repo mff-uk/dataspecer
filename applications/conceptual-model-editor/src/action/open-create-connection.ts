@@ -10,7 +10,7 @@ import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { Options } from "../application/options";
-import { ConnectionType, createConnectionDialog, CreateConnectionState } from "../dialog/obsolete/create-connection-dialog";
+import { ConnectionType, CreateConnectionState, createConnectionDialog } from "../dialog/obsolete/create-connection-dialog";
 import { AssociationConnectionType, GeneralizationConnectionType } from "../util/edge-connection";
 import { UseClassesContextType } from "../context/classes-context";
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";

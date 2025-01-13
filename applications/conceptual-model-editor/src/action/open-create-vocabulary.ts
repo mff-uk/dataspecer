@@ -56,23 +56,23 @@ export function createVocabulary(
   };
 
   switch (state.activeTab) {
-    case TabType.AddFromUrl:
-      addModelFromUrl(state.modelUrl, state.modelAlias);
-      break;
-    case TabType.AddPredefined:
-      for (const model of state.selectedModels) {
-        if (model.url !== undefined) {
-          addModelFromUrl(model.url, model.alias ?? model.label);
-        } else if (model.identifier === SGOV_IDENTIFIER) {
-          addSgov();
-        } else {
-          LOG.error("Invalid predefined model.", { model });
-        }
+  case TabType.AddFromUrl:
+    addModelFromUrl(state.modelUrl, state.modelAlias);
+    break;
+  case TabType.AddPredefined:
+    for (const model of state.selectedModels) {
+      if (model.url !== undefined) {
+        addModelFromUrl(model.url, model.alias ?? model.label);
+      } else if (model.identifier === SGOV_IDENTIFIER) {
+        addSgov();
+      } else {
+        LOG.error("Invalid predefined model.", { model });
       }
-      break;
-    case TabType.CreateLocal:
-      addLocalModel(state.modelAlias);
-      break;
+    }
+    break;
+  case TabType.CreateLocal:
+    addLocalModel(state.modelAlias);
+    break;
   }
 
 }

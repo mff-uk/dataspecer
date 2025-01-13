@@ -5,10 +5,10 @@ import {
   isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
+  SemanticModelRelationshipUsage,
   isSemanticModelAttributeUsage,
   isSemanticModelClassUsage,
   isSemanticModelRelationshipUsage,
-  SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { ModelGraphContextType } from "../context/model-context";
@@ -82,10 +82,10 @@ export function openModifyDialogAction(
       aggregate.rawEntity as SemanticModelRelationshipUsage);
     return;
   } else if (isSemanticModelGeneralization(entity)) {
-    notifications.error(`Generalization modification is not supported!`);
+    notifications.error("Generalization modification is not supported!");
     return;
   } else {
-    notifications.error(`Unknown entity type.`);
+    notifications.error("Unknown entity type.");
     return;
   }
 };

@@ -1,11 +1,12 @@
 import { isSemanticModelClass, SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { StoreContext, useFederatedObservableStore, useNewFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
+import { StoreContext, useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
 import { Alert, Box, Button, DialogActions, DialogContent, DialogTitle, Grid, ListItem, Typography } from "@mui/material";
 import React, { memo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { dialog, useDialog } from "../../../dialog";
 import { useAsyncMemo } from "../../../hooks/use-async-memo";
 import { useDataPsmAndInterpretedPim } from "../../../hooks/use-data-psm-and-interpreted-pim";
+import { useNewFederatedObservableStoreFromSemanticEntities } from "../../../hooks/use-new-federated-observable-store-from-semantic-entities";
 import { ReplaceAlongInheritance } from "../../../operations/replace-along-inheritance";
 import { isAncestorOf } from "../../../utils/is-ancestor-of";
 import { ConfigurationContext } from "../../App";
@@ -27,13 +28,14 @@ export const ReplaceAlongInheritanceDialog = dialog<{
     const {t} = useTranslation("psm");
 
     const store = useFederatedObservableStore();
-    const previewStore = useNewFederatedObservableStore();
 
     const {pimResource} = useDataPsmAndInterpretedPim(dataPsmClassIri);
     const cimIri = pimResource?.iri;
 
     const {operationContext, sourceSemanticModel} = React.useContext(ConfigurationContext);
     const [fullInheritance] = useAsyncMemo(async () => cimIri ? await sourceSemanticModel.getFullHierarchy(cimIri) : null, [cimIri, sourceSemanticModel]);
+
+    const previewStore = useNewFederatedObservableStoreFromSemanticEntities(fullInheritance);
 
     const PimClassDetail = useDialog(PimClassDetailDialog);
 

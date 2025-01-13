@@ -8,7 +8,7 @@ import { Options, createLogger } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { firstInMemorySemanticModel } from "../utilities/model";
 import { createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
-import { createEditAttributeDialog, createNewAttributeDialogState } from "../dialog/attribute/create-new-attribute-dialog-state";
+import { createNewAttributeDialog, createNewAttributeDialogState } from "../dialog/attribute/create-new-attribute-dialog-state";
 import { EditAttributeDialogState } from "../dialog/attribute/edit-attribute-dialog-controller";
 import { EntityModel } from "@dataspecer/core-v2";
 
@@ -34,7 +34,6 @@ export function openCreateAttributeDialogAction(
   }
 
   const onConfirm = (state: EditAttributeDialogState) => {
-    // Create attribute.
     createSemanticAttribute(notifications, graph.models, state);
   };
 
@@ -95,5 +94,5 @@ function openCreateAttributeDialog(
 ) {
   const state = createNewAttributeDialogState(
     classes, graph, visualModel, options.language);
-  dialogs.openDialog(createEditAttributeDialog(state, onConfirm));
+  dialogs.openDialog(createNewAttributeDialog(state, onConfirm));
 }

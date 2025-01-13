@@ -1,5 +1,5 @@
 import type React from "react";
-import { type DialogWrapper, type DialogProps } from "./dialog-api";
+import { type DialogProps, type DialogWrapper } from "./dialog-api";
 
 import { logger } from "../application";
 
