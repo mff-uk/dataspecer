@@ -55,8 +55,10 @@ import { GroupMenu } from "./node/group-menu";
 import { findTopLevelGroup } from "../action/utilities";
 import { GeneralCanvasMenuComponentProps } from "./canvas/canvas-toolbar-general";
 
+const UINITIALIZED_VALUE_GROUP_POSITION = 10000000;
+
 const getTopLeftPosition = (nodes: Node<any>[]) => {
-  const topLeft = {x: 10000000, y: 10000000};
+  const topLeft = {x: UINITIALIZED_VALUE_GROUP_POSITION, y: UINITIALIZED_VALUE_GROUP_POSITION};
   nodes.forEach(node => {
     if(node.position.x < topLeft.x) {
       topLeft.x = node.position.x;
@@ -101,8 +103,13 @@ function showGroupNode(groupNode: Node<any>, groups: Record<string, NodeIdentifi
   // because for example layouting was performed or group was dissolved,
   // therefore the old position is incorrect since only the position of the dissolved group was changed on dragging
   newGroupNode.position = groupNodePosition;
-  newGroupNode.width = botRightGroupNodePosition.x - groupNodePosition.x;
-  newGroupNode.height = botRightGroupNodePosition.y - groupNodePosition.y;
+  const width = botRightGroupNodePosition.x - groupNodePosition.x;
+  const height = botRightGroupNodePosition.y - groupNodePosition.y;
+  newGroupNode.style = {
+    ...newGroupNode.style,
+    width,
+    height,
+  };
   return newGroupNode;
 }
 
@@ -630,6 +637,7 @@ const createNodesChangeHandler = (
     const extractedDataFromChanges = extractDataFromChanges(changes, groups, nodeToGroupMapping, selectedNodesRef, nodes);
 
     updateChangesByGroupDragEvents(changes, nodes, groups, nodeToGroupMapping, nodesInGroupWhichAreNotPartOfDragging);
+    changes = [...new Set(changes)];
 
     const tmpResult = removeNotCompleteGroupUnselections(
       extractedDataFromChanges.nodeSelectChanges,
@@ -640,7 +648,7 @@ const createNodesChangeHandler = (
       isSelectingThroughCtrl,
       userSelectedNodesRef,
     );
-    changes = [...new Set(changes)];
+
     const nodesWhichWereActuallyNotUnselected = tmpResult.nodesWhichWereActuallyNotUnselected;
     extractedDataFromChanges.newlyUnselectedNodesBasedOnGroups = tmpResult.newlyUnselectedNodesBasedOnGroups;
 
@@ -1050,10 +1058,23 @@ const updateChangesByGroupDragEvents = (
             continue;
           }
 
-          const newPosition = {
+
+          let newPosition = {
             x: node.position.x + positionDifference.x,
             y: node.position.y + positionDifference.y,
           };
+          // Another specific case, because of having old state - the node wasn't initialized yet to correct value
+          if(node.position.x === UINITIALIZED_VALUE_GROUP_POSITION) {
+            if(groups[node.id] === undefined) {
+              console.warn("Node was supposed to be group but isn't");
+              continue;
+            }
+            const topLeft = getTopLeftPosition(groups[node.id].map(group => nodes.find(n => n.id === group.identifier)).filter(n => n !== undefined));
+            newPosition = topLeft;
+            newPosition.x += positionDifference.x;
+            newPosition.y += positionDifference.y;
+          }
+
           changes.push({
             id: node.id,
             type: "position",
@@ -1079,6 +1100,7 @@ const updateUserSelectedNodesBasedOnNodeChanges = (
   if(nodeSelectChanges.length === 0 && unselectChanges.length === 0) {
     return previouslyUserSelectedNodes;
   }
+
   let newUserSelectedNodes = previouslyUserSelectedNodes
     .filter(previouslySelectedNode => !unselectChanges.includes(previouslySelectedNode))
     .filter(previouslySelectedNode => !newlyUnselectedNodesBasedOnGroups.includes(previouslySelectedNode))
@@ -1135,7 +1157,9 @@ const updateNodesBasedOnNodeChanges = (
       if(groupNodeIndex === -1) {
         continue;
       }
-      updatedNodes[groupNodeIndex] = showGroupNode(updatedNodes[groupNodeIndex], groups, updatedNodes);
+
+      const createdGroupNode = showGroupNode(updatedNodes[groupNodeIndex], groups, updatedNodes);
+      updatedNodes[groupNodeIndex] = createdGroupNode;
     }
   }
 
@@ -1396,13 +1420,41 @@ const createActions = (
         const newGroupNodes: Node<any>[] = [];
         let newNodes = [...prevNodes];
         const nodeToGroupMapping = createNodeToGroupMapping({}, groups);
-        // We have to collect the group nodes separately, so we can refer to them later in method if we created more than 1
-        groups.forEach(({group, content}) => {
+        const nodeToGroupMappingCopy = {...nodeToGroupMapping};
+        // Not the most effective but there are only few groups so it doesn't matter
+        const groupIdentifiers = groups.map(group => group.group.identifier);
+        // We have to collect the group nodes separately and in the down to top order,
+        // so we can refer to them later in method if we created more than 1
+        const groupProcessingOrdering = [];
+        while(groupIdentifiers.length > 0) {
+          for(let i = groupIdentifiers.length - 1; i >= 0; i--) {
+            const groupIdentifier = groupIdentifiers[i];
+            if (nodeToGroupMappingCopy[groupIdentifier] === undefined) {
+              groupProcessingOrdering.push(groupIdentifier);
+              delete nodeToGroupMappingCopy[groupIdentifier];
+              for(const newTopLevelGroup of groupIdentifiers) {
+                // Checks if it is newTopLevelGroup
+                if(nodeToGroupMappingCopy[newTopLevelGroup] === groupIdentifier) {
+                  delete nodeToGroupMappingCopy[newTopLevelGroup];
+                }
+              }
+              groupIdentifiers.splice(i, 1);
+            }
+          }
+        }
+        groupProcessingOrdering.reverse();
+
+        groupProcessingOrdering.forEach(currGroup => {
+          const foundGroup = groups.find(({group}) => group.identifier === currGroup);
+          if(foundGroup === undefined) {
+            console.warn("Programmer error - missing group which should be there");
+            return;
+          }
+          const { group, content } = foundGroup;
           const isTopLevelGroup = nodeToGroupMapping[group.identifier] === undefined;
           const groupNode = createGroupNode(group.identifier, prevNodes.filter(node => content.includes(node.id)), isTopLevelGroup ? hideAddedTopLevelGroups : true);
-          newGroupNodes.push(groupNode);
+          newNodes.push(groupNode);
         });
-        newNodes = newGroupNodes.concat(newNodes);
 
         groups.forEach(({group, content}) => {
           for(const nodeInGroupIdentifier of content) {
@@ -1473,13 +1525,9 @@ const createActions = (
     setGroup(group, content) {
       console.log("Diagram.setGroup", { group, content });
 
-      // TODO RadStr: Check tommorrow - but I think that it can be implemented through the createGroups
       setGroups(prevGroups => {
-        const contentWithType = content.map(element => ({
-          identifier: element,
-          isGroup: isGroup(element, prevGroups),
-        }));
-        return {...prevGroups, [group.identifier]: contentWithType};
+        const createdGroups = createGroups(prevGroups, [{group, content}]);
+        return createdGroups;
       });
 
       setNodeToGroupMapping(prevMapping => {

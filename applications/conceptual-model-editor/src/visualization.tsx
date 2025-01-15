@@ -275,13 +275,13 @@ function onChangeVisualModel(
     // For now we ignore all other.
   }
 
-  const groupToSetContentWith = nextGroups.map(visualGroup => {
+  const groupsToSetContentWith = nextGroups.map(visualGroup => {
     return {
       group: createGroupNode(visualGroup),
       content: visualGroup.content,
     };
   });
-  void diagram.actions().setContent(nextNodes, nextEdges, groupToSetContentWith);
+  void diagram.actions().setContent(nextNodes, nextEdges, groupsToSetContentWith);
 }
 
 function createGroupNode(
