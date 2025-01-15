@@ -17,6 +17,7 @@ import { executeDataPsmDeleteContainer } from "./data-psm-delete-container-execu
 import { executeDataPsmDeleteExternalRoot } from "./data-psm-delete-external-root-executor";
 import { executeDataPsmDeleteInclude } from "./data-psm-delete-include-executor";
 import { executeDataPsmDeleteOr } from "./data-psm-delete-or-executor";
+import { executeDataPsmMoveProperty } from "./data-psm-move-property-executor";
 import { executeDataPsmReplaceAlongInheritance } from "./data-psm-replace-along-inheritance";
 import { executeDataPsmSetCardinality } from "./data-psm-set-cardinality-executor";
 import { executeDataPsmSetChoice } from "./data-psm-set-choice-executor";
@@ -114,6 +115,11 @@ export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.DataPsmDeleteOr.is,
     executeDataPsmDeleteOr,
     Operations.DataPsmDeleteOr.TYPE
+  ),
+  CoreOperationExecutor.create(
+    Operations.DataPsmMoveProperty.is,
+    executeDataPsmMoveProperty,
+    Operations.DataPsmMoveProperty.TYPE
   ),
   CoreOperationExecutor.create(
     Operations.DataPsmReplaceAlongInheritance.is,

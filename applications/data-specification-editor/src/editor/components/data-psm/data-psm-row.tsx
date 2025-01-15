@@ -119,16 +119,18 @@ export const DataPsmObjectType: React.FC<RowSlots & ObjectContext & {
     </MenuItem>
   </>] : [], [t, wrapWithOr, canBeWrappedInOR]);
 
+  const hiddenMenu = props.hiddenMenu ? [...thisHiddenMenu, ...props.hiddenMenu] : thisHiddenMenu;
+
   if (!resource || props.iri === null) {
     return <DataPsmUnknownItem {...props}/>
   } else if ( DataPsmClass.is(resource)) {
-    return <DataPsmClassItem {...typedProps} hiddenMenu={thisHiddenMenu} />;
+    return <DataPsmClassItem {...typedProps} hiddenMenu={hiddenMenu} />;
   } else if ( DataPsmOr.is(resource)) {
-    return <DataPsmOrItem {...typedProps} hiddenMenu={thisHiddenMenu} />;
+    return <DataPsmOrItem {...typedProps} hiddenMenu={hiddenMenu} />;
   } else if ( DataPsmClassReference.is(resource)) {
-    return <DataPsmReferenceItem {...typedProps} hiddenMenu={thisHiddenMenu} />;
+    return <DataPsmReferenceItem {...typedProps} hiddenMenu={hiddenMenu} />;
   } else if ( DataPsmExternalRoot.is(resource)) {
-    return <DataPsmExternalRootItem {...typedProps} hiddenMenu={thisHiddenMenu} />;
+    return <DataPsmExternalRootItem {...typedProps} hiddenMenu={hiddenMenu} />;
   } else {
     return <DataPsmUnknownItem {...typedProps}/>
   }

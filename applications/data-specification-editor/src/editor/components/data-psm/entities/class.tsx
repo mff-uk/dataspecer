@@ -24,6 +24,8 @@ import { ReplaceAlongInheritanceDialog } from "../replace-along-inheritance/repl
 import { Span, sxStyles } from "../styles";
 import { DataPsmClassSubtree } from "../subtrees/class-subtree";
 import { SearchDialog } from "../../cim-search/search-dialog";
+import { getCardinality } from "../common/cardinality";
+import Inventory2TwoToneIcon from '@mui/icons-material/Inventory2TwoTone';
 
 /**
  * Because classes and containers are so similar, they share this component to make implementation simpler.
@@ -85,9 +87,10 @@ export const DataPsmClassItem: React.FC<{
           }
         </>
     }
-    {type === "container" &&
+    {type === "container" && <>
       <Span sx={sxStyles.container}>{container.dataPsmContainerType}{" "}{t("container")}</Span>
-    }
+      {" " + getCardinality(container.dataPsmCardinality, [0, 1])}
+    </>}
   </>;
 
   const psmClassForSurroundings = (objectContext?.contextType === "association" && !pimClass) ? objectContext.parentDataPsmClassIri : dataPsmClass?.iri;
@@ -137,10 +140,10 @@ export const DataPsmClassItem: React.FC<{
       }}>
       {t("Add import")}
     </MenuItem>
-    <MenuItem onClick={() => { close(); addNonInterpretedAssociationClass(); }}>{t("Add non-interpreted class")}</MenuItem>
-    <MenuItem onClick={() => { close(); searchDialogToggle.open(); }}>{t("Add interpreted class")}</MenuItem>
-    <MenuItem onClick={() => { close(); addContainer("sequence"); }}>{t("Add xs:sequence container")}</MenuItem>
-    <MenuItem onClick={() => { close(); addContainer("choice"); }}>{t("Add xs:choice container")}</MenuItem>
+    <MenuItem onClick={() => { close(); addNonInterpretedAssociationClass(); }}>{t("add non-interpreted class")}</MenuItem>
+    <MenuItem onClick={() => { close(); searchDialogToggle.open(); }}>{t("add interpreted class")}</MenuItem>
+    <MenuItem onClick={() => { close(); addContainer("sequence"); }}>{t("add xs sequence container")}</MenuItem>
+    <MenuItem onClick={() => { close(); addContainer("choice"); }}>{t("add xs choice container")}</MenuItem>
     {/* <MenuItem onClick={() => { close(); addContainer("all"); }}>{t("Add xs:all container")}</MenuItem> */}
   </>, [t, dataPsmClass?.iri, ReplaceAlongHierarchy, AddSpecialization, include]);
 
@@ -154,11 +157,20 @@ export const DataPsmClassItem: React.FC<{
     <DataPsmBaseRow
       {...props}
       startRow={startRow}
-      subtree={<DataPsmClassSubtree {...props as ObjectContext} iri={props.iri} parentDataPsmClassIri={dataPsmClass?.iri} isOpen={collapseSubtree.isOpen} inheritanceOrTree={props.inheritanceOrTree ?? undefined} />}
+      subtree={<DataPsmClassSubtree
+        {...props as ObjectContext}
+        iri={props.iri}
+        parentDataPsmClassIri={dataPsmClass?.iri}
+        isOpen={collapseSubtree.isOpen}
+        inheritanceOrTree={props.inheritanceOrTree ?? undefined}
+        // @ts-ignore
+        parentContainerId={type === "container" ? objectContext.nearestContainerIri : (objectContext.parentDataPsmClassIri ?? null)}
+      />}
       collapseToggle={collapseSubtree}
       menu={menu}
       hiddenMenu={hiddenMenu}
       iris={iris}
+      icon={type === "container" ? <Inventory2TwoToneIcon style={{verticalAlign: "middle"}} /> : props.icon}
     />
 
     <AddSurroundings.Component dataPsmClassIri={props.iri} forPimClassIri={pimClassIdForSurroundings} />

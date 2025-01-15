@@ -1,5 +1,7 @@
 {
   "Add import": "Add import",
+  "add interpreted class": "Add interpreted class",
+  "add non-interpreted class": "Add non-interpreted class",
   "add specialization": {
     "help": "This dialog allows to add a specialization to a given class which extends the class with additional attributes and associations. The generated schemas then contain both the base class and the specialization in OR, so the resulting data can correspond to both the base class and the specialization.",
     "title": "Add specialization"
@@ -7,6 +9,8 @@
   "add to or dialog": {
     "title": "Add class to OR"
   },
+  "add xs choice container": "Add xs:choice container",
+  "add xs sequence container": "Add xs:sequence container",
   "backwards association": "backwards association",
   "button add": "add",
   "button add specialization": "Add specialization (using OR)",
@@ -14,8 +18,11 @@
   "button info": "detail",
   "button inline discard": "discard",
   "button inline save": "save",
+  "button move to parent": "Move to parent",
+  "button move under next sibling": "Move under next object",
   "button replace along inheritance": "Replace along inheritance (generalization and specialization)",
   "cancel": "cancel",
+  "container": "Container",
   "datatype": "datatype",
   "generalization": {
     "no-ancestors": "No ancestors",

@@ -1,9 +1,9 @@
 import { CoreExecutorResult, CoreResourceReader, CreateNewIdentifier } from "../../core";
-import { DataPsmAssociationEnd, DataPsmAttribute, DataPsmSchema } from "../model";
+import { DataPsmAssociationEnd, DataPsmAttribute, DataPsmContainer, DataPsmSchema } from "../model";
 import { DataPsmSetCardinality } from "../operation";
 import { DataPsmExecutorResultFactory } from "./data-psm-executor-utils";
 
-type CardinalityType = DataPsmSchema | DataPsmAttribute | DataPsmAssociationEnd;
+type CardinalityType = DataPsmSchema | DataPsmAttribute | DataPsmAssociationEnd | DataPsmContainer;
 
 export async function executeDataPsmSetCardinality(
   reader: CoreResourceReader,
@@ -11,8 +11,8 @@ export async function executeDataPsmSetCardinality(
   operation: DataPsmSetCardinality
 ): Promise<CoreExecutorResult> {
   const resource = (await reader.readResource(operation.entityId)) as CardinalityType;
-  if (!DataPsmSchema.is(resource) && !DataPsmAttribute.is(resource) && !DataPsmAssociationEnd.is(resource)) {
-    return DataPsmExecutorResultFactory.invalidType(resource, "data-psm schema, attribute or association end");
+  if (!DataPsmSchema.is(resource) && !DataPsmAttribute.is(resource) && !DataPsmAssociationEnd.is(resource) && !DataPsmContainer.is(resource)) {
+    return DataPsmExecutorResultFactory.invalidType(resource, "data-psm schema, attribute, container, or association end");
   }
 
   const modifiedEntity: CardinalityType = {

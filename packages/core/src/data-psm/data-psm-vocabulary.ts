@@ -97,6 +97,8 @@ export const DELETE_INCLUDE = PSM + "DeleteInclude";
 
 export const DELETE_OR = PSM + "DeleteOr";
 
+export const MOVE_PROPERTY = PSM + "MoveProperty";
+
 export const REPLACE_ALONG_INHERITANCE = PSM + "ReplaceAlongInheritance";
 
 export const SET_CARDINALITY = PSM + "SetCardinality";

@@ -40,6 +40,7 @@
     "title_other": "Odstranit {{count}} specifikací"
   },
   "detail": "Detail",
+  "edit": "Upravit",
   "error": "chyba",
   "generate artifacts": "Generovat artefakty",
   "generate zip file": "Generovat do .ZIP souboru",
@@ -87,6 +88,5 @@
   "set root element button": "Zvolit kořen",
   "tags": "Tagy",
   "title": "editor schémat",
-  "version": "Verze",
-  "edit": "Upravit"
+  "version": "Verze"
 }

@@ -1,5 +1,7 @@
 {
   "Add import": "Importovat obsah jiné třídy",
+  "add interpreted class": "Přidat interpretovanou třídu",
+  "add non-interpreted class": "Přidat neinterpretovanou třídu",
   "add specialization": {
     "help": "Umožňuje přidat dané třídě specializaci, která danou třídu rozšiřuje o další atributy a asociace. Vygenerovaná schémata pak obsahují jak základní třídu, tak i specializaci v ORu, tedy výsledná data mohou odpovídat základní třídě i specializaci.",
     "title": "Přidat specializaci"
@@ -7,6 +9,8 @@
   "add to or dialog": {
     "title": "Přidat třídu do ORu"
   },
+  "add xs choice container": "Přidat xs:choice kontejner",
+  "add xs sequence container": "Přidat xs:sequence kontejner",
   "backwards association": "zpětná asociace",
   "button add": "přidat",
   "button add specialization": "Přidat specializaci (přes OR)",
@@ -14,8 +18,11 @@
   "button info": "detail",
   "button inline discard": "zahodit",
   "button inline save": "uložit",
+  "button move to parent": "Přesunout pod rodiče",
+  "button move under next sibling": "Přesunout pod následující objekt",
   "button replace along inheritance": "Nahradit podél dědičnosti",
   "cancel": "zrušit",
+  "container": "kontejner",
   "datatype": "datový typ",
   "generalization": {
     "no-ancestors": "Žádní předchůdci",
