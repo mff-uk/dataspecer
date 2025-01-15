@@ -100,12 +100,18 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
                     return ["$type", value];
                 }
 
+                const nestedSchema = schema[key]["@schema"];
+
                 if (Array.isArray(value)) {
-                    return [key, value.map(item => this.updateLdkitProperties(item, schema))];
+                    if (nestedSchema) {
+                        return [key, value.map(item => this.updateLdkitProperties(item, nestedSchema))];
+                    }
+
+                    return [key, value];
                 }
 
-                if (typeof value === "object"  && !(value instanceof Date)) {
-                    return [key, this.updateLdkitProperties(value, schema)];
+                if (nestedSchema && !(value instanceof Date)) {
+                    return [key, this.updateLdkitProperties(value, nestedSchema)];
                 }
 
                 return [key, value];

@@ -45,12 +45,38 @@ const <%= it.exported_object_name %> = () => {
                     return;
                 }
 
-                setFormData(result.instance.raw);
+                setFormData(stringifyDates(result.instance.raw));
             }
         }
 
         fetchInstanceDetail();
     }, [isLoading, formData, searchParams]);
+
+    const stringifyDates = (formData: object) => {
+      const entries = Object.entries(formData)
+        .map(([key, value]) => {
+
+            if (Array.isArray(value)) {
+                const stringified = value.map(item => {
+                    return (typeof item === "object")
+                        ? stringifyDates(item)
+                        : item;
+                })
+
+                return [key, stringified];
+            }
+
+            if (typeof value === "object") {
+                return value instanceof Date
+                    ? [key, value.toISOString()]
+                    : [key, stringifyDates(value)];
+            }
+
+          return [key, value];
+        });
+
+        return Object.fromEntries(entries);
+    }
 
     const submitEditedInstance = async (data: any, event: React.FormEvent<any>) => {
         event.preventDefault();
