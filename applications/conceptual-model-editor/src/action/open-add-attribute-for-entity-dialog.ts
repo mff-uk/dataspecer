@@ -5,8 +5,6 @@ import { ClassesContextType } from "../context/classes-context";
 import { ModelGraphContextType } from "../context/model-context";
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { findSourceModelOfEntity } from "../service/model-service";
-import { isInMemorySemanticModel } from "../utilities/model";
 import { isSemanticModelClass, isSemanticModelRelationship, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticModelRelationshipEndUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { EditAttributeDialogState } from "../dialog/attribute/edit-attribute-dialog-controller";
@@ -40,18 +38,13 @@ export function openCreateAttributeForEntityDialogAction(
     notifications.error(`Can not find the entity with identifier '${identifier}'.`);
     return;
   }
-  const model = findSourceModelOfEntity(entity.id, graph.models);
-  if (model === null || !isInMemorySemanticModel(model)) {
-    notifications.error("Model is not writable, can not modify entity.");
-    return;
-  }
 
   if (isSemanticModelClass(entity)) {
     const onConfirm = (state: EditAttributeDialogState) => {
       createSemanticAttribute(notifications, graph.models, state);
     };
     const state = createAddAttributeDialogState(
-      classes, graph, visualModel, options.language, model, entity);
+      classes, graph, visualModel, options.language, entity);
     dialogs.openDialog(createAddAttributeDialog(state, onConfirm));
   } else if (isSemanticModelClassUsage(entity)) {
     const onConfirm = (state: EditAttributeProfileDialogState) => {
@@ -67,7 +60,7 @@ export function openCreateAttributeForEntityDialogAction(
       }
     };
     const state = createAddAttributeProfileDialogState(
-      classes, graph, visualModel, options.language, model, entity);
+      classes, graph, visualModel, options.language, entity);
     dialogs.openDialog(createAddAttributeProfileDialog(state, onConfirm));
   } else {
     notifications.error("Unknown entity type.");

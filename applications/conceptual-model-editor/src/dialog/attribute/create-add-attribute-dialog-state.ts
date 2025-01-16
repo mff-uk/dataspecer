@@ -2,7 +2,7 @@ import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { EditAttributeDialogState } from "./edit-attribute-dialog-controller";
-import { isRepresentingAttribute, representClasses, representDataTypes, representOwlThing, representRelationships, selectRdfLiteral } from "../utilities/dialog-utilities";
+import { isRepresentingAttribute, representClasses, representDataTypes, representOwlThing, representRelationships, selectDefaultModelForAttribute, selectRdfLiteral } from "../utilities/dialog-utilities";
 import { configuration } from "../../application";
 import { createEntityStateForNew } from "../utilities/entity-utilities";
 import { createSpecializationStateForNew } from "../utilities/specialization-utilities";
@@ -11,7 +11,9 @@ import { DialogWrapper } from "../dialog-api";
 import { EditAttributeDialog } from "./edit-attribute-dialog";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { EntityDsIdentifier, ModelDsIdentifier } from "../../dataspecer/entity-model";
+import { CmeModel } from "../../dataspecer/cme-model";
+import { EntityModel } from "@dataspecer/core-v2";
 
 /**
  * Creates a dialog to add an attribute to an existing entity.
@@ -22,7 +24,6 @@ export function createAddAttributeDialogState(
   graphContext: ModelGraphContextType,
   visualModel: VisualModel | null,
   language: string,
-  _model: InMemorySemanticModel,
   entity: SemanticModelClass,
 ): EditAttributeDialogState {
 
@@ -62,6 +63,8 @@ export function createAddAttributeDialogState(
     ...entityState,
     ...specializationState,
     ...relationshipState,
+    model : selectDefaultModelForAttribute(
+      entity.id, models, entityState.availableModels),
     domain,
   };
 }

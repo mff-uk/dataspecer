@@ -8,6 +8,7 @@ import { createLogger } from "../../application";
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { CmeModel, OwlVocabulary, UndefinedCmeVocabulary } from "../../dataspecer/cme-model";
 import { IRI } from "iri";
+import { EntityDsIdentifier } from "../../dataspecer/entity-model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -408,4 +409,25 @@ export function representSpecializations(
       iri: item.iri ?? "",
       specialized: item.parent,
     }));
+}
+
+export function selectDefaultModelForAttribute(
+  entity: EntityDsIdentifier,
+  entityModels: EntityModel[],
+  cmeModels: CmeModel[],
+): CmeModel {
+  for (const model of entityModels) {
+    if (model.getEntities()[entity] === undefined) {
+      continue;
+    }
+    // We found the model.
+    const result = cmeModels.find(item => item.dsIdentifier === model.getId());
+    if (result === undefined) {
+      // We found the model but have no representation.
+      break;
+    }
+    return result;
+  }
+  // Just return the first model.
+  return cmeModels[0];
 }
