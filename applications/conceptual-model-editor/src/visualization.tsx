@@ -549,8 +549,6 @@ function onChangeVisualEntities(
 
   const actions = diagram.actions();
 
-  // TODO RadStr: Probably remove some of it - the map most likely
-  // We have to process groups first - It is mandatory for reactflow for the groups to be first in the nodes array (even though it is not documented anywhere)
   const groups = changes.filter(({previous, next}) => (previous !== null && isVisualGroup(previous)) || (next !== null && isVisualGroup(next)));
 
   const nodeIdToParentGroupIdMap: Record<string, string> = {};

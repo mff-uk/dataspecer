@@ -190,22 +190,25 @@ export interface DiagramActions {
   renderToSvgString(): Promise<string | null>;
 
   /**
-   * Opens toolbar on given {@link canvasPosition}, which represents the menu that appears when user drags edge to canvas.
+   * Opens menu on given {@link canvasPosition}.
+   * The menu appears when user drags edge to canvas.
    * @param sourceNode is the node from which the connection dragging started
    * @param position is the canvas position where user dragged the connection and on which will the menu appear
    */
   openDragEdgeToCanvasMenu(sourceNode: Node, canvasPosition: Position): void;
   /**
-   * Opens toolbar on given {@link canvasPosition}, which represents the menu that appears when user clicks the actions button on selection.
+   * Opens menu on given {@link canvasPosition}.
+   * The menu appears when user clicks the actions button on selection.
    * @param sourceNode is the node on which the user clicked the button.
-   * @param position is the canvas position where the toolbar will appear.
+   * @param position is the canvas position where the menu will appear.
    */
   openSelectionActionsMenu(sourceNode: Node, canvasPosition: Position): void;
 
   /**
-   * Opens toolbar on given {@link canvasPosition}, which represents group with given {@link groupIdentifier}.
+   * Opens menu on given {@link canvasPosition}.
+   * The menu represents control panel for group with given {@link groupIdentifier}.
    * @param groupIdentifier is the identifier of the group.
-   * @param position is the position where the toolbar will appear.
+   * @param position is the position where the menu will appear.
    */
   openGroupMenu(groupIdentifier: string, canvasPosition: Position): void;
 
@@ -422,7 +425,7 @@ interface DiagramNodes {
   onDeleteNode: (diagramNode: Node) => void;
 
   /**
-   * Called when user choses to create new class from diagram's canvas menu (toolbar).
+   * Called when user choses to create new class from diagram's canvas menu.
    */
   onCanvasOpenCreateClassDialog: (nodeIdentifier: string, canvasPosition: Position) => void;
 
