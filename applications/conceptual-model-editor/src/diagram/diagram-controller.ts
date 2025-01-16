@@ -286,6 +286,7 @@ function useCreateReactStates() {
   // Unfortunately we have to have both the useState and useRef for the variables related to selection.
   // Using useState is definitely not enough, because then we are often working with incorrect states
   // and the computations of selection are wrong based on that.
+  // Using useRef alone doesn't seem to work as well
 
   // We have to do this because of special case - unfortunately when user immediately starts dragging node in group
   // (that is - he doesn't perform 2 actions - click the button and then click again to drag, he just drags it)

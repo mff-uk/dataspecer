@@ -103,13 +103,8 @@ function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
     return null;
   }
 
-  // TODO RadStr: Actually I think that I no longer use the SelectionToolbar as group toolbar.
-
   if (context.getShownNodeToolbarType() === NodeToolbarType.SELECTION_TOOLBAR) {
-    return <SelectionToolbar {...props} isGroupToolbar={false}/>;
-  }
-  else if (context.getShownNodeToolbarType() === NodeToolbarType.GROUP_TOOLBAR) {
-    return <SelectionToolbar {...props} isGroupToolbar={true}/>;
+    return <SelectionToolbar {...props}/>;
   }
   else if (context.getShownNodeToolbarType() === NodeToolbarType.SINGLE_NODE_TOOLBAR) {
     return <PrimaryNodeToolbar {...props}/>;
@@ -134,20 +129,7 @@ function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
   const onDissolveGroup = () => context?.callbacks().onDissolveGroup(props.data.group);
   const onAddAttribute = () => context?.callbacks().onAddAttributeForNode(props.data);
 
-  // TODO RadStr: It seems to work with the selected, so again remove commented code
-  // const shouldShowToolbar = context?.getNodeWithToolbar() === props.id;   // TODO RadStr: Maybe also && props.selected === true?
   const shouldShowToolbar = props.selected === true;
-
-  // TODO RadStr: Commented code remove
-  // if(props.selected === true) {
-  //   console.info(context);
-  //   console.info(context?.getNodeWithToolbar());
-  //   alert("About to show NodeToolbar");
-  // }
-
-  // if(shouldShowToolbar) {
-  //   alert("About to show NodeToolbar");
-  // }
 
   const addAttributeTitle = props.data.profileOf === null ?
     t("node-add-attribute") : t("node-add-attribute-profile");
@@ -184,9 +166,7 @@ function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
     </>);
 }
 
-type SelectionToolbarProps = NodeProps<Node<ApiNode>> & {isGroupToolbar: boolean};
-
-function SelectionToolbar(props: SelectionToolbarProps) {
+function SelectionToolbar(props: NodeProps<Node<ApiNode>>) {
   const context = useContext(DiagramContext);
   const reactFlow = useReactFlow();
   const shouldShowToolbar = context?.getNodeWithToolbar() === props.id;
@@ -203,11 +183,6 @@ function SelectionToolbar(props: SelectionToolbarProps) {
   const onCreateGroup = () => {
     context?.callbacks().onCreateGroup();
   };
-  const onDissolveGroup = () => {
-    console.info("props.data");
-    console.info(props.data);
-    context?.callbacks().onDissolveGroup(props.data.group);
-  };
   const onShowExpandSelection = () => context?.callbacks().onShowExpandSelection();
   const onShowFilterSelection = () => context?.callbacks().onShowFilterSelection();
 
@@ -219,12 +194,7 @@ function SelectionToolbar(props: SelectionToolbarProps) {
       &nbsp;
     </NodeToolbar>
     <NodeToolbar isVisible={shouldShowToolbar} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
-      {
-        props.isGroupToolbar ?
-          <button onClick={onDissolveGroup} title={t("dissolve-group-button")}>❌</button>
-          :
-          <button onClick={onCreateGroup} title={t("selection-group-button")}>🤝</button>
-      }
+      <button onClick={onCreateGroup} title={t("selection-group-button")}>🤝</button>
     </NodeToolbar>
     <NodeToolbar isVisible={shouldShowToolbar} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
       <button onClick={onShowExpandSelection} title={t("selection-extend-button")} >📈</button>
