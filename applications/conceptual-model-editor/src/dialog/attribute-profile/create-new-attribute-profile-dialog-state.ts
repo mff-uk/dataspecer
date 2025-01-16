@@ -16,6 +16,7 @@ import { createRelationshipProfileStateForNew } from "../utilities/relationship-
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { EntityRepresentative, RelationshipRepresentative, representClassProfiles, representDataTypes, representOwlThing, representRelationshipProfiles, representRelationships, representUndefinedDataType } from "../utilities/dialog-utilities";
 import { createEntityProfileStateForNewEntityProfile, createEntityProfileStateForNewProfileOfProfile } from "../utilities/entity-profile-utilities";
+import { configuration } from "../../application";
 
 /**
  * @param classesContext
@@ -86,7 +87,8 @@ function createForAttribute(
   // EntityProfileState
 
   const entityProfileState = createEntityProfileStateForNewEntityProfile(
-    language, vocabularies, profiles, profileOf.identifier);
+    language, vocabularies, profiles, profileOf.identifier,
+    configuration().nameToIri);
 
   // RelationshipState<EntityRepresentative>
 
@@ -129,7 +131,8 @@ function createForAttributeProfile(
   // EntityProfileState
 
   const entityProfileState = createEntityProfileStateForNewProfileOfProfile(
-    language, vocabularies, profiles, profileOf.identifier);
+    language, vocabularies, profiles, profileOf.identifier,
+    configuration().nameToIri);
 
   // RelationshipState<EntityRepresentative>
 

@@ -78,13 +78,13 @@ export const getDomainAndRangeConcepts = (
     const domainAndRange = getDomainAndRange(relationship);
     return {
       domain: domainAndRange.domain?.concept ?? null,
-      range: domainAndRange.domain?.concept ?? null,
+      range: domainAndRange.range?.concept ?? null,
     };
   } else {
     const domainAndRange = getDomainAndRange(relationship);
     return {
       domain: domainAndRange.domain?.concept ?? null,
-      range: domainAndRange.domain?.concept ?? null,
+      range: domainAndRange.range?.concept ?? null,
     };
   }
 };

@@ -27,6 +27,7 @@ import {
   isVisualNode,
   isVisualProfileRelationship,
   isVisualRelationship,
+  isWritableVisualModel,
 } from "@dataspecer/core-v2/visual-model";
 import {
   type SemanticModelAggregatorView,
@@ -46,6 +47,7 @@ import { findSourceModelOfEntity } from "./service/model-service";
 import { type EntityModel } from "@dataspecer/core-v2";
 import { Options, useOptions } from "./application/options";
 import { getGroupMappings } from "./action/utilities";
+import { synchronizeOnAggregatorChange } from "./dataspecer/visual-model/aggregator-to-visual-model-adapter";
 
 const DEFAULT_MODEL_COLOR = "#ffffff";
 
@@ -74,14 +76,10 @@ export const Visualization = () => {
   useEffect(() => {
 
     const unsubscribeSemanticAggregatorCallback = aggregatorView.subscribeToChanges((updated, removed) => {
-      if (activeVisualModel === null) {
-        // We do not have visual model yet, so we ignore the update.
-        return;
+      console.log("[VISUALIZATION] SemanticModelAggregatorView.subscribeToChanges", { updated, removed });
+      if (isWritableVisualModel(activeVisualModel)) {
+        synchronizeOnAggregatorChange(activeVisualModel, updated, removed);
       }
-      console.log("[VISUALIZATION] Semantic entities has been changed.", { updated, removed });
-      // PropagateAggregatorChangesToVisualization(
-      //     updated, removed, activeVisualModel as WritableVisualModel, aggregatorView,
-      //     classesContext, reactFlowInstance, setNodes, changedVisualModel);
     });
 
     const unsubscribeCanvasCallback = aggregatorView.getActiveVisualModel()?.subscribeToChanges({
@@ -90,7 +88,7 @@ export const Visualization = () => {
           return;
         }
         // We ignore model color changes here for now.
-        console.log("[VISUALIZATION] Model color has been changed.", { model });
+        console.log("[VISUALIZATION] VisualModel.subscribeToChanges.modelColorDidChange", { model });
         propagateVisualModelColorChangesToVisualization(
           options, activeVisualModel, actions.diagram, aggregatorView, classesContext, graph,
           model
@@ -100,7 +98,7 @@ export const Visualization = () => {
         if (activeVisualModel === null) {
           return;
         }
-        console.log("[VISUALIZATION] Visual entities has been changed.", { changes });
+        console.log("[VISUALIZATION] VisualModel.subscribeToChanges.visualEntitiesDidChange", { changes });
         onChangeVisualEntities(
           options, activeVisualModel, actions.diagram, aggregatorView, classesContext, graph,
           changes,
@@ -117,7 +115,7 @@ export const Visualization = () => {
 
   // Update canvas content on view change.
   useEffect(() => {
-    console.log("[VISUALIZATION] Active visual model has changed.", activeVisualModel);
+    console.log("[VISUALIZATION] Something has changed, recreating diagram visual.", activeVisualModel);
     onChangeVisualModel(options, activeVisualModel, actions.diagram, aggregatorView, classesContext, graph);
   }, [options, activeVisualModel, actions, aggregatorView, classesContext, graph]);
 
