@@ -2,7 +2,7 @@ import { shallow } from "zustand/shallow";
 import { useStore } from "@xyflow/react";
 
 import { ToolbarPortal } from "./toolbar-portal";
-import { CanvasMenuContentProps as CanvasMenuContentProps, CanvasMenuContentType as CanvasMenuContentType, viewportStoreSelector } from "./canvas-toolbar-props";
+import { CanvasMenuContentProps, CanvasMenuContentType, viewportStoreSelector } from "./canvas-menu-props";
 import { computePosition } from "../edge/edge-utilities";
 
 export type GeneralCanvasMenuComponentProps = {
@@ -25,7 +25,7 @@ export function CanvasGeneralMenu({canvasMenu}: {canvasMenu: GeneralCanvasMenuCo
 
   return <div>
     <ToolbarPortal>
-      <div className="canvas-toolbar" style={{ transform: `translate(${position.x}px, ${position.y}px)` }}>
+      <div className="canvas-menu" style={{ transform: `translate(${position.x}px, ${position.y}px)` }}>
         {canvasMenu.menuContent({menuProps: canvasMenu.menuProps})}
       </div>
     </ToolbarPortal>

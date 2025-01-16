@@ -45,15 +45,15 @@ import { type AlignmentController, useAlignmentController } from "./features/ali
 import { GeneralizationEdgeName } from "./edge/generalization-edge";
 import { ClassProfileEdgeName } from "./edge/class-profile-edge";
 import { diagramContentAsSvg } from "./render-svg";
-import { CanvasMenuContentType } from "./canvas/canvas-toolbar-props";
-import { CanvasMenuCreatedByEdgeDrag } from "./canvas/canvas-toolbar-drag-edge";
+import { CanvasMenuContentType } from "./canvas/canvas-menu-props";
+import { CanvasMenuCreatedByEdgeDrag } from "./canvas/canvas-menu-drag-edge";
 import { SelectionActionsMenu } from "./node/selection-actions-menu";
 import { setHighlightingStylesBasedOnSelection } from "./features/highlighting/set-selection-highlighting-styles";
 import { useExplorationCanvasHighlightingController } from "./features/highlighting/exploration/canvas/canvas-exploration-highlighting-controller";
 import { ReactPrevSetStateType } from "./utilities";
 import { GroupMenu } from "./node/group-menu";
 import { findTopLevelGroup } from "../action/utilities";
-import { GeneralCanvasMenuComponentProps } from "./canvas/canvas-toolbar-general";
+import { GeneralCanvasMenuComponentProps } from "./canvas/canvas-menu-general";
 
 const UINITIALIZED_VALUE_GROUP_POSITION = 10000000;
 
@@ -152,10 +152,10 @@ export type NodeType = Node<ApiNode>;
 
 export type EdgeType = Edge<ApiEdge>;
 
-export enum NodeToolbarType {
-  SELECTION_TOOLBAR,
-  GROUP_TOOLBAR,
-  SINGLE_NODE_TOOLBAR,
+export enum NodeMenuType {
+  SELECTION_MENU,
+  GROUP_MENU,
+  SINGLE_NODE_MENU,
 };
 
 type ReactFlowContext = ReactFlowInstance<NodeType, EdgeType>;
@@ -185,9 +185,9 @@ interface DiagramContextType {
    */
   closeCanvasMenu(): void;
 
-  getNodeWithToolbar: () => string | null;
+  getNodeWithMenu: () => string | null;
 
-  getShownNodeToolbarType: () => NodeToolbarType;
+  getShownNodeMenuType: () => NodeMenuType;
 
   getAreOnlyEdgesSelected: () => boolean;
 }
@@ -1843,15 +1843,15 @@ const focusNodesAction = (reactFlow: ReactFlowContext, nodes: Node[]) => {
   });
 };
 
-const computeShownNodeToolbarType = (
+const computeShownNodeMenuType = (
   userSelectedNodes: string[],
   selectedEdges: string[],
 ) => {
   if(userSelectedNodes.length > 1 || (userSelectedNodes.length === 1 && selectedEdges.length > 0)) {
-    return NodeToolbarType.SELECTION_TOOLBAR;
+    return NodeMenuType.SELECTION_MENU;
   }
   else {
-    return NodeToolbarType.SINGLE_NODE_TOOLBAR;
+    return NodeMenuType.SINGLE_NODE_MENU;
   }
 };
 
@@ -1865,7 +1865,7 @@ const createDiagramContext = (
   selectedEdges: string[],
   userSelectedNodes: string[],
 ): DiagramContextType => {
-  const shownNodeToolbarType = computeShownNodeToolbarType(userSelectedNodes, selectedEdges);
+  const shownNodeToolbarType = computeShownNodeMenuType(userSelectedNodes, selectedEdges);
   const closeCanvasMenu = () => setCanvasMenu(null);
   const getAreOnlyEdgesSelected = () => {
     return selectedNodes.length === 0 && selectedEdges.length !== 0;
@@ -1877,8 +1877,8 @@ const createDiagramContext = (
     onOpenCanvasContextMenu,
     openedCanvasMenu,
     closeCanvasMenu,
-    getNodeWithToolbar: () => userSelectedNodes.at(-1) ?? null,
-    getShownNodeToolbarType: () => shownNodeToolbarType,
+    getNodeWithMenu: () => userSelectedNodes.at(-1) ?? null,
+    getShownNodeMenuType: () => shownNodeToolbarType,
 
     getAreOnlyEdgesSelected,
   };

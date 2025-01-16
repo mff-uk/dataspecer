@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { shallow } from "zustand/shallow";
 import { type ReactFlowState, useStore } from "@xyflow/react";
 
-import { DiagramContext, NodeToolbarType } from "../diagram-controller";
+import { DiagramContext, NodeMenuType } from "../diagram-controller";
 import { computePosition } from "./edge-utilities";
 import { EdgeToolbarProps, viewportStoreSelector } from "./edge-toolbar";
 import { Edge } from "../diagram-api";
@@ -18,7 +18,7 @@ export function ProfileEdgeToolbar({ value }: { value: EdgeToolbarProps | null }
   const { x, y, zoom } = useStore(viewportStoreSelector, shallow);
 
   if (value === null || edge === undefined || edge.data === undefined || !edge?.selected ||
-      context === null || context.getShownNodeToolbarType() !== NodeToolbarType.SINGLE_NODE_TOOLBAR) {
+      context === null || context.getShownNodeMenuType() !== NodeMenuType.SINGLE_NODE_MENU) {
     return null;
   }
 

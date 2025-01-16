@@ -1,5 +1,5 @@
 
-  .node-secondary-toolbar {
+  .node-secondary-menu {
     display: grid;
     place-content: center;
     grid-area: 1/1;
@@ -11,25 +11,25 @@
     --extra-space: 1em;
   }
 
-  .node-secondary-toolbar button {
+  .node-secondary-menu button {
     border-radius: 50%;
     width: var(--btn-size);
     height: var(--btn-size);
     font-size: 1.35em;
   }
 
-  .node-secondary-toolbar ul {
+  .node-secondary-menu ul {
     position: absolute;
   }
 
-  .node-secondary-toolbar ul {
+  .node-secondary-menu ul {
     position: absolute;
     bottom: 0;
     right: 0;
   }
 
-  .node-secondary-toolbar ul,
-  .node-secondary-toolbar li {
+  .node-secondary-menu ul,
+  .node-secondary-menu li {
     display: grid;
     /* place-content: center; */
     grid-area: 1/1;
@@ -37,21 +37,21 @@
     transform: translateX(calc(cos(var(--angle)) * var(--radius))) translateY(calc(sin(var(--angle) * -1) * var(--radius)));
   }
 
-  .node-secondary-toolbar li:nth-child(1) {
+  .node-secondary-menu li:nth-child(1) {
     --angle: 0deg;
   }
 
-  .node-secondary-toolbar li:nth-child(2) {
+  .node-secondary-menu li:nth-child(2) {
     --angle: 60deg;
   }
 
-  .node-secondary-toolbar li:nth-child(3) {
+  .node-secondary-menu li:nth-child(3) {
     --angle: 120deg;
   }
 
-  .node-secondary-toolbar li:nth-child(4) {
+  .node-secondary-menu li:nth-child(4) {
     --angle: 180deg;
   }
-  .node-secondary-toolbar li:nth-child(5) {
+  .node-secondary-menu li:nth-child(5) {
     --angle: 240deg;
   }

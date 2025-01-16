@@ -9,7 +9,7 @@ import {
 } from "@xyflow/react";
 
 import type { Node as ApiNode, EntityItem } from "../diagram-api";
-import { DiagramContext, NodeToolbarType } from "../diagram-controller";
+import { DiagramContext, NodeMenuType } from "../diagram-controller";
 
 import "./entity-node.css";
 import { usePrefixForIri } from "../../service/prefix-service";
@@ -50,7 +50,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
   return (
     <>
       <div className={"border border-black entity-node min-h-14 min-w-56"}>
-        <EntityNodeToolbar {...props} />
+        <EntityNodeMenu {...props} />
         <div className="entity-node-content">
 
           <div className="drag-handle bg-slate-300 p-1"
@@ -91,7 +91,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
   );
 };
 
-function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
+function EntityNodeMenu(props: NodeProps<Node<ApiNode>>) {
   const context = useContext(DiagramContext);
   if (context === null) {
     return null;
@@ -102,19 +102,19 @@ function EntityNodeToolbar(props: NodeProps<Node<ApiNode>>) {
     return null;
   }
 
-  if (context.getShownNodeToolbarType() === NodeToolbarType.SELECTION_TOOLBAR) {
-    return <SelectionToolbar {...props}/>;
+  if (context.getShownNodeMenuType() === NodeMenuType.SELECTION_MENU) {
+    return <SelectionMenu {...props}/>;
   }
-  else if (context.getShownNodeToolbarType() === NodeToolbarType.SINGLE_NODE_TOOLBAR) {
-    return <PrimaryNodeToolbar {...props}/>;
+  else if (context.getShownNodeMenuType() === NodeMenuType.SINGLE_NODE_MENU) {
+    return <PrimaryNodeMenu {...props}/>;
   }
   else {
-    console.error("Missing node toolbar");
+    console.error("Missing node menu");
     return null;
   }
 }
 
-function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
+function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
   const context = useContext(DiagramContext);
 
   const isPartOfGroup = props.data.group !== null;
@@ -135,7 +135,7 @@ function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
 
   return (
     <>
-      <NodeToolbar isVisible={shouldShowToolbar} position={Position.Top} className="flex gap-2 entity-node-toolbar" >
+      <NodeToolbar isVisible={shouldShowToolbar} position={Position.Top} className="flex gap-2 entity-node-menu" >
         <button onClick={onShowDetail} title={t("class-detail-button")}>ℹ</button>
         &nbsp;
         <button onClick={onEdit} title={t("class-edit-button")}>✏️</button>
@@ -143,16 +143,16 @@ function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
         <button onClick={onCreateProfile} title={t("class-profile-button")}>🧲</button>
         &nbsp;
       </NodeToolbar>
-      <NodeToolbar isVisible={shouldShowToolbar} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
+      <NodeToolbar isVisible={shouldShowToolbar} position={Position.Right} className="flex gap-2 entity-node-menu" >
         <Handle type="source" position={Position.Right} title={t("node-connection-handle")}>🔗</Handle>
       </NodeToolbar>
       {
         !isPartOfGroup ? null :
-          <NodeToolbar isVisible={shouldShowToolbar} position={Position.Left} className="flex gap-2 entity-node-toolbar" >
+          <NodeToolbar isVisible={shouldShowToolbar} position={Position.Left} className="flex gap-2 entity-node-menu" >
             <button onClick={onDissolveGroup} title={t("dissolve-group-button")}>❌</button>
           </NodeToolbar>
       }
-      <NodeToolbar isVisible={shouldShowToolbar} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
+      <NodeToolbar isVisible={shouldShowToolbar} position={Position.Bottom} className="flex gap-2 entity-node-menu" >
         <button onClick={onHide} title={t("class-hide-button")}>🕶</button>
         &nbsp;
         <button onClick={onDelete} title={t("class-remove-button")}>🗑</button>
@@ -165,10 +165,10 @@ function PrimaryNodeToolbar(props: NodeProps<Node<ApiNode>>) {
     </>);
 }
 
-function SelectionToolbar(props: NodeProps<Node<ApiNode>>) {
+function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
   const context = useContext(DiagramContext);
   const reactFlow = useReactFlow();
-  const shouldShowToolbar = context?.getNodeWithToolbar() === props.id;
+  const shouldShowToolbar = context?.getNodeWithMenu() === props.id;
 
   if (!shouldShowToolbar) {
     return null;
@@ -186,16 +186,16 @@ function SelectionToolbar(props: NodeProps<Node<ApiNode>>) {
   const onShowFilterSelection = () => context?.callbacks().onShowFilterSelection();
 
   return (<>
-    <NodeToolbar isVisible={shouldShowToolbar} position={Position.Top} className="flex gap-2 entity-node-toolbar" >
+    <NodeToolbar isVisible={shouldShowToolbar} position={Position.Top} className="flex gap-2 entity-node-menu" >
       <button onClick={onShowSelectionActions} title={t("selection-action-button")}>🎬</button>
       &nbsp;
       <button onClick={onLayoutSelection} title={t("selection-layout-button")} disabled>🔀</button>
       &nbsp;
     </NodeToolbar>
-    <NodeToolbar isVisible={shouldShowToolbar} position={Position.Right} className="flex gap-2 entity-node-toolbar" >
+    <NodeToolbar isVisible={shouldShowToolbar} position={Position.Right} className="flex gap-2 entity-node-menu" >
       <button onClick={onCreateGroup} title={t("selection-group-button")}>🤝</button>
     </NodeToolbar>
-    <NodeToolbar isVisible={shouldShowToolbar} position={Position.Bottom} className="flex gap-2 entity-node-toolbar" >
+    <NodeToolbar isVisible={shouldShowToolbar} position={Position.Bottom} className="flex gap-2 entity-node-menu" >
       <button onClick={onShowExpandSelection} title={t("selection-extend-button")} >📈</button>
       &nbsp;
       <button onClick={onShowFilterSelection} title={t("selection-filter-button")} >📉</button>

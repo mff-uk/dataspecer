@@ -1,6 +1,4 @@
-/* Basically the edge-toolbar.css */
-
-.canvas-toolbar-edge-drag {
+.canvas-menu-edge-drag {
   display: grid;
   place-content: center;
   grid-area: 1/1;
@@ -12,7 +10,7 @@
   --extra-space: 1em;
 }
 
-.canvas-toolbar-edge-drag button {
+.canvas-menu-edge-drag button {
   border-radius: 50%;
   width: var(--btn-size);
   height: var(--btn-size);
@@ -20,13 +18,13 @@
   cursor: pointer;
 }
 
-.canvas-toolbar-edge-drag ul {
+.canvas-menu-edge-drag ul {
   position: absolute;
   bottom: 0;
   right: 0;
 }
 
-.canvas-toolbar-edge-drag li {
+.canvas-menu-edge-drag li {
   display: grid;
   place-content: center;
   grid-area: 1/1;
@@ -34,14 +32,14 @@
   transform: translateX(calc(cos(var(--angle)) * var(--radius))) translateY(calc(sin(var(--angle) * -1) * var(--radius)));
 }
 
-.canvas-toolbar-edge-drag li:nth-child(1) {
+.canvas-menu-edge-drag li:nth-child(1) {
   --angle: 120deg;
 }
 
-.canvas-toolbar-edge-drag li:nth-child(2) {
+.canvas-menu-edge-drag li:nth-child(2) {
   --angle: 240deg;
 }
 
-.canvas-toolbar-edge-drag li:nth-child(3) {
+.canvas-menu-edge-drag li:nth-child(3) {
   --angle: 0deg;
 }

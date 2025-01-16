@@ -1,9 +1,9 @@
 import { useContext } from "react";
 
 import { DiagramContext } from "../diagram-controller";
-import { CanvasMenuContentProps } from "./canvas-toolbar-props";
+import { CanvasMenuContentProps } from "./canvas-menu-props";
 
-import "./canvas-toolbar-drag-edge.css";
+import "./canvas-menu-drag-edge.css";
 
 /**
  * This toolbar represents menu which appears when user drags edge to canvas.
@@ -17,7 +17,7 @@ export function CanvasMenuCreatedByEdgeDrag({ menuProps }: { menuProps: CanvasMe
   };
 
   return <div>
-    <ul className="canvas-toolbar-edge-drag">
+    <ul className="canvas-menu-edge-drag">
       <li>
         <button onClick={onCanvasMenuAddClassDialog}>➕</button>
       </li>

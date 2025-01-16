@@ -26,7 +26,7 @@ import { AlignmentComponent } from "./features/alignment-viewportal";
 import { type Node as ApiNode, EdgeType } from "./diagram-api";
 import { ClassProfileEdge, ClassProfileEdgeName } from "./edge/class-profile-edge";
 import { GeneralizationEdge, GeneralizationEdgeName } from "./edge/generalization-edge";
-import { CanvasGeneralMenu } from "./canvas/canvas-toolbar-general";
+import { CanvasGeneralMenu } from "./canvas/canvas-menu-general";
 
 export function Diagram(props: { diagram: UseDiagramType }) {
   // We use ReactFlowProvider as otherwise use of ReactFlow hooks,

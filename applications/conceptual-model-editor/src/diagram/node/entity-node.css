@@ -20,16 +20,16 @@
   transform: none;
 }
 
-.entity-node-toolbar {
+.entity-node-menu {
   user-select: none;
 }
 
-.entity-node-toolbar .react-flow__handle.source {
+.entity-node-menu .react-flow__handle.source {
   position: initial;
   background-color: transparent;
 }
 
-.entity-node-toolbar > button {
+.entity-node-menu > button {
   font-size: 1.35em;
 }
 

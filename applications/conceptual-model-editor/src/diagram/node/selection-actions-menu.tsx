@@ -1,5 +1,5 @@
 import "./selection-actions-menu.css";
-import { CanvasMenuContentProps } from "../canvas/canvas-toolbar-props";
+import { CanvasMenuContentProps } from "../canvas/canvas-menu-props";
 import { DiagramContext } from "../diagram-controller";
 import { useContext } from "react";
 import { t } from "../../application";
@@ -27,7 +27,7 @@ export function SelectionActionsMenu(_: { menuProps: CanvasMenuContentProps }) {
   };
 
   return (<>
-    <ul className="node-secondary-toolbar">
+    <ul className="node-secondary-menu">
       <li>
         <button onClick={onCreateNewView} title={t("selection-new-view-button")} disabled >🖼️</button>
       </li>

@@ -1,5 +1,5 @@
 import "./group-menu.css";
-import { CanvasMenuContentProps as CanvasMenuContentProps } from "../canvas/canvas-toolbar-props";
+import { CanvasMenuContentProps as CanvasMenuContentProps } from "../canvas/canvas-menu-props";
 import { DiagramContext } from "../diagram-controller";
 import { useContext } from "react";
 import { t } from "../../application";
