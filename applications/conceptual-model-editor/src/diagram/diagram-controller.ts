@@ -526,9 +526,7 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
 
 const createOnNodeDragHandler = () => {
   return (_: React.MouseEvent, _node: Node, _nodes: Node[]) => {
-    // TODO RadStr: Debug
-    // console.info("OnNodeDrag node", node);
-    // console.info("OnNodeDrag nodes", nodes);
+    // EMPTY
   };
 };
 

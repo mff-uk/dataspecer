@@ -557,8 +557,6 @@ function onChangeVisualEntities(
   for(const {previous, next} of groups) {
     if (previous !== null && next === null) {
       // Entity removed
-      // TODO RadStr: DEBUG
-      console.warn("removed, group", previous);
       actions.removeGroups([previous.identifier]);
       continue;
     }
@@ -571,19 +569,12 @@ function onChangeVisualEntities(
 
     if (previous === null) {
       // Create new entity.
-      // TODO RadStr: DEBUG
-      console.info("nextVisualGroup.content", nextVisualGroup.content);
-      console.warn("creating new entity", previous, next);
       actions.addGroups([{group, content: nextVisualGroup.content}], false);
       nextVisualGroup.content.forEach(nodeIdGroupId => {
         nodeIdToParentGroupIdMap[nodeIdGroupId] = group.identifier;
       });
     }
     else {          // Change of existing - occurs when removing node from canvas
-      // TODO RadStr: DEBUG
-      console.info("nextVisualGroup.content", nextVisualGroup.content);
-      console.warn("SETTING GROUP CONTENT", previous, next);
-      // TODO RadStr: Maybe not enough?
       actions.setGroup(group, nextVisualGroup.content);
     }
   }
