@@ -286,7 +286,6 @@ function useCreateReactStates() {
   // Unfortunately we have to have both the useState and useRef for the variables related to selection.
   // Using useState is definitely not enough, because then we are often working with incorrect states
   // and the computations of selection are wrong based on that.
-  // TODO RadStr: Quickly try only useRef maybe that is enough?
 
   // We have to do this because of special case - unfortunately when user immediately starts dragging node in group
   // (that is - he doesn't perform 2 actions - click the button and then click again to drag, he just drags it)
@@ -667,7 +666,6 @@ const createNodesChangeHandler = (
         extractedDataFromChanges.nodeSelectChanges,
         extractedDataFromChanges.unselectChanges,
         userSelectedNodesRef,
-        groups,
       );
       return newUserSelectedNodes;
     });
@@ -1103,7 +1101,6 @@ const updateUserSelectedNodesBasedOnNodeChanges = (
   nodeSelectChanges: string[],
   unselectChanges: string[],
   userSelectedNodesRef: React.MutableRefObject<string[]>,
-  groups: Record<string, NodeIdentifierWithType[]>,
 ) => {
   // Nothing happened, don't change the value.
   // This saves us recreation of useCallbacks dependent on userSelectedNodes
@@ -1115,8 +1112,6 @@ const updateUserSelectedNodesBasedOnNodeChanges = (
   let newUserSelectedNodes = previouslyUserSelectedNodes
     .filter(previouslySelectedNode => !unselectChanges.includes(previouslySelectedNode))
     .filter(previouslySelectedNode => !newlyUnselectedNodesBasedOnGroups.includes(previouslySelectedNode))
-    // TODO RadStr: Should be unnecessary
-    .filter(previouslySelectedNode => !isGroup(previouslySelectedNode, groups));
 
   newUserSelectedNodes.push(...nodeSelectChanges);
   newUserSelectedNodes = [... new Set(newUserSelectedNodes)];
