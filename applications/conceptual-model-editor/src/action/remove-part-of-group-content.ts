@@ -3,7 +3,6 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { removeGroupFromVisualModelAction } from "./remove-group-from-visual-model";
 import { findTopLevelGroupFromVisualModel } from "./utilities";
 
-// TODO RadStr: Maybe should be separated somehow (it is called recursively and on removeGroup)
 /**
  * Removes part of group's content.
  * If the group becomes single node or is empty after that, the group is deleted.

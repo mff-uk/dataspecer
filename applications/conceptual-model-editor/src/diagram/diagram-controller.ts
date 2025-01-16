@@ -361,7 +361,7 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
     groups, nodeToGroupMapping,
     nodesInGroupWhichAreNotPartOfDragging,
     selectedNodesRef,
-    userSelectedNodes, setUserSelectedNodes, userSelectedNodesRef,
+    setUserSelectedNodes, userSelectedNodesRef,
     cleanSelection,
   } = createdReactStates;
   const alignmentController = useAlignmentController({ reactFlowInstance });
@@ -596,7 +596,7 @@ const createChangeSelectionHandler = (
   _setSelectedNodes: (newNodeSelection: string[]) => void,
   _setSelectedEdges: (newEdgeSelection: string[]) => void,
 ) => {
-  return ({nodes, edges}: OnSelectionChangeParams) => {
+  return (_: OnSelectionChangeParams) => {
     // We can react on change events here.
 
     // Originally the idea was to call setEdgeToolbar(null),
@@ -635,11 +635,11 @@ const createNodesChangeHandler = (
     // });
 
     if(handleStartOfGroupDraggingThroughGroupNode(nodes, changes, userSelectedNodesRef, setNodes,
-        setUserSelectedNodes, setSelectedNodes, groups, nodesInGroupWhichAreNotPartOfDragging)) {
+      setUserSelectedNodes, setSelectedNodes, groups, nodesInGroupWhichAreNotPartOfDragging)) {
       return;
     }
     if(handleGroupDraggingThroughNotSelectedNode(changes, userSelectedNodesRef, isSelectingThroughCtrl, setNodes,
-        setUserSelectedNodes, setSelectedNodes, groups, nodesInGroupWhichAreNotPartOfDragging, selectedNodes, selectedNodesRef)) {
+      setUserSelectedNodes, setSelectedNodes, groups, nodesInGroupWhichAreNotPartOfDragging, selectedNodes, selectedNodesRef)) {
       return;
     }
     const extractedDataFromChanges = extractDataFromChanges(changes, groups, nodeToGroupMapping, selectedNodesRef, nodes);
@@ -935,7 +935,6 @@ const extractDataFromChanges = (
   const debug: NodeIdentifierWithType[] = [];
   // If we are dragging the actual node representing group -
   // we have to do this, because the first select event is not present on that node
-  let directlyDraggedGroup: string | null = null;
   let shouldUnselectEverything: boolean = false;
   for (const change of changes) {
     let isSelected: boolean | null = null;
@@ -956,7 +955,6 @@ const extractDataFromChanges = (
       else if(isGroup(change.id, groups)) {
         isSelected = true;
         changeId = change.id;
-        directlyDraggedGroup = changeId;
       }
     }
     else if(change.type === "remove") {
@@ -1064,7 +1062,6 @@ const updateChangesByGroupDragEvents = (
               (isGroup(node.id, groups) && draggedGroups.includes(node.id)))) {
             continue;
           }
-
 
           let newPosition = {
             x: node.position.x + positionDifference.x,
@@ -1427,8 +1424,7 @@ const createActions = (
       });
 
       setNodes(prevNodes => {
-        const newGroupNodes: Node<any>[] = [];
-        let newNodes = [...prevNodes];
+        const newNodes = [...prevNodes];
         const nodeToGroupMapping = createNodeToGroupMapping({}, groups);
         const nodeToGroupMappingCopy = {...nodeToGroupMapping};
         // Not the most effective but there are only few groups so it doesn't matter
