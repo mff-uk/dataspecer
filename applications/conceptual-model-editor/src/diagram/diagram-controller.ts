@@ -278,8 +278,16 @@ function useCreateReactStates() {
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const [selectedEdges, setSelectedEdges] = useState<string[]>([]);
 
+  // We usually work only with the identifiers and not the nodes,
+  // therefore it is better to have it stored in separate variables
+  // and not at the node's data.
   const [groups, setGroups] = useState<Record<string, NodeIdentifierWithType[]>>({});
   const [nodeToGroupMapping, setNodeToGroupMapping] = useState<Record<string, string>>({});
+  // Unfortunately we have to have both the useState and useRef for the variables related to selection.
+  // Using useState is definitely not enough, because then we are often working with incorrect states
+  // and the computations of selection are wrong based on that.
+  // TODO RadStr: Quickly try only useRef maybe that is enough?
+
   // We have to do this because of special case - unfortunately when user immediately starts dragging node in group
   // (that is - he doesn't perform 2 actions - click the button and then click again to drag, he just drags it)
   // Then there is no way for us to make reactflow drag it together - we can set selected = true and dragging = true, but it still has to be dragged manually in program,
@@ -1097,6 +1105,9 @@ const updateUserSelectedNodesBasedOnNodeChanges = (
   userSelectedNodesRef: React.MutableRefObject<string[]>,
   groups: Record<string, NodeIdentifierWithType[]>,
 ) => {
+  // Nothing happened, don't change the value.
+  // This saves us recreation of useCallbacks dependent on userSelectedNodes
+  // (for example creation of DiagramContext)
   if(nodeSelectChanges.length === 0 && unselectChanges.length === 0) {
     return previouslyUserSelectedNodes;
   }
@@ -1126,6 +1137,9 @@ const updateSelectedNodesBasedOnNodeChanges = (
   userSelectedNodesRef: React.MutableRefObject<string[]>,
   nodesInGroupWhichAreNotPartOfDragging: React.MutableRefObject<string[]>,
 ) => {
+  // Nothing happened, don't change the value.
+  // This saves us recreation of useCallbacks dependent on selectedNodes
+  // (for example creation of DiagramContext)
   if(nodeSelectChanges.length === 0 && unselectChanges.length === 0) {
     return previouslySelectedNodes;
   }
