@@ -18,10 +18,12 @@ import {
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import {
   type VisualEntity,
+  VisualGroup,
   type VisualModel,
   type VisualNode,
   type VisualProfileRelationship,
   type VisualRelationship,
+  isVisualGroup,
   isVisualNode,
   isVisualProfileRelationship,
   isVisualRelationship,
@@ -35,7 +37,7 @@ import { type UseModelGraphContextType, useModelGraphContext } from "./context/m
 import { type UseClassesContextType, useClassesContext } from "./context/classes-context";
 import { cardinalityToHumanLabel, getDomainAndRange } from "./util/relationship-utils";
 import { useActions } from "./action/actions-react-binding";
-import { Diagram, type Edge, EdgeType, type EntityItem, type Node } from "./diagram/";
+import { Diagram, type Edge, EdgeType, Group, type EntityItem, type Node } from "./diagram/";
 import { type UseDiagramType } from "./diagram/diagram-hook";
 import { logger } from "./application";
 import { getDescriptionLanguageString, getFallbackDisplayName, getNameLanguageString, getUsageNoteLanguageString } from "./util/name-utils";
@@ -44,6 +46,7 @@ import { getIri, getModelIri } from "./util/iri-utils";
 import { findSourceModelOfEntity } from "./service/model-service";
 import { type EntityModel } from "@dataspecer/core-v2";
 import { Options, useOptions } from "./application/options";
+import { getGroupMappings } from "./action/utilities";
 import { synchronizeOnAggregatorChange } from "./dataspecer/visual-model/aggregator-to-visual-model-adapter";
 
 const DEFAULT_MODEL_COLOR = "#ffffff";
@@ -192,7 +195,7 @@ function onChangeVisualModel(
   }
   if (visualModel === null) {
     // We just set content to nothing and return.
-    void diagram.actions().setContent([], []);
+    void diagram.actions().setContent([], [], []);
     return;
   }
 
@@ -205,10 +208,16 @@ function onChangeVisualModel(
 
   const nextNodes: Node[] = [];
   const nextEdges: Edge[] = [];
+  const nextGroups: VisualGroup[] = [];
 
   const visualEntities = visualModel.getVisualEntities().values();
+  const {nodeToGroupMapping} = getGroupMappings(visualModel);
+
   for (const visualEntity of visualEntities) {
-    if (isVisualNode(visualEntity)) {
+    if(isVisualGroup(visualEntity)) {
+      nextGroups.push(visualEntity);
+      continue;
+    } else if (isVisualNode(visualEntity)) {
       const entity = entities[visualEntity.representedEntity]?.aggregatedEntity ?? null;
       if (isSemanticModelClassUsage(entity) || isSemanticModelClass(entity)) {
         const model = findSourceModelOfEntity(entity.id, models);
@@ -219,7 +228,7 @@ function onChangeVisualModel(
         const node = createDiagramNode(
           options, visualModel,
           attributes, attributeProfiles, profilingSources,
-          visualEntity, entity, model);
+          visualEntity, entity, model, nodeToGroupMapping[visualEntity.identifier] ?? null);
         nextNodes.push(node);
       }
     } else if (isVisualRelationship(visualEntity)) {
@@ -264,7 +273,21 @@ function onChangeVisualModel(
     // For now we ignore all other.
   }
 
-  void diagram.actions().setContent(nextNodes, nextEdges);
+  const groupsToSetContentWith = nextGroups.map(visualGroup => {
+    return {
+      group: createGroupNode(visualGroup),
+      content: visualGroup.content,
+    };
+  });
+  void diagram.actions().setContent(nextNodes, nextEdges, groupsToSetContentWith);
+}
+
+function createGroupNode(
+  visualGroup: VisualGroup,
+): Group {
+  return {
+    identifier: visualGroup.identifier,
+  };
 }
 
 function createDiagramNode(
@@ -276,6 +299,7 @@ function createDiagramNode(
   visualNode: VisualNode,
   entity: SemanticModelClass | SemanticModelClassUsage,
   model: EntityModel,
+  group: string | null,
 ): Node {
   const language = options.language;
 
@@ -326,7 +350,7 @@ function createDiagramNode(
     iri: getIri(entity, getModelIri(model)),
     color: visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR,
     description: getEntityDescription(language, entity),
-    group: null,
+    group,
     position: {
       x: visualNode.position.x,
       y: visualNode.position.y,
@@ -512,7 +536,7 @@ function onChangeVisualEntities(
   }
   if (visualModel === null) {
     // We just set content to nothing and return.
-    void diagram.actions().setContent([], []);
+    void diagram.actions().setContent([], [], []);
     return;
   }
 
@@ -525,9 +549,37 @@ function onChangeVisualEntities(
 
   const actions = diagram.actions();
 
+  const groups = changes.filter(({previous, next}) => (previous !== null && isVisualGroup(previous)) || (next !== null && isVisualGroup(next)));
+
+  const nodeIdToParentGroupIdMap: Record<string, string> = {};
+  for(const {previous, next} of groups) {
+    if (previous !== null && next === null) {
+      // Entity removed
+      actions.removeGroups([previous.identifier]);
+      continue;
+    }
+
+    if(next === null) {
+      continue;
+    }
+    const nextVisualGroup = next as VisualGroup;        // Have to cast, even though we know the type
+    const group = createGroupNode(nextVisualGroup);
+
+    if (previous === null) {
+      // Create new entity.
+      actions.addGroups([{group, content: nextVisualGroup.content}], false);
+      nextVisualGroup.content.forEach(nodeIdGroupId => {
+        nodeIdToParentGroupIdMap[nodeIdGroupId] = group.identifier;
+      });
+    }
+    else {          // Change of existing - occurs when removing node from canvas
+      actions.setGroup(group, nextVisualGroup.content);
+    }
+  }
+
   for (const { previous, next } of changes) {
     if (next !== null) {
-      // New or changed entity entity.
+      // New or changed entity.
       if (isVisualNode(next)) {
         const entity = entities[next.representedEntity]?.aggregatedEntity ?? null;
 
@@ -542,16 +594,27 @@ function onChangeVisualEntities(
           continue;
         }
 
+        let group: string | null = null;
+        if(nodeIdToParentGroupIdMap[next.identifier] !== undefined) {
+          group = nodeIdToParentGroupIdMap[next.identifier];
+        }
         const node = createDiagramNode(
           options, visualModel,
           attributes, attributeProfiles, profilingSources,
-          next, entity, model);
+          next, entity, model, group);
 
         if (previous === null) {
           // Create new entity.
           actions.addNodes([node]);
         } else {
           // Change of existing.
+          // TODO RadStr: It would be probably better update every time the change wasn't position change by user
+          //       because for position change by user, the change is already registered in diagram.
+          //       If we do that, the selection code needs to be changed to not remove the selected
+          //       elements, right now we are doing that explicitly so it is consistent with this code.
+          //       It might have negative side-effects though for non-user updates by layouting, etc.
+          //       Also might be difficult to check if it was position change. So wait a bit with implementation.
+          //       Maybe won't even implement it.
           actions.updateNodes([node]);
         }
 

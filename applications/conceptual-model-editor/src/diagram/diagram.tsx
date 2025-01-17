@@ -26,7 +26,7 @@ import { AlignmentComponent } from "./features/alignment-viewportal";
 import { type Node as ApiNode, EdgeType } from "./diagram-api";
 import { ClassProfileEdge, ClassProfileEdgeName } from "./edge/class-profile-edge";
 import { GeneralizationEdge, GeneralizationEdgeName } from "./edge/generalization-edge";
-import { CanvasToolbarGeneral } from "./canvas/canvas-toolbar-general";
+import { CanvasGeneralMenu } from "./canvas/canvas-menu-general";
 
 export function Diagram(props: { diagram: UseDiagramType }) {
   // We use ReactFlowProvider as otherwise use of ReactFlow hooks,
@@ -90,6 +90,7 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
           onPaneClick={controller.onPaneClick}
           onNodeMouseEnter={controller.onNodeMouseEnter}
           onNodeMouseLeave={controller.onNodeMouseLeave}
+          onNodeDoubleClick={controller.onNodeDoubleClick}
         >
           <Controls />
           <MiniMap nodeColor={miniMapNodeColor} pannable zoomable />
@@ -110,10 +111,7 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
           ? <PropertyEdgeToolbar value={controller.edgeToolbar} />
           : null
         }
-        {(controller.canvasToolbar !== null)
-          ? <CanvasToolbarGeneral value={controller.canvasToolbar} canvasContent={controller.canvasToolbar.toolbarContent} />
-          : null
-        }
+        <CanvasGeneralMenu canvasMenu={controller.canvasMenu} />
         <AlignmentComponent {...controller.alignmentController}></AlignmentComponent>
       </DiagramContext.Provider>
     </>

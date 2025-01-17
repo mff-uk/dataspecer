@@ -25,7 +25,7 @@ import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
-import { EntityToDelete, convertToEntitiesToDeleteType, getSelections, getViewportCenterForClassPlacement, setSelectionsInDiagram } from "./utilities";
+import { EntityToDelete, convertToEntitiesToDeleteType, findTopLevelGroupFromVisualModel, getSelections, getViewportCenterForClassPlacement, setSelectionsInDiagram } from "./utilities";
 import { removeFromVisualModelAction } from "./remove-from-visual-model";
 import { removeFromSemanticModelsAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
@@ -47,6 +47,8 @@ import { ExtensionType, NodeSelection, VisibilityFilter, extendSelectionAction, 
 import { createFilterSelectionDialog } from "../dialog/selection/filter-selection-dialog";
 import { EntityModel } from "@dataspecer/core-v2";
 import { openCreateAttributeForEntityDialogAction } from "./open-add-attribute-for-entity-dialog";
+import { addGroupToVisualModelAction } from "./add-group-to-visual-model";
+import { removeTopLevelGroupFromVisualModelAction } from "./remove-group-from-visual-model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -712,27 +714,44 @@ function createActionsContext(
 
     onCreateConnectionToNothing: (source, canvasPosition) => {
       console.log("Application.onCreateConnectionToNothing", { source, canvasPosition });
-      diagram.actions().openDragEdgeToCanvasToolbar(source, canvasPosition);
+      diagram.actions().openDragEdgeToCanvasMenu(source, canvasPosition);
     },
 
     onSelectionDidChange: (nodes, edges) => {
       console.log("Application.onSelectionDidChange", { nodes, edges });
     },
-    onToggleAnchorForNode: (diagramNode) => {
-      console.log("Application.onToggleAnchorForNode", { diagramNode });
+    onToggleAnchorForNode: (nodeIdentifier) => {
+      console.log("Application.onToggleAnchorForNode", { nodeIdentifier });
       withVisualModel(notifications, graph, (visualModel) => {
-        toggleAnchorAction(notifications, visualModel, diagramNode.externalIdentifier);
+        const topLevelGroup = findTopLevelGroupFromVisualModel(nodeIdentifier, visualModel);
+        toggleAnchorAction(notifications, visualModel, topLevelGroup ?? nodeIdentifier);
       });
     },
-    onShowSelectionActions: (source, canvasPosition) => {
+    onShowSelectionActionsMenu: (source, canvasPosition) => {
       console.log("Application.onShowSelectionActions", { source, canvasPosition });
-      diagram.actions().openSelectionActionsToolbar(source, canvasPosition);
+      diagram.actions().openSelectionActionsMenu(source, canvasPosition);
     },
     onLayoutSelection: () => {
       // TODO RadStr: Currently does nothing (In future - Opens layouting menu - 3 buttons - alignments + layouting)
     },
     onCreateGroup: () => {
-      // TODO RadStr: Currently does nothing (In future - Creating group)
+      withVisualModel(notifications, graph, (visualModel) => {
+        const { nodeSelection } = getSelections(diagram, false, true);
+        const groupIdentifier = addGroupToVisualModelAction(visualModel, nodeSelection);
+        // We also set anchor of all the underlying elements to null
+        // We lose the old values this way, but unless the user makes mistake there is no reason for him to care -
+        // He will dissolve the group after some time and by then he had already forgotten the old values
+        // We do this for simplification of code:
+        //   1) We don't have to always check if we are using group's anchor or the node's one
+        //   2) We don't have easy access to the group from diagram, respectively to its' anchor value
+        toggleAnchorAction(notifications, visualModel, groupIdentifier, null);
+      });
+    },
+    onDissolveGroup: (identifier: string | null) => {
+      console.info("diagram.actions().getNodes()", diagram.actions().getNodes());
+      withVisualModel(notifications, graph, (visualModel) => {
+        removeTopLevelGroupFromVisualModelAction(notifications, visualModel, identifier);
+      });
     },
     onShowExpandSelection: () => {
       const selectionToExpand = getSelections(diagram, false, true);
@@ -742,9 +761,9 @@ function createActionsContext(
       const selectionToFilter = getSelections(diagram, false, true);
       openFilterSelectionDialog({ nodeSelection: selectionToFilter.nodeSelection, edgeSelection: selectionToFilter.edgeSelection, areVisualModelIdentifiers: true });
     },
-    onCanvasOpenCreateClassDialog: (sourceClassNode, positionToPlaceClassOn) => {
+    onCanvasOpenCreateClassDialog: (nodeIdentifier, positionToPlaceClassOn) => {
       withVisualModel(notifications, graph, (visualModel) => {
-        openCreateClassDialogWithModelDerivedFromClassAction(notifications, graph, dialogs, classes, options, diagram, visualModel, sourceClassNode, positionToPlaceClassOn);
+        openCreateClassDialogWithModelDerivedFromClassAction(notifications, graph, dialogs, classes, options, diagram, visualModel, nodeIdentifier, positionToPlaceClassOn);
       });
     },
     onCreateNewViewFromSelection: () => {

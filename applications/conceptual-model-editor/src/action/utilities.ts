@@ -5,7 +5,7 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { configuration, createLogger } from "../application";
 import { ReactflowDimensionsConstantEstimator, XY, placePositionOnGrid } from "@dataspecer/layout";
-import { Position, VisualModel, WritableVisualModel, isVisualNode, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
+import { Position, VisualGroup, VisualModel, WritableVisualModel, isVisualNode, isVisualGroup, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
 import { Edge, EdgeType, Node } from "../diagram";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { ModelGraphContextType } from "../context/model-context";
@@ -99,7 +99,14 @@ export function setSelectionsInDiagram(selectionsToSetWith: Selections, diagram:
   diagram.actions().setSelectedEdges(selectionsToSetWith.edgeSelection);
 }
 
-export function getSelections(diagram: UseDiagramType, shouldFilterOutProfileClassEdges: boolean, shouldGetVisualIdentifiers: boolean): Selections {
+/**
+ * @returns Current selection in diagram, which has data formatted based on function arguments.
+ */
+export function getSelections(
+  diagram: UseDiagramType,
+  shouldFilterOutProfileClassEdges: boolean,
+  shouldGetVisualIdentifiers: boolean,
+): Selections {
   const nodeSelection = diagram.actions().getSelectedNodes();
   let edgeSelection = diagram.actions().getSelectedEdges();
 
@@ -210,4 +217,51 @@ const findAssociatedClassesAndClassUsages = async (
     {areIdentifiersFromVisualModel: false, identifiers: [classToFindAssociationsFor]},
     [ExtensionType.ASSOCIATION, ExtensionType.GENERALIZATION], VisibilityFilter.ONLY_VISIBLE_NODES, false, null);
   return selection;
+}
+
+/**
+ * @returns The top level group, or null if the node is not part of any group.
+ * Note that if {@link identifier} is id of group, then that id is returned if it is top level group.
+ */
+export function findTopLevelGroup<T>(
+  identifier: string,
+  existingGroups: Record<string, T>,
+  nodeToGroupMapping: Record<string, string>,
+): string | null {
+  if(nodeToGroupMapping[identifier] === undefined) {
+    return existingGroups[identifier] === undefined ? null : identifier;
+  }
+
+  let topLevelGroup = nodeToGroupMapping[identifier];
+  while(nodeToGroupMapping[topLevelGroup] !== undefined) {
+    topLevelGroup = nodeToGroupMapping[topLevelGroup];
+  }
+  return topLevelGroup;
+}
+
+export function findTopLevelGroupFromVisualModel(
+  identifier: string,
+  visualModel: VisualModel,
+): string | null {
+  const { existingGroups, nodeToGroupMapping } = getGroupMappings(visualModel);
+  const topLevelGroup = findTopLevelGroup(identifier, existingGroups, nodeToGroupMapping);
+  return topLevelGroup;
+}
+
+export function getGroupMappings(visualModel: VisualModel) {
+  const existingGroups: Record<string, VisualGroup> = {};
+  const nodeToGroupMapping: Record<string, string> = {};
+  for(const [identifier, group] of visualModel.getVisualEntities()) {
+    if(isVisualGroup(group)) {
+      existingGroups[identifier] = group;
+      for(const nodeInGroup of group.content) {
+        nodeToGroupMapping[nodeInGroup] = identifier;
+      }
+    }
+  }
+
+  return {
+    existingGroups,
+    nodeToGroupMapping,
+  };
 }

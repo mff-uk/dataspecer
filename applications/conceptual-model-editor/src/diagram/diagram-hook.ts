@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 
-import type { DiagramActions, DiagramCallbacks } from "./diagram-api";
+import type { DiagramCallbacks, DiagramActions } from "./diagram-api";
 
 export interface UseDiagramType {
 
@@ -91,7 +91,7 @@ const noOperationDiagramActions: DiagramActions = {
   centerViewportToNode: noOperation,
   fitToView: noOperation,
   getGroups: noOperationArray,
-  addGroup: noOperation,
+  addGroups: noOperation,
   removeGroups: noOperation,
   setGroup: noOperation,
   getGroupContent: noOperationArray,
@@ -105,8 +105,9 @@ const noOperationDiagramActions: DiagramActions = {
   setSelectedEdges: noOperation,
   getViewport: noOperationThrow,
   renderToSvgString: noOperationNullAsync,
-  openDragEdgeToCanvasToolbar: noOperation,
-  openSelectionActionsToolbar: noOperation,
+  openDragEdgeToCanvasMenu: noOperation,
+  openSelectionActionsMenu: noOperation,
+  openGroupMenu: noOperation,
   highlightNodeInExplorationModeFromCatalog: noOperation,
 };
 
@@ -130,9 +131,10 @@ const noOperationCallbacks: DiagramCallbacks = {
   onCreateConnectionToNode: noOperation,
   onCreateConnectionToNothing: noOperation,
   onToggleAnchorForNode: noOperation,
-  onShowSelectionActions: noOperation,
+  onShowSelectionActionsMenu: noOperation,
   onLayoutSelection: noOperation,
   onCreateGroup: noOperation,
+  onDissolveGroup: noOperation,
   onShowExpandSelection: noOperation,
   onShowFilterSelection: noOperation,
   onCanvasOpenCreateClassDialog: noOperation,

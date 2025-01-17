@@ -51,3 +51,8 @@ const writer: UseNotificationServiceWriterType = {
 export const useNotificationServiceWriter = (): UseNotificationServiceWriterType => {
   return writer;
 };
+
+export const noActionNotificationServiceWriter: UseNotificationServiceWriterType = {
+  success: () => {},
+  error: () => {},
+};

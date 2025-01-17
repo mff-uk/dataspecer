@@ -4,8 +4,8 @@ import { ReactPrevSetStateType } from "../../utilities";
 
 export const setHighlightingStylesBasedOnSelection = (
   reactflowInstance: ReactFlowInstance<any, any>,
-  nodes: string[],
-  edges: string[],
+  selectedNodes: string[],
+  selectedEdges: string[],
   setNodes: ReactPrevSetStateType<NodeType[]>,
   setEdges: ReactPrevSetStateType<Edge<any>[]>,
 ) => {
@@ -20,15 +20,19 @@ export const setHighlightingStylesBasedOnSelection = (
       storeEdgeCopyToGivenMap(edge, null, changedCopiesOfPreviousEdges);
     });
     // Set style of edges going from selected nodes
-    nodes.forEach(nodeIdentifier => {
+    selectedNodes.forEach(nodeIdentifier => {
       const reactflowNode = reactflowInstance.getNode(nodeIdentifier);
+      // Something is wrong, we are most-likely working with old, no longer valid values of selected nodes.
+      if(reactflowNode === undefined) {
+        return prevEdges;
+      }
       const connectedEdges = getConnectedEdges([reactflowNode], prevEdges);
       connectedEdges.forEach(edge => {
         storeEdgeCopyToGivenMap(edge, nextToHighlightedElementColor, changedCopiesOfPreviousEdges);
       });
     });
     // Set style of selected edges
-    edges.forEach(selectedEdgeId => {
+    selectedEdges.forEach(selectedEdgeId => {
       const edge = prevEdges.find(prevEdge => prevEdge.id === selectedEdgeId);
       if(edge === undefined) {
         return;
@@ -46,7 +50,7 @@ export const setHighlightingStylesBasedOnSelection = (
     // (after sure for example moves the viewport, it is highlighted again)
     setNodes(prevNodes => prevNodes.map(node => {
       const isChangedBasedOnSelectedEdge = changedNodesBasedOnEdgeSelection.find(nodeId => nodeId === node.id) !== undefined;
-      const isHighlighted = nodes.find(id => node.id === id) !== undefined;
+      const isHighlighted = selectedNodes.find(id => node.id === id) !== undefined;
 
       let newOutline: string | undefined = undefined;
       if(isHighlighted) {

@@ -1,3 +1,15 @@
+
+export type GroupWithContent = {
+  /**
+   * The group.
+   */
+  group: Group,
+  /**
+   * The group's content.
+   */
+  content: string[],
+}
+
 /**
  * Actions that can be executed on the editor component.
  */
@@ -11,11 +23,10 @@ export interface DiagramActions {
   getGroups(): Group[];
 
   /**
-   * Registers new {@link group} to the diagram.
-   * @param group is the group to be registered.
-   * @param content is optional content of the group.
+   * Registers new {@link groups} to the diagram.
+   * @param groups are the groups to be registered.
    */
-  addGroup(group: Group, content?: string[]): void;
+  addGroups(groups: GroupWithContent[], hideAddedTopLevelGroups: boolean): void;
 
   /**
    * Removes given groups from diagram.
@@ -70,13 +81,15 @@ export interface DiagramActions {
 
   /**
    * @param identifier is the id of the node.
-   * @returns The width of given node in the diagram component. Null if the width couldn't be measured. For example when the node isn't in diagram, etc.
+   * @returns The width of given node in the diagram component.
+   *          Null if the width couldn't be measured. For example when the node isn't in diagram, etc.
    */
   getNodeWidth(identifier: string): number | null;
 
   /**
    * @param identifier is the id of the node.
-   * @returns The height of given node in the diagram component. Null if the height couldn't be measured. For example when the node isn't in diagram, etc.
+   * @returns The height of given node in the diagram component.
+   *          Null if the height couldn't be measured. For example when the node isn't in diagram, etc.
    */
   getNodeHeight(identifier: string): number | null;
 
@@ -143,7 +156,7 @@ export interface DiagramActions {
    * Sets content of the diagram.
    * @returns When the diagram is ready.
    */
-  setContent(nodes: Node[], edges: Edge[]): Promise<void>;
+  setContent(nodes: Node[], edges: Edge[], groups: GroupWithContent[]): Promise<void>;
 
   // Viewport
 
@@ -176,22 +189,28 @@ export interface DiagramActions {
    */
   renderToSvgString(): Promise<string | null>;
 
-  // TODO RadStr: maybe just keep opening the canvas toolbars through context before we call the on... handler and don't expose through API?, similiarly to the closeCanvasToolbar,
-  //              .... Wait for it a bit after I add more canvas toolbars
-
   /**
-   * Opens toolbar on given {@link canvasPosition}, which represents the menu that appears when user drags edge to canvas.
-   * @param sourceDiagramNode is the node from which the connection dragging started
+   * Opens menu on given {@link canvasPosition}.
+   * The menu appears when user drags edge to canvas.
+   * @param sourceNode is the node from which the connection dragging started
    * @param position is the canvas position where user dragged the connection and on which will the menu appear
    */
-  openDragEdgeToCanvasToolbar(sourceNode: Node, canvasPosition: Position): void;
+  openDragEdgeToCanvasMenu(sourceNode: Node, canvasPosition: Position): void;
+  /**
+   * Opens menu on given {@link canvasPosition}.
+   * The menu appears when user clicks the actions button on selection.
+   * @param sourceNode is the node on which the user clicked the button.
+   * @param position is the canvas position where the menu will appear.
+   */
+  openSelectionActionsMenu(sourceNode: Node, canvasPosition: Position): void;
 
   /**
-   * Opens toolbar on given {@link canvasPosition}, which represents the menu that appears when user clicks the actions button on selection.
-   * @param sourceDiagramNode is the node on which the user clicked the button.
-   * @param position is the canvas position where the toolbar will appear.
+   * Opens menu on given {@link canvasPosition}.
+   * The menu represents control panel for group with given {@link groupIdentifier}.
+   * @param groupIdentifier is the identifier of the group.
+   * @param position is the position where the menu will appear.
    */
-  openSelectionActionsToolbar(sourceNode: Node, canvasPosition: Position): void;
+  openGroupMenu(groupIdentifier: string, canvasPosition: Position): void;
 
   /**
    * Sets correct highlighting values in context. We have to call it through the diagram API, because we have access to the rendering library (reactflow) only in diagram component.
@@ -406,9 +425,9 @@ interface DiagramNodes {
   onDeleteNode: (diagramNode: Node) => void;
 
   /**
-   * Called when user choses to create new class from diagram's canvas menu (toolbar).
+   * Called when user choses to create new class from diagram's canvas menu.
    */
-  onCanvasOpenCreateClassDialog: (diagramNode: Node, canvasPosition: Position) => void;
+  onCanvasOpenCreateClassDialog: (nodeIdentifier: string, canvasPosition: Position) => void;
 
   /**
    * Called when there is a change in node's positions in result
@@ -418,10 +437,11 @@ interface DiagramNodes {
   onChangeNodesPositions: (changes: { [nodeIdentifier: string]: Position }) => void;
 
   /**
-   * (Un)Anchors given node {@link diagramNode}
-   * @param diagramNode is the node to be (un)anchored
+   * (Un)Anchors node with given identifier ({@link nodeIdentifier}).
+   * If the given node is part of group, it is applied to the group.
+   * @param nodeIdentifier is the identifier of the node to be (un)anchored.
    */
-  onToggleAnchorForNode: (diagramNode: Node) => void;
+  onToggleAnchorForNode: (nodeIdentifier: string) => void;
 
   /**
    * Called when user starts creation of a new attribute for given node.
@@ -472,13 +492,12 @@ interface DiagramSelection {
    */
   onSelectionDidChange: (nodes: string[], edges: string[]) => void;
 
-  // TODO RadStr: Maybe don't have to put in the source argument
   /**
    * This method is called when user wants to see list of actions on selection.
    * @param source is the last selected node
    * @param canvasPosition is the position on canvas, where should be the list of actions shown.
    */
-  onShowSelectionActions: (source: Node, canvasPosition: Position) => void;
+  onShowSelectionActionsMenu: (source: Node, canvasPosition: Position) => void;
 
   /**
    * This method is called when user wants to layout selection.
@@ -489,6 +508,12 @@ interface DiagramSelection {
    * This method is called when user wants to create group selection.
    */
   onCreateGroup: () => void;
+
+  /**
+   * This method is called when user wants to dissolve (destroy) existing group.
+   * The top level group for given {@link identifier} is destroyed.
+   */
+  onDissolveGroup: (identifier: string | null) => void;
 
   /**
    * This method is called when user wants to show the dialog for expansion of selection.

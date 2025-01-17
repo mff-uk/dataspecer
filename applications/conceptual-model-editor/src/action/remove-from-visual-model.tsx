@@ -2,39 +2,50 @@ import {
   type VisualEntity,
   type VisualModel,
   WritableVisualModel,
+  isVisualGroup,
   isVisualNode,
   isVisualProfileRelationship,
   isVisualRelationship,
 } from "@dataspecer/core-v2/visual-model";
 
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
+import { removePartOfGroupContentAction } from "./remove-part-of-group-content";
 
-// TODO: PRQuestion - Added visualModel argument so it can be called with withVisualModel
 /**
  * Remove entity and related entities from visual model.
  */
 export function removeFromVisualModelAction(
-  _notifications: UseNotificationServiceWriterType,
+  notifications: UseNotificationServiceWriterType,
   visualModel: WritableVisualModel,
   identifiers: string[],
 ) {
-  const entitiesToRemove: string[] = [];
+  const entitiesToRemove: VisualEntity[] = [];
   for (const identifier of identifiers) {
     // Find the visual entities.
     const visualEntity = visualModel.getVisualEntityForRepresented(identifier);
     if (visualEntity === null) {
       // The entity is not part of the visual model and thus should not be visible.
       // We ignore the operation for such entity and show an error.
-      // TODO PRQuestion: Only error? not notification error?
       console.error("Missing visual entity.", { identifier, visualModel });
       continue;
     }
 
     entitiesToRemove.push(...collectVisualEntitiesToRemove(visualModel, visualEntity));
-    entitiesToRemove.push(visualEntity.identifier);
+    entitiesToRemove.push(visualEntity);
   }
   // Perform the delete operation of collected visual entities.
-  entitiesToRemove.forEach(id => visualModel.deleteVisualEntity(id));
+  const entitiesToRemoveIdentifiers = entitiesToRemove.map(entity => entity.identifier);
+  const removedGroups: string[] = [];
+  entitiesToRemove.forEach(entity => {
+    if(isVisualGroup(entity) && !removedGroups.includes(entity.identifier)) {
+      const isGroupRemoved = removePartOfGroupContentAction(notifications, visualModel, entity.identifier, entitiesToRemoveIdentifiers, false);
+      if(isGroupRemoved) {
+        removedGroups.push(entity.identifier);
+      }
+      return;
+    }
+    visualModel.deleteVisualEntity(entity.identifier);
+  });
 }
 
 /**
@@ -53,6 +64,9 @@ function collectVisualEntitiesToRemove(visualModel: VisualModel, removedEntity: 
       return entity.visualSource === removedEntity.identifier ||
         entity.visualTarget === removedEntity.identifier;
     }
+    else if(isVisualGroup(entity)) {
+      return entity.content.includes(removedEntity.identifier);
+    }
     return false;
-  }).map(entity => entity.identifier);
+  });
 }
