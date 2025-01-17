@@ -210,7 +210,8 @@ export interface DiagramActions {
   openGroupMenu(groupIdentifier: string, canvasPosition: Position): void;
 
   /**
-   * Sets correct highlighting values in context. We have to call it through the diagram API, because we have access to the rendering library (reactflow) only in diagram component.
+   * Sets correct highlighting values in context. We have to call it through the diagram API,
+   * because we have access to the rendering library (reactflow) only in diagram component.
    * @param nodeIdentifier is the identifier of the node to highlight
    */
   highlightNodeInExplorationModeFromCatalog(nodeIdentifier: string, modelOfClassWhichStartedHighlighting: string): void;
@@ -422,9 +423,31 @@ interface DiagramNodes {
   onDeleteNode: (diagramNode: Node) => void;
 
   /**
-   * Called when user choses to create new class from diagram's canvas menu (toolbar).
+   * Called when user chooses to create new class from diagram's canvas menu (toolbar).
    */
   onCanvasOpenCreateClassDialog: (nodeIdentifier: string, canvasPosition: Position) => void;
+
+  /**
+   * Called when user chooses to create new class from diagram's canvas menu with default association created afterwards.
+   * @param isCreatedClassTarget if set to true, then the association points to the created class. If set to false
+   * the directoon of the association is from the created class to the source class.
+   */
+  onCanvasOpenCreateClassDialogWithAssociation: (
+    nodeIdentifier: string,
+    canvasPosition: Position,
+    isCreatedClassTarget: boolean
+  ) => void;
+
+  /**
+   * Called when user choses to create new class from diagram's canvas menu with generalization created afterwards.
+   * @param isCreatedClassParent if set to true, then the the created class becomes parent of the source class.
+   * If set to false, it becomes child.
+   */
+  onCanvasOpenCreateClassDialogWithGeneralization: (
+    nodeIdentifier: string,
+    canvasPosition: Position,
+    isCreatedClassParent: boolean
+  ) => void;
 
   /**
    * Called when there is a change in node's positions in result

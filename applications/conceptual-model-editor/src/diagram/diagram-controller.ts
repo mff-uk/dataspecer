@@ -190,6 +190,8 @@ interface DiagramContextType {
   getShownNodeMenuType: () => NodeMenuType;
 
   getAreOnlyEdgesSelected: () => boolean;
+
+  cleanSelection: () => void;
 }
 
 export const DiagramContext = createContext<DiagramContextType | null>(null);
@@ -457,8 +459,8 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
   const { onOpenEdgeToolbar, onOpenCanvasMenu, alignmentController } = createdPartOfDiagramController;
 
   const context = useMemo(() => createDiagramContext(
-    api, onOpenEdgeToolbar, onOpenCanvasMenu, canvasMenu?.menuContent ?? null, setCanvasMenu, selectedNodes, selectedEdges, userSelectedNodes),
-  [api, onOpenEdgeToolbar, onOpenCanvasMenu, canvasMenu, setCanvasMenu, selectedNodes, selectedEdges, userSelectedNodes]
+    api, onOpenEdgeToolbar, onOpenCanvasMenu, canvasMenu?.menuContent ?? null, setCanvasMenu, cleanSelection, selectedNodes, selectedEdges, userSelectedNodes),
+  [api, onOpenEdgeToolbar, onOpenCanvasMenu, canvasMenu, setCanvasMenu, cleanSelection, selectedNodes, selectedEdges, userSelectedNodes]
   );
 
   const canvasHighlighting = useExplorationCanvasHighlightingController(setNodes, setEdges);
@@ -1861,6 +1863,7 @@ const createDiagramContext = (
   onOpenCanvasContextMenu: OpenCanvasContextMenuHandler,
   openedCanvasMenu: CanvasMenuContentType | null,
   setCanvasMenu: (_: null) => void,
+  cleanSelection: () => void,
   selectedNodes: string[],
   selectedEdges: string[],
   userSelectedNodes: string[],
@@ -1879,7 +1882,7 @@ const createDiagramContext = (
     closeCanvasMenu,
     getNodeWithMenu: () => userSelectedNodes.at(-1) ?? null,
     getShownNodeMenuType: () => shownNodeToolbarType,
-
+    cleanSelection,
     getAreOnlyEdgesSelected,
   };
 };

@@ -284,4 +284,10 @@ export const translations: Record<string, string | Function> = {
   //
   "exploration-mode-button.title": "Toggle highlighting exploration mode",
   "exploration-mode-button.name": "Exploration",
+  //
+  "drag-edge-to-canvas-create-association-target": "Create new association target",
+  "drag-edge-to-canvas-create-association-source": "Create new association source",
+  "drag-edge-to-canvas-create-generalization-parent": "Create new parent",
+  "drag-edge-to-canvas-create-generalization-child": "Create new child",
+  "drag-edge-to-canvas-create-new-class": "Create new class",
 };

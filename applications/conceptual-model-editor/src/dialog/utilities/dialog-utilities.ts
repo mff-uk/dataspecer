@@ -8,6 +8,9 @@ import { createLogger } from "../../application";
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { CmeModel, OwlVocabulary, UndefinedCmeVocabulary } from "../../dataspecer/cme-model";
 import { IRI } from "iri";
+import { VisualModel } from "@dataspecer/core-v2/visual-model";
+import { ModelGraphContextType } from "../../context/model-context";
+import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 
 const LOG = createLogger(import.meta.url);
 
@@ -78,6 +81,16 @@ function findOwnerVocabulary(
   }
   LOG.invalidEntity(entityIdentifier, "Entity is without an model.");
   return null;
+};
+
+export function findVocabularyForModel(
+  graph: ModelGraphContextType,
+  visualModel: VisualModel,
+  model: string,
+): CmeModel | null {
+    const vocabularies = entityModelsMapToCmeVocabulary(graph.models, visualModel);
+    const vocabulary = vocabularies.find(item => item.dsIdentifier === model);
+    return vocabulary ?? null;
 };
 
 export function representClassProfiles(

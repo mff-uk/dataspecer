@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 
-import type { DiagramCallbacks, DiagramActions } from "./diagram-api";
+import type { DiagramCallbacks, DiagramActions, Position } from "./diagram-api";
 
 export interface UseDiagramType {
 
@@ -138,6 +138,8 @@ const noOperationCallbacks: DiagramCallbacks = {
   onShowExpandSelection: noOperation,
   onShowFilterSelection: noOperation,
   onCanvasOpenCreateClassDialog: noOperation,
+  onCanvasOpenCreateClassDialogWithAssociation: noOperation,
+  onCanvasOpenCreateClassDialogWithGeneralization: noOperation,
   onCreateNewViewFromSelection: noOperation,
   onProfileSelection: noOperation,
   onHideSelection: noOperation,

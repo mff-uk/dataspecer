@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from "react";
 
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { Waypoint, WritableVisualModel, isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { Waypoint, WritableVisualModel, isVisualNode, isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { type DialogApiContextType } from "../dialog/dialog-service";
 import { DialogApiContext } from "../dialog/dialog-context";
@@ -18,7 +18,7 @@ import { openDetailDialogAction } from "./open-detail-dialog";
 import { openModifyDialogAction } from "./open-modify-dialog";
 import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
 import { openCreateConnectionDialogAction } from "./open-create-connection";
-import { openCreateClassDialogAction } from "./open-create-class-dialog";
+import { CreatedSemanticEntityData, openCreateClassDialogAction } from "./open-create-class-dialog";
 import { openCreateVocabularyAction } from "./open-create-vocabulary";
 import { addSemanticClassToVisualModelAction } from "./add-class-to-visual-model";
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
@@ -29,7 +29,7 @@ import { EntityToDelete, convertToEntitiesToDeleteType, findTopLevelGroupFromVis
 import { removeFromVisualModelAction } from "./remove-from-visual-model";
 import { removeFromSemanticModelsAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
-import { openCreateAssociationDialogAction } from "./open-create-association-dialog";
+import { createSemanticAssociation, openCreateAssociationDialogAction } from "./open-create-association-dialog";
 import { addEntitiesFromSemanticModelToVisualModelAction } from "./add-entities-from-semantic-model-to-visual-model";
 import { createNewVisualModelFromSelectionAction } from "./create-new-visual-model-from-selection";
 import { addClassNeighborhoodToVisualModelAction } from "./add-class-neighborhood-to-visual-model";
@@ -49,6 +49,12 @@ import { EntityModel } from "@dataspecer/core-v2";
 import { openCreateAttributeForEntityDialogAction } from "./open-add-attribute-for-entity-dialog";
 import { addGroupToVisualModelAction } from "./add-group-to-visual-model";
 import { removeTopLevelGroupFromVisualModelAction } from "./remove-group-from-visual-model";
+import { createCreateAssociationDialogState } from "../dialog/association/create-new-association-dialog-state";
+import { EntityRepresentative, findRepresentative, findVocabularyForModel, representClasses } from "../dialog/utilities/dialog-utilities";
+import { EditClassDialogState } from "../dialog/class/edit-class-dialog-controller";
+import { createCreateConnectionState } from "../dialog/obsolete/create-connection-dialog";
+import { GeneralizationConnectionType } from "../util/edge-connection";
+import { openCreateClassDialogAndCreateAssociationAction, openCreateClassDialogAndCreateGeneralizationAction } from "./open-create-class-dialog-with-edge";
 
 const LOG = createLogger(import.meta.url);
 
@@ -486,7 +492,7 @@ function createActionsContext(
     if (modelInstance === null || modelInstance instanceof InMemorySemanticModel) {
       openCreateClassDialogAction(
         options, dialogs, classes, graph, notifications, visualModel,
-        diagram, modelInstance, null);
+        diagram, modelInstance, null, null);
     } else {
       notifications.error("Can not add to given model.");
     }
@@ -759,11 +765,30 @@ function createActionsContext(
     },
     onShowFilterSelection: () => {
       const selectionToFilter = getSelections(diagram, false, true);
-      openFilterSelectionDialog({ nodeSelection: selectionToFilter.nodeSelection, edgeSelection: selectionToFilter.edgeSelection, areVisualModelIdentifiers: true });
+      openFilterSelectionDialog({
+        nodeSelection: selectionToFilter.nodeSelection,
+        edgeSelection: selectionToFilter.edgeSelection,
+        areVisualModelIdentifiers: true
+      });
     },
     onCanvasOpenCreateClassDialog: (nodeIdentifier, positionToPlaceClassOn) => {
       withVisualModel(notifications, graph, (visualModel) => {
-        openCreateClassDialogWithModelDerivedFromClassAction(notifications, graph, dialogs, classes, options, diagram, visualModel, nodeIdentifier, positionToPlaceClassOn);
+        openCreateClassDialogWithModelDerivedFromClassAction(notifications, graph, dialogs, classes, options,
+          diagram, visualModel, nodeIdentifier, positionToPlaceClassOn, null);
+      });
+    },
+    onCanvasOpenCreateClassDialogWithAssociation: (nodeIdentifier, positionToPlaceClassOn, isCreatedClassTarget) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+          openCreateClassDialogAndCreateAssociationAction(notifications, dialogs, classes, options, graph,
+            diagram, visualModel, nodeIdentifier, isCreatedClassTarget, positionToPlaceClassOn);
+      });
+    },
+    onCanvasOpenCreateClassDialogWithGeneralization: (nodeIdentifier, positionToPlaceClassOn, isCreatedClassParent) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        openCreateClassDialogAndCreateGeneralizationAction(
+          notifications, dialogs, classes, useClasses, options, graph, diagram,
+          visualModel, nodeIdentifier, isCreatedClassParent, positionToPlaceClassOn,
+        );
       });
     },
     onCreateNewViewFromSelection: () => {
