@@ -27,6 +27,7 @@ import { SearchDialog } from "../../cim-search/search-dialog";
 import { getCardinality } from "../common/cardinality";
 import Inventory2TwoToneIcon from '@mui/icons-material/Inventory2TwoTone';
 import { CreateNonInterpretedAttribute } from "../../../operations/create-non-interpreted-attribute";
+import { isWikidataAdapter } from "@dataspecer/wikidata-experimental-adapter";
 
 /**
  * Because classes and containers are so similar, they share this component to make implementation simpler.
@@ -47,14 +48,16 @@ export const DataPsmClassItem: React.FC<{
   const objectContext = props as ObjectContext;
   const partContext = props as ClassPartContext;
 
-  const {dataSpecificationIri, dataSpecifications, operationContext} = useContext(ConfigurationContext);
+  const {dataSpecificationIri, dataSpecifications, operationContext, sourceSemanticModel} = useContext(ConfigurationContext);
 
   const {dataPsmResource: dataPsmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, ExtendedSemanticModelClass>(type === "class" ? props.iri : (type === "container" ? partContext.parentDataPsmClassIri : null));
   const readOnly = false;
   const isCodelist = pimClass?.isCodelist ?? false;
   const cimClassIri = pimClass?.iri;
 
-  const AddSurroundings = useDialog(false ? WikidataAddInterpretedSurroundingsDialog : AddInterpretedSurroundingsDialog, ["dataPsmClassIri", "forPimClassIri"]);
+  // @ts-ignore
+  const unwrappedAdapter = sourceSemanticModel?.model?.cimAdapter ?? null;
+  const AddSurroundings = useDialog(isWikidataAdapter(unwrappedAdapter) ? WikidataAddInterpretedSurroundingsDialog : AddInterpretedSurroundingsDialog, ["dataPsmClassIri", "forPimClassIri"]);
 
   const store = useFederatedObservableStore();
   const include = useCallback(() =>

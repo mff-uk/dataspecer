@@ -25,34 +25,55 @@ import { useWdPropertySelection } from "./hooks/use-wd-property-selection";
 import { ReadOnlyMemoryStore } from "@dataspecer/core/core/index";
 import { transformSelectedSurroundings } from "./property-selection-record/transform-selected-surroundings";
 import { WikidataPropertiesPanel } from "./wikidata-properties-panel/wikidata-properties-panel";
+import { SemanticModelClass, SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
+import { PrefixIriProvider } from "@dataspecer/core/cim";
+import { transformCoreResources } from "@dataspecer/core-v2/semantic-model/v1-adapters";
+
+const identityIriProvider = new PrefixIriProvider();
 
 interface WikidataAddInterpretedSurroundingDialogContentProps
     extends AddInterpretedSurroundingDialogProperties {
-    pimClass: PimClass;
+    pimClass: SemanticModelClass;
     dataPsmClass: DataPsmClass;
     wdRootClassId: WdEntityId;
 }
 
 export const WikidataAddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundingDialogProperties> =
     dialog({ fullWidth: true, maxWidth: "xl", PaperProps: { sx: { height: "90%" } } }, (props) => {
-        // @ts-ignore
-        const { cim } = React.useContext(ConfigurationContext);
+        const { sourceSemanticModel } = React.useContext(ConfigurationContext);
         const { pimResource: pimClass, dataPsmResource: dataPsmClass } =
-        // @ts-ignore
-            useDataPsmAndInterpretedPim<DataPsmClass, PimClass>(props.dataPsmClassIri);
-        const cimClassIri = pimClass?.pimInterpretation;
+            useDataPsmAndInterpretedPim<DataPsmClass, SemanticModelClass>(props.dataPsmClassIri);
+        const cimClassIri = pimClass?.iri;
 
-        if (props.isOpen && cimClassIri && isWikidataAdapter(cim.cimAdapter)) {
+        // @ts-ignore
+        const unwrappedAdapter = sourceSemanticModel?.model?.cimAdapter ?? null;
+
+        const selected = (operation: {
+            resourcesToAdd: [string, boolean][],
+            sourcePimModel: SemanticModelEntity[],
+            forDataPsmClass: DataPsmClass,
+        }) => {
+            // @ts-ignore
+            const pimResources = operation.sourcePimModel.resources;
+            props.selected({
+                resourcesToAdd: operation.resourcesToAdd,
+                forDataPsmClass: operation.forDataPsmClass,
+                sourcePimModel: Object.values(transformCoreResources(pimResources)) as SemanticModelEntity[],
+            });
+        };
+
+        if (props.isOpen && cimClassIri) {
             return (
                 <WikidataAdapterContext.Provider
-                    value={{ iriProvider: cim.iriProvider, wdAdapter: cim.cimAdapter }}
+                    value={{ iriProvider: identityIriProvider, wdAdapter: unwrappedAdapter }}
                 >
                     <QueryClientProvider client={queryClient}>
                         <WikidataAddInterpretedSurroundingsDialogContent
                             {...props}
+                            selected={selected}
                             pimClass={pimClass}
                             dataPsmClass={dataPsmClass}
-                            wdRootClassId={wdIriToNumId(pimClass.pimInterpretation)}
+                            wdRootClassId={wdIriToNumId(pimClass.iri)}
                         />
                     </QueryClientProvider>
                 </WikidataAdapterContext.Provider>
