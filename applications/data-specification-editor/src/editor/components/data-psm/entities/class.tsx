@@ -26,6 +26,7 @@ import { DataPsmClassSubtree } from "../subtrees/class-subtree";
 import { SearchDialog } from "../../cim-search/search-dialog";
 import { getCardinality } from "../common/cardinality";
 import Inventory2TwoToneIcon from '@mui/icons-material/Inventory2TwoTone';
+import { CreateNonInterpretedAttribute } from "../../../operations/create-non-interpreted-attribute";
 
 /**
  * Because classes and containers are so similar, they share this component to make implementation simpler.
@@ -70,6 +71,10 @@ export const DataPsmClassItem: React.FC<{
     op.setContext(operationContext);
     store.executeComplexOperation(op).then();
   }, [store, props, operationContext, dataSpecifications, dataSpecificationIri]);
+
+  const addNonInterpretedAttribute = () => store.executeComplexOperation(
+    new CreateNonInterpretedAttribute(props.iri)
+  );
 
   const collapseSubtree = useToggle(objectContext.contextType !== "reference");
 
@@ -141,6 +146,7 @@ export const DataPsmClassItem: React.FC<{
       {t("Add import")}
     </MenuItem>
     <MenuItem onClick={() => { close(); addNonInterpretedAssociationClass(); }}>{t("add non-interpreted class")}</MenuItem>
+    <MenuItem onClick={() => { close(); addNonInterpretedAttribute(); }}>{t("add non-interpreted attribute")}</MenuItem>
     <MenuItem onClick={() => { close(); searchDialogToggle.open(); }}>{t("add interpreted class")}</MenuItem>
     <MenuItem onClick={() => { close(); addContainer("sequence"); }}>{t("add xs sequence container")}</MenuItem>
     <MenuItem onClick={() => { close(); addContainer("choice"); }}>{t("add xs choice container")}</MenuItem>

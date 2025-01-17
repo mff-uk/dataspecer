@@ -110,7 +110,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
     useEffect(() => {
         const entity = semanticRelationshipEnd ?? pimResource as ExtendedSemanticModelClass;
-        if ((isAttribute || isClass) && entity) {
+        if ((isAttribute || isClass) && entity && isInterpreted) {
             setRegex(entity!.regex ?? "");
             setExamples(entity!.example ?? null);
         }
@@ -195,7 +195,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
     let currentRegex = null;
     let currentExamples = null;
-    if (isStringDatatype || isClass) {
+    if ((isStringDatatype || isClass) && isInterpreted) {
         if (isClass) {
             currentRegex = (pimResource as ExtendedSemanticModelClass)?.regex ?? null;
             currentExamples = (pimResource as ExtendedSemanticModelClass)?.example ?? null;
@@ -207,7 +207,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
     const normalizedRegex = regex === "" ? null : regex;
     useSaveHandler(
-        (isStringDatatype || isClass) && normalizedRegex !== currentRegex,
+        ((isStringDatatype || isClass) && isInterpreted) && normalizedRegex !== currentRegex,
         useCallback(async () => {
             await store.executeComplexOperation(new SetRegex(pimResource?.id as string, normalizedRegex));
         }, [normalizedRegex, pimResource?.id, store])
@@ -215,7 +215,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
     const normalizedExamples = examples === null || examples.length === 0 ? null : examples;
     useSaveHandler(
-        (isStringDatatype || isClass) && !isEqual(normalizedExamples, currentExamples),
+        ((isStringDatatype || isClass) && isInterpreted) && !isEqual(normalizedExamples, currentExamples),
         useCallback(async () => {
             await store.executeComplexOperation(new SetExample(pimResource?.id as string, normalizedExamples));
         }, [normalizedExamples, pimResource?.id, store])
