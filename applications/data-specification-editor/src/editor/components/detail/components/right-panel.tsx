@@ -1,5 +1,5 @@
 import { ExtendedSemanticModelClass, ExtendedSemanticModelRelationship, ExtendedSemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
-import { DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass } from "@dataspecer/core/data-psm/model";
+import { DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmContainer } from "@dataspecer/core/data-psm/model";
 import { useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
 import {
     Alert,
@@ -29,7 +29,7 @@ import { InfoHelp } from "../../../../components/info-help";
 import { useDataPsmAndInterpretedPim } from "../../../hooks/use-data-psm-and-interpreted-pim";
 import { Icons } from "../../../icons";
 import { CardContent } from "../../../mui-overrides";
-import { SetCardinality } from "../../../operations/set-cardinality";
+import { SetCardinality, SetCardinalityPsm } from "../../../operations/set-cardinality";
 import { SetClassCodelist } from "../../../operations/set-class-codelist";
 import { SetDataPsmDatatype } from "../../../operations/set-data-psm-datatype";
 import { SetDematerialize } from "../../../operations/set-dematerialize";
@@ -40,7 +40,7 @@ import { SetPimDatatype } from "../../../operations/set-pim-datatype";
 import { SetRegex } from "../../../operations/set-regex";
 import { SetTechnicalLabel } from "../../../operations/set-technical-label";
 import { knownDatatypes } from "../../../utils/known-datatypes";
-import { Cardinality, CardinalitySelector, cardinalityFromPim } from "../../helper/cardinality-selector";
+import { Cardinality, CardinalitySelector, cardinalityFromPim, cardinalityFromPsm } from "../../helper/cardinality-selector";
 import { DatatypeSelector, DatatypeSelectorValueType, getIriFromDatatypeSelectorValue } from "../../helper/datatype-selector";
 import { RegexField } from "../../helper/regex-field";
 import { useSaveHandler } from "../../helper/save-handler";
@@ -55,6 +55,8 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
     const isAttribute = DataPsmAttribute.is(resource);
     const isAssociationEnd = DataPsmAssociationEnd.is(resource);
     const isClass = DataPsmClass.is(resource);
+    const isContainer = DataPsmContainer.is(resource);
+    const isInterpreted = resource.dataPsmInterpretation !== null;
     //const isCodelist = (isClass && (pimResource as PimClass)?.pimIsCodelist) ?? false;
 
     const readOnly = false;
@@ -108,7 +110,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
     useEffect(() => {
         const entity = semanticRelationshipEnd ?? pimResource as ExtendedSemanticModelClass;
-        if ((isAttribute || isClass) && entity) {
+        if ((isAttribute || isClass) && entity && isInterpreted) {
             setRegex(entity!.regex ?? "");
             setExamples(entity!.example ?? null);
         }
@@ -193,7 +195,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
     let currentRegex = null;
     let currentExamples = null;
-    if (isStringDatatype || isClass) {
+    if ((isStringDatatype || isClass) && isInterpreted) {
         if (isClass) {
             currentRegex = (pimResource as ExtendedSemanticModelClass)?.regex ?? null;
             currentExamples = (pimResource as ExtendedSemanticModelClass)?.example ?? null;
@@ -205,7 +207,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
     const normalizedRegex = regex === "" ? null : regex;
     useSaveHandler(
-        (isStringDatatype || isClass) && normalizedRegex !== currentRegex,
+        ((isStringDatatype || isClass) && isInterpreted) && normalizedRegex !== currentRegex,
         useCallback(async () => {
             await store.executeComplexOperation(new SetRegex(pimResource?.id as string, normalizedRegex));
         }, [normalizedRegex, pimResource?.id, store])
@@ -213,7 +215,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
     const normalizedExamples = examples === null || examples.length === 0 ? null : examples;
     useSaveHandler(
-        (isStringDatatype || isClass) && !isEqual(normalizedExamples, currentExamples),
+        ((isStringDatatype || isClass) && isInterpreted) && !isEqual(normalizedExamples, currentExamples),
         useCallback(async () => {
             await store.executeComplexOperation(new SetExample(pimResource?.id as string, normalizedExamples));
         }, [normalizedExamples, pimResource?.id, store])
@@ -224,17 +226,28 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
     const [cardinality, setCardinality] = useState<Cardinality | null>(null);
 
     useEffect(() => {
-        if (isAttribute || isAssociationEnd) {
-            setCardinality(cardinalityFromPim(semanticRelationshipEnd));
+        if (isAttribute || isAssociationEnd || isContainer) {
+            if (isInterpreted) {
+                setCardinality(cardinalityFromPim(semanticRelationshipEnd));
+            } else {
+                setCardinality(cardinalityFromPsm(resource as DataPsmAttribute | DataPsmAssociationEnd));
+            }
         }
-    }, [semanticRelationshipEnd, isAttribute, isAssociationEnd]);
+    }, [semanticRelationshipEnd, isAttribute, isAssociationEnd, isInterpreted]);
 
+    const saveCardinalityPim = useCallback(
+        async () => (isAttribute || isAssociationEnd) && pimResource && cardinality && await store.executeComplexOperation(new SetCardinality(pimResource.id as string, semanticRelationshipEndIndex, cardinality.cardinalityMin, cardinality.cardinalityMax)),
+        [semanticRelationshipEndIndex, cardinality, isAttribute, isAssociationEnd, store, pimResource]
+    );
+    const saveCardinalityPsm = useCallback(
+        async () => (isAttribute || isAssociationEnd || isContainer) && resource && cardinality && await store.executeComplexOperation(new SetCardinalityPsm(resource.iri as string, cardinality.cardinalityMin, cardinality.cardinalityMax)),
+        [isAttribute, isAssociationEnd, isContainer, store, resource, cardinality]
+    );
     useSaveHandler(
-        (isAttribute || isAssociationEnd) && !isEqual(cardinality, cardinalityFromPim(semanticRelationshipEnd)),
-        useCallback(
-            async () => (isAttribute || isAssociationEnd) && pimResource && cardinality && await store.executeComplexOperation(new SetCardinality(pimResource.id as string, semanticRelationshipEndIndex, cardinality.cardinalityMin, cardinality.cardinalityMax)),
-            [semanticRelationshipEndIndex, cardinality, isAttribute, isAssociationEnd, store, pimResource]
-        ),
+        isInterpreted ?
+            (isAttribute || isAssociationEnd) && !isEqual(cardinality, cardinalityFromPim(semanticRelationshipEnd)) :
+            (isAttribute || isAssociationEnd || isContainer) && !isEqual(cardinality, cardinalityFromPsm(resource as DataPsmAttribute | DataPsmAssociationEnd)),
+        isInterpreted ? saveCardinalityPim : saveCardinalityPsm,
     );
 
     // region class is closed
@@ -282,28 +295,30 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
     // endregion instances have identity
 
     return <>
-        <Box sx={{mb: 3}}>
-            <Typography variant="subtitle1" component="h2">
-                {t('label technical label')}
-            </Typography>
-            <TextField
-                autoFocus
-                disabled={readOnly}
-                margin="dense"
-                //label={t('label technical label')}
-                hiddenLabel
-                fullWidth
-                variant="filled"
-                value={technicalLabel}
-                onChange={event => setTechnicalLabel(event.target.value)}
-               /* onKeyDown={event => {
-                    if (event.key === "Enter") {
-                        event.preventDefault();
-                        onConfirm().then();
-                    }
-                }}*/
-            />
-        </Box>
+        {(isClass || isAttribute || isAssociationEnd) &&
+            <Box sx={{mb: 3}}>
+                <Typography variant="subtitle1" component="h2">
+                    {t('label technical label')}
+                </Typography>
+                <TextField
+                    autoFocus
+                    disabled={readOnly}
+                    margin="dense"
+                    //label={t('label technical label')}
+                    hiddenLabel
+                    fullWidth
+                    variant="filled"
+                    value={technicalLabel}
+                    onChange={event => setTechnicalLabel(event.target.value)}
+                /* onKeyDown={event => {
+                        if (event.key === "Enter") {
+                            event.preventDefault();
+                            onConfirm().then();
+                        }
+                    }}*/
+                />
+            </Box>
+        }
 
         {isClass &&
             <Box sx={{mb: 3}}>
@@ -425,6 +440,16 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
                 <FormControlLabel value="NEVER" control={<Radio />} label={t('instancesHaveIdentity.value.never')} />
                 <FormControlLabel value="DEFAULT" control={<Radio />} label={t('instancesHaveIdentity.value.default')} />
             </RadioGroup>
+        </>}
+
+        {isContainer && <>
+            <Box sx={{mb: 3}}>
+                <Typography variant="subtitle1" component="h2">
+                    {t('title cardinality')}
+                </Typography>
+
+                {cardinality && <CardinalitySelector value={cardinality} onChange={setCardinality} disabled={pimReadOnly} />}
+            </Box>
         </>}
 
         {(!isClass || (isClass && instancesHaveIdentity !== "NEVER")) &&

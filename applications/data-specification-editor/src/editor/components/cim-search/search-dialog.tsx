@@ -9,36 +9,46 @@ import { WikidataAdapterContext } from "../wikidata/wikidata-adapter-context";
 import { DefaultSearchDialogContent } from "./default-search-dialog-content/default-search-dialog-content";
 import { WikidataSearchDialogContent } from "./wikidata-search-dialog-content/wikidata-search-dialog-content";
 import { wikidataSearchQueryClient } from "./wikidata-search-dialog-content/wikidata-search-query-client";
+import { isWikidataAdapter } from "@dataspecer/wikidata-experimental-adapter";
+import { PrefixIriProvider } from "@dataspecer/core/cim";
+import { PimClass } from "@dataspecer/core/pim/model/pim-class";
+import { transformCoreResources } from "@dataspecer/core-v2/semantic-model/v1-adapters";
 
-export const SearchDialog: React.FC<DialogParameters & {selected: (cls: any) => void}>
-    = dialog({maxWidth: "md", fullWidth: true, PaperProps: { sx: { height: "90%" } }}, (props) => {
-        // @ts-ignore
-        const {cim} = React.useContext(ConfigurationContext);
-        const {t} = useTranslation("search-dialog");
+const identityIriProvider = new PrefixIriProvider();
 
-    return ( 
-        <>
-            <DialogTitle>
-                {t("title")}
-                <CloseDialogButton onClick={props.close} />
-            </DialogTitle>
-            <DialogContent>
-                { 
-                    // isWikidataAdapter(cim.cimAdapter)
-                    false
-                    ? 
-                        <WikidataAdapterContext.Provider
-                            value={{ iriProvider: cim.iriProvider, wdAdapter: cim.cimAdapter }}
-                        >
-                            <QueryClientProvider client={wikidataSearchQueryClient}>
-                                {/* @ts-ignore */}
-                                <WikidataSearchDialogContent {...props} />
-                            </QueryClientProvider>
-                        </WikidataAdapterContext.Provider>
-                    :
-                    <DefaultSearchDialogContent {...props} />
-                }
-            </DialogContent>
-        </>
-    )
-});
+export const SearchDialog: React.FC<DialogParameters & { selected: (cls: any) => void }> = dialog(
+  { maxWidth: "md", fullWidth: true, PaperProps: { sx: { height: "90%" } } },
+  (props) => {
+    const { sourceSemanticModel } = React.useContext(ConfigurationContext);
+    const { t } = useTranslation("search-dialog");
+
+    // @ts-ignore
+    const unwrappedAdapter = sourceSemanticModel?.model?.cimAdapter ?? null;
+
+    const selectWrapped = (foundClass: PimClass) => {
+      const transformed = transformCoreResources({ [foundClass.iri as string]: foundClass });
+      props.selected(transformed[foundClass.iri as string]);
+    };
+
+    return (
+      <>
+        <DialogTitle>
+          {t("title")}
+          <CloseDialogButton onClick={props.close} />
+        </DialogTitle>
+        <DialogContent>
+          {isWikidataAdapter(unwrappedAdapter) ? (
+            <WikidataAdapterContext.Provider value={{ iriProvider: identityIriProvider, wdAdapter: unwrappedAdapter }}>
+              <QueryClientProvider client={wikidataSearchQueryClient}>
+                {/* @ts-ignore */}
+                <WikidataSearchDialogContent {...props} selected={selectWrapped} />
+              </QueryClientProvider>
+            </WikidataAdapterContext.Provider>
+          ) : (
+            <DefaultSearchDialogContent {...props} />
+          )}
+        </DialogContent>
+      </>
+    );
+  }
+);

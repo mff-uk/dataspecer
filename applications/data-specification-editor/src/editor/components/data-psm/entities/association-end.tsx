@@ -62,7 +62,7 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots & Clas
       {hasHumanLabelOnAssociationEnd ?
         <DataPsmGetLabelAndDescription dataPsmResourceIri={props.iri}>
           {(label, description) =>
-            <Span title={description} sx={isCodelist ? sxStyles.attribute : sxStyles.association}>{label ?? "[unnamed association]"}</Span>
+            <Span title={description} sx={isCodelist ? sxStyles.attribute : sxStyles.association}>{label ?? "[association]"}</Span>
           }
         </DataPsmGetLabelAndDescription>
         :
@@ -71,11 +71,16 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots & Clas
             <LanguageStringUndefineable from={incorrectEnd?.description ?? null}>
               {description => <>
                 {isBackwardsAssociation && <strong>{t("backwards association")}{" "}</strong>}
-                <Span title={description} sx={isCodelist ? sxStyles.attribute : sxStyles.association}>{label ?? "[unnamed association]"}</Span>
+                <Span title={description} sx={isCodelist ? sxStyles.attribute : sxStyles.association}>{label ?? "[association]"}</Span>
               </>}
             </LanguageStringUndefineable>
           }
         </LanguageStringUndefineable>
+      }
+      {" "}
+
+      {!!(dataPsmAssociationEnd?.dataPsmTechnicalLabel && dataPsmAssociationEnd.dataPsmTechnicalLabel.length) &&
+          <>(<Span sx={sxStyles.technicalLabel}>{dataPsmAssociationEnd.dataPsmTechnicalLabel}</Span>)</>
       }
       {":"}
     </StrikeOut>
@@ -84,12 +89,6 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots & Clas
   </>;
 
   const thisEndRow = <>
-    {" "}
-
-    {!!(dataPsmAssociationEnd?.dataPsmTechnicalLabel && dataPsmAssociationEnd.dataPsmTechnicalLabel.length) &&
-        <>(<Span sx={sxStyles.technicalLabel}>{dataPsmAssociationEnd.dataPsmTechnicalLabel}</Span>)</>
-    }
-
     {pimSemanticRelationship && (" " + getCardinalityFromResource(pimSemanticRelationship))}
   </>;
 

@@ -19,8 +19,8 @@
   "confirm": "potvrdit",
   "dematerialization": {
     "cardinality restriction": "Dematerializovat lze pouze ty asociace, které nemají kardinalitu vyšší než 1.",
-    "help": "Dematerializováním asociace se všechny prvky odkazované třídy přesunou přímo do rodičovské třídy. Asociace pak nebude ve schématu zanesena.",
     "checkbox": "dematerializovat asociaci",
+    "help": "Dematerializováním asociace se všechny prvky odkazované třídy přesunou přímo do rodičovské třídy. Asociace pak nebude ve schématu zanesena.",
     "title": "Dematerializace"
   },
   "in all languages": "Ve všech jazycích",
@@ -28,20 +28,20 @@
     "title": "Identifikace instancí tříd",
     "value": {
       "always": "vyžadováno",
+      "default": "výchozí hodnota",
       "never": "nepoužívat",
-      "optional": "volitelné",
-      "default": "výchozí hodnota"
+      "optional": "volitelné"
     }
   },
   "instancesSpecifyTypes": {
+    "help": "Určuje, zda musí instance tříd uvádět svůj typ, tedy třídu, jejichž jsou instancí. Možnost nepoužívat pak z artefaktů odstraní veškeré pomocné konstrukty pro práci s typy.",
     "title": "Explicitní určení typu instancí",
     "value": {
       "always": "vyžadováno",
+      "default": "výchozí hodnota",
       "never": "nepoužívat",
-      "optional": "volitelné",
-      "default": "výchozí hodnota"
-    },
-    "help": "Určuje, zda musí instance tříd uvádět svůj typ, tedy třídu, jejichž jsou instancí. Možnost nepoužívat pak z artefaktů odstraní veškeré pomocné konstrukty pro práci s typy."
+      "optional": "volitelné"
+    }
   },
   "IRI": "IRI",
   "iri parameters help": "Instance tříd (data) můžou být identifikována svým konkrétním IRI. Například Praha, jako instance města, může mít své IRI http://example.com/Praha. Tato možnost nastavuje, zdali je takový identifikátor v datech vyžadován, což má vliv na validaci dat a jejich reprezetaci například v RDF, kdy se resourcy bez IRI projevují jako blank nodes.",
@@ -86,7 +86,6 @@
   "tab or": "OR",
   "tab pim": "pim",
   "tab pim association": "pim asociace",
-  "tab pim association end": "pim konec asociace",
   "tab pim child": "pim potomek",
   "tab reference": "Reference",
   "tab schema": "Schéma",
@@ -99,18 +98,10 @@
   "title data type": "Datový typ",
   "title schema": "Schéma",
   "title to class": "Odkazovaná třída",
+  "wikidata": {
+    "error": "Detail není dostupný."
+  },
   "XML attributes": "XML specifické atributy",
   "XML namespace": "namespace",
-  "XML prefix": "prefix",
-  "wikidata": {
-    "error": "Detail není dostupný.",
-    "subclass of": "Nadtřídy",
-    "subject of property": "Je doménou vlastností",
-    "value of property": "Je hodnotou vlastností",
-    "external identifier": "Ekvivalentní externí třídy",
-    "domain classes": "Třídy domény",
-    "range classes": "Třídy hodnot",
-    "class": "Třída",
-    "property": "Vlastnost"
-  }
+  "XML prefix": "prefix"
 }

@@ -1,15 +1,13 @@
-import { DataPsmCreateContainer, DataPsmSetCardinality } from "@dataspecer/core/data-psm/operation";
+import { DataPsmCreateAttribute, DataPsmSetCardinality } from "@dataspecer/core/data-psm/operation";
 import { ComplexOperation } from "@dataspecer/federated-observable-store/complex-operation";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
 
-export class CreateContainer implements ComplexOperation {
+export class CreateNonInterpretedAttribute implements ComplexOperation {
   private readonly ownerClass: string;
-  private readonly type: string;
   private store!: FederatedObservableStore;
 
-  constructor(ownerClass: string, type: string) {
+  constructor(ownerClass: string) {
     this.ownerClass = ownerClass;
-    this.type = type;
   }
 
   setStore(store: FederatedObservableStore) {
@@ -19,14 +17,19 @@ export class CreateContainer implements ComplexOperation {
   async execute(): Promise<void> {
     const schema = this.store.getSchemaForResource(this.ownerClass) as string;
 
-    const op = new DataPsmCreateContainer();
-    op.dataPsmOwner = this.ownerClass;
-    op.dataPsmContainerType = this.type;
-    const container = (await this.store.applyOperation(schema, op)).created[0];
+    const operation = new DataPsmCreateAttribute();
+
+    operation.dataPsmInterpretation = null;
+    operation.dataPsmTechnicalLabel = "attribute";
+    operation.dataPsmDatatype = "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/řetězec";
+    operation.dataPsmOwner = this.ownerClass;
+
+    const result = await this.store.applyOperation(schema, operation);
+    const attributeId = result.created[0];
 
     const cardinality = new DataPsmSetCardinality();
     cardinality.dataPsmCardinality = [1, 1];
-    cardinality.entityId = container;
+    cardinality.entityId = attributeId;
     await this.store.applyOperation(schema, cardinality);
   }
 }

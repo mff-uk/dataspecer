@@ -2,6 +2,7 @@ import {ComplexOperation} from "@dataspecer/federated-observable-store/complex-o
 import {FederatedObservableStore} from "@dataspecer/federated-observable-store/federated-observable-store";
 import { modifyRelation } from "@dataspecer/core-v2/semantic-model/operations";
 import { SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { DataPsmSetCardinality } from "@dataspecer/core/data-psm/operation";
 
 export class SetCardinality implements ComplexOperation {
   readonly semanticModelRelationshipId: string;
@@ -39,6 +40,38 @@ export class SetCardinality implements ComplexOperation {
     });
 
     // @ts-ignore
+    await this.store.applyOperation(schema, operation);
+  }
+}
+
+/**
+ * Operation that will set the cardinality of a PSM element.
+ * It should eventually replace SetCardinality.
+ */
+export class SetCardinalityPsm implements ComplexOperation {
+  private readonly entityId: string;
+  private readonly min: number;
+  private readonly max: number;
+
+  private store!: FederatedObservableStore;
+
+  constructor(entityId: string, min: number, max: number | null) {
+    this.entityId = entityId;
+    this.min = min;
+    this.max = max;
+  }
+
+  setStore(store: FederatedObservableStore) {
+    this.store = store;
+  }
+
+  async execute(): Promise<void> {
+    const schema = this.store.getSchemaForResource(this.entityId) as string;
+
+    const operation = new DataPsmSetCardinality();
+    operation.entityId = this.entityId;
+    operation.dataPsmCardinality = [this.min, this.max];
+
     await this.store.applyOperation(schema, operation);
   }
 }
