@@ -133,10 +133,10 @@ export interface DiagramActions {
 
   /**
    * Sets diagram's node selection to the given {@link nodes}.
-   * @param nodes are the identifiers of the nodes,
+   * @param selectedNodes are the identifiers of the nodes,
    * which will become the new content of the node selection.
    */
-  setSelectedNodes(nodes: string[]): void;
+  setSelectedNodes(selectedNodes: string[]): void;
 
   /**
    * @returns Currently selected edges within diagram.

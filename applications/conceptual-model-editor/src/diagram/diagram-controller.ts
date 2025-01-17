@@ -456,7 +456,7 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
     userSelectedNodes,
     cleanSelection,
   } = createdReactStates;
-  const { onOpenEdgeToolbar, onOpenCanvasMenu, alignmentController } = createdPartOfDiagramController;
+  const { onOpenEdgeToolbar, onOpenCanvasMenu, alignmentController, onNodesChange } = createdPartOfDiagramController;
 
   const context = useMemo(() => createDiagramContext(
     api, onOpenEdgeToolbar, onOpenCanvasMenu, canvasMenu?.menuContent ?? null, setCanvasMenu, cleanSelection, selectedNodes, selectedEdges, userSelectedNodes),
@@ -464,10 +464,30 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
   );
 
   const canvasHighlighting = useExplorationCanvasHighlightingController(setNodes, setEdges);
+
+  const setSelectedNodesThroughOnNodesChange = useCallback((newlySelectedNodes: string[], newlyUnselectedNodes: string[]) => {
+    const changes: NodeSelectionChange[] = [];
+    for(const newSelectedNode of newlySelectedNodes) {
+      changes.push({
+        id: newSelectedNode,
+        type: "select",
+        selected: true
+      });
+    }
+    for(const newUnselectedNode of newlyUnselectedNodes) {
+      changes.push({
+        id: newUnselectedNode,
+        type: "select",
+        selected: true
+      });
+    }
+    onNodesChange(changes);
+  }, [onNodesChange]);
+
   const actions = useMemo(() => createActions(reactFlowInstance, setNodes, setEdges, alignmentController, context,
-    selectedNodes, setSelectedNodes, setSelectedEdges, canvasHighlighting.changeHighlight, setGroups, setNodeToGroupMapping, cleanSelection),
+    selectedNodes, setSelectedNodesThroughOnNodesChange, setSelectedEdges, canvasHighlighting.changeHighlight, setGroups, setNodeToGroupMapping, cleanSelection),
   [reactFlowInstance, setNodes, setEdges, alignmentController, context,
-    selectedNodes, setSelectedNodes, setSelectedEdges,
+    selectedNodes, setSelectedNodesThroughOnNodesChange, setSelectedEdges,
     canvasHighlighting.changeHighlight, setGroups, setNodeToGroupMapping, cleanSelection]);
 
   // Register actions to API.
@@ -1397,7 +1417,7 @@ const createActions = (
   alignment: AlignmentController,
   context: DiagramContextType,
   selectedNodes: string[],
-  setSelectedNodesInternal: React.Dispatch<React.SetStateAction<string[]>>,
+  setSelectedNodesThroughOnNodesChange: (newlySelectedNodes: string[], newlyUnselectedNodes: string[]) => void,
   setSelectedEdgesInternal: React.Dispatch<React.SetStateAction<string[]>>,
   changeHighlight: (
     startingNodeId: string,
@@ -1665,17 +1685,21 @@ const createActions = (
       console.log("Diagram.getSelectedNodes");
       return reactFlow.getNodes().filter(node => selectedNodes.includes(node.id)).map(node => node.data);
     },
-    setSelectedNodes(nodes) {
-      console.log("Diagram.setSelectedNodes", nodes);
-      reactFlow.setNodes(prevNodes => {
-        return prevNodes.map(node => {
-          if(nodes.find(selectedNode => selectedNode === node.id) !== undefined) {
-            return {...node, selected: true};
-          }
-          return {...node, selected: false};
-        });
-      });
-      setSelectedNodesInternal(nodes);
+    setSelectedNodes(selectedNodes) {
+      console.log("Diagram.setSelectedNodes", selectedNodes);
+      const nodes = reactFlow.getNodes();
+      const newlySelectedNodes: string[] = [];
+      const newlyUnselectedNodes: string[] = [];
+      for(const node of nodes) {
+        if(node.selected === true && !selectedNodes.includes(node.id)) {
+          newlyUnselectedNodes.push(node.id);
+        }
+        else if(node.selected !== true && selectedNodes.includes(node.id)) {
+          newlySelectedNodes.push(node.id);
+        }
+      }
+
+      setSelectedNodesThroughOnNodesChange(newlySelectedNodes, newlyUnselectedNodes);
     },
     getSelectedEdges() {
       console.log("Diagram.getSelectedEdges");
