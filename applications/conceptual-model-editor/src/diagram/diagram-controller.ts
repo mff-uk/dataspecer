@@ -639,14 +639,10 @@ const createNodesChangeHandler = (
     updateChangesByGroupDragEvents(changes, nodes, groups, nodeToGroupMapping, nodesInGroupWhichAreNotPartOfDragging);
     changes = [...new Set(changes)];
 
-    const tmpResult = removeNotCompleteGroupUnselections(
-      extractedDataFromChanges.nodeSelectChanges,
-      extractedDataFromChanges.unselectChanges,
-      nodeToGroupMapping,
-      groups,
-      extractedDataFromChanges.newlyUnselectedNodesBasedOnGroups,
-      isSelectingThroughCtrl,
-      userSelectedNodesRef,
+    const tmpResult = findUnfinishedGroupUnselections(
+      extractedDataFromChanges.nodeSelectChanges, extractedDataFromChanges.unselectChanges,
+      nodeToGroupMapping, groups, extractedDataFromChanges.newlyUnselectedNodesBasedOnGroups,
+      isSelectingThroughCtrl, userSelectedNodesRef,
     );
 
     const nodesWhichWereActuallyNotUnselected = tmpResult.nodesWhichWereActuallyNotUnselected;
@@ -654,26 +650,18 @@ const createNodesChangeHandler = (
 
     setUserSelectedNodes(previouslyUserSelectedNodes => {
       const newUserSelectedNodes = updateUserSelectedNodesBasedOnNodeChanges(
-        previouslyUserSelectedNodes,
-        extractedDataFromChanges.newlyUnselectedNodesBasedOnGroups,
-        extractedDataFromChanges.nodeSelectChanges,
-        extractedDataFromChanges.unselectChanges,
-        userSelectedNodesRef,
+        previouslyUserSelectedNodes, extractedDataFromChanges.newlyUnselectedNodesBasedOnGroups,
+        extractedDataFromChanges.nodeSelectChanges, extractedDataFromChanges.unselectChanges, userSelectedNodesRef,
       );
       return newUserSelectedNodes;
     });
 
     setSelectedNodes(previouslySelectedNodes => {
       const newSelectedNodes = updateSelectedNodesBasedOnNodeChanges(
-        previouslySelectedNodes,
-        extractedDataFromChanges.newlyUnselectedNodesBasedOnGroups,
-        extractedDataFromChanges.nodeSelectChanges,
-        extractedDataFromChanges.unselectChanges,
-        nodesWhichWereActuallyNotUnselected,
-        extractedDataFromChanges.newlySelectedNodesBasedOnGroups,
-        selectedNodesRef,
-        userSelectedNodesRef,
-        nodesInGroupWhichAreNotPartOfDragging,
+        previouslySelectedNodes, extractedDataFromChanges.newlyUnselectedNodesBasedOnGroups,
+        extractedDataFromChanges.nodeSelectChanges, extractedDataFromChanges.unselectChanges,
+        nodesWhichWereActuallyNotUnselected, extractedDataFromChanges.newlySelectedNodesBasedOnGroups,
+        selectedNodesRef, userSelectedNodesRef, nodesInGroupWhichAreNotPartOfDragging,
       );
       return newSelectedNodes;
     });
@@ -681,12 +669,8 @@ const createNodesChangeHandler = (
     alignmentController.alignmentNodesChange(changes);
     setNodes((prevNodes) => {
       const updatedNodes = updateNodesBasedOnNodeChanges(
-        prevNodes,
-        changes,
-        extractedDataFromChanges.newlyUnselectedNodesBasedOnGroups,
-        nodeToGroupMapping,
-        extractedDataFromChanges.groupsNewlyContainedInSelectionChange,
-        groups,
+        prevNodes, changes, extractedDataFromChanges.newlyUnselectedNodesBasedOnGroups,
+        nodeToGroupMapping, extractedDataFromChanges.groupsNewlyContainedInSelectionChange, groups,
       );
       return updatedNodes;
     });
@@ -854,7 +838,7 @@ const flattenGroupStructure = (
  * respectively the nodes in group,
  * because there is still one selected node in the group.
  */
-const removeNotCompleteGroupUnselections = (
+const findUnfinishedGroupUnselections = (
   nodeSelectChanges: string[],
   unselectChanges: string[],
   nodeToGroupMapping: Record<string, string>,
