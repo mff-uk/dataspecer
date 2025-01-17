@@ -1,12 +1,12 @@
 import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { EntityDsIdentifier } from "../../entity-model";
+import { EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
 
 export function addVisualNode(
   visualModel: WritableVisualModel,
   entity: {
     id: EntityDsIdentifier,
   },
-  model: string,
+  model: ModelDsIdentifier,
   position: { x: number, y: number },
 ) {
   visualModel.addVisualNode({

@@ -1,13 +1,13 @@
 import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { DataspecerError } from "../../dataspecer-error";
-import { EntityDsIdentifier } from "../../entity-model";
+import { EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
 
 /**
  * @throws DataspecerError
  */
 export function addVisualRelationship(
   visualModel: WritableVisualModel,
-  model: string,
+  model: ModelDsIdentifier,
   represented: EntityDsIdentifier,
   source: EntityDsIdentifier,
   target: EntityDsIdentifier,
