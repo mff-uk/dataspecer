@@ -7,6 +7,7 @@ import { type WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { randomColorFromPalette } from "../util/color-utils";
 import { createWritableVisualModel } from "../util/visual-model-utils";
+import { removeEntityModel } from "../dataspecer/visual-model/command/remove-entity-model";
 
 // This is to compile with TypeScript as we can not use
 // the type directly for aggregator.
@@ -153,6 +154,9 @@ export const useModelGraphContext = (): UseModelGraphContextType => {
     aggregator.deleteModel(model);
     models.delete(modelId);
     setModels(new Map(models));
+    // We need to also remove representation from all visual models.
+    visualModels.forEach(visualModel => removeEntityModel(
+      visualModel, model.getId()));
   };
 
   const removeVisualModel = (modelId: string) => {
