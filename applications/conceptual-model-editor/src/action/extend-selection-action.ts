@@ -71,9 +71,6 @@ const addToSelectionExtension = (
   contextEntities: ClassesContextEntities | null
 ) => {
   const nodeSelection = selectionExtensionToExtend.selectionExtension.nodeSelection;
-  if(nodeSelection.includes(classId)) {
-    return;
-  }
   if(usingSemanticIdentifiers && contextEntities !== null) {
     const existsInEntities = contextEntities.classes.find(classEntity => classEntity.id === classId) !== undefined ||
             contextEntities.profiles.find(profile => profile.id === classId && isSemanticModelClassUsage(profile)) !== undefined
@@ -81,7 +78,9 @@ const addToSelectionExtension = (
       return;
     }
   }
-  nodeSelection.push(classId);
+  if(!nodeSelection.includes(classId)) {
+    nodeSelection.push(classId);
+  }
   if(isEdgeWhichAddedClassNotClassProfileEdge(edgeWhichAddedClass)) {
     selectionExtensionToExtend.selectionExtension.edgeSelection.push(edgeWhichAddedClass);
     if(selectionExtensionToExtend.nodesToEdgesMapping[classId] === undefined) {
