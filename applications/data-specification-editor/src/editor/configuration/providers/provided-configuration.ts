@@ -51,6 +51,16 @@ export const useProvidedConfiguration = (
     const cimAdaptersConfiguration = specifications?.[dataSpecificationIri]?.sourceSemanticModelIds ?? DEFAULT_CIM_ADAPTERS_CONFIGURATION;
     const sourceSemanticModel = useProvidedSourceSemanticModel(dataPsmSchemaIri, dataSpecificationIri, cimAdaptersConfiguration);
 
+    // Load configuration
+    const configurationStore = specifications?.[dataSpecificationIri]?.artifactConfigurations?.[0]?.id ?? null;
+    const [configuration] = useAsyncMemo(async () => {
+        return configurationStore ? await backendPackageService.getResourceJsonData(configurationStore) as Record<string, object> : {};
+    }, [configurationStore]);
+    if (specifications?.[dataSpecificationIri]) {
+        // @ts-ignore
+        specifications[dataSpecificationIri].artefactConfiguration = configuration;
+    }
+
     if (enabled) {
         return {
             store: store as FederatedObservableStore, // ! aggregator
