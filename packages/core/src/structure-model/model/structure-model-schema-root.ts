@@ -27,4 +27,30 @@ export class StructureModelSchemaRoot {
    * Technical label of the wrapping OR. If the OR is not wrapped, then it is empty.
    */
   orTechnicalLabel: string | null = null;
+
+  /**
+   * Label used by a computer, can be used as for example as a name of
+   * a property in JSON.
+   */
+  technicalLabel: string | null = null;
+
+  /**
+   * Technical label of the wrapping element if collection.
+   */
+  collectionTechnicalLabel: string | null = null;
+
+  /**
+   * Whether to enforce collection on the root.
+   */
+  enforceCollection: boolean = false;
+
+  /**
+   * Cardinality of the root element
+   */
+  cardinalityMin: number | null = null;
+
+  /**
+   * Cardinality of the root element
+   */
+  cardinalityMax: number | null = null;
 }

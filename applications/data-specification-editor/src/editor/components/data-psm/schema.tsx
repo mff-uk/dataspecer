@@ -1,17 +1,17 @@
-import {IconButton, Paper, Typography} from "@mui/material";
-import React, {useCallback, useState} from "react";
-import {DragDropContext, DropResult} from "react-beautiful-dnd";
-import {LanguageStringFallback} from "../helper/LanguageStringComponents";
-import {DataPsmSchema} from "@dataspecer/core/data-psm/model";
+import { DataPsmSchema } from "@dataspecer/core/data-psm/model";
+import { useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
+import { useResource } from "@dataspecer/federated-observable-store-react/use-resource";
+import { IconButton, Paper, Typography } from "@mui/material";
 import Skeleton from '@mui/material/Skeleton';
-import {useTranslation} from "react-i18next";
-import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
-import {SetOrder} from "../../operations/set-order";
-import {Icons} from "../../icons";
-import {useFederatedObservableStore} from "@dataspecer/federated-observable-store-react/store";
-import {useDialog} from "../../dialog";
-import {DataPsmObjectType, RootContext} from "./data-psm-row";
-import {EntityChainDetailDialog} from "../detail/entity-chain-detail-dialog";
+import React, { useCallback } from "react";
+import { DragDropContext, DropResult } from "react-beautiful-dnd";
+import { useTranslation } from "react-i18next";
+import { useDialog } from "../../dialog";
+import { Icons } from "../../icons";
+import { SetOrder } from "../../operations/set-order";
+import { EntityChainDetailDialog } from "../detail/entity-chain-detail-dialog";
+import { LanguageStringFallback } from "../helper/LanguageStringComponents";
+import { DataPsmSchemaRootItem } from "./entities/schema-root";
 
 export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsmSchemaIri}) => {
   const {resource: dataPsmSchema} = useResource<DataPsmSchema>(dataPsmSchemaIri);
@@ -34,8 +34,6 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
 
   const {t} = useTranslation("psm");
 
-  const [rootContext] = useState({contextType: "root"} as RootContext);
-
   return <Paper style={{padding: "1rem", margin: "1rem 0"}}>
     {dataPsmSchema && <>
         <DetailDialog.Component iris={[dataPsmSchemaIri]} />
@@ -50,7 +48,7 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
         <LanguageStringFallback from={dataPsmSchema.dataPsmHumanDescription}>{text => <Typography color="textSecondary">{text}</Typography>}</LanguageStringFallback>
         <DragDropContext onDragEnd={itemsDragged}>
             <ul style={{paddingLeft: 0}}>
-              {dataPsmSchema.dataPsmRoots.map(root => <DataPsmObjectType iri={root} key={root} {...rootContext} />)}
+              {dataPsmSchema.dataPsmRoots.map((_, index) => <DataPsmSchemaRootItem iri={dataPsmSchema.iri} key={index} rootIndex={index} />)}
             </ul>
         </DragDropContext>
     </>}
