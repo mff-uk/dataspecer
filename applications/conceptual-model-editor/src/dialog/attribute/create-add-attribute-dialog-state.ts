@@ -11,9 +11,6 @@ import { DialogWrapper } from "../dialog-api";
 import { EditAttributeDialog } from "./edit-attribute-dialog";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { EntityDsIdentifier, ModelDsIdentifier } from "../../dataspecer/entity-model";
-import { CmeModel } from "../../dataspecer/cme-model";
-import { EntityModel } from "@dataspecer/core-v2";
 
 /**
  * Creates a dialog to add an attribute to an existing entity.

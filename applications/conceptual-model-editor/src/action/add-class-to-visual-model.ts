@@ -1,5 +1,5 @@
 import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { SemanticModelClass, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 
 import { withAggregatedEntity } from "./utilities";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
@@ -8,6 +8,7 @@ import { UseDiagramType } from "../diagram/diagram-hook";
 import { addRelatedEntitiesAction } from "./add-related-entities-to-visual-model";
 import { findPositionForNewNodesUsingLayouting } from "./layout-visual-model";
 import { ClassesContextType } from "../context/classes-context";
+import { addVisualNode } from "../dataspecer/visual-model/command/add-visual-node";
 
 export async function addSemanticClassToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
@@ -27,30 +28,9 @@ export async function addSemanticClassToVisualModelAction(
   withAggregatedEntity(notifications, entities,
     entityIdentifier, modelIdentifier,
     isSemanticModelClass, (entity) => {
-      addSemanticClassToVisualModelCommand(
-        visualModel, entity, modelIdentifier,
-        position);
+      addVisualNode(visualModel, entity, modelIdentifier, position);
       addRelatedEntitiesAction(
         notifications, graph, visualModel, Object.values(entities),
         graph.models, entity);
     });
-}
-
-function addSemanticClassToVisualModelCommand(
-  visualModel: WritableVisualModel,
-  entity: SemanticModelClass,
-  model: string,
-  position: { x: number, y: number },
-) {
-  visualModel.addVisualNode({
-    model: model,
-    representedEntity: entity.id,
-    position: {
-      x: position.x,
-      y: position.y,
-      anchored: null,
-    },
-    content: [],
-    visualModels: [],
-  });
 }

@@ -106,7 +106,6 @@ function createForAttribute(
     domain.concept, owlThing, domain.cardinality, classProfiles,
     range.concept, undefinedDataType, range.cardinality, dataTypes);
 
-
   return {
     enableProfilChange: true,
     ...entityProfileState,
@@ -145,8 +144,6 @@ function createForAttributeProfile(
   const entityProfileState = createEntityProfileStateForNewProfileOfProfile(
     language, vocabularies, profiles, profileOf.identifier,
     configuration().nameToIri);
-
-  const model = entityProfileState.model;
 
   // RelationshipState<EntityRepresentative>
 
