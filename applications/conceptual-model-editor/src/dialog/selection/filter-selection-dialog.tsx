@@ -29,7 +29,7 @@ export const createFilterSelectionDialog = (
     validate: null,
     onConfirm,
     onClose: null,
-    dialogClassNames: "",
+    dialogClassNames: "base-dialog z-30 p-4 ",
   };
 };
 

@@ -41,17 +41,17 @@ const createExtensionData = (
 const createExtensionCheckboxesData = (): ExtensionData[] => {
   const extensionCheckboxesStates: ExtensionData[] = [];
 
-  extensionCheckboxesStates.push(createExtensionData(true, "🔵⭢🔴", "extend-selection-association-target-tooltip", ExtensionType.ASSOCIATION_TARGET));
-  extensionCheckboxesStates.push(createExtensionData(true, "🔴⭢🔵", "extend-selection-association-source-tooltip", ExtensionType.ASSOCIATION_SOURCE));
+  extensionCheckboxesStates.push(createExtensionData(true, "extend-selection-association-name", "", ExtensionType.ASSOCIATION_TARGET));
+  extensionCheckboxesStates.push(createExtensionData(true, "extend-selection-association-name", "", ExtensionType.ASSOCIATION_SOURCE));
 
-  extensionCheckboxesStates.push(createExtensionData(false, "🔵⇒🔴", "extend-selection-generalization-parent-tooltip", ExtensionType.GENERALIZATION_PARENT));
-  extensionCheckboxesStates.push(createExtensionData(false, "🔴⇒🔵", "extend-selection-generalization-child-tooltip", ExtensionType.GENERALIZATION_CHILD));
+  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-generalization-name", "", ExtensionType.GENERALIZATION_PARENT));
+  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-generalization-name", "", ExtensionType.GENERALIZATION_CHILD));
 
-  extensionCheckboxesStates.push(createExtensionData(false, "🔵⇢🔴", "extend-selection-association-profile-target-tooltip", ExtensionType.PROFILE_EDGE_TARGET));
-  extensionCheckboxesStates.push(createExtensionData(false, "🔴⇢🔵", "extend-selection-association-profile-source-tooltip", ExtensionType.PROFILE_EDGE_SOURCE));
+  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-association-profile-name", "", ExtensionType.PROFILE_EDGE_TARGET));
+  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-association-profile-name", "", ExtensionType.PROFILE_EDGE_SOURCE));
 
-  extensionCheckboxesStates.push(createExtensionData(false, "🟦⇢🟥", "extend-selection-class-profile-parent-tooltip", ExtensionType.PROFILE_CLASS_PARENT));
-  extensionCheckboxesStates.push(createExtensionData(false, "🟥⇢🟦", "extend-selection-class-profile-child-source-tooltip", ExtensionType.PROFILE_CLASS_CHILD));
+  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-class-profile-name", "", ExtensionType.PROFILE_CLASS_PARENT));
+  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-class-profile-name", "", ExtensionType.PROFILE_CLASS_CHILD));
 
   return extensionCheckboxesStates;
 };

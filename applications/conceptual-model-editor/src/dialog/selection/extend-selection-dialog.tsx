@@ -2,6 +2,7 @@ import { CreateExtendSelectionControllerType, ExtendSelectionState, ExtensionChe
 import { DialogProps, DialogWrapper } from "../dialog-api";
 import { Selections } from "../../action/filter-selection-action";
 import { t } from "../../application";
+import React from "react";
 
 export const createExtendSelectionDialog = (
   onConfirm: (state: ExtendSelectionState) => void | null,
@@ -19,7 +20,7 @@ export const createExtendSelectionDialog = (
     validate: null,
     onConfirm,
     onClose,
-    dialogClassNames: "bg-white bg-opacity-60 mt-12",
+    dialogClassNames: "base-dialog p-4 bg-white bg-opacity-80 mt-12",
   };
 };
 
@@ -45,27 +46,30 @@ const createSelectorPanel = (
      */
   const gridContainerStyle = {
     display: "grid",
-    gridAutoFlow: "column",
-    gridTemplateRows: "repeat(2, auto)",
+    gridAutoFlow: "row",
+    gridTemplateColumns: "repeat(3, auto)",
     gap: "0px",
     columnGap: "50px",
     justifyContent: "start",
   };
 
   return <div>
-    <div className="cursor-help" title={t("extend-selection-tooltip")}>
-                            ℹ
-    </div>
     <div className="flex flex-row">
       <div style={gridContainerStyle}>
+        <div></div>
+        <div>{t("extend-by-outgoing-header")}</div>
+        <div>{t("extend-by-incoming-header")}</div>
+        <div></div>
+        <SimpleHorizontalLineSeparator/>
+        <SimpleHorizontalLineSeparator/>
         {state.extensionCheckboxes.map((checkboxState, index) => {
           return createExtensionCheckbox(controller, checkboxState, index);
         })}
       </div>
 
       <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-0 px-4 border border-blue-700 rounded ml-12"
-        onClick={controller.performExtensionBasedOnExtensionState}>
-                Extend
+              onClick={controller.performExtensionBasedOnExtensionState}>
+          Extend
       </button>
     </div>
   </div>;
@@ -79,17 +83,20 @@ const createExtensionCheckbox = (
   checkboxData: ExtensionCheckboxData,
   index: number
 ) => {
-  return <div key={`extension-checkbox-div${index}`}>
-    <label title={t(checkboxData.checkboxTooltip)}>
-      <input type="checkbox"
-        checked={checkboxData.checked}
-        onChange={(event) => {
-          controller.setExtensionCheckboxActivness({index, isActive: event.target.checked})
-        }}>
-      </input>
-      {checkboxData.checkboxText}
-    </label>
-  </div>;
+  const isNewRow = index % 2 === 0;
+  return <React.Fragment key={`extension-checkbox-div${index}`}>
+    {isNewRow ? <div>{t(checkboxData.checkboxText)}</div> : null}
+    <div>
+      <label>
+        <input type="checkbox"
+          checked={checkboxData.checked}
+          onChange={(event) => {
+            controller.setExtensionCheckboxActivness({index, isActive: event.target.checked})
+          }}>
+        </input>
+      </label>
+    </div>
+    </React.Fragment>;
 };
 
 const SimpleHorizontalLineSeparator = () => {
