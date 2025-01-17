@@ -64,6 +64,7 @@ export interface ExtendSelectionState {
   setSelectionsInDiagram: (newSelection: Selections) => void;
   areIdentifiersFromVisualModel: boolean;
   extensionCheckboxes: ExtensionData[];
+  shouldExtendOnlyThroughEdges: boolean,
 }
 
 export function createExtendSelectionState(
@@ -78,6 +79,7 @@ export function createExtendSelectionState(
     setSelectionsInDiagram: setSelectionsInDiagram,
     areIdentifiersFromVisualModel,
     extensionCheckboxes: extensionCheckboxStates,
+    shouldExtendOnlyThroughEdges: false,
   };
 }
 
@@ -85,6 +87,7 @@ export interface CreateExtendSelectionControllerType {
   setSelections: (next: Selections) => void;
   setExtensionCheckboxActivness: (next: {index: number, isActive: boolean}) => void;
   performExtensionBasedOnExtensionState: () => void;
+  toggleExtendOnlyThroughEdges: () => void;
 }
 
 export function useExtendSelectionController({ state, changeState }: DialogProps<ExtendSelectionState>): CreateExtendSelectionControllerType {
@@ -98,6 +101,9 @@ export function useExtendSelectionController({ state, changeState }: DialogProps
         nodeSelection: [...new Set(next.nodeSelection)],
         edgeSelection: [...new Set(next.edgeSelection)],
       };
+      if(state.shouldExtendOnlyThroughEdges) {
+        next.nodeSelection = [...state.selections.nodeSelection];
+      }
       changeState({ ...state, selections: next });
       state.setSelectionsInDiagram(next);
     };
@@ -130,12 +136,17 @@ export function useExtendSelectionController({ state, changeState }: DialogProps
           edgeSelection: state.selections.edgeSelection.concat(extension.edgeSelection),
         });
       }).catch(console.error);
-    }
+    };
+
+    const toggleExtendOnlyThroughEdges = () => {
+      changeState({...state, shouldExtendOnlyThroughEdges: !state.shouldExtendOnlyThroughEdges});
+    };
 
     return {
       setSelections,
       setExtensionCheckboxActivness,
-      performExtensionBasedOnExtensionState
+      performExtensionBasedOnExtensionState,
+      toggleExtendOnlyThroughEdges,
     };
   }, [state, changeState, extendSelection]);
 }

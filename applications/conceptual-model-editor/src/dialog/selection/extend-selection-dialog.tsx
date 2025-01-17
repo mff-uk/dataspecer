@@ -56,7 +56,15 @@ const createSelectorPanel = (
   return <div>
     <div className="flex flex-row">
       <div style={gridContainerStyle}>
-        <div></div>
+        <label>
+          <input type="checkbox"
+            checked={state.shouldExtendOnlyThroughEdges}
+            onChange={(_) => {
+              controller.toggleExtendOnlyThroughEdges()
+            }}>
+          </input>
+          Only edges
+        </label>
         <div>{t("extend-by-outgoing-header")}</div>
         <div>{t("extend-by-incoming-header")}</div>
         <div></div>
