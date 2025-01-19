@@ -80,7 +80,10 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
 
           <ul className="px-1">
             {data.items.map(item =>
-              <EntityNodeItem key={item.identifier} item={item} />)}
+              {
+                return <EntityNodeItem key={item.identifier} item={item} />
+              })
+            }
           </ul>
         </div>
         {/* We need a permanent source and target. */}

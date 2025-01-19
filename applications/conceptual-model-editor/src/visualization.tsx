@@ -48,6 +48,7 @@ import { type EntityModel } from "@dataspecer/core-v2";
 import { Options, useOptions } from "./application/options";
 import { getGroupMappings } from "./action/utilities";
 import { synchronizeOnAggregatorChange } from "./dataspecer/visual-model/aggregator-to-visual-model-adapter";
+import { propagateCardinality } from "@dataspecer/core/structure-model/transformation/propagate-cardinality";
 
 const DEFAULT_MODEL_COLOR = "#ffffff";
 
@@ -303,39 +304,43 @@ function createDiagramNode(
 ): Node {
   const language = options.language;
 
-  const nodeAttributes = attributes
-    .filter(isSemanticModelAttribute)
-    .filter((attr) => getDomainAndRange(attr).domain?.concept === entity.id);
-
-  const nodeAttributeProfiles = attributesProfiles
-    .filter(isSemanticModelAttributeUsage)
-    .filter((attr) => getDomainAndRange(attr).domain?.concept === entity.id);
-
-  const items: EntityItem[] = [];
-  for (const attribute of nodeAttributes) {
-    items.push({
-      identifier: attribute.id,
-      label: getEntityLabel(language, attribute),
-      profileOf: null,
-    });
+  // Put into Record so we can later easily set the order of items based on visualNode.content
+  // (since I was lazy - the idea itself is based on ChatGPT's response)
+  const itemsAsRecord: Record<string, EntityItem> = {};
+  for(const attribute of attributes) {
+    if(isSemanticModelAttribute(attribute) && visualNode.content.includes(attribute.id)) {
+      itemsAsRecord[attribute.id] = {
+        identifier: attribute.id,
+        label: getEntityLabel(language, attribute),
+        profileOf: null,
+      };
+    }
   }
 
-  for (const attributeProfile of nodeAttributeProfiles) {
-    const profileOf =
+  for(const attributeProfile of attributesProfiles) {
+    if(isSemanticModelAttributeUsage(attributeProfile) && visualNode.content.includes(attributeProfile.id)) {
+      const profileOf =
             (isSemanticModelClassUsage(attributeProfile) || isSemanticModelRelationshipUsage(attributeProfile)
               ? profilingSources.find((e) => e.id === attributeProfile.usageOf)
               : null
             ) ?? null;
 
-    items.push({
-      identifier: attributeProfile.id,
-      label: getEntityLabel(language, attributeProfile),
-      profileOf: profileOf === null ? null : {
-        label: getEntityLabel(language, profileOf),
-        usageNote: getUsageNote(language, attributeProfile),
-      },
-    });
+      itemsAsRecord[attributeProfile.id] = {
+        identifier: attributeProfile.id,
+        label: getEntityLabel(language, attributeProfile),
+        profileOf: profileOf === null ? null : {
+          label: getEntityLabel(language, profileOf),
+          usageNote: getUsageNote(language, attributeProfile),
+        },
+      };
+    }
   }
+
+  // We filter undefined values, because the update of the semantic attributes comes later
+  // so there is moment when the content of visual node is set but the corresponding
+  // attributes semantic model in are not.
+  // Also it is safety measure if there is some inconsistency in models.
+  const items: EntityItem[] = visualNode.content.map(id => itemsAsRecord[id]).filter(item => item !== undefined);
 
   const profileOf =
         (isSemanticModelClassUsage(entity) || isSemanticModelRelationshipUsage(entity)

@@ -27,7 +27,7 @@ export const RowHierarchy = (props: {
     entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationship | SemanticModelRelationshipUsage;
     handlers: {
         handleAddEntityToActiveView: (entity: Entity) => void;
-        handleRemoveEntityFromActiveView: (entityId: string) => void;
+        handleRemoveEntityFromActiveView: (entity: Entity) => void;
         handleExpansion: (model: EntityModel, classId: string) => Promise<void>;
         handleRemoval: (model: InMemorySemanticModel | ExternalSemanticModel, entityId: string) => Promise<void>;
         handleTargeting: (entityId: string) => void;
@@ -49,6 +49,7 @@ export const RowHierarchy = (props: {
 
   const isClassOrProfile = isSemanticModelClass(aggregatedEntity) || isSemanticModelClassUsage(aggregatedEntity);
   const isRelationshipOrProfile = isSemanticModelRelationship(aggregatedEntity) || isSemanticModelRelationshipUsage(aggregatedEntity);
+  const isAttributeOrAttributeProfile = isSemanticModelAttribute(aggregatedEntity) || isSemanticModelAttributeUsage(aggregatedEntity);
 
   const expansionHandler =
         isSemanticModelClass(entity) && sourceModel instanceof ExternalSemanticModel
@@ -58,10 +59,10 @@ export const RowHierarchy = (props: {
           }
           : null;
 
-  const showDrawingHandler = isClassOrProfile || (isRelationshipOrProfile && hasBothEndsInVisualModel(aggregatedEntity, aggregatorView.getActiveVisualModel()));
+  const showDrawingHandler = isClassOrProfile || isAttributeOrAttributeProfile || (isRelationshipOrProfile && hasBothEndsInVisualModel(aggregatedEntity, aggregatorView.getActiveVisualModel()));
   const drawingHandler = !showDrawingHandler ? null : {
     addToViewHandler: () => props.handlers.handleAddEntityToActiveView(entity),
-    removeFromViewHandler: () => props.handlers.handleRemoveEntityFromActiveView(entity.id),
+    removeFromViewHandler: () => props.handlers.handleRemoveEntityFromActiveView(entity),
   };
 
   const removalHandler =

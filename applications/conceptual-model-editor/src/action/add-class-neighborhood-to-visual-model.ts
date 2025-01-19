@@ -26,5 +26,5 @@ export const addClassNeighborhoodToVisualModelAction = (
     // We have to filter the source class, whose neighborhood we are adding, from the extension
     classesOrClassProfilesToAdd.push(...neighborhood.selectionExtension.nodeSelection.filter(node => node !== identifier).map(node => ({identifier: node, position: null})));
     addSemanticEntitiesToVisualModelAction(notifications, classes, graph, visualModel, diagram, classesOrClassProfilesToAdd);
-  })
+  });
 };

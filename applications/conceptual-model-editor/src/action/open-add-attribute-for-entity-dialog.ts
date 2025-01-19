@@ -1,4 +1,4 @@
-import { VisualModel } from "@dataspecer/core-v2/visual-model";
+import { isWritableVisualModel, VisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { createLogger, Options } from "../application";
 import { ClassesContextType } from "../context/classes-context";
@@ -18,6 +18,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { getDomainAndRange } from "../util/relationship-utils";
 import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
+import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -48,7 +49,12 @@ export function openCreateAttributeForEntityDialogAction(
 
   if (isSemanticModelClass(entity)) {
     const onConfirm = (state: EditAttributeDialogState) => {
-      createSemanticAttribute(notifications, graph.models, state);
+      const result = createSemanticAttribute(notifications, graph.models, state);
+      // TODO PRQuestion: I copy-pasted it - to be constistent with the fact that
+      //                  createSemanticAttribute is also copy-pasted
+      if(visualModel !== null && isWritableVisualModel(visualModel)) {
+        addSemanticAttributeToVisualModelAction(notifications, visualModel, state.domain.identifier, result?.identifier ?? null, null);
+      }
     };
     const state = createAddAttributeDialogState(
       classes, graph, visualModel, options.language, model, entity);
@@ -72,9 +78,11 @@ export function openCreateAttributeForEntityDialogAction(
   } else {
     notifications.error("Unknown entity type.");
   }
-
 }
 
+// TODO PRQuestion: Defined on 2 places,
+//                  so I guess that there is some intention for this,
+//                  since it isn't the first time I see it.
 function createSemanticAttribute(
   notifications: UseNotificationServiceWriterType,
   models: Map<string, EntityModel>,

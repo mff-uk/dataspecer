@@ -8,6 +8,7 @@ import { UseDiagramType } from "../diagram/diagram-hook";
 import { addRelatedEntitiesAction } from "./add-related-entities-to-visual-model";
 import { findPositionForNewNodesUsingLayouting } from "./layout-visual-model";
 import { ClassesContextType } from "../context/classes-context";
+import { getVisualNodeContentBasedOnExistingEntities } from "./add-semantic-attribute-to-visual-model";
 
 export async function addSemanticClassToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
@@ -28,8 +29,8 @@ export async function addSemanticClassToVisualModelAction(
     entityIdentifier, modelIdentifier,
     isSemanticModelClass, (entity) => {
       addSemanticClassToVisualModelCommand(
-        visualModel, entity, modelIdentifier,
-        position);
+        classes, visualModel, entity,
+        modelIdentifier, position);
       addRelatedEntitiesAction(
         notifications, graph, visualModel, Object.values(entities),
         graph.models, entity);
@@ -37,11 +38,14 @@ export async function addSemanticClassToVisualModelAction(
 }
 
 function addSemanticClassToVisualModelCommand(
+  classes: ClassesContextType,
   visualModel: WritableVisualModel,
   entity: SemanticModelClass,
   model: string,
   position: { x: number, y: number },
 ) {
+  const content = getVisualNodeContentBasedOnExistingEntities(
+    classes, entity);
   visualModel.addVisualNode({
     model: model,
     representedEntity: entity.id,
@@ -50,7 +54,7 @@ function addSemanticClassToVisualModelCommand(
       y: position.y,
       anchored: null,
     },
-    content: [],
+    content,
     visualModels: [],
   });
 }

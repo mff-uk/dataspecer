@@ -55,6 +55,8 @@ import { EditClassDialogState } from "../dialog/class/edit-class-dialog-controll
 import { createCreateConnectionState } from "../dialog/obsolete/create-connection-dialog";
 import { GeneralizationConnectionType } from "../util/edge-connection";
 import { openCreateClassDialogAndCreateAssociationAction, openCreateClassDialogAndCreateGeneralizationAction } from "./open-create-class-dialog-with-edge";
+import { removeAttributeFromVisualModelAction } from "./remove-attribute-from-visual-model";
+import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -170,6 +172,9 @@ interface VisualModelActions {
    */
   addRelationProfileToVisualModel: (model: string, identifier: string) => void;
 
+  // TODO RadStr: Document
+  addAttributeToVisualModel: (attribute: string, domainClass: string | null) => void;
+
   // TODO PRQuestion - different docs from this method and for the actual action
   /**
    * Removes the visual entities identified by given {@link identifier} from visual model.
@@ -177,6 +182,9 @@ interface VisualModelActions {
    * @param identifiers identify the SEMANTIC entities, which visual representations will be removed from visual model.
    */
   removeFromVisualModel: (identifiers: string[]) => void;
+
+  // TODO RadStr: Document
+  removeAttributeFromVisualModel: (attributes: string[]) => void;
 
   //
 
@@ -264,9 +272,11 @@ const noOperationActionsContext = {
   addGeneralizationToVisualModel: noOperation,
   addRelationToVisualModel: noOperation,
   addRelationProfileToVisualModel: noOperation,
+  addAttributeToVisualModel: noOperation,
   deleteFromSemanticModels: noOperation,
   //
   removeFromVisualModel: noOperation,
+  removeAttributeFromVisualModel: noOperation,
   centerViewportToVisualEntity: noOperation,
   //
   createNewVisualModelFromSelection: noOperation,
@@ -515,8 +525,8 @@ function createActionsContext(
     const modelInstance = graph.models.get(model);
     if (modelInstance === null || modelInstance instanceof InMemorySemanticModel) {
       openCreateAttributeDialogAction(
-        options, dialogs, classes, graph, notifications, visualModel,
-        modelInstance);
+        options, dialogs, classes, graph, notifications,
+        visualModel, modelInstance);
     } else {
       notifications.error("Can not add to given model.");
     }
@@ -566,9 +576,25 @@ function createActionsContext(
     });
   };
 
+  const addAttributeToVisualModel = (attribute: string, domainClass: string | null): void => {
+    if(domainClass === null) {
+      notifications.error("Adding attribute to domain class which is null");
+      return;
+    }
+    withVisualModel(notifications, graph, (visualModel) => {
+      addSemanticAttributeToVisualModelAction(notifications, visualModel, domainClass, attribute, null);
+    });
+  };
+
   const removeFromVisualModel = (identifiers: string[]): void => {
     withVisualModel(notifications, graph, (visualModel) => {
       removeFromVisualModelAction(notifications, visualModel, identifiers);
+    });
+  };
+
+  const removeAttributeFromVisualModel = (attributes: string[]): void => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      removeAttributeFromVisualModelAction(notifications, classes, visualModel, attributes);
     });
   };
 
@@ -831,7 +857,9 @@ function createActionsContext(
     addGeneralizationToVisualModel,
     addRelationToVisualModel,
     addRelationProfileToVisualModel,
+    addAttributeToVisualModel,
     removeFromVisualModel,
+    removeAttributeFromVisualModel,
     //
     deleteFromSemanticModels,
     centerViewportToVisualEntity,

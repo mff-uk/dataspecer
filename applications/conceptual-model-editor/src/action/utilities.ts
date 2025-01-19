@@ -265,3 +265,25 @@ export function getGroupMappings(visualModel: VisualModel) {
     nodeToGroupMapping,
   };
 }
+
+export function getRemovedAndAdded<T>(previousValues: T[], nextValues: T[]) {
+  const removed: T[] = [];
+  const added: T[] = [];
+  for(const element of nextValues) {
+    const isElementInPrevious = previousValues.includes(element);
+    if(!isElementInPrevious) {
+      added.push(element);
+    }
+  }
+  for(const element of previousValues) {
+    const isElementInNext = nextValues.includes(element);
+    if(!isElementInNext) {
+      removed.push(element);
+    }
+  }
+
+  return {
+    removed,
+    added
+  };
+}

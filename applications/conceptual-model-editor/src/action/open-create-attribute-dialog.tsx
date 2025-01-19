@@ -1,5 +1,5 @@
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { VisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualGroup, isVisualNode, isWritableVisualModel, VisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { ClassesContextType } from "../context/classes-context";
@@ -11,6 +11,7 @@ import { createRelationship } from "@dataspecer/core-v2/semantic-model/operation
 import { createNewAttributeDialog, createNewAttributeDialogState } from "../dialog/attribute/create-new-attribute-dialog-state";
 import { EditAttributeDialogState } from "../dialog/attribute/edit-attribute-dialog-controller";
 import { EntityModel } from "@dataspecer/core-v2";
+import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -34,7 +35,10 @@ export function openCreateAttributeDialogAction(
   }
 
   const onConfirm = (state: EditAttributeDialogState) => {
-    createSemanticAttribute(notifications, graph.models, state);
+    const result = createSemanticAttribute(notifications, graph.models, state);
+    if(visualModel !== null && isWritableVisualModel(visualModel)) {
+      addSemanticAttributeToVisualModelAction(notifications, visualModel, state.domain.identifier, result?.identifier ?? null, null);
+    }
   };
 
   openCreateAttributeDialog(
