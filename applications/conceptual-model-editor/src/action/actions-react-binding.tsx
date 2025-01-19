@@ -57,6 +57,8 @@ import { GeneralizationConnectionType } from "../util/edge-connection";
 import { openCreateClassDialogAndCreateAssociationAction, openCreateClassDialogAndCreateGeneralizationAction } from "./open-create-class-dialog-with-edge";
 import { removeAttributeFromVisualModelAction } from "./remove-attribute-from-visual-model";
 import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
+import { ShiftAttributeDirection, shiftAttributePositionAction } from "./shift-attribute";
+import { openEditNodeAttributesDialogAction } from "./open-edit-node-attributes-dialog";
 
 const LOG = createLogger(import.meta.url);
 
@@ -99,6 +101,9 @@ interface DialogActions {
    * @param model is the identifier of the semantic model.
    */
   openCreateAttributeDialog: (model: string) => void;
+
+  // TODO RadStr: Document
+  openEditNodeAttributesDialog: (nodeIdentifier: string) => void;
 
   /**
    * @deprecated Use specialized method for given entity type.
@@ -174,6 +179,8 @@ interface VisualModelActions {
 
   // TODO RadStr: Document
   addAttributeToVisualModel: (attribute: string, domainClass: string | null) => void;
+  shiftAttributeUp: (attribute: string, domainNode: string | null) => void;
+  shiftAttributeDown: (attribute: string, domainNode: string | null) => void;
 
   // TODO PRQuestion - different docs from this method and for the actual action
   /**
@@ -264,6 +271,7 @@ const noOperationActionsContext = {
   openCreateClassDialog: noOperation,
   openCreateAssociationDialog: noOperation,
   openCreateAttributeDialog: noOperation,
+  openEditNodeAttributesDialog: noOperation,
   openCreateProfileDialog: noOperation,
   //
   addSemanticEntitiesToVisualModel: noOperation,
@@ -273,6 +281,8 @@ const noOperationActionsContext = {
   addRelationToVisualModel: noOperation,
   addRelationProfileToVisualModel: noOperation,
   addAttributeToVisualModel: noOperation,
+  shiftAttributeUp: noOperation,
+  shiftAttributeDown: noOperation,
   deleteFromSemanticModels: noOperation,
   //
   removeFromVisualModel: noOperation,
@@ -532,6 +542,12 @@ function createActionsContext(
     }
   };
 
+  const openEditNodeAttributesDialog = (nodeIdentifier: string) => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      openEditNodeAttributesDialogAction(
+        dialogs, notifications, classes, visualModel, nodeIdentifier);
+    });
+  };
   // Visual model actions.
 
   const addSemanticEntitiesToVisualModel = (entities: EntityToAddToVisualModel[]): void => {
@@ -583,6 +599,26 @@ function createActionsContext(
     }
     withVisualModel(notifications, graph, (visualModel) => {
       addSemanticAttributeToVisualModelAction(notifications, visualModel, domainClass, attribute, null);
+    });
+  };
+
+  const shiftAttributeUp = (attribute: string, domainNode: string | null): void => {
+    if(domainNode === null) {
+      notifications.error("Shifting attribute in domain node which is null");
+      return;
+    }
+    withVisualModel(notifications, graph, (visualModel) => {
+      shiftAttributePositionAction(notifications, visualModel, domainNode, attribute, ShiftAttributeDirection.UP, 1);
+    });
+  };
+
+  const shiftAttributeDown = (attribute: string, domainNode: string | null): void => {
+    if(domainNode === null) {
+      notifications.error("Shifting attribute in domain node which is null");
+      return;
+    }
+    withVisualModel(notifications, graph, (visualModel) => {
+      shiftAttributePositionAction(notifications, visualModel, domainNode, attribute, ShiftAttributeDirection.DOWN, 1);
     });
   };
 
@@ -849,6 +885,7 @@ function createActionsContext(
     openCreateClassDialog,
     openCreateAssociationDialog,
     openCreateAttributeDialog,
+    openEditNodeAttributesDialog,
     openCreateProfileDialog,
     //
     addSemanticEntitiesToVisualModel,
@@ -858,6 +895,8 @@ function createActionsContext(
     addRelationToVisualModel,
     addRelationProfileToVisualModel,
     addAttributeToVisualModel,
+    shiftAttributeUp,
+    shiftAttributeDown,
     removeFromVisualModel,
     removeAttributeFromVisualModel,
     //

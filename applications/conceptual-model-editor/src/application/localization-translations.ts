@@ -288,4 +288,8 @@ export const translations: Record<string, string | Function> = {
   "drag-edge-to-canvas-create-generalization-parent": "Create new parent",
   "drag-edge-to-canvas-create-generalization-child": "Create new child",
   "drag-edge-to-canvas-create-new-class": "Create new class",
+  //
+  "edit-class-attributes-dialog.label": "Edit order of attributes on node",
+  "edit-class-attributes-dialog.btn-ok": "✅ Confirm",
+  "edit-class-attributes-dialog.btn-cancel": "❌ Cancel",
 };

@@ -16,6 +16,7 @@ import { usePrefixForIri } from "../../service/prefix-service";
 import { t } from "../../application";
 import { useModelGraphContext } from "../../context/model-context";
 import { VisualNode } from "@dataspecer/core-v2/visual-model";
+import { useActions } from "../../action/actions-react-binding";
 
 // We can select zoom option and hide content when zoom is on given threshold.
 // const zoomSelector = (state: ReactFlowState) => state.transform[2] >= 0.9;
@@ -46,6 +47,12 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
   // TODO PRQuestion: How should we get access to the information saying that the node is anchored so we can visualize it? Should it be action? Or should it be like this?
   const graph = useModelGraphContext();
   const isAnchored = (graph.aggregatorView?.getActiveVisualModel()?.getVisualEntity(props.data.identifier) as VisualNode)?.position?.anchored ?? false;
+
+  // TODO RadStr: Not sure if we should access the actions here or through another method
+  const actions = useActions();
+  const removeAttributeFromVisualModel = (attribute: string) => actions.removeAttributeFromVisualModel([attribute]);
+  const moveAttributeUp = (attribute: string) =>  actions.shiftAttributeUp(attribute, props.data.identifier);
+  const moveAttributeDown = (attribute: string) =>  actions.shiftAttributeDown(attribute, props.data.identifier);
 
   return (
     <>
@@ -78,13 +85,21 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
             {usePrefixForIri(data.iri)}
           </div>
 
-          <ul className="px-1">
-            {data.items.map(item =>
-              {
-                return <EntityNodeItem key={item.identifier} item={item} />
-              })
-            }
-          </ul>
+
+                {data.items.map(item =>
+                  {
+                    return <li className="relative flex w-full flex-row justify-between z-50">
+                      <EntityNodeItem key={item.identifier} item={item} />
+                      {props.selected !== true ? null :
+                        <div>
+                          <button onClick={(_) => moveAttributeUp(item.identifier)}>🔼</button>
+                          <button onClick={(_) => moveAttributeDown(item.identifier)}>🔽</button>
+                          <button onClick={(_) => removeAttributeFromVisualModel(item.identifier)}>🕶️</button>
+                        </div>
+                      }
+                    </li>
+                  })
+                }
         </div>
         {/* We need a permanent source and target. */}
         <Handle type="target" position={Position.Right} />
@@ -131,6 +146,10 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
   const onDissolveGroup = () => context?.callbacks().onDissolveGroup(props.data.group);
   const onAddAttribute = () => context?.callbacks().onAddAttributeForNode(props.data);
 
+  // TODO RadStr: Create OnEditAttributesForNode method
+  const {openEditNodeAttributesDialog} = useActions();
+  const onEditAttributes = () => openEditNodeAttributesDialog(props.id) ;
+
   const shouldShowToolbar = props.selected === true;
 
   const addAttributeTitle = props.data.profileOf === null ?
@@ -163,6 +182,8 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
         <button onClick={onAnchor} title={isPartOfGroup ? t("group-anchor-button") : t("node-anchor-button")} >⚓</button>
         &nbsp;
         <button onClick={onAddAttribute} title={addAttributeTitle} >➕</button>
+        &nbsp;
+        <button onClick={onEditAttributes}>Edit Attributes</button>
         &nbsp;
       </NodeToolbar>
     </>);
@@ -218,7 +239,7 @@ function EntityNodeItem({ item }: {
   }
 
   return (
-    <li>
+    <div>
       <span>
         - {item.label}
       </span>
@@ -234,7 +255,7 @@ function EntityNodeItem({ item }: {
           </span>
         </>
       )}
-    </li>
+    </div>
   );
 }
 

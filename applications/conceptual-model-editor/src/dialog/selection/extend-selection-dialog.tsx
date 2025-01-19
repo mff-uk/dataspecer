@@ -5,7 +5,7 @@ import { t } from "../../application";
 import React from "react";
 
 export const createExtendSelectionDialog = (
-  onConfirm: (state: ExtendSelectionState) => void | null,
+  onConfirm: ((state: ExtendSelectionState) => void) | null,
   onClose: () => void,
   areIdentifiersFromVisualModel: boolean,
   selections: Selections,
