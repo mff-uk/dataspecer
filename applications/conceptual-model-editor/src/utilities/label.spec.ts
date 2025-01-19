@@ -38,77 +38,85 @@ class EntityModelMock implements EntityModel {
 
 }
 
-test("Get model label for undefined.", () => {
-  const getLabel = createGetModelLabel((value) => value);
-  const actual = getLabel(undefined);
-  expect(actual).toStrictEqual({});
+describe("createGetModelLabel", () => {
+
+  test("Get model label for undefined.", () => {
+    const getLabel = createGetModelLabel((value) => value);
+    const actual = getLabel(undefined);
+    expect(actual).toStrictEqual({});
+  });
+
+  test("Get model label from alias.", () => {
+    const getLabel = createGetModelLabel((value) => value);
+    const actual = getLabel(new EntityModelMock("", "alias"));
+    expect(actual).toStrictEqual({ "": "alias" });
+  });
+
+  test("Get model label from identifier.", () => {
+    const getLabel = createGetModelLabel((text, ...args) => text + " " + args.join(" "));
+    const actual = getLabel(new EntityModelMock("1234", null));
+    expect(actual).toStrictEqual({ "": "model-service.model-label-from-id 1234" });
+  });
+
 });
 
-test("Get model label from alias.", () => {
-  const getLabel = createGetModelLabel((value) => value);
-  const actual = getLabel(new EntityModelMock("", "alias"));
-  expect(actual).toStrictEqual({ "": "alias" });
-});
+describe("sanitizeDuplicitiesInRepresentativeLabels", () => {
 
-test("Get model label from identifier.", () => {
-  const getLabel = createGetModelLabel((text, ...args) => text + " " + args.join(" "));
-  const actual = getLabel(new EntityModelMock("1234", null));
-  expect(actual).toStrictEqual({ "": "model-service.model-label-from-id 1234" });
-});
+  test("Sanitize label duplicities.", () => {
 
-test("Sanitize label duplicities.", () => {
+    const one = {
+      dsIdentifier: "vocabulary-1",
+      displayLabel: { "": "one" },
+      dsModelType: CmeModelType.Default,
+      displayColor: "",
+      baseIri: null,
+    };
 
-  const one = {
-    dsIdentifier: "vocabulary-1",
-    displayLabel: { "": "one" },
-    dsModelType: CmeModelType.Default,
-    displayColor: "",
-    baseIri: null,
-  };
+    const two = {
+      dsIdentifier: "vocabulary-2",
+      displayLabel: { "": "two" },
+      dsModelType: CmeModelType.Default,
+      displayColor: "",
+      baseIri: null,
+    };
 
-  const two = {
-    dsIdentifier: "vocabulary-2",
-    displayLabel: { "": "two" },
-    dsModelType: CmeModelType.Default,
-    displayColor: "",
-    baseIri: null,
-  };
+    const actual = sanitizeDuplicitiesInRepresentativeLabels([one, two], [{
+      identifier: "1",
+      iri: "iri-1",
+      label: { "cs": "", "en": "", "de": "eins" },
+      vocabularyDsIdentifier: one.dsIdentifier,
+    }, {
+      identifier: "2",
+      iri: "iri-2",
+      label: { "cs": "", "en": "", "de": "zwei" },
+      vocabularyDsIdentifier: two.dsIdentifier,
+    }, {
+      identifier: "3",
+      iri: "iri-3",
+      label: { "cs": "", "en": "Different", "de": "drei" },
+      vocabularyDsIdentifier: two.dsIdentifier,
+    }]);
 
-  const actual = sanitizeDuplicitiesInRepresentativeLabels([one, two], [{
-    identifier: "1",
-    iri: "iri-1",
-    label: { "cs": "", "en": "", "de": "eins" },
-    vocabularyDsIdentifier: one.dsIdentifier,
-  }, {
-    identifier: "2",
-    iri: "iri-2",
-    label: { "cs": "", "en": "", "de": "zwei" },
-    vocabularyDsIdentifier: two.dsIdentifier,
-  }, {
-    identifier: "3",
-    iri: "iri-3",
-    label: { "cs": "", "en": "Different", "de": "drei" },
-    vocabularyDsIdentifier: two.dsIdentifier,
-  }]);
+    const expected = [{
+      identifier: "1",
+      iri: "iri-1",
+      label: { "cs": "[one]", "en": "[one]", "de": "eins" },
+      vocabularyDsIdentifier: one.dsIdentifier,
+    }, {
+      identifier: "2",
+      iri: "iri-2",
+      label: { "cs": "[two] (iri-2)", "en": "[two]", "de": "zwei" },
+      vocabularyDsIdentifier: two.dsIdentifier,
+    }, {
+      identifier: "3",
+      iri: "iri-3",
+      label: { "cs": "[two] (iri-3)", "en": "Different", "de": "drei" },
+      vocabularyDsIdentifier: two.dsIdentifier,
+    }];
 
-  const expected = [{
-    identifier: "1",
-    iri: "iri-1",
-    label: { "cs": "[one]", "en": "[one]", "de": "eins" },
-    vocabularyDsIdentifier: one.dsIdentifier,
-  }, {
-    identifier: "2",
-    iri: "iri-2",
-    label: { "cs": "[two] (iri-2)", "en": "[two]", "de": "zwei" },
-    vocabularyDsIdentifier: two.dsIdentifier,
-  }, {
-    identifier: "3",
-    iri: "iri-3",
-    label: { "cs": "[two] (iri-3)", "en": "Different", "de": "drei" },
-    vocabularyDsIdentifier: two.dsIdentifier,
-  }];
+    expect(actual).toStrictEqual(expected);
 
-  expect(actual).toStrictEqual(expected);
+  });
 
 });
 

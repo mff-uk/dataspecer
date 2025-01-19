@@ -830,7 +830,6 @@ const flattenGroupStructure = (
   return onlyNodes;
 };
 
-
 /**
  * This method finds group unselections, which were not finished.
  * For example we have group of 3 nodes. User selected 2.
