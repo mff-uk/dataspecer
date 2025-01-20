@@ -56,8 +56,6 @@ export interface UseModelGraphContextType {
 
     setModelIri: (iri: string, model: InMemorySemanticModel) => void;
 
-    cleanModels: () => void;
-
     replaceModels: (entityModels: EntityModel[], visualModels: WritableVisualModel[]) => void;
 
     removeModel: (modelId: string) => void;
@@ -111,17 +109,6 @@ export const useModelGraphContext = (): UseModelGraphContextType => {
     setModels((prev) => {
       return new Map(prev.set(model.getId(), model));
     });
-  };
-
-  const cleanModels = () => {
-    for (const [_, m] of models) {
-      aggregator.deleteModel(m);
-    }
-    for (const [_, m] of visualModels) {
-      aggregator.deleteModel(m);
-    }
-    setModels(new Map());
-    setVisualModels(new Map());
   };
 
   const replaceModels = (entityModels: EntityModel[], visualModels: WritableVisualModel[]) => {
@@ -183,7 +170,6 @@ export const useModelGraphContext = (): UseModelGraphContextType => {
     addVisualModel,
     setModelAlias,
     setModelIri,
-    cleanModels,
     replaceModels,
     removeModel,
     removeVisualModel,
