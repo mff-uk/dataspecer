@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { addToMapArray, removeFromArray } from "./functional";
+import { addToMapArray, removeFromArray, replaceByIndexInArray } from "./functional";
 
 describe("removeFromArray", () => {
 
@@ -30,6 +30,16 @@ describe("addToMapArray", () => {
       "one": ["one", "one copy"],
       "two": ["two"],
     };
+    expect(actual).toStrictEqual(expected);
+  });
+
+});
+
+describe("replaceByIndexInArray", () => {
+
+  test("Replace item.", () => {
+    const actual = replaceByIndexInArray(1, "one", ["zero", "", "two"]);
+    const expected = ["zero", "one", "two"];
     expect(actual).toStrictEqual(expected);
   });
 

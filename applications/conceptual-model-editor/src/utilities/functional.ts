@@ -4,7 +4,8 @@
  * Return original array if the entity is not part of the array.
  */
 export function removeFromArray<Type>(
-  array: Type[], value: Type | null | undefined,
+  array: Type[],
+  value: Type | null | undefined,
 ): Type[] {
   if (value === null || value === undefined) {
     return array;
@@ -38,4 +39,16 @@ export function addToMapArray<IdentifierType extends string, ValueType>(
     map[identifier] = array;
   }
   array.push(value);
+}
+
+export function replaceByIndexInArray<Type>(
+  index: number,
+  value: Type,
+  array: Type[],
+): Type[] {
+  return [
+    ...array.slice(0, index),
+    value,
+    ...array.slice(index + 1)
+  ];
 }
