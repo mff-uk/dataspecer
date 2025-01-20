@@ -134,7 +134,7 @@ function addEntitiesToStateForModel(
     const owner = getOwnerModelIdentifier(referenceModels, entity.id);
     const model = state.models.find(item => item.dsIdentifier === owner);
     if (model === undefined) {
-      LOG.error("Missing UiModel.", { dsIdentifier: owner });
+      LOG.warn("Ignoring update of entity without a model.", { entity: entity.id, model: owner });
       continue;
     }
     //
