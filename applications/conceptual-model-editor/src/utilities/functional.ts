@@ -4,8 +4,8 @@
  * Return original array if the entity is not part of the array.
  */
 export function removeFromArray<Type>(
-  array: Type[],
   value: Type | null | undefined,
+  array: Type[],
 ): Type[] {
   if (value === null || value === undefined) {
     return array;
