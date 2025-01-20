@@ -545,7 +545,7 @@ function createActionsContext(
   const openEditNodeAttributesDialog = (nodeIdentifier: string) => {
     withVisualModel(notifications, graph, (visualModel) => {
       openEditNodeAttributesDialogAction(
-        dialogs, notifications, classes, visualModel, nodeIdentifier);
+        dialogs, notifications, classes, options, visualModel, nodeIdentifier);
     });
   };
   // Visual model actions.

@@ -1,13 +1,13 @@
 import { DialogProps, DialogWrapper } from "../dialog-api";
-import { createEditNodeAttributesState, EditNodeAttributesState, useEditNodeAttributesController } from "./edit-node-attributes-dialog-controller";
+import { createEditNodeAttributesState, EditNodeAttributesState, IdentifierAndName, useEditNodeAttributesController } from "./edit-node-attributes-dialog-controller";
 // TODO RadStr: Drag-drop Newly also in the dependencies of other editor (kinda funny that the upgrade happened literally at the same time)
 import { DragDropContext, Draggable, Droppable, DropResult } from "@hello-pangea/dnd";
 
 
 export const createEditClassAttributesDialog = (
   onConfirm: ((state: EditNodeAttributesState) => void) | null,
-  attributes: string[],
-  relationships: string[],
+  attributes: IdentifierAndName[],
+  relationships: IdentifierAndName[],
 ): DialogWrapper<EditNodeAttributesState> => {
   return {
     label: "edit-class-attributes-dialog.label",
@@ -31,7 +31,7 @@ export const CreateEditNodeAttributesDialog = (props: DialogProps<EditNodeAttrib
     if (!result.destination) {
       return;     // If dropped outside a valid drop zone
     }
-    controller.moveAttributeTo(state.attributes[result.source.index], result.source.index, result.destination.index);
+    controller.moveAttributeToNewPosition(result.source.index, result.destination.index);
   };
 
 
@@ -47,7 +47,7 @@ export const CreateEditNodeAttributesDialog = (props: DialogProps<EditNodeAttrib
             style={{ padding: 6, background: "#f0f0f0" }}
           >
             {state.attributes.map((attribute, index) => (
-              <Draggable key={attribute} draggableId={attribute} index={index}>
+              <Draggable key={attribute.identifier} draggableId={attribute.identifier} index={index}>
                 {(provided) => (
                   <div
                     ref={provided.innerRef}
@@ -62,7 +62,7 @@ export const CreateEditNodeAttributesDialog = (props: DialogProps<EditNodeAttrib
                       ...provided.draggableProps.style,
                     }}
                   >
-                    {attribute}
+                    {attribute.name}
                   </div>
                 )}
               </Draggable>
@@ -74,7 +74,7 @@ export const CreateEditNodeAttributesDialog = (props: DialogProps<EditNodeAttrib
     </DragDropContext>
     <SimpleHorizontalLineSeparator/>
     <p className="font-bold">Relationships:</p>
-    {state.relationships.map(relationship => <div>{relationship}</div>)}
+    {state.relationships.map(relationship => <div>{relationship.name}</div>)}
   </div>;
 };
 

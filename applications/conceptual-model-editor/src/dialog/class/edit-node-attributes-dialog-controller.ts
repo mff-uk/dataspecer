@@ -1,14 +1,19 @@
 import { useMemo } from "react";
 import { type DialogProps } from "../dialog-api";
 
+export type IdentifierAndName = {
+  identifier: string,
+  name: string,
+};
+
 export interface EditNodeAttributesState {
-  attributes: string[];
-  relationships: string[];
+  attributes: IdentifierAndName[];
+  relationships: IdentifierAndName[];
 }
 
 export function createEditNodeAttributesState(
-  attributes: string[],
-  relationships: string[],
+  attributes: IdentifierAndName[],
+  relationships: IdentifierAndName[],
 ): EditNodeAttributesState {
   return {
     attributes,
@@ -17,34 +22,52 @@ export function createEditNodeAttributesState(
 }
 
 export interface CreateEditNodeAttributesControllerType {
-  convertAttributeToRelationship: (attribute: string) => void;
-  convertRelationshipToAttribute: (relationship: string) => void;
-  moveAttributeTo: (attribute: string, oldPosition: number, newPosition: number) => void;
+  convertAttributeToRelationship: (attributeIdentifier: string) => void;
+  convertRelationshipToAttribute: (relationshipIdentifier: string) => void;
+  moveAttributeToNewPosition: (oldPosition: number, newPosition: number) => void;
 }
 
 export function useEditNodeAttributesController({ state, changeState }: DialogProps<EditNodeAttributesState>): CreateEditNodeAttributesControllerType {
   return useMemo(() => {
 
-    const convertAttributeToRelationship = (attribute: string) => {
-      const nextState = {
-        attributes: state.attributes.filter(iteratedAttribute => attribute !== iteratedAttribute),
-        relationships: [...state.relationships, attribute],
-      };
-      changeState(nextState);
-    };
-
-    const convertRelationshipToAttribute = (relationship: string) => {
-      const nextState = {
-        relationships: state.relationships.filter(iteratedRelationship => relationship !== iteratedRelationship),
-        attributes: [...state.attributes, relationship],
-      };
-      changeState(nextState);
-    };
-
-    const moveAttributeTo = (attribute: string, oldPosition: number, newPosition: number) => {
+    const convertAttributeToRelationship = (attributeIdentifier: string) => {
+      const movedAttributeIndex = state.attributes.findIndex(iteratedAttribute => attributeIdentifier !== iteratedAttribute.identifier);
+      if(movedAttributeIndex === -1) {
+        console.warn("Could not move attribute to relationships");
+        return;
+      }
       const newAttributes = [...state.attributes];
-      newAttributes.splice(oldPosition, 1);
-      newAttributes.splice(newPosition, 0, attribute);
+      newAttributes.splice(movedAttributeIndex, 1);
+
+      const nextState = {
+        relationships: [...state.relationships, state.attributes[movedAttributeIndex]],
+        attributes: newAttributes,
+      };
+
+      changeState(nextState);
+    };
+
+    const convertRelationshipToAttribute = (relationshipIdentifier: string) => {
+      const movedRelationshipIndex = state.relationships.findIndex(iteratedRelationship => relationshipIdentifier !== iteratedRelationship.identifier);
+      if(movedRelationshipIndex === -1) {
+        console.warn("Could not move attribute to relationships");
+        return;
+      }
+      const newRelationships = [...state.relationships];
+      newRelationships.splice(movedRelationshipIndex, 1);
+
+      const nextState = {
+        attributes: [...state.attributes, state.relationships[movedRelationshipIndex]],
+        relationships: newRelationships,
+      };
+
+      changeState(nextState);
+    };
+
+    const moveAttributeToNewPosition = (oldPosition: number, newPosition: number) => {
+      const newAttributes = [...state.attributes];
+      const [removed] = newAttributes.splice(oldPosition, 1);
+      newAttributes.splice(newPosition, 0, removed);
       const nextState = {
         relationships: [...state.relationships],
         attributes: newAttributes,
@@ -55,7 +78,7 @@ export function useEditNodeAttributesController({ state, changeState }: DialogPr
     return {
       convertAttributeToRelationship,
       convertRelationshipToAttribute,
-      moveAttributeTo,
+      moveAttributeToNewPosition,
     };
   }, [state, changeState]);
 }
