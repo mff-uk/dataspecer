@@ -25,7 +25,7 @@ import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
-import { EntityToDelete, convertToEntitiesToDeleteType, findTopLevelGroupFromVisualModel, getSelections, getViewportCenterForClassPlacement, setSelectionsInDiagram } from "./utilities";
+import { EntityToDelete, checkIfIsAttributeOrAttributeProfile, convertToEntitiesToDeleteType, findTopLevelGroupFromVisualModel, getSelections, getViewportCenterForClassPlacement, setSelectionsInDiagram } from "./utilities";
 import { removeFromVisualModelAction } from "./remove-from-visual-model";
 import { removeFromSemanticModelsAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
@@ -55,7 +55,7 @@ import { EditClassDialogState } from "../dialog/class/edit-class-dialog-controll
 import { createCreateConnectionState } from "../dialog/obsolete/create-connection-dialog";
 import { GeneralizationConnectionType } from "../util/edge-connection";
 import { openCreateClassDialogAndCreateAssociationAction, openCreateClassDialogAndCreateGeneralizationAction } from "./open-create-class-dialog-with-edge";
-import { removeAttributeFromVisualModelAction } from "./remove-attribute-from-visual-model";
+import { removeAttributesFromVisualModelAction } from "./remove-attribute-from-visual-model";
 import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
 import { ShiftAttributeDirection, shiftAttributePositionAction } from "./shift-attribute";
 import { openEditNodeAttributesDialogAction } from "./open-edit-node-attributes-dialog";
@@ -191,7 +191,7 @@ interface VisualModelActions {
   removeFromVisualModel: (identifiers: string[]) => void;
 
   // TODO RadStr: Document
-  removeAttributeFromVisualModel: (attributes: string[]) => void;
+  removeAttributesFromVisualModel: (attributes: string[]) => void;
 
   //
 
@@ -286,7 +286,7 @@ const noOperationActionsContext = {
   deleteFromSemanticModels: noOperation,
   //
   removeFromVisualModel: noOperation,
-  removeAttributeFromVisualModel: noOperation,
+  removeAttributesFromVisualModel: noOperation,
   centerViewportToVisualEntity: noOperation,
   //
   createNewVisualModelFromSelection: noOperation,
@@ -628,9 +628,9 @@ function createActionsContext(
     });
   };
 
-  const removeAttributeFromVisualModel = (attributes: string[]): void => {
+  const removeAttributesFromVisualModel = (attributes: string[]): void => {
     withVisualModel(notifications, graph, (visualModel) => {
-      removeAttributeFromVisualModelAction(notifications, classes, visualModel, attributes);
+      removeAttributesFromVisualModelAction(notifications, classes, visualModel, attributes);
     });
   };
 
@@ -639,8 +639,17 @@ function createActionsContext(
   const deleteFromSemanticModels = (entitiesToDelete: EntityToDelete[]) => {
     // We start be removing from the visual model.
     withVisualModel(notifications, graph, (visualModel) => {
-      removeFromVisualModelAction(notifications, visualModel, entitiesToDelete.map(entitiesToDelete => entitiesToDelete.identifier));
-    });
+      const entityToDeleteWithAttributeData = entitiesToDelete
+        .map(entityToDelete =>
+          ({...entityToDelete,
+            isAttributeOrAttributeProfile: checkIfIsAttributeOrAttributeProfile(entityToDelete.identifier, graph.models, entityToDelete.sourceModel)
+          })
+        )
+        const attributesToBeDeleted = entityToDeleteWithAttributeData.filter(entity => entity.isAttributeOrAttributeProfile);
+        const notAttributesToBeDeleted = entityToDeleteWithAttributeData.filter(entity => !entity.isAttributeOrAttributeProfile);
+        removeFromVisualModelAction(notifications, visualModel, notAttributesToBeDeleted.map(entitiesToDelete => entitiesToDelete.identifier));
+        removeAttributesFromVisualModelAction(notifications, classes, visualModel, attributesToBeDeleted.map(entitiesToDelete => entitiesToDelete.identifier));
+      });
     removeFromSemanticModelsAction(notifications, graph, entitiesToDelete);
   };
 
@@ -898,7 +907,7 @@ function createActionsContext(
     shiftAttributeUp,
     shiftAttributeDown,
     removeFromVisualModel,
-    removeAttributeFromVisualModel,
+    removeAttributesFromVisualModel,
     //
     deleteFromSemanticModels,
     centerViewportToVisualEntity,

@@ -25,7 +25,7 @@ import { getDomainAndRange } from "../util/relationship-utils";
 /**
  * Remove entity and related entities from visual model.
  */
-export function removeAttributeFromVisualModelAction(
+export function removeAttributesFromVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   classes: ClassesContextType,
   visualModel: WritableVisualModel,

@@ -15,7 +15,7 @@ import { createRelationship } from "@dataspecer/core-v2/semantic-model/operation
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { addSemanticAttributeToVisualModelAction } from "../add-semantic-attribute-to-visual-model";
 import { setAttributePositionAction } from "../set-attribute-position";
-import { removeAttributeFromVisualModelAction } from "../remove-attribute-from-visual-model";
+import { removeAttributesFromVisualModelAction } from "../remove-attribute-from-visual-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { SemanticModelClass, SemanticModelRelationship, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
 import { SemanticModelClassUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
@@ -43,7 +43,7 @@ test("Test change attribute - Visibility", () => {
 
   const attributeAsEntity = Object.values(model.getEntities())[0] as SemanticModelRelationship;
   classes.relationships.push(attributeAsEntity);
-  removeAttributeFromVisualModelAction(noActionNotificationServiceWriter, classes, visualModel, [newAttributes[0].identifier]);
+  removeAttributesFromVisualModelAction(noActionNotificationServiceWriter, classes, visualModel, [newAttributes[0].identifier]);
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content.length).toEqual(1);
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content[0]).toEqual(newAttributes[1].identifier);
 });
@@ -99,7 +99,7 @@ test("Test change attribute - Visibility - back to back", () => {
 
   const attributeAsEntity = Object.values(model.getEntities())[0] as SemanticModelRelationship;
   classes.relationships.push(attributeAsEntity);
-  removeAttributeFromVisualModelAction(noActionNotificationServiceWriter, classes, visualModel, [newAttributes[0].identifier]);
+  removeAttributesFromVisualModelAction(noActionNotificationServiceWriter, classes, visualModel, [newAttributes[0].identifier]);
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content.length).toEqual(1);
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content[0]).toEqual(newAttributes[1].identifier);
 

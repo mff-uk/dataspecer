@@ -217,7 +217,7 @@ export const EntitiesOfModel = (props: {
 
   const handleDeleteFromView = (entity: Entity) => {
     if(isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity)) {
-      actions.removeAttributeFromVisualModel([entity.id]);
+      actions.removeAttributesFromVisualModel([entity.id]);
     }
     else {
       actions.removeFromVisualModel([entity.id]);

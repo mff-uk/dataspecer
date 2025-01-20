@@ -50,7 +50,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
 
   // TODO RadStr: Not sure if we should access the actions here or through another method
   const actions = useActions();
-  const removeAttributeFromVisualModel = (attribute: string) => actions.removeAttributeFromVisualModel([attribute]);
+  const removeAttributeFromVisualModel = (attribute: string) => actions.removeAttributesFromVisualModel([attribute]);
   const moveAttributeUp = (attribute: string) =>  actions.shiftAttributeUp(attribute, props.data.identifier);
   const moveAttributeDown = (attribute: string) =>  actions.shiftAttributeDown(attribute, props.data.identifier);
 
