@@ -78,14 +78,14 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
             <div className="relative flex w-full flex-row justify-between">
               <div>{data.label}</div>
               {isAnchored ? <div>⚓</div> : null}
+// TODO RadStr: DEBUG
+              {props.selected === true ? <div>SELECTED</div> : null}
             </div>
           </div>
 
           <div className="overflow-x-clip text-gray-500 px-1">
             {usePrefixForIri(data.iri)}
           </div>
-
-
                 {data.items.map(item =>
                   {
                     return <li className="relative flex w-full flex-row justify-between z-50">

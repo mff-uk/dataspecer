@@ -639,17 +639,16 @@ function createActionsContext(
   const deleteFromSemanticModels = (entitiesToDelete: EntityToDelete[]) => {
     // We start be removing from the visual model.
     withVisualModel(notifications, graph, (visualModel) => {
-      const entityToDeleteWithAttributeData = entitiesToDelete
-        .map(entityToDelete =>
-          ({...entityToDelete,
-            isAttributeOrAttributeProfile: checkIfIsAttributeOrAttributeProfile(entityToDelete.identifier, graph.models, entityToDelete.sourceModel)
-          })
-        )
-        const attributesToBeDeleted = entityToDeleteWithAttributeData.filter(entity => entity.isAttributeOrAttributeProfile);
-        const notAttributesToBeDeleted = entityToDeleteWithAttributeData.filter(entity => !entity.isAttributeOrAttributeProfile);
-        removeFromVisualModelAction(notifications, visualModel, notAttributesToBeDeleted.map(entitiesToDelete => entitiesToDelete.identifier));
-        removeAttributesFromVisualModelAction(notifications, classes, visualModel, attributesToBeDeleted.map(entitiesToDelete => entitiesToDelete.identifier));
-      });
+      const entityToDeleteWithAttributeData = entitiesToDelete.map(entityToDelete =>
+        ({...entityToDelete,
+          isAttributeOrAttributeProfile: checkIfIsAttributeOrAttributeProfile(entityToDelete.identifier, graph.models, entityToDelete.sourceModel)
+        })
+      );
+      const attributesToBeDeleted = entityToDeleteWithAttributeData.filter(entity => entity.isAttributeOrAttributeProfile);
+      const notAttributesToBeDeleted = entityToDeleteWithAttributeData.filter(entity => !entity.isAttributeOrAttributeProfile);
+      removeFromVisualModelAction(notifications, visualModel, notAttributesToBeDeleted.map(entitiesToDelete => entitiesToDelete.identifier));
+      removeAttributesFromVisualModelAction(notifications, classes, visualModel, attributesToBeDeleted.map(entitiesToDelete => entitiesToDelete.identifier));
+    });
     removeFromSemanticModelsAction(notifications, graph, entitiesToDelete);
   };
 

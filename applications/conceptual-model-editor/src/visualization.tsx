@@ -226,6 +226,7 @@ function onChangeVisualModel(
           console.error("Ignored entity for missing model.", { entity });
           continue;
         }
+
         const node = createDiagramNode(
           options, visualModel,
           attributes, attributeProfiles, profilingSources,
@@ -605,6 +606,7 @@ function onChangeVisualEntities(
         if(nodeIdToParentGroupIdMap[next.identifier] !== undefined) {
           group = nodeIdToParentGroupIdMap[next.identifier];
         }
+
         const node = createDiagramNode(
           options, visualModel,
           attributes, attributeProfiles, profilingSources,
@@ -615,13 +617,6 @@ function onChangeVisualEntities(
           actions.addNodes([node]);
         } else {
           // Change of existing.
-          // TODO RadStr: It would be probably better update every time the change wasn't position change by user
-          //       because for position change by user, the change is already registered in diagram.
-          //       If we do that, the selection code needs to be changed to not remove the selected
-          //       elements, right now we are doing that explicitly so it is consistent with this code.
-          //       It might have negative side-effects though for non-user updates by layouting, etc.
-          //       Also might be difficult to check if it was position change. So wait a bit with implementation.
-          //       Maybe won't even implement it.
           actions.updateNodes([node]);
         }
 
