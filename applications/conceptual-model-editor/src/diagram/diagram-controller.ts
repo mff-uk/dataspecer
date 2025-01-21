@@ -684,6 +684,23 @@ const createNodesChangeHandler = (
     }
     const extractedDataFromChanges = extractDataFromChanges(changes, groups, nodeToGroupMapping, selectedNodesRef, nodes);
 
+    // Another special case for ("pink") group node -
+    // without this - if we:
+    // create 2 groups,
+    // shift select part of them,
+    // move the shift selection,
+    // move the not selected node in group,
+    // Then if we move other node without selection, which is not part of the selection, we will keep one of the groups in the selection
+    // The issue comes from the fact that by dragging the other node we get changes which all the other nodes
+    // (so alternative solution could be to repair/disable such selection changes, but this would bring question
+    // how should the resulting selection look. So we keep it this way.)
+    if(!isSelecting && selectedNodesRef.current.length > 0) {
+      const newlySelected = changes.findIndex(change => change.type === "select" && change.selected && !selectedNodesRef.current.includes(change.id));
+      if(newlySelected !== -1) {
+        cleanSelection();
+      }
+    }
+
     updateChangesByGroupDragEvents(changes, nodes, groups, nodeToGroupMapping, selectedNodesRef);
     changes = [...new Set(changes)];
 
