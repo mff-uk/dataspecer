@@ -139,19 +139,13 @@ const Page = () => {
             <ClassesContext.Provider
               value={{
                 classes,
-                setClasses,
                 allowedClasses,
                 setAllowedClasses,
                 relationships,
-                setRelationships,
                 generalizations,
-                setGeneralizations,
                 profiles: usages,
-                setProfiles: setUsages,
                 sourceModelOfEntityMap,
-                setSourceModelOfEntityMap,
                 rawEntities,
-                setRawEntities,
               }}
             >
               <WarningsContext.Provider value={{ warnings, setWarnings }}>
