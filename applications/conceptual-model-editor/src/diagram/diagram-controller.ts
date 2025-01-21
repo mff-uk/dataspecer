@@ -316,22 +316,15 @@ function useCreateReactStates() {
   // Well what we could maybe do is to have the reactflow group node and have him disabled and only enable him when we click on node in group
   // or actually don't enable at all, it would be just a visual element nothing else - it would be just used for styling - that is the selection box
   // around the group - the box and maybe highlighting is all it would be useful for - but we could probably do that using Viewportal and draw straight on canvas instead of this
-  const nodesInGroupWhichAreNotPartOfDragging = useRef<string[]>([]);
   const selectedNodesRef = useRef<string[]>([]);
 
   // These are user selected nodes - that means the groups selected automatically in program are not contained
   const [userSelectedNodes, setUserSelectedNodes] = useState<string[]>([]);
   const userSelectedNodesRef = useRef<string[]>([]);
-  // We have to store it, so we can call it after the drag stop updates happen
-  // because if we perform it in the onChangesHandler we are one step behind
-  // and we can not check if the callback from visual model was because
-  // of the drag event or not
-  const dragStopChanges = useRef<Record<string, Position> | null>(null);
 
   const cleanSelection = useCallback(() => {
     setSelectedNodes([]);
     selectedNodesRef.current = [];
-    nodesInGroupWhichAreNotPartOfDragging.current = [];
     setUserSelectedNodes([]);
     userSelectedNodesRef.current = [];
     setNodes(previousNodes => {
@@ -344,7 +337,7 @@ function useCreateReactStates() {
     });
     setSelectedEdges([]);
     setEdges(prevEdges => prevEdges.map(edge => ({...edge, selected: false})));
-  }, [setSelectedNodes, selectedNodesRef, nodesInGroupWhichAreNotPartOfDragging, setUserSelectedNodes, userSelectedNodesRef, setNodes, setSelectedEdges]);
+  }, [setSelectedNodes, selectedNodesRef, setUserSelectedNodes, userSelectedNodesRef, setNodes, setSelectedEdges]);
 
   return {
     nodes, setNodes,
@@ -355,10 +348,8 @@ function useCreateReactStates() {
     selectedEdges, setSelectedEdges,
     groups, setGroups,
     nodeToGroupMapping, setNodeToGroupMapping,
-    nodesInGroupWhichAreNotPartOfDragging,
     userSelectedNodes, setUserSelectedNodes, userSelectedNodesRef,
     cleanSelection,
-    dragStopChanges,
   };
 }
 
@@ -371,11 +362,9 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
     nodes, setNodes, setEdges, setEdgeToolbar, setCanvasMenu,
     selectedNodes, setSelectedNodes, setSelectedEdges, selectedEdges,
     groups, nodeToGroupMapping,
-    nodesInGroupWhichAreNotPartOfDragging,
     selectedNodesRef,
     setUserSelectedNodes, userSelectedNodesRef,
     cleanSelection,
-    dragStopChanges,
   } = createdReactStates;
   const alignmentController = useAlignmentController({ reactFlowInstance });
   const canvasHighlighting = useExplorationCanvasHighlightingController(setNodes, setEdges);
@@ -392,16 +381,13 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
 
   useOnSelectionChange({ onChange: (onChangeSelection) });
 
-  // TODO RadStr: Should you put dependency for the userRef (dragStopChages)?
   const onNodesChange = useCallback(createNodesChangeHandler(
     nodes, setNodes, alignmentController, setSelectedNodes, groups, nodeToGroupMapping,
-    nodesInGroupWhichAreNotPartOfDragging, selectedNodesRef,
-    isCtrlPressed, isSelecting, setUserSelectedNodes, userSelectedNodesRef, selectedNodes, dragStopChanges,
-    cleanSelection),
-  [nodes, setNodes, alignmentController, setSelectedNodes, groups, nodeToGroupMapping,
-    nodesInGroupWhichAreNotPartOfDragging, selectedNodesRef,
-    isCtrlPressed, isSelecting, setUserSelectedNodes, userSelectedNodesRef, selectedNodes, dragStopChanges,
-    cleanSelection]);
+    selectedNodesRef, isCtrlPressed, isSelecting, setUserSelectedNodes,
+    userSelectedNodesRef, selectedNodes, cleanSelection, api),
+    [nodes, setNodes, alignmentController, setSelectedNodes, groups, nodeToGroupMapping,
+    selectedNodesRef, isCtrlPressed, isSelecting, setUserSelectedNodes,
+    userSelectedNodesRef, selectedNodes, cleanSelection, api]);
 
   const onEdgesChange = useCallback(createEdgesChangeHandler(
     setEdges, setSelectedEdges),
@@ -431,8 +417,8 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
 
   const onNodeDrag = useCallback(createOnNodeDragHandler(), []);
   const onNodeDragStop = useCallback(createOnNodeDragStopHandler(
-    api, alignmentController, canvasHighlighting.enableTemporarily, dragStopChanges),
-  [api, alignmentController, canvasHighlighting.enableTemporarily, dragStopChanges]);
+    api, alignmentController, canvasHighlighting.enableTemporarily),
+  [api, alignmentController, canvasHighlighting.enableTemporarily]);
 
   const onNodeMouseEnter = useCallback(createOnNodeMouseEnterHandler(canvasHighlighting.changeHighlight, reactFlowInstance), [canvasHighlighting.changeHighlight, reactFlowInstance]);
   const onNodeMouseLeave = useCallback(createOnNodeMouseLeaveHandler(canvasHighlighting.resetHighlight), [canvasHighlighting.resetHighlight]);
@@ -476,7 +462,6 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
     setNodeToGroupMapping,
     userSelectedNodes,
     cleanSelection,
-    dragStopChanges,
   } = createdReactStates;
   const { onOpenEdgeToolbar, onOpenCanvasMenu, alignmentController, onNodesChange } = createdPartOfDiagramController;
 
@@ -509,11 +494,10 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
   const actions = useMemo(() => createActions(reactFlowInstance, setNodes, setEdges,
     alignmentController, context,selectedNodes, setSelectedNodesThroughOnNodesChange,
     setSelectedEdges, canvasHighlighting.changeHighlight, groups, setGroups,
-    setNodeToGroupMapping, cleanSelection, dragStopChanges),
+    setNodeToGroupMapping, cleanSelection),
   [reactFlowInstance, setNodes, setEdges, alignmentController, context,
     selectedNodes, setSelectedNodesThroughOnNodesChange, setSelectedEdges,
-    canvasHighlighting.changeHighlight, groups, setGroups, setNodeToGroupMapping, cleanSelection,
-    dragStopChanges]);
+    canvasHighlighting.changeHighlight, groups, setGroups, setNodeToGroupMapping, cleanSelection]);
 
   // Register actions to API.
   useEffect(() => api.setActions(actions), [api, actions]);
@@ -573,15 +557,15 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
 }
 
 
+// TODO RadStr: Remove the method probably
+// for now keep it, since I might use it (at least for debugging)
 function createOnSelectionStartHandler(
   cleanSelection: () => void,
   selectedNodes: string[],
   userSelectedNodes: string[]
 ) {
   return () => {
-    if(selectedNodes.length > 0) {
-      cleanSelection();
-    }
+    // EMPTY
   }
 }
 
@@ -642,14 +626,10 @@ const createOnNodeDragStopHandler = (
   api: UseDiagramType,
   alignmentController: AlignmentController,
   enableExplorationModeHighlightingChanges: () => void,
-  dragStopChanges: React.MutableRefObject<Record<string, Position> | null>,
 ) => {
   return (_event: React.MouseEvent, node: Node, _nodes: Node[]) => {
     enableExplorationModeHighlightingChanges();
     alignmentController.alignmentCleanUpOnNodeDragStop(node);
-    if(dragStopChanges.current !== null) {
-      api.callbacks().onChangeNodesPositions(dragStopChanges.current);
-    }
   };
 };
 
@@ -677,15 +657,14 @@ const createNodesChangeHandler = (
   setSelectedNodes: ReactPrevSetStateType<string[]>,
   groups: Record<string, NodeIdentifierWithType[]>,
   nodeToGroupMapping: Record<string, string>,
-  nodesInGroupWhichAreNotPartOfDragging: React.MutableRefObject<string[]>,
   selectedNodesRef: React.MutableRefObject<string[]>,
   isSelectingThroughCtrl: boolean,
   isSelecting: boolean,
   setUserSelectedNodes: ReactPrevSetStateType<string[]>,
   userSelectedNodesRef: React.MutableRefObject<string[]>,
   selectedNodes: string[],
-  dragStopChanges: React.MutableRefObject<Record<string, Position> | null>,
   cleanSelection: () => void,
+  api: UseDiagramType,
 ) => {
   return (changes: NodeChange<NodeType>[]) => {
     // We can alter the change here ... for example allow only x-movement.
@@ -698,29 +677,16 @@ const createNodesChangeHandler = (
     // });
 
     console.info("changes", {changes});
-    if(handleStartOfGroupDraggingThroughGroupNode(nodes, changes, userSelectedNodesRef, setNodes,
-      setUserSelectedNodes, setSelectedNodes, groups, nodesInGroupWhichAreNotPartOfDragging)) {
+    if(handleStartOfGroupDraggingThroughGroupNode(nodes, changes, groups)) {
       return;
     }
     if(handleGroupDraggingThroughNotSelectedNode(changes, userSelectedNodesRef, isSelectingThroughCtrl, setNodes,
-      setUserSelectedNodes, setSelectedNodes, groups, nodesInGroupWhichAreNotPartOfDragging, selectedNodes, selectedNodesRef)) {
+      setUserSelectedNodes, setSelectedNodes, groups, selectedNodes, selectedNodesRef)) {
       return;
     }
     const extractedDataFromChanges = extractDataFromChanges(changes, groups, nodeToGroupMapping, selectedNodesRef, nodes);
 
-    // Another special case for ("pink") group node -
-    // because then if we start dragging new node without performing selection,
-    // we will also drag the old values, which we don't want
-    // TODO RadStr: Commented code.
-    // if(!isSelecting && userSelectedNodesRef.current.length === 0 && selectedNodesRef.current.length > 0 && changes[0].type === "select") {
-    // if(!isSelecting && selectedNodesRef.current.length > 0) {
-    //   const newlySelected = changes.findIndex(change => change.type === "select" && change.selected && !selectedNodesRef.current.includes(change.id));
-    //   if(newlySelected !== -1) {
-    //     cleanSelection();
-    //   }
-    // }
-
-    updateChangesByGroupDragEvents(changes, nodes, groups, nodeToGroupMapping, nodesInGroupWhichAreNotPartOfDragging, selectedNodesRef);
+    updateChangesByGroupDragEvents(changes, nodes, groups, nodeToGroupMapping, selectedNodesRef);
     changes = [...new Set(changes)];
 
     const tmpResult = removeNotCompleteGroupUnselections(
@@ -762,7 +728,6 @@ const createNodesChangeHandler = (
         extractedDataFromChanges.newlySelectedNodesBasedOnGroups,
         selectedNodesRef,
         userSelectedNodesRef,
-        nodesInGroupWhichAreNotPartOfDragging,
       );
 
       console.info("NEW SELECTED", newSelectedNodes);
@@ -800,7 +765,7 @@ const createNodesChangeHandler = (
         visualModelChanges[change.id] = change.position;
       }
 
-      dragStopChanges.current = visualModelChanges;
+      api.callbacks().onChangeNodesPositions(visualModelChanges);
     }
   }
 };
@@ -812,28 +777,12 @@ const createNodesChangeHandler = (
 const handleStartOfGroupDraggingThroughGroupNode = (
   nodes: NodeType[],
   changes: NodeChange<NodeType>[],
-  userSelectedNodesRef: React.MutableRefObject<string[]>,
-  setNodes: ReactPrevSetStateType<NodeType[]>,
-  setUserSelectedNodes: ReactPrevSetStateType<string[]>,
-  setSelectedNodes: ReactPrevSetStateType<string[]>,
   groups: Record<string, NodeIdentifierWithType[]>,
-  nodesInGroupWhichAreNotPartOfDragging: React.MutableRefObject<string[]>,
 ): boolean => {
   const groupCount = Object.entries(groups).length;
   if(groupCount > 0 && nodes.length === changes.length) {
     const notSelectionChanges = changes.filter(change => change.type !== "select" || change.selected);
     if(notSelectionChanges.length === 0) {
-      // TODO RadStr: Commented code - after all we can keep the old values, it is much easier then to work with
-      // setNodes(prevNodes => applyNodeChanges(changes, prevNodes));
-      // setSelectedNodes(prevSelectedNodes => {
-      //   nodesInGroupWhichAreNotPartOfDragging.current = [...prevSelectedNodes];
-      //   return prevSelectedNodes;
-      // });
-      // setUserSelectedNodes(_ => {
-      //   userSelectedNodesRef.current = [];
-      //   return [];
-      // });
-
       return true;
     }
   }
@@ -853,7 +802,6 @@ const handleGroupDraggingThroughNotSelectedNode = (
   setUserSelectedNodes: ReactPrevSetStateType<string[]>,
   setSelectedNodes: ReactPrevSetStateType<string[]>,
   groups: Record<string, NodeIdentifierWithType[]>,
-  nodesInGroupWhichAreNotPartOfDragging: React.MutableRefObject<string[]>,
   selectedNodes: string[],
   selectedNodesRef: React.MutableRefObject<string[]>,
 ): boolean => {
@@ -886,11 +834,9 @@ const handleGroupDraggingThroughNotSelectedNode = (
             let newSelectedNodes: string[];
             if(prevSelectedNodes.includes(newlySelected.id)) {
               newSelectedNodes = [...prevSelectedNodes];
-              nodesInGroupWhichAreNotPartOfDragging.current = [...prevSelectedNodes];
             }
             else {
               newSelectedNodes = prevSelectedNodes.concat([newlySelected.id]);
-              nodesInGroupWhichAreNotPartOfDragging.current = [...newSelectedNodes];
             }
 
             selectedNodesRef.current = newSelectedNodes;
@@ -905,11 +851,9 @@ const handleGroupDraggingThroughNotSelectedNode = (
             let newSelectedNodes: string[];
             if(prevSelectedNodes.includes(newlySelected.id)) {
               newSelectedNodes = [...prevSelectedNodes];
-              nodesInGroupWhichAreNotPartOfDragging.current = prevSelectedNodes.filter(selectedNode => selectedNode !== newlySelected.id);
             }
             else {
               newSelectedNodes = prevSelectedNodes.concat([newlySelected.id]);
-              nodesInGroupWhichAreNotPartOfDragging.current = [...prevSelectedNodes];
             }
             userSelectedNodesRef.current = [newlySelected.id];
             selectedNodesRef.current = newSelectedNodes;
@@ -1127,11 +1071,8 @@ const updateChangesByGroupDragEvents = (
   nodes: NodeType[],
   groups: Record<string, NodeIdentifierWithType[]>,
   nodeToGroupMapping: Record<string, string>,
-  nodesInGroupWhichAreNotPartOfDragging: React.MutableRefObject<string[]>,
   selectedNodesRef: React.MutableRefObject<string[]>,
 ) => {
-  // const draggedGroups = [...new Set(changes.filter(change => change.type === "position").map(change => findTopLevelGroup(change.id, groups, nodeToGroupMapping))
-  //   .concat(nodesInGroupWhichAreNotPartOfDragging.current.map(node => findTopLevelGroup(node, groups, nodeToGroupMapping))).filter(group => group !== null))];
   const draggedGroups = [...new Set(changes.filter(change => change.type === "position").map(change => findTopLevelGroup(change.id, groups, nodeToGroupMapping))
     .concat(selectedNodesRef.current.map(node => findTopLevelGroup(node, groups, nodeToGroupMapping))).filter(group => group !== null))];
   if(draggedGroups.length > 0) {
@@ -1224,7 +1165,6 @@ const updateSelectedNodesBasedOnNodeChanges = (
   newlySelectedNodesBasedOnGroups: string[],
   selectedNodesRef: React.MutableRefObject<string[]>,
   userSelectedNodesRef: React.MutableRefObject<string[]>,
-  nodesInGroupWhichAreNotPartOfDragging: React.MutableRefObject<string[]>,
 ) => {
   // Nothing happened, don't change the value.
   // This saves us recreation of useCallbacks dependent on selectedNodes
@@ -1240,7 +1180,6 @@ const updateSelectedNodesBasedOnNodeChanges = (
   newSelectedNodes = [... new Set(newSelectedNodes)];
 
   selectedNodesRef.current = newSelectedNodes;
-  nodesInGroupWhichAreNotPartOfDragging.current = newSelectedNodes.filter(newSelectedNode => !userSelectedNodesRef.current.includes(newSelectedNode));
 
   return newSelectedNodes;
 };
@@ -1532,8 +1471,6 @@ const createActions = (
   setGroups: ReactPrevSetStateType<Record<string, NodeIdentifierWithType[]>>,
   setNodeToGroupMapping: ReactPrevSetStateType<Record<string, string>>,
   cleanSelection: () => void,
-  // TODO RadStr: Maybe after all we don't need the dragStopChanges
-  dragStopChanges: React.MutableRefObject<Record<string, Position> | null>
 ): DiagramActions => {
   return {
     getGroups() {
