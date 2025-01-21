@@ -1,43 +1,81 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 
 import { EntityModel } from "@dataspecer/core-v2";
 import { HexColor, VisualModel } from "@dataspecer/core-v2/visual-model";
 import { AggregatedEntityWrapper, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 
-import { createEmptyState, onAddEntityModels, onAddVisualEntity, onChangeVisualModel, onRemoveEntityModel, onRemoveVisualEntity } from "./ui-model-state";
+import { UiAssociation, UiAssociationProfile, UiAttribute, UiAttributeProfile, UiClass, UiClassProfile } from "./ui-model";
+import { initializeState, onAddEntityModels, onAddVisualEntity, onChangeSemanticModel, onChangeVisualModel, onRemoveEntityModel, onRemoveVisualEntity, UiModelServiceState } from "./ui-model-service";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../entity-model";
-import { UiModelApi } from "./ui-model-api";
-import { UiState } from "./ui-model";
+import { configuration } from "../../application";
+import { createEmptyUiState } from "./ui-model-utilities";
 
-const uiModelContext = React.createContext<UiState>(createEmptyState());
+export type UiModelStateContext = UiModelServiceState;
 
-const apiContext = React.createContext<UiModelApi>(null as any);
+const context = React.createContext<UiModelStateContext>({
+  ...createEmptyUiState(),
+  defaultWriteModel: null,
+});
 
-export const UiModelProvider = (props: {
+/**
+ * Provide context for reading current values and updating the state.
+ * The context does not change when values change.
+ */
+export interface UiModelApiContext {
+
+  getClass: (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => UiClass | null;
+
+  getClassProfile: (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => UiClassProfile | null;
+
+  getAttribute: (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => UiAttribute | null;
+
+  getAttributeProfile: (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => UiAttributeProfile | null;
+
+  getAssociation: (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => UiAssociation | null;
+
+  getAssociationProfile: (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => UiAssociationProfile | null;
+
+  //
+
+  onAddEntityModels: (visualModel: VisualModel, models: EntityModel[]) => void;
+
+  onRemoveEntityModel: (removed: string[]) => void;
+
+  onChangeVisualModel: (model: ModelDsIdentifier, color: HexColor) => void;
+
+  onAddVisualEntity: (model: ModelDsIdentifier, entity: EntityDsIdentifier, visual: string) => void;
+
+  onRemoveVisualEntity: (model: ModelDsIdentifier, entity: EntityDsIdentifier) => void;
+
+}
+
+const apiContext = React.createContext<UiModelApiContext>({
+  getClass: () => null,
+  getClassProfile: () => null,
+  getAttribute: () => null,
+  getAttributeProfile: () => null,
+  getAssociation: () => null,
+  getAssociationProfile: () => null,
+  //
+  onAddEntityModels: () => null,
+  onRemoveEntityModel: () => null,
+  onChangeVisualModel: () => null,
+  onAddVisualEntity: () => null,
+  onRemoveVisualEntity: () => null,
+});
+
+export const WithUiModel = (props: {
   children: React.ReactNode,
-  semanticModels: EntityModel[],
-  visualModel: VisualModel | null,
   aggregatorView: SemanticModelAggregatorView,
 }) => {
   // We store data using reference as well as the state.
   // This allows to trigger re-render and provide on-demand access.
-  const stateRef = useRef<UiState>(createEmptyState());
-  const [state, setStateState] = useState<UiState>(stateRef.current);
+  const stateRef = useRef<UiModelStateContext>({
+    ...createEmptyUiState(),
+    defaultWriteModel: null,
+  });
+  const [state, setState] = useState<UiModelStateContext>(stateRef.current);
 
-  // We need to keep state and ref synched.
-  const setState = useCallback((next: UiState) => {
-    stateRef.current = next;
-    setStateState(next);
-  }, [setStateState]);
-
-  const { semanticModels, visualModel, aggregatorView } = props;
-
-  useEffect(() => {
-    // Initial state ...
-    console.log("UiModelProvider change");
-  }, [aggregatorView, semanticModels, visualModel, setState]);
-
-  /*
   useEffect(() => {
     // This method is called three times when page is loaded in developer mode.
     // First time with no content.
@@ -72,7 +110,6 @@ export const UiModelProvider = (props: {
     };
 
   }, [setState, props.aggregatorView]);
-  */
 
   const getterContent = useMemo<UiModelApiContext>(() => ({
     getClass: (identifier, model) =>
@@ -134,7 +171,7 @@ function findEntity<T extends {
   return entities.find(item => item.dsIdentifier === identifier && item.model.dsIdentifier === model) ?? null;
 }
 
-export const useUiModel = (): UiState => {
+export const useUiModel = (): UiModelStateContext => {
   return useContext(context);
 };
 

@@ -9,26 +9,21 @@ import { EntityDsIdentifier, ModelDsIdentifier } from "../entity-model";
 import { RuntimeError } from "../../application/error";
 import { sortEntitiesByDisplayLabel } from "./ui-model-utilities";
 
-export function createEmptyState(): UiState {
-  return {
-    defaultWriteModel: null,
-    visualModel: null,
-    models: [],
-    classes: [],
-    classProfiles: [],
-    attributes: [],
-    attributeProfiles: [],
-    associations: [],
-    associationProfiles: [],
-    generalizations: [],
-  };
-}
+export interface UiModelServiceState extends UiState {
+
+  /**
+   * When null, there is no model to write to.
+   * As a result, the state is read-only.
+   */
+  defaultWriteModel: UiModel | null;
+
+};
 
 export function initializeState(
   aggregatorView: SemanticModelAggregatorView,
   visualModel: VisualModel | null,
   languages: string[],
-): UiState {
+): UiModelServiceState {
   const entities = aggregatorView.getEntities();
   const models = entityModels(aggregatorView);
   const state = entityModelToUiState(
@@ -56,10 +51,10 @@ export function onChangeSemanticModel(
   referenceModels: EntityModel[],
   visualModel: VisualModel | null,
   languages: string[],
-  previousState: UiState,
+  previousState: UiModelServiceState,
   updated: AggregatedEntityWrapper[],
   removed: string[],
-): UiState {
+): UiModelServiceState {
   const state = semanticModelChangeToUiState(
     updated, removed, referenceModels, visualModel, languages, previousState);
   return {
@@ -76,10 +71,10 @@ function selectWritableModel(models: UiModel[]): UiModel | null {
  * The added models should be part of the visual model.
  */
 export function onAddEntityModels(
-  previous: UiState,
+  previous: UiModelServiceState,
   visualModel: VisualModel | null,
   models: EntityModel[],
-): UiState {
+): UiModelServiceState {
   const nextModels = [
     ...models.map(item => entityModelToUiModel(
       configuration().defaultModelColor, t, item, visualModel)),
@@ -97,9 +92,9 @@ export function onAddEntityModels(
  * Remove model from the list of models and all entities with the model.
  */
 export function onRemoveEntityModel(
-  previous: UiState,
+  previous: UiModelServiceState,
   removed: string[],
-): UiState {
+): UiModelServiceState {
   let result = { ...previous };
   //
   for (const representedModel of removed) {
@@ -136,7 +131,7 @@ export function onRemoveEntityModel(
  * This is here as a placeholder.
  * Use onChangeVisualModel instead.
  */
-export function onAddVisualModel(): UiState {
+export function onAddVisualModel(): UiModelServiceState {
   throw new RuntimeError("Do not call this method!");
 }
 
@@ -145,10 +140,10 @@ export function onAddVisualModel(): UiState {
  * change in a color.
  */
 export function onChangeVisualModel(
-  previous: UiState,
+  previous: UiModelServiceState,
   representedModel: ModelDsIdentifier,
   color: HexColor,
-): UiState {
+): UiModelServiceState {
   const modelIndex = previous.models.findIndex(
     item => item.dsIdentifier === representedModel);
   if (modelIndex === -1) {
@@ -212,11 +207,11 @@ export function onRemoveVisualModel() {
  * Use specialized function for visual models.
  */
 export function onAddVisualEntity(
-  previous: UiState,
+  previous: UiModelServiceState,
   representedModel: ModelDsIdentifier,
   representedEntity: EntityDsIdentifier,
   visualIdentifier: string,
-): UiState {
+): UiModelServiceState {
 
   // Set visualDsIdentifier to given identifier.
   const update = <T extends { visualDsIdentifier: string | null }>(item: T): T => {
@@ -276,10 +271,10 @@ function updateEntity<T extends { dsIdentifier: string, model: UiModel }>(
  * Use specialized function for visual models.
  */
 export function onRemoveVisualEntity(
-  previous: UiState,
+  previous: UiModelServiceState,
   representedModel: ModelDsIdentifier,
   representedEntity: EntityDsIdentifier,
-): UiState {
+): UiModelServiceState {
 
   // Set visualDsIdentifier to null.
   const update = <T extends { visualDsIdentifier: string | null }>(item: T): T => {

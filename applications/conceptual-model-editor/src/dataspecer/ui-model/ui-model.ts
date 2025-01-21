@@ -1,4 +1,3 @@
-import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../entity-model";
 
 /**
@@ -159,18 +158,6 @@ export interface UiTree<EntityType, ProfileType> {
 }
 
 export interface UiState {
-
-  /**
-   * When null, there is no model to write to.
-   * As a result, the state is read-only.
-   */
-  defaultWriteModel: UiModel | null;
-
-  /**
-   * Current active visual model.
-   * We use this to detect changes in the visual model.
-   */
-  visualModel: VisualModel | null;
 
   models: UiModel[];
 

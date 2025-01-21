@@ -73,14 +73,6 @@ const dialogClassProfile = prefix(
     "ok-create": "✅ Create",
   });
 
-const dataspecer = prefix(
-  "dataspecer", {
-    "package.state-is-null": "There is no dataspecer state information, please reload the application",
-    "package.missing-model": "Missing model.",
-    "package.can-not-save-in-detached-mode": "Can not save in detached mode.",
-  },
-);
-
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export const translations: Record<string, string | Function> = {
   ...dialogAssociation,
@@ -89,7 +81,6 @@ export const translations: Record<string, string | Function> = {
   ...dialogAttributeProfile,
   ...dialogClass,
   ...dialogClassProfile,
-  ...dataspecer,
   //
   "notification.icon-error": "Error icon",
   "notification.icon-success": "Check icon",
