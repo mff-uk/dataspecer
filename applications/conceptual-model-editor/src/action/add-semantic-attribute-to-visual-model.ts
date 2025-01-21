@@ -1,10 +1,9 @@
 import { isVisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { getDomainAndRange } from "../util/relationship-utils";
-import { isSemanticModelAttributeUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelAttributeUsage, SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { isSemanticModelAttribute, SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { ClassesContextType } from "../context/classes-context";
-
 
 // TODO RadStr: Maybe not really an action but just helper method?
 export function addSemanticAttributeToVisualModelAction(

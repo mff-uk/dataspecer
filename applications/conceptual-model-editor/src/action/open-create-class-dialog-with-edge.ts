@@ -36,7 +36,6 @@ export function openCreateClassDialogAndCreateAssociationAction(
     diagram, visualModel, nodeIdentifier, positionToPlaceClassOn, onConfirm);
 }
 
-
 export function openCreateClassDialogAndCreateGeneralizationAction(
   notifications: UseNotificationServiceWriterType,
   dialogs: DialogApiContextType,
@@ -58,7 +57,6 @@ export function openCreateClassDialogAndCreateGeneralizationAction(
   openCreateClassDialogWithModelDerivedFromClassAction(notifications, graph, dialogs, classes, options,
     diagram, visualModel, nodeIdentifier, positionToPlaceClassOn, onConfirm);
 }
-
 
 function createGeneralizationToCreatedClass(
   notifications: UseNotificationServiceWriterType,
@@ -94,9 +92,6 @@ function createGeneralizationToCreatedClass(
 
   addSemanticGeneralizationToVisualModelAction(notifications, graph, visualModel, result.id, createdClassData.model.getId());
 }
-
-
-
 
 function createAssociationToCreatedClass(
   notifications: UseNotificationServiceWriterType,

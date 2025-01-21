@@ -86,20 +86,20 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
           <div className="overflow-x-clip text-gray-500 px-1">
             {usePrefixForIri(data.iri)}
           </div>
-                {data.items.map(item =>
-                  {
-                    return <li className="relative flex w-full flex-row justify-between z-50">
-                      <EntityNodeItem key={item.identifier} item={item} />
-                      {props.selected !== true ? null :
-                        <div>
-                          <button onClick={(_) => moveAttributeUp(item.identifier)}>🔼</button>
-                          <button onClick={(_) => moveAttributeDown(item.identifier)}>🔽</button>
-                          <button onClick={(_) => removeAttributeFromVisualModel(item.identifier)}>🕶️</button>
-                        </div>
-                      }
-                    </li>
-                  })
-                }
+          {data.items.map(item =>
+          {
+            return <li className="relative flex w-full flex-row justify-between z-50">
+              <EntityNodeItem key={item.identifier} item={item} />
+              {props.selected !== true ? null :
+                <div>
+                  <button onClick={(_) => moveAttributeUp(item.identifier)}>🔼</button>
+                  <button onClick={(_) => moveAttributeDown(item.identifier)}>🔽</button>
+                  <button onClick={(_) => removeAttributeFromVisualModel(item.identifier)}>🕶️</button>
+                </div>
+              }
+            </li>
+          })
+          }
         </div>
         {/* We need a permanent source and target. */}
         <Handle type="target" position={Position.Right} />

@@ -48,7 +48,6 @@ import { type EntityModel } from "@dataspecer/core-v2";
 import { Options, useOptions } from "./application/options";
 import { getGroupMappings } from "./action/utilities";
 import { synchronizeOnAggregatorChange } from "./dataspecer/visual-model/aggregator-to-visual-model-adapter";
-import { propagateCardinality } from "@dataspecer/core/structure-model/transformation/propagate-cardinality";
 
 const DEFAULT_MODEL_COLOR = "#ffffff";
 

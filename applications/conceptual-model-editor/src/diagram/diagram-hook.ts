@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 
-import type { DiagramCallbacks, DiagramActions, Position } from "./diagram-api";
+import type { DiagramCallbacks, DiagramActions } from "./diagram-api";
 
 export interface UseDiagramType {
 

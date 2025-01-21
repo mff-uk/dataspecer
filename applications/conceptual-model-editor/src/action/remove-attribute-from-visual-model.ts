@@ -1,21 +1,14 @@
 import {
-  type VisualEntity,
-  type VisualModel,
   VisualNode,
   WritableVisualModel,
-  isVisualGroup,
   isVisualNode,
-  isVisualProfileRelationship,
-  isVisualRelationship,
 } from "@dataspecer/core-v2/visual-model";
 
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { removePartOfGroupContentAction } from "./remove-part-of-group-content";
 import { ClassesContextType } from "../context/classes-context";
 import { isSemanticModelAttribute, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelAttributeUsage, SemanticModelClassUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelAttributeUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { getDomainAndRange } from "../util/relationship-utils";
-
 
 // I chose to process attributes separately instead of using the removeFromVisualModelAction.
 // It needs additional arguments to the method and the attributes are in a way kind of
@@ -66,7 +59,6 @@ export function removeAttributesFromVisualModelAction(
       notifications.error("One of given attributes has something else than node as domain");
       continue;
     }
-
 
     // Find the visual entities.
     const visualEntity = visualModel.getVisualEntityForRepresented(domainIdentifier);

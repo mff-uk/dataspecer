@@ -385,7 +385,7 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
     nodes, setNodes, alignmentController, setSelectedNodes, groups, nodeToGroupMapping,
     selectedNodesRef, isCtrlPressed, isSelecting, setUserSelectedNodes,
     userSelectedNodesRef, selectedNodes, cleanSelection, api),
-    [nodes, setNodes, alignmentController, setSelectedNodes, groups, nodeToGroupMapping,
+  [nodes, setNodes, alignmentController, setSelectedNodes, groups, nodeToGroupMapping,
     selectedNodesRef, isCtrlPressed, isSelecting, setUserSelectedNodes,
     userSelectedNodesRef, selectedNodes, cleanSelection, api]);
 
@@ -425,7 +425,7 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
 
   const onSelectionStart = useCallback(createOnSelectionStartHandler(
     cleanSelection, selectedNodesRef.current, userSelectedNodesRef.current),
-    [cleanSelection, selectedNodesRef.current, userSelectedNodesRef.current]);
+  [cleanSelection, selectedNodesRef.current, userSelectedNodesRef.current]);
 
   return {
     alignmentController,
@@ -457,7 +457,7 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
     setNodes, setEdges,
     canvasMenu, setCanvasMenu,
     selectedNodes, selectedEdges,
-    setSelectedNodes, setSelectedEdges,
+    setSelectedEdges,
     groups, setGroups,
     setNodeToGroupMapping,
     userSelectedNodes,
@@ -556,13 +556,12 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
   };
 }
 
-
 // TODO RadStr: Remove the method probably
 // for now keep it, since I might use it (at least for debugging)
 function createOnSelectionStartHandler(
-  cleanSelection: () => void,
-  selectedNodes: string[],
-  userSelectedNodes: string[]
+  _cleanSelection: () => void,
+  _selectedNodes: string[],
+  _userSelectedNodes: string[]
 ) {
   return () => {
     // EMPTY
@@ -676,7 +675,6 @@ const createNodesChangeHandler = (
     //   }
     // });
 
-    console.info("changes", {changes});
     if(handleStartOfGroupDraggingThroughGroupNode(nodes, changes, groups)) {
       return;
     }
@@ -710,10 +708,6 @@ const createNodesChangeHandler = (
         userSelectedNodesRef,
       );
 
-      console.info(extractedDataFromChanges);
-      console.info(changes);
-      console.info("NEW USER SELECTED", newUserSelectedNodes);
-      console.info("PREVIOUSLY USER SELECTED", previouslyUserSelectedNodes);
       return newUserSelectedNodes;
     });
 
@@ -726,10 +720,8 @@ const createNodesChangeHandler = (
         nodesWhichWereActuallyNotUnselected,
         extractedDataFromChanges.newlySelectedNodesBasedOnGroups,
         selectedNodesRef,
-        userSelectedNodesRef,
       );
 
-      console.info("NEW SELECTED", newSelectedNodes);
       return newSelectedNodes;
     });
 
@@ -744,7 +736,6 @@ const createNodesChangeHandler = (
         groups,
       );
 
-      console.info("NEW NODES", updatedNodes);
       return updatedNodes;
     });
 
@@ -962,7 +953,7 @@ const extractDataFromChanges = (
   const debug: NodeIdentifierWithType[] = [];
   // If we are dragging the actual node representing group -
   // we have to do this, because the first select event is not present on that node
-  let shouldUnselectEverything: boolean = false;
+  const shouldUnselectEverything: boolean = false;
   for (const change of changes) {
     let isSelected: boolean | null = null;
     let changeId: string = "";
@@ -1160,7 +1151,6 @@ const updateSelectedNodesBasedOnNodeChanges = (
   nodesWhichWereActuallyNotUnselected: string[],
   newlySelectedNodesBasedOnGroups: string[],
   selectedNodesRef: React.MutableRefObject<string[]>,
-  userSelectedNodesRef: React.MutableRefObject<string[]>,
 ) => {
   // Nothing happened, don't change the value.
   // This saves us recreation of useCallbacks dependent on selectedNodes
@@ -1438,12 +1428,6 @@ const shouldBreakSelection = (
   const shouldBreak = !isEqual(omit(prevNode.data, ["position"]), omit(nextNode.data, ["position"])) ||
                       nextNode.position.x !== prevNode.position.x ||
                       nextNode.position.y !== prevNode.position.y;
-  // TODO RadStr: DEBUG
-  if(shouldBreak) {
-    console.info("shouldBreak");
-    console.info({prevNode});
-    console.info({nextNode});
-  }
   return shouldBreak;
 }
 

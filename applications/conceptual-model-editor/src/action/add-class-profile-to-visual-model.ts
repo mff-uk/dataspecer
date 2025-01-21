@@ -45,7 +45,7 @@ function addSemanticClassProfileToVisualModelCommand(
   position: { x: number, y: number },
 ) {
   const content = getVisualNodeContentBasedOnExistingEntities(
-      classes, entity);
+    classes, entity);
   visualModel.addVisualNode({
     model: model,
     representedEntity: entity.id,

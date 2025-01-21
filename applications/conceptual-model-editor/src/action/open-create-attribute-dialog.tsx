@@ -1,5 +1,5 @@
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { isVisualGroup, isVisualNode, isWritableVisualModel, VisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isWritableVisualModel, VisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { ClassesContextType } from "../context/classes-context";

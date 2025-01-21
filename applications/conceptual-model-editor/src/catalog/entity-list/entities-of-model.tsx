@@ -127,7 +127,7 @@ export const EntitiesOfModel = (props: {
             const represented = getRepresented(next);
             if (represented !== null) {
               setVisible(prev => {
-                let newVisible = [...prev, represented];
+                const newVisible = [...prev, represented];
                 if(isVisualNode(next)) {
                   newVisible.push(...next.content);
                 }

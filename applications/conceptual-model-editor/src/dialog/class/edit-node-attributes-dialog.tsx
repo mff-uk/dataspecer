@@ -3,7 +3,6 @@ import { createEditNodeAttributesState, EditNodeAttributesState, IdentifierAndNa
 // TODO RadStr: Drag-drop Newly also in the dependencies of other editor (kinda funny that the upgrade happened literally at the same time)
 import { DragDropContext, Draggable, Droppable, DropResult } from "@hello-pangea/dnd";
 
-
 export const createEditClassAttributesDialog = (
   onConfirm: ((state: EditNodeAttributesState) => void) | null,
   attributes: IdentifierAndName[],
@@ -33,7 +32,6 @@ export const CreateEditNodeAttributesDialog = (props: DialogProps<EditNodeAttrib
     }
     controller.moveAttributeToNewPosition(result.source.index, result.destination.index);
   };
-
 
   // TODO RadStr: Once finalized - use localization for the "Attributes" header
   return <div>

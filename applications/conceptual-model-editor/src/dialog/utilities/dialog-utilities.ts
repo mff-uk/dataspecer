@@ -88,9 +88,9 @@ export function findVocabularyForModel(
   visualModel: VisualModel,
   model: string,
 ): CmeModel | null {
-    const vocabularies = entityModelsMapToCmeVocabulary(graph.models, visualModel);
-    const vocabulary = vocabularies.find(item => item.dsIdentifier === model);
-    return vocabulary ?? null;
+  const vocabularies = entityModelsMapToCmeVocabulary(graph.models, visualModel);
+  const vocabulary = vocabularies.find(item => item.dsIdentifier === model);
+  return vocabulary ?? null;
 };
 
 export function representClassProfiles(

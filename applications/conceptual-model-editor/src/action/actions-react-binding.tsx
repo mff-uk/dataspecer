@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from "react";
 
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { Waypoint, WritableVisualModel, isVisualNode, isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { Waypoint, WritableVisualModel, isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { type DialogApiContextType } from "../dialog/dialog-service";
 import { DialogApiContext } from "../dialog/dialog-context";
@@ -18,7 +18,7 @@ import { openDetailDialogAction } from "./open-detail-dialog";
 import { openModifyDialogAction } from "./open-modify-dialog";
 import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
 import { openCreateConnectionDialogAction } from "./open-create-connection";
-import { CreatedSemanticEntityData, openCreateClassDialogAction } from "./open-create-class-dialog";
+import { openCreateClassDialogAction } from "./open-create-class-dialog";
 import { openCreateVocabularyAction } from "./open-create-vocabulary";
 import { addSemanticClassToVisualModelAction } from "./add-class-to-visual-model";
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
@@ -29,7 +29,7 @@ import { EntityToDelete, checkIfIsAttributeOrAttributeProfile, convertToEntities
 import { removeFromVisualModelAction } from "./remove-from-visual-model";
 import { removeFromSemanticModelsAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
-import { createSemanticAssociation, openCreateAssociationDialogAction } from "./open-create-association-dialog";
+import { openCreateAssociationDialogAction } from "./open-create-association-dialog";
 import { addEntitiesFromSemanticModelToVisualModelAction } from "./add-entities-from-semantic-model-to-visual-model";
 import { createNewVisualModelFromSelectionAction } from "./create-new-visual-model-from-selection";
 import { addClassNeighborhoodToVisualModelAction } from "./add-class-neighborhood-to-visual-model";
@@ -49,11 +49,6 @@ import { EntityModel } from "@dataspecer/core-v2";
 import { openCreateAttributeForEntityDialogAction } from "./open-add-attribute-for-entity-dialog";
 import { addGroupToVisualModelAction } from "./add-group-to-visual-model";
 import { removeTopLevelGroupFromVisualModelAction } from "./remove-group-from-visual-model";
-import { createCreateAssociationDialogState } from "../dialog/association/create-new-association-dialog-state";
-import { EntityRepresentative, findRepresentative, findVocabularyForModel, representClasses } from "../dialog/utilities/dialog-utilities";
-import { EditClassDialogState } from "../dialog/class/edit-class-dialog-controller";
-import { createCreateConnectionState } from "../dialog/obsolete/create-connection-dialog";
-import { GeneralizationConnectionType } from "../util/edge-connection";
 import { openCreateClassDialogAndCreateAssociationAction, openCreateClassDialogAndCreateGeneralizationAction } from "./open-create-class-dialog-with-edge";
 import { removeAttributesFromVisualModelAction } from "./remove-attribute-from-visual-model";
 import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
@@ -849,8 +844,8 @@ function createActionsContext(
     },
     onCanvasOpenCreateClassDialogWithAssociation: (nodeIdentifier, positionToPlaceClassOn, isCreatedClassTarget) => {
       withVisualModel(notifications, graph, (visualModel) => {
-          openCreateClassDialogAndCreateAssociationAction(notifications, dialogs, classes, options, graph,
-            diagram, visualModel, nodeIdentifier, isCreatedClassTarget, positionToPlaceClassOn);
+        openCreateClassDialogAndCreateAssociationAction(notifications, dialogs, classes, options, graph,
+          diagram, visualModel, nodeIdentifier, isCreatedClassTarget, positionToPlaceClassOn);
       });
     },
     onCanvasOpenCreateClassDialogWithGeneralization: (nodeIdentifier, positionToPlaceClassOn, isCreatedClassParent) => {

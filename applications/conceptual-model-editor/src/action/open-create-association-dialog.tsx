@@ -45,7 +45,6 @@ export function openCreateAssociationDialogAction(
   dialogs.openDialog(createNewAssociationDialog(state, onConfirm));
 }
 
-
 export function createSemanticAssociation(
   notifications: UseNotificationServiceWriterType,
   visualModel: VisualModel | null,
@@ -72,7 +71,6 @@ export function createSemanticAssociation(
     }
   }
 }
-
 
 export function createSemanticAssociationInternal(
   notifications: UseNotificationServiceWriterType,

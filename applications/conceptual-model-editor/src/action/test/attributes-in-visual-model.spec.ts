@@ -1,15 +1,9 @@
 import { expect, test } from "vitest";
 import { noActionNotificationServiceWriter } from "../../notification/notification-service-context";
-import { addGroupToVisualModelAction } from "../add-group-to-visual-model";
-import { createDefaultVisualModelFactory, VisualGroup, VisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { removeTopLevelGroupFromVisualModelAction } from "../remove-group-from-visual-model";
-import { removeFromVisualModelAction } from "../remove-from-visual-model";
-import { removePartOfGroupContentAction } from "../remove-part-of-group-content";
+import { createDefaultVisualModelFactory, VisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { createNewVisualNodeForTesting } from "./remove-part-of-group-content.spec";
-import { Entity, EntityModel } from "@dataspecer/core-v2";
+import { EntityModel } from "@dataspecer/core-v2";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
-import { createAddAttributeDialogState } from "../../dialog/attribute/create-add-attribute-dialog-state";
-import { EditAttributeDialogState } from "../../dialog/attribute/edit-attribute-dialog-controller";
 import { representDataTypes, representUndefinedCardinality, selectRdfLiteral } from "../../dialog/utilities/dialog-utilities";
 import { createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
@@ -17,16 +11,11 @@ import { addSemanticAttributeToVisualModelAction } from "../add-semantic-attribu
 import { setAttributePositionAction } from "../set-attribute-position";
 import { removeAttributesFromVisualModelAction } from "../remove-attribute-from-visual-model";
 import { ClassesContextType } from "../../context/classes-context";
-import { SemanticModelClass, SemanticModelRelationship, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
-import { SemanticModelClassUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { SetStateAction } from "react";
+import { SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 
 test("Test change attribute - Visibility", () => {
   const {
     visualModel,
-    modelIdentifier,
-    modelAlias,
-    visualIdentifiers,
     models,
     model,
     cmeModels
@@ -51,11 +40,7 @@ test("Test change attribute - Visibility", () => {
 test("Test change attribute - Visibility - order", () => {
   const {
     visualModel,
-    modelIdentifier,
-    modelAlias,
-    visualIdentifiers,
     models,
-    model,
     cmeModels
   } = prepareTestData();
   const newAttributes = [];
@@ -80,9 +65,6 @@ test("Test change attribute - Visibility - order", () => {
 test("Test change attribute - Visibility - back to back", () => {
   const {
     visualModel,
-    modelIdentifier,
-    modelAlias,
-    visualIdentifiers,
     models,
     model,
     cmeModels
@@ -114,11 +96,7 @@ test("Test change attribute - Visibility - back to back", () => {
 test("Test change attribute order - one", () => {
   const {
     visualModel,
-    modelIdentifier,
-    modelAlias,
-    visualIdentifiers,
     models,
-    model,
     cmeModels
   } = prepareTestData();
   const size = 5;
@@ -151,11 +129,7 @@ test("Test change attribute order - one", () => {
 test("Test change attribute order - one - test 2", () => {
   const {
     visualModel,
-    modelIdentifier,
-    modelAlias,
-    visualIdentifiers,
     models,
-    model,
     cmeModels
   } = prepareTestData();
   const size = 6;
@@ -189,11 +163,7 @@ test("Test change attribute order - one - test 2", () => {
 test("Test change attribute order - back to back", () => {
   const {
     visualModel,
-    modelIdentifier,
-    modelAlias,
-    visualIdentifiers,
     models,
-    model,
     cmeModels
   } = prepareTestData();
   const size = 5;
@@ -224,8 +194,8 @@ test("Test change attribute order - back to back", () => {
 
   // Now back
   setAttributePositionAction(
-  noActionNotificationServiceWriter,
-  visualModel,
+    noActionNotificationServiceWriter,
+    visualModel,
   visualModel.getVisualEntityForRepresented("0")!.identifier,
   attributes[2],
   2);
@@ -240,11 +210,7 @@ test("Test change attribute order - back to back", () => {
 test("Test change attribute order - change multi", () => {
   const {
     visualModel,
-    modelIdentifier,
-    modelAlias,
-    visualIdentifiers,
     models,
-    model,
     cmeModels
   } = prepareTestData();
   const size = 6;
@@ -274,10 +240,9 @@ test("Test change attribute order - change multi", () => {
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content[4]).toBe(attributes[2]);
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content[5]).toBe(attributes[5]);
 
-
   setAttributePositionAction(
-  noActionNotificationServiceWriter,
-  visualModel,
+    noActionNotificationServiceWriter,
+    visualModel,
   visualModel.getVisualEntityForRepresented("0")!.identifier,
   attributes[5],
   1);
@@ -289,7 +254,6 @@ test("Test change attribute order - change multi", () => {
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content[4]).toBe(attributes[4]);
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content[5]).toBe(attributes[2]);
 });
-
 
 // Heavily inspired by createSemanticAttribute
 // We are doing this so:
@@ -337,7 +301,6 @@ const generateIriForName = (name: string) => {
   return name + "-iri.cz";
 }
 
-
 //
 const prepareTestData = () => {
   const visualModel: WritableVisualModel = createDefaultVisualModelFactory().createNewWritableVisualModelSync();
@@ -368,23 +331,22 @@ const prepareTestData = () => {
   };
 }
 
-
 const createEmptyClassesContextType = (): ClassesContextType => {
   const classes: ClassesContextType = {
     classes: [],
-    setClasses: function (value) {},
+    setClasses: function (_) {},
     allowedClasses: [],
-    setAllowedClasses: function (value) {},
+    setAllowedClasses: function (_) {},
     relationships: [],
-    setRelationships: function (value) {},
+    setRelationships: function (_) {},
     generalizations: [],
-    setGeneralizations: function (value) {},
+    setGeneralizations: function (_) {},
     profiles: [],
-    setProfiles: function (value) {},
+    setProfiles: function (_) {},
     sourceModelOfEntityMap: new Map(),
-    setSourceModelOfEntityMap: function (value) {},
+    setSourceModelOfEntityMap: function (_) {},
     rawEntities: [],
-    setRawEntities: function (value) {}
+    setRawEntities: function (_) {}
   };
 
   return classes;

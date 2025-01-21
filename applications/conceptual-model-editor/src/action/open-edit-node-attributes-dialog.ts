@@ -11,7 +11,6 @@ import { Language } from "../application/options";
 import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelAttributeUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
-
 export function openEditNodeAttributesDialogAction(
   dialogs: DialogApiContextType,
   notifications: UseNotificationServiceWriterType,

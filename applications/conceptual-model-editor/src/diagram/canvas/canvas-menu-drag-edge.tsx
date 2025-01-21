@@ -34,16 +34,16 @@ export function CanvasMenuCreatedByEdgeDrag({ menuProps }: { menuProps: CanvasMe
   };
 
   return <div className="flex flex-col bg-white border-2 border-slate-400 border-solid [&>*]:px-5 [&>*]:text-left">
-      <button className="py-1.5 hover:bg-gray-100" onClick={() => OpenAddClassDialogWithAssociation(true)}>{t("drag-edge-to-canvas-create-association-target")}</button>
-      <HorizontalSeparator></HorizontalSeparator>
-      <button className="py-1.5 hover:bg-gray-100" onClick={() => OpenAddClassDialogWithAssociation(false)}>{t("drag-edge-to-canvas-create-association-source")}</button>
-      <HorizontalSeparator></HorizontalSeparator>
-      <button className="py-1.5 hover:bg-gray-100" onClick={() => OpenAddClassDialogWithGeneralization(true)}>{t("drag-edge-to-canvas-create-generalization-parent")}</button>
-      <HorizontalSeparator></HorizontalSeparator>
-      <button className="py-1.5 hover:bg-gray-100" onClick={() => OpenAddClassDialogWithGeneralization(false)}>{t("drag-edge-to-canvas-create-generalization-child")}</button>
-      <HorizontalSeparator></HorizontalSeparator>
-      <button className="py-1.5 hover:bg-gray-100" onClick={onCanvasMenuAddClassDialog}>{t("drag-edge-to-canvas-create-new-class")}</button>
-    </div>;
+    <button className="py-1.5 hover:bg-gray-100" onClick={() => OpenAddClassDialogWithAssociation(true)}>{t("drag-edge-to-canvas-create-association-target")}</button>
+    <HorizontalSeparator></HorizontalSeparator>
+    <button className="py-1.5 hover:bg-gray-100" onClick={() => OpenAddClassDialogWithAssociation(false)}>{t("drag-edge-to-canvas-create-association-source")}</button>
+    <HorizontalSeparator></HorizontalSeparator>
+    <button className="py-1.5 hover:bg-gray-100" onClick={() => OpenAddClassDialogWithGeneralization(true)}>{t("drag-edge-to-canvas-create-generalization-parent")}</button>
+    <HorizontalSeparator></HorizontalSeparator>
+    <button className="py-1.5 hover:bg-gray-100" onClick={() => OpenAddClassDialogWithGeneralization(false)}>{t("drag-edge-to-canvas-create-generalization-child")}</button>
+    <HorizontalSeparator></HorizontalSeparator>
+    <button className="py-1.5 hover:bg-gray-100" onClick={onCanvasMenuAddClassDialog}>{t("drag-edge-to-canvas-create-new-class")}</button>
+  </div>;
 }
 
 const HorizontalSeparator = () => <hr className="h-0.5 border-none bg-slate-300" />;
