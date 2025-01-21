@@ -1,4 +1,4 @@
-import { isVisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualNode, VisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { ClassesContextType } from "../context/classes-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
@@ -10,6 +10,7 @@ import { Options } from "../application";
 import { Language } from "../application/options";
 import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelAttributeUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { getStringFromLanguageStringInLang } from "../util/language-utils";
 
 export function openEditNodeAttributesDialogAction(
   dialogs: DialogApiContextType,
@@ -29,45 +30,70 @@ export function openEditNodeAttributesDialogAction(
     return;
   }
 
-  const relationships = classes.relationships
-    .filter(relationship => !node.content.includes(relationship.id) && getDomainAndRange(relationship).domain?.concept === node.representedEntity)
-    .map(relationship => ({identifier: relationship.id, name: relationship.name[options.language]}));
-
   const onConfirm = (state: EditNodeAttributesState) => {
     visualModel.updateVisualEntity(node.identifier, {content: state.attributes.map(attribute => attribute.identifier)});
   }
 
-  const attributes = createIdentifierAndNameTypeForAttributes(classes.rawEntities, node.content, options.language);
-  dialogs.openDialog(createEditClassAttributesDialog(onConfirm, attributes, relationships));
+  // TODO RadStr: Commented code - if we will want to do something with relationships
+  //                               (that is transforming them into attributes and vice versa)
+  // const relationships = classes.relationships
+  //   .filter(relationship => !node.content.includes(relationship.id) && getDomainAndRange(relationship).domain?.concept === node.representedEntity)
+  //   .map(relationship => ({identifier: relationship.id, name: relationship.name[options.language]}));
+  const { visibleAttributes, hiddenAttributes } = splitIntoVisibleAndHiddenAttributes(classes.rawEntities, node, options.language);
+
+  dialogs.openDialog(createEditClassAttributesDialog(onConfirm, visibleAttributes, hiddenAttributes));
 }
 
-function createIdentifierAndNameTypeForAttributes(
-  rawEntities: (Entity | null)[],
-  attributes: string[],
-  language: Language
-): IdentifierAndName[] {
-  const identifiersAndNames = attributes.map(identifier => {
-    const rawEntity = rawEntities.find(entity => entity?.id === identifier) ?? null;
-    if(rawEntity === null) {
-      return null;
-    }
+type VisibleAnHiddenAttributes = {
+  visibleAttributes: IdentifierAndName[],
+  hiddenAttributes: IdentifierAndName[],
+};
 
+function splitIntoVisibleAndHiddenAttributes(
+  rawEntities: (Entity | null)[],
+  node: VisualNode,
+  language: Language
+): VisibleAnHiddenAttributes {
+  const visibleAttributes: IdentifierAndName[] = [];
+  const hiddenAttributes: IdentifierAndName[] = [];
+  const defaultName = "Can not find name for attribute";
+  rawEntities.forEach(rawEntity => {
+    const isVisible = node.content.findIndex(visibleAttribute => visibleAttribute === rawEntity?.id) !== -1;
     let name: string;
     if (isSemanticModelAttribute(rawEntity)) {
-      name = getDomainAndRange(rawEntity).range?.name?.[language] ?? identifier;
+      const domainAndRange = getDomainAndRange(rawEntity);
+      if(domainAndRange.domain?.concept !== node.representedEntity) {
+        return;
+      }
+      const nameAsLanguageString = domainAndRange.range?.name ?? null;
+      name = getStringFromLanguageStringInLang(nameAsLanguageString, language)[0] ?? defaultName;
     }
     else if (isSemanticModelAttributeUsage(rawEntity)) {
-      name = getDomainAndRange(rawEntity).range?.name?.[language] ?? identifier;
+      const domainAndRange = getDomainAndRange(rawEntity);
+      if(domainAndRange.domain?.concept !== node.representedEntity) {
+        return;
+      }
+      const nameAsLanguageString = domainAndRange.range?.name ?? null;
+      name = getStringFromLanguageStringInLang(nameAsLanguageString, language)[0] ?? defaultName;
     }
     else {
       return null;
     }
 
-    return {
-      identifier,
+    const attribute = {
+      identifier: rawEntity.id,
       name,
     };
-  }).filter(result => result !== null);
+    if(isVisible) {
+      visibleAttributes.push(attribute);
+    }
+    else {
+      hiddenAttributes.push(attribute);
+    }
+  });
 
-  return identifiersAndNames;
+  return {
+    visibleAttributes,
+    hiddenAttributes
+  };
 }
