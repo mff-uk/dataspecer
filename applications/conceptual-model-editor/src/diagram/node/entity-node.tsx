@@ -78,8 +78,6 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
             <div className="relative flex w-full flex-row justify-between">
               <div>{data.label}</div>
               {isAnchored ? <div>⚓</div> : null}
-// TODO RadStr: DEBUG
-              {props.selected === true ? <div>SELECTED</div> : null}
             </div>
           </div>
 
