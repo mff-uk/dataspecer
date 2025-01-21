@@ -695,7 +695,6 @@ const createNodesChangeHandler = (
       nodeToGroupMapping,
       groups,
       extractedDataFromChanges.newlyUnselectedNodesBasedOnGroups,
-      isSelectingThroughCtrl,
       userSelectedNodesRef,
     );
 
@@ -891,58 +890,55 @@ const removeNotCompleteGroupUnselections = (
   nodeToGroupMapping: Record<string, string>,
   groups: Record<string, NodeIdentifierWithType[]>,
   newlyUnselectedNodesBasedOnGroups: string[],
-  isSelectingThroughCtrl: boolean,
   userSelectedNodesRef: React.MutableRefObject<string[]>,
 ) => {
   const nodesWhichWereActuallyNotUnselected: string[] = [];
-  if(!isSelectingThroughCtrl) {
-    const groupToUnselectedCountMap: Record<string, number> = {};
-    const groupToUnselectedMap: Record<string, string[]> = {};
-    for(const newlyUnselectedNode of unselectChanges) {
-      const topLevelGroup = findTopLevelGroup(newlyUnselectedNode, groups, nodeToGroupMapping);
-      if(topLevelGroup === null) {
-        continue;
-      }
-      if(groupToUnselectedMap[topLevelGroup] === undefined) {
-        groupToUnselectedMap[topLevelGroup] = [];
-      }
-      groupToUnselectedMap[topLevelGroup].push(newlyUnselectedNode);
-
-      if(groupToUnselectedCountMap[topLevelGroup] === undefined) {
-        groupToUnselectedCountMap[topLevelGroup] = 0;
-      }
-      groupToUnselectedCountMap[topLevelGroup]++;
+  const groupToUnselectedCountMap: Record<string, number> = {};
+  const groupToUnselectedMap: Record<string, string[]> = {};
+  for(const newlyUnselectedNode of unselectChanges) {
+    const topLevelGroup = findTopLevelGroup(newlyUnselectedNode, groups, nodeToGroupMapping);
+    if(topLevelGroup === null) {
+      continue;
     }
-    for(const newlySelectedNode of nodeSelectChanges) {
-      const topLevelGroup = findTopLevelGroup(newlySelectedNode, groups, nodeToGroupMapping);
-
-      if(topLevelGroup === null) {
-        continue;
-      }
-      if(groupToUnselectedCountMap[topLevelGroup] === undefined) {
-        continue;
-      }
-      groupToUnselectedCountMap[topLevelGroup]--;
+    if(groupToUnselectedMap[topLevelGroup] === undefined) {
+      groupToUnselectedMap[topLevelGroup] = [];
     }
+    groupToUnselectedMap[topLevelGroup].push(newlyUnselectedNode);
 
-    Object.entries(groupToUnselectedCountMap).forEach(([groupIdentifier, unselectedNodesCount]) => {
-      const groupIdentifiers = groups[groupIdentifier].map(content => content.identifier);
-      const flattenedGroup = flattenGroupStructure(groupIdentifiers, groups);
-      let userSelectedNodesInGroupCountBefore = 0;
-      // Using previouslyUserSelectedNodes is necessary, using passed in userSelectedNodes from caller is not enough -
-      // it is behind and we will get incorrect data if we drag for longer time
-      for(const previouslyUserSelectedNode of userSelectedNodesRef.current) {
-        if(flattenedGroup.includes(previouslyUserSelectedNode)) {
-          userSelectedNodesInGroupCountBefore++;
-        }
-      }
-
-      if(userSelectedNodesInGroupCountBefore > unselectedNodesCount) {
-        newlyUnselectedNodesBasedOnGroups = newlyUnselectedNodesBasedOnGroups.filter(unselected => !flattenedGroup.includes(unselected));
-        nodesWhichWereActuallyNotUnselected.push(...Object.values(groupToUnselectedMap[groupIdentifier]));
-      }
-    });
+    if(groupToUnselectedCountMap[topLevelGroup] === undefined) {
+      groupToUnselectedCountMap[topLevelGroup] = 0;
+    }
+    groupToUnselectedCountMap[topLevelGroup]++;
   }
+  for(const newlySelectedNode of nodeSelectChanges) {
+    const topLevelGroup = findTopLevelGroup(newlySelectedNode, groups, nodeToGroupMapping);
+
+    if(topLevelGroup === null) {
+      continue;
+    }
+    if(groupToUnselectedCountMap[topLevelGroup] === undefined) {
+      continue;
+    }
+    groupToUnselectedCountMap[topLevelGroup]--;
+  }
+
+  Object.entries(groupToUnselectedCountMap).forEach(([groupIdentifier, unselectedNodesCount]) => {
+    const groupIdentifiers = groups[groupIdentifier].map(content => content.identifier);
+    const flattenedGroup = flattenGroupStructure(groupIdentifiers, groups);
+    let userSelectedNodesInGroupCountBefore = 0;
+    // Using previouslyUserSelectedNodes is necessary, using passed in userSelectedNodes from caller is not enough -
+    // it is behind and we will get incorrect data if we drag for longer time
+    for(const previouslyUserSelectedNode of userSelectedNodesRef.current) {
+      if(flattenedGroup.includes(previouslyUserSelectedNode)) {
+        userSelectedNodesInGroupCountBefore++;
+      }
+    }
+
+    if(userSelectedNodesInGroupCountBefore > unselectedNodesCount) {
+      newlyUnselectedNodesBasedOnGroups = newlyUnselectedNodesBasedOnGroups.filter(unselected => !flattenedGroup.includes(unselected));
+      nodesWhichWereActuallyNotUnselected.push(...Object.values(groupToUnselectedMap[groupIdentifier]));
+    }
+  });
 
   return {
     nodesWhichWereActuallyNotUnselected,
