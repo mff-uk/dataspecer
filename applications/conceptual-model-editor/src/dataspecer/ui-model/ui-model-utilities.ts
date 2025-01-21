@@ -6,22 +6,6 @@ export function sortEntitiesByDisplayLabel(entities: { displayLabel: string }[])
   entities.sort((left, right) => left.displayLabel.localeCompare(right.displayLabel));
 }
 
-/**
- * Returns empty UI state with no content.
- */
-export function createEmptyUiState(): UiState {
-  return {
-    models: [],
-    classes: [],
-    classProfiles: [],
-    attributes: [],
-    attributeProfiles: [],
-    associations: [],
-    associationProfiles: [],
-    generalizations: [],
-  };
-}
-
 export function getOwnerModelIdentifier(models: EntityModel[], entity: string | undefined | null): string {
   if (entity === undefined || entity === null) {
     return MISSING_MODEL_IDENTIFIER;

@@ -122,58 +122,50 @@ const Page = () => {
   }, [aggregatorView]);
 
   return (
-    <QueryParamsProvider>
-      <ExplorationContextProvider>
-        <OptionsContextProvider>
-          <ModelGraphContext.Provider
+    <ExplorationContextProvider>
+      <OptionsContextProvider>
+        <ModelGraphContext.Provider
+          value={{
+            aggregator,
+            aggregatorView,
+            setAggregatorView,
+            models,
+            setModels,
+            visualModels,
+            setVisualModels,
+          }}
+        >
+          <ClassesContext.Provider
             value={{
-              aggregator,
-              aggregatorView,
-              setAggregatorView,
-              models,
-              setModels,
-              visualModels,
-              setVisualModels,
+              classes,
+              allowedClasses,
+              setAllowedClasses,
+              relationships,
+              generalizations,
+              profiles: usages,
+              sourceModelOfEntityMap,
+              rawEntities,
             }}
           >
-            <ClassesContext.Provider
-              value={{
-                classes,
-                setClasses,
-                allowedClasses,
-                setAllowedClasses,
-                relationships,
-                setRelationships,
-                generalizations,
-                setGeneralizations,
-                profiles: usages,
-                setProfiles: setUsages,
-                sourceModelOfEntityMap,
-                setSourceModelOfEntityMap,
-                rawEntities,
-                setRawEntities,
-              }}
-            >
-              <WarningsContext.Provider value={{ warnings, setWarnings }}>
-                <DialogContextProvider>
-                  <ActionsContextProvider>
-                    <Header />
-                    <main className="w-full flex-grow bg-teal-50  md:h-[calc(100%-48px)]">
-                      <div className="my-0 grid grid-rows-[auto_fit] md:h-full md:grid-cols-[25%_75%] md:grid-rows-1 ">
-                        <Catalog />
-                        <Visualization />
-                      </div>
-                    </main>
-                    <NotificationList />
-                    <DialogRenderer />
-                  </ActionsContextProvider>
-                </DialogContextProvider>
-              </WarningsContext.Provider>
-            </ClassesContext.Provider>
-          </ModelGraphContext.Provider>
-        </OptionsContextProvider>
-      </ExplorationContextProvider>
-    </QueryParamsProvider>
+            <WarningsContext.Provider value={{ warnings, setWarnings }}>
+              <DialogContextProvider>
+                <ActionsContextProvider>
+                  <Header />
+                  <main className="w-full flex-grow bg-teal-50  md:h-[calc(100%-48px)]">
+                    <div className="my-0 grid grid-rows-[auto_fit] md:h-full md:grid-cols-[25%_75%] md:grid-rows-1 ">
+                      <Catalog />
+                      <Visualization />
+                    </div>
+                  </main>
+                  <NotificationList />
+                  <DialogRenderer />
+                </ActionsContextProvider>
+              </DialogContextProvider>
+            </WarningsContext.Provider>
+          </ClassesContext.Provider>
+        </ModelGraphContext.Provider>
+      </OptionsContextProvider>
+    </ExplorationContextProvider>
   );
 };
 

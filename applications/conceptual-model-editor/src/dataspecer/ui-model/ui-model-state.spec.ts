@@ -5,7 +5,7 @@ import { HexColor, RepresentedEntityIdentifier, VisualEntity, VisualModel, Visua
 
 import { UiModelType } from "./ui-model";
 import { configuration } from "../../application";
-import { UiModelServiceState, onAddEntityModels, onAddVisualEntity, onAddVisualModel, onChangeVisualModel, onRemoveEntityModel, onRemoveVisualEntity, onRemoveVisualModel } from "./ui-model-service";
+import { UiState, onAddEntityModels, onAddVisualEntity, onAddVisualModel, onChangeVisualModel, onRemoveEntityModel, onRemoveVisualEntity, onRemoveVisualModel } from "./ui-model-state";
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 
 describe("initializeState", () => {
@@ -135,7 +135,7 @@ class VisualModelMock implements VisualModel {
 describe("onAddEntityModel", () => {
 
   test("Add first models.", () => {
-    const previous: UiModelServiceState = {
+    const previous: UiState = {
       defaultWriteModel: null,
       models: [],
       classes: [],
@@ -161,7 +161,7 @@ describe("onAddEntityModel", () => {
     const actual = onAddEntityModels(
       previous, visualModel, [secondModel, localModel]);
 
-    const expected: UiModelServiceState = {
+    const expected: UiState = {
       ...previous,
       models: [{
         dsIdentifier: "8d8xl",
@@ -182,7 +182,7 @@ describe("onAddEntityModel", () => {
   });
 
   test("Add model which is not in a visual model.", () => {
-    const previous: UiModelServiceState = {
+    const previous: UiState = {
       defaultWriteModel: null,
       models: [],
       classes: [],
@@ -202,7 +202,7 @@ describe("onAddEntityModel", () => {
     const actual = onAddEntityModels(
       previous, visualModel, [localModel]);
 
-    const expected: UiModelServiceState = {
+    const expected: UiState = {
       ...previous,
       defaultWriteModel: null,
       models: [{
@@ -230,7 +230,7 @@ describe("onRemoveEntityModel", () => {
       baseIri: "",
     };
 
-    const previous: UiModelServiceState = {
+    const previous: UiState = {
       defaultWriteModel: model,
       models: [model],
       classes: [{
@@ -250,7 +250,7 @@ describe("onRemoveEntityModel", () => {
 
     const actual = onRemoveEntityModel(previous, ["8d8xl"]);
 
-    const expected: UiModelServiceState = {
+    const expected: UiState = {
       ...previous,
       defaultWriteModel: null,
       models: [],
@@ -281,7 +281,7 @@ describe("onChangeVisualModel", () => {
       baseIri: "",
     };
 
-    const previous: UiModelServiceState = {
+    const previous: UiState = {
       defaultWriteModel: model,
       models: [model],
       classes: [{
@@ -306,7 +306,7 @@ describe("onChangeVisualModel", () => {
       displayColor: "#000112",
     };
 
-    const expected: UiModelServiceState = {
+    const expected: UiState = {
       ...previous,
       models: [expectedModel],
       classes: [{
@@ -339,7 +339,7 @@ describe("onAddVisualEntity", () => {
       baseIri: "",
     };
 
-    const previous: UiModelServiceState = {
+    const previous: UiState = {
       defaultWriteModel: null,
       models: [model],
       classes: [{
@@ -359,7 +359,7 @@ describe("onAddVisualEntity", () => {
 
     const actual = onAddVisualEntity(previous, "8d8xl", "0000", "vis-id");
 
-    const expected: UiModelServiceState = {
+    const expected: UiState = {
       ...previous,
       classes: [{
         ...previous.classes[0],
@@ -383,7 +383,7 @@ describe("onRemoveVisualEntity", () => {
       baseIri: "",
     };
 
-    const previous: UiModelServiceState = {
+    const previous: UiState = {
       defaultWriteModel: model,
       models: [model],
       classes: [{
@@ -403,7 +403,7 @@ describe("onRemoveVisualEntity", () => {
 
     const actual = onRemoveVisualEntity(previous, "8d8xl", "0000");
 
-    const expected: UiModelServiceState = {
+    const expected: UiState = {
       ...previous,
       classes: [{
         ...previous.classes[0],
