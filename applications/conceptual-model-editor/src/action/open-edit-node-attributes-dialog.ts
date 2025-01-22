@@ -54,7 +54,7 @@ function splitIntoVisibleAndHiddenAttributes(
   node: VisualNode,
   language: Language
 ): VisibleAnHiddenAttributes {
-  const visibleAttributes: IdentifierAndName[] = [];
+  const visibleAttributesUnordered: IdentifierAndName[] = [];
   const hiddenAttributes: IdentifierAndName[] = [];
   const defaultName = "Can not find name for attribute";
   rawEntities.forEach(rawEntity => {
@@ -85,13 +85,16 @@ function splitIntoVisibleAndHiddenAttributes(
       name,
     };
     if(isVisible) {
-      visibleAttributes.push(attribute);
+      visibleAttributesUnordered.push(attribute);
     }
     else {
       hiddenAttributes.push(attribute);
     }
   });
 
+  const visibleAttributes: IdentifierAndName[] = node.content
+    .map(attributeIdentifier => visibleAttributesUnordered.find(attribute => attribute.identifier === attributeIdentifier))
+    .filter(attribute => attribute !== undefined);
   return {
     visibleAttributes,
     hiddenAttributes
