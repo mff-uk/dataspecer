@@ -7,17 +7,17 @@ export type IdentifierAndName = {
 };
 
 export interface EditNodeAttributesState {
-  attributes: IdentifierAndName[];
-  relationships: IdentifierAndName[];
+  visibleAttributes: IdentifierAndName[];
+  hiddenAttributes: IdentifierAndName[];
 }
 
 export function createEditNodeAttributesState(
-  attributes: IdentifierAndName[],
-  relationships: IdentifierAndName[],
+  visibleAttributes: IdentifierAndName[],
+  hiddenAttributes: IdentifierAndName[],
 ): EditNodeAttributesState {
   return {
-    attributes,
-    relationships
+    visibleAttributes,
+    hiddenAttributes
   };
 }
 

@@ -9,25 +9,25 @@ const dropContextsIdentifiers = [
 ] as const;
 
 const dropContextsIdentifiersToFieldMap: Record<typeof dropContextsIdentifiers[number], keyof EditNodeAttributesState> = {
-  "visible-attributes": "attributes",
-  "invisible-attributes": "relationships",
+  "visible-attributes": "visibleAttributes",
+  "invisible-attributes": "hiddenAttributes",
 };
 
 export const createEditClassAttributesDialog = (
   onConfirm: ((state: EditNodeAttributesState) => void) | null,
-  attributes: IdentifierAndName[],
-  relationships: IdentifierAndName[],
+  visibleAttributes: IdentifierAndName[],
+  hiddenAttributes: IdentifierAndName[],
 ): DialogWrapper<EditNodeAttributesState> => {
   return {
     label: "edit-class-attributes-dialog.label",
     component: CreateEditNodeAttributesDialog,
-    state: createEditNodeAttributesState(attributes, relationships),
+    state: createEditNodeAttributesState(visibleAttributes, hiddenAttributes),
     confirmLabel: "edit-class-attributes-dialog.btn-ok",
     cancelLabel: "edit-class-attributes-dialog.btn-cancel",
     validate: null,
     onConfirm,
     onClose: null,
-    dialogClassNames: "base-dialog z-30 p-4 ",
+    dialogClassNames: "base-dialog z-30 p-4",
   };
 };
 
@@ -44,12 +44,18 @@ export const CreateEditNodeAttributesDialog = (props: DialogProps<EditNodeAttrib
     const targetStateField = dropContextsIdentifiersToFieldMap[result.destination.droppableId as typeof dropContextsIdentifiers[number]];
     controller.moveToNewPosition(sourceStateField, targetStateField, result.source.index, result.destination.index);
   };
+  const hideAttribute = (index: number) => {
+    controller.moveToNewPosition("visibleAttributes", "hiddenAttributes", index, 0);
+  };
+  const showAttribute = (index: number) => {
+    controller.moveToNewPosition("hiddenAttributes", "visibleAttributes", index, 0);
+  };
 
   // TODO RadStr: Once finalized - use localization for the name
-  return <div>
+  return <div className="flex flex-row">
     <DragDropContext onDragEnd={handleDragEnd}>
-      <DroppableArea name="Visible attributes:" dropContextIdentifier={dropContextsIdentifiers[0]} state={state}></DroppableArea>
-      <DroppableArea name="Hidden attributes:" dropContextIdentifier={dropContextsIdentifiers[1]} state={state}></DroppableArea>
+      <DroppableArea name="Visible attributes:" dropContextIdentifier={dropContextsIdentifiers[0]} state={state} hideAttribute={hideAttribute} showAttribute={null}></DroppableArea>
+      <DroppableArea name="Hidden attributes:" dropContextIdentifier={dropContextsIdentifiers[1]} state={state} hideAttribute={null} showAttribute={showAttribute}></DroppableArea>
     </DragDropContext>
     <SimpleHorizontalLineSeparator/>
   </div>;
@@ -60,19 +66,29 @@ type DroppableAreaProps = {
   name: string,
   state: EditNodeAttributesState,
   dropContextIdentifier: typeof dropContextsIdentifiers[number],
+  hideAttribute: ((index: number) => void) | null,
+  showAttribute: ((index: number) => void) | null,
 }
+
+const getDroppableAreaStyle = (isDraggingOver: boolean): React.CSSProperties => ({
+  background: isDraggingOver ? "lightblue" : "rgb(241 245 249)",
+  padding: 6,
+  width: "300px",
+  maxHeight: "300px",
+  overflow: "auto",
+});
 
 const DroppableArea = (props: DroppableAreaProps) => {
   const fieldInState = dropContextsIdentifiersToFieldMap[props.dropContextIdentifier];
 
-  return <>
+  return <div style={{ flex: 1 }}>
     <p className="font-bold">{props.name}</p>
     <Droppable droppableId={props.dropContextIdentifier}>
-      {(provided) => (
+      {(provided, snapshot) => (
         <div
           {...provided.droppableProps}
           ref={provided.innerRef}
-          style={{ padding: 6, background: "#f0f0f0" }}
+          style={getDroppableAreaStyle(snapshot.isDraggingOver)}
         >
           {props.state[fieldInState].map((itemInField, index) => (
             <Draggable key={itemInField.identifier} draggableId={itemInField.identifier} index={index}>
@@ -81,16 +97,28 @@ const DroppableArea = (props: DroppableAreaProps) => {
                   ref={provided.innerRef}
                   {...provided.draggableProps}
                   {...provided.dragHandleProps}
+                  className="relative flex w-full flex-row justify-between z-50"
                   style={{
-                    padding: 6,
+                    padding: 1,
                     margin: "0 0 2px 0",
                     background: "white",
                     border: "1px solid #ddd",
                     borderRadius: 4,
+                    fontSize: "12px",
                     ...provided.draggableProps.style,
                   }}
                 >
-                  {itemInField.name}
+                  - {itemInField.name}
+                  {
+                    props.hideAttribute === null ?
+                      null :
+                      <button onClick={(_) => props.hideAttribute!(index)}>🕶️</button>
+                  }
+                  {
+                    props.showAttribute === null ?
+                      null :
+                      <button onClick={(_) => props.showAttribute!(index)}>👁️</button>
+                  }
                 </div>
               )}
             </Draggable>
@@ -99,7 +127,7 @@ const DroppableArea = (props: DroppableAreaProps) => {
         </div>
       )}
     </Droppable>
-  </>;
+  </div>;
 };
 
 const SimpleHorizontalLineSeparator = () => {

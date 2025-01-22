@@ -31,7 +31,7 @@ export function openEditNodeAttributesDialogAction(
   }
 
   const onConfirm = (state: EditNodeAttributesState) => {
-    visualModel.updateVisualEntity(node.identifier, {content: state.attributes.map(attribute => attribute.identifier)});
+    visualModel.updateVisualEntity(node.identifier, {content: state.visibleAttributes.map(attribute => attribute.identifier)});
   }
 
   // TODO RadStr: Commented code - if we will want to do something with relationships
