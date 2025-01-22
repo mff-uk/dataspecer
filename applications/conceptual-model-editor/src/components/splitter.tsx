@@ -49,7 +49,7 @@ export const VerticalSplitter = (props: VerticalSplitterProps) => {
   );
 };
 
-function initialize(leftRef: React.RefObject<HTMLElement>, initialSize: number = 20) {
+function initialize(leftRef: React.RefObject<HTMLElement | null>, initialSize: number = 20) {
   const style = leftRef?.current?.style;
   if (style === undefined) {
     return;
@@ -62,7 +62,7 @@ function initialize(leftRef: React.RefObject<HTMLElement>, initialSize: number =
  * When move we change the style of the left thus adjusting the size.
  * When up we remove the listeners ending the action.
  */
-function useHandleMouseDown(leftRef: React.RefObject<HTMLElement>, containerRef: React.RefObject<HTMLElement>) {
+function useHandleMouseDown(leftRef: React.RefObject<HTMLElement | null>, containerRef: React.RefObject<HTMLElement | null>) {
   return React.useCallback((event: React.MouseEvent) => {
     const start = { x: event.clientX, y: event.clientY };
     const leftWidth = leftRef?.current?.getBoundingClientRect().width;

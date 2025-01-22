@@ -3,6 +3,7 @@ import { ReactFlowState } from "@xyflow/react";
 import { Position } from "../diagram-api";
 
 import "./canvas-menu-general.css";
+import { JSX } from "react";
 
 export type CanvasMenuContentType = ({menuProps}: {menuProps: CanvasMenuContentProps}) => JSX.Element | null;
 

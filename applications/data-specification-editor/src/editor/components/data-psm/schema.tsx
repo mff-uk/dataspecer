@@ -1,10 +1,10 @@
-import { DataPsmSchema } from "@dataspecer/core/data-psm/model";
+import { DataPsmClass, DataPsmSchema } from "@dataspecer/core/data-psm/model";
 import { useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
 import { useResource } from "@dataspecer/federated-observable-store-react/use-resource";
 import { IconButton, Paper, Typography } from "@mui/material";
 import Skeleton from '@mui/material/Skeleton';
 import React, { useCallback } from "react";
-import { DragDropContext, DropResult } from "react-beautiful-dnd";
+import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import { useTranslation } from "react-i18next";
 import { useDialog } from "../../dialog";
 import { Icons } from "../../icons";
@@ -29,6 +29,22 @@ export const DataPsmSchemaItem: React.FC<{dataPsmSchemaIri: string}> = ({dataPsm
       const parent = destination.droppableId.split(" ")[0];
       const property = draggableId.split(" ")[0];
       store.executeComplexOperation(new SetOrder(parent, property, destination.index)).then();
+
+      // ! We need to create an optimistic update to avoid flickering.
+      const resource = store.readSync(parent) as DataPsmClass;
+      const dataPsmParts: string[] = [];
+      for (let i = 0; i < resource.dataPsmParts.length; i++) {
+        if (dataPsmParts.length === destination.index) {
+          dataPsmParts.push(property);
+        }
+        if (resource.dataPsmParts[i] !== property) {
+          dataPsmParts.push(resource.dataPsmParts[i]);
+        }
+      }
+      if (dataPsmParts.length === destination.index) {
+        dataPsmParts.push(property);
+      }
+      store.doOptimisticUpdate(parent, {...resource, dataPsmParts} as DataPsmClass)
     }
   }, [store]);
 
