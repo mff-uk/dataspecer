@@ -2,7 +2,7 @@
 const WhitespaceRegExp = new RegExp(/\s+/g);
 
 /**
- * CamelCase
+ * Format using "camelCase".
  */
 export const lowerCamelCase = (value: string): string => {
   const parts = value.toLocaleLowerCase()
@@ -21,7 +21,7 @@ const capitalizeFirstLetter = (value: string): string  => {
 };
 
 /**
- * CamelCase
+ * Format using "CamelCase".
  */
 export const upperCamelCase = (value: string): string => {
   const parts = value.toLocaleLowerCase()
@@ -31,7 +31,7 @@ export const upperCamelCase = (value: string): string => {
 };
 
 /**
- * Kebab-case
+ * Format using "kebab-case".
  */
 export const kebabCase = (value: string): string => {
   return value.toLocaleLowerCase().replace(WhitespaceRegExp, "-");

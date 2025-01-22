@@ -10,18 +10,18 @@ export const Xml: FC<{
     onChange: (options: DeepPartial<XmlConfiguration>) => void,
   }> = ({input, onChange, defaultObject}) => {
     return <FormGroup>
-      <Typography variant="subtitle2" component="h3" sx={{mt: 1}}>Root class</Typography>
       <Grid container>
-        <Grid item xs={6}>
+        {/* <Grid item xs={6}>
           <SwitchWithDefault
               label="Extract group"
               current={input.rootClass ?? {}}
               itemKey="extractGroup"
               onChange={rootClass => onChange({...input, rootClass})}
               default={defaultObject?.rootClass}
-          />
-        </Grid>
+              />
+              </Grid> */}
         <Grid item xs={6}>
+          <Typography variant="subtitle2" component="h3" sx={{mt: 1}}>Root class</Typography>
           <SwitchWithDefault
               label="Extract type"
               current={input.rootClass ?? {}}
@@ -30,20 +30,8 @@ export const Xml: FC<{
               default={defaultObject?.rootClass}
           />
         </Grid>
-      </Grid>
-
-      <Typography variant="subtitle2" component="h3" sx={{mt: 1}}>Other classes</Typography>
-      <Grid container>
         <Grid item xs={6}>
-          <SwitchWithDefault
-              label="Extract group"
-              current={input.otherClasses ?? {}}
-              itemKey="extractGroup"
-              onChange={otherClasses => onChange({...input, otherClasses})}
-              default={defaultObject?.otherClasses}
-          />
-        </Grid>
-        <Grid item xs={6}>
+          <Typography variant="subtitle2" component="h3" sx={{mt: 1}}>Other classes</Typography>
           <SwitchWithDefault
               label="Extract type"
               current={input.otherClasses ?? {}}
@@ -52,6 +40,15 @@ export const Xml: FC<{
               default={defaultObject?.otherClasses}
           />
         </Grid>
+        {/* <Grid item xs={6}>
+          <SwitchWithDefault
+              label="Extract group"
+              current={input.otherClasses ?? {}}
+              itemKey="extractGroup"
+              onChange={otherClasses => onChange({...input, otherClasses})}
+              default={defaultObject?.otherClasses}
+          />
+        </Grid> */}
       </Grid>
 
       <Typography variant="subtitle2" component="h3" sx={{mt: 3}}>Common XML Schema</Typography>

@@ -4,6 +4,8 @@ import {useTranslation} from "react-i18next";
 import {dialog, DialogParameters, useDialog} from "../../dialog";
 import {DialogTitle} from "../detail/common";
 import {isEqual} from "lodash";
+import { DataPsmAttribute } from "@dataspecer/core/data-psm/model/data-psm-attribute";
+import { DataPsmAssociationEnd } from "@dataspecer/core/data-psm/model/data-psm-association-end";
 
 export interface Cardinality {
     cardinalityMin: number,
@@ -29,6 +31,13 @@ export function cardinalityFromPim(pimResource: {
     return {
         cardinalityMin: pimResource?.cardinality?.[0] ?? 0,
         cardinalityMax: pimResource?.cardinality?.[1] ?? null,
+    };
+}
+
+export function cardinalityFromPsm(entity: DataPsmAttribute | DataPsmAssociationEnd): Cardinality {
+    return {
+        cardinalityMin: entity.dataPsmCardinality?.[0] ?? 0,
+        cardinalityMax: entity.dataPsmCardinality?.[1] ?? null,
     };
 }
 

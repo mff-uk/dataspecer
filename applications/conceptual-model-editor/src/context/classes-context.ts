@@ -17,20 +17,22 @@ import type {
 import type { Entity } from "@dataspecer/core-v2";
 
 export type ClassesContextType = {
+
     classes: SemanticModelClass[];
-    setClasses: React.Dispatch<React.SetStateAction<SemanticModelClass[]>>;
+
     allowedClasses: string[];
+
     setAllowedClasses: React.Dispatch<React.SetStateAction<string[]>>;
+
     relationships: SemanticModelRelationship[];
-    setRelationships: React.Dispatch<React.SetStateAction<SemanticModelRelationship[]>>;
+
     generalizations: SemanticModelGeneralization[];
-    setGeneralizations: React.Dispatch<React.SetStateAction<SemanticModelGeneralization[]>>;
+
     profiles: (SemanticModelClassUsage | SemanticModelRelationshipUsage)[];
-    setProfiles: React.Dispatch<React.SetStateAction<(SemanticModelClassUsage | SemanticModelRelationshipUsage)[]>>;
+
     sourceModelOfEntityMap: Map<string, string>;
-    setSourceModelOfEntityMap: React.Dispatch<React.SetStateAction<Map<string, string>>>;
+
     rawEntities: (Entity | null)[];
-    setRawEntities: React.Dispatch<React.SetStateAction<(Entity | null)[]>>;
 };
 
 export const ClassesContext = React.createContext(null as unknown as ClassesContextType);
@@ -45,35 +47,22 @@ type ResultType = {
 
 export interface UseClassesContextType {
 
-    // ClassesContextType
-
     classes: SemanticModelClass[];
-
-    setClasses: React.Dispatch<React.SetStateAction<SemanticModelClass[]>>;
 
     allowedClasses: string[];
 
+    // Used by entities-of-model.tsx
     setAllowedClasses: React.Dispatch<React.SetStateAction<string[]>>;
 
     relationships: SemanticModelRelationship[];
 
-    setRelationships: React.Dispatch<React.SetStateAction<SemanticModelRelationship[]>>;
-
     generalizations: SemanticModelGeneralization[];
-
-    setGeneralizations: React.Dispatch<React.SetStateAction<SemanticModelGeneralization[]>>;
 
     profiles: (SemanticModelClassUsage | SemanticModelRelationshipUsage)[];
 
-    setProfiles: React.Dispatch<React.SetStateAction<(SemanticModelClassUsage | SemanticModelRelationshipUsage)[]>>;
-
     sourceModelOfEntityMap: Map<string, string>;
 
-    setSourceModelOfEntityMap: React.Dispatch<React.SetStateAction<Map<string, string>>>;
-
     rawEntities: (Entity | null)[];
-
-    //
 
     createConnection: (
         model: InMemorySemanticModel,
@@ -89,17 +78,12 @@ export interface UseClassesContextType {
 export const useClassesContext = (): UseClassesContextType => {
   const {
     classes,
-    setClasses,
     allowedClasses,
     setAllowedClasses,
     relationships,
-    setRelationships,
     generalizations,
-    setGeneralizations,
     profiles,
-    setProfiles,
     sourceModelOfEntityMap,
-    setSourceModelOfEntityMap,
     rawEntities,
   } = useContext(ClassesContext);
 
@@ -120,17 +104,12 @@ export const useClassesContext = (): UseClassesContextType => {
 
   return {
     classes,
-    setClasses,
     allowedClasses,
     setAllowedClasses,
     relationships,
-    setRelationships,
     generalizations,
-    setGeneralizations,
     profiles,
-    setProfiles,
     sourceModelOfEntityMap,
-    setSourceModelOfEntityMap,
     rawEntities,
     createConnection,
   };

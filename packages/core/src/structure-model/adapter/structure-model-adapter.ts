@@ -35,7 +35,7 @@ class StructureModelAdapter {
     }
     const roots: StructureModelSchemaRoot[] = [];
     for (const iri of psmSchema.dataPsmRoots) {
-      roots.push(await this.loadRoot(iri));
+      roots.push(await this.loadRoot(iri, psmSchemaIri));
     }
 
     const model = new StructureModel();
@@ -48,10 +48,16 @@ class StructureModelAdapter {
     return model;
   }
 
-  async loadRoot(iri: string): Promise<StructureModelSchemaRoot> {
+  async loadRoot(iri: string, schemaIri: string): Promise<StructureModelSchemaRoot> {
+    const schema = await this.reader.readResource(schemaIri) as DataPsmSchema;
     const entity = await this.reader.readResource(iri);
     const root = new StructureModelSchemaRoot();
     root.psmIri = entity.iri;
+    root.technicalLabel = schema.dataPsmTechnicalLabel ?? null;
+    root.collectionTechnicalLabel = schema.dataPsmCollectionTechnicalLabel ?? null;
+    root.enforceCollection = schema.dataPsmEnforceCollection ?? false;
+    root.cardinalityMin = schema.dataPsmCardinality?.[0] ?? null;
+    root.cardinalityMax = schema.dataPsmCardinality ? schema.dataPsmCardinality[1] : null;
     if (DataPsmOr.is(entity)) {
       for (const choiceIri of entity.dataPsmChoices) {
         const choice = await this.reader.readResource(choiceIri);
@@ -237,6 +243,11 @@ class StructureModelAdapter {
       );
     }
 
+    if (associationEndData.dataPsmCardinality) {
+      model.cardinalityMin = associationEndData.dataPsmCardinality[0];
+      model.cardinalityMax = associationEndData.dataPsmCardinality[1];
+    }
+
     // The association end may point to class, class reference or "OR".
     const part = await this.reader.readResource(associationEndData.dataPsmPart);
 
@@ -287,6 +298,11 @@ class StructureModelAdapter {
       );
     }
 
+    if (attributeData.dataPsmCardinality) {
+      model.cardinalityMin = attributeData.dataPsmCardinality[0];
+      model.cardinalityMax = attributeData.dataPsmCardinality[1];
+    }
+
     const type = new StructureModelPrimitiveType();
     type.dataType = attributeData.dataPsmDatatype;
     model.dataTypes.push(type);
@@ -303,8 +319,8 @@ class StructureModelAdapter {
     property.propertyAsContainer = containerData.dataPsmContainerType;
 
     // So far the cardinality for these containers is always 1..1
-    property.cardinalityMin = 1;
-    property.cardinalityMax = 1;
+    property.cardinalityMin = containerData.dataPsmCardinality?.[0] ?? 1;
+    property.cardinalityMax = containerData.dataPsmCardinality ? containerData.dataPsmCardinality[1] : 1;
 
     const [part] = await this.loadComplexType(containerData);
     property.dataTypes = part;

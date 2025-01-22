@@ -101,7 +101,7 @@ function showGroupNode(groupNode: Node<any>, groups: Record<string, NodeIdentifi
   const botRightGroupNodePosition = getBotRightPosition(nodesInGroup);
   // We have to also set the position, keeping the old one is not enough -
   // because for example layouting was performed or group was dissolved,
-  // therefore the old position is incorrect since only the position of the dissolved group was changed on dragging
+  // therefore the old position is incorrect since only the position of the dissolved group was changed by dragging
   newGroupNode.position = groupNodePosition;
   const width = botRightGroupNodePosition.x - groupNodePosition.x;
   const height = botRightGroupNodePosition.y - groupNodePosition.y;
@@ -176,12 +176,12 @@ interface DiagramContextType {
   onOpenCanvasContextMenu: OpenCanvasContextMenuHandler;
 
   /**
-   * Stored in context because the idea is to allow max one opened canvas toolbar
+   * Stored in context because the idea is to allow max one opened canvas menu
    */
   openedCanvasMenu: CanvasMenuContentType | null;
 
   /**
-   * Close any opened canvas toolbar (menu), if none was open, then doesn't do anything.
+   * Close any opened canvas menu, if none was open, then doesn't do anything.
    */
   closeCanvasMenu(): void;
 
@@ -271,10 +271,10 @@ function useCreateReactStates() {
   /*
    * Says if the node is selected - having the reactflow property is not enough,
    * because with groups we have to separate between selection by user and in
-   * program when group was selected.
+   * program (when group was selected).
    * If we used only the reactflow selection then we can not tell, when to unselect
    * all the nodes in group, because we are not getting the events of user selection
-   * on nodes which were selected in program, because they are part of group.
+   * on already selected nodes.
    * So therefore the selected property on reactflow nodes is only the user-selected one
    */
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
@@ -292,30 +292,23 @@ function useCreateReactStates() {
 
   // We have to do this because of special case - unfortunately when user immediately starts dragging node in group
   // (that is - he doesn't perform 2 actions - click the button and then click again to drag, he just drags it)
-  // Then there is no way for us to make reactflow drag it together - we can set selected = true and dragging = true, but it still has to be dragged manually in program,
-  // because it is ignored.
-  // This means, that when we are handling the dragging in the onNodeDrag and onNodeDragStop events, then we have to also process the nodes stored here
+  // Then there is no way for us to make reactflow drag it together in the onNodeDrag methods.
+  // We can set selected = true and dragging = true,
+  // but those values don't propagate to the onNodeDrag events, therefore the nodes are missing in the method call.
+  // So we handle everything manually in onNodesChange.
+  // This has side-effect, that when we are handling the dragging in the onNodeDrag and onNodeDragStop events,
+  // then we have to also process the nodes stored in nodesInGroupWhichAreNotPartOfDragging
   // Currently we are not doing any kind of such processing, so it is heads-up for future.
-  // Alternatively we could use the ReactFlow groups (https://reactflow.dev/learn/layouting/sub-flows), but I feel like it complicates everything
-  // We would suddenly have new type of node with different properties, which we have to take care of everywhere else in the code,
-  // we are suddenly starting to work with relative position against the parent group
-  // (currently we can assume that absolute coordinate === relative, but with the introduciton of groups we can't make such assumption), etc.
-  // And even if we implemented it, there is no guarantee that we won't end up using some dirty tricks anyways.
-  // Actually it is almost certain - because if we want to the behavior that dragging occurs only when we start dragging actual node in group
-  // and not clicking anywhere in the group - then I see only solution and that it is disable dragging on the group node and set its zIndex to value smaller than normal node
-  // But then we are almost exactly where we are now - we have to manually move the nodes when user moves 1 node in group (well probably we could somehow
-  // transform the move events in such a way that we will transform it to 1 group event (basically we would delete the existing move events and just transform it
-  // to one group move event) ... so it is actually not worth it)
-  // Aside from that there would be issues with the group being actual node - that is it could possibly:
-  // eat up events, have wrong z-index, process events even when it should not (when we click, hover with mouse to the empty space of group), ...
-
-  // Well what we could maybe do is to have the reactflow group node and have him disabled and only enable him when we click on node in group
-  // or actually don't enable at all, it would be just a visual element nothing else - it would be just used for styling - that is the selection box
-  // around the group - the box and maybe highlighting is all it would be useful for - but we could probably do that using Viewportal and draw straight on canvas instead of this
+  // Alternatively we could use the ReactFlow groups (https://reactflow.dev/learn/layouting/sub-flows), but it makes everything worse.
+  // We would have to work with relative coordinates. Basically we would still have to do all the stuff we are doing now but with additional issues.
+  // So we use the groups, but only as visual element, that is we don't connect group and nodes in the group in reactflow through parentId property.
   const nodesInGroupWhichAreNotPartOfDragging = useRef<string[]>([]);
   const selectedNodesRef = useRef<string[]>([]);
 
-  // These are user selected nodes - that means the groups selected automatically in program are not contained
+  // These are user selected nodes, that means the nodes in selected groups are not included
+  // (respectively the nodes in group).
+  // We have to store the user selected nodes in separate state, because we have to know
+  // the order of selected nodes to show the node menu on the correct one.
   const [userSelectedNodes, setUserSelectedNodes] = useState<string[]>([]);
   const userSelectedNodesRef = useRef<string[]>([]);
 
@@ -667,14 +660,10 @@ const createNodesChangeHandler = (
     updateChangesByGroupDragEvents(changes, nodes, groups, nodeToGroupMapping, nodesInGroupWhichAreNotPartOfDragging);
     changes = [...new Set(changes)];
 
-    const tmpResult = removeNotCompleteGroupUnselections(
-      extractedDataFromChanges.nodeSelectChanges,
-      extractedDataFromChanges.unselectChanges,
-      nodeToGroupMapping,
-      groups,
-      extractedDataFromChanges.newlyUnselectedNodesBasedOnGroups,
-      isSelectingThroughCtrl,
-      userSelectedNodesRef,
+    const tmpResult = findUnfinishedGroupUnselections(
+      extractedDataFromChanges.nodeSelectChanges, extractedDataFromChanges.unselectChanges,
+      nodeToGroupMapping, groups, extractedDataFromChanges.newlyUnselectedNodesBasedOnGroups,
+      isSelectingThroughCtrl, userSelectedNodesRef,
     );
 
     const nodesWhichWereActuallyNotUnselected = tmpResult.nodesWhichWereActuallyNotUnselected;
@@ -682,26 +671,18 @@ const createNodesChangeHandler = (
 
     setUserSelectedNodes(previouslyUserSelectedNodes => {
       const newUserSelectedNodes = updateUserSelectedNodesBasedOnNodeChanges(
-        previouslyUserSelectedNodes,
-        extractedDataFromChanges.newlyUnselectedNodesBasedOnGroups,
-        extractedDataFromChanges.nodeSelectChanges,
-        extractedDataFromChanges.unselectChanges,
-        userSelectedNodesRef,
+        previouslyUserSelectedNodes, extractedDataFromChanges.newlyUnselectedNodesBasedOnGroups,
+        extractedDataFromChanges.nodeSelectChanges, extractedDataFromChanges.unselectChanges, userSelectedNodesRef,
       );
       return newUserSelectedNodes;
     });
 
     setSelectedNodes(previouslySelectedNodes => {
       const newSelectedNodes = updateSelectedNodesBasedOnNodeChanges(
-        previouslySelectedNodes,
-        extractedDataFromChanges.newlyUnselectedNodesBasedOnGroups,
-        extractedDataFromChanges.nodeSelectChanges,
-        extractedDataFromChanges.unselectChanges,
-        nodesWhichWereActuallyNotUnselected,
-        extractedDataFromChanges.newlySelectedNodesBasedOnGroups,
-        selectedNodesRef,
-        userSelectedNodesRef,
-        nodesInGroupWhichAreNotPartOfDragging,
+        previouslySelectedNodes, extractedDataFromChanges.newlyUnselectedNodesBasedOnGroups,
+        extractedDataFromChanges.nodeSelectChanges, extractedDataFromChanges.unselectChanges,
+        nodesWhichWereActuallyNotUnselected, extractedDataFromChanges.newlySelectedNodesBasedOnGroups,
+        selectedNodesRef, userSelectedNodesRef, nodesInGroupWhichAreNotPartOfDragging,
       );
       return newSelectedNodes;
     });
@@ -709,12 +690,8 @@ const createNodesChangeHandler = (
     alignmentController.alignmentNodesChange(changes);
     setNodes((prevNodes) => {
       const updatedNodes = updateNodesBasedOnNodeChanges(
-        prevNodes,
-        changes,
-        extractedDataFromChanges.newlyUnselectedNodesBasedOnGroups,
-        nodeToGroupMapping,
-        extractedDataFromChanges.groupsNewlyContainedInSelectionChange,
-        groups,
+        prevNodes, changes, extractedDataFromChanges.newlyUnselectedNodesBasedOnGroups,
+        nodeToGroupMapping, extractedDataFromChanges.groupsNewlyContainedInSelectionChange, groups,
       );
       return updatedNodes;
     });
@@ -874,7 +851,14 @@ const flattenGroupStructure = (
   return onlyNodes;
 };
 
-const removeNotCompleteGroupUnselections = (
+/**
+ * This method finds group unselections, which were not finished.
+ * For example we have group of 3 nodes. User selected 2.
+ * Now user unselects 1, therefore we should not unselect the group,
+ * respectively the nodes in group,
+ * because there is still one selected node in the group.
+ */
+const findUnfinishedGroupUnselections = (
   nodeSelectChanges: string[],
   unselectChanges: string[],
   nodeToGroupMapping: Record<string, string>,
@@ -1447,10 +1431,10 @@ const createActions = (
         const newNodes = [...prevNodes];
         const nodeToGroupMapping = createNodeToGroupMapping({}, groups);
         const nodeToGroupMappingCopy = {...nodeToGroupMapping};
-        // Not the most effective but there are only few groups so it doesn't matter
         const groupIdentifiers = groups.map(group => group.group.identifier);
+        // Not the most effective but there are only few groups so it doesn't matter
         // We have to collect the group nodes separately and in the down to top order,
-        // so we can refer to them later in method if we created more than 1
+        // so we can refer to them later in method if we created more than 1.
         const groupProcessingOrdering = [];
         while(groupIdentifiers.length > 0) {
           for(let i = groupIdentifiers.length - 1; i >= 0; i--) {
@@ -1458,10 +1442,10 @@ const createActions = (
             if (nodeToGroupMappingCopy[groupIdentifier] === undefined) {
               groupProcessingOrdering.push(groupIdentifier);
               delete nodeToGroupMappingCopy[groupIdentifier];
-              for(const newTopLevelGroup of groupIdentifiers) {
-                // Checks if it is newTopLevelGroup
-                if(nodeToGroupMappingCopy[newTopLevelGroup] === groupIdentifier) {
-                  delete nodeToGroupMappingCopy[newTopLevelGroup];
+              for(const possibleTopLevelGroup of groupIdentifiers) {
+                const isNewTopLevelGroup = nodeToGroupMappingCopy[possibleTopLevelGroup] === groupIdentifier;
+                if(isNewTopLevelGroup) {
+                  delete nodeToGroupMappingCopy[possibleTopLevelGroup];
                 }
               }
               groupIdentifiers.splice(i, 1);
@@ -1514,7 +1498,7 @@ const createActions = (
 
       setNodeToGroupMapping(prevMapping => {
         const newNodeToGroupMapping = {...prevMapping};
-        // Remove the references to the groups of nodes lying inside it
+        // Remove the references to the groups for nodes lying inside them
         Object.keys(newNodeToGroupMapping).forEach(nodeIdentifier => {
           if(groups.includes(newNodeToGroupMapping[nodeIdentifier])) {
             delete newNodeToGroupMapping[nodeIdentifier];
@@ -1628,7 +1612,7 @@ const createActions = (
       const changed: Record<string, NodeType> = {};
       nodes.forEach(node => changed[node.identifier] = nodeToNodeType(node));
       reactFlow.setNodes((prev) => prev.map(node => {
-        // TODO RadStr: We are not using the groups anyways, so idk
+        // TODO RadStr: We are not using the group property anyways, so idk
         if(changed[node.data.identifier] !== undefined) {
           if(changed[node.data.identifier].data.group === null) {
             changed[node.data.identifier].data.group = node.data.group;

@@ -7,6 +7,7 @@ import { type WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { randomColorFromPalette } from "../util/color-utils";
 import { createWritableVisualModel } from "../util/visual-model-utils";
+import { removeEntityModel } from "../dataspecer/visual-model/command/remove-entity-model";
 
 // This is to compile with TypeScript as we can not use
 // the type directly for aggregator.
@@ -54,8 +55,6 @@ export interface UseModelGraphContextType {
     setModelAlias: (alias: string | null, model: EntityModel) => void;
 
     setModelIri: (iri: string, model: InMemorySemanticModel) => void;
-
-    cleanModels: () => void;
 
     replaceModels: (entityModels: EntityModel[], visualModels: WritableVisualModel[]) => void;
 
@@ -112,17 +111,6 @@ export const useModelGraphContext = (): UseModelGraphContextType => {
     });
   };
 
-  const cleanModels = () => {
-    for (const [_, m] of models) {
-      aggregator.deleteModel(m);
-    }
-    for (const [_, m] of visualModels) {
-      aggregator.deleteModel(m);
-    }
-    setModels(new Map());
-    setVisualModels(new Map());
-  };
-
   const replaceModels = (entityModels: EntityModel[], visualModels: WritableVisualModel[]) => {
     // Remove old models.
     for (const [_, model] of models) {
@@ -153,6 +141,9 @@ export const useModelGraphContext = (): UseModelGraphContextType => {
     aggregator.deleteModel(model);
     models.delete(modelId);
     setModels(new Map(models));
+    // We need to also remove representation from all visual models.
+    visualModels.forEach(visualModel => removeEntityModel(
+      visualModel, model.getId()));
   };
 
   const removeVisualModel = (modelId: string) => {
@@ -179,7 +170,6 @@ export const useModelGraphContext = (): UseModelGraphContextType => {
     addVisualModel,
     setModelAlias,
     setModelIri,
-    cleanModels,
     replaceModels,
     removeModel,
     removeVisualModel,

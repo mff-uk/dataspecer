@@ -36,6 +36,7 @@
     "title_other": "Delete {{count}} specifications"
   },
   "detail": "Detail",
+  "edit": "Edit",
   "error": "error",
   "generate artifacts": "Generate artifacts",
   "generate zip file": "Generate .ZIP file",
@@ -83,6 +84,5 @@
   "set root element button": "Set root element",
   "tags": "Tags",
   "title": "schema editor",
-  "version": "Version",
-  "edit": "Edit"
+  "version": "Version"
 }

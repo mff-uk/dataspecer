@@ -6,10 +6,10 @@ import { findTopLevelGroupFromVisualModel } from "./utilities";
 /**
  * Removes part of group's content.
  * If the group becomes single node or is empty after that, the group is deleted.
- * However the deletion is performed only if it is top level group.
+ * However the deletion is performed only if it is empty, in the other case it has to be top level group.
  * Because otherwise it is being referred to from the other group,
  * therefore we would have to repair the other group - this gets very complicated in cascade effect.
- * @returns True if the whole group was removed because it was empty
+ * @returns True if the whole group was deleted
  */
 export function removePartOfGroupContentAction(
   notifications: UseNotificationServiceWriterType,
