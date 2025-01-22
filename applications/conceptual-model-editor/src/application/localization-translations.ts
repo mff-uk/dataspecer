@@ -258,7 +258,7 @@ export const translations: Record<string, string | Function> = {
   "iri-must-not-be-empty": "IRI must not be an empty string.",
   //
   "filter-selection-dialog.label": "Restrict selection to",
-  "filter-selection-dialog.btn-ok": "✅ Filter",
+  "filter-selection-dialog.btn-ok": "✅ Restrict",
   "filter-selection-dialog.btn-cancel": "❌ Cancel",
   "filter-selection-class-filter-text": "Classes",
   "filter-selection-class-profile-filter-text": "Class profiles",

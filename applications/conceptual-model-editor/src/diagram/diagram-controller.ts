@@ -25,6 +25,7 @@ import {
   useKeyPress,
   NodeSelectionChange,
   NodeDimensionChange,
+  NodePositionChange,
 } from "@xyflow/react";
 
 import { type UseDiagramType } from "./diagram-hook";
@@ -473,7 +474,7 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
   const canvasHighlighting = useExplorationCanvasHighlightingController(setNodes, setEdges);
 
   const setSelectedNodesThroughOnNodesChange = useCallback((newlySelectedNodes: string[], newlyUnselectedNodes: string[]) => {
-    const changes: NodeSelectionChange[] = [];
+    const changes: NodeChange<NodeType>[] = [artificialChange];
     for(const newSelectedNode of newlySelectedNodes) {
       changes.push({
         id: newSelectedNode,
@@ -485,9 +486,10 @@ function useCreateDiagramControllerDependentOnActionsAndContext(
       changes.push({
         id: newUnselectedNode,
         type: "select",
-        selected: true
+        selected: false
       });
     }
+
     onNodesChange(changes);
   }, [onNodesChange]);
 
@@ -675,6 +677,8 @@ const createNodesChangeHandler = (
     //   }
     // });
 
+    const isArtificiallyCalled = isOnNodesChangeArtificiallyCalled(changes);
+
     if(handleStartOfGroupDraggingThroughGroupNode(nodes, changes, groups)) {
       return;
     }
@@ -694,7 +698,7 @@ const createNodesChangeHandler = (
     // The issue comes from the fact that by dragging the other node we get changes which all the other nodes
     // (so alternative solution could be to repair/disable such selection changes, but this would bring question
     // how should the resulting selection look. So we keep it this way.)
-    if(!isSelecting && selectedNodesRef.current.length > 0) {
+    if(!isArtificiallyCalled && !isSelecting && selectedNodesRef.current.length > 0) {
       const newlySelected = changes.findIndex(change => change.type === "select" && change.selected && !selectedNodesRef.current.includes(change.id));
       if(newlySelected !== -1) {
         cleanSelection();
@@ -952,6 +956,24 @@ const removeNotCompleteGroupUnselections = (
     nodesWhichWereActuallyNotUnselected,
     newlyUnselectedNodesBasedOnGroups,
   };
+}
+
+const artificialChange: NodePositionChange = {
+  id: "artificialChange",
+  type: "position",
+  position: {x: 1234, y: 2345},
+}
+
+/**
+ * Checks if changes contain special marker change as first change. 
+ * If so it is removed true is returned.
+ */
+const isOnNodesChangeArtificiallyCalled = (changes: NodeChange[]) => {
+  if(changes.length > 0 && isEqual(changes[0], artificialChange)) {
+    changes.shift();
+    return true;
+  }
+  return false;
 }
 
 const extractDataFromChanges = (

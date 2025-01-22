@@ -76,7 +76,7 @@ export function createExtendSelectionState(
 
   return {
     selections: selections,
-    setSelectionsInDiagram: setSelectionsInDiagram,
+    setSelectionsInDiagram,
     areIdentifiersFromVisualModel,
     extensionCheckboxes: extensionCheckboxStates,
     shouldExtendOnlyThroughEdges: false,
