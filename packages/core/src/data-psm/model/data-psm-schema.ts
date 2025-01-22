@@ -1,6 +1,6 @@
 import { LanguageString } from "../../core";
 import * as PSM from "../data-psm-vocabulary";
-import {ExtendableCoreResource} from "./extendable-core-resource";
+import { ExtendableCoreResource } from "./extendable-core-resource";
 
 /**
  * Originally the schema point only to root classes. The rest of the diagram
@@ -31,14 +31,6 @@ export class DataPsmSchema extends ExtendableCoreResource {
    */
   dataPsmHumanDescription: LanguageString | null = null;
 
-  /**
-   * Label used by file formats, may represent a name of a property
-   * in JSON or tag name in XML.
-   */
-  dataPsmTechnicalLabel: string | null = null;
-
-  dataPsmRoots: string[] = [];
-
   dataPsmParts: string[] = [];
 
   constructor(iri: string | null = null) {
@@ -49,4 +41,36 @@ export class DataPsmSchema extends ExtendableCoreResource {
   static is(resource: any): resource is DataPsmSchema {
     return resource?.types?.includes(DataPsmSchema.TYPE);
   }
+
+  /*
+  todo: We are missing the concept of "DataPsmSchemaRoot", which would be between this class - DataPsmSchema and the actual root class - DataPsmClass.
+  This class would contain additional metadata and may serve as some king of "association" to the actual root class.
+  For now we expect there is only one root and therefore all root-related properties are here, see below.
+  */
+
+  dataPsmRoots: string[] = [];
+
+  /**
+   * Label used by file formats, may represent a name of a property
+   * in JSON or tag name in XML.
+   */
+  dataPsmTechnicalLabel: string | null = null;
+
+  /**
+   * Minimum and maximum cardinality of the root element, if possible.
+   * If the maximum cardinality is null, then the cardinality is unbounded.
+   * @default [1, 1]
+   */
+  dataPsmCardinality?: [number, number | null] | null;
+
+  /**
+   * Name of the wrapping element that contains the root element, if possible, if the cardinality is different than 1..1 or it is enforced.
+   */
+  dataPsmCollectionTechnicalLabel?: string;
+
+  /**
+   * If true, the collection is enforced, i.e. the root element is wrapped in a collection, if possible.
+   * @default false
+   */
+  dataPsmEnforceCollection?: boolean;
 }

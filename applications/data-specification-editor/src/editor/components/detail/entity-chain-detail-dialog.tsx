@@ -1,5 +1,5 @@
 import { ExtendedSemanticModelClass, ExtendedSemanticModelRelationship, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmClassReference, DataPsmInclude, DataPsmOr, DataPsmSchema } from "@dataspecer/core/data-psm/model";
+import { DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmClassReference, DataPsmContainer, DataPsmInclude, DataPsmOr, DataPsmSchema } from "@dataspecer/core/data-psm/model";
 import { useResource } from "@dataspecer/federated-observable-store-react/use-resource";
 import { Box, DialogContentText, FormControlLabel, Switch, Tab, Tabs, Typography } from "@mui/material";
 import React, { FC, memo, useState } from "react";
@@ -18,6 +18,7 @@ import { DataPsmClassCard } from "./components/data-psm-class-card";
 import { DataPsmOrCard } from "./components/data-psm-or-card";
 import { DataPsmSchemaCard } from "./components/data-psm-schema-card";
 import { ResourceInStore } from "./components/resource-in-store";
+import { DataPsmContainerCard } from "./components/data-psm-container-card";
 
 /**
  * Detail and edit dialog for a chain of entities, usually from a single line of
@@ -86,6 +87,8 @@ const ContentItem: FC<{iri: string, onClose: () => void}> = (props) => {
         return <DataPsmSchemaCard {...props} />;
     } else if (DataPsmOr.is(resource)) {
         return <DataPsmOrCard {...props} />;
+    } else if (DataPsmContainer.is(resource)) {
+        return <DataPsmContainerCard {...props} />;
     } else {
         return <ContentUnknownItem {...props} />;
     }
@@ -212,6 +215,8 @@ const TabItem = ({iri}: {iri: string}) => {
         return <>{t('tab or')}</>;
     } else if (DataPsmSchema.is(resource)) {
         return <>{t('tab schema')}</>;
+    } else if (DataPsmContainer.is(resource)) {
+        return <>{t('tab container')}</>;
     } else {
         return <>{t('tab unknown')}</>;
     }

@@ -15,6 +15,8 @@ import { Position } from "../diagram";
 import { GeneralizationConnectionType } from "../util/edge-connection";
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 
+// TODO RadStr: 2 Actions - split into 2 files later
+
 export function openCreateClassDialogAndCreateAssociationAction(
   notifications: UseNotificationServiceWriterType,
   dialogs: DialogApiContextType,
@@ -32,6 +34,7 @@ export function openCreateClassDialogAndCreateAssociationAction(
       nodeIdentifier, isCreatedClassTarget, createdClassData, state);
   }
 
+  // TODO RadStr: I still don't see how to handle actions in actions calls and if it is always bad
   openCreateClassDialogWithModelDerivedFromClassAction(notifications, graph, dialogs, classes, options,
     diagram, visualModel, nodeIdentifier, positionToPlaceClassOn, onConfirm);
 }
@@ -54,6 +57,7 @@ export function openCreateClassDialogAndCreateGeneralizationAction(
       visualModel, nodeIdentifier, isCreatedClassParent, createdClassData);
   }
 
+  // TODO RadStr: Action in action
   openCreateClassDialogWithModelDerivedFromClassAction(notifications, graph, dialogs, classes, options,
     diagram, visualModel, nodeIdentifier, positionToPlaceClassOn, onConfirm);
 }

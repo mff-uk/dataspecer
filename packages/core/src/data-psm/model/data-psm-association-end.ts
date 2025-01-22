@@ -26,6 +26,13 @@ export class DataPsmAssociationEnd extends DataPsmResource {
    */
   dataPsmIsDematerialize: boolean | null = null;
 
+  /**
+   * Minimum and maximum cardinality.
+   * If the maximum cardinality is null, then the cardinality is unbounded.
+   * If the cardinality is null, then the cardinality is unknown or taken from semantic model.
+   */
+  dataPsmCardinality?: [number, number | null] | null;
+
   constructor(iri: string | null = null) {
     super(iri);
     this.types.push(DataPsmAssociationEnd.TYPE);

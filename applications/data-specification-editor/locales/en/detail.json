@@ -19,8 +19,8 @@
   "confirm": "confirm",
   "dematerialization": {
     "cardinality restriction": "Only those associations that do not have a cardinality higher than 1 can be dematerialized.",
-    "help": "By dematerializing the association, all elements of the referenced class are moved directly to the parent class. The association will then not be included in the diagram.",
     "checkbox": "dematerialize",
+    "help": "By dematerializing the association, all elements of the referenced class are moved directly to the parent class. The association will then not be included in the diagram.",
     "title": "Dematerialization"
   },
   "in all languages": "In all languages",
@@ -28,20 +28,20 @@
     "title": "Class instance identification",
     "value": {
       "always": "required",
+      "default": "default value",
       "never": "disabled",
-      "optional": "optional",
-      "default": "default value"
+      "optional": "optional"
     }
   },
   "instancesSpecifyTypes": {
+    "help": "Specifies whether instances of classes must specify their type, that is, the class of which they are instances of. The disabled option then removes any auxiliary constructs for working with types from the artifacts.",
     "title": "Explicit instance typing",
     "value": {
       "always": "required",
+      "default": "default value",
       "never": "disabled",
-      "optional": "optional",
-      "default": "default value"
-    },
-    "help": "Specifies whether instances of classes must specify their type, that is, the class of which they are instances of. The disabled option then removes any auxiliary constructs for working with types from the artifacts."
+      "optional": "optional"
+    }
   },
   "IRI": "IRI",
   "iri parameters help": "Class instances (data) can be identified by their specific IRI. For example, Prague, as a city instance, can have its IRI http://example.com/Praha. This option sets whether such an identifier is required in the data, which affects the validation of the data and its representation in RDF, for example, where resources without IRIs appear as blank nodes.",
@@ -84,7 +84,6 @@
   "tab or": "OR",
   "tab pim": "pim",
   "tab pim association": "pim association",
-  "tab pim association end": "pim association end",
   "tab pim child": "pim child",
   "tab reference": "Reference",
   "tab schema": "Schema",
@@ -97,18 +96,10 @@
   "title data type": "Data type",
   "title schema": "Schema",
   "title to class": "To class",
+  "wikidata": {
+    "error": "No detail available."
+  },
   "XML attributes": "XML specific attributes",
   "XML namespace": "namespace",
-  "XML prefix": "prefix",
-  "wikidata": {
-    "error": "No detail available.",
-    "subclass of": "Ancestors",
-    "subject of property": "Domain of properties",
-    "value of property": "Range of properties",
-    "external identifier": "External equivalent ontology mappings",
-    "domain classes": "Domain classes",
-    "range classes": "Range classes",
-    "class": "Class",
-    "property": "Property"
-  }
+  "XML prefix": "prefix"
 }

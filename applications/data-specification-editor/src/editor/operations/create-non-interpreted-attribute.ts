@@ -1,0 +1,35 @@
+import { DataPsmCreateAttribute, DataPsmSetCardinality } from "@dataspecer/core/data-psm/operation";
+import { ComplexOperation } from "@dataspecer/federated-observable-store/complex-operation";
+import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
+
+export class CreateNonInterpretedAttribute implements ComplexOperation {
+  private readonly ownerClass: string;
+  private store!: FederatedObservableStore;
+
+  constructor(ownerClass: string) {
+    this.ownerClass = ownerClass;
+  }
+
+  setStore(store: FederatedObservableStore) {
+    this.store = store;
+  }
+
+  async execute(): Promise<void> {
+    const schema = this.store.getSchemaForResource(this.ownerClass) as string;
+
+    const operation = new DataPsmCreateAttribute();
+
+    operation.dataPsmInterpretation = null;
+    operation.dataPsmTechnicalLabel = "attribute";
+    operation.dataPsmDatatype = "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/řetězec";
+    operation.dataPsmOwner = this.ownerClass;
+
+    const result = await this.store.applyOperation(schema, operation);
+    const attributeId = result.created[0];
+
+    const cardinality = new DataPsmSetCardinality();
+    cardinality.dataPsmCardinality = [1, 1];
+    cardinality.entityId = attributeId;
+    await this.store.applyOperation(schema, cardinality);
+  }
+}

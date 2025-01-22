@@ -190,9 +190,9 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
 function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
   const context = useContext(DiagramContext);
   const reactFlow = useReactFlow();
-  const shouldShowToolbar = context?.getNodeWithMenu() === props.id;
+  const shouldShowMenu = context?.getNodeWithMenu() === props.id;
 
-  if (!shouldShowToolbar) {
+  if (!shouldShowMenu) {
     return null;
   }
 
@@ -208,16 +208,16 @@ function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
   const onShowFilterSelection = () => context?.callbacks().onShowFilterSelection();
 
   return (<>
-    <NodeToolbar isVisible={shouldShowToolbar} position={Position.Top} className="flex gap-2 entity-node-menu" >
+    <NodeToolbar isVisible={shouldShowMenu} position={Position.Top} className="flex gap-2 entity-node-menu" >
       <button onClick={onShowSelectionActions} title={t("selection-action-button")}>🎬</button>
       &nbsp;
       <button onClick={onLayoutSelection} title={t("selection-layout-button")} disabled>🔀</button>
       &nbsp;
     </NodeToolbar>
-    <NodeToolbar isVisible={shouldShowToolbar} position={Position.Right} className="flex gap-2 entity-node-menu" >
+    <NodeToolbar isVisible={shouldShowMenu} position={Position.Right} className="flex gap-2 entity-node-menu" >
       <button onClick={onCreateGroup} title={t("selection-group-button")}>🤝</button>
     </NodeToolbar>
-    <NodeToolbar isVisible={shouldShowToolbar} position={Position.Bottom} className="flex gap-2 entity-node-menu" >
+    <NodeToolbar isVisible={shouldShowMenu} position={Position.Bottom} className="flex gap-2 entity-node-menu" >
       <button onClick={onShowExpandSelection} title={t("selection-extend-button")} >📈</button>
       &nbsp;
       <button onClick={onShowFilterSelection} title={t("selection-filter-button")} >📉</button>

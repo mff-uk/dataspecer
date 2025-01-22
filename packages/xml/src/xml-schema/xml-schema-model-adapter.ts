@@ -1,14 +1,9 @@
 import { StructureModelClass, StructureModelComplexType, StructureModelPrimitiveType, StructureModelProperty, StructureModelSchemaRoot, StructureModelType, } from "@dataspecer/core/structure-model/model";
-
 import { XmlStructureModel as StructureModel } from "../xml-structure-model/model/xml-structure-model";
-
 import { XmlSchema, XmlSchemaAnnotation, XmlSchemaComplexContainer, XmlSchemaComplexContent, XmlSchemaComplexContentElement, xmlSchemaComplexContentIsElement, xmlSchemaComplexContentIsItem, XmlSchemaComplexContentItem, XmlSchemaComplexGroup, XmlSchemaComplexItem, XmlSchemaComplexSequence, XmlSchemaComplexType, XmlSchemaElement, XmlSchemaGroupDefinition, XmlSchemaImportDeclaration, XmlSchemaSimpleItem, XmlSchemaSimpleType, XmlSchemaType, xmlSchemaTypeIsComplex } from "./xml-schema-model";
-
 import { DataSpecification, DataSpecificationArtefact, DataSpecificationSchema, } from "@dataspecer/core/data-specification/model";
-
 import { OFN, XSD, XSD_PREFIX } from "@dataspecer/core/well-known";
 import { XML_SCHEMA } from "./xml-schema-vocabulary";
-
 import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
 import { DataSpecificationConfiguration, DataSpecificationConfigurator, DefaultDataSpecificationConfiguration } from "@dataspecer/core/data-specification/configuration";
 import { ArtefactGeneratorContext } from "@dataspecer/core/generator";
@@ -142,7 +137,6 @@ class XmlSchemaAdapter {
     const elements: XmlSchemaElement[] = [];
     for (const root of roots) {
       let rootElement = await this.rootToElement(root);
-      rootElement = this.extractTypesIfConfigured(rootElement);
       elements.push(rootElement);
     }
 
@@ -344,10 +338,10 @@ class XmlSchemaAdapter {
   /**
    * Produces an element description from a structure model class.
    */
-  async classToElement(classData: StructureModelClass): Promise<XmlSchemaElement> {
+  async classToElement(classData: StructureModelClass, name: string): Promise<XmlSchemaElement> {
     return {
       entityType: "element",
-      name: await this.resolveImportedClassName(classData),
+      name: this.classIsImported(classData) ? await this.resolveImportedClassName(classData) : [null, name],
       type: {
         entityType: "type",
         name: null,
@@ -369,31 +363,74 @@ class XmlSchemaAdapter {
    * This does not handle the type extraction, this only returns XmlSchemaElement.
    */
   async rootToElement(root: StructureModelSchemaRoot): Promise<XmlSchemaElement> {
+    const minCardinality = root.cardinalityMin ?? 1;
+    const maxCardinality = root.cardinalityMax ?? 1;
+    const hasWrappingElement = root.enforceCollection || minCardinality !== 1 || maxCardinality !== 1;
+    const wrappingElementName = root.collectionTechnicalLabel ?? "root";
+
     const classes = root.classes;
 
+    let rootElement: XmlSchemaElement;
     if (classes.length === 1 && !root.isInOr) {
+      const technicalLabel = root.technicalLabel ?? classes[0].technicalLabel;
       // Single class - return the element
-      return await this.classToElement(classes[0]);
+      rootElement = await this.classToElement(classes[0], technicalLabel);
+    } else {
+      const [el] = await this.oRToSingleType(classes, true, undefined, undefined, root.isInOr);
+      const complexType = {
+        entityType: "type",
+        //name: [null, root.orTechnicalLabel],
+        name: null,
+        complexDefinition: el,
+        annotation: null,
+      } as XmlSchemaComplexType;
+      //!this.types[root.orTechnicalLabel] = complexType;
+
+      // Return element that references the type even if the type is not extracted
+      // todo this is weird.
+      let rootElement = {
+        entityType: "element",
+        name: [null, root.technicalLabel ?? root.orTechnicalLabel],
+        type: complexType,
+        annotation: null,
+      } as XmlSchemaElement;
     }
 
-    const [el] = await this.oRToSingleType(classes, true, undefined, undefined, root.isInOr);
-    const complexType = {
-      entityType: "type",
-      //name: [null, root.orTechnicalLabel],
-      name: null,
-      complexDefinition: el,
-      annotation: null,
-    } as XmlSchemaComplexType;
-    //!this.types[root.orTechnicalLabel] = complexType;
+    rootElement = this.extractTypesIfConfigured(rootElement);
 
-    // Return element that references the type even if the type is not extracted
-    // todo this is weird.
-    return {
-      entityType: "element",
-      name: [null, root.orTechnicalLabel],
-      type: complexType,
-      annotation: null,
-    } as XmlSchemaElement;
+    if (hasWrappingElement) {
+      const complexContent = {
+        cardinalityMin: minCardinality,
+        cardinalityMax: maxCardinality,
+        element: rootElement,
+        semanticRelationToParentElement: null,
+        effectiveCardinalityMax: maxCardinality,
+        effectiveCardinalityMin: minCardinality
+      } satisfies XmlSchemaComplexContentElement;
+
+      const type = {
+        entityType: "type",
+        name: null, // This type is not need to be extracted
+        complexDefinition: {
+          xsType: "sequence",
+          contents: [complexContent]
+        } as XmlSchemaComplexSequence,
+        mixed: false,
+        abstract: null,
+        annotation: null
+      } satisfies XmlSchemaComplexType;
+
+      const wrappingElement = {
+        entityType: "element",
+        name: [null, wrappingElementName],
+        type: type,
+        annotation: null
+      } as XmlSchemaElement;
+
+      return wrappingElement;
+    } else {
+      return rootElement;
+    }
   }
 
   /**

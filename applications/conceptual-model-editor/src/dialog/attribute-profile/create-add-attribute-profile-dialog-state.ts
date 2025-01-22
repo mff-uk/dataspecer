@@ -14,17 +14,16 @@ import { CmeModel } from "../../dataspecer/cme-model";
 import { InvalidAggregation, MissingRelationshipEnds, RuntimeError } from "../../application/error";
 import { createRelationshipProfileStateForNew } from "../utilities/relationship-profile-utilities";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
-import { EntityRepresentative, isRepresentingAttribute, RelationshipRepresentative, representClassProfiles, representDataTypes, representOwlThing, representRelationshipProfiles, representRelationships, representUndefinedDataType } from "../utilities/dialog-utilities";
+import { EntityRepresentative, isRepresentingAttribute, RelationshipRepresentative, representClassProfiles, representDataTypes, representOwlThing, representRelationshipProfiles, representRelationships, representUndefinedDataType, selectDefaultModelForAttribute } from "../utilities/dialog-utilities";
 import { createEntityProfileStateForNewEntityProfile, createEntityProfileStateForNewProfileOfProfile } from "../utilities/entity-profile-utilities";
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { configuration } from "../../application";
+import { EntityModel } from "@dataspecer/core-v2";
 
 export function createAddAttributeProfileDialogState(
   classesContext: ClassesContextType,
   graphContext: ModelGraphContextType,
   visualModel: VisualModel | null,
   language: string,
-  _model: InMemorySemanticModel,
   entity: SemanticModelClassUsage,
 ): EditAttributeProfileDialogState {
   const entities = graphContext.aggregatorView.getEntities();
@@ -61,11 +60,13 @@ export function createAddAttributeProfileDialogState(
   // Rest of this function depends of what we are profiling.
   if (isSemanticModelRelationship(profileOfEntity)) {
     return createForAttribute(
-      language, vocabularies, profileOfEntity, profiles, profileOf, classProfiles,
+      language, models, vocabularies,
+      profileOfEntity, profiles, profileOf, classProfiles,
       domain);
   } else if (isSemanticModelRelationshipUsage(profileOfEntity)) {
     return createForAttributeProfile(
-      language, vocabularies, profileOfEntity, profiles, profileOf, classProfiles,
+      language, models, vocabularies,
+      profileOfEntity, profiles, profileOf, classProfiles,
       entities, domain);
   } else {
     throw new RuntimeError("Invalid profile type.");
@@ -74,6 +75,7 @@ export function createAddAttributeProfileDialogState(
 
 function createForAttribute(
   language: string,
+  models: EntityModel[],
   vocabularies: CmeModel[],
   entity: SemanticModelRelationship,
   profiles: RelationshipRepresentative[],
@@ -110,12 +112,15 @@ function createForAttribute(
     ...relationshipProfileState,
     domain: domainConcept,
     overrideDomain: true,
+    model : selectDefaultModelForAttribute(
+      entity.id, models, entityProfileState.availableModels),
   };
 
 }
 
 function createForAttributeProfile(
   language: string,
+  models: EntityModel[],
   vocabularies: CmeModel[],
   entity: SemanticModelRelationshipUsage,
   profiles: RelationshipRepresentative[],
@@ -157,6 +162,8 @@ function createForAttributeProfile(
     ...relationshipProfileState,
     domain: domainConcept,
     overrideDomain: true,
+    model : selectDefaultModelForAttribute(
+      entity.id, models, entityProfileState.availableModels),
   };
 }
 

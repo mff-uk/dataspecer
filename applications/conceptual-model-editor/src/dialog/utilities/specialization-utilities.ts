@@ -77,7 +77,7 @@ export function createSpecializationController<State extends SpecializationState
   const removeSpecialization = (value: Specialization): void => {
     changeState((state) => ({
       ...state,
-      specializations: removeFromArray(state.specializations, value),
+      specializations: removeFromArray(value, state.specializations),
     }));
   };
 

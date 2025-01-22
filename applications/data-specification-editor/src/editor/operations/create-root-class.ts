@@ -15,15 +15,15 @@ import {TechnicalLabelOperationContext} from "./context/technical-label-operatio
  * schema.
  */
 export class CreateRootClass implements ComplexOperation {
-    private readonly sourceClass: SemanticModelClass;
-    private readonly pimSchemaIri: string;
+    private readonly sourceClass: SemanticModelClass | null;
+    private readonly pimSchemaIri: string | null;
     private readonly dataPsmSchemaIri: string;
     private readonly schemaHumanLabel?: LanguageString;
     private readonly schemaHumanDescription?: LanguageString;
     private store!: FederatedObservableStore;
     private context: TechnicalLabelOperationContext|null = null;
 
-    constructor(sourceClass: SemanticModelClass, pimSchemaIri: string, dataPsmSchemaIri: string, schemaHumanLabel?: LanguageString, schemaHumanDescription?: LanguageString) {
+    constructor(sourceClass: SemanticModelClass | null, pimSchemaIri: string | null, dataPsmSchemaIri: string, schemaHumanLabel?: LanguageString, schemaHumanDescription?: LanguageString) {
         this.sourceClass = sourceClass;
         this.pimSchemaIri = pimSchemaIri;
         this.dataPsmSchemaIri = dataPsmSchemaIri;
@@ -40,11 +40,19 @@ export class CreateRootClass implements ComplexOperation {
     }
 
     async execute(): Promise<void> {
-        const pimClassIri = await createPimClassIfMissing(this.sourceClass, this.pimSchemaIri, this.store);
+        // Whether we have a semantic source or not
+        const isInterpreted = !!this.sourceClass;
 
         const dataPsmCreateClass = new DataPsmCreateClass();
-        dataPsmCreateClass.dataPsmInterpretation = pimClassIri;
-        dataPsmCreateClass.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim((await this.store.readResource(pimClassIri) as SemanticModelClass).name) ?? null;
+
+        if (isInterpreted) {
+            const pimClassIri = await createPimClassIfMissing(this.sourceClass, this.pimSchemaIri, this.store);
+            dataPsmCreateClass.dataPsmInterpretation = pimClassIri;
+            dataPsmCreateClass.dataPsmTechnicalLabel = this.context?.getTechnicalLabelFromPim((await this.store.readResource(pimClassIri) as SemanticModelClass).name) ?? null;
+        } else {
+            dataPsmCreateClass.dataPsmTechnicalLabel = "root";
+        }
+
         const dataPsmCreateClassResult = await this.store.applyOperation(this.dataPsmSchemaIri, dataPsmCreateClass);
 
         const dataPsmUpdateSchemaRoots = new DataPsmSetRoots();
