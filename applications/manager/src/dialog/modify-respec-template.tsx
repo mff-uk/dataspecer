@@ -6,7 +6,7 @@ import * as monaco from 'monaco-editor';
 import { useEffect, useRef, useState } from "react";
 
 export const ModifyRespecTemplate = ({ isOpen, resolve, iri, blobName, defaultContent }: { iri: string, blobName: string, defaultContent: string } & BetterModalProps) => {
-  const monaco = useRef<{editor: monaco.editor.IStandaloneCodeEditor}>();
+  const monaco = useRef<{editor: monaco.editor.IStandaloneCodeEditor}>(undefined);
 
   const [data, setData] = useState<string | null | undefined>(undefined);
   useEffect(() => {

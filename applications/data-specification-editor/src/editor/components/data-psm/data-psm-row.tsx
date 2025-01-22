@@ -1,7 +1,7 @@
 import React, {useCallback, useMemo} from "react";
 import {useResource} from "@dataspecer/federated-observable-store-react/use-resource";
 import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmClassReference, DataPsmContainer, DataPsmExternalRoot, DataPsmInclude, DataPsmOr} from "@dataspecer/core/data-psm/model";
-import {DraggableProvidedDragHandleProps} from "react-beautiful-dnd";
+import {DraggableProvidedDragHandleProps} from "@hello-pangea/dnd";
 import {DataPsmAttributeItem} from "./entities/attribute";
 import {DataPsmUnknownItem} from "./entities/unknown";
 import {DataPsmAssociationEndItem} from "./entities/association-end";

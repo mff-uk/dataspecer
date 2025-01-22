@@ -25,7 +25,7 @@ interface ModifyRawDialogProps {
 export const ModifyRawDialog = ({isOpen, resolve, iri}: ModifyRawDialogProps) => {
   const {t} = useTranslation();
 
-  const monaco = useRef<{editor: monaco.editor.IStandaloneCodeEditor}>();
+  const monaco = useRef<{editor: monaco.editor.IStandaloneCodeEditor}>(undefined);
 
   // const [dataStores] = useAsyncMemo(() => packageService.getResourceDataStores(iri), [iri]);
   const {data: dataStores, refetch} = useQuery({
