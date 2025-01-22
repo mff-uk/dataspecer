@@ -687,8 +687,8 @@ const createNodesChangeHandler = (
     // shift select part of them,
     // move the shift selection,
     // move the not selected node in group,
-    // Then if we move other node without selection, which is not part of the selection, we will keep one of the groups in the selection
-    // The issue comes from the fact that by dragging the other node we get changes which all the other nodes
+    // Then if we move some other node, which was not part of the selection or groups, we will keep one of the groups in the selection
+    // The issue comes from the fact that by dragging the other node we get changes which selects all the other nodes
     // (so alternative solution could be to repair/disable such selection changes, but this would bring question
     // how should the resulting selection look. So we keep it this way.)
     if(!isArtificiallyCalled && !isSelecting && selectedNodesRef.current.length > 0) {
@@ -965,7 +965,7 @@ const artificialChange: NodePositionChange = {
 }
 
 /**
- * Checks if changes contain special marker change as first change. 
+ * Checks if changes contain special marker change as first change.
  * If so it is removed true is returned.
  */
 const isOnNodesChangeArtificiallyCalled = (changes: NodeChange[]) => {

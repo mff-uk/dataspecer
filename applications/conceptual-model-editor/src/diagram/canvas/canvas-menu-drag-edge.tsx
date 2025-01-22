@@ -12,15 +12,9 @@ import { t } from "../../application";
 export function CanvasMenuCreatedByEdgeDrag({ menuProps }: { menuProps: CanvasMenuContentProps }) {
   const context = useContext(DiagramContext);
 
-  // We have to clean selection in every method - 
+  // We have to clean selection in every method -
   // If we don't do that then after the creation there is small moment
   // when the node menu is shown and it is slightly disruptive
-  const onCanvasMenuAddClassDialog = () => {
-    context?.closeCanvasMenu();
-    context?.cleanSelection();
-    context?.callbacks().onCanvasOpenCreateClassDialog(menuProps.sourceNodeIdentifier, menuProps.canvasPosition);
-  };
-
   const OpenAddClassDialogWithAssociation = (isCreatedClassTarget: boolean) => {
     context?.closeCanvasMenu();
     context?.cleanSelection();
@@ -41,8 +35,6 @@ export function CanvasMenuCreatedByEdgeDrag({ menuProps }: { menuProps: CanvasMe
     <button className="py-1.5 hover:bg-gray-100" onClick={() => OpenAddClassDialogWithGeneralization(true)}>{t("drag-edge-to-canvas-create-generalization-parent")}</button>
     <HorizontalSeparator></HorizontalSeparator>
     <button className="py-1.5 hover:bg-gray-100" onClick={() => OpenAddClassDialogWithGeneralization(false)}>{t("drag-edge-to-canvas-create-generalization-child")}</button>
-    <HorizontalSeparator></HorizontalSeparator>
-    <button className="py-1.5 hover:bg-gray-100" onClick={onCanvasMenuAddClassDialog}>{t("drag-edge-to-canvas-create-new-class")}</button>
   </div>;
 }
 

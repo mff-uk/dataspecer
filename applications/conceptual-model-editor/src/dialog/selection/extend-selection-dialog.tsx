@@ -53,6 +53,7 @@ const createSelectorPanel = (
     justifyContent: "start",
   };
 
+  // TODO RadStr: Localize the "Only edges" and "Extend", once it is finalized
   return <div>
     <div className="flex flex-row">
       <div style={gridContainerStyle}>

@@ -48,7 +48,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
   const graph = useModelGraphContext();
   const isAnchored = (graph.aggregatorView?.getActiveVisualModel()?.getVisualEntity(props.data.identifier) as VisualNode)?.position?.anchored ?? false;
 
-  // TODO RadStr: Not sure if we should access the actions here or through another method
+  // TODO RadStr: Not sure if we should access the actions here or through another method defined in diagram-api
   const actions = useActions();
   const removeAttributeFromVisualModel = (attribute: string) => actions.removeAttributesFromVisualModel([attribute]);
   const moveAttributeUp = (attribute: string) =>  actions.shiftAttributeUp(attribute, props.data.identifier);

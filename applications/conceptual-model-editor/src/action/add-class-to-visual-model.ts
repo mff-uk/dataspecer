@@ -29,7 +29,7 @@ export async function addSemanticClassToVisualModelAction(
   withAggregatedEntity(notifications, entities,
     entityIdentifier, modelIdentifier,
     isSemanticModelClass, (entity) => {
-      // TODO PRQuestion: How to handle this? Put it into the addVisualNode_
+      // TODO PRQuestion: How to handle this? Put it into the addVisualNode?
       const content = getVisualNodeContentBasedOnExistingEntities(
         classes, entity);
       addVisualNode(visualModel, entity, modelIdentifier, position, content);

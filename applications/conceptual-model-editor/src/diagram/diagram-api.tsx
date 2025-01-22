@@ -433,7 +433,7 @@ interface DiagramNodes {
   /**
    * Called when user chooses to create new class from diagram's canvas menu with default association created afterwards.
    * @param isCreatedClassTarget if set to true, then the association points to the created class. If set to false
-   * the directoon of the association is from the created class to the source class.
+   * the direction of the association is from the created class to the source class.
    */
   onCanvasOpenCreateClassDialogWithAssociation: (
     nodeIdentifier: string,
