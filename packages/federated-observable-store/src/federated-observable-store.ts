@@ -421,6 +421,21 @@ export class FederatedObservableStore implements FederatedCoreResourceWriter {
         }
     }
 
+    doOptimisticUpdate(iri: string, resource: CoreResource | Entity | null) {
+        this.updateSubscriptionTo(iri, {
+            resource: cloneResource(resource),
+        });
+    }
+
+    readSync(iri: string): CoreResource | Entity | null {
+        const subscription = this.subscriptions.get(iri);
+        if (!subscription) {
+            return null;
+        }
+
+        return subscription.currentValue.resource;
+    }
+
     /**
      * Loads the resource from the store regardless of the current value. The
      * store is identified by schema IRI which must be known.

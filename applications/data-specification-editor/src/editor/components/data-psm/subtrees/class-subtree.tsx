@@ -3,7 +3,7 @@ import { useFederatedObservableStore } from "@dataspecer/federated-observable-st
 import { useResource } from "@dataspecer/federated-observable-store-react/use-resource";
 import { Collapse, ListItemIcon, MenuItem } from "@mui/material";
 import React, { memo, useCallback, useId } from "react";
-import { Draggable, Droppable } from "react-beautiful-dnd";
+import { Draggable, Droppable } from "@hello-pangea/dnd";
 import { useTranslation } from "react-i18next";
 import { TransitionGroup } from "react-transition-group";
 import { DeleteProperty } from "../../../operations/delete-property";
