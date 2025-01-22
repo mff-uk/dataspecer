@@ -86,8 +86,8 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
           </div>
           {data.items.map(item =>
           {
-            return <li className="relative flex w-full flex-row justify-between z-50">
-              <EntityNodeItem key={item.identifier} item={item} />
+            return <li key={`${item.identifier}-li`} className="relative flex w-full flex-row justify-between z-50">
+              <EntityNodeItem item={item} />
               {props.selected !== true ? null :
                 <div>
                   <button onClick={(_) => moveAttributeUp(item.identifier)}>🔼</button>
@@ -162,6 +162,8 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
         &nbsp;
         <button onClick={onCreateProfile} title={t("class-profile-button")}>🧲</button>
         &nbsp;
+        <button onClick={onEditAttributes} title={t("edit-node-attributes-visiblity-button")}>📏</button>
+        &nbsp;
       </NodeToolbar>
       <NodeToolbar isVisible={shouldShowToolbar} position={Position.Right} className="flex gap-2 entity-node-menu" >
         <Handle type="source" position={Position.Right} title={t("node-connection-handle")}>🔗</Handle>
@@ -169,7 +171,7 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
       {
         !isPartOfGroup ? null :
           <NodeToolbar isVisible={shouldShowToolbar} position={Position.Left} className="flex gap-2 entity-node-menu" >
-            <button onClick={onDissolveGroup} title={t("dissolve-group-button")}>❌</button>
+            <button onClick={onDissolveGroup} title={t("dissolve-group-button")}>⛓️‍💥</button>
           </NodeToolbar>
       }
       <NodeToolbar isVisible={shouldShowToolbar} position={Position.Bottom} className="flex gap-2 entity-node-menu" >
@@ -180,8 +182,6 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
         <button onClick={onAnchor} title={isPartOfGroup ? t("group-anchor-button") : t("node-anchor-button")} >⚓</button>
         &nbsp;
         <button onClick={onAddAttribute} title={addAttributeTitle} >➕</button>
-        &nbsp;
-        <button onClick={onEditAttributes}>Edit Attributes</button>
         &nbsp;
       </NodeToolbar>
     </>);
@@ -215,7 +215,7 @@ function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
       &nbsp;
     </NodeToolbar>
     <NodeToolbar isVisible={shouldShowMenu} position={Position.Right} className="flex gap-2 entity-node-menu" >
-      <button onClick={onCreateGroup} title={t("selection-group-button")}>🤝</button>
+      <button onClick={onCreateGroup} title={t("selection-group-button")}>⛓️</button>
     </NodeToolbar>
     <NodeToolbar isVisible={shouldShowMenu} position={Position.Bottom} className="flex gap-2 entity-node-menu" >
       <button onClick={onShowExpandSelection} title={t("selection-extend-button")} >📈</button>
