@@ -334,19 +334,13 @@ const prepareTestData = () => {
 const createEmptyClassesContextType = (): ClassesContextType => {
   const classes: ClassesContextType = {
     classes: [],
-    setClasses: function (_) {},
     allowedClasses: [],
     setAllowedClasses: function (_) {},
     relationships: [],
-    setRelationships: function (_) {},
     generalizations: [],
-    setGeneralizations: function (_) {},
     profiles: [],
-    setProfiles: function (_) {},
     sourceModelOfEntityMap: new Map(),
-    setSourceModelOfEntityMap: function (_) {},
     rawEntities: [],
-    setRawEntities: function (_) {}
   };
 
   return classes;
