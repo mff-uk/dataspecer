@@ -60,9 +60,9 @@ function dematerializeClassProperties(
             psmTargetClass: typeClassData.psmIri,
           });
           propertyClone.semanticPath = [
-            ...dematerializedProperty.semanticPath,
-            ...type.semanticPath,
-            ...propertyClone.semanticPath,
+            ...(dematerializedProperty.semanticPath ?? []),
+            ...(type.semanticPath ?? []),
+            ...(propertyClone.semanticPath ?? []),
           ];
           result.push(propertyClone);
         }
