@@ -103,7 +103,6 @@ const DroppableArea = (props: DroppableAreaProps) => {
                     margin: "0 0 2px 0",
                     background: "white",
                     border: "1px solid #ddd",
-                    borderRadius: 4,
                     fontSize: "12px",
                     ...provided.draggableProps.style,
                   }}
