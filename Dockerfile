@@ -41,10 +41,10 @@ RUN --mount=type=cache,target=/root/.npm npm i -g prisma && \
   chmod -R a+rwx /usr/local/lib/node_modules/prisma
 
 # Configure nginx
-COPY --chmod=777 ./docker-ws/nginx.conf /etc/nginx/nginx.conf-template
+COPY --chmod=777 ./docker/ws/nginx.conf /etc/nginx/nginx.conf-template
 RUN chmod -R a+rwx /etc/nginx/
 
-COPY --chmod=777 ./docker-ws/docker-entrypoint.sh ./docker-ws/docker-healthcheck.sh .
+COPY --chmod=777 ./docker/ws/docker-entrypoint.sh ./docker/ws/docker-healthcheck.sh .
 
 RUN chmod a+rwx /usr/share/nginx/html && mkdir /usr/src/app/database && chmod a+rwx /usr/src/app/database
 
@@ -62,6 +62,7 @@ RUN mkdir -p /usr/src/app/database && \
 # Copy frontend
 COPY --from=builder /usr/src/app/.dist /usr/share/nginx/html-template
 
+VOLUME /usr/src/app/database
 EXPOSE 80
 HEALTHCHECK CMD ./docker-healthcheck.sh
 ENTRYPOINT ["./docker-entrypoint.sh"]

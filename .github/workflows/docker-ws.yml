@@ -1,10 +1,12 @@
-name: Create and publish a Docker image
+name: Docker image
 
 on:
   push:
     branches:
       - main
-      - stable
+    tags:
+      - "v*"
+  pull_request:
 
 env:
   REGISTRY: ghcr.io
@@ -32,6 +34,8 @@ jobs:
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
       - name: Get commit metadata
         id: commit_meta
         run: |
@@ -44,7 +48,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./docker-ws/Dockerfile
+          file: ./Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
