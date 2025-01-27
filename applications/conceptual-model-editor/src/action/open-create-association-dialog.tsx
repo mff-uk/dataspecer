@@ -35,7 +35,7 @@ export function openCreateAssociationDialogAction(
   }
 
   const state = createCreateAssociationDialogState(
-    classes, graph, visualModel, options.language);
+    classes, graph, visualModel, options.language, model.getId());
 
   const onConfirm = (state: EditAssociationDialogState) => {
     // Create association.

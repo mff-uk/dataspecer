@@ -56,6 +56,7 @@ export interface EntityState {
  */
 export function createEntityStateForNew(
   language: string,
+  defaultModelIdentifier: string | null,
   vocabularies: CmeModel[],
   generateIriFromName: (name: string) => string,
 ): EntityState {
@@ -63,7 +64,9 @@ export function createEntityStateForNew(
   if (writableVocabularies.length === 0) {
     throw new NoWritableModelFound();
   }
-  const selectedVocabulary = writableVocabularies[0];
+  const selectedVocabulary =
+    writableVocabularies.find(item => item.dsIdentifier === defaultModelIdentifier)
+    ?? writableVocabularies[0];
 
   const name = generateName();
 
