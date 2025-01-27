@@ -28,4 +28,3 @@ export function absoluteIriToRelative(iri: string) : {
     relative: iri.substring(index + 1),
   };
 }
-

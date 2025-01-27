@@ -7,17 +7,9 @@ import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticMode
 import { createLogger } from "../../application";
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { CmeModel, OwlVocabulary, UndefinedCmeVocabulary } from "../../dataspecer/cme-model";
-import { IRI } from "iri";
 import { EntityDsIdentifier } from "../../dataspecer/entity-model";
 
 const LOG = createLogger(import.meta.url);
-
-export function isRelativeIri(iri: string | undefined | null): boolean {
-  if (iri === undefined || iri === null) {
-    return true;
-  }
-  return (new IRI(iri).scheme()?.length ?? 0) === 0;
-}
 
 /**
  * Basic interface for entity representation regardless of type.
