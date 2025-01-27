@@ -182,6 +182,7 @@ export function createEntityController<State extends EntityState>(
       }
       return validateEntityState({
         ...state,
+        name,
         iri: generateIriFromName(name[languages[0]] ?? ""),
       });
     });
