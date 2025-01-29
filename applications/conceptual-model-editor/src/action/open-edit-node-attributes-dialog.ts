@@ -41,7 +41,7 @@ export function openEditNodeAttributesDialogAction(
   //   .map(relationship => ({identifier: relationship.id, name: relationship.name[options.language]}));
   const { visibleAttributes, hiddenAttributes } = splitIntoVisibleAndHiddenAttributes(classes.rawEntities, node, options.language);
 
-  dialogs.openDialog(createEditClassAttributesDialog(onConfirm, visibleAttributes, hiddenAttributes));
+  dialogs.openDialog(createEditClassAttributesDialog(onConfirm, visibleAttributes, hiddenAttributes, node.representedEntity, options.language));
 }
 
 type VisibleAnHiddenAttributes = {

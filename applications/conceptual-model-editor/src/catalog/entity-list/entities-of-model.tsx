@@ -318,7 +318,7 @@ function renderAddButton(actions: ActionsContextType, type: EntityType, model: E
       actions.openCreateClassDialog(model.getId());
       break;
     case EntityType.Attribute:
-      actions.openCreateAttributeDialog(model.getId());
+      actions.openCreateAttributeDialogForModel(model.getId());
       break;
     case EntityType.Relationship:
       actions.openCreateAssociationDialog(model.getId());

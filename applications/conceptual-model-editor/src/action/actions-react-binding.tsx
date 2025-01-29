@@ -54,6 +54,8 @@ import { removeAttributesFromVisualModelAction } from "./remove-attribute-from-v
 import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
 import { ShiftAttributeDirection, shiftAttributePositionAction } from "./shift-attribute";
 import { openEditNodeAttributesDialogAction } from "./open-edit-node-attributes-dialog";
+import { EditAttributeDialogState } from "../dialog/attribute/edit-attribute-dialog-controller";
+import { EditAttributeProfileDialogState } from "../dialog/attribute-profile/edit-attribute-profile-dialog-controller";
 
 const LOG = createLogger(import.meta.url);
 
@@ -95,7 +97,19 @@ interface DialogActions {
    * Opens dialog, which purpose is to create new attribute in model identified by {@link model}.
    * @param model is the identifier of the semantic model.
    */
-  openCreateAttributeDialog: (model: string) => void;
+  openCreateAttributeDialogForModel: (model: string) => void;
+
+  /**
+   * Opens dialog, which purpose is to create new attribute with domain class identified by {@link classIdentifier}.
+   * On successful creation {@link onConfirmCallback} is called.
+   * @param classIdentifier is the identifier of the class, which will be domain for the attribute.
+   * @param onConfirmCallback This callback is called after we sucessfully create attribute.
+   *                          Set to null, if there is no callback.
+   */
+  openCreateAttributeDialogForClass: (
+    classIdentifier: string,
+    onConfirmCallback: ((state: EditAttributeDialogState | EditAttributeProfileDialogState, createdAttributeIdentifier: string) => void) | null
+  ) => void;
 
   // TODO RadStr: Document
   openEditNodeAttributesDialog: (nodeIdentifier: string) => void;
@@ -265,7 +279,8 @@ const noOperationActionsContext = {
   openModifyDialog: noOperation,
   openCreateClassDialog: noOperation,
   openCreateAssociationDialog: noOperation,
-  openCreateAttributeDialog: noOperation,
+  openCreateAttributeDialogForModel: noOperation,
+  openCreateAttributeDialogForClass: noOperation,
   openEditNodeAttributesDialog: noOperation,
   openCreateProfileDialog: noOperation,
   //
@@ -475,11 +490,14 @@ function createActionsContext(
     });
   }
 
-  const addAttributeForNode = (identifier: string) => {
+  const openCreateAttributeDialogForClass = (
+    classIdentifier: string,
+    onConfirmCallback: ((state: EditAttributeDialogState | EditAttributeProfileDialogState, createdAttributeIdentifier: string) => void) | null
+  ) => {
     withVisualModel(notifications, graph, (visualModel) => {
       openCreateAttributeForEntityDialogAction(
         options, dialogs, classes, graph, notifications,
-        visualModel, identifier);
+        visualModel, classIdentifier, onConfirmCallback);
     });
   };
 
@@ -525,7 +543,7 @@ function createActionsContext(
     }
   };
 
-  const openCreateAttributeDialog = (model: string) => {
+  const openCreateAttributeDialogForModel = (model: string) => {
     const visualModel = graph.aggregatorView.getActiveVisualModel();
     const modelInstance = graph.models.get(model);
     if (modelInstance === null || modelInstance instanceof InMemorySemanticModel) {
@@ -777,7 +795,7 @@ function createActionsContext(
 
     onChangeWaypointPositions: changeWaypointPositions,
 
-    onAddAttributeForNode: (node) => addAttributeForNode(node.externalIdentifier),
+    onAddAttributeForNode: (node) => openCreateAttributeDialogForClass(node.externalIdentifier, null),
 
     onCreateConnectionToNode: (source, target) => {
       openCreateConnectionDialog(source.externalIdentifier, target.externalIdentifier);
@@ -887,7 +905,8 @@ function createActionsContext(
     openModifyDialog,
     openCreateClassDialog,
     openCreateAssociationDialog,
-    openCreateAttributeDialog,
+    openCreateAttributeDialogForModel,
+    openCreateAttributeDialogForClass,
     openEditNodeAttributesDialog,
     openCreateProfileDialog,
     //

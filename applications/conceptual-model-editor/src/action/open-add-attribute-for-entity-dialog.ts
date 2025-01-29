@@ -31,6 +31,7 @@ export function openCreateAttributeForEntityDialogAction(
   notifications: UseNotificationServiceWriterType,
   visualModel: VisualModel | null,
   identifier: string,
+  onConfirmCallback: ((state: EditAttributeDialogState | EditAttributeProfileDialogState, createdAttributeIdentifier: string) => void) | null,
 ) {
   const aggregate = graph.aggregatorView.getEntities()?.[identifier];
 
@@ -48,6 +49,12 @@ export function openCreateAttributeForEntityDialogAction(
       if(visualModel !== null && isWritableVisualModel(visualModel)) {
         addSemanticAttributeToVisualModelAction(notifications, visualModel, state.domain.identifier, result?.identifier ?? null, null);
       }
+
+      if(onConfirmCallback !== null) {
+        if(result !== null) {
+          onConfirmCallback(state, result.identifier);
+        }
+      }
     };
     const state = createAddAttributeDialogState(
       classes, graph, visualModel, options.language, entity);
@@ -60,7 +67,12 @@ export function openCreateAttributeForEntityDialogAction(
         return;
       }
       if (isSemanticModelRelationship(profiled) || isSemanticModelRelationshipUsage(profiled)) {
-        createRelationshipProfile(state, graph.models, profiled);
+        const result = createRelationshipProfile(state, graph.models, profiled);
+        if(onConfirmCallback !== null) {
+          if(result !== null) {
+            onConfirmCallback(state, result.identifier);
+          }
+        }
       } else {
         notifications.error("Invalid entity to profile.");
       }
