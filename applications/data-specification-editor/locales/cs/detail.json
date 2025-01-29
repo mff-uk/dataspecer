@@ -81,6 +81,7 @@
   "tab attribute": "Atribut",
   "tab basic info": "základní informace",
   "tab class": "Třída",
+  "tab container": "Kontejner",
   "tab data psm": "data psm",
   "tab include": "Include",
   "tab or": "OR",
@@ -103,5 +104,6 @@
   },
   "XML attributes": "XML specifické atributy",
   "XML namespace": "namespace",
-  "XML prefix": "prefix"
+  "XML prefix": "prefix",
+  "XML skip root element": "Negenerovat elementy"
 }
