@@ -52,3 +52,15 @@ export function replaceByIndexInArray<Type>(
     ...array.slice(index + 1)
   ];
 }
+
+export function replaceInArray<Type>(
+  previous: Type,
+  next: Type,
+  array: Type[],
+): Type[] {
+  const index = array.indexOf(previous);
+  if (index === -1) {
+    return array;
+  }
+  return replaceByIndexInArray(index, next, array);
+}
