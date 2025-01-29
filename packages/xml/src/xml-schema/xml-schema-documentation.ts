@@ -11,7 +11,6 @@ import {
   xmlSchemaComplexContentIsItem,
   XmlSchemaComplexItem,
   XmlSchemaElement,
-  XmlSchemaGroupDefinition,
   XmlSchemaType,
   xmlSchemaTypeIsComplex,
 } from "./xml-schema-model";
@@ -25,7 +24,7 @@ import { NEW_DOC_GENERATOR } from "./xml-schema-generator";
 /**
  * Recursively traverses the complex content container and returns all elements.
  */
-function traverseXmlSchemaComplexContainer(container: XmlSchemaComplexContainer, path: (XmlSchemaElement | XmlSchemaGroupDefinition | XmlSchemaType)[] = []): XmlSchemaElement[] {
+function traverseXmlSchemaComplexContainer(container: XmlSchemaComplexContainer, path: (XmlSchemaElement | XmlSchemaType)[] = []): XmlSchemaElement[] {
   const elements = [] as XmlSchemaElement[];
   for (const content of container.contents) {
     // It can be element or item
@@ -89,7 +88,7 @@ function traverseXmlSchemaComplexContainer(container: XmlSchemaComplexContainer,
   }
   return elements;
 }
-function traverseXmlSchemaType(type: XmlSchemaType, path: (XmlSchemaElement | XmlSchemaGroupDefinition | XmlSchemaType)[] = []): XmlSchemaElement[] {
+function traverseXmlSchemaType(type: XmlSchemaType, path: (XmlSchemaElement | XmlSchemaType)[] = []): XmlSchemaElement[] {
   const elements = [] as XmlSchemaElement[];
   if (xmlSchemaTypeIsComplex(type)) {
     const complexItem = type.complexDefinition;
@@ -100,10 +99,10 @@ function traverseXmlSchemaType(type: XmlSchemaType, path: (XmlSchemaElement | Xm
   }
   return elements;
 }
-function traverseXmlSchemaElement(element: XmlSchemaElement, path: (XmlSchemaElement | XmlSchemaGroupDefinition | XmlSchemaType)[] = []): XmlSchemaElement[] {
+function traverseXmlSchemaElement(element: XmlSchemaElement, path: (XmlSchemaElement | XmlSchemaType)[] = []): XmlSchemaElement[] {
   return traverseXmlSchemaType(element.type, path);
 }
-function traverseXmlSchemaComplexItem(complexItem: XmlSchemaComplexItem, path: (XmlSchemaElement | XmlSchemaGroupDefinition | XmlSchemaType)[] = []): XmlSchemaElement[] {
+function traverseXmlSchemaComplexItem(complexItem: XmlSchemaComplexItem, path: (XmlSchemaElement | XmlSchemaType)[] = []): XmlSchemaElement[] {
   const elements = [] as XmlSchemaElement[];
   if ((complexItem as XmlSchemaComplexContainer).contents) {
     const container = complexItem as XmlSchemaComplexContainer;
@@ -158,12 +157,10 @@ class XmlSchemaDocumentationGenerator {
     this.generator = new HandlebarsAdapter();
   }
 
-  private getElementUniqueId(element: XmlSchemaElement | XmlSchemaType | XmlSchemaGroupDefinition | QName | string, type: string | undefined, forceNamespace?: string): string {
+  private getElementUniqueId(element: XmlSchemaElement | XmlSchemaType | QName | string, type: string | undefined, forceNamespace?: string): string {
     if (!type && typeof element === "object" && !Array.isArray(element)) {
       if (element.entityType === "element") {
         type = "element";
-      } else if (element.entityType === "groupDefinition") {
-        type = "group";
       } else {
         type = "type";
       }
@@ -180,7 +177,7 @@ class XmlSchemaDocumentationGenerator {
       const ns = element[0] ? `${element[0]}:` : fns;
       return `${type}-${ns}${element[1]}`;
     } else {
-      const name = (element as XmlSchemaElement).name ?? (element as XmlSchemaType).name ?? (element as XmlSchemaGroupDefinition).name;
+      const name = (element as XmlSchemaElement).name ?? (element as XmlSchemaType).name;
 
       if (typeof name === "string") {
         return type + "-" + fns + name;
@@ -198,15 +195,15 @@ class XmlSchemaDocumentationGenerator {
     }
     prefixToNamespace["xs"] = "https://www.w3.org/TR/xmlschema-2/#";
 
-    this.generator.engine.registerHelper("xml-id-anchor", (element: XmlSchemaElement | XmlSchemaType | XmlSchemaGroupDefinition | QName | string, options: any) => {
-      const name = (element as XmlSchemaElement).name ?? (element as XmlSchemaType).name ?? (element as XmlSchemaGroupDefinition).name ?? element as QName ?? [null, element as string];
+    this.generator.engine.registerHelper("xml-id-anchor", (element: XmlSchemaElement | XmlSchemaType | QName | string, options: any) => {
+      const name = (element as XmlSchemaElement).name ?? (element as XmlSchemaType).name ?? element as QName ?? [null, element as string];
       if (name[0] === null && this.xmlSchema.targetNamespacePrefix) {
         return this.getElementUniqueId(element, options.hash.type, this.xmlSchema.targetNamespacePrefix);
       }
 
       return this.getElementUniqueId(element, options.hash.type);
     });
-    this.generator.engine.registerHelper("xml-href", (element: XmlSchemaElement | XmlSchemaType | XmlSchemaGroupDefinition | QName | string, options: any) => {
+    this.generator.engine.registerHelper("xml-href", (element: XmlSchemaElement | XmlSchemaType | QName | string, options: any) => {
       // Use structure to link to other documentation of structure model
       if (options.hash.structure) {
         const specification = Object.values(this.context.specifications).find(specification => specification.psms.includes(options.hash.structure));
@@ -270,9 +267,6 @@ class XmlSchemaDocumentationGenerator {
     const rootElements = [] as (XmlSchemaElement & {
       linkedChildElements: any[],
     })[];
-    const rootGroups = [] as (XmlSchemaGroupDefinition & {
-      linkedChildElements: any[],
-    })[];
     const rootTypes = [] as (XmlSchemaType & {
       linkedChildElements: any[],
     })[];
@@ -281,13 +275,6 @@ class XmlSchemaDocumentationGenerator {
       rootElements.push({
         ...element,
         linkedChildElements: traverseXmlSchemaElement(element, [element]),
-      });
-    }
-
-    for (const group of this.xmlSchema.groups) {
-      rootGroups.push({
-        ...group,
-        linkedChildElements: traverseXmlSchemaComplexItem(group.definition, [group]),
       });
     }
 
@@ -349,7 +336,6 @@ class XmlSchemaDocumentationGenerator {
       structureModel: data.structureModels.find(m => m.psmIri === this.artefact.psm),
 
       rootElements,
-      rootGroups,
       rootTypes,
     };
   }
@@ -415,7 +401,7 @@ export const DEFAULT_TEMPLATE = `
 
 {{#def "xml-type"}}
   <div style="margin-left: 40px;">
-    {{#if name}}
+    {{#if (and (not simpleDefinition) (not complexDefinition))}}
       <dt>Obsah</dt>
       <dd>
         {{#if (equals name.[1] "langString")}}

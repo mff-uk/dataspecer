@@ -25,6 +25,7 @@ export async function structureModelAddXmlProperties(
 
   result.namespace = data.namespace;
   result.namespacePrefix = data.namespacePrefix;
+  result.skipRootElement = data.skipRootElement === true;
 
   return result;
 }

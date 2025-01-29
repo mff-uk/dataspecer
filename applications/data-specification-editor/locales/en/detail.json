@@ -79,6 +79,7 @@
   "tab attribute": "Attribute",
   "tab basic info": "basic info",
   "tab class": "class",
+  "tab container": "container",
   "tab data psm": "data psm",
   "tab include": "Include",
   "tab or": "OR",
@@ -101,5 +102,6 @@
   },
   "XML attributes": "XML specific attributes",
   "XML namespace": "namespace",
-  "XML prefix": "prefix"
+  "XML prefix": "prefix",
+  "XML skip root element": "Skip generating elements"
 }

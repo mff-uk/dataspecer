@@ -2,6 +2,7 @@ import { StructureModel } from "@dataspecer/core/structure-model/model/structure
 import { QName } from "../conventions";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
 import { SemanticPathStep } from "@dataspecer/core/structure-model/model";
+import { XmlConfiguration } from "../configuration";
 
 /**
  * Represents an xs:schema definition.
@@ -40,17 +41,12 @@ export class XmlSchema {
   types: XmlSchemaType[];
 
   /**
-   * The array of defined groups.
-   * Such as xs:group.
-   * todo: There should be no reason to use groups.
-   */
-  groups: XmlSchemaGroupDefinition[];
-
-  /**
    * The array of root elements.
    * Such as xs:element.
    */
   elements: XmlSchemaElement[];
+
+  options: XmlConfiguration;
 }
 
 /**
@@ -115,23 +111,6 @@ export interface XmlNamedEntity {
 }
 
 /**
- * Represents a top-level xs:group definition.
- */
-export class XmlSchemaGroupDefinition implements XmlNamedEntity {
-  entityType: "groupDefinition";
-
-  /**
-   * The name of the group.
-   */
-  name: QName | null;
-
-  /**
-   * The item which serves as the definition of the group.
-   */
-  definition: XmlSchemaComplexItem;
-}
-
-/**
  * Represents an xs:element definition.
  */
 export class XmlSchemaElement extends XmlSchemaAnnotated implements XmlNamedEntity {
@@ -152,7 +131,8 @@ export class XmlSchemaType extends XmlSchemaAnnotated implements XmlNamedEntity 
   entityType: "type";
 
   /**
-   * The name of the type, or null if the type is inline.
+   * The name of the type.
+   * It will be used when no complex or simple definition is provided.
    */
   name: QName | null;
 }
@@ -243,21 +223,6 @@ export class XmlSchemaComplexAll extends XmlSchemaComplexContainer {
 }
 
 /**
- * Represents an xs:group element in an xs:complexType.
- */
-export class XmlSchemaComplexGroup extends XmlSchemaComplexItem {
-  declare xsType: "group";
-
-  name: QName;
-
-  /**
-   * In case this group is a reference to group from another schema, this is the reference.
-   * Structure model ID
-   */
-  referencesStructure: string | null;
-}
-
-/**
  * Represents an xs:extension element in an xs:complexType.
  */
 export class XmlSchemaComplexExtension extends XmlSchemaComplexContainer {
@@ -285,12 +250,6 @@ export function xmlSchemaComplexTypeDefinitionIsAll(
   typeDefinition: XmlSchemaComplexItem
 ): typeDefinition is XmlSchemaComplexAll {
   return typeDefinition.xsType === "all";
-}
-
-export function xmlSchemaComplexTypeDefinitionIsGroup(
-  typeDefinition: XmlSchemaComplexItem
-): typeDefinition is XmlSchemaComplexGroup {
-  return typeDefinition.xsType === "group";
 }
 
 export function xmlSchemaComplexTypeDefinitionIsExtension(

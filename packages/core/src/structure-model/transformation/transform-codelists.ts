@@ -15,7 +15,7 @@ export function structureModelTransformCodelists(
       property.dataTypes = property.dataTypes.map(dataType => {
         if (dataType.isAssociation() && dataType.dataType.isCodelist) {
           const dt = new StructureModelPrimitiveType();
-          dt.dataType = OFN.string;
+          dt.dataType = OFN.url;
           dt.regex = dataType.dataType.regex;
           dt.example = dataType.dataType.example;
           return dt;

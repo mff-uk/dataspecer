@@ -55,11 +55,7 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
       `Missing structure model ${schemaArtefact.psm}.`
     );
 
-    const transformations = defaultStructureTransformations.filter(
-      transformation => true
-        //transformation !== structureModelFlattenInheritance &&
-        //transformation !== structureModelDematerialize
-    );
+    const transformations = defaultStructureTransformations;
     model = transformStructureModel(
       conceptualModel,
       model,
