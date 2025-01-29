@@ -1,6 +1,6 @@
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { SemanticModelClassUsage, isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
@@ -8,7 +8,7 @@ import { EditClassProfileDialogState } from "./edit-class-profile-dialog-control
 import { representClassProfiles, representClasses } from "../utilities/dialog-utilities";
 import { DialogWrapper } from "../dialog-api";
 import { EditClassProfileDialog } from "./edit-class-profile-dialog";
-import { InvalidAggregation } from "../../application/error";
+import { InvalidAggregation, MissingEntity } from "../../application/error";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { createEntityProfileStateForEdit } from "../utilities/entity-profile-utilities";
 
@@ -18,12 +18,17 @@ export function createEditClassProfileDialogState(
   visualModel: VisualModel | null,
   language: string,
   model: InMemorySemanticModel,
-  entity: SemanticModelClassUsage,
+  entityIdentifier: string,
 ): EditClassProfileDialogState {
 
   const entities = graphContext.aggregatorView.getEntities();
-  const aggregated = entities[entity.id]?.aggregatedEntity;
-  if (!isSemanticModelClassUsage(aggregated)) {
+  const aggregate = entities[entityIdentifier];
+  const entity = aggregate.rawEntity;
+  const aggregated = aggregate.aggregatedEntity;
+  if (entity === null) {
+    throw new MissingEntity(entityIdentifier);
+  }
+  if (!isSemanticModelClassUsage(entity) || !isSemanticModelClassUsage(aggregated)) {
     throw new InvalidAggregation(entity, null);
   }
 

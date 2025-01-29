@@ -1,7 +1,7 @@
 
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
@@ -10,31 +10,28 @@ import { EditAttributeProfileDialogState } from "./edit-attribute-profile-dialog
 import { createRelationshipProfileStateForEdit } from "../utilities/relationship-profile-utilities";
 import { createEntityProfileStateForEdit } from "../utilities/entity-profile-utilities";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
-import { InvalidAggregation, MissingRelationshipEnds } from "../../application/error";
+import { InvalidAggregation, MissingEntity, MissingRelationshipEnds } from "../../application/error";
 import { DialogWrapper } from "../dialog-api";
 import { EditAttributeProfileDialog } from "./edit-attribute-profile-dialog";
 import { representClassProfiles, representDataTypes, representOwlThing, representRelationshipProfiles, representRelationships, representUndefinedDataType } from "../utilities/dialog-utilities";
 
-/**
- * @param classesContext
- * @param graphContext
- * @param visualModel
- * @param language
- * @param entity Raw entity to create profile for.
- * @returns
- */
 export function createEditAttributeProfileDialogState(
   classesContext: ClassesContextType,
   graphContext: ModelGraphContextType,
   visualModel: VisualModel | null,
   language: string,
   model: InMemorySemanticModel,
-  entity: SemanticModelRelationshipUsage,
+  entityIdentifier: string,
 ): EditAttributeProfileDialogState {
 
   const entities = graphContext.aggregatorView.getEntities();
-  const aggregated = entities[entity.id]?.aggregatedEntity;
-  if (!isSemanticModelRelationshipUsage(aggregated)) {
+  const aggregate = entities[entityIdentifier];
+  const entity = aggregate.rawEntity;
+  const aggregated = aggregate.aggregatedEntity;
+  if (entity === null) {
+    throw new MissingEntity(entityIdentifier);
+  }
+  if (!isSemanticModelRelationshipUsage(entity) || !isSemanticModelRelationshipUsage(aggregated)) {
     throw new InvalidAggregation(entity, null);
   }
 

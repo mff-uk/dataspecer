@@ -24,7 +24,7 @@ export function openEditClassProfileDialogAction(
   entity: SemanticModelClassUsage,
 ) {
   const state = createEditClassProfileDialogState(
-    classes, graph, visualModel, options.language, model, entity);
+    classes, graph, visualModel, options.language, model, entity.id);
 
   const onConfirm = (nextState: EditClassProfileDialogState) => {
     updateSemanticClassProfile(notifications, entity, graph.models, state, nextState);
