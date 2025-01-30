@@ -94,9 +94,11 @@ function createForAssociation(
 
   const owlThing = representOwlThing();
 
+  const availableDomains = [owlThing, ...classProfiles];
+  const availableRanges = [owlThing, ...classProfiles];
   const relationshipProfileState = createRelationshipProfileStateForNew(
-    domain.concept, owlThing, domain.cardinality, classProfiles,
-    range.concept, owlThing, range.cardinality, classProfiles);
+    domain.concept, owlThing, domain.cardinality, availableDomains,
+    range.concept, owlThing, range.cardinality, availableRanges);
 
   return {
     ...entityProfileState,
@@ -134,9 +136,11 @@ function createForAssociationProfile(
 
   const owlThing = representOwlThing();
 
+  const availableDomains = [owlThing, ...classProfiles];
+  const availableRanges = [owlThing, ...classProfiles];
   const relationshipProfileState = createRelationshipProfileStateForNew(
-    domain.concept, owlThing, domain.cardinality, classProfiles,
-    range.concept, owlThing, range.cardinality, classProfiles);
+    domain.concept, owlThing, domain.cardinality, availableDomains,
+    range.concept, owlThing, range.cardinality, availableRanges);
 
   return {
     ...entityProfileState,

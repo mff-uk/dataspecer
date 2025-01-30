@@ -7,3 +7,5 @@ export const XML_EXTENSION = PSM_EXTENSIONS + "xml" as `${typeof PSM_EXTENSIONS}
 const base = XML_EXTENSION + "/";
 
 export const SET_NAMESPACE = base + "setNamespace";
+
+export const SET_SKIP_ROOT_ELEMENT = base + "setSkipRootElement";

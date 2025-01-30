@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { addToMapArray, removeFromArray, replaceByIndexInArray } from "./functional";
+import { addToMapArray, removeFromArray, replaceByIndexInArray, replaceInArray } from "./functional";
 
 describe("removeFromArray", () => {
 
@@ -21,7 +21,7 @@ describe("removeFromArray", () => {
 
 describe("addToMapArray", () => {
 
-  test("Build map array.", () => {
+  test("Default test.", () => {
     const actual: Record<string, string[]> = {};
     addToMapArray("one", "one", actual);
     addToMapArray("one", "one copy", actual);
@@ -37,9 +37,31 @@ describe("addToMapArray", () => {
 
 describe("replaceByIndexInArray", () => {
 
-  test("Replace item.", () => {
+  test("Default test.", () => {
     const actual = replaceByIndexInArray(1, "one", ["zero", "", "two"]);
     const expected = ["zero", "one", "two"];
+    expect(actual).toStrictEqual(expected);
+  });
+
+});
+
+describe("replaceInArray", () => {
+
+  test("Default test.", () => {
+    const actual = replaceInArray("a", "A", ["a", "b", "c"]);
+    const expected = ["A", "b", "c"];
+    expect(actual).toStrictEqual(expected);
+  });
+
+  test("Replace first only.", () => {
+    const actual = replaceInArray("a", "A", ["a", "b", "a"]);
+    const expected = ["A", "b", "a"];
+    expect(actual).toStrictEqual(expected);
+  });
+
+  test("Replace missing does nothing.", () => {
+    const actual = replaceInArray("X", "A", ["a", "b", "c"]);
+    const expected = ["a", "b", "c"];
     expect(actual).toStrictEqual(expected);
   });
 

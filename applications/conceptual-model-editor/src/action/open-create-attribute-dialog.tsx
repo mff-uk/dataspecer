@@ -97,6 +97,6 @@ function openCreateAttributeDialog(
   onConfirm: (state: EditAttributeDialogState) => void,
 ) {
   const state = createNewAttributeDialogState(
-    classes, graph, visualModel, options.language);
+    classes, graph, visualModel, options.language, model.getId());
   dialogs.openDialog(createNewAttributeDialog(state, onConfirm));
 }

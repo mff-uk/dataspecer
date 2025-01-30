@@ -5,10 +5,10 @@ import { DataPsmSchemaXmlExtension } from "@dataspecer/core/data-psm/xml-extensi
 import { DataSpecification, DataSpecificationSchema } from "@dataspecer/core/data-specification/model";
 import { ArtefactGeneratorContext } from "@dataspecer/core/generator";
 import { coreResourcesToStructuralModel } from "@dataspecer/core/structure-model";
-import { getResource } from "../../xml/tests/resources/resource-provider";
 import { iriElementName } from "../../conventions";
+import { getResource } from "../../xml/tests/resources/resource-provider";
 import { XmlSchemaGenerator } from "../xml-schema-generator";
-import { XmlSchemaComplexContentElement, xmlSchemaComplexContentIsElement, xmlSchemaComplexContentIsItem, XmlSchemaComplexContentItem, XmlSchemaComplexGroup, XmlSchemaComplexSequence, XmlSchemaComplexType, xmlSchemaComplexTypeDefinitionIsExtension, xmlSchemaComplexTypeDefinitionIsGroup, xmlSchemaComplexTypeDefinitionIsSequence, XmlSchemaGroupDefinition, XmlSchemaSimpleType, xmlSchemaTypeIsComplex } from "../xml-schema-model";
+import { XmlSchemaComplexContentElement, xmlSchemaComplexContentIsElement, XmlSchemaComplexSequence, xmlSchemaComplexTypeDefinitionIsExtension, xmlSchemaComplexTypeDefinitionIsSequence, XmlSchemaSimpleType, xmlSchemaTypeIsComplex } from "../xml-schema-model";
 
 const testPrefix = "XSD generator: ";
 
@@ -173,22 +173,6 @@ test.skip(testPrefix + "root has abstract element", async () => {
   )
 
   expect(derivingTypes.length).toBe(5);
-});
-
-test.skip(testPrefix + "root has group reference", async () => {
-  const {schema} = await getSchema1();
-  const type = schema.elements[0].type;
-  expectTrue(xmlSchemaTypeIsComplex(type));
-  const sequence = type.complexDefinition;
-  expectTrue(xmlSchemaComplexTypeDefinitionIsSequence(sequence));
-  const item = sequence.contents[10];
-  expectTrue(xmlSchemaComplexContentIsItem(item));
-  const groupRef = item.item;
-  expectTrue(xmlSchemaComplexTypeDefinitionIsGroup(groupRef));
-
-  expect(item.cardinalityMin).toBe(0);
-  expect(item.cardinalityMax).toBe(1);
-  expect(await groupRef.name).toEqual([null, "contact"]);
 });
 
 test.skip(testPrefix + "imports are present", async () => {

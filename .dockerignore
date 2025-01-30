@@ -1,4 +1,4 @@
-**/*.
+**/.*
 documentation
 **/node_modules
 schemas
@@ -8,4 +8,3 @@ README.md
 !.npmrc
 services/backend/database
 **/dist
-**/*.md

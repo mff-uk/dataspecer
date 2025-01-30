@@ -29,8 +29,8 @@ export function createAddAttributeDialogState(
   const vocabularies = entityModelsMapToCmeVocabulary(graphContext.models, visualModel);
 
   // EntityState
-
-  const entityState = createEntityStateForNew(language, vocabularies, configuration().nameToIri);
+  const entityState = createEntityStateForNew(
+    language, null, vocabularies, configuration().nameToIri);
 
   // SpecializationState
 

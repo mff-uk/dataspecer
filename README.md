@@ -8,7 +8,38 @@ Check our website [dataspecer.com](https://dataspecer.com/) for more information
 
 You can easily run the whole application in a Docker container.
 
-Instructions are in [docker-ws directory](./docker-ws/README.md).
+If you just want to try it out for a while and don't care where the data is stored, use following command and then go open [http://localhost:3000/](http://localhost:3000/).
+
+```bash
+docker run -it --rm -eBASE_URL=http://localhost:3000/ -p3000:80 ghcr.io/dataspecer/ws
+```
+
+---
+
+- The container exposes port 80.
+- Mount `/usr/src/app/database` directory to your local directory that will be filled with `database.db` file and `stores` directory. If the directory is empty, files would be created. **You need to mkdir the mounted directory with the correct user otherwise Docker will create it as root**.
+- If you want to run the Dataspecer under specific user, use `USER` env variable with desired UID.
+- You MUST specify full base URL using `BASE_URL` env. Some functionalities need to know the domain name and the relative subdirectory is also important. If you are using reverse proxy, it is expected that the base path *is preserved*. (For example, `https://example.com/dataspecer-instance-1/schema` should point to `http://localhost:3001/dataspecer-instance-1/schema`)
+
+Use the following docker run command:
+```bash
+docker run -it --name dataspecer -eBASE_URL=http://localhost/ -eUSER=1000 -v ./database:/usr/src/app/database -p80:80 ghcr.io/dataspecer/ws
+```
+
+Or use following docker-compose file
+```yaml
+services:
+  dataspecer:
+    image: ghcr.io/dataspecer/ws
+    environment:
+      BASE_URL: http://localhost
+      USER: 1000
+    ports:
+      - 80:80 # Change the first number to your desired port
+    volumes:
+      - ./database:/usr/src/app/database
+      #- ./main.config.js:/usr/src/main.config.js # Backend configuration
+```
 
 ## Documentation
 
@@ -39,3 +70,6 @@ Then
 - Run `npm run build` to build everything. This will execute `turbo build` under the hood. This will build packages, which are necessary for the development of other packages and applications; and it also build applications themselves, which is not necessary for development (see the next step). (If you want to build only packages necessary for a specific package or application, use `npx turbo run build --filter=<package-name>`. Obtain the name of the package from `package.json` file.)
 
 To develop a concrete package or application, there is *usually* an `npm run dev` script that will run live server, which updates everything. See individual packages for more details.
+
+### Inside Docker
+

@@ -1,13 +1,13 @@
 
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { EditAssociationProfileDialogState } from "./edit-association-profile-dialog-controller";
 import { getDomainAndRange } from "../../util/relationship-utils";
-import { InvalidAggregation, MissingRelationshipEnds } from "../../application/error";
+import { InvalidAggregation, MissingEntity, MissingRelationshipEnds } from "../../application/error";
 import { createEntityProfileStateForEdit } from "../utilities/entity-profile-utilities";
 import { createRelationshipProfileStateForEdit } from "../utilities/relationship-profile-utilities";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
@@ -21,11 +21,16 @@ export function createEditAssociationProfileDialogState(
   visualModel: VisualModel | null,
   language: string,
   model: InMemorySemanticModel,
-  entity: SemanticModelRelationshipUsage,
+  entityIdentifier: string,
 ): EditAssociationProfileDialogState {
   const entities = graphContext.aggregatorView.getEntities();
-  const aggregated = entities[entity.id]?.aggregatedEntity;
-  if (!isSemanticModelRelationshipUsage(aggregated)) {
+  const aggregate = entities[entityIdentifier];
+  const entity = aggregate.rawEntity;
+  const aggregated = aggregate.aggregatedEntity;
+  if (entity === null) {
+    throw new MissingEntity(entityIdentifier);
+  }
+  if (!isSemanticModelRelationshipUsage(entity) || !isSemanticModelRelationshipUsage(aggregated)) {
     throw new InvalidAggregation(entity, null);
   }
 

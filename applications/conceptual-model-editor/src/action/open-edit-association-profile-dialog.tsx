@@ -28,7 +28,7 @@ export function openEditAssociationProfileDialogAction(
   entity: SemanticModelRelationshipUsage,
 ) {
   const state = createEditAssociationProfileDialogState(
-    classes, graph, visualModel, options.language, model, entity);
+    classes, graph, visualModel, options.language, model, entity.id);
 
   const onConfirm = (nextState: EditAssociationProfileDialogState) => {
     updateSemanticAssociationProfile(notifications, graph.models, entity, state, nextState);

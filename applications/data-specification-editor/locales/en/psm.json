@@ -1,7 +1,7 @@
 {
   "Add import": "Add import",
-  "add non-interpreted attribute": "Add non-interpreted attribute",
   "add interpreted class": "Add interpreted class",
+  "add non-interpreted attribute": "Add non-interpreted attribute",
   "add non-interpreted class": "Add non-interpreted class",
   "add specialization": {
     "help": "This dialog allows to add a specialization to a given class which extends the class with additional attributes and associations. The generated schemas then contain both the base class and the specialization in OR, so the resulting data can correspond to both the base class and the specialization.",

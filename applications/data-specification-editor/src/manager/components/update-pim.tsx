@@ -12,7 +12,7 @@ import React, { memo, useContext } from "react";
 import { DataSpecificationsContext } from "../app";
 import { PimAttribute } from "@dataspecer/core/pim/model/pim-attribute";
 import { PimAssociation } from "@dataspecer/core/pim/model/pim-association";
-import { getAdapter } from "../../editor/configuration/configuration";
+import { getAdapter } from '../../editor/configuration/source-semantic-model/adapter';
 
 export const UpdatePim = memo(({dataSpecificationIri} : {dataSpecificationIri: string}) => {
     const {dataSpecifications} = useContext(DataSpecificationsContext);
@@ -27,7 +27,7 @@ export const UpdatePim = memo(({dataSpecificationIri} : {dataSpecificationIri: s
         await store.load();
         const allResources = await Promise.all((await store.listResources()).map(iri => store.readResource(iri))) as PimResource[];
 
-        const {cimAdapter} = getAdapter(specification.cimAdapters);
+        const cimAdapter = getAdapter(specification.cimAdapters);
 
         const diffPairs: [PimResource, PimResource][] = [];
 

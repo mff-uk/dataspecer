@@ -11,7 +11,6 @@ import {DialogAppProvider} from "./dialog-app-provider";
 import {MultipleArtifactsPreview} from "./artifacts/multiple-artifacts-preview";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {createTheme, ThemeProvider} from "@mui/material/styles";
-import {useLocalConfiguration} from "../configuration/providers/local-configuration";
 import {useProvidedConfiguration} from "../configuration/providers/provided-configuration";
 import {Configuration} from "../configuration/configuration";
 import {StoreContext} from "@dataspecer/federated-observable-store-react/store"
@@ -94,20 +93,12 @@ const App: React.FC = () => {
     const url = window.location.search;
     const {dataSpecificationIri, dataPsmSchemaIri} = useMemo(() => {
         const urlParams = new URLSearchParams(url);
-        const dataSpecificationIri = urlParams.get("data-specification");
-        const dataPsmSchemaIri = urlParams.get("data-psm-schema");
+        const dataSpecificationIri = urlParams.get("data-specification") ?? null;
+        const dataPsmSchemaIri = urlParams.get("data-psm-schema") ?? null;
         return {dataSpecificationIri, dataPsmSchemaIri};
     }, [url]);
 
-    /**
-     * Based on a configuration type, corresponding hook provides a configuration for the app. The configuration
-     * consists of store, cim adapter and a list of specifications as well as current data psm schema.
-     */
-    const configurationType: "local" | "provided" = (dataSpecificationIri && dataPsmSchemaIri) ? "provided" : "local";
-    const configuration = {
-        ...useLocalConfiguration(configurationType === "local"),
-        ...useProvidedConfiguration(configurationType === "provided", dataSpecificationIri, dataPsmSchemaIri)
-    } as Configuration;
+    const configuration = useProvidedConfiguration(dataSpecificationIri, dataPsmSchemaIri);
 
     useEffect(() => {(window as any).store = configuration.store}, [configuration.store]);
 

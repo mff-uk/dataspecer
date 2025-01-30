@@ -1,6 +1,6 @@
 import { HttpStoreDescriptor, StoreDescriptor } from "@dataspecer/backend-utils/store-descriptor";
 import { HttpSynchronizedStore } from "@dataspecer/backend-utils/stores";
-import { CoreResourceReader } from "@dataspecer/core/core";
+import { CoreResourceReader, MemoryStore } from "@dataspecer/core/core";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
 import { isEqual } from "lodash";
@@ -8,9 +8,13 @@ import { useEffect, useMemo, useState } from "react";
 import { ClientConfigurator, DefaultClientConfiguration } from "../../../configuration";
 import { useAsyncMemo } from "../../hooks/use-async-memo";
 import { OperationContext } from "../../operations/context/operation-context";
-import { Configuration, useProvidedSourceSemanticModel } from "../configuration";
+import { Configuration } from "../configuration";
+import { useProvidedSourceSemanticModel } from '../source-semantic-model/adapter';
 import { DataSpecification, HttpSemanticModelStoreDescriptor, StructureEditorBackendService } from "@dataspecer/backend-utils/connectors/specification";
 import { EntityModel } from "@dataspecer/core-v2";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { dataPsmExecutors } from "@dataspecer/core/data-psm/data-psm-executors";
+import { DataPsmCreateSchema } from "@dataspecer/core/data-psm/operation/data-psm-create-schema";
 
 const DEFAULT_CIM_ADAPTERS_CONFIGURATION = ["https://dataspecer.com/adapters/sgov"];
 
@@ -18,16 +22,14 @@ const DEFAULT_CIM_ADAPTERS_CONFIGURATION = ["https://dataspecer.com/adapters/sgo
  * Loads the configuration from the given IRIs and registers the stores properly
  * to be updated when modification occurs. This hook requires loaders that
  * decide how to load the configuration from the given IRIs.
- * @param enabled
  * @param dataSpecificationIri IRI of the whole specification
  * @param dataPsmSchemaIri IRI of the given PSM schema that will be updated
  */
 export const useProvidedConfiguration = (
-    enabled: boolean,
-    dataSpecificationIri: string|null,
-    dataPsmSchemaIri: string|null,
+    dataSpecificationIri: string | null,
+    dataPsmSchemaIri: string | null,
 ): Configuration | null => {
-    const store = useMemo(() => enabled ? new FederatedObservableStore() : null, [enabled]);
+    const store = useMemo(() => new FederatedObservableStore(), []);
 
     const specifications = useLoadedDataSpecification(dataSpecificationIri);
     const descriptors = useStoreDescriptorsFromSpecifications(specifications ?? null, dataSpecificationIri, dataPsmSchemaIri);
@@ -49,7 +51,7 @@ export const useProvidedConfiguration = (
     }, []);
 
     const cimAdaptersConfiguration = specifications?.[dataSpecificationIri]?.sourceSemanticModelIds ?? DEFAULT_CIM_ADAPTERS_CONFIGURATION;
-    const sourceSemanticModel = useProvidedSourceSemanticModel(dataPsmSchemaIri, dataSpecificationIri, cimAdaptersConfiguration);
+    const sourceSemanticModel = useProvidedSourceSemanticModel(cimAdaptersConfiguration, dataSpecificationIri);
 
     // Load configuration
     const configurationStore = specifications?.[dataSpecificationIri]?.artifactConfigurations?.[0]?.id ?? null;
@@ -61,18 +63,55 @@ export const useProvidedConfiguration = (
         specifications[dataSpecificationIri].artefactConfiguration = configuration;
     }
 
-    if (enabled) {
-        return {
-            store: store as FederatedObservableStore, // ! aggregator
-            dataSpecifications: specifications ?? {},
-            dataSpecificationIri,
-            dataPsmSchemaIri,
-            sourceSemanticModel, // ! CIM
-            operationContext,
+    const [defaultDataSpecification] = useAsyncMemo(async () => {
+        if (dataSpecificationIri && store) {
+            const semanticModel = new InMemorySemanticModel();
+
+            const memoryStore = MemoryStore.create("https://ofn.gov.cz", [...dataPsmExecutors]); // For PSM classes
+
+            const createDataPsmSchema = new DataPsmCreateSchema();
+            const createDataPsmSchemaResult = await memoryStore.applyOperation(createDataPsmSchema);
+            const dataPsmSchemaIri = createDataPsmSchemaResult.created[0];
+
+            const dataSpecification = {
+                id: "http://default-data-specification",
+                type: "todo",
+                label: {},
+                tags: [],
+                sourceSemanticModelIds: [],
+                localSemanticModelIds: [semanticModel.getId()],
+                dataStructures: [{
+                    id: dataPsmSchemaIri,
+                    label: {},
+                }],
+                importsDataSpecificationIds: [],
+                artifactConfigurations: [],
+                userPreferences: {},
+            } as DataSpecification;
+
+            // @ts-ignore
+            store.addStore(semanticModel);
+            store.addStore(memoryStore);
+
+            return dataSpecification;
         }
-    } else {
-        return null;
-    }
+    }, [dataSpecificationIri, store]);
+
+    return useMemo(() => ({
+        store: store as FederatedObservableStore, // ! aggregator
+        dataSpecifications: specifications ?? { [defaultDataSpecification?.iri as string]: defaultDataSpecification },
+        dataSpecificationIri: dataSpecificationIri ?? defaultDataSpecification?.iri,
+        dataPsmSchemaIri: dataPsmSchemaIri ?? defaultDataSpecification?.dataStructures[0].id,
+        sourceSemanticModel, // ! CIM
+        operationContext,
+    }), [
+        store,
+        specifications ?? { [defaultDataSpecification?.iri as string]: defaultDataSpecification },
+        dataSpecificationIri ?? defaultDataSpecification?.iri,
+        dataPsmSchemaIri ?? defaultDataSpecification?.dataStructures[0].id,
+        sourceSemanticModel,
+        operationContext,
+    ]);
 }
 
 const backendPackageService = new StructureEditorBackendService(import.meta.env.VITE_BACKEND as string, httpFetch, "http://dataspecer.com/packages/local-root");

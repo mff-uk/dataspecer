@@ -108,7 +108,7 @@ function createAssociationToCreatedClass(
   createdClassData: CreatedSemanticEntityData,
   editClassDialogState: EditClassDialogState
 ) {
-  const defaultEditAssociationState = createCreateAssociationDialogState(classes, graph, visualModel, options.language);
+  const defaultEditAssociationState = createCreateAssociationDialogState(classes, graph, visualModel, options.language, null);
 
   const node = visualModel.getVisualEntity(nodeIdentifier);
   if(node === null) {

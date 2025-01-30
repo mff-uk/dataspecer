@@ -23,7 +23,7 @@ export const SearchDialog: React.FC<DialogParameters & { selected: (cls: any) =>
     const { t } = useTranslation("search-dialog");
 
     // @ts-ignore
-    const unwrappedAdapter = sourceSemanticModel?.model?.cimAdapter ?? null;
+    const unwrappedAdapter = sourceSemanticModel?.model?.cimAdapter ?? {};
 
     const selectWrapped = (foundClass: PimClass) => {
       const transformed = transformCoreResources({ [foundClass.iri as string]: foundClass });

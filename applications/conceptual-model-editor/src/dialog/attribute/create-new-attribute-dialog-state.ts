@@ -16,6 +16,7 @@ export function createNewAttributeDialogState(
   graphContext: ModelGraphContextType,
   visualModel: VisualModel | null,
   language: string,
+  defaultModelIdentifier: string | null,
 ): EditAttributeDialogState {
 
   const models = [...graphContext.models.values()];
@@ -24,7 +25,8 @@ export function createNewAttributeDialogState(
 
   // EntityState
 
-  const entityState = createEntityStateForNew(language, vocabularies, configuration().nameToIri);
+  const entityState = createEntityStateForNew(
+    language, defaultModelIdentifier, vocabularies, configuration().nameToIri);
 
   // SpecializationState
 

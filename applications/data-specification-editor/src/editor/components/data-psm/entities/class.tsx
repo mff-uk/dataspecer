@@ -56,7 +56,7 @@ export const DataPsmClassItem: React.FC<{
   const cimClassIri = pimClass?.iri;
 
   // @ts-ignore
-  const unwrappedAdapter = sourceSemanticModel?.model?.cimAdapter ?? null;
+  const unwrappedAdapter = sourceSemanticModel?.model?.cimAdapter ?? {};
   const AddSurroundings = useDialog(isWikidataAdapter(unwrappedAdapter) ? WikidataAddInterpretedSurroundingsDialog : AddInterpretedSurroundingsDialog, ["dataPsmClassIri", "forPimClassIri"]);
 
   const store = useFederatedObservableStore();

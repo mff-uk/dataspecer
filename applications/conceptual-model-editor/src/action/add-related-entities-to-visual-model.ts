@@ -60,12 +60,17 @@ export function addRelatedEntitiesAction(
     }
     if (isSemanticModelClassUsage(candidate)) {
       if (shouldAddProfile(visualModel, identifier, candidate)) {
+        // "candidate" is profile of "identifier"
         addSemanticProfileToVisualModelAction(
           visualModel, entity, candidate, model.getId());
+      } else if (addingProfile && shouldAddProfile(visualModel, candidate.id, entity)) {
+        // "identifier" is profile of "candidate"
+        addSemanticProfileToVisualModelAction(
+          visualModel, candidate, entity, model.getId());
       }
     }
     if (addingProfile && isSemanticModelClass(candidate)) {
-      // We are adding profile and the entity is a class.
+      // We are adding profile, candidate is a class, it could profiled class.
       if (entity.usageOf === candidate.id) {
         addSemanticProfileToVisualModelAction(
           visualModel, candidate, entity, model.getId());
@@ -124,17 +129,17 @@ function shouldAddRelationshipUsage(
 
 function shouldAddProfile(
   visualModel: VisualModel,
-  identifier: string,
-  candidate: SemanticModelClassUsage,
+  profiled: string,
+  profile: SemanticModelClassUsage,
 ): boolean {
-  if (candidate.id === identifier) {
+  if (profile.id === profiled) {
     // We do not support self profiles.
     return false;
   }
   // The candidate may be specialization of what we are adding.
-  if (candidate.usageOf === identifier) {
+  if (profile.usageOf === profiled) {
     // We return true if the other is in the visual model.
-    return visualModel.getVisualEntityForRepresented(candidate.id) !== null;
+    return visualModel.getVisualEntityForRepresented(profile.id) !== null;
   }
   return false;
 }

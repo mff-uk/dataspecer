@@ -118,6 +118,6 @@ function openCreateClassDialog(
   onConfirm: (state: EditClassDialogState) => void,
 ) {
   const state = createNewClassDialogState(
-    classes, graph, visualModel, options.language);
+    classes, graph, visualModel, options.language, model.getId());
   dialogs.openDialog(createNewClassDialog(state, onConfirm));
 }

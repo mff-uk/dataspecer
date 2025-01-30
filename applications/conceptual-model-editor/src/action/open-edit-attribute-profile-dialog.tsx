@@ -28,7 +28,7 @@ export function openEditAttributeProfileDialogAction(
   entity: SemanticModelRelationshipUsage,
 ) {
   const state = createEditAttributeProfileDialogState(
-    classes, graph, visualModel, options.language, model, entity);
+    classes, graph, visualModel, options.language, model, entity.id);
 
   const onConfirm = (nextState: EditAttributeProfileDialogState) => {
     updateSemanticAttributeProfile(notifications, graph.models, entity, state, nextState);

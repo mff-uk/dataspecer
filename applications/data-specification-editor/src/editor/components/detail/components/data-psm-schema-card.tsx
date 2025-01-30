@@ -14,6 +14,8 @@ import { XmlSetSchemaNamespace } from "../../../operations/xml-set-schema-namesp
 import { Cardinality, CardinalitySelector } from "../../helper/cardinality-selector";
 import { useSaveHandler } from "../../helper/save-handler";
 import { InDifferentLanguages } from "./InDifferentLanguages";
+import { skip } from "node:test";
+import { XmlSetSkipRootElement } from "../../../operations/xml-set-skip-root-element";
 
 function cardinalityFromPsm(entity?: DataPsmSchema): Cardinality {
   return {
@@ -132,6 +134,26 @@ export const DataPsmSchemaCard: React.FC<{ iri: string; onClose: () => void }> =
   const currentXmlContainer = rootCollection.technicalLabel && rootCollection.technicalLabel.length > 0 ? rootCollection.technicalLabel : defaultXmlContainer;
   // endregion
 
+  // region skip root element
+  const [skipRootElement, setSkipRootElement] = useState(xmlData.skipRootElement === true);
+  useEffect(() => {
+    if (xmlData) {
+      setSkipRootElement(xmlData.skipRootElement === true);
+    }
+  }, [xmlData]);
+  useSaveHandler(
+    xmlData !== null &&
+    (xmlData.skipRootElement === true) !== skipRootElement,
+    useCallback(
+      async () =>
+        await store.executeComplexOperation(
+          new XmlSetSkipRootElement(iri, skipRootElement)
+        ),
+      [store, iri, skipRootElement]
+    )
+  );
+  // endregion
+
   return (
     <>
       <Grid container spacing={5} sx={{ pt: 3 }}>
@@ -199,33 +221,40 @@ export const DataPsmSchemaCard: React.FC<{ iri: string; onClose: () => void }> =
           </Grid>
 
           <Box sx={{ mb: 3 }}>
-            <Typography variant="subtitle1" component="h2">
-              Název kořenového elementu sloužícího jako kontejner
-              <InfoHelp text="V příadě kardinality kořenového elementu jiné než 1..1 je potřeba obalit elementy do pomocného elementu. Toto nastavení specifikuje název takového elementu." />
+            <Typography variant="subtitle1" component="h2" sx={{ mt: 2 }}>
+              <Switch checked={skipRootElement} onChange={(e) => setSkipRootElement(e.target.checked)} />
+              {t("XML skip root element")}
             </Typography>
 
-            <Collapse in={!isEqual(cardinality, cardinalityFromPsm()) && !rootCollection.enforce}>
-              <Alert severity="info">
-                Kontejner <code>&lt;{currentXmlContainer}&gt;</code> bude použit vždy, protože je kardinalita jiná než 1..1.
-              </Alert>
-            </Collapse>
+            <Collapse in={!skipRootElement}>
+              <Typography variant="subtitle1" component="h2">
+                Název kořenového elementu sloužícího jako kontejner
+                <InfoHelp text="V příadě kardinality kořenového elementu jiné než 1..1 je potřeba obalit elementy do pomocného elementu. Toto nastavení specifikuje název takového elementu." />
+              </Typography>
 
-            <div style={{ display: "flex", gap: ".5em", alignItems: "flex-start" }}>
-              <FormControlLabel
-                sx={{ mt: 2, flexShrink: 0 }}
-                control={<Switch checked={rootCollection.enforce} onChange={(e) => setRootCollection(c => ({...c, enforce: e.target.checked}))} />}
-                label="použít vždy"
-              />
-              <TextField
-                autoFocus
-                margin="dense"
-                hiddenLabel
-                fullWidth
-                variant="filled"
-                value={rootCollection.technicalLabel}
-                onChange={(event) => setRootCollection(c => ({...c, technicalLabel: event.target.value}))}
-              />
-            </div>
+              <Collapse in={!isEqual(cardinality, cardinalityFromPsm()) && !rootCollection.enforce}>
+                <Alert severity="info">
+                  Kontejner <code>&lt;{currentXmlContainer}&gt;</code> bude použit vždy, protože je kardinalita jiná než 1..1.
+                </Alert>
+              </Collapse>
+
+              <div style={{ display: "flex", gap: ".5em", alignItems: "flex-start" }}>
+                <FormControlLabel
+                  sx={{ mt: 2, flexShrink: 0 }}
+                  control={<Switch checked={rootCollection.enforce} onChange={(e) => setRootCollection(c => ({...c, enforce: e.target.checked}))} />}
+                  label="použít vždy"
+                />
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  hiddenLabel
+                  fullWidth
+                  variant="filled"
+                  value={rootCollection.technicalLabel}
+                  onChange={(event) => setRootCollection(c => ({...c, technicalLabel: event.target.value}))}
+                />
+              </div>
+            </Collapse>
           </Box>
         </Grid>
       </Grid>

@@ -1,7 +1,7 @@
 {
   "Add import": "Importovat obsah jiné třídy",
-  "add non-interpreted attribute": "Přidat neinterpretovaný atribut",
   "add interpreted class": "Přidat interpretovanou třídu",
+  "add non-interpreted attribute": "Přidat neinterpretovaný atribut",
   "add non-interpreted class": "Přidat neinterpretovanou třídu",
   "add specialization": {
     "help": "Umožňuje přidat dané třídě specializaci, která danou třídu rozšiřuje o další atributy a asociace. Vygenerovaná schémata pak obsahují jak základní třídu, tak i specializaci v ORu, tedy výsledná data mohou odpovídat základní třídě i specializaci.",

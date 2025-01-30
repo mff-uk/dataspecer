@@ -1,12 +1,12 @@
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 
-import { isRelativeIri } from "./dialog-utilities";
 import { generateName } from "../../util/name-utils";
 import { getAvailableLanguagesForLanguageString } from "../../util/language-utils";
 import { MissingModel, NoWritableModelFound } from "../../application/error";
 import { ValidationState, isValid, validationError, validationNoProblem } from "./validation-utilities";
 import { CmeModel, filterWritableModels } from "../../dataspecer/cme-model";
 import { ModelDsIdentifier } from "../../dataspecer/entity-model";
+import { isRelativeIri } from "../../utilities/iri";
 
 export interface EntityState {
 
@@ -56,6 +56,7 @@ export interface EntityState {
  */
 export function createEntityStateForNew(
   language: string,
+  defaultModelIdentifier: string | null,
   vocabularies: CmeModel[],
   generateIriFromName: (name: string) => string,
 ): EntityState {
@@ -63,7 +64,9 @@ export function createEntityStateForNew(
   if (writableVocabularies.length === 0) {
     throw new NoWritableModelFound();
   }
-  const selectedVocabulary = writableVocabularies[0];
+  const selectedVocabulary =
+    writableVocabularies.find(item => item.dsIdentifier === defaultModelIdentifier)
+    ?? writableVocabularies[0];
 
   const name = generateName();
 
@@ -179,6 +182,7 @@ export function createEntityController<State extends EntityState>(
       }
       return validateEntityState({
         ...state,
+        name,
         iri: generateIriFromName(name[languages[0]] ?? ""),
       });
     });

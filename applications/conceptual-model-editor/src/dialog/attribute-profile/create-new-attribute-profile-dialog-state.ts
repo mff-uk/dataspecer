@@ -97,8 +97,9 @@ function createForAttribute(
   const undefinedDataType = representUndefinedDataType();
   const dataTypes = [undefinedDataType, ...representDataTypes()];
 
+  const availableDomains = [owlThing, ...classProfiles];
   const relationshipProfileState = createRelationshipProfileStateForNew(
-    domain.concept, owlThing, domain.cardinality, classProfiles,
+    domain.concept, owlThing, domain.cardinality, availableDomains,
     range.concept, undefinedDataType, range.cardinality, dataTypes);
 
   return {
@@ -141,8 +142,9 @@ function createForAttributeProfile(
   const undefinedDataType = representUndefinedDataType();
   const dataTypes = [undefinedDataType, ...representDataTypes()];
 
+  const availableDomains = [owlThing, ...classProfiles];
   const relationshipProfileState = createRelationshipProfileStateForNew(
-    domain.concept, owlThing, domain.cardinality, classProfiles,
+    domain.concept, owlThing, domain.cardinality, availableDomains,
     range.concept, undefinedDataType, range.cardinality, dataTypes);
 
   return {

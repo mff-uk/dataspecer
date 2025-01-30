@@ -8,7 +8,11 @@ import { withAggregatedEntity } from "./utilities";
 import { addRelatedEntitiesAction } from "./add-related-entities-to-visual-model";
 import { ClassesContextType } from "../context/classes-context";
 import { findPositionForNewNodesUsingLayouting } from "./layout-visual-model";
+import { findSourceModelOfEntity } from "../service/model-service";
+import { createLogger } from "../application";
 import { getVisualNodeContentBasedOnExistingEntities } from "./add-semantic-attribute-to-visual-model";
+
+const LOG = createLogger(import.meta.url);
 
 export async function addSemanticClassProfileToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
@@ -17,20 +21,31 @@ export async function addSemanticClassProfileToVisualModelAction(
   visualModel: WritableVisualModel,
   diagram: UseDiagramType,
   entityIdentifier: string,
-  modelIdentifier: string,
+  // We ignore following property, as we may get invalid model.
+  // Sometimes, it is a model of the profiled entity not the profile.
+  _modelIdentifier: string,
   position: { x: number, y: number } | null,
 ) {
   const entities = graph.aggregatorView.getEntities();
   if(position === null) {
-    position = (await findPositionForNewNodesUsingLayouting(notifications, diagram, graph, visualModel, classes, [entityIdentifier]))[entityIdentifier];
+    const positions = await findPositionForNewNodesUsingLayouting(
+      notifications, diagram, graph, visualModel, classes, [entityIdentifier]);
+    position = positions[entityIdentifier];
+  }
+
+  const model = findSourceModelOfEntity(entityIdentifier, graph.models);
+  if (model === null) {
+    LOG.error("Operation ignored, we fail to find model for given entity.", {entity: entityIdentifier});
+    notifications.error("Can not find model for given entity");
+    return;
   }
 
   withAggregatedEntity(notifications, entities,
-    entityIdentifier, modelIdentifier,
+    entityIdentifier, model.getId(),
     isSemanticModelClassUsage, (entity) => {
       addSemanticClassProfileToVisualModelCommand(
         classes, visualModel, entity,
-        modelIdentifier, position);
+        model.getId(), position);
       addRelatedEntitiesAction(
         notifications, graph, visualModel, Object.values(entities),
         graph.models, entity);

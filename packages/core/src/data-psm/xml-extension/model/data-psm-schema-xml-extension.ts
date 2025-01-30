@@ -4,6 +4,7 @@ import {XML_EXTENSION} from "../vocabulary";
 class XmlSchemaExtension {
   namespace: string | null = null;
   namespacePrefix: string | null = null;
+  skipRootElement: boolean | null = false;
 }
 
 export class DataPsmSchemaXmlExtension extends DataPsmSchema {
