@@ -292,4 +292,6 @@ export const translations: Record<string, string | Function> = {
   "edit-class-attributes-dialog.label": "Edit order of attributes on node",
   "edit-class-attributes-dialog.btn-ok": "✅ Confirm",
   "edit-class-attributes-dialog.btn-cancel": "❌ Cancel",
+  "edit-class-attributes-visible-attributes-column-header": "Visible attributes:",
+  "edit-class-attributes-hidden-attributes-column-header": "Hidden attributes:",
 };
