@@ -2,6 +2,9 @@ import { Entity } from "../../../entity-model";
 import { LanguageString, NamedThing } from "../../concepts/concepts";
 import { SEMANTIC_MODEL_CLASS_USAGE, SEMANTIC_MODEL_RELATIONSHIP_USAGE } from "./concepts-utils";
 
+/**
+ * @deprecated Will be removed with profiles.
+ */
 export type Nullable<T> = {
     [P in keyof T]: T[P] | null;
 };
@@ -18,6 +21,8 @@ interface WithUsageNote {
  * Usage semantically works as a subentity (subclass, subproperty), but is treated differently. Its public IRI is the
  * same as IRI of entity that is being used. Moreover, it should "shadow" the entity that is being used, because in the
  * given context this is more appropriate description of the entity. Each entity may have multiple usages.
+ *
+ * @deprecated Use profiles instead.
  */
 export interface SemanticModelUsage extends Entity, WithUsageNote {
     /**
@@ -35,12 +40,18 @@ export interface SemanticModelUsage extends Entity, WithUsageNote {
     iri: string | null;
 }
 
+/**
+ * @deprecated Use profiles instead.
+ */
 export interface SemanticModelRelationshipUsage extends SemanticModelUsage, Nullable<NamedThing> {
     type: [typeof SEMANTIC_MODEL_RELATIONSHIP_USAGE];
 
     ends: SemanticModelRelationshipEndUsage[];
 }
 
+/**
+ * @deprecated Use profiles instead.
+ */
 export interface SemanticModelRelationshipEndUsage extends Nullable<NamedThing>, WithUsageNote {
     /**
      * Must be stricter or equal to the corresponding cardinality of the used entity.
@@ -64,6 +75,9 @@ export interface SemanticModelRelationshipEndUsage extends Nullable<NamedThing>,
     iri: string | null;
 }
 
+/**
+ * @deprecated Use profiles instead.
+ */
 export interface SemanticModelClassUsage extends SemanticModelUsage, Nullable<NamedThing> {
     type: [typeof SEMANTIC_MODEL_CLASS_USAGE];
 }
