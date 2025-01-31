@@ -31,6 +31,7 @@ import {
     ModifyRelationshipUsageOperation,
 } from "./usage/operations";
 import { SemanticModelClassUsage, SemanticModelRelationshipUsage } from "./usage/concepts";
+import { createDefaultSemanticModelProfileOperationExecutor } from "./profile/operations";
 
 function uuid() {
     return Math.random().toString(36).substring(2) + Date.now().toString(36);
@@ -68,6 +69,12 @@ export class WritableSemanticModelAdapter extends SemanticModelAdapter {
             removed.forEach(item => removedCollector.push(item));
         };
 
+        const profileExecutor = createDefaultSemanticModelProfileOperationExecutor(
+            { createIdentifier: uuid },
+            { entity: identifier => getEntity(identifier) ?? null },
+            { change}
+        );
+
         const result: (OperationResult | CreatedEntityOperationResult)[] = [];
 
         for (const operation of operations) {
@@ -94,10 +101,15 @@ export class WritableSemanticModelAdapter extends SemanticModelAdapter {
             } else if (isModifyRelationshipUsageOperation(operation)) {
                 result.push(handleModifyRelationshipUsageOperation(getEntity, change, operation));
             } else {
-                // Unknown operation.
-                result.push({
-                    success: false,
-                });
+                const operationResult = profileExecutor.executeOperation(operation);
+                if (operationResult !== null) {
+                    result.push(operationResult);
+                } else {
+                    // Unknown operation.
+                    result.push({
+                        success: false,
+                    });
+                }
             }
         }
         // We execute all updates at once.
