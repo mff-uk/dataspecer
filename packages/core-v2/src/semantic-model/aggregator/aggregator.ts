@@ -33,6 +33,8 @@ export interface AggregatedEntityWrapper {
     /**
      * Visual information about the entity that was obtained from the visual model.
      * There is no aggregation of visual entities as only one visual model can be present.
+     *
+     * @deprecated
      */
     visualEntity: VisualEntity | null;
 }
@@ -94,6 +96,9 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
 
     baseModelSubscribers = new Set<AggregatedModelSubscriber>();
 
+    /**
+     * @deprecated
+     */
     activeVisualModel: VisualModel | null = null;
 
     addModel(model: SupportedModels) {
@@ -361,14 +366,23 @@ export class SemanticModelAggregatorView {
         return this.aggregator.activeVisualModel?.getIdentifier();
     }
 
+    /**
+     * @deprecated
+     */
     getActiveVisualModel() {
         return this.aggregator.activeVisualModel;
     }
 
+    /**
+     * @deprecated
+     */
     changeActiveVisualModel(identifier: string | null) {
         this.aggregator.setActiveVisualModel(identifier);
     }
 
+    /**
+     * @deprecated
+     */
     getAvailableVisualModels(): VisualModel[] {
         return [...this.aggregator.models.keys()]
             .filter((m) => isVisualModel(m)) as VisualModel[];
