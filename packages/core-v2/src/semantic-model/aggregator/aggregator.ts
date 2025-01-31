@@ -3,6 +3,8 @@ import { EntityModel } from "../../entity-model/entity-model";
 import { VisualEntity } from "../../visual-model/visual-entity";
 import { VisualModel, isVisualModel } from "../../visual-model/visual-model";
 import { SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_RELATIONSHIP, SemanticModelClass, SemanticModelRelationship, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "../concepts";
+import { createDefaultProfileEntityAggregator, ProfileEntityAggregator } from "../profile/aggregator/aggregator";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "../profile/concepts";
 import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "../usage/concepts";
 
 /**
@@ -101,6 +103,12 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
      */
     activeVisualModel: VisualModel | null = null;
 
+    /**
+     * Profile aggregator.
+     */
+    profileEntityAggregator: ProfileEntityAggregator =
+        createDefaultProfileEntityAggregator();
+
     addModel(model: SupportedModels) {
         if (this.models.has(model)) {
             throw new Error("Model already added.");
@@ -157,19 +165,21 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
     }
 
     private getEntityDependencies(entity: Entity | null): string[] {
-        if (!entity) {
+        if (entity === null) {
             return [];
         }
 
-        if (isSemanticModelClassUsage(entity) || isSemanticModelRelationshipUsage(entity)) {
-            return [entity.usageOf];
-        }
-
+        // Special handling of selected entity types.
         if (isSemanticModelClass(entity) || isSemanticModelRelationship(entity) || isSemanticModelGeneralization(entity)) {
             return [];
         }
 
-        console.warn("Entity", entity.id, "has an unknown type", entity.type , ", and therefore the aggregator does not know its dependencies. The entity would be considered as standalone and not aggregated with other entities. This may lead to unexpected results if you expect something else.");
+        const profileDependencies = this.profileEntityAggregator.dependencies(entity);
+        if (profileDependencies !== null) {
+            return profileDependencies;
+        }
+
+        console.warn("Entity", entity.id, "has an unknown type", entity.type, ", and therefore the aggregator does not know its dependencies. The entity would be considered as standalone and not aggregated with other entities. This may lead to unexpected results if you expect something else.");
         return [];
     }
 
@@ -207,9 +217,45 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
             if (removed.includes(updatedEntity)) {
                 delete this.baseModelEntities[updatedEntity];
             } else {
-                const {entity, model} = this.entityCache[updatedEntity]!;
+                const { entity, model } = this.entityCache[updatedEntity]!;
 
-                if (
+                if (isSemanticModelClassProfile(entity)) {
+                    const dependencies = (this.profileEntityAggregator.dependencies(entity) ?? [])
+                        .map(identifier => this.baseModelEntities[identifier])
+                        .filter(item => item !== undefined);
+
+                    const aggregatedDependencies =
+                        dependencies.map(item => item.aggregatedEntity)
+                            .filter(item => item !== null)
+                            .filter(item => isSemanticModelClassProfile(item) || isSemanticModelClass(item));
+
+                    this.baseModelEntities[updatedEntity] = {
+                        id: updatedEntity,
+                        aggregatedEntity: this.profileEntityAggregator.aggregateSemanticModelClassProfile(
+                            entity, aggregatedDependencies),
+                        rawEntity: entity,
+                        sources: dependencies,
+                        visualEntity: null,
+                    };
+                } else if (isSemanticModelRelationshipProfile(entity)) {
+                    const dependencies = (this.profileEntityAggregator.dependencies(entity) ?? [])
+                        .map(identifier => this.baseModelEntities[identifier])
+                        .filter(item => item !== undefined);
+
+                    const aggregatedDependencies =
+                        dependencies.map(item => item.aggregatedEntity)
+                            .filter(item => item !== null)
+                            .filter(item => isSemanticModelRelationshipProfile(item) || isSemanticModelRelationship(item));
+
+                    this.baseModelEntities[updatedEntity] = {
+                        id: updatedEntity,
+                        aggregatedEntity: this.profileEntityAggregator.aggregateSemanticModelRelationshipProfile(
+                            entity, aggregatedDependencies),
+                        rawEntity: entity,
+                        sources: dependencies,
+                        visualEntity: null,
+                    };
+                } else if (
                     isSemanticModelClassUsage(entity)
                 ) {
                     const source = this.baseModelEntities[entity.usageOf];
@@ -266,7 +312,7 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
                         !entity.type.includes(SEMANTIC_MODEL_GENERALIZATION) &&
                         !entity.type.includes(SEMANTIC_MODEL_RELATIONSHIP)
                     ) {
-                        console.warn("Entity", entity.id, "from model", model.getId(), "has an unknown type", entity.type , ", and therefore the aggregator does not know its dependencies. The entity would be considered as standalone and not aggregated with other entities. This may lead to unexpected results if you expect something else.");
+                        console.warn("Entity", entity.id, "from model", model.getId(), "has an unknown type", entity.type, ", and therefore the aggregator does not know its dependencies. The entity would be considered as standalone and not aggregated with other entities. This may lead to unexpected results if you expect something else.");
                     }
                     this.baseModelEntities[updatedEntity] = {
                         id: updatedEntity,
@@ -290,6 +336,9 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
         return new SemanticModelAggregatorView(this);
     }
 
+    /**
+     * @deprecated
+     */
     setActiveVisualModel(toModel: string | VisualModel | null) {
         if (typeof toModel == "string") {
             const availableModels = [...this.models.keys()];
@@ -334,7 +383,7 @@ export class SemanticModelAggregatorView {
      * @returns Dictionary with all entities aggregated.
      */
     getEntities(): Record<string, AggregatedEntityWrapper> {
-        const entities = {...this.aggregator.baseModelEntities};
+        const entities = { ...this.aggregator.baseModelEntities };
         // Just an optimization to not call it multiple times, when it is null.
         if (this.aggregator.activeVisualModel === null) {
             return entities;
