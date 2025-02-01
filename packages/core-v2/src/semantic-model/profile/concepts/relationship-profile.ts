@@ -6,11 +6,14 @@ import { Profile } from "./profile";
 /**
  * For now we do not extend {@link NamedThingProfile} here.
  * We store data using the end with the "iri" set.
+ * As a result the relationship entity is basically blank.
  */
-export interface SemanticModelRelationshipProfile extends SemanticModelEntity, Profile {
+export interface SemanticModelRelationshipProfile extends Entity {
+
   type: [typeof SEMANTIC_MODEL_RELATIONSHIP_PROFILE];
 
   ends: SemanticModelRelationshipEndProfile[];
+
 }
 
 export const SEMANTIC_MODEL_RELATIONSHIP_PROFILE = "class-profile";

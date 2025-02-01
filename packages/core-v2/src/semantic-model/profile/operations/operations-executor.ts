@@ -196,10 +196,6 @@ function executeModifySemanticModelRelationshipProfile(
   const updatedEntity: SemanticModelRelationshipProfile = {
     id: identifier,
     type: [SEMANTIC_MODEL_RELATIONSHIP_PROFILE],
-    iri: entity.iri ?? previous.iri,
-    usageNote: entity.usageNote ?? previous.usageNote,
-    usageNoteFromProfiled: entity.usageNoteFromProfiled ?? previous.usageNoteFromProfiled,
-    profiling: entity.profiling ?? previous.profiling,
     // We enforce two ends.
     ends: [{
       ...previous.ends[0]!,

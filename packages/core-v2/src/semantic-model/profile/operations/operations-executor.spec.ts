@@ -162,10 +162,6 @@ test("Create relationship profile.", () => {
   );
   //
   const result = executor.executeOperation(factory.createRelationshipProfile({
-    iri: "iri",
-    usageNote: { "en": "usage-note" },
-    usageNoteFromProfiled: "usage-note-source",
-    profiling: ["one", "two"],
     ends: [{
       iri: "first",
       name: { "en": "first-name" },
@@ -202,10 +198,6 @@ test("Create relationship profile.", () => {
       "1": {
         id: "1",
         type: [SEMANTIC_MODEL_RELATIONSHIP_PROFILE],
-        iri: "iri",
-        usageNote: { "en": "usage-note" },
-        usageNoteFromProfiled: "usage-note-source",
-        profiling: ["one", "two"],
         ends: [{
           iri: "first",
           name: { "en": "first-name" },
@@ -245,10 +237,6 @@ test("Modify relationship profile.", () => {
   const previous: SemanticModelRelationshipProfile = {
     id: "1",
     type: [SEMANTIC_MODEL_RELATIONSHIP_PROFILE],
-    iri: "iri",
-    usageNote: { "en": "usage-note" },
-    usageNoteFromProfiled: "usage-note-source",
-    profiling: ["one", "two"],
     ends: [{
       iri: "first",
       name: null,
@@ -285,10 +273,6 @@ test("Modify relationship profile.", () => {
   //
   const result = executor.executeOperation(factory.modifyRelationshipProfile(
     "1", {
-    iri: "iri",
-    usageNote: { "en": "usage-note" },
-    usageNoteFromProfiled: "usage-note-source",
-    profiling: ["one", "two"],
     ends: [{
       iri: "first",
       name: { "en": "first-name" },
@@ -325,10 +309,6 @@ test("Modify relationship profile.", () => {
       "1": {
         id: "1",
         type: [SEMANTIC_MODEL_RELATIONSHIP_PROFILE],
-        iri: "iri",
-        usageNote: { "en": "usage-note" },
-        usageNoteFromProfiled: "usage-note-source",
-        profiling: ["one", "two"],
         ends: [{
           iri: "first",
           name: { "en": "first-name" },
@@ -372,10 +352,6 @@ test("Relationship ignores additional edges.", () => {
   );
   //
   const result = executor.executeOperation(factory.createRelationshipProfile({
-    iri: "iri",
-    usageNote: { "en": "usage-note" },
-    usageNoteFromProfiled: "usage-note-source",
-    profiling: ["one", "two"],
     ends: [{
       iri: "first",
       name: null,
@@ -425,10 +401,6 @@ test("Relationship ignores additional edges.", () => {
       "1": {
         id: "1",
         type: [SEMANTIC_MODEL_RELATIONSHIP_PROFILE],
-        iri: "iri",
-        usageNote: { "en": "usage-note" },
-        usageNoteFromProfiled: "usage-note-source",
-        profiling: ["one", "two"],
         ends: [{
           iri: "first",
           name: null,
