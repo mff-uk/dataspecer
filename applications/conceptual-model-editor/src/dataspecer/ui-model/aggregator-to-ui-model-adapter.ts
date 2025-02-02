@@ -1,19 +1,20 @@
 import { Entity, EntityModel } from "@dataspecer/core-v2";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { HexColor, VisualModel } from "@dataspecer/core-v2/visual-model";
+import { HexColor, RepresentedEntityIdentifier, VisualEntity, VisualModel } from "@dataspecer/core-v2/visual-model";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship, isSemanticModelAttribute, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticModelAttributeUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
-import { UiAssociation, UiAssociationProfile, UiAttribute, UiAttributeProfile, UiClass, UiClassProfile, UiModel, UiModelType, UiGeneralization, UiState } from "./ui-model";
-import { TranslationFunction, configuration, createLogger } from "../../application";
+import { UiAssociation, UiAssociationProfile, UiAttribute, UiAttributeProfile, UiClass, UiClassProfile, UiModel, UiModelType, UiGeneralization, UiModelState } from "./ui-model";
+import { TranslationFunction, createLogger } from "../../application";
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { MISSING_MODEL_IDENTIFIER } from "./ui-well-know";
-import { createEmptyUiState, getOwnerModelIdentifier, sortEntitiesByDisplayLabel } from "./ui-model-utilities";
-import { EntityDsIdentifier } from "../entity-model";
+import { getOwnerModelIdentifier, sortEntitiesByDisplayLabel } from "./ui-model-utilities";
+import { EntityDsIdentifier, ModelDsIdentifier } from "../entity-model";
 import { addToMapArray } from "../../utilities/functional";
+import { createEmptyState } from "./ui-model-state";
 
 const LOG = createLogger(import.meta.url);
 
@@ -77,8 +78,8 @@ export function entityModelToUiState(
   aggregates: Record<string, AggregatedEntityWrapper>,
   visualModel: VisualModel | null,
   languages: string[],
-): UiState {
-  const state = createEmptyUiState();
+): UiModelState {
+  const state = createEmptyState();
   // We start by creating models.
   state.models = models.map(item => entityModelToUiModel(
     defaultModelColor, t, item, visualModel));
@@ -127,7 +128,7 @@ function addEntitiesToStateForModel(
   referenceModels: EntityModel[],
   visualModel: VisualModel | null,
   languages: string[],
-  state: UiState,
+  state: UiModelState,
 ): void {
   for (const { entity, aggregate } of entities) {
     // We start by searching for the owner.
@@ -411,7 +412,7 @@ function semanticRelationshipUsageToUiAssociationProfile(
  * Take all generalizations from the state and update their labels.
  * Return new generalization array or the one from state if there was no change.
  */
-function updateGeneralizationLabels(state: UiState): UiGeneralization[] {
+function updateGeneralizationLabels(state: UiModelState): UiGeneralization[] {
   // We build map from entity to all relevant generalizations.
   const result: UiGeneralization[] = [...state.generalizations];
   const parents: Record<EntityDsIdentifier, number[]> = {};
@@ -465,7 +466,7 @@ function sortGeneralizationsByDisplayLabel(generalizations: UiGeneralization[]) 
 /**
  * Sort all entities in the state.
  */
-function sortState(state: UiState) {
+function sortState(state: UiModelState) {
   sortEntitiesByDisplayLabel(state.models);
   sortEntitiesByDisplayLabel(state.classes);
   sortEntitiesByDisplayLabel(state.classProfiles);
@@ -487,12 +488,13 @@ export function semanticModelChangeToUiState(
   referenceModels: EntityModel[],
   visualModel: VisualModel | null,
   languages: string[],
-  state: UiState,
-): UiState {
-  // As he "addEntitiesToStateForModel" method can perform in-place array
+  state: UiModelState,
+): UiModelState {
+  // As the "addEntitiesToStateForModel" method can perform in-place array
   // modifications we re-create all arrays. This is sub-optimal and
   // creates optimization opportunity.
-  const result: UiState = {
+  const result: UiModelState = {
+    ...state,
     models: [...state.models],
     classes: [...state.classes],
     classProfiles: [...state.classProfiles],
@@ -500,7 +502,7 @@ export function semanticModelChangeToUiState(
     attributeProfiles: [...state.attributeProfiles],
     associations: [...state.associations],
     associationProfiles: [...state.associationProfiles],
-    generalizations: [...state.generalizations]
+    generalizations: [...state.generalizations],
   };
 
   // Load updated entities.
@@ -563,20 +565,34 @@ function removeItems<T extends { dsIdentifier: string }>(items: T[], toRemove: s
 
 /**
  * Make sure that all visual information the state is from the given visual model.
- *
- * To remove visual information pass empty visual model.
  */
 export function visualModelToUiState(
-  state: UiState,
+  state: UiModelState,
   visualModel: VisualModel,
-): UiState {
-  const defaultModelColor = configuration().defaultModelColor;
+  defaultColor: HexColor,
+): UiModelState {
+  const updatedVisual = updateUiStateVisual(state,
+    (identifier) => visualModel.getModelColor(identifier) ?? defaultColor,
+    (identifier) => visualModel.getVisualEntityForRepresented(identifier));
+  return {
+    ...updatedVisual,
+    visualModel,
+  };
+}
 
+/**
+ * Update visual information the model, does not change the visual model.
+ */
+function updateUiStateVisual(
+  state: UiModelState,
+  getModelColor: (model: ModelDsIdentifier) => string,
+  getVisualEntityForRepresented: (represented: RepresentedEntityIdentifier) => VisualEntity | null,
+): UiModelState {
   // We start with updating the models.
   const models: Record<string, UiModel> = {};
   const nextModels: UiModel[] = [];
   for (const model of state.models) {
-    const color = visualModel.getModelColor(model.dsIdentifier) ?? defaultModelColor;
+    const color = getModelColor(model.dsIdentifier);
     const nextModel = {
       ...model,
       displayColor: color,
@@ -587,13 +603,12 @@ export function visualModelToUiState(
 
   // Now we update entities.
   // We need to replace the UiModel and check for visualDsIdentifier.
-
   const updateEntity = <T extends {
     dsIdentifier: EntityDsIdentifier,
     model: UiModel,
     visualDsIdentifier: EntityDsIdentifier | null,
   }>(item: T): T => {
-    const visual = visualModel.getVisualEntityForRepresented(item.dsIdentifier);
+    const visual = getVisualEntityForRepresented(item.dsIdentifier);
     return {
       ...item,
       model: models[item.model.dsIdentifier],
@@ -602,6 +617,9 @@ export function visualModelToUiState(
   };
 
   return {
+    // We re-select the default model as color may have changed.
+    defaultWriteModel: nextModels.find(item => item.dsIdentifier === state.defaultWriteModel?.dsIdentifier) ?? null,
+    visualModel: state.visualModel,
     models: nextModels,
     classes: state.classes.map(updateEntity),
     classProfiles: state.classProfiles.map(updateEntity),
@@ -610,5 +628,23 @@ export function visualModelToUiState(
     associations: state.associations.map(updateEntity),
     associationProfiles: state.associationProfiles.map(updateEntity),
     generalizations: state.generalizations,
+  };
+}
+
+/**
+ * Remove all visual information from the state.
+ */
+export function removeVisualModelToUiState(
+  state: UiModelState,
+  defaultColor: HexColor,
+): UiModelState {
+  // We run the visualModelToUiState with an empty visual model.
+  // Then we remove the visual model information.
+  const updatedVisual = updateUiStateVisual(state,
+    () => defaultColor,
+    () => null);
+  return {
+    ...updatedVisual,
+    visualModel: null,
   };
 }

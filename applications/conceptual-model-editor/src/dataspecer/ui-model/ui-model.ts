@@ -1,3 +1,4 @@
+import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../entity-model";
 
 /**
@@ -14,7 +15,13 @@ export enum UiModelType {
    * Default read only model.
    */
   Default,
+  /**
+   * Writable model.
+   */
   InMemorySemanticModel,
+  /**
+   * Read only model.
+   */
   ExternalSemanticModel,
 }
 
@@ -106,7 +113,7 @@ interface Profile {
    */
   profiles: {
 
-    profileOf: UiReference
+    profileOf: UiReference;
 
   }[];
 
@@ -157,7 +164,19 @@ export interface UiTree<EntityType, ProfileType> {
 
 }
 
-export interface UiState {
+export interface UiModelState {
+
+  /**
+   * When null, there is no model to write to.
+   * As a result, the state is read-only.
+   */
+  defaultWriteModel: UiModel | null;
+
+  /**
+   * Currently active visual model.
+   * It is used to assign visual attributes to new, or changed, items.
+   */
+  visualModel: VisualModel | null;
 
   models: UiModel[];
 

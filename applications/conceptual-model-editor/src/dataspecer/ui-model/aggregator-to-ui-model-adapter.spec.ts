@@ -3,11 +3,12 @@ import { describe, expect, test } from "vitest";
 import { HexColor, RepresentedEntityIdentifier, VISUAL_RELATIONSHIP_TYPE, VisualEntity, VisualModel, VisualModelData, VisualModelDataVersion, VisualRelationship } from "@dataspecer/core-v2/visual-model";
 import { Entities, EntityModel } from "@dataspecer/core-v2";
 import { AggregatedEntityWrapper, SemanticModelAggregator } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SemanticModelClass, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_RELATIONSHIP, SemanticModelClass, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
 
-import { entityModelToUiModel, entityModelToUiState, semanticModelChangeToUiState, visualModelToUiState } from "./aggregator-to-ui-model-adapter";
-import { UiAssociation, UiAssociationProfile, UiAttribute, UiAttributeProfile, UiClass, UiClassProfile, UiGeneralization, UiModel, UiModelType, UiState } from "./ui-model";
+import { entityModelToUiModel, entityModelToUiState, removeVisualModelToUiState, semanticModelChangeToUiState, visualModelToUiState } from "./aggregator-to-ui-model-adapter";
+import { UiAssociation, UiAssociationProfile, UiAttribute, UiAttributeProfile, UiClass, UiClassProfile, UiGeneralization, UiModel, UiModelType, UiModelState } from "./ui-model";
+import { createEmptyState } from "./ui-model-state";
 
 class MemoryModel implements EntityModel {
 
@@ -804,6 +805,160 @@ describe("entityModelToUiState", () => {
 
   });
 
+  test("Basic test with profiles without visual.", () => {
+    // TODO PeSk Ready for profiles.
+    /*
+    const thirdModelEntities = {
+      "1": {
+        id: "1",
+        type: [SEMANTIC_MODEL_CLASS_PROFILE],
+        iri: ":1",
+        name: { "": "name" },
+        nameFromProfiled: "2",
+        description: { "": "description" },
+        descriptionFromProfiled: "2",
+        profiling: ["2", "3"],
+        usageNote: { "": "note" },
+        usageNoteFromProfiled: "3",
+      },
+      "2": {
+        id: "2",
+        type: [SEMANTIC_MODEL_CLASS],
+        iri: "2",
+        name: { "": "name-2" },
+        description: { "": "description-2" },
+      },
+      "3": {
+        id: "3",
+        type: [SEMANTIC_MODEL_CLASS_PROFILE],
+        iri: "",
+        name: {"", "name-3"},
+        nameFromProfiled: null,
+        description: null,
+        descriptionFromProfiled: null,
+        usageNote: { "": "note-3" },
+        usageNoteFromProfiled: null,
+        profiling: ["2"],
+      },
+      "4": {
+        id: "4",
+        type: [SEMANTIC_MODEL_RELATIONSHIP_PROFILE],
+        ends: [{
+          iri:"1-1-iri",
+          name: null,
+          nameFromProfiled: "5",
+          description: null,
+          descriptionFromProfiled: "5",
+          cardinality: null,
+          cardinalityFromProfiled: "5",
+          concept: null,
+          conceptFromProfiled: "5",
+          profiling: ["5"],
+          usageNote: null,
+          usageNoteFromProfiled: "5",
+        }, {
+          iri:"1-2-iri",
+          name: null,
+          nameFromProfiled: "6",
+          description: null,
+          descriptionFromProfiled: "6",
+          cardinality: null,
+          cardinalityFromProfiled: "6",
+          concept: null,
+          conceptFromProfiled: "6",
+          profiling: ["6"],
+          usageNote: null,
+          usageNoteFromProfiled: "6",
+        }],
+      },
+      "5": {
+        id: "5",
+        type: [SEMANTIC_MODEL_RELATIONSHIP],
+        ends: [{
+          iri:"2-iri",
+          name: {"": "2-name"},
+          description: {"": "2-description"},
+          cardinality: [0, 1],
+          concept: "2-concept-1",
+          profiling: [],
+          usageNote: {"": "2-note"},
+        }, {
+          iri: null,
+          concept: "2-concept-2",
+        }]
+      },
+      "6": {
+        id: "6",
+        type: [SEMANTIC_MODEL_RELATIONSHIP],
+        ends: [{
+          iri: null,
+          concept: "2-concept-1",
+        }, {
+          iri:"3-iri",
+          name: {"": "3-name"},
+          description: {"": "3-description"},
+          cardinality: [0, 2],
+          concept: "3-concept-2",
+          profiling: [],
+          usageNote: {"": "3-note"},
+        }],
+      },
+    };
+
+    const thirdModel = new MemoryModel(
+      "jtnzl", "Second model", thirdModelEntities);
+
+    const actual = entityModelToUiState(
+      "#000000", t,
+      [thirdModel], [thirdModel],
+      aggregates, null, ["en"]);
+
+    const uiModel = entityModelToUiModel("#000000", t, thirdModel, null);
+
+    const expected: UiModelState = {
+      defaultWriteModel: uiModel,
+      models: [uiModel],
+      visualModel: null,
+      classes: [{
+        dsIdentifier: "2",
+        iri: "2",
+        displayLabel: "name-2",
+        model: uiModel,
+        visualDsIdentifier: null,
+      }],
+      classProfiles: [{
+        dsIdentifier: "1",
+        iri: ":1",
+        model: uiModel,
+        displayLabel: "name-2",
+        profiles: [{
+          profileOf: { entityDsIdentifier: "2", modelDsIdentifier: "jtnzl" }
+        }, {
+          profileOf: {entityDsIdentifier: "3", modelDsIdentifier: "jtnzl"}
+        }
+        ],
+        visualDsIdentifier: null,
+      }, {
+        dsIdentifier: "2",
+        iri: "",
+        model: uiModel,
+        displayLabel: "name-3",
+        profiles: [{
+          profileOf: { entityDsIdentifier: "2", modelDsIdentifier: "jtnzl" }
+        }],
+        visualDsIdentifier: null,
+      }],
+      attributes: [],
+      attributeProfiles: [],
+      associations: [],
+      associationProfiles: [],
+      generalizations: [],
+    };
+
+    expect(actual).toStrictEqual(expected);
+    */
+  });
+
 });
 
 describe("semanticModelChangeToUiState", () => {
@@ -857,7 +1012,9 @@ describe("semanticModelChangeToUiState", () => {
       {},
       { "class": { identifier: "0000", type: [] } }
     );
-    const state: UiState = {
+    const state: UiModelState = {
+      defaultWriteModel: model,
+      visualModel: null,
       models: [model],
       classes: [],
       classProfiles: [],
@@ -871,7 +1028,7 @@ describe("semanticModelChangeToUiState", () => {
     const actual = semanticModelChangeToUiState(
       entities, removed, models, visualModel, ["en"], state);
     // Expected state.
-    const expected: UiState = {
+    const expected: UiModelState = {
       ...state,
       classes: [{
         dsIdentifier: "class",
@@ -890,7 +1047,9 @@ describe("semanticModelChangeToUiState", () => {
     const removed: string[] = ["class"];
     const models: EntityModel[] = [];
     const visualModel: VisualModel | null = null;
-    const state: UiState = {
+    const state: UiModelState = {
+      defaultWriteModel: model,
+      visualModel: null,
       models: [model],
       classes: [{
         dsIdentifier: "class",
@@ -910,7 +1069,7 @@ describe("semanticModelChangeToUiState", () => {
     const actual = semanticModelChangeToUiState(
       entities, removed, models, visualModel, ["en"], state);
     // Expected state.
-    const expected: UiState = {
+    const expected: UiModelState = {
       ...state,
       classes: [],
     }
@@ -935,7 +1094,9 @@ describe("semanticModelChangeToUiState", () => {
       {},
       { "class": { identifier: "0000", type: [] } }
     );
-    const state: UiState = {
+    const state: UiModelState = {
+      defaultWriteModel: model,
+      visualModel: null,
       models: [model],
       classes: [{
         dsIdentifier: "class",
@@ -955,7 +1116,7 @@ describe("semanticModelChangeToUiState", () => {
     const actual = semanticModelChangeToUiState(
       entities, removed, models, visualModel, ["en"], state);
     // Expected state.
-    const expected: UiState = {
+    const expected: UiModelState = {
       ...state,
       classes: [{
         dsIdentifier: "class",
@@ -992,7 +1153,9 @@ describe("semanticModelChangeToUiState", () => {
         [generalizationInstance.id]: generalizationInstance,
       })];
     const visualModel: VisualModel | null = null;
-    const state: UiState = {
+    const state: UiModelState = {
+      defaultWriteModel: model,
+      visualModel: null,
       models: [model],
       classes: [{
         dsIdentifier: "admin",
@@ -1034,7 +1197,7 @@ describe("semanticModelChangeToUiState", () => {
         displayLabel: "Admin",
       },
     }];
-    const expected: UiState = {
+    const expected: UiModelState = {
       ...state,
       classes: [
         {
@@ -1058,7 +1221,9 @@ describe("semanticModelChangeToUiState", () => {
     const models: EntityModel[] = [];
     const visualModel: VisualModel | null = null;
 
-    const state: UiState = {
+    const state: UiModelState = {
+      defaultWriteModel: model,
+      visualModel: null,
       models: [model],
       classes: [{
         dsIdentifier: "user",
@@ -1099,7 +1264,7 @@ describe("semanticModelChangeToUiState", () => {
     const actual = semanticModelChangeToUiState(
       entities, removed, models, visualModel, ["en"], state);
     // Expected state.
-    const expected: UiState = {
+    const expected: UiModelState = {
       ...state,
       classes: [{
         dsIdentifier: "admin",
@@ -1144,7 +1309,9 @@ describe("semanticModelChangeToUiState", () => {
         [generalizationInstance.id]: generalizationInstance,
       })];
     const visualModel: VisualModel | null = null;
-    const state: UiState = {
+    const state: UiModelState = {
+      defaultWriteModel: model,
+      visualModel: null,
       models: [model],
       classes: [{
         dsIdentifier: "user",
@@ -1185,7 +1352,7 @@ describe("semanticModelChangeToUiState", () => {
     const actual = semanticModelChangeToUiState(
       entities, removed, models, visualModel, ["en"], state);
     // Expected state.
-    const expected: UiState = {
+    const expected: UiModelState = {
       ...state,
       classes: [{
         dsIdentifier: "admin",
@@ -1225,8 +1392,101 @@ describe("semanticModelChangeToUiState", () => {
 
 describe("visualModelToUiState", () => {
 
-  test("Default", () => {
+  test("Set visual model.", () => {
+    const model = {
+      dsIdentifier: "0",
+      displayLabel: "zero",
+      baseIri: null,
+      displayColor: "#000000",
+      modelType: UiModelType.Default,
+    };
+    const state: UiModelState = {
+      ...createEmptyState(),
+      models: [{
+        dsIdentifier: "0",
+        displayLabel: "zero",
+        baseIri: null,
+        displayColor: "#000000",
+        modelType: UiModelType.Default,
+      }],
+      visualModel: null,
+      classes: [{
+        dsIdentifier: "class",
+        iri: ":class",
+        model: model,
+        displayLabel: "Class",
+        visualDsIdentifier: null,
+      }]
+    };
+    const visual = new VisualModelMock({ "0": "#ff0000" }, {});
+    const actual = visualModelToUiState(state, visual, "#aa0000");
+    const nextModel: UiModel = {
+      ...model,
+      displayColor: "#ff0000",
+    };
+    const expected: UiModelState = {
+      ...actual,
+      models: [nextModel],
+      classes: [{
+        ...state.classes[0],
+        model: nextModel,
+      }]
+    };
+    //
+    expect(actual).toStrictEqual(expected);
+  });
 
+  test("Replace visual model.", () => {
+    const model = {
+      dsIdentifier: "0",
+      displayLabel: "zero",
+      baseIri: null,
+      displayColor: "#000000",
+      modelType: UiModelType.Default,
+    };
+    const visual = new VisualModelMock({ "0": "#000000" }, {});
+    const state: UiModelState = {
+      ...createEmptyState(),
+      models: [{
+        dsIdentifier: "0",
+        displayLabel: "zero",
+        baseIri: null,
+        displayColor: "#000000",
+        modelType: UiModelType.Default,
+      }],
+      visualModel: visual,
+      classes: [{
+        dsIdentifier: "class",
+        iri: ":class",
+        model: model,
+        displayLabel: "Class",
+        visualDsIdentifier: null,
+      }],
+    };
+    const nextVisual = new VisualModelMock({ "0": "#ff0000" }, {});
+    const actual = visualModelToUiState(state, nextVisual, "#aa0000");
+    const nextModel: UiModel = {
+      ...model,
+      displayColor: "#ff0000",
+    };
+    const expected: UiModelState = {
+      ...actual,
+      models: [nextModel],
+      classes: [{
+        ...state.classes[0],
+        model: nextModel,
+      }],
+      visualModel: nextVisual,
+    };
+    //
+    expect(actual).toStrictEqual(expected);
+  });
+
+});
+
+describe("removeVisualModelToUiState", () => {
+
+  test("Default test.", () => {
     const model: UiModel = {
       dsIdentifier: "0000",
       baseIri: null,
@@ -1235,7 +1495,9 @@ describe("visualModelToUiState", () => {
       modelType: UiModelType.Default,
     };
 
-    const state: UiState = {
+    const state: UiModelState = {
+      defaultWriteModel: model,
+      visualModel: new VisualModelMock({}, {}),
       models: [model],
       classes: [{
         dsIdentifier: "user",
@@ -1252,33 +1514,31 @@ describe("visualModelToUiState", () => {
       generalizations: [],
     };
 
-    const visualModel: VisualModel = new VisualModelMock({
-      "0000": "#111111",
-    }, {
-      "user": { identifier: "user-visual", type: [] }
-    });
-
     // Run the operation.
-    const actual = visualModelToUiState(state, visualModel);
+    const actual = removeVisualModelToUiState(state, "#111111");
     // Expected state.
     const nextModel = {
       ...model,
       displayColor: "#111111",
     };
 
-    const expected: UiState = {
+    const expected: UiModelState = {
       ...state,
+      defaultWriteModel: nextModel,
+      visualModel: null,
       models: [nextModel],
       classes: [{
         dsIdentifier: "user",
         model: nextModel,
         iri: ":user",
         displayLabel: "User",
-        visualDsIdentifier: "user-visual",
+        visualDsIdentifier: null,
       }],
     };
     // Final check.
     expect(actual).toStrictEqual(expected);
+
   });
 
 });
+
