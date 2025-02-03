@@ -7,11 +7,10 @@ import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simpli
 import { SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship, isSemanticModelAttribute, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticModelAttributeUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
-import { UiAssociation, UiAssociationProfile, UiAttribute, UiAttributeProfile, UiClass, UiClassProfile, UiModel, UiModelType, UiGeneralization, UiModelState } from "./ui-model";
+import { UiAssociation, UiAssociationProfile, UiAttribute, UiAttributeProfile, UiClass, UiClassProfile, UiVocabulary, UiVocabularyType, UiGeneralization, UiModelState } from "./ui-model";
 import { TranslationFunction, createLogger } from "../../application";
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { MISSING_MODEL_IDENTIFIER } from "./ui-well-know";
-import { getOwnerModelIdentifier, sortEntitiesByDisplayLabel } from "./ui-model-utilities";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../entity-model";
 import { addToMapArray } from "../../utilities/functional";
 import { createEmptyState } from "./ui-model-state";
@@ -26,11 +25,11 @@ export function entityModelToUiModel(
   t: TranslationFunction,
   model: EntityModel,
   visualModel: VisualModel | null,
-): UiModel {
+): UiVocabulary {
   return {
     dsIdentifier: model.getId(),
     displayLabel: getModelLabel(t, model),
-    modelType: getModelType(model),
+    vocabularyType: getModelType(model),
     displayColor: visualModel?.getModelColor(model.getId()) ?? defaultModelColor,
     baseIri: getModelBaseIri(model),
   }
@@ -44,13 +43,13 @@ function getModelLabel(t: TranslationFunction, model: EntityModel): string {
   return t("model-service.model-label-from-id", model.getId());
 }
 
-function getModelType(model: EntityModel): UiModelType {
+function getModelType(model: EntityModel): UiVocabularyType {
   if (model instanceof InMemorySemanticModel) {
-    return UiModelType.InMemorySemanticModel;
+    return UiVocabularyType.InMemorySemanticModel;
   } else if (model instanceof ExternalSemanticModel) {
-    return UiModelType.ExternalSemanticModel;
+    return UiVocabularyType.ExternalSemanticModel;
   } else {
-    return UiModelType.Default;
+    return UiVocabularyType.Default;
   }
 }
 
@@ -81,7 +80,7 @@ export function entityModelToUiState(
 ): UiModelState {
   const state = createEmptyState();
   // We start by creating models.
-  state.models = models.map(item => entityModelToUiModel(
+  state.vocabularies = models.map(item => entityModelToUiModel(
     defaultModelColor, t, item, visualModel));
   // Add entities from all given models.
   for (const model of models) {
@@ -133,7 +132,7 @@ function addEntitiesToStateForModel(
   for (const { entity, aggregate } of entities) {
     // We start by searching for the owner.
     const owner = getOwnerModelIdentifier(referenceModels, entity.id);
-    const model = state.models.find(item => item.dsIdentifier === owner);
+    const model = state.vocabularies.find(item => item.dsIdentifier === owner);
     if (model === undefined) {
       LOG.warn("Ignoring update of entity without a model.", { entity: entity.id, model: owner });
       continue;
@@ -179,29 +178,42 @@ function addEntitiesToStateForModel(
   }
 }
 
+function getOwnerModelIdentifier(models: EntityModel[], entity: string | undefined | null): string {
+  if (entity === undefined || entity === null) {
+    return MISSING_MODEL_IDENTIFIER;
+  }
+  for (const model of models) {
+    if (model.getEntities()[entity] === undefined) {
+      continue;
+    }
+    return model.getId();
+  }
+  return MISSING_MODEL_IDENTIFIER;
+}
+
 /**
  * Assigned displayLabel are temporary.
  */
 function semanticGeneralizationToUiGeneralization(
   entity: SemanticModelGeneralization,
-  model: UiModel,
+  model: UiVocabulary,
   referenceModels: EntityModel[],
   visualModel: VisualModel | null,
 ): UiGeneralization {
   return {
     dsIdentifier: entity.id,
-    model: model,
+    vocabulary: model,
     iri: entity.iri,
     // We use this as a placeholder to be set later.
     visualDsIdentifier: getVisualIdentifier(visualModel, entity),
     parent: {
       entityDsIdentifier: entity.parent,
-      modelDsIdentifier: getOwnerModelIdentifier(referenceModels, entity.parent),
+      vocabularyDsIdentifier: getOwnerModelIdentifier(referenceModels, entity.parent),
       displayLabel: entity.parent,
     },
     child: {
       entityDsIdentifier: entity.child,
-      modelDsIdentifier: getOwnerModelIdentifier(referenceModels, entity.child),
+      vocabularyDsIdentifier: getOwnerModelIdentifier(referenceModels, entity.child),
       displayLabel: entity.child,
     },
   }
@@ -216,13 +228,13 @@ function getVisualIdentifier(visualModel: VisualModel | null, entity: { id: stri
 
 function semanticClassToUiClass(
   entity: SemanticModelClass,
-  model: UiModel,
+  model: UiVocabulary,
   _aggregate: SemanticModelClass,
   visualModel: VisualModel | null,
   languages: string[],
 ): UiClass {
   return {
-    model: model,
+    vocabulary: model,
     dsIdentifier: entity.id,
     iri: entity.iri ?? null,
     displayLabel: getLabel(languages, entity.name),
@@ -261,14 +273,14 @@ function getLabel(languages: string[], label: LanguageString | null | undefined)
 
 function semanticClassUsageToUiClassProfile(
   entity: SemanticModelClassUsage,
-  model: UiModel,
+  model: UiVocabulary,
   aggregate: SemanticModelClassUsage,
   referenceModels: EntityModel[],
   visualModel: VisualModel | null,
   languages: string[],
 ): UiClassProfile {
   return {
-    model: model,
+    vocabulary: model,
     dsIdentifier: entity.id,
     iri: aggregate.iri ?? null,
     displayLabel: getLabel(languages, aggregate.name),
@@ -276,7 +288,7 @@ function semanticClassUsageToUiClassProfile(
     profiles: [{
       profileOf: {
         entityDsIdentifier: entity.usageOf,
-        modelDsIdentifier: getOwnerModelIdentifier(referenceModels, entity.usageOf),
+        vocabularyDsIdentifier: getOwnerModelIdentifier(referenceModels, entity.usageOf),
       }
     }],
   };
@@ -284,7 +296,7 @@ function semanticClassUsageToUiClassProfile(
 
 function semanticRelationshipToUiAttribute(
   entity: SemanticModelRelationship,
-  model: UiModel,
+  model: UiVocabulary,
   _aggregate: SemanticModelRelationship,
   referenceModels: EntityModel[],
   visualModel: VisualModel | null,
@@ -295,14 +307,14 @@ function semanticRelationshipToUiAttribute(
     LOG.invalidEntity(entity.id, "Missing domain or range!");
   }
   return {
-    model: model,
+    vocabulary: model,
     dsIdentifier: entity.id,
     iri: range?.iri ?? null,
     displayLabel: getLabel(languages, range?.name),
     visualDsIdentifier: getVisualIdentifier(visualModel, entity),
     domain: {
       entityDsIdentifier: domain?.concept ?? MISSING_MODEL_IDENTIFIER,
-      modelDsIdentifier: getOwnerModelIdentifier(referenceModels, domain?.concept),
+      vocabularyDsIdentifier: getOwnerModelIdentifier(referenceModels, domain?.concept),
     },
     range: {
       dsIdentifier: range?.concept ?? MISSING_MODEL_IDENTIFIER,
@@ -312,7 +324,7 @@ function semanticRelationshipToUiAttribute(
 
 function semanticRelationshipToUiAssociation(
   entity: SemanticModelRelationship,
-  model: UiModel,
+  model: UiVocabulary,
   _aggregate: SemanticModelRelationship,
   referenceModels: EntityModel[],
   visualModel: VisualModel | null,
@@ -323,25 +335,25 @@ function semanticRelationshipToUiAssociation(
     LOG.invalidEntity(entity.id, "Missing domain or range!");
   }
   return {
-    model: model,
+    vocabulary: model,
     dsIdentifier: entity.id,
     iri: range?.iri ?? null,
     displayLabel: getLabel(languages, range?.name),
     visualDsIdentifier: getVisualIdentifier(visualModel, entity),
     domain: {
       entityDsIdentifier: domain?.concept ?? MISSING_MODEL_IDENTIFIER,
-      modelDsIdentifier: getOwnerModelIdentifier(referenceModels, domain?.concept),
+      vocabularyDsIdentifier: getOwnerModelIdentifier(referenceModels, domain?.concept),
     },
     range: {
       entityDsIdentifier: range?.concept ?? MISSING_MODEL_IDENTIFIER,
-      modelDsIdentifier: getOwnerModelIdentifier(referenceModels, range?.concept),
+      vocabularyDsIdentifier: getOwnerModelIdentifier(referenceModels, range?.concept),
     },
   };
 }
 
 function semanticRelationshipUsageToUiAttributeProfile(
   entity: SemanticModelRelationshipUsage,
-  model: UiModel,
+  model: UiVocabulary,
   aggregate: SemanticModelRelationshipUsage,
   referenceModels: EntityModel[],
   visualModel: VisualModel | null,
@@ -352,7 +364,7 @@ function semanticRelationshipUsageToUiAttributeProfile(
     LOG.invalidEntity(entity.id, "Missing domain or range!");
   }
   return {
-    model: model,
+    vocabulary: model,
     dsIdentifier: entity.id,
     iri: range?.iri ?? null,
     displayLabel: getLabel(languages, range?.name),
@@ -360,12 +372,12 @@ function semanticRelationshipUsageToUiAttributeProfile(
     profiles: [{
       profileOf: {
         entityDsIdentifier: entity.usageOf,
-        modelDsIdentifier: getOwnerModelIdentifier(referenceModels, entity.usageOf),
+        vocabularyDsIdentifier: getOwnerModelIdentifier(referenceModels, entity.usageOf),
       }
     }],
     domain: {
       entityDsIdentifier: domain?.concept ?? MISSING_MODEL_IDENTIFIER,
-      modelDsIdentifier: getOwnerModelIdentifier(referenceModels, domain?.concept),
+      vocabularyDsIdentifier: getOwnerModelIdentifier(referenceModels, domain?.concept),
     },
     range: {
       dsIdentifier: range?.concept ?? MISSING_MODEL_IDENTIFIER,
@@ -375,7 +387,7 @@ function semanticRelationshipUsageToUiAttributeProfile(
 
 function semanticRelationshipUsageToUiAssociationProfile(
   entity: SemanticModelRelationshipUsage,
-  model: UiModel,
+  model: UiVocabulary,
   aggregate: SemanticModelRelationshipUsage,
   referenceModels: EntityModel[],
   visualModel: VisualModel | null,
@@ -386,7 +398,7 @@ function semanticRelationshipUsageToUiAssociationProfile(
     LOG.invalidEntity(entity.id, "Missing domain or range!");
   }
   return {
-    model: model,
+    vocabulary: model,
     dsIdentifier: entity.id,
     iri: range?.iri ?? null,
     displayLabel: getLabel(languages, range?.name),
@@ -394,16 +406,16 @@ function semanticRelationshipUsageToUiAssociationProfile(
     profiles: [{
       profileOf: {
         entityDsIdentifier: entity.usageOf,
-        modelDsIdentifier: getOwnerModelIdentifier(referenceModels, entity.usageOf),
+        vocabularyDsIdentifier: getOwnerModelIdentifier(referenceModels, entity.usageOf),
       }
     }],
     domain: {
       entityDsIdentifier: domain?.concept ?? MISSING_MODEL_IDENTIFIER,
-      modelDsIdentifier: getOwnerModelIdentifier(referenceModels, domain?.concept),
+      vocabularyDsIdentifier: getOwnerModelIdentifier(referenceModels, domain?.concept),
     },
     range: {
       entityDsIdentifier: range?.concept ?? MISSING_MODEL_IDENTIFIER,
-      modelDsIdentifier: getOwnerModelIdentifier(referenceModels, range?.concept),
+      vocabularyDsIdentifier: getOwnerModelIdentifier(referenceModels, range?.concept),
     },
   };
 }
@@ -467,7 +479,7 @@ function sortGeneralizationsByDisplayLabel(generalizations: UiGeneralization[]) 
  * Sort all entities in the state.
  */
 function sortState(state: UiModelState) {
-  sortEntitiesByDisplayLabel(state.models);
+  sortEntitiesByDisplayLabel(state.vocabularies);
   sortEntitiesByDisplayLabel(state.classes);
   sortEntitiesByDisplayLabel(state.classProfiles);
   sortEntitiesByDisplayLabel(state.attributes);
@@ -475,6 +487,10 @@ function sortState(state: UiModelState) {
   sortEntitiesByDisplayLabel(state.associations);
   sortEntitiesByDisplayLabel(state.associationProfiles);
   sortGeneralizationsByDisplayLabel(state.generalizations);
+}
+
+function sortEntitiesByDisplayLabel(entities: { displayLabel: string }[]): void {
+  entities.sort((left, right) => left.displayLabel.localeCompare(right.displayLabel));
 }
 
 /**
@@ -495,7 +511,7 @@ export function semanticModelChangeToUiState(
   // creates optimization opportunity.
   const result: UiModelState = {
     ...state,
-    models: [...state.models],
+    vocabularies: [...state.vocabularies],
     classes: [...state.classes],
     classProfiles: [...state.classProfiles],
     attributes: [...state.attributes],
@@ -589,9 +605,9 @@ function updateUiStateVisual(
   getVisualEntityForRepresented: (represented: RepresentedEntityIdentifier) => VisualEntity | null,
 ): UiModelState {
   // We start with updating the models.
-  const models: Record<string, UiModel> = {};
-  const nextModels: UiModel[] = [];
-  for (const model of state.models) {
+  const models: Record<string, UiVocabulary> = {};
+  const nextModels: UiVocabulary[] = [];
+  for (const model of state.vocabularies) {
     const color = getModelColor(model.dsIdentifier);
     const nextModel = {
       ...model,
@@ -605,7 +621,7 @@ function updateUiStateVisual(
   // We need to replace the UiModel and check for visualDsIdentifier.
   const updateEntity = <T extends {
     dsIdentifier: EntityDsIdentifier,
-    model: UiModel,
+    model: UiVocabulary,
     visualDsIdentifier: EntityDsIdentifier | null,
   }>(item: T): T => {
     const visual = getVisualEntityForRepresented(item.dsIdentifier);
@@ -618,9 +634,9 @@ function updateUiStateVisual(
 
   return {
     // We re-select the default model as color may have changed.
-    defaultWriteModel: nextModels.find(item => item.dsIdentifier === state.defaultWriteModel?.dsIdentifier) ?? null,
+    defaultWriteVocabulary: nextModels.find(item => item.dsIdentifier === state.defaultWriteVocabulary?.dsIdentifier) ?? null,
     visualModel: state.visualModel,
-    models: nextModels,
+    vocabularies: nextModels,
     classes: state.classes.map(updateEntity),
     classProfiles: state.classProfiles.map(updateEntity),
     attributes: state.attributes.map(updateEntity),

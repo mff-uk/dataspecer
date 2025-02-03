@@ -4,7 +4,7 @@ import { AggregatedEntityWrapper, SemanticModelAggregatorView } from "@dataspece
 
 import { entityModelToUiModel, entityModelToUiState, removeVisualModelToUiState, semanticModelChangeToUiState, visualModelToUiState, } from "./aggregator-to-ui-model-adapter";
 import { configuration, createLogger, t, TranslationFunction } from "../../application";
-import { UiModel, UiModelType, UiModelState } from "./ui-model";
+import { UiVocabulary, UiVocabularyType, UiModelState } from "./ui-model";
 import { ModelIdentifier } from "../../../../../packages/core-v2/lib/visual-model/entity-model/entity-model";
 import { replaceInArray } from "../../utilities/functional";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../entity-model";
@@ -13,9 +13,9 @@ const LOG = createLogger(import.meta.url);
 
 export function createEmptyState(): UiModelState {
   return {
-    defaultWriteModel: null,
+    defaultWriteVocabulary: null,
     visualModel: null,
-    models: [],
+    vocabularies: [],
     classes: [],
     classProfiles: [],
     attributes: [],
@@ -42,13 +42,13 @@ export function createState(
     entities, visualModel, languages);
   return {
     ...state,
-    defaultWriteModel: selectWritableModel(state.models),
+    defaultWriteVocabulary: selectWritableModel(state.vocabularies),
     visualModel,
   };
 }
 
-function selectWritableModel(models: UiModel[]): UiModel | null {
-  return models.find(model => model.modelType === UiModelType.InMemorySemanticModel) ?? null;
+function selectWritableModel(models: UiVocabulary[]): UiVocabulary | null {
+  return models.find(model => model.vocabularyType === UiVocabularyType.InMemorySemanticModel) ?? null;
 }
 
 /**
@@ -62,10 +62,10 @@ export function onChangeSemanticModels(
   previous: UiModelState,
   semanticModels: EntityModel[],
 ): UiModelState {
-  const nextModels: UiModel[] = [];
+  const nextModels: UiVocabulary[] = [];
   for (const model of semanticModels) {
     const nextModel = entityModelToUiModel(defaultModelColor, t, model, previous.visualModel);
-    const prevModel = previous.models.find(item => item.dsIdentifier === nextModel.dsIdentifier);
+    const prevModel = previous.vocabularies.find(item => item.dsIdentifier === nextModel.dsIdentifier);
     if (prevModel === undefined) {
       // This is a new model.
       nextModels.push(nextModel);
@@ -80,50 +80,52 @@ export function onChangeSemanticModels(
 
   // We need to reselect the default model as it may be removed.
   let defaultWriteModel = nextModels
-    .find(item => item.dsIdentifier === previous.defaultWriteModel?.dsIdentifier)
+    .find(item => item.dsIdentifier === previous.defaultWriteVocabulary?.dsIdentifier)
     ?? null;
   if (defaultWriteModel === null) {
     defaultWriteModel = selectWritableModel(nextModels);
   }
 
   // Collect removed model.
-  const removedModels = previous.models
+  const removedModels = previous.vocabularies
     .filter(model => nextModels.find(item => item.dsIdentifier === model.dsIdentifier) === undefined)
     .map(model => model.dsIdentifier);
 
   if (removedModels.length === 0) {
     return {
       ...previous,
-      defaultWriteModel,
-      models: nextModels,
+      defaultWriteVocabulary: defaultWriteModel,
+      vocabularies: nextModels,
     };
   }
 
   // We need to filter the entities.
   return {
-    defaultWriteModel,
-    models: nextModels,
+    defaultWriteVocabulary: defaultWriteModel,
+    vocabularies: nextModels,
     visualModel: previous.visualModel,
-    classes: removeWithModels(previous.classes, removedModels),
-    classProfiles: removeWithModels(previous.classProfiles, removedModels),
-    attributes: removeWithModels(previous.attributes, removedModels),
-    attributeProfiles: removeWithModels(previous.attributeProfiles, removedModels),
-    associations: removeWithModels(previous.associations, removedModels),
-    associationProfiles: removeWithModels(previous.associationProfiles, removedModels),
-    generalizations: removeWithModels(previous.generalizations, removedModels),
+    classes: removeWithVocabularies(previous.classes, removedModels),
+    classProfiles: removeWithVocabularies(previous.classProfiles, removedModels),
+    attributes: removeWithVocabularies(previous.attributes, removedModels),
+    attributeProfiles: removeWithVocabularies(previous.attributeProfiles, removedModels),
+    associations: removeWithVocabularies(previous.associations, removedModels),
+    associationProfiles: removeWithVocabularies(previous.associationProfiles, removedModels),
+    generalizations: removeWithVocabularies(previous.generalizations, removedModels),
   };
 }
 
-function modelEqual(left: UiModel, right: UiModel): boolean {
+function modelEqual(left: UiVocabulary, right: UiVocabulary): boolean {
   return left.baseIri === right.baseIri &&
     left.displayColor === right.displayColor &&
     left.displayLabel === right.displayLabel &&
     left.dsIdentifier === right.dsIdentifier &&
-    left.modelType === right.modelType;
+    left.vocabularyType === right.vocabularyType;
 }
 
-function removeWithModels<T extends { model: UiModel }>(items: T[], models: ModelDsIdentifier[]): T[] {
-  return items.filter(item => !models.includes(item.model.dsIdentifier));
+function removeWithVocabularies<
+  T extends { vocabulary: UiVocabulary }
+>(items: T[], vocabularies: ModelDsIdentifier[]): T[] {
+  return items.filter(item => !vocabularies.includes(item.vocabulary.dsIdentifier));
 }
 
 /**
@@ -157,7 +159,7 @@ export function onChangeInAggregatorView(
     updated, removed, semanticModels, visualModel, languages, previous);
   return {
     ...state,
-    defaultWriteModel: selectWritableModel(state.models),
+    defaultWriteVocabulary: selectWritableModel(state.vocabularies),
   };
 }
 
@@ -276,25 +278,25 @@ export function onModelColorDidChange(
   next: HexColor | null,
   previous: UiModelState,
 ): UiModelState {
-  const previousModel = previous.models.find(model => model.dsIdentifier === identifier);
+  const previousModel = previous.vocabularies.find(model => model.dsIdentifier === identifier);
   if (previousModel === undefined) {
     // No mode find.
     LOG.warn("Ignored color change for missing model.", { model: identifier })
     return previous;
   }
-  const nextModel: UiModel = {
+  const nextModel: UiVocabulary = {
     ...previousModel,
     displayColor: next ?? defaultModelColor,
   }
 
   // We may need to update defaultWriteModel.
-  const defaultWriteModel = previous.defaultWriteModel?.dsIdentifier === previousModel.dsIdentifier
-    ? nextModel : previous.defaultWriteModel;
+  const defaultWriteModel = previous.defaultWriteVocabulary?.dsIdentifier === previousModel.dsIdentifier
+    ? nextModel : previous.defaultWriteVocabulary;
 
   // Now we need to replace the model in all entities.
   return {
-    defaultWriteModel,
-    models: replaceInArray(previousModel, nextModel, previous.models),
+    defaultWriteVocabulary: defaultWriteModel,
+    vocabularies: replaceInArray(previousModel, nextModel, previous.vocabularies),
     visualModel: previous.visualModel,
     classes: updateModelInEntities(previousModel, nextModel, previous.classes),
     classProfiles: updateModelInEntities(previousModel, nextModel, previous.classProfiles),
@@ -306,14 +308,14 @@ export function onModelColorDidChange(
   };
 }
 
-function updateModelInEntities<T extends { model: UiModel }>(
-  previous: UiModel,
-  next: UiModel,
+function updateModelInEntities<T extends { vocabulary: UiVocabulary }>(
+  previous: UiVocabulary,
+  next: UiVocabulary,
   entities: T[],
 ): T[] {
   return entities.map(item => {
-    if (item.model === previous) {
-      return { ...item, model: next };
+    if (item.vocabulary === previous) {
+      return { ...item, vocabulary: next };
     } else {
       return item;
     }

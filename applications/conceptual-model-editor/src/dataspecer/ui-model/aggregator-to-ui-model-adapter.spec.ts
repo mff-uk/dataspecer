@@ -7,7 +7,7 @@ import { SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_REL
 import { LanguageString } from "@dataspecer/core/core/core-resource";
 
 import { entityModelToUiModel, entityModelToUiState, removeVisualModelToUiState, semanticModelChangeToUiState, visualModelToUiState } from "./aggregator-to-ui-model-adapter";
-import { UiAssociation, UiAssociationProfile, UiAttribute, UiAttributeProfile, UiClass, UiClassProfile, UiGeneralization, UiModel, UiModelType, UiModelState } from "./ui-model";
+import { UiAssociation, UiAssociationProfile, UiAttribute, UiAttributeProfile, UiClass, UiClassProfile, UiGeneralization, UiVocabulary, UiVocabularyType, UiModelState } from "./ui-model";
 import { createEmptyState } from "./ui-model-state";
 
 class MemoryModel implements EntityModel {
@@ -135,7 +135,7 @@ describe("entityModelToUiModel", () => {
       dsIdentifier: "abcd",
       displayLabel: "mock model",
       displayColor: "abcd-blue",
-      modelType: UiModelType.Default,
+      vocabularyType: UiVocabularyType.Default,
       baseIri: "http://base",
     });
   });
@@ -155,7 +155,7 @@ describe("entityModelToUiModel", () => {
       dsIdentifier: "abcd",
       displayLabel: "t:model-service.model-label-from-id",
       displayColor: "abcd-blue",
-      modelType: UiModelType.Default,
+      vocabularyType: UiVocabularyType.Default,
       baseIri: null,
     });
   });
@@ -170,7 +170,7 @@ describe("entityModelToUiModel", () => {
       dsIdentifier: "abcd",
       displayLabel: "mock model",
       displayColor: "#111111",
-      modelType: UiModelType.Default,
+      vocabularyType: UiVocabularyType.Default,
       baseIri: null,
     });
   });
@@ -487,15 +487,15 @@ describe("entityModelToUiState", () => {
     }
   };
 
-  const localModel = new MemoryModel(
+  const localVocabulary = new MemoryModel(
     "8d8xl", "Local model", localModelEntities);
 
-  const secondModel = new MemoryModel(
+  const secondVocabulary = new MemoryModel(
     "jtnzl", "Second model", secondModelEntities);
 
   const aggregator = new SemanticModelAggregator();
-  aggregator.addModel(localModel);
-  aggregator.addModel(secondModel);
+  aggregator.addModel(localVocabulary);
+  aggregator.addModel(secondVocabulary);
 
   const aggregates = aggregator.getView().getEntities();
 
@@ -512,12 +512,12 @@ describe("entityModelToUiState", () => {
     } as VisualRelationship,
   };
 
-  const modelColors: Record<string, HexColor> = {
+  const vocabularyColors: Record<string, HexColor> = {
     "8d8xl": "#f00",
     "jtnzl": "#00f",
   };
 
-  const visualModel = new VisualModelMock(modelColors, visualEntities);
+  const visualModel = new VisualModelMock(vocabularyColors, visualEntities);
 
   const t = (text: string) => `t:${text}`;
 
@@ -525,40 +525,40 @@ describe("entityModelToUiState", () => {
 
     const actual = entityModelToUiState(
       "#111111", t,
-      [localModel], [localModel, secondModel],
+      [localVocabulary], [localVocabulary, secondVocabulary],
       aggregates, visualModel, ["en"]);
 
-    const local: UiModel = {
+    const local: UiVocabulary = {
       baseIri: null,
       displayColor: "#f00",
       displayLabel: "Local model",
       dsIdentifier: "8d8xl",
-      modelType: UiModelType.Default,
+      vocabularyType: UiVocabularyType.Default,
     };
 
     const classes: UiClass[] = [{
       displayLabel: "CSV File",
       dsIdentifier: "g9kgr30n0km1ugv822",
       iri: "CsvFile",
-      model: local,
+      vocabulary: local,
       visualDsIdentifier: null,
     }, {
       displayLabel: "Drained Service",
       dsIdentifier: "e4xe32lyj06m2wbmps4",
       iri: "DrainedService",
-      model: local,
+      vocabulary: local,
       visualDsIdentifier: null,
     }, {
       displayLabel: "File",
       dsIdentifier: "jn7hbn6e3drm1ndoil4",
       iri: "File",
-      model: local,
+      vocabulary: local,
       visualDsIdentifier: null,
     }, {
       displayLabel: "Package Entity",
       dsIdentifier: "gjicauujarm1ndo8v7",
       iri: "Package",
-      model: local,
+      vocabulary: local,
       visualDsIdentifier: null,
     }];
 
@@ -566,36 +566,36 @@ describe("entityModelToUiState", () => {
       displayLabel: "File [P]",
       dsIdentifier: "ib5x2ddfp9im3ugb4ks",
       iri: "File",
-      model: local,
+      vocabulary: local,
       visualDsIdentifier: null,
       profiles: [{
         profileOf: {
           entityDsIdentifier: "9oz2oxw29a9m3k7heco",
-          modelDsIdentifier: "jtnzl",
+          vocabularyDsIdentifier: "jtnzl",
         }
       }],
     }, {
       displayLabel: "File [P]",
       dsIdentifier: "cjeraar9g8m3uhupii",
       iri: "File",
-      model: local,
+      vocabulary: local,
       visualDsIdentifier: null,
       profiles: [{
         profileOf: {
           entityDsIdentifier: "ib5x2ddfp9im3ugb4ks",
-          modelDsIdentifier: "8d8xl",
+          vocabularyDsIdentifier: "8d8xl",
         }
       }],
     }, {
       displayLabel: "Zip [P]",
       dsIdentifier: "jau0qqop2om1tnwtba",
       iri: "Package",
-      model: local,
+      vocabulary: local,
       visualDsIdentifier: null,
       profiles: [{
         profileOf: {
           entityDsIdentifier: "gjicauujarm1ndo8v7",
-          modelDsIdentifier: "8d8xl",
+          vocabularyDsIdentifier: "8d8xl",
         }
       }],
     }];
@@ -604,11 +604,11 @@ describe("entityModelToUiState", () => {
       displayLabel: "Name",
       dsIdentifier: "ha8yahj15lm1tnwbv2",
       iri: "name",
-      model: local,
+      vocabulary: local,
       visualDsIdentifier: null,
       domain: {
         entityDsIdentifier: "gjicauujarm1ndo8v7",
-        modelDsIdentifier: local.dsIdentifier,
+        vocabularyDsIdentifier: local.dsIdentifier,
       },
       range: {
         dsIdentifier: "http://www.w3.org/2001/XMLSchema#string",
@@ -619,17 +619,17 @@ describe("entityModelToUiState", () => {
       displayLabel: "Named",
       dsIdentifier: "jvb8olk53shm1udb7wv",
       iri: "name",
-      model: local,
+      vocabulary: local,
       visualDsIdentifier: null,
       profiles: [{
         profileOf: {
           entityDsIdentifier: "ha8yahj15lm1tnwbv2",
-          modelDsIdentifier: "8d8xl",
+          vocabularyDsIdentifier: "8d8xl",
         }
       }],
       domain: {
         entityDsIdentifier: "gjicauujarm1ndo8v7",
-        modelDsIdentifier: local.dsIdentifier,
+        vocabularyDsIdentifier: local.dsIdentifier,
       },
       range: {
         dsIdentifier: "http://www.w3.org/2001/XMLSchema#string",
@@ -640,15 +640,15 @@ describe("entityModelToUiState", () => {
       displayLabel: "hasFile",
       dsIdentifier: "icfwsrg699dm1ndp4o0",
       iri: "aaa",
-      model: local,
+      vocabulary: local,
       visualDsIdentifier: null,
       domain: {
         entityDsIdentifier: "gjicauujarm1ndo8v7",
-        modelDsIdentifier: local.dsIdentifier,
+        vocabularyDsIdentifier: local.dsIdentifier,
       },
       range: {
         entityDsIdentifier: "jn7hbn6e3drm1ndoil4",
-        modelDsIdentifier: local.dsIdentifier,
+        vocabularyDsIdentifier: local.dsIdentifier,
       },
     }];
 
@@ -656,57 +656,57 @@ describe("entityModelToUiState", () => {
       displayLabel: "Crooked Point",
       dsIdentifier: "qj8evoy2gahm46r8olh",
       iri: "crookedPoint",
-      model: local,
+      vocabulary: local,
       visualDsIdentifier: null,
       profiles: [{
         profileOf: {
           entityDsIdentifier: "zqjoipz78wm41t042p",
-          modelDsIdentifier: "jtnzl",
+          vocabularyDsIdentifier: "jtnzl",
         }
       }],
       domain: {
         entityDsIdentifier: "e4xe32lyj06m2wbmps4",
-        modelDsIdentifier: local.dsIdentifier,
+        vocabularyDsIdentifier: local.dsIdentifier,
       },
       range: {
         entityDsIdentifier: "gjicauujarm1ndo8v7",
-        modelDsIdentifier: local.dsIdentifier,
+        vocabularyDsIdentifier: local.dsIdentifier,
       },
     }, {
       displayLabel: "hasFiled",
       dsIdentifier: "tm0pr6de2oim398f6hy",
       iri: "aaa",
-      model: local,
+      vocabulary: local,
       visualDsIdentifier: null,
       profiles: [{
         profileOf: {
           entityDsIdentifier: "icfwsrg699dm1ndp4o0",
-          modelDsIdentifier: "8d8xl",
+          vocabularyDsIdentifier: "8d8xl",
         }
       }],
       domain: {
         entityDsIdentifier: "gjicauujarm1ndo8v7",
-        modelDsIdentifier: local.dsIdentifier,
+        vocabularyDsIdentifier: local.dsIdentifier,
       },
       range: {
         entityDsIdentifier: "jn7hbn6e3drm1ndoil4",
-        modelDsIdentifier: local.dsIdentifier,
+        vocabularyDsIdentifier: local.dsIdentifier,
       },
     }];
 
     const generalizations: UiGeneralization[] = [{
       dsIdentifier: "8b7m5yz3ml5m1ugvhj5",
-      model: local,
+      vocabulary: local,
       iri: null,
       visualDsIdentifier: null,
       parent: {
         entityDsIdentifier: "jn7hbn6e3drm1ndoil4",
-        modelDsIdentifier: local.dsIdentifier,
+        vocabularyDsIdentifier: local.dsIdentifier,
         displayLabel: "File",
       },
       child: {
         entityDsIdentifier: "g9kgr30n0km1ugv822",
-        modelDsIdentifier: local.dsIdentifier,
+        vocabularyDsIdentifier: local.dsIdentifier,
         displayLabel: "CSV File",
       },
     }];
@@ -731,22 +731,22 @@ describe("entityModelToUiState", () => {
 
     const actual = entityModelToUiState(
       "#111111", t,
-      [secondModel], [localModel, secondModel],
+      [secondVocabulary], [localVocabulary, secondVocabulary],
       aggregates, visualModel, ["en"]);
 
-    const second: UiModel = {
+    const second: UiVocabulary = {
       baseIri: null,
       displayColor: "#00f",
       displayLabel: "Second model",
       dsIdentifier: "jtnzl",
-      modelType: UiModelType.Default,
+      vocabularyType: UiVocabularyType.Default,
     };
 
     const classes: UiClass[] = [{
       displayLabel: "File",
       dsIdentifier: "9oz2oxw29a9m3k7heco",
       iri: "File",
-      model: second,
+      vocabulary: second,
       visualDsIdentifier: null,
     }];
 
@@ -756,11 +756,11 @@ describe("entityModelToUiState", () => {
       displayLabel: "Repulsive Area",
       dsIdentifier: "quvpe342ram4b5mnrf",
       iri: "RepulsiveArea",
-      model: second,
+      vocabulary: second,
       visualDsIdentifier: null,
       domain: {
         entityDsIdentifier: "g9kgr30n0km1ugv822",
-        modelDsIdentifier: localModel.getId(),
+        vocabularyDsIdentifier: localVocabulary.getId(),
       },
       range: {
         dsIdentifier: "http://www.w3.org/2001/XMLSchema#string",
@@ -773,15 +773,15 @@ describe("entityModelToUiState", () => {
       displayLabel: "Crooked Point",
       dsIdentifier: "zqjoipz78wm41t042p",
       iri: "crookedPoint",
-      model: second,
+      vocabulary: second,
       visualDsIdentifier: "0000",
       domain: {
         entityDsIdentifier: "e4xe32lyj06m2wbmps4",
-        modelDsIdentifier: localModel.getId(),
+        vocabularyDsIdentifier: localVocabulary.getId(),
       },
       range: {
         entityDsIdentifier: "gjicauujarm1ndo8v7",
-        modelDsIdentifier: localModel.getId(),
+        vocabularyDsIdentifier: localVocabulary.getId(),
       },
     }];
 
@@ -808,7 +808,7 @@ describe("entityModelToUiState", () => {
   test("Basic test with profiles without visual.", () => {
     // TODO PeSk Ready for profiles.
     /*
-    const thirdModelEntities = {
+    const thirdVocabularyEntities = {
       "1": {
         id: "1",
         type: [SEMANTIC_MODEL_CLASS_PROFILE],
@@ -905,15 +905,15 @@ describe("entityModelToUiState", () => {
       },
     };
 
-    const thirdModel = new MemoryModel(
+    const thirdVocabulary = new MemoryModel(
       "jtnzl", "Second model", thirdModelEntities);
 
     const actual = entityModelToUiState(
       "#000000", t,
-      [thirdModel], [thirdModel],
+      [thirdVocabulary], [thirdVocabulary],
       aggregates, null, ["en"]);
 
-    const uiModel = entityModelToUiModel("#000000", t, thirdModel, null);
+    const uiModel = entityModelToUiModel("#000000", t, thirdVocabulary, null);
 
     const expected: UiModelState = {
       defaultWriteModel: uiModel,
@@ -963,12 +963,12 @@ describe("entityModelToUiState", () => {
 
 describe("semanticModelChangeToUiState", () => {
 
-  const model: UiModel = {
+  const model: UiVocabulary = {
     dsIdentifier: "qckc",
     baseIri: "",
     displayLabel: "",
     displayColor: "#768212",
-    modelType: UiModelType.Default,
+    vocabularyType: UiVocabularyType.Default,
   };
 
   const classInstance: SemanticModelClass = {
@@ -1013,9 +1013,9 @@ describe("semanticModelChangeToUiState", () => {
       { "class": { identifier: "0000", type: [] } }
     );
     const state: UiModelState = {
-      defaultWriteModel: model,
+      defaultWriteVocabulary: model,
       visualModel: null,
-      models: [model],
+      vocabularies: [model],
       classes: [],
       classProfiles: [],
       attributes: [],
@@ -1032,7 +1032,7 @@ describe("semanticModelChangeToUiState", () => {
       ...state,
       classes: [{
         dsIdentifier: "class",
-        model: model,
+        vocabulary: model,
         iri: ":class",
         displayLabel: "Class",
         visualDsIdentifier: "0000",
@@ -1048,12 +1048,12 @@ describe("semanticModelChangeToUiState", () => {
     const models: EntityModel[] = [];
     const visualModel: VisualModel | null = null;
     const state: UiModelState = {
-      defaultWriteModel: model,
+      defaultWriteVocabulary: model,
       visualModel: null,
-      models: [model],
+      vocabularies: [model],
       classes: [{
         dsIdentifier: "class",
-        model,
+        vocabulary: model,
         iri: ":class",
         displayLabel: "Class",
         visualDsIdentifier: "0000",
@@ -1095,12 +1095,12 @@ describe("semanticModelChangeToUiState", () => {
       { "class": { identifier: "0000", type: [] } }
     );
     const state: UiModelState = {
-      defaultWriteModel: model,
+      defaultWriteVocabulary: model,
       visualModel: null,
-      models: [model],
+      vocabularies: [model],
       classes: [{
         dsIdentifier: "class",
-        model,
+        vocabulary: model,
         iri: ":class-old",
         displayLabel: "Class-old",
         visualDsIdentifier: "0000",
@@ -1120,7 +1120,7 @@ describe("semanticModelChangeToUiState", () => {
       ...state,
       classes: [{
         dsIdentifier: "class",
-        model,
+        vocabulary: model,
         iri: ":class",
         displayLabel: "Class",
         visualDsIdentifier: "0000",
@@ -1146,7 +1146,7 @@ describe("semanticModelChangeToUiState", () => {
       aggregatedEntity: null,
     }];
     const removed: string[] = [];
-    const models: EntityModel[] = [
+    const vocabularies: EntityModel[] = [
       new MemoryModel("qckc", null, {
         [userInstance.id]: userInstance,
         [adminInstance.id]: adminInstance,
@@ -1154,18 +1154,18 @@ describe("semanticModelChangeToUiState", () => {
       })];
     const visualModel: VisualModel | null = null;
     const state: UiModelState = {
-      defaultWriteModel: model,
+      defaultWriteVocabulary: model,
       visualModel: null,
-      models: [model],
+      vocabularies: [model],
       classes: [{
         dsIdentifier: "admin",
-        model: model,
+        vocabulary: model,
         iri: ":admin",
         displayLabel: "Admin",
         visualDsIdentifier: null,
       }, {
         dsIdentifier: "user",
-        model: model,
+        vocabulary: model,
         iri: ":user",
         displayLabel: "User",
         visualDsIdentifier: null,
@@ -1179,21 +1179,21 @@ describe("semanticModelChangeToUiState", () => {
     };
     // Run the operation.
     const actual = semanticModelChangeToUiState(
-      entities, removed, models, visualModel, ["en"], state);
+      entities, removed, vocabularies, visualModel, ["en"], state);
     // Expected state.
     const expectedGeneralizations: UiGeneralization[] = [{
       dsIdentifier: "gen",
-      model: model,
+      vocabulary: model,
       iri: ":gen",
       visualDsIdentifier: null,
       parent: {
         entityDsIdentifier: "user",
-        modelDsIdentifier: model.dsIdentifier,
+        vocabularyDsIdentifier: model.dsIdentifier,
         displayLabel: "User",
       },
       child: {
         entityDsIdentifier: "admin",
-        modelDsIdentifier: model.dsIdentifier,
+        vocabularyDsIdentifier: model.dsIdentifier,
         displayLabel: "Admin",
       },
     }];
@@ -1202,7 +1202,7 @@ describe("semanticModelChangeToUiState", () => {
       classes: [
         {
           dsIdentifier: "admin",
-          model: model,
+          vocabulary: model,
           iri: ":admin",
           displayLabel: "Admin",
           visualDsIdentifier: null,
@@ -1218,22 +1218,22 @@ describe("semanticModelChangeToUiState", () => {
   test("Remove a generalization.", () => {
     const entities: AggregatedEntityWrapper[] = [];
     const removed: string[] = ["gen"];
-    const models: EntityModel[] = [];
+    const vocabularies: EntityModel[] = [];
     const visualModel: VisualModel | null = null;
 
     const state: UiModelState = {
-      defaultWriteModel: model,
+      defaultWriteVocabulary: model,
       visualModel: null,
-      models: [model],
+      vocabularies: [model],
       classes: [{
         dsIdentifier: "user",
-        model: model,
+        vocabulary: model,
         iri: ":user",
         displayLabel: "User",
         visualDsIdentifier: null,
       }, {
         dsIdentifier: "admin",
-        model: model,
+        vocabulary: model,
         iri: ":admin",
         displayLabel: "Admin",
         visualDsIdentifier: null,
@@ -1246,35 +1246,35 @@ describe("semanticModelChangeToUiState", () => {
       generalizations: [{
         dsIdentifier: "gen",
         iri: ":gen",
-        model: model,
+        vocabulary: model,
         visualDsIdentifier: null,
         parent: {
           entityDsIdentifier: "user",
-          modelDsIdentifier: model.dsIdentifier,
+          vocabularyDsIdentifier: model.dsIdentifier,
           displayLabel: "User",
         },
         child: {
           entityDsIdentifier: "admin",
-          modelDsIdentifier: model.dsIdentifier,
+          vocabularyDsIdentifier: model.dsIdentifier,
           displayLabel: "Admin",
         },
       }],
     };
     // Run the operation.
     const actual = semanticModelChangeToUiState(
-      entities, removed, models, visualModel, ["en"], state);
+      entities, removed, vocabularies, visualModel, ["en"], state);
     // Expected state.
     const expected: UiModelState = {
       ...state,
       classes: [{
         dsIdentifier: "admin",
-        model: model,
+        vocabulary: model,
         iri: ":admin",
         displayLabel: "Admin",
         visualDsIdentifier: null,
       }, {
         dsIdentifier: "user",
-        model: model,
+        vocabulary: model,
         iri: ":user",
         displayLabel: "User",
         visualDsIdentifier: null,
@@ -1301,7 +1301,7 @@ describe("semanticModelChangeToUiState", () => {
       aggregatedEntity: null,
     }];
     const removed: string[] = [];
-    const models: EntityModel[] = [
+    const vocabularies: EntityModel[] = [
       new MemoryModel("qckc", null, {
         // We entities here so the generalization can reference them.
         [userInstance.id]: userInstance,
@@ -1310,18 +1310,18 @@ describe("semanticModelChangeToUiState", () => {
       })];
     const visualModel: VisualModel | null = null;
     const state: UiModelState = {
-      defaultWriteModel: model,
+      defaultWriteVocabulary: model,
       visualModel: null,
-      models: [model],
+      vocabularies: [model],
       classes: [{
         dsIdentifier: "user",
-        model: model,
+        vocabulary: model,
         iri: ":user",
         displayLabel: "User",
         visualDsIdentifier: null,
       }, {
         dsIdentifier: "admin",
-        model: model,
+        vocabulary: model,
         iri: ":admin",
         displayLabel: "Admin",
         visualDsIdentifier: null,
@@ -1333,53 +1333,53 @@ describe("semanticModelChangeToUiState", () => {
       associationProfiles: [],
       generalizations: [{
         dsIdentifier: "gen",
-        model: model,
+        vocabulary: model,
         iri: ":gen",
         visualDsIdentifier: null,
         parent: {
           entityDsIdentifier: "user",
-          modelDsIdentifier: model.dsIdentifier,
+          vocabularyDsIdentifier: model.dsIdentifier,
           displayLabel: "User",
         },
         child: {
           entityDsIdentifier: "admin",
-          modelDsIdentifier: model.dsIdentifier,
+          vocabularyDsIdentifier: model.dsIdentifier,
           displayLabel: "Admin",
         }
       }]
     };
     // Run the operation.
     const actual = semanticModelChangeToUiState(
-      entities, removed, models, visualModel, ["en"], state);
+      entities, removed, vocabularies, visualModel, ["en"], state);
     // Expected state.
     const expected: UiModelState = {
       ...state,
       classes: [{
         dsIdentifier: "admin",
-        model: model,
+        vocabulary: model,
         iri: ":admin",
         displayLabel: "Admin",
         visualDsIdentifier: null,
       }, {
         dsIdentifier: "user",
-        model: model,
+        vocabulary: model,
         iri: ":user",
         displayLabel: "User",
         visualDsIdentifier: null,
       }],
       generalizations: [{
         dsIdentifier: "gen",
-        model: model,
+        vocabulary: model,
         iri: ":gen",
         visualDsIdentifier: null,
         parent: {
           entityDsIdentifier: "admin",
-          modelDsIdentifier: model.dsIdentifier,
+          vocabularyDsIdentifier: model.dsIdentifier,
           displayLabel: "Admin",
         },
         child: {
           entityDsIdentifier: "user",
-          modelDsIdentifier: model.dsIdentifier,
+          vocabularyDsIdentifier: model.dsIdentifier,
           displayLabel: "User",
         }
       }],
@@ -1393,43 +1393,43 @@ describe("semanticModelChangeToUiState", () => {
 describe("visualModelToUiState", () => {
 
   test("Set visual model.", () => {
-    const model = {
+    const vocabulary: UiVocabulary = {
       dsIdentifier: "0",
       displayLabel: "zero",
       baseIri: null,
       displayColor: "#000000",
-      modelType: UiModelType.Default,
+      vocabularyType: UiVocabularyType.Default,
     };
     const state: UiModelState = {
       ...createEmptyState(),
-      models: [{
+      vocabularies: [{
         dsIdentifier: "0",
         displayLabel: "zero",
         baseIri: null,
         displayColor: "#000000",
-        modelType: UiModelType.Default,
+        vocabularyType: UiVocabularyType.Default,
       }],
       visualModel: null,
       classes: [{
         dsIdentifier: "class",
         iri: ":class",
-        model: model,
+        vocabulary: vocabulary,
         displayLabel: "Class",
         visualDsIdentifier: null,
       }]
     };
     const visual = new VisualModelMock({ "0": "#ff0000" }, {});
     const actual = visualModelToUiState(state, visual, "#aa0000");
-    const nextModel: UiModel = {
-      ...model,
+    const nextVocabulary: UiVocabulary = {
+      ...vocabulary,
       displayColor: "#ff0000",
     };
     const expected: UiModelState = {
       ...actual,
-      models: [nextModel],
+      vocabularies: [nextVocabulary],
       classes: [{
         ...state.classes[0],
-        model: nextModel,
+        vocabulary: nextVocabulary,
       }]
     };
     //
@@ -1437,44 +1437,44 @@ describe("visualModelToUiState", () => {
   });
 
   test("Replace visual model.", () => {
-    const model = {
+    const vocabulary: UiVocabulary = {
       dsIdentifier: "0",
       displayLabel: "zero",
       baseIri: null,
       displayColor: "#000000",
-      modelType: UiModelType.Default,
+      vocabularyType: UiVocabularyType.Default,
     };
     const visual = new VisualModelMock({ "0": "#000000" }, {});
     const state: UiModelState = {
       ...createEmptyState(),
-      models: [{
+      vocabularies: [{
         dsIdentifier: "0",
         displayLabel: "zero",
         baseIri: null,
         displayColor: "#000000",
-        modelType: UiModelType.Default,
+        vocabularyType: UiVocabularyType.Default,
       }],
       visualModel: visual,
       classes: [{
         dsIdentifier: "class",
         iri: ":class",
-        model: model,
+        vocabulary: vocabulary,
         displayLabel: "Class",
         visualDsIdentifier: null,
       }],
     };
     const nextVisual = new VisualModelMock({ "0": "#ff0000" }, {});
     const actual = visualModelToUiState(state, nextVisual, "#aa0000");
-    const nextModel: UiModel = {
-      ...model,
+    const nextVocabulary: UiVocabulary = {
+      ...vocabulary,
       displayColor: "#ff0000",
     };
     const expected: UiModelState = {
       ...actual,
-      models: [nextModel],
+      vocabularies: [nextVocabulary],
       classes: [{
         ...state.classes[0],
-        model: nextModel,
+        vocabulary: nextVocabulary,
       }],
       visualModel: nextVisual,
     };
@@ -1487,21 +1487,21 @@ describe("visualModelToUiState", () => {
 describe("removeVisualModelToUiState", () => {
 
   test("Default test.", () => {
-    const model: UiModel = {
+    const vocabulary: UiVocabulary = {
       dsIdentifier: "0000",
       baseIri: null,
       displayColor: "#010101",
       displayLabel: "",
-      modelType: UiModelType.Default,
+      vocabularyType: UiVocabularyType.Default,
     };
 
     const state: UiModelState = {
-      defaultWriteModel: model,
+      defaultWriteVocabulary: vocabulary,
       visualModel: new VisualModelMock({}, {}),
-      models: [model],
+      vocabularies: [vocabulary],
       classes: [{
         dsIdentifier: "user",
-        model: model,
+        vocabulary: vocabulary,
         iri: ":user",
         displayLabel: "User",
         visualDsIdentifier: null,
@@ -1517,19 +1517,19 @@ describe("removeVisualModelToUiState", () => {
     // Run the operation.
     const actual = removeVisualModelToUiState(state, "#111111");
     // Expected state.
-    const nextModel = {
-      ...model,
+    const nextVocabulary = {
+      ...vocabulary,
       displayColor: "#111111",
     };
 
     const expected: UiModelState = {
       ...state,
-      defaultWriteModel: nextModel,
+      defaultWriteVocabulary: nextVocabulary,
       visualModel: null,
-      models: [nextModel],
+      vocabularies: [nextVocabulary],
       classes: [{
         dsIdentifier: "user",
-        model: nextModel,
+        vocabulary: nextVocabulary,
         iri: ":user",
         displayLabel: "User",
         visualDsIdentifier: null,

@@ -10,7 +10,7 @@ interface Labeled {
 
 }
 
-export enum UiModelType {
+export enum UiVocabularyType {
   /**
    * Default read only model.
    */
@@ -25,14 +25,14 @@ export enum UiModelType {
   ExternalSemanticModel,
 }
 
-export interface UiModel extends Labeled {
+export interface UiVocabulary extends Labeled {
 
   dsIdentifier: ModelDsIdentifier;
 
   /**
    * Type of underlying model representation.
    */
-  modelType: UiModelType;
+  vocabularyType: UiVocabularyType;
 
   /**
    * Display color can be retrieved from the visual model.
@@ -54,11 +54,11 @@ interface Entity {
   dsIdentifier: EntityDsIdentifier;
 
   /**
-   * We keep the model as a part of the entity.
-   * As the model should not change often, this should not be a problem.
-   * The fact that we always have a model for entity make it easy to work with.
+   * We keep the vocabulary as a part of the entity.
+   * As the vocabulary should not change often, this should not be a problem.
+   * The fact that we always have a vocabulary for entity make it easy to work with.
    */
-  model: UiModel;
+  vocabulary: UiVocabulary;
 
   iri: string | null;
 
@@ -68,7 +68,7 @@ export interface UiReference {
 
   entityDsIdentifier: EntityDsIdentifier;
 
-  modelDsIdentifier: ModelDsIdentifier;
+  vocabularyDsIdentifier: ModelDsIdentifier;
 
 }
 
@@ -167,10 +167,10 @@ export interface UiTree<EntityType, ProfileType> {
 export interface UiModelState {
 
   /**
-   * When null, there is no model to write to.
+   * When null, there is no Vocabulary to write to.
    * As a result, the state is read-only.
    */
-  defaultWriteModel: UiModel | null;
+  defaultWriteVocabulary: UiVocabulary | null;
 
   /**
    * Currently active visual model.
@@ -178,7 +178,7 @@ export interface UiModelState {
    */
   visualModel: VisualModel | null;
 
-  models: UiModel[];
+  vocabularies: UiVocabulary[];
 
   classes: UiClass[];
 

@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import { Entities, EntityModel } from "@dataspecer/core-v2";
 import { HexColor, RepresentedEntityIdentifier, VISUAL_NODE_TYPE, VisualEntity, VisualModel, VisualModelData, VisualModelDataVersion, VisualNode } from "@dataspecer/core-v2/visual-model";
 
-import { UiModel, UiModelType, UiModelState } from "./ui-model";
+import { UiVocabulary, UiVocabularyType, UiModelState } from "./ui-model";
 import { createEmptyState, onChangeSemanticModels, onChangeVisualModel, onModelColorDidChange, onVisualEntitiesDidChange } from "./ui-model-state";
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { configuration } from "../../application";
@@ -134,12 +134,12 @@ describe("onChangeSemanticModels", () => {
     );
     const expected: UiModelState = {
       ...createEmptyState(),
-      models: [{
+      vocabularies: [{
         dsIdentifier: "0",
         displayLabel: "zero",
         baseIri: null,
         displayColor: "#000000",
-        modelType: UiModelType.Default,
+        vocabularyType: UiVocabularyType.Default,
       }],
       visualModel
     };
@@ -163,12 +163,12 @@ describe("onChangeSemanticModels", () => {
     const expected: UiModelState = {
       ...createEmptyState(),
       visualModel,
-      "models": [{
+      "vocabularies": [{
         dsIdentifier: "0",
         displayLabel: "x",
         baseIri: null,
         displayColor: "#000000",
-        modelType: UiModelType.Default,
+        vocabularyType: UiVocabularyType.Default,
       }],
     };
     //
@@ -178,12 +178,12 @@ describe("onChangeSemanticModels", () => {
   test("Remove semantic model.", () => {
     const state: UiModelState = {
       ...createEmptyState(),
-      "models": [{
+      "vocabularies": [{
         dsIdentifier: "0",
         displayLabel: "zero",
         baseIri: null,
         displayColor: "#000000",
-        modelType: UiModelType.Default,
+        vocabularyType: UiVocabularyType.Default,
       }],
       "visualModel": null,
     };
@@ -191,27 +191,27 @@ describe("onChangeSemanticModels", () => {
       "#000000", (message) => message, ["en"], state, []);
     const expected: UiModelState = {
       ...state,
-      "models": [],
+      "vocabularies": [],
     };
     //
     expect(actual).toStrictEqual(expected);
   });
 
   test("Remove semantic model with entities.", () => {
-    const model = {
+    const vocabulary: UiVocabulary = {
       dsIdentifier: "8d8xl",
       displayLabel: "Local model",
       displayColor: configuration().defaultModelColor,
-      modelType: UiModelType.InMemorySemanticModel,
+      vocabularyType: UiVocabularyType.InMemorySemanticModel,
       baseIri: "",
     };
 
     const previous: UiModelState = {
-      defaultWriteModel: model,
-      models: [model],
+      defaultWriteVocabulary: vocabulary,
+      vocabularies: [vocabulary],
       classes: [{
         dsIdentifier: "0000",
-        model,
+        vocabulary: vocabulary,
         displayLabel: "",
         iri: "",
         visualDsIdentifier: null,
@@ -230,8 +230,8 @@ describe("onChangeSemanticModels", () => {
 
     const expected: UiModelState = {
       ...previous,
-      defaultWriteModel: null,
-      models: [],
+      defaultWriteVocabulary: null,
+      vocabularies: [],
       classes: [],
     };
 
@@ -242,8 +242,8 @@ describe("onChangeSemanticModels", () => {
     const visualModel = new VisualModelMock({}, {});
 
     const previous: UiModelState = {
-      defaultWriteModel: null,
-      models: [],
+      defaultWriteVocabulary: null,
+      vocabularies: [],
       classes: [],
       classProfiles: [],
       attributes: [],
@@ -262,12 +262,12 @@ describe("onChangeSemanticModels", () => {
 
     const expected: UiModelState = {
       ...previous,
-      defaultWriteModel: null,
-      models: [{
+      defaultWriteVocabulary: null,
+      vocabularies: [{
         dsIdentifier: "8d8xl",
         displayLabel: "Local model",
         displayColor: "#000000",
-        modelType: UiModelType.Default,
+        vocabularyType: UiVocabularyType.Default,
         baseIri: null,
       }]
     };
@@ -298,20 +298,20 @@ describe("onChangeInAggregatorView", () => {
 describe("onVisualEntitiesDidChange", () => {
 
   test("Add visual entity.", () => {
-    const model = {
+    const vocabulary : UiVocabulary = {
       dsIdentifier: "8d8xl",
       displayLabel: "Local model",
       displayColor: configuration().defaultModelColor,
-      modelType: UiModelType.InMemorySemanticModel,
+      vocabularyType: UiVocabularyType.InMemorySemanticModel,
       baseIri: "",
     };
 
     const previous: UiModelState = {
-      defaultWriteModel: null,
-      models: [model],
+      defaultWriteVocabulary: null,
+      vocabularies: [vocabulary],
       classes: [{
         dsIdentifier: "0000",
-        model,
+        vocabulary: vocabulary,
         displayLabel: "",
         iri: "",
         visualDsIdentifier: null,
@@ -346,20 +346,20 @@ describe("onVisualEntitiesDidChange", () => {
   });
 
   test("Remove visual entity.", () => {
-    const model = {
+    const vocabulary : UiVocabulary = {
       dsIdentifier: "8d8xl",
       displayLabel: "Local model",
       displayColor: configuration().defaultModelColor,
-      modelType: UiModelType.Default,
+      vocabularyType: UiVocabularyType.Default,
       baseIri: "",
     };
 
     const previous: UiModelState = {
-      defaultWriteModel: model,
-      models: [model],
+      defaultWriteVocabulary: vocabulary,
+      vocabularies: [vocabulary],
       classes: [{
         dsIdentifier: "0000",
-        model,
+        vocabulary: vocabulary,
         displayLabel: "",
         iri: "",
         visualDsIdentifier: "vis-id",
@@ -398,20 +398,20 @@ describe("onVisualEntitiesDidChange", () => {
 describe("onModelColorDidChange", () => {
 
   test("Default test.", () => {
-    const model = {
+    const vocabulary : UiVocabulary = {
       dsIdentifier: "8d8xl",
       displayLabel: "Local model",
       displayColor: "#ffffff",
-      modelType: UiModelType.InMemorySemanticModel,
+      vocabularyType: UiVocabularyType.InMemorySemanticModel,
       baseIri: "",
     };
 
     const previous: UiModelState = {
-      defaultWriteModel: model,
-      models: [model],
+      defaultWriteVocabulary: vocabulary,
+      vocabularies: [vocabulary],
       classes: [{
         dsIdentifier: "0000",
-        model,
+        vocabulary: vocabulary,
         displayLabel: "",
         iri: "",
         visualDsIdentifier: null,
@@ -428,17 +428,17 @@ describe("onModelColorDidChange", () => {
     const actual = onModelColorDidChange("#000000", "8d8xl", "#000112", previous);
 
     const expectedModel = {
-      ...model,
+      ...vocabulary,
       displayColor: "#000112",
     };
 
     const expected: UiModelState = {
       ...previous,
-      defaultWriteModel: expectedModel,
-      models: [expectedModel],
+      defaultWriteVocabulary: expectedModel,
+      vocabularies: [expectedModel],
       classes: [{
         ...previous.classes[0],
-        model: expectedModel,
+        vocabulary: expectedModel,
       }],
     };
 
@@ -449,8 +449,8 @@ describe("onModelColorDidChange", () => {
 
 test("Add semantic models and then change visual model.", () => {
   const previous: UiModelState = {
-    defaultWriteModel: null,
-    models: [],
+    defaultWriteVocabulary: null,
+    vocabularies: [],
     classes: [],
     classProfiles: [],
     attributes: [],
@@ -480,17 +480,17 @@ test("Add semantic models and then change visual model.", () => {
 
   const expected: UiModelState = {
     ...previous,
-    models: [{
+    vocabularies: [{
       dsIdentifier: "8d8xl",
       displayLabel: "Local model",
       displayColor: "#000000",
-      modelType: UiModelType.Default,
+      vocabularyType: UiVocabularyType.Default,
       baseIri: null,
     }, {
       dsIdentifier: "jtnzl",
       displayLabel: "Second model",
       displayColor: "#00aa01",
-      modelType: UiModelType.Default,
+      vocabularyType: UiVocabularyType.Default,
       baseIri: null,
     }],
     visualModel,

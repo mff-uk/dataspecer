@@ -10,17 +10,17 @@ const LOG = createLogger(import.meta.url);
  */
 export interface UiModelApi {
 
-  getClass: (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => UiClass | null;
+  getClass: (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => UiClass | null;
 
-  getClassProfile: (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => UiClassProfile | null;
+  getClassProfile: (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => UiClassProfile | null;
 
-  getAttribute: (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => UiAttribute | null;
+  getAttribute: (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => UiAttribute | null;
 
-  getAttributeProfile: (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => UiAttributeProfile | null;
+  getAttributeProfile: (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => UiAttributeProfile | null;
 
-  getAssociation: (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => UiAssociation | null;
+  getAssociation: (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => UiAssociation | null;
 
-  getAssociationProfile: (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => UiAssociationProfile | null;
+  getAssociationProfile: (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => UiAssociationProfile | null;
 
 }
 
@@ -40,28 +40,28 @@ export function createUiModelApi(
 
   //
 
-  const getClass = (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => withPrevious(prev => {
-    return find(identifier, model, prev.classes);
+  const getClass = (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => withPrevious(prev => {
+    return find(entity, vocabulary, prev.classes);
   });
 
-  const getClassProfile = (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => withPrevious(prev => {
-    return find(identifier, model, prev.classProfiles);
+  const getClassProfile = (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => withPrevious(prev => {
+    return find(entity, vocabulary, prev.classProfiles);
   });
 
-  const getAttribute = (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => withPrevious(prev => {
-    return find(identifier, model, prev.attributes);
+  const getAttribute = (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => withPrevious(prev => {
+    return find(entity, vocabulary, prev.attributes);
   });
 
-  const getAttributeProfile =  (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => withPrevious(prev => {
-    return find(identifier, model, prev.attributeProfiles);
+  const getAttributeProfile = (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => withPrevious(prev => {
+    return find(entity, vocabulary, prev.attributeProfiles);
   });
 
-  const getAssociation =  (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => withPrevious(prev => {
-    return find(identifier, model, prev.associations);
+  const getAssociation = (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => withPrevious(prev => {
+    return find(entity, vocabulary, prev.associations);
   });
 
-  const getAssociationProfile = (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => withPrevious(prev => {
-    return find(identifier, model, prev.associationProfiles);
+  const getAssociationProfile = (entity: EntityDsIdentifier, vocabulary: ModelDsIdentifier) => withPrevious(prev => {
+    return find(entity, vocabulary, prev.associationProfiles);
   });
 
   return {
@@ -74,12 +74,13 @@ export function createUiModelApi(
   };
 }
 
+/**
+ * Find and return item with given identifier within given vocabulary.
+ */
 function find<T extends {
   dsIdentifier: EntityDsIdentifier,
-  model: {
-    dsIdentifier: ModelDsIdentifier,
-  },
-}>(identifier: EntityDsIdentifier, model: ModelDsIdentifier, items: T[]): T | null {
-  return items.find(item => item.dsIdentifier === identifier && item.model.dsIdentifier === model)
+  vocabulary: { dsIdentifier: ModelDsIdentifier },
+}>(identifier: EntityDsIdentifier, vocabulary: ModelDsIdentifier, items: T[]): T | null {
+  return items.find(item => item.dsIdentifier === identifier && item.vocabulary.dsIdentifier === vocabulary)
     ?? null;
 }
