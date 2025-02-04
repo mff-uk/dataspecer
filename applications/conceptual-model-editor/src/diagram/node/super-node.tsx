@@ -1,3 +1,5 @@
+// TODO RadStr: Clean-up this whole file
+
 import { useContext } from "react";
 import {
   Handle,
@@ -8,10 +10,11 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 
-import type { Node as ApiNode, EntityItem } from "../diagram-api";
+import type { DiagramSuperNode, EntityItem } from "../diagram-api";
 import { DiagramContext, NodeMenuType } from "../diagram-controller";
 
-import "./entity-node.css";
+// TODO RadStr: we are reusing the entity-node.css for the menus, so there is no need for it to be in the super-node.tsx
+import "./super-node.css";
 import { usePrefixForIri } from "../../service/prefix-service";
 import { t } from "../../application";
 import { useModelGraphContext } from "../../context/model-context";
@@ -23,7 +26,7 @@ import { useActions } from "../../action/actions-react-binding";
 // Following in the entity:
 // const showContent = useStore(zoomSelector);
 
-export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
+export const SuperNode = (props: NodeProps<Node<DiagramSuperNode>>) => {
   // We can use the bellow to set size based on the content.
   // useLayoutEffect(() => {
   //   if (inputRef.current) {
@@ -50,15 +53,24 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
 
   // TODO RadStr: Not sure if we should access the actions here or through another method defined in diagram-api
   const actions = useActions();
-  const removeAttributeFromVisualModel = (attribute: string) => actions.removeAttributesFromVisualModel([attribute]);
-  const moveAttributeUp = (attribute: string) =>  actions.shiftAttributeUp(attribute, props.data.identifier);
-  const moveAttributeDown = (attribute: string) =>  actions.shiftAttributeDown(attribute, props.data.identifier);
 
+  // TODO RadStr: externalIdentifier maybe should be Id of the model?
   return (
-    <>
-      <div className={"border border-black entity-node min-h-14 min-w-56"}>
+    <div className="superNode">
+
+
+      {/* <div className={"border border-black min-h-14 min-w-56"}> */}
+      <div>
         <EntityNodeMenu {...props} />
-        <div className="entity-node-content">
+        <div className="relative flex w-full flex-row justify-between">
+          <div>{data.label}</div>
+          {isAnchored ? <div>⚓</div> : null}
+        </div>
+        <div className="overflow-x-clip text-gray-500 px-1">
+          {`Represents ${props.data.representedModelAlias}`}
+        </div>
+
+        {/* <div className="entity-node-content">
 
           <div className="drag-handle bg-slate-300 p-1"
             style={{ backgroundColor: data.color }}
@@ -84,30 +96,15 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
           <div className="overflow-x-clip text-gray-500 px-1">
             {usePrefixForIri(data.iri)}
           </div>
-          {data.items.map(item =>
-          {
-            return <li key={`${item.identifier}-li`} className="relative flex w-full flex-row justify-between z-50">
-              <EntityNodeItem item={item} />
-              {props.selected !== true ? null :
-                <div>
-                  <button onClick={(_) => moveAttributeUp(item.identifier)}>🔼</button>
-                  <button onClick={(_) => moveAttributeDown(item.identifier)}>🔽</button>
-                  <button onClick={(_) => removeAttributeFromVisualModel(item.identifier)}>🕶️</button>
-                </div>
-              }
-            </li>
-          })
-          }
-        </div>
-        {/* We need a permanent source and target. */}
+        </div> */}
         <Handle type="target" position={Position.Right} />
         <Handle type="source" position={Position.Right} />
       </div>
-    </>
+    </div>
   );
 };
 
-function EntityNodeMenu(props: NodeProps<Node<ApiNode>>) {
+function EntityNodeMenu(props: NodeProps<Node<DiagramSuperNode>>) {
   const context = useContext(DiagramContext);
   if (context === null) {
     return null;
@@ -122,7 +119,7 @@ function EntityNodeMenu(props: NodeProps<Node<ApiNode>>) {
     return <SelectionMenu {...props}/>;
   }
   else if (context.getShownNodeMenuType() === NodeMenuType.SINGLE_NODE_MENU) {
-    return <PrimaryNodeMenu {...props}/>;
+    return <PrimarySuperNodeMenu {...props}/>;
   }
   else {
     console.error("Missing node menu");
@@ -130,39 +127,27 @@ function EntityNodeMenu(props: NodeProps<Node<ApiNode>>) {
   }
 }
 
-function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
+function PrimarySuperNodeMenu(props: NodeProps<Node<DiagramSuperNode>>) {
   const context = useContext(DiagramContext);
 
   const isPartOfGroup = props.data.group !== null;
 
-  const onShowDetail = () => context?.callbacks().onShowNodeDetail(props.data);
-  const onEdit = () => context?.callbacks().onEditNode(props.data);
-  const onCreateProfile = () => context?.callbacks().onCreateNodeProfile(props.data);
-  const onHide = () => context?.callbacks().onHideNode(props.data);
-  const onDelete = () => context?.callbacks().onDeleteNode(props.data);
+  const onMoveToSourceVisualModel = () => context?.callbacks().onMoveToSourceVisualModelOfSuperNode(props.data.identifier);
+  const onEditSuperNode = () => context?.callbacks().onEditSuperNode(props.data);
+  const onHideSuperNode = () => context?.callbacks().onHideSuperNode(props.data);
+  const onDissolveSuperNode = () => context?.callbacks().onDissolveSuperNode(props.data.identifier);
+
   const onAnchor = () => context?.callbacks().onToggleAnchorForNode(props.data.identifier);
   const onDissolveGroup = () => context?.callbacks().onDissolveGroup(props.data.group);
-  const onAddAttribute = () => context?.callbacks().onAddAttributeForNode(props.data);
-
-  // TODO RadStr: Create OnEditAttributesForNode method
-  const {openEditNodeAttributesDialog} = useActions();
-  const onEditAttributes = () => openEditNodeAttributesDialog(props.id) ;
 
   const shouldShowToolbar = props.selected === true;
-
-  const addAttributeTitle = props.data.profileOf === null ?
-    t("node-add-attribute") : t("node-add-attribute-profile");
 
   return (
     <>
       <NodeToolbar isVisible={shouldShowToolbar} position={Position.Top} className="flex gap-2 entity-node-menu" >
-        <button onClick={onShowDetail} title={t("class-detail-button")}>ℹ</button>
+        <button onClick={onMoveToSourceVisualModel} title={t("super-node-move-to-source-visual-model-button")}>🗺️</button>
         &nbsp;
-        <button onClick={onEdit} title={t("class-edit-button")}>✏️</button>
-        &nbsp;
-        <button onClick={onCreateProfile} title={t("class-profile-button")}>🧲</button>
-        &nbsp;
-        <button onClick={onEditAttributes} title={t("edit-node-attributes-visiblity-button")}>📏</button>
+        <button onClick={onEditSuperNode} title={t("super-node-edit-button")}>✏️</button>
         &nbsp;
       </NodeToolbar>
       <NodeToolbar isVisible={shouldShowToolbar} position={Position.Right} className="flex gap-2 entity-node-menu" >
@@ -175,19 +160,17 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
           </NodeToolbar>
       }
       <NodeToolbar isVisible={shouldShowToolbar} position={Position.Bottom} className="flex gap-2 entity-node-menu" >
-        <button onClick={onHide} title={t("class-hide-button")}>🕶</button>
-        &nbsp;
-        <button onClick={onDelete} title={t("class-remove-button")}>🗑</button>
+        <button onClick={onHideSuperNode} title={t("super-node-hide-button")}>🕶</button>
         &nbsp;
         <button onClick={onAnchor} title={isPartOfGroup ? t("group-anchor-button") : t("node-anchor-button")} >⚓</button>
         &nbsp;
-        <button onClick={onAddAttribute} title={addAttributeTitle} >➕</button>
+        <button onClick={onDissolveSuperNode} title={t("super-node-dissolve-button")} >💥</button>
         &nbsp;
       </NodeToolbar>
     </>);
 }
 
-function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
+function SelectionMenu(props: NodeProps<Node<DiagramSuperNode>>) {
   const context = useContext(DiagramContext);
   const reactFlow = useReactFlow();
   const shouldShowMenu = context?.getNodeWithMenu() === props.id;
@@ -206,6 +189,7 @@ function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
   };
   const onShowExpandSelection = () => context?.callbacks().onShowExpandSelection();
   const onShowFilterSelection = () => context?.callbacks().onShowFilterSelection();
+
   const onCreateSuperNode = () => context.callbacks().onCreateSuperNode();
 
   return (<>
@@ -231,34 +215,4 @@ function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
   );
 }
 
-function EntityNodeItem({ item }: {
-  item: EntityItem,
-}) {
-
-  let usageNote: undefined | string = undefined;
-  if (item.profileOf !== null && item.profileOf.usageNote !== null) {
-    usageNote = item.profileOf.usageNote;
-  }
-
-  return (
-    <div>
-      <span>
-        - {item.label}
-      </span>
-      {item.profileOf === null ? null : (
-        <>
-          &nbsp;
-          <span className="text-gray-600 underline" title={usageNote}>
-            profile
-          </span>
-          &nbsp;of&nbsp;
-          <span>
-            {item.profileOf.label}
-          </span>
-        </>
-      )}
-    </div>
-  );
-}
-
-export const EntityNodeName = "entity-node";
+export const SuperNodeName = "super-node";

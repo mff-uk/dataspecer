@@ -53,19 +53,19 @@ export interface DiagramActions {
   /**
    * @returns The nodes registered inside diagram.
    */
-  getNodes(): Node[];
+  getNodes(): DiagramNodeTypes[];
 
   /**
    * Adds given {@link nodes} to the diagram.
    * @param nodes is the list of nodes to be added to the diagram.
    */
-  addNodes(nodes: Node[]): void;
+  addNodes(nodes: DiagramNodeTypes[]): void;
 
   /**
    * Updates diagram's nodes matching the given ones.
    * @param nodes are the updated versions of the matching nodes.
    */
-  updateNodes(nodes: Node[]): void;
+  updateNodes(nodes: DiagramNodeTypes[]): void;
 
   /**
    * Updates the nodes' positions.
@@ -129,7 +129,7 @@ export interface DiagramActions {
   /**
    * @returns Currently selected nodes within diagram.
    */
-  getSelectedNodes(): Node[];
+  getSelectedNodes(): DiagramNodeTypes[];
 
   /**
    * Sets diagram's node selection to the given {@link nodes}.
@@ -156,7 +156,7 @@ export interface DiagramActions {
    * Sets content of the diagram.
    * @returns When the diagram is ready.
    */
-  setContent(nodes: Node[], edges: Edge[], groups: GroupWithContent[]): Promise<void>;
+  setContent(nodes: DiagramNodeTypes[], edges: Edge[], groups: GroupWithContent[]): Promise<void>;
 
   // Viewport
 
@@ -195,14 +195,14 @@ export interface DiagramActions {
    * @param sourceNode is the node from which the connection dragging started
    * @param position is the canvas position where user dragged the connection and on which will the menu appear
    */
-  openDragEdgeToCanvasMenu(sourceNode: Node, canvasPosition: Position): void;
+  openDragEdgeToCanvasMenu(sourceNode: DiagramNodeTypes, canvasPosition: Position): void;
   /**
    * Opens menu on given {@link canvasPosition}.
    * The menu appears when user clicks the actions button on selection.
    * @param sourceNode is the node on which the user clicked the button.
    * @param position is the canvas position where the menu will appear.
    */
-  openSelectionActionsMenu(sourceNode: Node, canvasPosition: Position): void;
+  openSelectionActionsMenu(sourceNode: DiagramNodeTypes, canvasPosition: Position): void;
 
   /**
    * Opens menu on given {@link canvasPosition}.
@@ -235,8 +235,11 @@ export type Group = {
 
 }
 
+export type DiagramNodeTypes = Node | DiagramSuperNode;
+
+// TODO RadStr/PRQuestion: I would rename it to either already used ApiNode or DiagramNode
 /**
- * Entity can be a class or a class profile.
+ * Node can be a class or a class profile.
  */
 export type Node = {
 
@@ -293,6 +296,22 @@ export type Node = {
    */
   items: EntityItem[];
 
+}
+
+/**
+ * Represents the super node in diagram.
+ * Super node contains other nodes (and hides them inside).
+ */
+export type DiagramSuperNode = Omit<Node, "iri"> & {
+
+  containedNodes: string[];
+
+  representedModelAlias: string;
+
+}
+
+export function isDiagramSuperNode(what: DiagramNodeTypes): what is DiagramSuperNode {
+  return (what as any)?.containedNodes !== undefined;
 }
 
 export interface Position {
@@ -520,7 +539,7 @@ interface DiagramSelection {
    * @param source is the last selected node
    * @param canvasPosition is the position on canvas, where should be the list of actions shown.
    */
-  onShowSelectionActionsMenu: (source: Node, canvasPosition: Position) => void;
+  onShowSelectionActionsMenu: (source: DiagramNodeTypes, canvasPosition: Position) => void;
 
   /**
    * This method is called when user wants to layout selection.
@@ -537,6 +556,37 @@ interface DiagramSelection {
    * The top level group for given {@link identifier} is destroyed.
    */
   onDissolveGroup: (identifier: string | null) => void;
+
+  /**
+   * This method is called when user wants to create new super node from selection.
+   */
+  onCreateSuperNode: () => void;
+
+  /**
+   * This method is called when user wants to dissolve super node with given
+   * {@link superNodeIdentifier}. That is the super node is removed and its
+   * content is put on canvas.
+   * @param superNodeIdentifier is the identifier of the super node.
+   */
+  onDissolveSuperNode: (superNodeIdentifier: string) => void;
+
+  /**
+   * Opens visual model which is linked to the super node.
+   * @param superNodeIdentifier is he identifier of the super node.
+   */
+  onMoveToSourceVisualModelOfSuperNode: (superNodeIdentifier: string) => void;
+
+  /**
+   * Called when user starts editing super node.
+   * @param superNode is the super node which is being edited.
+   */
+  onEditSuperNode: (superNode: DiagramSuperNode) => void;
+
+  /**
+   * Called when user hides super node, i. e. removes it from canvas.
+   * @param superNode is the super node to be removed from canvas.
+   */
+  onHideSuperNode: (superNode: DiagramSuperNode) => void;
 
   /**
    * This method is called when user wants to show the dialog for expansion of selection.
@@ -579,13 +629,13 @@ export interface DiagramCallbacks extends DiagramNodes, DiagramEdges, DiagramSel
   /**
    * This property stores the method, which is called when user creates connection inside diagram.
    */
-  onCreateConnectionToNode: (source: Node, target: Node) => void;
+  onCreateConnectionToNode: (source: DiagramNodeTypes, target: DiagramNodeTypes) => void;
 
   /**
    * This method is called when user creates "empty" connection, i.e. connection from node to canvas.
    * @param source is the node at which the connection started
    * @param canvasPosition is the position on canvas, where the connection ended.
    */
-  onCreateConnectionToNothing: (source: Node, canvasPosition: Position) => void;
+  onCreateConnectionToNothing: (source: DiagramNodeTypes, canvasPosition: Position) => void;
 
 }

@@ -270,7 +270,6 @@ export const translations: Record<string, string | Function> = {
   "extend-selection-dialog.label": "Extend selection by",
   "extend-selection-dialog.btn-ok": "✅ Accept",
   "extend-selection-dialog.btn-cancel": "❌ Cancel",
-  "extend-selection-tooltip": "Blue color (🔵) indicates selected element, Red color (🔴) indicates element which was not selected, but will be. For example:\n🔵⭢🔴=Extend current selection by association targets",
   "extend-selection-association-name": "Association",
   "extend-selection-generalization-name": "Generalization",
   "extend-selection-association-profile-name": "Association profile",
@@ -294,4 +293,9 @@ export const translations: Record<string, string | Function> = {
   "edit-class-attributes-dialog.btn-cancel": "❌ Cancel",
   "edit-class-attributes-visible-attributes-column-header": "Visible attributes:",
   "edit-class-attributes-hidden-attributes-column-header": "Hidden attributes:",
+  //
+  "super-node-dissolve-button": "Dissolves super node from the diagram. That is the content of the super node is put back on canvas.",
+  "super-node-hide-button": "Removes the super node from canvas.",
+  "super-node-move-to-source-visual-model-button": "Change visual model to the visual model represented by this super node",
+  "super-node-edit-button": "Edit super node's properties",
 };

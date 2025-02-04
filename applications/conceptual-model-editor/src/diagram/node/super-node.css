@@ -1,0 +1,68 @@
+/* Taken from somewhere, can't find the source anymore */
+
+.superNode {
+	width: 350px; height: 120px;
+
+	background: #90D5FF;
+	background: linear-gradient(top, #f2f9fe 5%, #90D5FF 100%);
+	background: -webkit-linear-gradient(top, #f2f9fe 5%, #90D5FF 100%);
+	background: -moz-linear-gradient(top, #f2f9fe 5%, #90D5FF 100%);
+	background: -ms-linear-gradient(top, #f2f9fe 5%, #90D5FF 100%);
+	background: -o-linear-gradient(top, #f2f9fe 5%, #90D5FF 100%);
+
+	border-radius: 100px;
+	-webkit-border-radius: 100px;
+	-moz-border-radius: 100px;
+
+	position: relative;
+}
+
+.superNode:after, .superNode:before {
+	content: "";
+	position: absolute;
+	background: #90D5FF;
+	z-index: -1
+}
+
+/* Creates cloud
+
+.superNode:after {
+	width: 100px; height: 100px;
+	top: -50px; left: 50px;
+
+	border-radius: 100px;
+	-webkit-border-radius: 100px;
+	-moz-border-radius: 100px;
+
+}
+
+.superNode:before {
+	width: 180px; height: 180px;
+	top: -90px; right: 50px;
+	border-radius: 200px;
+	-webkit-border-radius: 200px;
+	-moz-border-radius: 200px;
+}
+
+*/
+
+
+
+
+
+.superNode .react-flow__handle {
+  /* We only need the position in the layout. */
+  visibility: hidden;
+}
+
+/* We need to move the source and target to the center of the node. */
+.superNode .react-flow__handle.source,
+.superNode .react-flow__handle.target {
+  top: 50%;
+  right: 50%;
+  transform: none;
+}
+
+.drag-handle {
+  pointer-events: all;
+}

@@ -288,7 +288,7 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
     setActiveVisualModel(toModel: string | VisualModel | null) {
         if (typeof toModel == "string") {
             const availableModels = [...this.models.keys()];
-            this.activeVisualModel = availableModels.find((model) => (model as VisualModel)?.getIdentifier() == toModel) as VisualModel;
+            this.activeVisualModel = availableModels.filter(isVisualModel).find((model) => model.getIdentifier() == toModel) as VisualModel;
         } else {
             // Can be null or a real visual model.
             this.activeVisualModel = toModel;

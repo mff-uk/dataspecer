@@ -26,6 +26,7 @@ import {
   NodeSelectionChange,
   NodeDimensionChange,
   NodePositionChange,
+  MiniMapNodeProps,
 } from "@xyflow/react";
 
 import { type UseDiagramType } from "./diagram-hook";
@@ -38,6 +39,8 @@ import {
   EdgeType as ApiEdgeType,
   Position,
   GroupWithContent,
+  DiagramNodeTypes,
+  isDiagramSuperNode,
 } from "./diagram-api";
 import { type EdgeToolbarProps } from "./edge/edge-toolbar";
 import { EntityNodeName } from "./node/entity-node";
@@ -57,6 +60,7 @@ import { GroupMenu } from "./node/group-menu";
 import { findTopLevelGroup } from "../action/utilities";
 import { GeneralCanvasMenuComponentProps } from "./canvas/canvas-menu-general";
 import { isEqual, omit } from "lodash";
+import { SuperNodeName } from "./node/super-node";
 
 const UINITIALIZED_VALUE_GROUP_POSITION = 10000000;
 
@@ -151,7 +155,7 @@ const createGroupNode = (groupId: string, content: Node<any>[], hidden: boolean)
   return groupNode
 };
 
-export type NodeType = Node<ApiNode>;
+export type NodeType = Node<DiagramNodeTypes>;
 
 export type EdgeType = Edge<ApiEdge>;
 
@@ -1683,7 +1687,7 @@ const createActions = (
       return reactFlow.getNodes().map(node => node.data);
     },
     addNodes(nodes) {
-      reactFlow.addNodes(nodes.map(nodeToNodeType));
+      setNodes(previousNodes => previousNodes.concat(nodes.map(nodeToNodeType)));
       console.log("Diagram.addNodes", nodes.map(item => item.identifier), nodes);
     },
     updateNodes(nodes) {
@@ -1721,7 +1725,7 @@ const createActions = (
       console.log("Diagram.updateNodesPosition", nodes);
     },
     removeNodes(identifiers) {
-      reactFlow.deleteElements({ nodes: identifiers.map(id => ({ id })) });
+      setNodes(previousNodes => previousNodes.filter(previousNode => !identifiers.includes(previousNode.id)));
       console.log("Diagram.removeNodes", identifiers);
     },
     getNodeWidth(identifier) {
@@ -1867,10 +1871,10 @@ const convertViewUsingZoom = (view: ViewportDimensions, zoom: number): void => {
   view.height *= zoomReciprocal;
 };
 
-const nodeToNodeType = (node: ApiNode): NodeType => {
+const nodeToNodeType = (node: DiagramNodeTypes): NodeType => {
   return {
     id: node.identifier,
-    type: EntityNodeName,
+    type: isDiagramSuperNode(node) ? SuperNodeName : EntityNodeName,
     position: {
       x: node.position.x,
       y: node.position.y,

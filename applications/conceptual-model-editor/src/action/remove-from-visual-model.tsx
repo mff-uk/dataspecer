@@ -18,11 +18,18 @@ export function removeFromVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   visualModel: WritableVisualModel,
   identifiers: string[],
+  areIdentifersOnInputVisual: boolean,
 ) {
   const entitiesToRemove: VisualEntity[] = [];
   for (const identifier of identifiers) {
     // Find the visual entities.
-    const visualEntity = visualModel.getVisualEntityForRepresented(identifier);
+    let visualEntity: VisualEntity | null;
+    if(areIdentifersOnInputVisual) {
+      visualEntity = visualModel.getVisualEntity(identifier);
+    }
+    else {
+      visualEntity = visualModel.getVisualEntityForRepresented(identifier);
+    }
     if (visualEntity === null) {
       // The entity is not part of the visual model and thus should not be visible.
       // We ignore the operation for such entity and show an error.

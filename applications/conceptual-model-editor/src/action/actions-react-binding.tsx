@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from "react";
 
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { Waypoint, WritableVisualModel, isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { Waypoint, WritableVisualModel, isVisualProfileRelationship, isVisualRelationship, isVisualSuperNode, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { type DialogApiContextType } from "../dialog/dialog-service";
 import { DialogApiContext } from "../dialog/dialog-context";
@@ -9,8 +9,8 @@ import { createLogger } from "../application";
 import { ClassesContext, type ClassesContextType, UseClassesContextType, useClassesContext } from "../context/classes-context";
 import { useNotificationServiceWriter } from "../notification";
 import { type UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { ModelGraphContext, type ModelGraphContextType } from "../context/model-context";
-import { type DiagramCallbacks, type Waypoint as DiagramWaypoint, Edge, Position, useDiagram } from "../diagram/";
+import { ModelGraphContext, useModelGraphContext, UseModelGraphContextType, type ModelGraphContextType } from "../context/model-context";
+import { type DiagramCallbacks, DiagramSuperNode, type Waypoint as DiagramWaypoint, Edge, isDiagramSuperNode, Position, useDiagram } from "../diagram/";
 import type { UseDiagramType } from "../diagram/diagram-hook";
 import { type Options, useOptions } from "../application/options";
 import { centerViewportToVisualEntityAction } from "./center-viewport-to-visual-entity";
@@ -56,6 +56,13 @@ import { ShiftAttributeDirection, shiftAttributePositionAction } from "./shift-a
 import { openEditNodeAttributesDialogAction } from "./open-edit-node-attributes-dialog";
 import { EditAttributeDialogState } from "../dialog/attribute/edit-attribute-dialog-controller";
 import { EditAttributeProfileDialogState } from "../dialog/attribute-profile/edit-attribute-profile-dialog-controller";
+import { addVisualSuperNodeToVisualModelAction } from "./add-visual-super-node-to-visual-model";
+import { changeVisualModelAction } from "./change-visual-model";
+import { QueryParamsContextType, useQueryParamsContext } from "../context/query-params-context";
+import { createEditSuperNodeDialog, createEditSuperNodeDialogState } from "../dialog/node/create-edit-super-node-dialog";
+import { EditSuperNodeDialogState } from "../dialog/node/edit-super-node-dialog-controller";
+import { openEditSuperNodeDialogAction } from "./open-edit-super-node-dialog";
+import { openCreateSuperNodeDialogAction } from "./open-create-super-node-dialog";
 
 const LOG = createLogger(import.meta.url);
 
@@ -335,13 +342,17 @@ export const ActionsContextProvider = (props: {
   const classes = useContext(ClassesContext);
   const useClasses = useClassesContext();
   const notifications = useNotificationServiceWriter();
+  // TODO PRQuestion: what about this, what is the difference between this and graph
   const graph = useContext(ModelGraphContext);
+  const useGraph = useModelGraphContext();
+
+  const queryParamsContext = useQueryParamsContext();
   const diagram = useDiagram();
 
   const actions = useMemo(
     () => createActionsContext(
-      options, dialogs, classes, useClasses, notifications, graph, diagram),
-    [options, dialogs, classes, useClasses, notifications, graph, diagram]
+      options, dialogs, classes, useClasses, notifications, graph, useGraph, queryParamsContext, diagram),
+    [options, dialogs, classes, useClasses, notifications, graph, useGraph, queryParamsContext, diagram]
   );
 
   return (
@@ -366,6 +377,8 @@ function createActionsContext(
   useClasses: UseClassesContextType | null,
   notifications: UseNotificationServiceWriterType | null,
   graph: ModelGraphContextType | null,
+  useGraph: UseModelGraphContextType,
+  queryParamsContext: QueryParamsContextType,
   diagram: UseDiagramType,
 ): ActionsContextType {
 
@@ -637,7 +650,7 @@ function createActionsContext(
 
   const removeFromVisualModel = (identifiers: string[]): void => {
     withVisualModel(notifications, graph, (visualModel) => {
-      removeFromVisualModelAction(notifications, visualModel, identifiers);
+      removeFromVisualModelAction(notifications, visualModel, identifiers, false);
     });
   };
 
@@ -659,7 +672,7 @@ function createActionsContext(
       );
       const attributesToBeDeleted = entityToDeleteWithAttributeData.filter(entity => entity.isAttributeOrAttributeProfile);
       const notAttributesToBeDeleted = entityToDeleteWithAttributeData.filter(entity => !entity.isAttributeOrAttributeProfile);
-      removeFromVisualModelAction(notifications, visualModel, notAttributesToBeDeleted.map(entitiesToDelete => entitiesToDelete.identifier));
+      removeFromVisualModelAction(notifications, visualModel, notAttributesToBeDeleted.map(entitiesToDelete => entitiesToDelete.identifier), false);
       removeAttributesFromVisualModelAction(notifications, classes, visualModel, attributesToBeDeleted.map(entitiesToDelete => entitiesToDelete.identifier));
     });
     removeFromSemanticModelsAction(notifications, graph, entitiesToDelete);
@@ -766,7 +779,6 @@ function createActionsContext(
   // Prepare and set diagram callbacks.
 
   const callbacks: DiagramCallbacks = {
-
     onShowNodeDetail: (node) => openDetailDialog(node.externalIdentifier),
 
     onEditNode: (node) => openModifyDialog(node.externalIdentifier),
@@ -798,7 +810,12 @@ function createActionsContext(
     onAddAttributeForNode: (node) => openCreateAttributeDialogForClass(node.externalIdentifier, null),
 
     onCreateConnectionToNode: (source, target) => {
-      openCreateConnectionDialog(source.externalIdentifier, target.externalIdentifier);
+      if(isDiagramSuperNode(source)) {
+        alert("is diagram super node");
+      }
+      else {
+        openCreateConnectionDialog(source.externalIdentifier, target.externalIdentifier);
+      }
     },
 
     onCreateConnectionToNothing: (source, canvasPosition) => {
@@ -842,6 +859,40 @@ function createActionsContext(
         removeTopLevelGroupFromVisualModelAction(notifications, visualModel, identifier);
       });
     },
+    onCreateSuperNode: () => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        openCreateSuperNodeDialogAction(notifications, options, dialogs, graph, useGraph, diagram, visualModel);
+      });
+    },
+    onDissolveSuperNode: (identifier: string) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        removeFromVisualModelAction(notifications, visualModel, [identifier], false);
+      });
+    },
+    onMoveToSourceVisualModelOfSuperNode: (superNodeIdentifier: string) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        const superNode = visualModel.getVisualEntity(superNodeIdentifier);
+        if(superNode === null) {
+          notifications.error("Given super node is not part of visual model");
+          return;
+        }
+
+        if(!isVisualSuperNode(superNode)) {
+          notifications.error("Given super node is not of type super node");
+          return;
+        }
+
+        changeVisualModelAction(graph, queryParamsContext, superNode.visualModels[0]);
+      });
+    },
+    onEditSuperNode: (superDiagramNode: DiagramSuperNode) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        openEditSuperNodeDialogAction(notifications, options, dialogs, graph, visualModel, superDiagramNode);
+      });
+    },
+    onHideSuperNode: (superNode: DiagramSuperNode) => {
+      removeFromVisualModel([superNode.externalIdentifier]);
+    },
     onShowExpandSelection: () => {
       const selectionToExpand = getSelections(diagram, false, true);
       openExtendSelectionDialog(selectionToExpand);
@@ -870,7 +921,7 @@ function createActionsContext(
       withVisualModel(notifications, graph, (visualModel) => {
         openCreateClassDialogAndCreateGeneralizationAction(
           notifications, dialogs, classes, useClasses, options, graph, diagram,
-          visualModel, nodeIdentifier, isCreatedClassParent, positionToPlaceClassOn,
+          visualModel, nodeIdentifier, isCreatedClassParent, positionToPlaceClassOn
         );
       });
     },

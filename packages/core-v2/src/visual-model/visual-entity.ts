@@ -1,3 +1,4 @@
+import { LanguageString } from "../semantic-model/concepts";
 import { Entity, EntityIdentifier } from "./entity-model/entity";
 import { ModelIdentifier } from "./entity-model/entity-model";
 
@@ -45,6 +46,18 @@ export interface VisualNode extends VisualEntity {
 
 }
 
+// TODO RadStr: Maybe should contain only: representedVisualModel, Position
+/**
+ * Represents a visual node, which contains other visual nodes.
+ */
+export interface VisualSuperNode extends Omit<VisualNode, "representedEntity"> {
+
+    label: LanguageString,
+
+    description: LanguageString,
+
+}
+
 /**
  * Used for migration as the model can not be determined from the
  * visual model alone in version 0.
@@ -61,6 +74,12 @@ export const VISUAL_NODE_TYPE = "visual-node";
 
 export function isVisualNode(what: Entity): what is VisualNode {
     return what.type.includes(VISUAL_NODE_TYPE);
+}
+
+export const VISUAL_SUPER_NODE_TYPE = "visual-super-node";
+
+export function isVisualSuperNode(what: Entity): what is VisualSuperNode {
+    return what.type.includes(VISUAL_SUPER_NODE_TYPE);
 }
 
 export interface Position {

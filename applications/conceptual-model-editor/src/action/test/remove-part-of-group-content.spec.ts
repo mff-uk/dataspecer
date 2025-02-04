@@ -54,7 +54,7 @@ test("Test dissolving group through visibility", () => {
   );
 
   expect(visualModel.getVisualEntities().size).toEqual(4);
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0", "1"]);
+  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0", "1"], false);
   expect(visualModel.getVisualEntities().size).toEqual(1);
 });
 
@@ -81,7 +81,7 @@ test("Test dissolving multi-group through visibility of one whole group", () => 
   );
 
   expect(visualModel.getVisualEntities().size).toEqual(7);
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0", "1"]);
+  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0", "1"], false);
   expect(visualModel.getVisualEntities().size).toEqual(3);
 });
 
@@ -108,9 +108,9 @@ test("Test dissolving multi-group through visibility sequentially", () => {
   );
 
   expect(visualModel.getVisualEntities().size).toEqual(7);
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0"]);
+  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0"], false);
   expect(visualModel.getVisualEntities().size).toEqual(6);
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["3"]);
+  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["3"], false);
   expect(visualModel.getVisualEntities().size).toEqual(5);
   removeTopLevelGroupFromVisualModelAction(noActionNotificationServiceWriter, visualModel, group3);
   expect(visualModel.getVisualEntities().size).toEqual(2);
@@ -139,9 +139,9 @@ test("Test dissolving multi-group through visibility sequentially again", () => 
   );
 
   expect(visualModel.getVisualEntities().size).toEqual(7);
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0"]);
+  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0"], false);
   expect(visualModel.getVisualEntities().size).toEqual(6);
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["3"]);
+  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["3"], false);
   expect(visualModel.getVisualEntities().size).toEqual(5);
   removeTopLevelGroupFromVisualModelAction(noActionNotificationServiceWriter, visualModel, group1);
   expect(visualModel.getVisualEntities().size).toEqual(2);      // "1", "2"
@@ -170,7 +170,7 @@ test("Test dissolving everything through visiblity", () => {
   );
 
   expect(visualModel.getVisualEntities().size).toEqual(7);
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0", "1", "2", "3"]);
+  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0", "1", "2", "3"], false);
   expect(visualModel.getVisualEntities().size).toEqual(0);
 });
 

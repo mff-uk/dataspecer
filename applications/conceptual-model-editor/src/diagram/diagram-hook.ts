@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 
-import type { DiagramCallbacks, DiagramActions } from "./diagram-api";
+import type { DiagramCallbacks, DiagramActions, DiagramSuperNode } from "./diagram-api";
 
 export interface UseDiagramType {
 
@@ -135,6 +135,11 @@ const noOperationCallbacks: DiagramCallbacks = {
   onLayoutSelection: noOperation,
   onCreateGroup: noOperation,
   onDissolveGroup: noOperation,
+  onCreateSuperNode: noOperation,
+  onDissolveSuperNode: noOperation,
+  onMoveToSourceVisualModelOfSuperNode: noOperation,
+  onEditSuperNode: noOperation,
+  onHideSuperNode: noOperation,
   onShowExpandSelection: noOperation,
   onShowFilterSelection: noOperation,
   onCanvasOpenCreateClassDialog: noOperation,

@@ -5,8 +5,8 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { configuration, createLogger } from "../application";
 import { ReactflowDimensionsConstantEstimator, XY, placePositionOnGrid } from "@dataspecer/layout";
-import { Position, VisualGroup, VisualModel, WritableVisualModel, isVisualNode, isVisualGroup, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { Edge, EdgeType, Node } from "../diagram";
+import { Position, VisualGroup, VisualModel, WritableVisualModel, isVisualNode, isVisualGroup, isVisualRelationship, VisualSuperNode, VisualEntity, isVisualSuperNode, VISUAL_SUPER_NODE_TYPE, VisualRelationship, VisualProfileRelationship } from "@dataspecer/core-v2/visual-model";
+import { DiagramNodeTypes, Edge, EdgeType, Node } from "../diagram";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { ModelGraphContextType } from "../context/model-context";
 import { ClassesContextType } from "../context/classes-context";
@@ -113,6 +113,7 @@ export function setSelectionsInDiagram(selectionsToSetWith: Selections, diagram:
 
 /**
  * @returns Current selection in diagram, which has data formatted based on function arguments.
+ * The super nodes have visual identifier as an external identifier.
  */
 export function getSelections(
   diagram: UseDiagramType,
@@ -134,11 +135,11 @@ export function getSelections(
 
 function getMapFunctionToExtractIdentifier(shouldGetVisualIdentifiers: boolean) {
   return shouldGetVisualIdentifiers ?
-    ((entity: Node | Edge) => entity.identifier) :
-    ((entity: Node | Edge) => entity.externalIdentifier);
+    ((entity: DiagramNodeTypes | Edge) => entity.identifier) :
+    ((entity: DiagramNodeTypes | Edge) => entity.externalIdentifier);
 }
 
-export function extractIdentifiers(arrayToExtractFrom: Node[] | Edge[], shouldGetVisualIdentifiers: boolean) {
+export function extractIdentifiers(arrayToExtractFrom: DiagramNodeTypes[] | Edge[], shouldGetVisualIdentifiers: boolean) {
   const identifierMap = getMapFunctionToExtractIdentifier(shouldGetVisualIdentifiers);
   return arrayToExtractFrom.map(identifierMap);
 }
@@ -260,6 +261,35 @@ export function findTopLevelGroupFromVisualModel(
   return topLevelGroup;
 }
 
+/**
+ * Returns all super node mappings in the given model.
+ * That is for each super node all the nodes and super nodes contained in it are returned.
+ * (Both the contained supernode and the content of the contained supernode is in the map).
+ * The existingSuperNodes returns the super nodes stored in given {@link visualModel}
+ */
+export function getSuperNodeMappings(
+  availableVisualModels: VisualModel[],
+  visualModel: VisualModel
+) {
+  const existingSuperNodes: Record<string, VisualSuperNode> = {};
+  const nodeToSuperNodeMapping: Record<string, string> = {};
+  for(const [identifier, visualEntity] of visualModel.getVisualEntities()) {
+    if(isVisualSuperNode(visualEntity)) {
+      existingSuperNodes[identifier] = visualEntity;
+      const containedNodes = getNodesAndSuperNodesFromVisualModelRecursively(
+        availableVisualModels, visualEntity.visualModels[0]);
+      for(const containedNode of containedNodes) {
+        nodeToSuperNodeMapping[containedNode] = identifier;
+      }
+    }
+  }
+
+  return {
+    existingSuperNodes,
+    nodeToSuperNodeMapping,
+  };
+}
+
 export function getGroupMappings(visualModel: VisualModel) {
   const existingGroups: Record<string, VisualGroup> = {};
   const nodeToGroupMapping: Record<string, string> = {};
@@ -298,4 +328,80 @@ export function getRemovedAndAdded<T>(previousValues: T[], nextValues: T[]) {
     removed,
     added
   };
+}
+
+/**
+ * @returns The semantic identifiers of the nodes in visual model.
+ *          BUT it is important to note that links of super nodes are followed.
+ *          The reason for this is quite simple - we can not work with visual identifiers
+ *          from different models and since super nodes are visual entities without
+ *          semantic counter-part, this is the only logical solution.
+ *          The super nodes are also contained in the output - those have the represented model's identifier
+ */
+export function getNodesAndSuperNodesFromVisualModelRecursively(
+  availableVisualModels: VisualModel[],
+  visualModel: string,
+) {
+  return getNodesAndSuperNodesFromVisualModelInternal(
+    availableVisualModels, visualModel, []);
+}
+
+
+function getNodesAndSuperNodesFromVisualModelInternal(
+  availableVisualModels: VisualModel[],
+  visualModel: string,
+  result: string[],
+) {
+  const linkedVisualmodel = availableVisualModels.find(availableVisualModel => visualModel === availableVisualModel.getIdentifier());
+  if(linkedVisualmodel !== undefined) {
+    for (let [_, visualEntity] of linkedVisualmodel.getVisualEntities()) {
+      if(isVisualNode(visualEntity)) {
+        result.push(visualEntity.representedEntity);
+      }
+      else if(isVisualSuperNode(visualEntity)) {
+        result.push(visualEntity.visualModels[0]);
+        getNodesAndSuperNodesFromVisualModelInternal(availableVisualModels, visualEntity.visualModels[0], result);
+      }
+    }
+  }
+
+  return result;
+}
+
+
+
+export function getVisualSourceAndTargetForEdge(
+  visualModel: VisualModel,
+  visualRelationship: VisualRelationship | VisualProfileRelationship,
+  nodeToSuperNodeMapping: Record<string, string>,
+) {
+  const source = findVisualEndForEdge(visualModel, visualRelationship.visualSource, nodeToSuperNodeMapping);
+  const target = findVisualEndForEdge(visualModel, visualRelationship.visualTarget, nodeToSuperNodeMapping);
+  return {source, target};
+}
+
+function findVisualEndForEdge(
+  visualModel: VisualModel,
+  visualRelationshipEnd: string,
+  nodeToSuperNodeMapping: Record<string, string>,
+): string {
+  const node = visualModel.getVisualEntity(visualRelationshipEnd);
+  let visualEnd;
+  if(node !== null) {
+    if(isVisualNode(node)) {
+      visualEnd = nodeToSuperNodeMapping[node.representedEntity] ?? visualRelationshipEnd;
+    }
+    else if(isVisualSuperNode(node)) {
+      visualEnd = nodeToSuperNodeMapping[node.visualModels[0]] ?? visualRelationshipEnd;
+    }
+    else {
+      LOG.error("Something bad happened, there was suppossed to be node, but it is some other visual entity");
+      visualEnd = visualRelationshipEnd;
+    }
+  }
+  else {
+    visualEnd = visualRelationshipEnd;
+  }
+
+  return visualEnd;
 }
