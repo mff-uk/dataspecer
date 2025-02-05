@@ -41,7 +41,7 @@ export function createClass(entity: Partial<Omit<SemanticModelClass, "type">> = 
 
 const MODIFY_CLASS_OPERATION = 'modify';
 
-interface ModifyClassOperation extends Operation {
+export interface ModifyClassOperation extends Operation {
     type: typeof MODIFY_CLASS_OPERATION;
     id: string;
     entity: Partial<Omit<SemanticModelClass, "type" | "id">>;
@@ -83,7 +83,7 @@ export function createRelationship(entity: Partial<Omit<SemanticModelRelationshi
 
 const MODIFY_RELATIONSHIP_OPERATION = 'modify-relation';
 
-interface ModifyRelationOperation extends Operation {
+export interface ModifyRelationOperation extends Operation {
     type: typeof MODIFY_RELATIONSHIP_OPERATION;
     id: string;
     entity: Partial<Omit<SemanticModelRelationship, "type" | "id">>;
@@ -150,7 +150,7 @@ const DELETE_ENTITY_OPERATION = 'delete';
 /**
  * Deletes any type of entity from the single model.
  */
-interface DeleteEntityOperation extends Operation {
+export interface DeleteEntityOperation extends Operation {
     type: typeof DELETE_ENTITY_OPERATION;
     id: string;
 }
