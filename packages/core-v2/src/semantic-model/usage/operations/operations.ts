@@ -32,22 +32,32 @@ export const MODIFY_RELATIONSHIP_USAGE_OPERATION = 'modify-relation-usage';
 export function isCreateClassUsageOperation(operation: Operation): operation is CreateClassUsageOperation {
     return operation.type === CREATE_CLASS_USAGE_OPERATION;
 }
+
 export function isModifyClassUsageOperation(operation: Operation): operation is ModifyClassUsageOperation {
     return operation.type === MODIFY_CLASS_USAGE_OPERATION;
 }
+
 export function isCreateRelationshipUsageOperation(operation: Operation): operation is CreateRelationshipUsageOperation {
     return operation.type === CREATE_RELATIONSHIP_USAGE_OPERATION;
 }
+
 export function isModifyRelationshipUsageOperation(operation: Operation): operation is ModifyRelationshipUsageOperation {
     return operation.type === MODIFY_RELATIONSHIP_USAGE_OPERATION;
 }
 
+/**
+ * @deprecated
+ */
 export function createClassUsage(entity: Partial<Omit<SemanticModelClassUsage, "type">> & Pick<SemanticModelClassUsage, "usageOf">): CreateClassUsageOperation {
     return {
         type: CREATE_CLASS_USAGE_OPERATION,
         entity
     }
 }
+
+/**
+ * @deprecated
+ */
 export function modifyClassUsage(id: string, entity: Partial<Omit<SemanticModelClassUsage, "type" | "usageOf">>): ModifyClassUsageOperation {
     return {
         type: MODIFY_CLASS_USAGE_OPERATION,
@@ -55,12 +65,20 @@ export function modifyClassUsage(id: string, entity: Partial<Omit<SemanticModelC
         entity
     }
 }
+
+/**
+ * @deprecated
+ */
 export function createRelationshipUsage(entity: Partial<Omit<SemanticModelRelationshipUsage, "type">> & Pick<SemanticModelRelationshipUsage, "usageOf">): CreateRelationshipUsageOperation {
     return {
         type: CREATE_RELATIONSHIP_USAGE_OPERATION,
         entity
     }
 }
+
+/**
+ * @deprecated
+ */
 export function modifyRelationshipUsage(id: string, entity: Partial<Omit<SemanticModelRelationshipUsage, "type" | "usageOf">>): ModifyRelationshipUsageOperation {
     return {
         type: MODIFY_RELATIONSHIP_USAGE_OPERATION,
