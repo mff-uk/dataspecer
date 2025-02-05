@@ -7,9 +7,11 @@ import { Entities, Entity } from "./entity";
  * @example Semantic model that contains entities such as classes, relations, generalizations, etc.
  */
 export interface EntityModel {
+
     /**
      * Returns all entities in the model.
-     * Entity is a JSON object with a unique ID. That is the only requirement.
+     * Entity is a JSON object with a unique ID.
+     * That is the only requirement.
      */
     getEntities(): Entities;
 
@@ -23,17 +25,18 @@ export interface EntityModel {
     subscribeToChanges(callback: (updated: Record<string, Entity>, removed: string[]) => void): () => void;
 
     /**
-     * Returns Id of the model
+     * returns internal model identifier
      */
     getId(): string;
 
     /**
-     * Returns the alias of the model
+     * @returns human readable alias of the model
      */
     getAlias(): string | null;
 
     /**
-     * Sets the alias of the model
+     * Sets the alias of the model.
      */
     setAlias(alias: string | null): void;
+
 }
