@@ -44,10 +44,12 @@ export function openCreateAttributeForEntityDialogAction(
   if (isSemanticModelClass(entity)) {
     const onConfirm = (state: EditAttributeDialogState) => {
       const result = createSemanticAttribute(notifications, graph.models, state);
-      // TODO PRQuestion: I copy-pasted it - to be constistent with the fact that
-      //                  createSemanticAttribute is also copy-pasted
       if(visualModel !== null && isWritableVisualModel(visualModel)) {
-        addSemanticAttributeToVisualModelAction(notifications, visualModel, state.domain.identifier, result?.identifier ?? null, null);
+        if(result?.identifier !== undefined) {
+          addSemanticAttributeToVisualModelAction(
+            notifications, visualModel, state.domain.identifier,
+            result.identifier, null);
+        }
       }
 
       if(onConfirmCallback !== null) {

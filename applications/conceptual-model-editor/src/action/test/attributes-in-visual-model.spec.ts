@@ -1,7 +1,6 @@
 import { expect, test } from "vitest";
 import { noActionNotificationServiceWriter } from "../../notification/notification-service-context";
 import { createDefaultVisualModelFactory, VisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { createNewVisualNodeForTesting } from "./remove-part-of-group-content.spec";
 import { EntityModel } from "@dataspecer/core-v2";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { representDataTypes, representUndefinedCardinality, selectRdfLiteral } from "../../dialog/utilities/dialog-utilities";
@@ -345,3 +344,15 @@ const createEmptyClassesContextType = (): ClassesContextType => {
 
   return classes;
 };
+
+const createNewVisualNodeForTesting = (visualModel: WritableVisualModel, model: string, semanticIdentifierAsNumber: number) => {
+  const visualId = visualModel.addVisualNode({
+    representedEntity: semanticIdentifierAsNumber.toString(),
+    model,
+    content: [],
+    visualModels: [],
+    position: { x: semanticIdentifierAsNumber, y: 0, anchored: null },
+  });
+
+  return visualId;
+}

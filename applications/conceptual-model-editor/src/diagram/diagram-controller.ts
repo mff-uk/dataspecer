@@ -156,9 +156,9 @@ export type NodeType = Node<ApiNode>;
 export type EdgeType = Edge<ApiEdge>;
 
 export enum NodeMenuType {
-  SELECTION_MENU,
-  GROUP_MENU,
-  SINGLE_NODE_MENU,
+  SelectionMenu,
+  GroupMenu,
+  SingleNodeMenu,
 };
 
 type ReactFlowContext = ReactFlowInstance<NodeType, EdgeType>;
@@ -1953,10 +1953,10 @@ const computeShownNodeMenuType = (
   selectedEdges: string[],
 ) => {
   if(userSelectedNodes.length > 1 || (userSelectedNodes.length === 1 && selectedEdges.length > 0)) {
-    return NodeMenuType.SELECTION_MENU;
+    return NodeMenuType.SelectionMenu;
   }
   else {
-    return NodeMenuType.SINGLE_NODE_MENU;
+    return NodeMenuType.SingleNodeMenu;
   }
 };
 

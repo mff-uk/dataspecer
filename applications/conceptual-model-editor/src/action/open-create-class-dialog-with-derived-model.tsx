@@ -42,12 +42,13 @@ export function openCreateClassDialogWithModelDerivedFromClassAction(
     model = filterInMemoryModels([...graph.models.values()])?.[0] ?? null;
   }
 
-  if (model === null) {
+  // The model is either null or InMemotySemanticModel
+  if (!(model instanceof InMemorySemanticModel)) {
     notifications.error("Can't find InMemorySemanticModel to put the association in");
     return;
   }
 
   placePositionOnGrid(positionToPlaceClassOn, configuration().xSnapGrid, configuration().ySnapGrid);
   openCreateClassDialogAction(options, dialogs, classes, graph, notifications, visualModel,
-    diagram, model as InMemorySemanticModel, positionToPlaceClassOn, onConfirmCallback);
+    diagram, model, positionToPlaceClassOn, onConfirmCallback);
 }

@@ -1,12 +1,12 @@
 // Taken and modified from https://codesandbox.io/p/sandbox/reactflow-elkjs-repositioning-tailwindcss-react-typescript-w1un1l?file=%2Fsrc%2FTreeIcon.tsx%3A19%2C15 together with the css
 
-export type DirectionString = "UP" | "DOWN" | "LEFT" | "RIGHT";
+export type DirectionString = "Up" | "Down" | "Left" | "Right";
 
 export default function TreeIcon(props: { direction: DirectionString }) {
     const direction = props.direction;
-  const isRight = direction === "RIGHT";
-  const isLeft = direction === "LEFT";
-  const isDown = direction === "DOWN";
+  const isRight = direction === "Right";
+  const isLeft = direction === "Left";
+  const isDown = direction === "Down";
 
   const translateForCentering = "translate-y-1"
   let className = translateForCentering;

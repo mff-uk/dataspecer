@@ -45,14 +45,14 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
   }
 
   // TODO PRQuestion: How should we get access to the information saying that the node is anchored so we can visualize it? Should it be action? Or should it be like this?
+  //                  ... I guess that the correct solution is to put the anchored property to the diagram node data?
   const graph = useModelGraphContext();
+  const context = useContext(DiagramContext);
   const isAnchored = (graph.aggregatorView?.getActiveVisualModel()?.getVisualEntity(props.data.identifier) as VisualNode)?.position?.anchored ?? false;
 
-  // TODO RadStr: Not sure if we should access the actions here or through another method defined in diagram-api
-  const actions = useActions();
-  const removeAttributeFromVisualModel = (attribute: string) => actions.removeAttributesFromVisualModel([attribute]);
-  const moveAttributeUp = (attribute: string) =>  actions.shiftAttributeUp(attribute, props.data.identifier);
-  const moveAttributeDown = (attribute: string) =>  actions.shiftAttributeDown(attribute, props.data.identifier);
+  const removeAttributeFromVisualModel = (attribute: string) => () => context?.callbacks().onRemoveAttributeFromVisualModel(attribute, props.data.identifier);
+  const moveAttributeUp = (attribute: string) => () => context?.callbacks().onMoveAttributeUp(attribute, props.data.identifier);
+  const moveAttributeDown = (attribute: string) => () => context?.callbacks().onMoveAttributeDown(attribute, props.data.identifier);
 
   return (
     <>
@@ -90,9 +90,9 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
               <EntityNodeItem item={item} />
               {props.selected !== true ? null :
                 <div>
-                  <button onClick={(_) => moveAttributeUp(item.identifier)}>🔼</button>
-                  <button onClick={(_) => moveAttributeDown(item.identifier)}>🔽</button>
-                  <button onClick={(_) => removeAttributeFromVisualModel(item.identifier)}>🕶️</button>
+                  <button onClick={moveAttributeUp(item.identifier)}>🔼</button>
+                  <button onClick={moveAttributeDown(item.identifier)}>🔽</button>
+                  <button onClick={removeAttributeFromVisualModel(item.identifier)}>🕶️</button>
                 </div>
               }
             </li>
@@ -118,10 +118,10 @@ function EntityNodeMenu(props: NodeProps<Node<ApiNode>>) {
     return null;
   }
 
-  if (context.getShownNodeMenuType() === NodeMenuType.SELECTION_MENU) {
+  if (context.getShownNodeMenuType() === NodeMenuType.SelectionMenu) {
     return <SelectionMenu {...props}/>;
   }
-  else if (context.getShownNodeMenuType() === NodeMenuType.SINGLE_NODE_MENU) {
+  else if (context.getShownNodeMenuType() === NodeMenuType.SingleNodeMenu) {
     return <PrimaryNodeMenu {...props}/>;
   }
   else {

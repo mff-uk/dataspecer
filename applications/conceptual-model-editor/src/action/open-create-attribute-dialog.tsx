@@ -37,7 +37,11 @@ export function openCreateAttributeDialogAction(
   const onConfirm = (state: EditAttributeDialogState) => {
     const result = createSemanticAttribute(notifications, graph.models, state);
     if(visualModel !== null && isWritableVisualModel(visualModel)) {
-      addSemanticAttributeToVisualModelAction(notifications, visualModel, state.domain.identifier, result?.identifier ?? null, null);
+      if(result?.identifier !== undefined) {
+        addSemanticAttributeToVisualModelAction(
+          notifications, visualModel, state.domain.identifier,
+          result.identifier, null);
+      }
     }
   };
 

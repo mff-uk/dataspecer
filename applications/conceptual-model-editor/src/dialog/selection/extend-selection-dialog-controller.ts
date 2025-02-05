@@ -41,17 +41,25 @@ const createExtensionData = (
 const createExtensionCheckboxesData = (): ExtensionData[] => {
   const extensionCheckboxesStates: ExtensionData[] = [];
 
-  extensionCheckboxesStates.push(createExtensionData(true, "extend-selection-association-name", "", ExtensionType.ASSOCIATION_TARGET));
-  extensionCheckboxesStates.push(createExtensionData(true, "extend-selection-association-name", "", ExtensionType.ASSOCIATION_SOURCE));
+  extensionCheckboxesStates.push(createExtensionData(true, "extend-selection-association-name",
+    "", ExtensionType.AssociationTarget));
+  extensionCheckboxesStates.push(createExtensionData(true, "extend-selection-association-name",
+    "", ExtensionType.AssociationSource));
 
-  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-generalization-name", "", ExtensionType.GENERALIZATION_PARENT));
-  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-generalization-name", "", ExtensionType.GENERALIZATION_CHILD));
+  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-generalization-name",
+    "", ExtensionType.GeneralizationParent));
+  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-generalization-name",
+    "", ExtensionType.GeneralizationChild));
 
-  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-association-profile-name", "", ExtensionType.PROFILE_EDGE_TARGET));
-  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-association-profile-name", "", ExtensionType.PROFILE_EDGE_SOURCE));
+  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-association-profile-name",
+    "", ExtensionType.ProfileEdgeTarget));
+  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-association-profile-name",
+    "", ExtensionType.ProfileEdgeSource));
 
-  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-class-profile-name", "", ExtensionType.PROFILE_CLASS_PARENT));
-  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-class-profile-name", "", ExtensionType.PROFILE_CLASS_CHILD));
+  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-class-profile-name",
+    "", ExtensionType.ClassProfileParent));
+  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-class-profile-name",
+    "", ExtensionType.ClassProfileChild));
 
   return extensionCheckboxesStates;
 };
@@ -128,7 +136,7 @@ export function useExtendSelectionController({ state, changeState }: DialogProps
           areIdentifiersFromVisualModel: state.areIdentifiersFromVisualModel
         },
         relevantExtensionTypes,
-        VisibilityFilter.ONLY_VISIBLE,
+        VisibilityFilter.OnlyVisible,
         null
       ).then(extension => {
         setSelections({

@@ -15,26 +15,38 @@ export function CanvasMenuCreatedByEdgeDrag({ menuProps }: { menuProps: CanvasMe
   // We have to clean selection in every method -
   // If we don't do that then after the creation there is small moment
   // when the node menu is shown and it is slightly disruptive
-  const OpenAddClassDialogWithAssociation = (isCreatedClassTarget: boolean) => {
-    context?.closeCanvasMenu();
-    context?.cleanSelection();
-    context?.callbacks().onCanvasOpenCreateClassDialogWithAssociation(menuProps.sourceNodeIdentifier, menuProps.canvasPosition, isCreatedClassTarget);
+  const openAddClassDialogWithAssociation = (isCreatedClassTarget: boolean) => {
+    return () => {
+      context?.closeCanvasMenu();
+      context?.cleanSelection();
+      context?.callbacks().onCanvasOpenCreateClassDialogWithAssociation(menuProps.sourceNodeIdentifier, menuProps.canvasPosition, isCreatedClassTarget);
+    };
   };
 
-  const OpenAddClassDialogWithGeneralization = (isCreatedClassParent: boolean) => {
-    context?.closeCanvasMenu();
-    context?.cleanSelection();
-    context?.callbacks().onCanvasOpenCreateClassDialogWithGeneralization(menuProps.sourceNodeIdentifier, menuProps.canvasPosition, isCreatedClassParent);
+  const openAddClassDialogWithGeneralization = (isCreatedClassParent: boolean) => {
+    return () => {
+      context?.closeCanvasMenu();
+      context?.cleanSelection();
+      context?.callbacks().onCanvasOpenCreateClassDialogWithGeneralization(menuProps.sourceNodeIdentifier, menuProps.canvasPosition, isCreatedClassParent);
+    }
   };
 
   return <div className="flex flex-col bg-white border-2 border-slate-400 border-solid [&>*]:px-5 [&>*]:text-left">
-    <button className="py-1.5 hover:bg-gray-100" onClick={() => OpenAddClassDialogWithAssociation(true)}>{t("drag-edge-to-canvas-create-association-target")}</button>
+    <button className="py-1.5 hover:bg-gray-100"
+      onClick={openAddClassDialogWithAssociation(true)}>{t("drag-edge-to-canvas-create-association-target")}
+    </button>
     <HorizontalSeparator></HorizontalSeparator>
-    <button className="py-1.5 hover:bg-gray-100" onClick={() => OpenAddClassDialogWithAssociation(false)}>{t("drag-edge-to-canvas-create-association-source")}</button>
+    <button className="py-1.5 hover:bg-gray-100"
+      onClick={openAddClassDialogWithAssociation(false)}>{t("drag-edge-to-canvas-create-association-source")}
+    </button>
     <HorizontalSeparator></HorizontalSeparator>
-    <button className="py-1.5 hover:bg-gray-100" onClick={() => OpenAddClassDialogWithGeneralization(true)}>{t("drag-edge-to-canvas-create-generalization-parent")}</button>
+    <button className="py-1.5 hover:bg-gray-100"
+      onClick={openAddClassDialogWithGeneralization(true)}>{t("drag-edge-to-canvas-create-generalization-parent")}
+    </button>
     <HorizontalSeparator></HorizontalSeparator>
-    <button className="py-1.5 hover:bg-gray-100" onClick={() => OpenAddClassDialogWithGeneralization(false)}>{t("drag-edge-to-canvas-create-generalization-child")}</button>
+    <button className="py-1.5 hover:bg-gray-100"
+      onClick={openAddClassDialogWithGeneralization(false)}>{t("drag-edge-to-canvas-create-generalization-child")}
+    </button>
   </div>;
 }
 

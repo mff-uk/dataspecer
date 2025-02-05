@@ -19,7 +19,7 @@ export const addClassNeighborhoodToVisualModelAction = (
     areIdentifiersFromVisualModel: false
   };
   const neighborhoodPromise = extendSelectionAction(notifications, graph, classes, inputForExtension,
-    [ExtensionType.ASSOCIATION, ExtensionType.GENERALIZATION], VisibilityFilter.ALL, false, null);
+    [ExtensionType.Association, ExtensionType.Generalization], VisibilityFilter.All, false, null);
   neighborhoodPromise.then(neighborhood => {
     const classesOrClassProfilesToAdd: EntityToAddToVisualModel[] = [{identifier, position: null}];
 

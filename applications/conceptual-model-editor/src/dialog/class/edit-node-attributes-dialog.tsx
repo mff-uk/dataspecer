@@ -1,13 +1,20 @@
 import { t } from "../../application";
 import { Language } from "../../application/options";
 import { DialogProps, DialogWrapper } from "../dialog-api";
-import { ChangeablePartOfEditNodeAttributeState, changeablePartOfEditNodeAttributeStateAsArray, createEditNodeAttributesState, EditNodeAttributesState, IdentifierAndName, useEditNodeAttributesController } from "./edit-node-attributes-dialog-controller";
+import {
+  ChangeablePartOfEditNodeAttributeState,
+  changeablePartOfEditNodeAttributeStateAsArray,
+  createEditNodeAttributesState,
+  EditNodeAttributesState,
+  AttributeData,
+  useEditNodeAttributesController
+} from "./edit-node-attributes-dialog-controller";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 
 export const createEditClassAttributesDialog = (
   onConfirm: ((state: EditNodeAttributesState) => void) | null,
-  visibleAttributes: IdentifierAndName[],
-  hiddenAttributes: IdentifierAndName[],
+  visibleAttributes: AttributeData[],
+  hiddenAttributes: AttributeData[],
   classIdentifier: string,
   language: Language
 ): DialogWrapper<EditNodeAttributesState> => {
@@ -36,13 +43,17 @@ export const CreateEditNodeAttributesDialog = (props: DialogProps<EditNodeAttrib
   };
 
   return <div className="flex flex-row">
-    <DragDropContext onDragEnd={controller.handleDragEnd}>
+    <DragDropContext onDragEnd={controller.handleDrop}>
       <DroppableArea name={t("edit-class-attributes-visible-attributes-column-header")}
         dropContextIdentifier={changeablePartOfEditNodeAttributeStateAsArray[0]}
-        state={state} hideAttribute={hideAttribute} showAttribute={null} onCreateNewAttribute={controller.onCreateNewAttribute}></DroppableArea>
+        state={state} hideAttribute={hideAttribute} showAttribute={null}
+        onCreateNewAttribute={controller.onCreateNewAttribute}>
+      </DroppableArea>
       <DroppableArea name={t("edit-class-attributes-hidden-attributes-column-header")}
         dropContextIdentifier={changeablePartOfEditNodeAttributeStateAsArray[1]}
-        state={state} hideAttribute={null} showAttribute={showAttribute} onCreateNewAttribute={null}></DroppableArea>
+        state={state} hideAttribute={null}
+        showAttribute={showAttribute} onCreateNewAttribute={null}>
+      </DroppableArea>
     </DragDropContext>
     <SimpleHorizontalLineSeparator/>
   </div>;
@@ -57,13 +68,9 @@ type DroppableAreaProps = {
   onCreateNewAttribute: (() => void) | null,
 }
 
-const getDroppableAreaStyle = (isDraggingOver: boolean): React.CSSProperties => ({
-  background: isDraggingOver ? "lightblue" : "rgb(241 245 249)",
-  padding: 6,
-  width: "300px",
-  maxHeight: "300px",
-  overflow: "auto",
-});
+const getDroppableAreaStyle = (isDraggingOver: boolean): string => {
+  return `p-1.5 w-[300px] max-h-[300px] overflow-auto ${isDraggingOver ? "bg-sky-200" : "bg-slate-100"}`;
+}
 
 const DroppableArea = (props: DroppableAreaProps) => {
   return <div style={{ flex: 1 }}>
@@ -71,14 +78,15 @@ const DroppableArea = (props: DroppableAreaProps) => {
       {props.name}
       {props.onCreateNewAttribute === null ?
         null :
-        <button title={t("node-add-attribute")}onClick={props.onCreateNewAttribute}>➕</button>}
+        <button title={t("node-add-attribute")} onClick={props.onCreateNewAttribute}>➕</button>}
     </p>
     <Droppable droppableId={props.dropContextIdentifier}>
       {(provided, snapshot) => (
         <div
           {...provided.droppableProps}
           ref={provided.innerRef}
-          style={getDroppableAreaStyle(snapshot.isDraggingOver)}
+          className={getDroppableAreaStyle(snapshot.isDraggingOver)}
+          // Style={getDroppableAreaStyle(snapshot.isDraggingOver)}
         >
           {props.state[props.dropContextIdentifier].map((itemInField, index) => (
             <Draggable key={itemInField.identifier} draggableId={itemInField.identifier} index={index}>
@@ -87,15 +95,8 @@ const DroppableArea = (props: DroppableAreaProps) => {
                   ref={provided.innerRef}
                   {...provided.draggableProps}
                   {...provided.dragHandleProps}
-                  className="relative flex w-full flex-row justify-between z-50"
-                  style={{
-                    padding: 1,
-                    margin: "0 0 2px 0",
-                    background: "white",
-                    border: "1px solid #ddd",
-                    fontSize: "12px",
-                    ...provided.draggableProps.style,
-                  }}
+                  className="relative flex w-full flex-row justify-between z-50 p-[1px] mb-[2px] bg-white border border-gray-300 text-[12px]"
+                  style={{...provided.draggableProps.style}}
                 >
                   - {itemInField.name}
                   {

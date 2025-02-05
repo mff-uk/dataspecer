@@ -11,11 +11,11 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
  * Type representing filter on the type of entity.
  */
 export enum SelectionFilter {
-    PROFILE_CLASS,
-    NORMAL_CLASS,
-    RELATIONSHIP_PROFILE,
-    RELATIONSHIP,
-    GENERALIZATION
+    ClassProfile,
+    NormalClass,
+    RelationshipProfile,
+    Relationship,
+    Generalization
 };
 
 /**
@@ -70,7 +70,7 @@ export function filterSelectionAction(
   const contextEntities: ClassesContextEntities = classesContext;
 
   const activeVisualModel = graph.aggregatorView.getActiveVisualModel();
-  if((visibilityFilter === VisibilityFilter.ONLY_NON_VISIBLE || visibilityFilter === VisibilityFilter.ONLY_VISIBLE) && activeVisualModel === null) {
+  if((visibilityFilter === VisibilityFilter.OnlyNonVisible || visibilityFilter === VisibilityFilter.OnlyVisible) && activeVisualModel === null) {
     notifications.error("No active visual model, can't filter based on visual model.");
     return {
       nodeSelection: [...selections.nodeSelection],
@@ -89,16 +89,23 @@ export function filterSelectionAction(
   };
 
   selectionFilterMethods.forEach(filterMethod => {
-    filterMethod(selections.nodeSelection, selections.areVisualModelIdentifiers, filteredNodeSelection, selections.edgeSelection, filteredEdgeSelection, contextEntities, activeVisualModel);
+    filterMethod(
+      selections.nodeSelection, selections.areVisualModelIdentifiers,
+      filteredNodeSelection, selections.edgeSelection, filteredEdgeSelection,
+      contextEntities, activeVisualModel);
   });
 
   const models = graph.models;
 
-  filteredNodeSelection = filterBasedOnVisibility(filteredNodeSelection, selections.areVisualModelIdentifiers, visibilityFilter, activeVisualModel);
-  filteredEdgeSelection = filterBasedOnVisibility(filteredEdgeSelection, selections.areVisualModelIdentifiers, visibilityFilter, activeVisualModel);
+  filteredNodeSelection = filterBasedOnVisibility(
+    filteredNodeSelection, selections.areVisualModelIdentifiers, visibilityFilter, activeVisualModel);
+  filteredEdgeSelection = filterBasedOnVisibility(
+    filteredEdgeSelection, selections.areVisualModelIdentifiers, visibilityFilter, activeVisualModel);
   if(semanticModelFilter !== null) {
-    filteredNodeSelection = filterBasedOnAllowedSemanticModels(selections.nodeSelection, filteredNodeSelection, semanticModelFilter, models);
-    filteredEdgeSelection = filterBasedOnAllowedSemanticModels(selections.edgeSelection, filteredEdgeSelection, semanticModelFilter, models);
+    filteredNodeSelection = filterBasedOnAllowedSemanticModels(
+      selections.nodeSelection, filteredNodeSelection, semanticModelFilter, models);
+    filteredEdgeSelection = filterBasedOnAllowedSemanticModels(
+      selections.edgeSelection, filteredEdgeSelection, semanticModelFilter, models);
   }
 
   return {
@@ -156,19 +163,19 @@ function filterBasedOnVisibility(
   visualModel: VisualModel | null
 ): string[] {
   const filteredArray: string[] = identifiersToFilter.filter(entity => {
-    if(visibilityFilter === VisibilityFilter.ALL) {
+    if(visibilityFilter === VisibilityFilter.All) {
       return true;
     }
 
     if(visualModel === null) {
-      return visibilityFilter === VisibilityFilter.ONLY_NON_VISIBLE;
+      return visibilityFilter === VisibilityFilter.OnlyNonVisible;
     }
 
     const isInVisualModel = isEntityInVisualModel(visualModel, entity, areIdentifiersFromVisualModel);
-    if(visibilityFilter === VisibilityFilter.ONLY_VISIBLE && isInVisualModel) {
+    if(visibilityFilter === VisibilityFilter.OnlyVisible && isInVisualModel) {
       return true;
     }
-    else if(visibilityFilter === VisibilityFilter.ONLY_NON_VISIBLE && !isInVisualModel) {
+    else if(visibilityFilter === VisibilityFilter.OnlyNonVisible && !isInVisualModel) {
       return true;
     }
 
@@ -179,11 +186,11 @@ function filterBasedOnVisibility(
 }
 
 const FILTER_NAME_TO_FILTER_METHOD_MAP: Record<SelectionFilter, SelectionFilterMethod> = {
-  [SelectionFilter.NORMAL_CLASS]: classFilter,
-  [SelectionFilter.PROFILE_CLASS]: profileClassFilter,
-  [SelectionFilter.RELATIONSHIP]: normalEdgeFilter,
-  [SelectionFilter.RELATIONSHIP_PROFILE]: profileEdgeFilter,
-  [SelectionFilter.GENERALIZATION]: generalizationFilter,
+  [SelectionFilter.NormalClass]: classFilter,
+  [SelectionFilter.ClassProfile]: profileClassFilter,
+  [SelectionFilter.Relationship]: normalEdgeFilter,
+  [SelectionFilter.RelationshipProfile]: profileEdgeFilter,
+  [SelectionFilter.Generalization]: generalizationFilter,
 };
 
 function classFilter(

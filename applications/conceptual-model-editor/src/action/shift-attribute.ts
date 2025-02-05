@@ -2,8 +2,8 @@ import { isVisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-mo
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 
 export enum ShiftAttributeDirection {
-  UP = -1,
-  DOWN = 1,
+  Up = -1,
+  Down = 1,
 };
 
 export function shiftAttributePositionAction(

@@ -5,11 +5,11 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { XY } from "@dataspecer/layout";
 import { ClassesContextType } from "../context/classes-context";
-import { computeMiddleOfRelatedAssociationsPositionAction } from "./utilities";
 import { isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { addSemanticClassToVisualModelAction } from "./add-class-to-visual-model";
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
+import { computeRelatedAssociationsBarycenterAction } from "./utilities";
 
 /**
  * @param configuration The configuration for layouting algorithm.
@@ -69,7 +69,9 @@ export function layoutActiveVisualModelAction(
   configuration: UserGivenConstraintsVersion4,
   explicitAnchors?: ExplicitAnchors,
 ) {
-  return layoutActiveVisualModelAdvancedAction(notifications, classes, diagram, graph, visualModel, configuration, explicitAnchors, true, {}, false);
+  return layoutActiveVisualModelAdvancedAction(
+    notifications, classes, diagram, graph, visualModel, configuration,
+    explicitAnchors, true, {}, false);
 }
 
 //
@@ -86,10 +88,11 @@ export async function findPositionForNewNodesUsingLayouting(
   const explicitAnchors: ExplicitAnchors = {
     notAnchored: [],
     anchored: [],
-    shouldAnchorEverythingExceptNotAnchored: AnchorOverrideSetting.ANCHOR_EVERYTHING_EXCEPT_NOT_ANCHORED,
+    shouldAnchorEverythingExceptNotAnchored: AnchorOverrideSetting.AnchorEverythingExceptNotAnchored,
   };
   for(const identifier of identifiers) {
-    const computedInitialPosition = await computeMiddleOfRelatedAssociationsPositionAction(notifications, graph, visualModel, diagram, classes, identifier);
+    const computedInitialPosition = await computeRelatedAssociationsBarycenterAction(
+      notifications, graph, visualModel, diagram, classes, identifier);
     // If there is more than 1 identifier on input, we will just layout it somewhere, so we don't have multiple entities in the middle
     // Otherwise put it in the middle (respectively return the middle position)
     if(computedInitialPosition.isInCenterOfViewport && identifiers.length === 1) {
@@ -115,17 +118,8 @@ export async function findPositionForNewNodesUsingLayouting(
   // We save some performance by that, but more importantly elk can move nodes even if they are
   // anchored (for example when they are not connected by any edge).
   const layoutResults = await layoutActiveVisualModelAdvancedAction(
-    notifications,
-    classes,
-    diagram,
-    graph,
-    visualModel,
-    configuration,
-    explicitAnchors,
-    false,
-    identifiersWithPositions,
-    false
-  );
+    notifications, classes, diagram, graph, visualModel, configuration,
+    explicitAnchors, false, identifiersWithPositions, false);
 
   console.info("layoutResults");
   console.info(layoutResults);
@@ -168,13 +162,16 @@ export function createExactNodeDimensionsQueryHandler(
   const getWidth = (node: INodeClassic) => {
     const visualNodeIdentifier = activeVisualModel.getVisualEntityForRepresented(node.id)?.identifier ?? "";
     // The question is what does it mean if the node isn't in editor? Same for height
-    // Actually it is not error, it can be valid state when we are layouting elements which are not yet part of visual model
-    const width = diagram.actions().getNodeWidth(visualNodeIdentifier) ?? new ReactflowDimensionsEstimator().getWidth(node);
+    // Actually it is not error,
+    // it can be valid state when we are layouting elements which are not yet part of visual model
+    const width = diagram.actions().getNodeWidth(visualNodeIdentifier) ??
+                  new ReactflowDimensionsEstimator().getWidth(node);
     return width;
   };
   const getHeight = (node: INodeClassic) => {
     const visualNodeIdentifier = activeVisualModel.getVisualEntityForRepresented(node.id)?.identifier ?? "";
-    const height = diagram.actions().getNodeHeight(visualNodeIdentifier) ?? new ReactflowDimensionsEstimator().getHeight(node);
+    const height = diagram.actions().getNodeHeight(visualNodeIdentifier) ??
+                   new ReactflowDimensionsEstimator().getHeight(node);
     return height;
   };
 
@@ -243,9 +240,13 @@ function addClassOrClassProfileToVisualModel(
 ): void {
   const represented = graph.aggregatorView.getEntities()[visualNode.representedEntity]?.rawEntity;
   if (isSemanticModelClass(represented)) {
-    addSemanticClassToVisualModelAction(notifications, graph, classes, visualModel, diagram, visualNode.representedEntity, visualNode.model, visualNode.position);
+    addSemanticClassToVisualModelAction(
+      notifications, graph, classes, visualModel, diagram,
+      visualNode.representedEntity, visualNode.model, visualNode.position);
   } else if (isSemanticModelClassUsage(represented)) {
-    addSemanticClassProfileToVisualModelAction(notifications, graph, classes, visualModel, diagram, visualNode.representedEntity, visualNode.model, visualNode.position);
+    addSemanticClassProfileToVisualModelAction(
+      notifications, graph, classes, visualModel, diagram,
+      visualNode.representedEntity, visualNode.model, visualNode.position);
   } else {
     throw new Error("Unexpected node type.");
   }

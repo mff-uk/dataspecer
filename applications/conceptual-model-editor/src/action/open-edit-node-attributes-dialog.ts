@@ -4,7 +4,7 @@ import { ClassesContextType } from "../context/classes-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { createEditClassAttributesDialog } from "../dialog/class/edit-node-attributes-dialog";
 import { getDomainAndRange } from "../util/relationship-utils";
-import { EditNodeAttributesState, IdentifierAndName } from "../dialog/class/edit-node-attributes-dialog-controller";
+import { EditNodeAttributesState, AttributeData } from "../dialog/class/edit-node-attributes-dialog-controller";
 import { Entity } from "@dataspecer/core-v2";
 import { Options } from "../application";
 import { Language } from "../application/options";
@@ -45,8 +45,8 @@ export function openEditNodeAttributesDialogAction(
 }
 
 type VisibleAnHiddenAttributes = {
-  visibleAttributes: IdentifierAndName[],
-  hiddenAttributes: IdentifierAndName[],
+  visibleAttributes: AttributeData[],
+  hiddenAttributes: AttributeData[],
 };
 
 function splitIntoVisibleAndHiddenAttributes(
@@ -54,8 +54,8 @@ function splitIntoVisibleAndHiddenAttributes(
   node: VisualNode,
   language: Language
 ): VisibleAnHiddenAttributes {
-  const visibleAttributesUnordered: IdentifierAndName[] = [];
-  const hiddenAttributes: IdentifierAndName[] = [];
+  const visibleAttributesUnordered: AttributeData[] = [];
+  const hiddenAttributes: AttributeData[] = [];
   const defaultName = "Can not find name for attribute";
   rawEntities.forEach(rawEntity => {
     const isVisible = node.content.findIndex(visibleAttribute => visibleAttribute === rawEntity?.id) !== -1;
@@ -92,7 +92,7 @@ function splitIntoVisibleAndHiddenAttributes(
     }
   });
 
-  const visibleAttributes: IdentifierAndName[] = node.content
+  const visibleAttributes: AttributeData[] = node.content
     .map(attributeIdentifier => visibleAttributesUnordered.find(attribute => attribute.identifier === attributeIdentifier))
     .filter(attribute => attribute !== undefined);
   return {

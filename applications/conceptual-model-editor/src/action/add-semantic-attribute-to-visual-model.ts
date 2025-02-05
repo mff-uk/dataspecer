@@ -10,14 +10,12 @@ export function addSemanticAttributeToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   visualModel: WritableVisualModel,
   domainIdentifier: string,
-  attribute: string | null,
+  attribute: string,
   position: number | null,
 ) {
-  if(attribute === null) {
-    return;
-  }
   const visualNode = visualModel.getVisualEntityForRepresented(domainIdentifier);
   if(visualNode === null) {
+    notifications.error("The visual node representing domain is not present.");
     return;
   }
   if(!isVisualNode(visualNode)) {
@@ -34,6 +32,7 @@ export function addSemanticAttributeToVisualModelAction(
   visualModel.updateVisualEntity(visualNode.identifier, {content: newContent});
 }
 
+// TODO RadStr: 1 Action per file
 /**
  * @returns The visual content (attributes) of node to relevant values existing in semantic model.
  */
