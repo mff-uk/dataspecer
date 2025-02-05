@@ -103,7 +103,10 @@ export class WritableSemanticModelAdapter extends SemanticModelAdapter {
             } else {
                 const operationResult = profileExecutor.executeOperation(operation);
                 if (operationResult !== null) {
-                    result.push(operationResult);
+                    result.push({
+                        success: true,
+                        id: operationResult.created[0],
+                    });
                 } else {
                     // Unknown operation.
                     result.push({
