@@ -16,7 +16,7 @@ export interface SemanticModelRelationshipProfile extends Entity {
 
 }
 
-export const SEMANTIC_MODEL_RELATIONSHIP_PROFILE = "class-profile";
+export const SEMANTIC_MODEL_RELATIONSHIP_PROFILE = "relationship-profile";
 
 export function isSemanticModelRelationshipProfile(entity: Entity | null): entity is SemanticModelRelationshipProfile {
   return entity?.type.includes(SEMANTIC_MODEL_RELATIONSHIP_PROFILE) ?? false;
