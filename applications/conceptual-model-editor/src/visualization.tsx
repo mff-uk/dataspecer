@@ -39,7 +39,7 @@ import { cardinalityToHumanLabel, getDomainAndRange } from "./util/relationship-
 import { useActions } from "./action/actions-react-binding";
 import { Diagram, type Edge, EdgeType, Group, type EntityItem, type Node } from "./diagram/";
 import { type UseDiagramType } from "./diagram/diagram-hook";
-import { logger } from "./application";
+import { configuration, createLogger } from "./application";
 import { getDescriptionLanguageString, getFallbackDisplayName, getNameLanguageString, getUsageNoteLanguageString } from "./util/name-utils";
 import { getLocalizedStringFromLanguageString } from "./util/language-utils";
 import { getIri, getModelIri } from "./util/iri-utils";
@@ -48,8 +48,12 @@ import { type EntityModel } from "@dataspecer/core-v2";
 import { Options, useOptions } from "./application/options";
 import { getGroupMappings } from "./action/utilities";
 import { synchronizeOnAggregatorChange } from "./dataspecer/visual-model/aggregator-to-visual-model-adapter";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { EntityDsIdentifier } from "./dataspecer/entity-model";
 
-const DEFAULT_MODEL_COLOR = "#ffffff";
+const LOG = createLogger(import.meta.url);
+
+const DEFAULT_MODEL_COLOR = configuration().defaultModelColor;
 
 export const Visualization = () => {
   const options = useOptions();
@@ -138,11 +142,11 @@ function propagateVisualModelColorChangesToVisualization(
   changedModelIdentifier: string,
 ) {
   if (visualModel === null) {
-    logger.warn("Visual model change is ignored as visual model is not ready! This should not happen.");
+    LOG.warn("Visual model change is ignored as visual model is not ready! This should not happen.");
     return;
   }
   if (diagram === null || !diagram.areActionsReady) {
-    logger.warn("Visual model change is ignored as the diagram is not ready!");
+    LOG.warn("Visual model change is ignored as the diagram is not ready!");
     return;
   }
 
@@ -190,7 +194,7 @@ function onChangeVisualModel(
   graphContext: UseModelGraphContextType,
 ) {
   if (diagram === null || !diagram.areActionsReady) {
-    logger.warn("Visual model change is ignored as the diagram is not ready!");
+    LOG.warn("Visual model change is ignored as the diagram is not ready!");
     return;
   }
   if (visualModel === null) {
@@ -202,9 +206,9 @@ function onChangeVisualModel(
   const models = graphContext.models;
   const entities = aggregatorView.getEntities();
   const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
-  const attributeProfiles = classesContext.profiles.filter(isSemanticModelAttributeUsage);
+  const attributeProfiles = classesContext.usages.filter(isSemanticModelAttributeUsage);
 
-  const profilingSources = [...classesContext.classes, ...classesContext.relationships, ...classesContext.profiles];
+  const profilingSources = [...classesContext.classes, ...classesContext.relationships, ...classesContext.usages];
 
   const nextNodes: Node[] = [];
   const nextEdges: Edge[] = [];
@@ -219,7 +223,8 @@ function onChangeVisualModel(
       continue;
     } else if (isVisualNode(visualEntity)) {
       const entity = entities[visualEntity.representedEntity]?.aggregatedEntity ?? null;
-      if (isSemanticModelClassUsage(entity) || isSemanticModelClass(entity)) {
+      if (isSemanticModelClassUsage(entity) || isSemanticModelClass(entity)
+         || isSemanticModelClassProfile(entity)) {
         const model = findSourceModelOfEntity(entity.id, models);
         if (model === null) {
           console.error("Ignored entity for missing model.", { entity });
@@ -236,6 +241,7 @@ function onChangeVisualModel(
       const isRelationship =
                 isSemanticModelRelationship(entity) ||
                 isSemanticModelRelationshipUsage(entity) ||
+                isSemanticModelRelationshipProfile(entity) ||
                 isSemanticModelGeneralization(entity);
       if (isRelationship) {
         const model = findSourceModelOfEntity(entity.id, models);
@@ -251,8 +257,8 @@ function onChangeVisualModel(
       }
     } else if (isVisualProfileRelationship(visualEntity)) {
       const entity = entities[visualEntity.entity]?.aggregatedEntity ?? null;
-      if (!isSemanticModelClassUsage(entity)) {
-        console.error("Ignored profile relation as entity is not a profile.", { entity });
+      if (entity === null) {
+        console.error("Ignored entity as aggregate is null.", { visualEntity });
         continue;
       }
       const model = findSourceModelOfEntity(entity.id, models);
@@ -260,14 +266,32 @@ function onChangeVisualModel(
         console.error("Ignored entity for missing model.", { entity });
         continue;
       }
-      const profileOf = visualModel.getVisualEntityForRepresented(entity.usageOf);
-      if (profileOf === null) {
-        console.error("Missing profile for profile relation.", { entity });
+      const profiled: EntityDsIdentifier[] = [];
+      if (isSemanticModelClassUsage(entity)) {
+        profiled.push(entity.usageOf);
+      } else if (isSemanticModelClassProfile(entity)) {
+        profiled.push(...entity.profiling);
+      } else {
+        console.error("Ignored profile relation as entity is not a usage or a profile.", { entity });
         continue;
       }
-      const edge = createDiagramEdgeForClassProfile(visualModel, visualEntity, entity);
-      if (edge !== null) {
-        nextEdges.push(edge);
+      // We can have multiple candidates, but we can add only the one represented
+      // by the VisualProfileRelationship.
+      for (const item of profiled) {
+        const profileOf = visualModel.getVisualEntityForRepresented(item);
+        if (profileOf === null) {
+          console.error("Missing profile for profile relation.", { entity });
+          continue;
+        }
+        if (visualEntity.visualSource !== profileOf.identifier &&
+           visualEntity.visualTarget !== profileOf.identifier) {
+          // The VisualProfileRelationship represents different profile relationship.
+          continue;
+        }
+        const edge = createDiagramEdgeForClassUsageOrProfile(visualModel, visualEntity, entity);
+        if (edge !== null) {
+          nextEdges.push(edge);
+        }
       }
     }
     // For now we ignore all other.
@@ -297,7 +321,7 @@ function createDiagramNode(
   attributesProfiles: SemanticModelRelationshipUsage[],
   profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
   visualNode: VisualNode,
-  entity: SemanticModelClass | SemanticModelClassUsage,
+  entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelClassProfile,
   model: EntityModel,
   group: string | null,
 ): Node {
@@ -365,7 +389,10 @@ function createDiagramNode(
 
 function getEntityLabel(
   language: string,
-  entity: SemanticModelClass | SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelGeneralization
+  entity: SemanticModelClass | SemanticModelRelationship |
+    SemanticModelClassUsage | SemanticModelRelationshipUsage |
+    SemanticModelGeneralization | SemanticModelClassProfile |
+    SemanticModelRelationshipProfile
 ) {
   return getLocalizedStringFromLanguageString(getNameLanguageString(entity), language)
         ?? getFallbackDisplayName(entity) ?? "";
@@ -373,22 +400,30 @@ function getEntityLabel(
 
 function getEntityDescription(
   language: string,
-  entity: SemanticModelClass | SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelGeneralization) {
+  entity: SemanticModelClass | SemanticModelRelationship |
+    SemanticModelClassUsage | SemanticModelRelationshipUsage |
+    SemanticModelGeneralization | SemanticModelClassProfile |
+    SemanticModelRelationshipProfile) {
   return getLocalizedStringFromLanguageString(getDescriptionLanguageString(entity), language);
 }
 
 function getUsageNote(
   language: string,
-  entity: SemanticModelClass | SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelGeneralization) {
+  entity: SemanticModelClass | SemanticModelRelationship |
+    SemanticModelClassUsage | SemanticModelRelationshipUsage |
+    SemanticModelGeneralization | SemanticModelClassProfile |
+    SemanticModelRelationshipProfile) {
   return getLocalizedStringFromLanguageString(getUsageNoteLanguageString(entity), language);
 }
 
 function createDiagramEdge(
   options: Options,
   visualModel: VisualModel,
-  profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
+  profilingSources: (SemanticModelRelationship | SemanticModelClassUsage |
+    SemanticModelRelationshipUsage | SemanticModelClass)[],
   visualNode: VisualRelationship,
-  entity: SemanticModelRelationship | SemanticModelRelationshipUsage | SemanticModelGeneralization ,
+  entity: SemanticModelRelationship | SemanticModelRelationshipUsage |
+   SemanticModelGeneralization | SemanticModelRelationshipProfile ,
 ): Edge | null {
   const identifier = entity.id;
   if (isSemanticModelRelationship(entity)) {
@@ -494,10 +529,10 @@ function createDiagramEdgeForGeneralization(
   };
 }
 
-function createDiagramEdgeForClassProfile(
+function createDiagramEdgeForClassUsageOrProfile(
   visualModel: VisualModel,
   visualNode: VisualProfileRelationship,
-  entity: SemanticModelClassUsage,
+  entity: SemanticModelClassUsage | SemanticModelClassProfile,
 ): Edge | null {
 
   return {
@@ -531,7 +566,7 @@ function onChangeVisualEntities(
     }[]
 ) {
   if (diagram === null || !diagram.areActionsReady) {
-    logger.warn("Visual entities change is ignored as the diagram is not ready!");
+    LOG.warn("Visual entities change is ignored as the diagram is not ready!");
     return;
   }
   if (visualModel === null) {
@@ -543,9 +578,9 @@ function onChangeVisualEntities(
   const models = graphContext.models;
   const entities = aggregatorView.getEntities();
   const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
-  const attributeProfiles = classesContext.profiles.filter(isSemanticModelAttributeUsage);
+  const attributeProfiles = classesContext.usages.filter(isSemanticModelAttributeUsage);
 
-  const profilingSources = [...classesContext.classes, ...classesContext.relationships, ...classesContext.profiles];
+  const profilingSources = [...classesContext.classes, ...classesContext.relationships, ...classesContext.usages];
 
   const actions = diagram.actions();
 
@@ -583,14 +618,18 @@ function onChangeVisualEntities(
       if (isVisualNode(next)) {
         const entity = entities[next.representedEntity]?.aggregatedEntity ?? null;
 
-        if (!isSemanticModelClass(entity) && !isSemanticModelClassUsage(entity)) {
-          console.error("In visual update semantic entity is not class or class usage.", { entity, visual: next });
+        if (!isSemanticModelClass(entity)
+            && !isSemanticModelClassUsage(entity)
+            && !isSemanticModelClassProfile(entity)) {
+          LOG.error(
+            "In visual update semantic entity is not class/usage/profile.",
+            { entity, visual: next });
           continue;
         }
 
         const model = findSourceModelOfEntity(entity.id, models);
         if (model === null) {
-          console.error("Ignored entity for missing model.", { entity });
+          LOG.error("Ignored entity for missing model.", { entity });
           continue;
         }
 
@@ -654,32 +693,42 @@ function onChangeVisualEntities(
       } else if (isVisualProfileRelationship(next)) {
         const entity = entities[next.entity]?.aggregatedEntity ?? null;
 
-        if (!isSemanticModelClassUsage(entity)) {
-          console.error("In visual update semantic entity is not a profile.", { entity, visual: next });
-          continue;
-        }
-
-        const profileOf = visualModel.getVisualEntityForRepresented(entity.usageOf);
-        if (profileOf === null) {
-          console.error("Missing profile for profile relation.", { entity });
-          continue;
-        }
-
-        const edge = createDiagramEdgeForClassProfile(visualModel, next, entity);
-
-        if (edge === null) {
-          console.error("In visual update created edge is null.", { entity, visual: next });
-          continue;
-        }
-
-        if (previous === null) {
-          // Create new entity.
-          actions.addEdges([edge]);
+        const profiled: EntityDsIdentifier[] = [];
+        if (isSemanticModelClassUsage(entity)) {
+          profiled.push(entity.usageOf);
+        } else if (isSemanticModelClassProfile(entity)) {
+          profiled.push(...entity.profiling);
         } else {
-          // Change of existing.
-          actions.updateEdges([edge]);
+          console.error("Ignored profile relation as entity is not a usage or a profile.", { entity, visualEntity: next });
+          continue;
         }
-
+        // We can have multiple candidates, but we can add only the one represented
+        // by the VisualProfileRelationship.
+        for (const item of profiled) {
+          const profileOf = visualModel.getVisualEntityForRepresented(item);
+          if (profileOf === null) {
+            console.error("Missing profile for profile relation.", { entity });
+            continue;
+          }
+          if (next.visualSource !== profileOf.identifier &&
+            next.visualTarget !== profileOf.identifier) {
+            // The VisualProfileRelationship represents different profile relationship.
+            continue;
+          }
+          //
+          const edge = createDiagramEdgeForClassUsageOrProfile(visualModel, next, entity);
+          if (edge === null) {
+            console.error("Ignored null edge.", {visualEntity: next, entity});
+            continue;
+          }
+          if (previous === null) {
+            // Create new entity.
+            actions.addEdges([edge]);
+          } else {
+            // Change of existing.
+            actions.updateEdges([edge]);
+          }
+        }
       } else {
         // We ignore other properties.
       }

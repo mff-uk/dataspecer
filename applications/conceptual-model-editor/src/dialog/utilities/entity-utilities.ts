@@ -13,7 +13,7 @@ export interface EntityState {
   language: string;
 
   /**
-   * List of all models.
+   * List of all models, used for reference.
    */
   allModels: CmeModel[];
 

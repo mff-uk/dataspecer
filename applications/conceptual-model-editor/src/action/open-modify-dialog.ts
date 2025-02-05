@@ -25,6 +25,10 @@ import { openEditAttributeDialogAction } from "./open-edit-attribute-dialog";
 import { openEditAttributeProfileDialogAction } from "./open-edit-attribute-profile-dialog";
 import { openEditClassDialogAction } from "./open-edit-class-dialog";
 import { openEditClassProfileDialogAction } from "./open-edit-class-profile-dialog";
+import { createLogger } from "../application";
+import { isSemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+
+const LOG = createLogger(import.meta.url);
 
 export function openModifyDialogAction(
   options: Options,
@@ -56,7 +60,7 @@ export function openModifyDialogAction(
       options, dialogs, classes, graph, notifications, visualModel, model,
       entity);
     return;
-  } else if (isSemanticModelClassUsage(entity)) {
+  } else if (isSemanticModelClassUsage(entity) || isSemanticModelClassProfile(entity)) {
     openEditClassProfileDialogAction(
       options, dialogs, classes, graph, notifications, visualModel, model,
       entity);
@@ -85,6 +89,7 @@ export function openModifyDialogAction(
     notifications.error("Generalization modification is not supported!");
     return;
   } else {
+    LOG.error("Can not open modify dialog for unknown entity type.", { entity })
     notifications.error("Unknown entity type.");
     return;
   }

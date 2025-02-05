@@ -33,13 +33,10 @@ export class MissingModel extends RuntimeError {
  */
 export class InvalidAggregation extends RuntimeError {
 
-  entity: Entity;
-
   aggregated: Entity | null;
 
-  constructor(entity: Entity, aggregated: Entity | null) {
-    super(`Invalid aggregation of entity '${entity.id}'.`);
-    this.entity = entity;
+  constructor(identifier: string, aggregated: Entity | null) {
+    super(`Invalid aggregation of entity '${identifier}'.`);
     this.aggregated = aggregated;
   }
 }

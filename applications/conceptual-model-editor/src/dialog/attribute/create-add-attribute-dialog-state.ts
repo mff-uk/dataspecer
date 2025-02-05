@@ -2,7 +2,7 @@ import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { EditAttributeDialogState } from "./edit-attribute-dialog-controller";
-import { isRepresentingAttribute, representClasses, representDataTypes, representOwlThing, representRelationships, selectDefaultModelForAttribute, selectRdfLiteral } from "../utilities/dialog-utilities";
+import { isRepresentingAttribute, representClasses, listDataTypes, representOwlThing, representRelationships, representUndefinedClass, representUndefinedDataType, selectDefaultModelForAttribute } from "../utilities/dialog-utilities";
 import { configuration } from "../../application";
 import { createEntityStateForNew } from "../utilities/entity-utilities";
 import { createSpecializationStateForNew } from "../utilities/specialization-utilities";
@@ -11,6 +11,7 @@ import { DialogWrapper } from "../dialog-api";
 import { EditAttributeDialog } from "./edit-attribute-dialog";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { RuntimeError } from "../../application/error";
 
 /**
  * Creates a dialog to add an attribute to an existing entity.
@@ -43,18 +44,21 @@ export function createAddAttributeDialogState(
 
   // RelationshipState
 
-  const owlThing = representOwlThing();
-  const classes = [owlThing, ...representClasses(models, entityState.allModels, classesContext.classes)];
+  const classes = [
+    representUndefinedClass(),
+    representOwlThing(),
+    ...representClasses(models, entityState.allModels, classesContext.classes)
+  ];
 
-  const dataTypes = [...representDataTypes()];
-  const range = selectRdfLiteral(dataTypes);
+  const domain = classes.find(item => item.identifier === entity.id);
+  if (domain === undefined) {
+    throw new RuntimeError("Missing domain representative");
+  }
+
+  const dataTypes = listDataTypes();
 
   const relationshipState = createRelationshipStateForNew(
-    owlThing, classes, range, dataTypes);
-
-  // We try to use the given entity as a default value.
-  const domain = relationshipState.availableDomainItems.find(
-    item => item.identifier === entity.id) ?? owlThing;
+    domain, classes, representUndefinedDataType(), dataTypes);
 
   return {
     ...entityState,
@@ -62,7 +66,6 @@ export function createAddAttributeDialogState(
     ...relationshipState,
     model : selectDefaultModelForAttribute(
       entity.id, models, entityState.availableModels),
-    domain,
   };
 }
 

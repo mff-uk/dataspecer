@@ -39,6 +39,7 @@ import { OptionsContextProvider } from "./application/options";
 import "./page.css";
 import { migrateVisualModelFromV0 } from "./dataspecer/visual-model/visual-model-v0-to-v1";
 import { ExplorationContextProvider } from "./diagram/features/highlighting/exploration/context/highlighting-exploration-mode";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 const _semanticModelAggregator = new SemanticModelAggregator();
 type SemanticModelAggregatorType = typeof _semanticModelAggregator;
@@ -62,6 +63,8 @@ const Page = () => {
   const [visualModels, setVisualModels] = useState(new Map<string, WritableVisualModel>());
   const [sourceModelOfEntityMap, setSourceModelOfEntityMap] = useState(new Map<string, string>());
   const [defaultModelAlreadyCreated, setDefaultModelAlreadyCreated] = useState(false);
+  const [classProfiles, setClassProfiles] = useState<SemanticModelClassProfile[]>([]);
+  const [relationshipProfiles, setRelationshipProfiles] = useState<SemanticModelRelationshipProfile[]>([]);
 
   // Runs on initial load.
   // If the app was launched without package-id query parameter
@@ -115,6 +118,7 @@ const Page = () => {
         setClasses, setRelationships,
         setUsages, setGeneralizations, setRawEntities,
         setWarnings, setSourceModelOfEntityMap,
+        setClassProfiles, setRelationshipProfiles,
         aggregatorView);
     };
     return aggregatorView?.subscribeToChanges(callback);
@@ -143,9 +147,11 @@ const Page = () => {
                 setAllowedClasses,
                 relationships,
                 generalizations,
-                profiles: usages,
+                usages,
                 sourceModelOfEntityMap,
                 rawEntities,
+                classProfiles,
+                relationshipProfiles,
               }}
             >
               <WarningsContext.Provider value={{ warnings, setWarnings }}>
@@ -325,6 +331,8 @@ function propagateAggregatorChangesToLocalState(
   setRawEntities: Dispatch<SetStateAction<(Entity | null)[]>>,
   setWarnings: Dispatch<SetStateAction<Warning[]>>,
   setSourceModelOfEntityMap: Dispatch<SetStateAction<Map<string, string>>>,
+  setClassProfiles: Dispatch<SetStateAction<SemanticModelClassProfile[]>>,
+  setRelationshipProfiles: Dispatch<SetStateAction<SemanticModelRelationshipProfile[]>>,
   aggregator: SemanticModelAggregatorView,
 ) {
   // Remove items.
@@ -334,6 +342,8 @@ function propagateAggregatorChangesToLocalState(
   setUsages((prev) => prev.filter((item) => !removedIds.has(item.id)));
   setGeneralizations((prev) => prev.filter((item) => !removedIds.has(item.id)));
   setRawEntities((prev) => prev.filter((item) => item?.id && !removedIds.has(item?.id)));
+  setClassProfiles((prev) => prev.filter((item) => item?.id && !removedIds.has(item?.id)));
+  setRelationshipProfiles((prev) => prev.filter((item) => item?.id && !removedIds.has(item?.id)));
 
   // Prepare update.
   const localSourceMap = new Map<string, string>();
@@ -341,8 +351,10 @@ function propagateAggregatorChangesToLocalState(
     updatedClasses,
     updatedRelationships,
     updatedGeneralizations,
-    updatedProfiles,
+    updatedProfiles: updatedUsages,
     updatedRawEntities,
+    updatedClassProfiles,
+    updatedRelationshipProfiles,
   } = updated.reduce(
     (
       {
@@ -351,6 +363,8 @@ function propagateAggregatorChangesToLocalState(
         updatedGeneralizations,
         updatedProfiles,
         updatedRawEntities,
+        updatedClassProfiles,
+        updatedRelationshipProfiles,
       },
       curr
     ) => {
@@ -362,6 +376,8 @@ function propagateAggregatorChangesToLocalState(
           updatedGeneralizations,
           updatedProfiles,
           updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
+          updatedClassProfiles,
+          updatedRelationshipProfiles,
         };
       } else if (isSemanticModelRelationship(curr.aggregatedEntity)) {
         if (bothEndsHaveAnIri(curr.aggregatedEntity)) {
@@ -384,6 +400,8 @@ function propagateAggregatorChangesToLocalState(
             updatedGeneralizations,
             updatedProfiles,
             updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
+            updatedClassProfiles,
+            updatedRelationshipProfiles,
           };
         }
         return {
@@ -392,10 +410,11 @@ function propagateAggregatorChangesToLocalState(
           updatedGeneralizations,
           updatedProfiles,
           updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
+          updatedClassProfiles,
+          updatedRelationshipProfiles,
         };
       } else if (
-        isSemanticModelClassUsage(curr.aggregatedEntity) ||
-                isSemanticModelRelationshipUsage(curr.aggregatedEntity)
+        isSemanticModelClassUsage(curr.aggregatedEntity) || isSemanticModelRelationshipUsage(curr.aggregatedEntity)
       ) {
         return {
           updatedClasses,
@@ -403,6 +422,8 @@ function propagateAggregatorChangesToLocalState(
           updatedGeneralizations,
           updatedProfiles: updatedProfiles.concat(curr.aggregatedEntity),
           updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
+          updatedClassProfiles,
+          updatedRelationshipProfiles,
         };
       } else if (isSemanticModelGeneralization(curr.aggregatedEntity)) {
         return {
@@ -411,6 +432,28 @@ function propagateAggregatorChangesToLocalState(
           updatedGeneralizations: updatedGeneralizations.concat(curr.aggregatedEntity),
           updatedProfiles,
           updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
+          updatedClassProfiles,
+          updatedRelationshipProfiles,
+        };
+      } else if (isSemanticModelClassProfile(curr.aggregatedEntity)) {
+        return {
+          updatedClasses,
+          updatedRelationships,
+          updatedGeneralizations,
+          updatedProfiles,
+          updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
+          updatedClassProfiles: updatedClassProfiles.concat(curr.aggregatedEntity),
+          updatedRelationshipProfiles,
+        };
+      } else if (isSemanticModelRelationshipProfile(curr.aggregatedEntity)) {
+        return {
+          updatedClasses,
+          updatedRelationships,
+          updatedGeneralizations,
+          updatedProfiles,
+          updatedRawEntities: updatedRawEntities.concat(curr.rawEntity),
+          updatedClassProfiles,
+          updatedRelationshipProfiles: updatedRelationshipProfiles.concat(curr.aggregatedEntity),
         };
       } else {
         console.error("Unknown type of updated entity", curr.aggregatedEntity);
@@ -423,6 +466,8 @@ function propagateAggregatorChangesToLocalState(
       updatedGeneralizations: [] as SemanticModelGeneralization[],
       updatedProfiles: [] as (SemanticModelClassUsage | SemanticModelRelationshipUsage)[],
       updatedRawEntities: [] as (Entity | null)[],
+      updatedClassProfiles: [] as SemanticModelClassProfile[],
+      updatedRelationshipProfiles: [] as SemanticModelRelationshipProfile[],
     }
   );
 
@@ -447,10 +492,16 @@ function propagateAggregatorChangesToLocalState(
   const updatedGeneralizationIds = new Set(updatedGeneralizations.map((item) => item.id));
   setGeneralizations((prev) => prev.filter((item) => !updatedGeneralizationIds.has(item.id)).concat(updatedGeneralizations));
 
-  const updatedProfileIds = new Set(updatedProfiles.map((item) => item.id));
-  setUsages((prev) => prev.filter((item) => !updatedProfileIds.has(item.id)).concat(updatedProfiles));
+  const updatedUsagesIds = new Set(updatedUsages.map((item) => item.id));
+  setUsages((prev) => prev.filter((item) => !updatedUsagesIds.has(item.id)).concat(updatedUsages));
 
   const updatedRawEntityIds = new Set(updatedRawEntities.map((item) => item?.id));
   setRawEntities((prev) => prev.filter((item) => !updatedRawEntityIds.has(item?.id)).concat(updatedRawEntities));
+
+  const updatedClassProfilesIds = new Set(updatedClassProfiles.map((item) => item.id));
+  setClassProfiles((prev) => prev.filter((item) => !updatedClassProfilesIds.has(item.id)).concat(updatedClassProfiles));
+
+  const updatedRelationshipProfilesIds = new Set(updatedRelationshipProfiles.map((item) => item.id));
+  setRelationshipProfiles((prev) => prev.filter((item) => !updatedRelationshipProfilesIds.has(item.id)).concat(updatedRelationshipProfiles));
 
 }

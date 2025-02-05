@@ -59,6 +59,6 @@ export function centerViewportToVisualEntityAction(
  */
 export function findRelationshipOrRelationshipUsageWithIdentifier(identifier: string, classesContext: ClassesContextType) {
   const entity = (classesContext.relationships as (SemanticModelRelationship | SemanticModelRelationshipUsage)[]).
-    concat(classesContext.profiles.filter(isSemanticModelRelationshipUsage)).find(entity => entity?.id === identifier);
+    concat(classesContext.usages.filter(isSemanticModelRelationshipUsage)).find(entity => entity?.id === identifier);
   return entity;
 }

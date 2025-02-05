@@ -1,20 +1,16 @@
 import {
-  SemanticModelRelationship,
   isSemanticModelAttribute,
   isSemanticModelClass,
   isSemanticModelGeneralization,
   isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
-  SemanticModelRelationshipEndUsage,
-  SemanticModelRelationshipUsage,
   isSemanticModelAttributeUsage,
   isSemanticModelClassUsage,
   isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { WritableVisualModel, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { createClassUsage, createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
 
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
@@ -22,7 +18,6 @@ import { DialogApiContextType } from "../dialog/dialog-service";
 import { Options } from "../application/options";
 import { ClassesContextType } from "../context/classes-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
-import { getDomainAndRange } from "../util/relationship-utils";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
 import { EditAssociationProfileDialogState } from "../dialog/association-profile/edit-association-profile-dialog-controller";
 import { EditAttributeProfileDialogState } from "../dialog/attribute-profile/edit-attribute-profile-dialog-controller";
@@ -32,6 +27,8 @@ import { createEditAttributeProfileDialog, createNewAttributeProfileDialogState 
 import { EditClassProfileDialogState } from "../dialog/class-profile/edit-class-profile-dialog-controller";
 import { createNewClassProfileDialog, createNewProfileClassDialogState } from "../dialog/class-profile/create-new-class-profile-dialog-state";
 import { EntityModel } from "@dataspecer/core-v2";
+import { createCmeClassProfile } from "../dataspecer/cme-model/operation/create-cme-class-profile";
+import { createCmeRelationshipProfile } from "../dataspecer/cme-model/operation/craete-cme-relationship-profile";
 
 export function openCreateProfileDialogAction(
   options: Options,
@@ -52,7 +49,7 @@ export function openCreateProfileDialogAction(
   //
   if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
     const state = createNewProfileClassDialogState(
-      classes, graph, visualModel, options.language, entity);
+      classes, graph, visualModel, options.language, entity.id);
     const onConfirm = (state: EditClassProfileDialogState) => {
       const createResult = createClassProfile(state, graph.models);
       if (createResult === null) {
@@ -74,7 +71,7 @@ export function openCreateProfileDialogAction(
     const state = createNewAttributeProfileDialogState(
       classes, graph, visualModel, options.language, entity);
     const onConfirm = (state: EditAttributeProfileDialogState) => {
-      createRelationshipProfile(state, graph.models, entity);
+      createRelationshipProfile(state, graph.models);
       // We do not update visual model here as attribute is part of  a class.
     };
     dialogs.openDialog(createEditAttributeProfileDialog(state, onConfirm));
@@ -85,7 +82,7 @@ export function openCreateProfileDialogAction(
     const state = createNewAssociationProfileDialogState(
       classes, graph, visualModel, options.language, entity);
     const onConfirm = (state: EditAssociationProfileDialogState) => {
-      const createResult = createRelationshipProfile(state, graph.models, entity);
+      const createResult = createRelationshipProfile(state, graph.models);
       if (createResult === null) {
         return;
       }
@@ -108,86 +105,71 @@ export function openCreateProfileDialogAction(
   notifications.error("Unknown entity type.");
 }
 
-// TODO PeSk: This should not be exported, move to Dataspecer layer.
-export const createClassProfile = (
+const createClassProfile = (
   state: EditClassProfileDialogState,
   models: Map<string, EntityModel>,
 ): {
   identifier: string,
   model: InMemorySemanticModel,
 } | null => {
-  const model: InMemorySemanticModel = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
-
-  const { success, id: identifier } = model.executeOperation(createClassUsage({
-    usageOf: state.profileOf.identifier,
+  const model = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
+  const result = createCmeClassProfile({
+    model: state.model.dsIdentifier,
+    profileOf: state.profileOf.map(item => item.identifier),
     iri: state.iri,
-    name: state.overrideName ? state.name : null,
-    description: state.overrideDescription ? state.description : null,
-    usageNote: state.overrideUsageNote ? state.usageNote : null,
-  }));
-
-  if (identifier !== undefined && success) {
-    return { identifier, model: model };
-  } else {
-    return null;
-  }
+    name: state.name,
+    nameSource: state.overrideName ? null :
+      state.nameSource?.identifier ?? null,
+    description: state.description,
+    descriptionSource: state.overrideDescription ? null :
+      state.descriptionSourceValue?.identifier ?? null,
+    usageNote: state.usageNote,
+    usageNoteSource: state.overrideUsageNote ? null :
+      state.usageNoteSource?.identifier ?? null,
+  }, [...models.values() as any]);
+  return {
+    identifier: result.identifier,
+    model,
+  };
 }
 
 const createRelationshipProfile = (
   state: EditAttributeProfileDialogState | EditAssociationProfileDialogState,
   models: Map<string, EntityModel>,
-  entity: SemanticModelRelationship | SemanticModelRelationshipUsage,
 ): {
   identifier: string,
   model: InMemorySemanticModel,
 } | null => {
   const model: InMemorySemanticModel = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
-
-  const domain = {
-    concept: state.overrideDomain ? state.domain.identifier : null,
-    name: null,
-    description: null,
-    cardinality: state.overrideDomainCardinality ? state.domainCardinality.cardinality ?? null : null,
-    usageNote: null,
-    iri: null,
-  } satisfies SemanticModelRelationshipEndUsage;
-
-  const range = {
-    concept: state.overrideRange ? state.range.identifier : null,
-    name: state.overrideName ? state.name : null,
-    description: state.overrideDescription ? state.description : null,
-    cardinality: state.overrideRangeCardinality ? state.rangeCardinality.cardinality ?? null : null,
-    usageNote: null,
+  const result = createCmeRelationshipProfile({
+    model: state.model.dsIdentifier,
+    profileOf: state.profileOf.map(item => item.identifier),
     iri: state.iri,
-  } as SemanticModelRelationshipEndUsage;
-
-  // We need to preserve the order of domain and range.
-  let ends: SemanticModelRelationshipEndUsage[] | undefined = undefined;
-  if (isSemanticModelRelationship(entity)) {
-    const domainAndRange = getDomainAndRange(entity);
-    if (domainAndRange.domainIndex === 1 && domainAndRange.rangeIndex === 0) {
-      ends = [range, domain];
-    } else {
-      ends = [domain, range];
-    }
-  } else if (isSemanticModelRelationshipUsage(entity)) {
-    const domainAndRange = getDomainAndRange(entity);
-    if (domainAndRange.domainIndex === 1 && domainAndRange.rangeIndex === 0) {
-      ends = [range, domain];
-    } else {
-      ends = [domain, range];
-    }
-  }
-
-  const { success, id: identifier } = model.executeOperation(createRelationshipUsage({
-    usageOf: entity.id,
+    name: state.name,
+    nameSource: state.overrideName ? null :
+      state.nameSource?.identifier ?? null,
+    description: state.description,
+    descriptionSource: state.overrideDescription ? null :
+      state.descriptionSourceValue?.identifier ?? null,
     usageNote: state.usageNote,
-    ends: ends,
-  }));
-
-  if (identifier !== undefined && success) {
-    return { identifier, model: model };
-  } else {
-    return null;
-  }
+    usageNoteSource: state.overrideUsageNote ? null :
+      state.usageNoteSource?.identifier ?? null,
+    //
+    domain: state.domain.identifier,
+    domainSource: state.overrideDomain ? null :
+      state.domainSource?.identifier ?? null,
+    domainCardinality: state.domainCardinality.cardinality,
+    domainCardinalitySource: state.overrideDomainCardinality ? null :
+      state.domainSource?.identifier ?? null,
+    range: state.range.identifier,
+    rangeSource: state.overrideRange ? null :
+      state.rangeSource?.identifier ?? null,
+    rangeCardinality: state.rangeCardinality.cardinality,
+    rangeCardinalitySource: state.overrideRangeCardinality ? null :
+      state.rangeCardinalitySource?.identifier ?? null,
+  }, [...models.values() as any]);
+  return {
+    identifier: result.identifier,
+    model,
+  };
 }

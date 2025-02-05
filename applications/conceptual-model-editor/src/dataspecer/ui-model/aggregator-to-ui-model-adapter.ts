@@ -621,13 +621,13 @@ function updateUiStateVisual(
   // We need to replace the UiModel and check for visualDsIdentifier.
   const updateEntity = <T extends {
     dsIdentifier: EntityDsIdentifier,
-    model: UiVocabulary,
+    vocabulary: UiVocabulary,
     visualDsIdentifier: EntityDsIdentifier | null,
   }>(item: T): T => {
     const visual = getVisualEntityForRepresented(item.dsIdentifier);
     return {
       ...item,
-      model: models[item.model.dsIdentifier],
+      vocabulary: models[item.vocabulary.dsIdentifier],
       visualDsIdentifier: visual?.identifier ?? null,
     };
   };

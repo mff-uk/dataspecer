@@ -27,6 +27,7 @@ import { AddNeighborhoodButton } from "../components/add-neighborhood-button";
 import { useCatalogHighlightingController } from "../../diagram/features/highlighting/exploration/catalog/catalog-highlighting-controller";
 import "../../diagram/features/highlighting/exploration/catalog/highlighting-catalog-styles.css";
 import "../../diagram/features/highlighting/exploration/context/exploration-highlighting-styles.css";
+import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 const TreeLikeOffset = (props: { offset?: number }) => {
   const { offset } = props;
@@ -38,7 +39,9 @@ const TreeLikeOffset = (props: { offset?: number }) => {
 
 export const EntityRow = (props: {
     model: string,
-    entity: SemanticModelClass | SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage;
+    entity: SemanticModelClass | SemanticModelRelationship |
+     SemanticModelClassUsage | SemanticModelRelationshipUsage |
+     SemanticModelClassProfile | SemanticModelRelationshipProfile;
     expandable: null | {
         toggleHandler: () => void;
         expanded: () => boolean;

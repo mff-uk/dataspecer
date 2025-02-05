@@ -67,7 +67,7 @@ export const EditAssociationDialog = (props: DialogProps<EditAssociationDialogSt
         <DialogDetailRow detailKey={t("domain")}>
           <SelectEntity
             language={state.language}
-            items={state.availableDomainItems}
+            items={state.availableDomains}
             value={state.domain}
             onChange={controller.setDomain}
           />
@@ -84,7 +84,7 @@ export const EditAssociationDialog = (props: DialogProps<EditAssociationDialogSt
         <DialogDetailRow detailKey={t("range")}>
           <SelectEntity
             language={state.language}
-            items={state.availableRangeItems}
+            items={state.availableRanges}
             value={state.range}
             onChange={controller.setRange}
           />

@@ -28,6 +28,7 @@ import { ExpandModelButton } from "../components/expand-model";
 import { type VisualEntity, isVisualNode, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
 import { ShowAllClassesFromSemanticModelButton } from "../components/add-entities-from-semantic-model-to-visual-button";
 import { HideAllClassesFromSemanticModelButton } from "../components/remove-entities-in-semantic-model-from-visual-button";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 export enum EntityType {
     Class = "class",
@@ -36,7 +37,9 @@ export enum EntityType {
     Profile = "profile",
 }
 
-type EntityTypes = SemanticModelClass | SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage;
+type EntityTypes = SemanticModelClass | SemanticModelRelationship |
+   SemanticModelClassUsage | SemanticModelRelationshipUsage |
+   SemanticModelClassProfile | SemanticModelRelationshipProfile;
 
 const DEFAULT_MODEL_COLOR = "#000069";
 
@@ -57,12 +60,16 @@ const getEntitiesByType = (entityType: EntityType, model: EntityModel): EntityTy
       .filter(isSemanticModelAttribute);
   case EntityType.Profile:
     return Object.values(model.getEntities())
-      .filter(isUsage);
+      .filter(isUsageOrProfile);
   }
 };
 
-const isUsage = (what: Entity | null): what is SemanticModelClassUsage | SemanticModelRelationshipUsage => {
-  return isSemanticModelClassUsage(what) || isSemanticModelRelationshipUsage(what);
+const isUsageOrProfile = (
+  what: Entity | null
+): what is SemanticModelClassUsage | SemanticModelRelationshipUsage
+| SemanticModelClassProfile | SemanticModelRelationshipProfile => {
+  return isSemanticModelClassUsage(what) || isSemanticModelRelationshipUsage(what)
+   || isSemanticModelClassProfile(what) || isSemanticModelRelationshipProfile(what);
 };
 
 /**
