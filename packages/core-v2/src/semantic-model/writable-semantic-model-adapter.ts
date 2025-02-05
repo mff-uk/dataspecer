@@ -54,7 +54,7 @@ export class WritableSemanticModelAdapter extends SemanticModelAdapter {
 
     public executeOperation(operation: Operation) : OperationResult | CreatedEntityOperationResult {
         const results = this.executeOperations([operation]);
-        return results[1]!;
+        return results[0]!;
     }
 
     public executeOperations(operations: Operation[]) : (OperationResult | CreatedEntityOperationResult)[] {
