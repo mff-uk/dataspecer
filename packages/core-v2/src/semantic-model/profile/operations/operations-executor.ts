@@ -148,14 +148,10 @@ function executeCreateSemanticModelRelationshipProfile(
     ...entity,
     id: identifier,
     type: [SEMANTIC_MODEL_RELATIONSHIP_PROFILE],
-    // We enforce two ends.
-    ends: [{
+    ends: (entity.ends ?? []).map(item => ({
       ...defaultRelationshipEndProfile(),
-      ...entity.ends?.[0] ?? {},
-    }, {
-      ...defaultRelationshipEndProfile(),
-      ...entity.ends?.[1] ?? {},
-    }]
+      ...item,
+    })),
   };
   entityWriter.change({ [identifier]: newEntity }, []);
   return {
@@ -164,17 +160,14 @@ function executeCreateSemanticModelRelationshipProfile(
   };
 }
 
-function defaultRelationshipEndProfile(): SemanticModelRelationshipEndProfile {
+function defaultRelationshipEndProfile() {
   return {
     name: null,
     nameFromProfiled: null,
     description: null,
     descriptionFromProfiled: null,
     iri: null,
-    concept: null,
-    conceptFromProfiled: null,
     cardinality: null,
-    cardinalityFromProfiled: null,
     usageNote: null,
     usageNoteFromProfiled: null,
     profiling: [],
@@ -193,17 +186,19 @@ function executeModifySemanticModelRelationshipProfile(
       created: [],
     };
   };
+
+  // When no ends are give, use the one from previous state
+  const ends = entity.ends === undefined ? previous.ends :
+    // Else we merge old to new, otherwise we would not be able to delete.
+    entity.ends.map((value, index) => ({
+      ...(previous.ends[index] ?? {}),
+      ...value
+    }));
+
   const updatedEntity: SemanticModelRelationshipProfile = {
     id: identifier,
     type: [SEMANTIC_MODEL_RELATIONSHIP_PROFILE],
-    // We enforce two ends.
-    ends: [{
-      ...previous.ends[0]!,
-      ...entity.ends?.[0] ?? {},
-    }, {
-      ...previous.ends[1]!,
-      ...entity.ends?.[1] ?? {},
-    }],
+    ends,
   };
   entityWriter.change({ [identifier]: updatedEntity }, []);
   return {

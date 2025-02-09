@@ -1,5 +1,4 @@
 import { Entity } from "../../../entity-model";
-import { SemanticModelEntity } from "../../concepts";
 import { NamedThingProfile } from "./named-thing-profile";
 import { Profile } from "./profile";
 
@@ -35,22 +34,15 @@ export interface SemanticModelRelationshipEndProfile extends NamedThingProfile, 
 
   /**
    * Must be descendant or self of the corresponding concept of the used entity.
+   * At the same time it must be set, we do not allow null here.
    */
-  concept: string | null;
-
-  /**
-   * If set, the value of respective property must be load from the profile.
-   */
-  conceptFromProfiled: string | null;
+  concept: string;
 
   /**
    * Must be stricter or equal to the corresponding cardinality of the profiled entity.
+   * When null the cardinality is profiled from all profiles.
+   * The value should be determined as an intersection.
    */
   cardinality: [number, number | null] | null;
-
-  /**
-   * If set, the value of respective property must be load from the profile.
-   */
-  cardinalityFromProfiled: string | null;
 
 }
