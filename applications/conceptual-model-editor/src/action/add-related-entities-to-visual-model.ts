@@ -105,9 +105,9 @@ function shouldAddGeneralization(
   candidate: SemanticModelGeneralization,
 ): boolean {
   if (candidate.parent === identifier) {
-    return visualModel.getVisualEntityForRepresented(candidate.child) !== null;
+    return visualModel.getVisualEntitiesForRepresented(candidate.child) !== null;
   } else if (candidate.child === identifier) {
-    return visualModel.getVisualEntityForRepresented(candidate.parent) !== null;
+    return visualModel.getVisualEntitiesForRepresented(candidate.parent) !== null;
   } else {
     return false;
   }
@@ -121,10 +121,10 @@ function shouldAddRelationship(
   const { domain, range } = getDomainAndRange(candidate);
   if (domain?.concept === identifier) {
     const other = range?.concept ?? null;
-    return other !== null && visualModel.getVisualEntityForRepresented(other) !== null;
+    return other !== null && visualModel.getVisualEntitiesForRepresented(other) !== null;
   } else if (range?.concept === identifier) {
     const other = domain?.concept ?? null;
-    return other !== null && visualModel.getVisualEntityForRepresented(other) !== null;
+    return other !== null && visualModel.getVisualEntitiesForRepresented(other) !== null;
   } else {
     return false;
   }
@@ -138,10 +138,10 @@ function shouldAddRelationshipUsageOrProfile(
   const { domain, range } = getDomainAndRange(candidate);
   if (domain?.concept === identifier) {
     const other = range?.concept ?? null;
-    return other !== null && visualModel.getVisualEntityForRepresented(other) !== null;
+    return other !== null && visualModel.getVisualEntitiesForRepresented(other) !== null;
   } else if (range?.concept === identifier) {
     const other = domain?.concept ?? null;
-    return other !== null && visualModel.getVisualEntityForRepresented(other) !== null;
+    return other !== null && visualModel.getVisualEntitiesForRepresented(other) !== null;
   } else {
     return false;
   }
@@ -159,7 +159,7 @@ function shouldAddUsage(
   // The candidate may be specialization of what we are adding.
   if (profile.usageOf === profiled) {
     // We return true if the other is in the visual model.
-    return visualModel.getVisualEntityForRepresented(profile.id) !== null;
+    return visualModel.getVisualEntitiesForRepresented(profile.id) !== null;
   }
   return false;
 }
@@ -176,7 +176,7 @@ function shouldAddProfile(
   // The candidate may be specialization of what we are adding.
   if (profile.profiling.includes(profiled)) {
     // We return true if the other is in the visual model.
-    return visualModel.getVisualEntityForRepresented(profile.id) !== null;
+    return visualModel.getVisualEntitiesForRepresented(profile.id) !== null;
   }
   return false;
 }

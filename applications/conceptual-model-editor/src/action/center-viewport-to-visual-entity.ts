@@ -18,9 +18,10 @@ export function centerViewportToVisualEntityAction(
   classesContext: ClassesContextType,
   diagram: UseDiagramType,
   entityIdentifier: string,
+  currentEntityNumber: number,
   _modelIdentifier: string,
 ) {
-  const attribute = findRelationshipOrRelationshipUsageWithIdentifier(entityIdentifier, classesContext);
+  const attribute = findRelationshipOrRelationshipUsage(entityIdentifier, classesContext);
   if(attribute !== undefined) {
     // It can be attribute or association
     if(isSemanticModelAttribute(attribute)) {
@@ -40,24 +41,26 @@ export function centerViewportToVisualEntityAction(
     notifications.error("There is no active visual model.");
     return;
   }
-  const entity = visualModel.getVisualEntityForRepresented(entityIdentifier);
-  if (entity === null) {
+  const visualEntities = visualModel.getVisualEntitiesForRepresented(entityIdentifier);
+  if (visualEntities === null) {
     notifications.error("There is no visual representation of the entity.");
     return;
   }
-  if(isVisualNode(entity) || isVisualGroup(entity)) {
-    diagram.actions().centerViewportToNode(entity.identifier);
+  const visualEntity = visualEntities[currentEntityNumber % visualEntities.length];
+  if(isVisualNode(visualEntity) || isVisualGroup(visualEntity)) {
+    diagram.actions().centerViewportToNode(visualEntity.identifier);
   }
-  else if(isVisualRelationship(entity)) {
-    diagram.actions().fitToView([entity.visualSource, entity.visualTarget]);
+  else if(isVisualRelationship(visualEntity)) {
+    diagram.actions().fitToView([visualEntity.visualSource, visualEntity.visualTarget]);
   }
 };
 
 /**
- * @returns undefined if the relationship with given identifier wasn't found. Otherwise the found relationship or relationship usage -
- * Note that the returned type depends on the actual entity
+ * @returns undefined if the relationship with given identifier wasn't found. 
+ *          Otherwise the found relationship or relationship usage -
+ *          Note that the returned type depends on the actual entity
  */
-export function findRelationshipOrRelationshipUsageWithIdentifier(identifier: string, classesContext: ClassesContextType) {
+export function findRelationshipOrRelationshipUsage(identifier: string, classesContext: ClassesContextType) {
   const entity = (classesContext.relationships as (SemanticModelRelationship | SemanticModelRelationshipUsage)[]).
     concat(classesContext.usages.filter(isSemanticModelRelationshipUsage)).find(entity => entity?.id === identifier);
   return entity;

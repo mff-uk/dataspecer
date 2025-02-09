@@ -133,7 +133,7 @@ export function extractIdentifiers(arrayToExtractFrom: Node[] | Edge[], shouldGe
 
 export function filterOutProfileClassEdges(edgeSemanticIdentifiers: string[], visualModel: VisualModel): string[] {
   return edgeSemanticIdentifiers.filter(edgeIdentifier => {
-    const visualEntity = visualModel.getVisualEntityForRepresented(edgeIdentifier);
+    const visualEntity = visualModel.getVisualEntitiesForRepresented(edgeIdentifier)?.[0] ?? null;
     return visualEntity !== null && isVisualRelationship(visualEntity);
   });
 }
@@ -157,19 +157,24 @@ export const computeMiddleOfRelatedAssociationsPositionAction = async (
   classesContext: ClassesContextType,
   classToFindAssociationsFor: string,
 ): Promise<ComputedPositionForNodePlacement> => {
-  const associatedClasses: string[] = (await findAssociatedClassesAndClassUsages(notifications, graph, classesContext, classToFindAssociationsFor)).selectionExtension.nodeSelection;
-  const associatedPositions = associatedClasses.map(associatedNodeIdentifier => {
-    const visualNode = visualModel.getVisualEntityForRepresented(associatedNodeIdentifier);
-    if(visualNode === null) {
+  const associatedClasses: string[] = (await findAssociatedClassesAndClassUsages(
+    notifications, graph, classesContext, classToFindAssociationsFor)).selectionExtension.nodeSelection;
+  const associatedPositions = associatedClasses.flatMap(associatedNodeIdentifier => {
+    const visualEntities = visualModel.getVisualEntitiesForRepresented(associatedNodeIdentifier);
+    if(visualEntities === null) {
       notifications.error("The associated visual entity is not present in visual model, even though it should");
-      return null
-    }
-    if(!isVisualNode(visualNode)) {
-      notifications.error("One of the associated nodes is actually not a node for unknown reason");
       return null;
     }
+    const positions = [];
+    for(const visualEntity of visualEntities) {
+      if(!isVisualNode(visualEntity)) {
+        notifications.error("One of the associated nodes is actually not a node for unknown reason");
+        return null;
+      }
+      positions.push(visualEntity.position);
+    }
 
-    return visualNode.position;
+    return positions.length > 0 ? positions : null;
   }).filter(position => position !== null);
 
   const barycenter = computeBarycenter(associatedPositions, diagram);

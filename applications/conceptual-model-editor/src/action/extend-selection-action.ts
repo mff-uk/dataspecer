@@ -166,44 +166,59 @@ export const extendSelectionAction = async (
   for(const extensionType of extensionTypes) {
     switch(extensionType) {
     case ExtensionType.ASSOCIATION:
-      await extendThroughAssociationSources(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
-      await extendThroughAssociationTargets(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      await extendThroughAssociationSources(
+        nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      await extendThroughAssociationTargets(
+        nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
       break;
     case ExtensionType.ASSOCIATION_TARGET:
-      await extendThroughAssociationTargets(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      await extendThroughAssociationTargets(
+        nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
       break;
     case ExtensionType.ASSOCIATION_SOURCE:
-      await extendThroughAssociationSources(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      await extendThroughAssociationSources(
+        nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
       break;
     case ExtensionType.PROFILE_EDGE:
-      await extendThroughProfileEdgeSources(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
-      await extendThroughProfileEdgeTargets(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      await extendThroughProfileEdgeSources(
+        nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      await extendThroughProfileEdgeTargets(
+        nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
       break;
     case ExtensionType.PROFILE_EDGE_SOURCE:
-      await extendThroughProfileEdgeSources(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      await extendThroughProfileEdgeSources(
+        nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
       break;
     case ExtensionType.PROFILE_EDGE_TARGET:
-      await extendThroughProfileEdgeTargets(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      await extendThroughProfileEdgeTargets(
+        nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
       break;
     case ExtensionType.GENERALIZATION:
-      await extendThroughGeneralizationParents(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
-      await extendThroughGeneralizationChildren(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      await extendThroughGeneralizationParents(
+        nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      await extendThroughGeneralizationChildren(
+        nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
       break;
     case ExtensionType.GENERALIZATION_CHILD:
-      await extendThroughGeneralizationChildren(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      await extendThroughGeneralizationChildren(
+        nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
       break;
     case ExtensionType.GENERALIZATION_PARENT:
       await extendThroughGeneralizationParents(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
       break;
     case ExtensionType.PROFILE_CLASS:
-      await extendThroughClassProfileParents(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
-      await extendThroughClassProfileChildren(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      await extendThroughClassProfileParents(
+        nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      await extendThroughClassProfileChildren(
+        nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
       break;
     case ExtensionType.PROFILE_CLASS_PARENT:
-      await extendThroughClassProfileParents(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      await extendThroughClassProfileParents(
+        nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
       break;
     case ExtensionType.PROFILE_CLASS_CHILD:
-      await extendThroughClassProfileChildren(nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
+      await extendThroughClassProfileChildren(
+        nodeSelection, visibilityFilter, selectionExtension, relevantExternalModels, entities, visualModel);
       break;
     }
   }
@@ -282,7 +297,8 @@ export function isEntityInVisualModel(
     visualEntity = visualModel.getVisualEntity(entityId);
   }
   else {
-    visualEntity = visualModel.getVisualEntityForRepresented(entityId);
+    // TODO RadStr: MULTI-ENTITIES! - should be fine by now - but we can not test until we merge with the fixes in the attributes branch
+    visualEntity = visualModel.getVisualEntitiesForRepresented(entityId)?.[0] ?? null;
   }
   const isInVisualModel = visualEntity !== null;
   return isInVisualModel;
@@ -330,27 +346,21 @@ function addToExtensionIfSatisfiesVisibilityFilter(
   isExtendedNodeVisualId: boolean,
   contextEntities: ClassesContextEntities | null,
 ): void {
-  if(visibilityFilter === VisibilityFilter.ALL) {
-    addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass, true, contextEntities);
+  if(handleTrivialVisibilityFilters(extension, visibilityFilter, classIdToAdd,
+                                    edgeWhichAddedClass, visualModel, contextEntities)) {
     return;
   }
+  visualModel = visualModel as VisualModel;   // We know this from the previous method call
 
-  if(visualModel === null) {
-    if(visibilityFilter === VisibilityFilter.ONLY_NON_VISIBLE) {
-      addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass, true, contextEntities);
-    }
-    return;
-  }
-
-  // TODO: If in future there will be multiple visual entities per one semantic, this is the only place that needs to be changed
+  // TODO RadStr: If in future there will be multiple visual entities per one semantic, this is the only place that needs to be changed
   //              (meaning from here to the end of method and the isEntityInVisualModel method) -
   //              you need to add only the visual entities, where the identifier (from visual model) of the extended node is either a source or a target
   const isClassInVisualModel = isEntityInVisualModel(visualModel, classIdToAdd, false);
   const isProfileClassEdge = !isEdgeWhichAddedClassNotClassProfileEdge(edgeWhichAddedClass);
-  let isEdgeInVisualModel = false;
+  let isSemanticEdgeInVisualModel = false;
   if(isProfileClassEdge) {
     if(visualModel === null || visibilityFilter !== VisibilityFilter.ONLY_VISIBLE || !isExtendedNodeVisualId) {
-      isEdgeInVisualModel = true;
+      isSemanticEdgeInVisualModel = true;
     }
     else {
       const visualEntities = visualModel.getVisualEntities();
@@ -362,9 +372,11 @@ function addToExtensionIfSatisfiesVisibilityFilter(
             // TODO RadStr: Maybe should throw error, since this shouldn't happen
             return;
           }
-          const ends = edgeWhichAddedClass === SpecialEdge.FROM_CLASS_PROFILE_TO_PROFILED_CLASS ? [visualSource, visualTarget] : [visualTarget, visualSource];
+          const ends = edgeWhichAddedClass === SpecialEdge.FROM_CLASS_PROFILE_TO_PROFILED_CLASS ?
+                        [visualSource, visualTarget] :
+                        [visualTarget, visualSource];
           if(ends[0].identifier === extendedNode && ends[1].representedEntity === classIdToAdd) {
-            isEdgeInVisualModel = true;
+            isSemanticEdgeInVisualModel = true;
             edgeWhichAddedClass = visualEntity.identifier;
             break;
           }
@@ -374,29 +386,37 @@ function addToExtensionIfSatisfiesVisibilityFilter(
   }
   else {
     // We know that it is string
-    isEdgeInVisualModel = isEntityInVisualModel(visualModel, edgeWhichAddedClass as string, false);
+    isSemanticEdgeInVisualModel = isEntityInVisualModel(visualModel, edgeWhichAddedClass as string, false);
   }
 
-  if((visibilityFilter === VisibilityFilter.ONLY_VISIBLE && isClassInVisualModel && isEdgeInVisualModel) ||
+  if((visibilityFilter === VisibilityFilter.ONLY_VISIBLE && isClassInVisualModel && isSemanticEdgeInVisualModel) ||
         (visibilityFilter === VisibilityFilter.ONLY_VISIBLE_NODES && isClassInVisualModel)) {
     if(isExtendedNodeVisualId && visibilityFilter === VisibilityFilter.ONLY_VISIBLE) {     // Then we want visual IDs
-      const classToAddVisualEntity = visualModel.getVisualEntityForRepresented(classIdToAdd);
-      let edgeWhichAddedClassVisualEntity;
+    // TODO RadStr: MULTI-ENTITIES! - should be fine by now - but we can not test until we merge with the fixes in the attributes branch
+      const visualNodesForTheAddedClass = visualModel.getVisualEntitiesForRepresented(classIdToAdd);
+      let edgesWhichAddedVisualNodes;
       if(isProfileClassEdge) {
         // We know that it is string, because we have explicitly set it above
-        edgeWhichAddedClassVisualEntity = visualModel.getVisualEntity(edgeWhichAddedClass as string);
+        const edge = visualModel.getVisualEntity(edgeWhichAddedClass as string)
+        edgesWhichAddedVisualNodes = edge === null ? null : [edge];
       }
       else {
         // Must be string representing id
-        edgeWhichAddedClassVisualEntity = visualModel.getVisualEntityForRepresented(edgeWhichAddedClass as string);
+    // TODO RadStr: MULTI-ENTITIES! - should be fine by now - but we can not test until we merge with the fixes in the attributes branch
+        edgesWhichAddedVisualNodes = visualModel.getVisualEntitiesForRepresented(edgeWhichAddedClass as string);
       }
 
-      if(classToAddVisualEntity === null || edgeWhichAddedClassVisualEntity === null) {
+      if(visualNodesForTheAddedClass === null || edgesWhichAddedVisualNodes === null) {
         // Shouldn't happen
         console.warn("Entities which should be part of visual model are not");
         return;
       }
-      addToSelectionExtension(extension, classToAddVisualEntity.identifier, edgeWhichAddedClassVisualEntity.identifier, false, null);
+      for(const visualNodeToAddToSelection of visualNodesForTheAddedClass) {
+        const edgesWhichAddedTheNode = edgesWhichAddedVisualNodes.filter(edge => hasEdgeEndInNode(visualNodeToAddToSelection.identifier, edge));
+        for (const edgeWhichAddedTheNode of edgesWhichAddedTheNode) {
+          addToSelectionExtension(extension, visualNodeToAddToSelection.identifier, edgeWhichAddedTheNode.identifier, false, null);
+        }
+      }
     }
     else {          // We want semantic IDs
       addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass, true, contextEntities);
@@ -405,6 +425,41 @@ function addToExtensionIfSatisfiesVisibilityFilter(
   else if(visibilityFilter === VisibilityFilter.ONLY_NON_VISIBLE && !isClassInVisualModel) {     // Not sure about the semantics of the filters for edges,
     addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass, true, contextEntities);      // So we just check the visibility of the class
   }
+}
+
+const hasEdgeEndInNode = (node: string, edge: VisualEntity) => {
+  if(isVisualRelationship(edge) || isVisualProfileRelationship(edge)) {
+    return edge.visualSource === node || edge.visualTarget === node;
+  }
+  return false;
+}
+
+/**
+ * @returns Returns true if the trivial case was handled.
+ *          That is visibility filter was either {@link VisibilityFilter.ALL} or
+ *          when {@link visualModel} === null
+ */
+function handleTrivialVisibilityFilters(
+  extension: SelectionExtension,
+  visibilityFilter: VisibilityFilter,
+  classIdToAdd: string,
+  edgeWhichAddedClass: EdgeWhichAddedClass,
+  visualModel: VisualModel | null,
+  contextEntities: ClassesContextEntities | null,
+): boolean {
+  if(visibilityFilter === VisibilityFilter.ALL) {
+    addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass, true, contextEntities);
+    return true;
+  }
+
+  if(visualModel === null) {
+    if(visibilityFilter === VisibilityFilter.ONLY_NON_VISIBLE) {
+      addToSelectionExtension(extension, classIdToAdd, edgeWhichAddedClass, true, contextEntities);
+    }
+    return true;
+  }
+
+  return false;
 }
 
 /**
@@ -933,7 +988,9 @@ async function extendThroughClassProfileChildren(
   contextEntities: ClassesContextEntities,
   visualModel: VisualModel | null
 ): Promise<void> {
-  await extendThroughClassProfile(nodeSelection, visibilityFilter, "CHILD", outputToExtend, relevantExternalModels, contextEntities, visualModel);
+  await extendThroughClassProfile(
+    nodeSelection, visibilityFilter, "CHILD", outputToExtend,
+    relevantExternalModels, contextEntities, visualModel);
 }
 
 //
@@ -943,21 +1000,22 @@ const getIdentifierForEntity = (
   entityIdentifier: string,
   shouldReturnVisualIdentifiers: boolean,
   visualModel: VisualModel | null
-): string | null => {
+): string[] | null => {
   if(shouldReturnVisualIdentifiers) {
     if(visualModel === null) {
       return null;
     }
 
-    const visualEntity = visualModel.getVisualEntityForRepresented(entityIdentifier);
-    if(visualEntity === null) {
+    // TODO RadStr: MULTI-ENTITIES! - should be fine by now - but we can not test until we merge with the fixes in the attributes branch
+    const visualEntities = visualModel.getVisualEntitiesForRepresented(entityIdentifier) ?? null;
+    if(visualEntities === null) {
       return null;
     }
 
-    return visualEntity.identifier;
+    return visualEntities.map(visualEntity => visualEntity.identifier);
   }
 
-  return entityIdentifier;
+  return [entityIdentifier];
 }
 
 /**
@@ -979,10 +1037,10 @@ export function getSelectionForWholeSemanticModel(
 
   const entities = Object.values(semanticModel.getEntities());
   entities.forEach(entity => {
-    const identifier = getIdentifierForEntity(entity.id, shouldReturnVisualIdentifiers, visualModel);
-    if(identifier !== null) {
+    const identifiers = getIdentifierForEntity(entity.id, shouldReturnVisualIdentifiers, visualModel);
+    if(identifiers !== null) {
       const isClassOrClassProfile = isSemanticModelClass(entity) || isSemanticModelClassUsage(entity);
-      (isClassOrClassProfile ? result.nodeSelection : result.edgeSelection).push(identifier);
+      (isClassOrClassProfile ? result.nodeSelection : result.edgeSelection).push(...identifiers);
     }
   });
 

@@ -81,7 +81,7 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
   /**
    * Cached mapping from represented to entity identifiers.
    */
-  private representedToEntity: Map<RepresentedEntityIdentifier, EntityIdentifier> = new Map();
+  private representedToEntity: Map<RepresentedEntityIdentifier, EntityIdentifier[]> = new Map();
 
   /**
    * Map from model identifier to the model data.
@@ -125,12 +125,21 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
     return this.entities.get(identifier) ?? null;
   }
 
-  getVisualEntityForRepresented(represented: RepresentedEntityIdentifier): VisualEntity | null {
-    const identifier = this.representedToEntity.get(represented);
-    if (identifier === undefined) {
+  // TODO PRQuestion - we could have empty array ([]) as substitute for null and remove null
+  //                   As for the actual values - we filter out the nulls, since they don't provide any useful info
+  getVisualEntitiesForRepresented(represented: RepresentedEntityIdentifier): VisualEntity[] | null {
+    const identifiers = this.representedToEntity.get(represented);
+    if (identifiers === undefined) {
       return null;
     }
-    return this.getVisualEntity(identifier);
+    const visualEntities = [];
+    for(const identifier of identifiers) {
+      const visualEntity = this.getVisualEntity(identifier);
+      if(visualEntity !== null) {
+        visualEntities.push(visualEntity);
+      }
+    }
+    return visualEntities;
   }
 
   getVisualEntities(): Map<EntityIdentifier, VisualEntity> {
@@ -357,13 +366,13 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
 
   protected onEntityDidCreate(entity: Entity) {
     if (isVisualNode(entity)) {
-      this.entities.set(entity.identifier, entity);
-      this.representedToEntity.set(entity.representedEntity, entity.identifier);
+      this.entities.set(entity.identifier, entity);   // TODO PRQuestion: this line repeats at every if branch
+      this.addToRepresentedEntites(this.representedToEntity, entity.representedEntity, entity.identifier);
       this.notifyObserversOnEntityChangeOrDelete(null, entity);
     }
     if (isVisualRelationship(entity)) {
       this.entities.set(entity.identifier, entity);
-      this.representedToEntity.set(entity.representedRelationship, entity.identifier);
+      this.addToRepresentedEntites(this.representedToEntity, entity.representedRelationship, entity.identifier);
       this.notifyObserversOnEntityChangeOrDelete(null, entity);
     }
     if (isVisualGroup(entity)) {
@@ -384,6 +393,39 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
       this.entities.set(entity.identifier, entity);
       // There is no primary representation for this one.
       this.notifyObserversOnEntityChangeOrDelete(null, entity);
+    }
+  }
+
+  private addToRepresentedEntites(
+    representedToEntityMap: Map<string, string[]>,
+    representedEntity: string,
+    identifierToAdd: string
+  ) {
+    const existingIdentifiersToPushTo = representedToEntityMap.get(representedEntity);
+    if(existingIdentifiersToPushTo === undefined) {
+      representedToEntityMap.set(representedEntity, [identifierToAdd]);
+    }
+    else {
+      existingIdentifiersToPushTo.push(identifierToAdd);
+    }
+  }
+
+    private removeFromRepresentedEntites(
+    representedToEntityMap: Map<string, string[]>,
+    representedEntity: string,
+    identifierToRemove: string
+  ) {
+    const tmp = representedToEntityMap.get(representedEntity);
+    const result = tmp?.filter(visualRepresentation => visualRepresentation !== identifierToRemove);
+    if(result === undefined) {
+      // TODO PRQuestion: Is that error or not?
+      return;
+    }
+    if(result?.length === 0) {
+      representedToEntityMap.delete(representedEntity);
+    }
+    else {
+      representedToEntityMap.set(representedEntity, result);
     }
   }
 
@@ -440,9 +482,11 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
     this.entities.delete(identifier);
     // Notify listeners.
     if (isVisualNode(previous)) {
+      this.removeFromRepresentedEntites(this.representedToEntity, previous.representedEntity, identifier);
       this.notifyObserversOnEntityChangeOrDelete(previous, null);
     }
     if (isVisualRelationship(previous)) {
+      this.removeFromRepresentedEntites(this.representedToEntity, previous.representedRelationship, identifier);
       this.notifyObserversOnEntityChangeOrDelete(previous, null);
     }
     if (isVisualGroup(previous)) {

@@ -186,6 +186,13 @@ export function onVisualEntitiesDidChange(
   };
 }
 
+// TODO: I tried to migrate this whole method, but not sure about correctness.
+//       I think that there were issues even before migration.
+//       For example prev === next or putting visual identifier as key of result
+//       Also I am not sure how does it work - does it get all of the entities and not just the changes ones.
+//       If so then lets say that all of them are equal, that means there was actually no change
+//       then in the "updateVisual" method we remove all of the visualDsIdentifiers, because this method returns empty object
+//   ... So I rewrote it in such a way that the test pass after the fixes, but if it is correct I can not tell
 /**
  * @returns For a represented entity returns new values of visual entity.
  */
@@ -194,17 +201,19 @@ function collectVisualRepresentedChange(
     previous: VisualEntity | null,
     next: VisualEntity | null
   }[],
-): Record<EntityDsIdentifier, EntityDsIdentifier | null> {
-  const result: Record<EntityDsIdentifier, EntityDsIdentifier | null> = {};
+): Record<EntityDsIdentifier, EntityDsIdentifier[] | null> {
+  const result: Record<EntityDsIdentifier, EntityDsIdentifier[] | null> = {};
   for (const change of entities) {
-
     if (change.previous !== null && change.next === null) {
       // Existing entity is removed.
       // We change the value to null, but only if is was not set
       // by other entity update.
       const represented = getRepresentedByVisual(change.previous);
       if (represented !== null) {
-        result[represented] = result[change.previous.identifier] ?? null;
+        // TODO PRQuestion: I am not sure about correctness of this - we are using both semantic and visual identifier in the result
+        //                  The old commented code:
+        // result[represented] = result[change.previous.identifier] ?? null;
+        removeFromMapValue(result, represented);
       }
       continue;
     }
@@ -213,7 +222,7 @@ function collectVisualRepresentedChange(
       // New entity is created.
       const represented = getRepresentedByVisual(change.next);
       if (represented !== null) {
-        result[represented] = change.next.identifier;
+        addToMapValue(result, represented, change.next.identifier);
       }
       continue;
     }
@@ -221,25 +230,50 @@ function collectVisualRepresentedChange(
     if (change.previous !== null && change.next !== null) {
       // There is a change in visual entity.
       const prev = getRepresentedByVisual(change.previous);
-      const next = getRepresentedByVisual(change.previous);
+      const next = getRepresentedByVisual(change.next);
       if (prev === next) {
         // There is no relevant change.
-        continue;
+        if(prev !== null) {
+          addToMapValue(result, prev, change.next.identifier)
+          continue;
+        }
       }
       //
       if (prev !== null) {
         // We need to remove the visual from the old entity,
         // unless set by other update.
-        result[prev] = result[prev] ?? null;
+        removeFromMapValue(result, prev);
       }
       if (next !== null) {
         // We add a new value.
-        result[next] = change.next.identifier;
+        addToMapValue(result, next, change.next.identifier);
       }
       continue;
     }
   }
+
   return result;
+}
+
+function addToMapValue<T>(map: Record<string, T[] | null>, key: string, value: T) {
+  const existingValue = map[key];
+  if(existingValue === undefined || existingValue === null) {
+    map[key] = [value];
+  }
+  else {
+    existingValue.push(value);
+  }
+}
+
+function removeFromMapValue<T>(map: Record<string, T[] | null>, key: string) {
+  const existingValue = map[key];
+  if(existingValue === undefined) {
+    map[key] = null;
+    return;
+  }
+  else if(existingValue === null) {
+    return;
+  }
 }
 
 function getRepresentedByVisual(visual: VisualEntity): EntityDsIdentifier | null {
@@ -261,11 +295,11 @@ function getRepresentedByVisual(visual: VisualEntity): EntityDsIdentifier | null
  */
 function updateVisual<T extends {
   dsIdentifier: EntityDsIdentifier,
-  visualDsIdentifier: EntityDsIdentifier | null,
-}>(items: T[], changes: Record<EntityDsIdentifier, EntityDsIdentifier | null>): T[] {
+  visualDsIdentifiers: EntityDsIdentifier[] | null,
+}>(items: T[], changes: Record<EntityDsIdentifier, EntityDsIdentifier[] | null>): T[] {
   return items.map(item => ({
     ...item,
-    visualDsIdentifier: changes[item.dsIdentifier],
+    visualDsIdentifiers: changes[item.dsIdentifier],
   }));
 }
 

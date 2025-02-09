@@ -70,11 +70,11 @@ export function createEditAssociationProfileDialogState(
     [entity.usageOf],
     domain.concept, entity.usageOf,
     domain.cardinality, entity.usageOf,
-    classProfiles, // available domains
+    classProfiles, // Available domains
     range.concept, entity.usageOf,
-    classProfiles[0], // default range
+    classProfiles[0], // Default range
     range.cardinality, entity.usageOf,
-    classProfiles // available ranges
+    classProfiles // Available ranges
   );
 
   return {

@@ -12,18 +12,22 @@ export function addSemanticProfileToVisualModelAction(
   profile: SemanticModelEntity,
   modelIdentifier: string,
 ) {
-  const visualSource = visualModel.getVisualEntityForRepresented(profile.id);
-  const visualTarget = visualModel.getVisualEntityForRepresented(profiled.id);
-  if (visualSource === null || visualTarget === null) {
+  const visualSources = visualModel.getVisualEntitiesForRepresented(profile.id);
+  const visualTargets = visualModel.getVisualEntitiesForRepresented(profiled.id);
+  if (visualSources === null || visualTargets === null) {
     console.warn("Ignored request to add profile as ends are missing in visual model.",
       {visualModel, profiled, profile});
     return;
   }
-  visualModel.addVisualProfileRelationship({
-    model: modelIdentifier,
-    entity: profile.id,
-    waypoints: [],
-    visualSource: visualSource.identifier,
-    visualTarget: visualTarget.identifier,
-  });
+  for(const visualSource of visualSources) {
+    for(const visualTarget of visualTargets) {
+      visualModel.addVisualProfileRelationship({
+        model: modelIdentifier,
+        entity: profile.id,
+        waypoints: [],
+        visualSource: visualSource.identifier,
+        visualTarget: visualTarget.identifier,
+      });
+    }
+  }
 }

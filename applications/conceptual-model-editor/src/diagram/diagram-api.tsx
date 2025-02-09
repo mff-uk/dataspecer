@@ -213,10 +213,14 @@ export interface DiagramActions {
   openGroupMenu(groupIdentifier: string, canvasPosition: Position): void;
 
   /**
-   * Sets correct highlighting values in context. We have to call it through the diagram API, because we have access to the rendering library (reactflow) only in diagram component.
-   * @param nodeIdentifier is the identifier of the node to highlight
+   * Sets correct highlighting values in context.
+   * We have to call it through the diagram API,
+   * because we have access to the rendering library (reactflow) only in diagram component.
+   * @param nodeIdentifiers are the identifiers of the nodes to highlight.
+   *                        There are multiple identifiers, 
+   *                        because 1 class can be represented by more than 1 node on canvas.
    */
-  highlightNodeInExplorationModeFromCatalog(nodeIdentifier: string, modelOfClassWhichStartedHighlighting: string): void;
+  highlightNodesInExplorationModeFromCatalog(nodeIdentifiers: string[], modelOfClassWhichStartedHighlighting: string): void;
 }
 
 export type ViewportDimensions = {
@@ -408,9 +412,15 @@ interface DiagramNodes {
 
   /**
    * Called when user starts creating node's profile.
-   * @param identifier is the identifier of the node of which the profile is being created.
+   * @param diagramNode is the node to create profile from.
    */
   onCreateNodeProfile: (diagramNode: Node) => void;
+
+    /**
+   * Called when user wants to create new copy of the node on canvas.
+   * @param diagramNode is the node to create copy of.
+   */
+  onDuplicateNode: (diagramNode: Node) => void;
 
   /**
    * Called when user hides node, i. e. removes it from canvas.

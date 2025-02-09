@@ -247,7 +247,8 @@ interface UseDiagramControllerType {
 
   alignmentController: AlignmentController;
 
-  onNodeMouseEnter: (event: React.MouseEvent, node: Node) => void;
+  // TODO RadStr: Change into DiagramNodeTypes or whatever is it called in the other branch (after merge)
+  onNodeMouseEnter: (event: React.MouseEvent, node: NodeType) => void;
 
   onNodeMouseLeave: (event: React.MouseEvent, node: Node) => void;
 
@@ -409,8 +410,12 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
     api, alignmentController, canvasHighlighting.enableTemporarily, cleanSelection),
   [api, alignmentController, canvasHighlighting.enableTemporarily, cleanSelection]);
 
-  const onNodeMouseEnter = useCallback(createOnNodeMouseEnterHandler(canvasHighlighting.changeHighlight, reactFlowInstance), [canvasHighlighting.changeHighlight, reactFlowInstance]);
-  const onNodeMouseLeave = useCallback(createOnNodeMouseLeaveHandler(canvasHighlighting.resetHighlight), [canvasHighlighting.resetHighlight]);
+  const onNodeMouseEnter = useCallback(
+    createOnNodeMouseEnterHandler(canvasHighlighting.changeHighlight, reactFlowInstance),
+    [canvasHighlighting.changeHighlight, reactFlowInstance]);
+  const onNodeMouseLeave = useCallback(
+    createOnNodeMouseLeaveHandler(canvasHighlighting.resetHighlight),
+    [canvasHighlighting.resetHighlight]);
 
   return {
     alignmentController,
@@ -538,17 +543,34 @@ const createOnNodeDragStartHandler = (
 
 const createOnNodeMouseEnterHandler = (
   changeHighlight: (
-    startingNodeId: string,
+    startingNodesIdentifiers: string[],
     reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
     isSourceOfEventCanvas: boolean,
     modelOfClassWhichStartedHighlighting: string | null
   ) => void,
   reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
 ) => {
-  return (_: React.MouseEvent, node: Node) => {
-    changeHighlight(node.id, reactFlowInstance, true, null);
+  return (_: React.MouseEvent, node: NodeType) => {
+    const nodesWithSameRepresented = findNodesRepresentedBySameClass(
+      reactFlowInstance, node);
+    changeHighlight(nodesWithSameRepresented, reactFlowInstance, true, null);
   };
 };
+
+const findNodesRepresentedBySameClass = (
+  reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
+  node: NodeType
+) => {
+  const nodesWithSameRepresented = [];
+  for(const nodeInDiagram of reactFlowInstance.getNodes()) {
+    // Also handles the case when nodeInDiagram === node
+    if(nodeInDiagram.data.externalIdentifier === node.data.externalIdentifier) {
+      nodesWithSameRepresented.push(nodeInDiagram.data.identifier);
+    }
+  }
+
+  return nodesWithSameRepresented;
+}
 
 const createOnNodeMouseLeaveHandler = (resetHighlight: () => void) => {
   return (_: React.MouseEvent, _node: Node) => {
@@ -1379,8 +1401,10 @@ const createActions = (
   setSelectedNodesInternal: React.Dispatch<React.SetStateAction<string[]>>,
   setSelectedEdgesInternal: React.Dispatch<React.SetStateAction<string[]>>,
   changeHighlight: (
-    startingNodeId: string,
-    reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>, isSourceOfEventCanvas: boolean, modelOfClassWhichStartedHighlighting: string | null
+    startingNodesIdentifiers: string[],
+    reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
+    isSourceOfEventCanvas: boolean,
+    modelOfClassWhichStartedHighlighting: string | null
   ) => void,
   setGroups: ReactPrevSetStateType<Record<string, NodeIdentifierWithType[]>>,
   setNodeToGroupMapping: ReactPrevSetStateType<Record<string, string>>,
@@ -1729,8 +1753,8 @@ const createActions = (
       console.log("openGroupMenu", {groupIdentifier, canvasPosition});
       context?.onOpenCanvasContextMenu(groupIdentifier, canvasPosition, GroupMenu);
     },
-    highlightNodeInExplorationModeFromCatalog(nodeIdentifier, modelOfClassWhichStartedHighlighting) {
-      changeHighlight(nodeIdentifier, reactFlow, false, modelOfClassWhichStartedHighlighting);
+    highlightNodesInExplorationModeFromCatalog(nodeIdentifiers, modelOfClassWhichStartedHighlighting) {
+      changeHighlight(nodeIdentifiers, reactFlow, false, modelOfClassWhichStartedHighlighting);
     },
   };
 };

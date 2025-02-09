@@ -34,19 +34,23 @@ function addSemanticRelationshipToVisualModelCommand(
     console.error("Ignored relationship as ends are null.", { domain, range, entity });
     return;
   }
-  const source = visualModel.getVisualEntityForRepresented(domain.concept);
-  const target = visualModel.getVisualEntityForRepresented(range.concept);
-  if (source === null || target === null) {
+  const sources = visualModel.getVisualEntitiesForRepresented(domain.concept);
+  const targets = visualModel.getVisualEntitiesForRepresented(range.concept);
+  if (sources === null || targets === null) {
     notifications.error("Ends of the relation are not in the visual model.");
-    console.warn("Missing visual entities for ends.", { domain, range, entity, source, target });
+    console.warn("Missing visual entities for ends.", { domain, range, entity, sources, targets });
     return;
   }
   //
-  visualModel.addVisualRelationship({
-    model: model,
-    representedRelationship: entity.id,
-    waypoints: [],
-    visualSource: source.identifier,
-    visualTarget: target.identifier,
-  });
+  for(const source of sources) {
+    for(const target of targets) {
+      visualModel.addVisualRelationship({
+        model: model,
+        representedRelationship: entity.id,
+        waypoints: [],
+        visualSource: source.identifier,
+        visualTarget: target.identifier,
+      });
+    }
+  }
 }

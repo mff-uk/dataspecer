@@ -18,15 +18,15 @@ export function modifyCmeClassProfile(
 
   const operation = factory.modifyClassProfile(
     profile.identifier, {
-    iri: profile.iri,
-    profiling: profile.profileOf,
-    name: profile.name,
-    nameFromProfiled: profile.nameSource,
-    description: profile.description,
-    descriptionFromProfiled: profile.descriptionSource,
-    usageNote: profile.usageNote,
-    usageNoteFromProfiled: profile.usageNoteSource,
-  });
+      iri: profile.iri,
+      profiling: profile.profileOf,
+      name: profile.name,
+      nameFromProfiled: profile.nameSource,
+      description: profile.description,
+      descriptionFromProfiled: profile.descriptionSource,
+      usageNote: profile.usageNote,
+      usageNoteFromProfiled: profile.usageNoteSource,
+    });
 
   const result = model.executeOperation(operation);
   if (result.success === false) {

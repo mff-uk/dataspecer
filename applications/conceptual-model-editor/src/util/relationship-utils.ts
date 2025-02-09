@@ -136,7 +136,7 @@ export const hasBothEndsInVisualModel = (
     rangeConcept = domainAndRange.range?.concept ?? "";
   }
 
-  const domainOnCanvas = visualModel.getVisualEntityForRepresented(domainConcept);
-  const rangeOnCanvas = visualModel.getVisualEntityForRepresented(rangeConcept);
+  const domainOnCanvas = visualModel.getVisualEntitiesForRepresented(domainConcept);
+  const rangeOnCanvas = visualModel.getVisualEntitiesForRepresented(rangeConcept);
   return domainOnCanvas !== null && rangeOnCanvas !== null;
 };

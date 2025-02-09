@@ -18,20 +18,30 @@ export function removeFromVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   visualModel: WritableVisualModel,
   identifiers: string[],
+  areIdentifersOnInputVisual: boolean,
 ) {
   const entitiesToRemove: VisualEntity[] = [];
   for (const identifier of identifiers) {
     // Find the visual entities.
-    const visualEntity = visualModel.getVisualEntityForRepresented(identifier);
-    if (visualEntity === null) {
+    let visualEntities: VisualEntity[] | null;
+    if(areIdentifersOnInputVisual) {
+      const visualEntity = visualModel.getVisualEntity(identifier)
+      visualEntities = visualEntity === null ? null : [visualEntity];
+    }
+    else {
+      visualEntities = visualModel.getVisualEntitiesForRepresented(identifier);
+    }
+    if (visualEntities === null) {
       // The entity is not part of the visual model and thus should not be visible.
       // We ignore the operation for such entity and show an error.
       console.error("Missing visual entity.", { identifier, visualModel });
       continue;
     }
 
-    entitiesToRemove.push(...collectVisualEntitiesToRemove(visualModel, visualEntity));
-    entitiesToRemove.push(visualEntity);
+    for(const visualEntity of visualEntities) {
+      entitiesToRemove.push(...collectVisualEntitiesToRemove(visualModel, visualEntity));
+      entitiesToRemove.push(visualEntity);
+    }
   }
   // Perform the delete operation of collected visual entities.
   const entitiesToRemoveIdentifiers = entitiesToRemove.map(entity => entity.identifier);

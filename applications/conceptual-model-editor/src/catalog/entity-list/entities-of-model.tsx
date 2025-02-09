@@ -189,15 +189,15 @@ export const EntitiesOfModel = (props: {
   };
 
   const handleDeleteFromView = (identifier: string) => {
-    actions.removeFromVisualModel([identifier]);
+    actions.removeFromVisualModel([identifier], false);
   };
 
   const handleDeleteEntity = async (model: InMemorySemanticModel | ExternalSemanticModel, identifier: string) => {
     await actions.deleteFromSemanticModels([{identifier, sourceModel: model.getId()}]);
   };
 
-  const handleSetViewportToEntity = (identifier: string) => {
-    actions.centerViewportToVisualEntity(model.getId(), identifier);
+  const handleSetViewportToEntity = (identifier: string, entityNumberToBeCentered: number) => {
+    actions.centerViewportToVisualEntity(model.getId(), identifier, entityNumberToBeCentered);
   };
 
   // Rendering section.

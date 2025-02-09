@@ -46,7 +46,7 @@ export interface VisualModel extends TypedObject, LegacyModel, LabeledModel {
      *
      * @returns Entity with given source entity identifier or null.
      */
-    getVisualEntityForRepresented(represented: RepresentedEntityIdentifier): VisualEntity | null;
+    getVisualEntitiesForRepresented(represented: RepresentedEntityIdentifier): VisualEntity[] | null;
 
     /**
      * @returns Snapshot of map with all entities in the model.

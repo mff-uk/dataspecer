@@ -49,6 +49,7 @@ import { EntityModel } from "@dataspecer/core-v2";
 import { openCreateAttributeForEntityDialogAction } from "./open-add-attribute-for-entity-dialog";
 import { addGroupToVisualModelAction } from "./add-group-to-visual-model";
 import { removeTopLevelGroupFromVisualModelAction } from "./remove-group-from-visual-model";
+import { createNodeDuplicateAction } from "./create-node-duplicate";
 
 const LOG = createLogger(import.meta.url);
 
@@ -168,9 +169,15 @@ interface VisualModelActions {
   /**
    * Removes the visual entities identified by given {@link identifier} from visual model.
    * Also removes related visual relationships from the visual model.
-   * @param identifiers identify the SEMANTIC entities, which visual representations will be removed from visual model.
+   * @param identifiers identify the entities, which visual representations will be removed from visual model.
    */
-  removeFromVisualModel: (identifiers: string[]) => void;
+  removeFromVisualModel: (identifiers: string[], areVisualIdentifiers: boolean) => void;
+
+  /**
+   * Creates duplicate (copy) of node with given visual {@link identifier}.
+   * @param identifier is the identifier of the visual node
+   */
+  createNodeDuplicate: (identifier: string) => void;
 
   //
 
@@ -213,7 +220,7 @@ export interface ActionsContextType extends DialogActions, VisualModelActions {
   deleteFromSemanticModels: (entitiesToDelete: EntityToDelete[]) => void;
 
   // TODO RadStr: Document based on PRQuestion
-  centerViewportToVisualEntity: (model: string, identifier: string) => void;
+  centerViewportToVisualEntity: (model: string, identifier: string, currentEntityNumber: number) => void;
 
   layoutActiveVisualModel: (configuration: UserGivenConstraintsVersion4) => Promise<LayoutedVisualEntities | void>;
 
@@ -261,6 +268,7 @@ const noOperationActionsContext = {
   deleteFromSemanticModels: noOperation,
   //
   removeFromVisualModel: noOperation,
+  createNodeDuplicate: noOperation,
   centerViewportToVisualEntity: noOperation,
   //
   createNewVisualModelFromSelection: noOperation,
@@ -518,21 +526,31 @@ function createActionsContext(
 
   // Visual model actions.
 
-  const addSemanticEntitiesToVisualModel = (entities: EntityToAddToVisualModel[]): void => {
+  const addSemanticEntitiesToVisualModel = (
+    entities: EntityToAddToVisualModel[]
+  ): void => {
     withVisualModel(notifications, graph, (visualModel) => {
       addSemanticEntitiesToVisualModelAction(
         notifications, classes, graph, visualModel, diagram, entities);
     });
   };
 
-  const addClassToVisualModel = (model: string, identifier: string, position: { x: number, y: number } | null): void => {
+  const addClassToVisualModel = (
+    model: string,
+    identifier: string,
+    position: { x: number, y: number } | null
+  ): void => {
     withVisualModel(notifications, graph, (visualModel) => {
       addSemanticClassToVisualModelAction(
         notifications, graph, classes, visualModel, diagram, identifier, model, position);
     });
   };
 
-  const addClassProfileToVisualModel = (model: string, identifier: string, position: { x: number, y: number } | null): void => {
+  const addClassProfileToVisualModel = (
+    model: string,
+    identifier: string,
+    position: { x: number, y: number } | null
+  ): void => {
     withVisualModel(notifications, graph, (visualModel) => {
       addSemanticClassProfileToVisualModelAction(
         notifications, graph, classes, visualModel, diagram, identifier, model, position);
@@ -560,9 +578,15 @@ function createActionsContext(
     });
   };
 
-  const removeFromVisualModel = (identifiers: string[]): void => {
+  const removeFromVisualModel = (identifiers: string[], areVisualIdentifiers: boolean): void => {
     withVisualModel(notifications, graph, (visualModel) => {
-      removeFromVisualModelAction(notifications, visualModel, identifiers);
+      removeFromVisualModelAction(notifications, visualModel, identifiers, areVisualIdentifiers);
+    });
+  };
+
+  const createNodeDuplicate = (identifier: string): void => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      createNodeDuplicateAction(notifications, visualModel, identifier);
     });
   };
 
@@ -571,13 +595,15 @@ function createActionsContext(
   const deleteFromSemanticModels = (entitiesToDelete: EntityToDelete[]) => {
     // We start be removing from the visual model.
     withVisualModel(notifications, graph, (visualModel) => {
-      removeFromVisualModelAction(notifications, visualModel, entitiesToDelete.map(entitiesToDelete => entitiesToDelete.identifier));
+      removeFromVisualModelAction(notifications, visualModel, entitiesToDelete.map(entitiesToDelete => entitiesToDelete.identifier), false);
     });
     removeFromSemanticModelsAction(notifications, graph, entitiesToDelete);
   };
 
-  const centerViewportToVisualEntity = (model: string, identifier: string) => {
-    centerViewportToVisualEntityAction(notifications, graph, classes, diagram, identifier, model);
+  const centerViewportToVisualEntity = (model: string, identifier: string, currentEntityNumber: number) => {
+    centerViewportToVisualEntityAction(
+      notifications, graph, classes, diagram, identifier, currentEntityNumber,
+      model);
   };
 
   const layoutActiveVisualModel = async (configuration: UserGivenConstraintsVersion4) => {
@@ -588,14 +614,16 @@ function createActionsContext(
 
   const addEntitiesFromSemanticModelToVisualModel = (semanticModel: EntityModel) => {
     withVisualModel(notifications, graph, (visualModel) => {
-      addEntitiesFromSemanticModelToVisualModelAction(notifications, classes, graph, diagram, visualModel, semanticModel);
+      addEntitiesFromSemanticModelToVisualModelAction(
+        notifications, classes, graph, diagram, visualModel, semanticModel);
     });
   };
 
   const removeEntitiesInSemanticModelFromVisualModel = (semanticModel: EntityModel) => {
     withVisualModel(notifications, graph, (visualModel) => {
-      const identifiers = getSelectionForWholeSemanticModel(semanticModel, false, visualModel).nodeSelection;
-      removeFromVisualModel(identifiers);
+      const areVisualIdentifers = false;
+      const { nodeSelection } = getSelectionForWholeSemanticModel(semanticModel, areVisualIdentifers, visualModel);
+      removeFromVisualModel(nodeSelection, areVisualIdentifers);
     });
   };
 
@@ -633,7 +661,8 @@ function createActionsContext(
         return null;
       }).filter(selectionFilter => selectionFilter !== null);
 
-      const filteredSelection = filterSelection(state.selections, relevantSelectionFilters, VisibilityFilter.ONLY_VISIBLE, null);
+      const filteredSelection = filterSelection(
+        state.selections, relevantSelectionFilters, VisibilityFilter.ONLY_VISIBLE, null);
       setSelectionsInDiagram(filteredSelection, diagram);
     };
 
@@ -649,7 +678,8 @@ function createActionsContext(
     visibilityFilter: VisibilityFilter,
     semanticModelFilter: Record<string, boolean> | null
   ) => {
-    const selectionExtension = await extendSelectionAction(notifications, graph, classes, nodeSelection, extensionTypes, visibilityFilter, false, semanticModelFilter);
+    const selectionExtension = await extendSelectionAction(
+      notifications, graph, classes, nodeSelection, extensionTypes, visibilityFilter, false, semanticModelFilter);
     return selectionExtension.selectionExtension;
   };
 
@@ -659,18 +689,23 @@ function createActionsContext(
     visibilityFilter: VisibilityFilter,
     semanticModelFilter: Record<string, boolean> | null
   ) => {
-    return filterSelectionAction(notifications, graph, classes, selections, allowedClasses, visibilityFilter, semanticModelFilter);
+    return filterSelectionAction(
+      notifications, graph, classes, selections, allowedClasses,
+      visibilityFilter, semanticModelFilter);
   };
 
-  const highlightNodeInExplorationModeFromCatalog = (classIdentifier: string, modelOfClassWhichStartedHighlighting: string) => {
+  const highlightNodeInExplorationModeFromCatalog = (
+    classIdentifier: string,
+    modelOfClassWhichStartedHighlighting: string
+  ) => {
     withVisualModel(notifications, graph, (visualModel) => {
-      const nodeIdentifier = visualModel.getVisualEntityForRepresented(classIdentifier)?.identifier;
-      const isClassInVisualModel = nodeIdentifier !== undefined;
+      const nodeIdentifiers = visualModel.getVisualEntitiesForRepresented(classIdentifier)?.map(visualEntity => visualEntity.identifier);
+      const isClassInVisualModel = nodeIdentifiers !== undefined;
       if (!isClassInVisualModel) {
         return;
       }
 
-      diagram.actions().highlightNodeInExplorationModeFromCatalog(nodeIdentifier, modelOfClassWhichStartedHighlighting);
+      diagram.actions().highlightNodesInExplorationModeFromCatalog(nodeIdentifiers, modelOfClassWhichStartedHighlighting);
     });
   }
 
@@ -684,7 +719,9 @@ function createActionsContext(
 
     onCreateNodeProfile: (node) => openCreateProfileDialog(node.externalIdentifier),
 
-    onHideNode: (node) => removeFromVisualModel([node.externalIdentifier]),
+    onDuplicateNode: (node) => createNodeDuplicate(node.identifier),
+
+    onHideNode: (node) => removeFromVisualModel([node.identifier], true),
 
     onDeleteNode: (node) => deleteVisualElements([node.externalIdentifier]),
 
@@ -696,7 +733,7 @@ function createActionsContext(
 
     onCreateEdgeProfile: (edge) => openCreateProfileDialog(edge.externalIdentifier),
 
-    onHideEdge: (edge) => removeFromVisualModel([edge.externalIdentifier]),
+    onHideEdge: (edge) => removeFromVisualModel([edge.identifier], true),
 
     onDeleteEdge: (edge) => deleteVisualElements([edge.externalIdentifier]),
 
@@ -759,11 +796,17 @@ function createActionsContext(
     },
     onShowFilterSelection: () => {
       const selectionToFilter = getSelections(diagram, false, true);
-      openFilterSelectionDialog({ nodeSelection: selectionToFilter.nodeSelection, edgeSelection: selectionToFilter.edgeSelection, areVisualModelIdentifiers: true });
+      openFilterSelectionDialog({
+        nodeSelection: selectionToFilter.nodeSelection,
+        edgeSelection: selectionToFilter.edgeSelection,
+        areVisualModelIdentifiers: true
+      });
     },
     onCanvasOpenCreateClassDialog: (nodeIdentifier, positionToPlaceClassOn) => {
       withVisualModel(notifications, graph, (visualModel) => {
-        openCreateClassDialogWithModelDerivedFromClassAction(notifications, graph, dialogs, classes, options, diagram, visualModel, nodeIdentifier, positionToPlaceClassOn);
+        openCreateClassDialogWithModelDerivedFromClassAction(
+          notifications, graph, dialogs, classes, options, diagram, visualModel,
+          nodeIdentifier, positionToPlaceClassOn);
       });
     },
     onCreateNewViewFromSelection: () => {
@@ -773,13 +816,15 @@ function createActionsContext(
     onProfileSelection: () => {
       const { nodeSelection, edgeSelection } = getSelections(diagram, true, false);
       withVisualModel(notifications, graph, (visualModel) => {
-        createDefaultProfilesAction(notifications, graph, diagram, options, classes, visualModel, nodeSelection, edgeSelection, true);
+        createDefaultProfilesAction(
+          notifications, graph, diagram, options, classes, visualModel, nodeSelection, edgeSelection, true);
       });
     },
     onHideSelection: () => {
-      const { nodeSelection, edgeSelection } = getSelections(diagram, true, false);
+      const areVisualIdentifers = true;
+      const { nodeSelection, edgeSelection } = getSelections(diagram, true, areVisualIdentifers);
       console.info("Hiding selection from view: ", { nodeSelection, edgeSelection });
-      removeFromVisualModel(nodeSelection.concat(edgeSelection));
+      removeFromVisualModel(nodeSelection.concat(edgeSelection), areVisualIdentifers);
     },
     onDeleteSelection: () => {
       const { nodeSelection, edgeSelection } = getSelections(diagram, true, false);
@@ -809,6 +854,7 @@ function createActionsContext(
     removeFromVisualModel,
     //
     deleteFromSemanticModels,
+    createNodeDuplicate,
     centerViewportToVisualEntity,
 
     createNewVisualModelFromSelection,

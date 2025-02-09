@@ -122,6 +122,7 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
   const onShowDetail = () => context?.callbacks().onShowNodeDetail(props.data);
   const onEdit = () => context?.callbacks().onEditNode(props.data);
   const onCreateProfile = () => context?.callbacks().onCreateNodeProfile(props.data);
+  const onDuplicateNode = () => context?.callbacks().onDuplicateNode(props.data);
   const onHide = () => context?.callbacks().onHideNode(props.data);
   const onDelete = () => context?.callbacks().onDeleteNode(props.data);
   const onAnchor = () => context?.callbacks().onToggleAnchorForNode(props.data.identifier);
@@ -141,6 +142,8 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
         <button onClick={onEdit} title={t("class-edit-button")}>✏️</button>
         &nbsp;
         <button onClick={onCreateProfile} title={t("class-profile-button")}>🧲</button>
+        &nbsp;
+        <button onClick={onDuplicateNode} title={t("duplicate-node-button")}>⿻</button>
         &nbsp;
       </NodeToolbar>
       <NodeToolbar isVisible={shouldShowToolbar} position={Position.Right} className="flex gap-2 entity-node-menu" >

@@ -244,6 +244,7 @@ export const translations: Record<string, string | Function> = {
   "class-hide-button": "Remove class from canvas",
   "class-profile-button": "Create class profile",
   "class-remove-button": "Remove class from semantic model",
+  "duplicate-node-button": "Create new copy of the node on canvas",
   //
   "add-neighborhood-button.title": "Add entity's neighborhood (Classes or class profiles connected by either association or generalization)",
   //

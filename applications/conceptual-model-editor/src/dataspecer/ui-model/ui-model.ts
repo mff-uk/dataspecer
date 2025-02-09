@@ -75,9 +75,9 @@ export interface UiReference {
 interface Visual {
 
   /**
-   * Identifier of visual entity representation in current visual model.
+   * Identifiers of visual entities representation in current visual model.
    */
-  visualDsIdentifier: EntityDsIdentifier | null;
+  visualDsIdentifiers: EntityDsIdentifier[] | null;
 
 }
 

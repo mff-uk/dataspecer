@@ -26,21 +26,23 @@ function synchronizeUpdates(
   changedItems: AggregatedEntityWrapper[],
 ): void {
   for (const item of changedItems) {
-    const visual = visualModel.getVisualEntityForRepresented(item.id);
-    if (visual === null) {
+    const visuals = visualModel.getVisualEntitiesForRepresented(item.id);
+    if (visuals === null) {
       // There is no representation, so no change to propagate.
       continue;
     }
-    // We decide based on the type.
-    if (isVisualNode(visual)) {
-      updateVisualNode(visualModel, item, visual);
-    } else if (isVisualRelationship(visual)) {
-      updateVisualRelationship(visualModel, item, visual);
-    } else if (isVisualProfileRelationship(visual)) {
-      updateVisualProfileRelationship(visualModel, item, visual);
-    } else {
-      // We just ignore all rest.
-      continue;
+    for(const visual of visuals) {
+      // We decide based on the type.
+      if (isVisualNode(visual)) {
+        updateVisualNode(visualModel, item, visual);
+      } else if (isVisualRelationship(visual)) {
+        updateVisualRelationship(visualModel, item, visual);
+      } else if (isVisualProfileRelationship(visual)) {
+        updateVisualProfileRelationship(visualModel, item, visual);
+      } else {
+        // We just ignore all rest.
+        break;
+      }
     }
   }
 }
@@ -85,24 +87,28 @@ function updateVisualRelationship(
   }
 
   // Check there is a source and a target.
-  const visualSource = visualModel.getVisualEntityForRepresented(domain);
-  const visualTarget = visualModel.getVisualEntityForRepresented(range);
-  if (visualSource === null || visualTarget === null) {
+  const visualSources = visualModel.getVisualEntitiesForRepresented(domain);
+  const visualTargets = visualModel.getVisualEntitiesForRepresented(range);
+  if (visualSources === null || visualTargets === null) {
     visualModel.deleteVisualEntity(visual.identifier);
     return;
   }
 
-  if (visual.visualSource === visualSource.identifier
-    && visual.visualTarget === visualTarget.identifier) {
-    // There was no change.
-    return;
-  }
+  for(const visualSource of visualSources) {
+    for(const visualTarget of visualTargets) {
+      if (visual.visualSource === visualSource.identifier
+        && visual.visualTarget === visualTarget.identifier) {
+        // There was no change.
+        continue;
+      }
 
-  // Update.
-  visualModel.updateVisualEntity(visual.identifier, {
-    visualSource: visualSource.identifier,
-    visualTarget: visualTarget.identifier,
-  });
+      // Update.
+      visualModel.updateVisualEntity(visual.identifier, {
+        visualSource: visualSource.identifier,
+        visualTarget: visualTarget.identifier,
+      });
+    }
+  }
 
 }
 
@@ -127,24 +133,28 @@ function updateVisualProfileRelationshipForEnds(
   profile: EntityDsIdentifier,
   visual: VisualProfileRelationship,
 ): void {
-  const visualSource = visualModel.getVisualEntityForRepresented(profiled);
-  const visualTarget = visualModel.getVisualEntityForRepresented(profile);
-  if (visualSource === null || visualTarget === null) {
+  const visualSources = visualModel.getVisualEntitiesForRepresented(profiled);
+  const visualTargets = visualModel.getVisualEntitiesForRepresented(profile);
+  if (visualSources === null || visualTargets === null) {
     visualModel.deleteVisualEntity(visual.identifier);
     return;
   }
 
-  if (visual.visualSource === visualSource.identifier
-    && visual.visualTarget === visualTarget.identifier) {
-    // There was no change.
-    return;
-  }
+  for(const visualSource of visualSources) {
+    for(const visualTarget of visualTargets) {
+      if (visual.visualSource === visualSource.identifier
+        && visual.visualTarget === visualTarget.identifier) {
+        // There was no change.
+        continue;
+      }
 
-  // Update.
-  visualModel.updateVisualEntity(visual.identifier, {
-    visualSource: visualSource.identifier,
-    visualTarget: visualTarget.identifier,
-  });
+      // Update.
+      visualModel.updateVisualEntity(visual.identifier, {
+        visualSource: visualSource.identifier,
+        visualTarget: visualTarget.identifier,
+      });
+    }
+  }
 }
 
 function synchronizeRemoved(
@@ -152,11 +162,13 @@ function synchronizeRemoved(
   removed: string[],
 ): void {
   for (const identifier of removed) {
-    const visual = visualModel.getVisualEntityForRepresented(identifier);
-    if (visual === null) {
+    const visuals = visualModel.getVisualEntitiesForRepresented(identifier);
+    if (visuals === null) {
       // There is no visual for the entity.
       continue;
     }
-    visualModel.deleteVisualEntity(visual.identifier);
+    for(const visual of visuals) {
+      visualModel.deleteVisualEntity(visual.identifier);
+    }
   }
 }

@@ -56,7 +56,9 @@ function migrateVisualNode(
   } else if (isSemanticModelClassUsage(representedEntity)) {
     // It is a profile.
     const usageOf = entities[representedEntity.usageOf];
-    const usageVisual = visualModel.getVisualEntityForRepresented(usageOf.id);
+    // TODO PRQuestion: If I understand it correctly, this is migration code from the old CME
+    //                  therefore there is either no entity (null) or exactly one, that is we can access the [0]
+    const usageVisual = visualModel.getVisualEntitiesForRepresented(usageOf.id);
     if (usageVisual === null) {
       // There is no visual representation.
     } else {
@@ -66,7 +68,7 @@ function migrateVisualNode(
         model: representedModel.getId(),
         waypoints: [],
         visualSource: entity.identifier,
-        visualTarget: usageVisual.identifier,
+        visualTarget: usageVisual[0].identifier,
       });
     }
   } else {
@@ -120,8 +122,9 @@ function migrateVisualRelationship(
       visualModel.deleteVisualEntity(entity.identifier);
       return;
     }
-    const visualSource = visualModel.getVisualEntityForRepresented(domain);
-    const visualTarget = visualModel.getVisualEntityForRepresented(range);
+    // TODO PRQuestion: Same as for the node
+    const visualSource = visualModel.getVisualEntitiesForRepresented(domain);
+    const visualTarget = visualModel.getVisualEntitiesForRepresented(range);
     if (visualSource === null || visualTarget === null) {
       // Ends are not in the visual model.
       visualModel.deleteVisualEntity(entity.identifier);
@@ -130,12 +133,12 @@ function migrateVisualRelationship(
     // We add new information that was missing in the previous model version.
     visualModel.updateVisualEntity(entity.identifier, {
       model: representedModel.getId(),
-      visualSource: visualSource.identifier,
-      visualTarget: visualTarget.identifier,
+      visualSource: visualSource[0].identifier,
+      visualTarget: visualTarget[0].identifier,
     });
   } else if (isSemanticModelGeneralization(representedEntity)) {
-    const visualSource = visualModel.getVisualEntityForRepresented(representedEntity.child);
-    const visualTarget = visualModel.getVisualEntityForRepresented(representedEntity.parent);
+    const visualSource = visualModel.getVisualEntitiesForRepresented(representedEntity.child);
+    const visualTarget = visualModel.getVisualEntitiesForRepresented(representedEntity.parent);
     if (visualSource === null || visualTarget === null) {
       // Ends are not in the visual model.
       visualModel.deleteVisualEntity(entity.identifier);
@@ -144,8 +147,8 @@ function migrateVisualRelationship(
     // We add new information that was missing in the previous model version.
     visualModel.updateVisualEntity(entity.identifier, {
       model: representedModel.getId(),
-      visualSource: visualSource.identifier,
-      visualTarget: visualTarget.identifier,
+      visualSource: visualSource[0].identifier,
+      visualTarget: visualTarget[0].identifier,
     });
   } else {
     // Unknown type of visual relation in this version.

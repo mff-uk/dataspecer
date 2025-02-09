@@ -327,8 +327,8 @@ const isRelationshipInVisualModel = (visualModel: VisualModelWithOutsiders,
     }
 
     const isAtLeastOneEndOutsider = checkIfEdgeHasAtLeastOneOutsider(visualModel.outsiders, ends[0], ends[1]);
-    const visualEntity = visualModel.visualModel.getVisualEntityForRepresented(relationshipIdentifier);
-    const isPresentInVisualModel = visualEntity !== null || isAtLeastOneEndOutsider;
+    const visualEntities = visualModel.visualModel.getVisualEntitiesForRepresented(relationshipIdentifier);
+    const isPresentInVisualModel = visualEntities !== null || isAtLeastOneEndOutsider;
     return isPresentInVisualModel;
 };
 
@@ -343,8 +343,8 @@ const isNodeInVisualModel = (visualModel: VisualModelWithOutsiders,
     }
 
     // TODO: For now ... in future I should use the ids of visual model instead of the semantic ones
-    const visualEntity = visualModel.visualModel.getVisualEntityForRepresented(nodeIdentifier);
-    const isPresentInVisualModel = visualEntity !== null || visualModel?.outsiders[nodeIdentifier] !== undefined;
+    const visualEntities = visualModel.visualModel.getVisualEntitiesForRepresented(nodeIdentifier);
+    const isPresentInVisualModel = visualEntities !== null || visualModel?.outsiders[nodeIdentifier] !== undefined;
     return isPresentInVisualModel;
 };
 
@@ -1044,7 +1044,8 @@ class EdgeClassic implements IEdgeClassic {
                 }
                 else {
                     // TODO: Again the ID of semantic model instead of the visual one
-                    const visualEntityForEdge = visualModel.visualModel.getVisualEntityForRepresented(this.id);
+                    // TODO RadStr: MULTI-ENTITIES!
+                    const visualEntityForEdge = visualModel.visualModel.getVisualEntitiesForRepresented(this.id)[0];
                     if(isVisualRelationship(visualEntityForEdge)) {
                         this.visualEdge = new VisualEdge(visualEntityForEdge, false);
                     }
@@ -1073,7 +1074,8 @@ class EdgeClassic implements IEdgeClassic {
                 }
                 else {
                     // TODO: Again the ID of semantic model instead of the visual one
-                    const visualEntityForEdge = visualModel.visualModel.getVisualEntityForRepresented(this.id);
+                    // TODO RadStr: MULTI-ENTITIES!
+                    const visualEntityForEdge = visualModel.visualModel.getVisualEntitiesForRepresented(this.id)[0];
                     if(isVisualRelationship(visualEntityForEdge)) {
                         this.visualEdge = new VisualEdge(visualEntityForEdge, false);
                     }
@@ -1088,8 +1090,8 @@ class EdgeClassic implements IEdgeClassic {
 
 
 const checkIfEdgeHasAtLeastOneOutsider = (outsiders: Record<string, XY | null>, start: string, end: string): boolean => {
-        return outsiders[start] !== undefined || outsiders[end] !== undefined;
-    }
+    return outsiders[start] !== undefined || outsiders[end] !== undefined;
+}
 
 /**
  * Interface which represents graph node ... Note that subgraph is also graph node.
@@ -1348,13 +1350,13 @@ const convertOutgoingEdgeTypeToIncoming = (outgoingEdgeType: OutgoingEdgeType): 
 
 class NodeClassic implements INodeClassic {
     constructor(mainGraph: IMainGraphClassic,
-                    semanticEntityRepresentingNode: SemanticModelEntity,
-                    isProfile: boolean,
-                    sourceEntityModelIdentifier: string | null,
-                    extractedModels: ExtractedModels | null,
-                    sourceGraph: IGraphClassic,
-                    visualModel: VisualModelWithOutsiders,
-                    explicitAnchors?: ExplicitAnchors) {
+                semanticEntityRepresentingNode: SemanticModelEntity,
+                isProfile: boolean,
+                sourceEntityModelIdentifier: string | null,
+                extractedModels: ExtractedModels | null,
+                sourceGraph: IGraphClassic,
+                visualModel: VisualModelWithOutsiders,
+                explicitAnchors?: ExplicitAnchors) {
         mainGraph.allNodes.push(this);
         this.mainGraph = mainGraph;
         this.id = semanticEntityRepresentingNode.id;
@@ -1384,6 +1386,8 @@ class NodeClassic implements INodeClassic {
         if(visualModel !== null) {
             const outsiderPosition = visualModel.outsiders[this.node.id];
             if(outsiderPosition !== undefined) {
+                // We have to create new visual node, since it is outsider, 
+                // that means - it isn't present in visual model
                 const coreVisualNode = this.createNewVisualNodeBasedOnSemanticData(outsiderPosition);
                 let isAnchored = false;
                 if(explicitAnchors !== undefined) {
@@ -1393,7 +1397,8 @@ class NodeClassic implements INodeClassic {
             }
             else {
                 // TODO: What should happen once we have 1 represented entity on canvas twice ... then we will also need different ID in this.id
-                const visualNode = visualModel.visualModel.getVisualEntityForRepresented(this.node.id);
+                // TODO RadStr: MULTI-ENTITIES!
+                const visualNode = visualModel.visualModel.getVisualEntitiesForRepresented(this.node.id)[0];
                 if(!isVisualNode(visualNode)) {
                     throw new Error("Something is very wrong, visual node isn't of type visual node");
                 }
