@@ -32,6 +32,7 @@ test("Set and delete model color.", () => {
 
 test("Set and delete visual entity.", () => {
   const model = createModel("abc");
+  const numberOfEntitiesInModelAfterInitialization = [...model.getVisualEntities().entries()].length;
   //
   expect(model.getVisualEntitiesForRepresented("s")).toBeNull();
   model.addVisualNode({
@@ -48,6 +49,7 @@ test("Set and delete visual entity.", () => {
   expect(visualNode.representedEntity).toBe("s");
   model.deleteVisualEntity(visualNode.identifier);
   expect(model.getVisualEntitiesForRepresented("s")).toBeNull();
+  expect([...model.getVisualEntities().entries()].length).toBe(numberOfEntitiesInModelAfterInitialization);
 });
 
 test("Set and delete visual entity (multi).", () => {
