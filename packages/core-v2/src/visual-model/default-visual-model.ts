@@ -410,7 +410,8 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
     }
   }
 
-    private removeFromRepresentedEntites(
+
+  private removeFromRepresentedEntites(
     representedToEntityMap: Map<string, string[]>,
     representedEntity: string,
     identifierToRemove: string
