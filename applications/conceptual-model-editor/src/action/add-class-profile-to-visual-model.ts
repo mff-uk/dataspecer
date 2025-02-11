@@ -4,13 +4,11 @@ import { SemanticModelClassUsage, isSemanticModelClassUsage } from "@dataspecer/
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
-import { withAggregatedEntity } from "./utilities";
 import { addRelatedEntitiesAction } from "./add-related-entities-to-visual-model";
 import { ClassesContextType } from "../context/classes-context";
 import { findPositionForNewNodesUsingLayouting } from "./layout-visual-model";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { createLogger } from "../application";
-import { isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelClassProfile, SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 const LOG = createLogger(import.meta.url);

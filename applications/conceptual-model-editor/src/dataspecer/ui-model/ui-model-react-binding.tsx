@@ -1,11 +1,10 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 
 import { EntityModel } from "@dataspecer/core-v2";
-import { HexColor, VisualModel } from "@dataspecer/core-v2/visual-model";
-import { AggregatedEntityWrapper, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
+import { VisualModel } from "@dataspecer/core-v2/visual-model";
+import { SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 
 import { createEmptyState, createState } from "./ui-model-state";
-import { EntityDsIdentifier, ModelDsIdentifier } from "../entity-model";
 import { createUiModelApi, UiModelApi } from "./ui-model-api";
 import { UiModelState } from "./ui-model";
 import { configuration } from "../../application";
@@ -100,8 +99,8 @@ export const UiModelProvider = (props: {
     </>
   );
 };
-
-function findEntity<T extends {
+/*
+Function findEntity<T extends {
   dsIdentifier: EntityDsIdentifier,
   model: { dsIdentifier: ModelDsIdentifier },
 }>(
@@ -111,7 +110,7 @@ function findEntity<T extends {
 ): T | null {
   return entities.find(item => item.dsIdentifier === identifier && item.model.dsIdentifier === model) ?? null;
 }
-
+*/
 export const useUiModel = (): UiModelState => {
   return useContext(context);
 };

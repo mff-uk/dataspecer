@@ -95,7 +95,7 @@ async function createDefaultClassProfile(
 
   const profileClassState = createNewProfileClassDialogState(
     classesContext, graph, visualModel, options.language,
-    classOrClassProfileToBeProfiled.id,
+    [classOrClassProfileToBeProfiled.id],
   );
   const createdClassProfile = createClassProfile(profileClassState, graph.models);
   if(createdClassProfile === null) {
@@ -122,14 +122,14 @@ const createClassProfile = (
   const model = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
   const result = createCmeClassProfile({
     model: state.model.dsIdentifier,
-    profileOf: state.profileOf.map(item => item.identifier),
+    profileOf: state.profiles.map(item => item.identifier),
     iri: state.iri,
     name: state.name,
     nameSource: state.overrideName ? null :
       state.nameSource?.identifier ?? null,
     description: state.description,
     descriptionSource: state.overrideDescription ? null :
-      state.descriptionSourceValue?.identifier ?? null,
+      state.descriptionSource?.identifier ?? null,
     usageNote: state.usageNote,
     usageNoteSource: state.overrideUsageNote ? null :
       state.usageNoteSource?.identifier ?? null,
@@ -139,9 +139,6 @@ const createClassProfile = (
     model,
   };
 }
-
-//
-//
 
 function createDefaultRelationshipProfiles(
   notifications: UseNotificationServiceWriterType,

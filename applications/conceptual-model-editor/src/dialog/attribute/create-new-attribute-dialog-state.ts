@@ -2,7 +2,7 @@ import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { EditAttributeDialogState } from "./edit-attribute-dialog-controller";
-import { isRepresentingAttribute, representClasses, listDataTypes, representOwlThing, representRelationships, representUndefinedClass, representUndefinedDataType } from "../utilities/dialog-utilities";
+import { isRepresentingAttribute, listAttributeRanges, representOwlThing, representRelationships, representRdfsLiteral, listRelationshipDomains } from "../utilities/dialog-utilities";
 import { configuration } from "../../application";
 import { createEntityStateForNew } from "../utilities/entity-utilities";
 import { createSpecializationStateForNew } from "../utilities/specialization-utilities";
@@ -21,7 +21,12 @@ export function createNewAttributeDialogState(
 
   const models = [...graphContext.models.values()];
 
-  const vocabularies = entityModelsMapToCmeVocabulary(graphContext.models, visualModel);
+  const vocabularies = entityModelsMapToCmeVocabulary(
+    graphContext.models, visualModel);
+
+  const owlThing = representOwlThing();
+
+  const rdfsLiteral = representRdfsLiteral();
 
   // EntityState
 
@@ -30,27 +35,22 @@ export function createNewAttributeDialogState(
 
   // SpecializationState
 
-  const specializations =
-    representRelationships(models, entityState.allModels, classesContext.relationships)
-      .filter(item => isRepresentingAttribute(item));
+  const specializations = representRelationships(
+    models, entityState.allModels, classesContext.relationships,
+    owlThing.identifier, rdfsLiteral.identifier)
+    .filter(item => isRepresentingAttribute(item));
 
   const specializationState = createSpecializationStateForNew(
     language, entityState.allModels, specializations);
 
   // RelationshipState
 
-  const classes = [
-    representUndefinedClass(),
-    representOwlThing(),
-    ...representClasses(models, entityState.allModels, classesContext.classes)
-  ];
-
-  const domain = classes[0];
-
-  const dataTypes = listDataTypes();
+  const domains = listRelationshipDomains(
+    classesContext, graphContext, vocabularies);
+  const dataTypes = listAttributeRanges();
 
   const relationshipState = createRelationshipStateForNew(
-    domain, classes, representUndefinedDataType(), dataTypes);
+    owlThing, domains, rdfsLiteral, dataTypes);
 
   return {
     ...entityState,

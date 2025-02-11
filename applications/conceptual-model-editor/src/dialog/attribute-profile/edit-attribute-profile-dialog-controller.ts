@@ -31,10 +31,6 @@ export function useEditAttributeProfileDialogController({ changeState }:
     return {
       ...entityProfileController,
       ...relationshipProfileController,
-      removeProfileOf: (value: RelationshipRepresentative) => {
-        entityProfileController.removeProfileOf(value);
-        relationshipProfileController.onRemoveProfileOf(value);
-      },
     };
   }, [changeState]);
 }

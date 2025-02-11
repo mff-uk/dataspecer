@@ -6,7 +6,7 @@ import { EditAssociationDialogState } from "./edit-association-dialog-controller
 import { EditAssociationDialog } from "./edit-association-dialog";
 import { DialogWrapper } from "../dialog-api";
 import { createEntityStateForNew, isEntityStateValid } from "../utilities/entity-utilities";
-import { isRepresentingAttribute, representClasses, representOwlThing, representRelationships } from "../utilities/dialog-utilities";
+import { isRepresentingAssociation, listRelationshipDomains, representOwlThing, representRelationships } from "../utilities/dialog-utilities";
 import { createSpecializationStateForNew } from "../utilities/specialization-utilities";
 import { createRelationshipStateForNew } from "../utilities/relationship-utilities";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
@@ -23,6 +23,8 @@ export function createCreateAssociationDialogState(
 
   const vocabularies = entityModelsMapToCmeVocabulary(graphContext.models, visualModel);
 
+  const owlThing = representOwlThing();
+
   // EntityState
 
   const entityState = createEntityStateForNew(
@@ -30,20 +32,21 @@ export function createCreateAssociationDialogState(
 
   // SpecializationState
 
-  const specializations =
-    representRelationships(models, entityState.allModels, classesContext.relationships)
-      .filter(item => isRepresentingAttribute(item));
+  const specializations = representRelationships(
+    models, entityState.allModels, classesContext.relationships,
+    owlThing.identifier, owlThing.identifier)
+    .filter(item => isRepresentingAssociation(item));
 
   const specializationState = createSpecializationStateForNew(
     language, entityState.allModels, specializations);
 
   // RelationshipState
 
-  const owlThing = representOwlThing();
-  const classes = [owlThing, ...representClasses(models, entityState.allModels, classesContext.classes)];
+  const domains = listRelationshipDomains(
+    classesContext, graphContext, vocabularies);
 
   const relationshipState = createRelationshipStateForNew(
-    owlThing, classes, owlThing, classes);
+    owlThing, domains, owlThing, domains);
 
   return {
     ...entityState,

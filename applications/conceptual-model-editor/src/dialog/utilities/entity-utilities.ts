@@ -44,8 +44,14 @@ export interface EntityState {
    */
   iriValidation: ValidationState;
 
+  /**
+   * Entity name.
+   */
   name: LanguageString;
 
+  /**
+   * Entity description.
+   */
   description: LanguageString;
 
 }
@@ -120,14 +126,29 @@ export function createEntityStateForEdit(
 
 export interface EntityStateController {
 
+  /**
+   * Change model the entity should belong to.
+   */
   setModel: (model: CmeModel) => void;
 
+  /**
+   * Set entity IRI, the meaning is not specified on this level.
+   */
   setIri: (iri: string) => void;
 
+  /**
+   * Switch between relative and absolute IRI.
+   */
   setIsIriRelative: (value: boolean) => void;
 
+  /**
+   * Set entity name.
+   */
   setName: (setter: (value: LanguageString) => LanguageString) => void;
 
+  /**
+   * Set entity description.
+   */
   setDescription: (setter: (value: LanguageString) => LanguageString) => void;
 
 }
@@ -202,7 +223,6 @@ export function createEntityController<State extends EntityState>(
 }
 
 export function validateEntityState<State extends EntityState>(state: State): State {
-
   const iriValidation = state.iri.trim() !== "" ?
     validationNoProblem() : validationError("iri-must-not-be-empty");
 
@@ -212,6 +232,6 @@ export function validateEntityState<State extends EntityState>(state: State): St
   };
 }
 
-export function isEntityStateValid(state: EntityState) : boolean {
+export function isEntityStateValid(state: EntityState): boolean {
   return isValid(state.iriValidation);
 }

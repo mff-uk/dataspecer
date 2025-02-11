@@ -48,7 +48,7 @@ function updateSemanticClassProfile(
   modifyCmeClassProfile({
     identifier: entity.id,
     model: state.model.dsIdentifier,
-    profileOf: state.profileOf.map(item => item.identifier),
+    profileOf: state.profiles.map(item => item.identifier),
     iri: state.iri,
     name: state.name,
     nameSource: state.overrideName ? null :

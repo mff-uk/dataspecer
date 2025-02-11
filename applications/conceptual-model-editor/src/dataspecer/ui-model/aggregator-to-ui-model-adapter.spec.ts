@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import { HexColor, RepresentedEntityIdentifier, VISUAL_RELATIONSHIP_TYPE, VisualEntity, VisualModel, VisualModelData, VisualModelDataVersion, VisualRelationship } from "@dataspecer/core-v2/visual-model";
 import { Entities, EntityModel } from "@dataspecer/core-v2";
 import { AggregatedEntityWrapper, SemanticModelAggregator } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_RELATIONSHIP, SemanticModelClass, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SemanticModelClass, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
 
 import { entityModelToUiModel, entityModelToUiState, removeVisualModelToUiState, semanticModelChangeToUiState, visualModelToUiState } from "./aggregator-to-ui-model-adapter";

@@ -10,7 +10,7 @@ import { InputIri } from "../class/components/input-iri";
 import { ValidationMessage } from "../association-profile/components/validation-message";
 import { SelectDataType } from "../attribute/components/select-data-type";
 import { SelectEntities } from "../class-profile/components/select-entities";
-import { ProfiledValue } from "../class-profile/components/profiled-value";
+import { ProfiledValue, ProfiledValueWithSource } from "../class-profile/components/profiled-value";
 
 export const EditAttributeProfileDialog = (props: DialogProps<EditAttributeProfileDialogState>) => {
   const controller = useEditAttributeProfileDialogController(props);
@@ -35,17 +35,17 @@ export const EditAttributeProfileDialog = (props: DialogProps<EditAttributeProfi
           <SelectEntities
             language={state.language}
             items={state.availableProfiles}
-            value={state.profileOf}
-            onAdd={controller.addProfileOf}
-            onRemove={controller.removeProfileOf}
-            disableRemove={state.profileOf.length === 1}
+            value={state.profiles}
+            onAdd={controller.addProfile}
+            onRemove={controller.removeProfile}
+            disableRemove={state.profiles.length === 1}
           />
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("create-class-dialog.name")}>
-          <ProfiledValue
+          <ProfiledValueWithSource
             override={state.overrideName}
             onToggleOverride={controller.toggleNameOverride}
-            availableProfiles={state.profileOf}
+            availableProfiles={state.profiles}
             profile={state.nameSource}
             onChangeProfile={controller.setNameSource}
             language={state.language}
@@ -58,7 +58,7 @@ export const EditAttributeProfileDialog = (props: DialogProps<EditAttributeProfi
               inputType="text"
               className="grow"
             />
-          </ProfiledValue>
+          </ProfiledValueWithSource>
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("create-class-dialog.iri")}>
           <InputIri
@@ -71,10 +71,10 @@ export const EditAttributeProfileDialog = (props: DialogProps<EditAttributeProfi
           <ValidationMessage value={state.iriValidation} />
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("create-class-dialog.description")}>
-          <ProfiledValue
+          <ProfiledValueWithSource
             override={state.overrideDescription}
             onToggleOverride={controller.toggleDescriptionOverride}
-            availableProfiles={state.profileOf}
+            availableProfiles={state.profiles}
             profile={state.descriptionSource}
             onChangeProfile={controller.setDescriptionSource}
             language={state.language}
@@ -87,55 +87,42 @@ export const EditAttributeProfileDialog = (props: DialogProps<EditAttributeProfi
               inputType="textarea"
               className="grow"
             />
-          </ProfiledValue>
+          </ProfiledValueWithSource>
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("modify-entity-dialog.usage-note")} >
-          <ProfiledValue
+          <ProfiledValueWithSource
             override={state.overrideUsageNote}
             onToggleOverride={controller.toggleUsageNoteOverride}
-            availableProfiles={state.profileOf}
+            availableProfiles={state.profiles}
             profile={state.usageNoteSource}
             onChangeProfile={controller.setUsageNoteSource}
             hideProfiling={state.hideUsageNoteProfile}
             language={state.language}
           >
             <MultiLanguageInputForLanguageString
-              ls={state.overrideUsageNote ? state.usageNote : state.usageNotSourceValue}
+              ls={state.overrideUsageNote ? state.usageNote : state.usageNoteSourceValue}
               setLs={controller.setUsageNote}
               defaultLang={state.language}
               disabled={!state.overrideUsageNote}
               inputType="textarea"
               className="grow"
             />
-          </ProfiledValue>
+          </ProfiledValueWithSource>
         </DialogDetailRow>
         {/*  */}
         <DialogDetailRow detailKey={"Domain"}>
-          <ProfiledValue
-            override={state.overrideDomain}
-            onToggleOverride={controller.toggleDomainOverride}
-            availableProfiles={state.profileOf}
-            profile={state.domainSource}
-            onChangeProfile={controller.setDomainSource}
+          <SelectEntity
             language={state.language}
-          >
-            <SelectEntity
-              language={state.language}
-              items={state.availableDomains}
-              value={state.domain}
-              onChange={controller.setDomain}
-              disabled={!state.overrideDomain}
-            />
-          </ProfiledValue>
+            items={state.availableDomains}
+            value={state.domain}
+            onChange={controller.setDomain}
+          />
           <ValidationMessage value={state.domainValidation} />
         </DialogDetailRow>
         <DialogDetailRow detailKey={"Domain cardinality"}>
           <ProfiledValue
             override={state.overrideDomainCardinality}
             onToggleOverride={controller.toggleDomainCardinalityOverride}
-            availableProfiles={state.profileOf}
-            profile={state.domainCardinalitySource}
-            onChangeProfile={controller.setDomainCardinalitySource}
             language={state.language}
           >
             <SelectCardinality
@@ -148,31 +135,18 @@ export const EditAttributeProfileDialog = (props: DialogProps<EditAttributeProfi
           <ValidationMessage value={state.domainCardinalityValidation} />
         </DialogDetailRow>
         <DialogDetailRow detailKey={"Range"}>
-          <ProfiledValue
-            override={state.overrideRange}
-            onToggleOverride={controller.toggleRangeOverride}
-            availableProfiles={state.profileOf}
-            profile={state.rangeSource}
-            onChangeProfile={controller.setRangeSource}
+          <SelectDataType
             language={state.language}
-          >
-            <SelectDataType
-              language={state.language}
-              items={state.availableRanges}
-              value={state.range}
-              onChange={controller.setRange}
-              disabled={!state.overrideRange}
-            />
-          </ProfiledValue>
+            items={state.availableRanges}
+            value={state.range}
+            onChange={controller.setRange}
+          />
           <ValidationMessage value={state.rangeValidation} />
         </DialogDetailRow>
         <DialogDetailRow detailKey={"Range cardinality"}>
           <ProfiledValue
             override={state.overrideRangeCardinality}
             onToggleOverride={controller.toggleRangeCardinalityOverride}
-            availableProfiles={state.profileOf}
-            profile={state.rangeCardinalitySource}
-            onChangeProfile={controller.setRangeCardinalitySource}
             language={state.language}
           >
             <SelectCardinality

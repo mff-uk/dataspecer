@@ -1,6 +1,8 @@
-import { MissingEntity, RuntimeError } from "../../application/error";
-import { EntityDsIdentifier } from "../../dataspecer/entity-model";
-import { Cardinality, EntityRepresentative, representCardinalities, representCardinality, UNDEFINED_IDENTIFIER } from "./dialog-utilities";
+import { createLogger } from "../../application";
+import { RuntimeError } from "../../application/error";
+import { Cardinality, EntityRepresentative, listCardinalities, representCardinality } from "./dialog-utilities";
+
+const LOG = createLogger(import.meta.url);
 
 export interface RelationshipState<RangeType> {
 
@@ -55,29 +57,29 @@ export function createRelationshipStateForNew<RangeType extends { identifier: st
     range: range,
     rangeCardinality: representCardinality(null),
     availableRanges,
-    availableCardinalities: representCardinalities(),
+    availableCardinalities: listCardinalities(),
   };
 }
 
 export function createRelationshipStateForEdit<RangeType extends { identifier: string }>(
-  domain: string | null,
+  domain: string,
   domainCardinality: [number, number | null] | undefined | null,
   availableDomains: EntityRepresentative[],
-  range: string | null,
+  range: string,
   rangeCardinality: [number, number | null] | undefined | null,
   availableRanges: RangeType[],
 ): RelationshipState<RangeType> {
 
-  const effectiveDomain = domain ?? UNDEFINED_IDENTIFIER;
-  const domainRepresentative = availableDomains.find(item => item.identifier === effectiveDomain);
+  const domainRepresentative = availableDomains.find(item => item.identifier === domain);
   if (domainRepresentative === undefined) {
-    throw new RuntimeError("Missing representation for domain.");
+    LOG.error("Missing domain representative.", {domain, availableDomains});
+    throw new RuntimeError("Missing domain representative.");
   }
 
-  const effectiveRange = range ?? UNDEFINED_IDENTIFIER;
-  const rangeRepresentative = availableRanges.find(item => item.identifier === effectiveRange);
+  const rangeRepresentative = availableRanges.find(item => item.identifier === range);
   if (rangeRepresentative === undefined) {
-    throw new RuntimeError("Missing representation for range.");
+    LOG.error("Missing range representative.", {range, availableRanges});
+    throw new RuntimeError("Missing range representative.");
   }
 
   return {
@@ -87,7 +89,7 @@ export function createRelationshipStateForEdit<RangeType extends { identifier: s
     range: rangeRepresentative,
     rangeCardinality: representCardinality(rangeCardinality),
     availableRanges: availableRanges,
-    availableCardinalities: representCardinalities(),
+    availableCardinalities: listCardinalities(),
   };
 }
 
