@@ -23,6 +23,7 @@ export const EditClassProfileDialog = (props: DialogProps<EditClassProfileDialog
             items={state.availableModels}
             value={state.model}
             onChange={controller.setModel}
+            disabled={state.disableModelChange}
           />
         </DialogDetailRow>
       </div>
