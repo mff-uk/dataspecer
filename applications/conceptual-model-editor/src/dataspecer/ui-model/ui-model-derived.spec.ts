@@ -1,58 +1,58 @@
 import { describe, expect, test } from "vitest";
-import { UiClass, UiClassProfile, UiModel, UiModelType } from "./ui-model";
+import { UiClass, UiClassProfile, UiVocabulary, UiVocabularyType } from "./ui-model";
 import { buildProfileTree, splitByModel } from "./ui-model-derived";
 
 describe("splitByModel", () => {
 
-  const first: UiModel = {
+  const first: UiVocabulary = {
     baseIri: null,
     displayColor: "#00f",
     displayLabel: "C First model",
     dsIdentifier: "8d8xl",
-    modelType: UiModelType.Default,
+    vocabularyType: UiVocabularyType.Default,
   };
 
-  const second: UiModel = {
+  const second: UiVocabulary = {
     baseIri: null,
     displayColor: "#00f",
     displayLabel: "B Second model",
     dsIdentifier: "jtnzl",
-    modelType: UiModelType.Default,
+    vocabularyType: UiVocabularyType.Default,
   };
 
-  const third: UiModel = {
+  const third: UiVocabulary = {
     baseIri: null,
     displayColor: "#00f",
     displayLabel: "A Third model",
     dsIdentifier: "knaid",
-    modelType: UiModelType.Default,
+    vocabularyType: UiVocabularyType.Default,
   };
 
   test("Basic test.", () => {
     const one: UiClass = {
       dsIdentifier: "one",
-      model: first,
+      vocabulary: first,
       displayLabel: "",
       iri: "",
       visualDsIdentifier: null,
     };
     const two: UiClass = {
       dsIdentifier: "two",
-      model: first,
+      vocabulary: first,
       displayLabel: "",
       iri: "",
       visualDsIdentifier: null,
     };
     const three: UiClass = {
       dsIdentifier: "three",
-      model: second,
+      vocabulary: second,
       displayLabel: "",
       iri: "",
       visualDsIdentifier: null,
     };
     const four: UiClass = {
       dsIdentifier: "four",
-      model: third,
+      vocabulary: third,
       displayLabel: "",
       iri: "",
       visualDsIdentifier: null,
@@ -60,13 +60,13 @@ describe("splitByModel", () => {
     //
     const actual = splitByModel([one, two, three, four]);
     const expected = [{
-      model: third,
+      vocabulary: third,
       items: [four],
     }, {
-      model: second,
+      vocabulary: second,
       items: [three],
     }, {
-      model: first,
+      vocabulary: first,
       items: [one, two],
     }];
     //
@@ -86,69 +86,69 @@ describe("prepareForListing", () => {
 describe("buildProfileTree", () => {
 
   test("Basic test.", () => {
-    const first: UiModel = {
+    const first: UiVocabulary = {
       baseIri: null,
       displayColor: "#00f",
       displayLabel: "C First model",
       dsIdentifier: "8d8xl",
-      modelType: UiModelType.Default,
+      vocabularyType: UiVocabularyType.Default,
     };
 
     const one: UiClass = {
       dsIdentifier: "one",
-      model: first,
+      vocabulary: first,
       displayLabel: "One",
       iri: "",
       visualDsIdentifier: null,
     };
     const two: UiClassProfile = {
       dsIdentifier: "two",
-      model: first,
+      vocabulary: first,
       displayLabel: "Two",
       iri: "",
       visualDsIdentifier: null,
       profiles: [{
         profileOf: {
           entityDsIdentifier: "one",
-          modelDsIdentifier: first.dsIdentifier,
+          vocabularyDsIdentifier: first.dsIdentifier,
         }
       }],
     };
     const three: UiClass = {
       dsIdentifier: "three",
-      model: first,
+      vocabulary: first,
       displayLabel: "Three",
       iri: "",
       visualDsIdentifier: null,
     };
     const four: UiClassProfile = {
       dsIdentifier: "four",
-      model: first,
+      vocabulary: first,
       displayLabel: "Four",
       iri: "",
       visualDsIdentifier: null,
       profiles: [{
         profileOf: {
           entityDsIdentifier: "three",
-          modelDsIdentifier: first.dsIdentifier,
+          vocabularyDsIdentifier: first.dsIdentifier,
         }
       }],
     };
     const five: UiClassProfile = {
       dsIdentifier: "five",
-      model: first,
+      vocabulary: first,
       displayLabel: "Five",
       iri: "",
       visualDsIdentifier: null,
       profiles: [{
         profileOf: {
           entityDsIdentifier: "four",
-          modelDsIdentifier: first.dsIdentifier,
+          vocabularyDsIdentifier: first.dsIdentifier,
         }
       }, {
         profileOf: {
           entityDsIdentifier: "one",
-          modelDsIdentifier: first.dsIdentifier,
+          vocabularyDsIdentifier: first.dsIdentifier,
         }
       }],
     };

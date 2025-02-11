@@ -7,19 +7,17 @@ import { EntityRepresentative } from "../utilities/dialog-utilities";
 
 export type EditClassProfileDialogState = EntityProfileState<EntityRepresentative>;
 
-export interface EditClassProfileDialogController extends EntityProfileStateController {
+export interface EditClassProfileDialogController extends
+  EntityProfileStateController<EntityRepresentative> { }
 
-  toggleNameOverride: () => void;
-
-  toggleDescriptionOverride: () => void;
-
-}
-
-export function useEditClassProfileDialogController({ changeState }: DialogProps<EditClassProfileDialogState>): EditClassProfileDialogController {
+export function useEditClassProfileDialogController({ changeState }:
+  DialogProps<EditClassProfileDialogState>
+): EditClassProfileDialogController {
 
   return useMemo(() => {
 
-    const entityProfileController = createEntityProfileController(changeState, configuration().nameToClassIri);
+    const entityProfileController = createEntityProfileController(
+      changeState, configuration().nameToClassIri);
 
     return {
       ...entityProfileController

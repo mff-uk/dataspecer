@@ -6,7 +6,6 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { Options } from "../application";
 import { SemanticModelRelationship, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { SemanticModelRelationshipEndUsage, SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { createClassProfile } from "./open-create-profile-dialog";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
@@ -15,6 +14,10 @@ import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relatio
 import { createNewProfileClassDialogState } from "../dialog/class-profile/create-new-class-profile-dialog-state";
 import { findAnyWritableModelFromRawInput } from "../cme-model/cme-model-utilities";
 import { CmeModel } from "../dataspecer/cme-model";
+import { CreatedEntityOperationResult } from "@dataspecer/core-v2/semantic-model/operations";
+import { EditClassProfileDialogState } from "../dialog/class-profile/edit-class-profile-dialog-controller";
+import { EntityModel } from "@dataspecer/core-v2";
+import { createCmeClassProfile } from "../dataspecer/cme-model/operation/create-cme-class-profile";
 
 export async function createDefaultProfilesAction(
   notifications: UseNotificationServiceWriterType,
@@ -91,11 +94,8 @@ async function createDefaultClassProfile(
   }
 
   const profileClassState = createNewProfileClassDialogState(
-    classesContext,
-    graph,
-    visualModel,
-    options.language,
-    classOrClassProfileToBeProfiled,
+    classesContext, graph, visualModel, options.language,
+    classOrClassProfileToBeProfiled.id,
   );
   const createdClassProfile = createClassProfile(profileClassState, graph.models);
   if(createdClassProfile === null) {
@@ -110,6 +110,34 @@ async function createDefaultClassProfile(
   }
 
   return createdClassProfile.identifier;
+}
+
+const createClassProfile = (
+  state: EditClassProfileDialogState,
+  models: Map<string, EntityModel>,
+): {
+  identifier: string,
+  model: InMemorySemanticModel,
+} | null => {
+  const model = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
+  const result = createCmeClassProfile({
+    model: state.model.dsIdentifier,
+    profileOf: state.profileOf.map(item => item.identifier),
+    iri: state.iri,
+    name: state.name,
+    nameSource: state.overrideName ? null :
+      state.nameSource?.identifier ?? null,
+    description: state.description,
+    descriptionSource: state.overrideDescription ? null :
+      state.descriptionSourceValue?.identifier ?? null,
+    usageNote: state.usageNote,
+    usageNoteSource: state.overrideUsageNote ? null :
+      state.usageNoteSource?.identifier ?? null,
+  }, [...models.values() as any]);
+  return {
+    identifier: result.identifier,
+    model,
+  };
 }
 
 //
@@ -178,7 +206,7 @@ function createDefaultRelationshipProfile(
     usageOf: relationshipOrRelationshipProfileToBeProfiled.id,
     usageNote: usageNote,
     ends: ends,
-  }));
+  })) as CreatedEntityOperationResult;
 
   if (!(identifier !== undefined && success)) {
     notifications.error("Failed while performing the actual operation of adding the relationship profile into semantic model.");

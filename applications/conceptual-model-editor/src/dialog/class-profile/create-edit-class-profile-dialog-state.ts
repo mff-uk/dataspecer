@@ -5,12 +5,13 @@ import { isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/us
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { EditClassProfileDialogState } from "./edit-class-profile-dialog-controller";
-import { representClassProfiles, representClasses } from "../utilities/dialog-utilities";
+import { listClassToProfiles } from "../utilities/dialog-utilities";
 import { DialogWrapper } from "../dialog-api";
 import { EditClassProfileDialog } from "./edit-class-profile-dialog";
 import { InvalidAggregation, MissingEntity } from "../../application/error";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { createEntityProfileStateForEdit } from "../utilities/entity-profile-utilities";
+import { isSemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 export function createEditClassProfileDialogState(
   classesContext: ClassesContextType,
@@ -28,29 +29,32 @@ export function createEditClassProfileDialogState(
   if (entity === null) {
     throw new MissingEntity(entityIdentifier);
   }
-  if (!isSemanticModelClassUsage(entity) || !isSemanticModelClassUsage(aggregated)) {
-    throw new InvalidAggregation(entity, null);
-  }
 
-  const models = [...graphContext.models.values()];
-
-  const vocabularies = entityModelsMapToCmeVocabulary(graphContext.models, visualModel);
+  const vocabularies = entityModelsMapToCmeVocabulary(
+    graphContext.models, visualModel);
 
   // EntityProfileState
 
-  const profiles = [
-    ...representClasses(models, vocabularies, classesContext.classes),
-    ...representClassProfiles(entities, models, vocabularies, classesContext.profiles.filter(item => isSemanticModelClassUsage(item))),
-  ];
+  const availableProfiles = listClassToProfiles(
+    classesContext, graphContext, vocabularies);
 
-  const entityProfileState = createEntityProfileStateForEdit(
-    language, vocabularies, model.getId(),
-    profiles, entity.usageOf,
-    entity.iri ?? "", entity.name, entity.description, entity.usageNote);
-
-  return {
-    ...entityProfileState,
-  };
+  if (isSemanticModelClassUsage(entity)) {
+    return createEntityProfileStateForEdit(
+      language, vocabularies, model.getId(),
+      availableProfiles, [entity.usageOf], entity.iri ?? "",
+      entity.name, entity.name === null ? entity.usageOf : null,
+      entity.description, entity.description === null ? entity.usageOf : null,
+      entity.usageNote, entity.usageNote === null ? entity.usageOf : null);
+  } else if (isSemanticModelClassProfile(entity)) {
+    return createEntityProfileStateForEdit(
+      language, vocabularies, model.getId(),
+      availableProfiles, entity.profiling, entity.iri ?? "",
+      entity.name, entity.nameFromProfiled,
+      entity.description, entity.descriptionFromProfiled,
+      entity.usageNote, entity.usageNoteFromProfiled);
+  } else {
+    throw new InvalidAggregation(entity.id, aggregated);
+  }
 }
 
 export const createEditClassProfileDialog = (

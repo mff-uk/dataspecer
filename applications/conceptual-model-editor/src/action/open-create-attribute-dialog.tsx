@@ -7,7 +7,7 @@ import { ModelGraphContextType } from "../context/model-context";
 import { Options, createLogger } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { firstInMemorySemanticModel } from "../utilities/model";
-import { createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
+import { CreatedEntityOperationResult, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { createNewAttributeDialog, createNewAttributeDialogState } from "../dialog/attribute/create-new-attribute-dialog-state";
 import { EditAttributeDialogState } from "../dialog/attribute/edit-attribute-dialog-controller";
 import { EntityModel } from "@dataspecer/core-v2";
@@ -59,18 +59,18 @@ function createSemanticAttribute(
       name: {},
       description: {},
       concept: state.domain.identifier,
-      cardinality: state.domainCardinality.cardinality,
+      cardinality: state.domainCardinality.cardinality ?? undefined,
     }, {
       name: state.name ?? null,
       description: state.description ?? null,
       concept: state.range.identifier,
-      cardinality: state.rangeCardinality.cardinality,
+      cardinality: state.rangeCardinality.cardinality ?? undefined,
       iri: state.iri,
     }]
   });
 
   const model: InMemorySemanticModel = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
-  const newAttribute = model.executeOperation(operation);
+  const newAttribute = model.executeOperation(operation) as CreatedEntityOperationResult;
   if (newAttribute.success === false || newAttribute.id === undefined) {
     notifications.error("We have not received the id of newly created attribute. See logs for more detail.");
     LOG.error("We have not received the id of newly attribute class.", { "operation": newAttribute });

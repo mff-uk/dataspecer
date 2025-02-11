@@ -6,11 +6,16 @@ import { EntityRepresentative, RelationshipRepresentative } from "../utilities/d
 import { EntityProfileState, EntityProfileStateController, createEntityProfileController } from "../utilities/entity-profile-utilities";
 import { RelationshipProfileState, RelationshipProfileStateController, createRelationshipProfileController } from "../utilities/relationship-profile-utilities";
 
-export interface EditAssociationProfileDialogState extends EntityProfileState<RelationshipRepresentative>, RelationshipProfileState<EntityRepresentative> { }
+export interface EditAssociationProfileDialogState extends
+  EntityProfileState<RelationshipRepresentative>,
+  RelationshipProfileState<EntityRepresentative> { }
 
-export interface EditAssociationProfileDialogController extends EntityProfileStateController, RelationshipProfileStateController<EntityRepresentative> { }
+export interface EditAssociationProfileDialogController extends
+  EntityProfileStateController<RelationshipRepresentative>,
+  RelationshipProfileStateController<EntityRepresentative> { }
 
-export function useEditAssociationProfileDialogController({ changeState }: DialogProps<EditAssociationProfileDialogState>): EditAssociationProfileDialogController {
+export function useEditAssociationProfileDialogController({ changeState }:
+  DialogProps<EditAssociationProfileDialogState>): EditAssociationProfileDialogController {
 
   return useMemo(() => {
 
@@ -21,6 +26,10 @@ export function useEditAssociationProfileDialogController({ changeState }: Dialo
     return {
       ...entityProfileController,
       ...relationshipProfileController,
+      removeProfileOf: (value: RelationshipRepresentative) => {
+        entityProfileController.removeProfileOf(value);
+        relationshipProfileController.onRemoveProfileOf(value);
+      },
     };
   }, [changeState]);
 }

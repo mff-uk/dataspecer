@@ -1,7 +1,7 @@
 
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
@@ -13,8 +13,12 @@ import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/
 import { InvalidAggregation, MissingEntity, MissingRelationshipEnds } from "../../application/error";
 import { DialogWrapper } from "../dialog-api";
 import { EditAttributeProfileDialog } from "./edit-attribute-profile-dialog";
-import { representClassProfiles, representDataTypes, representOwlThing, representRelationshipProfiles, representRelationships, representUndefinedDataType } from "../utilities/dialog-utilities";
+import { listDataTypes, representUndefinedDataType, listClassProfiles } from "../utilities/dialog-utilities";
+import { listAttributesToProfile } from "./attribute-profile-utilities";
 
+/**
+ * State represents edit of existing entity
+ */
 export function createEditAttributeProfileDialogState(
   classesContext: ClassesContextType,
   graphContext: ModelGraphContextType,
@@ -23,17 +27,22 @@ export function createEditAttributeProfileDialogState(
   model: InMemorySemanticModel,
   entityIdentifier: string,
 ): EditAttributeProfileDialogState {
-
   const entities = graphContext.aggregatorView.getEntities();
-  const aggregate = entities[entityIdentifier];
-  const entity = aggregate.rawEntity;
-  const aggregated = aggregate.aggregatedEntity;
+  const { rawEntity: entity, aggregatedEntity: aggregated } = entities[entityIdentifier];
   if (entity === null) {
     throw new MissingEntity(entityIdentifier);
   }
   if (!isSemanticModelRelationshipUsage(entity) || !isSemanticModelRelationshipUsage(aggregated)) {
-    throw new InvalidAggregation(entity, null);
+    throw new InvalidAggregation(entity.id, aggregated);
   }
+
+  //
+
+  const vocabularies = entityModelsMapToCmeVocabulary(
+    graphContext.models, visualModel);
+
+  const availableProfiles = listAttributesToProfile(
+    classesContext, graphContext, vocabularies);
 
   const { domain, range } = getDomainAndRange(entity);
   const { domain: aggregatedDomain, range: aggregatedRange } = getDomainAndRange(aggregated);
@@ -41,45 +50,30 @@ export function createEditAttributeProfileDialogState(
     throw new MissingRelationshipEnds(entity);
   }
 
-  const models = [...graphContext.models.values()];
-
-  const vocabularies = entityModelsMapToCmeVocabulary(graphContext.models, visualModel);
-
   // EntityProfileState
-
-  const profiles = [
-    ...representRelationships(models, vocabularies,
-      classesContext.relationships),
-    ...representRelationshipProfiles(entities, models, vocabularies,
-      classesContext.profiles.filter(item => isSemanticModelRelationshipUsage(item))),
-  ];
 
   const entityProfileState = createEntityProfileStateForEdit(
     language, vocabularies, model.getId(),
-    profiles, entity.usageOf,
-    range.iri ?? "", range.name, range.description, range.usageNote);
+    availableProfiles, [entity.usageOf], range.iri ?? "",
+    entity.name, entity.name === null ? entity.usageOf : null,
+    entity.description, entity.description === null ? entity.usageOf : null,
+    entity.usageNote, entity.usageNote === null ? entity.usageOf : null);
 
   // RelationshipState<EntityRepresentative>
 
-  const owlThing = representOwlThing();
-  const classProfiles = [
-    ...representClassProfiles(entities, models, vocabularies,
-      classesContext.profiles.filter(item => isSemanticModelClassUsage(item))),
-  ];
+  const classProfiles = listClassProfiles(classesContext, graphContext, vocabularies);
 
-  const undefinedDataType = representUndefinedDataType();
-  const dataTypes = [undefinedDataType, ...representDataTypes()];
+  const defaultRange = representUndefinedDataType();
 
   const relationshipProfileState = createRelationshipProfileStateForEdit(
-    domain.concept, aggregatedDomain.concept, owlThing,
-    domain.cardinality, aggregatedDomain.cardinality,
+    availableProfiles, [entity.usageOf],
+    domain.concept, entity.usageOf,
+    domain.cardinality, entity.usageOf,
     classProfiles,
-    range.concept, aggregatedRange.concept, undefinedDataType,
-    range.cardinality, aggregatedRange.cardinality,
-    dataTypes);
+    range.concept, entity.usageOf, defaultRange,
+    range.cardinality, entity.usageOf, listDataTypes());
 
   return {
-    enableProfilChange: false,
     ...entityProfileState,
     ...relationshipProfileState,
   };

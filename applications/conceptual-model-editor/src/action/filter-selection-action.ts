@@ -11,9 +11,9 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
  * Type representing filter on the type of entity.
  */
 export enum SelectionFilter {
-    PROFILE_CLASS,
-    NORMAL_CLASS,
-    RELATIONSHIP_PROFILE,
+    CLASS_USAGE,
+    CLASS,
+    RELATIONSHIP_USAGE,
     RELATIONSHIP,
     GENERALIZATION
 };
@@ -179,10 +179,10 @@ function filterBasedOnVisibility(
 }
 
 const FILTER_NAME_TO_FILTER_METHOD_MAP: Record<SelectionFilter, SelectionFilterMethod> = {
-  [SelectionFilter.NORMAL_CLASS]: classFilter,
-  [SelectionFilter.PROFILE_CLASS]: profileClassFilter,
+  [SelectionFilter.CLASS]: classFilter,
+  [SelectionFilter.CLASS_USAGE]: profileClassFilter,
   [SelectionFilter.RELATIONSHIP]: normalEdgeFilter,
-  [SelectionFilter.RELATIONSHIP_PROFILE]: profileEdgeFilter,
+  [SelectionFilter.RELATIONSHIP_USAGE]: profileEdgeFilter,
   [SelectionFilter.GENERALIZATION]: generalizationFilter,
 };
 
@@ -214,7 +214,7 @@ function profileClassFilter(
 ): void {
   nodeSelection.map(selectedClassId => {
     const selectedClassSemanticId = getSemanticClassIdentifier(selectedClassId, areVisualModelIdentifiers, visualModel);
-    if(contextEntities.profiles.findIndex(profile => profile.id === selectedClassSemanticId) >= 0) {
+    if(contextEntities.usages.findIndex(profile => profile.id === selectedClassSemanticId) >= 0) {
       filteredNodeSelection.push(selectedClassId);
     }
   });
@@ -256,7 +256,7 @@ function profileEdgeFilter(
 ): void {
   edgeSelection.map(selectedEdgeId => {
     const selectedEdgeSemanticId = getSemanticEdgeIdentifier(selectedEdgeId, areVisualModelIdentifiers, visualModel);
-    if(contextEntities.profiles.findIndex(relationshipProfile => relationshipProfile.id === selectedEdgeSemanticId && isSemanticModelRelationshipUsage(relationshipProfile)) >= 0) {
+    if(contextEntities.usages.findIndex(relationshipProfile => relationshipProfile.id === selectedEdgeSemanticId && isSemanticModelRelationshipUsage(relationshipProfile)) >= 0) {
       filteredEdgeSelection.push(selectedEdgeId);
     }
   });

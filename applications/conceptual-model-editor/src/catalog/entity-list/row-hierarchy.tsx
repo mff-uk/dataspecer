@@ -22,9 +22,12 @@ import { useModelGraphContext } from "../../context/model-context";
 import { useClassesContext } from "../../context/classes-context";
 import { hasBothEndsInVisualModel } from "../../util/relationship-utils";
 import { findSourceModelOfEntity } from "../../service/model-service";
+import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 export const RowHierarchy = (props: {
-    entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationship | SemanticModelRelationshipUsage;
+    entity: SemanticModelClass | SemanticModelClassUsage
+      | SemanticModelRelationship | SemanticModelRelationshipUsage
+      | SemanticModelClassProfile | SemanticModelRelationshipProfile;
     handlers: {
         handleAddEntityToActiveView: (entity: Entity) => void;
         handleRemoveEntityFromActiveView: (entityId: string) => void;
@@ -39,7 +42,7 @@ export const RowHierarchy = (props: {
     onCanvas: string[];
 }) => {
   const { models, aggregatorView } = useModelGraphContext();
-  const { profiles, classes, allowedClasses } = useClassesContext();
+  const { usages: profiles, classes, allowedClasses } = useClassesContext();
   const { entity } = props;
 
   // We need this to get access to ends of the profile.

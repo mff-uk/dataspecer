@@ -67,12 +67,12 @@ function updateSemanticAssociationProfile(
     nextRange.iri = nextState.iri;
   }
   if (prevState.name !== nextState.name
-    || prevState.overrideName !== nextState.overrideName) {
-    nextRange.name = nextState.overrideName ? nextState.name : null;
+    || prevState.nameSource !== nextState.nameSource) {
+    nextRange.name = nextState.nameSource ? nextState.name : null;
   }
   if (prevState.description !== nextState.description
-    || prevState.overrideDescription !== nextState.overrideDescription) {
-    nextRange.description = nextState.overrideDescription ? nextState.description : null;
+    || prevState.descriptionSource !== nextState.descriptionSource) {
+    nextRange.description = nextState.descriptionSource ? nextState.description : null;
   }
   if (prevState.range !== nextState.range
     || prevState.overrideRange !== nextState.overrideRange) {

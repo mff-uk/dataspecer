@@ -7,7 +7,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { EditAssociationDialogState } from "./edit-association-dialog-controller";
 import { MissingRelationshipEnds } from "../../application/error";
 import { createEntityStateForEdit } from "../utilities/entity-utilities";
-import { isRepresentingAttribute, representClasses, representOwlThing, representRelationships } from "../utilities/dialog-utilities";
+import { isRepresentingAttribute, representClasses, representOwlThing, representRelationships, representUndefinedClass } from "../utilities/dialog-utilities";
 import { createSpecializationStateForEdit } from "../utilities/specialization-utilities";
 import { createRelationshipStateForEdit } from "../utilities/relationship-utilities";
 import { DialogWrapper } from "../dialog-api";
@@ -47,12 +47,15 @@ export function createEditAssociationDialogState(
 
   // RelationshipState
 
-  const owlThing = representOwlThing();
-  const classes = [owlThing, ...representClasses(models, entityState.allModels, classesContext.classes)];
+  const classes = [
+    representUndefinedClass(),
+    representOwlThing(),
+    ...representClasses(models, entityState.allModels, classesContext.classes)
+  ];
 
   const relationshipState = createRelationshipStateForEdit(
-    domain.concept, owlThing, domain.cardinality, classes,
-    range.concept, owlThing, range.cardinality, classes);
+    domain.concept, domain.cardinality, classes,
+    range.concept, range.cardinality, classes);
 
   return {
     ...entityState,

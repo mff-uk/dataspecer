@@ -2,7 +2,7 @@ import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { EditAttributeDialogState } from "./edit-attribute-dialog-controller";
-import { isRepresentingAttribute, representClasses, representDataTypes, representOwlThing, representRelationships, selectRdfLiteral } from "../utilities/dialog-utilities";
+import { isRepresentingAttribute, representClasses, listDataTypes, representOwlThing, representRelationships, representUndefinedClass, representUndefinedDataType } from "../utilities/dialog-utilities";
 import { configuration } from "../../application";
 import { createEntityStateForNew } from "../utilities/entity-utilities";
 import { createSpecializationStateForNew } from "../utilities/specialization-utilities";
@@ -39,14 +39,18 @@ export function createNewAttributeDialogState(
 
   // RelationshipState
 
-  const owlThing = representOwlThing();
-  const classes = [owlThing, ...representClasses(models, entityState.allModels, classesContext.classes)];
+  const classes = [
+    representUndefinedClass(),
+    representOwlThing(),
+    ...representClasses(models, entityState.allModels, classesContext.classes)
+  ];
 
-  const dataTypes = [...representDataTypes()];
-  const range = selectRdfLiteral(dataTypes);
+  const domain = classes[0];
+
+  const dataTypes = listDataTypes();
 
   const relationshipState = createRelationshipStateForNew(
-    owlThing, classes, range, dataTypes);
+    domain, classes, representUndefinedDataType(), dataTypes);
 
   return {
     ...entityState,

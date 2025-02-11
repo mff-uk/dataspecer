@@ -8,6 +8,8 @@ import { createLogger } from "../../application";
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { CmeModel, OwlVocabulary, UndefinedCmeVocabulary } from "../../dataspecer/cme-model";
 import { EntityDsIdentifier } from "../../dataspecer/entity-model";
+import { ClassesContextType } from "../../context/classes-context";
+import { ModelGraphContextType } from "../../context/model-context";
 
 const LOG = createLogger(import.meta.url);
 
@@ -26,6 +28,10 @@ export interface EntityRepresentative {
 
   description: LanguageString;
 
+  /**
+   * As profile must profile at least one entity,
+   * this is empty when this class is not a profile.
+   */
   profileOfIdentifiers: string[];
 
   usageNote: LanguageString | null;
@@ -214,7 +220,7 @@ export function representRelationshipProfiles(
   return result;
 }
 
-const UNDEFINED_IDENTIFIER = ":undefined-identifier:";
+export const UNDEFINED_IDENTIFIER = ":undefined-identifier:";
 
 /**
  * Return a representation of undefined.
@@ -229,10 +235,6 @@ export function representUndefinedClass(): EntityRepresentative {
     profileOfIdentifiers: [],
     usageNote: null,
   };
-}
-
-export function isRepresentingUndefined(value: { identifier: string }) {
-  return value.identifier === UNDEFINED_IDENTIFIER;
 }
 
 const OWL_THING = "https://www.w3.org/2002/07/owl#Thing";
@@ -252,10 +254,6 @@ export function representOwlThing() : EntityRepresentative {
   };
 }
 
-export function isRepresentingOwlThing(value: { identifier: string }) {
-  return value.identifier === OWL_THING;
-}
-
 export interface DataTypeRepresentative {
 
   identifier: string;
@@ -265,23 +263,54 @@ export interface DataTypeRepresentative {
 }
 
 /**
- * Return representation of all data types.
+ * Return all class profiles.
  */
-export function representDataTypes(): DataTypeRepresentative[] {
+export function listClassProfiles(
+  classesContext: ClassesContextType,
+  graphContext: ModelGraphContextType,
+  vocabularies: CmeModel[],
+) {
+  const entities = graphContext.aggregatorView.getEntities();
+  const models = [...graphContext.models.values()];
+
+  return [
+    representUndefinedClass(),
+    representOwlThing(),
+    ...representClassProfiles(entities, models, vocabularies,
+      classesContext.usages.filter(item => isSemanticModelClassUsage(item))),
+  ]
+}
+
+/**
+ * Return all class and their profiles that can be profiled..
+ */
+export function listClassToProfiles(
+  classesContext: ClassesContextType,
+  graphContext: ModelGraphContextType,
+  vocabularies: CmeModel[],
+) {
+  const entities = graphContext.aggregatorView.getEntities();
+  const models = [...graphContext.models.values()];
+
+  return [
+    ...representClasses(models, vocabularies, classesContext.classes),
+    ...representClassProfiles(entities, models, vocabularies,
+      classesContext.usages.filter(item => isSemanticModelClassUsage(item))),
+  ]
+}
+
+/**
+ * Return representation of all data types including the undefined.
+ */
+export function listDataTypes(): DataTypeRepresentative[] {
   const values = DataTypeURIs.map(iri => ({
     identifier: iri,
     label: { "": dataTypeUriToName(iri) ?? iri },
   }));
-  return values;
-}
-
-const RDFS_LITERAL = "http://www.w3.org/2000/01/rdf-schema#Literal";
-
-/**
- * Return representation for rdfs:Literal.
- */
-export function selectRdfLiteral(dataTypes: DataTypeRepresentative[]): DataTypeRepresentative {
-  return dataTypes.find(item => item.identifier === RDFS_LITERAL)!;
+  return [
+    representUndefinedDataType(),
+    ...values,
+  ];
 }
 
 /**
@@ -303,12 +332,20 @@ export interface Cardinality {
   /**
    * Dataspecer value for cardinality.
    */
-  cardinality: [number, number | null] | undefined;
+  cardinality: [number, number | null] | null;
 
 }
 
+/**
+ * List of cardinalities, the first item muset represent the undefined
+ * cardinality.
+ */
 const CARDINALITIES: Cardinality[] = [
   {
+    identifier: UNDEFINED_IDENTIFIER,
+    label: "Undefined",
+    cardinality: null,
+  }, {
     identifier: "0x",
     label: "0..*",
     cardinality: [0, null],
@@ -333,7 +370,7 @@ export function representCardinalities(): Cardinality[] {
 
 export function representCardinality(cardinality: [number, number | null] | null | undefined): Cardinality {
   if (cardinality === undefined || cardinality === null) {
-    return representUndefinedCardinality();
+    return CARDINALITIES[0];
   }
   const [from, to] = cardinality;
   for (const cardinality of CARDINALITIES) {
@@ -345,14 +382,6 @@ export function representCardinality(cardinality: [number, number | null] | null
   LOG.error("Unknown cardinality.", { cardinality });
   return CARDINALITIES[0];
 }
-
-export function representUndefinedCardinality(): Cardinality {
-  return {
-    identifier: UNDEFINED_IDENTIFIER,
-    label: "Undefined",
-    cardinality: undefined,
-  };
-};
 
 /**
  * Perform in-place sort by label using given language.

@@ -34,13 +34,16 @@ import { ModelGraphContext, ModelGraphContextType } from "../context/model-conte
 import { ClassesContext, ClassesContextType } from "../context/classes-context";
 import { getTheOriginalProfiledEntity } from "./profile-utils";
 import { cardinalityToHumanLabel, getDomainAndRange } from "../util/relationship-utils";
+import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 export type EntityDetailSupportedType =
   | SemanticModelClass
   | SemanticModelRelationship
   | SemanticModelClassUsage
   | SemanticModelRelationshipUsage
-  | SemanticModelGeneralization;
+  | SemanticModelGeneralization
+  | SemanticModelClassProfile
+  | SemanticModelRelationshipProfile;
 
 export interface EntityDetailProxy {
   name: string | null;
@@ -116,7 +119,7 @@ export const createEntityProxy = (
   viewedEntity: EntityDetailSupportedType,
   currentLang?: string,
 ) => {
-  const { classes: c, relationships: r, profiles, generalizations, rawEntities } = classes;
+  const { classes: c, relationships: r, usages: profiles, generalizations, rawEntities } = classes;
   const { models: m } = graph;
   const models = [...m.values()];
   const sourceModel = sourceModelOfEntity(viewedEntity.id, models);

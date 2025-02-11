@@ -5,17 +5,17 @@ import { ClassesContextType } from "../context/classes-context";
 import { ModelGraphContextType } from "../context/model-context";
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { isSemanticModelClass, isSemanticModelRelationship, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticModelRelationshipEndUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { EditAttributeDialogState } from "../dialog/attribute/edit-attribute-dialog-controller";
 import { createAddAttributeDialog, createAddAttributeDialogState } from "../dialog/attribute/create-add-attribute-dialog-state";
 import { createAddAttributeProfileDialog, createAddAttributeProfileDialogState } from "../dialog/attribute-profile/create-add-attribute-profile-dialog-state";
 import { EditAttributeProfileDialogState } from "../dialog/attribute-profile/edit-attribute-profile-dialog-controller";
 import { EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
-import { getDomainAndRange } from "../util/relationship-utils";
-import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
+import { CreatedEntityOperationResult, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
+import { createCmeRelationshipProfile } from "../dataspecer/cme-model/operation/craete-cme-relationship-profile";
+import { EditAssociationProfileDialogState } from "../dialog/association-profile/edit-association-profile-dialog-controller";
 
 const LOG = createLogger(import.meta.url);
 
@@ -48,16 +48,7 @@ export function openCreateAttributeForEntityDialogAction(
     dialogs.openDialog(createAddAttributeDialog(state, onConfirm));
   } else if (isSemanticModelClassUsage(entity)) {
     const onConfirm = (state: EditAttributeProfileDialogState) => {
-      const profiled = graph.aggregatorView.getEntities()?.[state.profileOf.identifier]?.aggregatedEntity ?? null;
-      if (profiled === null) {
-        notifications.error("Entity to profile is not available.");
-        return;
-      }
-      if (isSemanticModelRelationship(profiled) || isSemanticModelRelationshipUsage(profiled)) {
-        createRelationshipProfile(state, graph.models, profiled);
-      } else {
-        notifications.error("Invalid entity to profile.");
-      }
+      createRelationshipProfile(state, graph.models);
     };
     const state = createAddAttributeProfileDialogState(
       classes, graph, visualModel, options.language, entity);
@@ -82,18 +73,18 @@ function createSemanticAttribute(
       name: {},
       description: {},
       concept: state.domain.identifier,
-      cardinality: state.domainCardinality.cardinality,
+      cardinality: state.domainCardinality.cardinality ?? undefined,
     }, {
       name: state.name ?? null,
       description: state.description ?? null,
       concept: state.range.identifier,
-      cardinality: state.rangeCardinality.cardinality,
+      cardinality: state.rangeCardinality.cardinality ?? undefined,
       iri: state.iri,
     }]
   });
 
   const model: InMemorySemanticModel = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
-  const newAttribute = model.executeOperation(operation);
+  const newAttribute = model.executeOperation(operation) as CreatedEntityOperationResult;
   if (newAttribute.success === false || newAttribute.id === undefined) {
     notifications.error("We have not received the id of newly created attribute. See logs for more detail.");
     LOG.error("We have not received the id of newly attribute class.", { "operation": newAttribute });
@@ -107,60 +98,42 @@ function createSemanticAttribute(
 }
 
 const createRelationshipProfile = (
-  state: EditAttributeProfileDialogState,
+  state: EditAttributeProfileDialogState | EditAssociationProfileDialogState,
   models: Map<string, EntityModel>,
-  entity: SemanticModelRelationship | SemanticModelRelationshipUsage,
 ): {
   identifier: string,
   model: InMemorySemanticModel,
 } | null => {
   const model: InMemorySemanticModel = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
-
-  const domain = {
-    concept: state.overrideDomain ? state.domain.identifier : null,
-    name: null,
-    description: null,
-    cardinality: state.overrideDomainCardinality ? state.domainCardinality.cardinality ?? null : null,
-    usageNote: null,
-    iri: null,
-  } satisfies SemanticModelRelationshipEndUsage;
-
-  const range = {
-    concept: state.overrideRange ? state.range.identifier : null,
-    name: state.overrideName ? state.name : null,
-    description: state.overrideDescription ? state.description : null,
-    cardinality: state.overrideRangeCardinality ? state.rangeCardinality.cardinality ?? null : null,
-    usageNote: null,
+  const result = createCmeRelationshipProfile({
+    model: state.model.dsIdentifier,
+    profileOf: state.profileOf.map(item => item.identifier),
     iri: state.iri,
-  } as SemanticModelRelationshipEndUsage;
-
-  // We need to preserve the order of domain and range.
-  let ends: SemanticModelRelationshipEndUsage[] | undefined = undefined;
-  if (isSemanticModelRelationship(entity)) {
-    const domainAndRange = getDomainAndRange(entity);
-    if (domainAndRange.domainIndex === 1 && domainAndRange.rangeIndex === 0) {
-      ends = [range, domain];
-    } else {
-      ends = [domain, range];
-    }
-  } else if (isSemanticModelRelationshipUsage(entity)) {
-    const domainAndRange = getDomainAndRange(entity);
-    if (domainAndRange.domainIndex === 1 && domainAndRange.rangeIndex === 0) {
-      ends = [range, domain];
-    } else {
-      ends = [domain, range];
-    }
-  }
-
-  const { success, id: identifier } = model.executeOperation(createRelationshipUsage({
-    usageOf: entity.id,
+    name: state.name,
+    nameSource: state.overrideName ? null :
+      state.nameSource?.identifier ?? null,
+    description: state.description,
+    descriptionSource: state.overrideDescription ? null :
+      state.descriptionSourceValue?.identifier ?? null,
     usageNote: state.usageNote,
-    ends: ends,
-  }));
-
-  if (identifier !== undefined && success) {
-    return { identifier, model: model };
-  } else {
-    return null;
-  }
+    usageNoteSource: state.overrideUsageNote ? null :
+      state.usageNoteSource?.identifier ?? null,
+    //
+    domain: state.domain.identifier,
+    domainSource: state.overrideDomain ? null :
+      state.domainSource?.identifier ?? null,
+    domainCardinality: state.domainCardinality.cardinality,
+    domainCardinalitySource: state.overrideDomainCardinality ? null :
+      state.domainSource?.identifier ?? null,
+    range: state.range.identifier,
+    rangeSource: state.overrideRange ? null :
+      state.rangeSource?.identifier ?? null,
+    rangeCardinality: state.rangeCardinality.cardinality,
+    rangeCardinalitySource: state.overrideRangeCardinality ? null :
+      state.rangeCardinalitySource?.identifier ?? null,
+  }, [...models.values() as any]);
+  return {
+    identifier: result.identifier,
+    model,
+  };
 }

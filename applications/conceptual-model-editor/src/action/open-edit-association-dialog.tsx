@@ -56,7 +56,7 @@ function updateSemanticAssociation(
     nextDomain.concept = nextState.domain.identifier;
   }
   if (prevState.domainCardinality !== nextState.domainCardinality) {
-    nextDomain.cardinality = nextState.domainCardinality.cardinality;
+    nextDomain.cardinality = nextState.domainCardinality.cardinality ?? undefined;
   }
 
   const nextRange: SemanticModelRelationshipChange = {};
@@ -73,7 +73,7 @@ function updateSemanticAssociation(
     nextRange.concept = nextState.range.identifier;
   }
   if (prevState.rangeCardinality !== nextState.rangeCardinality) {
-    nextRange.cardinality = nextState.rangeCardinality.cardinality;
+    nextRange.cardinality = nextState.rangeCardinality.cardinality ?? undefined;
   }
 
   const ends = mergeEndsUpdate(entity, nextDomain, nextRange);

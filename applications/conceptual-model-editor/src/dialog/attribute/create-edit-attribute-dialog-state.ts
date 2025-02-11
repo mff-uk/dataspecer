@@ -3,7 +3,7 @@ import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { EditAttributeDialogState } from "./edit-attribute-dialog-controller";
-import { isRepresentingAttribute, representClasses, representDataTypes, representOwlThing, representRelationships, representUndefinedDataType } from "../utilities/dialog-utilities";
+import { isRepresentingAttribute, representClasses, listDataTypes, representOwlThing, representRelationships, representUndefinedClass, representUndefinedDataType } from "../utilities/dialog-utilities";
 import { SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { MissingRelationshipEnds } from "../../application/error";
@@ -51,15 +51,17 @@ export function createEditAttributeDialogState(
 
   // RelationshipState
 
-  const owlThing = representOwlThing();
-  const classes = [owlThing, ...representClasses(models, entityState.allModels, classesContext.classes)];
+  const classes = [
+    representUndefinedClass(),
+    representOwlThing(),
+    ...representClasses(models, entityState.allModels, classesContext.classes)
+  ];
 
-  const undefinedDataType = representUndefinedDataType();
-  const dataTypes = [undefinedDataType, ...representDataTypes(),];
+  const dataTypes = listDataTypes();
 
   const relationshipState = createRelationshipStateForEdit(
-    domain.concept, owlThing, domain.cardinality, classes,
-    range.concept, undefinedDataType, range.cardinality, dataTypes);
+    domain.concept, domain.cardinality, classes,
+    range.concept, range.cardinality, dataTypes);
 
   return {
     ...entityState,
