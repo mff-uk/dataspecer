@@ -225,6 +225,7 @@ export function listClassToProfiles(
   const models = [...graphContext.models.values()];
 
   return [
+    ...representClasses(models, vocabularies, classesContext.classes),
     ...representClassUsages(entities, models, vocabularies,
       classesContext.usages.filter(item => isSemanticModelClassUsage(item))),
     ...representClassProfiles(entities, models, vocabularies,
