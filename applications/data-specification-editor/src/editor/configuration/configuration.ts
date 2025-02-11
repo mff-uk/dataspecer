@@ -2,6 +2,7 @@ import { DataSpecification } from '@dataspecer/backend-utils/connectors/specific
 import { SemanticModelClass, SemanticModelEntity } from '@dataspecer/core-v2/semantic-model/concepts';
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
 import { OperationContext } from "../operations/context/operation-context";
+import { L0Aggregator } from '../semantic-aggregator/interfaces';
 
 /**
  * Editor's configuration (or context) that specifies how the editor should work.
@@ -23,6 +24,11 @@ export interface Configuration {
      */
     sourceSemanticModel: SourceSemanticModelInterface;
     operationContext: OperationContext,
+
+    /**
+     * todo experimental
+     */
+    semanticModelAggregator: L0Aggregator;
 }
 
 /**

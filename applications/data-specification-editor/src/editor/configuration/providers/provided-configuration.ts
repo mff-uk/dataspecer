@@ -15,6 +15,11 @@ import { EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { dataPsmExecutors } from "@dataspecer/core/data-psm/data-psm-executors";
 import { DataPsmCreateSchema } from "@dataspecer/core/data-psm/operation/data-psm-create-schema";
+import { LegacyL0Aggregator } from "../../semantic-aggregator/l0-aggregator";
+import { L3AggregatorAdapter } from "../../semantic-aggregator/l3-aggregator";
+import { WithCacheL2Aggregator } from "../../semantic-aggregator/with-cache-l2-aggregator";
+import { DefaultL1Aggregator } from "../../semantic-aggregator/l1-aggregator";
+import { L0Aggregator } from "../../semantic-aggregator/interfaces";
 
 const DEFAULT_CIM_ADAPTERS_CONFIGURATION = ["https://dataspecer.com/adapters/sgov"];
 
@@ -64,7 +69,7 @@ export const useProvidedConfiguration = (
     }
 
     const [defaultDataSpecification] = useAsyncMemo(async () => {
-        if (dataSpecificationIri && store) {
+        if (!dataSpecificationIri) {
             const semanticModel = new InMemorySemanticModel();
 
             const memoryStore = MemoryStore.create("https://ofn.gov.cz", [...dataPsmExecutors]); // For PSM classes
@@ -97,6 +102,30 @@ export const useProvidedConfiguration = (
         }
     }, [dataSpecificationIri, store]);
 
+    const semanticModelAggregator = useMemo(() => {
+        // @ts-ignore
+        const pim = store.models[1]?.store;
+        if (sourceSemanticModel && pim) {
+            // const l3 = new L3AggregatorAdapter(sourceSemanticModel);
+
+            // const cache = pim;
+            // const l2 = new WithCacheL2Aggregator([l3], cache);
+
+            // const ap = new InMemorySemanticModel();
+            // const l1 = new DefaultL1Aggregator(true, ap, [l2]);
+
+            // const l0 = new DefaultL0Aggregator([l1]);
+
+            // window["s"] = [l0, l1, l2, l3];
+            // window["m"] = [null, ap, cache, sourceSemanticModel];
+
+            return new LegacyL0Aggregator(pim, sourceSemanticModel);
+        } else {
+            return null as L0Aggregator;
+        }
+        // @ts-ignore
+    }, [sourceSemanticModel, store.models[1]]);
+
     return useMemo(() => ({
         store: store as FederatedObservableStore, // ! aggregator
         dataSpecifications: specifications ?? { [defaultDataSpecification?.iri as string]: defaultDataSpecification },
@@ -104,6 +133,7 @@ export const useProvidedConfiguration = (
         dataPsmSchemaIri: dataPsmSchemaIri ?? defaultDataSpecification?.dataStructures[0].id,
         sourceSemanticModel, // ! CIM
         operationContext,
+        semanticModelAggregator,
     }), [
         store,
         specifications ?? { [defaultDataSpecification?.iri as string]: defaultDataSpecification },
@@ -111,6 +141,7 @@ export const useProvidedConfiguration = (
         dataPsmSchemaIri ?? defaultDataSpecification?.dataStructures[0].id,
         sourceSemanticModel,
         operationContext,
+        semanticModelAggregator,
     ]);
 }
 
@@ -199,6 +230,8 @@ export const useConstructedStoresFromDescriptors = (
     // Stores that are already created and handled by this hook.
     const [constructedStoreCache] = useState(new Map<StoreDescriptor, CoreResourceReader>());
 
+    const [,stateTrigger] = useState({});
+
     useEffect(() => {
         if (federatedObservableStore) {
             const listener = () => {
@@ -244,6 +277,7 @@ export const useConstructedStoresFromDescriptors = (
                                 constructedStoreCache.set(descriptor, model);
                                 // @ts-ignore
                                 federatedObservableStore.addStore(model);
+                                stateTrigger({});
                             });
                         }
                     }

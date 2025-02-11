@@ -1,4 +1,4 @@
-import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelClass, SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
 import { StoreContext } from "@dataspecer/federated-observable-store-react/store";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import SearchIcon from '@mui/icons-material/Search';
@@ -13,6 +13,7 @@ import { ConfigurationContext } from "../../App";
 import { PimClassDetailDialog } from "../../detail/pim-class-detail-dialog";
 import { translateFrom } from "../../helper/LanguageStringComponents";
 import { SlovnikGovCzGlossary } from "../../slovnik.gov.cz/SlovnikGovCzGlossary";
+import { ExternalEntityWrapped } from "../../../semantic-aggregator/interfaces";
 
 const MAX_RESULTS = 30;
 
@@ -24,9 +25,9 @@ const useDebounceEffect = (effect: () => void, delay: number, debounceDeps: any[
     }, debounceDeps);
 }
 
-export const DefaultSearchDialogContent: React.FC<DialogParameters & {selected: (cls: SemanticModelClass) => void}> = ({close, isOpen, selected}) => {
-    const {sourceSemanticModel} = React.useContext(ConfigurationContext);
-    const [findResults, updateFindResults] = useState<SemanticModelClass[] | null>(null);
+export const DefaultSearchDialogContent: React.FC<DialogParameters & {selected: (cls: string) => void}> = ({close, isOpen, selected}) => {
+    const {sourceSemanticModel, semanticModelAggregator} = React.useContext(ConfigurationContext);
+    const [findResults, updateFindResults] = useState<ExternalEntityWrapped[] | null>(null);
     const [loading, setLoading] = useState(false);
     const [isError, setError] = useState(false);
     const {t, i18n} = useTranslation("search-dialog");
@@ -35,13 +36,15 @@ export const DefaultSearchDialogContent: React.FC<DialogParameters & {selected: 
 
     const DetailDialog = useDialog(PimClassDetailDialog);
 
-    const newStore = useNewFederatedObservableStoreFromSemanticEntities(findResults ?? []);
+    const newStore = useNewFederatedObservableStoreFromSemanticEntities(findResults ? findResults.map(e => e.aggregatedEntity) : []);
+
+    console.warn(semanticModelAggregator);
 
     useDebounceEffect(() => {
         setError(false);
         if (searchText) {
             setLoading(true);
-            sourceSemanticModel.search(searchText).then(result => {
+            semanticModelAggregator.search(searchText).then(result => {
                 updateFindResults(result.filter((_, i) => i < MAX_RESULTS));
             }).catch(error => {
                 console.info("Error during search.", error);
@@ -50,7 +53,7 @@ export const DefaultSearchDialogContent: React.FC<DialogParameters & {selected: 
         } else {
             updateFindResults(null);
         }
-    }, isSourceSemanticModelSearchableSync(sourceSemanticModel) ? 0 : 100, [searchText, sourceSemanticModel]);
+    }, isSourceSemanticModelSearchableSync(sourceSemanticModel) ? 0 : 100, [searchText, sourceSemanticModel, semanticModelAggregator]);
 
     return (
         <>
@@ -75,20 +78,22 @@ export const DefaultSearchDialogContent: React.FC<DialogParameters & {selected: 
                     margin: theme => theme.spacing(2, 0, 0, 0),
                 }}
                 >
-                {findResults && findResults.map((result: SemanticModelClass) =>
-                    <ListItem button key={result.id} onClick={() => {
-                        selected(result);
+                {findResults && findResults.map((result: ExternalEntityWrapped<SemanticModelClass>) =>
+                    <ListItem button key={result.aggregatedEntity.id} onClick={async () => {
+                        const entity = await semanticModelAggregator.externalEntityToLocalForSearch(result);
+                        console.log("User selected", result.aggregatedEntity.id, entity.aggregatedEntity.id);
+                        selected(entity.aggregatedEntity.id);
                         close();
                     }}>
                         <ListItemText secondary={<Typography variant="body2" color="textSecondary" noWrap
-                                                                title={translateFrom(result.name, i18n.languages)}>{translateFrom(result.description, i18n.languages)}</Typography>}>
-                            <strong>{translateFrom(result.name, i18n.languages)}</strong>
+                                                                title={translateFrom(result.aggregatedEntity.name, i18n.languages)}>{translateFrom(result.aggregatedEntity.description, i18n.languages)}</Typography>}>
+                            <strong>{translateFrom(result.aggregatedEntity.name, i18n.languages)}</strong>
                             {" "}
-                            <SlovnikGovCzGlossary cimResourceIri={result.iri as string}/>
+                            <SlovnikGovCzGlossary cimResourceIri={result.aggregatedEntity.iri as string}/>
                         </ListItemText>
                         <IconButton onClick={e => {
                             e.stopPropagation();
-                            DetailDialog.open({iri: result.iri as string})
+                            DetailDialog.open({iri: result.aggregatedEntity.iri as string})
                         }}>
                             <InfoTwoToneIcon/>
                         </IconButton>

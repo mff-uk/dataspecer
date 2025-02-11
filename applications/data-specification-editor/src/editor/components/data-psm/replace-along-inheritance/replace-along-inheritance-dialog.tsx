@@ -1,13 +1,14 @@
-import { isSemanticModelClass, SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelClass, SemanticModelClass, SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
 import { StoreContext, useFederatedObservableStore } from "@dataspecer/federated-observable-store-react/store";
 import { Alert, Box, Button, DialogActions, DialogContent, DialogTitle, Grid, ListItem, Typography } from "@mui/material";
-import React, { memo, useCallback } from "react";
+import React, { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { dialog, useDialog } from "../../../dialog";
 import { useAsyncMemo } from "../../../hooks/use-async-memo";
 import { useDataPsmAndInterpretedPim } from "../../../hooks/use-data-psm-and-interpreted-pim";
 import { useNewFederatedObservableStoreFromSemanticEntities } from "../../../hooks/use-new-federated-observable-store-from-semantic-entities";
 import { ReplaceAlongInheritance } from "../../../operations/replace-along-inheritance";
+import { ExternalEntityWrapped } from "../../../semantic-aggregator/interfaces";
 import { isAncestorOf } from "../../../utils/is-ancestor-of";
 import { ConfigurationContext } from "../../App";
 import { PimClassDetailDialog } from "../../detail/pim-class-detail-dialog";
@@ -32,8 +33,8 @@ export const ReplaceAlongInheritanceDialog = dialog<{
     const {pimResource} = useDataPsmAndInterpretedPim(dataPsmClassIri);
     const cimIri = pimResource?.iri;
 
-    const {operationContext, sourceSemanticModel} = React.useContext(ConfigurationContext);
-    const [fullInheritance] = useAsyncMemo(async () => cimIri ? await sourceSemanticModel.getFullHierarchy(cimIri) : null, [cimIri, sourceSemanticModel]);
+    const {operationContext, sourceSemanticModel, semanticModelAggregator} = React.useContext(ConfigurationContext);
+    const [fullInheritance] = useAsyncMemo(async () => cimIri ? await semanticModelAggregator.getHierarchy(pimResource.id) : null, [cimIri]);
 
     const previewStore = useNewFederatedObservableStoreFromSemanticEntities(fullInheritance);
 
@@ -46,35 +47,38 @@ export const ReplaceAlongInheritanceDialog = dialog<{
 
         const middleClassIri = cimIri;
 
-        const ancestors: SemanticModelClass[] = [];
-        const descendants: SemanticModelClass[] = [];
+        const ancestors: ExternalEntityWrapped<SemanticModelClass>[] = [];
+        const descendants: ExternalEntityWrapped<SemanticModelClass>[] = [];
 
-        const resources = fullInheritance.filter(isSemanticModelClass);
+        const unwrappedFullInheritance = fullInheritance.map((entity) => entity.aggregatedEntity);
+        const resources = fullInheritance.filter(((entity) => isSemanticModelClass(entity.aggregatedEntity)) as (entity) => entity is ExternalEntityWrapped<SemanticModelEntity>);
         for (const resource of resources) {
-            if (isAncestorOf(fullInheritance, middleClassIri, resource.id)) {
-                descendants.push(resource);
-            } else if (isAncestorOf(fullInheritance, resource.id, middleClassIri)) {
-                ancestors.push(resource);
+            if (isAncestorOf(unwrappedFullInheritance, middleClassIri, resource.aggregatedEntity.id)) {
+                descendants.push(resource as ExternalEntityWrapped<SemanticModelClass>);
+            } else if (isAncestorOf(unwrappedFullInheritance, resource.aggregatedEntity.id, middleClassIri)) {
+                ancestors.push(resource as ExternalEntityWrapped<SemanticModelClass>);
             }
         }
 
         return [ancestors, descendants];
-    }, [fullInheritance], [[],[]]) as [[SemanticModelClass[], SemanticModelClass[]], boolean];
+    }, [fullInheritance], [[],[]]) as [[ExternalEntityWrapped<SemanticModelClass>[], ExternalEntityWrapped<SemanticModelClass>[]], boolean];
 
-    const onSelected = useCallback((selectedPimIriFromStore: string) => {
+    const onSelected = async (selectedResource: ExternalEntityWrapped<SemanticModelClass>, isMoreGeneral: boolean) => {
         if (!fullInheritance) {
             return;
         }
 
+        const resource = await semanticModelAggregator.externalEntityToLocalForHierarchyExtension(pimResource.id, selectedResource, isMoreGeneral, fullInheritance);
+
         const replaceOperation = new ReplaceAlongInheritance(
             dataPsmClassIri,
-            selectedPimIriFromStore,
-            fullInheritance
+            resource.aggregatedEntity.id,
         );
         replaceOperation.setContext(operationContext);
+        replaceOperation.setSemanticStore(semanticModelAggregator);
         store.executeComplexOperation(replaceOperation).then();
         close();
-    }, [operationContext, store, fullInheritance, dataPsmClassIri, close]);
+    };
 
     return <>
         <StoreContext.Provider value={previewStore}>
@@ -91,9 +95,9 @@ export const ReplaceAlongInheritanceDialog = dialog<{
 
                         <Box style={{maxHeight: 400, overflow: 'auto'}}>
                             {ancestors.map(resource => <Item
-                                semanticModelClass={resource}
-                                onClick={() => onSelected(resource.id)}
-                                onInfo={() => PimClassDetail.open({iri: resource.id})}
+                                semanticModelClass={resource.aggregatedEntity}
+                                onClick={() => onSelected(resource, true)}
+                                onInfo={() => PimClassDetail.open({iri: resource.aggregatedEntity.id})}
                             />)}
                             {ancestors.length === 0 &&
                                 <Typography variant="body2" gutterBottom>
@@ -109,9 +113,9 @@ export const ReplaceAlongInheritanceDialog = dialog<{
 
                         <Box style={{maxHeight: 400, overflow: 'auto'}}>
                             {descendants.map(resource => <Item
-                                semanticModelClass={resource}
-                                onClick={() => onSelected(resource.id)}
-                                onInfo={() => PimClassDetail.open({iri: resource.id})}
+                                semanticModelClass={resource.aggregatedEntity}
+                                onClick={() => onSelected(resource, false)}
+                                onInfo={() => PimClassDetail.open({iri: resource.aggregatedEntity.id})}
                             />)}
                             {descendants.length === 0 &&
                                 <ListItem disabled>

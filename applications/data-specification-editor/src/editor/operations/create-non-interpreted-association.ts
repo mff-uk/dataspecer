@@ -3,7 +3,7 @@ import { DataPsmCreateAssociationEnd, DataPsmCreateClass } from "@dataspecer/cor
 import { ComplexOperation } from "@dataspecer/federated-observable-store/complex-operation";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
 import { TechnicalLabelOperationContext } from "./context/technical-label-operation-context";
-import { createPimClassIfMissing } from "./helper/pim";
+import { L0Aggregator } from "../semantic-aggregator/interfaces";
 
 /**
  * Adds association to the same class. The association will not have any interpretation.
@@ -13,19 +13,22 @@ export class CreateNonInterpretedAssociationToClass implements ComplexOperation 
   /**
    * If this is set, the association will be created to interpreted class
    */
-  private readonly sourceClass?: SemanticModelClass;
-  private readonly pimSchemaIri?: string;
+  private readonly semanticClassId?: string;
   private store!: FederatedObservableStore;
   private context: TechnicalLabelOperationContext | null = null;
+  private semanticStore!: L0Aggregator;
 
-  constructor(ownerClass: string, sourceClass?: SemanticModelClass, pimSchemaIri?: string) {
+  constructor(ownerClass: string, semanticClassId?: string) {
     this.ownerClass = ownerClass;
-    this.sourceClass = sourceClass;
-    this.pimSchemaIri = pimSchemaIri;
+    this.semanticClassId = semanticClassId;
   }
 
   setStore(store: FederatedObservableStore) {
     this.store = store;
+  }
+
+  setSemanticStore(semanticStore: L0Aggregator) {
+    this.semanticStore = semanticStore;
   }
 
   setContext(context: TechnicalLabelOperationContext) {
@@ -36,16 +39,15 @@ export class CreateNonInterpretedAssociationToClass implements ComplexOperation 
     const schema = this.store.getSchemaForResource(this.ownerClass) as string;
 
     // Whether we have a semantic source or not
-    const isInterpreted = !!this.sourceClass;
+    const semanticClass = this.semanticClassId ? this.semanticStore.getLocalEntity(this.semanticClassId).aggregatedEntity as SemanticModelClass : null;
 
     const dataPsmCreateClass = new DataPsmCreateClass();
 
-    if (isInterpreted) {
-      const pimClassIri = await createPimClassIfMissing(this.sourceClass, this.pimSchemaIri, this.store);
-      dataPsmCreateClass.dataPsmInterpretation = pimClassIri;
+    if (semanticClass) {
+      dataPsmCreateClass.dataPsmInterpretation = semanticClass.id;
       dataPsmCreateClass.dataPsmTechnicalLabel =
         this.context?.getTechnicalLabelFromPim(
-          ((await this.store.readResource(pimClassIri)) as SemanticModelClass).name
+          semanticClass.name
         ) ?? null;
     } else {
       dataPsmCreateClass.dataPsmInterpretation = null;

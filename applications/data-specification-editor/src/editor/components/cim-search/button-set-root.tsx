@@ -17,13 +17,14 @@ import CallSplitIcon from '@mui/icons-material/CallSplit';
 import CodeIcon from '@mui/icons-material/Code';
 import SearchIcon from '@mui/icons-material/Search';
 import { CreateRootOr } from "../../operations/create-root-or";
+import { LocalEntityWrapped } from "../../semantic-aggregator/interfaces";
 
 function formatString(input: string, args: {[key: string]: string}): string {
     return input.replace(/{([^}]+)}/g, (match, key) => args[key]);
 }
 
 const ButtonSetRoot: React.FC = () => {
-  const {dataPsmSchemaIri, dataSpecificationIri, dataSpecifications, operationContext} = useContext(ConfigurationContext);
+  const {dataPsmSchemaIri, dataSpecificationIri, dataSpecifications, operationContext, semanticModelAggregator} = useContext(ConfigurationContext);
   const store = useFederatedObservableStore();
   const {isOpen, open, close} = useToggle();
   const {t, i18n} = useTranslation("ui");
@@ -33,7 +34,9 @@ const ButtonSetRoot: React.FC = () => {
   const buttonRef = useRef(null);
   const menuOpen = useToggle(false);
 
-  const setRootClass = useCallback(async (cls: SemanticModelClass) => {
+  const setRootClass = useCallback(async (cls: string) => {
+    const addedClass = (semanticModelAggregator.getLocalEntity(cls) as LocalEntityWrapped<SemanticModelClass>).aggregatedEntity;
+
     const newSchemaLabel = Object.fromEntries(
       languages.map(
         lang => [
@@ -41,8 +44,8 @@ const ButtonSetRoot: React.FC = () => {
           formatString(
             i18n.getFixedT([lang], "ui")('new schema label format'),
             {
-              label: selectLanguage(cls.name ?? {}, [lang]) ?? "",
-              description: selectLanguage(cls.description ?? {}, [lang]) ?? "",
+              label: selectLanguage(addedClass.name ?? {}, [lang]) ?? "",
+              description: selectLanguage(addedClass.description ?? {}, [lang]) ?? "",
             }
           )
         ]
@@ -56,8 +59,8 @@ const ButtonSetRoot: React.FC = () => {
           formatString(
             i18n.getFixedT([lang], "ui")('new schema description format'),
             {
-              label: selectLanguage(cls.name ?? {}, [lang]) ?? "",
-              description: selectLanguage(cls.description ?? {}, [lang]) ?? "",
+              label: selectLanguage(addedClass.name ?? {}, [lang]) ?? "",
+              description: selectLanguage(addedClass.description ?? {}, [lang]) ?? "",
             }
           )
         ]
@@ -65,14 +68,15 @@ const ButtonSetRoot: React.FC = () => {
     );
 
     if (dataSpecificationIri && dataPsmSchemaIri && dataSpecifications[dataSpecificationIri].localSemanticModelIds.length > 0) {
-      const op = new CreateRootClass(cls, dataSpecifications[dataSpecificationIri].localSemanticModelIds[0] as string, dataPsmSchemaIri, newSchemaLabel, newSchemaDescription);
+      const op = new CreateRootClass(cls, dataPsmSchemaIri, newSchemaLabel, newSchemaDescription);
       op.setContext(operationContext);
+      op.setSemanticStore(semanticModelAggregator);
       store.executeComplexOperation(op).then();
     }
-  }, [dataSpecificationIri, dataPsmSchemaIri, dataSpecifications, i18n, operationContext, store]);
+  }, [dataSpecificationIri, dataPsmSchemaIri, dataSpecifications, i18n, operationContext, store, semanticModelAggregator]);
 
   const setStructuredClass = useCallback(() => {
-    const operation = new CreateRootClass(null, null, dataPsmSchemaIri);
+    const operation = new CreateRootClass(null, dataPsmSchemaIri);
     operation.setContext(operationContext);
     store.executeComplexOperation(operation).then();
   }, [dataPsmSchemaIri, operationContext, store]);
