@@ -26,13 +26,16 @@ import { DialogColoredModelHeaderWithLanguageSelector } from "../../components/d
 import { t } from "../../application";
 import { DialogProps, DialogWrapper } from "../dialog-api";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
+import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 type SupportedTypes =
     | SemanticModelClass
     | SemanticModelRelationship
     | SemanticModelClassUsage
     | SemanticModelRelationshipUsage
-    | SemanticModelGeneralization;
+    | SemanticModelGeneralization
+    | SemanticModelClassProfile
+    | SemanticModelRelationshipProfile;
 
 interface EntityDetailState {
 
@@ -248,7 +251,6 @@ const EntityDetailDialog = (props: DialogProps<EntityDetailState>) => {
               detailDialogLanguage={language}
               resource={proxy.domain.entity}
               // It ain't null
-
               onClick={() => handleResourceClickThroughClicked(proxy.domain.entity!)}
               withCardinality={proxy.domain.cardinality}
             />

@@ -292,7 +292,9 @@ export function isRepresentingAssociation(representation: RelationshipRepresenta
   return !isRepresentingAttribute(representation);
 }
 
-export function isRepresentingAttribute(representation: RelationshipRepresentative): boolean {
+export function isRepresentingAttribute(representation: {
+  identifier: EntityDsIdentifier, range: string,
+}): boolean {
   const range = representation.range;
   // We have multiple ways to detect an attribute.
   // The first one is there is no range concept.

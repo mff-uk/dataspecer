@@ -55,6 +55,8 @@ export interface EntityDetailProxy {
     | SemanticModelRelationship
     | SemanticModelClassUsage
     | SemanticModelRelationshipUsage
+    | SemanticModelClassProfile
+    | SemanticModelRelationshipProfile
   )[];
   specializationOfAsGeneralizations: SemanticModelGeneralization[];
   generalizationOf: (
@@ -68,27 +70,43 @@ export interface EntityDetailProxy {
   | SemanticModelRelationship
   | SemanticModelClassUsage
   | SemanticModelRelationshipUsage
+  | SemanticModelClassProfile
+  | SemanticModelRelationshipProfile
   | undefined;
   originalProfile:
   | SemanticModelClass
   | SemanticModelRelationship
   | SemanticModelClassUsage
   | SemanticModelRelationshipUsage
+  | SemanticModelClassProfile
+  | SemanticModelRelationshipProfile
   | undefined;
   profiledBy: (
     | SemanticModelClass
     | SemanticModelRelationship
     | SemanticModelClassUsage
     | SemanticModelRelationshipUsage
+    | SemanticModelClassProfile
+    | SemanticModelRelationshipProfile
   )[];
   attributes: SemanticModelRelationship[];
-  attributeProfiles: SemanticModelRelationshipUsage[];
+  attributeProfiles: (SemanticModelRelationshipUsage | SemanticModelRelationshipProfile)[];
   domain: {
-    entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationshipUsage | undefined;
+    entity:
+    SemanticModelClass
+    | SemanticModelClassUsage
+    | SemanticModelRelationshipUsage
+    | SemanticModelClassProfile
+    | SemanticModelRelationshipProfile
+    | undefined;
     cardinality: string | undefined;
   };
   range: {
-    entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelRelationshipUsage | undefined;
+    entity:
+    SemanticModelClass
+    | SemanticModelClassUsage
+    | SemanticModelClassProfile
+    | undefined;
     cardinality: string | undefined;
   };
   datatype: {
@@ -114,16 +132,16 @@ export const useEntityProxy = (
 }
 
 export const createEntityProxy = (
-  classes: ClassesContextType,
+  classesContext: ClassesContextType,
   graph: ModelGraphContextType,
   viewedEntity: EntityDetailSupportedType,
   currentLang?: string,
 ) => {
-  const { classes: c, relationships: r, usages: profiles, generalizations, rawEntities } = classes;
-  const { models: m } = graph;
-  const models = [...m.values()];
+  const { classes, relationships, usages, classProfiles, relationshipProfiles, generalizations, rawEntities } = classesContext;
+  const { models: modelsMap } = graph;
+  const models = [...modelsMap.values()];
   const sourceModel = sourceModelOfEntity(viewedEntity.id, models);
-  const profilingSources = [...c, ...r, ...profiles];
+  const profilingSources = [...classes, ...relationships, ...usages];
 
   const proxy = new Proxy(viewedEntity as unknown as EntityDetailProxy, {
     get: (_obj, property) => {
@@ -186,9 +204,9 @@ export const createEntityProxy = (
       .filter((g) => g.child === viewedEntity.id)
       .map(
         (g) =>
-          c.find((cl) => cl.id === g.parent) ??
-          r.find((re) => re.id === g.parent) ??
-          profiles.find((p) => p.id === g.parent)
+          classes.find((cl) => cl.id === g.parent) ??
+          relationships.find((re) => re.id === g.parent) ??
+          usages.find((p) => p.id === g.parent)
       )
       .filter(
         (
@@ -207,9 +225,9 @@ export const createEntityProxy = (
       .filter((g) => g.parent === viewedEntity.id)
       .map(
         (g) =>
-          c.find((cl) => cl.id === g.child) ??
-          r.find((re) => re.id === g.child) ??
-          profiles.find((p) => p.id === g.child)
+          classes.find((cl) => cl.id === g.child) ??
+          relationships.find((re) => re.id === g.child) ??
+          usages.find((p) => p.id === g.child)
       )
       .filter(
         (
@@ -232,7 +250,7 @@ export const createEntityProxy = (
       : undefined;
 
   const isProfiledBy = () =>
-    profiles
+    usages
       .filter((p) => p.usageOf === viewedEntity.id)
       .map((p) => profilingSources.find((e) => e.id === p.id))
       .filter(
@@ -283,9 +301,9 @@ export const createEntityProxy = (
   }
 
   const getAttributes = () =>
-    r.filter(isSemanticModelAttribute).filter((v) => v.ends.at(0)?.concept === viewedEntity.id);
+    relationships.filter(isSemanticModelAttribute).filter((v) => v.ends.at(0)?.concept === viewedEntity.id);
   const getAttributeProfiles = () =>
-    profiles
+    usages
       .filter(isSemanticModelRelationshipUsage)
       .filter((a) =>
         isSemanticModelAttributeUsage(a as SemanticModelRelationshipUsage & SemanticModelRelationship)
@@ -293,12 +311,12 @@ export const createEntityProxy = (
       .filter((v) => getDomainAndRange(v).domain?.concept === viewedEntity.id);
 
   const getDomain = () => ({
-    entity: c.find((cls) => cls.id === ends?.domain?.concept) ?? profiles.find((v) => v.id === ends?.domain?.concept),
+    entity: classes.find((cls) => cls.id === ends?.domain?.concept) ?? usages.find((v) => v.id === ends?.domain?.concept),
     cardinality: cardinalityToHumanLabel(ends?.domain?.cardinality),
   });
 
   const getRange = () => ({
-    entity: c.find((cls) => cls.id === ends?.range.concept) ?? profiles.find((v) => v.id === ends?.range?.concept),
+    entity: classes.find((cls) => cls.id === ends?.range.concept) ?? usages.find((v) => v.id === ends?.range?.concept),
     cardinality: cardinalityToHumanLabel(ends?.range?.cardinality),
   });
 

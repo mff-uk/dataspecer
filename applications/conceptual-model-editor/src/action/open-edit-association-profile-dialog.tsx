@@ -11,6 +11,7 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { EditAssociationProfileDialogState } from "../dialog/association-profile/edit-association-profile-dialog-controller";
 import { createEditAssociationProfileDialog, createEditAssociationProfileDialogState } from "../dialog/association-profile/create-edit-association-profile-dialog-state";
 import { modifyCmeRelationshipProfile } from "../dataspecer/cme-model/operation/modify-cme-relationship-profile";
+import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 /**
  * Open and handle edit association dialog.
@@ -23,7 +24,7 @@ export function openEditAssociationProfileDialogAction(
   notifications: UseNotificationServiceWriterType,
   visualModel: VisualModel | null,
   model: InMemorySemanticModel,
-  entity: SemanticModelRelationshipUsage,
+  entity: SemanticModelRelationshipUsage | SemanticModelRelationshipProfile,
 ) {
   const state = createEditAssociationProfileDialogState(
     classes, graph, visualModel, options.language, model, entity.id);
@@ -38,7 +39,7 @@ export function openEditAssociationProfileDialogAction(
 function updateSemanticAssociationProfile(
   notifications: UseNotificationServiceWriterType,
   models: Map<string, EntityModel>,
-  entity: SemanticModelRelationshipUsage,
+  entity: SemanticModelRelationshipUsage | SemanticModelRelationshipProfile,
   prevState: EditAssociationProfileDialogState,
   state: EditAssociationProfileDialogState,
 ) {

@@ -29,6 +29,8 @@ import { createNewClassProfileDialog, createNewProfileClassDialogState } from ".
 import { EntityModel } from "@dataspecer/core-v2";
 import { createCmeClassProfile } from "../dataspecer/cme-model/operation/create-cme-class-profile";
 import { createCmeRelationshipProfile } from "../dataspecer/cme-model/operation/create-cme-relationship-profile";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
 
 export function openCreateProfileDialogAction(
   options: Options,
@@ -47,7 +49,9 @@ export function openCreateProfileDialogAction(
     return;
   }
   //
-  if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
+  if (isSemanticModelClass(entity)
+    || isSemanticModelClassUsage(entity)
+    || isSemanticModelClassProfile(entity)) {
     const state = createNewProfileClassDialogState(
       classes, graph, visualModel, options.language, [entity.id]);
     const onConfirm = (state: EditClassProfileDialogState) => {
@@ -67,7 +71,9 @@ export function openCreateProfileDialogAction(
     return;
   }
 
-  if (isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity)) {
+  if (isSemanticModelAttribute(entity)
+    || isSemanticModelAttributeUsage(entity)
+    || isSemanticModelAttributeProfile(entity)) {
     const state = createNewAttributeProfileDialogState(
       classes, graph, visualModel, options.language, [entity.id]);
     const onConfirm = (state: EditAttributeProfileDialogState) => {
@@ -78,7 +84,9 @@ export function openCreateProfileDialogAction(
     return;
   }
 
-  if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
+  if (isSemanticModelRelationship(entity)
+    || isSemanticModelRelationshipUsage(entity)
+    || isSemanticModelRelationshipProfile(entity)) {
     const state = createNewAssociationProfileDialogState(
       classes, graph, visualModel, options.language, [entity.id]);
     const onConfirm = (state: EditAssociationProfileDialogState) => {
