@@ -104,10 +104,13 @@ export function useEditNodeAttributesController(
 
     const onCreateNewAttribute = () => {
       const onConfirmCallback = (
-        state: EditAttributeDialogState | EditAttributeProfileDialogState,
+        returnedState: EditAttributeDialogState | EditAttributeProfileDialogState,
         createdAttributeIdentifier: string
       ) => {
-        const name = getStringFromLanguageStringInLang(state.name, state.language)[0] ?? createdAttributeIdentifier;
+        if(returnedState.domain.identifier !== state.classIdentifier) {
+          return;
+        }
+        const name = getStringFromLanguageStringInLang(returnedState.name, returnedState.language)[0] ?? createdAttributeIdentifier;
         // We have to use timeout -
         // there is probably some issue with updating state of multiple dialogs when one closes.
         setTimeout(() => addToVisibleAttributes({
