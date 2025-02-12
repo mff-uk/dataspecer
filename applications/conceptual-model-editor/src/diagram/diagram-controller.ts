@@ -1466,7 +1466,8 @@ const shouldBreakSelection = (
 
   const shouldBreak = !isEqual(omit(prevNode.data, ["position"]), omit(nextNode.data, ["position"])) ||
                       nextNode.position.x !== prevNode.position.x ||
-                      nextNode.position.y !== prevNode.position.y;
+                      nextNode.position.y !== prevNode.position.y ||
+                      nextNode.data.position.anchored !== prevNode.data.position.anchored;
   return shouldBreak;
 }
 

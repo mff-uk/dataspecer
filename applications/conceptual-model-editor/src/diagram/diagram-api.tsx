@@ -1,3 +1,5 @@
+import { Position as PositionWithAnchor } from "@dataspecer/core-v2/visual-model";
+
 
 export type GroupWithContent = {
   /**
@@ -193,14 +195,15 @@ export interface DiagramActions {
    * Opens menu on given {@link canvasPosition}.
    * The menu appears when user drags edge to canvas.
    * @param sourceNode is the node from which the connection dragging started
-   * @param position is the canvas position where user dragged the connection and on which will the menu appear
+   * @param canvasPosition is the canvas position where user dragged the connection and on which will the menu appear
    */
   openDragEdgeToCanvasMenu(sourceNode: Node, canvasPosition: Position): void;
+
   /**
    * Opens menu on given {@link canvasPosition}.
    * The menu appears when user clicks the actions button on selection.
    * @param sourceNode is the node on which the user clicked the button.
-   * @param position is the canvas position where the menu will appear.
+   * @param canvasPosition is the canvas position where the menu will appear.
    */
   openSelectionActionsMenu(sourceNode: Node, canvasPosition: Position): void;
 
@@ -208,7 +211,7 @@ export interface DiagramActions {
    * Opens menu on given {@link canvasPosition}.
    * The menu represents control panel for group with given {@link groupIdentifier}.
    * @param groupIdentifier is the identifier of the group.
-   * @param position is the position where the menu will appear.
+   * @param canvasPosition is the position where the menu will appear.
    */
   openGroupMenu(groupIdentifier: string, canvasPosition: Position): void;
 
@@ -278,7 +281,7 @@ export type Node = {
   /**
    * Position of the Node at the canvas.
    */
-  position: Position;
+  position: PositionWithAnchor;
 
   profileOf: null | {
 

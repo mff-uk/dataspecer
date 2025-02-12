@@ -44,11 +44,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
     usageNote = data.profileOf.usageNote;
   }
 
-  // TODO PRQuestion: How should we get access to the information saying that the node is anchored so we can visualize it? Should it be action? Or should it be like this?
-  //                  ... I guess that the correct solution is to put the anchored property to the diagram node data?
-  const graph = useModelGraphContext();
   const context = useContext(DiagramContext);
-  const isAnchored = (graph.aggregatorView?.getActiveVisualModel()?.getVisualEntity(props.data.identifier) as VisualNode)?.position?.anchored ?? false;
 
   const removeAttributeFromVisualModel = (attribute: string) => () => context?.callbacks().onRemoveAttributeFromVisualModel(attribute, props.data.identifier);
   const moveAttributeUp = (attribute: string) => () => context?.callbacks().onMoveAttributeUp(attribute, props.data.identifier);
@@ -77,7 +73,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
             )}
             <div className="relative flex w-full flex-row justify-between">
               <div>{data.label}</div>
-              {isAnchored ? <div>⚓</div> : null}
+              {data.position.anchored ? <div>⚓</div> : null}
             </div>
           </div>
 

@@ -381,8 +381,7 @@ function createDiagramNode(
     description: getEntityDescription(language, entity),
     group,
     position: {
-      x: visualNode.position.x,
-      y: visualNode.position.y,
+      ...visualNode.position
     },
     profileOf: profileOf === null ? null : {
       label: getEntityLabel(language, profileOf),
