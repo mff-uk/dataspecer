@@ -19,6 +19,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 
 import { getDomainAndRange } from "./relationship-utils";
 import { IRI } from "iri";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 /**
  * @param entity
@@ -34,6 +35,8 @@ export const getIri = (
         | SemanticModelRelationshipUsage
         | SemanticModelGeneralization
         | SemanticModelEntity
+        | SemanticModelClassProfile
+        | SemanticModelRelationshipProfile
         | null
         | undefined,
   modelBaseIri?: string
@@ -53,6 +56,10 @@ export const getIri = (
   } else if (isSemanticModelClassUsage(entity)) {
     iri = (entity as SemanticModelClass & SemanticModelClassUsage)?.iri ?? null;
   } else if (isSemanticModelRelationshipUsage(entity)) {
+    iri = getDomainAndRange(entity).range?.iri ?? null;
+  } else if (isSemanticModelClassProfile(entity)) {
+    iri = entity.iri;
+  } else if (isSemanticModelRelationshipProfile(entity)) {
     iri = getDomainAndRange(entity).range?.iri ?? null;
   } else {
     iri = null;

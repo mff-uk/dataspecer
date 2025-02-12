@@ -1,4 +1,8 @@
-import { Cardinality, EntityRepresentative, representCardinalities, representCardinality, representUndefinedCardinality } from "./dialog-utilities";
+import { createLogger } from "../../application";
+import { RuntimeError } from "../../application/error";
+import { Cardinality, EntityRepresentative, listCardinalities, representCardinality } from "./dialog-utilities";
+
+const LOG = createLogger(import.meta.url);
 
 export interface RelationshipState<RangeType> {
 
@@ -15,7 +19,7 @@ export interface RelationshipState<RangeType> {
   /**
    * Available domain items.
    */
-  availableDomainItems: EntityRepresentative[];
+  availableDomains: EntityRepresentative[];
 
   /**
    * Range.
@@ -30,7 +34,7 @@ export interface RelationshipState<RangeType> {
   /**
    * Available range items.
    */
-  availableRangeItems: RangeType[];
+  availableRanges: RangeType[];
 
   /**
    * Cardinalities that can be set.
@@ -40,51 +44,52 @@ export interface RelationshipState<RangeType> {
 }
 
 export function createRelationshipStateForNew<RangeType extends { identifier: string }>(
-  defaultDomain: EntityRepresentative,
-  domains: EntityRepresentative[],
-  defaultRange: RangeType,
-  ranges: RangeType[],
+  domain: EntityRepresentative,
+  availableDomains: EntityRepresentative[],
+  range: RangeType,
+  availableRanges: RangeType[],
 ): RelationshipState<RangeType> {
-  const cardinalities = [
-    representUndefinedCardinality(),
-    ...representCardinalities()
-  ];
 
   return {
-    domain: defaultDomain,
-    domainCardinality: representUndefinedCardinality(),
-    availableDomainItems: domains,
-    range: defaultRange,
-    rangeCardinality: representUndefinedCardinality(),
-    availableRangeItems: ranges,
-    availableCardinalities: cardinalities,
+    domain,
+    domainCardinality: representCardinality(null),
+    availableDomains,
+    range: range,
+    rangeCardinality: representCardinality(null),
+    availableRanges,
+    availableCardinalities: listCardinalities(),
   };
 }
 
 export function createRelationshipStateForEdit<RangeType extends { identifier: string }>(
-  domain: string | null,
-  defaultDomain: EntityRepresentative,
+  domain: string,
   domainCardinality: [number, number | null] | undefined | null,
-  domains: EntityRepresentative[],
-  range: string | null,
-  defaultRange: RangeType,
+  availableDomains: EntityRepresentative[],
+  range: string,
   rangeCardinality: [number, number | null] | undefined | null,
-  ranges: RangeType[],
+  availableRanges: RangeType[],
 ): RelationshipState<RangeType> {
 
-  const cardinalities = [
-    representUndefinedCardinality(),
-    ...representCardinalities()
-  ];
+  const domainRepresentative = availableDomains.find(item => item.identifier === domain);
+  if (domainRepresentative === undefined) {
+    LOG.error("Missing domain representative.", {domain, availableDomains});
+    throw new RuntimeError("Missing domain representative.");
+  }
+
+  const rangeRepresentative = availableRanges.find(item => item.identifier === range);
+  if (rangeRepresentative === undefined) {
+    LOG.error("Missing range representative.", {range, availableRanges});
+    throw new RuntimeError("Missing range representative.");
+  }
 
   return {
-    domain: domains.find(item => item.identifier === domain) ?? defaultDomain,
+    domain: domainRepresentative,
     domainCardinality: representCardinality(domainCardinality),
-    availableDomainItems: domains,
-    range: ranges.find(item => item.identifier === range) ?? defaultRange,
+    availableDomains: availableDomains,
+    range: rangeRepresentative,
     rangeCardinality: representCardinality(rangeCardinality),
-    availableRangeItems: ranges,
-    availableCardinalities: cardinalities,
+    availableRanges: availableRanges,
+    availableCardinalities: listCardinalities(),
   };
 }
 

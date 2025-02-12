@@ -11,9 +11,9 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
  * Type representing filter on the type of entity.
  */
 export enum SelectionFilter {
-    ClassProfile,
-    NormalClass,
-    RelationshipProfile,
+    ClassUsage,
+    Class,
+    RelationshipUsage,
     Relationship,
     Generalization
 };
@@ -186,10 +186,10 @@ function filterBasedOnVisibility(
 }
 
 const FILTER_NAME_TO_FILTER_METHOD_MAP: Record<SelectionFilter, SelectionFilterMethod> = {
-  [SelectionFilter.NormalClass]: classFilter,
-  [SelectionFilter.ClassProfile]: profileClassFilter,
+  [SelectionFilter.Class]: classFilter,
+  [SelectionFilter.ClassUsage]: profileClassFilter,
   [SelectionFilter.Relationship]: normalEdgeFilter,
-  [SelectionFilter.RelationshipProfile]: profileEdgeFilter,
+  [SelectionFilter.RelationshipUsage]: profileEdgeFilter,
   [SelectionFilter.Generalization]: generalizationFilter,
 };
 
@@ -221,7 +221,7 @@ function profileClassFilter(
 ): void {
   nodeSelection.map(selectedClassId => {
     const selectedClassSemanticId = getSemanticClassIdentifier(selectedClassId, areVisualModelIdentifiers, visualModel);
-    if(contextEntities.profiles.findIndex(profile => profile.id === selectedClassSemanticId) >= 0) {
+    if(contextEntities.usages.findIndex(profile => profile.id === selectedClassSemanticId) >= 0) {
       filteredNodeSelection.push(selectedClassId);
     }
   });
@@ -263,7 +263,7 @@ function profileEdgeFilter(
 ): void {
   edgeSelection.map(selectedEdgeId => {
     const selectedEdgeSemanticId = getSemanticEdgeIdentifier(selectedEdgeId, areVisualModelIdentifiers, visualModel);
-    if(contextEntities.profiles.findIndex(relationshipProfile => relationshipProfile.id === selectedEdgeSemanticId && isSemanticModelRelationshipUsage(relationshipProfile)) >= 0) {
+    if(contextEntities.usages.findIndex(relationshipProfile => relationshipProfile.id === selectedEdgeSemanticId && isSemanticModelRelationshipUsage(relationshipProfile)) >= 0) {
       filteredEdgeSelection.push(selectedEdgeId);
     }
   });

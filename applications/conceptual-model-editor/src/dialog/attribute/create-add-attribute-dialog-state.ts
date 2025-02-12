@@ -2,7 +2,7 @@ import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { EditAttributeDialogState } from "./edit-attribute-dialog-controller";
-import { isRepresentingAttribute, representClasses, representDataTypes, representOwlThing, representRelationships, selectDefaultModelForAttribute, selectRdfLiteral } from "../utilities/dialog-utilities";
+import { isRepresentingAttribute, listAttributeRanges, representOwlThing, representRelationships, selectDefaultModelForAttribute, representRdfsLiteral, listRelationshipDomains } from "../utilities/dialog-utilities";
 import { configuration } from "../../application";
 import { createEntityStateForNew } from "../utilities/entity-utilities";
 import { createSpecializationStateForNew } from "../utilities/specialization-utilities";
@@ -11,10 +11,13 @@ import { DialogWrapper } from "../dialog-api";
 import { EditAttributeDialog } from "./edit-attribute-dialog";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { RuntimeError } from "../../application/error";
 
 /**
  * Creates a dialog to add an attribute to an existing entity.
  * Same as create new attribute just set the default domain to the entity.
+ *
+ * @throws RuntimeError
  */
 export function createAddAttributeDialogState(
   classesContext: ClassesContextType,
@@ -28,33 +31,38 @@ export function createAddAttributeDialogState(
 
   const vocabularies = entityModelsMapToCmeVocabulary(graphContext.models, visualModel);
 
+  const owlThing = representOwlThing();
+
+  const rdfsLiteral = representRdfsLiteral();
+
   // EntityState
   const entityState = createEntityStateForNew(
     language, null, vocabularies, configuration().nameToIri);
 
   // SpecializationState
 
-  const specializations =
-    representRelationships(models, entityState.allModels, classesContext.relationships)
-      .filter(item => isRepresentingAttribute(item));
+  const specializations = representRelationships(
+    models, entityState.allModels, classesContext.relationships,
+    owlThing.identifier, rdfsLiteral.identifier)
+    .filter(item => isRepresentingAttribute(item));
 
   const specializationState = createSpecializationStateForNew(
     language, entityState.allModels, specializations);
 
   // RelationshipState
 
-  const owlThing = representOwlThing();
-  const classes = [owlThing, ...representClasses(models, entityState.allModels, classesContext.classes)];
+  const domains = listRelationshipDomains(
+    classesContext, graphContext, vocabularies);
 
-  const dataTypes = [...representDataTypes()];
-  const range = selectRdfLiteral(dataTypes);
+  const domain = domains.find(item => item.identifier === entity.id);
+  if (domain === undefined) {
+    throw new RuntimeError("Missing domain representative.");
+  }
+
+  const dataTypes = listAttributeRanges();
 
   const relationshipState = createRelationshipStateForNew(
-    owlThing, classes, range, dataTypes);
-
-  // We try to use the given entity as a default value.
-  const domain = relationshipState.availableDomainItems.find(
-    item => item.identifier === entity.id) ?? owlThing;
+    domain, domains, rdfsLiteral, dataTypes);
 
   return {
     ...entityState,
@@ -62,7 +70,6 @@ export function createAddAttributeDialogState(
     ...relationshipState,
     model : selectDefaultModelForAttribute(
       entity.id, models, entityState.availableModels),
-    domain,
   };
 }
 

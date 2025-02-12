@@ -15,6 +15,10 @@ import type {
   SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import type { Entity } from "@dataspecer/core-v2";
+import {
+  SemanticModelClassProfile,
+  SemanticModelRelationshipProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 export type ClassesContextType = {
 
@@ -22,13 +26,18 @@ export type ClassesContextType = {
 
     allowedClasses: string[];
 
+    // Used by entities-of-model.tsx
     setAllowedClasses: React.Dispatch<React.SetStateAction<string[]>>;
 
     relationships: SemanticModelRelationship[];
 
     generalizations: SemanticModelGeneralization[];
 
-    profiles: (SemanticModelClassUsage | SemanticModelRelationshipUsage)[];
+    usages: (SemanticModelClassUsage | SemanticModelRelationshipUsage)[];
+
+    classProfiles: SemanticModelClassProfile[];
+
+    relationshipProfiles: SemanticModelRelationshipProfile[];
 
     sourceModelOfEntityMap: Map<string, string>;
 
@@ -45,25 +54,11 @@ type ResultType = {
     id: string;
 };
 
-export interface UseClassesContextType {
+export interface UseClassesContextType  extends ClassesContextType {
 
-    classes: SemanticModelClass[];
-
-    allowedClasses: string[];
-
-    // Used by entities-of-model.tsx
-    setAllowedClasses: React.Dispatch<React.SetStateAction<string[]>>;
-
-    relationships: SemanticModelRelationship[];
-
-    generalizations: SemanticModelGeneralization[];
-
-    profiles: (SemanticModelClassUsage | SemanticModelRelationshipUsage)[];
-
-    sourceModelOfEntityMap: Map<string, string>;
-
-    rawEntities: (Entity | null)[];
-
+    /**
+     * @deprecated Replace with CME actions
+     */
     createConnection: (
         model: InMemorySemanticModel,
         connection: ConnectionType,
@@ -76,16 +71,7 @@ export interface UseClassesContextType {
  * also provides concept manipulating functions (eg create, modify, delete, ..)
  */
 export const useClassesContext = (): UseClassesContextType => {
-  const {
-    classes,
-    allowedClasses,
-    setAllowedClasses,
-    relationships,
-    generalizations,
-    profiles,
-    sourceModelOfEntityMap,
-    rawEntities,
-  } = useContext(ClassesContext);
+  const context = useContext(ClassesContext);
 
   const createConnection = (model: InMemorySemanticModel, connection: ConnectionType) => {
     if (!model || !(model instanceof InMemorySemanticModel)) {
@@ -94,23 +80,14 @@ export const useClassesContext = (): UseClassesContextType => {
     }
 
     if (connection.type === "association") {
-      const result = model.executeOperation(createRelationship({ ...connection }));
-      return result;
+      return model.executeOperation(createRelationship({ ...connection }));
     } else {
-      const result = model.executeOperation(createGeneralization({ ...connection }));
-      return result;
+      return model.executeOperation(createGeneralization({ ...connection }));
     }
   };
 
   return {
-    classes,
-    allowedClasses,
-    setAllowedClasses,
-    relationships,
-    generalizations,
-    profiles,
-    sourceModelOfEntityMap,
-    rawEntities,
+    ...context,
     createConnection,
   };
 };

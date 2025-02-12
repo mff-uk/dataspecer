@@ -129,13 +129,14 @@ function createAssociationToCreatedClass(
     label: editClassDialogState.name,
     description: editClassDialogState.description,
     profileOfIdentifiers: [],
-    usageNote: null
+    usageNote: null,
+    isProfile: false
   };
 
   if(isCreatedClassTarget) {
     defaultEditAssociationState.range = createdClassEntityRepresentative;
 
-    const domain = findRepresentative(defaultEditAssociationState.availableDomainItems, sourceClassIdentifier);;
+    const domain = findRepresentative(defaultEditAssociationState.availableDomains, sourceClassIdentifier);;
     if(domain === null) {
       notifications.error("Can not find the source class of the drag event in the representatives of domains");
       return;
@@ -145,7 +146,7 @@ function createAssociationToCreatedClass(
   else {
     defaultEditAssociationState.domain = createdClassEntityRepresentative;
 
-    const range = findRepresentative(defaultEditAssociationState.availableRangeItems, sourceClassIdentifier);;
+    const range = findRepresentative(defaultEditAssociationState.availableRanges, sourceClassIdentifier);;
     if(range === null) {
       notifications.error("Can not find the source class of the drag event in the representatives of ranges");
       return;

@@ -1,5 +1,5 @@
 import { type DialogProps } from "../dialog-api";
-import { configuration, t } from "../../application";
+import { t } from "../../application";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
 import { SelectModel } from "../class/components/select-model";
@@ -7,15 +7,14 @@ import { EditAttributeProfileDialogState, useEditAttributeProfileDialogControlle
 import { SelectEntity } from "../class/components/select-entity";
 import { SelectCardinality } from "../attribute/components/select-cardinality";
 import { InputIri } from "../class/components/input-iri";
-import { OverrideCheckbox } from "../class-profile/components/checkbox-override";
-import { languageStringToString } from "../../utilities/string";
 import { ValidationMessage } from "../association-profile/components/validation-message";
 import { SelectDataType } from "../attribute/components/select-data-type";
+import { SelectEntities } from "../class-profile/components/select-entities";
+import { ProfiledValue, ProfiledValueWithSource } from "../class-profile/components/profiled-value";
 
 export const EditAttributeProfileDialog = (props: DialogProps<EditAttributeProfileDialogState>) => {
   const controller = useEditAttributeProfileDialogController(props);
   const state = props.state;
-  const languagePreferences = configuration().languagePreferences;
   return (
     <>
       <div
@@ -28,39 +27,39 @@ export const EditAttributeProfileDialog = (props: DialogProps<EditAttributeProfi
             items={state.availableModels}
             value={state.model}
             onChange={controller.setModel}
+            disabled={state.disableModelChange}
           />
         </DialogDetailRow>
       </div>
       <div className="grid pb-3 bg-slate-100 md:grid-cols-[25%_75%] md:gap-y-3 md:pl-8 md:pr-16 md:pt-2">
         <DialogDetailRow detailKey={t("modify-class-profile-dialog.profile-of")}>
-          {state.enableProfilChange ?
-            <SelectEntity
-              language={state.language}
-              items={state.availableProfiles}
-              value={state.profileOf}
-              onChange={controller.onChangeProfile}
-            />
-            :
-            <div>
-              {languageStringToString(
-                languagePreferences,
-                state.language, state.profileOf.label)}
-            </div>
-          }
+          <SelectEntities
+            language={state.language}
+            items={state.availableProfiles}
+            value={state.profiles}
+            onAdd={controller.addProfile}
+            onRemove={controller.removeProfile}
+            disableRemove={state.profiles.length === 1}
+          />
         </DialogDetailRow>
-        <DialogDetailRow detailKey={t("create-class-dialog.name")} className="flex">
-          <MultiLanguageInputForLanguageString
-            ls={state.name}
-            setLs={controller.setName}
-            defaultLang={state.language}
-            disabled={!state.overrideName}
-            inputType="text"
-            className="grow"
-          />
-          <OverrideCheckbox
-            value={state.overrideName}
-            onToggle={controller.toggleNameOverride}
-          />
+        <DialogDetailRow detailKey={t("create-class-dialog.name")}>
+          <ProfiledValueWithSource
+            override={state.overrideName}
+            onToggleOverride={controller.toggleNameOverride}
+            availableProfiles={state.profiles}
+            profile={state.nameSource}
+            onChangeProfile={controller.setNameSource}
+            language={state.language}
+          >
+            <MultiLanguageInputForLanguageString
+              ls={state.overrideName ? state.name : state.nameSourceValue}
+              setLs={controller.setName}
+              defaultLang={state.language}
+              disabled={!state.overrideName}
+              inputType="text"
+              className="grow"
+            />
+          </ProfiledValueWithSource>
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("create-class-dialog.iri")}>
           <InputIri
@@ -72,96 +71,92 @@ export const EditAttributeProfileDialog = (props: DialogProps<EditAttributeProfi
           />
           <ValidationMessage value={state.iriValidation} />
         </DialogDetailRow>
-        <DialogDetailRow detailKey={t("create-class-dialog.description")} className="flex">
-          <MultiLanguageInputForLanguageString
-            ls={state.description}
-            setLs={controller.setDescription}
-            defaultLang={state.language}
-            disabled={!state.overrideDescription}
-            inputType="textarea"
-            className="grow"
-          />
-          <OverrideCheckbox
-            value={state.overrideDescription}
-            onToggle={controller.toggleDescriptionOverride}
-          />
-        </DialogDetailRow>
-        <DialogDetailRow detailKey={t("modify-entity-dialog.usage-note")} className="flex">
-          <MultiLanguageInputForLanguageString
-            ls={state.usageNote}
-            setLs={controller.setUsageNote}
-            defaultLang={state.language}
-            disabled={!state.overrideUsageNote}
-            inputType="textarea"
-            className="grow"
-          />
-          {state.disableOverrideUsageNote ? null :
-            <OverrideCheckbox
-              value={state.overrideUsageNote}
-              onToggle={controller.toggleUsageNoteOverride}
+        <DialogDetailRow detailKey={t("create-class-dialog.description")}>
+          <ProfiledValueWithSource
+            override={state.overrideDescription}
+            onToggleOverride={controller.toggleDescriptionOverride}
+            availableProfiles={state.profiles}
+            profile={state.descriptionSource}
+            onChangeProfile={controller.setDescriptionSource}
+            language={state.language}
+          >
+            <MultiLanguageInputForLanguageString
+              ls={state.overrideDescription ? state.description : state.descriptionSourceValue}
+              setLs={controller.setDescription}
+              defaultLang={state.language}
+              disabled={!state.overrideDescription}
+              inputType="textarea"
+              className="grow"
             />
-          }
+          </ProfiledValueWithSource>
         </DialogDetailRow>
+        <DialogDetailRow detailKey={t("modify-entity-dialog.usage-note")} >
+          <ProfiledValueWithSource
+            override={state.overrideUsageNote}
+            onToggleOverride={controller.toggleUsageNoteOverride}
+            availableProfiles={state.profiles}
+            profile={state.usageNoteSource}
+            onChangeProfile={controller.setUsageNoteSource}
+            hideProfiling={state.hideUsageNoteProfile}
+            language={state.language}
+          >
+            <MultiLanguageInputForLanguageString
+              ls={state.overrideUsageNote ? state.usageNote : state.usageNoteSourceValue}
+              setLs={controller.setUsageNote}
+              defaultLang={state.language}
+              disabled={!state.overrideUsageNote}
+              inputType="textarea"
+              className="grow"
+            />
+          </ProfiledValueWithSource>
+        </DialogDetailRow>
+        {/*  */}
         <DialogDetailRow detailKey={"Domain"}>
-          <div className="flex">
-            <SelectEntity
-              language={state.language}
-              items={state.availableDomainItems}
-              value={state.domain}
-              onChange={controller.setDomain}
-              disabled={!state.overrideDomain}
-            />
-            <OverrideCheckbox
-              value={state.overrideDomain}
-              onToggle={controller.toggleDomainOverride}
-            />
-          </div>
+          <SelectEntity
+            language={state.language}
+            items={state.availableDomains}
+            value={state.domain}
+            onChange={controller.setDomain}
+          />
           <ValidationMessage value={state.domainValidation} />
         </DialogDetailRow>
         <DialogDetailRow detailKey={"Domain cardinality"}>
-          <div className="flex">
+          <ProfiledValue
+            override={state.overrideDomainCardinality}
+            onToggleOverride={controller.toggleDomainCardinalityOverride}
+            language={state.language}
+          >
             <SelectCardinality
               items={state.availableCardinalities}
               value={state.domainCardinality}
               onChange={controller.setDomainCardinality}
               disabled={!state.overrideDomainCardinality}
             />
-            <OverrideCheckbox
-              value={state.overrideDomainCardinality}
-              onToggle={controller.toggleDomainCardinalityOverride}
-            />
-          </div>
+          </ProfiledValue>
           <ValidationMessage value={state.domainCardinalityValidation} />
         </DialogDetailRow>
         <DialogDetailRow detailKey={"Range"}>
-          <div className="flex">
-            <SelectDataType
-              language={state.language}
-              items={state.availableRangeItems}
-              value={state.range}
-              onChange={controller.setRange}
-              disabled={!state.overrideRange}
-            />
-            <OverrideCheckbox
-              value={state.overrideRange}
-              onToggle={controller.toggleRangeOverride}
-            />
-          </div>
+          <SelectDataType
+            language={state.language}
+            items={state.availableRanges}
+            value={state.range}
+            onChange={controller.setRange}
+          />
           <ValidationMessage value={state.rangeValidation} />
         </DialogDetailRow>
         <DialogDetailRow detailKey={"Range cardinality"}>
-          <div className="flex">
+          <ProfiledValue
+            override={state.overrideRangeCardinality}
+            onToggleOverride={controller.toggleRangeCardinalityOverride}
+            language={state.language}
+          >
             <SelectCardinality
               items={state.availableCardinalities}
               value={state.rangeCardinality}
               onChange={controller.setRangeCardinality}
               disabled={!state.overrideRangeCardinality}
             />
-            <OverrideCheckbox
-              value={state.overrideRangeCardinality}
-              onToggle={controller.toggleRangeCardinalityOverride}
-            />
-          </div>
+          </ProfiledValue>
           <ValidationMessage value={state.rangeCardinalityValidation} />
         </DialogDetailRow>
       </div>

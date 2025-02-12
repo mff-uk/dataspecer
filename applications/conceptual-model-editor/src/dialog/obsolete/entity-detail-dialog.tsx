@@ -26,19 +26,22 @@ import { DialogColoredModelHeaderWithLanguageSelector } from "../../components/d
 import { t } from "../../application";
 import { DialogProps, DialogWrapper } from "../dialog-api";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
+import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 type SupportedTypes =
-    | SemanticModelClass
-    | SemanticModelRelationship
-    | SemanticModelClassUsage
-    | SemanticModelRelationshipUsage
-    | SemanticModelGeneralization;
+  | SemanticModelClass
+  | SemanticModelRelationship
+  | SemanticModelClassUsage
+  | SemanticModelRelationshipUsage
+  | SemanticModelGeneralization
+  | SemanticModelClassProfile
+  | SemanticModelRelationshipProfile;
 
 interface EntityDetailState {
 
-    entity: SupportedTypes;
+  entity: SupportedTypes;
 
-    language: string;
+  language: string;
 
 }
 
@@ -128,7 +131,7 @@ const EntityDetailDialog = (props: DialogProps<EntityDetailState>) => {
 
         <div className="grid md:grid-cols-[80%_20%] md:grid-rows-1 md:py-2 md:pl-8">
           <h5 className="text-xl">
-                        Detail of: <span className="font-semibold">{proxy.name}</span>
+            Detail of: <span className="font-semibold">{proxy.name}</span>
           </h5>
         </div>
         <p className="flex flex-row pl-8 text-gray-500" title={proxy.iri ?? ""}>
@@ -146,22 +149,28 @@ const EntityDetailDialog = (props: DialogProps<EntityDetailState>) => {
           <>
             {proxy.profileOf && (
               <DialogDetailRow detailKey={t("entity-detail-dialog.direct-profile")}>
-                <ResourceDetailClickThrough
-                  detailDialogLanguage={language}
-                  resource={proxy.profileOf}
-                  onClick={() => handleResourceClickThroughClicked(proxy.profileOf!)}
-                  withIri={true}
-                />
+                {proxy.profileOf.map(item =>
+                  <ResourceDetailClickThrough
+                    key={item.id}
+                    detailDialogLanguage={language}
+                    resource={item!}
+                    onClick={() => handleResourceClickThroughClicked(item!)}
+                    withIri={true}
+                  />
+                )}
               </DialogDetailRow>
             )}
-            {proxy.originalProfile && proxy.originalProfile.id !== proxy.profileOf?.id && (
+            {proxy.originalProfile && (
               <DialogDetailRow detailKey={t("entity-detail-dialog.original-profile")}>
-                <ResourceDetailClickThrough
-                  detailDialogLanguage={language}
-                  resource={proxy.originalProfile}
-                  onClick={() => handleResourceClickThroughClicked(proxy.originalProfile!)}
-                  withIri={true}
-                />
+                {proxy.originalProfile.map(item =>
+                  <ResourceDetailClickThrough
+                    key={item.id}
+                    detailDialogLanguage={language}
+                    resource={item!}
+                    onClick={() => handleResourceClickThroughClicked(item!)}
+                    withIri={true}
+                  />
+                )}
               </DialogDetailRow>
             )}
             {proxy.profiledBy.length > 0 && (
@@ -248,7 +257,6 @@ const EntityDetailDialog = (props: DialogProps<EntityDetailState>) => {
               detailDialogLanguage={language}
               resource={proxy.domain.entity}
               // It ain't null
-
               onClick={() => handleResourceClickThroughClicked(proxy.domain.entity!)}
               withCardinality={proxy.domain.cardinality}
             />

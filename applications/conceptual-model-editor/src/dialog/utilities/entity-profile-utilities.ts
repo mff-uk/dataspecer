@@ -1,226 +1,576 @@
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { EntityState, EntityStateController, createEntityController } from "./entity-utilities";
 import { EntityRepresentative } from "./dialog-utilities";
-import { MissingModel, MissingProfile, NoWritableModelFound } from "../../application/error";
+import { NoWritableModelFound } from "../../application/error";
 import { validationNoProblem } from "./validation-utilities";
 import { CmeModel, filterWritableModels } from "../../dataspecer/cme-model";
-import { ModelDsIdentifier } from "../../dataspecer/entity-model";
+import { EntityDsIdentifier, ModelDsIdentifier } from "../../dataspecer/entity-model";
 import { languageStringToString } from "../../utilities/string";
-import { configuration } from "../../application";
+import { createLogger } from "../../application";
 import { absoluteIriToRelative, isRelativeIri } from "../../utilities/iri";
+import { removeFromArray } from "../../utilities/functional";
+
+const LOG = createLogger(import.meta.url);
 
 /**
  * Should be used instead of EntityState for profiles.
+ *
+ * We need to be able to represent a situation where not profile is selected,
+ * or available. This can be done using null or special value.
+ *
+ * We use special value to represent absence of a profile or value in general.
+ *
  */
 export interface EntityProfileState
   <ProfileType extends EntityRepresentative> extends EntityState {
 
+  /**
+   * If true, name is changed in this profile.
+   */
   overrideName: boolean;
 
+  /**
+   * If {@link overrideName} is false, defines a source of a name.
+   */
+  nameSource: ProfileType;
+
+  /**
+   * Value of a name from {@link nameSource} or empty value.
+   * Can be set to no-source value.
+   */
+  nameSourceValue: LanguageString;
+
+  hideNameProfile: boolean;
+
+  /**
+   * If true, description is changed in this profile.
+   */
   overrideDescription: boolean;
+
+  /**
+   * If {@link overrideDescription} is false, defines a source for a description.
+   * Can be set to no-source value.
+   */
+  descriptionSource: ProfileType;
+
+  /**
+   * Value of a description from {@link descriptionSource} or empty value.
+   */
+  descriptionSourceValue: LanguageString;
+
+  hideDescriptionProfile: boolean;
 
   /**
    * List of entities that can be profiles.
    */
   availableProfiles: ProfileType[];
 
-  profileOf: ProfileType;
+  /**
+   * Selected profiles.
+   */
+  profiles: ProfileType[];
+
+  /**
+   * Value to use when there is no available profile, should
+   */
+  noProfile: ProfileType;
 
   /**
    * Usage note.
    */
   usageNote: LanguageString;
 
+  /**
+   * If true, usage note is changed in this profile.
+   */
   overrideUsageNote: boolean;
 
   /**
-   * We can override profile only when we do profile a profile.
+   * If {@link overrideUsageNote} is false, defines a source of a name.
+   * Can be set to no-source value.
    */
-  disableOverrideUsageNote: boolean;
+  usageNoteSource: ProfileType;
+
+  /**
+   * Value of a usage note from {@link usageNoteSource} or empty value.
+   */
+  usageNoteSourceValue: LanguageString;
+
+  /**
+   * If true user should not see option to inherit usage note from profile.
+   * We use this when {@link availableUsageNoteSources} is empty.
+   */
+  hideUsageNoteProfile: boolean;
+
+  /**
+   * We can not use {@link profiles} as sources for usage notes.
+   * Only profiles can be used as sources.
+   */
+  availableUsageNoteSources: ProfileType[];
 
 }
 
+/**
+ * Create a state for new entity with given profiles.
+ *
+ * @parem noProfile Value to use where no profile is available.
+ */
 export function createEntityProfileStateForNewEntityProfile
   <ProfileType extends EntityRepresentative>(
   language: string,
+  languagePreferences: string[],
   vocabularies: CmeModel[],
-  profiles: ProfileType[],
-  profiledIdentifier: string,
+  availableProfiles: ProfileType[],
+  profileIdentifiers: EntityDsIdentifier[],
+  noProfile: ProfileType,
   generateIriFromName: (name: string) => string,
 ): EntityProfileState<ProfileType> {
-  const writableVocabularies = filterWritableModels(vocabularies);
-  if (writableVocabularies.length === 0) {
-    throw new NoWritableModelFound();
+  const writableVocabularies = prepareWritableVocabularies(vocabularies);
+  const profiles = prepareProfiles(availableProfiles, profileIdentifiers, noProfile);
+  const iri = prepareNewProfileIri(language, languagePreferences, generateIriFromName, profiles[0])
+  const name = profiles[0].label;
+  const description = profiles[0].description;
+  const availableUsageNoteSources = filterProfiles(profiles);
+  if (availableUsageNoteSources.length === 0) {
+    availableUsageNoteSources.push(noProfile);
   }
-  const selectedVocabulary = writableVocabularies[0];
 
-  const profileOf = profiles.find(item => item.identifier === profiledIdentifier) ?? null;
-  if (profileOf === null) {
-    throw new MissingProfile(profiledIdentifier);
-  }
-
-  const name = languageStringToString(
-    configuration().languagePreferences,
-    language, profileOf.label);
-  const iri = createNewProfileIri(profileOf.iri, generateIriFromName(name));
-
+  const source = profiles[0];
+  const usageNoteSource = availableUsageNoteSources[0];
   return {
     language,
+    // Model
     allModels: vocabularies,
     availableModels: writableVocabularies,
-    model: selectedVocabulary,
+    model: writableVocabularies[0],
+    disableModelChange: false,
+    // IRI
     iri,
     isIriAutogenerated: false,
-    // Profiles are always using relative IRI.
     isIriRelative: true,
     iriValidation: validationNoProblem(),
-    name: profileOf.label,
-    description: profileOf.description,
+    // Profile
+    availableProfiles: availableProfiles,
+    profiles,
+    noProfile,
+    // Name
+    name,
     overrideName: false,
+    nameSource: source,
+    nameSourceValue: source.label,
+    hideNameProfile: source === noProfile,
+    // Description
+    description,
     overrideDescription: false,
-    availableProfiles: profiles,
-    profileOf,
+    descriptionSource: source,
+    descriptionSourceValue: source.description,
+    hideDescriptionProfile: source === noProfile,
+    // Usage note.
     usageNote: {},
-    overrideUsageNote: true,
-    disableOverrideUsageNote: true,
+    overrideUsageNote: usageNoteSource === noProfile,
+    usageNoteSource: usageNoteSource,
+    usageNoteSourceValue: usageNoteSource.usageNote ?? {},
+    availableUsageNoteSources,
+    hideUsageNoteProfile: usageNoteSource === noProfile,
   };
 }
 
 /**
- * Return relative IRI for the new profile.
+ * @throws NoWritableModelFound
  */
-function createNewProfileIri(
-  profiledIri: string | null,
-  generatedIri: string,
-) {
-  if (profiledIri === null) {
-    return generatedIri;
+function prepareWritableVocabularies(vocabularies: CmeModel[]) {
+  const result = filterWritableModels(vocabularies);
+  if (result.length === 0) {
+    throw new NoWritableModelFound();
   }
-  if (isRelativeIri(profiledIri)) {
-    return profiledIri;
-  }
-  return absoluteIriToRelative(profiledIri).relative;
-}
-
-export function createEntityProfileStateForNewProfileOfProfile
-  <ProfileType extends EntityRepresentative>(
-  language: string,
-  vocabularies: CmeModel[],
-  profiles: ProfileType[],
-  profiledIdentifier: string,
-  generateIriFromName: (name: string) => string,
-): EntityProfileState<ProfileType> {
-  const result = createEntityProfileStateForNewEntityProfile(
-    language, vocabularies, profiles, profiledIdentifier, generateIriFromName);
-  // As we profile a profile, we can inherit the usage note.
-  result.overrideUsageNote = false;
-  result.disableOverrideUsageNote = false;
   return result;
 }
 
 /**
- * Load aggregated values from the profile representation.
+ * Select profiles, return array with noProfile when no profile is available.
+ * @returns Non empty array.
+ */
+function prepareProfiles<ProfileType extends EntityRepresentative>(
+  availableProfiles: ProfileType[],
+  profilIdentifiers: EntityDsIdentifier[],
+  noProfile: ProfileType
+): ProfileType[] {
+  const result = availableProfiles
+    .filter(item => profilIdentifiers.includes(item.identifier));
+  if (result.length !== profilIdentifiers.length) {
+    LOG.warn("Missing profiled representatives, some profiles were ignored.",
+      { expected: profilIdentifiers, actual: result });
+  }
+  if (result.length === 0) {
+    return [noProfile];
+  } else {
+    return result;
+  }
+}
+
+/**
+ * @return Relative IRI for the new profile.
+ */
+function prepareNewProfileIri<ProfileType extends EntityRepresentative>(
+  language: string,
+  languagePreferences: string[],
+  generateIriFromName: (name: string) => string,
+  profile: ProfileType,
+): string {
+  if (profile.iri === null) {
+    // When there is no IRI we generate a new one.
+    const name = languageStringToString(languagePreferences, language, profile.label);
+    const relativeIri = generateIriFromName(name);
+    return relativeIri;
+  }
+  if (isRelativeIri(profile.iri)) {
+    return profile.iri;
+  }
+  return absoluteIriToRelative(profile.iri).relative;
+}
+
+/**
+ * @returns Items that represent a profile.
+ */
+function filterProfiles<ProfileType extends EntityRepresentative>(
+  items: ProfileType[]): ProfileType[] {
+  return items.filter(item => item.profileOfIdentifiers.length > 0);
+}
+
+/**
+ * Create a state for edit given entity.
+ *
+ * @parem noProfile Value to use where no profile is available.
  */
 export function createEntityProfileStateForEdit
   <ProfileType extends EntityRepresentative>(
   language: string,
   vocabularies: CmeModel[],
-  vocabularyDsIdentifier: ModelDsIdentifier,
-  profiles: ProfileType[],
-  profiledIdentifier: string,
+  vocabularyIdentifier: ModelDsIdentifier,
+  availableProfiles: ProfileType[],
+  profileIdentifiers: EntityDsIdentifier[],
+  noProfile: ProfileType,
   iri: string,
   name: LanguageString | null,
+  nameSourceIdentifier: string | null,
   description: LanguageString | null,
+  descriptionSourceIdentifier: string | null,
   usageNote: LanguageString | null,
+  usageNoteSourceIdentifier: string | null,
 ): EntityProfileState<ProfileType> {
-  const writableVocabularies = filterWritableModels(vocabularies);
-  const selectedVocabulary = writableVocabularies.find(item => item.dsIdentifier === vocabularyDsIdentifier);
-  if (selectedVocabulary === undefined) {
-    throw new MissingModel(vocabularyDsIdentifier);
+  const writableVocabularies = prepareWritableVocabularies(vocabularies);
+  const vocabulary =
+    writableVocabularies.find(item => item.dsIdentifier === vocabularyIdentifier)
+    ?? writableVocabularies[0];
+  const profiles = prepareProfiles(availableProfiles, profileIdentifiers, noProfile);
+  const availableUsageNoteSources = filterProfiles(profiles);
+  if (availableUsageNoteSources.length === 0) {
+    availableUsageNoteSources.push(noProfile);
   }
 
-  const profileOf = profiles.find(item => item.identifier === profiledIdentifier) ?? null;
-  if (profileOf === null) {
-    throw new MissingProfile(profiledIdentifier);
-  }
+  const nameSource =
+    profiles.find(item => item.identifier === nameSourceIdentifier)
+    ?? profiles[0];
+
+  const descriptionSource =
+    profiles.find(item => item.identifier === descriptionSourceIdentifier)
+    ?? profiles[0];
+
+  const usageNoteSource =
+    availableUsageNoteSources.find(item => item.identifier === usageNoteSourceIdentifier)
+    ?? availableUsageNoteSources[0];
 
   return {
     language,
+    // Model
     allModels: vocabularies,
     availableModels: writableVocabularies,
-    model: selectedVocabulary,
+    model: vocabulary,
+    disableModelChange: true,
+    // IRI
     iri,
     isIriAutogenerated: false,
     isIriRelative: isRelativeIri(iri),
     iriValidation: validationNoProblem(),
-    name: name ?? profileOf.label,
-    description: description ?? profileOf.description,
-    overrideName: name !== null,
-    overrideDescription: description !== null,
-    availableProfiles: profiles,
-    profileOf,
-    usageNote: usageNote ?? profileOf.usageNote ?? {},
-    overrideUsageNote: usageNote !== null,
-    disableOverrideUsageNote: false,
+    // Profile
+    availableProfiles: availableProfiles,
+    profiles,
+    noProfile,
+    // Name
+    name: name ?? {},
+    overrideName: nameSource === noProfile,
+    nameSource,
+    nameSourceValue: nameSource.label,
+    hideNameProfile: profiles[0] === noProfile,
+    // Description
+    description: description ?? {},
+    overrideDescription: descriptionSource === noProfile,
+    descriptionSource,
+    descriptionSourceValue: descriptionSource.description,
+    hideDescriptionProfile: profiles[0] === noProfile,
+    // Usage note
+    usageNote: usageNote ?? {},
+    overrideUsageNote: usageNoteSource === noProfile,
+    usageNoteSource,
+    usageNoteSourceValue: usageNoteSource?.usageNote ?? {},
+    availableUsageNoteSources,
+    hideUsageNoteProfile: availableUsageNoteSources[0] === noProfile,
   };
 }
 
-export interface EntityProfileStateController extends EntityStateController {
+export interface EntityProfileStateController<ProfileType extends EntityRepresentative>
+  extends EntityStateController {
+
+  addProfile: (value: string) => void;
+
+  removeProfile: (value: ProfileType) => void;
 
   toggleNameOverride: () => void;
 
+  setNameSource: (value: ProfileType) => void;
+
   toggleDescriptionOverride: () => void;
 
-  setProfileOf: (profileOf: EntityRepresentative) => void;
+  setDescriptionSource: (value: ProfileType) => void;
 
   setUsageNote: (setter: (value: LanguageString) => LanguageString) => void;
 
   toggleUsageNoteOverride: () => void;
 
+  setUsageNoteSource: (value: ProfileType) => void;
+
 }
 
-// TODO PeSk Implement validation!
 export function createEntityProfileController<
   ProfileType extends EntityRepresentative,
   State extends EntityProfileState<ProfileType>>
 (
   changeState: (next: State | ((prevState: State) => State)) => void,
   generateIriFromName: (name: string) => string,
-): EntityProfileStateController {
+): EntityProfileStateController<ProfileType> {
 
   // We use dummy IRI generator function as we do not generate IRI here.
   const entityController = createEntityController(changeState, generateIriFromName);
 
   const toggleNameOverride = () => {
-    changeState((state) => ({ ...state, overrideName: !state.overrideName }));
+    changeState((previous) => {
+      const result = {
+        ...previous,
+        overrideName: !previous.overrideName,
+      };
+      // The nameSource could be noProfile.
+      // As toggle back to inherit, there must be other profile to use.
+      if (!result.overrideName && result.nameSource === result.noProfile) {
+        result.nameSource = result.profiles[0];
+        result.nameSourceValue = result.nameSource.label;
+      }
+      return result;
+    });
+  }
+
+  const setNameSource = (value: ProfileType) => {
+    changeState((state) => ({
+      ...state,
+      nameSource: value,
+      nameSourceValue: value.label,
+    }));
   };
 
   const toggleDescriptionOverride = () => {
-    changeState((state) => ({ ...state, overrideDescription: !state.overrideDescription }));
-  };
+    changeState((previous) => {
+      const result = {
+        ...previous,
+        overrideDescription: !previous.overrideDescription,
+      };
+      // The descriptionSource could be noProfile.
+      // As toggle back to inherit, there must be other profile to use.
+      if (!result.overrideDescription && result.descriptionSource === result.noProfile) {
+        result.descriptionSource = result.profiles[0];
+        result.descriptionSourceValue = result.descriptionSource.label;
+      }
+      return result;
+    });
+  }
 
-  const setProfileOf = (profileOf: EntityRepresentative): void => {
+  const setDescriptionSource = (value: ProfileType) => {
     changeState((state) => ({
       ...state,
-      profileOf,
-      disableOverrideUsageNote: profileOf.profileOfIdentifiers.length === 0,
+      descriptionSource: value,
+      descriptionSourceValue: value.description,
     }));
   };
 
   const setUsageNote = (setter: (value: LanguageString) => LanguageString): void => {
-    changeState((state) => ({ ...state, usageNote: setter(state.usageNote) }));
+    changeState((state) => ({
+      ...state,
+      usageNote: setter(state.usageNote),
+    }));
   };
 
   const toggleUsageNoteOverride = () => {
-    changeState((state) => ({ ...state, overrideUsageNote: !state.overrideUsageNote }));
+    changeState((previous) => {
+      const result = {
+        ...previous,
+        overrideUsageNote: !previous.overrideUsageNote,
+      };
+      // The usageNoteSource could be noProfile.
+      // As toggle back to inherit, there must be other profile to use.
+      if (!result.overrideUsageNote  && result.usageNoteSource === result.noProfile) {
+        result.usageNoteSource = result.availableUsageNoteSources[0];
+        result.usageNoteSourceValue = result.usageNoteSource.usageNote ?? {};
+      }
+      return result;
+    });
+  }
+
+  const setUsageNoteSource = (value: ProfileType) => {
+    changeState((state) => ({
+      ...state,
+      usageNoteSource: value,
+      usageNoteSourceValue: value.usageNote,
+    }));
   };
 
   return {
     ...entityController,
     toggleNameOverride,
+    setNameSource,
     toggleDescriptionOverride,
-    setProfileOf,
+    setDescriptionSource,
+    addProfile: (value) => addProfile(changeState, value),
+    removeProfile: (value) => removeProfile(changeState, value),
     setUsageNote,
     toggleUsageNoteOverride,
+    setUsageNoteSource,
   };
+}
+
+function addProfile<
+  ProfileType extends EntityRepresentative,
+  State extends EntityProfileState<ProfileType>
+>(
+  changeState: (next: State | ((prevState: State) => State)) => void,
+  value: string,
+): void {
+  changeState((previous) => {
+    const profile = findProfile(previous.availableProfiles, value);
+    if (profile === null) {
+      LOG.error("New profile ignored, as there is no representative.",
+        { identifier: value, value: previous.availableProfiles });
+      return previous;
+    }
+    const result = {
+      ...previous,
+      profiles: addProfileToProfiles(previous.profiles, previous.noProfile, profile),
+    };
+    // If this is the first profile besides the no profile,
+    // we need to do some house keeping.
+    if (result.nameSource === result.noProfile) {
+      result.nameSource = profile;
+      result.nameSourceValue = profile.label;
+    }
+    if (result.descriptionSource === result.noProfile) {
+      result.descriptionSource = profile;
+      result.descriptionSourceValue = profile.label;
+    }
+    const isProfile = profile.profileOfIdentifiers.length > 0;
+    if (isProfile) {
+      result.availableUsageNoteSources = addProfileToProfiles(
+        result.availableUsageNoteSources, result.noProfile, profile);
+      if (result.usageNoteSource === result.noProfile) {
+        result.usageNoteSource = profile;
+        result.usageNoteSourceValue = profile.label;
+      }
+
+    }
+    // Visibility, since something was added we can show almost all.
+    result.hideNameProfile = false;
+    result.hideDescriptionProfile = false;
+    result.hideUsageNoteProfile = result.availableUsageNoteSources[0] === result.noProfile;
+    return result;
+  });
+}
+
+/**
+ * If profiles contains only noProfile, return array with profile.
+ * Else return array with added profile.
+ *
+ * @returns New value of profile.
+ */
+function addProfileToProfiles<
+  ProfileType extends EntityRepresentative,
+>(profiles: ProfileType[], noProfile: ProfileType, profile: ProfileType): ProfileType[] {
+  if (profiles.length === 1 && profiles[0] === noProfile) {
+    return [profile];
+  }
+  return [...profiles, profile];
+}
+
+function removeProfile<
+  ProfileType extends EntityRepresentative,
+  State extends EntityProfileState<ProfileType>
+>(
+  changeState: (next: State | ((prevState: State) => State)) => void,
+  value: ProfileType,
+): void {
+  changeState((previous) => {
+    const result = {
+      ...previous,
+      profiles: removeProfileToProfiles(
+        previous.profiles, previous.noProfile, value),
+      availableUsageNoteSources: removeProfileToProfiles(
+        previous.availableUsageNoteSources, previous.noProfile, value),
+    };
+    // We need to update state that depends on the profiles.
+    if (!result.profiles.includes(result.nameSource)) {
+      result.name = result.nameSourceValue;
+      result.overrideName = true;
+      result.nameSource = result.noProfile;
+      result.nameSourceValue = result.noProfile.label;
+    }
+    if (!result.profiles.includes(result.descriptionSource)) {
+      result.description = result.descriptionSourceValue;
+      result.overrideDescription = true;
+      result.descriptionSource = result.noProfile;
+      result.descriptionSourceValue = result.noProfile.label;
+    }
+    if (!result.availableUsageNoteSources.includes(result.usageNoteSource)) {
+      result.usageNote = result.usageNoteSourceValue;
+      result.overrideUsageNote = true;
+      result.usageNoteSource = result.noProfile;
+      result.usageNoteSourceValue = result.noProfile.usageNote ?? {};
+    }
+    // Visibility.
+    result.hideNameProfile = result.profiles[0] === result.noProfile;
+    result.hideDescriptionProfile = result.profiles[0] === result.noProfile;
+    result.hideUsageNoteProfile = result.availableUsageNoteSources[0] === result.noProfile;
+    console.log("removeProfile", result);
+    return result;
+  });
+}
+
+/**
+ * Remove profile from profiles.
+ * If the new profiles is empty return array with noProfile.
+ *
+ * @returns New value of profile.
+ */
+function removeProfileToProfiles<
+  ProfileType extends EntityRepresentative,
+>(profiles: ProfileType[], noProfile: ProfileType, profile: ProfileType): ProfileType[] {
+  const result = removeFromArray(profile, profiles);
+  if (result.length === 0) {
+    return [noProfile];
+  }
+  return result;
+}
+
+/**
+ * @returns Profile with given identifier or null.
+ */
+export function findProfile<ProfileType extends EntityRepresentative>(
+  availableProfiles: ProfileType[],
+  identifier: EntityDsIdentifier,
+): ProfileType | null {
+  return availableProfiles.find(item => item.identifier === identifier) ?? null;
 }

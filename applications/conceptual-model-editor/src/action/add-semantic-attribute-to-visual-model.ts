@@ -4,6 +4,7 @@ import { getDomainAndRange } from "../util/relationship-utils";
 import { isSemanticModelAttributeUsage, SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { isSemanticModelAttribute, SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { ClassesContextType } from "../context/classes-context";
+import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 // TODO RadStr: Maybe not really an action but just helper method?
 export function addSemanticAttributeToVisualModelAction(
@@ -38,11 +39,11 @@ export function addSemanticAttributeToVisualModelAction(
  */
 export function getVisualNodeContentBasedOnExistingEntities(
   classes: ClassesContextType,
-  entity: SemanticModelClass | SemanticModelClassUsage,
+  entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelClassProfile,
 ): string[] {
   const nodeContent: string[] = [];
   const attributes = classes.relationships.filter(isSemanticModelAttribute);
-  const attributesProfiles = classes.profiles.filter(isSemanticModelAttributeUsage);
+  const attributesProfiles = classes.usages.filter(isSemanticModelAttributeUsage);
 
   const nodeAttributes = attributes
     .filter(isSemanticModelAttribute)

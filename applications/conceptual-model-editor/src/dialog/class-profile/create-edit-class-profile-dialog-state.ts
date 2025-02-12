@@ -1,14 +1,15 @@
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { isSemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { EditClassProfileDialogState } from "./edit-class-profile-dialog-controller";
-import { representClassProfiles, representClasses } from "../utilities/dialog-utilities";
+import { listClassToProfiles, representUndefinedClass } from "../utilities/dialog-utilities";
 import { DialogWrapper } from "../dialog-api";
 import { EditClassProfileDialog } from "./edit-class-profile-dialog";
-import { InvalidAggregation, MissingEntity } from "../../application/error";
+import { MissingEntity, RuntimeError } from "../../application/error";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { createEntityProfileStateForEdit } from "../utilities/entity-profile-utilities";
 
@@ -20,37 +21,41 @@ export function createEditClassProfileDialogState(
   model: InMemorySemanticModel,
   entityIdentifier: string,
 ): EditClassProfileDialogState {
-
   const entities = graphContext.aggregatorView.getEntities();
+
   const aggregate = entities[entityIdentifier];
   const entity = aggregate.rawEntity;
-  const aggregated = aggregate.aggregatedEntity;
   if (entity === null) {
     throw new MissingEntity(entityIdentifier);
   }
-  if (!isSemanticModelClassUsage(entity) || !isSemanticModelClassUsage(aggregated)) {
-    throw new InvalidAggregation(entity, null);
-  }
 
-  const models = [...graphContext.models.values()];
-
-  const vocabularies = entityModelsMapToCmeVocabulary(graphContext.models, visualModel);
+  const vocabularies = entityModelsMapToCmeVocabulary(
+    graphContext.models, visualModel);
 
   // EntityProfileState
 
-  const profiles = [
-    ...representClasses(models, vocabularies, classesContext.classes),
-    ...representClassProfiles(entities, models, vocabularies, classesContext.profiles.filter(item => isSemanticModelClassUsage(item))),
-  ];
+  const availableProfiles = listClassToProfiles(
+    classesContext, graphContext, vocabularies);
 
-  const entityProfileState = createEntityProfileStateForEdit(
-    language, vocabularies, model.getId(),
-    profiles, entity.usageOf,
-    entity.iri ?? "", entity.name, entity.description, entity.usageNote);
-
-  return {
-    ...entityProfileState,
-  };
+  if (isSemanticModelClassUsage(entity)) {
+    return createEntityProfileStateForEdit(
+      language, vocabularies, model.getId(),
+      availableProfiles, [entity.usageOf], representUndefinedClass(),
+      entity.iri ?? "",
+      entity.name, entity.name === null ? entity.usageOf : null,
+      entity.description, entity.description === null ? entity.usageOf : null,
+      entity.usageNote, entity.usageNote === null ? entity.usageOf : null);
+  } else if (isSemanticModelClassProfile(entity)) {
+    return createEntityProfileStateForEdit(
+      language, vocabularies, model.getId(),
+      availableProfiles, entity.profiling, representUndefinedClass(),
+      entity.iri ?? "",
+      entity.name, entity.nameFromProfiled,
+      entity.description, entity.descriptionFromProfiled,
+      entity.usageNote, entity.usageNoteFromProfiled);
+  } else {
+    throw new RuntimeError("Unexpected entit type.");
+  }
 }
 
 export const createEditClassProfileDialog = (

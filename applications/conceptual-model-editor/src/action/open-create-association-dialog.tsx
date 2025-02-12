@@ -7,7 +7,7 @@ import { ModelGraphContextType } from "../context/model-context";
 import { Options, createLogger } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { firstInMemorySemanticModel } from "../utilities/model";
-import { createGeneralization, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
+import { CreatedEntityOperationResult, createGeneralization, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { createCreateAssociationDialogState, createNewAssociationDialog } from "../dialog/association/create-new-association-dialog-state";
 import { EditAssociationDialogState } from "../dialog/association/edit-association-dialog-controller";
@@ -84,18 +84,18 @@ export function createSemanticAssociationInternal(
       name: {},
       description: {},
       concept: state.domain.identifier,
-      cardinality: state.domainCardinality.cardinality,
+      cardinality: state.domainCardinality.cardinality ?? undefined,
     }, {
       name: state.name ?? null,
       description: state.description ?? null,
       concept: state.range.identifier,
-      cardinality: state.rangeCardinality.cardinality,
+      cardinality: state.rangeCardinality.cardinality ?? undefined,
       iri: state.iri,
     }]
   });
 
   const model: InMemorySemanticModel = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
-  const newAssociation = model.executeOperation(operation);
+  const newAssociation = model.executeOperation(operation) as CreatedEntityOperationResult;
   if (newAssociation.success === false || newAssociation.id === undefined) {
     notifications.error("We have not received the id of newly created association. See logs for more detail.");
     LOG.error("We have not received the id of newly association class.", { "operation": newAssociation });

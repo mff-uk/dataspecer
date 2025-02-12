@@ -1,82 +1,55 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 
 import { EntityModel } from "@dataspecer/core-v2";
-import { HexColor, VisualModel } from "@dataspecer/core-v2/visual-model";
-import { AggregatedEntityWrapper, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
+import { VisualModel } from "@dataspecer/core-v2/visual-model";
+import { SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 
-import { UiAssociation, UiAssociationProfile, UiAttribute, UiAttributeProfile, UiClass, UiClassProfile } from "./ui-model";
-import { initializeState, onAddEntityModels, onAddVisualEntity, onChangeSemanticModel, onChangeVisualModel, onRemoveEntityModel, onRemoveVisualEntity, UiModelServiceState } from "./ui-model-service";
-import { EntityDsIdentifier, ModelDsIdentifier } from "../entity-model";
+import { createEmptyState, createState } from "./ui-model-state";
+import { createUiModelApi, UiModelApi } from "./ui-model-api";
+import { UiModelState } from "./ui-model";
 import { configuration } from "../../application";
-import { createEmptyUiState } from "./ui-model-utilities";
 
-export type UiModelStateContext = UiModelServiceState;
+const context = React.createContext<UiModelState>(createEmptyState());
 
-const context = React.createContext<UiModelStateContext>({
-  ...createEmptyUiState(),
-  defaultWriteModel: null,
-});
+const apiContext = React.createContext<UiModelApi>(null as any);
 
-/**
- * Provide context for reading current values and updating the state.
- * The context does not change when values change.
- */
-export interface UiModelApiContext {
-
-  getClass: (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => UiClass | null;
-
-  getClassProfile: (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => UiClassProfile | null;
-
-  getAttribute: (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => UiAttribute | null;
-
-  getAttributeProfile: (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => UiAttributeProfile | null;
-
-  getAssociation: (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => UiAssociation | null;
-
-  getAssociationProfile: (identifier: EntityDsIdentifier, model: ModelDsIdentifier) => UiAssociationProfile | null;
-
-  //
-
-  onAddEntityModels: (visualModel: VisualModel, models: EntityModel[]) => void;
-
-  onRemoveEntityModel: (removed: string[]) => void;
-
-  onChangeVisualModel: (model: ModelDsIdentifier, color: HexColor) => void;
-
-  onAddVisualEntity: (model: ModelDsIdentifier, entity: EntityDsIdentifier, visual: string) => void;
-
-  onRemoveVisualEntity: (model: ModelDsIdentifier, entity: EntityDsIdentifier) => void;
-
-}
-
-const apiContext = React.createContext<UiModelApiContext>({
-  getClass: () => null,
-  getClassProfile: () => null,
-  getAttribute: () => null,
-  getAttributeProfile: () => null,
-  getAssociation: () => null,
-  getAssociationProfile: () => null,
-  //
-  onAddEntityModels: () => null,
-  onRemoveEntityModel: () => null,
-  onChangeVisualModel: () => null,
-  onAddVisualEntity: () => null,
-  onRemoveVisualEntity: () => null,
-});
-
-export const WithUiModel = (props: {
+export const UiModelProvider = (props: {
   children: React.ReactNode,
+  semanticModels: EntityModel[],
+  activeVisualModel: VisualModel | null,
   aggregatorView: SemanticModelAggregatorView,
 }) => {
   // We store data using reference as well as the state.
   // This allows to trigger re-render and provide on-demand access.
-  const stateRef = useRef<UiModelStateContext>({
-    ...createEmptyUiState(),
-    defaultWriteModel: null,
-  });
-  const [state, setState] = useState<UiModelStateContext>(stateRef.current);
+  const stateRef = useRef<UiModelState>(createEmptyState());
+  const [state, setStateState] = useState<UiModelState>(stateRef.current);
+
+  // We need to keep state and ref synched.
+  const setState = useCallback((next: UiModelState) => {
+    stateRef.current = next;
+    setStateState(next);
+  }, [setStateState]);
+
+  const { semanticModels, activeVisualModel, aggregatorView } = props;
 
   useEffect(() => {
+    const nextState = createState(
+      semanticModels, activeVisualModel, aggregatorView,
+      configuration().languagePreferences);
+    setState(nextState);
+
+    const unsubscribe = aggregatorView.subscribeToChanges((updated, removed) => {
+      console.log("Change in aggregator view.", { updated, removed });
+    });
+
+    // If there is a change, we need to unsubscribe.
+    return () => {
+      unsubscribe();
+    };
+  }, [aggregatorView, semanticModels, activeVisualModel, setState]);
+
+  /*
+  UseEffect(() => {
     // This method is called three times when page is loaded in developer mode.
     // First time with no content.
     // Second time empty with adding new content using the listener.
@@ -110,57 +83,24 @@ export const WithUiModel = (props: {
     };
 
   }, [setState, props.aggregatorView]);
+  */
 
-  const getterContent = useMemo<UiModelApiContext>(() => ({
-    getClass: (identifier, model) =>
-      findEntity(stateRef.current.classes, identifier, model),
-    getClassProfile: (identifier, model) =>
-      findEntity(stateRef.current.classProfiles, identifier, model),
-    getAttribute: (identifier, model) =>
-      findEntity(stateRef.current.attributes, identifier, model),
-    getAttributeProfile: (identifier, model) =>
-      findEntity(stateRef.current.attributeProfiles, identifier, model),
-    getAssociation: (identifier, model) =>
-      findEntity(stateRef.current.associations, identifier, model),
-    getAssociationProfile: (identifier, model) =>
-      findEntity(stateRef.current.associationProfiles, identifier, model),
-    onAddEntityModels: (visualModel, models) => {
-      const next = onAddEntityModels(stateRef.current, visualModel, models);
-      stateRef.current = next;
-      setState(next);
-    },
-    onRemoveEntityModel: (removed) => {
-      const next = onRemoveEntityModel(stateRef.current, removed);
-      stateRef.current = next;
-      setState(next);
-    },
-    onChangeVisualModel: (model, color) => {
-      const next = onChangeVisualModel(stateRef.current, model, color);
-      stateRef.current = next;
-      setState(next);
-    },
-    onAddVisualEntity: (model, entity, visual) => {
-      const next = onAddVisualEntity(stateRef.current, model, entity, visual);
-      stateRef.current = next;
-      setState(next);
-    },
-    onRemoveVisualEntity: (model, entity) => {
-      const next = onRemoveVisualEntity(stateRef.current, model, entity);
-      stateRef.current = next;
-      setState(next);
-    },
-  }), [setState, stateRef]);
+  const api = useMemo<UiModelApi>(() => {
+    return createUiModelApi(() => stateRef.current);
+  }, [setState, stateRef]);
 
   return (
-    <context.Provider value={state}>
-      <apiContext.Provider value={getterContent}>
-        {props.children}
-      </apiContext.Provider>
-    </context.Provider>
+    <>
+      <context.Provider value={state}>
+        <apiContext.Provider value={api}>
+          {props.children}
+        </apiContext.Provider>
+      </context.Provider>
+    </>
   );
 };
-
-function findEntity<T extends {
+/*
+Function findEntity<T extends {
   dsIdentifier: EntityDsIdentifier,
   model: { dsIdentifier: ModelDsIdentifier },
 }>(
@@ -170,11 +110,11 @@ function findEntity<T extends {
 ): T | null {
   return entities.find(item => item.dsIdentifier === identifier && item.model.dsIdentifier === model) ?? null;
 }
-
-export const useUiModel = (): UiModelStateContext => {
+*/
+export const useUiModel = (): UiModelState => {
   return useContext(context);
 };
 
-export const useUiModelApi = (): UiModelApiContext => {
+export const useUiModelApi = (): UiModelApi => {
   return useContext(apiContext);
 };

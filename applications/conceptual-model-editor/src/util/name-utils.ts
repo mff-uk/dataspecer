@@ -16,6 +16,7 @@ import {
 import { getIri } from "./iri-utils";
 import { getDomainAndRange } from "./relationship-utils";
 import { useEntityProxy } from "./detail-utils";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 export const getNameLanguageString = (
   resource:
@@ -25,15 +26,21 @@ export const getNameLanguageString = (
         | SemanticModelClassUsage
         | SemanticModelRelationshipUsage
         | SemanticModelGeneralization
+        | SemanticModelClassProfile
+        | SemanticModelRelationshipProfile
 ) => {
-  if (isSemanticModelClass(resource) || isSemanticModelClassUsage(resource)) {
+  if (isSemanticModelClass(resource) || isSemanticModelClassUsage(resource)
+      || isSemanticModelClassProfile(resource)) {
     return resource.name ?? null;
   } else if (isSemanticModelRelationship(resource)) {
     const range = getDomainAndRange(resource)?.range;
     return range?.name ?? null;
   } else if (isSemanticModelRelationshipUsage(resource)) {
-    const name = getDomainAndRange(resource).range?.name;
-    return name ?? resource.name;
+    const range = getDomainAndRange(resource)?.range;
+    return range?.name ?? resource.name;
+  } else if (isSemanticModelRelationshipProfile(resource)) {
+    const range = getDomainAndRange(resource)?.range;
+    return range?.name ?? null;
   } else if (isSemanticModelGeneralization(resource)) {
     return {
       en: "Generalization of " + resource.child + " is " + resource.parent,
@@ -51,15 +58,21 @@ export const getDescriptionLanguageString = (
         | SemanticModelClassUsage
         | SemanticModelRelationshipUsage
         | SemanticModelGeneralization
+        | SemanticModelClassProfile
+        | SemanticModelRelationshipProfile
 ) => {
-  if (isSemanticModelClass(resource) || isSemanticModelClassUsage(resource)) {
+  if (isSemanticModelClass(resource) || isSemanticModelClassUsage(resource)
+    || isSemanticModelClassProfile(resource)) {
     return resource.description;
   } else if (isSemanticModelRelationship(resource)) {
     const range = getDomainAndRange(resource)?.range;
     return range?.description ?? null;
   } else if (isSemanticModelRelationshipUsage(resource)) {
-    const description = getDomainAndRange(resource).range?.description;
-    return description ?? resource.description;
+    const range = getDomainAndRange(resource)?.range;
+    return range?.description ?? resource.description;
+  } else if (isSemanticModelRelationshipProfile(resource)) {
+    const range = getDomainAndRange(resource)?.range;
+    return range?.description ?? null;
   } else {
     return null;
   }
@@ -73,11 +86,18 @@ export const getUsageNoteLanguageString = (
         | SemanticModelClassUsage
         | SemanticModelRelationshipUsage
         | SemanticModelGeneralization
+        | SemanticModelClassProfile
+        | SemanticModelRelationshipProfile
 ) => {
   if (isSemanticModelClassUsage(resource)) {
     return resource.usageNote;
   } else if (isSemanticModelRelationshipUsage(resource)) {
     return resource.usageNote;
+  } else if (isSemanticModelClassProfile(resource)) {
+    return resource.usageNote;
+  } else if (isSemanticModelRelationshipProfile(resource)) {
+    const range = getDomainAndRange(resource)?.range;
+    return range?.usageNote ?? null;
   } else {
     return null;
   }
@@ -96,7 +116,9 @@ export const getFallbackDisplayName = (
         | SemanticModelRelationship
         | SemanticModelClassUsage
         | SemanticModelRelationshipUsage
-        | SemanticModelGeneralization,
+        | SemanticModelGeneralization
+        | SemanticModelClassProfile
+        | SemanticModelRelationshipProfile,
   modelBaseIri?: string
 ) => {
   return getIri(resource, modelBaseIri) ?? resource?.id ?? null;
