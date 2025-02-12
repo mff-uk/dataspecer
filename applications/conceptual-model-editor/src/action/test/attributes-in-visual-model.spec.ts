@@ -21,15 +21,16 @@ test("Test change attribute - Visibility", () => {
     cmeModels
   } = prepareModelWithFourNodes();
   const newAttributes = [];
+  //
   newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, "attribute-0"));
   addSemanticAttributeToVisualModelAction(noActionNotificationServiceWriter, visualModel, "0", newAttributes[0].identifier, null);
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content.length).toEqual(1);
+  //
   newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, "attribute-1"));
   addSemanticAttributeToVisualModelAction(noActionNotificationServiceWriter, visualModel, "0", newAttributes[1].identifier, null);
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content.length).toEqual(2);
-
+  //
   const classes = createEmptyClassesContextType();
-
   const attributeAsEntity = Object.values(model.getEntities())[0] as SemanticModelRelationship;
   classes.relationships.push(attributeAsEntity);
   removeAttributesFromVisualModelAction(noActionNotificationServiceWriter, classes, visualModel, [newAttributes[0].identifier]);
@@ -44,11 +45,14 @@ test("Test change attribute - Visibility - order", () => {
     cmeModels
   } = prepareModelWithFourNodes();
   const newAttributes = [];
+  //
   newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, "attribute-0"));
   addSemanticAttributeToVisualModelAction(noActionNotificationServiceWriter, visualModel, "0", newAttributes[0].identifier, 0);
+  //
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content.length).toEqual(1);
   newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, "attribute-1"));
   addSemanticAttributeToVisualModelAction(noActionNotificationServiceWriter, visualModel, "0", newAttributes[1].identifier, 0);
+  //
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content.length).toEqual(2);
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content[0]).toEqual(newAttributes[1].identifier);
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content[1]).toEqual(newAttributes[0].identifier);
@@ -70,21 +74,23 @@ test("Test change attribute - Visibility - back to back", () => {
     cmeModels
   } = prepareModelWithFourNodes();
   const newAttributes = [];
+  //
   newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, "attribute-0"));
   addSemanticAttributeToVisualModelAction(noActionNotificationServiceWriter, visualModel, "0", newAttributes[0].identifier, null);
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content.length).toEqual(1);
+  //
   newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, "attribute-1"));
   addSemanticAttributeToVisualModelAction(noActionNotificationServiceWriter, visualModel, "0", newAttributes[1].identifier, null);
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content.length).toEqual(2);
 
+  //
   const classes = createEmptyClassesContextType();
-
   const attributeAsEntity = Object.values(model.getEntities())[0] as SemanticModelRelationship;
   classes.relationships.push(attributeAsEntity);
   removeAttributesFromVisualModelAction(noActionNotificationServiceWriter, classes, visualModel, [newAttributes[0].identifier]);
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content.length).toEqual(1);
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content[0]).toEqual(newAttributes[1].identifier);
-
+  //
   addSemanticAttributeToVisualModelAction(noActionNotificationServiceWriter, visualModel, "0", newAttributes[0].identifier, null);
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content.length).toEqual(2);
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content[0]).toEqual(newAttributes[1].identifier);
@@ -200,16 +206,17 @@ test("Test change attribute order - back to back", () => {
   } = prepareModelWithFourNodes();
   const size = 5;
   const attributes: string[] = [];
+  //
   for(let i = 0; i < size; i++) {
     const newAttribute = createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, `attribute-${i}`);
     addSemanticAttributeToVisualModelAction(noActionNotificationServiceWriter, visualModel, "0", newAttribute.identifier, null);
     attributes.push(newAttribute.identifier);
   }
-  expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content.length).toEqual(5);
+  expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content.length).toEqual(size);
   for(let i = 0; i < size; i++) {
     expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content[i]).toBe(attributes[i]);
   }
-
+  //
   setAttributePositionAction(
     noActionNotificationServiceWriter,
     visualModel,
@@ -247,6 +254,7 @@ test("Test change attribute order - change multi", () => {
   } = prepareModelWithFourNodes();
   const size = 6;
   const attributes: string[] = [];
+  //
   for(let i = 0; i < size; i++) {
     const newAttribute = createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, `attribute-${i}`);
     addSemanticAttributeToVisualModelAction(noActionNotificationServiceWriter, visualModel, "0", newAttribute.identifier, null);
@@ -256,7 +264,7 @@ test("Test change attribute order - change multi", () => {
   for(let i = 0; i < size; i++) {
     expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content[i]).toBe(attributes[i]);
   }
-
+  //
   setAttributePositionAction(
     noActionNotificationServiceWriter,
     visualModel,
@@ -271,7 +279,7 @@ test("Test change attribute order - change multi", () => {
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content[3]).toBe(attributes[4]);
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content[4]).toBe(attributes[2]);
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content[5]).toBe(attributes[5]);
-
+  //
   setAttributePositionAction(
     noActionNotificationServiceWriter,
     visualModel,
@@ -295,6 +303,7 @@ test("Test change attribute order - change multi - attribute usage", () => {
   } = prepareModelWithFourNodes();
   const size = 6;
   const attributes: string[] = [];
+  //
   const originalAttribute = createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, `attribute-0`);
   addSemanticAttributeToVisualModelAction(noActionNotificationServiceWriter, visualModel, "0", originalAttribute.identifier, null);
   attributes.push(originalAttribute.identifier);
@@ -307,7 +316,7 @@ test("Test change attribute order - change multi - attribute usage", () => {
   for(let i = 0; i < size; i++) {
     expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content[i]).toBe(attributes[i]);
   }
-
+  //
   setAttributePositionAction(
     noActionNotificationServiceWriter,
     visualModel,
@@ -322,7 +331,7 @@ test("Test change attribute order - change multi - attribute usage", () => {
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content[3]).toBe(attributes[4]);
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content[4]).toBe(attributes[2]);
   expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content[5]).toBe(attributes[5]);
-
+  //
   setAttributePositionAction(
     noActionNotificationServiceWriter,
     visualModel,
