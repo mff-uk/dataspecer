@@ -74,8 +74,7 @@ test("Modify class profile, change none.", () => {
     { change: (updated, removed) => actual.push({ updated, removed }) },
   );
   //
-  const result = executor.executeOperation(factory.modifyClassProfile(
-    "1", {}));
+  const result = executor.executeOperation(factory.modifyClassProfile("1", {}));
   //
   expect(result).toStrictEqual({ success: true, created: [] });
   expect(actual.length).toBe(1);
@@ -407,6 +406,157 @@ test("Relationship use all edges.", () => {
           concept: "third-c",
           profiling: [],
           usageNote: null,
+          usageNoteFromProfiled: null,
+        }],
+      }
+    },
+    removed: []
+  });
+});
+
+test("Issue #917: Change class profile to null.", () => {
+  let counter = 0;
+  const entities: Record<EntityIdentifier, Entity> = {};
+  const executor = createDefaultSemanticModelProfileOperationExecutor(
+    { createIdentifier: () => (++counter).toString() },
+    { entity: (identifier) => entities[identifier] ?? null },
+    {
+      change: (updated, removed) => {
+        removed.forEach(identifier => delete entities[identifier]);
+        Object.entries(updated).forEach(([identifier, value]) => {
+          entities[identifier] = value;
+        })
+      }
+    },
+  );
+  //
+  const result = executor.executeOperation(factory.createClassProfile({
+    iri: "iri",
+    name: { "en": "name" },
+    nameFromProfiled: "name-source",
+    description: { "en": "description" },
+    descriptionFromProfiled: "one",
+    usageNote: { "en": "usage-note" },
+    usageNoteFromProfiled: "one",
+    profiling: ["one"],
+  }));
+  expect(result).toStrictEqual({ success: true, created: ["1"] });
+  executor.executeOperation(factory.modifyClassProfile("1", {
+    iri: "iri",
+    name: { "en": "name" },
+    nameFromProfiled: null,
+    description: { "en": "description" },
+    descriptionFromProfiled: null,
+    usageNote: { "en": "usage-note" },
+    usageNoteFromProfiled: null,
+    profiling: ["one"],
+  }));
+  //
+  expect(entities["1"]).toStrictEqual({
+    id: "1",
+    type: [SEMANTIC_MODEL_CLASS_PROFILE],
+    iri: "iri",
+    name: { "en": "name" },
+    nameFromProfiled: null,
+    description: { "en": "description" },
+    descriptionFromProfiled: null,
+    usageNote: { "en": "usage-note" },
+    usageNoteFromProfiled: null,
+    profiling: ["one"],
+  });
+});
+
+test("Issue #917: Change relationship profile to null.", () => {
+  let counter = 0;
+  const actual: ChangeEntry[] = [];
+  const previous: SemanticModelRelationshipProfile = {
+    id: "1",
+    type: [SEMANTIC_MODEL_RELATIONSHIP_PROFILE],
+    ends: [{
+      iri: "first",
+      name: null,
+      nameFromProfiled: "1",
+      description: null,
+      descriptionFromProfiled: "1",
+      cardinality: null,
+      concept: "first-c",
+      profiling: [],
+      usageNote: null,
+      usageNoteFromProfiled: "1",
+    }, {
+      iri: "second",
+      name: null,
+      nameFromProfiled: "2",
+      description: null,
+      descriptionFromProfiled: "2",
+      cardinality: null,
+      concept: "second-c",
+      profiling: [],
+      usageNote: null,
+      usageNoteFromProfiled: "2",
+    }],
+  };
+  const executor = createDefaultSemanticModelProfileOperationExecutor(
+    { createIdentifier: () => (++counter).toString() },
+    { entity: () => previous },
+    { change: (updated, removed) => actual.push({ updated, removed }) },
+  );
+  //
+  const result = executor.executeOperation(factory.modifyRelationshipProfile(
+    "1", {
+    ends: [{
+      iri: "first",
+      name: { "en": "first-name" },
+      nameFromProfiled: null,
+      description: { "en": "first-description" },
+      descriptionFromProfiled: null,
+      cardinality: [1, 1],
+      concept: "first-c",
+      profiling: ["first"],
+      usageNote: { "en": "first-note" },
+      usageNoteFromProfiled: null,
+    }, {
+      iri: "second",
+      name: { "en": "second-name" },
+      nameFromProfiled: null,
+      description: { "en": "second-description" },
+      descriptionFromProfiled: null,
+      cardinality: [1, 1],
+      concept: "second-c",
+      profiling: ["second"],
+      usageNote: { "en": "second-note" },
+      usageNoteFromProfiled: null,
+    }],
+  }));
+  //
+  expect(result).toStrictEqual({ success: true, created: [] });
+  expect(actual.length).toBe(1);
+  expect(actual[0]).toStrictEqual({
+    updated: {
+      "1": {
+        id: "1",
+        type: [SEMANTIC_MODEL_RELATIONSHIP_PROFILE],
+        ends: [{
+          iri: "first",
+          name: { "en": "first-name" },
+          nameFromProfiled: null,
+          description: { "en": "first-description" },
+          descriptionFromProfiled: null,
+          cardinality: [1, 1],
+          concept: "first-c",
+          profiling: ["first"],
+          usageNote: { "en": "first-note" },
+          usageNoteFromProfiled: null,
+        }, {
+          iri: "second",
+          name: { "en": "second-name" },
+          nameFromProfiled: null,
+          description: { "en": "second-description" },
+          descriptionFromProfiled: null,
+          cardinality: [1, 1],
+          concept: "second-c",
+          profiling: ["second"],
+          usageNote: { "en": "second-note" },
           usageNoteFromProfiled: null,
         }],
       }

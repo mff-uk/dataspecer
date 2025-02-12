@@ -114,6 +114,8 @@ function executeModifySemanticModelClassProfile(
 ): OperationResult {
   const previous = entityReader.entity(identifier);
   if (previous === null || !isSemanticModelClassProfile(previous)) {
+    console.error("Previous values is not class profile, action to update the profile is ignored.",
+      { previous, next: entity });
     return {
       success: false,
       created: [],
@@ -123,12 +125,12 @@ function executeModifySemanticModelClassProfile(
     id: identifier,
     type: [SEMANTIC_MODEL_CLASS_PROFILE],
     description: entity.description ?? previous.description,
-    descriptionFromProfiled: entity.descriptionFromProfiled ?? previous.descriptionFromProfiled,
+    descriptionFromProfiled: mergeFromProfiled(entity.descriptionFromProfiled, previous.descriptionFromProfiled),
     name: entity.name ?? previous.name,
-    nameFromProfiled: entity.nameFromProfiled ?? previous.nameFromProfiled,
+    nameFromProfiled: mergeFromProfiled(entity.nameFromProfiled, previous.nameFromProfiled),
     iri: entity.iri ?? previous.iri,
     usageNote: entity.usageNote ?? previous.usageNote,
-    usageNoteFromProfiled: entity.usageNoteFromProfiled ?? previous.usageNoteFromProfiled,
+    usageNoteFromProfiled: mergeFromProfiled(entity.usageNoteFromProfiled, previous.usageNoteFromProfiled),
     profiling: entity.profiling ?? previous.profiling,
   };
   entityWriter.change({ [identifier]: updatedEntity }, []);
@@ -136,6 +138,17 @@ function executeModifySemanticModelClassProfile(
     success: true,
     created: [],
   }
+}
+
+function mergeFromProfiled(
+  next: string | null | undefined,
+  previous: string | null,
+): string | null {
+  // We actually need to store null.
+  if (next === null) {
+    return null;
+  }
+  return next ?? previous;
 }
 
 function executeCreateSemanticModelRelationshipProfile(
@@ -181,6 +194,8 @@ function executeModifySemanticModelRelationshipProfile(
 ): OperationResult {
   const previous = entityReader.entity(identifier);
   if (previous === null || !isSemanticModelRelationshipProfile(previous)) {
+    console.error("Previous values is not relationship profile, action to update the profile is ignored.",
+      { previous, next: entity });
     return {
       success: false,
       created: [],
