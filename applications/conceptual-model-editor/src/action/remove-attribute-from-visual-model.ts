@@ -86,7 +86,7 @@ function geDomainAndRangeForAttribute(
       classes.relationships.find(relationship => relationship.id === attributeIdentifier);
   let domainAndRange;
   if(attribute === undefined || !isSemanticModelAttribute(attribute)) {
-    attribute = classes.profiles
+    attribute = classes.usages
       .find(relationship => relationship.id === attributeIdentifier &&
                             isSemanticModelAttributeUsage(relationship)) as SemanticModelRelationshipUsage | undefined;
     if(attribute === undefined) {

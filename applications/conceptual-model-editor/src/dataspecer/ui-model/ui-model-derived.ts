@@ -1,4 +1,4 @@
-import { UiModel, UiTree } from "./ui-model";
+import { UiVocabulary, UiTree } from "./ui-model";
 
 /**
  * Given list of entities split them by their model.
@@ -6,28 +6,29 @@ import { UiModel, UiTree } from "./ui-model";
  * Order of entities is preserved.
  */
 export function splitByModel<T extends {
-  model: UiModel,
+  vocabulary: UiVocabulary,
 }>(items: T[]): {
-  model: UiModel,
+  vocabulary: UiVocabulary,
   items: T[],
 }[] {
-  const map: Map<UiModel, T[]> = new Map();
+  const map: Map<UiVocabulary, T[]> = new Map();
   // Split
   for (const item of items) {
-    const modelItems = map.get(item.model);
-    if (modelItems === undefined) {
-      map.set(item.model, [item]);
+    const vocabularyItems = map.get(item.vocabulary);
+    if (vocabularyItems === undefined) {
+      map.set(item.vocabulary, [item]);
     } else {
-      modelItems.push(item);
+      vocabularyItems.push(item);
     }
   }
   // Create result array
   const result = [];
-  for (const [model, items] of map.entries()) {
-    result.push({ model, items });
+  for (const [vocabulary, items] of map.entries()) {
+    result.push({ vocabulary, items });
   }
   // Sort
-  result.sort((left, right) => left.model.displayLabel.localeCompare(right.model.displayLabel));
+  result.sort((left, right) => left.vocabulary.displayLabel.localeCompare(
+    right.vocabulary.displayLabel));
   return result;
 }
 
@@ -40,7 +41,7 @@ export function splitByModel<T extends {
  */
 export function prepareForListing<T extends {
   displayLabel: string;
-  model: UiModel,
+  vocabulary: UiVocabulary,
 }>(items: T[]): T[] {
   return items;
 }
@@ -51,18 +52,18 @@ export function prepareForListing<T extends {
  */
 export function buildProfileTree<T extends {
   dsIdentifier: string,
-  model: {
+  vocabulary: {
     dsIdentifier: string,
   },
 }, P extends {
   dsIdentifier: string,
-  model: {
+  vocabulary: {
     dsIdentifier: string,
   },
   profiles: {
     profileOf: {
       entityDsIdentifier: string,
-      modelDsIdentifier: string,
+      vocabularyDsIdentifier: string,
     }
   }[],
 }>(items: T[], profiles: P[]): UiTree<T, P>[] {
@@ -84,27 +85,27 @@ export function buildProfileTree<T extends {
  */
 function addProfilesToTree<T extends {
   dsIdentifier: string,
-  model: {
+  vocabulary: {
     dsIdentifier: string,
   },
 }, P extends {
   dsIdentifier: string,
-  model: {
+  vocabulary: {
     dsIdentifier: string,
   },
   profiles: {
     profileOf: {
       entityDsIdentifier: string,
-      modelDsIdentifier: string,
+      vocabularyDsIdentifier: string,
     }
   }[],
 }>(root: UiTree<T, P>, profiles: P[]): void {
   const dsIdentifier = root.node.dsIdentifier;
-  const modelDsIdentifier = root.node.model.dsIdentifier;
+  const modelDsIdentifier = root.node.vocabulary.dsIdentifier;
   for (const profile of profiles) {
     for (const { profileOf } of profile.profiles) {
       if (profileOf.entityDsIdentifier === dsIdentifier
-        && profileOf.modelDsIdentifier === modelDsIdentifier) {
+        && profileOf.vocabularyDsIdentifier === modelDsIdentifier) {
         // It is a profile of this class.
         const node: UiTree<P, P> = {
           node: profile,

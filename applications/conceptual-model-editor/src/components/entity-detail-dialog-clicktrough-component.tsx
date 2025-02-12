@@ -9,11 +9,18 @@ import { useClassesContext } from "../context/classes-context";
 import { getIri, getModelIri } from "../util/iri-utils";
 import { sourceModelOfEntity } from "../util/model-utils";
 import { useOptions } from "../application/options";
+import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 const DEFAULT_MODEL_COLOR = "#ffffff";
 
 export const ResourceDetailClickThrough = (props: {
-    resource: SemanticModelClass | SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage;
+    resource:
+      SemanticModelClass
+      | SemanticModelRelationship
+      | SemanticModelClassUsage
+      | SemanticModelRelationshipUsage
+      | SemanticModelClassProfile
+      | SemanticModelRelationshipProfile;
     detailDialogLanguage?: string;
     onClick: () => void;
     withCardinality?: string;

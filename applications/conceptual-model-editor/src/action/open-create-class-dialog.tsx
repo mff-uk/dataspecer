@@ -7,7 +7,7 @@ import { ModelGraphContextType } from "../context/model-context";
 import { Options, createLogger } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { firstInMemorySemanticModel } from "../utilities/model";
-import { createClass as createClassOperation, createGeneralization } from "@dataspecer/core-v2/semantic-model/operations";
+import { createClass as createClassOperation, CreatedEntityOperationResult, createGeneralization } from "@dataspecer/core-v2/semantic-model/operations";
 import { addSemanticClassToVisualModelAction } from "./add-class-to-visual-model";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { EditClassDialogState } from "../dialog/class/edit-class-dialog-controller";
@@ -83,7 +83,7 @@ function createSemanticClass(
   });
 
   const model: InMemorySemanticModel = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
-  const newClass = model.executeOperation(operation);
+  const newClass = model.executeOperation(operation) as CreatedEntityOperationResult;
   if (newClass.success === false || newClass.id === undefined) {
     notifications.error("We have not received the id of newly created class. See logs for more detail.");
     LOG.error("We have not received the id of newly created class.", { "operation": newClass });

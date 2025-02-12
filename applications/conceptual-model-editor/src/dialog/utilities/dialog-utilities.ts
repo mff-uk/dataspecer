@@ -8,11 +8,32 @@ import { createLogger } from "../../application";
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { CmeModel, OwlVocabulary, UndefinedCmeVocabulary } from "../../dataspecer/cme-model";
 import { EntityDsIdentifier } from "../../dataspecer/entity-model";
-import { VisualModel } from "@dataspecer/core-v2/visual-model";
+import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 
 const LOG = createLogger(import.meta.url);
+
+/**
+ * We use this to identify representant of undefined.
+ */
+const UNDEFINED_IDENTIFIER = ":undefined-identifier:";
+
+/**
+ * Default value for entities.
+ */
+const OWL_THING_IDENTIFIER = "https://www.w3.org/2002/07/owl#Thing";
+
+/**
+ * Default value for data types.
+ */
+const RDFS_LITERAL_IDENTIFIER = "http://www.w3.org/2000/01/rdf-schema#Literal";
+
+export function isRepresentingUndefine(item: { identifier: string }): boolean {
+  return item.identifier === UNDEFINED_IDENTIFIER;
+}
 
 /**
  * Basic interface for entity representation regardless of type.
@@ -29,10 +50,55 @@ export interface EntityRepresentative {
 
   description: LanguageString;
 
+  /**
+   * As profile must profile at least one entity,
+   * this is empty when this class is not a profile.
+   */
   profileOfIdentifiers: string[];
 
   usageNote: LanguageString | null;
 
+  isProfile: boolean;
+
+}
+
+const UNDEFINED_CLASS: EntityRepresentative = {
+  identifier: UNDEFINED_IDENTIFIER,
+  iri: null,
+  vocabularyDsIdentifier: UndefinedCmeVocabulary.dsIdentifier,
+  label: { "": "Undefined" },
+  description: {},
+  profileOfIdentifiers: [],
+  usageNote: null,
+  isProfile: false,
+};
+
+export function representUndefinedClass(): EntityRepresentative {
+  return UNDEFINED_CLASS;
+}
+
+const UNDEFINED_CLASS_PROFILE: EntityRepresentative = {
+  ...UNDEFINED_CLASS,
+  isProfile: true,
+};
+
+export function representUndefinedClassProfile(): EntityRepresentative {
+  return UNDEFINED_CLASS_PROFILE;
+}
+
+const OWL_THING: EntityRepresentative = {
+  identifier: OWL_THING_IDENTIFIER,
+  iri: null,
+  vocabularyDsIdentifier: OwlVocabulary.dsIdentifier,
+  label: { "": "owl:Thing" },
+  description: {},
+  profileOfIdentifiers: [],
+  usageNote: null,
+  isProfile: false,
+};
+
+export function representOwlThing(): EntityRepresentative {
+  return OWL_THING;
 }
 
 export function representClasses(
@@ -54,6 +120,7 @@ export function representClasses(
       description: item.description,
       profileOfIdentifiers: [],
       usageNote: null,
+      isProfile: false,
     });
   }
   return result;
@@ -86,7 +153,7 @@ export function findVocabularyForModel(
   return vocabulary ?? null;
 };
 
-export function representClassProfiles(
+export function representClassUsages(
   aggregations: Record<string, AggregatedEntityWrapper>,
   models: EntityModel[],
   vocabularies: CmeModel[],
@@ -115,9 +182,107 @@ export function representClassProfiles(
       description: entity.description ?? {},
       profileOfIdentifiers: [entity.usageOf],
       usageNote: entity.usageNote,
+      isProfile: true,
     });
   }
   return result;
+}
+
+export function representClassProfiles(
+  aggregations: Record<string, AggregatedEntityWrapper>,
+  models: EntityModel[],
+  vocabularies: CmeModel[],
+  classes: SemanticModelClassProfile[],
+): EntityRepresentative[] {
+  const result: EntityRepresentative[] = [];
+  for (const item of classes) {
+    const entity = aggregations[item.id]?.aggregatedEntity;
+    if (entity === undefined) {
+      LOG.invalidEntity(item.id, "Missing entity aggregation.");
+      continue;
+    }
+    if (!isSemanticModelClassProfile(entity)) {
+      LOG.invalidEntity(item.id, "Aggregation of a class is not a class.");
+      continue;
+    }
+    const vocabulary = findOwnerVocabulary(models, vocabularies, item.id);
+    if (vocabulary === null) {
+      continue;
+    }
+    result.push({
+      identifier: item.id,
+      iri: item.iri,
+      vocabularyDsIdentifier: vocabulary.dsIdentifier,
+      label: entity.name ?? {},
+      description: entity.description ?? {},
+      profileOfIdentifiers: entity.profiling,
+      usageNote: entity.usageNote,
+      isProfile: true,
+    });
+  }
+  return result;
+}
+
+/**
+ * Result can be used to select what to profile class from.
+ *
+ * @returns classes, class profiles.
+ */
+export function listClassToProfiles(
+  classesContext: ClassesContextType,
+  graphContext: ModelGraphContextType,
+  vocabularies: CmeModel[],
+): EntityRepresentative[] {
+  const entities = graphContext.aggregatorView.getEntities();
+  const models = [...graphContext.models.values()];
+
+  return [
+    ...representClasses(models, vocabularies, classesContext.classes),
+    ...representClassUsages(entities, models, vocabularies,
+      classesContext.usages.filter(item => isSemanticModelClassUsage(item))),
+    ...representClassProfiles(entities, models, vocabularies,
+      classesContext.classProfiles),
+  ];
+}
+
+/**
+ * Result can be used for association ends and attribute domain.
+ *
+ * @returns owl:Thing, classes.
+ */
+export function listRelationshipDomains(
+  classesContext: ClassesContextType,
+  graphContext: ModelGraphContextType,
+  vocabularies: CmeModel[],
+): EntityRepresentative[] {
+  const models = [...graphContext.models.values()];
+
+  return [
+    representOwlThing(),
+    ...representClasses(models, vocabularies, classesContext.classes)
+  ]
+}
+
+/**
+ * Result can be used for association profile ends and attribute profile domain.
+ *
+ * @returns owl:Thing, classes, class profiles.
+ */
+export function listRelationshipProfileDomains(
+  classesContext: ClassesContextType,
+  graphContext: ModelGraphContextType,
+  vocabularies: CmeModel[],
+): EntityRepresentative[] {
+  const entities = graphContext.aggregatorView.getEntities();
+  const models = [...graphContext.models.values()];
+
+  return [
+    representOwlThing(),
+    ...representClassUsages(entities, models, vocabularies,
+      classesContext.usages.filter(item => isSemanticModelClassUsage(item))),
+    ...representClassProfiles(entities, models, vocabularies,
+      classesContext.classProfiles),
+  ]
 }
 
 /**
@@ -125,11 +290,11 @@ export function representClassProfiles(
  */
 export interface RelationshipRepresentative extends EntityRepresentative {
 
-  domain: string | null;
+  domain: string;
 
   domainCardinality: Cardinality;
 
-  range: string | null;
+  range: string;
 
   rangeCardinality: Cardinality;
 
@@ -139,7 +304,9 @@ export function isRepresentingAssociation(representation: RelationshipRepresenta
   return !isRepresentingAttribute(representation);
 }
 
-export function isRepresentingAttribute(representation: RelationshipRepresentative): boolean {
+export function isRepresentingAttribute(representation: {
+  identifier: EntityDsIdentifier, range: string,
+}): boolean {
   const range = representation.range;
   // We have multiple ways to detect an attribute.
   // The first one is there is no range concept.
@@ -155,10 +322,12 @@ export function representRelationships(
   models: EntityModel[],
   vocabularies: CmeModel[],
   relationships: SemanticModelRelationship[],
+  defaultDomain: string,
+  defaultRange: string,
 ): RelationshipRepresentative[] {
   const result: RelationshipRepresentative[] = [];
   for (const item of relationships) {
-    const vocabulary = findOwnerVocabulary(models,vocabularies, item.id);
+    const vocabulary = findOwnerVocabulary(models, vocabularies, item.id);
     if (vocabulary === null) {
       continue;
     }
@@ -175,20 +344,23 @@ export function representRelationships(
       description: range.description ?? {},
       profileOfIdentifiers: [],
       usageNote: null,
-      domain: domain.concept,
+      domain: domain.concept ?? defaultDomain,
       domainCardinality: representCardinality(domain.cardinality),
-      range: range.concept,
+      range: range.concept ?? defaultRange,
       rangeCardinality: representCardinality(range.cardinality),
+      isProfile: false,
     });
   }
   return result;
 }
 
-export function representRelationshipProfiles(
+export function representRelationshipUsages(
   aggregations: Record<string, AggregatedEntityWrapper>,
   models: EntityModel[],
   vocabularies: CmeModel[],
   relationships: SemanticModelRelationshipUsage[],
+  defaultDomain: string,
+  defaultRange: string,
 ): RelationshipRepresentative[] {
   const result: RelationshipRepresentative[] = [];
   for (const item of relationships) {
@@ -198,7 +370,7 @@ export function representRelationshipProfiles(
       continue;
     }
     if (!isSemanticModelRelationshipUsage(entity)) {
-      LOG.invalidEntity(item.id, "Aggregation of a relationship is not a relationship.");
+      LOG.invalidEntity(item.id, "Invalid aggregation.");
       continue;
     }
     const vocabulary = findOwnerVocabulary(models, vocabularies, item.id);
@@ -218,21 +390,61 @@ export function representRelationshipProfiles(
       description: range.description ?? {},
       profileOfIdentifiers: [entity.usageOf],
       usageNote: range.usageNote,
-      domain: domain.concept,
+      domain: domain.concept ?? defaultDomain,
       domainCardinality: representCardinality(domain.cardinality),
-      range: range.concept,
+      range: range.concept ?? defaultRange,
       rangeCardinality: representCardinality(range.cardinality),
+      isProfile: true,
     });
   }
   return result;
 }
 
-const UNDEFINED_IDENTIFIER = ":undefined-identifier:";
+export function representRelationshipProfile(
+  aggregations: Record<string, AggregatedEntityWrapper>,
+  models: EntityModel[],
+  vocabularies: CmeModel[],
+  relationships: SemanticModelRelationshipProfile[],
+): RelationshipRepresentative[] {
+  const result: RelationshipRepresentative[] = [];
+  for (const item of relationships) {
+    const entity = aggregations[item.id]?.aggregatedEntity;
+    if (entity === undefined) {
+      LOG.invalidEntity(item.id, "Missing entity aggregation.");
+      continue;
+    }
+    if (!isSemanticModelRelationshipProfile(entity)) {
+      LOG.invalidEntity(item.id, "Invalid aggregation.");
+      continue;
+    }
+    const vocabulary = findOwnerVocabulary(models, vocabularies, item.id);
+    if (vocabulary === null) {
+      continue;
+    }
+    const { domain, range } = getDomainAndRange(entity);
+    if (domain === null || range === null) {
+      LOG.invalidEntity(item.id, "Missing ends.");
+      continue;
+    }
+    result.push({
+      identifier: item.id,
+      iri: range.iri,
+      vocabularyDsIdentifier: vocabulary.dsIdentifier,
+      label: range.name ?? {},
+      description: range.description ?? {},
+      profileOfIdentifiers: range.profiling,
+      usageNote: range.usageNote,
+      domain: domain.concept,
+      domainCardinality: representCardinality(domain.cardinality),
+      range: range.concept,
+      rangeCardinality: representCardinality(range.cardinality),
+      isProfile: true,
+    });
+  }
+  return result;
+}
 
-/**
- * Return a representation of undefined.
- */
-export function representUndefinedClass(): EntityRepresentative {
+export function representUndefinedAttribute(): RelationshipRepresentative {
   return {
     identifier: UNDEFINED_IDENTIFIER,
     iri: null,
@@ -241,32 +453,29 @@ export function representUndefinedClass(): EntityRepresentative {
     description: {},
     profileOfIdentifiers: [],
     usageNote: null,
+    domain: OWL_THING_IDENTIFIER,
+    domainCardinality: representUndefinedCardinality(),
+    range: RDFS_LITERAL_IDENTIFIER,
+    rangeCardinality: representUndefinedCardinality(),
+    isProfile: false,
   };
 }
 
-export function isRepresentingUndefined(value: { identifier: string }) {
-  return value.identifier === UNDEFINED_IDENTIFIER;
-}
-
-const OWL_THING = "https://www.w3.org/2002/07/owl#Thing";
-
-/**
- * Return a representation of owl:Thing.
- */
-export function representOwlThing() : EntityRepresentative {
+export function representUndefinedAssociation(): RelationshipRepresentative {
   return {
-    identifier: OWL_THING,
+    identifier: UNDEFINED_IDENTIFIER,
     iri: null,
-    vocabularyDsIdentifier: OwlVocabulary.dsIdentifier,
-    label: { "": "owl:Thing" },
+    vocabularyDsIdentifier: UndefinedCmeVocabulary.dsIdentifier,
+    label: { "": "Undefined" },
     description: {},
     profileOfIdentifiers: [],
     usageNote: null,
+    domain: OWL_THING_IDENTIFIER,
+    domainCardinality: representUndefinedCardinality(),
+    range: OWL_THING_IDENTIFIER,
+    rangeCardinality: representUndefinedCardinality(),
+    isProfile: false,
   };
-}
-
-export function isRepresentingOwlThing(value: { identifier: string }) {
-  return value.identifier === OWL_THING;
 }
 
 export interface DataTypeRepresentative {
@@ -277,34 +486,44 @@ export interface DataTypeRepresentative {
 
 }
 
-/**
- * Return representation of all data types.
- */
-export function representDataTypes(): DataTypeRepresentative[] {
-  const values = DataTypeURIs.map(iri => ({
-    identifier: iri,
-    label: { "": dataTypeUriToName(iri) ?? iri },
-  }));
-  return values;
+const RDFS_LITERAL: DataTypeRepresentative = {
+  identifier: RDFS_LITERAL_IDENTIFIER,
+  label: { "": "rdfs:Literal" },
+};
+
+export function representRdfsLiteral(): DataTypeRepresentative {
+  return RDFS_LITERAL;
 }
 
-const RDFS_LITERAL = "http://www.w3.org/2000/01/rdf-schema#Literal";
+const UNDEFINED_DATA_TYPE: DataTypeRepresentative = {
+  identifier: UNDEFINED_IDENTIFIER,
+  label: { "": "Undefined" },
+};
 
-/**
- * Return representation for rdfs:Literal.
- */
-export function selectRdfLiteral(dataTypes: DataTypeRepresentative[]): DataTypeRepresentative {
-  return dataTypes.find(item => item.identifier === RDFS_LITERAL)!;
-}
-
-/**
- * Return data type representation for undefined value.
- */
 export function representUndefinedDataType(): DataTypeRepresentative {
-  return {
-    identifier: UNDEFINED_IDENTIFIER,
-    label: { "": "Undefined" },
-  };
+  return UNDEFINED_DATA_TYPE;
+}
+
+const CORE_DATA_TYPE: DataTypeRepresentative[] = DataTypeURIs.map(iri => ({
+  identifier: iri,
+  label: { "": dataTypeUriToName(iri) ?? iri },
+}));
+
+/**
+ * @returns undefined, data types
+ */
+export function listAttributeRanges(): DataTypeRepresentative[] {
+  return [
+    representUndefinedDataType(),
+    ...CORE_DATA_TYPE,
+  ];
+}
+
+/**
+ * @returns data types
+ */
+export function listAttributeProfileRanges(): DataTypeRepresentative[] {
+  return CORE_DATA_TYPE;
 }
 
 export interface Cardinality {
@@ -316,8 +535,18 @@ export interface Cardinality {
   /**
    * Dataspecer value for cardinality.
    */
-  cardinality: [number, number | null] | undefined;
+  cardinality: [number, number | null] | null;
 
+}
+
+const UNDEFINED_CARDINALITY: Cardinality = {
+  identifier: UNDEFINED_IDENTIFIER,
+  label: "Undefined",
+  cardinality: null,
+};
+
+export function representUndefinedCardinality() {
+  return UNDEFINED_CARDINALITY;
 }
 
 const CARDINALITIES: Cardinality[] = [
@@ -340,11 +569,16 @@ const CARDINALITIES: Cardinality[] = [
   },
 ]
 
-export function representCardinalities(): Cardinality[] {
-  return CARDINALITIES;
+export function listCardinalities(): Cardinality[] {
+  return [
+    representUndefinedCardinality(),
+    ...CARDINALITIES,
+  ];
 };
 
-export function representCardinality(cardinality: [number, number | null] | null | undefined): Cardinality {
+export function representCardinality(
+  cardinality: [number, number | null] | null | undefined,
+): Cardinality {
   if (cardinality === undefined || cardinality === null) {
     return representUndefinedCardinality();
   }
@@ -356,39 +590,7 @@ export function representCardinality(cardinality: [number, number | null] | null
     }
   }
   LOG.error("Unknown cardinality.", { cardinality });
-  return CARDINALITIES[0];
-}
-
-export function representUndefinedCardinality(): Cardinality {
-  return {
-    identifier: UNDEFINED_IDENTIFIER,
-    label: "Undefined",
-    cardinality: undefined,
-  };
-};
-
-/**
- * Perform in-place sort by label using given language.
- */
-export function sortRepresentatives<T extends { label: LanguageString }>(
-  language: string,
-  array: T[],
-) {
-  array.sort((left, right) => {
-    const leftLabel = left.label[language] ?? left.label[""] ?? "";
-    const rightLabel = right.label[language] ?? right.label[""] ?? "";
-    return leftLabel.localeCompare(rightLabel);
-  });
-}
-
-/**
- * Find and return representative of entity with given identifier.
- */
-export function findRepresentative(entities: EntityRepresentative[], identifier: string | null | undefined): EntityRepresentative | null {
-  if (identifier === null || identifier === undefined) {
-    return null;
-  }
-  return entities.find(item => item.identifier === identifier) ?? null;
+  return representUndefinedCardinality();
 }
 
 export interface Specialization {
@@ -435,4 +637,14 @@ export function selectDefaultModelForAttribute(
   }
   // Just return the first model.
   return cmeModels[0];
+}
+
+/**
+ * Find and return representative of entity with given identifier.
+ */
+export function findRepresentative(entities: EntityRepresentative[], identifier: string | null | undefined): EntityRepresentative | null {
+  if (identifier === null || identifier === undefined) {
+    return null;
+  }
+  return entities.find(item => item.identifier === identifier) ?? null;
 }

@@ -3,10 +3,10 @@ import { type DialogProps } from "../dialog-api";
 import { SelectionFilter, Selections, SelectionsWithIdInfo } from "../../action/filter-selection-action";
 
 const SELECTION_FILTER_TO_CHECKBOX_TEXT_MAP: Record<SelectionFilter, string> = {
-  [SelectionFilter.NormalClass]: "filter-selection-class-filter-text",
-  [SelectionFilter.ClassProfile]: "filter-selection-class-profile-filter-text",
+  [SelectionFilter.Class]: "filter-selection-class-filter-text",
+  [SelectionFilter.ClassUsage]: "filter-selection-class-profile-filter-text",
   [SelectionFilter.Relationship]: "filter-selection-association-filter-text",
-  [SelectionFilter.RelationshipProfile]: "filter-selection-association-profile-filter-text",
+  [SelectionFilter.RelationshipUsage]: "filter-selection-association-profile-filter-text",
   [SelectionFilter.Generalization]: "filter-selection-generalization-filter-text",
 };
 
@@ -44,11 +44,11 @@ const createSelectionFilterCheckboxData = (
 const createFilterCheckboxesData = (): SelectionFilterCheckboxData[] => {
   const filters: SelectionFilterCheckboxData[] = [];
 
-  filters.push(createSelectionFilterCheckboxData(SelectionFilter.NormalClass));
-  filters.push(createSelectionFilterCheckboxData(SelectionFilter.ClassProfile));
+  filters.push(createSelectionFilterCheckboxData(SelectionFilter.Class));
+  filters.push(createSelectionFilterCheckboxData(SelectionFilter.ClassUsage));
 
   filters.push(createSelectionFilterCheckboxData(SelectionFilter.Relationship));
-  filters.push(createSelectionFilterCheckboxData(SelectionFilter.RelationshipProfile));
+  filters.push(createSelectionFilterCheckboxData(SelectionFilter.RelationshipUsage));
   filters.push(createSelectionFilterCheckboxData(SelectionFilter.Generalization));
 
   return filters;

@@ -3,14 +3,14 @@ import { noActionNotificationServiceWriter } from "../../notification/notificati
 import { createDefaultVisualModelFactory, VisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { EntityModel } from "@dataspecer/core-v2";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
-import { representDataTypes, representUndefinedCardinality, selectRdfLiteral } from "../../dialog/utilities/dialog-utilities";
-import { createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
+import { CreatedEntityOperationResult, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { addSemanticAttributeToVisualModelAction } from "../add-semantic-attribute-to-visual-model";
 import { setAttributePositionAction } from "../set-attribute-position";
 import { removeAttributesFromVisualModelAction } from "../remove-attribute-from-visual-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { representRdfsLiteral } from "../../dialog/utilities/dialog-utilities";
 
 test("Test change attribute - Visibility", () => {
   const {
@@ -265,8 +265,7 @@ function createSemanticAttributeTestVariant(
   attributeName: string,
 ) {
 
-  const dataTypes = [...representDataTypes()];
-  const range = selectRdfLiteral(dataTypes);
+  const range = representRdfsLiteral();
   const name = {"en": attributeName};
   const operation = createRelationship({
     ends: [{
@@ -274,18 +273,18 @@ function createSemanticAttributeTestVariant(
       name: {},
       description: {},
       concept: domainConceptIdentifier,
-      cardinality: representUndefinedCardinality().cardinality,
+      cardinality: [0, 1],
     }, {
       name,
       description: {},
       concept: range.identifier,
-      cardinality: representUndefinedCardinality().cardinality,
+      cardinality: [0, 1],
       iri: generateIriForName(name["en"]),
     }]
   });
 
   const model: InMemorySemanticModel = models.get(ModelDsIdentifier) as InMemorySemanticModel;
-  const newAttribute = model.executeOperation(operation);
+  const newAttribute = model.executeOperation(operation) as CreatedEntityOperationResult;
   if (newAttribute.success === false || newAttribute.id === undefined) {
     fail("Failed in attribute creation");
   }
@@ -334,12 +333,14 @@ const createEmptyClassesContextType = (): ClassesContextType => {
   const classes: ClassesContextType = {
     classes: [],
     allowedClasses: [],
-    setAllowedClasses: function (_) {},
+    setAllowedClasses: function (_) { },
     relationships: [],
     generalizations: [],
-    profiles: [],
+    usages: [],
     sourceModelOfEntityMap: new Map(),
     rawEntities: [],
+    classProfiles: [],
+    relationshipProfiles: []
   };
 
   return classes;

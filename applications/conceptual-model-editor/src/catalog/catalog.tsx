@@ -3,7 +3,6 @@ import { ClassCatalog } from "./class-catalog";
 import { ModelCatalog } from "./model-catalog";
 import { AttributeCatalog } from "./attribute-catalog";
 import { RelationshipCatalog } from "./relationship-catalog";
-import { useClassesContext } from "../context/classes-context";
 import { ProfileCatalog } from "./profile-catalog";
 import { WarningCatalog } from "./warning-catalog";
 import { useWarningsContext } from "../context/warnings-context";
@@ -19,7 +18,6 @@ enum CatalogTabs {
 }
 
 export const Catalog = () => {
-  const { profiles } = useClassesContext();
   const { warnings } = useWarningsContext();
 
   const [activeTab, setActiveTab] = useState(CatalogTabs.Models);
@@ -53,7 +51,6 @@ export const Catalog = () => {
           active={activeTab === CatalogTabs.Profiles}
           onClick={() => setActiveTab(CatalogTabs.Profiles)}
           label={t("model.profiles")}
-          hidden={profiles.length === 0}
         />
         <CatalogTabButton
           active={activeTab === CatalogTabs.Warnings}

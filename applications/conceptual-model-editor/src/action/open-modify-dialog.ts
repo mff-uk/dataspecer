@@ -25,13 +25,18 @@ import { openEditAttributeDialogAction } from "./open-edit-attribute-dialog";
 import { openEditAttributeProfileDialogAction } from "./open-edit-attribute-profile-dialog";
 import { openEditClassDialogAction } from "./open-edit-class-dialog";
 import { openEditClassProfileDialogAction } from "./open-edit-class-profile-dialog";
+import { createLogger } from "../application";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
+
+const LOG = createLogger(import.meta.url);
 
 export function openModifyDialogAction(
   options: Options,
   dialogs: DialogApiContextType,
   notifications: UseNotificationServiceWriterType,
   classes: ClassesContextType,
-  useClasses: UseClassesContextType,
+  _useClasses: UseClassesContextType,
   graph: ModelGraphContextType,
   visualModel: VisualModel | null,
   identifier: string,
@@ -56,7 +61,8 @@ export function openModifyDialogAction(
       options, dialogs, classes, graph, notifications, visualModel, model,
       entity);
     return;
-  } else if (isSemanticModelClassUsage(entity)) {
+  } else if (isSemanticModelClassUsage(entity)
+    || isSemanticModelClassProfile(entity)) {
     openEditClassProfileDialogAction(
       options, dialogs, classes, graph, notifications, visualModel, model,
       entity);
@@ -66,7 +72,8 @@ export function openModifyDialogAction(
       options, dialogs, classes, graph, notifications, visualModel, model,
       entity);
     return;
-  } else if (isSemanticModelAttributeUsage(entity)) {
+  } else if (isSemanticModelAttributeUsage(entity)
+    || isSemanticModelAttributeProfile(entity)) {
     openEditAttributeProfileDialogAction(
       options, dialogs, classes, graph, notifications, visualModel, model,
       aggregate.rawEntity as SemanticModelRelationshipUsage);
@@ -76,7 +83,8 @@ export function openModifyDialogAction(
       options, dialogs, classes, graph, notifications, visualModel, model,
       entity);
     return;
-  } else if (isSemanticModelRelationshipUsage(entity)) {
+  } else if (isSemanticModelRelationshipUsage(entity)
+    || isSemanticModelRelationshipProfile(entity)) {
     openEditAssociationProfileDialogAction(
       options, dialogs, classes, graph, notifications, visualModel, model,
       aggregate.rawEntity as SemanticModelRelationshipUsage);
@@ -85,6 +93,7 @@ export function openModifyDialogAction(
     notifications.error("Generalization modification is not supported!");
     return;
   } else {
+    LOG.error("Can not open modify dialog for unknown entity type.", { entity })
     notifications.error("Unknown entity type.");
     return;
   }

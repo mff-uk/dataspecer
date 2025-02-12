@@ -1,146 +1,59 @@
-
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
-import { SemanticModelRelationship, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { EditAssociationProfileDialogState } from "./edit-association-profile-dialog-controller";
-import { EntityRepresentative, RelationshipRepresentative, representClassProfiles, representOwlThing, representRelationshipProfiles, representRelationships } from "../utilities/dialog-utilities";
-import { getDomainAndRange } from "../../util/relationship-utils";
+import { listRelationshipProfileDomains, representUndefinedAssociation } from "../utilities/dialog-utilities";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
-import { InvalidAggregation, MissingEntity, MissingRelationshipEnds } from "../../application/error";
-import { CmeModel } from "../../dataspecer/cme-model";
 import { createRelationshipProfileStateForNew } from "../utilities/relationship-profile-utilities";
 import { EditAssociationProfileDialog } from "./edit-association-profile-dialog";
 import { DialogWrapper } from "../dialog-api";
-import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { createEntityProfileStateForNewEntityProfile, createEntityProfileStateForNewProfileOfProfile } from "../utilities/entity-profile-utilities";
+import { createEntityProfileStateForNewEntityProfile } from "../utilities/entity-profile-utilities";
 import { configuration } from "../../application";
+import { listAssociationsToProfile } from "./attribute-profile-utilities";
+import { EntityDsIdentifier } from "../../dataspecer/entity-model";
 
 /**
- * @param classesContext
- * @param graphContext
- * @param visualModel
- * @param language
- * @param entity Raw entity to create profile for.
- * @returns
+ * State represents a newly created profile for given profiled entity.
  */
 export function createNewAssociationProfileDialogState(
   classesContext: ClassesContextType,
   graphContext: ModelGraphContextType,
   visualModel: VisualModel | null,
   language: string,
-  entity: SemanticModelRelationship | SemanticModelRelationshipUsage,
+  profilesIdentifiers: EntityDsIdentifier[],
 ): EditAssociationProfileDialogState {
-  const entities = graphContext.aggregatorView.getEntities();
+  const vocabularies = entityModelsMapToCmeVocabulary(
+    graphContext.models, visualModel);
 
-  const models = [...graphContext.models.values()];
+  const noProfile = representUndefinedAssociation();
 
-  const vocabularies = entityModelsMapToCmeVocabulary(graphContext.models, visualModel);
+  const availableProfiles = listAssociationsToProfile(
+    classesContext, graphContext, vocabularies);
 
-  const profiles = [
-    ...representRelationships(models, vocabularies,
-      classesContext.relationships),
-    ...representRelationshipProfiles(entities, models, vocabularies,
-      classesContext.profiles.filter(item => isSemanticModelRelationshipUsage(item))),
-  ];
+  const domains = listRelationshipProfileDomains(
+    classesContext, graphContext, vocabularies);
 
-  // Find representation of entity to profile.
-  const profileOf = profiles.find(item => item.identifier === entity.id)
-    ?? profiles[0]
-    ?? null;
-
-  if (profileOf === null) {
-    throw new MissingEntity(entity.id);
-  }
-
-  const classProfiles = [
-    ...representClassProfiles(entities, models, vocabularies,
-      classesContext.profiles.filter(item => isSemanticModelClassUsage(item))),
-  ];
-
-  // Rest of this function depends of what we are profiling.
-  if (isSemanticModelRelationship(entity)) {
-    return createForAssociation(
-      language, vocabularies, entity, profiles, profileOf, classProfiles);
-  } else {
-    return createForAssociationProfile(
-      language, vocabularies, entity, profiles, profileOf, classProfiles, entities);
-  }
-}
-
-function createForAssociation(
-  language: string,
-  vocabularies: CmeModel[],
-  entity: SemanticModelRelationship,
-  profiles: RelationshipRepresentative[],
-  profileOf: RelationshipRepresentative,
-  classProfiles: EntityRepresentative[],
-): EditAssociationProfileDialogState {
-
-  const { domain, range } = getDomainAndRange(entity);
-  if (domain === null || range === null) {
-    throw new MissingRelationshipEnds(entity);
-  }
+  const ranges = domains;
 
   // EntityProfileState
 
   const entityProfileState = createEntityProfileStateForNewEntityProfile(
-    language, vocabularies, profiles, profileOf.identifier,
+    language, configuration().languagePreferences,
+    vocabularies,
+    availableProfiles, profilesIdentifiers, noProfile,
     configuration().nameToIri);
 
   // RelationshipState<EntityRepresentative>
 
-  const owlThing = representOwlThing();
-
-  const availableDomains = [owlThing, ...classProfiles];
-  const availableRanges = [owlThing, ...classProfiles];
+  const profile = entityProfileState.profiles[0];
   const relationshipProfileState = createRelationshipProfileStateForNew(
-    domain.concept, owlThing, domain.cardinality, availableDomains,
-    range.concept, owlThing, range.cardinality, availableRanges);
-
-  return {
-    ...entityProfileState,
-    ...relationshipProfileState,
-  };
-
-}
-
-function createForAssociationProfile(
-  language: string,
-  vocabularies: CmeModel[],
-  entity: SemanticModelRelationshipUsage,
-  profiles: RelationshipRepresentative[],
-  profileOf: RelationshipRepresentative,
-  classProfiles: EntityRepresentative[],
-  entities: Record<string, AggregatedEntityWrapper>
-): EditAssociationProfileDialogState {
-  const aggregated = entities[entity.id]?.aggregatedEntity;
-  if (!isSemanticModelRelationshipUsage(aggregated)) {
-    throw new InvalidAggregation(entity, null);
-  }
-
-  const { domain, range } = getDomainAndRange(aggregated);
-  if (domain === null || range === null) {
-    throw new MissingRelationshipEnds(entity);
-  }
-
-  // EntityProfileState
-
-  const entityProfileState = createEntityProfileStateForNewProfileOfProfile(
-    language, vocabularies, profiles, profileOf.identifier,
-    configuration().nameToIri);
-
-  // RelationshipState<EntityRepresentative>
-
-  const owlThing = representOwlThing();
-
-  const availableDomains = [owlThing, ...classProfiles];
-  const availableRanges = [owlThing, ...classProfiles];
-  const relationshipProfileState = createRelationshipProfileStateForNew(
-    domain.concept, owlThing, domain.cardinality, availableDomains,
-    range.concept, owlThing, range.cardinality, availableRanges);
+    profile.domain,
+    profile.domainCardinality.cardinality,
+    domains, domains[0],
+    profile.range,
+    profile.rangeCardinality.cardinality,
+    ranges, ranges[0]);
 
   return {
     ...entityProfileState,
