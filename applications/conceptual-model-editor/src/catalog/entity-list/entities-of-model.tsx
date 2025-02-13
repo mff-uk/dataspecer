@@ -14,6 +14,7 @@ import {
 import {
   type SemanticModelClassUsage,
   type SemanticModelRelationshipUsage,
+  isSemanticModelAttributeUsage,
   isSemanticModelClassUsage,
   isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
@@ -25,10 +26,12 @@ import { RowHierarchy } from "./row-hierarchy";
 import { shortenStringTo } from "../../util/utils";
 import { ActionsContextType, useActions } from "../../action/actions-react-binding";
 import { ExpandModelButton } from "../components/expand-model";
-import { type VisualEntity, isVisualNode, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
+import { type VisualEntity, VisualNode, isVisualNode, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
 import { ShowAllClassesFromSemanticModelButton } from "../components/add-entities-from-semantic-model-to-visual-button";
 import { HideAllClassesFromSemanticModelButton } from "../components/remove-entities-in-semantic-model-from-visual-button";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { getDomainAndRange } from "../../util/relationship-utils";
+import { getRemovedAndAdded } from "../../action/utilities";
 
 export enum EntityType {
     Class = "class",
@@ -106,6 +109,11 @@ export const EntitiesOfModel = (props: {
       const represented = getRepresented(entity);
       if (represented !== null) {
         nextVisible.push(represented);
+        if(isVisualNode(entity)) {
+          entity.content.forEach(attribute => {
+            nextVisible.push(attribute);
+          });
+        }
       }
     });
 
@@ -125,7 +133,13 @@ export const EntitiesOfModel = (props: {
             // Create.
             const represented = getRepresented(next);
             if (represented !== null) {
-              setVisible(prev => [...prev, represented]);
+              setVisible(prev => {
+                const newVisible = [...prev, represented];
+                if(isVisualNode(next)) {
+                  newVisible.push(...next.content);
+                }
+                return newVisible;
+              });
             }
           } else if (previous !== null && next === null) {
             // Delete
@@ -138,12 +152,26 @@ export const EntitiesOfModel = (props: {
               if (index === -1) {
                 return prev;
               }
-              return [
+
+              let newVisible = [
                 ...prev.slice(0, index),
                 ...prev.slice(index + 1, prev.length),
               ];
+              if(isVisualNode(previous)) {
+                newVisible = newVisible.filter(visibleElement => !previous.content.includes(visibleElement));
+              }
+              return newVisible;
             });
           } else if (previous !== null && next !== null) {
+
+            if(isVisualNode(next)) {
+              const {removed, added} = getRemovedAndAdded((previous as VisualNode).content, next.content)
+              setVisible(prev => {
+                const newVisible = prev.filter(previouslyVisibleElement => !removed.includes(previouslyVisibleElement));
+                newVisible.push(...added);
+                return newVisible;
+              });
+            }
             // Update
           }
         }
@@ -177,6 +205,12 @@ export const EntitiesOfModel = (props: {
   const handleAddToView = (entity: Entity) => {
     if (isSemanticModelClass(entity)) {
       actions.addClassToVisualModel(model.getId(), entity.id, null);
+    } else if (isSemanticModelAttribute(entity)) {
+      const domain = getDomainAndRange(entity).domain?.concept;
+      actions.addAttributeToVisualModel(entity.id, domain ?? null);
+    } else if (isSemanticModelAttributeUsage(entity)) {
+      const domain = getDomainAndRange(entity).domain?.concept;
+      actions.addAttributeToVisualModel(entity.id, domain ?? null);
     } else if (isSemanticModelClassUsage(entity)) {
       actions.addClassProfileToVisualModel(model.getId(), entity.id, null);
     } else if (isSemanticModelRelationship(entity)) {
@@ -188,8 +222,13 @@ export const EntitiesOfModel = (props: {
     }
   };
 
-  const handleDeleteFromView = (identifier: string) => {
-    actions.removeFromVisualModel([identifier], false);
+  const handleDeleteFromView = (entity: Entity) => {
+    if(isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity)) {
+      actions.removeAttributesFromVisualModel([entity.id]);
+    }
+    else {
+      actions.removeFromVisualModel([entity.id], false);
+    }
   };
 
   const handleDeleteEntity = async (model: InMemorySemanticModel | ExternalSemanticModel, identifier: string) => {
@@ -286,7 +325,7 @@ function renderAddButton(actions: ActionsContextType, type: EntityType, model: E
       actions.openCreateClassDialog(model.getId());
       break;
     case EntityType.Attribute:
-      actions.openCreateAttributeDialog(model.getId());
+      actions.openCreateAttributeDialogForModel(model.getId());
       break;
     case EntityType.Relationship:
       actions.openCreateAssociationDialog(model.getId());

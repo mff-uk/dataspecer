@@ -12,6 +12,8 @@ import { ModelGraphContextType } from "../context/model-context";
 import { ClassesContextType } from "../context/classes-context";
 import { ExtensionType, VisibilityFilter, extendSelectionAction } from "./extend-selection-action";
 import { Selections } from "./filter-selection-action";
+import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelAttributeUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 const LOG = createLogger(import.meta.url);
 
@@ -40,6 +42,16 @@ export function convertToEntitiesToDeleteType(
     });
   }
   return entitiesToDelete;
+}
+
+export function checkIfIsAttributeOrAttributeProfile(
+  entityIdentifier: string,
+  allModels: Map<string, EntityModel>,
+  sourceModelIdentifier: string
+) {
+  const entity = allModels.get(sourceModelIdentifier)?.getEntities()?.[entityIdentifier] ?? null;
+  const isAttributeOrAttributeProfile = isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity);
+  return isAttributeOrAttributeProfile;
 }
 
 /**
@@ -149,7 +161,7 @@ type ComputedPositionForNodePlacement = {
 /**
  * @returns The barycenter of nodes associated to {@link classToFindAssociationsFor} and boolean variable saying if the position was explicitly put to middle of viewport.
  */
-export const computeMiddleOfRelatedAssociationsPositionAction = async (
+export const computeRelatedAssociationsBarycenterAction = async (
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   visualModel: WritableVisualModel,
@@ -220,9 +232,11 @@ const findAssociatedClassesAndClassUsages = async (
   // Is synchronous for this case
   const selection = await extendSelectionAction(notifications, graph, classesContext,
     {areIdentifiersFromVisualModel: false, identifiers: [classToFindAssociationsFor]},
-    [ExtensionType.ASSOCIATION, ExtensionType.GENERALIZATION], VisibilityFilter.ONLY_VISIBLE_NODES, false, null);
+    [ExtensionType.Association, ExtensionType.Generalization], VisibilityFilter.OnlyVisibleNodes, false, null);
   return selection;
 }
+
+// TODO RadStr: Add tests for stuff in this file! (just to the exported stuff)
 
 /**
  * @returns The top level group, or null if the node is not part of any group.
@@ -244,7 +258,12 @@ export function findTopLevelGroup<T>(
   return topLevelGroup;
 }
 
-export function findTopLevelGroupFromVisualModel(
+/**
+ * Finds the top level group for given {@link identifier}, which represents any kind of node
+ * (node, group, super(diagram) node). We are looking for top level group in the given {@link visualModel}
+ * @returns The identifier of the top level group or null, if the input node identified by {@link identifier} isn't part of any group.
+ */
+export function findTopLevelGroupInVisualModel(
   identifier: string,
   visualModel: VisualModel,
 ): string | null {
@@ -253,6 +272,9 @@ export function findTopLevelGroupFromVisualModel(
   return topLevelGroup;
 }
 
+/**
+ * @returns Returns the mapping of all kind of nodes to group to which they belong in given {@link visualModel}.
+ */
 export function getGroupMappings(visualModel: VisualModel) {
   const existingGroups: Record<string, VisualGroup> = {};
   const nodeToGroupMapping: Record<string, string> = {};
@@ -268,5 +290,32 @@ export function getGroupMappings(visualModel: VisualModel) {
   return {
     existingGroups,
     nodeToGroupMapping,
+  };
+}
+
+/**
+ * @returns Returns object, which contains the "removed" entities, i.e. the entities
+ * which were present in the {@link previousValues}, but are not present in {@link nextValues}.
+ * and "added", which are present in {@link nextValues}, but were not present in {@link previousValues}.
+ */
+export function getRemovedAndAdded<T>(previousValues: T[], nextValues: T[]) {
+  const removed: T[] = [];
+  const added: T[] = [];
+  for(const element of nextValues) {
+    const isElementInPrevious = previousValues.includes(element);
+    if(!isElementInPrevious) {
+      added.push(element);
+    }
+  }
+  for(const element of previousValues) {
+    const isElementInNext = nextValues.includes(element);
+    if(!isElementInNext) {
+      removed.push(element);
+    }
+  }
+
+  return {
+    removed,
+    added
   };
 }

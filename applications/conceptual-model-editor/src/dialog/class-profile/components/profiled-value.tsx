@@ -3,9 +3,32 @@ import { EntityRepresentative } from "../../utilities/dialog-utilities";
 import { OverrideCheckbox } from "./checkbox-override";
 
 /**
+ * Wrap value edit with ability to decide whether to override the value.
+ */
+export function ProfiledValue(props: {
+  children: React.ReactNode,
+  language: string,
+  override: boolean,
+  onToggleOverride: () => void,
+}) {
+  return (
+    <div className="flex">
+      {/* Value input node. */}
+      {props.children}
+      <div>
+        <OverrideCheckbox
+          value={props.override}
+          onToggle={props.onToggleOverride}
+        />
+      </div>
+    </div>
+  )
+}
+
+/**
  * Wrap value edit with ability to select value from a profile.
  */
-export function ProfiledValue<ProfileType extends EntityRepresentative>(props: {
+export function ProfiledValueWithSource<ProfileType extends EntityRepresentative>(props: {
   children: React.ReactNode,
   language: string,
   // Profiles user can select from.
@@ -32,7 +55,7 @@ export function ProfiledValue<ProfileType extends EntityRepresentative>(props: {
     // We are changing the value in the profile.
     props.override ||
     // There is only one option, no reason to show this to the user.
-    props.availableProfiles.length == 1;
+    props.availableProfiles.length === 1;
 
   return (
     <div className="flex">

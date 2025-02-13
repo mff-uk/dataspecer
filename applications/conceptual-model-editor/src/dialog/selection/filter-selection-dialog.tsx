@@ -16,7 +16,7 @@ type CheckboxData = {
 //
 
 export const createFilterSelectionDialog = (
-  onConfirm: (state: SelectionFilterState) => void | null,
+  onConfirm: ((state: SelectionFilterState) => void) | null,
   selections: SelectionsWithIdInfo,
   setSelectionInDiagram: (selections: Selections) => void,
 ): DialogWrapper<SelectionFilterState> => {
@@ -29,7 +29,7 @@ export const createFilterSelectionDialog = (
     validate: null,
     onConfirm,
     onClose: null,
-    dialogClassNames: "",
+    dialogClassNames: "base-dialog z-30 p-4 ",
   };
 };
 

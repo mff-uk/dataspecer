@@ -1,6 +1,7 @@
 import { createLogger } from "../../application";
 import { RuntimeError } from "../../application/error";
-import { Cardinality, EntityRepresentative, RelationshipRepresentative, representCardinalities, representCardinality, representOwlThing, representUndefinedClass, UNDEFINED_IDENTIFIER } from "./dialog-utilities";
+import { EntityDsIdentifier } from "../../dataspecer/entity-model";
+import { EntityRepresentative, listCardinalities, representCardinality } from "./dialog-utilities";
 import { RelationshipController, RelationshipState, createRelationshipController } from "./relationship-utilities";
 import { ValidationState, validationNoProblem } from "./validation-utilities";
 
@@ -8,27 +9,11 @@ const LOG = createLogger(import.meta.url);
 
 export interface RelationshipProfileState<RangeType> extends RelationshipState<RangeType> {
 
-  /**
-   * We need this to select default profile after a profile is removed.
-   * We keep this empty and let the {@link EntityProfileState} manage it.
-   */
-  profileOf: RelationshipRepresentative[];
-
   // Domain
-
-  domainSource: RelationshipRepresentative;
-
-  domainSourceValue: EntityRepresentative;
-
-  overrideDomain: boolean;
 
   domainValidation: ValidationState;
 
   // Domain cardinality
-
-  domainCardinalitySource: RelationshipRepresentative;
-
-  domainCardinalitySourceValue: Cardinality;
 
   overrideDomainCardinality: boolean;
 
@@ -36,21 +21,9 @@ export interface RelationshipProfileState<RangeType> extends RelationshipState<R
 
   // Range
 
-  rangeSource: RelationshipRepresentative;
-
-  rangeSourceValue: RangeType;
-
-  overrideRange: boolean;
-
   rangeValidation: ValidationState;
 
-  defaultRange: RangeType;
-
   // Range cardinality
-
-  rangeCardinalitySource: RelationshipRepresentative;
-
-  rangeCardinalitySourceValue: Cardinality;
 
   overrideRangeCardinality: boolean;
 
@@ -58,197 +31,107 @@ export interface RelationshipProfileState<RangeType> extends RelationshipState<R
 
 }
 
+/**
+ * @param defaultDomain Used when given domain representative can not be found.
+ * @param defaultRange Used when given range representative can not be found.
+ */
 export function createRelationshipProfileStateForNew<RangeType extends { identifier: string }>(
-  profileOf: RelationshipRepresentative,
-  domain: string | null,
-  domainCardinality: [number, number | null] | undefined | null,
+  domainIdentifier: EntityDsIdentifier,
+  domainCardinality: [number, number | null] | null,
   availableDomains: EntityRepresentative[],
-  range: string | null,
-  defaultRange: RangeType,
-  rangeCardinality: [number, number | null] | undefined | null,
+  defaultDomain: EntityRepresentative,
+  rangeIdentifier: EntityDsIdentifier,
+  rangeCardinality: [number, number | null] | null,
   availableRanges: RangeType[],
+  defaultRange: RangeType,
 ): RelationshipProfileState<RangeType> {
 
   // Domain
-  const effectiveDomain = domain ?? UNDEFINED_IDENTIFIER;
-  let initialDomain = availableDomains.find(item => item.identifier === effectiveDomain);
-  if (initialDomain === undefined) {
-    LOG.warn("Can not find domain representative.", {domain: effectiveDomain, availableDomains})
-    initialDomain = representUndefinedClass();
-  }
-  let domainSourceValue = availableDomains.find(item => item.identifier === profileOf.domain);
-  if (domainSourceValue === undefined) {
-    LOG.warn("Can not find domain source value representative.", {domain: profileOf.domain, availableDomains})
-    domainSourceValue = representUndefinedClass();
+  let domain = availableDomains.find(item => item.identifier === domainIdentifier);
+  if (domain === undefined) {
+    LOG.warn("Can not find domain representative.",
+      { domain: rangeIdentifier, availableDomains });
+    domain = defaultDomain;
   }
 
   // Range
-  const effectiveRange = range ?? UNDEFINED_IDENTIFIER;
-  let initialRange = availableRanges.find(item => item.identifier === effectiveRange);
-  if (initialRange === undefined) {
-    LOG.warn("Can not find range representative.", {range: effectiveRange, availableRanges})
-    initialRange = defaultRange;
-  }
-  let rangeSourceValue = availableRanges.find(item => item.identifier === profileOf.range);
-  if (rangeSourceValue === undefined) {
-    LOG.warn("Can not find range source value representative.", {range: profileOf.range, availableRanges})
-    rangeSourceValue = defaultRange;
+  let range = availableRanges.find(item => item.identifier === rangeIdentifier);
+  if (range === undefined) {
+    LOG.warn("Can not find range representative.",
+      { range: rangeIdentifier, availableRanges });
+    range = defaultRange;
   }
 
   return {
-    profileOf: [profileOf],
     // Domain
-    domain: initialDomain,
-    overrideDomain: false,
-    domainSource: profileOf,
-    domainSourceValue,
+    domain,
     domainValidation: validationNoProblem(),
+    availableDomains: availableDomains,
     // Domain cardinality
     domainCardinality: representCardinality(domainCardinality),
-    overrideDomainCardinality: false,
-    domainCardinalitySource: profileOf,
-    domainCardinalitySourceValue: profileOf.domainCardinality,
+    overrideDomainCardinality: domainCardinality !== null,
     domainCardinalityValidation: validationNoProblem(),
-    availableDomains: availableDomains,
     // Range
-    range: initialRange,
-    overrideRange: false,
-    rangeSource: profileOf,
-    rangeSourceValue,
+    range,
     rangeValidation: validationNoProblem(),
-    defaultRange,
+    availableRanges: availableRanges,
     // Range cardinality
     rangeCardinality: representCardinality(rangeCardinality),
-    overrideRangeCardinality: false,
-    rangeCardinalitySource: profileOf,
-    rangeCardinalitySourceValue: profileOf.rangeCardinality,
+    overrideRangeCardinality: rangeCardinality !== null,
     rangeCardinalityValidation: validationNoProblem(),
-    availableRanges: availableRanges,
-    availableCardinalities: representCardinalities(),
+    //
+    availableCardinalities: listCardinalities(),
   };
 }
 
 export function createRelationshipProfileStateForEdit<RangeType extends { identifier: string }>(
-  availableProfiles: RelationshipRepresentative[],
-  profiles: string[],
-  domain: string | null,
-  domainSource: string | null,
-  domainCardinality: [number, number | null] | undefined | null,
-  domainCardinalitySource: string | null,
+  domainIdentifier: EntityDsIdentifier,
   availableDomains: EntityRepresentative[],
-  range: string | null,
-  rangeSource: string | null,
-  defaultRange: RangeType,
-  rangeCardinality: [number, number | null] | undefined | null,
-  rangeCardinalitySource: string | null,
+  domainCardinality: [number, number | null] | null,
+  rangeIdentifier: EntityDsIdentifier,
   availableRanges: RangeType[],
+  rangeCardinality: [number, number | null] | null,
 ): RelationshipProfileState<RangeType> {
 
-  const profileOf = availableProfiles.filter(item => profiles.includes(item.identifier));
-  if (profileOf.length === 0) {
-    throw new RuntimeError("Missing all profiled entities.");
-  }
-
-  // Since we need to have profile value for sources,
-  // we use this ona as a default.
-  const fallbackProfile = profileOf[0];
-
   // Domain
-  const effectiveDomain = domain ?? UNDEFINED_IDENTIFIER;
-  const initialDomain = availableDomains.find(item => item.identifier === effectiveDomain);
-  if (initialDomain === undefined) {
+  const domain = availableDomains.find(item => item.identifier === domainIdentifier);
+  if (domain === undefined) {
     throw new RuntimeError("Can not find domain representative.")
   }
-  const domainSourceProfile = availableProfiles.find(
-    item => item.identifier == domainSource) ?? fallbackProfile;
-  const domainSourceValue = availableDomains.find(item => item.identifier === domainSourceProfile.domain);
-  if (domainSourceValue === undefined) {
-    throw new RuntimeError("Can not find profiled domain representative.")
-  }
-
-  // Domain cardinality
-  const initialDomainCardinality = representCardinality(domainCardinality);
-  const domainCardinalitySourceProfile = availableProfiles.find(
-    item => item.identifier == domainCardinalitySource) ?? fallbackProfile;
-  const domainCardinalitySourceValue = domainCardinalitySourceProfile.domainCardinality;
 
   // Range
-  const effectiveRange = domain ?? UNDEFINED_IDENTIFIER;
-  const initialRange = availableRanges.find(item => item.identifier === effectiveRange);
-  if (initialRange === undefined) {
+  const range = availableRanges.find(item => item.identifier === rangeIdentifier);
+  if (range === undefined) {
     throw new RuntimeError("Can not find range representative.")
   }
-  const rangeSourceProfile = availableProfiles.find(
-    item => item.identifier == rangeSource) ?? fallbackProfile;
-  const rangeSourceValue = availableRanges.find(item => item.identifier === rangeSourceProfile.domain);
-  if (rangeSourceValue === undefined) {
-    throw new RuntimeError("Can not find profiled range representative.")
-  }
-
-  // Range cardinality
-  const initialRangeCardinality = representCardinality(rangeCardinality);
-  const rangeCardinalitySourceProfile = availableProfiles.find(
-    item => item.identifier == rangeCardinalitySource) ?? fallbackProfile;
-  const rangeCardinalitySourceValue = rangeCardinalitySourceProfile.rangeCardinality;
-  //
 
   return {
-    profileOf,
     // Domain
-    domain: initialDomain,
-    overrideDomain: domain !== null,
-    domainSource: domainSourceProfile,
-    domainSourceValue,
+    domain,
     domainValidation: validationNoProblem(),
     // Domain cardinality
-    domainCardinality: initialDomainCardinality,
+    domainCardinality: representCardinality(domainCardinality),
     overrideDomainCardinality: domainCardinality !== null,
-    domainCardinalitySource: domainCardinalitySourceProfile,
-    domainCardinalitySourceValue,
     domainCardinalityValidation: validationNoProblem(),
     availableDomains: availableDomains,
     // Range
-    range: initialRange,
-    overrideRange: range !== null,
-    rangeSource: rangeSourceProfile,
-    rangeSourceValue,
+    range,
     rangeValidation: validationNoProblem(),
-    defaultRange,
     // Range cardinality
-    rangeCardinality: initialRangeCardinality,
+    rangeCardinality: representCardinality(rangeCardinality),
     overrideRangeCardinality: rangeCardinality !== null,
-    rangeCardinalitySource: rangeCardinalitySourceProfile,
-    rangeCardinalitySourceValue,
     rangeCardinalityValidation: validationNoProblem(),
     availableRanges: availableRanges,
     //
-    availableCardinalities: representCardinalities(),
+    availableCardinalities: listCardinalities(),
   };
 }
 
 export interface RelationshipProfileStateController<RangeType> extends RelationshipController<RangeType> {
 
-  /**
-   * Does not update profile list, only apply changes.
-   * Must be called after the list of profiles is updated.
-   */
-  onRemoveProfileOf: (value: RelationshipRepresentative) => void;
-
-  toggleDomainOverride: () => void;
-
-  setDomainSource: (value: RelationshipRepresentative) => void;
-
   toggleDomainCardinalityOverride: () => void;
 
-  setDomainCardinalitySource: (value: RelationshipRepresentative) => void;
-
-  toggleRangeOverride: () => void;
-
-  setRangeSource: (value: RelationshipRepresentative) => void;
-
   toggleRangeCardinalityOverride: () => void;
-
-  setRangeCardinalitySource: (value: RelationshipRepresentative) => void;
 
 }
 
@@ -261,93 +144,10 @@ export function createRelationshipProfileController<
 
   const relationshipController = createRelationshipController(changeState);
 
-  const onRemoveProfileOf = (value: RelationshipRepresentative) => {
-    changeState((state) => {
-      // We know this should never be empty.
-      const defaultProfileOf = state.profileOf[0];
-      // We could remove profile used as a source for some entities.
-      // We need to copy the values and set a new value.
-      const result = { ...state };
-      if (result.domainSource === value) {
-        result.domain = result.domainSourceValue;
-        result.domainSource = defaultProfileOf;
-        const domainSourceValue = state.availableDomains.find(
-          item => item.identifier === defaultProfileOf.domain);
-        if (domainSourceValue === null) {
-          LOG.error("Missing domain representant.")
-          result.domainSourceValue = representOwlThing();
-        }
-        result.overrideDomain = true;
-      }
-      if (result.domainCardinalitySource === value) {
-        result.domainCardinality = result.domainCardinalitySourceValue;
-        result.domainCardinalitySource = defaultProfileOf;
-        result.domainCardinalitySourceValue = defaultProfileOf.domainCardinality;
-        result.overrideDomainCardinality = true;
-      }
-      if (result.rangeSource === value) {
-        result.range = result.rangeSourceValue;
-        result.rangeSource = defaultProfileOf;
-        const rangeSourceValue = state.availableRanges.find(
-          item => item.identifier === defaultProfileOf.range);
-        if (rangeSourceValue === null) {
-          LOG.error("Missing domain representant.")
-          result.rangeSourceValue = result.defaultRange;
-        }
-        result.overrideRange = true;
-      }
-      if (result.rangeCardinalitySource === value) {
-        result.rangeCardinality = result.rangeCardinalitySourceValue;
-        result.rangeCardinalitySource = defaultProfileOf;
-        result.rangeCardinalitySourceValue = defaultProfileOf.rangeCardinality;
-        result.overrideDomainCardinality = true;
-      }
-      return result;
-    });
-  };
-
-  const toggleDomainOverride = () => {
-    changeState((state) => ({
-      ...state,
-      overrideDomain: !state.overrideDomain,
-    }));
-  };
-
-  const setDomainSource = (value: RelationshipRepresentative) => {
-    changeState((state) => ({
-      ...state,
-      domainSource: value,
-      domainSourceValue: value.domain,
-    }));
-  };
-
   const toggleDomainCardinalityOverride = () => {
     changeState((state) => ({
       ...state,
       overrideDomainCardinality: !state.overrideDomainCardinality,
-    }));
-  };
-
-  const setDomainCardinalitySource = (value: RelationshipRepresentative) => {
-    changeState((state) => ({
-      ...state,
-      domainCardinalitySource: value,
-      domainCardinalitySourceValue: value.domainCardinality,
-    }));
-  };
-
-  const toggleRangeOverride = () => {
-    changeState((state) => ({
-      ...state,
-      overrideRange: !state.overrideRange,
-    }));
-  };
-
-  const setRangeSource = (value: RelationshipRepresentative) => {
-    changeState((state) => ({
-      ...state,
-      rangeSource: value,
-      rangeSourceValue: value.range,
     }));
   };
 
@@ -358,25 +158,10 @@ export function createRelationshipProfileController<
     }));
   };
 
-  const setRangeCardinalitySource = (value: RelationshipRepresentative) => {
-    changeState((state) => ({
-      ...state,
-      rangeCardinalitySource: value,
-      rangeCardinalitySourceValue: value.rangeCardinality,
-    }));
-  };
-
   return {
     ...relationshipController,
-    onRemoveProfileOf,
-    toggleDomainOverride,
-    setDomainSource,
     toggleDomainCardinalityOverride,
-    setDomainCardinalitySource,
-    toggleRangeOverride,
-    setRangeSource,
     toggleRangeCardinalityOverride,
-    setRangeCardinalitySource,
   };
 
 }

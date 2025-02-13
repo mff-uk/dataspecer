@@ -28,7 +28,9 @@ import { EditClassProfileDialogState } from "../dialog/class-profile/edit-class-
 import { createNewClassProfileDialog, createNewProfileClassDialogState } from "../dialog/class-profile/create-new-class-profile-dialog-state";
 import { EntityModel } from "@dataspecer/core-v2";
 import { createCmeClassProfile } from "../dataspecer/cme-model/operation/create-cme-class-profile";
-import { createCmeRelationshipProfile } from "../dataspecer/cme-model/operation/craete-cme-relationship-profile";
+import { createCmeRelationshipProfile } from "../dataspecer/cme-model/operation/create-cme-relationship-profile";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
 
 export function openCreateProfileDialogAction(
   options: Options,
@@ -47,9 +49,11 @@ export function openCreateProfileDialogAction(
     return;
   }
   //
-  if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
+  if (isSemanticModelClass(entity)
+    || isSemanticModelClassUsage(entity)
+    || isSemanticModelClassProfile(entity)) {
     const state = createNewProfileClassDialogState(
-      classes, graph, visualModel, options.language, entity.id);
+      classes, graph, visualModel, options.language, [entity.id]);
     const onConfirm = (state: EditClassProfileDialogState) => {
       const createResult = createClassProfile(state, graph.models);
       if (createResult === null) {
@@ -67,9 +71,11 @@ export function openCreateProfileDialogAction(
     return;
   }
 
-  if (isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity)) {
+  if (isSemanticModelAttribute(entity)
+    || isSemanticModelAttributeUsage(entity)
+    || isSemanticModelAttributeProfile(entity)) {
     const state = createNewAttributeProfileDialogState(
-      classes, graph, visualModel, options.language, entity);
+      classes, graph, visualModel, options.language, [entity.id]);
     const onConfirm = (state: EditAttributeProfileDialogState) => {
       createRelationshipProfile(state, graph.models);
       // We do not update visual model here as attribute is part of  a class.
@@ -78,9 +84,11 @@ export function openCreateProfileDialogAction(
     return;
   }
 
-  if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
+  if (isSemanticModelRelationship(entity)
+    || isSemanticModelRelationshipUsage(entity)
+    || isSemanticModelRelationshipProfile(entity)) {
     const state = createNewAssociationProfileDialogState(
-      classes, graph, visualModel, options.language, entity);
+      classes, graph, visualModel, options.language, [entity.id]);
     const onConfirm = (state: EditAssociationProfileDialogState) => {
       const createResult = createRelationshipProfile(state, graph.models);
       if (createResult === null) {
@@ -115,14 +123,14 @@ const createClassProfile = (
   const model = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
   const result = createCmeClassProfile({
     model: state.model.dsIdentifier,
-    profileOf: state.profileOf.map(item => item.identifier),
+    profileOf: state.profiles.map(item => item.identifier),
     iri: state.iri,
     name: state.name,
     nameSource: state.overrideName ? null :
       state.nameSource?.identifier ?? null,
     description: state.description,
     descriptionSource: state.overrideDescription ? null :
-      state.descriptionSourceValue?.identifier ?? null,
+      state.descriptionSource?.identifier ?? null,
     usageNote: state.usageNote,
     usageNoteSource: state.overrideUsageNote ? null :
       state.usageNoteSource?.identifier ?? null,
@@ -143,7 +151,7 @@ const createRelationshipProfile = (
   const model: InMemorySemanticModel = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
   const result = createCmeRelationshipProfile({
     model: state.model.dsIdentifier,
-    profileOf: state.profileOf.map(item => item.identifier),
+    profileOf: state.profiles.map(item => item.identifier),
     iri: state.iri,
     name: state.name,
     nameSource: state.overrideName ? null :
@@ -156,17 +164,9 @@ const createRelationshipProfile = (
       state.usageNoteSource?.identifier ?? null,
     //
     domain: state.domain.identifier,
-    domainSource: state.overrideDomain ? null :
-      state.domainSource?.identifier ?? null,
     domainCardinality: state.domainCardinality.cardinality,
-    domainCardinalitySource: state.overrideDomainCardinality ? null :
-      state.domainSource?.identifier ?? null,
     range: state.range.identifier,
-    rangeSource: state.overrideRange ? null :
-      state.rangeSource?.identifier ?? null,
     rangeCardinality: state.rangeCardinality.cardinality,
-    rangeCardinalitySource: state.overrideRangeCardinality ? null :
-      state.rangeCardinalitySource?.identifier ?? null,
   }, [...models.values() as any]);
   return {
     identifier: result.identifier,

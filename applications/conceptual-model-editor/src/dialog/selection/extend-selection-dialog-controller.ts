@@ -41,17 +41,25 @@ const createExtensionData = (
 const createExtensionCheckboxesData = (): ExtensionData[] => {
   const extensionCheckboxesStates: ExtensionData[] = [];
 
-  extensionCheckboxesStates.push(createExtensionData(true, "🔵⭢🔴", "extend-selection-association-target-tooltip", ExtensionType.ASSOCIATION_TARGET));
-  extensionCheckboxesStates.push(createExtensionData(true, "🔴⭢🔵", "extend-selection-association-source-tooltip", ExtensionType.ASSOCIATION_SOURCE));
+  extensionCheckboxesStates.push(createExtensionData(true, "extend-selection-association-name",
+    "", ExtensionType.AssociationTarget));
+  extensionCheckboxesStates.push(createExtensionData(true, "extend-selection-association-name",
+    "", ExtensionType.AssociationSource));
 
-  extensionCheckboxesStates.push(createExtensionData(false, "🔵⇒🔴", "extend-selection-generalization-parent-tooltip", ExtensionType.GENERALIZATION_PARENT));
-  extensionCheckboxesStates.push(createExtensionData(false, "🔴⇒🔵", "extend-selection-generalization-child-tooltip", ExtensionType.GENERALIZATION_CHILD));
+  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-generalization-name",
+    "", ExtensionType.GeneralizationParent));
+  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-generalization-name",
+    "", ExtensionType.GeneralizationChild));
 
-  extensionCheckboxesStates.push(createExtensionData(false, "🔵⇢🔴", "extend-selection-association-profile-target-tooltip", ExtensionType.PROFILE_EDGE_TARGET));
-  extensionCheckboxesStates.push(createExtensionData(false, "🔴⇢🔵", "extend-selection-association-profile-source-tooltip", ExtensionType.PROFILE_EDGE_SOURCE));
+  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-association-profile-name",
+    "", ExtensionType.ProfileEdgeTarget));
+  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-association-profile-name",
+    "", ExtensionType.ProfileEdgeSource));
 
-  extensionCheckboxesStates.push(createExtensionData(false, "🟦⇢🟥", "extend-selection-class-profile-parent-tooltip", ExtensionType.PROFILE_CLASS_PARENT));
-  extensionCheckboxesStates.push(createExtensionData(false, "🟥⇢🟦", "extend-selection-class-profile-child-source-tooltip", ExtensionType.PROFILE_CLASS_CHILD));
+  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-class-profile-name",
+    "", ExtensionType.ClassProfileParent));
+  extensionCheckboxesStates.push(createExtensionData(false, "extend-selection-class-profile-name",
+    "", ExtensionType.ClassProfileChild));
 
   return extensionCheckboxesStates;
 };
@@ -64,6 +72,7 @@ export interface ExtendSelectionState {
   setSelectionsInDiagram: (newSelection: Selections) => void;
   areIdentifiersFromVisualModel: boolean;
   extensionCheckboxes: ExtensionData[];
+  shouldExtendOnlyThroughEdges: boolean,
 }
 
 export function createExtendSelectionState(
@@ -75,9 +84,10 @@ export function createExtendSelectionState(
 
   return {
     selections: selections,
-    setSelectionsInDiagram: setSelectionsInDiagram,
+    setSelectionsInDiagram,
     areIdentifiersFromVisualModel,
     extensionCheckboxes: extensionCheckboxStates,
+    shouldExtendOnlyThroughEdges: false,
   };
 }
 
@@ -85,6 +95,7 @@ export interface CreateExtendSelectionControllerType {
   setSelections: (next: Selections) => void;
   setExtensionCheckboxActivness: (next: {index: number, isActive: boolean}) => void;
   performExtensionBasedOnExtensionState: () => void;
+  toggleExtendOnlyThroughEdges: () => void;
 }
 
 export function useExtendSelectionController({ state, changeState }: DialogProps<ExtendSelectionState>): CreateExtendSelectionControllerType {
@@ -98,6 +109,9 @@ export function useExtendSelectionController({ state, changeState }: DialogProps
         nodeSelection: [...new Set(next.nodeSelection)],
         edgeSelection: [...new Set(next.edgeSelection)],
       };
+      if(state.shouldExtendOnlyThroughEdges) {
+        next.nodeSelection = [...state.selections.nodeSelection];
+      }
       changeState({ ...state, selections: next });
       state.setSelectionsInDiagram(next);
     };
@@ -122,7 +136,7 @@ export function useExtendSelectionController({ state, changeState }: DialogProps
           areIdentifiersFromVisualModel: state.areIdentifiersFromVisualModel
         },
         relevantExtensionTypes,
-        VisibilityFilter.ONLY_VISIBLE,
+        VisibilityFilter.OnlyVisible,
         null
       ).then(extension => {
         setSelections({
@@ -130,12 +144,17 @@ export function useExtendSelectionController({ state, changeState }: DialogProps
           edgeSelection: state.selections.edgeSelection.concat(extension.edgeSelection),
         });
       }).catch(console.error);
-    }
+    };
+
+    const toggleExtendOnlyThroughEdges = () => {
+      changeState({...state, shouldExtendOnlyThroughEdges: !state.shouldExtendOnlyThroughEdges});
+    };
 
     return {
       setSelections,
       setExtensionCheckboxActivness,
-      performExtensionBasedOnExtensionState
+      performExtensionBasedOnExtensionState,
+      toggleExtendOnlyThroughEdges,
     };
   }, [state, changeState, extendSelection]);
 }

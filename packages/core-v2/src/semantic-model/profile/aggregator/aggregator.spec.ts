@@ -65,7 +65,7 @@ test("Aggregate class with multiple profiles.", () => {
   });
 });
 
-test("Aggregate relationship with a profile.", () => {
+test("Aggregate relationship with a profiles.", () => {
   const aggregator = createDefaultProfileEntityAggregator();
   const actual = aggregator.aggregateSemanticModelRelationshipProfile({
     id: "1",
@@ -77,10 +77,8 @@ test("Aggregate relationship with a profile.", () => {
       description: null,
       descriptionFromProfiled: "2",
       cardinality: null,
-      cardinalityFromProfiled: "2",
-      concept: null,
-      conceptFromProfiled: "2",
-      profiling: ["2"],
+      concept: "1-1-concept",
+      profiling: ["2", "4"],
       usageNote: null,
       usageNoteFromProfiled: "2",
     }, {
@@ -90,9 +88,7 @@ test("Aggregate relationship with a profile.", () => {
       description: null,
       descriptionFromProfiled: "3",
       cardinality: null,
-      cardinalityFromProfiled: "3",
-      concept: null,
-      conceptFromProfiled: "3",
+      concept: "1-2-concept",
       profiling: ["3"],
       usageNote: null,
       usageNoteFromProfiled: "3",
@@ -100,15 +96,14 @@ test("Aggregate relationship with a profile.", () => {
   }, [{
     id: "2",
     type: [SEMANTIC_MODEL_RELATIONSHIP_PROFILE],
-    // THe second end is not used.
+    // The second end is not used.
     ends: [{
       iri:"2-iri",
       name: {"": "2-name"},
       nameFromProfiled: null,
       description: {"": "2-description"},
       descriptionFromProfiled: null,
-      cardinality: [0, 1],
-      cardinalityFromProfiled: null,
+      cardinality: [0, null],
       concept: "2-concept",
       conceptFromProfiled: null,
       profiling: [],
@@ -126,11 +121,25 @@ test("Aggregate relationship with a profile.", () => {
       description: {"": "3-description"},
       descriptionFromProfiled: null,
       cardinality: [0, 2],
-      cardinalityFromProfiled: null,
       concept: "3-concept",
-      conceptFromProfiled: null,
       profiling: [],
       usageNote: {"": "3-note"},
+      usageNoteFromProfiled: null,
+    }],
+  }, {
+    id: "4",
+    type: [SEMANTIC_MODEL_RELATIONSHIP_PROFILE],
+    // The second end is not used.
+    ends: [{
+      iri:"4-iri",
+      name: {"": "4-name"},
+      nameFromProfiled: null,
+      description: {"": "4-description"},
+      descriptionFromProfiled: null,
+      cardinality: [1, 2],
+      concept: "4-concept",
+      profiling: [],
+      usageNote: {"": "4-note"},
       usageNoteFromProfiled: null,
     }],
   }])
@@ -143,11 +152,9 @@ test("Aggregate relationship with a profile.", () => {
       nameFromProfiled: "2",
       description: {"": "2-description"},
       descriptionFromProfiled: "2",
-      cardinality: [0, 1],
-      cardinalityFromProfiled: "2",
-      concept: "2-concept",
-      conceptFromProfiled: "2",
-      profiling: ["2"],
+      cardinality: [1, 2],
+      concept: "1-1-concept",
+      profiling: ["2", "4"],
       usageNote: {"": "2-note"},
       usageNoteFromProfiled: "2",
     }, {
@@ -157,9 +164,7 @@ test("Aggregate relationship with a profile.", () => {
       description: {"": "3-description"},
       descriptionFromProfiled: "3",
       cardinality: [0, 2],
-      cardinalityFromProfiled: "3",
-      concept: "3-concept",
-      conceptFromProfiled: "3",
+      concept: "1-2-concept",
       profiling: ["3"],
       usageNote: {"": "3-note"},
       usageNoteFromProfiled: "3",

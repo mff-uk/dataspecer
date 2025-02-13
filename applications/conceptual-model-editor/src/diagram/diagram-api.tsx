@@ -1,3 +1,5 @@
+import { Position as PositionWithAnchor } from "@dataspecer/core-v2/visual-model";
+
 
 export type GroupWithContent = {
   /**
@@ -193,14 +195,15 @@ export interface DiagramActions {
    * Opens menu on given {@link canvasPosition}.
    * The menu appears when user drags edge to canvas.
    * @param sourceNode is the node from which the connection dragging started
-   * @param position is the canvas position where user dragged the connection and on which will the menu appear
+   * @param canvasPosition is the canvas position where user dragged the connection and on which will the menu appear
    */
   openDragEdgeToCanvasMenu(sourceNode: Node, canvasPosition: Position): void;
+
   /**
    * Opens menu on given {@link canvasPosition}.
    * The menu appears when user clicks the actions button on selection.
    * @param sourceNode is the node on which the user clicked the button.
-   * @param position is the canvas position where the menu will appear.
+   * @param canvasPosition is the canvas position where the menu will appear.
    */
   openSelectionActionsMenu(sourceNode: Node, canvasPosition: Position): void;
 
@@ -208,7 +211,7 @@ export interface DiagramActions {
    * Opens menu on given {@link canvasPosition}.
    * The menu represents control panel for group with given {@link groupIdentifier}.
    * @param groupIdentifier is the identifier of the group.
-   * @param position is the position where the menu will appear.
+   * @param canvasPosition is the position where the menu will appear.
    */
   openGroupMenu(groupIdentifier: string, canvasPosition: Position): void;
 
@@ -281,7 +284,7 @@ export type Node = {
   /**
    * Position of the Node at the canvas.
    */
-  position: Position;
+  position: PositionWithAnchor;
 
   profileOf: null | {
 
@@ -435,9 +438,31 @@ interface DiagramNodes {
   onDeleteNode: (diagramNode: Node) => void;
 
   /**
-   * Called when user choses to create new class from diagram's canvas menu.
+   * Called when user chooses to create new class from diagram's canvas menu.
    */
   onCanvasOpenCreateClassDialog: (nodeIdentifier: string, canvasPosition: Position) => void;
+
+  /**
+   * Called when user chooses to create new class from diagram's canvas menu with default association created afterwards.
+   * @param isCreatedClassTarget if set to true, then the association points to the created class. If set to false
+   * the direction of the association is from the created class to the source class.
+   */
+  onCanvasOpenCreateClassDialogWithAssociation: (
+    nodeIdentifier: string,
+    canvasPosition: Position,
+    isCreatedClassTarget: boolean
+  ) => void;
+
+  /**
+   * Called when user choses to create new class from diagram's canvas menu with generalization created afterwards.
+   * @param isCreatedClassParent if set to true, then the the created class becomes parent of the source class.
+   * If set to false, it becomes child.
+   */
+  onCanvasOpenCreateClassDialogWithGeneralization: (
+    nodeIdentifier: string,
+    canvasPosition: Position,
+    isCreatedClassParent: boolean
+  ) => void;
 
   /**
    * Called when there is a change in node's positions in result
@@ -458,6 +483,23 @@ interface DiagramNodes {
    */
   onAddAttributeForNode: (diagramNode: Node) => void;
 
+  /**
+   * Called when user chooses to remove {@link attribute}.
+   * @param attribute is the identifier the of the attribute
+   * @param nodeIdentifer is the identifier of the node on which the attribute resides.
+   */
+  onRemoveAttributeFromVisualModel: (attribute: string, nodeIdentifer: string) => void;
+  /**
+   * Called when user chooses to move given {@link attribute} move one position up.
+   * @param nodeIdentifer is the identifier of the node on which the attribute resides.
+   */
+  onMoveAttributeUp: (attribute: string, nodeIdentifer: string) => void;
+
+    /**
+   * Called when user chooses to move given {@link attribute} move one position down.
+   * @param nodeIdentifer is the identifier of the node on which the attribute resides.
+   */
+   onMoveAttributeDown: (attribute: string, nodeIdentifer: string) => void;
 }
 
 /**

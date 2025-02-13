@@ -23,21 +23,13 @@ export interface NewCmeRelationshipProfile {
 
   usageNoteSource: EntityDsIdentifier | null;
 
-  domain: EntityDsIdentifier | null;
-
-  domainSource: EntityDsIdentifier | null;
+  domain: EntityDsIdentifier;
 
   domainCardinality: CmeCardinality | null;
 
-  domainCardinalitySource: EntityDsIdentifier | null;
-
-  range: EntityDsIdentifier | null;
-
-  rangeSource: EntityDsIdentifier | null;
+  range: EntityDsIdentifier;
 
   rangeCardinality: CmeCardinality | null;
-
-  rangeCardinalitySource: EntityDsIdentifier | null;
 
 }
 

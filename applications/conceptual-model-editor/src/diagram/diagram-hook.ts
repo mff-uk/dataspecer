@@ -139,8 +139,13 @@ const noOperationCallbacks: DiagramCallbacks = {
   onShowExpandSelection: noOperation,
   onShowFilterSelection: noOperation,
   onCanvasOpenCreateClassDialog: noOperation,
+  onCanvasOpenCreateClassDialogWithAssociation: noOperation,
+  onCanvasOpenCreateClassDialogWithGeneralization: noOperation,
   onCreateNewViewFromSelection: noOperation,
   onProfileSelection: noOperation,
   onHideSelection: noOperation,
   onDeleteSelection: noOperation,
+  onRemoveAttributeFromVisualModel: noOperation,
+  onMoveAttributeUp: noOperation,
+  onMoveAttributeDown: noOperation,
 };

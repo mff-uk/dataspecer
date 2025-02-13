@@ -30,21 +30,21 @@ const LayeredAlgorithmDirectionDropdown = (props: {
       </div>
       {isOpen && (
         <div className="dropdown-content">
-          <div className="dropdown-item" onClick={() => handleOptionClick("UP")}>
-            <TreeIcon direction="UP"></TreeIcon>
-            UP
+          <div className="dropdown-item" onClick={() => handleOptionClick("Up")}>
+            <TreeIcon direction="Up"></TreeIcon>
+            Up
           </div>
-          <div className="dropdown-item" onClick={() => handleOptionClick("RIGHT")}>
-            <TreeIcon direction="RIGHT"></TreeIcon>
-            RIGHT
+          <div className="dropdown-item" onClick={() => handleOptionClick("Right")}>
+            <TreeIcon direction="Right"></TreeIcon>
+            Right
           </div>
-          <div className="dropdown-item" onClick={() => handleOptionClick("DOWN")}>
-            <TreeIcon direction="DOWN"></TreeIcon>
-            DOWN
+          <div className="dropdown-item" onClick={() => handleOptionClick("Down")}>
+            <TreeIcon direction="Down"></TreeIcon>
+            Down
           </div>
-          <div className="dropdown-item" onClick={() => handleOptionClick("LEFT")}>
-            <TreeIcon direction="LEFT"></TreeIcon>
-            LEFT
+          <div className="dropdown-item" onClick={() => handleOptionClick("Left")}>
+            <TreeIcon direction="Left"></TreeIcon>
+            Left
           </div>
         </div>
       )}

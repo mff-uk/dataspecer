@@ -1,9 +1,10 @@
+import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { CmeModel } from "../../dataspecer/cme-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { getRandomName } from "../../util/random-gen";
 import { removeFromArray } from "../../utilities/functional";
 import { sanitizeDuplicitiesInRepresentativeLabels } from "../../utilities/label";
-import { EntityRepresentative, Specialization, representSpecializations, sortRepresentatives } from "./dialog-utilities";
+import { EntityRepresentative, Specialization, representSpecializations } from "./dialog-utilities";
 
 export interface SpecializationState {
 
@@ -51,6 +52,17 @@ export function createSpecializationStateForEdit(
     availableSpecializations:  available,
     specializations: selected,
   }
+}
+
+function sortRepresentatives<T extends { label: LanguageString }>(
+  language: string,
+  array: T[],
+) {
+  array.sort((left, right) => {
+    const leftLabel = left.label[language] ?? left.label[""] ?? "";
+    const rightLabel = right.label[language] ?? right.label[""] ?? "";
+    return leftLabel.localeCompare(rightLabel);
+  });
 }
 
 export interface SpecializationStateController {

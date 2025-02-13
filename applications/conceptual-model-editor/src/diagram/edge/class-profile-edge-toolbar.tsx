@@ -18,7 +18,7 @@ export function ProfileEdgeToolbar({ value }: { value: EdgeToolbarProps | null }
   const { x, y, zoom } = useStore(viewportStoreSelector, shallow);
 
   if (value === null || edge === undefined || edge.data === undefined || !edge?.selected ||
-      context === null || context.getShownNodeMenuType() !== NodeMenuType.SINGLE_NODE_MENU) {
+      context === null || context.getShownNodeMenuType() !== NodeMenuType.SingleNodeMenu) {
     return null;
   }
 

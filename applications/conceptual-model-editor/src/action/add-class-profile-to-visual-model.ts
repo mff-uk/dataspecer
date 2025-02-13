@@ -10,7 +10,7 @@ import { ClassesContextType } from "../context/classes-context";
 import { findPositionForNewNodesUsingLayouting } from "./layout-visual-model";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { createLogger } from "../application";
-import { isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
+import { getVisualNodeContentBasedOnExistingEntities } from "./add-semantic-attribute-to-visual-model";
 import { isSemanticModelClassProfile, SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 const LOG = createLogger(import.meta.url);
@@ -50,14 +50,14 @@ export async function addSemanticClassProfileToVisualModelAction(
 
   if (isSemanticModelClassUsage(entity)) {
     addSemanticClassUsageToVisualModelCommand(
-      visualModel, entity, model.getId(),
+      classes, visualModel, entity, model.getId(),
       position);
     addRelatedEntitiesAction(
       notifications, graph, visualModel, Object.values(entities),
       graph.models, entity);
   } else if (isSemanticModelClassProfile(entity)) {
     addSemanticClassProfileToVisualModelCommand(
-      visualModel, entity, model.getId(),
+      classes, visualModel, entity, model.getId(),
       position);
     addRelatedEntitiesAction(
       notifications, graph, visualModel, Object.values(entities),
@@ -70,11 +70,14 @@ export async function addSemanticClassProfileToVisualModelAction(
 }
 
 function addSemanticClassUsageToVisualModelCommand(
+  classes: ClassesContextType,
   visualModel: WritableVisualModel,
   entity: SemanticModelClassUsage,
   model: string,
   position: { x: number, y: number },
 ) {
+  const content = getVisualNodeContentBasedOnExistingEntities(
+    classes, entity);
   visualModel.addVisualNode({
     model: model,
     representedEntity: entity.id,
@@ -83,17 +86,20 @@ function addSemanticClassUsageToVisualModelCommand(
       y: position.y,
       anchored: null,
     },
-    content: [],
+    content,
     visualModels: [],
   });
 }
 
 function addSemanticClassProfileToVisualModelCommand(
+  classes: ClassesContextType,
   visualModel: WritableVisualModel,
   entity: SemanticModelClassProfile,
   model: string,
   position: { x: number, y: number },
 ) {
+  const content = getVisualNodeContentBasedOnExistingEntities(
+    classes, entity);
   visualModel.addVisualNode({
     model: model,
     representedEntity: entity.id,
@@ -102,7 +108,7 @@ function addSemanticClassProfileToVisualModelCommand(
       y: position.y,
       anchored: null,
     },
-    content: [],
+    content,
     visualModels: [],
   });
 }

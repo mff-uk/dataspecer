@@ -1,9 +1,7 @@
-import { EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { createDefaultSemanticModelProfileOperationFactory } from "@dataspecer/core-v2/semantic-model/profile/operations";
-import { CreatedEntityOperationResult } from "@dataspecer/core-v2/semantic-model/operations";
 import { DataspecerError } from "../../dataspecer-error";
-import { NewCmeRelationshipProfile } from "../model/cme-relationship-profile";
+import { CmeRelationshipProfile } from "../model/cme-relationship-profile";
 import { findModel } from "./operation-utilities";
 
 const factory = createDefaultSemanticModelProfileOperationFactory();
@@ -11,16 +9,13 @@ const factory = createDefaultSemanticModelProfileOperationFactory();
 /**
  * @throws DataspecerError
  */
-export function createCmeRelationshipProfile(
-  profile: NewCmeRelationshipProfile,
+export function modifyCmeRelationshipProfile(
+  profile: CmeRelationshipProfile,
   models: InMemorySemanticModel[],
-): {
-  identifier: EntityDsIdentifier,
-  model: ModelDsIdentifier,
-} {
+): void {
   const model = findModel(profile.model, models);
 
-  const operation = factory.createRelationshipProfile({
+  const operation = factory.modifyRelationshipProfile(profile.identifier,{
     ends: [{
       profiling: [],
       iri: null,
@@ -31,9 +26,7 @@ export function createCmeRelationshipProfile(
       usageNote: null,
       usageNoteFromProfiled: null,
       concept: profile.domain,
-      conceptFromProfiled: profile.domainSource,
       cardinality: profile.domainCardinality,
-      cardinalityFromProfiled: profile.domainCardinalitySource,
     }, {
       profiling: profile.profileOf,
       iri: profile.iri,
@@ -44,20 +37,12 @@ export function createCmeRelationshipProfile(
       usageNote: profile.usageNote,
       usageNoteFromProfiled: profile.usageNoteSource,
       concept: profile.range,
-      conceptFromProfiled: profile.rangeSource,
       cardinality: profile.rangeCardinality,
-      cardinalityFromProfiled: profile.rangeCardinalitySource,
     }]
   })
 
   const result = model.executeOperation(operation);
-
   if (result.success === false) {
     throw new DataspecerError("Operation execution failed.");
   }
-
-  return {
-    identifier: (result as CreatedEntityOperationResult).id,
-    model: model.getId(),
-  };
 }

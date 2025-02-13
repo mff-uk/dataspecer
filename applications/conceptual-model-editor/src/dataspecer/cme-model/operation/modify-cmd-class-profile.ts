@@ -1,4 +1,3 @@
-import { EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { createDefaultSemanticModelProfileOperationFactory } from "@dataspecer/core-v2/semantic-model/profile/operations";
 import { DataspecerError } from "../../dataspecer-error";
@@ -13,7 +12,7 @@ const factory = createDefaultSemanticModelProfileOperationFactory();
 export function modifyCmeClassProfile(
   profile: CmeClassProfile,
   models: InMemorySemanticModel[],
-) {
+): void {
   const model = findModel(profile.model, models);
 
   const operation = factory.modifyClassProfile(

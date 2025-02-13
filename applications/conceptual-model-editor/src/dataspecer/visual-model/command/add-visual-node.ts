@@ -8,6 +8,7 @@ export function addVisualNode(
   },
   model: ModelDsIdentifier,
   position: { x: number, y: number },
+  content: string[],
 ) {
   visualModel.addVisualNode({
     model: model,
@@ -17,7 +18,7 @@ export function addVisualNode(
       y: position.y,
       anchored: null,
     },
-    content: [],
+    content,
     visualModels: [],
   });
 }

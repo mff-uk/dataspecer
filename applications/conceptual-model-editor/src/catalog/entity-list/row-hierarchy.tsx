@@ -30,7 +30,7 @@ export const RowHierarchy = (props: {
       | SemanticModelClassProfile | SemanticModelRelationshipProfile;
     handlers: {
         handleAddEntityToActiveView: (entity: Entity) => void;
-        handleRemoveEntityFromActiveView: (entityId: string) => void;
+        handleRemoveEntityFromActiveView: (entity: Entity) => void;
         handleExpansion: (model: EntityModel, classId: string) => Promise<void>;
         handleRemoval: (model: InMemorySemanticModel | ExternalSemanticModel, entityId: string) => Promise<void>;
         handleTargeting: (entityId: string, entityNumberToBeCentered: number) => void;
@@ -42,7 +42,7 @@ export const RowHierarchy = (props: {
     onCanvas: string[];
 }) => {
   const { models, aggregatorView } = useModelGraphContext();
-  const { usages: profiles, classes, allowedClasses } = useClassesContext();
+  const { usages, classProfiles, relationshipProfiles, classes, allowedClasses } = useClassesContext();
   const { entity } = props;
 
   // We need this to get access to ends of the profile.
@@ -52,6 +52,7 @@ export const RowHierarchy = (props: {
 
   const isClassOrProfile = isSemanticModelClass(aggregatedEntity) || isSemanticModelClassUsage(aggregatedEntity);
   const isRelationshipOrProfile = isSemanticModelRelationship(aggregatedEntity) || isSemanticModelRelationshipUsage(aggregatedEntity);
+  const isAttributeOrAttributeProfile = isSemanticModelAttribute(aggregatedEntity) || isSemanticModelAttributeUsage(aggregatedEntity);
 
   const expansionHandler =
         isSemanticModelClass(entity) && sourceModel instanceof ExternalSemanticModel
@@ -61,10 +62,10 @@ export const RowHierarchy = (props: {
           }
           : null;
 
-  const showDrawingHandler = isClassOrProfile || (isRelationshipOrProfile && hasBothEndsInVisualModel(aggregatedEntity, aggregatorView.getActiveVisualModel()));
+  const showDrawingHandler = isClassOrProfile || isAttributeOrAttributeProfile || (isRelationshipOrProfile && hasBothEndsInVisualModel(aggregatedEntity, aggregatorView.getActiveVisualModel()));
   const drawingHandler = !showDrawingHandler ? null : {
     addToViewHandler: () => props.handlers.handleAddEntityToActiveView(entity),
-    removeFromViewHandler: () => props.handlers.handleRemoveEntityFromActiveView(entity.id),
+    removeFromViewHandler: () => props.handlers.handleRemoveEntityFromActiveView(entity),
   };
 
   const removalHandler =
@@ -72,7 +73,11 @@ export const RowHierarchy = (props: {
           ? { remove: () => props.handlers.handleRemoval(sourceModel, entity.id) }
           : null;
 
-  const thisEntityProfiles = profiles.filter((p) => p.usageOf === entity.id);
+  const thisEntityProfiles = [
+    ...usages.filter(item => item.usageOf === entity.id),
+    ...classProfiles.filter(item => item.profiling.includes(entity.id)),
+    ...relationshipProfiles.filter(item => item.ends.find(end => end.profiling.includes(entity.id)) !== undefined),
+  ];
 
   const targetHandler = {
     centerViewportOnEntityHandler: (entityNumberToBeCentered: number) => 

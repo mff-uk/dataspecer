@@ -16,6 +16,7 @@ import { usePrefixForIri } from "../../service/prefix-service";
 import { t } from "../../application";
 import { useModelGraphContext } from "../../context/model-context";
 import { VisualNode } from "@dataspecer/core-v2/visual-model";
+import { useActions } from "../../action/actions-react-binding";
 
 // We can select zoom option and hide content when zoom is on given threshold.
 // const zoomSelector = (state: ReactFlowState) => state.transform[2] >= 0.9;
@@ -43,9 +44,11 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
     usageNote = data.profileOf.usageNote;
   }
 
-  // TODO PRQuestion: How should we get access to the information saying that the node is anchored so we can visualize it? Should it be action? Or should it be like this?
-  const graph = useModelGraphContext();
-  const isAnchored = (graph.aggregatorView?.getActiveVisualModel()?.getVisualEntity(props.data.identifier) as VisualNode)?.position?.anchored ?? false;
+  const context = useContext(DiagramContext);
+
+  const removeAttributeFromVisualModel = (attribute: string) => () => context?.callbacks().onRemoveAttributeFromVisualModel(attribute, props.data.identifier);
+  const moveAttributeUp = (attribute: string) => () => context?.callbacks().onMoveAttributeUp(attribute, props.data.identifier);
+  const moveAttributeDown = (attribute: string) => () => context?.callbacks().onMoveAttributeDown(attribute, props.data.identifier);
 
   return (
     <>
@@ -70,18 +73,27 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
             )}
             <div className="relative flex w-full flex-row justify-between">
               <div>{data.label}</div>
-              {isAnchored ? <div>⚓</div> : null}
+              {data.position.anchored ? <div>⚓</div> : null}
             </div>
           </div>
 
           <div className="overflow-x-clip text-gray-500 px-1">
             {usePrefixForIri(data.iri)}
           </div>
-
-          <ul className="px-1">
-            {data.items.map(item =>
-              <EntityNodeItem key={item.identifier} item={item} />)}
-          </ul>
+          {data.items.map(item =>
+          {
+            return <li key={`${item.identifier}-li`} className="relative flex w-full flex-row justify-between z-50">
+              <EntityNodeItem item={item} />
+              {props.selected !== true ? null :
+                <div>
+                  <button onClick={moveAttributeUp(item.identifier)}>🔼</button>
+                  <button onClick={moveAttributeDown(item.identifier)}>🔽</button>
+                  <button onClick={removeAttributeFromVisualModel(item.identifier)}>🕶️</button>
+                </div>
+              }
+            </li>
+          })
+          }
         </div>
         {/* We need a permanent source and target. */}
         <Handle type="target" position={Position.Right} />
@@ -102,10 +114,10 @@ function EntityNodeMenu(props: NodeProps<Node<ApiNode>>) {
     return null;
   }
 
-  if (context.getShownNodeMenuType() === NodeMenuType.SELECTION_MENU) {
+  if (context.getShownNodeMenuType() === NodeMenuType.SelectionMenu) {
     return <SelectionMenu {...props}/>;
   }
-  else if (context.getShownNodeMenuType() === NodeMenuType.SINGLE_NODE_MENU) {
+  else if (context.getShownNodeMenuType() === NodeMenuType.SingleNodeMenu) {
     return <PrimaryNodeMenu {...props}/>;
   }
   else {
@@ -129,6 +141,10 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
   const onDissolveGroup = () => context?.callbacks().onDissolveGroup(props.data.group);
   const onAddAttribute = () => context?.callbacks().onAddAttributeForNode(props.data);
 
+  // TODO RadStr: Create OnEditAttributesForNode method
+  const {openEditNodeAttributesDialog} = useActions();
+  const onEditAttributes = () => openEditNodeAttributesDialog(props.id) ;
+
   const shouldShowToolbar = props.selected === true;
 
   const addAttributeTitle = props.data.profileOf === null ?
@@ -143,6 +159,8 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
         &nbsp;
         <button onClick={onCreateProfile} title={t("class-profile-button")}>🧲</button>
         &nbsp;
+        <button onClick={onEditAttributes} title={t("edit-node-attributes-visiblity-button")}>📏</button>
+        &nbsp;
         <button onClick={onDuplicateNode} title={t("duplicate-node-button")}>⿻</button>
         &nbsp;
       </NodeToolbar>
@@ -152,7 +170,7 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
       {
         !isPartOfGroup ? null :
           <NodeToolbar isVisible={shouldShowToolbar} position={Position.Left} className="flex gap-2 entity-node-menu" >
-            <button onClick={onDissolveGroup} title={t("dissolve-group-button")}>❌</button>
+            <button onClick={onDissolveGroup} title={t("dissolve-group-button")}>⛓️‍💥</button>
           </NodeToolbar>
       }
       <NodeToolbar isVisible={shouldShowToolbar} position={Position.Bottom} className="flex gap-2 entity-node-menu" >
@@ -196,7 +214,7 @@ function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
       &nbsp;
     </NodeToolbar>
     <NodeToolbar isVisible={shouldShowMenu} position={Position.Right} className="flex gap-2 entity-node-menu" >
-      <button onClick={onCreateGroup} title={t("selection-group-button")}>🤝</button>
+      <button onClick={onCreateGroup} title={t("selection-group-button")}>⛓️</button>
     </NodeToolbar>
     <NodeToolbar isVisible={shouldShowMenu} position={Position.Bottom} className="flex gap-2 entity-node-menu" >
       <button onClick={onShowExpandSelection} title={t("selection-extend-button")} >📈</button>
@@ -218,7 +236,7 @@ function EntityNodeItem({ item }: {
   }
 
   return (
-    <li>
+    <div>
       <span>
         - {item.label}
       </span>
@@ -234,7 +252,7 @@ function EntityNodeItem({ item }: {
           </span>
         </>
       )}
-    </li>
+    </div>
   );
 }
 

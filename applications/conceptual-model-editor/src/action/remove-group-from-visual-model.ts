@@ -1,7 +1,7 @@
 import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { removePartOfGroupContentAction } from "./remove-part-of-group-content";
-import { findTopLevelGroupFromVisualModel, getGroupMappings } from "./utilities";
+import { findTopLevelGroupInVisualModel, getGroupMappings } from "./utilities";
 
 /**
  * Removes the top level group for given {@link identifier}
@@ -17,7 +17,7 @@ export function removeTopLevelGroupFromVisualModelAction(
     return;
   }
 
-  const topLevelGroup = findTopLevelGroupFromVisualModel(identifier, visualModel);
+  const topLevelGroup = findTopLevelGroupInVisualModel(identifier, visualModel);
 
   if(topLevelGroup === null) {
     notifications.error("Could not find top level group");
