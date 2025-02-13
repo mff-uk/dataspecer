@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --fix",
-    "lint-quiet": "eslint . --fix --quiet",
+    "lint:quiet": "eslint . --fix --quiet",
     "preview": "vite preview",
     "test": "vitest"
   },
