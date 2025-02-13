@@ -433,7 +433,8 @@ function createDiagramEdge(
   if (isSemanticModelRelationship(entity)) {
     return createDiagramEdgeForRelationship(
       options, visualModel, profilingSources, visualNode, entity);
-  } else if (isSemanticModelRelationshipUsage(entity)) {
+  } else if (isSemanticModelRelationshipUsage(entity)
+     || isSemanticModelRelationshipProfile(entity)) {
     return createDiagramEdgeForRelationshipProfile(
       options, visualModel, profilingSources, visualNode, entity);
   } else if (isSemanticModelGeneralization(entity)) {
@@ -483,7 +484,7 @@ function createDiagramEdgeForRelationshipProfile(
   visualModel: VisualModel,
   profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
   visualNode: VisualRelationship,
-  entity: SemanticModelRelationshipUsage,
+  entity: SemanticModelRelationshipUsage | SemanticModelRelationshipProfile,
 ): Edge {
   const language = options.language;
 
@@ -661,7 +662,8 @@ function onChangeVisualEntities(
         const isRelationship =
                     isSemanticModelRelationship(entity) ||
                     isSemanticModelRelationshipUsage(entity) ||
-                    isSemanticModelGeneralization(entity);
+                    isSemanticModelGeneralization(entity) ||
+                    isSemanticModelRelationshipProfile(entity);
         if (!isRelationship) {
           console.error("In visual update semantic entity is not a relationship.", { entity, visual: next });
           continue;
