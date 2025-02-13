@@ -211,11 +211,13 @@ export const EntitiesOfModel = (props: {
     } else if (isSemanticModelAttributeUsage(entity)) {
       const domain = getDomainAndRange(entity).domain?.concept;
       actions.addAttributeToVisualModel(entity.id, domain ?? null);
-    } else if (isSemanticModelClassUsage(entity)) {
+    } else if (isSemanticModelClassUsage(entity)
+      || isSemanticModelClassProfile(entity)) {
       actions.addClassProfileToVisualModel(model.getId(), entity.id, null);
     } else if (isSemanticModelRelationship(entity)) {
       actions.addRelationToVisualModel(model.getId(), entity.id);
-    } else if (isSemanticModelRelationshipUsage(entity)) {
+    } else if (isSemanticModelRelationshipUsage(entity)
+      || isSemanticModelRelationshipProfile(entity)) {
       actions.addRelationProfileToVisualModel(model.getId(), entity.id);
     } else if (isSemanticModelGeneralization(entity)) {
       actions.addGeneralizationToVisualModel(model.getId(), entity.id);

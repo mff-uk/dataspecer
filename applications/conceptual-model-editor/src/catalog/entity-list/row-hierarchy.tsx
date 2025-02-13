@@ -22,7 +22,7 @@ import { useModelGraphContext } from "../../context/model-context";
 import { useClassesContext } from "../../context/classes-context";
 import { hasBothEndsInVisualModel } from "../../util/relationship-utils";
 import { findSourceModelOfEntity } from "../../service/model-service";
-import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 export const RowHierarchy = (props: {
     entity: SemanticModelClass | SemanticModelClassUsage
@@ -50,9 +50,13 @@ export const RowHierarchy = (props: {
 
   const sourceModel = sourceModelOfEntity(entity.id, [...models.values()]);
 
-  const isClassOrProfile = isSemanticModelClass(aggregatedEntity) || isSemanticModelClassUsage(aggregatedEntity);
-  const isRelationshipOrProfile = isSemanticModelRelationship(aggregatedEntity) || isSemanticModelRelationshipUsage(aggregatedEntity);
-  const isAttributeOrAttributeProfile = isSemanticModelAttribute(aggregatedEntity) || isSemanticModelAttributeUsage(aggregatedEntity);
+  const isClassOrProfile = isSemanticModelClass(aggregatedEntity)
+    || isSemanticModelClassUsage(aggregatedEntity)
+    || isSemanticModelClassProfile(aggregatedEntity);
+
+  const isRelationshipOrProfile = isSemanticModelRelationship(aggregatedEntity)
+    || isSemanticModelRelationshipUsage(aggregatedEntity)
+    || isSemanticModelRelationshipProfile(aggregatedEntity);
 
   const expansionHandler =
         isSemanticModelClass(entity) && sourceModel instanceof ExternalSemanticModel
@@ -62,7 +66,9 @@ export const RowHierarchy = (props: {
           }
           : null;
 
-  const showDrawingHandler = isClassOrProfile || isAttributeOrAttributeProfile || (isRelationshipOrProfile && hasBothEndsInVisualModel(aggregatedEntity, aggregatorView.getActiveVisualModel()));
+  const showDrawingHandler = isClassOrProfile
+    || (isRelationshipOrProfile && hasBothEndsInVisualModel(aggregatedEntity, aggregatorView.getActiveVisualModel()));
+
   const drawingHandler = !showDrawingHandler ? null : {
     addToViewHandler: () => props.handlers.handleAddEntityToActiveView(entity),
     removeFromViewHandler: () => props.handlers.handleRemoveEntityFromActiveView(entity),
