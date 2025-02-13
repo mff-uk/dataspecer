@@ -47,6 +47,7 @@ function addSemanticRelationshipProfileToVisualModelCommand(
     } else {
       notifications.error("Ends of the relation profile are not in the visual model.");
     }
+    return;
   }
   //
   visualModel.addVisualRelationship({
