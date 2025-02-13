@@ -5,7 +5,7 @@ import type { UseNotificationServiceWriterType } from "../notification/notificat
 import { ModelGraphContextType } from "../context/model-context";
 import { withAggregatedEntity } from "./utilities";
 import { withErrorBoundary } from "./utilities/error-utilities";
-import { addSemanticGeneralizationToVisualModel } from "../dataspecer/visual-model/command/add-semantic-generalization";
+import { addSemanticGeneralizationToVisualModel } from "../dataspecer/visual-model/operation/add-semantic-generalization";
 
 export function addSemanticGeneralizationToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
