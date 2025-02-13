@@ -569,9 +569,22 @@ const CARDINALITIES: Cardinality[] = [
   },
 ]
 
+/**
+ *
+ * @returns undefined, cardinalities
+ */
 export function listCardinalities(): Cardinality[] {
   return [
     representUndefinedCardinality(),
+    ...CARDINALITIES,
+  ];
+};
+
+/**
+ * @returns cardinalities
+ */
+export function listProfileCardinalities(): Cardinality[] {
+  return [
     ...CARDINALITIES,
   ];
 };
@@ -591,6 +604,16 @@ export function representCardinality(
   }
   LOG.error("Unknown cardinality.", { cardinality });
   return representUndefinedCardinality();
+}
+
+export function representProfileCardinality(
+  cardinality: [number, number | null] | null | undefined,
+): Cardinality {
+  if (cardinality === undefined || cardinality === null) {
+    return CARDINALITIES[0];
+  } else {
+    return representCardinality(cardinality);
+  }
 }
 
 export interface Specialization {
