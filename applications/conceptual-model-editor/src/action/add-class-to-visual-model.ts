@@ -9,6 +9,7 @@ import { addRelatedEntitiesAction } from "./add-related-entities-to-visual-model
 import { findPositionForNewNodesUsingLayouting } from "./layout-visual-model";
 import { ClassesContextType } from "../context/classes-context";
 import { addVisualNode } from "../dataspecer/visual-model/command/add-visual-node";
+import { getVisualNodeContentBasedOnExistingEntities } from "./add-semantic-attribute-to-visual-model";
 
 export async function addSemanticClassToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
@@ -28,7 +29,10 @@ export async function addSemanticClassToVisualModelAction(
   withAggregatedEntity(notifications, entities,
     entityIdentifier, modelIdentifier,
     isSemanticModelClass, (entity) => {
-      addVisualNode(visualModel, entity, modelIdentifier, position);
+      // TODO PRQuestion: How to handle this? Put it into the addVisualNode?
+      const content = getVisualNodeContentBasedOnExistingEntities(
+        classes, entity);
+      addVisualNode(visualModel, entity, modelIdentifier, position, content);
       addRelatedEntitiesAction(
         notifications, graph, visualModel, Object.values(entities),
         graph.models, entity);

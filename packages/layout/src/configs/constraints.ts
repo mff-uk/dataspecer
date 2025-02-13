@@ -40,7 +40,7 @@ export interface UserGivenConstraintsChangingCodeFlow {
  */
 export interface BasicUserGivenConstraints {
         "main_layout_alg": AlgorithmName,
-//                                            "profile-nodes-position-against-source": DIRECTION.DOWN,
+// profile-nodes-position-against-source": DIRECTION.Down,
         "main_alg_direction": Direction,
         "layer_gap": number,
         "in_layer_gap": number,
@@ -326,7 +326,7 @@ export function getDefaultUserGivenConstraintsVersion2(): UserGivenConstraintsVe
 export function getDefaultUserGivenAlgorithmConstraint(algorithmName: AlgorithmName): Omit<UserGivenAlgorithmConfiguration, "constraintedNodes" | "should_be_considered"> {
     return {
         "layout_alg": algorithmName,
-    //  "profile-nodes-position-against-source": DIRECTION.DOWN,
+    //  "profile-nodes-position-against-source": DIRECTION.Down,
         ...LayeredConfiguration.getDefaultObject(),
         "stress_edge_len": 800,
 
@@ -525,7 +525,7 @@ export abstract class LayeredConfiguration extends AlgorithmConfiguration {
     // TODO: Ideally just export this static function not the whole class, but it seems that it is possible only using aliasing
     static getDefaultObject(): UserGivenAlgorithmConfigurationLayered {
         return {
-            "alg_direction": Direction.UP,
+            "alg_direction": Direction.Up,
             "layer_gap": 500,
             "in_layer_gap": 500,
             "edge_routing": "ORTHOGONAL",

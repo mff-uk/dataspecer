@@ -25,7 +25,7 @@ import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
-import { EntityToDelete, convertToEntitiesToDeleteType, findTopLevelGroupFromVisualModel, getSelections, getViewportCenterForClassPlacement, setSelectionsInDiagram } from "./utilities";
+import { EntityToDelete, checkIfIsAttributeOrAttributeProfile, convertToEntitiesToDeleteType, findTopLevelGroupInVisualModel, getSelections, getViewportCenterForClassPlacement, setSelectionsInDiagram } from "./utilities";
 import { removeFromVisualModelAction } from "./remove-from-visual-model";
 import { removeFromSemanticModelsAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
@@ -49,6 +49,13 @@ import { EntityModel } from "@dataspecer/core-v2";
 import { openCreateAttributeForEntityDialogAction } from "./open-add-attribute-for-entity-dialog";
 import { addGroupToVisualModelAction } from "./add-group-to-visual-model";
 import { removeTopLevelGroupFromVisualModelAction } from "./remove-group-from-visual-model";
+import { openCreateClassDialogAndCreateAssociationAction, openCreateClassDialogAndCreateGeneralizationAction } from "./open-create-class-dialog-with-edge";
+import { removeAttributesFromVisualModelAction } from "./remove-attribute-from-visual-model";
+import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
+import { ShiftAttributeDirection, shiftAttributePositionAction } from "./shift-attribute";
+import { openEditNodeAttributesDialogAction } from "./open-edit-node-attributes-dialog";
+import { EditAttributeDialogState } from "../dialog/attribute/edit-attribute-dialog-controller";
+import { EditAttributeProfileDialogState } from "../dialog/attribute-profile/edit-attribute-profile-dialog-controller";
 
 const LOG = createLogger(import.meta.url);
 
@@ -90,7 +97,22 @@ interface DialogActions {
    * Opens dialog, which purpose is to create new attribute in model identified by {@link model}.
    * @param model is the identifier of the semantic model.
    */
-  openCreateAttributeDialog: (model: string) => void;
+  openCreateAttributeDialogForModel: (model: string) => void;
+
+  /**
+   * Opens dialog, which purpose is to create new attribute with domain class identified by {@link classIdentifier}.
+   * On successful creation {@link onConfirmCallback} is called.
+   * @param classIdentifier is the identifier of the class, which will be domain for the attribute.
+   * @param onConfirmCallback This callback is called after we sucessfully create attribute.
+   *                          Set to null, if there is no callback.
+   */
+  openCreateAttributeDialogForClass: (
+    classIdentifier: string,
+    onConfirmCallback: ((state: EditAttributeDialogState | EditAttributeProfileDialogState, createdAttributeIdentifier: string) => void) | null
+  ) => void;
+
+  // TODO RadStr: Document
+  openEditNodeAttributesDialog: (nodeIdentifier: string) => void;
 
   /**
    * @deprecated Use specialized method for given entity type.
@@ -164,6 +186,11 @@ interface VisualModelActions {
    */
   addRelationProfileToVisualModel: (model: string, identifier: string) => void;
 
+  // TODO RadStr: Document
+  addAttributeToVisualModel: (attribute: string, domainClass: string | null) => void;
+  shiftAttributeUp: (attribute: string, domainNode: string | null) => void;
+  shiftAttributeDown: (attribute: string, domainNode: string | null) => void;
+
   // TODO PRQuestion - different docs from this method and for the actual action
   /**
    * Removes the visual entities identified by given {@link identifier} from visual model.
@@ -171,6 +198,9 @@ interface VisualModelActions {
    * @param identifiers identify the SEMANTIC entities, which visual representations will be removed from visual model.
    */
   removeFromVisualModel: (identifiers: string[]) => void;
+
+  // TODO RadStr: Document
+  removeAttributesFromVisualModel: (attributes: string[]) => void;
 
   //
 
@@ -249,7 +279,9 @@ const noOperationActionsContext = {
   openModifyDialog: noOperation,
   openCreateClassDialog: noOperation,
   openCreateAssociationDialog: noOperation,
-  openCreateAttributeDialog: noOperation,
+  openCreateAttributeDialogForModel: noOperation,
+  openCreateAttributeDialogForClass: noOperation,
+  openEditNodeAttributesDialog: noOperation,
   openCreateProfileDialog: noOperation,
   //
   addSemanticEntitiesToVisualModel: noOperation,
@@ -258,9 +290,13 @@ const noOperationActionsContext = {
   addGeneralizationToVisualModel: noOperation,
   addRelationToVisualModel: noOperation,
   addRelationProfileToVisualModel: noOperation,
+  addAttributeToVisualModel: noOperation,
+  shiftAttributeUp: noOperation,
+  shiftAttributeDown: noOperation,
   deleteFromSemanticModels: noOperation,
   //
   removeFromVisualModel: noOperation,
+  removeAttributesFromVisualModel: noOperation,
   centerViewportToVisualEntity: noOperation,
   //
   createNewVisualModelFromSelection: noOperation,
@@ -454,11 +490,14 @@ function createActionsContext(
     });
   }
 
-  const addAttributeForNode = (identifier: string) => {
+  const openCreateAttributeDialogForClass = (
+    classIdentifier: string,
+    onConfirmCallback: ((state: EditAttributeDialogState | EditAttributeProfileDialogState, createdAttributeIdentifier: string) => void) | null
+  ) => {
     withVisualModel(notifications, graph, (visualModel) => {
       openCreateAttributeForEntityDialogAction(
         options, dialogs, classes, graph, notifications,
-        visualModel, identifier);
+        visualModel, classIdentifier, onConfirmCallback);
     });
   };
 
@@ -486,7 +525,7 @@ function createActionsContext(
     if (modelInstance === null || modelInstance instanceof InMemorySemanticModel) {
       openCreateClassDialogAction(
         options, dialogs, classes, graph, notifications, visualModel,
-        diagram, modelInstance, null);
+        diagram, modelInstance, null, null);
     } else {
       notifications.error("Can not add to given model.");
     }
@@ -504,18 +543,24 @@ function createActionsContext(
     }
   };
 
-  const openCreateAttributeDialog = (model: string) => {
+  const openCreateAttributeDialogForModel = (model: string) => {
     const visualModel = graph.aggregatorView.getActiveVisualModel();
     const modelInstance = graph.models.get(model);
     if (modelInstance === null || modelInstance instanceof InMemorySemanticModel) {
       openCreateAttributeDialogAction(
-        options, dialogs, classes, graph, notifications, visualModel,
-        modelInstance);
+        options, dialogs, classes, graph, notifications,
+        visualModel, modelInstance);
     } else {
       notifications.error("Can not add to given model.");
     }
   };
 
+  const openEditNodeAttributesDialog = (nodeIdentifier: string) => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      openEditNodeAttributesDialogAction(
+        dialogs, notifications, classes, options, visualModel, nodeIdentifier);
+    });
+  };
   // Visual model actions.
 
   const addSemanticEntitiesToVisualModel = (entities: EntityToAddToVisualModel[]): void => {
@@ -560,9 +605,45 @@ function createActionsContext(
     });
   };
 
+  const addAttributeToVisualModel = (attribute: string, domainClass: string | null): void => {
+    if(domainClass === null) {
+      notifications.error("Adding attribute to domain class which is null");
+      return;
+    }
+    withVisualModel(notifications, graph, (visualModel) => {
+      addSemanticAttributeToVisualModelAction(notifications, visualModel, domainClass, attribute, null);
+    });
+  };
+
+  const shiftAttributeUp = (attribute: string, domainNode: string | null): void => {
+    if(domainNode === null) {
+      notifications.error("Shifting attribute in domain node which is null");
+      return;
+    }
+    withVisualModel(notifications, graph, (visualModel) => {
+      shiftAttributePositionAction(notifications, visualModel, domainNode, attribute, ShiftAttributeDirection.Up, 1);
+    });
+  };
+
+  const shiftAttributeDown = (attribute: string, domainNode: string | null): void => {
+    if(domainNode === null) {
+      notifications.error("Shifting attribute in domain node which is null");
+      return;
+    }
+    withVisualModel(notifications, graph, (visualModel) => {
+      shiftAttributePositionAction(notifications, visualModel, domainNode, attribute, ShiftAttributeDirection.Down, 1);
+    });
+  };
+
   const removeFromVisualModel = (identifiers: string[]): void => {
     withVisualModel(notifications, graph, (visualModel) => {
       removeFromVisualModelAction(notifications, visualModel, identifiers);
+    });
+  };
+
+  const removeAttributesFromVisualModel = (attributes: string[]): void => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      removeAttributesFromVisualModelAction(notifications, classes, visualModel, attributes);
     });
   };
 
@@ -571,7 +652,20 @@ function createActionsContext(
   const deleteFromSemanticModels = (entitiesToDelete: EntityToDelete[]) => {
     // We start be removing from the visual model.
     withVisualModel(notifications, graph, (visualModel) => {
-      removeFromVisualModelAction(notifications, visualModel, entitiesToDelete.map(entitiesToDelete => entitiesToDelete.identifier));
+      const entityToDeleteWithAttributeData = entitiesToDelete.map(entityToDelete =>
+        ({...entityToDelete,
+          isAttributeOrAttributeProfile: checkIfIsAttributeOrAttributeProfile(
+            entityToDelete.identifier, graph.models, entityToDelete.sourceModel)
+        })
+      );
+      const attributesToBeDeleted = entityToDeleteWithAttributeData.filter(entity => entity.isAttributeOrAttributeProfile);
+      const notAttributesToBeDeleted = entityToDeleteWithAttributeData.filter(entity => !entity.isAttributeOrAttributeProfile);
+      removeFromVisualModelAction(
+        notifications, visualModel,
+        notAttributesToBeDeleted.map(entitiesToDelete => entitiesToDelete.identifier));
+      removeAttributesFromVisualModelAction(
+        notifications, classes, visualModel,
+        attributesToBeDeleted.map(entitiesToDelete => entitiesToDelete.identifier));
     });
     removeFromSemanticModelsAction(notifications, graph, entitiesToDelete);
   };
@@ -582,13 +676,15 @@ function createActionsContext(
 
   const layoutActiveVisualModel = async (configuration: UserGivenConstraintsVersion4) => {
     withVisualModel(notifications, graph, (visualModel) => {
-      return layoutActiveVisualModelAction(notifications, classes, diagram, graph, visualModel, configuration);
+      return layoutActiveVisualModelAction(
+        notifications, classes, diagram, graph, visualModel, configuration);
     });
   }
 
   const addEntitiesFromSemanticModelToVisualModel = (semanticModel: EntityModel) => {
     withVisualModel(notifications, graph, (visualModel) => {
-      addEntitiesFromSemanticModelToVisualModelAction(notifications, classes, graph, diagram, visualModel, semanticModel);
+      addEntitiesFromSemanticModelToVisualModelAction(
+        notifications, classes, graph, diagram, visualModel, semanticModel);
     });
   };
 
@@ -633,7 +729,8 @@ function createActionsContext(
         return null;
       }).filter(selectionFilter => selectionFilter !== null);
 
-      const filteredSelection = filterSelection(state.selections, relevantSelectionFilters, VisibilityFilter.ONLY_VISIBLE, null);
+      const filteredSelection = filterSelection(
+        state.selections, relevantSelectionFilters, VisibilityFilter.OnlyVisible, null);
       setSelectionsInDiagram(filteredSelection, diagram);
     };
 
@@ -649,7 +746,9 @@ function createActionsContext(
     visibilityFilter: VisibilityFilter,
     semanticModelFilter: Record<string, boolean> | null
   ) => {
-    const selectionExtension = await extendSelectionAction(notifications, graph, classes, nodeSelection, extensionTypes, visibilityFilter, false, semanticModelFilter);
+    const selectionExtension = await extendSelectionAction(
+      notifications, graph, classes, nodeSelection,
+      extensionTypes, visibilityFilter, false, semanticModelFilter);
     return selectionExtension.selectionExtension;
   };
 
@@ -659,10 +758,14 @@ function createActionsContext(
     visibilityFilter: VisibilityFilter,
     semanticModelFilter: Record<string, boolean> | null
   ) => {
-    return filterSelectionAction(notifications, graph, classes, selections, allowedClasses, visibilityFilter, semanticModelFilter);
+    return filterSelectionAction(
+      notifications, graph, classes, selections, allowedClasses, visibilityFilter, semanticModelFilter);
   };
 
-  const highlightNodeInExplorationModeFromCatalog = (classIdentifier: string, modelOfClassWhichStartedHighlighting: string) => {
+  const highlightNodeInExplorationModeFromCatalog = (
+    classIdentifier: string,
+    modelOfClassWhichStartedHighlighting: string
+  ) => {
     withVisualModel(notifications, graph, (visualModel) => {
       const nodeIdentifier = visualModel.getVisualEntityForRepresented(classIdentifier)?.identifier;
       const isClassInVisualModel = nodeIdentifier !== undefined;
@@ -670,14 +773,14 @@ function createActionsContext(
         return;
       }
 
-      diagram.actions().highlightNodeInExplorationModeFromCatalog(nodeIdentifier, modelOfClassWhichStartedHighlighting);
+      diagram.actions().highlightNodeInExplorationModeFromCatalog(
+        nodeIdentifier, modelOfClassWhichStartedHighlighting);
     });
   }
 
   // Prepare and set diagram callbacks.
 
   const callbacks: DiagramCallbacks = {
-
     onShowNodeDetail: (node) => openDetailDialog(node.externalIdentifier),
 
     onEditNode: (node) => openModifyDialog(node.externalIdentifier),
@@ -706,7 +809,7 @@ function createActionsContext(
 
     onChangeWaypointPositions: changeWaypointPositions,
 
-    onAddAttributeForNode: (node) => addAttributeForNode(node.externalIdentifier),
+    onAddAttributeForNode: (node) => openCreateAttributeDialogForClass(node.externalIdentifier, null),
 
     onCreateConnectionToNode: (source, target) => {
       openCreateConnectionDialog(source.externalIdentifier, target.externalIdentifier);
@@ -723,7 +826,7 @@ function createActionsContext(
     onToggleAnchorForNode: (nodeIdentifier) => {
       console.log("Application.onToggleAnchorForNode", { nodeIdentifier });
       withVisualModel(notifications, graph, (visualModel) => {
-        const topLevelGroup = findTopLevelGroupFromVisualModel(nodeIdentifier, visualModel);
+        const topLevelGroup = findTopLevelGroupInVisualModel(nodeIdentifier, visualModel);
         toggleAnchorAction(notifications, visualModel, topLevelGroup ?? nodeIdentifier);
       });
     },
@@ -759,11 +862,30 @@ function createActionsContext(
     },
     onShowFilterSelection: () => {
       const selectionToFilter = getSelections(diagram, false, true);
-      openFilterSelectionDialog({ nodeSelection: selectionToFilter.nodeSelection, edgeSelection: selectionToFilter.edgeSelection, areVisualModelIdentifiers: true });
+      openFilterSelectionDialog({
+        nodeSelection: selectionToFilter.nodeSelection,
+        edgeSelection: selectionToFilter.edgeSelection,
+        areVisualModelIdentifiers: true
+      });
     },
     onCanvasOpenCreateClassDialog: (nodeIdentifier, positionToPlaceClassOn) => {
       withVisualModel(notifications, graph, (visualModel) => {
-        openCreateClassDialogWithModelDerivedFromClassAction(notifications, graph, dialogs, classes, options, diagram, visualModel, nodeIdentifier, positionToPlaceClassOn);
+        openCreateClassDialogWithModelDerivedFromClassAction(notifications, graph, dialogs, classes, options,
+          diagram, visualModel, nodeIdentifier, positionToPlaceClassOn, null);
+      });
+    },
+    onCanvasOpenCreateClassDialogWithAssociation: (nodeIdentifier, positionToPlaceClassOn, isCreatedClassTarget) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        openCreateClassDialogAndCreateAssociationAction(notifications, dialogs, classes, options, graph,
+          diagram, visualModel, nodeIdentifier, isCreatedClassTarget, positionToPlaceClassOn);
+      });
+    },
+    onCanvasOpenCreateClassDialogWithGeneralization: (nodeIdentifier, positionToPlaceClassOn, isCreatedClassParent) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        openCreateClassDialogAndCreateGeneralizationAction(
+          notifications, dialogs, classes, useClasses, options, graph, diagram,
+          visualModel, nodeIdentifier, isCreatedClassParent, positionToPlaceClassOn
+        );
       });
     },
     onCreateNewViewFromSelection: () => {
@@ -787,6 +909,15 @@ function createActionsContext(
       const selectionIdentifiers = nodeSelection.concat(edgeSelection);
       deleteVisualElements(selectionIdentifiers);
     },
+    onRemoveAttributeFromVisualModel: function (attribute: string, _nodeIdentifer: string): void {
+      removeAttributesFromVisualModel([attribute])
+    },
+    onMoveAttributeUp: function (attribute: string, nodeIdentifer: string): void {
+      shiftAttributeUp(attribute, nodeIdentifer);
+    },
+    onMoveAttributeDown: function (attribute: string, nodeIdentifer: string): void {
+      shiftAttributeDown(attribute, nodeIdentifer);
+    },
   };
 
   diagram.setCallbacks(callbacks);
@@ -797,7 +928,9 @@ function createActionsContext(
     openModifyDialog,
     openCreateClassDialog,
     openCreateAssociationDialog,
-    openCreateAttributeDialog,
+    openCreateAttributeDialogForModel,
+    openCreateAttributeDialogForClass,
+    openEditNodeAttributesDialog,
     openCreateProfileDialog,
     //
     addSemanticEntitiesToVisualModel,
@@ -806,7 +939,11 @@ function createActionsContext(
     addGeneralizationToVisualModel,
     addRelationToVisualModel,
     addRelationProfileToVisualModel,
+    addAttributeToVisualModel,
+    shiftAttributeUp,
+    shiftAttributeDown,
     removeFromVisualModel,
+    removeAttributesFromVisualModel,
     //
     deleteFromSemanticModels,
     centerViewportToVisualEntity,

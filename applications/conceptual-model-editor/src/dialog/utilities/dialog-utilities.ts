@@ -11,6 +11,8 @@ import { EntityDsIdentifier } from "../../dataspecer/entity-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { VisualModel } from "@dataspecer/core-v2/visual-model";
+import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 
 const LOG = createLogger(import.meta.url);
 
@@ -139,6 +141,16 @@ function findOwnerVocabulary(
   }
   LOG.invalidEntity(entityIdentifier, "Entity is without an model.");
   return null;
+};
+
+export function findVocabularyForModel(
+  graph: ModelGraphContextType,
+  visualModel: VisualModel,
+  model: string,
+): CmeModel | null {
+  const vocabularies = entityModelsMapToCmeVocabulary(graph.models, visualModel);
+  const vocabulary = vocabularies.find(item => item.dsIdentifier === model);
+  return vocabulary ?? null;
 };
 
 export function representClassUsages(
@@ -625,4 +637,14 @@ export function selectDefaultModelForAttribute(
   }
   // Just return the first model.
   return cmeModels[0];
+}
+
+/**
+ * Find and return representative of entity with given identifier.
+ */
+export function findRepresentative(entities: EntityRepresentative[], identifier: string | null | undefined): EntityRepresentative | null {
+  if (identifier === null || identifier === undefined) {
+    return null;
+  }
+  return entities.find(item => item.identifier === identifier) ?? null;
 }

@@ -1,4 +1,4 @@
-import { VisualModel } from "@dataspecer/core-v2/visual-model";
+import { isWritableVisualModel, VisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { createLogger, Options } from "../application";
 import { ClassesContextType } from "../context/classes-context";
@@ -17,6 +17,7 @@ import { CreatedEntityOperationResult, createRelationship } from "@dataspecer/co
 import { createCmeRelationshipProfile } from "../dataspecer/cme-model/operation/create-cme-relationship-profile";
 import { EditAssociationProfileDialogState } from "../dialog/association-profile/edit-association-profile-dialog-controller";
 import { isSemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -31,6 +32,7 @@ export function openCreateAttributeForEntityDialogAction(
   notifications: UseNotificationServiceWriterType,
   visualModel: VisualModel | null,
   identifier: string,
+  onConfirmCallback: ((state: EditAttributeDialogState | EditAttributeProfileDialogState, createdAttributeIdentifier: string) => void) | null,
 ) {
   const aggregate = graph.aggregatorView.getEntities()?.[identifier];
 
@@ -42,7 +44,20 @@ export function openCreateAttributeForEntityDialogAction(
 
   if (isSemanticModelClass(entity)) {
     const onConfirm = (state: EditAttributeDialogState) => {
-      createSemanticAttribute(notifications, graph.models, state);
+      const result = createSemanticAttribute(notifications, graph.models, state);
+      if(visualModel !== null && isWritableVisualModel(visualModel)) {
+        if(result?.identifier !== undefined) {
+          addSemanticAttributeToVisualModelAction(
+            notifications, visualModel, state.domain.identifier,
+            result.identifier, null);
+        }
+      }
+
+      if(onConfirmCallback !== null) {
+        if(result !== null) {
+          onConfirmCallback(state, result.identifier);
+        }
+      }
     };
     const state = createAddAttributeDialogState(
       classes, graph, visualModel, options.language, entity);
@@ -50,7 +65,12 @@ export function openCreateAttributeForEntityDialogAction(
   } else if (isSemanticModelClassUsage(entity)
     || isSemanticModelClassProfile(entity)) {
     const onConfirm = (state: EditAttributeProfileDialogState) => {
-      createRelationshipProfile(state, graph.models);
+      const result = createRelationshipProfile(state, graph.models);
+        if(onConfirmCallback !== null) {
+          if(result !== null) {
+            onConfirmCallback(state, result.identifier);
+          }
+        }
     };
     const state = createAddAttributeProfileDialogState(
       classes, graph, visualModel, options.language, identifier);

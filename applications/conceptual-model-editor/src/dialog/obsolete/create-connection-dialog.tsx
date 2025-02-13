@@ -73,7 +73,7 @@ export const createConnectionDialog = (
   return {
     label: "create-connection-dialog.label",
     component: CreateConnectionDialog,
-    state: createCreateProfileState(graph, source, target, language),
+    state: createCreateConnectionState(graph, source, target, language),
     confirmLabel: "create-connection-dialog.btn-ok",
     cancelLabel: "create-connection-dialog.btn-close",
     validate: null,
@@ -85,7 +85,7 @@ export const createConnectionDialog = (
   };
 }
 
-function createCreateProfileState(
+export function createCreateConnectionState(
   graph: ModelGraphContextType,
   source: SemanticModelClass | SemanticModelClassUsage,
   target: SemanticModelClass | SemanticModelClassUsage,

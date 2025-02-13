@@ -230,6 +230,7 @@ function onChangeVisualModel(
           console.error("Ignored entity for missing model.", { entity });
           continue;
         }
+
         const node = createDiagramNode(
           options, visualModel,
           attributes, attributeProfiles, profilingSources,
@@ -327,39 +328,43 @@ function createDiagramNode(
 ): Node {
   const language = options.language;
 
-  const nodeAttributes = attributes
-    .filter(isSemanticModelAttribute)
-    .filter((attr) => getDomainAndRange(attr).domain?.concept === entity.id);
-
-  const nodeAttributeProfiles = attributesProfiles
-    .filter(isSemanticModelAttributeUsage)
-    .filter((attr) => getDomainAndRange(attr).domain?.concept === entity.id);
-
-  const items: EntityItem[] = [];
-  for (const attribute of nodeAttributes) {
-    items.push({
-      identifier: attribute.id,
-      label: getEntityLabel(language, attribute),
-      profileOf: null,
-    });
+  // Put into Record so we can later easily set the order of items based on visualNode.content
+  // (since I was lazy - the idea itself is based on ChatGPT's response)
+  const itemsAsRecord: Record<string, EntityItem> = {};
+  for(const attribute of attributes) {
+    if(isSemanticModelAttribute(attribute) && visualNode.content.includes(attribute.id)) {
+      itemsAsRecord[attribute.id] = {
+        identifier: attribute.id,
+        label: getEntityLabel(language, attribute),
+        profileOf: null,
+      };
+    }
   }
 
-  for (const attributeProfile of nodeAttributeProfiles) {
-    const profileOf =
+  for(const attributeProfile of attributesProfiles) {
+    if(isSemanticModelAttributeUsage(attributeProfile) && visualNode.content.includes(attributeProfile.id)) {
+      const profileOf =
             (isSemanticModelClassUsage(attributeProfile) || isSemanticModelRelationshipUsage(attributeProfile)
               ? profilingSources.find((e) => e.id === attributeProfile.usageOf)
               : null
             ) ?? null;
 
-    items.push({
-      identifier: attributeProfile.id,
-      label: getEntityLabel(language, attributeProfile),
-      profileOf: profileOf === null ? null : {
-        label: getEntityLabel(language, profileOf),
-        usageNote: getUsageNote(language, attributeProfile),
-      },
-    });
+      itemsAsRecord[attributeProfile.id] = {
+        identifier: attributeProfile.id,
+        label: getEntityLabel(language, attributeProfile),
+        profileOf: profileOf === null ? null : {
+          label: getEntityLabel(language, profileOf),
+          usageNote: getUsageNote(language, attributeProfile),
+        },
+      };
+    }
   }
+
+  // We filter undefined values, because the update of the semantic attributes comes later
+  // so there is moment when the content of visual node is set but the corresponding
+  // attributes semantic model in are not.
+  // Also it is safety measure if there is some inconsistency in models.
+  const items: EntityItem[] = visualNode.content.map(id => itemsAsRecord[id]).filter(item => item !== undefined);
 
   const profileOf =
         (isSemanticModelClassUsage(entity) || isSemanticModelRelationshipUsage(entity)
@@ -376,8 +381,7 @@ function createDiagramNode(
     description: getEntityDescription(language, entity),
     group,
     position: {
-      x: visualNode.position.x,
-      y: visualNode.position.y,
+      ...visualNode.position
     },
     profileOf: profileOf === null ? null : {
       label: getEntityLabel(language, profileOf),
@@ -637,6 +641,7 @@ function onChangeVisualEntities(
         if(nodeIdToParentGroupIdMap[next.identifier] !== undefined) {
           group = nodeIdToParentGroupIdMap[next.identifier];
         }
+
         const node = createDiagramNode(
           options, visualModel,
           attributes, attributeProfiles, profilingSources,
@@ -647,13 +652,6 @@ function onChangeVisualEntities(
           actions.addNodes([node]);
         } else {
           // Change of existing.
-          // TODO RadStr: It would be probably better update every time the change wasn't position change by user
-          //       because for position change by user, the change is already registered in diagram.
-          //       If we do that, the selection code needs to be changed to not remove the selected
-          //       elements, right now we are doing that explicitly so it is consistent with this code.
-          //       It might have negative side-effects though for non-user updates by layouting, etc.
-          //       Also might be difficult to check if it was position change. So wait a bit with implementation.
-          //       Maybe won't even implement it.
           actions.updateNodes([node]);
         }
 

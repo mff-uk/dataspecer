@@ -16,6 +16,11 @@ import { EntityModel } from "@dataspecer/core-v2";
 
 const LOG = createLogger(import.meta.url);
 
+export type CreatedSemanticEntityData = {
+  identifier: string,
+  model: InMemorySemanticModel
+};
+
 /**
  * Open and handle create class dialog.
  */
@@ -29,6 +34,7 @@ export function openCreateClassDialogAction(
   diagram: UseDiagramType,
   defaultModel: InMemorySemanticModel | null,
   position: { x: number, y: number } | null,
+  onConfirmCallback: ((createdClass: CreatedSemanticEntityData, state: EditClassDialogState) => void) | null,
 ) {
 
   const model = defaultModel ?? getDefaultModel(graph);
@@ -50,6 +56,10 @@ export function openCreateClassDialogAction(
         createResult.identifier, createResult.model.getId(),
         position);
     }
+
+    if(onConfirmCallback !== null) {
+      onConfirmCallback(createResult, state);
+    }
   };
 
   openCreateClassDialog(
@@ -63,10 +73,8 @@ function getDefaultModel(graph: ModelGraphContextType): InMemorySemanticModel | 
 function createSemanticClass(
   notifications: UseNotificationServiceWriterType,
   models: Map<string, EntityModel>,
-  state: EditClassDialogState): {
-    identifier: string,
-    model: InMemorySemanticModel
-  } | null {
+  state: EditClassDialogState
+): CreatedSemanticEntityData | null {
 
   const operation = createClassOperation({
     iri: state.iri,

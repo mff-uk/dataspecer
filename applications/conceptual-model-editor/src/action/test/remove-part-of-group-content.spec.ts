@@ -210,7 +210,7 @@ test("Test removing part of visual group", () => {
 
 //
 
-const createNewVisualNodeForTesting = (visualModel: WritableVisualModel, model: string, semanticIdentifierAsNumber: number) => {
+export const createNewVisualNodeForTesting = (visualModel: WritableVisualModel, model: string, semanticIdentifierAsNumber: number) => {
   const visualId = visualModel.addVisualNode({
     representedEntity: semanticIdentifierAsNumber.toString(),
     model,
