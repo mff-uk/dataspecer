@@ -126,13 +126,13 @@ const createClassProfile = (
     iri: state.iri,
     name: state.name,
     nameSource: state.overrideName ? null :
-      state.nameSource?.identifier ?? null,
+      state.nameSource.identifier ?? null,
     description: state.description,
     descriptionSource: state.overrideDescription ? null :
-      state.descriptionSource?.identifier ?? null,
+      state.descriptionSource.identifier ?? null,
     usageNote: state.usageNote,
     usageNoteSource: state.overrideUsageNote ? null :
-      state.usageNoteSource?.identifier ?? null,
+      state.usageNoteSource.identifier ?? null,
   }, [...models.values() as any]);
   return {
     identifier: result.identifier,

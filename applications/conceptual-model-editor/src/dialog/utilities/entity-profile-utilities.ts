@@ -298,19 +298,19 @@ export function createEntityProfileStateForEdit
     noProfile,
     // Name
     name: name ?? {},
-    overrideName: nameSource === noProfile,
+    overrideName: nameSourceIdentifier === null,
     nameSource,
     nameSourceValue: nameSource.label,
     hideNameProfile: profiles[0] === noProfile,
     // Description
     description: description ?? {},
-    overrideDescription: descriptionSource === noProfile,
+    overrideDescription: descriptionSourceIdentifier === null,
     descriptionSource,
     descriptionSourceValue: descriptionSource.description,
     hideDescriptionProfile: profiles[0] === noProfile,
     // Usage note
     usageNote: usageNote ?? {},
-    overrideUsageNote: usageNoteSource === noProfile,
+    overrideUsageNote: usageNoteSourceIdentifier === null,
     usageNoteSource,
     usageNoteSourceValue: usageNoteSource?.usageNote ?? {},
     availableUsageNoteSources,
