@@ -50,6 +50,9 @@ import { getGroupMappings } from "./action/utilities";
 import { synchronizeOnAggregatorChange } from "./dataspecer/visual-model/aggregator-to-visual-model-adapter";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { EntityDsIdentifier } from "./dataspecer/entity-model";
+import { ClassCatalog } from "./catalog-v2/class-catalog";
+import { isSemanticModelAttributeProfile } from "./dataspecer/semantic-model";
+import { LanguageString } from "@dataspecer/core/core/core-resource";
 
 const LOG = createLogger(import.meta.url);
 
@@ -206,9 +209,16 @@ function onChangeVisualModel(
   const models = graphContext.models;
   const entities = aggregatorView.getEntities();
   const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
-  const attributeProfiles = classesContext.usages.filter(isSemanticModelAttributeUsage);
+  const attributeUsages = classesContext.usages.filter(isSemanticModelAttributeUsage);
+  const attributeProfiles = classesContext.relationshipProfiles.filter(isSemanticModelAttributeProfile);
 
-  const profilingSources = [...classesContext.classes, ...classesContext.relationships, ...classesContext.usages];
+  const profilingSources = [
+    ...classesContext.classes,
+    ...classesContext.relationships,
+    ...classesContext.usages,
+    ...classesContext.classProfiles,
+    ...classesContext.relationshipProfiles,
+  ];
 
   const nextNodes: Node[] = [];
   const nextEdges: Edge[] = [];
@@ -233,7 +243,7 @@ function onChangeVisualModel(
 
         const node = createDiagramNode(
           options, visualModel,
-          attributes, attributeProfiles, profilingSources,
+          attributes, attributeUsages, attributeProfiles, profilingSources,
           visualEntity, entity, model, nodeToGroupMapping[visualEntity.identifier] ?? null);
         nextNodes.push(node);
       }
@@ -319,8 +329,12 @@ function createDiagramNode(
   options: Options,
   visualModel: VisualModel,
   attributes: SemanticModelRelationship[],
-  attributesProfiles: SemanticModelRelationshipUsage[],
-  profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
+  attributesUsages: SemanticModelRelationshipUsage[],
+  attributesProfiles: SemanticModelRelationshipProfile[],
+  profilingSources: (
+    | SemanticModelClass | SemanticModelRelationship
+    | SemanticModelClassUsage | SemanticModelRelationshipUsage
+    | SemanticModelClassProfile | SemanticModelRelationshipProfile)[],
   visualNode: VisualNode,
   entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelClassProfile,
   model: EntityModel,
@@ -328,12 +342,10 @@ function createDiagramNode(
 ): Node {
   const language = options.language;
 
-  // Put into Record so we can later easily set the order of items based on visualNode.content
-  // (since I was lazy - the idea itself is based on ChatGPT's response)
-  const itemsAsRecord: Record<string, EntityItem> = {};
+  const itemCandidates: Record<string, EntityItem> = {};
   for(const attribute of attributes) {
     if(isSemanticModelAttribute(attribute) && visualNode.content.includes(attribute.id)) {
-      itemsAsRecord[attribute.id] = {
+      itemCandidates[attribute.id] = {
         identifier: attribute.id,
         label: getEntityLabel(language, attribute),
         profileOf: null,
@@ -341,22 +353,39 @@ function createDiagramNode(
     }
   }
 
-  for(const attributeProfile of attributesProfiles) {
-    if(isSemanticModelAttributeUsage(attributeProfile) && visualNode.content.includes(attributeProfile.id)) {
-      const profileOf =
-            (isSemanticModelClassUsage(attributeProfile) || isSemanticModelRelationshipUsage(attributeProfile)
-              ? profilingSources.find((e) => e.id === attributeProfile.usageOf)
-              : null
-            ) ?? null;
+  for(const attributeUsage of attributesUsages) {
+    if(!visualNode.content.includes(attributeUsage.id)) {
+      continue;
+    }
 
-      itemsAsRecord[attributeProfile.id] = {
-        identifier: attributeProfile.id,
-        label: getEntityLabel(language, attributeProfile),
-        profileOf: profileOf === null ? null : {
-          label: getEntityLabel(language, profileOf),
-          usageNote: getUsageNote(language, attributeProfile),
-        },
-      };
+    const profileOf = profilingSources.find(
+      (item) => item.id === attributeUsage.usageOf) ?? null;
+
+    itemCandidates[attributeUsage.id] = {
+      identifier: attributeUsage.id,
+      label: getEntityLabel(language, attributeUsage),
+      profileOf: profileOf === null ? null : {
+        label: getEntityLabel(language, profileOf),
+        usageNote: getUsageNote(language, attributeUsage),
+      },
+    }
+  }
+
+  for (const attributeProfile of attributesProfiles) {
+    if(!visualNode.content.includes(attributeProfile.id)) {
+      continue;
+    }
+
+    const profileOf = profilingSources.filter(
+      item => attributeProfile.ends.find(edge => edge.profiling.includes(item.id)) !== undefined) ?? null;
+
+    itemCandidates[attributeProfile.id] = {
+      identifier: attributeProfile.id,
+      label: getEntityLabel(language, attributeProfile),
+      profileOf: profileOf === null ? null : {
+        label: profileOf.map(item => getEntityLabel(language, item)).join(", "),
+        usageNote: profileOf.map(item => getUsageNote(language, item)).join(", "),
+      },
     }
   }
 
@@ -364,7 +393,7 @@ function createDiagramNode(
   // so there is moment when the content of visual node is set but the corresponding
   // attributes semantic model in are not.
   // Also it is safety measure if there is some inconsistency in models.
-  const items: EntityItem[] = visualNode.content.map(id => itemsAsRecord[id]).filter(item => item !== undefined);
+  const items: EntityItem[] = visualNode.content.map(id => itemCandidates[id]).filter(item => item !== undefined);
 
   const profileOf =
         (isSemanticModelClassUsage(entity) || isSemanticModelRelationshipUsage(entity)
@@ -423,8 +452,10 @@ function getUsageNote(
 function createDiagramEdge(
   options: Options,
   visualModel: VisualModel,
-  profilingSources: (SemanticModelRelationship | SemanticModelClassUsage |
-    SemanticModelRelationshipUsage | SemanticModelClass)[],
+  profilingSources: (
+    | SemanticModelClass | SemanticModelRelationship
+    | SemanticModelClassUsage | SemanticModelRelationshipUsage
+    | SemanticModelClassProfile | SemanticModelRelationshipProfile)[],
   visualNode: VisualRelationship,
   entity: SemanticModelRelationship | SemanticModelRelationshipUsage |
    SemanticModelGeneralization | SemanticModelRelationshipProfile ,
@@ -447,7 +478,10 @@ function createDiagramEdge(
 function createDiagramEdgeForRelationship(
   options: Options,
   visualModel: VisualModel,
-  profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
+  profilingSources: (
+    | SemanticModelClass | SemanticModelRelationship
+    | SemanticModelClassUsage | SemanticModelRelationshipUsage
+    | SemanticModelClassProfile | SemanticModelRelationshipProfile)[],
   visualNode: VisualRelationship,
   entity: SemanticModelRelationship,
 ): Edge {
@@ -482,7 +516,10 @@ function createDiagramEdgeForRelationship(
 function createDiagramEdgeForRelationshipProfile(
   options: Options,
   visualModel: VisualModel,
-  profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
+  profilingSources: (
+    | SemanticModelClass | SemanticModelRelationship
+    | SemanticModelClassUsage | SemanticModelRelationshipUsage
+    | SemanticModelClassProfile | SemanticModelRelationshipProfile)[],
   visualNode: VisualRelationship,
   entity: SemanticModelRelationshipUsage | SemanticModelRelationshipProfile,
 ): Edge {
