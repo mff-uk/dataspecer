@@ -1,16 +1,5 @@
 import { Position as PositionWithAnchor } from "@dataspecer/core-v2/visual-model";
 
-export type GroupWithContent = {
-  /**
-   * The group.
-   */
-  group: Group,
-  /**
-   * The group's content.
-   */
-  content: string[],
-}
-
 /**
  * Actions that can be executed on the editor component.
  */
@@ -222,12 +211,6 @@ export interface DiagramActions {
   highlightNodeInExplorationModeFromCatalog(nodeIdentifier: string, modelOfClassWhichStartedHighlighting: string): void;
 }
 
-export type ViewportDimensions = {
-  position: Position;
-  width: number;
-  height: number;
-}
-
 /**
  * Non-visual node used to represent group of other nodes.
  */
@@ -237,10 +220,47 @@ export type Group = {
 
 }
 
+export type GroupWithContent = {
+
+  /**
+   * The group.
+   */
+  group: Group,
+
+  /**
+   * The group's content.
+   */
+  content: string[],
+
+}
+
+export type ViewportDimensions = {
+
+  position: Position;
+
+  width: number;
+
+  height: number;
+
+}
+
+export enum NodeType {
+  /**
+   * Represents a class.
+   */
+  Class,
+  /**
+   * Represents a class profile.
+   */
+  ClassProfile
+}
+
 /**
  * Entity can be a class or a class profile.
  */
 export type Node = {
+
+  type: NodeType;
 
   /**
    * Entity identifier in scope of the diagram.
