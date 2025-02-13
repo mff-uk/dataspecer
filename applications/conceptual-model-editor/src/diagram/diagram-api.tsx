@@ -1,6 +1,5 @@
 import { Position as PositionWithAnchor } from "@dataspecer/core-v2/visual-model";
 
-
 export type GroupWithContent = {
   /**
    * The group.

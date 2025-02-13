@@ -347,7 +347,7 @@ function createDiagramNode(
 
   attributes
     .filter(isSemanticModelAttribute)
-    .filter((item) => getDomainAndRange(item).domain?.concept == entity.id)
+    .filter((item) => getDomainAndRange(item).domain?.concept === entity.id)
     .map((item) => ({
       identifier: item.id,
       label: getEntityLabel(language, item),
@@ -357,7 +357,7 @@ function createDiagramNode(
 
   attributesUsages
     .filter(isSemanticModelAttributeUsage)
-    .filter((item) => getDomainAndRange(item).domain?.concept == entity.id)
+    .filter((item) => getDomainAndRange(item).domain?.concept === entity.id)
     .map((item) => {
       const profileOf = profilingSources.find((profile) => item.usageOf === profile.id);
       return {
@@ -373,7 +373,7 @@ function createDiagramNode(
 
   attributesProfiles
     .filter(isSemanticModelAttributeProfile)
-    .filter((item) => getDomainAndRange(item).domain?.concept == entity.id)
+    .filter((item) => getDomainAndRange(item).domain?.concept === entity.id)
     .map((item) => {
       const profileOf = profilingSources.filter((profile) =>
         item.ends.find(end => end.profiling.includes(profile.id)) !== undefined);
@@ -418,7 +418,6 @@ function createDiagramNode(
     items: items,
   };
 }
-
 
 function getEntityLabel(
   language: string,

@@ -14,8 +14,6 @@ import { DiagramContext, NodeMenuType } from "../diagram-controller";
 import "./entity-node.css";
 import { usePrefixForIri } from "../../service/prefix-service";
 import { t } from "../../application";
-import { useModelGraphContext } from "../../context/model-context";
-import { VisualNode } from "@dataspecer/core-v2/visual-model";
 import { useActions } from "../../action/actions-react-binding";
 
 // We can select zoom option and hide content when zoom is on given threshold.
