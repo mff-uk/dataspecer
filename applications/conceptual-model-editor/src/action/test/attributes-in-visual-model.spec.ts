@@ -392,7 +392,7 @@ function createSemanticAttributeUsageTestVariant(
   models: Map<string, EntityModel>,
   domainAttribute: string,
   domainConceptIdentifier: string,
-  ModelDsIdentifier: string,
+  modelDsIdentifier: string,
   attributeName: string,
 ) {
   const range = representRdfsLiteral();
@@ -416,7 +416,7 @@ function createSemanticAttributeUsageTestVariant(
     usageOf: domainAttribute
   });
 
-  const model: InMemorySemanticModel = models.get(ModelDsIdentifier) as InMemorySemanticModel;
+  const model: InMemorySemanticModel = models.get(modelDsIdentifier) as InMemorySemanticModel;
   const newAttribute = model.executeOperation(operation) as CreatedEntityOperationResult;
   if (newAttribute.success === false || newAttribute.id === undefined) {
     fail("Failed in attribute creation");
