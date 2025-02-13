@@ -50,9 +50,7 @@ import { getGroupMappings } from "./action/utilities";
 import { synchronizeOnAggregatorChange } from "./dataspecer/visual-model/aggregator-to-visual-model-adapter";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { EntityDsIdentifier } from "./dataspecer/entity-model";
-import { ClassCatalog } from "./catalog-v2/class-catalog";
 import { isSemanticModelAttributeProfile } from "./dataspecer/semantic-model";
-import { LanguageString } from "@dataspecer/core/core/core-resource";
 
 const LOG = createLogger(import.meta.url);
 
@@ -342,58 +340,59 @@ function createDiagramNode(
 ): Node {
   const language = options.language;
 
-  const itemCandidates: Record<string, EntityItem> = {};
-  for(const attribute of attributes) {
-    if(isSemanticModelAttribute(attribute) && visualNode.content.includes(attribute.id)) {
-      itemCandidates[attribute.id] = {
-        identifier: attribute.id,
-        label: getEntityLabel(language, attribute),
-        profileOf: null,
-      };
-    }
-  }
+  // Here we are missing proper implementation of content.
+  // See https://github.com/mff-uk/dataspecer/issues/928
 
-  for(const attributeUsage of attributesUsages) {
-    if(!visualNode.content.includes(attributeUsage.id)) {
-      continue;
-    }
+  const items: EntityItem[] = [];
 
-    const profileOf = profilingSources.find(
-      (item) => item.id === attributeUsage.usageOf) ?? null;
+  attributes
+    .filter(isSemanticModelAttribute)
+    .filter((item) => getDomainAndRange(item).domain?.concept == entity.id)
+    .map((item) => ({
+      identifier: item.id,
+      label: getEntityLabel(language, item),
+      profileOf: null,
+    }))
+    .forEach((item) => items.push(item));
 
-    itemCandidates[attributeUsage.id] = {
-      identifier: attributeUsage.id,
-      label: getEntityLabel(language, attributeUsage),
-      profileOf: profileOf === null ? null : {
-        label: getEntityLabel(language, profileOf),
-        usageNote: getUsageNote(language, attributeUsage),
-      },
-    }
-  }
+  attributesUsages
+    .filter(isSemanticModelAttributeUsage)
+    .filter((item) => getDomainAndRange(item).domain?.concept == entity.id)
+    .map((item) => {
+      const profileOf = profilingSources.find((profile) => item.usageOf === profile.id);
+      return {
+        identifier: item.id,
+        label: getEntityLabel(language, item),
+        profileOf: profileOf === undefined ? null : {
+          label: getEntityLabel(language, profileOf),
+          usageNote: getUsageNote(language, item),
+        },
+      }
+    })
+    .forEach((item) => items.push(item));
 
-  for (const attributeProfile of attributesProfiles) {
-    if(!visualNode.content.includes(attributeProfile.id)) {
-      continue;
-    }
+  attributesProfiles
+    .filter(isSemanticModelAttributeProfile)
+    .filter((item) => getDomainAndRange(item).domain?.concept == entity.id)
+    .map((item) => {
+      const profileOf = profilingSources.filter((profile) =>
+        item.ends.find(end => end.profiling.includes(profile.id)) !== undefined);
 
-    const profileOf = profilingSources.filter(
-      item => attributeProfile.ends.find(edge => edge.profiling.includes(item.id)) !== undefined) ?? null;
+      return {
+        identifier: item.id,
+        label: getEntityLabel(language, item),
+        profileOf: profileOf === undefined ? null : {
+          label: profileOf.map(item => getEntityLabel(language, item)).join(", "),
+          usageNote: profileOf.map(item => getUsageNote(language, item)).join(", "),
+        },
+      }
+    })
+    .forEach((item) => items.push(item));
 
-    itemCandidates[attributeProfile.id] = {
-      identifier: attributeProfile.id,
-      label: getEntityLabel(language, attributeProfile),
-      profileOf: profileOf === null ? null : {
-        label: profileOf.map(item => getEntityLabel(language, item)).join(", "),
-        usageNote: profileOf.map(item => getUsageNote(language, item)).join(", "),
-      },
-    }
-  }
-
-  // We filter undefined values, because the update of the semantic attributes comes later
-  // so there is moment when the content of visual node is set but the corresponding
-  // attributes semantic model in are not.
-  // Also it is safety measure if there is some inconsistency in models.
-  const items: EntityItem[] = visualNode.content.map(id => itemCandidates[id]).filter(item => item !== undefined);
+  // Here we could filter using the visualNode.content.
+  // Be aware that the update of the semantic attributes comes later,
+  // so there is moment when the content of visual node is set,
+  // but the corresponding attributes semantic model in are not.
 
   const profileOf =
         (isSemanticModelClassUsage(entity) || isSemanticModelRelationshipUsage(entity)
@@ -419,6 +418,7 @@ function createDiagramNode(
     items: items,
   };
 }
+
 
 function getEntityLabel(
   language: string,
@@ -620,9 +620,16 @@ function onChangeVisualEntities(
   const models = graphContext.models;
   const entities = aggregatorView.getEntities();
   const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
-  const attributeProfiles = classesContext.usages.filter(isSemanticModelAttributeUsage);
+  const attributeUsages = classesContext.usages.filter(isSemanticModelAttributeUsage);
+  const attributeProfiles = classesContext.relationshipProfiles.filter(isSemanticModelAttributeProfile);
 
-  const profilingSources = [...classesContext.classes, ...classesContext.relationships, ...classesContext.usages];
+  const profilingSources = [
+    ...classesContext.classes,
+    ...classesContext.relationships,
+    ...classesContext.usages,
+    ...classesContext.classProfiles,
+    ...classesContext.relationshipProfiles,
+  ];
 
   const actions = diagram.actions();
 
@@ -682,7 +689,7 @@ function onChangeVisualEntities(
 
         const node = createDiagramNode(
           options, visualModel,
-          attributes, attributeProfiles, profilingSources,
+          attributes, attributeUsages, attributeProfiles, profilingSources,
           next, entity, model, group);
 
         if (previous === null) {
