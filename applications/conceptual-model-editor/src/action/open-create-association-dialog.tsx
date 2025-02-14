@@ -66,7 +66,9 @@ export function createSemanticAssociation(
         // Both ends are in the visual model with at least one node.
         addSemanticRelationshipToVisualModelAction(
           notifications, graph, visualModel,
-          createResult.identifier, createResult.model.getId());
+          createResult.identifier, createResult.model.getId(),
+          sources.map(source => source.identifier),
+          targets.map(target => target.identifier))
       }
     }
   }

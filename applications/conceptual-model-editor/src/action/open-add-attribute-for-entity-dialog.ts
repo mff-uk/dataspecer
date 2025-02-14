@@ -66,11 +66,11 @@ export function openCreateAttributeForEntityDialogAction(
     || isSemanticModelClassProfile(entity)) {
     const onConfirm = (state: EditAttributeProfileDialogState) => {
       const result = createRelationshipProfile(state, graph.models);
-        if(onConfirmCallback !== null) {
-          if(result !== null) {
-            onConfirmCallback(state, result.identifier);
-          }
+      if(onConfirmCallback !== null) {
+        if(result !== null) {
+          onConfirmCallback(state, result.identifier);
         }
+      }
     };
     const state = createAddAttributeProfileDialogState(
       classes, graph, visualModel, options.language, identifier);

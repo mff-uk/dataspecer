@@ -12,8 +12,9 @@ import { ModelGraphContextType } from "../context/model-context";
 import { ClassesContextType } from "../context/classes-context";
 import { ExtensionType, VisibilityFilter, extendSelectionAction } from "./extend-selection-action";
 import { Selections } from "./filter-selection-action";
-import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelAttributeUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelAttribute, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelAttributeUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 const LOG = createLogger(import.meta.url);
 
@@ -318,4 +319,30 @@ export function getRemovedAndAdded<T>(previousValues: T[], nextValues: T[]) {
     removed,
     added
   };
+}
+
+/**
+ * @returns Returns given {@link visualSources} and {@link visualTargets} if not null,
+ * otherwise all the visual sources, respectively targets for the represented {@link entity}
+ */
+export function getVisualSourcesAndVisualTargets(
+  visualModel: VisualModel,
+  entity: SemanticModelRelationship | SemanticModelRelationshipUsage |
+          SemanticModelRelationshipProfile | SemanticModelGeneralization,
+  semanticDomain: string,
+  semanticRange: string,
+  visualSources: string[] | null,
+  visualTargets: string[] | null,
+) {
+  const sources = visualSources !== null ?
+    visualSources.map(source => ({identifier: source})) :
+    visualModel.getVisualEntitiesForRepresented(semanticDomain);
+  const targets = visualTargets !== null ?
+    visualTargets.map(target => ({identifier: target})) :
+    visualModel.getVisualEntitiesForRepresented(semanticRange);
+
+  return {
+    sources,
+    targets,
+  }
 }

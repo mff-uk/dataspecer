@@ -51,13 +51,13 @@ export function addRelatedEntitiesAction(
     if (isSemanticModelRelationship(candidate)) {
       if (shouldAddRelationship(visualModel, identifier, candidate)) {
         addSemanticRelationshipToVisualModelAction(
-          notifications, graph, visualModel, candidate.id, model.getId());
+          notifications, graph, visualModel, candidate.id, model.getId(), null, null);
       }
     }
     if (isSemanticModelRelationshipUsage(candidate) || isSemanticModelRelationshipProfile(candidate)) {
       if (shouldAddRelationshipUsageOrProfile(visualModel, identifier, candidate)) {
         addSemanticRelationshipProfileToVisualModelAction(
-          notifications, graph, visualModel, candidate.id, model.getId());
+          notifications, graph, visualModel, candidate.id, model.getId(), null, null);
       }
     }
     if (isSemanticModelClassUsage(candidate)) {

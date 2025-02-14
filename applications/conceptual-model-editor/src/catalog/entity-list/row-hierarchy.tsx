@@ -81,7 +81,7 @@ export const RowHierarchy = (props: {
 
   const targetHandler = {
     centerViewportOnEntityHandler: (entityNumberToBeCentered: number) => 
-                                     props.handlers.handleTargeting(entity.id, entityNumberToBeCentered),
+      props.handlers.handleTargeting(entity.id, entityNumberToBeCentered),
     isTargetable: props.onCanvas.includes(entity.id) || 
                   isSemanticModelAttribute(entity) || 
                   isSemanticModelAttributeUsage(entity),

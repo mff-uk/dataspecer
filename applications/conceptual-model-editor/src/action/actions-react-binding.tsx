@@ -416,11 +416,16 @@ function createActionsContext(
     });
   };
 
-  const openCreateConnectionDialog = (source: string, target: string) => {
+  const openCreateConnectionDialog = (
+    semanticSource: string,
+    semanticTarget: string,
+    visualSource: string,
+    visualTarget: string
+  ) => {
     withVisualModel(notifications, graph, (visualModel) => {
       openCreateConnectionDialogAction(
         options, dialogs, notifications, useClasses, graph,
-        visualModel, source, target);
+        visualModel, semanticSource, semanticTarget, visualSource, visualTarget);
     });
   };
 
@@ -608,14 +613,14 @@ function createActionsContext(
   const addRelationToVisualModel = (model: string, identifier: string): void => {
     withVisualModel(notifications, graph, (visualModel) => {
       addSemanticRelationshipToVisualModelAction(
-        notifications, graph, visualModel, identifier, model);
+        notifications, graph, visualModel, identifier, model, null, null);
     });
   };
 
   const addRelationProfileToVisualModel = (model: string, identifier: string): void => {
     withVisualModel(notifications, graph, (visualModel) => {
       addSemanticRelationshipProfileToVisualModelAction(
-        notifications, graph, visualModel, identifier, model);
+        notifications, graph, visualModel, identifier, model, null, null);
     });
   };
 
@@ -838,7 +843,8 @@ function createActionsContext(
     onAddAttributeForNode: (node) => openCreateAttributeDialogForClass(node.externalIdentifier, null),
 
     onCreateConnectionToNode: (source, target) => {
-      openCreateConnectionDialog(source.externalIdentifier, target.externalIdentifier);
+      openCreateConnectionDialog(
+        source.externalIdentifier, target.externalIdentifier, source.identifier, target.identifier);
     },
 
     onCreateConnectionToNothing: (source, canvasPosition) => {

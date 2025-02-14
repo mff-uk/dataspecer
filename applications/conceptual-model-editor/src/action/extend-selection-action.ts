@@ -331,7 +331,7 @@ function addToExtensionIfSatisfiesVisibilityFilter(
   contextEntities: ClassesContextEntities | null,
 ): void {
   if(handleTrivialVisibilityFilters(extension, visibilityFilter, classIdToAdd,
-                                    edgeWhichAddedClass, visualModel, contextEntities)) {
+    edgeWhichAddedClass, visualModel, contextEntities)) {
     return;
   }
   visualModel = visualModel as VisualModel;   // We know this from the previous method call
@@ -357,8 +357,8 @@ function addToExtensionIfSatisfiesVisibilityFilter(
             return;
           }
           const ends = edgeWhichAddedClass === SpecialEdge.FromClassProfileToProfiledClass ?
-                        [visualSource, visualTarget] :
-                        [visualTarget, visualSource];
+            [visualSource, visualTarget] :
+            [visualTarget, visualSource];
           if(ends[0].identifier === extendedNode && ends[1].representedEntity === classIdToAdd) {
             isSemanticEdgeInVisualModel = true;
             edgeWhichAddedClass = visualEntity.identifier;
@@ -386,7 +386,7 @@ function addToExtensionIfSatisfiesVisibilityFilter(
       }
       else {
         // Must be string representing id
-    // TODO RadStr: MULTI-ENTITIES! - should be fine by now - but we can not test until we merge with the fixes in the attributes branch
+        // TODO RadStr: MULTI-ENTITIES! - should be fine by now - but we can not test until we merge with the fixes in the attributes branch
         edgesWhichAddedVisualNodes = visualModel.getVisualEntitiesForRepresented(edgeWhichAddedClass as string);
       }
 

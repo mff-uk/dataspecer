@@ -172,10 +172,12 @@ function addConnectionsToVisualModel(
   for(const {entity, model} of validatedEdgesData) {
     const modelIdentifier = model.getId();
     if(isSemanticModelRelationship(entity)) {
-      addSemanticRelationshipToVisualModelAction(notifications, graph, visualModel, entity.id, modelIdentifier);
+      addSemanticRelationshipToVisualModelAction(
+        notifications, graph, visualModel, entity.id, modelIdentifier, null, null);
     }
     else if(isSemanticModelRelationshipUsage(entity)) {
-      addSemanticRelationshipProfileToVisualModelAction(notifications, graph, visualModel, entity.id, modelIdentifier);
+      addSemanticRelationshipProfileToVisualModelAction(
+        notifications, graph, visualModel, entity.id, modelIdentifier, null, null);
     }
     else if(isSemanticModelGeneralization(entity)) {
       addSemanticGeneralizationToVisualModelAction(notifications, graph, visualModel, entity.id, modelIdentifier);

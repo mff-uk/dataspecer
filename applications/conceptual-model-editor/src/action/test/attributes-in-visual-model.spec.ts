@@ -304,7 +304,7 @@ test("Test change attribute order - change multi - attribute usage", () => {
   const size = 6;
   const attributes: string[] = [];
   //
-  const originalAttribute = createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, `attribute-0`);
+  const originalAttribute = createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, "attribute-0");
   addSemanticAttributeToVisualModelAction(noActionNotificationServiceWriter, visualModel, "0", originalAttribute.identifier, null);
   attributes.push(originalAttribute.identifier);
   for(let i = 1; i < size; i++) {

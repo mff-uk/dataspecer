@@ -169,7 +169,8 @@ function createDefaultRelationshipProfiles(
 
 /**
  * Creates relationship profile of given entity with default parameters,
- * that it is the resulting relationship profile is the same as if the user opened the dialog and clicked accept without changing anything.
+ * that it is the resulting relationship profile is the same as if the user opened the dialog and
+ * clicked accept without changing anything.
  */
 function createDefaultRelationshipProfile(
   notifications: UseNotificationServiceWriterType,
@@ -224,7 +225,8 @@ function createDefaultRelationshipProfile(
 
   if(shouldBeAddedToVisualModel) {
     if(isWritableVisualModel(visualModel)) {
-      addSemanticRelationshipProfileToVisualModelAction(notifications, graph, visualModel, identifier, model.getId());
+      addSemanticRelationshipProfileToVisualModelAction(
+        notifications, graph, visualModel, identifier, model.getId(), null, null);
     }
   }
 }

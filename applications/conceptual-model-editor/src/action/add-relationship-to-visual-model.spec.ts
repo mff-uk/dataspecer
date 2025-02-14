@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import { EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { createDefaultVisualModelFactory, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { createDefaultVisualModelFactory, VisualRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { ClassesContextType } from "../context/classes-context";
 import { entityModelsMapToCmeVocabulary } from "../dataspecer/semantic-model/semantic-model-adapter";
 import { noActionNotificationServiceWriter } from "../notification/notification-service-context";
@@ -32,69 +32,9 @@ test("Create single relationship", () => {
   expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)).toEqual(null);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(4);
   //
-  addSemanticRelationshipToVisualModelAction(noActionNotificationServiceWriter, graph, visualModel, createdRelationships[0].identifier, cmeModels[0].dsIdentifier);
-  expect([...visualModel.getVisualEntities().entries()].length).toBe(5);
-  expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)).to.not.toBeNull();
-  expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)?.length).toBe(1);
-  //
-  createNodeDuplicateAction(noActionNotificationServiceWriter, visualModel, visualModel.getVisualEntitiesForRepresented("0")![0].identifier);
-  expect([...visualModel.getVisualEntities().entries()].length).toBe(7);
-  expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)).to.not.toBeNull();
-  expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)?.length).toBe(2);
-  expect(visualModel.getVisualEntitiesForRepresented("0")?.length).toBe(2);
-});
-
-test("Create single relationship", () => {
-  const {
-    visualModel,
-    models,
-    model,
-    cmeModels,
-    graph
-  } = prepareModelWithFourNodes();
-
-  const createdRelationships: {
-    identifier: string,
-    model: InMemorySemanticModel
-  }[] = [];
-  //
-  createdRelationships.push(createSemanticRelationshipTestVariant(
-    graph, models, "0", "1", cmeModels[0].dsIdentifier, "relationship-0"));
-  expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)).toEqual(null);
-  expect([...visualModel.getVisualEntities().entries()].length).toBe(4);
-  //
-  addSemanticRelationshipToVisualModelAction(noActionNotificationServiceWriter, graph, visualModel, createdRelationships[0].identifier, cmeModels[0].dsIdentifier);
-  expect([...visualModel.getVisualEntities().entries()].length).toBe(5);
-  expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)).to.not.toBeNull();
-  expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)?.length).toBe(1);
-  //
-  createNodeDuplicateAction(noActionNotificationServiceWriter, visualModel, visualModel.getVisualEntitiesForRepresented("0")![0].identifier);
-  expect([...visualModel.getVisualEntities().entries()].length).toBe(7);
-  expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)).to.not.toBeNull();
-  expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)?.length).toBe(2);
-  expect(visualModel.getVisualEntitiesForRepresented("0")?.length).toBe(2);
-});
-
-test("Create single relationship", () => {
-  const {
-    visualModel,
-    models,
-    model,
-    cmeModels,
-    graph
-  } = prepareModelWithFourNodes();
-
-  const createdRelationships: {
-    identifier: string,
-    model: InMemorySemanticModel
-  }[] = [];
-  //
-  createdRelationships.push(createSemanticRelationshipTestVariant(
-    graph, models, "0", "1", cmeModels[0].dsIdentifier, "relationship-0"));
-  expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)).toEqual(null);
-  expect([...visualModel.getVisualEntities().entries()].length).toBe(4);
-  //
-  addSemanticRelationshipToVisualModelAction(noActionNotificationServiceWriter, graph, visualModel, createdRelationships[0].identifier, cmeModels[0].dsIdentifier);
+  addSemanticRelationshipToVisualModelAction(
+    noActionNotificationServiceWriter, graph, visualModel,
+    createdRelationships[0].identifier, cmeModels[0].dsIdentifier, null, null);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(5);
   expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)).to.not.toBeNull();
   expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)?.length).toBe(1);
@@ -119,17 +59,18 @@ test("Create relationship then after that duplicate node", () => {
   expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)).toEqual(null);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(4);
   //
-  addSemanticRelationshipToVisualModelAction(noActionNotificationServiceWriter, graph, visualModel, createdRelationships[0].identifier, cmeModels[0].dsIdentifier);
+  addSemanticRelationshipToVisualModelAction(noActionNotificationServiceWriter, graph, visualModel,
+    createdRelationships[0].identifier, cmeModels[0].dsIdentifier, null, null);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(5);
   expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)?.length).toBe(1);
   //
-  createNodeDuplicateAction(noActionNotificationServiceWriter, visualModel, visualModel.getVisualEntitiesForRepresented("0")![0].identifier);
+  createNodeDuplicateAction(
+    noActionNotificationServiceWriter, visualModel,
+    visualModel.getVisualEntitiesForRepresented("0")![0].identifier);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(7);
   expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)?.length).toBe(2);
   expect(visualModel.getVisualEntitiesForRepresented("0")?.length).toBe(2);
 });
-
-
 
 test("Create node duplicate and after that create relationship from the original node", () => {
   const {
@@ -150,16 +91,82 @@ test("Create node duplicate and after that create relationship from the original
   expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)).toEqual(null);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(4);
   //
-  createNodeDuplicateAction(noActionNotificationServiceWriter, visualModel, visualModel.getVisualEntitiesForRepresented("0")![0].identifier);
+  createNodeDuplicateAction(
+    noActionNotificationServiceWriter, visualModel,
+    visualModel.getVisualEntitiesForRepresented("0")![0].identifier);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(5);
   expect(visualModel.getVisualEntitiesForRepresented("0")?.length).toBe(2);
   expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)).toBeNull();
   //
-  addSemanticRelationshipToVisualModelAction(noActionNotificationServiceWriter, graph, visualModel, createdRelationships[0].identifier, cmeModels[0].dsIdentifier);
+  const visualSource = visualModel.getVisualEntitiesForRepresented("0")![0];
+  const visualTarget = visualModel.getVisualEntitiesForRepresented("1")![0];
+  addSemanticRelationshipToVisualModelAction(
+    noActionNotificationServiceWriter, graph, visualModel,
+    createdRelationships[0].identifier, cmeModels[0].dsIdentifier,
+    [visualSource.identifier], [visualTarget.identifier]);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(6);
   expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)?.length).toBe(1);
+  const relationship = visualModel
+                        .getVisualEntitiesForRepresented(createdRelationships[0].identifier)![0] as VisualRelationship;
+  expect(relationship.visualSource).toBe(visualSource.identifier);
+  expect(relationship.visualTarget).toBe(visualTarget.identifier);
 });
 
+test("Create node duplicate and after that create relationship from the original node - with different parameters - it should create all the edges", () => {
+  const {
+    visualModel,
+    models,
+    model,
+    cmeModels,
+    graph
+  } = prepareModelWithFourNodes();
+
+  const createdRelationships: {
+    identifier: string,
+    model: InMemorySemanticModel
+  }[] = [];
+  //
+  createdRelationships.push(createSemanticRelationshipTestVariant(
+    graph, models, "0", "1", cmeModels[0].dsIdentifier, "relationship-0"));
+  expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)).toEqual(null);
+  expect([...visualModel.getVisualEntities().entries()].length).toBe(4);
+  //
+  createNodeDuplicateAction(
+    noActionNotificationServiceWriter, visualModel,
+    visualModel.getVisualEntitiesForRepresented("0")![0].identifier);
+  expect([...visualModel.getVisualEntities().entries()].length).toBe(5);
+  expect(visualModel.getVisualEntitiesForRepresented("0")?.length).toBe(2);
+  expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)).toBeNull();
+  //
+  const visualSource1 = visualModel.getVisualEntitiesForRepresented("0")![0];
+  const visualSource2 = visualModel.getVisualEntitiesForRepresented("0")![1];
+  const visualTarget = visualModel.getVisualEntitiesForRepresented("1")![0];
+  addSemanticRelationshipToVisualModelAction(
+    noActionNotificationServiceWriter, graph, visualModel,
+    createdRelationships[0].identifier, cmeModels[0].dsIdentifier,
+    null, null);
+  expect([...visualModel.getVisualEntities().entries()].length).toBe(7);
+  expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)?.length).toBe(2);
+  const relationships = visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier);
+  const createdVisualRelationships = relationships?.map(relationship => {
+    const visualRelationship = relationship as VisualRelationship;
+    return {
+      visualSource: visualRelationship.visualSource,
+      visualTarget: visualRelationship.visualTarget,
+    }
+  });
+  const expectedRelationships = [
+    {
+      visualSource: visualSource1.identifier,
+      visualTarget: visualTarget.identifier,
+    },
+    {
+      visualSource: visualSource2.identifier,
+      visualTarget: visualTarget.identifier,
+    },
+  ]
+  expect(createdVisualRelationships).toEqual(expectedRelationships);
+});
 
 test("Create self loop relationship and after that create duplicate of that node", () => {
   const {
@@ -180,7 +187,9 @@ test("Create self loop relationship and after that create duplicate of that node
   expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)).toEqual(null);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(4);
   //
-  addSemanticRelationshipToVisualModelAction(noActionNotificationServiceWriter, graph, visualModel, createdRelationships[0].identifier, cmeModels[0].dsIdentifier);
+  addSemanticRelationshipToVisualModelAction(
+    noActionNotificationServiceWriter, graph, visualModel,
+    createdRelationships[0].identifier, cmeModels[0].dsIdentifier, null, null);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(5);
   expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)?.length).toBe(1);
   //
@@ -190,7 +199,6 @@ test("Create self loop relationship and after that create duplicate of that node
   expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)?.length).toBe(3);
   //
 });
-
 
 test("Create node duplicate and after that create relationship from the original node to the duplicate", () => {
   const {
@@ -211,16 +219,22 @@ test("Create node duplicate and after that create relationship from the original
   expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)).toEqual(null);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(4);
   //
-  createNodeDuplicateAction(noActionNotificationServiceWriter, visualModel, visualModel.getVisualEntitiesForRepresented("0")![0].identifier);
+  createNodeDuplicateAction(
+    noActionNotificationServiceWriter, visualModel,
+    visualModel.getVisualEntitiesForRepresented("0")![0].identifier);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(5);
   expect(visualModel.getVisualEntitiesForRepresented("0")?.length).toBe(2);
   expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)).toBeNull();
   //
-  addSemanticRelationshipToVisualModelAction(noActionNotificationServiceWriter, graph, visualModel, createdRelationships[0].identifier, cmeModels[0].dsIdentifier);
+  const visualSource = visualModel.getVisualEntitiesForRepresented("0")![0];
+  const visualTarget = visualModel.getVisualEntitiesForRepresented("0")![1];
+  addSemanticRelationshipToVisualModelAction(
+    noActionNotificationServiceWriter, graph, visualModel,
+    createdRelationships[0].identifier, cmeModels[0].dsIdentifier,
+    [visualSource.identifier], [visualTarget.identifier]);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(6);
   expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)?.length).toBe(1);
 });
-
 
 //
 
@@ -309,7 +323,6 @@ const createNewVisualNodeForTesting = (visualModel: WritableVisualModel, model: 
 
   return visualId;
 }
-
 
 // Heavily inspired by createSemanticAssociationInternal
 // We are doing this so:
