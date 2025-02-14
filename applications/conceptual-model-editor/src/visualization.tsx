@@ -435,8 +435,7 @@ function getEntityLabel(
   language: string,
   entity: SemanticModelClass | SemanticModelRelationship |
     SemanticModelClassUsage | SemanticModelRelationshipUsage |
-    SemanticModelGeneralization | SemanticModelClassProfile |
-    SemanticModelRelationshipProfile
+    SemanticModelClassProfile | SemanticModelRelationshipProfile
 ) {
   return getLocalizedStringFromLanguageString(getNameLanguageString(entity), language)
     ?? getFallbackDisplayName(entity) ?? "";
@@ -446,8 +445,7 @@ function getEntityDescription(
   language: string,
   entity: SemanticModelClass | SemanticModelRelationship |
     SemanticModelClassUsage | SemanticModelRelationshipUsage |
-    SemanticModelGeneralization | SemanticModelClassProfile |
-    SemanticModelRelationshipProfile) {
+    SemanticModelClassProfile | SemanticModelRelationshipProfile) {
   return getLocalizedStringFromLanguageString(getDescriptionLanguageString(entity), language);
 }
 
@@ -455,8 +453,7 @@ function getUsageNote(
   language: string,
   entity: SemanticModelClass | SemanticModelRelationship |
     SemanticModelClassUsage | SemanticModelRelationshipUsage |
-    SemanticModelGeneralization | SemanticModelClassProfile |
-    SemanticModelRelationshipProfile) {
+    SemanticModelClassProfile | SemanticModelRelationshipProfile) {
   return getLocalizedStringFromLanguageString(getUsageNoteLanguageString(entity), language);
 }
 

@@ -1,7 +1,6 @@
 import type {
   LanguageString,
   SemanticModelClass,
-  SemanticModelGeneralization,
   SemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import type {
@@ -101,7 +100,6 @@ export const getLanguagesForNamedThing = (
         | SemanticModelRelationship
         | SemanticModelClassUsage
         | SemanticModelRelationshipUsage
-        | SemanticModelGeneralization
         | SemanticModelClassProfile
         | SemanticModelRelationshipProfile
 ) => {
