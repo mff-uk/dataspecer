@@ -322,8 +322,11 @@ export function getRemovedAndAdded<T>(previousValues: T[], nextValues: T[]) {
 }
 
 /**
- * @returns Returns given {@link visualSources} and {@link visualTargets} if not null,
- * otherwise all the visual sources, respectively targets for the represented {@link entity}
+ * @returns
+ * If {@link visualSources}, respectively {@link visualTargets} not null then
+ *    returns given {@link visualSources} and {@link visualTargets}.
+ * If null then
+ *    returns all the visual sources, respectively targets for the represented {@link entity}.
  */
 export function getVisualSourcesAndVisualTargets(
   visualModel: VisualModel,

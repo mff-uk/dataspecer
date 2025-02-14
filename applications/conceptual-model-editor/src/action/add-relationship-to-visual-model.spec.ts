@@ -1,3 +1,8 @@
+/**
+ * Tests addSemanticRelationshipToVisualModelAction and its interaction with createNodeDuplicateAction.
+ */
+
+
 import { expect, test } from "vitest";
 import { EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
@@ -17,7 +22,6 @@ test("Create single relationship", () => {
   const {
     visualModel,
     models,
-    model,
     cmeModels,
     graph
   } = prepareModelWithFourNodes();
@@ -44,7 +48,6 @@ test("Create relationship then after that duplicate node", () => {
   const {
     visualModel,
     models,
-    model,
     cmeModels,
     graph
   } = prepareModelWithFourNodes();
@@ -76,7 +79,6 @@ test("Create node duplicate and after that create relationship from the original
   const {
     visualModel,
     models,
-    model,
     cmeModels,
     graph
   } = prepareModelWithFourNodes();
@@ -112,11 +114,10 @@ test("Create node duplicate and after that create relationship from the original
   expect(relationship.visualTarget).toBe(visualTarget.identifier);
 });
 
-test("Create node duplicate and after that create relationship from the original node - with different parameters - it should create all the edges", () => {
+test("Create node duplicate and after that create relationship from the original node without specifying visual ends - it should create all the edges", () => {
   const {
     visualModel,
     models,
-    model,
     cmeModels,
     graph
   } = prepareModelWithFourNodes();
@@ -147,6 +148,7 @@ test("Create node duplicate and after that create relationship from the original
     null, null);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(7);
   expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)?.length).toBe(2);
+  //
   const relationships = visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier);
   const createdVisualRelationships = relationships?.map(relationship => {
     const visualRelationship = relationship as VisualRelationship;
@@ -172,7 +174,6 @@ test("Create self loop relationship and after that create duplicate of that node
   const {
     visualModel,
     models,
-    model,
     cmeModels,
     graph
   } = prepareModelWithFourNodes();
@@ -204,7 +205,6 @@ test("Create node duplicate and after that create relationship from the original
   const {
     visualModel,
     models,
-    model,
     cmeModels,
     graph
   } = prepareModelWithFourNodes();
@@ -236,6 +236,8 @@ test("Create node duplicate and after that create relationship from the original
   expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)?.length).toBe(1);
 });
 
+//
+// Test setup methods
 //
 
 const generateIriForName = (name: string) => {

@@ -58,7 +58,7 @@ function addAttributesToRemoveToTheMap(
     notifications.error("One of given attributes has invalid domain");
     return;
   }
-  // TODO RadStr: MULTI-ENTITIES!
+  // TODO RadStr: Same issue as for addSemanticAttributeToVisualModelAction !!!
   const node = visualModel.getVisualEntitiesForRepresented(domainIdentifier)?.[0] ?? null;
   if(node === null) {
     notifications.error("One of given attributes has not existing node as domain");
