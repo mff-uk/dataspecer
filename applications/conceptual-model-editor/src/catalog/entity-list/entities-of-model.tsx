@@ -93,7 +93,10 @@ export const EntitiesOfModel = (props: {
   const [listCollapsed, setListCollapsed] = useState(false);
   const [visible, setVisible] = useState<string[]>([]);
   const [color, setColor] = useState(DEFAULT_MODEL_COLOR);
-  const entities = getEntitiesByType(entityType, model);
+
+  const aggregatedEntities = aggregatorView.getEntities();
+  const entities: EntityTypes[] = getEntitiesByType(entityType, model)
+    .map(item => (aggregatedEntities[item.id]?.aggregatedEntity ?? item) as EntityTypes);
 
   /**
      * Initialize.
