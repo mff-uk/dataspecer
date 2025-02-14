@@ -38,11 +38,9 @@ export interface AddInterpretedSurroundingDialogProperties {
 export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundingDialogProperties> = dialog({fullWidth: true, maxWidth: "lg"}, ({isOpen, close, selected, dataPsmClassIri, forPimClassIri}) => {
     const {t, i18n} = useTranslation("interpretedSurrounding");
 
-    const {resource: forPimClass} = useResource(forPimClassIri);
-    const {pimResource: pimClass, dataPsmResource: dataPsmClass} = useDataPsmAndInterpretedPim<DataPsmClass, SemanticModelClass>(dataPsmClassIri);
-    const cimClassIri = forPimClass?.iri ?? pimClass?.iri; // ! toto je CIM na kterem stavime
+    const {dataPsmResource: dataPsmClass} = useDataPsmAndInterpretedPim<DataPsmClass, SemanticModelClass>(dataPsmClassIri);
 
-    const {sourceSemanticModel, semanticModelAggregator} = React.useContext(ConfigurationContext);
+    const {semanticModelAggregator} = React.useContext(ConfigurationContext);
 
     // For which CIM iris the loading is in progress
     const [currentCimClassIri, setCurrentCimClassIri] = useState<string>("");
@@ -69,7 +67,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
                 setSurroundings({...surroundings, [newCurrentCimClassIri]: result});
             });
         }
-    }, [surroundings, sourceSemanticModel]);
+    }, [surroundings]);
 
     /**
      * List of selected resources is an array of the selected resource iris and orientation.
@@ -86,14 +84,14 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
 
     // Opens the root class CIM
     useEffect(() => {
-        if (isOpen && cimClassIri) {
-            switchCurrentCimClassIri(cimClassIri);
+        if (isOpen && forPimClassIri) {
+            switchCurrentCimClassIri(forPimClassIri);
         } else {
             setSelectedResources([]);
             setSurroundings({});
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isOpen, cimClassIri]); // change of switchCurrentCimClassIri should not trigger this effect
+    }, [isOpen, forPimClassIri]); // change of switchCurrentCimClassIri should not trigger this effect
 
     const flatSurroundings = useMemo(() => ([...Object.values(surroundings).filter(e => e).flat(1) as ExternalEntityWrapped[], ...(hierarchyStore ?? [])]), [surroundings, hierarchyStore]);
     const newStore = useNewFederatedObservableStoreFromSemanticEntities(flatSurroundings);
@@ -116,8 +114,6 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
         .filter(r => r.aggregatedEntity.ends[1].concept === currentCimClassIri)
         ?? [], [currentSurroundings, currentCimClassIri]);
 
-    if (!cimClassIri) return null;
-
     return <StoreContext.Provider value={newStore}>
         <DialogTitle id="customized-dialog-title" close={close}>
             {t("title")}
@@ -126,7 +122,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
         <DialogContent dividers>
             <Grid container spacing={3}>
                 <Grid item xs={3} sx={{borderRight: theme => "1px solid " + theme.palette.divider}}>
-                    <AncestorSelectorPanel forSemanticClassId={cimClassIri} selectedAncestorCimIri={currentCimClassIri} selectAncestorCimIri={switchCurrentCimClassIri} hierarchyStore={hierarchyStore} setHierarchyStore={setHierarchyStore} />
+                    <AncestorSelectorPanel forSemanticClassId={forPimClassIri} selectedAncestorCimIri={currentCimClassIri} selectAncestorCimIri={switchCurrentCimClassIri} hierarchyStore={hierarchyStore} setHierarchyStore={setHierarchyStore} />
                 </Grid>
                 <Grid item xs={9}>
                     {surroundings[currentCimClassIri] === undefined && <LoadingDialog />}

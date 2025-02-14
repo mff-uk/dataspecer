@@ -3,7 +3,7 @@ import { DataPsmCreateAssociationEnd, DataPsmCreateClass } from "@dataspecer/cor
 import { ComplexOperation } from "@dataspecer/federated-observable-store/complex-operation";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
 import { TechnicalLabelOperationContext } from "./context/technical-label-operation-context";
-import { L0Aggregator } from "../semantic-aggregator/interfaces";
+import { SemanticModelAggregator } from "../semantic-aggregator/interfaces";
 
 /**
  * Adds association to the same class. The association will not have any interpretation.
@@ -16,7 +16,7 @@ export class CreateNonInterpretedAssociationToClass implements ComplexOperation 
   private readonly semanticClassId?: string;
   private store!: FederatedObservableStore;
   private context: TechnicalLabelOperationContext | null = null;
-  private semanticStore!: L0Aggregator;
+  private semanticStore!: SemanticModelAggregator;
 
   constructor(ownerClass: string, semanticClassId?: string) {
     this.ownerClass = ownerClass;
@@ -27,7 +27,7 @@ export class CreateNonInterpretedAssociationToClass implements ComplexOperation 
     this.store = store;
   }
 
-  setSemanticStore(semanticStore: L0Aggregator) {
+  setSemanticStore(semanticStore: SemanticModelAggregator) {
     this.semanticStore = semanticStore;
   }
 

@@ -609,8 +609,11 @@ export class FederatedObservableStore implements FederatedCoreResourceWriter {
 
         if (DataPsmSchema.is(resource.resource)) {
             iris = resource.resource.dataPsmParts;
-        } else if (resource.resource instanceof InMemoryEntityModel || resource.resource instanceof InMemorySemanticModel) {
+        // @ts-ignore
+        } else if (resource.resource.getEntities) {
+            // @ts-ignore
             iris = Object.keys(resource.resource.getEntities());
+            // @ts-ignore
             iris.push(resource.resource.getId())
         } else {
             console.log(resource.resource);

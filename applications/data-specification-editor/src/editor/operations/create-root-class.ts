@@ -3,7 +3,7 @@ import { LanguageString } from "@dataspecer/core/core";
 import { DataPsmCreateClass, DataPsmSetHumanDescription, DataPsmSetHumanLabel, DataPsmSetRoots } from "@dataspecer/core/data-psm/operation";
 import { ComplexOperation } from "@dataspecer/federated-observable-store/complex-operation";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
-import { L0Aggregator } from '../semantic-aggregator/interfaces';
+import { SemanticModelAggregator } from '../semantic-aggregator/interfaces';
 import { TechnicalLabelOperationContext } from "./context/technical-label-operation-context";
 
 /**
@@ -21,7 +21,7 @@ export class CreateRootClass implements ComplexOperation {
   private readonly schemaHumanDescription?: LanguageString;
   private store!: FederatedObservableStore;
   private context: TechnicalLabelOperationContext | null = null;
-  private semanticStore!: L0Aggregator;
+  private semanticStore!: SemanticModelAggregator;
 
   constructor(semanticClassId: string | null, dataPsmSchemaIri: string, schemaHumanLabel?: LanguageString, schemaHumanDescription?: LanguageString) {
     this.semanticClassId = semanticClassId;
@@ -34,7 +34,7 @@ export class CreateRootClass implements ComplexOperation {
     this.store = store;
   }
 
-  setSemanticStore(semanticStore: L0Aggregator) {
+  setSemanticStore(semanticStore: SemanticModelAggregator) {
     this.semanticStore = semanticStore;
   }
 

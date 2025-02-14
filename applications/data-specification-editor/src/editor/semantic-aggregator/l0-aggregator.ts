@@ -1,17 +1,17 @@
 import { Entity } from "@dataspecer/core-v2";
 import { isSemanticModelClass, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { createClass, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
+import { createClass, CreatedEntityOperationResult, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { SourceSemanticModelInterface } from "../configuration/configuration";
 import { copyInheritanceToModel } from "../operations/helper/copy-inheritance-to-model";
-import { ExternalEntityWrapped, L0Aggregator, LocalEntityWrapped } from "./interfaces";
+import { ExternalEntityWrapped, SemanticModelAggregator, LocalEntityWrapped } from "./interfaces";
 
-export class LegacyL0Aggregator implements L0Aggregator {
+export class LegacyL0Aggregator implements SemanticModelAggregator {
   private readonly pim: InMemorySemanticModel;
   private readonly cim: SourceSemanticModelInterface;
 
   private readonly aggregatedEntities: Record<string, LocalEntityWrapped> = {};
-  private readonly subscribers: Set<(updates: Record<string, LocalEntityWrapped | null>) => void> = new Set();
+  private readonly subscribers: Set<(updated: Record<string, LocalEntityWrapped>, removed: string[]) => void> = new Set();
 
   constructor(pim: InMemorySemanticModel, cim: SourceSemanticModelInterface) {
     this.pim = pim;
@@ -27,7 +27,8 @@ export class LegacyL0Aggregator implements L0Aggregator {
    * Helper function to trigger update of entities
    */
   private updateEntities(updated: Record<string, Entity>, removed: string[]) {
-    const changes = {};
+    const toChanged = {};
+    const toRemoved = [];
 
     for (const entity of Object.values(updated)) {
       this.aggregatedEntities[entity.id] = {
@@ -35,17 +36,15 @@ export class LegacyL0Aggregator implements L0Aggregator {
         vocabularyChain: [],
         isReadOnly: true,
       };
-      changes[entity.id] = this.aggregatedEntities;
+      toChanged[entity.id] = this.aggregatedEntities[entity.id];
     }
 
     for (const id of removed) {
       delete this.aggregatedEntities[id];
-      changes[id] = null;
+      toRemoved.push(id);
     }
 
-    for (const subscriber of this.subscribers) {
-      subscriber(changes);
-    }
+    this.subscribers.forEach((subscriber) => subscriber(toChanged, toRemoved));
   }
 
   async search(searchQuery: string): Promise<ExternalEntityWrapped[]> {
@@ -61,7 +60,7 @@ export class LegacyL0Aggregator implements L0Aggregator {
     let foundEntity = Object.values(this.pim.getEntities()).find((entity) => isSemanticModelClass(entity) && entity.iri === iri) as SemanticModelClass | undefined;
     if (!foundEntity) {
       const op = createClass(cls);
-      const { id } = this.pim.executeOperation(op);
+      const { id } = this.pim.executeOperation(op) as CreatedEntityOperationResult;
       foundEntity = this.pim.getEntities()[id] as SemanticModelClass;
     }
 
@@ -71,10 +70,14 @@ export class LegacyL0Aggregator implements L0Aggregator {
   async getHierarchy(localEntityId: string): Promise<ExternalEntityWrapped[]> {
     const pim = this.aggregatedEntities[localEntityId] as LocalEntityWrapped<SemanticModelClass>;
     if (!pim) {
-      throw new Error(`getHierarchy work for local entities only.`);
+      throw new Error(`getHierarchy work for local entities only.` + localEntityId);
     }
     const entities = await this.cim.getFullHierarchy(pim.aggregatedEntity.iri);
     return this.transformEntities(entities);
+  }
+
+  getHierarchyForLookup(localEntityId: string): Promise<ExternalEntityWrapped[] | null> {
+    return this.getHierarchy(localEntityId);
   }
 
   async getSurroundings(localOrExternalEntityId: string): Promise<ExternalEntityWrapped[]> {
@@ -150,5 +153,13 @@ export class LegacyL0Aggregator implements L0Aggregator {
 
   getLocalEntity(id: string): LocalEntityWrapped | null {
     return this.aggregatedEntities[id] ?? null;
+  }
+
+  getAggregatedEntities(): Record<string, LocalEntityWrapped> {
+    return this.aggregatedEntities;
+  }
+
+  subscribeToChanges(callback: (updated: Record<string, LocalEntityWrapped>, removed: string[]) => void) {
+    this.subscribers.add(callback);
   }
 }

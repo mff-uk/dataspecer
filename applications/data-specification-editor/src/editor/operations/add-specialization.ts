@@ -2,7 +2,7 @@ import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts"
 import { DataPsmCreateClass, DataPsmCreateInclude, DataPsmSetChoice, DataPsmWrapWithOr } from "@dataspecer/core/data-psm/operation";
 import { ComplexOperation } from "@dataspecer/federated-observable-store/complex-operation";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
-import { L0Aggregator } from "../semantic-aggregator/interfaces";
+import { SemanticModelAggregator } from "../semantic-aggregator/interfaces";
 import { TechnicalLabelOperationContext } from "./context/technical-label-operation-context";
 
 /**
@@ -19,7 +19,7 @@ export class AddSpecialization implements ComplexOperation {
 
   private store!: FederatedObservableStore;
   private context: TechnicalLabelOperationContext | null = null;
-  private semanticStore!: L0Aggregator;
+  private semanticStore!: SemanticModelAggregator;
 
   constructor(forDataPsmClassId: string, wrappedOrId: string | undefined, semanticClassId: string) {
     this.forDataPsmClassId = forDataPsmClassId;
@@ -31,7 +31,7 @@ export class AddSpecialization implements ComplexOperation {
     this.store = store;
   }
 
-  setSemanticStore(semanticStore: L0Aggregator) {
+  setSemanticStore(semanticStore: SemanticModelAggregator) {
     this.semanticStore = semanticStore;
   }
 

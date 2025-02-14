@@ -19,11 +19,11 @@ const identityIriProvider = new PrefixIriProvider();
 export const SearchDialog: React.FC<DialogParameters & { selected: (cls: string) => void }> = dialog(
   { maxWidth: "md", fullWidth: true, PaperProps: { sx: { height: "90%" } } },
   (props) => {
-    const { sourceSemanticModel } = React.useContext(ConfigurationContext);
+    //const { sourceSemanticModel } = React.useContext(ConfigurationContext);
     const { t } = useTranslation("search-dialog");
 
     // @ts-ignore
-    const unwrappedAdapter = sourceSemanticModel?.model?.cimAdapter ?? {};
+    //const unwrappedAdapter = sourceSemanticModel?.model?.cimAdapter ?? {};
 
     /**
      * Wrapper for the legacy wikidata adapter.
@@ -42,7 +42,7 @@ export const SearchDialog: React.FC<DialogParameters & { selected: (cls: string)
           <CloseDialogButton onClick={props.close} />
         </DialogTitle>
         <DialogContent>
-          {isWikidataAdapter(unwrappedAdapter) ? (
+          {false ? (
             <WikidataAdapterContext.Provider value={{ iriProvider: identityIriProvider, wdAdapter: unwrappedAdapter }}>
               <QueryClientProvider client={wikidataSearchQueryClient}>
                 {/* @ts-ignore */}

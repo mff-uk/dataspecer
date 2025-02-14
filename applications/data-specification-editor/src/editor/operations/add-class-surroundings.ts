@@ -3,7 +3,7 @@ import { DataPsmClass } from "@dataspecer/core/data-psm/model";
 import { DataPsmCreateAssociationEnd, DataPsmCreateAttribute, DataPsmCreateClass } from "@dataspecer/core/data-psm/operation";
 import { ComplexOperation } from "@dataspecer/federated-observable-store/complex-operation";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
-import { L0Aggregator } from "../semantic-aggregator/interfaces";
+import { SemanticModelAggregator } from "../semantic-aggregator/interfaces";
 import { TechnicalLabelOperationContext } from "./context/technical-label-operation-context";
 
 /**
@@ -27,11 +27,10 @@ export class AddClassSurroundings implements ComplexOperation {
   private readonly resourcesToAdd: [string, AssociationOrientation][];
   private store!: FederatedObservableStore;
   private context: TechnicalLabelOperationContext | null = null;
-  private semanticStore!: L0Aggregator;
+  private semanticStore!: SemanticModelAggregator;
 
   /**
    * @param forDataPsmClass
-   * @param sourceSemanticModel
    * @param resourcesToAdd true - the edge is outgoing (from source to this resource)
    */
   constructor(forDataPsmClass: DataPsmClass, resourcesToAdd: [string, boolean][]) {
@@ -43,7 +42,7 @@ export class AddClassSurroundings implements ComplexOperation {
     this.store = store;
   }
 
-  setSemanticStore(semanticStore: L0Aggregator) {
+  setSemanticStore(semanticStore: SemanticModelAggregator) {
     this.semanticStore = semanticStore;
   }
 

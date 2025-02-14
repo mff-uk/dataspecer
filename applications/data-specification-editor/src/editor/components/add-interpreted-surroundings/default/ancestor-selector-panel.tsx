@@ -50,16 +50,16 @@ const BFS = async (modelReader: ExternalEntityWrapped[], rootIri: string): Promi
 
 export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = ({forSemanticClassId, selectedAncestorCimIri, selectAncestorCimIri, hierarchyStore, setHierarchyStore}) => {
     const {t} = useTranslation("interpretedSurrounding");
-    const {sourceSemanticModel, semanticModelAggregator} = React.useContext(ConfigurationContext);
+    const {semanticModelAggregator} = React.useContext(ConfigurationContext);
     const [sorted, loading] = useAsyncMemo(async () => hierarchyStore ? await BFS(hierarchyStore, forSemanticClassId) : null, [hierarchyStore]);
 
     useEffect(() => {
         let isActive = true;
-        semanticModelAggregator.getHierarchy(forSemanticClassId).then(s => isActive && setHierarchyStore(s));
+        semanticModelAggregator.getHierarchyForLookup(forSemanticClassId).then(s => isActive && setHierarchyStore(s));
         return () => {
             isActive = false;
         };
-    }, [sourceSemanticModel, forSemanticClassId, setHierarchyStore]);
+    }, [forSemanticClassId, setHierarchyStore]);
 
     const ClassDetailDialog = useDialog(PimClassDetailDialog, ["iri"]);
 

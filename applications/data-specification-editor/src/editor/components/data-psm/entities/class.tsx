@@ -48,7 +48,7 @@ export const DataPsmClassItem: React.FC<{
   const objectContext = props as ObjectContext;
   const partContext = props as ClassPartContext;
 
-  const {dataSpecificationIri, dataSpecifications, operationContext, sourceSemanticModel, semanticModelAggregator} = useContext(ConfigurationContext);
+  const {dataSpecificationIri, dataSpecifications, operationContext, semanticModelAggregator} = useContext(ConfigurationContext);
 
   const {dataPsmResource: dataPsmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, ExtendedSemanticModelClass>(type === "class" ? props.iri : (type === "container" ? partContext.parentDataPsmClassIri : null));
   const readOnly = false;
@@ -56,8 +56,8 @@ export const DataPsmClassItem: React.FC<{
   const cimClassIri = pimClass?.iri;
 
   // @ts-ignore
-  const unwrappedAdapter = sourceSemanticModel?.model?.cimAdapter ?? {};
-  const AddSurroundings = useDialog(isWikidataAdapter(unwrappedAdapter) ? WikidataAddInterpretedSurroundingsDialog : AddInterpretedSurroundingsDialog, ["dataPsmClassIri", "forPimClassIri"]);
+  const unwrappedAdapter = {}; //sourceSemanticModel?.model?.cimAdapter ?? {};
+  const AddSurroundings = useDialog(false ? WikidataAddInterpretedSurroundingsDialog : AddInterpretedSurroundingsDialog, ["dataPsmClassIri", "forPimClassIri"]); // isWikidataAdapter(unwrappedAdapter)
 
   const store = useFederatedObservableStore();
   const include = useCallback(() =>

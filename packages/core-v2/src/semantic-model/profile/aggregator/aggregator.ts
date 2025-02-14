@@ -70,7 +70,7 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
       //
       name: profiled(profile.nameFromProfiled)?.name ?? null,
       nameFromProfiled: profile.nameFromProfiled,
-      description: profiled(profile.nameFromProfiled)?.description ?? null,
+      description: profiled(profile.descriptionFromProfiled)?.description ?? null,
       descriptionFromProfiled: profile.descriptionFromProfiled,
     };
   }
@@ -95,7 +95,7 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
         descriptionFromProfiled: end.descriptionFromProfiled,
         usageNote: (() => {
           // We need to do some computation.
-          const source = profiled(end.descriptionFromProfiled);
+          const source = profiled(end.usageNoteFromProfiled);
           if (isSemanticModelRelationshipProfile(source)) {
             return source.ends[index]?.usageNote ?? end.usageNote;
           } else {
@@ -103,9 +103,9 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
           }
         })(),
         usageNoteFromProfiled: end.usageNoteFromProfiled,
-        concept: profiled(end.descriptionFromProfiled)?.ends[index]?.concept ?? null,
+        concept: profiled(end.conceptFromProfiled)?.ends[index]?.concept ?? null,
         conceptFromProfiled: end.conceptFromProfiled,
-        cardinality: profiled(end.descriptionFromProfiled)?.ends[index]?.cardinality ?? null,
+        cardinality: profiled(end.cardinalityFromProfiled)?.ends[index]?.cardinality ?? null,
         cardinalityFromProfiled: end.cardinalityFromProfiled,
       })),
     }
