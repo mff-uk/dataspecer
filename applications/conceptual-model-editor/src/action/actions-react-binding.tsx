@@ -261,7 +261,8 @@ export interface ActionsContextType extends DialogActions, VisualModelActions {
     nodeSelection: NodeSelection,
     extensionTypes: ExtensionType[],
     visibilityFilter: VisibilityFilter,
-    semanticModelFilter: Record<string, boolean> | null
+    semanticModelFilter: Record<string, boolean> | null,
+    shouldExtendByNodeDuplicates: boolean,
   ) => Promise<Selections>;
 
   filterSelection: (
@@ -772,11 +773,13 @@ function createActionsContext(
     nodeSelection: NodeSelection,
     extensionTypes: ExtensionType[],
     visibilityFilter: VisibilityFilter,
-    semanticModelFilter: Record<string, boolean> | null
+    semanticModelFilter: Record<string, boolean> | null,
+    shouldExtendByNodeDuplicates: boolean = true,
   ) => {
     const selectionExtension = await extendSelectionAction(
       notifications, graph, classes, nodeSelection,
-      extensionTypes, visibilityFilter, false, semanticModelFilter);
+      extensionTypes, visibilityFilter, false, semanticModelFilter,
+      shouldExtendByNodeDuplicates);
     return selectionExtension.selectionExtension;
   };
 

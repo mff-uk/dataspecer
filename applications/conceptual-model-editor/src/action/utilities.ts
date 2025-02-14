@@ -233,7 +233,8 @@ const findAssociatedClassesAndClassUsages = async (
   // Is synchronous for this case
   const selection = await extendSelectionAction(notifications, graph, classesContext,
     {areIdentifiersFromVisualModel: false, identifiers: [classToFindAssociationsFor]},
-    [ExtensionType.Association, ExtensionType.Generalization], VisibilityFilter.OnlyVisibleNodes, false, null);
+    [ExtensionType.Association, ExtensionType.Generalization],
+    VisibilityFilter.OnlyVisibleNodes, false, null);
   return selection;
 }
 

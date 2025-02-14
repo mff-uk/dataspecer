@@ -135,9 +135,7 @@ export function useExtendSelectionController({ state, changeState }: DialogProps
           identifiers: state.selections.nodeSelection,
           areIdentifiersFromVisualModel: state.areIdentifiersFromVisualModel
         },
-        relevantExtensionTypes,
-        VisibilityFilter.OnlyVisible,
-        null
+        relevantExtensionTypes, VisibilityFilter.OnlyVisible, null, true
       ).then(extension => {
         setSelections({
           nodeSelection: state.selections.nodeSelection.concat(extension.nodeSelection),
