@@ -1,7 +1,7 @@
 import { createLogger } from "../../application";
 import { RuntimeError } from "../../application/error";
 import { EntityDsIdentifier } from "../../dataspecer/entity-model";
-import { EntityRepresentative, listCardinalities, representCardinality } from "./dialog-utilities";
+import { EntityRepresentative, listProfileCardinalities, representProfileCardinality } from "./dialog-utilities";
 import { RelationshipController, RelationshipState, createRelationshipController } from "./relationship-utilities";
 import { ValidationState, validationNoProblem } from "./validation-utilities";
 
@@ -68,7 +68,7 @@ export function createRelationshipProfileStateForNew<RangeType extends { identif
     domainValidation: validationNoProblem(),
     availableDomains: availableDomains,
     // Domain cardinality
-    domainCardinality: representCardinality(domainCardinality),
+    domainCardinality: representProfileCardinality(domainCardinality),
     overrideDomainCardinality: domainCardinality !== null,
     domainCardinalityValidation: validationNoProblem(),
     // Range
@@ -76,11 +76,11 @@ export function createRelationshipProfileStateForNew<RangeType extends { identif
     rangeValidation: validationNoProblem(),
     availableRanges: availableRanges,
     // Range cardinality
-    rangeCardinality: representCardinality(rangeCardinality),
+    rangeCardinality: representProfileCardinality(rangeCardinality),
     overrideRangeCardinality: rangeCardinality !== null,
     rangeCardinalityValidation: validationNoProblem(),
     //
-    availableCardinalities: listCardinalities(),
+    availableCardinalities: listProfileCardinalities(),
   };
 }
 
@@ -110,7 +110,7 @@ export function createRelationshipProfileStateForEdit<RangeType extends { identi
     domain,
     domainValidation: validationNoProblem(),
     // Domain cardinality
-    domainCardinality: representCardinality(domainCardinality),
+    domainCardinality: representProfileCardinality(domainCardinality),
     overrideDomainCardinality: domainCardinality !== null,
     domainCardinalityValidation: validationNoProblem(),
     availableDomains: availableDomains,
@@ -118,12 +118,12 @@ export function createRelationshipProfileStateForEdit<RangeType extends { identi
     range,
     rangeValidation: validationNoProblem(),
     // Range cardinality
-    rangeCardinality: representCardinality(rangeCardinality),
+    rangeCardinality: representProfileCardinality(rangeCardinality),
     overrideRangeCardinality: rangeCardinality !== null,
     rangeCardinalityValidation: validationNoProblem(),
     availableRanges: availableRanges,
     //
-    availableCardinalities: listCardinalities(),
+    availableCardinalities: listProfileCardinalities(),
   };
 }
 

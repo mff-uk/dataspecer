@@ -134,13 +134,13 @@ const createRelationshipProfile = (
     iri: state.iri,
     name: state.name,
     nameSource: state.overrideName ? null :
-      state.nameSource?.identifier ?? null,
+      state.nameSource.identifier ?? null,
     description: state.description,
     descriptionSource: state.overrideDescription ? null :
-      state.descriptionSourceValue?.identifier ?? null,
+      state.descriptionSource.identifier ?? null,
     usageNote: state.usageNote,
     usageNoteSource: state.overrideUsageNote ? null :
-      state.usageNoteSource?.identifier ?? null,
+      state.usageNoteSource.identifier ?? null,
     //
     domain: state.domain.identifier,
     domainCardinality: state.domainCardinality.cardinality,

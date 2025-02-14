@@ -3,7 +3,6 @@ import {
   type SemanticModelGeneralization,
   type SemanticModelRelationship,
   isSemanticModelClass,
-  isSemanticModelGeneralization,
   isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
@@ -25,7 +24,6 @@ export const getNameLanguageString = (
         | SemanticModelRelationship
         | SemanticModelClassUsage
         | SemanticModelRelationshipUsage
-        | SemanticModelGeneralization
         | SemanticModelClassProfile
         | SemanticModelRelationshipProfile
 ) => {
@@ -41,10 +39,6 @@ export const getNameLanguageString = (
   } else if (isSemanticModelRelationshipProfile(resource)) {
     const range = getDomainAndRange(resource)?.range;
     return range?.name ?? null;
-  } else if (isSemanticModelGeneralization(resource)) {
-    return {
-      en: "Generalization of " + resource.child + " is " + resource.parent,
-    };
   } else {
     return null;
   }

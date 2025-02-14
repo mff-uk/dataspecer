@@ -8,7 +8,7 @@ import { UseDiagramType } from "../diagram/diagram-hook";
 import { addRelatedEntitiesAction } from "./add-related-entities-to-visual-model";
 import { findPositionForNewNodesUsingLayouting } from "./layout-visual-model";
 import { ClassesContextType } from "../context/classes-context";
-import { addVisualNode } from "../dataspecer/visual-model/command/add-visual-node";
+import { addVisualNode } from "../dataspecer/visual-model/operation/add-visual-node";
 import { getVisualNodeContentBasedOnExistingEntities } from "./add-semantic-attribute-to-visual-model";
 
 export async function addSemanticClassToVisualModelAction(

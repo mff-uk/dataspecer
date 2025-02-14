@@ -186,9 +186,23 @@ export const createEntityProxy = (
     },
   });
 
-  const getName = () =>
-    getLocalizedStringFromLanguageString(getNameLanguageString(viewedEntity), currentLang) ??
-    getFallbackDisplayName(viewedEntity);
+  const getName = () => {
+    if (isSemanticModelGeneralization(viewedEntity)) {
+      const child = classes.find(item => item.id === viewedEntity.child) ?? null;
+
+      const childName = getLocalizedStringFromLanguageString(getNameLanguageString(child), currentLang) ??
+        getFallbackDisplayName(viewedEntity);
+
+      const parent = classes.find(item => item.id === viewedEntity.parent) ?? null;
+      const parentName = getLocalizedStringFromLanguageString(getNameLanguageString(parent), currentLang) ??
+        getFallbackDisplayName(viewedEntity);
+
+      return "Generalization of " + childName + " is " + parentName;
+    } else {
+      return getLocalizedStringFromLanguageString(getNameLanguageString(viewedEntity), currentLang) ??
+        getFallbackDisplayName(viewedEntity);
+    }
+  }
 
   const getDescription = () =>
     getLocalizedStringFromLanguageString(getDescriptionLanguageString(viewedEntity), currentLang);
@@ -336,8 +350,8 @@ export const createEntityProxy = (
 
   const getRange = () => ({
     entity: classes.find(item => item.id === ends?.range.concept)
-    ?? usages.find(item => item.id === ends?.range?.concept)
-    ?? classProfiles.find(item => item.id === ends?.range?.concept),
+      ?? usages.find(item => item.id === ends?.range?.concept)
+      ?? classProfiles.find(item => item.id === ends?.range?.concept),
     cardinality: cardinalityToHumanLabel(ends?.range?.cardinality),
   });
 

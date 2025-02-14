@@ -14,7 +14,6 @@ export function modifyCmeRelationshipProfile(
   models: InMemorySemanticModel[],
 ): void {
   const model = findModel(profile.model, models);
-
   const operation = factory.modifyRelationshipProfile(profile.identifier,{
     ends: [{
       profiling: [],

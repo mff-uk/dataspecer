@@ -8,14 +8,12 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 
-import type { Node as ApiNode, EntityItem } from "../diagram-api";
+import { NodeType, type Node as ApiNode, type EntityItem } from "../diagram-api";
 import { DiagramContext, NodeMenuType } from "../diagram-controller";
 
 import "./entity-node.css";
 import { usePrefixForIri } from "../../service/prefix-service";
 import { t } from "../../application";
-import { useModelGraphContext } from "../../context/model-context";
-import { VisualNode } from "@dataspecer/core-v2/visual-model";
 import { useActions } from "../../action/actions-react-binding";
 
 // We can select zoom option and hide content when zoom is on given threshold.
@@ -147,7 +145,7 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
 
   const shouldShowToolbar = props.selected === true;
 
-  const addAttributeTitle = props.data.profileOf === null ?
+  const addAttributeTitle = props.data.type === NodeType.Class ?
     t("node-add-attribute") : t("node-add-attribute-profile");
 
   return (
