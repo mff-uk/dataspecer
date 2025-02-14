@@ -289,7 +289,6 @@ function onChangeVisualModel(
       for (const item of profiled) {
         const profileOf = visualModel.getVisualEntityForRepresented(item);
         if (profileOf === null) {
-          console.error("Missing profile for profile relation.", { entity });
           continue;
         }
         if (visualEntity.visualSource !== profileOf.identifier &&
@@ -759,7 +758,6 @@ function onChangeVisualEntities(
         for (const item of profiled) {
           const profileOf = visualModel.getVisualEntityForRepresented(item);
           if (profileOf === null) {
-            console.error("Missing profile for profile relation.", { entity });
             continue;
           }
           if (next.visualSource !== profileOf.identifier &&
