@@ -33,7 +33,7 @@ export interface VisualNode extends VisualEntity {
     position: Position;
 
     /**
-     * Identifiers of non-visual relationships, e.g. attribute, to show as a part of the entity.
+     * Identifiers of non-visual relationships, e.g. attributes, to show as a part of the entity.
      */
     content: string[];
 

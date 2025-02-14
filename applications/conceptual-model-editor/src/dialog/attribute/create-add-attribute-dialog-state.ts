@@ -2,7 +2,7 @@ import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { EditAttributeDialogState } from "./edit-attribute-dialog-controller";
-import { isRepresentingAttribute, representClasses, listDataTypes, representOwlThing, representRelationships, representUndefinedClass, representUndefinedDataType, selectDefaultModelForAttribute } from "../utilities/dialog-utilities";
+import { isRepresentingAttribute, listAttributeRanges, representOwlThing, representRelationships, selectDefaultModelForAttribute, representRdfsLiteral, listRelationshipDomains } from "../utilities/dialog-utilities";
 import { configuration } from "../../application";
 import { createEntityStateForNew } from "../utilities/entity-utilities";
 import { createSpecializationStateForNew } from "../utilities/specialization-utilities";
@@ -16,6 +16,8 @@ import { RuntimeError } from "../../application/error";
 /**
  * Creates a dialog to add an attribute to an existing entity.
  * Same as create new attribute just set the default domain to the entity.
+ *
+ * @throws RuntimeError
  */
 export function createAddAttributeDialogState(
   classesContext: ClassesContextType,
@@ -29,36 +31,38 @@ export function createAddAttributeDialogState(
 
   const vocabularies = entityModelsMapToCmeVocabulary(graphContext.models, visualModel);
 
+  const owlThing = representOwlThing();
+
+  const rdfsLiteral = representRdfsLiteral();
+
   // EntityState
   const entityState = createEntityStateForNew(
     language, null, vocabularies, configuration().nameToIri);
 
   // SpecializationState
 
-  const specializations =
-    representRelationships(models, entityState.allModels, classesContext.relationships)
-      .filter(item => isRepresentingAttribute(item));
+  const specializations = representRelationships(
+    models, entityState.allModels, classesContext.relationships,
+    owlThing.identifier, rdfsLiteral.identifier)
+    .filter(item => isRepresentingAttribute(item));
 
   const specializationState = createSpecializationStateForNew(
     language, entityState.allModels, specializations);
 
   // RelationshipState
 
-  const classes = [
-    representUndefinedClass(),
-    representOwlThing(),
-    ...representClasses(models, entityState.allModels, classesContext.classes)
-  ];
+  const domains = listRelationshipDomains(
+    classesContext, graphContext, vocabularies);
 
-  const domain = classes.find(item => item.identifier === entity.id);
+  const domain = domains.find(item => item.identifier === entity.id);
   if (domain === undefined) {
-    throw new RuntimeError("Missing domain representative");
+    throw new RuntimeError("Missing domain representative.");
   }
 
-  const dataTypes = listDataTypes();
+  const dataTypes = listAttributeRanges();
 
   const relationshipState = createRelationshipStateForNew(
-    domain, classes, representUndefinedDataType(), dataTypes);
+    domain, domains, rdfsLiteral, dataTypes);
 
   return {
     ...entityState,

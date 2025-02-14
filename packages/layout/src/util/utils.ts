@@ -2,12 +2,12 @@
 
 import { Position } from "@dataspecer/core-v2/visual-model";
 
-// TODO: So maybe just do the classic ... type Direction = "UP" | "RIGHT" | "DOWN" | "LEFT";
+// TODO: So maybe just do the classic ... type Direction = "Up" | "Right" | "Down" | "Left";
 export enum Direction {
-    UP = "UP",
-    RIGHT = "RIGHT",
-    DOWN = "DOWN",
-    LEFT = "LEFT"
+    Up = "Up",
+    Right = "Right",
+    Down = "Down",
+    Left = "Left"
 }
 
 type PositionWithOptionalAnchor = {

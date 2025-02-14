@@ -5,6 +5,8 @@ import type { UseNotificationServiceWriterType } from "../notification/notificat
 import { getDomainAndRange } from "../util/relationship-utils";
 import { ModelGraphContextType } from "../context/model-context";
 import { withAggregatedEntity } from "./utilities";
+import { isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { isOwlThing } from "../dataspecer/semantic-model";
 
 export function addSemanticRelationshipProfileToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
@@ -16,7 +18,8 @@ export function addSemanticRelationshipProfileToVisualModelAction(
   const entities = graph.aggregatorView.getEntities();
   withAggregatedEntity(notifications, entities,
     entityIdentifier, modelIdentifier,
-    isSemanticModelRelationshipUsage, (entity) => {
+    (item) => isSemanticModelRelationshipUsage(item) || isSemanticModelRelationshipProfile(item),
+    (entity) => {
       addSemanticRelationshipProfileToVisualModelCommand(
         notifications, visualModel, entity, modelIdentifier);
     });
@@ -25,7 +28,7 @@ export function addSemanticRelationshipProfileToVisualModelAction(
 function addSemanticRelationshipProfileToVisualModelCommand(
   notifications: UseNotificationServiceWriterType,
   visualModel: WritableVisualModel,
-  entity: SemanticModelRelationshipUsage,
+  entity: SemanticModelRelationshipUsage | SemanticModelRelationshipProfile,
   model: string,
 ) {
   const { domain, range } = getDomainAndRange(entity);
@@ -37,8 +40,13 @@ function addSemanticRelationshipProfileToVisualModelCommand(
   const source = visualModel.getVisualEntityForRepresented(domain.concept);
   const target = visualModel.getVisualEntityForRepresented(range.concept);
   if (source === null || target === null) {
-    notifications.error("Ends of the relation profile are not in the visual model.");
     console.warn("Missing visual entities for ends.", { domain, range, entity, source, target });
+    if (isOwlThing(domain.concept) || isOwlThing(range.concept)) {
+      // This is special case where owl:Thing is not on canvas.
+      // We do not report this to user only log.
+    } else {
+      notifications.error("Ends of the relation profile are not in the visual model.");
+    }
     return;
   }
   //

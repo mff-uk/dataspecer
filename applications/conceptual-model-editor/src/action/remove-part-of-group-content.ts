@@ -1,7 +1,7 @@
 import { isVisualGroup, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { removeGroupFromVisualModelAction } from "./remove-group-from-visual-model";
-import { findTopLevelGroupFromVisualModel } from "./utilities";
+import { findTopLevelGroupInVisualModel } from "./utilities";
 
 /**
  * Removes part of group's content.
@@ -38,7 +38,7 @@ export function removePartOfGroupContentAction(
     return true;
   });
 
-  const topLevelGroup = findTopLevelGroupFromVisualModel(groupIdentifier, visualModel);
+  const topLevelGroup = findTopLevelGroupInVisualModel(groupIdentifier, visualModel);
   if(newGroupContent.length === 0 || (newGroupContent.length === 1 && topLevelGroup === groupIdentifier)) {
     removeGroupFromVisualModelAction(notifications, visualModel, groupIdentifier);
     return true;

@@ -80,7 +80,6 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
     aggregatedProfiled: (SemanticModelRelationshipProfile | SemanticModelRelationship)[],
   ): SemanticModelRelationshipProfile {
     const profiled = createProfiledGetter(aggregatedProfiled, profile);
-
     return {
       id: profile.id,
       type: profile.type,
@@ -103,10 +102,18 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
           }
         })(),
         usageNoteFromProfiled: end.usageNoteFromProfiled,
-        concept: profiled(end.conceptFromProfiled)?.ends[index]?.concept ?? null,
-        conceptFromProfiled: end.conceptFromProfiled,
-        cardinality: profiled(end.cardinalityFromProfiled)?.ends[index]?.cardinality ?? null,
-        cardinalityFromProfiled: end.cardinalityFromProfiled,
+        concept: end.concept,
+        cardinality: (() => {
+          const cardinalities = end.profiling
+            .map(identifier => profiled(identifier))
+            .map(item => item?.ends?.[index]?.cardinality)
+            .filter(item => item !== undefined && item !== null)
+          if (cardinalities.length === 0) {
+            // Nothing has been specified.
+            return null;
+          }
+          return cardinalityIntersection(cardinalities);
+        })(),
       })),
     }
   }
@@ -119,6 +126,24 @@ function createProfiledGetter<T extends {id: string}> (
   const map : Record<string, T> = {};
   items.forEach(item => map[item.id] = item);
   return (id: string | null) => map[id ?? ""] ?? defaultItem ?? null;
+}
+
+function cardinalityIntersection(
+  cardinalities: [number, number | null][]
+) : [number, number | null] {
+    // We need to determine the intersection.
+    return cardinalities.reduce((previous, current) => {
+      const lower = Math.max(previous[0], current[0]);
+      if (previous[1] === null && current[1] === null) {
+        return [lower, null];
+      } else if (previous[1] !== null && current[1] !== null) {
+        return [lower, Math.min(previous[1], current[1])];
+      } else if (previous[1] !== null) {
+        return [lower, previous[1]];
+      } else {
+        return [lower, current[1]];
+      }
+    }, [0, null]);
 }
 
 export function createDefaultProfileEntityAggregator() : ProfileEntityAggregator {

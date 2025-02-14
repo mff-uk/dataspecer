@@ -17,7 +17,8 @@ export function GeneralizationEdgeToolbar({ value }: { value: EdgeToolbarProps |
   const edge = useStore((state: ReactFlowState) => state.edgeLookup.get(value?.edgeIdentifier ?? ""));
   const { x, y, zoom } = useStore(viewportStoreSelector, shallow);
 
-  if (value === null || edge?.data === undefined || !edge?.selected || context === null || context.getShownNodeMenuType() !== NodeMenuType.SINGLE_NODE_MENU) {
+  if (value === null || edge?.data === undefined || !edge?.selected || 
+      context === null || context.getShownNodeMenuType() !== NodeMenuType.SingleNodeMenu) {
     return null;
   }
 

@@ -9,6 +9,10 @@ import {
   isSemanticModelClassUsage,
   isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import {
+  isSemanticModelClassProfile,
+  isSemanticModelRelationshipProfile,
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
@@ -37,6 +41,8 @@ export function openDetailDialogAction(
     || isSemanticModelRelationship(entity)
     || isSemanticModelRelationshipUsage(entity)
     || isSemanticModelGeneralization(entity)
+    || isSemanticModelClassProfile(entity)
+    || isSemanticModelRelationshipProfile(entity)
   ) {
     dialogs.openDialog(createEntityDetailDialog(graph, entity, options.language));
   } else {

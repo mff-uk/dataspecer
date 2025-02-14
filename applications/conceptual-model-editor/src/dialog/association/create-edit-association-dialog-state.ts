@@ -7,7 +7,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { EditAssociationDialogState } from "./edit-association-dialog-controller";
 import { MissingRelationshipEnds } from "../../application/error";
 import { createEntityStateForEdit } from "../utilities/entity-utilities";
-import { isRepresentingAttribute, representClasses, representOwlThing, representRelationships, representUndefinedClass } from "../utilities/dialog-utilities";
+import { isRepresentingAssociation, listRelationshipDomains, representOwlThing, representRelationships } from "../utilities/dialog-utilities";
 import { createSpecializationStateForEdit } from "../utilities/specialization-utilities";
 import { createRelationshipStateForEdit } from "../utilities/relationship-utilities";
 import { DialogWrapper } from "../dialog-api";
@@ -32,30 +32,30 @@ export function createEditAssociationDialogState(
 
   const vocabularies = entityModelsMapToCmeVocabulary(graphContext.models, visualModel);
 
+  const owlThing = representOwlThing();
+
   // EntityState
   const entityState = createEntityStateForEdit(
     language, vocabularies, model.getId(), range.iri ?? "", range.name, range.description);
 
   // SpecializationState
 
-  const specializations =
-    representRelationships(models, entityState.allModels, classesContext.relationships)
-      .filter(item => isRepresentingAttribute(item));
+  const specializations = representRelationships(
+    models, entityState.allModels, classesContext.relationships,
+    owlThing.identifier, owlThing.identifier)
+    .filter(item => isRepresentingAssociation(item));
 
   const specializationState = createSpecializationStateForEdit(
     language, classesContext, entityState.allModels, specializations, entity.id);
 
   // RelationshipState
 
-  const classes = [
-    representUndefinedClass(),
-    representOwlThing(),
-    ...representClasses(models, entityState.allModels, classesContext.classes)
-  ];
+  const domains = listRelationshipDomains(
+    classesContext, graphContext, vocabularies);
 
   const relationshipState = createRelationshipStateForEdit(
-    domain.concept, domain.cardinality, classes,
-    range.concept, range.cardinality, classes);
+    domain.concept ?? owlThing.identifier, domain.cardinality, domains,
+    range.concept ?? owlThing.identifier, range.cardinality, domains);
 
   return {
     ...entityState,

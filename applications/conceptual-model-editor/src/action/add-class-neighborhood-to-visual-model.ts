@@ -19,12 +19,12 @@ export const addClassNeighborhoodToVisualModelAction = (
     areIdentifiersFromVisualModel: false
   };
   const neighborhoodPromise = extendSelectionAction(notifications, graph, classes, inputForExtension,
-    [ExtensionType.ASSOCIATION, ExtensionType.GENERALIZATION], VisibilityFilter.ALL, false, null);
+    [ExtensionType.Association, ExtensionType.Generalization], VisibilityFilter.All, false, null);
   neighborhoodPromise.then(neighborhood => {
     const classesOrClassProfilesToAdd: EntityToAddToVisualModel[] = [{identifier, position: null}];
 
     // We have to filter the source class, whose neighborhood we are adding, from the extension
     classesOrClassProfilesToAdd.push(...neighborhood.selectionExtension.nodeSelection.filter(node => node !== identifier).map(node => ({identifier: node, position: null})));
     addSemanticEntitiesToVisualModelAction(notifications, classes, graph, visualModel, diagram, classesOrClassProfilesToAdd);
-  })
+  });
 };

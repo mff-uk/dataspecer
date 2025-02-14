@@ -45,7 +45,7 @@ export const getStringFromLanguageStringInLang = (
   // Get any lang
   const languages = getAvailableLanguagesForLanguageString(languageString);
   const anyLanguage = languages.at(0);
-  if (anyLanguage) {
+  if (anyLanguage !== undefined) {
     const value = languageString[anyLanguage]!;
     return [value, anyLanguage] as const;
   }

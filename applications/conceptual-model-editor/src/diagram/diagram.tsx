@@ -3,6 +3,7 @@ import {
   BackgroundVariant,
   Controls,
   MiniMap,
+  MiniMapNodeProps,
   type Node,
   ReactFlow,
   ReactFlowProvider,
@@ -91,9 +92,10 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
           onNodeMouseEnter={controller.onNodeMouseEnter}
           onNodeMouseLeave={controller.onNodeMouseLeave}
           onNodeDoubleClick={controller.onNodeDoubleClick}
+          onSelectionStart={controller.onSelectionStart}
         >
           <Controls />
-          <MiniMap nodeColor={miniMapNodeColor} pannable zoomable />
+          <MiniMap nodeColor={miniMapNodeColor} nodeComponent={MiniMapNode} pannable zoomable />
           <Background variant={BackgroundVariant.Lines} gap={xSnapGrid} size={1} />
           <DeveloperTools />
         </ReactFlow>
@@ -120,6 +122,12 @@ function ReactFlowDiagram(props: { diagram: UseDiagramType }) {
 
 function miniMapNodeColor(node: Node<ApiNode>) {
   return node.data.color;
+}
+
+function MiniMapNode(props: MiniMapNodeProps) {
+  // TODO RadStr: We will need to check in reactflow's instance the actual node's type
+  //              so we can render it's shape correctly
+  return <rect x={props.x} y={props.y} width={props.width} height={props.height} fill={props.color}/>;
 }
 
 /**

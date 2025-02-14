@@ -5,12 +5,13 @@ import { findSourceModelOfEntity } from "../service/model-service";
 import { filterInMemoryModels } from "../util/model-utils";
 import { placePositionOnGrid } from "@dataspecer/layout";
 import { Options, configuration } from "../application";
-import { openCreateClassDialogAction } from "./open-create-class-dialog";
+import { CreatedSemanticEntityData, openCreateClassDialogAction } from "./open-create-class-dialog";
 import { isVisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { ClassesContextType } from "../context/classes-context";
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { Position } from "../diagram";
 import { UseDiagramType } from "../diagram/diagram-hook";
+import { EditClassDialogState } from "../dialog/class/edit-class-dialog-controller";
 
 export function openCreateClassDialogWithModelDerivedFromClassAction(
   notifications: UseNotificationServiceWriterType,
@@ -22,6 +23,7 @@ export function openCreateClassDialogWithModelDerivedFromClassAction(
   visualModel: WritableVisualModel,
   nodeIdentifier: string,
   positionToPlaceClassOn: Position,
+  onConfirmCallback: ((createdClass: CreatedSemanticEntityData, state: EditClassDialogState) => void) | null,
 ) {
   const node = visualModel.getVisualEntity(nodeIdentifier);
   if(node === null) {
@@ -40,20 +42,13 @@ export function openCreateClassDialogWithModelDerivedFromClassAction(
     model = filterInMemoryModels([...graph.models.values()])?.[0] ?? null;
   }
 
-  if (model === null) {
+  // The model is either null or InMemotySemanticModel
+  if (!(model instanceof InMemorySemanticModel)) {
     notifications.error("Can't find InMemorySemanticModel to put the association in");
     return;
   }
 
   placePositionOnGrid(positionToPlaceClassOn, configuration().xSnapGrid, configuration().ySnapGrid);
-
-  // TODO:
-  // I think that it was mentioned, that the variant with opening association dialog right after creating class should be implemented.
-  // That needs 2 things:
-  //            1) Get the result of createClassAction. There are 2 ways to do this.
-  //                    a) Wait for dialog to finish here, but we also need to get the result and the "classes" variable is not updated, so we would have to get result somehow
-  //                    b) Pass in callback
-  // On a side note currently when new dialog is opened within the onAccept method, the dialog is not opened, since it is closed together with the dialog which is in onAccept.
-
-  openCreateClassDialogAction(options, dialogs, classes, graph, notifications, visualModel, diagram, model as InMemorySemanticModel, positionToPlaceClassOn);
+  openCreateClassDialogAction(options, dialogs, classes, graph, notifications, visualModel,
+    diagram, model, positionToPlaceClassOn, onConfirmCallback);
 }

@@ -660,10 +660,10 @@ class ElkGraphTransformer implements GraphTransformer {
     //       maybe this is incorrect, but I can't check it easily right now (because Online ELKjs interpreter isn't working)
     getSourceAndTargetPortBasedOnDirection(direction: string): [string, string] {
         // const sourceAndTargetMap = {
-        //     "UP": ["N-", "W-"],
-        //     "DOWN": ["S-", "W-"],
-        //     "RIGHT": ["N-", "W-"],
-        //     "LEFT": ["N-", "E-"]
+        //     "Up": ["N-", "W-"],
+        //     "Down": ["S-", "W-"],
+        //     "Right": ["N-", "W-"],
+        //     "Left": ["N-", "E-"]
         // }
         // return sourceAndTargetMap[direction];
         return ["N-", "W-"];

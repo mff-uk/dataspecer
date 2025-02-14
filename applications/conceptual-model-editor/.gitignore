@@ -10,6 +10,9 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Temporary files
+coverage
+
 # Distribution files
 node_modules
 dist

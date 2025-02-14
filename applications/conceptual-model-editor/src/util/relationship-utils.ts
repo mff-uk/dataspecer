@@ -2,6 +2,7 @@ import {
   type SemanticModelRelationship,
   isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import {
   type SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
@@ -117,7 +118,9 @@ export const bothEndsHaveAnIri = (entity: SemanticModelRelationship | SemanticMo
  * Return true, when both ends of a relationship are on the canvas.
  */
 export const hasBothEndsInVisualModel = (
-  entity: SemanticModelRelationship | SemanticModelRelationshipUsage,
+  entity: SemanticModelRelationship
+    | SemanticModelRelationshipUsage
+    | SemanticModelRelationshipProfile,
   visualModel: VisualModel | null,
 ) => {
   if (visualModel === null) {

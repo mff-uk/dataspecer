@@ -22,7 +22,7 @@ import { useModelGraphContext } from "../../context/model-context";
 import { useClassesContext } from "../../context/classes-context";
 import { hasBothEndsInVisualModel } from "../../util/relationship-utils";
 import { findSourceModelOfEntity } from "../../service/model-service";
-import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 export const RowHierarchy = (props: {
     entity: SemanticModelClass | SemanticModelClassUsage
@@ -30,7 +30,7 @@ export const RowHierarchy = (props: {
       | SemanticModelClassProfile | SemanticModelRelationshipProfile;
     handlers: {
         handleAddEntityToActiveView: (entity: Entity) => void;
-        handleRemoveEntityFromActiveView: (entityId: string) => void;
+        handleRemoveEntityFromActiveView: (entity: Entity) => void;
         handleExpansion: (model: EntityModel, classId: string) => Promise<void>;
         handleRemoval: (model: InMemorySemanticModel | ExternalSemanticModel, entityId: string) => Promise<void>;
         handleTargeting: (entityId: string) => void;
@@ -42,7 +42,7 @@ export const RowHierarchy = (props: {
     onCanvas: string[];
 }) => {
   const { models, aggregatorView } = useModelGraphContext();
-  const { usages: profiles, classes, allowedClasses } = useClassesContext();
+  const { usages, classProfiles, relationshipProfiles, classes, allowedClasses } = useClassesContext();
   const { entity } = props;
 
   // We need this to get access to ends of the profile.
@@ -50,8 +50,13 @@ export const RowHierarchy = (props: {
 
   const sourceModel = sourceModelOfEntity(entity.id, [...models.values()]);
 
-  const isClassOrProfile = isSemanticModelClass(aggregatedEntity) || isSemanticModelClassUsage(aggregatedEntity);
-  const isRelationshipOrProfile = isSemanticModelRelationship(aggregatedEntity) || isSemanticModelRelationshipUsage(aggregatedEntity);
+  const isClassOrProfile = isSemanticModelClass(aggregatedEntity)
+    || isSemanticModelClassUsage(aggregatedEntity)
+    || isSemanticModelClassProfile(aggregatedEntity);
+
+  const isRelationshipOrProfile = isSemanticModelRelationship(aggregatedEntity)
+    || isSemanticModelRelationshipUsage(aggregatedEntity)
+    || isSemanticModelRelationshipProfile(aggregatedEntity);
 
   const expansionHandler =
         isSemanticModelClass(entity) && sourceModel instanceof ExternalSemanticModel
@@ -61,10 +66,12 @@ export const RowHierarchy = (props: {
           }
           : null;
 
-  const showDrawingHandler = isClassOrProfile || (isRelationshipOrProfile && hasBothEndsInVisualModel(aggregatedEntity, aggregatorView.getActiveVisualModel()));
+  const showDrawingHandler = isClassOrProfile
+    || (isRelationshipOrProfile && hasBothEndsInVisualModel(aggregatedEntity, aggregatorView.getActiveVisualModel()));
+
   const drawingHandler = !showDrawingHandler ? null : {
     addToViewHandler: () => props.handlers.handleAddEntityToActiveView(entity),
-    removeFromViewHandler: () => props.handlers.handleRemoveEntityFromActiveView(entity.id),
+    removeFromViewHandler: () => props.handlers.handleRemoveEntityFromActiveView(entity),
   };
 
   const removalHandler =
@@ -72,7 +79,11 @@ export const RowHierarchy = (props: {
           ? { remove: () => props.handlers.handleRemoval(sourceModel, entity.id) }
           : null;
 
-  const thisEntityProfiles = profiles.filter((p) => p.usageOf === entity.id);
+  const thisEntityProfiles = [
+    ...usages.filter(item => item.usageOf === entity.id),
+    ...classProfiles.filter(item => item.profiling.includes(entity.id)),
+    ...relationshipProfiles.filter(item => item.ends.find(end => end.profiling.includes(entity.id)) !== undefined),
+  ];
 
   const targetHandler = {
     centerViewportOnEntityHandler: () => props.handlers.handleTargeting(entity.id),

@@ -1,19 +1,17 @@
-
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
-import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { EditAttributeProfileDialogState } from "./edit-attribute-profile-dialog-controller";
 import { EditAttributeProfileDialog } from "./edit-attribute-profile-dialog";
 import { DialogWrapper } from "../dialog-api";
-import { RuntimeError } from "../../application/error";
 import { createRelationshipProfileStateForNew } from "../utilities/relationship-profile-utilities";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
-import { listDataTypes, representUndefinedDataType, selectDefaultModelForAttribute, listClassProfiles } from "../utilities/dialog-utilities";
+import { representUndefinedAttribute, listRelationshipProfileDomains, listAttributeProfileRanges } from "../utilities/dialog-utilities";
 import { createEntityProfileStateForNewEntityProfile } from "../utilities/entity-profile-utilities";
 import { configuration } from "../../application";
 import { listAttributesToProfile } from "./attribute-profile-utilities";
+import { EntityDsIdentifier } from "../../dataspecer/entity-model";
 
 /**
  * State represents new profile entity created for given class entity.
@@ -23,48 +21,44 @@ export function createAddAttributeProfileDialogState(
   graphContext: ModelGraphContextType,
   visualModel: VisualModel | null,
   language: string,
-  domainEntity: SemanticModelClassUsage,
+  domainIdentifier: EntityDsIdentifier,
 ): EditAttributeProfileDialogState {
 
-  const models = [...graphContext.models.values()];
+  const vocabularies = entityModelsMapToCmeVocabulary(
+    graphContext.models, visualModel);
 
-  const vocabularies = entityModelsMapToCmeVocabulary(graphContext.models, visualModel);
+  const noProfile = representUndefinedAttribute();
 
   const availableProfiles = listAttributesToProfile(
     classesContext, graphContext, vocabularies);
-  if (availableProfiles.length === 0) {
-    throw new RuntimeError("There is no attribute to profile.");
-  }
 
-  // We just profile the first available attribute.
-  const profileOf = availableProfiles[0];
-  if (profileOf === null) {
-    throw new RuntimeError("There is nothing to profile.");
-  }
+  const domains = listRelationshipProfileDomains(
+    classesContext, graphContext, vocabularies);
 
-  const classProfiles = listClassProfiles(classesContext, graphContext, vocabularies);
+  const ranges = listAttributeProfileRanges();
 
   // EntityProfileState
 
   const entityProfileState = createEntityProfileStateForNewEntityProfile(
-    language, vocabularies, availableProfiles, profileOf.identifier,
+    language, configuration().languagePreferences,
+    vocabularies,
+    availableProfiles, [], noProfile,
     configuration().nameToIri);
 
   // RelationshipState<EntityRepresentative>
 
-  const defaultRange = representUndefinedDataType();
-
+  const profile = entityProfileState.profiles[0];
   const relationshipProfileState = createRelationshipProfileStateForNew(
-    profileOf,
-    domainEntity.id, profileOf.domainCardinality.cardinality, classProfiles,
-    profileOf.range, defaultRange, profileOf.rangeCardinality.cardinality,
-    listDataTypes());
+    domainIdentifier,
+    profile.domainCardinality.cardinality,
+    domains, domains[0],
+    profile.range,
+    profile.rangeCardinality.cardinality,
+    ranges, ranges[0]);
 
   return {
     ...entityProfileState,
     ...relationshipProfileState,
-    model: selectDefaultModelForAttribute(
-      domainEntity.id, models, entityProfileState.availableModels),
   };
 }
 

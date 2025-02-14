@@ -30,6 +30,11 @@ export function addRelatedEntitiesAction(
   entity: SemanticModelEntity,
 ) {
   const identifier = entity.id;
+  const entityModel = findSourceModelOfEntity(identifier, models);
+  if (entityModel === null) {
+    return;
+  }
+
   const addingUsage = isSemanticModelClassUsage(entity);
   const addingProfile = isSemanticModelClassProfile(entity);
   for (const wrapper of entities) {
@@ -37,63 +42,63 @@ export function addRelatedEntitiesAction(
     if (candidate === null) {
       continue;
     }
-    const model = findSourceModelOfEntity(candidate.id, models);
-    if (model === null) {
+    const candidateModel = findSourceModelOfEntity(candidate.id, models);
+    if (candidateModel === null) {
       continue;
     }
     //
     if (isSemanticModelGeneralization(candidate)) {
       if (shouldAddGeneralization(visualModel, identifier, candidate)) {
         addSemanticGeneralizationToVisualModelAction(
-          notifications, graph, visualModel, candidate.id, model.getId());
+          notifications, graph, visualModel, candidate.id, candidateModel.getId());
       }
     }
     if (isSemanticModelRelationship(candidate)) {
       if (shouldAddRelationship(visualModel, identifier, candidate)) {
         addSemanticRelationshipToVisualModelAction(
-          notifications, graph, visualModel, candidate.id, model.getId());
+          notifications, graph, visualModel, candidate.id, candidateModel.getId());
       }
     }
     if (isSemanticModelRelationshipUsage(candidate) || isSemanticModelRelationshipProfile(candidate)) {
       if (shouldAddRelationshipUsageOrProfile(visualModel, identifier, candidate)) {
         addSemanticRelationshipProfileToVisualModelAction(
-          notifications, graph, visualModel, candidate.id, model.getId());
+          notifications, graph, visualModel, candidate.id, candidateModel.getId());
       }
     }
     if (isSemanticModelClassUsage(candidate)) {
       if (shouldAddUsage(visualModel, identifier, candidate)) {
         // "candidate" is profile of "identifier"
         addSemanticUsageToVisualModelAction(
-          visualModel, entity, candidate, model.getId());
+          visualModel, entity, candidate, entityModel.getId());
       } else if (addingUsage && shouldAddUsage(visualModel, candidate.id, entity)) {
         // "identifier" is profile of "candidate"
         addSemanticUsageToVisualModelAction(
-          visualModel, candidate, entity, model.getId());
+          visualModel, candidate, entity, candidateModel.getId());
       }
     }
     if (addingUsage && isSemanticModelClass(candidate)) {
       // We are adding usage, candidate is a class, it could profiled class.
       if (entity.usageOf === candidate.id) {
         addSemanticUsageToVisualModelAction(
-          visualModel, candidate, entity, model.getId());
+          visualModel, candidate, entity, candidateModel.getId());
       }
     }
     if (isSemanticModelClassProfile(candidate)) {
       if (shouldAddProfile(visualModel, identifier, candidate)) {
         // "candidate" is profile of "identifier"
         addSemanticUsageToVisualModelAction(
-          visualModel, entity, candidate, model.getId());
+          visualModel, entity, candidate, entityModel.getId());
       } else if (addingProfile && shouldAddProfile(visualModel, candidate.id, entity)) {
         // "identifier" is profile of "candidate"
         addSemanticUsageToVisualModelAction(
-          visualModel, candidate, entity, model.getId());
+          visualModel, candidate, entity, candidateModel.getId());
       }
     }
     if (addingProfile && isSemanticModelClass(candidate)) {
       // We are adding profile, candidate is a class, it could profiled class.
       if (entity.profiling.includes(candidate.id)) {
         addSemanticUsageToVisualModelAction(
-          visualModel, candidate, entity, model.getId());
+          visualModel, candidate, entity, candidateModel.getId());
       }
     }
   }

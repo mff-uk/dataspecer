@@ -25,6 +25,7 @@ export const EditAssociationDialog = (props: DialogProps<EditAssociationDialogSt
             items={state.availableModels}
             value={state.model}
             onChange={controller.setModel}
+            disabled={state.disableModelChange}
           />
         </DialogDetailRow>
       </div>

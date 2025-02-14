@@ -12,6 +12,7 @@ import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-t
 import { createCreateAssociationDialogState, createNewAssociationDialog } from "../dialog/association/create-new-association-dialog-state";
 import { EditAssociationDialogState } from "../dialog/association/edit-association-dialog-controller";
 import { EntityModel } from "@dataspecer/core-v2";
+import { CreatedSemanticEntityData } from "./open-create-class-dialog";
 
 const LOG = createLogger(import.meta.url);
 
@@ -38,11 +39,25 @@ export function openCreateAssociationDialogAction(
     classes, graph, visualModel, options.language, model.getId());
 
   const onConfirm = (state: EditAssociationDialogState) => {
-    // Create association.
-    const createResult = createSemanticAssociation(notifications, graph.models, state);
-    if (createResult === null) {
-      return;
-    }
+    createSemanticAssociation(notifications, visualModel, graph, state, true);
+  };
+
+  dialogs.openDialog(createNewAssociationDialog(state, onConfirm));
+}
+
+export function createSemanticAssociation(
+  notifications: UseNotificationServiceWriterType,
+  visualModel: VisualModel | null,
+  graph: ModelGraphContextType,
+  state: EditAssociationDialogState,
+  shouldAddToVisualModel: boolean,
+) {
+  // Create association.
+  const createResult = createSemanticAssociationInternal(notifications, graph.models, state);
+  if (createResult === null) {
+    return;
+  }
+  if(shouldAddToVisualModel) {
     // Add to visual model if possible.
     if (isWritableVisualModel(visualModel)) {
       const source = visualModel.getVisualEntityForRepresented(state.domain.identifier);
@@ -54,18 +69,14 @@ export function openCreateAssociationDialogAction(
           createResult.identifier, createResult.model.getId());
       }
     }
-  };
-
-  dialogs.openDialog(createNewAssociationDialog(state, onConfirm));
+  }
 }
 
-function createSemanticAssociation(
+export function createSemanticAssociationInternal(
   notifications: UseNotificationServiceWriterType,
   models: Map<string, EntityModel>,
-  state: EditAssociationDialogState): {
-    identifier: string,
-    model: InMemorySemanticModel
-  } | null {
+  state: EditAssociationDialogState
+): CreatedSemanticEntityData | null {
 
   const operation = createRelationship({
     ends: [{

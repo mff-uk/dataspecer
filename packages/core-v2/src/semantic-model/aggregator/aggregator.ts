@@ -169,6 +169,10 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
             return [];
         }
 
+        if (isSemanticModelClassUsage(entity) || isSemanticModelRelationshipUsage(entity)) {
+            return [entity.usageOf];
+        }
+
         // Special handling of selected entity types.
         if (isSemanticModelClass(entity) || isSemanticModelRelationship(entity) || isSemanticModelGeneralization(entity)) {
             return [];

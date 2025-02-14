@@ -5,10 +5,11 @@ import { configuration } from "../../application";
 import { EntityProfileState, EntityProfileStateController, createEntityProfileController } from "../utilities/entity-profile-utilities";
 import { EntityRepresentative } from "../utilities/dialog-utilities";
 
-export type EditClassProfileDialogState = EntityProfileState<EntityRepresentative>;
+export type EditClassProfileDialogState =
+  EntityProfileState<EntityRepresentative>;
 
-export interface EditClassProfileDialogController extends
-  EntityProfileStateController<EntityRepresentative> { }
+export type EditClassProfileDialogController =
+  EntityProfileStateController<EntityRepresentative>;
 
 export function useEditClassProfileDialogController({ changeState }:
   DialogProps<EditClassProfileDialogState>

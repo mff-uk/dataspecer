@@ -7,7 +7,7 @@ import { type WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { randomColorFromPalette } from "../util/color-utils";
 import { createWritableVisualModel } from "../util/visual-model-utils";
-import { removeEntityModel } from "../dataspecer/visual-model/command/remove-entity-model";
+import { removeEntityModel } from "../dataspecer/visual-model/operation/remove-entity-model";
 
 // This is to compile with TypeScript as we can not use
 // the type directly for aggregator.

@@ -114,6 +114,8 @@ function executeModifySemanticModelClassProfile(
 ): OperationResult {
   const previous = entityReader.entity(identifier);
   if (previous === null || !isSemanticModelClassProfile(previous)) {
+    console.error("Previous values is not class profile, action to update the profile is ignored.",
+      { previous, next: entity });
     return {
       success: false,
       created: [],
@@ -123,12 +125,12 @@ function executeModifySemanticModelClassProfile(
     id: identifier,
     type: [SEMANTIC_MODEL_CLASS_PROFILE],
     description: entity.description ?? previous.description,
-    descriptionFromProfiled: entity.descriptionFromProfiled ?? previous.descriptionFromProfiled,
+    descriptionFromProfiled: mergeFromProfiled(entity.descriptionFromProfiled, previous.descriptionFromProfiled),
     name: entity.name ?? previous.name,
-    nameFromProfiled: entity.nameFromProfiled ?? previous.nameFromProfiled,
+    nameFromProfiled: mergeFromProfiled(entity.nameFromProfiled, previous.nameFromProfiled),
     iri: entity.iri ?? previous.iri,
     usageNote: entity.usageNote ?? previous.usageNote,
-    usageNoteFromProfiled: entity.usageNoteFromProfiled ?? previous.usageNoteFromProfiled,
+    usageNoteFromProfiled: mergeFromProfiled(entity.usageNoteFromProfiled, previous.usageNoteFromProfiled),
     profiling: entity.profiling ?? previous.profiling,
   };
   entityWriter.change({ [identifier]: updatedEntity }, []);
@@ -136,6 +138,17 @@ function executeModifySemanticModelClassProfile(
     success: true,
     created: [],
   }
+}
+
+function mergeFromProfiled(
+  next: string | null | undefined,
+  previous: string | null,
+): string | null {
+  // We actually need to store null.
+  if (next === null) {
+    return null;
+  }
+  return next ?? previous;
 }
 
 function executeCreateSemanticModelRelationshipProfile(
@@ -148,14 +161,10 @@ function executeCreateSemanticModelRelationshipProfile(
     ...entity,
     id: identifier,
     type: [SEMANTIC_MODEL_RELATIONSHIP_PROFILE],
-    // We enforce two ends.
-    ends: [{
+    ends: (entity.ends ?? []).map(item => ({
       ...defaultRelationshipEndProfile(),
-      ...entity.ends?.[0] ?? {},
-    }, {
-      ...defaultRelationshipEndProfile(),
-      ...entity.ends?.[1] ?? {},
-    }]
+      ...item,
+    })),
   };
   entityWriter.change({ [identifier]: newEntity }, []);
   return {
@@ -164,17 +173,14 @@ function executeCreateSemanticModelRelationshipProfile(
   };
 }
 
-function defaultRelationshipEndProfile(): SemanticModelRelationshipEndProfile {
+function defaultRelationshipEndProfile() {
   return {
     name: null,
     nameFromProfiled: null,
     description: null,
     descriptionFromProfiled: null,
     iri: null,
-    concept: null,
-    conceptFromProfiled: null,
     cardinality: null,
-    cardinalityFromProfiled: null,
     usageNote: null,
     usageNoteFromProfiled: null,
     profiling: [],
@@ -188,22 +194,26 @@ function executeModifySemanticModelRelationshipProfile(
 ): OperationResult {
   const previous = entityReader.entity(identifier);
   if (previous === null || !isSemanticModelRelationshipProfile(previous)) {
+    console.error("Previous values is not relationship profile, action to update the profile is ignored.",
+      { previous, next: entity });
     return {
       success: false,
       created: [],
     };
   };
+
+  // When no ends are give, use the one from previous state
+  const ends = entity.ends === undefined ? previous.ends :
+    // Else we merge old to new, otherwise we would not be able to delete.
+    entity.ends.map((value, index) => ({
+      ...(previous.ends[index] ?? {}),
+      ...value
+    }));
+
   const updatedEntity: SemanticModelRelationshipProfile = {
     id: identifier,
     type: [SEMANTIC_MODEL_RELATIONSHIP_PROFILE],
-    // We enforce two ends.
-    ends: [{
-      ...previous.ends[0]!,
-      ...entity.ends?.[0] ?? {},
-    }, {
-      ...previous.ends[1]!,
-      ...entity.ends?.[1] ?? {},
-    }],
+    ends,
   };
   entityWriter.change({ [identifier]: updatedEntity }, []);
   return {

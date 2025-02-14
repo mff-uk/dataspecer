@@ -2,7 +2,7 @@ import { isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-m
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { CmeModel } from "../../dataspecer/cme-model";
-import { isRepresentingAttribute, representRelationshipProfiles, representRelationships } from "../utilities/dialog-utilities";
+import { isRepresentingAttribute, representOwlThing, representRdfsLiteral, representRelationshipProfile, representRelationshipUsages, representRelationships } from "../utilities/dialog-utilities";
 
 export function listAttributesToProfile(
   classesContext: ClassesContextType,
@@ -12,10 +12,18 @@ export function listAttributesToProfile(
   const entities = graphContext.aggregatorView.getEntities();
   const models = [...graphContext.models.values()];
 
+  const owlThing = representOwlThing();
+
+  const rdfsLiteral = representRdfsLiteral();
+
   return [
     ...representRelationships(models, vocabularies,
-      classesContext.relationships),
-    ...representRelationshipProfiles(entities, models, vocabularies,
-      classesContext.usages.filter(item => isSemanticModelRelationshipUsage(item))),
+      classesContext.relationships,
+      owlThing.identifier, rdfsLiteral.identifier),
+    ...representRelationshipUsages(entities, models, vocabularies,
+      classesContext.usages.filter(item => isSemanticModelRelationshipUsage(item)),
+      owlThing.identifier, rdfsLiteral.identifier),
+    ...representRelationshipProfile(entities, models, vocabularies,
+      classesContext.relationshipProfiles)
   ].filter(isRepresentingAttribute);
 }

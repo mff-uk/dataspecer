@@ -244,6 +244,7 @@ export const translations: Record<string, string | Function> = {
   "class-hide-button": "Remove class from canvas",
   "class-profile-button": "Create class profile",
   "class-remove-button": "Remove class from semantic model",
+  "edit-node-attributes-visiblity-button": "Edit visibility of attributes on node",
   //
   "add-neighborhood-button.title": "Add entity's neighborhood (Classes or class profiles connected by either association or generalization)",
   //
@@ -267,8 +268,8 @@ export const translations: Record<string, string | Function> = {
   //
   "iri-must-not-be-empty": "IRI must not be an empty string.",
   //
-  "filter-selection-dialog.label": "Filtered selection includes",
-  "filter-selection-dialog.btn-ok": "✅ Filter",
+  "filter-selection-dialog.label": "Restrict selection to",
+  "filter-selection-dialog.btn-ok": "✅ Restrict",
   "filter-selection-dialog.btn-cancel": "❌ Cancel",
   "filter-selection-class-filter-text": "Classes",
   "filter-selection-class-profile-filter-text": "Class profiles",
@@ -276,22 +277,31 @@ export const translations: Record<string, string | Function> = {
   "filter-selection-association-profile-filter-text": "Relationship profiles ",
   "filter-selection-generalization-filter-text": "Generalizations",
   //
-  "extend-selection-dialog.label": "Extend current selection",
+  "extend-selection-dialog.label": "Extend selection by",
   "extend-selection-dialog.btn-ok": "✅ Accept",
   "extend-selection-dialog.btn-cancel": "❌ Cancel",
   "extend-selection-tooltip": "Blue color (🔵) indicates selected element, Red color (🔴) indicates element which was not selected, but will be. For example:\n🔵⭢🔴=Extend current selection by association targets",
-  "extend-selection-association-target-tooltip": "Extend by association targets",
-  "extend-selection-association-source-tooltip": "Extend by association sources",
-  "extend-selection-generalization-parent-tooltip": "Extend by generalization parents",
-  "extend-selection-generalization-child-tooltip": "Extend by generalization children",
-  "extend-selection-association-profile-target-tooltip": "Extend by profiled association targets",
-  "extend-selection-association-profile-source-tooltip": "Extend by profiled association sources",
-  "extend-selection-class-profile-parent-tooltip": "Extend by profiled classes (\"Parents\")",
-  "extend-selection-class-profile-child-source-tooltip": "Extend by class profiles (\"Children\")",
+  "extend-selection-association-name": "Association",
+  "extend-selection-generalization-name": "Generalization",
+  "extend-selection-association-profile-name": "Association profile",
+  "extend-selection-class-profile-name": "Class profile",
+  "extend-by-incoming-header": "Incoming",
+  "extend-by-outgoing-header": "Outgoing",
   //
   "show-all-classes-from-semantic-model-to-visual-model-button.title": "Add all entities from semantic model to visual model",
   "remove-all-classes-contained-semantic-model-from-visual-model-button.title": "Remove all entities from semantic model from the visual model",
   //
   "exploration-mode-button.title": "Toggle highlighting exploration mode",
   "exploration-mode-button.name": "Exploration",
+  //
+  "drag-edge-to-canvas-create-association-target": "Create new association target",
+  "drag-edge-to-canvas-create-association-source": "Create new association source",
+  "drag-edge-to-canvas-create-generalization-parent": "Create new parent",
+  "drag-edge-to-canvas-create-generalization-child": "Create new child",
+  //
+  "edit-class-attributes-dialog.label": "Edit order of attributes on node",
+  "edit-class-attributes-dialog.btn-ok": "✅ Confirm",
+  "edit-class-attributes-dialog.btn-cancel": "❌ Cancel",
+  "edit-class-attributes-visible-attributes-column-header": "Visible attributes:",
+  "edit-class-attributes-hidden-attributes-column-header": "Hidden attributes:",
 };

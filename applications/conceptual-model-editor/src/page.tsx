@@ -335,15 +335,6 @@ function propagateAggregatorChangesToLocalState(
   setRelationshipProfiles: Dispatch<SetStateAction<SemanticModelRelationshipProfile[]>>,
   aggregator: SemanticModelAggregatorView,
 ) {
-  // Remove items.
-  const removedIds = new Set(removed);
-  setClasses((prev) => prev.filter((item) => !removedIds.has(item.id)));
-  setRelationships((prev) => prev.filter((item) => !removedIds.has(item.id)));
-  setUsages((prev) => prev.filter((item) => !removedIds.has(item.id)));
-  setGeneralizations((prev) => prev.filter((item) => !removedIds.has(item.id)));
-  setRawEntities((prev) => prev.filter((item) => item?.id && !removedIds.has(item?.id)));
-  setClassProfiles((prev) => prev.filter((item) => item?.id && !removedIds.has(item?.id)));
-  setRelationshipProfiles((prev) => prev.filter((item) => item?.id && !removedIds.has(item?.id)));
 
   // Prepare update.
   const localSourceMap = new Map<string, string>();
@@ -483,25 +474,40 @@ function propagateAggregatorChangesToLocalState(
   setSourceModelOfEntityMap(new Map(localSourceMap));
 
   // Update local state.
-  const updatedClassIds = new Set(updatedClasses.map((item) => item.id));
-  setClasses((prev) => prev.filter((item) => !updatedClassIds.has(item.id)).concat(updatedClasses));
+  const removedIds = new Set(removed);
+  setClasses(prev => updateItems(prev, removedIds, updatedClasses));
+  setRelationships(prev => updateItems(prev, removedIds, updatedRelationships));
+  setGeneralizations(prev => updateItems(prev, removedIds, updatedGeneralizations));
+  setUsages(prev => updateItems(prev, removedIds, updatedUsages));
+  setRawEntities(prev => updateItems(
+    prev.filter(item => item !== null),
+    removedIds,
+    updatedRawEntities.filter(item => item !== null)));
+  setClassProfiles(prev => updateItems(prev, removedIds, updatedClassProfiles));
+  setRelationshipProfiles(prev => updateItems(prev, removedIds, updatedRelationshipProfiles));
+}
 
-  const updatedRelationshipIds = new Set(updatedRelationships.map((item) => item.id));
-  setRelationships((prev) => prev.filter((item) => !updatedRelationshipIds.has(item.id)).concat(updatedRelationships));
-
-  const updatedGeneralizationIds = new Set(updatedGeneralizations.map((item) => item.id));
-  setGeneralizations((prev) => prev.filter((item) => !updatedGeneralizationIds.has(item.id)).concat(updatedGeneralizations));
-
-  const updatedUsagesIds = new Set(updatedUsages.map((item) => item.id));
-  setUsages((prev) => prev.filter((item) => !updatedUsagesIds.has(item.id)).concat(updatedUsages));
-
-  const updatedRawEntityIds = new Set(updatedRawEntities.map((item) => item?.id));
-  setRawEntities((prev) => prev.filter((item) => !updatedRawEntityIds.has(item?.id)).concat(updatedRawEntities));
-
-  const updatedClassProfilesIds = new Set(updatedClassProfiles.map((item) => item.id));
-  setClassProfiles((prev) => prev.filter((item) => !updatedClassProfilesIds.has(item.id)).concat(updatedClassProfiles));
-
-  const updatedRelationshipProfilesIds = new Set(updatedRelationshipProfiles.map((item) => item.id));
-  setRelationshipProfiles((prev) => prev.filter((item) => !updatedRelationshipProfilesIds.has(item.id)).concat(updatedRelationshipProfiles));
-
+function updateItems<Type extends { id: string }>(items: Type[], removed: Set<string>, changed: Type[]): Type[] {
+  if (removed.size === 0 && changed.length === 0) {
+    return items;
+  }
+  // Remove
+  let result = items.filter(item => !removed.has(item.id));
+  // Build change map.
+  const changeMap: Record<string, Type | null> = {};
+  changed.forEach(item => changeMap[item.id] = item);
+  // Update and remove from change map.
+  result = result.map((item) => {
+    const next = changeMap[item.id];
+    if (next === undefined) {
+      return item;
+    } else {
+      changeMap[item.id] = null;
+      return next!;
+    }
+  });
+  // Add non-null items as new.
+  Object.values(changeMap).filter(item => item !== null)
+    .forEach(item => result.push(item));
+  return result;
 }

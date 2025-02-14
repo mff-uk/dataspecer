@@ -1,14 +1,4 @@
-
-export type GroupWithContent = {
-  /**
-   * The group.
-   */
-  group: Group,
-  /**
-   * The group's content.
-   */
-  content: string[],
-}
+import { Position as PositionWithAnchor } from "@dataspecer/core-v2/visual-model";
 
 /**
  * Actions that can be executed on the editor component.
@@ -133,10 +123,10 @@ export interface DiagramActions {
 
   /**
    * Sets diagram's node selection to the given {@link nodes}.
-   * @param nodes are the identifiers of the nodes,
+   * @param selectedNodes are the identifiers of the nodes,
    * which will become the new content of the node selection.
    */
-  setSelectedNodes(nodes: string[]): void;
+  setSelectedNodes(selectedNodes: string[]): void;
 
   /**
    * @returns Currently selected edges within diagram.
@@ -193,14 +183,15 @@ export interface DiagramActions {
    * Opens menu on given {@link canvasPosition}.
    * The menu appears when user drags edge to canvas.
    * @param sourceNode is the node from which the connection dragging started
-   * @param position is the canvas position where user dragged the connection and on which will the menu appear
+   * @param canvasPosition is the canvas position where user dragged the connection and on which will the menu appear
    */
   openDragEdgeToCanvasMenu(sourceNode: Node, canvasPosition: Position): void;
+
   /**
    * Opens menu on given {@link canvasPosition}.
    * The menu appears when user clicks the actions button on selection.
    * @param sourceNode is the node on which the user clicked the button.
-   * @param position is the canvas position where the menu will appear.
+   * @param canvasPosition is the canvas position where the menu will appear.
    */
   openSelectionActionsMenu(sourceNode: Node, canvasPosition: Position): void;
 
@@ -208,21 +199,16 @@ export interface DiagramActions {
    * Opens menu on given {@link canvasPosition}.
    * The menu represents control panel for group with given {@link groupIdentifier}.
    * @param groupIdentifier is the identifier of the group.
-   * @param position is the position where the menu will appear.
+   * @param canvasPosition is the position where the menu will appear.
    */
   openGroupMenu(groupIdentifier: string, canvasPosition: Position): void;
 
   /**
-   * Sets correct highlighting values in context. We have to call it through the diagram API, because we have access to the rendering library (reactflow) only in diagram component.
+   * Sets correct highlighting values in context. We have to call it through the diagram API,
+   * because we have access to the rendering library (reactflow) only in diagram component.
    * @param nodeIdentifier is the identifier of the node to highlight
    */
   highlightNodeInExplorationModeFromCatalog(nodeIdentifier: string, modelOfClassWhichStartedHighlighting: string): void;
-}
-
-export type ViewportDimensions = {
-  position: Position;
-  width: number;
-  height: number;
 }
 
 /**
@@ -234,10 +220,47 @@ export type Group = {
 
 }
 
+export type GroupWithContent = {
+
+  /**
+   * The group.
+   */
+  group: Group,
+
+  /**
+   * The group's content.
+   */
+  content: string[],
+
+}
+
+export type ViewportDimensions = {
+
+  position: Position;
+
+  width: number;
+
+  height: number;
+
+}
+
+export enum NodeType {
+  /**
+   * Represents a class.
+   */
+  Class,
+  /**
+   * Represents a class profile.
+   */
+  ClassProfile
+}
+
 /**
  * Entity can be a class or a class profile.
  */
 export type Node = {
+
+  type: NodeType;
 
   /**
    * Entity identifier in scope of the diagram.
@@ -277,7 +300,7 @@ export type Node = {
   /**
    * Position of the Node at the canvas.
    */
-  position: Position;
+  position: PositionWithAnchor;
 
   profileOf: null | {
 
@@ -425,9 +448,31 @@ interface DiagramNodes {
   onDeleteNode: (diagramNode: Node) => void;
 
   /**
-   * Called when user choses to create new class from diagram's canvas menu.
+   * Called when user chooses to create new class from diagram's canvas menu.
    */
   onCanvasOpenCreateClassDialog: (nodeIdentifier: string, canvasPosition: Position) => void;
+
+  /**
+   * Called when user chooses to create new class from diagram's canvas menu with default association created afterwards.
+   * @param isCreatedClassTarget if set to true, then the association points to the created class. If set to false
+   * the direction of the association is from the created class to the source class.
+   */
+  onCanvasOpenCreateClassDialogWithAssociation: (
+    nodeIdentifier: string,
+    canvasPosition: Position,
+    isCreatedClassTarget: boolean
+  ) => void;
+
+  /**
+   * Called when user choses to create new class from diagram's canvas menu with generalization created afterwards.
+   * @param isCreatedClassParent if set to true, then the the created class becomes parent of the source class.
+   * If set to false, it becomes child.
+   */
+  onCanvasOpenCreateClassDialogWithGeneralization: (
+    nodeIdentifier: string,
+    canvasPosition: Position,
+    isCreatedClassParent: boolean
+  ) => void;
 
   /**
    * Called when there is a change in node's positions in result
@@ -448,6 +493,23 @@ interface DiagramNodes {
    */
   onAddAttributeForNode: (diagramNode: Node) => void;
 
+  /**
+   * Called when user chooses to remove {@link attribute}.
+   * @param attribute is the identifier the of the attribute
+   * @param nodeIdentifer is the identifier of the node on which the attribute resides.
+   */
+  onRemoveAttributeFromVisualModel: (attribute: string, nodeIdentifer: string) => void;
+  /**
+   * Called when user chooses to move given {@link attribute} move one position up.
+   * @param nodeIdentifer is the identifier of the node on which the attribute resides.
+   */
+  onMoveAttributeUp: (attribute: string, nodeIdentifer: string) => void;
+
+    /**
+   * Called when user chooses to move given {@link attribute} move one position down.
+   * @param nodeIdentifer is the identifier of the node on which the attribute resides.
+   */
+   onMoveAttributeDown: (attribute: string, nodeIdentifer: string) => void;
 }
 
 /**

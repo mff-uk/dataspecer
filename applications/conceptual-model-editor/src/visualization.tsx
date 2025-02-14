@@ -37,7 +37,7 @@ import { type UseModelGraphContextType, useModelGraphContext } from "./context/m
 import { type UseClassesContextType, useClassesContext } from "./context/classes-context";
 import { cardinalityToHumanLabel, getDomainAndRange } from "./util/relationship-utils";
 import { useActions } from "./action/actions-react-binding";
-import { Diagram, type Edge, EdgeType, Group, type EntityItem, type Node } from "./diagram/";
+import { Diagram, type Edge, EdgeType, Group, type EntityItem, type Node, NodeType } from "./diagram/";
 import { type UseDiagramType } from "./diagram/diagram-hook";
 import { configuration, createLogger } from "./application";
 import { getDescriptionLanguageString, getFallbackDisplayName, getNameLanguageString, getUsageNoteLanguageString } from "./util/name-utils";
@@ -50,6 +50,7 @@ import { getGroupMappings } from "./action/utilities";
 import { synchronizeOnAggregatorChange } from "./dataspecer/visual-model/aggregator-to-visual-model-adapter";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { EntityDsIdentifier } from "./dataspecer/entity-model";
+import { isSemanticModelAttributeProfile } from "./dataspecer/semantic-model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -155,9 +156,9 @@ function propagateVisualModelColorChangesToVisualization(
   // simulating change in the entities.
   // TODO We should not reuse the function in this way, but it was quick solution.
   const changes: {
-        previous: VisualEntity | null;
-        next: VisualEntity | null;
-    }[] = [];
+    previous: VisualEntity | null;
+    next: VisualEntity | null;
+  }[] = [];
 
   // We need to update all entities from given model.
   // The entities remain the same as the change is in the model.
@@ -206,43 +207,51 @@ function onChangeVisualModel(
   const models = graphContext.models;
   const entities = aggregatorView.getEntities();
   const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
-  const attributeProfiles = classesContext.usages.filter(isSemanticModelAttributeUsage);
+  const attributeUsages = classesContext.usages.filter(isSemanticModelAttributeUsage);
+  const attributeProfiles = classesContext.relationshipProfiles.filter(isSemanticModelAttributeProfile);
 
-  const profilingSources = [...classesContext.classes, ...classesContext.relationships, ...classesContext.usages];
+  const profilingSources = [
+    ...classesContext.classes,
+    ...classesContext.relationships,
+    ...classesContext.usages,
+    ...classesContext.classProfiles,
+    ...classesContext.relationshipProfiles,
+  ];
 
   const nextNodes: Node[] = [];
   const nextEdges: Edge[] = [];
   const nextGroups: VisualGroup[] = [];
 
   const visualEntities = visualModel.getVisualEntities().values();
-  const {nodeToGroupMapping} = getGroupMappings(visualModel);
+  const { nodeToGroupMapping } = getGroupMappings(visualModel);
 
   for (const visualEntity of visualEntities) {
-    if(isVisualGroup(visualEntity)) {
+    if (isVisualGroup(visualEntity)) {
       nextGroups.push(visualEntity);
       continue;
     } else if (isVisualNode(visualEntity)) {
       const entity = entities[visualEntity.representedEntity]?.aggregatedEntity ?? null;
       if (isSemanticModelClassUsage(entity) || isSemanticModelClass(entity)
-         || isSemanticModelClassProfile(entity)) {
+        || isSemanticModelClassProfile(entity)) {
         const model = findSourceModelOfEntity(entity.id, models);
         if (model === null) {
           console.error("Ignored entity for missing model.", { entity });
           continue;
         }
+
         const node = createDiagramNode(
           options, visualModel,
-          attributes, attributeProfiles, profilingSources,
+          attributes, attributeUsages, attributeProfiles, profilingSources,
           visualEntity, entity, model, nodeToGroupMapping[visualEntity.identifier] ?? null);
         nextNodes.push(node);
       }
     } else if (isVisualRelationship(visualEntity)) {
       const entity = entities[visualEntity.representedRelationship]?.aggregatedEntity ?? null;
       const isRelationship =
-                isSemanticModelRelationship(entity) ||
-                isSemanticModelRelationshipUsage(entity) ||
-                isSemanticModelRelationshipProfile(entity) ||
-                isSemanticModelGeneralization(entity);
+        isSemanticModelRelationship(entity) ||
+        isSemanticModelRelationshipUsage(entity) ||
+        isSemanticModelRelationshipProfile(entity) ||
+        isSemanticModelGeneralization(entity);
       if (isRelationship) {
         const model = findSourceModelOfEntity(entity.id, models);
         if (model === null) {
@@ -284,7 +293,7 @@ function onChangeVisualModel(
           continue;
         }
         if (visualEntity.visualSource !== profileOf.identifier &&
-           visualEntity.visualTarget !== profileOf.identifier) {
+          visualEntity.visualTarget !== profileOf.identifier) {
           // The VisualProfileRelationship represents different profile relationship.
           continue;
         }
@@ -318,8 +327,12 @@ function createDiagramNode(
   options: Options,
   visualModel: VisualModel,
   attributes: SemanticModelRelationship[],
-  attributesProfiles: SemanticModelRelationshipUsage[],
-  profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
+  attributesUsages: SemanticModelRelationshipUsage[],
+  attributesProfiles: SemanticModelRelationshipProfile[],
+  profilingSources: (
+    | SemanticModelClass | SemanticModelRelationship
+    | SemanticModelClassUsage | SemanticModelRelationshipUsage
+    | SemanticModelClassProfile | SemanticModelRelationshipProfile)[],
   visualNode: VisualNode,
   entity: SemanticModelClass | SemanticModelClassUsage | SemanticModelClassProfile,
   model: EntityModel,
@@ -327,47 +340,79 @@ function createDiagramNode(
 ): Node {
   const language = options.language;
 
-  const nodeAttributes = attributes
-    .filter(isSemanticModelAttribute)
-    .filter((attr) => getDomainAndRange(attr).domain?.concept === entity.id);
-
-  const nodeAttributeProfiles = attributesProfiles
-    .filter(isSemanticModelAttributeUsage)
-    .filter((attr) => getDomainAndRange(attr).domain?.concept === entity.id);
+  // Here we are missing proper implementation of content.
+  // See https://github.com/mff-uk/dataspecer/issues/928
 
   const items: EntityItem[] = [];
-  for (const attribute of nodeAttributes) {
-    items.push({
-      identifier: attribute.id,
-      label: getEntityLabel(language, attribute),
+
+  attributes
+    .filter(isSemanticModelAttribute)
+    .filter((item) => getDomainAndRange(item).domain?.concept === entity.id)
+    .map((item) => ({
+      identifier: item.id,
+      label: getEntityLabel(language, item),
       profileOf: null,
-    });
+    }))
+    .forEach((item) => items.push(item));
+
+  attributesUsages
+    .filter(isSemanticModelAttributeUsage)
+    .filter((item) => getDomainAndRange(item).domain?.concept === entity.id)
+    .map((item) => {
+      const profileOf = profilingSources.find((profile) => item.usageOf === profile.id);
+      return {
+        identifier: item.id,
+        label: getEntityLabel(language, item),
+        profileOf: {
+          label: profileOf === undefined ? "" : getEntityLabel(language, profileOf),
+          usageNote: getUsageNote(language, item),
+        },
+      }
+    })
+    .forEach((item) => items.push(item));
+
+  attributesProfiles
+    .filter(isSemanticModelAttributeProfile)
+    .filter((item) => getDomainAndRange(item).domain?.concept === entity.id)
+    .map((item) => {
+      const profileOf = profilingSources.filter((profile) =>
+        item.ends.find(end => end.profiling.includes(profile.id)) !== undefined);
+
+      return {
+        identifier: item.id,
+        label: getEntityLabel(language, item),
+        profileOf: {
+          label: profileOf.map(item => getEntityLabel(language, item)).join(", "),
+          usageNote: profileOf.map(item => getUsageNote(language, item)).join(", "),
+        },
+      }
+    })
+    .forEach((item) => items.push(item));
+
+  // Here we could filter using the visualNode.content.
+  // Be aware that the update of the semantic attributes comes later,
+  // so there is moment when the content of visual node is set,
+  // but the corresponding attributes semantic model in are not.
+
+  const isProfile = isSemanticModelClassUsage(entity)
+    || isSemanticModelClassProfile(entity);
+
+  let profileOf: (
+    | SemanticModelClass | SemanticModelRelationship
+    | SemanticModelClassUsage | SemanticModelRelationshipUsage
+    | SemanticModelClassProfile | SemanticModelRelationshipProfile)[] = [];
+
+  if (isSemanticModelClassUsage(entity)) {
+    const profile = profilingSources.find(item => item.id === entity.usageOf);
+    if (profile !== undefined) {
+      profileOf.push(profile);
+    }
+  } else if (isSemanticModelClassProfile(entity)) {
+    profileOf = profilingSources.filter(item => entity.profiling.includes(item.id));
   }
-
-  for (const attributeProfile of nodeAttributeProfiles) {
-    const profileOf =
-            (isSemanticModelClassUsage(attributeProfile) || isSemanticModelRelationshipUsage(attributeProfile)
-              ? profilingSources.find((e) => e.id === attributeProfile.usageOf)
-              : null
-            ) ?? null;
-
-    items.push({
-      identifier: attributeProfile.id,
-      label: getEntityLabel(language, attributeProfile),
-      profileOf: profileOf === null ? null : {
-        label: getEntityLabel(language, profileOf),
-        usageNote: getUsageNote(language, attributeProfile),
-      },
-    });
-  }
-
-  const profileOf =
-        (isSemanticModelClassUsage(entity) || isSemanticModelRelationshipUsage(entity)
-          ? profilingSources.find((e) => e.id === entity.usageOf)
-          : null
-        ) ?? null;
 
   return {
+    type: isProfile ? NodeType.ClassProfile : NodeType.Class,
     identifier: visualNode.identifier,
     externalIdentifier: entity.id,
     label: getEntityLabel(language, entity),
@@ -376,11 +421,10 @@ function createDiagramNode(
     description: getEntityDescription(language, entity),
     group,
     position: {
-      x: visualNode.position.x,
-      y: visualNode.position.y,
+      ...visualNode.position
     },
-    profileOf: profileOf === null ? null : {
-      label: getEntityLabel(language, profileOf),
+    profileOf: !isProfile ? null : {
+      label: profileOf.map(item => getEntityLabel(language, item)).join(", "),
       usageNote: getUsageNote(language, entity),
     },
     items: items,
@@ -395,7 +439,7 @@ function getEntityLabel(
     SemanticModelRelationshipProfile
 ) {
   return getLocalizedStringFromLanguageString(getNameLanguageString(entity), language)
-        ?? getFallbackDisplayName(entity) ?? "";
+    ?? getFallbackDisplayName(entity) ?? "";
 }
 
 function getEntityDescription(
@@ -419,17 +463,20 @@ function getUsageNote(
 function createDiagramEdge(
   options: Options,
   visualModel: VisualModel,
-  profilingSources: (SemanticModelRelationship | SemanticModelClassUsage |
-    SemanticModelRelationshipUsage | SemanticModelClass)[],
+  profilingSources: (
+    | SemanticModelClass | SemanticModelRelationship
+    | SemanticModelClassUsage | SemanticModelRelationshipUsage
+    | SemanticModelClassProfile | SemanticModelRelationshipProfile)[],
   visualNode: VisualRelationship,
   entity: SemanticModelRelationship | SemanticModelRelationshipUsage |
-   SemanticModelGeneralization | SemanticModelRelationshipProfile ,
+    SemanticModelGeneralization | SemanticModelRelationshipProfile,
 ): Edge | null {
   const identifier = entity.id;
   if (isSemanticModelRelationship(entity)) {
     return createDiagramEdgeForRelationship(
       options, visualModel, profilingSources, visualNode, entity);
-  } else if (isSemanticModelRelationshipUsage(entity)) {
+  } else if (isSemanticModelRelationshipUsage(entity)
+    || isSemanticModelRelationshipProfile(entity)) {
     return createDiagramEdgeForRelationshipProfile(
       options, visualModel, profilingSources, visualNode, entity);
   } else if (isSemanticModelGeneralization(entity)) {
@@ -442,17 +489,20 @@ function createDiagramEdge(
 function createDiagramEdgeForRelationship(
   options: Options,
   visualModel: VisualModel,
-  profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
+  profilingSources: (
+    | SemanticModelClass | SemanticModelRelationship
+    | SemanticModelClassUsage | SemanticModelRelationshipUsage
+    | SemanticModelClassProfile | SemanticModelRelationshipProfile)[],
   visualNode: VisualRelationship,
   entity: SemanticModelRelationship,
 ): Edge {
   const language = options.language;
 
   const profileOf =
-        (isSemanticModelRelationshipUsage(entity)
-          ? profilingSources.find((e) => e.id === entity.usageOf)
-          : null
-        ) ?? null;
+    (isSemanticModelRelationshipUsage(entity)
+      ? profilingSources.find((e) => e.id === entity.usageOf)
+      : null
+    ) ?? null;
 
   const { domain, range } = getDomainAndRange(entity);
 
@@ -477,17 +527,20 @@ function createDiagramEdgeForRelationship(
 function createDiagramEdgeForRelationshipProfile(
   options: Options,
   visualModel: VisualModel,
-  profilingSources: (SemanticModelRelationship | SemanticModelClassUsage | SemanticModelRelationshipUsage | SemanticModelClass)[],
+  profilingSources: (
+    | SemanticModelClass | SemanticModelRelationship
+    | SemanticModelClassUsage | SemanticModelRelationshipUsage
+    | SemanticModelClassProfile | SemanticModelRelationshipProfile)[],
   visualNode: VisualRelationship,
-  entity: SemanticModelRelationshipUsage,
+  entity: SemanticModelRelationshipUsage | SemanticModelRelationshipProfile,
 ): Edge {
   const language = options.language;
 
   const profileOf =
-        (isSemanticModelRelationshipUsage(entity)
-          ? profilingSources.find((e) => e.id === entity.usageOf)
-          : null
-        ) ?? null;
+    (isSemanticModelRelationshipUsage(entity)
+      ? profilingSources.find((e) => e.id === entity.usageOf)
+      : null
+    ) ?? null;
 
   const { domain, range } = getDomainAndRange(entity);
 
@@ -561,9 +614,9 @@ function onChangeVisualEntities(
   classesContext: UseClassesContextType,
   graphContext: UseModelGraphContextType,
   changes: {
-        previous: VisualEntity | null;
-        next: VisualEntity | null;
-    }[]
+    previous: VisualEntity | null;
+    next: VisualEntity | null;
+  }[]
 ) {
   if (diagram === null || !diagram.areActionsReady) {
     LOG.warn("Visual entities change is ignored as the diagram is not ready!");
@@ -578,23 +631,30 @@ function onChangeVisualEntities(
   const models = graphContext.models;
   const entities = aggregatorView.getEntities();
   const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
-  const attributeProfiles = classesContext.usages.filter(isSemanticModelAttributeUsage);
+  const attributeUsages = classesContext.usages.filter(isSemanticModelAttributeUsage);
+  const attributeProfiles = classesContext.relationshipProfiles.filter(isSemanticModelAttributeProfile);
 
-  const profilingSources = [...classesContext.classes, ...classesContext.relationships, ...classesContext.usages];
+  const profilingSources = [
+    ...classesContext.classes,
+    ...classesContext.relationships,
+    ...classesContext.usages,
+    ...classesContext.classProfiles,
+    ...classesContext.relationshipProfiles,
+  ];
 
   const actions = diagram.actions();
 
-  const groups = changes.filter(({previous, next}) => (previous !== null && isVisualGroup(previous)) || (next !== null && isVisualGroup(next)));
+  const groups = changes.filter(({ previous, next }) => (previous !== null && isVisualGroup(previous)) || (next !== null && isVisualGroup(next)));
 
   const nodeIdToParentGroupIdMap: Record<string, string> = {};
-  for(const {previous, next} of groups) {
+  for (const { previous, next } of groups) {
     if (previous !== null && next === null) {
       // Entity removed
       actions.removeGroups([previous.identifier]);
       continue;
     }
 
-    if(next === null) {
+    if (next === null) {
       continue;
     }
     const nextVisualGroup = next as VisualGroup;        // Have to cast, even though we know the type
@@ -602,7 +662,7 @@ function onChangeVisualEntities(
 
     if (previous === null) {
       // Create new entity.
-      actions.addGroups([{group, content: nextVisualGroup.content}], false);
+      actions.addGroups([{ group, content: nextVisualGroup.content }], false);
       nextVisualGroup.content.forEach(nodeIdGroupId => {
         nodeIdToParentGroupIdMap[nodeIdGroupId] = group.identifier;
       });
@@ -619,8 +679,8 @@ function onChangeVisualEntities(
         const entity = entities[next.representedEntity]?.aggregatedEntity ?? null;
 
         if (!isSemanticModelClass(entity)
-            && !isSemanticModelClassUsage(entity)
-            && !isSemanticModelClassProfile(entity)) {
+          && !isSemanticModelClassUsage(entity)
+          && !isSemanticModelClassProfile(entity)) {
           LOG.error(
             "In visual update semantic entity is not class/usage/profile.",
             { entity, visual: next });
@@ -634,12 +694,13 @@ function onChangeVisualEntities(
         }
 
         let group: string | null = null;
-        if(nodeIdToParentGroupIdMap[next.identifier] !== undefined) {
+        if (nodeIdToParentGroupIdMap[next.identifier] !== undefined) {
           group = nodeIdToParentGroupIdMap[next.identifier];
         }
+
         const node = createDiagramNode(
           options, visualModel,
-          attributes, attributeProfiles, profilingSources,
+          attributes, attributeUsages, attributeProfiles, profilingSources,
           next, entity, model, group);
 
         if (previous === null) {
@@ -647,13 +708,6 @@ function onChangeVisualEntities(
           actions.addNodes([node]);
         } else {
           // Change of existing.
-          // TODO RadStr: It would be probably better update every time the change wasn't position change by user
-          //       because for position change by user, the change is already registered in diagram.
-          //       If we do that, the selection code needs to be changed to not remove the selected
-          //       elements, right now we are doing that explicitly so it is consistent with this code.
-          //       It might have negative side-effects though for non-user updates by layouting, etc.
-          //       Also might be difficult to check if it was position change. So wait a bit with implementation.
-          //       Maybe won't even implement it.
           actions.updateNodes([node]);
         }
 
@@ -661,9 +715,10 @@ function onChangeVisualEntities(
         const entity = entities[next.representedRelationship]?.aggregatedEntity ?? null;
 
         const isRelationship =
-                    isSemanticModelRelationship(entity) ||
-                    isSemanticModelRelationshipUsage(entity) ||
-                    isSemanticModelGeneralization(entity);
+          isSemanticModelRelationship(entity) ||
+          isSemanticModelRelationshipUsage(entity) ||
+          isSemanticModelGeneralization(entity) ||
+          isSemanticModelRelationshipProfile(entity);
         if (!isRelationship) {
           console.error("In visual update semantic entity is not a relationship.", { entity, visual: next });
           continue;
@@ -718,7 +773,7 @@ function onChangeVisualEntities(
           //
           const edge = createDiagramEdgeForClassUsageOrProfile(visualModel, next, entity);
           if (edge === null) {
-            console.error("Ignored null edge.", {visualEntity: next, entity});
+            console.error("Ignored null edge.", { visualEntity: next, entity });
             continue;
           }
           if (previous === null) {
