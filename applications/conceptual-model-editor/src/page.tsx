@@ -33,13 +33,13 @@ import { DialogContextProvider } from "./dialog/dialog-context";
 import { DialogRenderer } from "./dialog/dialog-renderer";
 import { NotificationList } from "./notification";
 import { ActionsContextProvider } from "./action/actions-react-binding";
-import { createWritableVisualModel } from "./util/visual-model-utils";
 import { OptionsContextProvider } from "./application/options";
 
 import "./page.css";
 import { migrateVisualModelFromV0 } from "./dataspecer/visual-model/visual-model-v0-to-v1";
 import { ExplorationContextProvider } from "./diagram/features/highlighting/exploration/context/highlighting-exploration-mode";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { createEmptyWritableVisualModel } from "./dataspecer/visual-model/visual-model-factory";
 
 const _semanticModelAggregator = new SemanticModelAggregator();
 type SemanticModelAggregatorType = typeof _semanticModelAggregator;
@@ -199,7 +199,7 @@ function initializeWithoutPackage(
   const tempAggregator = new SemanticModelAggregator();
 
   // Create visual model.
-  const visualModel = createWritableVisualModel();
+  const visualModel = createEmptyWritableVisualModel();
   setVisualModels(new Map([[visualModel.getId(), visualModel]]));
   tempAggregator.addModel(visualModel);
   const tempAggregatorView = tempAggregator.getView();
@@ -236,15 +236,18 @@ function initializeWithPackage(
 
   const cleanup = getModels().then((models) => {
     const [entityModels, visualModels] = models;
-    if (entityModels.length === 0 && visualModels.length === 0) {
-      console.warn("No models returned from backend, creating default models in the package.");
-
-      const visualModel = createWritableVisualModel();
-      visualModels.push(visualModel);
-
+    if (entityModels.length === 0) {
+      console.warn("Creating default semantic model.");
       const model = new InMemorySemanticModel();
       model.setAlias("Default local model");
       entityModels.push(model);
+    }
+
+    if (visualModels.length === 0) {
+      console.warn("Creating default visual model.");
+      const visualModel = createEmptyWritableVisualModel();
+      visualModel.setLabel({"en":"Default"});
+      visualModels.push(visualModel);
     }
 
     if (!entityModels.find((m) => m instanceof InMemorySemanticModel)) {

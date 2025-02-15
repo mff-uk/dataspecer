@@ -9,8 +9,8 @@ import { ModelGraphContextType } from "../context/model-context";
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { createAddModelDialog } from "../dialog/model/create-model-dialog";
 import { CreateModelState, TabType } from "../dialog/model/create-model-dialog-controller";
-import { createWritableVisualModel } from "../util/visual-model-utils";
 import { randomColorFromPalette } from "../util/color-utils";
+import { createEmptyWritableVisualModel } from "../dataspecer/visual-model/visual-model-factory";
 
 const LOG = createLogger(import.meta.url);
 
@@ -80,9 +80,10 @@ export function createVocabulary(
 function addModelsToGraph(graph: ModelGraphContextType, models: EntityModel[]) {
   // If there is no visual model, we create a default one.
   if (graph.aggregatorView.getActiveVisualModel() === null) {
-    const defaultVisualModel = createWritableVisualModel();
-    addVisualModelToGraph(graph, defaultVisualModel);
-    graph.aggregatorView.changeActiveVisualModel(defaultVisualModel.getId());
+    console.warn("Creating default visual model.")
+    const visualModel = createEmptyWritableVisualModel();
+    visualModel.setLabel({"en": "Default"});
+    graph.aggregatorView.changeActiveVisualModel(visualModel.getId());
   }
 
   for (const model of models) {

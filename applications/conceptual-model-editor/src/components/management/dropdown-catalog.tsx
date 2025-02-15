@@ -33,7 +33,7 @@ const val = (value: string | [string, string]) => {
 };
 
 export const DropDownCatalog = (props: {
-    catalogName: string;
+    label: string;
     valueSelected: string | null;
     availableValues: readonly string[] | readonly [string, string][]; // [key, value]
     openCatalogTitle?: string;
@@ -41,7 +41,7 @@ export const DropDownCatalog = (props: {
     onValueDeleted?: (value: string) => void;
     children?: ReactNode;
 }) => {
-  const { catalogName, valueSelected, availableValues, openCatalogTitle, onValueSelected, onValueDeleted, children } =
+  const { label: catalogName, valueSelected, availableValues, openCatalogTitle, onValueSelected, onValueDeleted, children } =
         props;
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -71,7 +71,7 @@ export const DropDownCatalog = (props: {
             title={openCatalogTitle}
             onClick={() => setDropdownOpen(true)}
           >
-                        🗃️
+            🗃️
           </button>
           {children}
           {dropdownOpen && (
