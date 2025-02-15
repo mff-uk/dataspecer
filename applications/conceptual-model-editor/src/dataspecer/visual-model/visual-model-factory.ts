@@ -1,4 +1,6 @@
+import { EntityModel } from "@dataspecer/core-v2";
 import { createDefaultVisualModelFactory, VisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { ColorPalette } from "../../util/color-utils";
 
 const visualModelFactory = createDefaultVisualModelFactory();
 
@@ -23,6 +25,21 @@ function copyModelsData(source: VisualModel, target: WritableVisualModel): void 
   }
 }
 
-export function createEmptyWritableVisualModel() {
-  return visualModelFactory.createNewWritableVisualModelSync();
+/**
+ * @param semanticModels
+ * @returns Default model with colors for all models.
+ */
+export function createDefaultWritableVisualModel(
+  semanticModels: EntityModel[],
+): WritableVisualModel {
+  const result = visualModelFactory.createNewWritableVisualModelSync();
+  result.setLabel({"en":"Default"});
+  const colors = Object.entries(ColorPalette)
+    .map(([_, value]) => value[500]);
+  let index = 0;
+  for (const model of semanticModels) {
+    result.setModelColor(model.getId(), colors[index % colors.length]);
+    ++index;
+  }
+  return result;
 }

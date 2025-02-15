@@ -10,7 +10,7 @@ import { DialogApiContextType } from "../dialog/dialog-service";
 import { createAddModelDialog } from "../dialog/model/create-model-dialog";
 import { CreateModelState, TabType } from "../dialog/model/create-model-dialog-controller";
 import { randomColorFromPalette } from "../util/color-utils";
-import { createEmptyWritableVisualModel } from "../dataspecer/visual-model/visual-model-factory";
+import { createDefaultWritableVisualModel } from "../dataspecer/visual-model/visual-model-factory";
 
 const LOG = createLogger(import.meta.url);
 
@@ -81,8 +81,7 @@ function addModelsToGraph(graph: ModelGraphContextType, models: EntityModel[]) {
   // If there is no visual model, we create a default one.
   if (graph.aggregatorView.getActiveVisualModel() === null) {
     console.warn("Creating default visual model.")
-    const visualModel = createEmptyWritableVisualModel();
-    visualModel.setLabel({"en": "Default"});
+    const visualModel = createDefaultWritableVisualModel(models);
     graph.aggregatorView.changeActiveVisualModel(visualModel.getId());
   }
 
