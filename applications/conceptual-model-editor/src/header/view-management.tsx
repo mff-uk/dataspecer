@@ -27,9 +27,6 @@ export const ViewManagement = () => {
       item.getLabel() === null ?  null : languageStringToString(
         configuration().languagePreferences, language,  item.getLabel()!),
     ] as [string, string]);
-  console.log(">", {visual: aggregatorView.getAvailableVisualModels(),
-    label: aggregatorView.getAvailableVisualModels().map(item => item.getLabel()),
-    next:availableVisualModelIds});
 
   useEffect(() => {
     if (activeViewId === undefined) {
