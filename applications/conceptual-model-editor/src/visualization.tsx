@@ -288,9 +288,6 @@ function onChangeVisualModel(
       // by the VisualProfileRelationship.
       for (const item of profiled) {
         const profilesOf = visualModel.getVisualEntitiesForRepresented(item);
-        if (profilesOf === null) {
-          continue;
-        }
         for(const profileOf of profilesOf) {
           if (visualEntity.visualSource !== profileOf.identifier &&
             visualEntity.visualTarget !== profileOf.identifier) {
@@ -762,9 +759,6 @@ function onChangeVisualEntities(
         const edgesToUpdate = [];
         for (const item of profiled) {
           const profilesOf = visualModel.getVisualEntitiesForRepresented(item);
-          if (profilesOf === null) {
-            continue;
-          }
           for(const profileOf of profilesOf) {
             if (next.visualSource !== profileOf.identifier &&
               next.visualTarget !== profileOf.identifier) {

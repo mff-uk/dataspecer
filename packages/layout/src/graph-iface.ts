@@ -328,7 +328,7 @@ const isRelationshipInVisualModel = (visualModel: VisualModelWithOutsiders,
 
     const isAtLeastOneEndOutsider = checkIfEdgeHasAtLeastOneOutsider(visualModel.outsiders, ends[0], ends[1]);
     const visualEntities = visualModel.visualModel.getVisualEntitiesForRepresented(relationshipIdentifier);
-    const isPresentInVisualModel = visualEntities !== null || isAtLeastOneEndOutsider;
+    const isPresentInVisualModel = visualEntities.length > 0 || isAtLeastOneEndOutsider;
     return isPresentInVisualModel;
 };
 
@@ -344,7 +344,7 @@ const isNodeInVisualModel = (visualModel: VisualModelWithOutsiders,
 
     // TODO: For now ... in future I should use the ids of visual model instead of the semantic ones
     const visualEntities = visualModel.visualModel.getVisualEntitiesForRepresented(nodeIdentifier);
-    const isPresentInVisualModel = visualEntities !== null || visualModel?.outsiders[nodeIdentifier] !== undefined;
+    const isPresentInVisualModel = visualEntities.length > 0 || visualModel?.outsiders[nodeIdentifier] !== undefined;
     return isPresentInVisualModel;
 };
 
@@ -1386,7 +1386,7 @@ class NodeClassic implements INodeClassic {
         if(visualModel !== null) {
             const outsiderPosition = visualModel.outsiders[this.node.id];
             if(outsiderPosition !== undefined) {
-                // We have to create new visual node, since it is outsider, 
+                // We have to create new visual node, since it is outsider,
                 // that means - it isn't present in visual model
                 const coreVisualNode = this.createNewVisualNodeBasedOnSemanticData(outsiderPosition);
                 let isAnchored = false;

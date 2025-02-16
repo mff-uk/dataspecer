@@ -201,8 +201,8 @@ function collectVisualRepresentedChange(
     previous: VisualEntity | null,
     next: VisualEntity | null
   }[],
-): Record<EntityDsIdentifier, EntityDsIdentifier[] | null> {
-  const result: Record<EntityDsIdentifier, EntityDsIdentifier[] | null> = {};
+): Record<EntityDsIdentifier, EntityDsIdentifier[]> {
+  const result: Record<EntityDsIdentifier, EntityDsIdentifier[]> = {};
   for (const change of entities) {
     if (change.previous !== null && change.next === null) {
       // Existing entity is removed.
@@ -255,9 +255,9 @@ function collectVisualRepresentedChange(
   return result;
 }
 
-function addToMapValue<T>(map: Record<string, T[] | null>, key: string, value: T) {
+function addToMapValue<T>(map: Record<string, T[]>, key: string, value: T) {
   const existingValue = map[key];
-  if(existingValue === undefined || existingValue === null) {
+  if(existingValue === undefined) {
     map[key] = [value];
   }
   else {
@@ -265,13 +265,10 @@ function addToMapValue<T>(map: Record<string, T[] | null>, key: string, value: T
   }
 }
 
-function removeFromMapValue<T>(map: Record<string, T[] | null>, key: string) {
+function removeFromMapValue<T>(map: Record<string, T[]>, key: string) {
   const existingValue = map[key];
   if(existingValue === undefined) {
-    map[key] = null;
-    return;
-  }
-  else if(existingValue === null) {
+    map[key] = [];
     return;
   }
 }
@@ -296,7 +293,7 @@ function getRepresentedByVisual(visual: VisualEntity): EntityDsIdentifier | null
 function updateVisual<T extends {
   dsIdentifier: EntityDsIdentifier,
   visualDsIdentifiers: EntityDsIdentifier[] | null,
-}>(items: T[], changes: Record<EntityDsIdentifier, EntityDsIdentifier[] | null>): T[] {
+}>(items: T[], changes: Record<EntityDsIdentifier, EntityDsIdentifier[]>): T[] {
   return items.map(item => ({
     ...item,
     visualDsIdentifiers: changes[item.dsIdentifier],

@@ -19,7 +19,7 @@ export function updateVisualNodeProfiles(
 ) {
   const { create, remove } = createChangeList(previous, next, isEntityReferenceEqual);
   const entityVisuals = visualModel.getVisualEntitiesForRepresented(entity.id);
-  if (entityVisuals === null) {
+  if (entityVisuals.length === 0) {
     // There should be no relationship for this entity in the model.
     return;
   }
@@ -27,7 +27,7 @@ export function updateVisualNodeProfiles(
   // Add new.
   for (const item of create) {
     const visuals = visualModel.getVisualEntitiesForRepresented(item.identifier);
-    if (visuals === null) {
+    if (visuals.length === 0) {
       continue;
     }
     for(const entityVisual of entityVisuals) {
@@ -46,9 +46,6 @@ export function updateVisualNodeProfiles(
   // Delete removed.
   for (const item of remove) {
     const visuals = visualModel.getVisualEntitiesForRepresented(item.identifier);
-    if (visuals === null) {
-      continue;
-    }
     for(const visual of visuals) {
       visualModel.deleteVisualEntity(visual.identifier);
     }

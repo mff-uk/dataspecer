@@ -34,28 +34,28 @@ describe("splitByModel", () => {
       vocabulary: first,
       displayLabel: "",
       iri: "",
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
     };
     const two: UiClass = {
       dsIdentifier: "two",
       vocabulary: first,
       displayLabel: "",
       iri: "",
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
     };
     const three: UiClass = {
       dsIdentifier: "three",
       vocabulary: second,
       displayLabel: "",
       iri: "",
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
     };
     const four: UiClass = {
       dsIdentifier: "four",
       vocabulary: third,
       displayLabel: "",
       iri: "",
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
     };
     //
     const actual = splitByModel([one, two, three, four]);
@@ -99,14 +99,14 @@ describe("buildProfileTree", () => {
       vocabulary: first,
       displayLabel: "One",
       iri: "",
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
     };
     const two: UiClassProfile = {
       dsIdentifier: "two",
       vocabulary: first,
       displayLabel: "Two",
       iri: "",
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
       profiles: [{
         profileOf: {
           entityDsIdentifier: "one",
@@ -119,14 +119,14 @@ describe("buildProfileTree", () => {
       vocabulary: first,
       displayLabel: "Three",
       iri: "",
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
     };
     const four: UiClassProfile = {
       dsIdentifier: "four",
       vocabulary: first,
       displayLabel: "Four",
       iri: "",
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
       profiles: [{
         profileOf: {
           entityDsIdentifier: "three",
@@ -139,7 +139,7 @@ describe("buildProfileTree", () => {
       vocabulary: first,
       displayLabel: "Five",
       iri: "",
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
       profiles: [{
         profileOf: {
           entityDsIdentifier: "four",

@@ -153,8 +153,8 @@ export function extractIdentifiers(arrayToExtractFrom: Node[] | Edge[], shouldGe
 
 export function filterOutProfileClassEdges(edgeSemanticIdentifiers: string[], visualModel: VisualModel): string[] {
   return edgeSemanticIdentifiers.filter(edgeIdentifier => {
-    const visualEntity = visualModel.getVisualEntitiesForRepresented(edgeIdentifier)?.[0] ?? null;
-    return visualEntity !== null && isVisualRelationship(visualEntity);
+    const visualEntity = visualModel.getVisualEntitiesForRepresented(edgeIdentifier)[0];
+    return visualEntity !== undefined && isVisualRelationship(visualEntity);
   });
 }
 
@@ -181,7 +181,7 @@ export const computeRelatedAssociationsBarycenterAction = async (
     notifications, graph, classesContext, classToFindAssociationsFor)).selectionExtension.nodeSelection;
   const associatedPositions = associatedClasses.flatMap(associatedNodeIdentifier => {
     const visualEntities = visualModel.getVisualEntitiesForRepresented(associatedNodeIdentifier);
-    if(visualEntities === null) {
+    if(visualEntities.length === 0) {
       notifications.error("The associated visual entity is not present in visual model, even though it should");
       return null;
     }

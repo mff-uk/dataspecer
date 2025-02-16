@@ -8,6 +8,9 @@ import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticMode
 import { VisualEntity, VisualModel, isVisualNode, isVisualProfileRelationship, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
 import { Selections } from "./filter-selection-action";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
+import { createLogger } from "../application";
+
+const LOG = createLogger(import.meta.url);
 
 export type ClassesContextEntities = {
     classes: SemanticModelClass[],
@@ -285,8 +288,8 @@ function extendExtensionResultByNodeDuplicates(
         continue;
       }
       const representations = visualModel.getVisualEntitiesForRepresented(visualEntity.representedEntity);
-      if(representations === null) {
-        // TODO RadStr: Log error
+      if(representations.length === 0) {
+        LOG.error("While extending through node duplicates, we noticed that visual node can't be found when it is looked up through represented entity");
         continue;
       }
       for(const node of representations) {
@@ -366,7 +369,7 @@ export function isEntityInVisualModel(
     visualEntity = visualModel.getVisualEntity(entityId);
   }
   else {
-    visualEntity = visualModel.getVisualEntitiesForRepresented(entityId)?.[0] ?? null;
+    visualEntity = visualModel.getVisualEntitiesForRepresented(entityId)[0] ?? null;
   }
   const isInVisualModel = visualEntity !== null;
   return isInVisualModel;
@@ -462,14 +465,14 @@ function addToExtensionIfSatisfiesVisibilityFilter(
       if(isProfileClassEdge) {
         // We know that it is string, because we have explicitly set it above
         const edge = visualModel.getVisualEntity(edgeWhichAddedClass as string)
-        edgesWhichAddedVisualNodes = edge === null ? null : [edge];
+        edgesWhichAddedVisualNodes = edge === null ? [] : [edge];
       }
       else {
         // Must be string representing id
         edgesWhichAddedVisualNodes = visualModel.getVisualEntitiesForRepresented(edgeWhichAddedClass as string);
       }
 
-      if(visualNodesForTheAddedClass === null || edgesWhichAddedVisualNodes === null) {
+      if(visualNodesForTheAddedClass.length === 0 || edgesWhichAddedVisualNodes.length === 0) {
         // Shouldn't happen
         console.warn("Entities which should be part of visual model are not");
         return;
@@ -1068,8 +1071,8 @@ const getIdentifiersForEntity = (
       return null;
     }
 
-    const visualEntities = visualModel.getVisualEntitiesForRepresented(entityIdentifier) ?? null;
-    if(visualEntities === null) {
+    const visualEntities = visualModel.getVisualEntitiesForRepresented(entityIdentifier);
+    if(visualEntities.length === 0) {
       return null;
     }
 

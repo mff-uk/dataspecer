@@ -65,8 +65,8 @@ class VisualModelMock implements VisualModel {
     throw new Error("Method not implemented.");
   }
 
-  getVisualEntitiesForRepresented(identifier: RepresentedEntityIdentifier): VisualEntity[] | null {
-    return this.represented[identifier] ?? null;
+  getVisualEntitiesForRepresented(identifier: RepresentedEntityIdentifier): VisualEntity[] {
+    return this.represented[identifier] ?? [];
   }
 
   getVisualEntities(): Map<string, VisualEntity> {
@@ -551,25 +551,25 @@ describe("entityModelToUiState", () => {
       dsIdentifier: "g9kgr30n0km1ugv822",
       iri: "CsvFile",
       vocabulary: local,
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
     }, {
       displayLabel: "Drained Service",
       dsIdentifier: "e4xe32lyj06m2wbmps4",
       iri: "DrainedService",
       vocabulary: local,
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
     }, {
       displayLabel: "File",
       dsIdentifier: "jn7hbn6e3drm1ndoil4",
       iri: "File",
       vocabulary: local,
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
     }, {
       displayLabel: "Package Entity",
       dsIdentifier: "gjicauujarm1ndo8v7",
       iri: "Package",
       vocabulary: local,
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
     }];
 
     const classProfiles: UiClassProfile[] = [{
@@ -577,7 +577,7 @@ describe("entityModelToUiState", () => {
       dsIdentifier: "ib5x2ddfp9im3ugb4ks",
       iri: "File",
       vocabulary: local,
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
       profiles: [{
         profileOf: {
           entityDsIdentifier: "9oz2oxw29a9m3k7heco",
@@ -589,7 +589,7 @@ describe("entityModelToUiState", () => {
       dsIdentifier: "cjeraar9g8m3uhupii",
       iri: "File",
       vocabulary: local,
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
       profiles: [{
         profileOf: {
           entityDsIdentifier: "ib5x2ddfp9im3ugb4ks",
@@ -601,7 +601,7 @@ describe("entityModelToUiState", () => {
       dsIdentifier: "jau0qqop2om1tnwtba",
       iri: "Package",
       vocabulary: local,
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
       profiles: [{
         profileOf: {
           entityDsIdentifier: "gjicauujarm1ndo8v7",
@@ -615,7 +615,7 @@ describe("entityModelToUiState", () => {
       dsIdentifier: "ha8yahj15lm1tnwbv2",
       iri: "name",
       vocabulary: local,
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
       domain: {
         entityDsIdentifier: "gjicauujarm1ndo8v7",
         vocabularyDsIdentifier: local.dsIdentifier,
@@ -630,7 +630,7 @@ describe("entityModelToUiState", () => {
       dsIdentifier: "jvb8olk53shm1udb7wv",
       iri: "name",
       vocabulary: local,
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
       profiles: [{
         profileOf: {
           entityDsIdentifier: "ha8yahj15lm1tnwbv2",
@@ -651,7 +651,7 @@ describe("entityModelToUiState", () => {
       dsIdentifier: "icfwsrg699dm1ndp4o0",
       iri: "aaa",
       vocabulary: local,
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
       domain: {
         entityDsIdentifier: "gjicauujarm1ndo8v7",
         vocabularyDsIdentifier: local.dsIdentifier,
@@ -667,7 +667,7 @@ describe("entityModelToUiState", () => {
       dsIdentifier: "qj8evoy2gahm46r8olh",
       iri: "crookedPoint",
       vocabulary: local,
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
       profiles: [{
         profileOf: {
           entityDsIdentifier: "zqjoipz78wm41t042p",
@@ -687,7 +687,7 @@ describe("entityModelToUiState", () => {
       dsIdentifier: "tm0pr6de2oim398f6hy",
       iri: "aaa",
       vocabulary: local,
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
       profiles: [{
         profileOf: {
           entityDsIdentifier: "icfwsrg699dm1ndp4o0",
@@ -708,7 +708,7 @@ describe("entityModelToUiState", () => {
       dsIdentifier: "8b7m5yz3ml5m1ugvhj5",
       vocabulary: local,
       iri: null,
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
       parent: {
         entityDsIdentifier: "jn7hbn6e3drm1ndoil4",
         vocabularyDsIdentifier: local.dsIdentifier,
@@ -757,7 +757,7 @@ describe("entityModelToUiState", () => {
       dsIdentifier: "9oz2oxw29a9m3k7heco",
       iri: "File",
       vocabulary: second,
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
     }];
 
     const classProfiles: UiClassProfile[] = [];
@@ -767,7 +767,7 @@ describe("entityModelToUiState", () => {
       dsIdentifier: "quvpe342ram4b5mnrf",
       iri: "RepulsiveArea",
       vocabulary: second,
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
       domain: {
         entityDsIdentifier: "g9kgr30n0km1ugv822",
         vocabularyDsIdentifier: localVocabulary.getId(),
@@ -1009,7 +1009,7 @@ describe("semanticModelChangeToUiState", () => {
     const entities: AggregatedEntityWrapper[] = [{
       id: "class",
       sources: [],
-      visualEntities: null,
+      visualEntities: [],
       rawEntity: classInstance,
       aggregatedEntity: classInstance
     }];
@@ -1091,7 +1091,7 @@ describe("semanticModelChangeToUiState", () => {
     const entities: AggregatedEntityWrapper[] = [{
       id: "class",
       sources: [],
-      visualEntities: null,
+      visualEntities: [],
       rawEntity: classInstance,
       aggregatedEntity: classInstance
     }];
@@ -1151,7 +1151,7 @@ describe("semanticModelChangeToUiState", () => {
     const entities: AggregatedEntityWrapper[] = [{
       id: "gen",
       sources: [],
-      visualEntities: null,
+      visualEntities: [],
       rawEntity: generalizationInstance,
       aggregatedEntity: null,
     }];
@@ -1172,13 +1172,13 @@ describe("semanticModelChangeToUiState", () => {
         vocabulary: model,
         iri: ":admin",
         displayLabel: "Admin",
-        visualDsIdentifiers: null,
+        visualDsIdentifiers: [],
       }, {
         dsIdentifier: "user",
         vocabulary: model,
         iri: ":user",
         displayLabel: "User",
-        visualDsIdentifiers: null,
+        visualDsIdentifiers: [],
       }],
       classProfiles: [],
       attributes: [],
@@ -1195,7 +1195,7 @@ describe("semanticModelChangeToUiState", () => {
       dsIdentifier: "gen",
       vocabulary: model,
       iri: ":gen",
-      visualDsIdentifiers: null,
+      visualDsIdentifiers: [],
       parent: {
         entityDsIdentifier: "user",
         vocabularyDsIdentifier: model.dsIdentifier,
@@ -1215,7 +1215,7 @@ describe("semanticModelChangeToUiState", () => {
           vocabulary: model,
           iri: ":admin",
           displayLabel: "Admin",
-          visualDsIdentifiers: null,
+          visualDsIdentifiers: [],
         },
         state.classes[1]
       ],
@@ -1240,13 +1240,13 @@ describe("semanticModelChangeToUiState", () => {
         vocabulary: model,
         iri: ":user",
         displayLabel: "User",
-        visualDsIdentifiers: null,
+        visualDsIdentifiers: [],
       }, {
         dsIdentifier: "admin",
         vocabulary: model,
         iri: ":admin",
         displayLabel: "Admin",
-        visualDsIdentifiers: null,
+        visualDsIdentifiers: [],
       }],
       classProfiles: [],
       attributes: [],
@@ -1257,7 +1257,7 @@ describe("semanticModelChangeToUiState", () => {
         dsIdentifier: "gen",
         iri: ":gen",
         vocabulary: model,
-        visualDsIdentifiers: null,
+        visualDsIdentifiers: [],
         parent: {
           entityDsIdentifier: "user",
           vocabularyDsIdentifier: model.dsIdentifier,
@@ -1281,13 +1281,13 @@ describe("semanticModelChangeToUiState", () => {
         vocabulary: model,
         iri: ":admin",
         displayLabel: "Admin",
-        visualDsIdentifiers: null,
+        visualDsIdentifiers: [],
       }, {
         dsIdentifier: "user",
         vocabulary: model,
         iri: ":user",
         displayLabel: "User",
-        visualDsIdentifiers: null,
+        visualDsIdentifiers: [],
       }],
       generalizations: [],
     }
@@ -1306,7 +1306,7 @@ describe("semanticModelChangeToUiState", () => {
     const entities: AggregatedEntityWrapper[] = [{
       id: "gen",
       sources: [],
-      visualEntities: null,
+      visualEntities: [],
       rawEntity: generalizationInstance,
       aggregatedEntity: null,
     }];
@@ -1328,13 +1328,13 @@ describe("semanticModelChangeToUiState", () => {
         vocabulary: model,
         iri: ":user",
         displayLabel: "User",
-        visualDsIdentifiers: null,
+        visualDsIdentifiers: [],
       }, {
         dsIdentifier: "admin",
         vocabulary: model,
         iri: ":admin",
         displayLabel: "Admin",
-        visualDsIdentifiers: null,
+        visualDsIdentifiers: [],
       }],
       classProfiles: [],
       attributes: [],
@@ -1345,7 +1345,7 @@ describe("semanticModelChangeToUiState", () => {
         dsIdentifier: "gen",
         vocabulary: model,
         iri: ":gen",
-        visualDsIdentifiers: null,
+        visualDsIdentifiers: [],
         parent: {
           entityDsIdentifier: "user",
           vocabularyDsIdentifier: model.dsIdentifier,
@@ -1369,19 +1369,19 @@ describe("semanticModelChangeToUiState", () => {
         vocabulary: model,
         iri: ":admin",
         displayLabel: "Admin",
-        visualDsIdentifiers: null,
+        visualDsIdentifiers: [],
       }, {
         dsIdentifier: "user",
         vocabulary: model,
         iri: ":user",
         displayLabel: "User",
-        visualDsIdentifiers: null,
+        visualDsIdentifiers: [],
       }],
       generalizations: [{
         dsIdentifier: "gen",
         vocabulary: model,
         iri: ":gen",
-        visualDsIdentifiers: null,
+        visualDsIdentifiers: [],
         parent: {
           entityDsIdentifier: "admin",
           vocabularyDsIdentifier: model.dsIdentifier,
@@ -1425,7 +1425,7 @@ describe("visualModelToUiState", () => {
         iri: ":class",
         vocabulary: vocabulary,
         displayLabel: "Class",
-        visualDsIdentifiers: null,
+        visualDsIdentifiers: [],
       }]
     };
     const visual = new VisualModelMock({ "0": "#ff0000" }, {});
@@ -1470,7 +1470,7 @@ describe("visualModelToUiState", () => {
         iri: ":class",
         vocabulary: vocabulary,
         displayLabel: "Class",
-        visualDsIdentifiers: null,
+        visualDsIdentifiers: [],
       }],
     };
     const nextVisual = new VisualModelMock({ "0": "#ff0000" }, {});
@@ -1514,7 +1514,7 @@ describe("removeVisualModelToUiState", () => {
         vocabulary: vocabulary,
         iri: ":user",
         displayLabel: "User",
-        visualDsIdentifiers: null,
+        visualDsIdentifiers: [],
       }],
       classProfiles: [],
       attributes: [],
@@ -1542,7 +1542,7 @@ describe("removeVisualModelToUiState", () => {
         vocabulary: nextVocabulary,
         iri: ":user",
         displayLabel: "User",
-        visualDsIdentifiers: null,
+        visualDsIdentifiers: [],
       }],
     };
     // Final check.

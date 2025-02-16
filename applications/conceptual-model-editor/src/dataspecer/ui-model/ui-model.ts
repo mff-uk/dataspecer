@@ -77,7 +77,7 @@ interface Visual {
   /**
    * Identifiers of visual entities representation in current visual model.
    */
-  visualDsIdentifiers: EntityDsIdentifier[] | null;
+  visualDsIdentifiers: EntityDsIdentifier[];
 
 }
 

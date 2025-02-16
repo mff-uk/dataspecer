@@ -221,9 +221,9 @@ function semanticGeneralizationToUiGeneralization(
 
 function getVisualIdentifiers(visualModel: VisualModel | null, entity: { id: string }) {
   if (visualModel === null) {
-    return null;
+    return [];
   }
-  return visualModel.getVisualEntitiesForRepresented(entity.id)?.map(visualEntity => visualEntity.identifier) ?? null;
+  return visualModel.getVisualEntitiesForRepresented(entity.id).map(visualEntity => visualEntity.identifier);
 }
 
 function semanticClassToUiClass(
@@ -602,7 +602,7 @@ export function visualModelToUiState(
 function updateUiStateVisual(
   state: UiModelState,
   getModelColor: (model: ModelDsIdentifier) => string,
-  getVisualEntitiesForRepresented: (represented: RepresentedEntityIdentifier) => VisualEntity[] | null,
+  getVisualEntitiesForRepresented: (represented: RepresentedEntityIdentifier) => VisualEntity[],
 ): UiModelState {
   // We start with updating the models.
   const models: Record<string, UiVocabulary> = {};
@@ -622,13 +622,13 @@ function updateUiStateVisual(
   const updateEntity = <T extends {
     dsIdentifier: EntityDsIdentifier,
     vocabulary: UiVocabulary,
-    visualDsIdentifiers: EntityDsIdentifier[] | null,
+    visualDsIdentifiers: EntityDsIdentifier[],
   }>(item: T): T => {
     const visuals = getVisualEntitiesForRepresented(item.dsIdentifier);
     return {
       ...item,
       vocabulary: models[item.vocabulary.dsIdentifier],
-      visualDsIdentifiers: visuals?.map(visual => visual.identifier) ?? null,
+      visualDsIdentifiers: visuals.map(visual => visual.identifier),
     };
   };
 
@@ -658,7 +658,7 @@ export function removeVisualModelToUiState(
   // Then we remove the visual model information.
   const updatedVisual = updateUiStateVisual(state,
     () => defaultColor,
-    () => null);
+    () => []);
   return {
     ...updatedVisual,
     visualModel: null,

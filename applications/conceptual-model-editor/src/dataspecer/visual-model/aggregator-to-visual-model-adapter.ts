@@ -27,10 +27,6 @@ function synchronizeUpdates(
 ): void {
   for (const item of changedItems) {
     const visuals = visualModel.getVisualEntitiesForRepresented(item.id);
-    if (visuals === null) {
-      // There is no representation, so no change to propagate.
-      continue;
-    }
     for(const visual of visuals) {
       // We decide based on the type.
       if (isVisualNode(visual)) {
@@ -89,7 +85,7 @@ function updateVisualRelationship(
   // Check there is a source and a target.
   const visualSources = visualModel.getVisualEntitiesForRepresented(domain);
   const visualTargets = visualModel.getVisualEntitiesForRepresented(range);
-  if (visualSources === null || visualTargets === null) {
+  if (visualSources.length === 0 || visualTargets.length === 0) {
     visualModel.deleteVisualEntity(visual.identifier);
     return;
   }
@@ -135,7 +131,7 @@ function updateVisualProfileRelationshipForEnds(
 ): void {
   const visualSources = visualModel.getVisualEntitiesForRepresented(profiled);
   const visualTargets = visualModel.getVisualEntitiesForRepresented(profile);
-  if (visualSources === null || visualTargets === null) {
+  if (visualSources.length === 0 || visualTargets.length === 0) {
     visualModel.deleteVisualEntity(visual.identifier);
     return;
   }
@@ -163,10 +159,6 @@ function synchronizeRemoved(
 ): void {
   for (const identifier of removed) {
     const visuals = visualModel.getVisualEntitiesForRepresented(identifier);
-    if (visuals === null) {
-      // There is no visual for the entity.
-      continue;
-    }
     for(const visual of visuals) {
       visualModel.deleteVisualEntity(visual.identifier);
     }

@@ -14,7 +14,7 @@ export function addVisualRelationship(
 ) {
   const visualSources = visualModel.getVisualEntitiesForRepresented(source);
   const visualTargets = visualModel.getVisualEntitiesForRepresented(target);
-  if (visualSources === null || visualTargets === null) {
+  if (visualSources.length === 0 || visualTargets.length === 0) {
     throw new DataspecerError("Source or target are not in the visual model.");
   }
 

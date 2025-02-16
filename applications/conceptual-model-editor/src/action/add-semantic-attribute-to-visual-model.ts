@@ -17,8 +17,8 @@ export function addSemanticAttributeToVisualModelAction(
   //              - Implementation note: there are 2 ways either split into 2 methods
   //                - one adds to all visual domain nodes (this won't have position parameter at all)
   //                - second adds just to the one provided visual node - it will be same as this but with getVisualEntity here
-  const visualNode = visualModel.getVisualEntitiesForRepresented(domainIdentifier)?.[0] ?? null;
-  if(visualNode === null) {
+  const visualNode = visualModel.getVisualEntitiesForRepresented(domainIdentifier)[0];
+  if(visualNode === undefined) {
     notifications.error("The visual node representing domain is not present.");
     return;
   }

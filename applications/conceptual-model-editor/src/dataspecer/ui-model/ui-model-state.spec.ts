@@ -73,8 +73,8 @@ class VisualModelMock implements VisualModel {
     throw new Error("Method not implemented.");
   }
 
-  getVisualEntitiesForRepresented(identifier: RepresentedEntityIdentifier): VisualEntity[] | null {
-    return this.represented[identifier] ?? null;
+  getVisualEntitiesForRepresented(identifier: RepresentedEntityIdentifier): VisualEntity[] {
+    return this.represented[identifier] ?? [];
   }
 
   getVisualEntities(): Map<string, VisualEntity> {
@@ -214,7 +214,7 @@ describe("onChangeSemanticModels", () => {
         vocabulary: vocabulary,
         displayLabel: "",
         iri: "",
-        visualDsIdentifiers: null,
+        visualDsIdentifiers: [],
       }],
       classProfiles: [],
       attributes: [],
@@ -314,7 +314,7 @@ describe("onVisualEntitiesDidChange", () => {
         vocabulary: vocabulary,
         displayLabel: "",
         iri: "",
-        visualDsIdentifiers: null,
+        visualDsIdentifiers: [],
       }],
       classProfiles: [],
       attributes: [],
@@ -437,7 +437,7 @@ describe("onModelColorDidChange", () => {
         vocabulary: vocabulary,
         displayLabel: "",
         iri: "",
-        visualDsIdentifiers: null,
+        visualDsIdentifiers: [],
       }],
       classProfiles: [],
       attributes: [],

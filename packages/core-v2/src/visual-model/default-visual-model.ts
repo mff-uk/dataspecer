@@ -125,12 +125,10 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
     return this.entities.get(identifier) ?? null;
   }
 
-  // TODO PRQuestion - we could have empty array ([]) as substitute for null and remove null
-  //                   As for the actual values - we filter out the nulls, since they don't provide any useful info
-  getVisualEntitiesForRepresented(represented: RepresentedEntityIdentifier): VisualEntity[] | null {
+  getVisualEntitiesForRepresented(represented: RepresentedEntityIdentifier): VisualEntity[] {
     const identifiers = this.representedToEntity.get(represented);
     if (identifiers === undefined) {
-      return null;
+      return [];
     }
     const visualEntities = [];
     for(const identifier of identifiers) {

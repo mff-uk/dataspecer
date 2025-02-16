@@ -799,8 +799,9 @@ function createActionsContext(
     modelOfClassWhichStartedHighlighting: string
   ) => {
     withVisualModel(notifications, graph, (visualModel) => {
-      const nodeIdentifiers = visualModel.getVisualEntitiesForRepresented(classIdentifier)?.map(visualEntity => visualEntity.identifier);
-      const isClassInVisualModel = nodeIdentifiers !== undefined;
+      const nodeIdentifiers = visualModel.getVisualEntitiesForRepresented(classIdentifier)
+                                            .map(visualEntity => visualEntity.identifier);
+      const isClassInVisualModel = nodeIdentifiers.length > 0;
       if (!isClassInVisualModel) {
         return;
       }

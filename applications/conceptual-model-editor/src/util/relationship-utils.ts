@@ -141,5 +141,5 @@ export const hasBothEndsInVisualModel = (
 
   const domainOnCanvas = visualModel.getVisualEntitiesForRepresented(domainConcept);
   const rangeOnCanvas = visualModel.getVisualEntitiesForRepresented(rangeConcept);
-  return domainOnCanvas !== null && rangeOnCanvas !== null;
+  return domainOnCanvas.length > 0 && rangeOnCanvas.length > 0;
 };

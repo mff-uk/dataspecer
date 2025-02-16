@@ -62,7 +62,7 @@ export function createSemanticAssociation(
     if (isWritableVisualModel(visualModel)) {
       const sources = visualModel.getVisualEntitiesForRepresented(state.domain.identifier);
       const targets = visualModel.getVisualEntitiesForRepresented(state.range.identifier);
-      if (sources !== null && targets !== null) {
+      if (sources.length > 0 && targets.length > 0) {
         // Both ends are in the visual model with at least one node.
         addSemanticRelationshipToVisualModelAction(
           notifications, graph, visualModel,

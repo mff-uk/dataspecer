@@ -42,7 +42,7 @@ export function centerViewportToVisualEntityAction(
     return;
   }
   const visualEntities = visualModel.getVisualEntitiesForRepresented(entityIdentifier);
-  if (visualEntities === null) {
+  if (visualEntities.length === 0) {
     notifications.error("There is no visual representation of the entity.");
     return;
   }
@@ -56,7 +56,7 @@ export function centerViewportToVisualEntityAction(
 };
 
 /**
- * @returns undefined if the relationship with given identifier wasn't found. 
+ * @returns undefined if the relationship with given identifier wasn't found.
  *          Otherwise the found relationship or relationship usage -
  *          Note that the returned type depends on the actual entity
  */

@@ -23,15 +23,15 @@ export function removeFromVisualModelAction(
   const entitiesToRemove: VisualEntity[] = [];
   for (const identifier of identifiers) {
     // Find the visual entities.
-    let visualEntities: VisualEntity[] | null;
+    let visualEntities: VisualEntity[];
     if(areIdentifersOnInputVisual) {
       const visualEntity = visualModel.getVisualEntity(identifier)
-      visualEntities = visualEntity === null ? null : [visualEntity];
+      visualEntities = visualEntity === null ? [] : [visualEntity];
     }
     else {
       visualEntities = visualModel.getVisualEntitiesForRepresented(identifier);
     }
-    if (visualEntities === null) {
+    if (visualEntities.length === 0) {
       // The entity is not part of the visual model and thus should not be visible.
       // We ignore the operation for such entity and show an error.
       console.error("Missing visual entity.", { identifier, visualModel });

@@ -59,8 +59,8 @@ function addAttributesToRemoveToTheMap(
     return;
   }
   // TODO RadStr: Same issue as for addSemanticAttributeToVisualModelAction !!!
-  const node = visualModel.getVisualEntitiesForRepresented(domainIdentifier)?.[0] ?? null;
-  if(node === null) {
+  const node = visualModel.getVisualEntitiesForRepresented(domainIdentifier)[0];
+  if(node === undefined) {
     notifications.error("One of given attributes has not existing node as domain");
     return;
   }

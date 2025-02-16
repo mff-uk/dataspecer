@@ -38,7 +38,7 @@ export interface AggregatedEntityWrapper {
      *
      * @deprecated
      */
-    visualEntities: VisualEntity[] | null;
+    visualEntities: VisualEntity[];
 }
 
 type SupportedModels = EntityModel | VisualModel;
@@ -239,7 +239,7 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
                             entity, aggregatedDependencies),
                         rawEntity: entity,
                         sources: dependencies,
-                        visualEntities: null,
+                        visualEntities: [],
                     };
                 } else if (isSemanticModelRelationshipProfile(entity)) {
                     const dependencies = (this.profileEntityAggregator.dependencies(entity) ?? [])
@@ -257,7 +257,7 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
                             entity, aggregatedDependencies),
                         rawEntity: entity,
                         sources: dependencies,
-                        visualEntities: null,
+                        visualEntities: [],
                     };
                 } else if (
                     isSemanticModelClassUsage(entity)
@@ -277,7 +277,7 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
                         aggregatedEntity: aggregatedEntity,
                         rawEntity: entity,
                         sources: source ? [source] : [],
-                        visualEntities: null, // we do not have to deal with it
+                        visualEntities: [], // we do not have to deal with it
                     };
                 } else if (
                     isSemanticModelRelationshipUsage(entity)
@@ -308,7 +308,7 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
                         aggregatedEntity: aggregatedEntity,
                         rawEntity: entity,
                         sources: source ? [source] : [],
-                        visualEntities: null, // we do not have to deal with it
+                        visualEntities: [], // we do not have to deal with it
                     };
                 } else {
                     if (
@@ -323,7 +323,7 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
                         aggregatedEntity: entity,
                         rawEntity: entity,
                         sources: [],
-                        visualEntities: null, // we do not have to deal with it
+                        visualEntities: [], // we do not have to deal with it
                     };
                 }
 
@@ -393,7 +393,7 @@ export class SemanticModelAggregatorView {
             return entities;
         }
         for (const entity of Object.values(entities)) {
-            entity.visualEntities = this.aggregator.activeVisualModel?.getVisualEntitiesForRepresented(entity.id);
+            entity.visualEntities = this.aggregator.activeVisualModel?.getVisualEntitiesForRepresented(entity.id) ?? [];
         };
 
         return entities;

@@ -14,7 +14,7 @@ export function addSemanticProfileToVisualModelAction(
 ) {
   const visualSources = visualModel.getVisualEntitiesForRepresented(profile.id);
   const visualTargets = visualModel.getVisualEntitiesForRepresented(profiled.id);
-  if (visualSources === null || visualTargets === null) {
+  if (visualSources.length === 0 || visualTargets.length === 0) {
     console.warn("Ignored request to add profile as ends are missing in visual model.",
       {visualModel, profiled, profile});
     return;
