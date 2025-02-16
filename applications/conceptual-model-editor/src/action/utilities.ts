@@ -120,16 +120,23 @@ export function getSelections(
   shouldFilterOutProfileClassEdges: boolean,
   shouldGetVisualIdentifiers: boolean,
 ): Selections {
-  const nodeSelection = diagram.actions().getSelectedNodes();
-  let edgeSelection = diagram.actions().getSelectedEdges();
+  const nodeSelectionFromDiagram = diagram.actions().getSelectedNodes();
+  let edgeSelectionFromDiagram = diagram.actions().getSelectedEdges();
 
   if(shouldFilterOutProfileClassEdges) {
-    edgeSelection = edgeSelection.filter(edge => edge.type !== EdgeType.ClassProfile);
+    edgeSelectionFromDiagram = edgeSelectionFromDiagram.filter(edge => edge.type !== EdgeType.ClassProfile);
   }
 
+  let nodeSelection = extractIdentifiers(nodeSelectionFromDiagram, shouldGetVisualIdentifiers);
+  let edgeSelection = extractIdentifiers(edgeSelectionFromDiagram, shouldGetVisualIdentifiers);
+  if(!shouldGetVisualIdentifiers) {
+    // There may be duplicates, we have to remove them
+    nodeSelection = [...new Set(nodeSelection)];
+    edgeSelection = [...new Set(edgeSelection)];
+  }
   return {
-    nodeSelection: extractIdentifiers(nodeSelection, shouldGetVisualIdentifiers),
-    edgeSelection: extractIdentifiers(edgeSelection, shouldGetVisualIdentifiers)
+    nodeSelection,
+    edgeSelection
   };
 }
 

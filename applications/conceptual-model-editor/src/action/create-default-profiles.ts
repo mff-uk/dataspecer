@@ -26,8 +26,8 @@ export async function createDefaultProfilesAction(
   options: Options,
   classesContext: ClassesContextType,
   visualModel: VisualModel | null,
-  nodesToProfile: string[],
-  edgesToProfile: string[],
+  semanticClassesToProfile: string[],
+  semanticRelationshipsToProfile: string[],
   shouldBeAddedToVisualModel: boolean
 ): Promise<void> {
   const writableSemanticModel = findAnyWritableModelFromRawInput(graph.models, visualModel);
@@ -38,9 +38,9 @@ export async function createDefaultProfilesAction(
   // We have to wait otherwise we might start creating relation profiles for non-existing class profiles
   const createdClassProfiles = await createDefaultClassProfiles(
     notifications, graph, diagram, options, classesContext, visualModel,
-    nodesToProfile, shouldBeAddedToVisualModel);
+    semanticClassesToProfile, shouldBeAddedToVisualModel);
   createDefaultRelationshipProfiles(
-    notifications, graph, visualModel, writableSemanticModel, edgesToProfile,
+    notifications, graph, visualModel, writableSemanticModel, semanticRelationshipsToProfile,
     createdClassProfiles, shouldBeAddedToVisualModel);
 };
 
