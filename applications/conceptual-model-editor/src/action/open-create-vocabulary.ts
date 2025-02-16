@@ -1,7 +1,6 @@
 import { createRdfsModel, createSgovModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { EntityModel } from "@dataspecer/core-v2";
-import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 
 import { createLogger } from "../application";
@@ -93,8 +92,3 @@ function addModelsToGraph(graph: ModelGraphContextType, models: EntityModel[]) {
     }
   }
 }
-
-const addVisualModelToGraph = (graph: ModelGraphContextType, model: WritableVisualModel) => {
-  graph.aggregator.addModel(model);
-  graph.setVisualModels((previous) => previous.set(model.getId(), model));
-};
