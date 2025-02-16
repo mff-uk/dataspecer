@@ -18,7 +18,7 @@ export const ViewManagement = () => {
   } = useModelGraphContext();
   const { language } = useOptions();
 
-  const { viewId, updateViewId: setViewIdSearchParam } = useQueryParamsContext();
+  const { updateViewId: setViewIdSearchParam } = useQueryParamsContext();
 
   const activeViewId = aggregatorView.getActiveViewId();
   const availableVisualModelIds = aggregatorView.getAvailableVisualModels()
@@ -34,8 +34,7 @@ export const ViewManagement = () => {
       return;
     }
     setViewIdSearchParam(activeViewId ?? null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeViewId]);
+  }, [activeViewId, setViewIdSearchParam]);
 
   const setActiveViewId = (modelId: string) => {
     aggregatorView.changeActiveVisualModel(modelId);
@@ -68,7 +67,7 @@ export const ViewManagement = () => {
   return (
     <DropDownCatalog
       label="view"
-      valueSelected={viewId}
+      valueSelected={activeViewId ?? null}
       openCatalogTitle="change view"
       availableValues={availableVisualModelIds}
       onValueSelected={(value) => handleViewSelected(value)}
