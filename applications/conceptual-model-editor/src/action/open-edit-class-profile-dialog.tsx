@@ -1,5 +1,5 @@
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { VisualModel } from "@dataspecer/core-v2/visual-model";
+import { isWritableVisualModel, VisualModel } from "@dataspecer/core-v2/visual-model";
 import { EntityModel } from "@dataspecer/core-v2";
 import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
@@ -12,6 +12,7 @@ import { createEditClassProfileDialog, createEditClassProfileDialogState } from 
 import { EditClassProfileDialogState } from "../dialog/class-profile/edit-class-profile-dialog-controller";
 import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { modifyCmeClassProfile } from "../dataspecer/cme-model/operation/modify-cmd-class-profile";
+import { updateVisualNodeProfiles } from "../dataspecer/visual-model/operation/update-visual-node-profiles";
 
 export function openEditClassProfileDialogAction(
   options: Options,
@@ -28,6 +29,17 @@ export function openEditClassProfileDialogAction(
 
   const onConfirm = (nextState: EditClassProfileDialogState) => {
     updateSemanticClassProfile(notifications, entity, graph.models, state, nextState);
+    // We need to update visual model: profiles
+    if (isWritableVisualModel(visualModel)) {
+      updateVisualNodeProfiles(
+        visualModel, entity, model.getId(),
+        state.profiles.map(item => ({
+          identifier: item.identifier,
+          model: item.vocabularyDsIdentifier})),
+        nextState.profiles.map(item => ({
+          identifier: item.identifier,
+          model: item.vocabularyDsIdentifier})));
+    }
   };
 
   dialogs.openDialog(createEditClassProfileDialog(state, onConfirm));

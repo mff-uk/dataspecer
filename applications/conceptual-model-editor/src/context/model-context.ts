@@ -6,8 +6,8 @@ import type { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/i
 import { type WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { randomColorFromPalette } from "../util/color-utils";
-import { createWritableVisualModel } from "../util/visual-model-utils";
 import { removeEntityModel } from "../dataspecer/visual-model/operation/remove-entity-model";
+import { createEmptyWritableVisualModel } from "../dataspecer/visual-model/visual-model-factory";
 
 // This is to compile with TypeScript as we can not use
 // the type directly for aggregator.
@@ -74,11 +74,14 @@ export const useModelGraphContext = (): UseModelGraphContextType => {
 
   const addModel = (...models: EntityModel[]) => {
     // Make sure there is a view model.
-    if (!aggregatorView.getActiveVisualModel()) {
-      const visualModel = createWritableVisualModel();
+    if (aggregatorView.getActiveVisualModel() === null) {
+      console.warn("Creating default visual model.")
+      const visualModel = createEmptyWritableVisualModel();
+      visualModel.setLabel({"en": "Default"});
       addVisualModel(visualModel);
       aggregatorView.changeActiveVisualModel(visualModel.getId());
     }
+
     // Add models.
     for (const model of models) {
       aggregator.addModel(model);

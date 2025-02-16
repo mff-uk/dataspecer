@@ -6,7 +6,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { SemanticModelAggregatorType } from "../semantic-model";
 import { updateUrlQuery } from "./url-query";
 import { loadPackageModels } from "../dataspecer-service";
-import { createWritableVisualModel } from "../visual-model/visual-model-factory";
+import { createEmptyWritableVisualModel } from "../visual-model/visual-model-factory";
 
 /**
  * Keep in mind that models do not change!
@@ -65,7 +65,7 @@ function initializeStandalone(
   model.setAlias("My model");
 
   // Default view model.
-  const visualModel = createWritableVisualModel();
+  const visualModel = createEmptyWritableVisualModel();
   visualModel.setModelColor(model.getId(), "#3480eb");
 
   // Aggregator.
