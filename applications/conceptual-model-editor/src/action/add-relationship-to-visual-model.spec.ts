@@ -2,12 +2,10 @@
  * Tests addSemanticRelationshipToVisualModelAction and its interaction with createNodeDuplicateAction.
  */
 
-
 import { expect, test } from "vitest";
 import { EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { createDefaultVisualModelFactory, VisualRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { ClassesContextType } from "../context/classes-context";
 import { entityModelsMapToCmeVocabulary } from "../dataspecer/semantic-model/semantic-model-adapter";
 import { noActionNotificationServiceWriter } from "../notification/notification-service-context";
 import { CreatedEntityOperationResult, createGeneralization, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
@@ -109,7 +107,7 @@ test("Create node duplicate and after that create relationship from the original
   expect([...visualModel.getVisualEntities().entries()].length).toBe(6);
   expect(visualModel.getVisualEntitiesForRepresented(createdRelationships[0].identifier)?.length).toBe(1);
   const relationship = visualModel
-                        .getVisualEntitiesForRepresented(createdRelationships[0].identifier)![0] as VisualRelationship;
+    .getVisualEntitiesForRepresented(createdRelationships[0].identifier)![0] as VisualRelationship;
   expect(relationship.visualSource).toBe(visualSource.identifier);
   expect(relationship.visualTarget).toBe(visualTarget.identifier);
 });
@@ -272,15 +270,15 @@ const prepareModelWithFourNodes = () => {
   const graph: ModelGraphContextType = {
     aggregator,
     aggregatorView,
-    setAggregatorView: function (value: SetStateAction<SemanticModelAggregatorView>): void {
+    setAggregatorView: function (_value: SetStateAction<SemanticModelAggregatorView>): void {
       throw new Error("Function not implemented.");
     },
     models: models,
-    setModels: function (value: SetStateAction<Map<string, EntityModel>>): void {
+    setModels: function (_value: SetStateAction<Map<string, EntityModel>>): void {
       throw new Error("Function not implemented.");
     },
     visualModels,
-    setVisualModels: function (value: SetStateAction<Map<string, WritableVisualModel>>): void {
+    setVisualModels: function (_value: SetStateAction<Map<string, WritableVisualModel>>): void {
       throw new Error("Function not implemented.");
     }
   };
@@ -296,23 +294,6 @@ const prepareModelWithFourNodes = () => {
     graph,
   };
 }
-
-const createEmptyClassesContextType = (): ClassesContextType => {
-  const classes: ClassesContextType = {
-    classes: [],
-    allowedClasses: [],
-    setAllowedClasses: function (_) { },
-    relationships: [],
-    generalizations: [],
-    usages: [],
-    sourceModelOfEntityMap: new Map(),
-    rawEntities: [],
-    classProfiles: [],
-    relationshipProfiles: []
-  };
-
-  return classes;
-};
 
 const createNewVisualNodeForTesting = (visualModel: WritableVisualModel, model: string, semanticIdentifierAsNumber: number) => {
   const visualId = visualModel.addVisualNode({
