@@ -26,8 +26,8 @@ export async function createDefaultProfilesAction(
   options: Options,
   classesContext: ClassesContextType,
   visualModel: VisualModel | null,
-  nodesToProfile: string[],
-  edgesToProfile: string[],
+  semanticClassesToProfile: string[],
+  semanticRelationshipsToProfile: string[],
   shouldBeAddedToVisualModel: boolean
 ): Promise<void> {
   const writableSemanticModel = findAnyWritableModelFromRawInput(graph.models, visualModel);
@@ -36,8 +36,12 @@ export async function createDefaultProfilesAction(
     return;
   }
   // We have to wait otherwise we might start creating relation profiles for non-existing class profiles
-  const createdClassProfiles = await createDefaultClassProfiles(notifications, graph, diagram, options, classesContext, visualModel, nodesToProfile, shouldBeAddedToVisualModel);
-  createDefaultRelationshipProfiles(notifications, graph, visualModel, writableSemanticModel, edgesToProfile, createdClassProfiles, shouldBeAddedToVisualModel)
+  const createdClassProfiles = await createDefaultClassProfiles(
+    notifications, graph, diagram, options, classesContext, visualModel,
+    semanticClassesToProfile, shouldBeAddedToVisualModel);
+  createDefaultRelationshipProfiles(
+    notifications, graph, visualModel, writableSemanticModel, semanticRelationshipsToProfile,
+    createdClassProfiles, shouldBeAddedToVisualModel);
 };
 
 //
@@ -59,7 +63,9 @@ async function createDefaultClassProfiles(
 ): Promise<Record<string, string | null>> {
   const createdClassProfiles: Record<string, string | null> = {};
   for(const selectedEntityId of nodesToProfile) {
-    const createdClassProfile = await createDefaultClassProfile(notifications, graph, diagram, options, classesContext, visualModel, selectedEntityId, shouldBeAddedToVisualModel);
+    const createdClassProfile = await createDefaultClassProfile(
+      notifications, graph, diagram, options, classesContext, visualModel,
+      selectedEntityId, shouldBeAddedToVisualModel);
     createdClassProfiles[selectedEntityId] = createdClassProfile;
   }
 
@@ -105,7 +111,10 @@ async function createDefaultClassProfile(
 
   if(shouldBeAddedToVisualModel) {
     if(isWritableVisualModel(visualModel)) {
-      await addSemanticClassProfileToVisualModelAction(notifications, graph, classesContext, visualModel, diagram, createdClassProfile.identifier, createdClassProfile.model.getId(), null);
+      await addSemanticClassProfileToVisualModelAction(
+        notifications, graph, classesContext, visualModel, diagram,
+        createdClassProfile.identifier, createdClassProfile.model.getId(),
+        null);
     }
   }
 
@@ -149,17 +158,19 @@ function createDefaultRelationshipProfiles(
   createdClassProfiles: Record<string, string | null>,
   shouldBeAddedToVisualModel: boolean
 ) {
-  const writableSemanticModel = graph.models.get(writableCmeModel.dsIdentifier) as InMemorySemanticModel;   // Casting ... the correctness should be already validated
+  // Casting ... the correctness should be already validated
+  const writableSemanticModel = graph.models.get(writableCmeModel.dsIdentifier) as InMemorySemanticModel;
   for(const edgeToProfile of edgesToProfile) {
     createDefaultRelationshipProfile(
-      notifications, graph, writableSemanticModel, visualModel,
-      edgeToProfile, createdClassProfiles, shouldBeAddedToVisualModel);
+      notifications, graph, writableSemanticModel, visualModel, edgeToProfile,
+      createdClassProfiles, shouldBeAddedToVisualModel);
   }
 }
 
 /**
  * Creates relationship profile of given entity with default parameters,
- * that it is the resulting relationship profile is the same as if the user opened the dialog and clicked accept without changing anything.
+ * that it is the resulting relationship profile is the same as if the user opened the dialog and
+ * clicked accept without changing anything.
  */
 function createDefaultRelationshipProfile(
   notifications: UseNotificationServiceWriterType,
@@ -214,7 +225,8 @@ function createDefaultRelationshipProfile(
 
   if(shouldBeAddedToVisualModel) {
     if(isWritableVisualModel(visualModel)) {
-      addSemanticRelationshipProfileToVisualModelAction(notifications, graph, visualModel, identifier, model.getId());
+      addSemanticRelationshipProfileToVisualModelAction(
+        notifications, graph, visualModel, identifier, model.getId(), null, null);
     }
   }
 }

@@ -54,7 +54,7 @@ export const EntityRow = (props: {
         remove: () => void;
     };
     targetable: null | {
-        centerViewportOnEntityHandler: () => void;
+        centerViewportOnEntityHandler: (entityNumberToBeCentered: number) => void;
         isTargetable: boolean;
     };
     sourceModel?: EntityModel;

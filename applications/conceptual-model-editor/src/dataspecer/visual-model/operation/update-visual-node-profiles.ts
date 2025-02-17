@@ -18,34 +18,37 @@ export function updateVisualNodeProfiles(
   next: EntityReference[],
 ) {
   const { create, remove } = createChangeList(previous, next, isEntityReferenceEqual);
-  const entityVisual = visualModel.getVisualEntityForRepresented(entity.id);
-  if (entityVisual === null) {
+  const entityVisuals = visualModel.getVisualEntitiesForRepresented(entity.id);
+  if (entityVisuals.length === 0) {
     // There should be no relationship for this entity in the model.
     return;
   }
   console.log(">updateVisualNodeProfiles", {previous, next, create, remove});
   // Add new.
   for (const item of create) {
-    const visual = visualModel.getVisualEntityForRepresented(item.identifier);
-    if (visual === null) {
+    const visuals = visualModel.getVisualEntitiesForRepresented(item.identifier);
+    if (visuals.length === 0) {
       continue;
     }
-    visualModel.addVisualProfileRelationship({
-      entity: entity.id,
-      model,
-      visualSource: entityVisual.identifier,
-      visualTarget: visual.identifier,
-      waypoints: [],
-    });
+    for(const entityVisual of entityVisuals) {
+      for(const visual of visuals) {
+        visualModel.addVisualProfileRelationship({
+          entity: entity.id,
+          model,
+          visualSource: entityVisual.identifier,
+          visualTarget: visual.identifier,
+          waypoints: [],
+        });
+      }
+    }
   }
 
   // Delete removed.
   for (const item of remove) {
-    const visual = visualModel.getVisualEntityForRepresented(item.identifier);
-    if (visual === null) {
-      continue;
+    const visuals = visualModel.getVisualEntitiesForRepresented(item.identifier);
+    for(const visual of visuals) {
+      visualModel.deleteVisualEntity(visual.identifier);
     }
-    visualModel.deleteVisualEntity(visual.identifier);
   }
 }
 

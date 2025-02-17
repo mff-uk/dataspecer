@@ -60,13 +60,15 @@ export function createSemanticAssociation(
   if(shouldAddToVisualModel) {
     // Add to visual model if possible.
     if (isWritableVisualModel(visualModel)) {
-      const source = visualModel.getVisualEntityForRepresented(state.domain.identifier);
-      const target = visualModel.getVisualEntityForRepresented(state.range.identifier);
-      if (source !== null && target !== null) {
-        // Both ends are in the visual model.
+      const sources = visualModel.getVisualEntitiesForRepresented(state.domain.identifier);
+      const targets = visualModel.getVisualEntitiesForRepresented(state.range.identifier);
+      if (sources.length > 0 && targets.length > 0) {
+        // Both ends are in the visual model with at least one node.
         addSemanticRelationshipToVisualModelAction(
           notifications, graph, visualModel,
-          createResult.identifier, createResult.model.getId());
+          createResult.identifier, createResult.model.getId(),
+          sources.map(source => source.identifier),
+          targets.map(target => target.identifier))
       }
     }
   }

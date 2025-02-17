@@ -16,6 +16,14 @@ import { UseClassesContextType } from "../context/classes-context";
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 
+/**
+ *
+ * @param visualSourceIdentifier specifies the visual source of the connection,
+ * if set to null then the default ones taken from the {@link semanticSourceIdentifier} are used.
+ * @param visualTargetIdentifier specifies the visual target of the connection,
+ * if set to null then the default ones taken from the {@link semanticTargetIdentifier} are used.
+ * @returns
+ */
 export function openCreateConnectionDialogAction(
   options: Options,
   dialogs: DialogApiContextType,
@@ -23,18 +31,27 @@ export function openCreateConnectionDialogAction(
   useClasses: UseClassesContextType,
   graph: ModelGraphContextType,
   visualModel: WritableVisualModel,
-  sourceIdentifier: string,
-  targetIdentifier: string,
+  semanticSourceIdentifier: string,
+  semanticTargetIdentifier: string,
+  visualSourceIdentifier: string | null,
+  visualTargetIdentifier: string | null,
 ) {
   const entities = graph.aggregatorView.getEntities();
 
-  const source = entities[sourceIdentifier]?.aggregatedEntity ?? null;
+  const source = entities[semanticSourceIdentifier]?.aggregatedEntity ?? null;
 
-  const target = entities[targetIdentifier]?.aggregatedEntity ?? null;
+  const target = entities[semanticTargetIdentifier]?.aggregatedEntity ?? null;
 
   if (source === null || target === null) {
     notifications.error("Can not find source or target in semantic model.");
-    console.warn("Can not find source or target in semantic model.", { source, target, sourceIdentifier, targetIdentifier, entities });
+    console.warn("Can not find source or target in semantic model.",
+      {
+        source,
+        target,
+        sourceIdentifier: semanticSourceIdentifier,
+        targetIdentifier: semanticTargetIdentifier,
+        entities
+      });
     return;
   }
 
@@ -61,8 +78,11 @@ export function openCreateConnectionDialogAction(
     }
     // Add visual representation.
     if (state.type === ConnectionType.Association) {
+      const visualSources = visualSourceIdentifier === null ? null : [visualSourceIdentifier];
+      const visualTargets = visualTargetIdentifier === null ? null : [visualTargetIdentifier];
       addSemanticRelationshipToVisualModelAction(
-        notifications, graph, visualModel, result.id, state.model.getId());
+        notifications, graph, visualModel, result.id, state.model.getId(),
+        visualSources, visualTargets);
     } else {
       addSemanticGeneralizationToVisualModelAction(
         notifications, graph, visualModel, result.id, state.model.getId());

@@ -40,8 +40,10 @@ export async function addSemanticEntitiesToVisualModelAction(
   diagram: UseDiagramType,
   entities: EntityToAddToVisualModel[],
 ) {
-  const validatedEntitiesToAddToVisualModel: ValidatedDataAboutEntity[] = getValidatedDataAboutEntities(notifications, graph, visualModel, entities);
-  const {nodes, edges} = await splitIntoNodesAndEdgesAndUpdatePositions(notifications, classes, graph, visualModel, diagram, validatedEntitiesToAddToVisualModel);
+  const validatedEntitiesToAddToVisualModel: ValidatedDataAboutEntity[] = getValidatedDataAboutEntities(
+    notifications, graph, visualModel, entities);
+  const {nodes, edges} = await splitIntoNodesAndEdgesAndUpdatePositions(
+    notifications, classes, graph, visualModel, diagram, validatedEntitiesToAddToVisualModel);
   // Add to visual model
   await addClassesAndClassProfilesToVisualModel(notifications, classes, graph, visualModel, diagram, nodes);
   addConnectionsToVisualModel(notifications, graph, visualModel, edges);
@@ -80,7 +82,9 @@ async function splitIntoNodesAndEdgesAndUpdatePositions(
       }
       nodes.push(validatedEntityToAddToVisualModel);
     }
-    else if(isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity) || isSemanticModelGeneralization(entity)) {
+    else if(isSemanticModelRelationship(entity) ||
+            isSemanticModelRelationshipUsage(entity) ||
+            isSemanticModelGeneralization(entity)) {
       edges.push(validatedEntityToAddToVisualModel);
     }
     else {  // Maybe unnecessary
@@ -88,7 +92,8 @@ async function splitIntoNodesAndEdgesAndUpdatePositions(
     }
   }
 
-  const positionsFoundThroughLayouting = await findPositionForNewNodesUsingLayouting(notifications, diagram, graph, visualModel, classes, classAndClassProfilesToFindPositionsFor);
+  const positionsFoundThroughLayouting = await findPositionForNewNodesUsingLayouting(
+    notifications, diagram, graph, visualModel, classes, classAndClassProfilesToFindPositionsFor);
   nodePositions = {
     ...nodePositions,
     ...positionsFoundThroughLayouting,
@@ -114,7 +119,7 @@ function getValidatedDataAboutEntities(
     const entityIdentifier = entityToAddToVisualModel.identifier;
     const position = entityToAddToVisualModel.position ?? null;
 
-    const isAlreadyInVisualModel = visualModel.getVisualEntityForRepresented(entityIdentifier) !== null;
+    const isAlreadyInVisualModel = visualModel.getVisualEntitiesForRepresented(entityIdentifier).length > 0;
     if(isAlreadyInVisualModel) {
       continue;
     }
@@ -148,10 +153,12 @@ async function addClassesAndClassProfilesToVisualModel(
   for(const {entity, model, position} of validatedNodesData) {
     const modelIdentifier = model.getId();
     if(isSemanticModelClass(entity)) {
-      await addSemanticClassToVisualModelAction(notifications, graph, classes, visualModel, diagram, entity.id, modelIdentifier, position);
+      await addSemanticClassToVisualModelAction(
+        notifications, graph, classes, visualModel, diagram, entity.id, modelIdentifier, position);
     }
     else {
-      await addSemanticClassProfileToVisualModelAction(notifications, graph, classes, visualModel, diagram, entity.id, modelIdentifier, position);
+      await addSemanticClassProfileToVisualModelAction(
+        notifications, graph, classes, visualModel, diagram, entity.id, modelIdentifier, position);
     }
   }
 }
@@ -165,10 +172,12 @@ function addConnectionsToVisualModel(
   for(const {entity, model} of validatedEdgesData) {
     const modelIdentifier = model.getId();
     if(isSemanticModelRelationship(entity)) {
-      addSemanticRelationshipToVisualModelAction(notifications, graph, visualModel, entity.id, modelIdentifier);
+      addSemanticRelationshipToVisualModelAction(
+        notifications, graph, visualModel, entity.id, modelIdentifier, null, null);
     }
     else if(isSemanticModelRelationshipUsage(entity)) {
-      addSemanticRelationshipProfileToVisualModelAction(notifications, graph, visualModel, entity.id, modelIdentifier);
+      addSemanticRelationshipProfileToVisualModelAction(
+        notifications, graph, visualModel, entity.id, modelIdentifier, null, null);
     }
     else if(isSemanticModelGeneralization(entity)) {
       addSemanticGeneralizationToVisualModelAction(notifications, graph, visualModel, entity.id, modelIdentifier);

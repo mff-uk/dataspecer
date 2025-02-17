@@ -48,7 +48,7 @@ export const useCatalogHighlightingController = () => {
     reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
     modelOfClassWhichStartedHighlighting: string | null
   ) => {
-    changeHighlight(entityId, reactFlowInstance, false, modelOfClassWhichStartedHighlighting);
+    changeHighlight([entityId], reactFlowInstance, false, modelOfClassWhichStartedHighlighting);
   };
 
   const getClassNames = useCallback((semanticEntityId: string) => {
