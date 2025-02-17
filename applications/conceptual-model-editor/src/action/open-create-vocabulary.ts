@@ -1,7 +1,6 @@
 import { createRdfsModel, createSgovModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { EntityModel } from "@dataspecer/core-v2";
-import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 
 import { createLogger } from "../application";
@@ -9,8 +8,8 @@ import { ModelGraphContextType } from "../context/model-context";
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { createAddModelDialog } from "../dialog/model/create-model-dialog";
 import { CreateModelState, TabType } from "../dialog/model/create-model-dialog-controller";
-import { createWritableVisualModel } from "../util/visual-model-utils";
 import { randomColorFromPalette } from "../util/color-utils";
+import { createDefaultWritableVisualModel } from "../dataspecer/visual-model/visual-model-factory";
 
 const LOG = createLogger(import.meta.url);
 
@@ -80,9 +79,9 @@ export function createVocabulary(
 function addModelsToGraph(graph: ModelGraphContextType, models: EntityModel[]) {
   // If there is no visual model, we create a default one.
   if (graph.aggregatorView.getActiveVisualModel() === null) {
-    const defaultVisualModel = createWritableVisualModel();
-    addVisualModelToGraph(graph, defaultVisualModel);
-    graph.aggregatorView.changeActiveVisualModel(defaultVisualModel.getId());
+    console.warn("Creating default visual model.")
+    const visualModel = createDefaultWritableVisualModel(models);
+    graph.aggregatorView.changeActiveVisualModel(visualModel.getId());
   }
 
   for (const model of models) {
@@ -93,8 +92,3 @@ function addModelsToGraph(graph: ModelGraphContextType, models: EntityModel[]) {
     }
   }
 }
-
-const addVisualModelToGraph = (graph: ModelGraphContextType, model: WritableVisualModel) => {
-  graph.aggregator.addModel(model);
-  graph.setVisualModels((previous) => previous.set(model.getId(), model));
-};

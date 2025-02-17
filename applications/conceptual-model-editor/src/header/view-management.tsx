@@ -2,22 +2,31 @@ import { useEffect } from "react";
 import { useModelGraphContext } from "../context/model-context";
 import { DropDownCatalog } from "../components/management/dropdown-catalog";
 import { useQueryParamsContext } from "../context/query-params-context";
-import { createWritableVisualModel } from "../util/visual-model-utils";
+import { createWritableVisualModel } from "../dataspecer/visual-model/visual-model-factory";
+import { languageStringToString } from "../utilities/string";
+import { configuration } from "../application";
+import { useOptions } from "../application/options";
 
 export const ViewManagement = () => {
   const {
     aggregatorView,
     aggregator,
     setAggregatorView,
-    addVisualModel: addVisualModelToGraph,
+    addVisualModel,
     visualModels,
-    removeVisualModel: removeVisualModelFromModels,
+    removeVisualModel
   } = useModelGraphContext();
+  const { language } = useOptions();
 
-  const { viewId, updateViewId: setViewIdSearchParam } = useQueryParamsContext();
+  const { updateViewId: setViewIdSearchParam } = useQueryParamsContext();
 
   const activeViewId = aggregatorView.getActiveViewId();
-  const availableVisualModelIds = aggregatorView.getAvailableVisualModels().map(m => [m.getId(), m.getLabel()?.["en"]] as [string, string]);
+  const availableVisualModelIds = aggregatorView.getAvailableVisualModels()
+    .map(item => [
+      item.getId(),
+      item.getLabel() === null ?  null : languageStringToString(
+        configuration().languagePreferences, language,  item.getLabel()!),
+    ] as [string, string]);
 
   useEffect(() => {
     if (activeViewId === undefined) {
@@ -25,8 +34,7 @@ export const ViewManagement = () => {
       return;
     }
     setViewIdSearchParam(activeViewId ?? null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeViewId]);
+  }, [activeViewId, setViewIdSearchParam]);
 
   const setActiveViewId = (modelId: string) => {
     aggregatorView.changeActiveVisualModel(modelId);
@@ -39,15 +47,10 @@ export const ViewManagement = () => {
   };
 
   const handleCreateNewView = () => {
-    // FIXME: workaround for having the same color for different views, better to have model colors in a package config or sth
     const activeVisualModel = aggregatorView.getActiveVisualModel();
-    const model = createWritableVisualModel();
-    if (activeVisualModel) {
-      for (const [identifier, data] of activeVisualModel.getModelsData()) {
-        model.setModelColor(identifier, data.color ?? "white");
-      }
-    }
-    addVisualModelToGraph(model);
+    const model = createWritableVisualModel(activeVisualModel);
+    model.setLabel({"en": "View"});
+    addVisualModel(model);
     aggregatorView.changeActiveVisualModel(model.getId());
     setAggregatorView(aggregator.getView());
     setViewIdSearchParam(activeViewId ?? null);
@@ -58,13 +61,13 @@ export const ViewManagement = () => {
     if (!visualModel) {
       return;
     }
-    removeVisualModelFromModels(viewId);
+    removeVisualModel(viewId);
   };
 
   return (
     <DropDownCatalog
-      catalogName="view"
-      valueSelected={viewId}
+      label="view"
+      valueSelected={activeViewId ?? null}
       openCatalogTitle="change view"
       availableValues={availableVisualModelIds}
       onValueSelected={(value) => handleViewSelected(value)}

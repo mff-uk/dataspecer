@@ -205,7 +205,7 @@ export interface ModelVisualInformation extends VisualEntity {
 
 }
 
-export const MODEL_VISUAL_TYPE = "visual-model-data";
+export const MODEL_VISUAL_TYPE = "http://dataspecer.com/resources/local/visual-model";
 
 export function isModelVisualInformation(what: Entity): what is ModelVisualInformation {
     return what.type.includes(MODEL_VISUAL_TYPE);

@@ -33,13 +33,13 @@ import { DialogContextProvider } from "./dialog/dialog-context";
 import { DialogRenderer } from "./dialog/dialog-renderer";
 import { NotificationList } from "./notification";
 import { ActionsContextProvider } from "./action/actions-react-binding";
-import { createWritableVisualModel } from "./util/visual-model-utils";
 import { OptionsContextProvider } from "./application/options";
 
 import "./page.css";
 import { migrateVisualModelFromV0 } from "./dataspecer/visual-model/visual-model-v0-to-v1";
 import { ExplorationContextProvider } from "./diagram/features/highlighting/exploration/context/highlighting-exploration-mode";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { createDefaultWritableVisualModel } from "./dataspecer/visual-model/visual-model-factory";
 
 const _semanticModelAggregator = new SemanticModelAggregator();
 type SemanticModelAggregatorType = typeof _semanticModelAggregator;
@@ -198,18 +198,18 @@ function initializeWithoutPackage(
 ) {
   const tempAggregator = new SemanticModelAggregator();
 
-  // Create visual model.
-  const visualModel = createWritableVisualModel();
-  setVisualModels(new Map([[visualModel.getId(), visualModel]]));
-  tempAggregator.addModel(visualModel);
-  const tempAggregatorView = tempAggregator.getView();
-  tempAggregatorView.changeActiveVisualModel(visualModel.getId());
-
   // Create semantic model.
   const model = new InMemorySemanticModel();
   model.setAlias("Default local model");
   setModels(new Map([[model.getId(), model]]));
   tempAggregator.addModel(model);
+
+  // Create visual model.
+  const visualModel = createDefaultWritableVisualModel([model]);
+  setVisualModels(new Map([[visualModel.getId(), visualModel]]));
+  tempAggregator.addModel(visualModel);
+  const tempAggregatorView = tempAggregator.getView();
+  tempAggregatorView.changeActiveVisualModel(visualModel.getId());
 
   setDefaultModelAlreadyCreated(true);
   setAggregator(tempAggregator);
@@ -236,15 +236,17 @@ function initializeWithPackage(
 
   const cleanup = getModels().then((models) => {
     const [entityModels, visualModels] = models;
-    if (entityModels.length === 0 && visualModels.length === 0) {
-      console.warn("No models returned from backend, creating default models in the package.");
-
-      const visualModel = createWritableVisualModel();
-      visualModels.push(visualModel);
-
+    if (entityModels.length === 0) {
+      console.warn("Creating default semantic model.");
       const model = new InMemorySemanticModel();
       model.setAlias("Default local model");
       entityModels.push(model);
+    }
+
+    if (visualModels.length === 0) {
+      console.warn("Creating default visual model.");
+      const visualModel = createDefaultWritableVisualModel(entityModels);
+      visualModels.push(visualModel);
     }
 
     if (!entityModels.find((m) => m instanceof InMemorySemanticModel)) {

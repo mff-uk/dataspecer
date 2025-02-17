@@ -134,10 +134,12 @@ const EntityDetailDialog = (props: DialogProps<EntityDetailState>) => {
             Detail of: <span className="font-semibold">{proxy.name}</span>
           </h5>
         </div>
-        <p className="flex flex-row pl-8 text-gray-500" title={proxy.iri ?? ""}>
-          <IriLink iri={proxy.iri} />
-          {proxy.iri}
-        </p>
+        {proxy.iri === null ? null  : (
+          <p className="flex flex-row pl-8 text-gray-500" title={proxy.iri ?? ""}>
+            <IriLink iri={proxy.iri} />
+            {proxy.iri}
+          </p>
+        )}
 
         {/*
                 --------------------------------------------
@@ -147,7 +149,7 @@ const EntityDetailDialog = (props: DialogProps<EntityDetailState>) => {
 
         <div className="grid md:grid-cols-[20%_80%] md:pl-8">
           <>
-            {proxy.profileOf && (
+            {proxy.profileOf.length === 0 ? null : (
               <DialogDetailRow detailKey={t("entity-detail-dialog.direct-profile")}>
                 {proxy.profileOf.map(item =>
                   <ResourceDetailClickThrough
@@ -160,7 +162,7 @@ const EntityDetailDialog = (props: DialogProps<EntityDetailState>) => {
                 )}
               </DialogDetailRow>
             )}
-            {proxy.originalProfile && (
+            {proxy.originalProfile.length === 0 ? null : (
               <DialogDetailRow detailKey={t("entity-detail-dialog.original-profile")}>
                 {proxy.originalProfile.map(item =>
                   <ResourceDetailClickThrough
