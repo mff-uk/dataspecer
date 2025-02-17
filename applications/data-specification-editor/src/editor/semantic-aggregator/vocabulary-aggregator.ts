@@ -8,9 +8,14 @@ export class VocabularyAggregator implements SemanticModelAggregator {
   private readonly vocabulary: InMemorySemanticModel;
   private readonly entities: Record<string, LocalEntityWrapped> = {};
   private readonly subscribers: Set<(updated: Record<string, LocalEntityWrapped>, removed: string[]) => void> = new Set();
+  thisVocabularyChain: object;
 
   constructor(vocabulary: InMemorySemanticModel) {
     this.vocabulary = vocabulary;
+
+    this.thisVocabularyChain = {
+      name: this.vocabulary.getAlias() ?? "Vocabulary",
+    };
 
     this.updateLocalEntities(this.vocabulary.getEntities(), []);
     this.vocabulary.subscribeToChanges((updated, removed) => {
@@ -26,7 +31,7 @@ export class VocabularyAggregator implements SemanticModelAggregator {
     for (const entity of Object.values(updated)) {
       this.entities[entity.id] = {
         aggregatedEntity: entity as SemanticModelEntity,
-        vocabularyChain: [],
+        vocabularyChain: [this.thisVocabularyChain],
         isReadOnly: true,
       };
       toUpdate[entity.id] = this.entities[entity.id];
@@ -67,7 +72,7 @@ export class VocabularyAggregator implements SemanticModelAggregator {
     for (const [cls] of localResults) {
       results.push({
         aggregatedEntity: cls.aggregatedEntity,
-        vocabularyChain: [],
+        vocabularyChain: [this.thisVocabularyChain],
         originatingModel: [this],
       });
     }
@@ -89,7 +94,7 @@ export class VocabularyAggregator implements SemanticModelAggregator {
   async getSurroundings(localOrExternalEntityId: string): Promise<ExternalEntityWrapped[]> {
     return Object.values(this.entities).map(entity => ({
       aggregatedEntity: entity.aggregatedEntity,
-      vocabularyChain: [],
+      vocabularyChain: [this.thisVocabularyChain],
       originatingModel: [this],
     }));
   }

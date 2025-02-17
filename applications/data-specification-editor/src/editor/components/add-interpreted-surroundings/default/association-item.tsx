@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { LanguageStringFallback, LanguageStringUndefineable } from "../../helper/LanguageStringComponents";
 import { SlovnikGovCzGlossary } from "../../slovnik.gov.cz/SlovnikGovCzGlossary";
 import { ExternalEntityWrapped } from "../../../semantic-aggregator/interfaces";
+import { ExternalEntityBadge } from "../../entity-badge";
 
 const CodelistSpan = styled("span")(({theme}) => ({
     fontWeight: "bold",
@@ -17,7 +18,7 @@ const CodelistSpan = styled("span")(({theme}) => ({
 }));
 
 export const AssociationItem: React.FC<{
-    relationship: SemanticModelRelationship,
+    relationship: ExternalEntityWrapped<SemanticModelRelationship>,
     onClick: () => void,
     selected: boolean,
     onDetail: () => void,
@@ -26,7 +27,7 @@ export const AssociationItem: React.FC<{
 }> = (props) => {
     const {t} = useTranslation("ui");
 
-    const relationship = props.relationship;
+    const relationship = props.relationship.aggregatedEntity;
     const correctEnd = relationship.ends[props.orientation ? 1 : 0];
     const cls = props.allEntities.find(e => e.aggregatedEntity.id === correctEnd.concept) as ExternalEntityWrapped<SemanticModelClass>;
     const isCodelist = false; //cls?.pimIsCodelist ?? false;
@@ -51,6 +52,7 @@ export const AssociationItem: React.FC<{
                 </LanguageStringUndefineable>
             </Box>}>
             <strong><LanguageStringFallback from={relationship.ends[1].name} fallback={<i>{t("no title")}</i>}/></strong>
+            <ExternalEntityBadge entity={props.relationship} />
             <SlovnikGovCzGlossary cimResourceIri={relationship.ends[1].iri as string}/>
             {props.orientation ?
                 <ArrowForwardIcon fontSize={"small"} color={"disabled"} sx={{verticalAlign: "middle", mx: "1rem"}} /> :

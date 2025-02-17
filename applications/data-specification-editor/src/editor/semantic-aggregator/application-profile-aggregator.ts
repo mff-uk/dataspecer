@@ -47,6 +47,8 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
   private readonly profileEntityAggregator: ProfileAggregator;
   private readonly operationFactory: SemanticModelProfileOperationFactory = createDefaultSemanticModelProfileOperationFactory();
 
+  readonly thisVocabularyChain: object;
+
   constructor(profile: InMemorySemanticModel, source: SemanticModelAggregator, profileEntityAggregator?: ProfileAggregator) {
     this.profile = profile;
     this.source = source;
@@ -61,6 +63,10 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
     this.profile.subscribeToChanges((updated, removed) => {
       this.updateLocalEntities(updated, removed);
     });
+
+    this.thisVocabularyChain = {
+      name: this.profile.getAlias() ?? "AP",
+    };
   }
 
   /**
@@ -213,13 +219,13 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
     for (const [cls] of localResults) {
       results.push({
         aggregatedEntity: cls.aggregatedEntity,
-        vocabularyChain: [],
+        vocabularyChain: [this.thisVocabularyChain],
         originatingModel: [this],
         note: "use as is"
       });
       results.push({
         aggregatedEntity: cls.aggregatedEntity,
-        vocabularyChain: [],
+        vocabularyChain: [this.thisVocabularyChain],
         originatingModel: [this],
         note: "create profile from profile"
       });
@@ -232,7 +238,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
     for (const entity of resultsFlattened) {
       results.push({
         aggregatedEntity: entity.aggregatedEntity,
-        vocabularyChain: [],
+        vocabularyChain: [...entity.vocabularyChain, this.thisVocabularyChain],
         originatingModel: [...entity.originatingModel, this],
         note: "create new profile"
       });
@@ -306,7 +312,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
 
       return [...collectedEntities].map(entity => ({
         aggregatedEntity: entity.aggregatedEntity,
-        vocabularyChain: [],
+        vocabularyChain: [this.thisVocabularyChain],
         originatingModel: [this],
       }));
     } else {
@@ -356,7 +362,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
     }
     subProfiles.map(entity => fullCompleteHierarchy[entity.aggregatedEntity.id] = ({
       aggregatedEntity: entity.aggregatedEntity,
-      vocabularyChain: [],
+      vocabularyChain: [this.thisVocabularyChain],
       originatingModel: [this],
     }));
 
@@ -378,7 +384,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
     }
     superProfiles.map(entity => fullCompleteHierarchy[entity.aggregatedEntity.id] = ({
       aggregatedEntity: entity.aggregatedEntity,
-      vocabularyChain: [],
+      vocabularyChain: [this.thisVocabularyChain],
       originatingModel: [this],
     }));
 
@@ -404,7 +410,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
         const generalization = this.getFakeGeneralization(superProfile.aggregatedEntity.id, id);
         fullCompleteHierarchy[generalization.aggregatedEntity.id] = {
           aggregatedEntity: generalization.aggregatedEntity,
-          vocabularyChain: [],
+          vocabularyChain: [this.thisVocabularyChain],
           originatingModel: [this],
         };
       }
@@ -534,7 +540,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
 
     return {
       aggregatedEntity: generalization,
-      vocabularyChain: [],
+      vocabularyChain: [this.thisVocabularyChain],
       isReadOnly: true,
     };
   }

@@ -14,6 +14,8 @@ import { SemanticModelAggregator } from "../semantic-aggregator/interfaces";
 import { MergeAggregator } from "../semantic-aggregator/merge-aggregator";
 import { VocabularyAggregator } from "../semantic-aggregator/vocabulary-aggregator";
 import { Configuration, ModelCompositionConfiguration, ModelCompositionConfigurationApplicationProfile, ModelCompositionConfigurationMerge } from "./configuration";
+import { ModelIdentifier } from "../../../../../packages/core-v2/lib/visual-model/entity-model/entity-model";
+import { VisualModelData } from "@dataspecer/core-v2/visual-model";
 
 const DEFAULT_CIM_ADAPTERS_CONFIGURATION = ["https://dataspecer.com/adapters/sgov"];
 const backendPackageService = new StructureEditorBackendService(import.meta.env.VITE_BACKEND as string, httpFetch, "http://dataspecer.com/packages/local-root");
@@ -173,8 +175,20 @@ async function getStoresFromSpecification(specification: DataSpecification) {
   let semanticModel: SemanticModelAggregator;
   let usedSemanticModels: InMemorySemanticModel[] = [];
   if (compositionConfiguration) {
+    // Load all models because we will need them anyway
+    const [models, visualModels] = await backendPackageService.constructSemanticModelPackageModels(specification.id);
+
+    // Model colors
+    const modelData: Record<ModelIdentifier, VisualModelData> = {};
+    for (const visualModel of visualModels) {
+      Object.assign(modelData, Object.fromEntries(visualModel.getModelsData()));
+    }
+
+    // Models
+    const modelsKeyValue = Object.fromEntries(models.map((model) => [model.getId(), model])) as Record<string, InMemorySemanticModel>;
+
     const sm = new Set<InMemorySemanticModel>();
-    semanticModel = await aggregatorFromCompositionConfigurationBuilder(compositionConfiguration, sm, specification.id);
+    semanticModel = await aggregatorFromCompositionConfigurationBuilder(compositionConfiguration, sm, modelsKeyValue, modelData);
     usedSemanticModels = Array.from(sm);
   } else {
     throw new Error("No composition configuration found.");
@@ -201,28 +215,34 @@ async function getStoresFromSpecification(specification: DataSpecification) {
 async function aggregatorFromCompositionConfigurationBuilder(
   configuration: ModelCompositionConfiguration,
   sm: Set<InMemorySemanticModel>,
-  specificationId: string
+  knownModels: Record<string, InMemorySemanticModel>,
+  modelData: Record<ModelIdentifier, VisualModelData>
 ): Promise<SemanticModelAggregator> {
   if (typeof configuration === "string") {
-    const [local] = await backendPackageService.constructSemanticModelFromIds([configuration]);
-    sm.add(local as InMemorySemanticModel);
-    return new VocabularyAggregator(local as InMemorySemanticModel);
+    sm.add(knownModels[configuration]);
+    const aggregator = new VocabularyAggregator(knownModels[configuration]);
+    aggregator.thisVocabularyChain["color"] = modelData[configuration]?.color;
+    return aggregator;
   } else if (configuration.modelType === "application-profile") {
     const profileConfig = configuration as ModelCompositionConfigurationApplicationProfile;
-    const [local] = await backendPackageService.constructSemanticModelFromIds([profileConfig.model as string]);
-    sm.add(local as InMemorySemanticModel);
-    const model = await aggregatorFromCompositionConfigurationBuilder(profileConfig.profiles, sm, specificationId);
-    return new ApplicationProfileAggregator(local as InMemorySemanticModel, model);
+    sm.add(knownModels[profileConfig.model as string]);
+    const model = await aggregatorFromCompositionConfigurationBuilder(profileConfig.profiles, sm, knownModels, modelData);
+    const aggregator = new ApplicationProfileAggregator(knownModels[profileConfig.model as string], model);
+    aggregator.thisVocabularyChain["color"] = modelData[profileConfig.model as string]?.color;
+    return aggregator;
   } else if (configuration.modelType === "merge") {
     const mergeConfig = configuration as ModelCompositionConfigurationMerge;
     if (mergeConfig.models === null) {
       // Use all remaining models
-      const [models] = await backendPackageService.constructSemanticModelPackageModels(specificationId);
-      const remainigModels = models.filter((model) => [...sm].every((sm) => sm.getId() !== model.getId())) as InMemorySemanticModel[];
-      const vocabularyModels = remainigModels.map((model) => new VocabularyAggregator(model));
+      const remainigModels = Object.values(knownModels).filter((model) => [...sm].every((sm) => sm.getId() !== model.getId())) as InMemorySemanticModel[];
+      const vocabularyModels = remainigModels.map((model) => {
+        const aggregator = new VocabularyAggregator(model)
+        aggregator.thisVocabularyChain["color"] = modelData[model.getId()]?.color;
+        return aggregator;
+      });
       return new MergeAggregator(vocabularyModels);
     } else {
-      const models = await Promise.all(mergeConfig.models.map((model) => aggregatorFromCompositionConfigurationBuilder(model.model, sm, specificationId)));
+      const models = await Promise.all(mergeConfig.models.map((model) => aggregatorFromCompositionConfigurationBuilder(model.model, sm, knownModels, modelData)));
       return new MergeAggregator(models);
     }
   } else {

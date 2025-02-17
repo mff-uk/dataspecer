@@ -13,6 +13,7 @@ import { ConfigurationContext } from "../../App";
 import { PimClassDetailDialog } from "../../detail/pim-class-detail-dialog";
 import { translateFrom } from "../../helper/LanguageStringComponents";
 import { SlovnikGovCzGlossary } from "../../slovnik.gov.cz/SlovnikGovCzGlossary";
+import { ExternalEntityBadge } from "../../entity-badge";
 
 const MAX_RESULTS = 30;
 
@@ -86,6 +87,7 @@ export const DefaultSearchDialogContent: React.FC<DialogParameters & {selected: 
                                                                 title={translateFrom(result.aggregatedEntity.name, i18n.languages)}>{translateFrom(result.aggregatedEntity.description, i18n.languages)}</Typography>}>
                             <strong>{translateFrom(result.aggregatedEntity.name, i18n.languages)} [{result.note}]</strong>
                             {" "}
+                            <ExternalEntityBadge entity={result}/>
                             <SlovnikGovCzGlossary cimResourceIri={result.aggregatedEntity.iri as string}/>
                         </ListItemText>
                         <IconButton onClick={e => {

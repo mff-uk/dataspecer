@@ -19,6 +19,7 @@ import { LoadingDialog } from "../../helper/LoadingDialog";
 import { SlovnikGovCzGlossary } from "../../slovnik.gov.cz/SlovnikGovCzGlossary";
 import { AncestorSelectorPanel } from "./ancestor-selector-panel";
 import { AssociationItem } from "./association-item";
+import { ExternalEntityBadge } from "../../entity-badge";
 
 export interface AddInterpretedSurroundingDialogProperties {
     isOpen: boolean,
@@ -143,6 +144,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
                                     <ListItemText secondary={<Typography variant="body2" color="textSecondary" noWrap title={translateFrom(entity.aggregatedEntity.ends[1].description, i18n.languages)}>{translateFrom(entity.aggregatedEntity.ends[1].description, i18n.languages)}</Typography>}>
                                         <strong>{translateFrom(entity.aggregatedEntity.ends[1].name, i18n.languages)}</strong>
                                         {" "}
+                                        <ExternalEntityBadge entity={entity} />
                                         <SlovnikGovCzGlossary cimResourceIri={entity.aggregatedEntity.iri as string} />
                                     </ListItemText>
 
@@ -157,7 +159,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
                             {forwardAssociations && forwardAssociations.map((entity: ExternalEntityWrapped<SemanticModelRelationship>) =>
                                 <AssociationItem
                                     key={entity.aggregatedEntity.id}
-                                    relationship={entity.aggregatedEntity}
+                                    relationship={entity}
                                     onClick={toggleSelectedResources(entity.aggregatedEntity.id as string, true)}
                                     selected={selectedResources.some(([i, o]) => i === entity.aggregatedEntity.id as string && o)}
                                     onDetail={() => AssociationToClassDetailDialog.open({iri: entity.aggregatedEntity.id as string, parentIri: "todo", orientation: true})}
@@ -175,7 +177,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
                             {backwardAssociations && backwardAssociations.map((entity: ExternalEntityWrapped<SemanticModelRelationship>) =>
                                 <AssociationItem
                                     key={entity.aggregatedEntity.id}
-                                    relationship={entity.aggregatedEntity}
+                                    relationship={entity}
                                     onClick={toggleSelectedResources(entity.aggregatedEntity.id as string, false)}
                                     selected={selectedResources.some(([i, o]) => i === entity.aggregatedEntity.id as string && !o)}
                                     onDetail={() => AssociationToClassDetailDialog.open({iri: entity.aggregatedEntity.id as string, parentIri: "todo", orientation: false})}
