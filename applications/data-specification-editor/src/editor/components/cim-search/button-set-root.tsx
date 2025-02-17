@@ -67,7 +67,7 @@ const ButtonSetRoot: React.FC = () => {
       )
     );
 
-    if (dataSpecificationIri && dataPsmSchemaIri && dataSpecifications[dataSpecificationIri].localSemanticModelIds.length > 0) {
+    if (dataSpecificationIri && dataPsmSchemaIri) {
       const op = new CreateRootClass(cls, dataPsmSchemaIri, newSchemaLabel, newSchemaDescription);
       op.setContext(operationContext);
       op.setSemanticStore(semanticModelAggregator);

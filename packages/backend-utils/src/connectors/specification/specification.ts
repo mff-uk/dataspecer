@@ -20,13 +20,21 @@ export type DataSpecification = Package & {
 
   /**
    * List of IDs of models that are being interpreted as CIMs.
+   * @deprecated Use {@link modelCompositionConfiguration} instead.
    * */
   sourceSemanticModelIds: string[];
 
   /**
    * List of IDs of models that are being interpreted as PIMs.
+   * @deprecated Use {@link modelCompositionConfiguration} instead.
    */
   localSemanticModelIds: string[];
+
+  /**
+   * Information about models and how they are composed.
+   * Overrides {@link sourceSemanticModelIds} and {@link localSemanticModelIds}.
+   */
+  modelCompositionConfiguration: object | null;
 
   dataStructures: DataSpecificationStructure[];
 
@@ -123,6 +131,7 @@ export class StructureEditorBackendService extends BackendPackageService {
 
       sourceSemanticModelIds: model.sourceSemanticModelIds ?? ["https://dataspecer.com/adapters/sgov"], // SGOV is default model if none is selected
       localSemanticModelIds: model.localSemanticModelIds ?? [],
+      modelCompositionConfiguration: model.modelCompositionConfiguration ?? null,
       dataStructures,
       importsDataSpecificationIds: model.dataStructuresImportPackages ?? [],
 

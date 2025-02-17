@@ -33,9 +33,10 @@ export const ReplaceAlongInheritanceDialog = dialog<{
     const {pimResource} = useDataPsmAndInterpretedPim(dataPsmClassIri);
     const cimIri = pimResource?.iri;
 
-    const {operationContext, sourceSemanticModel, semanticModelAggregator} = React.useContext(ConfigurationContext);
+    const {operationContext, semanticModelAggregator} = React.useContext(ConfigurationContext);
     const [fullInheritance] = useAsyncMemo(async () => cimIri ? await semanticModelAggregator.getHierarchy(pimResource.id) : null, [cimIri]);
 
+    // @ts-ignore
     const previewStore = useNewFederatedObservableStoreFromSemanticEntities(fullInheritance);
 
     const PimClassDetail = useDialog(PimClassDetailDialog);

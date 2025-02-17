@@ -6,7 +6,7 @@ import { SourceSemanticModelInterface } from "../configuration/configuration";
 import { copyInheritanceToModel } from "../operations/helper/copy-inheritance-to-model";
 import { ExternalEntityWrapped, SemanticModelAggregator, LocalEntityWrapped } from "./interfaces";
 
-export class LegacyL0Aggregator implements SemanticModelAggregator {
+export class LegacySemanticModelAggregator implements SemanticModelAggregator {
   private readonly pim: InMemorySemanticModel;
   private readonly cim: SourceSemanticModelInterface;
 

@@ -29,11 +29,21 @@ export const SearchDialog: React.FC<DialogParameters & { selected: (cls: string)
      * Wrapper for the legacy wikidata adapter.
      * This adapter returns PimClass. This PimClass needs to be created in semantic model and then passed as id for the selected function.
      */
-    const selectWrapped = (foundClass: PimClass) => {
-      const transformed = transformCoreResources({ [foundClass.iri as string]: foundClass });
-      // todo create class and return id
-      // props.selected(transformed[foundClass.iri as string]);
-    };
+    // const selectWrapped = (foundClass: PimClass) => {
+    //   const transformed = transformCoreResources({ [foundClass.iri as string]: foundClass });
+    //   // todo create class and return id
+    //   // props.selected(transformed[foundClass.iri as string]);
+    // };
+
+
+//    {false ? (
+//      <WikidataAdapterContext.Provider value={{ iriProvider: identityIriProvider, wdAdapter: unwrappedAdapter }}>
+//        <QueryClientProvider client={wikidataSearchQueryClient}>
+//          {/* @ts-ignore */}
+//          <WikidataSearchDialogContent {...props} selected={selectWrapped} />
+//        </QueryClientProvider>
+//      </WikidataAdapterContext.Provider>
+//    ) : (
 
     return (
       <>
@@ -42,16 +52,7 @@ export const SearchDialog: React.FC<DialogParameters & { selected: (cls: string)
           <CloseDialogButton onClick={props.close} />
         </DialogTitle>
         <DialogContent>
-          {false ? (
-            <WikidataAdapterContext.Provider value={{ iriProvider: identityIriProvider, wdAdapter: unwrappedAdapter }}>
-              <QueryClientProvider client={wikidataSearchQueryClient}>
-                {/* @ts-ignore */}
-                <WikidataSearchDialogContent {...props} selected={selectWrapped} />
-              </QueryClientProvider>
-            </WikidataAdapterContext.Provider>
-          ) : (
             <DefaultSearchDialogContent {...props} />
-          )}
         </DialogContent>
       </>
     );

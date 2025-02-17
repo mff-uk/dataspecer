@@ -40,3 +40,26 @@ export interface SearchableSemanticModelSync {
 export function isSourceSemanticModelSearchableSync(model: any): model is SearchableSemanticModelSync {
     return model && (model as SearchableSemanticModelSync).searchEntitySync !== undefined;
 }
+
+export type ModelCompositionConfiguration = string | {
+    modelType: "merge" | "application-profile" | "cache";
+};
+
+export type ModelCompositionConfigurationMerge = ModelCompositionConfiguration & {
+    modelType: "merge";
+    models: {
+        model: ModelCompositionConfiguration,
+    }[];
+}
+
+export type ModelCompositionConfigurationApplicationProfile = ModelCompositionConfiguration & {
+    modelType: "application-profile";
+    model: ModelCompositionConfiguration;
+    profiles: ModelCompositionConfiguration;
+}
+
+export type ModelCompositionConfigurationCache = ModelCompositionConfiguration & {
+    modelType: "cache";
+    model: ModelCompositionConfiguration;
+    caches: ModelCompositionConfiguration;
+}

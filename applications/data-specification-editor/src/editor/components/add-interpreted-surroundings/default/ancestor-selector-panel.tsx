@@ -63,6 +63,7 @@ export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = 
 
     const ClassDetailDialog = useDialog(PimClassDetailDialog, ["iri"]);
 
+    // @ts-ignore
     const newStore = useNewFederatedObservableStoreFromSemanticEntities(hierarchyStore);
 
     return <>

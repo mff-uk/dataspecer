@@ -477,9 +477,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
           usageNote: null,
           usageNoteFromProfiled: null,
           concept: firstEnd,
-          conceptFromProfiled: null,
           cardinality: null,
-          cardinalityFromProfiled: firstEnd,
           profiling: [],
         },
         {
@@ -491,9 +489,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
           usageNote: null,
           usageNoteFromProfiled: firstProfiled,
           concept: secondEnd,
-          conceptFromProfiled: null,
           cardinality: null,
-          cardinalityFromProfiled: firstProfiled,
           profiling,
         }
       ]

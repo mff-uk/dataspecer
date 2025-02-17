@@ -18,6 +18,18 @@ export class TupleSet<A, B> {
     this.reverse.get(value)!.add(key);
   }
 
+  delete(key: A, value: B) {
+    this.forward.get(key)?.delete(value);
+    if (this.forward.get(key)?.size === 0) {
+      this.forward.delete(key);
+    }
+
+    this.reverse.get(value)?.delete(key);
+    if (this.reverse.get(value)?.size === 0) {
+      this.reverse.delete(value);
+    }
+  }
+
   deleteFirst(val: A) {
     const values = this.forward.get(val);
     if (values) {

@@ -94,6 +94,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
     }, [isOpen, forPimClassIri]); // change of switchCurrentCimClassIri should not trigger this effect
 
     const flatSurroundings = useMemo(() => ([...Object.values(surroundings).filter(e => e).flat(1) as ExternalEntityWrapped[], ...(hierarchyStore ?? [])]), [surroundings, hierarchyStore]);
+    // @ts-ignore
     const newStore = useNewFederatedObservableStoreFromSemanticEntities(flatSurroundings);
 
     const currentSurroundings = surroundings[currentCimClassIri];
@@ -162,6 +163,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
                                     selected={selectedResources.some(([i, o]) => i === entity.aggregatedEntity.id as string && o)}
                                     onDetail={() => AssociationToClassDetailDialog.open({iri: entity.aggregatedEntity.id as string, parentIri: "todo", orientation: true})}
                                     orientation={true}
+                                    // @ts-ignore
                                     allEntities={currentSurroundings as SemanticModelEntity[]}
                                 />
                             )}
@@ -179,6 +181,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
                                     selected={selectedResources.some(([i, o]) => i === entity.aggregatedEntity.id as string && !o)}
                                     onDetail={() => AssociationToClassDetailDialog.open({iri: entity.aggregatedEntity.id as string, parentIri: "todo", orientation: false})}
                                     orientation={false}
+                                    // @ts-ignore
                                     allEntities={currentSurroundings as SemanticModelEntity[]}
                                 />
                             )}

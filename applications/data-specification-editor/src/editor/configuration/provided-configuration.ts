@@ -11,9 +11,9 @@ import { ClientConfigurator, DefaultClientConfiguration } from "../../configurat
 import { OperationContext } from "../operations/context/operation-context";
 import { ApplicationProfileAggregator } from "../semantic-aggregator/application-profile-aggregator";
 import { SemanticModelAggregator } from "../semantic-aggregator/interfaces";
-import { LegacyL0Aggregator } from "../semantic-aggregator/l0-aggregator";
-import { Configuration, SourceSemanticModelInterface } from "./configuration";
-import { getProvidedSourceSemanticModel } from "./source-semantic-model/adapter";
+import { MergeAggregator } from "../semantic-aggregator/merge-aggregator";
+import { VocabularyAggregator } from "../semantic-aggregator/vocabulary-aggregator";
+import { Configuration, ModelCompositionConfiguration, ModelCompositionConfigurationApplicationProfile, ModelCompositionConfigurationMerge } from "./configuration";
 
 const DEFAULT_CIM_ADAPTERS_CONFIGURATION = ["https://dataspecer.com/adapters/sgov"];
 const backendPackageService = new StructureEditorBackendService(import.meta.env.VITE_BACKEND as string, httpFetch, "http://dataspecer.com/packages/local-root");
@@ -58,17 +58,12 @@ export async function provideConfiguration(dataSpecificationIri: string | null, 
   if (dataSpecificationIri) {
     specifications = await loadDataSpecifications(dataSpecificationIri);
 
-    const cimAdaptersConfiguration = specifications?.[dataSpecificationIri]?.sourceSemanticModelIds ?? DEFAULT_CIM_ADAPTERS_CONFIGURATION;
-    const sourceSemanticModel = await getProvidedSourceSemanticModel(cimAdaptersConfiguration, dataSpecificationIri);
-
     for (const specification of Object.values(specifications)) {
-      const { semanticModels, psmStores, aggregatedSemanticModel } = await getStoresFromSpecification(specification, sourceSemanticModel);
-      semanticModelAggregator = aggregatedSemanticModel;
-      window["sm"] = semanticModelAggregator;
-      const storeForFBS = new SemanticModelAggregatorUnwrapped(aggregatedSemanticModel) as unknown as CoreResourceReader;
-      window["ss"] = storeForFBS;
+      const { semanticModel, psmStores, usedSemanticModels } = await getStoresFromSpecification(specification);
+      semanticModelAggregator = semanticModel;
+      const storeForFBS = new SemanticModelAggregatorUnwrapped(semanticModel) as unknown as CoreResourceReader;
       store.addStore(storeForFBS); // todo typings
-      for (const model of semanticModels) {
+      for (const model of usedSemanticModels) {
         store.addEventListener("afterOperationExecuted", () => backendPackageService.updateSingleModel(model));
       }
       for (const model of psmStores) {
@@ -167,13 +162,18 @@ async function loadDataSpecifications(dataSpecificationIri: string): Promise<Rec
   return dataSpecifications;
 }
 
-async function getStoresFromSpecification(specification: DataSpecification, sourceSemanticModel: SourceSemanticModelInterface) {
+async function getStoresFromSpecification(specification: DataSpecification) {
+  let compositionConfiguration = specification.modelCompositionConfiguration as ModelCompositionConfiguration | null;
   const descriptors = backendPackageService.getStoreDescriptorsForDataSpecification(specification);
-  const semanticModelDescriptors = descriptors.pimStores;
-  const semanticModels: EntityModel[] = [];
-  for (const descriptor of semanticModelDescriptors) {
-    const [model] = await backendPackageService.constructSemanticModelFromIds([descriptor.modelId!]);
-    semanticModels.push(model);
+
+  let semanticModel: SemanticModelAggregator;
+  let usedSemanticModels: InMemorySemanticModel[] = [];
+  if (compositionConfiguration) {
+    const sm = new Set<InMemorySemanticModel>();
+    semanticModel = await aggregatorFromCompositionConfigurationBuilder(compositionConfiguration, sm);
+    usedSemanticModels = Array.from(sm);
+  } else {
+    throw new Error("No composition configuration found.");
   }
 
   const psmStoresDescriptor = Object.values(descriptors.psmStores).flat();
@@ -184,12 +184,36 @@ async function getStoresFromSpecification(specification: DataSpecification, sour
     psmStores.push(store);
   }
 
-  const cachedModel = new LegacyL0Aggregator(semanticModels[0] as InMemorySemanticModel, sourceSemanticModel);
-  const profile = new ApplicationProfileAggregator(semanticModels[1] as InMemorySemanticModel, cachedModel);
-
   return {
-    semanticModels,
+    semanticModel,
     psmStores,
-    aggregatedSemanticModel: profile,
+    usedSemanticModels
   }
+}
+
+async function aggregatorFromCompositionConfigurationBuilder(configuration: ModelCompositionConfiguration, sm: Set<InMemorySemanticModel>): Promise<SemanticModelAggregator> {
+  if (typeof configuration === "string") {
+    const [local] = await backendPackageService.constructSemanticModelFromIds([configuration]);
+    sm.add(local as InMemorySemanticModel);
+    return new VocabularyAggregator(local as InMemorySemanticModel);
+  } else if (configuration.modelType === "application-profile") {
+    const profileConfig = configuration as ModelCompositionConfigurationApplicationProfile;
+    const model = await aggregatorFromCompositionConfigurationBuilder(profileConfig.profiles, sm);
+    const [local] = await backendPackageService.constructSemanticModelFromIds([profileConfig.model as string]);
+    sm.add(local as InMemorySemanticModel);
+    return new ApplicationProfileAggregator(local as InMemorySemanticModel, model);
+  } else if (configuration.modelType === "merge") {
+    const mergeConfig = configuration as ModelCompositionConfigurationMerge;
+    const models = await Promise.all(mergeConfig.models.map(model => aggregatorFromCompositionConfigurationBuilder(model.model, sm)));
+    return new MergeAggregator(models);
+  } else {
+    console.log(configuration);
+    throw new Error("Unsupported model type " + configuration.modelType);
+  }
+  // else if (configuration.modelType === "cache") {
+  //   const cacheConfig = configuration as ModelCompositionConfigurationCache;
+  //   const model = await aggregatorFromCompositionConfigurationBuilder(cacheConfig.caches, sm);
+  //   const [local] = await backendPackageService.constructSemanticModelFromIds([cacheConfig.model]);
+  //   return new LegacySemanticModelAggregator(local as InMemorySemanticModel, model);
+  // }
 }

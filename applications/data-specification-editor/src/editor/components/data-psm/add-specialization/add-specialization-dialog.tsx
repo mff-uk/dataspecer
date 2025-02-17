@@ -73,6 +73,7 @@ export const AddSpecializationDialog = dialog<{
       close();
     };
 
+    // @ts-ignore
     const newStore = useNewFederatedObservableStoreFromSemanticEntities(fullInheritance);
 
     return (
