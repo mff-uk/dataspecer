@@ -1,7 +1,6 @@
-import { isSemanticModelRelationPrimitive, isSemanticModelRelationship, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelRelationPrimitive, isSemanticModelRelationship, SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { DataPsmClass } from "@dataspecer/core/data-psm/model";
 import { StoreContext } from "@dataspecer/federated-observable-store-react/store";
-import { useResource } from "@dataspecer/federated-observable-store-react/use-resource";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import { Button, Checkbox, DialogActions, Grid, IconButton, ListItem, ListItemIcon, ListItemText, Typography } from "@mui/material";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -10,6 +9,7 @@ import { dialog } from "../../../dialog";
 import { useDataPsmAndInterpretedPim } from "../../../hooks/use-data-psm-and-interpreted-pim";
 import { useDialog } from "../../../hooks/use-dialog";
 import { useNewFederatedObservableStoreFromSemanticEntities } from "../../../hooks/use-new-federated-observable-store-from-semantic-entities";
+import { ExternalEntityWrapped } from "../../../semantic-aggregator/interfaces";
 import { ConfigurationContext } from "../../App";
 import { DialogContent, DialogTitle } from "../../detail/common";
 import { PimAssociationToClassDetailDialog } from "../../detail/pim-association-to-class-detail-dialog";
@@ -19,7 +19,6 @@ import { LoadingDialog } from "../../helper/LoadingDialog";
 import { SlovnikGovCzGlossary } from "../../slovnik.gov.cz/SlovnikGovCzGlossary";
 import { AncestorSelectorPanel } from "./ancestor-selector-panel";
 import { AssociationItem } from "./association-item";
-import { ExternalEntityWrapped } from "../../../semantic-aggregator/interfaces";
 
 export interface AddInterpretedSurroundingDialogProperties {
     isOpen: boolean,
@@ -164,7 +163,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
                                     onDetail={() => AssociationToClassDetailDialog.open({iri: entity.aggregatedEntity.id as string, parentIri: "todo", orientation: true})}
                                     orientation={true}
                                     // @ts-ignore
-                                    allEntities={currentSurroundings as SemanticModelEntity[]}
+                                    allEntities={currentSurroundings}
                                 />
                             )}
 
@@ -182,7 +181,7 @@ export const AddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundin
                                     onDetail={() => AssociationToClassDetailDialog.open({iri: entity.aggregatedEntity.id as string, parentIri: "todo", orientation: false})}
                                     orientation={false}
                                     // @ts-ignore
-                                    allEntities={currentSurroundings as SemanticModelEntity[]}
+                                    allEntities={currentSurroundings}
                                 />
                             )}
 

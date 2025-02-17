@@ -108,6 +108,10 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
             .map(identifier => profiled(identifier))
             .map(item => item?.ends?.[index]?.cardinality)
             .filter(item => item !== undefined && item !== null)
+
+          if (end.cardinality !== null) {
+            cardinalities.push(end.cardinality);
+          }
           if (cardinalities.length === 0) {
             // Nothing has been specified.
             return null;

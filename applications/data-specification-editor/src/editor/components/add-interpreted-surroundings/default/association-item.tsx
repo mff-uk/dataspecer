@@ -9,6 +9,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { LanguageStringFallback, LanguageStringUndefineable } from "../../helper/LanguageStringComponents";
 import { SlovnikGovCzGlossary } from "../../slovnik.gov.cz/SlovnikGovCzGlossary";
+import { ExternalEntityWrapped } from "../../../semantic-aggregator/interfaces";
 
 const CodelistSpan = styled("span")(({theme}) => ({
     fontWeight: "bold",
@@ -21,13 +22,13 @@ export const AssociationItem: React.FC<{
     selected: boolean,
     onDetail: () => void,
     orientation: boolean, // whether the association is forward association
-    allEntities: SemanticModelEntity[],
+    allEntities: ExternalEntityWrapped[],
 }> = (props) => {
     const {t} = useTranslation("ui");
 
     const relationship = props.relationship;
     const correctEnd = relationship.ends[props.orientation ? 1 : 0];
-    const cls = props.allEntities.find(e => e.id === correctEnd.concept) as SemanticModelClass;
+    const cls = props.allEntities.find(e => e.aggregatedEntity.id === correctEnd.concept) as ExternalEntityWrapped<SemanticModelClass>;
     const isCodelist = false; //cls?.pimIsCodelist ?? false;
 
 
@@ -55,7 +56,7 @@ export const AssociationItem: React.FC<{
                 <ArrowForwardIcon fontSize={"small"} color={"disabled"} sx={{verticalAlign: "middle", mx: "1rem"}} /> :
                 <ArrowBackIcon fontSize={"small"} color={"disabled"} sx={{verticalAlign: "middle", mx: "1rem"}} />
             }
-            <span><LanguageStringFallback from={cls?.name ?? {}} fallback={<i>{t("no title")}</i>}/></span>
+            <span><LanguageStringFallback from={cls?.aggregatedEntity.name ?? {}} fallback={<i>{t("no title")}</i>}/></span>
         </ListItemText>
 
         <IconButton size="small" onClick={event => {props.onDetail(); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>

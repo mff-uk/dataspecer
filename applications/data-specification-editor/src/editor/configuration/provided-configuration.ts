@@ -19,31 +19,34 @@ const DEFAULT_CIM_ADAPTERS_CONFIGURATION = ["https://dataspecer.com/adapters/sgo
 const backendPackageService = new StructureEditorBackendService(import.meta.env.VITE_BACKEND as string, httpFetch, "http://dataspecer.com/packages/local-root");
 
 class SemanticModelAggregatorUnwrapped implements EntityModel {
-    aggregator: SemanticModelAggregator;
-    constructor(aggregator: SemanticModelAggregator) {
-        this.aggregator = aggregator;
-    }
-    getEntities(): Entities {
-        return Object.fromEntries(Object.entries(this.aggregator.getAggregatedEntities()).map(([key, value]) => [key, value.aggregatedEntity]));
-    }
-    subscribeToChanges(callback: (updated: Record<string, Entity>, removed: string[]) => void) {
-        this.aggregator.subscribeToChanges((updated, removed) => {
-            callback(
-                Object.fromEntries(Object.entries(updated).map(([key, value]) => [key, value.aggregatedEntity])),
-                removed
-            );
-        })
-        return () => {};
-    }
-    getId(): string {
-        return "semantic model aggregator";
-    }
-    getAlias(): string | null {
-        throw new Error("Method not implemented.");
-    }
-    setAlias(alias: string | null): void {
-        throw new Error("Method not implemented.");
-    }
+  aggregator: SemanticModelAggregator;
+  id: string;
+  constructor(aggregator: SemanticModelAggregator, id: string) {
+    this.aggregator = aggregator;
+    this.id = id;
+  }
+  getEntities(): Entities {
+    return Object.fromEntries(Object.entries(this.aggregator.getAggregatedEntities()).map(([key, value]) => [key, value.aggregatedEntity]));
+  }
+  subscribeToChanges(callback: (updated: Record<string, Entity>, removed: string[]) => void) {
+    this.aggregator.subscribeToChanges((updated, removed) => {
+      callback(Object.fromEntries(Object.entries(updated).map(([key, value]) => [key, value.aggregatedEntity])), removed);
+    });
+    return () => {};
+  }
+  getId(): string {
+    return this.id;
+  }
+  getAlias(): string | null {
+    throw new Error("Method not implemented.");
+  }
+  setAlias(alias: string | null): void {
+    throw new Error("Method not implemented.");
+  }
+
+  executeOperation(operation: any) {
+    return this.aggregator.execOperation(operation);
+  }
 }
 
 /**
@@ -61,7 +64,8 @@ export async function provideConfiguration(dataSpecificationIri: string | null, 
     for (const specification of Object.values(specifications)) {
       const { semanticModel, psmStores, usedSemanticModels } = await getStoresFromSpecification(specification);
       semanticModelAggregator = semanticModel;
-      const storeForFBS = new SemanticModelAggregatorUnwrapped(semanticModel) as unknown as CoreResourceReader;
+      console.log(specification);
+      const storeForFBS = new SemanticModelAggregatorUnwrapped(semanticModel, specification.id) as unknown as CoreResourceReader;
       store.addStore(storeForFBS); // todo typings
       for (const model of usedSemanticModels) {
         store.addEventListener("afterOperationExecuted", () => backendPackageService.updateSingleModel(model));
@@ -108,7 +112,7 @@ export async function provideConfiguration(dataSpecificationIri: string | null, 
     } as DataSpecification;
 
     specifications = {
-      [defaultDataSpecification.iri]: defaultDataSpecification
+      [defaultDataSpecification.iri]: defaultDataSpecification,
     };
     dataSpecificationIri = defaultDataSpecification.iri;
 
@@ -138,7 +142,7 @@ export async function provideConfiguration(dataSpecificationIri: string | null, 
     operationContext,
     // new cim + pim
     semanticModelAggregator,
-};
+  };
 }
 
 async function loadDataSpecifications(dataSpecificationIri: string): Promise<Record<string, DataSpecification>> {
@@ -190,11 +194,15 @@ async function getStoresFromSpecification(specification: DataSpecification) {
   return {
     semanticModel,
     psmStores,
-    usedSemanticModels
-  }
+    usedSemanticModels,
+  };
 }
 
-async function aggregatorFromCompositionConfigurationBuilder(configuration: ModelCompositionConfiguration, sm: Set<InMemorySemanticModel>, specificationId: string): Promise<SemanticModelAggregator> {
+async function aggregatorFromCompositionConfigurationBuilder(
+  configuration: ModelCompositionConfiguration,
+  sm: Set<InMemorySemanticModel>,
+  specificationId: string
+): Promise<SemanticModelAggregator> {
   if (typeof configuration === "string") {
     const [local] = await backendPackageService.constructSemanticModelFromIds([configuration]);
     sm.add(local as InMemorySemanticModel);
@@ -210,11 +218,11 @@ async function aggregatorFromCompositionConfigurationBuilder(configuration: Mode
     if (mergeConfig.models === null) {
       // Use all remaining models
       const [models] = await backendPackageService.constructSemanticModelPackageModels(specificationId);
-      const remainigModels = models.filter(model => [...sm].every(sm => sm.getId() !== model.getId())) as InMemorySemanticModel[];
-      const vocabularyModels = remainigModels.map(model => new VocabularyAggregator(model));
+      const remainigModels = models.filter((model) => [...sm].every((sm) => sm.getId() !== model.getId())) as InMemorySemanticModel[];
+      const vocabularyModels = remainigModels.map((model) => new VocabularyAggregator(model));
       return new MergeAggregator(vocabularyModels);
     } else {
-      const models = await Promise.all(mergeConfig.models.map(model => aggregatorFromCompositionConfigurationBuilder(model.model, sm, specificationId)));
+      const models = await Promise.all(mergeConfig.models.map((model) => aggregatorFromCompositionConfigurationBuilder(model.model, sm, specificationId)));
       return new MergeAggregator(models);
     }
   } else {

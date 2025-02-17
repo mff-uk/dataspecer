@@ -282,7 +282,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
    * As this is AP, you can only execute operations in this model.
    */
   execOperation(operation: any) {
-
+    this.profile.executeOperation(operation);
   }
 
   /**
