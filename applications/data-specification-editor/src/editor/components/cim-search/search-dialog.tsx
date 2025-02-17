@@ -16,19 +16,34 @@ import { transformCoreResources } from "@dataspecer/core-v2/semantic-model/v1-ad
 
 const identityIriProvider = new PrefixIriProvider();
 
-export const SearchDialog: React.FC<DialogParameters & { selected: (cls: any) => void }> = dialog(
+export const SearchDialog: React.FC<DialogParameters & { selected: (cls: string) => void }> = dialog(
   { maxWidth: "md", fullWidth: true, PaperProps: { sx: { height: "90%" } } },
   (props) => {
-    const { sourceSemanticModel } = React.useContext(ConfigurationContext);
+    //const { sourceSemanticModel } = React.useContext(ConfigurationContext);
     const { t } = useTranslation("search-dialog");
 
     // @ts-ignore
-    const unwrappedAdapter = sourceSemanticModel?.model?.cimAdapter ?? {};
+    //const unwrappedAdapter = sourceSemanticModel?.model?.cimAdapter ?? {};
 
-    const selectWrapped = (foundClass: PimClass) => {
-      const transformed = transformCoreResources({ [foundClass.iri as string]: foundClass });
-      props.selected(transformed[foundClass.iri as string]);
-    };
+    /**
+     * Wrapper for the legacy wikidata adapter.
+     * This adapter returns PimClass. This PimClass needs to be created in semantic model and then passed as id for the selected function.
+     */
+    // const selectWrapped = (foundClass: PimClass) => {
+    //   const transformed = transformCoreResources({ [foundClass.iri as string]: foundClass });
+    //   // todo create class and return id
+    //   // props.selected(transformed[foundClass.iri as string]);
+    // };
+
+
+//    {false ? (
+//      <WikidataAdapterContext.Provider value={{ iriProvider: identityIriProvider, wdAdapter: unwrappedAdapter }}>
+//        <QueryClientProvider client={wikidataSearchQueryClient}>
+//          {/* @ts-ignore */}
+//          <WikidataSearchDialogContent {...props} selected={selectWrapped} />
+//        </QueryClientProvider>
+//      </WikidataAdapterContext.Provider>
+//    ) : (
 
     return (
       <>
@@ -37,16 +52,7 @@ export const SearchDialog: React.FC<DialogParameters & { selected: (cls: any) =>
           <CloseDialogButton onClick={props.close} />
         </DialogTitle>
         <DialogContent>
-          {isWikidataAdapter(unwrappedAdapter) ? (
-            <WikidataAdapterContext.Provider value={{ iriProvider: identityIriProvider, wdAdapter: unwrappedAdapter }}>
-              <QueryClientProvider client={wikidataSearchQueryClient}>
-                {/* @ts-ignore */}
-                <WikidataSearchDialogContent {...props} selected={selectWrapped} />
-              </QueryClientProvider>
-            </WikidataAdapterContext.Provider>
-          ) : (
             <DefaultSearchDialogContent {...props} />
-          )}
         </DialogContent>
       </>
     );

@@ -23,6 +23,7 @@
     "./semantic-model/datatypes": "./lib/semantic-model/datatypes/index.js",
     "./semantic-model/operations": "./lib/semantic-model/operations/index.js",
     "./semantic-model/in-memory": "./lib/semantic-model/in-memory/index.js",
+    "./semantic-model/profile/aggregator": "./lib/semantic-model/profile/aggregator/index.js",
     "./semantic-model/profile/concepts": "./lib/semantic-model/profile/concepts/index.js",
     "./semantic-model/profile/operations": "./lib/semantic-model/profile/operations/index.js",
     "./semantic-model/relationship-utils": "./lib/semantic-model/relationship-utils/index.js",

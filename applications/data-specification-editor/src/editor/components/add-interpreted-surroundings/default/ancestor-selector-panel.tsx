@@ -1,4 +1,4 @@
-import { isSemanticModelGeneralization, SemanticModelClass, SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelGeneralization, SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
 import { StoreContext } from "@dataspecer/federated-observable-store-react/store";
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone';
 import { IconButton, List, ListItem, ListItemText, Tooltip, Typography } from "@mui/material";
@@ -12,18 +12,19 @@ import { PimClassDetailDialog } from "../../detail/pim-class-detail-dialog";
 import { LanguageStringFallback, LanguageStringText } from "../../helper/LanguageStringComponents";
 import { LoadingDialog } from "../../helper/LoadingDialog";
 import { SlovnikGovCzGlossary } from "../../slovnik.gov.cz/SlovnikGovCzGlossary";
+import { ExternalEntityWrapped } from "../../../semantic-aggregator/interfaces";
 
 interface AncestorSelectorPanelParameters {
-    forCimClassIri: string,
+    forSemanticClassId: string,
     selectedAncestorCimIri: string | null,
     selectAncestorCimIri: (ancestorCimIri: string) => void,
 
-    hierarchyStore: SemanticModelEntity[] | null;
-    setHierarchyStore: (reader: SemanticModelEntity[]) => void;
+    hierarchyStore: ExternalEntityWrapped[] | null;
+    setHierarchyStore: (reader: ExternalEntityWrapped[]) => void;
 }
 
-const BFS = async (modelReader: SemanticModelEntity[], rootIri: string): Promise<SemanticModelClass[]> => {
-    const sorted: SemanticModelClass[] = [];
+const BFS = async (modelReader: ExternalEntityWrapped[], rootIri: string): Promise<ExternalEntityWrapped[]> => {
+    const sorted: ExternalEntityWrapped[] = [];
     const queue: string[] = [rootIri];
     const visited = new Set<string>();
 
@@ -34,47 +35,49 @@ const BFS = async (modelReader: SemanticModelEntity[], rootIri: string): Promise
         }
         visited.add(processed);
 
-        const resource = modelReader.find(e => e.id === processed) as SemanticModelClass;
+        const resource = modelReader.find(e => e.aggregatedEntity.id === processed) as ExternalEntityWrapped<SemanticModelClass>;
         if (!resource) {
             // The given resource does not exist. This is not an error. It just means that some CIM adapters are missing.
             continue;
         }
         sorted.push(resource);
-        modelReader.filter(isSemanticModelGeneralization).filter(g => g.child === processed).forEach(g => queue.push(g.parent));
+        modelReader.filter((e => isSemanticModelGeneralization(e.aggregatedEntity)) as (entity) => entity is ExternalEntityWrapped<SemanticModelGeneralization>)
+            .filter(g => g.aggregatedEntity.child === processed).forEach(g => queue.push(g.aggregatedEntity.parent));
     }
 
     return sorted;
 }
 
-export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = ({forCimClassIri, selectedAncestorCimIri, selectAncestorCimIri, hierarchyStore, setHierarchyStore}) => {
+export const AncestorSelectorPanel: React.FC<AncestorSelectorPanelParameters> = ({forSemanticClassId, selectedAncestorCimIri, selectAncestorCimIri, hierarchyStore, setHierarchyStore}) => {
     const {t} = useTranslation("interpretedSurrounding");
-    const {sourceSemanticModel} = React.useContext(ConfigurationContext);
-    const [sorted, loading] = useAsyncMemo(async () => hierarchyStore ? await BFS(hierarchyStore, forCimClassIri) : null, [hierarchyStore]);
+    const {semanticModelAggregator} = React.useContext(ConfigurationContext);
+    const [sorted, loading] = useAsyncMemo(async () => hierarchyStore ? await BFS(hierarchyStore, forSemanticClassId) : null, [hierarchyStore]);
 
     useEffect(() => {
         let isActive = true;
-        sourceSemanticModel.getFullHierarchy(forCimClassIri).then(s => isActive && setHierarchyStore(s));
+        semanticModelAggregator.getHierarchyForLookup(forSemanticClassId).then(s => isActive && setHierarchyStore(s));
         return () => {
             isActive = false;
         };
-    }, [sourceSemanticModel, forCimClassIri, setHierarchyStore]);
+    }, [forSemanticClassId, setHierarchyStore]);
 
     const ClassDetailDialog = useDialog(PimClassDetailDialog, ["iri"]);
 
+    // @ts-ignore
     const newStore = useNewFederatedObservableStoreFromSemanticEntities(hierarchyStore);
 
     return <>
         <Typography variant="subtitle1" component="h2">{t('ancestors title')}</Typography>
         {(loading || hierarchyStore === null) ? <LoadingDialog /> :
             <List component="nav" aria-label="main mailbox folders" dense>
-                {sorted && sorted.map(ancestor =>
-                    <Tooltip open={(ancestor.description && Object.values(ancestor.description).some(s => s.length > 0)) ? undefined : false} title={<LanguageStringText from={ancestor.description} />} placement="left" key={ancestor.iri}>
-                        <ListItem button selected={ancestor.iri === (selectedAncestorCimIri ?? forCimClassIri)} onClick={() => ancestor.id && selectAncestorCimIri(ancestor.id)}>
+                {sorted && sorted.map((ancestor: ExternalEntityWrapped<SemanticModelClass>) =>
+                    <Tooltip open={(ancestor.aggregatedEntity.description && Object.values(ancestor.aggregatedEntity.description).some(s => s.length > 0)) ? undefined : false} title={<LanguageStringText from={ancestor.aggregatedEntity.description} />} placement="left" key={ancestor.aggregatedEntity.iri}>
+                        <ListItem button selected={ancestor.aggregatedEntity.iri === (selectedAncestorCimIri ?? forSemanticClassId)} onClick={() => ancestor.aggregatedEntity.id && selectAncestorCimIri(ancestor.aggregatedEntity.id)}>
                             <ListItemText
-                                primary={<LanguageStringFallback from={ancestor.name} fallback={<i>unnamed</i>} />}
-                                secondary={<SlovnikGovCzGlossary cimResourceIri={ancestor.iri as string}/>}
+                                primary={<LanguageStringFallback from={ancestor.aggregatedEntity.name} fallback={<i>unnamed</i>} />}
+                                secondary={<SlovnikGovCzGlossary cimResourceIri={ancestor.aggregatedEntity.iri as string}/>}
                             />
-                           <IconButton size="small" onClick={(event) => {ClassDetailDialog.open({iri: ancestor.iri as string}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
+                           <IconButton size="small" onClick={(event) => {ClassDetailDialog.open({iri: ancestor.aggregatedEntity.iri as string}); event.stopPropagation();}}><InfoTwoToneIcon fontSize="inherit" /></IconButton>
                         </ListItem>
                     </Tooltip>
                 )}

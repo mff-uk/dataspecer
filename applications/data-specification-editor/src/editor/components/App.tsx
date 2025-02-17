@@ -84,7 +84,6 @@ const AppContent: React.FC = () => {
  * required.
  */
 const App: React.FC = () => {
-    const { t } = useTranslation('ui');
 
     /**
      * Decode URL that configures which structure shall be edited
@@ -99,6 +98,16 @@ const App: React.FC = () => {
     }, [url]);
 
     const configuration = useProvidedConfiguration(dataSpecificationIri, dataPsmSchemaIri);
+
+    if (configuration) {
+        return <AppWithConfiguration configuration={configuration} dataSpecificationIri={dataSpecificationIri} />;
+    } else {
+        return null;
+    }
+};
+
+function AppWithConfiguration({configuration, dataSpecificationIri}: {configuration: Configuration, dataSpecificationIri: string | null}) {
+    const { t } = useTranslation('ui');
 
     useEffect(() => {(window as any).store = configuration.store}, [configuration.store]);
 
@@ -141,6 +150,6 @@ const App: React.FC = () => {
             </SettingsContext.Provider>
         </SnackbarProvider>
     </>;
-};
+}
 
 export default App;
