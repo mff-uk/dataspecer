@@ -1,5 +1,5 @@
 import { VisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import {  EntityModel } from "@dataspecer/core-v2";
+import { EntityModel } from "@dataspecer/core-v2";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { SemanticModelEntity, SemanticModelGeneralization, SemanticModelRelationship, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
@@ -10,9 +10,9 @@ import { findSourceModelOfEntity } from "../service/model-service";
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
-import { addSemanticProfileToVisualModelAction as addSemanticUsageToVisualModelAction } from "./add-profile-to-visual-model";
 import { ModelGraphContextType } from "../context/model-context";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { addVisualNodeProfile } from "../dataspecer/visual-model/operation/add-visual-node-profile";
 
 /**
  * For given entity make sure, that all related entities
@@ -68,37 +68,67 @@ export function addRelatedEntitiesAction(
     if (isSemanticModelClassUsage(candidate)) {
       if (shouldAddUsage(visualModel, identifier, candidate)) {
         // "candidate" is profile of "identifier"
-        addSemanticUsageToVisualModelAction(
-          visualModel, entity, candidate, entityModel.getId());
+        addVisualNodeProfile(visualModel, {
+          identifier: entity.id,
+          model: entityModel.getId(),
+        }, {
+          identifier: candidate.id,
+          model: candidateModel.getId(),
+        });
       } else if (addingUsage && shouldAddUsage(visualModel, candidate.id, entity)) {
         // "identifier" is profile of "candidate"
-        addSemanticUsageToVisualModelAction(
-          visualModel, candidate, entity, candidateModel.getId());
+        addVisualNodeProfile(visualModel, {
+          identifier: candidate.id,
+          model: candidateModel.getId(),
+        }, {
+          identifier: entity.id,
+          model: entityModel.getId(),
+        });
       }
     }
     if (addingUsage && isSemanticModelClass(candidate)) {
       // We are adding usage, candidate is a class, it could profiled class.
       if (entity.usageOf === candidate.id) {
-        addSemanticUsageToVisualModelAction(
-          visualModel, candidate, entity, candidateModel.getId());
+        addVisualNodeProfile(visualModel, {
+          identifier: candidate.id,
+          model: candidateModel.getId(),
+        }, {
+          identifier: entity.id,
+          model: entityModel.getId(),
+        });
       }
     }
     if (isSemanticModelClassProfile(candidate)) {
       if (shouldAddProfile(visualModel, identifier, candidate)) {
         // "candidate" is profile of "identifier"
-        addSemanticUsageToVisualModelAction(
-          visualModel, entity, candidate, entityModel.getId());
+        addVisualNodeProfile(visualModel, {
+          identifier: entity.id,
+          model: entityModel.getId(),
+        }, {
+          identifier: candidate.id,
+          model: candidateModel.getId(),
+        });
       } else if (addingProfile && shouldAddProfile(visualModel, candidate.id, entity)) {
         // "identifier" is profile of "candidate"
-        addSemanticUsageToVisualModelAction(
-          visualModel, candidate, entity, candidateModel.getId());
+        addVisualNodeProfile(visualModel, {
+          identifier: candidate.id,
+          model: candidateModel.getId(),
+        }, {
+          identifier: entity.id,
+          model: entityModel.getId(),
+        });
       }
     }
     if (addingProfile && isSemanticModelClass(candidate)) {
       // We are adding profile, candidate is a class, it could profiled class.
       if (entity.profiling.includes(candidate.id)) {
-        addSemanticUsageToVisualModelAction(
-          visualModel, candidate, entity, candidateModel.getId());
+        addVisualNodeProfile(visualModel, {
+          identifier: candidate.id,
+          model: candidateModel.getId(),
+        }, {
+          identifier: entity.id,
+          model: entityModel.getId(),
+        });
       }
     }
   }
