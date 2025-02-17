@@ -1,5 +1,5 @@
 import { Entity } from "@dataspecer/core-v2";
-import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship, SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationPrimitive, isSemanticModelRelationship, SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { CreatedEntityOperationResult } from "@dataspecer/core-v2/semantic-model/operations";
 import { createDefaultProfileEntityAggregator, ProfileAggregator } from "@dataspecer/core-v2/semantic-model/profile/aggregator";
@@ -468,11 +468,14 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
     // Get local relation from the source model
     const sourceEntity = await this.source.externalEntityToLocalForSurroundings(viaExternalEntity, entity, direction, sourceSemanticModel) as LocalEntityWrapped<SemanticModelRelationship>;
 
-    // Create profile for the class
-    const classProfile = this.createClassProfile([sourceEntity.aggregatedEntity.ends[direction ? 1 : 0].concept]);
+    // Create profile for the class if it is really a class
+
+    const isAttribute = isSemanticModelRelationPrimitive(entity.aggregatedEntity);
+    const conceptId = sourceEntity.aggregatedEntity.ends[direction ? 1 : 0].concept;
+    const classProfileId = isAttribute ? conceptId : this.createClassProfile([conceptId]).aggregatedEntity.id;
 
     // Create the relationship
-    return this.createRelationshipProfile(fromEntity, classProfile.aggregatedEntity.id, [sourceEntity.aggregatedEntity.id]);
+    return this.createRelationshipProfile(fromEntity, classProfileId, [sourceEntity.aggregatedEntity.id]);
   }
 
   private createRelationshipProfile(firstEnd: string, secondEnd: string, profiling: string[]) {
