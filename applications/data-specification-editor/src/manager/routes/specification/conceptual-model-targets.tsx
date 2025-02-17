@@ -5,6 +5,8 @@ import {
     Card, CardContent, Checkbox,
     FormControlLabel,
     FormGroup,
+    Radio,
+    RadioGroup,
     Typography
 } from "@mui/material";
 import { useSnackbar } from "notistack";
@@ -13,6 +15,7 @@ import { BackendConnectorContext } from "../../../application";
 import { DataSpecification } from "@dataspecer/backend-utils/connectors/specification";
 import { DataSpecificationsContext } from "../../app";
 import { selectLanguage } from "../../name-cells";
+import { ModelCompositionConfigurationApplicationProfile, ModelCompositionConfigurationMerge } from "../../../editor/configuration/configuration";
 
 
 interface ConceptualModelTargetsProps {
@@ -37,39 +40,47 @@ const Inner = ({specification}: {specification: DataSpecification}) => {
 
     const {enqueueSnackbar} = useSnackbar();
 
-    const [selectedModels, setSelectedModels] = useState<string[]>(specification.localSemanticModelIds);
+    const mainProfile = (specification?.modelCompositionConfiguration ?? null) as ModelCompositionConfigurationApplicationProfile;
+
+    const [selectedModel, setSelectedModel] = useState<string | null>((mainProfile?.model ?? null) as string);
 
     const handleSave = useCallback(async () => {
-        await backendPackageService.updateLocalSemanticModelIds(specification.id, selectedModels);
+        const newConfiguration = {
+            modelType: "application-profile",
+            model: selectedModel,
+            profiles: {
+                modelType: "merge",
+                models: null
+            } as ModelCompositionConfigurationMerge,
+        } satisfies ModelCompositionConfigurationApplicationProfile;
+        await backendPackageService.updateDefaultModelCompositionConfiguration(specification.id, newConfiguration);
         setDataSpecifications({
             ...dataSpecifications,
             [specification.id]: {
                 ...specification,
-                localSemanticModelIds: selectedModels,
+                modelCompositionConfiguration: newConfiguration,
             },
         });
         enqueueSnackbar("Targets configuration saved", {variant: "success"});
-    }, [backendPackageService, specification, setDataSpecifications, dataSpecifications, enqueueSnackbar, selectedModels]);
+    }, [backendPackageService, specification, setDataSpecifications, dataSpecifications, enqueueSnackbar, selectedModel]);
 
     return <>
         <Typography variant="h5" component="div" gutterBottom sx={{mt: 5}}>
-            Vocabulary targets
+            Source configuration
         </Typography>
 
-        <Alert severity="info" sx={{mt: 3}}>Specify the model into which the concepts from the source model will be copied and any changes will be saved.</Alert>
+        <Alert severity="info" sx={{mt: 3}}>Select the model with application profile that will be used for structure modeling.</Alert>
 
         <Card  sx={{mt: 3}}>
             <CardContent>
                 <Box sx={{display: "flex"}}>
-                    <FormGroup>
+                    <RadioGroup value={selectedModel} onChange={event => setSelectedModel(event.target.value)}>
                         {specification?.subResources.filter(resource => resource.types.includes(LOCAL_SEMANTIC_MODEL)).map(resource => <FormControlLabel
                             key={resource.iri}
-                            control={<Checkbox checked={selectedModels.includes(resource.iri)} onChange={
-                                event => setSelectedModels(event.target.checked ? [...selectedModels, resource.iri] : selectedModels.filter(iri => iri !== resource.iri))
-                            } />}
+                            control={<Radio value={resource.iri} />}
                             label={selectLanguage(resource.userMetadata?.label, ["en"]) ?? resource.iri}
                         />)}
-                    </FormGroup>
+                    </RadioGroup>
 
                     <div style={{flexGrow: 1}} />
 

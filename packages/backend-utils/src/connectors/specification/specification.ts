@@ -171,15 +171,27 @@ export class StructureEditorBackendService extends BackendPackageService {
     await this.setResourceJsonData(dataSpecificationId, model);
   }
 
+  /**
+   * @deprecated
+   */
   public async updateLocalSemanticModelIds(dataSpecificationId: string, localSemanticModelIds: string[]): Promise<void> {
     const model = await this.getResourceJsonData(dataSpecificationId) as any ?? {};
     model.localSemanticModelIds = localSemanticModelIds;
     await this.setResourceJsonData(dataSpecificationId, model);
   }
 
+  /**
+   * @deprecated
+   */
   public async updateSourceSemanticModelIds(dataSpecificationId: string, sourceSemanticModelIds: string[]): Promise<void> {
     const model = await this.getResourceJsonData(dataSpecificationId) as any ?? {};
     model.sourceSemanticModelIds = sourceSemanticModelIds;
+    await this.setResourceJsonData(dataSpecificationId, model);
+  }
+
+  public async updateDefaultModelCompositionConfiguration(dataSpecificationId: string, modelCompositionConfiguration: any): Promise<void> {
+    const model = await this.getResourceJsonData(dataSpecificationId) as any ?? {};
+    model.modelCompositionConfiguration = modelCompositionConfiguration;
     await this.setResourceJsonData(dataSpecificationId, model);
   }
 

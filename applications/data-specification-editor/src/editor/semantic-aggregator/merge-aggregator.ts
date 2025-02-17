@@ -169,7 +169,7 @@ export class MergeAggregator implements SemanticModelAggregator {
   private unwrapExternalEntity<T extends SemanticModelEntity>(entity: ExternalEntityWrapped<T>): [ExternalEntityWrapped<T>, MergeAggregatorExternalEntityData] {
     const unwrappedEntity = {
       ...entity,
-      originatingModel: entity.originatingModel.splice(-1)
+      originatingModel: [...entity.originatingModel].splice(-1)
     };
 
     const data = entity.originatingModel[entity.originatingModel.length - 1] as MergeAggregatorExternalEntityData;

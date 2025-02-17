@@ -233,7 +233,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
       results.push({
         aggregatedEntity: entity.aggregatedEntity,
         vocabularyChain: [],
-        originatingModel: [this],
+        originatingModel: [...entity.originatingModel, this],
         note: "create new profile"
       });
     }
@@ -245,7 +245,6 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
    * When specific entity from the search is selected, this function shall be called to convert it to the local entity.
    */
   async externalEntityToLocalForSearch(entity: ExternalEntityWrapped) {
-
     if (entity.note === "use as is") {
       return this.entities[entity.aggregatedEntity.id];
     }
@@ -254,7 +253,14 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
     if (entity.aggregatedEntity.id in this.entities) {
       sourceEntity = entity;
     } else {
-      sourceEntity = await this.source.externalEntityToLocalForSearch(entity);
+      const originatingModel = [...entity.originatingModel];
+      originatingModel.pop();
+      const unwrappedEntity = {
+        aggregatedEntity: entity.aggregatedEntity,
+        vocabularyChain: [],
+        originatingModel: originatingModel,
+      };
+      sourceEntity = await this.source.externalEntityToLocalForSearch(unwrappedEntity);
     }
 
     // In this mode we need to create new class profile and point to to the external entity

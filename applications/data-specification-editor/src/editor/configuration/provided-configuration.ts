@@ -170,7 +170,7 @@ async function getStoresFromSpecification(specification: DataSpecification) {
   let usedSemanticModels: InMemorySemanticModel[] = [];
   if (compositionConfiguration) {
     const sm = new Set<InMemorySemanticModel>();
-    semanticModel = await aggregatorFromCompositionConfigurationBuilder(compositionConfiguration, sm);
+    semanticModel = await aggregatorFromCompositionConfigurationBuilder(compositionConfiguration, sm, specification.id);
     usedSemanticModels = Array.from(sm);
   } else {
     throw new Error("No composition configuration found.");
@@ -184,6 +184,9 @@ async function getStoresFromSpecification(specification: DataSpecification) {
     psmStores.push(store);
   }
 
+  console.log(`Specification ${specification.id} has the following semantic model:`, semanticModel);
+  window["semanticModel"] = semanticModel;
+
   return {
     semanticModel,
     psmStores,
@@ -191,21 +194,29 @@ async function getStoresFromSpecification(specification: DataSpecification) {
   }
 }
 
-async function aggregatorFromCompositionConfigurationBuilder(configuration: ModelCompositionConfiguration, sm: Set<InMemorySemanticModel>): Promise<SemanticModelAggregator> {
+async function aggregatorFromCompositionConfigurationBuilder(configuration: ModelCompositionConfiguration, sm: Set<InMemorySemanticModel>, specificationId: string): Promise<SemanticModelAggregator> {
   if (typeof configuration === "string") {
     const [local] = await backendPackageService.constructSemanticModelFromIds([configuration]);
     sm.add(local as InMemorySemanticModel);
     return new VocabularyAggregator(local as InMemorySemanticModel);
   } else if (configuration.modelType === "application-profile") {
     const profileConfig = configuration as ModelCompositionConfigurationApplicationProfile;
-    const model = await aggregatorFromCompositionConfigurationBuilder(profileConfig.profiles, sm);
     const [local] = await backendPackageService.constructSemanticModelFromIds([profileConfig.model as string]);
     sm.add(local as InMemorySemanticModel);
+    const model = await aggregatorFromCompositionConfigurationBuilder(profileConfig.profiles, sm, specificationId);
     return new ApplicationProfileAggregator(local as InMemorySemanticModel, model);
   } else if (configuration.modelType === "merge") {
     const mergeConfig = configuration as ModelCompositionConfigurationMerge;
-    const models = await Promise.all(mergeConfig.models.map(model => aggregatorFromCompositionConfigurationBuilder(model.model, sm)));
-    return new MergeAggregator(models);
+    if (mergeConfig.models === null) {
+      // Use all remaining models
+      const [models] = await backendPackageService.constructSemanticModelPackageModels(specificationId);
+      const remainigModels = models.filter(model => [...sm].every(sm => sm.getId() !== model.getId())) as InMemorySemanticModel[];
+      const vocabularyModels = remainigModels.map(model => new VocabularyAggregator(model));
+      return new MergeAggregator(vocabularyModels);
+    } else {
+      const models = await Promise.all(mergeConfig.models.map(model => aggregatorFromCompositionConfigurationBuilder(model.model, sm, specificationId)));
+      return new MergeAggregator(models);
+    }
   } else {
     console.log(configuration);
     throw new Error("Unsupported model type " + configuration.modelType);
