@@ -4,6 +4,7 @@ import { WritableSemanticModelAdapter } from "../writable-semantic-model-adapter
 
 export class InMemorySemanticModel extends WritableSemanticModelAdapter {
     private baseIri: string = "";
+    public modelMetadata: object = {};
 
     constructor() {
         super(new InMemoryEntityModel());
@@ -19,8 +20,9 @@ export class InMemorySemanticModel extends WritableSemanticModelAdapter {
 
     serializeModel() {
         return {
-            // TODO: fix
             type: LOCAL_SEMANTIC_MODEL,
+            ...this.modelMetadata,
+
             modelId: this.getId(),
             modelAlias: this.getAlias(),
             baseIri: this.baseIri ?? "",
@@ -29,11 +31,18 @@ export class InMemorySemanticModel extends WritableSemanticModelAdapter {
     }
 
     deserializeModel(data: object) {
-        const modelDescriptor = data as any;
+        const modelDescriptor = {...data} as any;
+
         this.baseIri = modelDescriptor.baseIri;
+        delete modelDescriptor.baseIri;
         this.entityModel.id = modelDescriptor.modelId;
+        delete modelDescriptor.modelId;
         this.entityModel.alias = modelDescriptor.modelAlias;
+        delete modelDescriptor.modelAlias;
         this.entityModel.entities = modelDescriptor.entities;
+        delete modelDescriptor.entities;
+
+        this.modelMetadata = modelDescriptor;
 
         return this;
     }

@@ -13,6 +13,8 @@ export class LegacySemanticModelAggregator implements SemanticModelAggregator {
   private readonly aggregatedEntities: Record<string, LocalEntityWrapped> = {};
   private readonly subscribers: Set<(updated: Record<string, LocalEntityWrapped>, removed: string[]) => void> = new Set();
 
+  readonly thisVocabularyChain: object;
+
   constructor(pim: InMemorySemanticModel, cim: SourceSemanticModelInterface) {
     this.pim = pim;
     this.cim = cim;
@@ -21,6 +23,10 @@ export class LegacySemanticModelAggregator implements SemanticModelAggregator {
     this.pim.subscribeToChanges((updated, removed) => {
       this.updateEntities(updated, removed);
     });
+
+    this.thisVocabularyChain = {
+      name: this.pim.getAlias() ?? "Vocabulary",
+    };
   }
 
   /**
@@ -33,7 +39,7 @@ export class LegacySemanticModelAggregator implements SemanticModelAggregator {
     for (const entity of Object.values(updated)) {
       this.aggregatedEntities[entity.id] = {
         aggregatedEntity: entity as SemanticModelEntity,
-        vocabularyChain: [],
+        vocabularyChain: [this.thisVocabularyChain],
         isReadOnly: true,
       };
       toChanged[entity.id] = this.aggregatedEntities[entity.id];
@@ -130,7 +136,7 @@ export class LegacySemanticModelAggregator implements SemanticModelAggregator {
   private transformEntities(entities: SemanticModelEntity[]): ExternalEntityWrapped[] {
     return entities.map((entity) => ({
       aggregatedEntity: entity,
-      vocabularyChain: [],
+      vocabularyChain: [this.thisVocabularyChain],
       originatingModel: [],
       isReadOnly: true,
     }));

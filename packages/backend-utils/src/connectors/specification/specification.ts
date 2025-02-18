@@ -293,7 +293,8 @@ export class StructureEditorBackendService extends BackendPackageService {
       type: LOCAL_SEMANTIC_MODEL,
       userMetadata: {
         label: {
-          "en": "PIM",
+          "en": "Main Application Profile",
+          "cs": "Hlavní aplikační profil",
         },
       }
     });
@@ -304,9 +305,29 @@ export class StructureEditorBackendService extends BackendPackageService {
       "entities": {}
     });
 
+    const sgov = await this.createResource(pckg.iri, {
+      type: LOCAL_SEMANTIC_MODEL,
+      userMetadata: {
+        label: {
+          "en": "SGOV cache",
+          "cs": "SGOV cache",
+        },
+      }
+    });
+    await this.setResourceJsonData(sgov.iri, {
+      "type": "http://dataspecer.com/resources/local/semantic-model",
+      "modelId": sgov.iri,
+      "modelAlias": set?.label.en ?? set?.label.cs ?? "",
+      "caches": ["https://dataspecer.com/adapters/sgov"],
+      "entities": {}
+    });
+
     await this.setResourceJsonData(pckg.iri, {
-      localSemanticModelIds: [pim.iri],
-      sourceSemanticModelIds: ["https://dataspecer.com/adapters/sgov"],
+      modelCompositionConfiguration: {
+        modelType: "application-profile",
+        model: pim.iri,
+        profiles: { modelType: "merge" },
+      }
     });
 
     const configuration = await this.createResource(pckg.iri, {

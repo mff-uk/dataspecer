@@ -42,7 +42,7 @@ export function isSourceSemanticModelSearchableSync(model: any): model is Search
 }
 
 export type ModelCompositionConfiguration = string | {
-    modelType: "merge" | "application-profile" | "cache";
+    modelType: "merge" | "application-profile" | "cache" | "legacy";
 };
 
 export type ModelCompositionConfigurationMerge = ModelCompositionConfiguration & {
@@ -62,4 +62,9 @@ export type ModelCompositionConfigurationCache = ModelCompositionConfiguration &
     modelType: "cache";
     model: ModelCompositionConfiguration;
     caches: ModelCompositionConfiguration;
+}
+
+export type ModelCompositionConfigurationLegacy = ModelCompositionConfiguration & {
+    modelType: "legacy";
+    configuration: string[];
 }
