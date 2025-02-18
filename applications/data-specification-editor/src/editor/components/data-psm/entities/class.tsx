@@ -48,7 +48,7 @@ export const DataPsmClassItem: React.FC<{
   const objectContext = props as ObjectContext;
   const partContext = props as ClassPartContext;
 
-  const {dataSpecificationIri, dataSpecifications, operationContext, sourceSemanticModel} = useContext(ConfigurationContext);
+  const {dataSpecificationIri, dataSpecifications, operationContext, semanticModelAggregator} = useContext(ConfigurationContext);
 
   const {dataPsmResource: dataPsmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, ExtendedSemanticModelClass>(type === "class" ? props.iri : (type === "container" ? partContext.parentDataPsmClassIri : null));
   const readOnly = false;
@@ -56,8 +56,8 @@ export const DataPsmClassItem: React.FC<{
   const cimClassIri = pimClass?.iri;
 
   // @ts-ignore
-  const unwrappedAdapter = sourceSemanticModel?.model?.cimAdapter ?? {};
-  const AddSurroundings = useDialog(isWikidataAdapter(unwrappedAdapter) ? WikidataAddInterpretedSurroundingsDialog : AddInterpretedSurroundingsDialog, ["dataPsmClassIri", "forPimClassIri"]);
+  const unwrappedAdapter = {}; //sourceSemanticModel?.model?.cimAdapter ?? {};
+  const AddSurroundings = useDialog(false ? WikidataAddInterpretedSurroundingsDialog : AddInterpretedSurroundingsDialog, ["dataPsmClassIri", "forPimClassIri"]); // isWikidataAdapter(unwrappedAdapter)
 
   const store = useFederatedObservableStore();
   const include = useCallback(() =>
@@ -69,11 +69,12 @@ export const DataPsmClassItem: React.FC<{
   const addContainer = useCallback((type: string) => store.executeComplexOperation(new CreateContainer(props.iri, type)), [store, props.iri]);
 
   const searchDialogToggle = useToggle();
-  const selectedClassFromSearchDialog = useCallback(async (cls: SemanticModelClass) => {
-    const op = new CreateNonInterpretedAssociationToClass(props.iri, cls, dataSpecifications[dataSpecificationIri].localSemanticModelIds[0] as string);
+  const selectedClassFromSearchDialog = useCallback(async (semanticClassId: string) => {
+    const op = new CreateNonInterpretedAssociationToClass(props.iri, semanticClassId);
     op.setContext(operationContext);
+    op.setSemanticStore(semanticModelAggregator);
     store.executeComplexOperation(op).then();
-  }, [store, props, operationContext, dataSpecifications, dataSpecificationIri]);
+  }, [store, props, operationContext, dataSpecifications, dataSpecificationIri, semanticModelAggregator]);
 
   const addNonInterpretedAttribute = () => store.executeComplexOperation(
     new CreateNonInterpretedAttribute(props.iri)
@@ -107,11 +108,11 @@ export const DataPsmClassItem: React.FC<{
 
   const addSurroundings = (operation: {
     resourcesToAdd: [string, boolean][],
-    sourcePimModel: SemanticModelEntity[],
     forDataPsmClass: DataPsmClass,
   }) => {
-    const addClassSurroundings = new AddClassSurroundings(operation.forDataPsmClass, pimClassForSurroundings, operation.sourcePimModel, operation.resourcesToAdd);
+    const addClassSurroundings = new AddClassSurroundings(operation.forDataPsmClass, operation.resourcesToAdd);
     addClassSurroundings.setContext(operationContext);
+    addClassSurroundings.setSemanticStore(semanticModelAggregator);
     store.executeComplexOperation(addClassSurroundings).then();
   };
 

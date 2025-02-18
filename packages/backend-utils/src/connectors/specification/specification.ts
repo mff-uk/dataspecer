@@ -20,13 +20,21 @@ export type DataSpecification = Package & {
 
   /**
    * List of IDs of models that are being interpreted as CIMs.
+   * @deprecated Use {@link modelCompositionConfiguration} instead.
    * */
   sourceSemanticModelIds: string[];
 
   /**
    * List of IDs of models that are being interpreted as PIMs.
+   * @deprecated Use {@link modelCompositionConfiguration} instead.
    */
   localSemanticModelIds: string[];
+
+  /**
+   * Information about models and how they are composed.
+   * Overrides {@link sourceSemanticModelIds} and {@link localSemanticModelIds}.
+   */
+  modelCompositionConfiguration: object | null;
 
   dataStructures: DataSpecificationStructure[];
 
@@ -123,6 +131,7 @@ export class StructureEditorBackendService extends BackendPackageService {
 
       sourceSemanticModelIds: model.sourceSemanticModelIds ?? ["https://dataspecer.com/adapters/sgov"], // SGOV is default model if none is selected
       localSemanticModelIds: model.localSemanticModelIds ?? [],
+      modelCompositionConfiguration: model.modelCompositionConfiguration ?? null,
       dataStructures,
       importsDataSpecificationIds: model.dataStructuresImportPackages ?? [],
 
@@ -162,15 +171,27 @@ export class StructureEditorBackendService extends BackendPackageService {
     await this.setResourceJsonData(dataSpecificationId, model);
   }
 
+  /**
+   * @deprecated
+   */
   public async updateLocalSemanticModelIds(dataSpecificationId: string, localSemanticModelIds: string[]): Promise<void> {
     const model = await this.getResourceJsonData(dataSpecificationId) as any ?? {};
     model.localSemanticModelIds = localSemanticModelIds;
     await this.setResourceJsonData(dataSpecificationId, model);
   }
 
+  /**
+   * @deprecated
+   */
   public async updateSourceSemanticModelIds(dataSpecificationId: string, sourceSemanticModelIds: string[]): Promise<void> {
     const model = await this.getResourceJsonData(dataSpecificationId) as any ?? {};
     model.sourceSemanticModelIds = sourceSemanticModelIds;
+    await this.setResourceJsonData(dataSpecificationId, model);
+  }
+
+  public async updateDefaultModelCompositionConfiguration(dataSpecificationId: string, modelCompositionConfiguration: any): Promise<void> {
+    const model = await this.getResourceJsonData(dataSpecificationId) as any ?? {};
+    model.modelCompositionConfiguration = modelCompositionConfiguration;
     await this.setResourceJsonData(dataSpecificationId, model);
   }
 
@@ -272,7 +293,8 @@ export class StructureEditorBackendService extends BackendPackageService {
       type: LOCAL_SEMANTIC_MODEL,
       userMetadata: {
         label: {
-          "en": "PIM",
+          "en": "Main Application Profile",
+          "cs": "Hlavní aplikační profil",
         },
       }
     });
@@ -283,9 +305,29 @@ export class StructureEditorBackendService extends BackendPackageService {
       "entities": {}
     });
 
+    const sgov = await this.createResource(pckg.iri, {
+      type: LOCAL_SEMANTIC_MODEL,
+      userMetadata: {
+        label: {
+          "en": "SGOV cache",
+          "cs": "SGOV cache",
+        },
+      }
+    });
+    await this.setResourceJsonData(sgov.iri, {
+      "type": "http://dataspecer.com/resources/local/semantic-model",
+      "modelId": sgov.iri,
+      "modelAlias": set?.label.en ?? set?.label.cs ?? "",
+      "caches": ["https://dataspecer.com/adapters/sgov"],
+      "entities": {}
+    });
+
     await this.setResourceJsonData(pckg.iri, {
-      localSemanticModelIds: [pim.iri],
-      sourceSemanticModelIds: ["https://dataspecer.com/adapters/sgov"],
+      modelCompositionConfiguration: {
+        modelType: "application-profile",
+        model: pim.iri,
+        profiles: { modelType: "merge" },
+      }
     });
 
     const configuration = await this.createResource(pckg.iri, {

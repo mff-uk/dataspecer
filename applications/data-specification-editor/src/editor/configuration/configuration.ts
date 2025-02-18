@@ -2,6 +2,7 @@ import { DataSpecification } from '@dataspecer/backend-utils/connectors/specific
 import { SemanticModelClass, SemanticModelEntity } from '@dataspecer/core-v2/semantic-model/concepts';
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
 import { OperationContext } from "../operations/context/operation-context";
+import { SemanticModelAggregator } from '../semantic-aggregator/interfaces';
 
 /**
  * Editor's configuration (or context) that specifies how the editor should work.
@@ -12,17 +13,12 @@ export interface Configuration {
     dataSpecifications: { [iri: string]: DataSpecification };
     dataSpecificationIri: string|null;
     dataPsmSchemaIri: string|null;
-    /**
-     * The semantic model that is used to search for new entities from the semantic layer that will be added to the structure layer.
-     *
-     * It is also used to provide context for lookup. It may be same as the targetSemanticWriter.
-     *
-     * The model is only one as aggregation can be used. If the model is not set (null), it means that there is no semantic
-     * layer available. This should disable searching for *interpreted* root and also adding *interpreted* entities from surrounding.
-     * It should still make possible to add non-interpreted entities.
-     */
-    sourceSemanticModel: SourceSemanticModelInterface;
     operationContext: OperationContext,
+
+    /**
+     * todo experimental
+     */
+    semanticModelAggregator: SemanticModelAggregator;
 }
 
 /**
@@ -43,4 +39,32 @@ export interface SearchableSemanticModelSync {
 
 export function isSourceSemanticModelSearchableSync(model: any): model is SearchableSemanticModelSync {
     return model && (model as SearchableSemanticModelSync).searchEntitySync !== undefined;
+}
+
+export type ModelCompositionConfiguration = string | {
+    modelType: "merge" | "application-profile" | "cache" | "legacy";
+};
+
+export type ModelCompositionConfigurationMerge = ModelCompositionConfiguration & {
+    modelType: "merge";
+    models: {
+        model: ModelCompositionConfiguration,
+    }[];
+}
+
+export type ModelCompositionConfigurationApplicationProfile = ModelCompositionConfiguration & {
+    modelType: "application-profile";
+    model: ModelCompositionConfiguration;
+    profiles: ModelCompositionConfiguration;
+}
+
+export type ModelCompositionConfigurationCache = ModelCompositionConfiguration & {
+    modelType: "cache";
+    model: ModelCompositionConfiguration;
+    caches: ModelCompositionConfiguration;
+}
+
+export type ModelCompositionConfigurationLegacy = ModelCompositionConfiguration & {
+    modelType: "legacy";
+    configuration: string[];
 }
