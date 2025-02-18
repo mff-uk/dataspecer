@@ -41,7 +41,7 @@ export const DefaultSearchDialogContent: React.FC<DialogParameters & { selected:
       setError(false);
       if (searchText) {
           setLoading(true);
-          sourceSemanticModel.search(searchText).then(result => {
+          semanticModelAggregator.search(searchText).then(result => {
               updateFindResults(result.filter((res, i) => i < MAX_RESULTS && res));
           }).catch(error => {
               console.info("Error during search.", error);
@@ -50,7 +50,7 @@ export const DefaultSearchDialogContent: React.FC<DialogParameters & { selected:
       } else {
           updateFindResults(null);
       }
-  }, false ? 0 : 100, [searchText, sourceSemanticModel]);
+  }, false ? 0 : 100, [searchText, semanticModelAggregator]);
 
   return (
     <>
