@@ -333,7 +333,7 @@ export function representRelationships(
     }
     const { domain, range } = getDomainAndRange(item);
     if (domain === null || range === null) {
-      LOG.invalidEntity(item.id, "Missing ends.");
+      LOG.invalidEntity(item.id, "Missing ends for relationship.");
       continue;
     }
     result.push({
@@ -379,7 +379,7 @@ export function representRelationshipUsages(
     }
     const { domain, range } = getDomainAndRange(entity);
     if (domain === null || range === null) {
-      LOG.invalidEntity(item.id, "Missing ends.");
+      LOG.invalidEntity(item.id, "Missing ends for relationship usage.");
       continue;
     }
     result.push({
@@ -423,7 +423,8 @@ export function representRelationshipProfile(
     }
     const { domain, range } = getDomainAndRange(entity);
     if (domain === null || range === null) {
-      LOG.invalidEntity(item.id, "Missing ends.");
+      console.log(">", {domain, range, entity});
+      LOG.invalidEntity(item.id, "Missing ends for relationship profile.");
       continue;
     }
     result.push({
