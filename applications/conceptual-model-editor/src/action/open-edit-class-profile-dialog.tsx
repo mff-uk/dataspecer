@@ -32,7 +32,10 @@ export function openEditClassProfileDialogAction(
     // We need to update visual model: profiles
     if (isWritableVisualModel(visualModel)) {
       updateVisualNodeProfiles(
-        visualModel, entity, model.getId(),
+        visualModel, {
+          identifier: entity.id,
+          model: model.getId(),
+        },
         state.profiles.map(item => ({
           identifier: item.identifier,
           model: item.vocabularyDsIdentifier})),

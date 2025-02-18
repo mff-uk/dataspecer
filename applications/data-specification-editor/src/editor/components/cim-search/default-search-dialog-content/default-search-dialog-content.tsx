@@ -38,19 +38,19 @@ export const DefaultSearchDialogContent: React.FC<DialogParameters & { selected:
   const newStore = useNewFederatedObservableStoreFromSemanticEntities(findResults ? findResults.map(e => e.aggregatedEntity) : []);
 
   useDebounceEffect(() => {
-    setError(false);
-    if (searchText) {
-      setLoading(true);
-      semanticModelAggregator.search(searchText).then(result => {
-        updateFindResults(result.filter((_, i) => i < MAX_RESULTS));
-      }).catch(error => {
-        console.info("Error during search.", error);
-        setError(true);
-      }).finally(() => setLoading(false));
-    } else {
-      updateFindResults(null);
-    }
-  }, false ? 0 : 100, [searchText, semanticModelAggregator]);
+      setError(false);
+      if (searchText) {
+          setLoading(true);
+          sourceSemanticModel.search(searchText).then(result => {
+              updateFindResults(result.filter((res, i) => i < MAX_RESULTS && res));
+          }).catch(error => {
+              console.info("Error during search.", error);
+              setError(true);
+          }).finally(() => setLoading(false));
+      } else {
+          updateFindResults(null);
+      }
+  }, false ? 0 : 100, [searchText, sourceSemanticModel]);
 
   return (
     <>
