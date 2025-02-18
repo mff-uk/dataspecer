@@ -61,7 +61,6 @@ export async function provideConfiguration(dataSpecificationIri: string | null, 
     for (const specification of Object.values(specifications)) {
       const { semanticModel, psmStores, usedSemanticModels } = await getStoresFromSpecification(specification);
       semanticModelAggregator = semanticModel;
-      console.log(specification);
       const storeForFBS = new SemanticModelAggregatorUnwrapped(semanticModel, specification.id) as unknown as CoreResourceReader;
       store.addStore(storeForFBS); // todo typings
       for (const model of usedSemanticModels) {
@@ -186,7 +185,6 @@ async function getStoresFromSpecification(specification: DataSpecification) {
     psmStores.push(store);
   }
 
-  console.log(`Specification ${specification.id} has the following semantic model:`, semanticModel);
   window["semanticModel"] = semanticModel;
 
   return {
