@@ -205,7 +205,7 @@ export const EntitiesOfModel = (props: {
     }
   };
 
-  const handleAddToView = (entity: Entity) => {
+  const handleAddToView = (model: EntityModel, entity: Entity) => {
     if (isSemanticModelClass(entity)) {
       actions.addClassToVisualModel(model.getId(), entity.id, null);
     } else if (isSemanticModelAttribute(entity)) {
