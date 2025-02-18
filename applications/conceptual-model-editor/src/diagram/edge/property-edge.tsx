@@ -14,6 +14,7 @@ import { type Edge as EdgeApi } from "../diagram-api";
 import { DiagramContext } from "../diagram-controller";
 import { createSvgPath, createWaypoints, findLabelPosition } from "./edge-utilities";
 import { Waypoints } from "./waypoints";
+import { Point } from "./math";
 
 const logger = createLogger(import.meta.url);
 
@@ -44,6 +45,14 @@ export const PropertyEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
     context?.onOpenEdgeContextMenu(props, x, y);
   };
 
+  const sourceWaypoint = waypoints[0];
+  const sourceShift = getLabelTranslate(
+    sourceWaypoint, sourceNode.position, sourceNode.measured);
+
+  const targetWaypoint = waypoints[waypoints.length - 1];
+  const targetShift = getLabelTranslate(
+    targetWaypoint, targetNode.position, targetNode.measured);
+
   return (
     <>
       <g onClick={onPathClick}>
@@ -53,6 +62,15 @@ export const PropertyEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
         {props.selected ? <Waypoints edge={props} waypoints={waypoints} data={props.data} /> : null}
       </>
       <EdgeLabelRenderer>
+        {props.data === undefined || props.data.cardinalitySource === null ? null : (
+          <div style={{
+            position: "absolute",
+            transform: `${sourceShift} translate(${sourceWaypoint.x}px,${sourceWaypoint.y}px)`
+          }}
+          >
+            {props.data.cardinalitySource}
+          </div>
+        )}
         {props.selected || props.label === null ? null : (
           <div
             style={{
@@ -73,6 +91,15 @@ export const PropertyEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
             {props.label}
           </div>
         )}
+        {props.data === undefined || props.data.cardinalityTarget === null ? null : (
+          <div style={{
+            position: "absolute",
+            transform: `${targetShift} translate(${targetWaypoint.x}px,${targetWaypoint.y}px)`
+          }}
+          >
+            {props.data.cardinalityTarget}
+          </div>
+        )}
       </EdgeLabelRenderer>
     </>
   );
@@ -80,3 +107,34 @@ export const PropertyEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
 
 export const PropertyEdgeName = "property-edge";
 
+const TRANSLATE_ZERO = "translate(0px,0px)";
+
+/**
+ * @returns Shift of the object in percentage.
+ */
+function getLabelTranslate(
+  point: Point,
+  nodePosition: Point,
+  { width, height }: { width?: number, height?: number },
+): string {
+  if (width === undefined || height === undefined) {
+    return TRANSLATE_ZERO;
+  }
+  let shiftX = "0%";
+  if (point.x < (nodePosition.x)) {
+    // Left
+    shiftX = "-110%"
+  } else if (point.x > (nodePosition.x + width)) {
+    // Right
+    shiftX = "10%";
+  }
+  let shiftY = "0%";
+  if (point.y < (nodePosition.y)) {
+    // Top
+    shiftY = "-110%"
+  } else if (point.y > (nodePosition.y + height)) {
+    // Bottom
+    shiftY = "10%";
+  }
+  return `translate(${shiftX},${shiftY})`;
+}
