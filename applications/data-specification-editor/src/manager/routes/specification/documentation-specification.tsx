@@ -262,7 +262,7 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
             <Button variant="contained" href={import.meta.env.VITE_BACKEND + "/generate?iri=" + encodeURIComponent(dataSpecificationIri)}>Generate sample application</Button>
         </Box>)}
 
-        <ConceptualModelSources dataSpecificationIri={dataSpecificationIri} />
+        {/* <ConceptualModelSources dataSpecificationIri={dataSpecificationIri} /> */}
 
         <ConceptualModelTargets dataSpecificationIri={dataSpecificationIri} />
 

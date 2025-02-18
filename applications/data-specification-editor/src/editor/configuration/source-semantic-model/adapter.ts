@@ -67,3 +67,10 @@ export function useProvidedSourceSemanticModel(
 
   return sourceSemanticModel ?? null;
 }
+
+export function getProvidedSourceSemanticModel(
+  cimAdaptersConfiguration: any[] = DEFAULT_CONFIG,
+  dataSpecificationId: string | null
+) {
+  return getAdapter(cimAdaptersConfiguration, service, dataSpecificationId);
+}

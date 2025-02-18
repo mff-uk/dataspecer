@@ -446,7 +446,6 @@ export class FederatedObservableStore implements FederatedCoreResourceWriter {
     private loadResource(
         resourceIri: string, schemaIri: string,
     ) {
-        console.log("Loading resource", resourceIri, schemaIri);
         const subscription = this.subscriptions.get(resourceIri);
         if (!subscription) {
             return;
@@ -544,11 +543,20 @@ export class FederatedObservableStore implements FederatedCoreResourceWriter {
 
             // todo: remove schemas that are registered but not in the current list
         } else {
-            this.createSchema(wrappedStore.store.getId(), wrappedStore, "EntityModel");
+            const schema = this.createSchema(wrappedStore.store.getId(), wrappedStore, "EntityModel");
+            const store = wrappedStore.store;
+            store.subscribeToChanges((updated, removed) => {
+                const updatedIds = Object.keys(updated);
+                for (const updatedId of updatedIds) {
+                    this.loadResource(updatedId, schema.iri);
+                }
+                schema.resources = Object.keys(store.getEntities());
+                this.updateResourcesBySchema(schema, updatedIds, removed);
+            });
         }
     }
 
-    /**
+    /**`
      * Registers new schema that does not exist yet.
      * @param schemaIri
      * @param store
@@ -568,6 +576,7 @@ export class FederatedObservableStore implements FederatedCoreResourceWriter {
         // resource is cached
         this.addSubscriber(schemaIri, this.schemaUpdateListener);
         this.updateResourcesBySchema(schema, [schemaIri], []);
+        return schema;
     }
 
     private deleteSchema(schemaIri: string) {
@@ -600,8 +609,11 @@ export class FederatedObservableStore implements FederatedCoreResourceWriter {
 
         if (DataPsmSchema.is(resource.resource)) {
             iris = resource.resource.dataPsmParts;
-        } else if (resource.resource instanceof InMemoryEntityModel || resource.resource instanceof InMemorySemanticModel) {
+        // @ts-ignore
+        } else if (resource.resource.getEntities) {
+            // @ts-ignore
             iris = Object.keys(resource.resource.getEntities());
+            // @ts-ignore
             iris.push(resource.resource.getId())
         } else {
             console.log(resource.resource);
