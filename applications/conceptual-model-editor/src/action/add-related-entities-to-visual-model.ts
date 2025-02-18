@@ -69,65 +69,68 @@ export function addRelatedEntitiesAction(
       if (shouldAddUsage(visualModel, identifier, candidate)) {
         // "candidate" is profile of "identifier"
         addVisualNodeProfile(visualModel, {
-          identifier: entity.id,
-          model: entityModel.getId(),
-        }, {
           identifier: candidate.id,
           model: candidateModel.getId(),
+        }, {
+          identifier: entity.id,
+          model: entityModel.getId(),
         });
       } else if (addingUsage && shouldAddUsage(visualModel, candidate.id, entity)) {
-        // "identifier" is profile of "candidate"
+        // "entity" is profile of "candidate"
         addVisualNodeProfile(visualModel, {
-          identifier: candidate.id,
-          model: candidateModel.getId(),
-        }, {
           identifier: entity.id,
           model: entityModel.getId(),
+        }, {
+          identifier: candidate.id,
+          model: candidateModel.getId(),
+
         });
       }
     }
     if (addingUsage && isSemanticModelClass(candidate)) {
       // We are adding usage, candidate is a class, it could profiled class.
       if (entity.usageOf === candidate.id) {
+        // "entity" is profile of "candidate"
         addVisualNodeProfile(visualModel, {
-          identifier: candidate.id,
-          model: candidateModel.getId(),
-        }, {
           identifier: entity.id,
           model: entityModel.getId(),
+        }, {
+          identifier: candidate.id,
+          model: candidateModel.getId(),
         });
       }
     }
     if (isSemanticModelClassProfile(candidate)) {
       if (shouldAddProfile(visualModel, identifier, candidate)) {
-        // "candidate" is profile of "identifier"
+        // "candidate" is profile of "entity"
         addVisualNodeProfile(visualModel, {
-          identifier: entity.id,
-          model: entityModel.getId(),
-        }, {
           identifier: candidate.id,
           model: candidateModel.getId(),
+        }, {
+          identifier: entity.id,
+          model: entityModel.getId(),
         });
       } else if (addingProfile && shouldAddProfile(visualModel, candidate.id, entity)) {
-        // "identifier" is profile of "candidate"
+        // "entity" is profile of "candidate"
         addVisualNodeProfile(visualModel, {
-          identifier: candidate.id,
-          model: candidateModel.getId(),
-        }, {
           identifier: entity.id,
           model: entityModel.getId(),
+        }, {
+          identifier: candidate.id,
+          model: candidateModel.getId(),
         });
       }
     }
     if (addingProfile && isSemanticModelClass(candidate)) {
       // We are adding profile, candidate is a class, it could profiled class.
       if (entity.profiling.includes(candidate.id)) {
+        // "entity" is profile of "candidate"
         addVisualNodeProfile(visualModel, {
-          identifier: candidate.id,
-          model: candidateModel.getId(),
-        }, {
           identifier: entity.id,
           model: entityModel.getId(),
+        }, {
+          identifier: candidate.id,
+          model: candidateModel.getId(),
         });
       }
     }

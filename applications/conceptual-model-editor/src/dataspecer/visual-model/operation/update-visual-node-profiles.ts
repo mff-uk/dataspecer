@@ -78,5 +78,5 @@ function filterItems<Type>(
   remove: Type[],
   eq: (left: Type, right: Type) => boolean,
 ): Type[] {
-  return items.filter(item => remove.find(removeItem => eq(item, removeItem)) == undefined);
+  return items.filter(item => remove.find(removeItem => eq(item, removeItem)) === undefined);
 }
