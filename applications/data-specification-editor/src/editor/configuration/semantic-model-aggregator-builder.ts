@@ -52,7 +52,7 @@ export class SemanticModelAggregatorBuilder {
     } else if (typeof configuration === "string") {
       const model = this.knownModels[configuration];
       this.usedModels.add(model);
-      if (model.modelMetadata["caches"]) {
+      if (model.modelMetadata?.["caches"]) { // Some models may not have metadata
         const cimAdapter = await getProvidedSourceSemanticModel(model.modelMetadata["caches"], this.specificationId);
         const aggregator = new LegacySemanticModelAggregator(model, cimAdapter);
         aggregator.thisVocabularyChain["color"] = this.modelData[configuration]?.color;

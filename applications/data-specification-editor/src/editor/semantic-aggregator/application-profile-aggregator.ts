@@ -496,7 +496,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
           profiling: [],
         },
         {
-          iri: null,
+          iri: "",
           name: null,
           nameFromProfiled: firstProfiled,
           description: null,
