@@ -7,7 +7,7 @@ import { EditAttributeProfileDialog } from "./edit-attribute-profile-dialog";
 import { DialogWrapper } from "../dialog-api";
 import { createRelationshipProfileStateForNew } from "../utilities/relationship-profile-utilities";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
-import { representUndefinedAttribute, listRelationshipProfileDomains, listAttributeProfileRanges } from "../utilities/dialog-utilities";
+import { representUndefinedAttribute, listRelationshipProfileDomains, listAttributeProfileRanges, sortRepresentatives } from "../utilities/dialog-utilities";
 import { createEntityProfileStateForNewEntityProfile } from "../utilities/entity-profile-utilities";
 import { configuration } from "../../application";
 import { listAttributesToProfile } from "./attribute-profile-utilities";
@@ -31,9 +31,11 @@ export function createNewAttributeProfileDialogState(
 
   const availableProfiles = listAttributesToProfile(
     classesContext, graphContext, vocabularies);
+  sortRepresentatives(language, availableProfiles);
 
   const domains = listRelationshipProfileDomains(
     classesContext, graphContext, vocabularies);
+  sortRepresentatives(language, domains);
 
   const ranges = listAttributeProfileRanges();
 

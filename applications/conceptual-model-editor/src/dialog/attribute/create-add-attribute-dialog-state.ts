@@ -2,7 +2,7 @@ import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { EditAttributeDialogState } from "./edit-attribute-dialog-controller";
-import { isRepresentingAttribute, listAttributeRanges, representOwlThing, representRelationships, selectDefaultModelForAttribute, representRdfsLiteral, listRelationshipDomains } from "../utilities/dialog-utilities";
+import { isRepresentingAttribute, listAttributeRanges, representOwlThing, representRelationships, selectDefaultModelForAttribute, representRdfsLiteral, listRelationshipDomains, sortRepresentatives } from "../utilities/dialog-utilities";
 import { configuration } from "../../application";
 import { createEntityStateForNew } from "../utilities/entity-utilities";
 import { createSpecializationStateForNew } from "../utilities/specialization-utilities";
@@ -29,7 +29,8 @@ export function createAddAttributeDialogState(
 
   const models = [...graphContext.models.values()];
 
-  const vocabularies = entityModelsMapToCmeVocabulary(graphContext.models, visualModel);
+  const vocabularies = entityModelsMapToCmeVocabulary(
+    graphContext.models, visualModel);
 
   const owlThing = representOwlThing();
 
@@ -45,6 +46,7 @@ export function createAddAttributeDialogState(
     models, entityState.allModels, classesContext.relationships,
     owlThing.identifier, rdfsLiteral.identifier)
     .filter(item => isRepresentingAttribute(item));
+  sortRepresentatives(language, specializations);
 
   const specializationState = createSpecializationStateForNew(
     language, entityState.allModels, specializations);
@@ -53,6 +55,7 @@ export function createAddAttributeDialogState(
 
   const domains = listRelationshipDomains(
     classesContext, graphContext, vocabularies);
+  sortRepresentatives(language, domains);
 
   const domain = domains.find(item => item.identifier === entity.id);
   if (domain === undefined) {

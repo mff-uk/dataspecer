@@ -47,7 +47,7 @@ interface LabeledEntity extends Labeled {
 }
 
 /**
- * Return a new array, where not two entities have identical label.
+ * Return a new array, where no two entities have identical label.
  */
 export function sanitizeDuplicitiesInRepresentativeLabels<Type extends LabeledEntity>(
   vocabularies: CmeModel[],

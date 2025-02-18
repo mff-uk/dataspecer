@@ -13,7 +13,7 @@ import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/
 import { MissingRelationshipEnds, RuntimeError } from "../../application/error";
 import { DialogWrapper } from "../dialog-api";
 import { EditAttributeProfileDialog } from "./edit-attribute-profile-dialog";
-import { listAttributeProfileRanges, listRelationshipProfileDomains, representOwlThing, representRdfsLiteral, representUndefinedAttribute,} from "../utilities/dialog-utilities";
+import { listAttributeProfileRanges, listRelationshipProfileDomains, representOwlThing, representRdfsLiteral, representUndefinedAttribute, sortRepresentatives,} from "../utilities/dialog-utilities";
 import { listAttributesToProfile } from "./attribute-profile-utilities";
 import { createLogger } from "../../application";
 
@@ -70,9 +70,11 @@ export function createEditAttributeProfileDialogStateFromUsage(
 
   const availableProfiles = listAttributesToProfile(
     classesContext, graphContext, vocabularies);
+  sortRepresentatives(language, availableProfiles);
 
   const domains = listRelationshipProfileDomains(
     classesContext, graphContext, vocabularies);
+  sortRepresentatives(language, domains);
 
   const ranges = listAttributeProfileRanges();
 

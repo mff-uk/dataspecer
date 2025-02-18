@@ -261,6 +261,8 @@ export function listRelationshipDomains(
     representOwlThing(),
     ...representClasses(models, vocabularies, classesContext.classes)
   ]
+
+
 }
 
 /**
@@ -423,7 +425,6 @@ export function representRelationshipProfile(
     }
     const { domain, range } = getDomainAndRange(entity);
     if (domain === null || range === null) {
-      console.log(">", {domain, range, entity});
       LOG.invalidEntity(item.id, "Missing ends for relationship profile.");
       continue;
     }
@@ -671,4 +672,15 @@ export function findRepresentative(entities: EntityRepresentative[], identifier:
     return null;
   }
   return entities.find(item => item.identifier === identifier) ?? null;
+}
+
+export function sortRepresentatives<T extends { label: LanguageString }>(
+  language: string,
+  array: T[],
+) {
+  array.sort((left, right) => {
+    const leftLabel = left.label[language] ?? left.label[""] ?? "";
+    const rightLabel = right.label[language] ?? right.label[""] ?? "";
+    return leftLabel.localeCompare(rightLabel);
+  });
 }
