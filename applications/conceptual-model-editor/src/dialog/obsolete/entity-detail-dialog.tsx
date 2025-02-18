@@ -67,7 +67,9 @@ export const createEntityDetailDialog = (
 
 function selectLabel(aggregatedEntity: AggregatedEntityWrapper) {
   const entity = aggregatedEntity.aggregatedEntity;
-  if (isSemanticModelAttribute(entity)) {
+  if (isSemanticModelClassProfile(entity)) {
+    return "detail-dialog.title.class";
+  } else if (isSemanticModelAttribute(entity)) {
     return "detail-dialog.title.attribute";
   } else if (isSemanticModelRelationship(entity)) {
     return "detail-dialog.title.relationship";
