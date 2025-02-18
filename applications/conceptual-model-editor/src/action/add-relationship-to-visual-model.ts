@@ -5,6 +5,7 @@ import type { UseNotificationServiceWriterType } from "../notification/notificat
 import { getDomainAndRange } from "../util/relationship-utils";
 import { ModelGraphContextType } from "../context/model-context";
 import { withAggregatedEntity } from "./utilities";
+import { addVisualRelationship } from "../dataspecer/visual-model/operation/add-visual-relationship";
 
 export function addSemanticRelationshipToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
@@ -42,11 +43,8 @@ function addSemanticRelationshipToVisualModelCommand(
     return;
   }
   //
-  visualModel.addVisualRelationship({
-    model: model,
-    representedRelationship: entity.id,
-    waypoints: [],
-    visualSource: source.identifier,
-    visualTarget: target.identifier,
-  });
+  addVisualRelationship(
+    visualModel, model, entity.id,
+    domain.concept, range.concept
+  );
 }
