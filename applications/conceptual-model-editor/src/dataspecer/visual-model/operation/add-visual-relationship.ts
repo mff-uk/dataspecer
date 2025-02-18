@@ -17,7 +17,7 @@ export function addVisualRelationship(
   if (visualSource === null || visualTarget === null) {
     throw new DataspecerError("Source or target are not in the visual model.");
   }
-  let waypoints: Waypoint []= [];
+  const waypoints: Waypoint []= [];
   if (visualSource === visualTarget && isVisualNode(visualSource)) {
     const position = visualSource.position;
     waypoints.push({
