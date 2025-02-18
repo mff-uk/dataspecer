@@ -1,11 +1,20 @@
 '--lang-name': English
 $datetime: '{{val, datetime(dateStyle: long; timeStyle: short)}}'
+add-imported:
+  error: An error occurred while importing some specifications
+  import: Import
+  success: Import was successful
+  title: Import specification
+  warning: >-
+    With this step, you can import a specification from its public URL as a new
+    subfolder.
 autolayout: Auto layout
 changed: 'Changed on {{val, datetime(dateStyle: short; timeStyle: short)}}'
 close: Close
 conceptual editor button: Edit conceptual models, vocabularies and profiles
 created: 'Created on {{val, datetime(dateStyle: short)}}'
 data specification button: Edit and manage data specification
+data specification reload: Reload data specification
 dataspecer-packages: packages
 delete-resource:
   title: Remove
@@ -29,11 +38,12 @@ form:
     instruction: Enter the name of the project
     name: Name
   url:
-    instruction: URL publicly accessible from the internet
+    instruction: URL publicly accessible from the internet, each URL on a separate line
     name: URL
 format as json: Format as json
 generate application: Generate the application
 ID: ID
+import specification from url: Import from url
 mode-toggle:
   dark: Dark
   light: Light
@@ -44,6 +54,18 @@ modify-documentation-template: Modify documentation template
 new-package: New package
 open: Open
 project-wizard: Project Wizard
+reload-imported:
+  reload: Reload
+  success: Specification was successfully reloaded.
+  title: Reload imported specification
+  url: URL
+  warning: >-
+    You are about to reload the specification {{name}} from the following URL.
+    If the reload is successful, the specification will be completely
+    overwritten.
+  warning-no-name: >-
+    You are about to reload the specification from the following URL. If the
+    reload is successful, the specification will be completely overwritten.
 remove: Remove
 save: Save
 show-documentation: Show documentation

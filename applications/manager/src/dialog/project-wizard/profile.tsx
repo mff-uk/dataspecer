@@ -22,8 +22,13 @@ export const Profile = ({ isOpen, resolve, iri }: { iri: string } & BetterModalP
     setLoading(true);
 
     try {
-      const url = (event.target as any)["url"].value;
-  
+      const urls = (event.target as any)["url"].value.split("\n").map((url: string) => url.trim()).filter((url: string) => url.length > 0);
+
+      if (urls.length === 0) {
+        setLoading(false);
+        return;
+      }
+
       // Create package
       const packageIri = await createModelInstructions[LOCAL_PACKAGE].createHook({
         parentIri: iri,
@@ -31,19 +36,23 @@ export const Profile = ({ isOpen, resolve, iri }: { iri: string } & BetterModalP
         description: {[i18n.language]: (event.target as any)["description"].value},
         //documentBaseUrl: (event.target as any)["documentation-url"].value ?? undefined,
       }) as string;
-  
+
       // Import
-      const importResult = await fetch(import.meta.env.VITE_BACKEND + "/resources/import?parentIri=" + encodeURIComponent(packageIri) + "&url=" + encodeURIComponent(url), {
-        method: "POST",
-      });
-  
-      if (!importResult.ok) {
+
+      const importResults = [];
+      for (const url of urls) {
+        importResults.push(await fetch(import.meta.env.VITE_BACKEND + "/resources/import?parentIri=" + encodeURIComponent(packageIri) + "&url=" + encodeURIComponent(url), {
+          method: "POST",
+        }));
+      }
+
+      if (!importResults.every(r => r.ok)) {
         await deleteResource(packageIri);
         setLoading(false);
         return;
       }
-  
-      const {userMetadata: {label}} = await importResult.json();
+
+      const {userMetadata: {label}} = await importResults[0].json();
       const plainName = lng(label);
 
       let name = (event.target as any)["name"].value;
@@ -51,7 +60,7 @@ export const Profile = ({ isOpen, resolve, iri }: { iri: string } & BetterModalP
         name = "Profile of " + plainName;
       }
 
-  
+
       // Create semantic model
       await createModelInstructions[LOCAL_SEMANTIC_MODEL].createHook({
         parentIri: packageIri,
@@ -61,20 +70,20 @@ export const Profile = ({ isOpen, resolve, iri }: { iri: string } & BetterModalP
         //documentBaseUrl: (event.target as any)["documentation-url"].value ?? undefined,
         modelAlias: name,
       });
-  
+
       // Create view model
       const viewIri = await createModelInstructions[LOCAL_VISUAL_MODEL].createHook({
         parentIri: packageIri,
         label: {en: "View for " + name},
         description: {en: "View model for the profile"},
       }) as string;
-  
+
       // Rename the original model
       await modifyUserMetadata(packageIri, {label: {en: name}});
-  
+
       // Redirect to url
       window.location.href = getCMELink(packageIri, viewIri);
-  
+
       // Never resolve as we need to redirect!
       // resolve(true);
     } catch (error) {
@@ -96,7 +105,7 @@ export const Profile = ({ isOpen, resolve, iri }: { iri: string } & BetterModalP
           <form className="grid gap-4" onSubmit={formSubmit}>
             <div className="grid gap-2">
               <Label htmlFor="url">{t("form.url.name")}<span className="text-red-500">*</span></Label>
-              <Input id="url" placeholder={t("form.url.instruction")} required />
+              <Textarea id="url" placeholder={t("form.url.instruction")} required />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="name">{t("form.name.name")}</Label>

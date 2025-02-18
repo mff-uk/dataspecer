@@ -1,11 +1,20 @@
 '--lang-name': Čeština
 $datetime: '{{val, datetime(dateStyle: long; timeStyle: short)}}'
+add-imported:
+  error: Při importu některých specifikací nastala chyba
+  import: Importovat
+  success: Import proběhl v pořádku
+  title: Importovat specifikaci
+  warning: >-
+    Tímto krokem můžete importovat specifikaci z její veřejné URL jako novou
+    podsložku.
 autolayout: Automatický layout
 changed: 'Změněno {{val, datetime(dateStyle: short; timeStyle: short)}}'
 close: Zavřít
 conceptual editor button: Editovat konceptuální modely, slovníky a profily
 created: 'Vytvořeno {{val, datetime(dateStyle: short)}}'
 data specification button: Editovat a spravovat datovou specifikaci
+data specification reload: Znovu načíst datovou specifikaci
 dataspecer-packages: správce projektů
 delete-resource:
   title: Odstranit
@@ -27,11 +36,12 @@ form:
     instruction: Zadejte název projektu
     name: Název
   url:
-    instruction: URL veřejně přístupná z internetu
+    instruction: URL veřejně přístupná z internetu, každá URL na separátní řádek
     name: URL
 format as json: Formátovat jako JSON
 generate application: Vygenerovat aplikaci
 ID: ID
+import specification from url: Importovat z URL
 mode-toggle:
   dark: Tmavé
   light: Světlé
@@ -42,6 +52,17 @@ modify-documentation-template: Upravit šablonu dokumentace
 new-package: Nová složka
 open: Otevřít
 project-wizard: Průvodce projektem
+reload-imported:
+  reload: Aktualizovat
+  success: Specifikace byla úspěšně aktualizována.
+  title: Aktualizovat importovanou specifikaci
+  url: URL
+  warning: >-
+    Chystáte se aktualizovat specifikaci {{name}} z následující URL. Pokud
+    načtení proběhne úspěšně, specifikace bude kompletně přepsána.
+  warning-no-name: >-
+    Chystáte se aktualizovat specifikaci z následující URL. Pokud načtení
+    proběhne úspěšně, specifikace bude kompletně přepsána.
 remove: Odstranit
 save: Uložit
 show-documentation: Zobrazit dokumentaci
