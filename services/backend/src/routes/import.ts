@@ -100,7 +100,7 @@ async function importRdfsAndDsv(parentIri: string, rdfsUrl: string | null, dsvUr
     const data = await response.text();
     const conceptualModel = await rdfToConceptualModel(data);
     const dsvResult = conceptualModelToEntityListContainer(conceptualModel[0], {
-      iriToidentifier: getIriToIdMapping(),
+      iriToIdentifier: getIriToIdMapping(),
     });
 
     result.entities = {
