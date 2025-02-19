@@ -6,7 +6,11 @@ import { expect, test } from "vitest";
 import { EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { createDefaultVisualModelFactory, isVisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { CreatedEntityOperationResult, createGeneralization, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
+import {
+  CreatedEntityOperationResult,
+  createGeneralization,
+  createRelationship
+} from "@dataspecer/core-v2/semantic-model/operations";
 import { SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { SetStateAction } from "react";
 import { noActionNotificationServiceWriter } from "../notification/notification-service-context";
@@ -23,7 +27,8 @@ test("removeFromVisualModelAction - relationship - visual id", () => {
     model,
   } = prepareModelWithFourNodes();
 
-  const visualRelationship = createNewVisualRelationshipsForTestingFromSemanticEnds(visualModel, model.getId(), "0", "1");
+  const visualRelationship = createNewVisualRelationshipsForTestingFromSemanticEnds(
+    visualModel, model.getId(), "0", "1");
   expect(visualModel.getVisualEntity(visualRelationship)).not.toBeNull();
   //
   removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, [visualRelationship], true);
@@ -40,10 +45,12 @@ test("removeFromVisualModelAction - relationship - semantic id", () => {
     model,
   } = prepareModelWithFourNodes();
 
-  const visualRelationship = createNewVisualRelationshipsForTestingFromSemanticEnds(visualModel, model.getId(), "0", "1", "relationshipSemanticIdentifier");
+  const visualRelationship = createNewVisualRelationshipsForTestingFromSemanticEnds(
+    visualModel, model.getId(), "0", "1", "relationshipSemanticIdentifier");
   expect(visualModel.getVisualEntity(visualRelationship)).not.toBeNull();
   //
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["relationshipSemanticIdentifier"], false);
+  removeFromVisualModelAction(
+    noActionNotificationServiceWriter, visualModel, ["relationshipSemanticIdentifier"], false);
   expect(visualModel.getVisualEntity(visualRelationship)).toBeNull();
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(1);
   expect(visualModel.getVisualEntitiesForRepresented("1").length).toBe(1);
@@ -58,7 +65,8 @@ test("Remove relationship end - visual id", () => {
   } = prepareModelWithFourNodes();
 
   const nodeToRemove = visualModel.getVisualEntitiesForRepresented("0")[0];
-  const visualRelationship = createNewVisualRelationshipsForTestingFromSemanticEnds(visualModel, model.getId(), "0", "1");
+  const visualRelationship = createNewVisualRelationshipsForTestingFromSemanticEnds(
+    visualModel, model.getId(), "0", "1");
   expect(visualModel.getVisualEntity(visualRelationship)).not.toBeNull();
   //
   removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, [nodeToRemove.identifier], true);
@@ -77,7 +85,8 @@ test("Remove relationship end - semantic id", () => {
   } = prepareModelWithFourNodes();
 
   const nodeToRemove = visualModel.getVisualEntitiesForRepresented("0")[0];
-  const visualRelationship = createNewVisualRelationshipsForTestingFromSemanticEnds(visualModel, model.getId(), "0", "1");
+  const visualRelationship = createNewVisualRelationshipsForTestingFromSemanticEnds(
+    visualModel, model.getId(), "0", "1");
   expect(visualModel.getVisualEntity(visualRelationship)).not.toBeNull();
   //
   removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0"], false);
@@ -97,10 +106,13 @@ test("Remove relationship ends at the same time- visual ids", () => {
 
   const sourceNodeToRemove = visualModel.getVisualEntitiesForRepresented("0")[0];
   const targetNodeToRemove = visualModel.getVisualEntitiesForRepresented("1")[0];
-  const visualRelationship = createNewVisualRelationshipsForTestingFromSemanticEnds(visualModel, model.getId(), "0", "1");
+  const visualRelationship = createNewVisualRelationshipsForTestingFromSemanticEnds(
+    visualModel, model.getId(), "0", "1");
   expect(visualModel.getVisualEntity(visualRelationship)).not.toBeNull();
   //
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, [sourceNodeToRemove.identifier, targetNodeToRemove.identifier], true);
+  removeFromVisualModelAction(
+    noActionNotificationServiceWriter, visualModel,
+    [sourceNodeToRemove.identifier, targetNodeToRemove.identifier], true);
   expect(visualModel.getVisualEntity(visualRelationship)).toBeNull();
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(0);
   expect(visualModel.getVisualEntity(sourceNodeToRemove.identifier)).toBeNull();
@@ -118,7 +130,8 @@ test("Remove relationship ends at the same time - semantic ids", () => {
 
   const sourceNodeToRemove = visualModel.getVisualEntitiesForRepresented("0")[0];
   const targetNodeToRemove = visualModel.getVisualEntitiesForRepresented("1")[0];
-  const visualRelationship = createNewVisualRelationshipsForTestingFromSemanticEnds(visualModel, model.getId(), "0", "1");
+  const visualRelationship = createNewVisualRelationshipsForTestingFromSemanticEnds(
+    visualModel, model.getId(), "0", "1");
   expect(visualModel.getVisualEntity(visualRelationship)).not.toBeNull();
   //
   removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0", "1"], false);
@@ -139,7 +152,8 @@ test("Remove ends and the relationship - visual identifiers", () => {
 
   const sourceNodeToRemove = visualModel.getVisualEntitiesForRepresented("0")[0];
   const targetNodeToRemove = visualModel.getVisualEntitiesForRepresented("1")[0];
-  const visualRelationship = createNewVisualRelationshipsForTestingFromSemanticEnds(visualModel, model.getId(), "0", "1", "relationshipId");
+  const visualRelationship = createNewVisualRelationshipsForTestingFromSemanticEnds(
+    visualModel, model.getId(), "0", "1", "relationshipId");
   expect(visualModel.getVisualEntity(visualRelationship)).not.toBeNull();
   expect(visualModel.getVisualEntitiesForRepresented("relationshipId").length).toBe(1);
   //
@@ -163,7 +177,8 @@ test("Remove ends and the relationship - semantic identifiers", () => {
 
   const sourceNodeToRemove = visualModel.getVisualEntitiesForRepresented("0")[0];
   const targetNodeToRemove = visualModel.getVisualEntitiesForRepresented("1")[0];
-  const visualRelationship = createNewVisualRelationshipsForTestingFromSemanticEnds(visualModel, model.getId(), "0", "1", "relationshipId");
+  const visualRelationship = createNewVisualRelationshipsForTestingFromSemanticEnds(
+    visualModel, model.getId(), "0", "1", "relationshipId");
   expect(visualModel.getVisualEntity(visualRelationship)).not.toBeNull();
   expect(visualModel.getVisualEntitiesForRepresented("relationshipId").length).toBe(1);
   removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0", "1", "relationshipId"], false);
@@ -268,7 +283,8 @@ const prepareModelWithFourNodes = () => {
   aggregator.addModel(model);
   aggregator.addModel(visualModel);
   const aggregatorView = aggregator.getView();
-  const visualModels: Map<string, WritableVisualModel> = new Map(Object.entries({[visualModel.getIdentifier()]: visualModel}));
+  const visualModelsAsObjectEntries = Object.entries({[visualModel.getIdentifier()]: visualModel});
+  const visualModels: Map<string, WritableVisualModel> = new Map(visualModelsAsObjectEntries);
 
   const graph: ModelGraphContextType = {
     aggregator,
@@ -315,7 +331,11 @@ const _createEmptyClassesContextType = (): ClassesContextType => {
   return classes;
 };
 
-const createNewVisualNodeForTesting = (visualModel: WritableVisualModel, model: string, semanticIdentifierAsNumber: number) => {
+const createNewVisualNodeForTesting = (
+  visualModel: WritableVisualModel,
+  model: string,
+  semanticIdentifierAsNumber: number
+) => {
   const visualId = visualModel.addVisualNode({
     representedEntity: semanticIdentifierAsNumber.toString(),
     model,
@@ -337,7 +357,10 @@ const createNewVisualRelationshipsForTestingFromSemanticEnds = (
 ) => {
   const visualSource = visualModel.getVisualEntitiesForRepresented(semanticSourceIdentifier)[0];
   const visualTarget = visualModel.getVisualEntitiesForRepresented(semanticTargetIdentifier)[0];
-  if(visualSource === undefined || visualTarget === undefined || !isVisualNode(visualSource) || !isVisualNode(visualTarget)) {
+  if(visualSource === undefined ||
+     visualTarget === undefined ||
+     !isVisualNode(visualSource) ||
+     !isVisualNode(visualTarget)) {
     fail("Failed when creating visual relationship for testing - programmer error");
   }
   const visualId = visualModel.addVisualRelationship({
@@ -354,17 +377,8 @@ const createNewVisualRelationshipsForTestingFromSemanticEnds = (
   return visualId;
 }
 
-const _createNewVisualRelationshipProfileForTesting = (visualModel: WritableVisualModel, model: string, semanticIdentifierAsNumber: number) => {
-  const visualId = visualModel.addVisualNode({
-    representedEntity: semanticIdentifierAsNumber.toString(),
-    model,
-    content: [],
-    visualModels: [],
-    position: { x: semanticIdentifierAsNumber, y: 0, anchored: null },
-  });
 
-  return visualId;
-}
+// TODO RadStr: Remove later probably not used in this file, but will be useful for the rest of tests
 
 // Heavily inspired by createSemanticAssociationInternal
 // We are doing this so:
