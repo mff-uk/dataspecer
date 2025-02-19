@@ -32,12 +32,30 @@ export interface Profile {
   // @lc-identifier skos:prefLabel
   prefLabel: LanguageString | null;
 
+  // @lc-identifier skos:definition
+  definition: LanguageString | null;
+
   // @lc-identifier vann:usageNote
   usageNote: LanguageString | null;
 
   // @lc-identifier dsv:profileOf
   // @lc-type Profile
-  profileOfIri: string | null;
+  profileOfIri: string[];
+
+  // @lc-identifier dsv:inheritsValue
+  // @lc-type PropertyInheritance
+  inheritsValue: PropertyInheritance[];
+
+}
+
+// @lc-identifier dsv:PropertyInheritance
+export interface PropertyInheritance {
+
+  // dsv:inheritedProperty
+  inheritedPropertyIri: string;
+
+  // dsv:valueFrom
+  propertyValueFromIri: string;
 
 }
 
@@ -52,7 +70,7 @@ export interface ClassProfile extends Profile {
 
   // @lc-identifier dsv:class
   // @lc-type ConceptualClass
-  profiledClassIri: string | null;
+  profiledClassIri: string[];
 
   // @lc-identifier dsv:domain
   properties: PropertyProfile[];
@@ -73,7 +91,7 @@ export interface PropertyProfile extends Profile {
 
   // @lc-identifier dsv:property
   // @lc-type ConceptualProperty
-  profiledPropertyIri: string | null;
+  profiledPropertyIri: string[];
 
 }
 
@@ -89,7 +107,9 @@ export interface ObjectPropertyProfile extends PropertyProfile {
 
 export const ObjectPropertyProfileType = "object-property-profile";
 
-export function isObjectPropertyProfile(profile:Profile) : profile is ObjectPropertyProfile {
+export function isObjectPropertyProfile(
+  profile:Profile,
+) : profile is ObjectPropertyProfile {
   return ((profile as any).$type ?? []).includes(ObjectPropertyProfileType);
 }
 
@@ -104,6 +124,8 @@ export interface DatatypePropertyProfile extends PropertyProfile {
 
 export const DatatypePropertyProfileType = "datatype-property-profile";
 
-export function isDatatypePropertyProfile(profile:Profile) : profile is DatatypePropertyProfile {
+export function isDatatypePropertyProfile(
+  profile:Profile,
+) : profile is DatatypePropertyProfile {
   return ((profile as any).$type ?? []).includes(DatatypePropertyProfileType);
 }

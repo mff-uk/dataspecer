@@ -12,6 +12,7 @@ import {
   isSemanticModelClassUsage,
   isSemanticModelRelationshipUsage,
   isSemanticModelAttributeUsage,
+  SemanticModelRelationshipEndUsage,
 } from "../usage/concepts";
 
 import {
@@ -29,13 +30,24 @@ import {
   ObjectPropertyProfileType,
   DatatypePropertyProfile,
   DatatypePropertyProfileType,
+  Profile,
 } from "./dsv-model";
+import {
+  isSemanticModelClassProfile,
+  isSemanticModelRelationshipProfile,
+  SemanticModelClassProfile,
+  SemanticModelRelationshipEndProfile,
+  SemanticModelRelationshipProfile,
+} from "../profile/concepts";
+import { SKOS, VANN } from "./vocabulary";
+import { isDataType } from "../datatypes";
 
 interface EntityListContainerToConceptualModelContext {
 
   /**
    * Given an identifier return a representing entity.
    * We need this to find out, whether profiles entity is a profile or not.
+   * Must return null when the argument is null.
    */
   identifierToEntity: (identifier: string) => Entity | null;
 
@@ -44,7 +56,7 @@ interface EntityListContainerToConceptualModelContext {
    * from the transforming model as well as with entities from
    * identifierToEntity function.
    */
-  entityToIri: (entity: SemanticModelEntity) => string;
+  entityToIri: (entity: SemanticModelEntity | SemanticModelRelationshipProfile) => string;
 
   /**
    * Allows for filtering of languages strings.
@@ -89,38 +101,73 @@ class EntityListContainerToConceptualModel {
 
   private loadClassProfiles(modelContainer: EntityListContainer): Record<string, ClassProfile> {
     const result: Record<string, ClassProfile> = {};
-    modelContainer.entities.filter(isSemanticModelClassUsage).forEach((item: SemanticModelClassUsage) => {
-      const classProfile = this.semanticModelClassUsageToClassProfile(item);
+    modelContainer.entities.filter(
+      item => isSemanticModelClassUsage(item) || isSemanticModelClassProfile(item)
+    ).forEach((item) => {
+      const classProfile = this.semanticClassUsageToClassProfile(item);
       result[item.id] = classProfile;
     });
     return result;
   }
 
-  private semanticModelClassUsageToClassProfile(item: SemanticModelClassUsage): ClassProfile {
+  private semanticClassUsageToClassProfile(
+    item: SemanticModelClassUsage | SemanticModelClassProfile,
+  ): ClassProfile {
+
     const classProfile: ClassProfile = {
       // Profile
       iri: this.resolveIri(item.id, item.iri),
       prefLabel: this.context.languageFilter(item.name),
+      definition: null,
       usageNote: this.context.languageFilter(item.usageNote),
-      profileOfIri: null,
+      profileOfIri: [],
       // ClassProfile
       $type: [ClassProfileType],
-      profiledClassIri: null,
-      properties: [], // We fill this later.
+      properties: [],
+      inheritsValue: [],
+      profiledClassIri: [],
+    };
+
+    const profiling: (Entity | null)[] = [];
+    // Type specific.
+    if (isSemanticModelClassUsage(item)) {
+      profiling.push(this.identifierToEntity(item.usageOf));
+      this.addInheritsValueFromUsage(item, classProfile);
+    } else {
+      item.profiling.forEach(item => profiling.push(this.identifierToEntity(item)));
+      this.addInheritsValueFromProfile(item, classProfile);
     }
 
-    // We can profile either a class or a profile.
-    const profileOf = this.context.identifierToEntity(item.usageOf);
-    if (profileOf === null) {
-      console.error(`Missing profileOf target '${item.usageOf}' for '${item.id}'.`);
-    } else if (isSemanticModelClass(profileOf)) {
-      classProfile.profiledClassIri = this.context.entityToIri(profileOf);
-    } else if (isSemanticModelClassUsage(profileOf)) {
-      classProfile.profileOfIri = this.context.entityToIri(profileOf);
-    } else {
-      console.warn(`Invalid profileOf for '${item.usageOf}' type '${profileOf.type}' for '${item.id}'.`)
+    // We need to know what we profile to add it to the right place.
+    for (const profileOf of profiling) {
+      if (profileOf === null) {
+        // We ignore this here, there is nothing we can do.
+        continue;
+      }
+      if (isSemanticModelClass(profileOf)) {
+        classProfile.profiledClassIri.push(
+          this.context.entityToIri(profileOf));
+      } else if (isSemanticModelClassUsage(profileOf)
+        || isSemanticModelClassProfile(profileOf)) {
+        classProfile.profileOfIri.push(
+          this.context.entityToIri(profileOf))
+      } else {
+        console.warn(`Invalid profileOf '${profileOf.id}' of type '${profileOf.type}' for '${item.id}'.`)
+      }
     }
+
     return classProfile;
+  }
+
+  private identifierToEntity(iri: string | null): Entity | null {
+    if (iri === null) {
+      return null;
+    }
+    const result = this.context.identifierToEntity(iri);
+    if (result === null) {
+      console.error(`Missing entity with IRI '${iri}'.`);
+    }
+    return result;
   }
 
   /**
@@ -130,9 +177,88 @@ class EntityListContainerToConceptualModel {
     return resolveIri(this.baseIri, identifier, iri);
   }
 
-  private loadRelationshipsToClassProfiles(modelContainer: EntityListContainer, identifierToClassProfile: Record<string, ClassProfile>): void {
+  /**
+   * Adds inheritsValue values for usage.
+   */
+  addInheritsValueFromUsage(
+    item: {
+      usageOf: string,
+      name: LanguageString | null,
+      description: LanguageString | null
+      usageNote: LanguageString | null
+    },
+    profile: Profile,
+  ) {
+    if (item.name === null) {
+      profile.inheritsValue.push({
+        inheritedPropertyIri: SKOS.prefLabel.id,
+        propertyValueFromIri: this.resolveIri(item.usageOf, null),
+      });
+    }
+    if (item.description === null) {
+      profile.inheritsValue.push({
+        inheritedPropertyIri: SKOS.definition.id,
+        propertyValueFromIri: this.resolveIri(item.usageOf, null),
+      });
+    }
+    if (item.usageNote === null) {
+      profile.inheritsValue.push({
+        inheritedPropertyIri: VANN.usageNote.id,
+        propertyValueFromIri: this.resolveIri(item.usageOf, null),
+      });
+    }
+  }
+
+  /**
+   * Adds inheritsValue values for profile.
+   */
+  addInheritsValueFromProfile(
+    item: {
+      nameFromProfiled: string | null,
+      descriptionFromProfiled: string | null,
+      usageNoteFromProfiled: string | null,
+    },
+    profile: Profile,
+  ) {
+    if (item.nameFromProfiled !== null) {
+      profile.inheritsValue.push({
+        inheritedPropertyIri: SKOS.prefLabel.id,
+        propertyValueFromIri: this.resolveIri(item.nameFromProfiled, null),
+      });
+    }
+    if (item.descriptionFromProfiled !== null) {
+      profile.inheritsValue.push({
+        inheritedPropertyIri: SKOS.definition.id,
+        propertyValueFromIri: this.resolveIri(item.descriptionFromProfiled, null),
+      });
+    }
+    if (item.usageNoteFromProfiled !== null) {
+      profile.inheritsValue.push({
+        inheritedPropertyIri: VANN.usageNote.id,
+        propertyValueFromIri: this.resolveIri(item.usageNoteFromProfiled, null),
+      });
+    }
+  }
+
+  private loadRelationshipsToClassProfiles(
+    modelContainer: EntityListContainer,
+    identifierToClassProfile: Record<string, ClassProfile>,
+  ): void {
     modelContainer.entities.filter(isSemanticModelRelationshipUsage).forEach(item => {
-      const propertyProfile = this.semanticModelRelationshipUsageToPropertyProfile(item);
+      const propertyProfile = this.semanticRelationshipUsageToPropertyProfile(item);
+      if (propertyProfile == null) {
+        return;
+      }
+      const owner = identifierToClassProfile[propertyProfile.ownerIdentifier];
+      if (owner === undefined) {
+        console.warn(`Missing owner for '${item.id}' of type '${item.type}'. Relationship is ignored.`);
+        return;
+      }
+      owner?.properties.push(propertyProfile.profile);
+    });
+    // And once more for profiles.
+    modelContainer.entities.filter(isSemanticModelRelationshipProfile).forEach(item => {
+      const propertyProfile = this.semanticRelationshipProfileToPropertyProfile(item);
       if (propertyProfile == null) {
         return;
       }
@@ -152,7 +278,9 @@ class EntityListContainerToConceptualModel {
    *
    * As decided, spring 2024, property IRI, name, usageNote, etc .. are stored in the range.
    */
-  private semanticModelRelationshipUsageToPropertyProfile(item: SemanticModelRelationshipUsage): { ownerIdentifier: string, profile: PropertyProfile } | null {
+  private semanticRelationshipUsageToPropertyProfile(
+    item: SemanticModelRelationshipUsage,
+  ): { ownerIdentifier: string, profile: PropertyProfile } | null {
     const [domain, range] = item.ends;
     if (domain === undefined || range === undefined) {
       console.error(`Expected two ends for '${item.id}'.`);
@@ -168,52 +296,122 @@ class EntityListContainerToConceptualModel {
       iri: this.resolveIri(item.id, range.iri),
       cardinality: cardinalityToCardinalityEnum(range.cardinality),
       prefLabel: this.context.languageFilter(range.name),
+      definition: this.context.languageFilter(range.description),
       usageNote: this.context.languageFilter(range.usageNote),
-      profileOfIri: null, // We are not using this profileOfIri.
+      profileOfIri: [],
       // PropertyProfile
-      profiledPropertyIri: null,
+      profiledPropertyIri: [],
+      inheritsValue: [],
     };
 
     // For profileOfIri of we need to check what we are profiling.
     const profileOf = this.context.identifierToEntity(item.usageOf);
     if (profileOf === null) {
-      console.error(`Missing profileOf with if '${item.usageOf}' for '${item.id}'.`);
-    } else if (isSemanticModelRelationship(profileOf)) {
-      const [_, profileOfRange] = profileOf.ends;
-      if (profileOfRange === undefined) {
-        console.error(`Missing end for '${profileOf.id}' as profile for '${item.id}'`);
-      } else {
-        propertyProfile.profiledPropertyIri = this.context.entityToIri(profileOf);
-      }
-    } else if (isSemanticModelRelationshipUsage(profileOf)) {
-      const [_, profileOfRange] = profileOf.ends;
-      if (profileOfRange === undefined) {
-        console.error(`Missing end for '${profileOf.id}' as profile for '${item.id}'`);
-      } else {
-        propertyProfile.profileOfIri = this.context.entityToIri(profileOf);
-      }
-    } else  {
-      // It can be part of the core types.
-      console.warn(`Invalid profileOf '${profileOf.id}' with type '${profileOf.type}' for '${item.id}'.`)
+      console.error(`Missing profileOf '${item.usageOf}' for '${item.id}'.`);
+    } else {
+      this.addProfileToPropertyProfile(profileOf, propertyProfile);
     }
 
-    // Relationship can be of two types.
-    if (isSemanticModelAttributeUsage(item)) {
+    this.addInheritsValueFromUsage({
+      // Part of the state is at the range and part at the property.
+      ...range,
+      usageOf: item.usageOf,
+      usageNote: item.usageNote,
+    }, propertyProfile);
+    this.addRangeConceptToPropertyProfile(item, range, propertyProfile);
+
+    return {
+      ownerIdentifier: domain.concept,
+      profile: propertyProfile,
+    };
+  }
+
+  /**
+   * Add information about range concept to the property.
+   */
+  private addRangeConceptToPropertyProfile(
+    item: SemanticModelRelationshipUsage | SemanticModelRelationshipProfile,
+    range: SemanticModelRelationshipEndUsage | SemanticModelRelationshipEndProfile,
+    propertyProfile: PropertyProfile
+  ) {
+    // Now we need to store the range, we store it base on the
+    // relationship type.
+    const rangeConcept = range.concept;
+    if (rangeConcept === null) {
+      console.warn("Range concept is null.", item);
+    } else if (isDataType(rangeConcept)) {
+      // It is an attribute.
       const attribute = extentToDatatypePropertyProfile(propertyProfile);
-      if (range.concept !== null) {
-        attribute.rangeDataTypeIri.push(range.concept);
-      }
-    } else if (isSemanticModelRelationshipUsage(item)) {
+      attribute.rangeDataTypeIri.push(rangeConcept);
+    } else {
+      // It is an association.
       const association = extentToObjectPropertyProfile(propertyProfile);
-      if (range.concept !== null) {
-        const entity = this.context.identifierToEntity(range.concept);
-        if (isSemanticModelClassUsage(entity) && entity.iri !== null) {
+      const entity = this.context.identifierToEntity(rangeConcept);
+      if (isSemanticModelClassUsage(entity) || isSemanticModelClassProfile(entity)) {
+        if (entity.iri !== null) {
           association.rangeClassIri.push(entity.iri);
         }
+      } else {
+        console.warn("Range concent of a profile is not a profile.", {
+          profile: item, range: entity,
+        });
       }
-    } else {
-      console.warn(`Invalid relationship type '${item}'.`)
     }
+  }
+
+  private addProfileToPropertyProfile(
+    profileOf: Entity,
+    profile: PropertyProfile,
+  ) {
+    if (isSemanticModelRelationship(profileOf)) {
+      profile.profiledPropertyIri.push(this.context.entityToIri(profileOf));
+    } else if (isSemanticModelRelationshipUsage(profileOf)) {
+      profile.profileOfIri.push(this.context.entityToIri(profileOf));
+    } else if (isSemanticModelRelationshipProfile(profileOf)) {
+      profile.profileOfIri.push(this.context.entityToIri(profileOf));
+    } else {
+      // It can be part of the core types.
+      console.warn(`Invalid profileOf '${profileOf.id}' with type '${profileOf.type}'.`)
+    }
+  }
+
+  private semanticRelationshipProfileToPropertyProfile(
+    item: SemanticModelRelationshipProfile,
+  ): { ownerIdentifier: string, profile: PropertyProfile } | null {
+    const [domain, range] = item.ends;
+    if (domain === undefined || range === undefined) {
+      console.error(`Expected two ends for '${item.id}'.`);
+      return null;
+    }
+    if (domain.concept === null) {
+      console.error(`Missing 'ends[0].concept' (owner) for '${item.id}'.`);
+      return null;
+    }
+
+    const propertyProfile: PropertyProfile = {
+      // Profile
+      iri: this.resolveIri(item.id, range.iri),
+      cardinality: cardinalityToCardinalityEnum(range.cardinality),
+      prefLabel: this.context.languageFilter(range.name),
+      definition: this.context.languageFilter(range.description),
+      usageNote: this.context.languageFilter(range.usageNote),
+      profileOfIri: [],
+      // PropertyProfile
+      profiledPropertyIri: [],
+      inheritsValue: [],
+    };
+
+    for (const iri of range.profiling) {
+      const profileOf = this.context.identifierToEntity(iri);
+      if (profileOf === null) {
+        console.error(`Missing profileOf '${iri}' for '${item.id}'.`);
+      } else {
+        this.addProfileToPropertyProfile(profileOf, propertyProfile);
+      }
+    }
+
+    this.addInheritsValueFromProfile(range, propertyProfile);
+    this.addRangeConceptToPropertyProfile(item, range, propertyProfile);
 
     return {
       ownerIdentifier: domain.concept,
@@ -307,15 +505,17 @@ export function createContext(containers: EntityListContainer[], languageFilter:
     identifierToEntity: (identifier: string): Entity | null => {
       return entityMap[identifier]?.entity ?? null;
     },
-    entityToIri: (entity: SemanticModelEntity): string => {
-      let iri = entity.iri;
+    entityToIri: (entity: SemanticModelEntity | SemanticModelRelationshipProfile): string => {
+      const baseIri = entityMap[entity.id]?.container?.baseIri ?? null;
       // Relations store IRI in the range end.
-      if (isSemanticModelRelationship(entity)) {
+      let iri: string | null = null;
+      if (isSemanticModelRelationship(entity)
+        || isSemanticModelRelationshipProfile(entity)) {
         const [_, range] = entity.ends;
         iri = range?.iri ?? iri;
+      } else {
+        iri = entity.iri;
       }
-      //
-      const baseIri = entityMap[entity.id]?.container?.baseIri ?? null;
       return resolveIri(baseIri, entity.id, iri);
     },
     languageFilter

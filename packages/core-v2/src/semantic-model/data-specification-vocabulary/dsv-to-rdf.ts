@@ -28,13 +28,15 @@ interface ConceptualModelToRdfConfiguration {
   prefixes?: { [prefix: string]: string };
 
   /**
-   * True to do some additional formating on the output string.
+   * True to do some additional formatting on the output string.
    */
   prettyPrint?: boolean;
 
 }
 
-export async function conceptualModelToRdf(model: ConceptualModel, configuration: ConceptualModelToRdfConfiguration): Promise<string> {
+export async function conceptualModelToRdf(
+  model: ConceptualModel, configuration: ConceptualModelToRdfConfiguration,
+): Promise<string> {
   const effectiveConfiguration = {
     ...createDefaultConfiguration(),
     ...configuration,
@@ -95,11 +97,11 @@ class ConceptualModelWriter {
   private writeClassProfile(profile: ClassProfile) {
     this.writeProfileBase(profile)
     this.addType(profile.iri, DSV.ClassProfile);
-    this.addIri(profile.iri, DSV.class, profile.profiledClassIri);
+    this.addIris(profile.iri, DSV.class, profile.profiledClassIri);
     // Properties.
     for (const property of profile.properties) {
       this.addIri(property.iri, DSV.domain, profile.iri);
-      //
+      // It can be both types or none.
       if (isObjectPropertyProfile(property)) {
         this.writeObjectPropertyProfile(property);
       }
@@ -113,38 +115,35 @@ class ConceptualModelWriter {
     this.addIri(profile.iri, DCT.isPartOf, this.model.iri);
     this.addType(profile.iri, DSV.Profile);
     //
-    this.addStringProperty(profile.iri, SKOS.prefLabel, profile.prefLabel);
-    this.addStringProperty(profile.iri, VANN.usageNote, profile.usageNote);
+    this.addLiteral(profile.iri, SKOS.prefLabel, profile.prefLabel);
+    this.addLiteral(profile.iri, VANN.usageNote, profile.usageNote);
     // We do not write this into properties.
-    this.addIri(profile.iri, DSV.profileOf, profile.profileOfIri);
+    this.addIris(profile.iri, DSV.profileOf, profile.profileOfIri);
+    for (const item of profile.inheritsValue) {
+      const node = DataFactory.blankNode();
+      // We need to use writer directly as we work with blank node.
+      this.writer.addQuad(IRI(profile.iri), DSV.inheritsValue, node);
+      this.writer.addQuad(
+        node, RDF.type, DSV.PropertyInheritance);
+      this.writer.addQuad(
+        node, DSV.inheritedProperty, IRI(item.inheritedPropertyIri));
+      this.writer.addQuad(
+        node, DSV.valueFrom, IRI(item.propertyValueFromIri));
+    }
   }
 
-  private addIri(subject: string, predicate: N3.NamedNode, value: string | null) {
+  private addIris(subject: string, predicate: N3.NamedNode, values: string[]) {
+    values.forEach(value => this.addIri(subject, predicate, value));
+  }
+
+  private addIri(
+    subject: string, predicate: N3.NamedNode,
+    value: N3.NamedNode<string> | string | null,
+  ) {
     if (value === null) {
       return;
     }
-    this.writer.addQuad(IRI(subject), predicate, IRI(value));
-  }
-
-  /**
-   * When value is null add to an inheritance list.
-   */
-  private addStringProperty(subject: string, predicate: N3.NamedNode, string: LanguageString | null) {
-    if (string === null) {
-      this.writer.addQuad(IRI(subject), DSV.inherits, predicate);
-      return;
-    }
-    for (const [lang, value] of Object.entries(string)) {
-      this.writer.addQuad(IRI(subject), predicate, Literal(value, lang));
-    }
-  }
-
-  /**
-   * When value is null add to an inheritance list.
-   */
-  private addIriProperty(subject: string, predicate: N3.NamedNode, value: N3.NamedNode<string> | string | null) {
     if (value === null) {
-      this.writer.addQuad(IRI(subject), DSV.inherits, predicate);
       return;
     }
     if (typeof value === 'string') {
@@ -152,31 +151,36 @@ class ConceptualModelWriter {
     } else {
       this.writer.addQuad(IRI(subject), predicate, value);
     }
-
   }
 
-  private writePropertyProfileBase(profile: PropertyProfile) {
-    this.writeProfileBase(profile);
-    this.addIriProperty(profile.iri, DSV.cardinality, cardinalityToIri(profile.cardinality));
-    this.addIriProperty(profile.iri, DSV.property, profile.profiledPropertyIri);
+  private addLiteral(
+    subject: string, predicate: N3.NamedNode, string: LanguageString | null,
+  ) {
+    if (string === null) {
+      return;
+    }
+    for (const [lang, value] of Object.entries(string)) {
+      this.writer.addQuad(IRI(subject), predicate, Literal(value, lang));
+    }
   }
 
   writeObjectPropertyProfile(profile: ObjectPropertyProfile) {
     this.writePropertyProfileBase(profile);
     this.addType(profile.iri, DSV.ObjectPropertyProfile);
-    //
-    for (const iri of profile.rangeClassIri) {
-      this.addIriProperty(profile.iri, DSV.objectPropertyRange, iri);
-    }
+    this.addIris(profile.iri, DSV.objectPropertyRange, profile.rangeClassIri);
+  }
+
+  private writePropertyProfileBase(profile: PropertyProfile) {
+    this.writeProfileBase(profile);
+    const cardinality = cardinalityToIri(profile.cardinality);
+    this.addIri(profile.iri, DSV.cardinality, cardinality);
+    this.addIris(profile.iri, DSV.property, profile.profiledPropertyIri);
   }
 
   writeDatatypePropertyProfile(profile: DatatypePropertyProfile) {
     this.writePropertyProfileBase(profile);
     this.addType(profile.iri, DSV.DatatypePropertyProfile);
-    //
-    for (const iri of profile.rangeDataTypeIri) {
-      this.addIriProperty(profile.iri, DSV.datatypePropertyRange, iri);
-    }
+    this.addIris(profile.iri, DSV.datatypePropertyRange, profile.rangeDataTypeIri);
   }
 
 }

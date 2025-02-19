@@ -54,7 +54,10 @@ export const DSV = {
   "datatypePropertyRange": IRI(DSV_PREFIX + "datatypePropertyRange"),
   "profileOf": IRI(DSV_PREFIX + "profileOf"),
   "cardinality": IRI(DSV_PREFIX + "cardinality"),
-  "inherits": IRI(DSV_PREFIX + "inheritsProperties"),
+  "inheritsValue": IRI(DSV_PREFIX + "inheritsValue"),
+  "PropertyInheritance": IRI(DSV_PREFIX + "PropertyInheritance"),
+  "inheritedProperty": IRI(DSV_PREFIX + "inheritedProperty"),
+  "valueFrom": IRI(DSV_PREFIX + "valueFrom"),
   "ManyToMany": IRI(DSV_PREFIX + "nn"),
   "ManyToOne": IRI(DSV_PREFIX + "n1"),
   "ManyToZero": IRI(DSV_PREFIX + "n0"),
@@ -78,6 +81,7 @@ const SKOS_PREFIX = "http://www.w3.org/2004/02/skos/core#";
 
 export const SKOS = {
   "prefLabel": IRI(SKOS_PREFIX + "prefLabel"),
+  "definition": IRI(SKOS_PREFIX + "definition"),
 };
 
 const VANN_PREFIX = "http://purl.org/vocab/vann/";
