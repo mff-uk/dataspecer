@@ -90,7 +90,7 @@ export const EntityRow = (props: {
   const isRelationshipProfile = isSemanticModelRelationshipProfile(entity);
   if (isRelationshipProfile) {
     const domainName = getLocalizedStringFromLanguageString(
-        getNameLanguageString(domain.entity ?? null), language) ??
+      getNameLanguageString(domain.entity ?? null), language) ??
         getFallbackDisplayName(domain.entity ?? null);
 
     effectiveName = `[${domainName}] ->  ${name}`;
