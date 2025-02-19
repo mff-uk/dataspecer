@@ -27,7 +27,9 @@ import { AddNeighborhoodButton } from "../components/add-neighborhood-button";
 import { useCatalogHighlightingController } from "../../diagram/features/highlighting/exploration/catalog/catalog-highlighting-controller";
 import "../../diagram/features/highlighting/exploration/catalog/highlighting-catalog-styles.css";
 import "../../diagram/features/highlighting/exploration/context/exploration-highlighting-styles.css";
-import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { getFallbackDisplayName, getNameLanguageString } from "../../util/name-utils";
+import { getLocalizedStringFromLanguageString } from "../../util/language-utils";
 
 const TreeLikeOffset = (props: { offset?: number }) => {
   const { offset } = props;
@@ -63,10 +65,10 @@ export const EntityRow = (props: {
 }) => {
   const { openDetailDialog, openModifyDialog, openCreateProfileDialog } = useActions();
 
-  const { language: preferredLanguage } = useOptions();
+  const { language } = useOptions();
 
   const { entity, offset, drawable, expandable, removable, sourceModel } = props;
-  const { name, iri } = useEntityProxy(entity, preferredLanguage);
+  const { name, iri, domain } = useEntityProxy(entity, language);
 
   const [isExpanded, setIsExpanded] = useState(expandable?.expanded());
   const isDraggable = isSemanticModelClass(entity) || isSemanticModelClassUsage(entity);
@@ -83,6 +85,16 @@ export const EntityRow = (props: {
   const shouldShrinkThisRow = explorationHighlightingController.shouldShrinkCatalog &&
                                 !explorationHighlightingController.isEntityHighlighted(entity.id) &&
                                 explorationHighlightingController.isAnyEntityHighlighted;
+
+  let effectiveName = name;
+  const isRelationshipProfile = isSemanticModelRelationshipProfile(entity);
+  if (isRelationshipProfile) {
+    const domainName = getLocalizedStringFromLanguageString(
+        getNameLanguageString(domain.entity ?? null), language) ??
+        getFallbackDisplayName(domain.entity ?? null);
+
+    effectiveName = `[${domainName}] ->  ${name}`;
+  }
 
   const onMouseEnter = (_: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if(explorationHighlightingController.isHighlightingChangeAllowed()) {
@@ -102,7 +114,7 @@ export const EntityRow = (props: {
       <span className="overflow-x-clip" title={iri ?? ""}>
         <IriLink iri={iri} />
         <TreeLikeOffset offset={offset} />
-        {name}
+        {effectiveName}
       </span>
       <div className="ml-2 flex flex-row px-1 ">
         {props.targetable?.isTargetable
