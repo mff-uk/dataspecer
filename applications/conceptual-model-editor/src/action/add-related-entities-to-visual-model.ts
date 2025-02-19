@@ -56,13 +56,13 @@ export function addRelatedEntitiesAction(
     if (isSemanticModelRelationship(candidate)) {
       if (shouldAddRelationship(visualModel, identifier, candidate)) {
         addSemanticRelationshipToVisualModelAction(
-          notifications, graph, visualModel, candidate.id, candidateModel.getId());
+          notifications, graph, visualModel, candidate.id, candidateModel.getId(), null, null);
       }
     }
     if (isSemanticModelRelationshipUsage(candidate) || isSemanticModelRelationshipProfile(candidate)) {
       if (shouldAddRelationshipUsageOrProfile(visualModel, identifier, candidate)) {
         addSemanticRelationshipProfileToVisualModelAction(
-          notifications, graph, visualModel, candidate.id, candidateModel.getId());
+          notifications, graph, visualModel, candidate.id, candidateModel.getId(), null, null);
       }
     }
     if (isSemanticModelClassUsage(candidate)) {
@@ -143,9 +143,9 @@ function shouldAddGeneralization(
   candidate: SemanticModelGeneralization,
 ): boolean {
   if (candidate.parent === identifier) {
-    return visualModel.getVisualEntityForRepresented(candidate.child) !== null;
+    return visualModel.getVisualEntitiesForRepresented(candidate.child).length > 0;
   } else if (candidate.child === identifier) {
-    return visualModel.getVisualEntityForRepresented(candidate.parent) !== null;
+    return visualModel.getVisualEntitiesForRepresented(candidate.parent).length > 0;
   } else {
     return false;
   }
@@ -159,10 +159,10 @@ function shouldAddRelationship(
   const { domain, range } = getDomainAndRange(candidate);
   if (domain?.concept === identifier) {
     const other = range?.concept ?? null;
-    return other !== null && visualModel.getVisualEntityForRepresented(other) !== null;
+    return other !== null && visualModel.getVisualEntitiesForRepresented(other).length > 0;
   } else if (range?.concept === identifier) {
     const other = domain?.concept ?? null;
-    return other !== null && visualModel.getVisualEntityForRepresented(other) !== null;
+    return other !== null && visualModel.getVisualEntitiesForRepresented(other).length > 0;
   } else {
     return false;
   }
@@ -176,10 +176,10 @@ function shouldAddRelationshipUsageOrProfile(
   const { domain, range } = getDomainAndRange(candidate);
   if (domain?.concept === identifier) {
     const other = range?.concept ?? null;
-    return other !== null && visualModel.getVisualEntityForRepresented(other) !== null;
+    return other !== null && visualModel.getVisualEntitiesForRepresented(other).length > 0;
   } else if (range?.concept === identifier) {
     const other = domain?.concept ?? null;
-    return other !== null && visualModel.getVisualEntityForRepresented(other) !== null;
+    return other !== null && visualModel.getVisualEntitiesForRepresented(other).length > 0;
   } else {
     return false;
   }
@@ -197,7 +197,7 @@ function shouldAddUsage(
   // The candidate may be specialization of what we are adding.
   if (profile.usageOf === profiled) {
     // We return true if the other is in the visual model.
-    return visualModel.getVisualEntityForRepresented(profile.id) !== null;
+    return visualModel.getVisualEntitiesForRepresented(profile.id).length > 0;
   }
   return false;
 }
@@ -214,7 +214,7 @@ function shouldAddProfile(
   // The candidate may be specialization of what we are adding.
   if (profile.profiling.includes(profiled)) {
     // We return true if the other is in the visual model.
-    return visualModel.getVisualEntityForRepresented(profile.id) !== null;
+    return visualModel.getVisualEntitiesForRepresented(profile.id).length > 0;
   }
   return false;
 }
