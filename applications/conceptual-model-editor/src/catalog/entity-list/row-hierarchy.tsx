@@ -23,13 +23,14 @@ import { useClassesContext } from "../../context/classes-context";
 import { hasBothEndsInVisualModel } from "../../util/relationship-utils";
 import { findSourceModelOfEntity } from "../../service/model-service";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { EntityType } from "./entities-of-model";
 
 export const RowHierarchy = (props: {
     entity: SemanticModelClass | SemanticModelClassUsage
       | SemanticModelRelationship | SemanticModelRelationshipUsage
       | SemanticModelClassProfile | SemanticModelRelationshipProfile;
     handlers: {
-        handleAddEntityToActiveView: (entity: Entity) => void;
+        handleAddEntityToActiveView: (model: EntityModel, entity: Entity) => void;
         handleRemoveEntityFromActiveView: (entity: Entity) => void;
         handleExpansion: (model: EntityModel, classId: string) => Promise<void>;
         handleRemoval: (model: InMemorySemanticModel | ExternalSemanticModel, entityId: string) => Promise<void>;
@@ -69,8 +70,8 @@ export const RowHierarchy = (props: {
   const showDrawingHandler = isClassOrProfile
     || (isRelationshipOrProfile && hasBothEndsInVisualModel(aggregatedEntity, aggregatorView.getActiveVisualModel()));
 
-  const drawingHandler = !showDrawingHandler ? null : {
-    addToViewHandler: () => props.handlers.handleAddEntityToActiveView(entity),
+  const drawingHandler = !showDrawingHandler || sourceModel === undefined ? null : {
+    addToViewHandler: () => props.handlers.handleAddEntityToActiveView(sourceModel, entity),
     removeFromViewHandler: () => props.handlers.handleRemoveEntityFromActiveView(entity),
   };
 

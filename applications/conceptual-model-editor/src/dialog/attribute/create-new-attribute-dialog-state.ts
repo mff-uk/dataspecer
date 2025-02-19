@@ -2,7 +2,7 @@ import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { EditAttributeDialogState } from "./edit-attribute-dialog-controller";
-import { isRepresentingAttribute, listAttributeRanges, representOwlThing, representRelationships, representRdfsLiteral, listRelationshipDomains } from "../utilities/dialog-utilities";
+import { isRepresentingAttribute, listAttributeRanges, representOwlThing, representRelationships, representRdfsLiteral, listRelationshipDomains, sortRepresentatives } from "../utilities/dialog-utilities";
 import { configuration } from "../../application";
 import { createEntityStateForNew } from "../utilities/entity-utilities";
 import { createSpecializationStateForNew } from "../utilities/specialization-utilities";
@@ -39,6 +39,7 @@ export function createNewAttributeDialogState(
     models, entityState.allModels, classesContext.relationships,
     owlThing.identifier, rdfsLiteral.identifier)
     .filter(item => isRepresentingAttribute(item));
+  sortRepresentatives(language, specializations);
 
   const specializationState = createSpecializationStateForNew(
     language, entityState.allModels, specializations);
@@ -47,6 +48,8 @@ export function createNewAttributeDialogState(
 
   const domains = listRelationshipDomains(
     classesContext, graphContext, vocabularies);
+  sortRepresentatives(language, domains);
+
   const dataTypes = listAttributeRanges();
 
   const relationshipState = createRelationshipStateForNew(

@@ -42,7 +42,7 @@ export const getAdapter = async (urls: string[], service: StructureEditorBackend
   }
 
   if (urls.every((url) => url.startsWith("rdfs:"))) {
-    const cimAdapter = new RdfsFileAdapter(urls, httpFetch);
+    const cimAdapter = new RdfsFileAdapter(urls.map(url => url.substring("rdfs:".length)), httpFetch);
     cimAdapter.setIriProvider(iriProvider);
     return wrapCimAdapter(cimAdapter);
   }
@@ -66,4 +66,11 @@ export function useProvidedSourceSemanticModel(
   }, [cimAdaptersConfiguration, dataSpecificationId]);
 
   return sourceSemanticModel ?? null;
+}
+
+export function getProvidedSourceSemanticModel(
+  cimAdaptersConfiguration: any[] = DEFAULT_CONFIG,
+  dataSpecificationId: string | null
+) {
+  return getAdapter(cimAdaptersConfiguration, service, dataSpecificationId);
 }

@@ -6,7 +6,7 @@ import { isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/us
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { EditClassProfileDialogState } from "./edit-class-profile-dialog-controller";
-import { listClassToProfiles, representUndefinedClass } from "../utilities/dialog-utilities";
+import { listClassToProfiles, representUndefinedClass, sortRepresentatives } from "../utilities/dialog-utilities";
 import { DialogWrapper } from "../dialog-api";
 import { EditClassProfileDialog } from "./edit-class-profile-dialog";
 import { MissingEntity, RuntimeError } from "../../application/error";
@@ -36,6 +36,7 @@ export function createEditClassProfileDialogState(
 
   const availableProfiles = listClassToProfiles(
     classesContext, graphContext, vocabularies);
+  sortRepresentatives(language, availableProfiles);
 
   if (isSemanticModelClassUsage(entity)) {
     return createEntityProfileStateForEdit(

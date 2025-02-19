@@ -11,7 +11,6 @@ import { useDownload } from "../features/export/download";
 import { useClassesContext } from "../context/classes-context";
 import { entityWithOverriddenIri, getIri, getModelIri } from "../util/iri-utils";
 import { ExportButton } from "../components/management/buttons/export-button";
-import { useAutoSave } from "../features/autosave";
 import { useQueryParamsContext } from "../context/query-params-context";
 import * as DataSpecificationVocabulary from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
 
@@ -23,7 +22,6 @@ export const ExportManagement = () => {
 
   const { updatePackageId: setPackage } = useQueryParamsContext();
   const { download } = useDownload();
-  const { AutoSaveButton } = useAutoSave();
   const service = useMemo(() => new BackendPackageService("fail-if-needed", httpFetch), []);
 
   const uploadConfiguration = (contentType: string = "application/json") => {
@@ -159,7 +157,6 @@ export const ExportManagement = () => {
       <ExportButton title="Open workspace from configuration file" onClick={handleLoadWorkspaceFromJson}>
         📥ws
       </ExportButton>
-      <AutoSaveButton />
       <ExportButton title="Generate workspace configuration file" onClick={handleExportWorkspaceToJson}>
         💾ws
       </ExportButton>

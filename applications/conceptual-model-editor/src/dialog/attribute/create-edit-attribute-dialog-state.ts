@@ -3,7 +3,7 @@ import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { EditAttributeDialogState } from "./edit-attribute-dialog-controller";
-import { isRepresentingAttribute, listAttributeRanges, representOwlThing, representRelationships, representRdfsLiteral, listRelationshipDomains } from "../utilities/dialog-utilities";
+import { isRepresentingAttribute, listAttributeRanges, representOwlThing, representRelationships, representRdfsLiteral, listRelationshipDomains, sortRepresentatives } from "../utilities/dialog-utilities";
 import { SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { MissingRelationshipEnds } from "../../application/error";
@@ -30,7 +30,8 @@ export function createEditAttributeDialogState(
 
   const models = [...graphContext.models.values()];
 
-  const vocabularies = entityModelsMapToCmeVocabulary(graphContext.models, visualModel);
+  const vocabularies = entityModelsMapToCmeVocabulary(
+    graphContext.models, visualModel);
 
   const owlThing = representOwlThing();
 
@@ -39,7 +40,8 @@ export function createEditAttributeDialogState(
   // EntityState
 
   const entityState = createEntityStateForEdit(
-    language, vocabularies, model.getId(), range.iri ?? "", range.name, range.description);
+    language, vocabularies, model.getId(), range.iri ?? "",
+    range.name, range.description);
 
   // SpecializationState
 
@@ -47,6 +49,7 @@ export function createEditAttributeDialogState(
     models, entityState.allModels, classesContext.relationships,
     owlThing.identifier, rdfsLiteral.identifier)
     .filter(item => isRepresentingAttribute(item));
+  sortRepresentatives(language, specializations);
 
   const specializationState = createSpecializationStateForEdit(
     language, classesContext, entityState.allModels, specializations, entity.id);
@@ -55,6 +58,8 @@ export function createEditAttributeDialogState(
 
   const domains = listRelationshipDomains(
     classesContext, graphContext, vocabularies);
+  sortRepresentatives(language, domains);
+
   const dataTypes = listAttributeRanges();
 
   const relationshipState = createRelationshipStateForEdit(

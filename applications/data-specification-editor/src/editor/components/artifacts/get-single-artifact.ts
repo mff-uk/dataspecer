@@ -52,7 +52,7 @@ export async function getSingleArtifact(
   // Convert data specification
   const ds = Object.values(dataSpecificationsWithArtifacts).map(specification => ({
     iri: specification.id,
-    pim: specification.localSemanticModelIds[0],
+    pim: specification.id,
     psms: specification.dataStructures.map(ds => ds.id),
     type: CoreDataSpecification.TYPE_DOCUMENTATION,
     importsDataSpecifications: specification.importsDataSpecificationIds,

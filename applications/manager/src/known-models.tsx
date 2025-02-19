@@ -22,6 +22,7 @@ export interface createModelContext {
   baseIri?: string;
   modelAlias?: string;
   documentBaseUrl?: string;
+  caches?: string[];
 }
 
 function getHookForStandardModel(type: string, initialContent: (iri: string, context: createModelContext) => any) {
@@ -133,7 +134,18 @@ export const createModelInstructions = {
       "entities": {}
     })),
   },
-}
+  ["https://dataspecer.com/core/model-descriptor/cache-model"]: {
+      needsNaming: false,
+      createHook: getHookForStandardModel(LOCAL_SEMANTIC_MODEL, (iri, context) => ({
+        "type": "http://dataspecer.com/resources/local/semantic-model",
+        "modelId": iri,
+        "modelAlias": context.modelAlias ?? "",
+        "baseIri": context.baseIri ?? iri,
+        "caches": context.caches,
+        "entities": {}
+      })),
+    },
+  }
 
 export const modelTypeToName = {
     [LOCAL_PACKAGE]: "Directory",

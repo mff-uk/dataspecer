@@ -5,6 +5,7 @@ import {
   type SemanticModelGeneralization,
   type SemanticModelRelationship,
   isSemanticModelAttribute,
+  isSemanticModelClass,
   isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
@@ -26,7 +27,8 @@ import { DialogColoredModelHeaderWithLanguageSelector } from "../../components/d
 import { t } from "../../application";
 import { DialogProps, DialogWrapper } from "../dialog-api";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { isSemanticModelAttributeProfile } from "../../dataspecer/semantic-model";
 
 type SupportedTypes =
   | SemanticModelClass
@@ -66,16 +68,20 @@ export const createEntityDetailDialog = (
 
 function selectLabel(aggregatedEntity: AggregatedEntityWrapper) {
   const entity = aggregatedEntity.aggregatedEntity;
-
-  if (isSemanticModelAttribute(entity)) {
+  if (isSemanticModelClass(entity)) {
+    return "detail-dialog.title.class";
+  } else if (isSemanticModelAttribute(entity)) {
     return "detail-dialog.title.attribute";
   } else if (isSemanticModelRelationship(entity)) {
     return "detail-dialog.title.relationship";
-  } else if (isSemanticModelAttributeUsage(entity)) {
+  } else if (isSemanticModelAttributeUsage(entity)
+    || isSemanticModelAttributeProfile(entity)) {
     return "detail-dialog.title.attribute-profile";
-  } else if (isSemanticModelClassUsage(entity)) {
+  } else if (isSemanticModelClassUsage(entity)
+    || isSemanticModelClassProfile(entity)) {
     return "detail-dialog.title.class-profile";
-  } else if (isSemanticModelRelationshipUsage(entity)) {
+  } else if (isSemanticModelRelationshipUsage(entity)
+    || isSemanticModelRelationshipProfile(entity)) {
     return "detail-dialog.title.relationship-profile";
   } else {
     return "detail-dialog.title.unknown";

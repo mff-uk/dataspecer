@@ -13,7 +13,7 @@ import { createRelationshipProfileStateForEdit } from "../utilities/relationship
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { DialogWrapper } from "../dialog-api";
 import { EditAssociationProfileDialog } from "./edit-association-profile-dialog";
-import { listRelationshipProfileDomains, representOwlThing, representUndefinedAssociation } from "../utilities/dialog-utilities";
+import { listRelationshipProfileDomains, representOwlThing, representUndefinedAssociation, sortRepresentatives } from "../utilities/dialog-utilities";
 import { isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { createLogger } from "../../application";
 import { listAssociationsToProfile } from "./attribute-profile-utilities";
@@ -30,7 +30,8 @@ export function createEditAssociationProfileDialogState(
 ): EditAssociationProfileDialogState {
   const entities = graphContext.aggregatorView.getEntities();
 
-  const {rawEntity: entity, aggregatedEntity: aggregate} = entities[entityIdentifier];
+  const { rawEntity: entity, aggregatedEntity: aggregate } =
+    entities[entityIdentifier];
 
   if (isSemanticModelRelationshipUsage(entity)
     && isSemanticModelRelationshipUsage(aggregate)) {
@@ -43,7 +44,7 @@ export function createEditAssociationProfileDialogState(
       classesContext, graphContext, visualModel, language, model,
       entity, aggregate);
   } else {
-    LOG.invalidEntity(entityIdentifier, "Invalid type.", {entity, aggregate});
+    LOG.invalidEntity(entityIdentifier, "Invalid type.", { entity, aggregate });
     throw new RuntimeError("Invalid entity type.");
   }
 
@@ -69,14 +70,17 @@ export function createEditAssociationProfileDialogStateFromUsage(
 
   const domains = listRelationshipProfileDomains(
     classesContext, graphContext, vocabularies);
+  sortRepresentatives(language, domains);
 
   const ranges = domains;
 
   const { domain, range } = getDomainAndRange(entity);
 
-  const { domain: aggregatedDomain, range: aggregatedRange } = getDomainAndRange(aggregate);
+  const { domain: aggregatedDomain, range: aggregatedRange } =
+    getDomainAndRange(aggregate);
 
-  if (domain === null || range === null || aggregatedDomain === null || aggregatedRange === null) {
+  if (domain === null || range === null
+    || aggregatedDomain === null || aggregatedRange === null) {
     throw new MissingRelationshipEnds(entity);
   }
 
@@ -120,17 +124,21 @@ export function createEditAssociationProfileDialogStateFromProfile(
 
   const availableProfiles = listAssociationsToProfile(
     classesContext, graphContext, vocabularies);
+  sortRepresentatives(language, availableProfiles);
 
   const domains = listRelationshipProfileDomains(
     classesContext, graphContext, vocabularies);
+  sortRepresentatives(language, domains);
 
   const ranges = domains;
 
   const { domain, range } = getDomainAndRange(entity);
 
-  const { domain: aggregatedDomain, range: aggregatedRange } = getDomainAndRange(aggregate);
+  const { domain: aggregatedDomain, range: aggregatedRange } =
+    getDomainAndRange(aggregate);
 
-  if (domain === null || range === null || aggregatedDomain === null || aggregatedRange === null) {
+  if (domain === null || range === null
+    || aggregatedDomain === null || aggregatedRange === null) {
     throw new MissingRelationshipEnds(entity);
   }
 

@@ -39,7 +39,7 @@ import "./page.css";
 import { migrateVisualModelFromV0 } from "./dataspecer/visual-model/visual-model-v0-to-v1";
 import { ExplorationContextProvider } from "./diagram/features/highlighting/exploration/context/highlighting-exploration-mode";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { createEmptyWritableVisualModel } from "./dataspecer/visual-model/visual-model-factory";
+import { createDefaultWritableVisualModel } from "./dataspecer/visual-model/visual-model-factory";
 
 const _semanticModelAggregator = new SemanticModelAggregator();
 type SemanticModelAggregatorType = typeof _semanticModelAggregator;
@@ -198,18 +198,18 @@ function initializeWithoutPackage(
 ) {
   const tempAggregator = new SemanticModelAggregator();
 
-  // Create visual model.
-  const visualModel = createEmptyWritableVisualModel();
-  setVisualModels(new Map([[visualModel.getId(), visualModel]]));
-  tempAggregator.addModel(visualModel);
-  const tempAggregatorView = tempAggregator.getView();
-  tempAggregatorView.changeActiveVisualModel(visualModel.getId());
-
   // Create semantic model.
   const model = new InMemorySemanticModel();
   model.setAlias("Default local model");
   setModels(new Map([[model.getId(), model]]));
   tempAggregator.addModel(model);
+
+  // Create visual model.
+  const visualModel = createDefaultWritableVisualModel([model]);
+  setVisualModels(new Map([[visualModel.getId(), visualModel]]));
+  tempAggregator.addModel(visualModel);
+  const tempAggregatorView = tempAggregator.getView();
+  tempAggregatorView.changeActiveVisualModel(visualModel.getId());
 
   setDefaultModelAlreadyCreated(true);
   setAggregator(tempAggregator);
@@ -245,8 +245,7 @@ function initializeWithPackage(
 
     if (visualModels.length === 0) {
       console.warn("Creating default visual model.");
-      const visualModel = createEmptyWritableVisualModel();
-      visualModel.setLabel({"en":"Default"});
+      const visualModel = createDefaultWritableVisualModel(entityModels);
       visualModels.push(visualModel);
     }
 

@@ -51,6 +51,7 @@ import { synchronizeOnAggregatorChange } from "./dataspecer/visual-model/aggrega
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { EntityDsIdentifier } from "./dataspecer/entity-model";
 import { isSemanticModelAttributeProfile } from "./dataspecer/semantic-model";
+import { representCardinality } from "./dialog/utilities/dialog-utilities";
 
 const LOG = createLogger(import.meta.url);
 
@@ -359,9 +360,11 @@ function createDiagramNode(
     .filter((item) => getDomainAndRange(item).domain?.concept === entity.id)
     .map((item) => {
       const profileOf = profilingSources.find((profile) => item.usageOf === profile.id);
+      const {range} = getDomainAndRange(item);
+      const cardinality = representCardinality(range?.cardinality).label;
       return {
         identifier: item.id,
-        label: getEntityLabel(language, item),
+        label: getEntityLabel(language, item) + " [" + cardinality + "]",
         profileOf: {
           label: profileOf === undefined ? "" : getEntityLabel(language, profileOf),
           usageNote: getUsageNote(language, item),
@@ -376,10 +379,11 @@ function createDiagramNode(
     .map((item) => {
       const profileOf = profilingSources.filter((profile) =>
         item.ends.find(end => end.profiling.includes(profile.id)) !== undefined);
-
+      const {range} = getDomainAndRange(item);
+      const cardinality = representCardinality(range?.cardinality).label;
       return {
         identifier: item.id,
-        label: getEntityLabel(language, item),
+        label: getEntityLabel(language, item) + " [" + cardinality + "]",
         profileOf: {
           label: profileOf.map(item => getEntityLabel(language, item)).join(", "),
           usageNote: profileOf.map(item => getUsageNote(language, item)).join(", "),

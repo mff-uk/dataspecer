@@ -9,7 +9,7 @@ import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/
 import { createEntityProfileStateForNewEntityProfile } from "../utilities/entity-profile-utilities";
 import { configuration } from "../../application";
 import { EntityDsIdentifier } from "../../dataspecer/entity-model";
-import { listClassToProfiles, representUndefinedClass } from "../utilities/dialog-utilities";
+import { listClassToProfiles, representUndefinedClass, sortRepresentatives } from "../utilities/dialog-utilities";
 
 export function createNewProfileClassDialogState(
   classesContext: ClassesContextType,
@@ -26,6 +26,7 @@ export function createNewProfileClassDialogState(
 
   const availableProfiles = listClassToProfiles(
     classesContext, graphContext, vocabularies);
+  sortRepresentatives(language, availableProfiles);
 
   // EntityProfileState
 

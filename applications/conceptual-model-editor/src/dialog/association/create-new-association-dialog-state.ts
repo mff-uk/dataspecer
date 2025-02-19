@@ -6,7 +6,7 @@ import { EditAssociationDialogState } from "./edit-association-dialog-controller
 import { EditAssociationDialog } from "./edit-association-dialog";
 import { DialogWrapper } from "../dialog-api";
 import { createEntityStateForNew, isEntityStateValid } from "../utilities/entity-utilities";
-import { isRepresentingAssociation, listRelationshipDomains, representOwlThing, representRelationships } from "../utilities/dialog-utilities";
+import { isRepresentingAssociation, listRelationshipDomains, representOwlThing, representRelationships, sortRepresentatives } from "../utilities/dialog-utilities";
 import { createSpecializationStateForNew } from "../utilities/specialization-utilities";
 import { createRelationshipStateForNew } from "../utilities/relationship-utilities";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
@@ -21,7 +21,8 @@ export function createCreateAssociationDialogState(
 
   const models = [...graphContext.models.values()];
 
-  const vocabularies = entityModelsMapToCmeVocabulary(graphContext.models, visualModel);
+  const vocabularies = entityModelsMapToCmeVocabulary(
+    graphContext.models, visualModel);
 
   const owlThing = representOwlThing();
 
@@ -36,6 +37,7 @@ export function createCreateAssociationDialogState(
     models, entityState.allModels, classesContext.relationships,
     owlThing.identifier, owlThing.identifier)
     .filter(item => isRepresentingAssociation(item));
+  sortRepresentatives(language, specializations);
 
   const specializationState = createSpecializationStateForNew(
     language, entityState.allModels, specializations);
@@ -44,6 +46,7 @@ export function createCreateAssociationDialogState(
 
   const domains = listRelationshipDomains(
     classesContext, graphContext, vocabularies);
+  sortRepresentatives(language, domains);
 
   const relationshipState = createRelationshipStateForNew(
     owlThing, domains, owlThing, domains);

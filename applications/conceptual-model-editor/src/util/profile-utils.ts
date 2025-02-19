@@ -52,7 +52,7 @@ export const getTheOriginalProfiledEntity = (
       if (isSemanticModelClass(item) || isSemanticModelRelationship(item)) {
         result.push(item);
       } else {
-        result.push(...getTheOriginalProfiledEntity(resource, sources));
+        result.push(...getTheOriginalProfiledEntity(item, sources));
       }
     });
   // Make it uniq.

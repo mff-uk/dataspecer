@@ -29,7 +29,6 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots & Clas
   // Data PSM association end
 
   const {dataPsmResource: dataPsmAssociationEnd, pimResource: pimSemanticRelationship} = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, SemanticModelRelationship>(props.iri);
-  console.log(dataPsmAssociationEnd, pimSemanticRelationship);
   //const readOnly = false;
   const isDematerialized = !!dataPsmAssociationEnd?.dataPsmIsDematerialize;
 

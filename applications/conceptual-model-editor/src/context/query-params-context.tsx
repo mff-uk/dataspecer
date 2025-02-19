@@ -46,12 +46,13 @@ export const QueryParamsProvider = (props: { children: ReactNode }) => {
           urlSearchParams.set(key, String(value));
         }
       });
-      // TODO We need to change URL here!
-      // const search = urlSearchParams.toString();
-      // const query = search ? `?${search}` : "";
-      // router.replace(`${pathname}${query}`);
+      // Change URL.
+      const search = urlSearchParams.toString();
+      const query = search ? `?${search}` : "";
+      console.log("setQueryParams", params, "=>", {query});
+      window.history.pushState({}, "", query);
     },
-    [/*Pathname, router,*/ packageId, viewId]
+    [packageId, viewId]
   );
 
   const updatePackageId = (pId: string | null) => {

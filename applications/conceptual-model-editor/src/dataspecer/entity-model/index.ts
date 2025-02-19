@@ -36,3 +36,8 @@ export function isEntityReferenceEqual(left: EntityReference, right: EntityRefer
   }
   return left.identifier === right.identifier && left.model === right.model;
 }
+
+/**
+ * Use this identifier to represent a missing or undefined model.
+ */
+export const UNDEFINED_MODEL = ":undefined-identifier:";

@@ -7,7 +7,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { EditAssociationDialogState } from "./edit-association-dialog-controller";
 import { MissingRelationshipEnds } from "../../application/error";
 import { createEntityStateForEdit } from "../utilities/entity-utilities";
-import { isRepresentingAssociation, listRelationshipDomains, representOwlThing, representRelationships } from "../utilities/dialog-utilities";
+import { isRepresentingAssociation, listRelationshipDomains, representOwlThing, representRelationships, sortRepresentatives } from "../utilities/dialog-utilities";
 import { createSpecializationStateForEdit } from "../utilities/specialization-utilities";
 import { createRelationshipStateForEdit } from "../utilities/relationship-utilities";
 import { DialogWrapper } from "../dialog-api";
@@ -30,13 +30,15 @@ export function createEditAssociationDialogState(
 
   const models = [...graphContext.models.values()];
 
-  const vocabularies = entityModelsMapToCmeVocabulary(graphContext.models, visualModel);
+  const vocabularies = entityModelsMapToCmeVocabulary(
+    graphContext.models, visualModel);
 
   const owlThing = representOwlThing();
 
   // EntityState
   const entityState = createEntityStateForEdit(
-    language, vocabularies, model.getId(), range.iri ?? "", range.name, range.description);
+    language, vocabularies, model.getId(), range.iri ?? "",
+    range.name, range.description);
 
   // SpecializationState
 
@@ -44,6 +46,7 @@ export function createEditAssociationDialogState(
     models, entityState.allModels, classesContext.relationships,
     owlThing.identifier, owlThing.identifier)
     .filter(item => isRepresentingAssociation(item));
+  sortRepresentatives(language, specializations);
 
   const specializationState = createSpecializationStateForEdit(
     language, classesContext, entityState.allModels, specializations, entity.id);
@@ -52,6 +55,7 @@ export function createEditAssociationDialogState(
 
   const domains = listRelationshipDomains(
     classesContext, graphContext, vocabularies);
+  sortRepresentatives(language, domains);
 
   const relationshipState = createRelationshipStateForEdit(
     domain.concept ?? owlThing.identifier, domain.cardinality, domains,

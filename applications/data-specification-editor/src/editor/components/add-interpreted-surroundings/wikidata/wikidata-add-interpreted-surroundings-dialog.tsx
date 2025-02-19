@@ -40,6 +40,7 @@ interface WikidataAddInterpretedSurroundingDialogContentProps
 
 export const WikidataAddInterpretedSurroundingsDialog: React.FC<AddInterpretedSurroundingDialogProperties> =
     dialog({ fullWidth: true, maxWidth: "xl", PaperProps: { sx: { height: "90%" } } }, (props) => {
+        // @ts-ignore
         const { sourceSemanticModel } = React.useContext(ConfigurationContext);
         const { pimResource: pimClass, dataPsmResource: dataPsmClass } =
             useDataPsmAndInterpretedPim<DataPsmClass, SemanticModelClass>(props.dataPsmClassIri);
@@ -58,6 +59,7 @@ export const WikidataAddInterpretedSurroundingsDialog: React.FC<AddInterpretedSu
             props.selected({
                 resourcesToAdd: operation.resourcesToAdd,
                 forDataPsmClass: operation.forDataPsmClass,
+                // @ts-ignore
                 sourcePimModel: Object.values(transformCoreResources(pimResources)) as SemanticModelEntity[],
             });
         };

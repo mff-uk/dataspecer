@@ -1,5 +1,5 @@
-import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { EntityDsIdentifier, EntityReference, isEntityReferenceEqual, ModelDsIdentifier } from "../../entity-model";
+import { isVisualProfileRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { EntityReference, isEntityReferenceEqual } from "../../entity-model";
 
 /**
  * Propagate changes in the list of profiles to the visual model.
@@ -10,20 +10,18 @@ import { EntityDsIdentifier, EntityReference, isEntityReferenceEqual, ModelDsIde
  */
 export function updateVisualNodeProfiles(
   visualModel: WritableVisualModel,
-  entity: {
-    id: EntityDsIdentifier,
-  },
-  model: ModelDsIdentifier,
+  profile: EntityReference,
   previous: EntityReference[],
   next: EntityReference[],
 ) {
-  const { create, remove } = createChangeList(previous, next, isEntityReferenceEqual);
-  const entityVisuals = visualModel.getVisualEntitiesForRepresented(entity.id);
+  const { create, remove } = createChangeList(
+    previous, next, isEntityReferenceEqual);
+  const entityVisuals = visualModel.getVisualEntitiesForRepresented(
+    profile.identifier);
   if (entityVisuals.length === 0) {
     // There should be no relationship for this entity in the model.
     return;
   }
-  console.log(">updateVisualNodeProfiles", {previous, next, create, remove});
   // Add new.
   for (const item of create) {
     const visuals = visualModel.getVisualEntitiesForRepresented(item.identifier);
@@ -33,8 +31,8 @@ export function updateVisualNodeProfiles(
     for(const entityVisual of entityVisuals) {
       for(const visual of visuals) {
         visualModel.addVisualProfileRelationship({
-          entity: entity.id,
-          model,
+          entity: profile.identifier,
+          model: profile.model,
           visualSource: entityVisual.identifier,
           visualTarget: visual.identifier,
           waypoints: [],
@@ -42,12 +40,19 @@ export function updateVisualNodeProfiles(
       }
     }
   }
-
-  // Delete removed.
-  for (const item of remove) {
-    const visuals = visualModel.getVisualEntitiesForRepresented(item.identifier);
-    for(const visual of visuals) {
-      visualModel.deleteVisualEntity(visual.identifier);
+  // We can not delete directly the visual profile as the entity
+  // is shared by the profile and the visual node.
+  if (remove.length > 0) {
+    const removeSet = new Set(remove.map(item => item.identifier));
+    const visuals = [...visualModel.getVisualEntities().values()];
+    for (const visual of visuals) {
+      if (!isVisualProfileRelationship(visual)) {
+        // It is not a profile.
+        continue;
+      }
+      if (removeSet.has(visual.entity)) {
+        visualModel.deleteVisualEntity(visual.identifier);
+      }
     }
   }
 }
@@ -77,5 +82,5 @@ function filterItems<Type>(
   remove: Type[],
   eq: (left: Type, right: Type) => boolean,
 ): Type[] {
-  return items.filter(item => remove.find(removeItem => eq(item, removeItem) !== undefined));
+  return items.filter(item => remove.find(removeItem => eq(item, removeItem)) === undefined);
 }

@@ -5,7 +5,7 @@ import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts"
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { EditClassDialogState } from "./edit-class-dialog-controller";
-import { representClasses } from "../utilities/dialog-utilities";
+import { representClasses, sortRepresentatives } from "../utilities/dialog-utilities";
 import { createEntityStateForEdit } from "../utilities/entity-utilities";
 import { createSpecializationStateForEdit } from "../utilities/specialization-utilities";
 import { EditClassDialog } from "./edit-class-dialog";
@@ -31,10 +31,12 @@ export function createEditClassDialogState(
 
   // SpecializationState
 
+  const specializations = representClasses(
+    models, entityState.allModels, classesContext.classes);
+  sortRepresentatives(language, specializations);
+
   const specializationState = createSpecializationStateForEdit(
-    language, classesContext, entityState.allModels,
-    representClasses(models, entityState.allModels, classesContext.classes),
-    entity.id,
+    language, classesContext, entityState.allModels, specializations, entity.id,
   );
 
   return {

@@ -3,7 +3,7 @@ import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { EditAssociationProfileDialogState } from "./edit-association-profile-dialog-controller";
-import { listRelationshipProfileDomains, representUndefinedAssociation } from "../utilities/dialog-utilities";
+import { listRelationshipProfileDomains, representUndefinedAssociation, sortRepresentatives } from "../utilities/dialog-utilities";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { createRelationshipProfileStateForNew } from "../utilities/relationship-profile-utilities";
 import { EditAssociationProfileDialog } from "./edit-association-profile-dialog";
@@ -30,9 +30,11 @@ export function createNewAssociationProfileDialogState(
 
   const availableProfiles = listAssociationsToProfile(
     classesContext, graphContext, vocabularies);
+  sortRepresentatives(language, availableProfiles);
 
   const domains = listRelationshipProfileDomains(
     classesContext, graphContext, vocabularies);
+  sortRepresentatives(language, domains);
 
   const ranges = domains;
 
@@ -76,4 +78,3 @@ export const createNewAssociationProfileDialog = (
     onClose: null,
   };
 }
-

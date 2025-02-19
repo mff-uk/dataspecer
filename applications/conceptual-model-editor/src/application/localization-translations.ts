@@ -211,6 +211,7 @@ export const translations: Record<string, string | Function> = {
   "detail-dialog.title.class-profile": "Class profile detail",
   "detail-dialog.title.relationship-profile": "Relationship profile detail",
   "detail-dialog.title.unknown": "Entity detail",
+  "detail-dialog.title.class": "Class detail",
   //
   "modify-dialog.btn-ok": "✅ Modify",
   "modify-dialog.btn-close": "❌ Close",

@@ -7,6 +7,7 @@ import { ModelGraphContextType } from "../context/model-context";
 import { getVisualSourcesAndVisualTargets, withAggregatedEntity } from "./utilities";
 import { isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isOwlThing } from "../dataspecer/semantic-model";
+import { addVisualRelationship } from "../dataspecer/visual-model/operation/add-visual-relationship";
 
 /**
  * Adds given semantic relationship profile to visual model.
@@ -63,15 +64,8 @@ function addSemanticRelationshipProfileToVisualModelCommand(
     return;
   }
   //
-  for(const source of sources) {
-    for(const target of targets) {
-      visualModel.addVisualRelationship({
-        model: model,
-        representedRelationship: entity.id,
-        waypoints: [],
-        visualSource: source.identifier,
-        visualTarget: target.identifier,
-      });
-    }
-  }
+  addVisualRelationship(
+    visualModel, model, entity.id,
+    domain.concept, range.concept
+  );
 }

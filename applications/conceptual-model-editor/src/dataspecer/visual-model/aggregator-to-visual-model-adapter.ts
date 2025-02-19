@@ -6,6 +6,7 @@ import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@da
 import { getDomainAndRangeConcepts } from "../../util/relationship-utils";
 import { createLogger } from "../../application";
 import { EntityDsIdentifier } from "../entity-model";
+import { isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 const LOG = createLogger(import.meta.url);
 
@@ -61,7 +62,8 @@ function updateVisualRelationship(
 
   // The entity must be relationship or a relationship profile.
   if (!isSemanticModelRelationship(entity)
-    && !isSemanticModelRelationshipUsage(entity)) {
+    && !isSemanticModelRelationshipUsage(entity)
+    && !isSemanticModelRelationshipProfile(entity)) {
     visualModel.deleteVisualEntity(visual.identifier);
     LOG.invalidEntity(
       entity?.id ?? "",

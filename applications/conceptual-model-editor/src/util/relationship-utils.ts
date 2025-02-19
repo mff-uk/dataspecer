@@ -73,7 +73,9 @@ export type DomainAndRangeConcepts = {
  * relationship as well as relationship profile.
  */
 export const getDomainAndRangeConcepts = (
-  relationship: SemanticModelRelationship | SemanticModelRelationshipUsage,
+  relationship: SemanticModelRelationship
+  | SemanticModelRelationshipUsage
+  | SemanticModelRelationshipProfile,
 ): DomainAndRangeConcepts => {
   if (isSemanticModelRelationship(relationship)) {
     const domainAndRange = getDomainAndRange(relationship);
