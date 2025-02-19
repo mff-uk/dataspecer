@@ -5,6 +5,7 @@ import {
   type SemanticModelGeneralization,
   type SemanticModelRelationship,
   isSemanticModelAttribute,
+  isSemanticModelClass,
   isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
 import {
@@ -67,7 +68,7 @@ export const createEntityDetailDialog = (
 
 function selectLabel(aggregatedEntity: AggregatedEntityWrapper) {
   const entity = aggregatedEntity.aggregatedEntity;
-  if (isSemanticModelClassProfile(entity)) {
+  if (isSemanticModelClass(entity)) {
     return "detail-dialog.title.class";
   } else if (isSemanticModelAttribute(entity)) {
     return "detail-dialog.title.attribute";
