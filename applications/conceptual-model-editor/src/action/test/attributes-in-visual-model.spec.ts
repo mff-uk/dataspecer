@@ -232,9 +232,9 @@ test("Test change attribute order - back to back", () => {
   setAttributePositionAction(
     noActionNotificationServiceWriter,
     visualModel,
-  visualModel.getVisualEntitiesForRepresented("0")[0].identifier,
-  attributes[2],
-  2);
+    visualModel.getVisualEntitiesForRepresented("0")[0].identifier,
+    attributes[2],
+    2);
 
   actualVisualNode = visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode;
   expect(actualVisualNode.content[0]).toBe(attributes[0]);
@@ -279,9 +279,9 @@ test("Test change attribute order - change multi", () => {
   setAttributePositionAction(
     noActionNotificationServiceWriter,
     visualModel,
-  visualModel.getVisualEntitiesForRepresented("0")[0].identifier,
-  attributes[5],
-  1);
+    visualModel.getVisualEntitiesForRepresented("0")[0].identifier,
+    attributes[5],
+    1);
 
   actualVisualNode = visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode;
   expect(actualVisualNode.content[0]).toBe(attributes[0]);
@@ -329,9 +329,9 @@ test("Test change attribute order - change multi - attribute usage", () => {
   setAttributePositionAction(
     noActionNotificationServiceWriter,
     visualModel,
-  visualModel.getVisualEntitiesForRepresented("0")[0].identifier,
-  attributes[5],
-  1);
+    visualModel.getVisualEntitiesForRepresented("0")[0].identifier,
+    attributes[5],
+    1);
 
   actualVisualNode = visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode;
   expect(actualVisualNode.content[0]).toBe(attributes[0]);
