@@ -9,7 +9,7 @@
 import { expect, test } from "vitest";
 import { EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { createDefaultVisualModelFactory, VisualModel, VisualRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { createDefaultVisualModelFactory, VisualRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { entityModelsMapToCmeVocabulary } from "../dataspecer/semantic-model/semantic-model-adapter";
 import { noActionNotificationServiceWriter } from "../notification/notification-service-context";
 import { CreatedEntityOperationResult, createGeneralization, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
@@ -51,7 +51,6 @@ function testCreateSingleRelationship(
   expect([...visualModel.getVisualEntities().entries()].length).toBe(5);
   expect(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[0].identifier).length).toBe(1);
 }
-
 
 test("Create relationship then after that duplicate node - association", () => {
   testCreateRelationshipWithNodeDuplicationAfter(RelationshipToTestType.Association);

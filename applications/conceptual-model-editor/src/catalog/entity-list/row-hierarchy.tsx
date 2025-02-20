@@ -23,7 +23,6 @@ import { useClassesContext } from "../../context/classes-context";
 import { hasBothEndsInVisualModel } from "../../util/relationship-utils";
 import { findSourceModelOfEntity } from "../../service/model-service";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { EntityType } from "./entities-of-model";
 
 export const RowHierarchy = (props: {
     entity: SemanticModelClass | SemanticModelClassUsage
@@ -87,10 +86,10 @@ export const RowHierarchy = (props: {
   ];
 
   const targetHandler = {
-    centerViewportOnEntityHandler: (entityNumberToBeCentered: number) => 
+    centerViewportOnEntityHandler: (entityNumberToBeCentered: number) =>
       props.handlers.handleTargeting(entity.id, entityNumberToBeCentered),
-    isTargetable: props.onCanvas.includes(entity.id) || 
-                  isSemanticModelAttribute(entity) || 
+    isTargetable: props.onCanvas.includes(entity.id) ||
+                  isSemanticModelAttribute(entity) ||
                   isSemanticModelAttributeUsage(entity),
   };
 

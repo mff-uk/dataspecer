@@ -377,7 +377,6 @@ const createNewVisualRelationshipsForTestingFromSemanticEnds = (
   return visualId;
 }
 
-
 // TODO RadStr: Remove later probably not used in this file, but will be useful for the rest of tests
 
 // Heavily inspired by createSemanticAssociationInternal

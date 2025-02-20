@@ -262,7 +262,6 @@ export function listRelationshipDomains(
     ...representClasses(models, vocabularies, classesContext.classes)
   ]
 
-
 }
 
 /**

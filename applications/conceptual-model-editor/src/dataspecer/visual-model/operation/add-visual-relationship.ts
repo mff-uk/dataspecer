@@ -3,7 +3,6 @@ import { DataspecerError } from "../../dataspecer-error";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
 import { getVisualSourcesAndVisualTargets } from "../../../action/utilities";
 
-
 /**
  * Adds given semantic relationship to visual model identified by {@link represented}.
  * If {@link visualSources} or {@link visualTargets} are null then this method creates

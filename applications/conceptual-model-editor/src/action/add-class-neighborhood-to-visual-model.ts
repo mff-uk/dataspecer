@@ -31,7 +31,7 @@ export const addClassNeighborhoodToVisualModelAction = (
       ...neighborhood.selectionExtension.nodeSelection
         .filter(node => node !== identifier)
         .map(node => ({identifier: node, position: null}))
-      );
+    );
     addSemanticEntitiesToVisualModelAction(
       notifications, classes, graph, visualModel, diagram, classesOrClassProfilesToAdd);
   });
