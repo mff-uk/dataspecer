@@ -10,6 +10,11 @@ import {
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { createWaypointsForSelfLoop } from "../dataspecer/visual-model/operation/add-visual-relationship";
 
+// TODO RadStr: I don't want to copy the docs of the react binding here - create issue for it later.
+/**
+ * @param nodeIdentifier is the identifier of the node to create duplicate of
+ * @returns Returns identifier of the created node, or null if the action failed
+ */
 export function createNodeDuplicateAction(
   notifications: UseNotificationServiceWriterType,
   visualModel: WritableVisualModel,
@@ -18,11 +23,11 @@ export function createNodeDuplicateAction(
   const node = visualModel.getVisualEntity(nodeIdentifier);
   if(node === null) {
     notifications.error("Unable to find source node to create duplicate of");
-    return;
+    return null;
   }
   if(!isVisualNode(node)) {
     notifications.error("The given node to create duplicate of is not a node");
-    return;
+    return null;
   }
 
   const duplicatedNodeIdentifier = visualModel.addVisualNode({
@@ -37,6 +42,8 @@ export function createNodeDuplicateAction(
 
   addRelatedEdgesDuplicatesToVisualModel(
     visualModel, node, duplicateNode);
+
+  return duplicatedNodeIdentifier;
 }
 
 function addRelatedEdgesDuplicatesToVisualModel(

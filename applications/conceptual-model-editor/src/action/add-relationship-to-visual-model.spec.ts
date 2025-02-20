@@ -231,9 +231,9 @@ function testCreateLoopAndDuplicateAfter(
   expect(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[0].identifier).length).toBe(1);
   //
   createNodeDuplicateAction(noActionNotificationServiceWriter, visualModel, visualModel.getVisualEntitiesForRepresented("0")[0].identifier);
-  expect([...visualModel.getVisualEntities().entries()].length).toBe(8);
+  expect([...visualModel.getVisualEntities().entries()].length).toBe(7);
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(2);
-  expect(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[0].identifier).length).toBe(3);
+  expect(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[0].identifier).length).toBe(2);
 }
 
 test("Create node duplicate and after that create relationship from the original node to the duplicate - association", () => {
@@ -277,6 +277,76 @@ function testCreateNodeDuplicateAndLoopAfter(
     createdTestRelationships[0].identifier, [visualSource.identifier], [visualTarget.identifier]);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(6);
   expect(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[0].identifier).length).toBe(1);
+}
+
+test("Create new duplicate from already duplicated node each with different edges - association", () => {
+  testCreateNodeDuplicateOfNodeDuplicate(RelationshipToTestType.Association);
+});
+
+test("Create new duplicate from already duplicated node each with different edges - generalization", () => {
+  testCreateNodeDuplicateOfNodeDuplicate(RelationshipToTestType.Generalization);
+});
+
+function testCreateNodeDuplicateOfNodeDuplicate(
+  relationshipToTestType: RelationshipToTestType,
+) {
+  const {
+    visualModel,
+    models,
+    cmeModels,
+    graph
+  } = prepareVisualModelWithFourNodes();
+
+  const createdTestRelationships: {
+    identifier: string,
+    model: InMemorySemanticModel
+  }[] = [];
+
+  // Create the semantic relationships in advance
+  createdTestRelationships.push(createTestRelationshipOfGivenType(
+    graph, visualModel, models, cmeModels[0].dsIdentifier,
+    relationshipToTestType, "0", "1", "relationship-0", null, false, null, null));
+  createdTestRelationships.push(createTestRelationshipOfGivenType(
+    graph, visualModel, models, cmeModels[0].dsIdentifier,
+    relationshipToTestType, "0", "2", "relationship-1", null, false, null, null));
+
+  createNodeDuplicateAction(
+    noActionNotificationServiceWriter, visualModel,
+    visualModel.getVisualEntitiesForRepresented("0")[0].identifier);
+  expect([...visualModel.getVisualEntities().entries()].length).toBe(5);
+  expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(2);
+  expect(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[0].identifier).length).toBe(0);
+  //
+  const visualSource1 = visualModel.getVisualEntitiesForRepresented("0")[0];
+  const visualSource2 = visualModel.getVisualEntitiesForRepresented("0")[1];
+  const visualTarget1 = visualModel.getVisualEntitiesForRepresented("1")[0];
+  const visualTarget2 = visualModel.getVisualEntitiesForRepresented("2")[0];
+  addTestRelationshipToVisualModel(
+    graph, visualModel, cmeModels[0].dsIdentifier, relationshipToTestType,
+    createdTestRelationships[0].identifier, [visualSource1.identifier], [visualTarget1.identifier]);
+  addTestRelationshipToVisualModel(
+    graph, visualModel, cmeModels[0].dsIdentifier, relationshipToTestType,
+    createdTestRelationships[1].identifier, [visualSource2.identifier], [visualTarget2.identifier]);
+  expect([...visualModel.getVisualEntities().entries()].length).toBe(7);
+  expect(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[0].identifier).length).toBe(1);
+  expect(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[1].identifier).length).toBe(1);
+  //
+  const lastDuplicateNodeIdentifier = createNodeDuplicateAction(
+    noActionNotificationServiceWriter, visualModel,
+    visualModel.getVisualEntitiesForRepresented("0")[0].identifier);
+
+  // Edges to both "1" and "2"
+  expect([...visualModel.getVisualEntities().entries()].length).toBe(10);
+  expect(lastDuplicateNodeIdentifier).not.toBeNull();
+  const actualVisualRelationships = [];
+  actualVisualRelationships.push(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[0].identifier));
+  actualVisualRelationships.push(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[1].identifier));
+  for(const actualVisualRelationship of actualVisualRelationships) {
+    const edgesFromDuplicate = actualVisualRelationship.filter(relationship =>
+      (relationship as any).visualSource === lastDuplicateNodeIdentifier);
+    expect(edgesFromDuplicate.length).toBe(1);
+  }
+
 }
 
 //

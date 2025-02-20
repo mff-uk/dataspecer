@@ -207,7 +207,7 @@ interface VisualModelActions {
    * Creates duplicate (copy) of node with given visual {@link identifier}.
    * It isn't exact copy - The duplicated node contains all edges of the existing duplicates.
    * So for example if we have A -> B, A' -> C on canvas and we call this method for A'
-   * then the newly created A'' will have following edges A'' -> C, but also A'' -> B
+   * then the newly created A'' will have following edges A'' -> C, but also A'' -> B.
    * @param identifier is the identifier of the visual node
    */
   createNodeDuplicate: (identifier: string) => void;
