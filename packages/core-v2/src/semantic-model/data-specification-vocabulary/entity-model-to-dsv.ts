@@ -117,9 +117,9 @@ class EntityListContainerToConceptualModel {
     const classProfile: ClassProfile = {
       // Profile
       iri: this.resolveIri(item.id, item.iri),
-      prefLabel: this.context.languageFilter(item.name),
+      prefLabel: null,
       definition: null,
-      usageNote: this.context.languageFilter(item.usageNote),
+      usageNote: null,
       profileOfIri: [],
       // ClassProfile
       $type: [ClassProfileType],
@@ -132,10 +132,10 @@ class EntityListContainerToConceptualModel {
     // Type specific.
     if (isSemanticModelClassUsage(item)) {
       profiling.push(this.identifierToEntity(item.usageOf));
-      this.addInheritsValueFromUsage(item, classProfile);
+      this.setProfileFromUsage(item, classProfile);
     } else {
       item.profiling.forEach(item => profiling.push(this.identifierToEntity(item)));
-      this.addInheritsValueFromProfile(item, classProfile);
+      this.setProfileFromProfile(item, classProfile);
     }
 
     // We need to know what we profile to add it to the right place.
@@ -180,12 +180,12 @@ class EntityListContainerToConceptualModel {
   /**
    * Adds inheritsValue values for usage.
    */
-  addInheritsValueFromUsage(
+  setProfileFromUsage(
     item: {
       usageOf: string,
       name: LanguageString | null,
-      description: LanguageString | null
-      usageNote: LanguageString | null
+      description: LanguageString | null,
+      usageNote: LanguageString | null,
     },
     profile: Profile,
   ) {
@@ -194,45 +194,60 @@ class EntityListContainerToConceptualModel {
         inheritedPropertyIri: SKOS.prefLabel.id,
         propertyValueFromIri: this.resolveIri(item.usageOf, null),
       });
+    } else {
+      profile.prefLabel = this.context.languageFilter(item.name);
     }
     if (item.description === null) {
       profile.inheritsValue.push({
         inheritedPropertyIri: SKOS.definition.id,
         propertyValueFromIri: this.resolveIri(item.usageOf, null),
       });
+    } else {
+      profile.definition = this.context.languageFilter(item.description);
     }
     if (item.usageNote === null) {
       profile.inheritsValue.push({
         inheritedPropertyIri: VANN.usageNote.id,
         propertyValueFromIri: this.resolveIri(item.usageOf, null),
       });
+    } else {
+      profile.usageNote = this.context.languageFilter(item.usageNote);
     }
   }
 
   /**
    * Adds inheritsValue values for profile.
    */
-  addInheritsValueFromProfile(
+  setProfileFromProfile(
     item: {
+      name: LanguageString | null,
       nameFromProfiled: string | null,
+      description: LanguageString | null
       descriptionFromProfiled: string | null,
+      usageNote: LanguageString | null
       usageNoteFromProfiled: string | null,
     },
     profile: Profile,
   ) {
-    if (item.nameFromProfiled !== null) {
+    if (item.nameFromProfiled === null)  {
+      profile.prefLabel = this.context.languageFilter(item.name);
+    } else {
       profile.inheritsValue.push({
         inheritedPropertyIri: SKOS.prefLabel.id,
         propertyValueFromIri: this.resolveIri(item.nameFromProfiled, null),
       });
     }
-    if (item.descriptionFromProfiled !== null) {
+    if (item.descriptionFromProfiled === null) {
+      profile.definition = this.context.languageFilter(item.description);
+    } else {
       profile.inheritsValue.push({
         inheritedPropertyIri: SKOS.definition.id,
         propertyValueFromIri: this.resolveIri(item.descriptionFromProfiled, null),
       });
     }
-    if (item.usageNoteFromProfiled !== null) {
+    if (item.usageNoteFromProfiled === null)  {
+      profile.usageNote = this.context.languageFilter(item.usageNote);
+    } else {
       profile.inheritsValue.push({
         inheritedPropertyIri: VANN.usageNote.id,
         propertyValueFromIri: this.resolveIri(item.usageNoteFromProfiled, null),
@@ -295,9 +310,9 @@ class EntityListContainerToConceptualModel {
       // Profile
       iri: this.resolveIri(item.id, range.iri),
       cardinality: cardinalityToCardinalityEnum(range.cardinality),
-      prefLabel: this.context.languageFilter(range.name),
-      definition: this.context.languageFilter(range.description),
-      usageNote: this.context.languageFilter(range.usageNote),
+      prefLabel: null,
+      definition: null,
+      usageNote: null,
       profileOfIri: [],
       // PropertyProfile
       profiledPropertyIri: [],
@@ -312,7 +327,7 @@ class EntityListContainerToConceptualModel {
       this.addProfileToPropertyProfile(profileOf, propertyProfile);
     }
 
-    this.addInheritsValueFromUsage({
+    this.setProfileFromUsage({
       // Part of the state is at the range and part at the property.
       ...range,
       usageOf: item.usageOf,
@@ -392,9 +407,9 @@ class EntityListContainerToConceptualModel {
       // Profile
       iri: this.resolveIri(item.id, range.iri),
       cardinality: cardinalityToCardinalityEnum(range.cardinality),
-      prefLabel: this.context.languageFilter(range.name),
-      definition: this.context.languageFilter(range.description),
-      usageNote: this.context.languageFilter(range.usageNote),
+      prefLabel: null,
+      definition: null,
+      usageNote: null,
       profileOfIri: [],
       // PropertyProfile
       profiledPropertyIri: [],
@@ -410,7 +425,7 @@ class EntityListContainerToConceptualModel {
       }
     }
 
-    this.addInheritsValueFromProfile(range, propertyProfile);
+    this.setProfileFromProfile(range, propertyProfile);
     this.addRangeConceptToPropertyProfile(item, range, propertyProfile);
 
     return {
