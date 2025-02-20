@@ -40,16 +40,16 @@ export async function addSemanticEntitiesToVisualModelAction(
   diagram: UseDiagramType,
   entities: EntityToAddToVisualModel[],
 ) {
-  const validatedEntitiesToAddToVisualModel: ValidatedDataAboutEntity[] = getValidatedDataAboutEntities(
+  const validatedEntitiesToAddToVisualModel: ValidatedDataAboutEntity[] = validateEntities(
     notifications, graph, visualModel, entities);
-  const {nodes, edges} = await splitIntoNodesAndEdgesAndUpdatePositions(
+  const { nodes, edges } = await updatePositionsAndSplitIntoNodesAndEdges(
     notifications, classes, graph, visualModel, diagram, validatedEntitiesToAddToVisualModel);
   // Add to visual model
   await addClassesAndClassProfilesToVisualModel(notifications, classes, graph, visualModel, diagram, nodes);
   addConnectionsToVisualModel(notifications, graph, visualModel, edges);
 }
 
-async function splitIntoNodesAndEdgesAndUpdatePositions(
+async function updatePositionsAndSplitIntoNodesAndEdges(
   notifications: UseNotificationServiceWriterType,
   classes: ClassesContextType,
   graph: ModelGraphContextType,
@@ -108,7 +108,7 @@ async function splitIntoNodesAndEdgesAndUpdatePositions(
   };
 }
 
-function getValidatedDataAboutEntities(
+function validateEntities(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   visualModel: WritableVisualModel,

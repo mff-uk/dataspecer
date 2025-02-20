@@ -39,7 +39,7 @@ function addRelatedEdgesDuplicatesToVisualModel(
           visualSource: duplicateNodeIdentifier
         });
       }
-      // Just if, because we want to handle loops
+      // Not else if, because of edge loops
       if(visualEntity.visualTarget === originalNodeIdentifier) {
         visualModel.addVisualRelationship({
           ...visualEntity,
@@ -54,7 +54,7 @@ function addRelatedEdgesDuplicatesToVisualModel(
           visualSource: duplicateNodeIdentifier
         });
       }
-      // Just if, because we want to handle loops
+      // Not else if, because of edge loops
       if(visualEntity.visualTarget === originalNodeIdentifier) {
         visualModel.addVisualProfileRelationship({
           ...visualEntity,

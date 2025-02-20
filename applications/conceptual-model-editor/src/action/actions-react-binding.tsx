@@ -192,13 +192,13 @@ interface VisualModelActions {
   shiftAttributeUp: (attribute: string, domainNode: string | null) => void;
   shiftAttributeDown: (attribute: string, domainNode: string | null) => void;
 
-  // TODO PRQuestion - different docs from this method and for the actual action
   /**
-   * Removes the visual entities identified by given {@link identifier} from visual model.
+   * Removes the visual entities identified by given {@link identifiers} from visual model.
    * Also removes related visual relationships from the visual model.
    * @param identifiers identify the entities, which visual representations will be removed from visual model.
+   * @param usingVisualIdentifiers if true, then the {@link identifiers} are visual, otherwise they are semantic.
    */
-  removeFromVisualModel: (identifiers: string[], areVisualIdentifiers: boolean) => void;
+  removeFromVisualModel: (identifiers: string[], usingVisualIdentifiers: boolean) => void;
 
   // TODO RadStr: Document
   removeAttributesFromVisualModel: (attributes: string[]) => void;
@@ -232,7 +232,8 @@ interface VisualModelActions {
   removeEntitiesInSemanticModelFromVisualModel: (semanticModel: EntityModel) => void;
 
   /**
-   * Puts class' neighborhood to visual model. That is classes connected to semantic class or class profile identified by {@link classIdentifier}.
+   * Puts class' neighborhood to visual model.
+   * That is classes connected to semantic class or class profile identified by {@link identifier}.
    * @param identifier is the identifier of the semantic class or class profile, whose neighborhood we will add to visual model.
    */
   addClassNeighborhoodToVisualModel: (identifier: string) => void;
@@ -249,8 +250,17 @@ export interface ActionsContextType extends DialogActions, VisualModelActions {
    */
   deleteFromSemanticModels: (entitiesToDelete: EntityToDelete[]) => void;
 
-  // TODO RadStr: Document based on PRQuestion
-  centerViewportToVisualEntity: (model: string, identifier: string, currentEntityNumber: number) => void;
+  /**
+   * Centers viewport to semantic entity identified by {@link identifier}.
+   * Since we have multiple visual entites per one semantic,
+   * the {@link currentlyIteratedEntity} is any integer.
+   * It will will be used to index the array of visual entities
+   */
+  centerViewportToVisualEntity: (
+    model: string,
+    identifier: string,
+    currentlyIteratedEntity: number
+  ) => void;
 
   layoutActiveVisualModel: (configuration: UserGivenConstraintsVersion4) => Promise<LayoutedVisualEntities | void>;
 
@@ -426,7 +436,7 @@ function createActionsContext(
     withVisualModel(notifications, graph, (visualModel) => {
       openCreateConnectionDialogAction(
         options, dialogs, notifications, useClasses, graph,
-        visualModel, semanticSource, semanticTarget, visualSource, visualTarget);
+        visualModel, semanticSource, semanticTarget, [visualSource], [visualTarget]);
     });
   };
 
@@ -658,9 +668,9 @@ function createActionsContext(
     });
   };
 
-  const removeFromVisualModel = (identifiers: string[], areVisualIdentifiers: boolean): void => {
+  const removeFromVisualModel = (identifiers: string[], usingVisualIdentifiers: boolean): void => {
     withVisualModel(notifications, graph, (visualModel) => {
-      removeFromVisualModelAction(notifications, visualModel, identifiers, areVisualIdentifiers);
+      removeFromVisualModelAction(notifications, visualModel, identifiers, usingVisualIdentifiers);
     });
   };
 
@@ -699,9 +709,13 @@ function createActionsContext(
     removeFromSemanticModelsAction(notifications, graph, entitiesToDelete);
   };
 
-  const centerViewportToVisualEntity = (model: string, identifier: string, currentEntityNumber: number) => {
+  const centerViewportToVisualEntity = (
+    model: string,
+    identifier: string,
+    currentlyIteratedEntity: number
+  ) => {
     centerViewportToVisualEntityAction(
-      notifications, graph, classes, diagram, identifier, currentEntityNumber,
+      notifications, graph, classes, diagram, identifier, currentlyIteratedEntity,
       model);
   };
 

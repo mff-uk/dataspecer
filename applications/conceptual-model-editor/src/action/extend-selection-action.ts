@@ -172,9 +172,9 @@ export const extendSelectionAction = async (
   let nodeSelectionToExtend = nodeSelection;
   let newlyAddedNodes: string[] = [];
   if(shouldPerformExtensionByNodeDuplicates) {
-    const duplicateResults = getNewNodeSelectionExtendedByNodeDuplicates(visualModel!, nodeSelection);
-    nodeSelectionToExtend = duplicateResults.extendedNodeSelection;
-    newlyAddedNodes = duplicateResults.newlyAddedNodes;
+    const tmp = getNewNodeSelectionExtendedByNodeDuplicates(visualModel!, nodeSelection);
+    nodeSelectionToExtend = tmp.extendedNodeSelection;
+    newlyAddedNodes = tmp.newlyAddedNodes;
   }
 
   for(const extensionType of extensionTypes) {
@@ -239,7 +239,7 @@ export const extendSelectionAction = async (
   }
 
   if(shouldPerformExtensionByNodeDuplicates) {
-    extendExtensionResultByNodeDuplicates(visualModel!, selectionExtension, newlyAddedNodes);
+    extendExtensionByNodeDuplicates(visualModel!, selectionExtension, newlyAddedNodes);
   }
 
   if(semanticModelFilter === null) {
@@ -275,7 +275,7 @@ function getNewNodeSelectionExtendedByNodeDuplicates(
   };
 }
 
-function extendExtensionResultByNodeDuplicates(
+function extendExtensionByNodeDuplicates(
   visualModel: VisualModel,
   selectionExtension: SelectionExtension,
   newlyAddedNodesAtStartOfExtension: string[],

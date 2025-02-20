@@ -18,13 +18,13 @@ export function removeFromVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   visualModel: WritableVisualModel,
   identifiers: string[],
-  areIdentifersOnInputVisual: boolean,
+  usingVisualIdentifiers: boolean,
 ) {
   const entitiesToRemove: VisualEntity[] = [];
   for (const identifier of identifiers) {
     // Find the visual entities.
     let visualEntities: VisualEntity[];
-    if(areIdentifersOnInputVisual) {
+    if(usingVisualIdentifiers) {
       const visualEntity = visualModel.getVisualEntity(identifier)
       visualEntities = visualEntity === null ? [] : [visualEntity];
     }

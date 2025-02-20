@@ -1,7 +1,9 @@
 /**
  * Tests:
- * addSemanticRelationshipToVisualModelAction and in the same way also addSemanticGeneralizationToVisualModelAction.
- * Also its interaction with createNodeDuplicateAction is tested.
+ * {@link addSemanticRelationshipToVisualModelAction} and in the same way also
+ * {@link addSemanticGeneralizationToVisualModelAction}.
+ *
+ * Also the interactions with {@link createNodeDuplicateAction} are tested.
  */
 
 import { expect, test } from "vitest";
@@ -170,9 +172,6 @@ function testCreateNodeDuplicateAndCreateRelationshipAfterWithoutSpecifyingEnds(
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(2);
   expect(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[0].identifier).length).toBe(0);
   //
-  const visualSource1 = visualModel.getVisualEntitiesForRepresented("0")[0];
-  const visualSource2 = visualModel.getVisualEntitiesForRepresented("0")[1];
-  const visualTarget = visualModel.getVisualEntitiesForRepresented("1")[0];
   addTestRelationshipToVisualModel(
     graph, visualModel, cmeModels[0].dsIdentifier, relationshipToTestType,
     createdTestRelationships[0].identifier, null, null);
@@ -187,6 +186,9 @@ function testCreateNodeDuplicateAndCreateRelationshipAfterWithoutSpecifyingEnds(
       visualTarget: visualRelationship.visualTarget,
     }
   });
+  const visualSource1 = visualModel.getVisualEntitiesForRepresented("0")[0];
+  const visualSource2 = visualModel.getVisualEntitiesForRepresented("0")[1];
+  const visualTarget = visualModel.getVisualEntitiesForRepresented("1")[0];
   const expectedRelationships = [
     {
       visualSource: visualSource1.identifier,
@@ -258,6 +260,7 @@ function testCreateNodeDuplicateAndLoopAfter(
     model: InMemorySemanticModel
   }[] = [];
   //
+  // Just creating the semantic relationship, the visual comes later.
   createdTestRelationships.push(createTestRelationshipOfGivenType(
     graph, visualModel, models, cmeModels[0].dsIdentifier,
     relationshipToTestType, "0", "0", "relationship-0", null, false, null, null));
@@ -355,10 +358,6 @@ type CreatedRelationshipData = {
   model: InMemorySemanticModel,
 }
 
-// Heavily inspired by createSemanticAssociationInternal
-// We are doing this so:
-// 1) We don't have create the state for the method
-// 2) It is less work
 function createSemanticRelationshipTestVariant(
   models: Map<string, EntityModel>,
   domainConceptIdentifier: string,

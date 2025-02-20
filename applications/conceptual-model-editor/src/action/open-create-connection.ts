@@ -33,8 +33,8 @@ export function openCreateConnectionDialogAction(
   visualModel: WritableVisualModel,
   semanticSourceIdentifier: string,
   semanticTargetIdentifier: string,
-  visualSourceIdentifier: string | null,
-  visualTargetIdentifier: string | null,
+  visualSources: string[] | null,
+  visualTargets: string[] | null,
 ) {
   const entities = graph.aggregatorView.getEntities();
 
@@ -77,8 +77,6 @@ export function openCreateConnectionDialogAction(
       return;
     }
     // Add visual representation.
-    const visualSources = visualSourceIdentifier === null ? null : [visualSourceIdentifier];
-    const visualTargets = visualTargetIdentifier === null ? null : [visualTargetIdentifier];
     if (state.type === ConnectionType.Association) {
       addSemanticRelationshipToVisualModelAction(
         notifications, graph, visualModel, result.id, state.model.getId(),

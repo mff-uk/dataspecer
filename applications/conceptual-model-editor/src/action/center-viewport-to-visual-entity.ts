@@ -18,7 +18,7 @@ export function centerViewportToVisualEntityAction(
   classesContext: ClassesContextType,
   diagram: UseDiagramType,
   entityIdentifier: string,
-  currentEntityNumber: number,
+  currentlyIteratedEntity: number,
   _modelIdentifier: string,
 ) {
   const attribute = findRelationshipOrRelationshipUsage(entityIdentifier, classesContext);
@@ -46,7 +46,7 @@ export function centerViewportToVisualEntityAction(
     notifications.error("There is no visual representation of the entity.");
     return;
   }
-  const visualEntity = visualEntities[currentEntityNumber % visualEntities.length];
+  const visualEntity = visualEntities[Math.trunc(currentlyIteratedEntity) % visualEntities.length];
   if(isVisualNode(visualEntity) || isVisualGroup(visualEntity)) {
     diagram.actions().centerViewportToNode(visualEntity.identifier);
   }

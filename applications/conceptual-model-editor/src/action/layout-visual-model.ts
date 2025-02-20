@@ -57,9 +57,7 @@ export async function layoutActiveVisualModelAdvancedAction(
   });
 }
 
-//
-
-// TODO PRQuestion: Should be separate file? same for the method under
+// TODO RadStr: Move to separate file
 export async function layoutActiveVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   classes: ClassesContextType,

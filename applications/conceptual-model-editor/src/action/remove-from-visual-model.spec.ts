@@ -1,5 +1,5 @@
 /**
- * Tests removeFromVisualModelAction and interaction with createNodeDuplicateAction.
+ * Tests {@link removeFromVisualModelAction} and interaction with {@link createNodeDuplicateAction}.
  */
 
 import { expect, test } from "vitest";
@@ -98,7 +98,7 @@ test("Remove relationship end - semantic id", () => {
   expect(visualModel.getVisualEntitiesForRepresented("3").length).toBe(1);
 });
 
-test("Remove relationship ends at the same time- visual ids", () => {
+test("Remove relationship ends at the same time - visual ids", () => {
   const {
     visualModel,
     model,
