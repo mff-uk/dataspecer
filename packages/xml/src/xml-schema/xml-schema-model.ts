@@ -88,7 +88,7 @@ export class XmlSchemaAnnotation {
   /**
    * The value of the sawsdl:modelReference attribute.
    */
-  modelReference: string | null;
+  modelReference: string[] | null;
 
   /**
    * The title of the annotation for non-technical use.

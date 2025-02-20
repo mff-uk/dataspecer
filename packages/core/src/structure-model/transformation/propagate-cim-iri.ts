@@ -21,6 +21,7 @@ export function propagateCimIri(
             continue;
         }
         classData.cimIri = conceptualClass.cimIri;
+        classData.iris = conceptualClass.iris;
     }
 
     // Process properties
@@ -40,6 +41,7 @@ export function propagateCimIri(
 
                 if (conceptualProperty) {
                     property.cimIri = conceptualProperty.cimIri;
+                    property.iris = conceptualProperty.iris;
                 }
             }
         );

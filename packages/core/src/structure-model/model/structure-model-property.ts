@@ -34,8 +34,11 @@ export class StructureModelProperty {
   /**
    * The cim level is optional as pim or data-psm level may not have an
    * interpretation.
+   * @deprecated use {@link iris} instead
    */
   cimIri: string | null = null;
+
+  iris: string[] | null = null;
 
   /**
    * If the property is a container, this will represent the type of the container,

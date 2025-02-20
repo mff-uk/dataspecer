@@ -314,7 +314,7 @@ class XmlSchemaAdapter {
     } else {
       let skipIri = false;
       skipIri ||= cls.instancesHaveIdentity === "NEVER";
-      skipIri ||= cls.cimIri === null;
+      skipIri ||= (cls.iris === null || cls.iris.length === 0);
 
       let complexDefinition = await this.propertiesToComplexSequence(cls.properties, "sequence");
 
@@ -527,10 +527,10 @@ class XmlSchemaAdapter {
     const isType = data instanceof StructureModelProperty;
     const generateAnnotation = (isElement && this.options.generateElementAnnotations) || (isType && this.options.generateTypeAnnotations);
 
-    return !data.cimIri && Object.values(data?.humanLabel ?? {}).length === 0 && Object.values(data?.humanDescription ?? {}).length === 0
+    return !data.iris && data.iris.length > 0 && Object.values(data?.humanLabel ?? {}).length === 0 && Object.values(data?.humanDescription ?? {}).length === 0
       ? null
       : {
-          modelReference: this.options.generateSawsdl ? data.cimIri : null,
+          modelReference: this.options.generateSawsdl ? data.iris : null,
           metaTitle: generateAnnotation ? data.humanLabel : null,
           metaDescription: generateAnnotation ? data.humanDescription : null,
           structureModelEntity: data,

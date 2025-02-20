@@ -4,7 +4,12 @@ import { LanguageString } from "../../core";
 export class ConceptualModelClass {
   pimIri: string | null = null;
 
+  /**
+   * @deprecated use {@link iris} instead
+   */
   cimIri: string | null = null;
+
+  iris: string[] = [];
 
   humanLabel: LanguageString | null = null;
 

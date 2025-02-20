@@ -234,12 +234,12 @@ class XmlSchemaDocumentationGenerator {
       }
       let foundObject = null;
       for (const cls of Object.values(this.conceptualModel.classes)) {
-        if (cls.cimIri === annotation.modelReference) {
+        if (annotation.modelReference?.includes(cls.cimIri)) {
           foundObject = cls;
           break;
         }
         for (const prop of cls.properties) {
-          if (prop.cimIri === annotation.modelReference) {
+          if (annotation.modelReference?.includes(prop.cimIri)) {
             foundObject = prop;
             break;
           }

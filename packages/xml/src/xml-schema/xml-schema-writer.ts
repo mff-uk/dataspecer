@@ -228,9 +228,9 @@ async function writeAnnotation(
 ): Promise<void> {
   const annotation = annotated?.annotation;
   if (annotation != null) {
-    if (annotation.modelReference != null) {
+    if (annotation.modelReference != null && annotation.modelReference.length > 0) {
       await writer.writeAttributeValue(
-        "sawsdl", "modelReference", annotation.modelReference
+        "sawsdl", "modelReference", annotation.modelReference.join(" ")
       );
     }
     if (annotation.metaTitle || annotation.metaDescription) {
