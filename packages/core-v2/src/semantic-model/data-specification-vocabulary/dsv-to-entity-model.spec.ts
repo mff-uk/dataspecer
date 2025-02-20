@@ -10,8 +10,8 @@ test("From DSV to entity model and back.", async () => {
     "iri": "http://dcat-ap-cz/model",
     "profiles": [{
       "iri": "https://dcat-ap/#Dataset",
-      "prefLabel": null,
-      "definition": null,
+      "prefLabel": {},
+      "definition": {},
       "usageNote": {},
       "profileOfIri": [],
       "inheritsValue": [{
@@ -23,8 +23,8 @@ test("From DSV to entity model and back.", async () => {
       "properties": [{
         "iri": "http://www.w3.org/ns/dcat#distribution-profile",
         "cardinality": "0-n",
-        "prefLabel": null,
-        "definition": null,
+        "prefLabel": {},
+        "definition": {},
         "usageNote": {},
         "profileOfIri": [],
         "inheritsValue": [],
@@ -36,8 +36,8 @@ test("From DSV to entity model and back.", async () => {
       }]
     }, {
       "iri": "https://dcat-ap-cz/#Dataset",
-      "prefLabel": null,
-      "definition": null,
+      "prefLabel": {},
+      "definition": {},
       "usageNote": {},
       "profileOfIri": ["https://dcat-ap/#Dataset"],
       "inheritsValue": [],
@@ -46,8 +46,8 @@ test("From DSV to entity model and back.", async () => {
       "properties": []
     }, {
       "iri": "http://dcat-ap/ns/dcat#Distribution",
-      "prefLabel": null,
-      "definition": null,
+      "prefLabel": {},
+      "definition": {},
       "usageNote": {},
       "profileOfIri": [],
       "inheritsValue": [],
@@ -68,7 +68,7 @@ test("From DSV to entity model and back.", async () => {
     "http://www.w3.org/ns/dcat#distribution": "http://www.w3.org/ns/dcat#distribution",
   };
 
-  // Convert from DSV ConceptaulModel to EntityListContainer with Entities.
+  // Convert from DSV ConceptualModel to EntityListContainer with Entities.
   const entityListContainer = conceptualModelToEntityListContainer(dsv, {
     iriToIdentifier: iri => iriToIdentifier[iri] ?? `MISSING ${iri}`,
   });
@@ -80,9 +80,9 @@ test("From DSV to entity model and back.", async () => {
       "profiling": ["http://www.w3.org/ns/dcat#Dataset"],
       "type": ["class-profile"],
       "iri": "https://dcat-ap/#Dataset",
-      "name": null,
+      "name": {},
       "nameFromProfiled": null,
-      "description": null,
+      "description": {},
       "descriptionFromProfiled": null,
       "usageNote": {},
       "usageNoteFromProfiled": "http://www.w3.org/ns/dcat#Dataset",
@@ -90,20 +90,20 @@ test("From DSV to entity model and back.", async () => {
       "id": "dcat-ap-0005",
       "type": ["relationship-profile"],
       "ends": [{
-        "name": null,
+        "name": {},
         "nameFromProfiled": null,
-        "description": null,
+        "description": {},
         "descriptionFromProfiled": null,
         "cardinality": null,
         "concept": "dcat-ap-0001",
-        "usageNote": null,
+        "usageNote": {},
         "usageNoteFromProfiled": null,
         "iri": null,
         "profiling": [],
       }, {
-        "name": null,
+        "name": {},
         "nameFromProfiled": null,
-        "description": null,
+        "description": {},
         "descriptionFromProfiled": null,
         "cardinality": [0, null],
         "concept": "dcat-ap-0003",
@@ -117,9 +117,9 @@ test("From DSV to entity model and back.", async () => {
       "profiling": ["dcat-ap-0001"],
       "type": ["class-profile"],
       "iri": "https://dcat-ap-cz/#Dataset",
-      "name": null,
+      "name": {},
       "nameFromProfiled": null,
-      "description": null,
+      "description": {},
       "descriptionFromProfiled": null,
       "usageNote": {},
       "usageNoteFromProfiled": null,
@@ -128,9 +128,9 @@ test("From DSV to entity model and back.", async () => {
       "profiling": ["http://www.w3.org/ns/dcat#Distribution"],
       "type": ["class-profile"],
       "iri": "http://dcat-ap/ns/dcat#Distribution",
-      "name": null,
+      "name": {},
       "nameFromProfiled": null,
-      "description": null,
+      "description": {},
       "descriptionFromProfiled": null,
       "usageNote": {},
       "usageNoteFromProfiled": null,
@@ -183,13 +183,24 @@ test("From DSV to entity model and back.", async () => {
     "http://dcat-ap-cz/model", entityListContainer, context)
 
   // We need to update the expected state as inherited values
-  // should not be preserved
+  // should not be preserved.
   expect(actual).toStrictEqual({
     iri: dsv.iri,
-    profiles: [
-      {...dsv.profiles[0], "usageNote": null,},
-      {...dsv.profiles[1]},
-      {...dsv.profiles[2]},
-    ]
+    profiles: [{
+      ...dsv.profiles[0],
+      "prefLabel": {},
+      "definition": {},
+      "usageNote": {},
+    }, {
+      ...dsv.profiles[1],
+      "prefLabel": {},
+      "definition": {},
+      "usageNote": {},
+    }, {
+      ...dsv.profiles[2],
+      "prefLabel": {},
+      "definition": {},
+      "usageNote": {},
+    }],
   });
 });

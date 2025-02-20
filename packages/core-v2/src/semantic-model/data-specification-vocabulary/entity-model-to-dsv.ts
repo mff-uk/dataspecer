@@ -117,9 +117,9 @@ class EntityListContainerToConceptualModel {
     const classProfile: ClassProfile = {
       // Profile
       iri: this.resolveIri(item.id, item.iri),
-      prefLabel: null,
-      definition: null,
-      usageNote: null,
+      prefLabel: {},
+      definition: {},
+      usageNote: {},
       profileOfIri: [],
       // ClassProfile
       $type: [ClassProfileType],
@@ -180,7 +180,7 @@ class EntityListContainerToConceptualModel {
   /**
    * Adds inheritsValue values for usage.
    */
-  setProfileFromUsage(
+  private setProfileFromUsage(
     item: {
       usageOf: string,
       name: LanguageString | null,
@@ -195,7 +195,7 @@ class EntityListContainerToConceptualModel {
         propertyValueFromIri: this.resolveIri(item.usageOf, null),
       });
     } else {
-      profile.prefLabel = this.context.languageFilter(item.name);
+      profile.prefLabel = this.prepareString(item.name);
     }
     if (item.description === null) {
       profile.inheritsValue.push({
@@ -203,7 +203,7 @@ class EntityListContainerToConceptualModel {
         propertyValueFromIri: this.resolveIri(item.usageOf, null),
       });
     } else {
-      profile.definition = this.context.languageFilter(item.description);
+      profile.definition = this.prepareString(item.description);
     }
     if (item.usageNote === null) {
       profile.inheritsValue.push({
@@ -211,14 +211,26 @@ class EntityListContainerToConceptualModel {
         propertyValueFromIri: this.resolveIri(item.usageOf, null),
       });
     } else {
-      profile.usageNote = this.context.languageFilter(item.usageNote);
+      profile.usageNote = this.prepareString(item.usageNote);
     }
   }
 
   /**
+   * Prepare string to DSV, we represent empty string as null.
+   * The reason is both are same in RDF.
+   */
+  private prepareString (value: LanguageString | null): LanguageString {
+    const result = this.context.languageFilter(value);
+    if (result === null) {
+      return {};
+    }
+    return Object.keys(result).length === 0 ? {} : result;
+  };
+
+  /**
    * Adds inheritsValue values for profile.
    */
-  setProfileFromProfile(
+  private setProfileFromProfile(
     item: {
       name: LanguageString | null,
       nameFromProfiled: string | null,
@@ -230,7 +242,7 @@ class EntityListContainerToConceptualModel {
     profile: Profile,
   ) {
     if (item.nameFromProfiled === null)  {
-      profile.prefLabel = this.context.languageFilter(item.name);
+      profile.prefLabel = this.prepareString(item.name);
     } else {
       profile.inheritsValue.push({
         inheritedPropertyIri: SKOS.prefLabel.id,
@@ -238,7 +250,7 @@ class EntityListContainerToConceptualModel {
       });
     }
     if (item.descriptionFromProfiled === null) {
-      profile.definition = this.context.languageFilter(item.description);
+      profile.definition = this.prepareString(item.description);
     } else {
       profile.inheritsValue.push({
         inheritedPropertyIri: SKOS.definition.id,
@@ -246,7 +258,7 @@ class EntityListContainerToConceptualModel {
       });
     }
     if (item.usageNoteFromProfiled === null)  {
-      profile.usageNote = this.context.languageFilter(item.usageNote);
+      profile.usageNote = this.prepareString(item.usageNote);
     } else {
       profile.inheritsValue.push({
         inheritedPropertyIri: VANN.usageNote.id,
@@ -310,9 +322,9 @@ class EntityListContainerToConceptualModel {
       // Profile
       iri: this.resolveIri(item.id, range.iri),
       cardinality: cardinalityToCardinalityEnum(range.cardinality),
-      prefLabel: null,
-      definition: null,
-      usageNote: null,
+      prefLabel: {},
+      definition: {},
+      usageNote: {},
       profileOfIri: [],
       // PropertyProfile
       profiledPropertyIri: [],
@@ -407,9 +419,9 @@ class EntityListContainerToConceptualModel {
       // Profile
       iri: this.resolveIri(item.id, range.iri),
       cardinality: cardinalityToCardinalityEnum(range.cardinality),
-      prefLabel: null,
-      definition: null,
-      usageNote: null,
+      prefLabel: {},
+      definition: {},
+      usageNote: {},
       profileOfIri: [],
       // PropertyProfile
       profiledPropertyIri: [],

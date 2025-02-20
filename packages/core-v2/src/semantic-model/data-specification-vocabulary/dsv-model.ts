@@ -25,18 +25,23 @@ export enum Cardinality {
   ManyToMany = "n-n"
 }
 
+/**
+ * Instead of LanguageString | null we use only LanguageString.
+ * We can not distinguish between null and {} in RDF anyway.
+ * So we just pick the empty object as default.
+ */
 // @lc-identifier dsv:Profile
 export interface Profile {
   iri: string;
 
   // @lc-identifier skos:prefLabel
-  prefLabel: LanguageString | null;
+  prefLabel: LanguageString;
 
   // @lc-identifier skos:definition
-  definition: LanguageString | null;
+  definition: LanguageString;
 
   // @lc-identifier vann:usageNote
-  usageNote: LanguageString | null;
+  usageNote: LanguageString;
 
   // @lc-identifier dsv:profileOf
   // @lc-type Profile

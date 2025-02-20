@@ -76,12 +76,12 @@ class ConceptualModelToEntityModel {
       type: [SEMANTIC_MODEL_CLASS_PROFILE],
       // Profile
       profiling,
-      usageNote: profile.usageNote,
+      usageNote: profile.usageNote ?? {},
       usageNoteFromProfiled: selectFromProfiled(profile, VANN.usageNote.id),
       // NamedThingProfile
-      name: profile.prefLabel,
+      name: profile.prefLabel ?? {},
       nameFromProfiled: selectFromProfiled(profile, SKOS.prefLabel.id),
-      description: profile.definition,
+      description: profile.definition ?? {},
       descriptionFromProfiled: selectFromProfiled(profile, SKOS.definition.id),
     };
     this.entities.push(classProfile);
@@ -108,13 +108,13 @@ class ConceptualModelToEntityModel {
       concept: owner.id,
       cardinality: null,
       // NamedThingProfile
-      name: null,
+      name: {},
       nameFromProfiled: null,
-      description: null,
+      description: {},
       descriptionFromProfiled: null,
       // Profile
       profiling: [],
-      usageNote: null,
+      usageNote: {},
       usageNoteFromProfiled: null,
     };
 
@@ -139,13 +139,13 @@ class ConceptualModelToEntityModel {
       concept: rangeConcept,
       cardinality: cardinalityEnumToCardinality(profile.cardinality),
       // NamedThingProfile
-      name: profile.prefLabel,
+      name: profile.prefLabel ?? {},
       nameFromProfiled: selectFromProfiled(profile, SKOS.prefLabel.id),
-      description: profile.definition,
+      description: profile.definition ?? {},
       descriptionFromProfiled: selectFromProfiled(profile, SKOS.definition.id),
       // Profile
       profiling,
-      usageNote: profile.usageNote,
+      usageNote: profile.usageNote ?? {},
       usageNoteFromProfiled: selectFromProfiled(profile, VANN.usageNote.id),
     };
 

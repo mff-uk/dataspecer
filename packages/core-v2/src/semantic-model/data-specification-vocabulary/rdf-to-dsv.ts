@@ -211,18 +211,13 @@ class RdfPropertyReader {
     return result;
   }
 
-  public languageString(predicate: N3.NamedNode): LanguageString | null {
+  public languageString(predicate: N3.NamedNode): LanguageString {
     const result: LanguageString = {};
-    let isEmpty = true;
     for (const { object } of this.quads(predicate)) {
       if (object.termType === "Literal") {
         const literal = object as N3.Literal;
         result[literal.language ?? ""] = object.value;
-        isEmpty = false;
       }
-    }
-    if (isEmpty) {
-      return null;
     }
     return result;
   }
@@ -355,7 +350,7 @@ class PropertyProfilesReader {
       ...this.loadPropertyProfile(subject, reader),
       // ObjectPropertyProfile
       $type: [DatatypePropertyProfileType],
-      rangeDataTypeIri: [],
+      rangeDataTypeIri: reader.iris(DSV.datatypePropertyRange),
     };
     this.addToClass(reader, propertyProfile);
   }
