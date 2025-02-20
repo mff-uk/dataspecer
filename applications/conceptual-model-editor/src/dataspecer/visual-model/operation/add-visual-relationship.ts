@@ -1,4 +1,4 @@
-import { isVisualNode, Waypoint, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualNode, Position, Waypoint, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { DataspecerError } from "../../dataspecer-error";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
 import { getVisualSourcesAndVisualTargets } from "../../../action/utilities";
@@ -31,15 +31,7 @@ export function addVisualRelationship(
       const waypoints: Waypoint[] = [];
       if (visualSource === visualTarget && isVisualNode(visualSource)) {
         const position = visualSource.position;
-        waypoints.push({
-          x: position.x - 120,
-          y: position.y + 10,
-          anchored: position.anchored,
-        }, {
-          x: position.x - 120,
-          y: position.y + 50,
-          anchored: position.anchored,
-        });
+        waypoints.push(...createWaypointsForSelfLoop(position));
       }
       visualModel.addVisualRelationship({
         model,
@@ -50,4 +42,21 @@ export function addVisualRelationship(
       });
     }
   }
+}
+
+export function createWaypointsForSelfLoop(
+  position: Position
+) {
+  const loop = [
+    {
+      x: position.x - 120,
+      y: position.y + 10,
+      anchored: position.anchored,
+    }, {
+      x: position.x - 120,
+      y: position.y + 50,
+      anchored: position.anchored,
+    },
+  ];
+  return loop;
 }

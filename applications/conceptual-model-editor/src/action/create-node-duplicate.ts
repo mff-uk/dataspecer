@@ -1,5 +1,14 @@
-import { isVisualNode, isVisualProfileRelationship, isVisualRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import {
+  isVisualNode,
+  isVisualProfileRelationship,
+  isVisualRelationship,
+  VisualNode,
+  VisualProfileRelationship,
+  VisualRelationship,
+  WritableVisualModel
+} from "@dataspecer/core-v2/visual-model";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
+import { createWaypointsForSelfLoop } from "../dataspecer/visual-model/operation/add-visual-relationship";
 
 export function createNodeDuplicateAction(
   notifications: UseNotificationServiceWriterType,
@@ -20,47 +29,76 @@ export function createNodeDuplicateAction(
     ...node
   });
 
+  const duplicateNode = visualModel.getVisualEntity(duplicatedNodeIdentifier);
+  if(duplicateNode === null || !isVisualNode(duplicateNode)) {
+    notifications.error("The created duplicate node is not present in visual model for some reason");
+    return;
+  }
+
   addRelatedEdgesDuplicatesToVisualModel(
-    visualModel, nodeIdentifier, duplicatedNodeIdentifier
-  )
+    visualModel, node, duplicateNode);
 }
 
 function addRelatedEdgesDuplicatesToVisualModel(
   visualModel: WritableVisualModel,
-  originalNodeIdentifier: string,
-  duplicateNodeIdentifier: string,
+  originalNode: VisualNode,
+  duplicateNode: VisualNode,
 ) {
   const visualEntities = visualModel.getVisualEntities();
+  const allExistingNodeDuplicates = [...visualEntities.values()]
+    .filter((visualEntity, _) =>
+      isVisualNode(visualEntity) &&
+      visualEntity.representedEntity === originalNode.representedEntity &&
+      duplicateNode.identifier !== visualEntity.identifier)
+    .map(node => node.identifier);
+
   visualEntities.forEach((visualEntity, _) => {
     if(isVisualRelationship(visualEntity)) {
-      if(visualEntity.visualSource === originalNodeIdentifier) {
-        visualModel.addVisualRelationship({
-          ...visualEntity,
-          visualSource: duplicateNodeIdentifier
-        });
-      }
-      // Not else if, because of edge loops
-      if(visualEntity.visualTarget === originalNodeIdentifier) {
-        visualModel.addVisualRelationship({
-          ...visualEntity,
-          visualTarget: duplicateNodeIdentifier
-        });
-      }
+      addRelationshipDuplicate(
+        visualEntity, duplicateNode, allExistingNodeDuplicates, visualModel, "addVisualRelationship");
     }
     else if(isVisualProfileRelationship(visualEntity)) {
-      if(visualEntity.visualSource === originalNodeIdentifier) {
-        visualModel.addVisualProfileRelationship({
-          ...visualEntity,
-          visualSource: duplicateNodeIdentifier
-        });
-      }
-      // Not else if, because of edge loops
-      if(visualEntity.visualTarget === originalNodeIdentifier) {
-        visualModel.addVisualProfileRelationship({
-          ...visualEntity,
-          visualTarget: duplicateNodeIdentifier
-        });
-      }
+      addRelationshipDuplicate(
+        visualEntity, duplicateNode, allExistingNodeDuplicates, visualModel, "addVisualProfileRelationship");
     }
   });
+}
+
+function addRelationshipDuplicate(
+  relationship: VisualRelationship | VisualProfileRelationship,
+  duplicateNode: VisualNode,
+  allExistingNodeDuplicates: string[],
+  visualModel: WritableVisualModel,
+  addToVisualModelFunctionName: "addVisualRelationship" | "addVisualProfileRelationship",
+) {
+  const hasEdgeSourceInDuplicates = allExistingNodeDuplicates.includes(relationship.visualSource);
+
+  if(relationship.visualSource === relationship.visualTarget) {
+    // Create just the loop edge. We don't create the loop edge + all the edges between duplicates
+    if(hasEdgeSourceInDuplicates) {
+      (visualModel[addToVisualModelFunctionName] as ((relationship: any) => string))({
+        ...relationship,
+        waypoints: [...createWaypointsForSelfLoop(duplicateNode.position)],
+        visualSource: duplicateNode.identifier,
+        visualTarget: duplicateNode.identifier,
+      });
+    }
+  }
+  else {
+    const hasEdgeTargetInDuplicates = allExistingNodeDuplicates.includes(relationship.visualTarget);
+    if(hasEdgeSourceInDuplicates) {
+      (visualModel[addToVisualModelFunctionName] as ((relationship: any) => string))({
+        ...relationship,
+        waypoints: [],
+        visualSource: duplicateNode.identifier
+      });
+    }
+    else if(hasEdgeTargetInDuplicates) {
+      (visualModel[addToVisualModelFunctionName] as ((relationship: any) => string))({
+        ...relationship,
+        waypoints: [],
+        visualTarget: duplicateNode.identifier
+      });
+    }
+  }
 }
