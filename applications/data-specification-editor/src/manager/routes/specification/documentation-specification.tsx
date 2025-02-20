@@ -49,6 +49,7 @@ import { RedirectDialog } from "./redirect-dialog";
 import { ReuseDataSpecifications } from "./reuse-data-specifications";
 import { EntityModelAsCoreResourceReader } from "@dataspecer/core-v2/entity-model";
 import { DataSpecificationConfiguration, DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
+import { provideConfiguration } from "../../../editor/configuration/provided-configuration";
 
 export const DocumentationSpecification = memo(({dataSpecificationIri}: {
     dataSpecificationIri: string;
@@ -113,54 +114,13 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
             }
         }
 
-        // Gather all store descriptors
-
-        const storeDescriptors: StoreDescriptor[] = [];
-        for (const dataSpecification of Object.values(gatheredDataSpecifications)) {
-            const stores = backendConnector.getStoreDescriptorsForDataSpecification(dataSpecification);
-            storeDescriptors.push(...stores.pimStores);
-            storeDescriptors.push(...Object.values(stores.psmStores).flat(1));
-        }
-
-        // Create stores or use the cache.
-
-        const constructedStores: CoreResourceReader[] = [];
-
-        for (const storeDescriptor of storeDescriptors) {
-            // Direct match
-            if (constructedStoreCache.has(storeDescriptor)) {
-                constructedStores.push(constructedStoreCache.get(storeDescriptor) as CoreResourceReader);
-                continue;
-            }
-
-            // Match by object comparison
-            const storeFromCache = [...constructedStoreCache.entries()]
-                .find(([cachedDescriptor]) => isEqual(cachedDescriptor, storeDescriptor))
-                ?.[1];
-
-            if (storeFromCache) {
-                constructedStores.push(storeFromCache);
-                continue;
-            }
-
-
-            // Build store
-            if (HttpStoreDescriptor.is(storeDescriptor)) {
-                const store = HttpSynchronizedStore.createFromDescriptor(storeDescriptor, httpFetch);
-                await store.load();
-                constructedStores.push(store);
-            } else if (HttpSemanticModelStoreDescriptor.is(storeDescriptor)) { // It is PIM store
-                const [store] = await backendConnector.constructSemanticModelFromIds([storeDescriptor.modelId!])!;
-                constructedStores.push(new EntityModelAsCoreResourceReader(store));
-            }
-        }
-
-        const federatedStore = ReadOnlyFederatedStore.createLazy(constructedStores);
+        const {store: federatedStore, dataSpecifications: ds2} = await provideConfiguration(dataSpecificationIri as string, "");
 
         setZipLoading("generating");
 
-        const generator = new DefaultArtifactBuilder(federatedStore, gatheredDataSpecifications, defaultConfiguration);
-        await generator.prepare(Object.keys(gatheredDataSpecifications), setGenerateState);
+        // @ts-ignore
+        const generator = new DefaultArtifactBuilder(federatedStore, ds2, defaultConfiguration);
+        await generator.prepare(Object.keys(ds2), setGenerateState);
         const data = await generator.build();
         saveAs(data, "artifact.zip");
         setZipLoading(false);
