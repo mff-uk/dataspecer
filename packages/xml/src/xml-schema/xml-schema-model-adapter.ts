@@ -268,6 +268,8 @@ class XmlSchemaAdapter {
         } satisfies XmlSchemaElement;
         if (this.options.extractAllTypes) {
           this.extractType(element);
+        } else if (xmlSchemaTypeIsComplex(element.type)) {
+          element.type.name = null;
         }
         const complexContent = {
           cardinalityMin: 1,
@@ -451,6 +453,8 @@ class XmlSchemaAdapter {
 
       if (this.options.extractAllTypes) {
         this.extractType(element);
+      } else if (xmlSchemaTypeIsComplex(element.type)) {
+        element.type.name = null;
       }
 
       return {
@@ -586,7 +590,7 @@ class XmlSchemaAdapter {
     const type: QName = primitiveData.dataType.startsWith(XSD_PREFIX)
       ? // Type inside XSD is used.
         ["xs", primitiveData.dataType.substring(XSD_PREFIX.length)]
-      : // An interally mapped type (from OFN) is used, if defined.
+      : // An internally mapped type (from OFN) is used, if defined.
         simpleTypeMapQName[primitiveData.dataType] ?? ["xs", "anySimpleType"];
     if (type === langStringName) {
       // Defined langString if it is used.
