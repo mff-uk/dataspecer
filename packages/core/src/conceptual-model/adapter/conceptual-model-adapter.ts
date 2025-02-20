@@ -12,6 +12,13 @@ import {
   ConceptualModelProperty,
 } from "../model";
 
+interface WithConceptIris {
+  /**
+   * List of IRIs of the original entity that were referenced by the profile.
+   */
+  conceptIris?: string[];
+}
+
 class ConceptualModelAdapter {
   private readonly reader: CoreResourceReader;
 
@@ -92,7 +99,8 @@ class ConceptualModelAdapter {
 
     const property = new ConceptualModelProperty();
     property.pimIri = association.id;
-    property.cimIri = end.iri ?? association.iri;
+    property.iris = this.getConceptIris(end);
+    property.cimIri = property.iris[0] ?? null;
     property.humanLabel = end.name ?? association.name;
     property.humanDescription = end.description ?? association.description;
     property.cardinalityMin = end.cardinality?.[0] ?? null;
@@ -119,12 +127,20 @@ class ConceptualModelAdapter {
     }
   }
 
+  /**
+   * todo: typings
+   */
+  private getConceptIris(entity: any): string[] {
+    return (entity as WithConceptIris).conceptIris.filter((iri) => iri !== null && iri !== "");
+  }
+
   private async loadPimAttribute(attributeData: ExtendedSemanticModelRelationship) {
     const end = attributeData.ends[1];
 
     const model = new ConceptualModelProperty();
     model.pimIri = attributeData.id;
-    model.cimIri = end.iri;
+    model.iris = this.getConceptIris(end);
+    model.cimIri = model.iris[0] ?? null;
     model.humanLabel = end.name;
     model.humanDescription = end.description;
     model.cardinalityMin = end.cardinality?.[0];
@@ -146,7 +162,8 @@ class ConceptualModelAdapter {
   private loadPimClass(classData: ExtendedSemanticModelClass) {
     const model = this.getClass(classData.id);
     model.pimIri = classData.id;
-    model.cimIri = classData.iri;
+    model.iris = this.getConceptIris(classData);
+    model.cimIri = model.iris[0] ?? null;
     model.humanLabel = classData.name;
     model.humanDescription = classData.description;
     model.isCodelist = classData.isCodelist;

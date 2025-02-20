@@ -93,10 +93,12 @@
   "title association": "Association",
   "title attribute": "Attribute",
   "title cardinality": "Cardinality",
+  "title checkbox xml attribute": "Use as XML attribute",
   "title class": "Class",
   "title data type": "Data type",
   "title schema": "Schema",
   "title to class": "To class",
+    "title xml attribute": "XML attribute",
   "wikidata": {
     "error": "No detail available."
   },

@@ -5,8 +5,11 @@ export class StructureModelClass {
   /**
    * The cim level is optional as pim or data-psm level may not have an
    * interpretation.
+   * @deprecated use {@link iris} instead
    */
   cimIri: string | null = null;
+
+  iris: string[] | null = null;
 
   /**
    * The pim level is optional is data-psm level may not have an interpretation.
@@ -61,7 +64,7 @@ export class StructureModelClass {
   isCodelist = false;
 
   isReferenced = false;
-  
+
   /**
    * True if class is supposed to support only its own attributes for purposes of generating validation schemas.
    */

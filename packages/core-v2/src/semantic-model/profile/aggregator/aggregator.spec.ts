@@ -1,10 +1,10 @@
 import { SEMANTIC_MODEL_CLASS } from "../../concepts";
 import { SEMANTIC_MODEL_CLASS_PROFILE, SEMANTIC_MODEL_RELATIONSHIP_PROFILE, SemanticModelClassProfile } from "../concepts";
-import { createDefaultProfileEntityAggregator } from "./aggregator";
+import { AggregatedProfiledSemanticModelClass, createDefaultProfileEntityAggregator } from "./aggregator";
 
 test("Aggregate class with no profiles.", () => {
   const aggregator = createDefaultProfileEntityAggregator();
-  const profile: SemanticModelClassProfile = {
+  const profile: AggregatedProfiledSemanticModelClass = {
     id: "1",
     type: [SEMANTIC_MODEL_CLASS_PROFILE],
     iri: ":1",
@@ -15,6 +15,7 @@ test("Aggregate class with no profiles.", () => {
     profiling: [],
     usageNote: {"": "note"},
     usageNoteFromProfiled: null,
+    conceptIris: [],
   };
   const actual = aggregator.aggregateSemanticModelClassProfile(profile, [])
   expect(actual).toStrictEqual(actual);
@@ -62,6 +63,7 @@ test("Aggregate class with multiple profiles.", () => {
     profiling: ["2", "3"],
     usageNote: {"": "note-3"},
     usageNoteFromProfiled: "3",
+    conceptIris: [],
   });
 });
 
@@ -157,6 +159,7 @@ test("Aggregate relationship with a profiles.", () => {
       profiling: ["2", "4"],
       usageNote: {"": "2-note"},
       usageNoteFromProfiled: "2",
+      conceptIris: [],
     }, {
       iri:"1-2-iri",
       name: {"": "3-name"},
@@ -168,6 +171,7 @@ test("Aggregate relationship with a profiles.", () => {
       profiling: ["3"],
       usageNote: {"": "3-note"},
       usageNoteFromProfiled: "3",
+      conceptIris: [],
     }],
   });
 });

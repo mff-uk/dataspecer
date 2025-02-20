@@ -1,6 +1,6 @@
 import { Entity, EntityIdentifier } from "../../../entity-model/entity";
-import { LanguageString, SemanticModelClass, SemanticModelRelationship } from "../../concepts";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "../concepts";
+import { isSemanticModelClass, isSemanticModelRelationship, LanguageString, SemanticModelClass, SemanticModelRelationship } from "../../concepts";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipEndProfile, SemanticModelRelationshipProfile } from "../concepts";
 
 /**
  * Given an entity analyze and return dependencies to other entities.
@@ -14,17 +14,39 @@ export interface DependencyAnalyzer {
 
 }
 
+export interface AggregatedProfiledSemanticModelClass extends SemanticModelClassProfile {
+  /**
+   * List of IRIs of the original classes that were referenced by the profile.
+   */
+  conceptIris: string[];
+}
+
+export function isAggregatedProfiledSemanticModelClass(entity: Entity | null): entity is AggregatedProfiledSemanticModelClass {
+  return isSemanticModelClassProfile(entity) && "conceptIris" in entity;
+}
+
+export interface AggregatedProfiledSemanticModelRelationship extends SemanticModelRelationshipProfile {
+  ends: AggregatedProfiledSemanticModelRelationshipEnd[];
+}
+
+export interface AggregatedProfiledSemanticModelRelationshipEnd extends SemanticModelRelationshipEndProfile {
+  /**
+   * List of IRIs of the original ends that were referenced by the profile.
+   */
+  conceptIris: string[];
+}
+
 export interface ProfileAggregator {
 
   aggregateSemanticModelClassProfile(
     profile: SemanticModelClassProfile,
-    aggregatedProfiled: (SemanticModelClassProfile | SemanticModelClass)[],
-  ) : SemanticModelClassProfile;
+    aggregatedProfiled: (SemanticModelClassProfile | SemanticModelClass | AggregatedProfiledSemanticModelClass)[],
+  ) : AggregatedProfiledSemanticModelClass;
 
   aggregateSemanticModelRelationshipProfile(
     profile: SemanticModelRelationshipProfile,
-    aggregatedProfiled: (SemanticModelRelationshipProfile | SemanticModelRelationship)[],
-  ): SemanticModelRelationshipProfile;
+    aggregatedProfiled: (SemanticModelRelationshipProfile | SemanticModelRelationship | AggregatedProfiledSemanticModelRelationship)[],
+  ): AggregatedProfiledSemanticModelRelationship;
 
 }
 
@@ -47,8 +69,8 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
 
   aggregateSemanticModelClassProfile(
     profile: SemanticModelClassProfile,
-    aggregatedProfiled: (SemanticModelClassProfile | SemanticModelClass)[],
-  ): SemanticModelClassProfile {
+    aggregatedProfiled: (SemanticModelClassProfile | SemanticModelClass | AggregatedProfiledSemanticModelClass)[],
+  ): AggregatedProfiledSemanticModelClass {
     const profiled = createProfiledGetter(aggregatedProfiled, profile);
 
     let usageNote: LanguageString | null = null;
@@ -57,6 +79,18 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
       usageNote = usageNoteProfiled.usageNote;
     } else {
       usageNote = profile.usageNote;
+    }
+
+    const conceptIris: string[] = [];
+    for (const identifier of profile.profiling) {
+      const profile = profiled(identifier);
+      if (isSemanticModelClass(profile) && profile.iri) {
+        conceptIris.push(profile.iri);
+      } else if (isAggregatedProfiledSemanticModelClass(profile)) {
+        conceptIris.push(...profile.conceptIris);
+      } else {
+        // SemanticModelClassProfile should never be the case.
+      }
     }
 
     return {
@@ -72,13 +106,15 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
       nameFromProfiled: profile.nameFromProfiled,
       description: profiled(profile.descriptionFromProfiled)?.description ?? null,
       descriptionFromProfiled: profile.descriptionFromProfiled,
+      //
+      conceptIris: conceptIris,
     };
   }
 
   aggregateSemanticModelRelationshipProfile(
     profile: SemanticModelRelationshipProfile,
-    aggregatedProfiled: (SemanticModelRelationshipProfile | SemanticModelRelationship)[],
-  ): SemanticModelRelationshipProfile {
+    aggregatedProfiled: (SemanticModelRelationshipProfile | SemanticModelRelationship | AggregatedProfiledSemanticModelRelationship)[],
+  ): AggregatedProfiledSemanticModelRelationship {
     const profiled = createProfiledGetter(aggregatedProfiled, profile);
     return {
       id: profile.id,
@@ -118,6 +154,20 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
           }
           return cardinalityIntersection(cardinalities);
         })(),
+        conceptIris: end.profiling
+          .map(identifier => profiled(identifier))
+          .map(item => {
+            if (isSemanticModelRelationship(item) && item.ends?.[index]?.iri) {
+              return item.ends[index].iri;
+            } else if (isSemanticModelRelationshipProfile(item) && "conceptIris" in (item.ends?.[index] ?? {})) {
+              const end = item.ends[index] as AggregatedProfiledSemanticModelRelationshipEnd;
+              return end.conceptIris;
+            } else {
+              return "";
+            }
+          })
+          .flat()
+          .filter(item => item && item !== ""),
       })),
     }
   }

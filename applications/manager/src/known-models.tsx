@@ -134,16 +134,9 @@ export const createModelInstructions = {
       "entities": {}
     })),
   },
-  ["https://dataspecer.com/core/model-descriptor/cache-model"]: {
+  [V1.GENERATOR_CONFIGURATION]: {
       needsNaming: false,
-      createHook: getHookForStandardModel(LOCAL_SEMANTIC_MODEL, (iri, context) => ({
-        "type": "http://dataspecer.com/resources/local/semantic-model",
-        "modelId": iri,
-        "modelAlias": context.modelAlias ?? "",
-        "baseIri": context.baseIri ?? iri,
-        "caches": context.caches,
-        "entities": {}
-      })),
+      createHook: getHookForStandardModel(V1.GENERATOR_CONFIGURATION, () => ({})),
     },
   }
 
