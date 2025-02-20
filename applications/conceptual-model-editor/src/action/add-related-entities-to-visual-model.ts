@@ -50,7 +50,7 @@ export function addRelatedEntitiesAction(
     if (isSemanticModelGeneralization(candidate)) {
       if (shouldAddGeneralization(visualModel, identifier, candidate)) {
         addSemanticGeneralizationToVisualModelAction(
-          notifications, graph, visualModel, candidate.id, candidateModel.getId());
+          notifications, graph, visualModel, candidate.id, candidateModel.getId(), null, null);
       }
     }
     if (isSemanticModelRelationship(candidate)) {

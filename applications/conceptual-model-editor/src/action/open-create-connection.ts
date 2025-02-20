@@ -77,15 +77,16 @@ export function openCreateConnectionDialogAction(
       return;
     }
     // Add visual representation.
+    const visualSources = visualSourceIdentifier === null ? null : [visualSourceIdentifier];
+    const visualTargets = visualTargetIdentifier === null ? null : [visualTargetIdentifier];
     if (state.type === ConnectionType.Association) {
-      const visualSources = visualSourceIdentifier === null ? null : [visualSourceIdentifier];
-      const visualTargets = visualTargetIdentifier === null ? null : [visualTargetIdentifier];
       addSemanticRelationshipToVisualModelAction(
         notifications, graph, visualModel, result.id, state.model.getId(),
         visualSources, visualTargets);
     } else {
       addSemanticGeneralizationToVisualModelAction(
-        notifications, graph, visualModel, result.id, state.model.getId());
+        notifications, graph, visualModel, result.id, state.model.getId(),
+        visualSources, visualTargets);
     }
   };
   dialogs.openDialog(createConnectionDialog(

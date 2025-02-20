@@ -52,7 +52,7 @@ function addSemanticRelationshipProfileToVisualModelCommand(
   }
 
   const { visualSources, visualTargets } = getVisualSourcesAndVisualTargets(
-    visualModel, entity, domain.concept, range.concept, givenVisualSources, givenVisualTargets);
+    visualModel, domain.concept, range.concept, givenVisualSources, givenVisualTargets);
   if (visualSources.length === 0 || visualTargets.length === 0) {
     console.warn("Missing visual entities for ends.", { domain, range, entity, visualSources, visualTargets });
     if (isOwlThing(domain.concept) || isOwlThing(range.concept)) {

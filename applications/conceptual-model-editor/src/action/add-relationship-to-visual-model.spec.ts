@@ -485,8 +485,8 @@ function addTestRelationshipToVisualModel(
 ) {
   if(relationshipToTestType === RelationshipToTestType.Generalization) {
     addSemanticGeneralizationToVisualModelAction(
-      noActionNotificationServiceWriter,
-      graph, visualModel, relationshipIdentifier, modelDsIdentifier);
+      noActionNotificationServiceWriter, graph, visualModel,
+      relationshipIdentifier, modelDsIdentifier, visualSources, visualTargets);
   }
   else if(relationshipToTestType === RelationshipToTestType.Association) {
     addSemanticRelationshipToVisualModelAction(

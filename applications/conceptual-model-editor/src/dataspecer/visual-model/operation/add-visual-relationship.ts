@@ -1,6 +1,7 @@
 import { isVisualNode, Waypoint, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { DataspecerError } from "../../dataspecer-error";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
+import { getVisualSourcesAndVisualTargets } from "../../../action/utilities";
 
 
 /**
@@ -20,8 +21,8 @@ export function addVisualRelationship(
   givenVisualSources: string[] | null,
   givenVisualTargets: string[] | null,
 ) {
-  const visualSources = visualModel.getVisualEntitiesForRepresented(source);
-  const visualTargets = visualModel.getVisualEntitiesForRepresented(target);
+  const { visualSources, visualTargets } = getVisualSourcesAndVisualTargets(
+    visualModel, source, target, givenVisualSources, givenVisualTargets);
   if (visualSources.length === 0 || visualTargets.length === 0) {
     throw new DataspecerError("Source or target are not in the visual model.");
   }

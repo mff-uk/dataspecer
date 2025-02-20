@@ -180,7 +180,8 @@ function addConnectionsToVisualModel(
         notifications, graph, visualModel, entity.id, modelIdentifier, null, null);
     }
     else if(isSemanticModelGeneralization(entity)) {
-      addSemanticGeneralizationToVisualModelAction(notifications, graph, visualModel, entity.id, modelIdentifier);
+      addSemanticGeneralizationToVisualModelAction(
+        notifications, graph, visualModel, entity.id, modelIdentifier, null, null);
     }
   }
 }

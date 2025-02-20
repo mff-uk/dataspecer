@@ -48,7 +48,7 @@ function addSemanticRelationshipToVisualModelCommand(
     return;
   }
   const { visualSources, visualTargets } = getVisualSourcesAndVisualTargets(
-    visualModel, entity, domain.concept, range.concept, givenVisualSources, givenVisualTargets);
+    visualModel, domain.concept, range.concept, givenVisualSources, givenVisualTargets);
   if (visualSources.length === 0 || visualTargets.length === 0) {
     notifications.error("Ends of the relation are not in the visual model.");
     console.warn("Missing visual entities for ends.", { domain, range, entity, visualSources, visualTargets });

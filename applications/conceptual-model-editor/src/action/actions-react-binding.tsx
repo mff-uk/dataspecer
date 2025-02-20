@@ -604,10 +604,13 @@ function createActionsContext(
     });
   }
 
-  const addGeneralizationToVisualModel = (model: string, identifier: string): void => {
+  const addGeneralizationToVisualModel = (
+    model: string,
+    identifier: string,
+  ): void => {
     withVisualModel(notifications, graph, (visualModel) => {
       addSemanticGeneralizationToVisualModelAction(
-        notifications, graph, visualModel, identifier, model);
+        notifications, graph, visualModel, identifier, model, null, null);
     });
   }
 
