@@ -45,6 +45,8 @@ import { DatatypeSelector, DatatypeSelectorValueType, getIriFromDatatypeSelector
 import { RegexField } from "../../helper/regex-field";
 import { useSaveHandler } from "../../helper/save-handler";
 import { StringExamplesField } from "../../helper/string-examples-field";
+import { DataPsmXmlPropertyExtension } from "@dataspecer/core/data-psm/xml-extension/model/index";
+import { SetXmlIsAttribute } from "../../../operations/set-xml-is-attribute";
 
 export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({iri}) => {
     const store = useFederatedObservableStore();
@@ -249,6 +251,21 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
             (isAttribute || isAssociationEnd || isContainer) && !isEqual(cardinality, cardinalityFromPsm(resource as DataPsmAttribute | DataPsmAssociationEnd)),
         isInterpreted ? saveCardinalityPim : saveCardinalityPsm,
     );
+
+    // region xml is attribute
+
+    const currentXmlIsAttribute = DataPsmXmlPropertyExtension.getExtensionData(resource).isAttribute;
+    const [xmlIsAttribute, setXmlIsAttribute] = useState<boolean>(currentXmlIsAttribute);
+    useEffect(() => setXmlIsAttribute(currentXmlIsAttribute), [currentXmlIsAttribute]);
+    useSaveHandler(
+        xmlIsAttribute !== currentXmlIsAttribute,
+        useCallback(
+            async () => resource && await store.executeComplexOperation(new SetXmlIsAttribute(resource.iri as string, xmlIsAttribute)),
+            [resource, store, xmlIsAttribute]
+        ),
+    );
+
+    // endregion xml is attribute
 
     // region class is closed
 
@@ -465,6 +482,16 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
                     </Typography>
 
                     {cardinality && <CardinalitySelector value={cardinality} onChange={setCardinality} disabled={pimReadOnly} />}
+                </Box>
+            }
+
+            {(isAttribute || isAssociationEnd) &&
+                <Box sx={{mb: 3}}>
+                    <Typography variant="subtitle1" component="h2">
+                        {t('title xml attribute')}
+                    </Typography>
+
+                    <FormControlLabel control={<Checkbox checked={xmlIsAttribute} onChange={e => setXmlIsAttribute(e.target.checked)} />} label={t('title checkbox xml attribute')} />
                 </Box>
             }
 

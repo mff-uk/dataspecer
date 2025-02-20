@@ -125,6 +125,15 @@ export class XmlSchemaElement extends XmlSchemaAnnotated implements XmlNamedEnti
 }
 
 /**
+ * Represents an xs:attribute definition.
+ */
+export class XmlSchemaAttribute extends XmlSchemaAnnotated implements XmlNamedEntity {
+  name: QName;
+  isRequired: boolean;
+  type: XmlSchemaType | null;
+}
+
+/**
  * Represents an xs:simpleType or xs:complexType.
  */
 export class XmlSchemaType extends XmlSchemaAnnotated implements XmlNamedEntity {
@@ -155,6 +164,8 @@ export class XmlSchemaComplexType extends XmlSchemaType {
    * The value of the abstract attribute.
    */
   abstract: boolean;
+
+  attributes: XmlSchemaAttribute[];
 }
 
 /**

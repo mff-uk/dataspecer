@@ -124,4 +124,9 @@ export class StructureModelProperty {
    *  - path to parent class and then the property if the property belongs to the parent class
    */
   semanticPath: SemanticPathStep[] | null = null;
+
+  /**
+   * Whether this property should be treated as attribute in XML.
+   */
+  xmlIsAttribute: boolean = false;
 }

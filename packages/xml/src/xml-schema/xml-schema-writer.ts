@@ -19,6 +19,7 @@ import {
   XmlSchemaType,
   xmlSchemaComplexTypeDefinitionIsExtension,
   xmlSchemaSimpleTypeDefinitionIsRestriction,
+  XmlSchemaAttribute,
 } from "./xml-schema-model";
 
 import { XmlWriter, XmlStreamWriter } from "../xml/xml-writer";
@@ -293,6 +294,28 @@ async function writeElement(
   });
 }
 
+async function writeAttribute(
+  attribute: XmlSchemaAttribute,
+  writer: XmlWriter
+): Promise<void> {
+  await writer.writeElementFull("xs", "attribute")(async writer => {
+    if (attribute.isRequired) {
+      await writer.writeLocalAttributeValue("use", "required");
+    }
+    await writer.writeLocalAttributeValue("name", attribute.name[1]);
+    const type = attribute.type;
+    if (!xmlSchemaTypeIsComplex(type) && !xmlSchemaTypeIsSimple(type)) {
+      await writer.writeLocalAttributeValue(
+        "type",
+        writer.getQName(...type.name)
+      );
+    } else {
+      await writeUnrecognizedObject(type, writer);
+    }
+    await writeAnnotation(attribute, writer);
+  });
+}
+
 /**
  * Writes attributes and elements for an xs:complexType or an xs:simpleType.
  */
@@ -330,6 +353,9 @@ async function writeComplexType(
       });
     } else {
       await writeComplexContent(definition, null, writer);
+    }
+    for (const attribute of type.attributes) {
+      await writeAttribute(attribute, writer);
     }
   });
 }

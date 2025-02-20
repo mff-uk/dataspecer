@@ -95,10 +95,12 @@
   "title association": "Asociace",
   "title attribute": "Atribut",
   "title cardinality": "Kardinalita",
+  "title checkbox xml attribute": "Použít jako XML atribut",
   "title class": "Třída",
   "title data type": "Datový typ",
   "title schema": "Schéma",
   "title to class": "Odkazovaná třída",
+  "title xml attribute": "XML atribut",
   "wikidata": {
     "error": "Detail není dostupný."
   },
