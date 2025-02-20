@@ -331,8 +331,8 @@ export function getRemovedAndAdded<T>(previousValues: T[], nextValues: T[]) {
 
 /**
  * @returns
- * If {@link visualSources}, respectively {@link visualTargets} not null then
- *    returns given {@link visualSources} and {@link visualTargets}.
+ * If {@link givenVisualSources}, respectively {@link givenVisualTargets} not null then
+ *    returns given {@link givenVisualSources} and {@link givenVisualTargets}.
  * If null then
  *    returns all the visual sources, respectively targets for the represented {@link entity}.
  */
@@ -342,18 +342,18 @@ export function getVisualSourcesAndVisualTargets(
           SemanticModelRelationshipProfile | SemanticModelGeneralization,
   semanticDomain: string,
   semanticRange: string,
-  visualSources: string[] | null,
-  visualTargets: string[] | null,
+  givenVisualSources: string[] | null,
+  givenVisualTargets: string[] | null,
 ) {
-  const sources = visualSources !== null ?
-    visualSources.map(source => ({identifier: source})) :
+  const visualSources = givenVisualSources !== null ?
+    givenVisualSources.map(source => ({identifier: source})) :
     visualModel.getVisualEntitiesForRepresented(semanticDomain);
-  const targets = visualTargets !== null ?
-    visualTargets.map(target => ({identifier: target})) :
+  const visualTargets = givenVisualTargets !== null ?
+    givenVisualTargets.map(target => ({identifier: target})) :
     visualModel.getVisualEntitiesForRepresented(semanticRange);
 
   return {
-    sources,
-    targets,
+    visualSources,
+    visualTargets,
   }
 }

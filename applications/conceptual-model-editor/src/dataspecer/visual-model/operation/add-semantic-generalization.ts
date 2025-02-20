@@ -12,5 +12,5 @@ export function addSemanticGeneralizationToVisualModel(
   generalization: SemanticModelGeneralization,
 ) {
   const {id, child, parent} = generalization;
-  addVisualRelationship(visualModel, model, id, child, parent);
+  addVisualRelationship(visualModel, model, id, child, parent, null, null);
 }

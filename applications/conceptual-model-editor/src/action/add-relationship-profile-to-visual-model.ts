@@ -41,8 +41,8 @@ function addSemanticRelationshipProfileToVisualModelCommand(
   visualModel: WritableVisualModel,
   entity: SemanticModelRelationshipUsage | SemanticModelRelationshipProfile,
   model: string,
-  visualSources: string[] | null,
-  visualTargets: string[] | null,
+  givenVisualSources: string[] | null,
+  givenVisualTargets: string[] | null,
 ) {
   const { domain, range } = getDomainAndRange(entity);
   if (domain === null || domain.concept === null || range === null || range.concept === null) {
@@ -51,10 +51,10 @@ function addSemanticRelationshipProfileToVisualModelCommand(
     return;
   }
 
-  const {sources, targets} = getVisualSourcesAndVisualTargets(
-    visualModel, entity, domain.concept, range.concept, visualSources, visualTargets);
-  if (sources === null || targets === null) {
-    console.warn("Missing visual entities for ends.", { domain, range, entity, sources, targets });
+  const { visualSources, visualTargets } = getVisualSourcesAndVisualTargets(
+    visualModel, entity, domain.concept, range.concept, givenVisualSources, givenVisualTargets);
+  if (visualSources.length === 0 || visualTargets.length === 0) {
+    console.warn("Missing visual entities for ends.", { domain, range, entity, visualSources, visualTargets });
     if (isOwlThing(domain.concept) || isOwlThing(range.concept)) {
       // This is special case where owl:Thing is not on canvas.
       // We do not report this to user only log.
@@ -66,6 +66,7 @@ function addSemanticRelationshipProfileToVisualModelCommand(
   //
   addVisualRelationship(
     visualModel, model, entity.id,
-    domain.concept, range.concept
+    domain.concept, range.concept,
+    givenVisualSources, givenVisualTargets,
   );
 }

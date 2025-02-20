@@ -19,7 +19,7 @@ import { computeRelatedAssociationsBarycenterAction } from "./utilities";
  * @param shouldPutOutsidersInVisualModel If set to true, then the outsiders will be put into visual model, if false then not, but user can still see them in the returned result. Default is false
  * @returns
  */
-export function layoutActiveVisualModelAdvancedAction(
+export async function layoutActiveVisualModelAdvancedAction(
   notifications: UseNotificationServiceWriterType,
   classes: ClassesContextType,
   diagram: UseDiagramType,
@@ -60,7 +60,7 @@ export function layoutActiveVisualModelAdvancedAction(
 //
 
 // TODO PRQuestion: Should be separate file? same for the method under
-export function layoutActiveVisualModelAction(
+export async function layoutActiveVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   classes: ClassesContextType,
   diagram: UseDiagramType,

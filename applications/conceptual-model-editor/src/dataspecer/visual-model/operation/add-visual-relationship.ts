@@ -2,7 +2,13 @@ import { isVisualNode, Waypoint, WritableVisualModel } from "@dataspecer/core-v2
 import { DataspecerError } from "../../dataspecer-error";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
 
+
 /**
+ * Adds given semantic relationship to visual model identified by {@link represented}.
+ * If {@link visualSources} or {@link visualTargets} are null then this method creates
+ * connections between all visual ends given by the semantic relationship identified by {@link entityIdentifier}.
+ * Otherwise the given {@link visualSources}, respectively {@link visualTargets} are used as the sources or targets
+ * of the created visual relationships.
  * @throws DataspecerError
  */
 export function addVisualRelationship(
@@ -11,6 +17,8 @@ export function addVisualRelationship(
   represented: EntityDsIdentifier,
   source: EntityDsIdentifier,
   target: EntityDsIdentifier,
+  givenVisualSources: string[] | null,
+  givenVisualTargets: string[] | null,
 ) {
   const visualSources = visualModel.getVisualEntitiesForRepresented(source);
   const visualTargets = visualModel.getVisualEntitiesForRepresented(target);

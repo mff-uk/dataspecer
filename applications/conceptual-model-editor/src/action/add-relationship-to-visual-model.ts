@@ -38,8 +38,8 @@ function addSemanticRelationshipToVisualModelCommand(
   visualModel: WritableVisualModel,
   entity: SemanticModelRelationship,
   model: string,
-  visualSources: string[] | null,
-  visualTargets: string[] | null,
+  givenVisualSources: string[] | null,
+  givenVisualTargets: string[] | null,
 ) {
   const { domain, range } = getDomainAndRange(entity);
   if (domain === null || domain.concept === null || range === null || range.concept === null) {
@@ -47,16 +47,17 @@ function addSemanticRelationshipToVisualModelCommand(
     console.error("Ignored relationship as ends are null.", { domain, range, entity });
     return;
   }
-  const {sources, targets} = getVisualSourcesAndVisualTargets(
-    visualModel, entity, domain.concept, range.concept, visualSources, visualTargets);
-  if (sources === null || targets === null) {
+  const { visualSources, visualTargets } = getVisualSourcesAndVisualTargets(
+    visualModel, entity, domain.concept, range.concept, givenVisualSources, givenVisualTargets);
+  if (visualSources.length === 0 || visualTargets.length === 0) {
     notifications.error("Ends of the relation are not in the visual model.");
-    console.warn("Missing visual entities for ends.", { domain, range, entity, sources, targets });
+    console.warn("Missing visual entities for ends.", { domain, range, entity, visualSources, visualTargets });
     return;
   }
   //
   addVisualRelationship(
     visualModel, model, entity.id,
-    domain.concept, range.concept
+    domain.concept, range.concept,
+    givenVisualSources, givenVisualTargets
   );
 }
