@@ -74,7 +74,6 @@ test("From DSV to entity model and back.", async () => {
   });
 
   const expectedEntityListContainer = {
-    "baseIri": null,
     "entities": [{
       "id": "dcat-ap-0001",
       "profiling": ["http://www.w3.org/ns/dcat#Dataset"],
@@ -173,11 +172,10 @@ test("From DSV to entity model and back.", async () => {
     }],
   } as SemanticModelRelationship];
 
-  // Convert from EntityListContainer with entities to ConceptaulModel.
+  // Convert from EntityListContainer with entities to ConceptualModel.
   const context = createContext([entityListContainer, {
-    baseIri: null,
     entities: vocabularyEntities,
-  }], value => value ?? null);
+  }]);
 
   const actual = entityListContainerToConceptualModel(
     "http://dcat-ap-cz/model", entityListContainer, context)
