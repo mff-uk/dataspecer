@@ -182,5 +182,14 @@ test("From DSV to entity model and back.", async () => {
   const actual = entityListContainerToConceptualModel(
     "http://dcat-ap-cz/model", entityListContainer, context)
 
-  expect(actual).toStrictEqual(dsv);
+  // We need to update the expected state as inherited values
+  // should not be preserved
+  expect(actual).toStrictEqual({
+    iri: dsv.iri,
+    profiles: [
+      {...dsv.profiles[0], "usageNote": null,},
+      {...dsv.profiles[1]},
+      {...dsv.profiles[2]},
+    ]
+  });
 });
