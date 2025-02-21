@@ -1,7 +1,11 @@
 
-.splitter__divider {
+.splitter-divider {
   width: .25em;
   cursor: ew-resize;
   user-select: none;
   touch-action: none;
+}
+
+.splitter-divider:hover {
+  background-color: #888888;
 }

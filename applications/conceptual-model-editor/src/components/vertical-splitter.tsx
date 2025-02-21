@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import "./splitter.css";
+import "./vertical-splitter.css";
 
 interface VerticalSplitterProps {
 
@@ -13,11 +13,22 @@ interface VerticalSplitterProps {
   /**
    * Initial value of the split.
    */
-  initialSize?: number;
+  initialSize: number;
+
+  /**
+   * Minimum split size.
+   */
+  minimumSize?: number;
+
+  /**
+   * Maximum split size.
+   */
+  maximumSize?: number;
 
 }
 
 /**
+ * Vertical Splitter component that allows resizing the left and right sections.
  * https://phuoc.ng/collection/react-drag-drop/create-resizable-split-views/
  */
 export const VerticalSplitter = (props: VerticalSplitterProps) => {
@@ -29,7 +40,10 @@ export const VerticalSplitter = (props: VerticalSplitterProps) => {
     actual: props.children.length,
   });
 
-  const handleMouseDown = useHandleMouseDown(leftRef, containerRef);
+  const handleMouseDown = useHandleMouseDown(
+    leftRef, containerRef,
+    props.minimumSize ?? 15,
+    props.maximumSize ?? 85);
 
   useEffect(() => initialize(leftRef, props.initialSize));
 
@@ -39,7 +53,7 @@ export const VerticalSplitter = (props: VerticalSplitterProps) => {
         {props.children[0]}
       </div>
       <div
-        className="splitter__divider bg-slate-300"
+        className="splitter-divider bg-slate-300"
         onMouseDown={handleMouseDown}
       />
       <div className="grow">
@@ -49,7 +63,10 @@ export const VerticalSplitter = (props: VerticalSplitterProps) => {
   );
 };
 
-function initialize(leftRef: React.RefObject<HTMLElement | null>, initialSize: number = 20) {
+function initialize(
+  leftRef: React.RefObject<HTMLElement | null>,
+  initialSize: number,
+) {
   const style = leftRef?.current?.style;
   if (style === undefined) {
     return;
@@ -62,7 +79,12 @@ function initialize(leftRef: React.RefObject<HTMLElement | null>, initialSize: n
  * When move we change the style of the left thus adjusting the size.
  * When up we remove the listeners ending the action.
  */
-function useHandleMouseDown(leftRef: React.RefObject<HTMLElement | null>, containerRef: React.RefObject<HTMLElement | null>) {
+function useHandleMouseDown(
+  leftRef: React.RefObject<HTMLElement | null>,
+  containerRef: React.RefObject<HTMLElement | null>,
+  minimumSize: number,
+  maximumSize: number,
+) {
   return React.useCallback((event: React.MouseEvent) => {
     const start = { x: event.clientX, y: event.clientY };
     const leftWidth = leftRef?.current?.getBoundingClientRect().width;
@@ -79,7 +101,9 @@ function useHandleMouseDown(leftRef: React.RefObject<HTMLElement | null>, contai
         return;
       }
       const nextWidthFraction = ((leftWidth + dx) / containerWidth) * 100;
-      firstStyle.width = `${nextWidthFraction}%`;
+      if (minimumSize < nextWidthFraction && nextWidthFraction < maximumSize) {
+        firstStyle.width = `${nextWidthFraction}%`;
+      }
     };
 
     const handleMouseUp = () => {

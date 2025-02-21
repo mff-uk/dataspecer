@@ -40,6 +40,7 @@ import { migrateVisualModelFromV0 } from "./dataspecer/visual-model/visual-model
 import { ExplorationContextProvider } from "./diagram/features/highlighting/exploration/context/highlighting-exploration-mode";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { createDefaultWritableVisualModel } from "./dataspecer/visual-model/visual-model-factory";
+import { VerticalSplitter } from "./components/vertical-splitter";
 
 const _semanticModelAggregator = new SemanticModelAggregator();
 type SemanticModelAggregatorType = typeof _semanticModelAggregator;
@@ -158,11 +159,11 @@ const Page = () => {
                 <DialogContextProvider>
                   <ActionsContextProvider>
                     <Header />
-                    <main className="w-full flex-grow bg-teal-50  md:h-[calc(100%-48px)]">
-                      <div className="my-0 grid grid-rows-[auto_fit] md:h-full md:grid-cols-[25%_75%] md:grid-rows-1 ">
+                    <main className="w-full flex-grow bg-teal-50 md:h-[calc(100%-48px)]">
+                      <VerticalSplitter className="h-full" initialSize={25}>
                         <Catalog />
                         <Visualization />
-                      </div>
+                      </VerticalSplitter>
                     </main>
                     <NotificationList />
                     <DialogRenderer />
