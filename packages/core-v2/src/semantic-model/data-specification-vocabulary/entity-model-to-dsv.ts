@@ -116,7 +116,7 @@ class EntityListContainerToConceptualModel {
 
     const classProfile: ClassProfile = {
       // Profile
-      iri: this.resolveIri(item.id, item.iri),
+      iri: this.resolveIri(item.id),
       prefLabel: {},
       definition: {},
       usageNote: {},
@@ -173,8 +173,13 @@ class EntityListContainerToConceptualModel {
   /**
    * Resolve IRI with respect to baseIri of the transformed model.
    */
-  private resolveIri(identifier: string, iri: string | null): string {
-    return resolveIri(this.baseIri, identifier, iri);
+  private resolveIri(identifier: string): string {
+    const entity = this.context.identifierToEntity(identifier) as SemanticModelEntity;
+    if (entity === null) {
+      console.error(`Missing entity with id '${identifier}'.`);
+      return identifier;
+    }
+    return this.context.entityToIri(entity);
   }
 
   /**
@@ -192,7 +197,7 @@ class EntityListContainerToConceptualModel {
     if (item.name === null) {
       profile.inheritsValue.push({
         inheritedPropertyIri: SKOS.prefLabel.id,
-        propertyValueFromIri: this.resolveIri(item.usageOf, null),
+        propertyValueFromIri: this.resolveIri(item.usageOf),
       });
     } else {
       profile.prefLabel = this.prepareString(item.name);
@@ -200,7 +205,7 @@ class EntityListContainerToConceptualModel {
     if (item.description === null) {
       profile.inheritsValue.push({
         inheritedPropertyIri: SKOS.definition.id,
-        propertyValueFromIri: this.resolveIri(item.usageOf, null),
+        propertyValueFromIri: this.resolveIri(item.usageOf),
       });
     } else {
       profile.definition = this.prepareString(item.description);
@@ -208,7 +213,7 @@ class EntityListContainerToConceptualModel {
     if (item.usageNote === null) {
       profile.inheritsValue.push({
         inheritedPropertyIri: VANN.usageNote.id,
-        propertyValueFromIri: this.resolveIri(item.usageOf, null),
+        propertyValueFromIri: this.resolveIri(item.usageOf),
       });
     } else {
       profile.usageNote = this.prepareString(item.usageNote);
@@ -246,7 +251,7 @@ class EntityListContainerToConceptualModel {
     } else {
       profile.inheritsValue.push({
         inheritedPropertyIri: SKOS.prefLabel.id,
-        propertyValueFromIri: this.resolveIri(item.nameFromProfiled, null),
+        propertyValueFromIri: this.resolveIri(item.nameFromProfiled),
       });
     }
     if (item.descriptionFromProfiled === null) {
@@ -254,7 +259,7 @@ class EntityListContainerToConceptualModel {
     } else {
       profile.inheritsValue.push({
         inheritedPropertyIri: SKOS.definition.id,
-        propertyValueFromIri: this.resolveIri(item.descriptionFromProfiled, null),
+        propertyValueFromIri: this.resolveIri(item.descriptionFromProfiled),
       });
     }
     if (item.usageNoteFromProfiled === null)  {
@@ -262,7 +267,7 @@ class EntityListContainerToConceptualModel {
     } else {
       profile.inheritsValue.push({
         inheritedPropertyIri: VANN.usageNote.id,
-        propertyValueFromIri: this.resolveIri(item.usageNoteFromProfiled, null),
+        propertyValueFromIri: this.resolveIri(item.usageNoteFromProfiled),
       });
     }
   }
@@ -320,7 +325,7 @@ class EntityListContainerToConceptualModel {
 
     const propertyProfile: PropertyProfile = {
       // Profile
-      iri: this.resolveIri(item.id, range.iri),
+      iri: this.resolveIri(item.id),
       cardinality: cardinalityToCardinalityEnum(range.cardinality),
       prefLabel: {},
       definition: {},
@@ -376,7 +381,7 @@ class EntityListContainerToConceptualModel {
       const entity = this.context.identifierToEntity(rangeConcept);
       if (isSemanticModelClassUsage(entity) || isSemanticModelClassProfile(entity)) {
         if (entity.iri !== null) {
-          association.rangeClassIri.push(entity.iri);
+          association.rangeClassIri.push(this.resolveIri(entity.id));
         }
       } else {
         console.warn("Range concent of a profile is not a profile.", {
@@ -417,7 +422,7 @@ class EntityListContainerToConceptualModel {
 
     const propertyProfile: PropertyProfile = {
       // Profile
-      iri: this.resolveIri(item.id, range.iri),
+      iri: this.resolveIri(item.id),
       cardinality: cardinalityToCardinalityEnum(range.cardinality),
       prefLabel: {},
       definition: {},

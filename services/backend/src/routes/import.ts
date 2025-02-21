@@ -1,5 +1,5 @@
 import { LOCAL_SEMANTIC_MODEL } from '@dataspecer/core-v2/model/known-models';
-import { isSemanticModelRelationship, LanguageString, SemanticModelEntity } from '@dataspecer/core-v2/semantic-model/concepts';
+import { isSemanticModelClass, isSemanticModelRelationship, LanguageString, SemanticModelEntity } from '@dataspecer/core-v2/semantic-model/concepts';
 import { conceptualModelToEntityListContainer, rdfToConceptualModel } from '@dataspecer/core-v2/semantic-model/data-specification-vocabulary';
 import { createRdfsModel } from '@dataspecer/core-v2/semantic-model/simplified';
 import { isSemanticModelRelationshipUsage } from '@dataspecer/core-v2/semantic-model/usage/concepts';
@@ -13,9 +13,10 @@ import { v4 as uuidv4 } from 'uuid';
 import z from 'zod';
 import { resourceModel } from '../main';
 import { asyncHandler } from './../utils/async-handler';
+import { DataTypeURIs } from "@dataspecer/core-v2/semantic-model/datatypes";
 
-function getIriToIdMapping() {
-  const mapping: Record<string, string> = {};
+function getIriToIdMapping(knownMapping: Record<string, string> = {}) {
+  const mapping = {...knownMapping};
   return (iri: string) => {
     if (!mapping[iri]) {
       mapping[iri] = uuidv4();
@@ -81,12 +82,36 @@ async function importRdfsAndDsv(parentIri: string, rdfsUrl: string | null, dsvUr
     baseIri: null,
   } as any;
 
+  /**
+   * We import entities identified by their IRIs and store them with their IDs.
+   */
+  const knownMapping: Record<string, string> = {};
+  for (const datatype of DataTypeURIs) {
+    knownMapping[datatype] = datatype
+  }
+
   // Vocabulary
   if (rdfsUrl) {
     const wrapper = await createRdfsModel([rdfsUrl], httpFetch);
     const serialization = wrapper.serializeModel();
     const model = new PimStoreWrapper(serialization.pimStore, serialization.id, serialization.alias, serialization.urls);
     model.fetchFromPimStore();
+
+    for (const entity of Object.values(model.getEntities())) {
+      if (isSemanticModelClass(entity)) {
+        knownMapping[entity.iri!] = entity.id;
+      }
+      if (isSemanticModelRelationship(entity)) {
+        if (entity.iri) {
+          knownMapping[entity.iri!] = entity.id;
+        }
+        for (const end of entity.ends) {
+          if (end.iri) {
+            knownMapping[end.iri!] = entity.id;
+          }
+        }
+      }
+    }
 
     result.entities = {
       ...result.entities,
@@ -100,7 +125,7 @@ async function importRdfsAndDsv(parentIri: string, rdfsUrl: string | null, dsvUr
     const data = await response.text();
     const conceptualModel = await rdfToConceptualModel(data);
     const dsvResult = conceptualModelToEntityListContainer(conceptualModel[0], {
-      iriToIdentifier: getIriToIdMapping(),
+      iriToIdentifier: getIriToIdMapping(knownMapping),
     });
 
     result.entities = {
