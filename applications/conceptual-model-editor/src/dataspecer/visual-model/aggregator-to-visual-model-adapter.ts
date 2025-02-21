@@ -12,6 +12,7 @@ const LOG = createLogger(import.meta.url);
 
 /**
  * Propagate changes from aggregator to visual model.
+ * @deprecated We should not synchronize on changes, instead we must execute changes directly.
  */
 export function synchronizeOnAggregatorChange(
   visualModel: WritableVisualModel,
