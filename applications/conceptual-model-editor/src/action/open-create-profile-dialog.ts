@@ -15,7 +15,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { DialogApiContextType } from "../dialog/dialog-service";
-import { Options } from "../application/options";
+import { Options } from "../configuration/options";
 import { ClassesContextType } from "../context/classes-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";

@@ -29,7 +29,7 @@ export function createCreateAssociationDialogState(
   // EntityState
 
   const entityState = createEntityStateForNew(
-    language, defaultModelIdentifier, vocabularies, configuration().nameToIri);
+    language, defaultModelIdentifier, vocabularies, configuration().relationshipNameToIri);
 
   // SpecializationState
 

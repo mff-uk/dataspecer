@@ -9,7 +9,7 @@ import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { DialogApiContextType } from "../dialog/dialog-service";
-import { Options } from "../application/options";
+import { Options } from "../configuration/options";
 import { ConnectionType, CreateConnectionState, createConnectionDialog } from "../dialog/obsolete/create-connection-dialog";
 import { AssociationConnectionType, GeneralizationConnectionType } from "../util/edge-connection";
 import { UseClassesContextType } from "../context/classes-context";

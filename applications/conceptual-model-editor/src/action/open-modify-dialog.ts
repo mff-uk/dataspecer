@@ -14,7 +14,7 @@ import {
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { DialogApiContextType } from "../dialog/dialog-service";
-import { Options } from "../application/options";
+import { Options } from "../configuration/options";
 import { ClassesContextType, UseClassesContextType } from "../context/classes-context";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { VisualModel } from "@dataspecer/core-v2/visual-model";

@@ -33,7 +33,7 @@ import { DialogContextProvider } from "./dialog/dialog-context";
 import { DialogRenderer } from "./dialog/dialog-renderer";
 import { NotificationList } from "./notification";
 import { ActionsContextProvider } from "./action/actions-react-binding";
-import { OptionsContextProvider } from "./application/options";
+import { OptionsContextProvider } from "./configuration/options";
 
 import "./page.css";
 import { migrateVisualModelFromV0 } from "./dataspecer/visual-model/visual-model-v0-to-v1";

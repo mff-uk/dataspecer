@@ -18,7 +18,7 @@ export function useEditClassProfileDialogController({ changeState }:
   return useMemo(() => {
 
     const entityProfileController = createEntityProfileController(
-      changeState, configuration().nameToClassIri);
+      changeState, configuration().classNameToIri);
 
     return {
       ...entityProfileController

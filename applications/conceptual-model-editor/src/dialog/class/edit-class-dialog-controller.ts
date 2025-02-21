@@ -13,7 +13,7 @@ export function useEditClassDialogController({ changeState }: DialogProps<EditCl
 
   return useMemo(() => {
 
-    const entity = createEntityController(changeState, configuration().nameToClassIri);
+    const entity = createEntityController(changeState, configuration().classNameToIri);
 
     const specialization = createSpecializationController(changeState);
 

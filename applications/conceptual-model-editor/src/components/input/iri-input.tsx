@@ -3,7 +3,7 @@ import { IRI } from "iri";
 import type { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { TwoWaySwitch } from "./two-way-switch";
 import { getStringFromLanguageStringInLang } from "../../util/language-utils";
-import { useOptions } from "../../application/options";
+import { useOptions } from "../../configuration/options";
 
 enum IriType {
     absolute ="absolute",

@@ -45,7 +45,7 @@ import { getLocalizedStringFromLanguageString } from "./util/language-utils";
 import { getIri, getModelIri } from "./util/iri-utils";
 import { findSourceModelOfEntity } from "./service/model-service";
 import { type EntityModel } from "@dataspecer/core-v2";
-import { Options, useOptions } from "./application/options";
+import { Options, useOptions } from "./configuration/options";
 import { getGroupMappings } from "./action/utilities";
 import { synchronizeOnAggregatorChange } from "./dataspecer/visual-model/aggregator-to-visual-model-adapter";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";

@@ -7,7 +7,7 @@ import { getDomainAndRange } from "../util/relationship-utils";
 import { EditNodeAttributesState, AttributeData } from "../dialog/class/edit-node-attributes-dialog-controller";
 import { Entity } from "@dataspecer/core-v2";
 import { Options } from "../application";
-import { Language } from "../application/options";
+import { Language } from "../configuration/options";
 import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelAttributeUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { getStringFromLanguageStringInLang } from "../util/language-utils";

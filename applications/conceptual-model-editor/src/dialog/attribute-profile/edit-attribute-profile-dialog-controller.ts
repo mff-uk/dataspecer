@@ -26,7 +26,7 @@ export function useEditAttributeProfileDialogController({ changeState }:
 
   return useMemo(() => {
 
-    const entityProfileController = createEntityProfileController(changeState, configuration().nameToIri);
+    const entityProfileController = createEntityProfileController(changeState, configuration().relationshipNameToIri);
 
     const relationshipProfileController = createRelationshipProfileController(changeState);
 

@@ -1,5 +1,5 @@
 import { t } from "../../application";
-import { Language } from "../../application/options";
+import { Language } from "../../configuration/options";
 import { DialogProps, DialogWrapper } from "../dialog-api";
 import {
   ChangeablePartOfEditNodeAttributeState,

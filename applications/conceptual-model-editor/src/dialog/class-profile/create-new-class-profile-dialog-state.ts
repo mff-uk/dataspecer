@@ -34,7 +34,7 @@ export function createNewProfileClassDialogState(
     language, configuration().languagePreferences,
     vocabularies,
     availableProfiles, profilesIdentifiers, noProfile,
-    configuration().nameToClassIri);
+    configuration().classNameToIri);
 
   return {
     ...entityProfileState,

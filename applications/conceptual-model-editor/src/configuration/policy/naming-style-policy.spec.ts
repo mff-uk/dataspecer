@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { kebabCase, lowerCamelCase, upperCamelCase } from "./naming-styles";
+import { kebabCase, lowerCamelCase, upperCamelCase } from "./naming-style-policy";
 
 test("Test lowerCamelCase.", () => {
   expect(lowerCamelCase("First second Third")).toBe("firstSecondThird");

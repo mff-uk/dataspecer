@@ -38,7 +38,7 @@ export function createAddAttributeDialogState(
 
   // EntityState
   const entityState = createEntityStateForNew(
-    language, null, vocabularies, configuration().nameToIri);
+    language, null, vocabularies, configuration().relationshipNameToIri);
 
   // SpecializationState
 

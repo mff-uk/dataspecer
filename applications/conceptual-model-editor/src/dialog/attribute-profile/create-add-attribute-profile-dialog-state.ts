@@ -45,7 +45,7 @@ export function createAddAttributeProfileDialogState(
     language, configuration().languagePreferences,
     vocabularies,
     availableProfiles, [], noProfile,
-    configuration().nameToIri);
+    configuration().relationshipNameToIri);
 
   // RelationshipState<EntityRepresentative>
 

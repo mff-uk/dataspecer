@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { type DialogProps } from "../dialog-api";
-import { Language } from "../../application/options";
+import { Language } from "../../configuration/options";
 import { DropResult } from "@hello-pangea/dnd";
 import { getStringFromLanguageStringInLang } from "../../util/language-utils";
 import { EditAttributeDialogState } from "../attribute/edit-attribute-dialog-controller";

@@ -26,7 +26,7 @@ export function createNewClassDialogState(
   // EntityState
 
   const entityState = createEntityStateForNew(
-    language, defaultModelIdentifier, vocabularies, configuration().nameToIri);
+    language, defaultModelIdentifier, vocabularies, configuration().relationshipNameToIri);
 
   // SpecializationState
 

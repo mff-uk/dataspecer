@@ -8,17 +8,19 @@ export enum Language {
 export const SupportedLanguages = [Language.Czech, Language.English];
 
 /**
- * Runtime configuration that can be changed by the user.
+ * Runtime options that can be changed by the user.
+ * Such change is expected to be reflected in the user interface.
+ * As a result options are provided via React hook.
  */
 export interface Options {
 
   /**
-   * Preferred data language.
+   * Selected data language.
    */
   language: Language;
 
   /**
-   * Set primary language.
+   * Set language.
    */
   setLanguage: (language: Language) => void;
 

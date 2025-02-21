@@ -12,7 +12,7 @@ import { type UseNotificationServiceWriterType } from "../notification/notificat
 import { ModelGraphContext, type ModelGraphContextType } from "../context/model-context";
 import { type DiagramCallbacks, type Waypoint as DiagramWaypoint, Edge, Position, useDiagram } from "../diagram/";
 import type { UseDiagramType } from "../diagram/diagram-hook";
-import { type Options, useOptions } from "../application/options";
+import { type Options, useOptions } from "../configuration/options";
 import { centerViewportToVisualEntityAction } from "./center-viewport-to-visual-entity";
 import { openDetailDialogAction } from "./open-detail-dialog";
 import { openModifyDialogAction } from "./open-modify-dialog";

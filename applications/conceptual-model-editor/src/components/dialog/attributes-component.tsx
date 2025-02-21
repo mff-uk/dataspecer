@@ -103,7 +103,7 @@ export const AddAttributesComponent = (props: {
             }}
             setNewIri={(i) => setIri(i)}
             baseIri={modelIri}
-            nameSuggestion={configuration().nameToIri}
+            nameSuggestion={configuration().relationshipNameToIri}
           />
         </DialogDetailRow>
         {hideCardinality ? null :
