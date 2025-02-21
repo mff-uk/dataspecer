@@ -25,6 +25,8 @@ interface VerticalSplitterProps {
    */
   maximumSize?: number;
 
+  onSizeChange?: (next: number) => void;
+
 }
 
 /**
@@ -43,7 +45,8 @@ export const VerticalSplitter = (props: VerticalSplitterProps) => {
   const handleMouseDown = useHandleMouseDown(
     leftRef, containerRef,
     props.minimumSize ?? 15,
-    props.maximumSize ?? 85);
+    props.maximumSize ?? 85,
+    props.onSizeChange);
 
   useEffect(() => initialize(leftRef, props.initialSize));
 
@@ -84,6 +87,7 @@ function useHandleMouseDown(
   containerRef: React.RefObject<HTMLElement | null>,
   minimumSize: number,
   maximumSize: number,
+  onSizeChange?: (next: number) => void,
 ) {
   return React.useCallback((event: React.MouseEvent) => {
     const start = { x: event.clientX, y: event.clientY };
@@ -109,6 +113,10 @@ function useHandleMouseDown(
     const handleMouseUp = () => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
+      if (onSizeChange !== undefined) {
+        const width = parseFloat(leftRef?.current?.style.width ?? "25");
+        onSizeChange(width);
+      }
     };
 
     document.addEventListener("mousemove", handleMouseMove);

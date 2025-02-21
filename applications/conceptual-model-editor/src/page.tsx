@@ -41,6 +41,7 @@ import { ExplorationContextProvider } from "./diagram/features/highlighting/expl
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { createDefaultWritableVisualModel } from "./dataspecer/visual-model/visual-model-factory";
 import { VerticalSplitter } from "./components/vertical-splitter";
+import { preferences, updatePreferences } from "./configuration";
 
 const _semanticModelAggregator = new SemanticModelAggregator();
 type SemanticModelAggregatorType = typeof _semanticModelAggregator;
@@ -160,7 +161,11 @@ const Page = () => {
                   <ActionsContextProvider>
                     <Header />
                     <main className="w-full flex-grow bg-teal-50 md:h-[calc(100%-48px)]">
-                      <VerticalSplitter className="h-full" initialSize={25}>
+                      <VerticalSplitter
+                        className="h-full"
+                        initialSize={preferences().pageSplitterValue}
+                        onSizeChange={value => updatePreferences({pageSplitterValue: value})}
+                      >
                         <Catalog />
                         <Visualization />
                       </VerticalSplitter>

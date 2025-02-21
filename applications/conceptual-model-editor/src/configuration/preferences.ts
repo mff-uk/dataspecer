@@ -11,4 +11,32 @@
  */
 export interface Preferences {
 
+  /**
+   * Value to be used for the catalog and editor splitter.
+   */
+  pageSplitterValue: number;
+
 }
+
+const PREFERENCES_KEY = "dataspecer-cme-preferences";
+
+const DEFAULT_PREFERENCES: Preferences = Object.freeze({
+  pageSplitterValue: 25,
+});
+
+let activePreferences: Preferences = (() => {
+  return {
+    ...DEFAULT_PREFERENCES,
+    ...JSON.parse(sessionStorage.getItem(PREFERENCES_KEY)?? "{}"),
+  };
+})();
+
+export const preferences = ()  => activePreferences;
+
+export const updatePreferences = (next: Partial<Preferences>) => {
+  activePreferences = {
+    ...activePreferences,
+    ...next,
+  };
+  sessionStorage.setItem(PREFERENCES_KEY, JSON.stringify(activePreferences));
+};

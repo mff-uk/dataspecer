@@ -108,6 +108,4 @@ const activeConfiguration = (() => {
   return CONFIGURATIONS[name] ?? defaultConfiguration;
 })();
 
-export const configuration = (): Configuration => {
-  return activeConfiguration;
-};
+export const configuration = () => activeConfiguration;
