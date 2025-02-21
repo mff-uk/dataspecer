@@ -6,12 +6,9 @@ import { EntityListContainer } from "./entity-model";
 import { createContext, entityListContainerToConceptualModel } from "./entity-model-to-dsv";
 import { rdfToConceptualModel } from "./rdf-to-dsv";
 
-// const test = (message: string, callback: any) => {};
-
 test("End to end test I.", async () => {
 
   const container = {
-    "baseIri": null,
     "entities": [{
       "id": "lqo2gocgg4sm7d1ivqx",
       "iri": "flatBack",
@@ -20,7 +17,7 @@ test("End to end test I.", async () => {
       "description": {}
     }, {
       "id": "xg0kzal0g2m7d1ix6t",
-      "iri": "sweetState",
+      "iri": "http://localhost/sweetState",
       "type": ["class"],
       "name": { "en": "Sweet State" },
       "description": {}
@@ -186,65 +183,65 @@ test("End to end test I.", async () => {
     }]
   } as EntityListContainer;
 
-  const context = createContext([container], value => (value ?? null));
+  const context = createContext([container]);
 
   const conceptualModel = entityListContainerToConceptualModel(
-    "http://dcat/model", container, context);
+    "http://dcat/model/", container, context);
 
   const expectedConceptualModel: ConceptualModel = {
-    "iri": "http://dcat/model",
+    "iri": "http://dcat/model/",
     "profiles": [{
-      "iri": "sweetState1",
+      "iri": "http://dcat/model/sweetState1",
       "prefLabel": {},
       "definition": {},
       "usageNote": {},
       "profileOfIri": [],
       "$type": ["class-profile"],
       "properties": [{
-        "iri": "SweetState.drabMoment",
+        "iri": "http://dcat/model/SweetState.drabMoment",
         "cardinality": Cardinality.ZeroToMany,
         "prefLabel": {},
         "definition": {},
         "usageNote": {},
         "profileOfIri": [],
-        "profiledPropertyIri": ["drabMoment"],
+        "profiledPropertyIri": ["http://dcat/model/drabMoment"],
         "inheritsValue": [{
           "inheritedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
-          "propertyValueFromIri": "u42wg5rcg2im7d1j3hm"
+          "propertyValueFromIri": "http://dcat/model/drabMoment"
         }, {
           "inheritedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
-          "propertyValueFromIri": "u42wg5rcg2im7d1j3hm"
+          "propertyValueFromIri": "http://dcat/model/drabMoment"
         }],
         "$type": ["object-property-profile"],
-        "rangeClassIri": ["flatBack1"]
+        "rangeClassIri": ["http://dcat/model/flatBack1"]
       } as ObjectPropertyProfile, {
-        "iri": "SweetState.tightArtChanges",
+        "iri": "http://dcat/model/SweetState.tightArtChanges",
         "cardinality": Cardinality.ZeroToMany,
         "prefLabel": {},
         "definition": {},
         "usageNote": {},
         "profileOfIri": [],
-        "profiledPropertyIri": ["tightArt"],
+        "profiledPropertyIri": ["http://dcat/model/tightArt"],
         "inheritsValue": [{
           "inheritedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
-          "propertyValueFromIri": "rz94ir172eqm7d1j8i2"
+          "propertyValueFromIri": "http://dcat/model/tightArt"
         }, {
           "inheritedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
-          "propertyValueFromIri": "rz94ir172eqm7d1j8i2"
+          "propertyValueFromIri": "http://dcat/model/tightArt"
         }],
         "$type": ["datatype-property-profile"],
         "rangeDataTypeIri": ["http://www.w3.org/2000/01/rdf-schema#Literal"]
       } as DatatypePropertyProfile],
       "inheritsValue": [{
         "inheritedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
-        "propertyValueFromIri": "xg0kzal0g2m7d1ix6t"
+        "propertyValueFromIri": "http://localhost/sweetState"
       }, {
         "inheritedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
-        "propertyValueFromIri": "xg0kzal0g2m7d1ix6t"
+        "propertyValueFromIri": "http://localhost/sweetState"
       }],
-      "profiledClassIri": ["sweetState"]
+      "profiledClassIri": ["http://localhost/sweetState"]
     }, {
-      "iri": "flatBack1",
+      "iri": "http://dcat/model/flatBack1",
       "prefLabel": { "en": "Flat Back Changed in Profile" },
       "definition": { "en": "Changed in profile" },
       "usageNote": { "en": "usage note" },
@@ -252,7 +249,7 @@ test("End to end test I.", async () => {
       "$type": ["class-profile"],
       "properties": [],
       "inheritsValue": [],
-      "profiledClassIri": ["flatBack"]
+      "profiledClassIri": ["http://dcat/model/flatBack"]
     }],
   };
 
@@ -264,15 +261,15 @@ test("End to end test I.", async () => {
   expect(parsedConceptualModel).toStrictEqual(conceptualModel);
 
   const iriToIdentifier: Record<string, string> = {
-    "sweetState1": "hwey2q71bvjm7d1jrlq",
-    "flatBack1": "94kn5yss8dm7d1jv9z",
-    "SweetState.drabMoment": "fk532ihkfa5m7d1k90e",
-    "SweetState.tightArtChanges": "kss58ru9dom7d1omi4",
+    "http://dcat/model/sweetState1": "hwey2q71bvjm7d1jrlq",
+    "http://dcat/model/flatBack1": "94kn5yss8dm7d1jv9z",
+    "http://dcat/model/SweetState.drabMoment": "fk532ihkfa5m7d1k90e",
+    "http://dcat/model/SweetState.tightArtChanges": "kss58ru9dom7d1omi4",
     // Vocabulary
-    "flatBack": "lqo2gocgg4sm7d1ivqx",
-    "tightArt": "rz94ir172eqm7d1j8i2",
-    "sweetState": "xg0kzal0g2m7d1ix6t",
-    "drabMoment": "u42wg5rcg2im7d1j3hm",
+    "http://dcat/model/flatBack": "lqo2gocgg4sm7d1ivqx",
+    "http://dcat/model/tightArt": "rz94ir172eqm7d1j8i2",
+    "http://localhost/sweetState": "xg0kzal0g2m7d1ix6t",
+    "http://dcat/model/drabMoment": "u42wg5rcg2im7d1j3hm",
     // Identity for test
     "http://www.w3.org/2000/01/rdf-schema#Literal": "http://www.w3.org/2000/01/rdf-schema#Literal",
   };
@@ -280,11 +277,11 @@ test("End to end test I.", async () => {
   const parsedContainer = conceptualModelToEntityListContainer(
     parsedConceptualModel, {
     iriToIdentifier: iri => iriToIdentifier[iri] ?? `MISSING ${iri}`,
+    iriUpdate: iri => iri.replace("http://dcat/model/", ""),
   });
 
   // We can not use the original one as there are only profiles.
   const expectedContainer = {
-    "baseIri": null,
     "entities": [{
       "iri": "sweetState1",
       "profiling": ["xg0kzal0g2m7d1ix6t"],
