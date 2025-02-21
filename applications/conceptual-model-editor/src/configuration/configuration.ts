@@ -102,8 +102,13 @@ const CONFIGURATIONS: Record<string, Configuration> = {
  */
 const CONFIGURATION_QUERY_KEY = "configuration";
 
+// When executing tests we use "nodejs" environment.
+// Tha is a problem as window does not exists there.
+// So this trick make it work.
+let window: any;
+
 const activeConfiguration = (() => {
-  const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams(window?.location?.search ?? "");
   const name = params.get(CONFIGURATION_QUERY_KEY) ?? "";
   return CONFIGURATIONS[name] ?? defaultConfiguration;
 })();
