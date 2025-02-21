@@ -164,9 +164,13 @@ const createRelationshipProfile = (
       state.usageNoteSource.identifier ?? null,
     //
     domain: state.domain.identifier,
-    domainCardinality: state.domainCardinality.cardinality,
+    domainCardinality:
+      state.overrideDomainCardinality ?
+        state.domainCardinality.cardinality : null,
     range: state.range.identifier,
-    rangeCardinality: state.rangeCardinality.cardinality,
+    rangeCardinality:
+      state.overrideRangeCardinality ?
+        state.rangeCardinality.cardinality : null,
   }, [...models.values() as any]);
   return {
     identifier: result.identifier,
