@@ -128,16 +128,18 @@ export const ExportManagement = () => {
     const conceptualModelIri = "";
     const contextModels = [];
     const modelForExport: DataSpecificationVocabulary.EntityListContainer = {
+      baseIri: null, // TODO Get base URL.
       entities: [],
     };
     for (const model of models.values()) {
       contextModels.push({
+        baseIri: null, // TODO Get base URL.
         entities: Object.values(model.getEntities()),
       });
       Object.values(model.getEntities()).forEach(entity => modelForExport.entities.push(entity));
     }
     // Create context.
-    const context = DataSpecificationVocabulary.createContext(contextModels);
+    const context = DataSpecificationVocabulary.createContext(contextModels, value => value ?? null);
     // The parent function can not be async, so we wrap the export in a function.
     (async () => {
       const conceptualModel = DataSpecificationVocabulary.entityListContainerToConceptualModel(

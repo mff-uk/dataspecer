@@ -7,10 +7,6 @@
 export type LanguageString = { [language: string]: string };
 
 export interface ConceptualModel {
-
-  /**
-   * Absolute IRI for the model.
-   */
   iri: string;
 
   // @lc-identifier dcterms:isPartOf
@@ -36,10 +32,6 @@ export enum Cardinality {
  */
 // @lc-identifier dsv:Profile
 export interface Profile {
-
-  /**
-   * Absolute IRI.
-   */
   iri: string;
 
   // @lc-identifier skos:prefLabel

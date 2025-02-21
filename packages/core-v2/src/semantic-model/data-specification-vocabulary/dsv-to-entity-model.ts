@@ -21,7 +21,7 @@ import {
 } from "../profile/concepts";
 import { SKOS, VANN } from "./vocabulary";
 
-interface MandatoryConceptualModelToEntityListContainerContext {
+interface ConceptualModelToEntityListContainerContext {
 
   /**
    * Given an IRI return internal identifier.
@@ -36,45 +36,11 @@ interface MandatoryConceptualModelToEntityListContainerContext {
 
 }
 
-interface OptionalConceptualModelToEntityListContainerContext {
-
-  /**
-   * Called for all imported class IRIs.
-   */
-  iriClassToIdentifier: (iri: string) => string;
-
-  /**
-   * Called for all imported property IRIs.
-   */
-  iriPropertyToIdentifier: (iri: string) => string;
-
-  /**
-   * Called for every iri loaded to {@link EntityListContainer}.
-   *
-   * This can be used to change IRIs from absolute to relative.
-   */
-  iriUpdate: (iri: string) => string;
-
-}
-
-interface ConceptualModelToEntityListContainerContext extends
-  MandatoryConceptualModelToEntityListContainerContext,
-  OptionalConceptualModelToEntityListContainerContext { };
-
 export function conceptualModelToEntityListContainer(
   conceptualModel: ConceptualModel,
-  context: MandatoryConceptualModelToEntityListContainerContext &
-    Partial<OptionalConceptualModelToEntityListContainerContext>,
+  context: ConceptualModelToEntityListContainerContext,
 ): EntityListContainer {
-  const fullContext = {
-    // By default we do not transform data type.
-    iriClassToIdentifier: (iri: string) => context.iriToIdentifier(iri),
-    iriPropertyToIdentifier: (iri: string) => context.iriToIdentifier(iri),
-    iriUpdate: (iri: string) => iri,
-    ...context,
-  };
-  return (new ConceptualModelToEntityModel(fullContext)
-    .transform(conceptualModel));
+  return (new ConceptualModelToEntityModel(context).transform(conceptualModel));
 }
 
 class ConceptualModelToEntityModel {
@@ -91,29 +57,32 @@ class ConceptualModelToEntityModel {
     for (const classProfile of conceptualModel.profiles) {
       this.classProfileToEntities(classProfile);
     }
-    return { entities: this.entities };
+    return {
+      baseIri: null,
+      entities: this.entities,
+    };
   }
 
   private classProfileToEntities(profile: ClassProfile): void {
     const profiling = [
       ...this.profilesToIdentifier(profile.profileOfIri),
-      ...this.classToIdentifier(profile.profiledClassIri),
+      ...this.profilesToIdentifier(profile.profiledClassIri),
     ];
     const classProfile: SemanticModelClassProfile = {
       // SemanticModelEntity
-      iri: this.context.iriUpdate(profile.iri),
+      iri: profile.iri,
       // Entity
       id: this.context.iriToIdentifier(profile.iri),
       type: [SEMANTIC_MODEL_CLASS_PROFILE],
       // Profile
       profiling,
       usageNote: profile.usageNote ?? {},
-      usageNoteFromProfiled: this.selectFromProfiled(profile, VANN.usageNote.id),
+      usageNoteFromProfiled: selectFromProfiled(profile, VANN.usageNote.id),
       // NamedThingProfile
       name: profile.prefLabel ?? {},
-      nameFromProfiled: this.selectFromProfiled(profile, SKOS.prefLabel.id),
+      nameFromProfiled: selectFromProfiled(profile, SKOS.prefLabel.id),
       description: profile.definition ?? {},
-      descriptionFromProfiled: this.selectFromProfiled(profile, SKOS.definition.id),
+      descriptionFromProfiled: selectFromProfiled(profile, SKOS.definition.id),
     };
     this.entities.push(classProfile);
     // Convert relationships.
@@ -126,25 +95,12 @@ class ConceptualModelToEntityModel {
     return items.map(iri => this.context.iriToIdentifier(iri));
   }
 
-  private classToIdentifier(items: string[]): string[] {
-    return items.map(iri => this.context.iriClassToIdentifier(iri));
-  }
-
-  private selectFromProfiled(profile: {
-    inheritsValue: PropertyInheritance[],
-  }, property: string): string | null {
-    const inheritsValue = profile.inheritsValue.find(
-      item => item.inheritedPropertyIri === property);
-    const iri = inheritsValue?.propertyValueFromIri ?? null;
-    return iri === null ? null : this.context.iriToIdentifier(iri);
-  }
-
   private propertyProfileToEntities(
     profile: PropertyProfile, owner: SemanticModelClassProfile,
   ): void {
     const profiling = [
       ...this.profilesToIdentifier(profile.profileOfIri),
-      ...this.propertyToIdentifier(profile.profiledPropertyIri),
+      ...this.profilesToIdentifier(profile.profiledPropertyIri),
     ];
 
     const domain: SemanticModelRelationshipEndProfile = {
@@ -162,39 +118,35 @@ class ConceptualModelToEntityModel {
       usageNoteFromProfiled: null,
     };
 
-    let rangeConcept: string;
+    let rangeConcept: string | null = null;
     if (isDatatypePropertyProfile(profile)) {
-      const iri = profile.rangeDataTypeIri?.[0];
-      if (iri === undefined) {
-        console.error(`Property profile is null for '${profile.iri}'.`);
-        return;
-      }
-      rangeConcept = this.context.iriToIdentifier(iri);
+      rangeConcept = profile.rangeDataTypeIri?.[0] ?? null;
     } else if (isObjectPropertyProfile(profile)) {
-      const iri = profile.rangeClassIri?.[0];
-      if (iri === undefined) {
-        console.error(`Property profile is null for '${profile.iri}'.`);
-        return;
-      }
-      rangeConcept = this.context.iriToIdentifier(iri);
+      rangeConcept = profile.rangeClassIri?.[0] ?? null;
     } else {
       console.error(`Invalid type of property for profile '${profile.iri}'.`);
       return;
     }
+    if (rangeConcept === null) {
+      console.error(`Property profile is null for '${profile.iri}'.`);
+      return;
+    } else {
+      rangeConcept = this.context.iriToIdentifier(rangeConcept);
+    }
 
     const range: SemanticModelRelationshipEndProfile = {
-      iri: this.context.iriUpdate(profile.iri),
+      iri: profile.iri,
       concept: rangeConcept,
       cardinality: cardinalityEnumToCardinality(profile.cardinality),
       // NamedThingProfile
       name: profile.prefLabel ?? {},
-      nameFromProfiled: this.selectFromProfiled(profile, SKOS.prefLabel.id),
+      nameFromProfiled: selectFromProfiled(profile, SKOS.prefLabel.id),
       description: profile.definition ?? {},
-      descriptionFromProfiled: this.selectFromProfiled(profile, SKOS.definition.id),
+      descriptionFromProfiled: selectFromProfiled(profile, SKOS.definition.id),
       // Profile
       profiling,
       usageNote: profile.usageNote ?? {},
-      usageNoteFromProfiled: this.selectFromProfiled(profile, VANN.usageNote.id),
+      usageNoteFromProfiled: selectFromProfiled(profile, VANN.usageNote.id),
     };
 
     const propertyUsage: SemanticModelRelationshipProfile = {
@@ -207,10 +159,14 @@ class ConceptualModelToEntityModel {
     this.entities.push(propertyUsage);
   }
 
-  private propertyToIdentifier(items: string[]): string[] {
-    return items.map(iri => this.context.iriPropertyToIdentifier(iri));
-  }
+}
 
+function selectFromProfiled(profile: {
+  inheritsValue: PropertyInheritance[],
+}, property: string): string | null {
+  const inheritsValue = profile.inheritsValue.find(
+    item => item.inheritedPropertyIri === property);
+  return inheritsValue?.propertyValueFromIri ?? null;
 }
 
 function cardinalityEnumToCardinality(

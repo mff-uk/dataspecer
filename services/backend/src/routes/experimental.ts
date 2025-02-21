@@ -30,10 +30,12 @@ async function generateDsv(models: ModelDescription[]): Promise<string> {
     const conceptualModelIri = models[0]?.baseIri + "applicationProfileConceptualModel"; // We consider documentation URL as the IRI of the conceptual model.
     const contextModels = [];
     const modelForExport: DataSpecificationVocabulary.EntityListContainer = {
+        baseIri: models[0]?.baseIri ?? "",
         entities: [],
     };
     for (const model of models.values()) {
         contextModels.push({
+            baseIri: model.baseIri,
             entities: Object.values(model.entities),
         });
         if (model.isPrimary) {
@@ -41,7 +43,7 @@ async function generateDsv(models: ModelDescription[]): Promise<string> {
         }
     }
     // Create context.
-    const context = DataSpecificationVocabulary.createContext(contextModels);
+    const context = DataSpecificationVocabulary.createContext(contextModels, value => value ?? null);
     //
     const conceptualModel = DataSpecificationVocabulary.entityListContainerToConceptualModel(
         conceptualModelIri, modelForExport, context);
