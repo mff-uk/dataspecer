@@ -28,15 +28,18 @@ async function generateLightweightOwl(entities: Record<string, SemanticModelEnti
 async function generateDsv(models: ModelDescription[]): Promise<string> {
     // We collect all models as context and all entities for export.
     const conceptualModelIri = models[0]?.baseIri + "applicationProfileConceptualModel"; // We consider documentation URL as the IRI of the conceptual model.
-    const contextModels = [];
+    const contextModels: DataSpecificationVocabulary.EntityListContainer[] = [];
     const modelForExport: DataSpecificationVocabulary.EntityListContainer = {
+        baseIri: "",
         entities: [],
     };
     for (const model of models.values()) {
         contextModels.push({
+            baseIri: model.baseIri ?? "",
             entities: Object.values(model.entities),
         });
         if (model.isPrimary) {
+            modelForExport.baseIri = model.baseIri ?? "";
             Object.values(model.entities).forEach(entity => modelForExport.entities.push(entity));
         }
     }

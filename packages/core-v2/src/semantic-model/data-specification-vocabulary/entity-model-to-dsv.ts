@@ -49,7 +49,7 @@ interface EntityListContainerToConceptualModelContext {
 
   /**
    * @argument entity Entity from the {@link EntityListContainer} or {@link identifierToEntity}.
-   * @return Absolute, or relative IRI for given entity.
+   * @return Absolute IRI for given entity.
    */
   entityToIri: (entity: Entity) => string;
 
@@ -57,15 +57,6 @@ interface EntityListContainerToConceptualModelContext {
    * Allows for filtering of languages strings.
    */
   languageFilter: (value: LanguageString | null | undefined) => LanguageString | null;
-
-  /**
-   * Called on every IRI.
-   *
-   * @param conceptualModelIri IRI of the conceptual model.
-   * @param iri IRI from {@link EntityListContainer} or {@link entityToIri}.
-   * @returns Absolute IRI.
-   */
-  resolveIri: (conceptualModelIri: string, iri: string) => string;
 
 }
 
@@ -110,17 +101,23 @@ export function createContext(
       iri = (entity as any).iri;
     }
     // We use the identifier as the default fallback.
-    return iri ?? entity.id;
+    iri = iri ?? entity.id;
+    // Now deal with absolute and relative.
+    if (iri.includes("://")) {
+      // Absolute IRI.
+      return iri;
+    } else {
+      // Relative IRI.
+       const baseIri = entityMap[entity.id]?.container.baseIri ?? "";
+       return baseIri + iri;
+    }
   };
 
   const languageFilter = (value: LanguageString | null | undefined) =>
     value ?? null;
 
   const resolveIri = (conceptualModelIri: string, iri: string) => {
-    if (iri.includes("://")) {
-      // Absolute IRI.
-      return iri;
-    }
+
     return conceptualModelIri + iri;
   };
 
@@ -128,7 +125,6 @@ export function createContext(
     identifierToEntity,
     entityToIri,
     languageFilter,
-    resolveIri,
   };
 }
 
@@ -187,7 +183,7 @@ class EntityListContainerToConceptualModel {
 
     const classProfile: ClassProfile = {
       // Profile
-      iri: this.resolveIri(item.id, item.iri),
+      iri: this.entityToIri(item),
       prefLabel: {},
       definition: {},
       usageNote: {},
@@ -228,14 +224,6 @@ class EntityListContainerToConceptualModel {
     return classProfile;
   }
 
-  private resolveIri(identifier: string, iri: string | null): string {
-    let effectiveIri = iri;
-    if (effectiveIri === null) {
-      effectiveIri = this.identifierToIri(identifier);
-    }
-    return this.context.resolveIri(this.conceptualModelIri, effectiveIri);
-  }
-
   private identifierToEntity(iri: string | null): Entity | null {
     if (iri === null) {
       return null;
@@ -248,8 +236,7 @@ class EntityListContainerToConceptualModel {
   }
 
   private entityToIri(entity: Entity) {
-    const iri = this.context.entityToIri(entity);
-    return this.resolveIri(entity.id, iri);
+    return this.context.entityToIri(entity);
   }
 
   /**
@@ -295,7 +282,7 @@ class EntityListContainerToConceptualModel {
     const entity = this.context.identifierToEntity(identifier);
     if (entity === null) {
       console.warn(`Missing entity for identifier "${identifier}".`)
-      return this.resolveIri(identifier, null);
+      return this.identifierToIri(identifier);
     }
     return this.entityToIri(entity);
   }
@@ -401,7 +388,7 @@ class EntityListContainerToConceptualModel {
 
     const propertyProfile: PropertyProfile = {
       // Profile
-      iri: this.resolveIri(item.id, range.iri),
+      iri: this.entityToIri(item),
       cardinality: cardinalityToCardinalityEnum(range.cardinality),
       prefLabel: {},
       definition: {},
@@ -493,7 +480,7 @@ class EntityListContainerToConceptualModel {
 
     const propertyProfile: PropertyProfile = {
       // Profile
-      iri: this.resolveIri(item.id, range.iri),
+      iri: this.entityToIri(item),
       cardinality: cardinalityToCardinalityEnum(range.cardinality),
       prefLabel: {},
       definition: {},

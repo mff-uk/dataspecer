@@ -7,6 +7,7 @@ import {
 test("Issue #608", () => {
 
     const containers = [{
+        "baseIri": "http://dcat/model/",
         "entities": [{
             "id": "hslnicx7yaely6tdyht",
             "usageOf": "http://www.w3.org/ns/Dataset",
@@ -117,6 +118,7 @@ test("Issue #608", () => {
 test("Default test for profiles.", () => {
 
     const containers = [{
+        "baseIri": "http://dcat/model/",
         "entities": [{
             "id": "hslnicx7yaely6tdyht",
             "profiling": ["http://www.w3.org/ns/Dataset"],

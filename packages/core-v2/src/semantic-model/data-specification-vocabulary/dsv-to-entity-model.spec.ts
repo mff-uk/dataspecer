@@ -74,6 +74,7 @@ test("From DSV to entity model and back.", async () => {
   });
 
   const expectedEntityListContainer = {
+    "baseIri": "",
     "entities": [{
       "id": "dcat-ap-0001",
       "profiling": ["http://www.w3.org/ns/dcat#Dataset"],
@@ -174,6 +175,7 @@ test("From DSV to entity model and back.", async () => {
 
   // Convert from EntityListContainer with entities to ConceptualModel.
   const context = createContext([entityListContainer, {
+    baseIri: "http://dcat-ap-cz/model",
     entities: vocabularyEntities,
   }]);
 

@@ -91,7 +91,12 @@ class ConceptualModelToEntityModel {
     for (const classProfile of conceptualModel.profiles) {
       this.classProfileToEntities(classProfile);
     }
-    return { entities: this.entities };
+    return {
+      // We keep all IRIs as they are for now.
+      // As a result there is no need for a base.
+      baseIri: "",
+      entities: this.entities
+    };
   }
 
   private classProfileToEntities(profile: ClassProfile): void {

@@ -6,6 +6,11 @@ import { Entity } from "../../entity-model";
 export interface EntityListContainer {
 
   /**
+   * Base IRI for all relative IRIs in {@link entities}.
+   */
+  baseIri: string;
+
+  /**
    * List of all entities.
    */
   entities: Entity[],

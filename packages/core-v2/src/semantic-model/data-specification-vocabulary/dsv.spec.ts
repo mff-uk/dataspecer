@@ -9,6 +9,7 @@ import { rdfToConceptualModel } from "./rdf-to-dsv";
 test("End to end test I.", async () => {
 
   const container = {
+    "baseIri": "http://dcat/model/",
     "entities": [{
       "id": "lqo2gocgg4sm7d1ivqx",
       "iri": "flatBack",
@@ -282,6 +283,7 @@ test("End to end test I.", async () => {
 
   // We can not use the original one as there are only profiles.
   const expectedContainer = {
+    "baseIri": "", // We can not detect the base IRI yet.
     "entities": [{
       "iri": "sweetState1",
       "profiling": ["xg0kzal0g2m7d1ix6t"],
