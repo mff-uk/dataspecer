@@ -7,7 +7,6 @@ import {
 test("Issue #608", () => {
 
     const containers = [{
-        "baseIri": "http://example/profil",
         "entities": [{
             "id": "hslnicx7yaely6tdyht",
             "usageOf": "http://www.w3.org/ns/Dataset",
@@ -73,13 +72,13 @@ test("Issue #608", () => {
         }],
     }] as any;
 
-    const context = createContext(containers, value => (value ?? null));
+    const context = createContext(containers);
 
     const actual = entityListContainerToConceptualModel(
-        "http://dcat/model", containers[0], context);
+        "http://dcat/model/", containers[0], context);
 
     const expected: ConceptualModel = {
-        "iri": "http://dcat/model",
+        "iri": "http://dcat/model/",
         "profiles": [{
             "iri": "http://www.w3.org/ns/Dataset-profile",
             "prefLabel": {},
@@ -96,7 +95,7 @@ test("Issue #608", () => {
             "$type": ["class-profile"],
             "profiledClassIri": ["http://www.w3.org/ns/Dataset"],
             "properties": [{
-                "iri": "http://example/profilterms-title-profile",
+                "iri": "http://dcat/model/terms-title-profile",
                 "cardinality": null,
                 "prefLabel": { "en": "Dataset title" },
                 "definition": { "en": "A name given to the dataset." },
@@ -118,7 +117,6 @@ test("Issue #608", () => {
 test("Default test for profiles.", () => {
 
     const containers = [{
-        "baseIri": "http://example/profil",
         "entities": [{
             "id": "hslnicx7yaely6tdyht",
             "profiling": ["http://www.w3.org/ns/Dataset"],
@@ -186,13 +184,13 @@ test("Default test for profiles.", () => {
         }],
     }] as any;
 
-    const context = createContext(containers, value => (value ?? null));
+    const context = createContext(containers);
 
     const actual = entityListContainerToConceptualModel(
-        "http://dcat/model", containers[0], context);
+        "http://dcat/model/", containers[0], context);
 
     const expected: ConceptualModel = {
-        "iri": "http://dcat/model",
+        "iri": "http://dcat/model/",
         "profiles": [{
             "iri": "http://www.w3.org/ns/Dataset-profile",
             "prefLabel": {},
@@ -209,7 +207,7 @@ test("Default test for profiles.", () => {
             "$type": ["class-profile"],
             "profiledClassIri": ["http://www.w3.org/ns/Dataset"],
             "properties": [{
-                "iri": "http://example/profilterms-title-profile",
+                "iri": "http://dcat/model/terms-title-profile",
                 "cardinality": null,
                 "prefLabel": { "en": "Dataset title" },
                 "definition": { "en": "A name given to the dataset." },

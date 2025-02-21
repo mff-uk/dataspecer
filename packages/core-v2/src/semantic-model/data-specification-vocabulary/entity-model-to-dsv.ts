@@ -1,7 +1,6 @@
 import { Entity } from "../../entity-model";
 
 import {
-  SemanticModelEntity,
   isSemanticModelClass,
   isSemanticModelRelationship,
 } from "../concepts";
@@ -11,7 +10,6 @@ import {
   SemanticModelRelationshipUsage,
   isSemanticModelClassUsage,
   isSemanticModelRelationshipUsage,
-  isSemanticModelAttributeUsage,
   SemanticModelRelationshipEndUsage,
 } from "../usage/concepts";
 
@@ -45,40 +43,110 @@ import { isDataType } from "../datatypes";
 interface EntityListContainerToConceptualModelContext {
 
   /**
-   * Given an identifier return a representing entity.
-   * We need this to find out, whether profiles entity is a profile or not.
-   * Must return null when the argument is null.
+   * @return Entity with given identifier or null.
    */
   identifierToEntity: (identifier: string) => Entity | null;
 
   /**
-   * Given an entity returns output IRI. Can be used with entities
-   * from the transforming model as well as with entities from
-   * identifierToEntity function.
+   * @argument entity Entity from the {@link EntityListContainer} or {@link identifierToEntity}.
+   * @return Absolute, or relative IRI for given entity.
    */
-  entityToIri: (entity: SemanticModelEntity | SemanticModelRelationshipProfile) => string;
+  entityToIri: (entity: Entity) => string;
 
   /**
    * Allows for filtering of languages strings.
    */
   languageFilter: (value: LanguageString | null | undefined) => LanguageString | null;
 
+  /**
+   * Called on every IRI.
+   *
+   * @param conceptualModelIri IRI of the conceptual model.
+   * @param iri IRI from {@link EntityListContainer} or {@link entityToIri}.
+   * @returns Absolute IRI.
+   */
+  resolveIri: (conceptualModelIri: string, iri: string) => string;
+
 }
 
 /**
- * Create a conceptual model with given IRI based on the given model container to convert.
- * Others models are required
+ * Helper function to create {@link EntityListContainerToConceptualModelContext}.
+ * Provides defaults, functionality can be changed using the arguments.
+ */
+export function createContext(
+  containers: EntityListContainer[],
+): EntityListContainerToConceptualModelContext {
+  // Build an index identifier -> entity and container.
+  const entityMap: {
+    [identifier: string]: { entity: Entity, container: EntityListContainer }
+  } = {};
+  for (const container of containers) {
+    for (const entity of container.entities) {
+      entityMap[entity.id] = {
+        container,
+        entity
+      };
+    }
+  }
+
+  // Default behavior.
+
+  const identifierToEntity = (identifier: string): Entity | null => {
+    return entityMap[identifier]?.entity ?? null;
+  };
+
+  const entityToIri = (
+    entity: Entity
+  ): string => {
+    // Relations store IRI in the range.
+    let iri: string | null = null;
+    if (isSemanticModelRelationship(entity)
+      || isSemanticModelRelationshipUsage(entity)
+      || isSemanticModelRelationshipProfile(entity)) {
+      const [_, range] = entity.ends;
+      iri = range?.iri ?? iri;
+    } else  {
+      // This can by anything, we just try to graph the IRI.
+      iri = (entity as any).iri;
+    }
+    // We use the identifier as the default fallback.
+    return iri ?? entity.id;
+  };
+
+  const languageFilter = (value: LanguageString | null | undefined) =>
+    value ?? null;
+
+  const resolveIri = (conceptualModelIri: string, iri: string) => {
+    if (iri.includes("://")) {
+      // Absolute IRI.
+      return iri;
+    }
+    return conceptualModelIri + iri;
+  };
+
+  return {
+    identifierToEntity,
+    entityToIri,
+    languageFilter,
+    resolveIri,
+  };
+}
+
+/**
+ * Create a conceptual model with given IRI based on the given model
+ * container to convert. Others models are required
  */
 export function entityListContainerToConceptualModel(
   conceptualModelIri: string,
   entityListContainer: EntityListContainer,
-  context: EntityListContainerToConceptualModelContext
+  context: EntityListContainerToConceptualModelContext,
 ): ConceptualModel {
   const result: ConceptualModel = {
     iri: conceptualModelIri,
     profiles: [],
   };
-  (new EntityListContainerToConceptualModel(context)).loadToConceptualModel(entityListContainer, result);
+  (new EntityListContainerToConceptualModel(context))
+    .loadToConceptualModel(entityListContainer, result);
   return result;
 }
 
@@ -86,20 +154,23 @@ class EntityListContainerToConceptualModel {
 
   readonly context: EntityListContainerToConceptualModelContext;
 
-  private baseIri: string | null = null;
+  conceptualModelIri: string = "";
 
   constructor(context: EntityListContainerToConceptualModelContext) {
     this.context = context;
   }
 
-  loadToConceptualModel(modelContainer: EntityListContainer, conceptualModel: ConceptualModel): void {
-    this.baseIri = modelContainer.baseIri;
+  loadToConceptualModel(
+    modelContainer: EntityListContainer, conceptualModel: ConceptualModel,
+  ): void {
+    this.conceptualModelIri = conceptualModel.iri;
     const identifierToClassProfile = this.loadClassProfiles(modelContainer);
     this.loadRelationshipsToClassProfiles(modelContainer, identifierToClassProfile);
     conceptualModel.profiles = Object.values(identifierToClassProfile);
   }
 
-  private loadClassProfiles(modelContainer: EntityListContainer): Record<string, ClassProfile> {
+  private loadClassProfiles(modelContainer: EntityListContainer)
+    : Record<string, ClassProfile> {
     const result: Record<string, ClassProfile> = {};
     modelContainer.entities.filter(
       item => isSemanticModelClassUsage(item) || isSemanticModelClassProfile(item)
@@ -116,7 +187,7 @@ class EntityListContainerToConceptualModel {
 
     const classProfile: ClassProfile = {
       // Profile
-      iri: this.resolveIri(item.id),
+      iri: this.resolveIri(item.id, item.iri),
       prefLabel: {},
       definition: {},
       usageNote: {},
@@ -145,18 +216,24 @@ class EntityListContainerToConceptualModel {
         continue;
       }
       if (isSemanticModelClass(profileOf)) {
-        classProfile.profiledClassIri.push(
-          this.context.entityToIri(profileOf));
+        classProfile.profiledClassIri.push(this.entityToIri(profileOf));
       } else if (isSemanticModelClassUsage(profileOf)
         || isSemanticModelClassProfile(profileOf)) {
-        classProfile.profileOfIri.push(
-          this.context.entityToIri(profileOf))
+        classProfile.profileOfIri.push(this.entityToIri(profileOf))
       } else {
         console.warn(`Invalid profileOf '${profileOf.id}' of type '${profileOf.type}' for '${item.id}'.`)
       }
     }
 
     return classProfile;
+  }
+
+  private resolveIri(identifier: string, iri: string | null): string {
+    let effectiveIri = iri;
+    if (effectiveIri === null) {
+      effectiveIri = this.identifierToIri(identifier);
+    }
+    return this.context.resolveIri(this.conceptualModelIri, effectiveIri);
   }
 
   private identifierToEntity(iri: string | null): Entity | null {
@@ -170,16 +247,9 @@ class EntityListContainerToConceptualModel {
     return result;
   }
 
-  /**
-   * Resolve IRI with respect to baseIri of the transformed model.
-   */
-  private resolveIri(identifier: string): string {
-    const entity = this.context.identifierToEntity(identifier) as SemanticModelEntity;
-    if (entity === null) {
-      console.error(`Missing entity with id '${identifier}'.`);
-      return identifier;
-    }
-    return this.context.entityToIri(entity);
+  private entityToIri(entity: Entity) {
+    const iri = this.context.entityToIri(entity);
+    return this.resolveIri(entity.id, iri);
   }
 
   /**
@@ -194,10 +264,11 @@ class EntityListContainerToConceptualModel {
     },
     profile: Profile,
   ) {
+    const iri = this.identifierToIri(item.usageOf);
     if (item.name === null) {
       profile.inheritsValue.push({
         inheritedPropertyIri: SKOS.prefLabel.id,
-        propertyValueFromIri: this.resolveIri(item.usageOf),
+        propertyValueFromIri: iri,
       });
     } else {
       profile.prefLabel = this.prepareString(item.name);
@@ -205,7 +276,7 @@ class EntityListContainerToConceptualModel {
     if (item.description === null) {
       profile.inheritsValue.push({
         inheritedPropertyIri: SKOS.definition.id,
-        propertyValueFromIri: this.resolveIri(item.usageOf),
+        propertyValueFromIri: iri,
       });
     } else {
       profile.definition = this.prepareString(item.description);
@@ -213,18 +284,27 @@ class EntityListContainerToConceptualModel {
     if (item.usageNote === null) {
       profile.inheritsValue.push({
         inheritedPropertyIri: VANN.usageNote.id,
-        propertyValueFromIri: this.resolveIri(item.usageOf),
+        propertyValueFromIri: iri,
       });
     } else {
       profile.usageNote = this.prepareString(item.usageNote);
     }
   }
 
+  private identifierToIri(identifier: string) : string {
+    const entity = this.context.identifierToEntity(identifier);
+    if (entity === null) {
+      console.warn(`Missing entity for identifier "${identifier}".`)
+      return this.resolveIri(identifier, null);
+    }
+    return this.entityToIri(entity);
+  }
+
   /**
    * Prepare string to DSV, we represent empty string as null.
    * The reason is both are same in RDF.
    */
-  private prepareString (value: LanguageString | null): LanguageString {
+  private prepareString(value: LanguageString | null): LanguageString {
     const result = this.context.languageFilter(value);
     if (result === null) {
       return {};
@@ -246,12 +326,12 @@ class EntityListContainerToConceptualModel {
     },
     profile: Profile,
   ) {
-    if (item.nameFromProfiled === null)  {
+    if (item.nameFromProfiled === null) {
       profile.prefLabel = this.prepareString(item.name);
     } else {
       profile.inheritsValue.push({
         inheritedPropertyIri: SKOS.prefLabel.id,
-        propertyValueFromIri: this.resolveIri(item.nameFromProfiled),
+        propertyValueFromIri: this.identifierToIri(item.nameFromProfiled),
       });
     }
     if (item.descriptionFromProfiled === null) {
@@ -259,15 +339,15 @@ class EntityListContainerToConceptualModel {
     } else {
       profile.inheritsValue.push({
         inheritedPropertyIri: SKOS.definition.id,
-        propertyValueFromIri: this.resolveIri(item.descriptionFromProfiled),
+        propertyValueFromIri: this.identifierToIri(item.descriptionFromProfiled),
       });
     }
-    if (item.usageNoteFromProfiled === null)  {
+    if (item.usageNoteFromProfiled === null) {
       profile.usageNote = this.prepareString(item.usageNote);
     } else {
       profile.inheritsValue.push({
         inheritedPropertyIri: VANN.usageNote.id,
-        propertyValueFromIri: this.resolveIri(item.usageNoteFromProfiled),
+        propertyValueFromIri: this.identifierToIri(item.usageNoteFromProfiled),
       });
     }
   }
@@ -304,10 +384,6 @@ class EntityListContainerToConceptualModel {
   }
 
   /**
-   * DataSpecer consider relationship as an entity with two ends.
-   * In our case all the information is stored in the ends, especially the second end.
-   * We denote the ends domain and range.
-   *
    * As decided, spring 2024, property IRI, name, usageNote, etc .. are stored in the range.
    */
   private semanticRelationshipUsageToPropertyProfile(
@@ -325,7 +401,7 @@ class EntityListContainerToConceptualModel {
 
     const propertyProfile: PropertyProfile = {
       // Profile
-      iri: this.resolveIri(item.id),
+      iri: this.resolveIri(item.id, range.iri),
       cardinality: cardinalityToCardinalityEnum(range.cardinality),
       prefLabel: {},
       definition: {},
@@ -359,7 +435,7 @@ class EntityListContainerToConceptualModel {
   }
 
   /**
-   * Add information about range concept to the property.
+   * As decided, spring 2024, property IRI, name, usageNote, etc .. are stored in the range.
    */
   private addRangeConceptToPropertyProfile(
     item: SemanticModelRelationshipUsage | SemanticModelRelationshipProfile,
@@ -372,35 +448,30 @@ class EntityListContainerToConceptualModel {
     if (rangeConcept === null) {
       console.warn("Range concept is null.", item);
     } else if (isDataType(rangeConcept)) {
-      // It is an attribute.
+      // It is an attribute, we also use the IRI as is.
       const attribute = extentToDatatypePropertyProfile(propertyProfile);
       attribute.rangeDataTypeIri.push(rangeConcept);
     } else {
       // It is an association.
       const association = extentToObjectPropertyProfile(propertyProfile);
-      const entity = this.context.identifierToEntity(rangeConcept);
-      if (isSemanticModelClassUsage(entity) || isSemanticModelClassProfile(entity)) {
-        if (entity.iri !== null) {
-          association.rangeClassIri.push(this.resolveIri(entity.id));
-        }
-      } else {
-        console.warn("Range concent of a profile is not a profile.", {
-          profile: item, range: entity,
-        });
-      }
+      association.rangeClassIri.push(this.identifierToIri(rangeConcept));
     }
   }
 
+  /**
+   * Add given entity to {@link PropertyProfile} profiles list.
+   * Based on the entity type we can add to one of two lists.
+   */
   private addProfileToPropertyProfile(
     profileOf: Entity,
     profile: PropertyProfile,
   ) {
     if (isSemanticModelRelationship(profileOf)) {
-      profile.profiledPropertyIri.push(this.context.entityToIri(profileOf));
+      profile.profiledPropertyIri.push(this.entityToIri(profileOf));
     } else if (isSemanticModelRelationshipUsage(profileOf)) {
-      profile.profileOfIri.push(this.context.entityToIri(profileOf));
+      profile.profileOfIri.push(this.entityToIri(profileOf));
     } else if (isSemanticModelRelationshipProfile(profileOf)) {
-      profile.profileOfIri.push(this.context.entityToIri(profileOf));
+      profile.profileOfIri.push(this.entityToIri(profileOf));
     } else {
       // It can be part of the core types.
       console.warn(`Invalid profileOf '${profileOf.id}' with type '${profileOf.type}'.`)
@@ -422,7 +493,7 @@ class EntityListContainerToConceptualModel {
 
     const propertyProfile: PropertyProfile = {
       // Profile
-      iri: this.resolveIri(item.id),
+      iri: this.resolveIri(item.id, range.iri),
       cardinality: cardinalityToCardinalityEnum(range.cardinality),
       prefLabel: {},
       definition: {},
@@ -451,22 +522,6 @@ class EntityListContainerToConceptualModel {
     };
   }
 
-}
-
-/**
- * Given model base IRI, entity identifier and entity IRI return the output entity IRI.
- * We use identifier as a fallback.
- */
-function resolveIri(baseIri: string | null, identifier: string, iri: string | null): string {
-  const candidate = iri ?? identifier;
-  if (baseIri === null) {
-    return candidate;
-  }
-  if (candidate.includes("://")) {
-    // Absolute IRI.
-    return candidate;
-  }
-  return baseIri + candidate;
 }
 
 /**
@@ -516,40 +571,4 @@ function extentToObjectPropertyProfile(property: PropertyProfile): ObjectPropert
   (property as any).$type = [ObjectPropertyProfileType];
   (property as any).rangeClassIri = [];
   return property as ObjectPropertyProfile;
-}
-
-/**
- * Create context from all given models.
- */
-export function createContext(containers: EntityListContainer[], languageFilter: (value: LanguageString | null | undefined) => LanguageString | null): EntityListContainerToConceptualModelContext {
-  // Build index.
-  const entityMap: { [identifier: string]: { entity: Entity, container: EntityListContainer } } = {};
-  for (const container of containers) {
-    for (const entity of container.entities) {
-      entityMap[entity.id] = {
-        container,
-        entity
-      };
-    }
-  }
-  //
-  return {
-    identifierToEntity: (identifier: string): Entity | null => {
-      return entityMap[identifier]?.entity ?? null;
-    },
-    entityToIri: (entity: SemanticModelEntity | SemanticModelRelationshipProfile): string => {
-      const baseIri = entityMap[entity.id]?.container?.baseIri ?? null;
-      // Relations store IRI in the range end.
-      let iri: string | null = null;
-      if (isSemanticModelRelationship(entity)
-        || isSemanticModelRelationshipProfile(entity)) {
-        const [_, range] = entity.ends;
-        iri = range?.iri ?? iri;
-      } else {
-        iri = entity.iri;
-      }
-      return resolveIri(baseIri, entity.id, iri);
-    },
-    languageFilter
-  }
 }
