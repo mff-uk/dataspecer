@@ -56,8 +56,10 @@ function migrateVisualNode(
   } else if (isSemanticModelClassUsage(representedEntity)) {
     // It is a profile.
     const usageOf = entities[representedEntity.usageOf];
-    const usageVisual = visualModel.getVisualEntityForRepresented(usageOf.id);
-    if (usageVisual === null) {
+    // TODO PRQuestion: If I understand it correctly, this is migration code from the old CME
+    //                  therefore there is either no entity (null) or exactly one, that is we can access the [0]
+    const usageVisual = visualModel.getVisualEntitiesForRepresented(usageOf.id)[0];
+    if (usageVisual === undefined) {
       // There is no visual representation.
     } else {
       // There is a visual representation, we add a relation.
@@ -120,9 +122,10 @@ function migrateVisualRelationship(
       visualModel.deleteVisualEntity(entity.identifier);
       return;
     }
-    const visualSource = visualModel.getVisualEntityForRepresented(domain);
-    const visualTarget = visualModel.getVisualEntityForRepresented(range);
-    if (visualSource === null || visualTarget === null) {
+    // TODO PRQuestion: Same as for the node
+    const visualSource = visualModel.getVisualEntitiesForRepresented(domain)[0];
+    const visualTarget = visualModel.getVisualEntitiesForRepresented(range)[0];
+    if (visualSource === undefined || visualTarget === undefined) {
       // Ends are not in the visual model.
       visualModel.deleteVisualEntity(entity.identifier);
       return;
@@ -134,9 +137,9 @@ function migrateVisualRelationship(
       visualTarget: visualTarget.identifier,
     });
   } else if (isSemanticModelGeneralization(representedEntity)) {
-    const visualSource = visualModel.getVisualEntityForRepresented(representedEntity.child);
-    const visualTarget = visualModel.getVisualEntityForRepresented(representedEntity.parent);
-    if (visualSource === null || visualTarget === null) {
+    const visualSource = visualModel.getVisualEntitiesForRepresented(representedEntity.child)[0];
+    const visualTarget = visualModel.getVisualEntitiesForRepresented(representedEntity.parent)[0];
+    if (visualSource === undefined || visualTarget === undefined) {
       // Ends are not in the visual model.
       visualModel.deleteVisualEntity(entity.identifier);
       return;

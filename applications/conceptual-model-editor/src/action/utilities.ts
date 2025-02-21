@@ -119,16 +119,23 @@ export function getSelections(
   shouldFilterOutProfileClassEdges: boolean,
   shouldGetVisualIdentifiers: boolean,
 ): Selections {
-  const nodeSelection = diagram.actions().getSelectedNodes();
-  let edgeSelection = diagram.actions().getSelectedEdges();
+  const nodeSelectionFromDiagram = diagram.actions().getSelectedNodes();
+  let edgeSelectionFromDiagram = diagram.actions().getSelectedEdges();
 
   if(shouldFilterOutProfileClassEdges) {
-    edgeSelection = edgeSelection.filter(edge => edge.type !== EdgeType.ClassProfile);
+    edgeSelectionFromDiagram = edgeSelectionFromDiagram.filter(edge => edge.type !== EdgeType.ClassProfile);
   }
 
+  let nodeSelection = extractIdentifiers(nodeSelectionFromDiagram, shouldGetVisualIdentifiers);
+  let edgeSelection = extractIdentifiers(edgeSelectionFromDiagram, shouldGetVisualIdentifiers);
+  if(!shouldGetVisualIdentifiers) {
+    // There may be duplicates, we have to remove them
+    nodeSelection = [...new Set(nodeSelection)];
+    edgeSelection = [...new Set(edgeSelection)];
+  }
   return {
-    nodeSelection: extractIdentifiers(nodeSelection, shouldGetVisualIdentifiers),
-    edgeSelection: extractIdentifiers(edgeSelection, shouldGetVisualIdentifiers)
+    nodeSelection,
+    edgeSelection
   };
 }
 
@@ -145,8 +152,8 @@ export function extractIdentifiers(arrayToExtractFrom: Node[] | Edge[], shouldGe
 
 export function filterOutProfileClassEdges(edgeSemanticIdentifiers: string[], visualModel: VisualModel): string[] {
   return edgeSemanticIdentifiers.filter(edgeIdentifier => {
-    const visualEntity = visualModel.getVisualEntityForRepresented(edgeIdentifier);
-    return visualEntity !== null && isVisualRelationship(visualEntity);
+    const visualEntity = visualModel.getVisualEntitiesForRepresented(edgeIdentifier)[0];
+    return visualEntity !== undefined && isVisualRelationship(visualEntity);
   });
 }
 
@@ -169,19 +176,24 @@ export const computeRelatedAssociationsBarycenterAction = async (
   classesContext: ClassesContextType,
   classToFindAssociationsFor: string,
 ): Promise<ComputedPositionForNodePlacement> => {
-  const associatedClasses: string[] = (await findAssociatedClassesAndClassUsages(notifications, graph, classesContext, classToFindAssociationsFor)).selectionExtension.nodeSelection;
-  const associatedPositions = associatedClasses.map(associatedNodeIdentifier => {
-    const visualNode = visualModel.getVisualEntityForRepresented(associatedNodeIdentifier);
-    if(visualNode === null) {
+  const associatedClasses: string[] = (await findAssociatedClassesAndClassUsages(
+    notifications, graph, classesContext, classToFindAssociationsFor)).selectionExtension.nodeSelection;
+  const associatedPositions = associatedClasses.flatMap(associatedNodeIdentifier => {
+    const visualEntities = visualModel.getVisualEntitiesForRepresented(associatedNodeIdentifier);
+    if(visualEntities.length === 0) {
       notifications.error("The associated visual entity is not present in visual model, even though it should");
-      return null
-    }
-    if(!isVisualNode(visualNode)) {
-      notifications.error("One of the associated nodes is actually not a node for unknown reason");
       return null;
     }
+    const positions = [];
+    for(const visualEntity of visualEntities) {
+      if(!isVisualNode(visualEntity)) {
+        notifications.error("One of the associated nodes is actually not a node for unknown reason");
+        return null;
+      }
+      positions.push(visualEntity.position);
+    }
 
-    return visualNode.position;
+    return positions.length > 0 ? positions : null;
   }).filter(position => position !== null);
 
   const barycenter = computeBarycenter(associatedPositions, diagram);
@@ -227,7 +239,8 @@ const findAssociatedClassesAndClassUsages = async (
   // Is synchronous for this case
   const selection = await extendSelectionAction(notifications, graph, classesContext,
     {areIdentifiersFromVisualModel: false, identifiers: [classToFindAssociationsFor]},
-    [ExtensionType.Association, ExtensionType.Generalization], VisibilityFilter.OnlyVisibleNodes, false, null);
+    [ExtensionType.Association, ExtensionType.Generalization],
+    VisibilityFilter.OnlyVisibleNodes, false, null);
   return selection;
 }
 
@@ -313,4 +326,31 @@ export function getRemovedAndAdded<T>(previousValues: T[], nextValues: T[]) {
     removed,
     added
   };
+}
+
+/**
+ * @returns
+ * If {@link givenVisualSources}, respectively {@link givenVisualTargets} not null then
+ *    returns given {@link givenVisualSources} and {@link givenVisualTargets}.
+ * If null then
+ *    returns all the visual sources for the {@link semanticDomain}, respectively targets {@link semanticRange}.
+ */
+export function getVisualSourcesAndVisualTargets(
+  visualModel: VisualModel,
+  semanticDomain: string,
+  semanticRange: string,
+  givenVisualSources: string[] | null,
+  givenVisualTargets: string[] | null,
+) {
+  const visualSources = givenVisualSources !== null ?
+    givenVisualSources.map(source => (visualModel.getVisualEntity(source))).filter(visual => visual !== null) :
+    visualModel.getVisualEntitiesForRepresented(semanticDomain);
+  const visualTargets = givenVisualTargets !== null ?
+    givenVisualTargets.map(target => (visualModel.getVisualEntity(target))).filter(visual => visual !== null) :
+    visualModel.getVisualEntitiesForRepresented(semanticRange);
+
+  return {
+    visualSources,
+    visualTargets,
+  }
 }

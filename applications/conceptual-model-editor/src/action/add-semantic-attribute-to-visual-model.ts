@@ -6,7 +6,6 @@ import { isSemanticModelAttribute, SemanticModelClass } from "@dataspecer/core-v
 import { ClassesContextType } from "../context/classes-context";
 import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
-// TODO RadStr: Maybe not really an action but just helper method?
 export function addSemanticAttributeToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   visualModel: WritableVisualModel,
@@ -14,8 +13,12 @@ export function addSemanticAttributeToVisualModelAction(
   attribute: string,
   position: number | null,
 ) {
-  const visualNode = visualModel.getVisualEntityForRepresented(domainIdentifier);
-  if(visualNode === null) {
+  // TODO RadStr: There will be GIT collisions in this file - so just rewrite it later for multi-visual entities
+  //              - Implementation note: there are 2 ways either split into 2 methods
+  //                - one adds to all visual domain nodes (this won't have position parameter at all)
+  //                - second adds just to the one provided visual node - it will be same as this but with getVisualEntity here
+  const visualNode = visualModel.getVisualEntitiesForRepresented(domainIdentifier)[0];
+  if(visualNode === undefined) {
     notifications.error("The visual node representing domain is not present.");
     return;
   }
