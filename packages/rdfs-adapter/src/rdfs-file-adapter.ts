@@ -338,14 +338,14 @@ export class RdfsFileAdapter implements CimAdapter {
         if (isAttribute) {
             const attribute = new PimAttribute();
             loadRdfsEntityToResource(entity, this.iriProvider, attribute);
-            attribute.iri = this.iriProvider.cimToPim(entity.iri) + "#attribute";
+            attribute.iri = this.iriProvider.cimToPim(entity.iri) + (isAssociation ? "#attribute" : ""); // to have unique ids
             attribute.pimOwnerClass = this.iriProvider.cimToPim(domainClassIri);
             attribute.pimDatatype = rangeClassIri;
 
             connectedClasses.push(domainClassIri);
             resources.push(attribute);
         }
-        
+
         if (isAssociation) {
             rangeClassIri = rangeClassIri!; // Only attribute may have null
 
