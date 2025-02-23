@@ -303,9 +303,6 @@ export class RdfsFileAdapter implements CimAdapter {
         let isAttribute = false;
         let isAssociation = true;
 
-        const type = entity.property(RDF.type);
-        isAttribute ||= type.some(v => v.value === OWL.DatatypeProperty);
-
         if (rangeNodes.length === 0) {
             rangeClassIri = OWL.Thing;
             isAttribute = true;
@@ -333,6 +330,17 @@ export class RdfsFileAdapter implements CimAdapter {
                 }
                 rangeClassIri = datatype; // Set last value because we can set only one of them
             }
+        }
+
+        const type = entity.property(RDF.type);
+        if (type.some(v => v.value === OWL.DatatypeProperty)) {
+            // It must be attribute
+            isAttribute = true;
+            isAssociation = false;
+        } else if (type.some(v => v.value === OWL.ObjectProperty)) {
+            // It must be association
+            isAttribute = false;
+            isAssociation = true
         }
 
         if (isAttribute) {
