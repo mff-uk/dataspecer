@@ -280,9 +280,9 @@ class EntityListContainerToConceptualModel {
 
   private identifierToIri(identifier: string) : string {
     const entity = this.context.identifierToEntity(identifier);
-    if (entity === null) {
+    if (!entity) {
       console.warn(`Missing entity for identifier "${identifier}".`)
-      return this.identifierToIri(identifier);
+      return identifier;
     }
     return this.entityToIri(entity);
   }
