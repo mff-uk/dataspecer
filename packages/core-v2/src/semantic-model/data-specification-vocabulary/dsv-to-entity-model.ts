@@ -46,7 +46,7 @@ interface OptionalConceptualModelToEntityListContainerContext {
   /**
    * Called for all imported property IRIs.
    */
-  iriPropertyToIdentifier: (iri: string) => string;
+  iriPropertyToIdentifier: (iri: string, rangeConcept: string) => string;
 
   /**
    * Called for every iri loaded to {@link EntityListContainer}.
@@ -69,7 +69,9 @@ export function conceptualModelToEntityListContainer(
   const fullContext = {
     // By default we do not transform data type.
     iriClassToIdentifier: (iri: string) => context.iriToIdentifier(iri),
-    iriPropertyToIdentifier: (iri: string) => context.iriToIdentifier(iri),
+    // By default we do not user range concept.
+    // We do this for backward compatibility.
+    iriPropertyToIdentifier: (iri: string, _: string) => context.iriToIdentifier(iri),
     iriUpdate: (iri: string) => iri,
     ...context,
   };
@@ -147,26 +149,6 @@ class ConceptualModelToEntityModel {
   private propertyProfileToEntities(
     profile: PropertyProfile, owner: SemanticModelClassProfile,
   ): void {
-    const profiling = [
-      ...this.profilesToIdentifier(profile.profileOfIri),
-      ...this.propertyToIdentifier(profile.profiledPropertyIri),
-    ];
-
-    const domain: SemanticModelRelationshipEndProfile = {
-      iri: null,
-      concept: owner.id,
-      cardinality: null,
-      // NamedThingProfile
-      name: {},
-      nameFromProfiled: null,
-      description: {},
-      descriptionFromProfiled: null,
-      // Profile
-      profiling: [],
-      usageNote: {},
-      usageNoteFromProfiled: null,
-    };
-
     let rangeConcept: string;
     if (isDatatypePropertyProfile(profile)) {
       const iri = profile.rangeDataTypeIri?.[0];
@@ -187,19 +169,42 @@ class ConceptualModelToEntityModel {
       return;
     }
 
+    const profiling = [
+      ...this.profilesToIdentifier(profile.profileOfIri),
+      ...this.propertyToIdentifier(profile.profiledPropertyIri, rangeConcept),
+    ];
+
+    const domain: SemanticModelRelationshipEndProfile = {
+      iri: null,
+      concept: owner.id,
+      cardinality: null,
+      // NamedThingProfile
+      name: {},
+      nameFromProfiled: null,
+      description: {},
+      descriptionFromProfiled: null,
+      // Profile
+      profiling: [],
+      usageNote: {},
+      usageNoteFromProfiled: null,
+    };
+
     const range: SemanticModelRelationshipEndProfile = {
       iri: this.context.iriUpdate(profile.iri),
       concept: rangeConcept,
       cardinality: cardinalityEnumToCardinality(profile.cardinality),
       // NamedThingProfile
       name: profile.prefLabel ?? {},
-      nameFromProfiled: this.selectFromProfiled(profile, SKOS.prefLabel.id),
+      nameFromProfiled: this.selectFromPropertyProfiled(
+        profile, SKOS.prefLabel.id, rangeConcept),
       description: profile.definition ?? {},
-      descriptionFromProfiled: this.selectFromProfiled(profile, SKOS.definition.id),
+      descriptionFromProfiled: this.selectFromPropertyProfiled(
+        profile, SKOS.definition.id, rangeConcept),
       // Profile
       profiling,
       usageNote: profile.usageNote ?? {},
-      usageNoteFromProfiled: this.selectFromProfiled(profile, VANN.usageNote.id),
+      usageNoteFromProfiled: this.selectFromPropertyProfiled(
+        profile, VANN.usageNote.id, rangeConcept),
     };
 
     const propertyUsage: SemanticModelRelationshipProfile = {
@@ -212,8 +217,17 @@ class ConceptualModelToEntityModel {
     this.entities.push(propertyUsage);
   }
 
-  private propertyToIdentifier(items: string[]): string[] {
-    return items.map(iri => this.context.iriPropertyToIdentifier(iri));
+  private propertyToIdentifier(items: string[], rangeConcept: string): string[] {
+    return items.map(iri => this.context.iriPropertyToIdentifier(iri, rangeConcept));
+  }
+
+  private selectFromPropertyProfiled(profile: {
+    inheritsValue: PropertyInheritance[],
+  }, property: string, rangeConcept: string): string | null {
+    const inheritsValue = profile.inheritsValue.find(
+      item => item.inheritedPropertyIri === property);
+    const iri = inheritsValue?.propertyValueFromIri ?? null;
+    return iri === null ? null : this.context.iriPropertyToIdentifier(iri, rangeConcept);
   }
 
 }
