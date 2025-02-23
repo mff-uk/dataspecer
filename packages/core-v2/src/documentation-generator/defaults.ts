@@ -107,7 +107,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
         {{/each}}
 
         {{#each locallyDefinedSemanticEntity}}
-          {{#ifEquals type.[0] "class-usage"}}
+          {{#ifEquals type.[0] "class-profile"}}
             <section id="{{anchor}}">
               <h4>{{#translate aggregation.name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}</h4>
 
@@ -232,7 +232,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
         {{/each}}
 
         {{#each locallyDefinedSemanticEntity}}
-        {{#ifEquals type.[0] "relationship-usage"}}
+        {{#ifEquals type.[0] "relationship-profile"}}
           <section id="{{anchor}}">
             <h4>{{#translate aggregation.ends.1.name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}</h4>
 
