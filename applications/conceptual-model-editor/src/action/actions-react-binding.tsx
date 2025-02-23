@@ -685,7 +685,7 @@ function createActionsContext(
 
   const createNodeDuplicate = (identifier: string): void => {
     withVisualModel(notifications, graph, (visualModel) => {
-      createNodeDuplicateAction(notifications, visualModel, identifier);
+      createNodeDuplicateAction(notifications, diagram, visualModel, identifier);
     });
   };
 

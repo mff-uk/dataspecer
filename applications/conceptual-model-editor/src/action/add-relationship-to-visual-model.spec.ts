@@ -21,6 +21,7 @@ import { SetStateAction } from "react";
 import { createNodeDuplicateAction } from "./create-node-duplicate";
 import { SEMANTIC_MODEL_GENERALIZATION, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
+import { ActionsTestSuite } from "./test/actions-test-suite";
 
 test("Create single relationship - association", () => {
   testCreateSingleRelationship(RelationshipToTestType.Association);
@@ -69,6 +70,7 @@ function testCreateRelationshipWithNodeDuplicationAfter(
     cmeModels,
     graph
   } = prepareVisualModelWithFourNodes();
+  const diagram = ActionsTestSuite.createTestDiagram();
 
   const createdTestRelationships: {
     identifier: string,
@@ -82,7 +84,7 @@ function testCreateRelationshipWithNodeDuplicationAfter(
   expect(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[0].identifier).length).toBe(1);
   //
   createNodeDuplicateAction(
-    noActionNotificationServiceWriter, visualModel,
+    noActionNotificationServiceWriter, diagram, visualModel,
     visualModel.getVisualEntitiesForRepresented("0")[0].identifier);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(7);
   expect(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[0].identifier).length).toBe(2);
@@ -106,6 +108,7 @@ function testCreatedNodeDuplicateAndCreateRelationshipAfter(
     cmeModels,
     graph
   } = prepareVisualModelWithFourNodes();
+  const diagram = ActionsTestSuite.createTestDiagram();
 
   const createdTestRelationships: {
     identifier: string,
@@ -117,7 +120,7 @@ function testCreatedNodeDuplicateAndCreateRelationshipAfter(
     graph, visualModel, models, cmeModels[0].dsIdentifier,
     relationshipToTestType, "0", "1", "relationship-0", null, false, null, null));
   createNodeDuplicateAction(
-    noActionNotificationServiceWriter, visualModel,
+    noActionNotificationServiceWriter, diagram, visualModel,
     visualModel.getVisualEntitiesForRepresented("0")[0].identifier);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(5);
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(2);
@@ -155,6 +158,7 @@ function testCreateNodeDuplicateAndCreateRelationshipAfterWithoutSpecifyingEnds(
     cmeModels,
     graph
   } = prepareVisualModelWithFourNodes();
+  const diagram = ActionsTestSuite.createTestDiagram();
 
   const createdTestRelationships: {
     identifier: string,
@@ -165,7 +169,7 @@ function testCreateNodeDuplicateAndCreateRelationshipAfterWithoutSpecifyingEnds(
     graph, visualModel, models, cmeModels[0].dsIdentifier,
     relationshipToTestType, "0", "1", "relationship-0", null, false, null, null));
   createNodeDuplicateAction(
-    noActionNotificationServiceWriter, visualModel,
+    noActionNotificationServiceWriter, diagram, visualModel,
     visualModel.getVisualEntitiesForRepresented("0")[0].identifier);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(5);
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(2);
@@ -218,6 +222,7 @@ function testCreateLoopAndDuplicateAfter(
     cmeModels,
     graph
   } = prepareVisualModelWithFourNodes();
+  const diagram = ActionsTestSuite.createTestDiagram();
 
   const createdTestRelationships: {
     identifier: string,
@@ -230,7 +235,9 @@ function testCreateLoopAndDuplicateAfter(
   expect([...visualModel.getVisualEntities().entries()].length).toBe(5);
   expect(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[0].identifier).length).toBe(1);
   //
-  createNodeDuplicateAction(noActionNotificationServiceWriter, visualModel, visualModel.getVisualEntitiesForRepresented("0")[0].identifier);
+  createNodeDuplicateAction(
+    noActionNotificationServiceWriter, diagram, visualModel,
+    visualModel.getVisualEntitiesForRepresented("0")[0].identifier);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(7);
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(2);
   expect(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[0].identifier).length).toBe(2);
@@ -253,6 +260,7 @@ function testCreateNodeDuplicateAndLoopAfter(
     cmeModels,
     graph
   } = prepareVisualModelWithFourNodes();
+  const diagram = ActionsTestSuite.createTestDiagram();
 
   const createdTestRelationships: {
     identifier: string,
@@ -264,7 +272,7 @@ function testCreateNodeDuplicateAndLoopAfter(
     graph, visualModel, models, cmeModels[0].dsIdentifier,
     relationshipToTestType, "0", "0", "relationship-0", null, false, null, null));
   createNodeDuplicateAction(
-    noActionNotificationServiceWriter, visualModel,
+    noActionNotificationServiceWriter, diagram, visualModel,
     visualModel.getVisualEntitiesForRepresented("0")[0].identifier);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(5);
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(2);
@@ -296,6 +304,7 @@ function testCreateNodeDuplicateOfNodeDuplicate(
     cmeModels,
     graph
   } = prepareVisualModelWithFourNodes();
+  const diagram = ActionsTestSuite.createTestDiagram();
 
   const createdTestRelationships: {
     identifier: string,
@@ -311,7 +320,7 @@ function testCreateNodeDuplicateOfNodeDuplicate(
     relationshipToTestType, "0", "2", "relationship-1", null, false, null, null));
 
   createNodeDuplicateAction(
-    noActionNotificationServiceWriter, visualModel,
+    noActionNotificationServiceWriter, diagram, visualModel,
     visualModel.getVisualEntitiesForRepresented("0")[0].identifier);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(5);
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(2);
@@ -332,7 +341,7 @@ function testCreateNodeDuplicateOfNodeDuplicate(
   expect(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[1].identifier).length).toBe(1);
   //
   const lastDuplicateNodeIdentifier = createNodeDuplicateAction(
-    noActionNotificationServiceWriter, visualModel,
+    noActionNotificationServiceWriter, diagram, visualModel,
     visualModel.getVisualEntitiesForRepresented("0")[0].identifier);
 
   // Edges to both "1" and "2"

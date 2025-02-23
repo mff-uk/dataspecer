@@ -20,6 +20,7 @@ import { entityModelsMapToCmeVocabulary } from "../dataspecer/semantic-model/sem
 import { ModelGraphContextType } from "../context/model-context";
 import { ClassesContextType } from "../context/classes-context";
 import { Specialization } from "../dialog/utilities/dialog-utilities";
+import { ActionsTestSuite } from "./test/actions-test-suite";
 
 test("removeFromVisualModelAction - relationship - visual id", () => {
   const {
@@ -217,10 +218,12 @@ test("Remove node duplicate - semantic identifiers", () => {
     visualModel,
     model,
   } = prepareModelWithFourNodes();
+  const diagram = ActionsTestSuite.createTestDiagram();
+
 
   createNewVisualRelationshipsForTestingFromSemanticEnds(visualModel, model.getId(), "0", "1", "relationshipId");
   const nodeToDuplicate = visualModel.getVisualEntitiesForRepresented("0")[0];
-  createNodeDuplicateAction(noActionNotificationServiceWriter, visualModel, nodeToDuplicate.identifier);
+  createNodeDuplicateAction(noActionNotificationServiceWriter, diagram, visualModel, nodeToDuplicate.identifier);
   expect(visualModel.getVisualEntitiesForRepresented("relationshipId").length).toBe(2);
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(2);
   //
@@ -237,10 +240,12 @@ test("Remove node duplicate - visual identifiers", () => {
     visualModel,
     model,
   } = prepareModelWithFourNodes();
+  const diagram = ActionsTestSuite.createTestDiagram();
+
 
   createNewVisualRelationshipsForTestingFromSemanticEnds(visualModel, model.getId(), "0", "1", "relationshipId");
   const nodeToDuplicate = visualModel.getVisualEntitiesForRepresented("0")[0];
-  createNodeDuplicateAction(noActionNotificationServiceWriter, visualModel, nodeToDuplicate.identifier);
+  createNodeDuplicateAction(noActionNotificationServiceWriter, diagram, visualModel, nodeToDuplicate.identifier);
   expect(visualModel.getVisualEntitiesForRepresented("relationshipId").length).toBe(2);
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(2);
   //

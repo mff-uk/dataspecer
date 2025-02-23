@@ -2,6 +2,7 @@ import {
   isVisualNode,
   isVisualProfileRelationship,
   isVisualRelationship,
+  Position,
   VisualNode,
   VisualProfileRelationship,
   VisualRelationship,
@@ -9,6 +10,9 @@ import {
 } from "@dataspecer/core-v2/visual-model";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { createWaypointsForSelfLoop } from "../dataspecer/visual-model/operation/add-visual-relationship";
+import { UseDiagramType } from "../diagram/diagram-hook";
+import { placeCoordinateOnGrid } from "@dataspecer/layout";
+import { configuration } from "../application";
 
 // TODO RadStr: I don't want to copy the docs of the react binding here - create issue for it later.
 /**
@@ -17,6 +21,7 @@ import { createWaypointsForSelfLoop } from "../dataspecer/visual-model/operation
  */
 export function createNodeDuplicateAction(
   notifications: UseNotificationServiceWriterType,
+  diagram: UseDiagramType,
   visualModel: WritableVisualModel,
   nodeIdentifier: string,
 ) {
@@ -30,8 +35,16 @@ export function createNodeDuplicateAction(
     return null;
   }
 
+  const position: Position = {
+    x: node.position.x,
+    y: placeCoordinateOnGrid(node.position.y +
+       (diagram.actions().getNodeHeight(nodeIdentifier) ?? 0), configuration().ySnapGrid),
+    anchored: node.position.anchored
+  };
+
   const duplicatedNodeIdentifier = visualModel.addVisualNode({
-    ...node
+    ...node,
+    position: position,
   });
 
   const duplicateNode = visualModel.getVisualEntity(duplicatedNodeIdentifier);

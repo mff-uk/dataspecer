@@ -33,7 +33,7 @@ export async function layoutActiveVisualModelAdvancedAction(
 ) {
   const models = graph.models;
 
-  const reactflowDimensionQueryHandler = createExactNodeDimensionsQueryHandler(diagram, graph, notifications);
+  const reactflowDimensionQueryHandler = createExactNodeDimensionsQueryHandler(diagram);
 
   outsiders = outsiders ?? {};
   const activeVisualModelWithOutsiders: VisualModelWithOutsiders = {
@@ -148,14 +148,7 @@ export async function findPositionForNewNodesUsingLayouting(
 
 export function createExactNodeDimensionsQueryHandler(
   diagram: UseDiagramType,
-  graph: ModelGraphContextType,
-  notifications: UseNotificationServiceWriterType
 ): NodeDimensionQueryHandler {
-  const activeVisualModel = graph.aggregatorView.getActiveVisualModel();
-  if(activeVisualModel === null) {
-    notifications.error("No active visual model");
-    return new ReactflowDimensionsEstimator();
-  }
   // TODO RadStr: Have to use visual ids for graph nodes
   const getWidth = (node: INodeClassic) => {
     // The question is what does it mean if the node isn't in editor? Same for height
