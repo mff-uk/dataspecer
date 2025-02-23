@@ -61,7 +61,7 @@ const Inner = ({specification}: {specification: DataSpecification}) => {
                 modelCompositionConfiguration: newConfiguration,
             },
         });
-        enqueueSnackbar("Targets configuration saved", {variant: "success"});
+        enqueueSnackbar("Source configuration saved", {variant: "success"});
     }, [backendPackageService, specification, setDataSpecifications, dataSpecifications, enqueueSnackbar, selectedModel]);
 
     return <>
