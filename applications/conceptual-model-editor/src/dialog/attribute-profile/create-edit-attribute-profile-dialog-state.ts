@@ -69,7 +69,8 @@ export function createEditAttributeProfileDialogStateFromUsage(
   const noProfile = representUndefinedAttribute();
 
   const availableProfiles = listAttributesToProfile(
-    classesContext, graphContext, vocabularies);
+    classesContext, graphContext, vocabularies)
+    .filter(item => item.identifier !== entity.id);
   sortRepresentatives(language, availableProfiles);
 
   const domains = listRelationshipProfileDomains(
@@ -127,10 +128,13 @@ export function createEditAttributeProfileDialogStateFromProfile(
   const noProfile = representUndefinedAttribute();
 
   const availableProfiles = listAttributesToProfile(
-    classesContext, graphContext, vocabularies);
+    classesContext, graphContext, vocabularies)
+    .filter(item => item.identifier !== entity.id);
+    sortRepresentatives(language, availableProfiles);
 
   const domains = listRelationshipProfileDomains(
     classesContext, graphContext, vocabularies);
+  sortRepresentatives(language, domains);
 
   const ranges = listAttributeProfileRanges();
 

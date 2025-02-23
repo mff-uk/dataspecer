@@ -66,7 +66,9 @@ export function createEditAssociationProfileDialogStateFromUsage(
   const noProfile = representUndefinedAssociation();
 
   const availableProfiles = listAssociationsToProfile(
-    classesContext, graphContext, vocabularies);
+    classesContext, graphContext, vocabularies)
+    .filter(item => item.identifier !== entity.id);
+  sortRepresentatives(language, availableProfiles);
 
   const domains = listRelationshipProfileDomains(
     classesContext, graphContext, vocabularies);
@@ -123,7 +125,8 @@ export function createEditAssociationProfileDialogStateFromProfile(
   const noProfile = representUndefinedAssociation();
 
   const availableProfiles = listAssociationsToProfile(
-    classesContext, graphContext, vocabularies);
+    classesContext, graphContext, vocabularies)
+    .filter(item => item.identifier !== entity.id);
   sortRepresentatives(language, availableProfiles);
 
   const domains = listRelationshipProfileDomains(

@@ -35,7 +35,8 @@ export function createEditClassProfileDialogState(
   // EntityProfileState
 
   const availableProfiles = listClassToProfiles(
-    classesContext, graphContext, vocabularies);
+    classesContext, graphContext, vocabularies)
+    .filter(item => item.identifier !== entity.id);
   sortRepresentatives(language, availableProfiles);
 
   if (isSemanticModelClassUsage(entity)) {
