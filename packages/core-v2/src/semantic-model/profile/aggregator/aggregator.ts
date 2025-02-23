@@ -137,7 +137,7 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
       //
       ends: profile.ends.map((end, index) => ({
         // Add all properties from the profile and profiled entities.
-        ...end.profiling.map(profiled).reduce((p, c) => Object.assign(p, c), {}),
+        ...end.profiling.map(profiled).reduce((p, c) => Object.assign(p, c?.ends[index]), {}),
         ...end,
         //
         profiling: end.profiling,
