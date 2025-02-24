@@ -25,11 +25,12 @@ export function createSpecializationStateForNew(
   representatives: EntityRepresentative[],
 ) : SpecializationState {
 
-  const available = sanitizeDuplicitiesInRepresentativeLabels(models, representatives);
-  sortRepresentatives(language, available);
+  const specializations = sanitizeDuplicitiesInRepresentativeLabels(
+    models, representatives);
+  sortRepresentatives(language, specializations);
 
   return {
-    availableSpecializations:  available,
+    availableSpecializations:  specializations,
     specializations: [],
   }
 }
@@ -42,13 +43,14 @@ export function createSpecializationStateForEdit(
   entityIdentifier: string,
 ) : SpecializationState {
 
-  const available = sanitizeDuplicitiesInRepresentativeLabels(models, representatives);
-  sortRepresentatives(language, available);
+  const specializations = sanitizeDuplicitiesInRepresentativeLabels(
+    models, representatives);
+  sortRepresentatives(language, specializations);
 
   const selected = representSpecializations(entityIdentifier, classesContext.generalizations);
 
   return {
-    availableSpecializations:  available,
+    availableSpecializations:  specializations,
     specializations: selected,
   }
 }

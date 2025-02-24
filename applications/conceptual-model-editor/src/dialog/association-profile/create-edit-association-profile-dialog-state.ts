@@ -100,6 +100,7 @@ export function createEditAssociationProfileDialogStateFromUsage(
   // RelationshipState<EntityRepresentative>
 
   const relationshipProfileState = createRelationshipProfileStateForEdit(
+    vocabularies,
     domain.concept ?? owlThing.identifier, domains, domain.cardinality,
     range.concept ?? owlThing.identifier, ranges, range.cardinality);
 
@@ -157,6 +158,7 @@ export function createEditAssociationProfileDialogStateFromProfile(
   // RelationshipState<EntityRepresentative>
 
   const relationshipProfileState = createRelationshipProfileStateForEdit(
+    vocabularies,
     domain.concept, domains, domain.cardinality,
     range.concept, ranges, range.cardinality);
 

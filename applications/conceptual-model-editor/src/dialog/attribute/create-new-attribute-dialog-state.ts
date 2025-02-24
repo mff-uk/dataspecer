@@ -53,7 +53,7 @@ export function createNewAttributeDialogState(
   const dataTypes = listAttributeRanges();
 
   const relationshipState = createRelationshipStateForNew(
-    owlThing, domains, rdfsLiteral, dataTypes);
+    vocabularies, owlThing, domains, rdfsLiteral, dataTypes);
 
   return {
     ...entityState,

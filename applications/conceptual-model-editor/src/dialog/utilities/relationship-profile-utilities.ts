@@ -1,6 +1,9 @@
+import { LanguageString } from "@dataspecer/core/core/core-resource";
 import { createLogger } from "../../application";
 import { RuntimeError } from "../../application/error";
+import { CmeModel } from "../../dataspecer/cme-model";
 import { EntityDsIdentifier } from "../../dataspecer/entity-model";
+import { sanitizeDuplicitiesInRepresentativeLabels } from "../../utilities/label";
 import { EntityRepresentative, listProfileCardinalities, representProfileCardinality } from "./dialog-utilities";
 import { RelationshipController, RelationshipState, createRelationshipController } from "./relationship-utilities";
 import { ValidationState, validationNoProblem } from "./validation-utilities";
@@ -35,7 +38,13 @@ export interface RelationshipProfileState<RangeType> extends RelationshipState<R
  * @param defaultDomain Used when given domain representative can not be found.
  * @param defaultRange Used when given range representative can not be found.
  */
-export function createRelationshipProfileStateForNew<RangeType extends { identifier: string }>(
+export function createRelationshipProfileStateForNew<RangeType extends {
+  identifier: string,
+  iri: string | null,
+  label: LanguageString,
+  vocabularyDsIdentifier: string,
+ }>(
+  vocabularies: CmeModel[],
   domainIdentifier: EntityDsIdentifier,
   domainCardinality: [number, number | null] | null,
   availableDomains: EntityRepresentative[],
@@ -66,7 +75,8 @@ export function createRelationshipProfileStateForNew<RangeType extends { identif
     // Domain
     domain,
     domainValidation: validationNoProblem(),
-    availableDomains: availableDomains,
+    availableDomains: sanitizeDuplicitiesInRepresentativeLabels(
+      vocabularies, availableDomains),
     // Domain cardinality
     domainCardinality: representProfileCardinality(domainCardinality),
     overrideDomainCardinality: domainCardinality !== null,
@@ -74,7 +84,8 @@ export function createRelationshipProfileStateForNew<RangeType extends { identif
     // Range
     range,
     rangeValidation: validationNoProblem(),
-    availableRanges: availableRanges,
+    availableRanges: sanitizeDuplicitiesInRepresentativeLabels(
+      vocabularies, availableRanges),
     // Range cardinality
     rangeCardinality: representProfileCardinality(rangeCardinality),
     overrideRangeCardinality: rangeCardinality !== null,
@@ -84,7 +95,13 @@ export function createRelationshipProfileStateForNew<RangeType extends { identif
   };
 }
 
-export function createRelationshipProfileStateForEdit<RangeType extends { identifier: string }>(
+export function createRelationshipProfileStateForEdit<RangeType extends {
+  identifier: string,
+  iri: string | null,
+  label: LanguageString,
+  vocabularyDsIdentifier: string,
+ }>(
+  vocabularies: CmeModel[],
   domainIdentifier: EntityDsIdentifier,
   availableDomains: EntityRepresentative[],
   domainCardinality: [number, number | null] | null,
@@ -113,7 +130,8 @@ export function createRelationshipProfileStateForEdit<RangeType extends { identi
     domainCardinality: representProfileCardinality(domainCardinality),
     overrideDomainCardinality: domainCardinality !== null,
     domainCardinalityValidation: validationNoProblem(),
-    availableDomains: availableDomains,
+    availableDomains: sanitizeDuplicitiesInRepresentativeLabels(
+      vocabularies, availableDomains),
     // Range
     range,
     rangeValidation: validationNoProblem(),
@@ -121,7 +139,8 @@ export function createRelationshipProfileStateForEdit<RangeType extends { identi
     rangeCardinality: representProfileCardinality(rangeCardinality),
     overrideRangeCardinality: rangeCardinality !== null,
     rangeCardinalityValidation: validationNoProblem(),
-    availableRanges: availableRanges,
+    availableRanges: sanitizeDuplicitiesInRepresentativeLabels(
+      vocabularies, availableRanges),
     //
     availableCardinalities: listProfileCardinalities(),
   };

@@ -63,6 +63,7 @@ export function createEditAttributeDialogState(
   const dataTypes = listAttributeRanges();
 
   const relationshipState = createRelationshipStateForEdit(
+    vocabularies,
     domain.concept ?? owlThing.identifier, domain.cardinality, domains,
     range.concept ?? rdfsLiteral.identifier, range.cardinality, dataTypes);
 

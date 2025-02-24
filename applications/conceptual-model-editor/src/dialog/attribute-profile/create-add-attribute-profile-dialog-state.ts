@@ -51,6 +51,7 @@ export function createAddAttributeProfileDialogState(
 
   const profile = entityProfileState.profiles[0];
   const relationshipProfileState = createRelationshipProfileStateForNew(
+    vocabularies,
     domainIdentifier,
     profile.domainCardinality.cardinality,
     domains, domains[0],

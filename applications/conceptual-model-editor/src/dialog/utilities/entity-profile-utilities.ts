@@ -9,6 +9,7 @@ import { languageStringToString } from "../../utilities/string";
 import { createLogger } from "../../application";
 import { absoluteIriToRelative, isRelativeIri } from "../../utilities/iri";
 import { removeFromArray } from "../../utilities/functional";
+import { sanitizeDuplicitiesInRepresentativeLabels } from "../../utilities/label";
 
 const LOG = createLogger(import.meta.url);
 
@@ -150,7 +151,8 @@ export function createEntityProfileStateForNewEntityProfile
     isIriRelative: true,
     iriValidation: validationNoProblem(),
     // Profile
-    availableProfiles: availableProfiles,
+    availableProfiles: sanitizeDuplicitiesInRepresentativeLabels(
+      vocabularies, availableProfiles),
     profiles,
     noProfile,
     // Name
@@ -293,7 +295,8 @@ export function createEntityProfileStateForEdit
     isIriRelative: isRelativeIri(iri),
     iriValidation: validationNoProblem(),
     // Profile
-    availableProfiles: availableProfiles,
+    availableProfiles: sanitizeDuplicitiesInRepresentativeLabels(
+      vocabularies, availableProfiles),
     profiles,
     noProfile,
     // Name

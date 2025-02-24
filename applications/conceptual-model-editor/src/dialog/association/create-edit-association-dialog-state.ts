@@ -58,6 +58,7 @@ export function createEditAssociationDialogState(
   sortRepresentatives(language, domains);
 
   const relationshipState = createRelationshipStateForEdit(
+    vocabularies,
     domain.concept ?? owlThing.identifier, domain.cardinality, domains,
     range.concept ?? owlThing.identifier, range.cardinality, domains);
 

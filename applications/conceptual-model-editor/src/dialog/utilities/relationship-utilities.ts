@@ -1,5 +1,8 @@
+import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { createLogger } from "../../application";
 import { RuntimeError } from "../../application/error";
+import { CmeModel } from "../../dataspecer/cme-model";
+import { sanitizeDuplicitiesInRepresentativeLabels } from "../../utilities/label";
 import { Cardinality, EntityRepresentative, listCardinalities, representCardinality } from "./dialog-utilities";
 
 const LOG = createLogger(import.meta.url);
@@ -43,7 +46,13 @@ export interface RelationshipState<RangeType> {
 
 }
 
-export function createRelationshipStateForNew<RangeType extends { identifier: string }>(
+export function createRelationshipStateForNew<RangeType extends {
+  identifier: string,
+  iri: string | null,
+  label: LanguageString,
+  vocabularyDsIdentifier: string,
+}>(
+  vocabularies: CmeModel[],
   domain: EntityRepresentative,
   availableDomains: EntityRepresentative[],
   range: RangeType,
@@ -53,15 +62,23 @@ export function createRelationshipStateForNew<RangeType extends { identifier: st
   return {
     domain,
     domainCardinality: representCardinality(null),
-    availableDomains,
+    availableDomains: sanitizeDuplicitiesInRepresentativeLabels(
+      vocabularies, availableDomains),
     range: range,
     rangeCardinality: representCardinality(null),
-    availableRanges,
+    availableRanges: sanitizeDuplicitiesInRepresentativeLabels(
+      vocabularies, availableRanges),
     availableCardinalities: listCardinalities(),
   };
 }
 
-export function createRelationshipStateForEdit<RangeType extends { identifier: string }>(
+export function createRelationshipStateForEdit<RangeType extends {
+  identifier: string,
+  iri: string | null,
+  label: LanguageString,
+  vocabularyDsIdentifier: string,
+}>(
+  vocabularies: CmeModel[],
   domain: string,
   domainCardinality: [number, number | null] | undefined | null,
   availableDomains: EntityRepresentative[],
@@ -85,10 +102,12 @@ export function createRelationshipStateForEdit<RangeType extends { identifier: s
   return {
     domain: domainRepresentative,
     domainCardinality: representCardinality(domainCardinality),
-    availableDomains: availableDomains,
+    availableDomains: sanitizeDuplicitiesInRepresentativeLabels(
+      vocabularies, availableDomains),
     range: rangeRepresentative,
     rangeCardinality: representCardinality(rangeCardinality),
-    availableRanges: availableRanges,
+    availableRanges: sanitizeDuplicitiesInRepresentativeLabels(
+      vocabularies, availableRanges),
     availableCardinalities: listCardinalities(),
   };
 }

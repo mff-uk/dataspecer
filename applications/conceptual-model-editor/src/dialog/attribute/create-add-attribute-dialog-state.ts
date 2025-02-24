@@ -65,7 +65,7 @@ export function createAddAttributeDialogState(
   const dataTypes = listAttributeRanges();
 
   const relationshipState = createRelationshipStateForNew(
-    domain, domains, rdfsLiteral, dataTypes);
+    vocabularies, domain, domains, rdfsLiteral, dataTypes);
 
   return {
     ...entityState,

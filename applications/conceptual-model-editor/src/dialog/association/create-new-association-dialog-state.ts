@@ -49,7 +49,7 @@ export function createCreateAssociationDialogState(
   sortRepresentatives(language, domains);
 
   const relationshipState = createRelationshipStateForNew(
-    owlThing, domains, owlThing, domains);
+    vocabularies, owlThing, domains, owlThing, domains);
 
   return {
     ...entityState,

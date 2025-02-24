@@ -483,13 +483,19 @@ export interface DataTypeRepresentative {
 
   identifier: string;
 
+  iri: string;
+
   label: LanguageString;
+
+  vocabularyDsIdentifier: string,
 
 }
 
 const RDFS_LITERAL: DataTypeRepresentative = {
   identifier: RDFS_LITERAL_IDENTIFIER,
+  iri: "http://www.w3.org/2000/01/rdf-schema#Literal",
   label: { "": "rdfs:Literal" },
+  vocabularyDsIdentifier: "",
 };
 
 export function representRdfsLiteral(): DataTypeRepresentative {
@@ -498,7 +504,9 @@ export function representRdfsLiteral(): DataTypeRepresentative {
 
 const UNDEFINED_DATA_TYPE: DataTypeRepresentative = {
   identifier: UNDEFINED_IDENTIFIER,
+  iri: "",
   label: { "": "Undefined" },
+  vocabularyDsIdentifier: "",
 };
 
 export function representUndefinedDataType(): DataTypeRepresentative {
@@ -507,7 +515,9 @@ export function representUndefinedDataType(): DataTypeRepresentative {
 
 const CORE_DATA_TYPE: DataTypeRepresentative[] = DataTypeURIs.map(iri => ({
   identifier: iri,
+  iri,
   label: { "": dataTypeUriToName(iri) ?? iri },
+  vocabularyDsIdentifier: "",
 }));
 
 /**
