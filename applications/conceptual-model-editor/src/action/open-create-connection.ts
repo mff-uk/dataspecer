@@ -4,7 +4,7 @@ import {
 import {
   isSemanticModelClassUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
@@ -15,12 +15,14 @@ import { AssociationConnectionType, GeneralizationConnectionType } from "../util
 import { UseClassesContextType } from "../context/classes-context";
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
+import { addVisualRelationships } from "../dataspecer/visual-model/operation/add-visual-relationships";
+import { addVisualRelationshipsWithGivenVisualEnds, collectVisualNodes } from "./utilities";
 
 /**
  *
- * @param visualSourceIdentifier specifies the visual source of the connection,
+ * @param visualSourcesIdentifiers specifies the visual sources of the connection,
  * if set to null then the default ones taken from the {@link semanticSourceIdentifier} are used.
- * @param visualTargetIdentifier specifies the visual target of the connection,
+ * @param visualTargetsIdentifiers specifies the visual targets of the connection,
  * if set to null then the default ones taken from the {@link semanticTargetIdentifier} are used.
  * @returns
  */
@@ -33,8 +35,8 @@ export function openCreateConnectionDialogAction(
   visualModel: WritableVisualModel,
   semanticSourceIdentifier: string,
   semanticTargetIdentifier: string,
-  visualSources: string[] | null,
-  visualTargets: string[] | null,
+  visualSourcesIdentifiers: string[],
+  visualTargetsIdentifiers: string[],
 ) {
   const entities = graph.aggregatorView.getEntities();
 
@@ -77,15 +79,9 @@ export function openCreateConnectionDialogAction(
       return;
     }
     // Add visual representation.
-    if (state.type === ConnectionType.Association) {
-      addSemanticRelationshipToVisualModelAction(
-        notifications, graph, visualModel, result.id, state.model.getId(),
-        visualSources, visualTargets);
-    } else {
-      addSemanticGeneralizationToVisualModelAction(
-        notifications, graph, visualModel, result.id, state.model.getId(),
-        visualSources, visualTargets);
-    }
+    addVisualRelationshipsWithGivenVisualEnds(
+      visualModel, state.model.getId(), result.id,
+      visualSourcesIdentifiers, visualTargetsIdentifiers);
   };
   dialogs.openDialog(createConnectionDialog(
     graph, source, target, options.language, onConfirm));

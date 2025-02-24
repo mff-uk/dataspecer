@@ -98,7 +98,7 @@ function createGeneralizationToCreatedClass(
   }
 
   addSemanticGeneralizationToVisualModelAction(
-    notifications, graph, visualModel, result.id, createdClassData.model.getId(), null, null);
+    notifications, graph, visualModel, result.id, createdClassData.model.getId());
 }
 
 function createAssociationToCreatedClass(

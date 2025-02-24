@@ -5,7 +5,7 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { configuration, createLogger } from "../application";
 import { ReactflowDimensionsConstantEstimator, XY, placePositionOnGrid } from "@dataspecer/layout";
-import { Position, VisualGroup, VisualModel, WritableVisualModel, isVisualNode, isVisualGroup, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
+import { Position, VisualGroup, VisualModel, WritableVisualModel, isVisualNode, isVisualGroup, isVisualRelationship, VisualNode } from "@dataspecer/core-v2/visual-model";
 import { Edge, EdgeType, Node } from "../diagram";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { ModelGraphContextType } from "../context/model-context";
@@ -14,6 +14,7 @@ import { ExtensionType, VisibilityFilter, extendSelectionAction } from "./extend
 import { Selections } from "./filter-selection-action";
 import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelAttributeUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { addVisualRelationships } from "../dataspecer/visual-model/operation/add-visual-relationships";
 
 const LOG = createLogger(import.meta.url);
 
@@ -338,8 +339,8 @@ export function getVisualSourcesAndVisualTargets(
   visualModel: VisualModel,
   semanticDomain: string,
   semanticRange: string,
-  givenVisualSources: string[] | null,
-  givenVisualTargets: string[] | null,
+  givenVisualSources: string[],
+  givenVisualTargets: string[],
 ) {
   const visualSources = getVisuals(visualModel, semanticDomain, givenVisualSources);
   const visualTargets = getVisuals(visualModel, semanticRange, givenVisualTargets);
@@ -360,10 +361,54 @@ export function getVisualSourcesAndVisualTargets(
 function getVisuals(
   visualModel: VisualModel,
   semanticIdentifier: string,
-  givenVisuals: string[] | null
+  givenVisuals: string[]
 ) {
-  const visuals = givenVisuals !== null ?
+  const visuals = givenVisuals.length !== 0 ?
     givenVisuals.map(givenVisual => (visualModel.getVisualEntity(givenVisual))).filter(visual => visual !== null) :
     visualModel.getVisualEntitiesForRepresented(semanticIdentifier);
   return visuals;
+}
+
+export function getAllVisualEndsForRelationship(
+  visualModel: VisualModel,
+  semanticDomain: string,
+  semanticRange: string,
+): {
+  visualSources: VisualNode[],
+  visualTargets: VisualNode[],
+} {
+  return {
+    visualSources: visualModel.getVisualEntitiesForRepresented(semanticDomain).filter(isVisualNode),
+    visualTargets: visualModel.getVisualEntitiesForRepresented(semanticRange).filter(isVisualNode),
+  };
+}
+
+/**
+ * Maps the given {@link visualIdentifiers} to VisualNode[]
+ */
+export function collectVisualNodes(
+  visualModel: VisualModel,
+  visualIdentifiers: string[],
+): VisualNode[] {
+  const visualNodes = visualIdentifiers
+    .map(identifier => visualModel.getVisualEntity(identifier))
+    .filter(entity => entity !== null)
+    .filter(isVisualNode);
+
+  return visualNodes;
+}
+
+/**
+ * Uses given identifiers to create visual relationships.
+ */
+export function addVisualRelationshipsWithGivenVisualEnds(
+  visualModel: WritableVisualModel,
+  modelDsIdentifier: string,
+  semanticRelationshipIdentifier: string,
+  visualSourcesIdentifiers: string[],
+  visualTargetsIdentifiers: string[]
+) {
+  const visualSources = collectVisualNodes(visualModel, visualSourcesIdentifiers);
+  const visualTargets = collectVisualNodes(visualModel, visualTargetsIdentifiers);
+  addVisualRelationships(visualModel, modelDsIdentifier, semanticRelationshipIdentifier, visualSources, visualTargets);
 }

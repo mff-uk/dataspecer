@@ -50,19 +50,19 @@ export function addRelatedEntitiesAction(
     if (isSemanticModelGeneralization(candidate)) {
       if (shouldAddGeneralization(visualModel, identifier, candidate)) {
         addSemanticGeneralizationToVisualModelAction(
-          notifications, graph, visualModel, candidate.id, candidateModel.getId(), null, null);
+          notifications, graph, visualModel, candidate.id, candidateModel.getId());
       }
     }
     if (isSemanticModelRelationship(candidate)) {
       if (shouldAddRelationship(visualModel, identifier, candidate)) {
         addSemanticRelationshipToVisualModelAction(
-          notifications, graph, visualModel, candidate.id, candidateModel.getId(), null, null);
+          notifications, graph, visualModel, candidate.id, candidateModel.getId());
       }
     }
     if (isSemanticModelRelationshipUsage(candidate) || isSemanticModelRelationshipProfile(candidate)) {
       if (shouldAddRelationshipUsageOrProfile(visualModel, identifier, candidate)) {
         addSemanticRelationshipProfileToVisualModelAction(
-          notifications, graph, visualModel, candidate.id, candidateModel.getId(), null, null);
+          notifications, graph, visualModel, candidate.id, candidateModel.getId());
       }
     }
     if (isSemanticModelClassUsage(candidate)) {

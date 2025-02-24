@@ -13,14 +13,12 @@ export function addSemanticGeneralizationToVisualModelAction(
   visualModel: WritableVisualModel,
   entityIdentifier: string,
   modelIdentifier: string,
-  givenVisualSources: string[] | null,
-  givenVisualTargets: string[] | null
 ) {
   const entities = graph.aggregatorView.getEntities();
   withErrorBoundary(notifications, () =>
     withAggregatedEntity(notifications, entities, entityIdentifier, modelIdentifier,
       isSemanticModelGeneralization, (entity) => {
-        addSemanticGeneralizationToVisualModel(visualModel, modelIdentifier, entity, givenVisualSources, givenVisualTargets);
+        addSemanticGeneralizationToVisualModel(visualModel, modelIdentifier, entity);
       })
   );
 }

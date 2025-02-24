@@ -4,17 +4,15 @@ import { SemanticModelRelationshipUsage, isSemanticModelRelationshipUsage } from
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { getDomainAndRange } from "../util/relationship-utils";
 import { ModelGraphContextType } from "../context/model-context";
-import { getVisualSourcesAndVisualTargets, withAggregatedEntity } from "./utilities";
+import { getAllVisualEndsForRelationship, getVisualSourcesAndVisualTargets, withAggregatedEntity } from "./utilities";
 import { isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isOwlThing } from "../dataspecer/semantic-model";
-import { addVisualRelationship } from "../dataspecer/visual-model/operation/add-visual-relationship";
+import { addVisualRelationships } from "../dataspecer/visual-model/operation/add-visual-relationships";
 
 /**
  * Adds given semantic relationship profile to visual model.
- * If {@link givenVisualSources} or {@link givenVisualTargets} are empty array then this method creates
- * connections between all visual ends given by the semantic relationship identified by {@link entityIdentifier}.
- * Otherwise the given {@link givenVisualSources}, respectively {@link givenVisualTargets} are used as the sources or targets
- * of the created visual relationships.
+ *
+ * Uses all relevant ends, which are present in visual model.
  */
 export function addSemanticRelationshipProfileToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
@@ -22,8 +20,6 @@ export function addSemanticRelationshipProfileToVisualModelAction(
   visualModel: WritableVisualModel,
   entityIdentifier: string,
   modelIdentifier: string,
-  givenVisualSources: string[] | null,
-  givenVisualTargets: string[] | null,
 ) {
   const entities = graph.aggregatorView.getEntities();
   withAggregatedEntity(notifications, entities,
@@ -31,8 +27,7 @@ export function addSemanticRelationshipProfileToVisualModelAction(
     (item) => isSemanticModelRelationshipUsage(item) || isSemanticModelRelationshipProfile(item),
     (entity) => {
       addSemanticRelationshipProfileToVisualModelCommand(
-        notifications, visualModel, entity, modelIdentifier,
-        givenVisualSources, givenVisualTargets);
+        notifications, visualModel, entity, modelIdentifier);
     });
 }
 
@@ -41,8 +36,6 @@ function addSemanticRelationshipProfileToVisualModelCommand(
   visualModel: WritableVisualModel,
   entity: SemanticModelRelationshipUsage | SemanticModelRelationshipProfile,
   model: string,
-  givenVisualSources: string[] | null,
-  givenVisualTargets: string[] | null,
 ) {
   const { domain, range } = getDomainAndRange(entity);
   if (domain === null || domain.concept === null || range === null || range.concept === null) {
@@ -51,8 +44,8 @@ function addSemanticRelationshipProfileToVisualModelCommand(
     return;
   }
 
-  const { visualSources, visualTargets } = getVisualSourcesAndVisualTargets(
-    visualModel, domain.concept, range.concept, givenVisualSources, givenVisualTargets);
+  const { visualSources, visualTargets } = getAllVisualEndsForRelationship(
+    visualModel, domain.concept, range.concept);
   if (visualSources.length === 0 || visualTargets.length === 0) {
     console.warn("Missing visual entities for ends.", { domain, range, entity, visualSources, visualTargets });
     if (isOwlThing(domain.concept) || isOwlThing(range.concept)) {
@@ -64,9 +57,8 @@ function addSemanticRelationshipProfileToVisualModelCommand(
     return;
   }
   //
-  addVisualRelationship(
+  addVisualRelationships(
     visualModel, model, entity.id,
-    domain.concept, range.concept,
-    givenVisualSources, givenVisualTargets,
+    visualSources, visualTargets,
   );
 }

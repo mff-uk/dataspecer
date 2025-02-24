@@ -98,7 +98,7 @@ export function openCreateProfileDialogAction(
       if (isWritableVisualModel(visualModel)) {
         addSemanticRelationshipProfileToVisualModelAction(
           notifications, graph, visualModel,
-          createResult.identifier, createResult.model.getId(), null, null);
+          createResult.identifier, createResult.model.getId());
       }
     };
     dialogs.openDialog(createNewAssociationProfileDialog(state, onConfirm));

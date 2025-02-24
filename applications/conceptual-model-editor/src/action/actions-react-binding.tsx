@@ -635,21 +635,21 @@ function createActionsContext(
   ): void => {
     withVisualModel(notifications, graph, (visualModel) => {
       addSemanticGeneralizationToVisualModelAction(
-        notifications, graph, visualModel, identifier, model, null, null);
+        notifications, graph, visualModel, identifier, model);
     });
   }
 
   const addRelationToVisualModel = (model: string, identifier: string): void => {
     withVisualModel(notifications, graph, (visualModel) => {
       addSemanticRelationshipToVisualModelAction(
-        notifications, graph, visualModel, identifier, model, null, null);
+        notifications, graph, visualModel, identifier, model);
     });
   };
 
   const addRelationProfileToVisualModel = (model: string, identifier: string): void => {
     withVisualModel(notifications, graph, (visualModel) => {
       addSemanticRelationshipProfileToVisualModelAction(
-        notifications, graph, visualModel, identifier, model, null, null);
+        notifications, graph, visualModel, identifier, model);
     });
   };
 

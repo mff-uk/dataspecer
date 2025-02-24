@@ -173,15 +173,15 @@ function addConnectionsToVisualModel(
     const modelIdentifier = model.getId();
     if(isSemanticModelRelationship(entity)) {
       addSemanticRelationshipToVisualModelAction(
-        notifications, graph, visualModel, entity.id, modelIdentifier, null, null);
+        notifications, graph, visualModel, entity.id, modelIdentifier);
     }
     else if(isSemanticModelRelationshipUsage(entity)) {
       addSemanticRelationshipProfileToVisualModelAction(
-        notifications, graph, visualModel, entity.id, modelIdentifier, null, null);
+        notifications, graph, visualModel, entity.id, modelIdentifier);
     }
     else if(isSemanticModelGeneralization(entity)) {
       addSemanticGeneralizationToVisualModelAction(
-        notifications, graph, visualModel, entity.id, modelIdentifier, null, null);
+        notifications, graph, visualModel, entity.id, modelIdentifier);
     }
   }
 }

@@ -226,7 +226,7 @@ function createDefaultRelationshipProfile(
   if(shouldBeAddedToVisualModel) {
     if(isWritableVisualModel(visualModel)) {
       addSemanticRelationshipProfileToVisualModelAction(
-        notifications, graph, visualModel, identifier, model.getId(), null, null);
+        notifications, graph, visualModel, identifier, model.getId());
     }
   }
 }

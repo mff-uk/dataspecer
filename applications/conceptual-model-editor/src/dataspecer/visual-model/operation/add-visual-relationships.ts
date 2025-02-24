@@ -1,27 +1,21 @@
-import { isVisualNode, Position, Waypoint, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualNode, Position, VisualNode, Waypoint, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { DataspecerError } from "../../dataspecer-error";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
-import { getVisualSourcesAndVisualTargets } from "../../../action/utilities";
 
 /**
- * Adds given semantic relationship to visual model identified by {@link represented}.
- * If {@link visualSources} or {@link visualTargets} are empty then this method creates
- * connections between all visual ends given by the semantic relationship identified by {@link entityIdentifier}.
- * Otherwise the given {@link visualSources}, respectively {@link visualTargets} are used as the sources or targets
- * of the created visual relationships.
+ * Adds given semantic relationship identified by {@link represented} to visual model.
+ * Uses the specified {@link givenVisualSources} or {@link givenVisualTargets} as the ends
+ * for the created visual relationship.
+ * If any of the given ends is empty then throw error.
  * @throws DataspecerError
  */
-export function addVisualRelationship(
+export function addVisualRelationships(
   visualModel: WritableVisualModel,
   model: ModelDsIdentifier,
   represented: EntityDsIdentifier,
-  source: EntityDsIdentifier,
-  target: EntityDsIdentifier,
-  givenVisualSources: string[] | null,
-  givenVisualTargets: string[] | null,
+  visualSources: VisualNode[],
+  visualTargets: VisualNode[],
 ) {
-  const { visualSources, visualTargets } = getVisualSourcesAndVisualTargets(
-    visualModel, source, target, givenVisualSources, givenVisualTargets);
   if (visualSources.length === 0 || visualTargets.length === 0) {
     throw new DataspecerError("Source or target are not in the visual model.");
   }

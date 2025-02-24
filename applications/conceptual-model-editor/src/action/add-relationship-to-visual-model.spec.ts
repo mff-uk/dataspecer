@@ -22,6 +22,7 @@ import { createVisualNodeDuplicateAction } from "./create-visual-node-duplicate"
 import { SEMANTIC_MODEL_GENERALIZATION, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { ActionsTestSuite } from "./test/actions-test-suite";
+import { addVisualRelationshipsWithGivenVisualEnds } from "./utilities";
 
 test("Create single relationship - association", () => {
   testCreateSingleRelationship(RelationshipToTestType.Association);
@@ -189,8 +190,7 @@ function testCreateNodeDuplicateAndCreateRelationshipAfterWithoutSpecifyingEnds(
       visualTarget: visualRelationship.visualTarget,
     }
   });
-  const visualSource1 = visualModel.getVisualEntitiesForRepresented("0")[0];
-  const visualSource2 = visualModel.getVisualEntitiesForRepresented("0")[1];
+  const [visualSource1, visualSource2] = visualModel.getVisualEntitiesForRepresented("0");
   const visualTarget = visualModel.getVisualEntitiesForRepresented("1")[0];
   const expectedRelationships = [
     {
@@ -326,8 +326,7 @@ function testCreateNodeDuplicateOfNodeDuplicate(
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(2);
   expect(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[0].identifier).length).toBe(0);
   //
-  const visualSource1 = visualModel.getVisualEntitiesForRepresented("0")[0];
-  const visualSource2 = visualModel.getVisualEntitiesForRepresented("0")[1];
+  const [visualSource1, visualSource2] = visualModel.getVisualEntitiesForRepresented("0");
   const visualTarget1 = visualModel.getVisualEntitiesForRepresented("1")[0];
   const visualTarget2 = visualModel.getVisualEntitiesForRepresented("2")[0];
   addTestRelationshipToVisualModel(
@@ -515,6 +514,11 @@ enum RelationshipToTestType {
  Association
 };
 
+/**
+ * @param visualSources if of length zero then gets the identifiers based on the semantic ends of relationship.
+ * @param visualTargets if of length zero then gets the identifiers based on the semantic ends of relationship.
+ * @returns
+ */
 function createTestRelationshipOfGivenType(
   graph: ModelGraphContextType,
   visualModel: WritableVisualModel,
@@ -560,14 +564,20 @@ function addTestRelationshipToVisualModel(
   visualSources: string[] | null,
   visualTargets: string[] | null,
 ) {
-  if(relationshipToTestType === RelationshipToTestType.Generalization) {
-    addSemanticGeneralizationToVisualModelAction(
-      notificationMockup, graph, visualModel,
-      relationshipIdentifier, modelDsIdentifier, visualSources, visualTargets);
+  if(visualSources === null || visualTargets === null) {
+    if(relationshipToTestType === RelationshipToTestType.Generalization) {
+      addSemanticGeneralizationToVisualModelAction(
+        notificationMockup, graph, visualModel,
+        relationshipIdentifier, modelDsIdentifier);
+    }
+    else if(relationshipToTestType === RelationshipToTestType.Association) {
+      addSemanticRelationshipToVisualModelAction(
+        notificationMockup, graph, visualModel,
+        relationshipIdentifier, modelDsIdentifier);
+    }
   }
-  else if(relationshipToTestType === RelationshipToTestType.Association) {
-    addSemanticRelationshipToVisualModelAction(
-      notificationMockup, graph, visualModel,
-      relationshipIdentifier, modelDsIdentifier, visualSources, visualTargets);
+  else {
+    addVisualRelationshipsWithGivenVisualEnds(
+      visualModel, modelDsIdentifier, relationshipIdentifier, visualSources, visualTargets);
   }
 }
