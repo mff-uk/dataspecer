@@ -36,9 +36,9 @@ export function createVisualNodeDuplicateAction(
   }
 
   const position: Position = {
-    x: node.position.x,
-    y: placeCoordinateOnGrid(node.position.y +
-       (diagram.actions().getNodeHeight(nodeIdentifier) ?? 0), configuration().ySnapGrid),
+    x: placeCoordinateOnGrid(node.position.x -
+      (diagram.actions().getNodeWidth(nodeIdentifier) ?? 0), configuration().xSnapGrid),
+    y: node.position.y,
     anchored: node.position.anchored
   };
 
