@@ -13,7 +13,7 @@ import { ModelGraphContext, type ModelGraphContextType } from "../context/model-
 import { type DiagramCallbacks, type Waypoint as DiagramWaypoint, Edge, Position, useDiagram } from "../diagram/";
 import type { UseDiagramType } from "../diagram/diagram-hook";
 import { type Options, useOptions } from "../application/options";
-import { centerViewportToVisualEntityAction } from "./center-viewport-to-visual-entity";
+import { centerViewportToVisualEntityByRepresentedAction } from "./center-viewport-to-visual-entity";
 import { openDetailDialogAction } from "./open-detail-dialog";
 import { openModifyDialogAction } from "./open-modify-dialog";
 import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
@@ -266,11 +266,12 @@ export interface ActionsContextType extends DialogActions, VisualModelActions {
 
   /**
    * Centers viewport to semantic entity identified by {@link identifier}.
-   * Since we have multiple visual entites per one semantic,
-   * the {@link currentlyIteratedEntity} is any integer.
+   * Since we have multiple visual entites per one semantic, we need to somehow
+   * choose the visual entity to center to. For that there is {@link currentlyIteratedEntity}.
+   * The {@link currentlyIteratedEntity} is ANY integer.
    * It will will be used to index the array of visual entities
    */
-  centerViewportToVisualEntity: (
+  centerViewportToVisualEntityByRepresented: (
     model: string,
     identifier: string,
     currentlyIteratedEntity: number
@@ -331,7 +332,7 @@ const noOperationActionsContext = {
   removeFromVisualModelByVisual: noOperation,
   removeAttributesFromVisualModel: noOperation,
   createVisualNodeDuplicate: noOperation,
-  centerViewportToVisualEntity: noOperation,
+  centerViewportToVisualEntityByRepresented: noOperation,
   //
   createNewVisualModelFromSelection: noOperation,
   //
@@ -730,12 +731,12 @@ function createActionsContext(
     removeFromSemanticModelsAction(notifications, graph, entitiesToDelete);
   };
 
-  const centerViewportToVisualEntity = (
+  const centerViewportToVisualEntityByRepresented = (
     model: string,
     identifier: string,
     currentlyIteratedEntity: number
   ) => {
-    centerViewportToVisualEntityAction(
+    centerViewportToVisualEntityByRepresentedAction(
       notifications, graph, classes, diagram, identifier, currentlyIteratedEntity,
       model);
   };
@@ -1020,7 +1021,7 @@ function createActionsContext(
     //
     deleteFromSemanticModels,
     createVisualNodeDuplicate,
-    centerViewportToVisualEntity,
+    centerViewportToVisualEntityByRepresented,
 
     createNewVisualModelFromSelection,
     addEntitiesFromSemanticModelToVisualModel,

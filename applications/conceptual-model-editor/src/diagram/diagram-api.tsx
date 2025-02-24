@@ -204,14 +204,14 @@ export interface DiagramActions {
   openGroupMenu(groupIdentifier: string, canvasPosition: Position): void;
 
   /**
-   * Sets correct highlighting values in context.
-   * We have to call it through the diagram API,
+   * Sets correct highlighting values in context. We have to call it through the diagram API,
    * because we have access to the rendering library (reactflow) only in diagram component.
    * @param nodeIdentifiers are the identifiers of the nodes to highlight.
-   *                        There are multiple identifiers, 
-   *                        because 1 class can be represented by more than 1 node on canvas.
    */
-  highlightNodesInExplorationModeFromCatalog(nodeIdentifiers: string[], modelOfClassWhichStartedHighlighting: string): void;
+  highlightNodesInExplorationModeFromCatalog(
+    nodeIdentifiers: string[],
+    modelOfClassWhichStartedHighlighting: string
+  ): void;
 }
 
 /**

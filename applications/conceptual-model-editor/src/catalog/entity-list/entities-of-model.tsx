@@ -241,7 +241,7 @@ export const EntitiesOfModel = (props: {
   };
 
   const handleSetViewportToEntity = (identifier: string, entityNumberToBeCentered: number) => {
-    actions.centerViewportToVisualEntity(model.getId(), identifier, entityNumberToBeCentered);
+    actions.centerViewportToVisualEntityByRepresented(model.getId(), identifier, entityNumberToBeCentered);
   };
 
   // Rendering section.

@@ -24,7 +24,7 @@ export function createVisualNodeDuplicateAction(
   diagram: UseDiagramType,
   visualModel: WritableVisualModel,
   nodeIdentifier: string,
-) {
+): string | null {
   const node = visualModel.getVisualEntity(nodeIdentifier);
   if(node === null) {
     notifications.error("Unable to find source node to create duplicate of");
@@ -50,7 +50,7 @@ export function createVisualNodeDuplicateAction(
   const duplicateNode = visualModel.getVisualEntity(duplicatedNodeIdentifier);
   if(duplicateNode === null || !isVisualNode(duplicateNode)) {
     notifications.error("The created duplicate node is not present in visual model for some reason");
-    return;
+    return null;
   }
 
   addRelatedEdgesDuplicatesToVisualModel(

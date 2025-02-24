@@ -20,10 +20,10 @@ import { addVisualRelationshipsWithGivenVisualEnds, collectVisualNodes } from ".
 
 /**
  *
- * @param visualSourcesIdentifiers specifies the visual sources of the connection,
- * if set to null then the default ones taken from the {@link semanticSourceIdentifier} are used.
- * @param visualTargetsIdentifiers specifies the visual targets of the connection,
- * if set to null then the default ones taken from the {@link semanticTargetIdentifier} are used.
+ * @param visualSources specifies the visual sources of the connection,
+ * if set to empty array action does not tries to create visual entity for the connection.
+ * @param visualTargets specifies the visual targets of the connection,
+ * if set to empty array action does not tries to create visual entity for the connection.
  * @returns
  */
 export function openCreateConnectionDialogAction(
@@ -33,16 +33,16 @@ export function openCreateConnectionDialogAction(
   useClasses: UseClassesContextType,
   graph: ModelGraphContextType,
   visualModel: WritableVisualModel,
-  semanticSourceIdentifier: string,
-  semanticTargetIdentifier: string,
-  visualSourcesIdentifiers: string[],
-  visualTargetsIdentifiers: string[],
+  semanticSource: string,
+  semanticTarget: string,
+  visualSources: string[],
+  visualTargets: string[],
 ) {
   const entities = graph.aggregatorView.getEntities();
 
-  const source = entities[semanticSourceIdentifier]?.aggregatedEntity ?? null;
+  const source = entities[semanticSource]?.aggregatedEntity ?? null;
 
-  const target = entities[semanticTargetIdentifier]?.aggregatedEntity ?? null;
+  const target = entities[semanticTarget]?.aggregatedEntity ?? null;
 
   if (source === null || target === null) {
     notifications.error("Can not find source or target in semantic model.");
@@ -50,8 +50,8 @@ export function openCreateConnectionDialogAction(
       {
         source,
         target,
-        sourceIdentifier: semanticSourceIdentifier,
-        targetIdentifier: semanticTargetIdentifier,
+        sourceIdentifier: semanticSource,
+        targetIdentifier: semanticTarget,
         entities
       });
     return;
@@ -79,9 +79,12 @@ export function openCreateConnectionDialogAction(
       return;
     }
     // Add visual representation.
+    if(visualSources.length === 0 || visualTargets.length === 0) {
+      return;
+    }
     addVisualRelationshipsWithGivenVisualEnds(
       visualModel, state.model.getId(), result.id,
-      visualSourcesIdentifiers, visualTargetsIdentifiers);
+      visualSources, visualTargets);
   };
   dialogs.openDialog(createConnectionDialog(
     graph, source, target, options.language, onConfirm));
