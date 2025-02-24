@@ -34,6 +34,7 @@ import { HexColor } from "./visual-entity";
 import { EntityEventListener, UnsubscribeCallback } from "./entity-model/observable-entity-model";
 import { Entity, EntityIdentifier } from "./entity-model/entity";
 import { LanguageString } from "./entity-model/labeled-model";
+import { addToMapArray, removeFromMapArray } from "../utils/functional";
 
 /**
  * This is how data were stored in the initial version of the visual model.
@@ -81,7 +82,7 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
   /**
    * Cached mapping from represented to entity identifiers.
    */
-  private representedToEntity: Map<RepresentedEntityIdentifier, EntityIdentifier> = new Map();
+  private representedToEntity: Map<RepresentedEntityIdentifier, EntityIdentifier[]> = new Map();
 
   /**
    * Map from model identifier to the model data.
@@ -125,12 +126,22 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
     return this.entities.get(identifier) ?? null;
   }
 
-  getVisualEntityForRepresented(represented: RepresentedEntityIdentifier): VisualEntity | null {
-    const identifier = this.representedToEntity.get(represented);
-    if (identifier === undefined) {
-      return null;
+  getVisualEntitiesForRepresented(represented: RepresentedEntityIdentifier): VisualEntity[] {
+    const identifiers = this.representedToEntity.get(represented);
+    if (identifiers === undefined) {
+      return [];
     }
-    return this.getVisualEntity(identifier);
+    const visualEntities = identifiers
+      .map(identifier => this.getVisualEntity(identifier))
+      .filter(visualEntity => visualEntity !== null);
+    return visualEntities;
+  }
+
+  hasVisualEntityForRepresented(represented: RepresentedEntityIdentifier): boolean {
+    const identifiers = this.representedToEntity.get(represented);
+    // I think that technically the identifiers should never have length 0,
+    // but the check costs very little, so it is better to be sure.
+    return identifiers !== undefined && identifiers.length > 0;
   }
 
   getVisualEntities(): Map<EntityIdentifier, VisualEntity> {
@@ -357,13 +368,13 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
 
   protected onEntityDidCreate(entity: Entity) {
     if (isVisualNode(entity)) {
-      this.entities.set(entity.identifier, entity);
-      this.representedToEntity.set(entity.representedEntity, entity.identifier);
+      this.entities.set(entity.identifier, entity);   // TODO PRQuestion: this line repeats at every if branch
+      addToMapArray(entity.representedEntity, entity.identifier, this.representedToEntity);
       this.notifyObserversOnEntityChangeOrDelete(null, entity);
     }
     if (isVisualRelationship(entity)) {
       this.entities.set(entity.identifier, entity);
-      this.representedToEntity.set(entity.representedRelationship, entity.identifier);
+      addToMapArray(entity.representedRelationship, entity.identifier, this.representedToEntity);
       this.notifyObserversOnEntityChangeOrDelete(null, entity);
     }
     if (isVisualGroup(entity)) {
@@ -440,9 +451,11 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
     this.entities.delete(identifier);
     // Notify listeners.
     if (isVisualNode(previous)) {
+      removeFromMapArray(this.representedToEntity, previous.representedEntity, identifier);
       this.notifyObserversOnEntityChangeOrDelete(previous, null);
     }
     if (isVisualRelationship(previous)) {
+      removeFromMapArray(this.representedToEntity, previous.representedRelationship, identifier);
       this.notifyObserversOnEntityChangeOrDelete(previous, null);
     }
     if (isVisualGroup(previous)) {

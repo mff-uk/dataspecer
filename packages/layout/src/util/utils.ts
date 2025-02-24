@@ -26,6 +26,9 @@ export const placeCoordinateOnGrid = (coordinate: number, grid: number): number 
     return convertedPosition;
 }
 
+/**
+ * Changes the given {@link position} in place in such a way that the x and y are on given grids.
+ */
 export const placePositionOnGrid = (position: PositionWithOptionalAnchor, gridX: number, gridY: number): void => {
     position.x = placeCoordinateOnGrid(position.x, gridX);
     position.y = placeCoordinateOnGrid(position.y, gridY);

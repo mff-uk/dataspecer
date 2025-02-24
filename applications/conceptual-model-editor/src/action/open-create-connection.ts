@@ -4,7 +4,7 @@ import {
 import {
   isSemanticModelClassUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
@@ -15,7 +15,17 @@ import { AssociationConnectionType, GeneralizationConnectionType } from "../util
 import { UseClassesContextType } from "../context/classes-context";
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
+import { addVisualRelationships } from "../dataspecer/visual-model/operation/add-visual-relationships";
+import { addVisualRelationshipsWithGivenVisualEnds, collectVisualNodes } from "./utilities";
 
+/**
+ *
+ * @param visualSourcesIdentifiers specifies the visual sources of the connection,
+ * if set to null then the default ones taken from the {@link semanticSourceIdentifier} are used.
+ * @param visualTargetsIdentifiers specifies the visual targets of the connection,
+ * if set to null then the default ones taken from the {@link semanticTargetIdentifier} are used.
+ * @returns
+ */
 export function openCreateConnectionDialogAction(
   options: Options,
   dialogs: DialogApiContextType,
@@ -23,18 +33,27 @@ export function openCreateConnectionDialogAction(
   useClasses: UseClassesContextType,
   graph: ModelGraphContextType,
   visualModel: WritableVisualModel,
-  sourceIdentifier: string,
-  targetIdentifier: string,
+  semanticSourceIdentifier: string,
+  semanticTargetIdentifier: string,
+  visualSourcesIdentifiers: string[],
+  visualTargetsIdentifiers: string[],
 ) {
   const entities = graph.aggregatorView.getEntities();
 
-  const source = entities[sourceIdentifier]?.aggregatedEntity ?? null;
+  const source = entities[semanticSourceIdentifier]?.aggregatedEntity ?? null;
 
-  const target = entities[targetIdentifier]?.aggregatedEntity ?? null;
+  const target = entities[semanticTargetIdentifier]?.aggregatedEntity ?? null;
 
   if (source === null || target === null) {
     notifications.error("Can not find source or target in semantic model.");
-    console.warn("Can not find source or target in semantic model.", { source, target, sourceIdentifier, targetIdentifier, entities });
+    console.warn("Can not find source or target in semantic model.",
+      {
+        source,
+        target,
+        sourceIdentifier: semanticSourceIdentifier,
+        targetIdentifier: semanticTargetIdentifier,
+        entities
+      });
     return;
   }
 
@@ -60,13 +79,9 @@ export function openCreateConnectionDialogAction(
       return;
     }
     // Add visual representation.
-    if (state.type === ConnectionType.Association) {
-      addSemanticRelationshipToVisualModelAction(
-        notifications, graph, visualModel, result.id, state.model.getId());
-    } else {
-      addSemanticGeneralizationToVisualModelAction(
-        notifications, graph, visualModel, result.id, state.model.getId());
-    }
+    addVisualRelationshipsWithGivenVisualEnds(
+      visualModel, state.model.getId(), result.id,
+      visualSourcesIdentifiers, visualTargetsIdentifiers);
   };
   dialogs.openDialog(createConnectionDialog(
     graph, source, target, options.language, onConfirm));

@@ -232,7 +232,7 @@ export const EntitiesOfModel = (props: {
       actions.removeAttributesFromVisualModel([entity.id]);
     }
     else {
-      actions.removeFromVisualModel([entity.id]);
+      actions.removeFromVisualModelByRepresented([entity.id]);
     }
   };
 
@@ -240,8 +240,8 @@ export const EntitiesOfModel = (props: {
     await actions.deleteFromSemanticModels([{identifier, sourceModel: model.getId()}]);
   };
 
-  const handleSetViewportToEntity = (identifier: string) => {
-    actions.centerViewportToVisualEntity(model.getId(), identifier);
+  const handleSetViewportToEntity = (identifier: string, entityNumberToBeCentered: number) => {
+    actions.centerViewportToVisualEntity(model.getId(), identifier, entityNumberToBeCentered);
   };
 
   // Rendering section.

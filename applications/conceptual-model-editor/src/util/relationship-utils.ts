@@ -141,7 +141,7 @@ export const hasBothEndsInVisualModel = (
     rangeConcept = domainAndRange.range?.concept ?? "";
   }
 
-  const domainOnCanvas = visualModel.getVisualEntityForRepresented(domainConcept);
-  const rangeOnCanvas = visualModel.getVisualEntityForRepresented(rangeConcept);
-  return domainOnCanvas !== null && rangeOnCanvas !== null;
+  const isDomainOnCanvas = visualModel.hasVisualEntityForRepresented(domainConcept);
+  const isRangeOnCanvas = visualModel.hasVisualEntityForRepresented(rangeConcept);
+  return isDomainOnCanvas && isRangeOnCanvas;
 };

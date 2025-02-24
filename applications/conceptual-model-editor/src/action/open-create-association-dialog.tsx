@@ -13,6 +13,8 @@ import { createCreateAssociationDialogState, createNewAssociationDialog } from "
 import { EditAssociationDialogState } from "../dialog/association/edit-association-dialog-controller";
 import { EntityModel } from "@dataspecer/core-v2";
 import { CreatedSemanticEntityData } from "./open-create-class-dialog";
+import { addVisualRelationships } from "../dataspecer/visual-model/operation/add-visual-relationships";
+import { getAllVisualEndsForRelationship } from "./utilities";
 
 const LOG = createLogger(import.meta.url);
 
@@ -60,13 +62,12 @@ export function createSemanticAssociation(
   if(shouldAddToVisualModel) {
     // Add to visual model if possible.
     if (isWritableVisualModel(visualModel)) {
-      const source = visualModel.getVisualEntityForRepresented(state.domain.identifier);
-      const target = visualModel.getVisualEntityForRepresented(state.range.identifier);
-      if (source !== null && target !== null) {
-        // Both ends are in the visual model.
-        addSemanticRelationshipToVisualModelAction(
-          notifications, graph, visualModel,
-          createResult.identifier, createResult.model.getId());
+      const { visualSources, visualTargets } = getAllVisualEndsForRelationship(
+        visualModel, state.domain.identifier, state.range.identifier);
+      if (visualSources.length > 0 && visualTargets.length > 0) {
+        // Both ends are in the visual model with at least one node.
+        addVisualRelationships(
+          visualModel, createResult.model.getId(), createResult.identifier, visualSources, visualTargets);
       }
     }
   }

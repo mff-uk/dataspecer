@@ -4,11 +4,16 @@ import { SemanticModelRelationshipUsage, isSemanticModelRelationshipUsage } from
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { getDomainAndRange } from "../util/relationship-utils";
 import { ModelGraphContextType } from "../context/model-context";
-import { withAggregatedEntity } from "./utilities";
+import { getAllVisualEndsForRelationship, getVisualSourcesAndVisualTargets, withAggregatedEntity } from "./utilities";
 import { isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isOwlThing } from "../dataspecer/semantic-model";
-import { addVisualRelationship } from "../dataspecer/visual-model/operation/add-visual-relationship";
+import { addVisualRelationships } from "../dataspecer/visual-model/operation/add-visual-relationships";
 
+/**
+ * Adds given semantic relationship profile to visual model.
+ *
+ * Uses all relevant ends, which are present in visual model.
+ */
 export function addSemanticRelationshipProfileToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
@@ -38,10 +43,11 @@ function addSemanticRelationshipProfileToVisualModelCommand(
     console.error("Ignored relationship as ends are null.", { domain, range, entity });
     return;
   }
-  const source = visualModel.getVisualEntityForRepresented(domain.concept);
-  const target = visualModel.getVisualEntityForRepresented(range.concept);
-  if (source === null || target === null) {
-    console.warn("Missing visual entities for ends.", { domain, range, entity, source, target });
+
+  const { visualSources, visualTargets } = getAllVisualEndsForRelationship(
+    visualModel, domain.concept, range.concept);
+  if (visualSources.length === 0 || visualTargets.length === 0) {
+    console.warn("Missing visual entities for ends.", { domain, range, entity, visualSources, visualTargets });
     if (isOwlThing(domain.concept) || isOwlThing(range.concept)) {
       // This is special case where owl:Thing is not on canvas.
       // We do not report this to user only log.
@@ -51,8 +57,8 @@ function addSemanticRelationshipProfileToVisualModelCommand(
     return;
   }
   //
-  addVisualRelationship(
+  addVisualRelationships(
     visualModel, model, entity.id,
-    domain.concept, range.concept
+    visualSources, visualTargets,
   );
 }

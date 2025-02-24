@@ -30,12 +30,13 @@ export function openCreateClassDialogAndCreateAssociationAction(
   positionToPlaceClassOn: Position,
 ) {
   const onConfirm = (createdClassData: CreatedSemanticEntityData, state: EditClassDialogState) => {
-    createAssociationToCreatedClass(notifications, classes, options, graph, visualModel,
+    createAssociationToCreatedClass(
+      notifications, classes, options, graph, visualModel,
       nodeIdentifier, isCreatedClassTarget, createdClassData, state);
   }
 
-  // TODO RadStr: I still don't see how to handle actions in actions calls and if it is always bad
-  openCreateClassDialogWithModelDerivedFromClassAction(notifications, graph, dialogs, classes, options,
+  openCreateClassDialogWithModelDerivedFromClassAction(
+    notifications, graph, dialogs, classes, options,
     diagram, visualModel, nodeIdentifier, positionToPlaceClassOn, onConfirm);
 }
 
@@ -53,12 +54,14 @@ export function openCreateClassDialogAndCreateGeneralizationAction(
   positionToPlaceClassOn: Position,
 ) {
   const onConfirm = (createdClassData: CreatedSemanticEntityData, _: EditClassDialogState) => {
-    createGeneralizationToCreatedClass(notifications, useClasses, graph,
+    createGeneralizationToCreatedClass(
+      notifications, useClasses, graph,
       visualModel, nodeIdentifier, isCreatedClassParent, createdClassData);
   }
 
   // TODO RadStr: Action in action
-  openCreateClassDialogWithModelDerivedFromClassAction(notifications, graph, dialogs, classes, options,
+  openCreateClassDialogWithModelDerivedFromClassAction(
+    notifications, graph, dialogs, classes, options,
     diagram, visualModel, nodeIdentifier, positionToPlaceClassOn, onConfirm);
 }
 
@@ -94,7 +97,8 @@ function createGeneralizationToCreatedClass(
     return;
   }
 
-  addSemanticGeneralizationToVisualModelAction(notifications, graph, visualModel, result.id, createdClassData.model.getId());
+  addSemanticGeneralizationToVisualModelAction(
+    notifications, graph, visualModel, result.id, createdClassData.model.getId());
 }
 
 function createAssociationToCreatedClass(
@@ -108,7 +112,8 @@ function createAssociationToCreatedClass(
   createdClassData: CreatedSemanticEntityData,
   editClassDialogState: EditClassDialogState
 ) {
-  const defaultEditAssociationState = createCreateAssociationDialogState(classes, graph, visualModel, options.language, null);
+  const defaultEditAssociationState = createCreateAssociationDialogState(
+    classes, graph, visualModel, options.language, null);
 
   const node = visualModel.getVisualEntity(nodeIdentifier);
   if(node === null) {
