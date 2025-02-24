@@ -1,11 +1,7 @@
 import {
   type VisualEntity,
-  type VisualModel,
   WritableVisualModel,
   isVisualGroup,
-  isVisualNode,
-  isVisualProfileRelationship,
-  isVisualRelationship,
 } from "@dataspecer/core-v2/visual-model";
 
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";

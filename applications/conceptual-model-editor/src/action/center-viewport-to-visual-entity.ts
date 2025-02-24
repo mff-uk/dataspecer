@@ -1,4 +1,4 @@
-import { isVisualGroup, isVisualNode, isVisualRelationship, VisualEntity, VisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualGroup, isVisualNode, isVisualRelationship, VisualEntity } from "@dataspecer/core-v2/visual-model";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
@@ -23,7 +23,8 @@ export function centerViewportToVisualEntityByRepresentedAction(
   _modelIdentifier: string,
 ) {
   const attribute = findRelationshipOrRelationshipUsage(entityIdentifier, classesContext);
-  let isAttribute = false;
+  // TODO RadStr: For the implementation of content
+  // let isAttribute = false;
   if(attribute !== undefined) {
     // It can be attribute or association
     if(isSemanticModelAttribute(attribute)) {
@@ -34,7 +35,8 @@ export function centerViewportToVisualEntityByRepresentedAction(
         return;
       }
 
-      isAttribute = true;
+      // TODO RadStr: For the implementation of content
+      // isAttribute = true;
       entityIdentifier = domainNodeIdentifier;
     }
   }
@@ -44,7 +46,7 @@ export function centerViewportToVisualEntityByRepresentedAction(
     notifications.error("There is no active visual model.");
     return;
   }
-  let visualEntities = visualModel.getVisualEntitiesForRepresented(entityIdentifier);
+  const visualEntities = visualModel.getVisualEntitiesForRepresented(entityIdentifier);
   if (visualEntities.length === 0) {
     notifications.error("There is no visual representation of the entity.");
     return;
@@ -67,7 +69,6 @@ export function findRelationshipOrRelationshipUsage(identifier: string, classesC
     concat(classesContext.usages.filter(isSemanticModelRelationshipUsage)).find(entity => entity?.id === identifier);
   return entity;
 }
-
 
 // Could be exported and used for centering to visual entities
 export function centerToVisualEntity(

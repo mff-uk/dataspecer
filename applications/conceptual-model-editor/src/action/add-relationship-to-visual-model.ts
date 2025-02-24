@@ -4,7 +4,7 @@ import { SemanticModelRelationship, isSemanticModelRelationship } from "@dataspe
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { getDomainAndRange } from "../util/relationship-utils";
 import { ModelGraphContextType } from "../context/model-context";
-import { getAllVisualEndsForRelationship, getVisualSourcesAndVisualTargets, withAggregatedEntity } from "./utilities";
+import { getAllVisualEndsForRelationship, withAggregatedEntity } from "./utilities";
 import { addVisualRelationships } from "../dataspecer/visual-model/operation/add-visual-relationships";
 
 /**

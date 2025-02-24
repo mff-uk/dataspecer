@@ -1,5 +1,5 @@
 import { SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isVisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { addVisualRelationships } from "./add-visual-relationships";
 import { ModelDsIdentifier } from "../../entity-model";
 import { getAllVisualEndsForRelationship } from "../../../action/utilities";

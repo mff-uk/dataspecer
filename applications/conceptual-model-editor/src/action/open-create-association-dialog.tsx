@@ -8,7 +8,6 @@ import { Options, createLogger } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { firstInMemorySemanticModel } from "../utilities/model";
 import { CreatedEntityOperationResult, createGeneralization, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
-import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { createCreateAssociationDialogState, createNewAssociationDialog } from "../dialog/association/create-new-association-dialog-state";
 import { EditAssociationDialogState } from "../dialog/association/edit-association-dialog-controller";
 import { EntityModel } from "@dataspecer/core-v2";

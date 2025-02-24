@@ -10,7 +10,6 @@ import {
 import { removeVisualEntitiesFromVisualModelAction } from "./remove-visual-entities-from-visual-model";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 
-
 /**
  * Remove entity and related entities from visual model.
  */
@@ -40,7 +39,7 @@ export function collectVisualEntitiesToRemove(
   const visualEntitesToRemove = [];
   for (const identifier of identifiers) {
     // Find the visual entities.
-    let visualEntities: VisualEntity[] = getVisualEntitiesForIdentifier(identifier);
+    const visualEntities: VisualEntity[] = getVisualEntitiesForIdentifier(identifier);
     if (visualEntities.length === 0) {
       // The entity is not part of the visual model and thus should not be visible.
       // We ignore the operation for such entity and show an error.

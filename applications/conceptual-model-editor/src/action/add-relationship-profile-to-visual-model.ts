@@ -4,7 +4,7 @@ import { SemanticModelRelationshipUsage, isSemanticModelRelationshipUsage } from
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { getDomainAndRange } from "../util/relationship-utils";
 import { ModelGraphContextType } from "../context/model-context";
-import { getAllVisualEndsForRelationship, getVisualSourcesAndVisualTargets, withAggregatedEntity } from "./utilities";
+import { getAllVisualEndsForRelationship, withAggregatedEntity } from "./utilities";
 import { isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isOwlThing } from "../dataspecer/semantic-model";
 import { addVisualRelationships } from "../dataspecer/visual-model/operation/add-visual-relationships";

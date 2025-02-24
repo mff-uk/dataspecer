@@ -133,7 +133,6 @@ test("Remove node duplicate", () => {
   } = prepareModelWithFourNodes();
   const diagram = ActionsTestSuite.createTestDiagram();
 
-
   createNewVisualRelationshipsForTestingFromSemanticEnds(visualModel, model.getId(), "0", "1", "relationshipId");
   const nodeToDuplicate = visualModel.getVisualEntitiesForRepresented("0")[0];
   createVisualNodeDuplicateAction(notificationMockup, diagram, visualModel, nodeToDuplicate.identifier);

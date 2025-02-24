@@ -4,7 +4,7 @@ import {
 import {
   isSemanticModelClassUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { isVisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
@@ -13,10 +13,7 @@ import { Options } from "../application/options";
 import { ConnectionType, CreateConnectionState, createConnectionDialog } from "../dialog/obsolete/create-connection-dialog";
 import { AssociationConnectionType, GeneralizationConnectionType } from "../util/edge-connection";
 import { UseClassesContextType } from "../context/classes-context";
-import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
-import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
-import { addVisualRelationships } from "../dataspecer/visual-model/operation/add-visual-relationships";
-import { addVisualRelationshipsWithGivenVisualEnds, collectVisualNodes } from "./utilities";
+import { addVisualRelationshipsWithGivenVisualEnds } from "./utilities";
 
 /**
  *
