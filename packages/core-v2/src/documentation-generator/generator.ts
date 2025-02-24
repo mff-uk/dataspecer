@@ -1,11 +1,11 @@
 import Handlebars from "handlebars";
 import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from '../semantic-model/concepts/concepts-utils';
 // @ts-ignore
-import { LanguageString, SemanticModelEntity } from "../semantic-model/concepts";
-import { getTranslation } from "../utils/language";
-import { SemanticModelAggregator } from "../semantic-model/aggregator";
 import { Entities, Entity, InMemoryEntityModel } from "../entity-model";
-import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "../semantic-model/usage/concepts";
+import { SemanticModelAggregator } from "../semantic-model/aggregator";
+import { LanguageString, SemanticModelEntity } from "../semantic-model/concepts";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "../semantic-model/profile/concepts";
+import { getTranslation } from "../utils/language";
 
 export interface DocumentationGeneratorConfiguration {
   template: string;
@@ -67,6 +67,9 @@ export async function generateDocumentation(
       Object.assign(semanticModel, model.entities);
     }
   }
+
+  // console.clear();
+  // console.dir(inputModel.models, {depth: null});
 
   // Create an aggregator and pass all models to it to effectively work with application profiles
   const aggregator = new SemanticModelAggregator();
@@ -251,7 +254,7 @@ export async function generateDocumentation(
   });
 
   function getAnchorForLocalEntity(entity: SemanticModelEntity): string | null {
-    if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
+    if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipProfile(entity)) {
       // @ts-ignore
       const {ok, translation} = getTranslation(entity.aggregation.ends[1].name, [configuration.language]);
       if (ok) {
@@ -259,7 +262,7 @@ export async function generateDocumentation(
       }
     }
 
-    if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
+    if (isSemanticModelClass(entity) || isSemanticModelClassProfile(entity)) {
       // @ts-ignore
       const {ok, translation} = getTranslation(entity.aggregation.name, [configuration.language]);
       if (ok) {
@@ -284,8 +287,9 @@ export async function generateDocumentation(
         break;
       }
       // Hotfix because AP usage links to IRI not to ID
+      // todo inspect
       const entity = Object.values(model.entities).find(entity => entity.iri === input ||
-        ((isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) && entity.ends.some(end => end.iri === input))
+        ((isSemanticModelRelationship(entity) || isSemanticModelRelationshipProfile(entity)) && entity.ends.some(end => end.iri === input))
       );
       if (entity) {
         inModel = model;

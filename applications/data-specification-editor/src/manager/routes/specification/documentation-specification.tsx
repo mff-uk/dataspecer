@@ -226,13 +226,13 @@ export const DocumentationSpecification = memo(({dataSpecificationIri}: {
 
         <ConceptualModelTargets dataSpecificationIri={dataSpecificationIri} />
 
-        <Typography variant="h5" component="div" gutterBottom sx={{mt: 5}}>
+        {/* <Typography variant="h5" component="div" gutterBottom sx={{mt: 5}}>
             Advanced
         </Typography>
 
         <GarbageCollection dataSpecificationIri={dataSpecificationIri} />
         <ConsistencyFix dataSpecificationIri={dataSpecificationIri} />
-        <UpdatePim dataSpecificationIri={dataSpecificationIri} />
+        <UpdatePim dataSpecificationIri={dataSpecificationIri} /> */}
 
         <RedirectDialog isOpen={redirecting} />
         <DeleteForm.Component dataSpecificationIri={dataSpecificationIri as string} />

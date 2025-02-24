@@ -27,15 +27,15 @@ export class SetCardinality implements ComplexOperation {
     const relation = await this.store.readResource(this.semanticModelRelationshipId) as SemanticModelRelationship;
 
     const operation = modifyRelation(this.semanticModelRelationshipId, {
-      ...relation,
-      ends: relation.ends.map((end, index) => {
+      // @ts-ignore
+      ends: relation.ends.map((_, index) => {
         if (index === this.end) {
           return {
-            ...end,
             cardinality: [this.min ?? 0, this.max ?? null],
           };
+        } else {
+          return {};
         }
-        return end;
       })
     });
 

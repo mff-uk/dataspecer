@@ -107,7 +107,6 @@ test("Aggregate relationship with a profiles.", () => {
       descriptionFromProfiled: null,
       cardinality: [0, null],
       concept: "2-concept",
-      conceptFromProfiled: null,
       profiling: [],
       usageNote: {"": "2-note"},
       usageNoteFromProfiled: null,

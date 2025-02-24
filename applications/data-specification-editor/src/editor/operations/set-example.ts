@@ -36,9 +36,8 @@ export class SetExample implements ComplexOperation {
       // It is an attribute and we are setting the end 1
       const operation = modifyRelation(this.semanticEntityId, {
         ends: [
-          entity.ends[0],
+          {} as ExtendedSemanticModelRelationshipEnd,
           {
-            ...entity.ends[1],
             example: examples,
           } as ExtendedSemanticModelRelationshipEnd,
         ],

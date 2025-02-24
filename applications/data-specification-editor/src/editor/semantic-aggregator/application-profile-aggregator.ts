@@ -3,11 +3,22 @@ import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRel
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { CreatedEntityOperationResult } from "@dataspecer/core-v2/semantic-model/operations";
 import { createDefaultProfileEntityAggregator, ProfileAggregator } from "@dataspecer/core-v2/semantic-model/profile/aggregator";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { createDefaultSemanticModelProfileOperationFactory, SemanticModelProfileOperationFactory } from "@dataspecer/core-v2/semantic-model/profile/operations";
 import { ExternalEntityWrapped, SemanticModelAggregator, LocalEntityWrapped } from "./interfaces";
 import { getSearchRelevance } from "./utils/get-search-relevance";
 import { TupleSet } from "./utils/tuple-set";
+
+function iriGetLastChunk(iri: string | null) {
+  if (!iri) {
+    return null;
+  }
+
+  const lastSlash = iri.lastIndexOf("/");
+  const lastHash = iri.lastIndexOf("#");
+  const last = Math.max(lastSlash, lastHash);
+  return iri.substring(last + 1);
+}
 
 /**
  * This class aggregates single AP in the root that may profile multiple vocabularies.
@@ -270,18 +281,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
     }
 
     // In this mode we need to create new class profile and point to to the external entity
-    const operation = this.operationFactory.createClassProfile({
-      iri: null,
-      name: null,
-      nameFromProfiled: sourceEntity.aggregatedEntity.id,
-      description: null,
-      descriptionFromProfiled: sourceEntity.aggregatedEntity.id,
-      usageNote: null,
-      usageNoteFromProfiled: sourceEntity.aggregatedEntity.id,
-      profiling: [sourceEntity.aggregatedEntity.id],
-    });
-    const { id } = this.profile.executeOperation(operation) as CreatedEntityOperationResult;
-    return this.entities[id];
+    return this.createClassProfile([sourceEntity.aggregatedEntity.id]);
   }
 
   /**
@@ -480,31 +480,33 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
 
   private createRelationshipProfile(firstEnd: string, secondEnd: string, profiling: string[]) {
     const firstProfiled = profiling[0];
+    // @ts-ignore bad typing
+    const firstProfiledEntity = this.sourceEntities[firstProfiled] as LocalEntityWrapped<SemanticModelRelationship | SemanticModelRelationshipProfile>;
 
     const operation = this.operationFactory.createRelationshipProfile({
       ends: [
         {
-          iri: null,
-          name: null,
-          nameFromProfiled: null,
-          description: null,
-          descriptionFromProfiled: null,
-          usageNote: null,
-          usageNoteFromProfiled: null,
-          concept: firstEnd,
-          cardinality: null,
-          profiling: [],
-        },
-        {
-          iri: "",
+          iri: iriGetLastChunk(firstProfiledEntity.aggregatedEntity.ends[0].iri),
           name: null,
           nameFromProfiled: firstProfiled,
           description: null,
           descriptionFromProfiled: firstProfiled,
           usageNote: null,
-          usageNoteFromProfiled: firstProfiled,
+          usageNoteFromProfiled: isSemanticModelRelationshipProfile(firstProfiledEntity.aggregatedEntity) ? firstProfiled : null,
+          concept: firstEnd,
+          cardinality: firstProfiledEntity.aggregatedEntity.ends[0].cardinality, // todo intersection
+          profiling: [],
+        },
+        {
+          iri: iriGetLastChunk(firstProfiledEntity.aggregatedEntity.ends[1].iri),
+          name: null,
+          nameFromProfiled: firstProfiled,
+          description: null,
+          descriptionFromProfiled: firstProfiled,
+          usageNote: null,
+          usageNoteFromProfiled: isSemanticModelRelationshipProfile(firstProfiledEntity.aggregatedEntity) ? firstProfiled : null,
           concept: secondEnd,
-          cardinality: null,
+          cardinality: firstProfiledEntity.aggregatedEntity.ends[1].cardinality, // todo intersection
           profiling,
         }
       ]
@@ -516,15 +518,16 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
 
   private createClassProfile(profiling: string[]): LocalEntityWrapped<SemanticModelClassProfile & SemanticModelClass> {
     const firstProfiled = profiling[0];
+    const firstProfiledEntity = this.sourceEntities[firstProfiled] as LocalEntityWrapped<SemanticModelClass | SemanticModelClassProfile>;
 
     const operation = this.operationFactory.createClassProfile({
-      iri: null,
+      iri: iriGetLastChunk(firstProfiledEntity.aggregatedEntity.iri),
       name: null,
       nameFromProfiled: firstProfiled,
       description: null,
       descriptionFromProfiled: firstProfiled,
       usageNote: null,
-      usageNoteFromProfiled: firstProfiled,
+      usageNoteFromProfiled: isSemanticModelClassProfile(firstProfiledEntity.aggregatedEntity) ? firstProfiled : null,
       profiling,
     });
     const { id } = this.profile.executeOperation(operation) as CreatedEntityOperationResult;

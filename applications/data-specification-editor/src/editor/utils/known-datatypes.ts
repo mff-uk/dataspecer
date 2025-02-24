@@ -10,7 +10,15 @@ export interface KnownDatatype {
 
 export const knownDatatypes: KnownDatatype[] = [
     {
-        "iri": "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/boolean",
+        "iri": "http://www.w3.org/2000/01/rdf-schema#Literal",
+        "documentation": "http://www.w3.org/2000/01/rdf-schema#Literal",
+        "label": {
+            "cs": "Jakýkoli typ",
+            "en": "Any type"
+        }
+    },
+    {
+        "iri": "http://www.w3.org/2001/XMLSchema#boolean",
         "documentation": "https://ofn.gov.cz/základní-datové-typy/2020-07-01/#boolean",
         "label": {
             "cs": "Booleovská hodnota - Ano či ne",
@@ -18,7 +26,7 @@ export const knownDatatypes: KnownDatatype[] = [
         }
     },
     {
-        "iri": "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/datum",
+        "iri": "http://www.w3.org/2001/XMLSchema#date",
         "documentation": "https://ofn.gov.cz/základní-datové-typy/2020-07-01/#datum",
         "label": {
             "cs": "Datum",
@@ -26,7 +34,7 @@ export const knownDatatypes: KnownDatatype[] = [
         }
     },
     {
-        "iri": "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/čas",
+        "iri": "http://www.w3.org/2001/XMLSchema#time",
         "documentation": "https://ofn.gov.cz/základní-datové-typy/2020-07-01/#čas",
         "label": {
             "cs": "Čas",
@@ -34,7 +42,7 @@ export const knownDatatypes: KnownDatatype[] = [
         }
     },
     {
-        "iri": "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/datum-a-čas",
+        "iri": "http://www.w3.org/2001/XMLSchema#dateTime",
         "documentation": "https://ofn.gov.cz/základní-datové-typy/2020-07-01/#datum-a-čas",
         "label": {
             "cs": "Datum a čas",
@@ -42,7 +50,7 @@ export const knownDatatypes: KnownDatatype[] = [
         }
     },
     {
-        "iri": "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/celé-číslo",
+        "iri": "http://www.w3.org/2001/XMLSchema#integer",
         "documentation": "https://ofn.gov.cz/základní-datové-typy/2020-07-01/#celé-číslo",
         "label": {
             "cs": "Celé číslo",
@@ -50,7 +58,7 @@ export const knownDatatypes: KnownDatatype[] = [
         }
     },
     {
-        "iri": "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/desetinné-číslo",
+        "iri": "http://www.w3.org/2001/XMLSchema#decimal",
         "documentation": "https://ofn.gov.cz/základní-datové-typy/2020-07-01/#desetinné-číslo",
         "label": {
             "cs": "Desetinné číslo",
@@ -58,7 +66,7 @@ export const knownDatatypes: KnownDatatype[] = [
         }
     },
     {
-        "iri": "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/url",
+        "iri": "http://www.w3.org/2001/XMLSchema#anyURI",
         "documentation": "https://ofn.gov.cz/základní-datové-typy/2020-07-01/#url",
         "label": {
             "cs": "URI, IRI, URL",
@@ -67,7 +75,7 @@ export const knownDatatypes: KnownDatatype[] = [
     },
     // Normal string
     {
-        "iri": "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/řetězec",
+        "iri": "http://www.w3.org/2001/XMLSchema#string",
         "documentation": "https://ofn.gov.cz/základní-datové-typy/2020-07-01/#řetězec",
         "label": {
             "cs": "Řetězec",

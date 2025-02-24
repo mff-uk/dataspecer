@@ -191,8 +191,8 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
     // region regex and examples
 
     const isStringDatatype = isAttribute && [
-        "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/řetězec",
-        "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/url"
+        "http://www.w3.org/2001/XMLSchema#string",
+        "http://www.w3.org/2001/XMLSchema#anyURI"
     ].includes(getIriFromDatatypeSelectorValue(datatype));
 
     let currentRegex = null;

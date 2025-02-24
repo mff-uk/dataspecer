@@ -81,6 +81,10 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
       usageNote = profile.usageNote;
     }
 
+    // This collect all properties that are part of the profiled entities and merges them into the aggregated one.
+    // The goal is to allow unknown properties to be aggregated.
+    const otherPropertiesAggregated: Record<string, unknown> = {};
+
     const conceptIris: string[] = [];
     for (const identifier of profile.profiling) {
       const profile = profiled(identifier);
@@ -91,9 +95,17 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
       } else {
         // SemanticModelClassProfile should never be the case.
       }
+
+      if (profile) {
+        Object.assign(otherPropertiesAggregated, profile);
+      }
     }
 
     return {
+      // Add all properties from aggregated entities and from this one.
+      ...otherPropertiesAggregated,
+      ...profile,
+      //
       id: profile.id,
       type: profile.type,
       profiling: profile.profiling,
@@ -117,10 +129,17 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
   ): AggregatedProfiledSemanticModelRelationship {
     const profiled = createProfiledGetter(aggregatedProfiled, profile);
     return {
+      // Add all properties from the profile.
+      ...profile,
+      //
       id: profile.id,
       type: profile.type,
       //
       ends: profile.ends.map((end, index) => ({
+        // Add all properties from the profile and profiled entities.
+        ...end.profiling.map(profiled).reduce((p, c) => Object.assign(p, c?.ends[index]), {}),
+        ...end,
+        //
         profiling: end.profiling,
         iri: end.iri,
         //
