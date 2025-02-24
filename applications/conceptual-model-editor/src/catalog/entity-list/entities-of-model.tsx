@@ -232,7 +232,7 @@ export const EntitiesOfModel = (props: {
       actions.removeAttributesFromVisualModel([entity.id]);
     }
     else {
-      actions.removeFromVisualModel([entity.id], false);
+      actions.removeFromVisualModelByRepresented([entity.id]);
     }
   };
 

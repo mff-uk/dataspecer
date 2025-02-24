@@ -11,9 +11,9 @@ import { addVisualRelationship } from "../dataspecer/visual-model/operation/add-
 
 /**
  * Adds given semantic relationship profile to visual model.
- * If {@link visualSources} or {@link visualTargets} are null then this method creates
+ * If {@link givenVisualSources} or {@link givenVisualTargets} are empty array then this method creates
  * connections between all visual ends given by the semantic relationship identified by {@link entityIdentifier}.
- * Otherwise the given {@link visualSources}, respectively {@link visualTargets} are used as the sources or targets
+ * Otherwise the given {@link givenVisualSources}, respectively {@link givenVisualTargets} are used as the sources or targets
  * of the created visual relationships.
  */
 export function addSemanticRelationshipProfileToVisualModelAction(
@@ -22,8 +22,8 @@ export function addSemanticRelationshipProfileToVisualModelAction(
   visualModel: WritableVisualModel,
   entityIdentifier: string,
   modelIdentifier: string,
-  visualSources: string[] | null,
-  visualTargets: string[] | null,
+  givenVisualSources: string[] | null,
+  givenVisualTargets: string[] | null,
 ) {
   const entities = graph.aggregatorView.getEntities();
   withAggregatedEntity(notifications, entities,
@@ -32,7 +32,7 @@ export function addSemanticRelationshipProfileToVisualModelAction(
     (entity) => {
       addSemanticRelationshipProfileToVisualModelCommand(
         notifications, visualModel, entity, modelIdentifier,
-        visualSources, visualTargets);
+        givenVisualSources, givenVisualTargets);
     });
 }
 

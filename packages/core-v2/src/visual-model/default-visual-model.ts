@@ -34,6 +34,7 @@ import { HexColor } from "./visual-entity";
 import { EntityEventListener, UnsubscribeCallback } from "./entity-model/observable-entity-model";
 import { Entity, EntityIdentifier } from "./entity-model/entity";
 import { LanguageString } from "./entity-model/labeled-model";
+import { addToMapArray, removeFromMapArray } from "../utils/functional";
 
 /**
  * This is how data were stored in the initial version of the visual model.
@@ -130,13 +131,9 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
     if (identifiers === undefined) {
       return [];
     }
-    const visualEntities = [];
-    for(const identifier of identifiers) {
-      const visualEntity = this.getVisualEntity(identifier);
-      if(visualEntity !== null) {
-        visualEntities.push(visualEntity);
-      }
-    }
+    const visualEntities = identifiers
+      .map(identifier => this.getVisualEntity(identifier))
+      .filter(visualEntity => visualEntity !== null);
     return visualEntities;
   }
 
@@ -365,12 +362,12 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
   protected onEntityDidCreate(entity: Entity) {
     if (isVisualNode(entity)) {
       this.entities.set(entity.identifier, entity);   // TODO PRQuestion: this line repeats at every if branch
-      this.addToRepresentedEntites(this.representedToEntity, entity.representedEntity, entity.identifier);
+      addToMapArray(entity.representedEntity, entity.identifier, this.representedToEntity);
       this.notifyObserversOnEntityChangeOrDelete(null, entity);
     }
     if (isVisualRelationship(entity)) {
       this.entities.set(entity.identifier, entity);
-      this.addToRepresentedEntites(this.representedToEntity, entity.representedRelationship, entity.identifier);
+      addToMapArray(entity.representedRelationship, entity.identifier, this.representedToEntity);
       this.notifyObserversOnEntityChangeOrDelete(null, entity);
     }
     if (isVisualGroup(entity)) {
@@ -391,40 +388,6 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
       this.entities.set(entity.identifier, entity);
       // There is no primary representation for this one.
       this.notifyObserversOnEntityChangeOrDelete(null, entity);
-    }
-  }
-
-  private addToRepresentedEntites(
-    representedToEntityMap: Map<string, string[]>,
-    representedEntity: string,
-    identifierToAdd: string
-  ) {
-    const existingIdentifiersToPushTo = representedToEntityMap.get(representedEntity);
-    if(existingIdentifiersToPushTo === undefined) {
-      representedToEntityMap.set(representedEntity, [identifierToAdd]);
-    }
-    else {
-      existingIdentifiersToPushTo.push(identifierToAdd);
-    }
-  }
-
-
-  private removeFromRepresentedEntites(
-    representedToEntityMap: Map<string, string[]>,
-    representedEntity: string,
-    identifierToRemove: string
-  ) {
-    const tmp = representedToEntityMap.get(representedEntity);
-    const result = tmp?.filter(visualRepresentation => visualRepresentation !== identifierToRemove);
-    if(result === undefined) {
-      // TODO PRQuestion: Is that error or not?
-      return;
-    }
-    if(result?.length === 0) {
-      representedToEntityMap.delete(representedEntity);
-    }
-    else {
-      representedToEntityMap.set(representedEntity, result);
     }
   }
 
@@ -481,11 +444,11 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
     this.entities.delete(identifier);
     // Notify listeners.
     if (isVisualNode(previous)) {
-      this.removeFromRepresentedEntites(this.representedToEntity, previous.representedEntity, identifier);
+      removeFromMapArray(this.representedToEntity, previous.representedEntity, identifier);
       this.notifyObserversOnEntityChangeOrDelete(previous, null);
     }
     if (isVisualRelationship(previous)) {
-      this.removeFromRepresentedEntites(this.representedToEntity, previous.representedRelationship, identifier);
+      removeFromMapArray(this.representedToEntity, previous.representedRelationship, identifier);
       this.notifyObserversOnEntityChangeOrDelete(previous, null);
     }
     if (isVisualGroup(previous)) {

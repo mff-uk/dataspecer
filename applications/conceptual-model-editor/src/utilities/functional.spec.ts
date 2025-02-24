@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { addToMapArray, removeFromArray, replaceByIndexInArray, replaceInArray } from "./functional";
+import { addToMapArray, addToRecordArray, removeFromArray, replaceByIndexInArray, replaceInArray } from "./functional";
 
 describe("removeFromArray", () => {
 
@@ -19,17 +19,33 @@ describe("removeFromArray", () => {
 
 });
 
-describe("addToMapArray", () => {
+describe("addToRecordArray", () => {
 
   test("Default test.", () => {
     const actual: Record<string, string[]> = {};
-    addToMapArray("one", "one", actual);
-    addToMapArray("one", "one copy", actual);
-    addToMapArray("two", "two", actual);
+    addToRecordArray("one", "one", actual);
+    addToRecordArray("one", "one copy", actual);
+    addToRecordArray("two", "two", actual);
     const expected: Record<string, string[]> = {
       "one": ["one", "one copy"],
       "two": ["two"],
     };
+    expect(actual).toStrictEqual(expected);
+  });
+
+});
+
+describe("addToMapArray", () => {
+
+  test("Default test.", () => {
+    const actual: Map<string, string[]> = new Map();
+    addToMapArray("one", "one", actual);
+    addToMapArray("one", "one copy", actual);
+    addToMapArray("two", "two", actual);
+    const expected: Map<string, string[]> = new Map(Object.entries({
+      "one": ["one", "one copy"],
+      "two": ["two"],
+    }));
     expect(actual).toStrictEqual(expected);
   });
 

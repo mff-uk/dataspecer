@@ -3,7 +3,7 @@
  * {@link addSemanticRelationshipToVisualModelAction} and in the same way also
  * {@link addSemanticGeneralizationToVisualModelAction}.
  *
- * Also the interactions with {@link createNodeDuplicateAction} are tested.
+ * Also the interactions with {@link createVisualNodeDuplicateAction} are tested.
  */
 
 import { expect, test } from "vitest";
@@ -11,14 +11,14 @@ import { EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { createDefaultVisualModelFactory, VisualRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { entityModelsMapToCmeVocabulary } from "../dataspecer/semantic-model/semantic-model-adapter";
-import { noActionNotificationServiceWriter } from "../notification/notification-service-context";
+import { notificationMockup } from "./test/actions-test-suite";
 import { CreatedEntityOperationResult, createGeneralization, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { Specialization } from "../dialog/utilities/dialog-utilities";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { ModelGraphContextType } from "../context/model-context";
 import { SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { SetStateAction } from "react";
-import { createNodeDuplicateAction } from "./create-node-duplicate";
+import { createVisualNodeDuplicateAction } from "./create-visual-node-duplicate";
 import { SEMANTIC_MODEL_GENERALIZATION, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { ActionsTestSuite } from "./test/actions-test-suite";
@@ -83,8 +83,8 @@ function testCreateRelationshipWithNodeDuplicationAfter(
   expect([...visualModel.getVisualEntities().entries()].length).toBe(5);
   expect(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[0].identifier).length).toBe(1);
   //
-  createNodeDuplicateAction(
-    noActionNotificationServiceWriter, diagram, visualModel,
+  createVisualNodeDuplicateAction(
+    notificationMockup, diagram, visualModel,
     visualModel.getVisualEntitiesForRepresented("0")[0].identifier);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(7);
   expect(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[0].identifier).length).toBe(2);
@@ -119,8 +119,8 @@ function testCreatedNodeDuplicateAndCreateRelationshipAfter(
   createdTestRelationships.push(createTestRelationshipOfGivenType(
     graph, visualModel, models, cmeModels[0].dsIdentifier,
     relationshipToTestType, "0", "1", "relationship-0", null, false, null, null));
-  createNodeDuplicateAction(
-    noActionNotificationServiceWriter, diagram, visualModel,
+  createVisualNodeDuplicateAction(
+    notificationMockup, diagram, visualModel,
     visualModel.getVisualEntitiesForRepresented("0")[0].identifier);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(5);
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(2);
@@ -168,8 +168,8 @@ function testCreateNodeDuplicateAndCreateRelationshipAfterWithoutSpecifyingEnds(
   createdTestRelationships.push(createTestRelationshipOfGivenType(
     graph, visualModel, models, cmeModels[0].dsIdentifier,
     relationshipToTestType, "0", "1", "relationship-0", null, false, null, null));
-  createNodeDuplicateAction(
-    noActionNotificationServiceWriter, diagram, visualModel,
+  createVisualNodeDuplicateAction(
+    notificationMockup, diagram, visualModel,
     visualModel.getVisualEntitiesForRepresented("0")[0].identifier);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(5);
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(2);
@@ -235,8 +235,8 @@ function testCreateLoopAndDuplicateAfter(
   expect([...visualModel.getVisualEntities().entries()].length).toBe(5);
   expect(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[0].identifier).length).toBe(1);
   //
-  createNodeDuplicateAction(
-    noActionNotificationServiceWriter, diagram, visualModel,
+  createVisualNodeDuplicateAction(
+    notificationMockup, diagram, visualModel,
     visualModel.getVisualEntitiesForRepresented("0")[0].identifier);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(7);
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(2);
@@ -271,8 +271,8 @@ function testCreateNodeDuplicateAndLoopAfter(
   createdTestRelationships.push(createTestRelationshipOfGivenType(
     graph, visualModel, models, cmeModels[0].dsIdentifier,
     relationshipToTestType, "0", "0", "relationship-0", null, false, null, null));
-  createNodeDuplicateAction(
-    noActionNotificationServiceWriter, diagram, visualModel,
+  createVisualNodeDuplicateAction(
+    notificationMockup, diagram, visualModel,
     visualModel.getVisualEntitiesForRepresented("0")[0].identifier);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(5);
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(2);
@@ -319,8 +319,8 @@ function testCreateNodeDuplicateOfNodeDuplicate(
     graph, visualModel, models, cmeModels[0].dsIdentifier,
     relationshipToTestType, "0", "2", "relationship-1", null, false, null, null));
 
-  createNodeDuplicateAction(
-    noActionNotificationServiceWriter, diagram, visualModel,
+  createVisualNodeDuplicateAction(
+    notificationMockup, diagram, visualModel,
     visualModel.getVisualEntitiesForRepresented("0")[0].identifier);
   expect([...visualModel.getVisualEntities().entries()].length).toBe(5);
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(2);
@@ -340,8 +340,8 @@ function testCreateNodeDuplicateOfNodeDuplicate(
   expect(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[0].identifier).length).toBe(1);
   expect(visualModel.getVisualEntitiesForRepresented(createdTestRelationships[1].identifier).length).toBe(1);
   //
-  const lastDuplicateNodeIdentifier = createNodeDuplicateAction(
-    noActionNotificationServiceWriter, diagram, visualModel,
+  const lastDuplicateNodeIdentifier = createVisualNodeDuplicateAction(
+    notificationMockup, diagram, visualModel,
     visualModel.getVisualEntitiesForRepresented("0")[0].identifier);
 
   // Edges to both "1" and "2"
@@ -562,12 +562,12 @@ function addTestRelationshipToVisualModel(
 ) {
   if(relationshipToTestType === RelationshipToTestType.Generalization) {
     addSemanticGeneralizationToVisualModelAction(
-      noActionNotificationServiceWriter, graph, visualModel,
+      notificationMockup, graph, visualModel,
       relationshipIdentifier, modelDsIdentifier, visualSources, visualTargets);
   }
   else if(relationshipToTestType === RelationshipToTestType.Association) {
     addSemanticRelationshipToVisualModelAction(
-      noActionNotificationServiceWriter, graph, visualModel,
+      notificationMockup, graph, visualModel,
       relationshipIdentifier, modelDsIdentifier, visualSources, visualTargets);
   }
 }

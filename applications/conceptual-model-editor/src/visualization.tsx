@@ -293,7 +293,6 @@ function onChangeVisualModel(
           if (visualEntity.visualSource !== profileOf.identifier &&
             visualEntity.visualTarget !== profileOf.identifier) {
             // The VisualProfileRelationship represents different profile relationship.
-            // TODO RadStr: I was thinking about using break instead, but continue is probably the correct solution
             continue;
           }
           const edge = createDiagramEdgeForClassUsageOrProfile(visualModel, visualEntity, entity);

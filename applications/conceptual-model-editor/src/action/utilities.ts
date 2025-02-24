@@ -329,11 +329,10 @@ export function getRemovedAndAdded<T>(previousValues: T[], nextValues: T[]) {
 }
 
 /**
- * @returns
- * If {@link givenVisualSources}, respectively {@link givenVisualTargets} not null then
- *    returns given {@link givenVisualSources} and {@link givenVisualTargets}.
- * If null then
- *    returns all the visual sources for the {@link semanticDomain}, respectively targets {@link semanticRange}.
+ * @returns The visual entities for domain and range based on preference. Preference is given by the arguments.
+ *
+ * If the visual one is specified (i.e. not empty array) then those are returned,
+ * otherwise those for the represented, that is {@link semanticDomain} and {@link semanticRange}.
  */
 export function getVisualSourcesAndVisualTargets(
   visualModel: VisualModel,
@@ -342,15 +341,29 @@ export function getVisualSourcesAndVisualTargets(
   givenVisualSources: string[] | null,
   givenVisualTargets: string[] | null,
 ) {
-  const visualSources = givenVisualSources !== null ?
-    givenVisualSources.map(source => (visualModel.getVisualEntity(source))).filter(visual => visual !== null) :
-    visualModel.getVisualEntitiesForRepresented(semanticDomain);
-  const visualTargets = givenVisualTargets !== null ?
-    givenVisualTargets.map(target => (visualModel.getVisualEntity(target))).filter(visual => visual !== null) :
-    visualModel.getVisualEntitiesForRepresented(semanticRange);
+  const visualSources = getVisuals(visualModel, semanticDomain, givenVisualSources);
+  const visualTargets = getVisuals(visualModel, semanticRange, givenVisualTargets);
 
   return {
     visualSources,
     visualTargets,
   }
+}
+
+/**
+ * Gets visual entities by preference.
+ * @returns
+ * If {@link givenVisuals} is not empty array then returns visual entities for given {@link givenVisuals}.
+ *
+ * If empty array then returns all the visual entities for the {@link semanticIdentifier}.
+ */
+function getVisuals(
+  visualModel: VisualModel,
+  semanticIdentifier: string,
+  givenVisuals: string[] | null
+) {
+  const visuals = givenVisuals !== null ?
+    givenVisuals.map(givenVisual => (visualModel.getVisualEntity(givenVisual))).filter(visual => visual !== null) :
+    visualModel.getVisualEntitiesForRepresented(semanticIdentifier);
+  return visuals;
 }

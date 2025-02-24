@@ -19,7 +19,7 @@ import { configuration } from "../application";
  * @param nodeIdentifier is the identifier of the node to create duplicate of
  * @returns Returns identifier of the created node, or null if the action failed
  */
-export function createNodeDuplicateAction(
+export function createVisualNodeDuplicateAction(
   notifications: UseNotificationServiceWriterType,
   diagram: UseDiagramType,
   visualModel: WritableVisualModel,

@@ -1,5 +1,15 @@
-import { DiagramActions, DiagramCallbacks, Group, GroupWithContent, Node, Edge, Position, ViewportDimensions } from "../../diagram";
+import {
+  DiagramActions,
+  DiagramCallbacks,
+  Group,
+  GroupWithContent,
+  Node,
+  Edge,
+  Position,
+  ViewportDimensions
+} from "../../diagram";
 import { UseDiagramType } from "../../diagram/diagram-hook";
+import { UseNotificationServiceWriterType } from "../../notification/notification-service-context";
 
 /**
  * This class contains most of the relevant methods needed for testing of actions.
@@ -112,7 +122,10 @@ export class ActionsTestSuite {
           openGroupMenu: function (_groupIdentifier: string, _canvasPosition: Position): void {
             throw new Error("Function not implemented.");
           },
-          highlightNodesInExplorationModeFromCatalog: function (_nodeIdentifiers: string[], _modelOfClassWhichStartedHighlighting: string): void {
+          highlightNodesInExplorationModeFromCatalog: function (
+            _nodeIdentifiers: string[],
+            _modelOfClassWhichStartedHighlighting: string
+          ): void {
             throw new Error("Function not implemented.");
           }
         }
@@ -142,3 +155,9 @@ export class ActionsTestSuite {
   }
 
 }
+
+// TODO RadStr: Put into class - and rewrite it as function which returns the notification object.
+export const notificationMockup: UseNotificationServiceWriterType = {
+  success: () => { },
+  error: () => { },
+};

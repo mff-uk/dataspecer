@@ -1,5 +1,5 @@
 /**
- * Tests {@link removeFromVisualModelAction} and interaction with {@link createNodeDuplicateAction}.
+ * Tests {@link removeFromVisualModelByVisualAction} and interaction with {@link createVisualNodeDuplicateAction}.
  */
 
 import { expect, test } from "vitest";
@@ -13,16 +13,16 @@ import {
 } from "@dataspecer/core-v2/semantic-model/operations";
 import { SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { SetStateAction } from "react";
-import { noActionNotificationServiceWriter } from "../notification/notification-service-context";
-import { removeFromVisualModelAction } from "./remove-from-visual-model";
-import { createNodeDuplicateAction } from "./create-node-duplicate";
+import { notificationMockup } from "./test/actions-test-suite";
+import { createVisualNodeDuplicateAction } from "./create-visual-node-duplicate";
 import { entityModelsMapToCmeVocabulary } from "../dataspecer/semantic-model/semantic-model-adapter";
 import { ModelGraphContextType } from "../context/model-context";
 import { ClassesContextType } from "../context/classes-context";
 import { Specialization } from "../dialog/utilities/dialog-utilities";
 import { ActionsTestSuite } from "./test/actions-test-suite";
+import { removeFromVisualModelByVisualAction } from "./remove-from-visual-model-by-visual";
 
-test("removeFromVisualModelAction - relationship - visual id", () => {
+test("removeFromVisualModelAction - relationship", () => {
   const {
     visualModel,
     model,
@@ -32,7 +32,7 @@ test("removeFromVisualModelAction - relationship - visual id", () => {
     visualModel, model.getId(), "0", "1");
   expect(visualModel.getVisualEntity(visualRelationship)).not.toBeNull();
   //
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, [visualRelationship], true);
+  removeFromVisualModelByVisualAction(notificationMockup, visualModel, [visualRelationship]);
   expect(visualModel.getVisualEntity(visualRelationship)).toBeNull();
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(1);
   expect(visualModel.getVisualEntitiesForRepresented("1").length).toBe(1);
@@ -40,26 +40,7 @@ test("removeFromVisualModelAction - relationship - visual id", () => {
   expect(visualModel.getVisualEntitiesForRepresented("3").length).toBe(1);
 });
 
-test("removeFromVisualModelAction - relationship - semantic id", () => {
-  const {
-    visualModel,
-    model,
-  } = prepareModelWithFourNodes();
-
-  const visualRelationship = createNewVisualRelationshipsForTestingFromSemanticEnds(
-    visualModel, model.getId(), "0", "1", "relationshipSemanticIdentifier");
-  expect(visualModel.getVisualEntity(visualRelationship)).not.toBeNull();
-  //
-  removeFromVisualModelAction(
-    noActionNotificationServiceWriter, visualModel, ["relationshipSemanticIdentifier"], false);
-  expect(visualModel.getVisualEntity(visualRelationship)).toBeNull();
-  expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(1);
-  expect(visualModel.getVisualEntitiesForRepresented("1").length).toBe(1);
-  expect(visualModel.getVisualEntitiesForRepresented("2").length).toBe(1);
-  expect(visualModel.getVisualEntitiesForRepresented("3").length).toBe(1);
-});
-
-test("Remove relationship end - visual id", () => {
+test("Remove relationship end", () => {
   const {
     visualModel,
     model,
@@ -70,7 +51,7 @@ test("Remove relationship end - visual id", () => {
     visualModel, model.getId(), "0", "1");
   expect(visualModel.getVisualEntity(visualRelationship)).not.toBeNull();
   //
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, [nodeToRemove.identifier], true);
+  removeFromVisualModelByVisualAction(notificationMockup, visualModel, [nodeToRemove.identifier]);
   expect(visualModel.getVisualEntity(visualRelationship)).toBeNull();
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(0);
   expect(visualModel.getVisualEntity(nodeToRemove.identifier)).toBeNull();
@@ -79,27 +60,7 @@ test("Remove relationship end - visual id", () => {
   expect(visualModel.getVisualEntitiesForRepresented("3").length).toBe(1);
 });
 
-test("Remove relationship end - semantic id", () => {
-  const {
-    visualModel,
-    model,
-  } = prepareModelWithFourNodes();
-
-  const nodeToRemove = visualModel.getVisualEntitiesForRepresented("0")[0];
-  const visualRelationship = createNewVisualRelationshipsForTestingFromSemanticEnds(
-    visualModel, model.getId(), "0", "1");
-  expect(visualModel.getVisualEntity(visualRelationship)).not.toBeNull();
-  //
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0"], false);
-  expect(visualModel.getVisualEntity(visualRelationship)).toBeNull();
-  expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(0);
-  expect(visualModel.getVisualEntity(nodeToRemove.identifier)).toBeNull();
-  expect(visualModel.getVisualEntitiesForRepresented("1").length).toBe(1);
-  expect(visualModel.getVisualEntitiesForRepresented("2").length).toBe(1);
-  expect(visualModel.getVisualEntitiesForRepresented("3").length).toBe(1);
-});
-
-test("Remove relationship ends at the same time - visual ids", () => {
+test("Remove relationship ends at the same time", () => {
   const {
     visualModel,
     model,
@@ -111,9 +72,9 @@ test("Remove relationship ends at the same time - visual ids", () => {
     visualModel, model.getId(), "0", "1");
   expect(visualModel.getVisualEntity(visualRelationship)).not.toBeNull();
   //
-  removeFromVisualModelAction(
-    noActionNotificationServiceWriter, visualModel,
-    [sourceNodeToRemove.identifier, targetNodeToRemove.identifier], true);
+  removeFromVisualModelByVisualAction(
+    notificationMockup, visualModel,
+    [sourceNodeToRemove.identifier, targetNodeToRemove.identifier]);
   expect(visualModel.getVisualEntity(visualRelationship)).toBeNull();
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(0);
   expect(visualModel.getVisualEntity(sourceNodeToRemove.identifier)).toBeNull();
@@ -123,29 +84,7 @@ test("Remove relationship ends at the same time - visual ids", () => {
   expect(visualModel.getVisualEntitiesForRepresented("3").length).toBe(1);
 });
 
-test("Remove relationship ends at the same time - semantic ids", () => {
-  const {
-    visualModel,
-    model,
-  } = prepareModelWithFourNodes();
-
-  const sourceNodeToRemove = visualModel.getVisualEntitiesForRepresented("0")[0];
-  const targetNodeToRemove = visualModel.getVisualEntitiesForRepresented("1")[0];
-  const visualRelationship = createNewVisualRelationshipsForTestingFromSemanticEnds(
-    visualModel, model.getId(), "0", "1");
-  expect(visualModel.getVisualEntity(visualRelationship)).not.toBeNull();
-  //
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0", "1"], false);
-  expect(visualModel.getVisualEntity(visualRelationship)).toBeNull();
-  expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(0);
-  expect(visualModel.getVisualEntity(sourceNodeToRemove.identifier)).toBeNull();
-  expect(visualModel.getVisualEntity(targetNodeToRemove.identifier)).toBeNull();
-  expect(visualModel.getVisualEntitiesForRepresented("1").length).toBe(0);
-  expect(visualModel.getVisualEntitiesForRepresented("2").length).toBe(1);
-  expect(visualModel.getVisualEntitiesForRepresented("3").length).toBe(1);
-});
-
-test("Remove ends and the relationship - visual identifiers", () => {
+test("Remove ends and the relationship", () => {
   const {
     visualModel,
     model,
@@ -158,8 +97,8 @@ test("Remove ends and the relationship - visual identifiers", () => {
   expect(visualModel.getVisualEntity(visualRelationship)).not.toBeNull();
   expect(visualModel.getVisualEntitiesForRepresented("relationshipId").length).toBe(1);
   //
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel,
-    [sourceNodeToRemove.identifier, visualRelationship, targetNodeToRemove.identifier], true);
+  removeFromVisualModelByVisualAction(notificationMockup, visualModel,
+    [sourceNodeToRemove.identifier, visualRelationship, targetNodeToRemove.identifier]);
   expect(visualModel.getVisualEntity(visualRelationship)).toBeNull();
   expect(visualModel.getVisualEntitiesForRepresented("relationshipId").length).toBe(0);
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(0);
@@ -170,50 +109,7 @@ test("Remove ends and the relationship - visual identifiers", () => {
   expect(visualModel.getVisualEntitiesForRepresented("3").length).toBe(1);
 });
 
-test("Remove ends and the relationship - semantic identifiers", () => {
-  const {
-    visualModel,
-    model,
-  } = prepareModelWithFourNodes();
-
-  const sourceNodeToRemove = visualModel.getVisualEntitiesForRepresented("0")[0];
-  const targetNodeToRemove = visualModel.getVisualEntitiesForRepresented("1")[0];
-  const visualRelationship = createNewVisualRelationshipsForTestingFromSemanticEnds(
-    visualModel, model.getId(), "0", "1", "relationshipId");
-  expect(visualModel.getVisualEntity(visualRelationship)).not.toBeNull();
-  expect(visualModel.getVisualEntitiesForRepresented("relationshipId").length).toBe(1);
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0", "1", "relationshipId"], false);
-  expect(visualModel.getVisualEntity(visualRelationship)).toBeNull();
-  expect(visualModel.getVisualEntitiesForRepresented("relationshipId").length).toBe(0);
-  expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(0);
-  expect(visualModel.getVisualEntity(sourceNodeToRemove.identifier)).toBeNull();
-  expect(visualModel.getVisualEntity(targetNodeToRemove.identifier)).toBeNull();
-  expect(visualModel.getVisualEntitiesForRepresented("1").length).toBe(0);
-  expect(visualModel.getVisualEntitiesForRepresented("2").length).toBe(1);
-  expect(visualModel.getVisualEntitiesForRepresented("3").length).toBe(1);
-});
-
-test("Remove end of many edges", () => {
-  const {
-    visualModel,
-    model,
-  } = prepareModelWithFourNodes();
-
-  createNewVisualRelationshipsForTestingFromSemanticEnds(visualModel, model.getId(), "0", "1", "relationshipId1");
-  createNewVisualRelationshipsForTestingFromSemanticEnds(visualModel, model.getId(), "1", "2", "relationshipId2");
-  expect(visualModel.getVisualEntitiesForRepresented("relationshipId1").length).toBe(1);
-  expect(visualModel.getVisualEntitiesForRepresented("relationshipId2").length).toBe(1);
-  //
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["1"], false);
-  expect(visualModel.getVisualEntitiesForRepresented("relationshipId1").length).toBe(0);
-  expect(visualModel.getVisualEntitiesForRepresented("relationshipId2").length).toBe(0);
-  expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(1);
-  expect(visualModel.getVisualEntitiesForRepresented("1").length).toBe(0);
-  expect(visualModel.getVisualEntitiesForRepresented("2").length).toBe(1);
-  expect(visualModel.getVisualEntitiesForRepresented("3").length).toBe(1);
-});
-
-test("Remove node duplicate - semantic identifiers", () => {
+test("Remove node duplicate", () => {
   const {
     visualModel,
     model,
@@ -223,33 +119,11 @@ test("Remove node duplicate - semantic identifiers", () => {
 
   createNewVisualRelationshipsForTestingFromSemanticEnds(visualModel, model.getId(), "0", "1", "relationshipId");
   const nodeToDuplicate = visualModel.getVisualEntitiesForRepresented("0")[0];
-  createNodeDuplicateAction(noActionNotificationServiceWriter, diagram, visualModel, nodeToDuplicate.identifier);
+  createVisualNodeDuplicateAction(notificationMockup, diagram, visualModel, nodeToDuplicate.identifier);
   expect(visualModel.getVisualEntitiesForRepresented("relationshipId").length).toBe(2);
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(2);
   //
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0"], false);
-  expect(visualModel.getVisualEntitiesForRepresented("relationshipId").length).toBe(0);
-  expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(0);
-  expect(visualModel.getVisualEntitiesForRepresented("1").length).toBe(1);
-  expect(visualModel.getVisualEntitiesForRepresented("2").length).toBe(1);
-  expect(visualModel.getVisualEntitiesForRepresented("3").length).toBe(1);
-});
-
-test("Remove node duplicate - visual identifiers", () => {
-  const {
-    visualModel,
-    model,
-  } = prepareModelWithFourNodes();
-  const diagram = ActionsTestSuite.createTestDiagram();
-
-
-  createNewVisualRelationshipsForTestingFromSemanticEnds(visualModel, model.getId(), "0", "1", "relationshipId");
-  const nodeToDuplicate = visualModel.getVisualEntitiesForRepresented("0")[0];
-  createNodeDuplicateAction(noActionNotificationServiceWriter, diagram, visualModel, nodeToDuplicate.identifier);
-  expect(visualModel.getVisualEntitiesForRepresented("relationshipId").length).toBe(2);
-  expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(2);
-  //
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, [nodeToDuplicate.identifier], true);
+  removeFromVisualModelByVisualAction(notificationMockup, visualModel, [nodeToDuplicate.identifier]);
   expect(visualModel.getVisualEntitiesForRepresented("relationshipId").length).toBe(1);
   expect(visualModel.getVisualEntitiesForRepresented("0").length).toBe(1);
   expect(visualModel.getVisualEntitiesForRepresented("1").length).toBe(1);

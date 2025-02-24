@@ -6,7 +6,7 @@ import { entityModelToUiModel, entityModelToUiState, removeVisualModelToUiState,
 import { configuration, createLogger, t, TranslationFunction } from "../../application";
 import { UiVocabulary, UiVocabularyType, UiModelState } from "./ui-model";
 import { ModelIdentifier } from "../../../../../packages/core-v2/lib/visual-model/entity-model/entity-model";
-import { replaceInArray } from "../../utilities/functional";
+import { addToRecordArray, replaceInArray } from "../../utilities/functional";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../entity-model";
 
 const LOG = createLogger(import.meta.url);
@@ -186,13 +186,6 @@ export function onVisualEntitiesDidChange(
   };
 }
 
-// TODO: I tried to migrate this whole method, but not sure about correctness.
-//       I think that there were issues even before migration.
-//       For example prev === next or putting visual identifier as key of result
-//       Also I am not sure how does it work - does it get all of the entities and not just the changes ones.
-//       If so then lets say that all of them are equal, that means there was actually no change
-//       then in the "updateVisual" method we remove all of the visualDsIdentifiers, because this method returns empty object
-//   ... So I rewrote it in such a way that the test pass after the fixes, but if it is correct I can not tell
 /**
  * @returns For a represented entity returns new values of visual entity.
  */
@@ -210,9 +203,6 @@ function collectVisualRepresentedChange(
       // by other entity update.
       const represented = getRepresentedByVisual(change.previous);
       if (represented !== null) {
-        // TODO PRQuestion: I am not sure about correctness of this - we are using both semantic and visual identifier in the result
-        //                  The old commented code:
-        // result[represented] = result[change.previous.identifier] ?? null;
         removeFromMapValue(result, represented);
       }
       continue;
@@ -222,7 +212,7 @@ function collectVisualRepresentedChange(
       // New entity is created.
       const represented = getRepresentedByVisual(change.next);
       if (represented !== null) {
-        addToMapValue(result, represented, change.next.identifier);
+        addToRecordArray(represented, change.next.identifier, result);
       }
       continue;
     }
@@ -234,7 +224,7 @@ function collectVisualRepresentedChange(
       if (prev === next) {
         // There is no relevant change.
         if(prev !== null) {
-          addToMapValue(result, prev, change.next.identifier)
+          addToRecordArray(prev, change.next.identifier, result);
           continue;
         }
       }
@@ -246,23 +236,13 @@ function collectVisualRepresentedChange(
       }
       if (next !== null) {
         // We add a new value.
-        addToMapValue(result, next, change.next.identifier);
+        addToRecordArray(next, change.next.identifier, result);
       }
       continue;
     }
   }
 
   return result;
-}
-
-function addToMapValue<T>(map: Record<string, T[]>, key: string, value: T) {
-  const existingValue = map[key];
-  if(existingValue === undefined) {
-    map[key] = [value];
-  }
-  else {
-    existingValue.push(value);
-  }
 }
 
 function removeFromMapValue<T>(map: Record<string, T[]>, key: string) {

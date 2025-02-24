@@ -5,7 +5,7 @@ import { getVisualSourcesAndVisualTargets } from "../../../action/utilities";
 
 /**
  * Adds given semantic relationship to visual model identified by {@link represented}.
- * If {@link visualSources} or {@link visualTargets} are null then this method creates
+ * If {@link visualSources} or {@link visualTargets} are empty then this method creates
  * connections between all visual ends given by the semantic relationship identified by {@link entityIdentifier}.
  * Otherwise the given {@link visualSources}, respectively {@link visualTargets} are used as the sources or targets
  * of the created visual relationships.

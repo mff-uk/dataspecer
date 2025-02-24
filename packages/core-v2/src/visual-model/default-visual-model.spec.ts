@@ -52,7 +52,7 @@ test("Set and delete visual entity.", () => {
   expect([...model.getVisualEntities().entries()].length).toBe(numberOfEntitiesInModelAfterInitialization);
 });
 
-test("Set and delete visual entity (multi).", () => {
+test("Create 2 visual entities for one semantic and remove one of the visuals.", () => {
   const model = createModel("abc");
   //
   expect(model.getVisualEntitiesForRepresented("s").length).toBe(0);
@@ -72,15 +72,14 @@ test("Set and delete visual entity (multi).", () => {
   });
   const actual = model.getVisualEntitiesForRepresented("s");
   expect(actual.length).toBe(2);
+  const [visualNode1, visualNode2] = actual as VisualNode[];
   //
-  expect(isVisualNode(actual[0] as VisualEntity)).toBeTruthy();
-  const visualNode1 = actual[0] as VisualNode;
-  expect(visualNode1.representedEntity).toBe("s");
+  expect(isVisualNode(visualNode1!)).toBeTruthy();
+  expect(visualNode1!.representedEntity).toBe("s");
   //
-  expect(isVisualNode(actual[1] as VisualEntity)).toBeTruthy();
-  const visualNode2 = actual[1] as VisualNode;
-  expect(visualNode2.representedEntity).toBe("s");
+  expect(isVisualNode(visualNode2!)).toBeTruthy();
+  expect(visualNode2!.representedEntity).toBe("s");
   //
-  model.deleteVisualEntity(visualNode1.identifier);
+  model.deleteVisualEntity(visualNode1!.identifier);
   expect(model.getVisualEntitiesForRepresented("s").length).toBe(1);
 });

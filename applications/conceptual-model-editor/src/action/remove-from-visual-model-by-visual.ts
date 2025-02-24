@@ -7,30 +7,35 @@ import {
   isVisualProfileRelationship,
   isVisualRelationship,
 } from "@dataspecer/core-v2/visual-model";
+import { removeVisualEntitiesFromVisualModelAction } from "./remove-visual-entities-from-visual-model";
+import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 
-import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { removePartOfGroupContentAction } from "./remove-part-of-group-content";
 
 /**
  * Remove entity and related entities from visual model.
  */
-export function removeFromVisualModelAction(
+export function removeFromVisualModelByVisualAction(
   notifications: UseNotificationServiceWriterType,
   visualModel: WritableVisualModel,
   identifiers: string[],
-  usingVisualIdentifiers: boolean,
 ) {
-  const entitiesToRemove: VisualEntity[] = [];
+  const getVisualEntitiesForIdentifier = (identifier: string) => {
+    const visualEntity = visualModel.getVisualEntity(identifier)
+    return visualEntity === null ? [] : [visualEntity];
+  };
+  const entitiesToRemove = collectVisualEntitiesToRemove(visualModel, identifiers, getVisualEntitiesForIdentifier);
+  removeVisualEntitiesFromVisualModelAction(notifications, visualModel, entitiesToRemove);
+}
+
+export function collectVisualEntitiesToRemove(
+  visualModel: WritableVisualModel,
+  identifiers: string[],
+  getVisualEntitiesForIdentifier: (identifier: string) => VisualEntity[],
+) {
+  const visualEntitesToRemove = [];
   for (const identifier of identifiers) {
     // Find the visual entities.
-    let visualEntities: VisualEntity[];
-    if(usingVisualIdentifiers) {
-      const visualEntity = visualModel.getVisualEntity(identifier)
-      visualEntities = visualEntity === null ? [] : [visualEntity];
-    }
-    else {
-      visualEntities = visualModel.getVisualEntitiesForRepresented(identifier);
-    }
+    let visualEntities: VisualEntity[] = getVisualEntitiesForIdentifier(identifier);
     if (visualEntities.length === 0) {
       // The entity is not part of the visual model and thus should not be visible.
       // We ignore the operation for such entity and show an error.
@@ -39,30 +44,19 @@ export function removeFromVisualModelAction(
     }
 
     for(const visualEntity of visualEntities) {
-      entitiesToRemove.push(...collectVisualEntitiesToRemove(visualModel, visualEntity));
-      entitiesToRemove.push(visualEntity);
+      visualEntitesToRemove.push(...collectVisualEntitiesToRemoveInternal(visualModel, visualEntity));
+      visualEntitesToRemove.push(visualEntity);
     }
   }
-  // Perform the delete operation of collected visual entities.
-  const entitiesToRemoveIdentifiers = entitiesToRemove.map(entity => entity.identifier);
-  const removedGroups: string[] = [];
-  entitiesToRemove.forEach(entity => {
-    if(isVisualGroup(entity) && !removedGroups.includes(entity.identifier)) {
-      const isGroupRemoved = removePartOfGroupContentAction(notifications, visualModel, entity.identifier, entitiesToRemoveIdentifiers, false);
-      if(isGroupRemoved) {
-        removedGroups.push(entity.identifier);
-      }
-      return;
-    }
-    visualModel.deleteVisualEntity(entity.identifier);
-  });
+
+  return visualEntitesToRemove;
 }
 
 /**
  * Return entities that are related to the removed entity.
  * TODO: Move this to the visual model.
  */
-function collectVisualEntitiesToRemove(visualModel: VisualModel, removedEntity: VisualEntity) {
+function collectVisualEntitiesToRemoveInternal(visualModel: VisualModel, removedEntity: VisualEntity) {
   if (!isVisualNode(removedEntity)) {
     // If removed entity is not a node, there are no related
     // visual entities.

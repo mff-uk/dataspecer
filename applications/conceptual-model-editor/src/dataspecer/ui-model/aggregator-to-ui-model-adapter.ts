@@ -12,7 +12,7 @@ import { TranslationFunction, createLogger } from "../../application";
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { MISSING_MODEL_IDENTIFIER } from "./ui-well-know";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../entity-model";
-import { addToMapArray } from "../../utilities/functional";
+import { addToRecordArray } from "../../utilities/functional";
 import { createEmptyState } from "./ui-model-state";
 
 const LOG = createLogger(import.meta.url);
@@ -430,8 +430,8 @@ function updateGeneralizationLabels(state: UiModelState): UiGeneralization[] {
   const parents: Record<EntityDsIdentifier, number[]> = {};
   const children: Record<EntityDsIdentifier, number[]> = {};
   state.generalizations.forEach((item, index) => {
-    addToMapArray(item.parent.entityDsIdentifier, index, parents);
-    addToMapArray(item.child.entityDsIdentifier, index, children);
+    addToRecordArray(item.parent.entityDsIdentifier, index, parents);
+    addToRecordArray(item.child.entityDsIdentifier, index, children);
   });
 
   // Next we iterate all entities and update values when necessary.

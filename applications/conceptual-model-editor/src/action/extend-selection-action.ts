@@ -172,9 +172,9 @@ export const extendSelectionAction = async (
   let nodeSelectionToExtend = nodeSelection;
   let newlyAddedNodes: string[] = [];
   if(shouldPerformExtensionByNodeDuplicates) {
-    const tmp = getNewNodeSelectionExtendedByNodeDuplicates(visualModel!, nodeSelection);
-    nodeSelectionToExtend = tmp.extendedNodeSelection;
-    newlyAddedNodes = tmp.newlyAddedNodes;
+    const selectionWithDuplicates = getNewNodeSelectionExtendedByNodeDuplicates(visualModel!, nodeSelection);
+    nodeSelectionToExtend = selectionWithDuplicates.extendedNodeSelection;
+    newlyAddedNodes = selectionWithDuplicates.newlyAddedNodes;
   }
 
   for(const extensionType of extensionTypes) {
