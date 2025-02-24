@@ -23,9 +23,9 @@ export type EntityToDelete = {
 };
 
 export function convertToEntitiesToDeleteType(
-  entityIdentifiers: string[],
+  notifications: UseNotificationServiceWriterType | null,
   allModels: Map<string, EntityModel>,
-  notifications: UseNotificationServiceWriterType | null
+  entityIdentifiers: string[],
 ): EntityToDelete[] {
   const entitiesToDelete: EntityToDelete[] = [];
   for(const entityIdentifier of entityIdentifiers) {

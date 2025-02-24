@@ -456,7 +456,7 @@ function createActionsContext(
   };
 
   const deleteVisualElements = (identifiers: string[]) => {
-    const entitiesToDelete = convertToEntitiesToDeleteType(identifiers, graph.models, notifications);
+    const entitiesToDelete = convertToEntitiesToDeleteType(notifications, graph.models, identifiers);
     deleteFromSemanticModels(entitiesToDelete);
   };
 

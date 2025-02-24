@@ -69,6 +69,10 @@ class VisualModelMock implements VisualModel {
     return this.represented[identifier] ?? [];
   }
 
+  hasVisualEntityForRepresented(identifier: RepresentedEntityIdentifier): boolean {
+    return this.getVisualEntitiesForRepresented(identifier).length > 0;
+  }
+
   getVisualEntities(): Map<string, VisualEntity> {
     throw new Error("Method not implemented.");
   }

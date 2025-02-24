@@ -119,7 +119,7 @@ function validateEntities(
     const entityIdentifier = entityToAddToVisualModel.identifier;
     const position = entityToAddToVisualModel.position ?? null;
 
-    const isAlreadyInVisualModel = visualModel.getVisualEntitiesForRepresented(entityIdentifier).length > 0;
+    const isAlreadyInVisualModel = visualModel.hasVisualEntityForRepresented(entityIdentifier);
     if(isAlreadyInVisualModel) {
       continue;
     }

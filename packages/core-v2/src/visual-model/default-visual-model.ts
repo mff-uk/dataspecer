@@ -137,6 +137,13 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
     return visualEntities;
   }
 
+  hasVisualEntityForRepresented(represented: RepresentedEntityIdentifier): boolean {
+    const identifiers = this.representedToEntity.get(represented);
+    // I think that technically the identifiers should never have length 0,
+    // but the check costs very little, so it is better to be sure.
+    return identifiers !== undefined && identifiers.length > 0;
+  }
+
   getVisualEntities(): Map<EntityIdentifier, VisualEntity> {
     return new Map(this.entities);
   }

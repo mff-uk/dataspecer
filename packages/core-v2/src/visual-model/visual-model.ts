@@ -49,6 +49,11 @@ export interface VisualModel extends TypedObject, LegacyModel, LabeledModel {
     getVisualEntitiesForRepresented(represented: RepresentedEntityIdentifier): VisualEntity[];
 
     /**
+     * @returns True if there exists at least one visual entity for the {@link represented}.
+     */
+    hasVisualEntityForRepresented(represented: RepresentedEntityIdentifier): boolean;
+
+    /**
      * @returns Snapshot of map with all entities in the model.
      */
     getVisualEntities(): Map<EntityIdentifier, VisualEntity>;

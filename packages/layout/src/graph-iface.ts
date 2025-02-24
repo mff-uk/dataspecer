@@ -327,8 +327,8 @@ const isRelationshipInVisualModel = (visualModel: VisualModelWithOutsiders,
     }
 
     const isAtLeastOneEndOutsider = checkIfEdgeHasAtLeastOneOutsider(visualModel.outsiders, ends[0], ends[1]);
-    const visualEntities = visualModel.visualModel.getVisualEntitiesForRepresented(relationshipIdentifier);
-    const isPresentInVisualModel = visualEntities.length > 0 || isAtLeastOneEndOutsider;
+    const hasVisualInVisualmodel = visualModel.visualModel.hasVisualEntityForRepresented(relationshipIdentifier);
+    const isPresentInVisualModel = hasVisualInVisualmodel || isAtLeastOneEndOutsider;
     return isPresentInVisualModel;
 };
 
@@ -343,8 +343,8 @@ const isNodeInVisualModel = (visualModel: VisualModelWithOutsiders,
     }
 
     // TODO: For now ... in future I should use the ids of visual model instead of the semantic ones
-    const visualEntities = visualModel.visualModel.getVisualEntitiesForRepresented(nodeIdentifier);
-    const isPresentInVisualModel = visualEntities.length > 0 || visualModel?.outsiders[nodeIdentifier] !== undefined;
+    const hasVisualInVisualmodel = visualModel.visualModel.hasVisualEntityForRepresented(nodeIdentifier);
+    const isPresentInVisualModel = hasVisualInVisualmodel || visualModel?.outsiders[nodeIdentifier] !== undefined;
     return isPresentInVisualModel;
 };
 

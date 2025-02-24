@@ -27,6 +27,11 @@ export function removeFromVisualModelByVisualAction(
   removeVisualEntitiesFromVisualModelAction(notifications, visualModel, entitiesToRemove);
 }
 
+/**
+ * @param getVisualEntitiesForIdentifier is any method which can transform given identifier into VisualEntity[].
+ *
+ * @returns Returns entities that are related to the removed entity.
+ */
 export function collectVisualEntitiesToRemove(
   visualModel: WritableVisualModel,
   identifiers: string[],
