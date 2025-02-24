@@ -4,7 +4,7 @@ module.exports = {
     // Local port to listen on
     port: 3100,
     // Max payload limit for stores PUSH operation
-    //payloadSizeLimit: "64mb",
+    payloadSizeLimit: "64mb",
 
     // Generator configuraion
     configuration: {
