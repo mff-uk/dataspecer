@@ -280,7 +280,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
                   {{/semanticEntity}}
                 {{/if}}
               {{/def}}
-              {{#semanticEntity usageOf}}
+              {{#semanticEntity aggregationParent.id}}}
               <tr>
                 <td>{{#iflng "cs"}}Profiluje{{lng}}Profiles{{/iflng}}</td>
                 <td>{{profilesRelationshipChain}}</td>
