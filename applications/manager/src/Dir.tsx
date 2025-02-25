@@ -27,6 +27,7 @@ import { Autolayout } from "./dialog/autolayout";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./components/ui/tooltip";
 import { ReloadImported } from "./dialog/reload-imported";
 import { AddImported } from "./dialog/add-imported";
+import { ReloadPimWrapper } from "./dialog/reload-pim-wrapper";
 
 export function lng(text: LanguageString | undefined): string | undefined {
   return text?.["cs"] ?? text?.["en"];
@@ -136,6 +137,21 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
         <Tooltip>
           <TooltipTrigger>
             <Button asChild variant="ghost" size="icon" className="shrink-0" onClick={stopPropagation(() => openModal(ReloadImported, {id: iri, parentId: parentIri ?? ""}))}>
+              <span>
+                <RotateCw className="h-4 w-4" />
+              </span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{t("data specification reload")}</p>
+          </TooltipContent>
+        </Tooltip>
+      }
+
+      {resource.types.includes("https://dataspecer.com/core/model-descriptor/pim-store-wrapper") &&
+        <Tooltip>
+          <TooltipTrigger>
+            <Button asChild variant="ghost" size="icon" className="shrink-0" onClick={stopPropagation(() => openModal(ReloadPimWrapper, {id: iri}))}>
               <span>
                 <RotateCw className="h-4 w-4" />
               </span>
