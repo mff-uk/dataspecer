@@ -128,7 +128,7 @@ export class RdfsFileAdapter implements CimAdapter {
             const entity = RdfMemorySourceWrap.forIri(propertyIri, source);
 
             const {resources: associationResources, connectedClasses} = this.loadRdfsProperty(entity);
-            connectedClasses.forEach(iri => connectedClassesIris.add(iri));
+            connectedClasses.filter(cls => cls.includes("://")).forEach(iri => connectedClassesIris.add(iri));
             for (const resource of associationResources) {
                 entities[resource.iri!] = resource;
             }
@@ -136,20 +136,23 @@ export class RdfsFileAdapter implements CimAdapter {
 
         // PROCESS CLASSES
 
-        const classesIris = rdfSourceReverseProperty(source, this.options.classType, [RDF.type]).map(r => r.value);
+        const classesIris = rdfSourceReverseProperty(source, this.options.classType, [RDF.type]).filter(node => node.termType === "NamedNode").map(r => r.value);
         const classesToProcess = [...classesIris];
         let c: string;
         while (c = classesToProcess.pop()!) {
             const subClasses = source.reverseProperty(RDFS.subClassOf, c);
             subClasses.forEach(s => {
                 if (!classesIris.includes(s.value)) {
-                    classesIris.push(s.value);
+                    if (s.termType === "NamedNode") {
+                        classesIris.push(s.value);
+                    }
                     classesToProcess.push(s.value);
                 }
             });
         }
 
-        classesIris.push(OWL.Thing, ...connectedClassesIris);
+        classesIris.push(OWL.Thing);
+        // classesIris.push(...connectedClassesIris);
 
         const classes = [... new Set(classesIris)].map(iri => this.loadRdfsClass(iri, source));
         entities = {...entities, ...Object.fromEntries(classes.map(c => [c.iri, c]))};
