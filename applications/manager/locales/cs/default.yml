@@ -4,10 +4,8 @@ add-imported:
   error: Při importu některých specifikací nastala chyba
   import: Importovat
   success: Import proběhl v pořádku
-  title: Importovat specifikaci
-  warning: >-
-    Tímto krokem můžete importovat specifikaci z její veřejné URL jako novou
-    podsložku.
+  title: Importovat specifikaci/e
+  warning: Vložte URL specifikací, které chcete importovat.
 autolayout: Automatický layout
 changed: 'Změněno {{val, datetime(dateStyle: short; timeStyle: short)}}'
 close: Zavřít
@@ -41,6 +39,7 @@ form:
 format as json: Formátovat jako JSON
 generate application: Vygenerovat aplikaci
 ID: ID
+import: Import
 import specification from url: Importovat z URL
 mode-toggle:
   dark: Tmavé
