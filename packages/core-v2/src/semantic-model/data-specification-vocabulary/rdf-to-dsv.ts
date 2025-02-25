@@ -135,15 +135,15 @@ class ClassProfilesReader {
       definition: reader.languageString(SKOS.definition),
       usageNote: reader.languageString(VANN.usageNote),
       profileOfIri: reader.iris(DSV.profileOf),
-      inheritsValue: [],
+      reusesPropertyValue: [],
       // ClassProfile
       $type: [ClassProfileType],
       profiledClassIri: reader.iris(DSV.class),
       properties: [],
     };
     // Load inherited values.
-    for (const node of reader.irisAsSubjects(DSV.inheritsValue)) {
-      loadInheritsValue(this.context, node, classProfile);
+    for (const node of reader.irisAsSubjects(DSV.reusesPropertyValue)) {
+      loadReusesPropertyValue(this.context, node, classProfile);
     }
     // Load and add to the model.
     const modelIri = reader.iri(DCT.isPartOf);
@@ -224,24 +224,24 @@ class RdfPropertyReader {
 
 }
 
-function loadInheritsValue(
+function loadReusesPropertyValue(
   context: RdfLoaderContext,
   subject: N3.Quad_Subject,
   profile: Profile,
 ) {
   const reader = new RdfPropertyReader(context, subject);
-  const inheritedPropertyIri = reader.iri(DSV.inheritedProperty);
-  const propertyValueFromIri = reader.iri(DSV.valueFrom);
-  if (inheritedPropertyIri === null || propertyValueFromIri === null) {
-    console.warn("Invalid dsv:PropertyInheritance", {
-      inheritedProperty: inheritedPropertyIri,
-      valueFrom: propertyValueFromIri,
+  const reusedProperty = reader.iri(DSV.reusedProperty);
+  const reusedFrom = reader.iri(DSV.reusedFromResource);
+  if (reusedProperty === null || reusedFrom === null) {
+    console.warn("Invalid dsv:PropertyValueReuse", {
+      reusedProperty: reusedProperty,
+      reusedFromResource: reusedFrom,
     });
     return;
   }
-  profile.inheritsValue.push({
-    inheritedPropertyIri,
-    propertyValueFromIri,
+  profile.reusesPropertyValue.push({
+    reusedPropertyIri: reusedProperty,
+    propertyreusedFromResourceIri: reusedFrom,
   });
 }
 
@@ -290,11 +290,11 @@ class PropertyProfilesReader {
       // PropertyProfile
       cardinality: this.loadCardinality(reader),
       profiledPropertyIri: reader.iris(DSV.property),
-      inheritsValue: [],
+      reusesPropertyValue: [],
     };
     // Load inherited values.
-    for (const node of reader.irisAsSubjects(DSV.inheritsValue)) {
-      loadInheritsValue(this.context, node, propertyProfile);
+    for (const node of reader.irisAsSubjects(DSV.reusesPropertyValue)) {
+      loadReusesPropertyValue(this.context, node, propertyProfile);
     }
     return propertyProfile;
   }

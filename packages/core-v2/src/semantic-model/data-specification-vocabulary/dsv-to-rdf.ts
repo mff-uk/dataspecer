@@ -120,16 +120,16 @@ class ConceptualModelWriter {
     this.addLiteral(profile.iri, VANN.usageNote, profile.usageNote);
     // We do not write this into properties.
     this.addIris(profile.iri, DSV.profileOf, profile.profileOfIri);
-    for (const item of profile.inheritsValue) {
+    for (const item of profile.reusesPropertyValue) {
       const node = DataFactory.blankNode();
       // We need to use writer directly as we work with blank node.
-      this.writer.addQuad(IRI(profile.iri), DSV.inheritsValue, node);
+      this.writer.addQuad(IRI(profile.iri), DSV.reusesPropertyValue, node);
       this.writer.addQuad(
-        node, RDF.type, DSV.PropertyInheritance);
+        node, RDF.type, DSV.PropertyValueReuse);
       this.writer.addQuad(
-        node, DSV.inheritedProperty, IRI(item.inheritedPropertyIri));
+        node, DSV.reusedProperty, IRI(item.reusedPropertyIri));
       this.writer.addQuad(
-        node, DSV.valueFrom, IRI(item.propertyValueFromIri));
+        node, DSV.reusedFromResource, IRI(item.propertyreusedFromResourceIri));
     }
   }
 

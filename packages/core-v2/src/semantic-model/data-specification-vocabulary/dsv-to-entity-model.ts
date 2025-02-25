@@ -9,7 +9,7 @@ import {
   PropertyProfile,
   isObjectPropertyProfile,
   isDatatypePropertyProfile,
-  PropertyInheritance,
+  PropertyValueReuse,
 } from "./dsv-model";
 
 import {
@@ -138,11 +138,11 @@ class ConceptualModelToEntityModel {
   }
 
   private selectFromProfiled(profile: {
-    inheritsValue: PropertyInheritance[],
+    reusesPropertyValue: PropertyValueReuse[],
   }, property: string): string | null {
-    const inheritsValue = profile.inheritsValue.find(
-      item => item.inheritedPropertyIri === property);
-    const iri = inheritsValue?.propertyValueFromIri ?? null;
+    const reusesPropertyValue = profile.reusesPropertyValue.find(
+      item => item.reusedPropertyIri === property);
+    const iri = reusesPropertyValue?.propertyreusedFromResourceIri ?? null;
     return iri === null ? null : this.context.iriToIdentifier(iri);
   }
 
@@ -222,11 +222,11 @@ class ConceptualModelToEntityModel {
   }
 
   private selectFromPropertyProfiled(profile: {
-    inheritsValue: PropertyInheritance[],
+    reusesPropertyValue: PropertyValueReuse[],
   }, property: string, rangeConcept: string): string | null {
-    const inheritsValue = profile.inheritsValue.find(
-      item => item.inheritedPropertyIri === property);
-    const iri = inheritsValue?.propertyValueFromIri ?? null;
+    const reusesPropertyValue = profile.reusesPropertyValue.find(
+      item => item.reusedPropertyIri === property);
+    const iri = reusesPropertyValue?.propertyreusedFromResourceIri ?? null;
     return iri === null ? null : this.context.iriPropertyToIdentifier(iri, rangeConcept);
   }
 

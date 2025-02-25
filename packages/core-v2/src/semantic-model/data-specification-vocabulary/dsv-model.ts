@@ -55,20 +55,20 @@ export interface Profile {
   // @lc-type Profile
   profileOfIri: string[];
 
-  // @lc-identifier dsv:inheritsValue
-  // @lc-type PropertyInheritance
-  inheritsValue: PropertyInheritance[];
+  // @lc-identifier dsv:reusesPropertyValue
+  // @lc-type PropertyValueReuse
+  reusesPropertyValue: PropertyValueReuse[];
 
 }
 
-// @lc-identifier dsv:PropertyInheritance
-export interface PropertyInheritance {
+// @lc-identifier dsv:PropertyValueReuse
+export interface PropertyValueReuse {
 
-  // dsv:inheritedProperty
-  inheritedPropertyIri: string;
+  // dsv:reusedProperty
+  reusedPropertyIri: string;
 
-  // dsv:valueFrom
-  propertyValueFromIri: string;
+  // dsv:reusedFromResource
+  propertyreusedFromResourceIri: string;
 
 }
 

@@ -14,9 +14,9 @@ test("From DSV to entity model and back.", async () => {
       "definition": {},
       "usageNote": {},
       "profileOfIri": [],
-      "inheritsValue": [{
-        "inheritedPropertyIri": VANN.usageNote.id,
-        "propertyValueFromIri": "http://www.w3.org/ns/dcat#Dataset"
+      "reusesPropertyValue": [{
+        "reusedPropertyIri": VANN.usageNote.id,
+        "propertyreusedFromResourceIri": "http://www.w3.org/ns/dcat#Dataset"
       }],
       "$type": ["class-profile"],
       "profiledClassIri": ["http://www.w3.org/ns/dcat#Dataset"],
@@ -27,7 +27,7 @@ test("From DSV to entity model and back.", async () => {
         "definition": {},
         "usageNote": {},
         "profileOfIri": [],
-        "inheritsValue": [],
+        "reusesPropertyValue": [],
         "profiledPropertyIri": ["http://www.w3.org/ns/dcat#distribution"],
         "$type": ["object-property-profile"],
         "rangeClassIri": [
@@ -40,7 +40,7 @@ test("From DSV to entity model and back.", async () => {
       "definition": {},
       "usageNote": {},
       "profileOfIri": ["https://dcat-ap/#Dataset"],
-      "inheritsValue": [],
+      "reusesPropertyValue": [],
       "$type": ["class-profile"],
       "profiledClassIri": [],
       "properties": []
@@ -50,7 +50,7 @@ test("From DSV to entity model and back.", async () => {
       "definition": {},
       "usageNote": {},
       "profileOfIri": [],
-      "inheritsValue": [],
+      "reusesPropertyValue": [],
       "$type": ["class-profile"],
       "profiledClassIri": ["http://www.w3.org/ns/dcat#Distribution"],
       "properties": []

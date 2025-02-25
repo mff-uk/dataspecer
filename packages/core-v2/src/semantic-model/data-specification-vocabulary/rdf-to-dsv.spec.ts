@@ -18,12 +18,12 @@ test("From RDF to DSV and back.", async () => {
 
 <https://dcat-ap/#Dataset> dct:isPartOf <http://dcat-ap-cz/model>;
     a dsv:Profile;
-    dsv:inheritsValue [
-      dsv:inheritedProperty skos:prefLabel ;
-      dsv:valueFrom <http://www.w3.org/ns/dcat#Dataset> ;
+    dsv:reusesPropertyValue [
+      dsv:reusedProperty skos:prefLabel ;
+      dsv:reusedFromResource <http://www.w3.org/ns/dcat#Dataset> ;
     ], [
-      dsv:inheritedProperty <http://purl.org/vocab/vann/usageNote> ;
-      dsv:valueFrom <http://www.w3.org/ns/dcat#Dataset> ;
+      dsv:reusedProperty <http://purl.org/vocab/vann/usageNote> ;
+      dsv:reusedFromResource <http://www.w3.org/ns/dcat#Dataset> ;
     ];
     a dsv:ClassProfile;
     dsv:class <http://www.w3.org/ns/dcat#Dataset>.
@@ -31,12 +31,12 @@ test("From RDF to DSV and back.", async () => {
 <http://www.w3.org/ns/dcat#distribution-profile> dsv:domain <https://dcat-ap/#Dataset>;
     dct:isPartOf <http://dcat-ap-cz/model>;
     a dsv:Profile;
-    dsv:inheritsValue [
-      dsv:inheritedProperty skos:prefLabel ;
-      dsv:valueFrom <http://dcat-ap/ns/dcat#Distribution> ;
+    dsv:reusesPropertyValue [
+      dsv:reusedProperty skos:prefLabel ;
+      dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution> ;
     ], [
-      dsv:inheritedProperty <http://purl.org/vocab/vann/usageNote> ;
-      dsv:valueFrom <http://dcat-ap/ns/dcat#Distribution> ;
+      dsv:reusedProperty <http://purl.org/vocab/vann/usageNote> ;
+      dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution> ;
     ];
     dsv:cardinality <https://w3id.org/dsv#0n>;
     dsv:property <http://www.w3.org/ns/dcat#distribution>;
@@ -66,12 +66,12 @@ test("From RDF to DSV and back.", async () => {
       "profileOfIri": [],
       "$type": ["class-profile"],
       "profiledClassIri": ["http://www.w3.org/ns/dcat#Dataset"],
-      "inheritsValue": [{
-        "inheritedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
-        "propertyValueFromIri": "http://www.w3.org/ns/dcat#Dataset",
+      "reusesPropertyValue": [{
+        "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
+        "propertyreusedFromResourceIri": "http://www.w3.org/ns/dcat#Dataset",
       }, {
-        "inheritedPropertyIri": "http://purl.org/vocab/vann/usageNote",
-        "propertyValueFromIri": "http://www.w3.org/ns/dcat#Dataset",
+        "reusedPropertyIri": "http://purl.org/vocab/vann/usageNote",
+        "propertyreusedFromResourceIri": "http://www.w3.org/ns/dcat#Dataset",
       }],
       "properties": [{
         "iri": "http://www.w3.org/ns/dcat#distribution-profile",
@@ -85,12 +85,12 @@ test("From RDF to DSV and back.", async () => {
         "rangeClassIri": [
           "http://dcat-ap/ns/dcat#Distribution"
         ],
-        "inheritsValue": [{
-          "inheritedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
-          "propertyValueFromIri": "http://dcat-ap/ns/dcat#Distribution",
+        "reusesPropertyValue": [{
+          "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
+          "propertyreusedFromResourceIri": "http://dcat-ap/ns/dcat#Distribution",
         }, {
-          "inheritedPropertyIri": "http://purl.org/vocab/vann/usageNote",
-          "propertyValueFromIri": "http://dcat-ap/ns/dcat#Distribution",
+          "reusedPropertyIri": "http://purl.org/vocab/vann/usageNote",
+          "propertyreusedFromResourceIri": "http://dcat-ap/ns/dcat#Distribution",
         }],
       } as ObjectPropertyProfile]
     }, {
@@ -102,7 +102,7 @@ test("From RDF to DSV and back.", async () => {
       "$type": ["class-profile"],
       "profiledClassIri": [],
       "properties": [],
-      "inheritsValue": [],
+      "reusesPropertyValue": [],
     }, {
       "iri": "http://dcat-ap/ns/dcat#Distribution",
       "prefLabel": {},
@@ -112,7 +112,7 @@ test("From RDF to DSV and back.", async () => {
       "$type": ["class-profile"],
       "profiledClassIri": ["http://www.w3.org/ns/dcat#Distribution"],
       "properties": [],
-      "inheritsValue": [],
+      "reusesPropertyValue": [],
     }]
   };
   expect(actualModels[0]).toStrictEqual(expectedModel);
@@ -131,15 +131,15 @@ test("From RDF to DSV and back.", async () => {
 
 <https://dcat-ap/#Dataset> dct:isPartOf <http://dcat-ap-cz/model>;
     a dsv:Profile;
-    dsv:inheritsValue _:n3-4.
-_:n3-4 a dsv:PropertyInheritance;
-    dsv:inheritedProperty skos:prefLabel;
-    dsv:valueFrom <http://www.w3.org/ns/dcat#Dataset>.
+    dsv:reusesPropertyValue _:n3-4.
+_:n3-4 a dsv:PropertyValueReuse;
+    dsv:reusedProperty skos:prefLabel;
+    dsv:reusedFromResource <http://www.w3.org/ns/dcat#Dataset>.
 
-<https://dcat-ap/#Dataset> dsv:inheritsValue _:n3-5.
-_:n3-5 a dsv:PropertyInheritance;
-    dsv:inheritedProperty <http://purl.org/vocab/vann/usageNote>;
-    dsv:valueFrom <http://www.w3.org/ns/dcat#Dataset>.
+<https://dcat-ap/#Dataset> dsv:reusesPropertyValue _:n3-5.
+_:n3-5 a dsv:PropertyValueReuse;
+    dsv:reusedProperty <http://purl.org/vocab/vann/usageNote>;
+    dsv:reusedFromResource <http://www.w3.org/ns/dcat#Dataset>.
 
 <https://dcat-ap/#Dataset> a dsv:ClassProfile;
     dsv:class <http://www.w3.org/ns/dcat#Dataset>.
@@ -147,15 +147,15 @@ _:n3-5 a dsv:PropertyInheritance;
 <http://www.w3.org/ns/dcat#distribution-profile> dsv:domain <https://dcat-ap/#Dataset>;
     dct:isPartOf <http://dcat-ap-cz/model>;
     a dsv:Profile;
-    dsv:inheritsValue _:n3-6.
-_:n3-6 a dsv:PropertyInheritance;
-    dsv:inheritedProperty skos:prefLabel;
-    dsv:valueFrom <http://dcat-ap/ns/dcat#Distribution>.
+    dsv:reusesPropertyValue _:n3-6.
+_:n3-6 a dsv:PropertyValueReuse;
+    dsv:reusedProperty skos:prefLabel;
+    dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution>.
 
-<http://www.w3.org/ns/dcat#distribution-profile> dsv:inheritsValue _:n3-7.
-_:n3-7 a dsv:PropertyInheritance;
-    dsv:inheritedProperty <http://purl.org/vocab/vann/usageNote>;
-    dsv:valueFrom <http://dcat-ap/ns/dcat#Distribution>.
+<http://www.w3.org/ns/dcat#distribution-profile> dsv:reusesPropertyValue _:n3-7.
+_:n3-7 a dsv:PropertyValueReuse;
+    dsv:reusedProperty <http://purl.org/vocab/vann/usageNote>;
+    dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution>.
 
 <http://www.w3.org/ns/dcat#distribution-profile> dsv:cardinality <https://w3id.org/dsv#0n>;
     dsv:property <http://www.w3.org/ns/dcat#distribution>;
@@ -187,10 +187,10 @@ test("Issue #989", async () => {
 <http://localhost/Source[profile]> dct:isPartOf <http://localhost/applicationProfileConceptualModel>;
     a dsv:Profile;
     skos:prefLabel "Source [profile]"@en;
-    dsv:inheritsValue _:n3-811.
-_:n3-811 a dsv:PropertyInheritance;
-    dsv:inheritedProperty skos:definition;
-    dsv:valueFrom <http://localhost/Source>.
+    dsv:reusesPropertyValue _:n3-811.
+_:n3-811 a dsv:PropertyValueReuse;
+    dsv:reusedProperty skos:definition;
+    dsv:reusedFromResource <http://localhost/Source>.
 
 <http://localhost/Source[profile]> a dsv:ClassProfile;
     dsv:class <http://localhost/Source>.
@@ -199,10 +199,10 @@ _:n3-811 a dsv:PropertyInheritance;
     dct:isPartOf <http://localhost/applicationProfileConceptualModel>;
     a dsv:Profile;
     skos:prefLabel "attribute [profile]"@en;
-    dsv:inheritsValue _:n3-812.
-_:n3-812 a dsv:PropertyInheritance;
-    dsv:inheritedProperty skos:definition;
-    dsv:valueFrom <http://localhost/relation>.
+    dsv:reusesPropertyValue _:n3-812.
+_:n3-812 a dsv:PropertyValueReuse;
+    dsv:reusedProperty skos:definition;
+    dsv:reusedFromResource <http://localhost/relation>.
 
 <http://localhost/Source[profile].attribute[profile]> dsv:property <http://localhost/relation>;
     a dsv:DatatypePropertyProfile;
@@ -211,10 +211,10 @@ _:n3-812 a dsv:PropertyInheritance;
 <http://localhost/Target[profile]> dct:isPartOf <http://localhost/applicationProfileConceptualModel>;
     a dsv:Profile;
     skos:prefLabel "Target [profile]"@en;
-    dsv:inheritsValue _:n3-813.
-_:n3-813 a dsv:PropertyInheritance;
-    dsv:inheritedProperty skos:definition;
-    dsv:valueFrom <http://localhost/Target>.
+    dsv:reusesPropertyValue _:n3-813.
+_:n3-813 a dsv:PropertyValueReuse;
+    dsv:reusedProperty skos:definition;
+    dsv:reusedFromResource <http://localhost/Target>.
 
 <http://localhost/Target[profile]> a dsv:ClassProfile;
     dsv:class <http://localhost/Target>.

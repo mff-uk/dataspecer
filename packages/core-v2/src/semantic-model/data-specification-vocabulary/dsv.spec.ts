@@ -206,12 +206,12 @@ test("End to end test I.", async () => {
         "usageNote": {},
         "profileOfIri": [],
         "profiledPropertyIri": ["http://dcat/model/drabMoment"],
-        "inheritsValue": [{
-          "inheritedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
-          "propertyValueFromIri": "http://dcat/model/drabMoment"
+        "reusesPropertyValue": [{
+          "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
+          "propertyreusedFromResourceIri": "http://dcat/model/drabMoment"
         }, {
-          "inheritedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
-          "propertyValueFromIri": "http://dcat/model/drabMoment"
+          "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
+          "propertyreusedFromResourceIri": "http://dcat/model/drabMoment"
         }],
         "$type": ["object-property-profile"],
         "rangeClassIri": ["http://dcat/model/flatBack1"]
@@ -223,22 +223,22 @@ test("End to end test I.", async () => {
         "usageNote": {},
         "profileOfIri": [],
         "profiledPropertyIri": ["http://dcat/model/tightArt"],
-        "inheritsValue": [{
-          "inheritedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
-          "propertyValueFromIri": "http://dcat/model/tightArt"
+        "reusesPropertyValue": [{
+          "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
+          "propertyreusedFromResourceIri": "http://dcat/model/tightArt"
         }, {
-          "inheritedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
-          "propertyValueFromIri": "http://dcat/model/tightArt"
+          "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
+          "propertyreusedFromResourceIri": "http://dcat/model/tightArt"
         }],
         "$type": ["datatype-property-profile"],
         "rangeDataTypeIri": ["http://www.w3.org/2000/01/rdf-schema#Literal"]
       } as DatatypePropertyProfile],
-      "inheritsValue": [{
-        "inheritedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
-        "propertyValueFromIri": "http://localhost/sweetState"
+      "reusesPropertyValue": [{
+        "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
+        "propertyreusedFromResourceIri": "http://localhost/sweetState"
       }, {
-        "inheritedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
-        "propertyValueFromIri": "http://localhost/sweetState"
+        "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
+        "propertyreusedFromResourceIri": "http://localhost/sweetState"
       }],
       "profiledClassIri": ["http://localhost/sweetState"]
     }, {
@@ -249,7 +249,7 @@ test("End to end test I.", async () => {
       "profileOfIri": [],
       "$type": ["class-profile"],
       "properties": [],
-      "inheritsValue": [],
+      "reusesPropertyValue": [],
       "profiledClassIri": ["http://dcat/model/flatBack"]
     }],
   };

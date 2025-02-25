@@ -191,7 +191,7 @@ class EntityListContainerToConceptualModel {
       // ClassProfile
       $type: [ClassProfileType],
       properties: [],
-      inheritsValue: [],
+      reusesPropertyValue: [],
       profiledClassIri: [],
     };
 
@@ -240,7 +240,7 @@ class EntityListContainerToConceptualModel {
   }
 
   /**
-   * Adds inheritsValue values for usage.
+   * Adds reusesPropertyValue values for usage.
    */
   private setProfileFromUsage(
     item: {
@@ -253,25 +253,25 @@ class EntityListContainerToConceptualModel {
   ) {
     const iri = this.identifierToIri(item.usageOf);
     if (item.name === null) {
-      profile.inheritsValue.push({
-        inheritedPropertyIri: SKOS.prefLabel.id,
-        propertyValueFromIri: iri,
+      profile.reusesPropertyValue.push({
+        reusedPropertyIri: SKOS.prefLabel.id,
+        propertyreusedFromResourceIri: iri,
       });
     } else {
       profile.prefLabel = this.prepareString(item.name);
     }
     if (item.description === null) {
-      profile.inheritsValue.push({
-        inheritedPropertyIri: SKOS.definition.id,
-        propertyValueFromIri: iri,
+      profile.reusesPropertyValue.push({
+        reusedPropertyIri: SKOS.definition.id,
+        propertyreusedFromResourceIri: iri,
       });
     } else {
       profile.definition = this.prepareString(item.description);
     }
     if (item.usageNote === null) {
-      profile.inheritsValue.push({
-        inheritedPropertyIri: VANN.usageNote.id,
-        propertyValueFromIri: iri,
+      profile.reusesPropertyValue.push({
+        reusedPropertyIri: VANN.usageNote.id,
+        propertyreusedFromResourceIri: iri,
       });
     } else {
       profile.usageNote = this.prepareString(item.usageNote);
@@ -300,7 +300,7 @@ class EntityListContainerToConceptualModel {
   };
 
   /**
-   * Adds inheritsValue values for profile.
+   * Adds reusesPropertyValue values for profile.
    */
   private setProfileFromProfile(
     item: {
@@ -316,25 +316,25 @@ class EntityListContainerToConceptualModel {
     if (item.nameFromProfiled === null) {
       profile.prefLabel = this.prepareString(item.name);
     } else {
-      profile.inheritsValue.push({
-        inheritedPropertyIri: SKOS.prefLabel.id,
-        propertyValueFromIri: this.identifierToIri(item.nameFromProfiled),
+      profile.reusesPropertyValue.push({
+        reusedPropertyIri: SKOS.prefLabel.id,
+        propertyreusedFromResourceIri: this.identifierToIri(item.nameFromProfiled),
       });
     }
     if (item.descriptionFromProfiled === null) {
       profile.definition = this.prepareString(item.description);
     } else {
-      profile.inheritsValue.push({
-        inheritedPropertyIri: SKOS.definition.id,
-        propertyValueFromIri: this.identifierToIri(item.descriptionFromProfiled),
+      profile.reusesPropertyValue.push({
+        reusedPropertyIri: SKOS.definition.id,
+        propertyreusedFromResourceIri: this.identifierToIri(item.descriptionFromProfiled),
       });
     }
     if (item.usageNoteFromProfiled === null) {
       profile.usageNote = this.prepareString(item.usageNote);
     } else {
-      profile.inheritsValue.push({
-        inheritedPropertyIri: VANN.usageNote.id,
-        propertyValueFromIri: this.identifierToIri(item.usageNoteFromProfiled),
+      profile.reusesPropertyValue.push({
+        reusedPropertyIri: VANN.usageNote.id,
+        propertyreusedFromResourceIri: this.identifierToIri(item.usageNoteFromProfiled),
       });
     }
   }
@@ -396,7 +396,7 @@ class EntityListContainerToConceptualModel {
       profileOfIri: [],
       // PropertyProfile
       profiledPropertyIri: [],
-      inheritsValue: [],
+      reusesPropertyValue: [],
     };
 
     // For profileOfIri of we need to check what we are profiling.
@@ -488,7 +488,7 @@ class EntityListContainerToConceptualModel {
       profileOfIri: [],
       // PropertyProfile
       profiledPropertyIri: [],
-      inheritsValue: [],
+      reusesPropertyValue: [],
     };
 
     for (const iri of range.profiling) {

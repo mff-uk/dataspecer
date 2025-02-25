@@ -86,12 +86,12 @@ test("Issue #608", () => {
             "definition": {},
             "usageNote": {},
             "profileOfIri": [],
-            "inheritsValue": [{
-                "inheritedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
-                "propertyValueFromIri": "http://www.w3.org/ns/Dataset",
+            "reusesPropertyValue": [{
+                "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
+                "propertyreusedFromResourceIri": "http://www.w3.org/ns/Dataset",
             }, {
-                "inheritedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
-                "propertyValueFromIri": "http://www.w3.org/ns/Dataset",
+                "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
+                "propertyreusedFromResourceIri": "http://www.w3.org/ns/Dataset",
             }],
             "$type": ["class-profile"],
             "profiledClassIri": ["http://www.w3.org/ns/Dataset"],
@@ -103,7 +103,7 @@ test("Issue #608", () => {
                 "usageNote": {},
                 "profileOfIri": [],
                 "profiledPropertyIri": ["http://purl.org/dc/terms/title"],
-                "inheritsValue": [],
+                "reusesPropertyValue": [],
                 "$type": ["datatype-property-profile"],
                 "rangeDataTypeIri": [
                     "http://www.w3.org/2000/01/rdf-schema#Literal"
@@ -199,12 +199,12 @@ test("Default test for profiles.", () => {
             "definition": {},
             "usageNote": {"": "..."},
             "profileOfIri": [],
-            "inheritsValue": [{
-                "inheritedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
-                "propertyValueFromIri": "http://www.w3.org/ns/Dataset",
+            "reusesPropertyValue": [{
+                "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
+                "propertyreusedFromResourceIri": "http://www.w3.org/ns/Dataset",
             }, {
-                "inheritedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
-                "propertyValueFromIri": "http://www.w3.org/ns/Dataset",
+                "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
+                "propertyreusedFromResourceIri": "http://www.w3.org/ns/Dataset",
             }],
             "$type": ["class-profile"],
             "profiledClassIri": ["http://www.w3.org/ns/Dataset"],
@@ -216,7 +216,7 @@ test("Default test for profiles.", () => {
                 "usageNote": {},
                 "profileOfIri": [],
                 "profiledPropertyIri": ["http://purl.org/dc/terms/title"],
-                "inheritsValue": [],
+                "reusesPropertyValue": [],
                 "$type": ["datatype-property-profile"],
                 "rangeDataTypeIri": [
                     "http://www.w3.org/2000/01/rdf-schema#Literal"
