@@ -108,4 +108,12 @@ export const knownDatatypes: KnownDatatype[] = [
             "en": "Base64 encoded binary content"
         }
     },
+    {
+        "iri": "http://www.w3.org/2001/XMLSchema#hexBinary",
+        "documentation": "https://www.w3.org/TR/xmlschema-2/#hexBinary",
+        "label": {
+            "cs": "Hex kódovaný binární obsah",
+            "en": "Hex encoded binary content"
+        }
+    },
 ];

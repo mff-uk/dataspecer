@@ -10,6 +10,7 @@ export const XsdSimpleTypeURIs = [
     "http://www.w3.org/2001/XMLSchema#dateTime",
     "http://www.w3.org/2001/XMLSchema#duration",
     "http://www.w3.org/2001/XMLSchema#base64Binary",
+    "http://www.w3.org/2001/XMLSchema#hexBinary",
     "http://www.w3.org/2001/XMLSchema#anyURI",
     "http://www.w3.org/2001/XMLSchema#QName",
 ];
