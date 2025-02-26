@@ -6,6 +6,7 @@ export const XsdSimpleTypeURIs = [
     "http://www.w3.org/2001/XMLSchema#float",
     "http://www.w3.org/2001/XMLSchema#double",
     "http://www.w3.org/2001/XMLSchema#date",
+    "http://www.w3.org/2001/XMLSchema#gYear",
     "http://www.w3.org/2001/XMLSchema#time",
     "http://www.w3.org/2001/XMLSchema#dateTime",
     "http://www.w3.org/2001/XMLSchema#duration",

@@ -50,6 +50,14 @@ export const knownDatatypes: KnownDatatype[] = [
         }
     },
     {
+        "iri": "http://www.w3.org/2001/XMLSchema#gYear",
+        "documentation": "http://www.w3.org/2001/XMLSchema#gYear",
+        "label": {
+            "cs": "Gregoriánský rok",
+            "en": "Gregorian year"
+        }
+    },
+    {
         "iri": "http://www.w3.org/2001/XMLSchema#integer",
         "documentation": "https://ofn.gov.cz/základní-datové-typy/2020-07-01/#celé-číslo",
         "label": {
