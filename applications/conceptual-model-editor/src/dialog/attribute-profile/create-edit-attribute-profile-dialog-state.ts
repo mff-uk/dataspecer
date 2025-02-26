@@ -131,7 +131,7 @@ export function createEditAttributeProfileDialogStateFromProfile(
   const availableProfiles = listAttributesToProfile(
     classesContext, graphContext, vocabularies)
     .filter(item => item.identifier !== entity.id);
-    sortRepresentatives(language, availableProfiles);
+  sortRepresentatives(language, availableProfiles);
 
   const domains = listRelationshipProfileDomains(
     classesContext, graphContext, vocabularies);

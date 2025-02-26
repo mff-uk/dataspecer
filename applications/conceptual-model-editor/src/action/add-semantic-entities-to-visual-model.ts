@@ -4,7 +4,6 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { sourceModelOfEntity } from "../util/model-utils";
 import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { addSemanticClassToVisualModelAction } from "./add-class-to-visual-model";
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
@@ -14,6 +13,7 @@ import { Entity, EntityModel } from "@dataspecer/core-v2";
 import { ClassesContextType } from "../context/classes-context";
 import { XY } from "@dataspecer/layout";
 import { findPositionForNewNodesUsingLayouting } from "./layout-visual-model";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 export type EntityToAddToVisualModel = {
     /**
@@ -71,7 +71,7 @@ async function splitIntoNodesAndEdgesAndUpdatePositions(
       }
       nodes.push(validatedEntityToAddToVisualModel);
     }
-    else if(isSemanticModelClassUsage(entity)) {
+    else if(isSemanticModelClassProfile(entity)) {
       if(position === null) {
         classAndClassProfilesToFindPositionsFor.push(entity.id);
       }
@@ -80,7 +80,7 @@ async function splitIntoNodesAndEdgesAndUpdatePositions(
       }
       nodes.push(validatedEntityToAddToVisualModel);
     }
-    else if(isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity) || isSemanticModelGeneralization(entity)) {
+    else if(isSemanticModelRelationship(entity) || isSemanticModelRelationshipProfile(entity) || isSemanticModelGeneralization(entity)) {
       edges.push(validatedEntityToAddToVisualModel);
     }
     else {  // Maybe unnecessary
@@ -147,11 +147,20 @@ async function addClassesAndClassProfilesToVisualModel(
 ) {
   for(const {entity, model, position} of validatedNodesData) {
     const modelIdentifier = model.getId();
-    if(isSemanticModelClass(entity)) {
-      await addSemanticClassToVisualModelAction(notifications, graph, classes, visualModel, diagram, entity.id, modelIdentifier, position);
+    // TODO RadStr: Hotfix
+    try {
+      if(isSemanticModelClass(entity)) {
+        await addSemanticClassToVisualModelAction(notifications, graph, classes, visualModel, diagram, entity.id, modelIdentifier, position);
+      }
+      else if(isSemanticModelClassProfile(entity)) {
+        await addSemanticClassProfileToVisualModelAction(notifications, graph, classes, visualModel, diagram, entity.id, modelIdentifier, position);
+      }
+      else {
+        notifications.error("Adding node of not supported type");
+      }
     }
-    else {
-      await addSemanticClassProfileToVisualModelAction(notifications, graph, classes, visualModel, diagram, entity.id, modelIdentifier, position);
+    catch {
+      // Do nothing - just hotfix for
     }
   }
 }
@@ -167,7 +176,7 @@ function addConnectionsToVisualModel(
     if(isSemanticModelRelationship(entity)) {
       addSemanticRelationshipToVisualModelAction(notifications, graph, visualModel, entity.id, modelIdentifier);
     }
-    else if(isSemanticModelRelationshipUsage(entity)) {
+    else if(isSemanticModelRelationshipProfile(entity)) {
       addSemanticRelationshipProfileToVisualModelAction(notifications, graph, visualModel, entity.id, modelIdentifier);
     }
     else if(isSemanticModelGeneralization(entity)) {

@@ -8,6 +8,7 @@ import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticMode
 import { VisualEntity, VisualModel, isVisualNode, isVisualProfileRelationship, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
 import { Selections } from "./filter-selection-action";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
+import { isSemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 export type ClassesContextEntities = {
     classes: SemanticModelClass[],
@@ -959,13 +960,6 @@ const getIdentifierForEntity = (
   return entityIdentifier;
 }
 
-/**
- * @returns Class and Class usages of the given moddel
- */
-export const getClassesAndClassUsages = (model: EntityModel): (SemanticModelClass | SemanticModelClassUsage)[] => {
-  return Object.values(model.getEntities()).filter((entity) => isSemanticModelClass(entity) || isSemanticModelClassUsage(entity));
-};
-
 export function getSelectionForWholeSemanticModel(
   semanticModel: EntityModel,
   shouldReturnVisualIdentifiers: boolean,
@@ -980,7 +974,7 @@ export function getSelectionForWholeSemanticModel(
   entities.forEach(entity => {
     const identifier = getIdentifierForEntity(entity.id, shouldReturnVisualIdentifiers, visualModel);
     if(identifier !== null) {
-      const isClassOrClassProfile = isSemanticModelClass(entity) || isSemanticModelClassUsage(entity);
+      const isClassOrClassProfile = isSemanticModelClass(entity) || isSemanticModelClassProfile(entity);
       (isClassOrClassProfile ? result.nodeSelection : result.edgeSelection).push(identifier);
     }
   });
