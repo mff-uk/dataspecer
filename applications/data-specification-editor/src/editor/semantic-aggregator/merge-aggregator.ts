@@ -4,6 +4,7 @@ import { TupleSet } from "./utils/tuple-set";
 
 type MergeAggregatorExternalEntityData = {
   parentModel: SemanticModelAggregator;
+originalEntity?: ExternalEntityWrapped;
 }
 
 function margeNamedThing<T extends NamedThing>(things: T[]): T {
@@ -155,12 +156,12 @@ export class MergeAggregator implements SemanticModelAggregator {
     const finalResults = [];
     for (const model of this.models) {
       const result = await model.search(searchQuery);
-      const metadata = {
-        parentModel: model
-      } satisfies MergeAggregatorExternalEntityData;
-      finalResults.push(...result.map(entity => ({
+            finalResults.push(...result.map(entity => ({
         ...entity,
-        originatingModel: [...entity.originatingModel, metadata]
+        originatingModel: [...entity.originatingModel, {
+          parentModel: model,
+          originalEntity: entity
+        } satisfies MergeAggregatorExternalEntityData]
       })));
     }
 
@@ -168,9 +169,9 @@ export class MergeAggregator implements SemanticModelAggregator {
   }
 
   async externalEntityToLocalForSearch(entity: ExternalEntityWrapped): Promise<LocalEntityWrapped> {
-    const [unwrappedEntity, data] = this.unwrapExternalEntity(entity);
+    const [_, data] = this.unwrapExternalEntity(entity);
 
-    const localEntity = await data.parentModel.externalEntityToLocalForSearch(unwrappedEntity);
+    const localEntity = await data.parentModel.externalEntityToLocalForSearch(data.originalEntity);
     return this.entities[localEntity.aggregatedEntity.id];
   }
 

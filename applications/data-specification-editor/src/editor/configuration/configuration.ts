@@ -56,6 +56,8 @@ export type ModelCompositionConfigurationApplicationProfile = ModelCompositionCo
     modelType: "application-profile";
     model: ModelCompositionConfiguration;
     profiles: ModelCompositionConfiguration;
+    canAddEntities: boolean;
+    canModify: boolean;
 }
 
 export type ModelCompositionConfigurationCache = ModelCompositionConfiguration & {

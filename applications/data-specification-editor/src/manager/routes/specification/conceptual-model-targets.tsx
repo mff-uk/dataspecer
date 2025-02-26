@@ -3,6 +3,7 @@ import {
     Alert,
     Box, Button,
     Card, CardContent, Checkbox,
+    Divider,
     FormControlLabel,
     FormGroup,
     Radio,
@@ -44,10 +45,15 @@ const Inner = ({specification}: {specification: DataSpecification}) => {
 
     const [selectedModel, setSelectedModel] = useState<string | null>((mainProfile?.model ?? null) as string);
 
-    const handleSave = useCallback(async () => {
+    const [allowModifications, setAllowModifications] = useState<boolean>(mainProfile?.canModify ?? true);
+    const [allowAddingProfiles, setAllowAddingProfiles] = useState<boolean>(mainProfile?.canAddEntities ?? true);
+
+    const handleSave = async () => {
         const newConfiguration = {
             modelType: "application-profile",
             model: selectedModel,
+            canAddEntities: allowModifications && allowAddingProfiles,
+            canModify: allowModifications,
             profiles: {
                 modelType: "merge",
                 models: null
@@ -62,7 +68,7 @@ const Inner = ({specification}: {specification: DataSpecification}) => {
             },
         });
         enqueueSnackbar("Source configuration saved", {variant: "success"});
-    }, [backendPackageService, specification, setDataSpecifications, dataSpecifications, enqueueSnackbar, selectedModel]);
+    };
 
     return <>
         <Typography variant="h5" component="div" gutterBottom sx={{mt: 5}}>
@@ -73,14 +79,19 @@ const Inner = ({specification}: {specification: DataSpecification}) => {
 
         <Card  sx={{mt: 3}}>
             <CardContent>
+                <RadioGroup value={selectedModel} onChange={event => setSelectedModel(event.target.value)}>
+                    {specification?.subResources.filter(resource => resource.types.includes(LOCAL_SEMANTIC_MODEL)).map(resource => <FormControlLabel
+                        key={resource.iri}
+                        control={<Radio value={resource.iri} />}
+                        label={selectLanguage(resource.userMetadata?.label, ["en"]) ?? resource.iri}
+                    />)}
+                </RadioGroup>
+                <Divider style={{margin: "1rem 0 1rem 0"}} />
                 <Box sx={{display: "flex"}}>
-                    <RadioGroup value={selectedModel} onChange={event => setSelectedModel(event.target.value)}>
-                        {specification?.subResources.filter(resource => resource.types.includes(LOCAL_SEMANTIC_MODEL)).map(resource => <FormControlLabel
-                            key={resource.iri}
-                            control={<Radio value={resource.iri} />}
-                            label={selectLanguage(resource.userMetadata?.label, ["en"]) ?? resource.iri}
-                        />)}
-                    </RadioGroup>
+                    <div>
+                        <FormControlLabel control={<Checkbox checked={allowModifications} onChange={e => setAllowModifications(e.target.checked)} />} label="Allow making modifications to profiled entities." />
+                        <FormControlLabel disabled={!allowModifications} control={<Checkbox checked={allowAddingProfiles && allowModifications} indeterminate={!allowModifications} onChange={e => setAllowAddingProfiles(e.target.checked)} />} label="Allow adding new profiles to the model by selecting entities from profiled vocabularies." />
+                    </div>
 
                     <div style={{flexGrow: 1}} />
 

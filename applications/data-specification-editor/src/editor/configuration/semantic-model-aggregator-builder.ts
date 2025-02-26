@@ -46,6 +46,59 @@ export class SemanticModelAggregatorBuilder {
     return [...this.usedModels];
   }
 
+  /**
+   * This is temporary implementation of algorithm that will take all models and from the deepest ones starts creating aggregated models.
+   */
+  private async constructRestFromModels(models: InMemorySemanticModel[]) {
+    const iris = models.map((model) => model.getId());
+    iris.sort((a, b) => b.split("/").length - a.split("/").length);
+
+    const knownAggregatorsForPrefixes: Record<string, SemanticModelAggregator> = {}; // ends with slash
+
+    const processAllModelsWithPrefix = async (iri: string) => { // ends with slash
+      const thisModels = models.filter((model) => model.getId().startsWith(iri) && !model.getId().substring(iri.length).includes("/"));
+      const thisAggregators = Object.entries(knownAggregatorsForPrefixes).filter(([prefix]) => prefix.startsWith(iri) && !prefix.substring(iri.length, prefix.length - 1).includes("/")).map(([_, model]) => model);
+
+      const profile = thisModels.find((model) => model.getId().endsWith("/profile"));
+      const thisModelsAggregatorsWithoutProfile = await Promise.all(thisModels.filter((model) => model !== profile).map((model) => this.buildRecursive(model.getId())));
+
+      // Create merge model
+      const mergeModel = new MergeAggregator([...thisAggregators, ...thisModelsAggregatorsWithoutProfile]);
+
+      let result: SemanticModelAggregator;
+      if (profile) {
+        result = new ApplicationProfileAggregator(profile, mergeModel);
+      } else {
+        result = mergeModel;
+      }
+
+      knownAggregatorsForPrefixes[iri] = result;
+    }
+
+    let lastDept = 100;
+    let lastDeptCount = 0;
+    for (const iri of iris) {
+      const withoutLastSlash = iri.substring(0, iri.lastIndexOf("/") + 1);
+      const depth = withoutLastSlash.split("/").length;
+      if (depth === lastDept) {
+        lastDeptCount++;
+      } else {
+        lastDept = depth;
+        lastDeptCount = 1;
+      }
+      if (!knownAggregatorsForPrefixes[withoutLastSlash]) {
+        await processAllModelsWithPrefix(withoutLastSlash);
+      }
+    }
+
+    if (lastDeptCount === 1) {
+      return knownAggregatorsForPrefixes[iris[iris.length - 1]];
+    } else { // We need to merge them
+      const lastAggregators = Object.entries(knownAggregatorsForPrefixes).filter(([prefix]) => prefix.split("/").length === lastDept).map(([_, model]) => model);
+      return new MergeAggregator(lastAggregators);
+    }
+  }
+
   private async buildRecursive(configuration: ModelCompositionConfiguration): Promise<SemanticModelAggregator> {
     if (!configuration) {
       throw new Error("Configuration is not defined.");
@@ -67,7 +120,7 @@ export class SemanticModelAggregatorBuilder {
       const model = this.knownModels[profileConfig.model as string];
       this.usedModels.add(model);
       const profiles = await this.buildRecursive(profileConfig.profiles);
-      const aggregator = new ApplicationProfileAggregator(model, profiles);
+      const aggregator = new ApplicationProfileAggregator(model, profiles).setCanAddEntities(profileConfig.canAddEntities ?? true).setCanModify(profileConfig.canModify ?? true);
       aggregator.thisVocabularyChain["color"] = this.modelData[profileConfig.model as string]?.color;
       return aggregator;
     } else if (configuration.modelType === "merge") {
@@ -77,8 +130,7 @@ export class SemanticModelAggregatorBuilder {
         const remainingModels = Object.values(this.knownModels).filter((model) =>
           [...this.usedModels].every((usedModel) => usedModel.getId() !== model.getId())
         ) as InMemorySemanticModel[];
-        const vocabularyModels = await Promise.all(remainingModels.map(model => this.buildRecursive(model.getId())));
-        return new MergeAggregator(vocabularyModels);
+        return await this.constructRestFromModels(remainingModels);
       } else {
         const models = await Promise.all(mergeConfig.models.map((model) => this.buildRecursive(model.model)));
         return new MergeAggregator(models);
