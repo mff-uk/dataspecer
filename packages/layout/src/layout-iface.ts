@@ -4,18 +4,15 @@ import { SemanticModelEntity, isSemanticModelClass, isSemanticModelRelationship,
     SemanticModelClass,
     SemanticModelGeneralization,
     SemanticModelRelationship,
-    SemanticModelRelationshipEnd,
     isSemanticModelAttribute
  } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage,
-         SemanticModelClassUsage, SemanticModelRelationshipUsage
- } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
- import { GraphClassic, IGraphClassic, IMainGraphClassic, IVisualNodeComplete } from "./graph-iface";
+import { IGraphClassic, IMainGraphClassic, IVisualNodeComplete } from "./graph-iface";
 import { ConstraintContainer } from "./configs/constraint-container";
 import { NodeDimensionQueryHandler } from ".";
 import { VisualEntities } from "./migration-to-cme-v2";
 import { Entity, EntityModel } from "@dataspecer/core-v2";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 
 export type LayoutMethod = (inputSemanticModel: Record<string, SemanticModelEntity>, options?: object) => Promise<VisualEntities>
@@ -76,7 +73,7 @@ type ClassesBundle = {
 
 type ClassProfilesBundle = {
     sourceEntityModelIdentifier: string,
-    semanticModelClassUsage: SemanticModelClassUsage
+    semanticModelClassProfile: SemanticModelClassProfile
 };
 
 type RelationshipsBundle = {
@@ -86,7 +83,7 @@ type RelationshipsBundle = {
 
 type RelationshipsProfilesBundle = {
     sourceEntityModelIdentifier: string,
-    semanticModelRelationshipUsage: SemanticModelRelationshipUsage,
+    semanticModelRelationshipProfile: SemanticModelRelationshipProfile,
 };
 
 type GeneralizationsBundle = {
@@ -186,16 +183,16 @@ export function extractModelObjects(inputSemanticModels: Map<string, EntityModel
             semanticModelClass: o.semanticModelEntity as SemanticModelClass,
         }
     });
-    const classesProfiles = filterForExtraction(entities, isSemanticModelClassUsage).map((o) => {
+    const classesProfiles = filterForExtraction(entities, isSemanticModelClassProfile).map((o) => {
         return {
             sourceEntityModelIdentifier: o.sourceEntityModelIdentifier,
-            semanticModelClassUsage: o.semanticModelEntity as SemanticModelClassUsage,
+            semanticModelClassProfile: o.semanticModelEntity as SemanticModelClassProfile,
         }
     });
-    const relationshipsProfiles = filterForExtraction(entities, isSemanticModelRelationshipUsage).map((o) => {
+    const relationshipsProfiles = filterForExtraction(entities, isSemanticModelRelationshipProfile).map((o) => {
         return {
             sourceEntityModelIdentifier: o.sourceEntityModelIdentifier,
-            semanticModelRelationshipUsage: o.semanticModelEntity as SemanticModelRelationshipUsage,
+            semanticModelRelationshipProfile: o.semanticModelEntity as unknown as SemanticModelRelationshipProfile,
         }
     });
     const generalizations = filterForExtraction(entities, isSemanticModelGeneralization).map((o) => {
@@ -244,7 +241,9 @@ type RelationshipSourceTarget = {
 /**
  * @returns Returns the identifiers of source and target for {@link relationship} and the index where each end lies.
  */
-export function getEdgeSourceAndTargetRelationship(relationship: SemanticModelRelationship): RelationshipSourceTarget {
+export function getEdgeSourceAndTargetRelationship(
+    relationship: SemanticModelRelationship | SemanticModelRelationshipProfile
+): RelationshipSourceTarget {
     let source, target: string;
     let sourceIndex, targetIndex: 0 | 1;
     if(relationship.ends[0].iri == null) {
@@ -260,19 +259,6 @@ export function getEdgeSourceAndTargetRelationship(relationship: SemanticModelRe
     target = relationship.ends[targetIndex].concept;
 
     return {source, target, sourceIndex, targetIndex};
-}
-
-export function getEdgeSourceAndTargetRelationshipUsage(relationshipUsage: SemanticModelRelationshipUsage, extractedModels: ExtractedModels): {source: string, target: string} {
-    const usageOf = extractedModels.entities.find(e => e.semanticModelEntity.id === relationshipUsage.usageOf).semanticModelEntity;
-    if(isSemanticModelRelationshipUsage(usageOf)) {
-        return getEdgeSourceAndTargetRelationshipUsage(usageOf, extractedModels);
-    }
-    else if(isSemanticModelRelationship(usageOf)) {
-        return getEdgeSourceAndTargetRelationship(usageOf);
-    }
-    else {
-        throw new Error("Expected the entity to be either relationship usage or relationship");
-    }
 }
 
 
