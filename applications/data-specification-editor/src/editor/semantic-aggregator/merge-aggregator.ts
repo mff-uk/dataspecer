@@ -1,9 +1,45 @@
-import { SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelClass, isSemanticModelRelationship, NamedThing, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { ExternalEntityWrapped, LocalEntityWrapped, SemanticModelAggregator } from "./interfaces";
 import { TupleSet } from "./utils/tuple-set";
 
 type MergeAggregatorExternalEntityData = {
   parentModel: SemanticModelAggregator;
+}
+
+function margeNamedThing<T extends NamedThing>(things: T[]): T {
+  if (things.length === 0) {
+    throw new Error('Cannot merge 0 things');
+  }
+
+  if (things.length === 1) {
+    return things[0];
+  }
+
+  return things.reduce((acc, thing) => ({
+    ...acc,
+    name: {
+      ...acc?.name,
+      ...thing?.name
+    },
+    description: {
+      ...acc?.description,
+      ...thing?.description
+    }
+  }));
+}
+
+function mergeClasses(classes: SemanticModelClass[]): SemanticModelClass {
+  return margeNamedThing(classes);
+}
+
+function mergeRelationships(relationships: SemanticModelRelationship[]): SemanticModelRelationship {
+  return {
+    ...relationships.reduce((acc, rel) => ({...acc, ...rel})),
+    ends: [
+      margeNamedThing(relationships.map(r => r.ends[0])),
+      margeNamedThing(relationships.map(r => r.ends[1])),
+    ],
+  }
 }
 
 /**
@@ -76,9 +112,32 @@ export class MergeAggregator implements SemanticModelAggregator {
         delete this.entities[entity];
         removedFinal.push(entity);
       } else {
+        // todo: We are merging by ID, which is wrong!
+        // todo: But right now we are guaranteed that entities fro external models have ID === IRI which effectively makes this correct as we are merging duplicates
         // todo: do clever merging here if multiple models own the same entity
-        this.entities[entity] = changed[entity];
-        updated[entity] = changed[entity];
+
+        const allEntities = owningModels.map(model => this.entitiesInModels.get(model)![entity]);
+
+        if (isSemanticModelClass(allEntities[0].aggregatedEntity) && allEntities.length > 1) {
+          const result = mergeClasses(allEntities.map(e => e.aggregatedEntity as SemanticModelClass));
+          const wrapped = {
+            ...allEntities[0],
+            aggregatedEntity: result
+          };
+          this.entities[entity] = wrapped;
+          updated[entity] = wrapped;
+        } else if (isSemanticModelRelationship(allEntities[0].aggregatedEntity) && allEntities.length > 1) {
+          const result = mergeRelationships(allEntities.map(e => e.aggregatedEntity as SemanticModelRelationship));
+          const wrapped = {
+            ...allEntities[0],
+            aggregatedEntity: result
+          };
+          this.entities[entity] = wrapped;
+          updated[entity] = wrapped;
+        } else {
+          this.entities[entity] = allEntities[0];
+          updated[entity] = allEntities[0];
+        }
       }
     }
 
