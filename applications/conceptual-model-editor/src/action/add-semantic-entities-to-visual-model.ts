@@ -147,7 +147,8 @@ async function addClassesAndClassProfilesToVisualModel(
 ) {
   for(const {entity, model, position} of validatedNodesData) {
     const modelIdentifier = model.getId();
-    // TODO RadStr: Hotfix
+    // TODO RadStr: Hotfix for https://github.com/mff-uk/dataspecer/issues/1017 since it is called here,
+    //              so we catch the exception and move to next class
     try {
       if(isSemanticModelClass(entity)) {
         await addSemanticClassToVisualModelAction(notifications, graph, classes, visualModel, diagram, entity.id, modelIdentifier, position);
@@ -160,7 +161,7 @@ async function addClassesAndClassProfilesToVisualModel(
       }
     }
     catch {
-      // Do nothing - just hotfix for
+      // Do nothing
     }
   }
 }
