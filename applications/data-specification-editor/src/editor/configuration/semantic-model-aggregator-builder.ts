@@ -10,6 +10,14 @@ import { getProvidedSourceSemanticModel } from "./source-semantic-model/adapter"
 import { LegacySemanticModelAggregator } from "../semantic-aggregator/legacy-semantic-model-aggregator";
 import { SemanticModelAggregator } from "../semantic-aggregator/interfaces";
 
+function mergeIfNecessary(models: SemanticModelAggregator[]): SemanticModelAggregator {
+  if (models.length === 1) {
+    return models[0];
+  } else {
+    return new MergeAggregator(models);
+  }
+}
+
 /**
  * Builder of the semantic model aggregator from the configuration.
  */
@@ -61,9 +69,8 @@ export class SemanticModelAggregatorBuilder {
 
       const profile = thisModels.find((model) => model.getId().endsWith("/profile"));
       const thisModelsAggregatorsWithoutProfile = await Promise.all(thisModels.filter((model) => model !== profile).map((model) => this.buildRecursive(model.getId())));
-
       // Create merge model
-      const mergeModel = new MergeAggregator([...thisAggregators, ...thisModelsAggregatorsWithoutProfile]);
+      const mergeModel = mergeIfNecessary([...thisAggregators, ...thisModelsAggregatorsWithoutProfile]);
 
       let result: SemanticModelAggregator;
       if (profile) {
@@ -76,27 +83,19 @@ export class SemanticModelAggregatorBuilder {
     }
 
     let lastDept = 100;
-    let lastDeptCount = 0;
     for (const iri of iris) {
       const withoutLastSlash = iri.substring(0, iri.lastIndexOf("/") + 1);
       const depth = withoutLastSlash.split("/").length;
-      if (depth === lastDept) {
-        lastDeptCount++;
-      } else {
+      if (depth !== lastDept) {
         lastDept = depth;
-        lastDeptCount = 1;
       }
       if (!knownAggregatorsForPrefixes[withoutLastSlash]) {
         await processAllModelsWithPrefix(withoutLastSlash);
       }
     }
 
-    if (lastDeptCount === 1) {
-      return knownAggregatorsForPrefixes[iris[iris.length - 1]];
-    } else { // We need to merge them
-      const lastAggregators = Object.entries(knownAggregatorsForPrefixes).filter(([prefix]) => prefix.split("/").length === lastDept).map(([_, model]) => model);
-      return new MergeAggregator(lastAggregators);
-    }
+    const lastAggregators = Object.entries(knownAggregatorsForPrefixes).filter(([prefix]) => prefix.split("/").length === lastDept).map(([_, model]) => model);
+    return mergeIfNecessary(lastAggregators);
   }
 
   private async buildRecursive(configuration: ModelCompositionConfiguration): Promise<SemanticModelAggregator> {
