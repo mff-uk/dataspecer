@@ -1,46 +1,11 @@
-import { isSemanticModelClass, isSemanticModelRelationship, NamedThing, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelClass, isSemanticModelRelationship, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticEntityIdMerger, StrongerWinsSemanticEntityIdMerger } from "@dataspecer/core-v2/semantic-model/merge/merger";
 import { ExternalEntityWrapped, LocalEntityWrapped, SemanticModelAggregator } from "./interfaces";
 import { TupleSet } from "./utils/tuple-set";
 
 type MergeAggregatorExternalEntityData = {
   parentModel: SemanticModelAggregator;
 originalEntity?: ExternalEntityWrapped;
-}
-
-function margeNamedThing<T extends NamedThing>(things: T[]): T {
-  if (things.length === 0) {
-    throw new Error('Cannot merge 0 things');
-  }
-
-  if (things.length === 1) {
-    return things[0];
-  }
-
-  return things.reduce((acc, thing) => ({
-    ...acc,
-    name: {
-      ...acc?.name,
-      ...thing?.name
-    },
-    description: {
-      ...acc?.description,
-      ...thing?.description
-    }
-  }));
-}
-
-function mergeClasses(classes: SemanticModelClass[]): SemanticModelClass {
-  return margeNamedThing(classes);
-}
-
-function mergeRelationships(relationships: SemanticModelRelationship[]): SemanticModelRelationship {
-  return {
-    ...relationships.reduce((acc, rel) => ({...acc, ...rel})),
-    ends: [
-      margeNamedThing(relationships.map(r => r.ends[0])),
-      margeNamedThing(relationships.map(r => r.ends[1])),
-    ],
-  }
 }
 
 /**
@@ -59,6 +24,8 @@ export class MergeAggregator implements SemanticModelAggregator {
   private readonly entitiesInModels: Map<SemanticModelAggregator, Record<string, LocalEntityWrapped>> = new Map();
 
   private readonly subscribers: Set<(updated: Record<string, LocalEntityWrapped>, removed: string[]) => void> = new Set();
+
+  private readonly semanticEntityIdMerger: SemanticEntityIdMerger = new StrongerWinsSemanticEntityIdMerger();
 
   constructor(models: SemanticModelAggregator[]) {
     this.models = models;
@@ -120,7 +87,7 @@ export class MergeAggregator implements SemanticModelAggregator {
         const allEntities = owningModels.map(model => this.entitiesInModels.get(model)![entity]);
 
         if (isSemanticModelClass(allEntities[0].aggregatedEntity) && allEntities.length > 1) {
-          const result = mergeClasses(allEntities.map(e => e.aggregatedEntity as SemanticModelClass));
+          const result = this.semanticEntityIdMerger.mergeClasses(allEntities.map(e => e.aggregatedEntity as SemanticModelClass));
           const wrapped = {
             ...allEntities[0],
             aggregatedEntity: result
@@ -128,7 +95,7 @@ export class MergeAggregator implements SemanticModelAggregator {
           this.entities[entity] = wrapped;
           updated[entity] = wrapped;
         } else if (isSemanticModelRelationship(allEntities[0].aggregatedEntity) && allEntities.length > 1) {
-          const result = mergeRelationships(allEntities.map(e => e.aggregatedEntity as SemanticModelRelationship));
+          const result = this.semanticEntityIdMerger.mergeRelationships(allEntities.map(e => e.aggregatedEntity as SemanticModelRelationship));
           const wrapped = {
             ...allEntities[0],
             aggregatedEntity: result
