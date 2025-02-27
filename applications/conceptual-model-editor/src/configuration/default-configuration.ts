@@ -9,7 +9,7 @@ const relationshipProfileToIri: RelationshipIriGeneratorStrategy = (state) => {
     return state;
   }
   const domainName = upperCamelCase(
-    state.domain.label[state.language] ?? "");
+    state.domain.name[state.language] ?? "");
   const name = lowerCamelCase(
     state.name[state.language] ?? "");
   //
