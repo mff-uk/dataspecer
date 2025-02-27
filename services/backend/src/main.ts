@@ -24,6 +24,7 @@ import { migratePR419 } from './tools/migrate-pr419';
 import { getGenerateApplicationByModelId, getGeneratedApplication } from './routes/genapp';
 import { Migrate } from './migrations/migrate';
 import { getSystemData } from './routes/system';
+import { exportPackageResource } from './routes/export-import-raw';
 
 // Create application models
 
@@ -80,6 +81,7 @@ application.delete(basename + '/resources/blob', deleteBlob);
 
 // Operations on resoruces that are interpreted as packages
 application.get(basename + '/resources/packages', getPackageResource);
+application.get(basename + '/resources/packages/export.zip', exportPackageResource);
 application.post(basename + '/resources/packages', createPackageResource);
 application.patch(basename + '/resources/packages', updateResource); // same
 application.delete(basename + '/resources/packages', deleteResource); // same

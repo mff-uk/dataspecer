@@ -49,14 +49,14 @@ export interface Package extends BaseResource {
  * Resource model manages resource in local database that is managed by Prisma.
  */
 export class ResourceModel {
-    private readonly storeModel: LocalStoreModel;
+    readonly storeModel: LocalStoreModel;
     private readonly prismaClient: PrismaClient;
 
     constructor(storeModel: LocalStoreModel, prismaClient: PrismaClient) {
         this.storeModel = storeModel;
         this.prismaClient = prismaClient;
     }
-    
+
     getRootResources(): Promise<BaseResource[]> {
         return this.prismaClient.resource.findMany({where: {parentResourceId: null}})
             .then(resources => resources.map(resource => this.prismaResourceToResource(resource)));
@@ -128,7 +128,7 @@ export class ResourceModel {
         }
 
         await this.prismaClient.resource.delete({where: {id: prismaResource.id}});
-        
+
         for (const storeId of Object.values(JSON.parse(prismaResource.dataStoreId))) {
             await this.storeModel.remove(this.storeModel.getById(storeId as string));
         }
@@ -178,7 +178,7 @@ export class ResourceModel {
         if (prismaParentResource === null) {
             throw new Error("Parent resource not found.");
         }
-            
+
         const copyResource = async (sourceIri: string, parentIri: string, newIri: string) => {
             const prismaResource = await this.prismaClient.resource.findFirst({where: {iri: sourceIri}});
             if (prismaResource === null) {
@@ -189,7 +189,7 @@ export class ResourceModel {
             for (const [key, store] of Object.entries(JSON.parse(prismaResource.dataStoreId))) {
                 const newStore = await this.storeModel.create();
                 newDataStoreId[key] = newStore.uuid;
-                
+
                 const contents = await storeModel.getModelStore(store as string).getString();
                 await this.storeModel.getModelStore(newStore.uuid).setString(contents);
             }
@@ -258,14 +258,14 @@ export class ResourceModel {
         }
 
         const onUpdate = () => this.updateModificationTime(iri);
-        
+
         const dataStoreId = JSON.parse(prismaResource.dataStoreId);
 
         if (dataStoreId[storeName]) {
             return this.storeModel.getModelStore(dataStoreId[storeName], [onUpdate]);
         } else {
             return null;
-        }  
+        }
     }
 
     async getOrCreateResourceModelStore(iri: string, storeName: string = "model"): Promise<ModelStore> {
@@ -275,7 +275,7 @@ export class ResourceModel {
         }
 
         const onUpdate = () => this.updateModificationTime(iri);
-        
+
         const dataStoreId = JSON.parse(prismaResource.dataStoreId);
 
         if (dataStoreId[storeName]) {
@@ -298,7 +298,7 @@ export class ResourceModel {
         if (prismaResource === null) {
             throw new Error("Resource not found.");
         }
-        
+
         const dataStoreId = JSON.parse(prismaResource.dataStoreId);
 
         if (!dataStoreId[storeName]) {
@@ -342,7 +342,7 @@ export class ResourceModel {
 
     /**
      * Updates modification time of the resource and all its parent packages.
-     * @param iri 
+     * @param iri
      */
     async updateModificationTime(iri: string) {
         const prismaResource = await this.prismaClient.resource.findFirst({where: {iri: iri}});
@@ -366,5 +366,5 @@ export class ResourceModel {
             const parent = await this.prismaClient.resource.findFirst({select: {parentResourceId: true}, where: {id}}) as any; // It was causing TS7022 error
             id = parent?.parentResourceId ?? null;
         }
-    }   
+    }
 }

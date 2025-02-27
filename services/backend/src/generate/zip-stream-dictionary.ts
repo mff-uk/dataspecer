@@ -34,7 +34,7 @@ export class ZipStreamDictionary implements StreamDictionary {
                 parts.push(data);
             },
             close: async (): Promise<void> => {
-                this.zip.file(path, parts.join(""));
+                this.zip.file(path, parts.join(""), {compression: "DEFLATE"});
             }
         };
     }

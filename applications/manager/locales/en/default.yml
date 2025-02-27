@@ -21,6 +21,7 @@ delete-resource:
     irreversible.
   warning-no-name: You are about to remove {{type}}. This action is irreversible.
 duplicate-resource: Duplicate
+export: Backup to file
 export-zip: Export specification
 form:
   base-iri:
