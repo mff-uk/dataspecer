@@ -88,7 +88,7 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
     const conceptIris: string[] = [];
     for (const identifier of profile.profiling) {
       const profile = profiled(identifier);
-      if (isSemanticModelClass(profile) && profile.iri) {
+      if (isSemanticModelClass(profile) && !isAggregatedProfiledSemanticModelClass(profile) && profile.iri) {
         conceptIris.push(profile.iri);
       } else if (isAggregatedProfiledSemanticModelClass(profile)) {
         conceptIris.push(...profile.conceptIris);
@@ -176,7 +176,7 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
         conceptIris: end.profiling
           .map(identifier => profiled(identifier))
           .map(item => {
-            if (isSemanticModelRelationship(item) && item.ends?.[index]?.iri) {
+            if (isSemanticModelRelationship(item) && !isSemanticModelRelationshipProfile(item) && item.ends?.[index]?.iri) {
               return item.ends[index].iri;
             } else if (isSemanticModelRelationshipProfile(item) && "conceptIris" in (item.ends?.[index] ?? {})) {
               const end = item.ends[index] as AggregatedProfiledSemanticModelRelationshipEnd;
