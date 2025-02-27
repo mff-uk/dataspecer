@@ -21,6 +21,7 @@ export const OFN = {
 
 export const RDFS = {
   subClassOf: "http://www.w3.org/2000/01/rdf-schema#subClassOf",
+  subPropertyOf: "http://www.w3.org/2000/01/rdf-schema#subPropertyOf",
   domain: "http://www.w3.org/2000/01/rdf-schema#domain",
   range: "http://www.w3.org/2000/01/rdf-schema#range",
   Class: "http://www.w3.org/2000/01/rdf-schema#Class",

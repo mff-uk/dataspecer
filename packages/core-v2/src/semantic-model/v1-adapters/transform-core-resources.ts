@@ -86,6 +86,11 @@ export function transformCoreResources(resources: Record<string, CoreResource>, 
             } as SemanticModelRelationship;
 
             result[association.id] = association;
+
+            // @ts-ignore
+            const ext: string[] = resource["pimExtends"] ?? [];
+            ext.map((to) => createGeneralization(association.id, to))
+            .forEach((generalization) => (result[generalization.id] = generalization));
         }
         if (PimAttribute.is(resource)) {
             relationshipMapping[resource.iri!] = [resource.iri!, false];
@@ -113,6 +118,11 @@ export function transformCoreResources(resources: Record<string, CoreResource>, 
             } as SemanticModelRelationship;
 
             result[attribute.id] = attribute;
+
+            // @ts-ignore
+            const ext: string[] = resource["pimExtends"] ?? [];
+            ext.map((to) => createGeneralization(attribute.id, to))
+            .forEach((generalization) => (result[generalization.id] = generalization));
         }
     }
 
