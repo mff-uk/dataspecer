@@ -351,7 +351,7 @@ export class RdfsFileAdapter implements CimAdapter {
             loadRdfsEntityToResource(entity, this.iriProvider, attribute);
             attribute.iri = this.iriProvider.cimToPim(entity.iri) + (isAssociation ? "#attribute" : ""); // to have unique ids
             attribute.pimOwnerClass = this.iriProvider.cimToPim(domainClassIri);
-            attribute.pimDatatype = rangeClassIri;
+            attribute.pimDatatype = rangeClassIri === OWL.Thing ? RDFS.Literal : rangeClassIri ?? RDFS.Literal;
 
             connectedClasses.push(domainClassIri);
             resources.push(attribute);
