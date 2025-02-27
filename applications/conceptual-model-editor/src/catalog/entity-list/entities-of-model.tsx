@@ -27,8 +27,6 @@ import { shortenStringTo } from "../../util/utils";
 import { ActionsContextType, useActions } from "../../action/actions-react-binding";
 import { ExpandModelButton } from "../components/expand-model";
 import { type VisualEntity, VisualNode, isVisualNode, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { ShowAllClassesFromSemanticModelButton } from "../components/add-entities-from-semantic-model-to-visual-button";
-import { HideAllClassesFromSemanticModelButton } from "../components/remove-entities-in-semantic-model-from-visual-button";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { getRemovedAndAdded } from "../../action/utilities";
@@ -251,8 +249,6 @@ export const EntitiesOfModel = (props: {
       <div className="flex flex-row justify-between">
         <h4>
                     Ⓜ {displayName}
-          <ShowAllClassesFromSemanticModelButton semanticModel={model}></ShowAllClassesFromSemanticModelButton>
-          <HideAllClassesFromSemanticModelButton semanticModel={model}></HideAllClassesFromSemanticModelButton>
         </h4>
         <div className="flex flex-row">
           {renderAddButton(actions, entityType, model)}
