@@ -17,7 +17,7 @@ import { ResourceDetail } from "./dialog/resource-detail";
 import { useToggle } from "./hooks/use-toggle";
 import { ModelIcon, createModelInstructions, modelTypeToName } from "./known-models";
 import { useBetterModal } from "./lib/better-modal";
-import { ResourcesContext, modifyUserMetadata, packageService, requestLoadPackage } from "./package";
+import { ResourcesContext, ensurePackageWorksForDSE, modifyUserMetadata, packageService, requestLoadPackage } from "./package";
 import { ModifyRespecTemplate } from "./dialog/modify-respec-template";
 import { defaultConfiguration } from "@dataspecer/core-v2/documentation-generator";
 import React from "react";
@@ -167,7 +167,16 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
         <Tooltip>
           <TooltipTrigger>
             <Button asChild variant="ghost" size="icon" className="shrink-0" onClick={stopPropagation()}>
-              <a href={import.meta.env.VITE_DATA_SPECIFICATION_EDITOR + "/specification?dataSpecificationIri=" + encodeURIComponent(iri ?? "") }>
+              <a
+                href={import.meta.env.VITE_DATA_SPECIFICATION_EDITOR + "/specification?dataSpecificationIri=" + encodeURIComponent(iri ?? "") }
+                onClick={async event => {
+                  event.preventDefault();
+                  event.stopPropagation();
+
+                  await ensurePackageWorksForDSE(iri);
+                  window.location.href = import.meta.env.VITE_DATA_SPECIFICATION_EDITOR + "/specification?dataSpecificationIri=" + encodeURIComponent(iri ?? "");
+                }}
+              >
                 <Code className="h-4 w-4" />
               </a>
             </Button>
