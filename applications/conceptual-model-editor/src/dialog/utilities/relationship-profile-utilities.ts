@@ -89,7 +89,7 @@ export function createRelationshipProfileState<RangeType extends {
   const availableRanges = rangeFilter(allRanges, model);
 
   // Range
-  let range = allRanges.find(
+  let range = availableRanges.find(
     item => item.identifier === rangeIdentifier);
   if (range === undefined) {
     LOG.warn("Can not find range representative.",
