@@ -10,6 +10,20 @@ export class RuntimeError extends Error {
 }
 
 /**
+ * @throws {RuntimeError} When assertion fail.
+ */
+export function assert(
+  condition: boolean, message: string, ...optionalParams: any[]
+) {
+  if (condition) {
+    // Condition holds
+    return;
+  }
+  console.error("Assert failed!", { message, optionalParams });
+  throw new RuntimeError(message);
+}
+
+/**
  * Used when writable model is expected but not found.
  */
 export class NoWritableModelFound extends RuntimeError {
