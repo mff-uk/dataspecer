@@ -35,7 +35,8 @@ export type { IConstraintSimple, UserGivenConstraints, UserGivenAlgorithmConfigu
 export { getDefaultUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion2, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4 } from "./configs/constraints";
 export type { AlgorithmName } from "./configs/constraint-container";
 
-export { Direction } from "./util/utils";
+import { Direction } from "./util/utils";
+export { Direction };
 export type { INodeClassic } from "./graph-iface";
 
 export { ReactflowDimensionsEstimator };
