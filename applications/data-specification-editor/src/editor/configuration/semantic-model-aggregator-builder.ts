@@ -81,6 +81,7 @@ export class SemanticModelAggregatorBuilder {
       if (profile) {
         result = new ApplicationProfileAggregator(profile, mergeModel);
         (result as ApplicationProfileAggregator).thisVocabularyChain["color"] = this.modelData[profile.getId() as string]?.color;
+        result = mergeIfNecessary([result, mergeModel]);
       } else {
         result = mergeModel;
       }
