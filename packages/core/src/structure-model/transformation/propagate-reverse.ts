@@ -28,7 +28,7 @@ export function propagateReverse(
           return;
         }
 
-        const conceptualProperty = propertyMap[property.pimIri];
+        const conceptualProperty = propertyMap(property.pimIri, property.isReverse);
         if (conceptualProperty) {
           property.isReverse = conceptualProperty.isReverse;
         }

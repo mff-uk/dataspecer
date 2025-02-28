@@ -34,6 +34,7 @@ export default defineConfig(({ command, mode }) => {
         "@dataspecer/core-v2/semantic-model/aggregator",
         "@dataspecer/core-v2/semantic-model/concepts",
         "@dataspecer/core-v2/semantic-model/in-memory",
+        "@dataspecer/core-v2/semantic-model/merge/merger",
         "@dataspecer/core-v2/semantic-model/operations",
         "@dataspecer/core-v2/semantic-model/profile/aggregator",
         "@dataspecer/core-v2/semantic-model/profile/concepts",

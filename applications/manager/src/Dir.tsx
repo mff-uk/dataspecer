@@ -17,7 +17,7 @@ import { ResourceDetail } from "./dialog/resource-detail";
 import { useToggle } from "./hooks/use-toggle";
 import { ModelIcon, createModelInstructions, modelTypeToName } from "./known-models";
 import { useBetterModal } from "./lib/better-modal";
-import { ResourcesContext, modifyUserMetadata, packageService, requestLoadPackage } from "./package";
+import { ResourcesContext, ensurePackageWorksForDSE, modifyUserMetadata, packageService, requestLoadPackage } from "./package";
 import { ModifyRespecTemplate } from "./dialog/modify-respec-template";
 import { defaultConfiguration } from "@dataspecer/core-v2/documentation-generator";
 import React from "react";
@@ -167,7 +167,16 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
         <Tooltip>
           <TooltipTrigger>
             <Button asChild variant="ghost" size="icon" className="shrink-0" onClick={stopPropagation()}>
-              <a href={import.meta.env.VITE_DATA_SPECIFICATION_EDITOR + "/specification?dataSpecificationIri=" + encodeURIComponent(iri ?? "") }>
+              <a
+                href={import.meta.env.VITE_DATA_SPECIFICATION_EDITOR + "/specification?dataSpecificationIri=" + encodeURIComponent(iri ?? "") }
+                onClick={async event => {
+                  event.preventDefault();
+                  event.stopPropagation();
+
+                  await ensurePackageWorksForDSE(iri);
+                  window.location.href = import.meta.env.VITE_DATA_SPECIFICATION_EDITOR + "/specification?dataSpecificationIri=" + encodeURIComponent(iri ?? "");
+                }}
+              >
                 <Code className="h-4 w-4" />
               </a>
             </Button>
@@ -211,7 +220,7 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
           {i18n.language !== "en" && resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem asChild><a target="_blank" href={import.meta.env.VITE_BACKEND + `/preview/en/index.html?iri=` + encodeURIComponent(iri)}><FileText className="mr-2 h-4 w-4" /> {t("show-documentation")} (en)</a></DropdownMenuItem>}
           {resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem onClick={() => openModal(ModifyRespecTemplate, {iri, blobName: "respec", defaultContent: defaultConfiguration.template})}><NotepadTextDashed className="mr-2 h-4 w-4" /> {t("modify-documentation-template")}</DropdownMenuItem>}
           {resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem onClick={() => openModal(AddImported, {id: iri})}><Import className="mr-2 h-4 w-4" /> {t("import specification from url")}</DropdownMenuItem>}
-          <DropdownMenuItem asChild><a href={import.meta.env.VITE_BACKEND + "/resources/packages/export.zip?iri=" + encodeURIComponent(iri)}><CloudDownload className="mr-2 h-4 w-4" /> {t("export")}</a></DropdownMenuItem>
+          <DropdownMenuItem asChild><a href={import.meta.env.VITE_BACKEND + "/resources/export.zip?iri=" + encodeURIComponent(iri)}><CloudDownload className="mr-2 h-4 w-4" /> {t("export")}</a></DropdownMenuItem>
           {resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem onClick={async () => {
             await packageService.copyRecursively(iri, parentIri!);
             await requestLoadPackage(parentIri!, true);

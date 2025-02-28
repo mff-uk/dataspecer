@@ -24,7 +24,8 @@ import { migratePR419 } from './tools/migrate-pr419';
 import { getGenerateApplicationByModelId, getGeneratedApplication } from './routes/genapp';
 import { Migrate } from './migrations/migrate';
 import { getSystemData } from './routes/system';
-import { exportPackageResource } from './routes/export-import-raw';
+import { exportPackageResource, importPackageResource } from './routes/export-import-raw';
+import multer from 'multer';
 
 // Create application models
 
@@ -41,6 +42,10 @@ if (basename.endsWith('/')) {
 if (process.env.BASENAME_OVERRIDE !== undefined) {
     basename = process.env.BASENAME_OVERRIDE as string;
 }
+
+// For uploading files
+const multerStorage = multer.memoryStorage();
+const multerUpload = multer({ storage: multerStorage });
 
 // Run express
 
@@ -81,7 +86,7 @@ application.delete(basename + '/resources/blob', deleteBlob);
 
 // Operations on resoruces that are interpreted as packages
 application.get(basename + '/resources/packages', getPackageResource);
-application.get(basename + '/resources/packages/export.zip', exportPackageResource);
+application.get(basename + '/resources/export.zip', exportPackageResource);
 application.post(basename + '/resources/packages', createPackageResource);
 application.patch(basename + '/resources/packages', updateResource); // same
 application.delete(basename + '/resources/packages', deleteResource); // same
@@ -94,10 +99,10 @@ application.post(basename + '/repository/copy-recursively', copyRecursively);
 
 /**
  * Import: Import endpoint is a wizard that allows you to import specific package/model from a remote source.
- */
+*/
 
 application.post(basename + '/resources/import', importResource);
-
+application.post(basename + '/resources/import-zip', multerUpload.single("file"), importPackageResource);
 
 // Interactive import of packages
 //application.post(basename + '/import', importPackages);

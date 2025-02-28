@@ -172,7 +172,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
           const dependsOn = entity.profiling.map(id => this.entities[id]?.aggregatedEntity ?? this.sourceEntities[id]?.aggregatedEntity).filter(x => x) as SemanticModelClass[];
           const aggregatedEntity = this.profileEntityAggregator.aggregateSemanticModelClassProfile(entity, dependsOn);
           // todo workaround with typing
-          const aggregatedEntityClass = {...aggregatedEntity, type: ["class"]} as SemanticModelClass;
+          const aggregatedEntityClass = {...aggregatedEntity, type: ["class", "class-profile"]} as unknown as SemanticModelClass;
           this.entities[entity.id] = {
             aggregatedEntity: aggregatedEntityClass,
             vocabularyChain: [],
@@ -185,7 +185,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
           const dependsOn = entity.ends.map(end => end.profiling).flat().map(id => this.entities[id]?.aggregatedEntity ?? this.sourceEntities[id]?.aggregatedEntity).filter(x => x) as SemanticModelRelationship[];
           const aggregatedEntity = this.profileEntityAggregator.aggregateSemanticModelRelationshipProfile(entity, dependsOn);
           // todo workaround with typing
-          const aggregatedEntityRelationship = {...aggregatedEntity, type: ["relationship"]} as unknown as SemanticModelRelationship;
+          const aggregatedEntityRelationship = {...aggregatedEntity, type: ["relationship", "relationship-profile"]} as unknown as SemanticModelRelationship;
           this.entities[entity.id] = {
             aggregatedEntity: aggregatedEntityRelationship,
             vocabularyChain: [],

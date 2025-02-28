@@ -1,9 +1,11 @@
-import { LOCAL_PACKAGE } from "@dataspecer/core-v2/model/known-models";
+import { LOCAL_PACKAGE, V1 } from "@dataspecer/core-v2/model/known-models";
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { PrismaClient, Resource as PrismaResource } from "@prisma/client";
 import { v4 as uuidv4 } from 'uuid';
 import { storeModel } from './../main';
 import { LocalStoreModel, ModelStore } from "./local-store-model";
+import { DataPsmSchema } from "@dataspecer/core/data-psm/model/data-psm-schema";
+import { CoreResource } from "@dataspecer/core/core/core-resource";
 
 /**
  * Base information every resource has or should have.
@@ -57,9 +59,10 @@ export class ResourceModel {
         this.prismaClient = prismaClient;
     }
 
-    getRootResources(): Promise<BaseResource[]> {
-        return this.prismaClient.resource.findMany({where: {parentResourceId: null}})
-            .then(resources => resources.map(resource => this.prismaResourceToResource(resource)));
+    async getRootResources(): Promise<BaseResource[]> {
+        const resources = await this.prismaClient.resource.findMany({where: {parentResourceId: null}});
+        const result = resources.map(resource => this.prismaResourceToResource(resource));
+        return await Promise.all(result);
     }
 
     /**
@@ -70,7 +73,7 @@ export class ResourceModel {
         if (prismaResource === null) {
             return null;
         }
-        return this.prismaResourceToResource(prismaResource);
+        return await this.prismaResourceToResource(prismaResource);
     }
 
     /**
@@ -134,16 +137,44 @@ export class ResourceModel {
         }
     }
 
-    private prismaResourceToResource(prismaResource: PrismaResource): BaseResource {
+    private async prismaResourceToResource(prismaResource: PrismaResource): Promise<BaseResource> {
+        const userMetadata = JSON.parse(prismaResource.userMetadata);
+        const dataStores = JSON.parse(prismaResource.dataStoreId);
+
+        /**
+         * @todo There is this a long-term problem that the title is stored inside the model and also in the user metadata.
+         * This should be unified. For now, there is a workaround for PSM model that uses label from PSM.
+         */
+        try {
+            if (prismaResource.representationType === V1.PSM) {
+                // We must be careful here as the model may not be loaded yet.
+                if (dataStores.model) {
+                    const modelStore = this.storeModel.getModelStore(dataStores.model);
+                    // console.log(modelStore);
+                    const model = await modelStore.getJson();
+
+
+                    const schema = Object.values(model.resources as Record<string, CoreResource>).find(DataPsmSchema.is) as DataPsmSchema;
+                    if (schema) {
+                        userMetadata.label = schema.dataPsmHumanLabel;
+                        userMetadata.description = schema.dataPsmHumanDescription;
+                    }
+                }
+            }
+        } catch(e) {
+            console.error("Soft error when parsing PSM model to obtain user metadata.");
+            console.error(e);
+        };
+
         return {
             iri: prismaResource.iri,
             types: [prismaResource.representationType],
-            userMetadata: JSON.parse(prismaResource.userMetadata),
+            userMetadata,
             metadata: {
                 creationDate: prismaResource.createdAt,
                 modificationDate: prismaResource.modifiedAt
             },
-            dataStores: JSON.parse(prismaResource.dataStoreId)
+            dataStores,
         }
     }
 
@@ -158,8 +189,8 @@ export class ResourceModel {
         const packageResources = await this.prismaClient.resource.findMany({where: {parentResourceId: prismaResource!.id}});
 
         return {
-            ...this.prismaResourceToResource(prismaResource!),
-            subResources: packageResources.map(resource => this.prismaResourceToResource(resource)),
+            ...await this.prismaResourceToResource(prismaResource!),
+            subResources: await Promise.all(packageResources.map(resource => this.prismaResourceToResource(resource))),
         }
     }
 

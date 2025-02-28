@@ -3,6 +3,12 @@ import { asyncHandler } from "../utils/async-handler";
 import { PackageExporter } from "../export-import/export";
 import { resourceModel } from "../main";
 import z from "zod";
+import { PackageImporter } from "../export-import/import";
+import { LanguageString } from "@dataspecer/core/core/core-resource";
+
+function getName(name: LanguageString | undefined, defaultName: string) {
+  return name?.["cs"] || name?.["en"] || defaultName;
+}
 
 /**
  * Exports whole package as a zip.
@@ -17,5 +23,16 @@ export const exportPackageResource = asyncHandler(async (request: express.Reques
   const exporter = new PackageExporter(resourceModel);
   const buffer = await exporter.doExport(query.iri);
 
-  response.type("application/zip").send(buffer);
+  const resource = await resourceModel.getResource(query.iri);
+  const filename = getName(resource?.userMetadata?.label, "backup") + ".zip";
+  response.type("application/zip").attachment(filename).send(buffer);
+});
+
+export const importPackageResource = asyncHandler(async (request: express.Request, response: express.Response) => {
+  const file = request.file!.buffer;
+
+  const importer = new PackageImporter(resourceModel);
+  const imported = await importer.doImport(file);
+
+  response.send(await Promise.all(imported.map(iri => resourceModel.getPackage(iri))));
 });

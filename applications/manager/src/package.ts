@@ -3,6 +3,8 @@ import { LanguageString } from "@dataspecer/core/core/core-resource";
 import { createContext, useRef, useState } from "react";
 import { Package } from "../../../packages/core-v2/lib/project/resource/resource";
 import { StructureEditorBackendService } from "@dataspecer/backend-utils/connectors/specification";
+import { LOCAL_SEMANTIC_MODEL, V1 } from "@dataspecer/core-v2/model/known-models";
+import { createModelInstructions } from "./known-models";
 
 const backendUrl = import.meta.env.VITE_BACKEND;
 
@@ -82,4 +84,45 @@ export const useResourcesContext = () => {
     return {
         resources,
     };
+}
+
+/**
+ * This function adds missing models necessary for DSE.
+ */
+export async function ensurePackageWorksForDSE(packageIri: string) {
+    let pckg: Package;
+    if (resourcesMemory.current[packageIri] && resourcesMemory.current[packageIri].subResources) {
+        pckg = resourcesMemory.current[packageIri];
+    } else {
+        pckg = await packageService.getPackage(packageIri);
+    }
+
+    // Configuration
+    if (!pckg.subResources!.find(resource => resource.types.includes(V1.GENERATOR_CONFIGURATION))) {
+        await createModelInstructions[V1.GENERATOR_CONFIGURATION].createHook({ parentIri: packageIri });
+    }
+
+    const semanticModels = pckg.subResources!.filter(resource => resource.types.includes(LOCAL_SEMANTIC_MODEL));
+    if (semanticModels.length === 1) {
+        // Exactly one semantic model to choose from
+
+        // Profile config
+        const data: any = await packageService.getResourceJsonData(packageIri) ?? {};
+
+        if (!data["modelCompositionConfiguration"]) {
+            // We need to create new one
+            data["modelCompositionConfiguration"] = {
+                "modelType": "application-profile",
+                "model": semanticModels[0].iri,
+                "canAddEntities": false,
+                "canModify": true,
+                "profiles": {
+                    "modelType": "merge",
+                    "models": null
+                }
+            };
+        }
+
+        await packageService.setResourceJsonData(packageIri, data);
+    }
 }
