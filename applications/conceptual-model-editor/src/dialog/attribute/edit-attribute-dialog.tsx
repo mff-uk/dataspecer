@@ -73,6 +73,7 @@ export const EditAttributeDialog = (props: DialogProps<EditAttributeDialogState>
             value={state.domain}
             onChange={controller.setDomain}
           />
+          <ValidationMessage value={state.domainValidation} />
         </DialogDetailRow>
         {configuration().hideRelationCardinality ? null :
           <DialogDetailRow detailKey={t("domain-cardinality")}>
@@ -90,6 +91,7 @@ export const EditAttributeDialog = (props: DialogProps<EditAttributeDialogState>
             value={state.range}
             onChange={controller.setRange}
           />
+          <ValidationMessage value={state.rangeValidation} />
         </DialogDetailRow>
         {configuration().hideRelationCardinality ? null :
           <DialogDetailRow detailKey={t("range-cardinality")}>

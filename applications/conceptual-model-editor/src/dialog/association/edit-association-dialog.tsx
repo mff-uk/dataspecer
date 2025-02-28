@@ -72,6 +72,7 @@ export const EditAssociationDialog = (props: DialogProps<EditAssociationDialogSt
             value={state.domain}
             onChange={controller.setDomain}
           />
+          <ValidationMessage value={state.domainValidation} />
         </DialogDetailRow>
         {configuration().hideRelationCardinality ? null :
           <DialogDetailRow detailKey={t("domain-cardinality")}>
@@ -89,6 +90,7 @@ export const EditAssociationDialog = (props: DialogProps<EditAssociationDialogSt
             value={state.range}
             onChange={controller.setRange}
           />
+          <ValidationMessage value={state.rangeValidation} />
         </DialogDetailRow>
         {configuration().hideRelationCardinality ? null :
           <DialogDetailRow detailKey={t("range-cardinality")}>

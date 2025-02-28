@@ -3,7 +3,7 @@ import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { EditAttributeDialogState } from "./edit-attribute-dialog-controller";
-import { isRepresentingAttribute, listAttributeRanges, representOwlThing, representRelationships, representRdfsLiteral, listRelationshipDomains, sortRepresentatives } from "../utilities/dialog-utilities";
+import { isRepresentingAttribute, listAttributeRanges, representOwlThing, representRelationships, representRdfsLiteral, listRelationshipDomains, sortRepresentatives, representUndefinedClass, representUndefinedDataType } from "../utilities/dialog-utilities";
 import { SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { MissingRelationshipEnds } from "../../application/error";
@@ -13,6 +13,7 @@ import { createRelationshipStateForEdit } from "../utilities/relationship-utilit
 import { DialogWrapper } from "../dialog-api";
 import { EditAttributeDialog } from "./edit-attribute-dialog";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
+import { isValid } from "../utilities/validation-utilities";
 
 export function createEditAttributeDialogState(
   classesContext: ClassesContextType,
@@ -64,8 +65,10 @@ export function createEditAttributeDialogState(
 
   const relationshipState = createRelationshipStateForEdit(
     vocabularies,
-    domain.concept ?? owlThing.identifier, domain.cardinality, domains,
-    range.concept ?? rdfsLiteral.identifier, range.cardinality, dataTypes);
+    domain.concept ?? owlThing.identifier, representUndefinedClass(),
+    domain.cardinality, domains,
+    range.concept ?? rdfsLiteral.identifier, representUndefinedDataType(),
+    range.cardinality, dataTypes);
 
   return {
     ...entityState,
@@ -85,7 +88,9 @@ export const createEditAttributeDialog = (
     state,
     confirmLabel: "dialog.attribute.ok-edit",
     cancelLabel: "dialog.attribute.cancel",
-    validate: () => true,
+    validate: (state) => isValid(state.iriValidation)
+      && isValid(state.domainValidation)
+      && isValid(state.rangeValidation),
     onConfirm: onConfirm,
     onClose: null,
   };

@@ -7,6 +7,7 @@ import { EntityProfileState, EntityProfileStateController, createEntityProfileCo
 import { RelationshipProfileState, RelationshipProfileStateController, createRelationshipProfileController } from "../utilities/relationship-profile-utilities";
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { validateEntityState } from "../utilities/entity-utilities";
+import { CmeModel } from "../../dataspecer/cme-model";
 
 export interface EditAttributeProfileDialogState extends
   EntityProfileState<RelationshipRepresentative>,
@@ -30,6 +31,12 @@ export function useEditAttributeProfileDialogController({ changeState }:
 
     const relationshipProfileController = createRelationshipProfileController(changeState);
 
+    const setModel = (model: CmeModel) => {
+      entityProfileController.setModel(model);
+      relationshipProfileController.onModelDidChange(model);
+      changeState(state => configuration().relationshipProfileToIri(state));
+    };
+
     const setName = (setter: (value: LanguageString) => LanguageString): void => {
       changeState(state => {
         const result = { ...state, name : setter(state.name) };
@@ -49,6 +56,7 @@ export function useEditAttributeProfileDialogController({ changeState }:
     return {
       ...entityProfileController,
       ...relationshipProfileController,
+      setModel,
       setName,
       setDomain,
       setIri,

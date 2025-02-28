@@ -3,7 +3,7 @@ import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { EditAssociationProfileDialogState } from "./edit-association-profile-dialog-controller";
-import { listRelationshipProfileDomains, representUndefinedAssociation, sortRepresentatives } from "../utilities/dialog-utilities";
+import { listRelationshipProfileDomains, representUndefinedAssociation, representUndefinedClassProfile, sortRepresentatives } from "../utilities/dialog-utilities";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { createRelationshipProfileStateForNew } from "../utilities/relationship-profile-utilities";
 import { EditAssociationProfileDialog } from "./edit-association-profile-dialog";
@@ -12,6 +12,7 @@ import { createEntityProfileStateForNewEntityProfile } from "../utilities/entity
 import { configuration } from "../../application";
 import { listAssociationsToProfile } from "./attribute-profile-utilities";
 import { EntityDsIdentifier } from "../../dataspecer/entity-model";
+import { isValid } from "../utilities/validation-utilities";
 
 /**
  * State represents a newly created profile for given profiled entity.
@@ -50,13 +51,14 @@ export function createNewAssociationProfileDialogState(
 
   const profile = entityProfileState.profiles[0];
   const relationshipProfileState = createRelationshipProfileStateForNew(
+    entityProfileState.model,
     vocabularies,
     profile.domain,
     profile.domainCardinality.cardinality,
-    domains, domains[0],
+    domains, representUndefinedClassProfile(),
     profile.range,
     profile.rangeCardinality.cardinality,
-    ranges, ranges[0]);
+    ranges, representUndefinedClassProfile());
 
   const result = {
     ...entityProfileState,
@@ -76,7 +78,9 @@ export const createNewAssociationProfileDialog = (
     state,
     confirmLabel: "dialog.association-profile.ok-create",
     cancelLabel: "dialog.association-profile.cancel",
-    validate: () => true,
+    validate: (state) => isValid(state.iriValidation)
+      && isValid(state.domainValidation)
+      && isValid(state.rangeValidation),
     onConfirm: onConfirm,
     onClose: null,
   };

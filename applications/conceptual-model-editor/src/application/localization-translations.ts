@@ -234,6 +234,7 @@ export const translations: Record<string, string | Function> = {
   "change-in-profile": "Change in profile",
   //
   "warning": "Warning",
+  "error": "Error",
   "warning-change-domain": "Change of the domain may introduce a breaking change in the profile.",
   "warning-change-domain-cardinality": "Change of cardinality may introduce a breaking change in the profile.",
   "warning-change-range": "Change of the range may introduce a breaking change in the profile.",
@@ -268,6 +269,8 @@ export const translations: Record<string, string | Function> = {
   "dissolve-group-button": "Dissolve group",
   //
   "iri-must-not-be-empty": "IRI must not be an empty string.",
+  "domain-must-be-set": "Domain must be set.",
+  "range-must-be-set": "Range must be set.",
   //
   "filter-selection-dialog.label": "Restrict selection to",
   "filter-selection-dialog.btn-ok": "✅ Restrict",

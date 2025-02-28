@@ -12,6 +12,7 @@ import { EditClassProfileDialog } from "./edit-class-profile-dialog";
 import { MissingEntity, RuntimeError } from "../../application/error";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { createEntityProfileStateForEdit } from "../utilities/entity-profile-utilities";
+import { isValid } from "../utilities/validation-utilities";
 
 export function createEditClassProfileDialogState(
   classesContext: ClassesContextType,
@@ -76,7 +77,7 @@ export const createEditClassProfileDialog = (
     state,
     confirmLabel: "dialog.class-profile.ok-edit",
     cancelLabel: "dialog.class-profile.cancel",
-    validate: () => true,
+    validate: (state) => isValid(state.iriValidation),
     onConfirm,
     onClose: null,
   };

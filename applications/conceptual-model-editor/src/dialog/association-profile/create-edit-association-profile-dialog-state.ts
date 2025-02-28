@@ -13,10 +13,11 @@ import { createRelationshipProfileStateForEdit } from "../utilities/relationship
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { DialogWrapper } from "../dialog-api";
 import { EditAssociationProfileDialog } from "./edit-association-profile-dialog";
-import { listRelationshipProfileDomains, representOwlThing, representUndefinedAssociation, sortRepresentatives } from "../utilities/dialog-utilities";
+import { listRelationshipProfileDomains, representOwlThing, representUndefinedAssociation, representUndefinedClassProfile, sortRepresentatives } from "../utilities/dialog-utilities";
 import { isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { createLogger } from "../../application";
 import { listAssociationsToProfile } from "./attribute-profile-utilities";
+import { isValid } from "../utilities/validation-utilities";
 
 const LOG = createLogger(import.meta.url);
 
@@ -100,9 +101,12 @@ export function createEditAssociationProfileDialogStateFromUsage(
   // RelationshipState<EntityRepresentative>
 
   const relationshipProfileState = createRelationshipProfileStateForEdit(
+    entityProfileState.model,
     vocabularies,
     domain.concept ?? owlThing.identifier, domains, domain.cardinality,
-    range.concept ?? owlThing.identifier, ranges, range.cardinality);
+    representUndefinedClassProfile(),
+    range.concept ?? owlThing.identifier, ranges, range.cardinality,
+    representUndefinedClassProfile());
 
   return {
     ...entityProfileState,
@@ -158,9 +162,12 @@ export function createEditAssociationProfileDialogStateFromProfile(
   // RelationshipState<EntityRepresentative>
 
   const relationshipProfileState = createRelationshipProfileStateForEdit(
+    entityProfileState.model,
     vocabularies,
     domain.concept, domains, domain.cardinality,
-    range.concept, ranges, range.cardinality);
+    representUndefinedClassProfile(),
+    range.concept, ranges, range.cardinality,
+    representUndefinedClassProfile());
 
   return {
     ...entityProfileState,
@@ -178,7 +185,9 @@ export const createEditAssociationProfileDialog = (
     state,
     confirmLabel: "dialog.association-profile.ok-edit",
     cancelLabel: "dialog.association-profile.cancel",
-    validate: () => true,
+    validate: (state) => isValid(state.iriValidation)
+      && isValid(state.domainValidation)
+      && isValid(state.rangeValidation),
     onConfirm: onConfirm,
     onClose: null,
   };

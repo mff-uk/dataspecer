@@ -13,9 +13,10 @@ import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/
 import { MissingRelationshipEnds, RuntimeError } from "../../application/error";
 import { DialogWrapper } from "../dialog-api";
 import { EditAttributeProfileDialog } from "./edit-attribute-profile-dialog";
-import { listAttributeProfileRanges, listRelationshipProfileDomains, representOwlThing, representRdfsLiteral, representUndefinedAttribute, sortRepresentatives,} from "../utilities/dialog-utilities";
+import { listAttributeProfileRanges, listRelationshipProfileDomains, representOwlThing, representRdfsLiteral, representUndefinedAttribute, representUndefinedClassProfile, representUndefinedDataType, sortRepresentatives,} from "../utilities/dialog-utilities";
 import { listAttributesToProfile } from "./attribute-profile-utilities";
 import { createLogger } from "../../application";
+import { isValid } from "../utilities/validation-utilities";
 
 const LOG = createLogger(import.meta.url);
 
@@ -103,9 +104,13 @@ export function createEditAttributeProfileDialogStateFromUsage(
   // RelationshipState<EntityRepresentative>
 
   const relationshipProfileState = createRelationshipProfileStateForEdit(
+    entityProfileState.model,
     vocabularies,
     domain.concept ?? owlThing.identifier, domains, domain.cardinality,
-    range.concept ?? rdfsLiteral.identifier, ranges, range.cardinality);
+    representUndefinedClassProfile(),
+    range.concept ?? rdfsLiteral.identifier, ranges, range.cardinality,
+    representUndefinedDataType(),
+  );
 
   return {
     ...entityProfileState,
@@ -159,9 +164,12 @@ export function createEditAttributeProfileDialogStateFromProfile(
   // RelationshipState<EntityRepresentative>
 
   const relationshipProfileState = createRelationshipProfileStateForEdit(
+    entityProfileState.model,
     vocabularies,
     domain.concept, domains, domain.cardinality,
-    range.concept, ranges, range.cardinality);
+    representUndefinedClassProfile(),
+    range.concept, ranges, range.cardinality,
+    representUndefinedDataType());
 
   return {
     ...entityProfileState,
@@ -179,7 +187,9 @@ export const createEditAttributeProfileDialog = (
     state,
     confirmLabel: "dialog.attribute-profile.ok-edit",
     cancelLabel: "dialog.attribute-profile.cancel",
-    validate: () => true,
+    validate: (state) => isValid(state.iriValidation)
+      && isValid(state.domainValidation)
+      && isValid(state.rangeValidation),
     onConfirm: onConfirm,
     onClose: null,
   };

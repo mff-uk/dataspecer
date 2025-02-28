@@ -10,6 +10,7 @@ import { createEntityProfileStateForNewEntityProfile } from "../utilities/entity
 import { configuration } from "../../application";
 import { EntityDsIdentifier } from "../../dataspecer/entity-model";
 import { listClassToProfiles, representUndefinedClass, sortRepresentatives } from "../utilities/dialog-utilities";
+import { isValid } from "../utilities/validation-utilities";
 
 export function createNewProfileClassDialogState(
   classesContext: ClassesContextType,
@@ -52,7 +53,7 @@ export const createNewClassProfileDialog = (
     state,
     confirmLabel: "dialog.class-profile.ok-create",
     cancelLabel: "dialog.class-profile.cancel",
-    validate: () => true,
+    validate: (state) => isValid(state.iriValidation),
     onConfirm,
     onClose: null,
   };

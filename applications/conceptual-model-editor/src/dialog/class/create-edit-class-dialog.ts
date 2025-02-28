@@ -11,6 +11,7 @@ import { createSpecializationStateForEdit } from "../utilities/specialization-ut
 import { EditClassDialog } from "./edit-class-dialog";
 import { DialogWrapper } from "../dialog-api";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
+import { isValid } from "../utilities/validation-utilities";
 
 export function createEditClassDialogState(
   classesContext: ClassesContextType,
@@ -55,7 +56,7 @@ export const createEditClassDialog = (
     state,
     confirmLabel: "dialog.class.ok-edit",
     cancelLabel: "dialog.class.cancel",
-    validate: () => true,
+    validate: (state) => isValid(state.iriValidation),
     onConfirm,
     onClose: null,
   };

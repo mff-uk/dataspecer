@@ -12,6 +12,7 @@ import { createEntityProfileStateForNewEntityProfile } from "../utilities/entity
 import { configuration } from "../../application";
 import { listAttributesToProfile } from "./attribute-profile-utilities";
 import { EntityDsIdentifier } from "../../dataspecer/entity-model";
+import { isValid } from "../utilities/validation-utilities";
 
 /**
  * State represents new profile entity created for given class entity.
@@ -51,6 +52,7 @@ export function createAddAttributeProfileDialogState(
 
   const profile = entityProfileState.profiles[0];
   const relationshipProfileState = createRelationshipProfileStateForNew(
+    entityProfileState.model,
     vocabularies,
     domainIdentifier,
     profile.domainCardinality.cardinality,
@@ -77,7 +79,9 @@ export const createAddAttributeProfileDialog = (
     state,
     confirmLabel: "dialog.attribute-profile.ok-create",
     cancelLabel: "dialog.attribute-profile.cancel",
-    validate: () => true,
+    validate: (state) => isValid(state.iriValidation)
+      && isValid(state.domainValidation)
+      && isValid(state.rangeValidation),
     onConfirm: onConfirm,
     onClose: null,
   };
