@@ -18,14 +18,12 @@ export const ValidationMessage = (props: {
   case Level.WARNING:
     return (
       <div className="text-orange-600">
-        <span className="font-bold">{t("warning")}</span>:&nbsp;
         {t(message.message, ...message.args)}
       </div>
     )
   case Level.ERROR:
     return (
       <div className="text-red-600">
-        <span className="font-bold">{t("error")}</span>:&nbsp;
         {t(message.message, ...message.args)}
       </div>
     )
