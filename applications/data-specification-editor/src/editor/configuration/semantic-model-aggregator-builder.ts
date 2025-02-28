@@ -65,7 +65,12 @@ export class SemanticModelAggregatorBuilder {
 
     const processAllModelsWithPrefix = async (iri: string) => { // ends with slash
       const thisModels = models.filter((model) => model.getId().startsWith(iri) && !model.getId().substring(iri.length).includes("/"));
-      const thisAggregators = Object.entries(knownAggregatorsForPrefixes).filter(([prefix]) => prefix.startsWith(iri) && !prefix.substring(iri.length, prefix.length - 1).includes("/")).map(([_, model]) => model);
+      let thisAggregators: SemanticModelAggregator[];
+      if (iri === "") {
+        thisAggregators = Object.entries(knownAggregatorsForPrefixes).filter(([prefix]) => prefix.match(/^[^\/]+\/[^\/]+\//s)).map(([_, model]) => model);
+      } else {
+        thisAggregators = Object.entries(knownAggregatorsForPrefixes).filter(([prefix]) => prefix.startsWith(iri) && !prefix.substring(iri.length, prefix.length - 1).includes("/")).map(([_, model]) => model);
+      }
 
       const profile = thisModels.find((model) => model.getId().endsWith("/profile"));
       const thisModelsAggregatorsWithoutProfile = await Promise.all(thisModels.filter((model) => model !== profile).map((model) => this.buildRecursive(model.getId())));
@@ -75,6 +80,7 @@ export class SemanticModelAggregatorBuilder {
       let result: SemanticModelAggregator;
       if (profile) {
         result = new ApplicationProfileAggregator(profile, mergeModel);
+        (result as ApplicationProfileAggregator).thisVocabularyChain["color"] = this.modelData[profile.getId() as string]?.color;
       } else {
         result = mergeModel;
       }
