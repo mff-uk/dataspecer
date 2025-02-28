@@ -1,5 +1,5 @@
 import { LOCAL_SEMANTIC_MODEL } from '@dataspecer/core-v2/model/known-models';
-import { isSemanticModelClass, isSemanticModelRelationship, LanguageString, SemanticModelEntity } from '@dataspecer/core-v2/semantic-model/concepts';
+import { isSemanticModelClass, isSemanticModelRelationPrimitive, isSemanticModelRelationship, LanguageString, SemanticModelEntity } from '@dataspecer/core-v2/semantic-model/concepts';
 import { conceptualModelToEntityListContainer, rdfToConceptualModel } from '@dataspecer/core-v2/semantic-model/data-specification-vocabulary';
 import { createRdfsModel } from '@dataspecer/core-v2/semantic-model/simplified';
 import { isSemanticModelRelationshipUsage } from '@dataspecer/core-v2/semantic-model/usage/concepts';
@@ -13,7 +13,8 @@ import { v4 as uuidv4 } from 'uuid';
 import z from 'zod';
 import { resourceModel } from '../main';
 import { asyncHandler } from './../utils/async-handler';
-import { DataTypeURIs } from "@dataspecer/core-v2/semantic-model/datatypes";
+import { DataTypeURIs, isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
+import { BaseResource } from '../models/resource-model';
 
 function getIriToIdMapping(knownMapping: Record<string, string> = {}) {
   const mapping = {...knownMapping};
@@ -38,7 +39,7 @@ function jsonLdLiteralToLanguageString(literal: Quad_Object[]): LanguageString {
   return result;
 }
 
-async function importRdfsModel(parentIri: string, url: string, newIri: string, userMetadata: any) {
+async function importRdfsModel(parentIri: string, url: string, newIri: string, userMetadata: any): Promise<SemanticModelEntity[]> {
   await resourceModel.createResource(
     parentIri,
     newIri,
@@ -51,6 +52,7 @@ async function importRdfsModel(parentIri: string, url: string, newIri: string, u
   serialization.id = newIri;
   serialization.alias = userMetadata?.label?.en ?? userMetadata?.label?.cs;
   await store.setJson(serialization);
+  return Object.values(wrapper.getEntities()) as SemanticModelEntity[];
 }
 
 /**
@@ -68,7 +70,7 @@ function splitIri(iri: string | null | undefined): [string, string] {
   return [iri.substring(0, separator + 1), iri.substring(separator + 1)];
 }
 
-async function importRdfsAndDsv(parentIri: string, rdfsUrl: string | null, dsvUrl: string | null, userMetadata: any) {
+async function importRdfsAndDsv(parentIri: string, rdfsUrl: string | null, dsvUrl: string | null, userMetadata: any, allImportedEntities: SemanticModelEntity[]) {
   async function createModelFromEntities(entities: SemanticModelEntity[], id: string, userMetadata: any) {
     await resourceModel.createResource(
       parentIri,
@@ -163,6 +165,7 @@ async function importRdfsAndDsv(parentIri: string, rdfsUrl: string | null, dsvUr
 
     vocabularyEntities = Object.values(model.getEntities()) as SemanticModelEntity[];
   }
+  allImportedEntities.push(...vocabularyEntities.map(e => ({...e}))); // We need to clone because the following function modifies iris
   if (vocabularyEntities.length > 0) {
     await createModelFromEntities(vocabularyEntities, parentIri + "/" + "vocabulary", userMetadata);
   }
@@ -176,6 +179,14 @@ async function importRdfsAndDsv(parentIri: string, rdfsUrl: string | null, dsvUr
     const conceptualModel = await rdfToConceptualModel(data);
     const dsvResult = conceptualModelToEntityListContainer(conceptualModel[0], {
       iriToIdentifier: iri => knownMapping[iri] ?? iri,
+      iriPropertyToIdentifier(iri, rangeConcept) {
+        const isPrimitive = isDataType(rangeConcept);
+        const candidate = allImportedEntities.filter(isSemanticModelRelationship).find(e => e.ends[1].iri === iri && isSemanticModelRelationPrimitive(e) === isPrimitive);
+        if (candidate) {
+          return candidate.id;
+        }
+        return knownMapping[iri] ?? iri;
+      },
     });
 
     profileEntities = dsvResult.entities as SemanticModelEntity[];
@@ -188,7 +199,7 @@ async function importRdfsAndDsv(parentIri: string, rdfsUrl: string | null, dsvUr
 /**
  * Imports from URL and creates either a package or PIM model.
  */
-async function importFromUrl(parentIri: string, url: string) {
+async function importFromUrl(parentIri: string, url: string): Promise<[BaseResource | null, SemanticModelEntity[]]> {
   url = url.replace(/#.*$/, "");
   console.log("Importing from URL: " + url);
 
@@ -240,23 +251,25 @@ async function importFromUrl(parentIri: string, url: string) {
       }
     }
 
+    const vocabularies = [...new Set([
+      ...store.getObjects(baseIri, "https://w3id.org/dsv#usedVocabularies", null).map(v => v.id),
+      ...store.getObjects(baseIri, "https://w3id.org/dsv-dap#dct-references", null).map(v => v.id),
+    ])];
+    const entities: SemanticModelEntity[] = [];
+    for (const vocabularyId of vocabularies) {
+      const urlToImport = vocabularyId;
+      const [, e] = await importFromUrl(newPackageIri, urlToImport);
+      entities.push(...e);
+    }
+
     await importRdfsAndDsv(newPackageIri, rdfsUrl, dsvUrl, {
       label: {
         en: (name.en ?? name.cs),
       },
       documentBaseUrl: url,
-    });
+    }, entities);
 
-    const vocabularies = [...new Set([
-      ...store.getObjects(baseIri, "https://w3id.org/dsv#usedVocabularies", null).map(v => v.id),
-      ...store.getObjects(baseIri, "https://w3id.org/dsv-dap#dct-references", null).map(v => v.id),
-    ])];
-    for (const vocabularyId of vocabularies) {
-      const urlToImport = vocabularyId;
-      await importFromUrl(newPackageIri, urlToImport);
-    }
-
-    return await resourceModel.getResource(newPackageIri);
+    return [(await resourceModel.getResource(newPackageIri))!, entities];
   } else {
     // Generate name
     let chunkToParse = url;
@@ -266,10 +279,10 @@ async function importFromUrl(parentIri: string, url: string) {
 
     const name = chunkToParse.split("/").pop()?.split(".")[0] ?? null;
 
-    return await importRdfsModel(parentIri, url, parentIri + "/" + uuidv4(), {
+    return [null, await importRdfsModel(parentIri, url, parentIri + "/" + uuidv4(), {
       documentBaseUrl: url,
       ... name ? { label: { en: name } } : {},
-    });
+    })];
   }
 }
 
@@ -286,7 +299,7 @@ export const importResource = asyncHandler(async (request: express.Request, resp
 
   const query = querySchema.parse(request.query);
 
-  const result = await importFromUrl(query.parentIri, query.url);
+  const [result] = await importFromUrl(query.parentIri, query.url);
 
   response.send(result);
   return;
