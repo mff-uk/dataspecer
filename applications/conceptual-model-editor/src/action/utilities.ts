@@ -169,7 +169,7 @@ export const computeRelatedAssociationsBarycenterAction = async (
   classesContext: ClassesContextType,
   classToFindAssociationsFor: string,
 ): Promise<ComputedPositionForNodePlacement> => {
-  const associatedClasses: string[] = (await findAssociatedClassesAndClassUsages(notifications, graph, classesContext, classToFindAssociationsFor)).selectionExtension.nodeSelection;
+  const associatedClasses: string[] = (await findAssociatedClassesAndClassProfiles(notifications, graph, classesContext, classToFindAssociationsFor)).selectionExtension.nodeSelection;
   const associatedPositions = associatedClasses.map(associatedNodeIdentifier => {
     const visualNode = visualModel.getVisualEntityForRepresented(associatedNodeIdentifier);
     if(visualNode === null) {
@@ -218,7 +218,9 @@ const computeBarycenter = (positions: Position[], diagram: UseDiagramType): Comp
   };
 };
 
-const findAssociatedClassesAndClassUsages = async (
+// TODO RadStr: Put in ExtensionType.ClassProfile, but not now since it does not work
+//              See https://github.com/mff-uk/dataspecer/issues/966
+const findAssociatedClassesAndClassProfiles = async (
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   classesContext: ClassesContextType,
@@ -227,7 +229,8 @@ const findAssociatedClassesAndClassUsages = async (
   // Is synchronous for this case
   const selection = await extendSelectionAction(notifications, graph, classesContext,
     {areIdentifiersFromVisualModel: false, identifiers: [classToFindAssociationsFor]},
-    [ExtensionType.Association, ExtensionType.Generalization], VisibilityFilter.OnlyVisibleNodes, false, null);
+    [ExtensionType.Association, ExtensionType.Generalization],
+    VisibilityFilter.OnlyVisibleNodes, false, null);
   return selection;
 }
 
