@@ -351,7 +351,9 @@ export class RdfsFileAdapter implements CimAdapter {
             loadRdfsEntityToResource(entity, this.iriProvider, attribute);
             attribute.iri = this.iriProvider.cimToPim(entity.iri) + (isAssociation ? "#attribute" : ""); // to have unique ids
             attribute.pimOwnerClass = this.iriProvider.cimToPim(domainClassIri);
-            attribute.pimDatatype = rangeClassIri;
+            attribute.pimDatatype = rangeClassIri === OWL.Thing ? RDFS.Literal : rangeClassIri ?? RDFS.Literal;
+
+            attribute["pimExtends"] = entity.property(RDFS.subPropertyOf).map(e => this.iriProvider.cimToPim(e.value));
 
             connectedClasses.push(domainClassIri);
             resources.push(attribute);
@@ -373,6 +375,8 @@ export class RdfsFileAdapter implements CimAdapter {
             association.pimIsOriented = true;
 
             association.pimEnd = [domain.iri, range.iri];
+
+            association["pimExtends"] = entity.property(RDFS.subPropertyOf).map(e => this.iriProvider.cimToPim(e.value));
 
             connectedClasses.push(domainClassIri, rangeClassIri);
             resources.push(domain, association, range);

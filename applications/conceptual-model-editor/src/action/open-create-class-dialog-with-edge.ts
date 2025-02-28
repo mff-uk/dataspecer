@@ -126,6 +126,7 @@ function createAssociationToCreatedClass(
     identifier: createdClassData.identifier,
     iri: editClassDialogState.iri,
     vocabularyDsIdentifier: vocabularyForCreatedClass?.dsIdentifier ?? "",
+    name: editClassDialogState.name,
     label: editClassDialogState.name,
     description: editClassDialogState.description,
     profileOfIdentifiers: [],
