@@ -7,13 +7,13 @@ import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { EditAttributeProfileDialogState } from "./edit-attribute-profile-dialog-controller";
-import { createRelationshipProfileStateForEdit } from "../utilities/relationship-profile-utilities";
+import { createRelationshipProfileState, filterByModel } from "../utilities/relationship-profile-utilities";
 import { createEntityProfileStateForEdit } from "../utilities/entity-profile-utilities";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { MissingRelationshipEnds, RuntimeError } from "../../application/error";
 import { DialogWrapper } from "../dialog-api";
 import { EditAttributeProfileDialog } from "./edit-attribute-profile-dialog";
-import { listAttributeProfileRanges, listRelationshipProfileDomains, representOwlThing, representRdfsLiteral, representUndefinedAttribute, representUndefinedClassProfile, representUndefinedDataType, sortRepresentatives,} from "../utilities/dialog-utilities";
+import { listAttributeProfileRanges, listRelationshipProfileDomains, representOwlThing, representRdfsLiteral, representUndefinedAttribute, representUndefinedClassProfile, representUndefinedDataType, sortRepresentatives, } from "../utilities/dialog-utilities";
 import { listAttributesToProfile } from "./attribute-profile-utilities";
 import { createLogger } from "../../application";
 import { isValid } from "../utilities/validation-utilities";
@@ -36,7 +36,7 @@ export function createEditAttributeProfileDialogState(
 
   const entities = graphContext.aggregatorView.getEntities();
 
-  const {rawEntity: entity, aggregatedEntity: aggregate} = entities[entityIdentifier];
+  const { rawEntity: entity, aggregatedEntity: aggregate } = entities[entityIdentifier];
 
   if (isSemanticModelRelationshipUsage(entity)
     && isSemanticModelRelationshipUsage(aggregate)) {
@@ -49,7 +49,7 @@ export function createEditAttributeProfileDialogState(
       classesContext, graphContext, visualModel, language, model,
       entity, aggregate);
   } else {
-    LOG.invalidEntity(entityIdentifier, "Invalid type.", {entity, aggregate});
+    LOG.invalidEntity(entityIdentifier, "Invalid type.", { entity, aggregate });
     throw new RuntimeError("Invalid entity type.");
   }
 }
@@ -103,13 +103,13 @@ export function createEditAttributeProfileDialogStateFromUsage(
 
   // RelationshipState<EntityRepresentative>
 
-  const relationshipProfileState = createRelationshipProfileStateForEdit(
+  const relationshipProfileState = createRelationshipProfileState(
     entityProfileState.model,
     vocabularies,
-    domain.concept ?? owlThing.identifier, domains, domain.cardinality,
-    representUndefinedClassProfile(),
-    range.concept ?? rdfsLiteral.identifier, ranges, range.cardinality,
-    representUndefinedDataType(),
+    domain.concept ?? owlThing.identifier, domain.cardinality, domains,
+    filterByModel, representUndefinedClassProfile(),
+    range.concept ?? rdfsLiteral.identifier, range.cardinality, ranges,
+    items => items, representUndefinedDataType(),
   );
 
   return {
@@ -163,13 +163,13 @@ export function createEditAttributeProfileDialogStateFromProfile(
 
   // RelationshipState<EntityRepresentative>
 
-  const relationshipProfileState = createRelationshipProfileStateForEdit(
+  const relationshipProfileState = createRelationshipProfileState(
     entityProfileState.model,
     vocabularies,
-    domain.concept, domains, domain.cardinality,
-    representUndefinedClassProfile(),
-    range.concept, ranges, range.cardinality,
-    representUndefinedDataType());
+    domain.concept, domain.cardinality, domains,
+    filterByModel, representUndefinedClassProfile(),
+    range.concept, range.cardinality, ranges,
+    items => items, representUndefinedDataType());
 
   return {
     ...entityProfileState,

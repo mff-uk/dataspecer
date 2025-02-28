@@ -8,7 +8,7 @@ import { DialogWrapper } from "../dialog-api";
 import { createEntityStateForNew } from "../utilities/entity-utilities";
 import { isRepresentingAssociation, listRelationshipDomains, representOwlThing, representRelationships, representUndefinedClass, sortRepresentatives } from "../utilities/dialog-utilities";
 import { createSpecializationStateForNew } from "../utilities/specialization-utilities";
-import { createRelationshipStateForNew } from "../utilities/relationship-utilities";
+import { createRelationshipState } from "../utilities/relationship-utilities";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { isValid } from "../utilities/validation-utilities";
 
@@ -52,10 +52,10 @@ export function createCreateAssociationDialogState(
   // For association domains are same as ranges.
   const ranges = domains;
 
-  const relationshipState = createRelationshipStateForNew(
+  const relationshipState = createRelationshipState(
     vocabularies,
-    owlThing, representUndefinedClass(), domains,
-    owlThing, representUndefinedClass(), ranges);
+    owlThing.identifier, representUndefinedClass(), null, domains,
+    owlThing.identifier, representUndefinedClass(), null, ranges);
 
   return {
     ...entityState,

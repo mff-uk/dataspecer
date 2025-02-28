@@ -5,9 +5,9 @@ import { ModelGraphContextType } from "../../context/model-context";
 import { EditAttributeProfileDialogState } from "./edit-attribute-profile-dialog-controller";
 import { EditAttributeProfileDialog } from "./edit-attribute-profile-dialog";
 import { DialogWrapper } from "../dialog-api";
-import { createRelationshipProfileStateForNew } from "../utilities/relationship-profile-utilities";
+import { createRelationshipProfileState, filterByModel } from "../utilities/relationship-profile-utilities";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
-import { representUndefinedAttribute, listRelationshipProfileDomains, listAttributeProfileRanges, sortRepresentatives } from "../utilities/dialog-utilities";
+import { representUndefinedAttribute, listRelationshipProfileDomains, listAttributeProfileRanges, sortRepresentatives, representUndefinedClassProfile, representUndefinedDataType } from "../utilities/dialog-utilities";
 import { createEntityProfileStateForNewEntityProfile } from "../utilities/entity-profile-utilities";
 import { configuration } from "../../application";
 import { listAttributesToProfile } from "./attribute-profile-utilities";
@@ -51,15 +51,21 @@ export function createNewAttributeProfileDialogState(
   // RelationshipState<EntityRepresentative>
 
   const profile = entityProfileState.profiles[0];
-  const relationshipProfileState = createRelationshipProfileStateForNew(
+
+  // As we use the first model to get domain and range,
+  // we use it to select default model.
+  entityProfileState.model =
+  entityProfileState.availableModels.find(
+    model => model.dsIdentifier === profile.vocabularyDsIdentifier)
+  ?? entityProfileState.model;
+
+  const relationshipProfileState = createRelationshipProfileState(
     entityProfileState.model,
     vocabularies,
-    profile.domain,
-    profile.domainCardinality.cardinality,
-    domains, domains[0],
-    profile.range,
-    profile.rangeCardinality.cardinality,
-    ranges, ranges[0]);
+    profile.domain, profile.domainCardinality.cardinality, domains,
+    filterByModel, representUndefinedClassProfile(),
+    profile.range, profile.rangeCardinality.cardinality, ranges,
+    items => items, representUndefinedDataType());
 
   const result = {
     ...entityProfileState,

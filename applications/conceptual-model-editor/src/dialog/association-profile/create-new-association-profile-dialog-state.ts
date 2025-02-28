@@ -5,7 +5,7 @@ import { ModelGraphContextType } from "../../context/model-context";
 import { EditAssociationProfileDialogState } from "./edit-association-profile-dialog-controller";
 import { listRelationshipProfileDomains, representUndefinedAssociation, representUndefinedClassProfile, sortRepresentatives } from "../utilities/dialog-utilities";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
-import { createRelationshipProfileStateForNew } from "../utilities/relationship-profile-utilities";
+import { createRelationshipProfileState, filterByModel } from "../utilities/relationship-profile-utilities";
 import { EditAssociationProfileDialog } from "./edit-association-profile-dialog";
 import { DialogWrapper } from "../dialog-api";
 import { createEntityProfileStateForNewEntityProfile } from "../utilities/entity-profile-utilities";
@@ -50,15 +50,13 @@ export function createNewAssociationProfileDialogState(
   // RelationshipState<EntityRepresentative>
 
   const profile = entityProfileState.profiles[0];
-  const relationshipProfileState = createRelationshipProfileStateForNew(
+  const relationshipProfileState = createRelationshipProfileState(
     entityProfileState.model,
     vocabularies,
-    profile.domain,
-    profile.domainCardinality.cardinality,
-    domains, representUndefinedClassProfile(),
-    profile.range,
-    profile.rangeCardinality.cardinality,
-    ranges, representUndefinedClassProfile());
+    profile.domain, profile.domainCardinality.cardinality, domains,
+    filterByModel, representUndefinedClassProfile(),
+    profile.range, profile.rangeCardinality.cardinality, ranges,
+    filterByModel, representUndefinedClassProfile());
 
   const result = {
     ...entityProfileState,

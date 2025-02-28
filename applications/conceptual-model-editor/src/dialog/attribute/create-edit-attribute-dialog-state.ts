@@ -9,7 +9,7 @@ import { getDomainAndRange } from "../../util/relationship-utils";
 import { MissingRelationshipEnds } from "../../application/error";
 import { createEntityStateForEdit } from "../utilities/entity-utilities";
 import { createSpecializationStateForEdit } from "../utilities/specialization-utilities";
-import { createRelationshipStateForEdit } from "../utilities/relationship-utilities";
+import { createRelationshipState } from "../utilities/relationship-utilities";
 import { DialogWrapper } from "../dialog-api";
 import { EditAttributeDialog } from "./edit-attribute-dialog";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
@@ -63,7 +63,7 @@ export function createEditAttributeDialogState(
 
   const dataTypes = listAttributeRanges();
 
-  const relationshipState = createRelationshipStateForEdit(
+  const relationshipState = createRelationshipState(
     vocabularies,
     domain.concept ?? owlThing.identifier, representUndefinedClass(),
     domain.cardinality, domains,

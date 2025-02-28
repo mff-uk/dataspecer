@@ -539,11 +539,10 @@ const CORE_DATA_TYPE: DataTypeRepresentative[] = DataTypeURIs.map(iri => ({
 }));
 
 /**
- * @returns undefined, data types
+ * @returns data types
  */
 export function listAttributeRanges(): DataTypeRepresentative[] {
   return [
-    representUndefinedDataType(),
     ...CORE_DATA_TYPE,
   ];
 }

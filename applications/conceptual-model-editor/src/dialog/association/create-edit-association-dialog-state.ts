@@ -9,7 +9,7 @@ import { MissingRelationshipEnds } from "../../application/error";
 import { createEntityStateForEdit } from "../utilities/entity-utilities";
 import { isRepresentingAssociation, listRelationshipDomains, representOwlThing, representRelationships, representUndefinedClass, sortRepresentatives } from "../utilities/dialog-utilities";
 import { createSpecializationStateForEdit } from "../utilities/specialization-utilities";
-import { createRelationshipStateForEdit } from "../utilities/relationship-utilities";
+import { createRelationshipState } from "../utilities/relationship-utilities";
 import { DialogWrapper } from "../dialog-api";
 import { EditAssociationDialog } from "./edit-association-dialog";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
@@ -61,7 +61,7 @@ export function createEditAssociationDialogState(
   // For association domains are same as ranges.
   const ranges = domains;
 
-  const relationshipState = createRelationshipStateForEdit(
+  const relationshipState = createRelationshipState(
     vocabularies,
     domain.concept ?? owlThing.identifier, representUndefinedClass(),
     domain.cardinality, domains,

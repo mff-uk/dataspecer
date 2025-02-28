@@ -9,7 +9,7 @@ import { EditAssociationProfileDialogState } from "./edit-association-profile-di
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { MissingRelationshipEnds, RuntimeError } from "../../application/error";
 import { createEntityProfileStateForEdit } from "../utilities/entity-profile-utilities";
-import { createRelationshipProfileStateForEdit } from "../utilities/relationship-profile-utilities";
+import { createRelationshipProfileState, filterByModel } from "../utilities/relationship-profile-utilities";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { DialogWrapper } from "../dialog-api";
 import { EditAssociationProfileDialog } from "./edit-association-profile-dialog";
@@ -100,12 +100,14 @@ export function createEditAssociationProfileDialogStateFromUsage(
 
   // RelationshipState<EntityRepresentative>
 
-  const relationshipProfileState = createRelationshipProfileStateForEdit(
+  const relationshipProfileState = createRelationshipProfileState(
     entityProfileState.model,
     vocabularies,
-    domain.concept ?? owlThing.identifier, domains, domain.cardinality,
+    domain.concept ?? owlThing.identifier, domain.cardinality,
+    domains, filterByModel,
     representUndefinedClassProfile(),
-    range.concept ?? owlThing.identifier, ranges, range.cardinality,
+    range.concept ?? owlThing.identifier, range.cardinality,
+    ranges, filterByModel,
     representUndefinedClassProfile());
 
   return {
@@ -161,13 +163,13 @@ export function createEditAssociationProfileDialogStateFromProfile(
 
   // RelationshipState<EntityRepresentative>
 
-  const relationshipProfileState = createRelationshipProfileStateForEdit(
+  const relationshipProfileState = createRelationshipProfileState(
     entityProfileState.model,
     vocabularies,
-    domain.concept, domains, domain.cardinality,
-    representUndefinedClassProfile(),
-    range.concept, ranges, range.cardinality,
-    representUndefinedClassProfile());
+    domain.concept, domain.cardinality, domains,
+    filterByModel, representUndefinedClassProfile(),
+    range.concept, domain.cardinality, ranges,
+    filterByModel, representUndefinedClassProfile());
 
   return {
     ...entityProfileState,

@@ -1,6 +1,5 @@
 import { LanguageString } from "@dataspecer/core/core/core-resource";
 import { createLogger } from "../../application";
-import { RuntimeError } from "../../application/error";
 import { CmeModel } from "../../dataspecer/cme-model";
 import { EntityDsIdentifier } from "../../dataspecer/entity-model";
 import { sanitizeDuplicitiesInRepresentativeLabels } from "../../utilities/label";
@@ -9,6 +8,8 @@ import { RelationshipController, RelationshipState, createRelationshipController
 import { ValidationState, validationNoProblem, validationNotEvaluated } from "./validation-utilities";
 
 const LOG = createLogger(import.meta.url);
+
+type ItemFilter<ItemType> = (items: ItemType[], model: CmeModel) => ItemType[];
 
 export interface RelationshipProfileState<RangeType>
   extends RelationshipState<RangeType> {
@@ -20,13 +21,6 @@ export interface RelationshipProfileState<RangeType>
   vocabularies: CmeModel[];
 
   // Domain
-
-  /**
-   * Represent a value for non-set domain.
-   * We use this value when there is no value for {@link availableDomains}.
-   * It must not be possible to save the dialog with this value.
-   */
-  unsetDomain: EntityRepresentative;
 
   /**
    * List of all domains. We use it to generate {@link availableDomains}.
@@ -44,13 +38,6 @@ export interface RelationshipProfileState<RangeType>
   // Range
 
   /**
-   * Represent a value for non-set range.
-   * We use this value when there is no value for {@link availableRanges}.
-   * It must not be possible to save the dialog with this value.
-   */
-  unsetRange: RangeType;
-
-  /**
    * List of all range. We use it to generate {@link availableRanges}.
    */
   allRanges: RangeType[];
@@ -65,7 +52,7 @@ export interface RelationshipProfileState<RangeType>
 
 }
 
-export function createRelationshipProfileStateForNew<RangeType extends {
+export function createRelationshipProfileState<RangeType extends {
   identifier: string,
   iri: string | null,
   label: LanguageString,
@@ -76,15 +63,17 @@ export function createRelationshipProfileStateForNew<RangeType extends {
   domainIdentifier: EntityDsIdentifier,
   domainCardinality: [number, number | null] | null,
   allDomains: EntityRepresentative[],
-  unsetDomain: EntityRepresentative,
+  domainFilter: ItemFilter<EntityRepresentative>,
+  invalidDomain: EntityRepresentative,
   rangeIdentifier: EntityDsIdentifier,
   rangeCardinality: [number, number | null] | null,
   allRanges: RangeType[],
-  unsetRange: RangeType,
+  rangeFilter: ItemFilter<RangeType>,
+  invalidRange: RangeType,
 ): RelationshipProfileState<RangeType> {
 
   // Filter domains for given model.
-  const availableDomains = filterByModel(allDomains, model);
+  const availableDomains = domainFilter(allDomains, model);
 
   // Domain
   let domain = availableDomains.find(
@@ -92,12 +81,12 @@ export function createRelationshipProfileStateForNew<RangeType extends {
   if (domain === undefined) {
     LOG.warn("Can not find domain representative.",
       { domain: domainIdentifier, availableDomains, allDomains });
-    domain = unsetDomain;
-    availableDomains.push(unsetDomain);
+    domain = invalidDomain;
+    availableDomains.push(invalidDomain);
   }
 
   // Filter ranges for given model.
-  const availableRanges = filterByModel(allRanges, model);
+  const availableRanges = rangeFilter(allRanges, model);
 
   // Range
   let range = allRanges.find(
@@ -105,15 +94,15 @@ export function createRelationshipProfileStateForNew<RangeType extends {
   if (range === undefined) {
     LOG.warn("Can not find range representative.",
       { range: rangeIdentifier, availableRanges, allRanges });
-    range = unsetRange;
-    availableRanges.push(unsetRange);
+    range = invalidRange;
+    availableRanges.push(invalidRange);
   }
 
   return validateRelationshipState({
     vocabularies,
     // Domain
     domain,
-    unsetDomain,
+    invalidDomain,
     allDomains,
     domainValidation: validationNotEvaluated(),
     availableDomains: sanitizeDuplicitiesInRepresentativeLabels(
@@ -124,7 +113,7 @@ export function createRelationshipProfileStateForNew<RangeType extends {
     domainCardinalityValidation: validationNoProblem(),
     // Range
     range,
-    unsetRange,
+    invalidRange,
     rangeValidation: validationNotEvaluated(),
     allRanges,
     availableRanges: sanitizeDuplicitiesInRepresentativeLabels(
@@ -138,81 +127,11 @@ export function createRelationshipProfileStateForNew<RangeType extends {
   });
 }
 
-function filterByModel<Type extends { vocabularyDsIdentifier: string }>(
+export function filterByModel<Type extends { vocabularyDsIdentifier: string }>(
   items: Type[], model: CmeModel,
 ): Type[] {
   return items.filter(
     item => item.vocabularyDsIdentifier === model.dsIdentifier);
-}
-
-export function createRelationshipProfileStateForEdit<RangeType extends {
-  identifier: string,
-  iri: string | null,
-  label: LanguageString,
-  vocabularyDsIdentifier: string,
-}>(
-  model: CmeModel,
-  vocabularies: CmeModel[],
-  domainIdentifier: EntityDsIdentifier,
-  allDomains: EntityRepresentative[],
-  domainCardinality: [number, number | null] | null,
-  unsetDomain: EntityRepresentative,
-  rangeIdentifier: EntityDsIdentifier,
-  allRanges: RangeType[],
-  rangeCardinality: [number, number | null] | null,
-  unsetRange: RangeType,
-): RelationshipProfileState<RangeType> {
-
-  // Filter domains for given model.
-  const availableDomains = filterByModel(allDomains, model);
-
-  // Domain
-  let domain = availableDomains.find(
-    item => item.identifier === domainIdentifier);
-  if (domain === undefined) {
-    LOG.warn("Can not find domain representative.",
-      { domain: domainIdentifier, availableDomains, allDomains });
-    domain = unsetDomain;
-    availableDomains.push(unsetDomain);
-  }
-
-  // Filter ranges for given model.
-  const availableRanges = filterByModel(allRanges, model);
-
-  // Range
-  const range = availableRanges.find(
-    item => item.identifier === rangeIdentifier);
-  if (range === undefined) {
-    throw new RuntimeError("Can not find range representative.")
-  }
-
-  return validateRelationshipState({
-    vocabularies,
-    // Domain
-    domain,
-    unsetDomain,
-    allDomains,
-    domainValidation: validationNotEvaluated(),
-    availableDomains: sanitizeDuplicitiesInRepresentativeLabels(
-      vocabularies, availableDomains),
-    // Domain cardinality
-    domainCardinality: representProfileCardinality(domainCardinality),
-    overrideDomainCardinality: domainCardinality !== null,
-    domainCardinalityValidation: validationNoProblem(),
-    // Range
-    range,
-    unsetRange,
-    rangeValidation: validationNotEvaluated(),
-    allRanges,
-    availableRanges: sanitizeDuplicitiesInRepresentativeLabels(
-      vocabularies, availableRanges),
-    // Range cardinality
-    rangeCardinality: representProfileCardinality(rangeCardinality),
-    overrideRangeCardinality: rangeCardinality !== null,
-    rangeCardinalityValidation: validationNoProblem(),
-    //
-    availableCardinalities: listProfileCardinalities(),
-  });
 }
 
 export interface RelationshipProfileStateController<RangeType>
@@ -239,6 +158,8 @@ export function createRelationshipProfileController<
   State extends RelationshipProfileState<RangeType>
 >(
   changeState: (next: State | ((prevState: State) => State)) => void,
+  domainFilter: ItemFilter<EntityRepresentative>,
+  rangeFilter: ItemFilter<RangeType>,
 ): RelationshipProfileStateController<RangeType> {
 
   const relationshipController = createRelationshipController(changeState);
@@ -247,21 +168,37 @@ export function createRelationshipProfileController<
     changeState((state) => {
       const result = {
         ...state,
-        availableDomains: sanitizeDuplicitiesInRepresentativeLabels(
-          state.vocabularies, filterByModel(state.allDomains, model)),
-        availableRanges: sanitizeDuplicitiesInRepresentativeLabels(
-          state.vocabularies, filterByModel(state.allRanges, model)),
       };
+
+      // Update domains.
+      const nextAvailableDomains = domainFilter(state.allDomains, model);
+      if (nextAvailableDomains !== result.availableDomains) {
+        result.availableDomains = sanitizeDuplicitiesInRepresentativeLabels(
+          state.vocabularies, nextAvailableDomains);
+      }
+
       // Check if domain is still in available domains.
       if (!result.availableDomains.includes(result.domain)) {
-        result.domain = result.unsetDomain;
-        result.availableDomains.push(result.unsetDomain);
+        result.domain = result.invalidDomain;
+        result.availableDomains.push(result.invalidDomain);
+      }
+
+      // Update ranges.
+      const nextAvailableRanges = rangeFilter(state.allRanges, model);
+      if (nextAvailableRanges !== result.availableRanges) {
+        result.availableRanges = sanitizeDuplicitiesInRepresentativeLabels(
+          state.vocabularies, nextAvailableRanges);
       }
 
       // Check if range is still in available ranges.
       if (!result.availableRanges.includes(result.range)) {
-        result.range = result.unsetRange;
-        result.availableRanges.push(result.unsetRange);
+        // We try to find an equivalent, this preserve types.
+        // Alternative would be to move this to association only
+        // version of the controller.
+        result.range = result.availableRanges.find(
+          item => item.identifier === result.range.identifier)
+          ?? result.invalidRange;
+        result.availableRanges.push(result.invalidRange);
       }
 
       return validateRelationshipState(result);

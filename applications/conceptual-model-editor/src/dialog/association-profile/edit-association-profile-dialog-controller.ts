@@ -4,7 +4,7 @@ import { configuration } from "../../application";
 import { DialogProps } from "../dialog-api";
 import { EntityRepresentative, RelationshipRepresentative } from "../utilities/dialog-utilities";
 import { EntityProfileState, EntityProfileStateController, createEntityProfileController } from "../utilities/entity-profile-utilities";
-import { RelationshipProfileState, RelationshipProfileStateController, createRelationshipProfileController } from "../utilities/relationship-profile-utilities";
+import { RelationshipProfileState, RelationshipProfileStateController, createRelationshipProfileController, filterByModel } from "../utilities/relationship-profile-utilities";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
 import { validateEntityState } from "../utilities/entity-utilities";
 import { CmeModel } from "../../dataspecer/cme-model";
@@ -22,9 +22,11 @@ export function useEditAssociationProfileDialogController({ changeState }:
 
   return useMemo(() => {
 
-    const entityProfileController = createEntityProfileController(changeState, configuration().relationshipNameToIri);
+    const entityProfileController = createEntityProfileController(
+      changeState, configuration().relationshipNameToIri);
 
-    const relationshipProfileController = createRelationshipProfileController(changeState);
+    const relationshipProfileController = createRelationshipProfileController(
+      changeState, filterByModel, filterByModel);
 
     const setModel = (model: CmeModel) => {
       entityProfileController.setModel(model);

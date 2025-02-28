@@ -6,7 +6,7 @@ import { isRepresentingAttribute, listAttributeRanges, representOwlThing, repres
 import { configuration } from "../../application";
 import { createEntityStateForNew } from "../utilities/entity-utilities";
 import { createSpecializationStateForNew } from "../utilities/specialization-utilities";
-import { createRelationshipStateForNew } from "../utilities/relationship-utilities";
+import { createRelationshipState } from "../utilities/relationship-utilities";
 import { DialogWrapper } from "../dialog-api";
 import { EditAttributeDialog } from "./edit-attribute-dialog";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
@@ -65,10 +65,10 @@ export function createAddAttributeDialogState(
 
   const dataTypes = listAttributeRanges();
 
-  const relationshipState = createRelationshipStateForNew(
+  const relationshipState = createRelationshipState(
     vocabularies,
-    domain, representUndefinedClass(), domains,
-    rdfsLiteral, representUndefinedDataType(), dataTypes);
+    domain.identifier, representUndefinedClass(), null, domains,
+    rdfsLiteral.identifier, representUndefinedDataType(), null, dataTypes);
 
   return {
     ...entityState,

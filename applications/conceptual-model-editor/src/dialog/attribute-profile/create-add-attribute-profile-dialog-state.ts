@@ -5,14 +5,15 @@ import { ModelGraphContextType } from "../../context/model-context";
 import { EditAttributeProfileDialogState } from "./edit-attribute-profile-dialog-controller";
 import { EditAttributeProfileDialog } from "./edit-attribute-profile-dialog";
 import { DialogWrapper } from "../dialog-api";
-import { createRelationshipProfileStateForNew } from "../utilities/relationship-profile-utilities";
+import { createRelationshipProfileState, filterByModel } from "../utilities/relationship-profile-utilities";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
-import { representUndefinedAttribute, listRelationshipProfileDomains, listAttributeProfileRanges, sortRepresentatives } from "../utilities/dialog-utilities";
+import { representUndefinedAttribute, listRelationshipProfileDomains, listAttributeProfileRanges, sortRepresentatives, representUndefinedClassProfile, representUndefinedDataType } from "../utilities/dialog-utilities";
 import { createEntityProfileStateForNewEntityProfile } from "../utilities/entity-profile-utilities";
 import { configuration } from "../../application";
 import { listAttributesToProfile } from "./attribute-profile-utilities";
 import { EntityDsIdentifier } from "../../dataspecer/entity-model";
 import { isValid } from "../utilities/validation-utilities";
+import { findSourceModelOfEntity } from "../../service/model-service";
 
 /**
  * State represents new profile entity created for given class entity.
@@ -48,18 +49,24 @@ export function createAddAttributeProfileDialogState(
     availableProfiles, [], noProfile,
     configuration().relationshipNameToIri);
 
+  const sourceModel = findSourceModelOfEntity(
+    domainIdentifier, graphContext.models);
+  if (sourceModel !== null) {
+    entityProfileState.model =
+      entityProfileState.availableModels.find(
+        model => model.dsIdentifier === sourceModel.getId())
+      ?? entityProfileState.model;
+  }
+
   // RelationshipState<EntityRepresentative>
 
   const profile = entityProfileState.profiles[0];
-  const relationshipProfileState = createRelationshipProfileStateForNew(
-    entityProfileState.model,
-    vocabularies,
-    domainIdentifier,
-    profile.domainCardinality.cardinality,
-    domains, domains[0],
-    profile.range,
-    profile.rangeCardinality.cardinality,
-    ranges, ranges[0]);
+  const relationshipProfileState = createRelationshipProfileState(
+    entityProfileState.model, vocabularies,
+    domainIdentifier, profile.domainCardinality.cardinality, domains,
+    filterByModel, representUndefinedClassProfile(),
+    profile.range, profile.rangeCardinality.cardinality, ranges,
+    items => items, representUndefinedDataType());
 
   const result = {
     ...entityProfileState,

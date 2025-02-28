@@ -21,7 +21,7 @@ export interface RelationshipState<RangeType> {
    * It must not be possible to save the dialog with this value.
    * We use this also to represent an invalid state.
    */
-  unsetDomain: EntityRepresentative;
+  invalidDomain: EntityRepresentative;
 
   /**
    * Available domain items to select from.
@@ -46,7 +46,7 @@ export interface RelationshipState<RangeType> {
    * It must not be possible to save the dialog with this value.
    * We use this also to represent an invalid state.
    */
-  unsetRange: RangeType;
+  invalidRange: RangeType;
 
   /**
    * Available range items to select from.
@@ -66,52 +66,59 @@ export interface RelationshipState<RangeType> {
   availableCardinalities: Cardinality[];
 }
 
-export function createRelationshipStateForNew<RangeType extends {
+export function createRelationshipState<RangeType extends {
   identifier: string,
   iri: string | null,
   label: LanguageString,
   vocabularyDsIdentifier: string,
 }>(
   vocabularies: CmeModel[],
-  domain: EntityRepresentative,
-  unsetDomain: EntityRepresentative,
+  domainIdentifier: string,
+  invalidDomain: EntityRepresentative,
+  domainCardinality: [number, number | null] | undefined | null,
   availableDomains: EntityRepresentative[],
-  range: RangeType,
-  unsetRange: RangeType,
+  rangeIdentifier: string,
+  invalidRange: RangeType,
+  rangeCardinality: [number, number | null] | undefined | null,
   availableRanges: RangeType[],
 ): RelationshipState<RangeType> {
 
-  if (!availableDomains.includes(domain)) {
+  let domain = availableDomains.find(
+    item => item.identifier === domainIdentifier);
+  if (domain === undefined) {
     LOG.warn("Missing domain representative, using unset instead.",
-      { domain, availableDomains });
-    domain = unsetDomain;
-    availableDomains = [unsetDomain, ...availableDomains];
+      { domain: domainIdentifier, availableDomains });
+    domain = invalidDomain;
+    availableDomains = [invalidDomain, ...availableDomains];
   }
 
-  if (!availableRanges.includes(range)) {
+  let range = availableRanges.find(
+    item => item.identifier === rangeIdentifier);
+  if (range === undefined) {
     LOG.warn("Missing range representative, using unset instead.",
-      { range, availableRanges });
-    range = unsetRange;
-    availableRanges = [unsetRange, ...availableRanges];
+      { range: rangeIdentifier, availableRanges });
+    range = invalidRange;
+    availableRanges = [invalidRange, ...availableRanges];
   }
 
   return validateRelationshipState({
     // Domain
     domain,
-    unsetDomain,
-    domainValidation: validationNotEvaluated(),
-    // Domain cardinality
-    domainCardinality: representCardinality(null),
+    invalidDomain,
     availableDomains: sanitizeDuplicitiesInRepresentativeLabels(
       vocabularies, availableDomains),
+    domainValidation: validationNotEvaluated(),
+    // Domain cardinality
+    domainCardinality: representCardinality(domainCardinality),
     // Range
     range,
-    unsetRange,
+    invalidRange,
     availableRanges: sanitizeDuplicitiesInRepresentativeLabels(
       vocabularies, availableRanges),
     rangeValidation: validationNotEvaluated(),
     // Range cardinality
-    rangeCardinality: representCardinality(null),
+    rangeCardinality: representCardinality(rangeCardinality),
+    //
     availableCardinalities: listCardinalities(),
   });
 }
@@ -122,74 +129,17 @@ export function validateRelationshipState<
   const result = {
     ...state,
   };
-  if (result.domain === result.unsetDomain) {
+  if (result.domain === result.invalidDomain) {
     result.domainValidation = validationError("domain-must-be-set");
   } else {
     result.domainValidation = validationNoProblem();
   }
-  if (result.range === result.unsetRange) {
+  if (result.range === result.invalidRange) {
     result.rangeValidation = validationError("range-must-be-set");
   } else {
     result.rangeValidation = validationNoProblem();
   }
   return result;
-}
-
-export function createRelationshipStateForEdit<RangeType extends {
-  identifier: string,
-  iri: string | null,
-  label: LanguageString,
-  vocabularyDsIdentifier: string,
-}>(
-  vocabularies: CmeModel[],
-  domainIdentifier: string,
-  unsetDomain: EntityRepresentative,
-  domainCardinality: [number, number | null] | undefined | null,
-  availableDomains: EntityRepresentative[],
-  rangeIdentifier: string,
-  unsetRange: RangeType,
-  rangeCardinality: [number, number | null] | undefined | null,
-  availableRanges: RangeType[],
-): RelationshipState<RangeType> {
-
-  let domain = availableDomains.find(
-    item => item.identifier === domainIdentifier);
-  if (domain === undefined) {
-    LOG.warn("Missing domain representative, using unset instead.",
-      { domain: domainIdentifier, availableDomains });
-    domain = unsetDomain;
-    availableDomains = [unsetDomain, ...availableDomains];
-  }
-
-  let range = availableRanges.find(
-    item => item.identifier === rangeIdentifier);
-  if (range === undefined) {
-    LOG.warn("Missing range representative, using unset instead.",
-      { range: rangeIdentifier, availableRanges });
-    range = unsetRange;
-    availableRanges = [unsetRange, ...availableRanges];
-  }
-
-  return validateRelationshipState({
-    // Domain
-    domain,
-    unsetDomain,
-    availableDomains: sanitizeDuplicitiesInRepresentativeLabels(
-      vocabularies, availableDomains),
-    domainValidation: validationNotEvaluated(),
-    // Domain cardinality
-    domainCardinality: representCardinality(domainCardinality),
-    // Range
-    range,
-    unsetRange,
-    availableRanges: sanitizeDuplicitiesInRepresentativeLabels(
-      vocabularies, availableRanges),
-    rangeValidation: validationNotEvaluated(),
-    // Range cardinality
-    rangeCardinality: representCardinality(rangeCardinality),
-    //
-    availableCardinalities: listCardinalities(),
-  });
 }
 
 export interface RelationshipController<RangeType> {
@@ -215,11 +165,11 @@ export function createRelationshipController<
       ...state,
       domain: value,
     };
-    if (state.unsetDomain === state.domain) {
+    if (state.invalidDomain === state.domain) {
       // We change value from unset, we need to remove that option from
       // the list.
       result.availableDomains = removeFromArray(
-        state.unsetDomain, state.availableDomains);
+        state.invalidDomain, state.availableDomains);
     }
     return validateRelationshipState(result);
   });
@@ -233,11 +183,11 @@ export function createRelationshipController<
       ...state,
       range: value,
     };
-    if (state.unsetRange === state.range) {
+    if (state.invalidRange === state.range) {
       // We change value from unset, we need to remove that option from
       // the list.
       result.availableRanges = removeFromArray(
-        state.unsetRange, state.availableRanges);
+        state.invalidRange, state.availableRanges);
     }
     return validateRelationshipState(result);
   });
