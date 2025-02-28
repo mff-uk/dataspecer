@@ -49,15 +49,6 @@ export function createAddAttributeProfileDialogState(
     availableProfiles, [], noProfile,
     configuration().relationshipNameToIri);
 
-  const sourceModel = findSourceModelOfEntity(
-    domainIdentifier, graphContext.models);
-  if (sourceModel !== null) {
-    entityProfileState.model =
-      entityProfileState.availableModels.find(
-        model => model.dsIdentifier === sourceModel.getId())
-      ?? entityProfileState.model;
-  }
-
   // RelationshipState<EntityRepresentative>
 
   const profile = entityProfileState.profiles[0];

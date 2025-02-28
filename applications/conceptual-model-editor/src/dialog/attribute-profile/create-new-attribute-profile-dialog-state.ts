@@ -51,14 +51,6 @@ export function createNewAttributeProfileDialogState(
   // RelationshipState<EntityRepresentative>
 
   const profile = entityProfileState.profiles[0];
-
-  // As we use the first model to get domain and range,
-  // we use it to select default model.
-  entityProfileState.model =
-  entityProfileState.availableModels.find(
-    model => model.dsIdentifier === profile.vocabularyDsIdentifier)
-  ?? entityProfileState.model;
-
   const relationshipProfileState = createRelationshipProfileState(
     entityProfileState.model,
     vocabularies,
