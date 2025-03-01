@@ -9,9 +9,9 @@ add-imported:
 autolayout: Automatický layout
 changed: 'Změněno {{val, datetime(dateStyle: short; timeStyle: short)}}'
 close: Zavřít
-conceptual editor button: Spravovat slovníky a aplikační profily
+conceptual editor button: Upravovat slovníky a aplikační profily
 created: 'Vytvořeno {{val, datetime(dateStyle: short)}}'
-data specification button: Spravovat datové struktury
+data specification button: Upravovat datové struktury
 data specification reload: Znovu načíst datovou specifikaci
 dataspecer-packages: správce projektů
 delete-resource:
