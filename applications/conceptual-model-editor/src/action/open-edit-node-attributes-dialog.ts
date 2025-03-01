@@ -11,6 +11,7 @@ import { Language } from "../configuration/options";
 import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelAttributeUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { getStringFromLanguageStringInLang } from "../util/language-utils";
+import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
 
 export function openEditNodeAttributesDialogAction(
   dialogs: DialogApiContextType,
@@ -68,7 +69,7 @@ function splitIntoVisibleAndHiddenAttributes(
       const nameAsLanguageString = domainAndRange.range?.name ?? null;
       name = getStringFromLanguageStringInLang(nameAsLanguageString, language)[0] ?? defaultName;
     }
-    else if (isSemanticModelAttributeUsage(rawEntity)) {
+    else if (isSemanticModelAttributeUsage(rawEntity) || isSemanticModelAttributeProfile(rawEntity)) {
       const domainAndRange = getDomainAndRange(rawEntity);
       if(domainAndRange.domain?.concept !== node.representedEntity) {
         return;

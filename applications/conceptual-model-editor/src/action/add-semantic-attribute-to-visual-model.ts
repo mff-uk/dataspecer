@@ -5,6 +5,7 @@ import { isSemanticModelAttributeUsage, SemanticModelClassUsage } from "@dataspe
 import { isSemanticModelAttribute, SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { ClassesContextType } from "../context/classes-context";
 import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
 
 // TODO RadStr: Maybe not really an action but just helper method?
 export function addSemanticAttributeToVisualModelAction(
@@ -43,18 +44,27 @@ export function getVisualNodeContentBasedOnExistingEntities(
 ): string[] {
   const nodeContent: string[] = [];
   const attributes = classes.relationships.filter(isSemanticModelAttribute);
-  const attributesProfiles = classes.usages.filter(isSemanticModelAttributeUsage);
+  const attributesUsages = classes.usages.filter(isSemanticModelAttributeUsage);
+  const attributesProfiles = classes.relationshipProfiles.filter(isSemanticModelAttributeProfile);
 
   const nodeAttributes = attributes
     .filter(isSemanticModelAttribute)
     .filter((attr) => getDomainAndRange(attr).domain?.concept === entity.id);
 
-  const nodeAttributeProfiles = attributesProfiles
+  const nodeAttributeUsages = attributesUsages
     .filter(isSemanticModelAttributeUsage)
+    .filter((attr) => getDomainAndRange(attr).domain?.concept === entity.id);
+
+  const nodeAttributeProfiles = attributesProfiles
+    .filter(isSemanticModelAttributeProfile)
     .filter((attr) => getDomainAndRange(attr).domain?.concept === entity.id);
 
   for (const attribute of nodeAttributes) {
     nodeContent.push(attribute.id);
+  }
+
+  for (const attributeUsage of nodeAttributeUsages) {
+    nodeContent.push(attributeUsage.id);
   }
 
   for (const attributeProfile of nodeAttributeProfiles) {
