@@ -9,9 +9,9 @@ add-imported:
 autolayout: Automatický layout
 changed: 'Změněno {{val, datetime(dateStyle: short; timeStyle: short)}}'
 close: Zavřít
-conceptual editor button: Editovat konceptuální modely, slovníky a profily
+conceptual editor button: Spravovat slovníky a aplikační profily
 created: 'Vytvořeno {{val, datetime(dateStyle: short)}}'
-data specification button: Editovat a spravovat datovou specifikaci
+data specification button: Spravovat datové struktury
 data specification reload: Znovu načíst datovou specifikaci
 dataspecer-packages: správce projektů
 delete-resource:
@@ -35,7 +35,7 @@ form:
     instruction: Zadejte název projektu
     name: Název
   url:
-    instruction: URL veřejně přístupná z internetu, každá URL na separátní řádek
+    instruction: URL DSV specifikací, každá URL na separátní řádek
     name: URL
 format as json: Formátovat jako JSON
 generate application: Vygenerovat aplikaci

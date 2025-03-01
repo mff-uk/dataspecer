@@ -9,9 +9,9 @@ add-imported:
 autolayout: Auto layout
 changed: 'Changed on {{val, datetime(dateStyle: short; timeStyle: short)}}'
 close: Close
-conceptual editor button: Edit conceptual models, vocabularies and profiles
+conceptual editor button: Edit vocabularies and application profiles
 created: 'Created on {{val, datetime(dateStyle: short)}}'
-data specification button: Edit and manage data specification
+data specification button: Edit data structures
 data specification reload: Reload data specification
 dataspecer-packages: packages
 delete-resource:
@@ -37,7 +37,7 @@ form:
     instruction: Enter the name of the project
     name: Name
   url:
-    instruction: URL publicly accessible from the internet, each URL on a separate line
+    instruction: URL of DSV specifications, each URL on a separate line
     name: URL
 format as json: Format as json
 generate application: Generate the application
