@@ -690,11 +690,9 @@ function createActionsContext(
 
   const removeEntitiesInSemanticModelFromVisualModel = (semanticModel: EntityModel) => {
     withVisualModel(notifications, graph, (visualModel) => {
-      const classIdentifiers = getSelectionForWholeSemanticModel(semanticModel, visualModel).nodeSelection;
-      removeFromVisualModel(classIdentifiers);
-
-      const relationshipIdentifiers = getSelectionForWholeSemanticModel(semanticModel, visualModel).edgeSelection;
-      removeFromVisualModel(relationshipIdentifiers);
+      const entitiesInModel = getSelectionForWholeSemanticModel(semanticModel, visualModel, false);
+      removeFromVisualModel(entitiesInModel.nodeSelection);
+      removeFromVisualModel(entitiesInModel.edgeSelection);
     });
   };
 

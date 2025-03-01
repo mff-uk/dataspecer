@@ -18,7 +18,9 @@ export const addEntitiesFromSemanticModelToVisualModelAction = (
   visualModel: WritableVisualModel,
   semanticModel: EntityModel
 ): void => {
-  const entitiesFromSemanticModel = getSelectionForWholeSemanticModel(semanticModel, visualModel);
+  // Passing in true, because the classic relationships are added by default when adding class
+  // while the relationship profiles are not
+  const entitiesFromSemanticModel = getSelectionForWholeSemanticModel(semanticModel, visualModel, true);
   const entitiesToAddToVisualModel: EntityToAddToVisualModel[] = entitiesFromSemanticModel.nodeSelection.map(node => ({
     identifier: node,
     position: null,

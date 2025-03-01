@@ -960,9 +960,16 @@ const getIdentifierForEntity = (
   return entityIdentifier;
 }
 
+/**
+ * @param shouldReturnOnlyTheProfileRelationships
+ * if true then the result will contain in the edges part only relationship profiles (and usages).
+ * @returns Returns all the classes and relationships in model, where the returned relationships depend
+ * on the {@link shouldReturnOnlyTheProfileRelationships} parameter.
+ */
 export function getSelectionForWholeSemanticModel(
   semanticModel: EntityModel,
-  visualModel: VisualModel | null
+  visualModel: VisualModel | null,
+  shouldReturnOnlyTheProfileRelationships: boolean
 ): Selections {
   const result: Selections = {
     nodeSelection: [],
@@ -991,6 +998,11 @@ export function getSelectionForWholeSemanticModel(
                             isSemanticModelRelationshipUsage(relationship) ||
                             isSemanticModelRelationshipProfile(relationship))
     .filter(relationship => checkIfBothEndsArePresent(visualModel, result.nodeSelection, relationship));
+  if(shouldReturnOnlyTheProfileRelationships) {
+    relationshipEntities = relationshipEntities
+      .filter(relationship => isSemanticModelRelationshipUsage(relationship) ||
+                              isSemanticModelRelationshipProfile(relationship));
+  }
   result.edgeSelection = relationshipEntities.map(relationship => relationship.id);
   return result;
 }
