@@ -527,11 +527,17 @@ interface DiagramEdges {
 
   onDeleteEdge: (diagramEdge: Edge) => void;
 
+  /**
+   * @param diagramEdge
+   * @param index Index of waypoint to add waypoint after.
+   * @param waypoint
+   * @returns
+   */
   onAddWaypoint: (diagramEdge: Edge, index: number, waypoint: Waypoint) => void;
 
   /**
    * This method is called when edge's waypoint is deleted.
-   * @param diagramEdge is the edge containing deletd waypoint.
+   * @param diagramEdge is the edge containing deleted waypoint.
    * @param index is the index of the deleted waypoint
    */
   onDeleteWaypoint: (diagramEdge: Edge, index: number) => void;

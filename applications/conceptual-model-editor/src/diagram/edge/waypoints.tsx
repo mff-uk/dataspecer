@@ -2,7 +2,7 @@ import React, { useCallback, useContext } from "react";
 import { useReactFlow } from "@xyflow/react";
 
 import { arrayReplace } from "../../util/functions";
-import { type Point, findLineCenter } from "./math";
+import { type Point } from "./math";
 
 import { type Edge as EdgeApi } from "../diagram-api";
 import { DiagramContext, EdgeType } from "../diagram-controller";
@@ -13,15 +13,6 @@ export function Waypoints(props: {
   waypoints: Point[],
   data?: EdgeApi,
 }) {
-  // We need to provide user with ability to create waypoints candidates,
-  // we place then in between of each two waypoints.
-  const waypointCandidates: Point[] = [];
-  for (let index = 0; index < props.waypoints.length - 1; ++index) {
-    const first = props.waypoints[index]!;
-    const second = props.waypoints[index + 1]!;
-    waypointCandidates.push(findLineCenter(first, second));
-  }
-
   return (
     <>
       {props.waypoints.slice(1, props.waypoints.length - 1).map((waypoint, index) => (
@@ -31,13 +22,6 @@ export function Waypoints(props: {
           x={waypoint.x}
           y={waypoint.y}
         />
-      ))}
-      {waypointCandidates.map((waypoint, index) => (
-        <WaypointCandidate key={`waypoint-candidate-${index}-${waypoint.x}-${waypoint.y}`}
-          edge={props.edge}
-          index={index}
-          x={waypoint.x}
-          y={waypoint.y} />
       ))}
     </>
   );
@@ -130,46 +114,4 @@ function Waypoint(props: {
     </g>
   );
 
-}
-
-function WaypointCandidate(props: {
-  edge: EdgeType,
-  /**
-   * Index to place new waypoint to.
-   */
-  index: number,
-  x: number,
-  y: number,
-}) {
-  const context = useContext(DiagramContext);
-
-  /**
-   * In reaction to mouse down we add a new waypoint to our parent.
-   */
-  const onMouseDownHandler = (event: React.MouseEvent) => {
-    event.preventDefault();
-    context?.callbacks().onAddWaypoint(props.edge.data!, props.index, {
-      x: props.x, y: props.y
-    });
-  };
-
-  return (
-    <g onMouseDown={onMouseDownHandler}>
-      <circle
-        cx={props.x}
-        cy={props.y}
-        fill="#fff"
-        r={8}
-        stroke="black"
-        strokeWidth={1.5}
-        style={{ pointerEvents: "visibleFill" }}
-      />
-      <path
-        fill="none"
-        stroke="green"
-        strokeWidth={2}
-        d={`M ${props.x - 4},${props.y} L ${props.x + 4},${props.y} M ${props.x},${props.y - 4} L ${props.x},${props.y + 4}`}
-      />
-    </g>
-  );
 }

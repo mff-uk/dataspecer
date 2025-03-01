@@ -1,12 +1,13 @@
 import { useContext } from "react";
 import { shallow } from "zustand/shallow";
-import { type ReactFlowState, useStore } from "@xyflow/react";
+import { type ReactFlowState, useInternalNode, useStore } from "@xyflow/react";
 
 import { DiagramContext, NodeMenuType } from "../diagram-controller";
-import { computePosition } from "./edge-utilities";
+import { computePosition, createWaypoints } from "./edge-utilities";
 import { EdgeToolbarProps, viewportStoreSelector } from "./edge-toolbar";
 import { Edge } from "../diagram-api";
 import { ToolbarPortal } from "../canvas/toolbar-portal";
+import { findClosestLine } from "./math";
 
 /**
  * As we can not render edge menu on a single place, like node menu, we
@@ -17,19 +18,30 @@ export function PropertyEdgeToolbar({ value }: { value: EdgeToolbarProps | null 
   const edge = useStore((state: ReactFlowState) => state.edgeLookup.get(value?.edgeIdentifier ?? ""));
   const { x, y, zoom } = useStore(viewportStoreSelector, shallow);
 
-  if (value === null || edge?.data === undefined || !edge?.selected || context === null || 
+  const data = edge!.data as Edge;
+  const sourceNode = useInternalNode(data.source)!;
+  const targetNode = useInternalNode(data.target)!;
+
+  if (value === null || edge?.data === undefined || !edge?.selected || context === null ||
       context.getShownNodeMenuType() !== NodeMenuType.SingleNodeMenu) {
     return null;
   }
 
-  const data = edge.data as Edge;
+  const position = computePosition(value.x, value.y, { x, y, zoom });
+
   const onDetail = () => context?.callbacks().onShowEdgeDetail(data);
   const onEdit = () => context?.callbacks().onEditEdge(data);
   const onProfile = () => context?.callbacks().onCreateEdgeProfile(data);
   const onHide = () => context?.callbacks().onHideEdge(data);
   const onDelete = () => context?.callbacks().onDeleteEdge(data);
-
-  const position = computePosition(value.x, value.y, { x, y, zoom });
+  const addWaypoint = () => {
+    const waypoints = createWaypoints(
+      sourceNode, data?.waypoints ?? [], targetNode);
+    //
+    const index = findClosestLine(waypoints, position);
+    console.log("Add waypoints:", {waypoints, position, index});
+    context?.callbacks().onAddWaypoint(data, index, position);
+  };
 
   return (
     <>
@@ -50,6 +62,9 @@ export function PropertyEdgeToolbar({ value }: { value: EdgeToolbarProps | null 
               <li>
                 <button onClick={onDelete}>🗑</button>
               </li>
+              <li>
+                <button onClick={addWaypoint}>X</button>
+              </li>
             </ul>
           </div>
         </div>
@@ -57,3 +72,4 @@ export function PropertyEdgeToolbar({ value }: { value: EdgeToolbarProps | null 
     </>
   );
 }
+
