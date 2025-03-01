@@ -278,7 +278,7 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
                 "@value": value,
             })),
         "https://w3id.org/dsv#artefact": [],
-        "https://w3id.org/dsv-dap#dct-references" : [[...usedVocabularies].map(v => ({"@id": v}))],
+        "http://purl.org/dc/terms/references" : [[...usedVocabularies].map(v => ({"@id": v}))],
     };
 
     // OWL
