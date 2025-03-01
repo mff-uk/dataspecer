@@ -692,7 +692,6 @@ function createActionsContext(
     withVisualModel(notifications, graph, (visualModel) => {
       const entitiesInModel = getSelectionForWholeSemanticModel(semanticModel, visualModel, false);
       removeFromVisualModel(entitiesInModel.nodeSelection);
-      removeFromVisualModel(entitiesInModel.edgeSelection);
     });
   };
 
