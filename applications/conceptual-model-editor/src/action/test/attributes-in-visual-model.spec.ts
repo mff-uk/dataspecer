@@ -362,7 +362,7 @@ test("Test change attribute order - change multi - attribute profile", () => {
   attributes.push(originalAttribute.identifier);
   for(let i = 1; i < size; i++) {
     const newAttributeProfile = createSemanticAttributeProfileTestVariant(
-      models, originalAttribute.identifier, "0", cmeModels[0].dsIdentifier, `attribute-${i}`);
+      models, originalAttribute.identifier, "0", cmeModels[0].dsIdentifier);
     addSemanticAttributeToVisualModelAction(
       noActionNotificationServiceWriter, visualModel, "0", newAttributeProfile.identifier, null);
     attributes.push(newAttributeProfile.identifier);
@@ -489,7 +489,6 @@ function createSemanticAttributeProfileTestVariant(
   domainAttribute: string,
   domainConceptIdentifier: string,
   modelDsIdentifier: string,
-  attributeName: string,
 ) {
   const range = representRdfsLiteral();
 

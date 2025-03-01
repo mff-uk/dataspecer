@@ -40,7 +40,7 @@ import { useActions } from "./action/actions-react-binding";
 import { Diagram, type Edge, EdgeType, Group, type EntityItem, type Node, NodeType } from "./diagram/";
 import { type UseDiagramType } from "./diagram/diagram-hook";
 import { configuration, createLogger } from "./application";
-import { getDescriptionLanguageString, getFallbackDisplayName, getNameLanguageString, getUsageNoteLanguageString } from "./util/name-utils";
+import { getDescriptionLanguageString, getUsageNoteLanguageString } from "./util/name-utils";
 import { getLocalizedStringFromLanguageString } from "./util/language-utils";
 import { getIri, getModelIri } from "./util/iri-utils";
 import { findSourceModelOfEntity } from "./service/model-service";
@@ -51,7 +51,7 @@ import { synchronizeOnAggregatorChange, updateVisualAttributesBasedOnSemanticCha
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { EntityDsIdentifier } from "./dataspecer/entity-model";
 import { isSemanticModelAttributeProfile } from "./dataspecer/semantic-model";
-import { representCardinality } from "./dialog/utilities/dialog-utilities";
+import { createAttributeProfileLabel, getEntityLabelToShowInDiagram } from "./util/utils";
 
 const LOG = createLogger(import.meta.url);
 
@@ -351,7 +351,7 @@ function createDiagramNode(
     if(isSemanticModelAttribute(attribute) && visualNode.content.includes(attribute.id)) {
       itemCandidates[attribute.id] = {
         identifier: attribute.id,
-        label: getEntityLabel(language, attribute),
+        label: getEntityLabelToShowInDiagram(language, attribute),
         profileOf: null,
       };
     }
@@ -364,13 +364,11 @@ function createDiagramNode(
 
     const profileOf = profilingSources.find(
       (item) => item.id === attributeUsage.usageOf);
-    const {range} = getDomainAndRange(attributeUsage);
-    const cardinality = representCardinality(range?.cardinality).label;
     itemCandidates[attributeUsage.id] = {
       identifier: attributeUsage.id,
-      label: getEntityLabel(language, attributeUsage) + " [" + cardinality + "]",
+      label: createAttributeProfileLabel(language, attributeUsage),
       profileOf: {
-        label: profileOf === undefined ? "" : getEntityLabel(language, profileOf),
+        label: profileOf === undefined ? "" : getEntityLabelToShowInDiagram(language, profileOf),
         usageNote: getUsageNote(language, attributeUsage),
       },
     }
@@ -382,14 +380,12 @@ function createDiagramNode(
     }
 
     const profileOf = profilingSources.filter(
-      item => attributeProfile.ends.find(edge => edge.profiling.includes(item.id)) !== undefined);
-    const {range} = getDomainAndRange(attributeProfile);
-    const cardinality = representCardinality(range?.cardinality).label;
+      item => attributeProfile.ends.find(end => end.profiling.includes(item.id)) !== undefined);
     itemCandidates[attributeProfile.id] = {
       identifier: attributeProfile.id,
-      label: getEntityLabel(language, attributeProfile) + " [" + cardinality + "]",
+      label: createAttributeProfileLabel(language, attributeProfile),
       profileOf: {
-        label: profileOf.map(item => getEntityLabel(language, item)).join(", "),
+        label: profileOf.map(item => getEntityLabelToShowInDiagram(language, item)).join(", "),
         usageNote: profileOf.map(item => getUsageNote(language, item)).join(", "),
       },
     }
@@ -422,7 +418,7 @@ function createDiagramNode(
     type: isProfile ? NodeType.ClassProfile : NodeType.Class,
     identifier: visualNode.identifier,
     externalIdentifier: entity.id,
-    label: getEntityLabel(language, entity),
+    label: getEntityLabelToShowInDiagram(language, entity),
     iri: getIri(entity, getModelIri(model)),
     color: visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR,
     description: getEntityDescription(language, entity),
@@ -431,21 +427,11 @@ function createDiagramNode(
       ...visualNode.position
     },
     profileOf: !isProfile ? null : {
-      label: profileOf.map(item => getEntityLabel(language, item)).join(", "),
+      label: profileOf.map(item => getEntityLabelToShowInDiagram(language, item)).join(", "),
       usageNote: getUsageNote(language, entity),
     },
     items,
   };
-}
-
-function getEntityLabel(
-  language: string,
-  entity: SemanticModelClass | SemanticModelRelationship |
-    SemanticModelClassUsage | SemanticModelRelationshipUsage |
-    SemanticModelClassProfile | SemanticModelRelationshipProfile
-) {
-  return getLocalizedStringFromLanguageString(getNameLanguageString(entity), language)
-    ?? getFallbackDisplayName(entity) ?? "";
 }
 
 function getEntityDescription(
@@ -514,7 +500,7 @@ function createDiagramEdgeForRelationship(
     type: EdgeType.Association,
     identifier: visualNode.identifier,
     externalIdentifier: entity.id,
-    label: getEntityLabel(language, entity),
+    label: getEntityLabelToShowInDiagram(language, entity),
     source: visualNode.visualSource,
     cardinalitySource: cardinalityToHumanLabel(domain?.cardinality),
     target: visualNode.visualTarget,
@@ -522,7 +508,7 @@ function createDiagramEdgeForRelationship(
     color: visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR,
     waypoints: visualNode.waypoints,
     profileOf: profileOf === null ? null : {
-      label: getEntityLabel(language, profileOf),
+      label: getEntityLabelToShowInDiagram(language, profileOf),
       usageNote: getUsageNote(language, entity),
     },
   };
@@ -552,7 +538,7 @@ function createDiagramEdgeForRelationshipProfile(
     type: EdgeType.Association,
     identifier: visualNode.identifier,
     externalIdentifier: entity.id,
-    label: "<<profile>>\n" + getEntityLabel(language, entity),
+    label: "<<profile>>\n" + getEntityLabelToShowInDiagram(language, entity),
     source: visualNode.visualSource,
     cardinalitySource: cardinalityToHumanLabel(domain?.cardinality),
     target: visualNode.visualTarget,
@@ -560,7 +546,7 @@ function createDiagramEdgeForRelationshipProfile(
     color: visualModel.getModelColor(visualNode.model) ?? DEFAULT_MODEL_COLOR,
     waypoints: visualNode.waypoints,
     profileOf: profileOf === null ? null : {
-      label: getEntityLabel(language, profileOf),
+      label: getEntityLabelToShowInDiagram(language, profileOf),
       usageNote: getUsageNote(language, entity),
     },
   };

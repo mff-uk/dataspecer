@@ -10,6 +10,7 @@ import { useActions } from "../../action/actions-react-binding";
 export type AttributeData = {
   identifier: string,
   name: string,
+  profileOf: string | null,
 };
 
 export interface EditNodeAttributesState {
@@ -115,7 +116,8 @@ export function useEditNodeAttributesController(
         // there is probably some issue with updating state of multiple dialogs when one closes.
         setTimeout(() => addToVisibleAttributes({
           identifier: createdAttributeIdentifier,
-          name
+          name,
+          profileOf: null
         }), 1);
       }
 
