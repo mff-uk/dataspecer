@@ -67,13 +67,18 @@ function splitIntoVisibleAndHiddenAttributes(
     if (isSemanticModelAttribute(rawEntity)) {
       const domainAndRange = getDomainAndRange(rawEntity);
       if(domainAndRange.domain?.concept !== node.representedEntity) {
-        return;
+        return null;
       }
       const nameAsLanguageString = domainAndRange.range?.name ?? null;
       name = getStringFromLanguageStringInLang(nameAsLanguageString, language)[0] ?? defaultName;
       profileOfText = null;
     }
     else if (isSemanticModelAttributeUsage(rawEntity) || isSemanticModelAttributeProfile(rawEntity)) {
+      const { domain }  = getDomainAndRange(rawEntity);
+      if(domain?.concept !== node.representedEntity) {
+        return null;
+      }
+
       name = createAttributeProfileLabel(language, rawEntity);
       if(isSemanticModelAttributeProfile(rawEntity)) {
         const profileOfEntities = rawEntities
@@ -81,15 +86,15 @@ function splitIntoVisibleAndHiddenAttributes(
             entity => entity !== null && rawEntity.ends.find(end => end.profiling.includes(entity.id)) !== undefined)
         // Attributes are also relationships, so there is no need to include them in the check
           .filter(entity => isSemanticModelRelationship(entity) ||
-                          isSemanticModelRelationshipUsage(entity) ||
-                          isSemanticModelRelationshipProfile(entity));
+                            isSemanticModelRelationshipUsage(entity) ||
+                            isSemanticModelRelationshipProfile(entity));
 
         profileOfText = profileOfEntities.map(item => getEntityLabelToShowInDiagram(language, item)).join(", ");
       }
       else {
         const profiledEntity = rawEntities.find(entity => entity?.id === rawEntity.usageOf) ?? null;
         if(profiledEntity !== null && (
-          isSemanticModelRelationship(profiledEntity) ||
+            isSemanticModelRelationship(profiledEntity) ||
             isSemanticModelRelationshipUsage(profiledEntity) ||
             isSemanticModelRelationshipProfile(profiledEntity))) {
           profileOfText = getEntityLabelToShowInDiagram(language, profiledEntity);
