@@ -31,6 +31,7 @@ import { createCmeClassProfile } from "../dataspecer/cme-model/operation/create-
 import { createCmeRelationshipProfile } from "../dataspecer/cme-model/operation/create-cme-relationship-profile";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
+import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
 
 export function openCreateProfileDialogAction(
   options: Options,
@@ -77,8 +78,12 @@ export function openCreateProfileDialogAction(
     const state = createNewAttributeProfileDialogState(
       classes, graph, visualModel, options.language, [entity.id]);
     const onConfirm = (state: EditAttributeProfileDialogState) => {
-      createRelationshipProfile(state, graph.models);
-      // We do not update visual model here as attribute is part of  a class.
+      const result = createRelationshipProfile(state, graph.models);
+        if(result?.identifier !== undefined) {
+          addSemanticAttributeToVisualModelAction(
+            notifications, visualModel, state.domain.identifier,
+            result.identifier, null);
+        }
     };
     dialogs.openDialog(createEditAttributeProfileDialog(state, onConfirm));
     return;

@@ -47,7 +47,7 @@ import { findSourceModelOfEntity } from "./service/model-service";
 import { type EntityModel } from "@dataspecer/core-v2";
 import { Options, useOptions } from "./configuration/options";
 import { getGroupMappings } from "./action/utilities";
-import { synchronizeOnAggregatorChange } from "./dataspecer/visual-model/aggregator-to-visual-model-adapter";
+import { synchronizeOnAggregatorChange, updateVisualAttributesBasedOnSemanticChanges } from "./dataspecer/visual-model/aggregator-to-visual-model-adapter";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { EntityDsIdentifier } from "./dataspecer/entity-model";
 import { isSemanticModelAttributeProfile } from "./dataspecer/semantic-model";
@@ -81,10 +81,12 @@ export const Visualization = () => {
   //   - change of visibility, position
   useEffect(() => {
 
+    const previousEntities = aggregatorView.getEntities();
     const unsubscribeSemanticAggregatorCallback = aggregatorView.subscribeToChanges((updated, removed) => {
       console.log("[VISUALIZATION] SemanticModelAggregatorView.subscribeToChanges", { updated, removed });
       if (isWritableVisualModel(activeVisualModel)) {
         synchronizeOnAggregatorChange(activeVisualModel, updated, removed);
+        updateVisualAttributesBasedOnSemanticChanges(activeVisualModel, updated, removed, previousEntities);
       }
     });
 
@@ -343,59 +345,64 @@ function createDiagramNode(
   // Here we are missing proper implementation of content.
   // See https://github.com/mff-uk/dataspecer/issues/928
 
-  const items: EntityItem[] = [];
+  const itemCandidates: Record<string, EntityItem> = {};
 
-  attributes
-    .filter(isSemanticModelAttribute)
-    .filter((item) => getDomainAndRange(item).domain?.concept === entity.id)
-    .map((item) => ({
-      identifier: item.id,
-      label: getEntityLabel(language, item),
-      profileOf: null,
-    }))
-    .forEach((item) => items.push(item));
 
-  attributesUsages
-    .filter(isSemanticModelAttributeUsage)
-    .filter((item) => getDomainAndRange(item).domain?.concept === entity.id)
-    .map((item) => {
-      const profileOf = profilingSources.find((profile) => item.usageOf === profile.id);
-      const {range} = getDomainAndRange(item);
-      const cardinality = representCardinality(range?.cardinality).label;
-      return {
-        identifier: item.id,
-        label: getEntityLabel(language, item) + " [" + cardinality + "]",
-        profileOf: {
-          label: profileOf === undefined ? "" : getEntityLabel(language, profileOf),
-          usageNote: getUsageNote(language, item),
-        },
-      }
-    })
-    .forEach((item) => items.push(item));
+  for(const attribute of attributes) {
+    if(isSemanticModelAttribute(attribute) && visualNode.content.includes(attribute.id)) {
+      itemCandidates[attribute.id] = {
+        identifier: attribute.id,
+        label: getEntityLabel(language, attribute),
+        profileOf: null,
+      };
+    }
+  }
 
-  attributesProfiles
-    .filter(isSemanticModelAttributeProfile)
-    .filter((item) => getDomainAndRange(item).domain?.concept === entity.id)
-    .map((item) => {
-      const profileOf = profilingSources.filter((profile) =>
-        item.ends.find(end => end.profiling.includes(profile.id)) !== undefined);
-      const {range} = getDomainAndRange(item);
-      const cardinality = representCardinality(range?.cardinality).label;
-      return {
-        identifier: item.id,
-        label: getEntityLabel(language, item) + " [" + cardinality + "]",
-        profileOf: {
-          label: profileOf.map(item => getEntityLabel(language, item)).join(", "),
-          usageNote: profileOf.map(item => getUsageNote(language, item)).join(", "),
-        },
-      }
-    })
-    .forEach((item) => items.push(item));
+  for(const attributeUsage of attributesUsages) {
+    if(!visualNode.content.includes(attributeUsage.id)) {
+      continue;
+    }
+
+    const profileOf = profilingSources.find(
+      (item) => item.id === attributeUsage.usageOf);
+    const {range} = getDomainAndRange(attributeUsage);
+    const cardinality = representCardinality(range?.cardinality).label;
+    itemCandidates[attributeUsage.id] = {
+      identifier: attributeUsage.id,
+      label: getEntityLabel(language, attributeUsage) + " [" + cardinality + "]",
+      profileOf: {
+        label: profileOf === undefined ? "" : getEntityLabel(language, profileOf),
+        usageNote: getUsageNote(language, attributeUsage),
+      },
+    }
+  }
+
+
+  for (const attributeProfile of attributesProfiles) {
+    if(!visualNode.content.includes(attributeProfile.id)) {
+      continue;
+    }
+
+    const profileOf = profilingSources.filter(
+      item => attributeProfile.ends.find(edge => edge.profiling.includes(item.id)) !== undefined);
+    const {range} = getDomainAndRange(attributeProfile);
+    const cardinality = representCardinality(range?.cardinality).label;
+    itemCandidates[attributeProfile.id] = {
+      identifier: attributeProfile.id,
+      label: getEntityLabel(language, attributeProfile) + " [" + cardinality + "]",
+      profileOf: {
+        label: profileOf.map(item => getEntityLabel(language, item)).join(", "),
+        usageNote: profileOf.map(item => getUsageNote(language, item)).join(", "),
+      },
+    }
+  }
 
   // Here we could filter using the visualNode.content.
   // Be aware that the update of the semantic attributes comes later,
   // so there is moment when the content of visual node is set,
   // but the corresponding attributes semantic model in are not.
+  const items: EntityItem[] = visualNode.content.map(id => itemCandidates[id]).filter(item => item !== undefined);
+
 
   const isProfile = isSemanticModelClassUsage(entity)
     || isSemanticModelClassProfile(entity);
@@ -430,7 +437,7 @@ function createDiagramNode(
       label: profileOf.map(item => getEntityLabel(language, item)).join(", "),
       usageNote: getUsageNote(language, entity),
     },
-    items: items,
+    items,
   };
 }
 

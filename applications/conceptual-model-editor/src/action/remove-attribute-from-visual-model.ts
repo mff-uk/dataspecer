@@ -9,6 +9,8 @@ import { ClassesContextType } from "../context/classes-context";
 import { isSemanticModelAttribute, SemanticModelRelationship, SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelAttributeUsage, SemanticModelRelationshipEndUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { DomainAndRange, getDomainAndRange } from "../util/relationship-utils";
+import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
 
 // I chose to process attributes separately instead of using the removeFromVisualModelAction.
 // It needs additional arguments to the method and the attributes are in a way kind of
@@ -82,13 +84,19 @@ function geDomainAndRangeForAttribute(
   classes: ClassesContextType,
   attributeIdentifier: string,
 ): DomainAndRange<SemanticModelRelationshipEndUsage> | DomainAndRange<SemanticModelRelationshipEnd> | null {
-  let attribute: SemanticModelRelationship | SemanticModelRelationshipUsage | undefined =
+  let attribute: SemanticModelRelationship | SemanticModelRelationshipUsage | SemanticModelRelationshipProfile | undefined =
       classes.relationships.find(relationship => relationship.id === attributeIdentifier);
   let domainAndRange;
   if(attribute === undefined || !isSemanticModelAttribute(attribute)) {
     attribute = classes.usages
       .find(relationship => relationship.id === attributeIdentifier &&
                             isSemanticModelAttributeUsage(relationship)) as SemanticModelRelationshipUsage | undefined;
+    if(attribute === undefined) {
+      attribute = classes.relationshipProfiles
+        .find(relationship => relationship.id === attributeIdentifier &&
+                              isSemanticModelAttributeProfile(relationship)) as SemanticModelRelationshipProfile | undefined;
+    }
+
     if(attribute === undefined) {
       notifications.error("One of given attributes can not be found in semantic models");
       return null;
