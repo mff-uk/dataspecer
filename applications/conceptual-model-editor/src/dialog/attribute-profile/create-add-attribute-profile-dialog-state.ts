@@ -13,7 +13,6 @@ import { configuration } from "../../application";
 import { listAttributesToProfile } from "./attribute-profile-utilities";
 import { EntityDsIdentifier } from "../../dataspecer/entity-model";
 import { isValid } from "../utilities/validation-utilities";
-import { findSourceModelOfEntity } from "../../service/model-service";
 
 /**
  * State represents new profile entity created for given class entity.
