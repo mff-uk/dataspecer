@@ -974,7 +974,9 @@ export function getSelectionForWholeSemanticModel(
   entities.forEach(entity => {
     const identifier = getIdentifierForEntity(entity.id, shouldReturnVisualIdentifiers, visualModel);
     if(identifier !== null) {
-      const isClassOrClassProfile = isSemanticModelClass(entity) || isSemanticModelClassProfile(entity);
+      const isClassOrClassProfile = isSemanticModelClass(entity) ||
+                                    isSemanticModelClassUsage(entity) ||
+                                    isSemanticModelClassProfile(entity);
       (isClassOrClassProfile ? result.nodeSelection : result.edgeSelection).push(identifier);
     }
   });
