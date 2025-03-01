@@ -34,27 +34,27 @@ function getDomainNode(
   visualModel: VisualModel,
   entity: SemanticModelRelationship | SemanticModelRelationshipUsage | SemanticModelRelationshipProfile
 ): VisualNode | null {
-    let domainConcept;
-    if(isSemanticModelAttribute(entity)) {
-      const { domain } = getDomainAndRange(entity);
-      domainConcept = domain?.concept;
-    }
-    else {
-      const { domain } = getDomainAndRange(entity);
-      domainConcept = domain?.concept;
-    }
-    if(domainConcept === undefined || domainConcept === null) {
-      return null;
-    }
+  let domainConcept;
+  if(isSemanticModelAttribute(entity)) {
+    const { domain } = getDomainAndRange(entity);
+    domainConcept = domain?.concept;
+  }
+  else {
+    const { domain } = getDomainAndRange(entity);
+    domainConcept = domain?.concept;
+  }
+  if(domainConcept === undefined || domainConcept === null) {
+    return null;
+  }
 
-    const node = visualModel.getVisualEntityForRepresented(domainConcept);
+  const node = visualModel.getVisualEntityForRepresented(domainConcept);
 
-    if (node === null || !isVisualNode(node)) {
-      // There is no visual for the attribute's domain.
-      return null;
-    }
+  if (node === null || !isVisualNode(node)) {
+    // There is no visual for the attribute's domain.
+    return null;
+  }
 
-    return node;
+  return node;
 }
 
 function handleDeletionOfSemanticAttribute(
@@ -93,7 +93,6 @@ function handleUpdateOfSemanticAttribute(
   if(previousEntity === null || !wasAttributeOrAttributeProfile) {
     return;
   }
-
 
   const previousNode = getDomainNode(visualModel, previousEntity);
   if(previousNode === null) {

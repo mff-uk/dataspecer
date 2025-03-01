@@ -60,7 +60,7 @@ export const RowHierarchy = (props: {
     || isSemanticModelRelationshipUsage(aggregatedEntity)
     || isSemanticModelRelationshipProfile(aggregatedEntity);
 
-    const isAttributeOrAttributeProfile = isSemanticModelAttribute(aggregatedEntity) ||
+  const isAttributeOrAttributeProfile = isSemanticModelAttribute(aggregatedEntity) ||
                                           isSemanticModelAttributeUsage(aggregatedEntity) ||
                                           isSemanticModelAttributeProfile(aggregatedEntity);
 

@@ -1026,7 +1026,6 @@ function checkIfBothEndsArePresent(
     }
   }
 
-
   if(visualModel !== null) {
     for(const visualEntity of visualModel.getVisualEntities().values()) {
       if(isVisualNode(visualEntity)) {

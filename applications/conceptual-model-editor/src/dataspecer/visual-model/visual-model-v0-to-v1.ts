@@ -8,7 +8,6 @@ import { findSourceModelOfEntity } from "../../service/model-service";
 import { getDomainAndRange, getDomainAndRangeConcepts } from "../../util/relationship-utils";
 import { isSemanticModelAttributeProfile } from "../semantic-model";
 
-
 export function validateVisualModelAttributes(
   entities: Record<string, AggregatedEntityWrapper>,
   visualModel: WritableVisualModel,

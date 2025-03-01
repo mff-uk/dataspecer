@@ -79,11 +79,11 @@ export function openCreateProfileDialogAction(
       classes, graph, visualModel, options.language, [entity.id]);
     const onConfirm = (state: EditAttributeProfileDialogState) => {
       const result = createRelationshipProfile(state, graph.models);
-        if(result?.identifier !== undefined) {
-          addSemanticAttributeToVisualModelAction(
-            notifications, visualModel, state.domain.identifier,
-            result.identifier, null);
-        }
+      if(result?.identifier !== undefined) {
+        addSemanticAttributeToVisualModelAction(
+          notifications, visualModel, state.domain.identifier,
+          result.identifier, null);
+      }
     };
     dialogs.openDialog(createEditAttributeProfileDialog(state, onConfirm));
     return;

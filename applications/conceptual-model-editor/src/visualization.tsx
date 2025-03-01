@@ -347,7 +347,6 @@ function createDiagramNode(
 
   const itemCandidates: Record<string, EntityItem> = {};
 
-
   for(const attribute of attributes) {
     if(isSemanticModelAttribute(attribute) && visualNode.content.includes(attribute.id)) {
       itemCandidates[attribute.id] = {
@@ -377,7 +376,6 @@ function createDiagramNode(
     }
   }
 
-
   for (const attributeProfile of attributesProfiles) {
     if(!visualNode.content.includes(attributeProfile.id)) {
       continue;
@@ -402,7 +400,6 @@ function createDiagramNode(
   // so there is moment when the content of visual node is set,
   // but the corresponding attributes semantic model in are not.
   const items: EntityItem[] = visualNode.content.map(id => itemCandidates[id]).filter(item => item !== undefined);
-
 
   const isProfile = isSemanticModelClassUsage(entity)
     || isSemanticModelClassProfile(entity);

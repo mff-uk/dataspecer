@@ -13,7 +13,6 @@ import { SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/co
 import { representRdfsLiteral } from "../../dialog/utilities/dialog-utilities";
 import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
 import { createCmeRelationshipProfile } from "../../dataspecer/cme-model/operation/create-cme-relationship-profile";
-import { RdfsTypeURIs } from "@dataspecer/core-v2/semantic-model/datatypes";
 
 test("Test change attribute - Visibility", () => {
   const {
@@ -395,7 +394,6 @@ test("Test change attribute order - change multi - attribute profile", () => {
     attributes[5],
     1);
 
-
   actualContent = (visualModel.getVisualEntityForRepresented("0") as VisualNode).content;
   expect(actualContent[0]).toBe(attributes[0]);
   expect(actualContent[1]).toBe(attributes[5]);
@@ -494,7 +492,6 @@ function createSemanticAttributeProfileTestVariant(
   attributeName: string,
 ) {
   const range = representRdfsLiteral();
-  const name = {"en": attributeName};
 
   const model: InMemorySemanticModel = models.get(modelDsIdentifier) as InMemorySemanticModel;
   const result = createCmeRelationshipProfile({
