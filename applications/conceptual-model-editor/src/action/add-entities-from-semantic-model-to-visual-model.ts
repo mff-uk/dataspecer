@@ -18,13 +18,14 @@ export const addEntitiesFromSemanticModelToVisualModelAction = (
   visualModel: WritableVisualModel,
   semanticModel: EntityModel
 ): void => {
-  const entitiesFromSemanticModel = getSelectionForWholeSemanticModel(semanticModel, false, visualModel);
+  // Passing in true, because the classic relationships are added by default when adding class
+  // while the relationship profiles are not
+  const entitiesFromSemanticModel = getSelectionForWholeSemanticModel(semanticModel, visualModel, true);
   const entitiesToAddToVisualModel: EntityToAddToVisualModel[] = entitiesFromSemanticModel.nodeSelection.map(node => ({
     identifier: node,
     position: null,
   }));
 
-  // TODO RadStr: Commented code: Add also the edges? But then I need to either add their ends or check if both ends are present, otherwise notification is shown
-  // entitiesToAddToVisualModel.push(...entitiesFromSemanticModel.edgeSelection.map(edge => ({identifier: edge, position: null})));
+  entitiesToAddToVisualModel.push(...entitiesFromSemanticModel.edgeSelection.map(edge => ({identifier: edge, position: null})));
   addSemanticEntitiesToVisualModelAction(notifications, classes, graph, visualModel, diagram, entitiesToAddToVisualModel);
 };
