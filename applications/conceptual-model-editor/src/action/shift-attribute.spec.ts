@@ -5,15 +5,15 @@
 import { expect, test } from "vitest";
 import { createDefaultVisualModelFactory, VisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { EntityModel } from "@dataspecer/core-v2";
-import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
+import { entityModelsMapToCmeVocabulary } from "../dataspecer/semantic-model/semantic-model-adapter";
 import { CreatedEntityOperationResult, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { addSemanticAttributeToVisualModelAction } from "../add-semantic-attribute-to-visual-model";
-import { ClassesContextType } from "../../context/classes-context";
-import { representRdfsLiteral } from "../../dialog/utilities/dialog-utilities";
+import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
+import { ClassesContextType } from "../context/classes-context";
+import { representRdfsLiteral } from "../dialog/utilities/dialog-utilities";
 import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
-import { ShiftAttributeDirection, shiftAttributePositionAction } from "../shift-attribute";
-import { noActionNotificationServiceWriter } from "../../notification/notification-service-context";
+import { ShiftAttributeDirection, shiftAttributePositionAction } from "./shift-attribute";
+import { noActionNotificationServiceWriter } from "../notification/notification-service-context";
 
 test("Test shift attribute - up and down", () => {
   const {
