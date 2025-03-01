@@ -1007,6 +1007,10 @@ export function getSelectionForWholeSemanticModel(
   return result;
 }
 
+/**
+ * @returns True if both ends are present.
+ * End is present if it is either in the visual model or in the list given in {@link newClasses}.
+ */
 function checkIfBothEndsArePresent(
   visualModel: VisualModel | null,
   newClasses: string[],
@@ -1025,11 +1029,13 @@ function checkIfBothEndsArePresent(
 
   if(visualModel !== null) {
     for(const visualEntity of visualModel.getVisualEntities().values()) {
-      if(isVisualNode(visualEntity) && visualEntity.representedEntity === relationshipToAdd.ends[0].concept) {
-        areEndsPresent[0] = true;
-      }
-      if(isVisualNode(visualEntity) && visualEntity.representedEntity === relationshipToAdd.ends[1].concept) {
-        areEndsPresent[1] = true;
+      if(isVisualNode(visualEntity)) {
+        if(visualEntity.representedEntity === relationshipToAdd.ends[0].concept) {
+          areEndsPresent[0] = true;
+        }
+        if(visualEntity.representedEntity === relationshipToAdd.ends[1].concept) {
+          areEndsPresent[1] = true;
+        }
       }
     }
   }
