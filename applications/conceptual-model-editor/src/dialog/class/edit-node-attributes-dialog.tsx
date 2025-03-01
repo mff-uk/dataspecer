@@ -16,12 +16,14 @@ export const createEditClassAttributesDialog = (
   visibleAttributes: AttributeData[],
   hiddenAttributes: AttributeData[],
   classIdentifier: string,
+  isDomainNodeProfile: boolean,
   language: Language
 ): DialogWrapper<EditNodeAttributesState> => {
   return {
     label: "edit-class-attributes-dialog.label",
     component: CreateEditNodeAttributesDialog,
-    state: createEditNodeAttributesState(visibleAttributes, hiddenAttributes, classIdentifier, language),
+    state: createEditNodeAttributesState(
+      visibleAttributes, hiddenAttributes, classIdentifier, isDomainNodeProfile, language),
     confirmLabel: "edit-class-attributes-dialog.btn-ok",
     cancelLabel: "edit-class-attributes-dialog.btn-cancel",
     validate: null,

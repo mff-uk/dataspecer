@@ -8,7 +8,7 @@ import { EditNodeAttributesState, AttributeData } from "../dialog/class/edit-nod
 import { Entity } from "@dataspecer/core-v2";
 import { Options } from "../application";
 import { Language } from "../configuration/options";
-import { isSemanticModelAttribute, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelAttribute, isSemanticModelClass, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelAttributeUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { getStringFromLanguageStringInLang } from "../util/language-utils";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
@@ -37,14 +37,29 @@ export function openEditNodeAttributesDialogAction(
     visualModel.updateVisualEntity(node.identifier, {content: state.visibleAttributes.map(attribute => attribute.identifier)});
   }
 
+  // For some reason we have to do this and can't take classes.rawEntities
+  // If we don't do this then the name of attribute profile is sometimes undefined.
+  const entities = [
+    ...classes.classes,
+    ...classes.relationships,
+    ...classes.usages,
+    ...classes.classProfiles,
+    ...classes.relationshipProfiles,
+  ];
+
   // TODO RadStr: Commented code - if we will want to do something with relationships
   //                               (that is transforming them into attributes and vice versa)
   // const relationships = classes.relationships
   //   .filter(relationship => !node.content.includes(relationship.id) && getDomainAndRange(relationship).domain?.concept === node.representedEntity)
   //   .map(relationship => ({identifier: relationship.id, name: relationship.name[options.language]}));
-  const { visibleAttributes, hiddenAttributes } = splitIntoVisibleAndHiddenAttributes(classes.rawEntities, node, options.language);
+  const { visibleAttributes, hiddenAttributes } = splitIntoVisibleAndHiddenAttributes(entities, node, options.language);
 
-  dialogs.openDialog(createEditClassAttributesDialog(onConfirm, visibleAttributes, hiddenAttributes, node.representedEntity, options.language));
+  const editedClass = classes.classes.find(cclass => cclass?.id === node.representedEntity) ?? null;
+  const isClassProfile = !isSemanticModelClass(editedClass);
+
+  dialogs.openDialog(createEditClassAttributesDialog(
+    onConfirm, visibleAttributes, hiddenAttributes, node.representedEntity,
+    isClassProfile, options.language));
 }
 
 type VisibleAnHiddenAttributes = {
@@ -74,7 +89,7 @@ function splitIntoVisibleAndHiddenAttributes(
       profileOfText = null;
     }
     else if (isSemanticModelAttributeUsage(rawEntity) || isSemanticModelAttributeProfile(rawEntity)) {
-      const { domain }  = getDomainAndRange(rawEntity);
+      const { domain } = getDomainAndRange(rawEntity);
       if(domain?.concept !== node.representedEntity) {
         return null;
       }
