@@ -2,20 +2,24 @@ import { useMemo } from "react";
 import { type DialogProps } from "../dialog-api";
 import { Language } from "../../configuration/options";
 import { DropResult } from "@hello-pangea/dnd";
-import { getStringFromLanguageStringInLang } from "../../util/language-utils";
+import { getLocalizedStringFromLanguageString, getStringFromLanguageStringInLang } from "../../util/language-utils";
 import { EditAttributeDialogState } from "../attribute/edit-attribute-dialog-controller";
 import { EditAttributeProfileDialogState } from "../attribute-profile/edit-attribute-profile-dialog-controller";
 import { useActions } from "../../action/actions-react-binding";
+import { getEntityLabelToShowInDiagram } from "../../util/utils";
+import { getFallbackDisplayName } from "../../util/name-utils";
 
 export type AttributeData = {
   identifier: string,
   name: string,
+  profileOf: string | null,
 };
 
 export interface EditNodeAttributesState {
   visibleAttributes: AttributeData[];
   hiddenAttributes: AttributeData[];
   classIdentifier: string,
+  isDomainNodeProfile: boolean,
   language: Language,
 }
 
@@ -23,12 +27,14 @@ export function createEditNodeAttributesState(
   visibleAttributes: AttributeData[],
   hiddenAttributes: AttributeData[],
   classIdentifier: string,
+  isDomainNodeProfile: boolean,
   language: Language,
 ): EditNodeAttributesState {
   return {
     visibleAttributes,
     hiddenAttributes,
     classIdentifier,
+    isDomainNodeProfile,
     language,
   };
 }
@@ -110,12 +116,32 @@ export function useEditNodeAttributesController(
         if(returnedState.domain.identifier !== state.classIdentifier) {
           return;
         }
+
+        let profileOf: string | null;
+        if(state.isDomainNodeProfile) {
+          returnedState = (returnedState as EditAttributeProfileDialogState);
+          let name: string | null;
+          if(returnedState.overrideName) {
+            name = getLocalizedStringFromLanguageString(returnedState.name, returnedState.language);
+          }
+          else {
+            name = getLocalizedStringFromLanguageString(returnedState.nameSourceValue, returnedState.language);
+          }
+
+          profileOf = returnedState.profiles
+            .map(profile => getLocalizedStringFromLanguageString(profile.name, returnedState.language)).join(", ");
+        }
+        else {
+          profileOf = null;
+        }
+
         const name = getStringFromLanguageStringInLang(returnedState.name, returnedState.language)[0] ?? createdAttributeIdentifier;
         // We have to use timeout -
         // there is probably some issue with updating state of multiple dialogs when one closes.
         setTimeout(() => addToVisibleAttributes({
           identifier: createdAttributeIdentifier,
-          name
+          name,
+          profileOf
         }), 1);
       }
 

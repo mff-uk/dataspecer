@@ -23,6 +23,8 @@ import { useClassesContext } from "../../context/classes-context";
 import { hasBothEndsInVisualModel } from "../../util/relationship-utils";
 import { findSourceModelOfEntity } from "../../service/model-service";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { isSemanticModelAttributeProfile } from "../../dataspecer/semantic-model";
+import { isAttributeDomainInVisualModel } from "../../util/attribute-utils";
 
 export const RowHierarchy = (props: {
     entity: SemanticModelClass | SemanticModelClassUsage
@@ -58,6 +60,10 @@ export const RowHierarchy = (props: {
     || isSemanticModelRelationshipUsage(aggregatedEntity)
     || isSemanticModelRelationshipProfile(aggregatedEntity);
 
+  const isAttributeOrAttributeProfile = isSemanticModelAttribute(aggregatedEntity) ||
+                                          isSemanticModelAttributeUsage(aggregatedEntity) ||
+                                          isSemanticModelAttributeProfile(aggregatedEntity);
+
   const expansionHandler =
         isSemanticModelClass(entity) && sourceModel instanceof ExternalSemanticModel
           ? {
@@ -66,8 +72,10 @@ export const RowHierarchy = (props: {
           }
           : null;
 
-  const showDrawingHandler = isClassOrProfile
-    || (isRelationshipOrProfile && hasBothEndsInVisualModel(aggregatedEntity, aggregatorView.getActiveVisualModel()));
+  const showDrawingHandler = isClassOrProfile ||
+        (isAttributeOrAttributeProfile &&
+          isAttributeDomainInVisualModel(aggregatorView.getActiveVisualModel(), aggregatedEntity)) ||
+       (isRelationshipOrProfile && hasBothEndsInVisualModel(aggregatedEntity, aggregatorView.getActiveVisualModel()));
 
   const drawingHandler = !showDrawingHandler || sourceModel === undefined ? null : {
     addToViewHandler: () => props.handlers.handleAddEntityToActiveView(sourceModel, entity),

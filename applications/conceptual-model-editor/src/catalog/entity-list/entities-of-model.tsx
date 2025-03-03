@@ -30,6 +30,7 @@ import { type VisualEntity, VisualNode, isVisualNode, isVisualRelationship } fro
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { getRemovedAndAdded } from "../../action/utilities";
+import { isSemanticModelAttributeProfile } from "../../dataspecer/semantic-model";
 
 export enum EntityType {
     Class = "class",
@@ -209,6 +210,9 @@ export const EntitiesOfModel = (props: {
     } else if (isSemanticModelAttribute(entity)) {
       const domain = getDomainAndRange(entity).domain?.concept;
       actions.addAttributeToVisualModel(entity.id, domain ?? null);
+    } else if (isSemanticModelAttributeProfile(entity)) {
+      const domain = getDomainAndRange(entity).domain?.concept;
+      actions.addAttributeToVisualModel(entity.id, domain ?? null);
     } else if (isSemanticModelAttributeUsage(entity)) {
       const domain = getDomainAndRange(entity).domain?.concept;
       actions.addAttributeToVisualModel(entity.id, domain ?? null);
@@ -226,7 +230,9 @@ export const EntitiesOfModel = (props: {
   };
 
   const handleDeleteFromView = (entity: Entity) => {
-    if(isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity)) {
+    if(isSemanticModelAttribute(entity) ||
+       isSemanticModelAttributeUsage(entity) ||
+       isSemanticModelAttributeProfile(entity)) {
       actions.removeAttributesFromVisualModel([entity.id]);
     }
     else {

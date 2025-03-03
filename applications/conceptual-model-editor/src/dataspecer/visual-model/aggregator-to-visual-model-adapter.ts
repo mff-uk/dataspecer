@@ -1,14 +1,119 @@
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isVisualNode, isVisualProfileRelationship, isVisualRelationship, VisualNode, VisualProfileRelationship, VisualRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelAttribute, isSemanticModelRelationship, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isVisualNode, isVisualProfileRelationship, isVisualRelationship, VisualModel, VisualNode, VisualProfileRelationship, VisualRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isSemanticModelAttributeUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
-import { getDomainAndRangeConcepts } from "../../util/relationship-utils";
+import { getDomainAndRange, getDomainAndRangeConcepts } from "../../util/relationship-utils";
 import { createLogger } from "../../application";
 import { EntityDsIdentifier } from "../entity-model";
-import { isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { isSemanticModelAttributeProfile } from "../semantic-model";
+import { Entity } from "@dataspecer/core-v2";
 
 const LOG = createLogger(import.meta.url);
+
+export function updateVisualAttributesBasedOnSemanticChanges(
+  visualModel: WritableVisualModel,
+  changedItems: AggregatedEntityWrapper[],
+  removed: string[],
+  previousEntities: Record<string, AggregatedEntityWrapper>
+): void {
+  for (const identifier of removed) {
+    const entity = previousEntities[identifier].aggregatedEntity;
+    handleDeletionOfSemanticAttribute(visualModel, entity)
+  }
+
+  for (const changedItem of changedItems) {
+    const nextEntity = changedItem.aggregatedEntity;
+    const previousEntity = previousEntities[changedItem.id]?.aggregatedEntity ?? null;
+    handleUpdateOfSemanticAttribute(visualModel, previousEntity, nextEntity);
+  }
+}
+
+function getDomainNode(
+  visualModel: VisualModel,
+  entity: SemanticModelRelationship | SemanticModelRelationshipUsage | SemanticModelRelationshipProfile
+): VisualNode | null {
+  let domainConcept;
+  if(isSemanticModelAttribute(entity)) {
+    const { domain } = getDomainAndRange(entity);
+    domainConcept = domain?.concept;
+  }
+  else {
+    const { domain } = getDomainAndRange(entity);
+    domainConcept = domain?.concept;
+  }
+  if(domainConcept === undefined || domainConcept === null) {
+    return null;
+  }
+
+  const node = visualModel.getVisualEntityForRepresented(domainConcept);
+
+  if (node === null || !isVisualNode(node)) {
+    // There is no visual for the attribute's domain.
+    return null;
+  }
+
+  return node;
+}
+
+function handleDeletionOfSemanticAttribute(
+  visualModel: WritableVisualModel,
+  deletedEntity: Entity | null
+) {
+  const isAttributeOrAttributeProfile = isSemanticModelAttribute(deletedEntity) ||
+                        isSemanticModelAttributeProfile(deletedEntity) ||
+                        isSemanticModelAttributeUsage(deletedEntity);
+  if(isAttributeOrAttributeProfile) {
+    const node = getDomainNode(visualModel, deletedEntity);
+    if(node === null) {
+      return;
+    }
+
+    const newContent = node.content.filter(attributeInNode => attributeInNode !== deletedEntity.id);
+    visualModel.updateVisualEntity(node.identifier, {content: newContent});
+  }
+}
+
+function handleUpdateOfSemanticAttribute(
+  visualModel: WritableVisualModel,
+  previousEntity: Entity | null,
+  nextEntity: Entity | null,
+) {
+  const isAttributeOrAttributeProfile = isSemanticModelAttribute(nextEntity) ||
+                        isSemanticModelAttributeProfile(nextEntity) ||
+                        isSemanticModelAttributeUsage(nextEntity);
+  if(!isAttributeOrAttributeProfile) {
+    return;
+  }
+  const wasAttributeOrAttributeProfile = isSemanticModelAttribute(previousEntity) ||
+          isSemanticModelAttributeProfile(previousEntity) ||
+          isSemanticModelAttributeUsage(previousEntity);
+
+  if(previousEntity === null || !wasAttributeOrAttributeProfile) {
+    return;
+  }
+
+  const previousNode = getDomainNode(visualModel, previousEntity);
+  if(previousNode === null) {
+    return;
+  }
+  const nextNode = getDomainNode(visualModel, nextEntity);
+  if(nextNode === null) {
+    return;
+  }
+  if(previousNode === nextNode) {
+    return;
+  }
+
+  const newContentForPrevious = previousNode.content.filter(attributeInNode => attributeInNode !== previousEntity.id);
+  visualModel.updateVisualEntity(previousNode.identifier, {content: newContentForPrevious});
+
+  visualModel.updateVisualEntity(nextNode.identifier, {content: nextNode.content.concat([previousEntity.id])});
+
+  // TODO RadStr: Debug
+  console.info("Updating attribute", {previousNode, nextNode});
+}
 
 /**
  * Propagate changes from aggregator to visual model.
