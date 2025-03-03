@@ -6,7 +6,6 @@ import Alert from '@mui/material/Alert';
 import validator from "@rjsf/validator-ajv8";
 import SendIcon from "@mui/icons-material/Send";
 import Typography from '@mui/material/Typography';
-import DeleteIcon from "@mui/icons-material/Delete";
 import { RJSFSchema, RJSFValidationError } from "@rjsf/utils";
 import { <%= it.navigation_hook %> } from <%~ it.navigation_hook_path %>;
 import { <%= it.create_capability_app_layer %> } from <%~ it.create_capability_app_layer_path %>;
@@ -21,25 +20,26 @@ const <%= it.exported_object_name %> = () => {
     const schema: RJSFSchema = <%~ it.json_schema %> as RJSFSchema;
 
     const handleFormChange = (data: any, id?: string) => {
-      console.log("element id: ", id);
-      console.log("DATA: ", data);
+        // placeholder for any form change event handler
     }
 
-    const submitNewInstance = async (data: any, event: React.FormEvent<any>) => {
+    const handleFormSubmit = async (data: any, event: React.FormEvent<any>) => {
         event.preventDefault();
 
         const { formData } = data;
         setIsLoading(true);
+        setFormData(formData);
+        window.scrollTo(0, 0);
         const createdInstanceResult = await new <%= it.create_capability_app_layer %>().runCapability(formData);
-        setIsLoading(false);
 
         if (!createdInstanceResult?.instance?.raw) {
             setErrorMessage(createdInstanceResult?.message ?? "Creation failed");
+            setIsLoading(false);
             return;
         }
 
         setTimeout(() => {
-        <% if (it.redirects && it.redirects.length > 0) { %><% const firstRedirect = it.redirects.at(0); %>
+            setIsLoading(false);<% if (it.redirects && it.redirects.length > 0) { %><% const firstRedirect = it.redirects.at(0); %>
             <% if (firstRedirect && firstRedirect.capabilityType === "instance") { %>
             const newInstanceId = createdInstanceResult.instance?.raw as string;
             navigationHooks.handleInstanceCapabilityRedirect("<%~ firstRedirect.id %>", newInstanceId);
@@ -49,10 +49,10 @@ const <%= it.exported_object_name %> = () => {
         <% } else { %>
             navigationHooks.handleCollectionCapabilityRedirect("/");
         <% } %>
-        }, 2500);
+        }, 2000);
     }
 
-    const handleSubmitError = (errors: RJSFValidationError[]) => {
+    const handleError = (errors: RJSFValidationError[]) => {
         console.error(errors);
         setErrorMessage("An error occurred");
     }
@@ -65,7 +65,7 @@ const <%= it.exported_object_name %> = () => {
             >
                 <CircularProgress color="inherit" />
             </Backdrop>
-            { errorMessage && <Alert onClose={() => {}} severity="error">{ errorMessage }</Alert> }<% const defaultPageTitle = `Create new "${it.aggregate_name}"` %>
+            { errorMessage && <Alert onClose={() => {setErrorMessage(null!)}} severity="error">{ errorMessage }</Alert> }<% const defaultPageTitle = `Create new "${it.aggregate.humanLabel}"` %>
             <Typography variant="h3">
                 <%~ it.page_title ?? defaultPageTitle  %>
             </Typography>
@@ -73,14 +73,20 @@ const <%= it.exported_object_name %> = () => {
                 schema={schema}
                 validator={validator}
                 onChange={handleFormChange}
-                onSubmit={submitNewInstance}
-                onError={handleSubmitError}
-                uiSchema={{}}
+                onSubmit={handleFormSubmit}
+                onError={handleError}
                 formData={formData}
                 showErrorList="top"
+                uiSchema={<%= it.uiSchema %>}
             >
-                <Button type="button" variant="outlined" startIcon={<DeleteIcon />}>Cancel</Button>
-                <Button type="submit" variant="contained" endIcon={<SendIcon />} sx={{ margin: "10px"}}>Submit</Button>
+                <Button
+                    type="submit"
+                    variant="contained"
+                    endIcon={<SendIcon />}
+                    sx={{ margin: "10px"}}
+                >
+                    Create New
+                </Button>
             </Form>
         </div>
     );

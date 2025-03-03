@@ -4,6 +4,7 @@ import { ImportRelativePath, TemplateModel } from "../../engine/templates/templa
 import { ApplicationGraphEdgeType } from "../../engine/graph";
 import { AllowedTransition } from "../../engine/transitions/transitions-generator";
 import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
+import { AggregateMetadata } from "../../application-config";
 
 /**
  * Interface representing the template model for rendering a React component used for create capability.
@@ -13,7 +14,7 @@ import { UseNavigationHookGenerator } from "../../capabilities/template-generato
 interface CreateInstanceReactComponentTemplate extends TemplateModel {
     /** @inheritdoc */
     placeholders: {
-        aggregate_name: string,
+        aggregate: AggregateMetadata,
         page_title: string | null,
         exported_object_name: string;
         create_capability_app_layer: string,
@@ -22,6 +23,7 @@ interface CreateInstanceReactComponentTemplate extends TemplateModel {
         navigation_hook: string,
         navigation_hook_path: ImportRelativePath,
         redirects: AllowedTransition[];
+        uiSchema: string
     };
 }
 
@@ -61,6 +63,7 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
         });
 
         const dataSchemaInterface = this.restoreAggregateDataModelInterface(dependencies.aggregate);
+        const uiSchema = this.generateUISchema(dataSchemaInterface);
 
         const redirectTransitions = dependencies.transitions.groupByTransitionType()[ApplicationGraphEdgeType.Redirection.toString()]!;
 
@@ -69,7 +72,7 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
         const createInstanceComponentTemplate: CreateInstanceReactComponentTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: dependencies.aggregate.getAggregateNamePascalCase(),
+                aggregate: dependencies.aggregate,
                 page_title: this.getTemplatePageTitle(dependencies.detailNodeConfig.pageTitle),
                 exported_object_name: createExportedName,
                 create_capability_app_layer: dependencies.appLogicArtifact.exportedObjectName,
@@ -84,6 +87,7 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
                 },
                 redirects: redirectTransitions,
                 json_schema: JSON.stringify(dataSchemaInterface, null, 2),
+                uiSchema: JSON.stringify(uiSchema, null, 2)
             }
         }
 

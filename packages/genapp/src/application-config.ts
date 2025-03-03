@@ -28,6 +28,7 @@ export class AggregateMetadata {
      * Lower-case.
      */
     public readonly technicalLabel: string;
+    public readonly humanLabel: string;
     public readonly roots: string[];
 
     /**
@@ -42,6 +43,7 @@ export class AggregateMetadata {
         this.iri = this._structureModel.iri!;
         this.aggregateName = this.getAggregateName(structure);
         this.technicalLabel = this.getTechnicalLabel(structure);
+        this.humanLabel = this.getHumanLabel(structure);
         this.roots = structure.dataPsmRoots;
     }
 
@@ -58,6 +60,16 @@ export class AggregateMetadata {
             return structure.dataPsmTechnicalLabel;
         }
 
+        let humanLabel = this.getHumanLabel(structure);
+
+        const aggregateName = normalizeName(humanLabel);
+
+        console.log(`Aggregate name: "${aggregateName}"`);
+        return aggregateName;
+    }
+
+    private getHumanLabel(structure: DataPsmSchema): string {
+
         if (!structure.dataPsmHumanLabel ||
             Object.keys(structure.dataPsmHumanLabel).length === 0) {
             throw new Error(`Data structure ${structure.iri} is missing a name.`);
@@ -69,10 +81,7 @@ export class AggregateMetadata {
             ? structure.dataPsmHumanLabel["en"]!
             : structure.dataPsmHumanLabel[labelKeys.at(0)!]!;
 
-        const aggregateName = normalizeName(humanLabel);
-
-        console.log(`Aggregate name: "${aggregateName}"`);
-        return aggregateName;
+        return humanLabel;
     }
 
     /**

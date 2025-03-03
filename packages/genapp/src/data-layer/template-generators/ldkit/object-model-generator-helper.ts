@@ -81,7 +81,7 @@ export class ObjectModelTypeGeneratorHelper {
         const identifierTypeProperty = transformed.find(([key, _]) => key !== null && key !== undefined && key.toLowerCase() === "id");
 
         if (!identifierTypeProperty) {
-            transformed.unshift(["id", "string"]);
+            transformed.unshift(["id", "string | undefined"]);
         }
 
         const schemaInterfaceResult = Object.fromEntries(transformed);
@@ -121,7 +121,8 @@ export class ObjectModelTypeGeneratorHelper {
             ? JSON.stringify(valueType)
             : valueType;
 
-        return value["@optional"]
+        // require a boolean value to be specified - avoid 3-state logic
+        return value["@optional"] && (typeof resultType !== "boolean")
             ? `${resultType} | undefined`
             : resultType;
     }

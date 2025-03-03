@@ -15,7 +15,7 @@ import { ArtifactCache } from "../../utils/artifact-saver";
 interface EditInstanceReactComponentTemplate extends TemplateModel {
     /** @inheritdoc */
     placeholders: {
-        aggregate_name: string,
+        aggregate: AggregateMetadata,
         page_title: string | null,
         exported_object_name: string,
         edit_capability_app_layer: string,
@@ -23,6 +23,7 @@ interface EditInstanceReactComponentTemplate extends TemplateModel {
         edit_get_detail_app_layer: string,
         edit_get_detail_app_layer_path: ImportRelativePath,
         json_schema: string,
+        uiSchema: string,
         navigation_hook: string,
         navigation_hook_path: ImportRelativePath,
         redirects: AllowedTransition[];
@@ -87,6 +88,7 @@ export class EditInstanceComponentTemplateProcessor extends PresentationLayerTem
         const [getDetailName, getDetailPath] = this.readInstanceDetail(dependencies.aggregate);
 
         const dataSchemaInterface = this.restoreAggregateDataModelInterface(dependencies.aggregate);
+        const uiSchema = this.generateUISchema(dataSchemaInterface);
 
         const redirectTransitions = dependencies.transitions.groupByTransitionType()[ApplicationGraphEdgeType.Redirection.toString()]!;
 
@@ -95,7 +97,7 @@ export class EditInstanceComponentTemplateProcessor extends PresentationLayerTem
         const editInstanceComponentTemplate: EditInstanceReactComponentTemplate = {
             templatePath: this._templatePath,
             placeholders: {
-                aggregate_name: dependencies.aggregate.getAggregateNamePascalCase(),
+                aggregate: dependencies.aggregate,
                 page_title: this.getTemplatePageTitle(dependencies.detailNodeConfig.pageTitle),
                 exported_object_name: editExportedName,
                 edit_capability_app_layer: dependencies.appLogicArtifact.exportedObjectName,
@@ -117,7 +119,8 @@ export class EditInstanceComponentTemplateProcessor extends PresentationLayerTem
                     to: useNavigationHook.filePath
                 },
                 redirects: redirectTransitions,
-                json_schema: JSON.stringify(dataSchemaInterface, null, 2)
+                json_schema: JSON.stringify(dataSchemaInterface, null, 2),
+                uiSchema: JSON.stringify(uiSchema, null, 2)
             }
         }
 

@@ -1,5 +1,5 @@
 import { <%= it.return_type %> } from <%~ it.return_type_path %>;
 
 export interface AggregateInstanceCreator {
-    createInstance(newInstance: any): Promise<<%= it.return_type %>>;
+    createInstance(newInstance: object): Promise<<%= it.return_type %>>;
 }

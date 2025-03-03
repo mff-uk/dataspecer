@@ -6,12 +6,12 @@ import { Form } from "@rjsf/mui";
 import { RJSFSchema } from "@rjsf/utils";
 import validator from "@rjsf/validator-ajv8";
 import { useSearchParams } from "react-router-dom";
-import Alert from '@mui/material/Alert';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import { Backdrop, CircularProgress } from '@mui/material';
-import { AggregateInstance } from '../../interfaces/capability-result';
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import { Backdrop, CircularProgress } from "@mui/material";
+import { AggregateInstance } from "../../interfaces/capability-result";
 import { <%= it.navigation_hook %> } from <%~ it.navigation_hook_path %>;
 import { <%= it.detail_capability_app_layer %> } from <%~ it.detail_app_layer_path %>;
 
@@ -20,7 +20,7 @@ export default function <%= it.export_name %>() {
     const [instance, setInstance] = useState<AggregateInstance>();
     const [isMissingInstance, setMissingInstance] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchParams] = useSearchParams();
     const [instanceId, setInstanceId] = useState<string>("");
     const navigationHooks = <%= it.navigation_hook %>();
 
@@ -64,12 +64,12 @@ export default function <%= it.export_name %>() {
     }, [isLoading, instance, searchParams]);
 
     return (
-        <><% const defaultPageTitle = `Detail of "${it.aggregate_name}" object` %>
+        <><% const defaultPageTitle = `Detail of "${it.aggregate.humanLabel}"` %>
             <Typography variant="h3">
                 <%~ it.page_title ?? defaultPageTitle %>
             </Typography>
             <Backdrop
-                sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+                sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
                 open={isLoading}
             >
                 <CircularProgress color="inherit" />
@@ -79,12 +79,12 @@ export default function <%= it.export_name %>() {
             <% } %>
             { isMissingInstance && <Alert onClose={() => {}} severity="error">{`No valid instance found for ${instanceId}`}</Alert> }
             { instance &&
-                <Box id="<%= it.aggregate_name %>-detail" component="section">
+                <Box id="<%= it.aggregate.technicalLabel %>-detail" component="section">
                     <Form
                         schema={schema}
                         validator={validator}
                         readonly={true}
-                        uiSchema={{}}
+                        uiSchema={<%= it.uiSchema %>}
                         formData={instance.raw}
                         showErrorList="top"
                     />

@@ -4,6 +4,7 @@ import { ApplicationGraphEdgeType } from "../../engine/graph";
 import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
 import { ImportRelativePath, TemplateModel } from "../../engine/templates/template-interfaces";
 import { PresentationLayerDependencyMap, PresentationLayerTemplateGenerator } from "./presentation-layer-template-generator";
+import { AggregateMetadata } from "../../application-config";
 
 /**
  * Interface representing the template model for rendering the React component for detail capability.
@@ -14,11 +15,12 @@ interface DetailReactComponentTemplate extends TemplateModel {
     /** @inheritdoc */
     placeholders: {
         page_title: string | null;
-        aggregate_name: string;
+        aggregate: AggregateMetadata;
         export_name: string;
         detail_capability_app_layer: string;
         detail_app_layer_path: ImportRelativePath;
         json_schema: string,
+        uiSchema: string,
         capability_transitions: AllowedTransition[];
         capability_aggregations: AllowedTransition[];
         navigation_hook: string;
@@ -62,6 +64,7 @@ export class DetailComponentTemplateProcessor extends PresentationLayerTemplateG
 
         const useNavigationHook = await UseNavigationHookGenerator.processTemplate();
         const dataSchemaInterface = this.restoreAggregateDataModelInterface(dependencies.aggregate);
+        const uiSchema = this.generateUISchema(dataSchemaInterface);
 
         const transitions = dependencies.transitions.groupByTransitionType()[ApplicationGraphEdgeType.Transition.toString()]!;
         const aggregations = dependencies.transitions.groupByTransitionType()[ApplicationGraphEdgeType.Aggregation.toString()]!;
@@ -70,7 +73,7 @@ export class DetailComponentTemplateProcessor extends PresentationLayerTemplateG
             templatePath: this._templatePath,
             placeholders: {
                 page_title: this.getTemplatePageTitle(dependencies.detailNodeConfig.pageTitle),
-                aggregate_name: dependencies.aggregate.aggregateName,
+                aggregate: dependencies.aggregate,
                 export_name: detailExportedName,
                 detail_app_layer_path: {
                     from: dependencies.pathResolver.getFullSavePath(this._filePath),
@@ -78,6 +81,12 @@ export class DetailComponentTemplateProcessor extends PresentationLayerTemplateG
                 },
                 detail_capability_app_layer: dependencies.appLogicArtifact.exportedObjectName,
                 json_schema: JSON.stringify(dataSchemaInterface, null, 2),
+                uiSchema: JSON.stringify({
+                    "ui:submitButtonOptions": {
+                        "norender": true,
+                    },
+                    ...uiSchema
+                }, null, 2),
                 capability_transitions: transitions,
                 capability_aggregations: aggregations,
                 navigation_hook: useNavigationHook.exportedObjectName,

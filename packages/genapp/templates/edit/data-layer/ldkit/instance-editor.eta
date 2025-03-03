@@ -2,6 +2,7 @@ import { QueryContext, createLens, QueryEngine, Options } from "ldkit";
 import { <%= it.instance_result_type %> } from <%~ it.instance_result_type_path %>;
 import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 import { <%= it.editor_interface_type %> } from <%~ it.editor_interface_type_path %>;
+import { IriGenerator, UUIDGenerator } from "../../../uuid-generator.ts";
 
 class LdkitEditorQueryEngine extends QueryEngine {
 
@@ -25,16 +26,18 @@ class LdkitEditorQueryEngine extends QueryEngine {
 export class <%= it.exported_object_name %> implements <%= it.editor_interface_type %>  {
 
     private _customEngine: QueryEngine;
+    private readonly _idGenerator: IIdentifierGenerator; // TODO
 
     constructor() {
         this._customEngine = new LdkitEditorQueryEngine();
+        this._idGenerator = UUIDGenerator.getGenerator(); // TODO
     }
 
-    async updateInstance(formData: any): Promise<<%= it.instance_result_type %>> {
+    async updateInstance(formData: object): Promise<<%= it.instance_result_type %>> {
         return this.executeUpdate(formData, <%= it.ldkit_schema %>);
     }
 
-    private async executeUpdate(formData: any, schema: any): Promise<<%= it.instance_result_type %>> {
+    private async executeUpdate(formData: object, schema: any): Promise<<%= it.instance_result_type %>> {
 
         const options: Options = {
             sources: ["<%~ it.sparql_endpoint_uri.write %>"],
@@ -43,10 +46,10 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
 
         try {
             await this.updateNestedObjects(formData, schema);
-            const toUpdate = this.mapFormDataToLdkitSchema(formData, schema);
+            const toUpdate = this.mapFormDataToLdkitEntity(formData, schema);
 
             let lens = createLens(schema, { sources: ["<%~ it.sparql_endpoint_uri.read %>"] });
-            const existingInstance = await lens.findByIri(toUpdate.$id);
+            const existingInstance = await lens.findByIri(toUpdate["$id"]);
 
             lens = createLens(schema, options);
 
@@ -76,17 +79,20 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
         }
     }
 
-    private mapFormDataToLdkitSchema(formData: any, schema: any) {
-        console.log("input form data: ", formData);
-
+    private mapFormDataToLdkitEntity(formData: object, schema: any) {
         const toUpdate = this.updateLdkitProperties(formData, schema);
 
-        return toUpdate;
+        return {
+            ...toUpdate,
+            "$id": ("$id" in toUpdate)
+                ? toUpdate["$id"]
+                : this._idGenerator.generateIri()
+        };
     }
 
     private updateLdkitProperties(obj: any, schema: any) {
 
-        if (typeof obj !== "object") {
+        if (typeof obj !== "object" || !obj) {
             return obj;
         }
 
@@ -122,8 +128,9 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
     }
 
     private async updateNestedObjects(toUpdate: object, schema: any) {
-        for (const [key, value] of Object.entries<any>(schema)) {
+        for (const [key, value] of Object.entries(schema || {})) {
             if ((typeof value === "string") || !value["@schema"]) {
+                // current property does not refer to an object
                 continue;
             }
 
@@ -134,12 +141,13 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
                 continue;
             }
 
-            if (Array.isArray(nestedValue)) {
-                for (const nestedItem of nestedValue) {
-                    await this.executeUpdate(nestedItem, nestedSchema);
-                }
-            } else {
-                await this.executeUpdate(nestedValue, nestedSchema);
+            const nestedItems = Array.isArray(nestedValue)
+                ? nestedValue
+                : [nestedValue];
+
+            for (const nestedItem of nestedItems) {
+                // TODO: create link from parent to nested object (for created ones)
+                await this.executeUpdate(nestedItem, nestedSchema);
             }
         }
     }

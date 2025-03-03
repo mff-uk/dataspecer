@@ -3,6 +3,7 @@ import { QueryContext, SchemaInterface, createLens, QueryEngine, Options } from 
 import { <%= it.instance_result_type %> } from <%~ it.instance_result_type_path %>;
 import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 import { <%= it.creator_interface_type %> } from <%~ it.creator_interface_type_path %>;
+import { IriGenerator, UUIDGenerator } from "../../../uuid-generator.ts";
 
 class LdkitCreatorQueryEngine extends QueryEngine {
 
@@ -26,31 +27,29 @@ class LdkitCreatorQueryEngine extends QueryEngine {
 export class <%= it.exported_object_name %> implements <%= it.creator_interface_type %>  {
 
     private _customEngine: QueryEngine;
+    private readonly _idGenerator: IriGenerator; // TODO
 
     constructor() {
         this._customEngine = new LdkitCreatorQueryEngine();
+        this._idGenerator = new IriGenerator(UUIDGenerator.getGenerator()); // TODO
     }
 
-    private mapFormDataToLdkitSchema(formData: any): Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> {
-        console.log("input form data: ", formData);
-
+    private mapFormDataToLdkitSchema(formData: object): Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> {
         const newInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> = this.updateLdkitProperties(formData);
-
-        return newInstance;
+        return {
+            ...newInstance,
+            "$id": this._idGenerator.generateIri(),
+        };
     }
 
-    private updateLdkitProperties(obj: any) {
+    private updateLdkitProperties(formData: object) {
 
-        if (typeof obj !== "object") {
-            return obj;
+        if (typeof formData !== "object" || !formData) {
+            return formData;
         }
 
-        const transformed = Object.entries(obj)
+        const transformed = Object.entries(formData)
             .map(([key, value]) => {
-                if (key === "id") {
-                    return ["$id", value];
-                }
-
                 if (key === "@type") {
                     return ["$type", value];
                 }
@@ -69,7 +68,7 @@ export class <%= it.exported_object_name %> implements <%= it.creator_interface_
         return Object.fromEntries(transformed);
     }
 
-    async createInstance(formData: any): Promise<<%= it.instance_result_type %>> {
+    async createInstance(formData: object): Promise<<%= it.instance_result_type %>> {
 
         const options: Options = {
             sources: [<%~ it.sparql_endpoint_uri %>],
@@ -81,8 +80,6 @@ export class <%= it.exported_object_name %> implements <%= it.creator_interface_
 
         try {
             await lens.insert(newInstance);
-            console.log("creation success");
-
             const result: <%= it.instance_result_type %> = {
                 instance: {
                     aggregateName: "<%= it.aggregate_name %>",

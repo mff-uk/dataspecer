@@ -1,4 +1,4 @@
-import { Options, setGlobalOptions, createLens, SchemaInterface } from "ldkit";
+import { Options, setGlobalOptions, createLens } from "ldkit";
 import { <%= it.ldkit_instance_reader %> } from <%~ it.ldkit_instance_reader_path %>;
 import { <%= it.instance_result_type %> } from <%~ it.instance_result_type_path %>;
 import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
@@ -11,8 +11,7 @@ export default class <%= it.exported_name_object %> implements <%= it.ldkit_inst
             sources: [<%~ it.ldkit_endpoint_uri %>]
         }
 
-        setGlobalOptions(options);
-        <% const instanceVariable = `${it.aggregate_name}InstanceDetail`; %>
+        setGlobalOptions(options);<% const instanceVariable = `${it.aggregate_name}InstanceDetail`; %>
         const <%= instanceVariable %> = await this.getInstanceDetail(instanceIri, <%= it.ldkit_schema %>);
 
         if (!<%= instanceVariable %>) {
@@ -77,7 +76,7 @@ export default class <%= it.exported_name_object %> implements <%= it.ldkit_inst
                 return [key, value];
             }
         )
-        .filter(([key, _]) => key !== null);
+        .filter(([key, value]) => key !== null && (value !== null && value !== undefined));
 
         return Object.fromEntries(transformed);
     }
