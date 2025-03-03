@@ -115,10 +115,11 @@ export function useEditNodeAttributesController(
           return;
         }
 
+        let name: string | null;
         let profileOf: string | null;
+
         if(state.isDomainNodeProfile) {
           returnedState = (returnedState as EditAttributeProfileDialogState);
-          let name: string | null;
           if(returnedState.overrideName) {
             name = getLocalizedStringFromLanguageString(returnedState.name, returnedState.language);
           }
@@ -130,13 +131,18 @@ export function useEditNodeAttributesController(
           console.info("returnedState", returnedState);
 
           profileOf = returnedState.profiles
-            .map(profile => getLocalizedStringFromLanguageString(profile.name, returnedState.language)).join(", ");
+            .map(profile => {
+              const localizedName = getLocalizedStringFromLanguageString(profile.name, returnedState.language);
+              return tryGetName(localizedName, profile.iri, profile.identifier);
+            }).join(", ");
         }
         else {
           profileOf = null;
+          name = getLocalizedStringFromLanguageString(returnedState.name, returnedState.language);
         }
 
-        const name = getStringFromLanguageStringInLang(returnedState.name, returnedState.language)[0] ?? createdAttributeIdentifier;
+        name = tryGetName(name, returnedState.iri, createdAttributeIdentifier);
+
         console.info("Classic Name", name);
 
         // We have to use timeout -
@@ -169,3 +175,13 @@ export function useEditNodeAttributesController(
     };
   }, [state, changeState, openCreateAttributeDialogForClass]);
 }
+
+// TODO RadStr: Probably can be solved better,
+//              the issue is that we don't have the entity to call the getFallbackDisplayName method,
+//              so we have to write it ourselves
+function tryGetName(
+  name: string | null,
+  iri: string | null,
+  id: string | null) {
+    return name ?? iri ?? id ?? "";
+  }
