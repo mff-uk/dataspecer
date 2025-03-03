@@ -6,8 +6,6 @@ import { getLocalizedStringFromLanguageString, getStringFromLanguageStringInLang
 import { EditAttributeDialogState } from "../attribute/edit-attribute-dialog-controller";
 import { EditAttributeProfileDialogState } from "../attribute-profile/edit-attribute-profile-dialog-controller";
 import { useActions } from "../../action/actions-react-binding";
-import { getEntityLabelToShowInDiagram } from "../../util/utils";
-import { getFallbackDisplayName } from "../../util/name-utils";
 
 export type AttributeData = {
   identifier: string,
