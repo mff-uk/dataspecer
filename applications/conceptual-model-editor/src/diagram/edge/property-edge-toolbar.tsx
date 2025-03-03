@@ -18,12 +18,14 @@ export function PropertyEdgeToolbar({ value }: { value: EdgeToolbarProps | null 
   const edge = useStore((state: ReactFlowState) => state.edgeLookup.get(value?.edgeIdentifier ?? ""));
   const { x, y, zoom } = useStore(viewportStoreSelector, shallow);
 
-  const data = edge!.data as Edge;
-  const sourceNode = useInternalNode(data.source)!;
-  const targetNode = useInternalNode(data.target)!;
+  // We must call the hooks before making any "if" statement.
+  const data = edge?.data as Edge;
+  const sourceNode = useInternalNode(data?.source ?? "");
+  const targetNode = useInternalNode(data?.target ?? "");
 
-  if (value === null || edge?.data === undefined || !edge?.selected || context === null ||
-      context.getShownNodeMenuType() !== NodeMenuType.SingleNodeMenu) {
+  if (value === null || data === undefined || !edge?.selected ||
+    context === null || sourceNode === undefined || targetNode === undefined ||
+    context.getShownNodeMenuType() !== NodeMenuType.SingleNodeMenu) {
     return null;
   }
 
@@ -36,7 +38,7 @@ export function PropertyEdgeToolbar({ value }: { value: EdgeToolbarProps | null 
   const onDelete = () => context?.callbacks().onDeleteEdge(data);
   const addWaypoint = () => {
     const waypoints = createWaypoints(
-      sourceNode, data?.waypoints ?? [], targetNode);
+      sourceNode, data.waypoints ?? [], targetNode);
     //
     const index = findClosestLine(waypoints, position);
     console.log("Add waypoints:", {waypoints, position, index});
