@@ -8,6 +8,13 @@ import { findSourceModelOfEntity } from "../../service/model-service";
 import { getDomainAndRange, getDomainAndRangeConcepts } from "../../util/relationship-utils";
 import { isSemanticModelAttributeProfile } from "../semantic-model";
 
+/**
+ * Removes attributes from {@link visualModel} based on {@link entities} in situations,
+ * where domain in semantic model and visual model is no longer the same.
+ *
+ * This is mainly for backwards compatibility,
+ * but it can be also useful if the semantic model changes without updating the visual one.
+ */
 export function validateVisualModelAttributes(
   entities: Record<string, AggregatedEntityWrapper>,
   visualModel: WritableVisualModel,

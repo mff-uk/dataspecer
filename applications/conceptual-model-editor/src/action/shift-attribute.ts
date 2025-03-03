@@ -6,6 +6,7 @@ export enum ShiftAttributeDirection {
   Down = 1,
 };
 
+// TODO RadStr: Maybe should put in addional checks that shiftDistance > 0 and it is integer.
 export function shiftAttributePositionAction(
   notifications: UseNotificationServiceWriterType,
   visualModel: WritableVisualModel,
@@ -30,7 +31,9 @@ export function shiftAttributePositionAction(
     return;
   }
 
-  const newPosition = (oldPosition + shiftDistance * shiftDirection) % node.content.length;
+  // We add additional multiple of array size, because % doesn't like negative numbers.
+  const outOfNegative = shiftDistance * node.content.length;
+  const newPosition = (outOfNegative + oldPosition + shiftDistance * shiftDirection) % node.content.length;
   const newContent = [...node.content];
   newContent.splice(oldPosition, 1);
   newContent.splice(newPosition, 0, attributeIdentifier);
