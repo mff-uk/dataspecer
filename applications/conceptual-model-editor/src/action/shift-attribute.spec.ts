@@ -46,8 +46,7 @@ test("Test shift attribute - up and down", () => {
   expect(nodeWithAttributes.content).toEqual(newAttributes.map(attribute => attribute.identifier));
 });
 
-// TODO RadStr: Fix the code so this code passes
-test.skip("Test shift attribute - up and down over edge", () => {
+test("Test shift attribute - up and down over boundary", () => {
   const {
     visualModel,
     models,
