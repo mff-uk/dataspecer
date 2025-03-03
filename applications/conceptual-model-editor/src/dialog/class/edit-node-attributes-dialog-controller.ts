@@ -126,6 +126,9 @@ export function useEditNodeAttributesController(
             name = getLocalizedStringFromLanguageString(returnedState.nameSourceValue, returnedState.language);
           }
 
+          console.info("Profile Name", name);
+          console.info("returnedState", returnedState);
+
           profileOf = returnedState.profiles
             .map(profile => getLocalizedStringFromLanguageString(profile.name, returnedState.language)).join(", ");
         }
@@ -134,6 +137,8 @@ export function useEditNodeAttributesController(
         }
 
         const name = getStringFromLanguageStringInLang(returnedState.name, returnedState.language)[0] ?? createdAttributeIdentifier;
+        console.info("Classic Name", name);
+
         // We have to use timeout -
         // there is probably some issue with updating state of multiple dialogs when one closes.
         setTimeout(() => addToVisibleAttributes({
