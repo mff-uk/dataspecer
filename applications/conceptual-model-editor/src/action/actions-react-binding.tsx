@@ -611,7 +611,7 @@ function createActionsContext(
       return;
     }
     withVisualModel(notifications, graph, (visualModel) => {
-      addSemanticAttributeToVisualModelAction(notifications, visualModel, domainClass, attribute, null);
+      addSemanticAttributeToVisualModelAction(notifications, visualModel, domainClass, attribute, null, true);
     });
   };
 

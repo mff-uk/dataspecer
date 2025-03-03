@@ -7,13 +7,14 @@ import { ClassesContextType } from "../context/classes-context";
 import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
 
-// TODO RadStr: Maybe not really an action but just helper method?
+// TODO RadStr: Document
 export function addSemanticAttributeToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   visualModel: WritableVisualModel,
   domainIdentifier: string,
   attribute: string,
   position: number | null,
+  shouldReportDuplicateAsNotification: boolean,
 ) {
   const visualNode = visualModel.getVisualEntityForRepresented(domainIdentifier);
   if(visualNode === null) {
@@ -24,12 +25,17 @@ export function addSemanticAttributeToVisualModelAction(
     notifications.error("The visual node representing domain of attribute is not a visual node");
     return;
   }
-  if(position === null) {
-    position = visualNode.content.length;
+  if(visualNode.content.includes(attribute)) {
+    if(shouldReportDuplicateAsNotification) {
+      notifications.error("The given attribute to be shown is already present on the visual node");
+    }
+    return;
   }
 
+  const validPosition = position ?? visualNode.content.length;
+
   const newContent = [...visualNode.content];
-  newContent.splice(position, 0, attribute);
+  newContent.splice(validPosition, 0, attribute);
 
   visualModel.updateVisualEntity(visualNode.identifier, {content: newContent});
 }

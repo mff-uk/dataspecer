@@ -49,7 +49,7 @@ export function openCreateAttributeForEntityDialogAction(
         if(result?.identifier !== undefined) {
           addSemanticAttributeToVisualModelAction(
             notifications, visualModel, state.domain.identifier,
-            result.identifier, null);
+            result.identifier, null, true);
         }
       }
 
@@ -70,7 +70,7 @@ export function openCreateAttributeForEntityDialogAction(
         if(result?.identifier !== undefined) {
           addSemanticAttributeToVisualModelAction(
             notifications, visualModel, state.domain.identifier,
-            result.identifier, null);
+            result.identifier, null, true);
         }
       }
 
