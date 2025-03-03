@@ -26,7 +26,8 @@ test("Test shift attribute - up and down", () => {
   for(let i = 0; i < 3; i++) {
     const createdAttributeData = createSemanticAttributeTestVariant(models, `${i}`, cmeModels[0].dsIdentifier, `attribute-${i}`);
     newAttributes.push(createdAttributeData);
-    addSemanticAttributeToVisualModelAction(noActionNotificationServiceWriter, visualModel, "0", createdAttributeData.identifier, null);
+    addSemanticAttributeToVisualModelAction(
+      noActionNotificationServiceWriter, visualModel, "0", createdAttributeData.identifier, null, false);
   }
   let nodeWithAttributes = visualModel.getVisualEntityForRepresented("0") as VisualNode;
   expect(nodeWithAttributes.content).toEqual(newAttributes.map(attribute => attribute.identifier));
@@ -58,7 +59,8 @@ test.skip("Test shift attribute - up and down over edge", () => {
   for(let i = 0; i < 3; i++) {
     const createdAttributeData = createSemanticAttributeTestVariant(models, `${i}`, cmeModels[0].dsIdentifier, `attribute-${i}`);
     newAttributes.push(createdAttributeData);
-    addSemanticAttributeToVisualModelAction(noActionNotificationServiceWriter, visualModel, "0", createdAttributeData.identifier, null);
+    addSemanticAttributeToVisualModelAction(
+      noActionNotificationServiceWriter, visualModel, "0", createdAttributeData.identifier, null, false);
   }
   let nodeWithAttributes = visualModel.getVisualEntityForRepresented("0") as VisualNode;
   expect(nodeWithAttributes.content).toEqual(newAttributes.map(attribute => attribute.identifier));

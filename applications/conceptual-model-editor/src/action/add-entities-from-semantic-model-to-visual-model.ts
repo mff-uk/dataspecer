@@ -16,14 +16,14 @@ import { getDomainAndRange } from "../util/relationship-utils";
 /**
  * Adds entities from given semantic model identified by {@link semanticModelIdentifier} to currently active visual model.
  */
-export const addEntitiesFromSemanticModelToVisualModelAction = (
+export const addEntitiesFromSemanticModelToVisualModelAction = async (
   notifications: UseNotificationServiceWriterType,
   classesContext: ClassesContextType,
   graph: ModelGraphContextType,
   diagram: UseDiagramType,
   visualModel: WritableVisualModel,
   semanticModel: EntityModel
-): void => {
+): Promise<void> => {
   // Passing in true, because the classic relationships are added by default when adding class
   // while the relationship profiles are not
   const entitiesFromSemanticModel = getSelectionForWholeSemanticModel(semanticModel, visualModel, true);
@@ -44,7 +44,7 @@ export const addEntitiesFromSemanticModelToVisualModelAction = (
                       isSemanticModelClassProfile(entity) ||
                       isSemanticModelClassUsage(entity));
 
-  addSemanticEntitiesToVisualModelAction(notifications, classesContext, graph, visualModel, diagram, entitiesToAddToVisualModel);
+  await addSemanticEntitiesToVisualModelAction(notifications, classesContext, graph, visualModel, diagram, entitiesToAddToVisualModel);
 
   addHiddenAttributesForExistingClassesAndClassProfiles(
     notifications, classesContext, visualModel, existingClassesAndClassProfiles);
