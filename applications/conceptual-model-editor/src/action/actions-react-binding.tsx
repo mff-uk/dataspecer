@@ -56,6 +56,13 @@ import { ShiftAttributeDirection, shiftAttributePositionAction } from "./shift-a
 import { openEditNodeAttributesDialogAction } from "./open-edit-node-attributes-dialog";
 import { EditAttributeDialogState } from "../dialog/attribute/edit-attribute-dialog-controller";
 import { EditAttributeProfileDialogState } from "../dialog/attribute-profile/edit-attribute-profile-dialog-controller";
+import { openEditAttributeDialogAction } from "./open-edit-attribute-dialog";
+import { openEditAttributeProfileDialogAction } from "./open-edit-attribute-profile-dialog";
+import { findSourceModelOfEntity } from "../service/model-service";
+import { isInMemorySemanticModel } from "../utilities/model";
+import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelAttributeUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -909,8 +916,52 @@ function createActionsContext(
       const selectionIdentifiers = nodeSelection.concat(edgeSelection);
       deleteVisualElements(selectionIdentifiers);
     },
-    onRemoveAttributeFromVisualModel: function (attribute: string, _nodeIdentifer: string): void {
-      removeAttributesFromVisualModel([attribute])
+    onRemoveAttributeFromNode: (attribute: string, _nodeIdentifer: string) => {
+      removeAttributesFromVisualModel([attribute]);
+    },
+    onEditAttribute: (attribute: string, _nodeIdentifer: string) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        const model = findSourceModelOfEntity(attribute, graph.models);
+        if(model === null) {
+          notifications.error("Given attribute does not have source model");
+          return;
+        }
+        if(!isInMemorySemanticModel(model)) {
+          notifications.error("Given attribute does have source model, but it is not writable");
+          return;
+        }
+        const attributeEntity = model.getEntities()[attribute]
+        if(isSemanticModelAttribute(attributeEntity)) {
+          // TODO RadStr: Once we have multi entities - this is wrong, we have to take into consideration the _nodeIdentifer
+          openEditAttributeDialogAction(
+            options, dialogs, classes, graph, notifications, visualModel, model, attributeEntity);
+        }
+        else {
+          notifications.error("Given attribute to be edited is not an attribute neither attribute profile");
+        }
+      });
+    },
+    onEditAttributeProfile: function (attribute: string, _nodeIdentifer: string): void {
+      withVisualModel(notifications, graph, (visualModel) => {
+        const model = findSourceModelOfEntity(attribute, graph.models);
+        if(model === null) {
+          notifications.error("Given attribute profile does not have source model");
+          return;
+        }
+        if(!isInMemorySemanticModel(model)) {
+          notifications.error("Given attribute profile does have source model, but it is not writable");
+          return;
+        }
+        const attributeEntity = model.getEntities()[attribute]
+        if(isSemanticModelAttributeUsage(attributeEntity) || isSemanticModelAttributeProfile(attributeEntity)) {
+          // TODO RadStr: Once we have multi entities - this is wrong, we have to take into consideration the _nodeIdentifer
+          openEditAttributeProfileDialogAction(
+            options, dialogs, classes, graph, notifications, visualModel, model, attributeEntity);
+        }
+        else {
+          notifications.error("Given attribute profile to be edited is not an attribute profile");
+        }
+      });
     },
     onMoveAttributeUp: function (attribute: string, nodeIdentifer: string): void {
       shiftAttributeUp(attribute, nodeIdentifer);

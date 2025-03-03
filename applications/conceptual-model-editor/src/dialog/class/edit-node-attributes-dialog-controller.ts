@@ -178,5 +178,5 @@ function tryGetName(
   name: string | null,
   iri: string | null,
   id: string | null) {
-    return name ?? iri ?? id ?? "";
-  }
+  return name ?? iri ?? id ?? "";
+}
