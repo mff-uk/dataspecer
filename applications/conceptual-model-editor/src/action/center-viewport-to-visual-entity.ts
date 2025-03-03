@@ -3,9 +3,11 @@ import { ModelGraphContextType } from "../context/model-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { SemanticModelRelationship, isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
-import { SemanticModelRelationshipUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { SemanticModelRelationshipUsage, isSemanticModelAttributeUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ClassesContextType } from "../context/classes-context";
 import { getDomainAndRange } from "../util/relationship-utils";
+import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
 
 /**
  * Center diagram editor view to the visual entity representing given semantic entity, identified by {@link identifier}.
@@ -20,19 +22,22 @@ export function centerViewportToVisualEntityAction(
   entityIdentifier: string,
   _modelIdentifier: string,
 ) {
-  const attribute = findRelationshipOrRelationshipUsageWithIdentifier(entityIdentifier, classesContext);
+  const attribute = findAttributeWithIdentifier(entityIdentifier, classesContext);
   if(attribute !== undefined) {
-    // It can be attribute or association
+    let domainClassIdentifier;
     if(isSemanticModelAttribute(attribute)) {
-      const domainNodeIdentifier = getDomainAndRange(attribute)?.domain?.concept ?? null;
-
-      if(domainNodeIdentifier === null) {
-        notifications.error("Focused attribute doesn't have domain node");
-        return;
-      }
-
-      entityIdentifier = domainNodeIdentifier;
+      domainClassIdentifier = getDomainAndRange(attribute)?.domain?.concept ?? null;
     }
+    else {
+      domainClassIdentifier = getDomainAndRange(attribute)?.domain?.concept ?? null;
+    }
+
+    if(domainClassIdentifier === null) {
+      notifications.error("Focused attribute doesn't have domain node");
+      return;
+    }
+
+    entityIdentifier = domainClassIdentifier;
   }
 
   const visualModel = graph.aggregatorView.getActiveVisualModel();
@@ -57,8 +62,14 @@ export function centerViewportToVisualEntityAction(
  * @returns undefined if the relationship with given identifier wasn't found. Otherwise the found relationship or relationship usage -
  * Note that the returned type depends on the actual entity
  */
-export function findRelationshipOrRelationshipUsageWithIdentifier(identifier: string, classesContext: ClassesContextType) {
-  const entity = (classesContext.relationships as (SemanticModelRelationship | SemanticModelRelationshipUsage)[]).
-    concat(classesContext.usages.filter(isSemanticModelRelationshipUsage)).find(entity => entity?.id === identifier);
-  return entity;
+export function findAttributeWithIdentifier(identifier: string, classesContext: ClassesContextType) {
+  const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
+  const attributeUsages = classesContext.usages.filter(isSemanticModelAttributeUsage);
+  const attributeProfiles = classesContext.relationshipProfiles.filter(isSemanticModelAttributeProfile);
+
+  const allAttributes = ([] as (SemanticModelRelationship |
+    SemanticModelRelationshipProfile |
+    SemanticModelRelationshipUsage)[]).concat(attributes).concat(attributeUsages).concat(attributeProfiles);
+
+  return allAttributes.find(attribute => attribute.id === identifier);
 }
