@@ -82,7 +82,7 @@ export function openCreateProfileDialogAction(
       if(result?.identifier !== undefined) {
         addSemanticAttributeToVisualModelAction(
           notifications, visualModel, state.domain.identifier,
-          result.identifier, null);
+          result.identifier, null, true);
       }
     };
     dialogs.openDialog(createEditAttributeProfileDialog(state, onConfirm));

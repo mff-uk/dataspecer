@@ -109,7 +109,7 @@ function splitIntoVisibleAndHiddenAttributes(
       else {
         const profiledEntity = rawEntities.find(entity => entity?.id === rawEntity.usageOf) ?? null;
         if(profiledEntity !== null && (
-            isSemanticModelRelationship(profiledEntity) ||
+          isSemanticModelRelationship(profiledEntity) ||
             isSemanticModelRelationshipUsage(profiledEntity) ||
             isSemanticModelRelationshipProfile(profiledEntity))) {
           profileOfText = getEntityLabelToShowInDiagram(language, profiledEntity);
