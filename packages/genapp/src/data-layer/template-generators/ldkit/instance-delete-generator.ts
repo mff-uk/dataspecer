@@ -1,5 +1,5 @@
 import { LayerArtifact } from "../../../engine/layer-artifact";
-import { InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
+import { InstanceResultReturnInterfaceGenerator, LdkitWriterQueryEngineGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 import { ImportRelativePath, DataLayerTemplateDescription } from "../../../engine/templates/template-interfaces";
 import { DeleteInstanceMutatorInterfaceGenerator } from "../reader-interface-generator";
 import { TemplateConsumer } from "../../../engine/templates/template-consumer";
@@ -22,7 +22,9 @@ export interface InstanceDeleteLdkitTemplate extends DataLayerTemplateDescriptio
         instance_result_type: string,
         instance_result_type_path: ImportRelativePath,
         delete_mutator_interface_type: string,
-        delete_mutator_interface_type_path: ImportRelativePath
+        delete_mutator_interface_type_path: ImportRelativePath,
+        writer_query_engine: string;
+        writer_query_engine_path: ImportRelativePath;
     }
 }
 
@@ -56,6 +58,7 @@ export class InstanceDeleteLdkitGenerator extends TemplateConsumer<InstanceDelet
     async processTemplate(dependencies: LdkitDalDependencyMap): Promise<LayerArtifact> {
 
         const deleteMutatorInterfaceArtifact = await DeleteInstanceMutatorInterfaceGenerator.processTemplate();
+        const ldkitWriterQueryEngine = await LdkitWriterQueryEngineGenerator.processTemplate();
 
         if (!deleteMutatorInterfaceArtifact || !deleteMutatorInterfaceArtifact.dependencies) {
             throw new Error("At least one interface dependency is expected");
@@ -100,6 +103,11 @@ export class InstanceDeleteLdkitGenerator extends TemplateConsumer<InstanceDelet
                 ldkit_schema_path: {
                     from: this._filePath,
                     to: dependencies.ldkitSchemaArtifact.filePath
+                },
+                writer_query_engine: ldkitWriterQueryEngine.exportedObjectName,
+                writer_query_engine_path: {
+                    from: this._filePath,
+                    to: ldkitWriterQueryEngine.filePath
                 }
             }
         };
@@ -110,7 +118,7 @@ export class InstanceDeleteLdkitGenerator extends TemplateConsumer<InstanceDelet
             exportedObjectName: exportedName,
             filePath: this._filePath,
             sourceText: deleteInstanceRender,
-            dependencies: [deleteMutatorInterfaceArtifact]
+            dependencies: [deleteMutatorInterfaceArtifact, ldkitWriterQueryEngine]
         }
 
         return deleteDalLayerArtifact;

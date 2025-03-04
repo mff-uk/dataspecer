@@ -1,33 +1,15 @@
-import { QueryContext, createLens, QueryEngine, Options } from "ldkit";
+import { createLens, QueryEngine, Options } from "ldkit";
 import { <%= it.instance_result_type %> } from <%~ it.instance_result_type_path %>;
 import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 import { <%= it.delete_mutator_interface_type %> } from <%~ it.delete_mutator_interface_type_path %>;
-
-class LdkitDeleteQueryEngine extends QueryEngine {
-
-    override query(query: string, responseType: string, context?: QueryContext): Promise<Response> {
-        const endpoint = this.getSparqlEndpoint(context);
-        const fetchFn = this.getFetch(context);
-        return fetchFn(endpoint, {
-            method: "POST",
-            headers: {
-                "accept": responseType,
-                "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-            },
-            body: new URLSearchParams({
-                update: query,
-            }),
-        });
-    }
-
-}
+import { <%= it.writer_query_engine %> } from <%~ it.writer_query_engine_path %>;
 
 export class <%= it.exported_object_name %> implements <%= it.delete_mutator_interface_type %> {
 
     private _customEngine: QueryEngine;
 
     constructor() {
-        this._customEngine = new LdkitDeleteQueryEngine();
+        this._customEngine = new <%= it.writer_query_engine %>();
     }
 
     async deleteInstance(instanceIri: string): Promise<<%= it.instance_result_type %>> {

@@ -1,36 +1,27 @@
-import { QueryContext, createLens, QueryEngine, Options } from "ldkit";
+import { DataFactory } from "ldkit/rdf";
+import { createLens, QueryEngine, Options } from "ldkit";
 import { <%= it.instance_result_type %> } from <%~ it.instance_result_type_path %>;
 import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 import { <%= it.editor_interface_type %> } from <%~ it.editor_interface_type_path %>;
+import { <%= it.writer_query_engine %> } from <%~ it.writer_query_engine_path %>;
 import { IriGenerator, UUIDGenerator } from "../../../uuid-generator.ts";
 
-class LdkitEditorQueryEngine extends QueryEngine {
-
-    override query(query: string, responseType: string, context?: QueryContext): Promise<Response> {
-        const endpoint = this.getSparqlEndpoint(context);
-        const fetchFn = this.getFetch(context);
-        return fetchFn(endpoint, {
-            method: "POST",
-            headers: {
-                "accept": responseType,
-                "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-            },
-            body: new URLSearchParams({
-                update: query,
-            }),
-        });
-    }
-
+type ParentChildLink = {
+    subjectIri: string;
+    predicateIri: string;
+    objectIri: string;
 }
 
 export class <%= it.exported_object_name %> implements <%= it.editor_interface_type %>  {
 
-    private _customEngine: QueryEngine;
-    private readonly _idGenerator: IIdentifierGenerator; // TODO
+    private _writerQueryEngine: QueryEngine;
+    private readonly _idGenerator: IriGenerator;
+    private readonly _rdfDataFactory: DataFactory;
 
     constructor() {
-        this._customEngine = new LdkitEditorQueryEngine();
-        this._idGenerator = UUIDGenerator.getGenerator(); // TODO
+        this._rdfDataFactory = new DataFactory();
+        this._writerQueryEngine = new <%= it.writer_query_engine %>>();
+        this._idGenerator = new IriGenerator(UUIDGenerator.getGenerator());
     }
 
     async updateInstance(formData: object): Promise<<%= it.instance_result_type %>> {
@@ -41,11 +32,11 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
 
         const options: Options = {
             sources: ["<%~ it.sparql_endpoint_uri.write %>"],
-            engine: this._customEngine
+            engine: this._writerQueryEngine
         };
 
         try {
-            await this.updateNestedObjects(formData, schema);
+            const objectLinks = await this.updateNestedObjects(formData, schema);
             const toUpdate = this.mapFormDataToLdkitEntity(formData, schema);
 
             let lens = createLens(schema, { sources: ["<%~ it.sparql_endpoint_uri.read %>"] });
@@ -57,6 +48,8 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
                 ? lens.insert(toUpdate)
                 : lens.update(toUpdate);
             await promise;
+
+            this.linkChildEntitiesToParent(objectLinks, lens);
 
             const result: <%= it.instance_result_type %> = {
                 instance: {
@@ -127,7 +120,10 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
         return Object.fromEntries(transformed);
     }
 
-    private async updateNestedObjects(toUpdate: object, schema: any) {
+    private async updateNestedObjects(toUpdate: object, schema: any): Promise<ParentChildLink[]> {
+
+        const parentLinks: ParentChildLink[] = [];
+
         for (const [key, value] of Object.entries(schema || {})) {
             if ((typeof value === "string") || !value["@schema"]) {
                 // current property does not refer to an object
@@ -146,9 +142,27 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
                 : [nestedValue];
 
             for (const nestedItem of nestedItems) {
-                // TODO: create link from parent to nested object (for created ones)
-                await this.executeUpdate(nestedItem, nestedSchema);
+                const nestedUpdateResult = await this.executeUpdate(nestedItem, nestedSchema);
+                const updatedChildIri: string = nestedUpdateResult.instance?.raw ?? "";
+                parentLinks.push({
+                    subjectIri: toUpdate["id"], // parent instance identifier
+                    predicateIri: value["@id"], // relationship identifier
+                    objectIri: updatedChildIri, // nested instance identifier
+                });
             }
+        }
+
+        return parentLinks;
+    }
+
+    private linkChildEntitiesToParent(objectLinks: ParentChildLink[], lens: Lens<any>) {
+        for (const linkedObj of objectLinks) {
+            const quad = this._rdfDataFactory.quad(
+                this._rdfDataFactory.namedNode(linkedObj.subjectIri),
+                this._rdfDataFactory.namedNode(linkedObj.predicateIri),
+                this._rdfDataFactory.namedNode(linkedObj.objectIri)
+            );
+            lens.insertData(quad);
         }
     }
 }

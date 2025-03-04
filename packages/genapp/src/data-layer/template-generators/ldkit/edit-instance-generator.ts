@@ -1,4 +1,4 @@
-import { InstanceResultReturnInterfaceGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
+import { InstanceResultReturnInterfaceGenerator, LdkitWriterQueryEngineGenerator } from "../../../capabilities/template-generators/capability-interface-generator";
 import { LayerArtifact } from "../../../engine/layer-artifact";
 import { TemplateConsumer } from "../../../engine/templates/template-consumer";
 import { ReadWriteEndpointUri } from "../../../engine/graph/datasource";
@@ -22,7 +22,9 @@ export interface EditLdkitInstanceTemplate extends DataLayerTemplateDescription 
         instance_result_type: string,
         instance_result_type_path: ImportRelativePath,
         editor_interface_type: string,
-        editor_interface_type_path: ImportRelativePath
+        editor_interface_type_path: ImportRelativePath,
+        writer_query_engine: string,
+        writer_query_engine_path: ImportRelativePath
     }
 }
 
@@ -56,6 +58,7 @@ export class EditLdkitInstanceGenerator extends TemplateConsumer<EditLdkitInstan
     async processTemplate(dependencies: LdkitDalDependencyMap): Promise<LayerArtifact> {
 
         const editInterfaceArtifact = await InstanceEditorInterfaceGenerator.processTemplate();
+        const ldkitWriterQueryEngine = await LdkitWriterQueryEngineGenerator.processTemplate();
 
         if (!editInterfaceArtifact || !editInterfaceArtifact.dependencies) {
             throw new Error("At least one interface dependency is expected");
@@ -98,6 +101,11 @@ export class EditLdkitInstanceGenerator extends TemplateConsumer<EditLdkitInstan
                 ldkit_schema_path: {
                     from: this._filePath,
                     to: dependencies.ldkitSchemaArtifact.filePath
+                },
+                writer_query_engine: ldkitWriterQueryEngine.exportedObjectName,
+                writer_query_engine_path: {
+                    from: this._filePath,
+                    to: ldkitWriterQueryEngine.filePath
                 }
             }
         };
@@ -108,7 +116,7 @@ export class EditLdkitInstanceGenerator extends TemplateConsumer<EditLdkitInstan
             exportedObjectName: editExportedObject,
             filePath: this._filePath,
             sourceText: createInstanceRender,
-            dependencies: [editInterfaceArtifact, dependencies.ldkitSchemaInterfaceArtifact]
+            dependencies: [editInterfaceArtifact, dependencies.ldkitSchemaInterfaceArtifact, ldkitWriterQueryEngine]
         }
 
         return createDalLayerArtifact;

@@ -54,7 +54,7 @@ const <%= it.exported_object_name %> = () => {
         }
 
         const fetchInstanceDetail = async () => {
-            if (!formData || Object.keys(formData).length === 0) {
+            if (formData && Object.keys(formData).length > 0) {
                 return;
             }
 

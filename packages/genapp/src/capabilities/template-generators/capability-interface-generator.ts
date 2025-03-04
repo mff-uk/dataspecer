@@ -62,3 +62,9 @@ export const UseNavigationHookGenerator = new CopyTemplateProcessor({
     filePath: "../hooks/useGenappNavigation.ts",
     queryExportedObjectName: "useGenappNavigation"
 });
+
+export const LdkitWriterQueryEngineGenerator = new CopyTemplateProcessor({
+    templatePath: "./common/data-layer/ldkit/writer-query-engine",
+    filePath: "./writers/ldkit/writer-query-engine.ts",
+    queryExportedObjectName: "LdkitWriterQueryEngine"
+});

@@ -1,40 +1,22 @@
 import { Entity } from "ldkit/types/library/lens/types";
-import { QueryContext, SchemaInterface, createLens, QueryEngine, Options } from "ldkit";
+import { SchemaInterface, createLens, QueryEngine, Options } from "ldkit";
 import { <%= it.instance_result_type %> } from <%~ it.instance_result_type_path %>;
 import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 import { <%= it.creator_interface_type %> } from <%~ it.creator_interface_type_path %>;
+import { <%= it.writer_query_engine %> } from <%~ it.writer_query_engine_path %>;
 import { IriGenerator, UUIDGenerator } from "../../../uuid-generator.ts";
-
-class LdkitCreatorQueryEngine extends QueryEngine {
-
-    override query(query: string, responseType: string, context?: QueryContext): Promise<Response> {
-        const endpoint = this.getSparqlEndpoint(context);
-        const fetchFn = this.getFetch(context);
-        return fetchFn(endpoint, {
-            method: "POST",
-            headers: {
-                "accept": responseType,
-                "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-            },
-            body: new URLSearchParams({
-                update: query,
-            }),
-        });
-    }
-
-}
 
 export class <%= it.exported_object_name %> implements <%= it.creator_interface_type %>  {
 
-    private _customEngine: QueryEngine;
-    private readonly _idGenerator: IriGenerator; // TODO
+    private _writerQueryEngine: QueryEngine;
+    private readonly _idGenerator: IriGenerator;
 
     constructor() {
-        this._customEngine = new LdkitCreatorQueryEngine();
+        this._writerQueryEngine = new <%= it.writer_query_engine %>();
         this._idGenerator = new IriGenerator(UUIDGenerator.getGenerator()); // TODO
     }
 
-    private mapFormDataToLdkitSchema(formData: object): Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> {
+    private mapFormDataToLdkitEntity(formData: object): Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> {
         const newInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> = this.updateLdkitProperties(formData);
         return {
             ...newInstance,
@@ -72,11 +54,11 @@ export class <%= it.exported_object_name %> implements <%= it.creator_interface_
 
         const options: Options = {
             sources: [<%~ it.sparql_endpoint_uri %>],
-            engine: this._customEngine
+            engine: this._writerQueryEngine
         }
 
         const lens = createLens(<%= it.ldkit_schema %>, options);
-        const newInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> = this.mapFormDataToLdkitSchema(formData);
+        const newInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> = this.mapFormDataToLdkitEntity(formData);
 
         try {
             await lens.insert(newInstance);
