@@ -37,7 +37,7 @@ jobs:
       - name: Get commit metadata
         id: commit_meta
         run: |
-          COMMIT_DATE=$(git log -1 --format=%cd --date=iso)
+          COMMIT_DATE=$(git log -1 --format=%cd --date=iso-strict)
           COMMIT_NUMBER=$(git rev-list --count HEAD)
           echo "COMMIT_DATE=${COMMIT_DATE}" >> $GITHUB_ENV
           echo "COMMIT_NUMBER=${COMMIT_NUMBER}" >> $GITHUB_ENV
