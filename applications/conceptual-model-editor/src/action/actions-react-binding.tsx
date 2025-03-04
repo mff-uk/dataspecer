@@ -226,16 +226,16 @@ interface VisualModelActions {
 
   //
   // TODO PRQuestion: Again document using {@link .*Action} or not?
-  addEntitiesFromSemanticModelToVisualModel: (semanticModel: EntityModel) => void;
+  addEntitiesFromSemanticModelToVisualModel: (semanticModel: EntityModel) => Promise<void>;
 
   // TODO PRQuestion: Again document using {@link .*Action} or not?
   removeEntitiesInSemanticModelFromVisualModel: (semanticModel: EntityModel) => void;
 
   /**
-   * Puts class' neighborhood to visual model. That is classes connected to semantic class or class profile identified by {@link classIdentifier}.
+   * Puts class' neighborhood to visual model. That is classes connected to semantic class or class profile identified by {@link identifier}.
    * @param identifier is the identifier of the semantic class or class profile, whose neighborhood we will add to visual model.
    */
-  addClassNeighborhoodToVisualModel: (identifier: string) => void;
+  addClassNeighborhoodToVisualModel: (identifier: string) => Promise<void>;
 
 }
 
@@ -308,9 +308,9 @@ const noOperationActionsContext = {
   //
   createNewVisualModelFromSelection: noOperation,
   //
-  addEntitiesFromSemanticModelToVisualModel: noOperation,
+  addEntitiesFromSemanticModelToVisualModel: async () => {},
   removeEntitiesInSemanticModelFromVisualModel: noOperation,
-  addClassNeighborhoodToVisualModel: noOperation,
+  addClassNeighborhoodToVisualModel: async () => {},
   layoutActiveVisualModel: noOperationAsync,
   //
   openExtendSelectionDialog: noOperation,
@@ -688,11 +688,14 @@ function createActionsContext(
     });
   }
 
-  const addEntitiesFromSemanticModelToVisualModel = (semanticModel: EntityModel) => {
+  const addEntitiesFromSemanticModelToVisualModel = async (semanticModel: EntityModel) => {
+    let promise: Promise<void> = Promise.resolve();
     withVisualModel(notifications, graph, (visualModel) => {
-      addEntitiesFromSemanticModelToVisualModelAction(
+      promise = addEntitiesFromSemanticModelToVisualModelAction(
         notifications, classes, graph, diagram, visualModel, semanticModel);
     });
+
+    return promise;
   };
 
   const removeEntitiesInSemanticModelFromVisualModel = (semanticModel: EntityModel) => {
@@ -702,10 +705,13 @@ function createActionsContext(
     });
   };
 
-  const addClassNeighborhoodToVisualModel = (identifier: string) => {
+  const addClassNeighborhoodToVisualModel = async (identifier: string) => {
+    let promise: Promise<void> = Promise.resolve();
     withVisualModel(notifications, graph, (visualModel) => {
-      addClassNeighborhoodToVisualModelAction(notifications, classes, graph, diagram, visualModel, identifier);
+      promise = addClassNeighborhoodToVisualModelAction(notifications, classes, graph, diagram, visualModel, identifier);
     });
+
+    return promise;
   };
 
   const createNewVisualModelFromSelection = (selectionIdentifiers: string[]) => {
