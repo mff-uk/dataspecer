@@ -48,7 +48,7 @@ export const EditAssociationDialog = (props: DialogProps<EditAssociationDialogSt
           />
           <ValidationMessage value={state.iriValidation} />
         </DialogDetailRow>
-        <DialogDetailRow detailKey={t("modify-entity-dialog.generalization-of")}>
+        <DialogDetailRow detailKey={t("modify-entity-dialog.specialization-of")}>
           <SpecializationSelect
             language={state.language}
             items={state.availableSpecializations}
