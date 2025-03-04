@@ -193,8 +193,8 @@ const EntityDetailDialog = (props: DialogProps<EntityDetailState>) => {
           </>
           {proxy.specializationOf.length > 0 && (
             <DialogDetailRow detailKey={t(isRelationship || isRelationshipProfile ?
-              "entity-detail-dialog.specialization-of-property" :
-              "entity-detail-dialog.specialization-of")}>
+              "entity-detail-dialog.generalization-of-property" :
+              "entity-detail-dialog.generalization-of")}>
               <ScrollableResourceDetailClickThroughList
                 detailDialogLanguage={language}
                 resources={proxy.specializationOf}
@@ -203,7 +203,7 @@ const EntityDetailDialog = (props: DialogProps<EntityDetailState>) => {
             </DialogDetailRow>
           )}
           {proxy.generalizationOf.length > 0 && (
-            <DialogDetailRow detailKey={t("entity-detail-dialog.generalization-of")}>
+            <DialogDetailRow detailKey={t("entity-detail-dialog.specialization-of")}>
               <ScrollableResourceDetailClickThroughList
                 detailDialogLanguage={language}
                 resources={proxy.generalizationOf}
