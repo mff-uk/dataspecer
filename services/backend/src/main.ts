@@ -1,31 +1,46 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 import cors from "cors";
 import express from "express";
+import multer from "multer";
 import configuration from "./configuration";
-import { DataSpecificationModelAdapted, ROOT_PACKAGE_FOR_V1, createV1RootModel } from "./models/data-specification-model-adapted";
+import { Migrate } from "./migrations/migrate";
+import { DataSpecificationModelAdapted } from "./models/data-specification-model-adapted";
 import { LocalStoreModel } from "./models/local-store-model";
 import { ResourceModel } from "./models/resource-model";
 import { getDefaultConfiguration } from "./routes/configuration";
 import { createDataPsm, deleteDataPsm } from "./routes/dataPsm";
-import { copyRecursively, createPackageResource, createResource, deleteBlob, deleteResource, getBlob, getPackageResource, getResource, getRootPackages, updateBlob, updateResource } from "./routes/resource";
+import { getDocumentation, getLightweightOwl, getSingleFile, getZip, getlightweightFromSimplified as getlightweightOwlFromSimplified } from "./routes/experimental";
+import { exportPackageResource, importPackageResource } from "./routes/export-import-raw";
+import { getGenerateApplicationByModelId, getGeneratedApplication } from "./routes/genapp";
+import { generate } from "./routes/generate";
+import { importResource } from "./routes/import";
 import {
-    addSpecification,
-    cloneSpecification,
-    consistencyFix,
-    deleteSpecification, garbageCollection, importSpecifications,
-    listSpecifications,
-    modifySpecification
+  copyRecursively,
+  createPackageResource,
+  createResource,
+  deleteBlob,
+  deleteResource,
+  getBlob,
+  getPackageResource,
+  getResource,
+  getRootPackages,
+  updateBlob,
+  updateResource,
+} from "./routes/resource";
+import { getSimplifiedSemanticModel, setSimplifiedSemanticModel } from "./routes/simplified-semantic-model";
+import {
+  addSpecification,
+  cloneSpecification,
+  consistencyFix,
+  deleteSpecification,
+  garbageCollection,
+  importSpecifications,
+  listSpecifications,
+  modifySpecification,
 } from "./routes/specification";
-import { getSimplifiedSemanticModel, setSimplifiedSemanticModel } from './routes/simplified-semantic-model';
-import { getDocumentation, getLightweightOwl, getSingleFile, getZip, getlightweightFromSimplified as getlightweightOwlFromSimplified } from './routes/experimental';
-import { generate } from './routes/generate';
-import { importResource } from './routes/import';
-import { migratePR419 } from './tools/migrate-pr419';
-import { getGenerateApplicationByModelId, getGeneratedApplication } from './routes/genapp';
-import { Migrate } from './migrations/migrate';
-import { getSystemData } from './routes/system';
-import { exportPackageResource, importPackageResource } from './routes/export-import-raw';
-import multer from 'multer';
+import { getSystemData } from "./routes/system";
+import { useStaticSpaHandler } from "./static";
+import { migratePR419 } from "./tools/migrate-pr419";
 
 // Create application models
 
@@ -35,12 +50,24 @@ export const resourceModel = new ResourceModel(storeModel, prismaClient);
 export const dataSpecificationModel = new DataSpecificationModelAdapted(storeModel, "https://ofn.gov.cz/data-specification/{}", resourceModel);
 const migration = new Migrate(prismaClient);
 
-let basename = new URL(configuration.host).pathname;
-if (basename.endsWith('/')) {
+let fullUrl: string;
+let apiBasename: string;
+let basename: string | null = null;
+if (configuration.baseName) {
+  basename = new URL(configuration.baseName).pathname;
+  fullUrl = new URL(configuration.baseName).toString();
+  if (basename.endsWith("/")) {
     basename = basename.slice(0, -1);
-}
-if (process.env.BASENAME_OVERRIDE !== undefined) {
-    basename = process.env.BASENAME_OVERRIDE as string;
+  }
+  apiBasename = basename + "/api";
+} else if (configuration.host) {
+  apiBasename = new URL(configuration.host).pathname;
+  fullUrl = new URL(configuration.host).toString() + "data-specification";
+  if (apiBasename.endsWith("/")) {
+    apiBasename = apiBasename.slice(0, -1);
+  }
+} else {
+  throw new Error("No base name or host provided.");
 }
 
 // For uploading files
@@ -51,121 +78,137 @@ const multerUpload = multer({ storage: multerStorage });
 
 const application = express();
 application.use(cors());
-application.use(express.json({limit: configuration.payloadSizeLimit}));
+application.use(express.json({ limit: configuration.payloadSizeLimit }));
 application.use(express.urlencoded({ extended: false, limit: configuration.payloadSizeLimit }));
 application.use(express.urlencoded({ extended: true, limit: configuration.payloadSizeLimit }));
 
-application.get(basename + '/data-specification', listSpecifications);
-application.post(basename + '/data-specification', addSpecification);
-application.post(basename + '/data-specification/clone', cloneSpecification);
-application.delete(basename + '/data-specification', deleteSpecification);
-application.put(basename + '/data-specification', modifySpecification);
-application.post(basename + '/data-specification/garbage-collection', garbageCollection);
-application.post(basename + '/data-specification/consistency-fix', consistencyFix);
+application.get(apiBasename + "/data-specification", listSpecifications);
+application.post(apiBasename + "/data-specification", addSpecification);
+application.post(apiBasename + "/data-specification/clone", cloneSpecification);
+application.delete(apiBasename + "/data-specification", deleteSpecification);
+application.put(apiBasename + "/data-specification", modifySpecification);
+application.post(apiBasename + "/data-specification/garbage-collection", garbageCollection);
+application.post(apiBasename + "/data-specification/consistency-fix", consistencyFix);
 
-application.post(basename + '/data-specification/data-psm', createDataPsm);
-application.delete(basename + '/data-specification/data-psm', deleteDataPsm);
+application.post(apiBasename + "/data-specification/data-psm", createDataPsm);
+application.delete(apiBasename + "/data-specification/data-psm", deleteDataPsm);
 
-application.post(basename + '/import', importSpecifications);
+application.post(apiBasename + "/import", importSpecifications);
 
 // Api for packages (core-v2)
 
 // Manipulates with resources on metadata level only.
-application.get(basename + '/resources', getResource);
-application.put(basename + '/resources', updateResource);
-application.delete(basename + '/resources', deleteResource);
+application.get(apiBasename + "/resources", getResource);
+application.put(apiBasename + "/resources", updateResource);
+application.delete(apiBasename + "/resources", deleteResource);
 // Low level API for creating new resources.
-application.post(basename + '/resources', createResource);
+application.post(apiBasename + "/resources", createResource);
 
 // Manipulates with raw data (blobs) of the resource, if available.
 // Raw data may not be available at all if the resource is not a file, per se. Then, use other operations to access and manipulate the resource.
-application.get(basename + '/resources/blob', getBlob);
-application.post(basename + '/resources/blob', updateBlob);
-application.put(basename + '/resources/blob', updateBlob);
-application.delete(basename + '/resources/blob', deleteBlob);
+application.get(apiBasename + "/resources/blob", getBlob);
+application.post(apiBasename + "/resources/blob", updateBlob);
+application.put(apiBasename + "/resources/blob", updateBlob);
+application.delete(apiBasename + "/resources/blob", deleteBlob);
 
 // Operations on resoruces that are interpreted as packages
-application.get(basename + '/resources/packages', getPackageResource);
-application.get(basename + '/resources/export.zip', exportPackageResource);
-application.post(basename + '/resources/packages', createPackageResource);
-application.patch(basename + '/resources/packages', updateResource); // same
-application.delete(basename + '/resources/packages', deleteResource); // same
+application.get(apiBasename + "/resources/packages", getPackageResource);
+application.get(apiBasename + "/resources/export.zip", exportPackageResource);
+application.post(apiBasename + "/resources/packages", createPackageResource);
+application.patch(apiBasename + "/resources/packages", updateResource); // same
+application.delete(apiBasename + "/resources/packages", deleteResource); // same
 // Special operation to list all root packages
-application.get(basename + '/resources/root-resources', getRootPackages); // ---
+application.get(apiBasename + "/resources/root-resources", getRootPackages); // ---
 
-
-
-application.post(basename + '/repository/copy-recursively', copyRecursively);
+application.post(apiBasename + "/repository/copy-recursively", copyRecursively);
 
 /**
  * Import: Import endpoint is a wizard that allows you to import specific package/model from a remote source.
-*/
+ */
 
-application.post(basename + '/resources/import', importResource);
-application.post(basename + '/resources/import-zip', multerUpload.single("file"), importPackageResource);
+application.post(apiBasename + "/resources/import", importResource);
+application.post(apiBasename + "/resources/import-zip", multerUpload.single("file"), importPackageResource);
 
 // Interactive import of packages
-//application.post(basename + '/import', importPackages);
+//application.post(apiBasename + '/import', importPackages);
 
 // Configuration
 
-application.get(basename + '/default-configuration', getDefaultConfiguration);
+application.get(apiBasename + "/default-configuration", getDefaultConfiguration);
 
 // Simplified semantic model
 
-application.get(basename + '/simplified-semantic-model', getSimplifiedSemanticModel);
-application.put(basename + '/simplified-semantic-model', setSimplifiedSemanticModel);
+application.get(apiBasename + "/simplified-semantic-model", getSimplifiedSemanticModel);
+application.put(apiBasename + "/simplified-semantic-model", setSimplifiedSemanticModel);
 
 // Experimental features
 
-application.get(basename + '/experimental/lightweight-owl.ttl', getLightweightOwl);
-application.post(basename + '/experimental/lightweight-owl-from-simplified.ttl', getlightweightOwlFromSimplified);
-application.get(basename + '/experimental/documentation.html', getDocumentation);
+application.get(apiBasename + "/experimental/lightweight-owl.ttl", getLightweightOwl);
+application.post(apiBasename + "/experimental/lightweight-owl-from-simplified.ttl", getlightweightOwlFromSimplified);
+application.get(apiBasename + "/experimental/documentation.html", getDocumentation);
 
 // Generate artifacts
 
-application.get(basename + '/generate', generate);
-application.get(basename + '/experimental/output.zip', getZip);
-application.get(basename + '/preview/*', getSingleFile);
-application.get(basename + '/generate/application', getGenerateApplicationByModelId)
+application.get(apiBasename + "/generate", generate);
+application.get(apiBasename + "/experimental/output.zip", getZip);
+application.get(apiBasename + "/preview/*", getSingleFile);
+application.get(apiBasename + "/generate/application", getGenerateApplicationByModelId);
 
 // Generate application
 
-application.post(basename + "/generate-app", getGeneratedApplication);
+application.post(apiBasename + "/generate-app", getGeneratedApplication);
 
 // System routes
 
-application.get(basename + '/system/data', getSystemData); // Downloads database directory as ZIP file
+application.get(apiBasename + "/system/data", getSystemData); // Downloads database directory as ZIP file
+
+application.get("/health", (_, res) => res.status(200).send("OK"));
+
+// Static files server by this backend
+
+if (configuration.staticFilesPath) {
+  if (basename === null) {
+    console.error("Static files path is set, but no base name is set.");
+    process.exit(1);
+  }
+  application.get(basename + "/conceptual-model-editor", (_, res) => res.status(302).redirect(basename + "/conceptual-model-editor/"));
+  application.get(basename + "/conceptual-model-editor/**", useStaticSpaHandler(configuration.staticFilesPath + "conceptual-model-editor/"));
+
+  application.get(basename + "/data-specification-editor", (_, res) => res.status(302).redirect(basename + "/data-specification-editor/"));
+  application.get(basename + "/data-specification-editor/**", useStaticSpaHandler(configuration.staticFilesPath + "data-specification-editor/"));
+
+  application.get(basename + "**", useStaticSpaHandler(configuration.staticFilesPath + ""));
+}
 
 (async () => {
-    // Run migrations or throw
-    await migration.tryUp();
+  // Run migrations or throw
+  await migration.tryUp();
 
-    // Command-line arguments
-    if (process.argv.length > 2) {
-        // Some command line arguments are present
-        if (process.argv[2] === "migrate-pr419") {
-            await migratePR419();
-             process.exit(0);
-        } else {
-            console.error("Unknown command line arguments.");
-            process.exit(0);
-        }
+  // Command-line arguments
+  if (process.argv.length > 2) {
+    // Some command line arguments are present
+    if (process.argv[2] === "migrate-pr419") {
+      await migratePR419();
+      process.exit(0);
     } else {
-        // Create local root
-        if (!await resourceModel.getResource(configuration.localRootIri)) {
-            console.log("There is no default root package. Creating one...");
-            await resourceModel.createPackage(null, configuration.localRootIri, configuration.localRootMetadata);
-        }
-        // Create root models for the common use and for the v1 adapter.
-        if (!await resourceModel.getResource(configuration.v1RootIri)) {
-            console.log("There is no root package for data specifications from v1 dataspecer. Creating one...");
-            await resourceModel.createPackage(null, configuration.v1RootIri, configuration.v1RootMetadata);
-        }
-
-        application.listen(Number(configuration.port), () => {
-            console.log(`Server is listening on port ${Number(configuration.port)}.`);
-            console.log(`Try ${configuration.host}/data-specification for a list of data specifications. (should return "[]" for new instances)`);
-        });
+      console.error("Unknown command line arguments.");
+      process.exit(0);
     }
+  } else {
+    // Create local root
+    if (!(await resourceModel.getResource(configuration.localRootIri))) {
+      console.log("There is no default root package. Creating one...");
+      await resourceModel.createPackage(null, configuration.localRootIri, configuration.localRootMetadata);
+    }
+    // Create root models for the common use and for the v1 adapter.
+    if (!(await resourceModel.getResource(configuration.v1RootIri))) {
+      console.log("There is no root package for data specifications from v1 dataspecer. Creating one...");
+      await resourceModel.createPackage(null, configuration.v1RootIri, configuration.v1RootMetadata);
+    }
+
+    application.listen(Number(configuration.port), () => {
+      console.log(`Server is listening on port ${Number(configuration.port)}.`);
+      console.log(`Try opening ${fullUrl}.`);
+    });
+  }
 })();

@@ -24,29 +24,16 @@ RUN --mount=type=cache,target=/root/.npm \
 
 # Final stage
 FROM node:22.3.0 AS node
-FROM nginx:1.27.1 AS nginx
-
-RUN apt-get update && apt-get install sudo
 
 WORKDIR /usr/src/app
-
-# Copy nodejs binaries from one container to another
-COPY --from=node /usr/lib /usr/lib
-COPY --from=node /usr/local/lib /usr/local/lib
-COPY --from=node /usr/local/include /usr/local/include
-COPY --from=node /usr/local/bin /usr/local/bin
 
 # Install Prisma for database migrations
 RUN --mount=type=cache,target=/root/.npm npm i -g prisma && \
   chmod -R a+rwx /usr/local/lib/node_modules/prisma
 
-# Configure nginx
-COPY --chmod=777 ./docker/ws/nginx.conf /etc/nginx/nginx.conf-template
-RUN chmod -R a+rwx /etc/nginx/
-
 COPY --chmod=777 ./docker/ws/docker-entrypoint.sh ./docker/ws/docker-healthcheck.sh .
 
-RUN chmod a+rwx /usr/share/nginx/html && mkdir /usr/src/app/database && chmod a+rwx /usr/src/app/database
+RUN chmod a+rwx /usr/src/app && mkdir /usr/src/app/database && chmod a+rwx /usr/src/app/database
 
 # Copy backend service
 COPY --from=builder /usr/src/app/node_modules/.prisma/client/*.so.node /usr/src/app/dist/
@@ -60,8 +47,9 @@ RUN mkdir -p /usr/src/app/database && \
   chmod -R a+rwx /usr/src/app/database
 
 # Copy frontend
-COPY --from=builder /usr/src/app/.dist /usr/share/nginx/html-template
+COPY --from=builder /usr/src/app/.dist /usr/src/app/html-template
 
+USER 1000:1000
 VOLUME /usr/src/app/database
 EXPOSE 80
 HEALTHCHECK CMD ./docker-healthcheck.sh
