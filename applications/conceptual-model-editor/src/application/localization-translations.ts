@@ -124,7 +124,7 @@ export const translations: Record<string, string | Function> = {
   "modify-entity-dialog.type": "Name",
   "modify-entity-dialog.id": "Identifier",
   "modify-entity-dialog.iri": "IRI",
-  "modify-entity-dialog.specialization-of": "Specializations",
+  "modify-entity-dialog.specialization-of": "Specializations of",
   "modify-entity-dialog.specialization-of-property": "Subproperty of",
   "modify-entity-dialog.description": "Definition",
   "modify-entity-dialog.usage-note": "Usage note",
