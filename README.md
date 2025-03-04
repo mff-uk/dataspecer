@@ -41,6 +41,11 @@ services:
       #- ./main.config.js:/usr/src/main.config.js # Backend configuration
 ```
 
+### Tags
+
+- `latest` (default) follows the `stable` branch
+- `branch-main` follows the `main` branch with the latest updates. May contain unstable features!
+
 ## Documentation
 
 Check [what to learn](./documentation/what-to-learn.md) - a simple guide on how to start working on the project.

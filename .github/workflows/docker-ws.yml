@@ -4,8 +4,7 @@ on:
   push:
     branches:
       - main
-    tags:
-      - "v*"
+      - stable**
 
 env:
   REGISTRY: ghcr.io
@@ -31,8 +30,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=ref,event=branch
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'stable') }}
+            type=ref,event=branch,prefix=branch-
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
       - name: Get commit metadata
