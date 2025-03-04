@@ -32,6 +32,6 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true,                                /* Skip type checking all .d.ts files. */
 
-    "lib": ["dom.iterable"]
+    "lib": ["dom.iterable", "esnext"],                   /* Specify library files to be included in the compilation. */
   }
 }

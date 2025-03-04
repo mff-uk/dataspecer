@@ -56,7 +56,7 @@ export class ResourceModel {
         this.storeModel = storeModel;
         this.prismaClient = prismaClient;
     }
-    
+
     getRootResources(): Promise<BaseResource[]> {
         return this.prismaClient.resource.findMany({where: {parentResourceId: null}})
             .then(resources => resources.map(resource => this.prismaResourceToResource(resource)));
@@ -128,7 +128,7 @@ export class ResourceModel {
         }
 
         await this.prismaClient.resource.delete({where: {id: prismaResource.id}});
-        
+
         for (const storeId of Object.values(JSON.parse(prismaResource.dataStoreId))) {
             await this.storeModel.remove(this.storeModel.getById(storeId as string));
         }
@@ -178,7 +178,7 @@ export class ResourceModel {
         if (prismaParentResource === null) {
             throw new Error("Parent resource not found.");
         }
-            
+
         const copyResource = async (sourceIri: string, parentIri: string, newIri: string) => {
             const prismaResource = await this.prismaClient.resource.findFirst({where: {iri: sourceIri}});
             if (prismaResource === null) {
@@ -189,8 +189,9 @@ export class ResourceModel {
             for (const [key, store] of Object.entries(JSON.parse(prismaResource.dataStoreId))) {
                 const newStore = await this.storeModel.create();
                 newDataStoreId[key] = newStore.uuid;
-                
-                const contents = await storeModel.getModelStore(store as string).getString();
+
+                let contents = await storeModel.getModelStore(store as string).getString();
+                contents = contents.replaceAll(sourceIri, newIri);
                 await this.storeModel.getModelStore(newStore.uuid).setString(contents);
             }
             await this.prismaClient.resource.update({
@@ -207,12 +208,16 @@ export class ResourceModel {
                     await copyResource(subResource.iri, newIri, newIri + "/" + uuidv4());
                 }
             }
+
+            return newIri;
         }
 
         // Copy the root
-        await copyResource(iri, parentIri, uuidv4());
+        const newIri = await copyResource(iri, parentIri, uuidv4());
 
         await this.updateModificationTimeById(prismaParentResource.id);
+
+        return newIri;
     }
 
     /**
@@ -258,14 +263,14 @@ export class ResourceModel {
         }
 
         const onUpdate = () => this.updateModificationTime(iri);
-        
+
         const dataStoreId = JSON.parse(prismaResource.dataStoreId);
 
         if (dataStoreId[storeName]) {
             return this.storeModel.getModelStore(dataStoreId[storeName], [onUpdate]);
         } else {
             return null;
-        }  
+        }
     }
 
     async getOrCreateResourceModelStore(iri: string, storeName: string = "model"): Promise<ModelStore> {
@@ -275,7 +280,7 @@ export class ResourceModel {
         }
 
         const onUpdate = () => this.updateModificationTime(iri);
-        
+
         const dataStoreId = JSON.parse(prismaResource.dataStoreId);
 
         if (dataStoreId[storeName]) {
@@ -298,7 +303,7 @@ export class ResourceModel {
         if (prismaResource === null) {
             throw new Error("Resource not found.");
         }
-        
+
         const dataStoreId = JSON.parse(prismaResource.dataStoreId);
 
         if (!dataStoreId[storeName]) {
@@ -342,7 +347,7 @@ export class ResourceModel {
 
     /**
      * Updates modification time of the resource and all its parent packages.
-     * @param iri 
+     * @param iri
      */
     async updateModificationTime(iri: string) {
         const prismaResource = await this.prismaClient.resource.findFirst({where: {iri: iri}});
@@ -366,5 +371,5 @@ export class ResourceModel {
             const parent = await this.prismaClient.resource.findFirst({select: {parentResourceId: true}, where: {id}}) as any; // It was causing TS7022 error
             id = parent?.parentResourceId ?? null;
         }
-    }   
+    }
 }

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - stable**
 
 env:
   REGISTRY: ghcr.io

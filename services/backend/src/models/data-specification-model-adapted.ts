@@ -255,6 +255,7 @@ export class DataSpecificationModelAdapted {
   }
 
   public async clone(originalIri: string, dataSpecification: UpdateDataSpecification): Promise<DataSpecification & DataSpecificationWithMetadata & DataSpecificationWithStores> {
-    throw new Error("Not implemented.");
+    const newIri = await this.resourceModel.copyRecursively(originalIri, ROOT_PACKAGE_FOR_V1, dataSpecification);
+    return (await this.getDataSpecification(newIri))!;
   }
 }
