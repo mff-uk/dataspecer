@@ -11,8 +11,13 @@ export const ShowAllClassesFromSemanticModelButton = (props: { semanticModel: En
       return;
     }
     currentlyPerformingShowAction.current = true;
-    await addEntitiesFromSemanticModelToVisualModel(props.semanticModel);
-    currentlyPerformingShowAction.current = false;
+    try {
+      await addEntitiesFromSemanticModelToVisualModel(props.semanticModel);
+    }
+    finally {
+      // Just in case put into finally block
+      currentlyPerformingShowAction.current = false;
+    }
     return Promise.resolve();
   };
 

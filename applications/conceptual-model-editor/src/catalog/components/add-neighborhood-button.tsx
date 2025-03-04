@@ -19,8 +19,13 @@ export const AddNeighborhoodButton = ({ entity }: {
         return;
       }
       currentlyPerformingShowAction.current = true;
-      await addClassNeighborhoodToVisualModel(entity.id);
-      currentlyPerformingShowAction.current = false;
+      try {
+        await addClassNeighborhoodToVisualModel(entity.id);
+      }
+      finally {
+        // Just in case put into finally block
+        currentlyPerformingShowAction.current = false;
+      }
       return Promise.resolve();
     };
 
