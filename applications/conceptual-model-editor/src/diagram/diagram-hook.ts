@@ -144,7 +144,9 @@ const noOperationCallbacks: DiagramCallbacks = {
   onProfileSelection: noOperation,
   onHideSelection: noOperation,
   onDeleteSelection: noOperation,
-  onRemoveAttributeFromVisualModel: noOperation,
+  onRemoveAttributeFromNode: noOperation,
+  onEditAttribute: noOperation,
+  onEditAttributeProfile: noOperation,
   onMoveAttributeUp: noOperation,
   onMoveAttributeDown: noOperation,
 };

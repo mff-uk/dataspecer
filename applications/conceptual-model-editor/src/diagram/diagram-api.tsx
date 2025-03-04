@@ -495,17 +495,32 @@ interface DiagramNodes {
 
   /**
    * Called when user chooses to remove {@link attribute}.
-   * @param attribute is the identifier the of the attribute
+   * @param attribute is the identifier the of the attribute to be removed
    * @param nodeIdentifer is the identifier of the node on which the attribute resides.
    */
-  onRemoveAttributeFromVisualModel: (attribute: string, nodeIdentifer: string) => void;
+  onRemoveAttributeFromNode: (attribute: string, nodeIdentifer: string) => void;
+
+  /**
+   * Called when user chooses to edit {@link attribute}.
+   * @param attribute is the identifier the of the attribute to be edited
+   * @param nodeIdentifer is the identifier of the node on which the attribute resides.
+   */
+  onEditAttribute: (attribute: string, nodeIdentifer: string) => void;
+
+  /**
+   * Called when user chooses to edit {@link attributeProfile}.
+   * @param attributeProfile is the identifier the of the attribute profile to be edited
+   * @param nodeIdentifer is the identifier of the node on which the attribute profile resides.
+   */
+  onEditAttributeProfile: (attributeProfile: string, nodeIdentifer: string) => void;
+
   /**
    * Called when user chooses to move given {@link attribute} move one position up.
    * @param nodeIdentifer is the identifier of the node on which the attribute resides.
    */
   onMoveAttributeUp: (attribute: string, nodeIdentifer: string) => void;
 
-    /**
+  /**
    * Called when user chooses to move given {@link attribute} move one position down.
    * @param nodeIdentifer is the identifier of the node on which the attribute resides.
    */
