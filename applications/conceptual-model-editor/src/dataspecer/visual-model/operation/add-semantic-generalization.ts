@@ -1,16 +1,16 @@
 import { SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
-import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { addVisualRelationship } from "./add-visual-relationship";
 import { ModelDsIdentifier } from "../../entity-model";
+import { VisualOperationExecutor } from "./visual-operation-executor";
 
 /**
  * @throws DataspecerError
  */
 export function addSemanticGeneralizationToVisualModel(
-  visualModel: WritableVisualModel,
+  executor: VisualOperationExecutor,
   model: ModelDsIdentifier,
   generalization: SemanticModelGeneralization,
 ) {
   const {id, child, parent} = generalization;
-  addVisualRelationship(visualModel, model, id, child, parent);
+  addVisualRelationship(executor, model, id, child, parent);
 }

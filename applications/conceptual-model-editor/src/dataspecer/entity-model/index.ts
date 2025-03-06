@@ -1,3 +1,4 @@
+export type { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 
 /**
  * Use this as an identifier for model in Dataspecer.

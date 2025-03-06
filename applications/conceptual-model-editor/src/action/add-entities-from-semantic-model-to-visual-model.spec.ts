@@ -21,6 +21,7 @@ import { isSemanticModelClass, isSemanticModelRelationship, SemanticModelClass, 
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { createCmeRelationshipProfile } from "../dataspecer/cme-model/operation/create-cme-relationship-profile";
 import { isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { createEagerCmeOperationExecutor } from "../dataspecer/cme-model/operation/cme-operation-executor";
 
 // TODO RadStr: For now - since layout prints a lot of debug stuff
 //             (based on https://stackoverflow.com/questions/44467657/better-way-to-disable-console-inside-unit-tests)
@@ -613,22 +614,23 @@ function createSemanticAttributeProfileTestVariant(
   const range = representRdfsLiteral();
 
   const model: InMemorySemanticModel = models.get(modelDsIdentifier) as InMemorySemanticModel;
-  const result = createCmeRelationshipProfile({
-    model: modelDsIdentifier,
-    profileOf: ["Does", "Not", "Matter"],
-    iri: generateIriForName(domainAttribute),
-    name: null,
-    nameSource: null,
-    description: null,
-    descriptionSource: null,
-    usageNote: null,
-    usageNoteSource: null,
-    //
-    domain: domainConceptIdentifier,
-    domainCardinality: null,
-    range: range.identifier,
-    rangeCardinality: null,
-  }, [...models.values() as any]);
+  const result = createCmeRelationshipProfile(
+    createEagerCmeOperationExecutor([...models.values() as any]), {
+      model: modelDsIdentifier,
+      profileOf: ["Does", "Not", "Matter"],
+      iri: generateIriForName(domainAttribute),
+      name: null,
+      nameSource: null,
+      description: null,
+      descriptionSource: null,
+      usageNote: null,
+      usageNoteSource: null,
+      //
+      domain: domainConceptIdentifier,
+      domainCardinality: null,
+      range: range.identifier,
+      rangeCardinality: null,
+    });
 
   const createdAttributeProfile = model.getEntities()[result.identifier];
   if(!isSemanticModelRelationshipProfile(createdAttributeProfile)) {

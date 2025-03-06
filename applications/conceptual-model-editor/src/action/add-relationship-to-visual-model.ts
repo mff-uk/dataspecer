@@ -6,6 +6,7 @@ import { getDomainAndRange } from "../util/relationship-utils";
 import { ModelGraphContextType } from "../context/model-context";
 import { withAggregatedEntity } from "./utilities";
 import { addVisualRelationship } from "../dataspecer/visual-model/operation/add-visual-relationship";
+import { createVisualOperationExecutor } from "../dataspecer/visual-model/operation/visual-operation-executor";
 
 export function addSemanticRelationshipToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
@@ -44,7 +45,7 @@ function addSemanticRelationshipToVisualModelCommand(
   }
   //
   addVisualRelationship(
-    visualModel, model, entity.id,
+    createVisualOperationExecutor(visualModel), model, entity.id,
     domain.concept, range.concept
   );
 }

@@ -10,8 +10,9 @@ import { Options } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { EditAssociationProfileDialogState } from "../dialog/association-profile/edit-association-profile-dialog-controller";
 import { createEditAssociationProfileDialog, createEditAssociationProfileDialogState } from "../dialog/association-profile/create-edit-association-profile-dialog-state";
-import { modifyCmeRelationshipProfile } from "../dataspecer/cme-model/operation/modify-cme-relationship-profile";
+import { updateCmeRelationshipProfile } from "../dataspecer/cme-model/operation/update-cme-relationship-profile";
 import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { createEagerCmeOperationExecutor } from "../dataspecer/cme-model/operation/cme-operation-executor";
 
 /**
  * Open and handle edit association dialog.
@@ -47,28 +48,29 @@ function updateSemanticAssociationProfile(
     notifications.error("Change of model is not supported!");
   }
 
-  modifyCmeRelationshipProfile({
-    identifier: entity.id,
-    model: state.model.dsIdentifier,
-    profileOf: state.profiles.map(item => item.identifier),
-    iri: state.iri,
-    name: state.name,
-    nameSource: state.overrideName ? null :
-      state.nameSource.identifier ?? null,
-    description: state.description,
-    descriptionSource: state.overrideDescription ? null :
-      state.descriptionSource.identifier ?? null,
-    usageNote: state.usageNote,
-    usageNoteSource: state.overrideUsageNote ? null :
-      state.usageNoteSource.identifier ?? null,
-    //
-    domain: state.domain.identifier,
-    domainCardinality:
+  updateCmeRelationshipProfile(
+    createEagerCmeOperationExecutor([...models.values() as any]), {
+      identifier: entity.id,
+      model: state.model.dsIdentifier,
+      profileOf: state.profiles.map(item => item.identifier),
+      iri: state.iri,
+      name: state.name,
+      nameSource: state.overrideName ? null :
+        state.nameSource.identifier ?? null,
+      description: state.description,
+      descriptionSource: state.overrideDescription ? null :
+        state.descriptionSource.identifier ?? null,
+      usageNote: state.usageNote,
+      usageNoteSource: state.overrideUsageNote ? null :
+        state.usageNoteSource.identifier ?? null,
+      //
+      domain: state.domain.identifier,
+      domainCardinality:
       state.overrideDomainCardinality ?
         state.domainCardinality.cardinality : null,
-    range: state.range.identifier,
-    rangeCardinality:
+      range: state.range.identifier,
+      rangeCardinality:
       state.overrideRangeCardinality ?
         state.rangeCardinality.cardinality : null,
-  }, [...models.values() as any]);
+    });
 }

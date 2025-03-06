@@ -1,5 +1,6 @@
-import { isVisualProfileRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualProfileRelationship } from "@dataspecer/core-v2/visual-model";
 import { EntityReference, isEntityReferenceEqual } from "../../entity-model";
+import { VisualOperationExecutor } from "./visual-operation-executor";
 
 /**
  * Propagate changes in the list of profiles to the visual model.
@@ -9,14 +10,14 @@ import { EntityReference, isEntityReferenceEqual } from "../../entity-model";
  * If target entity does not exist in visual model do nothing.
  */
 export function updateVisualNodeProfiles(
-  visualModel: WritableVisualModel,
+  executor: VisualOperationExecutor,
   profile: EntityReference,
   previous: EntityReference[],
   next: EntityReference[],
 ) {
   const { create, remove } = createChangeList(
     previous, next, isEntityReferenceEqual);
-  const entityVisual = visualModel.getVisualEntityForRepresented(
+  const entityVisual = executor.visualModel.getVisualEntityForRepresented(
     profile.identifier);
   if (entityVisual === null) {
     // There should be no relationship for this entity in the model.
@@ -24,11 +25,12 @@ export function updateVisualNodeProfiles(
   }
   // Add new.
   for (const item of create) {
-    const visual = visualModel.getVisualEntityForRepresented(item.identifier);
+    const visual =
+      executor.visualModel.getVisualEntityForRepresented(item.identifier);
     if (visual === null) {
       continue;
     }
-    visualModel.addVisualProfileRelationship({
+    executor.visualModel.addVisualProfileRelationship({
       entity: profile.identifier,
       model: profile.model,
       visualSource: entityVisual.identifier,
@@ -40,14 +42,14 @@ export function updateVisualNodeProfiles(
   // is shared by the profile and the visual node.
   if (remove.length > 0) {
     const removeSet = new Set(remove.map(item => item.identifier));
-    const visuals = [...visualModel.getVisualEntities().values()];
+    const visuals = [...executor.visualModel.getVisualEntities().values()];
     for (const visual of visuals) {
       if (!isVisualProfileRelationship(visual)) {
         // It is not a profile.
         continue;
       }
       if (removeSet.has(visual.entity)) {
-        visualModel.deleteVisualEntity(visual.identifier);
+        executor.visualModel.deleteVisualEntity(visual.identifier);
       }
     }
   }

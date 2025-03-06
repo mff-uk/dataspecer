@@ -18,6 +18,7 @@ import { createCmeRelationshipProfile } from "../dataspecer/cme-model/operation/
 import { EditAssociationProfileDialogState } from "../dialog/association-profile/edit-association-profile-dialog-controller";
 import { isSemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
+import { createEagerCmeOperationExecutor } from "../dataspecer/cme-model/operation/cme-operation-executor";
 
 const LOG = createLogger(import.meta.url);
 
@@ -45,16 +46,16 @@ export function openCreateAttributeForEntityDialogAction(
   if (isSemanticModelClass(entity)) {
     const onConfirm = (state: EditAttributeDialogState) => {
       const result = createSemanticAttribute(notifications, graph.models, state);
-      if(visualModel !== null && isWritableVisualModel(visualModel)) {
-        if(result?.identifier !== undefined) {
+      if (visualModel !== null && isWritableVisualModel(visualModel)) {
+        if (result?.identifier !== undefined) {
           addSemanticAttributeToVisualModelAction(
             notifications, visualModel, state.domain.identifier,
             result.identifier, null, true);
         }
       }
 
-      if(onConfirmCallback !== null) {
-        if(result !== null) {
+      if (onConfirmCallback !== null) {
+        if (result !== null) {
           onConfirmCallback(state, result.identifier);
         }
       }
@@ -66,16 +67,16 @@ export function openCreateAttributeForEntityDialogAction(
     || isSemanticModelClassProfile(entity)) {
     const onConfirm = (state: EditAttributeProfileDialogState) => {
       const result = createRelationshipProfile(state, graph.models);
-      if(visualModel !== null && isWritableVisualModel(visualModel)) {
-        if(result?.identifier !== undefined) {
+      if (visualModel !== null && isWritableVisualModel(visualModel)) {
+        if (result.identifier !== undefined) {
           addSemanticAttributeToVisualModelAction(
             notifications, visualModel, state.domain.identifier,
             result.identifier, null, true);
         }
       }
 
-      if(onConfirmCallback !== null) {
-        if(result !== null) {
+      if (onConfirmCallback !== null) {
+        if (result !== null) {
           onConfirmCallback(state, result.identifier);
         }
       }
@@ -131,32 +132,25 @@ function createSemanticAttribute(
 const createRelationshipProfile = (
   state: EditAttributeProfileDialogState | EditAssociationProfileDialogState,
   models: Map<string, EntityModel>,
-): {
-  identifier: string,
-  model: InMemorySemanticModel,
-} | null => {
-  const model: InMemorySemanticModel = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
-  const result = createCmeRelationshipProfile({
-    model: state.model.dsIdentifier,
-    profileOf: state.profiles.map(item => item.identifier),
-    iri: state.iri,
-    name: state.name,
-    nameSource: state.overrideName ? null :
-      state.nameSource.identifier ?? null,
-    description: state.description,
-    descriptionSource: state.overrideDescription ? null :
-      state.descriptionSource.identifier ?? null,
-    usageNote: state.usageNote,
-    usageNoteSource: state.overrideUsageNote ? null :
-      state.usageNoteSource.identifier ?? null,
-    //
-    domain: state.domain.identifier,
-    domainCardinality: state.domainCardinality.cardinality,
-    range: state.range.identifier,
-    rangeCardinality: state.rangeCardinality.cardinality,
-  }, [...models.values() as any]);
-  return {
-    identifier: result.identifier,
-    model,
-  };
+) => {
+  return createCmeRelationshipProfile(
+    createEagerCmeOperationExecutor([...models.values() as any]), {
+      model: state.model.dsIdentifier,
+      profileOf: state.profiles.map(item => item.identifier),
+      iri: state.iri,
+      name: state.name,
+      nameSource: state.overrideName ? null :
+        state.nameSource.identifier ?? null,
+      description: state.description,
+      descriptionSource: state.overrideDescription ? null :
+        state.descriptionSource.identifier ?? null,
+      usageNote: state.usageNote,
+      usageNoteSource: state.overrideUsageNote ? null :
+        state.usageNoteSource.identifier ?? null,
+      //
+      domain: state.domain.identifier,
+      domainCardinality: state.domainCardinality.cardinality,
+      range: state.range.identifier,
+      rangeCardinality: state.rangeCardinality.cardinality,
+    });
 }

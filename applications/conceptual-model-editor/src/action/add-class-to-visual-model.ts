@@ -10,6 +10,7 @@ import { findPositionForNewNodesUsingLayouting } from "./layout-visual-model";
 import { ClassesContextType } from "../context/classes-context";
 import { addVisualNode } from "../dataspecer/visual-model/operation/add-visual-node";
 import { getVisualNodeContentBasedOnExistingEntities } from "./add-semantic-attribute-to-visual-model";
+import { createVisualOperationExecutor } from "../dataspecer/visual-model/operation/visual-operation-executor";
 
 export async function addSemanticClassToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
@@ -22,7 +23,7 @@ export async function addSemanticClassToVisualModelAction(
   position: { x: number, y: number } | null,
 ) {
   const entities = graph.aggregatorView.getEntities();
-  if(position === null) {
+  if (position === null) {
     position = (await findPositionForNewNodesUsingLayouting(notifications, diagram, graph, visualModel, classes, [entityIdentifier]))[entityIdentifier];
   }
 
@@ -32,7 +33,9 @@ export async function addSemanticClassToVisualModelAction(
       // TODO PRQuestion: How to handle this? Put it into the addVisualNode?
       const content = getVisualNodeContentBasedOnExistingEntities(
         classes, entity);
-      addVisualNode(visualModel, entity, modelIdentifier, position, content);
+      addVisualNode(
+        createVisualOperationExecutor(visualModel),
+        entity, modelIdentifier, position, content);
       addRelatedEntitiesAction(
         notifications, graph, visualModel, Object.values(entities),
         graph.models, entity);

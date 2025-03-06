@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { type DialogProps } from "../dialog-api";
 import { Language } from "../../configuration/options";
 import { DropResult } from "@hello-pangea/dnd";
-import { getLocalizedStringFromLanguageString, getStringFromLanguageStringInLang } from "../../util/language-utils";
+import { getLocalizedStringFromLanguageString } from "../../util/language-utils";
 import { EditAttributeDialogState } from "../attribute/edit-attribute-dialog-controller";
 import { EditAttributeProfileDialogState } from "../attribute-profile/edit-attribute-profile-dialog-controller";
 import { useActions } from "../../action/actions-react-binding";

@@ -13,6 +13,7 @@ import { SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/co
 import { representRdfsLiteral } from "../../dialog/utilities/dialog-utilities";
 import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
 import { createCmeRelationshipProfile } from "../../dataspecer/cme-model/operation/create-cme-relationship-profile";
+import { createEagerCmeOperationExecutor } from "../../dataspecer/cme-model/operation/cme-operation-executor";
 
 test("Test change attribute - Visibility", () => {
   const {
@@ -512,22 +513,23 @@ function createSemanticAttributeProfileTestVariant(
   const range = representRdfsLiteral();
 
   const model: InMemorySemanticModel = models.get(modelDsIdentifier) as InMemorySemanticModel;
-  const result = createCmeRelationshipProfile({
-    model: modelDsIdentifier,
-    profileOf: ["Does", "Not", "Matter"],
-    iri: generateIriForName(domainAttribute),
-    name: null,
-    nameSource: null,
-    description: null,
-    descriptionSource: null,
-    usageNote: null,
-    usageNoteSource: null,
-    //
-    domain: domainConceptIdentifier,
-    domainCardinality: null,
-    range: range.identifier,
-    rangeCardinality: null,
-  }, [...models.values() as any]);
+  const result = createCmeRelationshipProfile(
+    createEagerCmeOperationExecutor([...models.values() as any]), {
+      model: modelDsIdentifier,
+      profileOf: ["Does", "Not", "Matter"],
+      iri: generateIriForName(domainAttribute),
+      name: null,
+      nameSource: null,
+      description: null,
+      descriptionSource: null,
+      usageNote: null,
+      usageNoteSource: null,
+      //
+      domain: domainConceptIdentifier,
+      domainCardinality: null,
+      range: range.identifier,
+      rangeCardinality: null,
+    });
 
   return {
     identifier: result.identifier,

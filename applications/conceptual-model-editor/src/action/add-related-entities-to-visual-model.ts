@@ -13,6 +13,7 @@ import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relatio
 import { ModelGraphContextType } from "../context/model-context";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { addVisualNodeProfile } from "../dataspecer/visual-model/operation/add-visual-node-profile";
+import { createVisualOperationExecutor } from "../dataspecer/visual-model/operation/visual-operation-executor";
 
 /**
  * For given entity make sure, that all related entities
@@ -34,6 +35,9 @@ export function addRelatedEntitiesAction(
   if (entityModel === null) {
     return;
   }
+
+  const visualOperationExecutor =
+    createVisualOperationExecutor(visualModel);
 
   const addingUsage = isSemanticModelClassUsage(entity);
   const addingProfile = isSemanticModelClassProfile(entity);
@@ -68,7 +72,7 @@ export function addRelatedEntitiesAction(
     if (isSemanticModelClassUsage(candidate)) {
       if (shouldAddUsage(visualModel, identifier, candidate)) {
         // "candidate" is profile of "identifier"
-        addVisualNodeProfile(visualModel, {
+        addVisualNodeProfile(visualOperationExecutor, {
           identifier: candidate.id,
           model: candidateModel.getId(),
         }, {
@@ -77,7 +81,7 @@ export function addRelatedEntitiesAction(
         });
       } else if (addingUsage && shouldAddUsage(visualModel, candidate.id, entity)) {
         // "entity" is profile of "candidate"
-        addVisualNodeProfile(visualModel, {
+        addVisualNodeProfile(visualOperationExecutor, {
           identifier: entity.id,
           model: entityModel.getId(),
         }, {
@@ -91,7 +95,7 @@ export function addRelatedEntitiesAction(
       // We are adding usage, candidate is a class, it could profiled class.
       if (entity.usageOf === candidate.id) {
         // "entity" is profile of "candidate"
-        addVisualNodeProfile(visualModel, {
+        addVisualNodeProfile(visualOperationExecutor, {
           identifier: entity.id,
           model: entityModel.getId(),
         }, {
@@ -103,7 +107,7 @@ export function addRelatedEntitiesAction(
     if (isSemanticModelClassProfile(candidate)) {
       if (shouldAddProfile(visualModel, identifier, candidate)) {
         // "candidate" is profile of "entity"
-        addVisualNodeProfile(visualModel, {
+        addVisualNodeProfile(visualOperationExecutor, {
           identifier: candidate.id,
           model: candidateModel.getId(),
         }, {
@@ -112,7 +116,7 @@ export function addRelatedEntitiesAction(
         });
       } else if (addingProfile && shouldAddProfile(visualModel, candidate.id, entity)) {
         // "entity" is profile of "candidate"
-        addVisualNodeProfile(visualModel, {
+        addVisualNodeProfile(visualOperationExecutor, {
           identifier: entity.id,
           model: entityModel.getId(),
         }, {
@@ -125,7 +129,7 @@ export function addRelatedEntitiesAction(
       // We are adding profile, candidate is a class, it could profiled class.
       if (entity.profiling.includes(candidate.id)) {
         // "entity" is profile of "candidate"
-        addVisualNodeProfile(visualModel, {
+        addVisualNodeProfile(visualOperationExecutor, {
           identifier: entity.id,
           model: entityModel.getId(),
         }, {

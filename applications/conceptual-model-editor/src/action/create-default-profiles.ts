@@ -18,6 +18,7 @@ import { CreatedEntityOperationResult } from "@dataspecer/core-v2/semantic-model
 import { EditClassProfileDialogState } from "../dialog/class-profile/edit-class-profile-dialog-controller";
 import { EntityModel } from "@dataspecer/core-v2";
 import { createCmeClassProfile } from "../dataspecer/cme-model/operation/create-cme-class-profile";
+import { createEagerCmeOperationExecutor } from "../dataspecer/cme-model/operation/cme-operation-executor";
 
 export async function createDefaultProfilesAction(
   notifications: UseNotificationServiceWriterType,
@@ -31,7 +32,7 @@ export async function createDefaultProfilesAction(
   shouldBeAddedToVisualModel: boolean
 ): Promise<void> {
   const writableSemanticModel = findAnyWritableModelFromRawInput(graph.models, visualModel);
-  if(writableSemanticModel === null) {
+  if (writableSemanticModel === null) {
     notifications.error("There is no InMemorySemanticModel to put the profiles into.");
     return;
   }
@@ -58,7 +59,7 @@ async function createDefaultClassProfiles(
   shouldBeAddedToVisualModel: boolean
 ): Promise<Record<string, string | null>> {
   const createdClassProfiles: Record<string, string | null> = {};
-  for(const selectedEntityId of nodesToProfile) {
+  for (const selectedEntityId of nodesToProfile) {
     const createdClassProfile = await createDefaultClassProfile(notifications, graph, diagram, options, classesContext, visualModel, selectedEntityId, shouldBeAddedToVisualModel);
     createdClassProfiles[selectedEntityId] = createdClassProfile;
   }
@@ -82,13 +83,13 @@ async function createDefaultClassProfile(
   shouldBeAddedToVisualModel: boolean
 ): Promise<string | null> {
   const classOrClassProfileToBeProfiled = graph.aggregatorView.getEntities()?.[entityToProfile]?.aggregatedEntity;
-  if(classOrClassProfileToBeProfiled === undefined || classOrClassProfileToBeProfiled === null) {
+  if (classOrClassProfileToBeProfiled === undefined || classOrClassProfileToBeProfiled === null) {
     notifications.error("The entity (node) to be profiled from selection is not present in aggregatorView");
     return null;
   }
   const isTheProfiledClassClassProfile = isSemanticModelClassUsage(classOrClassProfileToBeProfiled);
   const isTheProfiledClassClass = isSemanticModelClass(classOrClassProfileToBeProfiled);
-  if(!isTheProfiledClassClass && !isTheProfiledClassClassProfile) {
+  if (!isTheProfiledClassClass && !isTheProfiledClassClassProfile) {
     notifications.error("The entity to be profiled from selection is not a class or class profile");
     return null;
   }
@@ -98,14 +99,11 @@ async function createDefaultClassProfile(
     [classOrClassProfileToBeProfiled.id],
   );
   const createdClassProfile = createClassProfile(profileClassState, graph.models);
-  if(createdClassProfile === null) {
-    notifications.error("Failed while performing the actual operation of adding the class profile into semantic model.");
-    return null;
-  }
-
-  if(shouldBeAddedToVisualModel) {
-    if(isWritableVisualModel(visualModel)) {
-      await addSemanticClassProfileToVisualModelAction(notifications, graph, classesContext, visualModel, diagram, createdClassProfile.identifier, createdClassProfile.model.getId(), null);
+  if (shouldBeAddedToVisualModel) {
+    if (isWritableVisualModel(visualModel)) {
+      await addSemanticClassProfileToVisualModelAction(
+        notifications, graph, classesContext, visualModel, diagram,
+        createdClassProfile.identifier, createdClassProfile.model, null);
     }
   }
 
@@ -115,29 +113,22 @@ async function createDefaultClassProfile(
 const createClassProfile = (
   state: EditClassProfileDialogState,
   models: Map<string, EntityModel>,
-): {
-  identifier: string,
-  model: InMemorySemanticModel,
-} | null => {
-  const model = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
-  const result = createCmeClassProfile({
-    model: state.model.dsIdentifier,
-    profileOf: state.profiles.map(item => item.identifier),
-    iri: state.iri,
-    name: state.name,
-    nameSource: state.overrideName ? null :
-      state.nameSource.identifier ?? null,
-    description: state.description,
-    descriptionSource: state.overrideDescription ? null :
-      state.descriptionSource.identifier ?? null,
-    usageNote: state.usageNote,
-    usageNoteSource: state.overrideUsageNote ? null :
-      state.usageNoteSource.identifier ?? null,
-  }, [...models.values() as any]);
-  return {
-    identifier: result.identifier,
-    model,
-  };
+) => {
+  return createCmeClassProfile(
+    createEagerCmeOperationExecutor([...models.values() as any]), {
+      model: state.model.dsIdentifier,
+      profileOf: state.profiles.map(item => item.identifier),
+      iri: state.iri,
+      name: state.name,
+      nameSource: state.overrideName ? null :
+        state.nameSource.identifier ?? null,
+      description: state.description,
+      descriptionSource: state.overrideDescription ? null :
+        state.descriptionSource.identifier ?? null,
+      usageNote: state.usageNote,
+      usageNoteSource: state.overrideUsageNote ? null :
+        state.usageNoteSource.identifier ?? null,
+    });
 }
 
 function createDefaultRelationshipProfiles(
@@ -150,7 +141,7 @@ function createDefaultRelationshipProfiles(
   shouldBeAddedToVisualModel: boolean
 ) {
   const writableSemanticModel = graph.models.get(writableCmeModel.dsIdentifier) as InMemorySemanticModel;   // Casting ... the correctness should be already validated
-  for(const edgeToProfile of edgesToProfile) {
+  for (const edgeToProfile of edgesToProfile) {
     createDefaultRelationshipProfile(
       notifications, graph, writableSemanticModel, visualModel,
       edgeToProfile, createdClassProfiles, shouldBeAddedToVisualModel);
@@ -171,17 +162,17 @@ function createDefaultRelationshipProfile(
   shouldBeAddedToVisualModel: boolean
 ) {
   const relationshipToProfile = getAndValidateRelationshipToBeProfiled(notifications, graph, entityToProfile);
-  if(relationshipToProfile === null) {
+  if (relationshipToProfile === null) {
     return;
   }
 
   const ends: SemanticModelRelationshipEndUsage[] | undefined = [];
   for (const end of relationshipToProfile.ends) {
-    if(end.concept === null) {
+    if (end.concept === null) {
       return;
     }
     // The creation of the class profile failed, so the created profiled association should fail as well
-    if(createdClassProfiles[end.concept] === null) {
+    if (createdClassProfiles[end.concept] === null) {
       notifications.error("Relationship is not profiled, since one of the end classes couldn't be profiled");
       return;
     }
@@ -197,7 +188,7 @@ function createDefaultRelationshipProfile(
   }
 
   let usageNote = null;
-  if(isSemanticModelRelationshipUsage(relationshipToProfile)) {
+  if (isSemanticModelRelationshipUsage(relationshipToProfile)) {
     usageNote = relationshipToProfile.usageNote;
   }
 
@@ -212,8 +203,8 @@ function createDefaultRelationshipProfile(
     return;
   }
 
-  if(shouldBeAddedToVisualModel) {
-    if(isWritableVisualModel(visualModel)) {
+  if (shouldBeAddedToVisualModel) {
+    if (isWritableVisualModel(visualModel)) {
       addSemanticRelationshipProfileToVisualModelAction(notifications, graph, visualModel, identifier, model.getId());
     }
   }
@@ -225,18 +216,18 @@ function getAndValidateRelationshipToBeProfiled(
   entityToProfile: string
 ): SemanticModelRelationship | SemanticModelRelationshipUsage | null {
   const relationshipToProfile = graph.aggregatorView.getEntities()?.[entityToProfile]?.aggregatedEntity;
-  if(relationshipToProfile === undefined || relationshipToProfile === null) {
+  if (relationshipToProfile === undefined || relationshipToProfile === null) {
     notifications.error("The entity (edge) to be profiled from selection is not present in aggregatorView");
     return null;
   }
-  if(isSemanticModelClassUsage(relationshipToProfile)) {    // The visual edge representing class profile
+  if (isSemanticModelClassUsage(relationshipToProfile)) {    // The visual edge representing class profile
     return null;
   }
-  if(isSemanticModelGeneralization(relationshipToProfile)) {
+  if (isSemanticModelGeneralization(relationshipToProfile)) {
     return null;
   }
-  if(!isSemanticModelRelationship(relationshipToProfile) &&
-     !isSemanticModelRelationshipUsage(relationshipToProfile)) {
+  if (!isSemanticModelRelationship(relationshipToProfile) &&
+    !isSemanticModelRelationshipUsage(relationshipToProfile)) {
     notifications.error("The entity to be profiled from selection is not a association or association profile");
     return null;
   }

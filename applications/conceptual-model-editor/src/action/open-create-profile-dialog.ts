@@ -10,7 +10,6 @@ import {
   isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { WritableVisualModel, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
@@ -32,6 +31,7 @@ import { createCmeRelationshipProfile } from "../dataspecer/cme-model/operation/
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
 import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
+import { createEagerCmeOperationExecutor } from "../dataspecer/cme-model/operation/cme-operation-executor";
 
 export function openCreateProfileDialogAction(
   options: Options,
@@ -56,17 +56,13 @@ export function openCreateProfileDialogAction(
     const state = createNewProfileClassDialogState(
       classes, graph, visualModel, options.language, [entity.id]);
     const onConfirm = (state: EditClassProfileDialogState) => {
-      const createResult = createClassProfile(state, graph.models);
-      if (createResult === null) {
-        return;
-      }
-      // Add to visual model if possible.
+      const result = createClassProfile(state, graph.models);
       if (isWritableVisualModel(visualModel)) {
         addSemanticClassProfileToVisualModelAction(
           notifications, graph, classes, visualModel, diagram,
-          createResult.identifier, createResult.model.getId(),
+          result.identifier, result.model,
           position);
-      }
+      };
     };
     dialogs.openDialog(createNewClassProfileDialog(state, onConfirm));
     return;
@@ -79,7 +75,7 @@ export function openCreateProfileDialogAction(
       classes, graph, visualModel, options.language, [entity.id]);
     const onConfirm = (state: EditAttributeProfileDialogState) => {
       const result = createRelationshipProfile(state, graph.models);
-      if(result?.identifier !== undefined) {
+      if (result?.identifier !== undefined) {
         addSemanticAttributeToVisualModelAction(
           notifications, visualModel, state.domain.identifier,
           result.identifier, null, true);
@@ -95,15 +91,12 @@ export function openCreateProfileDialogAction(
     const state = createNewAssociationProfileDialogState(
       classes, graph, visualModel, options.language, [entity.id]);
     const onConfirm = (state: EditAssociationProfileDialogState) => {
-      const createResult = createRelationshipProfile(state, graph.models);
-      if (createResult === null) {
-        return;
-      }
+      const result = createRelationshipProfile(state, graph.models)
       // Add to visual model if possible.
       if (isWritableVisualModel(visualModel)) {
         addSemanticRelationshipProfileToVisualModelAction(
           notifications, graph, visualModel,
-          createResult.identifier, createResult.model.getId());
+          result.identifier, result.model);
       }
     };
     dialogs.openDialog(createNewAssociationProfileDialog(state, onConfirm));
@@ -123,26 +116,26 @@ const createClassProfile = (
   models: Map<string, EntityModel>,
 ): {
   identifier: string,
-  model: InMemorySemanticModel,
-} | null => {
-  const model = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
-  const result = createCmeClassProfile({
-    model: state.model.dsIdentifier,
-    profileOf: state.profiles.map(item => item.identifier),
-    iri: state.iri,
-    name: state.name,
-    nameSource: state.overrideName ? null :
-      state.nameSource.identifier ?? null,
-    description: state.description,
-    descriptionSource: state.overrideDescription ? null :
-      state.descriptionSource.identifier ?? null,
-    usageNote: state.usageNote,
-    usageNoteSource: state.overrideUsageNote ? null :
-      state.usageNoteSource.identifier ?? null,
-  }, [...models.values() as any]);
+  model: string,
+} => {
+  const result = createCmeClassProfile(
+    createEagerCmeOperationExecutor([...models.values() as any]), {
+      model: state.model.dsIdentifier,
+      profileOf: state.profiles.map(item => item.identifier),
+      iri: state.iri,
+      name: state.name,
+      nameSource: state.overrideName ? null :
+        state.nameSource.identifier ?? null,
+      description: state.description,
+      descriptionSource: state.overrideDescription ? null :
+        state.descriptionSource.identifier ?? null,
+      usageNote: state.usageNote,
+      usageNoteSource: state.overrideUsageNote ? null :
+        state.usageNoteSource.identifier ?? null,
+    });
   return {
     identifier: result.identifier,
-    model,
+    model: state.model.dsIdentifier,
   };
 }
 
@@ -151,34 +144,34 @@ const createRelationshipProfile = (
   models: Map<string, EntityModel>,
 ): {
   identifier: string,
-  model: InMemorySemanticModel,
-} | null => {
-  const model: InMemorySemanticModel = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
-  const result = createCmeRelationshipProfile({
-    model: state.model.dsIdentifier,
-    profileOf: state.profiles.map(item => item.identifier),
-    iri: state.iri,
-    name: state.name,
-    nameSource: state.overrideName ? null :
-      state.nameSource.identifier ?? null,
-    description: state.description,
-    descriptionSource: state.overrideDescription ? null :
-      state.descriptionSource.identifier ?? null,
-    usageNote: state.usageNote,
-    usageNoteSource: state.overrideUsageNote ? null :
-      state.usageNoteSource.identifier ?? null,
-    //
-    domain: state.domain.identifier,
-    domainCardinality:
+  model: string,
+} => {
+  const result = createCmeRelationshipProfile(
+    createEagerCmeOperationExecutor([...models.values() as any]), {
+      model: state.model.dsIdentifier,
+      profileOf: state.profiles.map(item => item.identifier),
+      iri: state.iri,
+      name: state.name,
+      nameSource: state.overrideName ? null :
+        state.nameSource.identifier ?? null,
+      description: state.description,
+      descriptionSource: state.overrideDescription ? null :
+        state.descriptionSource.identifier ?? null,
+      usageNote: state.usageNote,
+      usageNoteSource: state.overrideUsageNote ? null :
+        state.usageNoteSource.identifier ?? null,
+      //
+      domain: state.domain.identifier,
+      domainCardinality:
       state.overrideDomainCardinality ?
         state.domainCardinality.cardinality : null,
-    range: state.range.identifier,
-    rangeCardinality:
+      range: state.range.identifier,
+      rangeCardinality:
       state.overrideRangeCardinality ?
         state.rangeCardinality.cardinality : null,
-  }, [...models.values() as any]);
+    });
   return {
     identifier: result.identifier,
-    model,
+    model: state.model.dsIdentifier,
   };
 }

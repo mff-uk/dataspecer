@@ -6,6 +6,7 @@ import { ModelGraphContextType } from "../context/model-context";
 import { withAggregatedEntity } from "./utilities";
 import { withErrorBoundary } from "./utilities/error-utilities";
 import { addSemanticGeneralizationToVisualModel } from "../dataspecer/visual-model/operation/add-semantic-generalization";
+import { createVisualOperationExecutor } from "../dataspecer/visual-model/operation/visual-operation-executor";
 
 export function addSemanticGeneralizationToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
@@ -18,7 +19,9 @@ export function addSemanticGeneralizationToVisualModelAction(
   withErrorBoundary(notifications, () =>
     withAggregatedEntity(notifications, entities, entityIdentifier, modelIdentifier,
       isSemanticModelGeneralization, (entity) => {
-        addSemanticGeneralizationToVisualModel(visualModel, modelIdentifier, entity);
+        addSemanticGeneralizationToVisualModel(
+          createVisualOperationExecutor(visualModel),
+          modelIdentifier, entity);
       })
   );
 }

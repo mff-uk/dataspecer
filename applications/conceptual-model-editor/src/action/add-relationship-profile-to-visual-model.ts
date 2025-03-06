@@ -8,6 +8,7 @@ import { withAggregatedEntity } from "./utilities";
 import { isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isOwlThing } from "../dataspecer/semantic-model";
 import { addVisualRelationship } from "../dataspecer/visual-model/operation/add-visual-relationship";
+import { createVisualOperationExecutor } from "../dataspecer/visual-model/operation/visual-operation-executor";
 
 export function addSemanticRelationshipProfileToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
@@ -52,7 +53,7 @@ function addSemanticRelationshipProfileToVisualModelCommand(
   }
   //
   addVisualRelationship(
-    visualModel, model, entity.id,
+    createVisualOperationExecutor(visualModel), model, entity.id,
     domain.concept, range.concept
   );
 }
