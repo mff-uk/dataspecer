@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
 
@@ -6,7 +6,7 @@ function prepareDatabase {
   # Prepare database
   echo "📦 Preparing/checking database"
   mkdir -p /usr/src/app/database/stores
-  npx prisma migrate deploy --schema dist/schema.prisma
+  bunx prisma migrate deploy --schema dist/schema.prisma
 }
 
 if [ $# -gt 0 ]; then
@@ -25,5 +25,5 @@ else
 
   prepareDatabase
 
-  env PORT=80 BASE_NAME=$NORMALIZED_URL STATIC_FILES_PATH=/usr/src/app/html/ node dist/backend-bundle.js
+  env PORT=80 BASE_NAME=$NORMALIZED_URL STATIC_FILES_PATH=/usr/src/app/html/ bun dist/main.js
 fi
