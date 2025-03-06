@@ -35,11 +35,13 @@ RUN sh ./docker-copy.sh
 RUN mv /usr/src/app/.dist /usr/src/final/html-template
 
 # Build backend
+# todo: bun does not support omitting some files from build, therefore config in main.config.js wont work
 RUN cd services/backend \
   && sed -i "s|../database/database.db|/usr/src/app/database/database.db|" prisma/schema.prisma \
   && bunx prisma generate \
+  && cp main.config.sample.js main.config.js \
   && bunx tsc --noEmit \
-  && bun build --target=bun --outdir=dist --external=main.config.js --minify src/main.ts
+  && bun build --target=bun --outdir=dist --minify src/main.ts
   # --sourcemap=linked
 
 # Move backend
