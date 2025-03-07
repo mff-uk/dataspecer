@@ -1,7 +1,89 @@
 import { DocumentationGeneratorConfiguration } from "./generator";
 
 export const defaultConfiguration: DocumentationGeneratorConfiguration = {
-  template: `<!DOCTYPE html>
+  template: `{{#def "relationship-section"}}
+<section id="{{anchor}}">
+  <h4>{{#translate aggregation.ends.1.name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}</h4>
+
+  <table class="def">
+    <tr>
+      <td>IRI</td>
+      <td><a href="{{{ends.1.iri}}}">{{prefixed ends.1.iri}}</a></td>
+    </tr>
+    {{#translate aggregation.ends.1.name}}
+    <tr>
+      <td>{{#iflng "cs"}}Název{{lng}}Label{{/iflng}}</td>
+      <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
+    </tr>
+    {{/translate}}
+    {{#translate aggregation.ends.1.description}}
+    <tr>
+      <td>{{#iflng "cs"}}Definice{{lng}}Definition{{/iflng}}</td>
+      <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
+    </tr>
+    {{/translate}}
+    <tr>
+      <td>{{#iflng "cs"}}Definiční obor{{lng}}Domain{{/iflng}}</td>
+      <td>
+        <a href="{{{href aggregation.ends.0.concept}}}">{{#semanticEntity aggregation.ends.0.concept}}{{#translate aggregation.name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{/semanticEntity}}</a>
+
+        {{cardinality aggregation.ends.0.cardinality}}
+      </td>
+    </tr>
+    <tr>
+      <td>{{#iflng "cs"}}Obor hodnot{{lng}}Range{{/iflng}}</td>
+      <td>
+        <a href="{{{href aggregation.ends.1.concept}}}">{{#semanticEntity aggregation.ends.1.concept}}{{#translate aggregation.name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{else}}{{prefixed .}}{{/semanticEntity}}</a>
+
+        {{cardinality aggregation.ends.1.cardinality}}
+    </td>
+    </tr>
+
+    {{#def "profilesRelationshipChain"}}
+      {{#ifEquals type.[0] "relationship"}}{{#iflng "cs"}}vlastnost{{lng}}property{{/iflng}}{{/ifEquals}}
+      {{relation}} (<a href="{{{ends.1.iri}}}">{{prefixed ends.1.iri}}</a>)
+      {{#if aggregationParent}}
+        {{#semanticEntity aggregationParent.id}}
+          <br />{{#ifEquals type.[0] "class"}}{{#iflng "cs"}}tato profiluje{{lng}}this profiles{{/iflng}}{{/ifEquals}}
+          {{profilesRelationshipChain}}
+        {{/semanticEntity}}
+      {{/if}}
+    {{/def}}
+    {{#semanticEntity aggregationParent.id}}
+    <tr>
+      <td>{{#iflng "cs"}}Profiluje{{lng}}Profiles{{/iflng}}</td>
+      <td>{{profilesRelationshipChain}}</td>
+    </tr>
+    {{/semanticEntity}}
+
+    {{#if ends.1.name}}
+    {{#translate aggregationParent.ends.1.name}}
+    <tr>
+      <td>{{#iflng "cs"}}Název ze slovníku{{lng}}Label from vocabulary{{/iflng}}</td>
+      <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
+    </tr>
+    {{/translate}}
+    {{/if}}
+
+    {{#if ends.1.description}}
+    {{#translate aggregationParent.ends.1.description}}
+    <tr>
+      <td>{{#iflng "cs"}}Definice ze slovníku{{lng}}Definition from vocabulary{{/iflng}}</td>
+      <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
+    </tr>
+    {{/translate}}
+    {{/if}}
+
+    {{#translate usageNote}}
+    <tr>
+      <td>{{#iflng "cs"}}Popis použití v profilu{{lng}}Usage note{{/iflng}}</td>
+      <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
+    </tr>
+    {{/translate}}
+  </table>
+</section>
+{{/def}}
+<!DOCTYPE html>
   {{#def "class"}}<a href="{{{href aggregation.id}}}">{{#translate aggregation.name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}</a>{{/def}}
   {{#def "relation"}}<a href="{{{href aggregation.ends.1.iri}}}">{{#translate aggregation.ends.1.name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}</a>{{/def}}
   {{#def "cardinality"}}
@@ -52,7 +134,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
       </section>-->
 
       <section>
-        <h1>{{#iflng "cs"}}Přehled{{lng}}Overview{{/iflng}}</h1>
+        <h2>{{#iflng "cs"}}Přehled{{lng}}Overview{{/iflng}}</h2>
 
         {{#each externalArtifacts.svg}}
           <figure>
@@ -60,12 +142,10 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
             <figcaption>Overview diagram</figcaption>
           </figure>
         {{/each}}
+      </section>
 
+      <section>
         <h2>{{#iflng "cs"}}Třídy{{lng}}Classes{{/iflng}}</h2>
-        {{#iflng "cs"}}Tato sekce popisuje všechny třídy v tomto slovníku.
-        {{lng}}This section lists the classes matching the base namespace of this vocabulary.
-        {{/iflng}}
-
 
         {{#each locallyDefinedSemanticEntity}}
           {{#ifEquals type.[0] "class"}}
@@ -170,10 +250,25 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
                 </tr>
                 {{/translate}}
               </table>
+
+              <p>Zpětné asociace</p>
+              <ul>
+                {{#each backwardsRelationships}}
+                  <li><a href="{{{href id}}}"></a></li>
+                {{/each}}
+              </ul>
+
+              {{#each relationships}}
+                {{relationship-section}}
+              {{/each}}
+
             </section>
           {{/ifEquals}}
         {{/each}}
 
+        </section>
+
+        <section>
         <h2>{{#iflng "cs"}}Vlastnosti{{lng}}Properties{{/iflng}}</h2>
         {{#each locallyDefinedSemanticEntity}}
           {{#ifEquals type.[0] "relationship"}}
@@ -232,93 +327,14 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
         {{/each}}
 
         {{#each locallyDefinedSemanticEntity}}
-        {{#ifEquals type.[0] "relationship-profile"}}
-          <section id="{{anchor}}">
-            <h4>{{#translate aggregation.ends.1.name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}</h4>
+          {{#ifEquals type.[0] "relationship-profile"}}
 
-            <table class="def">
-              <tr>
-                <td>IRI</td>
-                <td><a href="{{{ends.1.iri}}}">{{prefixed ends.1.iri}}</a></td>
-              </tr>
-              {{#translate aggregation.ends.1.name}}
-              <tr>
-                <td>{{#iflng "cs"}}Název{{lng}}Label{{/iflng}}</td>
-                <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
-              </tr>
-              {{/translate}}
-              {{#translate aggregation.ends.1.description}}
-              <tr>
-                <td>{{#iflng "cs"}}Definice{{lng}}Definition{{/iflng}}</td>
-                <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
-              </tr>
-              {{/translate}}
-              <tr>
-                <td>{{#iflng "cs"}}Definiční obor{{lng}}Domain{{/iflng}}</td>
-                <td>
-                  <a href="{{{href aggregation.ends.0.concept}}}">{{#semanticEntity aggregation.ends.0.concept}}{{#translate aggregation.name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{/semanticEntity}}</a>
-
-                  {{cardinality aggregation.ends.0.cardinality}}
-                </td>
-              </tr>
-              <tr>
-                <td>{{#iflng "cs"}}Obor hodnot{{lng}}Range{{/iflng}}</td>
-                <td>
-                  <a href="{{{href aggregation.ends.1.concept}}}">{{#semanticEntity aggregation.ends.1.concept}}{{#translate aggregation.name}}{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}{{else}}{{prefixed .}}{{/semanticEntity}}</a>
-
-                  {{cardinality aggregation.ends.1.cardinality}}
-              </td>
-              </tr>
-
-              {{#def "profilesRelationshipChain"}}
-                {{#ifEquals type.[0] "relationship"}}{{#iflng "cs"}}vlastnost{{lng}}property{{/iflng}}{{/ifEquals}}
-                {{relation}} (<a href="{{{ends.1.iri}}}">{{prefixed ends.1.iri}}</a>)
-                {{#if aggregationParent}}
-                  {{#semanticEntity aggregationParent.id}}
-                    <br />{{#ifEquals type.[0] "class"}}{{#iflng "cs"}}tato profiluje{{lng}}this profiles{{/iflng}}{{/ifEquals}}
-                    {{profilesRelationshipChain}}
-                  {{/semanticEntity}}
-                {{/if}}
-              {{/def}}
-              {{#semanticEntity aggregationParent.id}}
-              <tr>
-                <td>{{#iflng "cs"}}Profiluje{{lng}}Profiles{{/iflng}}</td>
-                <td>{{profilesRelationshipChain}}</td>
-              </tr>
-              {{/semanticEntity}}
-
-              {{#if ends.1.name}}
-              {{#translate aggregationParent.ends.1.name}}
-              <tr>
-                <td>{{#iflng "cs"}}Název ze slovníku{{lng}}Label from vocabulary{{/iflng}}</td>
-                <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
-              </tr>
-              {{/translate}}
-              {{/if}}
-
-              {{#if ends.1.description}}
-              {{#translate aggregationParent.ends.1.description}}
-              <tr>
-                <td>{{#iflng "cs"}}Definice ze slovníku{{lng}}Definition from vocabulary{{/iflng}}</td>
-                <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
-              </tr>
-              {{/translate}}
-              {{/if}}
-
-              {{#translate usageNote}}
-              <tr>
-                <td>{{#iflng "cs"}}Popis použití v profilu{{lng}}Usage note{{/iflng}}</td>
-                <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
-              </tr>
-              {{/translate}}
-            </table>
-          </section>
-        {{/ifEquals}}
-      {{/each}}
-      </section>
+          {{/ifEquals}}
+        {{/each}}
+        </section>
 
       <section>
-        <h1>{{#iflng "cs"}}Použité prefixy{{lng}}Used prefixes{{/iflng}}</h1>
+        <h2>{{#iflng "cs"}}Použité prefixy{{lng}}Used prefixes{{/iflng}}</h2>
         <table id="table-namespaces" class="simple">
           <thead><tr><th>Prefix</th><th>Namespace IRI</th></tr></thead>
           <tbody>
@@ -330,7 +346,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
       </section>
 
       <section>
-        <h1>{{#iflng "cs"}}Přílohy{{lng}}Attachments{{/iflng}}</h1>
+        <h2>{{#iflng "cs"}}Přílohy{{lng}}Attachments{{/iflng}}</h2>
         <table class="def">
           {{#if externalArtifacts.owl-vocabulary}}
             <tr>

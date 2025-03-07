@@ -3,14 +3,17 @@ import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRel
 // @ts-ignore
 import { Entities, Entity, InMemoryEntityModel } from "../entity-model";
 import { SemanticModelAggregator } from "../semantic-model/aggregator";
-import { LanguageString, SemanticModelEntity } from "../semantic-model/concepts";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "../semantic-model/profile/concepts";
+import { LanguageString, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "../semantic-model/concepts";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "../semantic-model/profile/concepts";
 import { getTranslation } from "../utils/language";
 
 export interface DocumentationGeneratorConfiguration {
   template: string;
   language: string;
 }
+
+type ClassLike = SemanticModelClass | SemanticModelClassProfile;
+type RelationshipLike = SemanticModelRelationship | SemanticModelRelationshipProfile;
 
 function normalizeLabel(label: string) {
   // We do not want to convert it to lower case because classes and relations may have identical name but different case as it is common convention in RDF.
@@ -60,20 +63,20 @@ export async function generateDocumentation(
 ): Promise<string> {
   const localPrefixMap = {...PREFIX_MAP, ...inputModel.prefixMap};
 
+  // Deep clone of models as we will modify them
+  const models = structuredClone(inputModel.models);
+
   // Primary semantic model
   const semanticModel = {} as Entities
-  for (const model of inputModel.models) {
+  for (const model of models) {
     if (model.isPrimary) {
       Object.assign(semanticModel, model.entities);
     }
   }
 
-  // console.clear();
-  // console.dir(inputModel.models, {depth: null});
-
   // Create an aggregator and pass all models to it to effectively work with application profiles
   const aggregator = new SemanticModelAggregator();
-  for (const model of inputModel.models) {
+  for (const model of models) {
     const entityModel = new InMemoryEntityModel();
     entityModel.change(model.entities, []);
     aggregator.addModel(entityModel);
@@ -82,11 +85,38 @@ export async function generateDocumentation(
 
   // Modify semantic model to include aggregated entities
   // We need to modify all the models
-  for (const model of inputModel.models) {
+  for (const model of models) {
     for (const entity of Object.values(model.entities)) {
       const entityWithAggregation = entity as Entity & {aggregation?: Entity, aggregationParent?: Entity};
       entityWithAggregation.aggregation = aggregatedEntities[entity.id]?.aggregatedEntity!;
       entityWithAggregation.aggregationParent = aggregatedEntities[entity.id]?.sources[0]?.aggregatedEntity!;
+    }
+  }
+
+  // Add all relationships to each entity
+  // We know, that each relationship profile MUST have its concept present in the model so we do not need to enumerate rest
+  for (const entity of Object.values(semanticModel)) {
+    if (isSemanticModelRelationshipProfile(entity)) {
+      {
+        const conceptId = entity.ends[0]?.concept;
+        if (conceptId) {
+          const concept = semanticModel[conceptId] as ClassLike & {relationships?: RelationshipLike[]};
+          if (concept) {
+            concept.relationships = concept.relationships || [];
+            concept.relationships.push(entity);
+          }
+        }
+      }
+      {
+        const conceptId = entity.ends[1]?.concept;
+        if (conceptId) {
+          const concept = semanticModel[conceptId] as ClassLike & {backwardsRelationships?: RelationshipLike[]};
+          if (concept) {
+            concept.backwardsRelationships = concept.backwardsRelationships || [];
+            concept.backwardsRelationships.push(entity);
+          }
+        }
+      }
     }
   }
 
@@ -238,7 +268,7 @@ export async function generateDocumentation(
 
   handlebars.registerHelper('semanticEntity', function(input: string, options: Handlebars.HelperOptions) {
     let entity: SemanticModelEntity | null = null;
-    for (const model of inputModel.models) {
+    for (const model of models) {
       if (Object.hasOwn(model.entities, input)) {
         entity = model.entities[input]!;
         break;
@@ -281,7 +311,7 @@ export async function generateDocumentation(
     // todo: handle external links
 
     let inModel: ModelDescription | null = null;
-    for (const model of inputModel.models) {
+    for (const model of models) {
       if (Object.hasOwn(model.entities, input)) {
         inModel = model;
         break;
@@ -375,12 +405,12 @@ export async function generateDocumentation(
 
   handlebars.registerHelper('parentClasses', function(id: string) {
     let entities: SemanticModelEntity[] = [];
-    for (const model of inputModel.models) {
+    for (const model of models) {
       for (const entity of Object.values(model.entities)) {
         if (isSemanticModelGeneralization(entity)) {
           if (entity.child === id) {
             // Find entity in other model
-            for (const model of inputModel.models) {
+            for (const model of models) {
               if (Object.hasOwn(model.entities, entity.parent)) {
                 entities.push(model.entities[entity.parent]!);
               }
@@ -394,7 +424,7 @@ export async function generateDocumentation(
 
   handlebars.registerHelper('subClasses', function(id: string) {
     let entities: SemanticModelEntity[] = [];
-    for (const model of inputModel.models) {
+    for (const model of models) {
       for (const entity of Object.values(model.entities)) {
         if (isSemanticModelGeneralization(entity)) {
           if (entity.parent === id) {
