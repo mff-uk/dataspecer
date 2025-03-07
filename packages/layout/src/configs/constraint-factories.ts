@@ -1,8 +1,9 @@
 import { LayoutMethod } from "../layout-iface";
+import { Direction } from "../util/utils";
 import { ConstraintContainer } from "./constraint-container";
 import { AlgorithmConfiguration, IGraphConversionConstraint, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraintSimple, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationslVersion2, UserGivenAlgorithmConfigurationslVersion4, GraphConversionConstraint, RandomConfiguration, getDefaultUserGivenConstraintsVersion4, AlgorithmPhases } from "./constraints";
 import { D3ForceConfiguration } from "./d3js/d3-constraints";
-import { ElkForceConfiguration, ElkLayeredConfiguration, ElkRadialConfiguration, ElkSporeConfiguration, ElkStressConfiguration } from "./elk/elk-constraints";
+import { ElkForceConfiguration, ElkLayeredConfiguration, ElkRadialConfiguration, ElkSporeConfiguration, ElkSporeOverlapConfiguration, ElkStressConfiguration } from "./elk/elk-constraints";
 
 
 /**
@@ -65,6 +66,9 @@ class AlgorithmConstraintFactory {
                 layoutActions.push(GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("TREEIFY"));
                 layoutActions.push(new ElkRadialConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
                 break;
+            case "elk_overlapRemoval":
+                layoutActions.push(new ElkSporeOverlapConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
+                break;
             default:
                 throw new Error("Implementation error You forgot to extend the AlgorithmConstraintFactory factory for new algorithm");
         }
@@ -75,6 +79,28 @@ class AlgorithmConstraintFactory {
             configLayeredAfter.main.elk_layered.interactive = true;
             configLayeredAfter.main.elk_layered.constraintedNodes = userGivenAlgorithmConfiguration.constraintedNodes;
             this.addAlgorithmConfiguration(configLayeredAfter.main.elk_layered, layoutActions, false);
+        }
+
+        if(userGivenAlgorithmConfiguration.layout_alg !== "elk_layered" && 
+           userGivenAlgorithmConfiguration.layout_alg !== "elk_overlapRemoval") {
+            const overlapConfiguration: UserGivenAlgorithmConfiguration = {
+                layout_alg: "elk_overlapRemoval",
+                interactive: true,
+                advanced_settings: undefined,
+                alg_direction: Direction.Up,
+                layer_gap: 0,
+                in_layer_gap: 0,
+                edge_routing: "ORTHOGONAL",
+                stress_edge_len: 0,
+                number_of_new_algorithm_runs: 0,
+                min_distance_between_nodes: 50,         // Can be played with
+                force_alg_type: "FRUCHTERMAN_REINGOLD",
+                constraintedNodes: "ALL",
+                should_be_considered: false,
+                run_layered_after: false
+            }
+
+            layoutActions.push(new ElkSporeOverlapConfiguration(overlapConfiguration, true));
         }
     }
 

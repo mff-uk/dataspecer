@@ -46,11 +46,12 @@ const CONFIG_TO_ELK_CONFIG_SPECIAL_CASES_CONVERTOR: Record<string, Partial<Recor
     }
 };
 
-export const ALGORITHM_TO_ELK_ALGORITHM_MAP: Pick<Record<AlgorithmName, string>, "elk_stress" | "elk_layered" | "elk_force" | "elk_radial"> = {
+export const ALGORITHM_TO_ELK_ALGORITHM_MAP: Pick<Record<AlgorithmName, string>, "elk_stress" | "elk_layered" | "elk_force" | "elk_radial" | "elk_overlapRemoval"> = {
     "elk_stress": "stress",
     "elk_layered": "layered",
     "elk_force": "force",
     "elk_radial": "radial",
+    "elk_overlapRemoval": "sporeOverlap",
 };
 
 

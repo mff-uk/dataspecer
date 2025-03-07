@@ -324,6 +324,11 @@ export function getDefaultUserGivenConstraintsVersion2(): UserGivenConstraintsVe
 
 // TODO: getDefaultUserGivenAlgorithmConfiguration
 export function getDefaultUserGivenAlgorithmConstraint(algorithmName: AlgorithmName): Omit<UserGivenAlgorithmConfiguration, "constraintedNodes" | "should_be_considered"> {
+    let interactive = false;
+    // TODO RadStr: Spore compaction seems to be useless (it is like layered algorithm)
+    if(algorithmName === "elk_overlapRemoval" || algorithmName === "sporeCompaction") {
+        interactive = true;
+    }
     return {
         "layout_alg": algorithmName,
     //  "profile-nodes-position-against-source": DIRECTION.Down,
@@ -334,7 +339,7 @@ export function getDefaultUserGivenAlgorithmConstraint(algorithmName: AlgorithmN
         "min_distance_between_nodes": 100,
         "number_of_new_algorithm_runs": 10,
         "run_layered_after": false,
-        "interactive": false,
+        interactive,
         advanced_settings: {},
     }
 }

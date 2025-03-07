@@ -243,3 +243,23 @@ export class ElkRadialConfiguration extends RadialConfiguration implements ElkCo
 
     elkData: LayoutOptions = {};
 }
+
+
+/**
+ * Stores configuration for elk sporeOverlap algorithm
+ */
+export class ElkSporeOverlapConfiguration extends SporeConfiguration implements ElkConstraint {
+    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
+        super(givenAlgorithmConstraints, shouldCreateNewGraph, algorithmPhasesToCall);
+        modifyElkDataObject(this.data, this.elkData);
+    }
+
+    addAdvancedSettingsForUnderlying(advancedSettings: object) {
+        modifyElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
+    }
+    addAlgorithmConstraintForUnderlying(key: string, value: string): void {
+        modifyElkDataObject({[key]: value, "layout_alg": this.algorithmName}, this.elkData);
+    }
+
+    elkData: LayoutOptions = {};
+}

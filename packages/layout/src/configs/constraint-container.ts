@@ -5,7 +5,7 @@ import { ElkLayout } from "../elk-layouts";
 import { RandomLayout } from "../basic-layouts";
 import { ElkConstraint } from "./elk/elk-constraints";
 
-export type AlgorithmName = "elk_stress" | "elk_layered" | "elk_force" | "random" | "d3_force" | "sporeCompaction" | "elk_radial";
+export type AlgorithmName = "elk_stress" | "elk_layered" | "elk_force" | "random" | "d3_force" | "sporeCompaction" | "elk_radial" | "elk_overlapRemoval";
 
 export const ALGORITHM_NAME_TO_LAYOUT_MAPPING: Record<AlgorithmName, LayoutAlgorithm> = {
     "elk_stress": new ElkLayout(),
@@ -15,6 +15,7 @@ export const ALGORITHM_NAME_TO_LAYOUT_MAPPING: Record<AlgorithmName, LayoutAlgor
     "d3_force": new ElkLayout(),    // TODO:
     "sporeCompaction": new ElkLayout(),
     "elk_radial": new ElkLayout(),
+    "elk_overlapRemoval": new ElkLayout(),
 }
 
 type ModelID = string;
