@@ -212,13 +212,13 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
                   {{#ifEquals type.[0] "class"}}{{#iflng "cs"}}třída{{lng}}class{{/iflng}}{{/ifEquals}}
                   {{class}} (<a href="{{{iri}}}">{{prefixed iri}}</a>)
                   {{#if aggregationParent}}
-                    {{#semanticEntity aggregationParent.iri}}
+                    {{#semanticEntity aggregationParent.id}}
                       <br />{{#ifEquals type.[0] "class"}}{{#iflng "cs"}}tato profiluje{{lng}}this profiles{{/iflng}}{{/ifEquals}}
                       {{profilesClassChain}}
                     {{/semanticEntity}}
                   {{/if}}
                 {{/def}}
-                {{#semanticEntity aggregationParent.iri}}
+                {{#semanticEntity aggregationParent.id}}
                 <tr>
                   <td>{{#iflng "cs"}}Profiluje{{lng}}Profiles{{/iflng}}</td>
                   <td>{{profilesClassChain}}</td>
