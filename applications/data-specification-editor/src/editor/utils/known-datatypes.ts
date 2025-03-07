@@ -74,6 +74,14 @@ export const knownDatatypes: KnownDatatype[] = [
         }
     },
     {
+        "iri": "http://www.w3.org/2001/XMLSchema#duration",
+        "documentation": "http://www.w3.org/2001/XMLSchema#duration",
+        "label": {
+            "cs": "Doba trvání",
+            "en": "Duration"
+        }
+    },
+    {
         "iri": "http://www.w3.org/2001/XMLSchema#anyURI",
         "documentation": "https://ofn.gov.cz/základní-datové-typy/2020-07-01/#url",
         "label": {
