@@ -61,6 +61,8 @@ export interface LayoutAlgorithm {
 }
 
 
+// TODO RadStr: Remove the model from the fields ... that is semanticModelClass --> semanticClass
+
 export type EntitiesBundle = {
     sourceEntityModelIdentifier: string,
     semanticModelEntity: SemanticModelEntity,
@@ -76,17 +78,17 @@ type ClassProfilesBundle = {
     semanticModelClassProfile: SemanticModelClassProfile
 };
 
-type RelationshipsBundle = {
+export type RelationshipsBundle = {
     sourceEntityModelIdentifier: string,
     semanticModelRelationship: SemanticModelRelationship,
 };
 
-type RelationshipsProfilesBundle = {
+export type RelationshipsProfilesBundle = {
     sourceEntityModelIdentifier: string,
     semanticModelRelationshipProfile: SemanticModelRelationshipProfile,
 };
 
-type GeneralizationsBundle = {
+export type GeneralizationsBundle = {
     sourceEntityModelIdentifier: string,
     semanticModelGeneralization: SemanticModelGeneralization,
 };
@@ -106,6 +108,8 @@ export interface ExtractedModels {
     generalizations: GeneralizationsBundle[],
     attributes: AttributesBundle[],
 }
+
+export type AllowedEdgeBundleTypes = RelationshipsBundle | RelationshipsProfilesBundle | GeneralizationsBundle | ClassProfilesBundle;
 
 
 // TODO: Maybe it makes more sense to make the interface a abstract class instead

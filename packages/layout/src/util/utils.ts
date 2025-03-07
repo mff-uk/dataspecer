@@ -1,6 +1,44 @@
 // TODO: Actually I don't really like the union here (we have to convert the string value back to the enum value, if we want to use Enum somewhere)
 
-import { Position } from "@dataspecer/core-v2/visual-model";
+import { EdgeEndPoint } from "../graph-iface";
+
+export function getTopLeftPosition(
+  nodes: EdgeEndPoint[]
+) {
+  const topLeft = {x: 10000000, y: 10000000};
+  nodes.forEach(node => {
+    const position = node.completeVisualNode.coreVisualNode.position;
+    if(position.x < topLeft.x) {
+      topLeft.x = position.x;
+    }
+    if(position.y < topLeft.y) {
+      topLeft.y = position.y;
+    }
+  });
+
+  return topLeft;
+};
+
+
+export function getBotRightPosition(
+  nodes: EdgeEndPoint[]
+) {
+  const botRight = {x: -10000000, y: -10000000};
+  nodes.forEach(node => {
+    const visualNode = node.completeVisualNode;
+    const x = visualNode.coreVisualNode.position.x + visualNode.width;
+    if(x > botRight.x) {
+        botRight.x = x;
+    }
+
+    const y = visualNode.coreVisualNode.position.y + visualNode.height;
+    if(y > botRight.y) {
+        botRight.y = y;
+    }
+  });
+
+  return botRight;
+};
 
 // TODO: So maybe just do the classic ... type Direction = "Up" | "Right" | "Down" | "Left";
 export enum Direction {

@@ -90,6 +90,35 @@ export type XY = Omit<Position, "anchored">;
 
 
 
+
+/**
+ * Contains the visual entities (that is entities present in visual model). Those contain also the relevant edges
+ *
+ * And outsiders - which represent classes or class profiles, which are not in the visual model.
+ * We don't pass the edges (relationships, generalizations, ...) to outsiders, since we expect
+ * that we want to have all edges connected to those class/class profiles inside the layouting graph.
+ */
+export type VisualEntitiesWithOutsiders = {
+	visualEntities: string[],
+	outsiders: Record<string, XY | null>;
+};
+
+export async function performLayout(
+	visualModel: VisualModel,
+	semanticModels: Map<string, EntityModel>,
+	entitiesToLayout: VisualEntitiesWithOutsiders,
+	config: UserGivenAlgorithmConfigurationslVersion4,
+	nodeDimensionQueryHandler?: NodeDimensionQueryHandler,
+	explicitAnchors?: ExplicitAnchors
+): Promise<LayoutedVisualEntities> {
+	console.log("config");
+	console.log(config);
+
+	const visualEntitiesPromise = performLayoutInternal(visualModel, semanticModels, entitiesToLayout, config, nodeDimensionQueryHandler, explicitAnchors);
+	return visualEntitiesPromise;
+}
+
+
 // TODO PRQuestion: Maybe just return VisualEntities - so without the information about entity being an outsider
 //                  On one side, I have the info in nice format so why shouldn't I give it out
 //                  On other side, the caller should know about the outsiders, and the API - especially here should be probably minimal
@@ -112,7 +141,12 @@ export async function performLayoutOfVisualModel(
 	console.log("config");
 	console.log(config);
 
-	const visualEntitiesPromise = performLayoutInternal(visualModel, semanticModels, config, nodeDimensionQueryHandler, explicitAnchors);
+	const entitiesToLayout: VisualEntitiesWithOutsiders = {
+		visualEntities: [...visualModel.visualModel.getVisualEntities().keys()],
+		outsiders: visualModel.outsiders
+	};
+
+	const visualEntitiesPromise = performLayoutInternal(visualModel.visualModel, semanticModels, entitiesToLayout, config, nodeDimensionQueryHandler, explicitAnchors);
 	return visualEntitiesPromise;
 }
 
@@ -144,21 +178,32 @@ export async function performLayoutOfSemanticModel(
 			throw new Error("Function not implemented.");
 		}
 	};
-	const semanticModel = new Map();
+	const semanticModel: Map<string, EntityModel> = new Map();
 	semanticModel.set(semanticModelId, entityModelUsedForConversion);
-	const visualEntitiesPromise = performLayoutInternal(null, semanticModel, config, nodeDimensionQueryHandler);
+
+	const outsiders: Record<string, XY | null> = {}
+	Object.keys([...semanticModel.values()][0].getEntities()).forEach(identifier => {
+		outsiders[identifier] = null;
+	});
+	const entitiesToLayout: VisualEntitiesWithOutsiders = {
+		visualEntities: [],
+		outsiders,
+	};
+
+	const visualEntitiesPromise = performLayoutInternal(null, semanticModel, entitiesToLayout, config, nodeDimensionQueryHandler);
 	return visualEntitiesPromise;
 }
 
 
 function performLayoutInternal(
-	visualModel: VisualModelWithOutsiders,
+	visualModel: VisualModel,
 	semanticModels: Map<string, EntityModel>,
+	entitiesToLayout: VisualEntitiesWithOutsiders,
 	config: UserGivenAlgorithmConfigurationslVersion4,
 	nodeDimensionQueryHandler?: NodeDimensionQueryHandler,
 	explicitAnchors?: ExplicitAnchors
 ): Promise<LayoutedVisualEntities> {
-	const graph = GraphFactory.createMainGraph(null, semanticModels, null, visualModel, nodeDimensionQueryHandler, explicitAnchors);
+	const graph = GraphFactory.createMainGraph(null, semanticModels, visualModel, entitiesToLayout, nodeDimensionQueryHandler, explicitAnchors);
 	const visualEntitiesPromise = performLayoutFromGraph(graph, config);
 
 	if(visualEntitiesPromise == undefined) {
@@ -316,6 +361,7 @@ const runMainLayoutAlgorithm = async (
 			else if(action instanceof AlgorithmConfiguration) {		// TODO: Using the actual type instead of interface
 				const layoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[action.algorithmName];
 				if(action.algorithmPhasesToCall === "ONLY-PREPARE" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
+					console.info("workGraph", {...workGraph});
 					layoutAlgorithm.prepareFromGraph(workGraph, constraints);
 				}
 				if(action.algorithmPhasesToCall === "ONLY-RUN" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {

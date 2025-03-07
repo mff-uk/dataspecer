@@ -15,7 +15,7 @@ import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-d
 import { CONFIG_TO_ELK_CONFIG_MAP } from "./configs/elk/elk-utils";
 import { NodeDimensionQueryHandler, ReactflowDimensionsConstantEstimator, XY } from ".";
 import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { PhantomElementsFactory, placePositionOnGrid } from "./util/utils";
+import { getTopLeftPosition, PhantomElementsFactory, placePositionOnGrid } from "./util/utils";
 import _, { clone } from "lodash";
 import { GraphAlgorithms } from "./graph-algoritms";
 import { ElkConstraint } from "./configs/elk/elk-constraints";
@@ -45,10 +45,14 @@ class ElkGraphTransformer implements GraphTransformer {
     /**
      * Internal function for conversion from our graph representation to ELK representation. The method is called recursively for subgraphs.
      */
-    convertGraphToLibraryRepresentationInternal(graph: IGraphClassic,
-                                        shouldSetLayoutOptions: boolean,
-                                        constraintContainer?: ElkConstraintContainer,
-                                        elkNodeToSet?: ElkNode): ElkNode {
+    convertGraphToLibraryRepresentationInternal(
+        graph: IGraphClassic,
+        shouldSetLayoutOptions: boolean,
+        constraintContainer?: ElkConstraintContainer,
+        elkNodeToSet?: ElkNode
+    ): ElkNode {
+        console.info("convertGraphToLibraryRepresentationInternal", {...graph})
+
         let nodes = Object.entries(graph.nodes).map(([id, node]) => {
             if(node.isConsideredInLayout === false) {
                 return null;
@@ -57,10 +61,10 @@ class ElkGraphTransformer implements GraphTransformer {
             console.warn("Visual node copy before createElkNode");
             console.warn(_.cloneDeep(node));
             if(node.isProfile) {
-                return this.createElkNode(id, constraintContainer, node, true, undefined, "USAGE OF: " + (node.node as SemanticModelClassUsage).usageOf);
+                return this.createElkNode(id, constraintContainer, node, elkNodeToSet, true, undefined, "USAGE OF: " + (node.semanticEntityRepresentingNode as SemanticModelClassUsage).usageOf);
             }
             else {
-                const elkNode = this.createElkNode(id, constraintContainer, node, true, undefined, node?.node?.iri);     // TODO: Not sure what is the ID (visual or semantic entity id?)
+                const elkNode = this.createElkNode(id, constraintContainer, node, elkNodeToSet, true, undefined, node?.semanticEntityRepresentingNode?.iri);     // TODO: Not sure what is the ID (visual or semantic entity id?)
                 if(node instanceof GraphClassic) {
                     this.convertGraphToLibraryRepresentationInternal(node, true, constraintContainer, elkNode);
                 }
@@ -133,6 +137,11 @@ class ElkGraphTransformer implements GraphTransformer {
             if((constraintContainer.currentLayoutAction.action.constraintedNodes === "GENERALIZATION" && isSubgraph(this.graph, elkGraph)) ||
                 (constraintContainer.currentLayoutAction.action.constraintedNodes === "ALL" && (graph instanceof MainGraphClassic))) {
                 elkGraph.layoutOptions = (constraintContainer.currentLayoutAction.action as (IAlgorithmConfiguration & ElkConstraint)).elkData;
+            }
+            else if(isSubgraph(this.graph, elkGraph)) {
+                elkGraph.layoutOptions = {
+                    "algorithm": "fixed"
+                };
             }
         }
 
@@ -252,6 +261,7 @@ class ElkGraphTransformer implements GraphTransformer {
         // TODO: If we add phantom nodes (and later when also draw edges this may stop working)
         let visualEntities : VisualEntitiesType = [];
         console.info("referenceX");
+        console.info({...elkNode});
         console.info(elkNode);
         console.info(referenceX);
         console.info(referenceY);
@@ -263,12 +273,20 @@ class ElkGraphTransformer implements GraphTransformer {
                 ...newPosition,
                 anchored: node.completeVisualNode.coreVisualNode.position.anchored,
             };
+
             visualEntities.push(node.completeVisualNode);
+
+            // TODO RadStr LAYOUT: Have a better way to check if node is a graph ... but maybe ok
             if(isSubgraph(this.graph, ch)) {
+                node.completeVisualNode.width = elkNode.width ?? node.completeVisualNode.width;
+                node.completeVisualNode.height = elkNode.height ?? node.completeVisualNode.height;
+
                 let subgraphReferenceX = referenceX + ch.x;
                 let subgraphReferenceY = referenceY + ch.y;
 
-                visualEntities = visualEntities.concat(this.recursivelyUpdateGraphBasedOnElkNode(ch, graphToBeUpdated, subgraphReferenceX, subgraphReferenceY, shouldUpdateEdges));
+                const childVisualEntities = this.recursivelyUpdateGraphBasedOnElkNode(
+                    ch, graphToBeUpdated, subgraphReferenceX, subgraphReferenceY, shouldUpdateEdges);
+                visualEntities = visualEntities.concat(childVisualEntities);
             }
         }
 
@@ -706,7 +724,7 @@ class ElkGraphTransformer implements GraphTransformer {
 
 
         // Deprecated ... so we didn't bother with fixing ... we will just remove it in later commit !!
-        const subgraph: ElkNode = this.createElkNode(`subgraph${this.subgraphCurrID++}`, null, null, false, layoutOptions);
+        const subgraph: ElkNode = this.createElkNode(`subgraph${this.subgraphCurrID++}`, null, null, null, false, layoutOptions);
         subgraph.children = subgraphNodes;
         return subgraph;
     }
@@ -993,8 +1011,9 @@ class ElkGraphTransformer implements GraphTransformer {
     /**
      * Creates node in the ELK library representation (type {@link ElkNode}) based on given data.
      */
-    createElkNode(id: string, constraintContainer: ElkConstraintContainer, graphNode: EdgeEndPoint, shouldComputeSize?: boolean, layoutOptions?: LayoutOptions,
-                    label?: string): ElkNode {
+    createElkNode(
+        id: string, constraintContainer: ElkConstraintContainer, graphNode: EdgeEndPoint, parentElkNode?: ElkNode,
+        shouldComputeSize?: boolean, layoutOptions?: LayoutOptions, label?: string): ElkNode {
         const width: number = shouldComputeSize ? graphNode?.completeVisualNode?.width : ReactflowDimensionsConstantEstimator.getDefaultWidth();
         const height: number = shouldComputeSize ? graphNode?.completeVisualNode?.height : ReactflowDimensionsConstantEstimator.getDefaultHeight();
 
@@ -1031,20 +1050,31 @@ class ElkGraphTransformer implements GraphTransformer {
             };
         }
 
+        if(parentElkNode !== undefined && parentElkNode.id.startsWith("subgraph")) {
+            console.info("parentElkNode.id.startsWith(subgraph)");
+            console.info({...node});
+            console.info({...parentElkNode});
+            console.info(parentElkNode);
+            console.info(parentElkNode.width);
+        }
+
         const position = graphNode?.completeVisualNode?.coreVisualNode?.position;
         // TODO: Still touching the data and I would like to have more than 1 algorithm in future for example in the "ALL" bracket
         const isInteractiveGeneralization = constraintContainer?.currentLayoutAction?.action?.constraintedNodes === "GENERALIZATION" &&
-                        String(constraintContainer?.currentLayoutAction?.action?.data?.["interactive"]) === "true" &&
-                        !isSubgraph(this.graph, node);
+            String(constraintContainer?.currentLayoutAction?.action?.data?.["interactive"]) === "true" &&
+            !isSubgraph(this.graph, node);
         const isInteractiveAll =  constraintContainer?.currentLayoutAction.action.constraintedNodes === "ALL" &&
-                        String(constraintContainer?.currentLayoutAction?.action?.data?.["interactive"]) === "true" &&
-                        ((constraintContainer.isGeneralizationPerformedBefore() && isSubgraph(this.graph, node)) ||
-                            !constraintContainer.isGeneralizationPerformedBefore());
+            String(constraintContainer?.currentLayoutAction?.action?.data?.["interactive"]) === "true" &&
+            ((constraintContainer.isGeneralizationPerformedBefore() && isSubgraph(this.graph, node)) ||
+                !constraintContainer.isGeneralizationPerformedBefore());
         const isInteractiveGeneralizationSubgraphs = constraintContainer?.currentLayoutAction.action.constraintedNodes === "ALL" &&
-                        constraintContainer.isGeneralizationPerformedBefore() && !isSubgraph(this.graph, node);
+            constraintContainer.isGeneralizationPerformedBefore() && !isSubgraph(this.graph, node);
+
+
+        const hasParentGraphFixedLayout = parentElkNode !== undefined;
 
         if(position !== undefined &&
-            (isInteractiveGeneralization || isInteractiveAll || isInteractiveGeneralizationSubgraphs)
+            (isInteractiveGeneralization || isInteractiveAll || isInteractiveGeneralizationSubgraphs || hasParentGraphFixedLayout)
           ) {
             const parentPosition = graphNode.getSourceGraph()?.completeVisualNode?.coreVisualNode?.position;
             node.x = position.x - (parentPosition?.x ?? 0);
@@ -1145,11 +1175,11 @@ export class ElkLayout implements LayoutAlgorithm {
      * @deprecated
      */
     prepare(extractedModels: ExtractedModels, constraintContainer: ElkConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
-        this.elkGraphTransformer = new ElkGraphTransformer(GraphFactory.createMainGraph(null, extractedModels, null, null), constraintContainer);
-        this.graphInElk = this.elkGraphTransformer.convertToLibraryRepresentation(extractedModels, constraintContainer);
-        this.constraintContainer = constraintContainer;
         // TODO: Deprecated ... and from now it will actually stop working
-        // this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
+        // this.elkGraphTransformer = new ElkGraphTransformer(GraphFactory.createMainGraph(null, extractedModels, null, null), constraintContainer);
+        // this.graphInElk = this.elkGraphTransformer.convertToLibraryRepresentation(extractedModels, constraintContainer);
+        // this.constraintContainer = constraintContainer;
+        // // this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
     }
 
     prepareFromGraph(graph: IGraphClassic, constraintContainer: ElkConstraintContainer): void {
@@ -1172,22 +1202,22 @@ export class ElkLayout implements LayoutAlgorithm {
         }
 
         console.log("elkGraph layouted");
-        console.log(graphInElkWorkCopy);
+        console.log({...graphInElkWorkCopy});
 
 
         return layoutPromise.then(layoutedGraph => {
-                                    if(shouldCreateNewGraph) {
-                                        // TODO: Check if the graph is void or not - Maybe can be solved better
-                                        if(layoutedGraph !== null && typeof layoutedGraph === 'object') {
-                                            return this.elkGraphTransformer.convertLibraryToGraphRepresentation(layoutedGraph, false);
-                                        }
-                                        return this.elkGraphTransformer.convertLibraryToGraphRepresentation(null, false);
-                                    }
-                                    else {
-                                        this.elkGraphTransformer.updateExistingGraphRepresentationBasedOnLibraryRepresentation(graphInElkWorkCopy, this.graph, false, true);
-                                        return this.graph.mainGraph;            // TODO: Again main graph
-                                    }
-                                });
+            if(shouldCreateNewGraph) {
+                // TODO: Check if the graph is void or not - Maybe can be solved better
+                if(layoutedGraph !== null && typeof layoutedGraph === 'object') {
+                    return this.elkGraphTransformer.convertLibraryToGraphRepresentation(layoutedGraph, false);
+                }
+                return this.elkGraphTransformer.convertLibraryToGraphRepresentation(null, false);
+            }
+            else {
+                this.elkGraphTransformer.updateExistingGraphRepresentationBasedOnLibraryRepresentation(graphInElkWorkCopy, this.graph, false, true);
+                return this.graph.mainGraph;            // TODO: Again main graph
+            }
+        });
     }
 
     async runGeneralizationLayout(shouldCreateNewGraph: boolean): Promise<IMainGraphClassic> {

@@ -12,6 +12,11 @@ export enum AnchorOverrideSetting {
     AnchorEverythingExceptNotAnchored
 };
 
+/**
+ * Represents explicits anchors which override the anchors from visual model.
+ * It is important to note that the identifiers are both visual and semantic.
+ * The mixing of identifier types does not matter, since the code handles it very naturally.
+ */
 export type ExplicitAnchors = {
 	/**
 	 * The identifiers of nodes, which should not be anchored.

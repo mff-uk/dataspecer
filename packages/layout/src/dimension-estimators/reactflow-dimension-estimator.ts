@@ -23,7 +23,7 @@ export class ReactflowDimensionsEstimator implements NodeDimensionQueryHandler {
 
 
         // Profiles also have IRI so this should always work
-        const iri = usePrefixForIri(estimatedNode?.node?.iri ?? null);
+        const iri = usePrefixForIri(estimatedNode?.semanticEntityRepresentingNode?.iri ?? null);
 
         const iriLen = iri?.length ?? 200;
         let maxWidth = Math.max(iriLen * APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER,
@@ -31,7 +31,7 @@ export class ReactflowDimensionsEstimator implements NodeDimensionQueryHandler {
         // If it is not known prefix, then use the the default one used for estimation
         // Note that the prefix part should be probably part of model iri, but currently
         // the prefix part is stored in the iri of entity itself for some of the well-known vocabularies
-        if(iri === estimatedNode?.node?.iri) {
+        if(iri === estimatedNode?.semanticEntityRepresentingNode?.iri) {
             maxWidth += TEST_MODEL_STRING.length * APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER;
         }
 

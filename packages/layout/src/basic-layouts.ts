@@ -45,11 +45,13 @@ export class RandomLayout implements LayoutAlgorithm {
      * @deprecated
      */
     prepare(extractedModels: ExtractedModels, constraintContainer: ConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler): void {
-        this.extractedModels = extractedModels;
-        this.graph = GraphFactory.createMainGraph(null, extractedModels, null, null);
-        this.constraintContainer = constraintContainer;
-        // TODO: Deprecated for good
-        // this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
+        // TODO RadStr LAYOUT: ..... Deprecated so just remove it in clean up
+
+        // this.extractedModels = extractedModels;
+        // this.graph = GraphFactory.createMainGraph(null, extractedModels, null, null);
+        // this.constraintContainer = constraintContainer;
+        // // TODO: Deprecated for good
+        // // this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
     }
 
     prepareFromGraph(graph: IGraphClassic, constraintContainer: ConstraintContainer): void {

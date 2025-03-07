@@ -1,4 +1,4 @@
-import { GraphClassic, IEdgeClassic, IGraphClassic, INodeClassic } from "./graph-iface";
+import { EdgeClassic, GraphClassic, IEdgeClassic, IGraphClassic, INodeClassic } from "./graph-iface";
 
 type Dimensions = {
     width: number,
@@ -53,7 +53,10 @@ export class GraphAlgorithms {
               // Have to Add edge because the radial algorithm can not work with graph with multiple components
               // TODO: Alternative solution is to layout each subgraph with radial algorithm, but it is a bit more work to implement
               const leaf = graph.nodes[Object.entries(nodeToBFSLevelMap).find(([_, level]) => level === maxLevelInOriginalTree)[0]];
-              const addedEdge = leaf.addEdgeTODO(null, null, node.id, true, "outgoingRelationshipEdges");
+
+              const addedEdge = EdgeClassic.addNewEdgeToGraph(
+                  graph, null, null, null, leaf.id, node.id, null, "outgoingRelationshipEdges");
+
 
               // addedEdge.isConsideredInLayout = true;
               usedEdges[addedEdge.id] = true;
