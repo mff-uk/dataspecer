@@ -1,0 +1,30 @@
+import { v4 as uuidv4 } from "uuid";
+import { <%= it.id_generator %> } from <%~ it.id_generator_path %>;
+
+export class UUIDGenerator implements <%= it.id_generator %> {
+
+    private static _generator: UUIDGenerator;
+    private readonly _generatedSet: Set<string>;
+    private constructor() {
+        this._generatedSet = new Set<string>();
+    }
+
+    generateId(): string {
+
+        let uuid: string;
+        do {
+            uuid = uuidv4();
+        } while (this._generatedSet.has(uuid));
+
+        this._generatedSet.add(uuid);
+        return uuid;
+    }
+
+    public static getGenerator(): UUIDGenerator {
+        if (!this._generator) {
+            this._generator = new UUIDGenerator();
+        }
+
+        return this._generator
+    }
+}

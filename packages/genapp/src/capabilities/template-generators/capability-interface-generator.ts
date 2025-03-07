@@ -68,3 +68,9 @@ export const LdkitWriterQueryEngineGenerator = new CopyTemplateProcessor({
     filePath: "./writers/ldkit/writer-query-engine.ts",
     queryExportedObjectName: "LdkitWriterQueryEngine"
 });
+
+export const IdGeneratorInterfaceGenerator = new CopyTemplateProcessor({
+    templatePath: "./common/data-layer/identifier-generator",
+    filePath: "../interfaces/identifier-generator.ts",
+    queryExportedObjectName: "IdentifierGenerator"
+});

@@ -5,6 +5,7 @@ import { InstanceCreatorInterfaceGenerator } from "../reader-interface-generator
 import { DataLayerTemplateDescription, ImportRelativePath } from "../../../engine/templates/template-interfaces";
 import { LdkitDalDependencyMap } from "../../strategies/ldkit-template-strategy";
 import { ReadWriteEndpointUri } from "../../../engine/graph/datasource";
+import { IriIdentifierTemplateGenerator } from "./iri-generator";
 
 /**
  * Interface representing the template model for rendering the create capability template.
@@ -24,7 +25,9 @@ export interface CreateLdkitInstanceTemplate extends DataLayerTemplateDescriptio
         creator_interface_type: string,
         creator_interface_type_path: ImportRelativePath,
         writer_query_engine: string,
-        writer_query_engine_path: ImportRelativePath
+        writer_query_engine_path: ImportRelativePath,
+        iri_generator: string,
+        iri_generator_path: ImportRelativePath
     }
 }
 
@@ -59,6 +62,7 @@ export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitIn
 
         const creatorInterfaceArtifact = await InstanceCreatorInterfaceGenerator.processTemplate();
         const ldkitWriterQueryEngine = await LdkitWriterQueryEngineGenerator.processTemplate();
+        const iriGenerator = await new IriIdentifierTemplateGenerator().processTemplate();
 
         if (!creatorInterfaceArtifact || !creatorInterfaceArtifact.dependencies) {
             throw new Error("At least one interface dependency is expected");
@@ -105,6 +109,11 @@ export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitIn
                 writer_query_engine_path: {
                     from: this._filePath,
                     to: ldkitWriterQueryEngine.filePath
+                },
+                iri_generator: iriGenerator.exportedObjectName,
+                iri_generator_path: {
+                    from: this._filePath,
+                    to: iriGenerator.filePath
                 }
             }
         };
@@ -115,7 +124,7 @@ export class CreateLdkitInstanceGenerator extends TemplateConsumer<CreateLdkitIn
             exportedObjectName: createExportedObject,
             filePath: this._filePath,
             sourceText: createInstanceRender,
-            dependencies: [creatorInterfaceArtifact, dependencies.ldkitSchemaInterfaceArtifact, ldkitWriterQueryEngine]
+            dependencies: [creatorInterfaceArtifact, dependencies.ldkitSchemaInterfaceArtifact, ldkitWriterQueryEngine, iriGenerator]
         }
 
         return createDalLayerArtifact;

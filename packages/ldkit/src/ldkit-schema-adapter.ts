@@ -26,6 +26,7 @@ export class LdkitSchemaAdapter implements StructureClassToSchemaAdapter {
 
         if (attribute.dataType === OFN.rdfLangString) {
             ldkitProperty["@multilang"] = true;
+            ldkitProperty["@optional"] = true;
         }
         ldkitProperty["@type"] = this.convertAttributeDataTypeToLdkitSupportedDataType(attribute.dataType);
         return ldkitProperty;

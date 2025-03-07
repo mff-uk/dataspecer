@@ -21,7 +21,7 @@ export class <%= it.list_app_layer_export_name %> implements <%= it.generated_ca
         return count;
     }
 
-    async runCapability<T>(request: T): Promise<ListResult> {
+    async runCapability(request: any): Promise<ListResult> {
         return this.reader.readInstanceList(request);
     }
 }

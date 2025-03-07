@@ -88,53 +88,6 @@ export abstract class PresentationLayerTemplateGenerator<TemplateType extends Te
         }
     }
 
-    protected generateUISchema(jsonSchema: Schema): Schema {
-        if (!jsonSchema || !jsonSchema.definitions) {
-            return {};
-        }
-
-        const schema = Object.values(jsonSchema.definitions).at(0) ?? {};
-        return this.traverseSchema(schema);
-    }
-
-    private traverseSchema(schema: any): object {
-        if (!schema || typeof schema !== "object") return {};
-
-        let result: any = {};
-
-        const properties = schema.properties || {};
-
-        Object.entries(properties)
-            .forEach(([key, value]: [any, any]) => {
-                if (value.type === "array" && value.items?.type === "object") {
-                    const arrayItems = this.traverseSchema(value.items);
-                    if (Object.keys(arrayItems).length > 0) {
-                        result[key] = { items: arrayItems };
-                    }
-                    return;
-                }
-
-                if (value.type === "object") {
-                    const nested = this.traverseSchema(value);
-                    if (Object.keys(nested).length > 0) {
-                        result[key] = nested;
-                    }
-                    return;
-                }
-
-                if (value.type === "boolean") {
-                    result[key] = { "ui:widget": "radio" };
-                    return;
-                }
-            });
-
-        if ("id" in properties && Object.keys(properties).length > 1) {
-            result["id"] = { "ui:widget": "hidden" };
-        }
-
-        return result;
-    }
-
     /**
      * Manages the presentation layer artifact generation process which is invoked within the presentation layer
      * generation stage.

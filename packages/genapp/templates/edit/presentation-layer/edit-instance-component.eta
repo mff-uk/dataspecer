@@ -7,6 +7,7 @@ import SendIcon from "@mui/icons-material/Send";
 import { useSearchParams } from "react-router-dom";
 import { Backdrop, Button, CircularProgress, Typography } from "@mui/material";
 import { RJSFSchema, RJSFValidationError } from "@rjsf/utils";
+import { <%= it.json_schema_name %> } from <%~ it.json_schema_path %>;
 import { <%= it.navigation_hook %> } from <%~ it.navigation_hook_path %>;
 import { <%= it.edit_capability_app_layer %> } from <%~ it.edit_capability_app_layer_path %>;
 import { <%= it.edit_get_detail_app_layer %> } from <%~ it.edit_get_detail_app_layer_path %>;
@@ -19,14 +20,11 @@ const <%= it.exported_object_name %> = () => {
     const [errorMessage, setErrorMessage] = useState<string>(null!);
     const navigationHooks = <%= it.navigation_hook %>();
 
-    const schema: RJSFSchema = <%~ it.json_schema %> as RJSFSchema;
-
     const handleFormChange = (data: any, id?: string) => {
         // placeholder for any form change event handler
     }
 
     useEffect(() => {
-
         const stringifyDates = (formData: object) => {
             const entries = Object.entries(formData ?? {})
                 .map(([key, value]) => {
@@ -122,14 +120,14 @@ const <%= it.exported_object_name %> = () => {
                             <%~ it.page_title ?? defaultPageTitle %>
                         </Typography>
                         <Form
-                            schema={schema}
+                            schema={<%= it.json_schema_name %>}
                             validator={validator}
                             onChange={handleFormChange}
                             onSubmit={handleFormEdit}
                             onError={handleError}
                             formData={formData}
                             showErrorList="top"
-                            uiSchema={<%= it.uiSchema %>}
+                            uiSchema={<%~ it.ui_schema %>}
                         >
                             <Button
                                 type="submit"

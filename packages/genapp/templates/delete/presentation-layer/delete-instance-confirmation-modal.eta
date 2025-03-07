@@ -19,7 +19,7 @@ const <%= it.exported_name_object %> = () => {
 
     const [openDialog, setOpenDialog] = useState(true);
     const [instanceId, setInstanceId] = useState<string>("");
-    const [searchParams, _] = useSearchParams();
+    const [searchParams] = useSearchParams();
     const [hasInstanceId, setHasInstanceId] = useState<boolean>(false);
     const [resultMessage, setResultMessage] = useState(<></>);
     const [isLoading, setIsLoading] = useState<boolean>(false);

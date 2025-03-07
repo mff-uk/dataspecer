@@ -1,30 +1,38 @@
-import { Entity } from "ldkit/types/library/lens/types";
-import { SchemaInterface, createLens, QueryEngine, Options } from "ldkit";
+import { DataFactory } from "ldkit/rdf";
+import { createLens, QueryEngine, Options, Lens } from "ldkit";
 import { <%= it.instance_result_type %> } from <%~ it.instance_result_type_path %>;
 import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 import { <%= it.creator_interface_type %> } from <%~ it.creator_interface_type_path %>;
 import { <%= it.writer_query_engine %> } from <%~ it.writer_query_engine_path %>;
-import { IriGenerator, UUIDGenerator } from "../../../uuid-generator.ts";
+import { <%= it.iri_generator %> } from <%~ it.iri_generator_path %>;
+
+type ParentChildLink = {
+    subjectIri: string;
+    predicateIri: string;
+    objectIri: string;
+}
 
 export class <%= it.exported_object_name %> implements <%= it.creator_interface_type %>  {
 
     private _writerQueryEngine: QueryEngine;
-    private readonly _idGenerator: IriGenerator;
+    private readonly _idGenerator: <%= it.iri_generator %>;
+    private readonly _rdfDataFactory: DataFactory;
 
     constructor() {
+        this._rdfDataFactory = new DataFactory();
         this._writerQueryEngine = new <%= it.writer_query_engine %>();
-        this._idGenerator = new IriGenerator(UUIDGenerator.getGenerator()); // TODO
+        this._idGenerator = new <%= it.iri_generator %>();
     }
 
-    private mapFormDataToLdkitEntity(formData: object): Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> {
-        const newInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> = this.updateLdkitProperties(formData);
+    private mapFormDataToLdkitEntity(formData: object, schema: any) {
+        const newInstance = this.createLdkitProperties(formData, schema);
         return {
             ...newInstance,
             "$id": this._idGenerator.generateIri(),
         };
     }
 
-    private updateLdkitProperties(formData: object) {
+    private createLdkitProperties(formData: object, schema: any) {
 
         if (typeof formData !== "object" || !formData) {
             return formData;
@@ -32,16 +40,21 @@ export class <%= it.exported_object_name %> implements <%= it.creator_interface_
 
         const transformed = Object.entries(formData)
             .map(([key, value]) => {
+                if (key === "$id") {
+                    return [key, value];
+                }
+
                 if (key === "@type") {
                     return ["$type", value];
                 }
 
+                const nestedSchema = schema[key]["@schema"];
                 if (Array.isArray(value)) {
-                    return [key, value.map(item => this.updateLdkitProperties(item))];
+                    return [key, value.map(item => this.createLdkitProperties(item, nestedSchema))];
                 }
 
-                if (typeof value === "object") {
-                    return [key, this.updateLdkitProperties(value)];
+                if (nestedSchema) {
+                    return [key, this.createLdkitProperties(value, nestedSchema)];
                 }
 
                 return [key, value];
@@ -50,18 +63,25 @@ export class <%= it.exported_object_name %> implements <%= it.creator_interface_
         return Object.fromEntries(transformed);
     }
 
-    async createInstance(formData: object): Promise<<%= it.instance_result_type %>> {
+    createInstance(formData: object): Promise<<%= it.instance_result_type %>> {
+        return this.executeCreate(formData, <%= it.ldkit_schema %>);
+    }
+
+    async executeCreate(formData: object, schema: any): Promise<<%= it.instance_result_type %>> {
 
         const options: Options = {
             sources: [<%~ it.sparql_endpoint_uri %>],
             engine: this._writerQueryEngine
         }
 
-        const lens = createLens(<%= it.ldkit_schema %>, options);
-        const newInstance: Entity<SchemaInterface<typeof <%= it.ldkit_schema %>>> = this.mapFormDataToLdkitEntity(formData);
-
+        const lens = createLens(schema, options);
         try {
+            const objectLinks = await this.createNestedObjects(formData, schema);
+            const newInstance = this.mapFormDataToLdkitEntity(formData, schema);
+
             await lens.insert(newInstance);
+            this.linkChildEntitiesToParent(objectLinks, newInstance, lens);
+
             const result: <%= it.instance_result_type %> = {
                 instance: {
                     aggregateName: "<%= it.aggregate_name %>",
@@ -81,5 +101,52 @@ export class <%= it.exported_object_name %> implements <%= it.creator_interface_
 
             return errorResult;
         }
+    }
+
+    private linkChildEntitiesToParent(objectLinks: ParentChildLink[], parent: { "$id": string }, lens: Lens<any>) {
+        for (const linkedObj of objectLinks) {
+            const quad = this._rdfDataFactory.quad(
+                this._rdfDataFactory.namedNode(linkedObj.subjectIri ?? parent["$id"]),
+                this._rdfDataFactory.namedNode(linkedObj.predicateIri),
+                this._rdfDataFactory.namedNode(linkedObj.objectIri)
+            );
+            lens.insertData(quad);
+        }
+    }
+
+    private async createNestedObjects(toCreate: object, schema: object): Promise<ParentChildLink[]> {
+
+        const parentLinks: ParentChildLink[] = [];
+
+        for (const [key, value] of Object.entries(schema || {})) {
+            if ((typeof value === "string") || !value["@schema"]) {
+                // current property does not refer to an object
+                continue;
+            }
+
+            const nestedSchema = value["@schema"];
+            const nestedValue = toCreate[key];
+
+            if (!nestedValue) {
+                continue;
+            }
+
+            const nestedItems = Array.isArray(nestedValue)
+                ? nestedValue
+                : [nestedValue];
+
+            for (const nestedItem of nestedItems) {
+                const nestedCreate = await this.executeCreate(nestedItem, nestedSchema);
+                const updatedChildIri: string = nestedCreate.instance?.raw ?? "";
+                nestedItem["$id"] = updatedChildIri;
+                parentLinks.push({
+                    subjectIri: toCreate["id"], // parent instance identifier
+                    predicateIri: value["@id"], // relationship identifier
+                    objectIri: updatedChildIri, // nested instance identifier
+                });
+            }
+        }
+
+        return parentLinks;
     }
 }

@@ -38,7 +38,6 @@ import { <%= it.instance_capability_options %> } from <%~ it.instance_capability
         return "<></>";
     }
 %>
-
 type ListTableProps = {
     aggregateName: string
 }
@@ -56,14 +55,14 @@ const <%= it.presentation_layer_component_name %>: React.FC<ListTableProps> = ({
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const { handleCollectionCapabilityRedirect } = <%= it.navigation_hook %>();
 
-    const stringify = (objectKey) => {
+    const stringify = (objectKey: any) => {
         return typeof objectKey == "object"
             ? Object
-                .keys(objectKey)
+                .keys(objectKey ?? {})
                 .filter(key => !["$id", "$type"].includes(key))
                 .map(k => stringify(objectKey[k]))
                 .join(" | ")
-            : objectKey.toString();
+            : objectKey.toString() ?? "";
     }
 
     useEffect(() => {
@@ -144,10 +143,10 @@ const <%= it.presentation_layer_component_name %>: React.FC<ListTableProps> = ({
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                     >
                                         <TableCell align="left">
-                                            {idx + 1}
+                                            { (currentPage * rowsPerPage) + idx + 1 }
                                         </TableCell><% for (let index = 0; index < propertyNames.length; index++) { %><% const propertyName = propertyNames[index];%><% if (propertyName === "id" || propertyName === "type") continue; %>
                                         <TableCell key={<%= index %>} align="left" sx={{ maxWidth: window.innerWidth / <%= propertyNames.length - excludedNames.length %> }}>
-                                            {stringify(instance["<%= propertyName %>"])}
+                                            { stringify(instance["<%= propertyName %>"]) }
                                         </TableCell><% } %><% if (hasTransitions) { %>
                                         <TableCell>
                                             <<%= it.instance_capability_options %> instanceId={instance["$id"]} />

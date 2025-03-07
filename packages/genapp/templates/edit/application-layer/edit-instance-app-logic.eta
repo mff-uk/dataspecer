@@ -5,7 +5,7 @@ import { <%= it.generated_capability_class %>, <%= it.return_type %> } from <%~ 
 export class <%= it.exported_object_name %> implements <%= it.generated_capability_class %><<%= it.return_type %>> {
     name = "update";
 
-    async runCapability<T>(updatedInstance: T): Promise<<%= it.return_type %>> {
+    async runCapability(updatedInstance: any): Promise<<%= it.return_type %>> {
 
         const editor: <%= it.editor_interface_type %> = new <%= it.instance_editor_type %>();
         const instanceResult: <%= it.return_type %> = await editor.updateInstance(updatedInstance);

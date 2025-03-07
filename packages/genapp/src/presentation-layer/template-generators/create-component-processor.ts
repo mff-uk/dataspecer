@@ -5,6 +5,7 @@ import { ApplicationGraphEdgeType } from "../../engine/graph";
 import { AllowedTransition } from "../../engine/transitions/transitions-generator";
 import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
 import { AggregateMetadata } from "../../application-config";
+import { DataJsonSchemaTemplateProcessor } from "./data-schema-processor";
 
 /**
  * Interface representing the template model for rendering a React component used for create capability.
@@ -19,11 +20,12 @@ interface CreateInstanceReactComponentTemplate extends TemplateModel {
         exported_object_name: string;
         create_capability_app_layer: string,
         create_capability_app_layer_path: ImportRelativePath,
-        json_schema: string,
+        json_schema_name: string,
+        json_schema_path: ImportRelativePath,
         navigation_hook: string,
         navigation_hook_path: ImportRelativePath,
         redirects: AllowedTransition[];
-        uiSchema: string
+        ui_schema: string
     };
 }
 
@@ -62,8 +64,9 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
             suffix: "Instance"
         });
 
-        const dataSchemaInterface = this.restoreAggregateDataModelInterface(dependencies.aggregate);
-        const uiSchema = this.generateUISchema(dataSchemaInterface);
+        const dataSchemaProcessor = new DataJsonSchemaTemplateProcessor(`../schemas/${dependencies.aggregate.getAggregateNamePascalCase()}DataSchema.ts`)
+        const dataSchema = await dataSchemaProcessor.processTemplate(dependencies);
+        const uiSchema = dataSchemaProcessor.generateUISchema(dependencies.aggregate);
 
         const redirectTransitions = dependencies.transitions.groupByTransitionType()[ApplicationGraphEdgeType.Redirection.toString()]!;
 
@@ -86,8 +89,12 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
                     to: useNavigationHook.filePath
                 },
                 redirects: redirectTransitions,
-                json_schema: JSON.stringify(dataSchemaInterface, null, 2),
-                uiSchema: JSON.stringify(uiSchema, null, 2)
+                json_schema_name: dataSchema.exportedObjectName,
+                json_schema_path: {
+                    from: this._filePath,
+                    to: dataSchema.filePath
+                },
+                ui_schema: JSON.stringify(uiSchema, null, 2)
             }
         }
 
@@ -97,7 +104,7 @@ export class CreateInstanceComponentTemplateProcessor extends PresentationLayerT
             filePath: this._filePath,
             exportedObjectName: createExportedName,
             sourceText: instanceDetailComponentRender,
-            dependencies: [dependencies.appLogicArtifact]
+            dependencies: [dependencies.appLogicArtifact, dataSchema]
         }
 
         return presentationLayerArtifact;

@@ -5,7 +5,7 @@ import { <%= it.generated_capability_class %>, <%= it.return_type %> } from <%~ 
 export class <%= it.detail_app_layer_exported_name %> implements <%= it.generated_capability_class %><<%= it.return_type %>> {
     name = "detail";
 
-    runCapability<T>(instanceIri: T): Promise<<%= it.return_type %>> {
+    runCapability(instanceIri: any): Promise<<%= it.return_type %>> {
 
         const reader: <%= it.instance_reader_interface %> = new ReaderImplementation();
         const instanceResult: Promise<<%= it.return_type %>> = reader.readInstance(instanceIri as string);

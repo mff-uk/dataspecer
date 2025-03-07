@@ -5,7 +5,7 @@ import { <%= it.generated_capability_class %>, <%= it.return_type %> } from <%~ 
 export class <%= it.exported_object_name %> implements <%= it.generated_capability_class %><<%= it.return_type %>> {
     name = "create";
 
-    async runCapability<T>(newInstance: T): Promise<<%= it.return_type %>> {
+    async runCapability(newInstance: any): Promise<<%= it.return_type %>> {
 
         const creator: <%= it.creator_interface_type %> = new <%= it.instance_creator_type %>();
         const instanceResult: <%= it.return_type %> = await creator.createInstance(newInstance);

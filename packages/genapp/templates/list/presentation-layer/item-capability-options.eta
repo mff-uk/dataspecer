@@ -43,8 +43,6 @@ export const <%= it.export_name %> = ({ instanceId }: { instanceId: string }) =>
         handleInstanceCapabilityRedirect(urlPath, instanceId);
     }
 
-    const ITEM_HEIGHT = 48;
-
     return (
         <>
             <IconButton

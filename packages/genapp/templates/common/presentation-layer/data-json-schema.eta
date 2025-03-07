@@ -1,0 +1,3 @@
+import { RJSFSchema } from "@rjsf/utils";
+
+export const <%= it.schema_name %>: RJSFSchema = <%~ it.json_schema %> as RJSFSchema;

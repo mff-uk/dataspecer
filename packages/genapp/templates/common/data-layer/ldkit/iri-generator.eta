@@ -1,0 +1,19 @@
+import { <%= it.id_generator %> } from <%~ it.id_generator_path %>;
+import { <%= it.uuid_generator %> } from <%~ it.uuid_generator_path %>;
+
+export class IriGenerator {
+
+    private readonly _idGenerator: <%= it.id_generator %>;
+    private readonly _iriPrefix: string;
+
+    constructor(idGenerator?: <%= it.id_generator %>, iriPrefix?: string) {
+        this._idGenerator = idGenerator ?? <%= it.uuid_generator %>.getGenerator();
+        this._iriPrefix = iriPrefix ?? "http://example.com/generated/app";
+    }
+
+    generateIri(): string {
+        var uniqueId = this._idGenerator.generateId();
+
+        return `${this._iriPrefix}/${uniqueId}`;
+    }
+}

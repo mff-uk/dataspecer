@@ -1,10 +1,10 @@
 import { DataFactory } from "ldkit/rdf";
-import { createLens, QueryEngine, Options } from "ldkit";
+import { createLens, QueryEngine, Options, Lens } from "ldkit";
 import { <%= it.instance_result_type %> } from <%~ it.instance_result_type_path %>;
 import { <%= it.ldkit_schema %> } from <%~ it.ldkit_schema_path %>;
 import { <%= it.editor_interface_type %> } from <%~ it.editor_interface_type_path %>;
 import { <%= it.writer_query_engine %> } from <%~ it.writer_query_engine_path %>;
-import { IriGenerator, UUIDGenerator } from "../../../uuid-generator.ts";
+import { <%= it.iri_generator %> } from <%~ it.iri_generator_path %>;
 
 type ParentChildLink = {
     subjectIri: string;
@@ -15,13 +15,13 @@ type ParentChildLink = {
 export class <%= it.exported_object_name %> implements <%= it.editor_interface_type %>  {
 
     private _writerQueryEngine: QueryEngine;
-    private readonly _idGenerator: IriGenerator;
+    private readonly _idGenerator: <%= it.iri_generator %> ;
     private readonly _rdfDataFactory: DataFactory;
 
     constructor() {
         this._rdfDataFactory = new DataFactory();
-        this._writerQueryEngine = new <%= it.writer_query_engine %>>();
-        this._idGenerator = new IriGenerator(UUIDGenerator.getGenerator());
+        this._writerQueryEngine = new <%= it.writer_query_engine %>();
+        this._idGenerator = new <%= it.iri_generator %>();
     }
 
     async updateInstance(formData: object): Promise<<%= it.instance_result_type %>> {
@@ -49,7 +49,7 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
                 : lens.update(toUpdate);
             await promise;
 
-            this.linkChildEntitiesToParent(objectLinks, lens);
+            this.linkChildEntitiesToParent(objectLinks, toUpdate, lens);
 
             const result: <%= it.instance_result_type %> = {
                 instance: {
@@ -91,7 +91,7 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
 
         const transformed = Object.entries(obj)
             .map(([key, value]) => {
-                if (key === "id") {
+                if (["id", "$id"].includes(key)) {
                     return ["$id", value];
                 }
 
@@ -100,7 +100,6 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
                 }
 
                 const nestedSchema = schema[key]["@schema"];
-
                 if (Array.isArray(value)) {
                     if (nestedSchema) {
                         return [key, value.map(item => this.updateLdkitProperties(item, nestedSchema))];
@@ -120,7 +119,7 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
         return Object.fromEntries(transformed);
     }
 
-    private async updateNestedObjects(toUpdate: object, schema: any): Promise<ParentChildLink[]> {
+    private async updateNestedObjects(toUpdate: object, schema: object): Promise<ParentChildLink[]> {
 
         const parentLinks: ParentChildLink[] = [];
 
@@ -144,6 +143,7 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
             for (const nestedItem of nestedItems) {
                 const nestedUpdateResult = await this.executeUpdate(nestedItem, nestedSchema);
                 const updatedChildIri: string = nestedUpdateResult.instance?.raw ?? "";
+                nestedItem["$id"] = updatedChildIri;
                 parentLinks.push({
                     subjectIri: toUpdate["id"], // parent instance identifier
                     predicateIri: value["@id"], // relationship identifier
@@ -155,10 +155,10 @@ export class <%= it.exported_object_name %> implements <%= it.editor_interface_t
         return parentLinks;
     }
 
-    private linkChildEntitiesToParent(objectLinks: ParentChildLink[], lens: Lens<any>) {
+    private linkChildEntitiesToParent(objectLinks: ParentChildLink[], parent: { "$id": string }, lens: Lens<any>) {
         for (const linkedObj of objectLinks) {
             const quad = this._rdfDataFactory.quad(
-                this._rdfDataFactory.namedNode(linkedObj.subjectIri),
+                this._rdfDataFactory.namedNode(linkedObj.subjectIri ?? parent["$id"]),
                 this._rdfDataFactory.namedNode(linkedObj.predicateIri),
                 this._rdfDataFactory.namedNode(linkedObj.objectIri)
             );

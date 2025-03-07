@@ -6,6 +6,7 @@ import { AllowedTransition } from "../../engine/transitions/transitions-generato
 import { UseNavigationHookGenerator } from "../../capabilities/template-generators/capability-interface-generator";
 import { AggregateMetadata } from "../../application-config";
 import { ArtifactCache } from "../../utils/artifact-saver";
+import { DataJsonSchemaTemplateProcessor } from "./data-schema-processor";
 
 /**
  * Interface representing the template model for rendering the React component for edit instance capability.
@@ -22,8 +23,9 @@ interface EditInstanceReactComponentTemplate extends TemplateModel {
         edit_capability_app_layer_path: ImportRelativePath,
         edit_get_detail_app_layer: string,
         edit_get_detail_app_layer_path: ImportRelativePath,
-        json_schema: string,
-        uiSchema: string,
+        json_schema_name: string,
+        json_schema_path: ImportRelativePath,
+        ui_schema: string,
         navigation_hook: string,
         navigation_hook_path: ImportRelativePath,
         redirects: AllowedTransition[];
@@ -87,8 +89,9 @@ export class EditInstanceComponentTemplateProcessor extends PresentationLayerTem
 
         const [getDetailName, getDetailPath] = this.readInstanceDetail(dependencies.aggregate);
 
-        const dataSchemaInterface = this.restoreAggregateDataModelInterface(dependencies.aggregate);
-        const uiSchema = this.generateUISchema(dataSchemaInterface);
+        const dataSchemaProcessor = new DataJsonSchemaTemplateProcessor(`../schemas/${dependencies.aggregate.getAggregateNamePascalCase()}DataSchema.ts`)
+        const dataSchema = await dataSchemaProcessor.processTemplate(dependencies);
+        const uiSchema = dataSchemaProcessor.generateUISchema(dependencies.aggregate);
 
         const redirectTransitions = dependencies.transitions.groupByTransitionType()[ApplicationGraphEdgeType.Redirection.toString()]!;
 
@@ -119,8 +122,12 @@ export class EditInstanceComponentTemplateProcessor extends PresentationLayerTem
                     to: useNavigationHook.filePath
                 },
                 redirects: redirectTransitions,
-                json_schema: JSON.stringify(dataSchemaInterface, null, 2),
-                uiSchema: JSON.stringify(uiSchema, null, 2)
+                json_schema_name: dataSchema.exportedObjectName,
+                json_schema_path: {
+                    from: this._filePath,
+                    to: dataSchema.filePath
+                },
+                ui_schema: JSON.stringify(uiSchema, null, 2)
             }
         }
 
