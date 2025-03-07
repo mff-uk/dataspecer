@@ -513,7 +513,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
       throw new Error("Adding entities is not allowed to this application profile.");
     }
 
-    const startEndId = entity.aggregatedEntity.ends[0].concept;
+    const startEndId = entity.aggregatedEntity.ends[direction ? 0 : 1].concept;
     // @ts-ignore - we need to find correct entity with external entity info
     const startEnd = sourceSemanticModel.find(e => e.aggregatedEntity.id === startEndId && e.viaExternalEntity) as ExternalEntityWrapped<SemanticModelClass>;
     // @ts-ignore
