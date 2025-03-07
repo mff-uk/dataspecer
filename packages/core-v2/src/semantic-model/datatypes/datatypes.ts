@@ -29,4 +29,5 @@ export const DataTypeURIs = [
     ...RdfTypeURIs,
     ...RdfsTypeURIs,
     // other data types
+    "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/text",
 ];
