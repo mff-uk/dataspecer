@@ -295,18 +295,23 @@ function structureModelPrimitiveToJsonDefinition(
       result = new JsonSchemaBoolean();
       result.title = context.stringSelector(OFN_LABELS[OFN.boolean]);
       break;
+case XSD.time:
     case OFN.time:
       result = new JsonSchemaString(JsonSchemaStringFormats.time);
       result.title = context.stringSelector(OFN_LABELS[OFN.time]);
       break;
+case XSD.date:
     case OFN.date:
       result = new JsonSchemaString(JsonSchemaStringFormats.date);
       result.title = context.stringSelector(OFN_LABELS[OFN.date]);
       break;
+case XSD.dateTimeStamp:
+    case XSD.dateTime:
     case OFN.dateTime:
       result = new JsonSchemaString(JsonSchemaStringFormats.dateTime);
       result.title = context.stringSelector(OFN_LABELS[OFN.dateTime]);
       break;
+case XSD.anyURI:
     case OFN.url:
       result = new JsonSchemaString(JsonSchemaStringFormats.iri);
       result.title = context.stringSelector(OFN_LABELS[OFN.url]);
