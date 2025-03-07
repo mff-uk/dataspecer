@@ -1,6 +1,8 @@
 // TODO: Actually I don't really like the union here (we have to convert the string value back to the enum value, if we want to use Enum somewhere)
 
-import { EdgeEndPoint } from "../graph-iface";
+import { XY } from "..";
+import { EdgeEndPoint, IVisualNodeComplete } from "../graph-iface";
+import { EdgeCrossingMetric } from "../graph-metrics/implemented-metrics/edge-crossing";
 
 export function getTopLeftPosition(
   nodes: EdgeEndPoint[]
@@ -39,6 +41,99 @@ export function getBotRightPosition(
 
   return botRight;
 };
+
+
+// TODO RadStr: Copy-pasted from visual model - maybe since I import this package anyways - it could be defined only here
+//               .... It actually isn't exact copy-paste, but almost
+function findRectangleLineIntersection(
+  source: XY,
+  rectangle: { width: number, height: number },
+  target: XY,
+): XY {
+  // We need half of the rectangle sizes.
+  const width = rectangle.width / 2;
+  const height = rectangle.height / 2;
+
+  // Calculate the rectangle edges.
+  const left = source.x - width;
+  const right = source.x + width;
+  const top = source.y - height;
+  const bottom = source.y + height;
+
+  // Calculate direction vector.
+  const direction = { x: target.x - source.x, y: target.y - source.y };
+  if (Math.abs(direction.x) < width && Math.abs(direction.y) < height) {
+    // The point is in the rectangle, we just return the center.
+    return source;
+  }
+
+  // We may have collision on right, left, top, bottom.
+  // We use rectangle sides instead of center thus is the line
+  // is horizontal or vertical we get no collision candidates.
+  let horizontal: number | null = null;
+  if (right > target.x) {
+    // Leaving rectangle to the right.
+    horizontal = - width / direction.x;
+  } else if (left < target.x) {
+    // Leaving rectangle to the left.
+    horizontal = width / direction.x;
+  }
+  let vertical: number | null = null;
+  if (top > target.y) {
+    // Leaving rectangle to the top.
+    vertical = - height / direction.y;
+  } else if (bottom < target.y) {
+    // Leaving rectangle to the bottom.
+    vertical = height / direction.y;
+  }
+  // Now we have horizontal and vertical step toward collision
+  // with a side. As the collision can be outside of the rectangle,
+  // we need to use the minimum value which is not null.
+  if (horizontal === null && vertical === null) {
+    // This an happen where we are inside of the source rectangle.
+    return { x: source.x, y: source.y };
+  }
+  if (horizontal !== null && vertical !== null) {
+    // We have both values, we choose the smaller value.
+    if (Math.abs(horizontal) < Math.abs(vertical)) {
+      return add(source, multiply(direction, horizontal));
+    } else {
+      return add(source, multiply(direction, vertical));
+    }
+  }
+  // Know only one is not null.
+  if (horizontal !== null) {
+    return add(source, multiply(direction, horizontal));
+  } else {
+    return add(source, multiply(direction, vertical!));
+  }
+}
+
+function multiply(point: XY, value: number): XY {
+  return { x: point.x * value, y: point.y * value };
+}
+
+function add(left: XY, right: XY): XY {
+  return { x: left.x + right.x, y: left.y + right.y };
+}
+
+export function findLineCenter(source: XY, target: XY): XY {
+  const xOffset = Math.abs(target.x - source.x) / 2;
+  const x = target.x < source.x ? target.x + xOffset : target.x - xOffset;
+
+  const yOffset = Math.abs(target.y - source.y) / 2;
+  const y = target.y < source.y ? target.y + yOffset : target.y - yOffset;
+
+  return { x, y };
+}
+
+export function findNodeBorder(node: IVisualNodeComplete, next: XY): XY {
+  const center = EdgeCrossingMetric.getMiddle(node);
+  const rectangle = { width: node.width + 4, height: node.height + 4 };
+  return findRectangleLineIntersection(center, rectangle, next);
+}
+// TODO RadStr: End of the "copy-paste"
+
 
 // TODO: So maybe just do the classic ... type Direction = "Up" | "Right" | "Down" | "Left";
 export enum Direction {

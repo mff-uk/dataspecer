@@ -1,25 +1,25 @@
 import { Position } from "@dataspecer/core-v2/visual-model";
 import { GraphClassic, IGraphClassic, IVisualNodeComplete } from "../../graph-iface";
 import { AllMetricData, Metric } from "../graph-metrics-iface";
+import { findNodeBorder } from "../../util/utils";
+import { XY } from "../..";
 
 export class EdgeCrossingMetric implements Metric {
     computeMetric(graph: IGraphClassic): number {
         let edgeCrossingCount: number = 0;
-        Object.values(graph.nodes).forEach(n => {
-            for(let outN of n.getAllOutgoingEdges()) {
-                Object.values(graph.nodes).forEach(nn => {
-                    if(n === nn) {
+        Object.values(graph.nodes).forEach(sourceNode1 => {
+            for(let edge1 of sourceNode1.getAllOutgoingEdges()) {
+                Object.values(graph.nodes).forEach(sourceNode2 => {
+                    if(sourceNode1 === sourceNode2) {
                         return;
                     }
-                    for(let outNN of nn.getAllOutgoingEdges()) {
-                        // TODO: Have to fix, but currently we set only the positions of the entities which are part of the visual model and not the dummy ones
-                        //       (for example generalization subgraphs)
-                        if(n.completeVisualNode === undefined || nn.completeVisualNode === undefined) {
+                    for(let edge2 of sourceNode2.getAllOutgoingEdges()) {
+                        if(edge1.start === edge2.end && edge1.end === edge2.start) {        // Comparing A -> B and B -> A
                             continue;
                         }
 
-                        edgeCrossingCount += EdgeCrossingMetric.isEdgeCrossForStraightLines(n.completeVisualNode, outN.end.completeVisualNode,
-                                                                                            nn.completeVisualNode, outNN.end.completeVisualNode);
+                        edgeCrossingCount += EdgeCrossingMetric.isEdgeCrossForStraightLines(edge1.start.completeVisualNode, edge1.end.completeVisualNode,
+                                                                                            edge2.start.completeVisualNode, edge2.end.completeVisualNode);
                     }
                 }
                 )
@@ -35,10 +35,10 @@ export class EdgeCrossingMetric implements Metric {
      */
     public static isEdgeCrossForStraightLines(source1: IVisualNodeComplete, target1: IVisualNodeComplete,
                                               source2: IVisualNodeComplete, target2: IVisualNodeComplete): 0 | 1 {
-        const a = EdgeCrossingMetric.getMiddle(source1);
-        const b = EdgeCrossingMetric.getMiddle(target1);
-        const c = EdgeCrossingMetric.getMiddle(source2);
-        const d = EdgeCrossingMetric.getMiddle(target2);
+        const a = findNodeBorder(source1, EdgeCrossingMetric.getMiddle(target1));
+        const b = findNodeBorder(target1, EdgeCrossingMetric.getMiddle(source1));
+        const c = findNodeBorder(source2, EdgeCrossingMetric.getMiddle(target2));
+        const d = findNodeBorder(target2, EdgeCrossingMetric.getMiddle(source2));
         return EdgeCrossingMetric.isCounterClockwise(a, c, d) != EdgeCrossingMetric.isCounterClockwise(b, c, d) &&
                 EdgeCrossingMetric.isCounterClockwise(a, b, c) != EdgeCrossingMetric.isCounterClockwise(a, b, d) ? 1 : 0;
     }
@@ -51,7 +51,7 @@ export class EdgeCrossingMetric implements Metric {
         };
     }
 
-    public static isCounterClockwise(a: Position, b: Position, c: Position): boolean {
+    public static isCounterClockwise(a: Position | XY, b: Position | XY, c: Position | XY): boolean {
         return (c.y-a.y)*(b.x-a.x) > (b.y-a.y)*(c.x-a.x);
     }
 
