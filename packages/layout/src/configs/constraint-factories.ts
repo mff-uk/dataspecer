@@ -73,16 +73,8 @@ class AlgorithmConstraintFactory {
                 throw new Error("Implementation error You forgot to extend the AlgorithmConstraintFactory factory for new algorithm");
         }
 
-        if(userGivenAlgorithmConfiguration.run_layered_after) {
-            const configLayeredAfter = getDefaultUserGivenConstraintsVersion4();
-            configLayeredAfter.chosenMainAlgorithm = "elk_layered";
-            configLayeredAfter.main.elk_layered.interactive = true;
-            configLayeredAfter.main.elk_layered.constraintedNodes = userGivenAlgorithmConfiguration.constraintedNodes;
-            this.addAlgorithmConfiguration(configLayeredAfter.main.elk_layered, layoutActions, false);
-        }
-
-        if(userGivenAlgorithmConfiguration.layout_alg !== "elk_layered" && 
-           userGivenAlgorithmConfiguration.layout_alg !== "elk_overlapRemoval") {
+        if(userGivenAlgorithmConfiguration.layout_alg !== "elk_layered" &&
+            userGivenAlgorithmConfiguration.layout_alg !== "elk_overlapRemoval") {
             const overlapConfiguration: UserGivenAlgorithmConfiguration = {
                 layout_alg: "elk_overlapRemoval",
                 interactive: true,
@@ -101,6 +93,14 @@ class AlgorithmConstraintFactory {
             }
 
             layoutActions.push(new ElkSporeOverlapConfiguration(overlapConfiguration, true));
+        }
+
+        if(userGivenAlgorithmConfiguration.run_layered_after) {
+            const configLayeredAfter = getDefaultUserGivenConstraintsVersion4();
+            configLayeredAfter.chosenMainAlgorithm = "elk_layered";
+            configLayeredAfter.main.elk_layered.interactive = true;
+            configLayeredAfter.main.elk_layered.constraintedNodes = userGivenAlgorithmConfiguration.constraintedNodes;
+            this.addAlgorithmConfiguration(configLayeredAfter.main.elk_layered, layoutActions, false);
         }
     }
 
