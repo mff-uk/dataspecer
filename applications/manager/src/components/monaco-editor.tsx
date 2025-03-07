@@ -26,10 +26,9 @@ export const MonacoEditor: FC<{
 }> = (props) => {
   const { resolvedTheme } = useTheme();
 
-  return <div className="flex flex-col grow min-h-[12cm]">
+  return <div className="flex flex-col grow">
       <RawMonacoEditor
           onMount={editor => props.refs.current = {editor}}
-          className="min-h-[12cm]"
           theme={resolvedTheme === "dark" ? "dataspecer-dark" : "vs"}
           language={props.language}
           defaultValue={props.defaultValue}
