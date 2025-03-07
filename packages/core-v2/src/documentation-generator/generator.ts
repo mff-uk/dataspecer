@@ -20,6 +20,21 @@ function normalizeLabel(label: string) {
   return label.replace(/ /g, "-");
 }
 
+function getLastChunkFromIri(iri: string | null | undefined): string | null {
+  if (!iri) {
+    return null;
+  }
+
+  const last = Math.max(iri.lastIndexOf("#"), iri.lastIndexOf("/"));
+  if (last === -1) {
+    return iri;
+  }
+  if (last + 1 === iri.length) {
+    return null;
+  }
+  return iri.substring(last + 1);
+}
+
 interface ModelDescription {
   isPrimary: boolean;
   documentationUrl: string | null;
@@ -287,17 +302,17 @@ export async function generateDocumentation(
     if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipProfile(entity)) {
       // @ts-ignore
       const {ok, translation} = getTranslation(entity.aggregation.ends[1].name, [configuration.language]);
-      if (ok) {
-        return normalizeLabel(translation);
-      }
+      const normalizedTranslation = ok ? normalizeLabel(translation) : null;
+
+      return getLastChunkFromIri(entity.ends[1]?.iri) || normalizedTranslation || entity.id;
     }
 
     if (isSemanticModelClass(entity) || isSemanticModelClassProfile(entity)) {
       // @ts-ignore
       const {ok, translation} = getTranslation(entity.aggregation.name, [configuration.language]);
-      if (ok) {
-        return normalizeLabel(translation);
-      }
+      const normalizedTranslation = ok ? normalizeLabel(translation) : null;
+
+      return getLastChunkFromIri(entity.iri) || normalizedTranslation || entity.id;
     }
 
     // Fallback
