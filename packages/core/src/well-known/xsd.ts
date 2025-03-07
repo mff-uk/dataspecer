@@ -8,5 +8,6 @@ export const XSD = {
   date: XSD_PREFIX + "date",
   time: XSD_PREFIX + "time",
   dateTimeStamp: XSD_PREFIX + "dateTimeStamp",
+  dateTime: XSD_PREFIX + "dateTime",
   anyURI: XSD_PREFIX + "anyURI",
 };
