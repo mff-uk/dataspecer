@@ -6,6 +6,7 @@ import {StructureModel, StructureModelClass, StructureModelComplexType, Structur
 // @ts-ignore
 import { Entity } from "@dataspecer/core-v2";
 import { DataPsmXmlPropertyExtension } from "../../data-psm/xml-extension/model";
+import { DataPsmJsonPropertyExtension } from "../../data-psm/json-extension/model";
 
 /**
  * Adapter that converts given schema from PIM and Data PSM models to Structure
@@ -314,6 +315,11 @@ class StructureModelAdapter {
 
     const type = new StructureModelPrimitiveType();
     type.dataType = attributeData.dataPsmDatatype;
+
+    // JSON specific
+    const jsonData = DataPsmJsonPropertyExtension.getExtensionData(attributeData);
+    type.jsonUseKeyValueForLangString = jsonData.useKeyValueForLangString;
+
     model.dataTypes.push(type);
 
     return model;

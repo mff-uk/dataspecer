@@ -46,6 +46,9 @@
   "IRI": "IRI",
   "iri parameters help": "Class instances (data) can be identified by their specific IRI. For example, Prague, as a city instance, can have its IRI http://example.com/Praha. This option sets whether such an identifier is required in the data, which affects the validation of the data and its representation in RDF, for example, where resources without IRIs appear as blank nodes.",
   "is codelist": "is codelist",
+  "json": {
+    "use key value for lang string": "Use key-value object for strings in different languages for JSON."
+  },
   "label max": "max",
   "label min": "min",
   "label regex for iri": "Regular expression of IRI",
@@ -98,7 +101,7 @@
   "title data type": "Data type",
   "title schema": "Schema",
   "title to class": "To class",
-    "title xml attribute": "XML attribute",
+  "title xml attribute": "XML attribute",
   "wikidata": {
     "error": "No detail available."
   },

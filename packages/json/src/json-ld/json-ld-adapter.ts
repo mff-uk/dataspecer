@@ -76,7 +76,7 @@ export class JsonLdAdapter {
     if (firstDataType.isAttribute()) {
       contextData["@id"] = property.cimIri;
 
-      if (firstDataType.dataType === OFN.text) {
+      if (firstDataType.dataType === OFN.text || (firstDataType.dataType === OFN.rdfLangString && firstDataType.jsonUseKeyValueForLangString)) {
         contextData["@container"] = "@language";
       } else {
         const qName = simpleTypeMapQName[firstDataType.dataType];

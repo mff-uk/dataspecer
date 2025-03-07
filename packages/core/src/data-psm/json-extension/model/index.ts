@@ -1,0 +1,1 @@
+export * from "./data-psm-property-extension";

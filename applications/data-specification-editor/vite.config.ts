@@ -56,6 +56,8 @@ export default defineConfig(({ command, mode }) => {
         "@dataspecer/core/core/utilities/deep-partial",
         "@dataspecer/core/data-psm/data-psm-executors",
         "@dataspecer/core/data-psm/data-psm-vocabulary",
+        "@dataspecer/core/data-psm/json-extension/model/index",
+        "@dataspecer/core/data-psm/json-extension/operation/index",
         "@dataspecer/core/data-psm/model",
         "@dataspecer/core/data-psm/model/data-psm-association-end",
         "@dataspecer/core/data-psm/model/data-psm-attribute",
