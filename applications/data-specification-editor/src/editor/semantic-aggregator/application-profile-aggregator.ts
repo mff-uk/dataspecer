@@ -76,11 +76,13 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
    */
   private canAddEntities: boolean = false;
   private canModify: boolean = false;
+  private allowOnlyProfiledEntities: boolean = false;
 
-  constructor(profile: InMemorySemanticModel, source: SemanticModelAggregator, profileEntityAggregator?: ProfileAggregator) {
+  constructor(profile: InMemorySemanticModel, source: SemanticModelAggregator, allowOnlyProfiledEntities: boolean = false, profileEntityAggregator?: ProfileAggregator) {
     this.profile = profile;
     this.source = source;
     this.profileEntityAggregator = profileEntityAggregator ?? createDefaultProfileEntityAggregator();
+    this.allowOnlyProfiledEntities = allowOnlyProfiledEntities;
 
     this.updateSourceEntities(source.getAggregatedEntities());
     source.subscribeToChanges((updated, removed) => {
@@ -195,23 +197,28 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
           toUpdate.push(...this.dependsOn.getBySecond(entity.id));
           updated[entity.id] = this.entities[entity.id];
         } else if (isSemanticModelClass(entity)) {
-          this.entities[entity.id] = {
-            aggregatedEntity: entity,
-            vocabularyChain: [],
-            isReadOnly: true,
-          };
-          this.dependsOn.deleteFirst(entity.id); // class is independent
-          toUpdate.push(...this.dependsOn.getBySecond(entity.id));
-          updated[entity.id] = this.entities[entity.id];
-        } else if (isSemanticModelRelationship(entity)) {
-          this.entities[entity.id] = {
-            aggregatedEntity: entity,
-            vocabularyChain: [],
-            isReadOnly: true,
+          if (!this.allowOnlyProfiledEntities) {
+            // ! We do not allow not profiled classes and relationships in the final result
+            this.entities[entity.id] = {
+              aggregatedEntity: entity,
+              vocabularyChain: [],
+              isReadOnly: true,
+            };
+            this.dependsOn.deleteFirst(entity.id); // class is independent
+            updated[entity.id] = this.entities[entity.id];
           }
-          this.dependsOn.deleteFirst(entity.id); // relationship is profile-independent
           toUpdate.push(...this.dependsOn.getBySecond(entity.id));
-          updated[entity.id] = this.entities[entity.id];
+        } else if (isSemanticModelRelationship(entity)) {
+          if (!this.allowOnlyProfiledEntities) {
+            this.entities[entity.id] = {
+              aggregatedEntity: entity,
+              vocabularyChain: [],
+              isReadOnly: true,
+            }
+            this.dependsOn.deleteFirst(entity.id); // relationship is profile-independent
+            updated[entity.id] = this.entities[entity.id];
+          }
+          toUpdate.push(...this.dependsOn.getBySecond(entity.id));
         } else if (isSemanticModelGeneralization(entity)) {
           this.entities[entity.id] = {
             aggregatedEntity: entity,

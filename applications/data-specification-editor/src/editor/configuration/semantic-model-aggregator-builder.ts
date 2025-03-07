@@ -126,7 +126,7 @@ export class SemanticModelAggregatorBuilder {
       const model = this.knownModels[profileConfig.model as string];
       this.usedModels.add(model);
       const profiles = await this.buildRecursive(profileConfig.profiles);
-      const aggregator = new ApplicationProfileAggregator(model, profiles).setCanAddEntities(profileConfig.canAddEntities ?? true).setCanModify(profileConfig.canModify ?? true);
+      const aggregator = new ApplicationProfileAggregator(model, profiles, true).setCanAddEntities(profileConfig.canAddEntities ?? true).setCanModify(profileConfig.canModify ?? true);
       aggregator.thisVocabularyChain["color"] = this.modelData[profileConfig.model as string]?.color;
       return aggregator;
     } else if (configuration.modelType === "merge") {
