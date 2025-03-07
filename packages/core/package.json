@@ -10,6 +10,7 @@
     "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests"
   },
   "exports": {
+    ".": "./lib/conceptual-model/index.js",
     "./cim/README.md": "./lib/cim/README.md",
     "./cim/README.md.js": "./lib/cim/README.md",
     "./cim/cim-adapter": "./lib/cim/cim-adapter.js",
