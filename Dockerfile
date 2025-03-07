@@ -41,8 +41,7 @@ RUN cd services/backend \
   && bunx prisma generate \
   && cp main.config.sample.js main.config.js \
   && bunx tsc --noEmit \
-  && bun build --target=bun --outdir=dist --minify src/main.ts
-  # --sourcemap=linked
+  && bun build --target=bun --outdir=dist --sourcemap=linked src/main.ts
 
 # Move backend
 RUN mv /usr/src/app/services/backend/dist/* /usr/src/final/dist/
