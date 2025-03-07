@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 
 import type { DiagramCallbacks, DiagramActions } from "./diagram-api";
+import { AlignmentHorizontalPosition, AlignmentVerticalPosition } from "../action/align-nodes";
 
 export interface UseDiagramType {
 
@@ -107,6 +108,7 @@ const noOperationDiagramActions: DiagramActions = {
   renderToSvgString: noOperationNullAsync,
   openDragEdgeToCanvasMenu: noOperation,
   openSelectionActionsMenu: noOperation,
+  openAlignmentMenu: noOperation,
   openGroupMenu: noOperation,
   highlightNodeInExplorationModeFromCatalog: noOperation,
 };
@@ -131,7 +133,8 @@ const noOperationCallbacks: DiagramCallbacks = {
   onCreateConnectionToNode: noOperation,
   onCreateConnectionToNothing: noOperation,
   onToggleAnchorForNode: noOperation,
-  onShowSelectionActionsMenu: noOperation,
+  onOpenSelectionActionsMenu: noOperation,
+  onOpenAlignmentMenu: noOperation,
   onLayoutSelection: noOperation,
   onCreateGroup: noOperation,
   onDissolveGroup: noOperation,
@@ -149,4 +152,6 @@ const noOperationCallbacks: DiagramCallbacks = {
   onEditAttributeProfile: noOperation,
   onMoveAttributeUp: noOperation,
   onMoveAttributeDown: noOperation,
+  onAlignSelectionHorizontally: noOperation,
+  onAlignSelectionVertically: noOperation,
 };

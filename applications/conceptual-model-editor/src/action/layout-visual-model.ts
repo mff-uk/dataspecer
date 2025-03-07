@@ -1,5 +1,5 @@
-import { VisualNode, WritableVisualModel, isVisualNode } from "@dataspecer/core-v2/visual-model";
-import { AnchorOverrideSetting, ExplicitAnchors, INodeClassic, LayoutedVisualEntities, NodeDimensionQueryHandler, ReactflowDimensionsEstimator, UserGivenAlgorithmConfigurationStress, UserGivenConstraintsVersion4, VisualModelWithOutsiders, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4, performLayoutOfVisualModel } from "@dataspecer/layout";
+import { VisualNode, WritableVisualModel, isVisualNode, isVisualProfileRelationship, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
+import { AnchorOverrideSetting, ExplicitAnchors, INodeClassic, LayoutedVisualEntities, NodeDimensionQueryHandler, ReactflowDimensionsEstimator, UserGivenAlgorithmConfigurationStress, UserGivenConstraintsVersion4, VisualModelWithOutsiders, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4, performLayout, performLayoutOfVisualModel } from "@dataspecer/layout";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
@@ -10,6 +10,97 @@ import { isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/us
 import { addSemanticClassToVisualModelAction } from "./add-class-to-visual-model";
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
 import { computeRelatedAssociationsBarycenterAction } from "./utilities";
+
+// TODO RadStr: Document and put into separate file
+export function layouGivenVisualEntitiesAdvancedAction(
+  notifications: UseNotificationServiceWriterType,
+  classes: ClassesContextType,
+  diagram: UseDiagramType,
+  graph: ModelGraphContextType,
+  visualModel: WritableVisualModel,
+  configuration: UserGivenConstraintsVersion4,
+  visualEntitiesToLayout: string[],
+  explicitAnchors?: ExplicitAnchors,
+  shouldUpdatePositionsInVisualModel?: boolean,
+  outsiders?: Record<string, XY | null>,
+  shouldPutOutsidersInVisualModel?: boolean,
+) {
+  const models = graph.models;
+
+  const reactflowDimensionQueryHandler = createExactNodeDimensionsQueryHandler(diagram, graph, notifications);
+
+  outsiders = outsiders ?? {};
+
+  const entitiesToLayout = {
+    visualEntities: visualEntitiesToLayout,
+    outsiders
+  }
+
+  return performLayout(
+    visualModel, models, entitiesToLayout, configuration,
+    reactflowDimensionQueryHandler, explicitAnchors
+  ).then(layoutResult => {
+    const topLeftLayouted = findTopLeft(layoutResult);
+    const view = diagram.actions().getViewport();
+    const shiftX = topLeftLayouted.x - (view.position.x + Math.trunc(view.width / 4));
+    const shiftY = topLeftLayouted.y - (view.position.y + Math.trunc(view.height / 4));
+    for (const layoutedEntity of Object.values(layoutResult)) {
+      if(isVisualNode(layoutedEntity.visualEntity)) {
+        layoutedEntity.visualEntity.position.x -= shiftX;
+        layoutedEntity.visualEntity.position.y -= shiftY;
+      }
+      else if (isVisualRelationship(layoutedEntity.visualEntity) ||
+                isVisualProfileRelationship(layoutedEntity.visualEntity)) {
+        layoutedEntity.visualEntity.waypoints.forEach(waypoint => {
+          waypoint.x -= shiftX;
+          waypoint.y -= shiftY;
+        });
+      }
+    }
+    processLayoutResult(
+      notifications, classes, diagram, graph, visualModel,
+      shouldUpdatePositionsInVisualModel ?? true, shouldPutOutsidersInVisualModel ?? false, layoutResult);
+    return layoutResult;
+  }).catch((e) => {
+    console.warn(e);
+    return Promise.resolve();
+  });
+}
+
+export function layouGivenVisualEntitiesAction(
+  notifications: UseNotificationServiceWriterType,
+  classes: ClassesContextType,
+  diagram: UseDiagramType,
+  graph: ModelGraphContextType,
+  visualModel: WritableVisualModel,
+  configuration: UserGivenConstraintsVersion4,
+  visualEntitiesToLayout: string[],
+  explicitAnchors?: ExplicitAnchors,
+) {
+  return layouGivenVisualEntitiesAdvancedAction(
+    notifications, classes, diagram, graph, visualModel, configuration,
+    visualEntitiesToLayout, explicitAnchors, true, {}, false);
+}
+
+function findTopLeft(
+  layoutResult: LayoutedVisualEntities
+): XY {
+  let topLeftX = 10000000;
+  let topLeftY = 10000000;
+
+  for (const layoutedEntity of Object.values(layoutResult)) {
+    if(isVisualNode(layoutedEntity.visualEntity)) {
+      topLeftX = Math.min(topLeftX, layoutedEntity.visualEntity.position.x);
+      topLeftY = Math.min(topLeftY, layoutedEntity.visualEntity.position.y);
+    }
+  }
+
+  return {
+    x: topLeftX,
+    y: topLeftY,
+  };
+}
+
 
 /**
  * @param configuration The configuration for layouting algorithm.
@@ -42,11 +133,8 @@ export function layoutActiveVisualModelAdvancedAction(
   };
 
   return performLayoutOfVisualModel(
-    activeVisualModelWithOutsiders,
-    models,
-    configuration,
-    reactflowDimensionQueryHandler,
-    explicitAnchors
+    activeVisualModelWithOutsiders, models, configuration,
+    reactflowDimensionQueryHandler, explicitAnchors
   ).then(layoutResult => {
     processLayoutResult(notifications, classes, diagram, graph, visualModel,
       shouldUpdatePositionsInVisualModel ?? true, shouldPutOutsidersInVisualModel ?? false, layoutResult);
@@ -160,18 +248,27 @@ export function createExactNodeDimensionsQueryHandler(
   }
 
   const getWidth = (node: INodeClassic) => {
-    const visualNodeIdentifier = activeVisualModel.getVisualEntityForRepresented(node.id)?.identifier ?? "";
-    // The question is what does it mean if the node isn't in editor? Same for height
-    // Actually it is not error,
-    // it can be valid state when we are layouting elements which are not yet part of visual model
-    const width = diagram.actions().getNodeWidth(visualNodeIdentifier) ??
-                  new ReactflowDimensionsEstimator().getWidth(node);
+
+    let width;
+    if(node.id === undefined) {
+      // The question is what does it mean if the node isn't in editor? Same for height
+      // Actually it is not error,
+      // it can be valid state when we are layouting elements which are not yet part of visual model
+      width = new ReactflowDimensionsEstimator().getWidth(node);
+    }
+    else {
+      width = diagram.actions().getNodeWidth(node.id)
+    }
     return width;
   };
   const getHeight = (node: INodeClassic) => {
-    const visualNodeIdentifier = activeVisualModel.getVisualEntityForRepresented(node.id)?.identifier ?? "";
-    const height = diagram.actions().getNodeHeight(visualNodeIdentifier) ??
-                   new ReactflowDimensionsEstimator().getHeight(node);
+    let height;
+    if(node.id === undefined) {
+      height = new ReactflowDimensionsEstimator().getHeight(node);
+    }
+    else {
+      height = diagram.actions().getNodeHeight(node.id)
+    }
     return height;
   };
 
@@ -198,9 +295,9 @@ function processLayoutResult(
     return;
   }
 
-  Object.entries(layoutResult).forEach(([visualIdentifer, layouredVisualEntity]) => {
-    const visualEntity = layouredVisualEntity.visualEntity
-    if(layouredVisualEntity.isOutsider) {
+  Object.entries(layoutResult).forEach(([visualIdentifer, layoutedVisualEntity]) => {
+    const visualEntity = layoutedVisualEntity.visualEntity
+    if(layoutedVisualEntity.isOutsider) {
       if(shouldPutOutsidersInVisualModel) {
         if(isVisualNode(visualEntity)) {
           addClassOrClassProfileToVisualModel(notifications, classes, diagram, graph, visualModel, visualEntity);

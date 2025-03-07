@@ -1,4 +1,5 @@
 import { Position as PositionWithAnchor } from "@dataspecer/core-v2/visual-model";
+import { AlignmentHorizontalPosition, AlignmentVerticalPosition } from "../action/align-nodes";
 
 /**
  * Actions that can be executed on the editor component.
@@ -188,12 +189,18 @@ export interface DiagramActions {
   openDragEdgeToCanvasMenu(sourceNode: Node, canvasPosition: Position): void;
 
   /**
-   * Opens menu on given {@link canvasPosition}.
-   * The menu appears when user clicks the actions button on selection.
+   * Opens menu on given {@link canvasPosition}. The menu contains actions for selection.
    * @param sourceNode is the node on which the user clicked the button.
    * @param canvasPosition is the canvas position where the menu will appear.
    */
-  openSelectionActionsMenu(sourceNode: Node, canvasPosition: Position): void;
+  openSelectionActionsMenu(sourceNode: Node, canvasPosition: Position): void
+
+  /**
+   * Opens menu on given {@link canvasPosition}. The menu contains possible alignments.
+   * @param sourceNode is the node on which the user clicked the button.
+   * @param canvasPosition is the canvas position where the menu will appear.
+   */
+  openAlignmentMenu(sourceNode: Node, canvasPosition: Position): void
 
   /**
    * Opens menu on given {@link canvasPosition}.
@@ -524,7 +531,8 @@ interface DiagramNodes {
    * Called when user chooses to move given {@link attribute} move one position down.
    * @param nodeIdentifer is the identifier of the node on which the attribute resides.
    */
-   onMoveAttributeDown: (attribute: string, nodeIdentifer: string) => void;
+  onMoveAttributeDown: (attribute: string, nodeIdentifer: string) => void;
+
 }
 
 /**
@@ -580,7 +588,14 @@ interface DiagramSelection {
    * @param source is the last selected node
    * @param canvasPosition is the position on canvas, where should be the list of actions shown.
    */
-  onShowSelectionActionsMenu: (source: Node, canvasPosition: Position) => void;
+  onOpenSelectionActionsMenu: (source: Node, canvasPosition: Position) => void;
+
+  /**
+   * This method is called when user wants to see list of possible alignment actions.
+   * @param source is the last selected node
+   * @param canvasPosition is the position on canvas, where should be the list of actions shown.
+   */
+  onOpenAlignmentMenu: (source: Node, canvasPosition: Position) => void;
 
   /**
    * This method is called when user wants to layout selection.
@@ -629,6 +644,17 @@ interface DiagramSelection {
    * This method is called when user wants to remove selection from both semantic and visual model.
    */
   onDeleteSelection: () => void;
+
+  /**
+   * Aligns selected nodes horizontally, the actual alignment type is given by {@link alignmentHorizontalPosition}.
+   */
+  onAlignSelectionHorizontally: (alignmentHorizontalPosition: AlignmentHorizontalPosition) => void;
+
+
+  /**
+   * Aligns selected nodes vertically, the actual alignment type is given by {@link alignmentVerticalPosition}.
+   */
+  onAlignSelectionVertically: (alignmentVerticalPosition: AlignmentVerticalPosition) => void;
 }
 
 /**

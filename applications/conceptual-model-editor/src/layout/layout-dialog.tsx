@@ -51,6 +51,58 @@ export const useConfigDialog = () => {
   //     className="slider" id={`range- + ${props.configName}`} draggable="false" defaultValue={props.defaultValue} onMouseUp={(e) => { setConfig({...config, [props.configName]: parseInt(e.target.value)});}}></input>
   // }
 
+  const OverlapRemovalConfig = (props: {stateField: MainType}) => {
+    return <div>
+      <div className="flex flex-row">
+        <label htmlFor="range-min-distance-between-nodes">Minimal distance between nodes: </label>
+      </div>
+      <div className="flex flex-row">
+        <input type="range" min="0" max="1000" step="10" className="slider" id="range-min-distance-between-nodes" draggable="false"
+          defaultValue={config?.[props.stateField]?.elk_overlapRemoval?.["min_distance_between_nodes"]}
+          onMouseUp={(e) => { setConfig({
+            ...config,
+            [props.stateField]: {
+              ...config[props.stateField],
+              [config.chosenMainAlgorithm]: {
+                ...config[props.stateField][config.chosenMainAlgorithm],
+                "min_distance_between_nodes": parseInt((e.target as HTMLInputElement).value)
+              }
+            }
+          });
+          {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
+                                                        (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
+          }}></input>
+        {config?.[props.stateField]?.elk_overlapRemoval?.["min_distance_between_nodes"]}
+      </div>
+    </div>;
+  };
+
+  const CompactionConfig = (props: {stateField: MainType}) => {
+    return <div>
+      <div className="flex flex-row">
+        <label htmlFor="range-min-distance-between-nodes">Minimal distance between nodes: </label>
+      </div>
+      <div className="flex flex-row">
+        <input type="range" min="0" max="1000" step="10" className="slider" id="range-min-distance-between-nodes" draggable="false"
+          defaultValue={config?.[props.stateField]?.sporeCompaction?.["min_distance_between_nodes"]}
+          onMouseUp={(e) => { setConfig({
+            ...config,
+            [props.stateField]: {
+              ...config[props.stateField],
+              [config.chosenMainAlgorithm]: {
+                ...config[props.stateField][config.chosenMainAlgorithm],
+                "min_distance_between_nodes": parseInt((e.target as HTMLInputElement).value)
+              }
+            }
+          });
+          {/* Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
+                                                        (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
+          }}></input>
+        {config?.[props.stateField]?.sporeCompaction?.["min_distance_between_nodes"]}
+      </div>
+    </div>;
+  };
+
   const RadialConfig = (props: {stateField: MainType}) => {
     return <div>
       <div className="flex flex-row">
@@ -276,23 +328,27 @@ export const useConfigDialog = () => {
     // TODO RadStr: resetConfig is not it, the state has to be solved differently - different algorithms share non-relevant parameters, but it affects them
     //       (For example running layered after layered, because I checked it for stress layout)
     // resetConfig();
-    if(config.main[config.chosenMainAlgorithm ] === undefined) {
-      config.main[config.chosenMainAlgorithm ] = getDefaultMainUserGivenAlgorithmConstraint(config.chosenMainAlgorithm);
+    if(config.main[config.chosenMainAlgorithm] === undefined) {
+      config.main[config.chosenMainAlgorithm] = getDefaultMainUserGivenAlgorithmConstraint(config.chosenMainAlgorithm);
     }
-    if(config.chosenMainAlgorithm === "elk_layered") {
-      return <LayeredConfig stateField="main"></LayeredConfig>;
-    }
-    else if(config.chosenMainAlgorithm === "elk_stress") {
-      return <StressConfig stateField="main"></StressConfig>;
-    }
-    else if(config.chosenMainAlgorithm === "elk_force") {
-      return <ForceConfig stateField="main"></ForceConfig>;
-    }
-    else if(config.chosenMainAlgorithm === "elk_radial") {
-      return <RadialConfig stateField="main"></RadialConfig>;
-    }
-    else {
-      return null;
+
+    switch(config.chosenMainAlgorithm) {
+      case "elk_stress":
+        return <StressConfig stateField="main"></StressConfig>;
+      case "elk_layered":
+        return <LayeredConfig stateField="main"></LayeredConfig>;
+      case "elk_force":
+        return <ForceConfig stateField="main"></ForceConfig>;
+      case "sporeCompaction":
+        return <CompactionConfig stateField="main"></CompactionConfig>;
+      case "elk_radial":
+        return <RadialConfig stateField="main"></RadialConfig>;
+      case "elk_overlapRemoval":
+        return <OverlapRemovalConfig stateField="main"></OverlapRemovalConfig>;
+      case "random":
+      case "d3_force":
+      default:
+        return null;
     }
   };
 
@@ -313,6 +369,8 @@ export const useConfigDialog = () => {
           <option value="elk_stress">Elk Stress (Force-based algorithm)</option>
           <option value="elk_force">Elk Force (Force-based algorithm)</option>
           <option value="elk_radial">Radial</option>
+          <option value="elk_overlapRemoval">Overlap removal</option>
+          <option value="sporeCompaction">Compaction</option>
           <option value="random">Random</option>
         </select>
       </div>

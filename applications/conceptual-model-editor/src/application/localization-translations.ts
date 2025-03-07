@@ -308,4 +308,17 @@ export const translations: Record<string, string | Function> = {
   "edit-class-attributes-dialog.btn-cancel": "❌ Cancel",
   "edit-class-attributes-visible-attributes-column-header": "Visible attributes:",
   "edit-class-attributes-hidden-attributes-column-header": "Hidden attributes:",
+  //
+  "align-left.title": "Align selected nodes the most left one and in such a way that the lefts of nodes are aligned",
+  "align-horizontal-mid.title": "Align selected nodes the middle horizontally, that is |",
+  "align-right.title": "Align selected nodes the most right one and in such a way that the rights of nodes are aligned",
+  "align-top.title": "Align selected nodes the most top one and in such a way that the tops of nodes are aligned",
+  "align-vertical-mid.title": "Align selected nodes the middle vertically, that is -",
+  "align-bot.title": "Align selected nodes the most bottom one and in such a way that the bottoms of nodes are aligned",
+  "align-left.text": "Align to left",
+  "align-horizontal-mid.text": "Align to middle",
+  "align-right.text": "Align to right",
+  "align-top.text": "Align to top",
+  "align-vertical-mid.text": "Align to middle",
+  "align-bot.text": "Align to bottom",
 };

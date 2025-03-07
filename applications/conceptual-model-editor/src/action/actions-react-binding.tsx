@@ -36,8 +36,8 @@ import { addClassNeighborhoodToVisualModelAction } from "./add-class-neighborhoo
 import { createDefaultProfilesAction } from "./create-default-profiles";
 import { openCreateClassDialogWithModelDerivedFromClassAction } from "./open-create-class-dialog-with-derived-model";
 import { EntityToAddToVisualModel, addSemanticEntitiesToVisualModelAction } from "./add-semantic-entities-to-visual-model";
-import { LayoutedVisualEntities, UserGivenConstraintsVersion4 } from "@dataspecer/layout";
-import { layoutActiveVisualModelAction } from "./layout-visual-model";
+import { getDefaultUserGivenConstraintsVersion4, LayoutedVisualEntities, UserGivenConstraintsVersion4 } from "@dataspecer/layout";
+import { layouGivenVisualEntitiesAction, layoutActiveVisualModelAction } from "./layout-visual-model";
 import { toggleAnchorAction } from "./toggle-anchor";
 import { SelectionFilterState } from "../dialog/selection/filter-selection-dialog-controller";
 import { SelectionFilter, Selections, SelectionsWithIdInfo, filterSelectionAction } from "./filter-selection-action";
@@ -63,6 +63,7 @@ import { isInMemorySemanticModel } from "../utilities/model";
 import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelAttributeUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
+import { alignHorizontallyAction, AlignmentHorizontalPosition, AlignmentVerticalPosition, alignVerticallyAction } from "./align-nodes";
 
 const LOG = createLogger(import.meta.url);
 
@@ -837,12 +838,23 @@ function createActionsContext(
         toggleAnchorAction(notifications, visualModel, topLevelGroup ?? nodeIdentifier);
       });
     },
-    onShowSelectionActionsMenu: (source, canvasPosition) => {
-      console.log("Application.onShowSelectionActions", { source, canvasPosition });
+    onOpenSelectionActionsMenu: (source, canvasPosition) => {
+      console.log("Application.onOpenSelectionActionsMenu", { source, canvasPosition });
       diagram.actions().openSelectionActionsMenu(source, canvasPosition);
     },
+    onOpenAlignmentMenu: (source, canvasPosition) => {
+      console.log("Application.onOpenAlignmentMenu", { source, canvasPosition });
+      diagram.actions().openAlignmentMenu(source, canvasPosition);
+    },
     onLayoutSelection: () => {
-      // TODO RadStr: Currently does nothing (In future - Opens layouting menu - 3 buttons - alignments + layouting)
+      const selection = getSelections(diagram, false, true);
+      const visualEntitiesToLayout = selection.nodeSelection.concat(selection.edgeSelection);
+      withVisualModel(notifications, graph, (visualModel) => {
+        layouGivenVisualEntitiesAction(
+          notifications, classes, diagram, graph, visualModel,
+          getDefaultUserGivenConstraintsVersion4(), visualEntitiesToLayout);
+      });
+      // TODO RadStr: In future - Opens layouting menu - 3 buttons - alignments + layouting
     },
     onCreateGroup: () => {
       withVisualModel(notifications, graph, (visualModel) => {
@@ -963,12 +975,26 @@ function createActionsContext(
         }
       });
     },
-    onMoveAttributeUp: function (attribute: string, nodeIdentifer: string): void {
+    onMoveAttributeUp: (attribute: string, nodeIdentifer: string) => {
       shiftAttributeUp(attribute, nodeIdentifer);
     },
-    onMoveAttributeDown: function (attribute: string, nodeIdentifer: string): void {
+    onMoveAttributeDown: (attribute: string, nodeIdentifer: string) => {
       shiftAttributeDown(attribute, nodeIdentifer);
     },
+    onAlignSelectionHorizontally: function (alignmentHorizontalPosition: AlignmentHorizontalPosition): void {
+      withVisualModel(notifications, graph, (visualModel) => {
+        const nodeSelection = getSelections(diagram, true, true).nodeSelection;
+        alignHorizontallyAction(
+          notifications, diagram, visualModel, nodeSelection, alignmentHorizontalPosition);
+      });
+    },
+    onAlignSelectionVertically: (alignmentVerticalPosition: AlignmentVerticalPosition) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        const nodeSelection = getSelections(diagram, true, true).nodeSelection;
+        alignVerticallyAction(
+          notifications, diagram, visualModel, nodeSelection, alignmentVerticalPosition);
+      });
+    }
   };
 
   diagram.setCallbacks(callbacks);
