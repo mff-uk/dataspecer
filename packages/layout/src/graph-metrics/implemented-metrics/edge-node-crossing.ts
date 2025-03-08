@@ -19,6 +19,9 @@ export class EdgeNodeCrossingMetric implements Metric {
         });
 
         const maxPossibleCrossingCount = (nodes.length - 2) * graph.mainGraph.allEdges.length;
+        if(maxPossibleCrossingCount === 0) {
+            return 1;
+        }
         return 1 - (edgeNodeCrossingCount / maxPossibleCrossingCount)
     }
 
