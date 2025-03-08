@@ -18,7 +18,7 @@ import {
 	IAlgorithmConfiguration,
 	SPECIFIC_ALGORITHM_CONVERSIONS_MAP
 } from "./configs/constraints";
-import { GraphClassic, GraphFactory, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualModelWithOutsiders, VisualNodeComplete } from "./graph-iface";
+import { GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualModelWithOutsiders, VisualNodeComplete } from "./graph-iface";
 import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs/constraint-container";
 import { Entities, Entity, EntityModel } from "@dataspecer/core-v2";
 import { ConstraintFactory } from "./configs/constraint-factories";
@@ -49,6 +49,8 @@ import { placePositionOnGrid } from "./util/utils";
 import { ExplicitAnchors } from "./explicit-anchors";
 import { AreaMetric } from "./graph-metrics/implemented-metrics/area-metric";
 import { NodeOrthogonalityMetric } from "./graph-metrics/implemented-metrics/node-orthogonality";
+import { EdgeCrossingAngleMetric } from "./graph-metrics/implemented-metrics/edge-crossing-angle";
+import { Metric } from "./graph-metrics/graph-metrics-iface";
 export { AnchorOverrideSetting } from "./explicit-anchors";
 export { placePositionOnGrid };
 
@@ -342,13 +344,34 @@ const runMainLayoutAlgorithm = async (
 ): Promise<IMainGraphClassic> => {
 											// TODO: Well it really is overkill, like I could in the same way just have a look, if the given configuration contains numberOfAlgorithmRuns and if so, just put it here
 	let bestLayoutedVisualEntitiesPromise: Promise<IMainGraphClassic>;
-	let bestAreaMetricValue = 0;
-
-	let bestMetric = -1000000;
-	const edgeCrossingMetric: EdgeCrossingMetric = new EdgeCrossingMetric();
-	const edgeNodeCrossingMetric: EdgeNodeCrossingMetric = new EdgeNodeCrossingMetric();
-	const areaMetric = new AreaMetric();
-	const nodeOrthogonalityMetric = new NodeOrthogonalityMetric();
+	const metricsWithWeights: MetricWithWeight[] = [
+		{
+			name: "EdgeCrossingMetric",
+			metric: new EdgeCrossingMetric(),
+			weight: 1
+		},
+		{
+			name: "EdgeCrossingAngleMetric",
+			metric: new EdgeCrossingAngleMetric(),
+			weight: 1
+		},
+		{
+			name: "EdgeNodeCrossingMetric",
+			metric: new EdgeNodeCrossingMetric(),
+			weight: 20
+		},
+		{
+			name: "AreaMetric",
+			metric: new AreaMetric(),
+			weight: 0.1
+		},
+		{
+			name: "NodeOrthogonalityMetric",
+			metric: new NodeOrthogonalityMetric(),
+			weight: 0.2
+		},
+	];
+	const computedMetricsData = createObjectsToHoldMetricsData(metricsWithWeights);
 	const findBestLayoutConstraint = constraints.simpleConstraints.find(constraint => constraint.name === "Best layout iteration count");
 	const numberOfAlgorithmRuns = (findBestLayoutConstraint?.data as any)?.numberOfAlgorithmRuns ?? 1;
 
@@ -386,40 +409,117 @@ const runMainLayoutAlgorithm = async (
 		// const visualEntities = layoutedGraph.convertWholeGraphToDataspecerRepresentation();
 		// console.log(visualEntities);
 
-		// TODO RadStr: Put into array and also compute min/max/avgs to inspect it in more depth
-		const edgeCrossCountMetricForCurrent = edgeCrossingMetric.computeMetric(workGraph);
-		const edgeNodeCrossCountMetricForCurrent = edgeNodeCrossingMetric.computeMetric(workGraph);
-		const areaMetricForCurrent = areaMetric.computeMetric(workGraph);
-		const nodeOrthogonalityMetricForCurrent = nodeOrthogonalityMetric.computeMetric(workGraph);
-		const absoluteMetricForCurrent = edgeCrossCountMetricForCurrent +
-																			20 * edgeNodeCrossCountMetricForCurrent +
-																			0.1 * areaMetricForCurrent +
-																			0.2 * nodeOrthogonalityMetricForCurrent;
-
-		console.log("edgeCrossCountMetricForCurrent: " + edgeCrossCountMetricForCurrent);
-		console.log("edgeNodeCrossCountMetricForCurrent: " + edgeNodeCrossCountMetricForCurrent);
-		console.log("areaMetricForCurrent: " + areaMetricForCurrent);
-		console.log("nodeOrthogonalityMetricForCurrent: " + nodeOrthogonalityMetricForCurrent);
-		console.log("Metric total: " + absoluteMetricForCurrent);
-
-
-		if(bestMetric < absoluteMetricForCurrent) {
-			console.log("MAX!", {
-				edgeCrossCountMetricForCurrent,
-				edgeNodeCrossCountMetricForCurrent,
-				areaMetricForCurrent,
-				nodeOrthogonalityMetricForCurrent,
-				absoluteMetricForCurrent
-			});
-			bestLayoutedVisualEntitiesPromise = layoutedGraphPromise;
-			bestMetric = absoluteMetricForCurrent;
-		}
+		performMetricsComputation(
+			metricsWithWeights, computedMetricsData.metricResults,
+			computedMetricsData.metricResultAggregations,
+			workGraph, layoutedGraphPromise);
 
 		constraints.resetLayoutActionsIterator();
 	}
 
-	console.log("MAX Metric total: " + bestMetric);
-	console.log("AREA result total: " + bestAreaMetricValue);
-	console.log(await bestLayoutedVisualEntitiesPromise);
-	return bestLayoutedVisualEntitiesPromise;
+	for(const key of Object.keys(computedMetricsData.metricResultAggregations)) {
+		computedMetricsData.metricResultAggregations[key].avg /= numberOfAlgorithmRuns;
+	}
+	console.log("Metrics aggregations result: ", computedMetricsData.metricResultAggregations);
+	console.log("Metrics all results: ", computedMetricsData.metricResults);
+	console.log(await computedMetricsData.metricResultAggregations["total"].max.graphPromise);
+	return computedMetricsData.metricResultAggregations["total"].max.graphPromise;
+}
+
+type MetricWithWeight = {
+	name: string,
+	metric: Metric,
+	weight: number
+}
+
+type MetricResultsAggregation = {
+	avg: number,
+	min: MetricWithGraphPromise | null,
+	max: MetricWithGraphPromise | null,
+}
+
+type MetricWithGraphPromise = {
+	value: number,
+	graphPromise: Promise<IMainGraphClassic>
+}
+
+function createObjectsToHoldMetricsData(metrics: MetricWithWeight[]) {
+	const metricResultAggregations: Record<string, MetricResultsAggregation> = {};
+	metrics
+		.forEach(metric => metricResultAggregations[metric.name] = {
+			avg: 0,
+			min: {
+				value: 10000000,
+				graphPromise: null
+			},
+			max: {
+				value: -10000000,
+				graphPromise: null
+			},
+		});
+		metricResultAggregations["total"] = {
+			avg: 0,
+			min: {
+				value: 10000000,
+				graphPromise: null
+			},
+			max: {
+				value: -10000000,
+				graphPromise: null
+			},
+		};
+
+	const metricResults: Record<string, number[]> = {};
+	metrics.forEach(metric => metricResults[metric.name] = []);
+	metricResults["total"] = [];
+
+		return {
+			metricResultAggregations,
+			metricResults
+		};
+}
+
+function performMetricsComputation(
+	metricsToCompute: MetricWithWeight[],
+	computedMetricsFromPreviousIterations: Record<string, number[]>,
+	metricResultsAggregation: Record<string, MetricResultsAggregation>,
+	graph: IMainGraphClassic,
+	layoutedGraphPromise: Promise<IMainGraphClassic>,
+) {
+	const computedMetrics = [];
+	for(const metricToCompute of metricsToCompute) {
+		const computedMetric = metricToCompute.metric.computeMetric(graph as unknown as GraphClassic);		// TODO RadStr: Fix the typing
+		computedMetricsFromPreviousIterations[metricToCompute.name].push(computedMetric);
+		computedMetrics.push(computedMetric);
+
+		setMetricResultsAggregation(metricResultsAggregation, metricToCompute.name, computedMetric, layoutedGraphPromise);
+	}
+
+	let absoluteMetric = 0;
+	for(let i = 0; i < computedMetrics.length; i++) {
+		absoluteMetric += metricsToCompute[i].weight * computedMetrics[i];
+	}
+
+	setMetricResultsAggregation(metricResultsAggregation, "total", absoluteMetric, layoutedGraphPromise);
+}
+
+function setMetricResultsAggregation(
+	metricResultsAggregation: Record<string, MetricResultsAggregation>,
+	key: string,
+	computedMetric: number,
+	layoutedGraphPromise: Promise<IMainGraphClassic>,
+) {
+	metricResultsAggregation[key].avg += computedMetric;
+	if(metricResultsAggregation[key].min.value > computedMetric) {
+		metricResultsAggregation[key].min = {
+			value: computedMetric,
+			graphPromise: layoutedGraphPromise
+		};
+	}
+	if(metricResultsAggregation[key].max.value < computedMetric) {
+		metricResultsAggregation[key].max = {
+			value: computedMetric,
+			graphPromise: layoutedGraphPromise
+		};
+	}
 }

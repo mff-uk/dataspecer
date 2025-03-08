@@ -7,9 +7,10 @@ import { XY } from "../..";
 export class EdgeCrossingMetric implements Metric {
     computeMetric(graph: IGraphClassic): number {
         let edgeCrossingCount: number = 0;
-        Object.values(graph.nodes).forEach(sourceNode1 => {
+        const nodes = Object.values(graph.nodes);
+        nodes.forEach(sourceNode1 => {
             for(let edge1 of sourceNode1.getAllOutgoingEdges()) {
-                Object.values(graph.nodes).forEach(sourceNode2 => {
+                nodes.forEach(sourceNode2 => {
                     if(sourceNode1 === sourceNode2) {
                         return;
                     }
@@ -28,7 +29,11 @@ export class EdgeCrossingMetric implements Metric {
 
         edgeCrossingCount /= 2;
         const totalEdgeCount = graph.mainGraph.allEdges.length;
-        const maxPossibleCrossCount = (totalEdgeCount * (totalEdgeCount - 1)) / 2;
+        // Upper bound is based on https://osf.io/preprints/osf/wgzn5_v1 (page 3) - it is more strict than
+        // the maximum upper bound, which is the first part of the computation - that is m * (m-1) / 2
+        let maxPossibleCrossCount = (totalEdgeCount * (totalEdgeCount - 1)) / 2;
+        const degrees = nodes.map(node => [...node.getAllOutgoingEdges()].length);
+        maxPossibleCrossCount += (1/2) * degrees.reduce((accumulator, degree) => accumulator + degree * (degree - 1), 0);
 
         if(maxPossibleCrossCount === 0) {
             return 1;
