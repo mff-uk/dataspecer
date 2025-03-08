@@ -25,7 +25,15 @@ export class EdgeCrossingMetric implements Metric {
                 )
             }
         });
-        return edgeCrossingCount / 2;
+
+        edgeCrossingCount /= 2;
+        const totalEdgeCount = graph.mainGraph.allEdges.length;
+        const maxPossibleCrossCount = (totalEdgeCount * (totalEdgeCount - 1)) / 2;
+
+        if(maxPossibleCrossCount === 0) {
+            return 1;
+        }
+        return 1 - (edgeCrossingCount / maxPossibleCrossCount);
     }
 
     // Based on https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect

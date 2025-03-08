@@ -27,18 +27,29 @@ function areNodesAligned(
 
 export class NodeOrthogonalityMetric implements Metric {
     computeMetric(graph: IGraphClassic): number {
-      const alingmentLimit = 50;
-      let alignedNodesCount = 0;
+      const alingmentLimit = 20;
+      let alignedNodesCount = 0;      // TODO RadStr: PRobably remove this variable
       const nodes = Object.values(graph.nodes);
+      const alreadyAligned: boolean[] = Array(nodes.length).fill(false);
       for (let i = 0; i < nodes.length; i++) {
         for(let j = i + 1; j < nodes.length; j++) {
+          if(alreadyAligned[i] && alreadyAligned[j]) {
+            continue;
+          }
           const areAligned = areNodesAligned(
             nodes[i].completeVisualNode, nodes[j].completeVisualNode, alingmentLimit);
           alignedNodesCount += areAligned ? 1 : 0;
+          if(areAligned) {
+            alreadyAligned[i] = true;
+            alreadyAligned[j] = true;
+          }
         }
       }
 
-      return alignedNodesCount;
+      // return alignedNodesCount;    // TODO RadStr: Remove
+      console.info({alreadyAligned});
+      console.info({nodes});
+      return alreadyAligned.filter(isAligned => isAligned).length / nodes.length;
     }
 
     computeMetricForNodes(graph: GraphClassic): Record<string, number> {

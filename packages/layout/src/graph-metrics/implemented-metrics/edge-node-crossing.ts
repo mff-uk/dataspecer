@@ -6,9 +6,10 @@ import { EdgeCrossingMetric } from "./edge-crossing";
 export class EdgeNodeCrossingMetric implements Metric {
     computeMetric(graph: IGraphClassic): number {
         let edgeNodeCrossingCount: number = 0;
-        Object.values(graph.nodes).forEach(n => {
+        const nodes = Object.values(graph.nodes);
+        nodes.forEach(n => {
             for(let outN of n.getAllOutgoingEdges()) {
-                Object.values(graph.nodes).forEach(possibleCollisionNode => {
+                nodes.forEach(possibleCollisionNode => {
                     if(possibleCollisionNode === n || possibleCollisionNode === outN.end) {
                         return;
                     }
@@ -17,8 +18,8 @@ export class EdgeNodeCrossingMetric implements Metric {
             }
         });
 
-        const EXTRA_CROSSING_PENALTY = 10;
-        return EXTRA_CROSSING_PENALTY * edgeNodeCrossingCount;
+        const maxPossibleCrossingCount = (nodes.length - 2) * graph.mainGraph.allEdges.length;
+        return 1 - (edgeNodeCrossingCount / maxPossibleCrossingCount)
     }
 
 

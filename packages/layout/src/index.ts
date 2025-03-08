@@ -47,6 +47,8 @@ export type { EdgeRouting };
 
 import { placePositionOnGrid } from "./util/utils";
 import { ExplicitAnchors } from "./explicit-anchors";
+import { AreaMetric } from "./graph-metrics/implemented-metrics/area-metric";
+import { NodeOrthogonalityMetric } from "./graph-metrics/implemented-metrics/node-orthogonality";
 export { AnchorOverrideSetting } from "./explicit-anchors";
 export { placePositionOnGrid };
 
@@ -340,9 +342,13 @@ const runMainLayoutAlgorithm = async (
 ): Promise<IMainGraphClassic> => {
 											// TODO: Well it really is overkill, like I could in the same way just have a look, if the given configuration contains numberOfAlgorithmRuns and if so, just put it here
 	let bestLayoutedVisualEntitiesPromise: Promise<IMainGraphClassic>;
-	let minAbsoluteMetric = 1000000;
+	let bestAreaMetricValue = 0;
+
+	let bestMetric = -1000000;
 	const edgeCrossingMetric: EdgeCrossingMetric = new EdgeCrossingMetric();
 	const edgeNodeCrossingMetric: EdgeNodeCrossingMetric = new EdgeNodeCrossingMetric();
+	const areaMetric = new AreaMetric();
+	const nodeOrthogonalityMetric = new NodeOrthogonalityMetric();
 	const findBestLayoutConstraint = constraints.simpleConstraints.find(constraint => constraint.name === "Best layout iteration count");
 	const numberOfAlgorithmRuns = (findBestLayoutConstraint?.data as any)?.numberOfAlgorithmRuns ?? 1;
 
@@ -380,25 +386,40 @@ const runMainLayoutAlgorithm = async (
 		// const visualEntities = layoutedGraph.convertWholeGraphToDataspecerRepresentation();
 		// console.log(visualEntities);
 
-		const edgeCrossCountForCurrent = edgeCrossingMetric.computeMetric(workGraph);
-		const edgeNodeCrossCountForCurrent = edgeNodeCrossingMetric.computeMetric(workGraph);
-		const absoluteMetricForCurrent = edgeCrossCountForCurrent + edgeNodeCrossCountForCurrent;
+		// TODO RadStr: Put into array and also compute min/max/avgs to inspect it in more depth
+		const edgeCrossCountMetricForCurrent = edgeCrossingMetric.computeMetric(workGraph);
+		const edgeNodeCrossCountMetricForCurrent = edgeNodeCrossingMetric.computeMetric(workGraph);
+		const areaMetricForCurrent = areaMetric.computeMetric(workGraph);
+		const nodeOrthogonalityMetricForCurrent = nodeOrthogonalityMetric.computeMetric(workGraph);
+		const absoluteMetricForCurrent = edgeCrossCountMetricForCurrent +
+																			20 * edgeNodeCrossCountMetricForCurrent +
+																			0.1 * areaMetricForCurrent +
+																			0.2 * nodeOrthogonalityMetricForCurrent;
 
-		console.log("Edge cross count: " + edgeCrossCountForCurrent);
-		console.log("Edge node cross count: " + edgeNodeCrossCountForCurrent);
+		console.log("edgeCrossCountMetricForCurrent: " + edgeCrossCountMetricForCurrent);
+		console.log("edgeNodeCrossCountMetricForCurrent: " + edgeNodeCrossCountMetricForCurrent);
+		console.log("areaMetricForCurrent: " + areaMetricForCurrent);
+		console.log("nodeOrthogonalityMetricForCurrent: " + nodeOrthogonalityMetricForCurrent);
 		console.log("Metric total: " + absoluteMetricForCurrent);
 
 
-		if(minAbsoluteMetric > absoluteMetricForCurrent) {
-			console.log("MIN!");
+		if(bestMetric < absoluteMetricForCurrent) {
+			console.log("MAX!", {
+				edgeCrossCountMetricForCurrent,
+				edgeNodeCrossCountMetricForCurrent,
+				areaMetricForCurrent,
+				nodeOrthogonalityMetricForCurrent,
+				absoluteMetricForCurrent
+			});
 			bestLayoutedVisualEntitiesPromise = layoutedGraphPromise;
-			minAbsoluteMetric = absoluteMetricForCurrent;
+			bestMetric = absoluteMetricForCurrent;
 		}
 
 		constraints.resetLayoutActionsIterator();
 	}
 
-	console.log("MIN Metric total: " + minAbsoluteMetric);
+	console.log("MAX Metric total: " + bestMetric);
+	console.log("AREA result total: " + bestAreaMetricValue);
 	console.log(await bestLayoutedVisualEntitiesPromise);
 	return bestLayoutedVisualEntitiesPromise;
 }
