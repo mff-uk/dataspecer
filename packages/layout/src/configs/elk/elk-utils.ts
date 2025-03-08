@@ -66,25 +66,22 @@ export function modifyElkDataObject(data: object, elkData: LayoutOptions): void 
     //       of just setting all of the options to the same value
     let hasAdvancedSettings: boolean = false;
     Object.entries(data).forEach(([key, value]) => {
-                if(key === "advanced_settings") {
-                    hasAdvancedSettings = true;
-                    return;
-                }
+        if(key === "advanced_settings") {
+            hasAdvancedSettings = true;
+            return;
+        }
 
+        CONFIG_TO_ELK_CONFIG_MAP[key]?.forEach(elkName => {
+            elkData[elkName] = data[key];
+        });
 
-                CONFIG_TO_ELK_CONFIG_MAP[key]?.forEach(elkName => {
-                    elkData[elkName] = data[key];
-                });
-
-
-
-                const newElkEntries = configToElkConfigSpecialCasesConvertor(data['layout_alg'], key, value);
-                if(newElkEntries !== null) {
-                    Object.entries(newElkEntries).forEach(([key, value]) => {
-                        elkData[key] = value;
-                    });
-                }
+        const newElkEntries = configToElkConfigSpecialCasesConvertor(data['layout_alg'], key, value);
+        if(newElkEntries !== null) {
+            Object.entries(newElkEntries).forEach(([key, value]) => {
+                elkData[key] = value;
             });
+        }
+    });
 
     if(hasAdvancedSettings) {
         if(data["advanced_settings"] !== undefined && Object.keys(data["advanced_settings"]).length > 0) {

@@ -19,7 +19,7 @@ import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationsh
  * const buckets : Record<string, any> = {}
  * addToRecordArray("bucket", {}, buckets);
  */
-function addToRecordArray<IdentifierType extends string, ValueType>(
+export function addToRecordArray<IdentifierType extends string, ValueType>(
     identifier: IdentifierType,
     value: ValueType,
     map: Record<IdentifierType, ValueType[]>,
@@ -267,6 +267,8 @@ export class GraphIncidence implements IGraphIncidence {
  * Interface which represents the (sub)graph,
  */
 export interface IGraphClassic extends INodeClassic {
+    layoutOptions: Record<string, string>;
+
     /**
      * Maps the visual identifier of node to the node.
      */
@@ -1153,6 +1155,7 @@ export class GraphClassic implements IGraphClassic {
     isMainEntity: boolean = false;
     isProfile: boolean = false;
     isConsideredInLayout: boolean = true;     // TODO: Create setter/getter instead (iface vs class ... this will need change on lot of places)
+    layoutOptions: Record<string, string> = {};
 
 
     setOutgoingClassProfileEdge(outgoingClassProfileEdge: IEdgeClassic) {
@@ -1326,6 +1329,8 @@ export interface IEdgeClassic {
      * If true then this edge is part of the layouted graph, therefore it should be considered, otherwise it is not considered in layouting.
      */
     isConsideredInLayout: boolean;
+
+    layoutOptions: Record<string, string>;
     /**
      * If true then the direction of this edge is reversed in the layouting algorithm
      */
@@ -1487,6 +1492,8 @@ export class EdgeClassic implements IEdgeClassic {
     visualEdge: VisualEdge;
 
     edgeType: OutgoingEdgeType;
+
+    layoutOptions: Record<string, string> = {};
 
     convertToDataspecerRepresentation(): VisualRelationship | VisualProfileRelationship | null {
         return this.visualEdge.visualEdge;
@@ -1652,6 +1659,8 @@ export interface INodeClassic {
     incomingClassProfileEdges: Array<IEdgeClassic>;
 
     isConsideredInLayout: boolean;
+
+    layoutOptions: Record<string, string>;
 
     sourceEntityModelIdentifier: string | null;
 
@@ -1913,6 +1922,8 @@ class NodeClassic implements INodeClassic {
     completeVisualNode: IVisualNodeComplete;
     attributes: SemanticModelRelationship[];
     isConsideredInLayout: boolean = true;
+
+    layoutOptions: Record<string, string> = {};
 
     outgoingClassProfileEdges: Array<IEdgeClassic> = [];
     incomingClassProfileEdges: Array<IEdgeClassic> = [];

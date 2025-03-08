@@ -1,4 +1,4 @@
-import { EdgeClassic, GraphClassic, IEdgeClassic, IGraphClassic, INodeClassic } from "./graph-iface";
+import { addToRecordArray, EdgeClassic, EdgeEndPoint, GraphClassic, IEdgeClassic, IGraphClassic, IMainGraphClassic, INodeClassic } from "./graph-iface";
 
 type Dimensions = {
     width: number,
@@ -25,6 +25,50 @@ export class GraphAlgorithms {
     }
     static findLeaves(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION"): string[] {
         throw new Error("Unimplemented");
+    }
+
+    /**
+     * Returns leafs paths - for example when we have node which has leafs around it and some non-leafs but those non-leafs are only paths
+     */
+    static findLeafPaths(
+      graph: IMainGraphClassic
+    ): void {
+      const leafs: Record<string, IEdgeClassic[]> = {};
+      const clusters: Record<string, IEdgeClassic[]> = {};
+      graph.allNodes.forEach(node => {
+        const edges = [...node.getAllEdges()];
+        let secondEnd: string | null = null;
+        let isSameEndForAllEdges = true;
+        for(const edge of node.getAllOutgoingEdges()) {
+          if(secondEnd === null) {
+            secondEnd = edge.end.id;
+          }
+          if(secondEnd !== edge.end.id) {
+            isSameEndForAllEdges = false;
+            break;
+          }
+        }
+        if(isSameEndForAllEdges) {
+          for(const edge of node.getAllIncomingEdges()) {
+            if(secondEnd === null) {
+              secondEnd = edge.start.id;
+            }
+            if(secondEnd !== edge.start.id) {
+              isSameEndForAllEdges = false;
+              break;
+            }
+          }
+
+          if(isSameEndForAllEdges) {
+            for(const edge of edges) {
+              addToRecordArray(node.id, edge, leafs);
+              const otherEnd = edge.start.id === node.id ? edge.end : edge.start;
+              addToRecordArray(otherEnd.id, edge, clusters);
+              edge.layoutOptions["stress_edge_len"] = "150";
+            }
+          }
+        }
+      });
     }
 
     /**

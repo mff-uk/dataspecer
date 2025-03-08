@@ -42,6 +42,14 @@ class ElkGraphTransformer implements GraphTransformer {
         return this.convertGraphToLibraryRepresentationInternal(graph, shouldSetLayoutOptions, constraintContainer, elkNodeToSet);
     }
 
+    convertLayoutOptionsToElkLayoutOptions(
+        layoutOptions: Record<string, string>,
+    ) {
+        const elkLayoutOptions: Record<string, string> = {};
+        Object.entries(layoutOptions).forEach(([key, value]) => elkLayoutOptions[CONFIG_TO_ELK_CONFIG_MAP[key] ?? key] = value);
+        return Object.values(elkLayoutOptions).length === 0 ? undefined : elkLayoutOptions;
+    }
+
     /**
      * Internal function for conversion from our graph representation to ELK representation. The method is called recursively for subgraphs.
      */
@@ -61,10 +69,10 @@ class ElkGraphTransformer implements GraphTransformer {
             console.warn("Visual node copy before createElkNode");
             console.warn(_.cloneDeep(node));
             if(node.isProfile) {
-                return this.createElkNode(id, constraintContainer, node, elkNodeToSet, true, undefined, "USAGE OF: " + (node.semanticEntityRepresentingNode as SemanticModelClassUsage).usageOf);
+                return this.createElkNode(id, constraintContainer, node, elkNodeToSet, true, "USAGE OF: " + (node.semanticEntityRepresentingNode as SemanticModelClassUsage).usageOf);
             }
             else {
-                const elkNode = this.createElkNode(id, constraintContainer, node, elkNodeToSet, true, undefined, node?.semanticEntityRepresentingNode?.iri);     // TODO: Not sure what is the ID (visual or semantic entity id?)
+                const elkNode = this.createElkNode(id, constraintContainer, node, elkNodeToSet, true, node?.semanticEntityRepresentingNode?.iri);     // TODO: Not sure what is the ID (visual or semantic entity id?)
                 if(node instanceof GraphClassic) {
                     this.convertGraphToLibraryRepresentationInternal(node, true, constraintContainer, elkNode);
                 }
@@ -98,12 +106,14 @@ class ElkGraphTransformer implements GraphTransformer {
                 const source = edge.reverseInLayout === false ? edge.start.id : edge.end.id;
                 const target = edge.reverseInLayout === false ? edge.end.id : edge.start.id;
 
+                const layoutOptions = this.convertLayoutOptionsToElkLayoutOptions(edge.layoutOptions);
                 let elkEdge: ElkExtendedEdge = {
                     id: edge.id,
                     // sources: [ sourcePort + edge.start.id ],
                     // targets: [ targetPort + edge.end.id ],
                     sources: [ source ],
                     targets: [ target ],
+                    layoutOptions,
                 }
                 edges.push(elkEdge);
             }
@@ -724,7 +734,7 @@ class ElkGraphTransformer implements GraphTransformer {
 
 
         // Deprecated ... so we didn't bother with fixing ... we will just remove it in later commit !!
-        const subgraph: ElkNode = this.createElkNode(`subgraph${this.subgraphCurrID++}`, null, null, null, false, layoutOptions);
+        const subgraph: ElkNode = this.createElkNode(`subgraph${this.subgraphCurrID++}`, null, null, null, false);
         subgraph.children = subgraphNodes;
         return subgraph;
     }
@@ -1012,8 +1022,13 @@ class ElkGraphTransformer implements GraphTransformer {
      * Creates node in the ELK library representation (type {@link ElkNode}) based on given data.
      */
     createElkNode(
-        id: string, constraintContainer: ElkConstraintContainer, graphNode: EdgeEndPoint, parentElkNode?: ElkNode,
-        shouldComputeSize?: boolean, layoutOptions?: LayoutOptions, label?: string): ElkNode {
+        id: string,
+        constraintContainer: ElkConstraintContainer,
+        graphNode: EdgeEndPoint,
+        parentElkNode?: ElkNode,
+        shouldComputeSize?: boolean,
+        label?: string
+    ): ElkNode {
         const width: number = shouldComputeSize ? graphNode?.completeVisualNode?.width : ReactflowDimensionsConstantEstimator.getDefaultWidth();
         const height: number = shouldComputeSize ? graphNode?.completeVisualNode?.height : ReactflowDimensionsConstantEstimator.getDefaultHeight();
 
@@ -1028,27 +1043,18 @@ class ElkGraphTransformer implements GraphTransformer {
 
 
         const nodeLabel: ElkLabel = { text: label === undefined ? id : label };
-        let node: ElkNode;
-        if (layoutOptions === undefined) {
-            node = {
-                id: id,
-                labels: [ nodeLabel ],
-                width: width,
-                height: height,
-                // ports: ports,
-                layoutOptions: portOptions,
-            };
-        }
-        else {
-            node = {
-                id: id,
-                labels: [ nodeLabel ],
-                width: width,
-                height: height,
-                layoutOptions: {...layoutOptions, ...portOptions},
-                // ports: ports,
-            };
-        }
+        const layoutOptions = this.convertLayoutOptionsToElkLayoutOptions(graphNode.layoutOptions);
+        const node: ElkNode = {
+            id: id,
+            labels: [ nodeLabel ],
+            width: width,
+            height: height,
+            // ports: ports,
+            layoutOptions: {
+                ...portOptions,
+                ...layoutOptions
+            },
+        };
 
         if(parentElkNode !== undefined && parentElkNode.id.startsWith("subgraph")) {
             console.info("parentElkNode.id.startsWith(subgraph)");
@@ -1183,6 +1189,7 @@ export class ElkLayout implements LayoutAlgorithm {
     }
 
     prepareFromGraph(graph: IGraphClassic, constraintContainer: ElkConstraintContainer): void {
+        GraphAlgorithms.findLeafPaths(graph.mainGraph);         // TODO RadStr: Just put everywhere main graph and be done with it
         this.graph = graph
         this.elkGraphTransformer = new ElkGraphTransformer(graph, constraintContainer);
         this.graphInElk = this.elkGraphTransformer.convertGraphToLibraryRepresentation(graph, true, constraintContainer),       // TODO: Why I need to pass the constraintContainer again???
