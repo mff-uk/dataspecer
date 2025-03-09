@@ -29,12 +29,12 @@ export class GraphAlgorithms {
 
 
     // TODO RadStr: Debugs
-    static currentDCATAPTestEdgeLen = 50;
+    static currentDCATAPTestEdgeLen = 250;
     static moveTestEdgeLenOneUp() {
       console.info("GraphAlgorithms.currentDCATAPTestEdgeLen", GraphAlgorithms.currentDCATAPTestEdgeLen, GraphAlgorithms.currentDCATAPTestEdgeLen.toString());
       GraphAlgorithms.currentDCATAPTestEdgeLen += 50;
       if(GraphAlgorithms.currentDCATAPTestEdgeLen === 300) {
-        GraphAlgorithms.currentDCATAPTestEdgeLen = 150;
+        GraphAlgorithms.currentDCATAPTestEdgeLen = 250;
       }
     }
     static dcatAPTestSetter(
@@ -175,7 +175,7 @@ export class GraphAlgorithms {
               addToRecordArray(node.id, edge, leafs);
               const otherEnd = edge.start.id === node.id ? edge.end : edge.start;
               addToRecordArray(otherEnd.id, edge, clusters);
-              edge.layoutOptions["stress_edge_len"] = "150";
+              edge.layoutOptions["stress_edge_len"] = "250";
             }
           }
         }
