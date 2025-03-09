@@ -1188,8 +1188,12 @@ export class ElkLayout implements LayoutAlgorithm {
         // // this.nodeDimensionQueryHandler = nodeDimensionQueryHandler;
     }
 
+    // TODO RadStr: Just put everywhere main graph and be done with it
     prepareFromGraph(graph: IGraphClassic, constraintContainer: ElkConstraintContainer): void {
-        GraphAlgorithms.findLeafPaths(graph.mainGraph);         // TODO RadStr: Just put everywhere main graph and be done with it
+        // TODO RadStr: Debugging
+        // GraphAlgorithms.findLeafPaths(graph.mainGraph);
+        GraphAlgorithms.dcatAPTestSetterHardcoded(graph.mainGraph);
+
         this.graph = graph
         this.elkGraphTransformer = new ElkGraphTransformer(graph, constraintContainer);
         this.graphInElk = this.elkGraphTransformer.convertGraphToLibraryRepresentation(graph, true, constraintContainer),       // TODO: Why I need to pass the constraintContainer again???

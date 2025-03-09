@@ -51,6 +51,7 @@ import { AreaMetric } from "./graph-metrics/implemented-metrics/area-metric";
 import { NodeOrthogonalityMetric } from "./graph-metrics/implemented-metrics/node-orthogonality";
 import { EdgeCrossingAngleMetric } from "./graph-metrics/implemented-metrics/edge-crossing-angle";
 import { Metric } from "./graph-metrics/graph-metrics-iface";
+import { GraphAlgorithms } from "./graph-algoritms";
 export { AnchorOverrideSetting } from "./explicit-anchors";
 export { placePositionOnGrid };
 
@@ -423,6 +424,7 @@ const runMainLayoutAlgorithm = async (
 	console.log("Metrics aggregations result: ", computedMetricsData.metricResultAggregations);
 	console.log("Metrics all results: ", computedMetricsData.metricResults);
 	console.log(await computedMetricsData.metricResultAggregations["total"].max.graphPromise);
+	GraphAlgorithms.moveTestEdgeLenOneUp();			// TODO RadStr: DEBUG
 	return computedMetricsData.metricResultAggregations["total"].max.graphPromise;
 }
 

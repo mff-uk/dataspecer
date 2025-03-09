@@ -27,6 +27,113 @@ export class GraphAlgorithms {
         throw new Error("Unimplemented");
     }
 
+
+    // TODO RadStr: Debugs
+    static currentDCATAPTestEdgeLen = 50;
+    static moveTestEdgeLenOneUp() {
+      console.info("GraphAlgorithms.currentDCATAPTestEdgeLen", GraphAlgorithms.currentDCATAPTestEdgeLen, GraphAlgorithms.currentDCATAPTestEdgeLen.toString());
+      GraphAlgorithms.currentDCATAPTestEdgeLen += 50;
+      if(GraphAlgorithms.currentDCATAPTestEdgeLen === 300) {
+        GraphAlgorithms.currentDCATAPTestEdgeLen = 150;
+      }
+    }
+    static dcatAPTestSetter(
+      graph: IMainGraphClassic
+    ): void {
+      const leafs: Record<string, IEdgeClassic[]> = {};
+      const clusters: Record<string, IEdgeClassic[]> = {};
+      graph.allNodes.forEach(node => {
+        const edges = [...node.getAllEdges()];
+        let secondEnd: string | null = null;
+        let isSameEndForAllEdges = true;
+        for(const edge of node.getAllOutgoingEdges()) {
+          if(secondEnd === null) {
+            secondEnd = edge.end.id;
+          }
+          if(secondEnd !== edge.end.id) {
+            isSameEndForAllEdges = false;
+            break;
+          }
+        }
+        if(isSameEndForAllEdges) {
+          for(const edge of node.getAllIncomingEdges()) {
+            if(secondEnd === null) {
+              secondEnd = edge.start.id;
+            }
+            if(secondEnd !== edge.start.id) {
+              isSameEndForAllEdges = false;
+              break;
+            }
+          }
+
+          if(isSameEndForAllEdges) {
+            for(const edge of edges) {
+              addToRecordArray(node.id, edge, leafs);
+              const otherEnd = edge.start.id === node.id ? edge.end : edge.start;
+              addToRecordArray(otherEnd.id, edge, clusters);
+              edge.layoutOptions["stress_edge_len"] = GraphAlgorithms.currentDCATAPTestEdgeLen.toString();
+            }
+          }
+        }
+      });
+    }
+
+    static dcatAPTestSetterHardcoded(
+      graph: IMainGraphClassic
+    ): void {
+      const leafs: Record<string, IEdgeClassic[]> = {};
+      const clusters: Record<string, IEdgeClassic[]> = {};
+      graph.allNodes.forEach(node => {
+        const edges = [...node.getAllEdges()];
+        let secondEnd: string | null = null;
+        let isSameEndForAllEdges = true;
+        for(const edge of node.getAllOutgoingEdges()) {
+          if(secondEnd === null) {
+            secondEnd = edge.end.id;
+          }
+          if(secondEnd !== edge.end.id) {
+            isSameEndForAllEdges = false;
+            break;
+          }
+        }
+        if(isSameEndForAllEdges) {
+          for(const edge of node.getAllIncomingEdges()) {
+            if(secondEnd === null) {
+              secondEnd = edge.start.id;
+            }
+            if(secondEnd !== edge.start.id) {
+              isSameEndForAllEdges = false;
+              break;
+            }
+          }
+
+          if(isSameEndForAllEdges) {
+            for(const edge of edges) {
+              addToRecordArray(node.id, edge, leafs);
+              const otherEnd = edge.start.id === node.id ? edge.end : edge.start;
+              addToRecordArray(otherEnd.id, edge, clusters);
+              edge.layoutOptions["stress_edge_len"] = GraphAlgorithms.currentDCATAPTestEdgeLen.toString();
+            }
+          }
+        }
+      });
+
+      graph.allEdges.forEach(edge => {
+        if(edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Attribution" ||
+            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Relationship" ||
+            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Role" ||
+
+            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Checksum" ||
+            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#ChecksumAlgorithm" ||
+
+            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#PeriodOfTime" ||
+            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Instant"
+        ) {
+          edge.layoutOptions["stress_edge_len"] = GraphAlgorithms.currentDCATAPTestEdgeLen.toString();
+        }
+      });
+    }
+
     /**
      * Returns leafs paths - for example when we have node which has leafs around it and some non-leafs but those non-leafs are only paths
      */
