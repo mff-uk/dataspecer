@@ -119,15 +119,19 @@ export class GraphAlgorithms {
       });
 
       graph.allEdges.forEach(edge => {
-        if(edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Attribution" ||
-            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Relationship" ||
-            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Role" ||
+        if(edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#CataloguedResource.qualifiedRelation" ||
+            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#CataloguedResource.qualifiedAttribution" ||
+            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Relationship.hadRole" ||
+            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Attribution.hadRole" ||
 
-            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Checksum" ||
-            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#ChecksumAlgorithm" ||
+            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Dataset.temporalCoverage" ||
+            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#PeriodOfTime.end" ||
 
-            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#PeriodOfTime" ||
-            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Instant"
+            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Dataset.spatial-geographicalCoverage" ||
+            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Location.geometry" ||
+
+            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Distribution.checksum" ||
+            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Checksum.algorithm"
         ) {
           edge.layoutOptions["stress_edge_len"] = GraphAlgorithms.currentDCATAPTestEdgeLen.toString();
         }
