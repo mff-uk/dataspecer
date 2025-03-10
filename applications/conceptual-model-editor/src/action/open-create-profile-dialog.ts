@@ -25,15 +25,13 @@ import { createNewAssociationProfileDialog, createNewAssociationProfileDialogSta
 import { createEditAttributeProfileDialog, createNewAttributeProfileDialogState } from "../dialog/attribute-profile/create-new-attribute-profile-dialog-state";
 import { EditClassProfileDialogState } from "../dialog/class-profile/edit-class-profile-dialog-controller";
 import { createNewClassProfileDialog, createNewProfileClassDialogState } from "../dialog/class-profile/create-new-class-profile-dialog-state";
-import { EntityModel } from "@dataspecer/core-v2";
-import { createCmeClassProfile } from "../dataspecer/cme-model/operation/create-cme-class-profile";
-import { createCmeRelationshipProfile } from "../dataspecer/cme-model/operation/create-cme-relationship-profile";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
 import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
-import { createEagerCmeOperationExecutor } from "../dataspecer/cme-model/operation/cme-operation-executor";
+import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 
 export function openCreateProfileDialogAction(
+  cmeExecutor: CmeModelOperationExecutor,
   options: Options,
   dialogs: DialogApiContextType,
   notifications: UseNotificationServiceWriterType,
@@ -56,7 +54,7 @@ export function openCreateProfileDialogAction(
     const state = createNewProfileClassDialogState(
       classes, graph, visualModel, options.language, [entity.id]);
     const onConfirm = (state: EditClassProfileDialogState) => {
-      const result = createClassProfile(state, graph.models);
+      const result = createClassProfile(state, cmeExecutor);
       if (isWritableVisualModel(visualModel)) {
         addSemanticClassProfileToVisualModelAction(
           notifications, graph, classes, visualModel, diagram,
@@ -74,7 +72,7 @@ export function openCreateProfileDialogAction(
     const state = createNewAttributeProfileDialogState(
       classes, graph, visualModel, options.language, [entity.id]);
     const onConfirm = (state: EditAttributeProfileDialogState) => {
-      const result = createRelationshipProfile(state, graph.models);
+      const result = createRelationshipProfile(state, cmeExecutor);
       if (result?.identifier !== undefined) {
         addSemanticAttributeToVisualModelAction(
           notifications, visualModel, state.domain.identifier,
@@ -91,7 +89,7 @@ export function openCreateProfileDialogAction(
     const state = createNewAssociationProfileDialogState(
       classes, graph, visualModel, options.language, [entity.id]);
     const onConfirm = (state: EditAssociationProfileDialogState) => {
-      const result = createRelationshipProfile(state, graph.models)
+      const result = createRelationshipProfile(state, cmeExecutor)
       // Add to visual model if possible.
       if (isWritableVisualModel(visualModel)) {
         addSemanticRelationshipProfileToVisualModelAction(
@@ -113,26 +111,25 @@ export function openCreateProfileDialogAction(
 
 const createClassProfile = (
   state: EditClassProfileDialogState,
-  models: Map<string, EntityModel>,
+  cmeExecutor: CmeModelOperationExecutor,
 ): {
   identifier: string,
   model: string,
 } => {
-  const result = createCmeClassProfile(
-    createEagerCmeOperationExecutor([...models.values() as any]), {
-      model: state.model.dsIdentifier,
-      profileOf: state.profiles.map(item => item.identifier),
-      iri: state.iri,
-      name: state.name,
-      nameSource: state.overrideName ? null :
-        state.nameSource.identifier ?? null,
-      description: state.description,
-      descriptionSource: state.overrideDescription ? null :
-        state.descriptionSource.identifier ?? null,
-      usageNote: state.usageNote,
-      usageNoteSource: state.overrideUsageNote ? null :
-        state.usageNoteSource.identifier ?? null,
-    });
+  const result = cmeExecutor.createClassProfile({
+    model: state.model.dsIdentifier,
+    profileOf: state.profiles.map(item => item.identifier),
+    iri: state.iri,
+    name: state.name,
+    nameSource: state.overrideName ? null :
+      state.nameSource.identifier ?? null,
+    description: state.description,
+    descriptionSource: state.overrideDescription ? null :
+      state.descriptionSource.identifier ?? null,
+    usageNote: state.usageNote,
+    usageNoteSource: state.overrideUsageNote ? null :
+      state.usageNoteSource.identifier ?? null,
+  });
   return {
     identifier: result.identifier,
     model: state.model.dsIdentifier,
@@ -141,35 +138,34 @@ const createClassProfile = (
 
 const createRelationshipProfile = (
   state: EditAttributeProfileDialogState | EditAssociationProfileDialogState,
-  models: Map<string, EntityModel>,
+  cmeExecutor: CmeModelOperationExecutor,
 ): {
   identifier: string,
   model: string,
 } => {
-  const result = createCmeRelationshipProfile(
-    createEagerCmeOperationExecutor([...models.values() as any]), {
-      model: state.model.dsIdentifier,
-      profileOf: state.profiles.map(item => item.identifier),
-      iri: state.iri,
-      name: state.name,
-      nameSource: state.overrideName ? null :
-        state.nameSource.identifier ?? null,
-      description: state.description,
-      descriptionSource: state.overrideDescription ? null :
-        state.descriptionSource.identifier ?? null,
-      usageNote: state.usageNote,
-      usageNoteSource: state.overrideUsageNote ? null :
-        state.usageNoteSource.identifier ?? null,
-      //
-      domain: state.domain.identifier,
-      domainCardinality:
+  const result = cmeExecutor.createRelationshipProfile({
+    model: state.model.dsIdentifier,
+    profileOf: state.profiles.map(item => item.identifier),
+    iri: state.iri,
+    name: state.name,
+    nameSource: state.overrideName ? null :
+      state.nameSource.identifier ?? null,
+    description: state.description,
+    descriptionSource: state.overrideDescription ? null :
+      state.descriptionSource.identifier ?? null,
+    usageNote: state.usageNote,
+    usageNoteSource: state.overrideUsageNote ? null :
+      state.usageNoteSource.identifier ?? null,
+    //
+    domain: state.domain.identifier,
+    domainCardinality:
       state.overrideDomainCardinality ?
         state.domainCardinality.cardinality : null,
-      range: state.range.identifier,
-      rangeCardinality:
+    range: state.range.identifier,
+    rangeCardinality:
       state.overrideRangeCardinality ?
         state.rangeCardinality.cardinality : null,
-    });
+  });
   return {
     identifier: result.identifier,
     model: state.model.dsIdentifier,

@@ -1,6 +1,7 @@
 import { createDefaultSemanticModelProfileOperationFactory } from "@dataspecer/core-v2/semantic-model/profile/operations";
 import { CmeClassProfile } from "../model/cme-class-profile";
-import { CmeOperationExecutor } from "./cme-operation-executor";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { DataspecerError } from "../../dataspecer-error";
 import { CmeReference } from "../model";
 
 const factory = createDefaultSemanticModelProfileOperationFactory();
@@ -9,7 +10,7 @@ const factory = createDefaultSemanticModelProfileOperationFactory();
  * @throws DataspecerError
  */
 export function updateCmeClassProfile(
-  executor: CmeOperationExecutor,
+  model: InMemorySemanticModel,
   next: CmeReference & Partial<CmeClassProfile>,
 ) {
   const operation = factory.modifyClassProfile(
@@ -24,5 +25,8 @@ export function updateCmeClassProfile(
       usageNoteFromProfiled: next.usageNoteSource,
     });
 
-  executor.executeOperation(next.model, operation);
+  const result = model.executeOperation(operation);
+  if (result.success === false) {
+    throw new DataspecerError("Operation execution failed.");
+  }
 }

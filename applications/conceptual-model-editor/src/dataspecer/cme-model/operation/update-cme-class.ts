@@ -1,12 +1,13 @@
 import { CmeClass } from "../model";
 import { modifyClass } from "@dataspecer/core-v2/semantic-model/operations";
-import { CmeOperationExecutor } from "./cme-operation-executor";
+import { DataspecerError } from "../../dataspecer-error";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 
 /**
  * @throws DataspecerError
  */
 export function updateCmeClass(
-  executor: CmeOperationExecutor,
+  model: InMemorySemanticModel,
   next: CmeClass,
 ) {
   const operation = modifyClass(
@@ -16,5 +17,8 @@ export function updateCmeClass(
       description: next.description ?? undefined,
     });
 
-  executor.executeOperation(next.model, operation);
+  const result = model.executeOperation(operation);
+  if (result.success === false) {
+    throw new DataspecerError("Operation execution failed.");
+  }
 }

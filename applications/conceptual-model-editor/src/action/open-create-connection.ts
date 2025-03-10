@@ -12,15 +12,15 @@ import { ConnectionType, CreateConnectionState, createConnectionDialog } from ".
 import { InvalidState, UnsupportedOperationException } from "../application/error";
 import { createLogger } from "../application";
 import { isSemanticModelClassProfile, SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { createCmeGeneralization, createCmeRelationship, updateCmeClassProfile } from "../dataspecer/cme-model/operation";
-import { createEagerCmeOperationExecutor } from "../dataspecer/cme-model/operation/cme-operation-executor";
 import { createVisualModelOperationExecutor, VisualModelOperationExecutor } from "../dataspecer/visual-model/visual-model-operation-executor";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { withErrorBoundary } from "./utilities/error-utilities";
+import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 
 const LOG = createLogger(import.meta.url);
 
 export function openCreateConnectionDialogAction(
+  cmeExecutor: CmeModelOperationExecutor,
   options: Options,
   dialogs: DialogApiContextType,
   notifications: UseNotificationServiceWriterType,
@@ -32,7 +32,8 @@ export function openCreateConnectionDialogAction(
 ) {
   withErrorBoundary(notifications,
     () => openCreateConnectionDialogActionInternal(
-      options, dialogs, graph, visualModel, sourceIdentifier, targetIdentifier
+      cmeExecutor, options, dialogs, graph, visualModel,
+      sourceIdentifier, targetIdentifier,
     ));
 }
 
@@ -40,6 +41,7 @@ export function openCreateConnectionDialogAction(
  * Handle situation when user drag a connection from one node to another.
  */
 function openCreateConnectionDialogActionInternal(
+  cmeExecutor: CmeModelOperationExecutor,
   options: Options,
   dialogs: DialogApiContextType,
   graph: ModelGraphContextType,
@@ -57,12 +59,12 @@ function openCreateConnectionDialogActionInternal(
     && isSemanticModelClass(target)) {
     // Can be a relationship or generalization.
     openRelationshipOrGeneralizationDialog(
-      options, dialogs, visualExecutor, graph, source, target);
+      options, dialogs, visualExecutor, graph, cmeExecutor, source, target);
   }
   else if (isSemanticModelClassProfile(source)
     && isSemanticModelClass(target)) {
     // Create a profile from class to the profile.
-    createProfile(graph, visualExecutor, source, target);
+    createProfile(cmeExecutor, graph, visualExecutor, source, target);
   }
   else if (isSemanticModelClassProfile(source)
     && isSemanticModelClassProfile(target)) {
@@ -99,16 +101,17 @@ function openRelationshipOrGeneralizationDialog(
   dialogs: DialogApiContextType,
   visualExecutor: VisualModelOperationExecutor,
   graph: ModelGraphContextType,
+  cmeExecutor: CmeModelOperationExecutor,
   source: SemanticModelClass,
   target: SemanticModelClass,
 ) {
   const onConfirm = (state: CreateConnectionState) => {
     switch (state.type) {
     case ConnectionType.Association:
-      createRelationship(graph, visualExecutor, state);
+      createRelationship(cmeExecutor, visualExecutor, state);
       break;
     case ConnectionType.Generalization:
-      createGeneralization(graph, visualExecutor, state);
+      createGeneralization(cmeExecutor, visualExecutor, state);
       break;
     }
   };
@@ -119,45 +122,44 @@ function openRelationshipOrGeneralizationDialog(
 }
 
 function createRelationship(
-  graph: ModelGraphContextType,
+  cmeExecutor: CmeModelOperationExecutor,
   visualExecutor: VisualModelOperationExecutor,
   state: CreateConnectionState,
 ) {
-  const relationship = createCmeRelationship(
-    createEagerCmeOperationExecutor(graph.models), {
-      model: state.model.getId(),
-      iri: state.iri,
-      name: state.name,
-      description: state.description ?? null,
-      domain: state.source.id,
-      domainCardinality: state.sourceCardinality,
-      range: state.source.id,
-      rangeCardinality: state.targetCardinality,
-    });
+  const relationship = cmeExecutor.createRelationship({
+    model: state.model.getId(),
+    iri: state.iri,
+    name: state.name,
+    description: state.description ?? null,
+    domain: state.source.id,
+    domainCardinality: state.sourceCardinality,
+    range: state.source.id,
+    rangeCardinality: state.targetCardinality,
+  });
 
   visualExecutor.addRelationship(
     relationship, state.source.id, state.target.id);
 }
 
 function createGeneralization(
-  graph: ModelGraphContextType,
+  cmeExecutor: CmeModelOperationExecutor,
   visualExecutor: VisualModelOperationExecutor,
   state: CreateConnectionState,
 ) {
-  const generalization = createCmeGeneralization(
-    createEagerCmeOperationExecutor(graph.models), {
-      model: state.model.getId(),
-      // https://github.com/mff-uk/dataspecer/issues/537
-      iri: null,
-      childIdentifier: state.source.id,
-      parentIdentifier: state.target.id,
-    });
+  const generalization = cmeExecutor.createGeneralization({
+    model: state.model.getId(),
+    // https://github.com/mff-uk/dataspecer/issues/537
+    iri: null,
+    childIdentifier: state.source.id,
+    parentIdentifier: state.target.id,
+  });
 
   visualExecutor.addRelationship(
     generalization, state.source.id, state.target.id);
 }
 
 function createProfile(
+  cmeExecutor: CmeModelOperationExecutor,
   graph: ModelGraphContextType,
   visualExecutor: VisualModelOperationExecutor,
   source: SemanticModelClassProfile,
@@ -175,13 +177,11 @@ function createProfile(
   const prevProfiles = source.profiling;
   if (!prevProfiles.includes(target.id)) {
     // We update the class profile.
-    updateCmeClassProfile(
-      createEagerCmeOperationExecutor(graph.models), {
-        identifier: source.id,
-        model: sourceModel.getId(),
-        profileOf: [...prevProfiles, target.id],
-      });
-    return;
+    cmeExecutor.changeClassProfile({
+      identifier: source.id,
+      model: sourceModel.getId(),
+      profileOf: [...prevProfiles, target.id],
+    });
   }
 
   // Now we add to the visual.

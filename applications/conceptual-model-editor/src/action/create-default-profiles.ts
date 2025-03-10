@@ -16,11 +16,10 @@ import { findAnyWritableModelFromRawInput } from "../cme-model/cme-model-utiliti
 import { CmeModel } from "../dataspecer/cme-model";
 import { CreatedEntityOperationResult } from "@dataspecer/core-v2/semantic-model/operations";
 import { EditClassProfileDialogState } from "../dialog/class-profile/edit-class-profile-dialog-controller";
-import { EntityModel } from "@dataspecer/core-v2";
-import { createCmeClassProfile } from "../dataspecer/cme-model/operation/create-cme-class-profile";
-import { createEagerCmeOperationExecutor } from "../dataspecer/cme-model/operation/cme-operation-executor";
+import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 
 export async function createDefaultProfilesAction(
+  cmeExecutor: CmeModelOperationExecutor,
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   diagram: UseDiagramType,
@@ -37,8 +36,12 @@ export async function createDefaultProfilesAction(
     return;
   }
   // We have to wait otherwise we might start creating relation profiles for non-existing class profiles
-  const createdClassProfiles = await createDefaultClassProfiles(notifications, graph, diagram, options, classesContext, visualModel, nodesToProfile, shouldBeAddedToVisualModel);
-  createDefaultRelationshipProfiles(notifications, graph, visualModel, writableSemanticModel, edgesToProfile, createdClassProfiles, shouldBeAddedToVisualModel)
+  const createdClassProfiles = await createDefaultClassProfiles(
+    cmeExecutor, notifications, graph, diagram, options, classesContext,
+    visualModel, nodesToProfile, shouldBeAddedToVisualModel);
+  createDefaultRelationshipProfiles(
+    notifications, graph, visualModel, writableSemanticModel, edgesToProfile,
+    createdClassProfiles, shouldBeAddedToVisualModel)
 };
 
 //
@@ -46,9 +49,10 @@ export async function createDefaultProfilesAction(
 /**
  * Creates classes and class profiles from given {@link nodesToProfile} containing semantic identifiers of entities to profile and adds the profiles to the visual model.
  * @returns The created map of created class and class profiles. Key is the identifier from {@link nodesToProfile} and value is the identifier of the created profile.
- * Or null, if it is explictly null, then it means that we failed to create the class profile for some reason.
+ * Or null, if it is explicitly null, then it means that we failed to create the class profile for some reason.
  */
 async function createDefaultClassProfiles(
+  cmeExecutor: CmeModelOperationExecutor,
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   diagram: UseDiagramType,
@@ -60,7 +64,9 @@ async function createDefaultClassProfiles(
 ): Promise<Record<string, string | null>> {
   const createdClassProfiles: Record<string, string | null> = {};
   for (const selectedEntityId of nodesToProfile) {
-    const createdClassProfile = await createDefaultClassProfile(notifications, graph, diagram, options, classesContext, visualModel, selectedEntityId, shouldBeAddedToVisualModel);
+    const createdClassProfile = await createDefaultClassProfile(
+      cmeExecutor, notifications, graph, diagram, options, classesContext,
+      visualModel, selectedEntityId, shouldBeAddedToVisualModel);
     createdClassProfiles[selectedEntityId] = createdClassProfile;
   }
 
@@ -73,6 +79,7 @@ async function createDefaultClassProfiles(
  * @returns The identifier of the created class profile or null if the creation of profile failed
  */
 async function createDefaultClassProfile(
+  cmeExecutor: CmeModelOperationExecutor,
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   diagram: UseDiagramType,
@@ -98,7 +105,7 @@ async function createDefaultClassProfile(
     classesContext, graph, visualModel, options.language,
     [classOrClassProfileToBeProfiled.id],
   );
-  const createdClassProfile = createClassProfile(profileClassState, graph.models);
+  const createdClassProfile = createClassProfile(profileClassState, cmeExecutor);
   if (shouldBeAddedToVisualModel) {
     if (isWritableVisualModel(visualModel)) {
       await addSemanticClassProfileToVisualModelAction(
@@ -112,23 +119,22 @@ async function createDefaultClassProfile(
 
 const createClassProfile = (
   state: EditClassProfileDialogState,
-  models: Map<string, EntityModel>,
+  cmeExecutor: CmeModelOperationExecutor,
 ) => {
-  return createCmeClassProfile(
-    createEagerCmeOperationExecutor([...models.values() as any]), {
-      model: state.model.dsIdentifier,
-      profileOf: state.profiles.map(item => item.identifier),
-      iri: state.iri,
-      name: state.name,
-      nameSource: state.overrideName ? null :
-        state.nameSource.identifier ?? null,
-      description: state.description,
-      descriptionSource: state.overrideDescription ? null :
-        state.descriptionSource.identifier ?? null,
-      usageNote: state.usageNote,
-      usageNoteSource: state.overrideUsageNote ? null :
-        state.usageNoteSource.identifier ?? null,
-    });
+  return cmeExecutor.createClassProfile({
+    model: state.model.dsIdentifier,
+    profileOf: state.profiles.map(item => item.identifier),
+    iri: state.iri,
+    name: state.name,
+    nameSource: state.overrideName ? null :
+      state.nameSource.identifier ?? null,
+    description: state.description,
+    descriptionSource: state.overrideDescription ? null :
+      state.descriptionSource.identifier ?? null,
+    usageNote: state.usageNote,
+    usageNoteSource: state.overrideUsageNote ? null :
+      state.usageNoteSource.identifier ?? null,
+  });
 }
 
 function createDefaultRelationshipProfiles(

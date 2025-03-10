@@ -14,11 +14,10 @@ import { EditAttributeProfileDialogState } from "../dialog/attribute-profile/edi
 import { EntityModel } from "@dataspecer/core-v2";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { CreatedEntityOperationResult, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
-import { createCmeRelationshipProfile } from "../dataspecer/cme-model/operation/create-cme-relationship-profile";
 import { EditAssociationProfileDialogState } from "../dialog/association-profile/edit-association-profile-dialog-controller";
 import { isSemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
-import { createEagerCmeOperationExecutor } from "../dataspecer/cme-model/operation/cme-operation-executor";
+import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 
 const LOG = createLogger(import.meta.url);
 
@@ -26,6 +25,7 @@ const LOG = createLogger(import.meta.url);
  * Open and handle create attribute dialog for a node.
  */
 export function openCreateAttributeForEntityDialogAction(
+  cmeExecutor: CmeModelOperationExecutor,
   options: Options,
   dialogs: DialogApiContextType,
   classes: ClassesContextType,
@@ -66,7 +66,7 @@ export function openCreateAttributeForEntityDialogAction(
   } else if (isSemanticModelClassUsage(entity)
     || isSemanticModelClassProfile(entity)) {
     const onConfirm = (state: EditAttributeProfileDialogState) => {
-      const result = createRelationshipProfile(state, graph.models);
+      const result = createRelationshipProfile(state, cmeExecutor);
       if (visualModel !== null && isWritableVisualModel(visualModel)) {
         if (result.identifier !== undefined) {
           addSemanticAttributeToVisualModelAction(
@@ -131,26 +131,25 @@ function createSemanticAttribute(
 
 const createRelationshipProfile = (
   state: EditAttributeProfileDialogState | EditAssociationProfileDialogState,
-  models: Map<string, EntityModel>,
+  cmeExecutor: CmeModelOperationExecutor,
 ) => {
-  return createCmeRelationshipProfile(
-    createEagerCmeOperationExecutor([...models.values() as any]), {
-      model: state.model.dsIdentifier,
-      profileOf: state.profiles.map(item => item.identifier),
-      iri: state.iri,
-      name: state.name,
-      nameSource: state.overrideName ? null :
-        state.nameSource.identifier ?? null,
-      description: state.description,
-      descriptionSource: state.overrideDescription ? null :
-        state.descriptionSource.identifier ?? null,
-      usageNote: state.usageNote,
-      usageNoteSource: state.overrideUsageNote ? null :
-        state.usageNoteSource.identifier ?? null,
-      //
-      domain: state.domain.identifier,
-      domainCardinality: state.domainCardinality.cardinality,
-      range: state.range.identifier,
-      rangeCardinality: state.rangeCardinality.cardinality,
-    });
+  return cmeExecutor.createRelationshipProfile({
+    model: state.model.dsIdentifier,
+    profileOf: state.profiles.map(item => item.identifier),
+    iri: state.iri,
+    name: state.name,
+    nameSource: state.overrideName ? null :
+      state.nameSource.identifier ?? null,
+    description: state.description,
+    descriptionSource: state.overrideDescription ? null :
+      state.descriptionSource.identifier ?? null,
+    usageNote: state.usageNote,
+    usageNoteSource: state.overrideUsageNote ? null :
+      state.usageNoteSource.identifier ?? null,
+    //
+    domain: state.domain.identifier,
+    domainCardinality: state.domainCardinality.cardinality,
+    range: state.range.identifier,
+    rangeCardinality: state.rangeCardinality.cardinality,
+  });
 }

@@ -63,6 +63,7 @@ import { isInMemorySemanticModel } from "../utilities/model";
 import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelAttributeUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
+import { createCmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 
 const LOG = createLogger(import.meta.url);
 
@@ -404,13 +405,19 @@ function createActionsContext(
   prevNotifications = notifications;
   prevGraph = graph;
   prevDiagram = diagram;
+
+  // For now we create derived state here, till is is available
+  // as a context.
+
+  const cmeExecutor = createCmeModelOperationExecutor(graph.models);
+
   //
 
   const openCreateProfileDialog = (identifier: string) => {
     withVisualModel(notifications, graph, (visualModel) => {
       const position = getViewportCenterForClassPlacement(diagram);
       openCreateProfileDialogAction(
-        options, dialogs, notifications, classes, graph,
+        cmeExecutor, options, dialogs, notifications, classes, graph,
         visualModel, diagram, position, identifier);
     });
   };
@@ -418,7 +425,8 @@ function createActionsContext(
   const openCreateConnectionDialog = (source: string, target: string) => {
     withVisualModel(notifications, graph, (visualModel) => {
       openCreateConnectionDialogAction(
-        options, dialogs, notifications, graph, visualModel, source, target);
+        cmeExecutor,  options, dialogs, notifications,
+        graph, visualModel, source, target);
     });
   };
 
@@ -502,7 +510,7 @@ function createActionsContext(
   ) => {
     withVisualModel(notifications, graph, (visualModel) => {
       openCreateAttributeForEntityDialogAction(
-        options, dialogs, classes, graph, notifications,
+        cmeExecutor, options, dialogs, classes, graph, notifications,
         visualModel, classIdentifier, onConfirmCallback);
     });
   };
@@ -520,7 +528,7 @@ function createActionsContext(
   const openModifyDialog = (identifier: string) => {
     withVisualModel(notifications, graph, (visualModel) => {
       openModifyDialogAction(
-        options, dialogs, notifications, classes, useClasses, graph,
+        cmeExecutor, options, dialogs, notifications, classes, useClasses, graph,
         visualModel, identifier);
     });
   };
@@ -901,7 +909,9 @@ function createActionsContext(
     onProfileSelection: () => {
       const { nodeSelection, edgeSelection } = getSelections(diagram, true, false);
       withVisualModel(notifications, graph, (visualModel) => {
-        createDefaultProfilesAction(notifications, graph, diagram, options, classes, visualModel, nodeSelection, edgeSelection, true);
+        createDefaultProfilesAction(
+          cmeExecutor, notifications, graph, diagram, options, classes,
+          visualModel, nodeSelection, edgeSelection, true);
       });
     },
     onHideSelection: () => {
@@ -955,7 +965,8 @@ function createActionsContext(
         if(isSemanticModelAttributeUsage(attributeEntity) || isSemanticModelAttributeProfile(attributeEntity)) {
           // TODO RadStr: Once we have multi entities - this is wrong, we have to take into consideration the _nodeIdentifer
           openEditAttributeProfileDialogAction(
-            options, dialogs, classes, graph, notifications, visualModel, model, attributeEntity);
+            options, dialogs, classes, graph, cmeExecutor,
+            notifications, visualModel, model, attributeEntity);
         }
         else {
           notifications.error("Given attribute profile to be edited is not an attribute profile");

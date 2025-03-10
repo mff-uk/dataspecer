@@ -1,6 +1,5 @@
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
-import { EntityModel } from "@dataspecer/core-v2";
 import { SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { DialogApiContextType } from "../dialog/dialog-service";
@@ -10,14 +9,14 @@ import { Options } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { EditAssociationProfileDialogState } from "../dialog/association-profile/edit-association-profile-dialog-controller";
 import { createEditAssociationProfileDialog, createEditAssociationProfileDialogState } from "../dialog/association-profile/create-edit-association-profile-dialog-state";
-import { updateCmeRelationshipProfile } from "../dataspecer/cme-model/operation/update-cme-relationship-profile";
 import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { createEagerCmeOperationExecutor } from "../dataspecer/cme-model/operation/cme-operation-executor";
+import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 
 /**
  * Open and handle edit association dialog.
  */
 export function openEditAssociationProfileDialogAction(
+  cmeExecutor: CmeModelOperationExecutor,
   options: Options,
   dialogs: DialogApiContextType,
   classes: ClassesContextType,
@@ -31,15 +30,16 @@ export function openEditAssociationProfileDialogAction(
     classes, graph, visualModel, options.language, model, entity.id);
 
   const onConfirm = (nextState: EditAssociationProfileDialogState) => {
-    updateSemanticAssociationProfile(notifications, graph.models, entity, state, nextState);
+    updateSemanticAssociationProfile(
+      cmeExecutor, notifications, entity, state, nextState);
   };
 
   dialogs.openDialog(createEditAssociationProfileDialog(state, onConfirm));
 }
 
 function updateSemanticAssociationProfile(
+  cmeExecutor: CmeModelOperationExecutor,
   notifications: UseNotificationServiceWriterType,
-  models: Map<string, EntityModel>,
   entity: SemanticModelRelationshipUsage | SemanticModelRelationshipProfile,
   prevState: EditAssociationProfileDialogState,
   state: EditAssociationProfileDialogState,
@@ -48,29 +48,28 @@ function updateSemanticAssociationProfile(
     notifications.error("Change of model is not supported!");
   }
 
-  updateCmeRelationshipProfile(
-    createEagerCmeOperationExecutor([...models.values() as any]), {
-      identifier: entity.id,
-      model: state.model.dsIdentifier,
-      profileOf: state.profiles.map(item => item.identifier),
-      iri: state.iri,
-      name: state.name,
-      nameSource: state.overrideName ? null :
-        state.nameSource.identifier ?? null,
-      description: state.description,
-      descriptionSource: state.overrideDescription ? null :
-        state.descriptionSource.identifier ?? null,
-      usageNote: state.usageNote,
-      usageNoteSource: state.overrideUsageNote ? null :
-        state.usageNoteSource.identifier ?? null,
-      //
-      domain: state.domain.identifier,
-      domainCardinality:
+  cmeExecutor.updateRelationshipProfile({
+    identifier: entity.id,
+    model: state.model.dsIdentifier,
+    profileOf: state.profiles.map(item => item.identifier),
+    iri: state.iri,
+    name: state.name,
+    nameSource: state.overrideName ? null :
+      state.nameSource.identifier ?? null,
+    description: state.description,
+    descriptionSource: state.overrideDescription ? null :
+      state.descriptionSource.identifier ?? null,
+    usageNote: state.usageNote,
+    usageNoteSource: state.overrideUsageNote ? null :
+      state.usageNoteSource.identifier ?? null,
+    //
+    domain: state.domain.identifier,
+    domainCardinality:
       state.overrideDomainCardinality ?
         state.domainCardinality.cardinality : null,
-      range: state.range.identifier,
-      rangeCardinality:
+    range: state.range.identifier,
+    rangeCardinality:
       state.overrideRangeCardinality ?
         state.rangeCardinality.cardinality : null,
-    });
+  });
 }

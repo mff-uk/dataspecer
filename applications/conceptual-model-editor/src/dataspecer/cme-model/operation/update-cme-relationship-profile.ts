@@ -1,6 +1,7 @@
 import { createDefaultSemanticModelProfileOperationFactory } from "@dataspecer/core-v2/semantic-model/profile/operations";
 import { CmeRelationshipProfile } from "../model/cme-relationship-profile";
-import { CmeOperationExecutor } from "./cme-operation-executor";
+import { DataspecerError } from "../../dataspecer-error";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 
 const factory = createDefaultSemanticModelProfileOperationFactory();
 
@@ -8,7 +9,7 @@ const factory = createDefaultSemanticModelProfileOperationFactory();
  * @throws DataspecerError
  */
 export function updateCmeRelationshipProfile(
-  executor: CmeOperationExecutor,
+  model: InMemorySemanticModel,
   next: CmeRelationshipProfile,
 ) {
   const operation = factory.modifyRelationshipProfile(next.identifier,{
@@ -37,5 +38,8 @@ export function updateCmeRelationshipProfile(
     }]
   })
 
-  executor.executeOperation(next.model, operation);
+  const result = model.executeOperation(operation);
+  if (result.success === false) {
+    throw new DataspecerError("Operation execution failed.");
+  }
 }

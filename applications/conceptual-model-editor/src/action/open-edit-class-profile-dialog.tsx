@@ -11,11 +11,11 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { createEditClassProfileDialog, createEditClassProfileDialogState } from "../dialog/class-profile/create-edit-class-profile-dialog-state";
 import { EditClassProfileDialogState } from "../dialog/class-profile/edit-class-profile-dialog-controller";
 import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { updateCmeClassProfile } from "../dataspecer/cme-model/operation/update-cme-class-profile";
 import { updateVisualNodeProfiles } from "../dataspecer/visual-model/operation/update-visual-node-profiles";
-import { createEagerCmeOperationExecutor } from "../dataspecer/cme-model/operation/cme-operation-executor";
+import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 
 export function openEditClassProfileDialogAction(
+  cmeExecutor: CmeModelOperationExecutor,
   options: Options,
   dialogs: DialogApiContextType,
   classes: ClassesContextType,
@@ -29,9 +29,10 @@ export function openEditClassProfileDialogAction(
     classes, graph, visualModel, options.language, model, entity.id);
 
   const onConfirm = (nextState: EditClassProfileDialogState) => {
-    updateSemanticClassProfile(notifications, entity, graph.models, state, nextState);
+    updateSemanticClassProfile(
+      cmeExecutor, notifications, entity, graph.models, state, nextState);
     // We need to update visual model: profiles
-    if(isWritableVisualModel(visualModel)) {
+    if (isWritableVisualModel(visualModel)) {
       updateVisualNodeProfiles(
         visualModel, {
           identifier: entity.id,
@@ -52,6 +53,7 @@ export function openEditClassProfileDialogAction(
 }
 
 function updateSemanticClassProfile(
+  cmeExecutor: CmeModelOperationExecutor,
   notifications: UseNotificationServiceWriterType,
   entity: SemanticModelClassUsage | SemanticModelClassProfile,
   models: Map<string, EntityModel>,
@@ -63,20 +65,19 @@ function updateSemanticClassProfile(
     return;
   }
 
-  updateCmeClassProfile(
-    createEagerCmeOperationExecutor([...models.values() as any]), {
-      identifier: entity.id,
-      model: state.model.dsIdentifier,
-      profileOf: state.profiles.map(item => item.identifier),
-      iri: state.iri,
-      name: state.name,
-      nameSource: state.overrideName ? null :
-        state.nameSource.identifier ?? null,
-      description: state.description,
-      descriptionSource: state.overrideDescription ? null :
-        state.descriptionSource.identifier ?? null,
-      usageNote: state.usageNote,
-      usageNoteSource: state.overrideUsageNote ? null :
-        state.usageNoteSource.identifier ?? null,
-    });
+  cmeExecutor.changeClassProfile({
+    identifier: entity.id,
+    model: state.model.dsIdentifier,
+    profileOf: state.profiles.map(item => item.identifier),
+    iri: state.iri,
+    name: state.name,
+    nameSource: state.overrideName ? null :
+      state.nameSource.identifier ?? null,
+    description: state.description,
+    descriptionSource: state.overrideDescription ? null :
+      state.descriptionSource.identifier ?? null,
+    usageNote: state.usageNote,
+    usageNoteSource: state.overrideUsageNote ? null :
+      state.usageNoteSource.identifier ?? null,
+  });
 }
