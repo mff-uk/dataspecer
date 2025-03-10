@@ -13,7 +13,6 @@ import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relatio
 import { ModelGraphContextType } from "../context/model-context";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { addVisualNodeProfile } from "../dataspecer/visual-model/operation/add-visual-node-profile";
-import { createVisualOperationExecutor } from "../dataspecer/visual-model/operation/visual-operation-executor";
 
 /**
  * For given entity make sure, that all related entities
@@ -37,7 +36,7 @@ export function addRelatedEntitiesAction(
   }
 
   const visualOperationExecutor =
-    createVisualOperationExecutor(visualModel);
+    visualModel;
 
   const addingUsage = isSemanticModelClassUsage(entity);
   const addingProfile = isSemanticModelClassProfile(entity);

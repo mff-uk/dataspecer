@@ -10,7 +10,6 @@ import { findPositionForNewNodesUsingLayouting } from "./layout-visual-model";
 import { ClassesContextType } from "../context/classes-context";
 import { addVisualNode } from "../dataspecer/visual-model/operation/add-visual-node";
 import { getVisualNodeContentBasedOnExistingEntities } from "./add-semantic-attribute-to-visual-model";
-import { createVisualOperationExecutor } from "../dataspecer/visual-model/operation/visual-operation-executor";
 
 export async function addSemanticClassToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
@@ -34,7 +33,7 @@ export async function addSemanticClassToVisualModelAction(
       const content = getVisualNodeContentBasedOnExistingEntities(
         classes, entity);
       addVisualNode(
-        createVisualOperationExecutor(visualModel),
+        visualModel,
         entity, modelIdentifier, position, content);
       addRelatedEntitiesAction(
         notifications, graph, visualModel, Object.values(entities),

@@ -1,6 +1,6 @@
 import { EntityReference } from "../../entity-model";
 import { DataspecerError } from "../../dataspecer-error";
-import { VisualOperationExecutor } from "./visual-operation-executor";
+import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 /**
  * Adds a visual representation for class profile.
@@ -8,20 +8,18 @@ import { VisualOperationExecutor } from "./visual-operation-executor";
  * @throws DataspecerError
   */
 export function addVisualNodeProfile(
-  executor: VisualOperationExecutor,
+  visualModel: WritableVisualModel,
   profile: EntityReference,
   profiled: EntityReference,
 ) {
-  const visualSource =
-    executor.visualModel.getVisualEntityForRepresented(profile.identifier);
-  const visualTarget =
-    executor.visualModel.getVisualEntityForRepresented(profiled.identifier);
+  const visualSource = visualModel.getVisualEntityForRepresented(profile.identifier);
+  const visualTarget = visualModel.getVisualEntityForRepresented(profiled.identifier);
   if (visualSource === null || visualTarget === null) {
     console.error("Missing visual representation",
       { profile, profiled, visualSource: visualSource, visualTarget: visualTarget });
     throw new DataspecerError("Can not add visual node profile.");
   }
-  executor.visualModel.addVisualProfileRelationship({
+  visualModel.addVisualProfileRelationship({
     entity: profile.identifier,
     model: profile.model,
     visualSource: visualSource.identifier,

@@ -1,9 +1,9 @@
+import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { ModelDsIdentifier } from "../../entity-model";
-import { VisualOperationExecutor } from "./visual-operation-executor";
 
 export function deleteEntityModel(
-  executor: VisualOperationExecutor,
+  visualModel: WritableVisualModel,
   model: ModelDsIdentifier,
 ) {
-  executor.visualModel.deleteModelData(model);
+  visualModel.deleteModelData(model);
 }

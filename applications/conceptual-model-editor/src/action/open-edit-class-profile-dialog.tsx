@@ -14,7 +14,6 @@ import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/pr
 import { updateCmeClassProfile } from "../dataspecer/cme-model/operation/update-cme-class-profile";
 import { updateVisualNodeProfiles } from "../dataspecer/visual-model/operation/update-visual-node-profiles";
 import { createEagerCmeOperationExecutor } from "../dataspecer/cme-model/operation/cme-operation-executor";
-import { createVisualOperationExecutor } from "../dataspecer/visual-model/operation/visual-operation-executor";
 
 export function openEditClassProfileDialogAction(
   options: Options,
@@ -34,7 +33,7 @@ export function openEditClassProfileDialogAction(
     // We need to update visual model: profiles
     if(isWritableVisualModel(visualModel)) {
       updateVisualNodeProfiles(
-        createVisualOperationExecutor(visualModel), {
+        visualModel, {
           identifier: entity.id,
           model: model.getId(),
         },

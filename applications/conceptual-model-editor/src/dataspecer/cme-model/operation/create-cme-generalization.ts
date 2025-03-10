@@ -15,5 +15,5 @@ export function createCmeGeneralization(
     parent: value.parentIdentifier,
   });
 
-  executor.executeOperation(value.model, operation);
+  return executor.executeCreateOperation(value.model, operation);
 }

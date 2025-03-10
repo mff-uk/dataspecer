@@ -1,8 +1,8 @@
+import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
-import { VisualOperationExecutor } from "./visual-operation-executor";
 
 export function addVisualNode(
-  executor: VisualOperationExecutor,
+  visualModel: WritableVisualModel,
   entity: {
     id: EntityDsIdentifier,
   },
@@ -10,7 +10,7 @@ export function addVisualNode(
   position: { x: number, y: number },
   content: string[],
 ) {
-  executor.visualModel.addVisualNode({
+  visualModel.addVisualNode({
     model: model,
     representedEntity: entity.id,
     position: {

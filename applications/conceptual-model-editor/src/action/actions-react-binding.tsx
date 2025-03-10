@@ -418,8 +418,7 @@ function createActionsContext(
   const openCreateConnectionDialog = (source: string, target: string) => {
     withVisualModel(notifications, graph, (visualModel) => {
       openCreateConnectionDialogAction(
-        options, dialogs, notifications, useClasses, graph,
-        visualModel, source, target);
+        options, dialogs, notifications, graph, visualModel, source, target);
     });
   };
 

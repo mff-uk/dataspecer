@@ -1,6 +1,7 @@
 import { createDefaultSemanticModelProfileOperationFactory } from "@dataspecer/core-v2/semantic-model/profile/operations";
 import { CmeClassProfile } from "../model/cme-class-profile";
 import { CmeOperationExecutor } from "./cme-operation-executor";
+import { CmeReference } from "../model";
 
 const factory = createDefaultSemanticModelProfileOperationFactory();
 
@@ -9,7 +10,7 @@ const factory = createDefaultSemanticModelProfileOperationFactory();
  */
 export function updateCmeClassProfile(
   executor: CmeOperationExecutor,
-  next: CmeClassProfile,
+  next: CmeReference & Partial<CmeClassProfile>,
 ) {
   const operation = factory.modifyClassProfile(
     next.identifier, {

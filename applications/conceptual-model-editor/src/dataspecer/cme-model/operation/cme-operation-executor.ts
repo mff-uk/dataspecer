@@ -4,6 +4,8 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { MissingModel } from "../../../application/error";
 import { DataspecerError } from "../../dataspecer-error";
 import { CmeReference } from "../model";
+import { EntityModel } from "@dataspecer/core-v2";
+import { isInMemorySemanticModel } from "../../../utilities/model";
 
 export interface CmeOperationExecutor {
 
@@ -85,6 +87,15 @@ class EagerCmeOperationExecutor implements CmeOperationExecutor {
 }
 
 export function createEagerCmeOperationExecutor(
-  models: InMemorySemanticModel[]) {
-  return new EagerCmeOperationExecutor(models);
+  models: EntityModel[] | Map<string, EntityModel>,
+) {
+  let entityModels: EntityModel[] = [];
+  if (models instanceof Map) {
+    entityModels = [...models.values()];
+  } else {
+    entityModels = models;
+  }
+  //
+  const semanticModels = entityModels.filter(isInMemorySemanticModel);
+  return new EagerCmeOperationExecutor(semanticModels);
 }
