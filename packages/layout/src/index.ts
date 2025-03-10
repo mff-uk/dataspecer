@@ -343,8 +343,7 @@ const runMainLayoutAlgorithm = async (
 	graph: IMainGraphClassic,
 	constraints: ConstraintContainer
 ): Promise<IMainGraphClassic> => {
-											// TODO: Well it really is overkill, like I could in the same way just have a look, if the given configuration contains numberOfAlgorithmRuns and if so, just put it here
-	let bestLayoutedVisualEntitiesPromise: Promise<IMainGraphClassic>;
+	// TODO: Well it really is overkill, like I could in the same way just have a look, if the given configuration contains numberOfAlgorithmRuns and if so, just put it here
 	const metricsWithWeights: MetricWithWeight[] = [
 		{
 			name: "EdgeCrossingMetric",
@@ -386,7 +385,8 @@ const runMainLayoutAlgorithm = async (
 		let layoutedGraphPromise: Promise<IMainGraphClassic>;
 		for(const action of constraints.layoutActionsIterator) {
 			if(action instanceof GraphConversionConstraint) {
-				SPECIFIC_ALGORITHM_CONVERSIONS_MAP[action.actionName](action, graph);
+				layoutedGraphPromise = SPECIFIC_ALGORITHM_CONVERSIONS_MAP[action.actionName](action, workGraph);
+				workGraph = await layoutedGraphPromise;
 			}
 			else if(action instanceof AlgorithmConfiguration) {		// TODO: Using the actual type instead of interface
 				const layoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[action.algorithmName];
@@ -414,7 +414,6 @@ const runMainLayoutAlgorithm = async (
 			metricsWithWeights, computedMetricsData.metricResults,
 			computedMetricsData.metricResultAggregations,
 			workGraph, layoutedGraphPromise);
-
 		constraints.resetLayoutActionsIterator();
 	}
 

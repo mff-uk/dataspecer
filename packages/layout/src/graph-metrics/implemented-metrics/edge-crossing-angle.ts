@@ -54,14 +54,19 @@ export class EdgeCrossingAngleMetric implements Metric {
         for(let j = i; j < graph.mainGraph.allEdges.length; j++) {
           const edge1 = graph.mainGraph.allEdges[i];
           const edge2 = graph.mainGraph.allEdges[j];
+
+          const vector1 = createVectorFromEdge(edge1);
+          const vector2 = createVectorFromEdge(edge2);
+          if((vector1[0] === 0 && vector1[1] === 0) || (vector2[0] === 0 && vector2[1] === 0)) {
+            continue;
+          }
+
           const areEdgesCrossing = EdgeCrossingMetric.isEdgeCrossForStraightLines(
             edge1.start.completeVisualNode, edge1.end.completeVisualNode,
             edge2.start.completeVisualNode, edge2.end.completeVisualNode);
           if(!areEdgesCrossing) {
             continue;
           }
-          const vector1 = createVectorFromEdge(edge1);
-          const vector2 = createVectorFromEdge(edge2);
           const angle = calculateAngleBetweenVectors(vector1, vector2);
           // https://github.com/rpgove/greadability
           angleDifferenceSum += Math.abs(idealAngle - angle);

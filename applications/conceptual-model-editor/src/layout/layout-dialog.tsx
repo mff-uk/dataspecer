@@ -231,6 +231,39 @@ export const useConfigDialog = () => {
                     (Not sure if the type is correct, but it contains value so it shouldn't really matter) */}
   }
 
+
+  const StressWithClustersConfig = (props: {stateField: MainType}) =>
+    <div>
+      <div className="flex flex-row">
+        <label htmlFor="range-stress-edge-len">Ideal edge length: </label>
+      </div>
+      <div className="flex flex-row">
+        <input type="range" min="0" max="1000" step="10" className="slider" id="range-stress-edge-len" draggable="false"
+          defaultValue={config?.[props.stateField]?.elk_stress_advanced_using_clusters?.["stress_edge_len"]}
+          onMouseUp={(e) => {
+            setConfigWithNewValue("elk_stress_advanced_using_clusters", props.stateField, "stress_edge_len", parseInt((e.target as HTMLInputElement).value));
+          }
+          }
+        ></input>
+        {config?.[props.stateField]?.elk_stress_advanced_using_clusters?.["stress_edge_len"]}
+      </div>
+      {/* TODO RadStr: Copy paste from force algorithm */}
+      <div className="flex flex-row">
+        <label htmlFor="range-iteration-count">Number of runs (may take several seconds for high numbers):</label>
+      </div>
+      <div className="flex flex-row">
+        <input type="range" min="1" max="200" step="1" className="slider" id="range-iteration-count" draggable="false"
+          defaultValue={config?.[props.stateField]?.elk_stress_advanced_using_clusters?.["number_of_new_algorithm_runs"]}
+          onMouseUp={(e) => {
+            // Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
+            // (Not sure if the type is correct, but it contains value so it shouldn't really matter)
+            setConfigWithNewValue("elk_stress_advanced_using_clusters", props.stateField, "number_of_new_algorithm_runs", parseInt((e.target as HTMLInputElement).value));
+          }}></input>
+        {config?.[props.stateField]?.elk_stress_advanced_using_clusters?.["number_of_new_algorithm_runs"]}
+      </div>
+      <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
+    </div>;
+
   const StressConfig = (props: {stateField: MainType}) =>
     <div>
       <div className="flex flex-row">
@@ -263,7 +296,6 @@ export const useConfigDialog = () => {
       <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
       {interactiveCheckbox({...props, algorithmName: "elk_stress"})}
       <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
-
     </div>;
 
   const LayeredConfig = (props: {stateField: MainOrGeneralType}) =>
@@ -333,6 +365,8 @@ export const useConfigDialog = () => {
     }
 
     switch(config.chosenMainAlgorithm) {
+      case "elk_stress_advanced_using_clusters":
+        return <StressWithClustersConfig stateField="main"></StressWithClustersConfig>;
       case "elk_stress":
         return <StressConfig stateField="main"></StressConfig>;
       case "elk_layered":
@@ -346,7 +380,6 @@ export const useConfigDialog = () => {
       case "elk_overlapRemoval":
         return <OverlapRemovalConfig stateField="main"></OverlapRemovalConfig>;
       case "random":
-      case "d3_force":
       default:
         return null;
     }
@@ -367,6 +400,7 @@ export const useConfigDialog = () => {
           }>
           <option value="elk_layered">Layered (Hierarchical)</option>
           <option value="elk_stress">Elk Stress (Force-based algorithm)</option>
+          <option value="elk_stress_advanced_using_clusters">Elk Stress (Force-based algorithm) with clustering</option>
           <option value="elk_force">Elk Force (Force-based algorithm)</option>
           <option value="elk_radial">Radial</option>
           <option value="elk_overlapRemoval">Overlap removal</option>

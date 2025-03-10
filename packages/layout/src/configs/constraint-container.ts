@@ -5,17 +5,18 @@ import { ElkLayout } from "../elk-layouts";
 import { RandomLayout } from "../basic-layouts";
 import { ElkConstraint } from "./elk/elk-constraints";
 
-export type AlgorithmName = "elk_stress" | "elk_layered" | "elk_force" | "random" | "d3_force" | "sporeCompaction" | "elk_radial" | "elk_overlapRemoval";
+export type AlgorithmName = "elk_stress" | "elk_layered" | "elk_force" | "random" |
+                            "sporeCompaction" | "elk_radial" | "elk_overlapRemoval" | "elk_stress_advanced_using_clusters";
 
 export const ALGORITHM_NAME_TO_LAYOUT_MAPPING: Record<AlgorithmName, LayoutAlgorithm> = {
     "elk_stress": new ElkLayout(),
     "elk_layered": new ElkLayout(),
     "elk_force": new ElkLayout(),
     "random": new RandomLayout(),
-    "d3_force": new ElkLayout(),    // TODO:
     "sporeCompaction": new ElkLayout(),
     "elk_radial": new ElkLayout(),
     "elk_overlapRemoval": new ElkLayout(),
+    "elk_stress_advanced_using_clusters": new ElkLayout(),
 }
 
 type ModelID = string;
@@ -92,24 +93,26 @@ export class ConstraintContainer {
 
 
 
-    constructor(layoutActionsBefore: (IAlgorithmConfiguration | IGraphConversionConstraint)[],
-                layoutActions: (IAlgorithmConfiguration | IGraphConversionConstraint)[],
-                simpleConstraints?: IConstraintSimple[] | null,
-                constraints?: IConstraint[] | null,
-                underlyingModelsConstraints?: Record<ModelID, ConstraintContainer> | null) {
-                    this.layoutActionsToRunBefore = layoutActionsBefore;
-                    this.resetLayoutActionsBeforeRunIterator();
-                    this.resetLayoutActionsIterator();
+    constructor(
+        layoutActionsBefore: (IAlgorithmConfiguration | IGraphConversionConstraint)[],
+        layoutActions: (IAlgorithmConfiguration | IGraphConversionConstraint)[],
+        simpleConstraints?: IConstraintSimple[] | null,
+        constraints?: IConstraint[] | null,
+        underlyingModelsConstraints?: Record<ModelID, ConstraintContainer> | null
+    ) {
+        this.layoutActionsToRunBefore = layoutActionsBefore;
+        this.resetLayoutActionsBeforeRunIterator();
+        this.resetLayoutActionsIterator();
 
-                    this.layoutActions = [];
-                    this.addAlgorithmConstraints(...layoutActions);
-                    this.simpleConstraints = simpleConstraints ?? [];
-                    this.constraints = constraints ?? [];
-                    this.underlyingModelsConstraints = underlyingModelsConstraints ?? {};
+        this.layoutActions = [];
+        this.addAlgorithmConstraints(...layoutActions);
+        this.simpleConstraints = simpleConstraints ?? [];
+        this.constraints = constraints ?? [];
+        this.underlyingModelsConstraints = underlyingModelsConstraints ?? {};
 
-                    // TODO: For now
-                    this.modelID = null;
-                }
+        // TODO: For now
+        this.modelID = null;
+    }
 
 
     addSimpleConstraints(...constraints: IConstraintSimple[]) {

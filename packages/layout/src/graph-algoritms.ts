@@ -28,6 +28,9 @@ export class GraphAlgorithms {
     }
 
 
+    // TODO RadStr: ...... Trying stuff
+    // TODO RadStr: ...... Trying stuff
+
     // TODO RadStr: Debugs
     static currentDCATAPTestEdgeLen = 250;
     static moveTestEdgeLenOneUp() {
@@ -119,6 +122,9 @@ export class GraphAlgorithms {
       });
 
       graph.allEdges.forEach(edge => {
+        if(edge.semanticEntityRepresentingEdge === null) {
+          return;
+        }
         if(edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#CataloguedResource.qualifiedRelation" ||
             edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#CataloguedResource.qualifiedAttribution" ||
             edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Relationship.hadRole" ||
@@ -181,6 +187,65 @@ export class GraphAlgorithms {
         }
       });
     }
+
+
+    static clusterify(graph: IMainGraphClassic): IEdgeClassic[][] {
+      const leafs: Record<string, IEdgeClassic[]> = {};
+      const clusters: Record<string, IEdgeClassic[]> = {};
+      const uniqueClusters: Record<string, IEdgeClassic[]> = {};    // Clusters without multi-edges - we just take 1 representative
+      graph.allNodes.forEach(node => {
+        const edges = [...node.getAllEdges()];
+        let secondEnd: string | null = null;
+        let isSameEndForAllEdges = true;
+        for(const edge of node.getAllOutgoingEdges()) {
+          if(secondEnd === null) {
+            secondEnd = edge.end.id;
+          }
+          if(secondEnd !== edge.end.id) {
+            isSameEndForAllEdges = false;
+            break;
+          }
+        }
+        if(isSameEndForAllEdges) {
+          for(const edge of node.getAllIncomingEdges()) {
+            if(secondEnd === null) {
+              secondEnd = edge.start.id;
+            }
+            if(secondEnd !== edge.start.id) {
+              isSameEndForAllEdges = false;
+              break;
+            }
+          }
+
+          if(isSameEndForAllEdges) {
+            let isFirst = true;
+            for(const edge of edges) {
+              addToRecordArray(node.id, edge, leafs);
+              const otherEnd = edge.start.id === node.id ? edge.end : edge.start;
+              addToRecordArray(otherEnd.id, edge, clusters);
+              if(isFirst) {
+                isFirst = false;
+                addToRecordArray(otherEnd.id, edge, uniqueClusters);
+              }
+              // TODO RadStr: Commented code
+              // edge.layoutOptions["stress_edge_len"] = "250";
+            }
+          }
+        }
+      });
+
+      const sortedClusters = Object.entries(uniqueClusters)
+        .sort(([, valuesA], [, valuesB]) => valuesB.length - valuesA.length);
+      const biggestClusters = sortedClusters.splice(0, 3);
+      return [
+        biggestClusters[0][1],
+        biggestClusters[1][1],
+        biggestClusters[2][1],
+      ];
+    }
+
+    // TODO RadStr: ...... Trying stuff - END
+    // TODO RadStr: ...... Trying stuff - END
 
     /**
      * This method modifies input graph.
@@ -370,4 +435,3 @@ class VisualAlgorithms {
         throw new Error("Unimplemented");
     }
 }
-

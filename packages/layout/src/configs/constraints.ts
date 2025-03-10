@@ -1,11 +1,12 @@
-import { IGraphClassic, IMainGraphClassic } from "../graph-iface"
+import { IEdgeClassic, IGraphClassic, IMainGraphClassic } from "../graph-iface"
 import { Direction } from "../util/utils";
-import { AlgorithmName } from "./constraint-container";
+import { ALGORITHM_NAME_TO_LAYOUT_MAPPING, AlgorithmName } from "./constraint-container";
 import _ from "lodash";
 import { ElkForceAlgType } from "./elk/elk-constraints";
 import { NodeDimensionQueryHandler, UserGivenConstraintsVersion2 } from "..";
 import { compactify } from "./constraints-implementation";
 import { GraphAlgorithms } from "../graph-algoritms";
+import { ConstraintFactory } from "./constraint-factories";
 
 
 export type ConstraintedNodesGroupingsType = "ALL" | "GENERALIZATION" | "PROFILE";
@@ -135,20 +136,29 @@ export interface IGraphConversionConstraint extends IAdditionalControlOptions {
     constraintedNodes: ConstraintedNodesGroupingsType | string[],       // Either grouping or list of individual nodes
 }
 
-type SpecificGraphConversions = "CREATE_GENERALIZATION_SUBGRAPHS" | "TREEIFY";
+type SpecificGraphConversions = "CREATE_GENERALIZATION_SUBGRAPHS" | "TREEIFY" | "CLUSTERIFY" | "LAYOUT_CLUSTERS_ACTION";
 
 export class GraphConversionConstraint implements IGraphConversionConstraint {
     static createSpecificAlgorithmConversionConstraint(name: SpecificGraphConversions): GraphConversionConstraint {
-        if(name === "CREATE_GENERALIZATION_SUBGRAPHS") {
-            return new GraphConversionConstraint(name, {}, "ALL", false);
-        }
-        else if(name === "TREEIFY") {
-            return new GraphConversionConstraint(name, {}, "ALL", false);
+        switch(name) {
+            case "CREATE_GENERALIZATION_SUBGRAPHS":
+                return new GraphConversionConstraint(name, {}, "ALL", false);
+            case "TREEIFY":
+                return new GraphConversionConstraint(name, {}, "ALL", false);
+            case "CLUSTERIFY":
+                return new ClusterifyConstraint(name, {clusters: null}, "ALL", false);
+            case "LAYOUT_CLUSTERS_ACTION":
+                return new GraphConversionConstraint(name, {clusterifyConstraint: null}, "ALL", false);
         }
     }
 
 
-    constructor(actionName: SpecificGraphConversions, data: object, constraintedNodes: ConstraintedNodesGroupingsType | string[], shouldCreateNewGraph: boolean) {
+    constructor(
+        actionName: SpecificGraphConversions,
+        data: object,
+        constraintedNodes: ConstraintedNodesGroupingsType | string[],
+        shouldCreateNewGraph: boolean
+    ) {
         this.actionName = actionName;
         this.data = data;
         this.constraintedNodes = constraintedNodes;
@@ -161,16 +171,71 @@ export class GraphConversionConstraint implements IGraphConversionConstraint {
     shouldCreateNewGraph: boolean;
 }
 
-type SpecificGraphConversionMethod = (algorithmConversionConstraint: GraphConversionConstraint, graph: IMainGraphClassic) => void;
+export class ClusterifyConstraint extends GraphConversionConstraint {
+    data: Record<"clusters", IEdgeClassic[][] | null> = { clusters: null };
+}
+
+export class LayoutClustersActionConstraint extends GraphConversionConstraint {
+    data: Record<"clusterifyConstraint", ClusterifyConstraint | null> = { clusterifyConstraint: null };
+}
+
+type SpecificGraphConversionMethod = (algorithmConversionConstraint: GraphConversionConstraint, graph: IMainGraphClassic) => Promise<IMainGraphClassic>;
 
 // TODO: Not using the shouldCreateNewGraph property
 export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions, SpecificGraphConversionMethod> = {
-    CREATE_GENERALIZATION_SUBGRAPHS: (algorithmConversionConstraint: GraphConversionConstraint, graph: IMainGraphClassic) => {
+    CREATE_GENERALIZATION_SUBGRAPHS: async (
+        algorithmConversionConstraint: GraphConversionConstraint,
+        graph: IMainGraphClassic
+    ): Promise<IMainGraphClassic> => {
         graph.createGeneralizationSubgraphs();
+        return Promise.resolve(graph);
     },
-    TREEIFY: (algorithmConversionConstraint: GraphConversionConstraint, graph: IMainGraphClassic) => {
+    TREEIFY: async (
+        algorithmConversionConstraint: GraphConversionConstraint,
+        graph: IMainGraphClassic
+    ): Promise<IMainGraphClassic> => {
         GraphAlgorithms.treeify(graph);
+        return Promise.resolve(graph);
     },
+    CLUSTERIFY: async (
+        algorithmConversionConstraint: ClusterifyConstraint,
+        graph: IMainGraphClassic
+    ): Promise<IMainGraphClassic> => {
+        const clusteredEdges = GraphAlgorithms.clusterify(graph);
+        algorithmConversionConstraint.data.clusters = clusteredEdges
+        return Promise.resolve(graph);
+    },
+    LAYOUT_CLUSTERS_ACTION: async (
+        algorithmConversionConstraint: LayoutClustersActionConstraint,
+        graph: IMainGraphClassic
+    ): Promise<IMainGraphClassic> => {
+        console.info("algorithmConversionConstraint.data.clusterifyConstraint.data.clusters", algorithmConversionConstraint.data.clusterifyConstraint.data.clusters);
+        for(const node of graph.allNodes) {
+            const isInCluster = algorithmConversionConstraint.data.clusterifyConstraint.data.clusters[0]
+                .find(edge => edge.start.id === node.id || edge.end.id === node.id) !== undefined;
+            if(isInCluster) {
+                node.isConsideredInLayout = true;
+            }
+            else {
+                node.isConsideredInLayout = false;
+            }
+        }
+        const layeredAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING["elk_layered"];
+        const configuration = getDefaultUserGivenConstraintsVersion4();
+        const constraintContainer = ConstraintFactory.createConstraints(configuration);
+        layeredAlgorithm.prepareFromGraph(graph, constraintContainer);
+        return layeredAlgorithm.run(false);
+
+        // TODO RadStr: Remove
+        return graph;
+        // for(const node of graph.allNodes) {
+        //     node.completeVisualNode.coreVisualNode.position = {
+        //         x: algorithmConversionConstraint.data.clusterifyConstraint.data.clusters[0][1].start.completeVisualNode.coreVisualNode.position.x,
+        //         y: 100,
+        //         anchored: null
+        //     };
+        // }
+    }
 }
 
 
@@ -326,7 +391,7 @@ export function getDefaultUserGivenConstraintsVersion2(): UserGivenConstraintsVe
 export function getDefaultUserGivenAlgorithmConstraint(algorithmName: AlgorithmName): Omit<UserGivenAlgorithmConfiguration, "constraintedNodes" | "should_be_considered"> {
     let interactive = false;
     // TODO RadStr: Spore compaction seems to be useless (it is like layered algorithm)
-    if(algorithmName === "elk_overlapRemoval" || algorithmName === "sporeCompaction") {
+    if(algorithmName === "elk_overlapRemoval" || algorithmName === "sporeCompaction" || algorithmName === "elk_stress_advanced_using_clusters") {
         interactive = true;
     }
     return {
@@ -513,8 +578,13 @@ export abstract class StressConfiguration extends AlgorithmConfiguration {
         ]);
     }
 
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
-        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+    constructor(
+        algorithmName: AlgorithmName,
+        givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
+        shouldCreateNewGraph: boolean,
+        algorithmPhasesToCall?: AlgorithmPhases
+    ) {
+        super(algorithmName, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.setData(givenAlgorithmConstraints);
     }
 
@@ -536,8 +606,13 @@ export abstract class LayeredConfiguration extends AlgorithmConfiguration {
             "edge_routing": "ORTHOGONAL",
         }
     }
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
-        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+    constructor(
+        algorithmName: AlgorithmName,
+        givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
+        shouldCreateNewGraph: boolean,
+        algorithmPhasesToCall?: AlgorithmPhases
+    ) {
+        super(algorithmName, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.setData(givenAlgorithmConstraints);
     }
 
@@ -553,8 +628,13 @@ export abstract class SporeConfiguration extends AlgorithmConfiguration {
         ]);
     }
 
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
-        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+    constructor(
+        algorithmName: AlgorithmName,
+        givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
+        shouldCreateNewGraph: boolean,
+        algorithmPhasesToCall?: AlgorithmPhases
+    ) {
+        super(algorithmName, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.setData(givenAlgorithmConstraints);
     }
 
@@ -570,8 +650,13 @@ export abstract class RadialConfiguration extends AlgorithmConfiguration {
         ]);
     }
 
-    constructor(givenAlgorithmConstraints: UserGivenAlgorithmConfiguration, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
-        super(givenAlgorithmConstraints.layout_alg, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+    constructor(
+        algorithmName: AlgorithmName,
+        givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
+        shouldCreateNewGraph: boolean,
+        algorithmPhasesToCall?: AlgorithmPhases
+    ) {
+        super(algorithmName, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.setData(givenAlgorithmConstraints);
     }
 

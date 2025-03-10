@@ -269,4 +269,3 @@ export function getEdgeSourceAndTargetRelationship(
 export function getEdgeSourceAndTargetGeneralization(relationship: SemanticModelGeneralization): {source: string, target: string} {
     return {source: relationship.child, target: relationship.parent};
 }
-
