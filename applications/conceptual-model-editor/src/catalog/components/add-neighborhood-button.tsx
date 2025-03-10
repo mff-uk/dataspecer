@@ -14,20 +14,20 @@ export const AddNeighborhoodButton = ({ entity }: {
   const { addClassNeighborhoodToVisualModel } = useActions();
 
   const currentlyPerformingShowAction = useRef<boolean>(false);
-    const onClick = async () => {
-      if(currentlyPerformingShowAction.current) {
-        return;
-      }
-      currentlyPerformingShowAction.current = true;
-      try {
-        await addClassNeighborhoodToVisualModel(entity.id);
-      }
-      finally {
-        // Just in case put into finally block
-        currentlyPerformingShowAction.current = false;
-      }
-      return Promise.resolve();
-    };
+  const onClick = async () => {
+    if(currentlyPerformingShowAction.current) {
+      return;
+    }
+    currentlyPerformingShowAction.current = true;
+    try {
+      await addClassNeighborhoodToVisualModel(entity.id);
+    }
+    finally {
+      // Just in case put into finally block
+      currentlyPerformingShowAction.current = false;
+    }
+    return Promise.resolve();
+  };
 
   if(!isSemanticModelClass(entity) && !isSemanticModelClassUsage(entity)) {
     return null;
