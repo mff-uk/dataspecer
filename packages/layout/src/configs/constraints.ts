@@ -136,7 +136,7 @@ export interface IGraphConversionConstraint extends IAdditionalControlOptions {
     constraintedNodes: ConstraintedNodesGroupingsType | string[],       // Either grouping or list of individual nodes
 }
 
-type SpecificGraphConversions = "CREATE_GENERALIZATION_SUBGRAPHS" | "TREEIFY" | "CLUSTERIFY" | "LAYOUT_CLUSTERS_ACTION";
+export type SpecificGraphConversions = "CREATE_GENERALIZATION_SUBGRAPHS" | "TREEIFY" | "CLUSTERIFY" | "LAYOUT_CLUSTERS_ACTION";
 
 export class GraphConversionConstraint implements IGraphConversionConstraint {
     static createSpecificAlgorithmConversionConstraint(name: SpecificGraphConversions): GraphConversionConstraint {
@@ -172,72 +172,12 @@ export class GraphConversionConstraint implements IGraphConversionConstraint {
 }
 
 export class ClusterifyConstraint extends GraphConversionConstraint {
-    data: Record<"clusters", IEdgeClassic[][] | null> = { clusters: null };
+    data: Record<"clusters", Record<string, IEdgeClassic[]> | null> = { clusters: null };
 }
 
 export class LayoutClustersActionConstraint extends GraphConversionConstraint {
     data: Record<"clusterifyConstraint", ClusterifyConstraint | null> = { clusterifyConstraint: null };
 }
-
-type SpecificGraphConversionMethod = (algorithmConversionConstraint: GraphConversionConstraint, graph: IMainGraphClassic) => Promise<IMainGraphClassic>;
-
-// TODO: Not using the shouldCreateNewGraph property
-export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions, SpecificGraphConversionMethod> = {
-    CREATE_GENERALIZATION_SUBGRAPHS: async (
-        algorithmConversionConstraint: GraphConversionConstraint,
-        graph: IMainGraphClassic
-    ): Promise<IMainGraphClassic> => {
-        graph.createGeneralizationSubgraphs();
-        return Promise.resolve(graph);
-    },
-    TREEIFY: async (
-        algorithmConversionConstraint: GraphConversionConstraint,
-        graph: IMainGraphClassic
-    ): Promise<IMainGraphClassic> => {
-        GraphAlgorithms.treeify(graph);
-        return Promise.resolve(graph);
-    },
-    CLUSTERIFY: async (
-        algorithmConversionConstraint: ClusterifyConstraint,
-        graph: IMainGraphClassic
-    ): Promise<IMainGraphClassic> => {
-        const clusteredEdges = GraphAlgorithms.clusterify(graph);
-        algorithmConversionConstraint.data.clusters = clusteredEdges
-        return Promise.resolve(graph);
-    },
-    LAYOUT_CLUSTERS_ACTION: async (
-        algorithmConversionConstraint: LayoutClustersActionConstraint,
-        graph: IMainGraphClassic
-    ): Promise<IMainGraphClassic> => {
-        console.info("algorithmConversionConstraint.data.clusterifyConstraint.data.clusters", algorithmConversionConstraint.data.clusterifyConstraint.data.clusters);
-        for(const node of graph.allNodes) {
-            const isInCluster = algorithmConversionConstraint.data.clusterifyConstraint.data.clusters[0]
-                .find(edge => edge.start.id === node.id || edge.end.id === node.id) !== undefined;
-            if(isInCluster) {
-                node.isConsideredInLayout = true;
-            }
-            else {
-                node.isConsideredInLayout = false;
-            }
-        }
-        const layeredAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING["elk_layered"];
-        const configuration = getDefaultUserGivenConstraintsVersion4();
-        const constraintContainer = ConstraintFactory.createConstraints(configuration);
-        layeredAlgorithm.prepareFromGraph(graph, constraintContainer);
-        return layeredAlgorithm.run(false);
-
-        // TODO RadStr: Remove
-        return graph;
-        // for(const node of graph.allNodes) {
-        //     node.completeVisualNode.coreVisualNode.position = {
-        //         x: algorithmConversionConstraint.data.clusterifyConstraint.data.clusters[0][1].start.completeVisualNode.coreVisualNode.position.x,
-        //         y: 100,
-        //         anchored: null
-        //     };
-        // }
-    }
-}
-
 
 /**
  * @deprecated

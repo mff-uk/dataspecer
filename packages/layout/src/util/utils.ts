@@ -164,7 +164,6 @@ export const placePositionOnGrid = (position: PositionWithOptionalAnchor, gridX:
     position.y = placeCoordinateOnGrid(position.y, gridY);
 }
 
-
 /**
  * This class is used to create unique identifiers of dummy/phantom elements in graph.
  */
@@ -204,3 +203,4 @@ export class PhantomElementsFactory {
         return id.split("-").splice(2,).join("");
     }
 }
+

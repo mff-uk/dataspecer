@@ -1,7 +1,9 @@
-import { LayoutMethod } from "../layout-iface";
+import { GraphAlgorithms } from "../graph-algoritms";
+import { IMainGraphClassic } from "../graph-iface";
+import { LayoutAlgorithm, LayoutMethod } from "../layout-iface";
 import { Direction } from "../util/utils";
-import { ConstraintContainer } from "./constraint-container";
-import { AlgorithmConfiguration, IGraphConversionConstraint, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraintSimple, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationslVersion2, UserGivenAlgorithmConfigurationslVersion4, GraphConversionConstraint, RandomConfiguration, getDefaultUserGivenConstraintsVersion4, AlgorithmPhases, ClusterifyConstraint, LayoutClustersActionConstraint } from "./constraints";
+import { ALGORITHM_NAME_TO_LAYOUT_MAPPING, ConstraintContainer } from "./constraint-container";
+import { AlgorithmConfiguration, IGraphConversionConstraint, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraintSimple, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationslVersion2, UserGivenAlgorithmConfigurationslVersion4, GraphConversionConstraint, RandomConfiguration, getDefaultUserGivenConstraintsVersion4, AlgorithmPhases, ClusterifyConstraint, LayoutClustersActionConstraint, SpecificGraphConversions } from "./constraints";
 import { ElkForceConfiguration, ElkLayeredConfiguration, ElkRadialConfiguration, ElkSporeCompactionConfiguration, ElkSporeOverlapConfiguration, ElkStressConfiguration } from "./elk/elk-constraints";
 
 
@@ -242,5 +244,100 @@ export class ConstraintFactory {
         config.main[config.chosenMainAlgorithm].number_of_new_algorithm_runs = originalNumberOfNewAlgorithmRuns;
 
         return constraintContainer
+    }
+}
+
+
+
+
+export type SpecificGraphConversionMethod = (algorithmConversionConstraint: GraphConversionConstraint, graph: IMainGraphClassic) => Promise<IMainGraphClassic>;
+
+// TODO: Not using the shouldCreateNewGraph property
+export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions, SpecificGraphConversionMethod> = {
+    CREATE_GENERALIZATION_SUBGRAPHS: async (
+        algorithmConversionConstraint: GraphConversionConstraint,
+        graph: IMainGraphClassic
+    ): Promise<IMainGraphClassic> => {
+        graph.createGeneralizationSubgraphs();
+        return Promise.resolve(graph);
+    },
+    TREEIFY: async (
+        algorithmConversionConstraint: GraphConversionConstraint,
+        graph: IMainGraphClassic
+    ): Promise<IMainGraphClassic> => {
+        GraphAlgorithms.treeify(graph);
+        return Promise.resolve(graph);
+    },
+    CLUSTERIFY: async (
+        algorithmConversionConstraint: ClusterifyConstraint,
+        graph: IMainGraphClassic
+    ): Promise<IMainGraphClassic> => {
+        const clusteredEdges = GraphAlgorithms.clusterify(graph);
+        algorithmConversionConstraint.data.clusters = clusteredEdges;
+        return Promise.resolve(graph);
+    },
+    LAYOUT_CLUSTERS_ACTION: async (
+        algorithmConversionConstraint: LayoutClustersActionConstraint,
+        graph: IMainGraphClassic
+    ): Promise<IMainGraphClassic> => {
+        console.info("algorithmConversionConstraint.data.clusterifyConstraint.data.clusters", algorithmConversionConstraint.data.clusterifyConstraint.data.clusters);
+
+        for(const [cluster, edgesInCluster] of Object.entries(algorithmConversionConstraint.data.clusterifyConstraint.data.clusters)) {
+            const clusterRoot = { ...graph.findNodeInAllNodes(cluster) };
+            const sectorPopulations = GraphAlgorithms.findSectorNodePopulation(graph, clusterRoot, NodeFilter.OnlyNotLayouted);
+            const leastPopulatedSector = Object.entries(sectorPopulations)
+                .sort(([, edgesA], [, edgesB]) => edgesA - edgesB)         // Ascending order
+                .splice(0, 1)[0][0];
+
+            console.info("sectorPopulations", leastPopulatedSector, Direction[leastPopulatedSector as keyof typeof Direction], sectorPopulations);
+
+            for(const node of graph.allNodes) {
+                const isInCluster = edgesInCluster
+                    .find(edge => edge.start.id === node.id || edge.end.id === node.id) !== undefined;
+                if(isInCluster) {
+                    node.isConsideredInLayout = true;
+                }
+                else {
+                    node.isConsideredInLayout = false;
+                }
+            }
+            for(const edge of graph.allEdges) {
+                const isInCluster = edgesInCluster.includes(edge);
+                if(isInCluster) {
+                    edge.isConsideredInLayout = true;
+                }
+                else {
+                    edge.isConsideredInLayout = false;
+                }
+            }
+
+            // TODO RadStr: I have to rewrite this somehow, it does not work without the iterator which is not nice -
+            //                  either put it all in some method like in main, which will be just called and the iteration will take place - that seems like the correct solution actually
+            //                  or rewrite it so it can run even without the iterator - that is I just call the prepare and run without the iterator
+            const layeredAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING["elk_layered"];
+            const configuration = getDefaultUserGivenConstraintsVersion4();
+            configuration.main.elk_layered.alg_direction = Direction[leastPopulatedSector as keyof typeof Direction];
+            const constraintContainer = ConstraintFactory.createConstraints(configuration);
+            for(const action of constraintContainer.layoutActionsIterator) {
+                if(action instanceof AlgorithmConfiguration) {
+                    if(action.algorithmPhasesToCall === "ONLY-PREPARE" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
+                        layeredAlgorithm.prepareFromGraph(graph, constraintContainer);
+                    }
+                    if(action.algorithmPhasesToCall === "ONLY-RUN" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
+                        graph = await layeredAlgorithm.run(false);
+                    }
+                }
+            }
+        }
+
+        return Promise.resolve(graph);
+        // TODO RadStr: Remove
+        // for(const node of graph.allNodes) {
+        //     node.completeVisualNode.coreVisualNode.position = {
+        //         x: algorithmConversionConstraint.data.clusterifyConstraint.data.clusters[0][1].start.completeVisualNode.coreVisualNode.position.x,
+        //         y: 100,
+        //         anchored: null
+        //     };
+        // }
     }
 }

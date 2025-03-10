@@ -9,7 +9,7 @@ import ELK from 'elkjs/lib/elk.bundled';
 
 import ElkConstructor, { LayoutOptions, ElkNode, ElkExtendedEdge, ElkLabel, ElkPort, type ELK as ELKType } from 'elkjs/lib/elk-api';
 
-import { BasicUserGivenConstraints, ConstraintedNodesGroupingsType, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraint, IConstraintSimple, SPECIFIC_ALGORITHM_CONVERSIONS_MAP, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationOnlyData, UserGivenConstraints } from "./configs/constraints";
+import { IAlgorithmConfiguration, IConstraintSimple } from "./configs/constraints";
 import { AlgorithmName, ConstraintContainer, ElkConstraintContainer } from "./configs/constraint-container";
 import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
 import { CONFIG_TO_ELK_CONFIG_MAP } from "./configs/elk/elk-utils";

@@ -1,4 +1,11 @@
+import { Direction } from ".";
 import { addToRecordArray, EdgeClassic, EdgeEndPoint, GraphClassic, IEdgeClassic, IGraphClassic, IMainGraphClassic, INodeClassic } from "./graph-iface";
+
+export enum LayoutNodeFilter {
+  OnlyLayouted,
+  OnlyNotLayouted,
+  All,
+}
 
 type Dimensions = {
     width: number,
@@ -189,7 +196,7 @@ export class GraphAlgorithms {
     }
 
 
-    static clusterify(graph: IMainGraphClassic): IEdgeClassic[][] {
+    static clusterify(graph: IMainGraphClassic): Record<string, IEdgeClassic[]> {
       const leafs: Record<string, IEdgeClassic[]> = {};
       const clusters: Record<string, IEdgeClassic[]> = {};
       const uniqueClusters: Record<string, IEdgeClassic[]> = {};    // Clusters without multi-edges - we just take 1 representative
@@ -235,15 +242,59 @@ export class GraphAlgorithms {
       });
 
       const sortedClusters = Object.entries(uniqueClusters)
-        .sort(([, valuesA], [, valuesB]) => valuesB.length - valuesA.length);
+        .sort(([, edgesA], [, edgesB]) => edgesB.length - edgesA.length);
       const biggestClusters = sortedClusters.splice(0, 3);
-      return [
-        biggestClusters[0][1],
-        biggestClusters[1][1],
-        biggestClusters[2][1],
-      ];
+      return {
+        [biggestClusters[0][0]]: biggestClusters[0][1],
+        [biggestClusters[1][0]]: biggestClusters[1][1],
+        [biggestClusters[2][0]]: biggestClusters[2][1],
+      };
     }
 
+
+    /**
+     * Finds how many nodes are above, below, to the left and to the right of given {@link rootNode}.
+     */
+    static findSectorNodePopulation(
+      graph: IMainGraphClassic,
+      rootNode: EdgeEndPoint,
+      nodesToConsider: LayoutNodeFilter,
+    ): Record<Direction, number> {
+      const populations: Record<Direction, number> = {
+        [Direction.Up]: 0,
+        [Direction.Right]: 0,
+        [Direction.Down]: 0,
+        [Direction.Left]: 0
+      };
+
+      const rootNodePosition = rootNode.completeVisualNode.coreVisualNode.position;
+      for(const node of graph.allNodes) {
+        if(node.id === rootNode.id) {
+          continue;
+        }
+        if((nodesToConsider === LayoutNodeFilter.OnlyLayouted && !node.isConsideredInLayout) ||
+           (nodesToConsider === LayoutNodeFilter.OnlyNotLayouted && node.isConsideredInLayout)) {
+          continue;
+        }
+        const iteratedNodePosition = node.completeVisualNode.coreVisualNode.position;
+
+        if(rootNodePosition.x < iteratedNodePosition.x) {
+          populations[Direction.Right]++;
+        }
+        else if(rootNodePosition.x > iteratedNodePosition.x) {
+          populations[Direction.Left]++;
+        }
+
+        if(rootNodePosition.y < iteratedNodePosition.y) {
+          populations[Direction.Down]++;
+        }
+        else if(rootNodePosition.y > iteratedNodePosition.y) {
+          populations[Direction.Up]++;
+        }
+      }
+
+      return populations;
+    }
     // TODO RadStr: ...... Trying stuff - END
     // TODO RadStr: ...... Trying stuff - END
 

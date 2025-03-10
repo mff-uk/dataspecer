@@ -16,12 +16,11 @@ import {
 	getDefaultUserGivenConstraintsVersion4,
 	GraphConversionConstraint,
 	IAlgorithmConfiguration,
-	SPECIFIC_ALGORITHM_CONVERSIONS_MAP
 } from "./configs/constraints";
 import { GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualModelWithOutsiders, VisualNodeComplete } from "./graph-iface";
 import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs/constraint-container";
 import { Entities, Entity, EntityModel } from "@dataspecer/core-v2";
-import { ConstraintFactory } from "./configs/constraint-factories";
+import { ConstraintFactory, SPECIFIC_ALGORITHM_CONVERSIONS_MAP } from "./configs/constraint-factories";
 import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
 import { PhantomElementsFactory } from "./util/utils";
 import { CONSTRAINT_MAP } from "./configs/constraints-mapping";
