@@ -135,7 +135,6 @@ export function findNodeBorder(node: IVisualNodeComplete, next: XY): XY {
 // TODO RadStr: End of the "copy-paste"
 
 
-// TODO: So maybe just do the classic ... type Direction = "Up" | "Right" | "Down" | "Left";
 export enum Direction {
     Up = "UP",
     Right = "RIGHT",
