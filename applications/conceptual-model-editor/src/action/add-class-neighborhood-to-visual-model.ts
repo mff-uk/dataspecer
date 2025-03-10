@@ -6,25 +6,26 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { EntityToAddToVisualModel, addSemanticEntitiesToVisualModelAction } from "./add-semantic-entities-to-visual-model";
 import { ExtensionType, NodeSelection, VisibilityFilter, extendSelectionAction } from "./extend-selection-action";
 
-export const addClassNeighborhoodToVisualModelAction = (
+export const addClassNeighborhoodToVisualModelAction = async (
   notifications: UseNotificationServiceWriterType,
   classes: ClassesContextType,
   graph: ModelGraphContextType,
   diagram: UseDiagramType,
   visualModel: WritableVisualModel,
   identifier: string
-): void => {
+): Promise<void> => {
   const inputForExtension: NodeSelection = {
     identifiers: [identifier],
     areIdentifiersFromVisualModel: false
   };
   const neighborhoodPromise = extendSelectionAction(notifications, graph, classes, inputForExtension,
     [ExtensionType.Association, ExtensionType.Generalization], VisibilityFilter.All, false, null);
-  neighborhoodPromise.then(neighborhood => {
+
+  return neighborhoodPromise.then(async (neighborhood) => {
     const classesOrClassProfilesToAdd: EntityToAddToVisualModel[] = [{identifier, position: null}];
 
     // We have to filter the source class, whose neighborhood we are adding, from the extension
     classesOrClassProfilesToAdd.push(...neighborhood.selectionExtension.nodeSelection.filter(node => node !== identifier).map(node => ({identifier: node, position: null})));
-    addSemanticEntitiesToVisualModelAction(notifications, classes, graph, visualModel, diagram, classesOrClassProfilesToAdd);
+    await addSemanticEntitiesToVisualModelAction(notifications, classes, graph, visualModel, diagram, classesOrClassProfilesToAdd);
   });
 };
