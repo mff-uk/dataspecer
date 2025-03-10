@@ -284,24 +284,6 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
         console.info("algorithmConversionConstraint.data.clusterifyConstraint.data.clusters", algorithmConversionConstraint.data.clusterifyConstraint.data.clusters);
 
         for (const [cluster, edgesInCluster] of Object.entries(algorithmConversionConstraint.data.clusterifyConstraint.data.clusters)) {
-            const clusterRoot = graph.findNodeInAllNodes(cluster);
-            const clusterRootPositionBeforeLayout = { ...clusterRoot.completeVisualNode.coreVisualNode.position };
-            // TODO RadStr: Commented code - old variant
-            // const sectorPopulations = GraphAlgorithms.findSectorNodePopulation(graph, clusterRoot, ToConsiderFilter.All);
-            const sectorPopulations = GraphAlgorithms.findSectorNodePopulationUsingBoundingBox(graph, clusterRoot, ToConsiderFilter.OnlyNotLayouted);
-            const populatedSectorsAscending = Object.entries(sectorPopulations)
-                .sort(([, edgesA], [, edgesB]) => edgesA - edgesB);
-
-            let leastPopulatedSector = populatedSectorsAscending[0][0];
-            if((populatedSectorsAscending[0][0] === "UP" || populatedSectorsAscending[0][0] === "DOWN") &&
-                (populatedSectorsAscending[1][0] === "LEFT" || populatedSectorsAscending[1][0] === "RIGHT") &&
-                populatedSectorsAscending[0][1] === populatedSectorsAscending[1][1]) {
-                leastPopulatedSector = populatedSectorsAscending[1][0];
-            }
-
-            // TODO RadStr: Debug print
-            console.info("sectorPopulations", leastPopulatedSector, sectorPopulations);
-
             for (const node of graph.allNodes) {
                 const isInCluster = edgesInCluster
                     .find(edge => edge.start.id === node.id || edge.end.id === node.id) !== undefined;
@@ -321,6 +303,24 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
                     edge.isConsideredInLayout = false;
                 }
             }
+
+            const clusterRoot = graph.findNodeInAllNodes(cluster);
+            const clusterRootPositionBeforeLayout = { ...clusterRoot.completeVisualNode.coreVisualNode.position };
+            // TODO RadStr: Commented code - old variant
+            // const sectorPopulations = GraphAlgorithms.findSectorNodePopulation(graph, clusterRoot, ToConsiderFilter.All);
+            const sectorPopulations = GraphAlgorithms.findSectorNodePopulationUsingBoundingBox(graph, clusterRoot, ToConsiderFilter.OnlyNotLayouted);
+            const populatedSectorsAscending = Object.entries(sectorPopulations)
+                .sort(([, edgesA], [, edgesB]) => edgesA - edgesB);
+
+            let leastPopulatedSector = populatedSectorsAscending[0][0];
+            if((populatedSectorsAscending[0][0] === "UP" || populatedSectorsAscending[0][0] === "DOWN") &&
+                (populatedSectorsAscending[1][0] === "LEFT" || populatedSectorsAscending[1][0] === "RIGHT") &&
+                populatedSectorsAscending[0][1] === populatedSectorsAscending[1][1]) {
+                leastPopulatedSector = populatedSectorsAscending[1][0];
+            }
+
+            // TODO RadStr: Debug print
+            console.info("sectorPopulations", leastPopulatedSector, sectorPopulations);
 
             const layeredAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING["elk_layered"];
             const configuration = getDefaultUserGivenConstraintsVersion4();
