@@ -296,7 +296,7 @@ export class GraphAlgorithms {
       boundingBoxVisualNodeComplete = new VisualNodeComplete(
         boundingBoxVisualNode, boundingBoxWidth, boundingBoxHeight, false, false, false);
       boundingBoxVisualNodeComplete.coreVisualNode.position.x = rootNode.completeVisualNode.coreVisualNode.position.x +
-                                                                rootNode.completeVisualNode.width + boundingBoxWidth;
+                                                                rootNode.completeVisualNode.width;
       boundingBoxVisualNodeComplete.coreVisualNode.position.y = rootNode.completeVisualNode.coreVisualNode.position.y - boundingBoxHeight / 2;
       boundingBoxes[Direction.Right] = boundingBoxVisualNodeComplete;
 
@@ -317,7 +317,7 @@ export class GraphAlgorithms {
         boundingBoxVisualNode, boundingBoxWidth, boundingBoxHeight, false, false, false);
       boundingBoxVisualNodeComplete.coreVisualNode.position.x = rootNode.completeVisualNode.coreVisualNode.position.x - boundingBoxWidth / 2;
       boundingBoxVisualNodeComplete.coreVisualNode.position.y = rootNode.completeVisualNode.coreVisualNode.position.y +
-                                                                rootNode.completeVisualNode.height - boundingBoxHeight;
+                                                                rootNode.completeVisualNode.height;
       boundingBoxes[Direction.Down] = boundingBoxVisualNodeComplete;
 
       for(const edge of graph.allEdges) {
