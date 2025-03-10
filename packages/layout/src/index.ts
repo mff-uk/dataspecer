@@ -208,7 +208,7 @@ function performLayoutInternal(
 	explicitAnchors?: ExplicitAnchors
 ): Promise<LayoutedVisualEntities> {
 	const graph = GraphFactory.createMainGraph(null, semanticModels, visualModel, entitiesToLayout, nodeDimensionQueryHandler, explicitAnchors);
-	const visualEntitiesPromise = performLayoutFromGraph(graph, config);
+	const visualEntitiesPromise = performLayoutFromGraph(graph, config).then(result => result.convertWholeGraphToDataspecerRepresentation());
 
 	if(visualEntitiesPromise == undefined) {
 		console.log("LAYOUT FAILED")
@@ -230,7 +230,7 @@ function performLayoutInternal(
 export async function performLayoutFromGraph(
 	graph: IMainGraphClassic,
 	config: UserGivenAlgorithmConfigurationslVersion4
-): Promise<LayoutedVisualEntities> {
+): Promise<IMainGraphClassic> {
 	const constraints = ConstraintFactory.createConstraints(config);
 
 	// TODO: Try this later, now it isn't that important
@@ -250,7 +250,7 @@ export async function performLayoutFromGraph(
 	// console.log("THE END");
 	// throw new Error("THE END");
 
-	return resultingLayoutPromise.then(result => result.convertWholeGraphToDataspecerRepresentation());
+	return resultingLayoutPromise;
 }
 
 
@@ -380,7 +380,6 @@ const runMainLayoutAlgorithm = async (
 	//       It can be prepared once before. Then it just needs to always create new graph on layout, but the preparation can be done only once
 	for(let i = 0; i < numberOfAlgorithmRuns; i++) {
 		let workGraph = graph;		// TODO: Maybe create copy?
-		graph.mainGraph.resetForNewLayout();		// TODO: Actually I feel like it should also be action (of type AlgorithmConversionConstraint), but maybe not
 		let layoutedGraphPromise: Promise<IMainGraphClassic>;
 		for(const action of constraints.layoutActionsIterator) {
 			if(action instanceof GraphConversionConstraint) {

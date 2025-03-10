@@ -1,7 +1,7 @@
-import { Direction } from ".";
+import { Direction, ReactflowDimensionsConstantEstimator } from ".";
 import { addToRecordArray, EdgeClassic, EdgeEndPoint, GraphClassic, IEdgeClassic, IGraphClassic, IMainGraphClassic, INodeClassic } from "./graph-iface";
 
-export enum LayoutNodeFilter {
+export enum ToConsiderFilter {
   OnlyLayouted,
   OnlyNotLayouted,
   All,
@@ -252,13 +252,14 @@ export class GraphAlgorithms {
     }
 
 
+    // TODO: We could also put how many nodes collide into the computation
     /**
-     * Finds how many nodes are above, below, to the left and to the right of given {@link rootNode}.
+     * Finds how many edges collide with the bounding box, which is placed - above, below, to the left and to the right of given {@link rootNode}.
      */
-    static findSectorNodePopulation(
+    static findSectorNodePopulationUsingBoundingBox(
       graph: IMainGraphClassic,
       rootNode: EdgeEndPoint,
-      nodesToConsider: LayoutNodeFilter,
+      edgesToConsider: ToConsiderFilter,
     ): Record<Direction, number> {
       const populations: Record<Direction, number> = {
         [Direction.Up]: 0,
@@ -267,28 +268,78 @@ export class GraphAlgorithms {
         [Direction.Left]: 0
       };
 
+      // const boundingBoxWidth = 5 * ReactflowDimensionsConstantEstimator.getDefaultWidth();
+      // const boundingBoxHeight = 5 * ReactflowDimensionsConstantEstimator.getDefaultHeight();
+
+      // const rootNodePosition = rootNode.completeVisualNode.coreVisualNode.position;
+      // for(const node of graph.allNodes) {
+      //   if(node.id === rootNode.id) {
+      //     continue;
+      //   }
+      //   if((nodesToConsider === ToConsiderFilter.OnlyLayouted && !node.isConsideredInLayout) ||
+      //      (nodesToConsider === ToConsiderFilter.OnlyNotLayouted && node.isConsideredInLayout)) {
+      //     continue;
+      //   }
+      //   const iteratedNodePosition = node.completeVisualNode.coreVisualNode.position;
+
+      //   if(iteratedNodePosition.x > rootNodePosition.x && iteratedNodePosition.x < rootNodePosition.x + boundingBoxWidth) {
+      //     populations[Direction.Right]++;
+      //   }
+      //   else if(iteratedNodePosition.x < rootNodePosition.x && iteratedNodePosition.x > rootNodePosition.x - boundingBoxWidth) {
+      //     populations[Direction.Left]++;
+      //   }
+
+      //   if(iteratedNodePosition.y > rootNodePosition.y && iteratedNodePosition.y < rootNodePosition.y + boundingBoxHeight) {
+      //     populations[Direction.Down]++;
+      //   }
+      //   else if(iteratedNodePosition.y < rootNodePosition.y  && iteratedNodePosition.y > rootNodePosition.y - boundingBoxHeight) {
+      //     populations[Direction.Up]++;
+      //   }
+      // }
+
+      return populations;
+    }
+
+    /**
+     * Finds how many nodes are above, below, to the left and to the right of given {@link rootNode}.
+     */
+    static findSectorNodePopulation(
+      graph: IMainGraphClassic,
+      rootNode: EdgeEndPoint,
+      nodesToConsider: ToConsiderFilter,
+    ): Record<Direction, number> {
+      const populations: Record<Direction, number> = {
+        [Direction.Up]: 0,
+        [Direction.Right]: 0,
+        [Direction.Down]: 0,
+        [Direction.Left]: 0
+      };
+
+      const boundingBoxWidth = 5 * ReactflowDimensionsConstantEstimator.getDefaultWidth();
+      const boundingBoxHeight = 5 * ReactflowDimensionsConstantEstimator.getDefaultHeight();
+
       const rootNodePosition = rootNode.completeVisualNode.coreVisualNode.position;
       for(const node of graph.allNodes) {
         if(node.id === rootNode.id) {
           continue;
         }
-        if((nodesToConsider === LayoutNodeFilter.OnlyLayouted && !node.isConsideredInLayout) ||
-           (nodesToConsider === LayoutNodeFilter.OnlyNotLayouted && node.isConsideredInLayout)) {
+        if((nodesToConsider === ToConsiderFilter.OnlyLayouted && !node.isConsideredInLayout) ||
+           (nodesToConsider === ToConsiderFilter.OnlyNotLayouted && node.isConsideredInLayout)) {
           continue;
         }
         const iteratedNodePosition = node.completeVisualNode.coreVisualNode.position;
 
-        if(rootNodePosition.x < iteratedNodePosition.x) {
+        if(iteratedNodePosition.x > rootNodePosition.x && iteratedNodePosition.x < rootNodePosition.x + boundingBoxWidth) {
           populations[Direction.Right]++;
         }
-        else if(rootNodePosition.x > iteratedNodePosition.x) {
+        else if(iteratedNodePosition.x < rootNodePosition.x && iteratedNodePosition.x > rootNodePosition.x - boundingBoxWidth) {
           populations[Direction.Left]++;
         }
 
-        if(rootNodePosition.y < iteratedNodePosition.y) {
+        if(iteratedNodePosition.y > rootNodePosition.y && iteratedNodePosition.y < rootNodePosition.y + boundingBoxHeight) {
           populations[Direction.Down]++;
         }
-        else if(rootNodePosition.y > iteratedNodePosition.y) {
+        else if(iteratedNodePosition.y < rootNodePosition.y  && iteratedNodePosition.y > rootNodePosition.y - boundingBoxHeight) {
           populations[Direction.Up]++;
         }
       }

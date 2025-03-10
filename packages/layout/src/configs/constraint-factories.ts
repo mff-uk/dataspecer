@@ -1,4 +1,5 @@
-import { GraphAlgorithms } from "../graph-algoritms";
+import { performLayoutFromGraph } from "..";
+import { GraphAlgorithms, ToConsiderFilter } from "../graph-algoritms";
 import { IMainGraphClassic } from "../graph-iface";
 import { LayoutAlgorithm, LayoutMethod } from "../layout-iface";
 import { Direction } from "../util/utils";
@@ -90,6 +91,7 @@ class AlgorithmConstraintFactory {
                 layoutActionsToSet.push(getOverlapConfigurationToRunAfterMainAlgorithm());
                 break;
             case "elk_radial":
+                layoutActionsToSet.push(GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("RESET_LAYOUT"));
                 layoutActionsToSet.push(GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("TREEIFY"));
                 layoutActionsToSet.push(new ElkRadialConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
                 layoutActionsToSet.push(getOverlapConfigurationToRunAfterMainAlgorithm());
@@ -99,10 +101,8 @@ class AlgorithmConstraintFactory {
                 break;
             case "elk_stress_advanced_using_clusters":
                 const elkStressUsingClusters = new ElkStressConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph);
-                if(userGivenAlgorithmConfiguration.number_of_new_algorithm_runs > 1) {
-                    layoutActionsToSet.push(AlgorithmConstraintFactory.getRandomLayoutConfiguration(userGivenAlgorithmConfiguration, true));
-                    elkStressUsingClusters.addAlgorithmConstraint("interactive", "true");
-                }
+                layoutActionsToSet.push(AlgorithmConstraintFactory.getRandomLayoutConfiguration(userGivenAlgorithmConfiguration, true));        // TODO RadStr: I should only use this if I don't want the algorithm to use the current positions
+                elkStressUsingClusters.addAlgorithmConstraint("interactive", "true");
                 layoutActionsToSet.push(elkStressUsingClusters);
                 layoutActionsToSet.push(getOverlapConfigurationToRunAfterMainAlgorithm());
                 const layoutClustersAction = GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("LAYOUT_CLUSTERS_ACTION");
@@ -113,6 +113,7 @@ class AlgorithmConstraintFactory {
                 }
                 (layoutClustersAction as LayoutClustersActionConstraint).data.clusterifyConstraint = clusterifyAction as ClusterifyConstraint;
                 layoutActionsToSet.push(layoutClustersAction);
+                layoutActionsToSet.push(GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("RESET_LAYOUT"));
                 break;
             default:
                 throw new Error("Implementation error You forgot to extend the AlgorithmConstraintFactory factory for new algorithm");
@@ -282,28 +283,30 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
     ): Promise<IMainGraphClassic> => {
         console.info("algorithmConversionConstraint.data.clusterifyConstraint.data.clusters", algorithmConversionConstraint.data.clusterifyConstraint.data.clusters);
 
-        for(const [cluster, edgesInCluster] of Object.entries(algorithmConversionConstraint.data.clusterifyConstraint.data.clusters)) {
-            const clusterRoot = { ...graph.findNodeInAllNodes(cluster) };
-            const sectorPopulations = GraphAlgorithms.findSectorNodePopulation(graph, clusterRoot, NodeFilter.OnlyNotLayouted);
+        for (const [cluster, edgesInCluster] of Object.entries(algorithmConversionConstraint.data.clusterifyConstraint.data.clusters)) {
+            const clusterRoot = graph.findNodeInAllNodes(cluster);
+            const clusterRootPositionBeforeLayout = { ...clusterRoot.completeVisualNode.coreVisualNode.position };
+            const sectorPopulations = GraphAlgorithms.findSectorNodePopulation(graph, clusterRoot, ToConsiderFilter.All);
             const leastPopulatedSector = Object.entries(sectorPopulations)
-                .sort(([, edgesA], [, edgesB]) => edgesA - edgesB)         // Ascending order
+                .sort(([, edgesA], [, edgesB]) => edgesA - edgesB) // Ascending order
                 .splice(0, 1)[0][0];
 
-            console.info("sectorPopulations", leastPopulatedSector, Direction[leastPopulatedSector as keyof typeof Direction], sectorPopulations);
+            // TODO RadStr: Debug print
+            console.info("sectorPopulations", leastPopulatedSector, sectorPopulations);
 
-            for(const node of graph.allNodes) {
+            for (const node of graph.allNodes) {
                 const isInCluster = edgesInCluster
                     .find(edge => edge.start.id === node.id || edge.end.id === node.id) !== undefined;
-                if(isInCluster) {
+                if (isInCluster) {
                     node.isConsideredInLayout = true;
                 }
                 else {
                     node.isConsideredInLayout = false;
                 }
             }
-            for(const edge of graph.allEdges) {
-                const isInCluster = edgesInCluster.includes(edge);
-                if(isInCluster) {
+            for (const edge of graph.allEdges) {
+                const isInCluster = edgesInCluster.findIndex(edgeInCluster => edgeInCluster.id === edge.id) >= 0;
+                if (isInCluster) {
                     edge.isConsideredInLayout = true;
                 }
                 else {
@@ -311,20 +314,32 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
                 }
             }
 
-            // TODO RadStr: I have to rewrite this somehow, it does not work without the iterator which is not nice -
-            //                  either put it all in some method like in main, which will be just called and the iteration will take place - that seems like the correct solution actually
-            //                  or rewrite it so it can run even without the iterator - that is I just call the prepare and run without the iterator
             const layeredAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING["elk_layered"];
             const configuration = getDefaultUserGivenConstraintsVersion4();
-            configuration.main.elk_layered.alg_direction = Direction[leastPopulatedSector as keyof typeof Direction];
-            const constraintContainer = ConstraintFactory.createConstraints(configuration);
-            for(const action of constraintContainer.layoutActionsIterator) {
-                if(action instanceof AlgorithmConfiguration) {
-                    if(action.algorithmPhasesToCall === "ONLY-PREPARE" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
-                        layeredAlgorithm.prepareFromGraph(graph, constraintContainer);
-                    }
-                    if(action.algorithmPhasesToCall === "ONLY-RUN" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
-                        graph = await layeredAlgorithm.run(false);
+            configuration.main.elk_layered.alg_direction = leastPopulatedSector as Direction;
+            configuration.main.elk_layered.in_layer_gap = 150;
+            configuration.main.elk_layered.layer_gap = 150;
+            configuration.main.elk_layered.edge_routing = "POLYLINE";
+            graph = await performLayoutFromGraph(graph, configuration);
+
+            const clusterRootAfterLayout = graph.findNodeInAllNodes(clusterRoot.id);
+            const clusterRoorPositionAfterLayout = clusterRootAfterLayout.completeVisualNode.coreVisualNode.position;
+            const positionShift = {
+                x: clusterRoorPositionAfterLayout.x - clusterRootPositionBeforeLayout.x,
+                y: clusterRoorPositionAfterLayout.y - clusterRootPositionBeforeLayout.y,
+            };
+            for (const node of graph.allNodes) {
+                if (node.isConsideredInLayout) {
+                    const nodePosition = node.completeVisualNode.coreVisualNode.position;
+                    nodePosition.x -= positionShift.x;
+                    nodePosition.y -= positionShift.y;
+                }
+            }
+            for (const edge of graph.allEdges) {
+                if (edge.isConsideredInLayout) {
+                    for (const waypoint of edge.visualEdge.visualEdge.waypoints) {
+                        waypoint.x -= positionShift.x;
+                        waypoint.y -= positionShift.y;
                     }
                 }
             }
@@ -339,5 +354,9 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
         //         anchored: null
         //     };
         // }
+    },
+    RESET_LAYOUT: function (algorithmConversionConstraint: GraphConversionConstraint, graph: IMainGraphClassic): Promise<IMainGraphClassic> {
+        graph.mainGraph.resetForNewLayout();
+        return Promise.resolve(graph);
     }
 }

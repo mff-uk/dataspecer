@@ -136,7 +136,8 @@ export interface IGraphConversionConstraint extends IAdditionalControlOptions {
     constraintedNodes: ConstraintedNodesGroupingsType | string[],       // Either grouping or list of individual nodes
 }
 
-export type SpecificGraphConversions = "CREATE_GENERALIZATION_SUBGRAPHS" | "TREEIFY" | "CLUSTERIFY" | "LAYOUT_CLUSTERS_ACTION";
+
+export type SpecificGraphConversions = "CREATE_GENERALIZATION_SUBGRAPHS" | "TREEIFY" | "CLUSTERIFY" | "LAYOUT_CLUSTERS_ACTION" | "RESET_LAYOUT";
 
 export class GraphConversionConstraint implements IGraphConversionConstraint {
     static createSpecificAlgorithmConversionConstraint(name: SpecificGraphConversions): GraphConversionConstraint {
@@ -148,7 +149,11 @@ export class GraphConversionConstraint implements IGraphConversionConstraint {
             case "CLUSTERIFY":
                 return new ClusterifyConstraint(name, {clusters: null}, "ALL", false);
             case "LAYOUT_CLUSTERS_ACTION":
-                return new GraphConversionConstraint(name, {clusterifyConstraint: null}, "ALL", false);
+                return new LayoutClustersActionConstraint(name, {clusterifyConstraint: null}, "ALL", false);
+            case "RESET_LAYOUT":
+                return new GraphConversionConstraint(name, {}, "ALL", false);
+            default:
+                throw new Error("Forgot to extend createSpecificAlgorithmConversionConstraint for new conversion")
         }
     }
 
