@@ -286,7 +286,9 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
         for (const [cluster, edgesInCluster] of Object.entries(algorithmConversionConstraint.data.clusterifyConstraint.data.clusters)) {
             const clusterRoot = graph.findNodeInAllNodes(cluster);
             const clusterRootPositionBeforeLayout = { ...clusterRoot.completeVisualNode.coreVisualNode.position };
-            const sectorPopulations = GraphAlgorithms.findSectorNodePopulation(graph, clusterRoot, ToConsiderFilter.All);
+            // TODO RadStr: Commented code - old variant
+            // const sectorPopulations = GraphAlgorithms.findSectorNodePopulation(graph, clusterRoot, ToConsiderFilter.All);
+            const sectorPopulations = GraphAlgorithms.findSectorNodePopulationUsingBoundingBox(graph, clusterRoot, ToConsiderFilter.OnlyNotLayouted);
             const leastPopulatedSector = Object.entries(sectorPopulations)
                 .sort(([, edgesA], [, edgesB]) => edgesA - edgesB) // Ascending order
                 .splice(0, 1)[0][0];

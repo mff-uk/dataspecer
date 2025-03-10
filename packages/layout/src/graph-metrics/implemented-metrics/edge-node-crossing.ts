@@ -13,7 +13,7 @@ export class EdgeNodeCrossingMetric implements Metric {
                     if(possibleCollisionNode === n || possibleCollisionNode === outN.end) {
                         return;
                     }
-                    edgeNodeCrossingCount += EdgeNodeCrossingMetric.isLineRectangleCollision(outN, possibleCollisionNode);
+                    edgeNodeCrossingCount += EdgeNodeCrossingMetric.isLineRectangleCollision(outN, possibleCollisionNode.completeVisualNode);
                 });
             }
         });
@@ -29,15 +29,14 @@ export class EdgeNodeCrossingMetric implements Metric {
 
     // Based on https://www.jeffreythompson.org/collision-detection/line-rect.php
 
-    public static isLineRectangleCollision(line: IEdgeClassic, rectangle: EdgeEndPoint): 0 | 1 {
+    public static isLineRectangleCollision(line: IEdgeClassic, rectangle: IVisualNodeComplete): 0 | 1 {
         const start = EdgeCrossingMetric.getMiddle(line.start.completeVisualNode);
         const end = EdgeCrossingMetric.getMiddle(line.end.completeVisualNode);
 
-        const rectangleVisual = rectangle.completeVisualNode;
 
         return EdgeNodeCrossingMetric.isLineRectangleCollisionInternal(start.x, start.y, end.x, end.y,
-                                                                        rectangleVisual.coreVisualNode.position.x, rectangleVisual.coreVisualNode.position.y,
-                                                                        rectangleVisual.width, rectangleVisual.height) === true ? 1 : 0;
+                                                                        rectangle.coreVisualNode.position.x, rectangle.coreVisualNode.position.y,
+                                                                        rectangle.width, rectangle.height) === true ? 1 : 0;
     }
 
 

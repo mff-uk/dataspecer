@@ -1766,10 +1766,11 @@ function addNodeTODO(
     explicititPosition: XY | null,
     explicitAnchors?: ExplicitAnchors): boolean {
     if(isNodeInVisualModel(visualModel, entitiesToLayout, node, semanticEntityRepresentingNode.id)) {
-        new NodeClassic(mainGraph, node, semanticEntityRepresentingNode,
-                        isProfile, sourceEntityModelIdentifier,
-                        extractedModels, sourceGraph, visualModel,
-                        explicititPosition, explicitAnchors);
+        new NodeClassic(
+            mainGraph, node, semanticEntityRepresentingNode,
+            isProfile, sourceEntityModelIdentifier,
+            extractedModels, sourceGraph,
+            explicititPosition, explicitAnchors);
         return true;
     }
 
@@ -1797,7 +1798,7 @@ const convertOutgoingEdgeTypeToIncoming = (outgoingEdgeType: OutgoingEdgeType): 
     return "incoming" + capitalizeFirstLetter(outgoingEdgeType.slice("outgoing".length)) as IncomingEdgeType
 };
 
-class NodeClassic implements INodeClassic {
+export class NodeClassic implements INodeClassic {
     constructor(
         mainGraph: IMainGraphClassic,
         visualNode: AllowedVisualsForNodes | null,
@@ -1806,7 +1807,6 @@ class NodeClassic implements INodeClassic {
         sourceEntityModelIdentifier: string | null,
         extractedModels: ExtractedModels | null,
         sourceGraph: IGraphClassic,
-        visualModel: VisualModel,
         explicititPosition: XY | null,
         explicitAnchors?: ExplicitAnchors
     ) {
@@ -1842,7 +1842,8 @@ class NodeClassic implements INodeClassic {
             if(explicitAnchors !== undefined) {
                 isAnchored = isEntityWithIdentifierAnchored(semanticEntityRepresentingNode.id, explicitAnchors, false);
             }
-            const coreVisualNode = this.createNewVisualNodeBasedOnSemanticData(explicititPosition);
+            const coreVisualNode = NodeClassic.createNewVisualNodeBasedOnSemanticData(
+                explicititPosition, this.semanticEntityRepresentingNode.id, this.sourceEntityModelIdentifier);
             this.completeVisualNode = new VisualNodeComplete(coreVisualNode, width, height, false, isOutsider, isAnchored);
         }
         else {
@@ -1874,14 +1875,18 @@ class NodeClassic implements INodeClassic {
         console.info("Created node - constructor", this);
     }
 
-    private createNewVisualNodeBasedOnSemanticData(position: XY | null) {
+    static createNewVisualNodeBasedOnSemanticData(
+        position: XY | null,
+        semanticEntityRepresentingNodeIdentifier: string,
+        sourceEntityModelIdentifier: string | null
+    ) {
         if(position === null) {
             position = {x: 0, y: 0};
         }
         return {
             identifier: Math.random().toString(36).substring(2),
             type: [VISUAL_NODE_TYPE],
-            representedEntity: this.semanticEntityRepresentingNode.id,
+            representedEntity: semanticEntityRepresentingNodeIdentifier,
             position: {
                 x: position.x,
                 y: position.y,
@@ -1889,7 +1894,7 @@ class NodeClassic implements INodeClassic {
             },
             content: [],
             visualModels: [],
-            model: this.sourceEntityModelIdentifier ?? "",
+            model: sourceEntityModelIdentifier ?? "",
         };
     }
 

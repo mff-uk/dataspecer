@@ -1,5 +1,6 @@
 import { Direction, ReactflowDimensionsConstantEstimator } from ".";
-import { addToRecordArray, EdgeClassic, EdgeEndPoint, GraphClassic, IEdgeClassic, IGraphClassic, IMainGraphClassic, INodeClassic } from "./graph-iface";
+import { addToRecordArray, EdgeClassic, EdgeEndPoint, GraphClassic, IEdgeClassic, IGraphClassic, IMainGraphClassic, INodeClassic, NodeClassic, VisualNodeComplete } from "./graph-iface";
+import { EdgeNodeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-node-crossing";
 
 export enum ToConsiderFilter {
   OnlyLayouted,
@@ -268,34 +269,66 @@ export class GraphAlgorithms {
         [Direction.Left]: 0
       };
 
-      // const boundingBoxWidth = 5 * ReactflowDimensionsConstantEstimator.getDefaultWidth();
-      // const boundingBoxHeight = 5 * ReactflowDimensionsConstantEstimator.getDefaultHeight();
+      const boundingBoxes: Record<Direction, VisualNodeComplete> = {
+        [Direction.Left]: undefined,
+        [Direction.Right]: undefined,
+        [Direction.Up]: undefined,
+        [Direction.Down]: undefined,
+      };
 
-      // const rootNodePosition = rootNode.completeVisualNode.coreVisualNode.position;
-      // for(const node of graph.allNodes) {
-      //   if(node.id === rootNode.id) {
-      //     continue;
-      //   }
-      //   if((nodesToConsider === ToConsiderFilter.OnlyLayouted && !node.isConsideredInLayout) ||
-      //      (nodesToConsider === ToConsiderFilter.OnlyNotLayouted && node.isConsideredInLayout)) {
-      //     continue;
-      //   }
-      //   const iteratedNodePosition = node.completeVisualNode.coreVisualNode.position;
+      const widthMultipleForHorizontalDirection = 3;
+      const heightMultipleForHorizontalDirection = 15;
+      const widthMultipleForVerticalDirection = 5;
+      const heightMultipleForVerticalDirection = 3;
 
-      //   if(iteratedNodePosition.x > rootNodePosition.x && iteratedNodePosition.x < rootNodePosition.x + boundingBoxWidth) {
-      //     populations[Direction.Right]++;
-      //   }
-      //   else if(iteratedNodePosition.x < rootNodePosition.x && iteratedNodePosition.x > rootNodePosition.x - boundingBoxWidth) {
-      //     populations[Direction.Left]++;
-      //   }
 
-      //   if(iteratedNodePosition.y > rootNodePosition.y && iteratedNodePosition.y < rootNodePosition.y + boundingBoxHeight) {
-      //     populations[Direction.Down]++;
-      //   }
-      //   else if(iteratedNodePosition.y < rootNodePosition.y  && iteratedNodePosition.y > rootNodePosition.y - boundingBoxHeight) {
-      //     populations[Direction.Up]++;
-      //   }
-      // }
+      let boundingBoxWidth = widthMultipleForHorizontalDirection * ReactflowDimensionsConstantEstimator.getDefaultWidth();
+      let boundingBoxHeight = heightMultipleForHorizontalDirection * ReactflowDimensionsConstantEstimator.getDefaultHeight();
+
+      let boundingBoxVisualNode = NodeClassic.createNewVisualNodeBasedOnSemanticData(null, "", null);
+      let boundingBoxVisualNodeComplete = new VisualNodeComplete(
+        boundingBoxVisualNode, boundingBoxWidth, boundingBoxHeight, false, false, false);
+      boundingBoxVisualNodeComplete.coreVisualNode.position.x = rootNode.completeVisualNode.coreVisualNode.position.x - boundingBoxWidth;
+      boundingBoxVisualNodeComplete.coreVisualNode.position.y = rootNode.completeVisualNode.coreVisualNode.position.y - boundingBoxHeight / 2;
+      boundingBoxes[Direction.Left] = boundingBoxVisualNodeComplete;
+
+      boundingBoxVisualNode = NodeClassic.createNewVisualNodeBasedOnSemanticData(null, "", null);
+      boundingBoxVisualNodeComplete = new VisualNodeComplete(
+        boundingBoxVisualNode, boundingBoxWidth, boundingBoxHeight, false, false, false);
+      boundingBoxVisualNodeComplete.coreVisualNode.position.x = rootNode.completeVisualNode.coreVisualNode.position.x +
+                                                                rootNode.completeVisualNode.width + boundingBoxWidth;
+      boundingBoxVisualNodeComplete.coreVisualNode.position.y = rootNode.completeVisualNode.coreVisualNode.position.y - boundingBoxHeight / 2;
+      boundingBoxes[Direction.Right] = boundingBoxVisualNodeComplete;
+
+
+      boundingBoxWidth = widthMultipleForVerticalDirection * ReactflowDimensionsConstantEstimator.getDefaultWidth();
+      boundingBoxHeight = heightMultipleForVerticalDirection * ReactflowDimensionsConstantEstimator.getDefaultHeight();
+      boundingBoxVisualNode = NodeClassic.createNewVisualNodeBasedOnSemanticData(null, "", null);
+      boundingBoxVisualNodeComplete = new VisualNodeComplete(
+        boundingBoxVisualNode, boundingBoxWidth, boundingBoxHeight, false, false, false);
+      boundingBoxVisualNodeComplete.coreVisualNode.position.x = rootNode.completeVisualNode.coreVisualNode.position.x - boundingBoxWidth / 2;
+      boundingBoxVisualNodeComplete.coreVisualNode.position.y = rootNode.completeVisualNode.coreVisualNode.position.y - boundingBoxHeight;
+      boundingBoxes[Direction.Up] = boundingBoxVisualNodeComplete;
+
+      boundingBoxWidth = widthMultipleForVerticalDirection * ReactflowDimensionsConstantEstimator.getDefaultWidth();
+      boundingBoxHeight = heightMultipleForVerticalDirection * ReactflowDimensionsConstantEstimator.getDefaultHeight();
+      boundingBoxVisualNode = NodeClassic.createNewVisualNodeBasedOnSemanticData(null, "", null);
+      boundingBoxVisualNodeComplete = new VisualNodeComplete(
+        boundingBoxVisualNode, boundingBoxWidth, boundingBoxHeight, false, false, false);
+      boundingBoxVisualNodeComplete.coreVisualNode.position.x = rootNode.completeVisualNode.coreVisualNode.position.x - boundingBoxWidth / 2;
+      boundingBoxVisualNodeComplete.coreVisualNode.position.y = rootNode.completeVisualNode.coreVisualNode.position.y +
+                                                                rootNode.completeVisualNode.height - boundingBoxHeight;
+      boundingBoxes[Direction.Down] = boundingBoxVisualNodeComplete;
+
+      for(const edge of graph.allEdges) {
+        if((edgesToConsider === ToConsiderFilter.OnlyLayouted && !edge.isConsideredInLayout) ||
+           (edgesToConsider === ToConsiderFilter.OnlyNotLayouted && edge.isConsideredInLayout)) {
+          continue;
+        }
+        Object.entries(boundingBoxes).forEach(([direction, boundingBox]) => {
+          populations[direction] += EdgeNodeCrossingMetric.isLineRectangleCollision(edge, boundingBox);
+        })
+      }
 
       return populations;
     }

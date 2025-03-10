@@ -137,10 +137,10 @@ export function findNodeBorder(node: IVisualNodeComplete, next: XY): XY {
 
 // TODO: So maybe just do the classic ... type Direction = "Up" | "Right" | "Down" | "Left";
 export enum Direction {
-    Up = "Up",
-    Right = "Right",
-    Down = "Down",
-    Left = "Left"
+    Up = "UP",
+    Right = "RIGHT",
+    Down = "DOWN",
+    Left = "LEFT"
 }
 
 type PositionWithOptionalAnchor = {
