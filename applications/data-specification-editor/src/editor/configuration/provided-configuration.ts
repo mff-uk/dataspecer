@@ -119,7 +119,7 @@ export async function provideConfiguration(dataSpecificationIri: string | null, 
 
   const configurationForContext = ClientConfigurator.merge(
     DefaultClientConfiguration,
-    ClientConfigurator.getFromObject({}) // todo specification?.artefactConfiguration
+    ClientConfigurator.getFromObject(specifications[dataSpecificationIri].userPreferences)
   );
   const operationContext = new OperationContext();
   operationContext.labelRules = {
