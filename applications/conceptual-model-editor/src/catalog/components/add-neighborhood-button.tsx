@@ -3,6 +3,7 @@ import { t } from "../../application";
 import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { useActions } from "../../action/actions-react-binding";
 import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { useRef } from "react";
 
 export const AddNeighborhoodButton = ({ entity }: {
   entity: SemanticModelClass | SemanticModelRelationship |
@@ -12,6 +13,22 @@ export const AddNeighborhoodButton = ({ entity }: {
 
   const { addClassNeighborhoodToVisualModel } = useActions();
 
+  const currentlyPerformingShowAction = useRef<boolean>(false);
+    const onClick = async () => {
+      if(currentlyPerformingShowAction.current) {
+        return;
+      }
+      currentlyPerformingShowAction.current = true;
+      try {
+        await addClassNeighborhoodToVisualModel(entity.id);
+      }
+      finally {
+        // Just in case put into finally block
+        currentlyPerformingShowAction.current = false;
+      }
+      return Promise.resolve();
+    };
+
   if(!isSemanticModelClass(entity) && !isSemanticModelClassUsage(entity)) {
     return null;
   }
@@ -20,7 +37,7 @@ export const AddNeighborhoodButton = ({ entity }: {
     <button
       className={"hover:bg-teal-400"}
       title={t("add-neighborhood-button.title")}
-      onClick={() => addClassNeighborhoodToVisualModel(entity.id)}
+      onClick={async () => await onClick()}
     >
             🌎
     </button>
