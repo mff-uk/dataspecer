@@ -111,16 +111,16 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
       profiling: profile.profiling,
       iri: profile.iri,
       //
-      usageNote,
+      usageNote: (profiled(profile.usageNoteFromProfiled) as SemanticModelClassProfile)?.usageNote ?? usageNote ?? null,
       usageNoteFromProfiled: profile.usageNoteFromProfiled,
       //
-      name: profiled(profile.nameFromProfiled)?.name ?? null,
+      name: profiled(profile.nameFromProfiled)?.name ?? profile.name ?? null,
       nameFromProfiled: profile.nameFromProfiled,
-      description: profiled(profile.descriptionFromProfiled)?.description ?? null,
+      description: profiled(profile.descriptionFromProfiled)?.description ?? profile.description ?? null,
       descriptionFromProfiled: profile.descriptionFromProfiled,
       //
       conceptIris: conceptIris,
-    };
+    } satisfies AggregatedProfiledSemanticModelClass;
   }
 
   aggregateSemanticModelRelationshipProfile(
@@ -143,9 +143,9 @@ class DefaultProfileEntityAggregator implements ProfileEntityAggregator {
         profiling: end.profiling,
         iri: end.iri,
         //
-        name: profiled(end.nameFromProfiled)?.ends[index]?.name ?? null,
+        name: profiled(end.nameFromProfiled)?.ends[index]?.name ?? end.name ?? null,
         nameFromProfiled: end.nameFromProfiled,
-        description: profiled(end.descriptionFromProfiled)?.ends[index]?.description ?? null,
+        description: profiled(end.descriptionFromProfiled)?.ends[index]?.description ?? end.description ?? null,
         descriptionFromProfiled: end.descriptionFromProfiled,
         usageNote: (() => {
           // We need to do some computation.

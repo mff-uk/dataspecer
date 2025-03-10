@@ -171,7 +171,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
         }
       } else {
         if (isSemanticModelClassProfile(entity)) {
-          const dependsOn = entity.profiling.map(id => this.entities[id]?.aggregatedEntity ?? this.sourceEntities[id]?.aggregatedEntity).filter(x => x) as SemanticModelClass[];
+          const dependsOn = entity.profiling.map(id => this.entities[id]?.aggregatedEntity ?? this.sourceEntities[id]?.aggregatedEntity ?? this.profileEntities[id]).filter(x => x) as SemanticModelClass[];
           const aggregatedEntity = this.profileEntityAggregator.aggregateSemanticModelClassProfile(entity, dependsOn);
           // todo workaround with typing
           const aggregatedEntityClass = {...aggregatedEntity, type: ["class", "class-profile"]} as unknown as SemanticModelClass;
@@ -184,7 +184,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
           toUpdate.push(...this.dependsOn.getBySecond(entity.id));
           updated[entity.id] = this.entities[entity.id];
         } else if (isSemanticModelRelationshipProfile(entity)) {
-          const dependsOn = entity.ends.map(end => end.profiling).flat().map(id => this.entities[id]?.aggregatedEntity ?? this.sourceEntities[id]?.aggregatedEntity).filter(x => x) as SemanticModelRelationship[];
+          const dependsOn = entity.ends.map(end => end.profiling).flat().map(id => this.entities[id]?.aggregatedEntity ?? this.sourceEntities[id]?.aggregatedEntity ?? this.profileEntities[id]).filter(x => x) as SemanticModelRelationship[];
           const aggregatedEntity = this.profileEntityAggregator.aggregateSemanticModelRelationshipProfile(entity, dependsOn);
           // todo workaround with typing
           const aggregatedEntityRelationship = {...aggregatedEntity, type: ["relationship", "relationship-profile"]} as unknown as SemanticModelRelationship;
