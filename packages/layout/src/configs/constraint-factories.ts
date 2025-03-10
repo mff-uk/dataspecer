@@ -289,9 +289,15 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
             // TODO RadStr: Commented code - old variant
             // const sectorPopulations = GraphAlgorithms.findSectorNodePopulation(graph, clusterRoot, ToConsiderFilter.All);
             const sectorPopulations = GraphAlgorithms.findSectorNodePopulationUsingBoundingBox(graph, clusterRoot, ToConsiderFilter.OnlyNotLayouted);
-            const leastPopulatedSector = Object.entries(sectorPopulations)
-                .sort(([, edgesA], [, edgesB]) => edgesA - edgesB) // Ascending order
-                .splice(0, 1)[0][0];
+            const populatedSectorsAscending = Object.entries(sectorPopulations)
+                .sort(([, edgesA], [, edgesB]) => edgesA - edgesB);
+
+            let leastPopulatedSector = populatedSectorsAscending[0][0];
+            if((populatedSectorsAscending[0][0] === "UP" || populatedSectorsAscending[0][0] === "DOWN") &&
+                (populatedSectorsAscending[1][0] === "LEFT" || populatedSectorsAscending[1][0] === "RIGHT") &&
+                populatedSectorsAscending[0][1] === populatedSectorsAscending[1][1]) {
+                leastPopulatedSector = populatedSectorsAscending[1][0];
+            }
 
             // TODO RadStr: Debug print
             console.info("sectorPopulations", leastPopulatedSector, sectorPopulations);
@@ -319,8 +325,8 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
             const layeredAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING["elk_layered"];
             const configuration = getDefaultUserGivenConstraintsVersion4();
             configuration.main.elk_layered.alg_direction = leastPopulatedSector as Direction;
-            configuration.main.elk_layered.in_layer_gap = 150;
-            configuration.main.elk_layered.layer_gap = 150;
+            configuration.main.elk_layered.in_layer_gap = 100;
+            configuration.main.elk_layered.layer_gap = 50;
             configuration.main.elk_layered.edge_routing = "POLYLINE";
             graph = await performLayoutFromGraph(graph, configuration);
 

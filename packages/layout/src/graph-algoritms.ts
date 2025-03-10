@@ -277,9 +277,9 @@ export class GraphAlgorithms {
       };
 
       const widthMultipleForHorizontalDirection = 3;
-      const heightMultipleForHorizontalDirection = 15;
-      const widthMultipleForVerticalDirection = 5;
-      const heightMultipleForVerticalDirection = 3;
+      const heightMultipleForHorizontalDirection = 20;
+      const widthMultipleForVerticalDirection = 8;
+      const heightMultipleForVerticalDirection = 6;
 
 
       let boundingBoxWidth = widthMultipleForHorizontalDirection * ReactflowDimensionsConstantEstimator.getDefaultWidth();
