@@ -61,7 +61,7 @@ CONSTRUCT {
                 owl:onProperty [
                     owl:inverseOf <https://slovník.gov.cz/základní/pojem/má-vztažený-prvek-1>
                 ];
-                owl:onClass ?outwardsRelation ;
+                owl:onClass ?inwardsRelation ;
                 owl:minQualifiedCardinality ?range_min
             ] .
         }
@@ -71,7 +71,7 @@ CONSTRUCT {
                 owl:onProperty [
                     owl:inverseOf <https://slovník.gov.cz/základní/pojem/má-vztažený-prvek-1>
                 ];
-                owl:onClass ?outwardsRelation ;
+                owl:onClass ?inwardsRelation ;
                 owl:maxQualifiedCardinality ?range_max
             ] .
         }
@@ -98,7 +98,7 @@ CONSTRUCT {
 
         #{BIND(BNODE() as ?domain_cardinality)} # Not working under Virtuoso@7
         #{BIND(BNODE() as ?range_cardinality)}
-        BIND(IRI(CONCAT(STR(?outwardsRelation), '#domain-cardinality')) as ?domain_cardinality)
-        BIND(IRI(CONCAT(STR(?outwardsRelation), '#range-cardinality')) as ?range_cardinality)
+        BIND(IRI(CONCAT(STR(?inwardsRelation), '#domain-cardinality')) as ?domain_cardinality)
+        BIND(IRI(CONCAT(STR(?inwardsRelation), '#range-cardinality')) as ?range_cardinality)
     # Cardinalities END
 }
