@@ -47,7 +47,7 @@
   "iri parameters help": "Instance tříd (data) můžou být identifikována svým konkrétním IRI. Například Praha, jako instance města, může mít své IRI http://example.com/Praha. Tato možnost nastavuje, zdali je takový identifikátor v datech vyžadován, což má vliv na validaci dat a jejich reprezetaci například v RDF, kdy se resourcy bez IRI projevují jako blank nodes.",
   "is codelist": "je číselníkem",
   "json": {
-    "use key value for lang string": "Použít objekt klíč-hodnota pro řetězce v různých jazycích pro JSON."
+    "use key value for lang string": "Použít formát JSON-LD language map."
   },
   "label max": "max",
   "label min": "min",
