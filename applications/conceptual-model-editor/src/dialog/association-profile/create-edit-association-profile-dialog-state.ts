@@ -168,7 +168,7 @@ export function createEditAssociationProfileDialogStateFromProfile(
     vocabularies,
     domain.concept, domain.cardinality, domains,
     filterByModel, representUndefinedClassProfile(),
-    range.concept, domain.cardinality, ranges,
+    range.concept, range.cardinality, ranges,
     filterByModel, representUndefinedClassProfile());
 
   return {
