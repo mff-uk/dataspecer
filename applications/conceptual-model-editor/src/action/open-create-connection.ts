@@ -70,6 +70,32 @@ function openCreateConnectionDialogActionInternal(
     && isSemanticModelClassProfile(target)) {
     // Create a relationship profile or generalization for profiles.
     // We do not support this yet.
+
+    const sourceModel = findSourceModelOfEntity(source.id, graph.models);
+    const targetModel = findSourceModelOfEntity(target.id, graph.models);
+
+    if (sourceModel === null || targetModel === null) {
+      LOG.error("Missing model for entity.",
+        { source, target, sourceModel, targetModel });
+      throw new InvalidState();
+    }
+
+    if (sourceModel.getId() !== targetModel.getId()) {
+      LOG.error("Ignored operation as there is no single model.",
+        { source: sourceModel, target: targetModel });
+      return;
+    }
+
+    const generalization = cmeExecutor.createGeneralization({
+      model: sourceModel.getId(),
+      // https://github.com/mff-uk/dataspecer/issues/537
+      iri: null,
+      childIdentifier: source.id,
+      parentIdentifier: target.id,
+    });
+
+    visualExecutor.addRelationship(
+      generalization, source.id, target.id);
   }
   else {
     // We do not know.
@@ -107,12 +133,12 @@ function openRelationshipOrGeneralizationDialog(
 ) {
   const onConfirm = (state: CreateConnectionState) => {
     switch (state.type) {
-    case ConnectionType.Association:
-      createRelationship(cmeExecutor, visualExecutor, state);
-      break;
-    case ConnectionType.Generalization:
-      createGeneralization(cmeExecutor, visualExecutor, state);
-      break;
+      case ConnectionType.Association:
+        createRelationship(cmeExecutor, visualExecutor, state);
+        break;
+      case ConnectionType.Generalization:
+        createGeneralization(cmeExecutor, visualExecutor, state);
+        break;
     }
   };
 
@@ -166,7 +192,7 @@ function createProfile(
   target: SemanticModelClass,
 ) {
   const sourceModel = findSourceModelOfEntity(source.id, graph.models);
-  const targetModel = findSourceModelOfEntity(source.id, graph.models);
+  const targetModel = findSourceModelOfEntity(target.id, graph.models);
 
   if (sourceModel === null || targetModel === null) {
     LOG.error("Missing model for entity.",
