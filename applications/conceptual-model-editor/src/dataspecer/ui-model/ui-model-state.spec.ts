@@ -6,7 +6,8 @@ import { HexColor, RepresentedEntityIdentifier, VISUAL_NODE_TYPE, VisualEntity, 
 import { UiVocabulary, UiVocabularyType, UiModelState } from "./ui-model";
 import { createEmptyState, onChangeSemanticModels, onChangeVisualModel, onModelColorDidChange, onVisualEntitiesDidChange } from "./ui-model-state";
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
-import { configuration } from "../../application";
+
+const DEFAULT_MODEL_COLOR = "#00AA00";
 
 describe("createState", () => {
 
@@ -205,7 +206,7 @@ describe("onChangeSemanticModels", () => {
     const vocabulary: UiVocabulary = {
       dsIdentifier: "8d8xl",
       displayLabel: "Local model",
-      displayColor: configuration().defaultModelColor,
+      displayColor: DEFAULT_MODEL_COLOR,
       vocabularyType: UiVocabularyType.InMemorySemanticModel,
       baseIri: "",
     };
@@ -305,7 +306,7 @@ describe("onVisualEntitiesDidChange", () => {
     const vocabulary : UiVocabulary = {
       dsIdentifier: "8d8xl",
       displayLabel: "Local model",
-      displayColor: configuration().defaultModelColor,
+      displayColor: DEFAULT_MODEL_COLOR,
       vocabularyType: UiVocabularyType.InMemorySemanticModel,
       baseIri: "",
     };
@@ -363,7 +364,7 @@ describe("onVisualEntitiesDidChange", () => {
     const vocabulary : UiVocabulary = {
       dsIdentifier: "8d8xl",
       displayLabel: "Local model",
-      displayColor: configuration().defaultModelColor,
+      displayColor: DEFAULT_MODEL_COLOR,
       vocabularyType: UiVocabularyType.Default,
       baseIri: "",
     };

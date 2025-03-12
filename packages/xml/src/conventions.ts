@@ -2,12 +2,12 @@
  * A pair of a namespace prefix and a local name.
  */
 export type QName = [prefix: string | null, localName: string];
- 
+
 /**
  * The QName used for an extension of xs:string that requires xml:lang.
  */
 export const langStringName: QName = [null, "langString"];
- 
+
 import { OFN, XSD } from "@dataspecer/core/well-known";
 
 /**
@@ -45,6 +45,7 @@ export const simpleTypeMapQName: Record<string, QName> = {
   [OFN.url]: ["xs", "anyURI"],
   [OFN.string]: ["xs", "string"],
   [OFN.text]: langStringName,
+  ["http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"]: langStringName,
 };
 
 /**

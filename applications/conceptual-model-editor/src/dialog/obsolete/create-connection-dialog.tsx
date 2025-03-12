@@ -109,7 +109,7 @@ export function createCreateConnectionState(
     language,
     //
     type: nextOpenConnectionType,
-    iri: configuration().nameToIri(name),
+    iri: configuration().relationshipNameToIri(name),
     name: {[language]: name},
     description: {},
     sourceCardinality: null,
@@ -251,7 +251,7 @@ const AssociationSection = (props: DialogProps<CreateConnectionState>) => {
           iriHasChanged={iriHasChanged}
           onChange={() => setIriHasChanged(true)}
           baseIri={baseIri}
-          nameSuggestion={configuration().nameToIri}
+          nameSuggestion={configuration().relationshipNameToIri}
         />
       </DialogDetailRow>
       <DialogDetailRow detailKey={t("create-connection-dialog.description")}>

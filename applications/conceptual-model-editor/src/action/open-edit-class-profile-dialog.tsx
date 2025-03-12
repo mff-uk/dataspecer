@@ -11,10 +11,11 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { createEditClassProfileDialog, createEditClassProfileDialogState } from "../dialog/class-profile/create-edit-class-profile-dialog-state";
 import { EditClassProfileDialogState } from "../dialog/class-profile/edit-class-profile-dialog-controller";
 import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { modifyCmeClassProfile } from "../dataspecer/cme-model/operation/modify-cmd-class-profile";
 import { updateVisualNodeProfiles } from "../dataspecer/visual-model/operation/update-visual-node-profiles";
+import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 
 export function openEditClassProfileDialogAction(
+  cmeExecutor: CmeModelOperationExecutor,
   options: Options,
   dialogs: DialogApiContextType,
   classes: ClassesContextType,
@@ -28,7 +29,8 @@ export function openEditClassProfileDialogAction(
     classes, graph, visualModel, options.language, model, entity.id);
 
   const onConfirm = (nextState: EditClassProfileDialogState) => {
-    updateSemanticClassProfile(notifications, entity, graph.models, state, nextState);
+    updateSemanticClassProfile(
+      cmeExecutor, notifications, entity, graph.models, state, nextState);
     // We need to update visual model: profiles
     if (isWritableVisualModel(visualModel)) {
       updateVisualNodeProfiles(
@@ -38,10 +40,12 @@ export function openEditClassProfileDialogAction(
         },
         state.profiles.map(item => ({
           identifier: item.identifier,
-          model: item.vocabularyDsIdentifier})),
+          model: item.vocabularyDsIdentifier
+        })),
         nextState.profiles.map(item => ({
           identifier: item.identifier,
-          model: item.vocabularyDsIdentifier})));
+          model: item.vocabularyDsIdentifier
+        })));
     }
   };
 
@@ -49,6 +53,7 @@ export function openEditClassProfileDialogAction(
 }
 
 function updateSemanticClassProfile(
+  cmeExecutor: CmeModelOperationExecutor,
   notifications: UseNotificationServiceWriterType,
   entity: SemanticModelClassUsage | SemanticModelClassProfile,
   models: Map<string, EntityModel>,
@@ -60,7 +65,7 @@ function updateSemanticClassProfile(
     return;
   }
 
-  modifyCmeClassProfile({
+  cmeExecutor.changeClassProfile({
     identifier: entity.id,
     model: state.model.dsIdentifier,
     profileOf: state.profiles.map(item => item.identifier),
@@ -74,5 +79,5 @@ function updateSemanticClassProfile(
     usageNote: state.usageNote,
     usageNoteSource: state.overrideUsageNote ? null :
       state.usageNoteSource.identifier ?? null,
-  }, [...models.values() as any]);
+  });
 }

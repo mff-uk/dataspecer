@@ -103,3 +103,50 @@ export function findNodeBorder(node: Node, next: Point): Point {
   const rectangle = { width: size.width + 4, height: size.height + 4 };
   return findRectangleLineIntersection(center, rectangle, next);
 }
+
+export function findClosestLine(waypoints: Point[], point: Point): number {
+  if (waypoints.length < 2) {
+    return 0;
+  }
+
+  let result = 0;
+  let minDistance: number = Infinity;
+  // Search for segment closest to the point.
+  for (let index = 0; index < waypoints.length - 1; index++) {
+    const distance = distanceFromPointToLineSegment(
+      point, waypoints[index], waypoints[index + 1]);
+    if (distance < minDistance) {
+      minDistance = distance;
+      result = index;
+    }
+  }
+  return result;
+}
+
+function distanceFromPointToLineSegment(
+  point: Point, start: Point, end: Point
+): number {
+  const { x, y } = point;
+  const { x: x1, y: y1 } = start;
+  const { x: x2, y: y2 } = end;
+
+  // Calculate the squared length of the line segment
+  const lineSegmentLengthSquared = (x2 - x1) ** 2 + (y2 - y1) ** 2;
+
+  // If the line segment is actually a point
+  if (lineSegmentLengthSquared === 0) {
+    return Math.sqrt((x - x1) ** 2 + (y - y1) ** 2);
+  }
+
+  // Calculate the projection parameter.
+  const tRaw = ((x - x1) * (x2 - x1) + (y - y1) * (y2 - y1))
+    / lineSegmentLengthSquared;
+  const t = Math.max(0, Math.min(1, tRaw));
+
+  // Calculate the closest point on the line segment
+  const closestX = x1 + t * (x2 - x1);
+  const closestY = y1 + t * (y2 - y1);
+
+  // Return the distance from the point to the closest point on the line segment
+  return Math.sqrt((x - closestX) ** 2 + (y - closestY) ** 2);
+}

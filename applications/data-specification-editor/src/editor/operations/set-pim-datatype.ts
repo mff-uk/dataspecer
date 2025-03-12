@@ -1,5 +1,5 @@
 
-import { ExtendedSemanticModelRelationshipEnd, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { ExtendedSemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
 import { modifyRelation } from "@dataspecer/core-v2/semantic-model/operations";
 import { ComplexOperation } from "@dataspecer/federated-observable-store/complex-operation";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
@@ -29,16 +29,12 @@ export class SetPimDatatype implements ComplexOperation {
       datatype = null;
     }
 
-    const relation = await this.store.readResource(this.forPimAttributeIri) as SemanticModelRelationship;
-
     const languagesToSet = (datatype === "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/text") ? [...new Set(this.requiredLanguages)] : [];
 
     const operation = modifyRelation(this.forPimAttributeIri, {
-      ...relation,
       ends: [
-        relation.ends[0],
+        {} as ExtendedSemanticModelRelationshipEnd,
         {
-          ...relation.ends[1],
           concept: datatype,
           languageStringRequiredLanguages: languagesToSet,
         } as ExtendedSemanticModelRelationshipEnd

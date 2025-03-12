@@ -46,6 +46,14 @@ export interface EntityRepresentative {
 
   vocabularyDsIdentifier: string;
 
+  /**
+   * Name of the entity or aggregate name for the profile.
+   */
+  name: LanguageString;
+
+  /**
+   * Visible label. May be different from name.
+   */
   label: LanguageString;
 
   description: LanguageString;
@@ -66,6 +74,7 @@ const UNDEFINED_CLASS: EntityRepresentative = {
   identifier: UNDEFINED_IDENTIFIER,
   iri: null,
   vocabularyDsIdentifier: UndefinedCmeVocabulary.dsIdentifier,
+  name: { "": "Undefined" },
   label: { "": "Undefined" },
   description: {},
   profileOfIdentifiers: [],
@@ -90,6 +99,7 @@ const OWL_THING: EntityRepresentative = {
   identifier: OWL_THING_IDENTIFIER,
   iri: null,
   vocabularyDsIdentifier: OwlVocabulary.dsIdentifier,
+  name: { "": "owl:Thing" },
   label: { "": "owl:Thing" },
   description: {},
   profileOfIdentifiers: [],
@@ -116,6 +126,7 @@ export function representClasses(
       identifier: item.id,
       iri: item.iri,
       vocabularyDsIdentifier: vocabulary.dsIdentifier,
+      name: item.name,
       label: item.name,
       description: item.description,
       profileOfIdentifiers: [],
@@ -178,6 +189,7 @@ export function representClassUsages(
       identifier: item.id,
       iri: item.iri,
       vocabularyDsIdentifier: vocabulary.dsIdentifier,
+      name: entity.name ?? {},
       label: entity.name ?? {},
       description: entity.description ?? {},
       profileOfIdentifiers: [entity.usageOf],
@@ -213,6 +225,7 @@ export function representClassProfiles(
       identifier: item.id,
       iri: item.iri,
       vocabularyDsIdentifier: vocabulary.dsIdentifier,
+      name: entity.name ?? {},
       label: entity.name ?? {},
       description: entity.description ?? {},
       profileOfIdentifiers: entity.profiling,
@@ -341,6 +354,7 @@ export function representRelationships(
       identifier: item.id,
       iri: item.iri,
       vocabularyDsIdentifier: vocabulary.dsIdentifier,
+      name: range.name ?? {},
       label: range.name ?? {},
       description: range.description ?? {},
       profileOfIdentifiers: [],
@@ -387,6 +401,7 @@ export function representRelationshipUsages(
       identifier: item.id,
       iri: item.iri,
       vocabularyDsIdentifier: vocabulary.dsIdentifier,
+      name: range.name ?? {},
       label: range.name ?? {},
       description: range.description ?? {},
       profileOfIdentifiers: [entity.usageOf],
@@ -431,6 +446,7 @@ export function representRelationshipProfile(
       identifier: item.id,
       iri: range.iri,
       vocabularyDsIdentifier: vocabulary.dsIdentifier,
+      name: range.name ?? {},
       label: range.name ?? {},
       description: range.description ?? {},
       profileOfIdentifiers: range.profiling,
@@ -450,6 +466,7 @@ export function representUndefinedAttribute(): RelationshipRepresentative {
     identifier: UNDEFINED_IDENTIFIER,
     iri: null,
     vocabularyDsIdentifier: UndefinedCmeVocabulary.dsIdentifier,
+    name: { "": "Undefined" },
     label: { "": "Undefined" },
     description: {},
     profileOfIdentifiers: [],
@@ -467,6 +484,7 @@ export function representUndefinedAssociation(): RelationshipRepresentative {
     identifier: UNDEFINED_IDENTIFIER,
     iri: null,
     vocabularyDsIdentifier: UndefinedCmeVocabulary.dsIdentifier,
+    name: { "": "Undefined" },
     label: { "": "Undefined" },
     description: {},
     profileOfIdentifiers: [],
@@ -483,13 +501,19 @@ export interface DataTypeRepresentative {
 
   identifier: string;
 
+  iri: string;
+
   label: LanguageString;
+
+  vocabularyDsIdentifier: string,
 
 }
 
 const RDFS_LITERAL: DataTypeRepresentative = {
   identifier: RDFS_LITERAL_IDENTIFIER,
+  iri: "http://www.w3.org/2000/01/rdf-schema#Literal",
   label: { "": "rdfs:Literal" },
+  vocabularyDsIdentifier: "",
 };
 
 export function representRdfsLiteral(): DataTypeRepresentative {
@@ -498,7 +522,9 @@ export function representRdfsLiteral(): DataTypeRepresentative {
 
 const UNDEFINED_DATA_TYPE: DataTypeRepresentative = {
   identifier: UNDEFINED_IDENTIFIER,
+  iri: "",
   label: { "": "Undefined" },
+  vocabularyDsIdentifier: "",
 };
 
 export function representUndefinedDataType(): DataTypeRepresentative {
@@ -507,15 +533,16 @@ export function representUndefinedDataType(): DataTypeRepresentative {
 
 const CORE_DATA_TYPE: DataTypeRepresentative[] = DataTypeURIs.map(iri => ({
   identifier: iri,
+  iri,
   label: { "": dataTypeUriToName(iri) ?? iri },
+  vocabularyDsIdentifier: "",
 }));
 
 /**
- * @returns undefined, data types
+ * @returns data types
  */
 export function listAttributeRanges(): DataTypeRepresentative[] {
   return [
-    representUndefinedDataType(),
     ...CORE_DATA_TYPE,
   ];
 }

@@ -7,12 +7,13 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { EditAssociationDialogState } from "./edit-association-dialog-controller";
 import { MissingRelationshipEnds } from "../../application/error";
 import { createEntityStateForEdit } from "../utilities/entity-utilities";
-import { isRepresentingAssociation, listRelationshipDomains, representOwlThing, representRelationships, sortRepresentatives } from "../utilities/dialog-utilities";
+import { isRepresentingAssociation, listRelationshipDomains, representOwlThing, representRelationships, representUndefinedClass, sortRepresentatives } from "../utilities/dialog-utilities";
 import { createSpecializationStateForEdit } from "../utilities/specialization-utilities";
-import { createRelationshipStateForEdit } from "../utilities/relationship-utilities";
+import { createRelationshipState } from "../utilities/relationship-utilities";
 import { DialogWrapper } from "../dialog-api";
 import { EditAssociationDialog } from "./edit-association-dialog";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
+import { isValid } from "../utilities/validation-utilities";
 
 export function createEditAssociationDialogState(
   classesContext: ClassesContextType,
@@ -57,9 +58,15 @@ export function createEditAssociationDialogState(
     classesContext, graphContext, vocabularies);
   sortRepresentatives(language, domains);
 
-  const relationshipState = createRelationshipStateForEdit(
-    domain.concept ?? owlThing.identifier, domain.cardinality, domains,
-    range.concept ?? owlThing.identifier, range.cardinality, domains);
+  // For association domains are same as ranges.
+  const ranges = domains;
+
+  const relationshipState = createRelationshipState(
+    vocabularies,
+    domain.concept ?? owlThing.identifier, representUndefinedClass(),
+    domain.cardinality, domains,
+    range.concept ?? owlThing.identifier, representUndefinedClass(),
+    range.cardinality, ranges);
 
   return {
     ...entityState,
@@ -78,7 +85,9 @@ export const createEditAssociationDialog = (
     state,
     confirmLabel: "dialog.association.ok-edit",
     cancelLabel: "dialog.association.cancel",
-    validate: () => true,
+    validate: (state) => isValid(state.iriValidation)
+      && isValid(state.domainValidation)
+      && isValid(state.rangeValidation),
     onConfirm: onConfirm,
     onClose: null,
   };

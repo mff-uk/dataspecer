@@ -9,14 +9,15 @@ import { EditAssociationProfileDialogState } from "./edit-association-profile-di
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { MissingRelationshipEnds, RuntimeError } from "../../application/error";
 import { createEntityProfileStateForEdit } from "../utilities/entity-profile-utilities";
-import { createRelationshipProfileStateForEdit } from "../utilities/relationship-profile-utilities";
+import { createRelationshipProfileState, filterByModel } from "../utilities/relationship-profile-utilities";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { DialogWrapper } from "../dialog-api";
 import { EditAssociationProfileDialog } from "./edit-association-profile-dialog";
-import { listRelationshipProfileDomains, representOwlThing, representUndefinedAssociation, sortRepresentatives } from "../utilities/dialog-utilities";
+import { listRelationshipProfileDomains, representOwlThing, representUndefinedAssociation, representUndefinedClassProfile, sortRepresentatives } from "../utilities/dialog-utilities";
 import { isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { createLogger } from "../../application";
 import { listAssociationsToProfile } from "./attribute-profile-utilities";
+import { isValid } from "../utilities/validation-utilities";
 
 const LOG = createLogger(import.meta.url);
 
@@ -66,7 +67,9 @@ export function createEditAssociationProfileDialogStateFromUsage(
   const noProfile = representUndefinedAssociation();
 
   const availableProfiles = listAssociationsToProfile(
-    classesContext, graphContext, vocabularies);
+    classesContext, graphContext, vocabularies)
+    .filter(item => item.identifier !== entity.id);
+  sortRepresentatives(language, availableProfiles);
 
   const domains = listRelationshipProfileDomains(
     classesContext, graphContext, vocabularies);
@@ -97,9 +100,15 @@ export function createEditAssociationProfileDialogStateFromUsage(
 
   // RelationshipState<EntityRepresentative>
 
-  const relationshipProfileState = createRelationshipProfileStateForEdit(
-    domain.concept ?? owlThing.identifier, domains, domain.cardinality,
-    range.concept ?? owlThing.identifier, ranges, range.cardinality);
+  const relationshipProfileState = createRelationshipProfileState(
+    entityProfileState.model,
+    vocabularies,
+    domain.concept ?? owlThing.identifier, domain.cardinality,
+    domains, filterByModel,
+    representUndefinedClassProfile(),
+    range.concept ?? owlThing.identifier, range.cardinality,
+    ranges, filterByModel,
+    representUndefinedClassProfile());
 
   return {
     ...entityProfileState,
@@ -123,7 +132,8 @@ export function createEditAssociationProfileDialogStateFromProfile(
   const noProfile = representUndefinedAssociation();
 
   const availableProfiles = listAssociationsToProfile(
-    classesContext, graphContext, vocabularies);
+    classesContext, graphContext, vocabularies)
+    .filter(item => item.identifier !== entity.id);
   sortRepresentatives(language, availableProfiles);
 
   const domains = listRelationshipProfileDomains(
@@ -153,9 +163,13 @@ export function createEditAssociationProfileDialogStateFromProfile(
 
   // RelationshipState<EntityRepresentative>
 
-  const relationshipProfileState = createRelationshipProfileStateForEdit(
-    domain.concept, domains, domain.cardinality,
-    range.concept, ranges, range.cardinality);
+  const relationshipProfileState = createRelationshipProfileState(
+    entityProfileState.model,
+    vocabularies,
+    domain.concept, domain.cardinality, domains,
+    filterByModel, representUndefinedClassProfile(),
+    range.concept, range.cardinality, ranges,
+    filterByModel, representUndefinedClassProfile());
 
   return {
     ...entityProfileState,
@@ -173,7 +187,9 @@ export const createEditAssociationProfileDialog = (
     state,
     confirmLabel: "dialog.association-profile.ok-edit",
     cancelLabel: "dialog.association-profile.cancel",
-    validate: () => true,
+    validate: (state) => isValid(state.iriValidation)
+      && isValid(state.domainValidation)
+      && isValid(state.rangeValidation),
     onConfirm: onConfirm,
     onClose: null,
   };

@@ -82,7 +82,7 @@ export const DefaultSearchDialogContent: React.FC<DialogParameters & { selected:
           }}>
             <ListItemText secondary={<Typography variant="body2" color="textSecondary" noWrap
               title={translateFrom(result.aggregatedEntity.name, i18n.languages)}>{translateFrom(result.aggregatedEntity.description, i18n.languages)}</Typography>}>
-              <strong>{translateFrom(result.aggregatedEntity.name, i18n.languages)} [{result.note}]</strong>
+              <strong>{translateFrom(result.aggregatedEntity.name, i18n.languages)}{result.note && ` [${result.note}]`}</strong>
               <ExternalEntityBadge entity={result} />
             </ListItemText>
             <IconButton onClick={e => {

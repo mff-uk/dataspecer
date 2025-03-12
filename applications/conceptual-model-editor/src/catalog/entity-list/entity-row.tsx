@@ -21,7 +21,7 @@ import { ExpandButton } from "../components/expand";
 import { OpenDetailButton } from "../components/open-detail";
 import { RemoveButton } from "../components/remove";
 import { MoveViewportToEntityButton } from "../components/center-viewport-on-entity";
-import { useOptions } from "../../application/options";
+import { useOptions } from "../../configuration/options";
 import { useActions } from "../../action/actions-react-binding";
 import { AddNeighborhoodButton } from "../components/add-neighborhood-button";
 import { useCatalogHighlightingController } from "../../diagram/features/highlighting/exploration/catalog/catalog-highlighting-controller";

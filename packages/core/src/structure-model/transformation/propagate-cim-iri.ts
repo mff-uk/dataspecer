@@ -1,6 +1,7 @@
-import {ConceptualModel, ConceptualModelProperty} from "../../conceptual-model";
-import {StructureModel} from "../model";
-import {clone} from "../../core";
+import { ConceptualModel } from "../../conceptual-model";
+import { buildPropertyMap } from "../../conceptual-model/utils";
+import { clone } from "../../core";
+import { StructureModel } from "../model";
 
 /**
  * Adds CIM iris from {@link ConceptualModel} to {@link StructureModel}.
@@ -13,6 +14,7 @@ export function propagateCimIri(
 ): StructureModel {
     const result = clone(structure) as StructureModel;
     const classes = result.getClasses();
+    const propertyMap = buildPropertyMap(conceptual);
 
     // Process classes and extend classes
     for (const classData of classes) {
@@ -21,25 +23,17 @@ export function propagateCimIri(
             continue;
         }
         classData.cimIri = conceptualClass.cimIri;
+        classData.iris = conceptualClass.iris;
     }
 
     // Process properties
     for (const structureClass of classes) {
         structureClass.properties.forEach(
             property => {
-                // Find the correct class that contains the given property
-                let conceptualProperty: ConceptualModelProperty|null = null;
-                for (const cls of Object.values(conceptual.classes)) {
-                    const found = cls.properties
-                        .find(p => p.pimIri === property.pimIri);
-                    if (found) {
-                        conceptualProperty = found;
-                        break;
-                    }
-                }
-
+                let conceptualProperty = propertyMap(property.pimIri, property.isReverse);
                 if (conceptualProperty) {
                     property.cimIri = conceptualProperty.cimIri;
+                    property.iris = conceptualProperty.iris;
                 }
             }
         );

@@ -23,11 +23,20 @@ export enum Level {
 
 const NO_PROBLEM: ValidationState = { message: null };
 
+/**
+ * Use this as an initial value for validation, just as a placeholder.
+ */
+export function validationNotEvaluated(): ValidationState {
+  return NO_PROBLEM;
+}
+
 export function validationNoProblem(): ValidationState {
   return NO_PROBLEM;
 }
 
-export function validationWarning(message: string, ...args: unknown[]): ValidationState {
+export function validationWarning(
+  message: string, ...args: unknown[]
+): ValidationState {
   return {
     message: {
       level: Level.WARNING,
@@ -37,7 +46,9 @@ export function validationWarning(message: string, ...args: unknown[]): Validati
   };
 }
 
-export function validationError(message: string, ...args: unknown[]): ValidationState {
+export function validationError(
+  message: string, ...args: unknown[]
+): ValidationState {
   return {
     message: {
       level: Level.ERROR,

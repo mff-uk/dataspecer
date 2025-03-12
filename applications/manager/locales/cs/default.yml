@@ -4,16 +4,14 @@ add-imported:
   error: Při importu některých specifikací nastala chyba
   import: Importovat
   success: Import proběhl v pořádku
-  title: Importovat specifikaci
-  warning: >-
-    Tímto krokem můžete importovat specifikaci z její veřejné URL jako novou
-    podsložku.
+  title: Importovat specifikaci/e
+  warning: Vložte URL specifikací, které chcete importovat.
 autolayout: Automatický layout
 changed: 'Změněno {{val, datetime(dateStyle: short; timeStyle: short)}}'
 close: Zavřít
-conceptual editor button: Editovat konceptuální modely, slovníky a profily
+conceptual editor button: Upravovat slovníky a aplikační profily
 created: 'Vytvořeno {{val, datetime(dateStyle: short)}}'
-data specification button: Editovat a spravovat datovou specifikaci
+data specification button: Upravovat datové struktury
 data specification reload: Znovu načíst datovou specifikaci
 dataspecer-packages: správce projektů
 delete-resource:
@@ -21,6 +19,7 @@ delete-resource:
   warning: Chystáte se odstranit {{type}} s názvem {{name}}. Tento krok je nevratný.
   warning-no-name: Chystáte se odstranit {{type}}. Tento krok je nevratný.
 duplicate-resource: Duplikovat
+export: Zálohovat do souboru
 export-zip: Exportovat specifikaci
 form:
   base-iri:
@@ -36,11 +35,12 @@ form:
     instruction: Zadejte název projektu
     name: Název
   url:
-    instruction: URL veřejně přístupná z internetu, každá URL na separátní řádek
+    instruction: URL DSV specifikací, každá URL na separátní řádek
     name: URL
 format as json: Formátovat jako JSON
 generate application: Vygenerovat aplikaci
 ID: ID
+import: Import
 import specification from url: Importovat z URL
 mode-toggle:
   dark: Tmavé

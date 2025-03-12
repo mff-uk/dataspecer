@@ -9,7 +9,7 @@ import {
 } from "@xyflow/react";
 
 import { binarySearch } from "../../util/functions";
-import { configuration } from "../../application/configuration";
+import { configuration } from "../../configuration/configuration";
 import { type NodeType } from "../diagram-controller";
 import { type Point } from "../edge/math";
 

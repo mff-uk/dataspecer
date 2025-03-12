@@ -23,7 +23,7 @@ export const addClassNeighborhoodToVisualModelAction = async (
     [ExtensionType.Association, ExtensionType.Generalization],
     VisibilityFilter.All, false, null);
 
-  neighborhoodPromise.then(neighborhood => {
+  return neighborhoodPromise.then(async (neighborhood) => {
     const classesOrClassProfilesToAdd: EntityToAddToVisualModel[] = [{identifier, position: null}];
 
     // We have to filter the source class, whose neighborhood we are adding, from the extension.
@@ -33,7 +33,7 @@ export const addClassNeighborhoodToVisualModelAction = async (
         .filter(node => node !== identifier)
         .map(node => ({identifier: node, position: null}))
     );
-    addSemanticEntitiesToVisualModelAction(
+    await addSemanticEntitiesToVisualModelAction(
       notifications, classes, graph, visualModel, diagram, classesOrClassProfilesToAdd);
   });
 };

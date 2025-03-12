@@ -124,7 +124,7 @@ export const translations: Record<string, string | Function> = {
   "modify-entity-dialog.type": "Name",
   "modify-entity-dialog.id": "Identifier",
   "modify-entity-dialog.iri": "IRI",
-  "modify-entity-dialog.specialization-of": "Specializations",
+  "modify-entity-dialog.specialization-of": "Specializations of",
   "modify-entity-dialog.specialization-of-property": "Subproperty of",
   "modify-entity-dialog.description": "Definition",
   "modify-entity-dialog.usage-note": "Usage note",
@@ -234,6 +234,7 @@ export const translations: Record<string, string | Function> = {
   "change-in-profile": "Change in profile",
   //
   "warning": "Warning",
+  "error": "Error",
   "warning-change-domain": "Change of the domain may introduce a breaking change in the profile.",
   "warning-change-domain-cardinality": "Change of cardinality may introduce a breaking change in the profile.",
   "warning-change-range": "Change of the range may introduce a breaking change in the profile.",
@@ -269,6 +270,8 @@ export const translations: Record<string, string | Function> = {
   "dissolve-group-button": "Dissolve group",
   //
   "iri-must-not-be-empty": "IRI must not be an empty string.",
+  "domain-must-be-set": "Domain must be set.",
+  "range-must-be-set": "Range must be set.",
   //
   "filter-selection-dialog.label": "Restrict selection to",
   "filter-selection-dialog.btn-ok": "✅ Restrict",

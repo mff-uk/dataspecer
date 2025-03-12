@@ -15,7 +15,8 @@ export function addGroupToVisualModelAction(
   }
 
   return visualModel.addVisualGroup({
-    content: [...new Set(convertedContentWithExistingGroups)],    // Remove possible duplicate groups
+    // Remove possible duplicate groups
+    content: [...new Set(convertedContentWithExistingGroups)],
     anchored: null,
   });
 }

@@ -12,8 +12,8 @@ import { type UseNotificationServiceWriterType } from "../notification/notificat
 import { ModelGraphContext, type ModelGraphContextType } from "../context/model-context";
 import { type DiagramCallbacks, type Waypoint as DiagramWaypoint, Edge, Position, useDiagram } from "../diagram/";
 import type { UseDiagramType } from "../diagram/diagram-hook";
-import { type Options, useOptions } from "../application/options";
-import { centerViewportToVisualEntityByRepresentedAction } from "./center-viewport-to-visual-entity";
+import { type Options, useOptions } from "../configuration/options";
+import { centerViewportToVisualEntityAction } from "./center-viewport-to-visual-entity";
 import { openDetailDialogAction } from "./open-detail-dialog";
 import { openModifyDialogAction } from "./open-modify-dialog";
 import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
@@ -26,6 +26,7 @@ import { addSemanticGeneralizationToVisualModelAction } from "./add-generalizati
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
 import { EntityToDelete, checkIfIsAttributeOrAttributeProfile, convertToEntitiesToDeleteType, findTopLevelGroupInVisualModel, getSelections, getViewportCenterForClassPlacement, setSelectionsInDiagram } from "./utilities";
+import { removeFromVisualModelAction } from "./remove-from-visual-model";
 import { removeFromSemanticModelsAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
 import { openCreateAssociationDialogAction } from "./open-create-association-dialog";
@@ -55,6 +56,14 @@ import { ShiftAttributeDirection, shiftAttributePositionAction } from "./shift-a
 import { openEditNodeAttributesDialogAction } from "./open-edit-node-attributes-dialog";
 import { EditAttributeDialogState } from "../dialog/attribute/edit-attribute-dialog-controller";
 import { EditAttributeProfileDialogState } from "../dialog/attribute-profile/edit-attribute-profile-dialog-controller";
+import { openEditAttributeDialogAction } from "./open-edit-attribute-dialog";
+import { openEditAttributeProfileDialogAction } from "./open-edit-attribute-profile-dialog";
+import { findSourceModelOfEntity } from "../service/model-service";
+import { isInMemorySemanticModel } from "../utilities/model";
+import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelAttributeUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
+import { createCmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 import { createVisualNodeDuplicateAction } from "./create-visual-node-duplicate";
 import { removeFromVisualModelByVisualAction } from "./remove-from-visual-model-by-visual";
 import { removeFromVisualModelByRepresentedAction } from "./remove-from-visual-model-by-represented";
@@ -193,6 +202,7 @@ interface VisualModelActions {
   shiftAttributeUp: (attribute: string, domainNode: string | null) => void;
   shiftAttributeDown: (attribute: string, domainNode: string | null) => void;
 
+  // TODO PRQuestion - different docs from this method and for the actual action
   /**
    * Uses the identifiers of the semantic entities unlike the {@link removeFromVisualModelByVisual},
    * which uses the visual identifiers.
@@ -240,7 +250,7 @@ interface VisualModelActions {
 
   //
   // TODO PRQuestion: Again document using {@link .*Action} or not?
-  addEntitiesFromSemanticModelToVisualModel: (semanticModel: EntityModel) => void;
+  addEntitiesFromSemanticModelToVisualModel: (semanticModel: EntityModel) => Promise<void>;
 
   // TODO PRQuestion: Again document using {@link .*Action} or not?
   removeEntitiesInSemanticModelFromVisualModel: (semanticModel: EntityModel) => void;
@@ -250,7 +260,7 @@ interface VisualModelActions {
    * That is classes connected to semantic class or class profile identified by {@link identifier}.
    * @param identifier is the identifier of the semantic class or class profile, whose neighborhood we will add to visual model.
    */
-  addClassNeighborhoodToVisualModel: (identifier: string) => void;
+  addClassNeighborhoodToVisualModel: (identifier: string) => Promise<void>;
 
 }
 
@@ -269,7 +279,7 @@ export interface ActionsContextType extends DialogActions, VisualModelActions {
    * Since we have multiple visual entites per one semantic, we need to somehow
    * choose the visual entity to center to. For that there is {@link currentlyIteratedEntity}.
    * The {@link currentlyIteratedEntity} is ANY integer.
-   * It will will be used to index the array of visual entities
+   * It will will be used to index the array of visual entities (using modulo) 
    */
   centerViewportToVisualEntityByRepresented: (
     model: string,
@@ -336,9 +346,9 @@ const noOperationActionsContext = {
   //
   createNewVisualModelFromSelection: noOperation,
   //
-  addEntitiesFromSemanticModelToVisualModel: noOperation,
+  addEntitiesFromSemanticModelToVisualModel: async () => {},
   removeEntitiesInSemanticModelFromVisualModel: noOperation,
-  addClassNeighborhoodToVisualModel: noOperation,
+  addClassNeighborhoodToVisualModel: async () => {},
   layoutActiveVisualModel: noOperationAsync,
   //
   openExtendSelectionDialog: noOperation,
@@ -432,13 +442,19 @@ function createActionsContext(
   prevNotifications = notifications;
   prevGraph = graph;
   prevDiagram = diagram;
+
+  // For now we create derived state here, till is is available
+  // as a context.
+
+  const cmeExecutor = createCmeModelOperationExecutor(graph.models);
+
   //
 
   const openCreateProfileDialog = (identifier: string) => {
     withVisualModel(notifications, graph, (visualModel) => {
       const position = getViewportCenterForClassPlacement(diagram);
       openCreateProfileDialogAction(
-        options, dialogs, notifications, classes, graph,
+        cmeExecutor, options, dialogs, notifications, classes, graph,
         visualModel, diagram, position, identifier);
     });
   };
@@ -451,8 +467,8 @@ function createActionsContext(
   ) => {
     withVisualModel(notifications, graph, (visualModel) => {
       openCreateConnectionDialogAction(
-        options, dialogs, notifications, useClasses, graph,
-        visualModel, semanticSource, semanticTarget, [visualSource], [visualTarget]);
+        cmeExecutor,  options, dialogs, notifications,
+        graph, visualModel, semanticSource, semanticTarget, [visualSource], [visualTarget]);
     });
   };
 
@@ -536,7 +552,7 @@ function createActionsContext(
   ) => {
     withVisualModel(notifications, graph, (visualModel) => {
       openCreateAttributeForEntityDialogAction(
-        options, dialogs, classes, graph, notifications,
+        cmeExecutor, options, dialogs, classes, graph, notifications,
         visualModel, classIdentifier, onConfirmCallback);
     });
   };
@@ -554,7 +570,7 @@ function createActionsContext(
   const openModifyDialog = (identifier: string) => {
     withVisualModel(notifications, graph, (visualModel) => {
       openModifyDialogAction(
-        options, dialogs, notifications, classes, useClasses, graph,
+        cmeExecutor, options, dialogs, notifications, classes, useClasses, graph,
         visualModel, identifier);
     });
   };
@@ -660,7 +676,7 @@ function createActionsContext(
       return;
     }
     withVisualModel(notifications, graph, (visualModel) => {
-      addSemanticAttributeToVisualModelAction(notifications, visualModel, domainClass, attribute, null);
+      addSemanticAttributeToVisualModelAction(notifications, visualModel, domainClass, attribute, null, true);
     });
   };
 
@@ -748,24 +764,30 @@ function createActionsContext(
     });
   }
 
-  const addEntitiesFromSemanticModelToVisualModel = (semanticModel: EntityModel) => {
+  const addEntitiesFromSemanticModelToVisualModel = async (semanticModel: EntityModel) => {
+    let promise: Promise<void> = Promise.resolve();
     withVisualModel(notifications, graph, (visualModel) => {
-      addEntitiesFromSemanticModelToVisualModelAction(
+      promise = addEntitiesFromSemanticModelToVisualModelAction(
         notifications, classes, graph, diagram, visualModel, semanticModel);
     });
+
+    return promise;
   };
 
   const removeEntitiesInSemanticModelFromVisualModel = (semanticModel: EntityModel) => {
     withVisualModel(notifications, graph, (visualModel) => {
-      const { nodeSelection } = getSelectionForWholeSemanticModel(semanticModel, false, visualModel);
-      removeFromVisualModelByRepresented(nodeSelection);
+      const entitiesInModel = getSelectionForWholeSemanticModel(semanticModel, visualModel, false);
+      removeFromVisualModel(entitiesInModel.nodeSelection);
     });
   };
 
-  const addClassNeighborhoodToVisualModel = (identifier: string) => {
+  const addClassNeighborhoodToVisualModel = async (identifier: string) => {
+    let promise: Promise<void> = Promise.resolve();
     withVisualModel(notifications, graph, (visualModel) => {
-      addClassNeighborhoodToVisualModelAction(notifications, classes, graph, diagram, visualModel, identifier);
+      promise = addClassNeighborhoodToVisualModelAction(notifications, classes, graph, diagram, visualModel, identifier);
     });
+
+    return promise;
   };
 
   const createNewVisualModelFromSelection = (selectionIdentifiers: string[]) => {
@@ -844,14 +866,14 @@ function createActionsContext(
         return;
       }
 
-      diagram.actions().highlightNodesInExplorationModeFromCatalog(nodeIdentifiers, modelOfClassWhichStartedHighlighting);
+      diagram.actions().highlightNodeInExplorationModeFromCatalog(
+        nodeIdentifier, modelOfClassWhichStartedHighlighting);
     });
   }
 
   // Prepare and set diagram callbacks.
 
   const callbacks: DiagramCallbacks = {
-
     onShowNodeDetail: (node) => openDetailDialog(node.externalIdentifier),
 
     onEditNode: (node) => openModifyDialog(node.externalIdentifier),
@@ -925,6 +947,7 @@ function createActionsContext(
       });
     },
     onDissolveGroup: (identifier: string | null) => {
+      console.info("diagram.actions().getNodes()", diagram.actions().getNodes());
       withVisualModel(notifications, graph, (visualModel) => {
         removeTopLevelGroupFromVisualModelAction(notifications, visualModel, identifier);
       });
@@ -969,7 +992,8 @@ function createActionsContext(
       const { nodeSelection, edgeSelection } = getSelections(diagram, true, false);
       withVisualModel(notifications, graph, (visualModel) => {
         createDefaultProfilesAction(
-          notifications, graph, diagram, options, classes, visualModel, nodeSelection, edgeSelection, true);
+          cmeExecutor, notifications, graph, diagram, options, classes,
+          visualModel, nodeSelection, edgeSelection, true);
       });
     },
     onHideSelection: () => {
@@ -982,8 +1006,53 @@ function createActionsContext(
       const selectionIdentifiers = nodeSelection.concat(edgeSelection);
       deleteVisualElements(selectionIdentifiers);
     },
-    onRemoveAttributeFromVisualModel: function (attribute: string, _nodeIdentifer: string): void {
+    onRemoveAttributeFromVisualModel: (attribute: string, _nodeIdentifer: string) => {
       removeAttributesFromVisualModel([attribute])
+    },
+    onEditAttribute: (attribute: string, _nodeIdentifer: string) => {
+      withVisualModel(notifications, graph, (visualModel) => {
+        const model = findSourceModelOfEntity(attribute, graph.models);
+        if(model === null) {
+          notifications.error("Given attribute does not have source model");
+          return;
+        }
+        if(!isInMemorySemanticModel(model)) {
+          notifications.error("Given attribute does have source model, but it is not writable");
+          return;
+        }
+        const attributeEntity = model.getEntities()[attribute]
+        if(isSemanticModelAttribute(attributeEntity)) {
+          // TODO RadStr: Once we have multi entities - this is wrong, we have to take into consideration the _nodeIdentifer
+          openEditAttributeDialogAction(
+            options, dialogs, classes, graph, notifications, visualModel, model, attributeEntity);
+        }
+        else {
+          notifications.error("Given attribute to be edited is not an attribute neither attribute profile");
+        }
+      });
+    },
+    onEditAttributeProfile: function (attribute: string, _nodeIdentifer: string): void {
+      withVisualModel(notifications, graph, (visualModel) => {
+        const model = findSourceModelOfEntity(attribute, graph.models);
+        if(model === null) {
+          notifications.error("Given attribute profile does not have source model");
+          return;
+        }
+        if(!isInMemorySemanticModel(model)) {
+          notifications.error("Given attribute profile does have source model, but it is not writable");
+          return;
+        }
+        const attributeEntity = model.getEntities()[attribute]
+        if(isSemanticModelAttributeUsage(attributeEntity) || isSemanticModelAttributeProfile(attributeEntity)) {
+          // TODO RadStr: Once we have multi entities - this is wrong, we have to take into consideration the _nodeIdentifer
+          openEditAttributeProfileDialogAction(
+            options, dialogs, classes, graph, cmeExecutor,
+            notifications, visualModel, model, attributeEntity);
+        }
+        else {
+          notifications.error("Given attribute profile to be edited is not an attribute profile");
+        }
+      });
     },
     onMoveAttributeUp: function (attribute: string, nodeIdentifer: string): void {
       shiftAttributeUp(attribute, nodeIdentifer);

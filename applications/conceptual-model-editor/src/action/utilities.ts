@@ -177,7 +177,7 @@ export const computeRelatedAssociationsBarycenterAction = async (
   classesContext: ClassesContextType,
   classToFindAssociationsFor: string,
 ): Promise<ComputedPositionForNodePlacement> => {
-  const associatedClasses: string[] = (await findAssociatedClassesAndClassUsages(
+  const associatedClasses: string[] = (await findAssociatedClassesAndClassProfiles(
     notifications, graph, classesContext, classToFindAssociationsFor)).selectionExtension.nodeSelection;
   const associatedPositions = associatedClasses.flatMap(associatedNodeIdentifier => {
     const visualEntities = visualModel.getVisualEntitiesForRepresented(associatedNodeIdentifier);
@@ -231,7 +231,9 @@ const computeBarycenter = (positions: Position[], diagram: UseDiagramType): Comp
   };
 };
 
-const findAssociatedClassesAndClassUsages = async (
+// TODO RadStr: Put in ExtensionType.ClassProfile, but not now since it does not work
+//              See https://github.com/mff-uk/dataspecer/issues/966
+const findAssociatedClassesAndClassProfiles = async (
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   classesContext: ClassesContextType,

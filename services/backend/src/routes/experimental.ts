@@ -11,7 +11,7 @@ import { ZipStreamDictionary } from "../generate/zip-stream-dictionary";
 import { resourceModel } from "../main";
 import { asyncHandler } from "../utils/async-handler";
 import { SemanticModelRelationship } from './../../../../packages/core-v2/lib/semantic-model/concepts/concepts.d';
-import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 interface ModelDescription {
     isPrimary: boolean;
@@ -28,22 +28,23 @@ async function generateLightweightOwl(entities: Record<string, SemanticModelEnti
 async function generateDsv(models: ModelDescription[]): Promise<string> {
     // We collect all models as context and all entities for export.
     const conceptualModelIri = models[0]?.baseIri + "applicationProfileConceptualModel"; // We consider documentation URL as the IRI of the conceptual model.
-    const contextModels = [];
+    const contextModels: DataSpecificationVocabulary.EntityListContainer[] = [];
     const modelForExport: DataSpecificationVocabulary.EntityListContainer = {
-        baseIri: models[0]?.baseIri ?? "",
+        baseIri: "",
         entities: [],
     };
     for (const model of models.values()) {
         contextModels.push({
-            baseIri: model.baseIri,
+            baseIri: model.baseIri ?? "",
             entities: Object.values(model.entities),
         });
         if (model.isPrimary) {
+            modelForExport.baseIri = model.baseIri ?? "";
             Object.values(model.entities).forEach(entity => modelForExport.entities.push(entity));
         }
     }
     // Create context.
-    const context = DataSpecificationVocabulary.createContext(contextModels, value => value ?? null);
+    const context = DataSpecificationVocabulary.createContext(contextModels);
     //
     const conceptualModel = DataSpecificationVocabulary.entityListContainerToConceptualModel(
         conceptualModelIri, modelForExport, context);
@@ -136,12 +137,13 @@ function absoluteIri(baseIri: string, entities: Record<string, SemanticModelEnti
     const convert = (iri: string | null) => (iri && !iri.includes("://")) ? (baseIri + iri) : iri;
     const result = {} as Record<string, SemanticModelEntity>;
     for (const [key, entity] of Object.entries(entities)) {
-        if (isSemanticModelClass(entity) || isSemanticModelClassUsage(entity)) {
+        if (isSemanticModelClass(entity) || isSemanticModelClassProfile(entity)) {
             result[key] = {
                 ...entity,
                 iri: convert(entity.iri),
             };
-        } else if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
+        } else if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipProfile(entity)) {
+            // @ts-ignore typing
             result[key] = {
                 ...entity,
                 iri: convert(entity.iri),
@@ -150,7 +152,7 @@ function absoluteIri(baseIri: string, entities: Record<string, SemanticModelEnti
                     iri: convert(end.iri),
                 }),
                 ),
-            } as SemanticModelRelationship | SemanticModelRelationshipUsage;
+            } as SemanticModelRelationship | SemanticModelRelationshipProfile;
         } else {
             result[key] = entity;
         }
@@ -276,7 +278,7 @@ async function generateArtifacts(packageIri: string, streamDictionary: SingleFil
                 "@value": value,
             })),
         "https://w3id.org/dsv#artefact": [],
-        "https://w3id.org/dsv-dap#dct-references" : [[...usedVocabularies].map(v => ({"@id": v}))],
+        "http://purl.org/dc/terms/references" : [[...usedVocabularies].map(v => ({"@id": v}))],
     };
 
     // OWL

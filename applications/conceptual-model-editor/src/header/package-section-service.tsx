@@ -1,5 +1,5 @@
 import { useBackendConnection } from "../backend-connection";
-import { useOptions } from "../application/options";
+import { useOptions } from "../configuration/options";
 import { useModelGraphContext } from "../context/model-context";
 import { useNotificationServiceWriter } from "../notification";
 import { usePackageService } from "../service/package-service-context";

@@ -5,7 +5,7 @@ import { useQueryParamsContext } from "../context/query-params-context";
 import { createWritableVisualModel } from "../dataspecer/visual-model/visual-model-factory";
 import { languageStringToString } from "../utilities/string";
 import { configuration } from "../application";
-import { useOptions } from "../application/options";
+import { useOptions } from "../configuration/options";
 
 export const ViewManagement = () => {
   const {

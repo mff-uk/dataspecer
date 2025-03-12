@@ -1,6 +1,5 @@
 import { isSemanticModelGeneralization, SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { EntitiesBundle, ExtractedModels, extractModelObjects, getEdgeSourceAndTargetGeneralization, getEdgeSourceAndTargetRelationship, getEdgeSourceAndTargetRelationshipUsage } from "./layout-iface";
+import { EntitiesBundle, ExtractedModels, extractModelObjects, getEdgeSourceAndTargetGeneralization, getEdgeSourceAndTargetRelationship } from "./layout-iface";
 
 import { VisualModel, isVisualNode, Position, VisualEntity, VisualNode, VisualRelationship, isVisualRelationship, isVisualProfileRelationship, VisualProfileRelationship, VISUAL_PROFILE_RELATIONSHIP_TYPE, VISUAL_RELATIONSHIP_TYPE, VISUAL_NODE_TYPE } from "@dataspecer/core-v2/visual-model";
 import { capitalizeFirstLetter, PhantomElementsFactory, placePositionOnGrid } from "./util/utils";
@@ -8,6 +7,12 @@ import { LayoutedVisualEntity, LayoutedVisualEntities } from "./migration-to-cme
 import { EntityModel } from "@dataspecer/core-v2";
 import { ExplicitAnchors, isEntityWithIdentifierAnchored } from "./explicit-anchors";
 import { NodeDimensionQueryHandler, ReactflowDimensionsEstimator, XY } from ".";
+import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+
+type AllowedEdgeTypes = SemanticModelGeneralization |
+                        SemanticModelRelationship |
+                        SemanticModelRelationshipProfile |
+                        null;
 
 /**
  * This is special type for situations, when we want to layout the current visual model, but we also want to find positions for nodes, which are not yet in the visual model,
@@ -159,7 +164,7 @@ export class GraphIncidence implements IGraphIncidence {
         // });
 
         // extractedModel.relationshipsProfiles.forEach(r => {
-        //     const {source, target} = getEdgeSourceAndTargetRelationshipUsage(r);
+        //     const {source, target} = getEdgeSourceAndTargetRelationship(r);
         //     this.incidenceMatrix[source] = {};
         //     this.incidenceMatrix[source][target] = {isProfile: true, isGeneralization: true};
         // });
@@ -370,7 +375,7 @@ const isGeneralizationInVisualModel = (visualModel: VisualModelWithOutsiders,
  */
 export class GraphClassic implements IGraphClassic {
     // TODO: the TODO in the name is because I have to change the API to contain just the methods and add it there
-    addEdgeTODO(identifier: string | null, edge: SemanticModelEntity | null, target: string, isDummy: boolean, edgeToAddType: OutgoingEdgeType): IEdgeClassic | null {
+    addEdgeTODO(identifier: string | null, edge: AllowedEdgeTypes, target: string, isDummy: boolean, edgeToAddType: OutgoingEdgeType): IEdgeClassic | null {
         if(identifier === null) {
             identifier = PhantomElementsFactory.createUniquePhanomEdgeIdentifier();
         }
@@ -442,8 +447,8 @@ export class GraphClassic implements IGraphClassic {
             }
         });
         extractedModels.classesProfiles.forEach(cpBundle => {
-            if(this.nodes[cpBundle.semanticModelClassUsage.id] === undefined) {
-                this.addNode(cpBundle.semanticModelClassUsage, true, cpBundle.sourceEntityModelIdentifier, extractedModels, visualModel, explicitAnchors);
+            if(this.nodes[cpBundle.semanticModelClassProfile.id] === undefined) {
+                this.addNode(cpBundle.semanticModelClassProfile, true, cpBundle.sourceEntityModelIdentifier, extractedModels, visualModel, explicitAnchors);
             }
         });
 
@@ -901,7 +906,7 @@ export interface IEdgeClassic {
     /**
      * is the edge in the semantic model or null.
      */
-    edge: SemanticModelEntity | null;
+    edge: AllowedEdgeTypes;
     /**
      * If true, then it is dummy edge which doesn't exist in the semantic model.
      */
@@ -961,8 +966,16 @@ class VisualEdge {
  * Represents the graph edge.
  */
 class EdgeClassic implements IEdgeClassic {
-    constructor(id: string, edge: SemanticModelEntity | null, edgeType: OutgoingEdgeType, sourceGraph: IGraphClassic,
-                start: EdgeEndPoint, end: EdgeEndPoint, sourceEntityModelIdentifier: string | null, visualModel: VisualModelWithOutsiders) {
+    constructor(
+        id: string,
+        edge: AllowedEdgeTypes,
+        edgeType: OutgoingEdgeType,
+        sourceGraph: IGraphClassic,
+        start: EdgeEndPoint,
+        end: EdgeEndPoint,
+        sourceEntityModelIdentifier: string | null,
+        visualModel: VisualModelWithOutsiders
+    ) {
         this.id = id;
         sourceGraph.mainGraph.allEdges.push(this);
         this.sourceGraph = sourceGraph;
@@ -982,7 +995,7 @@ class EdgeClassic implements IEdgeClassic {
 
     sourceEntityModelIdentifier: string | null;
     id: string;
-    edge: SemanticModelEntity | null;
+    edge: AllowedEdgeTypes;
     isDummy: boolean;
     edgeProfileType: EdgeProfileType;
     isConsideredInLayout: boolean = true;
@@ -1195,7 +1208,7 @@ export interface INodeClassic {
      * Adds new edge to the graph.
      * @returns the returned edge or null in case of failure
      */
-    addEdgeTODO(identifier: string | null, edge: SemanticModelEntity | null, target: string, isDummy: boolean, edgeToAddType: OutgoingEdgeType): IEdgeClassic | null;
+    addEdgeTODO(identifier: string | null, edge: AllowedEdgeTypes, target: string, isDummy: boolean, edgeToAddType: OutgoingEdgeType): IEdgeClassic | null;
 }
 
 const getEdgeTypeNameFromEdge = (edge: IEdgeClassic): OutgoingEdgeType => {
@@ -1249,7 +1262,7 @@ function addNode(mainGraph: IMainGraphClassic,
  */
 function addEdge(graph: IGraphClassic,
                     id: string,
-                    edge: SemanticModelEntity | null,
+                    edge: AllowedEdgeTypes,
                     source: INodeClassic,
                     targetIdentifier: string,
                     extractedModels: ExtractedModels | null,
@@ -1292,7 +1305,7 @@ function addEdge(graph: IGraphClassic,
 
         // TODO: Maybe sometimes the target node actually isn't part of the source graph of edge, but fix only if it occurs
         const nodeAdded = addNode(mainGraph, target.semanticModelEntity,
-                                    extractedModels.classesProfiles.find(cpBundle => cpBundle.semanticModelClassUsage.id === targetIdentifier) !== undefined,
+                                    extractedModels.classesProfiles.find(cpBundle => cpBundle.semanticModelClassProfile.id === targetIdentifier) !== undefined,
                                     target.sourceEntityModelIdentifier, extractedModels, graph, visualModel, explicitAnchors);
         if(nodeAdded === false) {
             return null;
@@ -1442,10 +1455,10 @@ class NodeClassic implements INodeClassic {
 
         edgeToAddKey = "outgoingProfileEdges";
         extractedModels.relationshipsProfiles.forEach(rpBundle => {
-            const {source, target} = getEdgeSourceAndTargetRelationshipUsage(rpBundle.semanticModelRelationshipUsage, extractedModels);
+            const {source, target} = getEdgeSourceAndTargetRelationship(rpBundle.semanticModelRelationshipProfile);
             if(semanticEntityRepresentingNode.id === source) {
-                if(isRelationshipInVisualModel(visualModel, rpBundle.semanticModelRelationshipUsage.id, [source, target])) {
-                    this.addEdge(sourceGraph, rpBundle.semanticModelRelationshipUsage.id, rpBundle.semanticModelRelationshipUsage, target, extractedModels, edgeToAddKey, visualModel, explicitAnchors);
+                if(isRelationshipInVisualModel(visualModel, rpBundle.semanticModelRelationshipProfile.id, [source, target])) {
+                    this.addEdge(sourceGraph, rpBundle.semanticModelRelationshipProfile.id, rpBundle.semanticModelRelationshipProfile, target, extractedModels, edgeToAddKey, visualModel, explicitAnchors);
                 }
             }
         });
@@ -1454,11 +1467,13 @@ class NodeClassic implements INodeClassic {
         //       Merge into one node, layout the whole graph, split into original nodes and layout only the profiles
         edgeToAddKey = "outgoingClassProfileEdges";
         extractedModels.classesProfiles.forEach(cpBundle => {
-            if(cpBundle.semanticModelClassUsage.id === semanticEntityRepresentingNode.id) {
-                if(isNodeInVisualModel(visualModel, cpBundle.semanticModelClassUsage.usageOf)) {
-                    // TODO: Nothing new but again using "semantic" edge id instead of the visual one
-                    const edgeIdentifier = cpBundle.semanticModelClassUsage.id + "-profile-" + cpBundle.semanticModelClassUsage.usageOf;
-                    this.addEdge(sourceGraph, edgeIdentifier, null, cpBundle.semanticModelClassUsage.usageOf, extractedModels, edgeToAddKey, visualModel, explicitAnchors);
+            if(cpBundle.semanticModelClassProfile.id === semanticEntityRepresentingNode.id) {
+                for(const profileOf of cpBundle.semanticModelClassProfile.profiling) {
+                    if(isNodeInVisualModel(visualModel, profileOf)) {
+                        // TODO: Nothing new but again using "semantic" edge id instead of the visual one
+                        const edgeIdentifier = cpBundle.semanticModelClassProfile.id + "-profile-" + profileOf;
+                        this.addEdge(sourceGraph, edgeIdentifier, null, profileOf, extractedModels, edgeToAddKey, visualModel, explicitAnchors);
+                    }
                 }
             }
         });
@@ -1484,7 +1499,7 @@ class NodeClassic implements INodeClassic {
     }
 
 
-    addEdgeTODO(identifier: string | null, edge: SemanticModelEntity | null, target: string, isDummy: boolean, edgeToAddType: OutgoingEdgeType): IEdgeClassic | null {
+    addEdgeTODO(identifier: string | null, edge: AllowedEdgeTypes, target: string, isDummy: boolean, edgeToAddType: OutgoingEdgeType): IEdgeClassic | null {
         if(identifier === null) {
             identifier = PhantomElementsFactory.createUniquePhanomEdgeIdentifier();
         }
@@ -1505,7 +1520,7 @@ class NodeClassic implements INodeClassic {
 
     addEdge(graph: IGraphClassic,
             identifier: string,
-            edge: SemanticModelEntity | null,
+            edge: AllowedEdgeTypes,
             target: string,
             extractedModels: ExtractedModels,
             edgeToAddKey: OutgoingEdgeType,

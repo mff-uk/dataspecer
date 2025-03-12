@@ -1,16 +1,6 @@
 import { Entity } from "../../entity-model";
 
-import {
-  SemanticModelClassUsage,
-  SemanticModelRelationshipUsage,
-  SEMANTIC_MODEL_CLASS_USAGE,
-  SEMANTIC_MODEL_RELATIONSHIP_USAGE,
-  SemanticModelRelationshipEndUsage
-} from "../usage/concepts";
-
-import {
-  EntityListContainer,
-} from "./entity-model";
+import { EntityListContainer } from "./entity-model";
 
 import {
   ConceptualModel,
@@ -19,25 +9,74 @@ import {
   PropertyProfile,
   isObjectPropertyProfile,
   isDatatypePropertyProfile,
+  PropertyValueReuse,
 } from "./dsv-model";
 
-interface ConceptualModelToEntityListContainerContext {
+import {
+  SEMANTIC_MODEL_CLASS_PROFILE,
+  SEMANTIC_MODEL_RELATIONSHIP_PROFILE,
+  SemanticModelClassProfile,
+  SemanticModelRelationshipEndProfile,
+  SemanticModelRelationshipProfile,
+} from "../profile/concepts";
+import { SKOS, VANN } from "./vocabulary";
+
+interface MandatoryConceptualModelToEntityListContainerContext {
 
   /**
    * Given an IRI return internal identifier.
    * This can be used for imported profiles as well as used entities.
    *
-   * For imported profiles we expect to recieve a new uniq identifier.
+   * For imported profiles we expect to receive a new uniq identifier.
    *
    * For used entities (profileOf), we assume the entities already exists
    * and we get back their internal identifier.
    */
-  iriToidentifier: (iri: string) => string;
+  iriToIdentifier: (iri: string) => string;
 
 }
 
-export function conceptualModelToEntityListContainer(conceptualModel: ConceptualModel, context: ConceptualModelToEntityListContainerContext): EntityListContainer {
-  return (new ConceptualModelToEntityModel(context).transform(conceptualModel));
+interface OptionalConceptualModelToEntityListContainerContext {
+
+  /**
+   * Called for all imported class IRIs.
+   */
+  iriClassToIdentifier: (iri: string) => string;
+
+  /**
+   * Called for all imported property IRIs.
+   */
+  iriPropertyToIdentifier: (iri: string, rangeConcept: string) => string;
+
+  /**
+   * Called for every iri loaded to {@link EntityListContainer}.
+   *
+   * This can be used to change IRIs from absolute to relative.
+   */
+  iriUpdate: (iri: string) => string;
+
+}
+
+interface ConceptualModelToEntityListContainerContext extends
+  MandatoryConceptualModelToEntityListContainerContext,
+  OptionalConceptualModelToEntityListContainerContext { };
+
+export function conceptualModelToEntityListContainer(
+  conceptualModel: ConceptualModel,
+  context: MandatoryConceptualModelToEntityListContainerContext &
+    Partial<OptionalConceptualModelToEntityListContainerContext>,
+): EntityListContainer {
+  const fullContext = {
+    // By default we do not transform data type.
+    iriClassToIdentifier: (iri: string) => context.iriToIdentifier(iri),
+    // By default we do not user range concept.
+    // We do this for backward compatibility.
+    iriPropertyToIdentifier: (iri: string, _: string) => context.iriToIdentifier(iri),
+    iriUpdate: (iri: string) => iri,
+    ...context,
+  };
+  return (new ConceptualModelToEntityModel(fullContext)
+    .transform(conceptualModel));
 }
 
 class ConceptualModelToEntityModel {
@@ -55,120 +94,147 @@ class ConceptualModelToEntityModel {
       this.classProfileToEntities(classProfile);
     }
     return {
-      baseIri: null,
-      entities: this.entities,
+      // We keep all IRIs as they are for now.
+      // As a result there is no need for a base.
+      baseIri: "",
+      entities: this.entities
     };
   }
 
   private classProfileToEntities(profile: ClassProfile): void {
-    const usageOf = this.profileIriToUsageOfIdentifier(profile.profileOfIri, profile.profiledClassIri);
-    if (usageOf === null) {
-      console.error(`Missing usage for '${profile.iri}', class will be ignored.`);
-      return;
-    }
-    const classUsage: SemanticModelClassUsage = {
+    const profiling = [
+      ...this.profilesToIdentifier(profile.profileOfIri),
+      ...this.classToIdentifier(profile.profiledClassIri),
+    ];
+    const classProfile: SemanticModelClassProfile = {
+      // SemanticModelEntity
+      iri: this.context.iriUpdate(profile.iri),
       // Entity
-      id: this.context.iriToidentifier(profile.iri),
-      // WithUsageNote
-      usageNote: profile.usageNote,
-      // SemanticModelUsage
-      usageOf: usageOf,
-      iri: profile.iri,
-      // Nullable<NamedThing>
-      name: profile.prefLabel,
-      description: null,
-      // SemanticModelClassUsage
-      type: [SEMANTIC_MODEL_CLASS_USAGE]
+      id: this.context.iriToIdentifier(profile.iri),
+      type: [SEMANTIC_MODEL_CLASS_PROFILE],
+      // Profile
+      profiling,
+      usageNote: profile.usageNote ?? {},
+      usageNoteFromProfiled: this.selectFromProfiled(profile, VANN.usageNote.id),
+      // NamedThingProfile
+      name: profile.prefLabel ?? {},
+      nameFromProfiled: this.selectFromProfiled(profile, SKOS.prefLabel.id),
+      description: profile.definition ?? {},
+      descriptionFromProfiled: this.selectFromProfiled(profile, SKOS.definition.id),
     };
-    this.entities.push(classUsage);
+    this.entities.push(classProfile);
+    // Convert relationships.
     for (const propertyProfile of profile.properties) {
-      this.propertyProfileToEntities(propertyProfile, classUsage);
+      this.propertyProfileToEntities(propertyProfile, classProfile);
     }
   }
 
-  /**
-   * Return useOf IRI from given arguments.
-   */
-  private profileIriToUsageOfIdentifier(profileOfIri: string | null, profiledVocabularyConcept: string | null): string | null {
-    if (profiledVocabularyConcept != null) {
-      return profiledVocabularyConcept;
-    }
-    if (profileOfIri !== null) {
-      return this.context.iriToidentifier(profileOfIri);
-    }
-    return null;
+  private profilesToIdentifier(items: string[]): string[] {
+    return items.map(iri => this.context.iriToIdentifier(iri));
   }
 
-  private propertyProfileToEntities(profile: PropertyProfile, owner: SemanticModelClassUsage): void {
-    const usageOf = this.profileIriToUsageOfIdentifier(profile.profileOfIri, profile.profiledPropertyIri);
-    if (usageOf === null) {
-      console.error(`Missing usage for '${profile.iri}', property will be ignored.`);
-      return;
-    }
+  private classToIdentifier(items: string[]): string[] {
+    return items.map(iri => this.context.iriClassToIdentifier(iri));
+  }
 
-    // We store only owner.id in the domain.
-    const domain: SemanticModelRelationshipEndUsage = {
-      // WithUsageNote
-      usageNote: null,
-      // Nullable<NamedThing>
-      name: null,
-      description: null,
-      // SemanticModelRelationshipEndUsage
-      cardinality: null,
-      concept: owner.id,
-      iri: null,
-    };
+  private selectFromProfiled(profile: {
+    reusesPropertyValue: PropertyValueReuse[],
+  }, property: string): string | null {
+    const reusesPropertyValue = profile.reusesPropertyValue.find(
+      item => item.reusedPropertyIri === property);
+    const iri = reusesPropertyValue?.propertyreusedFromResourceIri ?? null;
+    return iri === null ? null : this.context.iriToIdentifier(iri);
+  }
 
-    let rangeConcept : string | null = null;
+  private propertyProfileToEntities(
+    profile: PropertyProfile, owner: SemanticModelClassProfile,
+  ): void {
+    let rangeConcept: string;
     if (isDatatypePropertyProfile(profile)) {
-      rangeConcept = profile.rangeDataTypeIri?.[0] ?? null;
+      const iri = profile.rangeDataTypeIri?.[0];
+      if (iri === undefined) {
+        console.error(`Property profile is null for '${profile.iri}'.`);
+        return;
+      }
+      rangeConcept = this.context.iriToIdentifier(iri);
     } else if (isObjectPropertyProfile(profile)) {
-      rangeConcept = profile.rangeClassIri?.[0] ?? null;
+      const iri = profile.rangeClassIri?.[0];
+      if (iri === undefined) {
+        console.error(`Property profile is null for '${profile.iri}'.`);
+        return;
+      }
+      rangeConcept = this.context.iriToIdentifier(iri);
     } else {
       console.error(`Invalid type of property for profile '${profile.iri}'.`);
       return;
     }
-    if (rangeConcept === null) {
-      console.error(`Property profile is null for '${profile.iri}'.`);
-      return;
-    } else {
-      rangeConcept = this.context.iriToidentifier(rangeConcept);
-    }
 
-    const range: SemanticModelRelationshipEndUsage = {
-      // WithUsageNote
-      usageNote: profile.usageNote,
-      // Nullable<NamedThing>
-      name: profile.prefLabel,
-      description: null,
-      // SemanticModelRelationshipEndUsage
-      cardinality: cardinalityEnumToCardinality(profile.cardinality),
-      concept: rangeConcept,
-      iri: profile.iri,
+    const profiling = [
+      ...this.profilesToIdentifier(profile.profileOfIri),
+      ...this.propertyToIdentifier(profile.profiledPropertyIri, rangeConcept),
+    ];
+
+    const domain: SemanticModelRelationshipEndProfile = {
+      iri: null,
+      concept: owner.id,
+      cardinality: null,
+      // NamedThingProfile
+      name: {},
+      nameFromProfiled: null,
+      description: {},
+      descriptionFromProfiled: null,
+      // Profile
+      profiling: [],
+      usageNote: {},
+      usageNoteFromProfiled: null,
     };
 
-    const propertyUsage: SemanticModelRelationshipUsage = {
-      // Entity
-      id: this.context.iriToidentifier(profile.iri),
-      // WithUsageNote
-      usageNote: profile.usageNote,
-      // SemanticModelUsage
-      usageOf: usageOf,
-      iri: null,
-      // Nullable<NamedThing>
-      name: profile.prefLabel,
-      description: null,
-      // SemanticModelRelationshipUsage
-      type: [SEMANTIC_MODEL_RELATIONSHIP_USAGE],
+    const range: SemanticModelRelationshipEndProfile = {
+      iri: this.context.iriUpdate(profile.iri),
+      concept: rangeConcept,
+      cardinality: cardinalityEnumToCardinality(profile.cardinality),
+      // NamedThingProfile
+      name: profile.prefLabel ?? {},
+      nameFromProfiled: this.selectFromPropertyProfiled(
+        profile, SKOS.prefLabel.id, rangeConcept),
+      description: profile.definition ?? {},
+      descriptionFromProfiled: this.selectFromPropertyProfiled(
+        profile, SKOS.definition.id, rangeConcept),
+      // Profile
+      profiling,
+      usageNote: profile.usageNote ?? {},
+      usageNoteFromProfiled: this.selectFromPropertyProfiled(
+        profile, VANN.usageNote.id, rangeConcept),
+    };
+
+    const propertyUsage: SemanticModelRelationshipProfile = {
       ends: [domain, range],
+      // Entity
+      id: this.context.iriToIdentifier(profile.iri),
+      type: [SEMANTIC_MODEL_RELATIONSHIP_PROFILE],
     };
 
     this.entities.push(propertyUsage);
   }
 
+  private propertyToIdentifier(items: string[], rangeConcept: string): string[] {
+    return items.map(iri => this.context.iriPropertyToIdentifier(iri, rangeConcept));
+  }
+
+  private selectFromPropertyProfiled(profile: {
+    reusesPropertyValue: PropertyValueReuse[],
+  }, property: string, rangeConcept: string): string | null {
+    const reusesPropertyValue = profile.reusesPropertyValue.find(
+      item => item.reusedPropertyIri === property);
+    const iri = reusesPropertyValue?.propertyreusedFromResourceIri ?? null;
+    return iri === null ? null : this.context.iriPropertyToIdentifier(iri, rangeConcept);
+  }
+
 }
 
-function cardinalityEnumToCardinality(cardinality: Cardinality | null): [number, number | null] | null {
+function cardinalityEnumToCardinality(
+  cardinality: Cardinality | null,
+): [number, number | null] | null {
   if (cardinality === null) {
     return null;
   }
@@ -187,13 +253,12 @@ function cardinalityEnumToCardinality(cardinality: Cardinality | null): [number,
       return [1, null];
     // We do not really have a way how to convert
     // ManyTo* as we can not employ null, se we just
-    // use a "random" number to get same result when eporting.
+    // use a "random" number to get same result when exporting.
     case Cardinality.ManyToZero:
       return [2, 0];
     case Cardinality.ManyToOne:
       return [2, 1];
     case Cardinality.ManyToMany:
       return [2, 0];
-
   }
 }

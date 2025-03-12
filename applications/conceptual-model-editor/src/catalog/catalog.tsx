@@ -25,7 +25,7 @@ export const Catalog = () => {
   const Content = selectTabConcent(activeTab);
 
   return (
-    <div className="border-r-2 border-gray-300 flex flex-col">
+    <div className="border-r-2 border-gray-300 flex flex-col h-full">
       <div className="flex flex-row [&>*]:mx-2 flex-wrap py-1 border-b-2 border-gray-300">
         <CatalogTabButton
           active={activeTab === CatalogTabs.Models}

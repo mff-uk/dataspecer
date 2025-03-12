@@ -36,9 +36,8 @@ export class SetRegex implements ComplexOperation {
       // It is an attribute and we are setting the end 1
       const operation = modifyRelation(this.entityId, {
         ends: [
-          entity.ends[0],
+          {} as ExtendedSemanticModelRelationshipEnd,
           {
-            ...entity.ends[1],
             regex,
           } as ExtendedSemanticModelRelationshipEnd,
         ],

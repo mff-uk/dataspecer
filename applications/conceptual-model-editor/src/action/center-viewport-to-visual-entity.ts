@@ -22,23 +22,24 @@ export function centerViewportToVisualEntityByRepresentedAction(
   currentlyIteratedEntity: number,
   _modelIdentifier: string,
 ) {
-  const attribute = findRelationshipOrRelationshipUsage(entityIdentifier, classesContext);
+  const attribute = findAttributeWithIdentifier(entityIdentifier, classesContext);
   // TODO RadStr: For the implementation of content
   // let isAttribute = false;
   if(attribute !== undefined) {
-    // It can be attribute or association
+    let domainClassIdentifier;
     if(isSemanticModelAttribute(attribute)) {
-      const domainNodeIdentifier = getDomainAndRange(attribute)?.domain?.concept ?? null;
-
-      if(domainNodeIdentifier === null) {
-        notifications.error("Focused attribute doesn't have domain node");
-        return;
-      }
-
-      // TODO RadStr: For the implementation of content
-      // isAttribute = true;
-      entityIdentifier = domainNodeIdentifier;
+      domainClassIdentifier = getDomainAndRange(attribute)?.domain?.concept ?? null;
     }
+    else {
+      domainClassIdentifier = getDomainAndRange(attribute)?.domain?.concept ?? null;
+    }
+
+    if(domainClassIdentifier === null) {
+      notifications.error("Focused attribute doesn't have domain node");
+      return;
+    }
+
+    entityIdentifier = domainClassIdentifier;
   }
 
   const visualModel = graph.aggregatorView.getActiveVisualModel();
@@ -60,14 +61,19 @@ export function centerViewportToVisualEntityByRepresentedAction(
 };
 
 /**
- * @returns undefined if the relationship with given identifier wasn't found.
- *          Otherwise the found relationship or relationship usage -
- *          Note that the returned type depends on the actual entity
+ * @returns undefined if the relationship with given identifier wasn't found. Otherwise the found relationship or relationship usage -
+ * Note that the returned type depends on the actual entity
  */
-export function findRelationshipOrRelationshipUsage(identifier: string, classesContext: ClassesContextType) {
-  const entity = (classesContext.relationships as (SemanticModelRelationship | SemanticModelRelationshipUsage)[]).
-    concat(classesContext.usages.filter(isSemanticModelRelationshipUsage)).find(entity => entity?.id === identifier);
-  return entity;
+export function findAttributeWithIdentifier(identifier: string, classesContext: ClassesContextType) {
+  const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
+  const attributeUsages = classesContext.usages.filter(isSemanticModelAttributeUsage);
+  const attributeProfiles = classesContext.relationshipProfiles.filter(isSemanticModelAttributeProfile);
+
+  const allAttributes = ([] as (SemanticModelRelationship |
+    SemanticModelRelationshipProfile |
+    SemanticModelRelationshipUsage)[]).concat(attributes).concat(attributeUsages).concat(attributeProfiles);
+
+  return allAttributes.find(attribute => attribute.id === identifier);
 }
 
 // Could be exported and used for centering to visual entities

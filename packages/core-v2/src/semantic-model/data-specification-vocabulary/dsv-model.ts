@@ -7,6 +7,10 @@
 export type LanguageString = { [language: string]: string };
 
 export interface ConceptualModel {
+
+  /**
+   * Absolute IRI for the model.
+   */
   iri: string;
 
   // @lc-identifier dcterms:isPartOf
@@ -25,19 +29,46 @@ export enum Cardinality {
   ManyToMany = "n-n"
 }
 
+/**
+ * Instead of LanguageString | null we use only LanguageString.
+ * We can not distinguish between null and {} in RDF anyway.
+ * So we just pick the empty object as default.
+ */
 // @lc-identifier dsv:Profile
 export interface Profile {
+
+  /**
+   * Absolute IRI.
+   */
   iri: string;
 
   // @lc-identifier skos:prefLabel
-  prefLabel: LanguageString | null;
+  prefLabel: LanguageString;
+
+  // @lc-identifier skos:definition
+  definition: LanguageString;
 
   // @lc-identifier vann:usageNote
-  usageNote: LanguageString | null;
+  usageNote: LanguageString;
 
   // @lc-identifier dsv:profileOf
   // @lc-type Profile
-  profileOfIri: string | null;
+  profileOfIri: string[];
+
+  // @lc-identifier dsv:reusesPropertyValue
+  // @lc-type PropertyValueReuse
+  reusesPropertyValue: PropertyValueReuse[];
+
+}
+
+// @lc-identifier dsv:PropertyValueReuse
+export interface PropertyValueReuse {
+
+  // dsv:reusedProperty
+  reusedPropertyIri: string;
+
+  // dsv:reusedFromResource
+  propertyreusedFromResourceIri: string;
 
 }
 
@@ -52,7 +83,7 @@ export interface ClassProfile extends Profile {
 
   // @lc-identifier dsv:class
   // @lc-type ConceptualClass
-  profiledClassIri: string | null;
+  profiledClassIri: string[];
 
   // @lc-identifier dsv:domain
   properties: PropertyProfile[];
@@ -73,7 +104,7 @@ export interface PropertyProfile extends Profile {
 
   // @lc-identifier dsv:property
   // @lc-type ConceptualProperty
-  profiledPropertyIri: string | null;
+  profiledPropertyIri: string[];
 
 }
 
@@ -89,7 +120,9 @@ export interface ObjectPropertyProfile extends PropertyProfile {
 
 export const ObjectPropertyProfileType = "object-property-profile";
 
-export function isObjectPropertyProfile(profile:Profile) : profile is ObjectPropertyProfile {
+export function isObjectPropertyProfile(
+  profile:Profile,
+) : profile is ObjectPropertyProfile {
   return ((profile as any).$type ?? []).includes(ObjectPropertyProfileType);
 }
 
@@ -104,6 +137,8 @@ export interface DatatypePropertyProfile extends PropertyProfile {
 
 export const DatatypePropertyProfileType = "datatype-property-profile";
 
-export function isDatatypePropertyProfile(profile:Profile) : profile is DatatypePropertyProfile {
+export function isDatatypePropertyProfile(
+  profile:Profile,
+) : profile is DatatypePropertyProfile {
   return ((profile as any).$type ?? []).includes(DatatypePropertyProfileType);
 }

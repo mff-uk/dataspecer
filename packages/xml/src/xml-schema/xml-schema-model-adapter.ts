@@ -19,6 +19,7 @@ import { XmlStructureModel as StructureModel, XmlStructureModel } from "../xml-s
 import {
   XmlSchema,
   XmlSchemaAnnotation,
+  XmlSchemaAttribute,
   XmlSchemaComplexChoice,
   XmlSchemaComplexContainer,
   XmlSchemaComplexContent,
@@ -216,6 +217,7 @@ class XmlSchemaAdapter {
         mixed: false,
         abstract: null,
         annotation: null,
+        attributes: [], // No attributes - this is just a wrapping element
       } satisfies XmlSchemaComplexType;
 
       const wrappingElement = {
@@ -266,6 +268,8 @@ class XmlSchemaAdapter {
         } satisfies XmlSchemaElement;
         if (this.options.extractAllTypes) {
           this.extractType(element);
+        } else if (xmlSchemaTypeIsComplex(element.type)) {
+          element.type.name = null;
         }
         const complexContent = {
           cardinalityMin: 1,
@@ -288,6 +292,7 @@ class XmlSchemaAdapter {
           xsType: "choice",
           contents: contents,
         } as XmlSchemaComplexChoice,
+        attributes: [], // no attributes here, this is a choice in or
       } satisfies XmlSchemaComplexType;
 
       return type;
@@ -311,7 +316,7 @@ class XmlSchemaAdapter {
     } else {
       let skipIri = false;
       skipIri ||= cls.instancesHaveIdentity === "NEVER";
-      skipIri ||= cls.cimIri === null;
+      skipIri ||= (cls.iris === null || cls.iris.length === 0);
 
       let complexDefinition = await this.propertiesToComplexSequence(cls.properties, "sequence");
 
@@ -328,6 +333,7 @@ class XmlSchemaAdapter {
         mixed: false,
         abstract: null,
         complexDefinition,
+        attributes: await this.propertiesToAttributes(cls.properties),
       } satisfies XmlSchemaComplexType;
       return type;
     }
@@ -369,7 +375,9 @@ class XmlSchemaAdapter {
   private async propertiesToComplexSequence(properties: StructureModelProperty[], xsType: string): Promise<XmlSchemaComplexSequence> {
     const contents = [];
     for (const property of properties) {
-      contents.push(await this.propertyToComplexContentElement(property));
+      if (!property.xmlIsAttribute) {
+        contents.push(await this.propertyToComplexContentElement(property));
+      }
     }
     return {
       xsType: xsType,
@@ -378,11 +386,32 @@ class XmlSchemaAdapter {
   }
 
   /**
+   * todo: what about sub-containers?
+   */
+  private async propertiesToAttributes(properties: StructureModelProperty[]): Promise<XmlSchemaAttribute[]> {
+    const attributes: XmlSchemaAttribute[] = [];
+    for (const property of properties) {
+      if (property.xmlIsAttribute) {
+        const attribute = {
+          name: [null, property.technicalLabel],
+          type: await this.objectTypeToSchemaType(property) as XmlSchemaSimpleType,
+          annotation: this.getAnnotation(property),
+          isRequired: property.cardinalityMin > 0,
+        } satisfies XmlSchemaAttribute;
+
+        attributes.push(attribute);
+      }
+    }
+
+    return attributes;
+  }
+
+  /**
    * This function is used when iterating over class properties.
    * Generates complex content element containing element.
    * This does not handle dematerialization!
    */
-  private async propertyToComplexContentElement(property: StructureModelProperty): Promise<XmlSchemaComplexContentElement | XmlSchemaComplexContentItem> {
+  private async propertyToComplexContentElement(property: StructureModelProperty): Promise<XmlSchemaComplexContentElement | XmlSchemaComplexContentItem | null> {
     /**
      * Property is either RELATION or a CONTAINER
      */
@@ -424,6 +453,8 @@ class XmlSchemaAdapter {
 
       if (this.options.extractAllTypes) {
         this.extractType(element);
+      } else if (xmlSchemaTypeIsComplex(element.type)) {
+        element.type.name = null;
       }
 
       return {
@@ -500,10 +531,10 @@ class XmlSchemaAdapter {
     const isType = data instanceof StructureModelProperty;
     const generateAnnotation = (isElement && this.options.generateElementAnnotations) || (isType && this.options.generateTypeAnnotations);
 
-    return !data.cimIri && Object.values(data?.humanLabel ?? {}).length === 0 && Object.values(data?.humanDescription ?? {}).length === 0
+    return !data.iris && data.iris.length > 0 && Object.values(data?.humanLabel ?? {}).length === 0 && Object.values(data?.humanDescription ?? {}).length === 0
       ? null
       : {
-          modelReference: this.options.generateSawsdl ? data.cimIri : null,
+          modelReference: this.options.generateSawsdl ? data.iris : null,
           metaTitle: generateAnnotation ? data.humanLabel : null,
           metaDescription: generateAnnotation ? data.humanDescription : null,
           structureModelEntity: data,
@@ -559,7 +590,7 @@ class XmlSchemaAdapter {
     const type: QName = primitiveData.dataType.startsWith(XSD_PREFIX)
       ? // Type inside XSD is used.
         ["xs", primitiveData.dataType.substring(XSD_PREFIX.length)]
-      : // An interally mapped type (from OFN) is used, if defined.
+      : // An internally mapped type (from OFN) is used, if defined.
         simpleTypeMapQName[primitiveData.dataType] ?? ["xs", "anySimpleType"];
     if (type === langStringName) {
       // Defined langString if it is used.

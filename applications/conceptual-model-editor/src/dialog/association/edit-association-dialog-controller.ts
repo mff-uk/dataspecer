@@ -17,7 +17,7 @@ export function useEditAssociationDialogController({ changeState }: DialogProps<
 
   return useMemo(() => {
 
-    const entityController = createEntityController(changeState, configuration().nameToIri);
+    const entityController = createEntityController(changeState, configuration().relationshipNameToIri);
 
     const specializationController = createSpecializationController(changeState);
 

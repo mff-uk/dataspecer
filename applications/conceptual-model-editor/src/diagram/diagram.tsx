@@ -22,7 +22,7 @@ import { PropertyEdgeToolbar } from "./edge/property-edge-toolbar";
 import { DiagramContext, useDiagramController } from "./diagram-controller";
 import type { UseDiagramType } from "./diagram-hook";
 
-import { configuration } from "../application/configuration";
+import { configuration } from "../configuration/configuration";
 import { AlignmentComponent } from "./features/alignment-viewportal";
 import { type Node as ApiNode, EdgeType } from "./diagram-api";
 import { ClassProfileEdge, ClassProfileEdgeName } from "./edge/class-profile-edge";

@@ -2,16 +2,17 @@ import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { EditAttributeDialogState } from "./edit-attribute-dialog-controller";
-import { isRepresentingAttribute, listAttributeRanges, representOwlThing, representRelationships, selectDefaultModelForAttribute, representRdfsLiteral, listRelationshipDomains, sortRepresentatives } from "../utilities/dialog-utilities";
+import { isRepresentingAttribute, listAttributeRanges, representOwlThing, representRelationships, selectDefaultModelForAttribute, representRdfsLiteral, listRelationshipDomains, sortRepresentatives, representUndefinedClass, representUndefinedDataType } from "../utilities/dialog-utilities";
 import { configuration } from "../../application";
 import { createEntityStateForNew } from "../utilities/entity-utilities";
 import { createSpecializationStateForNew } from "../utilities/specialization-utilities";
-import { createRelationshipStateForNew } from "../utilities/relationship-utilities";
+import { createRelationshipState } from "../utilities/relationship-utilities";
 import { DialogWrapper } from "../dialog-api";
 import { EditAttributeDialog } from "./edit-attribute-dialog";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
 import { RuntimeError } from "../../application/error";
+import { isValid } from "../utilities/validation-utilities";
 
 /**
  * Creates a dialog to add an attribute to an existing entity.
@@ -38,7 +39,7 @@ export function createAddAttributeDialogState(
 
   // EntityState
   const entityState = createEntityStateForNew(
-    language, null, vocabularies, configuration().nameToIri);
+    language, null, vocabularies, configuration().relationshipNameToIri);
 
   // SpecializationState
 
@@ -64,8 +65,10 @@ export function createAddAttributeDialogState(
 
   const dataTypes = listAttributeRanges();
 
-  const relationshipState = createRelationshipStateForNew(
-    domain, domains, rdfsLiteral, dataTypes);
+  const relationshipState = createRelationshipState(
+    vocabularies,
+    domain.identifier, representUndefinedClass(), null, domains,
+    rdfsLiteral.identifier, representUndefinedDataType(), null, dataTypes);
 
   return {
     ...entityState,
@@ -86,7 +89,9 @@ export const createAddAttributeDialog = (
     state,
     confirmLabel: "dialog.attribute.ok-create",
     cancelLabel: "dialog.attribute.cancel",
-    validate: () => true,
+    validate: (state) => isValid(state.iriValidation)
+      && isValid(state.domainValidation)
+      && isValid(state.rangeValidation),
     onConfirm: onConfirm,
     onClose: null,
   };

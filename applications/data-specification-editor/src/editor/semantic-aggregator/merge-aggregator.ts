@@ -1,9 +1,11 @@
-import { SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelClass, isSemanticModelRelationship, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticEntityIdMerger, StrongerWinsSemanticEntityIdMerger } from "@dataspecer/core-v2/semantic-model/merge/merger";
 import { ExternalEntityWrapped, LocalEntityWrapped, SemanticModelAggregator } from "./interfaces";
 import { TupleSet } from "./utils/tuple-set";
 
 type MergeAggregatorExternalEntityData = {
   parentModel: SemanticModelAggregator;
+originalEntity?: ExternalEntityWrapped;
 }
 
 /**
@@ -22,6 +24,8 @@ export class MergeAggregator implements SemanticModelAggregator {
   private readonly entitiesInModels: Map<SemanticModelAggregator, Record<string, LocalEntityWrapped>> = new Map();
 
   private readonly subscribers: Set<(updated: Record<string, LocalEntityWrapped>, removed: string[]) => void> = new Set();
+
+  private readonly semanticEntityIdMerger: SemanticEntityIdMerger = new StrongerWinsSemanticEntityIdMerger();
 
   constructor(models: SemanticModelAggregator[]) {
     this.models = models;
@@ -76,9 +80,32 @@ export class MergeAggregator implements SemanticModelAggregator {
         delete this.entities[entity];
         removedFinal.push(entity);
       } else {
+        // todo: We are merging by ID, which is wrong!
+        // todo: But right now we are guaranteed that entities fro external models have ID === IRI which effectively makes this correct as we are merging duplicates
         // todo: do clever merging here if multiple models own the same entity
-        this.entities[entity] = changed[entity];
-        updated[entity] = changed[entity];
+
+        const allEntities = owningModels.map(model => this.entitiesInModels.get(model)![entity]);
+
+        if (isSemanticModelClass(allEntities[0].aggregatedEntity) && allEntities.length > 1) {
+          const result = this.semanticEntityIdMerger.mergeClasses(allEntities.map(e => e.aggregatedEntity as SemanticModelClass));
+          const wrapped = {
+            ...allEntities[0],
+            aggregatedEntity: result
+          };
+          this.entities[entity] = wrapped;
+          updated[entity] = wrapped;
+        } else if (isSemanticModelRelationship(allEntities[0].aggregatedEntity) && allEntities.length > 1) {
+          const result = this.semanticEntityIdMerger.mergeRelationships(allEntities.map(e => e.aggregatedEntity as SemanticModelRelationship));
+          const wrapped = {
+            ...allEntities[0],
+            aggregatedEntity: result
+          };
+          this.entities[entity] = wrapped;
+          updated[entity] = wrapped;
+        } else {
+          this.entities[entity] = allEntities[0];
+          updated[entity] = allEntities[0];
+        }
       }
     }
 
@@ -96,12 +123,12 @@ export class MergeAggregator implements SemanticModelAggregator {
     const finalResults = [];
     for (const model of this.models) {
       const result = await model.search(searchQuery);
-      const metadata = {
-        parentModel: model
-      } satisfies MergeAggregatorExternalEntityData;
-      finalResults.push(...result.map(entity => ({
+            finalResults.push(...result.map(entity => ({
         ...entity,
-        originatingModel: [...entity.originatingModel, metadata]
+        originatingModel: [...entity.originatingModel, {
+          parentModel: model,
+          originalEntity: entity
+        } satisfies MergeAggregatorExternalEntityData]
       })));
     }
 
@@ -109,9 +136,9 @@ export class MergeAggregator implements SemanticModelAggregator {
   }
 
   async externalEntityToLocalForSearch(entity: ExternalEntityWrapped): Promise<LocalEntityWrapped> {
-    const [unwrappedEntity, data] = this.unwrapExternalEntity(entity);
+    const [_, data] = this.unwrapExternalEntity(entity);
 
-    const localEntity = await data.parentModel.externalEntityToLocalForSearch(unwrappedEntity);
+    const localEntity = await data.parentModel.externalEntityToLocalForSearch(data.originalEntity);
     return this.entities[localEntity.aggregatedEntity.id];
   }
 

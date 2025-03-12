@@ -5,6 +5,8 @@ import {DataPsmAssociationEnd, DataPsmAttribute, DataPsmClass, DataPsmClassRefer
 import {StructureModel, StructureModelClass, StructureModelComplexType, StructureModelPrimitiveType, StructureModelProperty, StructureModelSchemaRoot} from "../model";
 // @ts-ignore
 import { Entity } from "@dataspecer/core-v2";
+import { DataPsmXmlPropertyExtension } from "../../data-psm/xml-extension/model";
+import { DataPsmJsonPropertyExtension } from "../../data-psm/json-extension/model";
 
 /**
  * Adapter that converts given schema from PIM and Data PSM models to Structure
@@ -227,6 +229,10 @@ class StructureModelAdapter {
     model.dematerialize = associationEndData.dataPsmIsDematerialize === true;
     model.isReverse = associationEndData.dataPsmIsReverse === true;
 
+    // XML specific
+    const data = DataPsmXmlPropertyExtension.getExtensionData(associationEndData);
+    model.xmlIsAttribute = data.isAttribute;
+
     const semanticRelationship = await this.reader.readResource(
       associationEndData.dataPsmInterpretation
     ) as unknown as ExtendedSemanticModelRelationship | null;
@@ -283,6 +289,10 @@ class StructureModelAdapter {
     model.humanDescription = attributeData.dataPsmHumanDescription;
     model.technicalLabel = attributeData.dataPsmTechnicalLabel;
 
+    // XML specific
+    const data = DataPsmXmlPropertyExtension.getExtensionData(attributeData);
+    model.xmlIsAttribute = data.isAttribute;
+
     const pimAttributeData = await this.reader.readResource(
       attributeData.dataPsmInterpretation
     ) as unknown as Entity;
@@ -305,6 +315,11 @@ class StructureModelAdapter {
 
     const type = new StructureModelPrimitiveType();
     type.dataType = attributeData.dataPsmDatatype;
+
+    // JSON specific
+    const jsonData = DataPsmJsonPropertyExtension.getExtensionData(attributeData);
+    type.jsonUseKeyValueForLangString = jsonData.useKeyValueForLangString;
+
     model.dataTypes.push(type);
 
     return model;

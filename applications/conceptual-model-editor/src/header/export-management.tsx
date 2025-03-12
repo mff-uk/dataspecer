@@ -13,6 +13,7 @@ import { entityWithOverriddenIri, getIri, getModelIri } from "../util/iri-utils"
 import { ExportButton } from "../components/management/buttons/export-button";
 import { useQueryParamsContext } from "../context/query-params-context";
 import * as DataSpecificationVocabulary from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
+import { isInMemorySemanticModel } from "../utilities/model";
 
 export const ExportManagement = () => {
   const { aggregator, aggregatorView, models, visualModels, setAggregatorView, replaceModels } =
@@ -82,7 +83,8 @@ export const ExportManagement = () => {
         return entityWithOverriddenIri(entityIri, aggregatedEntity);
       });
     const context = {
-      baseIri: "", // TODO Get base URL.
+      // TODO Get base URL.
+      baseIri: "",
       iri: "",
     };
     generate(entities, context)
@@ -128,18 +130,18 @@ export const ExportManagement = () => {
     const conceptualModelIri = "";
     const contextModels = [];
     const modelForExport: DataSpecificationVocabulary.EntityListContainer = {
-      baseIri: null, // TODO Get base URL.
+      baseIri: "",
       entities: [],
     };
     for (const model of models.values()) {
       contextModels.push({
-        baseIri: null, // TODO Get base URL.
+        baseIri: isInMemorySemanticModel(model) ? model.getBaseIri() : "",
         entities: Object.values(model.getEntities()),
       });
       Object.values(model.getEntities()).forEach(entity => modelForExport.entities.push(entity));
     }
     // Create context.
-    const context = DataSpecificationVocabulary.createContext(contextModels, value => value ?? null);
+    const context = DataSpecificationVocabulary.createContext(contextModels);
     // The parent function can not be async, so we wrap the export in a function.
     (async () => {
       const conceptualModel = DataSpecificationVocabulary.entityListContainerToConceptualModel(

@@ -1,5 +1,5 @@
 import { LOCAL_SEMANTIC_MODEL } from '@dataspecer/core-v2/model/known-models';
-import { isSemanticModelRelationship, LanguageString, SemanticModelEntity } from '@dataspecer/core-v2/semantic-model/concepts';
+import { isSemanticModelClass, isSemanticModelRelationPrimitive, isSemanticModelRelationship, LanguageString, SemanticModelEntity } from '@dataspecer/core-v2/semantic-model/concepts';
 import { conceptualModelToEntityListContainer, rdfToConceptualModel } from '@dataspecer/core-v2/semantic-model/data-specification-vocabulary';
 import { createRdfsModel } from '@dataspecer/core-v2/semantic-model/simplified';
 import { isSemanticModelRelationshipUsage } from '@dataspecer/core-v2/semantic-model/usage/concepts';
@@ -13,9 +13,11 @@ import { v4 as uuidv4 } from 'uuid';
 import z from 'zod';
 import { resourceModel } from '../main';
 import { asyncHandler } from './../utils/async-handler';
+import { DataTypeURIs, isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
+import { BaseResource } from '../models/resource-model';
 
-function getIriToIdMapping() {
-  const mapping: Record<string, string> = {};
+function getIriToIdMapping(knownMapping: Record<string, string> = {}) {
+  const mapping = {...knownMapping};
   return (iri: string) => {
     if (!mapping[iri]) {
       mapping[iri] = uuidv4();
@@ -37,7 +39,7 @@ function jsonLdLiteralToLanguageString(literal: Quad_Object[]): LanguageString {
   return result;
 }
 
-async function importRdfsModel(parentIri: string, url: string, newIri: string, userMetadata: any) {
+async function importRdfsModel(parentIri: string, url: string, newIri: string, userMetadata: any): Promise<SemanticModelEntity[]> {
   await resourceModel.createResource(
     parentIri,
     newIri,
@@ -50,6 +52,7 @@ async function importRdfsModel(parentIri: string, url: string, newIri: string, u
   serialization.id = newIri;
   serialization.alias = userMetadata?.label?.en ?? userMetadata?.label?.cs;
   await store.setJson(serialization);
+  return Object.values(wrapper.getEntities()) as SemanticModelEntity[];
 }
 
 /**
@@ -67,99 +70,136 @@ function splitIri(iri: string | null | undefined): [string, string] {
   return [iri.substring(0, separator + 1), iri.substring(separator + 1)];
 }
 
-async function importRdfsAndDsv(parentIri: string, rdfsUrl: string | null, dsvUrl: string | null, newIri: string, userMetadata: any) {
-  await resourceModel.createResource(
-    parentIri,
-    newIri,
-    LOCAL_SEMANTIC_MODEL,
-    userMetadata
-  );
-  const store = await resourceModel.getOrCreateResourceModelStore(newIri);
+async function importRdfsAndDsv(parentIri: string, rdfsUrl: string | null, dsvUrl: string | null, userMetadata: any, allImportedEntities: SemanticModelEntity[]) {
+  async function createModelFromEntities(entities: SemanticModelEntity[], id: string, userMetadata: any) {
+    await resourceModel.createResource(
+      parentIri,
+      id,
+      LOCAL_SEMANTIC_MODEL,
+      userMetadata
+    );
+    const store = await resourceModel.getOrCreateResourceModelStore(id);
 
-  const result = {
-    entities: [],
-    baseIri: null,
-  } as any;
+    // Manage prefixes
+    const prefixesCount: Record<string, number> = {};
+    for (const entity of entities) {
+      const [prefix] = splitIri(entity.iri);
+      if (prefix) {
+        prefixesCount[prefix] = (prefixesCount[prefix] ?? 0) + 1;
+      }
+
+      if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
+        for (const end of entity.ends) {
+          const [prefix] = splitIri(end.iri);
+          if (prefix) {
+            prefixesCount[prefix] = (prefixesCount[prefix] ?? 0) + 1;
+          }
+        }
+      }
+    }
+    let bestPrefix = null;
+    let bestPrefixCount = 0;
+    for (const [prefix, count] of Object.entries(prefixesCount)) {
+      if (count > bestPrefixCount) {
+        bestPrefix = prefix;
+        bestPrefixCount = count;
+      }
+    }
+    if (bestPrefix) {
+      for (const entity of entities as SemanticModelEntity[]) {
+        if (entity.iri && entity.iri.startsWith(bestPrefix)) {
+          entity.iri = entity.iri.substring(bestPrefix.length);
+        }
+        if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
+          for (const end of entity.ends) {
+            if (end.iri && end.iri.startsWith(bestPrefix)) {
+              end.iri = end.iri.substring(bestPrefix.length);
+            }
+          }
+        }
+      }
+    }
+
+    const result = {
+      modelId: id,
+      modelAlias: (userMetadata?.label?.en ?? userMetadata?.label?.cs),
+      entities: Object.fromEntries(entities.map(e => ([e.id, e]))),
+      baseIri: bestPrefix,
+    } as any;
+
+    await store.setJson(result);
+  }
+
+  /**
+   * We import entities identified by their IRIs and store them with their IDs.
+   */
+  const knownMapping: Record<string, string> = {};
+  for (const datatype of DataTypeURIs) {
+    knownMapping[datatype] = datatype
+  }
 
   // Vocabulary
+
+  let vocabularyEntities: SemanticModelEntity[] = [];
   if (rdfsUrl) {
     const wrapper = await createRdfsModel([rdfsUrl], httpFetch);
     const serialization = wrapper.serializeModel();
     const model = new PimStoreWrapper(serialization.pimStore, serialization.id, serialization.alias, serialization.urls);
     model.fetchFromPimStore();
 
-    result.entities = {
-      ...result.entities,
-      ...model.getEntities(),
+    for (const entity of Object.values(model.getEntities())) {
+      if (isSemanticModelClass(entity)) {
+        knownMapping[entity.iri!] = entity.id;
+      }
+      if (isSemanticModelRelationship(entity)) {
+        if (entity.iri) {
+          knownMapping[entity.iri!] = entity.id;
+        }
+        for (const end of entity.ends) {
+          if (end.iri) {
+            knownMapping[end.iri!] = entity.id;
+          }
+        }
+      }
     }
+
+    vocabularyEntities = Object.values(model.getEntities()) as SemanticModelEntity[];
+  }
+  allImportedEntities.push(...vocabularyEntities.map(e => ({...e}))); // We need to clone because the following function modifies iris
+  if (vocabularyEntities.length > 0) {
+    await createModelFromEntities(vocabularyEntities, parentIri + "/" + "vocabulary", userMetadata);
   }
 
   // DSV
+
+  let profileEntities: SemanticModelEntity[] = [];
   if (dsvUrl) {
     const response = await fetch(dsvUrl);
     const data = await response.text();
     const conceptualModel = await rdfToConceptualModel(data);
     const dsvResult = conceptualModelToEntityListContainer(conceptualModel[0], {
-      iriToidentifier: getIriToIdMapping(),
+      iriToIdentifier: iri => knownMapping[iri] ?? iri,
+      iriPropertyToIdentifier(iri, rangeConcept) {
+        const isPrimitive = isDataType(rangeConcept);
+        const candidate = allImportedEntities.filter(isSemanticModelRelationship).find(e => e.ends[1].iri === iri && isSemanticModelRelationPrimitive(e) === isPrimitive);
+        if (candidate) {
+          return candidate.id;
+        }
+        return knownMapping[iri] ?? iri;
+      },
     });
 
-    result.entities = {
-      ...result.entities,
-      ...Object.fromEntries(dsvResult.entities.map(entity => [entity.id, entity])),
-    }
+    profileEntities = dsvResult.entities as SemanticModelEntity[];
   }
-
-  // Manage prefixes
-  const prefixesCount: Record<string, number> = {};
-  for (const entity of Object.values(result.entities) as SemanticModelEntity[]) {
-    const [prefix] = splitIri(entity.iri);
-    if (prefix) {
-      prefixesCount[prefix] = (prefixesCount[prefix] ?? 0) + 1;
-    }
-
-    if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
-      for (const end of entity.ends) {
-        const [prefix] = splitIri(end.iri);
-        if (prefix) {
-          prefixesCount[prefix] = (prefixesCount[prefix] ?? 0) + 1;
-        }
-      }
-    }
+  if (profileEntities.length > 0) {
+    await createModelFromEntities(profileEntities, parentIri + "/" + "profile", userMetadata);
   }
-  let bestPrefix = null;
-  let bestPrefixCount = 0;
-  for (const [prefix, count] of Object.entries(prefixesCount)) {
-    if (count > bestPrefixCount) {
-      bestPrefix = prefix;
-      bestPrefixCount = count;
-    }
-  }
-  result.baseIri = bestPrefix;
-  if (bestPrefix) {
-    for (const entity of Object.values(result.entities) as SemanticModelEntity[]) {
-      if (entity.iri && entity.iri.startsWith(bestPrefix)) {
-        entity.iri = entity.iri.substring(bestPrefix.length);
-      }
-      if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipUsage(entity)) {
-        for (const end of entity.ends) {
-          if (end.iri && end.iri.startsWith(bestPrefix)) {
-            end.iri = end.iri.substring(bestPrefix.length);
-          }
-        }
-      }
-    }
-  }
-
-  result.modelId = newIri;
-  result.modelAlias = (userMetadata?.label?.en ?? userMetadata?.label?.cs);
-
-  await store.setJson(result);
 }
 
 /**
  * Imports from URL and creates either a package or PIM model.
  */
-async function importFromUrl(parentIri: string, url: string) {
+async function importFromUrl(parentIri: string, url: string): Promise<[BaseResource | null, SemanticModelEntity[]]> {
   url = url.replace(/#.*$/, "");
   console.log("Importing from URL: " + url);
 
@@ -211,23 +251,25 @@ async function importFromUrl(parentIri: string, url: string) {
       }
     }
 
-    await importRdfsAndDsv(newPackageIri, rdfsUrl, dsvUrl, newPackageIri + "/model", {
+    const vocabularies = [...new Set([
+      ...store.getObjects(baseIri, "https://w3id.org/dsv#usedVocabularies", null).map(v => v.id),
+      ...store.getObjects(baseIri, "http://purl.org/dc/terms/references", null).map(v => v.id),
+    ])];
+    const entities: SemanticModelEntity[] = [];
+    for (const vocabularyId of vocabularies) {
+      const urlToImport = vocabularyId;
+      const [, e] = await importFromUrl(newPackageIri, urlToImport);
+      entities.push(...e);
+    }
+
+    await importRdfsAndDsv(newPackageIri, rdfsUrl, dsvUrl, {
       label: {
         en: (name.en ?? name.cs),
       },
       documentBaseUrl: url,
-    });
+    }, entities);
 
-    const vocabularies = [...new Set([
-      ...store.getObjects(baseIri, "https://w3id.org/dsv#usedVocabularies", null).map(v => v.id),
-      ...store.getObjects(baseIri, "https://w3id.org/dsv-dap#dct-references", null).map(v => v.id),
-    ])];
-    for (const vocabularyId of vocabularies) {
-      const urlToImport = vocabularyId;
-      await importFromUrl(newPackageIri, urlToImport);
-    }
-
-    return await resourceModel.getResource(newPackageIri);
+    return [(await resourceModel.getResource(newPackageIri))!, entities];
   } else {
     // Generate name
     let chunkToParse = url;
@@ -237,10 +279,10 @@ async function importFromUrl(parentIri: string, url: string) {
 
     const name = chunkToParse.split("/").pop()?.split(".")[0] ?? null;
 
-    return await importRdfsModel(parentIri, url, parentIri + "/" + uuidv4(), {
+    return [null, await importRdfsModel(parentIri, url, parentIri + "/" + uuidv4(), {
       documentBaseUrl: url,
       ... name ? { label: { en: name } } : {},
-    });
+    })];
   }
 }
 
@@ -257,7 +299,7 @@ export const importResource = asyncHandler(async (request: express.Request, resp
 
   const query = querySchema.parse(request.query);
 
-  const result = await importFromUrl(query.parentIri, query.url);
+  const [result] = await importFromUrl(query.parentIri, query.url);
 
   response.send(result);
   return;

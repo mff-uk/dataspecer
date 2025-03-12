@@ -18,7 +18,7 @@ import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { createEntityDetailDialog } from "../dialog/obsolete/entity-detail-dialog";
-import { Options } from "../application/options";
+import { Options } from "../configuration/options";
 
 export function openDetailDialogAction(
   options: Options,

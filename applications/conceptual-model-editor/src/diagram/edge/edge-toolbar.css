@@ -43,14 +43,17 @@
 }
 
 .edge-toolbar .property-edge li:nth-child(2) {
-  --angle: 90deg;
+  --angle: 72deg;
 }
 
 .edge-toolbar .property-edge li:nth-child(3) {
-  --angle: 180deg;
+  --angle: 144deg;
 }
 
 .edge-toolbar .property-edge li:nth-child(4) {
-  --angle: 270deg;
+  --angle: 216deg;
 }
 
+.edge-toolbar .property-edge li:nth-child(5) {
+  --angle: 288deg;
+}

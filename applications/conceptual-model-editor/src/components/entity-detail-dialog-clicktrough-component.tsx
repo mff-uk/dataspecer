@@ -8,7 +8,7 @@ import { useModelGraphContext } from "../context/model-context";
 import { useClassesContext } from "../context/classes-context";
 import { getIri, getModelIri } from "../util/iri-utils";
 import { sourceModelOfEntity } from "../util/model-utils";
-import { useOptions } from "../application/options";
+import { useOptions } from "../configuration/options";
 import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 const DEFAULT_MODEL_COLOR = "#ffffff";

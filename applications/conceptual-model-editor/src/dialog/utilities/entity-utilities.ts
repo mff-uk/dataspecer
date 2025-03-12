@@ -3,7 +3,7 @@ import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { generateName } from "../../util/name-utils";
 import { getAvailableLanguagesForLanguageString } from "../../util/language-utils";
 import { MissingModel, NoWritableModelFound } from "../../application/error";
-import { ValidationState, isValid, validationError, validationNoProblem } from "./validation-utilities";
+import { ValidationState, validationError, validationNoProblem } from "./validation-utilities";
 import { CmeModel, filterWritableModels } from "../../dataspecer/cme-model";
 import { ModelDsIdentifier } from "../../dataspecer/entity-model";
 import { isRelativeIri } from "../../utilities/iri";
@@ -32,6 +32,9 @@ export interface EntityState {
    */
   disableModelChange: boolean;
 
+  /**
+   * IRI for given entity. The meaning depends on the edited entity.
+   */
   iri: string;
 
   /**
@@ -237,8 +240,4 @@ export function validateEntityState<State extends EntityState>(state: State): St
     ...state,
     iriValidation,
   };
-}
-
-export function isEntityStateValid(state: EntityState): boolean {
-  return isValid(state.iriValidation);
 }

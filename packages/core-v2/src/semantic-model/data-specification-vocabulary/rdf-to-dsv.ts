@@ -11,6 +11,7 @@ import {
   DatatypePropertyProfile,
   DatatypePropertyProfileType,
   Cardinality,
+  Profile,
 } from "./dsv-model";
 
 import {
@@ -19,7 +20,9 @@ import {
 
 import { RDF, DSV, SKOS, VANN, DCT } from "./vocabulary";
 
-export async function rdfToConceptualModel(rdfAsString: string): Promise<ConceptualModel[]> {
+export async function rdfToConceptualModel(
+  rdfAsString: string,
+): Promise<ConceptualModel[]> {
   const context = new RdfLoaderContext();
   const quads = await stringN3ToRdf(rdfAsString);
   context.loadQuads(quads);
@@ -37,7 +40,7 @@ export async function rdfToConceptualModel(rdfAsString: string): Promise<Concept
  */
 class RdfLoaderContext {
 
-  quadsBySubject: Map<N3.Quad_Subject, N3.Quad[]> = new Map();
+  quadsBySubject: Map<string, N3.Quad[]> = new Map();
 
   conceptualModels: N3.Quad_Subject[] = [];
 
@@ -58,10 +61,10 @@ class RdfLoaderContext {
 
   private addToQuadsBySubject(quad: N3.Quad): void {
     const subject = quad.subject;
-    let quadsForSubject: N3.Quad[] | undefined = this.quadsBySubject.get(subject);
+    let quadsForSubject = this.quadsBySubject.get(subject.value);
     if (quadsForSubject === undefined) {
       quadsForSubject = [];
-      this.quadsBySubject.set(subject, quadsForSubject);
+      this.quadsBySubject.set(subject.value, quadsForSubject);
     }
     quadsForSubject.push(quad)
   }
@@ -129,13 +132,20 @@ class ClassProfilesReader {
       // Profile
       iri: subject.value,
       prefLabel: reader.languageString(SKOS.prefLabel),
+      definition: reader.languageString(SKOS.definition),
       usageNote: reader.languageString(VANN.usageNote),
-      profileOfIri: reader.iri(DSV.profileOf),
+      profileOfIri: reader.iris(DSV.profileOf),
+      reusesPropertyValue: [],
       // ClassProfile
       $type: [ClassProfileType],
-      profiledClassIri: reader.iri(DSV.class),
-      properties: []
+      profiledClassIri: reader.iris(DSV.class),
+      properties: [],
     };
+    // Load inherited values.
+    for (const node of reader.irisAsSubjects(DSV.reusesPropertyValue)) {
+      loadReusesPropertyValue(this.context, node, classProfile);
+    }
+    // Load and add to the model.
     const modelIri = reader.iri(DCT.isPartOf);
     if (modelIri === null) {
       console.error(`Missing dct:isPartOf for '${subject.value}'.`);
@@ -177,11 +187,8 @@ class RdfPropertyReader {
   }
 
   public quads(predicate: N3.NamedNode): N3.Quad[] {
-    const quads = this.context.quadsBySubject.get(this.subject);
-    if (quads === undefined || quads.length === 0) {
-      return [];
-    }
-    return quads?.filter(quad => quad.predicate.equals(predicate));
+    const quads = this.context.quadsBySubject.get(this.subject.value);
+    return quads?.filter(quad => quad.predicate.equals(predicate)) ?? [];
   }
 
   public iris(predicate: N3.NamedNode): string[] {
@@ -194,22 +201,48 @@ class RdfPropertyReader {
     return result;
   }
 
-  public languageString(predicate: N3.NamedNode): LanguageString | null {
-    const result: LanguageString = {};
-    let isEmpty = true;
+  public irisAsSubjects(predicate: N3.NamedNode): N3.Quad_Subject[] {
+    const result: N3.Quad_Subject[] = [];
     for (const { object } of this.quads(predicate)) {
-      if (object.termType === "Literal") {
-        const literal = object as N3.Literal;
-        result[literal.language ?? ""] = object.value;
-        isEmpty = false;
+      if (object.termType === "NamedNode" || object.termType === "BlankNode") {
+        result.push(object);
       }
-    }
-    if (isEmpty) {
-      return null;
     }
     return result;
   }
 
+  public languageString(predicate: N3.NamedNode): LanguageString {
+    const result: LanguageString = {};
+    for (const { object } of this.quads(predicate)) {
+      if (object.termType === "Literal") {
+        const literal = object as N3.Literal;
+        result[literal.language ?? ""] = object.value;
+      }
+    }
+    return result;
+  }
+
+}
+
+function loadReusesPropertyValue(
+  context: RdfLoaderContext,
+  subject: N3.Quad_Subject,
+  profile: Profile,
+) {
+  const reader = new RdfPropertyReader(context, subject);
+  const reusedProperty = reader.iri(DSV.reusedProperty);
+  const reusedFrom = reader.iri(DSV.reusedFromResource);
+  if (reusedProperty === null || reusedFrom === null) {
+    console.warn("Invalid dsv:PropertyValueReuse", {
+      reusedProperty: reusedProperty,
+      reusedFromResource: reusedFrom,
+    });
+    return;
+  }
+  profile.reusesPropertyValue.push({
+    reusedPropertyIri: reusedProperty,
+    propertyreusedFromResourceIri: reusedFrom,
+  });
 }
 
 /**
@@ -244,17 +277,25 @@ class PropertyProfilesReader {
     this.addToClass(reader, propertyProfile);
   }
 
-  private loadPropertyProfile(subject: N3.Quad_Subject, reader: RdfPropertyReader): PropertyProfile {
+  private loadPropertyProfile(
+    subject: N3.Quad_Subject, reader: RdfPropertyReader,
+  ): PropertyProfile {
     const propertyProfile: PropertyProfile = {
       // Profile
       iri: subject.value,
       prefLabel: reader.languageString(SKOS.prefLabel),
+      definition: reader.languageString(SKOS.definition),
       usageNote: reader.languageString(VANN.usageNote),
-      profileOfIri: reader.iri(DSV.profileOf),
+      profileOfIri: reader.iris(DSV.profileOf),
       // PropertyProfile
       cardinality: this.loadCardinality(reader),
-      profiledPropertyIri: reader.iri(DSV.property),
+      profiledPropertyIri: reader.iris(DSV.property),
+      reusesPropertyValue: [],
     };
+    // Load inherited values.
+    for (const node of reader.irisAsSubjects(DSV.reusesPropertyValue)) {
+      loadReusesPropertyValue(this.context, node, propertyProfile);
+    }
     return propertyProfile;
   }
 
@@ -309,7 +350,7 @@ class PropertyProfilesReader {
       ...this.loadPropertyProfile(subject, reader),
       // ObjectPropertyProfile
       $type: [DatatypePropertyProfileType],
-      rangeDataTypeIri: [],
+      rangeDataTypeIri: reader.iris(DSV.datatypePropertyRange),
     };
     this.addToClass(reader, propertyProfile);
   }

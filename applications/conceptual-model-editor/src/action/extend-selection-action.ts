@@ -8,6 +8,7 @@ import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticMode
 import { VisualEntity, VisualModel, isVisualNode, isVisualProfileRelationship, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
 import { Selections } from "./filter-selection-action";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { createLogger } from "../application";
 
 const LOG = createLogger(import.meta.url);
@@ -1083,16 +1084,15 @@ const getIdentifiersForEntity = (
 }
 
 /**
- * @returns Class and Class usages of the given moddel
+ * @param shouldReturnOnlyTheProfileRelationships
+ * if true then the result will contain in the edges part only relationship profiles (and usages).
+ * @returns Returns all the classes and relationships in model, where the returned relationships depend
+ * on the {@link shouldReturnOnlyTheProfileRelationships} parameter.
  */
-export const getClassesAndClassUsages = (model: EntityModel): (SemanticModelClass | SemanticModelClassUsage)[] => {
-  return Object.values(model.getEntities()).filter((entity) => isSemanticModelClass(entity) || isSemanticModelClassUsage(entity));
-};
-
 export function getSelectionForWholeSemanticModel(
   semanticModel: EntityModel,
-  shouldReturnVisualIdentifiers: boolean,
-  visualModel: VisualModel | null
+  visualModel: VisualModel | null,
+  shouldReturnOnlyTheProfileRelationships: boolean
 ): Selections {
   const result: Selections = {
     nodeSelection: [],
@@ -1100,13 +1100,67 @@ export function getSelectionForWholeSemanticModel(
   };
 
   const entities = Object.values(semanticModel.getEntities());
+  let relationshipEntities: Entity[] = [];
   entities.forEach(entity => {
-    const identifiers = getIdentifiersForEntity(entity.id, shouldReturnVisualIdentifiers, visualModel);
-    if(identifiers !== null) {
-      const isClassOrClassProfile = isSemanticModelClass(entity) || isSemanticModelClassUsage(entity);
-      (isClassOrClassProfile ? result.nodeSelection : result.edgeSelection).push(...identifiers);
+    const identifier = getIdentifierForEntity(entity.id, false, visualModel);
+    if(identifier !== null) {
+      const isClassOrClassProfile = isSemanticModelClass(entity) ||
+                                    isSemanticModelClassUsage(entity) ||
+                                    isSemanticModelClassProfile(entity);
+      if(isClassOrClassProfile) {
+        result.nodeSelection.push(identifier)
+      }
+      else {
+        relationshipEntities.push(entity);
+      }
     }
   });
 
+  relationshipEntities = relationshipEntities
+    .filter(relationship => isSemanticModelRelationship(relationship) ||
+                            isSemanticModelRelationshipUsage(relationship) ||
+                            isSemanticModelRelationshipProfile(relationship))
+    .filter(relationship => checkIfBothEndsArePresent(visualModel, result.nodeSelection, relationship));
+  if(shouldReturnOnlyTheProfileRelationships) {
+    relationshipEntities = relationshipEntities
+      .filter(relationship => isSemanticModelRelationshipUsage(relationship) ||
+                              isSemanticModelRelationshipProfile(relationship));
+  }
+  result.edgeSelection = relationshipEntities.map(relationship => relationship.id);
   return result;
+}
+
+/**
+ * @returns True if both ends are present.
+ * End is present if it is either in the visual model or in the list given in {@link newClasses}.
+ */
+function checkIfBothEndsArePresent(
+  visualModel: VisualModel | null,
+  newClasses: string[],
+  relationshipToAdd: SemanticModelRelationship | SemanticModelRelationshipProfile | SemanticModelRelationshipUsage,
+): boolean {
+  const areEndsPresent: [boolean, boolean] = [false, false];
+  for(const cclass of newClasses) {
+    if(relationshipToAdd.ends[0].concept === cclass) {
+      areEndsPresent[0] = true;
+    }
+    if(relationshipToAdd.ends[1].concept === cclass) {
+      areEndsPresent[1] = true;
+    }
+  }
+
+  if(visualModel !== null) {
+    for(const visualEntity of visualModel.getVisualEntities().values()) {
+      if(isVisualNode(visualEntity)) {
+        if(visualEntity.representedEntity === relationshipToAdd.ends[0].concept) {
+          areEndsPresent[0] = true;
+        }
+        if(visualEntity.representedEntity === relationshipToAdd.ends[1].concept) {
+          areEndsPresent[1] = true;
+        }
+      }
+    }
+  }
+
+  return areEndsPresent[0] && areEndsPresent[1];
 }

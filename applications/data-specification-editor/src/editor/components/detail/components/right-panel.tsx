@@ -45,6 +45,10 @@ import { DatatypeSelector, DatatypeSelectorValueType, getIriFromDatatypeSelector
 import { RegexField } from "../../helper/regex-field";
 import { useSaveHandler } from "../../helper/save-handler";
 import { StringExamplesField } from "../../helper/string-examples-field";
+import { DataPsmXmlPropertyExtension } from "@dataspecer/core/data-psm/xml-extension/model/index";
+import { DataPsmJsonPropertyExtension } from "@dataspecer/core/data-psm/json-extension/model/index";
+import { SetXmlIsAttribute } from "../../../operations/set-xml-is-attribute";
+import { SetJsonKeyValueForLangString } from "../../../operations/set-json-key-value-for-lang-string";
 
 export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({iri}) => {
     const store = useFederatedObservableStore();
@@ -166,6 +170,21 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
         ),
     );
 
+    // region json key value for lang string
+    const jsonKeyValueForLangStringAvailable = isAttribute && (getIriFromDatatypeSelectorValue(datatype) === "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString");
+    const dataPsmJsonPropertyExtension = isAttribute ? DataPsmJsonPropertyExtension.getExtensionData(resource as DataPsmAttribute) : null;
+    const [jsonKeyValueForLangString, setJsonKeyValueForLangString] = useState<boolean>(dataPsmJsonPropertyExtension?.useKeyValueForLangString ?? false);
+    useEffect(() => {
+        if (isAttribute) {
+            setJsonKeyValueForLangString(dataPsmJsonPropertyExtension?.useKeyValueForLangString ?? false);
+        }
+    }, [resource, isAttribute, dataPsmJsonPropertyExtension?.useKeyValueForLangString ?? false]);
+    useSaveHandler(
+        jsonKeyValueForLangStringAvailable && jsonKeyValueForLangString !== dataPsmJsonPropertyExtension?.useKeyValueForLangString,
+        async () => resource && await store.executeComplexOperation(new SetJsonKeyValueForLangString(resource.iri as string, jsonKeyValueForLangString)),
+    );
+    // endregion json key value for lang string
+
     // region association end dematerialization
 
     const [isAssociationDematerialized, setIsAssociationDematerialized] = useState<boolean>(false);
@@ -189,8 +208,8 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
     // region regex and examples
 
     const isStringDatatype = isAttribute && [
-        "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/řetězec",
-        "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/url"
+        "http://www.w3.org/2001/XMLSchema#string",
+        "http://www.w3.org/2001/XMLSchema#anyURI"
     ].includes(getIriFromDatatypeSelectorValue(datatype));
 
     let currentRegex = null;
@@ -249,6 +268,21 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
             (isAttribute || isAssociationEnd || isContainer) && !isEqual(cardinality, cardinalityFromPsm(resource as DataPsmAttribute | DataPsmAssociationEnd)),
         isInterpreted ? saveCardinalityPim : saveCardinalityPsm,
     );
+
+    // region xml is attribute
+
+    const currentXmlIsAttribute = DataPsmXmlPropertyExtension.getExtensionData(resource).isAttribute;
+    const [xmlIsAttribute, setXmlIsAttribute] = useState<boolean>(currentXmlIsAttribute);
+    useEffect(() => setXmlIsAttribute(currentXmlIsAttribute), [currentXmlIsAttribute]);
+    useSaveHandler(
+        xmlIsAttribute !== currentXmlIsAttribute,
+        useCallback(
+            async () => resource && await store.executeComplexOperation(new SetXmlIsAttribute(resource.iri as string, xmlIsAttribute)),
+            [resource, store, xmlIsAttribute]
+        ),
+    );
+
+    // endregion xml is attribute
 
     // region class is closed
 
@@ -423,6 +457,16 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
                         helperText={<>Comma separated list of languages, for example <code>cs,en</code></>}
                     />
                 }
+                {/* This handles langString different representation in JSON Schema */}
+                <Collapse in={jsonKeyValueForLangStringAvailable}>
+                    <FormControlLabel
+                        control={<Checkbox
+                            checked={jsonKeyValueForLangString}
+                            onChange={event => setJsonKeyValueForLangString(event.target.checked)}
+                        />}
+                        label={t('json.use key value for lang string')}
+                    />
+                </Collapse>
             </Box>
         </>}
 
@@ -465,6 +509,16 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
                     </Typography>
 
                     {cardinality && <CardinalitySelector value={cardinality} onChange={setCardinality} disabled={pimReadOnly} />}
+                </Box>
+            }
+
+            {(isAttribute || isAssociationEnd) &&
+                <Box sx={{mb: 3}}>
+                    <Typography variant="subtitle1" component="h2">
+                        {t('title xml attribute')}
+                    </Typography>
+
+                    <FormControlLabel control={<Checkbox checked={xmlIsAttribute} onChange={e => setXmlIsAttribute(e.target.checked)} />} label={t('title checkbox xml attribute')} />
                 </Box>
             }
 

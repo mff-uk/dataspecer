@@ -1,5 +1,5 @@
 import { DropDownCatalog } from "../components/management/dropdown-catalog";
-import { type Language, SupportedLanguages, useOptions } from "../application/options";
+import { type Language, SupportedLanguages, useOptions } from "../configuration/options";
 
 export const LanguageManagement = () => {
   const options = useOptions();

@@ -45,10 +45,10 @@ export function transformCoreResources(resources: Record<string, CoreResource>, 
     // Transform classes
     for (const resource of Object.values(resources)) {
         if (PimClass.is(resource)) {
-            // Hotfix remove empty classes
-            if (!resource.pimHumanLabel || !Object.keys(resource.pimHumanLabel).length) {
-                continue;
-            }
+            // // Hotfix remove empty classes
+            // if (!resource.pimHumanLabel || !Object.keys(resource.pimHumanLabel).length) {
+            //     continue;
+            // }
             // Hotfix remove owl:Thing
             if (resource.iri === "http://www.w3.org/2002/07/owl#Thing") {
                 continue;
@@ -86,6 +86,11 @@ export function transformCoreResources(resources: Record<string, CoreResource>, 
             } as SemanticModelRelationship;
 
             result[association.id] = association;
+
+            // @ts-ignore
+            const ext: string[] = resource["pimExtends"] ?? [];
+            ext.map((to) => createGeneralization(association.id, to))
+            .forEach((generalization) => (result[generalization.id] = generalization));
         }
         if (PimAttribute.is(resource)) {
             relationshipMapping[resource.iri!] = [resource.iri!, false];
@@ -106,13 +111,18 @@ export function transformCoreResources(resources: Record<string, CoreResource>, 
                         cardinality: [resource.pimCardinalityMin ?? 0, resource.pimCardinalityMax],
                         name: resource.pimHumanLabel ?? {},
                         description: resource.pimHumanDescription ?? {},
-                        concept: resource.pimDatatype,
+                        concept: resource.pimDatatype ?? "http://www.w3.org/2000/01/rdf-schema#Literal",
                         iri: resource.pimInterpretation ?? null,
                     },
                 ],
             } as SemanticModelRelationship;
 
             result[attribute.id] = attribute;
+
+            // @ts-ignore
+            const ext: string[] = resource["pimExtends"] ?? [];
+            ext.map((to) => createGeneralization(attribute.id, to))
+            .forEach((generalization) => (result[generalization.id] = generalization));
         }
     }
 

@@ -5,11 +5,12 @@ import { configuration } from "../../application";
 import { EditAssociationDialogState } from "./edit-association-dialog-controller";
 import { EditAssociationDialog } from "./edit-association-dialog";
 import { DialogWrapper } from "../dialog-api";
-import { createEntityStateForNew, isEntityStateValid } from "../utilities/entity-utilities";
-import { isRepresentingAssociation, listRelationshipDomains, representOwlThing, representRelationships, sortRepresentatives } from "../utilities/dialog-utilities";
+import { createEntityStateForNew } from "../utilities/entity-utilities";
+import { isRepresentingAssociation, listRelationshipDomains, representOwlThing, representRelationships, representUndefinedClass, sortRepresentatives } from "../utilities/dialog-utilities";
 import { createSpecializationStateForNew } from "../utilities/specialization-utilities";
-import { createRelationshipStateForNew } from "../utilities/relationship-utilities";
+import { createRelationshipState } from "../utilities/relationship-utilities";
 import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
+import { isValid } from "../utilities/validation-utilities";
 
 export function createCreateAssociationDialogState(
   classesContext: ClassesContextType,
@@ -29,7 +30,7 @@ export function createCreateAssociationDialogState(
   // EntityState
 
   const entityState = createEntityStateForNew(
-    language, defaultModelIdentifier, vocabularies, configuration().nameToIri);
+    language, defaultModelIdentifier, vocabularies, configuration().relationshipNameToIri);
 
   // SpecializationState
 
@@ -48,8 +49,13 @@ export function createCreateAssociationDialogState(
     classesContext, graphContext, vocabularies);
   sortRepresentatives(language, domains);
 
-  const relationshipState = createRelationshipStateForNew(
-    owlThing, domains, owlThing, domains);
+  // For association domains are same as ranges.
+  const ranges = domains;
+
+  const relationshipState = createRelationshipState(
+    vocabularies,
+    owlThing.identifier, representUndefinedClass(), null, domains,
+    owlThing.identifier, representUndefinedClass(), null, ranges);
 
   return {
     ...entityState,
@@ -68,7 +74,9 @@ export const createNewAssociationDialog = (
     state,
     confirmLabel: "dialog.association.ok-create",
     cancelLabel: "dialog.association.cancel",
-    validate: isEntityStateValid,
+    validate: (state) => isValid(state.iriValidation)
+      && isValid(state.domainValidation)
+      && isValid(state.rangeValidation),
     onConfirm: onConfirm,
     onClose: null,
   };

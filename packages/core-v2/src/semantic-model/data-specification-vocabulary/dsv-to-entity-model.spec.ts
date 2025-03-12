@@ -2,143 +2,140 @@ import { SemanticModelEntity, SemanticModelRelationship } from "../concepts";
 import { ConceptualModel } from "./dsv-model";
 import { conceptualModelToEntityListContainer } from "./dsv-to-entity-model";
 import { entityListContainerToConceptualModel, createContext } from "./entity-model-to-dsv";
+import { VANN } from "./vocabulary";
 
 test("From DSV to entity model and back.", async () => {
 
   const dsv = {
     "iri": "http://dcat-ap-cz/model",
-    "profiles": [
-      {
-        "iri": "https://dcat-ap/#Dataset",
-        "prefLabel": null,
+    "profiles": [{
+      "iri": "https://dcat-ap/#Dataset",
+      "prefLabel": {},
+      "definition": {},
+      "usageNote": {},
+      "profileOfIri": [],
+      "reusesPropertyValue": [{
+        "reusedPropertyIri": VANN.usageNote.id,
+        "propertyreusedFromResourceIri": "http://www.w3.org/ns/dcat#Dataset"
+      }],
+      "$type": ["class-profile"],
+      "profiledClassIri": ["http://www.w3.org/ns/dcat#Dataset"],
+      "properties": [{
+        "iri": "http://www.w3.org/ns/dcat#distribution-profile",
+        "cardinality": "0-n",
+        "prefLabel": {},
+        "definition": {},
         "usageNote": {},
-        "profileOfIri": null,
-        "$type": [
-          "class-profile"
-        ],
-        "profiledClassIri": "http://www.w3.org/ns/dcat#Dataset",
-        "properties": [
-          {
-            "iri": "http://www.w3.org/ns/dcat#distribution-profile",
-            "cardinality": "0-n",
-            "prefLabel": null,
-            "usageNote": {},
-            "profileOfIri": null,
-            "profiledPropertyIri": "http://www.w3.org/ns/dcat#distribution",
-            "$type": ["object-property-profile"],
-            "rangeClassIri": [
-              "http://dcat-ap/ns/dcat#Distribution"
-            ]
-          }
+        "profileOfIri": [],
+        "reusesPropertyValue": [],
+        "profiledPropertyIri": ["http://www.w3.org/ns/dcat#distribution"],
+        "$type": ["object-property-profile"],
+        "rangeClassIri": [
+          "http://dcat-ap/ns/dcat#Distribution"
         ]
-      },
-      {
-        "iri": "https://dcat-ap-cz/#Dataset",
-        "prefLabel": null,
-        "usageNote": {},
-        "profileOfIri": "https://dcat-ap/#Dataset",
-        "$type": [
-          "class-profile"
-        ],
-        "profiledClassIri": null,
-        "properties": []
-      },
-      {
-        "iri": "http://dcat-ap/ns/dcat#Distribution",
-        "prefLabel": null,
-        "usageNote": {},
-        "profileOfIri": null,
-        "$type": [
-          "class-profile"
-        ],
-        "profiledClassIri": "http://www.w3.org/ns/dcat#Distribution",
-        "properties": []
-      }
-    ]
+      }]
+    }, {
+      "iri": "https://dcat-ap-cz/#Dataset",
+      "prefLabel": {},
+      "definition": {},
+      "usageNote": {},
+      "profileOfIri": ["https://dcat-ap/#Dataset"],
+      "reusesPropertyValue": [],
+      "$type": ["class-profile"],
+      "profiledClassIri": [],
+      "properties": []
+    }, {
+      "iri": "http://dcat-ap/ns/dcat#Distribution",
+      "prefLabel": {},
+      "definition": {},
+      "usageNote": {},
+      "profileOfIri": [],
+      "reusesPropertyValue": [],
+      "$type": ["class-profile"],
+      "profiledClassIri": ["http://www.w3.org/ns/dcat#Distribution"],
+      "properties": []
+    }]
   } as ConceptualModel;
 
-  const iriToidentifier: Record<string, string> = {
+  const iriToIdentifier: Record<string, string> = {
     "https://dcat-ap/#Dataset": "dcat-ap-0001",
     "https://dcat-ap-cz/#Dataset": "dcat-ap-0002",
     "http://dcat-ap/ns/dcat#Distribution": "dcat-ap-0003",
     "http://www.w3.org/ns/dcat#distribution-profile": "dcat-ap-0005",
+    // Vocabulary
+    "http://www.w3.org/ns/dcat#Dataset": "http://www.w3.org/ns/dcat#Dataset",
+    "http://www.w3.org/ns/dcat#Distribution": "http://www.w3.org/ns/dcat#Distribution",
+    "http://www.w3.org/ns/dcat#distribution": "http://www.w3.org/ns/dcat#distribution",
   };
 
-  // Convert from DSV ConceptaulModel to EntityListContainer with Entities.
+  // Convert from DSV ConceptualModel to EntityListContainer with Entities.
   const entityListContainer = conceptualModelToEntityListContainer(dsv, {
-    iriToidentifier: iri => iriToidentifier[iri] ?? `MISSING ${iri}`,
+    iriToIdentifier: iri => iriToIdentifier[iri] ?? `MISSING ${iri}`,
   });
 
   const expectedEntityListContainer = {
-    "baseIri": null,
-    "entities": [
-      {
-        "id": "dcat-ap-0001",
-        "usageOf": "http://www.w3.org/ns/dcat#Dataset",
-        "type": [
-          "class-usage"
-        ],
-        "iri": "https://dcat-ap/#Dataset",
-        "name": null,
-        "description": null,
-        "usageNote": {}
-      },
-      {
+    "baseIri": "",
+    "entities": [{
+      "id": "dcat-ap-0001",
+      "profiling": ["http://www.w3.org/ns/dcat#Dataset"],
+      "type": ["class-profile"],
+      "iri": "https://dcat-ap/#Dataset",
+      "name": {},
+      "nameFromProfiled": null,
+      "description": {},
+      "descriptionFromProfiled": null,
+      "usageNote": {},
+      "usageNoteFromProfiled": "http://www.w3.org/ns/dcat#Dataset",
+    }, {
+      "id": "dcat-ap-0005",
+      "type": ["relationship-profile"],
+      "ends": [{
+        "name": {},
+        "nameFromProfiled": null,
+        "description": {},
+        "descriptionFromProfiled": null,
+        "cardinality": null,
+        "concept": "dcat-ap-0001",
         "usageNote": {},
-        "id": "dcat-ap-0005",
-        "type": [
-          "relationship-usage"
-        ],
+        "usageNoteFromProfiled": null,
         "iri": null,
-        "usageOf": "http://www.w3.org/ns/dcat#distribution",
-        "name": null,
-        "description": null,
-        "ends": [
-          {
-            "name": null,
-            "description": null,
-            "cardinality": null,
-            "concept": "dcat-ap-0001",
-            "usageNote": null,
-            "iri": null
-          },
-          {
-            "name": null,
-            "description": null,
-            "cardinality": [
-              0,
-              null
-            ],
-            "concept": "dcat-ap-0003",
-            "usageNote": {},
-            "iri": "http://www.w3.org/ns/dcat#distribution-profile"
-          }
-        ]
-      },
-      {
-        "id": "dcat-ap-0002",
-        "usageOf": "dcat-ap-0001",
-        "type": [
-          "class-usage"
-        ],
-        "iri": "https://dcat-ap-cz/#Dataset",
-        "name": null,
-        "description": null,
-        "usageNote": {}
-      },
-      {
-        "id": "dcat-ap-0003",
-        "usageOf": "http://www.w3.org/ns/dcat#Distribution",
-        "type": [
-          "class-usage"
-        ],
-        "iri": "http://dcat-ap/ns/dcat#Distribution",
-        "name": null,
-        "description": null,
-        "usageNote": {}
-      },
-    ]
-  }
+        "profiling": [],
+      }, {
+        "name": {},
+        "nameFromProfiled": null,
+        "description": {},
+        "descriptionFromProfiled": null,
+        "cardinality": [0, null],
+        "concept": "dcat-ap-0003",
+        "usageNote": {},
+        "usageNoteFromProfiled": null,
+        "iri": "http://www.w3.org/ns/dcat#distribution-profile",
+        "profiling": ["http://www.w3.org/ns/dcat#distribution"],
+      }]
+    }, {
+      "id": "dcat-ap-0002",
+      "profiling": ["dcat-ap-0001"],
+      "type": ["class-profile"],
+      "iri": "https://dcat-ap-cz/#Dataset",
+      "name": {},
+      "nameFromProfiled": null,
+      "description": {},
+      "descriptionFromProfiled": null,
+      "usageNote": {},
+      "usageNoteFromProfiled": null,
+    }, {
+      "id": "dcat-ap-0003",
+      "profiling": ["http://www.w3.org/ns/dcat#Distribution"],
+      "type": ["class-profile"],
+      "iri": "http://dcat-ap/ns/dcat#Distribution",
+      "name": {},
+      "nameFromProfiled": null,
+      "description": {},
+      "descriptionFromProfiled": null,
+      "usageNote": {},
+      "usageNoteFromProfiled": null,
+    }],
+  };
 
   expect(entityListContainer).toStrictEqual(expectedEntityListContainer);
 
@@ -176,12 +173,34 @@ test("From DSV to entity model and back.", async () => {
     }],
   } as SemanticModelRelationship];
 
-  // Convert from EntityListContainer with entities to ConceptaulModel.
+  // Convert from EntityListContainer with entities to ConceptualModel.
   const context = createContext([entityListContainer, {
-    baseIri: null,
+    baseIri: "http://dcat-ap-cz/model",
     entities: vocabularyEntities,
-  }], value => value ?? null);
-  const actual = entityListContainerToConceptualModel("http://dcat-ap-cz/model", entityListContainer, context)
-  expect(actual).toStrictEqual(dsv);
-});
+  }]);
 
+  const actual = entityListContainerToConceptualModel(
+    "http://dcat-ap-cz/model", entityListContainer, context)
+
+  // We need to update the expected state as inherited values
+  // should not be preserved.
+  expect(actual).toStrictEqual({
+    iri: dsv.iri,
+    profiles: [{
+      ...dsv.profiles[0],
+      "prefLabel": {},
+      "definition": {},
+      "usageNote": {},
+    }, {
+      ...dsv.profiles[1],
+      "prefLabel": {},
+      "definition": {},
+      "usageNote": {},
+    }, {
+      ...dsv.profiles[2],
+      "prefLabel": {},
+      "definition": {},
+      "usageNote": {},
+    }],
+  });
+});

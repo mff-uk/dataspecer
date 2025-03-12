@@ -3,11 +3,33 @@ import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRel
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { CreatedEntityOperationResult } from "@dataspecer/core-v2/semantic-model/operations";
 import { createDefaultProfileEntityAggregator, ProfileAggregator } from "@dataspecer/core-v2/semantic-model/profile/aggregator";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { createDefaultSemanticModelProfileOperationFactory, SemanticModelProfileOperationFactory } from "@dataspecer/core-v2/semantic-model/profile/operations";
 import { ExternalEntityWrapped, SemanticModelAggregator, LocalEntityWrapped } from "./interfaces";
 import { getSearchRelevance } from "./utils/get-search-relevance";
 import { TupleSet } from "./utils/tuple-set";
+
+function iriGetLastChunk(iri: string | null) {
+  if (!iri) {
+    return null;
+  }
+
+  const lastSlash = iri.lastIndexOf("/");
+  const lastHash = iri.lastIndexOf("#");
+  const last = Math.max(lastSlash, lastHash);
+  return iri.substring(last + 1);
+}
+
+interface OriginatingModelMetadata {
+  // todo still experimental
+  action: "use as is" | "create profile from profile" | "create new profile";
+  entity?: ExternalEntityWrapped;
+}
+
+function unwrap(originatingModelChain: object[]): [OriginatingModelMetadata, object[]] {
+  const copy = [...originatingModelChain];
+  return [copy.pop() as OriginatingModelMetadata, copy];
+}
 
 /**
  * This class aggregates single AP in the root that may profile multiple vocabularies.
@@ -49,10 +71,18 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
 
   readonly thisVocabularyChain: object;
 
-  constructor(profile: InMemorySemanticModel, source: SemanticModelAggregator, profileEntityAggregator?: ProfileAggregator) {
+  /**
+   * Whether new entities can be added either by profiling local entities or searching for external entities.
+   */
+  private canAddEntities: boolean = false;
+  private canModify: boolean = false;
+  private allowOnlyProfiledEntities: boolean = false;
+
+  constructor(profile: InMemorySemanticModel, source: SemanticModelAggregator, allowOnlyProfiledEntities: boolean = false, profileEntityAggregator?: ProfileAggregator) {
     this.profile = profile;
     this.source = source;
     this.profileEntityAggregator = profileEntityAggregator ?? createDefaultProfileEntityAggregator();
+    this.allowOnlyProfiledEntities = allowOnlyProfiledEntities;
 
     this.updateSourceEntities(source.getAggregatedEntities());
     source.subscribeToChanges((updated, removed) => {
@@ -67,6 +97,16 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
     this.thisVocabularyChain = {
       name: this.profile.getAlias() ?? "AP",
     };
+  }
+
+  setCanAddEntities(canAddEntities: boolean = true): this {
+    this.canAddEntities = canAddEntities;
+    return this;
+  }
+
+  setCanModify(canModify: boolean = true): this {
+    this.canModify = canModify;
+    return this;
   }
 
   /**
@@ -131,10 +171,10 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
         }
       } else {
         if (isSemanticModelClassProfile(entity)) {
-          const dependsOn = entity.profiling.map(id => this.entities[id]?.aggregatedEntity ?? this.sourceEntities[id]?.aggregatedEntity).filter(x => x) as SemanticModelClass[];
+          const dependsOn = entity.profiling.map(id => this.entities[id]?.aggregatedEntity ?? this.sourceEntities[id]?.aggregatedEntity ?? this.profileEntities[id]).filter(x => x) as SemanticModelClass[];
           const aggregatedEntity = this.profileEntityAggregator.aggregateSemanticModelClassProfile(entity, dependsOn);
           // todo workaround with typing
-          const aggregatedEntityClass = {...aggregatedEntity, type: ["class"]} as SemanticModelClass;
+          const aggregatedEntityClass = {...aggregatedEntity, type: ["class", "class-profile"]} as unknown as SemanticModelClass;
           this.entities[entity.id] = {
             aggregatedEntity: aggregatedEntityClass,
             vocabularyChain: [],
@@ -144,10 +184,10 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
           toUpdate.push(...this.dependsOn.getBySecond(entity.id));
           updated[entity.id] = this.entities[entity.id];
         } else if (isSemanticModelRelationshipProfile(entity)) {
-          const dependsOn = entity.ends.map(end => end.profiling).flat().map(id => this.entities[id]?.aggregatedEntity ?? this.sourceEntities[id]?.aggregatedEntity).filter(x => x) as SemanticModelRelationship[];
+          const dependsOn = entity.ends.map(end => end.profiling).flat().map(id => this.entities[id]?.aggregatedEntity ?? this.sourceEntities[id]?.aggregatedEntity ?? this.profileEntities[id]).filter(x => x) as SemanticModelRelationship[];
           const aggregatedEntity = this.profileEntityAggregator.aggregateSemanticModelRelationshipProfile(entity, dependsOn);
           // todo workaround with typing
-          const aggregatedEntityRelationship = {...aggregatedEntity, type: ["relationship"]} as unknown as SemanticModelRelationship;
+          const aggregatedEntityRelationship = {...aggregatedEntity, type: ["relationship", "relationship-profile"]} as unknown as SemanticModelRelationship;
           this.entities[entity.id] = {
             aggregatedEntity: aggregatedEntityRelationship,
             vocabularyChain: [],
@@ -157,23 +197,28 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
           toUpdate.push(...this.dependsOn.getBySecond(entity.id));
           updated[entity.id] = this.entities[entity.id];
         } else if (isSemanticModelClass(entity)) {
-          this.entities[entity.id] = {
-            aggregatedEntity: entity,
-            vocabularyChain: [],
-            isReadOnly: true,
-          };
-          this.dependsOn.deleteFirst(entity.id); // class is independent
-          toUpdate.push(...this.dependsOn.getBySecond(entity.id));
-          updated[entity.id] = this.entities[entity.id];
-        } else if (isSemanticModelRelationship(entity)) {
-          this.entities[entity.id] = {
-            aggregatedEntity: entity,
-            vocabularyChain: [],
-            isReadOnly: true,
+          if (!this.allowOnlyProfiledEntities) {
+            // ! We do not allow not profiled classes and relationships in the final result
+            this.entities[entity.id] = {
+              aggregatedEntity: entity,
+              vocabularyChain: [],
+              isReadOnly: true,
+            };
+            this.dependsOn.deleteFirst(entity.id); // class is independent
+            updated[entity.id] = this.entities[entity.id];
           }
-          this.dependsOn.deleteFirst(entity.id); // relationship is profile-independent
           toUpdate.push(...this.dependsOn.getBySecond(entity.id));
-          updated[entity.id] = this.entities[entity.id];
+        } else if (isSemanticModelRelationship(entity)) {
+          if (!this.allowOnlyProfiledEntities) {
+            this.entities[entity.id] = {
+              aggregatedEntity: entity,
+              vocabularyChain: [],
+              isReadOnly: true,
+            }
+            this.dependsOn.deleteFirst(entity.id); // relationship is profile-independent
+            updated[entity.id] = this.entities[entity.id];
+          }
+          toUpdate.push(...this.dependsOn.getBySecond(entity.id));
         } else if (isSemanticModelGeneralization(entity)) {
           this.entities[entity.id] = {
             aggregatedEntity: entity,
@@ -206,7 +251,6 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
    *  - create a new entity profile in this AP
    */
   async search(searchQuery: string): Promise<ExternalEntityWrapped[]> {
-
     const query = new RegExp(searchQuery, 'i');
     const results: ExternalEntityWrapped[] = [];
 
@@ -220,28 +264,39 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
       results.push({
         aggregatedEntity: cls.aggregatedEntity,
         vocabularyChain: [this.thisVocabularyChain],
-        originatingModel: [this],
-        note: "use as is"
+        originatingModel: [{
+          action: "use as is"
+        } satisfies OriginatingModelMetadata],
+        note: this.canAddEntities && this.canModify ? "use as is" : null
       });
-      results.push({
-        aggregatedEntity: cls.aggregatedEntity,
-        vocabularyChain: [this.thisVocabularyChain],
-        originatingModel: [this],
-        note: "create profile from profile"
-      });
+      if (this.canAddEntities && this.canModify) {
+        results.push({
+          aggregatedEntity: cls.aggregatedEntity,
+          vocabularyChain: [this.thisVocabularyChain],
+          originatingModel: [{
+            action: "create profile from profile"
+          } satisfies OriginatingModelMetadata],
+          note: "create profile from profile"
+        });
+      }
     }
 
     // Now search for external models
-    const externalResults = await this.source.search(searchQuery);
-    const resultsFlattened = externalResults.flat();
+    if (this.canAddEntities && this.canModify) {
+      const externalResults = await this.source.search(searchQuery);
+      const resultsFlattened = externalResults.flat();
 
-    for (const entity of resultsFlattened) {
-      results.push({
-        aggregatedEntity: entity.aggregatedEntity,
-        vocabularyChain: [...entity.vocabularyChain, this.thisVocabularyChain],
-        originatingModel: [...entity.originatingModel, this],
-        note: "create new profile"
-      });
+      for (const entity of resultsFlattened) {
+        results.push({
+          aggregatedEntity: entity.aggregatedEntity,
+          vocabularyChain: [...entity.vocabularyChain, this.thisVocabularyChain],
+          originatingModel: [...entity.originatingModel, {
+            action: "create new profile",
+            entity,
+          } satisfies OriginatingModelMetadata],
+          note: "create new profile"
+        });
+      }
     }
 
     return results;
@@ -251,43 +306,36 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
    * When specific entity from the search is selected, this function shall be called to convert it to the local entity.
    */
   async externalEntityToLocalForSearch(entity: ExternalEntityWrapped) {
-    if (entity.note === "use as is") {
+    const [metadata] = unwrap(entity.originatingModel);
+
+    if (metadata.action === "use as is") {
       return this.entities[entity.aggregatedEntity.id];
     }
 
-    let sourceEntity: LocalEntityWrapped | ExternalEntityWrapped;
-    if (entity.aggregatedEntity.id in this.entities) {
-      sourceEntity = entity;
-    } else {
-      const originatingModel = [...entity.originatingModel];
-      originatingModel.pop();
-      const unwrappedEntity = {
-        aggregatedEntity: entity.aggregatedEntity,
-        vocabularyChain: [],
-        originatingModel: originatingModel,
-      };
-      sourceEntity = await this.source.externalEntityToLocalForSearch(unwrappedEntity);
+    if (!(this.canAddEntities && this.canModify)) {
+      throw new Error("Adding entities is not allowed to this application profile.");
     }
 
-    // In this mode we need to create new class profile and point to to the external entity
-    const operation = this.operationFactory.createClassProfile({
-      iri: null,
-      name: null,
-      nameFromProfiled: sourceEntity.aggregatedEntity.id,
-      description: null,
-      descriptionFromProfiled: sourceEntity.aggregatedEntity.id,
-      usageNote: null,
-      usageNoteFromProfiled: sourceEntity.aggregatedEntity.id,
-      profiling: [sourceEntity.aggregatedEntity.id],
-    });
-    const { id } = this.profile.executeOperation(operation) as CreatedEntityOperationResult;
-    return this.entities[id];
+    let createProfileOf: string;
+    if (metadata.action === "create new profile") {
+      const sourceEntity = await this.source.externalEntityToLocalForSearch(metadata.entity);
+      createProfileOf = sourceEntity.aggregatedEntity.id;
+    } else if (metadata.action === "create profile from profile") {
+      createProfileOf = entity.aggregatedEntity.id;
+    } else {
+      throw new Error("Unknown action");
+    }
+
+    return this.createClassProfile([createProfileOf]);
   }
 
   /**
    * As this is AP, you can only execute operations in this model.
    */
   execOperation(operation: any) {
+    if (!this.canModify) {
+      throw new Error("Modifying entities is not allowed to this application profile.");
+    }
     this.profile.executeOperation(operation);
   }
 
@@ -317,9 +365,12 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
       }));
     } else {
       // This is an external entity, process it in the source
-
-      const surroundings = this.source.getSurroundings(localOrExternalEntityId);
-      return surroundings;
+      if (this.canModify && this.canAddEntities) {
+        const surroundings = this.source.getSurroundings(localOrExternalEntityId);
+        return surroundings;
+      } else {
+        return [];
+      }
     }
   }
 
@@ -389,30 +440,32 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
     }));
 
     // Now we need hierarchy for each class profile.
-    for (const superProfile of superProfiles) {
-      if (!isSemanticModelClass(superProfile.aggregatedEntity) && !isSemanticModelClassProfile(superProfile.aggregatedEntity)) {
-        continue;
-      }
-      for (const id of (superProfile.aggregatedEntity as SemanticModelClassProfile).profiling) {
-        if (this.entities[id]) {
-          // We are interested in external entities only
+    if (this.canAddEntities && this.canModify) {
+      for (const superProfile of superProfiles) {
+        if (!isSemanticModelClass(superProfile.aggregatedEntity) && !isSemanticModelClassProfile(superProfile.aggregatedEntity)) {
           continue;
         }
-        const hierarchy = await this.source.getHierarchyForLookup(id);
-        if (!hierarchy) {
-          continue;
-        }
-        hierarchy.map(entity => fullCompleteHierarchy[entity.aggregatedEntity.id] = entity);
-        // todo typings
-        // @ts-ignore
-        hierarchy.filter(entity => isSemanticModelClass(entity.aggregatedEntity)).forEach(entity => entity.viaExternalEntity = id);
+        for (const id of (superProfile.aggregatedEntity as SemanticModelClassProfile).profiling) {
+          if (this.entities[id]) {
+            // We are interested in external entities only
+            continue;
+          }
+          const hierarchy = await this.source.getHierarchyForLookup(id);
+          if (!hierarchy) {
+            continue;
+          }
+          hierarchy.map(entity => fullCompleteHierarchy[entity.aggregatedEntity.id] = entity);
+          // todo typings
+          // @ts-ignore
+          hierarchy.filter(entity => isSemanticModelClass(entity.aggregatedEntity)).forEach(entity => entity.viaExternalEntity = id);
 
-        const generalization = this.getFakeGeneralization(superProfile.aggregatedEntity.id, id);
-        fullCompleteHierarchy[generalization.aggregatedEntity.id] = {
-          aggregatedEntity: generalization.aggregatedEntity,
-          vocabularyChain: [this.thisVocabularyChain],
-          originatingModel: [this],
-        };
+          const generalization = this.getFakeGeneralization(superProfile.aggregatedEntity.id, id);
+          fullCompleteHierarchy[generalization.aggregatedEntity.id] = {
+            aggregatedEntity: generalization.aggregatedEntity,
+            vocabularyChain: [this.thisVocabularyChain],
+            originatingModel: [this],
+          };
+        }
       }
     }
 
@@ -440,6 +493,11 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
       // No need to extend in any way
       return this.entities[entity.aggregatedEntity.id];
     }
+
+    if (!(this.canAddEntities && this.canModify)) {
+      throw new Error("Adding entities is not allowed to this application profile.");
+    }
+
     const localFromEntity = this.entities[fromEntity] as LocalEntityWrapped<SemanticModelClass & SemanticModelClassProfile>;
 
     // Get the from entity from the source model
@@ -458,7 +516,11 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
       return this.entities[entity.aggregatedEntity.id];
     }
 
-    const startEndId = entity.aggregatedEntity.ends[0].concept;
+    if (!(this.canAddEntities && this.canModify)) {
+      throw new Error("Adding entities is not allowed to this application profile.");
+    }
+
+    const startEndId = entity.aggregatedEntity.ends[direction ? 0 : 1].concept;
     // @ts-ignore - we need to find correct entity with external entity info
     const startEnd = sourceSemanticModel.find(e => e.aggregatedEntity.id === startEndId && e.viaExternalEntity) as ExternalEntityWrapped<SemanticModelClass>;
     // @ts-ignore
@@ -480,31 +542,33 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
 
   private createRelationshipProfile(firstEnd: string, secondEnd: string, profiling: string[]) {
     const firstProfiled = profiling[0];
+    // @ts-ignore bad typing
+    const firstProfiledEntity = this.sourceEntities[firstProfiled] as LocalEntityWrapped<SemanticModelRelationship | SemanticModelRelationshipProfile>;
 
     const operation = this.operationFactory.createRelationshipProfile({
       ends: [
         {
-          iri: null,
-          name: null,
-          nameFromProfiled: null,
-          description: null,
-          descriptionFromProfiled: null,
-          usageNote: null,
-          usageNoteFromProfiled: null,
-          concept: firstEnd,
-          cardinality: null,
-          profiling: [],
-        },
-        {
-          iri: "",
+          iri: iriGetLastChunk(firstProfiledEntity.aggregatedEntity.ends[0].iri),
           name: null,
           nameFromProfiled: firstProfiled,
           description: null,
           descriptionFromProfiled: firstProfiled,
           usageNote: null,
-          usageNoteFromProfiled: firstProfiled,
+          usageNoteFromProfiled: isSemanticModelRelationshipProfile(firstProfiledEntity.aggregatedEntity) ? firstProfiled : null,
+          concept: firstEnd,
+          cardinality: firstProfiledEntity.aggregatedEntity.ends[0].cardinality, // todo intersection
+          profiling: [],
+        },
+        {
+          iri: iriGetLastChunk(firstProfiledEntity.aggregatedEntity.ends[1].iri),
+          name: null,
+          nameFromProfiled: firstProfiled,
+          description: null,
+          descriptionFromProfiled: firstProfiled,
+          usageNote: null,
+          usageNoteFromProfiled: isSemanticModelRelationshipProfile(firstProfiledEntity.aggregatedEntity) ? firstProfiled : null,
           concept: secondEnd,
-          cardinality: null,
+          cardinality: firstProfiledEntity.aggregatedEntity.ends[1].cardinality, // todo intersection
           profiling,
         }
       ]
@@ -516,15 +580,16 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
 
   private createClassProfile(profiling: string[]): LocalEntityWrapped<SemanticModelClassProfile & SemanticModelClass> {
     const firstProfiled = profiling[0];
+    const firstProfiledEntity = (this.sourceEntities[firstProfiled] ?? this.entities[firstProfiled]) as LocalEntityWrapped<SemanticModelClass | SemanticModelClassProfile>;
 
     const operation = this.operationFactory.createClassProfile({
-      iri: null,
+      iri: iriGetLastChunk(firstProfiledEntity.aggregatedEntity.iri),
       name: null,
       nameFromProfiled: firstProfiled,
       description: null,
       descriptionFromProfiled: firstProfiled,
       usageNote: null,
-      usageNoteFromProfiled: firstProfiled,
+      usageNoteFromProfiled: isSemanticModelClassProfile(firstProfiledEntity.aggregatedEntity) ? firstProfiled : null,
       profiling,
     });
     const { id } = this.profile.executeOperation(operation) as CreatedEntityOperationResult;

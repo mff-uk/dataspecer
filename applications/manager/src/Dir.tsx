@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { API_SPECIFICATION_MODEL, APPLICATION_GRAPH, LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL, V1 } from "@dataspecer/core-v2/model/known-models";
 import { LanguageString } from "@dataspecer/core/core/core-resource";
-import { ChevronDown, ChevronRight, CircuitBoard, Code, Copy, EllipsisVertical, FileText, Folder, FolderDown, Import, NotepadTextDashed, Pencil, Plus, RotateCw, Shapes, Sparkles, Trash2, WandSparkles } from "lucide-react";
+import { ChevronDown, ChevronRight, CircuitBoard, CloudDownload, Code, Copy, EllipsisVertical, FileText, Folder, FolderDown, Import, NotepadTextDashed, Pencil, Plus, RotateCw, Shapes, Sparkles, Trash2, WandSparkles } from "lucide-react";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getValidTime } from "./components/time";
@@ -17,7 +17,7 @@ import { ResourceDetail } from "./dialog/resource-detail";
 import { useToggle } from "./hooks/use-toggle";
 import { ModelIcon, createModelInstructions, modelTypeToName } from "./known-models";
 import { useBetterModal } from "./lib/better-modal";
-import { ResourcesContext, modifyUserMetadata, packageService, requestLoadPackage } from "./package";
+import { ResourcesContext, ensurePackageWorksForDSE, modifyUserMetadata, packageService, requestLoadPackage } from "./package";
 import { ModifyRespecTemplate } from "./dialog/modify-respec-template";
 import { defaultConfiguration } from "@dataspecer/core-v2/documentation-generator";
 import React from "react";
@@ -27,6 +27,7 @@ import { Autolayout } from "./dialog/autolayout";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./components/ui/tooltip";
 import { ReloadImported } from "./dialog/reload-imported";
 import { AddImported } from "./dialog/add-imported";
+import { ReloadPimWrapper } from "./dialog/reload-pim-wrapper";
 
 export function lng(text: LanguageString | undefined): string | undefined {
   return text?.["cs"] ?? text?.["en"];
@@ -147,11 +148,35 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
         </Tooltip>
       }
 
+      {resource.types.includes("https://dataspecer.com/core/model-descriptor/pim-store-wrapper") &&
+        <Tooltip>
+          <TooltipTrigger>
+            <Button asChild variant="ghost" size="icon" className="shrink-0" onClick={stopPropagation(() => openModal(ReloadPimWrapper, {id: iri}))}>
+              <span>
+                <RotateCw className="h-4 w-4" />
+              </span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{t("data specification reload")}</p>
+          </TooltipContent>
+        </Tooltip>
+      }
+
       {resource.types.includes(LOCAL_PACKAGE) &&
         <Tooltip>
           <TooltipTrigger>
             <Button asChild variant="ghost" size="icon" className="shrink-0" onClick={stopPropagation()}>
-              <a href={import.meta.env.VITE_DATA_SPECIFICATION_EDITOR + "/specification?dataSpecificationIri=" + encodeURIComponent(iri ?? "") }>
+              <a
+                href={import.meta.env.VITE_DATA_SPECIFICATION_EDITOR + "/specification?dataSpecificationIri=" + encodeURIComponent(iri ?? "") }
+                onClick={async event => {
+                  event.preventDefault();
+                  event.stopPropagation();
+
+                  await ensurePackageWorksForDSE(iri);
+                  window.location.href = import.meta.env.VITE_DATA_SPECIFICATION_EDITOR + "/specification?dataSpecificationIri=" + encodeURIComponent(iri ?? "");
+                }}
+              >
                 <Code className="h-4 w-4" />
               </a>
             </Button>
@@ -195,6 +220,7 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
           {i18n.language !== "en" && resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem asChild><a target="_blank" href={import.meta.env.VITE_BACKEND + `/preview/en/index.html?iri=` + encodeURIComponent(iri)}><FileText className="mr-2 h-4 w-4" /> {t("show-documentation")} (en)</a></DropdownMenuItem>}
           {resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem onClick={() => openModal(ModifyRespecTemplate, {iri, blobName: "respec", defaultContent: defaultConfiguration.template})}><NotepadTextDashed className="mr-2 h-4 w-4" /> {t("modify-documentation-template")}</DropdownMenuItem>}
           {resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem onClick={() => openModal(AddImported, {id: iri})}><Import className="mr-2 h-4 w-4" /> {t("import specification from url")}</DropdownMenuItem>}
+          <DropdownMenuItem asChild><a href={import.meta.env.VITE_BACKEND + "/resources/export.zip?iri=" + encodeURIComponent(iri)}><CloudDownload className="mr-2 h-4 w-4" /> {t("export")}</a></DropdownMenuItem>
           {resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem onClick={async () => {
             await packageService.copyRecursively(iri, parentIri!);
             await requestLoadPackage(parentIri!, true);
@@ -263,6 +289,10 @@ function RootPackage({iri, defaultToggle}: {iri: string, defaultToggle?: boolean
         {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
       </button>
       <h2 className="font-heading ml-3 scroll-m-20 pb-2 text-2xl font-semibold tracking-tight first:mt-0 grow"><Translate text={pckg.userMetadata?.label} /></h2>
+      <Button variant="ghost" size="sm" className="shrink=0 ml-4"
+        onClick={() => openModal(AddImported, {id: iri})}>
+        <Import className="mr-2 h-4 w-4" /> {t("import")}
+      </Button>
       <Button variant="ghost" size={"sm"} className="shrink-0 ml-4" onClick={async () => {
         const names = await openModal(RenameResourceDialog, {type: "create"});
         if (!names) return;

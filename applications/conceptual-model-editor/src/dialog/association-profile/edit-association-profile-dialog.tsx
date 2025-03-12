@@ -60,6 +60,15 @@ export const EditAssociationProfileDialog = (props: DialogProps<EditAssociationP
             />
           </ProfiledValueWithSource>
         </DialogDetailRow>
+        <DialogDetailRow detailKey={"Domain"}>
+          <SelectEntity
+            language={state.language}
+            items={state.availableDomains}
+            value={state.domain}
+            onChange={controller.setDomain}
+          />
+          <ValidationMessage value={state.domainValidation} />
+        </DialogDetailRow>
         <DialogDetailRow detailKey={t("create-class-dialog.iri")}>
           <InputIri
             iriPrefix={state.model.baseIri ?? ""}
@@ -110,15 +119,6 @@ export const EditAssociationProfileDialog = (props: DialogProps<EditAssociationP
           </ProfiledValueWithSource>
         </DialogDetailRow>
         {/*  */}
-        <DialogDetailRow detailKey={"Domain"}>
-          <SelectEntity
-            language={state.language}
-            items={state.availableDomains}
-            value={state.domain}
-            onChange={controller.setDomain}
-          />
-          <ValidationMessage value={state.domainValidation} />
-        </DialogDetailRow>
         <DialogDetailRow detailKey={"Domain cardinality"}>
           <ProfiledValue
             override={state.overrideDomainCardinality}

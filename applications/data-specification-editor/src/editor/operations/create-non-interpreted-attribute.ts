@@ -21,7 +21,7 @@ export class CreateNonInterpretedAttribute implements ComplexOperation {
 
     operation.dataPsmInterpretation = null;
     operation.dataPsmTechnicalLabel = "attribute";
-    operation.dataPsmDatatype = "https://ofn.gov.cz/zdroj/základní-datové-typy/2020-07-01/řetězec";
+    operation.dataPsmDatatype = "http://www.w3.org/2001/XMLSchema#string";
     operation.dataPsmOwner = this.ownerClass;
 
     const result = await this.store.applyOperation(schema, operation);

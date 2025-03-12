@@ -1,5 +1,5 @@
 import { t } from "../../application";
-import { Language } from "../../application/options";
+import { Language } from "../../configuration/options";
 import { DialogProps, DialogWrapper } from "../dialog-api";
 import {
   ChangeablePartOfEditNodeAttributeState,
@@ -16,12 +16,14 @@ export const createEditClassAttributesDialog = (
   visibleAttributes: AttributeData[],
   hiddenAttributes: AttributeData[],
   classIdentifier: string,
+  isDomainNodeProfile: boolean,
   language: Language
 ): DialogWrapper<EditNodeAttributesState> => {
   return {
     label: "edit-class-attributes-dialog.label",
     component: CreateEditNodeAttributesDialog,
-    state: createEditNodeAttributesState(visibleAttributes, hiddenAttributes, classIdentifier, language),
+    state: createEditNodeAttributesState(
+      visibleAttributes, hiddenAttributes, classIdentifier, isDomainNodeProfile, language),
     confirmLabel: "edit-class-attributes-dialog.btn-ok",
     cancelLabel: "edit-class-attributes-dialog.btn-cancel",
     validate: null,
@@ -69,7 +71,7 @@ type DroppableAreaProps = {
 }
 
 const getDroppableAreaStyle = (isDraggingOver: boolean): string => {
-  return `p-1.5 w-[300px] max-h-[300px] overflow-auto ${isDraggingOver ? "bg-sky-200" : "bg-slate-100"}`;
+  return `p-1.5 w-[400px] max-h-[300px] overflow-auto ${isDraggingOver ? "bg-sky-200" : "bg-slate-100"}`;
 }
 
 const DroppableArea = (props: DroppableAreaProps) => {
@@ -98,7 +100,24 @@ const DroppableArea = (props: DroppableAreaProps) => {
                   className="relative flex w-full flex-row justify-between z-50 p-[1px] mb-[2px] bg-white border border-gray-300 text-[12px]"
                   style={{...provided.draggableProps.style}}
                 >
-                  - {itemInField.name}
+                  {/* TODO RadStr: Copy-paste from the entity-node - maybe could be separate component */}
+                  <div>
+                    <span>
+                      - {itemInField.name}
+                    </span>
+                    {itemInField.profileOf === null ? null : (
+                      <>
+                        &nbsp;
+                        <span className="text-gray-600 underline">
+                          profile
+                        </span>
+                        &nbsp;of&nbsp;
+                        <span>
+                          {itemInField.profileOf}
+                        </span>
+                      </>
+                    )}
+                  </div>
                   {
                     props.hideAttribute === null ?
                       null :

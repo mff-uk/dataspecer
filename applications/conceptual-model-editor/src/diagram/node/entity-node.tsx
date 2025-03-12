@@ -44,9 +44,20 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
 
   const context = useContext(DiagramContext);
 
-  const removeAttributeFromVisualModel = (attribute: string) => () => context?.callbacks().onRemoveAttributeFromVisualModel(attribute, props.data.identifier);
-  const moveAttributeUp = (attribute: string) => () => context?.callbacks().onMoveAttributeUp(attribute, props.data.identifier);
-  const moveAttributeDown = (attribute: string) => () => context?.callbacks().onMoveAttributeDown(attribute, props.data.identifier);
+  const moveAttributeUp = (attribute: string) => () =>
+    context?.callbacks().onMoveAttributeUp(attribute, props.data.identifier);
+  const moveAttributeDown = (attribute: string) => () =>
+    context?.callbacks().onMoveAttributeDown(attribute, props.data.identifier);
+  const removeAttributeFromNode = (attribute: string) => () =>
+    context?.callbacks().onRemoveAttributeFromNode(attribute, props.data.identifier);
+  const editAttribute = (attribute: string, isAttributeProfile: boolean) => () => {
+    if(isAttributeProfile) {
+      context?.callbacks().onEditAttributeProfile(attribute, props.data.identifier);
+    }
+    else {
+      context?.callbacks().onEditAttribute(attribute, props.data.identifier);
+    }
+  }
 
   return (
     <>
@@ -86,7 +97,8 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
                 <div>
                   <button onClick={moveAttributeUp(item.identifier)}>🔼</button>
                   <button onClick={moveAttributeDown(item.identifier)}>🔽</button>
-                  <button onClick={removeAttributeFromVisualModel(item.identifier)}>🕶️</button>
+                  <button onClick={removeAttributeFromNode(item.identifier)}>🕶️</button>
+                  <button onClick={editAttribute(item.identifier, item.profileOf !== null)}>✏️</button>
                 </div>
               }
             </li>

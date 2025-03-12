@@ -1,11 +1,64 @@
 import { EntityModel } from "@dataspecer/core-v2";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { VisualNode, VisualRelationship, WritableVisualModel, isVisualNode, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelAttribute, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelAttributeUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { findSourceModelOfEntity } from "../../service/model-service";
-import { getDomainAndRangeConcepts } from "../../util/relationship-utils";
+import { getDomainAndRange, getDomainAndRangeConcepts } from "../../util/relationship-utils";
+import { isSemanticModelAttributeProfile } from "../semantic-model";
+
+/**
+ * Removes attributes from {@link visualModel} based on {@link entities} in situations,
+ * where domain in semantic model and visual model is no longer the same.
+ *
+ * This is mainly for backwards compatibility,
+ * but it can be also useful if the semantic model changes without updating the visual one.
+ */
+export function validateVisualModelAttributes(
+  entities: Record<string, AggregatedEntityWrapper>,
+  visualModel: WritableVisualModel,
+) {
+  console.log("Validating visual model's attributes visibility.")
+  for (const entity of visualModel.getVisualEntities().values()) {
+    if (isVisualNode(entity)) {
+      const newContent: string[] = [];
+      for(const attributeIdentifier of entity.content) {
+        const attribute = entities[attributeIdentifier]?.aggregatedEntity;
+        if(attribute === undefined || attribute === null) {
+          continue;
+        }
+        const isAttributeOrAttributeProfile = isSemanticModelAttribute(attribute) ||
+                                              isSemanticModelAttributeProfile(attribute) ||
+                                              isSemanticModelAttributeUsage(attribute);
+        if(!isAttributeOrAttributeProfile) {
+          continue;
+        }
+
+        let actualDomainConcept: string | null = null;
+        if(isSemanticModelAttribute(attribute)) {
+          const { domain } = getDomainAndRange(attribute);
+          actualDomainConcept = domain?.concept ?? null;
+        }
+        else {
+          const { domain } = getDomainAndRange(attribute);
+          actualDomainConcept = domain?.concept ?? null;
+        }
+
+        if(actualDomainConcept === null || actualDomainConcept !== entity.representedEntity) {
+          continue;
+        }
+
+        newContent.push(attributeIdentifier);
+      }
+
+      if(newContent.length === entity.content.length) {
+        continue;
+      }
+      visualModel.updateVisualEntity(entity.identifier, { content: newContent });
+    }
+  }
+}
 
 /**
  * Given visual model in version 0 performs migration to version 1, changing content of the model.

@@ -37,11 +37,11 @@ export const ModifyRespecTemplate = ({ isOpen, resolve, iri, blobName, defaultCo
   return (
     // Forbid modal auto close
     <Modal open={isOpen} onOpenChange={state => state || resolve()}>
-      <ModalContent className="max-w-5xl">
+      <ModalContent className="max-w-none h-[100%]">
         <ModalHeader>
           <ModalTitle>Modify Respec Template</ModalTitle>
         </ModalHeader>
-        <ModalBody>
+        <ModalBody className="overflow-hidden grow flex flex-col">
           {data !== undefined && <MonacoEditor refs={monaco} defaultValue={data ?? defaultContent} language="handlebars" />}
         </ModalBody>
         <ModalFooter>

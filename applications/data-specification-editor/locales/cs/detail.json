@@ -46,6 +46,9 @@
   "IRI": "IRI",
   "iri parameters help": "Instance tříd (data) můžou být identifikována svým konkrétním IRI. Například Praha, jako instance města, může mít své IRI http://example.com/Praha. Tato možnost nastavuje, zdali je takový identifikátor v datech vyžadován, což má vliv na validaci dat a jejich reprezetaci například v RDF, kdy se resourcy bez IRI projevují jako blank nodes.",
   "is codelist": "je číselníkem",
+  "json": {
+    "use key value for lang string": "Použít formát JSON-LD language map."
+  },
   "label max": "max",
   "label min": "min",
   "label regex for iri": "Regulární výraz IRI instancí",
@@ -95,10 +98,12 @@
   "title association": "Asociace",
   "title attribute": "Atribut",
   "title cardinality": "Kardinalita",
+  "title checkbox xml attribute": "Použít jako XML atribut",
   "title class": "Třída",
   "title data type": "Datový typ",
   "title schema": "Schéma",
   "title to class": "Odkazovaná třída",
+  "title xml attribute": "XML atribut",
   "wikidata": {
     "error": "Detail není dostupný."
   },

@@ -342,6 +342,62 @@ test("Test change attribute order - change multi - attribute usage", () => {
   expect(actualContent[5]).toBe(attributes[2]);
 });
 
+test("Test change attribute order - change multi - attribute profile", () => {
+  const {
+    visualModel,
+    models,
+    cmeModels
+  } = prepareModelWithFourNodes();
+  const size = 6;
+  const attributes: string[] = [];
+  //
+  const originalAttribute = createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, "attribute-0");
+  addSemanticAttributeToVisualModelAction(
+    noActionNotificationServiceWriter, visualModel, "0", originalAttribute.identifier, null, false);
+  attributes.push(originalAttribute.identifier);
+  for(let i = 1; i < size; i++) {
+    const newAttributeProfile = createSemanticAttributeProfileTestVariant(
+      models, originalAttribute.identifier, "0", cmeModels[0].dsIdentifier);
+    addSemanticAttributeToVisualModelAction(
+      noActionNotificationServiceWriter, visualModel, "0", newAttributeProfile.identifier, null, false);
+    attributes.push(newAttributeProfile.identifier);
+  }
+  expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content.length).toEqual(size);
+  for(let i = 0; i < size; i++) {
+    expect((visualModel.getVisualEntityForRepresented("0") as VisualNode).content[i]).toBe(attributes[i]);
+  }
+  //
+  setAttributePositionAction(
+    noActionNotificationServiceWriter,
+    visualModel,
+    visualModel.getVisualEntityForRepresented("0")!.identifier,
+    attributes[2],
+    4);
+
+  let actualContent = (visualModel.getVisualEntityForRepresented("0") as VisualNode).content;
+  expect(actualContent[0]).toBe(attributes[0]);
+  expect(actualContent[1]).toBe(attributes[1]);
+  expect(actualContent[2]).toBe(attributes[3]);
+  expect(actualContent[3]).toBe(attributes[4]);
+  expect(actualContent[4]).toBe(attributes[2]);
+  expect(actualContent[5]).toBe(attributes[5]);
+  //
+  setAttributePositionAction(
+    noActionNotificationServiceWriter,
+    visualModel,
+    visualModel.getVisualEntityForRepresented("0")!.identifier,
+    attributes[5],
+    1);
+
+  actualContent = (visualModel.getVisualEntityForRepresented("0") as VisualNode).content;
+  expect(actualContent[0]).toBe(attributes[0]);
+  expect(actualContent[1]).toBe(attributes[5]);
+  expect(actualContent[2]).toBe(attributes[1]);
+  expect(actualContent[3]).toBe(attributes[3]);
+  expect(actualContent[4]).toBe(attributes[4]);
+  expect(actualContent[5]).toBe(attributes[2]);
+});
+
 // Heavily inspired by createSemanticAttribute
 // We are doing this so:
 // 1) We don't have to export the createSemanticAttribute method
@@ -419,6 +475,39 @@ function createSemanticAttributeUsageTestVariant(
 
   return {
     identifier: newAttribute.id,
+    model,
+  };
+}
+
+function createSemanticAttributeProfileTestVariant(
+  models: Map<string, EntityModel>,
+  domainAttribute: string,
+  domainConceptIdentifier: string,
+  modelDsIdentifier: string,
+) {
+  const range = representRdfsLiteral();
+
+  const model: InMemorySemanticModel = models.get(modelDsIdentifier) as InMemorySemanticModel;
+  const result = createCmeRelationshipProfile(
+    model, {
+      model: modelDsIdentifier,
+      profileOf: ["Does", "Not", "Matter"],
+      iri: generateIriForName(domainAttribute),
+      name: null,
+      nameSource: null,
+      description: null,
+      descriptionSource: null,
+      usageNote: null,
+      usageNoteSource: null,
+      //
+      domain: domainConceptIdentifier,
+      domainCardinality: null,
+      range: range.identifier,
+      rangeCardinality: null,
+    });
+
+  return {
+    identifier: result.identifier,
     model,
   };
 }

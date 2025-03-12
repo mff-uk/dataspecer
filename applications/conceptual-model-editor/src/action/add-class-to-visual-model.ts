@@ -22,7 +22,7 @@ export async function addSemanticClassToVisualModelAction(
   position: { x: number, y: number } | null,
 ) {
   const entities = graph.aggregatorView.getEntities();
-  if(position === null) {
+  if (position === null) {
     position = (await findPositionForNewNodesUsingLayouting(notifications, diagram, graph, visualModel, classes, [entityIdentifier]))[entityIdentifier];
   }
 
@@ -32,7 +32,9 @@ export async function addSemanticClassToVisualModelAction(
       // TODO PRQuestion: How to handle this? Put it into the addVisualNode?
       const content = getVisualNodeContentBasedOnExistingEntities(
         classes, entity);
-      addVisualNode(visualModel, entity, modelIdentifier, position, content);
+      addVisualNode(
+        visualModel,
+        entity, modelIdentifier, position, content);
       addRelatedEntitiesAction(
         notifications, graph, visualModel, Object.values(entities),
         graph.models, entity);

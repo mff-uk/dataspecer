@@ -3,6 +3,7 @@ import { EntityModel } from "../../entity-model/entity-model";
 import { VisualEntity } from "../../visual-model/visual-entity";
 import { VisualModel, isVisualModel } from "../../visual-model/visual-model";
 import { SEMANTIC_MODEL_CLASS, SEMANTIC_MODEL_GENERALIZATION, SEMANTIC_MODEL_RELATIONSHIP, SemanticModelClass, SemanticModelRelationship, isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationship } from "../concepts";
+import { SemanticEntityIdMerger, StrongerWinsSemanticEntityIdMerger } from "../merge/merger";
 import { createDefaultProfileEntityAggregator, ProfileEntityAggregator } from "../profile/aggregator/aggregator";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "../profile/concepts";
 import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "../usage/concepts";
@@ -81,9 +82,14 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
     models: Map<SupportedModels, () => void> = new Map();
 
     /**
-     * Contains all entities from all models by their ID.
+     * Contains all entities from all models by their ID, merged together.
      */
     entityCache: Record<string, EntityInModel> = {};
+
+    /**
+     * Entities per model before merge.
+     */
+    entityCachePerModel: Map<SupportedModels, Record<string, EntityInModel>> = new Map();
 
     /**
      * Contains all entities that depend on the given entity by their ID.
@@ -109,6 +115,8 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
     profileEntityAggregator: ProfileEntityAggregator =
         createDefaultProfileEntityAggregator();
 
+    entityMerger: SemanticEntityIdMerger = new StrongerWinsSemanticEntityIdMerger();
+
     addModel(model: SupportedModels) {
         if (this.models.has(model)) {
             throw new Error("Model already added.");
@@ -126,6 +134,8 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
             this.models.set(model, unsubscribe);
             return;
         }
+
+        this.entityCachePerModel.set(model, {});
 
         const callback = (updated: Record<string, Entity>, removed: string[]) => {
             if (!this.models.has(model)) {
@@ -161,6 +171,7 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
         }
 
         this.notifyBaseModel(model, [], Object.keys(model.getEntities()));
+        this.entityCachePerModel.delete(model);
         // TODO: shouldn't `unsubscribe()` be called?
     }
 
@@ -187,6 +198,35 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
         return [];
     }
 
+    private updateEntityCacheForId(id: string) {
+        const entities = [...this.entityCachePerModel.values()].map(model => model[id]).filter(e => e) as EntityInModel[];
+        if (entities.length === 0) {
+            delete this.entityCache[id];
+        } else if (entities.length === 1) {
+            this.entityCache[id] = entities[0] as EntityInModel;
+        } else { // More than one
+            const firstEntity = entities[0] as EntityInModel;
+
+            // We need to merge the entities
+            if (isSemanticModelClass(firstEntity.entity)) {
+                const merged = this.entityMerger.mergeClasses(entities.map(e => e.entity as SemanticModelClass));
+                this.entityCache[id] = {
+                    entity: merged,
+                    model: firstEntity.model, // todo
+                };
+            } else if (isSemanticModelRelationship(firstEntity.entity)) {
+                const merged = this.entityMerger.mergeRelationships(entities.map(e => e.entity as SemanticModelRelationship));
+                this.entityCache[id] = {
+                    entity: merged,
+                    model: firstEntity.model, // todo
+                };
+            } else {
+                // Don't know how to merge this...
+                this.entityCache[id] = firstEntity;
+            }
+        }
+    }
+
     /**
      * Temporary function that notifies base model about changes. We suppose that every model is a dependency of the base model.
      */
@@ -196,10 +236,12 @@ class SemanticModelAggregatorInternal implements SemanticModelAggregator {
 
         // Update entity cache
         for (const entity of updated) {
-            this.entityCache[entity.id] = { entity, model: fromModel };
+            this.entityCachePerModel.get(fromModel)![entity.id] = { entity, model: fromModel };
+            this.updateEntityCacheForId(entity.id);
         }
         for (const id of removed) {
-            delete this.entityCache[id];
+            delete this.entityCachePerModel.get(fromModel)![id];
+            this.updateEntityCacheForId(id);
         }
 
         // Create dependency cache.

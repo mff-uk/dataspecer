@@ -19,7 +19,7 @@ export function propagateLanguageStringRequiredLanguages(
       continue;
     }
     classData.properties.forEach(property => {
-      const conceptualProperty = propertyMap[property.pimIri];
+      const conceptualProperty = propertyMap(property.pimIri, property.isReverse);
       if (conceptualProperty) {
         for (const dataType of property.dataTypes) {
           if (dataType.isAttribute()) {

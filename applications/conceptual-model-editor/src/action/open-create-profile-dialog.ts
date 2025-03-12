@@ -10,12 +10,11 @@ import {
   isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { WritableVisualModel, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { DialogApiContextType } from "../dialog/dialog-service";
-import { Options } from "../application/options";
+import { Options } from "../configuration/options";
 import { ClassesContextType } from "../context/classes-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
@@ -26,13 +25,13 @@ import { createNewAssociationProfileDialog, createNewAssociationProfileDialogSta
 import { createEditAttributeProfileDialog, createNewAttributeProfileDialogState } from "../dialog/attribute-profile/create-new-attribute-profile-dialog-state";
 import { EditClassProfileDialogState } from "../dialog/class-profile/edit-class-profile-dialog-controller";
 import { createNewClassProfileDialog, createNewProfileClassDialogState } from "../dialog/class-profile/create-new-class-profile-dialog-state";
-import { EntityModel } from "@dataspecer/core-v2";
-import { createCmeClassProfile } from "../dataspecer/cme-model/operation/create-cme-class-profile";
-import { createCmeRelationshipProfile } from "../dataspecer/cme-model/operation/create-cme-relationship-profile";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
+import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
+import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 
 export function openCreateProfileDialogAction(
+  cmeExecutor: CmeModelOperationExecutor,
   options: Options,
   dialogs: DialogApiContextType,
   notifications: UseNotificationServiceWriterType,
@@ -55,17 +54,13 @@ export function openCreateProfileDialogAction(
     const state = createNewProfileClassDialogState(
       classes, graph, visualModel, options.language, [entity.id]);
     const onConfirm = (state: EditClassProfileDialogState) => {
-      const createResult = createClassProfile(state, graph.models);
-      if (createResult === null) {
-        return;
-      }
-      // Add to visual model if possible.
+      const result = createClassProfile(state, cmeExecutor);
       if (isWritableVisualModel(visualModel)) {
         addSemanticClassProfileToVisualModelAction(
           notifications, graph, classes, visualModel, diagram,
-          createResult.identifier, createResult.model.getId(),
+          result.identifier, result.model,
           position);
-      }
+      };
     };
     dialogs.openDialog(createNewClassProfileDialog(state, onConfirm));
     return;
@@ -77,8 +72,12 @@ export function openCreateProfileDialogAction(
     const state = createNewAttributeProfileDialogState(
       classes, graph, visualModel, options.language, [entity.id]);
     const onConfirm = (state: EditAttributeProfileDialogState) => {
-      createRelationshipProfile(state, graph.models);
-      // We do not update visual model here as attribute is part of  a class.
+      const result = createRelationshipProfile(state, cmeExecutor);
+      if (result?.identifier !== undefined) {
+        addSemanticAttributeToVisualModelAction(
+          notifications, visualModel, state.domain.identifier,
+          result.identifier, null, true);
+      }
     };
     dialogs.openDialog(createEditAttributeProfileDialog(state, onConfirm));
     return;
@@ -90,15 +89,12 @@ export function openCreateProfileDialogAction(
     const state = createNewAssociationProfileDialogState(
       classes, graph, visualModel, options.language, [entity.id]);
     const onConfirm = (state: EditAssociationProfileDialogState) => {
-      const createResult = createRelationshipProfile(state, graph.models);
-      if (createResult === null) {
-        return;
-      }
+      const result = createRelationshipProfile(state, cmeExecutor)
       // Add to visual model if possible.
       if (isWritableVisualModel(visualModel)) {
         addSemanticRelationshipProfileToVisualModelAction(
           notifications, graph, visualModel,
-          createResult.identifier, createResult.model.getId());
+          result.identifier, result.model);
       }
     };
     dialogs.openDialog(createNewAssociationProfileDialog(state, onConfirm));
@@ -115,13 +111,12 @@ export function openCreateProfileDialogAction(
 
 const createClassProfile = (
   state: EditClassProfileDialogState,
-  models: Map<string, EntityModel>,
+  cmeExecutor: CmeModelOperationExecutor,
 ): {
   identifier: string,
-  model: InMemorySemanticModel,
-} | null => {
-  const model = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
-  const result = createCmeClassProfile({
+  model: string,
+} => {
+  const result = cmeExecutor.createClassProfile({
     model: state.model.dsIdentifier,
     profileOf: state.profiles.map(item => item.identifier),
     iri: state.iri,
@@ -134,22 +129,21 @@ const createClassProfile = (
     usageNote: state.usageNote,
     usageNoteSource: state.overrideUsageNote ? null :
       state.usageNoteSource.identifier ?? null,
-  }, [...models.values() as any]);
+  });
   return {
     identifier: result.identifier,
-    model,
+    model: state.model.dsIdentifier,
   };
 }
 
 const createRelationshipProfile = (
   state: EditAttributeProfileDialogState | EditAssociationProfileDialogState,
-  models: Map<string, EntityModel>,
+  cmeExecutor: CmeModelOperationExecutor,
 ): {
   identifier: string,
-  model: InMemorySemanticModel,
-} | null => {
-  const model: InMemorySemanticModel = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
-  const result = createCmeRelationshipProfile({
+  model: string,
+} => {
+  const result = cmeExecutor.createRelationshipProfile({
     model: state.model.dsIdentifier,
     profileOf: state.profiles.map(item => item.identifier),
     iri: state.iri,
@@ -164,12 +158,16 @@ const createRelationshipProfile = (
       state.usageNoteSource.identifier ?? null,
     //
     domain: state.domain.identifier,
-    domainCardinality: state.domainCardinality.cardinality,
+    domainCardinality:
+      state.overrideDomainCardinality ?
+        state.domainCardinality.cardinality : null,
     range: state.range.identifier,
-    rangeCardinality: state.rangeCardinality.cardinality,
-  }, [...models.values() as any]);
+    rangeCardinality:
+      state.overrideRangeCardinality ?
+        state.rangeCardinality.cardinality : null,
+  });
   return {
     identifier: result.identifier,
-    model,
+    model: state.model.dsIdentifier,
   };
 }
