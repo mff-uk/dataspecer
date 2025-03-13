@@ -49,7 +49,6 @@ import { addGroupToVisualModelAction } from "./add-group-to-visual-model";
 import { removeTopLevelGroupFromVisualModelAction } from "./remove-group-from-visual-model";
 import { openCreateClassDialogAndCreateAssociationAction, openCreateClassDialogAndCreateGeneralizationAction } from "./open-create-class-dialog-with-edge";
 import { removeAttributesFromVisualModelAction } from "./remove-attributes-from-visual-model";
-import { addSemanticAttributeToVisualNodeAction } from "./add-semantic-attribute-to-visual-node";
 import { ShiftAttributeDirection, shiftAttributePositionAction } from "./shift-attribute";
 import { openEditNodeAttributesDialogAction } from "./open-edit-node-attributes-dialog";
 import { EditAttributeDialogState } from "../dialog/attribute/edit-attribute-dialog-controller";

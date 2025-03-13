@@ -1,7 +1,6 @@
 import { VisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 
-
 // TODO RadStr: Document
 export function addSemanticAttributeToVisualNodeAction(
   notifications: UseNotificationServiceWriterType,

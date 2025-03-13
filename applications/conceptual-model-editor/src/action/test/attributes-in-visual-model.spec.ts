@@ -308,7 +308,7 @@ test("Test change attribute order - change multi - attribute usage", () => {
   for(let i = 1; i < size; i++) {
     const newAttributeUsage = createSemanticAttributeUsageTestVariant(
       models, originalAttribute.identifier, "0", cmeModels[0].dsIdentifier, `attribute-${i}`);
-      addSemanticAttributeToVisualNodeFromDomainIdentifier(visualModel, "0", newAttributeUsage.identifier, null);
+    addSemanticAttributeToVisualNodeFromDomainIdentifier(visualModel, "0", newAttributeUsage.identifier, null);
     attributes.push(newAttributeUsage.identifier);
   }
   //
@@ -359,7 +359,7 @@ test("Test change attribute order - change multi - attribute profile", () => {
   for(let i = 1; i < size; i++) {
     const newAttributeProfile = createSemanticAttributeProfileTestVariant(
       models, originalAttribute.identifier, "0", cmeModels[0].dsIdentifier);
-      addSemanticAttributeToVisualNodeFromDomainIdentifier(visualModel, "0", newAttributeProfile.identifier, null);
+    addSemanticAttributeToVisualNodeFromDomainIdentifier(visualModel, "0", newAttributeProfile.identifier, null);
     attributes.push(newAttributeProfile.identifier);
   }
   expect((visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode).content.length).toEqual(size);

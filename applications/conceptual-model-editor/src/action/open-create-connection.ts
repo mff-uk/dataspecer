@@ -140,12 +140,12 @@ function openRelationshipOrGeneralizationDialog(
 ) {
   const onConfirm = (state: CreateConnectionState) => {
     switch (state.type) {
-      case ConnectionType.Association:
-        createRelationship(cmeExecutor, visualExecutor, state, visualSource, visualTarget);
-        break;
-      case ConnectionType.Generalization:
-        createGeneralization(cmeExecutor, visualExecutor, state, visualSource, visualTarget);
-        break;
+    case ConnectionType.Association:
+      createRelationship(cmeExecutor, visualExecutor, state, visualSource, visualTarget);
+      break;
+    case ConnectionType.Generalization:
+      createGeneralization(cmeExecutor, visualExecutor, state, visualSource, visualTarget);
+      break;
     }
   };
 

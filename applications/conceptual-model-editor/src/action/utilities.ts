@@ -5,7 +5,7 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { configuration, createLogger } from "../application";
 import { ReactflowDimensionsConstantEstimator, XY, placePositionOnGrid } from "@dataspecer/layout";
-import { Position, VisualGroup, VisualModel, WritableVisualModel, isVisualNode, isVisualGroup, isVisualRelationship, VisualNode } from "@dataspecer/core-v2/visual-model";
+import { Position, VisualGroup, VisualModel, WritableVisualModel, isVisualNode, isVisualGroup, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
 import { Edge, EdgeType, Node } from "../diagram";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { ModelGraphContextType } from "../context/model-context";
@@ -14,7 +14,6 @@ import { ExtensionType, VisibilityFilter, extendSelectionAction } from "./extend
 import { Selections } from "./filter-selection-action";
 import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelAttributeUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { addVisualRelationships } from "../dataspecer/visual-model/operation/add-visual-relationships";
 
 const LOG = createLogger(import.meta.url);
 

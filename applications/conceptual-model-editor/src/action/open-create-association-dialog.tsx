@@ -12,7 +12,7 @@ import { createCreateAssociationDialogState, createNewAssociationDialog } from "
 import { EditAssociationDialogState } from "../dialog/association/edit-association-dialog-controller";
 import { EntityModel } from "@dataspecer/core-v2";
 import { CreatedSemanticEntityData } from "./open-create-class-dialog";
-import { addVisualRelationships, addVisualRelationshipsWithSpecifiedVisualEnds } from "../dataspecer/visual-model/operation/add-visual-relationships";
+import { addVisualRelationshipsWithSpecifiedVisualEnds } from "../dataspecer/visual-model/operation/add-visual-relationships";
 
 const LOG = createLogger(import.meta.url);
 

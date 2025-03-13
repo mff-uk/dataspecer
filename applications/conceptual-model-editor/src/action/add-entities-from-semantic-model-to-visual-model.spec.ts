@@ -536,7 +536,10 @@ const createTestDiagramForNodePlacement = () => {
         openGroupMenu: function (_groupIdentifier: string, _canvasPosition: Position): void {
           throw new Error("Function not implemented.");
         },
-        highlightNodesInExplorationModeFromCatalog: function (_nodeIdentifiers: string[], modelOfClassWhichStartedHighlighting: string): void {
+        highlightNodesInExplorationModeFromCatalog: function (
+          _nodeIdentifiers: string[],
+          _modelOfClassWhichStartedHighlighting: string
+        ): void {
           throw new Error("Function not implemented.");
         }
       }

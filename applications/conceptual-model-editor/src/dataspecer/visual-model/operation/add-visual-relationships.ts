@@ -1,4 +1,4 @@
-import { isVisualNode, Position, VisualEntity, VisualNode, Waypoint, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualNode, Position, VisualEntity, Waypoint, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { DataspecerError } from "../../dataspecer-error";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
 

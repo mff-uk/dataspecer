@@ -1,5 +1,5 @@
 /**
- * Tets {@link shiftAttributePositionAction} and {@link addSemanticAttributeToVisualNodeAction} as side-effect.
+ * Tets {@link shiftAttributePositionAction} and {@link addSemanticAttributeToVisualModelAction} as side-effect.
  */
 
 import { expect, test } from "vitest";
@@ -8,7 +8,6 @@ import { EntityModel } from "@dataspecer/core-v2";
 import { entityModelsMapToCmeVocabulary } from "../dataspecer/semantic-model/semantic-model-adapter";
 import { CreatedEntityOperationResult, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { addSemanticAttributeToVisualNodeAction } from "./add-semantic-attribute-to-visual-node";
 import { ClassesContextType } from "../context/classes-context";
 import { representRdfsLiteral } from "../dialog/utilities/dialog-utilities";
 import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
