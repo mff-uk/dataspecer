@@ -1,10 +1,10 @@
 import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { EntityDsIdentifier, EntityReference, ModelDsIdentifier } from "../entity-model";
-import { addVisualRelationship } from "./operation/add-visual-relationship";
 import { addVisualNodeProfile } from "./operation/add-visual-node-profile";
 import { addVisualNode } from "./operation/add-visual-node";
 import { deleteEntityModel } from "./operation/delete-entity-model";
 import { updateVisualNodeProfiles } from "./operation/update-visual-node-profiles";
+import { addVisualRelationships } from "./operation/add-visual-relationships";
 
 export interface VisualModelOperationExecutor {
 
@@ -74,7 +74,7 @@ implements VisualModelOperationExecutor {
     child: EntityDsIdentifier,
     parent: EntityDsIdentifier,
   ): void {
-    addVisualRelationship(this.visualModel,
+    addVisualRelationships(this.visualModel,
       represented.model, represented.identifier, child, parent);
   }
 
@@ -99,8 +99,8 @@ implements VisualModelOperationExecutor {
     source: EntityDsIdentifier,
     target: EntityDsIdentifier,
   ): void {
-    addVisualRelationship(this.visualModel,
-      represented.model, represented.identifier, source, target);
+    addVisualRelationships(this.visualModel,
+      represented.model, represented.identifier, [source], [target]);
   }
 
   updateProfile(

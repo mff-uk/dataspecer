@@ -30,10 +30,10 @@ export function updateVisualAttributesBasedOnSemanticChanges(
   }
 }
 
-function getDomainNode(
+function getDomainNodes(
   visualModel: VisualModel,
   entity: SemanticModelRelationship | SemanticModelRelationshipUsage | SemanticModelRelationshipProfile
-): VisualNode | null {
+): VisualNode[] {
   let domainConcept;
   if(isSemanticModelAttribute(entity)) {
     const { domain } = getDomainAndRange(entity);
@@ -44,17 +44,20 @@ function getDomainNode(
     domainConcept = domain?.concept;
   }
   if(domainConcept === undefined || domainConcept === null) {
-    return null;
+    return [];
   }
 
-  const node = visualModel.getVisualEntityForRepresented(domainConcept);
+  const nodes = visualModel.getVisualEntitiesForRepresented(domainConcept);
 
-  if (node === null || !isVisualNode(node)) {
+  if (nodes.length === 0 || !isVisualNode(nodes[0])) {
     // There is no visual for the attribute's domain.
-    return null;
+    return [];
   }
 
-  return node;
+  // This should be fine, since if we there is some incosistency
+  // (that is first entity is VisualNode, rest is something else)
+  // then we have much bigger issue somewhere else.
+  return nodes as VisualNode[];
 }
 
 function handleDeletionOfSemanticAttribute(
@@ -65,13 +68,12 @@ function handleDeletionOfSemanticAttribute(
                         isSemanticModelAttributeProfile(deletedEntity) ||
                         isSemanticModelAttributeUsage(deletedEntity);
   if(isAttributeOrAttributeProfile) {
-    const node = getDomainNode(visualModel, deletedEntity);
-    if(node === null) {
-      return;
-    }
+    const nodes = getDomainNodes(visualModel, deletedEntity);
 
-    const newContent = node.content.filter(attributeInNode => attributeInNode !== deletedEntity.id);
-    visualModel.updateVisualEntity(node.identifier, {content: newContent});
+    for (const node of nodes) {
+      const newContent = node.content.filter(attributeInNode => attributeInNode !== deletedEntity.id);
+      visualModel.updateVisualEntity(node.identifier, {content: newContent});
+    }
   }
 }
 
@@ -94,25 +96,29 @@ function handleUpdateOfSemanticAttribute(
     return;
   }
 
-  const previousNode = getDomainNode(visualModel, previousEntity);
-  if(previousNode === null) {
+  const previousNodes = getDomainNodes(visualModel, previousEntity);
+  if(previousNodes === null) {
     return;
   }
-  const nextNode = getDomainNode(visualModel, nextEntity);
-  if(nextNode === null) {
+  const nextNodes = getDomainNodes(visualModel, nextEntity);
+  if(nextNodes === null) {
     return;
   }
-  if(previousNode === nextNode) {
+  if(previousNodes === nextNodes) {
     return;
   }
 
-  const newContentForPrevious = previousNode.content.filter(attributeInNode => attributeInNode !== previousEntity.id);
-  visualModel.updateVisualEntity(previousNode.identifier, {content: newContentForPrevious});
+  for (const previousNode of previousNodes) {
+    const newContentForPrevious = previousNode.content.filter(attributeInNode => attributeInNode !== previousEntity.id);
+    visualModel.updateVisualEntity(previousNode.identifier, {content: newContentForPrevious});
+  }
 
-  visualModel.updateVisualEntity(nextNode.identifier, {content: nextNode.content.concat([previousEntity.id])});
+  for (const nextNode of nextNodes) {
+    visualModel.updateVisualEntity(nextNode.identifier, {content: nextNode.content.concat([previousEntity.id])});
+  }
 
   // TODO RadStr: Debug
-  console.info("Updating attribute", {previousNode, nextNode});
+  console.info("Updating attribute", {previousNodes, nextNodes});
 }
 
 /**

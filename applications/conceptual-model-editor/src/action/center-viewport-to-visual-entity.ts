@@ -3,9 +3,11 @@ import { ModelGraphContextType } from "../context/model-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { SemanticModelRelationship, isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
-import { SemanticModelRelationshipUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelAttributeUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ClassesContextType } from "../context/classes-context";
 import { getDomainAndRange } from "../util/relationship-utils";
+import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
 
 /**
  * Center diagram editor view to the visual entity represented by given semantic entity,

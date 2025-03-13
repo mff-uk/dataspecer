@@ -13,7 +13,7 @@ import { ClassesContextType } from "../context/classes-context";
 import { representRdfsLiteral } from "../dialog/utilities/dialog-utilities";
 import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
 import { ShiftAttributeDirection, shiftAttributePositionAction } from "./shift-attribute";
-import { noActionNotificationServiceWriter } from "../notification/notification-service-context";
+import { notificationMockup } from "./test/actions-test-suite";
 
 test("Test shift attribute - up and down", () => {
   const {
@@ -27,23 +27,23 @@ test("Test shift attribute - up and down", () => {
     const createdAttributeData = createSemanticAttributeTestVariant(models, `${i}`, cmeModels[0].dsIdentifier, `attribute-${i}`);
     newAttributes.push(createdAttributeData);
     addSemanticAttributeToVisualModelAction(
-      noActionNotificationServiceWriter, visualModel, "0", createdAttributeData.identifier, null, false);
+      notificationMockup, visualModel, "0", createdAttributeData.identifier, null, false);
   }
-  let nodeWithAttributes = visualModel.getVisualEntityForRepresented("0") as VisualNode;
+  let nodeWithAttributes = visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode;
   expect(nodeWithAttributes.content).toEqual(newAttributes.map(attribute => attribute.identifier));
   //
   shiftAttributePositionAction(
-    noActionNotificationServiceWriter, visualModel, nodeWithAttributes.identifier,
+    notificationMockup, visualModel, nodeWithAttributes.identifier,
     newAttributes.at(-1)!.identifier, ShiftAttributeDirection.Up, 1);
-  nodeWithAttributes = visualModel.getVisualEntityForRepresented("0") as VisualNode;
+  nodeWithAttributes = visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode;
   expect(nodeWithAttributes.content[0]).toBe(newAttributes[0].identifier);
   expect(nodeWithAttributes.content[1]).toBe(newAttributes[2].identifier);
   expect(nodeWithAttributes.content[2]).toBe(newAttributes[1].identifier);
   //
   shiftAttributePositionAction(
-    noActionNotificationServiceWriter, visualModel, nodeWithAttributes.identifier,
+    notificationMockup, visualModel, nodeWithAttributes.identifier,
     newAttributes.at(-1)!.identifier, ShiftAttributeDirection.Down, 1);
-  nodeWithAttributes = visualModel.getVisualEntityForRepresented("0") as VisualNode;
+  nodeWithAttributes = visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode;
   expect(nodeWithAttributes.content).toEqual(newAttributes.map(attribute => attribute.identifier));
 });
 
@@ -59,23 +59,23 @@ test("Test shift attribute - up and down over boundary", () => {
     const createdAttributeData = createSemanticAttributeTestVariant(models, `${i}`, cmeModels[0].dsIdentifier, `attribute-${i}`);
     newAttributes.push(createdAttributeData);
     addSemanticAttributeToVisualModelAction(
-      noActionNotificationServiceWriter, visualModel, "0", createdAttributeData.identifier, null, false);
+      notificationMockup, visualModel, "0", createdAttributeData.identifier, null, false);
   }
-  let nodeWithAttributes = visualModel.getVisualEntityForRepresented("0") as VisualNode;
+  let nodeWithAttributes = visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode;
   expect(nodeWithAttributes.content).toEqual(newAttributes.map(attribute => attribute.identifier));
   //
   shiftAttributePositionAction(
-    noActionNotificationServiceWriter, visualModel, nodeWithAttributes.identifier,
+    notificationMockup, visualModel, nodeWithAttributes.identifier,
     newAttributes.at(-1)!.identifier, ShiftAttributeDirection.Down, 1);
-  nodeWithAttributes = visualModel.getVisualEntityForRepresented("0") as VisualNode;
+  nodeWithAttributes = visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode;
   expect(nodeWithAttributes.content[0]).toBe(newAttributes[2].identifier);
   expect(nodeWithAttributes.content[1]).toBe(newAttributes[0].identifier);
   expect(nodeWithAttributes.content[2]).toBe(newAttributes[1].identifier);
   //
   shiftAttributePositionAction(
-    noActionNotificationServiceWriter, visualModel, nodeWithAttributes.identifier,
+    notificationMockup, visualModel, nodeWithAttributes.identifier,
     newAttributes.at(-1)!.identifier, ShiftAttributeDirection.Up, 1);
-  nodeWithAttributes = visualModel.getVisualEntityForRepresented("0") as VisualNode;
+  nodeWithAttributes = visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode;
   expect(nodeWithAttributes.content).toEqual(newAttributes.map(attribute => attribute.identifier));
 });
 

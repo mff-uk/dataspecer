@@ -1062,26 +1062,6 @@ async function extendThroughClassProfileChildren(
 
 //
 //
-const getIdentifiersForEntity = (
-  entityIdentifier: string,
-  shouldReturnVisualIdentifiers: boolean,
-  visualModel: VisualModel | null
-): string[] | null => {
-  if(shouldReturnVisualIdentifiers) {
-    if(visualModel === null) {
-      return null;
-    }
-
-    const visualEntities = visualModel.getVisualEntitiesForRepresented(entityIdentifier);
-    if(visualEntities.length === 0) {
-      return null;
-    }
-
-    return visualEntities.map(visualEntity => visualEntity.identifier);
-  }
-
-  return [entityIdentifier];
-}
 
 /**
  * @param shouldReturnOnlyTheProfileRelationships
@@ -1102,7 +1082,7 @@ export function getSelectionForWholeSemanticModel(
   const entities = Object.values(semanticModel.getEntities());
   let relationshipEntities: Entity[] = [];
   entities.forEach(entity => {
-    const identifier = getIdentifierForEntity(entity.id, false, visualModel);
+    const identifier = entity.id;
     if(identifier !== null) {
       const isClassOrClassProfile = isSemanticModelClass(entity) ||
                                     isSemanticModelClassUsage(entity) ||

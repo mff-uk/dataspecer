@@ -13,7 +13,6 @@ import { ModelGraphContext, type ModelGraphContextType } from "../context/model-
 import { type DiagramCallbacks, type Waypoint as DiagramWaypoint, Edge, Position, useDiagram } from "../diagram/";
 import type { UseDiagramType } from "../diagram/diagram-hook";
 import { type Options, useOptions } from "../configuration/options";
-import { centerViewportToVisualEntityAction } from "./center-viewport-to-visual-entity";
 import { openDetailDialogAction } from "./open-detail-dialog";
 import { openModifyDialogAction } from "./open-modify-dialog";
 import { openCreateProfileDialogAction } from "./open-create-profile-dialog";
@@ -26,7 +25,6 @@ import { addSemanticGeneralizationToVisualModelAction } from "./add-generalizati
 import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
 import { EntityToDelete, checkIfIsAttributeOrAttributeProfile, convertToEntitiesToDeleteType, findTopLevelGroupInVisualModel, getSelections, getViewportCenterForClassPlacement, setSelectionsInDiagram } from "./utilities";
-import { removeFromVisualModelAction } from "./remove-from-visual-model";
 import { removeFromSemanticModelsAction } from "./remove-from-semantic-model";
 import { openCreateAttributeDialogAction } from "./open-create-attribute-dialog";
 import { openCreateAssociationDialogAction } from "./open-create-association-dialog";
@@ -67,6 +65,7 @@ import { createCmeModelOperationExecutor } from "../dataspecer/cme-model/cme-mod
 import { createVisualNodeDuplicateAction } from "./create-visual-node-duplicate";
 import { removeFromVisualModelByVisualAction } from "./remove-from-visual-model-by-visual";
 import { removeFromVisualModelByRepresentedAction } from "./remove-from-visual-model-by-represented";
+import { centerViewportToVisualEntityByRepresentedAction } from "./center-viewport-to-visual-entity";
 
 const LOG = createLogger(import.meta.url);
 
@@ -279,7 +278,7 @@ export interface ActionsContextType extends DialogActions, VisualModelActions {
    * Since we have multiple visual entites per one semantic, we need to somehow
    * choose the visual entity to center to. For that there is {@link currentlyIteratedEntity}.
    * The {@link currentlyIteratedEntity} is ANY integer.
-   * It will will be used to index the array of visual entities (using modulo) 
+   * It will will be used to index the array of visual entities (using modulo)
    */
   centerViewportToVisualEntityByRepresented: (
     model: string,
@@ -753,8 +752,7 @@ function createActionsContext(
     currentlyIteratedEntity: number
   ) => {
     centerViewportToVisualEntityByRepresentedAction(
-      notifications, graph, classes, diagram, identifier, currentlyIteratedEntity,
-      model);
+      notifications, graph, classes, diagram, identifier, currentlyIteratedEntity, model);
   };
 
   const layoutActiveVisualModel = async (configuration: UserGivenConstraintsVersion4) => {
@@ -777,7 +775,7 @@ function createActionsContext(
   const removeEntitiesInSemanticModelFromVisualModel = (semanticModel: EntityModel) => {
     withVisualModel(notifications, graph, (visualModel) => {
       const entitiesInModel = getSelectionForWholeSemanticModel(semanticModel, visualModel, false);
-      removeFromVisualModel(entitiesInModel.nodeSelection);
+      removeFromVisualModelByRepresented(entitiesInModel.nodeSelection);
     });
   };
 
@@ -866,8 +864,7 @@ function createActionsContext(
         return;
       }
 
-      diagram.actions().highlightNodeInExplorationModeFromCatalog(
-        nodeIdentifier, modelOfClassWhichStartedHighlighting);
+      diagram.actions().highlightNodesInExplorationModeFromCatalog(nodeIdentifiers, modelOfClassWhichStartedHighlighting);
     });
   }
 
@@ -1006,8 +1003,8 @@ function createActionsContext(
       const selectionIdentifiers = nodeSelection.concat(edgeSelection);
       deleteVisualElements(selectionIdentifiers);
     },
-    onRemoveAttributeFromVisualModel: (attribute: string, _nodeIdentifer: string) => {
-      removeAttributesFromVisualModel([attribute])
+    onRemoveAttributeFromNode: (attribute: string, _nodeIdentifer: string) => {
+      removeAttributesFromVisualModel([attribute]);     // TODO RadStr: Should have separate method which removes from concrete node
     },
     onEditAttribute: (attribute: string, _nodeIdentifer: string) => {
       withVisualModel(notifications, graph, (visualModel) => {
