@@ -107,7 +107,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
       <script class="remove">
         // All config options at https://respec.org/docs/
         var respecConfig = {
-          specStatus: "unofficial",
+          specStatus: "base",
           editors: [{ name: "Dataspecer", url: "https://dataspecer.com" }],
           //github: "some-org/mySpec",
           shortName: "todo",
@@ -124,6 +124,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
     </style>
     </head>
     <body>
+      <p class="copyright"></p>
       <section id="abstract">
         <p>
           {{#iflng "cs"}}Tento soubor dokumentuje{{lng}}This file documents{{/iflng}}
