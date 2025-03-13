@@ -29,13 +29,13 @@ export function openCreateConnectionDialogAction(
   //
   semanticSource: string,
   semanticTarget: string,
-  visualSources: string[],
-  visualTargets: string[],
+  visualSource: string,
+  visualTarget: string,
 ) {
   withErrorBoundary(notifications,
     () => openCreateConnectionDialogActionInternal(
       cmeExecutor, options, dialogs, graph, visualModel,
-      sourceIdentifier, targetIdentifier,
+      semanticSource, semanticTarget, visualSource, visualTarget
     ));
 }
 
@@ -49,11 +49,13 @@ function openCreateConnectionDialogActionInternal(
   graph: ModelGraphContextType,
   visualModel: WritableVisualModel,
   //
-  sourceIdentifier: string,
-  targetIdentifier: string,
+  semanticSource: string,
+  semanticTarget: string,
+  visualSource: string,
+  visualTarget: string,
 ) {
   const { source, target } =
-    findSourceAndTarget(graph, sourceIdentifier, targetIdentifier);
+    findSourceAndTarget(graph, semanticSource, semanticTarget);
   //
   const visualExecutor = createVisualModelOperationExecutor(visualModel);
   // We decide based on source and target type.
@@ -61,7 +63,8 @@ function openCreateConnectionDialogActionInternal(
     && isSemanticModelClass(target)) {
     // Can be a relationship or generalization.
     openRelationshipOrGeneralizationDialog(
-      options, dialogs, visualExecutor, graph, cmeExecutor, source, target);
+      options, dialogs, visualExecutor, graph, cmeExecutor,
+      source, target, visualSource, visualTarget);
   }
   else if (isSemanticModelClassProfile(source)
     && isSemanticModelClass(target)) {
@@ -132,14 +135,16 @@ function openRelationshipOrGeneralizationDialog(
   cmeExecutor: CmeModelOperationExecutor,
   source: SemanticModelClass,
   target: SemanticModelClass,
+  visualSource: string,
+  visualTarget: string,
 ) {
   const onConfirm = (state: CreateConnectionState) => {
     switch (state.type) {
       case ConnectionType.Association:
-        createRelationship(cmeExecutor, visualExecutor, state);
+        createRelationship(cmeExecutor, visualExecutor, state, visualSource, visualTarget);
         break;
       case ConnectionType.Generalization:
-        createGeneralization(cmeExecutor, visualExecutor, state);
+        createGeneralization(cmeExecutor, visualExecutor, state, visualSource, visualTarget);
         break;
     }
   };
@@ -153,6 +158,8 @@ function createRelationship(
   cmeExecutor: CmeModelOperationExecutor,
   visualExecutor: VisualModelOperationExecutor,
   state: CreateConnectionState,
+  visualSource: string,
+  visualTarget: string,
 ) {
   const relationship = cmeExecutor.createRelationship({
     model: state.model.getId(),
@@ -165,14 +172,16 @@ function createRelationship(
     rangeCardinality: state.targetCardinality,
   });
 
-  visualExecutor.addRelationship(
-    relationship, state.source.id, state.target.id);
+  visualExecutor.addRelationshipWithSpecifiedVisualEnds(
+    relationship, [visualSource], [visualTarget]);
 }
 
 function createGeneralization(
   cmeExecutor: CmeModelOperationExecutor,
   visualExecutor: VisualModelOperationExecutor,
   state: CreateConnectionState,
+  visualSource: string,
+  visualTarget: string,
 ) {
   const generalization = cmeExecutor.createGeneralization({
     model: state.model.getId(),
@@ -182,8 +191,8 @@ function createGeneralization(
     parentIdentifier: state.target.id,
   });
 
-  visualExecutor.addRelationship(
-    generalization, state.source.id, state.target.id);
+  visualExecutor.addGeneralizationWithSpecifiedVisualEnds(
+    generalization, [visualSource], [visualTarget]);
 }
 
 function createProfile(

@@ -467,7 +467,7 @@ function createActionsContext(
     withVisualModel(notifications, graph, (visualModel) => {
       openCreateConnectionDialogAction(
         cmeExecutor,  options, dialogs, notifications,
-        graph, visualModel, semanticSource, semanticTarget, [visualSource], [visualTarget]);
+        graph, visualModel, semanticSource, semanticTarget, visualSource, visualTarget);
     });
   };
 

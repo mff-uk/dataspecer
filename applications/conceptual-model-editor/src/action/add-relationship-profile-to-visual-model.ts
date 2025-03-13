@@ -4,10 +4,10 @@ import { SemanticModelRelationshipUsage, isSemanticModelRelationshipUsage } from
 import type { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { getDomainAndRange } from "../util/relationship-utils";
 import { ModelGraphContextType } from "../context/model-context";
-import { getAllVisualEndsForRelationship, withAggregatedEntity } from "./utilities";
+import { withAggregatedEntity } from "./utilities";
 import { isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isOwlThing } from "../dataspecer/semantic-model";
-import { addVisualRelationships } from "../dataspecer/visual-model/operation/add-visual-relationships";
+import { addVisualRelationships, addVisualRelationshipsWithSpecifiedVisualEnds } from "../dataspecer/visual-model/operation/add-visual-relationships";
 
 /**
  * Adds given semantic relationship profile to visual model.
@@ -44,8 +44,8 @@ function addSemanticRelationshipProfileToVisualModelCommand(
     return;
   }
 
-  const { visualSources, visualTargets } = getAllVisualEndsForRelationship(
-    visualModel, domain.concept, range.concept);
+  const visualSources = visualModel.getVisualEntitiesForRepresented(domain.concept);
+  const visualTargets = visualModel.getVisualEntitiesForRepresented(range.concept);
   if (visualSources.length === 0 || visualTargets.length === 0) {
     console.warn("Missing visual entities for ends.", { domain, range, entity, visualSources, visualTargets });
     if (isOwlThing(domain.concept) || isOwlThing(range.concept)) {
@@ -57,7 +57,7 @@ function addSemanticRelationshipProfileToVisualModelCommand(
     return;
   }
   //
-  addVisualRelationships(
+  addVisualRelationshipsWithSpecifiedVisualEnds(
     visualModel, model, entity.id,
     visualSources, visualTargets,
   );

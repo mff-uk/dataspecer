@@ -1,10 +1,10 @@
-import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { VisualEntity, VisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { EntityDsIdentifier, EntityReference, ModelDsIdentifier } from "../entity-model";
 import { addVisualNodeProfile } from "./operation/add-visual-node-profile";
 import { addVisualNode } from "./operation/add-visual-node";
 import { deleteEntityModel } from "./operation/delete-entity-model";
 import { updateVisualNodeProfiles } from "./operation/update-visual-node-profiles";
-import { addVisualRelationships } from "./operation/add-visual-relationships";
+import { addVisualRelationships, addVisualRelationshipsWithSpecifiedVisualEnds } from "./operation/add-visual-relationships";
 
 export interface VisualModelOperationExecutor {
 
@@ -15,6 +15,15 @@ export interface VisualModelOperationExecutor {
     represented: EntityReference,
     child: EntityDsIdentifier,
     parent: EntityDsIdentifier,
+  ): void;
+
+  /**
+   * @throws DataspecerError
+   */
+  addGeneralizationWithSpecifiedVisualEnds(
+    represented: EntityReference,
+    visualSources: EntityDsIdentifier[],
+    visualTargets: EntityDsIdentifier[],
   ): void;
 
   /**
@@ -41,6 +50,15 @@ export interface VisualModelOperationExecutor {
     represented: EntityReference,
     source: EntityDsIdentifier,
     target: EntityDsIdentifier,
+  ): void;
+
+  /**
+   * @throws DataspecerError
+   */
+  addRelationshipWithSpecifiedVisualEnds(
+    represented: EntityReference,
+    visualSources: EntityDsIdentifier[],
+    visualTargets: EntityDsIdentifier[],
   ): void;
 
   /**
@@ -78,6 +96,17 @@ implements VisualModelOperationExecutor {
       represented.model, represented.identifier, child, parent);
   }
 
+  addGeneralizationWithSpecifiedVisualEnds(
+    represented: EntityReference,
+    visualChildren: EntityDsIdentifier[],
+    visualParents: EntityDsIdentifier[]
+  ): void {
+    const visualSources = convertIdentifiersToVisualEntities(this.visualModel, visualChildren);
+    const visualTargets = convertIdentifiersToVisualEntities(this.visualModel, visualParents);
+    addVisualRelationshipsWithSpecifiedVisualEnds(this.visualModel,
+      represented.model, represented.identifier, visualSources, visualTargets);
+  }
+
   addProfile(
     profile: EntityReference,
     profiled: EntityReference,
@@ -94,13 +123,24 @@ implements VisualModelOperationExecutor {
       { id: represented.identifier }, represented.model, position, content);
   }
 
+  addRelationshipWithSpecifiedVisualEnds(
+    represented: EntityReference,
+    visualSourcesIdentifiers: EntityDsIdentifier[],
+    visualTargetsIdentifiers: EntityDsIdentifier[]
+  ): void {
+    const visualSources = convertIdentifiersToVisualEntities(this.visualModel, visualSourcesIdentifiers);
+    const visualTargets = convertIdentifiersToVisualEntities(this.visualModel, visualTargetsIdentifiers);
+    addVisualRelationshipsWithSpecifiedVisualEnds(this.visualModel,
+      represented.model, represented.identifier, visualSources, visualTargets);
+  }
+
   addRelationship(
     represented: EntityReference,
     source: EntityDsIdentifier,
     target: EntityDsIdentifier,
   ): void {
     addVisualRelationships(this.visualModel,
-      represented.model, represented.identifier, [source], [target]);
+      represented.model, represented.identifier, source, target);
   }
 
   updateProfile(
@@ -115,6 +155,16 @@ implements VisualModelOperationExecutor {
     deleteEntityModel(this.visualModel, model);
   }
 
+}
+
+function convertIdentifiersToVisualEntities(
+  visualModel: VisualModel,
+  identifiers: string[]
+): VisualEntity[] {
+  const visualEntities = identifiers
+    .map(identifier => visualModel.getVisualEntity(identifier))
+    .filter(entity => entity !== null);
+  return visualEntities;
 }
 
 export function createVisualModelOperationExecutor(

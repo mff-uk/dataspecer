@@ -22,7 +22,7 @@ import { createVisualNodeDuplicateAction } from "./create-visual-node-duplicate"
 import { SEMANTIC_MODEL_GENERALIZATION, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { ActionsTestSuite } from "./test/actions-test-suite";
-import { addVisualRelationshipsWithGivenVisualEnds } from "./utilities";
+import { addVisualRelationshipsWithSpecifiedVisualEnds } from "../dataspecer/visual-model/operation/add-visual-relationships";
 
 test("Create single relationship - association", () => {
   testCreateSingleRelationship(RelationshipToTestType.Association);
@@ -561,10 +561,10 @@ function addTestRelationshipToVisualModel(
   modelDsIdentifier: string,
   relationshipToTestType: RelationshipToTestType,
   relationshipIdentifier: string,
-  visualSources: string[] | null,
-  visualTargets: string[] | null,
+  visualSourceIdentifiers: string[] | null,
+  visualTargetIdentifiers: string[] | null,
 ) {
-  if(visualSources === null || visualTargets === null) {
+  if(visualSourceIdentifiers === null || visualTargetIdentifiers === null) {
     if(relationshipToTestType === RelationshipToTestType.Generalization) {
       addSemanticGeneralizationToVisualModelAction(
         notificationMockup, graph, visualModel,
@@ -577,7 +577,13 @@ function addTestRelationshipToVisualModel(
     }
   }
   else {
-    addVisualRelationshipsWithGivenVisualEnds(
+    const visualSources = visualSourceIdentifiers
+      .map(identifier => visualModel.getVisualEntity(identifier))
+      .filter(entity => entity !== null);
+    const visualTargets = visualTargetIdentifiers
+      .map(identifier => visualModel.getVisualEntity(identifier))
+      .filter(entity => entity !== null);
+    addVisualRelationshipsWithSpecifiedVisualEnds(
       visualModel, modelDsIdentifier, relationshipIdentifier, visualSources, visualTargets);
   }
 }
