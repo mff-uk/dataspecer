@@ -99,8 +99,8 @@ function openCreateConnectionDialogActionInternal(
       parentIdentifier: target.id,
     });
 
-    visualExecutor.addRelationship(
-      generalization, source.id, target.id);
+    visualExecutor.addGeneralizationWithSpecifiedVisualEnds(
+      generalization, [visualSource], [visualTarget]);
   }
   else {
     // We do not know.
