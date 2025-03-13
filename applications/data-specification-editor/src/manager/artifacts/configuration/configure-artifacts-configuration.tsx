@@ -4,7 +4,7 @@ import {DataSpecification} from "./tabs/data-specification";
 import {Json} from "./tabs/json";
 import {Csv} from "./tabs/csv";
 import {Xml} from "./tabs/xml";
-import {Bikeshed} from "./tabs/bikeshed";
+import {Documentation} from "./tabs/documentation";
 import {
     DataSpecificationConfiguration,
     DataSpecificationConfigurator
@@ -65,7 +65,7 @@ export const ConfigureArtifactsConfiguration = ({defaultConfiguration, configura
             />
         }
         {currentTab === 4 &&
-            <Bikeshed
+            <Documentation
                 input={TemplateArtifactConfigurator.getFromObject(configuration)}
                 onChange={u => onConfigurationChange(TemplateArtifactConfigurator.setToObject(configuration, u))}
                 defaultObject={defaultConfiguration ? TemplateArtifactConfigurator.getFromObject(defaultConfiguration) as TemplateArtifactConfiguration : undefined}

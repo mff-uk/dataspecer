@@ -66,14 +66,6 @@ const artefactTitle = {
         cs: "Konceptuální diagram",
         en: "Conceptual diagram",
     },
-    "http://example.com/generator/bikeshed": {
-        cs: "Bikeshed dokumentace zdroj",
-        en: "Bikeshed documentation source",
-    },
-    "http://example.com/generator/bikeshed/html-output": {
-        cs: "Bikeshed dokumentace",
-        en: "Bikeshed documentation",
-    },
     // todo: do not identify artifacts by generator
     "https://schemas.dataspecer.com/generator/template-artifact": {
         cs: "Dokumentace",

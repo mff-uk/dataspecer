@@ -1,4 +1,3 @@
-import { BIKESHED, BikeshedAdapterArtefactContext } from "@dataspecer/bikeshed";
 import { assertFailed, assertNot } from "@dataspecer/core/core";
 import {
   DataSpecification,
@@ -11,7 +10,6 @@ import { defaultStructureTransformations, structureModelTransformCodelists, tran
 import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties";
 import { generateDocumentation } from "./xml-schema-documentation";
 import { structureModelToXmlSchema } from "./xml-schema-model-adapter";
-import { createBikeshedSchemaXml } from "./xml-schema-to-bikeshed";
 import { XML_SCHEMA } from "./xml-schema-vocabulary";
 import { writeXmlSchema } from "./xml-schema-writer";
 
@@ -85,17 +83,7 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
     documentationIdentifier: string,
     callerContext: unknown
   ): Promise<unknown | null> {
-    if (documentationIdentifier === BIKESHED.Generator) {
-      const bikeshedContext = callerContext as BikeshedAdapterArtefactContext;
-      return createBikeshedSchemaXml({
-        ...bikeshedContext,
-        structureModel: transformStructureModel(
-          bikeshedContext.conceptualModel,
-          bikeshedContext.structureModel,
-          Object.values(context.specifications)
-        ),
-      });
-    } else if (documentationIdentifier === NEW_DOC_GENERATOR) {
+    if (documentationIdentifier === NEW_DOC_GENERATOR) {
       const {artifact: documentationArtefact} = callerContext as {artifact: DataSpecificationArtefact};
       const {xmlSchema, conceptualModel} = await this.generateToObject(context, artefact, specification);
       // return createRespecSchema(

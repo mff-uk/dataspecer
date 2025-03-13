@@ -11,7 +11,7 @@ const TEMPLATE_BUILDING_BLOCKS = [
   "conceptualModel",
 ];
 
-export const Bikeshed: FC<{
+export const Documentation: FC<{
   input: DeepPartial<TemplateArtifactConfiguration>,
   defaultObject?: TemplateArtifactConfiguration
   onChange: (options: DeepPartial<TemplateArtifactConfiguration>) => void,

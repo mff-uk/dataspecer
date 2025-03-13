@@ -13,8 +13,6 @@ import {
   structureModelAddDefaultValues,
   transformStructureModel
 } from "@dataspecer/core/structure-model/transformation";
-import { createBikeshedSchemaJson } from "./json-schema-to-bikeshed";
-import { BIKESHED, BikeshedAdapterArtefactContext } from "@dataspecer/bikeshed";
 import { JSON_SCHEMA } from "./json-schema-vocabulary";
 import { structureModelAddIdAndTypeProperties } from "./json-id-transformations";
 import {DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator} from "../configuration";
@@ -105,17 +103,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
       documentationIdentifier: string,
       callerContext: unknown
   ): Promise<unknown | null> {
-    if (documentationIdentifier === BIKESHED.Generator) {
-      const bikeshedContext = callerContext as BikeshedAdapterArtefactContext;
-      return createBikeshedSchemaJson({
-        ...bikeshedContext,
-        structureModel: transformStructureModel(
-            bikeshedContext.conceptualModel,
-            bikeshedContext.structureModel,
-            Object.values(context.specifications)
-        ),
-      });
-    } else if (documentationIdentifier === "https://schemas.dataspecer.com/generator/template-artifact") {
+    if (documentationIdentifier === "https://schemas.dataspecer.com/generator/template-artifact") {
       const {artifact: documentationArtefact} = callerContext as {artifact: DataSpecificationArtefact};
 
       const {structureModel, jsonSchema, mergedConceptualModel, configuration} = await this.generateToObject(context, artefact, specification, true);
@@ -208,9 +196,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
 
             let infoText2 = configuration.jsonRootCardinality === "object-with-array" ? ` Prvky jsou uvedeny v poli \`${configuration.jsonRootCardinalityObjectKey}\`.` : "";
 
-            // @ts-ignore
-            if (documentationArtefact.templateType === "respec") {
-              return render(`<section>
+            return render(`<section>
 <h3>Přehled JSON struktury</h3>
 <p>JSON Schéma zachycující strukturu pro <i>{{#humanLabel}}{{translate}}{{/humanLabel}}</i> je definováno v souboru <a href="{{{artifact.json-schema.relativePath}}}"><code>{{artifact.json-schema.relativePath}}</code></a>. ${infoText} <i>{{#structureModel}}{{#roots}}{{#classes}}{{#humanLabel}}{{translate}}{{/humanLabel}}{{/classes}}{{/roots}}{{/structureModel}}</i>.${infoText2}</p>
 
@@ -308,7 +294,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
 {{/regex}}{{/isAttribute}}{{/dataTypes}}
 
 <dt>Interpretace</dt>
-{{#pimAssociation}} 
+{{#pimAssociation}}
 <dd>
 <a href="#{{semanticModelLinkId}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>
 </dd>
@@ -344,54 +330,9 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
 </section>
 {{/isFromExternalSchema}}{{/classes}}
 </section>`);
-            }
 
-            return render(`## Přehled JSON struktury
-${infoText} {{#structureModel}}{{#roots}}{{#classes}}{{#humanLabel}}{{translate}}{{/humanLabel}}{{/classes}}{{/roots}}{{/structureModel}}.${infoText2}
-
-{{#classes}}{{#inThisSchema}}
-- [{{#humanLabel}}{{translate}}{{/humanLabel}}]({{#pimClass}}#{{#humanLabel}}{{#translate}}conceptual-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}{{/pimClass}})
-{{#properties}}
-    - \`{{technicalLabel}}\`: {{#cardinalityIsRequired}}povinná{{/cardinalityIsRequired}}{{^cardinalityIsRequired}}nepovinná{{/cardinalityIsRequired}} ({{cardinalityRange}}) položka typu {{#dataTypes}}{{#isAssociation}}**{{#dataType.humanLabel}}{{translate}}{{/dataType.humanLabel}}**{{/isAssociation}}{{#isAttribute}} {{#dataType}}[{{#.}}{{#getLabelForDataType}}{{translate}}{{/getLabelForDataType}}{{/.}}]({{{.}}}){{#regex}} dle regulárního výrazu \`{{{.}}}\`{{/regex}}{{/dataType}}{{^dataType}}bez datového typu{{/dataType}}{{/isAttribute}}{{/dataTypes}}
-{{/properties}}
-{{/inThisSchema}}{{/classes}}
-
-## Detailní specifikace prvků JSON struktury
-V této části jsou specifikovány jednotlivé prvky JSON struktury.
-
-{{#classes}}{{#inThisSchema}}
-### {{#humanLabel}}{{translate}}{{/humanLabel}} ### {#{{#humanLabel}}{{#translate}}json-structure-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}}
-{{#humanDescription}}{{#translate}}
-: Popis
-:: {{.}}
-{{/translate}}{{/humanDescription}}
-: Interpretace
-{{#pimClass}}:: [{{#humanLabel}}{{translate}}{{/humanLabel}}](#{{#humanLabel}}{{#translate}}conceptual-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}){{/pimClass}}
-{{#properties}}
-#### Vlastnost \`{{technicalLabel}}\` #### {#{{#humanLabel}}{{#translate}}json-structure-property-{{sanitizeLink}}{{/translate}}{{/humanLabel}}}
-: Klíč
-:: \`{{technicalLabel}}\`
-: Jméno
-:: {{#humanLabel}}{{translate}}{{/humanLabel}}
-{{#humanDescription}}{{#translate}}
-: Popis
-:: {{.}}
-{{/translate}}{{/humanDescription}}
-: Povinnost
-:: {{#cardinalityIsRequired}}povinné{{/cardinalityIsRequired}}{{^cardinalityIsRequired}}nepovinné{{/cardinalityIsRequired}}
-: Kardinalita
-:: {{cardinalityRange}}
-: Typ
-{{#dataTypes}}
-{{#isAssociation}}:: [{{#dataType.humanLabel}}{{translate}}{{/dataType.humanLabel}}]({{externalDocumentation}}#{{#dataType.humanLabel}}{{#translate}}json-structure-class-{{sanitizeLink}}{{/translate}}{{/dataType.humanLabel}}){{/isAssociation}}{{#isAttribute}}:: {{#dataType}}[{{#.}}{{#getLabelForDataType}}{{translate}}{{/getLabelForDataType}}{{/.}}]({{{.}}}){{/dataType}}{{^dataType}}bez datového typu{{/dataType}}{{/isAttribute}}
-{{/dataTypes}}
-: Interpretace
-{{#pimAssociation}}:: [{{#humanLabel}}{{translate}}{{/humanLabel}}](#{{#humanLabel}}{{#translate}}conceptual-property-{{sanitizeLink}}{{/translate}}{{/humanLabel}}){{/pimAssociation}}
-{{/properties}}
-{{/inThisSchema}}{{/classes}}
-`);
           }
-        },	
+        },
       };
     }
     return null;

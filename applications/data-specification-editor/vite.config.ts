@@ -26,7 +26,6 @@ export default defineConfig(({ command, mode }) => {
         "@dataspecer/backend-utils/interfaces",
         "@dataspecer/backend-utils/store-descriptor",
         "@dataspecer/backend-utils/stores",
-        "@dataspecer/bikeshed",
         "@dataspecer/core-v2",
         "@dataspecer/core-v2/entity-model",
         "@dataspecer/core-v2/model/known-models",

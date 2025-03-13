@@ -1,6 +1,4 @@
 import {PlantUmlImageGenerator} from "./manager/artifacts/plant-uml-image-generator";
-import {BikeshedHtmlGenerator} from "./manager/artifacts/bikeshed-html-generator";
-import {BikeshedGenerator} from "@dataspecer/bikeshed";
 import {SparqlGenerator} from "@dataspecer/sparql-query";
 import {PlantUmlGenerator} from "@dataspecer/plant-uml";
 import {JsonLdGenerator} from "@dataspecer/json/json-ld";
@@ -23,7 +21,6 @@ import {TemplateArtifactGenerator} from "@dataspecer/template-artifact";
 export function getArtefactGenerators() {
     return [
         // Standalone generators
-        new BikeshedGenerator(),
         new JsonLdGenerator(),
         new JsonSchemaGenerator(),
         new JsonExampleGenerator(),
@@ -45,6 +42,5 @@ export function getArtefactGenerators() {
 
         // Generators that need backend support
         new PlantUmlImageGenerator(),
-        new BikeshedHtmlGenerator(),
     ];
 }
