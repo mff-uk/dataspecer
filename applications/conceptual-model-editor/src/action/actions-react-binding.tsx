@@ -1006,7 +1006,7 @@ function createActionsContext(
     onRemoveAttributeFromNode: (attribute: string, _nodeIdentifer: string) => {
       removeAttributesFromVisualModel([attribute]);     // TODO RadStr: Should have separate method which removes from concrete node
     },
-    onEditAttribute: (attribute: string, _nodeIdentifer: string) => {
+    onEditAttribute: (attribute: string) => {
       withVisualModel(notifications, graph, (visualModel) => {
         const model = findSourceModelOfEntity(attribute, graph.models);
         if(model === null) {
@@ -1019,7 +1019,6 @@ function createActionsContext(
         }
         const attributeEntity = model.getEntities()[attribute]
         if(isSemanticModelAttribute(attributeEntity)) {
-          // TODO RadStr: Once we have multi entities - this is wrong, we have to take into consideration the _nodeIdentifer
           openEditAttributeDialogAction(
             options, dialogs, classes, graph, notifications, visualModel, model, attributeEntity);
         }
@@ -1028,7 +1027,7 @@ function createActionsContext(
         }
       });
     },
-    onEditAttributeProfile: function (attribute: string, _nodeIdentifer: string): void {
+    onEditAttributeProfile: function (attribute: string): void {
       withVisualModel(notifications, graph, (visualModel) => {
         const model = findSourceModelOfEntity(attribute, graph.models);
         if(model === null) {
@@ -1041,7 +1040,6 @@ function createActionsContext(
         }
         const attributeEntity = model.getEntities()[attribute]
         if(isSemanticModelAttributeUsage(attributeEntity) || isSemanticModelAttributeProfile(attributeEntity)) {
-          // TODO RadStr: Once we have multi entities - this is wrong, we have to take into consideration the _nodeIdentifer
           openEditAttributeProfileDialogAction(
             options, dialogs, classes, graph, cmeExecutor,
             notifications, visualModel, model, attributeEntity);

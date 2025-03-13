@@ -104,7 +104,9 @@ function handleUpdateOfSemanticAttribute(
   if(nextNodes === null) {
     return;
   }
-  if(previousNodes === nextNodes) {
+
+  if(previousNodes.length > 0 && previousNodes.length === nextNodes.length &&
+    previousNodes[0].representedEntity === nextNodes[0].representedEntity) {
     return;
   }
 

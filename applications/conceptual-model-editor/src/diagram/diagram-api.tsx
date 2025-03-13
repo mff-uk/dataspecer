@@ -512,16 +512,14 @@ interface DiagramNodes {
   /**
    * Called when user chooses to edit {@link attribute}.
    * @param attribute is the identifier the of the attribute to be edited
-   * @param nodeIdentifer is the identifier of the node on which the attribute resides.
    */
-  onEditAttribute: (attribute: string, nodeIdentifer: string) => void;
+  onEditAttribute: (attribute: string) => void;
 
   /**
    * Called when user chooses to edit {@link attributeProfile}.
    * @param attributeProfile is the identifier the of the attribute profile to be edited
-   * @param nodeIdentifer is the identifier of the node on which the attribute profile resides.
    */
-  onEditAttributeProfile: (attributeProfile: string, nodeIdentifer: string) => void;
+  onEditAttributeProfile: (attributeProfile: string) => void;
 
   /**
    * Called when user chooses to move given {@link attribute} move one position up.

@@ -54,13 +54,12 @@ export function createVisualNodeDuplicateAction(
   }
 
   addRelatedEdgesDuplicatesToVisualModel(
-    notifications, visualModel, node, duplicateNode);
+    visualModel, node, duplicateNode);
 
   return duplicatedNodeIdentifier;
 }
 
 function addRelatedEdgesDuplicatesToVisualModel(
-  notifications: UseNotificationServiceWriterType,
   visualModel: WritableVisualModel,
   originalNode: VisualNode,
   duplicateNode: VisualNode,

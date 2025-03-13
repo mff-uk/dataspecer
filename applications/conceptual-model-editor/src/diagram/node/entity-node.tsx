@@ -52,10 +52,10 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
     context?.callbacks().onRemoveAttributeFromNode(attribute, props.data.identifier);
   const editAttribute = (attribute: string, isAttributeProfile: boolean) => () => {
     if(isAttributeProfile) {
-      context?.callbacks().onEditAttributeProfile(attribute, props.data.identifier);
+      context?.callbacks().onEditAttributeProfile(attribute);
     }
     else {
-      context?.callbacks().onEditAttribute(attribute, props.data.identifier);
+      context?.callbacks().onEditAttribute(attribute);
     }
   }
 

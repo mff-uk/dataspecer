@@ -12,7 +12,6 @@ export function addVisualNodeProfile(
   profile: EntityReference,
   profiled: EntityReference,
 ) {
-  // TODO RadStr: Rename to visualSources and targets and same for the for
   const sources = visualModel.getVisualEntitiesForRepresented(profile.identifier);
   const targets = visualModel.getVisualEntitiesForRepresented(profiled.identifier);
   if (sources.length === 0 || targets.length === 0) {
