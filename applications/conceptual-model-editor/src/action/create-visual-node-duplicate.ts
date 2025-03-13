@@ -78,38 +78,7 @@ function addRelatedEdgesDuplicatesToVisualModel(
   visualEntities.forEach((visualEntity, _) => {
     if(isVisualRelationship(visualEntity)) {
       if(alreadyAddedRepresentedEdges[visualEntity.representedRelationship]) {
-        const visualSource = visualModel.getVisualEntity(visualEntity.visualSource);
-        const visualTarget = visualModel.getVisualEntity(visualEntity.visualTarget);
-        if(visualSource === null) {
-          notifications.error("Missing visual source node of edge to duplicate for some reason");
-          return;
-        }
-        if(visualTarget === null) {
-          notifications.error("Missing visual target node of edge to duplicate for some reason");
-          return;
-        }
-        let representedSource;
-        let representedTarget;
-        if(isVisualNode(visualSource)) {
-          representedSource = visualSource.representedEntity;
-        }
-        else {
-          // TODO RadStr: Probably have to check for diagram node here
-          return;
-        }
-        if(isVisualNode(visualTarget)) {
-          representedTarget = visualTarget.representedEntity;
-        }
-        else {
-          // TODO RadStr: Probably have to check for diagram node here
-          return;
-        }
-
-        const isSelfLoop = representedSource === representedTarget;
-        if(!isSelfLoop) {
-          return;
-        }
-        // For self loops we want to create edges to all the existing visual nodes.
+        return;
       }
       alreadyAddedRepresentedEdges[visualEntity.representedRelationship] = true;
 
