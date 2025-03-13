@@ -54,12 +54,13 @@ export function createVisualNodeDuplicateAction(
   }
 
   addRelatedEdgesDuplicatesToVisualModel(
-    visualModel, node, duplicateNode);
+    notifications, visualModel, node, duplicateNode);
 
   return duplicatedNodeIdentifier;
 }
 
 function addRelatedEdgesDuplicatesToVisualModel(
+  notifications: UseNotificationServiceWriterType,
   visualModel: WritableVisualModel,
   originalNode: VisualNode,
   duplicateNode: VisualNode,
@@ -72,12 +73,55 @@ function addRelatedEdgesDuplicatesToVisualModel(
       duplicateNode.identifier !== visualEntity.identifier)
     .map(node => node.identifier);
 
+  const alreadyAddedRepresentedEdges: Record<string, true> = {};
+
   visualEntities.forEach((visualEntity, _) => {
     if(isVisualRelationship(visualEntity)) {
+      if(alreadyAddedRepresentedEdges[visualEntity.representedRelationship]) {
+        const visualSource = visualModel.getVisualEntity(visualEntity.visualSource);
+        const visualTarget = visualModel.getVisualEntity(visualEntity.visualTarget);
+        if(visualSource === null) {
+          notifications.error("Missing visual source node of edge to duplicate for some reason");
+          return;
+        }
+        if(visualTarget === null) {
+          notifications.error("Missing visual target node of edge to duplicate for some reason");
+          return;
+        }
+        let representedSource;
+        let representedTarget;
+        if(isVisualNode(visualSource)) {
+          representedSource = visualSource.representedEntity;
+        }
+        else {
+          // TODO RadStr: Probably have to check for diagram node here
+          return;
+        }
+        if(isVisualNode(visualTarget)) {
+          representedTarget = visualTarget.representedEntity;
+        }
+        else {
+          // TODO RadStr: Probably have to check for diagram node here
+          return;
+        }
+
+        const isSelfLoop = representedSource === representedTarget;
+        if(!isSelfLoop) {
+          return;
+        }
+        // For self loops we want to create edges to all the existing visual nodes.
+      }
+      alreadyAddedRepresentedEdges[visualEntity.representedRelationship] = true;
+
       addRelationshipDuplicate(
         visualEntity, duplicateNode, allExistingNodeDuplicates, visualModel, "addVisualRelationship");
     }
     else if(isVisualProfileRelationship(visualEntity)) {
+      if(alreadyAddedRepresentedEdges[visualEntity.entity]) {
+        return;
+      }
+      alreadyAddedRepresentedEdges[visualEntity.entity] = true;
+
       addRelationshipDuplicate(
         visualEntity, duplicateNode, allExistingNodeDuplicates, visualModel, "addVisualProfileRelationship");
     }
@@ -98,7 +142,7 @@ function addRelationshipDuplicate(
     if(hasEdgeSourceInDuplicates) {
       (visualModel[addToVisualModelFunctionName] as ((relationship: any) => string))({
         ...relationship,
-        waypoints: [...createWaypointsForSelfLoop(duplicateNode.position)],
+        waypoints: createWaypointsForSelfLoop(duplicateNode.position),
         visualSource: duplicateNode.identifier,
         visualTarget: duplicateNode.identifier,
       });
