@@ -48,8 +48,8 @@ import { openCreateAttributeForEntityDialogAction } from "./open-add-attribute-f
 import { addGroupToVisualModelAction } from "./add-group-to-visual-model";
 import { removeTopLevelGroupFromVisualModelAction } from "./remove-group-from-visual-model";
 import { openCreateClassDialogAndCreateAssociationAction, openCreateClassDialogAndCreateGeneralizationAction } from "./open-create-class-dialog-with-edge";
-import { removeAttributesFromVisualModelAction } from "./remove-attribute-from-visual-model";
-import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
+import { removeAttributesFromVisualModelAction } from "./remove-attributes-from-visual-model";
+import { addSemanticAttributeToVisualNodeAction } from "./add-semantic-attribute-to-visual-node";
 import { ShiftAttributeDirection, shiftAttributePositionAction } from "./shift-attribute";
 import { openEditNodeAttributesDialogAction } from "./open-edit-node-attributes-dialog";
 import { EditAttributeDialogState } from "../dialog/attribute/edit-attribute-dialog-controller";
@@ -66,6 +66,8 @@ import { createVisualNodeDuplicateAction } from "./create-visual-node-duplicate"
 import { removeFromVisualModelByVisualAction } from "./remove-from-visual-model-by-visual";
 import { removeFromVisualModelByRepresentedAction } from "./remove-from-visual-model-by-represented";
 import { centerViewportToVisualEntityByRepresentedAction } from "./center-viewport-to-visual-entity";
+import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
+import { removeAttributesFromVisualNodeAction } from "./remove-attributes-from-node";
 
 const LOG = createLogger(import.meta.url);
 
@@ -675,7 +677,7 @@ function createActionsContext(
       return;
     }
     withVisualModel(notifications, graph, (visualModel) => {
-      addSemanticAttributeToVisualModelAction(notifications, visualModel, domainClass, attribute, null, true);
+      addSemanticAttributeToVisualModelAction(notifications, visualModel, domainClass, attribute, true);
     });
   };
 
@@ -714,6 +716,12 @@ function createActionsContext(
   const removeAttributesFromVisualModel = (attributes: string[]): void => {
     withVisualModel(notifications, graph, (visualModel) => {
       removeAttributesFromVisualModelAction(notifications, classes, visualModel, attributes);
+    });
+  };
+
+  const removeAttributesFromVisualNode = (attributes: string[], nodeIdentifier: string): void => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      removeAttributesFromVisualNodeAction(notifications, visualModel, nodeIdentifier, attributes);
     });
   };
 
@@ -901,7 +909,7 @@ function createActionsContext(
 
     onChangeWaypointPositions: changeWaypointPositions,
 
-    onAddAttributeForNode: (node) => openCreateAttributeDialogForClass(node.externalIdentifier, null),
+    onCreateAttributeForNode: (node) => openCreateAttributeDialogForClass(node.externalIdentifier, null),
 
     onCreateConnectionToNode: (source, target) => {
       openCreateConnectionDialog(
@@ -1003,8 +1011,8 @@ function createActionsContext(
       const selectionIdentifiers = nodeSelection.concat(edgeSelection);
       deleteVisualElements(selectionIdentifiers);
     },
-    onRemoveAttributeFromNode: (attribute: string, _nodeIdentifer: string) => {
-      removeAttributesFromVisualModel([attribute]);     // TODO RadStr: Should have separate method which removes from concrete node
+    onRemoveAttributeFromNode: (attribute: string, nodeIdentifier: string) => {
+      removeAttributesFromVisualNode([attribute], nodeIdentifier);
     },
     onEditAttribute: (attribute: string) => {
       withVisualModel(notifications, graph, (visualModel) => {

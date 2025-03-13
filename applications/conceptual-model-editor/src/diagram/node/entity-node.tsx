@@ -149,7 +149,7 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
   const onDelete = () => context?.callbacks().onDeleteNode(props.data);
   const onAnchor = () => context?.callbacks().onToggleAnchorForNode(props.data.identifier);
   const onDissolveGroup = () => context?.callbacks().onDissolveGroup(props.data.group);
-  const onAddAttribute = () => context?.callbacks().onAddAttributeForNode(props.data);
+  const onAddAttribute = () => context?.callbacks().onCreateAttributeForNode(props.data);
 
   // TODO RadStr: Create OnEditAttributesForNode method
   const {openEditNodeAttributesDialog} = useActions();

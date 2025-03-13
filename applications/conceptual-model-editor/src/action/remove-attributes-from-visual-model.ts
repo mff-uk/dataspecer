@@ -27,7 +27,7 @@ export function removeAttributesFromVisualModelAction(
   attributeIdentifiers: string[],
 ) {
 
-  const nodesToRemovedAttributesMap: Record<string, {node: VisualNode, attributesToRemove: string[]}> = {};
+  const nodeToRemovedAttributesMap: Record<string, {node: VisualNode, attributesToRemove: string[]}> = {};
   for (const attributeIdentifier of attributeIdentifiers) {
     const domainAndRange = geDomainAndRangeForAttribute(notifications, classes, attributeIdentifier);
     if(domainAndRange === null) {
@@ -35,13 +35,13 @@ export function removeAttributesFromVisualModelAction(
     }
     addAttributesToRemoveToTheMap(
       notifications, visualModel, attributeIdentifier,
-      domainAndRange, nodesToRemovedAttributesMap);
+      domainAndRange, nodeToRemovedAttributesMap);
   }
 
   // Perform the delete operation of collected visual entities.
-  Object.entries(nodesToRemovedAttributesMap).forEach(([nodeIdentifer, {node, attributesToRemove}]) => {
+  Object.entries(nodeToRemovedAttributesMap).forEach(([nodeIdentifier, {node, attributesToRemove}]) => {
     const content = node.content.filter(attribute => !attributesToRemove.includes(attribute));
-    visualModel.updateVisualEntity(nodeIdentifer, {content});
+    visualModel.updateVisualEntity(nodeIdentifier, {content});
   });
 }
 
@@ -50,7 +50,7 @@ function addAttributesToRemoveToTheMap(
   visualModel: WritableVisualModel,
   attributeIdentifier: string,
   domainAndRange: DomainAndRange<SemanticModelRelationshipEndUsage> | DomainAndRange<SemanticModelRelationshipEnd>,
-  nodesToRemovedAttributesMap: Record<string, {
+  nodeToRemovedAttributesMap: Record<string, {
     node: VisualNode;
     attributesToRemove: string[];
   }>
@@ -60,24 +60,26 @@ function addAttributesToRemoveToTheMap(
     notifications.error("One of given attributes has invalid domain");
     return;
   }
-  // TODO RadStr: Same issue as for addSemanticAttributeToVisualModelAction !!!
-  const node = visualModel.getVisualEntitiesForRepresented(domainIdentifier)[0];
-  if(node === undefined) {
-    notifications.error("One of given attributes has not existing node as domain");
-    return;
-  }
-  if(!isVisualNode(node)) {
-    notifications.error("One of given attributes has something else than node as domain");
-    return;
-  }
 
-  if(nodesToRemovedAttributesMap[node.identifier] === undefined) {
-    nodesToRemovedAttributesMap[node.identifier] = {
-      node,
-      attributesToRemove: []
+  const nodes = visualModel.getVisualEntitiesForRepresented(domainIdentifier);
+  for (const node of nodes) {
+    if(node === undefined) {
+      notifications.error("One of given attributes has not existing node as domain");
+      return;
     }
+    if(!isVisualNode(node)) {
+      notifications.error("One of given attributes has something else than node as domain");
+      return;
+    }
+
+    if(nodeToRemovedAttributesMap[node.identifier] === undefined) {
+      nodeToRemovedAttributesMap[node.identifier] = {
+        node,
+        attributesToRemove: []
+      };
+    }
+    nodeToRemovedAttributesMap[node.identifier].attributesToRemove.push(attributeIdentifier);
   }
-  nodesToRemovedAttributesMap[node.identifier].attributesToRemove.push(attributeIdentifier);
 }
 
 function geDomainAndRangeForAttribute(

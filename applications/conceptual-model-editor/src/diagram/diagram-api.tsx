@@ -500,7 +500,7 @@ interface DiagramNodes {
   /**
    * Called when user starts creation of a new attribute for given node.
    */
-  onAddAttributeForNode: (diagramNode: Node) => void;
+  onCreateAttributeForNode: (diagramNode: Node) => void;
 
   /**
    * Called when user chooses to remove {@link attribute}.

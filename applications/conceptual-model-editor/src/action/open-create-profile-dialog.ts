@@ -27,8 +27,8 @@ import { EditClassProfileDialogState } from "../dialog/class-profile/edit-class-
 import { createNewClassProfileDialog, createNewProfileClassDialogState } from "../dialog/class-profile/create-new-class-profile-dialog-state";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
-import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
 import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
+import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
 
 export function openCreateProfileDialogAction(
   cmeExecutor: CmeModelOperationExecutor,
@@ -76,7 +76,7 @@ export function openCreateProfileDialogAction(
       if (result?.identifier !== undefined) {
         addSemanticAttributeToVisualModelAction(
           notifications, visualModel, state.domain.identifier,
-          result.identifier, null, true);
+          result.identifier, true);
       }
     };
     dialogs.openDialog(createEditAttributeProfileDialog(state, onConfirm));

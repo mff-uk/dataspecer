@@ -44,15 +44,15 @@ export const changeablePartOfEditNodeAttributeStateAsArray = ["visibleAttributes
 export interface CreateEditNodeAttributesControllerType {
   /**
    * Moves entities between the {@link ChangeablePartOfEditNodeAttributeState}.
-   * Concretely from {@link sourceFieldInState} to {@link targetFieldInState}.
+   * Concretely from {@link sourceField} to {@link targetField}.
    * So for example from hiddenAttributes into visibleAttributes.
-   * Note that {@link sourceFieldInState} and {@link targetFieldInState} can be the same.
-   * @param oldPosition is the position in the {@link sourceFieldInState}
-   * @param newPosition is the position in the {@link targetFieldInState}
+   * Note that {@link sourceField} and {@link targetField} can be the same.
+   * @param oldPosition is the position in the {@link sourceField}
+   * @param newPosition is the position in the {@link targetField}
    */
   moveToNewPosition: (
-    sourceFieldInState: ChangeablePartOfEditNodeAttributeState,
-    targetFieldInState: ChangeablePartOfEditNodeAttributeState,
+    sourceField: ChangeablePartOfEditNodeAttributeState,
+    targetField: ChangeablePartOfEditNodeAttributeState,
     oldPosition: number,
     newPosition: number
   ) => void;
@@ -77,22 +77,22 @@ export function useEditNodeAttributesController(
   const { openCreateAttributeDialogForClass } = useActions();
   return useMemo(() => {
     const moveToNewPosition = (
-      sourceFieldInState: ChangeablePartOfEditNodeAttributeState,
-      targetFieldInState: ChangeablePartOfEditNodeAttributeState,
+      sourceField: ChangeablePartOfEditNodeAttributeState,
+      targetField: ChangeablePartOfEditNodeAttributeState,
       oldPosition: number,
       newPosition: number
     ) => {
-      const isSourceSameAsTarget = sourceFieldInState === targetFieldInState;
-      const nextStateForSourceFieldInState: AttributeData[] = [...state[sourceFieldInState]];
-      const nextStateForTargetFieldInState = isSourceSameAsTarget ?
-        nextStateForSourceFieldInState :
-        [...state[targetFieldInState]];
-      const [removed] = nextStateForSourceFieldInState.splice(oldPosition, 1);
-      nextStateForTargetFieldInState.splice(newPosition, 0, removed);
+      const isSourceSameAsTarget = sourceField === targetField;
+      const nextStateForSourceField: AttributeData[] = [...state[sourceField]];
+      const nextStateForTargetField = isSourceSameAsTarget ?
+        nextStateForSourceField :
+        [...state[targetField]];
+      const [removed] = nextStateForSourceField.splice(oldPosition, 1);
+      nextStateForTargetField.splice(newPosition, 0, removed);
       const nextState = {
         ...state,   // Now not necessary - only necessary if we have more than 2 fields
-        [sourceFieldInState]: nextStateForSourceFieldInState,
-        [targetFieldInState]: nextStateForTargetFieldInState,
+        [sourceField]: nextStateForSourceField,
+        [targetField]: nextStateForTargetField,
       };
       changeState(nextState);
     };

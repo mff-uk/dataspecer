@@ -10,8 +10,8 @@ import { isSemanticModelAttribute, isSemanticModelClass, isSemanticModelRelation
 import { isSemanticModelClassProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isSemanticModelAttributeUsage, isSemanticModelClassUsage, SemanticModelClassUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
-import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
 import { getDomainAndRange } from "../util/relationship-utils";
+import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
 
 /**
  * Adds entities from given semantic model identified by {@link semanticModelIdentifier} to currently active visual model.
@@ -83,7 +83,7 @@ function addHiddenAttributesForExistingClassesAndClassProfiles(
       }
       // TODO RadStr: Maybe it would be better to allow for the function to take more than 1 attribute
       addSemanticAttributeToVisualModelAction(
-        notifications, visualModel, classPresentOnCanvas.id, attribute.id, null, false);
+        notifications, visualModel, classPresentOnCanvas.id, attribute.id, false);
     }
   }
 }

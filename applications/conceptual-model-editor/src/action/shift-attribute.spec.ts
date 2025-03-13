@@ -1,5 +1,5 @@
 /**
- * Tets {@link shiftAttributePositionAction} and {@link addSemanticAttributeToVisualModelAction} as side-effect.
+ * Tets {@link shiftAttributePositionAction} and {@link addSemanticAttributeToVisualNodeAction} as side-effect.
  */
 
 import { expect, test } from "vitest";
@@ -8,12 +8,13 @@ import { EntityModel } from "@dataspecer/core-v2";
 import { entityModelsMapToCmeVocabulary } from "../dataspecer/semantic-model/semantic-model-adapter";
 import { CreatedEntityOperationResult, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
+import { addSemanticAttributeToVisualNodeAction } from "./add-semantic-attribute-to-visual-node";
 import { ClassesContextType } from "../context/classes-context";
 import { representRdfsLiteral } from "../dialog/utilities/dialog-utilities";
 import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
 import { ShiftAttributeDirection, shiftAttributePositionAction } from "./shift-attribute";
 import { notificationMockup } from "./test/actions-test-suite";
+import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
 
 test("Test shift attribute - up and down", () => {
   const {
@@ -27,7 +28,7 @@ test("Test shift attribute - up and down", () => {
     const createdAttributeData = createSemanticAttributeTestVariant(models, `${i}`, cmeModels[0].dsIdentifier, `attribute-${i}`);
     newAttributes.push(createdAttributeData);
     addSemanticAttributeToVisualModelAction(
-      notificationMockup, visualModel, "0", createdAttributeData.identifier, null, false);
+      notificationMockup, visualModel, "0", createdAttributeData.identifier, false);
   }
   let nodeWithAttributes = visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode;
   expect(nodeWithAttributes.content).toEqual(newAttributes.map(attribute => attribute.identifier));
@@ -59,7 +60,7 @@ test("Test shift attribute - up and down over boundary", () => {
     const createdAttributeData = createSemanticAttributeTestVariant(models, `${i}`, cmeModels[0].dsIdentifier, `attribute-${i}`);
     newAttributes.push(createdAttributeData);
     addSemanticAttributeToVisualModelAction(
-      notificationMockup, visualModel, "0", createdAttributeData.identifier, null, false);
+      notificationMockup, visualModel, "0", createdAttributeData.identifier, false);
   }
   let nodeWithAttributes = visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode;
   expect(nodeWithAttributes.content).toEqual(newAttributes.map(attribute => attribute.identifier));
