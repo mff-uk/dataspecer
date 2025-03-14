@@ -40,9 +40,9 @@ export function PropertyEdgeToolbar({ value }: { value: EdgeToolbarProps | null 
     const waypoints = createWaypoints(
       sourceNode, data.waypoints ?? [], targetNode);
     //
-    const index = findClosestLine(waypoints, position);
-    console.log("Add waypoints:", {waypoints, position, index});
-    context?.callbacks().onAddWaypoint(data, index, position);
+    const waypointPosition = {x: value.x, y: value.y};
+    const index = findClosestLine(waypoints, waypointPosition);
+    context?.callbacks().onAddWaypoint(data, index, waypointPosition);
   };
 
   return (
