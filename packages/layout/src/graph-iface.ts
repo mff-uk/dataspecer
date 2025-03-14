@@ -188,79 +188,6 @@ export class VisualNodeComplete implements IVisualNodeComplete {
     }
 }
 
-/**
- * @deprecated
- */
-export interface IGraphIncidence {
-    nodes: Record<string, INode>,
-    incidenceMatrix: Record<string, Record<string, IEdgeIncidence>>,
-}
-
-/**
- * @deprecated
- */
-interface INode {
-    index: number,
-    node: SemanticModelEntity,
-    isProfile: boolean,
-}
-
-/**
- * @deprecated
- */
-interface IEdgeIncidence {
-    isProfile: boolean,
-    isGeneralization: boolean,
-}
-
-
-// It is probably just better to have Array<Array<IEdgeIncidence>> where IEdgeIncidence also has exists field
-// and have somewhere next the mapping of the indices in array to the actual nodes, ie. Record<number, INode>, INode also doesn't need index then
-// Such solution takes more memory (actual matrix), but I think it is much easier to use + the access should be a bit faster
-/**
- * @deprecated Classical representation should be enough, there is probably no need for this one
- */
-export class GraphIncidence implements IGraphIncidence {
-    constructor(extractedModels: ExtractedModels) {
-        // TODO: Again ... deprecated
-
-        // let index: number = 0;
-        // extractedModel.classes.forEach(cls => {
-        //     this.nodes[cls.id] = {
-        //         index: index, node: cls, isProfile: false
-        //     }
-        //     index++;
-        // });
-        // extractedModel.classesProfiles.forEach(cls => {
-        //     this.nodes[cls.id] = {
-        //         index: index, node: (cls as undefined as SemanticModelEntity), isProfile: true
-        //     }
-        //     index++;
-        // });
-
-        // extractedModel.relationships.forEach(r => {
-        //     const {source, target, ...rest} = getEdgeSourceAndTargetRelationship(r);
-        //     this.incidenceMatrix[source] = {};
-        //     this.incidenceMatrix[source][target] = {isProfile: false, isGeneralization: false};
-        // });
-
-        // extractedModel.relationshipsProfiles.forEach(r => {
-        //     const {source, target} = getEdgeSourceAndTargetRelationship(r);
-        //     this.incidenceMatrix[source] = {};
-        //     this.incidenceMatrix[source][target] = {isProfile: true, isGeneralization: true};
-        // });
-
-        // extractedModel.generalizations.forEach(g => {
-        //     const {source, target} = getEdgeSourceAndTargetGeneralization(g);
-        //     this.incidenceMatrix[source] = {};
-        //     this.incidenceMatrix[source][target] = {isProfile: false, isGeneralization: true};
-        // });
-    }
-
-    nodes: Record<string, INode> = {};
-    incidenceMatrix: Record<string, Record<string, IEdgeIncidence>> ={};
-}
-
 // TODO: This doesn't really make sense, just have interface IGraph which represents any graph
 //       (it will have only methods manipulating with it - addNode, ...), so something similiar to interface Graph (at top of the file)
 /**
@@ -1497,40 +1424,6 @@ export class EdgeClassic implements IEdgeClassic {
 
     convertToDataspecerRepresentation(): VisualRelationship | VisualProfileRelationship | null {
         return this.visualEdge.visualEdge;
-    }
-
-
-    /**
-     * @deprecated
-     */
-    private createNewVisualRelationshipBasedOnSemanticData(): VisualRelationship | VisualProfileRelationship {
-        // TODO: It makes sense to use the cme methods to create the visual entities - Instead of implementing it all again - just define method and call it
-        //      ... for example I am not sure the type should cotnain only the VISUAL_RELATIONSHIP_TYPE or also some other type, so for such cases constistency would be nice
-        if(this.edgeProfileType === "CLASS-PROFILE") {
-            const edgeToReturn: VisualProfileRelationship = {
-                identifier: Math.random().toString(36).substring(2),
-                entity: this.start.semanticEntityRepresentingNode.id,
-                type: [VISUAL_PROFILE_RELATIONSHIP_TYPE],
-                waypoints: [],
-                model: this?.sourceEntityModelIdentifier ?? "",
-                visualSource: this?.start?.completeVisualNode?.coreVisualNode?.identifier ?? "",
-                visualTarget: this?.end?.completeVisualNode?.coreVisualNode?.identifier ?? "",
-            };
-
-            return edgeToReturn;
-        }
-
-        const edgeToReturn: VisualRelationship = {
-            identifier: Math.random().toString(36).substring(2),
-            type: [VISUAL_RELATIONSHIP_TYPE],
-            representedRelationship: this?.semanticEntityRepresentingEdge?.id ?? this.id,
-            waypoints: [],
-            model: this?.sourceEntityModelIdentifier ?? "",
-            visualSource: this?.start?.completeVisualNode?.coreVisualNode?.identifier ?? "",
-            visualTarget: this?.end?.completeVisualNode?.coreVisualNode?.identifier ?? "",
-        };
-
-        return edgeToReturn;
     }
 
     // TODO: Maybe move it outside of the class since we are no longer using this.

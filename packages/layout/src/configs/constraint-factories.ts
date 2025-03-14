@@ -322,7 +322,6 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
             // TODO RadStr: Debug print
             console.info("sectorPopulations", clusterRoot.semanticEntityRepresentingNode.iri, leastPopulatedSector, sectorPopulations);
 
-            const layeredAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING["elk_layered"];
             const configuration = getDefaultUserGivenConstraintsVersion4();
             configuration.main.elk_layered.alg_direction = reverseDirection(leastPopulatedSector as Direction);
             configuration.main.elk_layered.in_layer_gap = 100;

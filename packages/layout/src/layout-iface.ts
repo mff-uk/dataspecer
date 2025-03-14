@@ -1,5 +1,3 @@
-import { VisualEntity } from "../../core-v2/lib/visual-model/visual-entity";
-
 import { SemanticModelEntity, isSemanticModelClass, isSemanticModelRelationship, isSemanticModelGeneralization,
     SemanticModelClass,
     SemanticModelGeneralization,
@@ -9,7 +7,6 @@ import { SemanticModelEntity, isSemanticModelClass, isSemanticModelRelationship,
 
 import { IGraphClassic, IMainGraphClassic, IVisualNodeComplete } from "./graph-iface";
 import { ConstraintContainer } from "./configs/constraint-container";
-import { NodeDimensionQueryHandler } from ".";
 import { VisualEntities } from "./migration-to-cme-v2";
 import { Entity, EntityModel } from "@dataspecer/core-v2";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
@@ -24,10 +21,7 @@ export type LayoutMethod = (inputSemanticModel: Record<string, SemanticModelEnti
  * It is also possible to call {@link runGeneralizationLayout} to layout the content the generalization subgraphs.
  */
 export interface LayoutAlgorithm {
-    /**
-     * @deprecated
-     */
-    prepare: (extractedModels: ExtractedModels, constraintContainer: ConstraintContainer, nodeDimensionQueryHandler: NodeDimensionQueryHandler) => void,
+
     /**
      * Prepares the algorithm for future layouting. The future layouting will layout given graph and use given constraints.
      * @param graph
@@ -50,11 +44,6 @@ export interface LayoutAlgorithm {
     // TODO: Again this could be generalized that we would layout list of any given subgraphs instead of the generalization subgraphs, so it sohuld be moved one level up and
     //       we should just call layout on the given subgraph
     runGeneralizationLayout: (shouldCreateNewGraph: boolean) => Promise<IMainGraphClassic>,
-    /**
-     * The idea was to allow user to stop layouting if it took too long, but probably won't be supported
-     * @deprecated
-     */
-    stop: () => void,
 
     // TODO: Again - why am I putting properties into interface??
     constraintContainer: ConstraintContainer;
@@ -117,20 +106,6 @@ export type AllowedEdgeBundleTypes = RelationshipsBundle | RelationshipsProfiles
  * This interface defines methods for transformation between our graph representation and layouting library representation.
  */
 export interface GraphTransformer {
-    /** Expected call flow is as follows:
-     * 1) Get {@link ExtractedModels} from provided model
-     * 2) Call this method
-     * 3) Perform layouting
-     * 4) Convert layouted elements to {@link LayoutedVisualEntities} using {@link convertToDataspecerRepresentation}, these elements can then be shown in cme (conceptual model editor).
-     * @deprecated (not deprecated yet though) Use {@link convertGraphToLibraryRepresentation} instead */
-    convertToLibraryRepresentation(extractedModels: ExtractedModels, options?: object): object,
-
-    /**
-     * Not necessarily deprecated, but it is better to just work with the graph instead of having another method which does the same thing, but maybe a little faster
-     * @deprecated
-     */
-    convertToDataspecerRepresentation(libraryRepresentation: object): VisualEntities,
-
 
     /** Expected call flow is as follows:
      * 1) Create graph representation of type {@link IGraphClassic}
