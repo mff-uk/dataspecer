@@ -352,7 +352,7 @@ const runMainLayoutAlgorithm = async (
 		{
 			name: "EdgeCrossingAngleMetric",
 			metric: new EdgeCrossingAngleMetric(),
-			weight: 1
+			weight: 0
 		},
 		{
 			name: "EdgeNodeCrossingMetric",
@@ -362,12 +362,12 @@ const runMainLayoutAlgorithm = async (
 		{
 			name: "AreaMetric",
 			metric: new AreaMetric(),
-			weight: 0.1
+			weight: 0
 		},
 		{
 			name: "NodeOrthogonalityMetric",
 			metric: new NodeOrthogonalityMetric(),
-			weight: 0.2
+			weight: 0.0
 		},
 	];
 	const computedMetricsData = createObjectsToHoldMetricsData(metricsWithWeights);

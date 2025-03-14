@@ -2,7 +2,7 @@ import { performLayoutFromGraph } from "..";
 import { GraphAlgorithms, ToConsiderFilter } from "../graph-algoritms";
 import { IMainGraphClassic } from "../graph-iface";
 import { LayoutAlgorithm, LayoutMethod } from "../layout-iface";
-import { Direction } from "../util/utils";
+import { Direction, reverseDirection } from "../util/utils";
 import { ALGORITHM_NAME_TO_LAYOUT_MAPPING, ConstraintContainer } from "./constraint-container";
 import { AlgorithmConfiguration, IGraphConversionConstraint, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraintSimple, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationslVersion2, UserGivenAlgorithmConfigurationslVersion4, GraphConversionConstraint, RandomConfiguration, getDefaultUserGivenConstraintsVersion4, AlgorithmPhases, ClusterifyConstraint, LayoutClustersActionConstraint, SpecificGraphConversions } from "./constraints";
 import { ElkForceConfiguration, ElkLayeredConfiguration, ElkRadialConfiguration, ElkSporeCompactionConfiguration, ElkSporeOverlapConfiguration, ElkStressConfiguration } from "./elk/elk-constraints";
@@ -307,8 +307,8 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
             const clusterRoot = graph.findNodeInAllNodes(cluster);
             const clusterRootPositionBeforeLayout = { ...clusterRoot.completeVisualNode.coreVisualNode.position };
             // TODO RadStr: Commented code - old variant
-            // const sectorPopulations = GraphAlgorithms.findSectorNodePopulation(graph, clusterRoot, ToConsiderFilter.All);
-            const sectorPopulations = GraphAlgorithms.findSectorNodePopulationUsingBoundingBox(graph, clusterRoot, ToConsiderFilter.OnlyNotLayouted);
+            const sectorPopulations = GraphAlgorithms.findSectorNodePopulation(graph, clusterRoot, ToConsiderFilter.OnlyNotLayouted);
+            // const sectorPopulations = GraphAlgorithms.findSectorNodePopulationUsingBoundingBox(graph, clusterRoot, ToConsiderFilter.OnlyNotLayouted);
             const populatedSectorsAscending = Object.entries(sectorPopulations)
                 .sort(([, edgesA], [, edgesB]) => edgesA - edgesB);
 
@@ -320,11 +320,11 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
             }
 
             // TODO RadStr: Debug print
-            console.info("sectorPopulations", leastPopulatedSector, sectorPopulations);
+            console.info("sectorPopulations", clusterRoot.semanticEntityRepresentingNode.iri, leastPopulatedSector, sectorPopulations);
 
             const layeredAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING["elk_layered"];
             const configuration = getDefaultUserGivenConstraintsVersion4();
-            configuration.main.elk_layered.alg_direction = leastPopulatedSector as Direction;
+            configuration.main.elk_layered.alg_direction = reverseDirection(leastPopulatedSector as Direction);
             configuration.main.elk_layered.in_layer_gap = 100;
             configuration.main.elk_layered.layer_gap = 50;
             configuration.main.elk_layered.edge_routing = "POLYLINE";

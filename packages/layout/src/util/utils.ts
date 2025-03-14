@@ -136,10 +136,23 @@ export function findNodeBorder(node: IVisualNodeComplete, next: XY): XY {
 
 
 export enum Direction {
-    Up = "UP",
-    Right = "RIGHT",
-    Down = "DOWN",
-    Left = "LEFT"
+  Up = "UP",
+  Right = "RIGHT",
+  Down = "DOWN",
+  Left = "LEFT"
+}
+
+export function reverseDirection(direction: Direction): Direction {
+  switch(direction) {
+    case Direction.Up:
+      return Direction.Down;
+    case Direction.Right:
+      return Direction.Left;
+    case Direction.Down:
+      return Direction.Up;
+    case Direction.Left:
+      return Direction.Right;
+  }
 }
 
 type PositionWithOptionalAnchor = {

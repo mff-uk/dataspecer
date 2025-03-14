@@ -348,8 +348,12 @@ export class GraphAlgorithms {
         [Direction.Left]: 0
       };
 
-      const boundingBoxWidth = 5 * ReactflowDimensionsConstantEstimator.getDefaultWidth();
-      const boundingBoxHeight = 5 * ReactflowDimensionsConstantEstimator.getDefaultHeight();
+      // TODO RadStr: Actually good, but I could play with the bounding box sizes, but more importantly
+      // I should ideally make it proportional to the distance of the root cluster
+      const verticalBoundingBoxWidth = 8 * ReactflowDimensionsConstantEstimator.getDefaultWidth();
+      const verticalBoundingBoxHeight = 6 * ReactflowDimensionsConstantEstimator.getDefaultHeight();
+      const horizontalBoundingBoxWidth = 3 * ReactflowDimensionsConstantEstimator.getDefaultWidth();
+      const horizontalBoundingBoxHeight = 20 * ReactflowDimensionsConstantEstimator.getDefaultHeight();
 
       const rootNodePosition = rootNode.completeVisualNode.coreVisualNode.position;
       for(const node of graph.allNodes) {
@@ -362,17 +366,25 @@ export class GraphAlgorithms {
         }
         const iteratedNodePosition = node.completeVisualNode.coreVisualNode.position;
 
-        if(iteratedNodePosition.x > rootNodePosition.x && iteratedNodePosition.x < rootNodePosition.x + boundingBoxWidth) {
+        if(iteratedNodePosition.x > rootNodePosition.x && iteratedNodePosition.x < rootNodePosition.x + horizontalBoundingBoxWidth &&
+          iteratedNodePosition.y > rootNodePosition.y - horizontalBoundingBoxHeight / 2 &&
+          iteratedNodePosition.y < rootNodePosition.y + horizontalBoundingBoxHeight / 2) {
           populations[Direction.Right]++;
         }
-        else if(iteratedNodePosition.x < rootNodePosition.x && iteratedNodePosition.x > rootNodePosition.x - boundingBoxWidth) {
+        else if(iteratedNodePosition.x < rootNodePosition.x && iteratedNodePosition.x > rootNodePosition.x - horizontalBoundingBoxWidth &&
+          iteratedNodePosition.y > rootNodePosition.y - horizontalBoundingBoxHeight / 2 &&
+          iteratedNodePosition.y < rootNodePosition.y + horizontalBoundingBoxHeight / 2) {
           populations[Direction.Left]++;
         }
 
-        if(iteratedNodePosition.y > rootNodePosition.y && iteratedNodePosition.y < rootNodePosition.y + boundingBoxHeight) {
+        if(iteratedNodePosition.y > rootNodePosition.y && iteratedNodePosition.y < rootNodePosition.y + verticalBoundingBoxHeight &&
+          iteratedNodePosition.x > rootNodePosition.x - verticalBoundingBoxWidth / 2 &&
+          iteratedNodePosition.x < rootNodePosition.x + verticalBoundingBoxWidth / 2) {
           populations[Direction.Down]++;
         }
-        else if(iteratedNodePosition.y < rootNodePosition.y  && iteratedNodePosition.y > rootNodePosition.y - boundingBoxHeight) {
+        else if(iteratedNodePosition.y < rootNodePosition.y && iteratedNodePosition.y > rootNodePosition.y - verticalBoundingBoxHeight &&
+          iteratedNodePosition.x > rootNodePosition.x - verticalBoundingBoxWidth / 2 &&
+          iteratedNodePosition.x < rootNodePosition.x + verticalBoundingBoxWidth / 2) {
           populations[Direction.Up]++;
         }
       }
