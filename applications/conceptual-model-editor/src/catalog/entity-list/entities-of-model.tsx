@@ -167,10 +167,17 @@ export const EntitiesOfModel = (props: {
           } else if (previous !== null && next !== null) {
 
             if(isVisualNode(next)) {
-              const {removed, added} = getRemovedAndAdded((previous as VisualNode).content, next.content)
+              const { removed: removedAtrtibutes, added: addedAttributes } =
+                getRemovedAndAdded((previous as VisualNode).content, next.content);
               setVisible(prev => {
-                const newVisible = prev.filter(previouslyVisibleElement => !removed.includes(previouslyVisibleElement));
-                newVisible.push(...added);
+                const newVisible = [...prev];
+                for (const removedAttribute of removedAtrtibutes) {
+                  const index = newVisible.indexOf(removedAttribute);
+                  // We have to remove only the first occurrence,
+                  // because of the fact that the attribute can be present on multiple nodes.
+                  newVisible.splice(index, 1);
+                }
+                newVisible.push(...addedAttributes);
                 return newVisible;
               });
             }
