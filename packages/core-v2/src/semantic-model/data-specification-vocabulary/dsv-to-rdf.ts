@@ -20,6 +20,8 @@ const IRI = DataFactory.namedNode;
 
 const Literal = DataFactory.literal;
 
+const Quad = DataFactory.quad;
+
 interface ConceptualModelToRdfConfiguration {
 
   /**
@@ -121,15 +123,21 @@ class ConceptualModelWriter {
     // We do not write this into properties.
     this.addIris(profile.iri, DSV.profileOf, profile.profileOfIri);
     for (const item of profile.reusesPropertyValue) {
-      const node = DataFactory.blankNode();
-      // We need to use writer directly as we work with blank node.
-      this.writer.addQuad(IRI(profile.iri), DSV.reusesPropertyValue, node);
-      this.writer.addQuad(
-        node, RDF.type, DSV.PropertyValueReuse);
-      this.writer.addQuad(
-        node, DSV.reusedProperty, IRI(item.reusedPropertyIri));
-      this.writer.addQuad(
-        node, DSV.reusedFromResource, IRI(item.propertyreusedFromResourceIri));
+      // We use the [ ... ] notation for blank nodes.
+      this.writer.addQuad(Quad(
+        IRI(profile.iri),
+        DSV.reusesPropertyValue,
+        this.writer.blank([{
+          predicate: RDF.type,
+          object: DSV.PropertyValueReuse,
+        }, {
+          predicate: DSV.reusedProperty,
+          object: IRI(item.reusedPropertyIri),
+        }, {
+          predicate: DSV.reusedFromResource,
+          object: IRI(item.propertyreusedFromResourceIri)
+        }])
+      ));
     }
   }
 

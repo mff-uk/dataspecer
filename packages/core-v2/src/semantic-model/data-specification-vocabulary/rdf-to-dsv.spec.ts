@@ -14,17 +14,20 @@ test("From RDF to DSV and back.", async () => {
 @prefix owl: <http://www.w3.org/2002/07/owl#>.
 @prefix skos: <http://www.w3.org/2004/02/skos/core#>.
 
+
 <http://dcat-ap-cz/model> a dsv:ConceptualModel.
 
 <https://dcat-ap/#Dataset> dct:isPartOf <http://dcat-ap-cz/model>;
     a dsv:Profile;
     dsv:reusesPropertyValue [
-      dsv:reusedProperty skos:prefLabel ;
-      dsv:reusedFromResource <http://www.w3.org/ns/dcat#Dataset> ;
-    ], [
-      dsv:reusedProperty <http://purl.org/vocab/vann/usageNote> ;
-      dsv:reusedFromResource <http://www.w3.org/ns/dcat#Dataset> ;
-    ];
+  a dsv:PropertyValueReuse;
+  dsv:reusedProperty skos:prefLabel;
+  dsv:reusedFromResource <http://www.w3.org/ns/dcat#Dataset>
+], [
+  a dsv:PropertyValueReuse;
+  dsv:reusedProperty <http://purl.org/vocab/vann/usageNote>;
+  dsv:reusedFromResource <http://www.w3.org/ns/dcat#Dataset>
+];
     a dsv:ClassProfile;
     dsv:class <http://www.w3.org/ns/dcat#Dataset>.
 
@@ -32,12 +35,14 @@ test("From RDF to DSV and back.", async () => {
     dct:isPartOf <http://dcat-ap-cz/model>;
     a dsv:Profile;
     dsv:reusesPropertyValue [
-      dsv:reusedProperty skos:prefLabel ;
-      dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution> ;
-    ], [
-      dsv:reusedProperty <http://purl.org/vocab/vann/usageNote> ;
-      dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution> ;
-    ];
+  a dsv:PropertyValueReuse;
+  dsv:reusedProperty skos:prefLabel;
+  dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution>
+], [
+  a dsv:PropertyValueReuse;
+  dsv:reusedProperty <http://purl.org/vocab/vann/usageNote>;
+  dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution>
+];
     dsv:cardinality <https://w3id.org/dsv#0n>;
     dsv:property <http://www.w3.org/ns/dcat#distribution>;
     a dsv:ObjectPropertyProfile;
@@ -118,59 +123,9 @@ test("From RDF to DSV and back.", async () => {
   expect(actualModels[0]).toStrictEqual(expectedModel);
 
   const actualRdf = await conceptualModelToRdf(actualModels[0] as any, {});
+
   // We can not compare to input due to blank nodes.
-  expect(actualRdf).toBe(`@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
-@prefix dct: <http://purl.org/dc/terms/>.
-@prefix dsv: <https://w3id.org/dsv#>.
-@prefix owl: <http://www.w3.org/2002/07/owl#>.
-@prefix skos: <http://www.w3.org/2004/02/skos/core#>.
-
-
-<http://dcat-ap-cz/model> a dsv:ConceptualModel.
-
-<https://dcat-ap/#Dataset> dct:isPartOf <http://dcat-ap-cz/model>;
-    a dsv:Profile;
-    dsv:reusesPropertyValue _:n3-4.
-_:n3-4 a dsv:PropertyValueReuse;
-    dsv:reusedProperty skos:prefLabel;
-    dsv:reusedFromResource <http://www.w3.org/ns/dcat#Dataset>.
-
-<https://dcat-ap/#Dataset> dsv:reusesPropertyValue _:n3-5.
-_:n3-5 a dsv:PropertyValueReuse;
-    dsv:reusedProperty <http://purl.org/vocab/vann/usageNote>;
-    dsv:reusedFromResource <http://www.w3.org/ns/dcat#Dataset>.
-
-<https://dcat-ap/#Dataset> a dsv:ClassProfile;
-    dsv:class <http://www.w3.org/ns/dcat#Dataset>.
-
-<http://www.w3.org/ns/dcat#distribution-profile> dsv:domain <https://dcat-ap/#Dataset>;
-    dct:isPartOf <http://dcat-ap-cz/model>;
-    a dsv:Profile;
-    dsv:reusesPropertyValue _:n3-6.
-_:n3-6 a dsv:PropertyValueReuse;
-    dsv:reusedProperty skos:prefLabel;
-    dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution>.
-
-<http://www.w3.org/ns/dcat#distribution-profile> dsv:reusesPropertyValue _:n3-7.
-_:n3-7 a dsv:PropertyValueReuse;
-    dsv:reusedProperty <http://purl.org/vocab/vann/usageNote>;
-    dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution>.
-
-<http://www.w3.org/ns/dcat#distribution-profile> dsv:cardinality <https://w3id.org/dsv#0n>;
-    dsv:property <http://www.w3.org/ns/dcat#distribution>;
-    a dsv:ObjectPropertyProfile;
-    dsv:objectPropertyRange <http://dcat-ap/ns/dcat#Distribution>.
-
-<https://dcat-ap-cz/#Dataset> dct:isPartOf <http://dcat-ap-cz/model>;
-    a dsv:Profile;
-    dsv:profileOf <https://dcat-ap/#Dataset>;
-    a dsv:ClassProfile.
-
-<http://dcat-ap/ns/dcat#Distribution> dct:isPartOf <http://dcat-ap-cz/model>;
-    a dsv:Profile, dsv:ClassProfile;
-    dsv:class <http://www.w3.org/ns/dcat#Distribution>.
-`);
+  expect(actualRdf).toBe(inputRdf);
 });
 
 test("Issue #989", async () => {
