@@ -23,12 +23,13 @@ export function removeFromArray<Type>(
 
 /**
  * Add item, using given identifier, to respective bucket.
+ * If your map is represented using {@link Map} type then use the {@link addToMapArray} instead.
  *
  * @example
  * const buckets : Record<string, any> = {}
- * addToMapArray("bucket", {}, buckets);
+ * addToRecordArray("bucket", {}, buckets);
  */
-export function addToMapArray<IdentifierType extends string, ValueType>(
+export function addToRecordArray<IdentifierType extends string, ValueType>(
   identifier: IdentifierType,
   value: ValueType,
   map: Record<IdentifierType, ValueType[]>,
@@ -37,6 +38,27 @@ export function addToMapArray<IdentifierType extends string, ValueType>(
   if (array === undefined) {
     array = [];
     map[identifier] = array;
+  }
+  array.push(value);
+}
+
+/**
+ * Add item, using given identifier, to respective bucket.
+ * If your map is represented using {@link Record} type then use the {@link addToRecordArray} instead.
+ *
+ * @example
+ * const buckets : Map<string, any> = {}
+ * addToRecordArray("bucket", {}, buckets);
+ */
+export function addToMapArray<IdentifierType extends string, ValueType>(
+  identifier: IdentifierType,
+  value: ValueType,
+  map: Map<IdentifierType, ValueType[]>,
+): void {
+  let array = map.get(identifier);
+  if (array === undefined) {
+    array = [];
+    map.set(identifier, array);
   }
   array.push(value);
 }

@@ -8,11 +8,11 @@ import { Options, createLogger } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { firstInMemorySemanticModel } from "../utilities/model";
 import { CreatedEntityOperationResult, createGeneralization, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
-import { addSemanticRelationshipToVisualModelAction } from "./add-relationship-to-visual-model";
 import { createCreateAssociationDialogState, createNewAssociationDialog } from "../dialog/association/create-new-association-dialog-state";
 import { EditAssociationDialogState } from "../dialog/association/edit-association-dialog-controller";
 import { EntityModel } from "@dataspecer/core-v2";
 import { CreatedSemanticEntityData } from "./open-create-class-dialog";
+import { addVisualRelationshipsWithSpecifiedVisualEnds } from "../dataspecer/visual-model/operation/add-visual-relationships";
 
 const LOG = createLogger(import.meta.url);
 
@@ -60,13 +60,12 @@ export function createSemanticAssociation(
   if(shouldAddToVisualModel) {
     // Add to visual model if possible.
     if (isWritableVisualModel(visualModel)) {
-      const source = visualModel.getVisualEntityForRepresented(state.domain.identifier);
-      const target = visualModel.getVisualEntityForRepresented(state.range.identifier);
-      if (source !== null && target !== null) {
-        // Both ends are in the visual model.
-        addSemanticRelationshipToVisualModelAction(
-          notifications, graph, visualModel,
-          createResult.identifier, createResult.model.getId());
+      const visualSources = visualModel.getVisualEntitiesForRepresented(state.domain.identifier);
+      const visualTargets = visualModel.getVisualEntitiesForRepresented(state.range.identifier);
+      if (visualSources.length > 0 && visualTargets.length > 0) {
+        // Both ends are in the visual model with at least one node.
+        addVisualRelationshipsWithSpecifiedVisualEnds(
+          visualModel, createResult.model.getId(), createResult.identifier, visualSources, visualTargets);
       }
     }
   }

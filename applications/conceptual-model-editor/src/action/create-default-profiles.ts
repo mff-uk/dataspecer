@@ -26,8 +26,8 @@ export async function createDefaultProfilesAction(
   options: Options,
   classesContext: ClassesContextType,
   visualModel: VisualModel | null,
-  nodesToProfile: string[],
-  edgesToProfile: string[],
+  semanticClassesToProfile: string[],
+  semanticRelationshipsToProfile: string[],
   shouldBeAddedToVisualModel: boolean
 ): Promise<void> {
   const writableSemanticModel = findAnyWritableModelFromRawInput(graph.models, visualModel);
@@ -38,17 +38,17 @@ export async function createDefaultProfilesAction(
   // We have to wait otherwise we might start creating relation profiles for non-existing class profiles
   const createdClassProfiles = await createDefaultClassProfiles(
     cmeExecutor, notifications, graph, diagram, options, classesContext,
-    visualModel, nodesToProfile, shouldBeAddedToVisualModel);
+    visualModel, semanticClassesToProfile, shouldBeAddedToVisualModel);
   createDefaultRelationshipProfiles(
-    notifications, graph, visualModel, writableSemanticModel, edgesToProfile,
-    createdClassProfiles, shouldBeAddedToVisualModel)
+    notifications, graph, visualModel, writableSemanticModel, semanticRelationshipsToProfile,
+    createdClassProfiles, shouldBeAddedToVisualModel);
 };
 
 //
 
 /**
- * Creates classes and class profiles from given {@link nodesToProfile} containing semantic identifiers of entities to profile and adds the profiles to the visual model.
- * @returns The created map of created class and class profiles. Key is the identifier from {@link nodesToProfile} and value is the identifier of the created profile.
+ * Creates classes and class profiles from given {@link classesAndClassProfilesToProfile} containing semantic identifiers of entities to profile and adds the profiles to the visual model.
+ * @returns The created map of created class and class profiles. Key is the identifier from {@link classesAndClassProfilesToProfile} and value is the identifier of the created profile.
  * Or null, if it is explicitly null, then it means that we failed to create the class profile for some reason.
  */
 async function createDefaultClassProfiles(
@@ -59,15 +59,15 @@ async function createDefaultClassProfiles(
   options: Options,
   classesContext: ClassesContextType,
   visualModel: VisualModel | null,
-  nodesToProfile: string[],
+  classesAndClassProfilesToProfile: string[],
   shouldBeAddedToVisualModel: boolean
 ): Promise<Record<string, string | null>> {
   const createdClassProfiles: Record<string, string | null> = {};
-  for (const selectedEntityId of nodesToProfile) {
+  for (const entityToProfile of classesAndClassProfilesToProfile) {
     const createdClassProfile = await createDefaultClassProfile(
       cmeExecutor, notifications, graph, diagram, options, classesContext,
-      visualModel, selectedEntityId, shouldBeAddedToVisualModel);
-    createdClassProfiles[selectedEntityId] = createdClassProfile;
+      visualModel, entityToProfile, shouldBeAddedToVisualModel);
+    createdClassProfiles[entityToProfile] = createdClassProfile;
   }
 
   return createdClassProfiles;
@@ -146,7 +146,8 @@ function createDefaultRelationshipProfiles(
   createdClassProfiles: Record<string, string | null>,
   shouldBeAddedToVisualModel: boolean
 ) {
-  const writableSemanticModel = graph.models.get(writableCmeModel.dsIdentifier) as InMemorySemanticModel;   // Casting ... the correctness should be already validated
+  // Casting ... the correctness should be already validated
+  const writableSemanticModel = graph.models.get(writableCmeModel.dsIdentifier) as InMemorySemanticModel;
   for (const edgeToProfile of edgesToProfile) {
     createDefaultRelationshipProfile(
       notifications, graph, writableSemanticModel, visualModel,
@@ -156,7 +157,8 @@ function createDefaultRelationshipProfiles(
 
 /**
  * Creates relationship profile of given entity with default parameters,
- * that it is the resulting relationship profile is the same as if the user opened the dialog and clicked accept without changing anything.
+ * that it is the resulting relationship profile is the same as if the user opened the dialog and
+ * clicked accept without changing anything.
  */
 function createDefaultRelationshipProfile(
   notifications: UseNotificationServiceWriterType,

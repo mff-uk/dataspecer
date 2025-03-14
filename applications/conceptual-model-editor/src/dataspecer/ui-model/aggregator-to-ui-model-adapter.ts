@@ -12,7 +12,7 @@ import { TranslationFunction, createLogger } from "../../application";
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { MISSING_MODEL_IDENTIFIER } from "./ui-well-know";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../entity-model";
-import { addToMapArray } from "../../utilities/functional";
+import { addToRecordArray } from "../../utilities/functional";
 import { createEmptyState } from "./ui-model-state";
 
 const LOG = createLogger(import.meta.url);
@@ -205,7 +205,7 @@ function semanticGeneralizationToUiGeneralization(
     vocabulary: model,
     iri: entity.iri,
     // We use this as a placeholder to be set later.
-    visualDsIdentifier: getVisualIdentifier(visualModel, entity),
+    visualDsIdentifiers: getVisualIdentifiers(visualModel, entity),
     parent: {
       entityDsIdentifier: entity.parent,
       vocabularyDsIdentifier: getOwnerModelIdentifier(referenceModels, entity.parent),
@@ -219,11 +219,11 @@ function semanticGeneralizationToUiGeneralization(
   }
 }
 
-function getVisualIdentifier(visualModel: VisualModel | null, entity: { id: string }) {
+function getVisualIdentifiers(visualModel: VisualModel | null, entity: { id: string }) {
   if (visualModel === null) {
-    return null;
+    return [];
   }
-  return visualModel.getVisualEntityForRepresented(entity.id)?.identifier ?? null;
+  return visualModel.getVisualEntitiesForRepresented(entity.id).map(visualEntity => visualEntity.identifier);
 }
 
 function semanticClassToUiClass(
@@ -238,7 +238,7 @@ function semanticClassToUiClass(
     dsIdentifier: entity.id,
     iri: entity.iri ?? null,
     displayLabel: getLabel(languages, entity.name),
-    visualDsIdentifier: getVisualIdentifier(visualModel, entity),
+    visualDsIdentifiers: getVisualIdentifiers(visualModel, entity),
   };
 }
 
@@ -284,7 +284,7 @@ function semanticClassUsageToUiClassProfile(
     dsIdentifier: entity.id,
     iri: aggregate.iri ?? null,
     displayLabel: getLabel(languages, aggregate.name),
-    visualDsIdentifier: getVisualIdentifier(visualModel, entity),
+    visualDsIdentifiers: getVisualIdentifiers(visualModel, entity),
     profiles: [{
       profileOf: {
         entityDsIdentifier: entity.usageOf,
@@ -311,7 +311,7 @@ function semanticRelationshipToUiAttribute(
     dsIdentifier: entity.id,
     iri: range?.iri ?? null,
     displayLabel: getLabel(languages, range?.name),
-    visualDsIdentifier: getVisualIdentifier(visualModel, entity),
+    visualDsIdentifiers: getVisualIdentifiers(visualModel, entity),
     domain: {
       entityDsIdentifier: domain?.concept ?? MISSING_MODEL_IDENTIFIER,
       vocabularyDsIdentifier: getOwnerModelIdentifier(referenceModels, domain?.concept),
@@ -339,7 +339,7 @@ function semanticRelationshipToUiAssociation(
     dsIdentifier: entity.id,
     iri: range?.iri ?? null,
     displayLabel: getLabel(languages, range?.name),
-    visualDsIdentifier: getVisualIdentifier(visualModel, entity),
+    visualDsIdentifiers: getVisualIdentifiers(visualModel, entity),
     domain: {
       entityDsIdentifier: domain?.concept ?? MISSING_MODEL_IDENTIFIER,
       vocabularyDsIdentifier: getOwnerModelIdentifier(referenceModels, domain?.concept),
@@ -368,7 +368,7 @@ function semanticRelationshipUsageToUiAttributeProfile(
     dsIdentifier: entity.id,
     iri: range?.iri ?? null,
     displayLabel: getLabel(languages, range?.name),
-    visualDsIdentifier: getVisualIdentifier(visualModel, entity),
+    visualDsIdentifiers: getVisualIdentifiers(visualModel, entity),
     profiles: [{
       profileOf: {
         entityDsIdentifier: entity.usageOf,
@@ -402,7 +402,7 @@ function semanticRelationshipUsageToUiAssociationProfile(
     dsIdentifier: entity.id,
     iri: range?.iri ?? null,
     displayLabel: getLabel(languages, range?.name),
-    visualDsIdentifier: getVisualIdentifier(visualModel, entity),
+    visualDsIdentifiers: getVisualIdentifiers(visualModel, entity),
     profiles: [{
       profileOf: {
         entityDsIdentifier: entity.usageOf,
@@ -430,8 +430,8 @@ function updateGeneralizationLabels(state: UiModelState): UiGeneralization[] {
   const parents: Record<EntityDsIdentifier, number[]> = {};
   const children: Record<EntityDsIdentifier, number[]> = {};
   state.generalizations.forEach((item, index) => {
-    addToMapArray(item.parent.entityDsIdentifier, index, parents);
-    addToMapArray(item.child.entityDsIdentifier, index, children);
+    addToRecordArray(item.parent.entityDsIdentifier, index, parents);
+    addToRecordArray(item.child.entityDsIdentifier, index, children);
   });
 
   // Next we iterate all entities and update values when necessary.
@@ -589,7 +589,7 @@ export function visualModelToUiState(
 ): UiModelState {
   const updatedVisual = updateUiStateVisual(state,
     (identifier) => visualModel.getModelColor(identifier) ?? defaultColor,
-    (identifier) => visualModel.getVisualEntityForRepresented(identifier));
+    (identifier) => visualModel.getVisualEntitiesForRepresented(identifier));
   return {
     ...updatedVisual,
     visualModel,
@@ -602,7 +602,7 @@ export function visualModelToUiState(
 function updateUiStateVisual(
   state: UiModelState,
   getModelColor: (model: ModelDsIdentifier) => string,
-  getVisualEntityForRepresented: (represented: RepresentedEntityIdentifier) => VisualEntity | null,
+  getVisualEntitiesForRepresented: (represented: RepresentedEntityIdentifier) => VisualEntity[],
 ): UiModelState {
   // We start with updating the models.
   const models: Record<string, UiVocabulary> = {};
@@ -622,13 +622,13 @@ function updateUiStateVisual(
   const updateEntity = <T extends {
     dsIdentifier: EntityDsIdentifier,
     vocabulary: UiVocabulary,
-    visualDsIdentifier: EntityDsIdentifier | null,
+    visualDsIdentifiers: EntityDsIdentifier[],
   }>(item: T): T => {
-    const visual = getVisualEntityForRepresented(item.dsIdentifier);
+    const visuals = getVisualEntitiesForRepresented(item.dsIdentifier);
     return {
       ...item,
       vocabulary: models[item.vocabulary.dsIdentifier],
-      visualDsIdentifier: visual?.identifier ?? null,
+      visualDsIdentifiers: visuals.map(visual => visual.identifier),
     };
   };
 
@@ -658,7 +658,7 @@ export function removeVisualModelToUiState(
   // Then we remove the visual model information.
   const updatedVisual = updateUiStateVisual(state,
     () => defaultColor,
-    () => null);
+    () => []);
   return {
     ...updatedVisual,
     visualModel: null,

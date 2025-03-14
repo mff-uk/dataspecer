@@ -45,10 +45,10 @@ export { ReactflowDimensionsConstantEstimator } from "./dimension-estimators/con
 import type { EdgeRouting } from "./configs/constraints";
 export type { EdgeRouting };
 
-import { placePositionOnGrid } from "./util/utils";
+import { placeCoordinateOnGrid, placePositionOnGrid } from "./util/utils";
 import { ExplicitAnchors } from "./explicit-anchors";
 export { AnchorOverrideSetting } from "./explicit-anchors";
-export { placePositionOnGrid };
+export { placeCoordinateOnGrid, placePositionOnGrid };
 
 export { type ExplicitAnchors } from "./explicit-anchors";
 export { type VisualModelWithOutsiders } from "./graph-iface";

@@ -59,9 +59,9 @@ class VisualModelMock implements VisualModel {
 
   private modelColors: Record<string, HexColor>;
 
-  private represented: Record<string, VisualEntity>;
+  private represented: Record<string, VisualEntity[]>;
 
-  constructor(modelColors: Record<string, HexColor>, represented: Record<string, VisualEntity>) {
+  constructor(modelColors: Record<string, HexColor>, represented: Record<string, VisualEntity[]>) {
     this.modelColors = modelColors;
     this.represented = represented;
   }
@@ -74,8 +74,12 @@ class VisualModelMock implements VisualModel {
     throw new Error("Method not implemented.");
   }
 
-  getVisualEntityForRepresented(identifier: RepresentedEntityIdentifier): VisualEntity | null {
-    return this.represented[identifier] ?? null;
+  getVisualEntitiesForRepresented(identifier: RepresentedEntityIdentifier): VisualEntity[] {
+    return this.represented[identifier] ?? [];
+  }
+
+  hasVisualEntityForRepresented(identifier: RepresentedEntityIdentifier): boolean {
+    return this.getVisualEntitiesForRepresented(identifier).length > 0;
   }
 
   getVisualEntities(): Map<string, VisualEntity> {
@@ -215,7 +219,7 @@ describe("onChangeSemanticModels", () => {
         vocabulary: vocabulary,
         displayLabel: "",
         iri: "",
-        visualDsIdentifier: null,
+        visualDsIdentifiers: [],
       }],
       classProfiles: [],
       attributes: [],
@@ -315,7 +319,7 @@ describe("onVisualEntitiesDidChange", () => {
         vocabulary: vocabulary,
         displayLabel: "",
         iri: "",
-        visualDsIdentifier: null,
+        visualDsIdentifiers: [],
       }],
       classProfiles: [],
       attributes: [],
@@ -326,20 +330,30 @@ describe("onVisualEntitiesDidChange", () => {
       visualModel: null,
     };
 
-    const actual = onVisualEntitiesDidChange([{
-      previous: null,
-      next: {
-        identifier: "vis-id",
-        type: [VISUAL_NODE_TYPE],
-        representedEntity: "0000"
-      } as VisualNode,
-    }], previous);
+    const actual = onVisualEntitiesDidChange([
+      {
+        previous: null,
+        next: {
+          identifier: "vis-id1",
+          type: [VISUAL_NODE_TYPE],
+          representedEntity: "0000"
+        } as VisualNode,
+      },
+      {
+        previous: null,
+        next: {
+          identifier: "vis-id2",
+          type: [VISUAL_NODE_TYPE],
+          representedEntity: "0000"
+        } as VisualNode,
+      }
+    ], previous);
 
     const expected: UiModelState = {
       ...previous,
       classes: [{
         ...previous.classes[0],
-        visualDsIdentifier: "vis-id"
+        visualDsIdentifiers: ["vis-id1", "vis-id2"]
       }],
     };
 
@@ -363,7 +377,7 @@ describe("onVisualEntitiesDidChange", () => {
         vocabulary: vocabulary,
         displayLabel: "",
         iri: "",
-        visualDsIdentifier: "vis-id",
+        visualDsIdentifiers: ["vis-id1", "vis-id2"],
       }],
       classProfiles: [],
       attributes: [],
@@ -374,20 +388,33 @@ describe("onVisualEntitiesDidChange", () => {
       visualModel: null,
     };
 
-    const actual = onVisualEntitiesDidChange([{
-      previous: {
-        identifier: "vis-id",
-        type: [VISUAL_NODE_TYPE],
-        representedEntity: "0000"
-      } as VisualNode,
-      next: null,
-    }], previous);
+    const actual = onVisualEntitiesDidChange([
+      {
+        previous: {
+          identifier: "vis-id1",
+          type: [VISUAL_NODE_TYPE],
+          representedEntity: "0000"
+        } as VisualNode,
+        next: {
+          identifier: "vis-id1",
+          type: [VISUAL_NODE_TYPE],
+          representedEntity: "0000"
+        } as VisualNode,
+      },
+      {
+        previous: {
+          identifier: "vis-id2",
+          type: [VISUAL_NODE_TYPE],
+          representedEntity: "0000"
+        } as VisualNode,
+        next: null,
+      }], previous);
 
     const expected: UiModelState = {
       ...previous,
       classes: [{
         ...previous.classes[0],
-        visualDsIdentifier: null
+        visualDsIdentifiers: ["vis-id1"]
       }],
     };
 
@@ -415,7 +442,7 @@ describe("onModelColorDidChange", () => {
         vocabulary: vocabulary,
         displayLabel: "",
         iri: "",
-        visualDsIdentifier: null,
+        visualDsIdentifiers: [],
       }],
       classProfiles: [],
       attributes: [],

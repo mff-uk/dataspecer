@@ -52,10 +52,10 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
     context?.callbacks().onRemoveAttributeFromNode(attribute, props.data.identifier);
   const editAttribute = (attribute: string, isAttributeProfile: boolean) => () => {
     if(isAttributeProfile) {
-      context?.callbacks().onEditAttributeProfile(attribute, props.data.identifier);
+      context?.callbacks().onEditAttributeProfile(attribute);
     }
     else {
-      context?.callbacks().onEditAttribute(attribute, props.data.identifier);
+      context?.callbacks().onEditAttribute(attribute);
     }
   }
 
@@ -144,11 +144,12 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
   const onShowDetail = () => context?.callbacks().onShowNodeDetail(props.data);
   const onEdit = () => context?.callbacks().onEditNode(props.data);
   const onCreateProfile = () => context?.callbacks().onCreateNodeProfile(props.data);
+  const onDuplicateNode = () => context?.callbacks().onDuplicateNode(props.data);
   const onHide = () => context?.callbacks().onHideNode(props.data);
   const onDelete = () => context?.callbacks().onDeleteNode(props.data);
   const onAnchor = () => context?.callbacks().onToggleAnchorForNode(props.data.identifier);
   const onDissolveGroup = () => context?.callbacks().onDissolveGroup(props.data.group);
-  const onAddAttribute = () => context?.callbacks().onAddAttributeForNode(props.data);
+  const onAddAttribute = () => context?.callbacks().onCreateAttributeForNode(props.data);
 
   // TODO RadStr: Create OnEditAttributesForNode method
   const {openEditNodeAttributesDialog} = useActions();
@@ -169,6 +170,8 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
         <button onClick={onCreateProfile} title={t("class-profile-button")}>🧲</button>
         &nbsp;
         <button onClick={onEditAttributes} title={t("edit-node-attributes-visiblity-button")}>📏</button>
+        &nbsp;
+        <button onClick={onDuplicateNode} title={t("duplicate-node-button")}>⿻</button>
         &nbsp;
       </NodeToolbar>
       <NodeToolbar isVisible={shouldShowToolbar} position={Position.Right} className="flex gap-2 entity-node-menu" >

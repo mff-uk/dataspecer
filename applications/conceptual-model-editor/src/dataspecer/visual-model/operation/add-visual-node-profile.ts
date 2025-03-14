@@ -1,6 +1,6 @@
+import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { EntityReference } from "../../entity-model";
 import { DataspecerError } from "../../dataspecer-error";
-import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 /**
  * Adds a visual representation for class profile.
@@ -12,18 +12,23 @@ export function addVisualNodeProfile(
   profile: EntityReference,
   profiled: EntityReference,
 ) {
-  const visualSource = visualModel.getVisualEntityForRepresented(profile.identifier);
-  const visualTarget = visualModel.getVisualEntityForRepresented(profiled.identifier);
-  if (visualSource === null || visualTarget === null) {
+  const sources = visualModel.getVisualEntitiesForRepresented(profile.identifier);
+  const targets = visualModel.getVisualEntitiesForRepresented(profiled.identifier);
+  if (sources.length === 0 || targets.length === 0) {
     console.error("Missing visual representation",
-      { profile, profiled, visualSource: visualSource, visualTarget: visualTarget });
+      { profile, profiled, visualSource: sources, visualTarget: targets });
     throw new DataspecerError("Can not add visual node profile.");
   }
-  visualModel.addVisualProfileRelationship({
-    entity: profile.identifier,
-    model: profile.model,
-    visualSource: visualSource.identifier,
-    visualTarget: visualTarget.identifier,
-    waypoints: [],
-  });
+
+  for (const source of sources) {
+    for (const target of targets) {
+      visualModel.addVisualProfileRelationship({
+        entity: profile.identifier,
+        model: profile.model,
+        visualSource: source.identifier,
+        visualTarget: target.identifier,
+        waypoints: [],
+      });
+    }
+  }
 }

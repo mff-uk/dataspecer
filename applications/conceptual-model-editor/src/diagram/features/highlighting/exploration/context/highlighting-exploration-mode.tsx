@@ -93,7 +93,7 @@ export const useExploration = () => {
   } = useContext(ExplorationContext);
 
   const changeHighlight = (
-    startingNodeId: string,
+    startingNodesIdentifiers: string[],
     reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
     isSourceOfEventCanvas: boolean,
     _modelOfClassWhichStartedHighlighting: string | null
@@ -104,19 +104,14 @@ export const useExploration = () => {
 
     const newVisualIdentifierToSemanticIdentifierMap: Record<string, string> = {};
     const newHighlightLevelsMap = {};
+    const mainHighlightedNodes: NodeType[] = [];
 
-    const reactflowNode = reactFlowInstance.getNode(startingNodeId);
-    if(reactflowNode === undefined) {
-      return;
-    }
-    const changingHighlightingForSelection = reactflowNode.selected === true;
-
-    let mainHighlightedNodes: NodeType[];
-    if(changingHighlightingForSelection) {
-      mainHighlightedNodes = reactFlowInstance.getNodes().filter(node => node.selected === true);
-    }
-    else {
-      mainHighlightedNodes = [reactflowNode];
+    for(const startingNodeIdentifier of startingNodesIdentifiers) {
+      const reactflowNode = reactFlowInstance.getNode(startingNodeIdentifier);
+      if(reactflowNode === undefined) {
+        continue;
+      }
+      mainHighlightedNodes.push(reactflowNode);
     }
 
     const connectedEdges = getConnectedEdges(mainHighlightedNodes, reactFlowInstance.getEdges());

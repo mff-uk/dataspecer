@@ -23,6 +23,6 @@ export function isAttributeDomainInVisualModel(
     domainConcept = domain?.concept ?? "";
   }
 
-  const isDomainOnCanvas = visualModel.getVisualEntityForRepresented(domainConcept) !== null;
+  const isDomainOnCanvas = visualModel.hasVisualEntityForRepresented(domainConcept);
   return isDomainOnCanvas;
 }

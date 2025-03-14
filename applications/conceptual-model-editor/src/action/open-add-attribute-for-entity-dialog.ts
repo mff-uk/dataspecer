@@ -16,8 +16,8 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
 import { CreatedEntityOperationResult, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { EditAssociationProfileDialogState } from "../dialog/association-profile/edit-association-profile-dialog-controller";
 import { isSemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
 import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
+import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -50,7 +50,7 @@ export function openCreateAttributeForEntityDialogAction(
         if (result?.identifier !== undefined) {
           addSemanticAttributeToVisualModelAction(
             notifications, visualModel, state.domain.identifier,
-            result.identifier, null, true);
+            result.identifier, true);
         }
       }
 
@@ -71,7 +71,7 @@ export function openCreateAttributeForEntityDialogAction(
         if (result.identifier !== undefined) {
           addSemanticAttributeToVisualModelAction(
             notifications, visualModel, state.domain.identifier,
-            result.identifier, null, true);
+            result.identifier, true);
         }
       }
 

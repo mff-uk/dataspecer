@@ -16,11 +16,11 @@ import { DiagramActions, DiagramCallbacks, Edge, Group, GroupWithContent, Node, 
 import { ClassesContextType } from "../context/classes-context";
 import { CreatedSemanticEntityData } from "./open-create-class-dialog";
 import { addEntitiesFromSemanticModelToVisualModelAction } from "./add-entities-from-semantic-model-to-visual-model";
-import { noActionNotificationServiceWriter } from "../notification/notification-service-context";
 import { isSemanticModelClass, isSemanticModelRelationship, SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { createCmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
+import { notificationMockup } from "./test/actions-test-suite";
 
 // TODO RadStr: For now - since layout prints a lot of debug stuff
 //             (based on https://stackoverflow.com/questions/44467657/better-way-to-disable-console-inside-unit-tests)
@@ -40,7 +40,7 @@ test("Test - no relationships", async () => {
   const diagram = createTestDiagramForNodePlacement();
   const relevantModel = [...models.entries()][0][1];
   await addEntitiesFromSemanticModelToVisualModelAction(
-    noActionNotificationServiceWriter, classesContext, graph,
+    notificationMockup, classesContext, graph,
     diagram, visualModel, relevantModel);
 
   const result = [...visualModel.getVisualEntities().entries()].map(entity => entity[1]);
@@ -60,7 +60,7 @@ test("Test - square (4 classes connected in a way that it looks like square)", a
   const diagram = createTestDiagramForNodePlacement();
   const relevantModel = [...models.entries()][1][1];
   await addEntitiesFromSemanticModelToVisualModelAction(
-    noActionNotificationServiceWriter, classesContext, graph,
+    notificationMockup, classesContext, graph,
     diagram, visualModel, relevantModel);
 
   const result = [...visualModel.getVisualEntities().entries()].map(entity => entity[1]);
@@ -85,7 +85,7 @@ test("Test - fully connected graph", async () => {
   const diagram = createTestDiagramForNodePlacement();
   const relevantModel = [...models.entries()][2][1];
   await addEntitiesFromSemanticModelToVisualModelAction(
-    noActionNotificationServiceWriter, classesContext, graph,
+    notificationMockup, classesContext, graph,
     diagram, visualModel, relevantModel);
 
   const result = [...visualModel.getVisualEntities().entries()].map(entity => entity[1]);
@@ -115,7 +115,7 @@ test("Test - fully connected graph - Test attribute visibility when showing hidd
   const createdAttributeProfile = createSemanticAttributeProfileTestVariant(
     classesContext, models, createdAttribute.identifier, classWithAttribute, relevantModel.getId());
   await addEntitiesFromSemanticModelToVisualModelAction(
-    noActionNotificationServiceWriter, classesContext, graph,
+    notificationMockup, classesContext, graph,
     diagram, visualModel, relevantModel);
 
   const result = [...visualModel.getVisualEntities().entries()].map(entity => entity[1]);
@@ -134,7 +134,7 @@ test("Test - fully connected graph - Test attribute visibility when showing hidd
     .map(relationship => relationship.id).sort();
   expect(edges.map(edge => edge.representedRelationship).sort()).toEqual(expectedRelationshipRepresentedIds);
   // Check attribute validity
-  const nodeWithAttributeContent = (visualModel.getVisualEntityForRepresented(classWithAttribute) as VisualNode).content;
+  const nodeWithAttributeContent = (visualModel.getVisualEntitiesForRepresented(classWithAttribute)[0] as VisualNode).content;
   expect(nodeWithAttributeContent.length).toBe(2);
   expect(nodeWithAttributeContent[0]).toBe(createdAttribute.identifier);
   expect(nodeWithAttributeContent[1]).toBe(createdAttributeProfile.identifier);
@@ -162,11 +162,11 @@ test("Test - fully connected graph - Test attribute visibility when clicking the
     content: [createdAttributeProfile.identifier],
     visualModels: []
   });
-  expect((visualModel.getVisualEntityForRepresented(classWithAttribute) as VisualNode).content)
+  expect((visualModel.getVisualEntitiesForRepresented(classWithAttribute)[0] as VisualNode).content)
     .toEqual([createdAttributeProfile.identifier]);
   //
   await addEntitiesFromSemanticModelToVisualModelAction(
-    noActionNotificationServiceWriter, classesContext, graph,
+    notificationMockup, classesContext, graph,
     diagram, visualModel, relevantModel);
 
   const result = [...visualModel.getVisualEntities().entries()].map(entity => entity[1]);
@@ -185,7 +185,7 @@ test("Test - fully connected graph - Test attribute visibility when clicking the
     .map(relationship => relationship.id).sort();
   expect(edges.map(edge => edge.representedRelationship).sort()).toEqual(expectedRelationshipRepresentedIds);
   // Check attribute validity
-  const nodeWithAttributeContent = (visualModel.getVisualEntityForRepresented(classWithAttribute) as VisualNode).content;
+  const nodeWithAttributeContent = (visualModel.getVisualEntitiesForRepresented(classWithAttribute)[0] as VisualNode).content;
   expect(nodeWithAttributeContent.length).toBe(2);
   expect(nodeWithAttributeContent[0]).toBe(createdAttributeProfile.identifier);
   expect(nodeWithAttributeContent[1]).toBe(createdAttribute.identifier);
@@ -536,8 +536,8 @@ const createTestDiagramForNodePlacement = () => {
         openGroupMenu: function (_groupIdentifier: string, _canvasPosition: Position): void {
           throw new Error("Function not implemented.");
         },
-        highlightNodeInExplorationModeFromCatalog: function (
-          _nodeIdentifier: string,
+        highlightNodesInExplorationModeFromCatalog: function (
+          _nodeIdentifiers: string[],
           _modelOfClassWhichStartedHighlighting: string
         ): void {
           throw new Error("Function not implemented.");

@@ -40,7 +40,7 @@ export function openCreateAttributeDialogAction(
       if(result?.identifier !== undefined) {
         addSemanticAttributeToVisualModelAction(
           notifications, visualModel, state.domain.identifier,
-          result.identifier, null, true);
+          result.identifier, true);
       }
     }
   };

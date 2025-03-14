@@ -206,9 +206,12 @@ export interface DiagramActions {
   /**
    * Sets correct highlighting values in context. We have to call it through the diagram API,
    * because we have access to the rendering library (reactflow) only in diagram component.
-   * @param nodeIdentifier is the identifier of the node to highlight
+   * @param nodeIdentifiers are the identifiers of the nodes to highlight.
    */
-  highlightNodeInExplorationModeFromCatalog(nodeIdentifier: string, modelOfClassWhichStartedHighlighting: string): void;
+  highlightNodesInExplorationModeFromCatalog(
+    nodeIdentifiers: string[],
+    modelOfClassWhichStartedHighlighting: string
+  ): void;
 }
 
 /**
@@ -431,9 +434,15 @@ interface DiagramNodes {
 
   /**
    * Called when user starts creating node's profile.
-   * @param identifier is the identifier of the node of which the profile is being created.
+   * @param diagramNode is the node to create profile from.
    */
   onCreateNodeProfile: (diagramNode: Node) => void;
+
+  /**
+   * Called when user wants to create new copy of the node on canvas.
+   * @param diagramNode is the node to create copy of.
+   */
+  onDuplicateNode: (diagramNode: Node) => void;
 
   /**
    * Called when user hides node, i. e. removes it from canvas.
@@ -491,7 +500,7 @@ interface DiagramNodes {
   /**
    * Called when user starts creation of a new attribute for given node.
    */
-  onAddAttributeForNode: (diagramNode: Node) => void;
+  onCreateAttributeForNode: (diagramNode: Node) => void;
 
   /**
    * Called when user chooses to remove {@link attribute}.
@@ -503,16 +512,14 @@ interface DiagramNodes {
   /**
    * Called when user chooses to edit {@link attribute}.
    * @param attribute is the identifier the of the attribute to be edited
-   * @param nodeIdentifer is the identifier of the node on which the attribute resides.
    */
-  onEditAttribute: (attribute: string, nodeIdentifer: string) => void;
+  onEditAttribute: (attribute: string) => void;
 
   /**
    * Called when user chooses to edit {@link attributeProfile}.
    * @param attributeProfile is the identifier the of the attribute profile to be edited
-   * @param nodeIdentifer is the identifier of the node on which the attribute profile resides.
    */
-  onEditAttributeProfile: (attributeProfile: string, nodeIdentifer: string) => void;
+  onEditAttributeProfile: (attributeProfile: string) => void;
 
   /**
    * Called when user chooses to move given {@link attribute} move one position up.

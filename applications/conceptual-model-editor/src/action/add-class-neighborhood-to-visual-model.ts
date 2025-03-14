@@ -18,14 +18,22 @@ export const addClassNeighborhoodToVisualModelAction = async (
     identifiers: [identifier],
     areIdentifiersFromVisualModel: false
   };
-  const neighborhoodPromise = extendSelectionAction(notifications, graph, classes, inputForExtension,
-    [ExtensionType.Association, ExtensionType.Generalization], VisibilityFilter.All, false, null);
+  const neighborhoodPromise = extendSelectionAction(
+    notifications, graph, classes, inputForExtension,
+    [ExtensionType.Association, ExtensionType.Generalization],
+    VisibilityFilter.All, false, null);
 
   return neighborhoodPromise.then(async (neighborhood) => {
     const classesOrClassProfilesToAdd: EntityToAddToVisualModel[] = [{identifier, position: null}];
 
-    // We have to filter the source class, whose neighborhood we are adding, from the extension
-    classesOrClassProfilesToAdd.push(...neighborhood.selectionExtension.nodeSelection.filter(node => node !== identifier).map(node => ({identifier: node, position: null})));
-    await addSemanticEntitiesToVisualModelAction(notifications, classes, graph, visualModel, diagram, classesOrClassProfilesToAdd);
+    // We have to filter the source class, whose neighborhood we are adding, from the extension.
+    // Because we don't want to have duplicate there.
+    classesOrClassProfilesToAdd.push(
+      ...neighborhood.selectionExtension.nodeSelection
+        .filter(node => node !== identifier)
+        .map(node => ({identifier: node, position: null}))
+    );
+    await addSemanticEntitiesToVisualModelAction(
+      notifications, classes, graph, visualModel, diagram, classesOrClassProfilesToAdd);
   });
 };
