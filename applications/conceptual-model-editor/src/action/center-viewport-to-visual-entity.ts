@@ -25,8 +25,7 @@ export function centerViewportToVisualEntityByRepresentedAction(
   _modelIdentifier: string,
 ) {
   const attribute = findAttributeWithIdentifier(entityIdentifier, classesContext);
-  // TODO RadStr: For the implementation of content
-  // let isAttribute = false;
+  let isAttribute = false;
   if(attribute !== undefined) {
     let domainClassIdentifier;
     if(isSemanticModelAttribute(attribute)) {
@@ -41,6 +40,7 @@ export function centerViewportToVisualEntityByRepresentedAction(
       return;
     }
 
+    isAttribute = true;
     entityIdentifier = domainClassIdentifier;
   }
 
@@ -49,15 +49,15 @@ export function centerViewportToVisualEntityByRepresentedAction(
     notifications.error("There is no active visual model.");
     return;
   }
-  const visualEntities = visualModel.getVisualEntitiesForRepresented(entityIdentifier);
+  let visualEntities = visualModel.getVisualEntitiesForRepresented(entityIdentifier);
+  if(isAttribute) {
+    visualEntities = visualEntities.filter(isVisualNode).filter(node => node.content.includes(attribute!.id));
+  }
   if (visualEntities.length === 0) {
     notifications.error("There is no visual representation of the entity.");
     return;
   }
-  // TODO RadStr: For the implementation of content
-  // if(isAttribute) {
-  //   visualEntities.filter(isVisualNode).filter(node => node.content.includes(attribute!.id));
-  // }
+
   const visualEntity = visualEntities[Math.trunc(currentlyIteratedEntity) % visualEntities.length];
   centerToVisualEntity(diagram, visualEntity);
 };

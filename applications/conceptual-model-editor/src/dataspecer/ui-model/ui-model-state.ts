@@ -272,7 +272,7 @@ function getRepresentedByVisual(visual: VisualEntity): EntityDsIdentifier | null
  */
 function updateVisual<T extends {
   dsIdentifier: EntityDsIdentifier,
-  visualDsIdentifiers: EntityDsIdentifier[] | null,
+  visualDsIdentifiers: EntityDsIdentifier[],
 }>(items: T[], changes: Record<EntityDsIdentifier, EntityDsIdentifier[]>): T[] {
   return items.map(item => ({
     ...item,

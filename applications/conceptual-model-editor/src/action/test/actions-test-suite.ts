@@ -21,7 +21,7 @@ export class ActionsTestSuite {
    *
    * @param diagramActionsSpecifiedByUser specify some actions as user needs for the tested code
    * @returns Returns diagram with most actions throwing error.
-   * But methods some do have legitimate implementation.
+   * But some methods do have legitimate implementation.
    */
   static createTestDiagram(diagramActionsSpecifiedByUser?: Partial<DiagramActions>) {
     const diagram: UseDiagramType = {

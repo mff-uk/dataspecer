@@ -93,13 +93,13 @@ export const RowHierarchy = (props: {
     ...relationshipProfiles.filter(item => item.ends.find(end => end.profiling.includes(entity.id)) !== undefined),
   ];
 
-  // TODO RadStr: Here probably should be isSemanticModelAttributeProfile also, not sure why it works without it
   const targetHandler = {
     centerViewportOnEntityHandler: (entityNumberToBeCentered: number) =>
       props.handlers.handleTargeting(entity.id, entityNumberToBeCentered),
     isTargetable: props.onCanvas.includes(entity.id) ||
                   isSemanticModelAttribute(entity) ||
-                  isSemanticModelAttributeUsage(entity),
+                  isSemanticModelAttributeUsage(entity) ||
+                  isSemanticModelAttributeProfile(entity),
   };
 
   const model = findSourceModelOfEntity(entity.id, models);

@@ -57,18 +57,14 @@ function addAttributesToRemoveToTheMap(
 ) {
   const domainIdentifier = domainAndRange.domain?.concept ?? null;
   if(domainIdentifier === null) {
-    notifications.error("One of given attributes has invalid domain");
+    notifications.error("Given attribute has invalid domain");
     return;
   }
 
   const nodes = visualModel.getVisualEntitiesForRepresented(domainIdentifier);
   for (const node of nodes) {
-    if(node === undefined) {
-      notifications.error("One of given attributes has not existing node as domain");
-      return;
-    }
     if(!isVisualNode(node)) {
-      notifications.error("One of given attributes has something else than node as domain");
+      notifications.error("Given attribute has something else than node as domain");
       return;
     }
 

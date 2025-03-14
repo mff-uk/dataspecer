@@ -582,7 +582,7 @@ function addSemanticAttributeToFirstVisualNodeByRepresented(
   position: number | null,
 ) {
   const visualNode = visualModel.getVisualEntitiesForRepresented(represented)[0];
-  if(visualNode === null) {
+  if(visualNode === undefined) {
     fail("Test failed can't find node entity");
   }
   if(!isVisualNode(visualNode)) {
