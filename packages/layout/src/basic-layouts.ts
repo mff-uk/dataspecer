@@ -1,4 +1,4 @@
-import { ExtractedModels, LayoutAlgorithm } from "./layout-iface";
+import { LayoutAlgorithm } from "./layout-iface";
 import { ConstraintContainer } from "./configs/constraint-container";
 import { IGraphClassic, IMainGraphClassic, } from "./graph-iface";
 import _ from "lodash";
@@ -50,6 +50,5 @@ export class RandomLayout implements LayoutAlgorithm {
     }
 
     graph: IGraphClassic;
-    extractedModels: ExtractedModels;         // TODO: Can remove
     constraintContainer: ConstraintContainer;
 }

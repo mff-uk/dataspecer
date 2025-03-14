@@ -1,12 +1,9 @@
-import { IEdgeClassic, IGraphClassic, IMainGraphClassic } from "../graph-iface"
+import { IEdgeClassic, IGraphClassic } from "../graph-iface"
 import { Direction } from "../util/utils";
-import { ALGORITHM_NAME_TO_LAYOUT_MAPPING, AlgorithmName } from "./constraint-container";
+import { AlgorithmName } from "./constraint-container";
 import _ from "lodash";
 import { ElkForceAlgType } from "./elk/elk-constraints";
-import { NodeDimensionQueryHandler, UserGivenConstraintsVersion2 } from "..";
-import { compactify } from "./constraints-implementation";
-import { GraphAlgorithms } from "../graph-algoritms";
-import { ConstraintFactory } from "./constraint-factories";
+import { UserGivenConstraintsVersion2 } from "..";
 
 
 export type ConstraintedNodesGroupingsType = "ALL" | "GENERALIZATION" | "PROFILE";

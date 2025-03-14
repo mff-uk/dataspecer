@@ -1,18 +1,19 @@
 import { LayoutOptions } from "elkjs";
-import { AlgorithmPhases, AlgorithmConfiguration, LayeredConfiguration, RadialConfiguration, SporeConfiguration, StressConfiguration, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationElkForce } from "../constraints";
+import {
+    AlgorithmPhases,
+    AlgorithmConfiguration,
+    LayeredConfiguration,
+    RadialConfiguration,
+    SporeConfiguration,
+    StressConfiguration,
+    UserGivenAlgorithmConfiguration,
+    UserGivenAlgorithmConfigurationElkForce
+} from "../constraints";
 import { modifyElkDataObject } from "./elk-utils";
 import _ from "lodash";
 
 
 export type ElkForceAlgType = "FRUCHTERMAN_REINGOLD" | "EADES";
-
-
-/**
- * @deprecated Probably replaced by {@link ElkConstraint}
- */
-export interface ElkConstraintSimple extends AlgorithmConfiguration {
-    data: LayoutOptions;
-}
 
 export interface ElkConstraint {
     elkData: LayoutOptions;

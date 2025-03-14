@@ -19,11 +19,11 @@ export class EdgeCrossingMetric implements Metric {
                             continue;
                         }
 
-                        edgeCrossingCount += EdgeCrossingMetric.isEdgeCrossForStraightLines(edge1.start.completeVisualNode, edge1.end.completeVisualNode,
-                                                                                            edge2.start.completeVisualNode, edge2.end.completeVisualNode);
+                        edgeCrossingCount += EdgeCrossingMetric.isEdgeCrossForStraightLines(
+                            edge1.start.completeVisualNode, edge1.end.completeVisualNode,
+                            edge2.start.completeVisualNode, edge2.end.completeVisualNode);
                     }
-                }
-                )
+                });
             }
         });
 

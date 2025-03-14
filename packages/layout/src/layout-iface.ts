@@ -1,4 +1,8 @@
-import { SemanticModelEntity, isSemanticModelClass, isSemanticModelRelationship, isSemanticModelGeneralization,
+import {
+    SemanticModelEntity,
+    isSemanticModelClass,
+    isSemanticModelRelationship,
+    isSemanticModelGeneralization,
     SemanticModelClass,
     SemanticModelGeneralization,
     SemanticModelRelationship,
@@ -9,7 +13,12 @@ import { IGraphClassic, IMainGraphClassic, IVisualNodeComplete } from "./graph-i
 import { ConstraintContainer } from "./configs/constraint-container";
 import { VisualEntities } from "./migration-to-cme-v2";
 import { Entity, EntityModel } from "@dataspecer/core-v2";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+    isSemanticModelClassProfile,
+    isSemanticModelRelationshipProfile,
+    SemanticModelClassProfile,
+    SemanticModelRelationshipProfile
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 
 export type LayoutMethod = (inputSemanticModel: Record<string, SemanticModelEntity>, options?: object) => Promise<VisualEntities>

@@ -1,4 +1,3 @@
-import { ReactflowDimensionsConstantEstimator } from "../../dimension-estimators/constant-dimension-estimator";
 import { GraphClassic, IGraphClassic } from "../../graph-iface";
 import { getBotRightPosition, getTopLeftPosition } from "../../util/utils";
 import { AllMetricData, Metric } from "../graph-metrics-iface";

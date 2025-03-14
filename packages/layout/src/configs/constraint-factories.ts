@@ -1,11 +1,32 @@
 import { performLayoutFromGraph } from "..";
 import { GraphAlgorithms, ToConsiderFilter } from "../graph-algoritms";
 import { IMainGraphClassic } from "../graph-iface";
-import { LayoutAlgorithm, LayoutMethod } from "../layout-iface";
+import { LayoutMethod } from "../layout-iface";
 import { Direction, reverseDirection } from "../util/utils";
-import { ALGORITHM_NAME_TO_LAYOUT_MAPPING, ConstraintContainer } from "./constraint-container";
-import { AlgorithmConfiguration, IGraphConversionConstraint, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraintSimple, UserGivenAlgorithmConfiguration, UserGivenAlgorithmConfigurationslVersion2, UserGivenAlgorithmConfigurationslVersion4, GraphConversionConstraint, RandomConfiguration, getDefaultUserGivenConstraintsVersion4, AlgorithmPhases, ClusterifyConstraint, LayoutClustersActionConstraint, SpecificGraphConversions } from "./constraints";
-import { ElkForceConfiguration, ElkLayeredConfiguration, ElkRadialConfiguration, ElkSporeCompactionConfiguration, ElkSporeOverlapConfiguration, ElkStressConfiguration } from "./elk/elk-constraints";
+import { ConstraintContainer } from "./constraint-container";
+import {
+    AlgorithmConfiguration,
+    IGraphConversionConstraint,
+    IAlgorithmConfiguration,
+    IConstraintSimple,
+    UserGivenAlgorithmConfiguration,
+    UserGivenAlgorithmConfigurationslVersion4,
+    GraphConversionConstraint,
+    RandomConfiguration,
+    getDefaultUserGivenConstraintsVersion4,
+    AlgorithmPhases,
+    ClusterifyConstraint,
+    LayoutClustersActionConstraint,
+    SpecificGraphConversions
+} from "./constraints";
+import {
+    ElkForceConfiguration,
+    ElkLayeredConfiguration,
+    ElkRadialConfiguration,
+    ElkSporeCompactionConfiguration,
+    ElkSporeOverlapConfiguration,
+    ElkStressConfiguration
+} from "./elk/elk-constraints";
 
 
 function getOverlapConfigurationToRunAfterMainAlgorithm() {

@@ -17,11 +17,11 @@ export class ReactflowDimensionsConstantEstimator implements NodeDimensionQueryH
         return 58;
     }
 
-    getWidth(estimatedNode: INodeClassic): number {
+    getWidth(_estimatedNode: INodeClassic): number {
         return ReactflowDimensionsConstantEstimator.getDefaultWidth();
     }
 
-    getHeight(estimatedNode: INodeClassic): number {
+    getHeight(_estimatedNode: INodeClassic): number {
         return ReactflowDimensionsConstantEstimator.getDefaultHeight();
     }
 }

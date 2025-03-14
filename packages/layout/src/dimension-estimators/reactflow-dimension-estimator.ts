@@ -1,4 +1,3 @@
-import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { NodeDimensionQueryHandler } from "..";
 import { INodeClassic } from "../graph-iface";
 import { getEdgeSourceAndTargetRelationship } from "../layout-iface";
@@ -16,7 +15,7 @@ export class ReactflowDimensionsEstimator implements NodeDimensionQueryHandler {
         const TEST_STRING = TEST_MODEL_STRING + "PlainState";
         const APPROXIMATION_OF_WIDTH_OF_ONE_CHARACTER = ReactflowDimensionsConstantEstimator.getDefaultWidth() / TEST_STRING.length;
         let maxAtrLength = estimatedNode.getAttributes().reduce((currMax, currAttribute) => {
-            const {source, target, sourceIndex, targetIndex} = getEdgeSourceAndTargetRelationship(currAttribute);
+            const { targetIndex } = getEdgeSourceAndTargetRelationship(currAttribute);
             return Math.max(currMax, currAttribute.ends[targetIndex].name?.en?.length ?? 0);       // TODO: Just english tag for now
         }, 0);
 

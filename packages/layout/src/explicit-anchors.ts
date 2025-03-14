@@ -34,9 +34,6 @@ export type ExplicitAnchors = {
 
 
 /**
- *
- * @param identifier
- * @param explicitAnchors
  * @param defaultAnchorValue This value is relevant for the "merge-with-original-anchors" and "only-original-anchors" cases,
  * since if it isn't overriden using the {@link explicitAnchors} then we return the given default.
  * @returns

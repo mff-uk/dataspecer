@@ -1,4 +1,3 @@
-import { NodeDimensionQueryHandler } from "..";
 import { IMainGraphClassic } from "../graph-iface";
 import { ConstraintContainer } from "./constraint-container";
 import { compactify } from "./constraints-implementation";

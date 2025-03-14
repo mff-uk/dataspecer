@@ -1,4 +1,4 @@
-import { GraphClassic, INodeClassic } from "../graph-iface";
+import { GraphClassic } from "../graph-iface";
 
 /**
  * Represents graph metric

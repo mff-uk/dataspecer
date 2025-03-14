@@ -1,13 +1,52 @@
-import { isSemanticModelGeneralization, SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { AllowedEdgeBundleTypes, EntitiesBundle, ExtractedModels, extractModelObjects, GeneralizationsBundle, getEdgeSourceAndTargetGeneralization, getEdgeSourceAndTargetRelationship, RelationshipsBundle, RelationshipsProfilesBundle } from "./layout-iface";
+import {
+    isSemanticModelGeneralization,
+    SemanticModelEntity,
+    SemanticModelGeneralization,
+    SemanticModelRelationship
+} from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+    AllowedEdgeBundleTypes,
+    ExtractedModels,
+    extractModelObjects,
+    GeneralizationsBundle,
+    getEdgeSourceAndTargetRelationship,
+    RelationshipsBundle,
+    RelationshipsProfilesBundle
+ } from "./layout-iface";
 
-import { VisualModel, isVisualNode, Position, VisualEntity, VisualNode, VisualRelationship, isVisualRelationship, isVisualProfileRelationship, VisualProfileRelationship, VISUAL_PROFILE_RELATIONSHIP_TYPE, VISUAL_RELATIONSHIP_TYPE, VISUAL_NODE_TYPE, isVisualGroup } from "@dataspecer/core-v2/visual-model";
-import { capitalizeFirstLetter, getBotRightPosition, getTopLeftPosition, PhantomElementsFactory, placePositionOnGrid } from "./util/utils";
-import { LayoutedVisualEntity, LayoutedVisualEntities } from "./migration-to-cme-v2";
+import {
+    VisualModel,
+    isVisualNode,
+    VisualNode,
+    VisualRelationship,
+    isVisualRelationship,
+    isVisualProfileRelationship,
+    VisualProfileRelationship,
+    VISUAL_PROFILE_RELATIONSHIP_TYPE,
+    VISUAL_RELATIONSHIP_TYPE,
+    VISUAL_NODE_TYPE,
+    isVisualGroup
+} from "@dataspecer/core-v2/visual-model";
+import {
+    capitalizeFirstLetter,
+    getBotRightPosition,
+    getTopLeftPosition,
+    PhantomElementsFactory,
+    placePositionOnGrid
+} from "./util/utils";
+import { LayoutedVisualEntities } from "./migration-to-cme-v2";
 import { EntityModel } from "@dataspecer/core-v2";
 import { ExplicitAnchors, isEntityWithIdentifierAnchored } from "./explicit-anchors";
-import { NodeDimensionQueryHandler, ReactflowDimensionsEstimator, VisualEntitiesWithOutsiders, XY } from ".";
-import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import {
+    NodeDimensionQueryHandler,
+    ReactflowDimensionsEstimator,
+     VisualEntitiesWithOutsiders,
+     XY
+    } from ".";
+import {
+    SemanticModelClassProfile,
+    SemanticModelRelationshipProfile
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
 
 // TODO RadStr LAYOUT: After merge fix - I think that this is present in core-v2 utlities in the another open PR
@@ -206,7 +245,8 @@ export interface IGraphClassic extends INodeClassic {
         graphIdentifier: string,
         nodeContentOfGraph: Array<EdgeEndPoint> | null,
         isDummy: boolean,
-        nodeDimensionQueryHandler?: NodeDimensionQueryHandler | null);
+        nodeDimensionQueryHandler?: NodeDimensionQueryHandler | null
+    );
     initialize(
         mainGraph: IMainGraphClassic,
         sourceGraph: IGraphClassic,
@@ -216,8 +256,13 @@ export interface IGraphClassic extends INodeClassic {
         visualModel: VisualModel,
         entitiesToLayout: VisualEntitiesWithOutsiders,
         nodeDimensionQueryHandler?: NodeDimensionQueryHandler | null,
-        explicitAnchors?: ExplicitAnchors);
-    insertSubgraphToGraph(subgraph: IGraphClassic, nodesInSubgraph: Array<EdgeEndPoint>, shouldSplitEdges: boolean): void;
+        explicitAnchors?: ExplicitAnchors
+    );
+    insertSubgraphToGraph(
+        subgraph: IGraphClassic,
+        nodesInSubgraph: Array<EdgeEndPoint>,
+        shouldSplitEdges: boolean
+    ): void;
 }
 
 // export class GraphFactory {

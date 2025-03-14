@@ -1,5 +1,16 @@
 import { Direction, ReactflowDimensionsConstantEstimator } from ".";
-import { addToRecordArray, EdgeClassic, EdgeEndPoint, GraphClassic, IEdgeClassic, IGraphClassic, IMainGraphClassic, INodeClassic, NodeClassic, VisualNodeComplete } from "./graph-iface";
+import {
+  addToRecordArray,
+  EdgeClassic,
+  EdgeEndPoint,
+  GraphClassic,
+  IEdgeClassic,
+  IGraphClassic,
+  IMainGraphClassic,
+  INodeClassic,
+  NodeClassic,
+  VisualNodeComplete
+} from "./graph-iface";
 import { EdgeNodeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-node-crossing";
 
 export enum ToConsiderFilter {

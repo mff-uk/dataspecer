@@ -1,5 +1,4 @@
 
-import { ReactflowDimensionsConstantEstimator } from "../../dimension-estimators/constant-dimension-estimator";
 import { GraphClassic, IEdgeClassic, IGraphClassic } from "../../graph-iface";
 import { AllMetricData, Metric } from "../graph-metrics-iface";
 import { EdgeCrossingMetric } from "./edge-crossing";

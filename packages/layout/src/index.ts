@@ -1,28 +1,20 @@
-import { SemanticModelEntity, isSemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { Position, VisualEntity, VisualModel } from "@dataspecer/core-v2/visual-model";
-import { ExtractedModels, LayoutAlgorithm, LayoutMethod, extractModelObjects } from "./layout-iface";
+import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
+import { Position, VisualModel } from "@dataspecer/core-v2/visual-model";
+import { LayoutAlgorithm } from "./layout-iface";
 
 import {
-	UserGivenConstraints,
-	UserGivenAlgorithmConfigurationslVersion2,
 	ConstraintTime,
 	IConstraint,
 	IConstraintSimple,
-	getDefaultUserGivenConstraintsVersion2,
 	UserGivenAlgorithmConfigurationslVersion4,
-	getDefaultUserGivenAlgorithmConstraint,
 	AlgorithmConfiguration,
-	getDefaultMainUserGivenAlgorithmConstraint,
-	getDefaultUserGivenConstraintsVersion4,
 	GraphConversionConstraint,
-	IAlgorithmConfiguration,
 } from "./configs/constraints";
-import { GraphClassic, GraphFactory, IGraphClassic, IMainGraphClassic, INodeClassic, MainGraphClassic, VisualModelWithOutsiders, VisualNodeComplete } from "./graph-iface";
+import { GraphClassic, GraphFactory, IMainGraphClassic, INodeClassic, VisualModelWithOutsiders } from "./graph-iface";
 import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs/constraint-container";
 import { Entities, Entity, EntityModel } from "@dataspecer/core-v2";
 import { ConstraintFactory, SPECIFIC_ALGORITHM_CONVERSIONS_MAP } from "./configs/constraint-factories";
 import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
-import { PhantomElementsFactory } from "./util/utils";
 import { CONSTRAINT_MAP } from "./configs/constraints-mapping";
 import type { LayoutedVisualEntities, VisualEntitiesWithModelVisualInformation } from "./migration-to-cme-v2";
 export { type LayoutedVisualEntities } from "./migration-to-cme-v2";
@@ -30,8 +22,18 @@ export type { VisualEntitiesWithModelVisualInformation };
 import { EdgeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-crossing";
 import { EdgeNodeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-node-crossing";
 
-export type { IConstraintSimple, UserGivenConstraints, UserGivenAlgorithmConfigurationslVersion2 as UserGivenConstraintsVersion2, UserGivenAlgorithmConfigurationslVersion4 as UserGivenConstraintsVersion4 } from "./configs/constraints";
-export { getDefaultUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion2, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4 } from "./configs/constraints";
+export type {
+	IConstraintSimple,
+	UserGivenConstraints,
+	UserGivenAlgorithmConfigurationslVersion2 as UserGivenConstraintsVersion2,
+	UserGivenAlgorithmConfigurationslVersion4 as UserGivenConstraintsVersion4
+} from "./configs/constraints";
+export {
+	getDefaultUserGivenAlgorithmConstraint,
+	getDefaultUserGivenConstraintsVersion2,
+	getDefaultMainUserGivenAlgorithmConstraint,
+	getDefaultUserGivenConstraintsVersion4
+} from "./configs/constraints";
 export type { AlgorithmName } from "./configs/constraint-container";
 
 import { Direction } from "./util/utils";

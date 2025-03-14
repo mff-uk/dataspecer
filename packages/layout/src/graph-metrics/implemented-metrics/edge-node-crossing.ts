@@ -1,5 +1,4 @@
-import { Position } from "@dataspecer/core-v2/visual-model";
-import { EdgeEndPoint, GraphClassic, IEdgeClassic, IGraphClassic, IVisualNodeComplete } from "../../graph-iface";
+import { GraphClassic, IEdgeClassic, IGraphClassic, IVisualNodeComplete } from "../../graph-iface";
 import { AllMetricData, Metric } from "../graph-metrics-iface";
 import { EdgeCrossingMetric } from "./edge-crossing";
 

@@ -1,5 +1,11 @@
 
-import { IGraphConversionConstraint, ConstraintedNodesGroupingsType, IAlgorithmConfiguration, IAlgorithmOnlyConstraint, IConstraint, IConstraintSimple, GraphConversionConstraint } from "./constraints";
+import {
+    IGraphConversionConstraint,
+    IAlgorithmConfiguration,
+    IConstraint,
+    IConstraintSimple,
+    GraphConversionConstraint
+} from "./constraints";
 import { LayoutAlgorithm } from "../layout-iface";
 import { ElkLayout } from "../elk-layouts";
 import { RandomLayout } from "../basic-layouts";
