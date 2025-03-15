@@ -4,7 +4,7 @@ import { LayoutAlgorithm } from "./layout-iface";
 
 import {
 	ConstraintTime,
-	IConstraintSimple,
+	IConstraint,
 	UserGivenAlgorithmConfigurationslVersion4,
 	AlgorithmConfiguration,
 	GraphConversionConstraint,
@@ -22,7 +22,7 @@ import { EdgeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-cro
 import { EdgeNodeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-node-crossing";
 
 export type {
-	IConstraintSimple,
+	IConstraint as IConstraintSimple,
 	UserGivenAlgorithmConfigurationslVersion4 as UserGivenConstraintsVersion4
 } from "./configs/constraints";
 export {
@@ -226,17 +226,6 @@ export async function performLayoutFromGraph(
 ): Promise<IMainGraphClassic> {
 	const constraints = ConstraintFactory.createConstraints(config);
 
-	// TODO: Try this later, now it isn't that important
-
-	// const compactifyConstraint: IConstraintSimple  = {
-	// 	name: "post-compactify",
-	// 	type: "???",
-	// 	constraintedNodes: "ALL",
-	// 	constraintTime: "POST-MAIN",
-	// 	data: undefined,
-	// };
-	// constraints.addSimpleConstraints(compactifyConstraint);
-
 	const resultingLayoutPromise = performLayoutingBasedOnConstraints(graph, constraints);
 
 	// TODO: DEBUG
@@ -288,8 +277,8 @@ const runPreMainAlgorithmConstraints = async (
 	graph: IMainGraphClassic,
 	constraintsContainer: ConstraintContainer
 ): Promise<void[]> => {
-	const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer, constraintsContainer.simpleConstraints, "PRE-MAIN").then(_ => {
-		return runConstraintsInternal(graph, constraintsContainer, constraintsContainer.simpleConstraints, "PRE-MAIN");
+	const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer, constraintsContainer.constraints, "PRE-MAIN").then(_ => {
+		return runConstraintsInternal(graph, constraintsContainer, constraintsContainer.constraints, "PRE-MAIN");
 	});
 	return constraintPromises;
 }
@@ -303,7 +292,7 @@ const runPostMainAlgorithmConstraints = async (graph: IMainGraphClassic,
 	//       so POST-MAIN stuff will be probably only the stuff which will be run once after ALL! of the algorithms finish running.
 	//       It can be then only used once we have the result which want to pass to the caller. So it will be some conversions, etc. but not the mentioned layered algorithm
 	//       which runs algorithm in each iteration of loop that is finding best algorithm. The post-constraints are called only after the loop finishes.
-	// const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer.simpleConstraints, "POST-MAIN", nodeDimensionQueryHandler).then(_ => {
+	// const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer.constraints, "POST-MAIN", nodeDimensionQueryHandler).then(_ => {
 	// 	return runConstraintsInternal(graph, constraintsContainer.constraints, "POST-MAIN", nodeDimensionQueryHandler);
 	// });
 	// return constraintPromises;
@@ -312,7 +301,7 @@ const runPostMainAlgorithmConstraints = async (graph: IMainGraphClassic,
 const runConstraintsInternal = async (
 	graph: IMainGraphClassic,
 	constraintContainer: ConstraintContainer,
-	constraints: IConstraintSimple[],
+	constraints: IConstraint[],
 	constraintTime: Omit<ConstraintTime, "IN-MAIN">
 ): Promise<void[]> => {
 	const constraintPromises: Promise<void>[] = [];
@@ -364,7 +353,7 @@ const runMainLayoutAlgorithm = async (
 		},
 	];
 	const computedMetricsData = createObjectsToHoldMetricsData(metricsWithWeights);
-	const findBestLayoutConstraint = constraints.simpleConstraints.find(constraint => constraint.name === "Best layout iteration count");
+	const findBestLayoutConstraint = constraints.constraints.find(constraint => constraint.name === "Best layout iteration count");
 	const numberOfAlgorithmRuns = (findBestLayoutConstraint?.data as any)?.numberOfAlgorithmRuns ?? 1;
 
 

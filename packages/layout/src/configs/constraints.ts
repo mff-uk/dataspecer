@@ -275,13 +275,13 @@ interface IConstraintType {
 /**
  * Constraint on predefined set of nodes.
  */
-export interface IConstraintSimple extends IConstraintType {
+export interface IConstraint extends IConstraintType {
     constraintedNodes: ConstraintedNodesGroupingsType,
     data: object,
 }
 export type AlgorithmPhases = "ONLY-PREPARE" | "ONLY-RUN" | "PREPARE-AND-RUN";
 
-export interface IAlgorithmOnlyConstraint extends IConstraintSimple, IAdditionalControlOptions {
+export interface IAlgorithmOnlyConstraint extends IConstraint, IAdditionalControlOptions {
     algorithmName: AlgorithmName;
     /**
      * Default is "PREPARE-AND-RUN", other values need to be explicitly set in constructor -

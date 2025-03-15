@@ -8,7 +8,7 @@ import {
     AlgorithmConfiguration,
     IGraphConversionConstraint,
     IAlgorithmConfiguration,
-    IConstraintSimple,
+    IConstraint,
     UserGivenAlgorithmConfiguration,
     UserGivenAlgorithmConfigurationslVersion4,
     GraphConversionConstraint,
@@ -199,14 +199,14 @@ class AlgorithmConstraintFactory {
     }
 
 
-    static createSimpleConstraintsFromConfigurationInMainRun(
+    static createConstraintsFromConfigurationInMainRun(
         userGivenAlgorithmConfiguration: UserGivenAlgorithmConfiguration
-    ): IConstraintSimple[] | null {
+    ): IConstraint[] | null {
         if(!userGivenAlgorithmConfiguration.should_be_considered) {
             return null;
         }
 
-        const result: IConstraintSimple[] = [];
+        const result: IConstraint[] = [];
 
         // TODO RadStr: .... This is not nice - remove the simple constraints - it will make it so much better - I think
 
@@ -216,7 +216,7 @@ class AlgorithmConstraintFactory {
             (userGivenAlgorithmConfiguration.layout_alg === "elk_stress" ||
                 userGivenAlgorithmConfiguration.layout_alg === "elk_force" ||
                 userGivenAlgorithmConfiguration.layout_alg === "elk_stress_advanced_using_clusters")) {
-            const numberOfAlgorithmRunsConstraint: IConstraintSimple = {
+            const numberOfAlgorithmRunsConstraint: IConstraint = {
                 constraintedNodes: "ALL",
                 type: "control-flow-change",
                 constraintTime: "IN-MAIN",
@@ -257,8 +257,8 @@ export class ConstraintFactory {
 
         AlgorithmConstraintFactory.addToLayoutActionsInMainRunBasedOnConfiguration(config, layoutActionsBeforeMainRun, layoutActions);
 
-        const simpleConstraints = AlgorithmConstraintFactory.createSimpleConstraintsFromConfigurationInMainRun(config.main[config.chosenMainAlgorithm]);
-        const constraintContainer = new ConstraintContainer(layoutActionsBeforeMainRun, layoutActions, simpleConstraints);
+        const constraints = AlgorithmConstraintFactory.createConstraintsFromConfigurationInMainRun(config.main[config.chosenMainAlgorithm]);
+        const constraintContainer = new ConstraintContainer(layoutActionsBeforeMainRun, layoutActions, constraints);
 
         console.info("config", config);
         console.info("layoutActions", layoutActions);

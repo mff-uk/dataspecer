@@ -2,7 +2,7 @@
 import {
     IGraphConversionConstraint,
     IAlgorithmConfiguration,
-    IConstraintSimple,
+    IConstraint,
     GraphConversionConstraint
 } from "./constraints";
 import { LayoutAlgorithm } from "../layout-iface";
@@ -25,8 +25,6 @@ export const ALGORITHM_NAME_TO_LAYOUT_MAPPING: Record<AlgorithmName, LayoutAlgor
     "elk_stress_advanced_using_clusters": new ElkLayout(),
     "none": new NoActionLayout(),
 }
-
-type ModelID = string;
 
 // TODO: In general a lot of the things maybe should be arrays and the ConstraintContainer should be just object which holds the arrays and
 //       maybe has some methods to remove duplicates, merge constraints and correctly order them for further processing
@@ -59,7 +57,7 @@ export class ConstraintContainer {
     /**
      * These are just basic constraints on group of nodes (again type {@link constraintedNodes}), which are not algorithmic
      */
-    simpleConstraints: IConstraintSimple[];
+    constraints: IConstraint[];
 
     // TODO: Add Docs
     currentStepInLayoutActions: number;
@@ -85,7 +83,7 @@ export class ConstraintContainer {
     constructor(
         layoutActionsBefore: (IAlgorithmConfiguration | IGraphConversionConstraint)[],
         layoutActions: (IAlgorithmConfiguration | IGraphConversionConstraint)[],
-        simpleConstraints?: IConstraintSimple[] | null,
+        constraints?: IConstraint[] | null,
     ) {
         this.layoutActionsToRunBefore = layoutActionsBefore;
         this.resetLayoutActionsBeforeRunIterator();
@@ -93,12 +91,12 @@ export class ConstraintContainer {
 
         this.layoutActions = [];
         this.addAlgorithmConstraints(...layoutActions);
-        this.simpleConstraints = simpleConstraints ?? [];
+        this.constraints = constraints ?? [];
     }
 
 
-    addSimpleConstraints(...constraints: IConstraintSimple[]) {
-        this.simpleConstraints = this.simpleConstraints.concat(constraints);
+    addConstraints(...constraints: IConstraint[]) {
+        this.constraints = this.constraints.concat(constraints);
     }
     addAlgorithmConstraints(...constraints: (IAlgorithmConfiguration | IGraphConversionConstraint)[]) {
         constraints.forEach(constraint => {
