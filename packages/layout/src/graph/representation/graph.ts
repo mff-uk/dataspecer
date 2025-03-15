@@ -12,7 +12,7 @@ import {
     getEdgeSourceAndTargetRelationship,
     RelationshipBundle,
     RelationshipProfileBundle
- } from "./layout-iface";
+ } from "../../layout-algorithms/layout-algorithm-interface";
 
 import {
     VisualModel,
@@ -33,16 +33,16 @@ import {
     getTopLeftPosition,
     PhantomElementsFactory,
     placePositionOnGrid
-} from "./util/utils";
-import { LayoutedVisualEntities } from "./migration-to-cme-v2";
+} from "../../util/utils";
+import { LayoutedVisualEntities } from "../../migration-to-cme-v2";
 import { EntityModel } from "@dataspecer/core-v2";
-import { ExplicitAnchors, isEntityWithIdentifierAnchored } from "./explicit-anchors";
+import { ExplicitAnchors, isEntityWithIdentifierAnchored } from "../../explicit-anchors";
 import {
     NodeDimensionQueryHandler,
     ReactflowDimensionsEstimator,
      VisualEntitiesWithOutsiders,
      XY
-    } from ".";
+    } from "../..";
 import {
     SemanticModelClassProfile,
     SemanticModelRelationshipProfile
@@ -264,27 +264,6 @@ export interface IGraphClassic extends INodeClassic {
         shouldSplitEdges: boolean
     ): void;
 }
-
-// export class GraphFactory {
-//     createGraphFromSemanticModel(inputModel: Record<string, SemanticModelEntity> | ExtractedModel): IGraphClassic {
-
-//     }
-
-//     createGraphFromSemanticModels(): IGraphClassic {
-//         throw new Error("Basically same as for one");
-
-//     }
-
-//     createGraphFromVisualModel(visualModel, semanticMdels): IGraphClassic {
-//         // What does it mean??? Take the visual model and that's it and map it to the semantic one
-//     }
-
-//     createGraphFromVisualModels(visualModel, semanticMdels): IGraphClassic {
-//         throw new Error("Implement me later");
-//     }
-// }
-
-// TODO: Well actually the "evolution" is one place where we can use constraints - we enumerate the nodes which are part of evolution
 
 
 /**

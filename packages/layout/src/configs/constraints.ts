@@ -1,4 +1,4 @@
-import { IEdgeClassic, IGraphClassic } from "../graph-iface"
+import { IEdgeClassic, IGraphClassic } from "../graph/representation/graph"
 import { Direction } from "../util/utils";
 import { AlgorithmName } from "./constraint-container";
 import _ from "lodash";

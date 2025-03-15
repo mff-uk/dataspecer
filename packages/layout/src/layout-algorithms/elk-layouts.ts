@@ -1,6 +1,6 @@
-import { GraphTransformer, LayoutAlgorithm } from "../layout-iface";
+import { GraphTransformer, LayoutAlgorithm } from "./layout-algorithm-interface";
 import { isVisualProfileRelationship, isVisualRelationship, Position, VisualEntity, VisualNode, VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { EdgeEndPoint, GraphClassic, IGraphClassic, IMainGraphClassic, MainGraphClassic, VisualNodeComplete } from "../graph-iface";
+import { EdgeEndPoint, GraphClassic, IGraphClassic, IMainGraphClassic, MainGraphClassic, VisualNodeComplete } from "../graph/representation/graph";
 
 
 

@@ -1,5 +1,5 @@
 import { NodeDimensionQueryHandler } from "..";
-import { INodeClassic } from "../graph-iface";
+import { INodeClassic } from "../graph/representation/graph";
 
 /**
  * Simple dimension query handler, which returns constant values as estimation of node dimensions.

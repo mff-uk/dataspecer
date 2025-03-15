@@ -1,6 +1,6 @@
 import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
 import { Position, VisualModel } from "@dataspecer/core-v2/visual-model";
-import { LayoutAlgorithm } from "./layout-iface";
+import { LayoutAlgorithm } from "./layout-algorithms/layout-algorithm-interface";
 
 import {
 	ConstraintTime,
@@ -9,7 +9,7 @@ import {
 	AlgorithmConfiguration,
 	GraphConversionConstraint,
 } from "./configs/constraints";
-import { GraphClassic, GraphFactory, IMainGraphClassic, INodeClassic, VisualModelWithOutsiders } from "./graph-iface";
+import { GraphClassic, GraphFactory, IMainGraphClassic, INodeClassic, VisualModelWithOutsiders } from "./graph/representation/graph";
 import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs/constraint-container";
 import { Entities, Entity, EntityModel } from "@dataspecer/core-v2";
 import { ConstraintFactory, SPECIFIC_ALGORITHM_CONVERSIONS_MAP } from "./configs/constraint-factories";
@@ -17,8 +17,8 @@ import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-d
 import type { LayoutedVisualEntities, VisualEntitiesWithModelVisualInformation } from "./migration-to-cme-v2";
 export { type LayoutedVisualEntities } from "./migration-to-cme-v2";
 export type { VisualEntitiesWithModelVisualInformation };
-import { EdgeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-crossing";
-import { EdgeNodeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-node-crossing";
+import { EdgeCrossingMetric } from "./graph/graph-metrics/implemented-metrics/edge-crossing";
+import { EdgeNodeCrossingMetric } from "./graph/graph-metrics/implemented-metrics/edge-node-crossing";
 
 export type {
 	IConstraint as IConstraintSimple,
@@ -33,7 +33,7 @@ export type { AlgorithmName } from "./configs/constraint-container";
 
 import { Direction } from "./util/utils";
 export { Direction };
-export type { INodeClassic } from "./graph-iface";
+export type { INodeClassic } from "./graph/representation/graph";
 
 export { ReactflowDimensionsEstimator };
 export { ReactflowDimensionsConstantEstimator } from "./dimension-estimators/constant-dimension-estimator";
@@ -43,16 +43,16 @@ export type { EdgeRouting };
 
 import { placePositionOnGrid } from "./util/utils";
 import { ExplicitAnchors } from "./explicit-anchors";
-import { AreaMetric } from "./graph-metrics/implemented-metrics/area-metric";
-import { NodeOrthogonalityMetric } from "./graph-metrics/implemented-metrics/node-orthogonality";
-import { EdgeCrossingAngleMetric } from "./graph-metrics/implemented-metrics/edge-crossing-angle";
-import { Metric } from "./graph-metrics/graph-metrics-iface";
+import { AreaMetric } from "./graph/graph-metrics/implemented-metrics/area-metric";
+import { NodeOrthogonalityMetric } from "./graph/graph-metrics/implemented-metrics/node-orthogonality";
+import { EdgeCrossingAngleMetric } from "./graph/graph-metrics/implemented-metrics/edge-crossing-angle";
+import { Metric } from "./graph/graph-metrics/graph-metric";
 import { GraphAlgorithms } from "./graph-algoritms";
 export { AnchorOverrideSetting } from "./explicit-anchors";
 export { placePositionOnGrid };
 
 export { type ExplicitAnchors } from "./explicit-anchors";
-export { type VisualModelWithOutsiders } from "./graph-iface";
+export { type VisualModelWithOutsiders } from "./graph/representation/graph";
 
 export type {
 	UserGivenAlgorithmConfiguration,

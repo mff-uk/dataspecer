@@ -9,9 +9,9 @@ import {
     isSemanticModelAttribute
  } from "@dataspecer/core-v2/semantic-model/concepts";
 
-import { IGraphClassic, IMainGraphClassic, IVisualNodeComplete } from "./graph-iface";
-import { ConstraintContainer } from "./configs/constraint-container";
-import { VisualEntities } from "./migration-to-cme-v2";
+import { IGraphClassic, IMainGraphClassic, IVisualNodeComplete } from "../graph/representation/graph";
+import { ConstraintContainer } from "../configs/constraint-container";
+import { VisualEntities } from "../migration-to-cme-v2";
 import { Entity, EntityModel } from "@dataspecer/core-v2";
 import {
     isSemanticModelClassProfile,

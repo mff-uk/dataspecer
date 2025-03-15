@@ -1,5 +1,5 @@
-import { NodeDimensionQueryHandler } from "../..";
-import { IMainGraphClassic } from "../../graph-iface";
+import { NodeDimensionQueryHandler } from "../../..";
+import { IMainGraphClassic } from "../../representation/graph";
 import { EdgeCrossingMetric } from "../implemented-metrics/edge-crossing";
 import { EdgeNodeCrossingMetric } from "../implemented-metrics/edge-node-crossing";
 

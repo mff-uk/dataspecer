@@ -5,7 +5,7 @@ import {
     IConstraint,
     GraphConversionConstraint
 } from "./constraints";
-import { LayoutAlgorithm } from "../layout-iface";
+import { LayoutAlgorithm } from "../layout-algorithms/layout-algorithm-interface";
 import { ElkLayout } from "../layout-algorithms/elk-layouts";
 import { RandomLayout } from "../layout-algorithms/basic-layouts";
 import { ElkConstraint } from "./elk/elk-constraints";

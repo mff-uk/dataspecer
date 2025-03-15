@@ -1,6 +1,6 @@
-import { GraphClassic, IGraphClassic } from "../../graph-iface";
-import { getBotRightPosition, getTopLeftPosition } from "../../util/utils";
-import { AllMetricData, Metric } from "../graph-metrics-iface";
+import { GraphClassic, IGraphClassic } from "../../representation/graph";
+import { getBotRightPosition, getTopLeftPosition } from "../../../util/utils";
+import { AllMetricData, Metric } from "../graph-metric";
 
 // Experimental
 export class AreaMetric implements Metric {

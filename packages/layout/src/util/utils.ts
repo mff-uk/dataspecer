@@ -1,8 +1,8 @@
 // TODO: Actually I don't really like the union here (we have to convert the string value back to the enum value, if we want to use Enum somewhere)
 
 import { XY } from "..";
-import { EdgeEndPoint, IVisualNodeComplete } from "../graph-iface";
-import { EdgeCrossingMetric } from "../graph-metrics/implemented-metrics/edge-crossing";
+import { EdgeEndPoint, IVisualNodeComplete } from "../graph/representation/graph";
+import { EdgeCrossingMetric } from "../graph/graph-metrics/implemented-metrics/edge-crossing";
 
 export function getTopLeftPosition(
   nodes: EdgeEndPoint[]

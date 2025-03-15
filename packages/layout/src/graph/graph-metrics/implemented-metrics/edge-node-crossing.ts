@@ -1,5 +1,5 @@
-import { GraphClassic, IEdgeClassic, IGraphClassic, IVisualNodeComplete } from "../../graph-iface";
-import { AllMetricData, Metric } from "../graph-metrics-iface";
+import { GraphClassic, IEdgeClassic, IGraphClassic, IVisualNodeComplete } from "../../representation/graph";
+import { AllMetricData, Metric } from "../graph-metric";
 import { EdgeCrossingMetric } from "./edge-crossing";
 
 export class EdgeNodeCrossingMetric implements Metric {

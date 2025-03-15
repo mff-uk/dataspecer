@@ -10,8 +10,8 @@ import {
   INodeClassic,
   NodeClassic,
   VisualNodeComplete
-} from "./graph-iface";
-import { EdgeNodeCrossingMetric } from "./graph-metrics/implemented-metrics/edge-node-crossing";
+} from "./graph/representation/graph";
+import { EdgeNodeCrossingMetric } from "./graph/graph-metrics/implemented-metrics/edge-node-crossing";
 
 export enum ToConsiderFilter {
   OnlyLayouted,

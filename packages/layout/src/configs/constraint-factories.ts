@@ -1,7 +1,7 @@
 import { performLayoutFromGraph } from "..";
 import { GraphAlgorithms, ToConsiderFilter } from "../graph-algoritms";
-import { IMainGraphClassic } from "../graph-iface";
-import { LayoutMethod } from "../layout-iface";
+import { IMainGraphClassic } from "../graph/representation/graph";
+import { LayoutMethod } from "../layout-algorithms/layout-algorithm-interface";
 import { Direction, reverseDirection } from "../util/utils";
 import { ConstraintContainer } from "./constraint-container";
 import {
