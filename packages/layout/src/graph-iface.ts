@@ -8,10 +8,10 @@ import {
     AllowedEdgeBundleTypes,
     ExtractedModels,
     extractModelObjects,
-    GeneralizationsBundle,
+    GeneralizationBundle,
     getEdgeSourceAndTargetRelationship,
-    RelationshipsBundle,
-    RelationshipsProfilesBundle
+    RelationshipBundle,
+    RelationshipProfileBundle
  } from "./layout-iface";
 
 import {
@@ -83,13 +83,13 @@ function convertAllowedEdgeBundleToAllowedEdgeType(
     bundle: AllowedEdgeBundleWithType
 ): AllowedEdgeTypes {
     if(bundle.type === "outgoingRelationshipEdges") {
-        return (bundle.semanticRelationship as RelationshipsBundle).semanticModelRelationship;
+        return (bundle.semanticRelationship as RelationshipBundle).semanticRelationship;
     }
     else if(bundle.type === "outgoingGeneralizationEdges") {
-        return (bundle.semanticRelationship as GeneralizationsBundle).semanticModelGeneralization;
+        return (bundle.semanticRelationship as GeneralizationBundle).semanticGeneralization;
     }
     else if(bundle.type === "outgoingProfileEdges") {
-        return (bundle.semanticRelationship as RelationshipsProfilesBundle).semanticModelRelationshipProfile;
+        return (bundle.semanticRelationship as RelationshipProfileBundle).semanticRelationshipProfile;
     }
     return null;
 }
@@ -104,7 +104,7 @@ function getSemanticRelationshipBundle(
 ): AllowedEdgeBundleWithType | null {
     let semanticRelationship: AllowedEdgeBundleTypes;
 
-    semanticRelationship = extractedModels.relationships.find(rBundle => rBundle.semanticModelRelationship.id === identifier);
+    semanticRelationship = extractedModels.relationships.find(rBundle => rBundle.semanticRelationship.id === identifier);
     if(semanticRelationship !== undefined) {
         return {
             semanticRelationship,
@@ -112,7 +112,7 @@ function getSemanticRelationshipBundle(
         };
     }
 
-    semanticRelationship = extractedModels.generalizations.find(gBundle => gBundle.semanticModelGeneralization.id === identifier);
+    semanticRelationship = extractedModels.generalizations.find(gBundle => gBundle.semanticGeneralization.id === identifier);
     if(semanticRelationship !== undefined) {
         return {
             semanticRelationship,
@@ -120,7 +120,7 @@ function getSemanticRelationshipBundle(
         };
     }
 
-    semanticRelationship = extractedModels.relationshipsProfiles.find(rpBundle => rpBundle.semanticModelRelationshipProfile.id === identifier);
+    semanticRelationship = extractedModels.relationshipsProfiles.find(rpBundle => rpBundle.semanticRelationshipProfile.id === identifier);
     if(semanticRelationship !== undefined) {
         return {
             semanticRelationship,
@@ -128,7 +128,7 @@ function getSemanticRelationshipBundle(
         };
     }
 
-    semanticRelationship = extractedModels.classesProfiles.find(cpBundle => cpBundle.semanticModelClassProfile.id === identifier);
+    semanticRelationship = extractedModels.classesProfiles.find(cpBundle => cpBundle.semanticClassProfile.id === identifier);
     if(semanticRelationship !== undefined) {
         return {
             semanticRelationship,
@@ -516,7 +516,7 @@ export class GraphClassic implements IGraphClassic {
         this.mainGraph = mainGraph;
         this.id = graphIdentifier;
         this.isDummy = isDummy;
-        this.sourceEntityModelIdentifier = null;
+        this.sourceModelIdentifier = null;
     }
 
     initializeWithGivenContent(
@@ -613,15 +613,15 @@ export class GraphClassic implements IGraphClassic {
                 .filter(entity => entity !== null)
                 .filter(isVisualNode);
             for(const node of nodes) {
-                const cclass = extractedModels.classes.find(cclass => cclass.semanticModelClass.id === node.representedEntity);
+                const cclass = extractedModels.classes.find(cclass => cclass.semanticClass.id === node.representedEntity);
                 if(cclass !== undefined) {
                     addNodeTODO(
-                        this.mainGraph, node, cclass.semanticModelClass, false, cclass.sourceEntityModelIdentifier,
+                        this.mainGraph, node, cclass.semanticClass, false, cclass.sourceModelIdentifier,
                         extractedModels, this, visualModel, entitiesToLayout, null, explicitAnchors);
                 }
                 else {
                     const classProfile = extractedModels.classesProfiles
-                        .find(classProfile => classProfile.semanticModelClassProfile.id === node.representedEntity);
+                        .find(classProfile => classProfile.semanticClassProfile.id === node.representedEntity);
                     if(classProfile === undefined) {
                         console.error("Node is neither class or class profile");
                         // TODO RadStr: We do have nodes which don't have semantic equivalent
@@ -629,8 +629,8 @@ export class GraphClassic implements IGraphClassic {
                         return;
                     }
                     addNodeTODO(
-                        this.mainGraph, node, classProfile.semanticModelClassProfile, true,
-                        classProfile.sourceEntityModelIdentifier, extractedModels, this,
+                        this.mainGraph, node, classProfile.semanticClassProfile, true,
+                        classProfile.sourceModelIdentifier, extractedModels, this,
                         visualModel, entitiesToLayout, null, explicitAnchors);
                 }
             }
@@ -638,23 +638,23 @@ export class GraphClassic implements IGraphClassic {
 
         for(const [outsider, position] of Object.entries(entitiesToLayout.outsiders)) {
             // Basically same as for the visual nodes - so TODO: If time try to refactor into one method
-            const cclass = extractedModels.classes.find(cclass => cclass.semanticModelClass.id === outsider);
+            const cclass = extractedModels.classes.find(cclass => cclass.semanticClass.id === outsider);
             if(cclass !== undefined) {
                 addNodeTODO(
-                    this.mainGraph, null, cclass.semanticModelClass, false, cclass.sourceEntityModelIdentifier,
+                    this.mainGraph, null, cclass.semanticClass, false, cclass.sourceModelIdentifier,
                     extractedModels, this, visualModel, entitiesToLayout, position, explicitAnchors);
             }
             else {
                 const classProfile = extractedModels.classesProfiles
-                    .find(classProfile => classProfile.semanticModelClassProfile.id === outsider);
+                    .find(classProfile => classProfile.semanticClassProfile.id === outsider);
                 if(classProfile === undefined) {
                     console.error("outsider is neither class or class profile");
                     throw new Error("Implementation error")
                     return;
                 }
                 addNodeTODO(
-                    this.mainGraph, null, classProfile.semanticModelClassProfile, true,
-                    classProfile.sourceEntityModelIdentifier, extractedModels, this,
+                    this.mainGraph, null, classProfile.semanticClassProfile, true,
+                    classProfile.sourceModelIdentifier, extractedModels, this,
                     visualModel, entitiesToLayout, position, explicitAnchors);
             }
         }
@@ -714,11 +714,11 @@ export class GraphClassic implements IGraphClassic {
                 return checkIfEdgeShouldBePartOfGraph(
                     visualModel,
                     entitiesToLayout,
-                    relationshipBundle.semanticModelRelationship.ends[0].concept,
-                    relationshipBundle.semanticModelRelationship.ends[1].concept);
+                    relationshipBundle.semanticRelationship.ends[0].concept,
+                    relationshipBundle.semanticRelationship.ends[1].concept);
                 }
             )
-            .map(relationshipBundle => relationshipBundle.semanticModelRelationship);
+            .map(relationshipBundle => relationshipBundle.semanticRelationship);
 
         console.info("relationships", {relationships});
         relationships.forEach((relationship) => {
@@ -748,11 +748,11 @@ export class GraphClassic implements IGraphClassic {
                 return checkIfEdgeShouldBePartOfGraph(
                     visualModel,
                     entitiesToLayout,
-                    generalizationBundle.semanticModelGeneralization.child,
-                    generalizationBundle.semanticModelGeneralization.parent);
+                    generalizationBundle.semanticGeneralization.child,
+                    generalizationBundle.semanticGeneralization.parent);
                 }
             )
-            .map(generalizationBundle => generalizationBundle.semanticModelGeneralization);
+            .map(generalizationBundle => generalizationBundle.semanticGeneralization);
         generalizations.forEach((generalization) => {
             const semanticStart = generalization.child;
             const semanticEnd = generalization.parent;
@@ -779,11 +779,11 @@ export class GraphClassic implements IGraphClassic {
                 return checkIfEdgeShouldBePartOfGraph(
                     visualModel,
                     entitiesToLayout,
-                    relationshipProfileBundle.semanticModelRelationshipProfile.ends[0].concept,
-                    relationshipProfileBundle.semanticModelRelationshipProfile.ends[1].concept);
+                    relationshipProfileBundle.semanticRelationshipProfile.ends[0].concept,
+                    relationshipProfileBundle.semanticRelationshipProfile.ends[1].concept);
                 }
             )
-            .map(relationshipProfileBundle => relationshipProfileBundle.semanticModelRelationshipProfile);
+            .map(relationshipProfileBundle => relationshipProfileBundle.semanticRelationshipProfile);
         relationshipsProfiles.forEach((relationshipProfile) => {
             const semanticStart = relationshipProfile.ends[0].concept;
             const semanticEnd = relationshipProfile.ends[1].concept;
@@ -810,13 +810,13 @@ export class GraphClassic implements IGraphClassic {
             target: string,
         }[] = [];
         for(const classProfileBundle of extractedModels.classesProfiles) {
-            for(const profileOf of classProfileBundle.semanticModelClassProfile.profiling) {
+            for(const profileOf of classProfileBundle.semanticClassProfile.profiling) {
                 if(checkIfEdgeShouldBePartOfGraph(
                         visualModel,
                         entitiesToLayout,
-                        classProfileBundle.semanticModelClassProfile.id, profileOf)) {
+                        classProfileBundle.semanticClassProfile.id, profileOf)) {
                     toClassProfileEdges.push({
-                        source: classProfileBundle.semanticModelClassProfile,
+                        source: classProfileBundle.semanticClassProfile,
                         target: profileOf
                     });
                 }
@@ -1121,7 +1121,7 @@ export class GraphClassic implements IGraphClassic {
     mainGraph: IMainGraphClassic;
 
     id: string = "";
-    sourceEntityModelIdentifier: string | null;
+    sourceModelIdentifier: string | null;
     semanticEntityRepresentingNode: SemanticModelEntity | null = null;
     isDummy: boolean = true;
     isMainEntity: boolean = false;
@@ -1278,8 +1278,10 @@ export interface IEdgeClassic {
      */
     sourceGraph: IGraphClassic;
 
-    // TODO: Document property
-    sourceEntityModelIdentifier: string | null;
+    /**
+     * Is the model of the semantic edge (that is {@link semanticEntityRepresentingEdge}) represented by this (interface).
+     */
+    sourceModelIdentifier: string | null;
 
     /**
      * Identifier of the edge, can be different from the edge id, for example when splitting ... TODO: Actually should I use the id of the semantic entity or of the visual one as origin??
@@ -1391,21 +1393,21 @@ export class EdgeClassic implements IEdgeClassic {
         }
 
 
-        let sourceEntityModelIdentifierForEdge: string | null = null;
+        let sourceModelIdentifierForEdge: string | null = null;
         if(extractedModels !== null) {
             if(edgeToAddKey === "outgoingClassProfileEdges") {
-                sourceEntityModelIdentifierForEdge = source.sourceEntityModelIdentifier ?? null;
+                sourceModelIdentifierForEdge = source.sourceModelIdentifier ?? null;
             }
             else {
-                sourceEntityModelIdentifierForEdge = extractedModels.entities
-                    .find(entity => entity.semanticModelEntity.id === semanticEdge?.id)?.sourceEntityModelIdentifier ?? null;
+                sourceModelIdentifierForEdge = extractedModels.entities
+                    .find(entity => entity.semanticEntity.id === semanticEdge?.id)?.sourceModelIdentifier ?? null;
             }
         }
 
 
         const edgeClassic: IEdgeClassic = new EdgeClassic(
             identifier, visualEdge, semanticEdge, edgeToAddKey, graph,
-            source, target, sourceEntityModelIdentifierForEdge);
+            source, target, sourceModelIdentifierForEdge);
         const reverseEdgeClassic: IEdgeClassic = edgeClassic;
 
         source[edgeToAddKey].push(edgeClassic);
@@ -1422,14 +1424,14 @@ export class EdgeClassic implements IEdgeClassic {
         sourceGraph: IGraphClassic,
         start: EdgeEndPoint,
         end: EdgeEndPoint,
-        sourceEntityModelIdentifier: string | null,
+        sourceModelIdentifier: string | null,
     ) {
         console.info("CREATING EDGE", this);
 
         sourceGraph.mainGraph.allEdges.push(this);
         this.sourceGraph = sourceGraph;
         this.isDummy = false;
-        this.sourceEntityModelIdentifier = sourceEntityModelIdentifier;
+        this.sourceModelIdentifier = sourceModelIdentifier;
 
         this.edgeProfileType = convertOutgoingEdgeTypeToEdgeProfileType(edgeType);
         this.edgeType = edgeType
@@ -1437,7 +1439,7 @@ export class EdgeClassic implements IEdgeClassic {
         this.start = start;
         this.end = end;
 
-        this.visualEdge = this.createVisualEdgeBasedOnData(visualRelationship, semanticEdge, sourceEntityModelIdentifier, start, end);
+        this.visualEdge = this.createVisualEdgeBasedOnData(visualRelationship, semanticEdge, sourceModelIdentifier, start, end);
         this.id = identifier ?? this.visualEdge.visualEdge.identifier;
 
         if(semanticEdge === null) {
@@ -1450,7 +1452,7 @@ export class EdgeClassic implements IEdgeClassic {
 
     sourceGraph: IGraphClassic;
 
-    sourceEntityModelIdentifier: string | null;
+    sourceModelIdentifier: string | null;
     id: string;
     semanticEntityRepresentingEdge: AllowedEdgeTypes | null;
     isDummy: boolean;
@@ -1474,7 +1476,7 @@ export class EdgeClassic implements IEdgeClassic {
     // TODO: Maybe move it outside of the class since we are no longer using this.
     private createNewVisualRelationshipBasedOnSemanticDataTODONEW(
         semanticEdge: AllowedEdgeTypes,
-        sourceEntityModelIdentifier: string | null,
+        sourceModelIdentifier: string | null,
         start: EdgeEndPoint,
         end: EdgeEndPoint,
     ): VisualRelationship | VisualProfileRelationship {
@@ -1486,7 +1488,7 @@ export class EdgeClassic implements IEdgeClassic {
                 entity: start.id,
                 type: [VISUAL_PROFILE_RELATIONSHIP_TYPE],
                 waypoints: [],
-                model: sourceEntityModelIdentifier ?? "",
+                model: sourceModelIdentifier ?? "",
                 visualSource: start.id,
                 visualTarget: end.id,
             };
@@ -1499,7 +1501,7 @@ export class EdgeClassic implements IEdgeClassic {
             type: [VISUAL_RELATIONSHIP_TYPE],
             representedRelationship: semanticEdge.id,
             waypoints: [],
-            model: sourceEntityModelIdentifier ?? "",
+            model: sourceModelIdentifier ?? "",
             visualSource: start.id,
             visualTarget: end.id,
         };
@@ -1533,7 +1535,7 @@ export class EdgeClassic implements IEdgeClassic {
     private createVisualEdgeBasedOnData(
         visualRelationship: VisualRelationship | VisualProfileRelationship | null,
         semanticEdge: AllowedEdgeTypes | null,
-        sourceEntityModelIdentifier: string | null,
+        sourceModelIdentifier: string | null,
         start: EdgeEndPoint,
         end: EdgeEndPoint,
     ): VisualEdge {
@@ -1542,7 +1544,7 @@ export class EdgeClassic implements IEdgeClassic {
         }
         else if(semanticEdge !== null) {
             const createdVisualRelationship = this.createNewVisualRelationshipBasedOnSemanticDataTODONEW(
-                semanticEdge, sourceEntityModelIdentifier, start, end);
+                semanticEdge, sourceModelIdentifier, start, end);
             return new VisualEdge(createdVisualRelationship, true);
         }
         else {
@@ -1600,7 +1602,7 @@ export interface INodeClassic {
 
     layoutOptions: Record<string, string>;
 
-    sourceEntityModelIdentifier: string | null;
+    sourceModelIdentifier: string | null;
 
     // TODO: I could actually have the following edges stored in Record/Map, where key would be the property name, so for example outgoingRelationshipEdges
 
@@ -1696,7 +1698,7 @@ function addNodeTODO(
     node: AllowedVisualsForNodes | null,
     semanticEntityRepresentingNode: SemanticModelEntity | null,
     isProfile: boolean,
-    sourceEntityModelIdentifier: string | null,
+    sourceModelIdentifier: string | null,
     extractedModels: ExtractedModels,
     sourceGraph: IGraphClassic,
     visualModel: VisualModel,
@@ -1706,7 +1708,7 @@ function addNodeTODO(
     if(isNodeInVisualModel(visualModel, entitiesToLayout, node, semanticEntityRepresentingNode.id)) {
         new NodeClassic(
             mainGraph, node, semanticEntityRepresentingNode,
-            isProfile, sourceEntityModelIdentifier,
+            isProfile, sourceModelIdentifier,
             extractedModels, sourceGraph,
             explicititPosition, explicitAnchors);
         return true;
@@ -1742,14 +1744,14 @@ export class NodeClassic implements INodeClassic {
         visualNode: AllowedVisualsForNodes | null,
         semanticEntityRepresentingNode: SemanticModelEntity | null,
         isProfile: boolean,
-        sourceEntityModelIdentifier: string | null,
+        sourceModelIdentifier: string | null,
         extractedModels: ExtractedModels | null,
         sourceGraph: IGraphClassic,
         explicititPosition: XY | null,
         explicitAnchors?: ExplicitAnchors
     ) {
         this.mainGraph = mainGraph;
-        this.sourceEntityModelIdentifier = sourceEntityModelIdentifier;
+        this.sourceModelIdentifier = sourceModelIdentifier;
 
         this.sourceGraph = sourceGraph;
         this.semanticEntityRepresentingNode = semanticEntityRepresentingNode;
@@ -1763,9 +1765,9 @@ export class NodeClassic implements INodeClassic {
                 // TODO: We don't really need the whole thing, we just need the attribute so storing the target of the relationship should be enough !
         //       But we store it all for now.
         this.attributes = extractedModels.attributes.filter(attributesBundle => {
-            const {source, target, ...rest} = getEdgeSourceAndTargetRelationship(attributesBundle.semanticModelRelationship);
+            const {source, target, ...rest} = getEdgeSourceAndTargetRelationship(attributesBundle.semanticRelationship);
             return this.semanticEntityRepresentingNode.id === source;
-        }).map(attributeBundle => attributeBundle.semanticModelRelationship);
+        }).map(attributeBundle => attributeBundle.semanticRelationship);
         if(visualNode !== null) {
             this.id = visualNode.identifier;
             // Kind of ugly,
@@ -1781,7 +1783,7 @@ export class NodeClassic implements INodeClassic {
                 isAnchored = isEntityWithIdentifierAnchored(semanticEntityRepresentingNode.id, explicitAnchors, false);
             }
             const coreVisualNode = NodeClassic.createNewVisualNodeBasedOnSemanticData(
-                explicititPosition, this.semanticEntityRepresentingNode.id, this.sourceEntityModelIdentifier);
+                explicititPosition, this.semanticEntityRepresentingNode.id, this.sourceModelIdentifier);
             this.completeVisualNode = new VisualNodeComplete(coreVisualNode, width, height, false, isOutsider, isAnchored);
         }
         else {
@@ -1816,7 +1818,7 @@ export class NodeClassic implements INodeClassic {
     static createNewVisualNodeBasedOnSemanticData(
         position: XY | null,
         semanticEntityRepresentingNodeIdentifier: string,
-        sourceEntityModelIdentifier: string | null
+        sourceModelIdentifier: string | null
     ) {
         if(position === null) {
             position = {x: 0, y: 0};
@@ -1832,7 +1834,7 @@ export class NodeClassic implements INodeClassic {
             },
             content: [],
             visualModels: [],
-            model: sourceEntityModelIdentifier ?? "",
+            model: sourceModelIdentifier ?? "",
         };
     }
 
@@ -1855,7 +1857,7 @@ export class NodeClassic implements INodeClassic {
     sourceGraph: IGraphClassic;
 
     id: string;
-    sourceEntityModelIdentifier: string | null;
+    sourceModelIdentifier: string | null;
 
     semanticEntityRepresentingNode: SemanticModelEntity | null;
     isDummy: boolean = false;       // TODO: For now just keep false

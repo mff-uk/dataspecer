@@ -61,56 +61,54 @@ export interface LayoutAlgorithm {
 
 // TODO RadStr: Remove the model from the fields ... that is semanticModelClass --> semanticClass
 
-export type EntitiesBundle = {
-    sourceEntityModelIdentifier: string,
-    semanticModelEntity: SemanticModelEntity,
+export type EntityBundle = {
+    sourceModelIdentifier: string,
+    semanticEntity: SemanticModelEntity,
 };
 
-type ClassesBundle = {
-    sourceEntityModelIdentifier: string,
-    semanticModelClass: SemanticModelClass,
+type ClassBundle = {
+    sourceModelIdentifier: string,
+    semanticClass: SemanticModelClass,
 };
 
-type ClassProfilesBundle = {
-    sourceEntityModelIdentifier: string,
-    semanticModelClassProfile: SemanticModelClassProfile
+type ClassProfileBundle = {
+    sourceModelIdentifier: string,
+    semanticClassProfile: SemanticModelClassProfile
 };
 
-export type RelationshipsBundle = {
-    sourceEntityModelIdentifier: string,
-    semanticModelRelationship: SemanticModelRelationship,
+export type RelationshipBundle = {
+    sourceModelIdentifier: string,
+    semanticRelationship: SemanticModelRelationship,
 };
 
-export type RelationshipsProfilesBundle = {
-    sourceEntityModelIdentifier: string,
-    semanticModelRelationshipProfile: SemanticModelRelationshipProfile,
+export type RelationshipProfileBundle = {
+    sourceModelIdentifier: string,
+    semanticRelationshipProfile: SemanticModelRelationshipProfile,
 };
 
-export type GeneralizationsBundle = {
-    sourceEntityModelIdentifier: string,
-    semanticModelGeneralization: SemanticModelGeneralization,
+export type GeneralizationBundle = {
+    sourceModelIdentifier: string,
+    semanticGeneralization: SemanticModelGeneralization,
 };
 
-type AttributesBundle = {
-    sourceEntityModelIdentifier: string,
-    semanticModelRelationship: SemanticModelRelationship,
+type AttributeBundle = {
+    sourceModelIdentifier: string,
+    semanticRelationship: SemanticModelRelationship,
 };
 
 
 export interface ExtractedModels {
-    entities: EntitiesBundle[],
-    classes: ClassesBundle[],
-    classesProfiles: ClassProfilesBundle[],
-    relationships: RelationshipsBundle[],
-    relationshipsProfiles: RelationshipsProfilesBundle[],
-    generalizations: GeneralizationsBundle[],
-    attributes: AttributesBundle[],
+    entities: EntityBundle[],
+    classes: ClassBundle[],
+    classesProfiles: ClassProfileBundle[],
+    relationships: RelationshipBundle[],
+    relationshipsProfiles: RelationshipProfileBundle[],
+    generalizations: GeneralizationBundle[],
+    attributes: AttributeBundle[],
 }
 
-export type AllowedEdgeBundleTypes = RelationshipsBundle | RelationshipsProfilesBundle | GeneralizationsBundle | ClassProfilesBundle;
+export type AllowedEdgeBundleTypes = RelationshipBundle | RelationshipProfileBundle | GeneralizationBundle | ClassProfileBundle;
 
-
-// TODO: Maybe it makes more sense to make the interface a abstract class instead
 /**
  * This interface defines methods for transformation between our graph representation and layouting library representation.
  */
@@ -120,29 +118,40 @@ export interface GraphTransformer {
      * 1) Create graph representation of type {@link IGraphClassic}
      * 2) Call this method
      * 3) Perform layouting
-     * 4) Update existing graph representation using {@link updateExistingGraphRepresentationBasedOnLibraryRepresentation} (or create new one using {@link convertLibraryToGraphRepresentation}). Created representations already include VisualModel in form of {@link IVisualNodeComplete} on nodes
+     * 4) Update existing graph representation using {@link updateExistingGraphRepresentationBasedOnLibraryRepresentation}
+     * (or create new one using {@link convertLibraryToGraphRepresentation}).
+     * Created representations already include VisualModel in form of {@link IVisualNodeComplete} on nodes
      * or just call {@link convertToDataspecerRepresentation} if you no longer need the graph structure
      */
-    convertGraphToLibraryRepresentation(graph: IGraphClassic, shouldSetLayoutOptions: boolean, constraintContainer: ConstraintContainer): object,
+    convertGraphToLibraryRepresentation(
+        graph: IGraphClassic,
+        shouldSetLayoutOptions: boolean,
+        constraintContainer: ConstraintContainer
+    ): object,
 
     /**
      * Converts library graph representation to our graph representation.
      * Creates new graph instance with positions set based on the values in library representation of the graph.
      */
-    convertLibraryToGraphRepresentation(libraryRepresentation: object | null, includeDummies: boolean): IGraphClassic,
+    convertLibraryToGraphRepresentation(
+        libraryRepresentation: object | null,
+        includeDummies: boolean
+    ): IGraphClassic,
 
     /**
      * Update positions of visual entities in our graph representation based on the positions in the layout library graph representation.
      */
-    updateExistingGraphRepresentationBasedOnLibraryRepresentation(libraryRepresentation: object | null,
-                                                                    graphToBeUpdated: IGraphClassic,
-                                                                    includeNewVertices: boolean,
-                                                                    shouldUpdateEdges: boolean): void,
+    updateExistingGraphRepresentationBasedOnLibraryRepresentation(
+        libraryRepresentation: object | null,
+        graphToBeUpdated: IGraphClassic,
+        includeNewVertices: boolean,
+        shouldUpdateEdges: boolean
+    ): void,
 }
 
 
-function filterForExtraction(entities: EntitiesBundle[], predicate: (resource: Entity | null) => boolean) {
-    const values = entities.filter(({semanticModelEntity}) => {
+function filterForExtraction(entities: EntityBundle[], predicate: (resource: Entity | null) => boolean) {
+    const values = entities.filter(({semanticEntity: semanticModelEntity}) => {
         return predicate(semanticModelEntity);
     });
 
@@ -153,57 +162,59 @@ function filterForExtraction(entities: EntitiesBundle[], predicate: (resource: E
  * Converts entities from given semantic model into concrete data types. Returns them in object of type {@link ExtractedModels}
  */
 export function extractModelObjects(inputSemanticModels: Map<string, EntityModel>): ExtractedModels {
-    const entitiesInModels: EntitiesBundle[][] = [...inputSemanticModels.entries()].map(([modelIdentifier, model]) => {
+    const entitiesInModels: EntityBundle[][] = [...inputSemanticModels.entries()].map(([modelIdentifier, model]) => {
         return Object.entries(model.getEntities() as Record<string, SemanticModelEntity>).map(([key, value]) => ({
-            sourceEntityModelIdentifier: modelIdentifier,
-            semanticModelEntity: value,
+            sourceModelIdentifier: modelIdentifier,
+            semanticEntity: value,
         }));
     });
 
-    const entities: EntitiesBundle[] = [];
+    const entities: EntityBundle[] = [];
     entitiesInModels.forEach(model => {
         entities.push(...model);
     });
 
     const classes = filterForExtraction(entities, isSemanticModelClass).map((o) => {
         return {
-            sourceEntityModelIdentifier: o.sourceEntityModelIdentifier,
-            semanticModelClass: o.semanticModelEntity as SemanticModelClass,
+            sourceModelIdentifier: o.sourceModelIdentifier,
+            semanticClass: o.semanticEntity as SemanticModelClass,
         }
     });
     const classesProfiles = filterForExtraction(entities, isSemanticModelClassProfile).map((o) => {
         return {
-            sourceEntityModelIdentifier: o.sourceEntityModelIdentifier,
-            semanticModelClassProfile: o.semanticModelEntity as SemanticModelClassProfile,
+            sourceModelIdentifier: o.sourceModelIdentifier,
+            semanticClassProfile: o.semanticEntity as SemanticModelClassProfile,
         }
     });
     const relationshipsProfiles = filterForExtraction(entities, isSemanticModelRelationshipProfile).map((o) => {
         return {
-            sourceEntityModelIdentifier: o.sourceEntityModelIdentifier,
-            semanticModelRelationshipProfile: o.semanticModelEntity as unknown as SemanticModelRelationshipProfile,
+            sourceModelIdentifier: o.sourceModelIdentifier,
+            semanticRelationshipProfile: o.semanticEntity as unknown as SemanticModelRelationshipProfile,
         }
     });
     const generalizations = filterForExtraction(entities, isSemanticModelGeneralization).map((o) => {
         return {
-            sourceEntityModelIdentifier: o.sourceEntityModelIdentifier,
-            semanticModelGeneralization: o.semanticModelEntity as SemanticModelGeneralization,
+            sourceModelIdentifier: o.sourceModelIdentifier,
+            semanticGeneralization: o.semanticEntity as SemanticModelGeneralization,
         }
     });
     const attributes = filterForExtraction(entities, isSemanticModelAttribute).map((o) => {
         return {
-            sourceEntityModelIdentifier: o.sourceEntityModelIdentifier,
-            semanticModelRelationship: o.semanticModelEntity as SemanticModelRelationship,
+            sourceModelIdentifier: o.sourceModelIdentifier,
+            semanticRelationship: o.semanticEntity as SemanticModelRelationship,
         }
     });
 
     // TODO: Later take care of profiled attributes vs profile relationships in same way
-    const relationships = entities.filter((o) => (isSemanticModelRelationship(o.semanticModelEntity) &&
-                                            !isSemanticModelAttribute(o.semanticModelEntity))).map((o) => {
-                                                return {
-                                                    sourceEntityModelIdentifier: o.sourceEntityModelIdentifier,
-                                                    semanticModelRelationship: o.semanticModelEntity as SemanticModelRelationship,
-                                                }
-                                            });
+    const relationships = entities
+        .filter((o) => (isSemanticModelRelationship(o.semanticEntity) &&
+                        !isSemanticModelAttribute(o.semanticEntity)))
+            .map((o) => {
+                return {
+                    sourceModelIdentifier: o.sourceModelIdentifier,
+                    semanticRelationship: o.semanticEntity as SemanticModelRelationship,
+                }
+            });
 
 
     return {

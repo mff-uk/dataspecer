@@ -14,7 +14,6 @@ import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs
 import { Entities, Entity, EntityModel } from "@dataspecer/core-v2";
 import { ConstraintFactory, SPECIFIC_ALGORITHM_CONVERSIONS_MAP } from "./configs/constraint-factories";
 import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
-import { CONSTRAINT_MAP } from "./configs/constraints-mapping";
 import type { LayoutedVisualEntities, VisualEntitiesWithModelVisualInformation } from "./migration-to-cme-v2";
 export { type LayoutedVisualEntities } from "./migration-to-cme-v2";
 export type { VisualEntitiesWithModelVisualInformation };
@@ -81,14 +80,14 @@ export interface NodeDimensionQueryHandler {
 export type XY = Omit<Position, "anchored">;
 
 // The layout works like this. The layout package gets configuration from user, usually inserted through dialog.
-// This configuration is converted to different set of constraints (this might have been a bit of overengineering, but it is not that bad).
+// This configuration is converted to different set of constraints, this looked like over-engineering at first, but actually after working with it a bit, while
+// programming my own algorithm, it is quite flexible.
 // There are different set of constraints:
 // 1) Actions which should be performed before we start the layouting. Meaning layouting in sense that we enter the loop which runs the algorithm 1 or more times to find the best layout.
 // 2) Then actions which should be performed in the loop (For example run random layout, followed by stress layout, followed by layered algorithm)
 // The actions in 1) and 2) are either GraphConversionConstraint or AlgorithmConfiguration, depending on the type of action
 // But that isn't all, we also have pre- and post- conditions, which are special actions which should be performed before, respectively after the steps 1), 2)
-// TODO: This feels like overengineering. ... I don't think that there is a reason to do this, it should be the same as in step 1
-//       So in future it will be probably the mentioned 1), 2) and then in the same way stuff, which will be run post-layout
+// There are currntly no pre- and post- conditions, so it may make sense to remove that part of code - TODO:
 
 
 
@@ -153,7 +152,6 @@ export async function performLayoutOfVisualModel(
 }
 
 
-// TODO: What about layouting more than one semantic model?
 /**
  * Layout given semantic model.
  */
@@ -163,6 +161,8 @@ export async function performLayoutOfSemanticModel(
 	config: UserGivenAlgorithmConfigurationslVersion4,
 	nodeDimensionQueryHandler?: NodeDimensionQueryHandler
 ): Promise<LayoutedVisualEntities> {
+	// If we want to layout more than one, then just change the arguments and fill the semanticModels variable in loop.
+
 	const entityModelUsedForConversion: EntityModel = {
 		getEntities: function (): Entities {
 			return inputSemanticModel;
@@ -273,6 +273,11 @@ const performLayoutingBasedOnConstraints = (
 }
 
 
+/**
+ * We don't have any defined constraints, this is just "future-proofing" - consmtraints are performed only once before running the main algorithm loop
+ * and they are different from the layout algorithm configuration
+ * @returns the promises with the constraints
+ */
 const runPreMainAlgorithmConstraints = async (
 	graph: IMainGraphClassic,
 	constraintsContainer: ConstraintContainer
@@ -283,40 +288,38 @@ const runPreMainAlgorithmConstraints = async (
 	return constraintPromises;
 }
 
+/**
+ * Again, don't have any, same as for {@link runPreMainAlgorithmConstraints}
+ */
 const runPostMainAlgorithmConstraints = async (graph: IMainGraphClassic,
 												constraintsContainer: ConstraintContainer): Promise<void[]> => {
-	return;
-	// TODO: Already Invalid comment - Well it could actually work I just need to move the code with calling layered into CONSTRAINT_MAP
-	//       To re-explain what this comments means - I wanted to have code which runs after the main alforithm - for example running layered algorithm
+	//       I wanted to have code which runs after the main algorithm - for example running layered algorithm
 	//       which takes into consideration existing positions - which we currently support, but I decided that it was better to just have it within the main loop
 	//       so POST-MAIN stuff will be probably only the stuff which will be run once after ALL! of the algorithms finish running.
 	//       It can be then only used once we have the result which want to pass to the caller. So it will be some conversions, etc. but not the mentioned layered algorithm
 	//       which runs algorithm in each iteration of loop that is finding best algorithm. The post-constraints are called only after the loop finishes.
-	// const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer.constraints, "POST-MAIN", nodeDimensionQueryHandler).then(_ => {
-	// 	return runConstraintsInternal(graph, constraintsContainer.constraints, "POST-MAIN", nodeDimensionQueryHandler);
-	// });
-	// return constraintPromises;
+	const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer, constraintsContainer.constraints, "POST-MAIN").then(_ => {
+		return runConstraintsInternal(graph, constraintsContainer, constraintsContainer.constraints, "POST-MAIN");
+	});
+	return constraintPromises;
 }
 
 const runConstraintsInternal = async (
-	graph: IMainGraphClassic,
-	constraintContainer: ConstraintContainer,
+	_graph: IMainGraphClassic,
+	_constraintContainer: ConstraintContainer,
 	constraints: IConstraint[],
 	constraintTime: Omit<ConstraintTime, "IN-MAIN">
 ): Promise<void[]> => {
-	const constraintPromises: Promise<void>[] = [];
 	for(const constraint of constraints) {
 		if(constraint.constraintTime === constraintTime) {
-			constraintPromises.push(CONSTRAINT_MAP[constraint.name](graph, constraintContainer));
+			// Perform the layouting action defined in constraint, we don't have any, though
 		}
 	}
 
-	return Promise.all(constraintPromises);
+	return;		// Should return the promises
 }
 
 
-// TODO: Can be called in webworker ... but webworkers in node.js are worker threads and they are non-compatible, so it is too much of a hassle, so maybe later if necessary
-// TODO: Also need a bit think about the iterating to find the best model, so the method will maybe need some small rework
 /**
  * Run the main layouting algorithm for the given graph. TODO: Well it is not just the main, there may be layerify after, etc.
  */
@@ -357,9 +360,6 @@ const runMainLayoutAlgorithm = async (
 	const numberOfAlgorithmRuns = (findBestLayoutConstraint?.data as any)?.numberOfAlgorithmRuns ?? 1;
 
 
-
-	// TODO: There is still room for improvement - Split the preprare and run part in actions - since the force algorithm doesn't need to prepare on every iteration.
-	//       It can be prepared once before. Then it just needs to always create new graph on layout, but the preparation can be done only once
 	for(let i = 0; i < numberOfAlgorithmRuns; i++) {
 		let workGraph = graph;		// TODO: Maybe create copy?
 		let layoutedGraphPromise: Promise<IMainGraphClassic>;
