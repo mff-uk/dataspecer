@@ -1,10 +1,10 @@
 import { NodeDimensionQueryHandler } from "../../..";
-import { IMainGraphClassic } from "../../representation/graph";
+import { MainGraph } from "../../representation/graph";
 import { EdgeCrossingMetric } from "../implemented-metrics/edge-crossing";
 import { EdgeNodeCrossingMetric } from "../implemented-metrics/edge-node-crossing";
 
 // TODO: The metrics here works, I just extracted the test code here in case if I need some tests in future to proof that it works even if I tested it manually.
-function testMetrics(graph: IMainGraphClassic, nodeDimensionQueryHandler: NodeDimensionQueryHandler) {
+function testMetrics(graph: MainGraph, nodeDimensionQueryHandler: NodeDimensionQueryHandler) {
     graph.allNodes.forEach(n => {
 		n.completeVisualNode.width = nodeDimensionQueryHandler.getWidth(n);
 		n.completeVisualNode.height = nodeDimensionQueryHandler.getHeight(n);

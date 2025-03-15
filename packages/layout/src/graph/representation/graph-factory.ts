@@ -3,7 +3,7 @@ import { NodeDimensionQueryHandler, VisualEntitiesWithOutsiders } from "../..";
 import { ExplicitAnchors } from "../../explicit-anchors";
 import { ExtractedModels } from "../../layout-algorithms/layout-algorithm-interface";
 import { PhantomElementsFactory } from "../../util/utils";
-import { GraphClassic, IGraphClassic, IMainGraphClassic, MainGraphClassic } from "./graph";
+import { DefaultGraph, Graph, MainGraph, DefaultMainGraph } from "./graph";
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { EdgeEndPoint } from "./edge";
 
@@ -29,15 +29,15 @@ export class GraphFactory {
      * @returns the created subgraph
      */
     public static createGraph(
-        mainGraph: IMainGraphClassic,
-        sourceGraph: IGraphClassic,
+        mainGraph: MainGraph,
+        sourceGraph: Graph,
         graphIdentifier: string,
         nodeContentOfGraph: Array<EdgeEndPoint> | null,
         isDummy: boolean,
         shouldSplitEdges: boolean
-    ): IGraphClassic {
+    ): Graph {
         // Create subgraph which has given nodes as children (TODO: What if the nodes are not given, i.e. null?)
-        const graph = new GraphClassic();
+        const graph = new DefaultGraph();
         graph.initializeWithGivenContent(
             mainGraph, sourceGraph, graphIdentifier,
             nodeContentOfGraph, isDummy, mainGraph.nodeDimensionQueryHandler);
@@ -57,11 +57,11 @@ export class GraphFactory {
         entitiesToLayout: VisualEntitiesWithOutsiders,
         nodeDimensionQueryHandler?: NodeDimensionQueryHandler | null,
         explicitAnchors?: ExplicitAnchors
-    ): IMainGraphClassic {
+    ): MainGraph {
         if(graphIdentifier === null) {
             graphIdentifier = PhantomElementsFactory.createUniquePhanomNodeIdentifier();
         }
-        const graph = new MainGraphClassic();
+        const graph = new DefaultMainGraph();
         graph.initialize(
             graph, graph, graphIdentifier, inputModels, false,
             visualModel, entitiesToLayout, nodeDimensionQueryHandler, explicitAnchors);

@@ -1,9 +1,9 @@
 import { ConstraintContainer } from "../configs/constraint-container";
-import { IGraphClassic, IMainGraphClassic, MainGraphClassic } from "../graph/representation/graph";
+import { Graph, MainGraph, DefaultMainGraph } from "../graph/representation/graph";
 import { LayoutAlgorithm } from "./layout-algorithm-interface";
 
 export class NoActionLayout implements LayoutAlgorithm {
-  prepareFromGraph(graph: IGraphClassic, _constraintContainer: ConstraintContainer) {
+  prepareFromGraph(graph: Graph, _constraintContainer: ConstraintContainer) {
     this.graph = graph;
   };
   run(shouldCreateNewGraph: boolean) {
@@ -13,5 +13,5 @@ export class NoActionLayout implements LayoutAlgorithm {
     return Promise.resolve(this.graph.mainGraph);
   };
 
-  private graph: IGraphClassic;
+  private graph: Graph;
 }

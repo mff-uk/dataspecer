@@ -1,6 +1,6 @@
 import { GraphTransformer, LayoutAlgorithm } from "./layout-algorithm-interface";
 import { isVisualProfileRelationship, isVisualRelationship, Position, VisualEntity, VisualNode, VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { GraphClassic, IGraphClassic, IMainGraphClassic, MainGraphClassic } from "../graph/representation/graph";
+import { DefaultGraph, Graph, MainGraph, DefaultMainGraph } from "../graph/representation/graph";
 
 
 
@@ -28,13 +28,13 @@ type VisualEntitiesType = (VisualNodeComplete | VisualRelationship | VisualProfi
  */
 class ElkGraphTransformer implements GraphTransformer {
     // TODO: Either I will actually store the representation inside the class or not, If not then constructor should be empty
-    constructor(graph: IGraphClassic, options?: object) {
+    constructor(graph: Graph, options?: object) {
         console.log("graph in ElkGraphTransformer");
         console.log(graph);
         this.graph = graph.mainGraph;
     }
 
-    convertGraphToLibraryRepresentation(graph: IGraphClassic,
+    convertGraphToLibraryRepresentation(graph: Graph,
                                         shouldSetLayoutOptions: boolean,
                                         constraintContainer: ElkConstraintContainer,
                                         elkNodeToSet?: ElkNode): ElkNode {
@@ -53,7 +53,7 @@ class ElkGraphTransformer implements GraphTransformer {
      * Internal function for conversion from our graph representation to ELK representation. The method is called recursively for subgraphs.
      */
     convertGraphToLibraryRepresentationInternal(
-        graph: IGraphClassic,
+        graph: Graph,
         shouldSetLayoutOptions: boolean,
         constraintContainer?: ElkConstraintContainer,
         elkNodeToSet?: ElkNode
@@ -72,7 +72,7 @@ class ElkGraphTransformer implements GraphTransformer {
             }
             else {
                 const elkNode = this.createElkNode(id, constraintContainer, node, elkNodeToSet, true, node?.semanticEntityRepresentingNode?.iri);     // TODO: Not sure what is the ID (visual or semantic entity id?)
-                if(node instanceof GraphClassic) {
+                if(node instanceof DefaultGraph) {
                     this.convertGraphToLibraryRepresentationInternal(node, true, constraintContainer, elkNode);
                 }
                 return elkNode;
@@ -144,7 +144,7 @@ class ElkGraphTransformer implements GraphTransformer {
 
         if(shouldSetLayoutOptions) {
             if((constraintContainer.currentLayoutAction.action.constraintedNodes === "GENERALIZATION" && isSubgraph(this.graph, elkGraph)) ||
-                (constraintContainer.currentLayoutAction.action.constraintedNodes === "ALL" && (graph instanceof MainGraphClassic))) {
+                (constraintContainer.currentLayoutAction.action.constraintedNodes === "ALL" && (graph instanceof DefaultMainGraph))) {
                 elkGraph.layoutOptions = (constraintContainer.currentLayoutAction.action as (IAlgorithmConfiguration & ElkConstraint)).elkData;
             }
             else if(isSubgraph(this.graph, elkGraph)) {
@@ -165,7 +165,7 @@ class ElkGraphTransformer implements GraphTransformer {
     /**
      * The implementation creates deep copy of the input graph, updates the copy and returns it.
      */
-    convertLibraryToGraphRepresentation(libraryRepresentation: ElkNode | null, includeDummies: boolean): IMainGraphClassic {
+    convertLibraryToGraphRepresentation(libraryRepresentation: ElkNode | null, includeDummies: boolean): MainGraph {
         // TODO: 1) This is really simple implementation
         //       2) It should be noted in docs that we are actually just cloning the old graph and update the copy and creating completely new one - because the results may slightly differ
         //       3) Using this.graph ... it makes sense since it is the input graph
@@ -174,7 +174,7 @@ class ElkGraphTransformer implements GraphTransformer {
         //       like this, but it is to specific and usually breaks on different ids
         //       ..... so remove these TODOs if the cloneDeep is enough
         // const clonedGraph = GraphFactory.createMainGraph(this.graph.mainGraph.id, this.graph.todoDebugExtractedModel, null);
-        // (clonedGraph as MainGraphClassic).createGeneralizationSubgraphsFromStoredTODOExtractedModel();  // TODO: For now
+        // (clonedGraph as MainGraph).createGeneralizationSubgraphsFromStoredTODOExtractedModel();  // TODO: For now
 
         this.updateExistingGraphRepresentationBasedOnLibraryRepresentation(libraryRepresentation, clonedGraph, includeDummies, true);
 
@@ -186,7 +186,7 @@ class ElkGraphTransformer implements GraphTransformer {
     }
 
     updateExistingGraphRepresentationBasedOnLibraryRepresentation(libraryRepresentation: ElkNode | null,
-                                                                    graphToBeUpdated: IGraphClassic,        // TODO: Can use this.graph instead
+                                                                    graphToBeUpdated: Graph,        // TODO: Can use this.graph instead
                                                                     includeNewVertices: boolean,
                                                                     shouldUpdateEdges: boolean): VisualEntities {
         // TODO: Type void (respectively null) should be solved better (On Fail call random layout or something, idk)
@@ -266,7 +266,7 @@ class ElkGraphTransformer implements GraphTransformer {
     /**
      * Recursively updates {@link graphToBeUpdated} based on positions in {@link elkNode}.
      */
-    recursivelyUpdateGraphBasedOnElkNode(elkNode: ElkNode, graphToBeUpdated: IGraphClassic, referenceX: number, referenceY: number, shouldUpdateEdges: boolean): VisualEntitiesType {
+    recursivelyUpdateGraphBasedOnElkNode(elkNode: ElkNode, graphToBeUpdated: Graph, referenceX: number, referenceY: number, shouldUpdateEdges: boolean): VisualEntitiesType {
         // TODO: If we add phantom nodes (and later when also draw edges this may stop working)
         let visualEntities : VisualEntitiesType = [];
         console.info("referenceX");
@@ -313,7 +313,7 @@ class ElkGraphTransformer implements GraphTransformer {
 
 
     // TODO: Actually should we even store the graph, shouldn't we pass it in methods?
-    private graph: IMainGraphClassic;
+    private graph: MainGraph;
 
 
     /**
@@ -345,7 +345,7 @@ class ElkGraphTransformer implements GraphTransformer {
      * Edit: On top of that, there is difference between nodes which are connected to only anchored nodes and those which are not.
      * (Or maybe when the whole subgraph is anchored ... I didn't check that)
      */
-    private findAnchoredNodeWithUnchanchoredEnd(graph: IGraphClassic): EdgeEndPoint | null {
+    private findAnchoredNodeWithUnchanchoredEnd(graph: Graph): EdgeEndPoint | null {
         for(const [identifier, node] of Object.entries(graph.nodes)) {
             if(node.completeVisualNode.isAnchored === true) {
                 (node.getAllOutgoingEdges().next().done !== true || node.getAllIncomingEdges().next().done !== true);
@@ -382,7 +382,7 @@ class ElkGraphTransformer implements GraphTransformer {
      * @param referenceY same as {@link referenceX}, but for y coordinate
      * @returns visual entities based on given {@link elkNode}.
      */
-    private convertElkNodeToVisualEntitiesRecursively(elkNode: ElkNode, referenceX: number, referenceY: number, graphToBeUpdated: IGraphClassic): VisualEntity[] {
+    private convertElkNodeToVisualEntitiesRecursively(elkNode: ElkNode, referenceX: number, referenceY: number, graphToBeUpdated: Graph): VisualEntity[] {
         // TODO: If we add phantom nodes (and later when also draw edges this stops working)
         let visualEntities : VisualEntity[] = [];
 
@@ -588,7 +588,7 @@ class ElkGraphTransformer implements GraphTransformer {
  * Runs the second part of generalization two run layout. The first part is layout of the internals of subgraphs. The second part, which is performed in this method is
  * the positioning of the subgraphs.
  */
-async function performSecondPartGeneralizationTwoRunLayout(graph: IGraphClassic, graphInElk: ElkNode, elk): Promise<ElkNode | void> {
+async function performSecondPartGeneralizationTwoRunLayout(graph: Graph, graphInElk: ElkNode, elk): Promise<ElkNode | void> {
     for(const subgraph of graphInElk.children) {
         if(isSubgraph(graph, subgraph)) {
             // TODO: Actually I don't think this is needed
@@ -643,7 +643,7 @@ function convertNodePortIdToNodeId(id: string): string {
 }
 
 
-function isSubgraph(graph: IGraphClassic, subgraph: ElkNode): boolean {
+function isSubgraph(graph: Graph, subgraph: ElkNode): boolean {
     const nodeInGraph = graph.nodes[subgraph.id];
     const isSubgraphTest = nodeInGraph !== undefined && ("nodes" in nodeInGraph);
 
@@ -659,7 +659,7 @@ export class ElkLayout implements LayoutAlgorithm {
     }
 
     // TODO RadStr: Just put everywhere main graph and be done with it
-    prepareFromGraph(graph: IGraphClassic, constraintContainer: ElkConstraintContainer): void {
+    prepareFromGraph(graph: Graph, constraintContainer: ElkConstraintContainer): void {
         // TODO RadStr: Debugging
         // GraphAlgorithms.findLeafPaths(graph.mainGraph);
         GraphAlgorithms.dcatAPTestSetterHardcoded(graph.mainGraph);
@@ -670,7 +670,7 @@ export class ElkLayout implements LayoutAlgorithm {
         this.constraintContainer = constraintContainer;
     }
 
-    async run(shouldCreateNewGraph: boolean): Promise<IMainGraphClassic> {
+    async run(shouldCreateNewGraph: boolean): Promise<MainGraph> {
         let layoutPromise: Promise<ElkNode | void>;
         const graphInElkWorkCopy = this.getGraphInElk();
         if(this.constraintContainer.isGeneralizationPerformedBefore()) {
@@ -701,7 +701,7 @@ export class ElkLayout implements LayoutAlgorithm {
         });
     }
 
-    async runGeneralizationLayout(shouldCreateNewGraph: boolean): Promise<IMainGraphClassic> {
+    async runGeneralizationLayout(shouldCreateNewGraph: boolean): Promise<MainGraph> {
         const layoutPromises: Promise<void>[] = [];
         let subgraphAllEdges: [ElkExtendedEdge[], ElkExtendedEdge[]][] = [];
         let subgraphIndices: number[] = [];
@@ -754,7 +754,7 @@ export class ElkLayout implements LayoutAlgorithm {
     }
 
     private elk: ELKType;
-    private graph: IGraphClassic;
+    private graph: Graph;
     private graphInElk: ElkNode;
     private getGraphInElk(): ElkNode {
         return _.cloneDeep(this.graphInElk);

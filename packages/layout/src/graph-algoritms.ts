@@ -1,13 +1,13 @@
 import { Direction, ReactflowDimensionsConstantEstimator } from ".";
 import {
-  GraphClassic,
-  IGraphClassic,
-  IMainGraphClassic,
+  DefaultGraph,
+  Graph,
+  MainGraph,
 } from "./graph/representation/graph";
 import { EdgeNodeCrossingMetric } from "./graph/graph-metrics/implemented-metrics/edge-node-crossing";
 import { addToRecordArray } from "./util/utils";
-import { INodeClassic, NodeClassic, VisualNodeComplete } from "./graph/representation/node";
-import { EdgeClassic, EdgeEndPoint, IEdgeClassic } from "./graph/representation/edge";
+import { Node, DefaultNode, VisualNodeComplete } from "./graph/representation/node";
+import { DefaultEdge, EdgeEndPoint, Edge } from "./graph/representation/edge";
 
 export enum ToConsiderFilter {
   OnlyLayouted,
@@ -23,22 +23,22 @@ type Dimensions = {
 type RootHeuristicType = "MOST_EDGES";
 
 export class GraphAlgorithms {
-    static dfs(graph: GraphClassic, root: string, edgeType: "TODO" | "GENERALIZATION"): string[] {
+    static dfs(graph: DefaultGraph, root: string, edgeType: "TODO" | "GENERALIZATION"): string[] {
         throw new Error("Unimplemented");
     }
-    static bfs(graph: GraphClassic, root: string, edgeType: "TODO" | "GENERALIZATION"): string[][] {
+    static bfs(graph: DefaultGraph, root: string, edgeType: "TODO" | "GENERALIZATION"): string[][] {
         throw new Error("Unimplemented");
     }
-    static findStrongComponents(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION"): string[][] {
+    static findStrongComponents(graph: DefaultGraph, edgeType: "TODO" | "GENERALIZATION"): string[][] {
         throw new Error("Unimplemented");
     }
-    static findWeakComponents(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION"): string[][] {
+    static findWeakComponents(graph: DefaultGraph, edgeType: "TODO" | "GENERALIZATION"): string[][] {
         throw new Error("Unimplemented");
     }
-    static computeJacardSimilarity(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION"): string[][] {
+    static computeJacardSimilarity(graph: DefaultGraph, edgeType: "TODO" | "GENERALIZATION"): string[][] {
         throw new Error("Unimplemented");
     }
-    static findLeaves(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION"): string[] {
+    static findLeaves(graph: DefaultGraph, edgeType: "TODO" | "GENERALIZATION"): string[] {
         throw new Error("Unimplemented");
     }
 
@@ -56,10 +56,10 @@ export class GraphAlgorithms {
       }
     }
     static dcatAPTestSetter(
-      graph: IMainGraphClassic
+      graph: MainGraph
     ): void {
-      const leafs: Record<string, IEdgeClassic[]> = {};
-      const clusters: Record<string, IEdgeClassic[]> = {};
+      const leafs: Record<string, Edge[]> = {};
+      const clusters: Record<string, Edge[]> = {};
       graph.allNodes.forEach(node => {
         const edges = [...node.getAllEdges()];
         let secondEnd: string | null = null;
@@ -97,10 +97,10 @@ export class GraphAlgorithms {
     }
 
     static dcatAPTestSetterHardcoded(
-      graph: IMainGraphClassic
+      graph: MainGraph
     ): void {
-      const leafs: Record<string, IEdgeClassic[]> = {};
-      const clusters: Record<string, IEdgeClassic[]> = {};
+      const leafs: Record<string, Edge[]> = {};
+      const clusters: Record<string, Edge[]> = {};
       graph.allNodes.forEach(node => {
         const edges = [...node.getAllEdges()];
         let secondEnd: string | null = null;
@@ -163,10 +163,10 @@ export class GraphAlgorithms {
      * Returns leafs paths - for example when we have node which has leafs around it and some non-leafs but those non-leafs are only paths
      */
     static findLeafPaths(
-      graph: IMainGraphClassic
+      graph: MainGraph
     ): void {
-      const leafs: Record<string, IEdgeClassic[]> = {};
-      const clusters: Record<string, IEdgeClassic[]> = {};
+      const leafs: Record<string, Edge[]> = {};
+      const clusters: Record<string, Edge[]> = {};
       graph.allNodes.forEach(node => {
         const edges = [...node.getAllEdges()];
         let secondEnd: string | null = null;
@@ -204,10 +204,10 @@ export class GraphAlgorithms {
     }
 
 
-    static clusterify(graph: IMainGraphClassic): Record<string, IEdgeClassic[]> {
-      const leafs: Record<string, IEdgeClassic[]> = {};
-      const clusters: Record<string, IEdgeClassic[]> = {};
-      const uniqueClusters: Record<string, IEdgeClassic[]> = {};    // Clusters without multi-edges - we just take 1 representative
+    static clusterify(graph: MainGraph): Record<string, Edge[]> {
+      const leafs: Record<string, Edge[]> = {};
+      const clusters: Record<string, Edge[]> = {};
+      const uniqueClusters: Record<string, Edge[]> = {};    // Clusters without multi-edges - we just take 1 representative
       graph.allNodes.forEach(node => {
         const edges = [...node.getAllEdges()];
         let secondEnd: string | null = null;
@@ -265,7 +265,7 @@ export class GraphAlgorithms {
      * Finds how many edges collide with the bounding box, which is placed - above, below, to the left and to the right of given {@link rootNode}.
      */
     static findSectorNodePopulationUsingBoundingBox(
-      graph: IMainGraphClassic,
+      graph: MainGraph,
       rootNode: EdgeEndPoint,
       edgesToConsider: ToConsiderFilter,
     ): Record<Direction, number> {
@@ -292,14 +292,14 @@ export class GraphAlgorithms {
       let boundingBoxWidth = widthMultipleForHorizontalDirection * ReactflowDimensionsConstantEstimator.getDefaultWidth();
       let boundingBoxHeight = heightMultipleForHorizontalDirection * ReactflowDimensionsConstantEstimator.getDefaultHeight();
 
-      let boundingBoxVisualNode = NodeClassic.createNewVisualNodeBasedOnSemanticData(null, "", null);
+      let boundingBoxVisualNode = DefaultNode.createNewVisualNodeBasedOnSemanticData(null, "", null);
       let boundingBoxVisualNodeComplete = new VisualNodeComplete(
         boundingBoxVisualNode, boundingBoxWidth, boundingBoxHeight, false, false, false);
       boundingBoxVisualNodeComplete.coreVisualNode.position.x = rootNode.completeVisualNode.coreVisualNode.position.x - boundingBoxWidth;
       boundingBoxVisualNodeComplete.coreVisualNode.position.y = rootNode.completeVisualNode.coreVisualNode.position.y - boundingBoxHeight / 2;
       boundingBoxes[Direction.Left] = boundingBoxVisualNodeComplete;
 
-      boundingBoxVisualNode = NodeClassic.createNewVisualNodeBasedOnSemanticData(null, "", null);
+      boundingBoxVisualNode = DefaultNode.createNewVisualNodeBasedOnSemanticData(null, "", null);
       boundingBoxVisualNodeComplete = new VisualNodeComplete(
         boundingBoxVisualNode, boundingBoxWidth, boundingBoxHeight, false, false, false);
       boundingBoxVisualNodeComplete.coreVisualNode.position.x = rootNode.completeVisualNode.coreVisualNode.position.x +
@@ -310,7 +310,7 @@ export class GraphAlgorithms {
 
       boundingBoxWidth = widthMultipleForVerticalDirection * ReactflowDimensionsConstantEstimator.getDefaultWidth();
       boundingBoxHeight = heightMultipleForVerticalDirection * ReactflowDimensionsConstantEstimator.getDefaultHeight();
-      boundingBoxVisualNode = NodeClassic.createNewVisualNodeBasedOnSemanticData(null, "", null);
+      boundingBoxVisualNode = DefaultNode.createNewVisualNodeBasedOnSemanticData(null, "", null);
       boundingBoxVisualNodeComplete = new VisualNodeComplete(
         boundingBoxVisualNode, boundingBoxWidth, boundingBoxHeight, false, false, false);
       boundingBoxVisualNodeComplete.coreVisualNode.position.x = rootNode.completeVisualNode.coreVisualNode.position.x - boundingBoxWidth / 2;
@@ -319,7 +319,7 @@ export class GraphAlgorithms {
 
       boundingBoxWidth = widthMultipleForVerticalDirection * ReactflowDimensionsConstantEstimator.getDefaultWidth();
       boundingBoxHeight = heightMultipleForVerticalDirection * ReactflowDimensionsConstantEstimator.getDefaultHeight();
-      boundingBoxVisualNode = NodeClassic.createNewVisualNodeBasedOnSemanticData(null, "", null);
+      boundingBoxVisualNode = DefaultNode.createNewVisualNodeBasedOnSemanticData(null, "", null);
       boundingBoxVisualNodeComplete = new VisualNodeComplete(
         boundingBoxVisualNode, boundingBoxWidth, boundingBoxHeight, false, false, false);
       boundingBoxVisualNodeComplete.coreVisualNode.position.x = rootNode.completeVisualNode.coreVisualNode.position.x - boundingBoxWidth / 2;
@@ -344,7 +344,7 @@ export class GraphAlgorithms {
      * Finds how many nodes are above, below, to the left and to the right of given {@link rootNode}.
      */
     static findSectorNodePopulation(
-      graph: IMainGraphClassic,
+      graph: MainGraph,
       rootNode: EdgeEndPoint,
       nodesToConsider: ToConsiderFilter,
     ): Record<Direction, number> {
@@ -407,9 +407,9 @@ export class GraphAlgorithms {
      * The result of this method is the change of input graph in such a way that the input graph becomes a tree (respectively DAG).
      * The method sets the isConsideredInLayout and reverseInLayout properties on edges and may add some dummy edges (for example to connect components)
      */
-    static treeify(graph: IGraphClassic, rootNodeIdentifier?: string, edgeType?: "TODO" | "GENERALIZATION"): void {
+    static treeify(graph: Graph, rootNodeIdentifier?: string, edgeType?: "TODO" | "GENERALIZATION"): void {
       // TODO: Maybe only work with the subgraph or maybe only on the main graph, for example graph.resetForNewLayout, I am not sure if it works on subgraph
-      let rootNode: INodeClassic;
+      let rootNode: Node;
       if(rootNodeIdentifier === undefined) {
           rootNode = GraphAlgorithms.findRootNode(graph, "MOST_EDGES");
       }
@@ -428,7 +428,7 @@ export class GraphAlgorithms {
               // TODO: Alternative solution is to layout each subgraph with radial algorithm, but it is a bit more work to implement
               const leaf = graph.nodes[Object.entries(nodeToBFSLevelMap).find(([_, level]) => level === maxLevelInOriginalTree)[0]];
 
-              const addedEdge = EdgeClassic.addNewEdgeToGraph(
+              const addedEdge = DefaultEdge.addNewEdgeToGraph(
                   graph, null, null, null, leaf.id, node.id, null, "outgoingRelationshipEdges");
 
 
@@ -470,7 +470,7 @@ export class GraphAlgorithms {
   /**
    * Sets the properties of edges - isConsideredInLayout and reverseInLayout - in such a way that the resulting graph is still DAG.
    */
-  private static addEdgesBackToGraphAndKeepItDAG(graph: IGraphClassic, nodeToBFSLevelMap: Record<string, number>): void {
+  private static addEdgesBackToGraphAndKeepItDAG(graph: Graph, nodeToBFSLevelMap: Record<string, number>): void {
     Object.entries(nodeToBFSLevelMap).forEach(([nodeIdentifier, level]) => {
       for(const edge of graph.nodes[nodeIdentifier].getAllOutgoingEdges()) {
         const edgeEndLevel = nodeToBFSLevelMap[edge.end.id];
@@ -489,16 +489,16 @@ export class GraphAlgorithms {
     });
   }
 
-  static treeifyBFSFromRoot(graph: IGraphClassic, visitedNodes: Record<string, true>, usedEdges: Record<string, true>, rootNodeIdentifier: string): Record<string, number> {
+  static treeifyBFSFromRoot(graph: Graph, visitedNodes: Record<string, true>, usedEdges: Record<string, true>, rootNodeIdentifier: string): Record<string, number> {
     return GraphAlgorithms.treeifyBFS(graph, visitedNodes, usedEdges, [[rootNodeIdentifier, 0]]);
   }
 
-  private static treeifyBFS(graph: IGraphClassic, visitedNodes: Record<string, true>, usedEdges: Record<string, true>, nodesInQueue: [string, number][]): Record<string, number> {
+  private static treeifyBFS(graph: Graph, visitedNodes: Record<string, true>, usedEdges: Record<string, true>, nodesInQueue: [string, number][]): Record<string, number> {
     const nodeToBFSLevelMap: Record<string, number> = {};
 
     while(nodesInQueue.length > 0) {
       const [nodeIdentifier, currentLevel]: [string, number] = nodesInQueue.shift();
-      const node: INodeClassic = graph.nodes[nodeIdentifier];
+      const node: Node = graph.nodes[nodeIdentifier];
 
       if(visitedNodes[node.id] === true) {
         continue;
@@ -530,14 +530,14 @@ export class GraphAlgorithms {
    * Tries to find root node of tree based on given heuristic.
    * @returns the root node
    */
-  static findRootNode(graph: IGraphClassic, heuristic: RootHeuristicType): INodeClassic {
+  static findRootNode(graph: Graph, heuristic: RootHeuristicType): Node {
       switch(heuristic) {
           case "MOST_EDGES":
               return GraphAlgorithms.findRootWithMostEdges(graph);
       };
   }
-  static findRootWithMostEdges(graph: IGraphClassic): INodeClassic {
-      let root: INodeClassic;
+  static findRootWithMostEdges(graph: Graph): Node {
+      let root: Node;
       let mostRelationships: number = 0;
       Object.entries(graph.nodes).forEach(([nodeIdentifier, node]) => {
           const relationshipCountForNode = [...node.getAllOutgoingEdges()].length + [...node.getAllIncomingEdges()].length;
@@ -552,40 +552,40 @@ export class GraphAlgorithms {
   }
 
 
-  static getSubgraphUsingBFS(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION", depth: number): GraphClassic {
+  static getSubgraphUsingBFS(graph: DefaultGraph, edgeType: "TODO" | "GENERALIZATION", depth: number): DefaultGraph {
       throw new Error("Unimplemented");
   }
-  static findCliques(graph: GraphClassic, edgeType: "TODO" | "GENERALIZATION", size: number): GraphClassic {      // TODO:
+  static findCliques(graph: DefaultGraph, edgeType: "TODO" | "GENERALIZATION", size: number): DefaultGraph {      // TODO:
       throw new Error("Unimplemented");
   }
 }
 
 class VisualAlgorithms {
-    findClusters(graph: GraphClassic): string[][] {
+    findClusters(graph: DefaultGraph): string[][] {
         throw new Error("Unimplemented");
     }
     // TODO: Well this is calling layered algorithm with parameters which perform this effect
-    layerify(graph: GraphClassic): void {
+    layerify(graph: DefaultGraph): void {
         throw new Error("Unimplemented");
     }
     // TODO: well this is basically calling https://eclipse.dev/elk/reference/algorithms/org-eclipse-elk-sporeCompaction.html
-    compactify(graph: GraphClassic): void {
+    compactify(graph: DefaultGraph): void {
         throw new Error("Unimplemented");
     }
     // TODO: The idea was to do something like layerify but manually, based on node proximities, etc.
-    prettify(graph: GraphClassic): void {
+    prettify(graph: DefaultGraph): void {
         throw new Error("Unimplemented");
     }
-    computeAspectRatio(graph: GraphClassic): number {
+    computeAspectRatio(graph: DefaultGraph): number {
         throw new Error("Unimplemented");
     }
-    computeTotalGraphSize(graph: GraphClassic): Dimensions {
+    computeTotalGraphSize(graph: DefaultGraph): Dimensions {
         throw new Error("Unimplemented");
     }
-    computeTotalGraphArea(graph: GraphClassic): number {
+    computeTotalGraphArea(graph: DefaultGraph): number {
         throw new Error("Unimplemented");
     }
-    computeActuallyUsedGraphArea(graph: GraphClassic): number {
+    computeActuallyUsedGraphArea(graph: DefaultGraph): number {
         throw new Error("Unimplemented");
     }
 }

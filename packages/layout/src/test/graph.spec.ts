@@ -4,7 +4,7 @@ test("Test for sake of test", () => {
 
 
 // import { LanguageString, NamedThing, SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-// import { GraphClassic, GraphFactory, MainGraphClassic } from "../graph-iface";
+// import { DefaultGraph, GraphFactory, DefaultMainGraph } from "../graph-iface";
 // import { ExtractedModel, extractModelObjects } from "../layout-iface";
 // import { DIRECTION, doFindBestLayout, UserGivenConstraintsVersion2 } from "..";
 // import { ReactflowDimensionsEstimator } from "../dimension-estimators/reactflow-dimension-estimator";

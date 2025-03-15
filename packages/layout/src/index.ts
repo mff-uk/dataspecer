@@ -9,7 +9,7 @@ import {
 	AlgorithmConfiguration,
 	GraphConversionConstraint,
 } from "./configs/constraints";
-import { GraphClassic, IMainGraphClassic, VisualModelWithOutsiders } from "./graph/representation/graph";
+import { DefaultGraph, MainGraph, VisualModelWithOutsiders } from "./graph/representation/graph";
 import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs/constraint-container";
 import { Entities, Entity, EntityModel } from "@dataspecer/core-v2";
 import { ConstraintFactory, SPECIFIC_ALGORITHM_CONVERSIONS_MAP } from "./configs/constraint-factories";
@@ -47,8 +47,8 @@ import { NodeOrthogonalityMetric } from "./graph/graph-metrics/implemented-metri
 import { EdgeCrossingAngleMetric } from "./graph/graph-metrics/implemented-metrics/edge-crossing-angle";
 import { Metric } from "./graph/graph-metrics/graph-metric";
 import { GraphAlgorithms } from "./graph-algoritms";
-import { INodeClassic } from "./graph/representation/node";
-export { type INodeClassic };
+import { Node } from "./graph/representation/node";
+export { type Node };
 import { GraphFactory } from "./graph/representation/graph-factory";
 export { AnchorOverrideSetting } from "./explicit-anchors";
 export { placePositionOnGrid };
@@ -75,8 +75,8 @@ export { type ElkForceAlgType } from "./configs/elk/elk-constraints";
  * For such case the implemented variants are (so far) {@link ReactflowDimensionsEstimator} and {@link ReactflowDimensionsConstantEstimator}.
  */
 export interface NodeDimensionQueryHandler {
-	getWidth(node: INodeClassic);
-	getHeight(node: INodeClassic);
+	getWidth(node: Node);
+	getHeight(node: Node);
 }
 
 export type XY = Omit<Position, "anchored">;
@@ -223,9 +223,9 @@ function performLayoutInternal(
  * Layout given graph based on given layout configuration
  */
 export async function performLayoutFromGraph(
-	graph: IMainGraphClassic,
+	graph: MainGraph,
 	config: UserGivenAlgorithmConfigurationslVersion4
-): Promise<IMainGraphClassic> {
+): Promise<MainGraph> {
 	const constraints = ConstraintFactory.createConstraints(config);
 
 	const resultingLayoutPromise = performLayoutingBasedOnConstraints(graph, constraints);
@@ -242,9 +242,9 @@ export async function performLayoutFromGraph(
  * Performs all relevant layout operations based on given constraints
  */
 const performLayoutingBasedOnConstraints = (
-	graph: IMainGraphClassic,
+	graph: MainGraph,
 	constraints: ConstraintContainer
-): Promise<IMainGraphClassic> => {
+): Promise<MainGraph> => {
 	let workGraph = graph;
 	return runPreMainAlgorithmConstraints(workGraph, constraints).then(async _ => {
 		for(const action of constraints.layoutActionsIteratorBefore) {
@@ -281,7 +281,7 @@ const performLayoutingBasedOnConstraints = (
  * @returns the promises with the constraints
  */
 const runPreMainAlgorithmConstraints = async (
-	graph: IMainGraphClassic,
+	graph: MainGraph,
 	constraintsContainer: ConstraintContainer
 ): Promise<void[]> => {
 	const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer, constraintsContainer.constraints, "PRE-MAIN").then(_ => {
@@ -293,7 +293,7 @@ const runPreMainAlgorithmConstraints = async (
 /**
  * Again, don't have any, same as for {@link runPreMainAlgorithmConstraints}
  */
-const runPostMainAlgorithmConstraints = async (graph: IMainGraphClassic,
+const runPostMainAlgorithmConstraints = async (graph: MainGraph,
 												constraintsContainer: ConstraintContainer): Promise<void[]> => {
 	//       I wanted to have code which runs after the main algorithm - for example running layered algorithm
 	//       which takes into consideration existing positions - which we currently support, but I decided that it was better to just have it within the main loop
@@ -307,7 +307,7 @@ const runPostMainAlgorithmConstraints = async (graph: IMainGraphClassic,
 }
 
 const runConstraintsInternal = async (
-	_graph: IMainGraphClassic,
+	_graph: MainGraph,
 	_constraintContainer: ConstraintContainer,
 	constraints: IConstraint[],
 	constraintTime: Omit<ConstraintTime, "IN-MAIN">
@@ -326,9 +326,9 @@ const runConstraintsInternal = async (
  * Run the main layouting algorithm for the given graph. TODO: Well it is not just the main, there may be layerify after, etc.
  */
 const runMainLayoutAlgorithm = async (
-	graph: IMainGraphClassic,
+	graph: MainGraph,
 	constraints: ConstraintContainer
-): Promise<IMainGraphClassic> => {
+): Promise<MainGraph> => {
 	// TODO: Well it really is overkill, like I could in the same way just have a look, if the given configuration contains numberOfAlgorithmRuns and if so, just put it here
 	const metricsWithWeights: MetricWithWeight[] = [
 		{
@@ -364,7 +364,7 @@ const runMainLayoutAlgorithm = async (
 
 	for(let i = 0; i < numberOfAlgorithmRuns; i++) {
 		let workGraph = graph;		// TODO: Maybe create copy?
-		let layoutedGraphPromise: Promise<IMainGraphClassic>;
+		let layoutedGraphPromise: Promise<MainGraph>;
 		for(const action of constraints.layoutActionsIterator) {
 			if(action instanceof GraphConversionConstraint) {
 				layoutedGraphPromise = SPECIFIC_ALGORITHM_CONVERSIONS_MAP[action.actionName](action, workGraph);
@@ -423,7 +423,7 @@ type MetricResultsAggregation = {
 
 type MetricWithGraphPromise = {
 	value: number,
-	graphPromise: Promise<IMainGraphClassic>
+	graphPromise: Promise<MainGraph>
 }
 
 function createObjectsToHoldMetricsData(metrics: MetricWithWeight[]) {
@@ -466,12 +466,12 @@ function performMetricsComputation(
 	metricsToCompute: MetricWithWeight[],
 	computedMetricsFromPreviousIterations: Record<string, number[]>,
 	metricResultsAggregation: Record<string, MetricResultsAggregation>,
-	graph: IMainGraphClassic,
-	layoutedGraphPromise: Promise<IMainGraphClassic>,
+	graph: MainGraph,
+	layoutedGraphPromise: Promise<MainGraph>,
 ) {
 	const computedMetrics = [];
 	for(const metricToCompute of metricsToCompute) {
-		const computedMetric = metricToCompute.metric.computeMetric(graph as unknown as GraphClassic);		// TODO RadStr: Fix the typing
+		const computedMetric = metricToCompute.metric.computeMetric(graph as unknown as DefaultGraph);		// TODO RadStr: Fix the typing
 		computedMetricsFromPreviousIterations[metricToCompute.name].push(computedMetric);
 		computedMetrics.push(computedMetric);
 
@@ -490,7 +490,7 @@ function setMetricResultsAggregation(
 	metricResultsAggregation: Record<string, MetricResultsAggregation>,
 	key: string,
 	computedMetric: number,
-	layoutedGraphPromise: Promise<IMainGraphClassic>,
+	layoutedGraphPromise: Promise<MainGraph>,
 ) {
 	metricResultsAggregation[key].avg += computedMetric;
 	if(metricResultsAggregation[key].min.value > computedMetric) {

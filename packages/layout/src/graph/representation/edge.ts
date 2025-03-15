@@ -1,11 +1,11 @@
 import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { VisualEntitiesWithOutsiders, XY } from "../..";
-import { IGraphClassic } from "./graph";
+import { Graph } from "./graph";
 import { isSemanticModelGeneralization, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { VISUAL_PROFILE_RELATIONSHIP_TYPE, VISUAL_RELATIONSHIP_TYPE, VisualModel, VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
 import { AllowedEdgeBundleTypes, ExtractedModels, GeneralizationBundle, RelationshipBundle, RelationshipProfileBundle } from "../../layout-algorithms/layout-algorithm-interface";
 import { addToRecordArray, capitalizeFirstLetter } from "../../util/utils";
-import { INodeClassic, isNodeInVisualModel } from "./node";
+import { Node, isNodeInVisualModel } from "./node";
 
 export type AllowedEdgeTypes = SemanticModelGeneralization |
                         SemanticModelRelationship |
@@ -14,12 +14,12 @@ export type AllowedEdgeTypes = SemanticModelGeneralization |
 
 
 // TODO: Can create more specific interfaces for generalization, etc, which will be extending this one - they will be different in the fields - edge: type and isProfile value
-export interface IEdgeClassic {
+export interface Edge {
     /**
      * The graph in which the edge lies, this is relevant for example for ELK layouting library,
      * where the edges have to be stored within the relevant wrapper graph.
      */
-    sourceGraph: IGraphClassic;
+    sourceGraph: Graph;
 
     /**
      * Is the model of the semantic edge (that is {@link semanticEntityRepresentingEdge}) represented by this (interface).
@@ -94,14 +94,14 @@ class VisualEdge {
 /**
  * Represents the graph edge.
  */
-export class EdgeClassic implements IEdgeClassic {
+export class DefaultEdge implements Edge {
     /**
      * Adds edge to given {@link graph}
      * @param extractedModels used to search for source model of edge - so not needed for non-semantic edges
      * @returns
      */
     static addNewEdgeToGraph(
-        graph: IGraphClassic,
+        graph: Graph,
         identifier: string | null,
         visualEdge: VisualRelationship | VisualProfileRelationship | null,
         semanticEdge: AllowedEdgeTypes | null,
@@ -109,7 +109,7 @@ export class EdgeClassic implements IEdgeClassic {
         targetIdentifier: string,
         extractedModels: ExtractedModels | null,
         edgeToAddKey: OutgoingEdgeType,
-    ): IEdgeClassic | null {
+    ): Edge | null {
         const reverseEdgeToAddKey: IncomingEdgeType = convertOutgoingEdgeTypeToIncoming(edgeToAddKey);
         console.log("Adding Edge to graph", {allNodes: graph.mainGraph.allNodes, visualEdge, sourceIdentifier, targetIdentifier});
     //    console.log(graph);
@@ -148,15 +148,15 @@ export class EdgeClassic implements IEdgeClassic {
         }
 
 
-        const edgeClassic: IEdgeClassic = new EdgeClassic(
+        const edge: Edge = new DefaultEdge(
             identifier, visualEdge, semanticEdge, edgeToAddKey, graph,
             source, target, sourceModelIdentifierForEdge);
-        const reverseEdgeClassic: IEdgeClassic = edgeClassic;
+        const reverseEdge: Edge = edge;
 
-        source[edgeToAddKey].push(edgeClassic);
-        target[reverseEdgeToAddKey].push(reverseEdgeClassic);
+        source[edgeToAddKey].push(edge);
+        target[reverseEdgeToAddKey].push(reverseEdge);
 
-        return edgeClassic
+        return edge
     }
 
     private constructor(
@@ -164,7 +164,7 @@ export class EdgeClassic implements IEdgeClassic {
         visualRelationship: VisualRelationship | VisualProfileRelationship | null,
         semanticEdge: AllowedEdgeTypes | null,
         edgeType: OutgoingEdgeType,
-        sourceGraph: IGraphClassic,
+        sourceGraph: Graph,
         start: EdgeEndPoint,
         end: EdgeEndPoint,
         sourceModelIdentifier: string | null,
@@ -193,7 +193,7 @@ export class EdgeClassic implements IEdgeClassic {
         }
     }
 
-    sourceGraph: IGraphClassic;
+    sourceGraph: Graph;
 
     sourceModelIdentifier: string | null;
     id: string;
@@ -364,7 +364,7 @@ const isGeneralizationInVisualModel = (
 /**
  * Possible edge point is either node or another subgraph.
  */
-export type EdgeEndPoint = INodeClassic | IGraphClassic;
+export type EdgeEndPoint = Node | Graph;
 
 type EdgeProfileType = "EDGE" | "EDGE-PROFILE" | "CLASS-PROFILE";
 function convertOutgoingEdgeTypeToEdgeProfileType(outgoingEdgeType: OutgoingEdgeType): EdgeProfileType {
@@ -382,7 +382,7 @@ function convertOutgoingEdgeTypeToEdgeProfileType(outgoingEdgeType: OutgoingEdge
 }
 
 
-export const getEdgeTypeNameFromEdge = (edge: IEdgeClassic): OutgoingEdgeType => {
+export const getEdgeTypeNameFromEdge = (edge: Edge): OutgoingEdgeType => {
     if(edge.edgeProfileType === "EDGE-PROFILE") {
         return "outgoingProfileEdges";
     }
@@ -404,7 +404,7 @@ export const getEdgeTypeNameFromEdge = (edge: IEdgeClassic): OutgoingEdgeType =>
 
 
 /**
- * The type which contains field names of the outgoing edges in {@link INodeClassic},
+ * The type which contains field names of the outgoing edges in {@link Node},
  * this is useful to minimize copy-paste of code, we just access the fields on node through node[key: OutgoingEdgeType].
  */
 type OutgoingEdgeType = "outgoingRelationshipEdges" | "outgoingGeneralizationEdges" | "outgoingProfileEdges" | "outgoingClassProfileEdges";

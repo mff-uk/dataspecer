@@ -1,10 +1,10 @@
-import { GraphClassic, IGraphClassic } from "../../representation/graph";
+import { DefaultGraph, Graph } from "../../representation/graph";
 import { getBotRightPosition, getTopLeftPosition } from "../../../util/utils";
 import { AllMetricData, Metric } from "../graph-metric";
 
 // Experimental
 export class AreaMetric implements Metric {
-    computeMetric(graph: IGraphClassic): number {
+    computeMetric(graph: Graph): number {
         const nodes = Object.values(graph.nodes);
         const topLeft = getTopLeftPosition(nodes);
         const botRight = getBotRightPosition(nodes);
@@ -35,13 +35,13 @@ export class AreaMetric implements Metric {
         return areaMetric;
     }
 
-    computeMetricForNodes(graph: GraphClassic): Record<string, number> {
+    computeMetricForNodes(graph: DefaultGraph): Record<string, number> {
         throw new Error("Method not implemented.");
     }
-    computeMetricForEdges(graph: GraphClassic): Record<string, number> {
+    computeMetricForEdges(graph: DefaultGraph): Record<string, number> {
         throw new Error("Method not implemented.");
     }
-    computeMetricsForEverything(graph: GraphClassic): AllMetricData {
+    computeMetricsForEverything(graph: DefaultGraph): AllMetricData {
         throw new Error("Method not implemented.");
     }
 

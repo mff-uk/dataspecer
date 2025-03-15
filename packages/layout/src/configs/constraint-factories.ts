@@ -1,6 +1,6 @@
 import { performLayoutFromGraph } from "..";
 import { GraphAlgorithms, ToConsiderFilter } from "../graph-algoritms";
-import { IMainGraphClassic } from "../graph/representation/graph";
+import { MainGraph } from "../graph/representation/graph";
 import { LayoutMethod } from "../layout-algorithms/layout-algorithm-interface";
 import { Direction, reverseDirection } from "../util/utils";
 import { ConstraintContainer } from "./constraint-container";
@@ -272,36 +272,36 @@ export class ConstraintFactory {
 
 
 
-export type SpecificGraphConversionMethod = (algorithmConversionConstraint: GraphConversionConstraint, graph: IMainGraphClassic) => Promise<IMainGraphClassic>;
+export type SpecificGraphConversionMethod = (algorithmConversionConstraint: GraphConversionConstraint, graph: MainGraph) => Promise<MainGraph>;
 
 // TODO: Not using the shouldCreateNewGraph property
 export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions, SpecificGraphConversionMethod> = {
     CREATE_GENERALIZATION_SUBGRAPHS: async (
         algorithmConversionConstraint: GraphConversionConstraint,
-        graph: IMainGraphClassic
-    ): Promise<IMainGraphClassic> => {
+        graph: MainGraph
+    ): Promise<MainGraph> => {
         graph.createGeneralizationSubgraphs();
         return Promise.resolve(graph);
     },
     TREEIFY: async (
         algorithmConversionConstraint: GraphConversionConstraint,
-        graph: IMainGraphClassic
-    ): Promise<IMainGraphClassic> => {
+        graph: MainGraph
+    ): Promise<MainGraph> => {
         GraphAlgorithms.treeify(graph);
         return Promise.resolve(graph);
     },
     CLUSTERIFY: async (
         algorithmConversionConstraint: ClusterifyConstraint,
-        graph: IMainGraphClassic
-    ): Promise<IMainGraphClassic> => {
+        graph: MainGraph
+    ): Promise<MainGraph> => {
         const clusteredEdges = GraphAlgorithms.clusterify(graph);
         algorithmConversionConstraint.data.clusters = clusteredEdges;
         return Promise.resolve(graph);
     },
     LAYOUT_CLUSTERS_ACTION: async (
         algorithmConversionConstraint: LayoutClustersActionConstraint,
-        graph: IMainGraphClassic
-    ): Promise<IMainGraphClassic> => {
+        graph: MainGraph
+    ): Promise<MainGraph> => {
         console.info("algorithmConversionConstraint.data.clusterifyConstraint.data.clusters", algorithmConversionConstraint.data.clusterifyConstraint.data.clusters);
 
         for (const [cluster, edgesInCluster] of Object.entries(algorithmConversionConstraint.data.clusterifyConstraint.data.clusters)) {
@@ -383,7 +383,7 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
         //     };
         // }
     },
-    RESET_LAYOUT: function (algorithmConversionConstraint: GraphConversionConstraint, graph: IMainGraphClassic): Promise<IMainGraphClassic> {
+    RESET_LAYOUT: function (algorithmConversionConstraint: GraphConversionConstraint, graph: MainGraph): Promise<MainGraph> {
         graph.mainGraph.resetForNewLayout();
         return Promise.resolve(graph);
     }

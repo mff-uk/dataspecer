@@ -1,11 +1,11 @@
 import { VISUAL_NODE_TYPE, VisualModel, VisualNode } from "@dataspecer/core-v2/visual-model";
 import { addToRecordArray, placePositionOnGrid } from "../../util/utils";
-import { IGraphClassic, IMainGraphClassic } from "./graph";
+import { Graph, MainGraph } from "./graph";
 import { SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { ExtractedModels, getEdgeSourceAndTargetRelationship } from "../../layout-algorithms/layout-algorithm-interface";
 import { ExplicitAnchors, VisualEntitiesWithOutsiders, XY } from "../..";
 import { isEntityWithIdentifierAnchored } from "../../explicit-anchors";
-import { IEdgeClassic } from "./edge";
+import { Edge } from "./edge";
 
 export type AllowedVisualsForNodes = VisualNode;
 
@@ -69,11 +69,11 @@ export class VisualNodeComplete {
 /**
  * Interface which represents graph node ... Note that subgraph is also graph node.
  */
-export interface INodeClassic {
+export interface Node {
     /**
      * Reference to the main graph, this node is part of.
      */
-    mainGraph: IMainGraphClassic;
+    mainGraph: MainGraph;
     /**
      *  We need {@link id}, because some nodes don't have equivalent in the semantic model or are dummy nodes
      */
@@ -90,8 +90,8 @@ export interface INodeClassic {
     /**
      * It represents possible classes of which this node is profile of.
      */
-    outgoingClassProfileEdges: Array<IEdgeClassic>;
-    incomingClassProfileEdges: Array<IEdgeClassic>;
+    outgoingClassProfileEdges: Array<Edge>;
+    incomingClassProfileEdges: Array<Edge>;
 
     isConsideredInLayout: boolean;
 
@@ -104,42 +104,42 @@ export interface INodeClassic {
     /**
      * The outgoing relationship edges, so the edges, where instance of this node is the source/start.
      */
-    outgoingRelationshipEdges: Array<IEdgeClassic>;      // TODO: We are wasting a lot of space by doubling information by storing the edge reverses
+    outgoingRelationshipEdges: Array<Edge>;      // TODO: We are wasting a lot of space by doubling information by storing the edge reverses
     /**
      * The incoming relationship edges, so the edges, where instance of this node is the target/end.
      */
-    incomingRelationshipEdges: Array<IEdgeClassic>;
+    incomingRelationshipEdges: Array<Edge>;
 
     /**
      * The outgoing generalization edges, so the edges, where instance of this node is the child, i.e. source/start.
      */
-    outgoingGeneralizationEdges: Array<IEdgeClassic>;
+    outgoingGeneralizationEdges: Array<Edge>;
     /**
      * The incoming generalization edges, so the edges, where instance of this node is the parent, i.e. target/end.
      */
-    incomingGeneralizationEdges: Array<IEdgeClassic>;
+    incomingGeneralizationEdges: Array<Edge>;
 
     /**
      * The outgoing profiled relationship edges, so the edges, where instance of this node is the source/start.
      */
-    outgoingProfileEdges: Array<IEdgeClassic>;
+    outgoingProfileEdges: Array<Edge>;
     /**
      * The incoming profiled relationship edges, so the edges, where instance of this node is the target/end.
      */
-    incomingProfileEdges: Array<IEdgeClassic>;
+    incomingProfileEdges: Array<Edge>;
 
     /**
      * @returns Returns generator which can be iterated to get edges of all types, where the node is source/start.
      */
-    getAllOutgoingEdges(): Generator<IEdgeClassic, string, unknown>;
+    getAllOutgoingEdges(): Generator<Edge, string, unknown>;
     /**
      * @returns Returns generator which can be iterated to get edges of all types, where the node is target/end.
      */
-    getAllIncomingEdges(): Generator<IEdgeClassic, string, unknown>;
+    getAllIncomingEdges(): Generator<Edge, string, unknown>;
     /**
      * @returns Returns generator which can be iterated to get edges of all types, where the node is either source or target.
      */
-    getAllEdges(): Generator<IEdgeClassic, string, unknown>;
+    getAllEdges(): Generator<Edge, string, unknown>;
 
     /**
      * The complete visual entity for the node
@@ -154,26 +154,26 @@ export interface INodeClassic {
     /**
      * Returns the source graph of the node. So the subgraph where the node lies (the most inner one)
      */
-    getSourceGraph(): IGraphClassic | null;
+    getSourceGraph(): Graph | null;
     /**
      * Sets the source graph of node to given {@link sourceGraph}
      */
-    setSourceGraph(sourceGraph: IGraphClassic) : void;
+    setSourceGraph(sourceGraph: Graph) : void;
 
     convertToDataspecerRepresentation(): VisualNode | null;
 
 }
 
 
-export class NodeClassic implements INodeClassic {
+export class DefaultNode implements Node {
   constructor(
-      mainGraph: IMainGraphClassic,
+      mainGraph: MainGraph,
       visualNode: AllowedVisualsForNodes | null,
       semanticEntityRepresentingNode: SemanticModelEntity | null,
       isProfile: boolean,
       sourceModelIdentifier: string | null,
       extractedModels: ExtractedModels | null,
-      sourceGraph: IGraphClassic,
+      sourceGraph: Graph,
       explicititPosition: XY | null,
       explicitAnchors?: ExplicitAnchors
   ) {
@@ -209,7 +209,7 @@ export class NodeClassic implements INodeClassic {
           if(explicitAnchors !== undefined) {
               isAnchored = isEntityWithIdentifierAnchored(semanticEntityRepresentingNode.id, explicitAnchors, false);
           }
-          const coreVisualNode = NodeClassic.createNewVisualNodeBasedOnSemanticData(
+          const coreVisualNode = DefaultNode.createNewVisualNodeBasedOnSemanticData(
               explicititPosition, this.semanticEntityRepresentingNode.id, this.sourceModelIdentifier);
           this.completeVisualNode = new VisualNodeComplete(coreVisualNode, width, height, false, isOutsider, isAnchored);
       }
@@ -265,11 +265,11 @@ export class NodeClassic implements INodeClassic {
       };
   }
 
-  getSourceGraph(): IGraphClassic {
+  getSourceGraph(): Graph {
       return this.sourceGraph;
   }
 
-  setSourceGraph(sourceGraph: IGraphClassic): void {
+  setSourceGraph(sourceGraph: Graph): void {
       this.sourceGraph = sourceGraph;
   }
   getAttributes(): SemanticModelRelationship[] {
@@ -280,8 +280,8 @@ export class NodeClassic implements INodeClassic {
       return this.completeVisualNode?.coreVisualNode ?? null;
   }
 
-  mainGraph: IMainGraphClassic;
-  sourceGraph: IGraphClassic;
+  mainGraph: MainGraph;
+  sourceGraph: Graph;
 
   id: string;
   sourceModelIdentifier: string | null;
@@ -297,26 +297,26 @@ export class NodeClassic implements INodeClassic {
 
   layoutOptions: Record<string, string> = {};
 
-  outgoingClassProfileEdges: Array<IEdgeClassic> = [];
-  incomingClassProfileEdges: Array<IEdgeClassic> = [];
+  outgoingClassProfileEdges: Array<Edge> = [];
+  incomingClassProfileEdges: Array<Edge> = [];
 
-  outgoingProfileEdges: IEdgeClassic[] = [];
-  incomingProfileEdges: IEdgeClassic[] = [];
+  outgoingProfileEdges: Edge[] = [];
+  incomingProfileEdges: Edge[] = [];
 
-  outgoingGeneralizationEdges: IEdgeClassic[] = [];
-  incomingGeneralizationEdges: IEdgeClassic[] = [];
+  outgoingGeneralizationEdges: Edge[] = [];
+  incomingGeneralizationEdges: Edge[] = [];
 
-  outgoingRelationshipEdges: IEdgeClassic[] = [];
-  incomingRelationshipEdges: IEdgeClassic[] = [];
-  getAllIncomingEdges(): Generator<IEdgeClassic, string, unknown> {
+  outgoingRelationshipEdges: Edge[] = [];
+  incomingRelationshipEdges: Edge[] = [];
+  getAllIncomingEdges(): Generator<Edge, string, unknown> {
       return getAllIncomingEdges(this);
   }
 
-  getAllOutgoingEdges(): Generator<IEdgeClassic, string, unknown> {
+  getAllOutgoingEdges(): Generator<Edge, string, unknown> {
       return getAllOutgoingEdges(this);
   }
 
-  getAllEdges(): Generator<IEdgeClassic, string, unknown> {
+  getAllEdges(): Generator<Edge, string, unknown> {
       return getAllEdges(this);
   }
 }
@@ -325,7 +325,7 @@ export class NodeClassic implements INodeClassic {
 /**
 * @returns Returns generator which can be iterated to get edges of all types, where {@link node} is target/end.
 */
-export function getAllIncomingEdges(node: INodeClassic): Generator<IEdgeClassic, string, unknown> {
+export function getAllIncomingEdges(node: Node): Generator<Edge, string, unknown> {
   const internalGenerator = getEdgesInternal([node.incomingRelationshipEdges, node.incomingGeneralizationEdges, node.incomingProfileEdges, node.incomingClassProfileEdges]);
   return internalGenerator;
 }
@@ -334,7 +334,7 @@ export function getAllIncomingEdges(node: INodeClassic): Generator<IEdgeClassic,
 /**
 * @returns Returns generator which can be iterated to get edges of all types, where {@link node} is source/start.
 */
-export function getAllOutgoingEdges(node: INodeClassic): Generator<IEdgeClassic, string, unknown> {
+export function getAllOutgoingEdges(node: Node): Generator<Edge, string, unknown> {
   // Note: I couldn't find out, why can't I just somehow return the internals of the getEdgesInternal function
   // Answer: I just had to remove the * in front of method to say that it just returns the generator and isn't the generator in itself
   const internalGenerator = getEdgesInternal([node.outgoingRelationshipEdges, node.outgoingGeneralizationEdges, node.outgoingProfileEdges, node.outgoingClassProfileEdges]);
@@ -344,7 +344,7 @@ export function getAllOutgoingEdges(node: INodeClassic): Generator<IEdgeClassic,
 /**
 * Internal method to create generator from the given edges of different types.
 */
-function *getEdgesInternal(edgesOfDifferentTypes: Array<Array<IEdgeClassic>>): Generator<IEdgeClassic, string, unknown> {
+function *getEdgesInternal(edgesOfDifferentTypes: Array<Array<Edge>>): Generator<Edge, string, unknown> {
   for(const edgesOfOneType of edgesOfDifferentTypes) {
       // Note: Can't use forEach because of yield
       for(const e of edgesOfOneType) {
@@ -358,7 +358,7 @@ function *getEdgesInternal(edgesOfDifferentTypes: Array<Array<IEdgeClassic>>): G
 /**
 * @returns Returns generator which can be iterated to get edges, where {@link node} is either start or end.
 */
-export function *getAllEdges(node: INodeClassic): Generator<IEdgeClassic, string, unknown> {
+export function *getAllEdges(node: Node): Generator<Edge, string, unknown> {
   const incomingEdges = node.getAllIncomingEdges();
   const outgoingEdges = node.getAllOutgoingEdges();
   yield* incomingEdges;
@@ -392,20 +392,20 @@ export const isNodeInVisualModel = (
 };
 
 export function addNodeToGraph(
-    mainGraph: IMainGraphClassic,
+    mainGraph: MainGraph,
     node: AllowedVisualsForNodes | null,
     semanticEntityRepresentingNode: SemanticModelEntity | null,
     isProfile: boolean,
     sourceModelIdentifier: string | null,
     extractedModels: ExtractedModels,
-    sourceGraph: IGraphClassic,
+    sourceGraph: Graph,
     visualModel: VisualModel,
     entitiesToLayout: VisualEntitiesWithOutsiders,
     explicititPosition: XY | null,
     explicitAnchors?: ExplicitAnchors
 ): boolean {
     if(isNodeInVisualModel(visualModel, entitiesToLayout, node, semanticEntityRepresentingNode.id)) {
-        new NodeClassic(
+        new DefaultNode(
             mainGraph, node, semanticEntityRepresentingNode,
             isProfile, sourceModelIdentifier,
             extractedModels, sourceGraph,

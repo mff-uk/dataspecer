@@ -1,5 +1,5 @@
 import { VisualNode, WritableVisualModel, isVisualNode, isVisualProfileRelationship, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { AnchorOverrideSetting, ExplicitAnchors, INodeClassic, LayoutedVisualEntities, NodeDimensionQueryHandler, ReactflowDimensionsEstimator, UserGivenAlgorithmConfigurationStress, UserGivenConstraintsVersion4, VisualModelWithOutsiders, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4, performLayout, performLayoutOfVisualModel } from "@dataspecer/layout";
+import { AnchorOverrideSetting, ExplicitAnchors, Node, LayoutedVisualEntities, NodeDimensionQueryHandler, ReactflowDimensionsEstimator, UserGivenAlgorithmConfigurationStress, UserGivenConstraintsVersion4, VisualModelWithOutsiders, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4, performLayout, performLayoutOfVisualModel } from "@dataspecer/layout";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
@@ -247,7 +247,7 @@ export function createExactNodeDimensionsQueryHandler(
     return new ReactflowDimensionsEstimator();
   }
 
-  const getWidth = (node: INodeClassic) => {
+  const getWidth = (node: Node) => {
 
     let width;
     if(node.id === undefined) {
@@ -261,7 +261,7 @@ export function createExactNodeDimensionsQueryHandler(
     }
     return width;
   };
-  const getHeight = (node: INodeClassic) => {
+  const getHeight = (node: Node) => {
     let height;
     if(node.id === undefined) {
       height = new ReactflowDimensionsEstimator().getHeight(node);

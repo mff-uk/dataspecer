@@ -2,7 +2,7 @@ import { Direction } from "../util/utils";
 import { AlgorithmName } from "./constraint-container";
 import _ from "lodash";
 import { ElkForceAlgType } from "./elk/elk-constraints";
-import { IEdgeClassic } from "../graph/representation/edge";
+import { Edge } from "../graph/representation/edge";
 
 export type ConstraintedNodesGroupingsType = "ALL" | "GENERALIZATION" | "PROFILE";
 
@@ -96,7 +96,7 @@ export class GraphConversionConstraint implements IGraphConversionConstraint {
 }
 
 export class ClusterifyConstraint extends GraphConversionConstraint {
-    data: Record<"clusters", Record<string, IEdgeClassic[]> | null> = { clusters: null };
+    data: Record<"clusters", Record<string, Edge[]> | null> = { clusters: null };
 }
 
 export class LayoutClustersActionConstraint extends GraphConversionConstraint {

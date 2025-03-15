@@ -1,6 +1,6 @@
 import { LayoutAlgorithm } from "./layout-algorithm-interface";
 import { ConstraintContainer } from "../configs/constraint-container";
-import { IGraphClassic, IMainGraphClassic, } from "../graph/representation/graph";
+import { Graph, MainGraph, } from "../graph/representation/graph";
 import _ from "lodash";
 import { VisualNode } from "@dataspecer/core-v2/visual-model";
 
@@ -8,7 +8,7 @@ import { VisualNode } from "@dataspecer/core-v2/visual-model";
 /**
  * Layout nodes of given graph using custom made random layout algorithm.
  */
-export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic, shouldCreateNewGraph: boolean): Promise<IMainGraphClassic> {
+export async function doRandomLayoutAdvancedFromGraph(graph: Graph, shouldCreateNewGraph: boolean): Promise<MainGraph> {
     // TOOD: Maybe this should be like "super", because it is always the same - if I want to create new graph then I create copy and change this graph instead of the old one
     //       Here I do it in place, normally this would be called in the Transformer before conversion from the library representation to the graph representation.
     if(shouldCreateNewGraph) {
@@ -37,16 +37,16 @@ export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic, shou
  */
 export class RandomLayout implements LayoutAlgorithm {
 
-    prepareFromGraph(graph: IGraphClassic, _constraintContainer: ConstraintContainer): void {
+    prepareFromGraph(graph: Graph, _constraintContainer: ConstraintContainer): void {
         this.graph = graph;
     }
 
-    runGeneralizationLayout(shouldCreateNewGraph: boolean): Promise<IMainGraphClassic> {
+    runGeneralizationLayout(shouldCreateNewGraph: boolean): Promise<MainGraph> {
         throw new Error("TODO: Implement me if necessary");
     }
-    run(shouldCreateNewGraph: boolean): Promise<IMainGraphClassic> {
+    run(shouldCreateNewGraph: boolean): Promise<MainGraph> {
         return doRandomLayoutAdvancedFromGraph(this.graph, shouldCreateNewGraph);
     }
 
-    private graph: IGraphClassic;
+    private graph: Graph;
 }

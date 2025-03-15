@@ -1,12 +1,12 @@
 import { Position } from "@dataspecer/core-v2/visual-model";
-import { GraphClassic, IGraphClassic } from "../../representation/graph";
+import { DefaultGraph, Graph } from "../../representation/graph";
 import { AllMetricData, Metric } from "../graph-metric";
 import { findNodeBorder } from "../../../util/utils";
 import { XY } from "../../..";
 import { VisualNodeComplete } from "../../representation/node";
 
 export class EdgeCrossingMetric implements Metric {
-    computeMetric(graph: IGraphClassic): number {
+    computeMetric(graph: Graph): number {
         let edgeCrossingCount: number = 0;
         const nodes = Object.values(graph.nodes);
         nodes.forEach(sourceNode1 => {
@@ -69,13 +69,13 @@ export class EdgeCrossingMetric implements Metric {
         return (c.y-a.y)*(b.x-a.x) > (b.y-a.y)*(c.x-a.x);
     }
 
-    computeMetricForNodes(graph: GraphClassic): Record<string, number> {
+    computeMetricForNodes(graph: DefaultGraph): Record<string, number> {
         throw new Error("Method not implemented.");
     }
-    computeMetricForEdges(graph: GraphClassic): Record<string, number> {
+    computeMetricForEdges(graph: DefaultGraph): Record<string, number> {
         throw new Error("Method not implemented.");
     }
-    computeMetricsForEverything(graph: GraphClassic): AllMetricData {
+    computeMetricsForEverything(graph: DefaultGraph): AllMetricData {
         throw new Error("Method not implemented.");
     }
 

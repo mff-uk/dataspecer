@@ -9,7 +9,7 @@ import {
     isSemanticModelAttribute
  } from "@dataspecer/core-v2/semantic-model/concepts";
 
-import { IGraphClassic, IMainGraphClassic } from "../graph/representation/graph";
+import { Graph, MainGraph } from "../graph/representation/graph";
 import { ConstraintContainer } from "../configs/constraint-container";
 import { VisualEntities } from "../migration-to-cme-v2";
 import { Entity, EntityModel } from "@dataspecer/core-v2";
@@ -34,13 +34,13 @@ export interface LayoutAlgorithm {
     /**
      * Prepares the algorithm for future layouting. The future layouting will layout given graph and use given constraints.
      */
-    prepareFromGraph: (graph: IGraphClassic, constraintContainer: ConstraintContainer) => void,
+    prepareFromGraph: (graph: Graph, constraintContainer: ConstraintContainer) => void,
     /**
      * Runs the layouting algorithm on the graph prepared earlier.
      * @param shouldCreateNewGraph if true then new graph is created, otherwise the one passed in preparation phase is changed in place
      * @returns promise which on resolve returns the layouted graph
      */
-    run: (shouldCreateNewGraph: boolean) => Promise<IMainGraphClassic>,
+    run: (shouldCreateNewGraph: boolean) => Promise<MainGraph>,
     /**
      * Runs the layouting algorithm on the graph prepared earlier. Layouts only the generalizations subgraphs separately.
      * @param shouldCreateNewGraph if true then new graph is created, otherwise the one passed in preparation phase is changed in place
@@ -48,7 +48,7 @@ export interface LayoutAlgorithm {
      */
     // TODO: Again this could be generalized that we would layout list of any given subgraphs instead of the generalization subgraphs, so it should be moved one level up and
     //       we should just call layout on the given subgraph
-    runGeneralizationLayout: (shouldCreateNewGraph: boolean) => Promise<IMainGraphClassic>,
+    runGeneralizationLayout: (shouldCreateNewGraph: boolean) => Promise<MainGraph>,
 }
 
 
@@ -106,7 +106,7 @@ export type AllowedEdgeBundleTypes = RelationshipBundle | RelationshipProfileBun
 export interface GraphTransformer {
 
     /** Expected call flow is as follows:
-     * 1) Create graph representation of type {@link IGraphClassic}
+     * 1) Create graph representation of type {@link Graph}
      * 2) Call this method
      * 3) Perform layouting
      * 4) Update existing graph representation using {@link updateExistingGraphRepresentationBasedOnLibraryRepresentation}
@@ -115,7 +115,7 @@ export interface GraphTransformer {
      * or just call {@link convertToDataspecerRepresentation} if you no longer need the graph structure
      */
     convertGraphToLibraryRepresentation(
-        graph: IGraphClassic,
+        graph: Graph,
         shouldSetLayoutOptions: boolean,
         constraintContainer: ConstraintContainer
     ): object,
@@ -127,14 +127,14 @@ export interface GraphTransformer {
     convertLibraryToGraphRepresentation(
         libraryRepresentation: object | null,
         includeDummies: boolean
-    ): IGraphClassic,
+    ): Graph,
 
     /**
      * Update positions of visual entities in our graph representation based on the positions in the layout library graph representation.
      */
     updateExistingGraphRepresentationBasedOnLibraryRepresentation(
         libraryRepresentation: object | null,
-        graphToBeUpdated: IGraphClassic,
+        graphToBeUpdated: Graph,
         includeNewVertices: boolean,
         shouldUpdateEdges: boolean
     ): void,

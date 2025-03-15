@@ -1,6 +1,6 @@
 
-import { IEdgeClassic } from "../../representation/edge";
-import { GraphClassic, IGraphClassic } from "../../representation/graph";
+import { Edge } from "../../representation/edge";
+import { DefaultGraph, Graph } from "../../representation/graph";
 import { AllMetricData, Metric } from "../graph-metric";
 import { EdgeCrossingMetric } from "./edge-crossing";
 
@@ -35,7 +35,7 @@ function calculateAngleBetweenVectors(a: number[], b: number[]): number {
   return Math.min(angleDegrees, secondAngleDegrees);
 }
 
-function createVectorFromEdge(edge: IEdgeClassic) {
+function createVectorFromEdge(edge: Edge) {
   const vector = [
     edge.end.completeVisualNode.coreVisualNode.position.x - edge.start.completeVisualNode.coreVisualNode.position.x,
     edge.end.completeVisualNode.coreVisualNode.position.y - edge.start.completeVisualNode.coreVisualNode.position.y,
@@ -46,7 +46,7 @@ function createVectorFromEdge(edge: IEdgeClassic) {
 
 
 export class EdgeCrossingAngleMetric implements Metric {
-    computeMetric(graph: IGraphClassic): number {
+    computeMetric(graph: Graph): number {
       const idealAngle = 70;
       let crossCount = 0;
       let angleDifferenceSum = 0;
@@ -82,13 +82,13 @@ export class EdgeCrossingAngleMetric implements Metric {
       return 1 - (angleDifferenceSum / denominator);
     }
 
-    computeMetricForNodes(graph: GraphClassic): Record<string, number> {
+    computeMetricForNodes(graph: DefaultGraph): Record<string, number> {
         throw new Error("Method not implemented.");
     }
-    computeMetricForEdges(graph: GraphClassic): Record<string, number> {
+    computeMetricForEdges(graph: DefaultGraph): Record<string, number> {
         throw new Error("Method not implemented.");
     }
-    computeMetricsForEverything(graph: GraphClassic): AllMetricData {
+    computeMetricsForEverything(graph: DefaultGraph): AllMetricData {
         throw new Error("Method not implemented.");
     }
 

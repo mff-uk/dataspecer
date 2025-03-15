@@ -1,4 +1,4 @@
-import { GraphClassic, IGraphClassic } from "../../representation/graph";
+import { DefaultGraph, Graph } from "../../representation/graph";
 import { VisualNodeComplete } from "../../representation/node";
 import { AllMetricData, Metric } from "../graph-metric";
 
@@ -27,7 +27,7 @@ function areNodesAligned(
 }
 
 export class NodeOrthogonalityMetric implements Metric {
-    computeMetric(graph: IGraphClassic): number {
+    computeMetric(graph: Graph): number {
       const alingmentLimit = 20;
       let alignedNodesCount = 0;      // TODO RadStr: PRobably remove this variable
       const nodes = Object.values(graph.nodes);
@@ -53,13 +53,13 @@ export class NodeOrthogonalityMetric implements Metric {
       return alreadyAligned.filter(isAligned => isAligned).length / nodes.length;
     }
 
-    computeMetricForNodes(graph: GraphClassic): Record<string, number> {
+    computeMetricForNodes(graph: DefaultGraph): Record<string, number> {
       throw new Error("Method not implemented.");
     }
-    computeMetricForEdges(graph: GraphClassic): Record<string, number> {
+    computeMetricForEdges(graph: DefaultGraph): Record<string, number> {
       throw new Error("Method not implemented.");
     }
-    computeMetricsForEverything(graph: GraphClassic): AllMetricData {
+    computeMetricsForEverything(graph: DefaultGraph): AllMetricData {
       throw new Error("Method not implemented.");
     }
 

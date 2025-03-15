@@ -1,11 +1,11 @@
-import { IEdgeClassic } from "../../representation/edge";
-import { GraphClassic, IGraphClassic } from "../../representation/graph";
+import { Edge } from "../../representation/edge";
+import { DefaultGraph, Graph } from "../../representation/graph";
 import { VisualNodeComplete } from "../../representation/node";
 import { AllMetricData, Metric } from "../graph-metric";
 import { EdgeCrossingMetric } from "./edge-crossing";
 
 export class EdgeNodeCrossingMetric implements Metric {
-    computeMetric(graph: IGraphClassic): number {
+    computeMetric(graph: Graph): number {
         let edgeNodeCrossingCount: number = 0;
         const nodes = Object.values(graph.nodes);
         nodes.forEach(n => {
@@ -30,7 +30,7 @@ export class EdgeNodeCrossingMetric implements Metric {
 
     // Based on https://www.jeffreythompson.org/collision-detection/line-rect.php
 
-    public static isLineRectangleCollision(line: IEdgeClassic, rectangle: VisualNodeComplete): 0 | 1 {
+    public static isLineRectangleCollision(line: Edge, rectangle: VisualNodeComplete): 0 | 1 {
         const start = EdgeCrossingMetric.getMiddle(line.start.completeVisualNode);
         const end = EdgeCrossingMetric.getMiddle(line.end.completeVisualNode);
 
@@ -70,13 +70,13 @@ export class EdgeNodeCrossingMetric implements Metric {
         return uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1;
       }
 
-    computeMetricForNodes(graph: GraphClassic): Record<string, number> {
+    computeMetricForNodes(graph: DefaultGraph): Record<string, number> {
         throw new Error("Method not implemented.");
     }
-    computeMetricForEdges(graph: GraphClassic): Record<string, number> {
+    computeMetricForEdges(graph: DefaultGraph): Record<string, number> {
         throw new Error("Method not implemented.");
     }
-    computeMetricsForEverything(graph: GraphClassic): AllMetricData {
+    computeMetricsForEverything(graph: DefaultGraph): AllMetricData {
         throw new Error("Method not implemented.");
     }
 

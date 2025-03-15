@@ -1,5 +1,5 @@
 import { NodeDimensionQueryHandler } from "..";
-import { INodeClassic } from "../graph/representation/node";
+import { Node } from "../graph/representation/node";
 import { getEdgeSourceAndTargetRelationship } from "../layout-algorithms/layout-algorithm-interface";
 import { ReactflowDimensionsConstantEstimator } from "./constant-dimension-estimator";
 
@@ -8,7 +8,7 @@ import { ReactflowDimensionsConstantEstimator } from "./constant-dimension-estim
  * Sophisticated dimension query handler, which estimates dimensions based node's content.
  */
 export class ReactflowDimensionsEstimator implements NodeDimensionQueryHandler {
-    getWidth(estimatedNode: INodeClassic): number {
+    getWidth(estimatedNode: Node): number {
         const WIDTH_OF_EMPTY_ATTR = 10;
         // Not using actual model ID so this is just approximation - whole method is just approximation anyways, so it doesn't matter that much
         const TEST_MODEL_STRING = "https://my-model-6d9lx.iri.todo.com/entities/";
@@ -46,7 +46,7 @@ export class ReactflowDimensionsEstimator implements NodeDimensionQueryHandler {
     }
 
 
-    getHeight(estimatedNode: INodeClassic): number {
+    getHeight(estimatedNode: Node): number {
       // First attribute has height of 8, the ones after that 20
       const ATTR_HEIGHT = 20;
       const BASE_HEIGHT = ReactflowDimensionsConstantEstimator.getDefaultHeight();

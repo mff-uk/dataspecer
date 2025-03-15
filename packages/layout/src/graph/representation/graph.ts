@@ -41,9 +41,9 @@ import {
     SemanticModelClassProfile,
 } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
-import { addNodeToGraph, getAllEdges, getAllIncomingEdges, getAllOutgoingEdges, INodeClassic, isNodeInVisualModel, VisualNodeComplete } from "./node";
+import { addNodeToGraph, getAllEdges, getAllIncomingEdges, getAllOutgoingEdges, Node, isNodeInVisualModel, VisualNodeComplete } from "./node";
 import { GraphFactory } from "./graph-factory";
-import { AllowedEdgeBundleWithType, AllowedEdgeTypes, convertOutgoingEdgeTypeToIncoming, EdgeClassic, EdgeEndPoint, getEdgeTypeNameFromEdge, IEdgeClassic } from "./edge";
+import { AllowedEdgeBundleWithType, AllowedEdgeTypes, convertOutgoingEdgeTypeToIncoming, DefaultEdge, EdgeEndPoint, getEdgeTypeNameFromEdge, Edge } from "./edge";
 
 
 /**
@@ -74,7 +74,7 @@ export type VisualModelWithOutsiders = {
 /**
  * Interface which represents the (sub)graph,
  */
-export interface IGraphClassic extends INodeClassic {
+export interface Graph extends Node {
     layoutOptions: Record<string, string>;
 
     /**
@@ -82,16 +82,16 @@ export interface IGraphClassic extends INodeClassic {
      */
     nodes: Record<string, EdgeEndPoint>,
     initializeWithGivenContent(
-        mainGraph: IMainGraphClassic,
-        sourceGraph: IGraphClassic,
+        mainGraph: MainGraph,
+        sourceGraph: Graph,
         graphIdentifier: string,
         nodeContentOfGraph: Array<EdgeEndPoint> | null,
         isDummy: boolean,
         nodeDimensionQueryHandler?: NodeDimensionQueryHandler | null
     );
     initialize(
-        mainGraph: IMainGraphClassic,
-        sourceGraph: IGraphClassic,
+        mainGraph: MainGraph,
+        sourceGraph: Graph,
         graphIdentifier: string,
         inputModels: Map<string, EntityModel> | ExtractedModels | null,
         isDummy: boolean,
@@ -101,7 +101,7 @@ export interface IGraphClassic extends INodeClassic {
         explicitAnchors?: ExplicitAnchors
     );
     insertSubgraphToGraph(
-        subgraph: IGraphClassic,
+        subgraph: Graph,
         nodesInSubgraph: Array<EdgeEndPoint>,
         shouldSplitEdges: boolean
     ): void;
@@ -113,7 +113,7 @@ export interface IGraphClassic extends INodeClassic {
  * we extepcted the nodes/edges to be hierarchic - i.e. if there is group node - the graph above it only stores the group node and the content of the group node is
  * available only from the group node and not anywhere else.
  */
-export interface IMainGraphClassic extends IGraphClassic {
+export interface MainGraph extends Graph {
     /**
      * Maps the semantic node to all its visuals.
      *
@@ -128,7 +128,7 @@ export interface IMainGraphClassic extends IGraphClassic {
      *
      * If the entity does not have semantic equivalent, its visual one is used as a key
      */
-    semanticEdgeToVisualMap: Record<string, IEdgeClassic[]>,
+    semanticEdgeToVisualMap: Record<string, Edge[]>,
 
     /**
      * List of all nodes/subgraphs in the graph.
@@ -137,14 +137,14 @@ export interface IMainGraphClassic extends IGraphClassic {
     /**
      * List of all edges in the graph.
      */
-    allEdges: IEdgeClassic[],       // TODO: Kdyz uz mam tyhle edges, tak to potencionalne muzu mit jako mapu a v ramci tech nodu si jen pamatovat ID misto celych objektu, ale je to celkem jedno
+    allEdges: Edge[],       // TODO: Kdyz uz mam tyhle edges, tak to potencionalne muzu mit jako mapu a v ramci tech nodu si jen pamatovat ID misto celych objektu, ale je to celkem jedno
                                     //       (+ tohle pak nebude pole, respektvie bych si ho musel ziskavat skrz Object.values)
 
     nodeDimensionQueryHandler: NodeDimensionQueryHandler;
 
     // TODO: Maybe map to make it faster
     findNodeInAllNodes(nodeIdentifier: string): EdgeEndPoint | null,
-    findEdgeInAllEdges(edgeIdentifier: string): IEdgeClassic | null,
+    findEdgeInAllEdges(edgeIdentifier: string): Edge | null,
     findNodeIndexInAllNodes(nodeIdentifier: string): number | null,
     findEdgeIndexInAllEdges(edgeIdentifier: string): number | null,
     /**
@@ -168,16 +168,16 @@ export interface IMainGraphClassic extends IGraphClassic {
 /**
  * Class which stores (sub)graph.
  */
-export class GraphClassic implements IGraphClassic {
+export class DefaultGraph implements Graph {
     private initializeGraphMetadata(
-        mainGraph: IMainGraphClassic,
-        sourceGraph: IGraphClassic,
+        mainGraph: MainGraph,
+        sourceGraph: Graph,
         graphIdentifier: string,
         isDummy: boolean,
         nodeDimensionQueryHandler: NodeDimensionQueryHandler | null,
     ) {
         this.sourceGraph = sourceGraph;
-        if(!(this instanceof MainGraphClassic)) {
+        if(!(this instanceof DefaultMainGraph)) {
             mainGraph.allNodes.push(this);
         }
         else {
@@ -193,8 +193,8 @@ export class GraphClassic implements IGraphClassic {
     }
 
     initializeWithGivenContent(
-        mainGraph: IMainGraphClassic,
-        sourceGraph: IGraphClassic,
+        mainGraph: MainGraph,
+        sourceGraph: Graph,
         graphIdentifier: string,
         nodeContentOfGraph: Array<EdgeEndPoint>,
         isDummy: boolean,
@@ -237,12 +237,12 @@ export class GraphClassic implements IGraphClassic {
 
 
     /**
-     * Initializes instance of this graph, the reason why this is not part of the constructor is that since {@link MainGraphClassic} extends this class,
+     * Initializes instance of this graph, the reason why this is not part of the constructor is that since {@link DefaultMainGraph} extends this class,
      * it uses the same initialize method, that results in situation that we can't update the list of all nodes in the constructor, since they are not initialized.
      */
     initialize(
-        mainGraph: IMainGraphClassic,
-        sourceGraph: IGraphClassic,
+        mainGraph: MainGraph,
+        sourceGraph: Graph,
         graphIdentifier: string,
         inputModels: Map<string, EntityModel> | ExtractedModels | null,
         isDummy: boolean,
@@ -362,7 +362,7 @@ export class GraphClassic implements IGraphClassic {
 
                 let semanticRelationship: AllowedEdgeTypes = convertAllowedEdgeBundleToAllowedEdgeType(semanticRelationshipBundle);
 
-                EdgeClassic.addNewEdgeToGraph(
+                DefaultEdge.addNewEdgeToGraph(
                     sourceGraph, null, edge, semanticRelationship,
                     edge.visualSource, edge.visualTarget,
                     extractedModels, semanticRelationshipBundle.type);
@@ -374,7 +374,7 @@ export class GraphClassic implements IGraphClassic {
                     console.warn("The visual relationship is not present in the semantic model");
                     continue;
                 }
-                EdgeClassic.addNewEdgeToGraph(
+                DefaultEdge.addNewEdgeToGraph(
                     sourceGraph, null, edge, null,
                     edge.visualSource, edge.visualTarget,
                     extractedModels, "outgoingClassProfileEdges");
@@ -408,7 +408,7 @@ export class GraphClassic implements IGraphClassic {
 
             for(const visualStart of visualStarts) {
                 for(const visualEnd of visualEnds) {
-                    EdgeClassic.addNewEdgeToGraph(
+                    DefaultEdge.addNewEdgeToGraph(
                         sourceGraph, null, null, relationship,
                         visualStart.id, visualEnd.id,
                         extractedModels, "outgoingRelationshipEdges");
@@ -439,7 +439,7 @@ export class GraphClassic implements IGraphClassic {
 
             for(const visualStart of visualStarts) {
                 for(const visualEnd of visualEnds) {
-                    EdgeClassic.addNewEdgeToGraph(
+                    DefaultEdge.addNewEdgeToGraph(
                         sourceGraph, null, null, generalization,
                         visualStart.id, visualEnd.id,
                         extractedModels, "outgoingGeneralizationEdges");
@@ -470,7 +470,7 @@ export class GraphClassic implements IGraphClassic {
 
             for(const visualStart of visualStarts) {
                 for(const visualEnd of visualEnds) {
-                    EdgeClassic.addNewEdgeToGraph(
+                    DefaultEdge.addNewEdgeToGraph(
                         sourceGraph, null, null, relationshipProfile,
                         visualStart.id, visualEnd.id,
                         extractedModels, "outgoingProfileEdges");
@@ -508,7 +508,7 @@ export class GraphClassic implements IGraphClassic {
 
             for(const visualStart of visualStarts) {
                 for(const visualEnd of visualEnds) {
-                    EdgeClassic.addNewEdgeToGraph(
+                    DefaultEdge.addNewEdgeToGraph(
                         sourceGraph, null, null, null,
                         visualStart.id, visualEnd.id,
                         extractedModels, "outgoingClassProfileEdges");
@@ -538,7 +538,7 @@ export class GraphClassic implements IGraphClassic {
         }
     }
 
-    private isEdgeInsideGraph(edge: IEdgeClassic): boolean {
+    private isEdgeInsideGraph(edge: Edge): boolean {
         return edge.start.getSourceGraph() === this || edge.end.getSourceGraph() === this;
     }
 
@@ -564,7 +564,7 @@ export class GraphClassic implements IGraphClassic {
     private createGeneralizationSubgraphsInternal(
         generalizationEdges: SemanticModelGeneralization[],
         visualModel: VisualModel
-    ): IGraphClassic[] {
+    ): Graph[] {
         // For now 1 whole hierarchy (n levels) == 1 subgraph
         let parents: Record<string, string[]> = {};
         let children: Record<string, string[]> = {};
@@ -601,7 +601,7 @@ export class GraphClassic implements IGraphClassic {
         console.log(generalizationSubgraphs);
 
 
-        let createdSubgraphs: Array<IGraphClassic> = [];
+        let createdSubgraphs: Array<Graph> = [];
         generalizationSubgraphs.forEach(nodesInSubgraph => {
             createdSubgraphs.push(this.createGeneralizationSubgraphAndInsertInGraph(nodesInSubgraph));
         });
@@ -668,14 +668,14 @@ export class GraphClassic implements IGraphClassic {
     /**
      * Creates the generalization subgraph and inserts into this instance of graph
      */
-    createGeneralizationSubgraphAndInsertInGraph(nodesInSubgraph: Array<EdgeEndPoint>): IGraphClassic {
+    createGeneralizationSubgraphAndInsertInGraph(nodesInSubgraph: Array<EdgeEndPoint>): Graph {
         const identifier = this.createUniqueGeneralizationSubgraphIdentifier();
-        const subgraph: IGraphClassic = GraphFactory.createGraph(
+        const subgraph: Graph = GraphFactory.createGraph(
             this.mainGraph, this, identifier, nodesInSubgraph, true, true);
         return subgraph;
     }
 
-    insertSubgraphToGraph(subgraph: IGraphClassic, nodesInSubgraph: Array<EdgeEndPoint>, shouldSplitEdges: boolean): void {
+    insertSubgraphToGraph(subgraph: Graph, nodesInSubgraph: Array<EdgeEndPoint>, shouldSplitEdges: boolean): void {
         // Repair the old graph by substituting the nodes by the newly created subgraph
         this.replaceNodesInOriginalGraphWithTheSubgraph(subgraph, nodesInSubgraph);
         console.log("After changeNodesInOriginalGraph");
@@ -689,7 +689,7 @@ export class GraphClassic implements IGraphClassic {
     /**
      * Replaces the {@link nodesInSubgraph} stored in this instance of graph with one node (respectively graph) which stores them - the {@link subgraph}
      */
-    replaceNodesInOriginalGraphWithTheSubgraph(subgraph: IGraphClassic, nodesInSubgraph: Array<EdgeEndPoint>) : void {
+    replaceNodesInOriginalGraphWithTheSubgraph(subgraph: Graph, nodesInSubgraph: Array<EdgeEndPoint>) : void {
         for(const nodeInSubgraph of nodesInSubgraph) {
             delete this.nodes[nodeInSubgraph.id];
         }
@@ -700,7 +700,7 @@ export class GraphClassic implements IGraphClassic {
     /**
      * Splits edges, the act of splitting is explained the {@link GraphFactory.createGraph}
      */
-    splitEdgesGoingBeyondSubgraph(subgraph: IGraphClassic, changedNodes: Array<EdgeEndPoint>): void {
+    splitEdgesGoingBeyondSubgraph(subgraph: Graph, changedNodes: Array<EdgeEndPoint>): void {
         this.splitEdgesGoingBeyondSubgraphInternal(subgraph, changedNodes, "sources");
         this.splitEdgesGoingBeyondSubgraphInternal(subgraph, changedNodes, "targets");
     }
@@ -710,11 +710,11 @@ export class GraphClassic implements IGraphClassic {
      *
      * @param edgeEnd is either "sources" or "targets", if it is sources then it repairs edges going out of subgraph, "targets" then going in
      */
-    private splitEdgesGoingBeyondSubgraphInternal(subgraph: IGraphClassic, changedNodes: Array<EdgeEndPoint>, edgeEnd: "sources" | "targets") {
+    private splitEdgesGoingBeyondSubgraphInternal(subgraph: Graph, changedNodes: Array<EdgeEndPoint>, edgeEnd: "sources" | "targets") {
         console.log("START OF repairEdgesGoingBeyondSubgraphInternal");
         console.log(subgraph.mainGraph);
 
-        const edgesGoingBeyond: IEdgeClassic[] = [];
+        const edgesGoingBeyond: Edge[] = [];
 
         const nodesInsideSubgraph = changedNodes.concat(subgraph);
         if(edgeEnd === "sources") {
@@ -751,15 +751,15 @@ export class GraphClassic implements IGraphClassic {
      * Performs the edge splitting - Constructs identifiers of the new edges, removes the old one and creates two new ones.
      * One going from the start node to the subgraph and the other from the subgraph to the other end.
      */
-    splitEdgeIntoTwo(edge: IEdgeClassic, subgraph: IGraphClassic): void {
+    splitEdgeIntoTwo(edge: Edge, subgraph: Graph): void {
         this.removeEdge(edge);
         const firstSplitIdentifier = PhantomElementsFactory.constructSplitID(edge.id, 0);
         const secondSplitIdentifier = PhantomElementsFactory.constructSplitID(edge.id, 1);
 
-        EdgeClassic.addNewEdgeToGraph(
+        DefaultEdge.addNewEdgeToGraph(
             subgraph, firstSplitIdentifier, null, edge.semanticEntityRepresentingEdge, edge.visualEdge.visualEdge.visualSource,
             subgraph.id, null, getEdgeTypeNameFromEdge(edge));
-        EdgeClassic.addNewEdgeToGraph(
+        DefaultEdge.addNewEdgeToGraph(
             subgraph, secondSplitIdentifier, null, edge.semanticEntityRepresentingEdge, subgraph.id,
             edge.visualEdge.visualEdge.visualTarget, null, getEdgeTypeNameFromEdge(edge));
     }
@@ -768,7 +768,7 @@ export class GraphClassic implements IGraphClassic {
     /**
      * Removes given edge from nodes on both ends and also removes it from list of all edges of the main graph.
      */
-    removeEdge(edge: IEdgeClassic) {
+    removeEdge(edge: Edge) {
         const edgeType = getEdgeTypeNameFromEdge(edge);
         const reverseEdgeType = convertOutgoingEdgeTypeToIncoming(edgeType);
 
@@ -790,8 +790,8 @@ export class GraphClassic implements IGraphClassic {
 
     nodes: Record<string, EdgeEndPoint> = {};
 
-    sourceGraph: IGraphClassic;
-    mainGraph: IMainGraphClassic;
+    sourceGraph: Graph;
+    mainGraph: MainGraph;
 
     id: string = "";
     sourceModelIdentifier: string | null;
@@ -803,30 +803,30 @@ export class GraphClassic implements IGraphClassic {
     layoutOptions: Record<string, string> = {};
 
 
-    setOutgoingClassProfileEdge(outgoingClassProfileEdge: IEdgeClassic) {
+    setOutgoingClassProfileEdge(outgoingClassProfileEdge: Edge) {
         throw new Error("Graphs can't be profiled.");
     }
 
-    outgoingClassProfileEdges: Array<IEdgeClassic> = [];
-    incomingClassProfileEdges: Array<IEdgeClassic> = [];
+    outgoingClassProfileEdges: Array<Edge> = [];
+    incomingClassProfileEdges: Array<Edge> = [];
 
-    outgoingRelationshipEdges: Array<IEdgeClassic> = [];
-    incomingRelationshipEdges: Array<IEdgeClassic> = [];
+    outgoingRelationshipEdges: Array<Edge> = [];
+    incomingRelationshipEdges: Array<Edge> = [];
 
-    outgoingGeneralizationEdges: Array<IEdgeClassic> = [];
-    incomingGeneralizationEdges: Array<IEdgeClassic> = [];
+    outgoingGeneralizationEdges: Array<Edge> = [];
+    incomingGeneralizationEdges: Array<Edge> = [];
 
-    outgoingProfileEdges: Array<IEdgeClassic> = [];
-    incomingProfileEdges: Array<IEdgeClassic> = [];
-    getAllIncomingEdges(): Generator<IEdgeClassic, string, unknown> {
+    outgoingProfileEdges: Array<Edge> = [];
+    incomingProfileEdges: Array<Edge> = [];
+    getAllIncomingEdges(): Generator<Edge, string, unknown> {
         return getAllIncomingEdges(this);
     }
 
-    getAllOutgoingEdges(): Generator<IEdgeClassic, string, unknown> {
+    getAllOutgoingEdges(): Generator<Edge, string, unknown> {
         return getAllOutgoingEdges(this);
     }
 
-    getAllEdges(): Generator<IEdgeClassic, string, unknown> {
+    getAllEdges(): Generator<Edge, string, unknown> {
         return getAllEdges(this);
     }
 
@@ -835,26 +835,26 @@ export class GraphClassic implements IGraphClassic {
     getAttributes(): SemanticModelRelationship[] {
         return [];
     }
-    getSourceGraph(): IGraphClassic | null {
+    getSourceGraph(): Graph | null {
         return this.sourceGraph;
     }
-    setSourceGraph(sourceGraph: IGraphClassic): void {
+    setSourceGraph(sourceGraph: Graph): void {
         this.sourceGraph = sourceGraph;
     }
 }
 
 
-export class MainGraphClassic extends GraphClassic implements IMainGraphClassic {
+export class DefaultMainGraph extends DefaultGraph implements MainGraph {
     semanticNodeToVisualMap: Record<string, EdgeEndPoint[]> = {};
-    semanticEdgeToVisualMap: Record<string, IEdgeClassic[]> = {};
+    semanticEdgeToVisualMap: Record<string, Edge[]> = {};
     allNodes: EdgeEndPoint[] = [];
-    allEdges: IEdgeClassic[] = [];
+    allEdges: Edge[] = [];
     nodeDimensionQueryHandler: NodeDimensionQueryHandler;
 
     findNodeInAllNodes(nodeIdentifier: string): EdgeEndPoint | null {
         return this.allNodes.find(node => node.id === nodeIdentifier);
     }
-    findEdgeInAllEdges(edgeIdentifier: string): IEdgeClassic | null {
+    findEdgeInAllEdges(edgeIdentifier: string): Edge | null {
         return this.allEdges.find(edge => edge?.id === edgeIdentifier);
     }
 
