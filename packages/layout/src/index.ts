@@ -24,13 +24,10 @@ import { EdgeNodeCrossingMetric } from "./graph-metrics/implemented-metrics/edge
 
 export type {
 	IConstraintSimple,
-	UserGivenConstraints,
-	UserGivenAlgorithmConfigurationslVersion2 as UserGivenConstraintsVersion2,
 	UserGivenAlgorithmConfigurationslVersion4 as UserGivenConstraintsVersion4
 } from "./configs/constraints";
 export {
 	getDefaultUserGivenAlgorithmConstraint,
-	getDefaultUserGivenConstraintsVersion2,
 	getDefaultMainUserGivenAlgorithmConstraint,
 	getDefaultUserGivenConstraintsVersion4
 } from "./configs/constraints";
@@ -184,11 +181,11 @@ export async function performLayoutOfSemanticModel(
 			throw new Error("Function not implemented.");
 		}
 	};
-	const semanticModel: Map<string, EntityModel> = new Map();
-	semanticModel.set(semanticModelId, entityModelUsedForConversion);
+	const semanticModels: Map<string, EntityModel> = new Map();
+	semanticModels.set(semanticModelId, entityModelUsedForConversion);
 
 	const outsiders: Record<string, XY | null> = {}
-	Object.keys([...semanticModel.values()][0].getEntities()).forEach(identifier => {
+	Object.keys([...semanticModels.values()][0].getEntities()).forEach(identifier => {
 		outsiders[identifier] = null;
 	});
 	const entitiesToLayout: VisualEntitiesWithOutsiders = {
@@ -196,7 +193,7 @@ export async function performLayoutOfSemanticModel(
 		outsiders,
 	};
 
-	const visualEntitiesPromise = performLayoutInternal(null, semanticModel, entitiesToLayout, config, nodeDimensionQueryHandler);
+	const visualEntitiesPromise = performLayoutInternal(null, semanticModels, entitiesToLayout, config, nodeDimensionQueryHandler);
 	return visualEntitiesPromise;
 }
 
@@ -223,11 +220,6 @@ function performLayoutInternal(
 
 /**
  * Layout given graph based on given layout configuration
- * @param graph
- * @param config
- * @param nodeDimensionQueryHandler
- * @param visualModel
- * @returns
  */
 export async function performLayoutFromGraph(
 	graph: IMainGraphClassic,
