@@ -2,7 +2,6 @@
 import {
     IGraphConversionConstraint,
     IAlgorithmConfiguration,
-    IConstraint,
     IConstraintSimple,
     GraphConversionConstraint
 } from "./constraints";
@@ -57,28 +56,10 @@ export class ConstraintContainer {
     layoutActionsToRunBefore: (IAlgorithmConfiguration | IGraphConversionConstraint)[];
 
 
-    // TODO: In future maybe only array (and passes completely separately from ConstraintContainer) and IAlgorithmOnlyConstraints instead of ConstraintContainer
-    underlyingModelsConstraints: Record<ModelID, ConstraintContainer>;
-
-
-    // TODO: The modelID info is also in underlyingModelsConstraints and the constraint (simpleConstraints and constraints)
-    //       have to check the container to know for which model they should be applied
     /**
-     * The ID of the container for which are the constraints relevant. Null if it is whole model.
-     */
-    modelID: ModelID | null;
-
-
-    /**
-     * These are just basic constraints on group of nodes (again type @{link ConstraintedNodes}), which are not algorithmic
+     * These are just basic constraints on group of nodes (again type {@link constraintedNodes}), which are not algorithmic
      */
     simpleConstraints: IConstraintSimple[];
-
-
-    /**
-     * These are constraints on concrete group of nodes (the concrete nodes are enumerated)
-     */
-    constraints: IConstraint[];
 
     // TODO: Add Docs
     currentStepInLayoutActions: number;
@@ -105,8 +86,6 @@ export class ConstraintContainer {
         layoutActionsBefore: (IAlgorithmConfiguration | IGraphConversionConstraint)[],
         layoutActions: (IAlgorithmConfiguration | IGraphConversionConstraint)[],
         simpleConstraints?: IConstraintSimple[] | null,
-        constraints?: IConstraint[] | null,
-        underlyingModelsConstraints?: Record<ModelID, ConstraintContainer> | null
     ) {
         this.layoutActionsToRunBefore = layoutActionsBefore;
         this.resetLayoutActionsBeforeRunIterator();
@@ -115,19 +94,11 @@ export class ConstraintContainer {
         this.layoutActions = [];
         this.addAlgorithmConstraints(...layoutActions);
         this.simpleConstraints = simpleConstraints ?? [];
-        this.constraints = constraints ?? [];
-        this.underlyingModelsConstraints = underlyingModelsConstraints ?? {};
-
-        // TODO: For now
-        this.modelID = null;
     }
 
 
     addSimpleConstraints(...constraints: IConstraintSimple[]) {
         this.simpleConstraints = this.simpleConstraints.concat(constraints);
-    }
-    addConstraints(...constraints: IConstraint[]) {
-        this.constraints = this.constraints.concat(constraints);
     }
     addAlgorithmConstraints(...constraints: (IAlgorithmConfiguration | IGraphConversionConstraint)[]) {
         constraints.forEach(constraint => {

@@ -4,7 +4,6 @@ import { LayoutAlgorithm } from "./layout-iface";
 
 import {
 	ConstraintTime,
-	IConstraint,
 	IConstraintSimple,
 	UserGivenAlgorithmConfigurationslVersion4,
 	AlgorithmConfiguration,
@@ -290,7 +289,7 @@ const runPreMainAlgorithmConstraints = async (
 	constraintsContainer: ConstraintContainer
 ): Promise<void[]> => {
 	const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer, constraintsContainer.simpleConstraints, "PRE-MAIN").then(_ => {
-		return runConstraintsInternal(graph, constraintsContainer, constraintsContainer.constraints, "PRE-MAIN");
+		return runConstraintsInternal(graph, constraintsContainer, constraintsContainer.simpleConstraints, "PRE-MAIN");
 	});
 	return constraintPromises;
 }
@@ -313,7 +312,7 @@ const runPostMainAlgorithmConstraints = async (graph: IMainGraphClassic,
 const runConstraintsInternal = async (
 	graph: IMainGraphClassic,
 	constraintContainer: ConstraintContainer,
-	constraints: IConstraintSimple[] | IConstraint[],
+	constraints: IConstraintSimple[],
 	constraintTime: Omit<ConstraintTime, "IN-MAIN">
 ): Promise<void[]> => {
 	const constraintPromises: Promise<void>[] = [];

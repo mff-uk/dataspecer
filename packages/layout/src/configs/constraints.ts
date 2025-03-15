@@ -273,25 +273,6 @@ interface IConstraintType {
 }
 
 /**
- * Constraint on concrete set of nodes.
- */
-export interface IConstraint extends IConstraintType {
-    constraintedSubgraph: IGraphClassic;
-    data: object;
-}
-
-/**
- * Constraint to fix group of nodes in position
- */
-export class FixPositionConstraint implements IConstraint {
-    constraintedSubgraph: IGraphClassic;
-    data: undefined = undefined;
-    name = "Anchor constraint";
-    type = "ANCHOR";
-    constraintTime: ConstraintTime = "PRE-MAIN";
-}
-
-/**
  * Constraint on predefined set of nodes.
  */
 export interface IConstraintSimple extends IConstraintType {

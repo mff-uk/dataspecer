@@ -258,7 +258,7 @@ export class ConstraintFactory {
         AlgorithmConstraintFactory.addToLayoutActionsInMainRunBasedOnConfiguration(config, layoutActionsBeforeMainRun, layoutActions);
 
         const simpleConstraints = AlgorithmConstraintFactory.createSimpleConstraintsFromConfigurationInMainRun(config.main[config.chosenMainAlgorithm]);
-        const constraintContainer = new ConstraintContainer(layoutActionsBeforeMainRun, layoutActions, simpleConstraints, undefined, undefined);
+        const constraintContainer = new ConstraintContainer(layoutActionsBeforeMainRun, layoutActions, simpleConstraints);
 
         console.info("config", config);
         console.info("layoutActions", layoutActions);
