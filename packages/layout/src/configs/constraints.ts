@@ -208,7 +208,8 @@ export interface UserGivenAlgorithmConfigurationElkForce {
     "number_of_new_algorithm_runs": number,
 }
 
-// TODO RadStr REFACTOR: first 2 Already covered implicitly by the field, run layered is jsut another algorithm in array
+// TODO RadStr REFACTOR: first 2 Already covered implicitly by the field (should_be_considered is by the fact that algorithm is set to none),
+//                       run layered is jsut another algorithm in array
 export interface UserGivenAlgorithmConfigurationExtraData {
     "constraintedNodes": ConstraintedNodesGroupingsType,
     "should_be_considered": boolean,

@@ -47,24 +47,23 @@ export class ReactflowDimensionsEstimator implements NodeDimensionQueryHandler {
 
 
     getHeight(estimatedNode: INodeClassic): number {
-        // First attribute has height of 8, the ones after that 20
-        const ATTR_HEIGHT = 20;
-        const BASE_HEIGHT = ReactflowDimensionsConstantEstimator.getDefaultHeight();
-        const HEIGHT_AFTER_FIRST_ATTRIBUTE = 72;
-        // At 5 the '...' is added ... TODO: No longer true
+      // First attribute has height of 8, the ones after that 20
+      const ATTR_HEIGHT = 20;
+      const BASE_HEIGHT = ReactflowDimensionsConstantEstimator.getDefaultHeight();
+      const HEIGHT_AFTER_FIRST_ATTRIBUTE = 72;
 
-        const ATTR_COUNT = estimatedNode.getAttributes().length >= 5 ? 5 : estimatedNode.getAttributes().length - 1;
-        if(estimatedNode.getAttributes().length === 0) {
-            return BASE_HEIGHT;
-        }
+      const ATTR_COUNT = estimatedNode.getAttributes().length - 1;
+      if(estimatedNode.getAttributes().length === 0) {
+        return BASE_HEIGHT;
+      }
 
-        const height: number = HEIGHT_AFTER_FIRST_ATTRIBUTE + ATTR_COUNT * ATTR_HEIGHT;
+      const height: number = HEIGHT_AFTER_FIRST_ATTRIBUTE + ATTR_COUNT * ATTR_HEIGHT;
 
-        // Fallback just in case, I don't think it should happen
-        if(height <= 0) {
-            ReactflowDimensionsConstantEstimator.getDefaultHeight();
-        }
-        return height;
+      // Fallback just in case, I don't think it should happen
+      if(height <= 0) {
+        ReactflowDimensionsConstantEstimator.getDefaultHeight();
+      }
+      return height;
     }
 }
 
