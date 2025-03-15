@@ -26,10 +26,8 @@ export const ALGORITHM_NAME_TO_LAYOUT_MAPPING: Record<AlgorithmName, LayoutAlgor
     "none": new NoActionLayout(),
 }
 
-// TODO: In general a lot of the things maybe should be arrays and the ConstraintContainer should be just object which holds the arrays and
-//       maybe has some methods to remove duplicates, merge constraints and correctly order them for further processing
 /**
- * Behaves like container for constraints of certain subgraph (or whole graph) represented by {@link modelID}.
+ * Behaves like container for constraints of certain subgraph or whole graph. TODO: Maybe just the whole graph
  */
 export class ConstraintContainer {
 
@@ -50,29 +48,42 @@ export class ConstraintContainer {
      */
     layoutActions: (IAlgorithmConfiguration | IGraphConversionConstraint)[];
 
-    // TODO: Add Docs
+    /**
+     * Are the actions which run before the main layouting algorithm.
+     */
     layoutActionsToRunBefore: (IAlgorithmConfiguration | IGraphConversionConstraint)[];
 
 
     /**
-     * These are just basic constraints on group of nodes (again type {@link constraintedNodes}), which are not algorithmic
+     * These are just basic constraints on group of nodes (again type {@link constraintedNodes}), which should be run before/after main loop only once.
+     * And are not algorithm constraints ... TODO: just remove the constraints, question is how should we name the fields and the class then
      */
     constraints: IConstraint[];
 
-    // TODO: Add Docs
+    /**
+     * Is the current index of the generator for the {@link layoutActionsIterator}
+     */
     currentStepInLayoutActions: number;
 
-    // TODO: Add Docs
+    /**
+     * Is generator contaning all the layout actions to be performed in the main loop
+     */
     layoutActionsIterator: Generator<IAlgorithmConfiguration | IGraphConversionConstraint, void, unknown>;
 
 
-    // TODO: Add Docs
+    /**
+     * Is the current index of the generator for the {@link layoutActionsIteratorBefore}
+     */
     currentStepInLayoutActionsToRunBefore: number;
 
-    // TODO: Add Docs
+    /**
+     * Is generator contaning all the layout actions to be performed before running the main layout algorithm
+     */
     layoutActionsIteratorBefore: Generator<IAlgorithmConfiguration | IGraphConversionConstraint, void, unknown>;
 
-    // TODO: Add Docs
+    /**
+     * Represents the currently iterated layout action
+     */
     currentLayoutAction: {
         isInActionsBefore: boolean,
         action: IAlgorithmConfiguration | IGraphConversionConstraint,
@@ -95,20 +106,23 @@ export class ConstraintContainer {
     }
 
 
+    /**
+     * Adds new constraints to the itnernal lsit of constraints
+     */
     addConstraints(...constraints: IConstraint[]) {
         this.constraints = this.constraints.concat(constraints);
     }
+
+    /**
+     * Adds new algorithm constraints to the list of internal algorithm constraints
+     * @param constraints
+     */
     addAlgorithmConstraints(...constraints: (IAlgorithmConfiguration | IGraphConversionConstraint)[]) {
         constraints.forEach(constraint => {
             if(constraint === null) {
                 return;
             }
 
-            // TODO: Doesn't copy methods
-            // this.algorithmOnlyConstraints[constraint.constraintedNodes] = {
-            //     // ...this.algorithmOnlyConstraints[constraint.constraintedNodes],
-            //     ...constraint
-            // };
             this.addAlgorithmConstraint(constraint, this.layoutActions.length);
         });
     }
@@ -120,7 +134,7 @@ export class ConstraintContainer {
     }
 
 
-    // TODO: Add Docs
+
     resetLayoutActionsIterator() {
         this.layoutActionsIterator = this.createLayoutActionsIterator();
     }

@@ -3,7 +3,7 @@ import { IGraphClassic, IMainGraphClassic, MainGraphClassic } from "../graph-ifa
 import { LayoutAlgorithm } from "../layout-iface";
 
 export class NoActionLayout implements LayoutAlgorithm {
-  prepareFromGraph(graph: IGraphClassic, constraintContainer: ConstraintContainer) {
+  prepareFromGraph(graph: IGraphClassic, _constraintContainer: ConstraintContainer) {
     this.graph = graph;
   };
   run(shouldCreateNewGraph: boolean) {
@@ -12,6 +12,6 @@ export class NoActionLayout implements LayoutAlgorithm {
   runGeneralizationLayout(shouldCreateNewGraph: boolean) {
     return Promise.resolve(this.graph.mainGraph);
   };
-  constraintContainer: ConstraintContainer;
-  graph: IGraphClassic;
+
+  private graph: IGraphClassic;
 }

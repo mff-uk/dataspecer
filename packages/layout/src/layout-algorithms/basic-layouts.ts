@@ -37,9 +37,8 @@ export async function doRandomLayoutAdvancedFromGraph(graph: IGraphClassic, shou
  */
 export class RandomLayout implements LayoutAlgorithm {
 
-    prepareFromGraph(graph: IGraphClassic, constraintContainer: ConstraintContainer): void {
+    prepareFromGraph(graph: IGraphClassic, _constraintContainer: ConstraintContainer): void {
         this.graph = graph;
-        this.constraintContainer = constraintContainer;
     }
 
     runGeneralizationLayout(shouldCreateNewGraph: boolean): Promise<IMainGraphClassic> {
@@ -49,6 +48,5 @@ export class RandomLayout implements LayoutAlgorithm {
         return doRandomLayoutAdvancedFromGraph(this.graph, shouldCreateNewGraph);
     }
 
-    graph: IGraphClassic;
-    constraintContainer: ConstraintContainer;
+    private graph: IGraphClassic;
 }

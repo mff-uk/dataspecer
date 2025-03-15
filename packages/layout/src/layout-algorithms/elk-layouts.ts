@@ -757,6 +757,6 @@ export class ElkLayout implements LayoutAlgorithm {
     private getGraphInElk(): ElkNode {
         return _.cloneDeep(this.graphInElk);
     }
-    constraintContainer: ConstraintContainer;
+    private constraintContainer: ConstraintContainer;
     private elkGraphTransformer: ElkGraphTransformer;
 }

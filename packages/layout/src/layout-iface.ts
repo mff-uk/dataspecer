@@ -33,10 +33,6 @@ export interface LayoutAlgorithm {
 
     /**
      * Prepares the algorithm for future layouting. The future layouting will layout given graph and use given constraints.
-     * @param graph
-     * @param constraintContainer
-     * @param nodeDimensionQueryHandler
-     * @returns
      */
     prepareFromGraph: (graph: IGraphClassic, constraintContainer: ConstraintContainer) => void,
     /**
@@ -50,12 +46,9 @@ export interface LayoutAlgorithm {
      * @param shouldCreateNewGraph if true then new graph is created, otherwise the one passed in preparation phase is changed in place
      * @returns promise which on resolve returns the layouted graph
      */
-    // TODO: Again this could be generalized that we would layout list of any given subgraphs instead of the generalization subgraphs, so it sohuld be moved one level up and
+    // TODO: Again this could be generalized that we would layout list of any given subgraphs instead of the generalization subgraphs, so it should be moved one level up and
     //       we should just call layout on the given subgraph
     runGeneralizationLayout: (shouldCreateNewGraph: boolean) => Promise<IMainGraphClassic>,
-
-    // TODO: Again - why am I putting properties into interface??
-    constraintContainer: ConstraintContainer;
 }
 
 
