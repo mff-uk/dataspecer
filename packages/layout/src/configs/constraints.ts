@@ -1,8 +1,8 @@
-import { IEdgeClassic, IGraphClassic } from "../graph/representation/graph"
 import { Direction } from "../util/utils";
 import { AlgorithmName } from "./constraint-container";
 import _ from "lodash";
 import { ElkForceAlgType } from "./elk/elk-constraints";
+import { IEdgeClassic } from "../graph/representation/edge";
 
 export type ConstraintedNodesGroupingsType = "ALL" | "GENERALIZATION" | "PROFILE";
 

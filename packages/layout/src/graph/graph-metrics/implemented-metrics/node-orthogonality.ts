@@ -1,9 +1,10 @@
-import { GraphClassic, IGraphClassic, IVisualNodeComplete } from "../../representation/graph";
+import { GraphClassic, IGraphClassic } from "../../representation/graph";
+import { VisualNodeComplete } from "../../representation/node";
 import { AllMetricData, Metric } from "../graph-metric";
 
 function areNodesAligned(
-  node1: IVisualNodeComplete,
-  node2: IVisualNodeComplete,
+  node1: VisualNodeComplete,
+  node2: VisualNodeComplete,
   alingmentLimit: number
 ): boolean {
   const pos1 = node1.coreVisualNode.position;

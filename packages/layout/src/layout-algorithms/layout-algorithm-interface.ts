@@ -9,7 +9,7 @@ import {
     isSemanticModelAttribute
  } from "@dataspecer/core-v2/semantic-model/concepts";
 
-import { IGraphClassic, IMainGraphClassic, IVisualNodeComplete } from "../graph/representation/graph";
+import { IGraphClassic, IMainGraphClassic } from "../graph/representation/graph";
 import { ConstraintContainer } from "../configs/constraint-container";
 import { VisualEntities } from "../migration-to-cme-v2";
 import { Entity, EntityModel } from "@dataspecer/core-v2";
@@ -51,8 +51,6 @@ export interface LayoutAlgorithm {
     runGeneralizationLayout: (shouldCreateNewGraph: boolean) => Promise<IMainGraphClassic>,
 }
 
-
-// TODO RadStr: Remove the model from the fields ... that is semanticModelClass --> semanticClass
 
 export type EntityBundle = {
     sourceModelIdentifier: string,
@@ -113,7 +111,7 @@ export interface GraphTransformer {
      * 3) Perform layouting
      * 4) Update existing graph representation using {@link updateExistingGraphRepresentationBasedOnLibraryRepresentation}
      * (or create new one using {@link convertLibraryToGraphRepresentation}).
-     * Created representations already include VisualModel in form of {@link IVisualNodeComplete} on nodes
+     * Created representations already include VisualModel in form of {@link VisualNodeComplete} on nodes
      * or just call {@link convertToDataspecerRepresentation} if you no longer need the graph structure
      */
     convertGraphToLibraryRepresentation(

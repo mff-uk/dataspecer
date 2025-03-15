@@ -1,5 +1,5 @@
 import { NodeDimensionQueryHandler } from "..";
-import { INodeClassic } from "../graph/representation/graph";
+import { INodeClassic } from "../graph/representation/node";
 
 /**
  * Simple dimension query handler, which returns constant values as estimation of node dimensions.

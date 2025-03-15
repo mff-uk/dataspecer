@@ -1,8 +1,29 @@
-// TODO: Actually I don't really like the union here (we have to convert the string value back to the enum value, if we want to use Enum somewhere)
-
 import { XY } from "..";
-import { EdgeEndPoint, IVisualNodeComplete } from "../graph/representation/graph";
 import { EdgeCrossingMetric } from "../graph/graph-metrics/implemented-metrics/edge-crossing";
+import { EdgeEndPoint } from "../graph/representation/edge";
+import { VisualNodeComplete } from "../graph/representation/node";
+
+// TODO RadStr LAYOUT: After merge fix - I think that this is present in core-v2 utlities in the another open PR
+/**
+ * Add item, using given identifier, to respective bucket.
+ * If your map is represented using {@link Map} type then use the {@link addToMapArray} instead.
+ *
+ * @example
+ * const buckets : Record<string, any> = {}
+ * addToRecordArray("bucket", {}, buckets);
+ */
+export function addToRecordArray<IdentifierType extends string, ValueType>(
+  identifier: IdentifierType,
+  value: ValueType,
+  map: Record<IdentifierType, ValueType[]>,
+): void {
+  let array = map[identifier];
+  if (array === undefined) {
+    array = [];
+    map[identifier] = array;
+  }
+  array.push(value);
+}
 
 export function getTopLeftPosition(
   nodes: EdgeEndPoint[]
@@ -127,7 +148,7 @@ export function findLineCenter(source: XY, target: XY): XY {
   return { x, y };
 }
 
-export function findNodeBorder(node: IVisualNodeComplete, next: XY): XY {
+export function findNodeBorder(node: VisualNodeComplete, next: XY): XY {
   const center = EdgeCrossingMetric.getMiddle(node);
   const rectangle = { width: node.width + 4, height: node.height + 4 };
   return findRectangleLineIntersection(center, rectangle, next);

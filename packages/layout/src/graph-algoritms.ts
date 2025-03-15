@@ -1,17 +1,13 @@
 import { Direction, ReactflowDimensionsConstantEstimator } from ".";
 import {
-  addToRecordArray,
-  EdgeClassic,
-  EdgeEndPoint,
   GraphClassic,
-  IEdgeClassic,
   IGraphClassic,
   IMainGraphClassic,
-  INodeClassic,
-  NodeClassic,
-  VisualNodeComplete
 } from "./graph/representation/graph";
 import { EdgeNodeCrossingMetric } from "./graph/graph-metrics/implemented-metrics/edge-node-crossing";
+import { addToRecordArray } from "./util/utils";
+import { INodeClassic, NodeClassic, VisualNodeComplete } from "./graph/representation/node";
+import { EdgeClassic, EdgeEndPoint, IEdgeClassic } from "./graph/representation/edge";
 
 export enum ToConsiderFilter {
   OnlyLayouted,

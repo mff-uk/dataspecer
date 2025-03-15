@@ -9,7 +9,7 @@ import {
 	AlgorithmConfiguration,
 	GraphConversionConstraint,
 } from "./configs/constraints";
-import { GraphClassic, GraphFactory, IMainGraphClassic, INodeClassic, VisualModelWithOutsiders } from "./graph/representation/graph";
+import { GraphClassic, IMainGraphClassic, VisualModelWithOutsiders } from "./graph/representation/graph";
 import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs/constraint-container";
 import { Entities, Entity, EntityModel } from "@dataspecer/core-v2";
 import { ConstraintFactory, SPECIFIC_ALGORITHM_CONVERSIONS_MAP } from "./configs/constraint-factories";
@@ -33,7 +33,6 @@ export type { AlgorithmName } from "./configs/constraint-container";
 
 import { Direction } from "./util/utils";
 export { Direction };
-export type { INodeClassic } from "./graph/representation/graph";
 
 export { ReactflowDimensionsEstimator };
 export { ReactflowDimensionsConstantEstimator } from "./dimension-estimators/constant-dimension-estimator";
@@ -48,6 +47,9 @@ import { NodeOrthogonalityMetric } from "./graph/graph-metrics/implemented-metri
 import { EdgeCrossingAngleMetric } from "./graph/graph-metrics/implemented-metrics/edge-crossing-angle";
 import { Metric } from "./graph/graph-metrics/graph-metric";
 import { GraphAlgorithms } from "./graph-algoritms";
+import { INodeClassic } from "./graph/representation/node";
+export { type INodeClassic };
+import { GraphFactory } from "./graph/representation/graph-factory";
 export { AnchorOverrideSetting } from "./explicit-anchors";
 export { placePositionOnGrid };
 

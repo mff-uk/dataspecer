@@ -1,5 +1,6 @@
 
-import { GraphClassic, IEdgeClassic, IGraphClassic } from "../../representation/graph";
+import { IEdgeClassic } from "../../representation/edge";
+import { GraphClassic, IGraphClassic } from "../../representation/graph";
 import { AllMetricData, Metric } from "../graph-metric";
 import { EdgeCrossingMetric } from "./edge-crossing";
 

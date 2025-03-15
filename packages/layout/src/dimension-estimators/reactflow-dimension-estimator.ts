@@ -1,5 +1,5 @@
 import { NodeDimensionQueryHandler } from "..";
-import { INodeClassic } from "../graph/representation/graph";
+import { INodeClassic } from "../graph/representation/node";
 import { getEdgeSourceAndTargetRelationship } from "../layout-algorithms/layout-algorithm-interface";
 import { ReactflowDimensionsConstantEstimator } from "./constant-dimension-estimator";
 

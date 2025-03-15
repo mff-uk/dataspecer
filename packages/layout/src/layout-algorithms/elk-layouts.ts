@@ -1,6 +1,6 @@
 import { GraphTransformer, LayoutAlgorithm } from "./layout-algorithm-interface";
 import { isVisualProfileRelationship, isVisualRelationship, Position, VisualEntity, VisualNode, VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { EdgeEndPoint, GraphClassic, IGraphClassic, IMainGraphClassic, MainGraphClassic, VisualNodeComplete } from "../graph/representation/graph";
+import { GraphClassic, IGraphClassic, IMainGraphClassic, MainGraphClassic } from "../graph/representation/graph";
 
 
 
@@ -17,6 +17,8 @@ import _ from "lodash";
 import { GraphAlgorithms } from "../graph-algoritms";
 import { ElkConstraint } from "../configs/elk/elk-constraints";
 import { VisualEntities } from "../migration-to-cme-v2";
+import { VisualNodeComplete } from "../graph/representation/node";
+import { EdgeEndPoint } from "../graph/representation/edge";
 
 
 type VisualEntitiesType = (VisualNodeComplete | VisualRelationship | VisualProfileRelationship)[];

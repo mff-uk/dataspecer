@@ -1,4 +1,6 @@
-import { GraphClassic, IEdgeClassic, IGraphClassic, IVisualNodeComplete } from "../../representation/graph";
+import { IEdgeClassic } from "../../representation/edge";
+import { GraphClassic, IGraphClassic } from "../../representation/graph";
+import { VisualNodeComplete } from "../../representation/node";
 import { AllMetricData, Metric } from "../graph-metric";
 import { EdgeCrossingMetric } from "./edge-crossing";
 
@@ -28,7 +30,7 @@ export class EdgeNodeCrossingMetric implements Metric {
 
     // Based on https://www.jeffreythompson.org/collision-detection/line-rect.php
 
-    public static isLineRectangleCollision(line: IEdgeClassic, rectangle: IVisualNodeComplete): 0 | 1 {
+    public static isLineRectangleCollision(line: IEdgeClassic, rectangle: VisualNodeComplete): 0 | 1 {
         const start = EdgeCrossingMetric.getMiddle(line.start.completeVisualNode);
         const end = EdgeCrossingMetric.getMiddle(line.end.completeVisualNode);
 

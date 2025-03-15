@@ -1,8 +1,9 @@
 import { Position } from "@dataspecer/core-v2/visual-model";
-import { GraphClassic, IGraphClassic, IVisualNodeComplete } from "../../representation/graph";
+import { GraphClassic, IGraphClassic } from "../../representation/graph";
 import { AllMetricData, Metric } from "../graph-metric";
 import { findNodeBorder } from "../../../util/utils";
 import { XY } from "../../..";
+import { VisualNodeComplete } from "../../representation/node";
 
 export class EdgeCrossingMetric implements Metric {
     computeMetric(graph: IGraphClassic): number {
@@ -46,8 +47,8 @@ export class EdgeCrossingMetric implements Metric {
      *
      * @returns 1 for edge crossing, 0 for no edge crossing
      */
-    public static isEdgeCrossForStraightLines(source1: IVisualNodeComplete, target1: IVisualNodeComplete,
-                                              source2: IVisualNodeComplete, target2: IVisualNodeComplete): 0 | 1 {
+    public static isEdgeCrossForStraightLines(source1: VisualNodeComplete, target1: VisualNodeComplete,
+                                              source2: VisualNodeComplete, target2: VisualNodeComplete): 0 | 1 {
         const a = findNodeBorder(source1, EdgeCrossingMetric.getMiddle(target1));
         const b = findNodeBorder(target1, EdgeCrossingMetric.getMiddle(source1));
         const c = findNodeBorder(source2, EdgeCrossingMetric.getMiddle(target2));
@@ -56,7 +57,7 @@ export class EdgeCrossingMetric implements Metric {
                 EdgeCrossingMetric.isCounterClockwise(a, b, c) != EdgeCrossingMetric.isCounterClockwise(a, b, d) ? 1 : 0;
     }
 
-    public static getMiddle(completeVisualNode: IVisualNodeComplete): Position {
+    public static getMiddle(completeVisualNode: VisualNodeComplete): Position {
         return {
             x: completeVisualNode.coreVisualNode.position.x + completeVisualNode.width / 2,
             y: completeVisualNode.coreVisualNode.position.y + completeVisualNode.height / 2,
