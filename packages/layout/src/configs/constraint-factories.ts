@@ -355,19 +355,13 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
                     node.completeVisualNode.isAnchored = true;
                 }
             }
-            // for (const edge of graph.allEdges) {
-            //     const isInCluster = edgesInCluster.findIndex(edgeInCluster => edgeInCluster.id === edge.id) >= 0;
-            //     if (isInCluster) {
-            //         edge.isConsideredInLayout = false;
-            //     }
-            // }
         }
 
         const configuration = getDefaultUserGivenConstraintsVersion4();
         configuration.chosenMainAlgorithm = "elk_stress";
         configuration.main.elk_stress = getDefaultMainUserGivenAlgorithmConstraint("elk_stress");
         configuration.main.elk_stress.interactive = true;
-        (configuration.main.elk_stress as UserGivenAlgorithmConfigurationStress).stress_edge_len = 500;
+        (configuration.main.elk_stress as UserGivenAlgorithmConfigurationStress).stress_edge_len = 800;
         graph = await performLayoutFromGraph(graph, configuration);
 
         return Promise.resolve(graph);
