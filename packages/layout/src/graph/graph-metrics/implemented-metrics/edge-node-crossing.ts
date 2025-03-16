@@ -50,9 +50,11 @@ export class EdgeNodeCrossingMetric implements Metric {
         const isTopSideCollision = EdgeNodeCrossingMetric.isLineLineCollision(x1,y1,x2,y2, rx,ry, rx+rw,ry);
         const isBottomSideCollision = EdgeNodeCrossingMetric.isLineLineCollision(x1,y1,x2,y2, rx,ry+rh, rx+rw,ry+rh);
 
+        const isInsideRectangle = x1 > rx && x1 < rx + rw && y1 > ry && y1 < ry + rh;
+
         // if ANY of the above are true, the line
         // has hit the rectangle
-        if (isLeftSideCollision || isRightSideCollision || isTopSideCollision || isBottomSideCollision) {
+        if (isLeftSideCollision || isRightSideCollision || isTopSideCollision || isBottomSideCollision || isInsideRectangle) {
             return true;
         }
         return false;
