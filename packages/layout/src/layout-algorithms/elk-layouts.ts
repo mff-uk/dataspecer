@@ -664,7 +664,7 @@ export class ElkLayout implements LayoutAlgorithm {
     prepareFromGraph(graph: Graph, constraintContainer: ElkConstraintContainer): void {
         // TODO RadStr: Debugging
         // GraphAlgorithms.findLeafPaths(graph.mainGraph);
-        GraphAlgorithms.dcatAPTestSetterHardcoded(graph.mainGraph);
+        // GraphAlgorithms.dcatAPTestSetterHardcoded(graph.mainGraph);
 
         this.graph = graph
         this.elkGraphTransformer = new ElkGraphTransformer(graph, constraintContainer);
