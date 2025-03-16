@@ -34,10 +34,12 @@ class ElkGraphTransformer implements GraphTransformer {
         this.graph = graph.mainGraph;
     }
 
-    convertGraphToLibraryRepresentation(graph: Graph,
-                                        shouldSetLayoutOptions: boolean,
-                                        constraintContainer: ElkConstraintContainer,
-                                        elkNodeToSet?: ElkNode): ElkNode {
+    convertGraphToLibraryRepresentation(
+        graph: Graph,
+        shouldSetLayoutOptions: boolean,
+        constraintContainer: ElkConstraintContainer,
+        elkNodeToSet?: ElkNode
+    ): ElkNode {
         return this.convertGraphToLibraryRepresentationInternal(graph, shouldSetLayoutOptions, constraintContainer, elkNodeToSet);
     }
 
