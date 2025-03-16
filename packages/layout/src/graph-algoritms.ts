@@ -267,9 +267,10 @@ export class GraphAlgorithms {
     /**
      * Finds how many edges collide with the bounding box, which is placed - above, below, to the left and to the right of given {@link rootNode}.
      */
-    static findSectorNodePopulationUsingBoundingBox(
+    static findSectorEdgePopulation(
       graph: MainGraph,
       rootNode: EdgeEndPoint,
+      edgesInCluster: Edge[],
       edgesToConsider: ToConsiderFilter,
     ): Record<Direction, number> {
       const populations: Record<Direction, number> = {
@@ -286,9 +287,10 @@ export class GraphAlgorithms {
         [Direction.Down]: undefined,
       };
 
+      const clusterSize = edgesInCluster.length;
       const widthMultipleForHorizontalDirection = 3;
-      const heightMultipleForHorizontalDirection = 20;
-      const widthMultipleForVerticalDirection = 8;
+      const heightMultipleForHorizontalDirection = 3 * clusterSize;
+      const widthMultipleForVerticalDirection = 2 * clusterSize;
       const heightMultipleForVerticalDirection = 6;
 
 
