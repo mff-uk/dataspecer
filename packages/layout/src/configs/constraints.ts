@@ -122,8 +122,6 @@ export function getDefaultUserGivenConstraintsVersion4(): UserGivenAlgorithmConf
             }
         },
         chosenMainAlgorithm: "elk_layered",
-        mainStepNumber: 1,
-        generalStepNumber: 0,
         additionalSteps: {}
     };
 }
@@ -134,12 +132,11 @@ export interface UserGivenAlgorithmConfigurationslVersion4 {
     chosenMainAlgorithm: AlgorithmName,
 
     general: {"elk_layered": UserGivenAlgorithmConfigurationForGeneralization},
-    mainStepNumber: number,
-    generalStepNumber: number,
     additionalSteps: Record<number, (UserGivenAlgorithmConfigurationslVersion4 | IGraphConversionConstraint)>,
 }
 
 
+// TODO RadStr: Actually it might be better from programming perspective to have main: [algorithmName]: SpecificConfiguration, chosenAlgorithm: AlgorithmName !!!!
 export function getDefaultUserGivenConstraintsVersion5(): UserGivenAlgorithmConfigurationslVersion5 {
     return {
         main:
@@ -221,7 +218,7 @@ export interface UserGivenAlgorithmConfigurationOnlyData extends UserGivenAlgori
     // which contains additional configuration in the JSON format of given library
     // (Note: the advanced_settings should override the main one if passed - TODO: Rewrite so it is actually the case)
     "interactive": boolean,
-    "advanced_settings": object,
+    "advanced_settings": Record<string, string>,
 }
 
 export interface UserGivenAlgorithmConfiguration extends UserGivenAlgorithmConfigurationOnlyData, UserGivenAlgorithmConfigurationExtraData { }

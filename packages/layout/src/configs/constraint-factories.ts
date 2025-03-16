@@ -159,7 +159,6 @@ class AlgorithmConstraintFactory {
             const convertGeneralizationSubgraphs = GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("CREATE_GENERALIZATION_SUBGRAPHS");
             layoutActionsBeforeMainRun.push(convertGeneralizationSubgraphs);
         }
-        // TODO: Not using the config.mainStepNumber and config.generalStepNumber, but that is only for future proofing anyways
         AlgorithmConstraintFactory.addAlgorithmConfigurationLayoutActions(
             config.general.elk_layered, layoutActionsBeforeMainRun, layoutActionsBeforeMainRun, true);
 

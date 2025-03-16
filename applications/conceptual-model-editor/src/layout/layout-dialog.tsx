@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   AlgorithmName,
   Direction,
@@ -22,6 +22,27 @@ type MainOrGeneralType = MainType | "general";
 // 4) Have dialog localization
 export const useConfigDialog = () => {
   const [config, setConfig] = useState<UserGivenConstraintsVersion4>(getDefaultUserGivenConstraintsVersion4());
+  const advancedSettingsForAlgorithms = useRef<Record<string, string>>({});
+  const handleAdvancedSettingsChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    advancedSettingsForAlgorithms.current[config.chosenMainAlgorithm] = event.target.value;
+    let newAdvancedSettings;
+    try {
+      newAdvancedSettings = JSON.parse(event.target.value);
+    }
+    catch {
+      return;
+    }
+    setConfig(previousConfig => ({
+      ...previousConfig,
+      main: {
+        ...previousConfig.main,
+        [config.chosenMainAlgorithm]: {
+          ...previousConfig.main[config.chosenMainAlgorithm],
+          advanced_settings: newAdvancedSettings
+        }
+      }
+    }));
+  };
 
   // Const updateConfig = (key: string, e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
   //     setConfig({...config, [key]: parseInt(e.target.value)});
@@ -362,6 +383,7 @@ export const useConfigDialog = () => {
     // resetConfig();
     if(config.main[config.chosenMainAlgorithm] === undefined) {
       config.main[config.chosenMainAlgorithm] = getDefaultMainUserGivenAlgorithmConstraint(config.chosenMainAlgorithm);
+      advancedSettingsForAlgorithms.current[config.chosenMainAlgorithm] = "{}";
     }
 
     switch(config.chosenMainAlgorithm) {
@@ -412,6 +434,11 @@ export const useConfigDialog = () => {
       {/* TODO RadStr: Just for now */}
       {config.chosenMainAlgorithm === "random" ? null : <h3 className="font-black">Algorithm settings </h3>}
       {renderMainAlgorithmConfig()}
+      <hr className="my-2"/>
+      <label htmlFor="advanced-settings-textbox">Advanced settings:</label>
+      <textarea id="advanced-settings-textbox"
+                value={(advancedSettingsForAlgorithms.current[config.chosenMainAlgorithm])}
+                onChange={handleAdvancedSettingsChange}></textarea>
       <hr className="my-4"/>
       <input type="checkbox" id="checkbox-main-layout-alg" name="checkbox-main-layout-alg" checked={config.general.elk_layered.should_be_considered}
         onChange={e => setConfig({...config,
