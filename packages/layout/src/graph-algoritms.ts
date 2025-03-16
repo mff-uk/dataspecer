@@ -204,6 +204,9 @@ export class GraphAlgorithms {
     }
 
 
+    /**
+     * Returns biggest clusters for graph. Biggest in the number of nodes, not edges.
+     */
     static clusterify(graph: MainGraph): Record<string, Edge[]> {
       const leafs: Record<string, Edge[]> = {};
       const clusters: Record<string, Edge[]> = {};
@@ -346,6 +349,7 @@ export class GraphAlgorithms {
     static findSectorNodePopulation(
       graph: MainGraph,
       rootNode: EdgeEndPoint,
+      edgesInCluster: Edge[],
       nodesToConsider: ToConsiderFilter,
     ): Record<Direction, number> {
       const populations: Record<Direction, number> = {
@@ -357,10 +361,16 @@ export class GraphAlgorithms {
 
       // TODO RadStr: Actually good, but I could play with the bounding box sizes, but more importantly
       // I should ideally make it proportional to the distance of the root cluster
-      const verticalBoundingBoxWidth = 8 * ReactflowDimensionsConstantEstimator.getDefaultWidth();
+      // TODO: Old without proportional
+      // const verticalBoundingBoxWidth = 8 * ReactflowDimensionsConstantEstimator.getDefaultWidth();
+      // const verticalBoundingBoxHeight = 6 * ReactflowDimensionsConstantEstimator.getDefaultHeight();
+      // const horizontalBoundingBoxWidth = 3 * ReactflowDimensionsConstantEstimator.getDefaultWidth();
+      // const horizontalBoundingBoxHeight = 20 * ReactflowDimensionsConstantEstimator.getDefaultHeight();
+      const clusterSize = edgesInCluster.length;
+      const verticalBoundingBoxWidth = 2 * clusterSize * ReactflowDimensionsConstantEstimator.getDefaultWidth();
       const verticalBoundingBoxHeight = 6 * ReactflowDimensionsConstantEstimator.getDefaultHeight();
       const horizontalBoundingBoxWidth = 3 * ReactflowDimensionsConstantEstimator.getDefaultWidth();
-      const horizontalBoundingBoxHeight = 20 * ReactflowDimensionsConstantEstimator.getDefaultHeight();
+      const horizontalBoundingBoxHeight = 3 * clusterSize * ReactflowDimensionsConstantEstimator.getDefaultHeight();
 
       const rootNodePosition = rootNode.completeVisualNode.coreVisualNode.position;
       for(const node of graph.allNodes) {

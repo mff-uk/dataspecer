@@ -296,7 +296,7 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
             const clusterRoot = graph.findNodeInAllNodes(cluster);
             const clusterRootPositionBeforeLayout = { ...clusterRoot.completeVisualNode.coreVisualNode.position };
             // TODO RadStr: Commented code - old variant
-            const sectorPopulations = GraphAlgorithms.findSectorNodePopulation(graph, clusterRoot, ToConsiderFilter.OnlyNotLayouted);
+            const sectorPopulations = GraphAlgorithms.findSectorNodePopulation(graph, clusterRoot, edgesInCluster, ToConsiderFilter.OnlyNotLayouted);
             // const sectorPopulations = GraphAlgorithms.findSectorNodePopulationUsingBoundingBox(graph, clusterRoot, ToConsiderFilter.OnlyNotLayouted);
             const populatedSectorsAscending = Object.entries(sectorPopulations)
                 .sort(([, edgesA], [, edgesB]) => edgesA - edgesB);
