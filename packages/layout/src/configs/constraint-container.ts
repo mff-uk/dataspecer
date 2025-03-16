@@ -1,4 +1,3 @@
-
 import {
     IGraphConversionConstraint,
     IAlgorithmConfiguration,
@@ -30,8 +29,6 @@ export const ALGORITHM_NAME_TO_LAYOUT_MAPPING: Record<AlgorithmName, LayoutAlgor
  * Behaves like container for constraints of certain subgraph or whole graph. TODO: Maybe just the whole graph
  */
 export class ConstraintContainer {
-
-
     // This are algorithm constraints for general group of nodes (type @{link ConstraintedNodes})
     // This is object for 2 reasons (but maybe we will switch it to array anyways, the issue with array is that order matters):
     //             1) We can have classic algorithm constraints on min node dist and then another constraint on interactivity in term of the Algorithm parameters
@@ -52,13 +49,6 @@ export class ConstraintContainer {
      * Are the actions which run before the main layouting algorithm.
      */
     layoutActionsToRunBefore: (IAlgorithmConfiguration | IGraphConversionConstraint)[];
-
-
-    /**
-     * These are just basic constraints on group of nodes (again type {@link constraintedNodes}), which should be run before/after main loop only once.
-     * And are not algorithm constraints ... TODO: just remove the constraints, question is how should we name the fields and the class then
-     */
-    constraints: IConstraint[];
 
     /**
      * Is the current index of the generator for the {@link layoutActionsIterator}
@@ -89,28 +79,24 @@ export class ConstraintContainer {
         action: IAlgorithmConfiguration | IGraphConversionConstraint,
     };
 
+    /**
+     * How many times should the algorithm run, i.e. from how many runs to choose the best one based on metrics
+     */
+    numberOfAlgorithmRuns: number;
 
 
     constructor(
         layoutActionsBefore: (IAlgorithmConfiguration | IGraphConversionConstraint)[],
         layoutActions: (IAlgorithmConfiguration | IGraphConversionConstraint)[],
-        constraints?: IConstraint[] | null,
+        numberOfAlgorithmRuns: number,
     ) {
         this.layoutActionsToRunBefore = layoutActionsBefore;
         this.resetLayoutActionsBeforeRunIterator();
         this.resetLayoutActionsIterator();
 
+        this.numberOfAlgorithmRuns = numberOfAlgorithmRuns;
         this.layoutActions = [];
         this.addAlgorithmConstraints(...layoutActions);
-        this.constraints = constraints ?? [];
-    }
-
-
-    /**
-     * Adds new constraints to the itnernal lsit of constraints
-     */
-    addConstraints(...constraints: IConstraint[]) {
-        this.constraints = this.constraints.concat(constraints);
     }
 
     /**

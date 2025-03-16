@@ -140,6 +140,7 @@ class AlgorithmConstraintFactory {
                 throw new Error("Implementation error You forgot to extend the AlgorithmConstraintFactory factory for new algorithm");
         }
 
+
         if(userGivenAlgorithmConfiguration.run_layered_after) {
             const configLayeredAfter = getDefaultUserGivenConstraintsVersion4();
             configLayeredAfter.chosenMainAlgorithm = "elk_layered";
@@ -197,39 +198,7 @@ class AlgorithmConstraintFactory {
         AlgorithmConstraintFactory.addAlgorithmConfigurationLayoutActions(
             config.main[config.chosenMainAlgorithm], layoutActionsBeforeMainRun, layoutActions, false);
     }
-
-
-    static createConstraintsFromConfigurationInMainRun(
-        userGivenAlgorithmConfiguration: UserGivenAlgorithmConfiguration
-    ): IConstraint[] | null {
-        if(!userGivenAlgorithmConfiguration.should_be_considered) {
-            return null;
-        }
-
-        const result: IConstraint[] = [];
-
-        // TODO RadStr: .... This is not nice - remove the simple constraints - it will make it so much better - I think
-
-        // TODO: I currently also have to check the type, because there is one state for all algorithms so when I change the algorithm type I still have the data from the old one
-        //       in this case I can for example have number_of_new_algorithm_runs > 1 for layered algorithm, which isn't what I want, since it is deterministic
-        if(userGivenAlgorithmConfiguration.number_of_new_algorithm_runs > 1 &&
-            (userGivenAlgorithmConfiguration.layout_alg === "elk_stress" ||
-                userGivenAlgorithmConfiguration.layout_alg === "elk_force" ||
-                userGivenAlgorithmConfiguration.layout_alg === "elk_stress_advanced_using_clusters")) {
-            const numberOfAlgorithmRunsConstraint: IConstraint = {
-                constraintedNodes: "ALL",
-                type: "control-flow-change",
-                constraintTime: "IN-MAIN",
-                name: "Best layout iteration count",
-                data: { numberOfAlgorithmRuns: userGivenAlgorithmConfiguration.number_of_new_algorithm_runs }
-            };
-            result.push(numberOfAlgorithmRunsConstraint)
-        }
-
-        return result
-    }
 }
-
 
 /**
  * Class with static methods to create {@link ConstraintContainer}s
@@ -249,21 +218,20 @@ export class ConstraintFactory {
 
         // We can't both have interactive layout and perform search for best algorithm
         // TODO: So just a bit of a hack now!!, to use only 1 run in such case and then set it back to original value so dialog doesn't change on reopen
-        const originalNumberOfNewAlgorithmRuns = config.main[config.chosenMainAlgorithm].number_of_new_algorithm_runs;
+        const originalNumberOfNewAlgorithmRuns = config.numberOfAlgorithmRuns;
         if(config.main[config.chosenMainAlgorithm].interactive === true &&
            config.chosenMainAlgorithm !== "elk_stress_advanced_using_clusters") {
-            config.main[config.chosenMainAlgorithm].number_of_new_algorithm_runs = 1;
+            config.numberOfAlgorithmRuns = 1;
         }
 
         AlgorithmConstraintFactory.addToLayoutActionsInMainRunBasedOnConfiguration(config, layoutActionsBeforeMainRun, layoutActions);
 
-        const constraints = AlgorithmConstraintFactory.createConstraintsFromConfigurationInMainRun(config.main[config.chosenMainAlgorithm]);
-        const constraintContainer = new ConstraintContainer(layoutActionsBeforeMainRun, layoutActions, constraints);
+        const constraintContainer = new ConstraintContainer(layoutActionsBeforeMainRun, layoutActions, config.numberOfAlgorithmRuns);
 
         console.info("config", config);
         console.info("layoutActions", layoutActions);
 
-        config.main[config.chosenMainAlgorithm].number_of_new_algorithm_runs = originalNumberOfNewAlgorithmRuns;
+        config.numberOfAlgorithmRuns = originalNumberOfNewAlgorithmRuns;
 
         return constraintContainer
     }

@@ -241,86 +241,36 @@ export async function performLayoutFromGraph(
 /**
  * Performs all relevant layout operations based on given constraints
  */
-const performLayoutingBasedOnConstraints = (
+const performLayoutingBasedOnConstraints = async (
 	graph: MainGraph,
 	constraints: ConstraintContainer
 ): Promise<MainGraph> => {
 	let workGraph = graph;
-	return runPreMainAlgorithmConstraints(workGraph, constraints).then(async _ => {
-		for(const action of constraints.layoutActionsIteratorBefore) {
-			if(action instanceof GraphConversionConstraint) {
-				SPECIFIC_ALGORITHM_CONVERSIONS_MAP[action.actionName](action, workGraph);
-			}
-			else if(action instanceof AlgorithmConfiguration) {		// TODO: Using the actual type instead of interface
-				const layoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[action.algorithmName];
-				if(action.algorithmPhasesToCall === "ONLY-PREPARE" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
-					layoutAlgorithm.prepareFromGraph(workGraph, constraints);
-				}
-				if(action.algorithmPhasesToCall === "ONLY-RUN" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
-					if(action.constraintedNodes === "GENERALIZATION") {
-						workGraph = await layoutAlgorithm.runGeneralizationLayout(action.shouldCreateNewGraph);
-					}
-					else {
-						workGraph = await layoutAlgorithm.run(action.shouldCreateNewGraph);
-					}
-				}
-			}
+	for(const action of constraints.layoutActionsIteratorBefore) {
+		if(action instanceof GraphConversionConstraint) {
+			SPECIFIC_ALGORITHM_CONVERSIONS_MAP[action.actionName](action, workGraph);
 		}
-
-		return runMainLayoutAlgorithm(workGraph, constraints).then(layoutedGraph => {
-			return runPostMainAlgorithmConstraints(layoutedGraph, constraints).then(_ => layoutedGraph);
-		});
-	});
-
-}
-
-
-/**
- * We don't have any defined constraints, this is just "future-proofing" - consmtraints are performed only once before running the main algorithm loop
- * and they are different from the layout algorithm configuration
- * @returns the promises with the constraints
- */
-const runPreMainAlgorithmConstraints = async (
-	graph: MainGraph,
-	constraintsContainer: ConstraintContainer
-): Promise<void[]> => {
-	const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer, constraintsContainer.constraints, "PRE-MAIN").then(_ => {
-		return runConstraintsInternal(graph, constraintsContainer, constraintsContainer.constraints, "PRE-MAIN");
-	});
-	return constraintPromises;
-}
-
-/**
- * Again, don't have any, same as for {@link runPreMainAlgorithmConstraints}
- */
-const runPostMainAlgorithmConstraints = async (graph: MainGraph,
-												constraintsContainer: ConstraintContainer): Promise<void[]> => {
-	//       I wanted to have code which runs after the main algorithm - for example running layered algorithm
-	//       which takes into consideration existing positions - which we currently support, but I decided that it was better to just have it within the main loop
-	//       so POST-MAIN stuff will be probably only the stuff which will be run once after ALL! of the algorithms finish running.
-	//       It can be then only used once we have the result which want to pass to the caller. So it will be some conversions, etc. but not the mentioned layered algorithm
-	//       which runs algorithm in each iteration of loop that is finding best algorithm. The post-constraints are called only after the loop finishes.
-	const constraintPromises: Promise<void[]> = runConstraintsInternal(graph, constraintsContainer, constraintsContainer.constraints, "POST-MAIN").then(_ => {
-		return runConstraintsInternal(graph, constraintsContainer, constraintsContainer.constraints, "POST-MAIN");
-	});
-	return constraintPromises;
-}
-
-const runConstraintsInternal = async (
-	_graph: MainGraph,
-	_constraintContainer: ConstraintContainer,
-	constraints: IConstraint[],
-	constraintTime: Omit<ConstraintTime, "IN-MAIN">
-): Promise<void[]> => {
-	for(const constraint of constraints) {
-		if(constraint.constraintTime === constraintTime) {
-			// Perform the layouting action defined in constraint, we don't have any, though
+		else if(action instanceof AlgorithmConfiguration) {		// TODO: Using the actual type instead of interface
+			const layoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[action.algorithmName];
+			if(action.algorithmPhasesToCall === "ONLY-PREPARE" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
+				layoutAlgorithm.prepareFromGraph(workGraph, constraints);
+			}
+			if(action.algorithmPhasesToCall === "ONLY-RUN" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
+				if(action.constraintedNodes === "GENERALIZATION") {
+					workGraph = await layoutAlgorithm.runGeneralizationLayout(action.shouldCreateNewGraph);
+				}
+				else {
+					workGraph = await layoutAlgorithm.run(action.shouldCreateNewGraph);
+				}
+			}
 		}
 	}
 
-	return;		// Should return the promises
-}
+	return runMainLayoutAlgorithm(workGraph, constraints).then(layoutedGraph => {
+		return layoutedGraph;
+	});
 
+}
 
 /**
  * Run the main layouting algorithm for the given graph. TODO: Well it is not just the main, there may be layerify after, etc.
@@ -358,8 +308,7 @@ const runMainLayoutAlgorithm = async (
 		},
 	];
 	const computedMetricsData = createObjectsToHoldMetricsData(metricsWithWeights);
-	const findBestLayoutConstraint = constraints.constraints.find(constraint => constraint.name === "Best layout iteration count");
-	const numberOfAlgorithmRuns = (findBestLayoutConstraint?.data as any)?.numberOfAlgorithmRuns ?? 1;
+	const numberOfAlgorithmRuns = constraints.numberOfAlgorithmRuns;
 
 
 	for(let i = 0; i < numberOfAlgorithmRuns; i++) {

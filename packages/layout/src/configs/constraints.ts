@@ -106,6 +106,7 @@ export class LayoutClustersActionConstraint extends GraphConversionConstraint {
 // TODO RadStr REFACTOR:
 export function getDefaultUserGivenConstraintsVersion4(): UserGivenAlgorithmConfigurationslVersion4 {
     return {
+        numberOfAlgorithmRuns: 10,
         main: {
             "elk_layered": {
                 ...getDefaultUserGivenAlgorithmConstraint("elk_layered"),
@@ -124,12 +125,13 @@ export function getDefaultUserGivenConstraintsVersion4(): UserGivenAlgorithmConf
         chosenMainAlgorithm: "elk_layered",
         mainStepNumber: 1,
         generalStepNumber: 0,
-        additionalSteps: {},
+        additionalSteps: {}
     };
 }
 
 
 export interface UserGivenAlgorithmConfigurationslVersion4 {
+    numberOfAlgorithmRuns: number,
     main: Partial<Record<AlgorithmName, UserGivenAlgorithmConfiguration>>,
     chosenMainAlgorithm: AlgorithmName,
 
@@ -142,44 +144,42 @@ export interface UserGivenAlgorithmConfigurationslVersion4 {
 
 export function getDefaultUserGivenConstraintsVersion5(): UserGivenAlgorithmConfigurationslVersion5 {
     return {
+        numberOfAlgorithmRuns: 1,
         main:
-        [
-            {
-                configurations: {
-                    "elk_layered": {
-                        ...getDefaultUserGivenAlgorithmConstraint("elk_layered"),
-                        "should_be_considered": true,
-                        "constraintedNodes": "ALL",
-                    }
-                },
-                chosenAlgorithm: "elk_layered",
-            }
-        ],
+        {
+            configuration: {
+                "elk_layered": {
+                    ...getDefaultUserGivenAlgorithmConstraint("elk_layered"),
+                    "should_be_considered": true,
+                    "constraintedNodes": "ALL",
+                }
+            },
+            chosenAlgorithm: "elk_layered",
+        },
         generalization:
-        [
-            {
-                configurations: {
-                    "elk_layered": {
-                        ...getDefaultUserGivenAlgorithmConstraint("elk_layered"),
-                        "should_be_considered": false,
-                        "constraintedNodes": "GENERALIZATION",
-                    }
-                },
-                chosenAlgorithm: "none",
-            }
-        ]
+        {
+            configuration: {
+                "elk_layered": {
+                    ...getDefaultUserGivenAlgorithmConstraint("elk_layered"),
+                    "should_be_considered": false,
+                    "constraintedNodes": "GENERALIZATION",
+                }
+            },
+            chosenAlgorithm: "none",
+        }
     };
 }
 
 export interface UserGivenAlgorithmConfigurationslVersion5 {
+    numberOfAlgorithmRuns: number,
     main: {
-        configurations: Partial<Record<AlgorithmName, UserGivenAlgorithmConfiguration>>
+        configuration: Partial<Record<AlgorithmName, UserGivenAlgorithmConfiguration>>
         chosenAlgorithm: AlgorithmName,
-    }[],
+    },
     generalization: {
-        configurations: Partial<Record<AlgorithmName, UserGivenAlgorithmConfiguration>>
+        configuration: Partial<Record<AlgorithmName, UserGivenAlgorithmConfiguration>>
         chosenAlgorithm: AlgorithmName,
-    }[],
+    },
 }
 
 
