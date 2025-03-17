@@ -10,7 +10,6 @@
   },
   "exports": {
     ".": "./lib/entity-model/index.js",
-    "./documentation-generator": "./lib/documentation-generator/index.js",
     "./entity-model": "./lib/entity-model/index.js",
     "./model/known-models": "./lib/model/known-models.js",
     "./project": "./lib/project/index.js",
@@ -31,7 +30,7 @@
     "./semantic-model/usage/concepts": "./lib/semantic-model/usage/concepts/index.js",
     "./semantic-model/usage/operations": "./lib/semantic-model/usage/operations/index.js",
     "./simplified-semantic-model": "./lib/simplified-semantic-model/index.js",
-    "./utils/language": "./lib/utils/language/index.js",
+    "./utils/language": "./lib/utils/language.js",
     "./visual-model": "./lib/visual-model/index.js",
     "./semantic-model/v1-adapters": "./lib/semantic-model/v1-adapters/index.js"
   },

@@ -1,4 +1,3 @@
-import { BIKESHED, BikeshedAdapterArtefactContext } from "@dataspecer/bikeshed";
 import { assertFailed, assertNot } from "@dataspecer/core/core";
 import {
   DataSpecification,
@@ -11,9 +10,9 @@ import { defaultStructureTransformations, structureModelTransformCodelists, tran
 import { structureModelAddXmlProperties } from "../xml-structure-model/add-xml-properties";
 import { generateDocumentation } from "./xml-schema-documentation";
 import { structureModelToXmlSchema } from "./xml-schema-model-adapter";
-import { createBikeshedSchemaXml } from "./xml-schema-to-bikeshed";
 import { XML_SCHEMA } from "./xml-schema-vocabulary";
 import { writeXmlSchema } from "./xml-schema-writer";
+import { HandlebarsAdapter } from "../../../handlebars-adapter/lib/interface";
 
 export const NEW_DOC_GENERATOR = "https://schemas.dataspecer.com/generator/template-artifact";
 
@@ -85,30 +84,16 @@ export class XmlSchemaGenerator implements ArtefactGenerator {
     documentationIdentifier: string,
     callerContext: unknown
   ): Promise<unknown | null> {
-    if (documentationIdentifier === BIKESHED.Generator) {
-      const bikeshedContext = callerContext as BikeshedAdapterArtefactContext;
-      return createBikeshedSchemaXml({
-        ...bikeshedContext,
-        structureModel: transformStructureModel(
-          bikeshedContext.conceptualModel,
-          bikeshedContext.structureModel,
-          Object.values(context.specifications)
-        ),
-      });
-    } else if (documentationIdentifier === NEW_DOC_GENERATOR) {
-      const {artifact: documentationArtefact} = callerContext as {artifact: DataSpecificationArtefact};
+    if (documentationIdentifier === NEW_DOC_GENERATOR) {
+      const {artifact: documentationArtefact, partial, adapter} = callerContext as {
+        artifact: DataSpecificationArtefact,
+        partial: (template: string) => string,
+        adapter: HandlebarsAdapter,
+      };
       const {xmlSchema, conceptualModel} = await this.generateToObject(context, artefact, specification);
-      // return createRespecSchema(
-      //   documentationArtefact,
-      //   xmlSchema,
-      //   conceptualModel,
-      // );
-      // todo: We plan to generate the whole documentation using @dataspecer/handlebars-adapter.
-      // todo: For now, only this XML documentation is generated with it and returned back to the old documentation generator system.
-      const generatedDocumentation = await generateDocumentation(documentationArtefact, xmlSchema, conceptualModel, context, artefact, specification);
-      return {
-        useTemplate: () => () => generatedDocumentation,
-      }
+
+      const generatedDocumentation = await generateDocumentation(documentationArtefact, xmlSchema, conceptualModel, context, artefact, specification, partial, adapter);
+      return generatedDocumentation;
     }
     return null;
   }

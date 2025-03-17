@@ -15,9 +15,8 @@
     "./xml-transformations": "./lib/xml-transformations/index.js"
   },
   "dependencies": {
-    "@dataspecer/bikeshed": "*",
     "@dataspecer/core": "*",
-    "@dataspecer/handlebars-adapter": "*"
+    "@dataspecer/documentation": "*"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",

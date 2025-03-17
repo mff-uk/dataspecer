@@ -1,1 +1,2 @@
-export {HandlebarsAdapter} from "./adapter";
+export { createHandlebarsAdapter } from "./implementation";
+export type { HandlebarsAdapter } from "./interface";

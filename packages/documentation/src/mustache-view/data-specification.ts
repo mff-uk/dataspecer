@@ -5,6 +5,7 @@ import { DataSpecificationSchema } from "@dataspecer/core/data-specification/mod
 import { getArtifactsView } from "./artifacts";
 import { PackageContext } from "./views";
 import { ConceptualModelClass, ConceptualModelProperty } from "@dataspecer/core/conceptual-model/index";
+import { HandlebarsAdapter } from "@dataspecer/handlebars-adapter";
 
 /**
  * Prepares view for common information about data specification.
@@ -12,6 +13,7 @@ import { ConceptualModelClass, ConceptualModelProperty } from "@dataspecer/core/
 export function prepareDataSpecification(
     view: object,
     context: PackageContext,
+    adapter: HandlebarsAdapter,
 ) {
     const generatorContext = context.context;
     let conceptualModel = generatorContext.conceptualModels[context.specification.pim];
@@ -53,7 +55,8 @@ export function prepareDataSpecification(
                     context.specification.artefacts.filter(
                         // @ts-ignore
                         a => context.artefact.artefacts.includes(a.iri)
-                    ).filter(DataSpecificationSchema.is).filter(a => a.psm === iri).map(a => a.iri)
+                    ).filter(DataSpecificationSchema.is).filter(a => a.psm === iri).map(a => a.iri),
+                    adapter
                 ),
             }
         }),

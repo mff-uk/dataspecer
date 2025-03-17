@@ -19,7 +19,7 @@ import { ModelIcon, createModelInstructions, modelTypeToName } from "./known-mod
 import { useBetterModal } from "./lib/better-modal";
 import { ResourcesContext, ensurePackageWorksForDSE, modifyUserMetadata, packageService, requestLoadPackage } from "./package";
 import { ModifyRespecTemplate } from "./dialog/modify-respec-template";
-import { defaultConfiguration } from "@dataspecer/core-v2/documentation-generator";
+import { defaultConfiguration } from "@dataspecer/documentation/documentation-generator";
 import React from "react";
 import { SortModelsContext } from "./components/sort-models";
 import { ModifyRawDialog } from "./dialog/modify-raw";

@@ -1,5 +1,5 @@
 import { DeepPartial } from "@dataspecer/core/core/utilities/deep-partial";
-import { TemplateArtifactConfiguration } from "@dataspecer/template-artifact/configuration";
+import { TemplateArtifactConfiguration } from "@dataspecer/documentation/configuration";
 import { Box, FormGroup, Typography } from "@mui/material";
 import { FC } from "react";
 import { TextFieldWithDefault } from "../ui-components/index";
@@ -11,7 +11,7 @@ const TEMPLATE_BUILDING_BLOCKS = [
   "conceptualModel",
 ];
 
-export const Bikeshed: FC<{
+export const Documentation: FC<{
   input: DeepPartial<TemplateArtifactConfiguration>,
   defaultObject?: TemplateArtifactConfiguration
   onChange: (options: DeepPartial<TemplateArtifactConfiguration>) => void,

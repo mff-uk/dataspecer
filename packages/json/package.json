@@ -13,7 +13,6 @@
     "./json-schema": "./lib/json-schema/index.js"
   },
   "dependencies": {
-    "@dataspecer/bikeshed": "*",
     "@dataspecer/core": "*"
   },
   "devDependencies": {
