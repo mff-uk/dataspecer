@@ -14,12 +14,12 @@ import {
   XmlSchemaType,
   xmlSchemaTypeIsComplex,
 } from "./xml-schema-model";
-import { HandlebarsAdapter } from "@dataspecer/handlebars-adapter";
-import { getMustacheView } from "@dataspecer/template-artifact";
 import { ArtefactGeneratorContext } from "@dataspecer/core/generator/artefact-generator-context";
 import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
 import { QName } from "../conventions";
 import { NEW_DOC_GENERATOR } from "./xml-schema-generator";
+import { getMustacheView } from "@dataspecer/documentation";
+import { HandlebarsAdapter } from "../../../handlebars-adapter/lib/interface";
 
 /**
  * Recursively traverses the complex content container and returns all elements.
@@ -117,17 +117,21 @@ export function generateDocumentation(
   conceptualModel: ConceptualModel,
   context: ArtefactGeneratorContext,
   artefact: DataSpecificationArtefact,
-  specification: DataSpecification
-): Promise<string> {
+  specification: DataSpecification,
+  partial: (template: string) => string,
+  adapter: HandlebarsAdapter,
+): Promise<object> {
   const generator = new XmlSchemaDocumentationGenerator(
     documentationArtifact,
     xmlSchema,
     conceptualModel,
     context,
     artefact,
-    specification
+    specification,
+    partial,
+    adapter,
   );
-  return generator.generateToString();
+  return generator.generateToObject();
 }
 
 class XmlSchemaDocumentationGenerator {
@@ -137,7 +141,8 @@ class XmlSchemaDocumentationGenerator {
   private context: ArtefactGeneratorContext;
   private artefact: DataSpecificationArtefact;
   private specification: DataSpecification;
-  generator: HandlebarsAdapter;
+  private partial: (template: string) => string;
+  private adapter: HandlebarsAdapter;
 
   constructor(
     documentationArtifact: DataSpecificationArtefact,
@@ -145,7 +150,9 @@ class XmlSchemaDocumentationGenerator {
     conceptualModel: ConceptualModel,
     context: ArtefactGeneratorContext,
     artefact: DataSpecificationArtefact,
-    specification: DataSpecification
+    specification: DataSpecification,
+    partial: (template: string) => string,
+    adapter: HandlebarsAdapter,
   ) {
     this.documentationArtifact = documentationArtifact;
     this.xmlSchema = xmlSchema;
@@ -153,8 +160,8 @@ class XmlSchemaDocumentationGenerator {
     this.context = context;
     this.artefact = artefact;
     this.specification = specification;
-
-    this.generator = new HandlebarsAdapter();
+    this.partial = partial;
+    this.adapter = adapter;
   }
 
   private getElementUniqueId(element: XmlSchemaElement | XmlSchemaType | QName | string, type: string | undefined, forceNamespace?: string): string {
@@ -188,22 +195,24 @@ class XmlSchemaDocumentationGenerator {
     }
   }
 
-  async generateToString(): Promise<string> {
+  async generateToObject(): Promise<object> {
+    const result: Record<string, unknown> = await this.prepareData();
+
     const prefixToNamespace = {} as Record<string, string>;
     for (const imp of this.xmlSchema.imports) {
       prefixToNamespace[imp.prefix] = imp.namespace + "#";
     }
     prefixToNamespace["xs"] = "https://www.w3.org/TR/xmlschema-2/#";
 
-    this.generator.engine.registerHelper("xml-id-anchor", (element: XmlSchemaElement | XmlSchemaType | QName | string, options: any) => {
+    result["xml-id-anchor"] = (element: XmlSchemaElement | XmlSchemaType | QName | string, options: any) => {
       const name = (element as XmlSchemaElement).name ?? (element as XmlSchemaType).name ?? element as QName ?? [null, element as string];
       if (name[0] === null && this.xmlSchema.targetNamespacePrefix) {
         return this.getElementUniqueId(element, options.hash.type, this.xmlSchema.targetNamespacePrefix);
       }
 
       return this.getElementUniqueId(element, options.hash.type);
-    });
-    this.generator.engine.registerHelper("xml-href", (element: XmlSchemaElement | XmlSchemaType | QName | string, options: any) => {
+    };
+    result["xml-href"] = (element: XmlSchemaElement | XmlSchemaType | QName | string, options: any) => {
       // Use structure to link to other documentation of structure model
       if (options.hash.structure) {
         const specification = Object.values(this.context.specifications).find(specification => specification.psms.includes(options.hash.structure));
@@ -226,9 +235,9 @@ class XmlSchemaDocumentationGenerator {
         return "#" + this.getElementUniqueId(element, options.hash.type, this.xmlSchema.targetNamespacePrefix);
       }
       return "#" + this.getElementUniqueId(element, options.hash.type);
-    });
+    };
 
-    this.generator.engine.registerHelper("get-semantic-class", (annotation: XmlSchemaAnnotation | null, options: any) => {
+    result["get-semantic-class"] = (annotation: XmlSchemaAnnotation | null, options: any) => {
       if (!annotation?.modelReference) {
         return null;
       }
@@ -250,17 +259,17 @@ class XmlSchemaDocumentationGenerator {
       } else {
         return null;
       }
-    });
+    };
 
-    this.generator.engine.registerHelper("get-examples", (annotation: XmlSchemaAnnotation) => {
+    result["get-examples"] = (annotation: XmlSchemaAnnotation) => {
       return [1,2,34,6, annotation.modelReference];
-    });
+    };
 
-    this.generator.engine.registerHelper("json", (data: unknown) => JSON.stringify(data, null, 2));
+    result["json"] = (data: unknown) => JSON.stringify(data, null, 2);
 
-    this.generator.compile(DEFAULT_TEMPLATE);
-    const data = await this.prepareData();
-    return this.generator.render(data);
+    result["useTemplate"] = this.partial(DEFAULT_TEMPLATE);
+
+    return result;
   }
 
   async prepareData(): Promise<Record<string, any>> {
@@ -326,7 +335,7 @@ class XmlSchemaDocumentationGenerator {
       context: this.context,
       artefact: this.documentationArtifact,
       specification: this.specification,
-    });
+    }, this.adapter);
 
     return {
       xmlSchema: this.xmlSchema,

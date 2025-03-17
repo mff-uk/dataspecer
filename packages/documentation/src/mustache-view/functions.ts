@@ -11,12 +11,6 @@ export function prepareFunctions(
 ) {
     return {
         ...view,
-        translate: function () {
-            if (typeof this === "string") {
-                return this;
-            }
-            return this.cs ?? this.en ?? null;
-        },
         relativePath: function () {
             return pathRelative(context.artefact.publicUrl, this);
         },
@@ -30,8 +24,8 @@ export function prepareFunctions(
         cardinalityIsRequired: function () {
             return this.cardinalityMin && this.cardinalityMin > 0;
         },
-        getLabelForDataType: function () {
-            return OFN_LABELS[this] ?? this;
+        getLabelForDataType: function (dataType: string) {
+            return OFN_LABELS[dataType] ?? dataType;
         }
     }
 }

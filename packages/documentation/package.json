@@ -1,5 +1,5 @@
 {
-  "name": "@dataspecer/template-artifact",
+  "name": "@dataspecer/documentation",
   "version": "0.0.0",
   "scripts": {
     "build": "tsc",
@@ -8,15 +8,15 @@
   },
   "exports": {
     ".": "./lib/index.js",
-    "./configuration": "./lib/configuration.js"
+    "./configuration": "./lib/configuration.js",
+    "./documentation-generator": "./lib/documentation-generator/index.js"
   },
   "dependencies": {
     "@dataspecer/core": "*",
-    "mustache": "^4.2.0"
-
+    "@dataspecer/core-v2": "*",
+    "@dataspecer/handlebars-adapter": "*"
   },
   "devDependencies": {
-    "@types/mustache": "^4.2.5",
     "rimraf": "^5.0.5",
     "typescript": "^5.6.3"
   }

@@ -2,6 +2,7 @@ import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
 import { MemoryStreamDictionary } from "@dataspecer/core/io/stream/memory-stream-dictionary";
 import { TemplateArtifactGenerator } from "..";
 import { PackageContext } from "./views";
+import { HandlebarsAdapter } from "@dataspecer/handlebars-adapter";
 
 // TODO: This is temporary workaroud for mapping artefacts to text.
 
@@ -84,13 +85,15 @@ const artefactTitle = {
 export function prepareArtifacts(
     view: object,
     context: PackageContext,
+    adapter: HandlebarsAdapter,
 ) {
-    return {...view, ...getArtifactsView(context, context.specification.artefacts.map(a => a.iri))};
+    return {...view, ...getArtifactsView(context, context.specification.artefacts.map(a => a.iri), adapter)};
 }
 
 export function getArtifactsView(
     context: PackageContext,
     artifactIds: string[],
+    adapter: HandlebarsAdapter,
 ) {
     const baseUrl = context.artefact.publicUrl;
 
@@ -98,7 +101,7 @@ export function getArtifactsView(
         ...artifact,
         relativePath: pathRelative(baseUrl, artifact.publicUrl),
         title: artefactTitle[artifact.generator]?.["cs"] ?? "",
-        getArtifact: async () => {
+        getArtifact: adapter.async(async () => {
             const stream = new MemoryStreamDictionary();
             const generator = await context.context.createGenerator(artifact.generator);
             await generator.generateToStream(context.context, artifact, context.specification, stream);
@@ -111,17 +114,21 @@ export function getArtifactsView(
                 });
             }
             return result;
-        },
-        getDocumentation: async () => {
+        }),
+        getDocumentation: adapter.async(async () => {
             const generator = await context.context.createGenerator(artifact.generator);
             return await generator.generateForDocumentation(
                 context.context,
                 artifact,
                 context.specification,
                 TemplateArtifactGenerator.IDENTIFIER,
-                {artifact: context.artefact}
+                {
+                    artifact: context.artefact,
+                    partial: adapter.partial,
+                    adapter: adapter,
+                }
             );
-        },
+        }),
     }));
 
     const artifact = Object.fromEntries(artifacts.map(a => [a.generator.split("/").pop(), a]));

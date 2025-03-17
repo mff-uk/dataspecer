@@ -42,7 +42,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
     {{#def "profilesRelationshipChain"}}
       {{#ifEquals type.[0] "relationship"}}{{#iflng "cs"}}vlastnost{{lng}}property{{/iflng}}{{/ifEquals}}
       {{relation}} (<a href="{{{ends.1.iri}}}">{{prefixed ends.1.iri}}</a>)
-      {{#if aggregationParent}}
+      {{#if ./aggregationParent}}
         {{#semanticEntity aggregationParent.id}}
           <br />{{#ifEquals type.[0] "class"}}{{#iflng "cs"}}tato profiluje{{lng}}this profiles{{/iflng}}{{/ifEquals}}
           {{profilesRelationshipChain}}
@@ -210,9 +210,9 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
                 </tr>
                 {{/translate}}
                 {{#def "profilesClassChain"}}
-                  {{#ifEquals type.[0] "class"}}{{#iflng "cs"}}třída{{lng}}class{{/iflng}}{{/ifEquals}}
-                  {{class}} (<a href="{{{iri}}}">{{prefixed iri}}</a>)
-                  {{#if aggregationParent}}
+                  {{#ifEquals ./type.[0] "class"}}{{#iflng "cs"}}třída{{lng}}class{{/iflng}}{{/ifEquals}}
+                  {{class}} (<a href="{{{./iri}}}">{{prefixed ./iri}}</a>)
+                  {{#if ./aggregationParent}}
                     {{#semanticEntity aggregationParent.id}}
                       <br />{{#ifEquals type.[0] "class"}}{{#iflng "cs"}}tato profiluje{{lng}}this profiles{{/iflng}}{{/ifEquals}}
                       {{profilesClassChain}}

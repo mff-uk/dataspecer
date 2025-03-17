@@ -1,9 +1,9 @@
 import { DataSpecification, DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
 import { ArtefactGenerator, ArtefactGeneratorContext } from "@dataspecer/core/generator";
 import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
-import { renderAsyncMustache } from "./async-mustache";
 import { DefaultTemplateArtifactConfiguration, TemplateArtifactConfiguration, TemplateArtifactConfigurator } from "./configuration";
 import { getMustacheView } from "./mustache-view/views";
+import { createHandlebarsAdapter } from "@dataspecer/handlebars-adapter";
 
 /**
  * ArtefactGenerator implementation for template artifact generator.
@@ -30,14 +30,18 @@ export class TemplateArtifactGenerator implements ArtefactGenerator {
 
         // get only last part after slash
 
+        const adapter = createHandlebarsAdapter();
+
         const view = getMustacheView({
             context,
             artefact,
             specification,
-        });
+        }, adapter);
 
-        const result = await renderAsyncMustache(template, view, templates);
-        //const result = Mustache.render(template, view, templates);
+        // @ts-ignore
+        view.language = "cs";
+
+        const result = await adapter.render(template, view, templates);
 
         const stream = output.writePath(artefact.outputPath);
         stream.write(result);

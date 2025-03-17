@@ -25,7 +25,7 @@
     "@dataspecer/shacl": "*",
     "@dataspecer/shex": "*",
     "@dataspecer/sparql-query": "*",
-    "@dataspecer/template-artifact": "*",
+    "@dataspecer/documentation": "*",
     "@dataspecer/wikidata-experimental-adapter": "*",
     "@dataspecer/xml": "*",
     "@emotion/css": "^11.10.6",

@@ -15,8 +15,8 @@ export const DefaultTemplateArtifactBikeshedConfiguration =  {
 {{>conceptualModel}}
 
 {{#structureModels}}
-# {{#humanLabel}}{{translate}}{{/humanLabel}}
-{{#humanDescription}}{{translate}}{{/humanDescription}}
+# {{translate humanLabel}}
+{{translate humanDescription}}
 {{#artifacts}}{{#getDocumentation}}{{#useTemplate}}{{/useTemplate}}{{/getDocumentation}}{{/artifacts}}
 {{/structureModels}}` as string,
 
@@ -26,12 +26,12 @@ export const DefaultTemplateArtifactBikeshedConfiguration =  {
      * same data as the main template
      */
     templates: {
-        metadata: `Title : {{#semanticModels}}{{#humanLabel}}{{translate}}{{/humanLabel}}{{/semanticModels}}
-Shortname : {{#semanticModels}}{{#humanLabel}}{{translate}}{{/humanLabel}}{{/semanticModels}}
-Status : LS 
-Editor : Dataspecer editor, https://dataspecer.com/ 
-Boilerplate : conformance no, copyright no 
-Abstract : This document was generated automatically by [Dataspecer](https://dataspecer.com/). 
+        metadata: `Title : {{#semanticModels}}{{humanLabel translate}}{{/semanticModels}}
+Shortname : {{#semanticModels}}{{humanLabel translate}}{{/semanticModels}}
+Status : LS
+Editor : Dataspecer editor, https://dataspecer.com/
+Boilerplate : conformance no, copyright no
+Abstract : This document was generated automatically by [Dataspecer](https://dataspecer.com/).
 Markup Shorthands : markdown yes
 TR: https://ofn.gov.cz/
 Previous Version: https://ofn.gov.cz/
@@ -56,32 +56,32 @@ V této sekci je definován konceptuální model.
 
 {{#semanticModels}}
 {{#classes}}
-## {{#humanLabel}}{{translate}}{{/humanLabel}} ## {#{{#humanLabel}}{{#translate}}conceptual-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}}
-{{#humanDescription}}{{#translate}}
+## {{translate humanLabel}} ## {#{{#humanLabel}}{{#translate}}conceptual-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}}
+{{#translate humanDescription}}
 : Popis
-:: {{.}}
-{{/translate}}{{/humanDescription}}
+:: {{translation}}
+{{/translate}}
 : Význam
-:: Typ {{#humanLabel}}{{translate}}{{/humanLabel}} je definován v sémantickém slovníku pojmů jako [{{#humanLabel}}{{translate}}{{/humanLabel}}]({{{cimIri}}}).
+:: Typ {{translate humanLabel}} je definován v sémantickém slovníku pojmů jako [{{translate humanLabel}}]({{{cimIri}}}).
 
 {{#properties}}
-### {{#dataTypes}}{{#isAssociation}}Vztah (asociace): {{/isAssociation}}{{/dataTypes}}{{#humanLabel}}{{translate}}{{/humanLabel}} ### {#{{#humanLabel}}{{#translate}}conceptual-property-{{sanitizeLink}}{{/translate}}{{/humanLabel}}}
+### {{#dataTypes}}{{#isAssociation}}Vztah (asociace): {{/isAssociation}}{{/dataTypes}}{{translate humanLabel}} ### {#{{#humanLabel}}{{#translate}}conceptual-property-{{sanitizeLink}}{{/translate}}{{/humanLabel}}}
 : Jméno
-:: {{#humanLabel}}{{translate}}{{/humanLabel}}
-{{#humanDescription}}{{#translate}}
+:: {{translate humanLabel}}
+{{#translate humanDescription}}
 : Popis
-:: {{.}}
-{{/translate}}{{/humanDescription}}
+:: {{translation}}
+{{/translate}}
 : Povinnost
-:: {{#cardinalityIsRequired}}povinné{{/cardinalityIsRequired}}{{^cardinalityIsRequired}}nepovinné{{/cardinalityIsRequired}}
+:: {{#if cardinalityIsRequired}}povinné{{else}}nepovinné{{/if}}
 : Kardinalita
 :: {{cardinalityRange}}
 {{#dataTypes}}{{#isAssociation}}
 : Typ
-{{#class}}:: [{{#humanLabel}}{{translate}}{{/humanLabel}}](#{{#humanLabel}}{{#translate}}conceptual-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}){{/class}}
+{{#class}}:: [{{translate humanLabel}}](#{{#humanLabel}}{{#translate}}conceptual-class-{{sanitizeLink}}{{/translate}}{{/humanLabel}}){{/class}}
 {{/isAssociation}}{{/dataTypes}}
 : Význam
-:: Vlastnost {{#humanLabel}}{{translate}}{{/humanLabel}} je definován v sémantickém slovníku pojmů jako [{{#humanLabel}}{{translate}}{{/humanLabel}}]({{{cimIri}}}).
+:: Vlastnost {{translate humanLabel}} je definován v sémantickém slovníku pojmů jako [{{translate humanLabel}}]({{{cimIri}}}).
 
 {{/properties}}
 {{/classes}}
@@ -95,7 +95,7 @@ export const DefaultTemplateArtifactConfiguration = {
     template: `<!DOCTYPE html>
 <html lang="cs">
     <head>
-        <title>{{#semanticModels}}{{#humanLabel}}{{translate}}{{/humanLabel}}{{/semanticModels}}</title>
+        <title>{{#semanticModels}}{{translate humanLabel}}{{/semanticModels}}</title>
         <meta content="text/html; charset=utf-8" http-equiv="content-type" />
         <meta content="width=device-width,initial-scale=1" name="viewport" />
         <meta name="theme-color" content="#057fa5">
@@ -121,7 +121,7 @@ export const DefaultTemplateArtifactConfiguration = {
         </script>
     </head>
     <body>
-    
+
 {{>abstract}}
 
 {{>artifactList}}
@@ -130,10 +130,10 @@ export const DefaultTemplateArtifactConfiguration = {
 
 {{#structureModels}}
 <section>
-<h2>Specifikace struktury pro {{#humanLabel}}{{translate}}{{/humanLabel}}</h2>
-<p>{{#humanDescription}}{{translate}}{{/humanDescription}}</p>
+<h2>Specifikace struktury pro {{translate humanLabel}}</h2>
+<p>{{translate humanDescription}}</p>
 
-{{#artifacts}}{{#getDocumentation}}{{#useTemplate}}{{/useTemplate}}{{/getDocumentation}}{{/artifacts}}
+{{#artifacts}}{{#getDocumentation}}{{> (useTemplate)}}{{/getDocumentation}}{{/artifacts}}
 </section>
 {{/structureModels}}
 
@@ -144,7 +144,7 @@ export const DefaultTemplateArtifactConfiguration = {
             specStatus: "REC",
             thisVersion: "{{{artifact.template-artifact.publicUrl}}}",
             latestVersion: "{{{artifact.template-artifact.publicUrl}}}",
-            shortName: "{{#semanticModels}}{{#humanLabel}}{{translate}}{{/humanLabel}}{{/semanticModels}}",
+            shortName: "{{#semanticModels}}{{translate humanLabel}}{{/semanticModels}}",
             showPreviousVersion: false,
             editors: [],
           }`,
@@ -170,7 +170,7 @@ export const DefaultTemplateArtifactConfiguration = {
 </section>`,
         conceptualModel: `<section>
 <h2>Konceptuální model</h2>
-V této sekci jsou definovány veškeré koncepty, třídy a asociace, potřebné pro <i>{{#semanticModels}}{{#humanLabel}}{{translate}}{{/humanLabel}}{{/semanticModels}}</i>.
+V této sekci jsou definovány veškeré koncepty, třídy a asociace, potřebné pro <i>{{#semanticModels}}{{translate humanLabel}}{{/semanticModels}}</i>.
 
 <figure>
     <a href="{{#artifact.image.publicUrl}}{{{relativePath}}}{{/artifact.image.publicUrl}}">
@@ -186,40 +186,40 @@ V této sekci jsou definovány veškeré koncepty, třídy a asociace, potřebn�
 {{#semanticModels}}
 {{#classes}}
 <section id="{{semanticModelLinkId}}">
-<h3>{{#humanLabel}}{{translate}}{{/humanLabel}}</h3>
+<h3>{{translate humanLabel}}</h3>
 <dl>
-{{#humanDescription}}{{#translate}}
+{{#translate humanDescription}}
 <dt>Popis</dt>
-<dd>{{.}}</dd>
-{{/translate}}{{/humanDescription}}
+<dd>{{translation}}</dd>
+{{/translate}}
 <dt>Význam</dt>
-<dd>Koncept {{#humanLabel}}{{translate}}{{/humanLabel}} je definován v <a href="https://slovník.gov.cz/">sémantickém slovníku pojmů</a> jako <a href="{{{cimIri}}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>.</dd>
+<dd>Koncept {{translate humanLabel}} je definován v <a href="https://slovník.gov.cz/">sémantickém slovníku pojmů</a> jako <a href="{{{cimIri}}}">{{translate humanLabel}}</a>.</dd>
 {{#extends}}
 <dt>Nadřazený typ</dt>
-<dd><a href="#{{semanticModelLinkId}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a></dd>
+<dd><a href="#{{semanticModelLinkId}}">{{translate humanLabel}}</a></dd>
 {{/extends}}
 </dl>
 
 {{#properties}}
 <section id="{{semanticModelLinkId}}">
-<h4>{{#dataTypes}}{{#isAssociation}}Vztah (asociace): {{/isAssociation}}{{/dataTypes}}{{#humanLabel}}{{translate}}{{/humanLabel}}</h4>
+<h4>{{#dataTypes}}{{#isAssociation}}Vztah (asociace): {{/isAssociation}}{{/dataTypes}}{{translate humanLabel}}</h4>
 <dl>
 <dt>Jméno</dt>
-<dd>{{#humanLabel}}{{translate}}{{/humanLabel}}</dd>
-{{#humanDescription}}{{#translate}}
+<dd>{{translate humanLabel}}</dd>
+{{#translate humanDescription}}
 <dt>Popis</dt>
-<dd>{{.}}</dd>
-{{/translate}}{{/humanDescription}}
+<dd>{{translation}}</dd>
+{{/translate}}
 <dt>Povinnost</dt>
-<dd>{{#cardinalityIsRequired}}povinné{{/cardinalityIsRequired}}{{^cardinalityIsRequired}}nepovinné{{/cardinalityIsRequired}}</dd>
+<dd>{{#if cardinalityIsRequired}}povinné{{else}}nepovinné{{/if}}</dd>
 <dt>Kardinalita</dt>
 <dd>{{cardinalityRange}}</dd>
 {{#dataTypes}}{{#isAssociation}}
 <dt>Typ</dt>
-<dd>{{#class}}<a href="#{{semanticModelLinkId}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>{{/class}}</dd>
+<dd>{{#class}}<a href="#{{semanticModelLinkId}}">{{translate humanLabel}}</a>{{/class}}</dd>
 {{/isAssociation}}{{/dataTypes}}
 <dt>Význam</dt>
-<dd>Koncept {{#humanLabel}}{{translate}}{{/humanLabel}} je definován v <a href="https://slovník.gov.cz/">sémantickém slovníku pojmů</a> jako <a href="{{{cimIri}}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>.</dd>
+<dd>Koncept {{translate humanLabel}} je definován v <a href="https://slovník.gov.cz/">sémantickém slovníku pojmů</a> jako <a href="{{{cimIri}}}">{{translate humanLabel}}</a>.</dd>
 </section>
 {{/properties}}
 </section>

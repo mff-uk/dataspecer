@@ -12,7 +12,7 @@ import {
 import {CsvConfiguration, CsvConfigurator} from "@dataspecer/csv/configuration";
 import {JsonConfiguration, JsonConfigurator} from "@dataspecer/json/configuration";
 import {XmlConfiguration, XmlConfigurator} from "@dataspecer/xml/configuration";
-import { TemplateArtifactConfiguration, TemplateArtifactConfigurator } from "@dataspecer/template-artifact/configuration";
+import { TemplateArtifactConfiguration, TemplateArtifactConfigurator } from "@dataspecer/documentation/configuration";
 import { ArtifactNames } from "./tabs/artifact-names";
 
 /**

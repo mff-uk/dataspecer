@@ -3,11 +3,12 @@ import { ArtefactGeneratorContext } from "@dataspecer/core/generator";
 import { prepareArtifacts } from "./artifacts";
 import { prepareDataSpecification } from "./data-specification";
 import { prepareFunctions } from "./functions";
+import { HandlebarsAdapter } from "@dataspecer/handlebars-adapter";
 
 /**
  * Function that adds or modifies the mustache view based on the package context.
  */
-export type mustacheViewReducer = (view: object, context: PackageContext) => object;
+export type mustacheViewReducer = (view: object, context: PackageContext, adapter: HandlebarsAdapter) => object;
 
 export interface PackageContext {
     context: ArtefactGeneratorContext;
@@ -27,6 +28,6 @@ export const defaultMustacheViewReducers: mustacheViewReducer[] = [
 /**
  * Returns the mustache view for the template
  */
-export function getMustacheView(context: PackageContext): object {
-    return defaultMustacheViewReducers.reduce((view, reducer) => reducer(view, context), {});
+export function getMustacheView(context: PackageContext, adapter: HandlebarsAdapter): object {
+    return defaultMustacheViewReducers.reduce((view, reducer) => reducer(view, context, adapter), {});
 }

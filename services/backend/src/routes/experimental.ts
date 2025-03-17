@@ -1,4 +1,4 @@
-import { defaultConfiguration, generateDocumentation } from "@dataspecer/core-v2/documentation-generator";
+import { defaultConfiguration, generateDocumentation } from "@dataspecer/documentation/documentation-generator";
 import { LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL } from "@dataspecer/core-v2/model/known-models";
 import { SemanticModelEntity, isSemanticModelClass, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import * as DataSpecificationVocabulary from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
