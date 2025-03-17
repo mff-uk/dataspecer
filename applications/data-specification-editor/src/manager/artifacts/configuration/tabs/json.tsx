@@ -1,5 +1,5 @@
 import { DeepPartial } from "@dataspecer/core/core/utilities/deep-partial";
-import { JsonConfiguration } from "@dataspecer/json/configuration";
+import { JsonConfiguration, JsonConfigurator } from "@dataspecer/json/configuration";
 import { FormGroup, Typography, Grid, Collapse } from "@mui/material";
 import { FC } from "react";
 import { SelectWithDefault, SwitchWithDefault, TextFieldWithDefault } from "../ui-components/index";
@@ -9,6 +9,8 @@ export const Json: FC<{
     defaultObject?: JsonConfiguration,
     onChange: (options: DeepPartial<JsonConfiguration>) => void,
   }> = ({input, onChange, defaultObject}) => {
+    const merged = JsonConfigurator.merge(defaultObject, input) as JsonConfiguration;
+
     return <FormGroup>
       <TextFieldWithDefault
         label="Preferred language of labels and descriptions"
@@ -104,7 +106,7 @@ export const Json: FC<{
           />
         </Grid>
         <Grid item xs={6}>
-          {input.jsonDefaultTypeKeyMapping === "human-label" &&
+          {merged.jsonDefaultTypeKeyMapping === "human-label" &&
             <TextFieldWithDefault
                 label="Preffered language"
                 current={input ?? {}}
