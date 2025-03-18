@@ -114,6 +114,7 @@ export class LayoutClustersActionConstraint extends GraphConversionConstraint {
         shouldCreateNewGraph: boolean
     ) {
         super(actionName, data, constraintedNodes, shouldCreateNewGraph);
+        this.data = data;
     }
 
     data: LayoutClustersActionConstraintDataType = {

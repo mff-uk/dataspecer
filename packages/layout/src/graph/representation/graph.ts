@@ -105,6 +105,11 @@ export interface Graph extends Node {
         nodesInSubgraph: Array<EdgeEndPoint>,
         shouldSplitEdges: boolean
     ): void;
+
+    /**
+     * Creates the generalization subgraph and inserts into this instance of graph
+     */
+    createNewGraphAndInsertInGraph(nodesInSubgraph: Array<EdgeEndPoint>): Graph
 }
 
 
@@ -603,7 +608,7 @@ export class DefaultGraph implements Graph {
 
         let createdSubgraphs: Array<Graph> = [];
         generalizationSubgraphs.forEach(nodesInSubgraph => {
-            createdSubgraphs.push(this.createGeneralizationSubgraphAndInsertInGraph(nodesInSubgraph));
+            createdSubgraphs.push(this.createNewGraphAndInsertInGraph(nodesInSubgraph));
         });
 
 
@@ -665,10 +670,7 @@ export class DefaultGraph implements Graph {
         return identifier;
     }
 
-    /**
-     * Creates the generalization subgraph and inserts into this instance of graph
-     */
-    createGeneralizationSubgraphAndInsertInGraph(nodesInSubgraph: Array<EdgeEndPoint>): Graph {
+    createNewGraphAndInsertInGraph(nodesInSubgraph: Array<EdgeEndPoint>): Graph {
         const identifier = this.createUniqueGeneralizationSubgraphIdentifier();
         const subgraph: Graph = GraphFactory.createGraph(
             this.mainGraph, this, identifier, nodesInSubgraph, true, true);
