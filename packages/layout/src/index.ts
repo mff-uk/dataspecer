@@ -208,12 +208,16 @@ function performLayoutInternal(
 	explicitAnchors?: ExplicitAnchors
 ): Promise<LayoutedVisualEntities> {
 	const graph = GraphFactory.createMainGraph(null, semanticModels, visualModel, entitiesToLayout, nodeDimensionQueryHandler, explicitAnchors);
-	const visualEntitiesPromise = performLayoutFromGraph(graph, config).then(result => result.convertWholeGraphToDataspecerRepresentation());
+	const visualEntitiesPromise = performLayoutFromGraph(graph, config).then(async (resultAggregations) => {
+		const resultingGraph = await getBestLayoutFromMetricResultAggregation(resultAggregations);
+		return resultingGraph.convertWholeGraphToDataspecerRepresentation();
+	});
 
 	if(visualEntitiesPromise == undefined) {
 		console.log("LAYOUT FAILED")
 		throw new Error("Layout Failed");
 	}
+
 
 	return visualEntitiesPromise;
 }
@@ -225,16 +229,16 @@ function performLayoutInternal(
 export async function performLayoutFromGraph(
 	graph: MainGraph,
 	config: UserGivenAlgorithmConfigurationslVersion4
-): Promise<MainGraph> {
+): Promise<Record<string, MetricResultsAggregation>> {
 	const constraints = ConstraintFactory.createConstraints(config);
 
-	const resultingLayoutPromise = performLayoutingBasedOnConstraints(graph, constraints);
+	const resultingAggregationsPromise = performLayoutingBasedOnConstraints(graph, constraints);
 
 	// TODO: DEBUG
 	// console.log("THE END");
 	// throw new Error("THE END");
 
-	return resultingLayoutPromise;
+	return resultingAggregationsPromise;
 }
 
 
@@ -244,7 +248,7 @@ export async function performLayoutFromGraph(
 const performLayoutingBasedOnConstraints = async (
 	graph: MainGraph,
 	constraints: ConstraintContainer
-): Promise<MainGraph> => {
+): Promise<Record<string, MetricResultsAggregation>> => {
 	let workGraph = graph;
 	for(const action of constraints.layoutActionsIteratorBefore) {
 		if(action instanceof GraphConversionConstraint) {
@@ -266,8 +270,8 @@ const performLayoutingBasedOnConstraints = async (
 		}
 	}
 
-	return runMainLayoutAlgorithm(workGraph, constraints).then(layoutedGraph => {
-		return layoutedGraph;
+	return runMainLayoutAlgorithm(workGraph, constraints).then(aggregationResult => {
+		return aggregationResult;
 	});
 
 }
@@ -278,7 +282,7 @@ const performLayoutingBasedOnConstraints = async (
 const runMainLayoutAlgorithm = async (
 	graph: MainGraph,
 	constraints: ConstraintContainer
-): Promise<MainGraph> => {
+): Promise<Record<string, MetricResultsAggregation>> => {
 	// TODO: Well it really is overkill, like I could in the same way just have a look, if the given configuration contains numberOfAlgorithmRuns and if so, just put it here
 	const metricsWithWeights: MetricWithWeight[] = [
 		{
@@ -355,7 +359,7 @@ const runMainLayoutAlgorithm = async (
 	console.log("Metrics all results: ", computedMetricsData.metricResults);
 	console.log(await computedMetricsData.metricResultAggregations["total"].max.graphPromise);
 	GraphAlgorithms.moveTestEdgeLenOneUp();			// TODO RadStr: DEBUG
-	return computedMetricsData.metricResultAggregations["total"].max.graphPromise;
+	return computedMetricsData.metricResultAggregations;
 }
 
 type MetricWithWeight = {
@@ -409,6 +413,13 @@ function createObjectsToHoldMetricsData(metrics: MetricWithWeight[]) {
 			metricResultAggregations,
 			metricResults
 		};
+}
+
+export function getBestLayoutFromMetricResultAggregation(
+	metricResultAggregations: Record<string, MetricResultsAggregation>
+): Promise<MainGraph> {
+	const resultingGraph = metricResultAggregations["total"].max.graphPromise;
+	return resultingGraph;
 }
 
 function performMetricsComputation(

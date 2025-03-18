@@ -7,6 +7,7 @@ export class NoActionLayout implements LayoutAlgorithm {
     this.graph = graph;
   };
   run(shouldCreateNewGraph: boolean) {
+    console.info("Running NoActionLayout");
     return Promise.resolve(this.graph.mainGraph);
   };
   runGeneralizationLayout(shouldCreateNewGraph: boolean) {

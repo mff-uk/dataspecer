@@ -377,6 +377,37 @@ export const useConfigDialog = () => {
       </div>
     </div>;
 
+  const AutomaticConfig = (props: {stateField: MainType}) =>
+    <div>
+      <div className="flex flex-row">
+        <label htmlFor="range-stress-edge-len">Ideal edge length: </label>
+      </div>
+      <div className="flex flex-row">
+        <input type="range" min="0" max="1000" step="10" className="slider" id="range-stress-edge-len" draggable="false"
+          defaultValue={config?.[props.stateField]?.automatic?.min_distance_between_nodes}
+          onMouseUp={(e) => {
+            setConfigWithNewValue("automatic", props.stateField, "min_distance_between_nodes", parseInt((e.target as HTMLInputElement).value));
+          }
+          }
+        ></input>
+        {config?.[props.stateField]?.automatic?.["min_distance_between_nodes"]}
+      </div>
+      {/* TODO RadStr: Copy paste from force algorithm */}
+      <div className="flex flex-row">
+        <label htmlFor="range-iteration-count">Number of runs (may take several seconds for high numbers):</label>
+      </div>
+      <div className="flex flex-row">
+        <input type="range" min="1" max="200" step="1" className="slider" id="range-iteration-count" draggable="false"
+          defaultValue={config?.[props.stateField]?.automatic?.["number_of_new_algorithm_runs"]}
+          onMouseUp={(e) => {
+            // Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
+            // (Not sure if the type is correct, but it contains value so it shouldn't really matter)
+            setConfigWithNewValue("automatic", props.stateField, "number_of_new_algorithm_runs", parseInt((e.target as HTMLInputElement).value));
+          }}></input>
+        {config?.[props.stateField]?.automatic?.["number_of_new_algorithm_runs"]}
+      </div>
+    </div>;
+
   const renderMainAlgorithmConfig = () => {
     // TODO RadStr: resetConfig is not it, the state has to be solved differently - different algorithms share non-relevant parameters, but it affects them
     //       (For example running layered after layered, because I checked it for stress layout)
@@ -401,6 +432,8 @@ export const useConfigDialog = () => {
         return <RadialConfig stateField="main"></RadialConfig>;
       case "elk_overlapRemoval":
         return <OverlapRemovalConfig stateField="main"></OverlapRemovalConfig>;
+      case "automatic":
+        return <AutomaticConfig stateField="main"></AutomaticConfig>;
       case "random":
       default:
         return null;
@@ -427,6 +460,7 @@ export const useConfigDialog = () => {
           <option value="elk_radial">Radial</option>
           <option value="elk_overlapRemoval">Overlap removal</option>
           <option value="sporeCompaction">Compaction</option>
+          <option value="automatic">Automatic</option>
           <option value="random">Random</option>
         </select>
       </div>

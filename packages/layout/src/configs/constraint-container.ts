@@ -9,9 +9,11 @@ import { ElkLayout } from "../layout-algorithms/elk-layouts";
 import { RandomLayout } from "../layout-algorithms/basic-layouts";
 import { ElkConstraint } from "./elk/elk-constraints";
 import { NoActionLayout } from "../layout-algorithms/no-action-layouts";
+import { AutomaticLayout } from "../layout-algorithms/automatic-layout";
 
 export type AlgorithmName = "none" | "elk_stress" | "elk_layered" | "elk_force" | "random" |
-                            "sporeCompaction" | "elk_radial" | "elk_overlapRemoval" | "elk_stress_advanced_using_clusters";
+                            "sporeCompaction" | "elk_radial" | "elk_overlapRemoval" | "elk_stress_advanced_using_clusters" |
+                            "automatic";
 
 export const ALGORITHM_NAME_TO_LAYOUT_MAPPING: Record<AlgorithmName, LayoutAlgorithm> = {
     "elk_stress": new ElkLayout(),
@@ -23,6 +25,7 @@ export const ALGORITHM_NAME_TO_LAYOUT_MAPPING: Record<AlgorithmName, LayoutAlgor
     "elk_overlapRemoval": new ElkLayout(),
     "elk_stress_advanced_using_clusters": new ElkLayout(),
     "none": new NoActionLayout(),
+    "automatic": new AutomaticLayout(),
 }
 
 /**

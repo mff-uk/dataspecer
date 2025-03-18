@@ -472,3 +472,31 @@ export abstract class RadialConfiguration extends AlgorithmConfiguration {
 
     data: UserGivenAlgorithmConfigurationSpore = undefined
 }
+
+
+export class AutomaticConfiguration extends AlgorithmConfiguration {
+    addAlgorithmConstraintForUnderlying(key: string, value: string): void {
+        // Do Nothing
+    }
+    addAdvancedSettingsForUnderlying(advancedSettings: object): void {
+        // Do nothing
+    }
+    getAllRelevantConstraintKeys(): string[] {
+        return super.getAllRelevantConstraintKeys().concat([
+            "min_distance_between_nodes",
+        ]);
+    }
+
+    constructor(
+        givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
+        shouldCreateNewGraph: boolean,
+        algorithmPhasesToCall?: AlgorithmPhases
+    ) {
+        super(givenAlgorithmConstraints.layout_alg,
+            givenAlgorithmConstraints.constraintedNodes,
+            shouldCreateNewGraph, algorithmPhasesToCall);
+        this.setData(givenAlgorithmConstraints);
+    }
+
+    data: Record<"min_distance_between_nodes", number> = undefined;
+}

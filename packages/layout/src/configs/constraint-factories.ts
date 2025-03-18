@@ -1,7 +1,8 @@
-import { performLayoutFromGraph } from "..";
+import { getBestLayoutFromMetricResultAggregation, performLayoutFromGraph } from "..";
 import { GraphAlgorithms, ToConsiderFilter } from "../graph-algoritms";
 import { MainGraph } from "../graph/representation/graph";
 import { LayoutMethod } from "../layout-algorithms/layout-algorithm-interface";
+import { NoActionLayout } from "../layout-algorithms/no-action-layouts";
 import { Direction, reverseDirection } from "../util/utils";
 import { ConstraintContainer } from "./constraint-container";
 import {
@@ -19,7 +20,8 @@ import {
     LayoutClustersActionConstraint,
     SpecificGraphConversions,
     getDefaultMainUserGivenAlgorithmConstraint,
-    UserGivenAlgorithmConfigurationStress
+    UserGivenAlgorithmConfigurationStress,
+    AutomaticConfiguration
 } from "./constraints";
 import {
     ElkForceConfiguration,
@@ -138,6 +140,18 @@ class AlgorithmConstraintFactory {
                 layoutActionsToSet.push(layoutClustersAction);
                 layoutActionsToSet.push(GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("RESET_LAYOUT"));
                 break;
+            case "none":
+                console.info("The chosen algorithm is none");
+                const noActionLayout = this.getRandomLayoutConfiguration(userGivenAlgorithmConfiguration, true);
+                noActionLayout.algorithmName = "none";
+                layoutActionsToSet.push(noActionLayout);
+                break;
+            case "automatic":
+                console.info("The chosen algorithm is automatic");
+                const automaticConfiguration = new AutomaticConfiguration(
+                    userGivenAlgorithmConfiguration, shouldCreateNewGraph)
+                layoutActionsToSet.push(automaticConfiguration);
+                break;
             default:
                 throw new Error("Implementation error You forgot to extend the AlgorithmConstraintFactory factory for new algorithm");
         }
@@ -182,6 +196,10 @@ class AlgorithmConstraintFactory {
                 break;
             case "elk_stress_advanced_using_clusters":
                 layoutActionsBeforeMainRun.push(GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("CLUSTERIFY"));
+                break;
+            case "automatic":
+                break;
+            case "none":
                 break;
             default:
                 throw new Error("Implementation error You forgot to extend the AlgorithmConstraintFactory factory for new algorithm");
@@ -317,14 +335,14 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
             }
 
             // TODO RadStr: Debug print
-            console.info("sectorPopulations", clusterRoot.semanticEntityRepresentingNode.iri, leastPopulatedSector, sectorPopulations);
+            console.info("sectorPopulations", clusterRoot?.semanticEntityRepresentingNode?.iri, leastPopulatedSector, sectorPopulations);
 
             const configuration = getDefaultUserGivenConstraintsVersion4();
             configuration.main.elk_layered.alg_direction = leastPopulatedSector as Direction;
             configuration.main.elk_layered.in_layer_gap = 100;
             configuration.main.elk_layered.layer_gap = 50;
             configuration.main.elk_layered.edge_routing = "POLYLINE";
-            graph = await performLayoutFromGraph(graph, configuration);
+            graph = await getBestLayoutFromMetricResultAggregation(await performLayoutFromGraph(graph, configuration));
 
             const clusterRootAfterLayout = graph.findNodeInAllNodes(clusterRoot.id);
             const clusterRoorPositionAfterLayout = clusterRootAfterLayout.completeVisualNode.coreVisualNode.position;
@@ -365,7 +383,7 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
         configuration.main.elk_stress = getDefaultMainUserGivenAlgorithmConstraint("elk_stress");
         configuration.main.elk_stress.interactive = true;
         (configuration.main.elk_stress as UserGivenAlgorithmConfigurationStress).stress_edge_len = 800;
-        graph = await performLayoutFromGraph(graph, configuration);
+        graph = await getBestLayoutFromMetricResultAggregation(await performLayoutFromGraph(graph, configuration));
 
         return Promise.resolve(graph);
         // TODO RadStr: Remove
