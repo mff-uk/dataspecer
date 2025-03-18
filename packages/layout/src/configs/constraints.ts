@@ -59,7 +59,10 @@ export interface IGraphConversionConstraint extends IAdditionalControlOptions {
 export type SpecificGraphConversions = "CREATE_GENERALIZATION_SUBGRAPHS" | "TREEIFY" | "CLUSTERIFY" | "LAYOUT_CLUSTERS_ACTION" | "RESET_LAYOUT";
 
 export class GraphConversionConstraint implements IGraphConversionConstraint {
-    static createSpecificAlgorithmConversionConstraint(name: SpecificGraphConversions): GraphConversionConstraint {
+    static createSpecificAlgorithmConversionConstraint(
+        name: SpecificGraphConversions,
+        userGivenAlgorithmConfiguration: UserGivenAlgorithmConfiguration | null,
+    ): GraphConversionConstraint {
         switch(name) {
             case "CREATE_GENERALIZATION_SUBGRAPHS":
                 return new GraphConversionConstraint(name, {}, "ALL", false);
@@ -68,7 +71,11 @@ export class GraphConversionConstraint implements IGraphConversionConstraint {
             case "CLUSTERIFY":
                 return new ClusterifyConstraint(name, {clusters: null}, "ALL", false);
             case "LAYOUT_CLUSTERS_ACTION":
-                return new LayoutClustersActionConstraint(name, {clusterifyConstraint: null}, "ALL", false);
+                const layoutClustersActionData = {
+                    clusterifyConstraint: null,
+                    edgeLength: userGivenAlgorithmConfiguration.stress_edge_len
+                };
+                return new LayoutClustersActionConstraint(name, layoutClustersActionData, "ALL", false);
             case "RESET_LAYOUT":
                 return new GraphConversionConstraint(name, {}, "ALL", false);
             default:
@@ -100,8 +107,25 @@ export class ClusterifyConstraint extends GraphConversionConstraint {
 }
 
 export class LayoutClustersActionConstraint extends GraphConversionConstraint {
-    data: Record<"clusterifyConstraint", ClusterifyConstraint | null> = { clusterifyConstraint: null };
+    constructor(
+        actionName: SpecificGraphConversions,
+        data: LayoutClustersActionConstraintDataType,
+        constraintedNodes: ConstraintedNodesGroupingsType | string[],
+        shouldCreateNewGraph: boolean
+    ) {
+        super(actionName, data, constraintedNodes, shouldCreateNewGraph);
+    }
+
+    data: LayoutClustersActionConstraintDataType = {
+        "clusterifyConstraint": null,
+        "edgeLength": 800
+    };
 }
+
+type LayoutClustersActionConstraintDataType = {
+    "clusterifyConstraint": ClusterifyConstraint | null,
+    "edgeLength": number
+};
 
 // TODO RadStr REFACTOR:
 export function getDefaultUserGivenConstraintsVersion4(): UserGivenAlgorithmConfigurationslVersion4 {

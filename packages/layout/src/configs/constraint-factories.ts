@@ -116,8 +116,8 @@ class AlgorithmConstraintFactory {
                 layoutActionsToSet.push(getOverlapConfigurationToRunAfterMainAlgorithm());
                 break;
             case "elk_radial":
-                layoutActionsToSet.push(GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("RESET_LAYOUT"));
-                layoutActionsToSet.push(GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("TREEIFY"));
+                layoutActionsToSet.push(GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("RESET_LAYOUT", null));
+                layoutActionsToSet.push(GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("TREEIFY", null));
                 layoutActionsToSet.push(new ElkRadialConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
                 layoutActionsToSet.push(getOverlapConfigurationToRunAfterMainAlgorithm());
                 break;
@@ -130,7 +130,8 @@ class AlgorithmConstraintFactory {
                 elkStressUsingClusters.addAlgorithmConstraint("interactive", "true");
                 layoutActionsToSet.push(elkStressUsingClusters);
                 layoutActionsToSet.push(getOverlapConfigurationToRunAfterMainAlgorithm());
-                const layoutClustersAction = GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("LAYOUT_CLUSTERS_ACTION");
+                const layoutClustersAction = GraphConversionConstraint.createSpecificAlgorithmConversionConstraint(
+                    "LAYOUT_CLUSTERS_ACTION", userGivenAlgorithmConfiguration);
                 const clusterifyAction = layoutActionsBeforeMainRun
                     .find(action => (action as IGraphConversionConstraint)?.actionName === "CLUSTERIFY");
                 if(clusterifyAction === undefined) {
@@ -138,7 +139,7 @@ class AlgorithmConstraintFactory {
                 }
                 (layoutClustersAction as LayoutClustersActionConstraint).data.clusterifyConstraint = clusterifyAction as ClusterifyConstraint;
                 layoutActionsToSet.push(layoutClustersAction);
-                layoutActionsToSet.push(GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("RESET_LAYOUT"));
+                layoutActionsToSet.push(GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("RESET_LAYOUT", null));
                 break;
             case "none":
                 console.info("The chosen algorithm is none");
@@ -172,7 +173,7 @@ class AlgorithmConstraintFactory {
         layoutActionsBeforeMainRun: (IAlgorithmConfiguration | IGraphConversionConstraint)[],
     ): void {
         if(config.general.elk_layered.should_be_considered) {
-            const convertGeneralizationSubgraphs = GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("CREATE_GENERALIZATION_SUBGRAPHS");
+            const convertGeneralizationSubgraphs = GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("CREATE_GENERALIZATION_SUBGRAPHS", null);
             layoutActionsBeforeMainRun.push(convertGeneralizationSubgraphs);
         }
         AlgorithmConstraintFactory.addAlgorithmConfigurationLayoutActions(
@@ -195,7 +196,7 @@ class AlgorithmConstraintFactory {
             case "elk_overlapRemoval":
                 break;
             case "elk_stress_advanced_using_clusters":
-                layoutActionsBeforeMainRun.push(GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("CLUSTERIFY"));
+                layoutActionsBeforeMainRun.push(GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("CLUSTERIFY", null));
                 break;
             case "automatic":
                 break;
@@ -382,7 +383,8 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
         configuration.chosenMainAlgorithm = "elk_stress";
         configuration.main.elk_stress = getDefaultMainUserGivenAlgorithmConstraint("elk_stress");
         configuration.main.elk_stress.interactive = true;
-        (configuration.main.elk_stress as UserGivenAlgorithmConfigurationStress).stress_edge_len = 800;
+        // TODO RadStr: Should be the same value as the input parameter
+        (configuration.main.elk_stress as UserGivenAlgorithmConfigurationStress).stress_edge_len = algorithmConversionConstraint.data.edgeLength;
         graph = await getBestLayoutFromMetricResultAggregation(await performLayoutFromGraph(graph, configuration));
 
         return Promise.resolve(graph);
