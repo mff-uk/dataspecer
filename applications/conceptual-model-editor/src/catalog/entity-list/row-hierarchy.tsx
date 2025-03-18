@@ -35,7 +35,7 @@ export const RowHierarchy = (props: {
         handleRemoveEntityFromActiveView: (entity: Entity) => void;
         handleExpansion: (model: EntityModel, classId: string) => Promise<void>;
         handleRemoval: (model: InMemorySemanticModel | ExternalSemanticModel, entityId: string) => Promise<void>;
-        handleTargeting: (entityId: string) => void;
+        handleTargeting: (entityId: string, entityNumberToBeCentered: number) => void;
     };
     indent: number;
     /**
@@ -94,8 +94,12 @@ export const RowHierarchy = (props: {
   ];
 
   const targetHandler = {
-    centerViewportOnEntityHandler: () => props.handlers.handleTargeting(entity.id),
-    isTargetable: props.onCanvas.includes(entity.id) || isSemanticModelAttribute(entity) || isSemanticModelAttributeUsage(entity),
+    centerViewportOnEntityHandler: (entityNumberToBeCentered: number) =>
+      props.handlers.handleTargeting(entity.id, entityNumberToBeCentered),
+    isTargetable: props.onCanvas.includes(entity.id) ||
+                  isSemanticModelAttribute(entity) ||
+                  isSemanticModelAttributeUsage(entity) ||
+                  isSemanticModelAttributeProfile(entity),
   };
 
   const model = findSourceModelOfEntity(entity.id, models);

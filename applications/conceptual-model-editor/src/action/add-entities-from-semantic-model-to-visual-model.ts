@@ -10,8 +10,8 @@ import { isSemanticModelAttribute, isSemanticModelClass, isSemanticModelRelation
 import { isSemanticModelClassProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isSemanticModelAttributeUsage, isSemanticModelClassUsage, SemanticModelClassUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
-import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
 import { getDomainAndRange } from "../util/relationship-utils";
+import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
 
 /**
  * Adds entities from given semantic model identified by {@link semanticModelIdentifier} to currently active visual model.
@@ -27,17 +27,19 @@ export const addEntitiesFromSemanticModelToVisualModelAction = async (
   // Passing in true, because the classic relationships are added by default when adding class
   // while the relationship profiles are not
   const entitiesFromSemanticModel = getSelectionForWholeSemanticModel(semanticModel, visualModel, true);
+
   let entitiesToAddToVisualModel: EntityToAddToVisualModel[] = entitiesFromSemanticModel.nodeSelection.map(node => ({
     identifier: node,
     position: null,
   }));
 
   entitiesToAddToVisualModel.push(...entitiesFromSemanticModel.edgeSelection.map(edge => ({identifier: edge, position: null})));
+  // Find those which are not already on canvas.
   entitiesToAddToVisualModel = entitiesToAddToVisualModel
-    .filter(entity => visualModel.getVisualEntityForRepresented(entity.identifier) === null);
+    .filter(entity => !visualModel.hasVisualEntityForRepresented(entity.identifier));
 
-  const existingClassesAndClassProfiles = entitiesFromSemanticModel.nodeSelection
-    .filter(identifier => visualModel.getVisualEntityForRepresented(identifier) !== null)
+  const classesPresentOnCanvas = entitiesFromSemanticModel.nodeSelection
+    .filter(identifier => visualModel.hasVisualEntityForRepresented(identifier))
     .map(identifier => classesContext.rawEntities.find(entity => entity?.id === identifier))
     .filter(entity => entity !== null && entity !== undefined)
     .filter(entity => isSemanticModelClass(entity) ||
@@ -47,14 +49,14 @@ export const addEntitiesFromSemanticModelToVisualModelAction = async (
   await addSemanticEntitiesToVisualModelAction(notifications, classesContext, graph, visualModel, diagram, entitiesToAddToVisualModel);
 
   addHiddenAttributesForExistingClassesAndClassProfiles(
-    notifications, classesContext, visualModel, existingClassesAndClassProfiles);
+    notifications, classesContext, visualModel, classesPresentOnCanvas);
 };
 
 function addHiddenAttributesForExistingClassesAndClassProfiles(
   notifications: UseNotificationServiceWriterType,
   classesContext: ClassesContextType,
   visualModel: WritableVisualModel,
-  existingClassesAndClassProfiles: (SemanticModelClass | SemanticModelClassProfile | SemanticModelClassUsage)[]
+  classesPresentOnCanvas: (SemanticModelClass | SemanticModelClassProfile | SemanticModelClassUsage)[]
 ): void {
   // TODO RadStr: The finding of allAttributes could maybe be part of some exported utility function
   const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
@@ -65,23 +67,23 @@ function addHiddenAttributesForExistingClassesAndClassProfiles(
     SemanticModelRelationshipProfile |
     SemanticModelRelationshipUsage)[]).concat(attributes).concat(attributeUsages).concat(attributeProfiles);
 
-  for (const existingClassOrClassProfile of existingClassesAndClassProfiles) {
+  for (const classPresentOnCanvas of classesPresentOnCanvas) {
     for(const attribute of allAttributes) {
       if(isSemanticModelRelationship(attribute)) {
         const { domain } = getDomainAndRange(attribute);
-        if(domain?.concept !== existingClassOrClassProfile.id) {
+        if(domain?.concept !== classPresentOnCanvas.id) {
           continue;
         }
       }
       else {
         const { domain } = getDomainAndRange(attribute);
-        if(domain?.concept !== existingClassOrClassProfile.id) {
+        if(domain?.concept !== classPresentOnCanvas.id) {
           continue;
         }
       }
       // TODO RadStr: Maybe it would be better to allow for the function to take more than 1 attribute
       addSemanticAttributeToVisualModelAction(
-        notifications, visualModel, existingClassOrClassProfile.id, attribute.id, null, false);
+        notifications, visualModel, classPresentOnCanvas.id, attribute.id, false);
     }
   }
 }

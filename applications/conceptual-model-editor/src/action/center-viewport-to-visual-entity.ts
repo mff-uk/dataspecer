@@ -1,28 +1,31 @@
-import { isVisualGroup, isVisualNode, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
+import { isVisualGroup, isVisualNode, isVisualRelationship, VisualEntity } from "@dataspecer/core-v2/visual-model";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { SemanticModelRelationship, isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
-import { SemanticModelRelationshipUsage, isSemanticModelAttributeUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
+import { isSemanticModelAttributeUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ClassesContextType } from "../context/classes-context";
 import { getDomainAndRange } from "../util/relationship-utils";
 import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
 
 /**
- * Center diagram editor view to the visual entity representing given semantic entity, identified by {@link identifier}.
+ * Center diagram editor view to the visual entity represented by given semantic entity,
+ * identified by {@link entityIdentifier}.
  * In case of attribute, the visual entity is node, which corresponds to the attribute's domain.
  * The visual entity can be a node or an edge.
  */
-export function centerViewportToVisualEntityAction(
+export function centerViewportToVisualEntityByRepresentedAction(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   classesContext: ClassesContextType,
   diagram: UseDiagramType,
   entityIdentifier: string,
+  currentlyIteratedEntity: number,
   _modelIdentifier: string,
 ) {
   const attribute = findAttributeWithIdentifier(entityIdentifier, classesContext);
+  let isAttribute = false;
   if(attribute !== undefined) {
     let domainClassIdentifier;
     if(isSemanticModelAttribute(attribute)) {
@@ -37,6 +40,7 @@ export function centerViewportToVisualEntityAction(
       return;
     }
 
+    isAttribute = true;
     entityIdentifier = domainClassIdentifier;
   }
 
@@ -45,17 +49,17 @@ export function centerViewportToVisualEntityAction(
     notifications.error("There is no active visual model.");
     return;
   }
-  const entity = visualModel.getVisualEntityForRepresented(entityIdentifier);
-  if (entity === null) {
+  let visualEntities = visualModel.getVisualEntitiesForRepresented(entityIdentifier);
+  if(isAttribute) {
+    visualEntities = visualEntities.filter(isVisualNode).filter(node => node.content.includes(attribute!.id));
+  }
+  if (visualEntities.length === 0) {
     notifications.error("There is no visual representation of the entity.");
     return;
   }
-  if(isVisualNode(entity) || isVisualGroup(entity)) {
-    diagram.actions().centerViewportToNode(entity.identifier);
-  }
-  else if(isVisualRelationship(entity)) {
-    diagram.actions().fitToView([entity.visualSource, entity.visualTarget]);
-  }
+
+  const visualEntity = visualEntities[Math.trunc(currentlyIteratedEntity) % visualEntities.length];
+  centerToVisualEntity(diagram, visualEntity);
 };
 
 /**
@@ -72,4 +76,17 @@ export function findAttributeWithIdentifier(identifier: string, classesContext: 
     SemanticModelRelationshipUsage)[]).concat(attributes).concat(attributeUsages).concat(attributeProfiles);
 
   return allAttributes.find(attribute => attribute.id === identifier);
+}
+
+// Could be exported and used for centering to visual entities
+export function centerToVisualEntity(
+  diagram: UseDiagramType,
+  visualEntity: VisualEntity,
+) {
+  if(isVisualNode(visualEntity) || isVisualGroup(visualEntity)) {
+    diagram.actions().centerViewportToNode(visualEntity.identifier);
+  }
+  else if(isVisualRelationship(visualEntity)) {
+    diagram.actions().fitToView([visualEntity.visualSource, visualEntity.visualTarget]);
+  }
 }

@@ -1,10 +1,10 @@
 import { expect, test } from "vitest";
-import { noActionNotificationServiceWriter } from "../../notification/notification-service-context";
+import { notificationMockup } from "./actions-test-suite";
 import { addGroupToVisualModelAction } from "../add-group-to-visual-model";
 import { createDefaultVisualModelFactory, VisualGroup, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { removeTopLevelGroupFromVisualModelAction } from "../remove-group-from-visual-model";
-import { removeFromVisualModelAction } from "../remove-from-visual-model";
 import { removePartOfGroupContentAction } from "../remove-part-of-group-content";
+import { removeFromVisualModelByRepresentedAction } from "../remove-from-visual-model-by-represented";
 
 test("Test dissolving top level groups", () => {
   const visualModel: WritableVisualModel = createDefaultVisualModelFactory().createNewWritableVisualModelSync();
@@ -27,15 +27,18 @@ test("Test dissolving top level groups", () => {
     visualModel,
     [group1, group2],
   );
-
   expect(visualModel.getVisualEntities().size).toEqual(7);
-  removeTopLevelGroupFromVisualModelAction(noActionNotificationServiceWriter, visualModel, visualIdentifiers[0]);
+  //
+  removeTopLevelGroupFromVisualModelAction(notificationMockup, visualModel, visualIdentifiers[0]);
   expect(visualModel.getVisualEntities().size).toEqual(6);
-  removeTopLevelGroupFromVisualModelAction(noActionNotificationServiceWriter, visualModel, visualIdentifiers[0]);
+  //
+  removeTopLevelGroupFromVisualModelAction(notificationMockup, visualModel, visualIdentifiers[0]);
   expect(visualModel.getVisualEntities().size).toEqual(5);
-  removeTopLevelGroupFromVisualModelAction(noActionNotificationServiceWriter, visualModel, visualIdentifiers[0]);
+  //
+  removeTopLevelGroupFromVisualModelAction(notificationMockup, visualModel, visualIdentifiers[0]);
   expect(visualModel.getVisualEntities().size).toEqual(5);
-  removeTopLevelGroupFromVisualModelAction(noActionNotificationServiceWriter, visualModel, visualIdentifiers[2]);
+  //
+  removeTopLevelGroupFromVisualModelAction(notificationMockup, visualModel, visualIdentifiers[2]);
   expect(visualModel.getVisualEntities().size).toEqual(4);
 });
 
@@ -52,9 +55,9 @@ test("Test dissolving group through visibility", () => {
     visualModel,
     [visualIdentifiers[0], visualIdentifiers[1]],
   );
-
   expect(visualModel.getVisualEntities().size).toEqual(4);
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0", "1"]);
+  //
+  removeFromVisualModelByRepresentedAction(notificationMockup, visualModel, ["0", "1"]);
   expect(visualModel.getVisualEntities().size).toEqual(1);
 });
 
@@ -79,9 +82,9 @@ test("Test dissolving multi-group through visibility of one whole group", () => 
     visualModel,
     [group1, group2],
   );
-
   expect(visualModel.getVisualEntities().size).toEqual(7);
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0", "1"]);
+  //
+  removeFromVisualModelByRepresentedAction(notificationMockup, visualModel, ["0", "1"]);
   expect(visualModel.getVisualEntities().size).toEqual(3);
 });
 
@@ -106,13 +109,15 @@ test("Test dissolving multi-group through visibility sequentially", () => {
     visualModel,
     [group1, group2],
   );
-
   expect(visualModel.getVisualEntities().size).toEqual(7);
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0"]);
+  //
+  removeFromVisualModelByRepresentedAction(notificationMockup, visualModel, ["0"]);
   expect(visualModel.getVisualEntities().size).toEqual(6);
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["3"]);
+  //
+  removeFromVisualModelByRepresentedAction(notificationMockup, visualModel, ["3"]);
   expect(visualModel.getVisualEntities().size).toEqual(5);
-  removeTopLevelGroupFromVisualModelAction(noActionNotificationServiceWriter, visualModel, group3);
+  //
+  removeTopLevelGroupFromVisualModelAction(notificationMockup, visualModel, group3);
   expect(visualModel.getVisualEntities().size).toEqual(2);
 });
 
@@ -137,13 +142,15 @@ test("Test dissolving multi-group through visibility sequentially again", () => 
     visualModel,
     [group1, group2],
   );
-
   expect(visualModel.getVisualEntities().size).toEqual(7);
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0"]);
+  //
+  removeFromVisualModelByRepresentedAction(notificationMockup, visualModel, ["0"]);
   expect(visualModel.getVisualEntities().size).toEqual(6);
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["3"]);
+  //
+  removeFromVisualModelByRepresentedAction(notificationMockup, visualModel, ["3"]);
   expect(visualModel.getVisualEntities().size).toEqual(5);
-  removeTopLevelGroupFromVisualModelAction(noActionNotificationServiceWriter, visualModel, group1);
+  //
+  removeTopLevelGroupFromVisualModelAction(notificationMockup, visualModel, group1);
   expect(visualModel.getVisualEntities().size).toEqual(2);      // "1", "2"
 });
 
@@ -168,9 +175,9 @@ test("Test dissolving everything through visiblity", () => {
     visualModel,
     [group1, group2],
   );
-
   expect(visualModel.getVisualEntities().size).toEqual(7);
-  removeFromVisualModelAction(noActionNotificationServiceWriter, visualModel, ["0", "1", "2", "3"]);
+  //
+  removeFromVisualModelByRepresentedAction(notificationMockup, visualModel, ["0", "1", "2", "3"]);
   expect(visualModel.getVisualEntities().size).toEqual(0);
 });
 
@@ -195,14 +202,16 @@ test("Test removing part of visual group", () => {
     visualModel,
     [group1, group2],
   );
-
   expect(visualModel.getVisualEntities().size).toEqual(7);
-  removePartOfGroupContentAction(noActionNotificationServiceWriter, visualModel, group1, [visualIdentifiers[3]], false);
+  //
+  removePartOfGroupContentAction(notificationMockup, visualModel, group1, [visualIdentifiers[3]], false);
   expect(visualModel.getVisualEntities().size).toEqual(7);
-  removePartOfGroupContentAction(noActionNotificationServiceWriter, visualModel, group1, [visualIdentifiers[1]], false);
+  //
+  removePartOfGroupContentAction(notificationMockup, visualModel, group1, [visualIdentifiers[1]], false);
   expect(visualModel.getVisualEntities().size).toEqual(7);
   expect((visualModel.getVisualEntity(group1) as VisualGroup).content).toEqual([visualIdentifiers[0]]);
-  removePartOfGroupContentAction(noActionNotificationServiceWriter, visualModel, group1, [visualIdentifiers[0]], false);
+  //
+  removePartOfGroupContentAction(notificationMockup, visualModel, group1, [visualIdentifiers[0]], false);
   expect(visualModel.getVisualEntity(group1)).toEqual(null);
   expect(visualModel.getVisualEntity(group3)).toEqual(null);      // Because the group will have only 1 underlying group therefore it can be destroyed
   expect(visualModel.getVisualEntities().size).toEqual(5);

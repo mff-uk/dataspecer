@@ -40,13 +40,18 @@ export interface VisualModel extends TypedObject, LegacyModel, LabeledModel {
     getVisualEntity(identifier: EntityIdentifier): VisualEntity | null;
 
     /**
-     * Return primary visual representation for given entity.
+     * Return primary visual representations for given entity.
      * For example for a class profile returns VisualNode, not
      * VisualProfileRelationship.
      *
-     * @returns Entity with given source entity identifier or null.
+     * @returns Visual entities with given source entity identifier or empty array.
      */
-    getVisualEntityForRepresented(represented: RepresentedEntityIdentifier): VisualEntity | null;
+    getVisualEntitiesForRepresented(represented: RepresentedEntityIdentifier): VisualEntity[];
+
+    /**
+     * @returns True if there exists at least one visual entity for the {@link represented}.
+     */
+    hasVisualEntityForRepresented(represented: RepresentedEntityIdentifier): boolean;
 
     /**
      * @returns Snapshot of map with all entities in the model.

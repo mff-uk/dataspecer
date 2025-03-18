@@ -290,18 +290,17 @@ function onChangeVisualModel(
       // We can have multiple candidates, but we can add only the one represented
       // by the VisualProfileRelationship.
       for (const item of profiled) {
-        const profileOf = visualModel.getVisualEntityForRepresented(item);
-        if (profileOf === null) {
-          continue;
-        }
-        if (visualEntity.visualSource !== profileOf.identifier &&
-          visualEntity.visualTarget !== profileOf.identifier) {
-          // The VisualProfileRelationship represents different profile relationship.
-          continue;
-        }
-        const edge = createDiagramEdgeForClassUsageOrProfile(visualModel, visualEntity, entity);
-        if (edge !== null) {
-          nextEdges.push(edge);
+        const profilesOf = visualModel.getVisualEntitiesForRepresented(item);
+        for(const profileOf of profilesOf) {
+          if (visualEntity.visualSource !== profileOf.identifier &&
+            visualEntity.visualTarget !== profileOf.identifier) {
+            // The VisualProfileRelationship represents different profile relationship.
+            continue;
+          }
+          const edge = createDiagramEdgeForClassUsageOrProfile(visualModel, visualEntity, entity);
+          if (edge !== null) {
+            nextEdges.push(edge);
+          }
         }
       }
     }
@@ -749,29 +748,36 @@ function onChangeVisualEntities(
         }
         // We can have multiple candidates, but we can add only the one represented
         // by the VisualProfileRelationship.
+        const edgesToAdd = [];
+        const edgesToUpdate = [];
         for (const item of profiled) {
-          const profileOf = visualModel.getVisualEntityForRepresented(item);
-          if (profileOf === null) {
-            continue;
+          const profilesOf = visualModel.getVisualEntitiesForRepresented(item);
+          for(const profileOf of profilesOf) {
+            if (next.visualSource !== profileOf.identifier &&
+              next.visualTarget !== profileOf.identifier) {
+              // The VisualProfileRelationship represents different profile relationship.
+              continue;
+            }
+            //
+            const edge = createDiagramEdgeForClassUsageOrProfile(visualModel, next, entity);
+            if (edge === null) {
+              console.error("Ignored null edge.", {visualEntity: next, entity});
+              break;
+            }
+            if (previous === null) {
+              edgesToAdd.push(edge);
+            } else {
+              edgesToUpdate.push(edge);
+            }
           }
-          if (next.visualSource !== profileOf.identifier &&
-            next.visualTarget !== profileOf.identifier) {
-            // The VisualProfileRelationship represents different profile relationship.
-            continue;
-          }
-          //
-          const edge = createDiagramEdgeForClassUsageOrProfile(visualModel, next, entity);
-          if (edge === null) {
-            console.error("Ignored null edge.", { visualEntity: next, entity });
-            continue;
-          }
-          if (previous === null) {
-            // Create new entity.
-            actions.addEdges([edge]);
-          } else {
-            // Change of existing.
-            actions.updateEdges([edge]);
-          }
+        }
+        if(edgesToAdd.length > 0) {
+          // Create new entities.
+          actions.addEdges(edgesToAdd);
+        }
+        if(edgesToUpdate.length > 0) {
+          // Change of existing.
+          actions.updateEdges(edgesToUpdate);
         }
       } else {
         // We ignore other properties.

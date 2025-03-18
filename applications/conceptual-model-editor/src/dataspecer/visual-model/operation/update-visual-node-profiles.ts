@@ -16,26 +16,29 @@ export function updateVisualNodeProfiles(
 ) {
   const { create, remove } = createChangeList(
     previous, next, isEntityReferenceEqual);
-  const entityVisual = visualModel.getVisualEntityForRepresented(
+  const entityVisuals = visualModel.getVisualEntitiesForRepresented(
     profile.identifier);
-  if (entityVisual === null) {
+  if (entityVisuals.length === 0) {
     // There should be no relationship for this entity in the model.
     return;
   }
   // Add new.
   for (const item of create) {
-    const visual =
-      visualModel.getVisualEntityForRepresented(item.identifier);
-    if (visual === null) {
+    const visuals = visualModel.getVisualEntitiesForRepresented(item.identifier);
+    if (visuals.length === 0) {
       continue;
     }
-    visualModel.addVisualProfileRelationship({
-      entity: profile.identifier,
-      model: profile.model,
-      visualSource: entityVisual.identifier,
-      visualTarget: visual.identifier,
-      waypoints: [],
-    });
+    for(const entityVisual of entityVisuals) {
+      for(const visual of visuals) {
+        visualModel.addVisualProfileRelationship({
+          entity: profile.identifier,
+          model: profile.model,
+          visualSource: entityVisual.identifier,
+          visualTarget: visual.identifier,
+          waypoints: [],
+        });
+      }
+    }
   }
   // We can not delete directly the visual profile as the entity
   // is shared by the profile and the visual node.

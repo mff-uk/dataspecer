@@ -167,10 +167,17 @@ export const EntitiesOfModel = (props: {
           } else if (previous !== null && next !== null) {
 
             if(isVisualNode(next)) {
-              const {removed, added} = getRemovedAndAdded((previous as VisualNode).content, next.content)
+              const { removed: removedAtrtibutes, added: addedAttributes } =
+                getRemovedAndAdded((previous as VisualNode).content, next.content);
               setVisible(prev => {
-                const newVisible = prev.filter(previouslyVisibleElement => !removed.includes(previouslyVisibleElement));
-                newVisible.push(...added);
+                const newVisible = [...prev];
+                for (const removedAttribute of removedAtrtibutes) {
+                  const index = newVisible.indexOf(removedAttribute);
+                  // We have to remove only the first occurrence,
+                  // because of the fact that the attribute can be present on multiple nodes.
+                  newVisible.splice(index, 1);
+                }
+                newVisible.push(...addedAttributes);
                 return newVisible;
               });
             }
@@ -236,7 +243,7 @@ export const EntitiesOfModel = (props: {
       actions.removeAttributesFromVisualModel([entity.id]);
     }
     else {
-      actions.removeFromVisualModel([entity.id]);
+      actions.removeFromVisualModelByRepresented([entity.id]);
     }
   };
 
@@ -244,8 +251,8 @@ export const EntitiesOfModel = (props: {
     await actions.deleteFromSemanticModels([{identifier, sourceModel: model.getId()}]);
   };
 
-  const handleSetViewportToEntity = (identifier: string) => {
-    actions.centerViewportToVisualEntity(model.getId(), identifier);
+  const handleSetViewportToEntity = (identifier: string, entityNumberToBeCentered: number) => {
+    actions.centerViewportToVisualEntityByRepresented(model.getId(), identifier, entityNumberToBeCentered);
   };
 
   // Rendering section.

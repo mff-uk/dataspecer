@@ -108,17 +108,18 @@ const noOperationDiagramActions: DiagramActions = {
   openDragEdgeToCanvasMenu: noOperation,
   openSelectionActionsMenu: noOperation,
   openGroupMenu: noOperation,
-  highlightNodeInExplorationModeFromCatalog: noOperation,
+  highlightNodesInExplorationModeFromCatalog: noOperation,
 };
 
 const noOperationCallbacks: DiagramCallbacks = {
   onShowNodeDetail: noOperation,
   onEditNode: noOperation,
   onCreateNodeProfile: noOperation,
+  onDuplicateNode: noOperation,
   onHideNode: noOperation,
   onDeleteNode: noOperation,
   onChangeNodesPositions: noOperation,
-  onAddAttributeForNode: noOperation,
+  onCreateAttributeForNode: noOperation,
   onShowEdgeDetail: noOperation,
   onEditEdge: noOperation,
   onCreateEdgeProfile: noOperation,
