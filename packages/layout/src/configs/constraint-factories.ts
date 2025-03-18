@@ -342,6 +342,7 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
             configuration.main.elk_layered.in_layer_gap = 100;
             configuration.main.elk_layered.layer_gap = 50;
             configuration.main.elk_layered.edge_routing = "POLYLINE";
+            configuration.main.elk_layered.number_of_new_algorithm_runs = 1;            // TODO RadStr: This is not good - but it will be fixed with new constraints/layout actions
             graph = await getBestLayoutFromMetricResultAggregation(await performLayoutFromGraph(graph, configuration));
 
             const clusterRootAfterLayout = graph.findNodeInAllNodes(clusterRoot.id);
@@ -382,19 +383,10 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
         configuration.chosenMainAlgorithm = "elk_stress";
         configuration.main.elk_stress = getDefaultMainUserGivenAlgorithmConstraint("elk_stress");
         configuration.main.elk_stress.interactive = true;
-        // TODO RadStr: Should be the same value as the input parameter
         (configuration.main.elk_stress as UserGivenAlgorithmConfigurationStress).stress_edge_len = algorithmConversionConstraint.data.edgeLength;
         graph = await getBestLayoutFromMetricResultAggregation(await performLayoutFromGraph(graph, configuration));
 
         return Promise.resolve(graph);
-        // TODO RadStr: Remove
-        // for(const node of graph.allNodes) {
-        //     node.completeVisualNode.coreVisualNode.position = {
-        //         x: algorithmConversionConstraint.data.clusterifyConstraint.data.clusters[0][1].start.completeVisualNode.coreVisualNode.position.x,
-        //         y: 100,
-        //         anchored: null
-        //     };
-        // }
     },
     RESET_LAYOUT: function (_algorithmConversionConstraint: GraphConversionConstraint, graph: MainGraph): Promise<MainGraph> {
         graph.mainGraph.resetForNewLayout();

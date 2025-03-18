@@ -283,7 +283,6 @@ const runMainLayoutAlgorithm = async (
 	graph: MainGraph,
 	constraints: ConstraintContainer
 ): Promise<Record<string, MetricResultsAggregation>> => {
-	// TODO: Well it really is overkill, like I could in the same way just have a look, if the given configuration contains numberOfAlgorithmRuns and if so, just put it here
 	const metricsWithWeights: MetricWithWeight[] = [
 		{
 			name: "EdgeCrossingMetric",
@@ -450,6 +449,7 @@ function performMetricsComputation(
 		absoluteMetric += metricsToCompute[i].weight * computedMetrics[i];
 	}
 
+	computedMetricsFromPreviousIterations["total"].push(absoluteMetric);
 	setMetricResultsAggregation(metricResultsAggregation, "total", absoluteMetric, layoutedGraphPromise);
 }
 
