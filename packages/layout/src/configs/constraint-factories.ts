@@ -289,6 +289,9 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
                 const isInCluster = edgesInCluster.findIndex(edgeInCluster => edgeInCluster.id === edge.id) >= 0;
                 if (isInCluster) {
                     edge.isConsideredInLayout = true;
+                    if(edge.start.id !== cluster) {
+                        edge.reverseInLayout = true;
+                    }
                 }
                 else {
                     edge.isConsideredInLayout = false;
@@ -317,7 +320,7 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
             console.info("sectorPopulations", clusterRoot.semanticEntityRepresentingNode.iri, leastPopulatedSector, sectorPopulations);
 
             const configuration = getDefaultUserGivenConstraintsVersion4();
-            configuration.main.elk_layered.alg_direction = reverseDirection(leastPopulatedSector as Direction);
+            configuration.main.elk_layered.alg_direction = leastPopulatedSector as Direction;
             configuration.main.elk_layered.in_layer_gap = 100;
             configuration.main.elk_layered.layer_gap = 50;
             configuration.main.elk_layered.edge_routing = "POLYLINE";
