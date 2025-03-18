@@ -319,7 +319,6 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
 
             const clusterRoot = graph.findNodeInAllNodes(cluster);
             const clusterRootPositionBeforeLayout = { ...clusterRoot.completeVisualNode.coreVisualNode.position };
-            // TODO RadStr: Commented code - old variant
             const sectorPopulations = GraphAlgorithms.findSectorNodePopulation(graph, clusterRoot, edgesInCluster, ToConsiderFilter.OnlyNotLayouted);
             const sectorPopulationsEdges = GraphAlgorithms.findSectorEdgePopulation(graph, clusterRoot, edgesInCluster, ToConsiderFilter.OnlyNotLayouted);
             Object.entries(sectorPopulationsEdges).forEach(([sector, population]) => {
@@ -397,7 +396,7 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
         //     };
         // }
     },
-    RESET_LAYOUT: function (algorithmConversionConstraint: GraphConversionConstraint, graph: MainGraph): Promise<MainGraph> {
+    RESET_LAYOUT: function (_algorithmConversionConstraint: GraphConversionConstraint, graph: MainGraph): Promise<MainGraph> {
         graph.mainGraph.resetForNewLayout();
         return Promise.resolve(graph);
     }

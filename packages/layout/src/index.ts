@@ -422,6 +422,13 @@ export function getBestLayoutFromMetricResultAggregation(
 	return resultingGraph;
 }
 
+export function getBestMetricResultAggregation(
+	metricResultAggregations: Record<string, MetricResultsAggregation>
+): MetricWithGraphPromise {
+	const best = metricResultAggregations["total"].max;
+	return best;
+}
+
 function performMetricsComputation(
 	metricsToCompute: MetricWithWeight[],
 	computedMetricsFromPreviousIterations: Record<string, number[]>,
