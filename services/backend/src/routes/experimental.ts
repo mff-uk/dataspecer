@@ -101,9 +101,8 @@ async function getDocumentationData(packageId: string, models: ModelDescription[
     const template = customRespecTemplate ? (await customRespecTemplate.getJson()).value as string : defaultConfiguration.template;
 
     const context = {
-        resourceModel,
+        label: (await resourceModel.getPackage(packageId))!.userMetadata.label ?? {},
         models,
-        modelIri: packageId,
         externalArtifacts,
         dsv: options.dsv,
         prefixMap: options.prefixMap ?? {},

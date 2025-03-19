@@ -99,6 +99,7 @@ export class DefaultArtifactBuilder {
 
         // Convert data specification
         const dataSpecifications = Object.values(this.dataSpecifications).map(specification => ({
+            ...specification,
             iri: specification.id,
             pim: specification.id,
             psms: specification.dataStructures.map(ds => ds.id),

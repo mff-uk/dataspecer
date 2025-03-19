@@ -5,7 +5,7 @@ import { SemanticModelAggregator } from "@dataspecer/core-v2/semantic-model/aggr
 import { LanguageString, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { getTranslation } from "@dataspecer/core-v2/utils/language";
-import { createHandlebarsAdapter } from "@dataspecer/handlebars-adapter";
+import { createHandlebarsAdapter, HandlebarsAdapter } from "@dataspecer/handlebars-adapter";
 
 export interface DocumentationGeneratorConfiguration {
   template: string;
@@ -62,19 +62,23 @@ const PREFIX_MAP: Record<string, string> = {
   "http://www.w3.org/2001/XMLSchema#": "xsd",
 };
 
+export type DocumentationGeneratorInputModel = {
+  // Name of the specification
+  label: LanguageString,
+  models: ModelDescription[],
+  externalArtifacts: Record<string, {
+    type: string,
+    URL: string,
+  }[]>,
+  // Data specification vocabulary in JSON with JSON-LD context
+  dsv: object,
+  prefixMap: Record<string, string>,
+};
+
 export async function generateDocumentation(
-  inputModel: {
-    resourceModel: any,
-    models: ModelDescription[],
-    modelIri: string,
-    externalArtifacts: Record<string, {
-      type: string,
-      URL: string,
-    }[]>,
-    dsv: any | null,
-    prefixMap: Record<string, string>,
-  },
+  inputModel: DocumentationGeneratorInputModel,
   configuration: DocumentationGeneratorConfiguration,
+  addData?: (adapter: HandlebarsAdapter) => object,
 ): Promise<string> {
   const localPrefixMap = {...PREFIX_MAP, ...inputModel.prefixMap};
 
@@ -135,9 +139,11 @@ export async function generateDocumentation(
     }
   }
 
+  const handlebarsAdapter = createHandlebarsAdapter();
 
   const data = {
-    package: await inputModel.resourceModel.getPackage(inputModel.modelIri),
+    ...(addData?.(handlebarsAdapter)),
+    label: inputModel.label,
     locallyDefinedSemanticEntity: semanticModel,
     dsv: inputModel.dsv,
 
@@ -159,8 +165,6 @@ export async function generateDocumentation(
     lang: configuration.language,
     language: configuration.language,
   };
-
-  const handlebarsAdapter = createHandlebarsAdapter();
 
   /**
    * Shortens IRIs by using prefixes and remebers them for future use.

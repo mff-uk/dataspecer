@@ -212,7 +212,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
     <code>{{technicalLabel}}</code>:
     {{#if cardinalityIsRequired}}povinná{{else}}nepovinná{{/if}}
     ({{cardinalityRange}}) položka typu {{#dataTypes}}
-      {{#isAssociation}}{{#dataType}}{{#isSimpleClass}}<strong>IRI (<a href="#{{#pimClass}}{{semanticModelLinkId}}{{/pimClass}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>)</strong>{{/isSimpleClass}}{{^isSimpleClass}}<strong><a href="#{{structureModelLinkId}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a></strong>{{/isSimpleClass}}{{/dataType}}{{/isAssociation}}
+      {{#isAssociation}}{{#dataType}}{{#isSimpleClass}}<strong>IRI (<a href="{{#pimClass}}{{href pimIri}}{{/pimClass}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>)</strong>{{/isSimpleClass}}{{^isSimpleClass}}<strong><a href="#{{structureModelLinkId}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a></strong>{{/isSimpleClass}}{{/dataType}}{{/isAssociation}}
       {{#isAttribute}} {{#dataType}}<a href="{{{.}}}">{{translate (getLabelForDataType .)}}</a>{{#regex}} dle regulárního výrazu <code>{{{.}}}</code>{{/regex}}{{/dataType}}{{^dataType}}bez datového typu{{/dataType}}{{/isAttribute}}
     {{/dataTypes}}
 </li>
@@ -222,11 +222,9 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
 {{/inThisSchema}}{{/classes}}
 </ul>
 
-<h3>Detailní specifikace prvků JSON struktury</h3>
-
 {{#classes}}{{#inThisSchema}}
 <section id="{{structureModelLinkId}}">
-<h4>Objekt <i>{{#humanLabel}}{{translate}}{{/humanLabel}}</i></h4>
+<h3>Objekt <i>{{#humanLabel}}{{translate}}{{/humanLabel}}</i></h3>
 <dl>
 {{#humanDescription}}{{#translate}}
 <dt>Popis</dt>
@@ -235,7 +233,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
 <dt>Interpretace</dt>
 {{#pimClass}}
 <dd>
-  <a href="#{{semanticModelLinkId}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>
+  <a href="{{href pimIri}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>
 </dd>
 {{/pimClass}}
 </dl>
@@ -263,7 +261,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
 {{#dataType}}
 {{#isSimpleClass}}
 <dd>
-  IRI (<a href="#{{#pimClass}}{{semanticModelLinkId}}{{/pimClass}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>)
+  IRI (<a href="{{#pimClass}}{{href pimIri}}{{/pimClass}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>)
 </dd>
 {{/isSimpleClass}}
 {{^isSimpleClass}}
@@ -295,7 +293,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
 <dt>Interpretace</dt>
 {{#pimAssociation}}
 <dd>
-<a href="#{{semanticModelLinkId}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>
+<a href="{{href pimIri}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>
 </dd>
 {{/pimAssociation}}
 </dl>
@@ -307,7 +305,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
 
 {{#classes}}{{#isFromExternalSchema}}
 <section id="{{structureModelLinkId}}">
-<h4>Referencovaný objekt <i>{{#humanLabel}}{{translate}}{{/humanLabel}}</i></h4>
+<h3>Referencovaný objekt <i>{{#humanLabel}}{{translate}}{{/humanLabel}}</i></h3>
 <dl>
 {{#humanDescription}}{{#translate}}
 <dt>Popis</dt>
@@ -316,7 +314,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
 <dt>Interpretace</dt>
 {{#pimClass}}
 <dd>
-  <a href="#{{semanticModelLinkId}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>
+  <a href="{{href pimIri}}">{{#humanLabel}}{{translate}}{{/humanLabel}}</a>
 </dd>
 {{/pimClass}}
 {{#classSpecificationArtifact}}

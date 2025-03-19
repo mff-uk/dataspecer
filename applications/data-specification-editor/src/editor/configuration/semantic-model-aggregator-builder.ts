@@ -9,6 +9,7 @@ import { BackendPackageService } from "@dataspecer/core-v2/project";
 import { getProvidedSourceSemanticModel } from "./source-semantic-model/adapter";
 import { LegacySemanticModelAggregator } from "../semantic-aggregator/legacy-semantic-model-aggregator";
 import { SemanticModelAggregator } from "../semantic-aggregator/interfaces";
+import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
 
 function mergeIfNecessary(models: SemanticModelAggregator[]): SemanticModelAggregator {
   if (models.length === 1) {
@@ -17,6 +18,15 @@ function mergeIfNecessary(models: SemanticModelAggregator[]): SemanticModelAggre
     return new MergeAggregator(models);
   }
 }
+
+type rawModelsType = {
+  model: {
+    entities: Record<string, SemanticModelEntity>;
+  },
+  otherModels: {
+    entities: Record<string, SemanticModelEntity>;
+  }[];
+};
 
 /**
  * Builder of the semantic model aggregator from the configuration.
@@ -47,7 +57,30 @@ export class SemanticModelAggregatorBuilder {
     this.knownModels = Object.fromEntries(models.map((model) => [model.getId(), model])) as Record<string, InMemorySemanticModel>;
     this.usedModels = new Set();
 
-    return this.buildRecursive(configuration);
+    const result = await this.buildRecursive(configuration);
+
+    // Handle rawModels metadata
+    {
+      const pckg = await this.backendPackageService.getPackage(this.specificationId);
+      const rawModels: rawModelsType = {
+        model: {
+          entities: {},
+        },
+        otherModels: [],
+      };
+
+      for (const [knownModelId, knownModel] of Object.entries(this.knownModels)) {
+        if (pckg.subResources.find(res => res.iri === knownModelId)) {
+          Object.assign(rawModels.model.entities, knownModel.getEntities());
+        } else {
+          rawModels.otherModels.push({ entities: knownModel.getEntities() as Record<string, SemanticModelEntity> });
+        }
+      }
+
+      result["rawModels"] = rawModels;
+    }
+
+    return result;
   }
 
   getUsedEntityModels(): InMemorySemanticModel[] {

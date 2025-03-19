@@ -4,7 +4,6 @@ import { assertNot } from "@dataspecer/core/core/utilities/assert";
 import { DataSpecificationSchema } from "@dataspecer/core/data-specification/model";
 import { getArtifactsView } from "./artifacts";
 import { PackageContext } from "./views";
-import { ConceptualModelClass, ConceptualModelProperty } from "@dataspecer/core/conceptual-model/index";
 import { HandlebarsAdapter } from "@dataspecer/handlebars-adapter";
 
 /**
@@ -60,24 +59,5 @@ export function prepareDataSpecification(
                 ),
             }
         }),
-        semanticModelLinkId: function() {
-            function normalizeLabel(label: string) {
-                return label.replace(/ /g, "-").toLowerCase();
-            }
-
-            const entity = this as ConceptualModelClass | ConceptualModelProperty;
-            const iri = entity.cimIri ?? null;
-            const iriSuffix = iri ? `-${iri}` : "";
-
-            if (this instanceof ConceptualModelClass) {
-                const label = this.humanLabel?.cs ?? this.humanLabel?.en ?? "";
-                return `konceptuální-třída-${normalizeLabel(label)}${iriSuffix}`;
-            } else if (this instanceof ConceptualModelProperty) {
-                const parentClass = Object.values(conceptualModel.classes).find(c => c.properties.find(p => p.pimIri === this.pimIri))!;
-                const parentLabel = parentClass.humanLabel?.cs ?? parentClass.humanLabel?.en ?? "";
-                const label = this.humanLabel?.cs ?? this.humanLabel?.en ?? "";
-                return `konceptuální-vlastnost-${normalizeLabel(parentLabel)}-${normalizeLabel(label)}${iriSuffix}`;
-            }
-        },
     }
 }

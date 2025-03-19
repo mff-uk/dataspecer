@@ -94,7 +94,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
   <html>
     <head>
       <meta charset="utf-8" />
-      <title>{{translate package.userMetadata.label}}</title>
+      <title>{{translate label}}</title>
       <meta name="color-scheme" content="light dark">
       <script type="application/ld+json">
         {{{json dsv}}}
@@ -128,7 +128,7 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
       <section id="abstract">
         <p>
           {{#iflng "cs"}}Tento soubor dokumentuje{{lng}}This file documents{{/iflng}}
-          {{#translate package.userMetadata.label}}<strong>{{translation}}</strong>{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}.</p>
+          {{#translate label}}<strong>{{translation}}</strong>{{#if otherLang}} (@{{otherLang}}){{/if}}{{else}}<i>{{#iflng "cs"}}beze jména{{lng}}without assigned name{{/iflng}}</i>{{/translate}}.</p>
       </section>
 
       <!--<section id="sotd">
@@ -334,6 +334,15 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
         {{/each}}
         </section>
 
+      {{#structureModels}}
+        <section>
+        <h2>Specifikace struktury pro {{translate humanLabel}}</h2>
+        <p>{{translate humanDescription}}</p>
+
+        {{#artifacts}}{{#getDocumentation}}{{> (useTemplate)}}{{/getDocumentation}}{{/artifacts}}
+        </section>
+      {{/structureModels}}
+
       <section>
         <h2>{{#iflng "cs"}}Použité prefixy{{lng}}Used prefixes{{/iflng}}</h2>
         <table id="table-namespaces" class="simple">
@@ -348,19 +357,35 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
 
       <section>
         <h2>{{#iflng "cs"}}Přílohy{{lng}}Attachments{{/iflng}}</h2>
+        {{#iflng "cs"}}
+          <p>Součástí této specifikace jsou následující přílohy.</p>
+        {{lng}}
+          <p>This specification includes the following attachments.</p>
+        {{/iflng}}
         <table class="def">
-          {{#if externalArtifacts.owl-vocabulary}}
+          <thead>
             <tr>
-              <td>{{#iflng "cs"}}Slovník{{lng}}Vocabulary{{/iflng}}</td>
-              <td><a href="{{{externalArtifacts.owl-vocabulary.[0].URL}}}">{{externalArtifacts.owl-vocabulary.[0].URL}}</a></td>
+              <th>{{#iflng "cs"}}Příloha{{lng}}Attachment{{/iflng}}</th>
+              <th>{{#iflng "cs"}}Odkaz{{lng}}Link{{/iflng}}</th>
             </tr>
-          {{/if}}
-          {{#if externalArtifacts.dsv-profile}}
-            <tr>
-              <td>{{#iflng "cs"}}Aplikační profil{{lng}}Application profile{{/iflng}}</td>
-              <td><a href="{{{externalArtifacts.dsv-profile.[0].URL}}}">{{externalArtifacts.dsv-profile.[0].URL}}</a></td>
-            </tr>
-          {{/if}}
+          </thead>
+          <tbody>
+            {{#if externalArtifacts.owl-vocabulary}}
+              <tr>
+                <td>{{#iflng "cs"}}Slovník{{lng}}Vocabulary{{/iflng}}</td>
+                <td><a href="{{{externalArtifacts.owl-vocabulary.[0].URL}}}">{{externalArtifacts.owl-vocabulary.[0].URL}}</a></td>
+              </tr>
+            {{/if}}
+            {{#if externalArtifacts.dsv-profile}}
+              <tr>
+                <td>{{#iflng "cs"}}Aplikační profil{{lng}}Application profile{{/iflng}}</td>
+                <td><a href="{{{externalArtifacts.dsv-profile.[0].URL}}}">{{externalArtifacts.dsv-profile.[0].URL}}</a></td>
+              </tr>
+            {{/if}}
+              {{#artifacts}}
+              <tr><td>{{title}}</td><td><a href="{{{relativePath}}}">{{{relativePath}}}</a></td></tr>
+              {{/artifacts}}
+          </tbody>
         </table>
       </section>
 

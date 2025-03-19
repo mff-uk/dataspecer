@@ -4,6 +4,8 @@ import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
 import { DefaultTemplateArtifactConfiguration, TemplateArtifactConfiguration, TemplateArtifactConfigurator } from "./configuration";
 import { getMustacheView } from "./mustache-view/views";
 import { createHandlebarsAdapter } from "@dataspecer/handlebars-adapter";
+import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
+import { defaultConfiguration, DocumentationGeneratorConfiguration, DocumentationGeneratorInputModel, generateDocumentation } from "./documentation-generator";
 
 /**
  * ArtefactGenerator implementation for template artifact generator.
@@ -28,20 +30,51 @@ export class TemplateArtifactGenerator implements ArtefactGenerator {
         const template = configuration.template;
         const templates = configuration.templates;
 
-        // get only last part after slash
+        // todo: I need to somehow obtain the original models..
 
-        const adapter = createHandlebarsAdapter();
+        // @ts-ignore types
+        const semanticModel = specification.semanticModel.rawModels as {
+            model: {
+              entities: Record<string, SemanticModelEntity>;
+            },
+            otherModels: {
+              entities: Record<string, SemanticModelEntity>;
+            }[];
+          };
 
-        const view = getMustacheView({
-            context,
-            artefact,
-            specification,
-        }, adapter);
+        const contextForDocumentation: DocumentationGeneratorInputModel = {
+            label: {}, // todo
+            models: [
+                {
+                    isPrimary: true,
+                    baseIri: null,
+                    entities: semanticModel.model.entities,
+                    documentationUrl: "todo", // todo
+                },
+                ...semanticModel.otherModels.map((model) => ({
+                    isPrimary: false,
+                    baseIri: null,
+                    entities: model.entities,
+                    documentationUrl: "todo", // todo
+                })),
+            ],
+            externalArtifacts: {},
+            dsv: {},
+            prefixMap: {},
+        };
+        const configurationForDocumentation: DocumentationGeneratorConfiguration = {
+            ...defaultConfiguration
+        };
 
-        // @ts-ignore
-        view.language = "cs";
-
-        const result = await adapter.render(template, view, templates);
+        const result = await generateDocumentation(
+            contextForDocumentation,
+            configurationForDocumentation,
+            adapter => getMustacheView({
+                context,
+                artefact,
+                specification,
+            }, adapter)
+        );
 
         const stream = output.writePath(artefact.outputPath);
         stream.write(result);

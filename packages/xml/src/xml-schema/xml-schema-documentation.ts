@@ -357,7 +357,7 @@ export const DEFAULT_TEMPLATE = `
     <dt>Význam</dt>
     {{#if (or (non-empty annotation.metaTitle) (non-empty annotation.metaDescription))}}
       <dd>
-        <a href="#{{#get-semantic-class annotation}}{{@root/semanticModelLinkId}}{{/get-semantic-class}}">{{translate annotation.metaTitle}}</a>
+        <a href="{{#get-semantic-class annotation}}{{href pimIri}}{{/get-semantic-class}}">{{translate annotation.metaTitle}}</a>
         {{#if (non-empty annotation.metaDescription)}}({{translate annotation.metaDescription}}){{/if}}
       </dd>
     {{/if}}
@@ -533,7 +533,7 @@ export const DEFAULT_TEMPLATE = `
         </i>
 
         {{#with entity}}
-          <a href="#{{@root/semanticModelLinkId}}"><strong>{{translate humanLabel}}</strong></a>
+          <a href="{{href pimIri}}"><strong>{{translate humanLabel}}</strong></a>
           {{#if (non-empty humanDescription)}}({{translate humanDescription}}){{/if}}
         {{/with}}
 
