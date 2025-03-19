@@ -1,8 +1,8 @@
 import { Direction } from "../util/utils";
-import { AlgorithmName } from "./constraint-container";
 import _ from "lodash";
-import { ElkForceAlgType } from "./elk/elk-constraints";
+import { ElkForceAlgType, ElkStressConfiguration } from "./elk/elk-constraints";
 import { Edge } from "../graph/representation/edge";
+import { AlgorithmName } from "../layout-algorithms/list-of-layout-algorithms";
 
 export type ConstraintedNodesGroupingsType = "ALL" | "GENERALIZATION" | "PROFILE";
 
@@ -216,6 +216,10 @@ export interface UserGivenAlgorithmConfigurationStress {
     "number_of_new_algorithm_runs": number,
 }
 
+export interface UserGivenAlgorithmConfigurationStressProfile extends UserGivenAlgorithmConfigurationStress {
+    profileEdgeLength: number,
+}
+
 export interface UserGivenAlgorithmConfigurationSpore {
     "min_distance_between_nodes": number,
 }
@@ -237,7 +241,7 @@ export interface UserGivenAlgorithmConfigurationExtraData {
 
 // This actually only used so we type checking for the mapping from the universal parameter names to the library ones (for example to the elk ones)
 export interface UserGivenAlgorithmConfigurationOnlyData extends UserGivenAlgorithmConfigurationLayered,
-                                                                UserGivenAlgorithmConfigurationStress,
+                                                                UserGivenAlgorithmConfigurationStressProfile,
                                                                 UserGivenAlgorithmConfigurationElkForce {
     "layout_alg": AlgorithmName,        // Now it is actually redundant, but it is still to better to keep it here (rewriting takes too much work)
     // The idea is to have fields which are "main" in a way and universal (so they can be actually shared between algorithms) and then just advanced_settings
@@ -271,6 +275,7 @@ export function getDefaultUserGivenAlgorithmConstraint(algorithmName: AlgorithmN
     //  "profile-nodes-position-against-source": DIRECTION.Down,
         ...LayeredConfiguration.getDefaultObject(),
         "stress_edge_len": 800,
+        profileEdgeLength: 800,
         run_node_overlap_removal_after,
 
         "force_alg_type": "FRUCHTERMAN_REINGOLD",
@@ -430,7 +435,7 @@ export abstract class StressConfiguration extends AlgorithmConfiguration {
         this.setData(givenAlgorithmConstraints);
     }
 
-    data: UserGivenAlgorithmConfigurationStress = undefined
+    data: UserGivenAlgorithmConfigurationStress = undefined;
 }
 
 

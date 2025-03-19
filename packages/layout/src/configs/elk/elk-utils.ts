@@ -14,6 +14,7 @@ export const CONFIG_TO_ELK_CONFIG_MAP: Record<keyof Omit<UserGivenAlgorithmConfi
     "force_alg_type": ["org.eclipse.elk.force.model"],
     "min_distance_between_nodes": ["spacing.nodeNode"],
     "edge_routing": ["elk.edgeRouting"],
+    profileEdgeLength: []
 };
 
 /**
@@ -29,7 +30,7 @@ export const configToElkConfigSpecialCasesConvertor = (algorithm: AlgorithmName,
 
 };
 
-const CONFIG_TO_ELK_CONFIG_SPECIAL_CASES_CONVERTOR: Record<string, Partial<Record<AlgorithmName, Record<string, string>>>> = {
+const CONFIG_TO_ELK_CONFIG_SPECIAL_CASES_CONVERTOR: Record<string, Record<AlgorithmName, Record<string, string>>> = {
     "interactive": {
         "elk_layered": {
             // "crossingMinimization.semiInteractive": true,
@@ -43,15 +44,31 @@ const CONFIG_TO_ELK_CONFIG_SPECIAL_CASES_CONVERTOR: Record<string, Partial<Recor
         "elk_force": {
             "interactive": "true",
         },
+        none: undefined,
+        random: undefined,
+        sporeCompaction: undefined,
+        elk_radial: undefined,
+        elk_overlapRemoval: undefined,
+        elk_stress_advanced_using_clusters: undefined,
+        elk_stress_profile: {           // TODO RadStr: Maybe the mapping should be from the elk's algorithm name not from my algorithm name
+            "interactive": "true"
+        },
+        automatic: undefined
     }
 };
 
-export const ALGORITHM_TO_ELK_ALGORITHM_MAP: Pick<Record<AlgorithmName, string>, "elk_stress" | "elk_layered" | "elk_force" | "elk_radial" | "elk_overlapRemoval"> = {
-    "elk_stress": "stress",
-    "elk_layered": "layered",
-    "elk_force": "force",
-    "elk_radial": "radial",
-    "elk_overlapRemoval": "sporeOverlap",
+export const ALGORITHM_TO_ELK_ALGORITHM_MAP: Record<AlgorithmName, string> = {
+    elk_stress: "stress",
+    elk_layered: "layered",
+    elk_force: "force",
+    elk_radial: "radial",
+    elk_overlapRemoval: "sporeOverlap",
+    elk_stress_profile: "stress",
+    none: "not elk algorithm",
+    random: "not elk algorithm",
+    sporeCompaction: "not elk algorithm",
+    elk_stress_advanced_using_clusters: "not elk algorithm",
+    automatic: "not elk algorithm",
 };
 
 

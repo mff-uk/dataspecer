@@ -1,16 +1,13 @@
 import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
 import { Position, VisualModel } from "@dataspecer/core-v2/visual-model";
-import { LayoutAlgorithm } from "./layout-algorithms/layout-algorithm-interface";
 
 import {
-	ConstraintTime,
-	IConstraint,
 	UserGivenAlgorithmConfigurationslVersion4,
 	AlgorithmConfiguration,
 	GraphConversionConstraint,
 } from "./configs/constraints";
 import { DefaultGraph, MainGraph, VisualModelWithOutsiders } from "./graph/representation/graph";
-import { ConstraintContainer, ALGORITHM_NAME_TO_LAYOUT_MAPPING } from "./configs/constraint-container";
+import { ConstraintContainer } from "./configs/constraint-container";
 import { Entities, Entity, EntityModel } from "@dataspecer/core-v2";
 import { ConstraintFactory, SPECIFIC_ALGORITHM_CONVERSIONS_MAP } from "./configs/constraint-factories";
 import { ReactflowDimensionsEstimator } from "./dimension-estimators/reactflow-dimension-estimator";
@@ -21,7 +18,6 @@ import { EdgeCrossingMetric } from "./graph/graph-metrics/implemented-metrics/ed
 import { EdgeNodeCrossingMetric } from "./graph/graph-metrics/implemented-metrics/edge-node-crossing";
 
 export type {
-	IConstraint as IConstraintSimple,
 	UserGivenAlgorithmConfigurationslVersion4 as UserGivenConstraintsVersion4
 } from "./configs/constraints";
 export {
@@ -29,7 +25,6 @@ export {
 	getDefaultMainUserGivenAlgorithmConstraint,
 	getDefaultUserGivenConstraintsVersion4
 } from "./configs/constraints";
-export type { AlgorithmName } from "./configs/constraint-container";
 
 import { Direction } from "./util/utils";
 export { Direction };
@@ -50,6 +45,9 @@ import { GraphAlgorithms } from "./graph-algoritms";
 import { Node } from "./graph/representation/node";
 export { type Node };
 import { GraphFactory } from "./graph/representation/graph-factory";
+import { ALGORITHM_NAME_TO_LAYOUT_MAPPING, AlgorithmName } from "./layout-algorithms/list-of-layout-algorithms";
+import { LayoutAlgorithm } from "./layout-algorithms/layout-algorithms-interfaces";
+export type { AlgorithmName };
 export { AnchorOverrideSetting } from "./explicit-anchors";
 export { placePositionOnGrid };
 

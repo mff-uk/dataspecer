@@ -1,7 +1,7 @@
 import { EntityModel } from "@dataspecer/core-v2";
 import { NodeDimensionQueryHandler, VisualEntitiesWithOutsiders } from "../..";
 import { ExplicitAnchors } from "../../explicit-anchors";
-import { ExtractedModels } from "../../layout-algorithms/layout-algorithm-interface";
+import { ExtractedModels } from "../../layout-algorithms/entity-bundles";
 import { PhantomElementsFactory } from "../../util/utils";
 import { DefaultGraph, Graph, MainGraph, DefaultMainGraph } from "./graph";
 import { VisualModel } from "@dataspecer/core-v2/visual-model";

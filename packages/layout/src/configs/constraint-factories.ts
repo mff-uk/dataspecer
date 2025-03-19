@@ -1,15 +1,13 @@
 import { getBestLayoutFromMetricResultAggregation, performLayoutFromGraph } from "..";
 import { GraphAlgorithms, ToConsiderFilter } from "../graph-algoritms";
 import { MainGraph } from "../graph/representation/graph";
-import { LayoutMethod } from "../layout-algorithms/layout-algorithm-interface";
-import { NoActionLayout } from "../layout-algorithms/no-action-layouts";
-import { Direction, reverseDirection } from "../util/utils";
+import { LayoutMethod } from "../layout-algorithms/layout-algorithms-interfaces";
+import { Direction } from "../util/utils";
 import { ConstraintContainer } from "./constraint-container";
 import {
     AlgorithmConfiguration,
     IGraphConversionConstraint,
     IAlgorithmConfiguration,
-    IConstraint,
     UserGivenAlgorithmConfiguration,
     UserGivenAlgorithmConfigurationslVersion4,
     GraphConversionConstraint,
@@ -29,11 +27,14 @@ import {
     ElkRadialConfiguration,
     ElkSporeCompactionConfiguration,
     ElkSporeOverlapConfiguration,
-    ElkStressConfiguration
+    ElkStressConfiguration,
+    ElkStressProfileLayoutConfiguration
 } from "./elk/elk-constraints";
 
 
-function getOverlapConfigurationToRunAfterMainAlgorithm() {
+function getOverlapConfigurationToRunAfterMainAlgorithm(
+    minSpaceBetweenNodes: number | null
+) {
     const overlapConfiguration: UserGivenAlgorithmConfiguration = {
         layout_alg: "elk_overlapRemoval",
         interactive: true,
@@ -44,12 +45,13 @@ function getOverlapConfigurationToRunAfterMainAlgorithm() {
         edge_routing: "ORTHOGONAL",
         stress_edge_len: 0,
         number_of_new_algorithm_runs: 0,
-        min_distance_between_nodes: 50, // Can be played with
+        min_distance_between_nodes: minSpaceBetweenNodes ?? 50,
         force_alg_type: "FRUCHTERMAN_REINGOLD",
         constraintedNodes: "ALL",
         should_be_considered: false,
         run_layered_after: false,
-        run_node_overlap_removal_after: false
+        run_node_overlap_removal_after: false,
+        profileEdgeLength: 0
     }
 
     return new ElkSporeOverlapConfiguration(overlapConfiguration, true);
@@ -94,6 +96,14 @@ class AlgorithmConstraintFactory {
                     elkStress.addAlgorithmConstraint("interactive", "true");
                 }
                 layoutActionsToSet.push(elkStress);
+                break;
+            case "elk_stress_profile":
+                const elkStressProfile = new ElkStressProfileLayoutConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph);
+                if(userGivenAlgorithmConfiguration.number_of_new_algorithm_runs > 1) {
+                    layoutActionsToSet.push(AlgorithmConstraintFactory.getRandomLayoutConfiguration(userGivenAlgorithmConfiguration, true));
+                    elkStressProfile.addAlgorithmConstraint("interactive", "true");
+                }
+                layoutActionsToSet.push(elkStressProfile);
                 break;
             case "elk_layered":
                 layoutActionsToSet.push(new ElkLayeredConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
@@ -153,7 +163,11 @@ class AlgorithmConstraintFactory {
         }
 
         if(userGivenAlgorithmConfiguration.run_node_overlap_removal_after) {
-            layoutActionsToSet.push(getOverlapConfigurationToRunAfterMainAlgorithm());
+            // Just use the deafult small value, I think that it behaves better.
+            // Even though the results are "nicer" if we set it the edge length of the physical based algorithm (stress)
+            // The nodes are too far from each other, so we lose the compactness and there is no way for us to get it,
+            // if we use the length instead of some small default value.
+            layoutActionsToSet.push(getOverlapConfigurationToRunAfterMainAlgorithm(null));
         }
 
         if(userGivenAlgorithmConfiguration.run_layered_after) {
@@ -179,6 +193,8 @@ class AlgorithmConstraintFactory {
 
         switch(config.chosenMainAlgorithm) {
             case "elk_stress":
+                break;
+            case "elk_stress_profile":
                 break;
             case "elk_layered":
                 break;

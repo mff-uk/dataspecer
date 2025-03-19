@@ -1,17 +1,16 @@
 import _ from "lodash";
-import { getBestLayoutFromMetricResultAggregation, getBestMetricResultAggregation, performLayoutFromGraph } from "..";
-import { AlgorithmName, ConstraintContainer } from "../configs/constraint-container";
-import { ConstraintFactory } from "../configs/constraint-factories";
-import { AlgorithmConfiguration, AutomaticConfiguration, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4, IAlgorithmConfiguration } from "../configs/constraints";
-import { Graph, MainGraph, DefaultMainGraph } from "../graph/representation/graph";
-import { LayoutAlgorithm } from "./layout-algorithm-interface";
+import { AlgorithmName, getBestMetricResultAggregation, performLayoutFromGraph } from "../..";
+import { ConstraintContainer } from "../../configs/constraint-container";
+import { AutomaticConfiguration, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4 } from "../../configs/constraints";
+import { Graph, MainGraph } from "../../graph/representation/graph";
+import { LayoutAlgorithm } from "../layout-algorithms-interfaces";
 
 export class AutomaticLayout implements LayoutAlgorithm {
-  prepareFromGraph(graph: Graph, constraintContainer: ConstraintContainer) {
+  prepareFromGraph(graph: Graph, constraintContainer: ConstraintContainer): void {
     this.graph = graph;
     this.constraintContainer = constraintContainer;
   };
-  async run(shouldCreateNewGraph: boolean) {
+  async run(shouldCreateNewGraph: boolean): Promise<MainGraph> {
     // TODO RadStr: Put Away the interface (IAlogrithmConfiguration and same for the IGraphConstraint)
     let bestGraph = null;
     // Here we run every algorithm once and choose the best one - we could implement it in the index.js

@@ -344,6 +344,53 @@ export const useConfigDialog = () => {
       <RunOverlapRemovalAfterCombobox stateField={props.stateField}></RunOverlapRemovalAfterCombobox>
     </div>;
 
+  const StressProfileConfig = (props: {stateField: MainType}) =>
+    <div>
+      <div className="flex flex-row">
+        <label htmlFor="range-stress-edge-len">Ideal edge length: </label>
+      </div>
+      <div className="flex flex-row">
+        <input type="range" min="0" max="1000" step="10" className="slider" id="range-stress-edge-len" draggable="false"
+          defaultValue={config?.[props.stateField]?.elk_stress_profile?.["stress_edge_len"]}
+          onMouseUp={(e) => {
+            setConfigWithNewValue("elk_stress_profile", props.stateField, "stress_edge_len", parseInt((e.target as HTMLInputElement).value));
+          }
+          }
+        ></input>
+        {config?.[props.stateField]?.elk_stress_profile?.["stress_edge_len"]}
+      </div>
+      <div className="flex flex-row">
+        <label htmlFor="range-stress-profile-edge-len">Ideal profile edge length: </label>
+      </div>
+      <div className="flex flex-row">
+        <input type="range" min="0" max="1000" step="10" className="slider" id="range-stress-profile-edge-len" draggable="false"
+          defaultValue={config?.[props.stateField]?.elk_stress_profile?.profileEdgeLength}
+          onMouseUp={(e) => {
+            setConfigWithNewValue("elk_stress_profile", props.stateField, "profileEdgeLength", parseInt((e.target as HTMLInputElement).value));
+          }
+          }
+        ></input>
+        {config?.[props.stateField]?.elk_stress_profile?.["profileEdgeLength"]}
+      </div>
+      <div className="flex flex-row">
+        <label htmlFor="range-iteration-count">Number of runs (may take several seconds for high numbers):</label>
+      </div>
+      <div className="flex flex-row">
+        <input type="range" min="1" max="200" step="1" className="slider" id="range-iteration-count" draggable="false"
+          defaultValue={config?.[props.stateField]?.elk_stress_profile?.["number_of_new_algorithm_runs"]}
+          onMouseUp={(e) => {
+            // Have to recast, like in https://stackoverflow.com/questions/42066421/property-value-does-not-exist-on-type-eventtarget
+            // (Not sure if the type is correct, but it contains value so it shouldn't really matter)
+            setConfigWithNewValue("elk_stress_profile", props.stateField, "number_of_new_algorithm_runs", parseInt((e.target as HTMLInputElement).value));
+          }}></input>
+        {config?.[props.stateField]?.elk_stress_profile?.["number_of_new_algorithm_runs"]}
+      </div>
+      <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
+      {interactiveCheckbox({...props, algorithmName: "elk_stress_profile"})}
+      <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
+      <RunOverlapRemovalAfterCombobox stateField={props.stateField}></RunOverlapRemovalAfterCombobox>
+    </div>;
+
   const LayeredConfig = (props: {stateField: MainOrGeneralType}) =>
     <div>
       <div className="flex flex-row">
@@ -461,6 +508,8 @@ export const useConfigDialog = () => {
         return <AutomaticConfig stateField="main"></AutomaticConfig>;
       case "random":
         return <RunOverlapRemovalAfterCombobox stateField="main"></RunOverlapRemovalAfterCombobox>
+      case "elk_stress_profile":
+        return <StressProfileConfig stateField="main"></StressProfileConfig>
       default:
         return null;
     }
@@ -481,6 +530,7 @@ export const useConfigDialog = () => {
           }>
           <option value="elk_layered">Layered (Hierarchical)</option>
           <option value="elk_stress">Elk Stress (Force-based algorithm)</option>
+          <option value="elk_stress_profile">Elk Stress profile (Force-based algorithm)</option>
           <option value="elk_stress_advanced_using_clusters">Elk Stress (Force-based algorithm) with clustering</option>
           <option value="elk_force">Elk Force (Force-based algorithm)</option>
           <option value="elk_radial">Radial</option>

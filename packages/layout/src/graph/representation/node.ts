@@ -2,7 +2,7 @@ import { VISUAL_NODE_TYPE, VisualModel, VisualNode } from "@dataspecer/core-v2/v
 import { addToRecordArray, placePositionOnGrid } from "../../util/utils";
 import { Graph, MainGraph } from "./graph";
 import { SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { ExtractedModels, getEdgeSourceAndTargetRelationship } from "../../layout-algorithms/layout-algorithm-interface";
+import { ExtractedModels, getEdgeSourceAndTargetRelationship } from "../../layout-algorithms/entity-bundles";
 import { ExplicitAnchors, VisualEntitiesWithOutsiders, XY } from "../..";
 import { isEntityWithIdentifierAnchored } from "../../explicit-anchors";
 import { Edge } from "./edge";

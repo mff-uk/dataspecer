@@ -12,7 +12,7 @@ import {
     getEdgeSourceAndTargetRelationship,
     RelationshipBundle,
     RelationshipProfileBundle
- } from "../../layout-algorithms/layout-algorithm-interface";
+ } from "../../layout-algorithms/entity-bundles";
 
 import {
     VisualModel,

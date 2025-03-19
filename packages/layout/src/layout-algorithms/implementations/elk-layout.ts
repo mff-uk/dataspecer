@@ -1,6 +1,6 @@
-import { GraphTransformer, LayoutAlgorithm } from "./layout-algorithm-interface";
+import { GraphTransformer } from "../entity-bundles";
 import { isVisualProfileRelationship, isVisualRelationship, Position, VisualEntity, VisualNode, VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { DefaultGraph, Graph, MainGraph, DefaultMainGraph } from "../graph/representation/graph";
+import { DefaultGraph, Graph, MainGraph, DefaultMainGraph } from "../../graph/representation/graph";
 
 
 
@@ -8,17 +8,18 @@ import ELK from 'elkjs/lib/elk.bundled';
 
 import { ElkNode, ElkExtendedEdge, ElkLabel, ElkPort, type ELK as ELKType } from 'elkjs/lib/elk-api';
 
-import { IAlgorithmConfiguration } from "../configs/constraints";
-import { ConstraintContainer, ElkConstraintContainer } from "../configs/constraint-container";
-import { CONFIG_TO_ELK_CONFIG_MAP } from "../configs/elk/elk-utils";
-import { ReactflowDimensionsConstantEstimator, XY } from "..";
+import { IAlgorithmConfiguration } from "../../configs/constraints";
+import { ConstraintContainer, ElkConstraintContainer } from "../../configs/constraint-container";
+import { CONFIG_TO_ELK_CONFIG_MAP } from "../../configs/elk/elk-utils";
+import { ReactflowDimensionsConstantEstimator, XY } from "../..";
 import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import _ from "lodash";
-import { GraphAlgorithms } from "../graph-algoritms";
-import { ElkConstraint } from "../configs/elk/elk-constraints";
-import { VisualEntities } from "../migration-to-cme-v2";
-import { VisualNodeComplete } from "../graph/representation/node";
-import { EdgeEndPoint } from "../graph/representation/edge";
+import { GraphAlgorithms } from "../../graph-algoritms";
+import { ElkConstraint } from "../../configs/elk/elk-constraints";
+import { VisualEntities } from "../../migration-to-cme-v2";
+import { VisualNodeComplete } from "../../graph/representation/node";
+import { EdgeEndPoint } from "../../graph/representation/edge";
+import { LayoutAlgorithm } from "../layout-algorithms-interfaces";
 
 
 type VisualEntitiesType = (VisualNodeComplete | VisualRelationship | VisualProfileRelationship)[];
@@ -665,7 +666,6 @@ export class ElkLayout implements LayoutAlgorithm {
         // TODO RadStr: Debugging
         // GraphAlgorithms.findLeafPaths(graph.mainGraph);
         // GraphAlgorithms.dcatAPTestSetterHardcoded(graph.mainGraph);
-
         this.graph = graph
         this.elkGraphTransformer = new ElkGraphTransformer(graph, constraintContainer);
         this.graphInElk = this.elkGraphTransformer.convertGraphToLibraryRepresentation(graph, true, constraintContainer),       // TODO: Why I need to pass the constraintContainer again???
@@ -756,11 +756,11 @@ export class ElkLayout implements LayoutAlgorithm {
     }
 
     private elk: ELKType;
-    private graph: Graph;
-    private graphInElk: ElkNode;
+    protected graph: Graph;
+    protected graphInElk: ElkNode;
     private getGraphInElk(): ElkNode {
         return _.cloneDeep(this.graphInElk);
     }
-    private constraintContainer: ConstraintContainer;
+    protected constraintContainer: ConstraintContainer;
     private elkGraphTransformer: ElkGraphTransformer;
 }

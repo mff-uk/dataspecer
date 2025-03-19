@@ -3,7 +3,7 @@ import { VisualEntitiesWithOutsiders, XY } from "../..";
 import { Graph } from "./graph";
 import { isSemanticModelGeneralization, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { VISUAL_PROFILE_RELATIONSHIP_TYPE, VISUAL_RELATIONSHIP_TYPE, VisualModel, VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { AllowedEdgeBundleTypes, ExtractedModels, GeneralizationBundle, RelationshipBundle, RelationshipProfileBundle } from "../../layout-algorithms/layout-algorithm-interface";
+import { AllowedEdgeBundleTypes, ExtractedModels, GeneralizationBundle, RelationshipBundle, RelationshipProfileBundle } from "../../layout-algorithms/entity-bundles";
 import { addToRecordArray, capitalizeFirstLetter } from "../../util/utils";
 import { Node, isNodeInVisualModel } from "./node";
 

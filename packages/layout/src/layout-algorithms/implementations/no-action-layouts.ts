@@ -1,6 +1,6 @@
-import { ConstraintContainer } from "../configs/constraint-container";
-import { Graph, MainGraph, DefaultMainGraph } from "../graph/representation/graph";
-import { LayoutAlgorithm } from "./layout-algorithm-interface";
+import { ConstraintContainer } from "../../configs/constraint-container";
+import { Graph } from "../../graph/representation/graph";
+import { LayoutAlgorithm } from "../layout-algorithms-interfaces";
 
 export class NoActionLayout implements LayoutAlgorithm {
   prepareFromGraph(graph: Graph, _constraintContainer: ConstraintContainer) {

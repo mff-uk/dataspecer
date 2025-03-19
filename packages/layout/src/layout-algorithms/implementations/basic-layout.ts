@@ -1,8 +1,8 @@
-import { LayoutAlgorithm } from "./layout-algorithm-interface";
-import { ConstraintContainer } from "../configs/constraint-container";
-import { Graph, MainGraph, } from "../graph/representation/graph";
+import { ConstraintContainer } from "../../configs/constraint-container";
+import { Graph, MainGraph, } from "../../graph/representation/graph";
 import _ from "lodash";
 import { VisualNode } from "@dataspecer/core-v2/visual-model";
+import { LayoutAlgorithm } from "../layout-algorithms-interfaces";
 
 
 /**

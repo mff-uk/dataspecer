@@ -1,32 +1,9 @@
 import {
     IGraphConversionConstraint,
     IAlgorithmConfiguration,
-    IConstraint,
     GraphConversionConstraint
 } from "./constraints";
-import { LayoutAlgorithm } from "../layout-algorithms/layout-algorithm-interface";
-import { ElkLayout } from "../layout-algorithms/elk-layouts";
-import { RandomLayout } from "../layout-algorithms/basic-layouts";
 import { ElkConstraint } from "./elk/elk-constraints";
-import { NoActionLayout } from "../layout-algorithms/no-action-layouts";
-import { AutomaticLayout } from "../layout-algorithms/automatic-layout";
-
-export type AlgorithmName = "none" | "elk_stress" | "elk_layered" | "elk_force" | "random" |
-                            "sporeCompaction" | "elk_radial" | "elk_overlapRemoval" | "elk_stress_advanced_using_clusters" |
-                            "automatic";
-
-export const ALGORITHM_NAME_TO_LAYOUT_MAPPING: Record<AlgorithmName, LayoutAlgorithm> = {
-    "elk_stress": new ElkLayout(),
-    "elk_layered": new ElkLayout(),
-    "elk_force": new ElkLayout(),
-    "random": new RandomLayout(),
-    "sporeCompaction": new ElkLayout(),
-    "elk_radial": new ElkLayout(),
-    "elk_overlapRemoval": new ElkLayout(),
-    "elk_stress_advanced_using_clusters": new ElkLayout(),
-    "none": new NoActionLayout(),
-    "automatic": new AutomaticLayout(),
-}
 
 /**
  * Behaves like container for constraints of certain subgraph or whole graph. TODO: Maybe just the whole graph

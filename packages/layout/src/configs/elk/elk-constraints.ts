@@ -7,7 +7,8 @@ import {
     SporeConfiguration,
     StressConfiguration,
     UserGivenAlgorithmConfiguration,
-    UserGivenAlgorithmConfigurationElkForce
+    UserGivenAlgorithmConfigurationElkForce,
+    UserGivenAlgorithmConfigurationStressProfile
 } from "../constraints";
 import { modifyElkDataObject } from "./elk-utils";
 import _ from "lodash";
@@ -163,6 +164,32 @@ export class ElkStressConfiguration extends StressConfiguration implements ElkCo
 
     elkData: LayoutOptions = {};
 }
+
+export class ElkStressProfileLayoutConfiguration extends StressConfiguration implements ElkConstraint {
+    constructor(
+        givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
+        shouldCreateNewGraph: boolean,
+        algorithmPhasesToCall?: AlgorithmPhases
+    ) {
+        super("elk_stress_profile", givenAlgorithmConstraints, shouldCreateNewGraph, algorithmPhasesToCall);
+        this.setData(givenAlgorithmConstraints);
+        modifyElkDataObject(this.data, this.elkData);
+        this.data.profileEdgeLength = givenAlgorithmConstraints.profileEdgeLength;
+    }
+
+    addAdvancedSettingsForUnderlying(advancedSettings: object) {
+        modifyElkDataObject({"advanced_settings": advancedSettings}, this.elkData);
+    }
+    addAlgorithmConstraintForUnderlying(key: string, value: string): void {
+        modifyElkDataObject({[key]: value, "layout_alg": this.algorithmName}, this.elkData);
+    }
+
+    elkData: LayoutOptions = {};
+    // TODO RadStr: This is nice, but it would be better to use getter which just converts the data: object into this type
+    //              I don't need to solve the issues oh having 2 data objects (I have only 1 accessible, but I have to set it here)
+    data: UserGivenAlgorithmConfigurationStressProfile = undefined;
+}
+
 
 
 // TODO: For now just extend AlgorithmConfiguration, don't make separate general class for Force algorithms as in case of stress,

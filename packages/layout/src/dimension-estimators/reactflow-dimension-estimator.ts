@@ -1,6 +1,6 @@
 import { NodeDimensionQueryHandler } from "..";
 import { Node } from "../graph/representation/node";
-import { getEdgeSourceAndTargetRelationship } from "../layout-algorithms/layout-algorithm-interface";
+import { getEdgeSourceAndTargetRelationship } from "../layout-algorithms/entity-bundles";
 import { ReactflowDimensionsConstantEstimator } from "./constant-dimension-estimator";
 
 
