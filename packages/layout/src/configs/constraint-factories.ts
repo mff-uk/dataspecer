@@ -44,11 +44,12 @@ function getOverlapConfigurationToRunAfterMainAlgorithm() {
         edge_routing: "ORTHOGONAL",
         stress_edge_len: 0,
         number_of_new_algorithm_runs: 0,
-        min_distance_between_nodes: 50,         // Can be played with
+        min_distance_between_nodes: 50, // Can be played with
         force_alg_type: "FRUCHTERMAN_REINGOLD",
         constraintedNodes: "ALL",
         should_be_considered: false,
-        run_layered_after: false
+        run_layered_after: false,
+        run_node_overlap_removal_after: false
     }
 
     return new ElkSporeOverlapConfiguration(overlapConfiguration, true);
@@ -93,7 +94,6 @@ class AlgorithmConstraintFactory {
                     elkStress.addAlgorithmConstraint("interactive", "true");
                 }
                 layoutActionsToSet.push(elkStress);
-                layoutActionsToSet.push(getOverlapConfigurationToRunAfterMainAlgorithm());
                 break;
             case "elk_layered":
                 layoutActionsToSet.push(new ElkLayeredConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
@@ -105,21 +105,17 @@ class AlgorithmConstraintFactory {
                 else {
                     layoutActionsToSet.push(new ElkForceConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
                 }
-                layoutActionsToSet.push(getOverlapConfigurationToRunAfterMainAlgorithm());
                 break;
             case "random":
                 layoutActionsToSet.push(AlgorithmConstraintFactory.getRandomLayoutConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
-                layoutActionsToSet.push(getOverlapConfigurationToRunAfterMainAlgorithm());
                 break;
             case "sporeCompaction":
                 layoutActionsToSet.push(new ElkSporeCompactionConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
-                layoutActionsToSet.push(getOverlapConfigurationToRunAfterMainAlgorithm());
                 break;
             case "elk_radial":
                 layoutActionsToSet.push(GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("RESET_LAYOUT", null));
                 layoutActionsToSet.push(GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("TREEIFY", null));
                 layoutActionsToSet.push(new ElkRadialConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
-                layoutActionsToSet.push(getOverlapConfigurationToRunAfterMainAlgorithm());
                 break;
             case "elk_overlapRemoval":
                 layoutActionsToSet.push(new ElkSporeOverlapConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
@@ -129,7 +125,6 @@ class AlgorithmConstraintFactory {
                 layoutActionsToSet.push(AlgorithmConstraintFactory.getRandomLayoutConfiguration(userGivenAlgorithmConfiguration, true));        // TODO RadStr: I should only use this if I don't want the algorithm to use the current positions
                 elkStressUsingClusters.addAlgorithmConstraint("interactive", "true");
                 layoutActionsToSet.push(elkStressUsingClusters);
-                layoutActionsToSet.push(getOverlapConfigurationToRunAfterMainAlgorithm());
                 const layoutClustersAction = GraphConversionConstraint.createSpecificAlgorithmConversionConstraint(
                     "LAYOUT_CLUSTERS_ACTION", userGivenAlgorithmConfiguration);
                 const clusterifyAction = layoutActionsBeforeMainRun
@@ -157,6 +152,9 @@ class AlgorithmConstraintFactory {
                 throw new Error("Implementation error You forgot to extend the AlgorithmConstraintFactory factory for new algorithm");
         }
 
+        if(userGivenAlgorithmConfiguration.run_node_overlap_removal_after) {
+            layoutActionsToSet.push(getOverlapConfigurationToRunAfterMainAlgorithm());
+        }
 
         if(userGivenAlgorithmConfiguration.run_layered_after) {
             const configLayeredAfter = getDefaultUserGivenConstraintsVersion4();
@@ -383,6 +381,7 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
         configuration.chosenMainAlgorithm = "elk_stress";
         configuration.main.elk_stress = getDefaultMainUserGivenAlgorithmConstraint("elk_stress");
         configuration.main.elk_stress.interactive = true;
+        configuration.main.elk_stress.run_node_overlap_removal_after = true;
         (configuration.main.elk_stress as UserGivenAlgorithmConfigurationStress).stress_edge_len = algorithmConversionConstraint.data.edgeLength;
         graph = await getBestLayoutFromMetricResultAggregation(await performLayoutFromGraph(graph, configuration));
 

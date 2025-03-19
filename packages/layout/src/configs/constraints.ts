@@ -227,11 +227,12 @@ export interface UserGivenAlgorithmConfigurationElkForce {
 }
 
 // TODO RadStr REFACTOR: first 2 Already covered implicitly by the field (should_be_considered is by the fact that algorithm is set to none),
-//                       run layered is jsut another algorithm in array
+//                       run layered is just another algorithm in array same for nodeOverlap
 export interface UserGivenAlgorithmConfigurationExtraData {
     "constraintedNodes": ConstraintedNodesGroupingsType,
     "should_be_considered": boolean,
-    "run_layered_after": boolean
+    "run_layered_after": boolean,
+    "run_node_overlap_removal_after": boolean,
 }
 
 // This actually only used so we type checking for the mapping from the universal parameter names to the library ones (for example to the elk ones)
@@ -256,15 +257,21 @@ export interface UserGivenAlgorithmConfigurationForGeneralization extends UserGi
 // TODO: getDefaultUserGivenAlgorithmConfiguration
 export function getDefaultUserGivenAlgorithmConstraint(algorithmName: AlgorithmName): Omit<UserGivenAlgorithmConfiguration, "constraintedNodes" | "should_be_considered"> {
     let interactive = false;
+    let run_node_overlap_removal_after = false;
     // TODO RadStr: Spore compaction seems to be useless (it is like layered algorithm)
     if(algorithmName === "elk_overlapRemoval" || algorithmName === "sporeCompaction" || algorithmName === "elk_stress_advanced_using_clusters") {
         interactive = true;
+    }
+    if(algorithmName === "elk_stress" || algorithmName === "elk_stress_advanced_using_clusters" ||
+       algorithmName === "random") {
+        run_node_overlap_removal_after = true;
     }
     return {
         "layout_alg": algorithmName,
     //  "profile-nodes-position-against-source": DIRECTION.Down,
         ...LayeredConfiguration.getDefaultObject(),
         "stress_edge_len": 800,
+        run_node_overlap_removal_after,
 
         "force_alg_type": "FRUCHTERMAN_REINGOLD",
         "min_distance_between_nodes": 100,

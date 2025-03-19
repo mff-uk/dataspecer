@@ -169,6 +169,28 @@ export const useConfigDialog = () => {
     </div>;
   };
 
+  const RunOverlapRemovalAfterCombobox = (props: {stateField: MainType}) => {
+    return <div>
+      <input type="checkbox"
+              id="checkbox-run-overlap-removal-after"
+              name="checkbox-run-overlap-removal-after"
+              checked={config?.[props.stateField]?.[config.chosenMainAlgorithm]?.run_node_overlap_removal_after}
+        onChange={e => {
+          setConfig({
+            ...config,
+            [props.stateField]: {
+              ...config[props.stateField],
+              [config.chosenMainAlgorithm]: {
+                ...config[props.stateField][config.chosenMainAlgorithm],
+                "run_node_overlap_removal_after": e.target.checked,
+              }
+            }
+          });
+        }} />
+      <label htmlFor="checkbox-run-overlap-removal-after">Run node overlap removal after</label>
+    </div>;
+  };
+
   const interactiveCheckbox = (props: {algorithmName: AlgorithmName, stateField: MainOrGeneralType}) => {
     return <div>
       <input type="checkbox" id={`checkbox-interactive${props.stateField}`} name="checkbox-interactive"
@@ -227,6 +249,7 @@ export const useConfigDialog = () => {
       <hr className="w-48 h-1 mx-auto my-3 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
       {interactiveCheckbox({...props, algorithmName: "elk_force"})}
       <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
+      <RunOverlapRemovalAfterCombobox stateField={props.stateField}></RunOverlapRemovalAfterCombobox>
     </div>;
 
   function setConfigWithNewValue<T>(algorithmName: AlgorithmName, stateField: Partial<MainOrGeneralType>, nameOfParameterToChange: string, newValue: T) {
@@ -283,6 +306,7 @@ export const useConfigDialog = () => {
         {config?.[props.stateField]?.elk_stress_advanced_using_clusters?.["number_of_new_algorithm_runs"]}
       </div>
       <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
+      <RunOverlapRemovalAfterCombobox stateField={props.stateField}></RunOverlapRemovalAfterCombobox>
     </div>;
 
   const StressConfig = (props: {stateField: MainType}) =>
@@ -317,6 +341,7 @@ export const useConfigDialog = () => {
       <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
       {interactiveCheckbox({...props, algorithmName: "elk_stress"})}
       <RunLayeredAfterCombobox stateField={props.stateField}></RunLayeredAfterCombobox>
+      <RunOverlapRemovalAfterCombobox stateField={props.stateField}></RunOverlapRemovalAfterCombobox>
     </div>;
 
   const LayeredConfig = (props: {stateField: MainOrGeneralType}) =>
@@ -435,6 +460,7 @@ export const useConfigDialog = () => {
       case "automatic":
         return <AutomaticConfig stateField="main"></AutomaticConfig>;
       case "random":
+        return <RunOverlapRemovalAfterCombobox stateField="main"></RunOverlapRemovalAfterCombobox>
       default:
         return null;
     }
