@@ -252,12 +252,14 @@ export const defaultConfiguration: DocumentationGeneratorConfiguration = {
                 {{/translate}}
               </table>
 
-              <p>Zpětné asociace</p>
-              <ul>
-                {{#each backwardsRelationships}}
-                  <li><a href="{{{href id}}}"></a></li>
-                {{/each}}
-              </ul>
+              {{#if backwardsRelationships}}
+                <p>{{#iflng "cs"}}Zpětné asociace{{lng}}Backwards associations{{/iflng}}</p>
+                <ul>
+                  {{#each backwardsRelationships}}
+                    <li><a href="{{{href id}}}"></a></li>
+                  {{/each}}
+                </ul>
+              {{/if}}
 
               {{#each relationships}}
                 {{relationship-section}}
