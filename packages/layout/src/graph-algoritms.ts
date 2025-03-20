@@ -207,7 +207,77 @@ export class GraphAlgorithms {
     /**
      * Returns biggest clusters for graph. Biggest in the number of nodes, not edges.
      */
-    static clusterify(graph: MainGraph): Record<string, Edge[]> {
+    static clusterify(graph: MainGraph, clusterCount: number | null): Record<string, Edge[]> {
+      const leafs: Record<string, Edge[]> = {};
+      const clusters: Record<string, Edge[]> = {};
+      const uniqueClusters: Record<string, Edge[]> = {};    // Clusters without multi-edges - we just take 1 representative
+      graph.allNodes.forEach(node => {
+        const edges = [...node.getAllEdges()];
+        let secondEnd: string | null = null;
+        let isSameEndForAllEdges = true;
+        for(const edge of node.getAllOutgoingEdges()) {
+          if(edge.start.id === edge.end.id) {
+            continue;
+          }
+          if(secondEnd === null) {
+            secondEnd = edge.end.id;
+          }
+          if(secondEnd !== edge.end.id) {
+            isSameEndForAllEdges = false;
+            break;
+          }
+        }
+        if(isSameEndForAllEdges) {
+          for(const edge of node.getAllIncomingEdges()) {
+            if(edge.start.id === edge.end.id) {
+              continue;
+            }
+            if(secondEnd === null) {
+              secondEnd = edge.start.id;
+            }
+            if(secondEnd !== edge.start.id) {
+              isSameEndForAllEdges = false;
+              break;
+            }
+          }
+
+          if(isSameEndForAllEdges && secondEnd !== null) {
+            let isFirst = true;
+            for(const edge of edges) {
+              if(edge.start.id === edge.end.id) {
+                continue;
+              }
+              addToRecordArray(node.id, edge, leafs);
+              const otherEnd = edge.start.id === node.id ? edge.end : edge.start;
+              addToRecordArray(otherEnd.id, edge, clusters);
+              if(isFirst) {
+                isFirst = false;
+                addToRecordArray(otherEnd.id, edge, uniqueClusters);
+              }
+              // TODO RadStr: Commented code
+              // edge.layoutOptions["stress_edge_len"] = "250";
+            }
+          }
+        }
+      });
+
+      const sortedClusters = Object.entries(uniqueClusters)
+        .sort(([, edgesA], [, edgesB]) => edgesB.length - edgesA.length);
+      const biggestClusters = sortedClusters.splice(0, Math.min(sortedClusters.length, clusterCount ?? sortedClusters.length));
+      const result: Record<string, Edge[]> = {};
+      for(const [name, cluster] of biggestClusters) {
+        result[name] = cluster;
+      }
+
+      console.info("Object.keys(result).length", Object.keys(result).length, result);
+      console.info("Object.keys(result).length", clusters, uniqueClusters);
+      return result;
+    }
+
+    /**
+     * Returns biggest clusters for graph. Biggest in the number of nodes, not edges.
+     */
+    static clusterifyAdvanced(graph: MainGraph, clusterCount: number | null): Record<string, Edge[]> {
       const leafs: Record<string, Edge[]> = {};
       const clusters: Record<string, Edge[]> = {};
       const uniqueClusters: Record<string, Edge[]> = {};    // Clusters without multi-edges - we just take 1 representative
@@ -254,12 +324,13 @@ export class GraphAlgorithms {
 
       const sortedClusters = Object.entries(uniqueClusters)
         .sort(([, edgesA], [, edgesB]) => edgesB.length - edgesA.length);
-      const biggestClusters = sortedClusters.splice(0, 3);
-      return {
-        [biggestClusters[0][0]]: biggestClusters[0][1],
-        [biggestClusters[1][0]]: biggestClusters[1][1],
-        [biggestClusters[2][0]]: biggestClusters[2][1],
-      };
+        const biggestClusters = sortedClusters.splice(0, Math.min(sortedClusters.length, clusterCount ?? sortedClusters.length));
+        const result: Record<string, Edge[]> = {};
+        for(const [name, cluster] of biggestClusters) {
+          result[name] = cluster;
+        }
+
+        return result;
     }
 
 

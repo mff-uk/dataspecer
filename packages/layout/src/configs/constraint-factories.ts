@@ -299,7 +299,7 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
         algorithmConversionConstraint: ClusterifyConstraint,
         graph: MainGraph
     ): Promise<MainGraph> => {
-        const clusteredEdges = GraphAlgorithms.clusterify(graph);
+        const clusteredEdges = GraphAlgorithms.clusterify(graph, null);
         algorithmConversionConstraint.data.clusters = clusteredEdges;
         return Promise.resolve(graph);
     },
