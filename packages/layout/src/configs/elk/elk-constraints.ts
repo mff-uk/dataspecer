@@ -166,6 +166,13 @@ export class ElkStressConfiguration extends StressConfiguration implements ElkCo
 }
 
 export class ElkStressProfileLayoutConfiguration extends StressConfiguration implements ElkConstraint {
+    getAllRelevantConstraintKeys() {
+        return super.getAllRelevantConstraintKeys().concat([
+            "profileEdgeLength",
+            "preferredProfileDirection",
+        ]);
+    }
+
     constructor(
         givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
         shouldCreateNewGraph: boolean,
@@ -174,7 +181,6 @@ export class ElkStressProfileLayoutConfiguration extends StressConfiguration imp
         super("elk_stress_profile", givenAlgorithmConstraints, shouldCreateNewGraph, algorithmPhasesToCall);
         this.setData(givenAlgorithmConstraints);
         modifyElkDataObject(this.data, this.elkData);
-        this.data.profileEdgeLength = givenAlgorithmConstraints.profileEdgeLength;
     }
 
     addAdvancedSettingsForUnderlying(advancedSettings: object) {

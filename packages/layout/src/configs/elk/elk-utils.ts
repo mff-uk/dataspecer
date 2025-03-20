@@ -14,7 +14,8 @@ export const CONFIG_TO_ELK_CONFIG_MAP: Record<keyof Omit<UserGivenAlgorithmConfi
     "force_alg_type": ["org.eclipse.elk.force.model"],
     "min_distance_between_nodes": ["spacing.nodeNode"],
     "edge_routing": ["elk.edgeRouting"],
-    profileEdgeLength: []
+    profileEdgeLength: [],
+    preferredProfileDirection: [],
 };
 
 /**

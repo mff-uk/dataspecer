@@ -51,7 +51,9 @@ function getOverlapConfigurationToRunAfterMainAlgorithm(
         should_be_considered: false,
         run_layered_after: false,
         run_node_overlap_removal_after: false,
-        profileEdgeLength: 0
+
+        profileEdgeLength: 0,
+        preferredProfileDirection: Direction.Up,
     }
 
     return new ElkSporeOverlapConfiguration(overlapConfiguration, true);

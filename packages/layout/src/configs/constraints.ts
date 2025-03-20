@@ -218,6 +218,7 @@ export interface UserGivenAlgorithmConfigurationStress {
 
 export interface UserGivenAlgorithmConfigurationStressProfile extends UserGivenAlgorithmConfigurationStress {
     profileEdgeLength: number,
+    preferredProfileDirection: Direction,
 }
 
 export interface UserGivenAlgorithmConfigurationSpore {
@@ -277,6 +278,7 @@ export function getDefaultUserGivenAlgorithmConstraint(algorithmName: AlgorithmN
         "stress_edge_len": 800,
         profileEdgeLength: 800,
         run_node_overlap_removal_after,
+        preferredProfileDirection: Direction.Up,
 
         "force_alg_type": "FRUCHTERMAN_REINGOLD",
         "min_distance_between_nodes": 100,
