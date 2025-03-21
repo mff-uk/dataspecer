@@ -215,10 +215,7 @@ export class GraphAlgorithms {
         const edges = [...node.getAllEdges()];
         let secondEnd: string | null = null;
         let isSameEndForAllEdges = true;
-        for(const edge of node.getAllOutgoingEdges()) {
-          if(edge.start.id === edge.end.id) {
-            continue;
-          }
+        for(const edge of node.getAllOutgoingUniqueEdges()) {
           if(secondEnd === null) {
             secondEnd = edge.end.id;
           }
@@ -228,10 +225,7 @@ export class GraphAlgorithms {
           }
         }
         if(isSameEndForAllEdges) {
-          for(const edge of node.getAllIncomingEdges()) {
-            if(edge.start.id === edge.end.id) {
-              continue;
-            }
+          for(const edge of node.getAllIncomingUniqueEdges()) {
             if(secondEnd === null) {
               secondEnd = edge.start.id;
             }
@@ -285,7 +279,10 @@ export class GraphAlgorithms {
         const edges = [...node.getAllEdges()];
         let secondEnd: string | null = null;
         let isSameEndForAllEdges = true;
-        for(const edge of node.getAllOutgoingEdges()) {
+        for(const edge of node.getAllOutgoingUniqueEdges()) {
+          if(edge.start.id === edge.end.id) {
+            continue;
+          }
           if(secondEnd === null) {
             secondEnd = edge.end.id;
           }
@@ -295,7 +292,7 @@ export class GraphAlgorithms {
           }
         }
         if(isSameEndForAllEdges) {
-          for(const edge of node.getAllIncomingEdges()) {
+          for(const edge of node.getAllIncomingUniqueEdges()) {
             if(secondEnd === null) {
               secondEnd = edge.start.id;
             }
@@ -305,9 +302,12 @@ export class GraphAlgorithms {
             }
           }
 
-          if(isSameEndForAllEdges) {
+          if(isSameEndForAllEdges && secondEnd !== null) {
             let isFirst = true;
             for(const edge of edges) {
+              if(edge.start.id === edge.end.id) {
+                continue;
+              }
               addToRecordArray(node.id, edge, leafs);
               const otherEnd = edge.start.id === node.id ? edge.end : edge.start;
               addToRecordArray(otherEnd.id, edge, clusters);
@@ -322,16 +322,233 @@ export class GraphAlgorithms {
         }
       });
 
+
       const sortedClusters = Object.entries(uniqueClusters)
         .sort(([, edgesA], [, edgesB]) => edgesB.length - edgesA.length);
-        const biggestClusters = sortedClusters.splice(0, Math.min(sortedClusters.length, clusterCount ?? sortedClusters.length));
-        const result: Record<string, Edge[]> = {};
-        for(const [name, cluster] of biggestClusters) {
-          result[name] = cluster;
+      // TODO: I should give it the uniqueClusters not the sorted ones (because it has better type)
+      // TODO: Looking up in graph again - not optimal, I should know the entities by now.
+      const clusterRoots = Object.keys(uniqueClusters)
+        .map(identifier => graph.findNodeInAllNodes(identifier))
+        .filter(node => node !== null);
+      const components = GraphAlgorithms.findComponents(graph, clusterRoots);
+      console.info("Components", components);
+      GraphAlgorithms.extendClustersWithLoops(graph, null, components, sortedClusters, 3);
+      const biggestClusters = sortedClusters.splice(0, Math.min(sortedClusters.length, clusterCount ?? sortedClusters.length));
+      const result: Record<string, Edge[]> = {};
+      for(const [name, cluster] of biggestClusters) {
+        result[name] = cluster;
+      }
+
+      console.info("Object.keys(result).length", Object.keys(result).length, result);
+      console.info("Object.keys(result).length", clusters, uniqueClusters);
+      return result;
+    }
+
+    static findComponents(graph: MainGraph, clusterRoots: EdgeEndPoint[]) {
+      const components: Record<string, number[]> = {};
+      let currentComponent = -1;
+      for(const node of graph.allNodes) {
+        // Clutser roots get the identifier from the nodes in component
+        if(clusterRoots.includes(node)) {
+          continue;
+        }
+        if(components[node.id] === undefined) {
+          currentComponent++;
+          components[node.id] = [currentComponent];
+        }
+        else {
+          // Already processesed
+          continue;
+        }
+        GraphAlgorithms.findRemainingNodesInComponent(components, currentComponent, clusterRoots, [node]);
+      }
+
+      return components;
+    }
+
+    static findRemainingNodesInComponent(
+      components: Record<string, number[]>,
+      currentComponent: number,
+      clusterRoots: EdgeEndPoint[],
+      nodesInStack: EdgeEndPoint[]
+    ): void {
+      while(nodesInStack.length > 0) {
+        const node = nodesInStack.shift();
+        nodesInStack.push(...this.findUnexploredNodesInEdges(components, currentComponent, clusterRoots, node.getAllOutgoingEdges()));
+        nodesInStack.push(...this.findUnexploredNodesInEdges(components, currentComponent, clusterRoots, node.getAllIncomingEdges()));
+      }
+    }
+
+    static findUnexploredNodesInEdges(
+      components: Record<string, number[]>,
+      currentComponent: number,
+      clusterRoots: EdgeEndPoint[],
+      edges: Edge[] | Generator<Edge, string, unknown>,
+    ): EdgeEndPoint[] {
+      const unexploredNodes: EdgeEndPoint[] = [];
+      for(const edge of edges) {
+        if(clusterRoots.includes(edge.start)) {
+          addToRecordArray(edge.start.id, currentComponent, components);
+        }
+        else if(components[edge.start.id] === undefined) {
+          unexploredNodes.push(edge.start);
+          components[edge.start.id] = [currentComponent];
         }
 
-        return result;
+        if(clusterRoots.includes(edge.end)) {
+          addToRecordArray(edge.end.id, currentComponent, components);
+        }
+        else if(components[edge.end.id] === undefined) {
+          unexploredNodes.push(edge.end);
+          components[edge.end.id] = [currentComponent];
+        }
+      }
+
+      return unexploredNodes;
     }
+
+    static findTrees(
+      graph: MainGraph,
+      clusterRoot: EdgeEndPoint,
+      clusters: EdgeEndPoint[],
+      components: Record<string, number[]>
+    ) {
+      for(const node of graph.allNodes) {
+        if(node.id === clusterRoot.id) {
+          continue;
+        }
+
+      }
+    }
+
+    // TODO RadStr: Remove the loop node
+    static extendClustersWithLoops(
+      graph: MainGraph,
+      rootNode: EdgeEndPoint,
+      components: Record<string, number[]>,
+      clusters: [string, Edge[]][],
+      maxComponentDepth: number
+    ): void {
+      const clusterRootsIdentifiers = clusters.map(([clusterIdentifier, _edgesInCluster]) => clusterIdentifier);
+      const componentsToClusterRootsMap: Record<number, string[]> = {};
+      // Map the components to cluster roots (that is from which cluster roots they are reachable)
+      for(const clusterIdentifier of clusterRootsIdentifiers) {
+        for(const componentIdentifier of components[clusterIdentifier]) {
+          addToRecordArray(componentIdentifier, clusterIdentifier, componentsToClusterRootsMap);
+        }
+      }
+      // Remove duplicates
+      for(const [key, value] of Object.entries(componentsToClusterRootsMap)) {
+        componentsToClusterRootsMap[key] = [...new Set(value)];
+      }
+
+      // Find those components which are going from exactly one cluster root, those are our loop components.
+      // These components can be found the following way: There is exactly one cluster root for the component
+      const loopComponentToClusterRootsMap: Record<number, string> = {};
+      for(const [component, clusterRoots] of Object.entries(componentsToClusterRootsMap)) {
+        if(clusterRoots.length === 1) {
+          loopComponentToClusterRootsMap[component] = clusterRoots[0];
+        }
+      }
+
+      // Now find the nodes in the loop components
+      const nodesInLoopComponents: Record<number, string[]> = {}
+      for(const [nodeIdentifier, componentsIdentifiers] of Object.entries(components)) {
+        if(!clusterRootsIdentifiers.includes(nodeIdentifier) && componentsIdentifiers.length === 1) {
+          if(loopComponentToClusterRootsMap[componentsIdentifiers[0]] !== undefined) {
+            addToRecordArray(componentsIdentifiers[0], nodeIdentifier, nodesInLoopComponents);
+          }
+        }
+      }
+
+
+      console.info("LOOP COMPONENTS", {componentsToClusterRootsMap, nodesInLoopComponents, loopComponentToClusterRootsMap, components});
+      for(const [loopComponent, nodesInLoopComponent] of Object.entries(nodesInLoopComponents)) {
+        if(nodesInLoopComponent.length < 2) {    // Can not be a loop
+          continue;
+        }
+        console.info("IN LOOP COMPONENT");
+        const loopToAddToCluster = GraphAlgorithms.findAllEdgesInComponent(graph, nodesInLoopComponent, maxComponentDepth);
+        const clusterToExtendByLoop = clusters.find(([clusterIdentifier, edgesInCluster]) => loopComponentToClusterRootsMap[loopComponent] === clusterIdentifier);
+        if(clusterToExtendByLoop === undefined) {
+          console.error("Can not find cluster even though it should be there, probably programmer error");
+          continue;
+        }
+        clusterToExtendByLoop[1].push(...Object.values(loopToAddToCluster));
+      }
+
+    }
+
+    /**
+     * Finds all edges in component using bfs or returns null if the component has depth larger than given {@link maxLoopDepth}.
+     */
+    static findAllEdgesInComponent(
+      graph: MainGraph,
+      nodesInGraph: string[],
+      maxLoopDepth: number
+    ) {
+      const nodesInComponent = nodesInGraph
+        .map(identifier => graph.findNodeInAllNodes(identifier))
+        .filter(node => node !== null);
+      if(nodesInComponent.length === 0) {
+        console.error("For some unknow reason component is empty");
+        return null;
+      }
+      const alreadyVisitedNodes: Record<string, true> = {};
+      const alreadyVisitedEdges: Record<string, Edge> = {};
+      let newlyFoundNodesInComponent = [nodesInComponent[0]];
+      for(let i = 0; i < maxLoopDepth; i++) {
+        newlyFoundNodesInComponent = GraphAlgorithms.findAllEdgesInComponentInternalOneStep(
+          nodesInComponent, alreadyVisitedNodes, alreadyVisitedEdges, newlyFoundNodesInComponent);
+        if(Object.keys(alreadyVisitedNodes).length === nodesInComponent.length) {
+          break;
+        }
+      }
+
+      if(Object.keys(alreadyVisitedNodes).length === nodesInComponent.length) {
+        return alreadyVisitedEdges;
+      }
+      return null;
+    }
+
+    /**
+     * Performs one bfs step of finding the edges
+     */
+    static findAllEdgesInComponentInternalOneStep(
+      nodesInComponent: EdgeEndPoint[],
+      alreadyVisitedNodes: Record<string, true>,
+      alreadyVisitedEdgesInSubgraph: Record<string, Edge>,
+      nodesToProcess: EdgeEndPoint[],
+    ) {
+      const newlyVisitedNodes: Set<EdgeEndPoint> = new Set();
+      const edgesToProcess: Edge[] = [];
+      for(const node of nodesToProcess) {
+        if(alreadyVisitedNodes[node.id] === undefined) {
+          alreadyVisitedNodes[node.id] = true;
+          edgesToProcess.push(...node.getAllEdges());
+        }
+      }
+
+      for(const edge of edgesToProcess) {
+        if(!nodesInComponent.includes(edge.start) || !nodesInComponent.includes(edge.end)) {
+          continue;
+        }
+
+        if(alreadyVisitedEdgesInSubgraph[edge.id] === undefined) {
+          alreadyVisitedEdgesInSubgraph[edge.id] = edge;
+          if(alreadyVisitedNodes[edge.start.id] === undefined) {
+            newlyVisitedNodes.add(edge.start);
+          }
+          else if(alreadyVisitedNodes[edge.end.id] === undefined) {
+            newlyVisitedNodes.add(edge.end);
+          }
+        }
+      }
+
+      return [...newlyVisitedNodes];
+    }
+
+
 
 
     // TODO: We could also put how many nodes collide into the computation

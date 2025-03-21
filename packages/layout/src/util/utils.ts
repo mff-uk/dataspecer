@@ -12,7 +12,7 @@ import { VisualNodeComplete } from "../graph/representation/node";
  * const buckets : Record<string, any> = {}
  * addToRecordArray("bucket", {}, buckets);
  */
-export function addToRecordArray<IdentifierType extends string, ValueType>(
+export function addToRecordArray<IdentifierType extends string | number, ValueType>(
   identifier: IdentifierType,
   value: ValueType,
   map: Record<IdentifierType, ValueType[]>,

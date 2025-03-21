@@ -41,7 +41,7 @@ import {
     SemanticModelClassProfile,
 } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { getDomainAndRange } from "@dataspecer/core-v2/semantic-model/relationship-utils";
-import { addNodeToGraph, getAllEdges, getAllIncomingEdges, getAllOutgoingEdges, Node, isNodeInVisualModel, VisualNodeComplete } from "./node";
+import { addNodeToGraph, getAllEdges, getAllIncomingEdges, getAllOutgoingEdges, Node, isNodeInVisualModel, VisualNodeComplete, getAllIncomingUniqueEdges, getAllOutgoingUniqueEdges, getAllUniqueEdges } from "./node";
 import { GraphFactory } from "./graph-factory";
 import { AllowedEdgeBundleWithType, AllowedEdgeTypes, convertOutgoingEdgeTypeToIncoming, DefaultEdge, EdgeEndPoint, getEdgeTypeNameFromEdge, Edge } from "./edge";
 
@@ -784,6 +784,22 @@ export class DefaultGraph implements Graph {
         this.mainGraph.allEdges.splice(index, 1);
     }
 
+    /**
+     * Removes {@link node} and all related edges and also removes it all from list of all nodes and all edges of the main graph.
+     * @param node
+     */
+    removeNode(node: Node) {
+        for(const edge of node.getAllEdges()) {
+            this.removeEdge(edge);
+        }
+
+        // TODO: Put into separate method ... probably should be just method on the main graph which gets graph as argument
+        const index = this.mainGraph.findNodeIndexInAllNodes(node.id);
+        if(index !== null) {
+            this.mainGraph.allNodes.splice(index, 1);
+        }
+    }
+
 
     convertToDataspecerRepresentation(): VisualNode | null {
         return this.completeVisualNode?.coreVisualNode ?? null;
@@ -830,6 +846,18 @@ export class DefaultGraph implements Graph {
 
     getAllEdges(): Generator<Edge, string, unknown> {
         return getAllEdges(this);
+    }
+
+    getAllIncomingUniqueEdges(): Generator<Edge, string, unknown> {
+        return getAllIncomingUniqueEdges(this);
+    }
+
+    getAllOutgoingUniqueEdges(): Generator<Edge, string, unknown> {
+        return getAllOutgoingUniqueEdges(this);
+    }
+
+    getAllUniqueEdges(): Generator<Edge, string, unknown> {
+        return getAllUniqueEdges(this);
     }
 
     completeVisualNode: VisualNodeComplete;
