@@ -444,10 +444,10 @@ export class GraphAlgorithms {
 
       // Find those components which are going from exactly one cluster root, those are our loop components.
       // These components can be found the following way: There is exactly one cluster root for the component
-      const loopComponentToClusterRootsMap: Record<number, string> = {};
+      const loopComponentToClusterRootMap: Record<number, string> = {};
       for(const [component, clusterRoots] of Object.entries(componentsToClusterRootsMap)) {
         if(clusterRoots.length === 1) {
-          loopComponentToClusterRootsMap[component] = clusterRoots[0];
+          loopComponentToClusterRootMap[component] = clusterRoots[0];
         }
       }
 
@@ -455,26 +455,39 @@ export class GraphAlgorithms {
       const nodesInLoopComponents: Record<number, string[]> = {}
       for(const [nodeIdentifier, componentsIdentifiers] of Object.entries(components)) {
         if(!clusterRootsIdentifiers.includes(nodeIdentifier) && componentsIdentifiers.length === 1) {
-          if(loopComponentToClusterRootsMap[componentsIdentifiers[0]] !== undefined) {
+          if(loopComponentToClusterRootMap[componentsIdentifiers[0]] !== undefined) {
             addToRecordArray(componentsIdentifiers[0], nodeIdentifier, nodesInLoopComponents);
           }
         }
       }
 
 
-      console.info("LOOP COMPONENTS", {componentsToClusterRootsMap, nodesInLoopComponents, loopComponentToClusterRootsMap, components});
+      console.info("LOOP COMPONENTS", {componentsToClusterRootsMap, nodesInLoopComponents, loopComponentToClusterRootsMap: loopComponentToClusterRootMap, components});
       for(const [loopComponent, nodesInLoopComponent] of Object.entries(nodesInLoopComponents)) {
         if(nodesInLoopComponent.length < 2) {    // Can not be a loop
           continue;
         }
         console.info("IN LOOP COMPONENT");
         const loopToAddToCluster = GraphAlgorithms.findAllEdgesInComponent(graph, nodesInLoopComponent, maxComponentDepth);
-        const clusterToExtendByLoop = clusters.find(([clusterIdentifier, edgesInCluster]) => loopComponentToClusterRootsMap[loopComponent] === clusterIdentifier);
+        const clusterRootForThisLoop = loopComponentToClusterRootMap[loopComponent];
+        const clusterToExtendByLoop = clusters.find(([clusterIdentifier, edgesInCluster]) => clusterRootForThisLoop === clusterIdentifier);
         if(clusterToExtendByLoop === undefined) {
           console.error("Can not find cluster even though it should be there, probably programmer error");
           continue;
         }
         clusterToExtendByLoop[1].push(...Object.values(loopToAddToCluster));
+
+        const clusterRoot = graph.findNodeInAllNodes(clusterRootForThisLoop);
+        for(const edge of clusterRoot.getAllIncomingEdges()) {
+          if(nodesInLoopComponents[loopComponent].includes(edge.start.id)) {
+            clusterToExtendByLoop[1].push(edge);
+          }
+        }
+        for(const edge of clusterRoot.getAllOutgoingEdges()) {
+          if(nodesInLoopComponents[loopComponent].includes(edge.end.id)) {
+            clusterToExtendByLoop[1].push(edge);
+          }
+        }
       }
 
     }
