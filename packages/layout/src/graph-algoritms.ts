@@ -561,6 +561,40 @@ export class GraphAlgorithms {
       return [...newlyVisitedNodes];
     }
 
+    static pointAllEdgesFromRoot(
+      root: string,
+      edges: Edge[],
+    ) {
+      const lightweightGraph: Record<string, {
+        edge: Edge,
+        targetNode: string
+      }[]> = {};
+      for (const edge of edges) {
+        addToRecordArray(edge.start.id, {edge, targetNode: edge.end.id}, lightweightGraph);
+        // Reverse the edge, so BFS can find it
+        addToRecordArray(edge.end.id, {edge, targetNode: edge.start.id}, lightweightGraph);
+      }
+
+      // BFS traversal from root
+      const queue: string[] = [root];
+      const visited: Set<string> = new Set([root]);
+
+      while (queue.length > 0) {
+        const node = queue.shift();
+        for (const { edge, targetNode } of lightweightGraph[node]) {
+          if (!visited.has(targetNode)) {
+            queue.push(targetNode);
+            visited.add(targetNode);
+            if(edge.end.id !== targetNode) {
+              edge.reverseInLayout = true;
+            }
+            else {
+              edge.reverseInLayout = false;
+            }
+          } 
+        }
+      }
+    }
 
 
 

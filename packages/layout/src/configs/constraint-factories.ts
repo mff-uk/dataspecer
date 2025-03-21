@@ -320,23 +320,19 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
                     node.isConsideredInLayout = false;
                 }
             }
-            for (const edge of graph.allEdges) {
-                const isInCluster = edgesInCluster.findIndex(edgeInCluster => edgeInCluster.id === edge.id) >= 0;
-                if (isInCluster) {
-                    edge.isConsideredInLayout = true;
-                    if(edge.start.id !== cluster) {
-                        if(edge.end.id !== cluster) {      // TODO: Just for now to test it out
-                            edge.reverseInLayout = false;
-                        }
-                        else {
-                            edge.reverseInLayout = true;
-                        }
-                    }
-                }
-                else {
-                    edge.isConsideredInLayout = false;
-                }
+
+            for(const edge of graph.allEdges) {
+                edge.isConsideredInLayout = false;
             }
+
+            // TODO RadStr: We created copies after layout ...
+            //              maybe we should use the create copy parameter only after everything is layouted or rather at the begining - that is only once
+            const edgesInClusterCurrentVersion = edgesInCluster.map(edge => graph.findEdgeInAllEdges(edge.id)).filter(edge => edge !== null);
+            for(const edgeInCluster of edgesInClusterCurrentVersion) {
+                edgeInCluster.isConsideredInLayout = true;
+            }
+            GraphAlgorithms.pointAllEdgesFromRoot(cluster, edgesInClusterCurrentVersion);
+
 
             const clusterRoot = graph.findNodeInAllNodes(cluster);
             const clusterRootPositionBeforeLayout = { ...clusterRoot.completeVisualNode.coreVisualNode.position };
