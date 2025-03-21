@@ -325,7 +325,12 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
                 if (isInCluster) {
                     edge.isConsideredInLayout = true;
                     if(edge.start.id !== cluster) {
-                        edge.reverseInLayout = true;
+                        if(edge.end.id !== cluster) {      // TODO: Just for now to test it out
+                            edge.reverseInLayout = false;
+                        }
+                        else {
+                            edge.reverseInLayout = true;
+                        }
                     }
                 }
                 else {
