@@ -10,6 +10,7 @@ import { createHandlebarsAdapter, HandlebarsAdapter } from "@dataspecer/handleba
 export interface DocumentationGeneratorConfiguration {
   template: string;
   language: string;
+  partials: Record<string, string>;
 }
 
 type ClassLike = SemanticModelClass | SemanticModelClassProfile;
@@ -329,6 +330,6 @@ export async function generateDocumentation(
     return entities;
   };
 
-  const result = await handlebarsAdapter.render(configuration.template, data);
+  const result = await handlebarsAdapter.render(configuration.template, data, configuration.partials);
   return result;
 }

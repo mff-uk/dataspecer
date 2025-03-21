@@ -1,17 +1,20 @@
-import { defaultConfiguration, generateDocumentation } from "@dataspecer/documentation/documentation-generator";
+import { createDefaultConfigurationModelFromJsonObject } from "@dataspecer/core-v2/configuration-model";
 import { LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL } from "@dataspecer/core-v2/model/known-models";
-import { SemanticModelEntity, isSemanticModelClass, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelClass, isSemanticModelRelationship, SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
 import * as DataSpecificationVocabulary from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
 import { generate } from "@dataspecer/core-v2/semantic-model/lightweight-owl";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { PimStoreWrapper } from "@dataspecer/core-v2/semantic-model/v1-adapters";
 import { simplifiedSemanticModelToSemanticModel } from "@dataspecer/core-v2/simplified-semantic-model";
+import { createPartialDocumentationConfiguration, DOCUMENTATION_MAIN_TEMPLATE_PARTIAL } from "@dataspecer/documentation/configuration";
+import { generateDocumentation } from "@dataspecer/documentation/documentation-generator";
+import { mergeDocumentationConfigurations } from "@dataspecer/specification/documentation";
 import express from "express";
 import { z } from "zod";
 import { ZipStreamDictionary } from "../generate/zip-stream-dictionary";
 import { resourceModel } from "../main";
 import { asyncHandler } from "../utils/async-handler";
-import { SemanticModelRelationship } from './../../../../packages/core-v2/lib/semantic-model/concepts/concepts.d';
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { SemanticModelRelationship } from '@dataspecer/core-v2/semantic-model/concepts';
 
 interface ModelDescription {
     isPrimary: boolean;
@@ -95,10 +98,10 @@ async function getDocumentationData(packageId: string, models: ModelDescription[
 } = {}): Promise<string> {
     const externalArtifacts = options.externalArtifacts ?? {};
 
-    const resource = (await resourceModel.getPackage(packageId))!;
-
-    const customRespecTemplate = await resourceModel.getResourceModelStore(packageId, "respec");
-    const template = customRespecTemplate ? (await customRespecTemplate.getJson()).value as string : defaultConfiguration.template;
+    const packageData = await resourceModel.getResourceModelStore(packageId);
+    const configuration = createDefaultConfigurationModelFromJsonObject(await packageData?.getJson());
+    const documentationConfiguration = createPartialDocumentationConfiguration(configuration);
+    const fullConfiguration = mergeDocumentationConfigurations([documentationConfiguration]);
 
     const context = {
         label: (await resourceModel.getPackage(packageId))!.userMetadata.label ?? {},
@@ -108,7 +111,11 @@ async function getDocumentationData(packageId: string, models: ModelDescription[
         prefixMap: options.prefixMap ?? {},
     };
 
-    return await generateDocumentation(context, {...defaultConfiguration, template, language: options.language ?? "en"});
+    return await generateDocumentation(context, {
+        template: fullConfiguration.partials[DOCUMENTATION_MAIN_TEMPLATE_PARTIAL],
+        language: options.language ?? "en",
+        partials: fullConfiguration.partials,
+    });
 }
 
 export const getDocumentation = asyncHandler(async (request: express.Request, response: express.Response) => {
