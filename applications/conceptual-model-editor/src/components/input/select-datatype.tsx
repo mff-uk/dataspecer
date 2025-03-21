@@ -1,5 +1,6 @@
-import { DataTypeURIs, dataTypeUriToName } from "@dataspecer/core-v2/semantic-model/datatypes";
+import { DataTypeURIs } from "@dataspecer/core-v2/semantic-model/datatypes";
 import { OverrideFieldCheckbox } from "./override-field-checkbox";
+import { dataTypeUriToName } from "../../dataspecer/semantic-model/data-type";
 
 export const SelectDatatype = (props: {
     valueSelected: string | null;

@@ -25,7 +25,7 @@ import {
   isSemanticModelClassUsage,
   isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { dataTypeUriToName, isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
+import { isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
 import type { Entity, EntityModel } from "@dataspecer/core-v2";
 
 import { sourceModelOfEntity } from "./model-utils";
@@ -36,6 +36,7 @@ import { getTheOriginalProfiledEntity } from "./profile-utils";
 import { cardinalityToHumanLabel, getDomainAndRange } from "../util/relationship-utils";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
+import { dataTypeUriToName } from "../dataspecer/semantic-model/data-type";
 
 export type EntityDetailSupportedType =
   | SemanticModelClass

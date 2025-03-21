@@ -1,22 +1,25 @@
-import { type DialogProps } from "../dialog-api";
+import { DialogWrapper, type DialogProps } from "../dialog-api";
 import { t } from "../../application";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
-import { SelectModel } from "../class/components/select-model";
-import { InputIri } from "../class/components/input-iri";
-import { EditClassProfileDialogState, useEditClassProfileDialogController } from "./edit-class-profile-dialog-controller";
-import { ValidationMessage } from "../association-profile/components/validation-message";
-import { SelectEntities } from "./components/select-entities";
-import { ProfiledValueWithSource } from "./components/profiled-value";
+import { SelectModel } from "../components/select-model";
+import { InputIri } from "../components/input-iri";
+import { ValidationMessage } from "../components/validation-message";
+import { SelectEntities } from "../components/select-entities";
+import { ProfiledValueWithSource } from "../components/profiled-value";
+import { SpecializationSelect } from "../components/select-specialization";
+import { isValid } from "../utilities/validation-utilities";
+import { ClassProfileDialogState } from "./edit-class-profile-dialog-state";
+import { useClassProfileDialogController } from "./edit-class-profile-dialog-controller";
 
-export const EditClassProfileDialog = (props: DialogProps<EditClassProfileDialogState>) => {
-  const controller = useEditClassProfileDialogController(props);
+export const EditClassProfileDialog = (props: DialogProps<ClassProfileDialogState>) => {
+  const controller = useClassProfileDialogController(props);
   const state = props.state;
   return (
     <>
       <div
         className="grid gap-y-2 md:grid-cols-[25%_75%] md:gap-y-3 bg-slate-100 md:pb-4 md:pl-8 md:pr-16 md:pt-2"
-        style={{ backgroundColor: state.model.displayColor }}      >
+        style={{ backgroundColor: state.model.displayColor }}>
         <DialogDetailRow detailKey={t("model")}>
           <SelectModel
             language={state.language}
@@ -67,6 +70,15 @@ export const EditClassProfileDialog = (props: DialogProps<EditClassProfileDialog
           />
           <ValidationMessage value={state.iriValidation} />
         </DialogDetailRow>
+        <DialogDetailRow detailKey={t("modify-entity-dialog.specialization-of")}>
+          <SpecializationSelect
+            language={state.language}
+            items={state.availableSpecializations}
+            specializations={state.specializations}
+            addSpecialization={controller.addSpecialization}
+            removeSpecialization={controller.removeSpecialization}
+          />
+        </DialogDetailRow>
         <DialogDetailRow detailKey={t("create-class-dialog.description")}>
           <ProfiledValueWithSource
             override={state.overrideDescription}
@@ -110,4 +122,36 @@ export const EditClassProfileDialog = (props: DialogProps<EditClassProfileDialog
       </div>
     </>
   );
+};
+
+export const createNewClassProfileDialog = (
+  state: ClassProfileDialogState,
+  onConfirm: (state: ClassProfileDialogState) => void | null,
+): DialogWrapper<ClassProfileDialogState> => {
+  return {
+    label: "dialog.class-profile.label-create",
+    component: EditClassProfileDialog,
+    state,
+    confirmLabel: "dialog.class-profile.ok-create",
+    cancelLabel: "dialog.class-profile.cancel",
+    validate: (state) => isValid(state.iriValidation),
+    onConfirm,
+    onClose: null,
+  };
+};
+
+export const createEditClassProfileDialog = (
+  state: ClassProfileDialogState,
+  onConfirm: (state: ClassProfileDialogState) => void | null,
+): DialogWrapper<ClassProfileDialogState> => {
+  return {
+    label: "dialog.class-profile.label-edit",
+    component: EditClassProfileDialog,
+    state,
+    confirmLabel: "dialog.class-profile.ok-edit",
+    cancelLabel: "dialog.class-profile.cancel",
+    validate: (state) => isValid(state.iriValidation),
+    onConfirm,
+    onClose: null,
+  };
 };

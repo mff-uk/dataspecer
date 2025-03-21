@@ -5,22 +5,22 @@
 import { expect, test, beforeEach, vitest } from "vitest";
 import { SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { createDefaultVisualModelFactory, isVisualNode, isVisualRelationship, VisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { entityModelsMapToCmeVocabulary } from "../dataspecer/semantic-model/semantic-model-adapter";
+import { entityModelsMapToCmeSemanticModel } from "../dataspecer/semantic-model/semantic-model-adapter";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { Entity, EntityModel } from "@dataspecer/core-v2";
 import { ModelGraphContextType } from "../context/model-context";
 import { SetStateAction } from "react";
 import { createClass, CreatedEntityOperationResult, createGeneralization, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
-import { representRdfsLiteral, Specialization } from "../dialog/utilities/dialog-utilities";
+import { representRdfsLiteral } from "../dialog/utilities/dialog-utilities";
 import { DiagramActions, DiagramCallbacks, Edge, Group, GroupWithContent, Node, Position, ViewportDimensions } from "../diagram";
 import { ClassesContextType } from "../context/classes-context";
-import { CreatedSemanticEntityData } from "./open-create-class-dialog";
 import { addEntitiesFromSemanticModelToVisualModelAction } from "./add-entities-from-semantic-model-to-visual-model";
 import { isSemanticModelClass, isSemanticModelRelationship, SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { createCmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 import { notificationMockup } from "./test/actions-test-suite";
+import { CmeReference, CmeSpecialization } from "../dataspecer/cme-model/model";
 
 // TODO RadStr: For now - since layout prints a lot of debug stuff
 //             (based on https://stackoverflow.com/questions/44467657/better-way-to-disable-console-inside-unit-tests)
@@ -196,17 +196,19 @@ test("Test - fully connected graph - Test attribute visibility when clicking the
 
 const createClassesContextTypeForTests = (
   _models: Map<string, EntityModel>,
-  givenClasses: CreatedSemanticEntityData[],
-  givenRelationships: CreatedSemanticEntityData[]
+  givenClasses: CmeReference[],
+  givenRelationships: CmeReference[]
 ): ClassesContextType => {
   const classesAsSemanticEntities: SemanticModelClass[] = [];
-  givenClasses.forEach(cclass => {
-    classesAsSemanticEntities.push(cclass.model.getEntities()[cclass.identifier] as SemanticModelClass);
+  givenClasses.forEach(item => {
+    classesAsSemanticEntities.push(
+      _models.get(item.model)?.getEntities()[item.identifier] as SemanticModelClass);
   });
 
   const relationshipsAsSemanticEntities: SemanticModelRelationship[] = [];
   givenRelationships.forEach(relationship => {
-    relationshipsAsSemanticEntities.push(relationship.model.getEntities()[relationship.identifier] as SemanticModelRelationship);
+    relationshipsAsSemanticEntities.push(
+      _models.get(relationship.model)?.getEntities()[relationship.identifier] as SemanticModelRelationship);
   });
   const classes: ClassesContextType = {
     classes: classesAsSemanticEntities,
@@ -232,8 +234,8 @@ function createSemanticClassTestVariant(
   models: Map<string, EntityModel>,
   givenName: string,
   dsIdentifier: string,
-  specializations: Specialization[],
-): CreatedSemanticEntityData | null {
+  specializations: CmeSpecialization[],
+): CmeReference | null {
 
   const name = {"en": givenName};
 
@@ -253,7 +255,7 @@ function createSemanticClassTestVariant(
   const operations = [];
   for (const specialization of specializations) {
     operations.push(createGeneralization({
-      parent: specialization.specialized,
+      parent: specialization.specializationOf.identifier,
       child: newClass.id,
       iri: specialization.iri,
     }));
@@ -262,7 +264,7 @@ function createSemanticClassTestVariant(
 
   return {
     identifier: newClass.id,
-    model,
+    model: model.getId(),
   };
 
 }
@@ -279,8 +281,8 @@ const prepareModelsWithSemanticData = () => {
   const modelAlias = "TEST MODEL";
   const models : Map<string, EntityModel> = new Map();
   const modelCount = 3;
-  const createdClasses: CreatedSemanticEntityData[][] = [];
-  const createdRelationships: CreatedSemanticEntityData[][] = [];
+  const createdClasses: CmeReference[][] = [];
+  const createdRelationships: CmeReference[][] = [];
 
   const aggregator = new SemanticModelAggregator();
   aggregator.addModel(visualModel);
@@ -313,7 +315,7 @@ const prepareModelsWithSemanticData = () => {
   }
 
   // Fill with data
-  const cmeModels = entityModelsMapToCmeVocabulary(models, visualModel);
+  const cmeModels = entityModelsMapToCmeSemanticModel(models, visualModel);
   for(let i = 0; i < modelCount; i++) {
     for(let j = 0; j < 4; j++) {
       const createdClass = createSemanticClassTestVariant(models, `${i}-${j}`, cmeModels[i].dsIdentifier, []);
@@ -368,9 +370,9 @@ const prepareModelsWithSemanticData = () => {
 const createRelationshipSquare = (
   models: Map<string, EntityModel>,
   dsIdentifier: string,
-  createdClasses: CreatedSemanticEntityData[][],
+  createdClasses: CmeReference[][],
   currentModel: number,
-): CreatedSemanticEntityData[] => {
+): CmeReference[] => {
   const createdRelationships = [];
   for(let i = 0; i < 4; i++) {
     const created = createSemanticRelationshipTestVariant(
@@ -394,7 +396,7 @@ function createSemanticRelationshipTestVariant(
   rangeConceptIdentifier: string,
   modelDsIdentifier: string,
   relationshipName: string,
-): CreatedSemanticEntityData {
+): CmeReference {
   const name = {"en": relationshipName};
 
   const operation = createRelationship({
@@ -418,10 +420,10 @@ function createSemanticRelationshipTestVariant(
 
   // Perform additional modifications for which we need to have the class identifier.
   const operations = [];
-  const specializations: Specialization[] = [];
+  const specializations: CmeSpecialization[] = [];
   for (const specialization of specializations) {
     operations.push(createGeneralization({
-      parent: specialization.specialized,
+      parent: specialization.specializationOf.identifier,
       child: newAssociation.id,
       iri: specialization.iri,
     }));
@@ -430,7 +432,7 @@ function createSemanticRelationshipTestVariant(
 
   return {
     identifier: newAssociation.id,
-    model,
+    model: model.getId(),
   };
 }
 

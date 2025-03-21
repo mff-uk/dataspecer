@@ -3,9 +3,9 @@ import { type DialogProps } from "../dialog-api";
 import { Language } from "../../configuration/options";
 import { DropResult } from "@hello-pangea/dnd";
 import { getLocalizedStringFromLanguageString } from "../../util/language-utils";
-import { EditAttributeDialogState } from "../attribute/edit-attribute-dialog-controller";
-import { EditAttributeProfileDialogState } from "../attribute-profile/edit-attribute-profile-dialog-controller";
 import { useActions } from "../../action/actions-react-binding";
+import { AttributeDialogState } from "../attribute/edit-attribute-dialog-state";
+import { AttributeProfileDialogState } from "../attribute-profile/edit-attribute-profile-dialog-state";
 
 export type AttributeData = {
   identifier: string,
@@ -108,7 +108,7 @@ export function useEditNodeAttributesController(
 
     const onCreateNewAttribute = () => {
       const onConfirmCallback = (
-        returnedState: EditAttributeDialogState | EditAttributeProfileDialogState,
+        returnedState: AttributeDialogState | AttributeProfileDialogState,
         createdAttributeIdentifier: string
       ) => {
         if(returnedState.domain.identifier !== state.classIdentifier) {
@@ -119,15 +119,15 @@ export function useEditNodeAttributesController(
         let profileOf: string | null;
 
         if(state.isDomainNodeProfile) {
-          returnedState = (returnedState as EditAttributeProfileDialogState);
-          if(returnedState.overrideName) {
+          const profileState = returnedState as AttributeProfileDialogState;
+          if(profileState.overrideName) {
             name = getLocalizedStringFromLanguageString(returnedState.name, returnedState.language);
           }
           else {
-            name = getLocalizedStringFromLanguageString(returnedState.nameSourceValue, returnedState.language);
+            name = getLocalizedStringFromLanguageString(profileState.nameSourceValue, returnedState.language);
           }
 
-          profileOf = returnedState.profiles
+          profileOf = profileState.profiles
             .map(profile => {
               const localizedName = getLocalizedStringFromLanguageString(profile.name, returnedState.language);
               return tryGetName(localizedName, profile.iri, profile.identifier);

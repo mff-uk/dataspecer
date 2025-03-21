@@ -112,6 +112,7 @@ export const translations: Record<string, string | Function> = {
   "create-class-dialog.btn-ok": "✅ create",
   "create-class-dialog.btn-cancel": "❌ cancel",
   "create-class-dialog.add-specialization": "Add specialization",
+  "create-class-dialog.no-specialization-available": "There is nothing to specialize",
   //
   "create-profile-button.title": "Create profile",
   //

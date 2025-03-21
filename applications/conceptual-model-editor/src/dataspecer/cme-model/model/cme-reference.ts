@@ -16,3 +16,16 @@ export interface CmeReference {
   model: ModelDsIdentifier,
 
 }
+
+/**
+ * @returns True when they reference the same object or are equal.
+ */
+export function isCmeReferenceEqual(
+  left: CmeReference, right: CmeReference
+): boolean {
+  // Check for same objects.
+  if (left === right) {
+    return true;
+  }
+  return left.identifier === right.identifier && left.model === right.model;
+}

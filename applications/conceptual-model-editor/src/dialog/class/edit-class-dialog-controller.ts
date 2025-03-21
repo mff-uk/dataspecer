@@ -2,24 +2,21 @@ import { useMemo } from "react";
 
 import { type DialogProps } from "../dialog-api";
 import { configuration } from "../../application";
-import { EntityState, EntityStateController, createEntityController } from "../utilities/entity-utilities";
-import { SpecializationState, SpecializationStateController, createSpecializationController } from "../utilities/specialization-utilities";
+import { type ClassDialogState } from "./edit-class-dialog-state";
+import {
+  type BaseEntityDialogController,
+  createBaseEntityDialogController,
+} from "../base-entity/base-entity-dialog-controller";
 
-export interface EditClassDialogState extends EntityState, SpecializationState { }
+export interface ClassDialogController extends BaseEntityDialogController { }
 
-export interface EditClassDialogController extends EntityStateController, SpecializationStateController { }
-
-export function useEditClassDialogController({ changeState }: DialogProps<EditClassDialogState>): EditClassDialogController {
-
+export function useClassDialogController(
+  { changeState }: DialogProps<ClassDialogState>,
+): ClassDialogController {
   return useMemo(() => {
-
-    const entity = createEntityController(changeState, configuration().classNameToIri);
-
-    const specialization = createSpecializationController(changeState);
-
     return {
-      ...entity,
-      ...specialization,
+      ...createBaseEntityDialogController(
+        changeState, configuration().classNameToIri),
     };
   }, [changeState]);
 }

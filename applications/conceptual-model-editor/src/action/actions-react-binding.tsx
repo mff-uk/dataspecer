@@ -51,14 +51,11 @@ import { openCreateClassDialogAndCreateAssociationAction, openCreateClassDialogA
 import { removeAttributesFromVisualModelAction } from "./remove-attributes-from-visual-model";
 import { ShiftAttributeDirection, shiftAttributePositionAction } from "./shift-attribute";
 import { openEditNodeAttributesDialogAction } from "./open-edit-node-attributes-dialog";
-import { EditAttributeDialogState } from "../dialog/attribute/edit-attribute-dialog-controller";
-import { EditAttributeProfileDialogState } from "../dialog/attribute-profile/edit-attribute-profile-dialog-controller";
 import { openEditAttributeDialogAction } from "./open-edit-attribute-dialog";
 import { openEditAttributeProfileDialogAction } from "./open-edit-attribute-profile-dialog";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { isInMemorySemanticModel } from "../utilities/model";
 import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelAttributeUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
 import { createCmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 import { createVisualNodeDuplicateAction } from "./create-visual-node-duplicate";
@@ -67,6 +64,8 @@ import { removeFromVisualModelByRepresentedAction } from "./remove-from-visual-m
 import { centerViewportToVisualEntityByRepresentedAction } from "./center-viewport-to-visual-entity";
 import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribute-to-visual-model";
 import { removeAttributesFromVisualNodeAction } from "./remove-attributes-from-node";
+import { AttributeDialogState } from "../dialog/attribute/edit-attribute-dialog-state";
+import { AttributeProfileDialogState } from "../dialog/attribute-profile/edit-attribute-profile-dialog-state";
 
 const LOG = createLogger(import.meta.url);
 
@@ -114,12 +113,12 @@ interface DialogActions {
    * Opens dialog, which purpose is to create new attribute with domain class identified by {@link classIdentifier}.
    * On successful creation {@link onConfirmCallback} is called.
    * @param classIdentifier is the identifier of the class, which will be domain for the attribute.
-   * @param onConfirmCallback This callback is called after we sucessfully create attribute.
+   * @param onConfirmCallback This callback is called after we successfully create attribute.
    *                          Set to null, if there is no callback.
    */
   openCreateAttributeDialogForClass: (
     classIdentifier: string,
-    onConfirmCallback: ((state: EditAttributeDialogState | EditAttributeProfileDialogState, createdAttributeIdentifier: string) => void) | null
+    onConfirmCallback: ((state: AttributeDialogState | AttributeProfileDialogState, createdAttributeIdentifier: string) => void) | null
   ) => void;
 
   // TODO RadStr: Document
@@ -548,7 +547,7 @@ function createActionsContext(
 
   const openCreateAttributeDialogForClass = (
     classIdentifier: string,
-    onConfirmCallback: ((state: EditAttributeDialogState | EditAttributeProfileDialogState, createdAttributeIdentifier: string) => void) | null
+    onConfirmCallback: ((state: AttributeDialogState | AttributeProfileDialogState, createdAttributeIdentifier: string) => void) | null
   ) => {
     withVisualModel(notifications, graph, (visualModel) => {
       openCreateAttributeForEntityDialogAction(
@@ -580,7 +579,7 @@ function createActionsContext(
     const modelInstance = graph.models.get(model);
     if (modelInstance === null || modelInstance instanceof InMemorySemanticModel) {
       openCreateClassDialogAction(
-        options, dialogs, classes, graph, notifications, visualModel,
+        cmeExecutor, options, dialogs, classes, graph, notifications, visualModel,
         diagram, modelInstance, null, null);
     } else {
       notifications.error("Can not add to given model.");
@@ -592,7 +591,7 @@ function createActionsContext(
     const modelInstance = graph.models.get(model);
     if (modelInstance === null || modelInstance instanceof InMemorySemanticModel) {
       openCreateAssociationDialogAction(
-        options, dialogs, classes, graph, notifications, visualModel,
+        cmeExecutor, options, dialogs, classes, graph, notifications, visualModel,
         modelInstance);
     } else {
       notifications.error("Can not add to given model.");
@@ -604,7 +603,7 @@ function createActionsContext(
     const modelInstance = graph.models.get(model);
     if (modelInstance === null || modelInstance instanceof InMemorySemanticModel) {
       openCreateAttributeDialogAction(
-        options, dialogs, classes, graph, notifications,
+        cmeExecutor, options, dialogs, classes, graph, notifications,
         visualModel, modelInstance);
     } else {
       notifications.error("Can not add to given model.");
@@ -970,20 +969,23 @@ function createActionsContext(
     },
     onCanvasOpenCreateClassDialog: (nodeIdentifier, positionToPlaceClassOn) => {
       withVisualModel(notifications, graph, (visualModel) => {
-        openCreateClassDialogWithModelDerivedFromClassAction(notifications, graph, dialogs, classes, options,
+        openCreateClassDialogWithModelDerivedFromClassAction(
+          cmeExecutor,notifications, graph, dialogs, classes, options,
           diagram, visualModel, nodeIdentifier, positionToPlaceClassOn, null);
       });
     },
     onCanvasOpenCreateClassDialogWithAssociation: (nodeIdentifier, positionToPlaceClassOn, isCreatedClassTarget) => {
       withVisualModel(notifications, graph, (visualModel) => {
-        openCreateClassDialogAndCreateAssociationAction(notifications, dialogs, classes, options, graph,
-          diagram, visualModel, nodeIdentifier, isCreatedClassTarget, positionToPlaceClassOn);
+        openCreateClassDialogAndCreateAssociationAction(
+          cmeExecutor,notifications, dialogs, classes, options, graph,
+          diagram, visualModel, nodeIdentifier, isCreatedClassTarget,
+           positionToPlaceClassOn);
       });
     },
     onCanvasOpenCreateClassDialogWithGeneralization: (nodeIdentifier, positionToPlaceClassOn, isCreatedClassParent) => {
       withVisualModel(notifications, graph, (visualModel) => {
         openCreateClassDialogAndCreateGeneralizationAction(
-          notifications, dialogs, classes, useClasses, options, graph, diagram,
+          cmeExecutor, notifications, dialogs, classes, options, graph, diagram,
           visualModel, nodeIdentifier, isCreatedClassParent, positionToPlaceClassOn
         );
       });
@@ -1027,7 +1029,8 @@ function createActionsContext(
         const attributeEntity = model.getEntities()[attribute]
         if(isSemanticModelAttribute(attributeEntity)) {
           openEditAttributeDialogAction(
-            options, dialogs, classes, graph, notifications, visualModel, model, attributeEntity);
+            cmeExecutor, options, dialogs, classes, graph,
+            visualModel, model, attributeEntity);
         }
         else {
           notifications.error("Given attribute to be edited is not an attribute neither attribute profile");
@@ -1046,10 +1049,10 @@ function createActionsContext(
           return;
         }
         const attributeEntity = model.getEntities()[attribute]
-        if(isSemanticModelAttributeUsage(attributeEntity) || isSemanticModelAttributeProfile(attributeEntity)) {
+        if(isSemanticModelAttributeProfile(attributeEntity)) {
           openEditAttributeProfileDialogAction(
-            options, dialogs, classes, graph, cmeExecutor,
-            notifications, visualModel, model, attributeEntity);
+            cmeExecutor, options, dialogs, classes, graph,
+            visualModel, model, attributeEntity);
         }
         else {
           notifications.error("Given attribute profile to be edited is not an attribute profile");

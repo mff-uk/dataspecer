@@ -1,17 +1,19 @@
-import { type DialogProps } from "../dialog-api";
+import { DialogWrapper, type DialogProps } from "../dialog-api";
 import { configuration, t } from "../../application";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
-import { SelectModel } from "../class/components/select-model";
-import { EditAssociationDialogState, useEditAssociationDialogController } from "./edit-association-dialog-controller";
-import { SelectEntity } from "../class/components/select-entity";
-import { SelectCardinality } from "../attribute/components/select-cardinality";
-import { InputIri } from "../class/components/input-iri";
-import { SpecializationSelect } from "../class/components/select-specialization";
-import { ValidationMessage } from "../association-profile/components/validation-message";
+import { SelectModel } from "../components/select-model";
+import { SelectEntity } from "../components/select-entity";
+import { SelectCardinality } from "../components/select-cardinality";
+import { InputIri } from "../components/input-iri";
+import { ValidationMessage } from "../components/validation-message";
+import { isValid } from "../utilities/validation-utilities";
+import { AssociationDialogState } from "./edit-association-dialog-state";
+import { useAssociationDialogController } from "./edit-association-dialog-controller";
+import { SpecializationSelect } from "../components/select-specialization";
 
-export const EditAssociationDialog = (props: DialogProps<EditAssociationDialogState>) => {
-  const controller = useEditAssociationDialogController(props);
+export const EditAssociationDialog = (props: DialogProps<AssociationDialogState>) => {
+  const controller = useAssociationDialogController(props);
   const state = props.state;
   return (
     <>
@@ -105,3 +107,39 @@ export const EditAssociationDialog = (props: DialogProps<EditAssociationDialogSt
     </>
   );
 };
+
+export const createNewAssociationDialog = (
+  state: AssociationDialogState,
+  onConfirm: (state: AssociationDialogState) => void,
+): DialogWrapper<AssociationDialogState> => {
+  return {
+    label: "dialog.association.label-create",
+    component: EditAssociationDialog,
+    state,
+    confirmLabel: "dialog.association.ok-create",
+    cancelLabel: "dialog.association.cancel",
+    validate: (state) => isValid(state.iriValidation)
+      && isValid(state.domainValidation)
+      && isValid(state.rangeValidation),
+    onConfirm: onConfirm,
+    onClose: null,
+  };
+}
+
+export const createEditAssociationDialog = (
+  state: AssociationDialogState,
+  onConfirm: (state: AssociationDialogState) => void,
+): DialogWrapper<AssociationDialogState> => {
+  return {
+    label: "dialog.association.label-edit",
+    component: EditAssociationDialog,
+    state,
+    confirmLabel: "dialog.association.ok-edit",
+    cancelLabel: "dialog.association.cancel",
+    validate: (state) => isValid(state.iriValidation)
+      && isValid(state.domainValidation)
+      && isValid(state.rangeValidation),
+    onConfirm: onConfirm,
+    onClose: null,
+  };
+}

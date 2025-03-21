@@ -15,12 +15,12 @@ import { SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspece
 import { SetStateAction } from "react";
 import { notificationMockup } from "./test/actions-test-suite";
 import { createVisualNodeDuplicateAction } from "./create-visual-node-duplicate";
-import { entityModelsMapToCmeVocabulary } from "../dataspecer/semantic-model/semantic-model-adapter";
+import { entityModelsMapToCmeSemanticModel } from "../dataspecer/semantic-model/semantic-model-adapter";
 import { ModelGraphContextType } from "../context/model-context";
 import { ClassesContextType } from "../context/classes-context";
-import { Specialization } from "../dialog/utilities/dialog-utilities";
 import { ActionsTestSuite } from "./test/actions-test-suite";
 import { removeFromVisualModelByRepresentedAction } from "./remove-from-visual-model-by-represented";
+import { CmeSpecialization } from "../dataspecer/cme-model/model";
 
 test("removeFromVisualModelAction - relationship", () => {
   const {
@@ -171,7 +171,7 @@ const prepareModelWithFourNodes = () => {
   model.setAlias(modelAlias);
   models.set(model.getId(), model);
 
-  const cmeModels = entityModelsMapToCmeVocabulary(models, visualModel);
+  const cmeModels = entityModelsMapToCmeSemanticModel(models, visualModel);
 
   //
   const aggregator = new SemanticModelAggregator();
@@ -311,10 +311,10 @@ function _createSemanticRelationshipTestVariant(
 
   // Perform additional modifications for which we need to have the class identifier.
   const operations = [];
-  const specializations: Specialization[] = [];
+  const specializations: CmeSpecialization[] = [];
   for (const specialization of specializations) {
     operations.push(createGeneralization({
-      parent: specialization.specialized,
+      parent: specialization.specializationOf.identifier,
       child: newAssociation.id,
       iri: specialization.iri,
     }));

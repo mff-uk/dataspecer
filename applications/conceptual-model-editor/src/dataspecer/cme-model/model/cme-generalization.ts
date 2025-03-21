@@ -22,7 +22,7 @@ export interface NewCmeGeneralization {
 
 }
 
-export interface CmeGeneralization extends NewCmeGeneralization{
+export interface CmeGeneralization extends NewCmeGeneralization {
 
   identifier: EntityDsIdentifier;
 

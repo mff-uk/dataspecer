@@ -32,3 +32,5 @@ const OWL_THING_IDENTIFIER = "https://www.w3.org/2002/07/owl#Thing";
 export function isOwlThing(identifier: EntityDsIdentifier): boolean {
   return identifier === OWL_THING_IDENTIFIER;
 }
+
+

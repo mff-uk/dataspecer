@@ -1,17 +1,20 @@
-import { type DialogProps } from "../dialog-api";
+import { DialogWrapper, type DialogProps } from "../dialog-api";
 import { t } from "../../application";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
-import { SelectModel } from "../class/components/select-model";
-import { EditAssociationProfileDialogState, useEditAssociationProfileDialogController } from "./edit-association-profile-dialog-controller";
-import { SelectEntity } from "../class/components/select-entity";
-import { SelectCardinality } from "../attribute/components/select-cardinality";
-import { InputIri } from "../class/components/input-iri";
-import { ValidationMessage } from "./components/validation-message";
-import { SelectEntities } from "../class-profile/components/select-entities";
-import { ProfiledValue, ProfiledValueWithSource } from "../class-profile/components/profiled-value";
+import { SelectModel } from "../components/select-model";
+import { useEditAssociationProfileDialogController } from "./edit-association-profile-dialog-controller";
+import { SelectEntity } from "../components/select-entity";
+import { SelectCardinality } from "../components/select-cardinality";
+import { InputIri } from "../components/input-iri";
+import { ValidationMessage } from "../components/validation-message";
+import { SelectEntities } from "../components/select-entities";
+import { ProfiledValue, ProfiledValueWithSource } from "../components/profiled-value";
+import { isValid } from "../utilities/validation-utilities";
+import { AssociationProfileDialogState } from "./edit-association-profile-dialog-state";
+import { SpecializationSelect } from "../components/select-specialization";
 
-export const EditAssociationProfileDialog = (props: DialogProps<EditAssociationProfileDialogState>) => {
+export const EditAssociationProfileDialog = (props: DialogProps<AssociationProfileDialogState>) => {
   const controller = useEditAssociationProfileDialogController(props);
   const state = props.state;
   return (
@@ -78,6 +81,15 @@ export const EditAssociationProfileDialog = (props: DialogProps<EditAssociationP
             onChange={controller.setIri}
           />
           <ValidationMessage value={state.iriValidation} />
+        </DialogDetailRow>
+        <DialogDetailRow detailKey={t("modify-entity-dialog.specialization-of")}>
+          <SpecializationSelect
+            language={state.language}
+            items={state.availableSpecializations}
+            specializations={state.specializations}
+            addSpecialization={controller.addSpecialization}
+            removeSpecialization={controller.removeSpecialization}
+          />
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("create-class-dialog.description")}>
           <ProfiledValueWithSource
@@ -162,3 +174,39 @@ export const EditAssociationProfileDialog = (props: DialogProps<EditAssociationP
     </>
   );
 };
+
+export const createNewAssociationProfileDialog = (
+  state: AssociationProfileDialogState,
+  onConfirm: (state: AssociationProfileDialogState) => void,
+): DialogWrapper<AssociationProfileDialogState> => {
+  return {
+    label: "dialog.association-profile.label-create",
+    component: EditAssociationProfileDialog,
+    state,
+    confirmLabel: "dialog.association-profile.ok-create",
+    cancelLabel: "dialog.association-profile.cancel",
+    validate: (state) => isValid(state.iriValidation)
+      && isValid(state.domainValidation)
+      && isValid(state.rangeValidation),
+    onConfirm: onConfirm,
+    onClose: null,
+  };
+}
+
+export const createEditAssociationProfileDialog = (
+  state: AssociationProfileDialogState,
+  onConfirm: (state: AssociationProfileDialogState) => void,
+): DialogWrapper<AssociationProfileDialogState> => {
+  return {
+    label: "dialog.association-profile.label-edit",
+    component: EditAssociationProfileDialog,
+    state,
+    confirmLabel: "dialog.association-profile.ok-edit",
+    cancelLabel: "dialog.association-profile.cancel",
+    validate: (state) => isValid(state.iriValidation)
+      && isValid(state.domainValidation)
+      && isValid(state.rangeValidation),
+    onConfirm: onConfirm,
+    onClose: null,
+  };
+}

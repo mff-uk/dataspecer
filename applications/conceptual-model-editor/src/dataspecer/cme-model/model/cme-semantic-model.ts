@@ -1,6 +1,6 @@
 import { LanguageString, ModelDsIdentifier } from "../../entity-model";
 
-export enum CmeModelType {
+export enum CmeSemanticModelType {
   Default,
   InMemorySemanticModel,
   ExternalSemanticModel,
@@ -8,18 +8,21 @@ export enum CmeModelType {
 
 export interface CmeSemanticModel {
 
+  /**
+   * Dataspecer identifier.
+   */
   dsIdentifier: ModelDsIdentifier;
 
   /**
    * Type of underlying model representation.
    */
-  dsModelType: CmeModelType;
+  dsModelType: CmeSemanticModelType;
 
-  label: LanguageString;
+  displayLabel: LanguageString;
 
   /**
    * Display color can be retrieved from the visual model.
-   * If a color is not available default color is returned instead.
+   * If a color is not available default color is used instead.
    * As a result, this value is always defined.
    */
   displayColor: string;

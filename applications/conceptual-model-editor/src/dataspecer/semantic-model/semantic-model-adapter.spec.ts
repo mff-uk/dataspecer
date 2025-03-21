@@ -3,8 +3,8 @@ import { describe, expect, test } from "vitest";
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { EntityModel } from "@dataspecer/core-v2";
 
-import { entityModelToCmeVocabulary, entityModelsMapToCmeVocabulary, setDefaultModelColor, setTranslateFunction } from "./semantic-model-adapter";
-import { CmeModelType } from "../cme-model";
+import { entityModelToCmeVocabulary, entityModelsMapToCmeSemanticModel, setDefaultModelColor, setTranslateFunction } from "./semantic-model-adapter";
+import { CmeSemanticModelType } from "../cme-model";
 
 // Disable translation.
 setTranslateFunction(text => `t:${text}`);
@@ -12,7 +12,7 @@ setTranslateFunction(text => `t:${text}`);
 // Set default color.
 setDefaultModelColor("#111111");
 
-describe("entityModelsMapToCmeVocabulary", () => {
+describe("entityModelsMapToCmeSemanticModel", () => {
 
   test("Convert a model.", () => {
     const models : Map<string, EntityModel> = new Map();
@@ -21,13 +21,13 @@ describe("entityModelsMapToCmeVocabulary", () => {
       getAlias: () => "mock model",
     } as any);
 
-    const actual = entityModelsMapToCmeVocabulary(models, null);
+    const actual = entityModelsMapToCmeSemanticModel(models, null);
 
     expect(actual).toStrictEqual([{
       dsIdentifier: "abcd",
       displayLabel: { "": "mock model" },
       displayColor: "#111111",
-      dsModelType: CmeModelType.Default,
+      dsModelType: CmeSemanticModelType.Default,
       baseIri: null,
     }]);
   });
@@ -51,7 +51,7 @@ describe("entityModelToCmeModel", () => {
       dsIdentifier: "abcd",
       displayLabel: { "": "mock model" },
       displayColor: "abcd-blue",
-      dsModelType: CmeModelType.Default,
+      dsModelType: CmeSemanticModelType.Default,
       baseIri: "http://base",
     });
   });
@@ -70,7 +70,7 @@ describe("entityModelToCmeModel", () => {
       dsIdentifier: "abcd",
       displayLabel: { "": "t:model-service.model-label-from-id" },
       displayColor: "abcd-blue",
-      dsModelType: CmeModelType.Default,
+      dsModelType: CmeSemanticModelType.Default,
       baseIri: null,
     });
   });
@@ -85,7 +85,7 @@ describe("entityModelToCmeModel", () => {
       dsIdentifier: "abcd",
       displayLabel: { "": "mock model" },
       displayColor: "#111111",
-      dsModelType: CmeModelType.Default,
+      dsModelType: CmeSemanticModelType.Default,
       baseIri: null,
     });
   });

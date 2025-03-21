@@ -7,6 +7,11 @@
  */
 interface Logger {
 
+  /**
+   * Use this to trace operation execution.
+   */
+  trace(operation: string, ...optionalParams: any[]): void;
+
   render(component: string, ...optionalParams: any[]): void;
 
   error(message?: any, ...optionalParams: any[]): void;
@@ -28,14 +33,17 @@ export const createLogger = (url: string | undefined): Logger => {
   const name = url === undefined ? "" : `[${url}]`;
 
   const logger: Logger = {
+    trace: (operation: string, ...optionalParams: any[]) => {
+      console.info(operation, ...optionalParams);
+    },
     render: (component) => {
       console.info(`Rendering ${component}.`);
     },
     error: (message, optionalParams) => {
-      console.error(name,message, optionalParams);
+      console.error(name, message, optionalParams);
     },
     warn: (message, optionalParams) => {
-      console.warn(name,message, optionalParams);
+      console.warn(name, message, optionalParams);
     },
     missingTranslation: (name: string) => {
       console.error(name, `Missing translation for "${name}"`);

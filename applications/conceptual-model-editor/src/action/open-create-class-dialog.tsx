@@ -4,27 +4,22 @@ import { VisualModel, isWritableVisualModel } from "@dataspecer/core-v2/visual-m
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { ClassesContextType } from "../context/classes-context";
 import { ModelGraphContextType } from "../context/model-context";
-import { Options, createLogger } from "../application";
+import { Options } from "../application";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { firstInMemorySemanticModel } from "../utilities/model";
-import { createClass as createClassOperation, CreatedEntityOperationResult, createGeneralization } from "@dataspecer/core-v2/semantic-model/operations";
 import { addSemanticClassToVisualModelAction } from "./add-class-to-visual-model";
 import { UseDiagramType } from "../diagram/diagram-hook";
-import { EditClassDialogState } from "../dialog/class/edit-class-dialog-controller";
-import { createNewClassDialog, createNewClassDialogState } from "../dialog/class/create-new-class-dialog";
-import { EntityModel } from "@dataspecer/core-v2";
-
-const LOG = createLogger(import.meta.url);
-
-export type CreatedSemanticEntityData = {
-  identifier: string,
-  model: InMemorySemanticModel
-};
+import { ClassDialogState, createNewClassDialogState } from "../dialog/class/edit-class-dialog-state";
+import { createNewClassDialog } from "../dialog/class/edit-class-dialog";
+import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
+import { classDialogStateToNewCmeClass } from "../dialog/class/edit-class-dialog-state-adapter";
+import { CmeReference } from "../dataspecer/cme-model/model";
 
 /**
  * Open and handle create class dialog.
  */
 export function openCreateClassDialogAction(
+  cmeExecutor: CmeModelOperationExecutor,
   options: Options,
   dialogs: DialogApiContextType,
   classes: ClassesContextType,
@@ -34,90 +29,36 @@ export function openCreateClassDialogAction(
   diagram: UseDiagramType,
   defaultModel: InMemorySemanticModel | null,
   position: { x: number, y: number } | null,
-  onConfirmCallback: ((createdClass: CreatedSemanticEntityData, state: EditClassDialogState) => void) | null,
+  onConfirmCallback: ((created: CmeReference, state: ClassDialogState) => void) | null,
 ) {
 
-  const model = defaultModel ?? getDefaultModel(graph);
+  const model = defaultModel ?? firstInMemorySemanticModel(graph.models);
   if (model === null) {
     notifications.error("You have to create a writable vocabulary first!");
     return;
   }
 
-  const onConfirm = (state: EditClassDialogState) => {
-    // Create class.
-    const createResult = createSemanticClass(notifications, graph.models, state);
-    if (createResult === null) {
-      return;
-    }
+  const initialState = createNewClassDialogState(
+    classes, graph, visualModel, options.language, model.getId());
+
+  const onConfirm = (state: ClassDialogState) => {
+
+    const result = cmeExecutor.createClass(
+      classDialogStateToNewCmeClass(state));
+    cmeExecutor.updateSpecialization(result, state.model.dsIdentifier,
+      initialState.specializations, state.specializations);
+
     // Add to visual model if possible.
     if (isWritableVisualModel(visualModel)) {
+      // TODO PeSk Update visual model
       addSemanticClassToVisualModelAction(
         notifications, graph, classes, visualModel, diagram,
-        createResult.identifier, createResult.model.getId(),
+        result.identifier, result.model,
         position);
     }
 
-    if(onConfirmCallback !== null) {
-      onConfirmCallback(createResult, state);
-    }
+    onConfirmCallback?.(result, state);
   };
 
-  openCreateClassDialog(
-    options, dialogs, classes, graph, visualModel, model, onConfirm);
-}
-
-function getDefaultModel(graph: ModelGraphContextType): InMemorySemanticModel | null {
-  return firstInMemorySemanticModel(graph.models);
-}
-
-function createSemanticClass(
-  notifications: UseNotificationServiceWriterType,
-  models: Map<string, EntityModel>,
-  state: EditClassDialogState
-): CreatedSemanticEntityData | null {
-
-  const operation = createClassOperation({
-    iri: state.iri,
-    name: state.name,
-    description: state.description,
-  });
-
-  const model: InMemorySemanticModel = models.get(state.model.dsIdentifier) as InMemorySemanticModel;
-  const newClass = model.executeOperation(operation) as CreatedEntityOperationResult;
-  if (newClass.success === false || newClass.id === undefined) {
-    notifications.error("We have not received the id of newly created class. See logs for more detail.");
-    LOG.error("We have not received the id of newly created class.", { "operation": newClass });
-    return null;
-  }
-
-  // Perform additional modifications for which we need to have the class identifier.
-  const operations = [];
-  for (const specialization of state.specializations) {
-    operations.push(createGeneralization({
-      parent: specialization.specialized,
-      child: newClass.id,
-      iri: specialization.iri,
-    }));
-  }
-  model.executeOperations(operations);
-
-  return {
-    identifier: newClass.id,
-    model,
-  };
-
-}
-
-function openCreateClassDialog(
-  options: Options,
-  dialogs: DialogApiContextType,
-  classes: ClassesContextType,
-  graph: ModelGraphContextType,
-  visualModel: VisualModel | null,
-  model: InMemorySemanticModel,
-  onConfirm: (state: EditClassDialogState) => void,
-) {
-  const state = createNewClassDialogState(
-    classes, graph, visualModel, options.language, model.getId());
-  dialogs.openDialog(createNewClassDialog(state, onConfirm));
+  dialogs.openDialog(createNewClassDialog(initialState, onConfirm));
 }

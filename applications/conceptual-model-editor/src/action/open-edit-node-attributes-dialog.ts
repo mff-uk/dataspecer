@@ -2,18 +2,17 @@ import { isVisualNode, VisualNode, WritableVisualModel } from "@dataspecer/core-
 import { DialogApiContextType } from "../dialog/dialog-service";
 import { ClassesContextType } from "../context/classes-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { createEditClassAttributesDialog } from "../dialog/class/edit-node-attributes-dialog";
+import { createEditClassAttributesDialog } from "../dialog/visual-node/edit-node-attributes-dialog";
 import { getDomainAndRange } from "../util/relationship-utils";
-import { EditNodeAttributesState, AttributeData } from "../dialog/class/edit-node-attributes-dialog-controller";
 import { Entity } from "@dataspecer/core-v2";
 import { Options } from "../application";
 import { Language } from "../configuration/options";
 import { isSemanticModelAttribute, isSemanticModelClass, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelAttributeUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { getStringFromLanguageStringInLang } from "../util/language-utils";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
 import { createAttributeProfileLabel, getEntityLabelToShowInDiagram } from "../util/utils";
 import { isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { AttributeData, EditNodeAttributesState } from "../dialog/visual-node/edit-node-attributes-dialog-state";
 
 export function openEditNodeAttributesDialogAction(
   dialogs: DialogApiContextType,
@@ -24,17 +23,19 @@ export function openEditNodeAttributesDialogAction(
   nodeIdentifier: string,
 ) {
   const node = visualModel.getVisualEntity(nodeIdentifier);
-  if(node === null) {
+  if (node === null) {
     notifications.error("Node to modify attribute's position on, could not be found");
     return;
   }
-  if(!isVisualNode(node)) {
+  if (!isVisualNode(node)) {
     notifications.error("Node to modify attribute's position on, is not a node");
     return;
   }
 
   const onConfirm = (state: EditNodeAttributesState) => {
-    visualModel.updateVisualEntity(node.identifier, {content: state.visibleAttributes.map(attribute => attribute.identifier)});
+    visualModel.updateVisualEntity(node.identifier, {
+      content: state.visibleAttributes.map(attribute => attribute.identifier)
+    });
   }
 
   // For some reason we have to do this and can't take classes.rawEntities
@@ -81,43 +82,26 @@ function splitIntoVisibleAndHiddenAttributes(
     let profileOfText: string | null;
     if (isSemanticModelAttribute(rawEntity)) {
       const domainAndRange = getDomainAndRange(rawEntity);
-      if(domainAndRange.domain?.concept !== node.representedEntity) {
+      if (domainAndRange.domain?.concept !== node.representedEntity) {
         return null;
       }
       const nameAsLanguageString = domainAndRange.range?.name ?? null;
       name = getStringFromLanguageStringInLang(nameAsLanguageString, language)[0] ?? defaultName;
       profileOfText = null;
     }
-    else if (isSemanticModelAttributeUsage(rawEntity) || isSemanticModelAttributeProfile(rawEntity)) {
+    else if (isSemanticModelAttributeProfile(rawEntity)) {
       const { domain } = getDomainAndRange(rawEntity);
-      if(domain?.concept !== node.representedEntity) {
+      if (domain?.concept !== node.representedEntity) {
         return null;
       }
 
       name = createAttributeProfileLabel(language, rawEntity);
-      if(isSemanticModelAttributeProfile(rawEntity)) {
-        const profileOfEntities = rawEntities
-          .filter(
-            entity => entity !== null && rawEntity.ends.find(end => end.profiling.includes(entity.id)) !== undefined)
+      const profileOfEntities = rawEntities.filter(
+        entity => entity !== null && rawEntity.ends.find(end => end.profiling.includes(entity.id)) !== undefined)
         // Attributes are also relationships, so there is no need to include them in the check
-          .filter(entity => isSemanticModelRelationship(entity) ||
-                            isSemanticModelRelationshipUsage(entity) ||
-                            isSemanticModelRelationshipProfile(entity));
+        .filter(entity => isSemanticModelRelationship(entity) || isSemanticModelRelationshipProfile(entity));
 
-        profileOfText = profileOfEntities.map(item => getEntityLabelToShowInDiagram(language, item)).join(", ");
-      }
-      else {
-        const profiledEntity = rawEntities.find(entity => entity?.id === rawEntity.usageOf) ?? null;
-        if(profiledEntity !== null && (
-          isSemanticModelRelationship(profiledEntity) ||
-            isSemanticModelRelationshipUsage(profiledEntity) ||
-            isSemanticModelRelationshipProfile(profiledEntity))) {
-          profileOfText = getEntityLabelToShowInDiagram(language, profiledEntity);
-        }
-        else {
-          profileOfText = ""
-        }
-      }
+      profileOfText = profileOfEntities.map(item => getEntityLabelToShowInDiagram(language, item)).join(", ");
     }
     else {
       return null;
@@ -128,7 +112,7 @@ function splitIntoVisibleAndHiddenAttributes(
       name,
       profileOf: profileOfText
     };
-    if(isVisible) {
+    if (isVisible) {
       visibleAttributesUnordered.push(attribute);
     }
     else {

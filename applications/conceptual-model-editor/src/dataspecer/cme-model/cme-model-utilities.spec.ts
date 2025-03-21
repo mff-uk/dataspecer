@@ -1,18 +1,20 @@
 import { describe, expect, test } from "vitest";
 import { filterWritableModels } from "./cme-model-utilities";
-import { CmeModel, CmeModelType } from "./cme-model";
+import { CmeSemanticModel, CmeSemanticModelType } from "./model/cme-semantic-model";
 
 describe("filterWritableModels", () => {
 
   test("Filter.", () => {
     const actual = filterWritableModels([{
-      dsModelType: CmeModelType.Default,
-    } as CmeModel, {
-      dsModelType: CmeModelType.InMemorySemanticModel,
-    } as CmeModel, {
-      dsModelType: CmeModelType.ExternalSemanticModel,
-    } as CmeModel]);
-    expect(actual).toEqual([{ dsModelType: CmeModelType.InMemorySemanticModel }]);
+      dsModelType: CmeSemanticModelType.Default,
+    } as CmeSemanticModel, {
+      dsModelType: CmeSemanticModelType.InMemorySemanticModel,
+    } as CmeSemanticModel, {
+      dsModelType: CmeSemanticModelType.ExternalSemanticModel,
+    } as CmeSemanticModel]);
+    expect(actual).toEqual([{
+      dsModelType: CmeSemanticModelType.InMemorySemanticModel,
+    }]);
   });
 
   test("Filter an empty array.", () => {

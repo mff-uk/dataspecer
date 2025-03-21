@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 import { notificationMockup } from "./actions-test-suite";
 import { createDefaultVisualModelFactory, isVisualNode, VisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { EntityModel } from "@dataspecer/core-v2";
-import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
+import { entityModelsMapToCmeSemanticModel } from "../../dataspecer/semantic-model/semantic-model-adapter";
 import { CreatedEntityOperationResult, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { addSemanticAttributeToVisualNodeAction } from "../add-semantic-attribute-to-visual-node";
@@ -10,9 +10,11 @@ import { setAttributePositionAction } from "../set-attribute-position";
 import { removeAttributesFromVisualModelAction } from "../remove-attributes-from-visual-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { representRdfsLiteral } from "../../dialog/utilities/dialog-utilities";
 import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/operations";
 import { createCmeRelationshipProfile } from "../../dataspecer/cme-model/operation/create-cme-relationship-profile";
+import { representRdfsLiteral } from "../../dialog/utilities/dialog-utilities";
+
+console.log(">>>");
 
 test("Test change attribute - Visibility", () => {
   const {
@@ -83,7 +85,6 @@ test("Test change attribute - Visibility - back to back", () => {
   newAttributes.push(createSemanticAttributeTestVariant(models, "0", cmeModels[0].dsIdentifier, "attribute-1"));
   addSemanticAttributeToFirstVisualNodeByRepresented(visualModel, "0", newAttributes[1].identifier, null);
   expect((visualModel.getVisualEntitiesForRepresented("0")[0] as VisualNode).content.length).toEqual(2);
-
   //
   const classes = createEmptyClassesContextType();
   const attributeAsEntity = Object.values(model.getEntities())[0] as SemanticModelRelationship;
@@ -533,7 +534,7 @@ const prepareVisualModelWithFourNodes = () => {
   model.setAlias(modelAlias);
   models.set(model.getId(), model);
 
-  const cmeModels = entityModelsMapToCmeVocabulary(models, visualModel);
+  const cmeModels = entityModelsMapToCmeSemanticModel(models, visualModel);
 
   return {
     visualModel,

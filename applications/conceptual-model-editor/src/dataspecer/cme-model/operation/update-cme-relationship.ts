@@ -1,5 +1,5 @@
 import { modifyRelation } from "@dataspecer/core-v2/semantic-model/operations";
-import { CmeRelationshipProfile } from "../model";
+import { CmeRelationship } from "../model";
 import { DataspecerError } from "../../dataspecer-error";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 
@@ -8,7 +8,7 @@ import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-mem
  */
 export function updateCmeRelationship(
   model: InMemorySemanticModel,
-  next: CmeRelationshipProfile,
+  next: CmeRelationship,
 ) {
   const operation = modifyRelation(next.identifier, {
     ends: [{

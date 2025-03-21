@@ -4,7 +4,7 @@ import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { ExternalSemanticModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 
-import { CmeModel, CmeModelType } from "../cme-model";
+import { CmeSemanticModel, CmeSemanticModelType } from "../cme-model";
 import { configuration, t } from "../../application";
 
 /**
@@ -22,13 +22,13 @@ export function setDefaultModelColor(color: string) {
   defaultModelColor = color;
 }
 
-export function entityModelsMapToCmeVocabulary(models: Map<string, EntityModel>, visualModel: VisualModel | null): CmeModel[] {
+export function entityModelsMapToCmeSemanticModel(models: Map<string, EntityModel>, visualModel: VisualModel | null): CmeSemanticModel[] {
   return [...models.values()].map(model => entityModelToCmeVocabulary(model, visualModel));
 }
 
 const DEFAULT_MODEL_LABEL_LANGUAGE = "";
 
-export function entityModelToCmeVocabulary(model: EntityModel, visualModel: VisualModel | null): CmeModel {
+export function entityModelToCmeVocabulary(model: EntityModel, visualModel: VisualModel | null): CmeSemanticModel {
   return {
     dsIdentifier: model.getId(),
     displayLabel: getModelLabel(model),
@@ -49,13 +49,13 @@ function getModelLabel(model: EntityModel): LanguageString {
   };
 }
 
-function getModelType(model: EntityModel): CmeModelType {
+function getModelType(model: EntityModel): CmeSemanticModelType {
   if (model instanceof InMemorySemanticModel) {
-    return CmeModelType.InMemorySemanticModel;
+    return CmeSemanticModelType.InMemorySemanticModel;
   } else if (model instanceof ExternalSemanticModel) {
-    return CmeModelType.ExternalSemanticModel;
+    return CmeSemanticModelType.ExternalSemanticModel;
   } else {
-    return CmeModelType.Default;
+    return CmeSemanticModelType.Default;
   }
 }
 

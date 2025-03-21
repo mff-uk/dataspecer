@@ -11,12 +11,12 @@ import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usag
 import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-to-visual-model";
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { addSemanticRelationshipProfileToVisualModelAction } from "./add-relationship-profile-to-visual-model";
-import { createNewProfileClassDialogState } from "../dialog/class-profile/create-new-class-profile-dialog-state";
 import { findAnyWritableModelFromRawInput } from "../cme-model/cme-model-utilities";
-import { CmeModel } from "../dataspecer/cme-model";
+import { CmeSemanticModel } from "../dataspecer/cme-model";
 import { CreatedEntityOperationResult } from "@dataspecer/core-v2/semantic-model/operations";
-import { EditClassProfileDialogState } from "../dialog/class-profile/edit-class-profile-dialog-controller";
 import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
+import { ClassProfileDialogState, createNewProfileClassDialogState } from "../dialog/class-profile/edit-class-profile-dialog-state";
+import { classProfileDialogStateToNewCmeClassProfile } from "../dialog/class-profile/edit-class-profile-dialog-state-adapter";
 
 export async function createDefaultProfilesAction(
   cmeExecutor: CmeModelOperationExecutor,
@@ -44,8 +44,6 @@ export async function createDefaultProfilesAction(
     createdClassProfiles, shouldBeAddedToVisualModel);
 };
 
-//
-
 /**
  * Creates classes and class profiles from given {@link classesAndClassProfilesToProfile} containing semantic identifiers of entities to profile and adds the profiles to the visual model.
  * @returns The created map of created class and class profiles. Key is the identifier from {@link classesAndClassProfilesToProfile} and value is the identifier of the created profile.
@@ -69,7 +67,6 @@ async function createDefaultClassProfiles(
       visualModel, entityToProfile, shouldBeAddedToVisualModel);
     createdClassProfiles[entityToProfile] = createdClassProfile;
   }
-
   return createdClassProfiles;
 }
 
@@ -117,31 +114,17 @@ async function createDefaultClassProfile(
   return createdClassProfile.identifier;
 }
 
-const createClassProfile = (
-  state: EditClassProfileDialogState,
-  cmeExecutor: CmeModelOperationExecutor,
-) => {
-  return cmeExecutor.createClassProfile({
-    model: state.model.dsIdentifier,
-    profileOf: state.profiles.map(item => item.identifier),
-    iri: state.iri,
-    name: state.name,
-    nameSource: state.overrideName ? null :
-      state.nameSource.identifier ?? null,
-    description: state.description,
-    descriptionSource: state.overrideDescription ? null :
-      state.descriptionSource.identifier ?? null,
-    usageNote: state.usageNote,
-    usageNoteSource: state.overrideUsageNote ? null :
-      state.usageNoteSource.identifier ?? null,
-  });
+function createClassProfile(
+  state: ClassProfileDialogState, cmeExecutor: CmeModelOperationExecutor)  {
+  return cmeExecutor.createClassProfile(
+    classProfileDialogStateToNewCmeClassProfile(state));
 }
 
 function createDefaultRelationshipProfiles(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   visualModel: VisualModel | null,
-  writableCmeModel: CmeModel,
+  writableCmeModel: CmeSemanticModel,
   edgesToProfile: string[],
   createdClassProfiles: Record<string, string | null>,
   shouldBeAddedToVisualModel: boolean

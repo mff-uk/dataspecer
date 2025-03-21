@@ -1,31 +1,34 @@
 import { useMemo } from "react";
-
-import { configuration } from "../../application";
 import { DialogProps } from "../dialog-api";
+import { AssociationDialogState } from "./edit-association-dialog-state";
+import {
+  type BaseEntityDialogController,
+  createBaseEntityDialogController,
+} from "../base-entity/base-entity-dialog-controller";
+import { configuration } from "../../application";
+import {
+  type BaseRelationshipDialogController,
+  createBaseRelationshipDialogController,
+} from "../base-relationship/base-relationship-dialog-controller";
 import { EntityRepresentative } from "../utilities/dialog-utilities";
-import { EntityState, EntityStateController, createEntityController } from "../utilities/entity-utilities";
-import { SpecializationState, SpecializationStateController, createSpecializationController } from "../utilities/specialization-utilities";
-import { RelationshipController, RelationshipState, createRelationshipController } from "../utilities/relationship-utilities";
-
-export interface EditAssociationDialogState extends
-  EntityState, SpecializationState, RelationshipState<EntityRepresentative> { }
 
 export interface EditAssociationDialogController extends
-  EntityStateController, SpecializationStateController, RelationshipController<EntityRepresentative> { }
+  BaseEntityDialogController,
+  BaseRelationshipDialogController<EntityRepresentative> { }
 
-export function useEditAssociationDialogController({ changeState }: DialogProps<EditAssociationDialogState>): EditAssociationDialogController {
-
+export function useAssociationDialogController(
+  { changeState }: DialogProps<AssociationDialogState>,
+): EditAssociationDialogController {
   return useMemo(() => {
 
-    const entityController = createEntityController(changeState, configuration().relationshipNameToIri);
+    const entityController = createBaseEntityDialogController(
+      changeState, configuration().relationshipNameToIri);
 
-    const specializationController = createSpecializationController(changeState);
-
-    const relationshipController = createRelationshipController(changeState);
+    const relationshipController = createBaseRelationshipDialogController(
+      changeState);
 
     return {
       ...entityController,
-      ...specializationController,
       ...relationshipController,
     };
   }, [changeState]);

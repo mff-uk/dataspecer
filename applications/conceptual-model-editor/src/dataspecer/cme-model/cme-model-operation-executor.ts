@@ -1,7 +1,7 @@
 import { ModelDsIdentifier } from "../entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { InvalidState } from "../../application/error";
-import { CmeClass, CmeClassProfile, CmeReference, CmeRelationship, CmeRelationshipProfile, NewCmeClass, NewCmeClassProfile, NewCmeGeneralization, NewCmeRelationship, NewCmeRelationshipProfile } from "./model";
+import { CmeClass, CmeClassProfile, CmeGeneralization, CmeReference, CmeRelationship, CmeRelationshipProfile, NewCmeClass, NewCmeClassProfile, NewCmeGeneralization, NewCmeRelationship, NewCmeRelationshipProfile } from "./model";
 import { EntityModel } from "@dataspecer/core-v2";
 import { isInMemorySemanticModel } from "../../utilities/model";
 import { createLogger } from "../../application";
@@ -18,6 +18,9 @@ import { deleteCmeRelationship } from "./operation/delete-cme-relationship";
 import { updateCmeClassProfile } from "./operation/update-cme-class-profile";
 import { updateCmeClass } from "./operation/update-cme-class";
 import { updateCmeRelationshipProfile } from "./operation/update-cme-relationship-profile";
+import { CmeSpecialization, NewCmeSpecialization } from "./model/cme-specialization";
+import { updateCmeSpecialization } from "./operation/update-cme-entity-specialization";
+import { updateCmeRelationship } from "./operation/update-cme-relationship";
 
 const LOG = createLogger(import.meta.url);
 
@@ -83,6 +86,19 @@ export interface CmeModelOperationExecutor {
    */
   deleteGeneralization(value: CmeReference): void;
 
+  /**
+   * Update specializations for given entity to match the desired next state.
+   *
+   * @param writeModel Model to create new entities into.
+   * @throws {InvalidState}
+   * @throws {DataspecerError}
+   */
+  updateSpecialization(
+    entity: CmeReference,
+    writeModel: ModelDsIdentifier,
+    previous: (NewCmeSpecialization | CmeSpecialization)[],
+    next: (NewCmeSpecialization | CmeSpecialization)[]): void;
+
   // Relationship profile
 
   /**
@@ -115,7 +131,7 @@ export interface CmeModelOperationExecutor {
    * @throws {InvalidState}
    * @throws {DataspecerError}
    */
-  updateRelationship(value: NewCmeRelationship): void;
+  updateRelationship(value: CmeRelationship): void;
 
   /**
    * @throws {InvalidState}
@@ -136,6 +152,7 @@ class DefaultCmeModelOperationExecutor implements CmeModelOperationExecutor {
   // Class profile
 
   createClassProfile(value: NewCmeClassProfile): CmeReference {
+    LOG.trace("DefaultCmeModelOperationExecutor.createClassProfile", {value});
     const model = this.findModel(value.model);
     return createCmeClassProfile(model, value);
   }
@@ -154,16 +171,19 @@ class DefaultCmeModelOperationExecutor implements CmeModelOperationExecutor {
   }
 
   updateClassProfile(value: CmeClassProfile): void {
+    LOG.trace("DefaultCmeModelOperationExecutor.updateClassProfile", {value});
     const model = this.findModel(value.model);
     updateCmeClassProfile(model, value);
   }
 
   changeClassProfile(value: CmeReference & Partial<CmeClassProfile>): void {
+    LOG.trace("DefaultCmeModelOperationExecutor.changeClassProfile", {value});
     const model = this.findModel(value.model);
     updateCmeClassProfile(model, value);
   }
 
   deleteClassProfile(value: CmeReference): void {
+    LOG.trace("DefaultCmeModelOperationExecutor.deleteClassProfile", {value});
     const model = this.findModel(value.model);
     deleteCmeClassProfile(model, value);
   }
@@ -171,16 +191,19 @@ class DefaultCmeModelOperationExecutor implements CmeModelOperationExecutor {
   // Class
 
   createClass(value: NewCmeClass): CmeReference {
+    LOG.trace("DefaultCmeModelOperationExecutor.createClass", {value});
     const model = this.findModel(value.model);
     return createCmeClass(model, value);
   }
 
   updateClass(value: CmeClass): void {
+    LOG.trace("DefaultCmeModelOperationExecutor.updateClass", {value});
     const model = this.findModel(value.model);
     updateCmeClass(model, value);
   }
 
   deleteClass(value: CmeReference): void {
+    LOG.trace("DefaultCmeModelOperationExecutor.deleteClass", {value});
     const model = this.findModel(value.model);
     deleteCmeClass(model, value);
   }
@@ -188,28 +211,47 @@ class DefaultCmeModelOperationExecutor implements CmeModelOperationExecutor {
   // Generalization
 
   createGeneralization(value: NewCmeGeneralization): CmeReference {
+    LOG.trace("DefaultCmeModelOperationExecutor.createGeneralization", {value});
     const model = this.findModel(value.model);
     return createCmeGeneralization(model, value);
   }
 
   deleteGeneralization(value: CmeReference): void {
+    LOG.trace("DefaultCmeModelOperationExecutor.createGeneralization", {value});
     const model = this.findModel(value.model);
     deleteCmeGeneralization(model, value);
+  }
+
+  updateSpecialization(
+    entity: CmeReference,
+    writeModel: ModelDsIdentifier,
+    previous: (NewCmeSpecialization | CmeSpecialization)[],
+    next: (NewCmeSpecialization | CmeSpecialization)[]): void {
+      LOG.trace("DefaultCmeModelOperationExecutor.updateSpecialization",
+        {entity, writeModel, previous, next});
+    const model = this.findModel(writeModel);
+    updateCmeSpecialization(this.models, model, entity, previous, next);
   }
 
   // Relationship profile
 
   createRelationshipProfile(value: NewCmeRelationshipProfile): CmeReference {
+    LOG.trace("DefaultCmeModelOperationExecutor.createRelationshipProfile",
+      {value});
     const model = this.findModel(value.model);
     return createCmeRelationshipProfile(model, value);
   }
 
   updateRelationshipProfile(value: CmeRelationshipProfile): void {
+    LOG.trace("DefaultCmeModelOperationExecutor.updateRelationshipProfile",
+      {value});
     const model = this.findModel(value.model);
     updateCmeRelationshipProfile(model, value);
   }
 
   deleteRelationshipProfile(value: CmeReference): void {
+    LOG.trace("DefaultCmeModelOperationExecutor.deleteRelationshipProfile",
+      {value});
     const model = this.findModel(value.model);
     deleteCmeRelationshipProfile(model, value);
   }
@@ -217,16 +259,19 @@ class DefaultCmeModelOperationExecutor implements CmeModelOperationExecutor {
   // Relationship
 
   createRelationship(value: NewCmeRelationship): CmeReference {
+    LOG.trace("DefaultCmeModelOperationExecutor.createRelationship", {value});
     const model = this.findModel(value.model);
     return createCmeRelationship(model, value);
   }
 
   updateRelationship(value: CmeRelationship): void {
+    LOG.trace("DefaultCmeModelOperationExecutor.updateRelationship", {value});
     const model = this.findModel(value.model);
-    createCmeRelationship(model, value);
+    updateCmeRelationship(model, value);
   }
 
   deleteRelationship(value: CmeReference): void {
+    LOG.trace("DefaultCmeModelOperationExecutor.deleteRelationship", {value});
     const model = this.findModel(value.model);
     deleteCmeRelationship(model, value);
   }
