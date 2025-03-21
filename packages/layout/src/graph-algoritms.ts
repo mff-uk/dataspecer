@@ -308,12 +308,17 @@ export class GraphAlgorithms {
               if(edge.start.id === edge.end.id) {
                 continue;
               }
+              // This happens if and only if there is a single graph component in which there are exactly 2 nodes connected by edge(s)
+              if(clusters[node.id] !== undefined) {
+                break;
+              }
               addToRecordArray(node.id, edge, leafs);
-              const otherEnd = edge.start.id === node.id ? edge.end : edge.start;
-              addToRecordArray(otherEnd.id, edge, clusters);
+              // Since it is leaf, the cluster root lies on the other end
+              const clusterRoot = edge.start.id === node.id ? edge.end : edge.start;
+              addToRecordArray(clusterRoot.id, edge, clusters);
               if(isFirst) {
                 isFirst = false;
-                addToRecordArray(otherEnd.id, edge, uniqueClusters);
+                addToRecordArray(clusterRoot.id, edge, uniqueClusters);
               }
               // TODO RadStr: Commented code
               // edge.layoutOptions["stress_edge_len"] = "250";
@@ -591,7 +596,7 @@ export class GraphAlgorithms {
             else {
               edge.reverseInLayout = false;
             }
-          } 
+          }
         }
       }
     }
