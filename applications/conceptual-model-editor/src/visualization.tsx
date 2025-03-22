@@ -4,7 +4,6 @@ import {
   type SemanticModelClass,
   type SemanticModelGeneralization,
   type SemanticModelRelationship,
-  isSemanticModelAttribute,
   isSemanticModelClass,
   isSemanticModelGeneralization,
   isSemanticModelRelationship,
@@ -12,7 +11,6 @@ import {
 import {
   type SemanticModelClassUsage,
   type SemanticModelRelationshipUsage,
-  isSemanticModelAttributeUsage,
   isSemanticModelClassUsage,
   isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
@@ -50,7 +48,6 @@ import { getGroupMappings } from "./action/utilities";
 import { synchronizeOnAggregatorChange, updateVisualAttributesBasedOnSemanticChanges } from "./dataspecer/visual-model/aggregator-to-visual-model-adapter";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { EntityDsIdentifier } from "./dataspecer/entity-model";
-import { isSemanticModelAttributeProfile } from "./dataspecer/semantic-model";
 import { createAttributeProfileLabel, getEntityLabelToShowInDiagram } from "./util/utils";
 
 const LOG = createLogger(import.meta.url);
@@ -209,9 +206,9 @@ function onChangeVisualModel(
 
   const models = graphContext.models;
   const entities = aggregatorView.getEntities();
-  const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
-  const attributeUsages = classesContext.usages.filter(isSemanticModelAttributeUsage);
-  const attributeProfiles = classesContext.relationshipProfiles.filter(isSemanticModelAttributeProfile);
+  const relationships = classesContext.relationships;
+  const relationshipsUsages = classesContext.usages.filter(isSemanticModelRelationshipUsage);
+  const relationshipsProfiles = classesContext.relationshipProfiles;
 
   const profilingSources = [
     ...classesContext.classes,
@@ -244,7 +241,7 @@ function onChangeVisualModel(
 
         const node = createDiagramNode(
           options, visualModel,
-          attributes, attributeUsages, attributeProfiles, profilingSources,
+          relationships, relationshipsUsages, relationshipsProfiles, profilingSources,
           visualEntity, entity, model, nodeToGroupMapping[visualEntity.identifier] ?? null);
         nextNodes.push(node);
       }
@@ -327,9 +324,9 @@ function createGroupNode(
 function createDiagramNode(
   options: Options,
   visualModel: VisualModel,
-  attributes: SemanticModelRelationship[],
-  attributesUsages: SemanticModelRelationshipUsage[],
-  attributesProfiles: SemanticModelRelationshipProfile[],
+  relationships: SemanticModelRelationship[],
+  relationshipsUsages: SemanticModelRelationshipUsage[],
+  relationshipsProfiles: SemanticModelRelationshipProfile[],
   profilingSources: (
     | SemanticModelClass | SemanticModelRelationship
     | SemanticModelClassUsage | SemanticModelRelationshipUsage
@@ -346,8 +343,8 @@ function createDiagramNode(
 
   const itemCandidates: Record<string, EntityItem> = {};
 
-  for(const attribute of attributes) {
-    if(isSemanticModelAttribute(attribute) && visualNode.content.includes(attribute.id)) {
+  for(const attribute of relationships) {
+    if(visualNode.content.includes(attribute.id)) {
       itemCandidates[attribute.id] = {
         identifier: attribute.id,
         label: getEntityLabelToShowInDiagram(language, attribute),
@@ -356,7 +353,7 @@ function createDiagramNode(
     }
   }
 
-  for(const attributeUsage of attributesUsages) {
+  for(const attributeUsage of relationshipsUsages) {
     if(!visualNode.content.includes(attributeUsage.id)) {
       continue;
     }
@@ -373,7 +370,7 @@ function createDiagramNode(
     }
   }
 
-  for (const attributeProfile of attributesProfiles) {
+  for (const attributeProfile of relationshipsProfiles) {
     if(!visualNode.content.includes(attributeProfile.id)) {
       continue;
     }
@@ -619,9 +616,9 @@ function onChangeVisualEntities(
 
   const models = graphContext.models;
   const entities = aggregatorView.getEntities();
-  const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
-  const attributeUsages = classesContext.usages.filter(isSemanticModelAttributeUsage);
-  const attributeProfiles = classesContext.relationshipProfiles.filter(isSemanticModelAttributeProfile);
+  const relationships = classesContext.relationships;
+  const relationshipsUsages = classesContext.usages.filter(isSemanticModelRelationshipUsage);;
+  const relationshipsProfiles = classesContext.relationshipProfiles;
 
   const profilingSources = [
     ...classesContext.classes,
@@ -689,7 +686,7 @@ function onChangeVisualEntities(
 
         const node = createDiagramNode(
           options, visualModel,
-          attributes, attributeUsages, attributeProfiles, profilingSources,
+          relationships, relationshipsUsages, relationshipsProfiles, profilingSources,
           next, entity, model, group);
 
         if (previous === null) {

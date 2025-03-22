@@ -36,9 +36,9 @@ export interface BaseEntityProfileDialogController<
 export function createBaseEntityProfileDialogController<
   ProfileType extends EntityRepresentative,
   StateType extends BaseEntityProfileDialogState<ProfileType>>(
-    changeState: (next: StateType | ((prevState: StateType) => StateType)) => void,
-    generateIriFromName: (name: string) => string,
-  ): BaseEntityProfileDialogController<ProfileType> {
+  changeState: (next: StateType | ((prevState: StateType) => StateType)) => void,
+  generateIriFromName: (name: string) => string,
+): BaseEntityProfileDialogController<ProfileType> {
 
   const entityController = createBaseEntityDialogController(
     changeState, generateIriFromName);

@@ -152,7 +152,7 @@ export function createEditAttributeProfileDialogState(
 
   const entityProfileState = createEditBaseEntityProfileDialogState(
     language, graphContext.models, allModels,
-     { identifier: entity.id, model: model.getId() },
+    { identifier: entity.id, model: model.getId() },
     allProfiles, range.profiling, noProfile, range.iri ?? "",
     range.name, range.nameFromProfiled,
     range.description, range.descriptionFromProfiled,
@@ -220,7 +220,6 @@ function listAttributesToSpecialize(
       classesContext.relationshipProfiles)
   ].filter(isRepresentingAttribute);
 }
-
 
 export function createAddAttributeProfileDialogState(
   classesContext: ClassesContextType,

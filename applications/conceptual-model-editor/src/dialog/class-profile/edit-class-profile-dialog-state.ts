@@ -24,8 +24,7 @@ import { isSemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/us
 
 const LOG = createLogger(import.meta.url);
 
-export interface ClassProfileDialogState extends
-  BaseEntityProfileDialogState<EntityRepresentative> { }
+export type ClassProfileDialogState = BaseEntityProfileDialogState<EntityRepresentative>;
 
 export function createNewProfileClassDialogState(
   classesContext: ClassesContextType,

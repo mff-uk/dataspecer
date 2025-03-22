@@ -1,7 +1,7 @@
 import { ModelDsIdentifier } from "../entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { InvalidState } from "../../application/error";
-import { CmeClass, CmeClassProfile, CmeGeneralization, CmeReference, CmeRelationship, CmeRelationshipProfile, NewCmeClass, NewCmeClassProfile, NewCmeGeneralization, NewCmeRelationship, NewCmeRelationshipProfile } from "./model";
+import { CmeClass, CmeClassProfile, CmeReference, CmeRelationship, CmeRelationshipProfile, NewCmeClass, NewCmeClassProfile, NewCmeGeneralization, NewCmeRelationship, NewCmeRelationshipProfile } from "./model";
 import { EntityModel } from "@dataspecer/core-v2";
 import { isInMemorySemanticModel } from "../../utilities/model";
 import { createLogger } from "../../application";
@@ -227,8 +227,8 @@ class DefaultCmeModelOperationExecutor implements CmeModelOperationExecutor {
     writeModel: ModelDsIdentifier,
     previous: (NewCmeSpecialization | CmeSpecialization)[],
     next: (NewCmeSpecialization | CmeSpecialization)[]): void {
-      LOG.trace("DefaultCmeModelOperationExecutor.updateSpecialization",
-        {entity, writeModel, previous, next});
+    LOG.trace("DefaultCmeModelOperationExecutor.updateSpecialization",
+      {entity, writeModel, previous, next});
     const model = this.findModel(writeModel);
     updateCmeSpecialization(this.models, model, entity, previous, next);
   }

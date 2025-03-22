@@ -11,8 +11,8 @@ import { ClassProfileDialogState } from "./edit-class-profile-dialog-state";
 import { CmeSemanticModel } from "../../dataspecer/cme-model";
 import { sanitizeDuplicitiesInRepresentativeLabels } from "../../utilities/label";
 
-export interface ClassProfileDialogController extends
-  BaseEntityProfileDialogController<EntityRepresentative> { }
+export type ClassProfileDialogController =
+  BaseEntityProfileDialogController<EntityRepresentative>;
 
 export function useClassProfileDialogController(
   { changeState }: DialogProps<ClassProfileDialogState>,

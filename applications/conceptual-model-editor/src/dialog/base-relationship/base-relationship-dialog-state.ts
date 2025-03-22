@@ -2,7 +2,12 @@ import { createLogger } from "../../application";
 import { CmeSemanticModel } from "../../dataspecer/cme-model";
 import { LanguageString } from "../../dataspecer/entity-model";
 import { sanitizeDuplicitiesInRepresentativeLabels } from "../../utilities/label";
-import { Cardinality, EntityRepresentative, listCardinalities, representCardinality } from "../utilities/dialog-utilities";
+import {
+  Cardinality,
+  EntityRepresentative,
+  listCardinalities,
+  representCardinality,
+} from "../utilities/dialog-utilities";
 import { validationNotEvaluated, ValidationState } from "../utilities/validation-utilities";
 import { validateBaseRelationshipDialogState } from "./base-relationship-dialog-validation";
 

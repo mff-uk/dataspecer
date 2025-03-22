@@ -19,7 +19,6 @@ export function validateVisualModelAttributes(
   entities: Record<string, AggregatedEntityWrapper>,
   visualModel: WritableVisualModel,
 ) {
-  console.log("Validating visual model's attributes visibility.")
   for (const entity of visualModel.getVisualEntities().values()) {
     if (isVisualNode(entity)) {
       const newContent: string[] = [];

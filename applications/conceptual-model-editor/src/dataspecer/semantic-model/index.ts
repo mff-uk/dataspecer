@@ -33,4 +33,3 @@ export function isOwlThing(identifier: EntityDsIdentifier): boolean {
   return identifier === OWL_THING_IDENTIFIER;
 }
 
-

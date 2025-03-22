@@ -8,7 +8,7 @@ import {
   createBaseEntityDialogController,
 } from "../base-entity/base-entity-dialog-controller";
 
-export interface ClassDialogController extends BaseEntityDialogController { }
+export type ClassDialogController = BaseEntityDialogController;
 
 export function useClassDialogController(
   { changeState }: DialogProps<ClassDialogState>,

@@ -53,7 +53,7 @@ export function updateCmeSpecialization(
       model => model.getId() === item.generalization.model);
     if (model === undefined) {
       LOG.error("Can not find model to delete a specialization.",
-         {specialization: item});
+        {specialization: item});
       continue;
     }
     model.executeOperation(deleteEntity(item.generalization.identifier));

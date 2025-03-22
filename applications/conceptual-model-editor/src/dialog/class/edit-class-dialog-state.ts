@@ -12,7 +12,7 @@ import { entityModelsMapToCmeSemanticModel } from "../../dataspecer/semantic-mod
 import { representClasses } from "../utilities/dialog-utilities";
 import { configuration } from "../../application";
 
-export interface ClassDialogState extends BaseEntityDialogState { }
+export type ClassDialogState = BaseEntityDialogState;
 
 export function createNewClassDialogState(
   classesContext: ClassesContextType,

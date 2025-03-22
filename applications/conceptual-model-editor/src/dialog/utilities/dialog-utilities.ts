@@ -675,7 +675,10 @@ export function selectDefaultModelForAttribute(
 /**
  * Find and return representative of entity with given identifier.
  */
-export function findRepresentative(entities: EntityRepresentative[], identifier: string | null | undefined): EntityRepresentative | null {
+export function findRepresentative(
+  entities: EntityRepresentative[],
+  identifier: string | null | undefined,
+): EntityRepresentative | null {
   if (identifier === null || identifier === undefined) {
     return null;
   }

@@ -103,7 +103,6 @@ function listAttributes(
   return result;
 }
 
-
 /**
  * @throws InvalidState
  */

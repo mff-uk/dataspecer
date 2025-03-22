@@ -305,9 +305,9 @@ export const translations: Record<string, string | Function> = {
   "drag-edge-to-canvas-create-generalization-parent": "Create new parent",
   "drag-edge-to-canvas-create-generalization-child": "Create new child",
   //
-  "edit-class-attributes-dialog.label": "Edit order of attributes on node",
-  "edit-class-attributes-dialog.btn-ok": "✅ Confirm",
-  "edit-class-attributes-dialog.btn-cancel": "❌ Cancel",
-  "edit-class-attributes-visible-attributes-column-header": "Visible attributes:",
-  "edit-class-attributes-hidden-attributes-column-header": "Hidden attributes:",
+  "edit-visual-node-dialog.label": "Edit visual node",
+  "edit-visual-node-dialog.btn-ok": "✅ Accept",
+  "edit-visual-node-dialog.btn-cancel": "❌ Cancel",
+  "edit-visual-node-dialog.content-visible": "Visible content:",
+  "edit-visual-node-dialog.content-available": "Available content:",
 };

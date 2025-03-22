@@ -613,7 +613,7 @@ function createActionsContext(
   const openEditNodeAttributesDialog = (nodeIdentifier: string) => {
     withVisualModel(notifications, graph, (visualModel) => {
       openEditNodeAttributesDialogAction(
-        dialogs, notifications, classes, options, visualModel, nodeIdentifier);
+        classes, graph, dialogs, notifications, options, visualModel, nodeIdentifier);
     });
   };
   // Visual model actions.
@@ -979,7 +979,7 @@ function createActionsContext(
         openCreateClassDialogAndCreateAssociationAction(
           cmeExecutor,notifications, dialogs, classes, options, graph,
           diagram, visualModel, nodeIdentifier, isCreatedClassTarget,
-           positionToPlaceClassOn);
+          positionToPlaceClassOn);
       });
     },
     onCanvasOpenCreateClassDialogWithGeneralization: (nodeIdentifier, positionToPlaceClassOn, isCreatedClassParent) => {

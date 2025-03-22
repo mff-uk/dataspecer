@@ -161,7 +161,7 @@ function findByIdentifier<Type extends { dsIdentifier: string }>(
  */
 export function createEditBaseEntityDialogState(
   language: string,
-  entityModels: Map<String, EntityModel>,
+  entityModels: Map<string, EntityModel>,
   allModels: CmeSemanticModel[],
   entity: CmeReference,
   iri: string,

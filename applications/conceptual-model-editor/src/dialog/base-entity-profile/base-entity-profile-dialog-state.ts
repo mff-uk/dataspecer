@@ -1,4 +1,4 @@
-import { isSemanticModelGeneralization, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
 import { createLogger } from "../../application";
 import { InvalidState } from "../../application/error";
 import { CmeSemanticModel, filterWritableModels } from "../../dataspecer/cme-model";
@@ -280,22 +280,22 @@ function filterProfiles<ProfileType extends EntityRepresentative>(
  */
 export function createEditBaseEntityProfileDialogState
   <ProfileType extends EntityRepresentative>(
-    language: string,
-    entityModels: Map<String, EntityModel>,
-    allModels: CmeSemanticModel[],
-    entity: CmeReference,
-    allProfiles: ProfileType[],
-    profileIdentifiers: EntityDsIdentifier[],
-    noProfile: ProfileType,
-    iri: string,
-    name: LanguageString | null,
-    nameSourceIdentifier: string | null,
-    description: LanguageString | null,
-    descriptionSourceIdentifier: string | null,
-    usageNote: LanguageString | null,
-    usageNoteSourceIdentifier: string | null,
-    allSpecializations: EntityRepresentative[],
-  ): BaseEntityProfileDialogState<ProfileType> {
+  language: string,
+  entityModels: Map<string, EntityModel>,
+  allModels: CmeSemanticModel[],
+  entity: CmeReference,
+  allProfiles: ProfileType[],
+  profileIdentifiers: EntityDsIdentifier[],
+  noProfile: ProfileType,
+  iri: string,
+  name: LanguageString | null,
+  nameSourceIdentifier: string | null,
+  description: LanguageString | null,
+  descriptionSourceIdentifier: string | null,
+  usageNote: LanguageString | null,
+  usageNoteSourceIdentifier: string | null,
+  allSpecializations: EntityRepresentative[],
+): BaseEntityProfileDialogState<ProfileType> {
 
   const semanticModels: InMemorySemanticModel[] =
     [...entityModels.values()].filter(isInMemorySemanticModel);

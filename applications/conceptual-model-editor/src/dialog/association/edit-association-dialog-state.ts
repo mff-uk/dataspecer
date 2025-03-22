@@ -135,7 +135,7 @@ export function createEditAssociationDialogState(
 
   const entityState = createEditBaseEntityDialogState(
     language, graphContext.models, allModels,
-     { identifier: entity.id, model: model.getId() },
+    { identifier: entity.id, model: model.getId() },
     range.iri ?? "", range.name, range.description,
     allSpecializations);
 
