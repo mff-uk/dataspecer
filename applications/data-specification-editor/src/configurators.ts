@@ -4,7 +4,6 @@ import { CsvConfigurator } from "@dataspecer/csv/configuration";
 import { XmlConfigurator } from "@dataspecer/xml/configuration";
 import { ClientConfigurator } from "./configuration";
 import { DataSpecificationConfigurator } from "@dataspecer/core/data-specification/configuration";
-import { TemplateArtifactConfigurator } from "@dataspecer/documentation/configuration";
 
 /**
  * Returns all configurators for generator families that will be used in the
@@ -18,6 +17,5 @@ export function getDefaultConfigurators(): Configurator[] {
         XmlConfigurator,
         ClientConfigurator,
         DataSpecificationConfigurator,
-        TemplateArtifactConfigurator,
     ]
 }

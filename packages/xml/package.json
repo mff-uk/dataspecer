@@ -8,6 +8,7 @@
     "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests"
   },
   "exports": {
+    "./documentation": "./lib/documentation/index.js",
     "./conventions": "./lib/conventions.js",
     "./configuration": "./lib/configuration.js",
     "./xml-schema": "./lib/xml-schema/index.js",

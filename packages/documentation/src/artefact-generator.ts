@@ -1,11 +1,10 @@
 import { DataSpecification, DataSpecificationArtefact } from "@dataspecer/core/data-specification/model";
 import { ArtefactGenerator, ArtefactGeneratorContext } from "@dataspecer/core/generator";
 import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
-import { DefaultTemplateArtifactConfiguration, TemplateArtifactConfiguration, TemplateArtifactConfigurator } from "./configuration";
 import { getMustacheView } from "./mustache-view/views";
-import { createHandlebarsAdapter } from "@dataspecer/handlebars-adapter";
 import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
-import { defaultConfiguration, DocumentationGeneratorConfiguration, DocumentationGeneratorInputModel, generateDocumentation } from "./documentation-generator";
+import { DocumentationGeneratorConfiguration, DocumentationGeneratorInputModel, generateDocumentation } from "./documentation-generator";
+import { DOCUMENTATION_MAIN_TEMPLATE_PARTIAL, internalDefaultDocumentationConfiguration } from "./configuration";
 
 /**
  * ArtefactGenerator implementation for template artifact generator.
@@ -22,13 +21,6 @@ export class TemplateArtifactGenerator implements ArtefactGenerator {
         specification: DataSpecification,
         output: StreamDictionary
     ): Promise<void> {
-        const configuration = TemplateArtifactConfigurator.merge(
-            DefaultTemplateArtifactConfiguration,
-            TemplateArtifactConfigurator.getFromObject(artefact.configuration)
-        ) as TemplateArtifactConfiguration;
-
-        const template = configuration.template;
-        const templates = configuration.templates;
 
         // todo: I need to somehow obtain the original models..
 
@@ -62,8 +54,13 @@ export class TemplateArtifactGenerator implements ArtefactGenerator {
             dsv: {},
             prefixMap: {},
         };
+
+        // todo: Does not respect user configuration
+        // todo: Does not include generator templates
         const configurationForDocumentation: DocumentationGeneratorConfiguration = {
-            ...defaultConfiguration
+            ...internalDefaultDocumentationConfiguration,
+            language: "en",
+            template: internalDefaultDocumentationConfiguration.partials[DOCUMENTATION_MAIN_TEMPLATE_PARTIAL]
         };
 
         const result = await generateDocumentation(

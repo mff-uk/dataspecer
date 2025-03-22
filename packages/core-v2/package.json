@@ -10,6 +10,8 @@
   },
   "exports": {
     ".": "./lib/entity-model/index.js",
+    "./configuration-model": "./lib/configuration-model/index.js",
+    "./configuration-model/utils": "./lib/configuration-model/utils/index.js",
     "./entity-model": "./lib/entity-model/index.js",
     "./model/known-models": "./lib/model/known-models.js",
     "./project": "./lib/project/index.js",
