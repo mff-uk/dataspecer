@@ -16,8 +16,6 @@ export class GraphFactory {
      * @param inputModel if null then {@link nodeContentOfGraph} needs to be set, otherwise behavior is undefined
      * @param nodeContentOfGraph the nodes which are part of the new subgraph.
      *                           The nodes are put inside of the created subgraph and in the {@link sourceGraph} are shown as one node - the newly created graph.
-     * ... TODO: for now can't be null, in future it might make sense to be null.
-     * For example when he we have one visual model and then we want to create subgraph which has other visual model as content (... TODO: but what about shared nodes?)
      * @param isDummy
      * @param visualModel
      * @param shouldSplitEdges if set to true, then split edges. If set to false, then just paste in the subgraph the nodes, but this results in edges going from
@@ -32,11 +30,10 @@ export class GraphFactory {
         mainGraph: MainGraph,
         sourceGraph: Graph,
         graphIdentifier: string,
-        nodeContentOfGraph: Array<EdgeEndPoint> | null,
+        nodeContentOfGraph: Array<EdgeEndPoint>,
         isDummy: boolean,
         shouldSplitEdges: boolean
     ): Graph {
-        // Create subgraph which has given nodes as children (TODO: What if the nodes are not given, i.e. null?)
         const graph = new DefaultGraph();
         graph.initializeWithGivenContent(
             mainGraph, sourceGraph, graphIdentifier,

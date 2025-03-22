@@ -388,7 +388,7 @@ export class GraphAlgorithms {
       components: Record<string, number[]>,
       currentComponent: number,
       clusterRoots: EdgeEndPoint[],
-      edges: Edge[] | Generator<Edge, string, unknown>,
+      edges: Edge[] | Generator<Edge>,
     ): EdgeEndPoint[] {
       const unexploredNodes: EdgeEndPoint[] = [];
       for(const edge of edges) {

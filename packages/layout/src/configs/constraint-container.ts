@@ -38,7 +38,7 @@ export class ConstraintContainer {
     /**
      * Is generator contaning all the layout actions to be performed in the main loop
      */
-    layoutActionsIterator: Generator<IAlgorithmConfiguration | IGraphConversionConstraint, void, unknown>;
+    layoutActionsIterator: Generator<IAlgorithmConfiguration | IGraphConversionConstraint>;
 
 
     /**
@@ -49,7 +49,7 @@ export class ConstraintContainer {
     /**
      * Is generator contaning all the layout actions to be performed before running the main layout algorithm
      */
-    layoutActionsIteratorBefore: Generator<IAlgorithmConfiguration | IGraphConversionConstraint, void, unknown>;
+    layoutActionsIteratorBefore: Generator<IAlgorithmConfiguration | IGraphConversionConstraint>;
 
     /**
      * Represents the currently iterated layout action

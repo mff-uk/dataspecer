@@ -80,8 +80,6 @@ export const ALGORITHM_TO_ELK_ALGORITHM_MAP: Record<AlgorithmName, string> = {
  * @param elkData is the changed object
  */
 export function modifyElkDataObject(data: object, elkData: LayoutOptions): void {
-    // TODO: Could be rewritten in such a way that when one key is mapped to multiple values, then there is some scaling function, instead
-    //       of just setting all of the options to the same value
     let hasAdvancedSettings: boolean = false;
     Object.entries(data).forEach(([key, value]) => {
         if(key === "advanced_settings") {

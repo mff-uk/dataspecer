@@ -127,7 +127,7 @@ export interface MainGraph extends Graph {
     semanticNodeToVisualMap: Record<string, EdgeEndPoint[]>,
 
 
-    // TODO RadStr: Maybe not needed
+    // TODO RadStr: Maybe not needed ... Yeah I think that it is not needed - DELETE
     /**
      * Maps the semantic edge to all its visuals.
      *
@@ -295,7 +295,7 @@ export class DefaultGraph implements Graph {
                 if(cclass !== undefined) {
                     addNodeToGraph(
                         this.mainGraph, node, cclass.semanticClass, false, cclass.sourceModelIdentifier,
-                        extractedModels, this, visualModel, entitiesToLayout, null, explicitAnchors);
+                        extractedModels, this, visualModel, entitiesToLayout, null, false, explicitAnchors);
                 }
                 else {
                     const classProfile = extractedModels.classesProfiles
@@ -309,7 +309,7 @@ export class DefaultGraph implements Graph {
                     addNodeToGraph(
                         this.mainGraph, node, classProfile.semanticClassProfile, true,
                         classProfile.sourceModelIdentifier, extractedModels, this,
-                        visualModel, entitiesToLayout, null, explicitAnchors);
+                        visualModel, entitiesToLayout, null, false, explicitAnchors);
                 }
             }
         }
@@ -320,7 +320,7 @@ export class DefaultGraph implements Graph {
             if(cclass !== undefined) {
                 addNodeToGraph(
                     this.mainGraph, null, cclass.semanticClass, false, cclass.sourceModelIdentifier,
-                    extractedModels, this, visualModel, entitiesToLayout, position, explicitAnchors);
+                    extractedModels, this, visualModel, entitiesToLayout, position, false, explicitAnchors);
             }
             else {
                 const classProfile = extractedModels.classesProfiles
@@ -333,7 +333,7 @@ export class DefaultGraph implements Graph {
                 addNodeToGraph(
                     this.mainGraph, null, classProfile.semanticClassProfile, true,
                     classProfile.sourceModelIdentifier, extractedModels, this,
-                    visualModel, entitiesToLayout, position, explicitAnchors);
+                    visualModel, entitiesToLayout, position, false, explicitAnchors);
             }
         }
     }
@@ -562,7 +562,6 @@ export class DefaultGraph implements Graph {
 
 
 
-    // TODO: Only reason why we need visualModel is because in the cme-v1 we can't easily tell if generalization is part of the visual model.
     /**
      * Creates generalization subgraphs. The subgraphs are maximal, meaning any node which can be reached through the generalization path is in the subgraph.
      */
@@ -745,7 +744,6 @@ export class DefaultGraph implements Graph {
         console.log("BEFORE GOING TO splitEdgeIntoTwo");
         console.log(edgesGoingBeyond);
 
-        // TODO: Actually ... should visual model contain ports?? And should I have them here in my representation????!!!
         edgesGoingBeyond.forEach(e => this.splitEdgeIntoTwo(e, subgraph));
     }
 
@@ -779,21 +777,18 @@ export class DefaultGraph implements Graph {
         index = edge.end[reverseEdgeType].indexOf(edge);
         edge.end[reverseEdgeType].splice(index, 1);
 
-        // TODO: Put into separate method ... probably should be just method on the main graph which gets graph as argument
         index = this.mainGraph.findEdgeIndexInAllEdges(edge.id);
         this.mainGraph.allEdges.splice(index, 1);
     }
 
     /**
      * Removes {@link node} and all related edges and also removes it all from list of all nodes and all edges of the main graph.
-     * @param node
      */
     removeNode(node: Node) {
         for(const edge of node.getAllEdges()) {
             this.removeEdge(edge);
         }
 
-        // TODO: Put into separate method ... probably should be just method on the main graph which gets graph as argument
         const index = this.mainGraph.findNodeIndexInAllNodes(node.id);
         if(index !== null) {
             this.mainGraph.allNodes.splice(index, 1);
@@ -815,7 +810,6 @@ export class DefaultGraph implements Graph {
     sourceModelIdentifier: string | null;
     semanticEntityRepresentingNode: SemanticModelEntity | null = null;
     isDummy: boolean = true;
-    isMainEntity: boolean = false;
     isProfile: boolean = false;
     isConsideredInLayout: boolean = true;     // TODO: Create setter/getter instead (iface vs class ... this will need change on lot of places)
     layoutOptions: Record<string, string> = {};
@@ -836,27 +830,27 @@ export class DefaultGraph implements Graph {
 
     outgoingProfileEdges: Array<Edge> = [];
     incomingProfileEdges: Array<Edge> = [];
-    getAllIncomingEdges(): Generator<Edge, string, unknown> {
+    getAllIncomingEdges(): Generator<Edge> {
         return getAllIncomingEdges(this);
     }
 
-    getAllOutgoingEdges(): Generator<Edge, string, unknown> {
+    getAllOutgoingEdges(): Generator<Edge> {
         return getAllOutgoingEdges(this);
     }
 
-    getAllEdges(): Generator<Edge, string, unknown> {
+    getAllEdges(): Generator<Edge> {
         return getAllEdges(this);
     }
 
-    getAllIncomingUniqueEdges(): Generator<Edge, string, unknown> {
+    getAllIncomingUniqueEdges(): Generator<Edge> {
         return getAllIncomingUniqueEdges(this);
     }
 
-    getAllOutgoingUniqueEdges(): Generator<Edge, string, unknown> {
+    getAllOutgoingUniqueEdges(): Generator<Edge> {
         return getAllOutgoingUniqueEdges(this);
     }
 
-    getAllUniqueEdges(): Generator<Edge, string, unknown> {
+    getAllUniqueEdges(): Generator<Edge> {
         return getAllUniqueEdges(this);
     }
 

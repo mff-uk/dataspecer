@@ -33,7 +33,7 @@ function areNodesAligned(
 export class NodeOrthogonalityMetric implements Metric {
     computeMetric(graph: Graph): number {
       const alingmentLimit = 20;
-      let alignedNodesCount = 0;      // TODO RadStr: PRobably remove this variable
+      let alignedNodesCount = 0;      // TODO RadStr: I dont know this computes something slightly different, maybe it mgiht be more useful - it computes number of aligned pairs
       const nodes = Object.values(graph.nodes);
       const alreadyAligned: boolean[] = Array(nodes.length).fill(false);
       for (let i = 0; i < nodes.length; i++) {
@@ -51,7 +51,6 @@ export class NodeOrthogonalityMetric implements Metric {
         }
       }
 
-      // return alignedNodesCount;    // TODO RadStr: Remove
       console.info({alreadyAligned});
       console.info({nodes});
       return alreadyAligned.filter(isAligned => isAligned).length / nodes.length;
