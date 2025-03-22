@@ -337,7 +337,7 @@ export class GraphAlgorithms {
         .filter(node => node !== null);
       const components = GraphAlgorithms.findComponents(graph, clusterRoots);
       console.info("Components", components);
-      GraphAlgorithms.extendClustersWithLoops(graph, null, components, sortedClusters, 3);
+      GraphAlgorithms.extendClustersWithLoops(graph, null, components, sortedClusters, 50);
       const biggestClusters = sortedClusters.splice(0, Math.min(sortedClusters.length, clusterCount ?? sortedClusters.length));
       const result: Record<string, Edge[]> = {};
       for(const [name, cluster] of biggestClusters) {
