@@ -4,27 +4,11 @@
 
 // }
 
-// class CrossingAngleMetric implements Metric {
-
-// }
-
-// class NodeOrthogonalityMetric implements Metric {
-
-// }
-
 // class EdgeOrthogonalityMetric implements Metric {
 
 // }
 
 // class SymmetryMetric implements Metric {
-
-// }
-
-// class EdgeAngleMetric implements Metric {
-
-// }
-
-// class AreaMetric implements Metric {
 
 // }
 

@@ -3,6 +3,9 @@ import { getBotRightPosition, getTopLeftPosition } from "../../../util/utils";
 import { AllMetricData, Metric } from "../graph-metric";
 
 // Experimental
+/**
+ * Metric which computes the area the graph occupies
+ */
 export class AreaMetric implements Metric {
     computeMetric(graph: Graph): number {
         const nodes = Object.values(graph.nodes);

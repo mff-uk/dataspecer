@@ -51,7 +51,7 @@ export const useConfigDialog = () => {
   // Before V2 we tried filtering, right now just put in everything and pick the correct ones, the responsibility on picking correct one should lie in the layout package anyways
   // TODO RadStr: So it may be renamed to getConfig instead
   const getValidConfig = () => {
-    return config;
+    return _.cloneDeep(config);
   };
 
   const resetConfig = () => {

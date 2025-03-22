@@ -355,7 +355,7 @@ const runMainLayoutAlgorithm = async (
 	console.log("Metrics aggregations result: ", computedMetricsData.metricResultAggregations);
 	console.log("Metrics all results: ", computedMetricsData.metricResults);
 	console.log(await computedMetricsData.metricResultAggregations["total"].max.graphPromise);
-	GraphAlgorithms.moveTestEdgeLenOneUp();			// TODO RadStr: DEBUG
+	GraphAlgorithms.moveTestEdgeLenOneUp();			// TODO RadStr: DEBUG ... just remove
 	return computedMetricsData.metricResultAggregations;
 }
 

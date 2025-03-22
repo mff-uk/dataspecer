@@ -42,7 +42,7 @@ export class RandomLayout implements LayoutAlgorithm {
     }
 
     runGeneralizationLayout(shouldCreateNewGraph: boolean): Promise<MainGraph> {
-        throw new Error("TODO: Implement me if necessary");
+        throw new Error("Implement me if necessary");
     }
     run(shouldCreateNewGraph: boolean): Promise<MainGraph> {
         return doRandomLayoutAdvancedFromGraph(this.graph, shouldCreateNewGraph);

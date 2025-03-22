@@ -5,6 +5,9 @@ import { findNodeBorder } from "../../../util/utils";
 import { XY } from "../../..";
 import { VisualNodeComplete } from "../../representation/node";
 
+/**
+ * Metric for the number of crossing edges
+ */
 export class EdgeCrossingMetric implements Metric {
     computeMetric(graph: Graph): number {
         let edgeCrossingCount: number = 0;

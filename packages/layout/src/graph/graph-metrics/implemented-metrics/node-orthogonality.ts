@@ -26,6 +26,10 @@ function areNodesAligned(
   return false;
 }
 
+
+/**
+ * Computes nearly orthogonal nodes TODO: Maybe I would compute nearly orthogonal and close to each other ... bu this just gets too complicated - how can I make that a number between [0, 1]?
+ */
 export class NodeOrthogonalityMetric implements Metric {
     computeMetric(graph: Graph): number {
       const alingmentLimit = 20;

@@ -27,7 +27,7 @@ export interface Edge {
     sourceModelIdentifier: string | null;
 
     /**
-     * Identifier of the edge, can be different from the edge id, for example when splitting ... TODO: Actually should I use the id of the semantic entity or of the visual one as origin??
+     * Identifier of the edge, can be different from the edge id, for example when splitting
      */
     id: string;                 // TODO: A lot of this data is same for class/edge/graph so it should be in separate interface/class
     /**
@@ -177,12 +177,12 @@ export class DefaultEdge implements Edge {
         this.sourceModelIdentifier = sourceModelIdentifier;
 
         this.edgeProfileType = convertOutgoingEdgeTypeToEdgeProfileType(edgeType);
-        this.edgeType = edgeType
+        this.edgeType = edgeType;
         this.semanticEntityRepresentingEdge = semanticEdge;
         this.start = start;
         this.end = end;
 
-        this.visualEdge = this.createVisualEdgeBasedOnData(visualRelationship, semanticEdge, sourceModelIdentifier, start, end);
+        this.visualEdge = this.createVisualEdgeBasedOnData(visualRelationship, semanticEdge, this.edgeProfileType, sourceModelIdentifier, start, end);
         this.id = identifier ?? this.visualEdge.visualEdge.identifier;
 
         if(semanticEdge === null) {
@@ -216,42 +216,6 @@ export class DefaultEdge implements Edge {
         return this.visualEdge.visualEdge;
     }
 
-    // TODO: Maybe move it outside of the class since we are no longer using this.
-    private createNewVisualRelationshipBasedOnSemanticDataTODONEW(
-        semanticEdge: AllowedEdgeTypes,
-        sourceModelIdentifier: string | null,
-        start: EdgeEndPoint,
-        end: EdgeEndPoint,
-    ): VisualRelationship | VisualProfileRelationship {
-        // TODO: It makes sense to use the cme methods to create the visual entities - Instead of implementing it all again - just define method and call it
-        //      ... for example I am not sure the type should cotnain only the VISUAL_RELATIONSHIP_TYPE or also some other type, so for such cases constistency would be nice
-        if(this.edgeProfileType === "CLASS-PROFILE") {
-            const edgeToReturn: VisualProfileRelationship = {
-                identifier: Math.random().toString(36).substring(2),
-                entity: start.id,
-                type: [VISUAL_PROFILE_RELATIONSHIP_TYPE],
-                waypoints: [],
-                model: sourceModelIdentifier ?? "",
-                visualSource: start.id,
-                visualTarget: end.id,
-            };
-
-            return edgeToReturn;
-        }
-
-        const edgeToReturn: VisualRelationship = {
-            identifier: Math.random().toString(36).substring(2),
-            type: [VISUAL_RELATIONSHIP_TYPE],
-            representedRelationship: semanticEdge.id,
-            waypoints: [],
-            model: sourceModelIdentifier ?? "",
-            visualSource: start.id,
-            visualTarget: end.id,
-        };
-
-        return edgeToReturn;
-    }
-
     private createNewVisualRelationshipBasedOnEndPoints(
         start: EdgeEndPoint,
         end: EdgeEndPoint
@@ -278,6 +242,7 @@ export class DefaultEdge implements Edge {
     private createVisualEdgeBasedOnData(
         visualRelationship: VisualRelationship | VisualProfileRelationship | null,
         semanticEdge: AllowedEdgeTypes | null,
+        edgeProfileType: EdgeProfileType,
         sourceModelIdentifier: string | null,
         start: EdgeEndPoint,
         end: EdgeEndPoint,
@@ -286,8 +251,8 @@ export class DefaultEdge implements Edge {
             return new VisualEdge(visualRelationship, false);
         }
         else if(semanticEdge !== null) {
-            const createdVisualRelationship = this.createNewVisualRelationshipBasedOnSemanticDataTODONEW(
-                semanticEdge, sourceModelIdentifier, start, end);
+            const createdVisualRelationship = createNewVisualRelationshipBasedOnSemanticData(
+                semanticEdge, edgeProfileType, sourceModelIdentifier, start, end);
             return new VisualEdge(createdVisualRelationship, true);
         }
         else {
@@ -296,7 +261,9 @@ export class DefaultEdge implements Edge {
     }
 }
 
-// TODO RadStr: Not used - I can rpobably remove this method (checkIfEdgeHasAtLeastOneOutsider) and the isRelationshipInVisualModel
+/**
+ * @deprecated It probably works, but I am no longer using it anywhere
+ */
 const checkIfEdgeHasAtLeastOneOutsider = (
   outsiders: Record<string, XY | null>,
   start: string,
@@ -306,6 +273,7 @@ const checkIfEdgeHasAtLeastOneOutsider = (
 }
 
 /**
+ * @deprecated It probably works, but I am no longer using it anywhere
  * @returns Returns true if the relationship is inside the visual model or the model is null.
  */
 const isRelationshipInVisualModel = (
@@ -345,6 +313,7 @@ const isClassInLayoutedEntities = (
 };
 
 /**
+ * @deprecated It probably works, but I am no longer using it anywhere
  * @returns Returns true if both ends of the generalization exists in the visual model
  */
 const isGeneralizationInVisualModel = (
@@ -422,3 +391,40 @@ type IncomingEdgeType = "incomingRelationshipEdges" | "incomingGeneralizationEdg
 export const convertOutgoingEdgeTypeToIncoming = (outgoingEdgeType: OutgoingEdgeType): IncomingEdgeType => {
     return "incoming" + capitalizeFirstLetter(outgoingEdgeType.slice("outgoing".length)) as IncomingEdgeType
 };
+
+
+function createNewVisualRelationshipBasedOnSemanticData(
+    semanticEdge: AllowedEdgeTypes,
+    edgeProfileType: EdgeProfileType,
+    sourceModelIdentifier: string | null,
+    start: EdgeEndPoint,
+    end: EdgeEndPoint,
+): VisualRelationship | VisualProfileRelationship {
+    // TODO: It makes sense to use the cme methods to create the visual entities - Instead of implementing it all again - just define method and call it
+    //      ... for example I am not sure the type should cotnain only the VISUAL_RELATIONSHIP_TYPE or also some other type, so for such cases constistency would be nice
+    if(edgeProfileType === "CLASS-PROFILE") {
+        const edgeToReturn: VisualProfileRelationship = {
+            identifier: Math.random().toString(36).substring(2),
+            entity: start.id,
+            type: [VISUAL_PROFILE_RELATIONSHIP_TYPE],
+            waypoints: [],
+            model: sourceModelIdentifier ?? "",
+            visualSource: start.id,
+            visualTarget: end.id,
+        };
+
+        return edgeToReturn;
+    }
+
+    const edgeToReturn: VisualRelationship = {
+        identifier: Math.random().toString(36).substring(2),
+        type: [VISUAL_RELATIONSHIP_TYPE],
+        representedRelationship: semanticEdge.id,
+        waypoints: [],
+        model: sourceModelIdentifier ?? "",
+        visualSource: start.id,
+        visualTarget: end.id,
+    };
+
+    return edgeToReturn;
+}

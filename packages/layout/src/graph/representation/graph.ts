@@ -1024,3 +1024,10 @@ const checkIfEdgeShouldBePartOfGraph = (
     return isNodeInVisualModel(visualModel, entitiesToLayout, null, start) &&
             isNodeInVisualModel(visualModel, entitiesToLayout, null, end);
 }
+
+export function isSubgraph(parentGraph: Graph, possibleSubgraph: string): boolean {
+    const nodeInGraph = parentGraph.nodes[possibleSubgraph];
+    const isSubgraphTest = nodeInGraph !== undefined && ("nodes" in nodeInGraph);
+
+    return isSubgraphTest;
+}

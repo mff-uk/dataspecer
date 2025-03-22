@@ -3,7 +3,6 @@ import { EdgeCrossingMetric } from "../graph/graph-metrics/implemented-metrics/e
 import { EdgeEndPoint } from "../graph/representation/edge";
 import { VisualNodeComplete } from "../graph/representation/node";
 
-// TODO RadStr LAYOUT: After merge fix - I think that this is present in core-v2 utlities in the another open PR
 /**
  * Add item, using given identifier, to respective bucket.
  * If your map is represented using {@link Map} type then use the {@link addToMapArray} instead.

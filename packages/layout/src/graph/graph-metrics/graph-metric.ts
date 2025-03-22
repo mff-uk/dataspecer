@@ -1,5 +1,5 @@
 import { DefaultGraph } from "../representation/graph";
-
+// TODO: Make it return both the number between 0, 1 and the actual metric number
 /**
  * Represents graph metric
  */

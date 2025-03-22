@@ -45,6 +45,10 @@ function createVectorFromEdge(edge: Edge) {
 }
 
 
+/**
+ * Metric which caculates the angle between edges, see https://github.com/rpgove/greadability or https://osf.io/preprints/osf/wgzn5_v1
+ * optimal seems to be 70 degrees
+ */
 export class EdgeCrossingAngleMetric implements Metric {
     computeMetric(graph: Graph): number {
       const idealAngle = 70;

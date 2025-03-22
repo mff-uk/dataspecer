@@ -252,9 +252,6 @@ export class ConstraintFactory {
         AlgorithmConstraintFactory.addToLayoutActionsInPreMainRunBasedOnConfiguration(
             config, layoutActionsBeforeMainRun);
 
-        // We can't both have interactive layout and perform search for best algorithm
-        // TODO: So just a bit of a hack now!!, to use only 1 run in such case and then set it back to original value so dialog doesn't change on reopen
-        const originalNumberOfNewAlgorithmRuns = config.main[config.chosenMainAlgorithm].number_of_new_algorithm_runs;
         if(config.main[config.chosenMainAlgorithm].interactive === true &&
            config.chosenMainAlgorithm !== "elk_stress_advanced_using_clusters") {
             config.main[config.chosenMainAlgorithm].number_of_new_algorithm_runs = 1;
@@ -267,8 +264,6 @@ export class ConstraintFactory {
 
         console.info("config", config);
         console.info("layoutActions", layoutActions);
-
-        config.main[config.chosenMainAlgorithm].number_of_new_algorithm_runs = originalNumberOfNewAlgorithmRuns;
 
         return constraintContainer
     }

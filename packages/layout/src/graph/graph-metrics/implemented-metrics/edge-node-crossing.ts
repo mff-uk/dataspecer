@@ -4,6 +4,9 @@ import { VisualNodeComplete } from "../../representation/node";
 import { AllMetricData, Metric } from "../graph-metric";
 import { EdgeCrossingMetric } from "./edge-crossing";
 
+/**
+ * Computes the crosses between nodes and edges
+ */
 export class EdgeNodeCrossingMetric implements Metric {
     computeMetric(graph: Graph): number {
         let edgeNodeCrossingCount: number = 0;
