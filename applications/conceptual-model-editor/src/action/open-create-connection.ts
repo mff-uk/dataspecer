@@ -168,7 +168,7 @@ function createRelationship(
     description: state.description ?? null,
     domain: state.source.id,
     domainCardinality: state.sourceCardinality,
-    range: state.source.id,
+    range: state.target.id,
     rangeCardinality: state.targetCardinality,
   });
 
