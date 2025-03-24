@@ -1,11 +1,6 @@
-import { Position as PositionWithAnchor } from "@dataspecer/core-v2/visual-model";
+import { Node, Edge, Group, GroupWithContent, Position, ViewportDimensions, Waypoint } from "./diagram-model";
 
-/**
- * Actions that can be executed on the editor component.
- */
-export interface DiagramActions {
-
-  // Groups
+interface GroupActions {
 
   /**
    * @returns The list of groups registered in diagram.
@@ -38,7 +33,9 @@ export interface DiagramActions {
    */
   getGroupContent(group: Group): string[];
 
-  // Nodes
+}
+
+interface NodeActions {
 
   /**
    * @returns The nodes registered inside diagram.
@@ -72,18 +69,19 @@ export interface DiagramActions {
   /**
    * @param identifier is the id of the node.
    * @returns The width of given node in the diagram component.
-   *          Null if the width couldn't be measured. For example when the node isn't in diagram, etc.
+   *  Null if the width couldn't be measured. For example when the node isn't in diagram, etc.
    */
   getNodeWidth(identifier: string): number | null;
 
   /**
    * @param identifier is the id of the node.
    * @returns The height of given node in the diagram component.
-   *          Null if the height couldn't be measured. For example when the node isn't in diagram, etc.
+   *  Null if the height couldn't be measured. For example when the node isn't in diagram, etc.
    */
   getNodeHeight(identifier: string): number | null;
+}
 
-  // Edges
+interface EdgeActions {
 
   /**
    * @returns The Edges registered inside diagram.
@@ -113,8 +111,9 @@ export interface DiagramActions {
    * @param identifiers are identifiers of the to be removed edges.
    */
   removeEdges(identifiers: string[]): void;
+}
 
-  // Selection
+interface SelectionActions {
 
   /**
    * @returns Currently selected nodes within diagram.
@@ -124,7 +123,7 @@ export interface DiagramActions {
   /**
    * Sets diagram's node selection to the given {@link nodes}.
    * @param selectedNodes are the identifiers of the nodes,
-   * which will become the new content of the node selection.
+   *  which will become the new content of the node selection.
    */
   setSelectedNodes(selectedNodes: string[]): void;
 
@@ -136,19 +135,13 @@ export interface DiagramActions {
   /**
    * Sets diagram's edge selection to the given edges.
    * @param edges are the identifiers of the edges,
-   * which will become the new content of the edge selection.
+   *  which will become the new content of the edge selection.
    */
   setSelectedEdges(edges: string[]): void;
 
-  // General
+}
 
-  /**
-   * Sets content of the diagram.
-   * @returns When the diagram is ready.
-   */
-  setContent(nodes: Node[], edges: Edge[], groups: GroupWithContent[]): Promise<void>;
-
-  // Viewport
+interface ViewportActions {
 
   /**
    * @returns The current position of viewport and its width and height.
@@ -178,6 +171,20 @@ export interface DiagramActions {
    * Return content of the current diagram view as a SVG string.
    */
   renderToSvgString(): Promise<string | null>;
+
+}
+
+/**
+ * Actions that can be executed on the editor component.
+ */
+export interface DiagramActions extends
+  GroupActions, NodeActions, EdgeActions, SelectionActions, ViewportActions {
+
+  /**
+   * Sets content of the diagram.
+   * @returns When the diagram is ready.
+   */
+  setContent(nodes: Node[], edges: Edge[], groups: GroupWithContent[]): Promise<void>;
 
   /**
    * Opens menu on given {@link canvasPosition}.
@@ -214,206 +221,6 @@ export interface DiagramActions {
   ): void;
 }
 
-/**
- * Non-visual node used to represent group of other nodes.
- */
-export type Group = {
-
-  identifier: string;
-
-}
-
-export type GroupWithContent = {
-
-  /**
-   * The group.
-   */
-  group: Group,
-
-  /**
-   * The group's content.
-   */
-  content: string[],
-
-}
-
-export type ViewportDimensions = {
-
-  position: Position;
-
-  width: number;
-
-  height: number;
-
-}
-
-export enum NodeType {
-  /**
-   * Represents a class.
-   */
-  Class,
-  /**
-   * Represents a class profile.
-   */
-  ClassProfile
-}
-
-/**
- * Entity can be a class or a class profile.
- */
-export type Node = {
-
-  type: NodeType;
-
-  /**
-   * Entity identifier in scope of the diagram.
-   */
-  identifier: string;
-
-  /**
-   * Identifier of external entity associated with this node.
-   */
-  externalIdentifier: string;
-
-  /**
-   * Human readable label.
-   */
-  label: string;
-
-  /**
-   * Human readable description.
-   */
-  description: string | null;
-
-  /**
-   * Full IRI of represented entity or null.
-   */
-  iri: string | null;
-
-  /**
-   * Color to use for given entity.
-   */
-  color: string;
-
-  /**
-   * Group this node belongs to.
-   */
-  group: string | null;
-
-  /**
-   * Position of the Node at the canvas.
-   */
-  position: PositionWithAnchor;
-
-  profileOf: null | {
-
-    label: string;
-
-    usageNote: string | null;
-
-  }
-
-  /**
-   * Node content, i.e. attributes, properties.
-   */
-  items: EntityItem[];
-
-}
-
-export interface Position {
-
-  x: number;
-
-  y: number;
-
-}
-
-export interface EntityItem {
-
-  identifier: string;
-
-  label: string;
-
-  profileOf: null | {
-
-    label: string;
-
-    usageNote: string | null;
-
-  }
-
-}
-
-export enum EdgeType {
-  /**
-   * Represents an association.
-   */
-  Association,
-  /**
-   * Represents a profile of a association.
-   */
-  AssociationProfile,
-  /**
-   * Represents a generalization.
-   */
-  Generalization,
-  /**
-   * Represents a class profile.
-   */
-  ClassProfile,
-}
-
-/**
- * Any form of relation that should be rendered as an edge.
- */
-export type Edge = {
-
-  type: EdgeType;
-
-  identifier: string;
-
-  /**
-   * Identifier of external entity associated with this node.
-   */
-  externalIdentifier: string;
-
-  /**
-   * Human readable label.
-   */
-  label: string | null;
-
-  source: string;
-
-  cardinalitySource: string | null;
-
-  target: string;
-
-  cardinalityTarget: string | null;
-
-  /**
-   * Color to use for given entity.
-   */
-  color: string;
-
-  waypoints: Waypoint[];
-
-  profileOf: null | {
-
-    label: string;
-
-    usageNote: string | null;
-
-  }
-
-}
-
-export type Waypoint = {
-
-  x: number;
-
-  y: number;
-
-}
 
 /**
  * Node related functionality of the diagram.
@@ -463,8 +270,8 @@ interface DiagramNodes {
 
   /**
    * Called when user chooses to create new class from diagram's canvas menu with default association created afterwards.
-   * @param isCreatedClassTarget if set to true, then the association points to the created class. If set to false
-   * the direction of the association is from the created class to the source class.
+   * @param isCreatedClassTarget if set to true, then the association points to the created class.
+   *  If set to false the direction of the association is from the created class to the source class.
    */
   onCanvasOpenCreateClassDialogWithAssociation: (
     nodeIdentifier: string,
@@ -475,7 +282,7 @@ interface DiagramNodes {
   /**
    * Called when user choses to create new class from diagram's canvas menu with generalization created afterwards.
    * @param isCreatedClassParent if set to true, then the the created class becomes parent of the source class.
-   * If set to false, it becomes child.
+   *  If set to false, it becomes child.
    */
   onCanvasOpenCreateClassDialogWithGeneralization: (
     nodeIdentifier: string,
@@ -505,9 +312,9 @@ interface DiagramNodes {
   /**
    * Called when user chooses to remove {@link attribute}.
    * @param attribute is the identifier the of the attribute to be removed
-   * @param nodeIdentifer is the identifier of the node on which the attribute resides.
+   * @param nodeIdentifier is the identifier of the node on which the attribute resides.
    */
-  onRemoveAttributeFromNode: (attribute: string, nodeIdentifer: string) => void;
+  onRemoveAttributeFromNode: (attribute: string, nodeIdentifier: string) => void;
 
   /**
    * Called when user chooses to edit {@link attribute}.
@@ -523,15 +330,15 @@ interface DiagramNodes {
 
   /**
    * Called when user chooses to move given {@link attribute} move one position up.
-   * @param nodeIdentifer is the identifier of the node on which the attribute resides.
+   * @param nodeIdentifier is the identifier of the node on which the attribute resides.
    */
-  onMoveAttributeUp: (attribute: string, nodeIdentifer: string) => void;
+  onMoveAttributeUp: (attribute: string, nodeIdentifier: string) => void;
 
   /**
    * Called when user chooses to move given {@link attribute} move one position down.
-   * @param nodeIdentifer is the identifier of the node on which the attribute resides.
+   * @param nodeIdentifier is the identifier of the node on which the attribute resides.
    */
-   onMoveAttributeDown: (attribute: string, nodeIdentifer: string) => void;
+  onMoveAttributeDown: (attribute: string, nodeIdentifier: string) => void;
 }
 
 /**

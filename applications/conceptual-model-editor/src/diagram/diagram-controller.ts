@@ -32,13 +32,15 @@ import { type UseDiagramType } from "./diagram-hook";
 import {
   type DiagramActions,
   type DiagramCallbacks,
+} from "./diagram-api";
+import {
   type Node as ApiNode,
   type Edge as ApiEdge,
   type ViewportDimensions,
   EdgeType as ApiEdgeType,
   Position,
   GroupWithContent,
-} from "./diagram-api";
+} from "./diagram-model";
 import { type EdgeToolbarProps } from "./edge/edge-toolbar";
 import { EntityNodeName } from "./node/entity-node";
 import { PropertyEdgeName } from "./edge/property-edge";
@@ -274,15 +276,14 @@ function useCreateReactStates() {
   const [edgeToolbar, setEdgeToolbar] = useState<EdgeToolbarProps | null>(null);
   const [canvasMenu, setCanvasMenu] = useState<GeneralCanvasMenuComponentProps | null>(null);
 
-  /*
-   * Says if the node is selected - having the reactflow property is not enough,
-   * because with groups we have to separate between selection by user and in
-   * program (when group was selected).
-   * If we used only the reactflow selection then we can not tell, when to unselect
-   * all the nodes in group, because we are not getting the events of user selection
-   * on already selected nodes.
-   * So therefore the selected property on reactflow nodes is only the user-selected one
-   */
+
+  // Says if the node is selected - having the reactflow property is not enough,
+  // because with groups we have to separate between selection by user and in
+  // program (when group was selected).
+  // If we used only the reactflow selection then we can not tell, when to unselect
+  // all the nodes in group, because we are not getting the events of user selection
+  // on already selected nodes.
+  // So therefore the selected property on reactflow nodes is only the user-selected one.
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const [selectedEdges, setSelectedEdges] = useState<string[]>([]);
 
@@ -525,7 +526,7 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
   const reactStates = useCreateReactStates();
   // We can use useStore get low level access.
 
-  // TODO: Actually it would be better if we grouped the controller parts as in the reactflow reference - https://reactflow.dev/api-reference/react-flow
+  // TODO RaSt: Actually it would be better if we grouped the controller parts as in the reactflow reference - https://reactflow.dev/api-reference/react-flow
   const reactFlowInstance = useReactFlow<NodeType, EdgeType>();
   const independentPartOfDiagramController = useCreateDiagramControllerIndependentOnActionsAndContext(api, reactFlowInstance, reactStates);
   const dependentPartOfDiagramController = useCreateDiagramControllerDependentOnActionsAndContext(api, reactFlowInstance, reactStates, independentPartOfDiagramController);

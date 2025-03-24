@@ -10,7 +10,7 @@ import {
 
 import { createLogger } from "../../application/";
 
-import { type Edge as EdgeApi } from "../diagram-api";
+import { type Edge as EdgeApi } from "../diagram-model";
 import { DiagramContext } from "../diagram-controller";
 import { createSvgPath, createWaypoints, findLabelPosition } from "./edge-utilities";
 import { Waypoints } from "./waypoints";

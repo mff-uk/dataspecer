@@ -5,7 +5,7 @@ import { type ReactFlowState, useStore } from "@xyflow/react";
 import { DiagramContext, NodeMenuType } from "../diagram-controller";
 import { computePosition } from "./edge-utilities";
 import { EdgeToolbarProps, viewportStoreSelector } from "./edge-toolbar";
-import { Edge } from "../diagram-api";
+import { Edge } from "../diagram-model";
 import { ToolbarPortal } from "../canvas/toolbar-portal";
 
 /**
@@ -17,7 +17,7 @@ export function GeneralizationEdgeToolbar({ value }: { value: EdgeToolbarProps |
   const edge = useStore((state: ReactFlowState) => state.edgeLookup.get(value?.edgeIdentifier ?? ""));
   const { x, y, zoom } = useStore(viewportStoreSelector, shallow);
 
-  if (value === null || edge?.data === undefined || !edge?.selected || 
+  if (value === null || edge?.data === undefined || !edge?.selected ||
       context === null || context.getShownNodeMenuType() !== NodeMenuType.SingleNodeMenu) {
     return null;
   }

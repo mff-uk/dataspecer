@@ -1,6 +1,6 @@
 import { ReactFlowState } from "@xyflow/react";
 
-import { Position } from "../diagram-api";
+import { Position } from "../diagram-model";
 
 import "./canvas-menu-general.css";
 import { JSX } from "react";

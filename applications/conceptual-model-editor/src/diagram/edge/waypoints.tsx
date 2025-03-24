@@ -4,7 +4,7 @@ import { useReactFlow } from "@xyflow/react";
 import { arrayReplace } from "../../util/functions";
 import { type Point } from "./math";
 
-import { type Edge as EdgeApi } from "../diagram-api";
+import { type Edge as EdgeApi } from "../diagram-model";
 import { DiagramContext, EdgeType } from "../diagram-controller";
 import type { Waypoint as WaypointType } from "@dataspecer/core-v2/visual-model";
 

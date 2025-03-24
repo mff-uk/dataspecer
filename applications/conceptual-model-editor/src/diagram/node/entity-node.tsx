@@ -8,7 +8,7 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 
-import { NodeType, type Node as ApiNode, type EntityItem } from "../diagram-api";
+import { NodeType, type Node as ApiNode, type EntityItem } from "../diagram-model";
 import { DiagramContext, NodeMenuType } from "../diagram-controller";
 
 import "./entity-node.css";
