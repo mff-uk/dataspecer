@@ -11,6 +11,7 @@ import { EdgeEndPoint } from "./edge";
  * Factory class to create graphs with.
  */
 export class GraphFactory {
+    // TODO: Invalid docs
     /**
      * Creates graph, which is put inside the {@link mainGraph}
      * @param inputModel if null then {@link nodeContentOfGraph} needs to be set, otherwise behavior is undefined

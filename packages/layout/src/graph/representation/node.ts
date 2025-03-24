@@ -141,23 +141,26 @@ export interface Node {
     /**
     * @returns Returns generator which can be iterated to get edges of all types, where the node is source/start.
     * But only those which have unique end. That is we return only those edges, so the resulting subgraph is not a multi-graph
-    * (there is at most one edge between 2 nodes and no loops)
+    * (there is at most one edge between 2 nodes and no loops).
+    * After the generator is depleted, the map which maps visited nodes to true is returned
     */
-    getAllIncomingUniqueEdges(): Generator<Edge>;
+    getAllIncomingUniqueEdges(): Generator<Edge, Record<string, true>, unknown>;
 
     /**
      * @returns Returns generator which can be iterated to get edges of all types, where the node is target/end.
     * But only those which have unique end. That is we return only those edges, so the resulting subgraph is not a multi-graph
     * (there is at most one edge between 2 nodes and no loops)
+    * After the generator is depleted, the map which maps visited nodes to true is returned
     */
-    getAllOutgoingUniqueEdges(): Generator<Edge>;
+    getAllOutgoingUniqueEdges(): Generator<Edge, Record<string, true>, unknown>;
 
     /**
      * @returns Returns generator which can be iterated to get edges of all types, where the node is either source or target.
     * But only those which have unique end. That is we return only those edges, so the resulting subgraph is not a multi-graph
     * (there is at most one edge between 2 nodes and no loops)
+    * After the generator is depleted, the map which maps visited nodes to true is returned
     */
-    getAllUniqueEdges(): Generator<Edge>;
+    getAllUniqueEdges(): Generator<Edge, Record<string, true>, unknown>;
 
     /**
      * The complete visual entity for the node
@@ -339,15 +342,15 @@ export class DefaultNode implements Node {
       return getAllEdges(this);
   }
 
-  getAllIncomingUniqueEdges(): Generator<Edge> {
-    return getAllIncomingUniqueEdges(this);
+  getAllIncomingUniqueEdges(): Generator<Edge, Record<string, true>, unknown> {
+    return getAllIncomingUniqueEdges(this, null);
   }
 
-  getAllOutgoingUniqueEdges(): Generator<Edge> {
-    return getAllOutgoingUniqueEdges(this);
+  getAllOutgoingUniqueEdges(): Generator<Edge, Record<string, true>, unknown> {
+    return getAllOutgoingUniqueEdges(this, null);
   }
 
-  getAllUniqueEdges(): Generator<Edge> {
+  getAllUniqueEdges(): Generator<Edge, Record<string, true>, unknown> {
     return getAllUniqueEdges(this);
   }
 }
@@ -403,11 +406,16 @@ export function *getAllEdges(node: Node): Generator<Edge> {
 * @returns Returns generator which can be iterated to get edges of all types, where {@link node} is target/end.
 * But only those which have unique end. That is we return only those edges, so the resulting subgraph is not a multi-graph
 * (there is at most one edge between 2 nodes and no loops)
+* After the generator is depleted, the map which maps visited nodes to true is returned
 */
-export function getAllIncomingUniqueEdges(node: Node): Generator<Edge> {
+export function getAllIncomingUniqueEdges(
+    node: Node,
+    endsWhichAreAlreadyProcessed: Record<string, true> | null
+): Generator<Edge, Record<string, true>, unknown> {
     const internalGenerator = getEdgesUniqueInternal(node.id,
         [node.incomingRelationshipEdges, node.incomingGeneralizationEdges,
-            node.incomingProfileEdges, node.incomingClassProfileEdges]);
+            node.incomingProfileEdges, node.incomingClassProfileEdges],
+        endsWhichAreAlreadyProcessed);
     return internalGenerator;
   }
 
@@ -416,23 +424,37 @@ export function getAllIncomingUniqueEdges(node: Node): Generator<Edge> {
   * @returns Returns generator which can be iterated to get edges of all types, where {@link node} is source/start.
   * But only those which have unique end. That is we return only those edges, so the resulting subgraph is not a multi-graph
   * (there is at most one edge between 2 nodes and no loops)
+  * After the generator is depleted, the map which maps visited nodes to true is returned
   */
-  export function getAllOutgoingUniqueEdges(node: Node): Generator<Edge> {
+  export function getAllOutgoingUniqueEdges(
+    node: Node,
+    endsWhichAreAlreadyProcessed: Record<string, true> | null
+): Generator<Edge, Record<string, true>, unknown> {
     // Note: I couldn't find out, why can't I just somehow return the internals of the getEdgesInternal function
     // Answer: I just had to remove the * in front of method to say that it just returns the generator and isn't the generator in itself
     const internalGenerator = getEdgesUniqueInternal(node.id,
         [node.outgoingRelationshipEdges, node.outgoingGeneralizationEdges,
-            node.outgoingProfileEdges, node.outgoingClassProfileEdges]);
+            node.outgoingProfileEdges, node.outgoingClassProfileEdges],
+        endsWhichAreAlreadyProcessed);
     return internalGenerator;
   }
 
   /**
   * Internal method to create generator from the given edges of different types.
-  * Returning only those with unique ends
+  * Returning only those with unique ends.
+  * After the generator is depleted, the map which maps visited nodes to true is returned
   * @param rootNode is the node which is contained in all of the edges
+  *
   */
-  function *getEdgesUniqueInternal(rootNode: string, edgesOfDifferentTypes: Array<Array<Edge>>): Generator<Edge> {
-    const noLongerUniqueEnds: Record<string, true> = {[rootNode]: true};
+  function *getEdgesUniqueInternal(
+    rootNode: string,
+    edgesOfDifferentTypes: Array<Array<Edge>>,
+    endsWhichAreAlreadyProcessed: Record<string, true> | null
+): Generator<Edge, Record<string, true>, unknown> {
+    const noLongerUniqueEnds: Record<string, true> = {
+        [rootNode]: true,
+        ...(endsWhichAreAlreadyProcessed ?? {})
+    };
     for(const edgesOfOneType of edgesOfDifferentTypes) {
         // Note: Can't use forEach because of yield
         for(const e of edgesOfOneType) {
@@ -444,18 +466,30 @@ export function getAllIncomingUniqueEdges(node: Node): Generator<Edge> {
             noLongerUniqueEnds[e.end.id] = true;
         }
     }
+
+    return noLongerUniqueEnds;
   }
 
   /**
   * @returns Returns generator which can be iterated to get edges, where {@link node} is either start or end.
   * But only those which have unique end. That is we return only those edges, so the resulting subgraph is not a multi-graph
-  * (there is at most one edge between 2 nodes and no loops)
+  * (there is at most one edge between 2 nodes and no loops).
+  * After the generator is depleted, the map which maps visited nodes to true is returned
   */
-  export function *getAllUniqueEdges(node: Node): Generator<Edge> {
-    const incomingEdges = node.getAllIncomingUniqueEdges();
-    const outgoingEdges = node.getAllOutgoingUniqueEdges();
+  export function *getAllUniqueEdges(node: Node): Generator<Edge, Record<string, true>, unknown> {
+    const incomingEdges = getAllIncomingUniqueEdges(node, null);
     yield* incomingEdges;
+    let noLongerUniqueEnds = incomingEdges.next();
+    while(!noLongerUniqueEnds.done) {
+        noLongerUniqueEnds = incomingEdges.next();
+    }
+    const outgoingEdges = getAllOutgoingUniqueEdges(node, noLongerUniqueEnds.value);
     yield* outgoingEdges;
+    noLongerUniqueEnds = outgoingEdges.next();
+    while(!noLongerUniqueEnds.done) {
+        noLongerUniqueEnds = outgoingEdges.next();
+    }
+    return noLongerUniqueEnds.value;
   }
 
 

@@ -349,11 +349,11 @@ export class GraphAlgorithms {
       });
 
 
-      const sortedClusters = Object.entries(uniqueClusters)
+      const sortedClusters = Object.entries(clusters)
         .sort(([, edgesA], [, edgesB]) => edgesB.length - edgesA.length);
       // TODO: I should give it the uniqueClusters not the sorted ones (because it has better type)
       // TODO: Looking up in graph again - not optimal, I should know the entities by now.
-      const clusterRoots = Object.keys(uniqueClusters)
+      const clusterRoots = Object.keys(clusters)
         .map(identifier => graph.findNodeInAllNodes(identifier))
         .filter(node => node !== null);
       const components = GraphAlgorithms.findComponents(graph, clusterRoots);
@@ -561,6 +561,9 @@ export class GraphAlgorithms {
       return resultEdges;
     }
 
+    // TODO RadStr: DEBUG
+    static todoDebug = 0;
+
     static mergeGraphComponents(
       graph: MainGraph,
       leafComponentsData: DataAboutLeafGraphComponents,
@@ -586,11 +589,26 @@ export class GraphAlgorithms {
         const currentChain: [Node, number][] = [];
         const clusterRootForLeafIdentifier = leafComponentsData.leafComponentToClusterRootMap[leafComponent];
         const clusterRootForLeaf = allClusterRoots.find(root => root.id === clusterRootForLeafIdentifier);
+        // TODO: DEBUG
+        if(clusterRootForLeaf.semanticEntityRepresentingNode.iri === "http://spdx.org/rdf/terms#License") {
+          console.info("Chain of length http://spdx.org/rdf/terms#License");
+        }
+        if(clusterRootForLeaf.semanticEntityRepresentingNode.iri === "http://spdx.org/rdf/terms#LicenseException") {
+          console.info("Chain of length http://spdx.org/rdf/terms#LicenseException");
+        }
+        if(clusterRootForLeaf.semanticEntityRepresentingNode.iri === "http://spdx.org/rdf/terms#ExternalRef") {
+          console.info("Chain of length http://spdx.org/rdf/terms#ExternalRef");
+        }
+        if(clusterRootForLeaf.semanticEntityRepresentingNode.iri === "http://spdx.org/rdf/terms#AnyLicenseInfo") {
+          console.info("Chain of length http://spdx.org/rdf/terms#AnyLicenseInfo");
+        }
+
         GraphAlgorithms.createChainOfComponents(
           currentChain, clusterRootForLeaf, Number(leafComponent), allClusterRoots,
           leafComponentsData.componentsToClusterRootsMap, nodesToComponentsMap,
           alreadyProcessedComponents, leafComponentsData.leafComponentToClusterRootMap);
-        console.info("currentChain", currentChain, currentChain[0][0].semanticEntityRepresentingNode.iri);
+        // TODO: DEBUG
+        console.info("currentChain", currentChain.map(node => node[0].semanticEntityRepresentingNode.iri));
 
         let previousClusterRoot: Node | null = null;
         let previousClusterEdges: Edge[] = null;
@@ -649,10 +667,13 @@ export class GraphAlgorithms {
         }
       }
 
-      // for(const componentToMerge of componentsToBeMergedToParent) {
-      //   console.info("Shrinking clusters", componentToMerge);
-      //   const index = clusters.findIndex(([id, _edges]) => id === componentToMerge);
-      //   clusters.splice(index, 1);
+      // TODO: DEBUG - But it should be called, since we are merging, so this is the merging part
+      // if((GraphAlgorithms.todoDebug++ % 2) === 0) {
+        // for(const componentToMerge of componentsToBeMergedToParent) {
+        //   console.info("Shrinking clusters", componentToMerge);
+        //   const index = clusters.findIndex(([id, _edges]) => id === componentToMerge);
+        //   clusters.splice(index, 1);
+        // }
       // }
       for(const cluster of clusters) {
         cluster[1] = [...new Set(cluster[1])]
@@ -673,48 +694,53 @@ export class GraphAlgorithms {
       componentsToClusterRootsMap: Record<number, string[]>,
       nodesToComponentsMap: Record<string, number[]>,
       alreadyProcessedComponents: Record<number, true>,
-      leafComponentToClusterRootMap: Record<number, string>
+      leafComponentToClusterRootMap: Record<number, string>,
     ) {
+      // TODO: I am not sure about when to chain - but probably remove, we should do it later (after the if check)
+      // We want to push it in always
+      // chain.push([currentlyProcessedClusterRoot, currentComponent]);
       if(alreadyProcessedComponents[currentComponent]) {
         return;
       }
       alreadyProcessedComponents[currentComponent] = true;
 
-      const clusterRootsForComponent: string[] = [];
-      const componentsForCurrentCluster = nodesToComponentsMap[currentlyProcessedClusterRoot.id];
-      for(const componentForClusterRoot of componentsForCurrentCluster) {
+      const nextRootCandidatesWithComponent: [string, number][] = [];
+      const componentsForCurrentClusterRoot = nodesToComponentsMap[currentlyProcessedClusterRoot.id];
+      for(const componentForClusterRoot of componentsForCurrentClusterRoot) {
         const newClusterRoots = componentsToClusterRootsMap[componentForClusterRoot]
           .filter(root => root !== currentlyProcessedClusterRoot.id)
-        clusterRootsForComponent.push(...newClusterRoots);
+          .map(root => [root, componentForClusterRoot] as [string, number]);
+        nextRootCandidatesWithComponent.push(...newClusterRoots);
       }
 
       const directlyConnectedClusterRoots = GraphAlgorithms.findDirectlyConnectedClusterRoots(
-        currentlyProcessedClusterRoot, allClusterRoots);
-
-      console.info("clusterRootsForComponent.concat(directlyConnectedClusterRoots))", clusterRootsForComponent.concat(directlyConnectedClusterRoots).length, clusterRootsForComponent, directlyConnectedClusterRoots);
-      const connectedClusterRoots = clusterRootsForComponent.concat(directlyConnectedClusterRoots);
-      if(leafComponentToClusterRootMap[currentComponent] !== undefined) {
-        // If it is leaf component we we want to push it in even if we will be not extending the path
-        // That is the connectedClusterRoots.length > 2 check succeeds
-        chain.push([currentlyProcessedClusterRoot, currentComponent]);
-      }
-      if(connectedClusterRoots.length > 2) {
+        currentlyProcessedClusterRoot, allClusterRoots)
+        .map(root => [root, -1] as [string, number]);
+      chain.push([currentlyProcessedClusterRoot, currentComponent]);
+      console.info("clusterRootsForComponent.concat(directlyConnectedClusterRoots))", nextRootCandidatesWithComponent.concat(directlyConnectedClusterRoots).length, nextRootCandidatesWithComponent, directlyConnectedClusterRoots);
+      const connectedClusterRoots = nextRootCandidatesWithComponent.concat(directlyConnectedClusterRoots);
+      // if(leafComponentToClusterRootMap[currentComponent] !== undefined) {
+      //   // If it is leaf component we we want to push it in even if we will be not extending the path
+      //   // That is the connectedClusterRoots.length > 2 check succeeds
+      //   chain.push([currentlyProcessedClusterRoot, currentComponent]);
+      // }
+      if(connectedClusterRoots.length !== 1) {
         console.info("RETURN");
         return;
       }
-      if(leafComponentToClusterRootMap[currentComponent] === undefined) {
-        // If we are not leaf, then we will push into if and only if there is next chain
-        chain.push([currentlyProcessedClusterRoot, currentComponent]);
-      }
+      // if(leafComponentToClusterRootMap[currentComponent] === undefined) {
+      //   // If we are not leaf, then we will push into if and only if there is next chain
+      //   chain.push([currentlyProcessedClusterRoot, currentComponent]);
+      // }
 
-      for(const clusterRootForComponent of connectedClusterRoots) {
-        if(clusterRootForComponent === currentlyProcessedClusterRoot.id) {
+      for(const [nextClusterRoot, nextComponent] of connectedClusterRoots) {
+        if(nextClusterRoot === currentlyProcessedClusterRoot.id) {
           continue;
         }
 
-        const clusterRootAsNode = allClusterRoots.find(root => root.id === clusterRootForComponent);
-        if(nodesToComponentsMap[clusterRootForComponent].length === 2) {
-          for(const componentForClusterRoot of nodesToComponentsMap[clusterRootForComponent]) {
+        const nextClusterRootAsNode = allClusterRoots.find(root => root.id === nextClusterRoot);
+        if(nodesToComponentsMap[nextClusterRoot].length === 2) {
+          for(const componentForClusterRoot of nodesToComponentsMap[nextClusterRoot]) {
             if(componentForClusterRoot === currentComponent) {
               continue;
             }
@@ -723,18 +749,19 @@ export class GraphAlgorithms {
             // Think of this graph A-B-C-D-E, here B and D are cluster roots, but we don't want to connect them (unless we could somehow make the C
             // the root, but that is way too complicated)
             if(leafComponentToClusterRootMap[componentForClusterRoot] !== undefined) {
-              return;
+              continue;
             }
 
             GraphAlgorithms.createChainOfComponents(
-              chain, clusterRootAsNode, componentForClusterRoot,
+              chain, nextClusterRootAsNode, componentForClusterRoot,
               allClusterRoots, componentsToClusterRootsMap, nodesToComponentsMap,
               alreadyProcessedComponents, leafComponentToClusterRootMap);
           }
         }
         else {
           // We just push it in but we end here, because it is no longer path of components
-          chain.push([clusterRootAsNode, -1]);
+          chain.push([nextClusterRootAsNode, nextComponent]);
+          return;
         }
       }
     }
@@ -945,6 +972,7 @@ export class GraphAlgorithms {
       // BFS traversal from root
       const queue: string[] = [root];
       const visited: Set<string> = new Set([root]);
+      const visitedEdges: Set<string> = new Set();
 
       while (queue.length > 0) {
         const node = queue.shift();
@@ -952,10 +980,15 @@ export class GraphAlgorithms {
           if (!visited.has(targetNode)) {
             queue.push(targetNode);
             visited.add(targetNode);
+          }
+          if (!visitedEdges.has(edge.id)) {
+            visitedEdges.add(edge.id);
             if(edge.end.id !== targetNode) {
               edge.reverseInLayout = true;
+              console.info("REVERSING");
             }
             else {
+              console.info("NOT REVERSING");
               edge.reverseInLayout = false;
             }
           }

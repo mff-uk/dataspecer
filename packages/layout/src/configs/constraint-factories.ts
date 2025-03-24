@@ -1,8 +1,10 @@
 import { getBestLayoutFromMetricResultAggregation, performLayoutFromGraph } from "..";
 import { GraphAlgorithms, ToConsiderFilter } from "../graph-algoritms";
+import { EdgeEndPoint } from "../graph/representation/edge";
 import { MainGraph } from "../graph/representation/graph";
+import { GraphFactory } from "../graph/representation/graph-factory";
 import { LayoutMethod } from "../layout-algorithms/layout-algorithms-interfaces";
-import { Direction } from "../util/utils";
+import { Direction, PhantomElementsFactory, reverseDirection } from "../util/utils";
 import { ConstraintContainer } from "./constraint-container";
 import {
     AlgorithmConfiguration,
@@ -325,8 +327,18 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
             const edgesInClusterCurrentVersion = edgesInCluster.map(edge => graph.findEdgeInAllEdges(edge.id)).filter(edge => edge !== null);
             for(const edgeInCluster of edgesInClusterCurrentVersion) {
                 edgeInCluster.isConsideredInLayout = true;
+                // TODO: Debug prints
+                if(edgeInCluster.semanticEntityRepresentingEdge.id === "http://spdx.org/rdf/terms#externalRef") {
+                    console.info("cluster edge http://spdx.org/rdf/terms#externalRef", edgesInClusterCurrentVersion);
+                }
+                if(edgeInCluster.semanticEntityRepresentingEdge.id === "http://spdx.org/rdf/terms#referenceCategory") {
+                    console.info("cluster edge http://spdx.org/rdf/terms#referenceCategory", edgesInClusterCurrentVersion);
+                }
             }
             GraphAlgorithms.pointAllEdgesFromRoot(cluster, edgesInClusterCurrentVersion);
+
+            // TODO: Debug prints
+            console.log("edgesInClusterCurrentVersion", {...edgesInClusterCurrentVersion});
 
 
             const clusterRoot = graph.findNodeInAllNodes(cluster);
@@ -382,13 +394,19 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
 
         graph.resetForNewLayout();
         for (const [cluster, edgesInCluster] of Object.entries(algorithmConversionConstraint.data.clusterifyConstraint.data.clusters)) {
+            // TODO: Probably do not layout as subgraphs, the results are worse
+            // const nodesInSubgraph: EdgeEndPoint[] = [];
             for (const node of graph.allNodes) {
                 const isInCluster = node.id === cluster || edgesInCluster
                     .find(edge => edge.start.id === node.id || edge.end.id === node.id) !== undefined;
                 if (isInCluster) {
                     node.completeVisualNode.isAnchored = true;
+                    // nodesInSubgraph.push(node);
                 }
             }
+
+            // const subgraph = GraphFactory.createGraph(graph, graph, PhantomElementsFactory.createUniquePhanomNodeIdentifier(), nodesInSubgraph, false, false);
+            // graph.insertSubgraphToGraph(subgraph, nodesInSubgraph, true);
         }
 
         const configuration = getDefaultUserGivenConstraintsVersion4();

@@ -842,15 +842,15 @@ export class DefaultGraph implements Graph {
         return getAllEdges(this);
     }
 
-    getAllIncomingUniqueEdges(): Generator<Edge> {
-        return getAllIncomingUniqueEdges(this);
+    getAllIncomingUniqueEdges(): Generator<Edge, Record<string, true>, unknown> {
+        return getAllIncomingUniqueEdges(this, null);
     }
 
-    getAllOutgoingUniqueEdges(): Generator<Edge> {
-        return getAllOutgoingUniqueEdges(this);
+    getAllOutgoingUniqueEdges(): Generator<Edge, Record<string, true>, unknown> {
+        return getAllOutgoingUniqueEdges(this, null);
     }
 
-    getAllUniqueEdges(): Generator<Edge> {
+    getAllUniqueEdges(): Generator<Edge, Record<string, true>, unknown> {
         return getAllUniqueEdges(this);
     }
 
