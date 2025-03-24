@@ -680,11 +680,12 @@ export class GraphAlgorithms {
       }
       alreadyProcessedComponents[currentComponent] = true;
 
-      const clusterRootsForComponent = componentsToClusterRootsMap[currentComponent];
-      if(leafComponentToClusterRootMap[currentComponent] !== undefined) {
-        if(clusterRootsForComponent.length === 1 &&clusterRootsForComponent[0] !== currentlyProcessedClusterRoot.id) {
-          console.error("The values are supposed to be same but they are not");
-        }
+      const clusterRootsForComponent: string[] = [];
+      const componentsForCurrentCluster = nodesToComponentsMap[currentlyProcessedClusterRoot.id];
+      for(const componentForClusterRoot of componentsForCurrentCluster) {
+        const newClusterRoots = componentsToClusterRootsMap[componentForClusterRoot]
+          .filter(root => root !== currentlyProcessedClusterRoot.id)
+        clusterRootsForComponent.push(...newClusterRoots);
       }
 
       const directlyConnectedClusterRoots = GraphAlgorithms.findDirectlyConnectedClusterRoots(
