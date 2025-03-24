@@ -526,7 +526,7 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
   const reactStates = useCreateReactStates();
   // We can use useStore get low level access.
 
-  // TODO RaSt: Actually it would be better if we grouped the controller parts as in the reactflow reference - https://reactflow.dev/api-reference/react-flow
+  // TODO RadStr: Actually it would be better if we grouped the controller parts as in the reactflow reference - https://reactflow.dev/api-reference/react-flow
   const reactFlowInstance = useReactFlow<NodeType, EdgeType>();
   const independentPartOfDiagramController = useCreateDiagramControllerIndependentOnActionsAndContext(api, reactFlowInstance, reactStates);
   const dependentPartOfDiagramController = useCreateDiagramControllerDependentOnActionsAndContext(api, reactFlowInstance, reactStates, independentPartOfDiagramController);
