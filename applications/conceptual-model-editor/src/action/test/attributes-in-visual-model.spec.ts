@@ -14,8 +14,6 @@ import { createRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usag
 import { createCmeRelationshipProfile } from "../../dataspecer/cme-model/operation/create-cme-relationship-profile";
 import { representRdfsLiteral } from "../../dialog/utilities/dialog-utilities";
 
-console.log(">>>");
-
 test("Test change attribute - Visibility", () => {
   const {
     visualModel,

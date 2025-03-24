@@ -115,33 +115,3 @@ export const bothEndsHaveAnIri = (entity: SemanticModelRelationship | SemanticMo
     return false;
   }
 };
-
-/**
- * Return true, when both ends of a relationship are on the canvas.
- */
-export const hasBothEndsInVisualModel = (
-  entity: SemanticModelRelationship
-    | SemanticModelRelationshipUsage
-    | SemanticModelRelationshipProfile,
-  visualModel: VisualModel | null,
-) => {
-  if (visualModel === null) {
-    return false;
-  }
-
-  let domainConcept = "";
-  let rangeConcept = "";
-  if (isSemanticModelRelationship(entity)) {
-    const domainAndRange = getDomainAndRange(entity);
-    domainConcept = domainAndRange.domain?.concept ?? "";
-    rangeConcept = domainAndRange.range?.concept ?? "";
-  } else {
-    const domainAndRange = getDomainAndRange(entity);
-    domainConcept = domainAndRange.domain?.concept ?? "";
-    rangeConcept = domainAndRange.range?.concept ?? "";
-  }
-
-  const isDomainOnCanvas = visualModel.hasVisualEntityForRepresented(domainConcept);
-  const isRangeOnCanvas = visualModel.hasVisualEntityForRepresented(rangeConcept);
-  return isDomainOnCanvas && isRangeOnCanvas;
-};

@@ -86,3 +86,29 @@ export function replaceInArray<Type>(
   }
   return replaceByIndexInArray(index, next, array);
 }
+
+/**
+ * Perform binary search to find an index of item with given value in sorted array.
+ * Based on https://stackoverflow.com/questions/22697936/binary-search-in-javascript.
+ * @returns -1 if the value was not found.
+ */
+export function binarySearchIndex(array: [string, number][], value: number) {
+  let start = 0;
+  let end = array.length - 1;
+
+  while (start <= end) {
+    const middle = Math.floor((start + end) / 2);
+
+    if (array[middle]?.[1] === value) {
+      return middle;
+    }
+
+    if (value < (array[middle]?.[1] as number)) {
+      end = middle - 1;
+    } else {
+      start = middle + 1;
+    }
+  }
+
+  return -1;
+}

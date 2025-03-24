@@ -20,11 +20,11 @@ import { EntityRow } from "./entity-row";
 import { sourceModelOfEntity } from "../../util/model-utils";
 import { useModelGraphContext } from "../../context/model-context";
 import { useClassesContext } from "../../context/classes-context";
-import { hasBothEndsInVisualModel } from "../../util/relationship-utils";
+import { getDomainAndRange } from "../../util/relationship-utils";
 import { findSourceModelOfEntity } from "../../service/model-service";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isSemanticModelAttributeProfile } from "../../dataspecer/semantic-model";
-import { isAttributeDomainInVisualModel } from "../../util/attribute-utils";
+import { VisualModel } from "@dataspecer/core-v2/visual-model";
 
 export const RowHierarchy = (props: {
     entity: SemanticModelClass | SemanticModelClassUsage
@@ -144,4 +144,57 @@ export const RowHierarchy = (props: {
       ))}
     </div>
   );
+};
+
+function isAttributeDomainInVisualModel(
+  visualModel: VisualModel | null,
+  attribute: SemanticModelRelationship
+      | SemanticModelRelationshipUsage
+      | SemanticModelRelationshipProfile,
+): boolean {
+  if (visualModel === null) {
+    return false;
+  }
+
+  let domainConcept = "";
+  if (isSemanticModelRelationship(attribute)) {
+    const { domain } = getDomainAndRange(attribute);
+    domainConcept = domain?.concept ?? "";
+  } else {
+    const { domain } = getDomainAndRange(attribute);
+    domainConcept = domain?.concept ?? "";
+  }
+
+  const isDomainOnCanvas = visualModel.hasVisualEntityForRepresented(domainConcept);
+  return isDomainOnCanvas;
+}
+
+/**
+ * Return true, when both ends of a relationship are on the canvas.
+ */
+const hasBothEndsInVisualModel = (
+  entity: SemanticModelRelationship
+    | SemanticModelRelationshipUsage
+    | SemanticModelRelationshipProfile,
+  visualModel: VisualModel | null,
+) => {
+  if (visualModel === null) {
+    return false;
+  }
+
+  let domainConcept = "";
+  let rangeConcept = "";
+  if (isSemanticModelRelationship(entity)) {
+    const domainAndRange = getDomainAndRange(entity);
+    domainConcept = domainAndRange.domain?.concept ?? "";
+    rangeConcept = domainAndRange.range?.concept ?? "";
+  } else {
+    const domainAndRange = getDomainAndRange(entity);
+    domainConcept = domainAndRange.domain?.concept ?? "";
+    rangeConcept = domainAndRange.range?.concept ?? "";
+  }
+
+  const isDomainOnCanvas = visualModel.hasVisualEntityForRepresented(domainConcept);
+  const isRangeOnCanvas = visualModel.hasVisualEntityForRepresented(rangeConcept);
+  return isDomainOnCanvas && isRangeOnCanvas;
 };

@@ -1,4 +1,4 @@
-export type ColorPaletteType = {
+type ColorPaletteType = {
     [colorKey: string]: {
         DEFAULT: string;
         100: string;

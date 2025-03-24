@@ -1,12 +1,12 @@
 import React, { useCallback, useContext } from "react";
 import { useReactFlow } from "@xyflow/react";
 
-import { arrayReplace } from "../../util/functions";
 import { type Point } from "./math";
 
 import { type Edge as EdgeApi } from "../diagram-model";
 import { DiagramContext, EdgeType } from "../diagram-controller";
 import type { Waypoint as WaypointType } from "@dataspecer/core-v2/visual-model";
+import { replaceByIndexInArray } from "../../utilities/functional";
 
 export function Waypoints(props: {
   edge: EdgeType,
@@ -56,10 +56,10 @@ function Waypoint(props: {
 
       // Here we update locally.
       reactFlow.updateEdgeData(props.edge.id, (previous) => {
-        const waypoints = arrayReplace(
-          (previous?.data?.waypoints as any as WaypointType[]) ?? [],
+        const waypoints = replaceByIndexInArray(
           props.index,
-          { x: position.x, y: position.y, anchored: null }
+          { x: position.x, y: position.y, anchored: null },
+          (previous?.data?.waypoints as any as WaypointType[]) ?? [],
         );
         return { ...previous.data, waypoints };
       });
