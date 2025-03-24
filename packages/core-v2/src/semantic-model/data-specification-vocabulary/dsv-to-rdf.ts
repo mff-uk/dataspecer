@@ -3,7 +3,7 @@ import { DataFactory } from "n3";
 
 import {
   LanguageString,
-  ConceptualModel,
+  DsvModel,
   Profile,
   ClassProfile,
   PropertyProfile,
@@ -37,7 +37,7 @@ interface ConceptualModelToRdfConfiguration {
 }
 
 export async function conceptualModelToRdf(
-  model: ConceptualModel, configuration: ConceptualModelToRdfConfiguration,
+  model: DsvModel, configuration: ConceptualModelToRdfConfiguration,
 ): Promise<string> {
   const effectiveConfiguration = {
     ...createDefaultConfiguration(),
@@ -78,9 +78,9 @@ class ConceptualModelWriter {
 
   private writer: N3.Writer;
 
-  private model: ConceptualModel;
+  private model: DsvModel;
 
-  constructor(writer: N3.Writer, model: ConceptualModel) {
+  constructor(writer: N3.Writer, model: DsvModel) {
     this.writer = writer;
     this.model = model;
   }
@@ -120,6 +120,7 @@ class ConceptualModelWriter {
     this.addLiteral(profile.iri, SKOS.prefLabel, profile.prefLabel);
     this.addLiteral(profile.iri, SKOS.definition, profile.definition);
     this.addLiteral(profile.iri, VANN.usageNote, profile.usageNote);
+    this.addIris(profile.iri, DSV.specializationOf, profile.specializationOfIri);
     // We do not write this into properties.
     this.addIris(profile.iri, DSV.profileOf, profile.profileOfIri);
     for (const item of profile.reusesPropertyValue) {
@@ -135,7 +136,7 @@ class ConceptualModelWriter {
           object: IRI(item.reusedPropertyIri),
         }, {
           predicate: DSV.reusedFromResource,
-          object: IRI(item.propertyreusedFromResourceIri)
+          object: IRI(item.propertyReusedFromResourceIri)
         }])
       ));
     }

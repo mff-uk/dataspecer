@@ -6,7 +6,7 @@
 
 export type LanguageString = { [language: string]: string };
 
-export interface ConceptualModel {
+export interface DsvModel {
 
   /**
    * Absolute IRI for the model.
@@ -59,6 +59,9 @@ export interface Profile {
   // @lc-type PropertyValueReuse
   reusesPropertyValue: PropertyValueReuse[];
 
+  // @lc-identifier dsv:specializes
+  specializationOfIri: string[];
+
 }
 
 // @lc-identifier dsv:PropertyValueReuse
@@ -68,7 +71,7 @@ export interface PropertyValueReuse {
   reusedPropertyIri: string;
 
   // dsv:reusedFromResource
-  propertyreusedFromResourceIri: string;
+  propertyReusedFromResourceIri: string;
 
 }
 

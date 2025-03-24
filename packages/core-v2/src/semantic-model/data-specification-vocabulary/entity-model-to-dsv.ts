@@ -2,6 +2,7 @@ import { Entity } from "../../entity-model";
 
 import {
   isSemanticModelClass,
+  isSemanticModelGeneralization,
   isSemanticModelRelationship,
 } from "../concepts";
 
@@ -19,7 +20,7 @@ import {
 
 import {
   LanguageString,
-  ConceptualModel,
+  DsvModel,
   Cardinality,
   ClassProfile,
   ClassProfileType,
@@ -96,7 +97,7 @@ export function createContext(
       || isSemanticModelRelationshipProfile(entity)) {
       const [_, range] = entity.ends;
       iri = range?.iri ?? iri;
-    } else  {
+    } else {
       // This can by anything, we just try to graph the IRI.
       iri = (entity as any).iri;
     }
@@ -108,18 +109,13 @@ export function createContext(
       return iri;
     } else {
       // Relative IRI.
-       const baseIri = entityMap[entity.id]?.container.baseIri ?? "";
-       return baseIri + iri;
+      const baseIri = entityMap[entity.id]?.container.baseIri ?? "";
+      return baseIri + iri;
     }
   };
 
   const languageFilter = (value: LanguageString | null | undefined) =>
     value ?? null;
-
-  const resolveIri = (conceptualModelIri: string, iri: string) => {
-
-    return conceptualModelIri + iri;
-  };
 
   return {
     identifierToEntity,
@@ -132,12 +128,12 @@ export function createContext(
  * Create a conceptual model with given IRI based on the given model
  * container to convert. Others models are required
  */
-export function entityListContainerToConceptualModel(
+export function entityListContainerToDsvModel(
   conceptualModelIri: string,
   entityListContainer: EntityListContainer,
   context: EntityListContainerToConceptualModelContext,
-): ConceptualModel {
-  const result: ConceptualModel = {
+): DsvModel {
+  const result: DsvModel = {
     iri: conceptualModelIri,
     profiles: [],
   };
@@ -152,17 +148,38 @@ class EntityListContainerToConceptualModel {
 
   conceptualModelIri: string = "";
 
+  generalizations: Record<string, string[]> = {};
+
   constructor(context: EntityListContainerToConceptualModelContext) {
     this.context = context;
   }
 
   loadToConceptualModel(
-    modelContainer: EntityListContainer, conceptualModel: ConceptualModel,
+    modelContainer: EntityListContainer, conceptualModel: DsvModel,
   ): void {
     this.conceptualModelIri = conceptualModel.iri;
+    this.loadToGeneralizations(modelContainer);
     const identifierToClassProfile = this.loadClassProfiles(modelContainer);
     this.loadRelationshipsToClassProfiles(modelContainer, identifierToClassProfile);
     conceptualModel.profiles = Object.values(identifierToClassProfile);
+    // Cleanup.
+    this.generalizations = {};
+  }
+
+  /**
+   * Load generalizations. We load them first and then add them
+   * to other properties as loading.
+   */
+  private loadToGeneralizations(modelContainer: EntityListContainer) {
+    const result: Record<string, string[]> = {};
+    modelContainer.entities.filter(isSemanticModelGeneralization)
+      .forEach((item) => {
+        result[item.child] = [
+          ...(result[item.child] ?? []),
+          this.identifierToIri(item.parent),
+        ];
+      });
+    this.generalizations = result;
   }
 
   private loadClassProfiles(modelContainer: EntityListContainer)
@@ -193,6 +210,7 @@ class EntityListContainerToConceptualModel {
       properties: [],
       reusesPropertyValue: [],
       profiledClassIri: [],
+      specializationOfIri: this.generalizations[item.id] ?? [],
     };
 
     const profiling: (Entity | null)[] = [];
@@ -255,7 +273,7 @@ class EntityListContainerToConceptualModel {
     if (item.name === null) {
       profile.reusesPropertyValue.push({
         reusedPropertyIri: SKOS.prefLabel.id,
-        propertyreusedFromResourceIri: iri,
+        propertyReusedFromResourceIri: iri,
       });
     } else {
       profile.prefLabel = this.prepareString(item.name);
@@ -263,7 +281,7 @@ class EntityListContainerToConceptualModel {
     if (item.description === null) {
       profile.reusesPropertyValue.push({
         reusedPropertyIri: SKOS.definition.id,
-        propertyreusedFromResourceIri: iri,
+        propertyReusedFromResourceIri: iri,
       });
     } else {
       profile.definition = this.prepareString(item.description);
@@ -271,14 +289,14 @@ class EntityListContainerToConceptualModel {
     if (item.usageNote === null) {
       profile.reusesPropertyValue.push({
         reusedPropertyIri: VANN.usageNote.id,
-        propertyreusedFromResourceIri: iri,
+        propertyReusedFromResourceIri: iri,
       });
     } else {
       profile.usageNote = this.prepareString(item.usageNote);
     }
   }
 
-  private identifierToIri(identifier: string) : string {
+  private identifierToIri(identifier: string): string {
     const entity = this.context.identifierToEntity(identifier);
     if (!entity) {
       console.warn(`Missing entity for identifier "${identifier}".`)
@@ -318,7 +336,7 @@ class EntityListContainerToConceptualModel {
     } else {
       profile.reusesPropertyValue.push({
         reusedPropertyIri: SKOS.prefLabel.id,
-        propertyreusedFromResourceIri: this.identifierToIri(item.nameFromProfiled),
+        propertyReusedFromResourceIri: this.identifierToIri(item.nameFromProfiled),
       });
     }
     if (item.descriptionFromProfiled === null) {
@@ -326,7 +344,7 @@ class EntityListContainerToConceptualModel {
     } else {
       profile.reusesPropertyValue.push({
         reusedPropertyIri: SKOS.definition.id,
-        propertyreusedFromResourceIri: this.identifierToIri(item.descriptionFromProfiled),
+        propertyReusedFromResourceIri: this.identifierToIri(item.descriptionFromProfiled),
       });
     }
     if (item.usageNoteFromProfiled === null) {
@@ -334,7 +352,7 @@ class EntityListContainerToConceptualModel {
     } else {
       profile.reusesPropertyValue.push({
         reusedPropertyIri: VANN.usageNote.id,
-        propertyreusedFromResourceIri: this.identifierToIri(item.usageNoteFromProfiled),
+        propertyReusedFromResourceIri: this.identifierToIri(item.usageNoteFromProfiled),
       });
     }
   }
@@ -394,6 +412,7 @@ class EntityListContainerToConceptualModel {
       definition: {},
       usageNote: {},
       profileOfIri: [],
+      specializationOfIri: this.generalizations[item.id] ?? [],
       // PropertyProfile
       profiledPropertyIri: [],
       reusesPropertyValue: [],
@@ -486,6 +505,7 @@ class EntityListContainerToConceptualModel {
       definition: {},
       usageNote: {},
       profileOfIri: [],
+      specializationOfIri: this.generalizations[item.id] ?? [],
       // PropertyProfile
       profiledPropertyIri: [],
       reusesPropertyValue: [],

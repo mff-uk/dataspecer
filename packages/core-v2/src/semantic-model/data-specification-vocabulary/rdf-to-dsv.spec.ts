@@ -1,6 +1,6 @@
 import { rdfToConceptualModel } from "./rdf-to-dsv";
 import { conceptualModelToRdf } from "./dsv-to-rdf";
-import { Cardinality, ConceptualModel, ObjectPropertyProfile } from "./dsv-model";
+import { Cardinality, DsvModel, ObjectPropertyProfile } from "./dsv-model";
 import { conceptualModelToEntityListContainer } from "./dsv-to-entity-model";
 import { DataTypeURIs, isDataType } from "../datatypes";
 import { isSemanticModelClass, isSemanticModelRelationship } from "../concepts";
@@ -61,7 +61,7 @@ test("From RDF to DSV and back.", async () => {
   const actualModels = await rdfToConceptualModel(inputRdf);
   expect(actualModels.length).toBe(1);
 
-  const expectedModel: ConceptualModel = {
+  const expectedModel: DsvModel = {
     "iri": "http://dcat-ap-cz/model",
     "profiles": [{
       "iri": "https://dcat-ap/#Dataset",
@@ -73,10 +73,10 @@ test("From RDF to DSV and back.", async () => {
       "profiledClassIri": ["http://www.w3.org/ns/dcat#Dataset"],
       "reusesPropertyValue": [{
         "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
-        "propertyreusedFromResourceIri": "http://www.w3.org/ns/dcat#Dataset",
+        "propertyReusedFromResourceIri": "http://www.w3.org/ns/dcat#Dataset",
       }, {
         "reusedPropertyIri": "http://purl.org/vocab/vann/usageNote",
-        "propertyreusedFromResourceIri": "http://www.w3.org/ns/dcat#Dataset",
+        "propertyReusedFromResourceIri": "http://www.w3.org/ns/dcat#Dataset",
       }],
       "properties": [{
         "iri": "http://www.w3.org/ns/dcat#distribution-profile",
@@ -92,12 +92,14 @@ test("From RDF to DSV and back.", async () => {
         ],
         "reusesPropertyValue": [{
           "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
-          "propertyreusedFromResourceIri": "http://dcat-ap/ns/dcat#Distribution",
+          "propertyReusedFromResourceIri": "http://dcat-ap/ns/dcat#Distribution",
         }, {
           "reusedPropertyIri": "http://purl.org/vocab/vann/usageNote",
-          "propertyreusedFromResourceIri": "http://dcat-ap/ns/dcat#Distribution",
+          "propertyReusedFromResourceIri": "http://dcat-ap/ns/dcat#Distribution",
         }],
-      } as ObjectPropertyProfile]
+        "specializationOfIri": [],
+      } as ObjectPropertyProfile],
+      "specializationOfIri": [],
     }, {
       "iri": "https://dcat-ap-cz/#Dataset",
       "prefLabel": {},
@@ -108,6 +110,7 @@ test("From RDF to DSV and back.", async () => {
       "profiledClassIri": [],
       "properties": [],
       "reusesPropertyValue": [],
+      "specializationOfIri": [],
     }, {
       "iri": "http://dcat-ap/ns/dcat#Distribution",
       "prefLabel": {},
@@ -118,7 +121,8 @@ test("From RDF to DSV and back.", async () => {
       "profiledClassIri": ["http://www.w3.org/ns/dcat#Distribution"],
       "properties": [],
       "reusesPropertyValue": [],
-    }]
+      "specializationOfIri": [],
+    }],
   };
   expect(actualModels[0]).toStrictEqual(expectedModel);
 
@@ -258,8 +262,10 @@ _:n3-813 a dsv:PropertyValueReuse;
   const conceptualModel = await rdfToConceptualModel(inputRdf);
   expect(conceptualModel.length).toBe(1);
 
+  let counter = 0;
   const actualEntities = conceptualModelToEntityListContainer(
     conceptualModel[0]!, {
+    generalizationIdentifier: () => `id-${++counter}`,
     // We use the IRI as an identifier here.
     // Should be good enough for test, do not repeat elsewhere.
     iriToIdentifier: iri => knownMapping[iri] ?? iri,

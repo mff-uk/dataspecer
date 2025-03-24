@@ -1,7 +1,7 @@
-import { ConceptualModel } from "./dsv-model";
+import { DsvModel, PropertyProfile } from "./dsv-model";
 import {
     createContext,
-    entityListContainerToConceptualModel,
+    entityListContainerToDsvModel,
 } from "./entity-model-to-dsv";
 
 test("Issue #608", () => {
@@ -75,10 +75,10 @@ test("Issue #608", () => {
 
     const context = createContext(containers);
 
-    const actual = entityListContainerToConceptualModel(
+    const actual = entityListContainerToDsvModel(
         "http://dcat/model/", containers[0], context);
 
-    const expected: ConceptualModel = {
+    const expected: DsvModel = {
         "iri": "http://dcat/model/",
         "profiles": [{
             "iri": "http://www.w3.org/ns/Dataset-profile",
@@ -88,10 +88,10 @@ test("Issue #608", () => {
             "profileOfIri": [],
             "reusesPropertyValue": [{
                 "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
-                "propertyreusedFromResourceIri": "http://www.w3.org/ns/Dataset",
+                "propertyReusedFromResourceIri": "http://www.w3.org/ns/Dataset",
             }, {
                 "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
-                "propertyreusedFromResourceIri": "http://www.w3.org/ns/Dataset",
+                "propertyReusedFromResourceIri": "http://www.w3.org/ns/Dataset",
             }],
             "$type": ["class-profile"],
             "profiledClassIri": ["http://www.w3.org/ns/Dataset"],
@@ -108,7 +108,9 @@ test("Issue #608", () => {
                 "rangeDataTypeIri": [
                     "http://www.w3.org/2000/01/rdf-schema#Literal"
                 ],
+                "specializationOfIri": [],
             } as any],
+            "specializationOfIri": [],
         }],
     };
 
@@ -126,9 +128,9 @@ test("Default test for profiles.", () => {
             "iri": "http://www.w3.org/ns/Dataset-profile",
             "name": null,
             "nameFromProfiled": "http://www.w3.org/ns/Dataset",
-            "description": {"": "ignore this"},
+            "description": { "": "ignore this" },
             "descriptionFromProfiled": "http://www.w3.org/ns/Dataset",
-            "usageNote": {"": "..."},
+            "usageNote": { "": "..." },
             "usageNoteFromProfiled": null,
         }, {
             "id": "3sww3fqegbxly6tk8z3",
@@ -188,23 +190,23 @@ test("Default test for profiles.", () => {
 
     const context = createContext(containers);
 
-    const actual = entityListContainerToConceptualModel(
+    const actual = entityListContainerToDsvModel(
         "http://dcat/model/", containers[0], context);
 
-    const expected: ConceptualModel = {
+    const expected: DsvModel = {
         "iri": "http://dcat/model/",
         "profiles": [{
             "iri": "http://www.w3.org/ns/Dataset-profile",
             "prefLabel": {},
             "definition": {},
-            "usageNote": {"": "..."},
+            "usageNote": { "": "..." },
             "profileOfIri": [],
             "reusesPropertyValue": [{
                 "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
-                "propertyreusedFromResourceIri": "http://www.w3.org/ns/Dataset",
+                "propertyReusedFromResourceIri": "http://www.w3.org/ns/Dataset",
             }, {
                 "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
-                "propertyreusedFromResourceIri": "http://www.w3.org/ns/Dataset",
+                "propertyReusedFromResourceIri": "http://www.w3.org/ns/Dataset",
             }],
             "$type": ["class-profile"],
             "profiledClassIri": ["http://www.w3.org/ns/Dataset"],
@@ -221,9 +223,218 @@ test("Default test for profiles.", () => {
                 "rangeDataTypeIri": [
                     "http://www.w3.org/2000/01/rdf-schema#Literal"
                 ],
+                "specializationOfIri": [],
             } as any],
+            "specializationOfIri": [],
         }],
     };
 
     expect(actual).toStrictEqual(expected);
+});
+
+test("Issue #1005", () => {
+
+    const containers = [{
+        "baseIri": "http://dcat/model/",
+        "entities": [{
+            "id": "jv7zjcl0xnfm8lqej9v",
+            "iri": "bulkyForce",
+            "type": ["class"],
+            "name": { "en": "Bulky Force" },
+            "description": {},
+        }, {
+            "id": "dme1xc0ubemm8lqekg1",
+            "iri": "juicyBusiness",
+            "type": ["class"],
+            "name": { "en": "Juicy Business" },
+            "description": {},
+        }, {
+            "id": "v5d9yd13by9m8mvndtv",
+            "type": ["class-profile"],
+            "description": {},
+            "descriptionFromProfiled": "dme1xc0ubemm8lqekg1",
+            "name": { "en": "Juicy Business" },
+            "nameFromProfiled": "dme1xc0ubemm8lqekg1",
+            "iri": "juicyBusiness",
+            "usageNote": {},
+            "usageNoteFromProfiled": null,
+            "profiling": ["dme1xc0ubemm8lqekg1"],
+        }, {
+            "id": "8ut1fqfcd2dm8mvnh2y",
+            "type": ["class-profile"],
+            "description": {},
+            "descriptionFromProfiled": "jv7zjcl0xnfm8lqej9v",
+            "name": { "en": "Bulky Force" },
+            "nameFromProfiled": "jv7zjcl0xnfm8lqej9v",
+            "iri": "bulkyForce",
+            "usageNote": {},
+            "usageNoteFromProfiled": null,
+            "profiling": ["jv7zjcl0xnfm8lqej9v"],
+        }, {
+            "id": "flybrmenrykm8mwsi0o",
+            "type": ["relationship"],
+            "iri": null,
+            "name": {},
+            "description": {},
+            "ends": [{
+                "name": {},
+                "description": {},
+                "concept": "jv7zjcl0xnfm8lqej9v",
+                "iri": null
+            }, {
+                "name": { "en": "Juicy Work" },
+                "description": {},
+                "concept": "dme1xc0ubemm8lqekg1",
+                "iri": "juicyWork",
+            }],
+        }, {
+            "ends": [{
+                "name": null,
+                "nameFromProfiled": null,
+                "description": null,
+                "descriptionFromProfiled": null,
+                "iri": null,
+                "cardinality": null,
+                "usageNote": null,
+                "usageNoteFromProfiled": null,
+                "profiling": [],
+                "concept": "8ut1fqfcd2dm8mvnh2y"
+            }, {
+                "name": { "en": "Juicy Work" },
+                "nameFromProfiled": "flybrmenrykm8mwsi0o",
+                "description": {},
+                "descriptionFromProfiled": "flybrmenrykm8mwsi0o",
+                "iri": "BulkyForce.juicyWork",
+                "cardinality": null,
+                "usageNote": {},
+                "usageNoteFromProfiled": null,
+                "profiling": ["flybrmenrykm8mwsi0o"],
+                "concept": "v5d9yd13by9m8mvndtv",
+            }],
+            "id": "vaz6nlwa9am8mwszz2",
+            "type": ["relationship-profile"],
+        }, {
+            "id": "yjtb7fast5lm8mwtnpa",
+            "iri": null,
+            "child": "8ut1fqfcd2dm8mvnh2y",
+            "parent": "v5d9yd13by9m8mvndtv",
+            "type": ["generalization"],
+        }, {
+            "id": "bv12356pl4im8mwu7ty",
+            "type": ["relationship-profile"],
+            "ends": [{
+                "name": null,
+                "nameFromProfiled": null,
+                "description": null,
+                "descriptionFromProfiled": null,
+                "iri": null,
+                "cardinality": null,
+                "usageNote": null,
+                "usageNoteFromProfiled": null,
+                "profiling": [],
+                "concept": "8ut1fqfcd2dm8mvnh2y",
+            }, {
+                "name": { "en": "Juicy Work" },
+                "nameFromProfiled": "flybrmenrykm8mwsi0o",
+                "description": {},
+                "descriptionFromProfiled": "flybrmenrykm8mwsi0o",
+                "iri": "JuicyBusiness.juicyWorkSpecial",
+                "cardinality": null,
+                "usageNote": {},
+                "usageNoteFromProfiled": null,
+                "profiling": ["flybrmenrykm8mwsi0o"],
+                "concept": "v5d9yd13by9m8mvndtv",
+            }],
+        }, {
+            "id": "yjtb5fasdt5lm9mwtbcb",
+            "iri": null,
+            "child": "bv12356pl4im8mwu7ty",
+            "parent": "vaz6nlwa9am8mwszz2",
+            "type": ["generalization"],
+        }],
+    }] as any;
+
+    const context = createContext(containers);
+
+    const actual = entityListContainerToDsvModel(
+        "http://dcat/model/", containers[0], context);
+
+    const expected: DsvModel = {
+        "iri": "http://dcat/model/",
+        "profiles": [{
+            "iri": "http://dcat/model/juicyBusiness",
+            "prefLabel": {},
+            "definition": {},
+            "usageNote": {},
+            "profileOfIri": [],
+            "$type": ["class-profile"],
+            "properties": [],
+            "reusesPropertyValue": [{
+                "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
+                "propertyReusedFromResourceIri": "http://dcat/model/juicyBusiness"
+            }, {
+                "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
+                "propertyReusedFromResourceIri": "http://dcat/model/juicyBusiness"
+            }],
+            "profiledClassIri": ["http://dcat/model/juicyBusiness"],
+            "specializationOfIri": []
+        }, {
+            "iri": "http://dcat/model/bulkyForce",
+            "prefLabel": {},
+            "definition": {},
+            "usageNote": {},
+            "profileOfIri": [],
+            "$type": ["class-profile"],
+            "properties": [{
+                "iri": "http://dcat/model/BulkyForce.juicyWork",
+                "cardinality": null,
+                "prefLabel": {},
+                "definition": {},
+                "usageNote": {},
+                "profileOfIri": [],
+                "profiledPropertyIri": ["http://dcat/model/juicyWork"],
+                "reusesPropertyValue": [{
+                    "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
+                    "propertyReusedFromResourceIri": "http://dcat/model/juicyWork"
+                }, {
+                    "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
+                    "propertyReusedFromResourceIri": "http://dcat/model/juicyWork"
+                }
+                ],
+                "specializationOfIri": [],
+                "$type": ["object-property-profile"],
+                "rangeClassIri": ["http://dcat/model/juicyBusiness"]
+            } as PropertyProfile, {
+                "iri": "http://dcat/model/JuicyBusiness.juicyWorkSpecial",
+                "cardinality": null,
+                "prefLabel": {},
+                "definition": {},
+                "usageNote": {},
+                "profileOfIri": [],
+                "profiledPropertyIri": ["http://dcat/model/juicyWork"],
+                "reusesPropertyValue": [{
+                    "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
+                    "propertyReusedFromResourceIri": "http://dcat/model/juicyWork"
+                }, {
+                    "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
+                    "propertyReusedFromResourceIri": "http://dcat/model/juicyWork"
+                }],
+                "specializationOfIri": ["http://dcat/model/BulkyForce.juicyWork"],
+                "$type": ["object-property-profile"],
+                "rangeClassIri": ["http://dcat/model/juicyBusiness"]
+            } as PropertyProfile],
+            "reusesPropertyValue": [{
+                "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
+                "propertyReusedFromResourceIri": "http://dcat/model/bulkyForce"
+            }, {
+                "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
+                "propertyReusedFromResourceIri": "http://dcat/model/bulkyForce"
+            }],
+            "profiledClassIri": ["http://dcat/model/bulkyForce"],
+            "specializationOfIri": ["http://dcat/model/juicyBusiness"]
+        }]
+    };
+
+    expect(actual).toStrictEqual(expected);
+
 });

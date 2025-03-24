@@ -2,7 +2,7 @@ import * as N3 from "n3";
 
 import {
   LanguageString,
-  ConceptualModel,
+  DsvModel,
   ClassProfile,
   ClassProfileType,
   PropertyProfile,
@@ -22,7 +22,7 @@ import { RDF, DSV, SKOS, VANN, DCT } from "./vocabulary";
 
 export async function rdfToConceptualModel(
   rdfAsString: string,
-): Promise<ConceptualModel[]> {
+): Promise<DsvModel[]> {
   const context = new RdfLoaderContext();
   const quads = await stringN3ToRdf(rdfAsString);
   context.loadQuads(quads);
@@ -83,7 +83,7 @@ class RdfLoaderContext {
 
 }
 
-type ConceptualModelMap = { [iri: string]: ConceptualModel };
+type ConceptualModelMap = { [iri: string]: DsvModel };
 
 class ConceptualModelReader {
 
@@ -140,6 +140,7 @@ class ClassProfilesReader {
       $type: [ClassProfileType],
       profiledClassIri: reader.iris(DSV.class),
       properties: [],
+      specializationOfIri: reader.iris(DSV.specializationOf),
     };
     // Load inherited values.
     for (const node of reader.irisAsSubjects(DSV.reusesPropertyValue)) {
@@ -241,7 +242,7 @@ function loadReusesPropertyValue(
   }
   profile.reusesPropertyValue.push({
     reusedPropertyIri: reusedProperty,
-    propertyreusedFromResourceIri: reusedFrom,
+    propertyReusedFromResourceIri: reusedFrom,
   });
 }
 
@@ -287,6 +288,7 @@ class PropertyProfilesReader {
       definition: reader.languageString(SKOS.definition),
       usageNote: reader.languageString(VANN.usageNote),
       profileOfIri: reader.iris(DSV.profileOf),
+      specializationOfIri: reader.iris(DSV.specializationOf),
       // PropertyProfile
       cardinality: this.loadCardinality(reader),
       profiledPropertyIri: reader.iris(DSV.property),
