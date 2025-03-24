@@ -18,8 +18,8 @@ describe("semanticModelMapToCmeSemanticModel", () => {
         return identifier + "-blue";
       },
     } as VisualModel,
-      "#111111",
-      (identifier) => identifier,
+    "#111111",
+    (identifier) => identifier,
     );
 
     expect(actual).toStrictEqual({
@@ -40,8 +40,8 @@ describe("semanticModelMapToCmeSemanticModel", () => {
         return identifier + "-blue";
       },
     } as VisualModel,
-      "#111111",
-      (identifier) => identifier,
+    "#111111",
+    (identifier) => identifier,
     );
 
     expect(actual).toStrictEqual({
@@ -58,8 +58,8 @@ describe("semanticModelMapToCmeSemanticModel", () => {
       getId: () => "abcd",
       getAlias: () => "mock model",
     } as EntityModel, null,
-      "#111111",
-      (identifier) => identifier,
+    "#111111",
+    (identifier) => identifier,
     );
 
     expect(actual).toStrictEqual({

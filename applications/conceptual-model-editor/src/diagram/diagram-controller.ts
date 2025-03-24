@@ -276,7 +276,6 @@ function useCreateReactStates() {
   const [edgeToolbar, setEdgeToolbar] = useState<EdgeToolbarProps | null>(null);
   const [canvasMenu, setCanvasMenu] = useState<GeneralCanvasMenuComponentProps | null>(null);
 
-
   // Says if the node is selected - having the reactflow property is not enough,
   // because with groups we have to separate between selection by user and in
   // program (when group was selected).

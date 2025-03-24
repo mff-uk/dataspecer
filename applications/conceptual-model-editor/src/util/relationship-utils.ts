@@ -6,7 +6,6 @@ import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-m
 import {
   type SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import type { VisualModel } from "@dataspecer/core-v2/visual-model";
 
 export type DomainAndRange<EndType> = {
     domain: EndType | null,
@@ -115,3 +114,4 @@ export const bothEndsHaveAnIri = (entity: SemanticModelRelationship | SemanticMo
     return false;
   }
 };
+

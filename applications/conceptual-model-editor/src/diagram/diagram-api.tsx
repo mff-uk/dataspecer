@@ -221,7 +221,6 @@ export interface DiagramActions extends
   ): void;
 }
 
-
 /**
  * Node related functionality of the diagram.
  */
@@ -229,37 +228,36 @@ interface DiagramNodes {
 
   /**
    * Called when user opens node's detail.
-   * @param identifier is the identifier of the node for which the detail was shown.
    */
   onShowNodeDetail: (diagramNode: Node) => void;
 
   /**
-   * Called when user starts editing node.
-   * @param identifier is the identifier of the node which is being edited.
+   * Called when user starts editing entity represented by the node.
    */
-  onEditNode: (diagramNode: Node) => void;
+  onEditRepresentedByNode: (diagramNode: Node) => void;
+
+  /**
+   * Called when user chooses to edit the visual node.
+   */
+  onEditVisualNode: (diagramNode: Node) => void;
 
   /**
    * Called when user starts creating node's profile.
-   * @param diagramNode is the node to create profile from.
    */
   onCreateNodeProfile: (diagramNode: Node) => void;
 
   /**
    * Called when user wants to create new copy of the node on canvas.
-   * @param diagramNode is the node to create copy of.
    */
   onDuplicateNode: (diagramNode: Node) => void;
 
   /**
    * Called when user hides node, i. e. removes it from canvas.
-   * @param identifier is the identifier of the node, which is newly hidden.
    */
   onHideNode: (diagramNode: Node) => void;
 
   /**
    * Called when user deletes node.
-   * @param identifier is the identifier of the deleted node.
    */
   onDeleteNode: (diagramNode: Node) => void;
 
@@ -317,16 +315,10 @@ interface DiagramNodes {
   onRemoveAttributeFromNode: (attribute: string, nodeIdentifier: string) => void;
 
   /**
-   * Called when user chooses to edit {@link attribute}.
-   * @param attribute is the identifier the of the attribute to be edited
+   * Called when user chooses to edit a node's concent.
+   * @param identifier is the identifier the of the content to be edited
    */
-  onEditAttribute: (attribute: string) => void;
-
-  /**
-   * Called when user chooses to edit {@link attributeProfile}.
-   * @param attributeProfile is the identifier the of the attribute profile to be edited
-   */
-  onEditAttributeProfile: (attributeProfile: string) => void;
+  onEditEntityItem: (identifier: string) => void;
 
   /**
    * Called when user chooses to move given {@link attribute} move one position up.

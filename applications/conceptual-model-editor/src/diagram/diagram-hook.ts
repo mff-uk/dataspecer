@@ -113,7 +113,7 @@ const noOperationDiagramActions: DiagramActions = {
 
 const noOperationCallbacks: DiagramCallbacks = {
   onShowNodeDetail: noOperation,
-  onEditNode: noOperation,
+  onEditRepresentedByNode: noOperation,
   onCreateNodeProfile: noOperation,
   onDuplicateNode: noOperation,
   onHideNode: noOperation,
@@ -146,7 +146,7 @@ const noOperationCallbacks: DiagramCallbacks = {
   onHideSelection: noOperation,
   onDeleteSelection: noOperation,
   onRemoveAttributeFromNode: noOperation,
-  onEditAttribute: noOperation,
+  onEditEntityItem: noOperation,
   onEditAttributeProfile: noOperation,
   onMoveAttributeUp: noOperation,
   onMoveAttributeDown: noOperation,

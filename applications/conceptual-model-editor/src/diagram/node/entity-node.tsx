@@ -8,13 +8,12 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 
-import { NodeType, type Node as ApiNode, type EntityItem } from "../diagram-model";
+import { NodeType, type Node as ApiNode, type NodeItem } from "../diagram-model";
 import { DiagramContext, NodeMenuType } from "../diagram-controller";
 
 import "./entity-node.css";
 import { usePrefixForIri } from "../../service/prefix-service";
 import { t } from "../../application";
-import { useActions } from "../../action/actions-react-binding";
 
 // We can select zoom option and hide content when zoom is on given threshold.
 // const zoomSelector = (state: ReactFlowState) => state.transform[2] >= 0.9;
@@ -50,13 +49,8 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
     context?.callbacks().onMoveAttributeDown(attribute, props.data.identifier);
   const removeAttributeFromNode = (attribute: string) => () =>
     context?.callbacks().onRemoveAttributeFromNode(attribute, props.data.identifier);
-  const editAttribute = (attribute: string, isAttributeProfile: boolean) => () => {
-    if(isAttributeProfile) {
-      context?.callbacks().onEditAttributeProfile(attribute);
-    }
-    else {
-      context?.callbacks().onEditAttribute(attribute);
-    }
+  const editAttribute = (attribute: string) => () => {
+    context?.callbacks().onEditEntityItem(attribute);
   }
 
   return (
@@ -98,7 +92,7 @@ export const EntityNode = (props: NodeProps<Node<ApiNode>>) => {
                   <button onClick={moveAttributeUp(item.identifier)}>🔼</button>
                   <button onClick={moveAttributeDown(item.identifier)}>🔽</button>
                   <button onClick={removeAttributeFromNode(item.identifier)}>🕶️</button>
-                  <button onClick={editAttribute(item.identifier, item.profileOf !== null)}>✏️</button>
+                  <button onClick={editAttribute(item.identifier)}>✏️</button>
                 </div>
               }
             </li>
@@ -131,7 +125,8 @@ function EntityNodeMenu(props: NodeProps<Node<ApiNode>>) {
     return <PrimaryNodeMenu {...props}/>;
   }
   else {
-    console.error("Missing node menu");
+    console.error("Missing node menu of required type:",
+      context.getShownNodeMenuType());
     return null;
   }
 }
@@ -142,7 +137,7 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
   const isPartOfGroup = props.data.group !== null;
 
   const onShowDetail = () => context?.callbacks().onShowNodeDetail(props.data);
-  const onEdit = () => context?.callbacks().onEditNode(props.data);
+  const onEdit = () => context?.callbacks().onEditRepresentedByNode(props.data);
   const onCreateProfile = () => context?.callbacks().onCreateNodeProfile(props.data);
   const onDuplicateNode = () => context?.callbacks().onDuplicateNode(props.data);
   const onHide = () => context?.callbacks().onHideNode(props.data);
@@ -150,10 +145,7 @@ function PrimaryNodeMenu(props: NodeProps<Node<ApiNode>>) {
   const onAnchor = () => context?.callbacks().onToggleAnchorForNode(props.data.identifier);
   const onDissolveGroup = () => context?.callbacks().onDissolveGroup(props.data.group);
   const onAddAttribute = () => context?.callbacks().onCreateAttributeForNode(props.data);
-
-  // TODO RadStr: Create OnEditAttributesForNode method
-  const {openEditNodeAttributesDialog} = useActions();
-  const onEditAttributes = () => openEditNodeAttributesDialog(props.id) ;
+  const onEditAttributes = () => context?.callbacks().onEditVisualNode(props.data) ;
 
   const shouldShowToolbar = props.selected === true;
 
@@ -237,7 +229,7 @@ function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
 }
 
 function EntityNodeItem({ item }: {
-  item: EntityItem,
+  item: NodeItem,
 }) {
 
   let usageNote: undefined | string = undefined;

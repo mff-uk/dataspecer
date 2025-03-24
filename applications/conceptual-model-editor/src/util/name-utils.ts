@@ -14,7 +14,6 @@ import {
 
 import { getIri } from "./iri-utils";
 import { getDomainAndRange } from "./relationship-utils";
-import { useEntityProxy } from "./detail-utils";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 export const getNameLanguageString = (
@@ -435,3 +434,4 @@ export const generateName = () => {
   const name = capFirst(adj) + " " + capFirst(noun);
   return name;
 };
+

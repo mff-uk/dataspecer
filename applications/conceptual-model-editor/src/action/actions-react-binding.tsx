@@ -55,7 +55,7 @@ import { openEditAttributeDialogAction } from "./open-edit-attribute-dialog";
 import { openEditAttributeProfileDialogAction } from "./open-edit-attribute-profile-dialog";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { isInMemorySemanticModel } from "../utilities/model";
-import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelAttribute, isSemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
 import { createCmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 import { createVisualNodeDuplicateAction } from "./create-visual-node-duplicate";
@@ -66,6 +66,9 @@ import { addSemanticAttributeToVisualModelAction } from "./add-semantic-attribut
 import { removeAttributesFromVisualNodeAction } from "./remove-attributes-from-node";
 import { AttributeDialogState } from "../dialog/attribute/edit-attribute-dialog-state";
 import { AttributeProfileDialogState } from "../dialog/attribute-profile/edit-attribute-profile-dialog-state";
+import { openEditAssociationDialogAction } from "./open-edit-association-dialog";
+import { isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { openEditAssociationProfileDialogAction } from "./open-edit-association-profile-dialog";
 
 const LOG = createLogger(import.meta.url);
 
@@ -616,6 +619,7 @@ function createActionsContext(
         classes, graph, dialogs, notifications, options, visualModel, nodeIdentifier);
     });
   };
+
   // Visual model actions.
 
   const addSemanticEntitiesToVisualModel = (
@@ -879,7 +883,9 @@ function createActionsContext(
   const callbacks: DiagramCallbacks = {
     onShowNodeDetail: (node) => openDetailDialog(node.externalIdentifier),
 
-    onEditNode: (node) => openModifyDialog(node.externalIdentifier),
+    onEditRepresentedByNode: (node) => openModifyDialog(node.externalIdentifier),
+
+    onEditVisualNode: (node) => openEditNodeAttributesDialog(node.identifier),
 
     onCreateNodeProfile: (node) => openCreateProfileDialog(node.externalIdentifier),
 
@@ -922,6 +928,7 @@ function createActionsContext(
     onSelectionDidChange: (nodes, edges) => {
       console.log("Application.onSelectionDidChange", { nodes, edges });
     },
+
     onToggleAnchorForNode: (nodeIdentifier) => {
       console.log("Application.onToggleAnchorForNode", { nodeIdentifier });
       withVisualModel(notifications, graph, (visualModel) => {
@@ -929,13 +936,16 @@ function createActionsContext(
         toggleAnchorAction(notifications, visualModel, topLevelGroup ?? nodeIdentifier);
       });
     },
+
     onShowSelectionActionsMenu: (source, canvasPosition) => {
       console.log("Application.onShowSelectionActions", { source, canvasPosition });
       diagram.actions().openSelectionActionsMenu(source, canvasPosition);
     },
+
     onLayoutSelection: () => {
       // TODO RadStr: Currently does nothing (In future - Opens layouting menu - 3 buttons - alignments + layouting)
     },
+
     onCreateGroup: () => {
       withVisualModel(notifications, graph, (visualModel) => {
         const { nodeSelection } = getSelections(diagram, false, true);
@@ -949,16 +959,19 @@ function createActionsContext(
         toggleAnchorAction(notifications, visualModel, groupIdentifier, null);
       });
     },
+
     onDissolveGroup: (identifier: string | null) => {
       console.info("diagram.actions().getNodes()", diagram.actions().getNodes());
       withVisualModel(notifications, graph, (visualModel) => {
         removeTopLevelGroupFromVisualModelAction(notifications, visualModel, identifier);
       });
     },
+
     onShowExpandSelection: () => {
       const selectionToExpand = getSelections(diagram, false, true);
       openExtendSelectionDialog(selectionToExpand);
     },
+
     onShowFilterSelection: () => {
       const selectionToFilter = getSelections(diagram, false, true);
       openFilterSelectionDialog({
@@ -967,6 +980,7 @@ function createActionsContext(
         areVisualModelIdentifiers: true
       });
     },
+
     onCanvasOpenCreateClassDialog: (nodeIdentifier, positionToPlaceClassOn) => {
       withVisualModel(notifications, graph, (visualModel) => {
         openCreateClassDialogWithModelDerivedFromClassAction(
@@ -974,6 +988,7 @@ function createActionsContext(
           diagram, visualModel, nodeIdentifier, positionToPlaceClassOn, null);
       });
     },
+
     onCanvasOpenCreateClassDialogWithAssociation: (nodeIdentifier, positionToPlaceClassOn, isCreatedClassTarget) => {
       withVisualModel(notifications, graph, (visualModel) => {
         openCreateClassDialogAndCreateAssociationAction(
@@ -982,6 +997,7 @@ function createActionsContext(
           positionToPlaceClassOn);
       });
     },
+
     onCanvasOpenCreateClassDialogWithGeneralization: (nodeIdentifier, positionToPlaceClassOn, isCreatedClassParent) => {
       withVisualModel(notifications, graph, (visualModel) => {
         openCreateClassDialogAndCreateGeneralizationAction(
@@ -990,10 +1006,12 @@ function createActionsContext(
         );
       });
     },
+
     onCreateNewViewFromSelection: () => {
       const { nodeSelection, edgeSelection } = getSelections(diagram, true, false);
       createNewVisualModelFromSelection(nodeSelection.concat(edgeSelection));
     },
+
     onProfileSelection: () => {
       const { nodeSelection, edgeSelection } = getSelections(diagram, true, false);
       withVisualModel(notifications, graph, (visualModel) => {
@@ -1002,68 +1020,64 @@ function createActionsContext(
           visualModel, nodeSelection, edgeSelection, true);
       });
     },
+
     onHideSelection: () => {
       const { nodeSelection, edgeSelection } = getSelections(diagram, true, true);
       removeFromVisualModelByVisual(nodeSelection.concat(edgeSelection));
     },
+
     onDeleteSelection: () => {
       const { nodeSelection, edgeSelection } = getSelections(diagram, true, false);
       console.info("Removing selection from semantic model: ", { nodeSelection, edgeSelection });
       const selectionIdentifiers = nodeSelection.concat(edgeSelection);
       deleteVisualElements(selectionIdentifiers);
     },
+
     onRemoveAttributeFromNode: (attribute: string, nodeIdentifier: string) => {
       removeAttributesFromVisualNode([attribute], nodeIdentifier);
     },
-    onEditAttribute: (attribute: string) => {
+
+    onEditEntityItem: (identifier: string) => {
       withVisualModel(notifications, graph, (visualModel) => {
-        const model = findSourceModelOfEntity(attribute, graph.models);
+        const model = findSourceModelOfEntity(identifier, graph.models);
         if(model === null) {
-          notifications.error("Given attribute does not have source model");
+          notifications.error("Given attribute does not have source model.");
           return;
         }
         if(!isInMemorySemanticModel(model)) {
-          notifications.error("Given attribute does have source model, but it is not writable");
+          notifications.error("Given attribute does have source model, but it is not writable.");
           return;
         }
-        const attributeEntity = model.getEntities()[attribute]
-        if(isSemanticModelAttribute(attributeEntity)) {
+        const entity = model.getEntities()[identifier];
+
+        if(isSemanticModelAttribute(entity)) {
           openEditAttributeDialogAction(
             cmeExecutor, options, dialogs, classes, graph,
-            visualModel, model, attributeEntity);
-        }
-        else {
-          notifications.error("Given attribute to be edited is not an attribute neither attribute profile");
-        }
-      });
-    },
-    onEditAttributeProfile: function (attribute: string): void {
-      withVisualModel(notifications, graph, (visualModel) => {
-        const model = findSourceModelOfEntity(attribute, graph.models);
-        if(model === null) {
-          notifications.error("Given attribute profile does not have source model");
-          return;
-        }
-        if(!isInMemorySemanticModel(model)) {
-          notifications.error("Given attribute profile does have source model, but it is not writable");
-          return;
-        }
-        const attributeEntity = model.getEntities()[attribute]
-        if(isSemanticModelAttributeProfile(attributeEntity)) {
+            visualModel, model, entity);
+        } else if(isSemanticModelAttributeProfile(entity)) {
           openEditAttributeProfileDialogAction(
             cmeExecutor, options, dialogs, classes, graph,
-            visualModel, model, attributeEntity);
-        }
-        else {
-          notifications.error("Given attribute profile to be edited is not an attribute profile");
+            visualModel, model, entity);
+        } else if (isSemanticModelRelationship(entity)) {
+          openEditAssociationDialogAction(
+            cmeExecutor, options, dialogs, classes, graph,
+            visualModel, model, entity);
+        } else if (isSemanticModelRelationshipProfile(entity)) {
+          openEditAssociationProfileDialogAction(
+            cmeExecutor, options, dialogs, classes, graph,
+            visualModel, model, entity);
+        } else {
+          notifications.error("Can not edit given item.");
         }
       });
     },
-    onMoveAttributeUp: function (attribute: string, nodeIdentifer: string): void {
-      shiftAttributeUp(attribute, nodeIdentifer);
+
+    onMoveAttributeUp: function (attribute: string, nodeIdentifier: string): void {
+      shiftAttributeUp(attribute, nodeIdentifier);
     },
-    onMoveAttributeDown: function (attribute: string, nodeIdentifer: string): void {
-      shiftAttributeDown(attribute, nodeIdentifer);
+
+    onMoveAttributeDown: function (attribute: string, nodeIdentifier: string): void {
+      shiftAttributeDown(attribute, nodeIdentifier);
     },
   };
 

@@ -57,7 +57,7 @@ export type Node = {
   /**
    * Node content, i.e. attributes, properties.
    */
-  items: EntityItem[];
+  items: NodeItem[];
 
 }
 
@@ -87,6 +87,22 @@ export interface Position {
   x: number;
 
   y: number;
+
+}
+
+export interface NodeItem {
+
+  identifier: string;
+
+  label: string;
+
+  profileOf: null | {
+
+    label: string;
+
+    usageNote: string | null;
+
+  }
 
 }
 
@@ -120,22 +136,6 @@ export type ViewportDimensions = {
   width: number;
 
   height: number;
-
-}
-
-export interface EntityItem {
-
-  identifier: string;
-
-  label: string;
-
-  profileOf: null | {
-
-    label: string;
-
-    usageNote: string | null;
-
-  }
 
 }
 

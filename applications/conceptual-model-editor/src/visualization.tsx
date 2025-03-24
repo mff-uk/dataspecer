@@ -35,7 +35,7 @@ import { type UseModelGraphContextType, useModelGraphContext } from "./context/m
 import { type UseClassesContextType, useClassesContext } from "./context/classes-context";
 import { cardinalityToHumanLabel, getDomainAndRange } from "./util/relationship-utils";
 import { useActions } from "./action/actions-react-binding";
-import { Diagram, type Edge, EdgeType, Group, type EntityItem, type Node, NodeType } from "./diagram/";
+import { Diagram, type Edge, EdgeType, Group, type NodeItem, type Node, NodeType } from "./diagram/";
 import { type UseDiagramType } from "./diagram/diagram-hook";
 import { configuration, createLogger } from "./application";
 import { getDescriptionLanguageString, getUsageNoteLanguageString } from "./util/name-utils";
@@ -341,7 +341,7 @@ function createDiagramNode(
   // Here we are missing proper implementation of content.
   // See https://github.com/mff-uk/dataspecer/issues/928
 
-  const itemCandidates: Record<string, EntityItem> = {};
+  const itemCandidates: Record<string, NodeItem> = {};
 
   for(const attribute of relationships) {
     if(visualNode.content.includes(attribute.id)) {
@@ -391,7 +391,7 @@ function createDiagramNode(
   // Be aware that the update of the semantic attributes comes later,
   // so there is moment when the content of visual node is set,
   // but the corresponding attributes semantic model in are not.
-  const items: EntityItem[] = visualNode.content.map(id => itemCandidates[id]).filter(item => item !== undefined);
+  const items: NodeItem[] = visualNode.content.map(id => itemCandidates[id]).filter(item => item !== undefined);
 
   const isProfile = isSemanticModelClassUsage(entity)
     || isSemanticModelClassProfile(entity);
