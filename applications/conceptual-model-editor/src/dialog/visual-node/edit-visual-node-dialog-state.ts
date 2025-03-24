@@ -9,11 +9,11 @@ import {
   representRelationships,
   representRelationshipUsages,
 } from "../utilities/dialog-utilities";
-import { createLogger } from "../../application";
+import { configuration, createLogger, t } from "../../application";
 import { InvalidState } from "../../application/error";
 import { ModelGraphContextType } from "../../context/model-context";
 import { isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { entityModelsMapToCmeSemanticModel } from "../../dataspecer/semantic-model/semantic-model-adapter";
+import { semanticModelMapToCmeSemanticModel } from "../../dataspecer/cme-model/adapter";
 
 const LOG = createLogger(import.meta.url);
 
@@ -63,8 +63,10 @@ export function createEditVisualNodeState(
     model: visualNode.model,
   };
 
-  const semanticModels = entityModelsMapToCmeSemanticModel(
-    graphContext.models, visualModel);
+  const semanticModels = semanticModelMapToCmeSemanticModel(
+    graphContext.models, visualModel,
+    configuration().defaultModelColor,
+    identifier => t("model-service.model-label-from-id", identifier));
 
   const contentMap: Record<string, RelationshipRepresentative> = {};
   const inactiveContent: RelationshipRepresentative[] = []

@@ -22,7 +22,7 @@ import { SEMANTIC_MODEL_GENERALIZATION, SemanticModelGeneralization } from "@dat
 import { addSemanticGeneralizationToVisualModelAction } from "./add-generalization-to-visual-model";
 import { ActionsTestSuite } from "./test/actions-test-suite";
 import { addVisualRelationshipsWithSpecifiedVisualEnds } from "../dataspecer/visual-model/operation/add-visual-relationships";
-import { entityModelsMapToCmeSemanticModel } from "../dataspecer/semantic-model/semantic-model-adapter";
+import { semanticModelMapToCmeSemanticModel } from "../dataspecer/cme-model/adapter/";
 import { CmeSpecialization } from "../dataspecer/cme-model/model";
 
 test("Create single relationship - association", () => {
@@ -382,7 +382,7 @@ const prepareVisualModelWithFourNodes = () => {
   model.setAlias(modelAlias);
   models.set(model.getId(), model);
 
-  const cmeModels = entityModelsMapToCmeSemanticModel(models, visualModel);
+  const cmeModels = semanticModelMapToCmeSemanticModel(models, visualModel, "", identifier => identifier);
 
   //
   const aggregator = new SemanticModelAggregator();

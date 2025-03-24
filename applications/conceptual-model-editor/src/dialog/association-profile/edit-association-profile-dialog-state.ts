@@ -28,8 +28,8 @@ import {
 } from "../utilities/dialog-utilities";
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { EntityDsIdentifier } from "../../dataspecer/entity-model";
-import { entityModelsMapToCmeSemanticModel } from "../../dataspecer/semantic-model/semantic-model-adapter";
-import { configuration, createLogger } from "../../application";
+import { semanticModelMapToCmeSemanticModel } from "../../dataspecer/cme-model/adapter";
+import { configuration, createLogger, t } from "../../application";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { InvalidState } from "../../application/error";
@@ -52,8 +52,10 @@ export function createNewAssociationProfileDialogState(
   profilesIdentifiers: EntityDsIdentifier[],
 ): AssociationProfileDialogState {
 
-  const allModels = entityModelsMapToCmeSemanticModel(
-    graphContext.models, visualModel);
+  const allModels = semanticModelMapToCmeSemanticModel(
+    graphContext.models, visualModel,
+    configuration().defaultModelColor,
+    identifier => t("model-service.model-label-from-id", identifier));
 
   const noProfile = representUndefinedAssociation();
 
@@ -179,8 +181,10 @@ export function createEditAssociationProfileDialogState(
 
   //
 
-  const allModels = entityModelsMapToCmeSemanticModel(
-    graphContext.models, visualModel);
+  const allModels = semanticModelMapToCmeSemanticModel(
+    graphContext.models, visualModel,
+    configuration().defaultModelColor,
+    identifier => t("model-service.model-label-from-id", identifier));
 
   const noProfile = representUndefinedAssociation();
 

@@ -15,8 +15,8 @@ import {
 } from "../utilities/dialog-utilities";
 import { EntityDsIdentifier } from "../../dataspecer/entity-model";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { entityModelsMapToCmeSemanticModel } from "../../dataspecer/semantic-model/semantic-model-adapter";
-import { configuration, createLogger } from "../../application";
+import { semanticModelMapToCmeSemanticModel } from "../../dataspecer/cme-model/adapter";
+import { configuration, createLogger, t } from "../../application";
 import { InvalidState } from "../../application/error";
 import { isSemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { CmeSemanticModel } from "../../dataspecer/cme-model";
@@ -34,8 +34,10 @@ export function createNewProfileClassDialogState(
   profilesIdentifiers: EntityDsIdentifier[],
 ): ClassProfileDialogState {
 
-  const allModels = entityModelsMapToCmeSemanticModel(
-    graphContext.models, visualModel);
+  const allModels = semanticModelMapToCmeSemanticModel(
+    graphContext.models, visualModel,
+    configuration().defaultModelColor,
+    identifier => t("model-service.model-label-from-id", identifier));
 
   const noProfile = representUndefinedClass();
 
@@ -96,8 +98,10 @@ export function createEditClassProfileDialogState(
 
   //
 
-  const allModels = entityModelsMapToCmeSemanticModel(
-    graphContext.models, visualModel);
+  const allModels = semanticModelMapToCmeSemanticModel(
+    graphContext.models, visualModel,
+    configuration().defaultModelColor,
+    identifier => t("model-service.model-label-from-id", identifier));
 
   const noProfile = representUndefinedClass();
 

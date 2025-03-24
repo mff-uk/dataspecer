@@ -23,8 +23,8 @@ import {
   selectDefaultModelForAttribute,
   sortRepresentatives,
 } from "../utilities/dialog-utilities";
-import { entityModelsMapToCmeSemanticModel } from "../../dataspecer/semantic-model/semantic-model-adapter";
-import { configuration, createLogger } from "../../application";
+import { semanticModelMapToCmeSemanticModel } from "../../dataspecer/cme-model/adapter";
+import { configuration, createLogger, t } from "../../application";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import {
   type SemanticModelClass,
@@ -47,8 +47,10 @@ export function createNewAttributeDialogState(
   defaultModelIdentifier: string | null,
 ): AttributeDialogState {
 
-  const allModels = entityModelsMapToCmeSemanticModel(
-    graphContext.models, visualModel);
+  const allModels = semanticModelMapToCmeSemanticModel(
+    graphContext.models, visualModel,
+    configuration().defaultModelColor,
+    identifier => t("model-service.model-label-from-id", identifier));
 
   const owlThing = representOwlThing();
 
@@ -123,8 +125,10 @@ export function createEditAttributeDialogState(
 
   //
 
-  const allModels = entityModelsMapToCmeSemanticModel(
-    graphContext.models, visualModel);
+  const allModels = semanticModelMapToCmeSemanticModel(
+    graphContext.models, visualModel,
+    configuration().defaultModelColor,
+    identifier => t("model-service.model-label-from-id", identifier));
 
   const owlThing = representOwlThing();
 
@@ -176,8 +180,10 @@ export function createAddAttributeDialogState(
   entity: SemanticModelClass,
 ): AttributeDialogState {
 
-  const allModels = entityModelsMapToCmeSemanticModel(
-    graphContext.models, visualModel);
+  const allModels = semanticModelMapToCmeSemanticModel(
+    graphContext.models, visualModel,
+    configuration().defaultModelColor,
+    identifier => t("model-service.model-label-from-id", identifier));
 
   const rdfsLiteral = representRdfsLiteral();
 

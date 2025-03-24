@@ -5,7 +5,7 @@
 import { expect, test, beforeEach, vitest } from "vitest";
 import { SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { createDefaultVisualModelFactory, isVisualNode, isVisualRelationship, VisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { entityModelsMapToCmeSemanticModel } from "../dataspecer/semantic-model/semantic-model-adapter";
+import { semanticModelMapToCmeSemanticModel } from "../dataspecer/cme-model/adapter/";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { Entity, EntityModel } from "@dataspecer/core-v2";
 import { ModelGraphContextType } from "../context/model-context";
@@ -315,7 +315,7 @@ const prepareModelsWithSemanticData = () => {
   }
 
   // Fill with data
-  const cmeModels = entityModelsMapToCmeSemanticModel(models, visualModel);
+  const cmeModels = semanticModelMapToCmeSemanticModel(models, visualModel, "", identifier => identifier);
   for(let i = 0; i < modelCount; i++) {
     for(let j = 0; j < 4; j++) {
       const createdClass = createSemanticClassTestVariant(models, `${i}-${j}`, cmeModels[i].dsIdentifier, []);

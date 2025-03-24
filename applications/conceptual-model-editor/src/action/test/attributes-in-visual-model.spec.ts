@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 import { notificationMockup } from "./actions-test-suite";
 import { createDefaultVisualModelFactory, isVisualNode, VisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { EntityModel } from "@dataspecer/core-v2";
-import { entityModelsMapToCmeSemanticModel } from "../../dataspecer/semantic-model/semantic-model-adapter";
+import { semanticModelMapToCmeSemanticModel } from "../../dataspecer/cme-model/adapter";
 import { CreatedEntityOperationResult, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { addSemanticAttributeToVisualNodeAction } from "../add-semantic-attribute-to-visual-node";
@@ -532,7 +532,7 @@ const prepareVisualModelWithFourNodes = () => {
   model.setAlias(modelAlias);
   models.set(model.getId(), model);
 
-  const cmeModels = entityModelsMapToCmeSemanticModel(models, visualModel);
+  const cmeModels = semanticModelMapToCmeSemanticModel(models, visualModel, "", identifier => identifier);
 
   return {
     visualModel,

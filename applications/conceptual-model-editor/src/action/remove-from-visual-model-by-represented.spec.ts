@@ -15,7 +15,7 @@ import { SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspece
 import { SetStateAction } from "react";
 import { notificationMockup } from "./test/actions-test-suite";
 import { createVisualNodeDuplicateAction } from "./create-visual-node-duplicate";
-import { entityModelsMapToCmeSemanticModel } from "../dataspecer/semantic-model/semantic-model-adapter";
+import { semanticModelMapToCmeSemanticModel } from "../dataspecer/cme-model/adapter/";
 import { ModelGraphContextType } from "../context/model-context";
 import { ClassesContextType } from "../context/classes-context";
 import { ActionsTestSuite } from "./test/actions-test-suite";
@@ -171,7 +171,7 @@ const prepareModelWithFourNodes = () => {
   model.setAlias(modelAlias);
   models.set(model.getId(), model);
 
-  const cmeModels = entityModelsMapToCmeSemanticModel(models, visualModel);
+  const cmeModels = semanticModelMapToCmeSemanticModel(models, visualModel, "", identifier => identifier);
 
   //
   const aggregator = new SemanticModelAggregator();

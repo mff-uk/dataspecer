@@ -1,10 +1,17 @@
 import { EntityModel } from "@dataspecer/core-v2";
-import { entityModelsMapToCmeSemanticModel } from "../dataspecer/semantic-model/semantic-model-adapter";
+import { semanticModelMapToCmeSemanticModel } from "../dataspecer/cme-model/adapter";
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { CmeSemanticModel, CmeSemanticModelType } from "../dataspecer/cme-model";
+import { configuration, t } from "../application";
 
-export function findAnyWritableModelFromRawInput(models: Map<string, EntityModel>, visualModel: VisualModel | null): CmeSemanticModel | null {
-  const cmeModels = entityModelsMapToCmeSemanticModel(models, visualModel);
+export function findAnyWritableModelFromRawInput(
+  models: Map<string, EntityModel>,
+  visualModel: VisualModel | null,
+): CmeSemanticModel | null {
+  const cmeModels = semanticModelMapToCmeSemanticModel(
+    models, visualModel,
+    configuration().defaultModelColor,
+    identifier => t("model-service.model-label-from-id", identifier));
   const writableSemanticModel = findAnyWritableModel(cmeModels);
   return writableSemanticModel;
 }

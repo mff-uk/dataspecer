@@ -3,41 +3,13 @@ import { describe, expect, test } from "vitest";
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
 import { EntityModel } from "@dataspecer/core-v2";
 
-import { entityModelToCmeVocabulary, entityModelsMapToCmeSemanticModel, setDefaultModelColor, setTranslateFunction } from "./semantic-model-adapter";
-import { CmeSemanticModelType } from "../cme-model";
+import { CmeSemanticModelType } from "../model";
+import { semanticModelToCmeSemanticModel } from "./cme-semantic-model-adapter";
 
-// Disable translation.
-setTranslateFunction(text => `t:${text}`);
-
-// Set default color.
-setDefaultModelColor("#111111");
-
-describe("entityModelsMapToCmeSemanticModel", () => {
-
-  test("Convert a model.", () => {
-    const models : Map<string, EntityModel> = new Map();
-    models.set("", {
-      getId: () => "abcd",
-      getAlias: () => "mock model",
-    } as any);
-
-    const actual = entityModelsMapToCmeSemanticModel(models, null);
-
-    expect(actual).toStrictEqual([{
-      dsIdentifier: "abcd",
-      displayLabel: { "": "mock model" },
-      displayColor: "#111111",
-      dsModelType: CmeSemanticModelType.Default,
-      baseIri: null,
-    }]);
-  });
-
-}) ;
-
-describe("entityModelToCmeModel", () => {
+describe("semanticModelMapToCmeSemanticModel", () => {
 
   test("Convert a default model.", () => {
-    const actual = entityModelToCmeVocabulary({
+    const actual = semanticModelToCmeSemanticModel({
       getId: () => "abcd",
       getAlias: () => "mock model",
       getBaseIri: () => "http://base",
@@ -45,7 +17,10 @@ describe("entityModelToCmeModel", () => {
       getModelColor: (identifier: string) => {
         return identifier + "-blue";
       },
-    } as VisualModel);
+    } as VisualModel,
+      "#111111",
+      (identifier) => identifier,
+    );
 
     expect(actual).toStrictEqual({
       dsIdentifier: "abcd",
@@ -57,18 +32,21 @@ describe("entityModelToCmeModel", () => {
   });
 
   test("Convert a model without alias.", () => {
-    const actual = entityModelToCmeVocabulary({
+    const actual = semanticModelToCmeSemanticModel({
       getId: () => "abcd",
       getAlias: () => null,
     } as EntityModel, {
       getModelColor: (identifier: string) => {
         return identifier + "-blue";
       },
-    } as VisualModel);
+    } as VisualModel,
+      "#111111",
+      (identifier) => identifier,
+    );
 
     expect(actual).toStrictEqual({
       dsIdentifier: "abcd",
-      displayLabel: { "": "t:model-service.model-label-from-id" },
+      displayLabel: { "": "abcd" },
       displayColor: "abcd-blue",
       dsModelType: CmeSemanticModelType.Default,
       baseIri: null,
@@ -76,10 +54,13 @@ describe("entityModelToCmeModel", () => {
   });
 
   test("Convert without a visual model.", () => {
-    const actual = entityModelToCmeVocabulary({
+    const actual = semanticModelToCmeSemanticModel({
       getId: () => "abcd",
       getAlias: () => "mock model",
-    } as EntityModel, null);
+    } as EntityModel, null,
+      "#111111",
+      (identifier) => identifier,
+    );
 
     expect(actual).toStrictEqual({
       dsIdentifier: "abcd",

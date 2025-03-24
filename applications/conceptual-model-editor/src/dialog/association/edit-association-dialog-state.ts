@@ -19,8 +19,8 @@ import {
   representUndefinedClass,
   sortRepresentatives,
 } from "../utilities/dialog-utilities";
-import { entityModelsMapToCmeSemanticModel } from "../../dataspecer/semantic-model/semantic-model-adapter";
-import { configuration, createLogger } from "../../application";
+import { semanticModelMapToCmeSemanticModel } from "../../dataspecer/cme-model/adapter";
+import { configuration, createLogger, t } from "../../application";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import {
   type SemanticModelRelationship,
@@ -43,8 +43,11 @@ export function createNewAssociationDialogState(
   defaultModelIdentifier: string | null,
 ): AssociationDialogState {
 
-  const allModels = entityModelsMapToCmeSemanticModel(
-    graphContext.models, visualModel);
+  const allModels = semanticModelMapToCmeSemanticModel(
+    graphContext.models, visualModel,
+    configuration().defaultModelColor,
+    identifier => t("model-service.model-label-from-id", identifier),
+  );
 
   const owlThing = representOwlThing();
 
@@ -117,8 +120,10 @@ export function createEditAssociationDialogState(
 
   //
 
-  const allModels = entityModelsMapToCmeSemanticModel(
-    graphContext.models, visualModel);
+  const allModels = semanticModelMapToCmeSemanticModel(
+    graphContext.models, visualModel,
+    configuration().defaultModelColor,
+    identifier => t("model-service.model-label-from-id", identifier));
 
   const owlThing = representOwlThing();
 

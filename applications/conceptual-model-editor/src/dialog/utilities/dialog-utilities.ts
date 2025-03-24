@@ -4,7 +4,7 @@ import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggr
 import { DataTypeURIs, isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
 import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
-import { createLogger } from "../../application";
+import { configuration, createLogger, t } from "../../application";
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { CmeSemanticModel, OwlVocabulary, UndefinedCmeVocabulary } from "../../dataspecer/cme-model";
 import { EntityDsIdentifier } from "../../dataspecer/entity-model";
@@ -12,7 +12,7 @@ import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
-import { entityModelsMapToCmeSemanticModel } from "../../dataspecer/semantic-model/semantic-model-adapter";
+import { semanticModelMapToCmeSemanticModel } from "../../dataspecer/cme-model/adapter";
 import { dataTypeUriToName } from "../../dataspecer/semantic-model/data-type";
 
 const LOG = createLogger(import.meta.url);
@@ -167,7 +167,10 @@ export function findVocabularyForModel(
   visualModel: VisualModel,
   model: string,
 ): CmeSemanticModel | null {
-  const vocabularies = entityModelsMapToCmeSemanticModel(graph.models, visualModel);
+  const vocabularies = semanticModelMapToCmeSemanticModel(
+    graph.models, visualModel,
+    configuration().defaultModelColor,
+    identifier => t("model-service.model-label-from-id", identifier));
   const vocabulary = vocabularies.find(item => item.dsIdentifier === model);
   return vocabulary ?? null;
 };

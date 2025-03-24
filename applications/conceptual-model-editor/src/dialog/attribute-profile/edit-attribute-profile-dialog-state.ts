@@ -19,8 +19,8 @@ import {
   representUndefinedDataType,
   sortRepresentatives,
 } from "../utilities/dialog-utilities";
-import { entityModelsMapToCmeSemanticModel } from "../../dataspecer/semantic-model/semantic-model-adapter";
-import { configuration, createLogger } from "../../application";
+import { semanticModelMapToCmeSemanticModel } from "../../dataspecer/cme-model/adapter";
+import { configuration, createLogger, t } from "../../application";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { getDomainAndRange } from "../../util/relationship-utils";
 import { BaseEntityProfileDialogState, createEditBaseEntityProfileDialogState, createNewBaseEntityProfileDialogState } from "../base-entity-profile/base-entity-profile-dialog-state";
@@ -48,8 +48,10 @@ export function createNewAttributeProfileDialogState(
   profilesIdentifiers: EntityDsIdentifier[],
 ): AttributeProfileDialogState {
 
-  const allModels = entityModelsMapToCmeSemanticModel(
-    graphContext.models, visualModel);
+  const allModels = semanticModelMapToCmeSemanticModel(
+    graphContext.models, visualModel,
+    configuration().defaultModelColor,
+    identifier => t("model-service.model-label-from-id", identifier));
 
   const noProfile = representUndefinedAttribute();
 
@@ -130,8 +132,10 @@ export function createEditAttributeProfileDialogState(
 
   //
 
-  const allModels = entityModelsMapToCmeSemanticModel(
-    graphContext.models, visualModel);
+  const allModels = semanticModelMapToCmeSemanticModel(
+    graphContext.models, visualModel,
+    configuration().defaultModelColor,
+    identifier => t("model-service.model-label-from-id", identifier));
 
   const noProfile = representUndefinedAssociation();
 
@@ -228,8 +232,11 @@ export function createAddAttributeProfileDialogState(
   language: string,
   domainIdentifier: EntityDsIdentifier,
 ): AttributeProfileDialogState {
-  const allModels = entityModelsMapToCmeSemanticModel(
-    graphContext.models, visualModel);
+
+  const allModels = semanticModelMapToCmeSemanticModel(
+    graphContext.models, visualModel,
+    configuration().defaultModelColor,
+    identifier => t("model-service.model-label-from-id", identifier));
 
   const noProfile = representUndefinedAttribute();
 

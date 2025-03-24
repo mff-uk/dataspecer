@@ -8,9 +8,9 @@ import {
 } from "../base-entity/base-entity-dialog-state";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { SemanticModelClass } from "@dataspecer/core-v2/semantic-model/concepts";
-import { entityModelsMapToCmeSemanticModel } from "../../dataspecer/semantic-model/semantic-model-adapter";
+import { semanticModelMapToCmeSemanticModel } from "../../dataspecer/cme-model/adapter";
 import { representClasses } from "../utilities/dialog-utilities";
-import { configuration } from "../../application";
+import { configuration, t } from "../../application";
 
 export type ClassDialogState = BaseEntityDialogState;
 
@@ -22,8 +22,10 @@ export function createNewClassDialogState(
   defaultModelIdentifier: string | null,
 ): ClassDialogState {
 
-  const allModels = entityModelsMapToCmeSemanticModel(
-    graphContext.models, visualModel);
+  const allModels = semanticModelMapToCmeSemanticModel(
+    graphContext.models, visualModel,
+    configuration().defaultModelColor,
+    identifier => t("model-service.model-label-from-id", identifier));
 
   const allSpecializations = representClasses(
     graphContext.models, allModels, classesContext.classes);
@@ -50,8 +52,10 @@ export function createEditClassDialogState(
   entity: SemanticModelClass,
 ): ClassDialogState {
 
-  const allModels = entityModelsMapToCmeSemanticModel(
-    graphContext.models, visualModel);
+  const allModels = semanticModelMapToCmeSemanticModel(
+    graphContext.models, visualModel,
+    configuration().defaultModelColor,
+    identifier => t("model-service.model-label-from-id", identifier));
 
   const allSpecializations = representClasses(
     graphContext.models, allModels, classesContext.classes);
