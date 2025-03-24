@@ -147,7 +147,7 @@ const noOperationCallbacks: DiagramCallbacks = {
   onDeleteSelection: noOperation,
   onRemoveAttributeFromNode: noOperation,
   onEditEntityItem: noOperation,
-  onEditAttributeProfile: noOperation,
+  onEditVisualNode: noOperation,
   onMoveAttributeUp: noOperation,
   onMoveAttributeDown: noOperation,
 };
