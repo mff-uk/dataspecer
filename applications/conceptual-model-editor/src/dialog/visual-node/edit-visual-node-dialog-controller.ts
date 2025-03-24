@@ -68,10 +68,10 @@ export function useEditVisualNodeController(
       }
       changeState(state => {
         const result = { ...state };
-        result.inactiveContent = [...state.activeContent];
+        result.inactiveContent = [...state.inactiveContent];
         swapArray(
-          result.activeContent, source,
-          result.activeContent, destination);
+          result.inactiveContent, source,
+          result.inactiveContent, destination);
         return result;
       })
     };
