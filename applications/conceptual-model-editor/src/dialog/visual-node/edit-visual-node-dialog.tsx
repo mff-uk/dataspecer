@@ -89,8 +89,8 @@ const DroppableArea = (props: {
 };
 
 const droppableAreaClassName = (snapshot: DroppableStateSnapshot) => {
-  return "p-2"
-    + (snapshot.isDraggingOver ? "bg-sky-200" : "");
+  return "p-2 h-full"
+    + (snapshot.isDraggingOver ? " bg-sky-200" : "");
 }
 
 const DroppableAreaItem = (props: {

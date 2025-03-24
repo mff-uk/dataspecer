@@ -35,7 +35,10 @@ export function useEditVisualNodeController(
 ): VisualNodeDialogStateController {
   return useMemo(() => {
 
-    const orderActive = (source: number, destination: number) =>
+    const orderActive = (source: number, destination: number) => {
+      if (source === destination) {
+        return;
+      }
       changeState(state => {
         const result = { ...state };
         result.activeContent = [...state.activeContent];
@@ -43,7 +46,8 @@ export function useEditVisualNodeController(
           result.activeContent, source,
           result.activeContent, destination);
         return result;
-      });
+      })
+    };
 
     const activate = (source: number, destination: number) =>
       changeState(state => {
@@ -58,7 +62,10 @@ export function useEditVisualNodeController(
         return result;
       });
 
-    const orderInactive = (source: number, destination: number) =>
+    const orderInactive = (source: number, destination: number) => {
+      if (source === destination) {
+        return;
+      }
       changeState(state => {
         const result = { ...state };
         result.inactiveContent = [...state.activeContent];
@@ -66,7 +73,8 @@ export function useEditVisualNodeController(
           result.activeContent, source,
           result.activeContent, destination);
         return result;
-      });
+      })
+    };
 
     const deactivate = (source: number, destination: number) =>
       changeState(state => {
