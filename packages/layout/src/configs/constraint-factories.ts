@@ -352,8 +352,9 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
                 .sort(([, edgesA], [, edgesB]) => edgesA - edgesB);
 
             let leastPopulatedSector = populatedSectorsAscending[0][0];
-            if((populatedSectorsAscending[0][0] === "UP" || populatedSectorsAscending[0][0] === "DOWN") &&
-                (populatedSectorsAscending[1][0] === "LEFT" || populatedSectorsAscending[1][0] === "RIGHT") &&
+            // It is better to choose vertical direction if the populations are the same
+            if((populatedSectorsAscending[1][0] === "UP" || populatedSectorsAscending[1][0] === "DOWN") &&
+                (populatedSectorsAscending[0][0] === "LEFT" || populatedSectorsAscending[0][0] === "RIGHT") &&
                 populatedSectorsAscending[0][1] === populatedSectorsAscending[1][1]) {
                 leastPopulatedSector = populatedSectorsAscending[1][0];
             }
