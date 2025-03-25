@@ -561,9 +561,6 @@ export class GraphAlgorithms {
       return resultEdges;
     }
 
-    // TODO RadStr: DEBUG
-    static todoDebug = 0;
-
     static mergeGraphComponents(
       graph: MainGraph,
       leafComponentsData: DataAboutLeafGraphComponents,
@@ -667,14 +664,15 @@ export class GraphAlgorithms {
         }
       }
 
-      // TODO: DEBUG - But it should be called, since we are merging, so this is the merging part
-      // if((GraphAlgorithms.todoDebug++ % 2) === 0) {
-        // for(const componentToMerge of componentsToBeMergedToParent) {
-        //   console.info("Shrinking clusters", componentToMerge);
-        //   const index = clusters.findIndex(([id, _edges]) => id === componentToMerge);
-        //   clusters.splice(index, 1);
-        // }
-      // }
+        for(const componentToMerge of [...new Set(componentsToBeMergedToParent)]) {
+          console.info("Shrinking clusters", componentToMerge);
+          const index = clusters.findIndex(([id, _edges]) => id === componentToMerge);
+          if(index === -1) {
+            console.error("Shrinking non-existing cluster");
+          }
+          clusters.splice(index, 1);
+        }
+
       for(const cluster of clusters) {
         cluster[1] = [...new Set(cluster[1])]
       }
