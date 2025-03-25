@@ -348,6 +348,13 @@ export class GraphAlgorithms {
         }
       });
 
+      const articulationPoints = GraphAlgorithms.findArticulationPoints(graph);
+      console.info("articulations", GraphAlgorithms.findArticulationPoints(graph));
+      for(const articulationPoint of articulationPoints) {
+        if(clusters[articulationPoint.id] === undefined) {
+          clusters[articulationPoint.id] = [];
+        }
+      }
 
       const sortedClusters = Object.entries(clusters)
         .sort(([, edgesA], [, edgesB]) => edgesB.length - edgesA.length);
@@ -356,7 +363,7 @@ export class GraphAlgorithms {
       const clusterRoots = Object.keys(clusters)
         .map(identifier => graph.findNodeInAllNodes(identifier))
         .filter(node => node !== null);
-      const components = GraphAlgorithms.findComponents(graph, clusterRoots);
+      const components = GraphAlgorithms.findComponents(graph, clusterRoots, articulationPoints);
       const clusterRootsToComponentsMap: Record<string, number[]> = {};
       for(const [node, componentsForNode] of Object.entries(components)) {
         if(clusterRoots.findIndex(clusterRoot => clusterRoot.id === node) >= 0) {
@@ -378,7 +385,7 @@ export class GraphAlgorithms {
       return result;
     }
 
-    static findComponents(graph: MainGraph, clusterRoots: EdgeEndPoint[]) {
+    static findComponents(graph: MainGraph, clusterRoots: EdgeEndPoint[], articulationPoints: EdgeEndPoint[]) {
       const components: Record<string, number[]> = {};
       let currentComponent = -1;
       for(const node of graph.allNodes) {
@@ -397,6 +404,9 @@ export class GraphAlgorithms {
         GraphAlgorithms.findRemainingNodesInComponent(components, currentComponent, clusterRoots, [node]);
       }
 
+      for(const articulationPoint of articulationPoints) {
+        components[articulationPoint.id] = [currentComponent++];
+      }
       return components;
     }
 
@@ -439,20 +449,6 @@ export class GraphAlgorithms {
       }
 
       return unexploredNodes;
-    }
-
-    static findTrees(
-      graph: MainGraph,
-      clusterRoot: EdgeEndPoint,
-      clusters: EdgeEndPoint[],
-      components: Record<string, number[]>
-    ) {
-      for(const node of graph.allNodes) {
-        if(node.id === clusterRoot.id) {
-          continue;
-        }
-
-      }
     }
 
     static findComponentsToExtendClustersWith(
@@ -579,6 +575,7 @@ export class GraphAlgorithms {
       }
 
       const componentsToBeMergedToParent: string[] = [];
+      const mergeParents: string[] = [];
       // The map of cluster to all its underlying clusters (that is those which reach exactly one cluster root)
       const chains: Record<string, string[]> = {};
       const alreadyProcessedComponents: Record<number, true> = {};
@@ -645,8 +642,11 @@ export class GraphAlgorithms {
           const [_cluster, edgesInCluster] = clusters.find(([id, edgesInCluster]) => id === node.id);
           if(componentContents[component] !== undefined) {
             const edges = GraphAlgorithms.findAllEdgesInComponent(graph, componentContents[component], 30);
+
             console.info("clusters", {edges, edgesConnectingPreviousClusterRootToThisComponent}, componentContents);
-            edgesInCluster.push(...Object.values(edges.edges));
+            if(edges !== null) {    // TODO: Articulation point test
+              edgesInCluster.push(...Object.values(edges.edges));
+            }
 
             const edgesGoingToComponentFromRoot = GraphAlgorithms.getEdgesGoingFromClusterRootToCandidates(
               node, componentContents[component]);
@@ -662,16 +662,21 @@ export class GraphAlgorithms {
         for(let i = 0; i < currentChain.length - 1; i++) {
           componentsToBeMergedToParent.push(currentChain[i][0].id);
         }
+        mergeParents.push(currentChain.at(-1)[0].id);
       }
 
-        for(const componentToMerge of [...new Set(componentsToBeMergedToParent)]) {
-          console.info("Shrinking clusters", componentToMerge);
-          const index = clusters.findIndex(([id, _edges]) => id === componentToMerge);
-          if(index === -1) {
-            console.error("Shrinking non-existing cluster");
-          }
-          clusters.splice(index, 1);
+      for(const componentToMerge of [...new Set(componentsToBeMergedToParent)]) {
+        console.info("Shrinking clusters", {componentToMerge, mergeParents});
+        if(mergeParents.includes(componentToMerge)) {
+          console.info("Trying to remove some merge parent");   // TODO: Remove the debug print ... just for now
+          continue;
         }
+        const index = clusters.findIndex(([id, _edges]) => id === componentToMerge);
+        if(index === -1) {
+          console.error("Shrinking non-existing cluster");
+        }
+        clusters.splice(index, 1);
+      }
 
       for(const cluster of clusters) {
         cluster[1] = [...new Set(cluster[1])]
@@ -1295,6 +1300,96 @@ export class GraphAlgorithms {
 
       return root;
   }
+
+  // Taken from https://www.geeksforgeeks.org/articulation-points-or-cut-vertices-in-a-graph/
+  // The code is pretty awful though
+  static findArticulationPoints(graph: MainGraph): EdgeEndPoint[] {
+    const vertices = graph.allNodes.length;
+    const result = [];
+    const disc: number[] = new Array(vertices).fill(0);
+    const low: number[] = new Array(vertices).fill(0);
+    // to keep track of visited vertices
+    let visited = new Array(vertices).fill(0);
+    // Marks articulation points
+    const ap: boolean[] = new Array(vertices).fill(false);
+    const adjList: Map<number, number[]> = new Map();
+    // to store time and parent node
+    let time = [0];
+    let par = -1;
+    for(let i = 0; i < vertices; i++) {
+      adjList[i] = [];
+    }
+    for(const edge of graph.allEdges) {
+      const start = graph.findNodeIndexInAllNodes(edge.start.id);
+      const end = graph.findNodeIndexInAllNodes(edge.end.id);
+      adjList[start].push(end);
+      adjList[end].push(start);
+    }
+
+    // Adding this loop so that the code works
+    // even if we are given disconnected graph
+    for (let u = 0; u < vertices; u++)
+      if (visited[u] === 0)
+        GraphAlgorithms.findPoints(adjList, u, visited, disc, low, time, par, ap);
+
+    // storing the articulation points
+    for (let u = 0; u < vertices; u++)
+        if (ap[u])
+            result.push(u);
+
+    const articulationPoints = result.map(index => graph.allNodes[index]);
+    console.info("articulations", adjList, articulationPoints);
+
+
+    if (articulationPoints.length === 0)
+        return articulationPoints;
+
+    return articulationPoints;
+  }
+
+  // helper function to perform dfs and find the articulation points
+  static findPoints(adj, u, visited, disc, low, time, parent, isAP) {
+
+    // Count of children in DFS Tree
+    let children = 0;
+
+    // Mark the current node as visited
+    visited[u] = 1;
+
+    // Initialize discovery time and low value
+    time[0]++;
+    disc[u] = time[0];
+    low[u] = time[0];
+
+    // Go through all vertices adjacent to this
+    for (let v of adj[u]) {
+
+        // If v is not visited yet, then make it a child of u
+        // in DFS tree and recur for it
+        if (visited[v] === 0) {
+            children++;
+            GraphAlgorithms.findPoints(adj, v, visited, disc, low, time, u, isAP);
+
+            // Check if the subtree rooted with v has
+            // a connection to one of the ancestors of u
+            low[u] = Math.min(low[u], low[v]);
+
+            // If u is not root and low value of one of
+            // its child is more than discovery value of u.
+            if (parent !== -1 && low[v] >= disc[u])
+                isAP[u] = 1;
+        }
+
+        // Update low value of u for parent function calls.
+        else if (v !== parent)
+            low[u] = Math.min(low[u], disc[v]);
+    }
+
+    // If u is root of DFS tree and has two or more children.
+    if (parent === -1 && children > 1)
+        isAP[u] = 1;
+  }
+
 
 
   static getSubgraphUsingBFS(graph: DefaultGraph, edgeType: "TODO" | "GENERALIZATION", depth: number): DefaultGraph {

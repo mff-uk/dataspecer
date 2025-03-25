@@ -213,6 +213,9 @@ export class DefaultEdge implements Edge {
     layoutOptions: Record<string, string> = {};
 
     convertToDataspecerRepresentation(): VisualRelationship | VisualProfileRelationship | null {
+        if(this.reverseInLayout) {
+            this.visualEdge.visualEdge.waypoints.reverse();
+        }
         return this.visualEdge.visualEdge;
     }
 

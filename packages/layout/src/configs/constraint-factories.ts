@@ -1,6 +1,7 @@
+import _ from "lodash";
 import { getBestLayoutFromMetricResultAggregation, performLayoutFromGraph } from "..";
 import { GraphAlgorithms, ToConsiderFilter } from "../graph-algoritms";
-import { EdgeEndPoint } from "../graph/representation/edge";
+import { DefaultEdge, Edge, EdgeEndPoint } from "../graph/representation/edge";
 import { MainGraph } from "../graph/representation/graph";
 import { GraphFactory } from "../graph/representation/graph-factory";
 import { LayoutMethod } from "../layout-algorithms/layout-algorithms-interfaces";
@@ -32,6 +33,7 @@ import {
     ElkStressConfiguration,
     ElkStressProfileLayoutConfiguration
 } from "./elk/elk-constraints";
+import { VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
 
 
 function getOverlapConfigurationToRunAfterMainAlgorithm(
@@ -305,8 +307,14 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
         graph: MainGraph
     ): Promise<MainGraph> => {
         console.info("algorithmConversionConstraint.data.clusterifyConstraint.data.clusters", algorithmConversionConstraint.data.clusterifyConstraint.data.clusters);
+        // TODO: Trying waypoins
+        const visualEdgesWithWaypoints: (VisualRelationship | VisualProfileRelationship)[] = [];
 
         for (const [cluster, edgesInCluster] of Object.entries(algorithmConversionConstraint.data.clusterifyConstraint.data.clusters)) {
+            // Articulation point
+            if(edgesInCluster.length === 0) {
+                continue;
+            }
             for (const node of graph.allNodes) {
                 const isInCluster = edgesInCluster
                     .find(edge => edge.start.id === node.id || edge.end.id === node.id) !== undefined;
@@ -328,10 +336,10 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
             for(const edgeInCluster of edgesInClusterCurrentVersion) {
                 edgeInCluster.isConsideredInLayout = true;
                 // TODO: Debug prints
-                if(edgeInCluster.semanticEntityRepresentingEdge.id === "http://spdx.org/rdf/terms#externalRef") {
+                if(edgeInCluster?.semanticEntityRepresentingEdge?.id === "http://spdx.org/rdf/terms#externalRef") {
                     console.info("cluster edge http://spdx.org/rdf/terms#externalRef", edgesInClusterCurrentVersion);
                 }
-                if(edgeInCluster.semanticEntityRepresentingEdge.id === "http://spdx.org/rdf/terms#referenceCategory") {
+                if(edgeInCluster?.semanticEntityRepresentingEdge?.id === "http://spdx.org/rdf/terms#referenceCategory") {
                     console.info("cluster edge http://spdx.org/rdf/terms#referenceCategory", edgesInClusterCurrentVersion);
                 }
             }
@@ -389,6 +397,11 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
                         waypoint.x -= positionShift.x;
                         waypoint.y -= positionShift.y;
                     }
+
+                    if(edge.reverseInLayout) {
+                        edge.visualEdge.visualEdge.waypoints.reverse();
+                    }
+                    visualEdgesWithWaypoints.push({...edge.visualEdge.visualEdge});
                 }
             }
         }
@@ -417,6 +430,13 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
         configuration.main.elk_stress.run_node_overlap_removal_after = true;
         (configuration.main.elk_stress as UserGivenAlgorithmConfigurationStress).stress_edge_len = algorithmConversionConstraint.data.edgeLength;
         graph = await getBestLayoutFromMetricResultAggregation(await performLayoutFromGraph(graph, configuration));
+
+        for(const edge of graph.allEdges) {
+            const edgeWithWaypoints = visualEdgesWithWaypoints.find(e => e.identifier === edge.id);
+            if(edgeWithWaypoints !== undefined) {
+                edge.visualEdge.visualEdge = edgeWithWaypoints;
+            }
+        }
 
         return Promise.resolve(graph);
     },
