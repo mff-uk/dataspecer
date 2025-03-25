@@ -661,6 +661,7 @@ export class GraphAlgorithms {
         const index = clusters.findIndex(([id, _edges]) => id === componentToMerge);
         if(index === -1) {
           console.error("Shrinking non-existing cluster");
+          continue;
         }
         clusters.splice(index, 1);
       }
