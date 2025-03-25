@@ -348,13 +348,6 @@ export class GraphAlgorithms {
         }
       });
 
-      const articulationPoints = GraphAlgorithms.findArticulationPoints(graph);
-      console.info("articulations", GraphAlgorithms.findArticulationPoints(graph));
-      for(const articulationPoint of articulationPoints) {
-        if(clusters[articulationPoint.id] === undefined) {
-          clusters[articulationPoint.id] = [];
-        }
-      }
 
       const sortedClusters = Object.entries(clusters)
         .sort(([, edgesA], [, edgesB]) => edgesB.length - edgesA.length);
@@ -363,7 +356,7 @@ export class GraphAlgorithms {
       const clusterRoots = Object.keys(clusters)
         .map(identifier => graph.findNodeInAllNodes(identifier))
         .filter(node => node !== null);
-      const components = GraphAlgorithms.findComponents(graph, clusterRoots, articulationPoints);
+      const components = GraphAlgorithms.findComponents(graph, clusterRoots);
       const clusterRootsToComponentsMap: Record<string, number[]> = {};
       for(const [node, componentsForNode] of Object.entries(components)) {
         if(clusterRoots.findIndex(clusterRoot => clusterRoot.id === node) >= 0) {
@@ -385,7 +378,7 @@ export class GraphAlgorithms {
       return result;
     }
 
-    static findComponents(graph: MainGraph, clusterRoots: EdgeEndPoint[], articulationPoints: EdgeEndPoint[]) {
+    static findComponents(graph: MainGraph, clusterRoots: EdgeEndPoint[]) {
       const components: Record<string, number[]> = {};
       let currentComponent = -1;
       for(const node of graph.allNodes) {
@@ -404,9 +397,6 @@ export class GraphAlgorithms {
         GraphAlgorithms.findRemainingNodesInComponent(components, currentComponent, clusterRoots, [node]);
       }
 
-      for(const articulationPoint of articulationPoints) {
-        components[articulationPoint.id] = [currentComponent++];
-      }
       return components;
     }
 
@@ -642,11 +632,8 @@ export class GraphAlgorithms {
           const [_cluster, edgesInCluster] = clusters.find(([id, edgesInCluster]) => id === node.id);
           if(componentContents[component] !== undefined) {
             const edges = GraphAlgorithms.findAllEdgesInComponent(graph, componentContents[component], 30);
-
             console.info("clusters", {edges, edgesConnectingPreviousClusterRootToThisComponent}, componentContents);
-            if(edges !== null) {    // TODO: Articulation point test
-              edgesInCluster.push(...Object.values(edges.edges));
-            }
+            edgesInCluster.push(...Object.values(edges.edges));
 
             const edgesGoingToComponentFromRoot = GraphAlgorithms.getEdgesGoingFromClusterRootToCandidates(
               node, componentContents[component]);
