@@ -1,9 +1,9 @@
 import { SemanticModelRelationshipProfile } from "../profile/concepts";
-import { Cardinality, ConceptualModel, DatatypePropertyProfile, ObjectPropertyProfile } from "./dsv-model";
+import { Cardinality, DsvModel, DatatypePropertyProfile, ObjectPropertyProfile } from "./dsv-model";
 import { conceptualModelToEntityListContainer } from "./dsv-to-entity-model";
 import { conceptualModelToRdf } from "./dsv-to-rdf";
 import { EntityListContainer } from "./entity-model";
-import { createContext, entityListContainerToConceptualModel } from "./entity-model-to-dsv";
+import { createContext, entityListContainerToDsvModel } from "./entity-model-to-dsv";
 import { rdfToConceptualModel } from "./rdf-to-dsv";
 
 test("End to end test I.", async () => {
@@ -186,10 +186,10 @@ test("End to end test I.", async () => {
 
   const context = createContext([container]);
 
-  const conceptualModel = entityListContainerToConceptualModel(
+  const dsvModel = entityListContainerToDsvModel(
     "http://dcat/model/", container, context);
 
-  const expectedConceptualModel: ConceptualModel = {
+  const expectedConceptualModel: DsvModel = {
     "iri": "http://dcat/model/",
     "profiles": [{
       "iri": "http://dcat/model/sweetState1",
@@ -208,13 +208,14 @@ test("End to end test I.", async () => {
         "profiledPropertyIri": ["http://dcat/model/drabMoment"],
         "reusesPropertyValue": [{
           "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
-          "propertyreusedFromResourceIri": "http://dcat/model/drabMoment"
+          "propertyReusedFromResourceIri": "http://dcat/model/drabMoment"
         }, {
           "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
-          "propertyreusedFromResourceIri": "http://dcat/model/drabMoment"
+          "propertyReusedFromResourceIri": "http://dcat/model/drabMoment"
         }],
         "$type": ["object-property-profile"],
-        "rangeClassIri": ["http://dcat/model/flatBack1"]
+        "rangeClassIri": ["http://dcat/model/flatBack1"],
+        "specializationOfIri": [],
       } as ObjectPropertyProfile, {
         "iri": "http://dcat/model/SweetState.tightArtChanges",
         "cardinality": Cardinality.ZeroToMany,
@@ -225,22 +226,24 @@ test("End to end test I.", async () => {
         "profiledPropertyIri": ["http://dcat/model/tightArt"],
         "reusesPropertyValue": [{
           "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
-          "propertyreusedFromResourceIri": "http://dcat/model/tightArt"
+          "propertyReusedFromResourceIri": "http://dcat/model/tightArt"
         }, {
           "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
-          "propertyreusedFromResourceIri": "http://dcat/model/tightArt"
+          "propertyReusedFromResourceIri": "http://dcat/model/tightArt"
         }],
         "$type": ["datatype-property-profile"],
-        "rangeDataTypeIri": ["http://www.w3.org/2000/01/rdf-schema#Literal"]
+        "rangeDataTypeIri": ["http://www.w3.org/2000/01/rdf-schema#Literal"],
+        "specializationOfIri": [],
       } as DatatypePropertyProfile],
       "reusesPropertyValue": [{
         "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
-        "propertyreusedFromResourceIri": "http://localhost/sweetState"
+        "propertyReusedFromResourceIri": "http://localhost/sweetState"
       }, {
         "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#definition",
-        "propertyreusedFromResourceIri": "http://localhost/sweetState"
+        "propertyReusedFromResourceIri": "http://localhost/sweetState"
       }],
-      "profiledClassIri": ["http://localhost/sweetState"]
+      "profiledClassIri": ["http://localhost/sweetState"],
+      "specializationOfIri": [],
     }, {
       "iri": "http://dcat/model/flatBack1",
       "prefLabel": { "en": "Flat Back Changed in Profile" },
@@ -250,16 +253,17 @@ test("End to end test I.", async () => {
       "$type": ["class-profile"],
       "properties": [],
       "reusesPropertyValue": [],
-      "profiledClassIri": ["http://dcat/model/flatBack"]
+      "profiledClassIri": ["http://dcat/model/flatBack"],
+      "specializationOfIri": [],
     }],
   };
 
-  expect(conceptualModel).toStrictEqual(expectedConceptualModel);
+  expect(dsvModel).toStrictEqual(expectedConceptualModel);
 
   // We go to RDF and back.
-  const actualRdf = await conceptualModelToRdf(conceptualModel, {});
+  const actualRdf = await conceptualModelToRdf(dsvModel, {});
   const parsedConceptualModel = (await rdfToConceptualModel(actualRdf))[0]!;
-  expect(parsedConceptualModel).toStrictEqual(conceptualModel);
+  expect(parsedConceptualModel).toStrictEqual(dsvModel);
 
   const iriToIdentifier: Record<string, string> = {
     "http://dcat/model/sweetState1": "hwey2q71bvjm7d1jrlq",
@@ -275,8 +279,10 @@ test("End to end test I.", async () => {
     "http://www.w3.org/2000/01/rdf-schema#Literal": "http://www.w3.org/2000/01/rdf-schema#Literal",
   };
 
+  let counter = 0;
   const parsedContainer = conceptualModelToEntityListContainer(
     parsedConceptualModel, {
+    generalizationIdentifier: () => `id-${++counter}`,
     iriToIdentifier: iri => iriToIdentifier[iri] ?? `MISSING ${iri}`,
     iriUpdate: iri => iri.replace("http://dcat/model/", ""),
   });
@@ -336,7 +342,7 @@ test("End to end test I.", async () => {
         "profiling": [],
         "concept": "hwey2q71bvjm7d1jrlq"
       }, {
-        "name": { },
+        "name": {},
         "nameFromProfiled": "rz94ir172eqm7d1j8i2",
         "description": {},
         "descriptionFromProfiled": "rz94ir172eqm7d1j8i2",
@@ -364,5 +370,232 @@ test("End to end test I.", async () => {
   } as EntityListContainer;
 
   expect(parsedContainer).toStrictEqual(expectedContainer);
+
+});
+
+test("Issue #1005", async () => {
+
+  const container = {
+    "baseIri": "http://dcat/model/",
+    "entities": [{
+      "id": "jv7zjcl0xnfm8lqej9v",
+      "iri": "bulkyForce",
+      "type": ["class"],
+      "name": { "en": "Bulky Force" },
+      "description": {},
+    }, {
+      "id": "dme1xc0ubemm8lqekg1",
+      "iri": "juicyBusiness",
+      "type": ["class"],
+      "name": { "en": "Juicy Business" },
+      "description": {},
+    }, { // 2
+      "id": "v5d9yd13by9m8mvndtv",
+      "type": ["class-profile"],
+      "description": {},
+      "descriptionFromProfiled": "dme1xc0ubemm8lqekg1",
+      "name": { "en": "Juicy Business" },
+      "nameFromProfiled": null,
+      "iri": "juicyBusinessProfile",
+      "usageNote": {},
+      "usageNoteFromProfiled": null,
+      "profiling": ["dme1xc0ubemm8lqekg1"],
+    }, { // 3
+      "id": "8ut1fqfcd2dm8mvnh2y",
+      "type": ["class-profile"],
+      "description": {},
+      "descriptionFromProfiled": "jv7zjcl0xnfm8lqej9v",
+      "name": { "en": "Bulky Force" },
+      "nameFromProfiled": null,
+      "iri": "bulkyForceProfile",
+      "usageNote": {},
+      "usageNoteFromProfiled": null,
+      "profiling": ["jv7zjcl0xnfm8lqej9v"],
+    }, {
+      "id": "flybrmenrykm8mwsi0o",
+      "type": ["relationship"],
+      "iri": null,
+      "name": {},
+      "description": {},
+      "ends": [{
+        "name": {},
+        "description": {},
+        "concept": "jv7zjcl0xnfm8lqej9v",
+        "iri": null
+      }, {
+        "name": { "en": "Juicy Work" },
+        "description": {},
+        "concept": "dme1xc0ubemm8lqekg1",
+        "iri": "juicyWork",
+      }],
+    }, { // 5
+      "ends": [{
+        "name": {},
+        "nameFromProfiled": null,
+        "description": {},
+        "descriptionFromProfiled": null,
+        "iri": null,
+        "cardinality": null,
+        "usageNote": {},
+        "usageNoteFromProfiled": null,
+        "profiling": [],
+        "concept": "8ut1fqfcd2dm8mvnh2y"
+      }, {
+        "name": { "en": "Juicy Work" },
+        "nameFromProfiled": null,
+        "description": {},
+        "descriptionFromProfiled": null,
+        "iri": "BulkyForce.juicyWork",
+        "cardinality": null,
+        "usageNote": {},
+        "usageNoteFromProfiled": null,
+        "profiling": ["flybrmenrykm8mwsi0o"],
+        "concept": "v5d9yd13by9m8mvndtv",
+      }],
+      "id": "vaz6nlwa9am8mwszz2",
+      "type": ["relationship-profile"],
+    }, { // 6
+      "id": "yjtb7fast5lm8mwtnpa",
+      "iri": null,
+      "child": "8ut1fqfcd2dm8mvnh2y",
+      "parent": "v5d9yd13by9m8mvndtv",
+      "type": ["generalization"],
+    }, { // 7
+      "id": "bv12356pl4im8mwu7ty",
+      "type": ["relationship-profile"],
+      "ends": [{
+        "name": {},
+        "nameFromProfiled": null,
+        "description": {},
+        "descriptionFromProfiled": null,
+        "iri": null,
+        "cardinality": null,
+        "usageNote": {},
+        "usageNoteFromProfiled": null,
+        "profiling": [],
+        "concept": "8ut1fqfcd2dm8mvnh2y",
+      }, {
+        "name": { "en": "Juicy Work" },
+        "nameFromProfiled": null,
+        "description": {},
+        "descriptionFromProfiled": null,
+        "iri": "JuicyBusiness.juicyWorkSpecial",
+        "cardinality": null,
+        "usageNote": {},
+        "usageNoteFromProfiled": null,
+        "profiling": ["flybrmenrykm8mwsi0o"],
+        "concept": "v5d9yd13by9m8mvndtv",
+      }],
+    }, { // 8
+      "id": "yjtb5fasdt5lm9mwtbcb",
+      "iri": null,
+      "child": "bv12356pl4im8mwu7ty",
+      "parent": "vaz6nlwa9am8mwszz2",
+      "type": ["generalization"],
+    }],
+  };
+
+  const context = createContext([container]);
+
+  const dsvModel = entityListContainerToDsvModel(
+    "http://dcat/model/", container, context);
+
+  // We go to RDF and back.
+  const actualRdf = await conceptualModelToRdf(dsvModel, {});
+
+  const expectedRdf = `@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix dct: <http://purl.org/dc/terms/>.
+@prefix dsv: <https://w3id.org/dsv#>.
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix skos: <http://www.w3.org/2004/02/skos/core#>.
+
+
+<http://dcat/model/> a dsv:ConceptualModel.
+
+<http://dcat/model/juicyBusinessProfile> dct:isPartOf <http://dcat/model/>;
+    a dsv:Profile;
+    skos:prefLabel "Juicy Business"@en;
+    dsv:reusesPropertyValue [
+  a dsv:PropertyValueReuse;
+  dsv:reusedProperty skos:definition;
+  dsv:reusedFromResource <http://dcat/model/juicyBusiness>
+];
+    a dsv:ClassProfile;
+    dsv:class <http://dcat/model/juicyBusiness>.
+
+<http://dcat/model/bulkyForceProfile> dct:isPartOf <http://dcat/model/>;
+    a dsv:Profile;
+    skos:prefLabel "Bulky Force"@en;
+    dsv:specializes <http://dcat/model/juicyBusinessProfile>;
+    dsv:reusesPropertyValue [
+  a dsv:PropertyValueReuse;
+  dsv:reusedProperty skos:definition;
+  dsv:reusedFromResource <http://dcat/model/bulkyForce>
+];
+    a dsv:ClassProfile;
+    dsv:class <http://dcat/model/bulkyForce>.
+
+<http://dcat/model/BulkyForce.juicyWork> dsv:domain <http://dcat/model/bulkyForceProfile>;
+    dct:isPartOf <http://dcat/model/>;
+    a dsv:Profile;
+    skos:prefLabel "Juicy Work"@en;
+    dsv:property <http://dcat/model/juicyWork>;
+    a dsv:ObjectPropertyProfile;
+    dsv:objectPropertyRange <http://dcat/model/juicyBusinessProfile>.
+
+<http://dcat/model/JuicyBusiness.juicyWorkSpecial> dsv:domain <http://dcat/model/bulkyForceProfile>;
+    dct:isPartOf <http://dcat/model/>;
+    a dsv:Profile;
+    skos:prefLabel "Juicy Work"@en;
+    dsv:specializes <http://dcat/model/BulkyForce.juicyWork>;
+    dsv:property <http://dcat/model/juicyWork>;
+    a dsv:ObjectPropertyProfile;
+    dsv:objectPropertyRange <http://dcat/model/juicyBusinessProfile>.
+`;
+
+  expect(actualRdf).toStrictEqual(expectedRdf);
+
+  const parsedConceptualModel = (await rdfToConceptualModel(actualRdf))[0]!;
+
+  const iriToIdentifier: Record<string, string> = {
+    "http://dcat/model/bulkyForce": "jv7zjcl0xnfm8lqej9v",
+    "http://dcat/model/juicyBusiness": "dme1xc0ubemm8lqekg1",
+    "http://dcat/model/juicyBusinessProfile": "v5d9yd13by9m8mvndtv",
+    "http://dcat/model/bulkyForceProfile": "8ut1fqfcd2dm8mvnh2y",
+    "http://dcat/model/juicyWork": "flybrmenrykm8mwsi0o",
+    "http://dcat/model/BulkyForce.juicyWork": "vaz6nlwa9am8mwszz2",
+    "http://dcat/model/JuicyBusiness.juicyWorkSpecial": "bv12356pl4im8mwu7ty",
+  };
+
+  let counter = 0;
+  const parsedContainer = conceptualModelToEntityListContainer(
+    parsedConceptualModel, {
+    generalizationIdentifier: () => `id-${++counter}`,
+    iriToIdentifier: iri => iriToIdentifier[iri] ?? `MISSING ${iri}`,
+    iriUpdate: iri => iri.replace("http://dcat/model/", ""),
+  });
+
+  // We can not use the original one as there are only profiles.
+  expect(parsedContainer).toStrictEqual({
+    baseIri: "",
+    entities: [{
+      ...container.entities[2],
+      description: {},
+    }, {
+      ...container.entities[3],
+      description: {},
+    },
+    {
+      ...container.entities[6],
+      id: "id-1"
+    },
+    container.entities[5],
+    container.entities[7],
+    {
+      ...container.entities[8],
+      id: "id-2"
+    }]
+  });
 
 });

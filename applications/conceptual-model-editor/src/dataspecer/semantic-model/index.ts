@@ -1,14 +1,20 @@
-import { Entity } from "@dataspecer/core-v2";
+import { Entity, EntityModel } from "@dataspecer/core-v2";
 import { SemanticModelAggregator } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isRepresentingAttribute } from "../../dialog/utilities/dialog-utilities";
 import { EntityDsIdentifier } from "../entity-model";
+export { dataTypeUriToName } from "./data-type";
 
 // This is to compile with TypeScript as we can not use
 // the type directly for aggregator.
 const _SemanticModelAggregatorInstance = new SemanticModelAggregator();
 
 export type SemanticModelAggregatorType = typeof _SemanticModelAggregatorInstance;
+
+/**
+ * Alias for entity model to express the current use.
+ */
+export type SemanticModel = EntityModel;
 
 export function isSemanticModelAttributeProfile(
   resource: Entity | null,

@@ -4,7 +4,6 @@ import {
   type SemanticModelClass,
   type SemanticModelGeneralization,
   type SemanticModelRelationship,
-  isSemanticModelAttribute,
   isSemanticModelClass,
   isSemanticModelGeneralization,
   isSemanticModelRelationship,
@@ -12,7 +11,6 @@ import {
 import {
   type SemanticModelClassUsage,
   type SemanticModelRelationshipUsage,
-  isSemanticModelAttributeUsage,
   isSemanticModelClassUsage,
   isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
@@ -37,7 +35,7 @@ import { type UseModelGraphContextType, useModelGraphContext } from "./context/m
 import { type UseClassesContextType, useClassesContext } from "./context/classes-context";
 import { cardinalityToHumanLabel, getDomainAndRange } from "./util/relationship-utils";
 import { useActions } from "./action/actions-react-binding";
-import { Diagram, type Edge, EdgeType, Group, type EntityItem, type Node, NodeType } from "./diagram/";
+import { Diagram, type Edge, EdgeType, Group, type NodeItem, type Node, NodeType } from "./diagram/";
 import { type UseDiagramType } from "./diagram/diagram-hook";
 import { configuration, createLogger } from "./application";
 import { getDescriptionLanguageString, getUsageNoteLanguageString } from "./util/name-utils";
@@ -50,8 +48,9 @@ import { getGroupMappings } from "./action/utilities";
 import { synchronizeOnAggregatorChange, updateVisualAttributesBasedOnSemanticChanges } from "./dataspecer/visual-model/aggregator-to-visual-model-adapter";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { EntityDsIdentifier } from "./dataspecer/entity-model";
-import { isSemanticModelAttributeProfile } from "./dataspecer/semantic-model";
 import { createAttributeProfileLabel, getEntityLabelToShowInDiagram } from "./util/utils";
+
+import "./visualization.css";
 
 const LOG = createLogger(import.meta.url);
 
@@ -209,9 +208,9 @@ function onChangeVisualModel(
 
   const models = graphContext.models;
   const entities = aggregatorView.getEntities();
-  const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
-  const attributeUsages = classesContext.usages.filter(isSemanticModelAttributeUsage);
-  const attributeProfiles = classesContext.relationshipProfiles.filter(isSemanticModelAttributeProfile);
+  const relationships = classesContext.relationships;
+  const relationshipsUsages = classesContext.usages.filter(isSemanticModelRelationshipUsage);
+  const relationshipsProfiles = classesContext.relationshipProfiles;
 
   const profilingSources = [
     ...classesContext.classes,
@@ -244,7 +243,7 @@ function onChangeVisualModel(
 
         const node = createDiagramNode(
           options, visualModel,
-          attributes, attributeUsages, attributeProfiles, profilingSources,
+          relationships, relationshipsUsages, relationshipsProfiles, profilingSources,
           visualEntity, entity, model, nodeToGroupMapping[visualEntity.identifier] ?? null);
         nextNodes.push(node);
       }
@@ -290,18 +289,17 @@ function onChangeVisualModel(
       // We can have multiple candidates, but we can add only the one represented
       // by the VisualProfileRelationship.
       for (const item of profiled) {
-        const profileOf = visualModel.getVisualEntityForRepresented(item);
-        if (profileOf === null) {
-          continue;
-        }
-        if (visualEntity.visualSource !== profileOf.identifier &&
-          visualEntity.visualTarget !== profileOf.identifier) {
-          // The VisualProfileRelationship represents different profile relationship.
-          continue;
-        }
-        const edge = createDiagramEdgeForClassUsageOrProfile(visualModel, visualEntity, entity);
-        if (edge !== null) {
-          nextEdges.push(edge);
+        const profilesOf = visualModel.getVisualEntitiesForRepresented(item);
+        for(const profileOf of profilesOf) {
+          if (visualEntity.visualSource !== profileOf.identifier &&
+            visualEntity.visualTarget !== profileOf.identifier) {
+            // The VisualProfileRelationship represents different profile relationship.
+            continue;
+          }
+          const edge = createDiagramEdgeForClassUsageOrProfile(visualModel, visualEntity, entity);
+          if (edge !== null) {
+            nextEdges.push(edge);
+          }
         }
       }
     }
@@ -328,9 +326,9 @@ function createGroupNode(
 function createDiagramNode(
   options: Options,
   visualModel: VisualModel,
-  attributes: SemanticModelRelationship[],
-  attributesUsages: SemanticModelRelationshipUsage[],
-  attributesProfiles: SemanticModelRelationshipProfile[],
+  relationships: SemanticModelRelationship[],
+  relationshipsUsages: SemanticModelRelationshipUsage[],
+  relationshipsProfiles: SemanticModelRelationshipProfile[],
   profilingSources: (
     | SemanticModelClass | SemanticModelRelationship
     | SemanticModelClassUsage | SemanticModelRelationshipUsage
@@ -345,10 +343,10 @@ function createDiagramNode(
   // Here we are missing proper implementation of content.
   // See https://github.com/mff-uk/dataspecer/issues/928
 
-  const itemCandidates: Record<string, EntityItem> = {};
+  const itemCandidates: Record<string, NodeItem> = {};
 
-  for(const attribute of attributes) {
-    if(isSemanticModelAttribute(attribute) && visualNode.content.includes(attribute.id)) {
+  for(const attribute of relationships) {
+    if(visualNode.content.includes(attribute.id)) {
       itemCandidates[attribute.id] = {
         identifier: attribute.id,
         label: getEntityLabelToShowInDiagram(language, attribute),
@@ -357,7 +355,7 @@ function createDiagramNode(
     }
   }
 
-  for(const attributeUsage of attributesUsages) {
+  for(const attributeUsage of relationshipsUsages) {
     if(!visualNode.content.includes(attributeUsage.id)) {
       continue;
     }
@@ -374,7 +372,7 @@ function createDiagramNode(
     }
   }
 
-  for (const attributeProfile of attributesProfiles) {
+  for (const attributeProfile of relationshipsProfiles) {
     if(!visualNode.content.includes(attributeProfile.id)) {
       continue;
     }
@@ -395,7 +393,7 @@ function createDiagramNode(
   // Be aware that the update of the semantic attributes comes later,
   // so there is moment when the content of visual node is set,
   // but the corresponding attributes semantic model in are not.
-  const items: EntityItem[] = visualNode.content.map(id => itemCandidates[id]).filter(item => item !== undefined);
+  const items: NodeItem[] = visualNode.content.map(id => itemCandidates[id]).filter(item => item !== undefined);
 
   const isProfile = isSemanticModelClassUsage(entity)
     || isSemanticModelClassProfile(entity);
@@ -620,9 +618,9 @@ function onChangeVisualEntities(
 
   const models = graphContext.models;
   const entities = aggregatorView.getEntities();
-  const attributes = classesContext.relationships.filter(isSemanticModelAttribute);
-  const attributeUsages = classesContext.usages.filter(isSemanticModelAttributeUsage);
-  const attributeProfiles = classesContext.relationshipProfiles.filter(isSemanticModelAttributeProfile);
+  const relationships = classesContext.relationships;
+  const relationshipsUsages = classesContext.usages.filter(isSemanticModelRelationshipUsage);;
+  const relationshipsProfiles = classesContext.relationshipProfiles;
 
   const profilingSources = [
     ...classesContext.classes,
@@ -690,7 +688,7 @@ function onChangeVisualEntities(
 
         const node = createDiagramNode(
           options, visualModel,
-          attributes, attributeUsages, attributeProfiles, profilingSources,
+          relationships, relationshipsUsages, relationshipsProfiles, profilingSources,
           next, entity, model, group);
 
         if (previous === null) {
@@ -749,29 +747,36 @@ function onChangeVisualEntities(
         }
         // We can have multiple candidates, but we can add only the one represented
         // by the VisualProfileRelationship.
+        const edgesToAdd = [];
+        const edgesToUpdate = [];
         for (const item of profiled) {
-          const profileOf = visualModel.getVisualEntityForRepresented(item);
-          if (profileOf === null) {
-            continue;
+          const profilesOf = visualModel.getVisualEntitiesForRepresented(item);
+          for(const profileOf of profilesOf) {
+            if (next.visualSource !== profileOf.identifier &&
+              next.visualTarget !== profileOf.identifier) {
+              // The VisualProfileRelationship represents different profile relationship.
+              continue;
+            }
+            //
+            const edge = createDiagramEdgeForClassUsageOrProfile(visualModel, next, entity);
+            if (edge === null) {
+              console.error("Ignored null edge.", {visualEntity: next, entity});
+              break;
+            }
+            if (previous === null) {
+              edgesToAdd.push(edge);
+            } else {
+              edgesToUpdate.push(edge);
+            }
           }
-          if (next.visualSource !== profileOf.identifier &&
-            next.visualTarget !== profileOf.identifier) {
-            // The VisualProfileRelationship represents different profile relationship.
-            continue;
-          }
-          //
-          const edge = createDiagramEdgeForClassUsageOrProfile(visualModel, next, entity);
-          if (edge === null) {
-            console.error("Ignored null edge.", { visualEntity: next, entity });
-            continue;
-          }
-          if (previous === null) {
-            // Create new entity.
-            actions.addEdges([edge]);
-          } else {
-            // Change of existing.
-            actions.updateEdges([edge]);
-          }
+        }
+        if(edgesToAdd.length > 0) {
+          // Create new entities.
+          actions.addEdges(edgesToAdd);
+        }
+        if(edgesToUpdate.length > 0) {
+          // Change of existing.
+          actions.updateEdges(edgesToUpdate);
         }
       } else {
         // We ignore other properties.

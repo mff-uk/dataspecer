@@ -3,13 +3,14 @@ import { Entity } from "../../entity-model";
 import { EntityListContainer } from "./entity-model";
 
 import {
-  ConceptualModel,
+  DsvModel,
   Cardinality,
   ClassProfile,
   PropertyProfile,
   isObjectPropertyProfile,
   isDatatypePropertyProfile,
   PropertyValueReuse,
+  Profile,
 } from "./dsv-model";
 
 import {
@@ -20,6 +21,7 @@ import {
   SemanticModelRelationshipProfile,
 } from "../profile/concepts";
 import { SKOS, VANN } from "./vocabulary";
+import { SEMANTIC_MODEL_GENERALIZATION, SemanticModelGeneralization } from "../concepts";
 
 interface MandatoryConceptualModelToEntityListContainerContext {
 
@@ -55,6 +57,11 @@ interface OptionalConceptualModelToEntityListContainerContext {
    */
   iriUpdate: (iri: string) => string;
 
+  /**
+   * Called to get a new identifier for generalization.
+   */
+  generalizationIdentifier: (childIri: string, parentIri: string) => string;
+
 }
 
 interface ConceptualModelToEntityListContainerContext extends
@@ -62,10 +69,11 @@ interface ConceptualModelToEntityListContainerContext extends
   OptionalConceptualModelToEntityListContainerContext { };
 
 export function conceptualModelToEntityListContainer(
-  conceptualModel: ConceptualModel,
+  conceptualModel: DsvModel,
   context: MandatoryConceptualModelToEntityListContainerContext &
     Partial<OptionalConceptualModelToEntityListContainerContext>,
 ): EntityListContainer {
+  //
   const fullContext = {
     // By default we do not transform data type.
     iriClassToIdentifier: (iri: string) => context.iriToIdentifier(iri),
@@ -73,6 +81,8 @@ export function conceptualModelToEntityListContainer(
     // We do this for backward compatibility.
     iriPropertyToIdentifier: (iri: string, _: string) => context.iriToIdentifier(iri),
     iriUpdate: (iri: string) => iri,
+    generalizationIdentifier: (childIri: string, parentIri: string) =>
+      `https://dataspecer.com/semantic-models/generalization?fromIri=${childIri}&toIri=${parentIri}`,
     ...context,
   };
   return (new ConceptualModelToEntityModel(fullContext)
@@ -89,7 +99,7 @@ class ConceptualModelToEntityModel {
     this.context = context;
   }
 
-  transform(conceptualModel: ConceptualModel): EntityListContainer {
+  transform(conceptualModel: DsvModel): EntityListContainer {
     for (const classProfile of conceptualModel.profiles) {
       this.classProfileToEntities(classProfile);
     }
@@ -123,6 +133,8 @@ class ConceptualModelToEntityModel {
       descriptionFromProfiled: this.selectFromProfiled(profile, SKOS.definition.id),
     };
     this.entities.push(classProfile);
+    // Convert generalizations.
+    this.specializationOfToGeneralization(classProfile.id, profile);
     // Convert relationships.
     for (const propertyProfile of profile.properties) {
       this.propertyProfileToEntities(propertyProfile, classProfile);
@@ -142,8 +154,24 @@ class ConceptualModelToEntityModel {
   }, property: string): string | null {
     const reusesPropertyValue = profile.reusesPropertyValue.find(
       item => item.reusedPropertyIri === property);
-    const iri = reusesPropertyValue?.propertyreusedFromResourceIri ?? null;
+    const iri = reusesPropertyValue?.propertyReusedFromResourceIri ?? null;
     return iri === null ? null : this.context.iriToIdentifier(iri);
+  }
+
+  private specializationOfToGeneralization(
+    childIdentifier: string, profile: Profile,
+  ): void {
+    for (const iri of profile.specializationOfIri) {
+      const parentIdentifier = this.context.iriToIdentifier(iri);
+      const generalization: SemanticModelGeneralization = {
+        id: this.context.generalizationIdentifier(profile.iri, iri),
+        type: [SEMANTIC_MODEL_GENERALIZATION],
+        iri: null,
+        child: childIdentifier,
+        parent: parentIdentifier,
+      };
+      this.entities.push(generalization)
+    }
   }
 
   private propertyProfileToEntities(
@@ -215,6 +243,9 @@ class ConceptualModelToEntityModel {
     };
 
     this.entities.push(propertyUsage);
+
+    // Convert generalizations.
+    this.specializationOfToGeneralization(propertyUsage.id, profile);
   }
 
   private propertyToIdentifier(items: string[], rangeConcept: string): string[] {
@@ -226,7 +257,7 @@ class ConceptualModelToEntityModel {
   }, property: string, rangeConcept: string): string | null {
     const reusesPropertyValue = profile.reusesPropertyValue.find(
       item => item.reusedPropertyIri === property);
-    const iri = reusesPropertyValue?.propertyreusedFromResourceIri ?? null;
+    const iri = reusesPropertyValue?.propertyReusedFromResourceIri ?? null;
     return iri === null ? null : this.context.iriPropertyToIdentifier(iri, rangeConcept);
   }
 

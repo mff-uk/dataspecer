@@ -3,7 +3,7 @@ import { DataFactory } from "n3";
 
 import {
   LanguageString,
-  ConceptualModel,
+  DsvModel,
   Profile,
   ClassProfile,
   PropertyProfile,
@@ -20,6 +20,8 @@ const IRI = DataFactory.namedNode;
 
 const Literal = DataFactory.literal;
 
+const Quad = DataFactory.quad;
+
 interface ConceptualModelToRdfConfiguration {
 
   /**
@@ -35,7 +37,7 @@ interface ConceptualModelToRdfConfiguration {
 }
 
 export async function conceptualModelToRdf(
-  model: ConceptualModel, configuration: ConceptualModelToRdfConfiguration,
+  model: DsvModel, configuration: ConceptualModelToRdfConfiguration,
 ): Promise<string> {
   const effectiveConfiguration = {
     ...createDefaultConfiguration(),
@@ -76,9 +78,9 @@ class ConceptualModelWriter {
 
   private writer: N3.Writer;
 
-  private model: ConceptualModel;
+  private model: DsvModel;
 
-  constructor(writer: N3.Writer, model: ConceptualModel) {
+  constructor(writer: N3.Writer, model: DsvModel) {
     this.writer = writer;
     this.model = model;
   }
@@ -118,18 +120,25 @@ class ConceptualModelWriter {
     this.addLiteral(profile.iri, SKOS.prefLabel, profile.prefLabel);
     this.addLiteral(profile.iri, SKOS.definition, profile.definition);
     this.addLiteral(profile.iri, VANN.usageNote, profile.usageNote);
+    this.addIris(profile.iri, DSV.specializationOf, profile.specializationOfIri);
     // We do not write this into properties.
     this.addIris(profile.iri, DSV.profileOf, profile.profileOfIri);
     for (const item of profile.reusesPropertyValue) {
-      const node = DataFactory.blankNode();
-      // We need to use writer directly as we work with blank node.
-      this.writer.addQuad(IRI(profile.iri), DSV.reusesPropertyValue, node);
-      this.writer.addQuad(
-        node, RDF.type, DSV.PropertyValueReuse);
-      this.writer.addQuad(
-        node, DSV.reusedProperty, IRI(item.reusedPropertyIri));
-      this.writer.addQuad(
-        node, DSV.reusedFromResource, IRI(item.propertyreusedFromResourceIri));
+      // We use the [ ... ] notation for blank nodes.
+      this.writer.addQuad(Quad(
+        IRI(profile.iri),
+        DSV.reusesPropertyValue,
+        this.writer.blank([{
+          predicate: RDF.type,
+          object: DSV.PropertyValueReuse,
+        }, {
+          predicate: DSV.reusedProperty,
+          object: IRI(item.reusedPropertyIri),
+        }, {
+          predicate: DSV.reusedFromResource,
+          object: IRI(item.propertyReusedFromResourceIri)
+        }])
+      ));
     }
   }
 

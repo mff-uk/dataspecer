@@ -52,7 +52,6 @@ export class ArtifactConfigurator extends DefaultArtifactConfigurator {
       artifacts.push(plantUmlImage);
     }
 
-    // New bikeshed by mustache-template - default off
     if ((dataSpecificationConfiguration.useGenerators?.["respec"] ?? generatorsEnabledByDefault) !== false) {
       // Respec
       const respec = new DataSpecificationDocumentation();

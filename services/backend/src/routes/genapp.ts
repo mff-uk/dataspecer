@@ -19,7 +19,7 @@ export const getGeneratedApplication = asyncHandler(async (request: express.Requ
 
     const inputArgs: GenappConfiguration = {
         serializedGraph: request.body.serializedGraph as string,
-        backendHost: configuration.host,
+        backendHost: configuration.baseName! + "/api",
         tmpOutDir: "generated",
         tmpOutZipname: "out.zip",
     };
@@ -60,7 +60,7 @@ export const getGenerateApplicationByModelId = asyncHandler(async (request: expr
 
     const inputArgs: GenappConfiguration = {
         serializedGraph: JSON.stringify(data),
-        backendHost: configuration.host,
+        backendHost: configuration.baseName! + "/api",
         tmpOutDir: "generated",
         tmpOutZipname: `out.zip`,
     };

@@ -8,13 +8,14 @@
     "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests"
   },
   "exports": {
+    "./documentation": "./lib/documentation/index.js",
     "./configuration": "./lib/configuration.js",
     "./json-ld": "./lib/json-ld/index.js",
     "./json-schema": "./lib/json-schema/index.js"
   },
   "dependencies": {
-    "@dataspecer/bikeshed": "*",
-    "@dataspecer/core": "*"
+    "@dataspecer/core": "*",
+    "@dataspecer/documentation": "*"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",

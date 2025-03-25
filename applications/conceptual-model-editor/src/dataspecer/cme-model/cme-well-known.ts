@@ -1,4 +1,4 @@
-import { CmeModel, CmeModelType } from "./cme-model";
+import { CmeSemanticModel, CmeSemanticModelType } from "./model/cme-semantic-model";
 
 /**
  * We should not need this, yet due to current design
@@ -7,11 +7,11 @@ import { CmeModel, CmeModelType } from "./cme-model";
  *
  * @deprecated
  */
-export const UndefinedCmeVocabulary : CmeModel = {
+export const UndefinedCmeVocabulary : CmeSemanticModel = {
   dsIdentifier: "undefined-cme-vocabulary",
   displayLabel: {},
   displayColor: "#000069",
-  dsModelType: CmeModelType.Default,
+  dsModelType: CmeSemanticModelType.Default,
   baseIri: null,
 };
 
@@ -19,10 +19,10 @@ export const UndefinedCmeVocabulary : CmeModel = {
  * We should not need this, yet due to current design
  * we need to represent the owl:Thing entity.
  */
-export const OwlVocabulary : CmeModel = {
+export const OwlVocabulary : CmeSemanticModel = {
   dsIdentifier: "https://www.w3.org/2002/07/owl",
   displayLabel: {"": "owl"},
   displayColor: "#000069",
-  dsModelType: CmeModelType.Default,
+  dsModelType: CmeSemanticModelType.Default,
   baseIri: "https://www.w3.org/2002/07/owl",
 };

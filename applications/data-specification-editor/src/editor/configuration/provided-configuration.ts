@@ -70,6 +70,8 @@ export async function provideConfiguration(dataSpecificationIri: string | null, 
         store.addStore(model);
         store.addEventListener("afterOperationExecuted", () => model.save());
       }
+      // @ts-ignore Each specification should have its own semantic model, not merged with other specifications
+      specification.semanticModel = semanticModel;
     }
 
     // Load configuration
@@ -119,7 +121,7 @@ export async function provideConfiguration(dataSpecificationIri: string | null, 
 
   const configurationForContext = ClientConfigurator.merge(
     DefaultClientConfiguration,
-    ClientConfigurator.getFromObject({}) // todo specification?.artefactConfiguration
+    ClientConfigurator.getFromObject(specifications[dataSpecificationIri].userPreferences)
   );
   const operationContext = new OperationContext();
   operationContext.labelRules = {

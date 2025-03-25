@@ -1,13 +1,14 @@
-import { CmeModel, CmeModelType } from "./cme-model";
+import { CmeSemanticModel, CmeSemanticModelType } from "./model/cme-semantic-model";
 
-export function filterWritableModels(items: CmeModel[]): CmeModel [] {
+export function filterWritableModels(
+  items: CmeSemanticModel[],
+): CmeSemanticModel[] {
   return items.filter(isModelWritable);
 }
 
 /**
- * @param item
  * @returns True if we can write the given vocabulary.
  */
-function isModelWritable(item: CmeModel) : boolean {
-  return item.dsModelType === CmeModelType.InMemorySemanticModel;
+function isModelWritable(item: CmeSemanticModel): boolean {
+  return item.dsModelType === CmeSemanticModelType.InMemorySemanticModel;
 }

@@ -22,11 +22,6 @@ import {
     DefaultCsvConfiguration
 } from "../configuration";
 import { isRecursive } from "@dataspecer/core/structure-model/helper/is-recursive";
-import {
-    BIKESHED,
-    BikeshedAdapterArtefactContext
-} from "@dataspecer/bikeshed";
-import { createBikeshedSchemaCsv } from "./csv-schema-to-bikeshed";
 
 export class CsvSchemaGenerator implements ArtefactGenerator {
 
@@ -82,17 +77,6 @@ export class CsvSchemaGenerator implements ArtefactGenerator {
         documentationIdentifier: string,
         callerContext: unknown
     ): Promise<unknown | null> {
-        if (documentationIdentifier === BIKESHED.Generator) {
-            const bikeshedContext = callerContext as BikeshedAdapterArtefactContext;
-            return createBikeshedSchemaCsv({
-                ...bikeshedContext,
-                structureModel: transformStructureModel(
-                    bikeshedContext.conceptualModel,
-                    bikeshedContext.structureModel,
-                    Object.values(context.specifications)
-                ),
-            });
-        }
         return null;
     }
 }

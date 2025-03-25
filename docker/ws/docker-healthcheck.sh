@@ -1,6 +1,6 @@
 #!/bin/sh
 
-URL="http://localhost/api/data-specification"
+URL="http://localhost/health"
 
 response=$(curl -s -o /dev/null -w "%{http_code}" $URL)
 

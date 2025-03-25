@@ -1,15 +1,17 @@
-import { type DialogProps } from "../dialog-api";
+import { DialogWrapper, type DialogProps } from "../dialog-api";
 import { t } from "../../application";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
-import { SelectModel } from "./components/select-model";
-import { SpecializationSelect } from "./components/select-specialization";
-import { InputIri } from "./components/input-iri";
-import { EditClassDialogState, useEditClassDialogController } from "./edit-class-dialog-controller";
-import { ValidationMessage } from "../association-profile/components/validation-message";
+import { SelectModel } from "../components/select-model";
+import { SpecializationSelect } from "../components/select-specialization";
+import { InputIri } from "../components/input-iri";
+import { useClassDialogController } from "./edit-class-dialog-controller";
+import { ValidationMessage } from "../components/validation-message";
+import { ClassDialogState } from "./edit-class-dialog-state";
+import { isValid } from "../utilities/validation-utilities";
 
-export const EditClassDialog = (props: DialogProps<EditClassDialogState>) => {
-  const controller = useEditClassDialogController(props);
+const ClassDialog = (props: DialogProps<ClassDialogState>) => {
+  const controller = useClassDialogController(props);
   const state = props.state;
   return (
     <>
@@ -66,4 +68,36 @@ export const EditClassDialog = (props: DialogProps<EditClassDialogState>) => {
       </div>
     </>
   );
+};
+
+export const createNewClassDialog = (
+  state: ClassDialogState,
+  onConfirm: (state: ClassDialogState) => void | null,
+): DialogWrapper<ClassDialogState> => {
+  return {
+    label: "dialog.class.label-create",
+    component: ClassDialog,
+    state,
+    confirmLabel: "dialog.class.ok-create",
+    cancelLabel: "dialog.class.cancel",
+    validate: (state) => isValid(state.iriValidation),
+    onConfirm,
+    onClose: null,
+  };
+};
+
+export const createEditClassDialog = (
+  state: ClassDialogState,
+  onConfirm: (state: ClassDialogState) => void | null,
+): DialogWrapper<ClassDialogState> => {
+  return {
+    label: "dialog.class.label-edit",
+    component: ClassDialog,
+    state,
+    confirmLabel: "dialog.class.ok-edit",
+    cancelLabel: "dialog.class.cancel",
+    validate: (state) => isValid(state.iriValidation),
+    onConfirm,
+    onClose: null,
+  };
 };

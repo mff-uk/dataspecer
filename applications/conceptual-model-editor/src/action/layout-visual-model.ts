@@ -1,5 +1,5 @@
-import { VisualNode, WritableVisualModel, isVisualNode, isVisualProfileRelationship, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { AnchorOverrideSetting, ExplicitAnchors, Node, LayoutedVisualEntities, NodeDimensionQueryHandler, ReactflowDimensionsEstimator, UserGivenAlgorithmConfigurationStress, UserGivenConstraintsVersion4, VisualModelWithOutsiders, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4, performLayout, performLayoutOfVisualModel } from "@dataspecer/layout";
+import { VisualNode, WritableVisualModel, isVisualNode } from "@dataspecer/core-v2/visual-model";
+import { AnchorOverrideSetting, ExplicitAnchors, INodeClassic, LayoutedVisualEntities, NodeDimensionQueryHandler, ReactflowDimensionsEstimator, UserGivenAlgorithmConfigurationStress, UserGivenConstraintsVersion4, VisualModelWithOutsiders, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4, performLayoutOfVisualModel } from "@dataspecer/layout";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
@@ -110,7 +110,7 @@ function findTopLeft(
  * @param shouldPutOutsidersInVisualModel If set to true, then the outsiders will be put into visual model, if false then not, but user can still see them in the returned result. Default is false
  * @returns
  */
-export function layoutActiveVisualModelAdvancedAction(
+export async function layoutActiveVisualModelAdvancedAction(
   notifications: UseNotificationServiceWriterType,
   classes: ClassesContextType,
   diagram: UseDiagramType,
@@ -124,7 +124,7 @@ export function layoutActiveVisualModelAdvancedAction(
 ) {
   const models = graph.models;
 
-  const reactflowDimensionQueryHandler = createExactNodeDimensionsQueryHandler(diagram, graph, notifications);
+  const reactflowDimensionQueryHandler = createExactNodeDimensionsQueryHandler(diagram);
 
   outsiders = outsiders ?? {};
   const activeVisualModelWithOutsiders: VisualModelWithOutsiders = {
@@ -133,8 +133,11 @@ export function layoutActiveVisualModelAdvancedAction(
   };
 
   return performLayoutOfVisualModel(
-    activeVisualModelWithOutsiders, models, configuration,
-    reactflowDimensionQueryHandler, explicitAnchors
+    activeVisualModelWithOutsiders,
+    models,
+    configuration,
+    reactflowDimensionQueryHandler,
+    explicitAnchors
   ).then(layoutResult => {
     processLayoutResult(notifications, classes, diagram, graph, visualModel,
       shouldUpdatePositionsInVisualModel ?? true, shouldPutOutsidersInVisualModel ?? false, layoutResult);
@@ -145,10 +148,8 @@ export function layoutActiveVisualModelAdvancedAction(
   });
 }
 
-//
-
-// TODO PRQuestion: Should be separate file? same for the method under
-export function layoutActiveVisualModelAction(
+// TODO RadStr: Move to separate file
+export async function layoutActiveVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   classes: ClassesContextType,
   diagram: UseDiagramType,
@@ -238,37 +239,16 @@ export async function findPositionForNewNodesUsingLayouting(
 
 export function createExactNodeDimensionsQueryHandler(
   diagram: UseDiagramType,
-  graph: ModelGraphContextType,
-  notifications: UseNotificationServiceWriterType
 ): NodeDimensionQueryHandler {
-  const activeVisualModel = graph.aggregatorView.getActiveVisualModel();
-  if(activeVisualModel === null) {
-    notifications.error("No active visual model");
-    return new ReactflowDimensionsEstimator();
-  }
-
-  const getWidth = (node: Node) => {
-
-    let width;
-    if(node.id === undefined) {
-      // The question is what does it mean if the node isn't in editor? Same for height
-      // Actually it is not error,
-      // it can be valid state when we are layouting elements which are not yet part of visual model
-      width = new ReactflowDimensionsEstimator().getWidth(node);
-    }
-    else {
-      width = diagram.actions().getNodeWidth(node.id)
-    }
+  // TODO RadStr: Have to use visual ids for graph nodes
+  const getWidth = (node: INodeClassic) => {
+    // The question is what does it mean if the node isn't in editor? Same for height
+    // Actually it is not error, it can be valid state when we are layouting elements which are not yet part of visual model
+    const width = diagram.actions().getNodeWidth(node.id) ?? new ReactflowDimensionsEstimator().getWidth(node);
     return width;
   };
-  const getHeight = (node: Node) => {
-    let height;
-    if(node.id === undefined) {
-      height = new ReactflowDimensionsEstimator().getHeight(node);
-    }
-    else {
-      height = diagram.actions().getNodeHeight(node.id)
-    }
+  const getHeight = (node: INodeClassic) => {
+    const height = diagram.actions().getNodeHeight(node.id) ?? new ReactflowDimensionsEstimator().getHeight(node);
     return height;
   };
 

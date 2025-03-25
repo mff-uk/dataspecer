@@ -1,7 +1,7 @@
 import { type InternalNode, Viewport } from "@xyflow/react";
 
 import { type Point, findLineCenter, findNodeBorder, findNodeCenter } from "./math";
-import { type Position } from "../diagram-api";
+import { type Position } from "../diagram-model";
 
 export function createWaypoints(sourceNode: InternalNode, waypoints: Position[], targetNode: InternalNode): Point[] {
 

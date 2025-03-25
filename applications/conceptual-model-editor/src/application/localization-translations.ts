@@ -112,6 +112,7 @@ export const translations: Record<string, string | Function> = {
   "create-class-dialog.btn-ok": "✅ create",
   "create-class-dialog.btn-cancel": "❌ cancel",
   "create-class-dialog.add-specialization": "Add specialization",
+  "create-class-dialog.no-specialization-available": "There is nothing to specialize",
   //
   "create-profile-button.title": "Create profile",
   //
@@ -247,6 +248,7 @@ export const translations: Record<string, string | Function> = {
   "class-profile-button": "Create class profile",
   "class-remove-button": "Remove class from semantic model",
   "edit-node-attributes-visiblity-button": "Edit visibility of attributes on node",
+  "duplicate-node-button": "Create new copy of the node on canvas",
   //
   "add-neighborhood-button.title": "Add entity's neighborhood (Classes or class profiles connected by either association or generalization)",
   //
@@ -303,11 +305,11 @@ export const translations: Record<string, string | Function> = {
   "drag-edge-to-canvas-create-generalization-parent": "Create new parent",
   "drag-edge-to-canvas-create-generalization-child": "Create new child",
   //
-  "edit-class-attributes-dialog.label": "Edit order of attributes on node",
-  "edit-class-attributes-dialog.btn-ok": "✅ Confirm",
-  "edit-class-attributes-dialog.btn-cancel": "❌ Cancel",
-  "edit-class-attributes-visible-attributes-column-header": "Visible attributes:",
-  "edit-class-attributes-hidden-attributes-column-header": "Hidden attributes:",
+  "edit-visual-node-dialog.label": "Edit visual node",
+  "edit-visual-node-dialog.btn-ok": "✅ Accept",
+  "edit-visual-node-dialog.btn-cancel": "❌ Cancel",
+  "edit-visual-node-dialog.content-visible": "Visible content:",
+  "edit-visual-node-dialog.content-available": "Available content:",
   //
   "align-left.title": "Align selected nodes the most left one and in such a way that the lefts of nodes are aligned",
   "align-horizontal-mid.title": "Align selected nodes the middle horizontally, that is |",

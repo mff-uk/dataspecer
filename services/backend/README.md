@@ -1,10 +1,6 @@
 # backend service
 
-The backend service is a Node.js server and a part of the Dataspecer application that manages data specifications and provides access to stores. It also provides an API to compile the Bikeshed source.
-
-## Documentation
-
-See the [project structure](documentation/2022-04-21-project-structure.md) or look directly into the code.
+The backend service is a Node.js server and a part of the Dataspecer application that manages data specifications and provides access to stores.
 
 ## Installation instructions
 
@@ -20,18 +16,3 @@ This project uses [Prisma](https://www.prisma.io/) and SQLite database. After up
 - To update development database schema, use `npx prisma migrate dev`.
 
 All data are stored in the `database` directory.
-
-### Optional dependencies
-- [Install Bikeshed](https://tabatkins.github.io/bikeshed/#install-pyenv) to be accessible from the command line. Use `pip3`, for example. If the Bikeshed is not installed, the generation will fail, but it does not break the whole process.
-
-### Using as a bundle
-
-You can use `npm run build-pack` to create a single bundle file. To make things work, keep the following files:
-- `./node_modules/.prisma/` - contains necessary binaries
-- `./database/` - your database directory
-- `./dist/backend-bundle.js` - this is the file that you need to execute
-- `./prisma/schema.prisma`
-
-```shell
-zip -r backend.zip ./node_modules/.prisma/ ./dist/backend-bundle.js ./prisma/schema.prisma
-```

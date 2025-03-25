@@ -4,7 +4,6 @@ import {DataSpecification} from "./tabs/data-specification";
 import {Json} from "./tabs/json";
 import {Csv} from "./tabs/csv";
 import {Xml} from "./tabs/xml";
-import {Bikeshed} from "./tabs/bikeshed";
 import {
     DataSpecificationConfiguration,
     DataSpecificationConfigurator
@@ -12,7 +11,6 @@ import {
 import {CsvConfiguration, CsvConfigurator} from "@dataspecer/csv/configuration";
 import {JsonConfiguration, JsonConfigurator} from "@dataspecer/json/configuration";
 import {XmlConfiguration, XmlConfigurator} from "@dataspecer/xml/configuration";
-import { TemplateArtifactConfiguration, TemplateArtifactConfigurator } from "@dataspecer/template-artifact/configuration";
 import { ArtifactNames } from "./tabs/artifact-names";
 
 /**
@@ -32,7 +30,6 @@ export const ConfigureArtifactsConfiguration = ({defaultConfiguration, configura
                 <Tab label="JSON" />
                 <Tab label="CSV" />
                 <Tab label="XSD" />
-                <Tab label="Documentation" />
                 <Tab label="File names" />
             </Tabs>
         </Box>
@@ -65,13 +62,6 @@ export const ConfigureArtifactsConfiguration = ({defaultConfiguration, configura
             />
         }
         {currentTab === 4 &&
-            <Bikeshed
-                input={TemplateArtifactConfigurator.getFromObject(configuration)}
-                onChange={u => onConfigurationChange(TemplateArtifactConfigurator.setToObject(configuration, u))}
-                defaultObject={defaultConfiguration ? TemplateArtifactConfigurator.getFromObject(defaultConfiguration) as TemplateArtifactConfiguration : undefined}
-            />
-        }
-        {currentTab === 5 &&
             <ArtifactNames
                 input={DataSpecificationConfigurator.getFromObject(configuration)}
                 onChange={u => onConfigurationChange(DataSpecificationConfigurator.setToObject(configuration, u))}

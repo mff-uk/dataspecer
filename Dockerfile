@@ -1,67 +1,83 @@
-FROM node:22.3.0 AS builder
+FROM oven/bun:1.2.4-alpine AS base
+
+# Builds in /usr/src/app and copies to /usr/src/final to avoid copying build dependencies
+FROM base AS builder
 WORKDIR /usr/src/app
+RUN mkdir -p /usr/src/final/ /usr/src/final/dist/
+
+COPY applications/ applications/
+COPY services/ services/
+COPY packages/ packages/
+COPY .npmrc package-lock.json package.json turbo.json ./docker/ws/docker-configure.sh ./docker/ws/docker-copy.sh ./
+
+RUN sed -i "/packageManager/ c \"packageManager\": \"bun@1.2.4\"," package.json
+RUN bun install
 
 ARG GIT_COMMIT
 ARG GIT_REF
 ARG GIT_COMMIT_DATE
 ARG GIT_COMMIT_NUMBER
 
-COPY applications/ applications/
-COPY services/ services/
-COPY packages/ packages/
-COPY .npmrc cloudflare.build.sh package-lock.json package.json turbo.json ./
-
-# Build app
-RUN --mount=type=cache,target=/root/.npm \
-  DO_BUILD_BACKEND=true \
-  BASE_PATH=/_BASE_PATH_DOCKER_REPLACE__ \
+# Configuration of .env
+RUN BASE_PATH=/_BASE_PATH_DOCKER_REPLACE__ \
   BACKEND=/_BASE_PATH_DOCKER_REPLACE__/api \
   GIT_COMMIT=$GIT_COMMIT \
   GIT_REF=$GIT_REF \
   GIT_COMMIT_DATE=$GIT_COMMIT_DATE \
   GIT_COMMIT_NUMBER=$GIT_COMMIT_NUMBER \
-    sh ./cloudflare.build.sh
+    sh ./docker-configure.sh
 
-# Final stage
-FROM node:22.3.0 AS node
-FROM nginx:1.27.1 AS nginx
+# Build frontend and backend dependencies
+RUN bunx turbo run build --concurrency 100% --filter=data-specification-editor --filter=conceptual-model-editor --filter=manager --filter=api-specification --filter=backend^...
 
-RUN apt-get update && apt-get install sudo
+# Move frontend
+RUN sh ./docker-copy.sh
+RUN mv /usr/src/app/.dist /usr/src/final/html-template
 
+# Build backend
+# todo: bun does not support omitting some files from build, therefore config in main.config.js wont work
+RUN cd services/backend \
+  && sed -i "s|../database/database.db|/usr/src/app/database/database.db|" prisma/schema.prisma \
+  && bunx prisma generate \
+  && cp main.config.sample.js main.config.js \
+  && bunx tsc --noEmit \
+  && bun build --target=bun --outdir=dist --sourcemap=linked src/main.ts
+
+# Move backend
+RUN mv /usr/src/app/services/backend/dist/* /usr/src/final/dist/
+RUN mv /usr/src/app/services/backend/prisma/* /usr/src/final/dist/
+RUN mkdir -p /usr/src/final/node_modules/ &&  mv /usr/src/app/node_modules/.prisma /usr/src/final/node_modules/.prisma
+COPY services/backend/main.config.sample.js /usr/src/final/main.config.js
+
+COPY --chmod=777 ./docker/ws/docker-entrypoint.sh ./docker/ws/docker-healthcheck.sh /usr/src/final/
+
+
+
+FROM base AS prisma-builder
 WORKDIR /usr/src/app
 
-# Copy nodejs binaries from one container to another
-COPY --from=node /usr/lib /usr/lib
-COPY --from=node /usr/local/lib /usr/local/lib
-COPY --from=node /usr/local/include /usr/local/include
-COPY --from=node /usr/local/bin /usr/local/bin
+COPY --from=builder /usr/src/final /usr/src/app
 
-# Install Prisma for database migrations
-RUN --mount=type=cache,target=/root/.npm npm i -g prisma && \
-  chmod -R a+rwx /usr/local/lib/node_modules/prisma
+# Do prisma migrations (needs to be done in correct absolute directory)
+RUN mkdir -p /usr/src/app/database
+RUN bunx prisma migrate deploy --schema dist/schema.prisma
 
-# Configure nginx
-COPY --chmod=777 ./docker/ws/nginx.conf /etc/nginx/nginx.conf-template
-RUN chmod -R a+rwx /etc/nginx/
 
-COPY --chmod=777 ./docker/ws/docker-entrypoint.sh ./docker/ws/docker-healthcheck.sh .
 
-RUN chmod a+rwx /usr/share/nginx/html && mkdir /usr/src/app/database && chmod a+rwx /usr/src/app/database
+# Final image for production
+FROM base AS final
+WORKDIR /usr/src/app
 
-# Copy backend service
-COPY --from=builder /usr/src/app/node_modules/.prisma/client/*.so.node /usr/src/app/dist/
-COPY --from=builder /usr/src/app/services/backend/dist/backend-bundle.js /usr/src/app/dist/
-COPY --from=builder /usr/src/app/services/backend/prisma/ /usr/src/app/dist
-COPY services/backend/main.config.sample.js /usr/src/app/main.config.js
+# Makes directory accessible for the user
+# Instals prisma for migrations and cleans install cache
+RUN chmod a+rwx /usr/src/app && \
+  bun install --no-cache prisma && \
+  rm -rf ~/.bun ~/.cache
 
-# Run prisma migrate to apply migrations to local database
-RUN mkdir -p /usr/src/app/database && \
-  npx prisma migrate deploy --schema dist/schema.prisma && \
-  chmod -R a+rwx /usr/src/app/database
+# Copy final files
+COPY --from=prisma-builder --chmod=777 /usr/src/app /usr/src/app
 
-# Copy frontend
-COPY --from=builder /usr/src/app/.dist /usr/share/nginx/html-template
-
+USER 1000:1000
 VOLUME /usr/src/app/database
 EXPOSE 80
 HEALTHCHECK CMD ./docker-healthcheck.sh

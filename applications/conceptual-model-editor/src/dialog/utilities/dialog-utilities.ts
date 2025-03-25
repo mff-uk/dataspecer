@@ -1,18 +1,19 @@
 import { EntityModel } from "@dataspecer/core-v2";
-import { LanguageString, SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { LanguageString, SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { AggregatedEntityWrapper } from "@dataspecer/core-v2/semantic-model/aggregator";
-import { DataTypeURIs, dataTypeUriToName, isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
+import { DataTypeURIs, isDataType } from "@dataspecer/core-v2/semantic-model/datatypes";
 import { SemanticModelClassUsage, SemanticModelRelationshipUsage, isSemanticModelClassUsage, isSemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
-import { createLogger } from "../../application";
+import { configuration, createLogger, t } from "../../application";
 import { getDomainAndRange } from "../../util/relationship-utils";
-import { CmeModel, OwlVocabulary, UndefinedCmeVocabulary } from "../../dataspecer/cme-model";
+import { CmeSemanticModel, OwlVocabulary, UndefinedCmeVocabulary } from "../../dataspecer/cme-model";
 import { EntityDsIdentifier } from "../../dataspecer/entity-model";
 import { ClassesContextType } from "../../context/classes-context";
 import { ModelGraphContextType } from "../../context/model-context";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { VisualModel } from "@dataspecer/core-v2/visual-model";
-import { entityModelsMapToCmeVocabulary } from "../../dataspecer/semantic-model/semantic-model-adapter";
+import { semanticModelMapToCmeSemanticModel } from "../../dataspecer/cme-model/adapter";
+import { dataTypeUriToName } from "../../dataspecer/semantic-model/data-type";
 
 const LOG = createLogger(import.meta.url);
 
@@ -112,13 +113,20 @@ export function representOwlThing(): EntityRepresentative {
 }
 
 export function representClasses(
-  models: EntityModel[],
-  vocabularies: CmeModel[],
+  models: EntityModel[] | Map<string, EntityModel>,
+  vocabularies: CmeSemanticModel[],
   classes: SemanticModelClass[],
 ): EntityRepresentative[] {
+  let modelArray : EntityModel[] = [];
+  if (models instanceof Map) {
+    modelArray = [...models.values()];
+  } else {
+    modelArray = models;
+  }
+  //
   const result: EntityRepresentative[] = [];
   for (const item of classes) {
-    const vocabulary = findOwnerVocabulary(models, vocabularies, item.id);
+    const vocabulary = findOwnerVocabulary(modelArray, vocabularies, item.id);
     if (vocabulary === null) {
       continue;
     }
@@ -139,9 +147,9 @@ export function representClasses(
 
 function findOwnerVocabulary(
   models: EntityModel[],
-  vocabularies: CmeModel[],
+  vocabularies: CmeSemanticModel[],
   entityIdentifier: string,
-): CmeModel | null {
+): CmeSemanticModel | null {
   for (const model of models) {
     const entity = model.getEntities()[entityIdentifier];
     if (entity === undefined) {
@@ -158,8 +166,11 @@ export function findVocabularyForModel(
   graph: ModelGraphContextType,
   visualModel: VisualModel,
   model: string,
-): CmeModel | null {
-  const vocabularies = entityModelsMapToCmeVocabulary(graph.models, visualModel);
+): CmeSemanticModel | null {
+  const vocabularies = semanticModelMapToCmeSemanticModel(
+    graph.models, visualModel,
+    configuration().defaultModelColor,
+    identifier => t("model-service.model-label-from-id", identifier));
   const vocabulary = vocabularies.find(item => item.dsIdentifier === model);
   return vocabulary ?? null;
 };
@@ -167,7 +178,7 @@ export function findVocabularyForModel(
 export function representClassUsages(
   aggregations: Record<string, AggregatedEntityWrapper>,
   models: EntityModel[],
-  vocabularies: CmeModel[],
+  vocabularies: CmeSemanticModel[],
   classes: SemanticModelClassUsage[],
 ): EntityRepresentative[] {
   const result: EntityRepresentative[] = [];
@@ -203,7 +214,7 @@ export function representClassUsages(
 export function representClassProfiles(
   aggregations: Record<string, AggregatedEntityWrapper>,
   models: EntityModel[],
-  vocabularies: CmeModel[],
+  vocabularies: CmeSemanticModel[],
   classes: SemanticModelClassProfile[],
 ): EntityRepresentative[] {
   const result: EntityRepresentative[] = [];
@@ -244,7 +255,7 @@ export function representClassProfiles(
 export function listClassToProfiles(
   classesContext: ClassesContextType,
   graphContext: ModelGraphContextType,
-  vocabularies: CmeModel[],
+  vocabularies: CmeSemanticModel[],
 ): EntityRepresentative[] {
   const entities = graphContext.aggregatorView.getEntities();
   const models = [...graphContext.models.values()];
@@ -266,7 +277,7 @@ export function listClassToProfiles(
 export function listRelationshipDomains(
   classesContext: ClassesContextType,
   graphContext: ModelGraphContextType,
-  vocabularies: CmeModel[],
+  vocabularies: CmeSemanticModel[],
 ): EntityRepresentative[] {
   const models = [...graphContext.models.values()];
 
@@ -285,7 +296,7 @@ export function listRelationshipDomains(
 export function listRelationshipProfileDomains(
   classesContext: ClassesContextType,
   graphContext: ModelGraphContextType,
-  vocabularies: CmeModel[],
+  vocabularies: CmeSemanticModel[],
 ): EntityRepresentative[] {
   const entities = graphContext.aggregatorView.getEntities();
   const models = [...graphContext.models.values()];
@@ -334,7 +345,7 @@ export function isRepresentingAttribute(representation: {
 
 export function representRelationships(
   models: EntityModel[],
-  vocabularies: CmeModel[],
+  vocabularies: CmeSemanticModel[],
   relationships: SemanticModelRelationship[],
   defaultDomain: string,
   defaultRange: string,
@@ -372,7 +383,7 @@ export function representRelationships(
 export function representRelationshipUsages(
   aggregations: Record<string, AggregatedEntityWrapper>,
   models: EntityModel[],
-  vocabularies: CmeModel[],
+  vocabularies: CmeSemanticModel[],
   relationships: SemanticModelRelationshipUsage[],
   defaultDomain: string,
   defaultRange: string,
@@ -419,7 +430,7 @@ export function representRelationshipUsages(
 export function representRelationshipProfile(
   aggregations: Record<string, AggregatedEntityWrapper>,
   models: EntityModel[],
-  vocabularies: CmeModel[],
+  vocabularies: CmeSemanticModel[],
   relationships: SemanticModelRelationshipProfile[],
 ): RelationshipRepresentative[] {
   const result: RelationshipRepresentative[] = [];
@@ -598,7 +609,6 @@ const CARDINALITIES: Cardinality[] = [
 ]
 
 /**
- *
  * @returns undefined, cardinalities
  */
 export function listCardinalities(): Cardinality[] {
@@ -644,36 +654,11 @@ export function representProfileCardinality(
   }
 }
 
-export interface Specialization {
-
-  /**
-   * Identification of an entity representing the specialization.
-   */
-  identifier: string | undefined;
-
-  specialized: string;
-
-  iri: string;
-
-}
-
-export function representSpecializations(
-  identifier: string,
-  generalizations: SemanticModelGeneralization[],
-): Specialization[] {
-  return generalizations.filter(item => item.child === identifier)
-    .map(item => ({
-      identifier: item.id,
-      iri: item.iri ?? "",
-      specialized: item.parent,
-    }));
-}
-
 export function selectDefaultModelForAttribute(
   entity: EntityDsIdentifier,
   entityModels: EntityModel[],
-  cmeModels: CmeModel[],
-): CmeModel {
+  cmeModels: CmeSemanticModel[],
+): CmeSemanticModel {
   for (const model of entityModels) {
     if (model.getEntities()[entity] === undefined) {
       continue;
@@ -693,7 +678,10 @@ export function selectDefaultModelForAttribute(
 /**
  * Find and return representative of entity with given identifier.
  */
-export function findRepresentative(entities: EntityRepresentative[], identifier: string | null | undefined): EntityRepresentative | null {
+export function findRepresentative(
+  entities: EntityRepresentative[],
+  identifier: string | null | undefined,
+): EntityRepresentative | null {
   if (identifier === null || identifier === undefined) {
     return null;
   }
@@ -709,4 +697,11 @@ export function sortRepresentatives<T extends { label: LanguageString }>(
     const rightLabel = right.label[language] ?? right.label[""] ?? "";
     return leftLabel.localeCompare(rightLabel);
   });
+}
+
+export function filterByModel<Type extends { vocabularyDsIdentifier: string }>(
+  items: Type[], model: CmeSemanticModel,
+): Type[] {
+  return items.filter(
+    item => item.vocabularyDsIdentifier === model.dsIdentifier);
 }

@@ -76,8 +76,12 @@ async function writeJsonSchemaObject(
   schema: JsonSchemaObject
 ): Promise<void> {
   await writer.value("type", "object");
-  if (schema.noAdditionalProperties) {
+  if (schema.additionalProperties === false) {
     await writer.value("additionalProperties", false);
+  } else if (schema.additionalProperties !== null) {
+    const propWriter = writer.object("additionalProperties");
+    await writeJsonDefinition(propWriter, schema.additionalProperties);
+    await propWriter.closeObject();
   }
   const required = writer.array("required");
   for (const key of schema.required) {

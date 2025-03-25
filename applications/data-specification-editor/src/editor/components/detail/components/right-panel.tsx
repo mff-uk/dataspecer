@@ -46,7 +46,9 @@ import { RegexField } from "../../helper/regex-field";
 import { useSaveHandler } from "../../helper/save-handler";
 import { StringExamplesField } from "../../helper/string-examples-field";
 import { DataPsmXmlPropertyExtension } from "@dataspecer/core/data-psm/xml-extension/model/index";
+import { DataPsmJsonPropertyExtension } from "@dataspecer/core/data-psm/json-extension/model/index";
 import { SetXmlIsAttribute } from "../../../operations/set-xml-is-attribute";
+import { SetJsonKeyValueForLangString } from "../../../operations/set-json-key-value-for-lang-string";
 
 export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({iri}) => {
     const store = useFederatedObservableStore();
@@ -167,6 +169,21 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
             [pimResource, codelistUrl, store]
         ),
     );
+
+    // region json key value for lang string
+    const jsonKeyValueForLangStringAvailable = isAttribute && (getIriFromDatatypeSelectorValue(datatype) === "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString");
+    const dataPsmJsonPropertyExtension = isAttribute ? DataPsmJsonPropertyExtension.getExtensionData(resource as DataPsmAttribute) : null;
+    const [jsonKeyValueForLangString, setJsonKeyValueForLangString] = useState<boolean>(dataPsmJsonPropertyExtension?.useKeyValueForLangString ?? false);
+    useEffect(() => {
+        if (isAttribute) {
+            setJsonKeyValueForLangString(dataPsmJsonPropertyExtension?.useKeyValueForLangString ?? false);
+        }
+    }, [resource, isAttribute, dataPsmJsonPropertyExtension?.useKeyValueForLangString ?? false]);
+    useSaveHandler(
+        jsonKeyValueForLangStringAvailable && jsonKeyValueForLangString !== dataPsmJsonPropertyExtension?.useKeyValueForLangString,
+        async () => resource && await store.executeComplexOperation(new SetJsonKeyValueForLangString(resource.iri as string, jsonKeyValueForLangString)),
+    );
+    // endregion json key value for lang string
 
     // region association end dematerialization
 
@@ -440,6 +457,16 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
                         helperText={<>Comma separated list of languages, for example <code>cs,en</code></>}
                     />
                 }
+                {/* This handles langString different representation in JSON Schema */}
+                <Collapse in={jsonKeyValueForLangStringAvailable}>
+                    <FormControlLabel
+                        control={<Checkbox
+                            checked={jsonKeyValueForLangString}
+                            onChange={event => setJsonKeyValueForLangString(event.target.checked)}
+                        />}
+                        label={t('json.use key value for lang string')}
+                    />
+                </Collapse>
             </Box>
         </>}
 

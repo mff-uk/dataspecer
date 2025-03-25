@@ -1,3 +1,4 @@
+export type { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 
 /**
  * Use this as an identifier for model in Dataspecer.
@@ -11,6 +12,7 @@ export type EntityDsIdentifier = string;
 
 /**
  * Provide complete identification of an entity.
+ * @deprecated Use CmeReference instead.
  */
 export interface EntityReference {
 
@@ -27,6 +29,7 @@ export interface EntityReference {
 }
 
 /**
+ * @deprecated Use isCmeReferenceEqual instead.
  * @returns True when both reference tha same object.
  */
 export function isEntityReferenceEqual(left: EntityReference, right: EntityReference): boolean {

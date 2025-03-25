@@ -1,0 +1,23 @@
+{
+  "name": "@dataspecer/documentation",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "prebuild": "rimraf lib"
+  },
+  "exports": {
+    ".": "./lib/index.js",
+    "./configuration": "./lib/configuration.js",
+    "./documentation-generator": "./lib/documentation-generator/index.js"
+  },
+  "dependencies": {
+    "@dataspecer/core": "*",
+    "@dataspecer/core-v2": "*",
+    "@dataspecer/handlebars-adapter": "*"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.5",
+    "typescript": "^5.6.3"
+  }
+}

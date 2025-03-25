@@ -76,11 +76,13 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
    */
   private canAddEntities: boolean = false;
   private canModify: boolean = false;
+  private allowOnlyProfiledEntities: boolean = false;
 
-  constructor(profile: InMemorySemanticModel, source: SemanticModelAggregator, profileEntityAggregator?: ProfileAggregator) {
+  constructor(profile: InMemorySemanticModel, source: SemanticModelAggregator, allowOnlyProfiledEntities: boolean = false, profileEntityAggregator?: ProfileAggregator) {
     this.profile = profile;
     this.source = source;
     this.profileEntityAggregator = profileEntityAggregator ?? createDefaultProfileEntityAggregator();
+    this.allowOnlyProfiledEntities = allowOnlyProfiledEntities;
 
     this.updateSourceEntities(source.getAggregatedEntities());
     source.subscribeToChanges((updated, removed) => {
@@ -169,7 +171,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
         }
       } else {
         if (isSemanticModelClassProfile(entity)) {
-          const dependsOn = entity.profiling.map(id => this.entities[id]?.aggregatedEntity ?? this.sourceEntities[id]?.aggregatedEntity).filter(x => x) as SemanticModelClass[];
+          const dependsOn = entity.profiling.map(id => this.entities[id]?.aggregatedEntity ?? this.sourceEntities[id]?.aggregatedEntity ?? this.profileEntities[id]).filter(x => x) as SemanticModelClass[];
           const aggregatedEntity = this.profileEntityAggregator.aggregateSemanticModelClassProfile(entity, dependsOn);
           // todo workaround with typing
           const aggregatedEntityClass = {...aggregatedEntity, type: ["class", "class-profile"]} as unknown as SemanticModelClass;
@@ -182,7 +184,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
           toUpdate.push(...this.dependsOn.getBySecond(entity.id));
           updated[entity.id] = this.entities[entity.id];
         } else if (isSemanticModelRelationshipProfile(entity)) {
-          const dependsOn = entity.ends.map(end => end.profiling).flat().map(id => this.entities[id]?.aggregatedEntity ?? this.sourceEntities[id]?.aggregatedEntity).filter(x => x) as SemanticModelRelationship[];
+          const dependsOn = entity.ends.map(end => end.profiling).flat().map(id => this.entities[id]?.aggregatedEntity ?? this.sourceEntities[id]?.aggregatedEntity ?? this.profileEntities[id]).filter(x => x) as SemanticModelRelationship[];
           const aggregatedEntity = this.profileEntityAggregator.aggregateSemanticModelRelationshipProfile(entity, dependsOn);
           // todo workaround with typing
           const aggregatedEntityRelationship = {...aggregatedEntity, type: ["relationship", "relationship-profile"]} as unknown as SemanticModelRelationship;
@@ -195,23 +197,28 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
           toUpdate.push(...this.dependsOn.getBySecond(entity.id));
           updated[entity.id] = this.entities[entity.id];
         } else if (isSemanticModelClass(entity)) {
-          this.entities[entity.id] = {
-            aggregatedEntity: entity,
-            vocabularyChain: [],
-            isReadOnly: true,
-          };
-          this.dependsOn.deleteFirst(entity.id); // class is independent
-          toUpdate.push(...this.dependsOn.getBySecond(entity.id));
-          updated[entity.id] = this.entities[entity.id];
-        } else if (isSemanticModelRelationship(entity)) {
-          this.entities[entity.id] = {
-            aggregatedEntity: entity,
-            vocabularyChain: [],
-            isReadOnly: true,
+          if (!this.allowOnlyProfiledEntities) {
+            // ! We do not allow not profiled classes and relationships in the final result
+            this.entities[entity.id] = {
+              aggregatedEntity: entity,
+              vocabularyChain: [],
+              isReadOnly: true,
+            };
+            this.dependsOn.deleteFirst(entity.id); // class is independent
+            updated[entity.id] = this.entities[entity.id];
           }
-          this.dependsOn.deleteFirst(entity.id); // relationship is profile-independent
           toUpdate.push(...this.dependsOn.getBySecond(entity.id));
-          updated[entity.id] = this.entities[entity.id];
+        } else if (isSemanticModelRelationship(entity)) {
+          if (!this.allowOnlyProfiledEntities) {
+            this.entities[entity.id] = {
+              aggregatedEntity: entity,
+              vocabularyChain: [],
+              isReadOnly: true,
+            }
+            this.dependsOn.deleteFirst(entity.id); // relationship is profile-independent
+            updated[entity.id] = this.entities[entity.id];
+          }
+          toUpdate.push(...this.dependsOn.getBySecond(entity.id));
         } else if (isSemanticModelGeneralization(entity)) {
           this.entities[entity.id] = {
             aggregatedEntity: entity,
@@ -513,7 +520,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
       throw new Error("Adding entities is not allowed to this application profile.");
     }
 
-    const startEndId = entity.aggregatedEntity.ends[0].concept;
+    const startEndId = entity.aggregatedEntity.ends[direction ? 0 : 1].concept;
     // @ts-ignore - we need to find correct entity with external entity info
     const startEnd = sourceSemanticModel.find(e => e.aggregatedEntity.id === startEndId && e.viaExternalEntity) as ExternalEntityWrapped<SemanticModelClass>;
     // @ts-ignore

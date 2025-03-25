@@ -21,6 +21,11 @@ export class StructureModelPrimitiveType implements StructureModelType {
    */
   example: unknown[] | null = null;
 
+  /**
+   * Json specific property
+   */
+  jsonUseKeyValueForLangString: boolean = false;
+
   isAttribute(): this is StructureModelPrimitiveType {
     return true;
   }

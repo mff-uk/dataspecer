@@ -6,7 +6,7 @@ import { entityModelToUiModel, entityModelToUiState, removeVisualModelToUiState,
 import { configuration, createLogger, t, TranslationFunction } from "../../application";
 import { UiVocabulary, UiVocabularyType, UiModelState } from "./ui-model";
 import { ModelIdentifier } from "../../../../../packages/core-v2/lib/visual-model/entity-model/entity-model";
-import { replaceInArray } from "../../utilities/functional";
+import { addToRecordArray, replaceInArray } from "../../utilities/functional";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../entity-model";
 
 const LOG = createLogger(import.meta.url);
@@ -194,17 +194,16 @@ function collectVisualRepresentedChange(
     previous: VisualEntity | null,
     next: VisualEntity | null
   }[],
-): Record<EntityDsIdentifier, EntityDsIdentifier | null> {
-  const result: Record<EntityDsIdentifier, EntityDsIdentifier | null> = {};
+): Record<EntityDsIdentifier, EntityDsIdentifier[]> {
+  const result: Record<EntityDsIdentifier, EntityDsIdentifier[]> = {};
   for (const change of entities) {
-
     if (change.previous !== null && change.next === null) {
       // Existing entity is removed.
       // We change the value to null, but only if is was not set
       // by other entity update.
       const represented = getRepresentedByVisual(change.previous);
       if (represented !== null) {
-        result[represented] = result[change.previous.identifier] ?? null;
+        removeFromMapValue(result, represented);
       }
       continue;
     }
@@ -213,7 +212,7 @@ function collectVisualRepresentedChange(
       // New entity is created.
       const represented = getRepresentedByVisual(change.next);
       if (represented !== null) {
-        result[represented] = change.next.identifier;
+        addToRecordArray(represented, change.next.identifier, result);
       }
       continue;
     }
@@ -221,25 +220,37 @@ function collectVisualRepresentedChange(
     if (change.previous !== null && change.next !== null) {
       // There is a change in visual entity.
       const prev = getRepresentedByVisual(change.previous);
-      const next = getRepresentedByVisual(change.previous);
+      const next = getRepresentedByVisual(change.next);
       if (prev === next) {
         // There is no relevant change.
-        continue;
+        if(prev !== null) {
+          addToRecordArray(prev, change.next.identifier, result);
+          continue;
+        }
       }
       //
       if (prev !== null) {
         // We need to remove the visual from the old entity,
         // unless set by other update.
-        result[prev] = result[prev] ?? null;
+        removeFromMapValue(result, prev);
       }
       if (next !== null) {
         // We add a new value.
-        result[next] = change.next.identifier;
+        addToRecordArray(next, change.next.identifier, result);
       }
       continue;
     }
   }
+
   return result;
+}
+
+function removeFromMapValue<T>(map: Record<string, T[]>, key: string) {
+  const existingValue = map[key];
+  if(existingValue === undefined) {
+    map[key] = [];
+    return;
+  }
 }
 
 function getRepresentedByVisual(visual: VisualEntity): EntityDsIdentifier | null {
@@ -261,11 +272,11 @@ function getRepresentedByVisual(visual: VisualEntity): EntityDsIdentifier | null
  */
 function updateVisual<T extends {
   dsIdentifier: EntityDsIdentifier,
-  visualDsIdentifier: EntityDsIdentifier | null,
-}>(items: T[], changes: Record<EntityDsIdentifier, EntityDsIdentifier | null>): T[] {
+  visualDsIdentifiers: EntityDsIdentifier[],
+}>(items: T[], changes: Record<EntityDsIdentifier, EntityDsIdentifier[]>): T[] {
   return items.map(item => ({
     ...item,
-    visualDsIdentifier: changes[item.dsIdentifier],
+    visualDsIdentifiers: changes[item.dsIdentifier],
   }));
 }
 

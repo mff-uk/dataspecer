@@ -14,7 +14,6 @@ import {
 
 import { getIri } from "./iri-utils";
 import { getDomainAndRange } from "./relationship-utils";
-import { useEntityProxy } from "./detail-utils";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 export const getNameLanguageString = (
@@ -118,34 +117,9 @@ export const getFallbackDisplayName = (
   return getIri(resource, modelBaseIri) ?? resource?.id ?? null;
 };
 
-export const getDuplicateNames = (
-  resources: (
-        | SemanticModelClass
-        | SemanticModelRelationship
-        | SemanticModelClassUsage
-        | SemanticModelRelationshipUsage
-    )[]
-) => {
-  return new Set(
-    Object.entries(
-      resources
-        .map((c) => useEntityProxy(c).name)
-        .reduce((prev: { [key: string]: number }, curr) => {
-          if (!curr) {
-            return prev;
-          }
-          prev[curr] = (prev[curr] || 0) + 1;
-          return prev;
-        }, {})
-    )
-      .filter(([_, occurrence]) => occurrence > 1)
-      .map(([name, _]) => name)
-  );
-};
-
 // --- GENERATE NAMES --- --- ---
 // inspired by https://gist.github.com/tkon99/4c98af713acc73bed74c
-export const capFirst = (what: string) => {
+const capFirst = (what: string) => {
   return what.charAt(0).toUpperCase() + what.slice(1);
 };
 
@@ -460,3 +434,4 @@ export const generateName = () => {
   const name = capFirst(adj) + " " + capFirst(noun);
   return name;
 };
+

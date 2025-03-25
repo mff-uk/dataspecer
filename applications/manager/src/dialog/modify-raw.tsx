@@ -91,11 +91,11 @@ export const ModifyRawDialog = ({isOpen, resolve, iri}: ModifyRawDialogProps) =>
   return (
     // Forbid modal auto close
     <Modal open={isOpen} onOpenChange={state => state || resolve()}>
-      <ModalContent className="max-w-5xl">
+      <ModalContent className="max-w-none h-[100%]">
         <ModalHeader>
           <ModalTitle>{t("modify raw data")}</ModalTitle>
         </ModalHeader>
-        <ModalBody>
+        <ModalBody className="grow flex flex-col">
 
           <div className="w-full">
             <div className="flex items-center border-b pb-2">
@@ -137,7 +137,7 @@ export const ModifyRawDialog = ({isOpen, resolve, iri}: ModifyRawDialogProps) =>
             {/* <div className="p-4">{tabs.find((tab) => tab.id === activeTab)?.name || "No active tab"}</div> */}
           </div>
 
-          <MonacoEditor refs={monaco} defaultValue={""} language="json"  />
+          <MonacoEditor refs={monaco} defaultValue={remoteData ?? ""} language="json"  />
         </ModalBody>
         <ModalFooter>
           <Button variant="outline" onClick={formatJson}>{t("format as json")}</Button>

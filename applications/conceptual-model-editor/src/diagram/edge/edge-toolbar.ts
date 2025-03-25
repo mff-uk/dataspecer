@@ -1,6 +1,6 @@
 import { ReactFlowState } from "@xyflow/react";
 
-import { EdgeType } from "../diagram-api";
+import { EdgeType } from "../diagram-model";
 
 import "./edge-toolbar.css";
 

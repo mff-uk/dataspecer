@@ -1,18 +1,20 @@
-import { type DialogProps } from "../dialog-api";
+import { DialogWrapper, type DialogProps } from "../dialog-api";
 import { configuration, t } from "../../application";
 import { MultiLanguageInputForLanguageString } from "../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../components/dialog/dialog-detail-row";
-import { SelectModel } from "../class/components/select-model";
-import { SelectEntity } from "../class/components/select-entity";
-import { SelectDataType } from "./components/select-data-type";
-import { SelectCardinality } from "./components/select-cardinality";
-import { InputIri } from "../class/components/input-iri";
-import { EditAttributeDialogState, useEditAttributeDialogController } from "./edit-attribute-dialog-controller";
-import { SpecializationSelect } from "../class/components/select-specialization";
-import { ValidationMessage } from "../association-profile/components/validation-message";
+import { SelectModel } from "../components/select-model";
+import { SelectEntity } from "../components/select-entity";
+import { SelectDataType } from "../components/select-data-type";
+import { SelectCardinality } from "../components/select-cardinality";
+import { InputIri } from "../components/input-iri";
+import { ValidationMessage } from "../components/validation-message";
+import { isValid } from "../utilities/validation-utilities";
+import { AttributeDialogState } from "./edit-attribute-dialog-state";
+import { useAttributeDialogController } from "./edit-attribute-dialog-controller";
+import { SpecializationSelect } from "../components/select-specialization";
 
-export const EditAttributeDialog = (props: DialogProps<EditAttributeDialogState>) => {
-  const controller = useEditAttributeDialogController(props);
+export const AttributeDialog = (props: DialogProps<AttributeDialogState>) => {
+  const controller = useAttributeDialogController(props);
   const state = props.state;
   return (
     <>
@@ -106,3 +108,57 @@ export const EditAttributeDialog = (props: DialogProps<EditAttributeDialogState>
     </>
   );
 };
+
+export const createNewAttributeDialog = (
+  state: AttributeDialogState,
+  onConfirm: (state: AttributeDialogState) => void,
+): DialogWrapper<AttributeDialogState> => {
+  return {
+    label: "dialog.attribute.label-create",
+    component: AttributeDialog,
+    state,
+    confirmLabel: "dialog.attribute.ok-create",
+    cancelLabel: "dialog.attribute.cancel",
+    validate: (state) => isValid(state.iriValidation)
+      && isValid(state.domainValidation)
+      && isValid(state.rangeValidation),
+    onConfirm: onConfirm,
+    onClose: null,
+  };
+}
+
+export const createEditAttributeDialog = (
+  state: AttributeDialogState,
+  onConfirm: (state: AttributeDialogState) => void,
+): DialogWrapper<AttributeDialogState> => {
+  return {
+    label: "dialog.attribute.label-edit",
+    component: AttributeDialog,
+    state,
+    confirmLabel: "dialog.attribute.ok-edit",
+    cancelLabel: "dialog.attribute.cancel",
+    validate: (state) => isValid(state.iriValidation)
+      && isValid(state.domainValidation)
+      && isValid(state.rangeValidation),
+    onConfirm: onConfirm,
+    onClose: null,
+  };
+}
+
+export const createAddAttributeDialog = (
+  state: AttributeDialogState,
+  onConfirm: (state: AttributeDialogState) => void,
+): DialogWrapper<AttributeDialogState> => {
+  return {
+    label: "dialog.attribute.label-create",
+    component: AttributeDialog,
+    state,
+    confirmLabel: "dialog.attribute.ok-create",
+    cancelLabel: "dialog.attribute.cancel",
+    validate: (state) => isValid(state.iriValidation)
+      && isValid(state.domainValidation)
+      && isValid(state.rangeValidation),
+    onConfirm: onConfirm,
+    onClose: null,
+  };
+}

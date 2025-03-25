@@ -66,11 +66,27 @@ export const knownDatatypes: KnownDatatype[] = [
         }
     },
     {
+        "iri": "http://www.w3.org/2001/XMLSchema#nonNegativeInteger",
+        "documentation": "http://www.w3.org/2001/XMLSchema#nonNegativeInteger",
+        "label": {
+            "cs": "Nezáporné celé číslo",
+            "en": "Non-negative integer"
+        }
+    },
+    {
         "iri": "http://www.w3.org/2001/XMLSchema#decimal",
         "documentation": "https://ofn.gov.cz/základní-datové-typy/2020-07-01/#desetinné-číslo",
         "label": {
             "cs": "Desetinné číslo",
             "en": "Decimal number"
+        }
+    },
+    {
+        "iri": "http://www.w3.org/2001/XMLSchema#duration",
+        "documentation": "http://www.w3.org/2001/XMLSchema#duration",
+        "label": {
+            "cs": "Doba trvání",
+            "en": "Duration"
         }
     },
     {

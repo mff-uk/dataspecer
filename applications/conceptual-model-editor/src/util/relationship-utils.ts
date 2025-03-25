@@ -6,7 +6,6 @@ import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-m
 import {
   type SemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import type { VisualModel } from "@dataspecer/core-v2/visual-model";
 
 export type DomainAndRange<EndType> = {
     domain: EndType | null,
@@ -116,32 +115,3 @@ export const bothEndsHaveAnIri = (entity: SemanticModelRelationship | SemanticMo
   }
 };
 
-/**
- * Return true, when both ends of a relationship are on the canvas.
- */
-export const hasBothEndsInVisualModel = (
-  entity: SemanticModelRelationship
-    | SemanticModelRelationshipUsage
-    | SemanticModelRelationshipProfile,
-  visualModel: VisualModel | null,
-) => {
-  if (visualModel === null) {
-    return false;
-  }
-
-  let domainConcept = "";
-  let rangeConcept = "";
-  if (isSemanticModelRelationship(entity)) {
-    const domainAndRange = getDomainAndRange(entity);
-    domainConcept = domainAndRange.domain?.concept ?? "";
-    rangeConcept = domainAndRange.range?.concept ?? "";
-  } else {
-    const domainAndRange = getDomainAndRange(entity);
-    domainConcept = domainAndRange.domain?.concept ?? "";
-    rangeConcept = domainAndRange.range?.concept ?? "";
-  }
-
-  const domainOnCanvas = visualModel.getVisualEntityForRepresented(domainConcept);
-  const rangeOnCanvas = visualModel.getVisualEntityForRepresented(rangeConcept);
-  return domainOnCanvas !== null && rangeOnCanvas !== null;
-};

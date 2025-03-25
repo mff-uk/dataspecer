@@ -1,7 +1,7 @@
 import type { SemanticModelRelationshipEnd } from "@dataspecer/core-v2/semantic-model/concepts";
-import type { LanguageString } from "@dataspecer/core/core";
+import type { LanguageString } from "../dataspecer/entity-model";
 
-export type AssociationConnectionType = {
+type AssociationConnectionType = {
     type: "association";
     ends: SemanticModelRelationshipEnd[];
     name: LanguageString;
@@ -9,7 +9,7 @@ export type AssociationConnectionType = {
     iri: string | null;
 };
 
-export type GeneralizationConnectionType = {
+type GeneralizationConnectionType = {
     type: "generalization";
     child: string;
     parent: string;

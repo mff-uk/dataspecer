@@ -2,10 +2,10 @@ import { useMemo } from "react";
 import { type DialogProps } from "../dialog-api";
 import { Language } from "../../configuration/options";
 import { DropResult } from "@hello-pangea/dnd";
-import { getLocalizedStringFromLanguageString, getStringFromLanguageStringInLang } from "../../util/language-utils";
-import { EditAttributeDialogState } from "../attribute/edit-attribute-dialog-controller";
-import { EditAttributeProfileDialogState } from "../attribute-profile/edit-attribute-profile-dialog-controller";
+import { getLocalizedStringFromLanguageString } from "../../util/language-utils";
 import { useActions } from "../../action/actions-react-binding";
+import { AttributeDialogState } from "../attribute/edit-attribute-dialog-state";
+import { AttributeProfileDialogState } from "../attribute-profile/edit-attribute-profile-dialog-state";
 
 export type AttributeData = {
   identifier: string,
@@ -44,15 +44,15 @@ export const changeablePartOfEditNodeAttributeStateAsArray = ["visibleAttributes
 export interface CreateEditNodeAttributesControllerType {
   /**
    * Moves entities between the {@link ChangeablePartOfEditNodeAttributeState}.
-   * Concretely from {@link sourceFieldInState} to {@link targetFieldInState}.
+   * Concretely from {@link sourceField} to {@link targetField}.
    * So for example from hiddenAttributes into visibleAttributes.
-   * Note that {@link sourceFieldInState} and {@link targetFieldInState} can be the same.
-   * @param oldPosition is the position in the {@link sourceFieldInState}
-   * @param newPosition is the position in the {@link targetFieldInState}
+   * Note that {@link sourceField} and {@link targetField} can be the same.
+   * @param oldPosition is the position in the {@link sourceField}
+   * @param newPosition is the position in the {@link targetField}
    */
   moveToNewPosition: (
-    sourceFieldInState: ChangeablePartOfEditNodeAttributeState,
-    targetFieldInState: ChangeablePartOfEditNodeAttributeState,
+    sourceField: ChangeablePartOfEditNodeAttributeState,
+    targetField: ChangeablePartOfEditNodeAttributeState,
     oldPosition: number,
     newPosition: number
   ) => void;
@@ -77,22 +77,22 @@ export function useEditNodeAttributesController(
   const { openCreateAttributeDialogForClass } = useActions();
   return useMemo(() => {
     const moveToNewPosition = (
-      sourceFieldInState: ChangeablePartOfEditNodeAttributeState,
-      targetFieldInState: ChangeablePartOfEditNodeAttributeState,
+      sourceField: ChangeablePartOfEditNodeAttributeState,
+      targetField: ChangeablePartOfEditNodeAttributeState,
       oldPosition: number,
       newPosition: number
     ) => {
-      const isSourceSameAsTarget = sourceFieldInState === targetFieldInState;
-      const nextStateForSourceFieldInState: AttributeData[] = [...state[sourceFieldInState]];
-      const nextStateForTargetFieldInState = isSourceSameAsTarget ?
-        nextStateForSourceFieldInState :
-        [...state[targetFieldInState]];
-      const [removed] = nextStateForSourceFieldInState.splice(oldPosition, 1);
-      nextStateForTargetFieldInState.splice(newPosition, 0, removed);
+      const isSourceSameAsTarget = sourceField === targetField;
+      const nextStateForSourceField: AttributeData[] = [...state[sourceField]];
+      const nextStateForTargetField = isSourceSameAsTarget ?
+        nextStateForSourceField :
+        [...state[targetField]];
+      const [removed] = nextStateForSourceField.splice(oldPosition, 1);
+      nextStateForTargetField.splice(newPosition, 0, removed);
       const nextState = {
         ...state,   // Now not necessary - only necessary if we have more than 2 fields
-        [sourceFieldInState]: nextStateForSourceFieldInState,
-        [targetFieldInState]: nextStateForTargetFieldInState,
+        [sourceField]: nextStateForSourceField,
+        [targetField]: nextStateForTargetField,
       };
       changeState(nextState);
     };
@@ -108,7 +108,7 @@ export function useEditNodeAttributesController(
 
     const onCreateNewAttribute = () => {
       const onConfirmCallback = (
-        returnedState: EditAttributeDialogState | EditAttributeProfileDialogState,
+        returnedState: AttributeDialogState | AttributeProfileDialogState,
         createdAttributeIdentifier: string
       ) => {
         if(returnedState.domain.identifier !== state.classIdentifier) {
@@ -119,15 +119,15 @@ export function useEditNodeAttributesController(
         let profileOf: string | null;
 
         if(state.isDomainNodeProfile) {
-          returnedState = (returnedState as EditAttributeProfileDialogState);
-          if(returnedState.overrideName) {
+          const profileState = returnedState as AttributeProfileDialogState;
+          if(profileState.overrideName) {
             name = getLocalizedStringFromLanguageString(returnedState.name, returnedState.language);
           }
           else {
-            name = getLocalizedStringFromLanguageString(returnedState.nameSourceValue, returnedState.language);
+            name = getLocalizedStringFromLanguageString(profileState.nameSourceValue, returnedState.language);
           }
 
-          profileOf = returnedState.profiles
+          profileOf = profileState.profiles
             .map(profile => {
               const localizedName = getLocalizedStringFromLanguageString(profile.name, returnedState.language);
               return tryGetName(localizedName, profile.iri, profile.identifier);

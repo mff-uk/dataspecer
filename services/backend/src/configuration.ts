@@ -2,8 +2,24 @@
 import configuration from "../main.config";
 
 export interface Configuration {
-    // Server's public URL. Must not end with a slash
-    host: string;
+    /**
+     * Public URL of server only.
+     * @deprecated, use baseName. If baseName is set, then host is baseName + "/api"
+     */
+    host?: string;
+
+    /**
+     * Base name of the whole application, i.e. URL to the main page of Dataspecer.
+     * Deprecates host.
+     * Must not end with a slash.
+     */
+    baseName?: string;
+
+    /**
+     * Static files path.
+     * Works only with baseName.
+     */
+    staticFilesPath?: string;
 
     // Local port to listen on
     port: number;
@@ -49,6 +65,12 @@ const defaultConfiguration = {
 const envConfiguration = {} as Partial<Configuration>;
 if (process.env.HOST) {
     envConfiguration.host = process.env.HOST;
+}
+if (process.env.BASE_NAME) {
+    envConfiguration.baseName = process.env.BASE_NAME;
+}
+if (process.env.STATIC_FILES_PATH) {
+    envConfiguration.staticFilesPath = process.env.STATIC_FILES_PATH;
 }
 if (process.env.PORT) {
     envConfiguration.port = Number(process.env.PORT);

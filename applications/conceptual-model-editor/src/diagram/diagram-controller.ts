@@ -32,13 +32,15 @@ import { type UseDiagramType } from "./diagram-hook";
 import {
   type DiagramActions,
   type DiagramCallbacks,
+} from "./diagram-api";
+import {
   type Node as ApiNode,
   type Edge as ApiEdge,
   type ViewportDimensions,
   EdgeType as ApiEdgeType,
   Position,
   GroupWithContent,
-} from "./diagram-api";
+} from "./diagram-model";
 import { type EdgeToolbarProps } from "./edge/edge-toolbar";
 import { EntityNodeName } from "./node/entity-node";
 import { PropertyEdgeName } from "./edge/property-edge";
@@ -59,10 +61,13 @@ import { GeneralCanvasMenuComponentProps } from "./canvas/canvas-menu-general";
 import { isEqual, omit } from "lodash";
 import { AlignmentMenu } from "./node/alignment-actions-menu";
 
-const UINITIALIZED_VALUE_GROUP_POSITION = 10000000;
+const UNINITIALIZED_VALUE_GROUP_POSITION = 10000000;
 
 const getTopLeftPosition = (nodes: Node<any>[]) => {
-  const topLeft = {x: UINITIALIZED_VALUE_GROUP_POSITION, y: UINITIALIZED_VALUE_GROUP_POSITION};
+  const topLeft = {
+    x: UNINITIALIZED_VALUE_GROUP_POSITION,
+    y: UNINITIALIZED_VALUE_GROUP_POSITION,
+  };
   nodes.forEach(node => {
     if(node.position.x < topLeft.x) {
       topLeft.x = node.position.x;
@@ -105,7 +110,8 @@ function showGroupNode(groupNode: Node<any>, groups: Record<string, NodeIdentifi
   const botRightGroupNodePosition = getBotRightPosition(nodesInGroup);
   // We have to also set the position, keeping the old one is not enough -
   // because for example layouting was performed or group was dissolved,
-  // therefore the old position is incorrect since only the position of the dissolved group was changed by dragging
+  // therefore the old position is incorrect since only the position
+  // of the dissolved group was changed by dragging
   newGroupNode.position = groupNodePosition;
   const width = botRightGroupNodePosition.x - groupNodePosition.x;
   const height = botRightGroupNodePosition.y - groupNodePosition.y;
@@ -227,7 +233,7 @@ interface UseDiagramControllerType {
 
   canvasMenu: GeneralCanvasMenuComponentProps | null;
 
-  onNodesChange: OnNodesChange<NodeType>;
+  onNodesChange: OnNodesChange<Node>;
 
   onEdgesChange: OnEdgesChange<EdgeType>;
 
@@ -253,6 +259,7 @@ interface UseDiagramControllerType {
 
   alignmentController: AlignmentController;
 
+  // TODO RadStr: Change into DiagramNodeTypes or whatever is it called in the other branch (after merge)
   onNodeMouseEnter: (event: React.MouseEvent, node: Node) => void;
 
   onNodeMouseLeave: (event: React.MouseEvent, node: Node) => void;
@@ -274,15 +281,13 @@ function useCreateReactStates() {
   const [edgeToolbar, setEdgeToolbar] = useState<EdgeToolbarProps | null>(null);
   const [canvasMenu, setCanvasMenu] = useState<GeneralCanvasMenuComponentProps | null>(null);
 
-  /*
-   * Says if the node is selected - having the reactflow property is not enough,
-   * because with groups we have to separate between selection by user and in
-   * program (when group was selected).
-   * If we used only the reactflow selection then we can not tell, when to unselect
-   * all the nodes in group, because we are not getting the events of user selection
-   * on already selected nodes.
-   * So therefore the selected property on reactflow nodes is only the user-selected one
-   */
+  // Says if the node is selected - having the reactflow property is not enough,
+  // because with groups we have to separate between selection by user and in
+  // program (when group was selected).
+  // If we used only the reactflow selection then we can not tell, when to unselect
+  // all the nodes in group, because we are not getting the events of user selection
+  // on already selected nodes.
+  // So therefore the selected property on reactflow nodes is only the user-selected one.
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const [selectedEdges, setSelectedEdges] = useState<string[]>([]);
 
@@ -415,8 +420,13 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
     api, alignmentController, canvasHighlighting.enableTemporarily),
   [api, alignmentController, canvasHighlighting.enableTemporarily]);
 
-  const onNodeMouseEnter = useCallback(createOnNodeMouseEnterHandler(canvasHighlighting.changeHighlight, reactFlowInstance), [canvasHighlighting.changeHighlight, reactFlowInstance]);
-  const onNodeMouseLeave = useCallback(createOnNodeMouseLeaveHandler(canvasHighlighting.resetHighlight), [canvasHighlighting.resetHighlight]);
+  const onNodeMouseEnter = useCallback(
+    createOnNodeMouseEnterHandler(canvasHighlighting.changeHighlight, reactFlowInstance),
+    [canvasHighlighting.changeHighlight, reactFlowInstance]);
+
+  const onNodeMouseLeave = useCallback(
+    createOnNodeMouseLeaveHandler(canvasHighlighting.resetHighlight),
+    [canvasHighlighting.resetHighlight]);
 
   const onSelectionStart = useCallback(createOnSelectionStartHandler(
     cleanSelection, selectedNodesRef.current, userSelectedNodesRef.current),
@@ -521,7 +531,7 @@ export function useDiagramController(api: UseDiagramType): UseDiagramControllerT
   const reactStates = useCreateReactStates();
   // We can use useStore get low level access.
 
-  // TODO: Actually it would be better if we grouped the controller parts as in the reactflow reference - https://reactflow.dev/api-reference/react-flow
+  // TODO RadStr: Actually it would be better if we grouped the controller parts as in the reactflow reference - https://reactflow.dev/api-reference/react-flow
   const reactFlowInstance = useReactFlow<NodeType, EdgeType>();
   const independentPartOfDiagramController = useCreateDiagramControllerIndependentOnActionsAndContext(api, reactFlowInstance, reactStates);
   const dependentPartOfDiagramController = useCreateDiagramControllerDependentOnActionsAndContext(api, reactFlowInstance, reactStates, independentPartOfDiagramController);
@@ -584,7 +594,7 @@ const createOnNodeDragStartHandler = (
 
 const createOnNodeMouseEnterHandler = (
   changeHighlight: (
-    startingNodeId: string,
+    startingNodesIdentifiers: string[],
     reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
     isSourceOfEventCanvas: boolean,
     modelOfClassWhichStartedHighlighting: string | null
@@ -592,9 +602,26 @@ const createOnNodeMouseEnterHandler = (
   reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
 ) => {
   return (_: React.MouseEvent, node: Node) => {
-    changeHighlight(node.id, reactFlowInstance, true, null);
+    const nodesWithSameRepresented = findNodesRepresentedBySameClass(
+      reactFlowInstance, node as NodeType);
+    changeHighlight(nodesWithSameRepresented, reactFlowInstance, true, null);
   };
 };
+
+const findNodesRepresentedBySameClass = (
+  reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
+  node: NodeType
+) => {
+  const nodesWithSameRepresented = [];
+  for(const nodeInDiagram of reactFlowInstance.getNodes()) {
+    // Also handles the case when nodeInDiagram === node
+    if(nodeInDiagram.data.externalIdentifier === node.data.externalIdentifier) {
+      nodesWithSameRepresented.push(nodeInDiagram.data.identifier);
+    }
+  }
+
+  return nodesWithSameRepresented;
+}
 
 const createOnNodeMouseLeaveHandler = (resetHighlight: () => void) => {
   return (_: React.MouseEvent, _node: Node) => {
@@ -661,7 +688,7 @@ const createNodesChangeHandler = (
   cleanSelection: () => void,
   api: UseDiagramType,
 ) => {
-  return (changes: NodeChange<NodeType>[]) => {
+  return (nodeChanges: NodeChange<Node>[]) => {
     // We can alter the change here ... for example allow only x-movement.
     // changes.forEach(change => {
     //   if (change.type === "position") {
@@ -671,6 +698,7 @@ const createNodesChangeHandler = (
     //   }
     // });
 
+    let changes = nodeChanges as NodeChange<NodeType>[];
     const isArtificiallyCalled = isOnNodesChangeArtificiallyCalled(changes);
 
     if(handleStartOfGroupDraggingThroughGroupNode(nodes, changes, groups)) {
@@ -1132,7 +1160,7 @@ const updateChangesByGroupDragEvents = (
             y: node.position.y + positionDifference.y,
           };
           // Another specific case, because of having old state - the node wasn't initialized yet to correct value
-          if(node.position.x === UINITIALIZED_VALUE_GROUP_POSITION) {
+          if(node.position.x === UNINITIALIZED_VALUE_GROUP_POSITION) {
             if(groups[node.id] === undefined) {
               console.warn("Node was supposed to be group but isn't");
               continue;
@@ -1485,8 +1513,10 @@ const createActions = (
   setSelectedNodesThroughOnNodesChange: (newlySelectedNodes: string[], newlyUnselectedNodes: string[]) => void,
   setSelectedEdgesInternal: React.Dispatch<React.SetStateAction<string[]>>,
   changeHighlight: (
-    startingNodeId: string,
-    reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>, isSourceOfEventCanvas: boolean, modelOfClassWhichStartedHighlighting: string | null
+    startingNodesIdentifiers: string[],
+    reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
+    isSourceOfEventCanvas: boolean,
+    modelOfClassWhichStartedHighlighting: string | null
   ) => void,
   groups: Record<string, NodeIdentifierWithType[]>,
   setGroups: ReactPrevSetStateType<Record<string, NodeIdentifierWithType[]>>,
@@ -1859,8 +1889,8 @@ const createActions = (
       console.log("openGroupMenu", {groupIdentifier, canvasPosition});
       context?.onOpenCanvasContextMenu(groupIdentifier, canvasPosition, GroupMenu);
     },
-    highlightNodeInExplorationModeFromCatalog(nodeIdentifier, modelOfClassWhichStartedHighlighting) {
-      changeHighlight(nodeIdentifier, reactFlow, false, modelOfClassWhichStartedHighlighting);
+    highlightNodesInExplorationModeFromCatalog(nodeIdentifiers, modelOfClassWhichStartedHighlighting) {
+      changeHighlight(nodeIdentifiers, reactFlow, false, modelOfClassWhichStartedHighlighting);
     },
   };
 };

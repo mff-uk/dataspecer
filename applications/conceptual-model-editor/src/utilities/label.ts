@@ -1,7 +1,7 @@
 import { EntityModel } from "@dataspecer/core-v2";
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { type TranslationFunction } from "../application";
-import { CmeModel } from "../dataspecer/cme-model";
+import { CmeSemanticModel } from "../dataspecer/cme-model";
 
 /**
  * Return a label that should be used for a model.
@@ -50,7 +50,7 @@ interface LabeledEntity extends Labeled {
  * Return a new array, where no two entities have identical label.
  */
 export function sanitizeDuplicitiesInRepresentativeLabels<Type extends LabeledEntity>(
-  vocabularies: CmeModel[],
+  vocabularies: CmeSemanticModel[],
   entities: Type[],
 ): Type[] {
   // Local functions to create vocabulary key.

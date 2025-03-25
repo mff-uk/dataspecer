@@ -1,6 +1,6 @@
 import { rdfToConceptualModel } from "./rdf-to-dsv";
 import { conceptualModelToRdf } from "./dsv-to-rdf";
-import { Cardinality, ConceptualModel, ObjectPropertyProfile } from "./dsv-model";
+import { Cardinality, DsvModel, ObjectPropertyProfile } from "./dsv-model";
 import { conceptualModelToEntityListContainer } from "./dsv-to-entity-model";
 import { DataTypeURIs, isDataType } from "../datatypes";
 import { isSemanticModelClass, isSemanticModelRelationship } from "../concepts";
@@ -14,17 +14,20 @@ test("From RDF to DSV and back.", async () => {
 @prefix owl: <http://www.w3.org/2002/07/owl#>.
 @prefix skos: <http://www.w3.org/2004/02/skos/core#>.
 
+
 <http://dcat-ap-cz/model> a dsv:ConceptualModel.
 
 <https://dcat-ap/#Dataset> dct:isPartOf <http://dcat-ap-cz/model>;
     a dsv:Profile;
     dsv:reusesPropertyValue [
-      dsv:reusedProperty skos:prefLabel ;
-      dsv:reusedFromResource <http://www.w3.org/ns/dcat#Dataset> ;
-    ], [
-      dsv:reusedProperty <http://purl.org/vocab/vann/usageNote> ;
-      dsv:reusedFromResource <http://www.w3.org/ns/dcat#Dataset> ;
-    ];
+  a dsv:PropertyValueReuse;
+  dsv:reusedProperty skos:prefLabel;
+  dsv:reusedFromResource <http://www.w3.org/ns/dcat#Dataset>
+], [
+  a dsv:PropertyValueReuse;
+  dsv:reusedProperty <http://purl.org/vocab/vann/usageNote>;
+  dsv:reusedFromResource <http://www.w3.org/ns/dcat#Dataset>
+];
     a dsv:ClassProfile;
     dsv:class <http://www.w3.org/ns/dcat#Dataset>.
 
@@ -32,12 +35,14 @@ test("From RDF to DSV and back.", async () => {
     dct:isPartOf <http://dcat-ap-cz/model>;
     a dsv:Profile;
     dsv:reusesPropertyValue [
-      dsv:reusedProperty skos:prefLabel ;
-      dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution> ;
-    ], [
-      dsv:reusedProperty <http://purl.org/vocab/vann/usageNote> ;
-      dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution> ;
-    ];
+  a dsv:PropertyValueReuse;
+  dsv:reusedProperty skos:prefLabel;
+  dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution>
+], [
+  a dsv:PropertyValueReuse;
+  dsv:reusedProperty <http://purl.org/vocab/vann/usageNote>;
+  dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution>
+];
     dsv:cardinality <https://w3id.org/dsv#0n>;
     dsv:property <http://www.w3.org/ns/dcat#distribution>;
     a dsv:ObjectPropertyProfile;
@@ -56,7 +61,7 @@ test("From RDF to DSV and back.", async () => {
   const actualModels = await rdfToConceptualModel(inputRdf);
   expect(actualModels.length).toBe(1);
 
-  const expectedModel: ConceptualModel = {
+  const expectedModel: DsvModel = {
     "iri": "http://dcat-ap-cz/model",
     "profiles": [{
       "iri": "https://dcat-ap/#Dataset",
@@ -68,10 +73,10 @@ test("From RDF to DSV and back.", async () => {
       "profiledClassIri": ["http://www.w3.org/ns/dcat#Dataset"],
       "reusesPropertyValue": [{
         "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
-        "propertyreusedFromResourceIri": "http://www.w3.org/ns/dcat#Dataset",
+        "propertyReusedFromResourceIri": "http://www.w3.org/ns/dcat#Dataset",
       }, {
         "reusedPropertyIri": "http://purl.org/vocab/vann/usageNote",
-        "propertyreusedFromResourceIri": "http://www.w3.org/ns/dcat#Dataset",
+        "propertyReusedFromResourceIri": "http://www.w3.org/ns/dcat#Dataset",
       }],
       "properties": [{
         "iri": "http://www.w3.org/ns/dcat#distribution-profile",
@@ -87,12 +92,14 @@ test("From RDF to DSV and back.", async () => {
         ],
         "reusesPropertyValue": [{
           "reusedPropertyIri": "http://www.w3.org/2004/02/skos/core#prefLabel",
-          "propertyreusedFromResourceIri": "http://dcat-ap/ns/dcat#Distribution",
+          "propertyReusedFromResourceIri": "http://dcat-ap/ns/dcat#Distribution",
         }, {
           "reusedPropertyIri": "http://purl.org/vocab/vann/usageNote",
-          "propertyreusedFromResourceIri": "http://dcat-ap/ns/dcat#Distribution",
+          "propertyReusedFromResourceIri": "http://dcat-ap/ns/dcat#Distribution",
         }],
-      } as ObjectPropertyProfile]
+        "specializationOfIri": [],
+      } as ObjectPropertyProfile],
+      "specializationOfIri": [],
     }, {
       "iri": "https://dcat-ap-cz/#Dataset",
       "prefLabel": {},
@@ -103,6 +110,7 @@ test("From RDF to DSV and back.", async () => {
       "profiledClassIri": [],
       "properties": [],
       "reusesPropertyValue": [],
+      "specializationOfIri": [],
     }, {
       "iri": "http://dcat-ap/ns/dcat#Distribution",
       "prefLabel": {},
@@ -113,64 +121,15 @@ test("From RDF to DSV and back.", async () => {
       "profiledClassIri": ["http://www.w3.org/ns/dcat#Distribution"],
       "properties": [],
       "reusesPropertyValue": [],
-    }]
+      "specializationOfIri": [],
+    }],
   };
   expect(actualModels[0]).toStrictEqual(expectedModel);
 
   const actualRdf = await conceptualModelToRdf(actualModels[0] as any, {});
+
   // We can not compare to input due to blank nodes.
-  expect(actualRdf).toBe(`@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
-@prefix dct: <http://purl.org/dc/terms/>.
-@prefix dsv: <https://w3id.org/dsv#>.
-@prefix owl: <http://www.w3.org/2002/07/owl#>.
-@prefix skos: <http://www.w3.org/2004/02/skos/core#>.
-
-
-<http://dcat-ap-cz/model> a dsv:ConceptualModel.
-
-<https://dcat-ap/#Dataset> dct:isPartOf <http://dcat-ap-cz/model>;
-    a dsv:Profile;
-    dsv:reusesPropertyValue _:n3-4.
-_:n3-4 a dsv:PropertyValueReuse;
-    dsv:reusedProperty skos:prefLabel;
-    dsv:reusedFromResource <http://www.w3.org/ns/dcat#Dataset>.
-
-<https://dcat-ap/#Dataset> dsv:reusesPropertyValue _:n3-5.
-_:n3-5 a dsv:PropertyValueReuse;
-    dsv:reusedProperty <http://purl.org/vocab/vann/usageNote>;
-    dsv:reusedFromResource <http://www.w3.org/ns/dcat#Dataset>.
-
-<https://dcat-ap/#Dataset> a dsv:ClassProfile;
-    dsv:class <http://www.w3.org/ns/dcat#Dataset>.
-
-<http://www.w3.org/ns/dcat#distribution-profile> dsv:domain <https://dcat-ap/#Dataset>;
-    dct:isPartOf <http://dcat-ap-cz/model>;
-    a dsv:Profile;
-    dsv:reusesPropertyValue _:n3-6.
-_:n3-6 a dsv:PropertyValueReuse;
-    dsv:reusedProperty skos:prefLabel;
-    dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution>.
-
-<http://www.w3.org/ns/dcat#distribution-profile> dsv:reusesPropertyValue _:n3-7.
-_:n3-7 a dsv:PropertyValueReuse;
-    dsv:reusedProperty <http://purl.org/vocab/vann/usageNote>;
-    dsv:reusedFromResource <http://dcat-ap/ns/dcat#Distribution>.
-
-<http://www.w3.org/ns/dcat#distribution-profile> dsv:cardinality <https://w3id.org/dsv#0n>;
-    dsv:property <http://www.w3.org/ns/dcat#distribution>;
-    a dsv:ObjectPropertyProfile;
-    dsv:objectPropertyRange <http://dcat-ap/ns/dcat#Distribution>.
-
-<https://dcat-ap-cz/#Dataset> dct:isPartOf <http://dcat-ap-cz/model>;
-    a dsv:Profile;
-    dsv:profileOf <https://dcat-ap/#Dataset>;
-    a dsv:ClassProfile.
-
-<http://dcat-ap/ns/dcat#Distribution> dct:isPartOf <http://dcat-ap-cz/model>;
-    a dsv:Profile, dsv:ClassProfile;
-    dsv:class <http://www.w3.org/ns/dcat#Distribution>.
-`);
+  expect(actualRdf).toBe(inputRdf);
 });
 
 test("Issue #989", async () => {
@@ -303,8 +262,10 @@ _:n3-813 a dsv:PropertyValueReuse;
   const conceptualModel = await rdfToConceptualModel(inputRdf);
   expect(conceptualModel.length).toBe(1);
 
+  let counter = 0;
   const actualEntities = conceptualModelToEntityListContainer(
     conceptualModel[0]!, {
+    generalizationIdentifier: () => `id-${++counter}`,
     // We use the IRI as an identifier here.
     // Should be good enough for test, do not repeat elsewhere.
     iriToIdentifier: iri => knownMapping[iri] ?? iri,

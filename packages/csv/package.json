@@ -14,8 +14,7 @@
   },
   "dependencies": {
     "@dataspecer/core": "*",
-    "@dataspecer/sparql-query": "*",
-    "@dataspecer/bikeshed": "*"
+    "@dataspecer/sparql-query": "*"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",

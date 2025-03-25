@@ -4,12 +4,6 @@ import {
   isSemanticModelGeneralization,
   isSemanticModelRelationship,
 } from "@dataspecer/core-v2/semantic-model/concepts";
-import {
-  SemanticModelRelationshipUsage,
-  isSemanticModelAttributeUsage,
-  isSemanticModelClassUsage,
-  isSemanticModelRelationshipUsage,
-} from "@dataspecer/core-v2/semantic-model/usage/concepts";
 
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
@@ -26,12 +20,14 @@ import { openEditAttributeProfileDialogAction } from "./open-edit-attribute-prof
 import { openEditClassDialogAction } from "./open-edit-class-dialog";
 import { openEditClassProfileDialogAction } from "./open-edit-class-profile-dialog";
 import { createLogger } from "../application";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { isSemanticModelAttributeProfile } from "../dataspecer/semantic-model";
+import { CmeModelOperationExecutor } from "../dataspecer/cme-model/cme-model-operation-executor";
 
 const LOG = createLogger(import.meta.url);
 
 export function openModifyDialogAction(
+  cmeExecutor: CmeModelOperationExecutor,
   options: Options,
   dialogs: DialogApiContextType,
   notifications: UseNotificationServiceWriterType,
@@ -58,36 +54,33 @@ export function openModifyDialogAction(
   // we just fall through to a single dialog for all.
   if (isSemanticModelClass(entity)) {
     openEditClassDialogAction(
-      options, dialogs, classes, graph, notifications, visualModel, model,
+      cmeExecutor, options, dialogs, classes, graph, visualModel, model,
       entity);
     return;
-  } else if (isSemanticModelClassUsage(entity)
-    || isSemanticModelClassProfile(entity)) {
+  } else if (isSemanticModelClassProfile(entity)) {
     openEditClassProfileDialogAction(
-      options, dialogs, classes, graph, notifications, visualModel, model,
-      entity);
+      cmeExecutor, options, dialogs, classes, graph,
+      visualModel, model, entity);
     return;
   } else if (isSemanticModelAttribute(entity)) {
     openEditAttributeDialogAction(
-      options, dialogs, classes, graph, notifications, visualModel, model,
-      entity);
+      cmeExecutor, options, dialogs, classes, graph,
+      visualModel, model, entity);
     return;
-  } else if (isSemanticModelAttributeUsage(entity)
-    || isSemanticModelAttributeProfile(entity)) {
+  } else if (isSemanticModelAttributeProfile(entity)) {
     openEditAttributeProfileDialogAction(
-      options, dialogs, classes, graph, notifications, visualModel, model,
-      aggregate.rawEntity as SemanticModelRelationshipUsage);
+      cmeExecutor, options, dialogs, classes, graph, visualModel,
+      model, aggregate.rawEntity as SemanticModelRelationshipProfile);
     return;
   } else if (isSemanticModelRelationship(entity)) {
     openEditAssociationDialogAction(
-      options, dialogs, classes, graph, notifications, visualModel, model,
-      entity);
+      cmeExecutor, options, dialogs, classes, graph,
+      visualModel, model, entity);
     return;
-  } else if (isSemanticModelRelationshipUsage(entity)
-    || isSemanticModelRelationshipProfile(entity)) {
+  } else if (isSemanticModelRelationshipProfile(entity)) {
     openEditAssociationProfileDialogAction(
-      options, dialogs, classes, graph, notifications, visualModel, model,
-      aggregate.rawEntity as SemanticModelRelationshipUsage);
+      cmeExecutor, options, dialogs, classes, graph, visualModel,
+      model, aggregate.rawEntity as SemanticModelRelationshipProfile);
     return;
   } else if (isSemanticModelGeneralization(entity)) {
     notifications.error("Generalization modification is not supported!");

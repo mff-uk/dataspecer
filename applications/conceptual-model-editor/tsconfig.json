@@ -20,6 +20,11 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
 
+    /* https://ui.shadcn.com/docs/installation/vite */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

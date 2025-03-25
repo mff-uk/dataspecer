@@ -29,10 +29,7 @@ export class JsonSchemaObject extends JsonSchemaDefinition {
 
   objectExamples: object[] = [];
 
-  /**
-   * If true, sets additionalProperties to false.
-   */
-  noAdditionalProperties = false;
+  additionalProperties: JsonSchemaDefinition | false | null = null;
 
   constructor() {
     super(JsonSchemaObject.TYPE);

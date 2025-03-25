@@ -18,8 +18,7 @@ import { useToggle } from "./hooks/use-toggle";
 import { ModelIcon, createModelInstructions, modelTypeToName } from "./known-models";
 import { useBetterModal } from "./lib/better-modal";
 import { ResourcesContext, ensurePackageWorksForDSE, modifyUserMetadata, packageService, requestLoadPackage } from "./package";
-import { ModifyRespecTemplate } from "./dialog/modify-respec-template";
-import { defaultConfiguration } from "@dataspecer/core-v2/documentation-generator";
+import { ModifyDocumentationTemplate } from "./dialog/modify-documentation-template";
 import React from "react";
 import { SortModelsContext } from "./components/sort-models";
 import { ModifyRawDialog } from "./dialog/modify-raw";
@@ -28,24 +27,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./components/ui/tooltip
 import { ReloadImported } from "./dialog/reload-imported";
 import { AddImported } from "./dialog/add-imported";
 import { ReloadPimWrapper } from "./dialog/reload-pim-wrapper";
+import { stopPropagation } from "./utils/events";
 
 export function lng(text: LanguageString | undefined): string | undefined {
   return text?.["cs"] ?? text?.["en"];
-}
-
-function stopPropagation<E extends React.MouseEvent>(f: ((e: E) => void) | undefined = undefined) {
-  return (e: E) => {
-    e.stopPropagation();
-    e.nativeEvent.stopImmediatePropagation();
-    f?.(e);
-  };
-}
-
-export function preventDefault<E extends React.SyntheticEvent>(f: ((e: E) => void) | undefined = undefined) {
-  return (e: E) => {
-    e.preventDefault();
-    f?.(e);
-  };
 }
 
 const useSortIris = (iris: string[]) => {
@@ -218,7 +203,7 @@ const Row = ({ iri, parentIri }: { iri: string, parentIri?: string }) => {
           {resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem asChild><a href={import.meta.env.VITE_BACKEND + "/experimental/output.zip?iri=" + encodeURIComponent(iri)}><FolderDown className="mr-2 h-4 w-4" /> {t("export-zip")}</a></DropdownMenuItem>}
           {resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem asChild><a target="_blank" href={import.meta.env.VITE_BACKEND + `/preview/${i18n.language}/index.html?iri=` + encodeURIComponent(iri)}><FileText className="mr-2 h-4 w-4" /> {t("show-documentation")} ({i18n.language})</a></DropdownMenuItem>}
           {i18n.language !== "en" && resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem asChild><a target="_blank" href={import.meta.env.VITE_BACKEND + `/preview/en/index.html?iri=` + encodeURIComponent(iri)}><FileText className="mr-2 h-4 w-4" /> {t("show-documentation")} (en)</a></DropdownMenuItem>}
-          {resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem onClick={() => openModal(ModifyRespecTemplate, {iri, blobName: "respec", defaultContent: defaultConfiguration.template})}><NotepadTextDashed className="mr-2 h-4 w-4" /> {t("modify-documentation-template")}</DropdownMenuItem>}
+          {resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem onClick={() => openModal(ModifyDocumentationTemplate, {iri})}><NotepadTextDashed className="mr-2 h-4 w-4" /> {t("modify-documentation-template")}</DropdownMenuItem>}
           {resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem onClick={() => openModal(AddImported, {id: iri})}><Import className="mr-2 h-4 w-4" /> {t("import specification from url")}</DropdownMenuItem>}
           <DropdownMenuItem asChild><a href={import.meta.env.VITE_BACKEND + "/resources/export.zip?iri=" + encodeURIComponent(iri)}><CloudDownload className="mr-2 h-4 w-4" /> {t("export")}</a></DropdownMenuItem>
           {resource.types.includes(LOCAL_PACKAGE) && <DropdownMenuItem onClick={async () => {

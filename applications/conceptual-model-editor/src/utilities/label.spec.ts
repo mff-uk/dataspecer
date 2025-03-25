@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import { Entities, EntityModel } from "@dataspecer/core-v2";
 
 import { createGetModelLabel, sanitizeDuplicitiesInRepresentativeLabels } from "./label";
-import { CmeModelType } from "../dataspecer/cme-model";
+import { CmeSemanticModel, CmeSemanticModelType } from "../dataspecer/cme-model";
 
 class EntityModelMock implements EntityModel {
 
@@ -64,18 +64,18 @@ describe("sanitizeDuplicitiesInRepresentativeLabels", () => {
 
   test("Sanitize label duplicities.", () => {
 
-    const one = {
+    const one: CmeSemanticModel = {
       dsIdentifier: "vocabulary-1",
       displayLabel: { "": "one" },
-      dsModelType: CmeModelType.Default,
+      dsModelType: CmeSemanticModelType.Default,
       displayColor: "",
       baseIri: null,
     };
 
-    const two = {
+    const two: CmeSemanticModel = {
       dsIdentifier: "vocabulary-2",
       displayLabel: { "": "two" },
-      dsModelType: CmeModelType.Default,
+      dsModelType: CmeSemanticModelType.Default,
       displayColor: "",
       baseIri: null,
     };

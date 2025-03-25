@@ -8,10 +8,10 @@ import {
   type XYPosition
 } from "@xyflow/react";
 
-import { binarySearch } from "../../util/functions";
 import { configuration } from "../../configuration/configuration";
 import { type NodeType } from "../diagram-controller";
 import { type Point } from "../edge/math";
+import { binarySearchIndex } from "../../utilities/functional";
 
 // In v12 absolute position isn't exposed in public API anymore, you have use useInternalNode() / getInternalNode ( https://github.com/xyflow/xyflow/discussions/3764 )
 // On a side note note I think that we should work with absolute positions, if I understand it correctly positions are relative to the parent node
@@ -245,7 +245,7 @@ export const useAlignmentController = (props: {
 
   const checkForAlignment = (absolutePosition: XYPosition, coordinate: Coordinate, changedAlignmentLines: Coordinate[]): [boolean, number] => {
     const { alignmentNode, setAlignmentNode, sortedNodes, setAlignmentHelperLine } = getRelevantDataForCoordinate(coordinate);
-    const indexInSortedArray = binarySearch(sortedNodes, absolutePosition[coordinate]);
+    const indexInSortedArray = binarySearchIndex(sortedNodes, absolutePosition[coordinate]);
 
     // We are are aligning and weren't or were but to a different position
     if (indexInSortedArray >= 0 && (alignmentNode === null || absolutePosition[coordinate] !== alignmentNode.internals.positionAbsolute[coordinate])) {

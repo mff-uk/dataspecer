@@ -12,18 +12,23 @@ export function addVisualNodeProfile(
   profile: EntityReference,
   profiled: EntityReference,
 ) {
-  const source = visualModel.getVisualEntityForRepresented(profile.identifier);
-  const target = visualModel.getVisualEntityForRepresented(profiled.identifier);
-  if (source === null || target === null) {
+  const sources = visualModel.getVisualEntitiesForRepresented(profile.identifier);
+  const targets = visualModel.getVisualEntitiesForRepresented(profiled.identifier);
+  if (sources.length === 0 || targets.length === 0) {
     console.error("Missing visual representation",
-      { profile, profiled, visualSource: source, visualTarget: target });
+      { profile, profiled, visualSource: sources, visualTarget: targets });
     throw new DataspecerError("Can not add visual node profile.");
   }
-  visualModel.addVisualProfileRelationship({
-    entity: profile.identifier,
-    model: profile.model,
-    visualSource: source.identifier,
-    visualTarget: target.identifier,
-    waypoints: [],
-  });
+
+  for (const source of sources) {
+    for (const target of targets) {
+      visualModel.addVisualProfileRelationship({
+        entity: profile.identifier,
+        model: profile.model,
+        visualSource: source.identifier,
+        visualTarget: target.identifier,
+        waypoints: [],
+      });
+    }
+  }
 }

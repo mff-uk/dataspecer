@@ -10,17 +10,7 @@ import {
   isSemanticModelClassUsage,
   isSemanticModelRelationshipUsage,
 } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { type EntityDetailSupportedType } from "./detail-utils";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-
-export const isSemanticProfile = (
-  resource: EntityDetailSupportedType | null
-): resource is SemanticModelClassUsage | SemanticModelRelationshipUsage => {
-  if (isSemanticModelClassUsage(resource) || isSemanticModelRelationshipUsage(resource)) {
-    return true;
-  }
-  return false;
-};
 
 export const getTheOriginalProfiledEntity = (
   resource:
@@ -58,35 +48,6 @@ export const getTheOriginalProfiledEntity = (
   // Make it uniq.
   return [...new Set(result)];
 };
-
-export const getProfiledEntity = (
-  resource: SemanticModelClassUsage | SemanticModelRelationshipUsage,
-  sources: (
-    | SemanticModelClass
-    | SemanticModelRelationship
-    | SemanticModelClassUsage
-    | SemanticModelRelationshipUsage
-  )[]
-) => {
-  return sources.find((e) => e.id === resource.usageOf) ?? null;
-};
-
-export type OverriddenFieldsType = {
-  name: boolean;
-  description: boolean;
-  domain: boolean;
-  domainCardinality: boolean;
-  range: boolean;
-  rangeCardinality: boolean;
-};
-export const getDefaultOverriddenFields = (): OverriddenFieldsType => ({
-  name: false,
-  description: false,
-  domain: false,
-  domainCardinality: false,
-  range: false,
-  rangeCardinality: false,
-});
 
 export type WithOverrideHandlerType = {
   callback: () => void;

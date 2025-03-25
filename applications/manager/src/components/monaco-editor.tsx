@@ -23,13 +23,13 @@ export const MonacoEditor: FC<{
   refs: React.MutableRefObject<{ editor: monaco.editor.IStandaloneCodeEditor } | undefined>,
   defaultValue: string,
   language: string,
-}> = (props) => {
+} & React.ComponentProps<typeof RawMonacoEditor>> = (props) => {
   const { resolvedTheme } = useTheme();
 
-  return <div className="flex flex-col grow min-h-[12cm]">
+  return <div className="flex flex-col grow overflow-hidden">
       <RawMonacoEditor
+          {...props}
           onMount={editor => props.refs.current = {editor}}
-          className="min-h-[12cm]"
           theme={resolvedTheme === "dark" ? "dataspecer-dark" : "vs"}
           language={props.language}
           defaultValue={props.defaultValue}

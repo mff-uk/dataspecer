@@ -35,7 +35,7 @@ export { ReactflowDimensionsConstantEstimator } from "./dimension-estimators/con
 import type { EdgeRouting } from "./configs/constraints";
 export type { EdgeRouting };
 
-import { placePositionOnGrid } from "./util/utils";
+import { placeCoordinateOnGrid, placePositionOnGrid } from "./util/utils";
 import { ExplicitAnchors } from "./explicit-anchors";
 import { AreaMetric } from "./graph/graph-metrics/implemented-metrics/area-metric";
 import { NodeOrthogonalityMetric } from "./graph/graph-metrics/implemented-metrics/node-orthogonality";
@@ -49,7 +49,7 @@ import { ALGORITHM_NAME_TO_LAYOUT_MAPPING, AlgorithmName } from "./layout-algori
 import { LayoutAlgorithm } from "./layout-algorithms/layout-algorithms-interfaces";
 export type { AlgorithmName };
 export { AnchorOverrideSetting } from "./explicit-anchors";
-export { placePositionOnGrid };
+export { placeCoordinateOnGrid, placePositionOnGrid };
 
 export { type ExplicitAnchors } from "./explicit-anchors";
 export { type VisualModelWithOutsiders } from "./graph/representation/graph";

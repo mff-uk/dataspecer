@@ -35,7 +35,6 @@ import { NotificationList } from "./notification";
 import { ActionsContextProvider } from "./action/actions-react-binding";
 import { OptionsContextProvider } from "./configuration/options";
 
-import "./page.css";
 import { migrateVisualModelFromV0, validateVisualModelAttributes } from "./dataspecer/visual-model/visual-model-v0-to-v1";
 import { ExplorationContextProvider } from "./diagram/features/highlighting/exploration/context/highlighting-exploration-mode";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
@@ -186,6 +185,8 @@ const Page = () => {
 // This is here for the query context to be provided
 // so it can be used by the Page component.
 const PageWrapper = () => {
+  // Once ready we can add theme by
+  // <ThemeProvider defaultTheme="dark" storageKey="dataspecer-cme-ui-theme">
   return (
     <QueryParamsProvider>
       <Page />

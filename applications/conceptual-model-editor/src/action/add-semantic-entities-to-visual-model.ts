@@ -40,14 +40,16 @@ export async function addSemanticEntitiesToVisualModelAction(
   diagram: UseDiagramType,
   entities: EntityToAddToVisualModel[],
 ) {
-  const validatedEntitiesToAddToVisualModel: ValidatedDataAboutEntity[] = getValidatedDataAboutEntities(notifications, graph, visualModel, entities);
-  const {nodes, edges} = await splitIntoNodesAndEdgesAndUpdatePositions(notifications, classes, graph, visualModel, diagram, validatedEntitiesToAddToVisualModel);
+  const validatedEntitiesToAddToVisualModel: ValidatedDataAboutEntity[] = validateEntities(
+    notifications, graph, visualModel, entities);
+  const { nodes, edges } = await updatePositionsAndSplitIntoNodesAndEdges(
+    notifications, classes, graph, visualModel, diagram, validatedEntitiesToAddToVisualModel);
   // Add to visual model
   await addClassesAndClassProfilesToVisualModel(notifications, classes, graph, visualModel, diagram, nodes);
   addConnectionsToVisualModel(notifications, graph, visualModel, edges);
 }
 
-async function splitIntoNodesAndEdgesAndUpdatePositions(
+async function updatePositionsAndSplitIntoNodesAndEdges(
   notifications: UseNotificationServiceWriterType,
   classes: ClassesContextType,
   graph: ModelGraphContextType,
@@ -88,7 +90,8 @@ async function splitIntoNodesAndEdgesAndUpdatePositions(
     }
   }
 
-  const positionsFoundThroughLayouting = await findPositionForNewNodesUsingLayouting(notifications, diagram, graph, visualModel, classes, classAndClassProfilesToFindPositionsFor);
+  const positionsFoundThroughLayouting = await findPositionForNewNodesUsingLayouting(
+    notifications, diagram, graph, visualModel, classes, classAndClassProfilesToFindPositionsFor);
   nodePositions = {
     ...nodePositions,
     ...positionsFoundThroughLayouting,
@@ -103,7 +106,7 @@ async function splitIntoNodesAndEdgesAndUpdatePositions(
   };
 }
 
-function getValidatedDataAboutEntities(
+function validateEntities(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   visualModel: WritableVisualModel,
@@ -114,7 +117,7 @@ function getValidatedDataAboutEntities(
     const entityIdentifier = entityToAddToVisualModel.identifier;
     const position = entityToAddToVisualModel.position ?? null;
 
-    const isAlreadyInVisualModel = visualModel.getVisualEntityForRepresented(entityIdentifier) !== null;
+    const isAlreadyInVisualModel = visualModel.hasVisualEntityForRepresented(entityIdentifier);
     if(isAlreadyInVisualModel) {
       continue;
     }
@@ -175,13 +178,16 @@ function addConnectionsToVisualModel(
   for(const {entity, model} of validatedEdgesData) {
     const modelIdentifier = model.getId();
     if(isSemanticModelRelationship(entity)) {
-      addSemanticRelationshipToVisualModelAction(notifications, graph, visualModel, entity.id, modelIdentifier);
+      addSemanticRelationshipToVisualModelAction(
+        notifications, graph, visualModel, entity.id, modelIdentifier);
     }
     else if(isSemanticModelRelationshipProfile(entity)) {
-      addSemanticRelationshipProfileToVisualModelAction(notifications, graph, visualModel, entity.id, modelIdentifier);
+      addSemanticRelationshipProfileToVisualModelAction(
+        notifications, graph, visualModel, entity.id, modelIdentifier);
     }
     else if(isSemanticModelGeneralization(entity)) {
-      addSemanticGeneralizationToVisualModelAction(notifications, graph, visualModel, entity.id, modelIdentifier);
+      addSemanticGeneralizationToVisualModelAction(
+        notifications, graph, visualModel, entity.id, modelIdentifier);
     }
   }
 }

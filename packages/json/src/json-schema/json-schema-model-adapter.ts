@@ -142,7 +142,7 @@ function structureModelClassToJsonSchemaDefinition(
   const result = new JsonSchemaObject();
   result.title = context.stringSelector(modelClass.humanLabel);
   result.description = context.stringSelector(modelClass.humanDescription);
-  result.noAdditionalProperties = modelClass.isClosed === true;
+  result.additionalProperties = modelClass.isClosed === true ? false : null;
   result.examples = (modelClass.example as string[] | null) ?? [];
   result.objectExamples = (modelClass.objectExample as object[] | null) ?? [];
   for (const property of modelClass.properties) {
@@ -257,7 +257,15 @@ function wrapWithCardinality(
   property: StructureModelProperty,
   definition: JsonSchemaDefinition
 ): JsonSchemaDefinition {
-  if (property.cardinalityMax == 1) {
+  let hasCardinalityException = false;
+  if (property.dataTypes.length === 1) {
+    const dt = property.dataTypes[0];
+    if (dt.isAttribute() && dt.dataType === OFN.rdfLangString && dt.jsonUseKeyValueForLangString) {
+      hasCardinalityException = true;
+    }
+  }
+
+  if (property.cardinalityMax == 1 || hasCardinalityException) {
     return definition;
   }
   const result = new JsonSchemaArray();
@@ -295,18 +303,23 @@ function structureModelPrimitiveToJsonDefinition(
       result = new JsonSchemaBoolean();
       result.title = context.stringSelector(OFN_LABELS[OFN.boolean]);
       break;
+    case XSD.time:
     case OFN.time:
       result = new JsonSchemaString(JsonSchemaStringFormats.time);
       result.title = context.stringSelector(OFN_LABELS[OFN.time]);
       break;
+    case XSD.date:
     case OFN.date:
       result = new JsonSchemaString(JsonSchemaStringFormats.date);
       result.title = context.stringSelector(OFN_LABELS[OFN.date]);
       break;
+    case XSD.dateTimeStamp:
+    case XSD.dateTime:
     case OFN.dateTime:
       result = new JsonSchemaString(JsonSchemaStringFormats.dateTime);
       result.title = context.stringSelector(OFN_LABELS[OFN.dateTime]);
       break;
+    case XSD.anyURI:
     case OFN.url:
       result = new JsonSchemaString(JsonSchemaStringFormats.iri);
       result.title = context.stringSelector(OFN_LABELS[OFN.url]);
@@ -318,8 +331,13 @@ function structureModelPrimitiveToJsonDefinition(
       result.title = context.stringSelector(OFN_LABELS[OFN.text]);
       break;
     case OFN.rdfLangString:
-      result = rdfLanguageString();
-      result.title = context.stringSelector(OFN_LABELS[OFN.rdfLangString]);
+      if  (primitive.jsonUseKeyValueForLangString) {
+        result = languageString([], true);
+        result.title = context.stringSelector(OFN_LABELS[OFN.text]);
+      } else {
+        result = rdfLanguageString();
+        result.title = context.stringSelector(OFN_LABELS[OFN.rdfLangString]);
+      }
       break;
     default:
       result = new JsonSchemaString(null);
@@ -336,16 +354,29 @@ function structureModelCustomTypeToJsonDefinition(
   return new JsonSchemaCustomType(customType.data);
 }
 
-function languageString(requiredLanguages: string[]): JsonSchemaObject {
+function languageString(requiredLanguages: string[], multipleCardinality: boolean = false): JsonSchemaObject {
   const result = new JsonSchemaObject();
+
+  function getPropertyType(multipleCardinality: boolean) {
+    if (multipleCardinality) {
+      const type = new JsonSchemaArray();
+      type.items = new JsonSchemaString(null);
+      return type;
+    } else {
+      return new JsonSchemaString(null);
+    }
+  }
+
+  result.additionalProperties = getPropertyType(multipleCardinality);
+  result.additionalProperties.title = "Hodnota v jiném jazyce";
 
   result.required = requiredLanguages;
 
-  const cs = new JsonSchemaString(null);
+  const cs = getPropertyType(multipleCardinality);
   result.properties["cs"] = cs;
   cs.title = "Hodnota v českém jazyce";
 
-  const en = new JsonSchemaString(null);
+  const en = getPropertyType(multipleCardinality);
   result.properties["en"] = en;
   en.title = "Hodnota v anglickém jazyce";
 

@@ -5,8 +5,13 @@ import type { UseNotificationServiceWriterType } from "../notification/notificat
 import { getDomainAndRange } from "../util/relationship-utils";
 import { ModelGraphContextType } from "../context/model-context";
 import { withAggregatedEntity } from "./utilities";
-import { addVisualRelationship } from "../dataspecer/visual-model/operation/add-visual-relationship";
+import { addVisualRelationshipsWithSpecifiedVisualEnds } from "../dataspecer/visual-model/operation/add-visual-relationships";
 
+/**
+ * Adds given semantic relationship to visual model.
+ *
+ * Uses all possible relevant ends present in visual model for the relationship.
+ */
 export function addSemanticRelationshipToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
@@ -35,16 +40,17 @@ function addSemanticRelationshipToVisualModelCommand(
     console.error("Ignored relationship as ends are null.", { domain, range, entity });
     return;
   }
-  const source = visualModel.getVisualEntityForRepresented(domain.concept);
-  const target = visualModel.getVisualEntityForRepresented(range.concept);
-  if (source === null || target === null) {
+
+  const visualSources = visualModel.getVisualEntitiesForRepresented(domain.concept);
+  const visualTargets = visualModel.getVisualEntitiesForRepresented(range.concept);
+  if (visualSources.length === 0 || visualTargets.length === 0) {
     notifications.error("Ends of the relation are not in the visual model.");
-    console.warn("Missing visual entities for ends.", { domain, range, entity, source, target });
+    console.warn("Missing visual entities for ends.", { domain, range, entity, visualSources, visualTargets });
     return;
   }
   //
-  addVisualRelationship(
+  addVisualRelationshipsWithSpecifiedVisualEnds(
     visualModel, model, entity.id,
-    domain.concept, range.concept
+    visualSources, visualTargets
   );
 }

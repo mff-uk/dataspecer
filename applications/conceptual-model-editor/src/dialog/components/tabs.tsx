@@ -23,7 +23,7 @@ export const Tabs = (props: {
 export const Tab = (props: {
   children: string | React.ReactNode
   /**
-   * Truw when tab is active.
+   * True when tab is active.
    */
   active: boolean,
   /**

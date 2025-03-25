@@ -67,6 +67,7 @@ export const DSV = {
   "ZeroToMany": IRI(DSV_PREFIX + "0n"),
   "ZeroToOne": IRI(DSV_PREFIX + "01"),
   "ZeroToZero": IRI(DSV_PREFIX + "00"),
+  "specializationOf": IRI(DSV_PREFIX + "specializes"),
 };
 
 const OWL_PREFIX = "http://www.w3.org/2002/07/owl#";
