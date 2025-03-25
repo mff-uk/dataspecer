@@ -34,8 +34,8 @@ import { addClassNeighborhoodToVisualModelAction } from "./add-class-neighborhoo
 import { createDefaultProfilesAction } from "./create-default-profiles";
 import { openCreateClassDialogWithModelDerivedFromClassAction } from "./open-create-class-dialog-with-derived-model";
 import { EntityToAddToVisualModel, addSemanticEntitiesToVisualModelAction } from "./add-semantic-entities-to-visual-model";
-import { LayoutedVisualEntities, UserGivenConstraintsVersion4 } from "@dataspecer/layout";
-import { layoutActiveVisualModelAction } from "./layout-visual-model";
+import { getDefaultUserGivenConstraintsVersion4, LayoutedVisualEntities, UserGivenConstraintsVersion4 } from "@dataspecer/layout";
+import { layoutActiveVisualModelAction, layoutGivenVisualEntitiesAdvancedAction } from "./layout-visual-model";
 import { toggleAnchorAction } from "./toggle-anchor";
 import { SelectionFilterState } from "../dialog/selection/filter-selection-dialog-controller";
 import { SelectionFilter, Selections, SelectionsWithIdInfo, filterSelectionAction } from "./filter-selection-action";
@@ -69,6 +69,7 @@ import { AttributeProfileDialogState } from "../dialog/attribute-profile/edit-at
 import { openEditAssociationDialogAction } from "./open-edit-association-dialog";
 import { isSemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { openEditAssociationProfileDialogAction } from "./open-edit-association-profile-dialog";
+import { alignHorizontallyAction, AlignmentHorizontalPosition, AlignmentVerticalPosition, alignVerticallyAction } from "./align-nodes";
 
 const LOG = createLogger(import.meta.url);
 
@@ -949,7 +950,7 @@ function createActionsContext(
       const selection = getSelections(diagram, false, true);
       const visualEntitiesToLayout = selection.nodeSelection.concat(selection.edgeSelection);
       withVisualModel(notifications, graph, (visualModel) => {
-        layouGivenVisualEntitiesAction(
+        layoutGivenVisualEntitiesAdvancedAction(
           notifications, classes, diagram, graph, visualModel,
           getDefaultUserGivenConstraintsVersion4(), visualEntitiesToLayout);
       });

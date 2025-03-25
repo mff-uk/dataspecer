@@ -1,5 +1,5 @@
-import { VisualNode, WritableVisualModel, isVisualNode } from "@dataspecer/core-v2/visual-model";
-import { AnchorOverrideSetting, ExplicitAnchors, INodeClassic, LayoutedVisualEntities, NodeDimensionQueryHandler, ReactflowDimensionsEstimator, UserGivenAlgorithmConfigurationStress, UserGivenConstraintsVersion4, VisualModelWithOutsiders, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4, performLayoutOfVisualModel } from "@dataspecer/layout";
+import { VisualNode, WritableVisualModel, isVisualNode, isVisualProfileRelationship, isVisualRelationship } from "@dataspecer/core-v2/visual-model";
+import { AnchorOverrideSetting, ExplicitAnchors, LayoutedVisualEntities, Node, NodeDimensionQueryHandler, ReactflowDimensionsEstimator, UserGivenAlgorithmConfigurationStress, UserGivenConstraintsVersion4, VisualModelWithOutsiders, getDefaultMainUserGivenAlgorithmConstraint, getDefaultUserGivenConstraintsVersion4, performLayout, performLayoutOfVisualModel } from "@dataspecer/layout";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { UseDiagramType } from "../diagram/diagram-hook";
@@ -12,7 +12,7 @@ import { addSemanticClassProfileToVisualModelAction } from "./add-class-profile-
 import { computeRelatedAssociationsBarycenterAction } from "./utilities";
 
 // TODO RadStr: Document and put into separate file
-export function layouGivenVisualEntitiesAdvancedAction(
+export async function layoutGivenVisualEntitiesAdvancedAction(
   notifications: UseNotificationServiceWriterType,
   classes: ClassesContextType,
   diagram: UseDiagramType,
@@ -27,7 +27,7 @@ export function layouGivenVisualEntitiesAdvancedAction(
 ) {
   const models = graph.models;
 
-  const reactflowDimensionQueryHandler = createExactNodeDimensionsQueryHandler(diagram, graph, notifications);
+  const reactflowDimensionQueryHandler = createExactNodeDimensionsQueryHandler(diagram);
 
   outsiders = outsiders ?? {};
 
@@ -77,7 +77,7 @@ export function layouGivenVisualEntitiesAction(
   visualEntitiesToLayout: string[],
   explicitAnchors?: ExplicitAnchors,
 ) {
-  return layouGivenVisualEntitiesAdvancedAction(
+  return layoutGivenVisualEntitiesAdvancedAction(
     notifications, classes, diagram, graph, visualModel, configuration,
     visualEntitiesToLayout, explicitAnchors, true, {}, false);
 }
@@ -241,13 +241,13 @@ export function createExactNodeDimensionsQueryHandler(
   diagram: UseDiagramType,
 ): NodeDimensionQueryHandler {
   // TODO RadStr: Have to use visual ids for graph nodes
-  const getWidth = (node: INodeClassic) => {
+  const getWidth = (node: Node) => {
     // The question is what does it mean if the node isn't in editor? Same for height
     // Actually it is not error, it can be valid state when we are layouting elements which are not yet part of visual model
     const width = diagram.actions().getNodeWidth(node.id) ?? new ReactflowDimensionsEstimator().getWidth(node);
     return width;
   };
-  const getHeight = (node: INodeClassic) => {
+  const getHeight = (node: Node) => {
     const height = diagram.actions().getNodeHeight(node.id) ?? new ReactflowDimensionsEstimator().getHeight(node);
     return height;
   };

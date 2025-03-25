@@ -201,7 +201,7 @@ function SelectionMenu(props: NodeProps<Node<ApiNode>>) {
 
   const onOpenSelectionActionsMenu = (event: React.MouseEvent) => {
     const absoluteFlowPosition = reactFlow.screenToFlowPosition({x: event.clientX, y: event.clientY});
-    context?.callbacks().onOpenSelectionActionsMenu(props.data, absoluteFlowPosition);
+    context?.callbacks().onShowSelectionActionsMenu(props.data, absoluteFlowPosition);
   }
   const onLayoutSelection = () => context?.callbacks().onLayoutSelection();
   const onCreateGroup = () => {

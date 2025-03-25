@@ -508,12 +508,16 @@ export const isNodeInVisualModel = (
   if(visualModel === null) {
       return true;
   }
+  if(node !== null) {
+    return true;
+  }
 
-  const visualEntity = visualModel.getVisualEntityForRepresented(classIdentifier);
-  const isPresentInVisualEntitiesToLayout = visualEntity !== null &&
-                                              entitiesToLayout.visualEntities.includes(visualEntity.identifier);
-  const isPresentInVisualModel = node !== null ||
-                                  isPresentInVisualEntitiesToLayout ||
+  const visualEntities = visualModel.getVisualEntitiesForRepresented(classIdentifier);
+  let isPresentInVisualEntitiesToLayout = false;
+  for (const visualEntity of visualEntities) {
+    isPresentInVisualEntitiesToLayout = isPresentInVisualEntitiesToLayout || entitiesToLayout.visualEntities.includes(visualEntity.identifier);
+  }
+  const isPresentInVisualModel = isPresentInVisualEntitiesToLayout ||
                                   entitiesToLayout.outsiders[classIdentifier] !== undefined;
   return isPresentInVisualModel;
 };

@@ -134,7 +134,7 @@ const noOperationCallbacks: DiagramCallbacks = {
   onCreateConnectionToNode: noOperation,
   onCreateConnectionToNothing: noOperation,
   onToggleAnchorForNode: noOperation,
-  onOpenSelectionActionsMenu: noOperation,
+  onShowSelectionActionsMenu: noOperation,
   onOpenAlignmentMenu: noOperation,
   onLayoutSelection: noOperation,
   onCreateGroup: noOperation,
