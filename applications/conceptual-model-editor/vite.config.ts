@@ -1,6 +1,7 @@
-import { resolve } from "path";
-import { defineConfig } from "vite";
+import path  from "path";
+import tailwindcss from "@tailwindcss/vite"
 import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -8,7 +9,10 @@ export default defineConfig({
     port: 5173,
   },
   base: "./",
-  plugins: [react()],
+  plugins: [
+    react(),
+    tailwindcss(),
+  ],
   // See https://vitejs.dev/guide/dep-pre-bundling#monorepos-and-linked-dependencies
   // When making changes to the linked dep, restart the dev server with
   // the --force command line option for the changes to take effect.
@@ -24,7 +28,7 @@ export default defineConfig({
     },
     rollupOptions: {
       input: {
-        diagram: resolve(__dirname, "diagram.html"),
+        diagram: path.resolve(__dirname, "diagram.html"),
       },
     }
   },
@@ -33,6 +37,8 @@ export default defineConfig({
       // Hack to make polyfill to null.
       // We need this as the "fs", packages/core/lib/io/fetch/fetch-nodejs.js.
       "fs": "path",
+      // https://ui.shadcn.com/docs/installation/vite
+      "@": path.resolve(__dirname, "./src"),
     },
   },
-})
+});

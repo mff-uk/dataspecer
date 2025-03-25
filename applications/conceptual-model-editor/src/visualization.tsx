@@ -50,6 +50,8 @@ import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, Semant
 import { EntityDsIdentifier } from "./dataspecer/entity-model";
 import { createAttributeProfileLabel, getEntityLabelToShowInDiagram } from "./util/utils";
 
+import "./visualization.css";
+
 const LOG = createLogger(import.meta.url);
 
 const DEFAULT_MODEL_COLOR = configuration().defaultModelColor;

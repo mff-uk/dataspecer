@@ -60,10 +60,13 @@ import { findTopLevelGroup } from "../action/utilities";
 import { GeneralCanvasMenuComponentProps } from "./canvas/canvas-menu-general";
 import { isEqual, omit } from "lodash";
 
-const UINITIALIZED_VALUE_GROUP_POSITION = 10000000;
+const UNINITIALIZED_VALUE_GROUP_POSITION = 10000000;
 
 const getTopLeftPosition = (nodes: Node<any>[]) => {
-  const topLeft = {x: UINITIALIZED_VALUE_GROUP_POSITION, y: UINITIALIZED_VALUE_GROUP_POSITION};
+  const topLeft = {
+    x: UNINITIALIZED_VALUE_GROUP_POSITION,
+    y: UNINITIALIZED_VALUE_GROUP_POSITION,
+  };
   nodes.forEach(node => {
     if(node.position.x < topLeft.x) {
       topLeft.x = node.position.x;
@@ -106,7 +109,8 @@ function showGroupNode(groupNode: Node<any>, groups: Record<string, NodeIdentifi
   const botRightGroupNodePosition = getBotRightPosition(nodesInGroup);
   // We have to also set the position, keeping the old one is not enough -
   // because for example layouting was performed or group was dissolved,
-  // therefore the old position is incorrect since only the position of the dissolved group was changed by dragging
+  // therefore the old position is incorrect since only the position
+  // of the dissolved group was changed by dragging
   newGroupNode.position = groupNodePosition;
   const width = botRightGroupNodePosition.x - groupNodePosition.x;
   const height = botRightGroupNodePosition.y - groupNodePosition.y;
@@ -228,7 +232,7 @@ interface UseDiagramControllerType {
 
   canvasMenu: GeneralCanvasMenuComponentProps | null;
 
-  onNodesChange: OnNodesChange<NodeType>;
+  onNodesChange: OnNodesChange<Node>;
 
   onEdgesChange: OnEdgesChange<EdgeType>;
 
@@ -255,7 +259,7 @@ interface UseDiagramControllerType {
   alignmentController: AlignmentController;
 
   // TODO RadStr: Change into DiagramNodeTypes or whatever is it called in the other branch (after merge)
-  onNodeMouseEnter: (event: React.MouseEvent, node: NodeType) => void;
+  onNodeMouseEnter: (event: React.MouseEvent, node: Node) => void;
 
   onNodeMouseLeave: (event: React.MouseEvent, node: Node) => void;
 
@@ -418,6 +422,7 @@ function useCreateDiagramControllerIndependentOnActionsAndContext(
   const onNodeMouseEnter = useCallback(
     createOnNodeMouseEnterHandler(canvasHighlighting.changeHighlight, reactFlowInstance),
     [canvasHighlighting.changeHighlight, reactFlowInstance]);
+
   const onNodeMouseLeave = useCallback(
     createOnNodeMouseLeaveHandler(canvasHighlighting.resetHighlight),
     [canvasHighlighting.resetHighlight]);
@@ -595,9 +600,9 @@ const createOnNodeMouseEnterHandler = (
   ) => void,
   reactFlowInstance: ReactFlowInstance<NodeType, EdgeType>,
 ) => {
-  return (_: React.MouseEvent, node: NodeType) => {
+  return (_: React.MouseEvent, node: Node) => {
     const nodesWithSameRepresented = findNodesRepresentedBySameClass(
-      reactFlowInstance, node);
+      reactFlowInstance, node as NodeType);
     changeHighlight(nodesWithSameRepresented, reactFlowInstance, true, null);
   };
 };
@@ -682,7 +687,7 @@ const createNodesChangeHandler = (
   cleanSelection: () => void,
   api: UseDiagramType,
 ) => {
-  return (changes: NodeChange<NodeType>[]) => {
+  return (nodeChanges: NodeChange<Node>[]) => {
     // We can alter the change here ... for example allow only x-movement.
     // changes.forEach(change => {
     //   if (change.type === "position") {
@@ -692,6 +697,7 @@ const createNodesChangeHandler = (
     //   }
     // });
 
+    let changes = nodeChanges as NodeChange<NodeType>[];
     const isArtificiallyCalled = isOnNodesChangeArtificiallyCalled(changes);
 
     if(handleStartOfGroupDraggingThroughGroupNode(nodes, changes, groups)) {
@@ -1153,7 +1159,7 @@ const updateChangesByGroupDragEvents = (
             y: node.position.y + positionDifference.y,
           };
           // Another specific case, because of having old state - the node wasn't initialized yet to correct value
-          if(node.position.x === UINITIALIZED_VALUE_GROUP_POSITION) {
+          if(node.position.x === UNINITIALIZED_VALUE_GROUP_POSITION) {
             if(groups[node.id] === undefined) {
               console.warn("Node was supposed to be group but isn't");
               continue;

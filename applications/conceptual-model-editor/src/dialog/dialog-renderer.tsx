@@ -5,6 +5,8 @@ import { type DialogRendererContextType } from "./dialog-service";
 
 import { t } from "../application/";
 
+import "./dialog-renderer.css";
+
 /**
  * This component is responsible for rendering dialogs on screen.
  */
@@ -30,7 +32,7 @@ function Dialog({ reference, context }: {
     reference.current?.showModal();
   }, [reference]);
 
-  const defaultClassNames = "base-dialog z-30 flex flex-col " +
+  const defaultClassNames = "m-auto base-dialog z-30 flex flex-col " +
     "min-h-[70%] w-[97%] p-1 " +
     "md:max-h-[95%] md:w-[70%] md:p-4";
 
