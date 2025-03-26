@@ -3,7 +3,6 @@ import { BaseEntityDialogState } from "./base-entity-dialog-state";
 import { validateBaseEntityDialogState } from "./base-entity-dialog-validation";
 import { getAvailableLanguagesForLanguageString } from "../../util/language-utils";
 import { LanguageString } from "../../dataspecer/entity-model";
-import { getRandomName } from "../../util/random-gen";
 import { removeFromArray } from "../../utilities/functional";
 import { CmeReference, CmeSpecialization, NewCmeSpecialization } from "../../dataspecer/cme-model/model";
 
@@ -107,7 +106,7 @@ export function createBaseEntityDialogController<
   const addSpecialization = (entity: CmeReference) => changeState(state => ({
     ...state, specializations: [...state.specializations, {
       specializationOf: entity,
-      iri: getRandomName(10),
+      iri: null,
     }],
   }));
 

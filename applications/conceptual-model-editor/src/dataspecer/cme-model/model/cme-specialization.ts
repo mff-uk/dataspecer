@@ -32,7 +32,8 @@ export interface CmeSpecialization extends NewCmeSpecialization{
   generalization: CmeReference;
 
 }
+
 export function isCmeSpecialization(
   value: NewCmeSpecialization): value is CmeSpecialization {
-  return (value as any).identifier !== null;
+  return (value as any)?.generalization?.identifier !== undefined;
 }
