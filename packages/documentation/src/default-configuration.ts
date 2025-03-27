@@ -22,8 +22,8 @@ export const defaultConfiguration: DocumentationConfiguration = {
 
         {{#each externalArtifacts.svg}}
           <figure>
-            <img src="{{{URL}}}" alt="alt text 2" />
-            <figcaption>Overview diagram</figcaption>
+            <img src="{{{URL}}}" alt="{{translate ./label}}" />
+            <figcaption>{{translate ./label}}</figcaption>
           </figure>
         {{/each}}
       </section>

@@ -70,6 +70,7 @@ export type DocumentationGeneratorInputModel = {
   externalArtifacts: Record<string, {
     type: string,
     URL: string,
+    label?: LanguageString,
   }[]>,
   // Data specification vocabulary in JSON with JSON-LD context
   dsv: object,

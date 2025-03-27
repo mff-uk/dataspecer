@@ -13,6 +13,7 @@ import { BlobModel, ModelRepository } from "./model-repository";
 import { getMustacheView } from "@dataspecer/documentation";
 import { createSgovModel } from "@dataspecer/core-v2/semantic-model/simplified";
 import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
+import { LanguageString } from "@dataspecer/core/core/core-resource";
 
 interface ModelDescription {
   isPrimary: boolean;
@@ -277,6 +278,7 @@ export async function generateSpecification(packageId: string, context: Generate
     {
       type: string;
       URL: string;
+      label?: LanguageString;
     }[]
   > = {};
 
@@ -355,7 +357,11 @@ export async function generateSpecification(packageId: string, context: Generate
 
     if (svg) {
       await writeFile(`${visualModel.id}.svg`, svg);
-      externalArtifacts["svg"] = [...(externalArtifacts["svg"] ?? []), { type: "svg", URL: `./${visualModel.id}.svg` + queryParams }];
+      externalArtifacts["svg"] = [...(externalArtifacts["svg"] ?? []), {
+        type: "svg",
+        URL: `./${visualModel.id}.svg` + queryParams,
+        label: visualModel.getUserMetadata()?.label,
+      }];
     }
   }
 
