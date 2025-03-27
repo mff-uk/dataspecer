@@ -31,6 +31,7 @@
     "./semantic-model/relationship-utils": "./lib/semantic-model/relationship-utils/index.js",
     "./semantic-model/usage/concepts": "./lib/semantic-model/usage/concepts/index.js",
     "./semantic-model/usage/operations": "./lib/semantic-model/usage/operations/index.js",
+    "./semantic-model/utils": "./lib/semantic-model/utils/index.js",
     "./simplified-semantic-model": "./lib/simplified-semantic-model/index.js",
     "./utils/language": "./lib/utils/language.js",
     "./visual-model": "./lib/visual-model/index.js",

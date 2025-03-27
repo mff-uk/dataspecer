@@ -1,5 +1,5 @@
 import { Entity } from "@dataspecer/core-v2";
-import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationPrimitive, isSemanticModelRelationship, SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelClass, isSemanticModelGeneralization, isSemanticModelRelationPrimitive, isSemanticModelRelationship, SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { CreatedEntityOperationResult } from "@dataspecer/core-v2/semantic-model/operations";
 import { createDefaultProfileEntityAggregator, ProfileAggregator } from "@dataspecer/core-v2/semantic-model/profile/aggregator";
@@ -8,6 +8,7 @@ import { createDefaultSemanticModelProfileOperationFactory, SemanticModelProfile
 import { ExternalEntityWrapped, SemanticModelAggregator, LocalEntityWrapped } from "./interfaces";
 import { getSearchRelevance } from "./utils/get-search-relevance";
 import { TupleSet } from "./utils/tuple-set";
+import { withAbsoluteIri } from "@dataspecer/core-v2/semantic-model/utils";
 
 function iriGetLastChunk(iri: string | null) {
   if (!iri) {
@@ -77,9 +78,11 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
   private canAddEntities: boolean = false;
   private canModify: boolean = false;
   private allowOnlyProfiledEntities: boolean = false;
+  private readonly profileBaseIri: string;
 
   constructor(profile: InMemorySemanticModel, source: SemanticModelAggregator, allowOnlyProfiledEntities: boolean = false, profileEntityAggregator?: ProfileAggregator) {
     this.profile = profile;
+    this.profileBaseIri = profile.getBaseIri();
     this.source = source;
     this.profileEntityAggregator = profileEntityAggregator ?? createDefaultProfileEntityAggregator();
     this.allowOnlyProfiledEntities = allowOnlyProfiledEntities;
@@ -137,7 +140,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
    */
   private updateLocalEntities(updated: Record<string, Entity>, removed: string[]) {
     for (const entity of Object.values(updated)) {
-      this.profileEntities[entity.id] = entity;
+      this.profileEntities[entity.id] = withAbsoluteIri(entity as SemanticModelEntity, this.profileBaseIri);
     }
 
     for (const toRemove of removed) {

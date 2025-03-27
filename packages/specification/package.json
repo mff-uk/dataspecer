@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@dataspecer/core": "*",
+    "@dataspecer/core-v2": "*",
     "@dataspecer/documentation": "*",
     "@dataspecer/json": "*",
     "@dataspecer/xml": "*"

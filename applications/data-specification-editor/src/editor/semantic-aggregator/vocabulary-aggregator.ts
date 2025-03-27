@@ -3,15 +3,18 @@ import { isSemanticModelClass, SemanticModelClass, SemanticModelEntity, Semantic
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { ExternalEntityWrapped, LocalEntityWrapped, SemanticModelAggregator } from "./interfaces";
 import { getSearchRelevance } from "./utils/get-search-relevance";
+import { withAbsoluteIri } from "@dataspecer/core-v2/semantic-model/utils";
 
 export class VocabularyAggregator implements SemanticModelAggregator {
   private readonly vocabulary: InMemorySemanticModel;
   private readonly entities: Record<string, LocalEntityWrapped> = {};
   private readonly subscribers: Set<(updated: Record<string, LocalEntityWrapped>, removed: string[]) => void> = new Set();
   thisVocabularyChain: object;
+  protected readonly baseIri: string;
 
   constructor(vocabulary: InMemorySemanticModel) {
     this.vocabulary = vocabulary;
+    this.baseIri = vocabulary.getBaseIri();
 
     this.thisVocabularyChain = {
       name: this.vocabulary.getAlias() ?? "Vocabulary",
@@ -30,7 +33,7 @@ export class VocabularyAggregator implements SemanticModelAggregator {
     const toUpdate: Record<string, LocalEntityWrapped> = {};
     for (const entity of Object.values(updated)) {
       this.entities[entity.id] = {
-        aggregatedEntity: entity as SemanticModelEntity,
+        aggregatedEntity: withAbsoluteIri(entity as SemanticModelEntity, this.baseIri),
         vocabularyChain: [this.thisVocabularyChain],
         isReadOnly: true,
       };

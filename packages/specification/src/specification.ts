@@ -1,59 +1,25 @@
 import { createDefaultConfigurationModelFromJsonObject } from "@dataspecer/core-v2/configuration-model";
 import { LOCAL_PACKAGE, LOCAL_SEMANTIC_MODEL, LOCAL_VISUAL_MODEL } from "@dataspecer/core-v2/model/known-models";
-import { isSemanticModelClass, isSemanticModelRelationship, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
 import * as DataSpecificationVocabulary from "@dataspecer/core-v2/semantic-model/data-specification-vocabulary";
 import { generate } from "@dataspecer/core-v2/semantic-model/lightweight-owl";
-import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { createSgovModel } from "@dataspecer/core-v2/semantic-model/simplified";
+import { withAbsoluteIri } from "@dataspecer/core-v2/semantic-model/utils";
 import { PimStoreWrapper } from "@dataspecer/core-v2/semantic-model/v1-adapters";
+import { LanguageString } from "@dataspecer/core/core/core-resource";
+import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
 import { StreamDictionary } from "@dataspecer/core/io/stream/stream-dictionary";
+import { getMustacheView } from "@dataspecer/documentation";
 import { createPartialDocumentationConfiguration, DOCUMENTATION_MAIN_TEMPLATE_PARTIAL } from "@dataspecer/documentation/configuration";
 import { generateDocumentation } from "@dataspecer/documentation/documentation-generator";
 import { mergeDocumentationConfigurations } from "./documentation";
 import { BlobModel, ModelRepository } from "./model-repository";
-import { getMustacheView } from "@dataspecer/documentation";
-import { createSgovModel } from "@dataspecer/core-v2/semantic-model/simplified";
-import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
-import { LanguageString } from "@dataspecer/core/core/core-resource";
 
 interface ModelDescription {
   isPrimary: boolean;
   documentationUrl: string | null;
   entities: Record<string, SemanticModelEntity>;
   baseIri: string | null;
-}
-
-/**
- * Helper function to obtain absolute IRIs from semantic models that use base url.
- * @todo this should be moved to semantic model library
- */
-function absoluteIri(baseIri: string, entities: Record<string, SemanticModelEntity>): Record<string, SemanticModelEntity> {
-  if (!baseIri) {
-    return entities;
-  }
-
-  const convert = (iri: string | null) => (iri && !iri.includes("://") ? baseIri + iri : iri);
-  const result = {} as Record<string, SemanticModelEntity>;
-  for (const [key, entity] of Object.entries(entities)) {
-    if (isSemanticModelClass(entity) || isSemanticModelClassProfile(entity)) {
-      result[key] = {
-        ...entity,
-        iri: convert(entity.iri),
-      };
-    } else if (isSemanticModelRelationship(entity) || isSemanticModelRelationshipProfile(entity)) {
-      // @ts-ignore typing
-      result[key] = {
-        ...entity,
-        iri: convert(entity.iri),
-        ends: entity.ends.map((end) => ({
-          ...end,
-          iri: convert(end.iri),
-        })),
-      } as SemanticModelRelationship | SemanticModelRelationshipProfile;
-    } else {
-      result[key] = entity;
-    }
-  }
-  return result;
 }
 
 async function generateLightweightOwl(entities: Record<string, SemanticModelEntity>, baseIri: string, iri: string): Promise<string> {
@@ -202,7 +168,7 @@ export async function generateSpecification(packageId: string, context: Generate
       }
 
       models.push({
-        entities: absoluteIri(data.baseIri, data.entities),
+        entities: Object.fromEntries(Object.entries(data.entities).map(([id, entity]) => [id, withAbsoluteIri(entity as SemanticModelEntity, data.baseIri)])),
         isPrimary: isRoot,
         documentationUrl: (pckg.getUserMetadata() as any)?.documentBaseUrl, //data.baseIri + "applicationProfileConceptualModel", //pckg.userMetadata?.documentBaseUrl,// ?? (isRoot ? "." : null),
         baseIri: data.baseIri,
