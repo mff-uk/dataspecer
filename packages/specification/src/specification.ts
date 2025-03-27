@@ -11,6 +11,8 @@ import { generateDocumentation } from "@dataspecer/documentation/documentation-g
 import { mergeDocumentationConfigurations } from "./documentation";
 import { BlobModel, ModelRepository } from "./model-repository";
 import { getMustacheView } from "@dataspecer/documentation";
+import { createSgovModel } from "@dataspecer/core-v2/semantic-model/simplified";
+import { HttpFetch } from "@dataspecer/core/io/fetch/fetch-api";
 
 interface ModelDescription {
   isPrimary: boolean;
@@ -136,6 +138,8 @@ export interface GenerateSpecificationContext {
   modelRepository: ModelRepository;
   output: StreamDictionary;
 
+  fetch: HttpFetch;
+
   v1Context?: any;
   v1Specification?: any;
 }
@@ -201,6 +205,19 @@ export async function generateSpecification(packageId: string, context: Generate
         isPrimary: isRoot,
         documentationUrl: (pckg.getUserMetadata() as any)?.documentBaseUrl, //data.baseIri + "applicationProfileConceptualModel", //pckg.userMetadata?.documentBaseUrl,// ?? (isRoot ? "." : null),
         baseIri: data.baseIri,
+      });
+    }
+    const sgovModels = subResources.filter((r) => r.types[0] === "https://dataspecer.com/core/model-descriptor/sgov");
+    for (const sgovModel of sgovModels) {
+      const model = createSgovModel("https://slovník.gov.cz/sparql", context.fetch, sgovModel.id);
+      const blobModel = await sgovModel.asBlobModel();
+      const data = await blobModel.getJsonBlob() as any;
+      await model.unserializeModel(data);
+      models.push({
+        entities: model.getEntities() as Record<string, SemanticModelEntity>,
+        isPrimary: false,
+        documentationUrl: null,
+        baseIri: null,
       });
     }
     const pimModels = subResources.filter((r) => r.types[0] === "https://dataspecer.com/core/model-descriptor/pim-store-wrapper");

@@ -16,6 +16,7 @@ import { LocalStoreDescriptor } from "../models/local-store-descriptor";
 import { asyncHandler } from "../utils/async-handler";
 import { generateSpecification } from "@dataspecer/specification";
 import { BackendModelRepository } from "../utils/model-repository";
+import { httpFetch } from "@dataspecer/core/io/fetch/fetch-nodejs";
 
 type FullDataSpecification = DataSpecification & DataSpecificationWithMetadata & DataSpecificationWithStores;
 
@@ -110,6 +111,7 @@ async function generateArtifacts(packageIri: string, streamDictionary: StreamDic
   await generateSpecification(packageIri, {
     modelRepository: new BackendModelRepository(resourceModel),
     output: streamDictionary,
+    fetch: httpFetch,
   }, {
     queryParams,
   });

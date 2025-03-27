@@ -12,6 +12,7 @@ import { ZipStreamDictionary } from "./zip-stream-dictionary";
 import { generateSpecification } from "@dataspecer/specification";
 import { FrontendModelRepository } from "../utils/model-repository";
 import { backendPackageService } from "../../editor/configuration/provided-configuration";
+import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 
 async function writeToStreamDictionary(
   streamDictionary: StreamDictionary,
@@ -136,6 +137,8 @@ export class DefaultArtifactBuilder {
                 {
                     modelRepository: new FrontendModelRepository(backendPackageService),
                     output: zip,
+
+                    fetch: httpFetch,
 
                     v1Context: await generator.createContext(),
                     v1Specification: dataSpecifications.find(specification => specification.iri === dataSpecificationIri),

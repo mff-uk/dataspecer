@@ -184,36 +184,61 @@ export const defaultConfiguration: DocumentationConfiguration = {
     {{#def "profilesClassChain"}}
       {{#ifEquals ./type.[0] "class"}}{{#iflng "cs"}}třída{{lng}}class{{/iflng}}{{/ifEquals}}
       {{class}} (<a href="{{{./iri}}}">{{prefixed ./iri}}</a>)
-      {{#if ./aggregationParent}}
-        {{#semanticEntity aggregationParent.id}}
-          <br />{{#ifEquals type.[0] "class"}}{{#iflng "cs"}}tato profiluje{{lng}}this profiles{{/iflng}}{{/ifEquals}}
-          {{profilesClassChain}}
-        {{/semanticEntity}}
+      {{#if ./aggregationParents}}
+        <ul style="list-style-type: none;">
+          {{#each ./aggregationParents}}
+            <li>
+              {{#semanticEntity ./id}}
+                {{#ifEquals ./type.[0] "class"}}{{#iflng "cs"}}tato profiluje{{lng}}this profiles{{/iflng}}{{/ifEquals}}
+                {{profilesClassChain}}
+              {{/semanticEntity}}
+            </li>
+          {{/each}}
+        </ul>
       {{/if}}
     {{/def}}
-    {{#semanticEntity aggregationParent.id}}
-    <tr>
-      <td>{{#iflng "cs"}}Profiluje{{lng}}Profiles{{/iflng}}</td>
-      <td>{{profilesClassChain}}</td>
-    </tr>
-    {{/semanticEntity}}
 
-    {{#if name}}
-    {{#translate aggregationParent.name}}
-    <tr>
-      <td>{{#iflng "cs"}}Název ze slovníku{{lng}}Label from vocabulary{{/iflng}}</td>
-      <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
-    </tr>
-    {{/translate}}
+    {{#if aggregationParents}}
+      <tr>
+        <td>{{#iflng "cs"}}Profiluje{{lng}}Profiles{{/iflng}}</td>
+        <td>
+          <ul style="list-style-type: none; padding-left: 0; margin: 0;">
+            {{#each aggregationParents}}
+              {{#semanticEntity ./id}}
+                <li>
+                  {{profilesClassChain}}
+                </li>
+              {{/semanticEntity}}
+            {{/each}}
+          </ul>
+        </td>
+      </tr>
     {{/if}}
 
-    {{#if description}}
-    {{#translate aggregationParent.description}}
+    {{#if name}}
+    <tr>
+      <td>{{#iflng "cs"}}Název ze slovníku{{lng}}Label from vocabulary{{/iflng}}</td>
+        <td>
+          {{#each ./aggregationParents}}
+            {{#translate ./name}}
+              <div>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</div>
+            {{/translate}}
+          {{/each}}
+        </td>
+      </tr>
+    {{/if}}
+
+    {{#if (non-empty description)}}
     <tr>
       <td>{{#iflng "cs"}}Definice ze slovníku{{lng}}Definition from vocabulary{{/iflng}}</td>
-      <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
-    </tr>
-    {{/translate}}
+        <td>
+          {{#each ./aggregationParents}}
+            {{#translate ./description}}
+              <div>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</div>
+            {{/translate}}
+          {{/each}}
+        </td>
+      </tr>
     {{/if}}
 
     {{#translate usageNote}}
@@ -279,36 +304,62 @@ export const defaultConfiguration: DocumentationConfiguration = {
     {{#def "profilesRelationshipChain"}}
       {{#ifEquals type.[0] "relationship"}}{{#iflng "cs"}}vlastnost{{lng}}property{{/iflng}}{{/ifEquals}}
       {{relation}} (<a href="{{{ends.1.iri}}}">{{prefixed ends.1.iri}}</a>)
-      {{#if ./aggregationParent}}
-        {{#semanticEntity aggregationParent.id}}
-          <br />{{#ifEquals type.[0] "class"}}{{#iflng "cs"}}tato profiluje{{lng}}this profiles{{/iflng}}{{/ifEquals}}
-          {{profilesRelationshipChain}}
-        {{/semanticEntity}}
+      {{#if ./aggregationParents}}
+        <ul style="list-style-type: none;">
+          {{#each ./aggregationParents}}
+            <li>
+              {{#semanticEntity ./id}}
+                {{#ifEquals ./type.[0] "relationship"}}{{#iflng "cs"}}tato profiluje{{lng}}this profiles{{/iflng}}{{/ifEquals}}
+                {{profilesRelationshipChain}}
+              {{/semanticEntity}}
+            </li>
+          {{/each}}
+        </ul>
       {{/if}}
     {{/def}}
-    {{#semanticEntity aggregationParent.id}}
-    <tr>
-      <td>{{#iflng "cs"}}Profiluje{{lng}}Profiles{{/iflng}}</td>
-      <td>{{profilesRelationshipChain}}</td>
-    </tr>
-    {{/semanticEntity}}
 
-    {{#if ends.1.name}}
-    {{#translate aggregationParent.ends.1.name}}
-    <tr>
-      <td>{{#iflng "cs"}}Název ze slovníku{{lng}}Label from vocabulary{{/iflng}}</td>
-      <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
-    </tr>
-    {{/translate}}
+
+    {{#if aggregationParents}}
+      <tr>
+        <td>{{#iflng "cs"}}Profiluje{{lng}}Profiles{{/iflng}}</td>
+        <td>
+          <ul style="list-style-type: none; padding-left: 0; margin: 0;">
+            {{#each aggregationParents}}
+              {{#semanticEntity ./id}}
+                <li>
+                  {{profilesRelationshipChain}}
+                </li>
+              {{/semanticEntity}}
+            {{/each}}
+          </ul>
+        </td>
+      </tr>
     {{/if}}
 
-    {{#if ends.1.description}}
-    {{#translate aggregationParent.ends.1.description}}
-    <tr>
-      <td>{{#iflng "cs"}}Definice ze slovníku{{lng}}Definition from vocabulary{{/iflng}}</td>
-      <td>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</td>
-    </tr>
-    {{/translate}}
+    {{#if ends.1.name}}
+      <tr>
+        <td>{{#iflng "cs"}}Název ze slovníku{{lng}}Label from vocabulary{{/iflng}}</td>
+        <td>
+          {{#each ./aggregationParents}}
+            {{#translate ./ends.1.name}}
+              <div>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</div>
+            {{/translate}}
+          {{/each}}
+        </td>
+      </tr>
+    {{/if}}
+
+    {{#if (non-empty ends.1.description)}}
+      <tr>
+        <td>{{#iflng "cs"}}Definice ze slovníku{{lng}}Definition from vocabulary{{/iflng}}</td>
+        <td>
+          {{#each ./aggregationParents}}
+            {{#translate ./ends.1.description}}
+              <div>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</div>
+            {{/translate}}
+          {{/each}}
+        </td>
+      </tr>
     {{/if}}
 
     {{#translate usageNote}}

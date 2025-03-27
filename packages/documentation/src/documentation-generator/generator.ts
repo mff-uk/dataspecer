@@ -107,9 +107,9 @@ export async function generateDocumentation(
   // We need to modify all the models
   for (const model of models) {
     for (const entity of Object.values(model.entities)) {
-      const entityWithAggregation = entity as Entity & {aggregation?: Entity, aggregationParent?: Entity};
+      const entityWithAggregation = entity as Entity & {aggregation?: Entity, aggregationParents?: Entity[]};
       entityWithAggregation.aggregation = aggregatedEntities[entity.id]?.aggregatedEntity!;
-      entityWithAggregation.aggregationParent = aggregatedEntities[entity.id]?.sources[0]?.aggregatedEntity!;
+      entityWithAggregation.aggregationParents = aggregatedEntities[entity.id]?.sources.map(s => s.aggregatedEntity);
     }
   }
 
