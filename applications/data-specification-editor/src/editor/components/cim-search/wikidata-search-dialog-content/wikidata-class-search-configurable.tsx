@@ -1,7 +1,7 @@
 import { PimClass } from "@dataspecer/core/pim/model/pim-class";
 import { useDialog } from "../../../dialog";
 import React, { useContext } from "react";
-import { WdClassSearchQuery, WdClassSearchRerankersIds, WdSearchClassesConfig, WdSearchRerankerConfig } from "@dataspecer/wikidata-experimental-adapter/lib/wikidata-ontology-connector/api-types/post-experimental-search";
+import { WdClassSearchQuery, WdClassSearchRerankersIds, WdSearchClassesConfig, WdSearchRerankerConfig } from "@dataspecer/wikidata-experimental-adapter/wikidata-ontology-connector";
 import { Box, Button, CircularProgress, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, Stack, TextField, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import AddBoxIcon from '@mui/icons-material/AddBox';
@@ -38,7 +38,7 @@ const create_usage_boost_config = (usageBoost: number): WdSearchRerankerConfig<W
         featureWeights: [0.5]
     }
 }
- 
+
 // Assuming there is no usage boost reranker.
 function createSearchClassesConfig(searchConfig: WdSearchClassesConfig, wdClassSearchQuery: WdClassSearchQuery, usageBoost: number): WdSearchClassesConfig {
     const configCopy = {...searchConfig}
@@ -104,8 +104,8 @@ export const WikidataClassSearchConfigurable: React.FC<WikidataClassSearchConfig
                         error={isError}
                         inputProps={{maxLength: MAX_INPUT_LENGTH}}
                     />
-                    <Button 
-                        style={{marginLeft: "1rem", width: 100}} 
+                    <Button
+                        style={{marginLeft: "1rem", width: 100}}
                         variant="contained"
                         onClick={() => refetch()}
                         disabled={isFetching}
@@ -118,21 +118,21 @@ export const WikidataClassSearchConfigurable: React.FC<WikidataClassSearchConfig
                 <Typography sx={{marginTop: 2}} fontSize={18}>{t("wikidata.properties")}:</Typography>
                 <SelectedPropertiesList wdProperties={selectedWdProperties} removeProperty={removeSelectedWdProperty} detailOnWdClassSelect={onWdClassSelect}/>
                 <Box display="flex" justifyContent="center">
-                    <Button 
+                    <Button
                         startIcon={<AddBoxIcon/>}
-                        sx={{width: 190, height: 25}} 
-                        color="info" 
-                        size="small" 
+                        sx={{width: 190, height: 25}}
+                        color="info"
+                        size="small"
                         variant="contained"
                         onClick={() => AddWdPropertyDialog.open({onWdPropertySelect: addSelectedWdProperty, onWdClassSelect: onWdClassSelect})}
                         >
                         {t("wikidata.add property")}
-                    </Button>    
+                    </Button>
                 </Box>
             </Stack>
             <Stack direction={"row"} alignItems="center">
                 <Typography marginTop={1} marginRight={3} fontSize={20}>{t("wikidata.search results")}:</Typography>
-                { isError && 
+                { isError &&
                     <Stack direction="row" marginTop={1}>
                         <ReportGmailerrorredOutlinedIcon color="error"/>
                         <Typography color="error" fontSize={17}>{t("wikidata.search error")}</Typography>
@@ -142,12 +142,12 @@ export const WikidataClassSearchConfigurable: React.FC<WikidataClassSearchConfig
             {queryFailed && !isFetching && <WikidataSearchNotice key={"error"} isProgress={false} isError={true} height={150}/>}
             {!queryFailed && isFetching && <WikidataSearchNotice key={"loading"} isProgress={true} isError={false} height={150}/>}
             {!queryFailed && !isFetching && results && results.length !== 0 &&
-                <WikidataSearchResultsList<WdClassHierarchyDescOnly> 
-                    results={results} 
+                <WikidataSearchResultsList<WdClassHierarchyDescOnly>
+                    results={results}
                     onSelect={onWdClassSelect}
                     detailOnSelect={onWdClassSelect}
                     detailOnSelectDiabledWhen={(entity: WdEntityDescOnly) => isWdEntityPropertyDesc(entity)}
-                    detailOnSelectButtonText={(_: WdEntityDescOnly) => t("wikidata.select as root")} 
+                    detailOnSelectButtonText={(_: WdEntityDescOnly) => t("wikidata.select as root")}
                 />
             }
             {!queryFailed && !isFetching && results && results.length === 0 &&
@@ -168,7 +168,7 @@ const SelectedPropertiesList: React.FC<SelectedWdPropertiesListProps> = ({wdProp
     const {t: tUI} = useTranslation("ui")
     const {t: tSearch} = useTranslation("search-dialog")
     const WdPropertyDetail = useDialog(WikidataEntityDetailDialog)
-    
+
     return (
         <>
             <List component='nav' aria-label='main mailbox folders' dense>
@@ -200,27 +200,27 @@ const SelectedPropertiesList: React.FC<SelectedWdPropertiesListProps> = ({wdProp
                                     </>
                                 }
                                 primary={
-                                    <>  
+                                    <>
                                         <Stack direction="row" spacing={1}>
                                             <strong>
                                                 <LanguageStringText from={wdProperty.labels} />
                                             </strong>
                                             <Typography fontSize={13}>
                                                 (P{wdProperty.id.toString()})
-                                            </Typography> 
+                                            </Typography>
                                         </Stack>
                                     </>
                                 }
                             >
                             </ListItemText>
                             <ListItemSecondaryAction>
-                                <IconButton 
+                                <IconButton
                                     size='small'
                                     onClick={(event) => {
                                         event.stopPropagation();
                                         WdPropertyDetail.open({
-                                            wdEntity: wdProperty, 
-                                            onSelect: detailOnWdClassSelect, 
+                                            wdEntity: wdProperty,
+                                            onSelect: detailOnWdClassSelect,
                                             onSelectButtonText: (entity: WdEntityDescOnly) => tSearch("wikidata.select as root"),
                                             onSelectButtonDisableWhen: (wdEntity: WdEntityDescOnly) => isWdEntityPropertyDesc(wdEntity)
                                         });
@@ -230,7 +230,7 @@ const SelectedPropertiesList: React.FC<SelectedWdPropertiesListProps> = ({wdProp
                                     <InfoTwoToneIcon fontSize='inherit' />
                                 </IconButton>
                                 <Button
-                                    onClick={() => removeProperty(wdProperty.id)} 
+                                    onClick={() => removeProperty(wdProperty.id)}
                                     color="error"
                                 >
                                     {tUI("delete")}
@@ -242,5 +242,5 @@ const SelectedPropertiesList: React.FC<SelectedWdPropertiesListProps> = ({wdProp
             </List>
             <WdPropertyDetail.Component />
         </>
-    )   
+    )
 }

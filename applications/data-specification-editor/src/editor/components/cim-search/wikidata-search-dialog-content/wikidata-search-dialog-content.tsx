@@ -4,7 +4,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { FormControlLabel, FormControl, FormLabel, Radio, RadioGroup, Stack } from "@mui/material";
 import { WikidataClassSearchConfigurable } from "./wikidata-class-search-configurable";
-import { WdSearchClassesConfig } from "@dataspecer/wikidata-experimental-adapter/lib/wikidata-ontology-connector/api-types/post-experimental-search";
+import { WdSearchClassesConfig } from "@dataspecer/wikidata-experimental-adapter/wikidata-ontology-connector";
 
 // The config must be copied inside the ClassConfigurableSearch.
 const METHOD_A_SEARCH_CONFIG: WdSearchClassesConfig = {

@@ -8,7 +8,11 @@
     "test": "jest \"^(.*/)*(.*\\.)*(spec)\\.[jt]s$\" --passWithNoTests",
     "integration-test": "jest \"^(.*/)*(.*\\.)*(test)\\.[jt]s$\" --passWithNoTests"
   },
-  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./wikidata-ontology-connector": "./lib/wikidata-ontology-connector/index.js",
+    "./wikidata-sparql-endpoint-connector": "./lib/wikidata-sparql-endpoint-connector/index.js"
+  },
   "dependencies": {
     "@dataspecer/core": "*",
     "js-string-escape": "^1.0.1"
