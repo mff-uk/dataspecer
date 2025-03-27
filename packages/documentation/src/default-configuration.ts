@@ -183,13 +183,16 @@ export const defaultConfiguration: DocumentationConfiguration = {
     {{/translate}}
     {{#def "profilesClassChain"}}
       {{#ifEquals ./type.[0] "class"}}{{#iflng "cs"}}třída{{lng}}class{{/iflng}}{{/ifEquals}}
+      {{#ifEquals ./type.[0] "class-profile"}}{{#iflng "cs"}}profil{{lng}}class profile{{/iflng}}{{/ifEquals}}
       {{class}} (<a href="{{{./iri}}}">{{prefixed ./iri}}</a>)
+      {{#if (not ./descriptionFromProfiled)}}
+        <br />{{#iflng "cs"}}Definice: {{lng}}Definition: {{/iflng}}<i>{{translate ./description}}</i>
+      {{/if}}
       {{#if ./aggregationParents}}
         <ul style="list-style-type: none;">
           {{#each ./aggregationParents}}
             <li>
               {{#semanticEntity ./id}}
-                {{#ifEquals ./type.[0] "class"}}{{#iflng "cs"}}tato profiluje{{lng}}this profiles{{/iflng}}{{/ifEquals}}
                 {{profilesClassChain}}
               {{/semanticEntity}}
             </li>
@@ -211,32 +214,6 @@ export const defaultConfiguration: DocumentationConfiguration = {
               {{/semanticEntity}}
             {{/each}}
           </ul>
-        </td>
-      </tr>
-    {{/if}}
-
-    {{#if name}}
-    <tr>
-      <td>{{#iflng "cs"}}Název ze slovníku{{lng}}Label from vocabulary{{/iflng}}</td>
-        <td>
-          {{#each ./aggregationParents}}
-            {{#translate ./name}}
-              <div>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</div>
-            {{/translate}}
-          {{/each}}
-        </td>
-      </tr>
-    {{/if}}
-
-    {{#if (non-empty description)}}
-    <tr>
-      <td>{{#iflng "cs"}}Definice ze slovníku{{lng}}Definition from vocabulary{{/iflng}}</td>
-        <td>
-          {{#each ./aggregationParents}}
-            {{#translate ./description}}
-              <div>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</div>
-            {{/translate}}
-          {{/each}}
         </td>
       </tr>
     {{/if}}
@@ -303,13 +280,16 @@ export const defaultConfiguration: DocumentationConfiguration = {
 
     {{#def "profilesRelationshipChain"}}
       {{#ifEquals type.[0] "relationship"}}{{#iflng "cs"}}vlastnost{{lng}}property{{/iflng}}{{/ifEquals}}
+      {{#ifEquals type.[0] "relationship-profile"}}{{#iflng "cs"}}profil{{lng}}property profile{{/iflng}}{{/ifEquals}}
       {{relation}} (<a href="{{{ends.1.iri}}}">{{prefixed ends.1.iri}}</a>)
+      {{#if (not ./ends.1.descriptionFromProfiled)}}
+        <br />{{#iflng "cs"}}Definice: {{lng}}Definition: {{/iflng}}<i>{{translate ./ends.1.description}}</i>
+      {{/if}}
       {{#if ./aggregationParents}}
         <ul style="list-style-type: none;">
           {{#each ./aggregationParents}}
             <li>
               {{#semanticEntity ./id}}
-                {{#ifEquals ./type.[0] "relationship"}}{{#iflng "cs"}}tato profiluje{{lng}}this profiles{{/iflng}}{{/ifEquals}}
                 {{profilesRelationshipChain}}
               {{/semanticEntity}}
             </li>
@@ -332,32 +312,6 @@ export const defaultConfiguration: DocumentationConfiguration = {
               {{/semanticEntity}}
             {{/each}}
           </ul>
-        </td>
-      </tr>
-    {{/if}}
-
-    {{#if ends.1.name}}
-      <tr>
-        <td>{{#iflng "cs"}}Název ze slovníku{{lng}}Label from vocabulary{{/iflng}}</td>
-        <td>
-          {{#each ./aggregationParents}}
-            {{#translate ./ends.1.name}}
-              <div>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</div>
-            {{/translate}}
-          {{/each}}
-        </td>
-      </tr>
-    {{/if}}
-
-    {{#if (non-empty ends.1.description)}}
-      <tr>
-        <td>{{#iflng "cs"}}Definice ze slovníku{{lng}}Definition from vocabulary{{/iflng}}</td>
-        <td>
-          {{#each ./aggregationParents}}
-            {{#translate ./ends.1.description}}
-              <div>{{translation}}{{#if otherLang}} (@{{otherLang}}){{/if}}</div>
-            {{/translate}}
-          {{/each}}
         </td>
       </tr>
     {{/if}}
