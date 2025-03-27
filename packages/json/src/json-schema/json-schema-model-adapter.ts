@@ -269,6 +269,12 @@ function wrapWithCardinality(
     return definition;
   }
   const result = new JsonSchemaArray();
+  if (property.cardinalityMin > 0) {
+    result.minItems = property.cardinalityMin;
+  }
+  if (property.cardinalityMax !== null) {
+    result.maxItems = property.cardinalityMax;
+  }
   result.items = definition;
   return result;
 }

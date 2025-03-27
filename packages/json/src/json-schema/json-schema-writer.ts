@@ -109,6 +109,12 @@ async function writeJsonSchemaArray(
   schema: JsonSchemaArray
 ): Promise<void> {
   await writer.value("type", "array");
+  if (schema.minItems !== null) {
+    await writer.value("minItems", schema.minItems);
+  }
+  if (schema.maxItems !== null) {
+    await writer.value("maxItems", schema.maxItems);
+  }
   const items = writer.object("items");
   assertNot(schema.items === null, "Missing items specification.");
   await writeJsonDefinition(items, schema.items);
