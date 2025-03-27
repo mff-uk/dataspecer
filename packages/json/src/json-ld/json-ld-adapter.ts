@@ -127,9 +127,8 @@ export class JsonLdAdapter {
         }
       } else {
         // This is a codelist
-        if (property.cardinalityMax === 1) {
-          contextData["@type"] = "@id";
-        } else {
+        contextData["@type"] = "@id";
+        if (property.cardinalityMax !== 1) {
           contextData["@container"] = "@set";
         }
       }
