@@ -141,6 +141,8 @@ function handleCreateClassOperation(
     }
 
     const newClass: SemanticModelClass = {
+        // Store any other data
+        ...operation.entity,
         id,
         iri: operation.entity.iri ?? null,
         type: ["class"],
@@ -190,6 +192,7 @@ function handleCreateRelationshipOperation(
     }
 
     const relationship: SemanticModelRelationship = {
+        ...operation.entity,
         id,
         type: ["relationship"],
         iri: operation.entity.iri ?? null,
@@ -197,6 +200,7 @@ function handleCreateRelationshipOperation(
         description: operation.entity.description ?? {},
         ends: [
             {
+                ...operation.entity.ends?.[0],
                 name: operation.entity.ends?.[0]?.name ?? {},
                 description: operation.entity.ends?.[0]?.description ?? {},
                 cardinality: operation.entity.ends?.[0]?.cardinality,
@@ -204,6 +208,7 @@ function handleCreateRelationshipOperation(
                 iri: operation.entity.ends?.[0]?.iri ?? null,
             },
             {
+                ...operation.entity.ends?.[1],
                 name: operation.entity.ends?.[1]?.name ?? {},
                 description: operation.entity.ends?.[1]?.description ?? {},
                 cardinality: operation.entity.ends?.[1]?.cardinality,
@@ -235,6 +240,7 @@ function handleModifyRelationOperation(
 
     const updatedRelationship = {
         ...oldRelationship,
+        ...operation.entity,
         ends: [
             {
                 ...oldRelationship.ends[0],
@@ -340,6 +346,7 @@ function handleCreateClassUsageOperation(
     }
 
     const cls: SemanticModelClassUsage = {
+        ...operation.entity,
         id,
         usageOf: operation.entity.usageOf,
         type: ["class-usage"],
@@ -391,6 +398,7 @@ function handleCreateRelationshipUsageOperation(
     }
 
     const relationship: SemanticModelRelationshipUsage = {
+        ...operation.entity,
         usageNote: operation.entity.usageNote ?? null,
         id,
         type: ["relationship-usage"],
@@ -400,6 +408,7 @@ function handleCreateRelationshipUsageOperation(
         description: operation.entity.description ?? null,
         ends: [
             {
+                ...operation.entity.ends?.[0],
                 name: operation.entity.ends?.[0]?.name ?? null,
                 description: operation.entity.ends?.[0]?.description ?? null,
                 cardinality: operation.entity.ends?.[0]?.cardinality ?? null,
@@ -408,6 +417,7 @@ function handleCreateRelationshipUsageOperation(
                 iri: operation.entity.ends?.[0]?.iri ?? null,
             },
             {
+                ...operation.entity.ends?.[1],
                 name: operation.entity.ends?.[1]?.name ?? null,
                 description: operation.entity.ends?.[1]?.description ?? null,
                 cardinality: operation.entity.ends?.[1]?.cardinality ?? null,
@@ -442,6 +452,7 @@ function handleModifyRelationshipUsageOperation(
 
     const updatedRelationship = {
         ...oldRelationship,
+        ...operation.entity,
         usageNote: operation.entity.usageNote ?? oldRelationship.usageNote,
         name: operation.entity.name ?? oldRelationship.name,
         description: operation.entity.description ?? oldRelationship.description,
