@@ -9,6 +9,9 @@ import { DataSpecification } from "@dataspecer/backend-utils/connectors/specific
 import { ArtifactConfigurator } from "../artifact-configurator";
 import { GenerateReport } from "./generate-report";
 import { ZipStreamDictionary } from "./zip-stream-dictionary";
+import { generateSpecification } from "@dataspecer/specification";
+import { FrontendModelRepository } from "../utils/model-repository";
+import { backendPackageService } from "../../editor/configuration/provided-configuration";
 
 async function writeToStreamDictionary(
   streamDictionary: StreamDictionary,
@@ -77,7 +80,6 @@ export class DefaultArtifactBuilder {
 
         await this.writeReadme(zip);
         await this.writeArtifacts(zip);
-        await this.writeStore(zip);
 
         return zip.save();
     }
@@ -91,12 +93,6 @@ export class DefaultArtifactBuilder {
     private async writeArtifacts(
       zip: ZipStreamDictionary,
     ) {
-        await writeToStreamDictionary(
-          zip,
-          "resources/data_specifications.json",
-          JSON.stringify(this.dataSpecifications, null, 4),
-        );
-
         // Convert data specification
         const dataSpecifications = Object.values(this.dataSpecifications).map(specification => ({
             ...specification,
@@ -133,23 +129,25 @@ export class DefaultArtifactBuilder {
                     await stream.close();
                 }
             }
-        }
-    }
 
-    private async writeStore(streamDictionary: StreamDictionary) {
-        const resources = await this.store.listResources();
-        const rawStore: {
-            [iri: string]: CoreResource | null;
-        } = {};
-        for (const iri of resources) {
-            rawStore[iri] = await this.store.readResource(iri);
-        }
+            // use new generator for the rest
+            await generateSpecification(
+                dataSpecificationIri,
+                {
+                    modelRepository: new FrontendModelRepository(backendPackageService),
+                    output: zip,
 
-        await writeToStreamDictionary(
-          streamDictionary,
-          "resources/merged_store.json",
-          JSON.stringify(rawStore, null, 4),
-        );
+                    v1Context: await generator.createContext(),
+                    v1Specification: dataSpecifications.find(specification => specification.iri === dataSpecificationIri),
+
+                    // @ts-ignore
+                    artifacts: this.dataSpecifications[dataSpecificationIri].artefacts,
+                },
+                {
+                    subdirectory: this.dataSpecifications[dataSpecificationIri].artefacts[0].outputPath.split("/")[0] + "/",
+                }
+            );
+        }
     }
 
     private updateState(artifactIri: string, state: GenerateReport[0]["state"], error: GenerateReport[0]["error"]) {

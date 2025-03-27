@@ -115,6 +115,7 @@ export default defineConfig(({ command, mode }) => {
         "@dataspecer/xml/xml-common-schema",
         "@dataspecer/xml/xml-schema",
         "@dataspecer/xml/xml-transformations",
+        "@dataspecer/specification/**",
       ]
     },
     build: {
