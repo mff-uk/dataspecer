@@ -35,6 +35,14 @@ export interface VisualModelOperationExecutor {
   ): void;
 
   /**
+   * Try to perform {@link addProfile} operation, but ignore failure.
+   */
+  tryAddProfile(
+    profile: EntityReference,
+    profiled: EntityReference,
+  ): void;
+
+  /**
    * @throws DataspecerError
    */
   addNode(
@@ -112,6 +120,17 @@ implements VisualModelOperationExecutor {
     profiled: EntityReference,
   ): void {
     addVisualNodeProfile(this.visualModel, profile, profiled);
+  }
+
+  tryAddProfile(
+    profile: EntityReference,
+    profiled: EntityReference,
+  ): void {
+    try {
+      addVisualNodeProfile(this.visualModel, profile, profiled);
+    } catch {
+      // We do nothing as it is just a try.
+    }
   }
 
   addNode(
