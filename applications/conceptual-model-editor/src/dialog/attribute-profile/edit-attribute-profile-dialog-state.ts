@@ -171,7 +171,7 @@ export function createEditAttributeProfileDialogState(
     domain.concept, domain.cardinality, allDomains,
     filterByModel, representUndefinedClassProfile(),
     range.concept, range.cardinality, allRanges,
-    filterByModel, representUndefinedDataType());
+    items => items, representUndefinedDataType());
 
   return {
     ...entityProfileState,
