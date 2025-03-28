@@ -33,24 +33,24 @@ export async function createSemanticModels(
 ): Promise<EntityModel[]> {
   const result: EntityModel[] = [];
   switch (state.activeTab) {
-    case TabType.AddFromUrl:
-      result.push(await createRdfsSemanticModel(state.modelUrl, state.modelAlias));
-      break;
-    case TabType.AddPredefined:
-      for (const model of state.selectedModels) {
-        if (model.url !== undefined) {
-          result.push(await createRdfsSemanticModel(
-            model.url, model.alias ?? model.label));
-        } else if (model.identifier === SGOV_IDENTIFIER) {
-          result.push(await createCzechSemanticVocabulary());
-        } else {
-          LOG.error("Invalid predefined model.", { model });
-        }
+  case TabType.AddFromUrl:
+    result.push(await createRdfsSemanticModel(state.modelUrl, state.modelAlias));
+    break;
+  case TabType.AddPredefined:
+    for (const model of state.selectedModels) {
+      if (model.url !== undefined) {
+        result.push(await createRdfsSemanticModel(
+          model.url, model.alias ?? model.label));
+      } else if (model.identifier === SGOV_IDENTIFIER) {
+        result.push(await createCzechSemanticVocabulary());
+      } else {
+        LOG.error("Invalid predefined model.", { model });
       }
-      break;
-    case TabType.CreateLocal:
-      result.push(await createInMemorySemanticModel(state.modelAlias));
-      break;
+    }
+    break;
+  case TabType.CreateLocal:
+    result.push(await createInMemorySemanticModel(state.modelAlias));
+    break;
   }
   return result;
 }

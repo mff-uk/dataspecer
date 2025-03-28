@@ -11,36 +11,6 @@ export type ModelDsIdentifier = string;
 export type EntityDsIdentifier = string;
 
 /**
- * Provide complete identification of an entity.
- * @deprecated Use CmeReference instead.
- */
-export interface EntityReference {
-
-  /**
-   * Identifier of the entity.
-   */
-  identifier: EntityDsIdentifier,
-
-  /**
-   * Model of the entity.
-   */
-  model: ModelDsIdentifier,
-
-}
-
-/**
- * @deprecated Use isCmeReferenceEqual instead.
- * @returns True when both reference tha same object.
- */
-export function isEntityReferenceEqual(left: EntityReference, right: EntityReference): boolean {
-  // Check for same objects.
-  if (left === right) {
-    return true;
-  }
-  return left.identifier === right.identifier && left.model === right.model;
-}
-
-/**
  * Use this identifier to represent a missing or undefined model.
  */
 export const UNDEFINED_MODEL = ":undefined-identifier:";
