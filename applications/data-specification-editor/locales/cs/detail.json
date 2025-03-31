@@ -49,6 +49,9 @@
   "json": {
     "use key value for lang string": "Použít formát JSON-LD language map."
   },
+  "JSON attributes": "JSON specifické atributy",
+  "JSON-LD IRI prefixes": "Prefixy použité v JSON-LD kontextu a schématech",
+  "JSON-LD IRI prefixes help": "V tabulce níže lze nastavit často používané prefixy pro IRI použitá v JSON-LD kontextu a tím i pro IRI jež jsou použita v JSON Schématech.",
   "label max": "max",
   "label min": "min",
   "label regex for iri": "Regulární výraz IRI instancí",

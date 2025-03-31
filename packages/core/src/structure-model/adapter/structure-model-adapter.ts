@@ -45,6 +45,7 @@ class StructureModelAdapter {
     model.humanLabel = psmSchema.dataPsmHumanLabel;
     model.humanDescription = psmSchema.dataPsmHumanDescription;
     model.technicalLabel = psmSchema.dataPsmTechnicalLabel;
+    model.jsonLdDefinedPrefixes = psmSchema.jsonLdDefinedPrefixes ?? {};
     model.roots = roots;
 
     return model;
@@ -91,6 +92,9 @@ class StructureModelAdapter {
       return model;
     }
     model = new StructureModelClass();
+    if (DataPsmClass.is(classData)) {
+      model.jsonLdDefinedPrefixes = classData.jsonLdDefinedPrefixes ?? {};
+    }
     this.classes[classData.iri] = model;
     //
     this.psmClassToModel(classData, model);
@@ -145,6 +149,10 @@ class StructureModelAdapter {
       model.isClosed = classData.dataPsmIsClosed;
       model.instancesHaveIdentity = classData.instancesHaveIdentity;
       model.instancesSpecifyTypes = classData.instancesSpecifyTypes;
+      model.jsonSchemaPrefixesInIriRegex = classData.jsonSchemaPrefixesInIriRegex ?? {
+        usePrefixes: "ALWAYS",
+        includeParentPrefixes: true,
+      };
     }
   }
 

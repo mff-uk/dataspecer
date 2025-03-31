@@ -39,6 +39,8 @@ import { executeDataPsmSetTechnicalLabel } from "./data-psm-set-technical-label-
 import { executeDataPsmUnsetChoice } from "./data-psm-unset-choice-executor";
 import { executeDataPsmUnwrapOr } from "./data-psm-unwrap-or-executor";
 import { executeDataPsmWrapWithOr } from "./data-psm-wrap-with-or-executor";
+import { executeDataPsmSetJsonLdDefinedPrefixes } from "./data-psm-set-json-ld-defined-prefixes-executor";
+import { executeDataPsmSetJsonSchemaPrefixesInIriRegex } from "./data-psm-set-json-schema-prefixes-in-iri-regex-executor";
 
 export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
   CoreOperationExecutor.create(
@@ -235,5 +237,15 @@ export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.DataPsmDeleteContainer.is,
     executeDataPsmDeleteContainer,
     Operations.DataPsmDeleteContainer.TYPE
+  ),
+  CoreOperationExecutor.create(
+    Operations.DataPsmSetJsonLdDefinedPrefixes.is,
+    executeDataPsmSetJsonLdDefinedPrefixes,
+    Operations.DataPsmSetJsonLdDefinedPrefixes.TYPE
+  ),
+  CoreOperationExecutor.create(
+    Operations.DataPsmSetJsonSchemaPrefixesInIriRegex.is,
+    executeDataPsmSetJsonSchemaPrefixesInIriRegex,
+    Operations.DataPsmSetJsonSchemaPrefixesInIriRegex.TYPE
   ),
 ];

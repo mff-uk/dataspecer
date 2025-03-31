@@ -37,6 +37,11 @@ export class StructureModel {
   specification: string | null = null;
 
   /**
+   * List of defined IRI prefixes for JSON-LD context.
+   */
+  jsonLdDefinedPrefixes: { [prefix: string]: string } = {};
+
+  /**
    * Returns a list of classes in the model.
    */
   getClasses(): StructureModelClass[] {

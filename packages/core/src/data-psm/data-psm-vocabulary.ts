@@ -135,6 +135,10 @@ export const SET_ROOTS = PSM + "SetRoots";
 
 export const SET_TECHNICAL_LABEL = PSM + "SetTechnicalLabel";
 
+export const SET_JSON_LD_DEFINED_PREFIXES = PSM + "SetJsonLdDefinedPrefixes";
+
+export const SET_JSON_SCHEMA_PREFIXES_IN_IRI_REGEX = PSM + "SetJsonSchemaPrefixesInIriRegex";
+
 export const UNSET_CHOICE = PSM + "UnsetChoice";
 
 export const UNWRAP_OR = PSM + "UnwrapOr";

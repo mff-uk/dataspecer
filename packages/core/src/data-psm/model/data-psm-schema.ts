@@ -42,6 +42,14 @@ export class DataPsmSchema extends ExtendableCoreResource {
     return resource?.types?.includes(DataPsmSchema.TYPE);
   }
 
+  /**
+   * List of defined IRI prefixes for JSON-LD context. These prefixes then can be used
+   * instead of full IRI in JSON-LD context, JSON Schema and also in the JSON data.
+   */
+  jsonLdDefinedPrefixes: {
+    [prefix: string]: string;
+  } | undefined = undefined;
+
   /*
   todo: We are missing the concept of "DataPsmSchemaRoot", which would be between this class - DataPsmSchema and the actual root class - DataPsmClass.
   This class would contain additional metadata and may serve as some king of "association" to the actual root class.
