@@ -1,4 +1,4 @@
-import { Entity } from "@dataspecer/core-v2";
+import { Entity, EntityModel } from "@dataspecer/core-v2";
 import { isSemanticModelClass, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { ExternalEntityWrapped, LocalEntityWrapped, SemanticModelAggregator } from "./interfaces";
@@ -6,15 +6,15 @@ import { getSearchRelevance } from "./utils/get-search-relevance";
 import { withAbsoluteIri } from "@dataspecer/core-v2/semantic-model/utils";
 
 export class VocabularyAggregator implements SemanticModelAggregator {
-  private readonly vocabulary: InMemorySemanticModel;
+  private readonly vocabulary: InMemorySemanticModel | EntityModel;
   private readonly entities: Record<string, LocalEntityWrapped> = {};
   private readonly subscribers: Set<(updated: Record<string, LocalEntityWrapped>, removed: string[]) => void> = new Set();
   thisVocabularyChain: object;
-  protected readonly baseIri: string;
+  protected readonly baseIri?: string;
 
-  constructor(vocabulary: InMemorySemanticModel) {
+  constructor(vocabulary: InMemorySemanticModel | EntityModel) {
     this.vocabulary = vocabulary;
-    this.baseIri = vocabulary.getBaseIri();
+    this.baseIri = (vocabulary as Partial<InMemorySemanticModel>).getBaseIri?.();
 
     this.thisVocabularyChain = {
       name: this.vocabulary.getAlias() ?? "Vocabulary",
@@ -88,7 +88,7 @@ export class VocabularyAggregator implements SemanticModelAggregator {
   }
 
   execOperation(operation: any) {
-    this.vocabulary.executeOperation(operation);
+    (this.vocabulary as InMemorySemanticModel).executeOperation(operation);
   }
 
   /**
