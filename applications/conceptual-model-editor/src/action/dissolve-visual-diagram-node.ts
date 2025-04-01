@@ -36,7 +36,17 @@ export function dissolveVisualDiagramNodeAction(
   copyVisualEntitiesBetweenModels(
     notifications, classesContext, diagram, availableVisualModels,
     referencedVisualModel, visualModel, diagramNode.position, diagramNode);
+
+    // Ideally we would implement the rerouting for visual profile relationships somewhere down in this file,
+    // but the validation in visual model handles it for us. So that seems like extra work not that trivial work.
+    refreshVisualModel(graph);
 }
+
+function refreshVisualModel (
+  graph: ModelGraphContextType,
+) {
+  graph.setAggregatorView(graph.aggregator.getView());
+};
 
 function copyVisualEntitiesBetweenModels(
   notifications: UseNotificationServiceWriterType,
@@ -234,11 +244,11 @@ function rerouteEdgesFromVisualDiagramNodeToItsContent(
       }
     }
     else if(isVisualProfileRelationship(visualEntity)) {
-      // TODO RadStr: Implement me
+      // It is handled by visual model refresh.
+      // Ideally perform similiar stuff as for the visual relationships.
+      // Then we would not need to refresh the model
     }
   }
-
-  // TODO RadStr: Implement me - well just take all the ivsual edges an if it has the actual class then reroute it, if not, then reroute it to the visual diagram node INSIDE the expansion
 }
 
 enum EdgeEndDirection {
