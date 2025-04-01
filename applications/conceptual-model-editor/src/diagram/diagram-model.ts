@@ -75,8 +75,8 @@ export enum NodeType {
 }
 
 /**
- * Represents the super node in diagram.
- * Super node contains other nodes (and hides them inside).
+ * Represents the visual diagram node.
+ * The node contains other nodes, which are present in other visual model (and hides them inside).
  */
 export type VisualModelDiagramNode = {
 
