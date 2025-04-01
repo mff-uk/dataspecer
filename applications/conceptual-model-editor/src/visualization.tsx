@@ -22,6 +22,7 @@ import {
   type VisualNode,
   type VisualProfileRelationship,
   type VisualRelationship,
+  WritableVisualModel,
   isVisualDiagramNode,
   isVisualGroup,
   isVisualNode,
@@ -126,7 +127,7 @@ export const Visualization = () => {
   // Update canvas content on view change.
   useEffect(() => {
     console.log("[VISUALIZATION] Something has changed, recreating diagram visual.", activeVisualModel);
-    validateVisualModel(actions, activeVisualModel, aggregatorView, classesContext);
+    validateVisualModel(actions, activeVisualModel, aggregatorView, classesContext, graph.models);
     onChangeVisualModel(options, activeVisualModel, actions.diagram, aggregatorView, classesContext, graph);
   }, [options, activeVisualModel, actions, aggregatorView, classesContext, graph]);
 
@@ -193,6 +194,7 @@ function validateVisualModel(
   visualModel: VisualModel | null,
   aggregatorView: SemanticModelAggregatorView,
   classesContext: UseClassesContextType,
+  models: Map<string, EntityModel>
 ) {
   if(!isWritableVisualModel(visualModel) || visualModel === null) {
     return;
@@ -210,20 +212,30 @@ function validateVisualModel(
   ];
 
   validateVisualModelDiagramNodes(actions, visualModel, aggregatorView, classesContext, allClasses, relationships);
-  validateVisualModelNonDiagramNodes(actions, visualModel, classesContext);
+  validateVisualModelNonDiagramNodes(actions, visualModel, classesContext, models);
 }
 
 function validateVisualModelNonDiagramNodes(
   actions: ActionsContextType,
-  visualModel: VisualModel,
+  visualModel: WritableVisualModel,
   classesContext: UseClassesContextType,
+  models: Map<string, EntityModel>,
 ) {
+  const missingVisualProfileRelationships: Omit<VisualProfileRelationship, "identifier" | "type">[] = [];
   const invalidEntities: string[] = [];
+  // Map the visual entity it is profile (that is visualTarget) of to its relationships
+  const validVisualProfileRelationships: Record<string, VisualProfileRelationship[]> = {};
+  // Map the visual entity id to the visual entity and class profile it represents
+  const classProfilesInVisualModel: Record<string,
+    {
+      visualEntity: VisualNode,
+      classProfile: SemanticModelClassProfile
+    }> = {};
 
   // TODO: For now just validate the class profile edges, they are currently not removed from visual model
   //       (even from the current, not only when switching visual models)
   for (const [identifier, visualEntity] of visualModel.getVisualEntities()) {
-    if (isVisualProfileRelationship(visualEntity)) {
+    if (isVisualProfileRelationship(visualEntity)) {    // Find the invalid ones
       const source = visualModel.getVisualEntity(visualEntity.visualSource);
       const target = visualModel.getVisualEntity(visualEntity.visualTarget);
       if (source !== null && isVisualNode(source) && target !== null && isVisualNode(target)) {
@@ -238,6 +250,45 @@ function validateVisualModelNonDiagramNodes(
         const isSemanticTargetPresent = semanticSource.profiling.includes(target.representedEntity)
         if(!isSemanticTargetPresent) {
           invalidEntities.push(visualEntity.identifier);
+          continue;
+        }
+
+        addToRecordArray(visualEntity.visualTarget, visualEntity, validVisualProfileRelationships);
+      }
+    }
+    else if (isVisualNode(visualEntity)) {
+      const classProfile = classesContext.classProfiles.find(classProfile => classProfile.id === visualEntity.representedEntity);
+      if (classProfile === undefined) {
+        continue;
+      }
+      classProfilesInVisualModel[visualEntity.identifier] = {
+        visualEntity,
+        classProfile
+      };
+    }
+  }
+
+  for (const {visualEntity, classProfile} of Object.values(classProfilesInVisualModel)) {
+
+    for (const profileOf of classProfile.profiling) {
+      const profileOfVisuals = visualModel.getVisualEntitiesForRepresented(profileOf);
+      for (const profileOfVisual of profileOfVisuals) {
+        const isVisualProfileRelationshipInModel = validVisualProfileRelationships[profileOfVisual.identifier]
+          .findIndex(profileRelationship => profileRelationship.visualSource === visualEntity.identifier) >= 0
+        if (!isVisualProfileRelationshipInModel) {
+          const model = findSourceModelOfEntity(classProfile.id, models);
+          if (model === null) {
+            LOG.error("Missing the source model when creating missing profile relationship on validation");
+            continue;
+          }
+          const profileRelationshipToAdd: Omit<VisualProfileRelationship, "identifier" | "type"> = {
+            entity: classProfile.id,
+            model: model.getId(),
+            waypoints: [],
+            visualSource: visualEntity.identifier,
+            visualTarget: profileOfVisual.identifier
+          }
+          missingVisualProfileRelationships.push(profileRelationshipToAdd);
         }
       }
     }
@@ -245,6 +296,9 @@ function validateVisualModelNonDiagramNodes(
 
   if(invalidEntities.length > 0) {
     actions.removeFromVisualModelByVisual(invalidEntities);
+  }
+  for (const missingVisualProfileRelationship of missingVisualProfileRelationships) {
+    visualModel.addVisualProfileRelationship(missingVisualProfileRelationship);
   }
 }
 
@@ -402,6 +456,19 @@ function validateVisualModelDiagramNodes(
           invalidEntities.push(...excessEdgesIdentifiers);
         }
         else if(profileClassEdgeCount < profileTargetsInTargetDiagramNodeCount) {
+          // TODO RadStr: But we also have to fix in the opposite direction ... from profileOf to profile
+          // TODO RadStr: Fix
+          // for (let i = 0; i < profileTargetsInTargetDiagramNodeCount - profileClassEdgeCount; i++) {
+          //   if(isWritableVisualModel(visualModel)) {
+          //     visualModel.addVisualProfileRelationship({
+          //       entity: "",
+          //       model: "",
+          //       waypoints: [],
+          //       visualSource: "",
+          //       visualTarget: ""
+          //     })
+          //   }
+          // }
           LOG.error("Programmer error, there is more semantic class profiles then there are visual edges");
         }
       }
