@@ -118,8 +118,8 @@ export function addAllRelationshipsForVisualDiagramNodeToVisualModelAction(
     }
   }
 
-  // TODO RadStr: Also add Visual Profile relationships
-
+  // We don't need visual profile relationships actually, sicne currently we always show them
+  // (when validating model they are shown)
   for (const visualRelationshipToAdd of visualRelationshipsToAdd) {
     visualModel.addVisualRelationship(visualRelationshipToAdd)
   }

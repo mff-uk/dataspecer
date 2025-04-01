@@ -1,29 +1,35 @@
 /* Taken from somewhere, can't find the source anymore */
 
-/* TODO RadStr: The triangle shape for the node instead - just test - can remove later */
-.triangle-node {
-  background-color: "#9ca8b3";
-  width: 0px;
-  height: 0px;
-  border-style: inset;
-  border-width: 0 50px 80px 50px;
-  border-color: transparent transparent #9ca8b3 transparent;
-  float: left;
-  transform: rotate(360deg);
-  -ms-transform: rotate(360deg);
-  -moz-transform: rotate(360deg);
-  -webkit-transform: rotate(360deg);
-  -o-transform: rotate(360deg);
+
+.visual-model-diagram-node {
+	width: 100%; /* Adjust the width based on content */
+	height: 100px; /* Adjust the height */
+	background-color: white; /* Triangle color */
+	clip-path: polygon(50% 0%, 0% 100%, 100% 100%); /* Clip to form a triangle */
+	padding-left: 30px;
+	padding-right: 30px;
+
+	display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* Push content to the bottom */
+	align-items: center;
+
+
+	border-radius: 10px; /* Optional: Smooth edges */
+	box-shadow:
+		inset 3px 3px 8px rgba(0, 0, 0, 0.2),   /* Softer inner shadow */
+		inset -3px -3px 8px rgba(0, 0, 0, 0.15),  /* Opposite side shadow */
+		inset 2px 2px 10px rgba(100, 170, 255, 0.8),  /* Brighter blue highlight */
+		inset -2px -2px 10px rgba(100, 170, 255, 0.7); /* Opposite blue glow */
 }
 
-.triangle-node-text {
-  text-align: center;
-  top: 40px;
-  left: -23px;
-  position: relative;
-  width: 46px;
-  height: 46px;
-  margin: 0px;
+
+
+.visual-model-diagram-node:after, .visual-model-diagram-node:before {
+	content: "";
+	position: absolute;
+	background: #90D5FF;
+	z-index: -1
 }
 
 
@@ -45,54 +51,6 @@
 	border-radius: 16px; /* Slightly bigger than the node */
 	z-index: -1;
 	filter: blur(10px); /* Soft glow effect */
-}
-
-.visual-model-diagram-node {
-	/* width: 350px; height: 120px; */
-	padding: 20px;
-
-	border-radius: 10px; /* Optional: Smooth edges */
-	box-shadow:
-		inset 3px 3px 8px rgba(0, 0, 0, 0.2),   /* Softer inner shadow */
-		inset -3px -3px 8px rgba(0, 0, 0, 0.15),  /* Opposite side shadow */
-		inset 2px 2px 10px rgba(100, 170, 255, 0.8),  /* Brighter blue highlight */
-		inset -2px -2px 10px rgba(100, 170, 255, 0.7); /* Opposite blue glow */
-
-	background: #FFFFFF;
-	/* background: linear-gradient(top, #f2f9fe 5%, #90D5FF 100%);
-	background: -webkit-linear-gradient(top, #f2f9fe 5%, #90D5FF 100%);
-	background: -moz-linear-gradient(top, #f2f9fe 5%, #90D5FF 100%);
-	background: -ms-linear-gradient(top, #f2f9fe 5%, #90D5FF 100%);
-	background: -o-linear-gradient(top, #f2f9fe 5%, #90D5FF 100%); */
-
-	border-radius: 100px;
-	-webkit-border-radius: 100px;
-	-moz-border-radius: 100px;
-
-	position: relative;
-}
-
-.visual-model-diagram-node:after, .visual-model-diagram-node:before {
-	content: "";
-	position: absolute;
-	background: #90D5FF;
-	z-index: -1
-}
-
-.visual-model-diagram-node::before {
-	content: '';
-	position: absolute;
-	top: -4px;
-	left: -4px;
-	right: -4px;
-	bottom: -4px;
-	background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet); /* Gradient */
-	border-radius: 10px; /* Match the element's border radius */
-	z-index: -1; /* Ensure the border stays behind the content */
-
-	border-radius: 100px;
-	-webkit-border-radius: 100px;
-	-moz-border-radius: 100px;
 }
 
 
