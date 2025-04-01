@@ -6,6 +6,7 @@ import { createWritableVisualModel } from "../dataspecer/visual-model/visual-mod
 import { languageStringToString } from "../utilities/string";
 import { configuration } from "../application";
 import { useOptions } from "../configuration/options";
+import { useActions } from "@/action/actions-react-binding";
 
 export const ViewManagement = () => {
   const {
@@ -17,6 +18,8 @@ export const ViewManagement = () => {
     removeVisualModel
   } = useModelGraphContext();
   const { language } = useOptions();
+
+  const actions = useActions();
 
   const { updateViewId: setViewIdSearchParam } = useQueryParamsContext();
 
@@ -36,23 +39,16 @@ export const ViewManagement = () => {
     setViewIdSearchParam(activeViewId ?? null);
   }, [activeViewId, setViewIdSearchParam]);
 
-  const setActiveViewId = (modelId: string) => {
-    aggregatorView.changeActiveVisualModel(modelId);
-  };
-
   const handleViewSelected = (viewId: string) => {
-    setActiveViewId(viewId);
-    setAggregatorView(aggregator.getView());
-    setViewIdSearchParam(activeViewId ?? null);
+    actions.changeVisualModel(viewId);
   };
 
   const handleCreateNewView = () => {
-    const activeVisualModel = aggregatorView.getActiveVisualModel();
-    const model = createWritableVisualModel(activeVisualModel);
-    model.setLabel({"en": "View"});
-    addVisualModel(model);
+    const model = actions.createNewVisualModel();
+    if(model === null) {
+      return;
+    }
     aggregatorView.changeActiveVisualModel(model.getId());
-    setAggregatorView(aggregator.getView());
     setViewIdSearchParam(activeViewId ?? null);
   };
 

@@ -1,4 +1,4 @@
-import { Node, Edge, Group, GroupWithContent, Position, ViewportDimensions, Waypoint } from "./diagram-model";
+import { Node, Edge, Group, GroupWithContent, Position, ViewportDimensions, Waypoint, VisualModelDiagramNode as VisualModelDiagramNode, DiagramNodeTypes } from "./diagram-model";
 
 interface GroupActions {
 
@@ -40,19 +40,19 @@ interface NodeActions {
   /**
    * @returns The nodes registered inside diagram.
    */
-  getNodes(): Node[];
+  getNodes(): DiagramNodeTypes[];
 
   /**
    * Adds given {@link nodes} to the diagram.
    * @param nodes is the list of nodes to be added to the diagram.
    */
-  addNodes(nodes: Node[]): void;
+  addNodes(nodes: DiagramNodeTypes[]): void;
 
   /**
    * Updates diagram's nodes matching the given ones.
    * @param nodes are the updated versions of the matching nodes.
    */
-  updateNodes(nodes: Node[]): void;
+  updateNodes(nodes: DiagramNodeTypes[]): void;
 
   /**
    * Updates the nodes' positions.
@@ -118,7 +118,7 @@ interface SelectionActions {
   /**
    * @returns Currently selected nodes within diagram.
    */
-  getSelectedNodes(): Node[];
+  getSelectedNodes(): DiagramNodeTypes[];
 
   /**
    * Sets diagram's node selection to the given {@link nodes}.
@@ -184,7 +184,7 @@ export interface DiagramActions extends
    * Sets content of the diagram.
    * @returns When the diagram is ready.
    */
-  setContent(nodes: Node[], edges: Edge[], groups: GroupWithContent[]): Promise<void>;
+  setContent(nodes: DiagramNodeTypes[], edges: Edge[], groups: GroupWithContent[]): Promise<void>;
 
   /**
    * Opens menu on given {@link canvasPosition}.
@@ -192,7 +192,7 @@ export interface DiagramActions extends
    * @param sourceNode is the node from which the connection dragging started
    * @param canvasPosition is the canvas position where user dragged the connection and on which will the menu appear
    */
-  openDragEdgeToCanvasMenu(sourceNode: Node, canvasPosition: Position): void;
+  openDragEdgeToCanvasMenu(sourceNode: DiagramNodeTypes, canvasPosition: Position): void;
 
   /**
    * Opens menu on given {@link canvasPosition}.
@@ -200,7 +200,7 @@ export interface DiagramActions extends
    * @param sourceNode is the node on which the user clicked the button.
    * @param canvasPosition is the canvas position where the menu will appear.
    */
-  openSelectionActionsMenu(sourceNode: Node, canvasPosition: Position): void;
+  openSelectionActionsMenu(sourceNode: DiagramNodeTypes, canvasPosition: Position): void;
 
   /**
    * Opens menu on given {@link canvasPosition}.
@@ -249,12 +249,12 @@ interface DiagramNodes {
   /**
    * Called when user wants to create new copy of the node on canvas.
    */
-  onDuplicateNode: (diagramNode: Node) => void;
+  onDuplicateNode: (diagramNode: DiagramNodeTypes) => void;
 
   /**
    * Called when user hides node, i. e. removes it from canvas.
    */
-  onHideNode: (diagramNode: Node) => void;
+  onHideNode: (diagramNode: DiagramNodeTypes) => void;
 
   /**
    * Called when user deletes node.
@@ -386,7 +386,7 @@ interface DiagramSelection {
    * @param source is the last selected node
    * @param canvasPosition is the position on canvas, where should be the list of actions shown.
    */
-  onShowSelectionActionsMenu: (source: Node, canvasPosition: Position) => void;
+  onShowSelectionActionsMenu: (source: DiagramNodeTypes, canvasPosition: Position) => void;
 
   /**
    * This method is called when user wants to layout selection.
@@ -435,23 +435,63 @@ interface DiagramSelection {
    * This method is called when user wants to remove selection from both semantic and visual model.
    */
   onDeleteSelection: () => void;
+
+  /**
+   * This method is called when user wants to create new visual diagram node from selection.
+   * That is the selection is put into new visual model and new node is created which represents the created model.
+   */
+  onCreateVisualModelDiagramNodeFromSelection: () => void;
+}
+
+interface VisualModelDiagramNodes {
+
+  /**
+   * This method is called when user wants to dissolve node which represents visual model.
+   * That is the diagram node is removed and its content is put on canvas.
+   * @param visualModelDiagramNode is the visual diagram node.
+   */
+  onDissolveVisualModelDiagramNode: (visualModelDiagramNode: VisualModelDiagramNode) => void;
+
+  /**
+   * Opens visual model which is linked to the visual diagram node.
+   * @param visualModelDiagramNodeIdentifier is the identifier of the visual diagram node.
+   */
+  onMoveToVisualModelRepresentedByVisualModelDiagramNode: (visualModelDiagramNodeIdentifier: string) => void;
+
+  /**
+   * Called when user starts editing node, which represents visual model.
+   * @param visualModelDiagramNode is the node which is being edited.
+   */
+  onEditVisualModelDiagramNode: (visualModelDiagramNode: VisualModelDiagramNode) => void;
+
+  /**
+   * Called when user wants to see info about node, which represents visual model.
+   * @param visualModelDiagramNode is the node which info wants to user view.
+   */
+  onShowInfoForVisualModelDiagramNode: (visualModelDiagramNode: VisualModelDiagramNode) => void;
+
+  /**
+   * Called when user hides node representing visual model, i.e. removes it from canvas.
+   * @param visualModelDiagramNode is the diagram node to be removed from canvas.
+   */
+  onHideVisualModelDiagramNode: (visualModelDiagramNode: VisualModelDiagramNode) => void;
 }
 
 /**
  * Callbacks to owner to handle required user actions.
  */
-export interface DiagramCallbacks extends DiagramNodes, DiagramEdges, DiagramSelection {
+export interface DiagramCallbacks extends DiagramNodes, VisualModelDiagramNodes, DiagramEdges, DiagramSelection {
 
   /**
    * This property stores the method, which is called when user creates connection inside diagram.
    */
-  onCreateConnectionToNode: (source: Node, target: Node) => void;
+  onCreateConnectionToNode: (source: DiagramNodeTypes, target: DiagramNodeTypes) => void;
 
   /**
    * This method is called when user creates "empty" connection, i.e. connection from node to canvas.
    * @param source is the node at which the connection started
    * @param canvasPosition is the position on canvas, where the connection ended.
    */
-  onCreateConnectionToNothing: (source: Node, canvasPosition: Position) => void;
+  onCreateConnectionToNothing: (source: DiagramNodeTypes, canvasPosition: Position) => void;
 
 }

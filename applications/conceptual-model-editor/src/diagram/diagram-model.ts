@@ -1,6 +1,8 @@
+export type DiagramNodeTypes = Node | VisualModelDiagramNode;
+
 
 /**
- * Entity can be a class or a class profile.
+ * Node can be a class or a class profile.
  */
 export type Node = {
 
@@ -70,6 +72,24 @@ export enum NodeType {
    * Represents a class profile.
    */
   ClassProfile
+}
+
+// TODO RadStr: SUPER ... maybe we don't need all the properties ... yeah we don't just list it
+
+/**
+ * Represents the super node in diagram.
+ * Super node contains other nodes (and hides them inside).
+ */
+export type VisualModelDiagramNode = Omit<Node, "iri" | "type" | "color"> & {
+
+  containedNodes: string[];
+
+  representedModelAlias: string;
+
+}
+
+export function isVisualModelDiagramNode(what: DiagramNodeTypes): what is VisualModelDiagramNode {
+  return (what as any)?.containedNodes !== undefined;
 }
 
 export interface AnchoredPosition extends Position {

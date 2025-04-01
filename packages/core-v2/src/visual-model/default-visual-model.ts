@@ -14,11 +14,14 @@ import {
   VisualNode,
   VisualProfileRelationship,
   VisualRelationship,
+  VisualDiagramNode,
   isModelVisualInformation,
   isVisualGroup,
   isVisualNode,
   isVisualProfileRelationship,
   isVisualRelationship,
+  isVisualDiagramNode,
+  VISUAL_DIAGRAM_NODE_TYPE,
 } from "./visual-entity";
 import {
   WritableVisualModel,
@@ -185,6 +188,16 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
     });
   }
 
+  addVisualDiagramNode(entity: Omit<VisualDiagramNode, "identifier" | "type">): string {
+    // This will trigger update in underlying model and invoke callback.
+    // We react to changes using the callback.
+
+    return this.model.createEntitySync({
+      ...entity,
+      type: [VISUAL_DIAGRAM_NODE_TYPE],
+    });
+  }
+
   addVisualRelationship(entity: Omit<VisualRelationship, "identifier" | "type">): string {
     // This will trigger update in underlying model and invoke callback.
     // We react to changes using the callback.
@@ -203,7 +216,7 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
     });
   }
 
-  addVisualGroup(entity: Omit<VisualGroup, "identifier" | "identifier">): string {
+  addVisualGroup(entity: Omit<VisualGroup, "identifier" | "type">): string {
     // This will trigger update in underlying model and invoke callback.
     // We react to changes using the callback.
     return this.model.createEntitySync({
@@ -367,6 +380,11 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
   }
 
   protected onEntityDidCreate(entity: Entity) {
+    if(isVisualDiagramNode(entity)) {
+      this.entities.set(entity.identifier, entity);
+      addToMapArray(entity.representedVisualModel, entity.identifier, this.representedToEntity);
+      this.notifyObserversOnEntityChangeOrDelete(null, entity);
+    }
     if (isVisualNode(entity)) {
       this.entities.set(entity.identifier, entity);   // TODO PRQuestion: this line repeats at every if branch
       addToMapArray(entity.representedEntity, entity.identifier, this.representedToEntity);
@@ -412,6 +430,10 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
 
   protected onEntityDidChange(entity: Entity) {
     const previous = this.entities.get(entity.identifier);
+    if (isVisualDiagramNode(entity)) {
+      this.entities.set(entity.identifier, entity);
+      this.notifyObserversOnEntityChangeOrDelete(previous as VisualEntity, entity);
+    }
     if (isVisualNode(entity)) {
       this.entities.set(entity.identifier, entity);
       this.notifyObserversOnEntityChangeOrDelete(previous as VisualEntity, entity);
@@ -450,6 +472,10 @@ export class DefaultVisualModel implements WritableVisualModel, EntityEventListe
     // Remove the entity from internal structures.
     this.entities.delete(identifier);
     // Notify listeners.
+    if (isVisualDiagramNode(previous)) {
+      removeFromMapArray(this.representedToEntity, previous.representedVisualModel, identifier);
+      this.notifyObserversOnEntityChangeOrDelete(previous, null);
+    }
     if (isVisualNode(previous)) {
       removeFromMapArray(this.representedToEntity, previous.representedEntity, identifier);
       this.notifyObserversOnEntityChangeOrDelete(previous, null);

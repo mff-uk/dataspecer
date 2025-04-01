@@ -4,7 +4,7 @@ import { addVisualNodeProfile } from "./operation/add-visual-node-profile";
 import { addVisualNode } from "./operation/add-visual-node";
 import { deleteEntityModel } from "./operation/delete-entity-model";
 import { updateVisualNodeProfiles } from "./operation/update-visual-node-profiles";
-import { addVisualRelationships, addVisualRelationshipsWithSpecifiedVisualEnds } from "./operation/add-visual-relationships";
+import { addVisualRelationshipsForRepresented, addVisualRelationshipsWithSpecifiedVisualEnds } from "./operation/add-visual-relationships";
 
 export interface VisualModelOperationExecutor {
 
@@ -92,7 +92,7 @@ implements VisualModelOperationExecutor {
     child: EntityDsIdentifier,
     parent: EntityDsIdentifier,
   ): void {
-    addVisualRelationships(this.visualModel,
+    addVisualRelationshipsForRepresented(this.visualModel,
       represented.model, represented.identifier, child, parent);
   }
 
@@ -139,7 +139,7 @@ implements VisualModelOperationExecutor {
     source: EntityDsIdentifier,
     target: EntityDsIdentifier,
   ): void {
-    addVisualRelationships(this.visualModel,
+    addVisualRelationshipsForRepresented(this.visualModel,
       represented.model, represented.identifier, source, target);
   }
 

@@ -26,6 +26,7 @@ import {
   NodeSelectionChange,
   NodeDimensionChange,
   NodePositionChange,
+  MiniMapNodeProps,
 } from "@xyflow/react";
 
 import { type UseDiagramType } from "./diagram-hook";
@@ -40,6 +41,8 @@ import {
   EdgeType as ApiEdgeType,
   Position,
   GroupWithContent,
+  DiagramNodeTypes,
+  isVisualModelDiagramNode,
 } from "./diagram-model";
 import { type EdgeToolbarProps } from "./edge/edge-toolbar";
 import { EntityNodeName } from "./node/entity-node";
@@ -59,6 +62,8 @@ import { GroupMenu } from "./node/group-menu";
 import { findTopLevelGroup } from "../action/utilities";
 import { GeneralCanvasMenuComponentProps } from "./canvas/canvas-menu-general";
 import { isEqual, omit } from "lodash";
+import { isVisualDiagramNode } from "@dataspecer/core-v2/visual-model";
+import { VisualModelNodeName } from "./node/visual-model-diagram-node";
 
 const UNINITIALIZED_VALUE_GROUP_POSITION = 10000000;
 
@@ -157,7 +162,7 @@ const createGroupNode = (groupId: string, content: Node<any>[], hidden: boolean)
   return groupNode
 };
 
-export type NodeType = Node<ApiNode>;
+export type NodeType = Node<DiagramNodeTypes>;
 
 export type EdgeType = Edge<ApiEdge>;
 
@@ -1714,7 +1719,10 @@ const createActions = (
       return reactFlow.getNodes().map(node => node.data);
     },
     addNodes(nodes) {
-      reactFlow.addNodes(nodes.map(nodeToNodeType));
+      // We set it directly. Using reactflow creates some unwanted delay
+      // TODO RadStr: SUPER or does it? there was definitely some issue with it I just forgot which
+      // reactFlow.addNodes(nodes.map(nodeToNodeType));
+      setNodes(previousNodes => previousNodes.concat(nodes.map(nodeToNodeType)));
       console.log("Diagram.addNodes", nodes.map(item => item.identifier), nodes);
     },
     updateNodes(nodes) {
@@ -1752,7 +1760,10 @@ const createActions = (
       console.log("Diagram.updateNodesPosition", nodes);
     },
     removeNodes(identifiers) {
-      reactFlow.deleteElements({ nodes: identifiers.map(id => ({ id })) });
+      // TODO RadStr: SUPER
+      // reactFlow.deleteElements({ nodes: identifiers.map(id => ({ id })) });
+      // Again setting directly instead of using reactFlow because of delay
+      setNodes(previousNodes => previousNodes.filter(previousNode => !identifiers.includes(previousNode.id)));
       console.log("Diagram.removeNodes", identifiers);
     },
     getNodeWidth(identifier) {
@@ -1898,10 +1909,10 @@ const convertViewUsingZoom = (view: ViewportDimensions, zoom: number): void => {
   view.height *= zoomReciprocal;
 };
 
-const nodeToNodeType = (node: ApiNode): NodeType => {
+const nodeToNodeType = (node: DiagramNodeTypes): NodeType => {
   return {
     id: node.identifier,
-    type: EntityNodeName,
+    type: isVisualModelDiagramNode(node) ? VisualModelNodeName : EntityNodeName,
     position: {
       x: node.position.x,
       y: node.position.y,
