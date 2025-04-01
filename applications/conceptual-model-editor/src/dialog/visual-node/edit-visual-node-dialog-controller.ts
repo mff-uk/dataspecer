@@ -41,10 +41,8 @@ export function useEditVisualNodeController(
       }
       changeState(state => {
         const result = { ...state };
-        result.activeContent = [...state.activeContent];
-        swapArray(
-          result.activeContent, source,
-          result.activeContent, destination);
+        result.activeContent = moveInArray(
+          result.activeContent, source, destination);
         return result;
       })
     };
@@ -68,10 +66,8 @@ export function useEditVisualNodeController(
       }
       changeState(state => {
         const result = { ...state };
-        result.inactiveContent = [...state.inactiveContent];
-        swapArray(
-          result.inactiveContent, source,
-          result.inactiveContent, destination);
+        result.inactiveContent =
+          moveInArray(result.inactiveContent, source, destination);
         return result;
       })
     };
@@ -96,109 +92,18 @@ export function useEditVisualNodeController(
       deactivate,
     };
   }, [changeState]);
-
-  // Const { openCreateAttributeDialogForClass } = useActions();
-  // return useMemo(() => {
-  //   const moveToNewPosition = (
-  //     sourceFieldInState: ChangeablePartOfEditNodeAttributeState,
-  //     targetFieldInState: ChangeablePartOfEditNodeAttributeState,
-  //     oldPosition: number,
-  //     newPosition: number
-  //   ) => {
-  //     const isSourceSameAsTarget = sourceFieldInState === targetFieldInState;
-  //     const nextStateForSourceFieldInState: ContentItem[] = [...state[sourceFieldInState]];
-  //     const nextStateForTargetFieldInState = isSourceSameAsTarget ?
-  //       nextStateForSourceFieldInState :
-  //       [...state[targetFieldInState]];
-  //     const [removed] = nextStateForSourceFieldInState.splice(oldPosition, 1);
-  //     nextStateForTargetFieldInState.splice(newPosition, 0, removed);
-  //     const nextState = {
-  //       ...state,   // Now not necessary - only necessary if we have more than 2 fields
-  //       [sourceFieldInState]: nextStateForSourceFieldInState,
-  //       [targetFieldInState]: nextStateForTargetFieldInState,
-  //     };
-  //     changeState(nextState);
-  //   };
-
-  //   const addToVisibleAttributes = (newAttribute: ContentItem) => {
-  //     const nextState: EditVisualNodeDialogState = {
-  //       ...state,
-  //       content: state.content.concat(newAttribute),
-  //     };
-
-  //     changeState(nextState);
-  //   };
-
-  //   const onCreateNewAttribute = () => {
-  //     const onConfirmCallback = (
-  //       returnedState: AttributeDialogState | AttributeProfileDialogState,
-  //       createdAttributeIdentifier: string
-  //     ) => {
-  //       if(returnedState.domain.identifier !== state.representedEntity) {
-  //         return;
-  //       }
-
-  //       let name: string | null;
-  //       let profileOf: string | null;
-
-  //       if(state.isDomainNodeProfile) {
-  //         const returnedStateProfile = (returnedState as AttributeProfileDialogState);
-  //         if(returnedStateProfile.overrideName) {
-  //           name = getLocalizedStringFromLanguageString(returnedState.name, returnedState.language);
-  //         }
-  //         else {
-  //           name = getLocalizedStringFromLanguageString(returnedStateProfile.nameSourceValue, returnedState.language);
-  //         }
-
-  //         profileOf = returnedStateProfile.profiles
-  //           .map(profile => {
-  //             const localizedName = getLocalizedStringFromLanguageString(profile.name, returnedState.language);
-  //             return tryGetName(localizedName, profile.iri, profile.identifier);
-  //           }).join(", ");
-  //       }
-  //       else {
-  //         profileOf = null;
-  //         name = getLocalizedStringFromLanguageString(returnedState.name, returnedState.language);
-  //       }
-
-  //       name = tryGetName(name, returnedState.iri, createdAttributeIdentifier);
-
-  //       // We have to use timeout -
-  //       // there is probably some issue with updating state of multiple dialogs when one closes.
-  //       setTimeout(() => addToVisibleAttributes({
-  //         identifier: createdAttributeIdentifier,
-  //         name,
-  //         profileOf
-  //       }), 1);
-  //     }
-
-  //     openCreateAttributeDialogForClass(state.representedEntity, onConfirmCallback);
-  //   };
-
-  //   const handleDrop = (result: DropResult) => {
-  //     if (!result.destination) {
-  //       return;     // If dropped outside a valid drop zone
-  //     }
-
-  //     const sourceStateField = result.source.droppableId as ChangeablePartOfEditNodeAttributeState;
-  //     const targetStateField = result.destination.droppableId as ChangeablePartOfEditNodeAttributeState;
-  //     moveToNewPosition(sourceStateField, targetStateField, result.source.index, result.destination.index);
-  //   };
-
-  //   return {
-  //     moveToNewPosition,
-  //     addToVisibleAttributes,
-  //     onCreateNewAttribute,
-  //     handleDrop,
-  //   };
-  // }, [state, changeState, openCreateAttributeDialogForClass]);
 }
 
-function swapArray<T>(
-  sourceItems: T[], sourceIndex: number,
-  targetItems: T[], targetIndex: number,
-): void {
-  const temp = sourceItems[sourceIndex];
-  sourceItems[sourceIndex] = targetItems[targetIndex];
-  targetItems[targetIndex] = temp;
+/**
+ * Move item in given array from source to target index.
+ */
+function moveInArray<T>(
+  items: T[], sourceIndex: number, targetIndex: number,
+): T[] {
+  const result = [...items];
+  // Remove from original position.
+  const [movedElement] = result.splice(sourceIndex, 1);
+  // Insert to target position.
+  result.splice(targetIndex, 0, movedElement);
+  return result;
 }
