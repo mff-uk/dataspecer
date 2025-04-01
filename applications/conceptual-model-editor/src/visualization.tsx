@@ -51,7 +51,7 @@ import { getGroupMappings, getClassesAndDiagramNodesModelsFromVisualModelRecursi
 import { synchronizeOnAggregatorChange, updateVisualAttributesBasedOnSemanticChanges } from "./dataspecer/visual-model/aggregator-to-visual-model-adapter";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { EntityDsIdentifier } from "./dataspecer/entity-model";
-import { createAttributeProfileLabel, getEntityLabelToShowInDiagram } from "./util/utils";
+import { createAttributeProfileLabel, createGetVisualEntitiesForRepresentedWrapper, getEntityLabelToShowInDiagram } from "./util/utils";
 
 import "./visualization.css";
 import { addToRecordArray } from "./utilities/functional";
@@ -238,7 +238,11 @@ function validateVisualModelNonDiagramNodes(
     if (isVisualProfileRelationship(visualEntity)) {    // Find the invalid ones
       const source = visualModel.getVisualEntity(visualEntity.visualSource);
       const target = visualModel.getVisualEntity(visualEntity.visualTarget);
-      if (source !== null && isVisualNode(source) && target !== null && isVisualNode(target)) {
+      if(source === null || target === null){
+        invalidEntities.push(visualEntity.identifier);
+        continue;
+      }
+      else if (isVisualNode(source) && isVisualNode(target)) {
         const semanticSource = classesContext.classProfiles
           .find(classProfile => classProfile.id === source.representedEntity);
 
@@ -274,7 +278,7 @@ function validateVisualModelNonDiagramNodes(
       const profileOfVisuals = visualModel.getVisualEntitiesForRepresented(profileOf);
       for (const profileOfVisual of profileOfVisuals) {
         const isVisualProfileRelationshipInModel = validVisualProfileRelationships[profileOfVisual.identifier]
-          .findIndex(profileRelationship => profileRelationship.visualSource === visualEntity.identifier) >= 0
+          ?.find(profileRelationship => profileRelationship.visualSource === visualEntity.identifier) !== undefined;
         if (!isVisualProfileRelationshipInModel) {
           const model = findSourceModelOfEntity(classProfile.id, models);
           if (model === null) {
