@@ -252,6 +252,11 @@ interface DiagramNodes {
   onDuplicateNode: (diagramNode: DiagramNodeTypes) => void;
 
   /**
+   * Adds all relationships related to the content of the diagram node
+   */
+  onAddAllRelationships: (visualModelDiagramNode: VisualModelDiagramNode) => void;
+
+  /**
    * Called when user hides node, i. e. removes it from canvas.
    */
   onHideNode: (diagramNode: DiagramNodeTypes) => void;

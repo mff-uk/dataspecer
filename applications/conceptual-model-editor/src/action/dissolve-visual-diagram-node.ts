@@ -37,16 +37,14 @@ export function dissolveVisualDiagramNodeAction(
     notifications, classesContext, diagram, availableVisualModels,
     referencedVisualModel, visualModel, diagramNode.position, diagramNode);
 
-    // Ideally we would implement the rerouting for visual profile relationships somewhere down in this file,
-    // but the validation in visual model handles it for us. So that seems like extra work not that trivial work.
-    refreshVisualModel(graph);
+  // Ideally we would implement the rerouting for visual profile relationships somewhere down in this file,
+  // but the validation in visual model handles it for us. So that seems like extra work, which is not really that trivial.
+  refreshVisualModel(graph);
 }
 
-function refreshVisualModel (
-  graph: ModelGraphContextType,
-) {
+function refreshVisualModel (graph: ModelGraphContextType) {
   graph.setAggregatorView(graph.aggregator.getView());
-};
+}
 
 function copyVisualEntitiesBetweenModels(
   notifications: UseNotificationServiceWriterType,

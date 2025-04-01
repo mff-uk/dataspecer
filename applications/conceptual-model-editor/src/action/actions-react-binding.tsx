@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from "react";
 
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { Waypoint, WritableVisualModel, isVisualDiagramNode, isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { VisualDiagramNode, Waypoint, WritableVisualModel, isVisualDiagramNode, isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
 
 import { type DialogApiContextType } from "../dialog/dialog-service";
 import { DialogApiContext } from "../dialog/dialog-context";
@@ -76,6 +76,7 @@ import { createNewVisualModelAction } from "./create-new-visual-model-from-sourc
 import { dissolveVisualDiagramNodeAction } from "./dissolve-visual-diagram-node";
 import { openVisualDiagramNodeInfoDialogAction } from "./open-visual-diagram-node-info-dialog";
 import { addVisualDiagramNodeForExistingModelToVisualModelAction } from "./create-visual-diagram-node-for-existing-model";
+import { addAllRelationshipsForVisualDiagramNodeToVisualModelAction } from "./add-all-relationships";
 
 const LOG = createLogger(import.meta.url);
 
@@ -210,6 +211,8 @@ interface VisualModelActions {
    * Adds new visual diagram node, which is refering to provided visual model.
    */
   addVisualDiagramNodeForExistingModelToVisualModel: (visualModelToRepresent: string) => void;
+
+  addAllRelationshipsForVisualDiagramNodeToVisualModel: (visualModelDiagramNode: VisualModelDiagramNode) => void;
 
   // TODO RadStr: Document
   addAttributeToVisualModel: (attribute: string, domainClass: string | null) => void;
@@ -359,6 +362,7 @@ const noOperationActionsContext = {
   addRelationProfileToVisualModel: noOperation,
   addAttributeToVisualModel: noOperation,
   addVisualDiagramNodeForExistingModelToVisualModel: noOperation,
+  addAllRelationshipsForVisualDiagramNodeToVisualModel: noOperation,
   shiftAttributeUp: noOperation,
   shiftAttributeDown: noOperation,
   deleteFromSemanticModels: noOperation,
@@ -727,6 +731,15 @@ function createActionsContext(
     });
   };
 
+  const addAllRelationshipsForVisualDiagramNodeToVisualModel = (
+    visualModelDiagramNode: VisualModelDiagramNode
+  ): void => {
+    withVisualModel(notifications, graph, (visualModel) => {
+      addAllRelationshipsForVisualDiagramNodeToVisualModelAction(
+        notifications, classes, graph, visualModel, visualModelDiagramNode);
+    });
+  };
+
   const shiftAttributeUp = (attribute: string, domainNode: string | null): void => {
     if(domainNode === null) {
       notifications.error("Shifting attribute in domain node which is null");
@@ -950,6 +963,8 @@ function createActionsContext(
     onCreateNodeProfile: (node) => openCreateProfileDialog(node.externalIdentifier),
 
     onDuplicateNode: (node) => createVisualNodeDuplicate(node.identifier),
+
+    onAddAllRelationships: (visualModelDiagramNode) => addAllRelationshipsForVisualDiagramNodeToVisualModel(visualModelDiagramNode),
 
     onHideNode: (node) => removeFromVisualModelByVisual([node.identifier]),
 
@@ -1218,6 +1233,7 @@ function createActionsContext(
     addRelationProfileToVisualModel,
     addAttributeToVisualModel,
     addVisualDiagramNodeForExistingModelToVisualModel,
+    addAllRelationshipsForVisualDiagramNodeToVisualModel,
     shiftAttributeUp,
     shiftAttributeDown,
     removeFromVisualModelByRepresented,

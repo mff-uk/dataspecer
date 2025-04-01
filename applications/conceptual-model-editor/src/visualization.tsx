@@ -378,7 +378,6 @@ function validateVisualModelDiagramNodes(
       if (!isDomainValid) {
         continue;
       }
-      alert("test1");
 
       const isRangeValid = checkEdgeEndValidity(
         visualModelToContentMappings, visualModel, aggregatorView,
@@ -386,7 +385,6 @@ function validateVisualModelDiagramNodes(
       if (!isRangeValid) {
         continue;
       }
-      alert("test2");
     }
     else if(isVisualProfileRelationship(visualEntity)) {
       const profile = classesContext.classProfiles.find(classProfile => classProfile.id === visualEntity.entity);

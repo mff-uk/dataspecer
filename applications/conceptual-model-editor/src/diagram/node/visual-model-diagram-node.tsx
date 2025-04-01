@@ -95,6 +95,8 @@ function PrimaryVisualModelNodeMenu(props: NodeProps<Node<VisualModelDiagramNode
 
   const onDuplicateNode = () => context?.callbacks().onDuplicateNode(props.data);
 
+  const onAddAllRelationships = () => context?.callbacks().onAddAllRelationships(props.data);
+
   const shouldShowToolbar = props.selected === true;
 
   return (
@@ -119,6 +121,8 @@ function PrimaryVisualModelNodeMenu(props: NodeProps<Node<VisualModelDiagramNode
           </NodeToolbar>
       }
       <NodeToolbar isVisible={shouldShowToolbar} position={Position.Bottom} className="flex gap-2 entity-node-menu" >
+        <button onClick={onAddAllRelationships} title={t("visual-diagram-node-add-relationships-button")}>🌳</button>
+        &nbsp;
         <button onClick={onHideVisualModelNode} title={t("visual-diagram-node-hide-button")}>🕶</button>
         &nbsp;
         <button onClick={onAnchor} title={isPartOfGroup ? t("group-anchor-button") : t("node-anchor-button")} >⚓</button>

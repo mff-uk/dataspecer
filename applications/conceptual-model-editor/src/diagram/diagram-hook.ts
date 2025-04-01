@@ -116,6 +116,7 @@ const noOperationCallbacks: DiagramCallbacks = {
   onEditRepresentedByNode: noOperation,
   onCreateNodeProfile: noOperation,
   onDuplicateNode: noOperation,
+  onAddAllRelationships: noOperation,
   onHideNode: noOperation,
   onDeleteNode: noOperation,
   onChangeNodesPositions: noOperation,

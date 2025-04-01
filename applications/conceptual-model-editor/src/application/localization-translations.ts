@@ -329,6 +329,7 @@ export const translations: Record<string, string | Function> = {
   //
   "visual-diagram-node-dissolve-button": "Dissolves node representing visual model. That is the content of the diagram node is put back on canvas.",
   "visual-diagram-node-hide-button": "Removes the diagram node from canvas.",
+  "visual-diagram-node-add-relationships-button": "Adds all the relationships related to the content of the visual diagram node",
   "visual-diagram-node-move-to-source-visual-model-button": "Change visual model to the visual model represented by this diagram node",
   "visual-diagram-node-edit-button": "Edit diagram node's properties",
   "visual-diagram-node-detail-button": "Show info about visual model diagram node",
