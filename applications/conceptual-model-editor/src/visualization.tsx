@@ -290,7 +290,7 @@ function onChangeVisualModel(
       // by the VisualProfileRelationship.
       for (const item of profiled) {
         const profilesOf = visualModel.getVisualEntitiesForRepresented(item);
-        for(const profileOf of profilesOf) {
+        for (const profileOf of profilesOf) {
           if (visualEntity.visualSource !== profileOf.identifier &&
             visualEntity.visualTarget !== profileOf.identifier) {
             // The VisualProfileRelationship represents different profile relationship.
@@ -343,57 +343,53 @@ function createDiagramNode(
   // Here we are missing proper implementation of content.
   // See https://github.com/mff-uk/dataspecer/issues/928
 
-  const itemCandidates: Record<string, NodeItem> = {};
+  const items: NodeItem[] = [];
 
-  for(const attribute of relationships) {
-    if(visualNode.content.includes(attribute.id)) {
-      itemCandidates[attribute.id] = {
-        identifier: attribute.id,
-        label: getEntityLabelToShowInDiagram(language, attribute),
-        profileOf: null,
-      };
+  for (const attribute of relationships) {
+    if (!visualNode.content.includes(attribute.id)) {
+      continue;
     }
+
+    items.push({
+      identifier: attribute.id,
+      label: getEntityLabelToShowInDiagram(language, attribute),
+      profileOf: null,
+    });
   }
 
-  for(const attributeUsage of relationshipsUsages) {
-    if(!visualNode.content.includes(attributeUsage.id)) {
+  for (const attributeUsage of relationshipsUsages) {
+    if (!visualNode.content.includes(attributeUsage.id)) {
       continue;
     }
 
     const profileOf = profilingSources.find(
       (item) => item.id === attributeUsage.usageOf);
-    itemCandidates[attributeUsage.id] = {
+    items.push({
       identifier: attributeUsage.id,
       label: createAttributeProfileLabel(language, attributeUsage),
       profileOf: {
         label: profileOf === undefined ? "" : getEntityLabelToShowInDiagram(language, profileOf),
         usageNote: getUsageNote(language, attributeUsage),
       },
-    }
+    });
   }
 
   for (const attributeProfile of relationshipsProfiles) {
-    if(!visualNode.content.includes(attributeProfile.id)) {
+    if (!visualNode.content.includes(attributeProfile.id)) {
       continue;
     }
 
     const profileOf = profilingSources.filter(
       item => attributeProfile.ends.find(end => end.profiling.includes(item.id)) !== undefined);
-    itemCandidates[attributeProfile.id] = {
+    items.push({
       identifier: attributeProfile.id,
       label: createAttributeProfileLabel(language, attributeProfile),
       profileOf: {
         label: profileOf.map(item => getEntityLabelToShowInDiagram(language, item)).join(", "),
         usageNote: profileOf.map(item => getUsageNote(language, item)).join(", "),
       },
-    }
+    });
   }
-
-  // Here we could filter using the visualNode.content.
-  // Be aware that the update of the semantic attributes comes later,
-  // so there is moment when the content of visual node is set,
-  // but the corresponding attributes semantic model in are not.
-  const items: NodeItem[] = visualNode.content.map(id => itemCandidates[id]).filter(item => item !== undefined);
 
   const isProfile = isSemanticModelClassUsage(entity)
     || isSemanticModelClassProfile(entity);
@@ -751,7 +747,7 @@ function onChangeVisualEntities(
         const edgesToUpdate = [];
         for (const item of profiled) {
           const profilesOf = visualModel.getVisualEntitiesForRepresented(item);
-          for(const profileOf of profilesOf) {
+          for (const profileOf of profilesOf) {
             if (next.visualSource !== profileOf.identifier &&
               next.visualTarget !== profileOf.identifier) {
               // The VisualProfileRelationship represents different profile relationship.
@@ -760,7 +756,7 @@ function onChangeVisualEntities(
             //
             const edge = createDiagramEdgeForClassUsageOrProfile(visualModel, next, entity);
             if (edge === null) {
-              console.error("Ignored null edge.", {visualEntity: next, entity});
+              console.error("Ignored null edge.", { visualEntity: next, entity });
               break;
             }
             if (previous === null) {
@@ -770,11 +766,11 @@ function onChangeVisualEntities(
             }
           }
         }
-        if(edgesToAdd.length > 0) {
+        if (edgesToAdd.length > 0) {
           // Create new entities.
           actions.addEdges(edgesToAdd);
         }
-        if(edgesToUpdate.length > 0) {
+        if (edgesToUpdate.length > 0) {
           // Change of existing.
           actions.updateEdges(edgesToUpdate);
         }
