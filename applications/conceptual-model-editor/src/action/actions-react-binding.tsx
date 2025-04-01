@@ -75,6 +75,7 @@ import { QueryParamsContextType, useQueryParamsContext } from "@/context/query-p
 import { createNewVisualModelAction } from "./create-new-visual-model-from-source-visual-model";
 import { dissolveVisualDiagramNodeAction } from "./dissolve-visual-diagram-node";
 import { openVisualDiagramNodeInfoDialogAction } from "./open-visual-diagram-node-info-dialog";
+import { addVisualDiagramNodeForExistingModelToVisualModelAction } from "./create-visual-diagram-node-for-existing-model";
 
 const LOG = createLogger(import.meta.url);
 
@@ -204,6 +205,11 @@ interface VisualModelActions {
    * @param identifier identifies the relation profile to be added to visual model.
    */
   addRelationProfileToVisualModel: (model: string, identifier: string) => void;
+
+  /**
+   * Adds new visual diagram node, which is refering to provided visual model.
+   */
+  addVisualDiagramNodeForExistingModelToVisualModel: (visualModelToRepresent: string) => void;
 
   // TODO RadStr: Document
   addAttributeToVisualModel: (attribute: string, domainClass: string | null) => void;
@@ -352,6 +358,7 @@ const noOperationActionsContext = {
   addRelationToVisualModel: noOperation,
   addRelationProfileToVisualModel: noOperation,
   addAttributeToVisualModel: noOperation,
+  addVisualDiagramNodeForExistingModelToVisualModel: noOperation,
   shiftAttributeUp: noOperation,
   shiftAttributeDown: noOperation,
   deleteFromSemanticModels: noOperation,
@@ -709,6 +716,14 @@ function createActionsContext(
     }
     withVisualModel(notifications, graph, (visualModel) => {
       addSemanticAttributeToVisualModelAction(notifications, visualModel, domainClass, attribute, true);
+    });
+  };
+
+  const addVisualDiagramNodeForExistingModelToVisualModel = (visualModelToRepresent: string): void => {
+    // TODO RadStr: WIP - just for testing
+    withVisualModel(notifications, graph, (visualModel) => {
+    addVisualDiagramNodeForExistingModelToVisualModelAction(
+      diagram, visualModel, {}, {}, visualModelToRepresent);
     });
   };
 
@@ -1202,6 +1217,7 @@ function createActionsContext(
     addRelationToVisualModel,
     addRelationProfileToVisualModel,
     addAttributeToVisualModel,
+    addVisualDiagramNodeForExistingModelToVisualModel,
     shiftAttributeUp,
     shiftAttributeDown,
     removeFromVisualModelByRepresented,

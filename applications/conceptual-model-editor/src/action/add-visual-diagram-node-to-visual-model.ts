@@ -7,7 +7,7 @@ import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { removeFromVisualModelByVisualAction } from "./remove-from-visual-model-by-visual";
 import { UseDiagramType } from "@/diagram/diagram-hook";
 
-export function addVisualDiagramNodeToVisualModelAction(
+export function addVisualDiagramNodeForNewModelToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
   useGraph: UseModelGraphContextType,
@@ -45,13 +45,16 @@ export function addVisualDiagramNodeToVisualModelAction(
   const { nodeToVisualDiagramNodeMapping } = getVisualDiagramNodeMappingsByVisual(availableVisualModels, visualModel);
   // We want only the nodes mapped to the newly created visual diagram node.
 
+  // TODO RadStr: I think that I dont even need the nodeToVisualDiagramNodeMapping
   for(const [node, visualDiagramNode] of Object.entries(nodeToVisualDiagramNodeMapping)) {
     if(visualDiagramNode !== visualDiagramNodeIdentifier) {
       delete nodeToVisualDiagramNodeMapping[node];
     }
   }
 
-  rerouteAllRelevantEdgesTotheVisualDiagramNode(notifications, visualModel, nodeToVisualDiagramNodeMapping);
+  rerouteAllRelevantEdgesTotheVisualDiagramNode(
+    notifications, visualModel, visualDiagramNodeIdentifier,
+    containedNodes, nodeToVisualDiagramNodeMapping);
   containedNodes.forEach(node => {
     visualModel.deleteVisualEntity(node);
   });
@@ -61,34 +64,6 @@ export function addVisualDiagramNodeToVisualModelAction(
 }
 
 
-// TODO RadStr: Put into separate file
-/**
- * Creates new visual diagram node node, which is referencing existing visual model {@link existingModel}.
- * The newly created visual diagram node is put into the {@link visualModelToAddTo}
- * @returns The identifier of the created visual diagram node.
- */
-export function addVisualDiagramNodeForExistingModelToVisualModelAction(
-  visualModelToAddTo: WritableVisualModel,
-  label: LanguageString,
-  description: LanguageString,
-  existingModel: string,
-): string {
-  const visualDiagramNode: Omit<VisualDiagramNode, "identifier" | "type"> = {
-    label: label ?? {en: "visual diagram node"},
-    description: description ?? {en: ""},
-    position: {
-      x: 0,
-      y: 0,
-      anchored: null
-    },
-    representedVisualModel: existingModel,
-  };
-
-  const visualDiagramNodeIdentifier = visualModelToAddTo.addVisualDiagramNode(visualDiagramNode);
-  console.info(visualModelToAddTo.getVisualEntities());     // TODO RadStr: DEBUG
-  return visualDiagramNodeIdentifier;
-}
-
 // TODO RadStr: SUPER - Maybe does not work with multiple visual entities
 
 /**
@@ -97,6 +72,8 @@ export function addVisualDiagramNodeForExistingModelToVisualModelAction(
 function rerouteAllRelevantEdgesTotheVisualDiagramNode(
   notifications: UseNotificationServiceWriterType,
   visualModelWithVisualDiagramNode: WritableVisualModel,
+  visualDiagramNode: string,
+  nodesInsideTheVisualDiagramNode: string[],
   nodeToVisualDiagramNodeMapping: Record<string, string>
 ) {
   const edgesToRemove: string[] = [];
@@ -107,16 +84,25 @@ function rerouteAllRelevantEdgesTotheVisualDiagramNode(
   }[] = [];
   for (const [_, visualEntity] of visualModelWithVisualDiagramNode.getVisualEntities()) {
     if(isVisualRelationship(visualEntity) || isVisualProfileRelationship(visualEntity)) {
-      const { source: visualSource, target: visualTarget } = getVisualSourceAndTargetForEdge(
-        visualModelWithVisualDiagramNode, visualEntity, nodeToVisualDiagramNodeMapping);
-      if(visualSource !== visualEntity.visualSource && visualTarget !== visualEntity.visualTarget) {
-        // Both ends are inside the newly created visual model reperesenting visual diagram node, so we have to delete it
-        // TODO RadStr: SUPER - maybe breaks the multiple visual entities? if I have it twice on canvas
+      const isSourceInsideVisualDiagramNode = nodesInsideTheVisualDiagramNode.includes(visualEntity.visualSource);
+      const isTargetInsideVisualDiagramNode = nodesInsideTheVisualDiagramNode.includes(visualEntity.visualTarget);
+      if (isSourceInsideVisualDiagramNode && isTargetInsideVisualDiagramNode) {
+        // Both ends are inside the newly created visual model representing visual diagram node, so we have to delete it
         edgesToRemove.push(visualEntity.identifier);
       }
-      else if(visualSource !== visualEntity.visualSource || visualTarget !== visualEntity.visualTarget) {
-        // At least one of the ends is inside the newly created visual model
-        edgesToUpdate.push({visualSource, visualTarget, edgeIdentifier: visualEntity.identifier});
+      else if (isSourceInsideVisualDiagramNode && !isTargetInsideVisualDiagramNode) {
+        edgesToUpdate.push({
+          visualSource: visualDiagramNode,
+          visualTarget: visualEntity.visualTarget,
+          edgeIdentifier: visualEntity.identifier
+        });
+      }
+      else if (!isSourceInsideVisualDiagramNode && isTargetInsideVisualDiagramNode) {
+        edgesToUpdate.push({
+          visualSource: visualEntity.visualSource,
+          visualTarget: visualDiagramNode,
+          edgeIdentifier: visualEntity.identifier
+        });
       }
     }
   }

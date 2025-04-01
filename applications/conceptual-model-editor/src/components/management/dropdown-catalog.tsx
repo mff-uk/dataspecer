@@ -1,7 +1,23 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
-const CatalogItem = (props: { value: string; onValueSelected: () => void; withDeleteButton?: () => void }) => {
-  const { value, onValueSelected, withDeleteButton } = props;
+type ButtonData = {
+  callback: (value: string) => void;
+  content: string
+}
+
+type ButtonDataForCatalogItem = {
+  callback: () => void;
+  content: string
+}
+
+const CatalogItem = (
+  props: {
+    value: string; onValueSelected: () => void;
+    withDeleteButton?: () => void;
+    withSpecialButtons?: ButtonDataForCatalogItem[];
+  }
+) => {
+  const { value, onValueSelected, withDeleteButton, withSpecialButtons } = props;
   return (
     <li key={value} className="flex w-full flex-row justify-between">
       <button id={`button-dropdown-catalog-${value}`} className="flex-grow" onClick={onValueSelected}>
@@ -12,6 +28,13 @@ const CatalogItem = (props: { value: string; onValueSelected: () => void; withDe
                     🗑
         </button>
       )}
+      {withSpecialButtons && withSpecialButtons.map(({content, callback}, index) =>
+        (<button key={`button-dropdown-catalog-${value}-${index}-special`}
+                 id={`button-dropdown-catalog-${value}-${index}-special`}
+                 onClick={callback}>
+          {content}
+        </button>))
+      }
     </li>
   );
 };
@@ -38,11 +61,14 @@ export const DropDownCatalog = (props: {
     availableValues: readonly string[] | readonly [string, string][]; // [key, value]
     openCatalogTitle?: string;
     onValueSelected: (value: string) => void;
+    specialButtons?: ButtonData[];
     onValueDeleted?: (value: string) => void;
     children?: ReactNode;
 }) => {
-  const { label: catalogName, valueSelected, availableValues, openCatalogTitle, onValueSelected, onValueDeleted, children } =
-        props;
+  const {
+    label: catalogName, valueSelected, availableValues, openCatalogTitle,
+    onValueSelected, specialButtons, onValueDeleted, children
+  } = props;
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -104,6 +130,13 @@ export const DropDownCatalog = (props: {
                         }
                         : undefined
                     }
+                    withSpecialButtons={value?.[0] === valueSelected ? undefined : specialButtons?.map(buttonData => ({
+                      content: buttonData.content,
+                      callback: () => {
+                        setDropdownOpen(false);
+                        buttonData.callback(key(value));
+                      }
+                    }))}
                   />
                 ))}
               </ul>

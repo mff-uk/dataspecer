@@ -284,6 +284,7 @@ export function findTopLevelGroup<T>(
  * the parent visual diagram node it is part of.
  * (Both the contained visual diagram node and the content of the contained visual diagram node is in the map).
  * The {@link existingVisualDiagramNodes} returns the diagram nodes stored in given {@link visualModel}
+ * @deprecated
  */
 export function getVisualDiagramNodeMappingsByVisual(
   availableVisualModels: VisualModel[],

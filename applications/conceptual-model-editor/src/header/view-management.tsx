@@ -28,7 +28,7 @@ export const ViewManagement = () => {
     .map(item => [
       item.getId(),
       item.getLabel() === null ?  null : languageStringToString(
-        configuration().languagePreferences, language,  item.getLabel()!),
+        configuration().languagePreferences, language, item.getLabel()!),
     ] as [string, string]);
 
   useEffect(() => {
@@ -68,6 +68,10 @@ export const ViewManagement = () => {
       availableValues={availableVisualModelIds}
       onValueSelected={(value) => handleViewSelected(value)}
       onValueDeleted={(value) => handleViewDeleted(value)}
+      specialButtons={[{
+        content: "📦",
+        callback: (value: string) => actions.addVisualDiagramNodeForExistingModelToVisualModel(value)
+      }]}
     >
       <button className="white ml-2 text-[15px]" onClick={handleCreateNewView} title="create a new view">
         <span className="font-bold">+</span>🖼️
