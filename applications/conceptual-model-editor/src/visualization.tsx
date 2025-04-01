@@ -374,16 +374,6 @@ function createDiagramNode(
     };
   }
 
-  // We use map to force ordering of items based on content.
-  //
-  // Be aware that the update of the semantic attributes comes later,
-  // so there is moment when the content of visual node is set,
-  // but the corresponding attributes semantic model in are not.
-  // That is why we need to filter the result.
-  const items: NodeItem[] = visualNode.content
-    .map(id => itemCandidates[id])
-    .filter(item => item !== undefined);
-
   for (const attributeProfile of relationshipsProfiles) {
     if (!visualNode.content.includes(attributeProfile.id)) {
       continue;
@@ -400,6 +390,16 @@ function createDiagramNode(
       },
     };
   }
+
+  // We use map to force ordering of items based on content.
+  //
+  // Be aware that the update of the semantic attributes comes later,
+  // so there is moment when the content of visual node is set,
+  // but the corresponding attributes semantic model in are not.
+  // That is why we need to filter the result.
+  const items: NodeItem[] = visualNode.content
+    .map(id => itemCandidates[id])
+    .filter(item => item !== undefined);
 
   const isProfile = isSemanticModelClassUsage(entity)
     || isSemanticModelClassProfile(entity);
