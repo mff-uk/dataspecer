@@ -18,7 +18,6 @@ export function sanitizeVisualModel(
   visualModel: WritableVisualModel,
 ) {
   const modelIdentifiers = new Set(models.map(item => item.getId()));
-  console.log("Models:", models);
   // We iterate over all entities and perform validation steps.
   for (const entity of visualModel.getVisualEntities().values()) {
     if (isVisualNode(entity)) {
@@ -33,7 +32,6 @@ export function sanitizeVisualModel(
       if (!modelIdentifiers.has(entity.representedModel)) {
         // The model is no longer part of the visual model.
         visualModel.deleteVisualEntity(entity.identifier);
-        console.log("Removing", entity);
       }
     }
   }
