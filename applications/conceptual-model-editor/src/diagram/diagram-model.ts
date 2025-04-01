@@ -74,17 +74,51 @@ export enum NodeType {
   ClassProfile
 }
 
-// TODO RadStr: SUPER ... maybe we don't need all the properties ... yeah we don't just list it
-
 /**
  * Represents the super node in diagram.
  * Super node contains other nodes (and hides them inside).
  */
-export type VisualModelDiagramNode = Omit<Node, "iri" | "type" | "color"> & {
+export type VisualModelDiagramNode = {
 
+  /**
+   * Entity identifier in scope of the diagram.
+   */
+  identifier: string;
+
+  /**
+   * Identifier of external entity associated with this node.
+   */
+  externalIdentifier: string;
+
+  /**
+   * Human readable label.
+   */
+  label: string;
+
+  /**
+   * Human readable description.
+   */
+  description: string | null;
+
+  /**
+   * The nodes contained in the visual model, which this node represents
+   */
   containedNodes: string[];
 
+  /**
+   * The alias of the represented visual model
+   */
   representedModelAlias: string;
+
+  /**
+   * Group this node belongs to.
+   */
+  group: string | null;
+
+  /**
+   * Position of the Node at the canvas.
+   */
+  position: AnchoredPosition;
 
 }
 

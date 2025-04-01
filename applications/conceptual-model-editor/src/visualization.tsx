@@ -680,8 +680,6 @@ function createVisualModelDiagramNode(
       y: visualDiagramNode.position.y,
       anchored: visualDiagramNode.position.anchored
     },
-    profileOf: null,
-    items: [],
     containedNodes,
   };
 
