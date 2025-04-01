@@ -343,18 +343,18 @@ function createDiagramNode(
   // Here we are missing proper implementation of content.
   // See https://github.com/mff-uk/dataspecer/issues/928
 
-  const items: NodeItem[] = [];
+  const itemCandidates: Record<string, NodeItem> = {};
 
   for (const attribute of relationships) {
     if (!visualNode.content.includes(attribute.id)) {
       continue;
     }
 
-    items.push({
+    itemCandidates[attribute.id] = {
       identifier: attribute.id,
       label: getEntityLabelToShowInDiagram(language, attribute),
       profileOf: null,
-    });
+    };
   }
 
   for (const attributeUsage of relationshipsUsages) {
@@ -364,15 +364,25 @@ function createDiagramNode(
 
     const profileOf = profilingSources.find(
       (item) => item.id === attributeUsage.usageOf);
-    items.push({
+    itemCandidates[attributeUsage.id] = {
       identifier: attributeUsage.id,
       label: createAttributeProfileLabel(language, attributeUsage),
       profileOf: {
         label: profileOf === undefined ? "" : getEntityLabelToShowInDiagram(language, profileOf),
         usageNote: getUsageNote(language, attributeUsage),
       },
-    });
+    };
   }
+
+  // We use map to force ordering of items based on content.
+  //
+  // Be aware that the update of the semantic attributes comes later,
+  // so there is moment when the content of visual node is set,
+  // but the corresponding attributes semantic model in are not.
+  // That is why we need to filter the result.
+  const items: NodeItem[] = visualNode.content
+    .map(id => itemCandidates[id])
+    .filter(item => item !== undefined);
 
   for (const attributeProfile of relationshipsProfiles) {
     if (!visualNode.content.includes(attributeProfile.id)) {
@@ -381,14 +391,14 @@ function createDiagramNode(
 
     const profileOf = profilingSources.filter(
       item => attributeProfile.ends.find(end => end.profiling.includes(item.id)) !== undefined);
-    items.push({
+    itemCandidates[attributeProfile.id] = {
       identifier: attributeProfile.id,
       label: createAttributeProfileLabel(language, attributeProfile),
       profileOf: {
         label: profileOf.map(item => getEntityLabelToShowInDiagram(language, item)).join(", "),
         usageNote: profileOf.map(item => getUsageNote(language, item)).join(", "),
       },
-    });
+    };
   }
 
   const isProfile = isSemanticModelClassUsage(entity)
