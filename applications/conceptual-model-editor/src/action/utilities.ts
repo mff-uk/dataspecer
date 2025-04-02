@@ -276,7 +276,7 @@ export function findTopLevelGroup<T>(
 }
 
 
-// TODO RadStr: I am not completely sure about the behavior and if I need it
+// TODO RadStr: I am not completely sure about the behavior and if I need it - probably not
 /**
  * Returns all visual diagram node mappings in the given model. We are mapping visual elements to visual elements.
  * That is for each diagram node all the nodes and diagram nodes contained in it are returned.

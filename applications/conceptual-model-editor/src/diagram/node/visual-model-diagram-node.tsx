@@ -36,21 +36,22 @@ export const VisualModelNode = (props: NodeProps<Node<VisualModelDiagramNode>>) 
 
   // TODO RadStr: SUPER - Some commented code here
   return (
-    <div className="visual-model-diagram-node">
-
-
-      {/* <div className={"border border-black min-h-14 min-w-56"}> */}
-      <div>
-        <EntityNodeMenu {...props} />
-        {data.position.anchored ? <div>⚓</div> : null}</div>
-          <div>{data.label}</div>
-        <div className="overflow-x-clip text-gray-500 px-1">
-          {`Represents ${props.data.representedModelAlias}`}
-        </div>
-
-        <Handle type="target" position={Position.Right} />
-        <Handle type="source" position={Position.Right} />
+<div className="cube-container">
+    <div className="cube">
+      <EntityNodeMenu {...props} />
+      <div className="face front">
+        <div>{data.label}</div>
+         <div className="overflow-x-clip text-gray-500 px-1">
+            {`Represents ${props.data.representedModelAlias}`}
+         </div>
+         <div>{data.position.anchored ? <div>⚓</div> : null}</div>
+      </div>
+      <div className="face top"></div>
+      <div className="face left"></div>
+      <Handle type="target" position={Position.Right} />
+      <Handle type="source" position={Position.Right} />
     </div>
+</div>
   );
 };
 
