@@ -39,8 +39,6 @@ export function getClassTypeKey(cls: StructureModelClass, configuration: JsonCon
     fallback = [cls.pimIri ?? cls.psmIri];
   }
 
-  return fallback;
-
   if (configuration.jsonDefaultTypeKeyMapping === "human-label") {
     let label = cls.humanLabel[configuration.jsonDefaultTypeKeyMappingHumanLabelLang];
     if (!label) {

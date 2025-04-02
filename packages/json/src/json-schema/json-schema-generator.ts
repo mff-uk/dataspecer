@@ -22,7 +22,7 @@ import { StructureModel, StructureModelClass, StructureModelProperty } from "@da
 import { ConceptualModel, ConceptualModelProperty } from "@dataspecer/core/conceptual-model";
 import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
 import { MAIN_JSON_PARTIAL } from "../documentation/configuration";
-import { propagateIriRegex } from "./propagate-iri-regex";
+import { shortenByIriPrefixes } from "./propagate-iri-regex";
 
 export class JsonSchemaGenerator implements ArtefactGenerator {
   identifier(): string {
@@ -82,7 +82,7 @@ export class JsonSchemaGenerator implements ArtefactGenerator {
     mergedConceptualModel.classes = Object.fromEntries(Object.values(context.conceptualModels).map(cm => Object.entries(cm.classes)).flat());
     structureModel = transformStructureModel(mergedConceptualModel, structureModel, Object.values(context.specifications));
     structureModel = structureModelAddDefaultValues(structureModel, globalConfiguration);
-    structureModel = propagateIriRegex(mergedConceptualModel, structureModel);
+    structureModel = shortenByIriPrefixes(mergedConceptualModel, structureModel);
     if (!skipIdAndTypeProperties) {
       structureModel = structureModelAddIdAndTypeProperties(structureModel, configuration);
     }

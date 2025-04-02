@@ -6,19 +6,11 @@ import { StructureModelClass } from "@dataspecer/core/structure-model/model/stru
 /**
  * Add regex from {@link ConceptualModel} and examples for classes with iris.
  */
-export function propagateIriRegex(
-  conceptual: ConceptualModel,
-  structure: StructureModel
-): StructureModel {
+export function shortenByIriPrefixes(conceptual: ConceptualModel, structure: StructureModel): StructureModel {
   const result = clone(structure) as StructureModel;
   for (const root of result.roots) {
     for (const cls of root.classes) {
-      visitClass(
-        cls,
-        [],
-        result.jsonLdDefinedPrefixes,
-        conceptual
-      );
+      visitClass(cls, [], result.jsonLdDefinedPrefixes, conceptual);
     }
   }
   return result;
@@ -30,7 +22,7 @@ function visitClass(
   parentPrefixMap: {
     [prefix: string]: string;
   },
-  conceptual: ConceptualModel,
+  conceptual: ConceptualModel
 ) {
   if (visitedClasses.includes(cls)) {
     return;
@@ -38,17 +30,17 @@ function visitClass(
   visitedClasses.push(cls);
   const prefixMap = Object.entries({
     ...parentPrefixMap,
-    ...cls.jsonLdDefinedPrefixes
+    ...cls.jsonLdDefinedPrefixes,
   });
-  prefixMap.sort(
-    (a, b) => b[1].length - a[1].length
-  );
-  const option = cls.jsonSchemaPrefixesInIriRegex.usePrefixes
+  prefixMap.sort((a, b) => b[1].length - a[1].length);
+  const option = cls.jsonSchemaPrefixesInIriRegex.usePrefixes;
 
   const conceptualClass = conceptual.classes[cls.pimIri];
   if (conceptualClass === null || conceptualClass === undefined) {
     return;
   }
+
+  // Process class IRI regexes
 
   if (conceptualClass.regex) {
     if (option === "NEVER") {
@@ -58,6 +50,8 @@ function visitClass(
       for (const [prefix, prefixIri] of prefixMap) {
         const iri = prefixIri.replaceAll(/\./g, "\\.");
         regex = regex.replaceAll(iri, prefix + ":");
+        // This is a "hotfix" for users that forgot that you need to escape the dot in the regex
+        regex = regex.replaceAll(prefixIri, prefix + ":");
       }
       cls.regex = regex;
     } else if (option === "OPTIONAL") {
@@ -65,24 +59,36 @@ function visitClass(
       for (const [prefix, prefixIri] of prefixMap) {
         const iri = prefixIri.replaceAll(/\./g, "\\.");
         regex = regex.replaceAll(iri, `(${prefix + ":"}|${iri})`);
+        // This is a "hotfix" for users that forgot that you need to escape the dot in the regex
+        regex = regex.replaceAll(prefixIri, `(${prefix + ":"}|${prefixIri})`);
       }
       cls.regex = regex;
     } else {
       option satisfies never;
     }
-    console.log(cls.regex);
   }
 
+  // Process class IRI examples
+
+  if (cls.example?.length > 0) {
+    for (let i = 0; i < cls.example.length; i++) {
+      let example = cls.example[i];
+      if (example && typeof example == "string") {
+        let typedExample = example as string; // https://github.com/microsoft/TypeScript/issues/27706
+        if (option !== "NEVER") {
+          for (const [prefix, prefixIri] of prefixMap) {
+            typedExample = typedExample.replaceAll(prefixIri, `${prefix + ":"}`);
+          }
+        }
+        cls.example[i] = typedExample;
+      }
+    }
+  }
 
   for (const property of cls.properties) {
     for (const dataType of property.dataTypes) {
       if (dataType.isAssociation()) {
-        visitClass(
-          dataType.dataType,
-          visitedClasses,
-          Object.fromEntries(prefixMap),
-          conceptual
-        );
+        visitClass(dataType.dataType, visitedClasses, Object.fromEntries(prefixMap), conceptual);
       }
     }
   }
