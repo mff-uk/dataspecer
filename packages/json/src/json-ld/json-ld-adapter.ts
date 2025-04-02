@@ -31,10 +31,15 @@ function getPrefixesForContext(localPrefixes: Record<string, string>, parentPref
 }
 
 /**
- * Returns string that is used for the @type key in the JSON-LD context and JSON schema.
+ * Returns string array that is used for the @type key in the JSON-LD context and JSON schema.
  */
-export function getClassTypeKey(cls: StructureModelClass, configuration: JsonConfiguration): string {
-  const fallback = cls.cimIri ?? cls.pimIri ?? cls.psmIri;
+export function getClassTypeKey(cls: StructureModelClass, configuration: JsonConfiguration): string[] {
+  let fallback = cls.iris;
+  if (fallback.length === 0) {
+    fallback = [cls.pimIri ?? cls.psmIri];
+  }
+
+  return fallback;
 
   if (configuration.jsonDefaultTypeKeyMapping === "human-label") {
     let label = cls.humanLabel[configuration.jsonDefaultTypeKeyMappingHumanLabelLang];
@@ -42,11 +47,13 @@ export function getClassTypeKey(cls: StructureModelClass, configuration: JsonCon
       console.warn(`JSON-LD Generator: There is no ${configuration.jsonDefaultTypeKeyMappingHumanLabelLang} label for given entity.`, cls);
       label = cls.humanLabel[Object.keys(cls.humanLabel)[0]] ?? cls.psmIri;
     }
-    return label ?? fallback;
+    if (label) {
+      return [label];
+    }
   }
 
   if (configuration.jsonDefaultTypeKeyMapping === "technical-label") {
-    return cls.technicalLabel ?? fallback;
+    return [cls.technicalLabel];
   }
 
   return fallback;
@@ -181,7 +188,7 @@ export class JsonLdAdapter {
       };
 
       // Classes are identified by its type keyword
-      context[getClassTypeKey(cls, this.configuration)] = classContext;
+      context[getClassTypeKey(cls, this.configuration)[0]] = classContext;
 
       if (contextType === "TYPE-SCOPED") {
         classContext["@context"] = contextForProperties;

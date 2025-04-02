@@ -559,7 +559,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
           usageNote: null,
           usageNoteFromProfiled: isSemanticModelRelationshipProfile(firstProfiledEntity.aggregatedEntity) ? firstProfiled : null,
           concept: firstEnd,
-          cardinality: firstProfiledEntity.aggregatedEntity.ends[0].cardinality, // todo intersection
+          cardinality: firstProfiledEntity.aggregatedEntity.ends[0].cardinality ?? [0, null], // todo intersection
           profiling: [],
         },
         {
@@ -571,7 +571,7 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
           usageNote: null,
           usageNoteFromProfiled: isSemanticModelRelationshipProfile(firstProfiledEntity.aggregatedEntity) ? firstProfiled : null,
           concept: secondEnd,
-          cardinality: firstProfiledEntity.aggregatedEntity.ends[1].cardinality, // todo intersection
+          cardinality: firstProfiledEntity.aggregatedEntity.ends[1].cardinality ?? [0, null], // todo intersection
           profiling,
         }
       ]
