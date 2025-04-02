@@ -27,10 +27,12 @@ export const sxStyles = {
     attribute: {
         fontWeight: "bold",
         color: (theme: Theme) => theme.palette.primary.main,
+        transition: "color 300ms ease",
     },
     association: {
         fontWeight: "bold",
         color: (theme: Theme) => theme.palette.secondary.main,
+        transition: "color 300ms ease",
     },
     include: {
         fontWeight: "bold",

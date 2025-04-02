@@ -63,6 +63,11 @@ export class StructureModelClass {
    */
   isCodelist = false;
 
+  /**
+   * True if the empty class is treated as regular class instead of IRI reference.
+   */
+  emptyAsComplex = false;
+
   isReferenced = false;
 
   /**

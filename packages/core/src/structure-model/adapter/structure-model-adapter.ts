@@ -146,6 +146,7 @@ class StructureModelAdapter {
     model.technicalLabel = classData.dataPsmTechnicalLabel;
     model.structureSchema = this.psmSchemaIri;
     if (DataPsmClass.is(classData)) {
+      model.emptyAsComplex = classData.dataPsmEmptyAsComplex === true;
       model.isClosed = classData.dataPsmIsClosed;
       model.instancesHaveIdentity = classData.instancesHaveIdentity;
       model.instancesSpecifyTypes = classData.instancesSpecifyTypes;

@@ -291,7 +291,7 @@ function makeColumnFromProp(
 
     const dataType = property.dataTypes[0];
     if (dataType.isAssociation()) {
-        if (dataType.dataType.isCodelist) {
+        if (dataType.dataType.properties.length === 0 && !dataType.dataType.emptyAsComplex) {
             column.valueUrl = new SimpleIri("{+" + column.name + "}");
             column.datatype = "anyURI";
         }

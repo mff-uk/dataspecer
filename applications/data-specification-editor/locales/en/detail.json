@@ -23,6 +23,11 @@
     "help": "By dematerializing the association, all elements of the referenced class are moved directly to the parent class. The association will then not be included in the diagram.",
     "title": "Dematerialization"
   },
+  "empty as complex": {
+    "checkbox": "Interpret empty class as a complex type",
+    "help": "The default behavior of Dataspecer is that empty classes are interpreted as attributes of the IRI type with appropriate items. This setting allows treating an empty class as an empty complex type.",
+    "title": "Empty class"
+  },
   "in all languages": "In all languages",
   "instancesHaveIdentity": {
     "title": "Class instance identification",

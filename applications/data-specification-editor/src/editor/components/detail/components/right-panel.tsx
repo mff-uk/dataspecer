@@ -49,6 +49,7 @@ import { DataPsmXmlPropertyExtension } from "@dataspecer/core/data-psm/xml-exten
 import { DataPsmJsonPropertyExtension } from "@dataspecer/core/data-psm/json-extension/model/index";
 import { SetXmlIsAttribute } from "../../../operations/set-xml-is-attribute";
 import { SetJsonKeyValueForLangString } from "../../../operations/set-json-key-value-for-lang-string";
+import { SetEmptyAsComplex } from "../../../operations/set-is-primitive";
 
 export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({iri}) => {
     const store = useFederatedObservableStore();
@@ -328,6 +329,16 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
 
     // endregion instances have identity
 
+    // region empty as complex
+    const [emptyAsComplex, setEmptyAsComplex] = useState<boolean>(false);
+    const currentEmptyAsComplex = isClass && resource.dataPsmEmptyAsComplex === true;
+    useEffect(() => setEmptyAsComplex(currentEmptyAsComplex), [isClass, resource, currentEmptyAsComplex]);
+    useSaveHandler(
+        isClass && emptyAsComplex !== currentEmptyAsComplex,
+        async () => resource && await store.executeComplexOperation(new SetEmptyAsComplex(iri, emptyAsComplex))
+    );
+    // endregion empty as complex
+
     return <>
         {(isClass || isAttribute || isAssociationEnd) &&
             <Box sx={{mb: 3}}>
@@ -357,6 +368,15 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
         {isClass &&
             <Box sx={{mb: 3}}>
                 <Typography variant="subtitle1" component="h2">
+                    {t('empty as complex.title')} <InfoHelp text={t('empty as complex.help')} />
+                </Typography>
+
+                <FormControlLabel
+                    control={<Checkbox checked={emptyAsComplex} onChange={e => setEmptyAsComplex(e.target.checked)} />}
+                    label={t('empty as complex.checkbox')}
+                />
+
+                <Typography variant="subtitle1" component="h2" sx={{mt: 2}}>
                     {t('codelist')}
                 </Typography>
 

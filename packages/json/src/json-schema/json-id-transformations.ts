@@ -28,7 +28,7 @@ export function structureModelAddIdAndTypeProperties(
       localClassConfiguration.jsonTypeKeyAlias = null;
     }
     // todo: properties are added only to non-empty classes as empty are treated differently
-    if (structureClass.cimIri !== null && structureClass.properties.length > 0) {
+    if (structureClass.cimIri !== null && (structureClass.properties.length > 0 || structureClass.emptyAsComplex)) {
       if (localClassConfiguration.jsonTypeKeyAlias !== null) {
         const typeKeyValue = getClassTypeKey(structureClass, configuration);
 

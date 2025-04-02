@@ -121,7 +121,7 @@ export class JsonLdAdapter {
         contextData["@id"] = tryPrefix(property.cimIri, prefixes);
       }
 
-      if (!firstDataType.dataType.isCodelist) {
+      if (firstDataType.dataType.properties.length > 0 || firstDataType.dataType.emptyAsComplex) {
         if ((this.model.psmIri !== firstDataType.dataType.structureSchema || firstDataType.dataType.isReferenced) && !this.configuration.dereferenceContext) {
           if (property.cardinalityMax !== 1) {
             contextData["@container"] = "@set";

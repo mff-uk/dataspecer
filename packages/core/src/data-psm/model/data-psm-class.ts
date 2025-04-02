@@ -10,6 +10,16 @@ import * as PSM from "../data-psm-vocabulary";
 export class DataPsmClass extends DataPsmResource {
   private static readonly TYPE = PSM.CLASS;
 
+  /**
+   * If true, the empty class is treated as a complex type instead of IRI
+   * (=string) where is expected to use identifier of the class as its value.
+   * This is PSM specific feature as we may want to have one schema with both
+   * primitive and complex types.
+   *
+   * @default false
+   */
+  dataPsmEmptyAsComplex: boolean | undefined;
+
   dataPsmExtends: string[] = [];
 
   dataPsmParts: string[] = [];
