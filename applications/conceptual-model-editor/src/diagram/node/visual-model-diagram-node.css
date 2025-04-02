@@ -33,9 +33,15 @@ body {
 .top    { border-top: 24px solid black; border-right: 8px solid black; width: 100%; transform: rotateX(90deg) translateZ(150px); }
 .bottom { transform: rotateX(90deg) translateZ(-50px); }
 
+.react-flow__handle.source {
+  position: initial;
+  background-color: transparent;
+}
 
-
-
+.react-flow__handle {
+  /* We only need the position in the layout. */
+  visibility: hidden;
+}
 
 .grouped-node {
 	position: relative;
