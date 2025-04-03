@@ -36,14 +36,24 @@ export const VisualModelNode = (props: NodeProps<Node<VisualModelDiagramNode>>) 
 
   return (
 <div className="cube-container">
+  <div className="front-text">
+    {data.label}
+  </div>
+  <div className="front-text-secondary text-gray-500">
+    {`Represents ${props.data.representedModelAlias}`}
+  </div>
+  <div className="front-text-secondary text-gray-500">
+    {`Represents ${props.data.representedModelAlias}`}
+    {data.position.anchored ? <div>⚓</div> : null}
+  </div>
     <div className="cube">
       <EntityNodeMenu {...props} />
       <div className="face front">
-        <div>{data.label}</div>
-         <div className="overflow-x-clip text-gray-500 px-1">
+        {/* This text is actually invisible it is just to get correct width */}
+        <div className="px-8">{data.label}</div>
+         <div className="overflow-x-clip px-8">
             {`Represents ${props.data.representedModelAlias}`}
          </div>
-         <div>{data.position.anchored ? <div>⚓</div> : null}</div>
       </div>
       <div className="face top"></div>
       <div className="face left"></div>

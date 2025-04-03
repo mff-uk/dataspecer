@@ -1,20 +1,13 @@
 /* Taken from somewhere, can't find the source anymore */
 
-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: white;
-}
-
 .cube {
-	margin-left: 10px;
-	margin-right: 10px;
+	margin-left: 5px; /* For the alignment helper */
+	margin-right: 0px;
+	margin-top: 3px;
   position: relative;
 	min-width: 100px;
   height: 100px;
-  transform: rotateX(-3deg) rotateY(5deg);
+  transform: rotateX(-5deg) rotateY(5deg);
   transform-style: preserve-3d;
 }
 
@@ -23,7 +16,8 @@ body {
 	min-width: 100px;
   height: 100px;
   border: 2px solid black;
-  background-color: transparent;
+  background-color: white;
+  color: white;
 }
 
 .front  { width: 100%; transform: translateZ(50px); }
@@ -32,6 +26,23 @@ body {
 .right  { transform: rotateY(90deg) translateZ(50px); }
 .top    { border-top: 42px solid black; border-right: 6px solid black; width: 100%; transform: rotateX(90deg) translateZ(150px); }
 .bottom { transform: rotateX(90deg) translateZ(-50px); }
+
+
+/* Otherwise the text is not crisp, because of rotations */
+.front-text {
+  position: absolute;
+  top: 10%;
+  left: 20px;
+  color: black;
+  z-index: 100;
+}
+
+.front-text-secondary {
+  position: absolute;
+  top: 30%;
+  left: 20px;
+  z-index: 101;
+}
 
 .handle {
   position: initial;
