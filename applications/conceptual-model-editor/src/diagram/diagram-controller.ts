@@ -1758,7 +1758,6 @@ const createActions = (
       console.log("Diagram.updateNodesPosition", nodes);
     },
     removeNodes(identifiers) {
-      reactFlow.deleteElements({ nodes: identifiers.map(id => ({ id })) });
       // Again setting directly instead of using reactFlow because of possible delay
       setNodes(previousNodes => previousNodes.filter(previousNode => !identifiers.includes(previousNode.id)));
       console.log("Diagram.removeNodes", identifiers);
