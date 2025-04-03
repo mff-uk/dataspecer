@@ -1,0 +1,101 @@
+{{ define "main" }}
+<section class="section container-fluid mt-n3 pb-3">
+  <div class="row justify-content-center">
+    <div class="col-lg-12 text-center">
+      <h1 class="mt-0">{{ .Title }}</h1>
+    </div>
+    <div class="col-lg-9 col-xl-8 text-center">
+      <p class="lead">{{ .Params.lead | safeHTML }}</p>
+      <a class="btn btn-primary btn-lg px-4 mb-2" href="/docs/tutorial/start/" role="button">Read documentation</a>
+      <a class="btn btn-danger btn-lg px-4 mb-2" href="https://demo.dataspecer.com" role="button">Go to demo instance</a>
+    </div>
+  </div>
+</section>
+{{ end }}
+
+{{ define "sidebar-prefooter" }}
+  {{ if eq $.Site.Language.LanguageName "English" }}
+  <section class="section section-sm">
+    <div class="container">
+      <div class="row justify-content-center text-lg-center">
+        <div class="col-lg-4">
+          <h2 class="h4">Reusable vocabularies</h2>
+          <p>
+            Define new classes, properties and their relationships as well as their relationships to exisitng vocabularies as semantic data specifications, fostering semantic data interoperability.
+            Dataspecer provides a lightweight editor efficiently supporting the most common needs when creating RDF Schema based vocabularies.
+          </p>
+        </div>
+        <div class="col-lg-4">
+          <h2 class="h4">Application profiles for narrower contexts</h2>
+          <p>
+            Combine terms from existing vocabularies and adjust them to your specific context, without breaking their original semantics.
+            Dataspecer uses the <a href="https://w3id.org/dsv">Data Specification Vocabulary (DSV)</a> to represent context-specific adjustments to existing classes and properties in compliance with the <a href="https://semiceu.github.io/style-guide/1.0.0/index.html">SEMIC Style Guide</a>.
+          </p>
+        </div>
+        <div class="col-lg-4">
+          <h2 class="h4">Semantically compliant technical artifacts</h2>
+          <p>
+            Use your domain ontology or vocabulary to semi-automatically derive semantically compliant data schemas for different data formats such as XML, JSON and CSV and let Dataspecer guide you in the process, fostering technical data interoperability.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <hr/>
+  <section class="section section-sm mt-4">
+    <div class="container">
+      <div class="row justify-content-center text-lg-center">
+        <div class="col-lg-6">
+          <h2 class="h4">Used for Czech national data specifications</h2>
+          <p>
+            The tool is currently in use by the Czech Digital and Information Agency for management of several national data specifications, e.g. for <a href="https://ofn.gov.cz/dokumenty-z-formulářů-ZoPDS/">electronic document metadata in XML (in Czech)</a>, or the <a href="https://ofn.gov.cz/registr-práv-a-povinností/dokumenty-převodu-agend/2024-09-01/">datasets of the Czech Registry of Rights and Duties in RDF and JSON-LD (in Czech)</a>.
+          </p>
+        </div>
+        <div class="col-lg-6">
+          <h2 class="h4">Developed at Charles University and the Czech Digital and Information Agency</h2>
+          <p>We are a group of researchers/developers at the Faculty of Mathematics and Physics, Charles University, and at the department of Data Management of the Czech Digital and Information Agency, who are involved in the development of the tool.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <hr/>
+
+  <section class="section section-sm mt-4">
+    <div class="container">
+      <div class="row justify-content-center text-lg-center">
+
+        <div class="col-lg-4">
+          <h2 class="h4">Best Demo at ISWC&nbsp;2024</h2>
+          <p>
+            Our paper <a href="https://ceur-ws.org/Vol-3828/paper33.pdf">Towards Authoring of Vocabularies and Application Profiles using Dataspecer</a> was presented at the
+            ISWC 2024 conference Posters and Demos session and received a <a href="https://iswc.umbc.edu/program/awards/">Best Demo award</a>. <a href="papers/iswc2024">See the demo for yourself</a>.
+          </p>
+        </div>
+        <div class="col-lg-4">
+          <h2 class="h4">Presented at MODELS'23</h2>
+          <p>
+            Dataspecer was presented as a part of <a href="https://doi.ieeecomputersociety.org/10.1109/MODELS-C59198.2023.00009">Atlas: A Toolset for Efficient Model-Driven Data Exchange in Data Spaces</a> at MODELS'23 demo session.
+          </p>
+        </div>
+        <div class="col-lg-4">
+          <h2 class="h4">Presented at ESWC&nbsp;2022</h2>
+          <p>
+            Our paper <a href="https://2022.eswc-conferences.org/wp-content/uploads/2022/05/pd_Stenchlak_et_al_paper_228.pdf">DataSpecer: A Model-Driven Approach to Managing Data Specifications</a> was presented at the
+            ESWC 2022 conference Posters and Demos session.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+  {{ end }}
+{{ end }}
+
+{{ define "sidebar-footer" }}
+<section class="section section-sm container-fluid">
+  <div class="row justify-content-center text-center">
+    <div class="col-lg-9">
+      {{- .Content -}}
+    </div>
+  </div>
+</section>
+{{ end }}

@@ -1,0 +1,100 @@
+# Meta Data for SEO
+
+## Homepage
+title = "Dataspecer"
+titleSeparator = "-"
+titleAddition = "A tool for management of data specifications"
+description = "Dataspecer is a demo tool for management and modelling of data specifications based on a given domain ontology."
+
+## Documentation
+# docsVersion = "0.0"
+
+## Open Graph
+#images = ["doks.png"]
+ogLocale = "en_US"
+domainTLD = "dataspecer.com"
+titleHome = "Dataspecer"
+
+## Twitter Cards
+#twitterSite = "@getdoks"
+#twitterCreator = "@henkverlinde"
+
+## JSON-LD
+# schemaType = "Person"
+#schemaType = "Organization"
+#schemaName = "Doks"
+#schemaAuthor = "Henk Verlinde"
+#schemaAuthorTwitter = "https://twitter.com/henkverlinde"
+#schemaAuthorLinkedIn = "https://www.linkedin.com/in/henkverlinde/"
+#schemaAuthorGitHub = "https://github.com/h-enk"
+#schemaLocale = "en-US"
+#schemaLogo = "logo-doks.png"
+#schemaLogoWidth = 512
+#schemaLogoHeight = 512
+#schemaImage = "doks.png"
+#schemaImageWidth = 1280
+#schemaImageHeight = 640
+#schemaTwitter = "https://twitter.com/getdoks"
+#schemaLinkedIn = ""
+#schemaGitHub = "https://github.com/h-enk/doks"
+#schemaSection = "blog"
+
+## Sitelinks Search Box
+siteLinksSearchBox = false
+
+## Chrome Browser
+themeColor = "#fff"
+
+# Images
+quality = 85
+bgColor = "#fff"
+landscapePhotoWidths = [900, 800, 700, 600, 500]
+portraitPhotoWidths = [800, 700, 600, 500]
+lqipWidth = "20x"
+smallLimit = "300"
+
+# Footer
+footer = """
+<p align=\"left\"> <img src=\"/images/eosc-cz.webp\" alt=\"EOSC CZ Logo\" height=\"75\"> </p>
+<p> This documentation was partially developed within the <a href="https://www.eosc.cz/">EOSC CZ</a> initiative with support from public funding <strong>Open Science I</strong> calls under the <strong>Jan Amos Comenius Programme (OP JAK)</strong> of the Ministry of Education, Youth and Sports of the Czech Republic (MŠMT).</p>
+<p align=\"left\"> <img src=\"/images/eu-mšmt.webp\" alt=\"EU and MŠMT Logos\" height=\"80\"> </p>
+<p> This documentation site is powered by <a class=\"text-muted\" href=\"https://pages.cloudflare.com/\">Cloudflare</a>, <a class=\"text-muted\" href=\"https://gohugo.io/\">Hugo</a>, and <a class=\"text-muted\" href=\"https://getdoks.org/\">Doks</a>.</p>
+"""
+
+# Feed
+#copyRight = "Copyright (c) 2020-2021 Henk Verlinde"
+
+# Alert
+alert = false
+alertDismissable = true
+# alertText = "Introducing the Doks child theme, several DX + UX updates, and more! <a class=\"alert-link stretched-link\" href=\"https://getdoks.org/blog/doks-v0.2/\" target=\"_blank\" rel=\"noopener\">Check out Doks v0.2</a>"
+#alertText = "Introducing the Doks child theme, several DX + UX updates, and more! <a class=\"alert-link stretched-link\" href=\"https://getdoks.org/blog/doks-v0.2/\">Check out Doks v0.2</a>"
+
+# Edit Page
+# repoHost [Github | Gitea | GitLab | Bitbucket | BitbucketServer ] is used for building the edit link based on git hoster
+repoHost = "GitHub"
+#repoHost = "Gitea"
+docsRepo = "https://github.com/mff-uk/dataspecer-docs"
+docsRepoBranch = "main"
+docsRepoSubPath = ""
+editPage = true
+lastMod = false
+
+[options]
+  lazySizes = true
+  clipBoard = true
+  instantPage = true
+  flexSearch = true
+  darkMode = true
+  bootStrapJs = true
+  breadCrumb = true
+  highLight = true
+  kaTex = false
+  multilingualMode = false
+  docsVersioning = false
+  fullWidth = false
+
+[menu]
+  [menu.section]
+    auto = true
+    collapsibleSidebar = true
