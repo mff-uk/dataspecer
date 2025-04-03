@@ -14,7 +14,7 @@ body {
   position: relative;
 	min-width: 100px;
   height: 100px;
-  transform: rotateX(-5deg) rotateY(15deg);
+  transform: rotateX(-3deg) rotateY(5deg);
   transform-style: preserve-3d;
 }
 
@@ -28,17 +28,17 @@ body {
 
 .front  { width: 100%; transform: translateZ(50px); }
 .back   { transform: translateZ(-50px); }
-.left   { border-right: 8px solid black; width: 100px; transform: rotateY(90deg) translateZ(-50px) translateY(-200px)}
+.left   { border-right: 18px solid black; width: 100px; transform: rotateY(90deg) translateZ(-50px) translateY(-200px)}
 .right  { transform: rotateY(90deg) translateZ(50px); }
-.top    { border-top: 24px solid black; border-right: 8px solid black; width: 100%; transform: rotateX(90deg) translateZ(150px); }
+.top    { border-top: 42px solid black; border-right: 6px solid black; width: 100%; transform: rotateX(90deg) translateZ(150px); }
 .bottom { transform: rotateX(90deg) translateZ(-50px); }
 
-.react-flow__handle.source {
+.handle {
   position: initial;
   background-color: transparent;
 }
 
-.react-flow__handle {
+.handle {
   /* We only need the position in the layout. */
   visibility: hidden;
 }

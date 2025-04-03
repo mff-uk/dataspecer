@@ -34,7 +34,6 @@ export const VisualModelNode = (props: NodeProps<Node<VisualModelDiagramNode>>) 
   const data = props.data;
 
 
-  // TODO RadStr: SUPER - Some commented code here
   return (
 <div className="cube-container">
     <div className="cube">
@@ -48,8 +47,8 @@ export const VisualModelNode = (props: NodeProps<Node<VisualModelDiagramNode>>) 
       </div>
       <div className="face top"></div>
       <div className="face left"></div>
-      <Handle type="target" position={Position.Right} />
-      <Handle type="source" position={Position.Right} />
+      <Handle className="handle" type="target" position={Position.Right} />
+      <Handle className="handle" type="source" position={Position.Right} />
     </div>
 </div>
   );
@@ -111,9 +110,6 @@ function PrimaryVisualModelNodeMenu(props: NodeProps<Node<VisualModelDiagramNode
         &nbsp;
         <button onClick={onDuplicateNode} title={t("duplicate-node-button")}>⿻</button>
         &nbsp;
-      </NodeToolbar>
-      <NodeToolbar isVisible={shouldShowToolbar} position={Position.Right} className="flex gap-2 entity-node-menu" >
-        <Handle type="source" position={Position.Right} title={t("node-connection-handle")}>🔗</Handle>
       </NodeToolbar>
       {
         !isPartOfGroup ? null :
