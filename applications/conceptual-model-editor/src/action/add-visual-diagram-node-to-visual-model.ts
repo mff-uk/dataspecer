@@ -63,8 +63,6 @@ export function addVisualDiagramNodeForNewModelToVisualModelAction(
   return visualDiagramNodeIdentifier;
 }
 
-// TODO RadStr: SUPER - Maybe does not work with multiple visual entities
-
 /**
  * Reroutes all edges which were pointing to or from the nodes newly contained in {@link visualModelWithVisualDiagramNode}.
  */

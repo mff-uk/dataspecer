@@ -30,6 +30,7 @@ import {
   SemanticModelClassProfile,
   SemanticModelRelationshipProfile
 } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { addToRecordArray } from "@/utilities/functional";
 
 export function dissolveVisualDiagramNodeAction(
   notifications: UseNotificationServiceWriterType,
@@ -225,15 +226,20 @@ function rerouteEdgesFromVisualDiagramNodeToItsContent(
     ...classesContext.generalizations,
   ];
 
+  const visualRelationshipsToIteratorMap: Record<string, number> = {};
+
   const sourceModelVisualEntities = visualModelContainingDiagramNode.getVisualEntities();
   for(const visualEntity of sourceModelVisualEntities.values()) {
     if(isVisualRelationship(visualEntity)) {
+      if(visualRelationshipsToIteratorMap[visualEntity.representedRelationship] === undefined) {
+        visualRelationshipsToIteratorMap[visualEntity.representedRelationship] = 0;
+      }
 
       if(visualEntity.visualSource === diagramNodeToReroute) {
         const newEnd = rerouteToEntityInsideDiagramNode(
           notifications, allClasses, allRelationships, availableVisualModels,
           visualModelContainingDiagramNode, modelReferencedByDiagramNode, visualEntity,
-          visualEntity.visualTarget, EdgeEndDirection.Source);
+          visualRelationshipsToIteratorMap, visualEntity.visualTarget, EdgeEndDirection.Source);
         if(newEnd === null) {
           visualModelContainingDiagramNode.deleteVisualEntity(visualEntity.identifier);
           continue;
@@ -247,7 +253,7 @@ function rerouteEdgesFromVisualDiagramNodeToItsContent(
         const newEnd = rerouteToEntityInsideDiagramNode(
           notifications, allClasses, allRelationships, availableVisualModels,
           visualModelContainingDiagramNode, modelReferencedByDiagramNode, visualEntity,
-          visualEntity.visualSource, EdgeEndDirection.Target);
+          visualRelationshipsToIteratorMap, visualEntity.visualSource, EdgeEndDirection.Target);
         if(newEnd === null) {
           visualModelContainingDiagramNode.deleteVisualEntity(visualEntity.identifier);
           continue;
@@ -271,6 +277,9 @@ enum EdgeEndDirection {
   Target
 }
 
+/**
+ * @param visualRelationshipsToIteratorMap Maps the semantic relationship to the amount of time it was visited
+ */
 function rerouteToEntityInsideDiagramNode(
   notifications: UseNotificationServiceWriterType,
   allClasses: (SemanticModelClass | SemanticModelClassProfile)[],
@@ -279,6 +288,7 @@ function rerouteToEntityInsideDiagramNode(
   visualModelWithDiagramNode: VisualModel,
   referencedVisualModel: VisualModel,
   visualRelationship: VisualRelationship,
+  visualRelationshipsToIteratorMap: Record<string, number>,
   otherEndOfTheVisualRelationship: string,
   visualDiagramNodeDirection: EdgeEndDirection
 ): string | null {
@@ -319,7 +329,10 @@ function rerouteToEntityInsideDiagramNode(
 
   const directReroutingCandidates = referencedVisualModel.getVisualEntitiesForRepresented(otherSemanticEndIdentifier);
   if(directReroutingCandidates.length > 0) {
-    return directReroutingCandidates[0].identifier;
+    const visitCount = visualRelationshipsToIteratorMap[visualRelationship.representedRelationship];
+    const index = visitCount % directReroutingCandidates.length;
+    visualRelationshipsToIteratorMap[visualRelationship.representedRelationship]++;
+    return directReroutingCandidates[index].identifier;
   }
   else {
     for (const visualEntity of Object.values(referencedVisualModel.getVisualEntities())) {
@@ -339,13 +352,13 @@ function rerouteToEntityInsideDiagramNode(
 function addCopiesToVisualModel(
   notifications: UseNotificationServiceWriterType,
   copyTo: WritableVisualModel,
-  nodes: VisualEdgeEndPoint[],
+  nodesToCopy: VisualEdgeEndPoint[],
   positionShift: XY,
-  visualEntitesToCopy: Map<string, VisualEntity>
+  visualEntitiesToCopy: Map<string, VisualEntity>
 ): Record<string, string> {
   const originalToCopyMap: Record<string, string> = {};
 
-  for (const node of nodes) {
+  for (const node of nodesToCopy) {
     const position = {...node.position};
     position.x -= positionShift.x;
     position.y -= positionShift.y;
@@ -356,20 +369,21 @@ function addCopiesToVisualModel(
     else if(isVisualDiagramNode(node)) {
       const identifier = addVisualDiagramNode(
         copyTo, node.label, node.description, node.position, node.representedVisualModel);
-      originalToCopyMap[node.identifier] = identifier;
+      originalToCopyMap[node.identifier] = identifier
     }
     else {
       notifications.error("The moved edge endpoint is of unknown type");
     }
   }
 
-  for (const [_id, visualEntity] of visualEntitesToCopy) {
+  for (const [_id, visualEntity] of visualEntitiesToCopy) {
     if(isVisualRelationship(visualEntity)) {
       const waypoints = [...visualEntity.waypoints];
       waypoints.forEach(waypoint => {
         waypoint.x -= positionShift.x;
         waypoint.y -= positionShift.y;
       });
+
       copyTo.addVisualRelationship({
         model: visualEntity.model,
         representedRelationship: visualEntity.representedRelationship,
