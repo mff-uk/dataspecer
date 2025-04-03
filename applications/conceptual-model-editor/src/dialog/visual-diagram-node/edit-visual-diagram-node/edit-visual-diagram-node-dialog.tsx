@@ -2,7 +2,10 @@ import { type DialogProps } from "../../dialog-api";
 import { t } from "../../../application";
 import { MultiLanguageInputForLanguageString } from "../../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../../components/dialog/dialog-detail-row";
-import { EditVisualDiagramNodeDialogState, useEditVisualDiagramNodeDialogController as useEditVisualDiagramNodeDialogController } from "./edit-visual-diagram-node-dialog-controller";
+import {
+  EditVisualDiagramNodeDialogState,
+  useEditVisualDiagramNodeDialogController
+} from "./edit-visual-diagram-node-dialog-controller";
 
 export const EditVisualDiagramNodeDialog = (props: DialogProps<EditVisualDiagramNodeDialogState>) => {
   const controller = useEditVisualDiagramNodeDialogController(props);
@@ -20,7 +23,7 @@ export const EditVisualDiagramNodeDialog = (props: DialogProps<EditVisualDiagram
           />
         </DialogDetailRow>
         <DialogDetailRow detailKey={t("create-visual-diagram-node-dialog.model-name")}>
-        <MultiLanguageInputForLanguageString
+          <MultiLanguageInputForLanguageString
             ls={state.representedVisualModelName}
             setLs={controller.setRepresentedVisualModelName}
             defaultLang={state.language}

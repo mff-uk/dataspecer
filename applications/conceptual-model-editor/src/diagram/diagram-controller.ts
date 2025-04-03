@@ -26,7 +26,6 @@ import {
   NodeSelectionChange,
   NodeDimensionChange,
   NodePositionChange,
-  MiniMapNodeProps,
 } from "@xyflow/react";
 
 import { type UseDiagramType } from "./diagram-hook";
@@ -35,7 +34,6 @@ import {
   type DiagramCallbacks,
 } from "./diagram-api";
 import {
-  type Node as ApiNode,
   type Edge as ApiEdge,
   type ViewportDimensions,
   EdgeType as ApiEdgeType,
@@ -62,7 +60,6 @@ import { GroupMenu } from "./node/group-menu";
 import { findTopLevelGroup } from "../action/utilities";
 import { GeneralCanvasMenuComponentProps } from "./canvas/canvas-menu-general";
 import { isEqual, omit } from "lodash";
-import { isVisualDiagramNode } from "@dataspecer/core-v2/visual-model";
 import { VisualModelNodeName } from "./node/visual-model-diagram-node";
 
 const UNINITIALIZED_VALUE_GROUP_POSITION = 10000000;

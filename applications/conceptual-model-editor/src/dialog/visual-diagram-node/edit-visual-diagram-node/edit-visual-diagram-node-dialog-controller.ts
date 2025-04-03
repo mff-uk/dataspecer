@@ -1,11 +1,8 @@
 import { useMemo } from "react";
 
 import { type DialogProps } from "../../dialog-api";
-import { configuration } from "../../../application";
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { useActions } from "../../../action/actions-react-binding";
-import { BaseEntityDialogController, createBaseEntityDialogController } from "../../base-entity/base-entity-dialog-controller";
-import { BaseEntityDialogState } from "../../base-entity/base-entity-dialog-state";
 
 // There are some extra attrbiutes in the EntityState which we don't need, but that doesn't matter that much
 export interface EditVisualDiagramNodeDialogState {

@@ -31,7 +31,6 @@ const createRenderMiniMapNodeHandler = (reactflowInstance: ReactFlowInstance<any
     const node = reactflowInstance.getNode(props.id);
     if(node !== undefined) {
 
-
       if(node.type === VisualModelNodeName) {
         return <circle cx={props.x} cy={props.y} r="50" fill="#90D5FF"/>
         // TODO RadStr: Proper one - based don shape

@@ -1,7 +1,14 @@
 import React, { useContext, useMemo } from "react";
 
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { VisualDiagramNode, Waypoint, WritableVisualModel, isVisualDiagramNode, isVisualProfileRelationship, isVisualRelationship, isWritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import {
+  Waypoint,
+  WritableVisualModel,
+  isVisualDiagramNode,
+  isVisualProfileRelationship,
+  isVisualRelationship,
+  isWritableVisualModel
+} from "@dataspecer/core-v2/visual-model";
 
 import { type DialogApiContextType } from "../dialog/dialog-service";
 import { DialogApiContext } from "../dialog/dialog-context";
@@ -726,8 +733,8 @@ function createActionsContext(
   const addVisualDiagramNodeForExistingModelToVisualModel = (visualModelToRepresent: string): void => {
     // TODO RadStr: WIP - just for testing
     withVisualModel(notifications, graph, (visualModel) => {
-    addVisualDiagramNodeForExistingModelToVisualModelAction(
-      diagram, visualModel, {}, {}, visualModelToRepresent);
+      addVisualDiagramNodeForExistingModelToVisualModelAction(
+        diagram, visualModel, {}, {}, visualModelToRepresent);
     });
   };
 
@@ -992,7 +999,7 @@ function createActionsContext(
 
     onCreateConnectionToNode: (source, target) => {
       if(isVisualModelDiagramNode(source)) {
-        alert("is node representing visual model");
+        // Do nothing
       }
       else {
         openCreateConnectionDialog(
@@ -1002,6 +1009,9 @@ function createActionsContext(
 
     onCreateConnectionToNothing: (source, canvasPosition) => {
       console.log("Application.onCreateConnectionToNothing", { source, canvasPosition });
+      if(isVisualModelDiagramNode(source)) {
+        return;
+      }
       diagram.actions().openDragEdgeToCanvasMenu(source, canvasPosition);
     },
 

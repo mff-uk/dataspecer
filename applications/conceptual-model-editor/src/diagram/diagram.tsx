@@ -3,7 +3,6 @@ import {
   BackgroundVariant,
   Controls,
   MiniMap,
-  type Node,
   ReactFlow,
   ReactFlowProvider,
 } from "@xyflow/react";
@@ -23,7 +22,7 @@ import type { UseDiagramType } from "./diagram-hook";
 
 import { configuration } from "../configuration/configuration";
 import { AlignmentComponent } from "./features/alignment-viewportal";
-import { type Node as ApiNode, EdgeType } from "./diagram-model";
+import { EdgeType } from "./diagram-model";
 import { ClassProfileEdge, ClassProfileEdgeName } from "./edge/class-profile-edge";
 import { GeneralizationEdge, GeneralizationEdgeName } from "./edge/generalization-edge";
 import { CanvasGeneralMenu } from "./canvas/canvas-menu-general";

@@ -41,7 +41,6 @@ function collectIndirectVisualEntitiesToRemove(
     return visualModel.getVisualEntitiesForRepresented(identifier);
   };
 
-
   const directEntitiesToRemove = collectDirectVisualEntitiesToRemove(
     visualModel, semanticIdentifiers, getVisualEntitiesForRepresented, false);
 

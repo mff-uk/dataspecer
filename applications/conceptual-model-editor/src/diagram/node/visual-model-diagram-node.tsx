@@ -33,34 +33,33 @@ export const VisualModelNode = (props: NodeProps<Node<VisualModelDiagramNode>>) 
 
   const data = props.data;
 
-
   return (
-<div className="cube-container">
-  <div className="front-text">
-    {data.label}
-  </div>
-  <div className="front-text-secondary text-gray-500">
-    {`Represents ${props.data.representedModelAlias}`}
-  </div>
-  <div className="front-text-secondary text-gray-500">
-    {`Represents ${props.data.representedModelAlias}`}
-    {data.position.anchored ? <div>⚓</div> : null}
-  </div>
-    <div className="cube">
-      <EntityNodeMenu {...props} />
-      <div className="face front">
-        {/* This text is actually invisible it is just to get correct width */}
-        <div className="px-8">{data.label}</div>
-         <div className="overflow-x-clip px-8">
-            {`Represents ${props.data.representedModelAlias}`}
-         </div>
+    <div className="cube-container">
+      <div className="front-text">
+        {data.label}
       </div>
-      <div className="face top"></div>
-      <div className="face left"></div>
-      <Handle className="handle" type="target" position={Position.Right} />
-      <Handle className="handle" type="source" position={Position.Right} />
+      <div className="front-text-secondary text-gray-500">
+        {`Represents ${props.data.representedModelAlias}`}
+      </div>
+      <div className="front-text-secondary text-gray-500">
+        {`Represents ${props.data.representedModelAlias}`}
+        {data.position.anchored ? <div>⚓</div> : null}
+      </div>
+      <div className="cube">
+        <EntityNodeMenu {...props} />
+        <div className="face front">
+          {/* This text is actually invisible it is just to get correct width */}
+          <div className="px-8">{data.label}</div>
+          <div className="overflow-x-clip px-8">
+            {`Represents ${props.data.representedModelAlias}`}
+          </div>
+        </div>
+        <div className="face top"></div>
+        <div className="face left"></div>
+        <Handle className="handle" type="target" position={Position.Right} />
+        <Handle className="handle" type="source" position={Position.Right} />
+      </div>
     </div>
-</div>
   );
 };
 

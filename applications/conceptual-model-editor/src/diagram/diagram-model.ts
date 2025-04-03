@@ -1,6 +1,5 @@
 export type DiagramNodeTypes = Node | VisualModelDiagramNode;
 
-
 /**
  * Node can be a class or a class profile.
  */

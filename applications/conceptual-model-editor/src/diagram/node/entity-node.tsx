@@ -5,7 +5,6 @@ import {
   type NodeProps,
   NodeToolbar,
   Position,
-  useReactFlow,
 } from "@xyflow/react";
 
 import { NodeType, type Node as ApiNode, type NodeItem } from "../diagram-model";

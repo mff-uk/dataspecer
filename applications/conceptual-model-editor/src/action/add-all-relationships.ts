@@ -1,4 +1,10 @@
-import { isVisualRelationship, VisualModel, WritableVisualModel, VisualRelationship, isVisualEdgeEnd, Waypoint } from "@dataspecer/core-v2/visual-model";
+import {
+  isVisualRelationship,
+  VisualModel,
+  WritableVisualModel,
+  VisualRelationship,
+  isVisualEdgeEnd
+} from "@dataspecer/core-v2/visual-model";
 import { getVisualDiagramNodeMappingsByRepresented } from "./utilities";
 import { ModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
@@ -7,8 +13,6 @@ import { getDomainAndRangeConceptsIncludingGeneralizations } from "@/util/relati
 import { findSourceModelOfEntity } from "@/service/model-service";
 import { VisualModelDiagramNode } from "@/diagram";
 import { createGetVisualEntitiesForRepresentedGlobalWrapper } from "@/util/utils";
-import { createWaypointsForSelfLoop } from "@/dataspecer/visual-model/operation/add-visual-relationships";
-
 
 export function addAllRelationshipsForVisualDiagramNodeToVisualModelAction(
   notifications: UseNotificationServiceWriterType,

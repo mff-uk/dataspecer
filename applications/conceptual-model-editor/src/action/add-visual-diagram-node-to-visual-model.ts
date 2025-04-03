@@ -1,5 +1,16 @@
-import { isVisualNode, isVisualProfileRelationship, isVisualRelationship, isVisualDiagramNode, VisualModel, VisualDiagramNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { getClassesAndDiagramNodesModelsFromVisualModelRecursively, getViewportCenterForClassPlacement, getVisualDiagramNodeMappingsByVisual, getVisualSourceAndTargetForEdge } from "./utilities";
+import {
+  isVisualNode,
+  isVisualProfileRelationship,
+  isVisualRelationship,
+  isVisualDiagramNode,
+  VisualModel,
+  VisualDiagramNode,
+  WritableVisualModel
+} from "@dataspecer/core-v2/visual-model";
+import {
+  getClassesAndDiagramNodesModelsFromVisualModelRecursively,
+  getViewportCenterForClassPlacement,
+} from "./utilities";
 import { ModelGraphContextType, UseModelGraphContextType } from "../context/model-context";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { createNewVisualModelAction } from "./create-new-visual-model-from-source-visual-model";
@@ -41,20 +52,9 @@ export function addVisualDiagramNodeForNewModelToVisualModelAction(
   };
   const visualDiagramNodeIdentifier = visualModel.addVisualDiagramNode(visualDiagramNode);
 
-  const availableVisualModels = graph.aggregatorView.getAvailableVisualModels();
-  const { nodeToVisualDiagramNodeMapping } = getVisualDiagramNodeMappingsByVisual(availableVisualModels, visualModel);
-  // We want only the nodes mapped to the newly created visual diagram node.
-
-  // TODO RadStr: I think that I dont even need the nodeToVisualDiagramNodeMapping
-  for(const [node, visualDiagramNode] of Object.entries(nodeToVisualDiagramNodeMapping)) {
-    if(visualDiagramNode !== visualDiagramNodeIdentifier) {
-      delete nodeToVisualDiagramNodeMapping[node];
-    }
-  }
-
   rerouteAllRelevantEdgesTotheVisualDiagramNode(
     notifications, visualModel, visualDiagramNodeIdentifier,
-    containedNodes, nodeToVisualDiagramNodeMapping);
+    containedNodes);
   containedNodes.forEach(node => {
     visualModel.deleteVisualEntity(node);
   });
@@ -62,7 +62,6 @@ export function addVisualDiagramNodeForNewModelToVisualModelAction(
   console.info(visualModel.getVisualEntities());        // TODO RadStr: DEBUG
   return visualDiagramNodeIdentifier;
 }
-
 
 // TODO RadStr: SUPER - Maybe does not work with multiple visual entities
 
@@ -74,7 +73,6 @@ function rerouteAllRelevantEdgesTotheVisualDiagramNode(
   visualModelWithVisualDiagramNode: WritableVisualModel,
   visualDiagramNode: string,
   nodesInsideTheVisualDiagramNode: string[],
-  nodeToVisualDiagramNodeMapping: Record<string, string>
 ) {
   const edgesToRemove: string[] = [];
   const edgesToUpdate: {

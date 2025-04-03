@@ -73,7 +73,7 @@ const dialogClassProfile = prefix(
     "ok-create": "✅ Create",
   });
 
-  const dialogVisualDiagramNode = prefix(
+const dialogVisualDiagramNode = prefix(
   "dialog.visual-diagram-node.", {
     "cancel": "❌ Cancel",
     // Edit

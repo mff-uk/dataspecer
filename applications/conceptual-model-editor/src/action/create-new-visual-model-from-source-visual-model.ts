@@ -66,7 +66,6 @@ function addNodesFromSourceModelToTargetModel(
   return oldToNewIdMapping;
 }
 
-
 function addEdgesFromSourceModelToTargetModel(
   notifications: UseNotificationServiceWriterType,
   sourceVisualModel: VisualModel,
@@ -84,11 +83,6 @@ function addEdgesFromSourceModelToTargetModel(
       continue;
     }
     if(isVisualRelationship(visualEntity)) {
-      const sourceDEBUG = sourceVisualModel.getVisualEntity(visualEntity.visualSource);
-      const targetDEBUG = sourceVisualModel.getVisualEntity(visualEntity.visualTarget);
-      if((sourceDEBUG !== null && isVisualDiagramNode(sourceDEBUG)) || (targetDEBUG !== null && isVisualDiagramNode(targetDEBUG))) {
-        alert("Indeed there is node representing visual model on end");
-      }
       const newVisualRelationship = createNewRelationship(visualEntity, oldNodeIdToNewNodeIdMapping);
       if(newVisualRelationship === null) {
         continue;

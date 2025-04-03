@@ -1,10 +1,8 @@
 import { type DialogProps } from "../../dialog-api";
 import { t } from "../../../application";
-import { MultiLanguageInputForLanguageString } from "../../../components/input/multi-language-input-4-language-string";
 import { DialogDetailRow } from "../../../components/dialog/dialog-detail-row";
-import { EditVisualDiagramNodeDialogState, useEditVisualDiagramNodeDialogController } from "../edit-visual-diagram-node/edit-visual-diagram-node-dialog-controller";
+import { EditVisualDiagramNodeDialogState } from "../edit-visual-diagram-node/edit-visual-diagram-node-dialog-controller";
 import { getLocalizedStringFromLanguageString } from "@/util/language-utils";
-import { DialogColoredModelHeaderWithLanguageSelector } from "@/components/dialog/dialog-colored-model-header";
 import { useState } from "react";
 
 export const VisualDiagramNodeInfoDialog = (props: DialogProps<EditVisualDiagramNodeDialogState>) => {
@@ -13,7 +11,7 @@ export const VisualDiagramNodeInfoDialog = (props: DialogProps<EditVisualDiagram
   const languages = [...new Set([...Object.keys(state.label), ...Object.keys(state.description)])];
   return (
     <>
-    <div className="bg-slate-100">
+      <div className="bg-slate-100">
         <div className="flex">
           <div className="ml-auto mr-8">
                       Language:&nbsp;

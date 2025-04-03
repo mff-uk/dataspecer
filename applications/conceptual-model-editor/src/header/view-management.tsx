@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useModelGraphContext } from "../context/model-context";
 import { DropDownCatalog } from "../components/management/dropdown-catalog";
 import { useQueryParamsContext } from "../context/query-params-context";
-import { createWritableVisualModel } from "../dataspecer/visual-model/visual-model-factory";
 import { languageStringToString } from "../utilities/string";
 import { configuration } from "../application";
 import { useOptions } from "../configuration/options";
@@ -11,9 +10,6 @@ import { useActions } from "@/action/actions-react-binding";
 export const ViewManagement = () => {
   const {
     aggregatorView,
-    aggregator,
-    setAggregatorView,
-    addVisualModel,
     visualModels,
     removeVisualModel
   } = useModelGraphContext();

@@ -5,17 +5,18 @@ import { UseNotificationServiceWriterType } from "../notification/notification-s
 import { UseDiagramType } from "../diagram/diagram-hook";
 import { configuration, createLogger } from "../application";
 import { ReactflowDimensionsConstantEstimator, XY, placePositionOnGrid } from "@dataspecer/layout";
-import { Position, VisualGroup, VisualModel, WritableVisualModel, isVisualNode, isVisualGroup, isVisualRelationship, VisualRelationship, VisualProfileRelationship, isVisualDiagramNode, VisualDiagramNode } from "@dataspecer/core-v2/visual-model";
-import { DiagramNodeTypes, Edge, EdgeType, Node } from "../diagram";
+import {
+  Position, VisualGroup, VisualModel, WritableVisualModel, isVisualNode, isVisualGroup,
+  isVisualRelationship, VisualRelationship, VisualProfileRelationship, isVisualDiagramNode,
+  VisualDiagramNode } from "@dataspecer/core-v2/visual-model";
+import { DiagramNodeTypes, Edge, EdgeType } from "../diagram";
 import { findSourceModelOfEntity } from "../service/model-service";
 import { ModelGraphContextType } from "../context/model-context";
 import { ClassesContextType } from "../context/classes-context";
 import { ExtensionType, VisibilityFilter, extendSelectionAction } from "./extend-selection-action";
 import { Selections } from "./filter-selection-action";
-import { isSemanticModelAttribute, isSemanticModelRelationship, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { isSemanticModelAttributeUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
-import { SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { getDomainAndRange } from "@/util/relationship-utils";
+import { isSemanticModelAttribute } from "@dataspecer/core-v2/semantic-model/concepts";
+import { isSemanticModelAttributeUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { addToRecordArray } from "@/utilities/functional";
 
 const LOG = createLogger(import.meta.url);
@@ -275,7 +276,6 @@ export function findTopLevelGroup<T>(
   return topLevelGroup;
 }
 
-
 // TODO RadStr: I am not completely sure about the behavior and if I need it - probably not
 /**
  * Returns all visual diagram node mappings in the given model. We are mapping visual elements to visual elements.
@@ -424,7 +424,6 @@ export function getRemovedAndAdded<T>(previousValues: T[], nextValues: T[]) {
   };
 }
 
-
 /**
  * @returns The semantic identifiers of the nodes in visual model.
  *          BUT it is important to note that links of visual diagram nodes are followed.
@@ -441,7 +440,6 @@ export function getClassesAndDiagramNodesModelsFromVisualModelRecursively(
     availableVisualModels, visualModel, []);
 }
 
-
 function getNodesAndDiagramNodesFromVisualModelInternal(
   availableVisualModels: VisualModel[],
   visualModel: string,
@@ -449,7 +447,7 @@ function getNodesAndDiagramNodesFromVisualModelInternal(
 ) {
   const linkedVisualmodel = availableVisualModels.find(availableVisualModel => visualModel === availableVisualModel.getIdentifier());
   if(linkedVisualmodel !== undefined) {
-    for (let [_, visualEntity] of linkedVisualmodel.getVisualEntities()) {
+    for (const [_, visualEntity] of linkedVisualmodel.getVisualEntities()) {
       if(isVisualNode(visualEntity)) {
         result.push(visualEntity.representedEntity);
       }
@@ -462,7 +460,6 @@ function getNodesAndDiagramNodesFromVisualModelInternal(
 
   return result;
 }
-
 
 export function getVisualSourceAndTargetForEdge(
   visualModel: VisualModel,

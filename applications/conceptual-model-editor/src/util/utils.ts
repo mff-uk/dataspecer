@@ -57,10 +57,10 @@ export function createGetVisualEntitiesForRepresentedGlobalWrapper(
 ): VisualsForRepresentedWrapper {
   const { classToVisualDiagramNodeMappingRaw } = getVisualDiagramNodeMappingsByRepresented(availableVisualModels, visualModel);
   return (identifier: string) => {
-      const directEntitiesInModel = visualModel.getVisualEntitiesForRepresented(identifier);
-      const indirectEntitiesInModel = classToVisualDiagramNodeMappingRaw[identifier]
-        ?.map(visualDiagramNode => visualModel.getVisualEntity(visualDiagramNode))
-        ?.filter(visualDiagramNode => visualDiagramNode !== null) ?? [];
-      return directEntitiesInModel.concat(indirectEntitiesInModel)
+    const directEntitiesInModel = visualModel.getVisualEntitiesForRepresented(identifier);
+    const indirectEntitiesInModel = classToVisualDiagramNodeMappingRaw[identifier]
+      ?.map(visualDiagramNode => visualModel.getVisualEntity(visualDiagramNode))
+      ?.filter(visualDiagramNode => visualDiagramNode !== null) ?? [];
+    return directEntitiesInModel.concat(indirectEntitiesInModel)
   }
 }

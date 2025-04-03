@@ -1,7 +1,6 @@
 import { QueryParamsContextType } from "../context/query-params-context";
 import { ModelGraphContextType } from "../context/model-context";
 
-
 export function changeVisualModelAction (
   graph: ModelGraphContextType,
   queryParamsContext: QueryParamsContextType,

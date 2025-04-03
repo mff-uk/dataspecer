@@ -1,10 +1,6 @@
-import { isVisualNode, isVisualProfileRelationship, isVisualRelationship, isVisualDiagramNode, VisualModel, VisualDiagramNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { getClassesAndDiagramNodesModelsFromVisualModelRecursively, getViewportCenterForClassPlacement, getVisualDiagramNodeMappingsByVisual, getVisualSourceAndTargetForEdge } from "./utilities";
-import { ModelGraphContextType, UseModelGraphContextType } from "../context/model-context";
-import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
-import { createNewVisualModelAction } from "./create-new-visual-model-from-source-visual-model";
+import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { getViewportCenterForClassPlacement } from "./utilities";
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
-import { removeFromVisualModelByVisualAction } from "./remove-from-visual-model-by-visual";
 import { UseDiagramType } from "@/diagram/diagram-hook";
 import { addVisualDiagramNode } from "@/dataspecer/visual-model/operation/add-visual-diagram-node";
 

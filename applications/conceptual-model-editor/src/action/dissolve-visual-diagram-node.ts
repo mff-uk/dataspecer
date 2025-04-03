@@ -1,17 +1,35 @@
-import { isVisualDiagramNode, isVisualEdgeEnd, isVisualGroup, isVisualModel, isVisualNode, isVisualProfileRelationship, isVisualRelationship, VisualDiagramNode, VisualEdgeEndPoint, VisualEntity, VisualModel, VisualRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { isVisualDiagramNode,
+  isVisualEdgeEnd,
+  isVisualGroup,
+  isVisualModel,
+  isVisualNode,
+  isVisualProfileRelationship,
+  isVisualRelationship,
+  VisualEdgeEndPoint,
+  VisualEntity,
+  VisualModel,
+  VisualRelationship,
+  WritableVisualModel
+} from "@dataspecer/core-v2/visual-model";
 import { VisualModelDiagramNode } from "@/diagram";
 import { ModelGraphContextType } from "@/context/model-context";
 import { UseNotificationServiceWriterType } from "@/notification/notification-service-context";
 import { XY } from "@dataspecer/layout";
 import { addVisualNode } from "@/dataspecer/visual-model/operation/add-visual-node";
 import { UseDiagramType } from "@/diagram/diagram-hook";
-import { addVisualRelationshipsForRepresented, addVisualRelationshipsWithSpecifiedVisualEnds } from "@/dataspecer/visual-model/operation/add-visual-relationships";
 import { addVisualDiagramNode } from "@/dataspecer/visual-model/operation/add-visual-diagram-node";
 import { getClassesAndDiagramNodesModelsFromVisualModelRecursively } from "./utilities";
 import { ClassesContextType } from "@/context/classes-context";
-import { getDomainAndRange, getDomainAndRangeConcepts, getDomainAndRangeConceptsIncludingGeneralizations } from "@/util/relationship-utils";
-import { SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { getDomainAndRangeConceptsIncludingGeneralizations } from "@/util/relationship-utils";
+import {
+  SemanticModelClass,
+  SemanticModelGeneralization,
+  SemanticModelRelationship
+} from "@dataspecer/core-v2/semantic-model/concepts";
+import {
+  SemanticModelClassProfile,
+  SemanticModelRelationshipProfile
+} from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 export function dissolveVisualDiagramNodeAction(
   notifications: UseNotificationServiceWriterType,
@@ -160,11 +178,11 @@ function moveNodeAlongEdgeToRectangle(
   const maxY = rectangle.center.y + halfHeight;
 
   // Find potential intersections with vertical and horizontal edges
-  let tX = (unitX > 0) ? (maxX - anchor.x) / unitX : (minX - anchor.x) / unitX;
-  let tY = (unitY > 0) ? (maxY - anchor.y) / unitY : (minY - anchor.y) / unitY;
+  const tX = (unitX > 0) ? (maxX - anchor.x) / unitX : (minX - anchor.x) / unitX;
+  const tY = (unitY > 0) ? (maxY - anchor.y) / unitY : (minY - anchor.y) / unitY;
 
-  let boundaryX = anchor.x + unitX * tX;
-  let boundaryY = anchor.y + unitY * tY;
+  const boundaryX = anchor.x + unitX * tX;
+  const boundaryY = anchor.y + unitY * tY;
 
   // Move the node along the edge direction by the given distance from the rectangle boundary
   return {
@@ -206,7 +224,6 @@ function rerouteEdgesFromVisualDiagramNodeToItsContent(
     ...classesContext.relationshipProfiles,
     ...classesContext.generalizations,
   ];
-
 
   const sourceModelVisualEntities = visualModelContainingDiagramNode.getVisualEntities();
   for(const visualEntity of sourceModelVisualEntities.values()) {
@@ -346,7 +363,7 @@ function addCopiesToVisualModel(
     }
   }
 
-  for (const [identifier, visualEntity] of visualEntitesToCopy) {
+  for (const [_id, visualEntity] of visualEntitesToCopy) {
     if(isVisualRelationship(visualEntity)) {
       const waypoints = [...visualEntity.waypoints];
       waypoints.forEach(waypoint => {
@@ -389,7 +406,6 @@ function addCopiesToVisualModel(
 
   return originalToCopyMap;
 }
-
 
 const getTopLeftPosition = (nodes: VisualEdgeEndPoint[]) => {
   const topLeft = {

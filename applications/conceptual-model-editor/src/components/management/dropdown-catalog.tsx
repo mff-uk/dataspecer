@@ -30,8 +30,8 @@ const CatalogItem = (
       )}
       {withSpecialButtons && withSpecialButtons.map(({content, callback}, index) =>
         (<button key={`button-dropdown-catalog-${value}-${index}-special`}
-                 id={`button-dropdown-catalog-${value}-${index}-special`}
-                 onClick={callback}>
+          id={`button-dropdown-catalog-${value}-${index}-special`}
+          onClick={callback}>
           {content}
         </button>))
       }

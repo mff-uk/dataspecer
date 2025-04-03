@@ -4,7 +4,6 @@ import {
   WritableVisualModel,
   isVisualEdgeEnd,
   isVisualGroup,
-  isVisualNode,
   isVisualProfileRelationship,
   isVisualRelationship,
 } from "@dataspecer/core-v2/visual-model";
