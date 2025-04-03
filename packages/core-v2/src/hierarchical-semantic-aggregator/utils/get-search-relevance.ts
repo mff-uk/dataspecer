@@ -1,4 +1,4 @@
-import { NamedThing } from "@dataspecer/core-v2/semantic-model/concepts";
+import { NamedThing } from "../../semantic-model/concepts";
 
 export function getSearchRelevance(query: RegExp, entity: NamedThing): number | false {
   let result: number | false = false;

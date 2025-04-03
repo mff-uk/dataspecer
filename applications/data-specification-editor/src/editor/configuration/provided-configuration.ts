@@ -9,7 +9,7 @@ import { httpFetch } from "@dataspecer/core/io/fetch/fetch-browser";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
 import { ClientConfigurator, DefaultClientConfiguration } from "../../configuration";
 import { OperationContext } from "../operations/context/operation-context";
-import { SemanticModelAggregator } from "../semantic-aggregator/interfaces";
+import { SemanticModelAggregator } from "@dataspecer/core-v2/hierarchical-semantic-aggregator";
 import { Configuration, ModelCompositionConfiguration } from "./configuration";
 import { SemanticModelAggregatorBuilder } from "./semantic-model-aggregator-builder";
 

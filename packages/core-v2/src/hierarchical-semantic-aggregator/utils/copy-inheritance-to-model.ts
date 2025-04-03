@@ -1,6 +1,6 @@
-import { isSemanticModelGeneralization, SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization } from "@dataspecer/core-v2/semantic-model/concepts";
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { createClass, createGeneralization } from "@dataspecer/core-v2/semantic-model/operations";
+import { isSemanticModelGeneralization, SemanticModelClass, SemanticModelEntity, SemanticModelGeneralization } from "../../semantic-model/concepts";
+import { InMemorySemanticModel } from "../../semantic-model/in-memory";
+import { createClass, createGeneralization } from "../../semantic-model/operations";
 
 /**
  * Copies classes with their inheritance from the source model to the target model.
@@ -62,7 +62,7 @@ export async function copyInheritanceToModel(targetSemanticModel: InMemorySemant
   for (const classToProcessId of classesToProcess) {
     const classToProcess = sourceSemanticModel.find((e) => e.iri === classToProcessId) as SemanticModelClass;
 
-    if (!targetEntities[classToProcess.iri]) {
+    if (!targetEntities[classToProcess.iri!]) {
       const op = createClass(classToProcess);
       targetSemanticModel.executeOperation(op);
     }

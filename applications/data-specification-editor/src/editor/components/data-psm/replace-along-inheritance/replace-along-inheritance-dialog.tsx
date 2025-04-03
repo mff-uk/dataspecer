@@ -8,7 +8,7 @@ import { useAsyncMemo } from "../../../hooks/use-async-memo";
 import { useDataPsmAndInterpretedPim } from "../../../hooks/use-data-psm-and-interpreted-pim";
 import { useNewFederatedObservableStoreFromSemanticEntities } from "../../../hooks/use-new-federated-observable-store-from-semantic-entities";
 import { ReplaceAlongInheritance } from "../../../operations/replace-along-inheritance";
-import { ExternalEntityWrapped } from "../../../semantic-aggregator/interfaces";
+import { ExternalEntityWrapped } from "@dataspecer/core-v2/hierarchical-semantic-aggregator";
 import { isAncestorOf } from "../../../utils/is-ancestor-of";
 import { ConfigurationContext } from "../../App";
 import { PimClassDetailDialog } from "../../detail/pim-class-detail-dialog";

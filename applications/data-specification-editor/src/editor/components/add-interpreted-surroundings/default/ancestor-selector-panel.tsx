@@ -12,7 +12,7 @@ import { PimClassDetailDialog } from "../../detail/pim-class-detail-dialog";
 import { LanguageStringFallback, LanguageStringText } from "../../helper/LanguageStringComponents";
 import { LoadingDialog } from "../../helper/LoadingDialog";
 import { SlovnikGovCzGlossary } from "../../slovnik.gov.cz/SlovnikGovCzGlossary";
-import { ExternalEntityWrapped } from "../../../semantic-aggregator/interfaces";
+import { ExternalEntityWrapped } from "@dataspecer/core-v2/hierarchical-semantic-aggregator";
 
 interface AncestorSelectorPanelParameters {
     forSemanticClassId: string,

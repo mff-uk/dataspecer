@@ -1,4 +1,4 @@
-import { SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "../semantic-model/concepts";
 
 /**
  * Wrapped entity that came from the search / adding surrounding entities.
@@ -56,10 +56,10 @@ export interface SemanticModelAggregator {
     sourceSemanticModel: ExternalEntityWrapped[]
   ): Promise<LocalEntityWrapped>;
 
-  execOperation(operation: any);
+  execOperation(operation: any): any;
 
   getAggregatedEntities(): Record<string, LocalEntityWrapped>;
-  subscribeToChanges(callback: (updated: Record<string, LocalEntityWrapped>, removed: string[]) => void);
+  subscribeToChanges(callback: (updated: Record<string, LocalEntityWrapped>, removed: string[]) => void): void;
 
   getLocalEntity(id: string): LocalEntityWrapped | null;
 }

@@ -1,9 +1,9 @@
-import { Entity, EntityModel } from "@dataspecer/core-v2";
-import { isSemanticModelClass, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { Entity, EntityModel } from "../entity-model";
+import { isSemanticModelClass, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "../semantic-model/concepts";
+import { InMemorySemanticModel } from "../semantic-model/in-memory";
 import { ExternalEntityWrapped, LocalEntityWrapped, SemanticModelAggregator } from "./interfaces";
 import { getSearchRelevance } from "./utils/get-search-relevance";
-import { withAbsoluteIri } from "@dataspecer/core-v2/semantic-model/utils";
+import { withAbsoluteIri } from "../semantic-model/utils";
 
 export class VocabularyAggregator implements SemanticModelAggregator {
   private readonly vocabulary: InMemorySemanticModel | EntityModel;
@@ -32,12 +32,13 @@ export class VocabularyAggregator implements SemanticModelAggregator {
   private updateLocalEntities(updated: Record<string, Entity>, removed: string[]) {
     const toUpdate: Record<string, LocalEntityWrapped> = {};
     for (const entity of Object.values(updated)) {
-      this.entities[entity.id] = {
+      const update = {
         aggregatedEntity: withAbsoluteIri(entity as SemanticModelEntity, this.baseIri),
         vocabularyChain: [this.thisVocabularyChain],
         isReadOnly: true,
       };
-      toUpdate[entity.id] = this.entities[entity.id];
+      this.entities[entity.id] = update;
+      toUpdate[entity.id] = update;
     }
 
     for (const toRemove of removed) {
@@ -68,7 +69,7 @@ export class VocabularyAggregator implements SemanticModelAggregator {
 
     const entities = Object.values(this.entities);
     const classes = entities.filter(entity => isSemanticModelClass(entity.aggregatedEntity)) as LocalEntityWrapped<SemanticModelClass>[];
-    const localResults = classes.map(cls => ([cls, getSearchRelevance(query, cls.aggregatedEntity)]))
+    const localResults = classes.map(cls => ([cls, getSearchRelevance(query, cls.aggregatedEntity)]) as [LocalEntityWrapped<SemanticModelClass>, number | false])
       .filter((([_, relevance]) => relevance !== false) as (result: [LocalEntityWrapped<SemanticModelClass>, number | false]) => result is [LocalEntityWrapped<SemanticModelClass>, number])
       .sort(([_, a], [__, b]) => a - b);
 
@@ -84,7 +85,7 @@ export class VocabularyAggregator implements SemanticModelAggregator {
   }
 
   async externalEntityToLocalForSearch(entity: ExternalEntityWrapped) {
-    return this.entities[entity.aggregatedEntity.id];
+    return this.entities[entity.aggregatedEntity.id]!;
   }
 
   execOperation(operation: any) {
@@ -129,10 +130,10 @@ export class VocabularyAggregator implements SemanticModelAggregator {
   }
 
   async externalEntityToLocalForHierarchyExtension(fromEntity: string, entity: ExternalEntityWrapped<SemanticModelClass>, isEntityMoreGeneral: boolean, sourceSemanticModel: ExternalEntityWrapped[]): Promise<LocalEntityWrapped> {
-    return this.entities[entity.aggregatedEntity.id];
+    return this.entities[entity.aggregatedEntity.id]!;
   }
 
   async externalEntityToLocalForSurroundings(fromEntity: string, entity: ExternalEntityWrapped<SemanticModelRelationship>, direction: boolean, sourceSemanticModel: ExternalEntityWrapped[]): Promise<LocalEntityWrapped> {
-    return this.entities[entity.aggregatedEntity.id];
+    return this.entities[entity.aggregatedEntity.id]!;
   }
 }

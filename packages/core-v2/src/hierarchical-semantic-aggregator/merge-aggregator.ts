@@ -1,5 +1,5 @@
-import { isSemanticModelClass, isSemanticModelRelationship, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { SemanticEntityIdMerger, StrongerWinsSemanticEntityIdMerger } from "@dataspecer/core-v2/semantic-model/merge/merger";
+import { isSemanticModelClass, isSemanticModelRelationship, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "../semantic-model/concepts";
+import { SemanticEntityIdMerger, StrongerWinsSemanticEntityIdMerger } from "../semantic-model/merge/merger";
 import { ExternalEntityWrapped, LocalEntityWrapped, SemanticModelAggregator } from "./interfaces";
 import { TupleSet } from "./utils/tuple-set";
 
@@ -43,14 +43,14 @@ export class MergeAggregator implements SemanticModelAggregator {
     const [unwrappedEntity, data] = this.unwrapExternalEntity(entity);
     const unwrappedSourceSemanticModel = sourceSemanticModel.map(entity => this.unwrapExternalEntity(entity)[0]);
     const result = await data.parentModel.externalEntityToLocalForSurroundings(fromEntity, unwrappedEntity, direction, unwrappedSourceSemanticModel);
-    return this.entities[result.aggregatedEntity.id];
+    return this.entities[result.aggregatedEntity.id]!;
   }
 
   async externalEntityToLocalForHierarchyExtension(fromEntity: string, entity: ExternalEntityWrapped<SemanticModelClass>, isEntityMoreGeneral: boolean, sourceSemanticModel: ExternalEntityWrapped[]): Promise<LocalEntityWrapped> {
     const [unwrappedEntity, data] = this.unwrapExternalEntity(entity);
     const unwrappedSourceSemanticModel = sourceSemanticModel.map(entity => this.unwrapExternalEntity(entity)[0]);
     const result = await data.parentModel.externalEntityToLocalForHierarchyExtension(fromEntity, unwrappedEntity, isEntityMoreGeneral, unwrappedSourceSemanticModel);
-    return this.entities[result.aggregatedEntity.id];
+    return this.entities[result.aggregatedEntity.id]!;
   }
 
   execOperation(operation: any) {
@@ -58,7 +58,7 @@ export class MergeAggregator implements SemanticModelAggregator {
       throw new Error('Operation execution is not supported for multiple models');
     }
 
-    this.models[0].execOperation(operation);
+    this.models[0]!.execOperation(operation);
   }
 
   /**
@@ -67,12 +67,12 @@ export class MergeAggregator implements SemanticModelAggregator {
   private update(model: SemanticModelAggregator, changed: Record<string, LocalEntityWrapped>, removed: string[]) {
     Object.keys(changed).forEach(id => this.entityToModel.add(id, model));
     removed.forEach(id => this.entityToModel.delete(id, model));
-    Object.assign(this.entitiesInModels.get(model), changed);
+    Object.assign(this.entitiesInModels.get(model)!, changed);
     removed.forEach(id => delete this.entitiesInModels.get(model)![id]);
 
     // Now we can update the final result
     const toProcess = [...Object.keys(changed), ...removed];
-    const updated = {};
+    const updated = {} as Record<string, LocalEntityWrapped>;
     const removedFinal = [];
     for (const entity of toProcess) {
       const owningModels = this.entityToModel.getByFirst(entity);
@@ -86,25 +86,25 @@ export class MergeAggregator implements SemanticModelAggregator {
 
         const allEntities = owningModels.map(model => this.entitiesInModels.get(model)![entity]);
 
-        if (isSemanticModelClass(allEntities[0].aggregatedEntity) && allEntities.length > 1) {
-          const result = this.semanticEntityIdMerger.mergeClasses(allEntities.map(e => e.aggregatedEntity as SemanticModelClass));
+        if (isSemanticModelClass(allEntities[0]!.aggregatedEntity) && allEntities.length > 1) {
+          const result = this.semanticEntityIdMerger.mergeClasses(allEntities.map(e => e!.aggregatedEntity as SemanticModelClass));
           const wrapped = {
             ...allEntities[0],
             aggregatedEntity: result
-          };
+          } as LocalEntityWrapped;
           this.entities[entity] = wrapped;
           updated[entity] = wrapped;
-        } else if (isSemanticModelRelationship(allEntities[0].aggregatedEntity) && allEntities.length > 1) {
-          const result = this.semanticEntityIdMerger.mergeRelationships(allEntities.map(e => e.aggregatedEntity as SemanticModelRelationship));
+        } else if (isSemanticModelRelationship(allEntities[0]!.aggregatedEntity) && allEntities.length > 1) {
+          const result = this.semanticEntityIdMerger.mergeRelationships(allEntities.map(e => e!.aggregatedEntity as SemanticModelRelationship));
           const wrapped = {
             ...allEntities[0],
             aggregatedEntity: result
-          };
+          } as LocalEntityWrapped;
           this.entities[entity] = wrapped;
           updated[entity] = wrapped;
         } else {
-          this.entities[entity] = allEntities[0];
-          updated[entity] = allEntities[0];
+          this.entities[entity] = allEntities[0]!;
+          updated[entity] = allEntities[0]!;
         }
       }
     }
@@ -138,8 +138,8 @@ export class MergeAggregator implements SemanticModelAggregator {
   async externalEntityToLocalForSearch(entity: ExternalEntityWrapped): Promise<LocalEntityWrapped> {
     const [_, data] = this.unwrapExternalEntity(entity);
 
-    const localEntity = await data.parentModel.externalEntityToLocalForSearch(data.originalEntity);
-    return this.entities[localEntity.aggregatedEntity.id];
+    const localEntity = await data.parentModel.externalEntityToLocalForSearch(data.originalEntity!);
+    return this.entities[localEntity.aggregatedEntity.id]!;
   }
 
   async getHierarchy(localEntityId: string): Promise<ExternalEntityWrapped[] | null> {

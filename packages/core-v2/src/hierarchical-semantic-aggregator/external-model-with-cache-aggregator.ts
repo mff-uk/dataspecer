@@ -1,31 +1,47 @@
-import { Entity } from "@dataspecer/core-v2";
-import { isSemanticModelClass, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { createClass, CreatedEntityOperationResult, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
-import { SourceSemanticModelInterface } from "../configuration/configuration";
-import { copyInheritanceToModel } from "../operations/helper/copy-inheritance-to-model";
+import { Entity } from "../entity-model";
+import { isSemanticModelClass, SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "../semantic-model/concepts";
+import { InMemorySemanticModel } from "../semantic-model/in-memory";
+import { createClass, CreatedEntityOperationResult, createRelationship } from "../semantic-model/operations";
+import { copyInheritanceToModel } from "./utils/copy-inheritance-to-model";
 import { ExternalEntityWrapped, SemanticModelAggregator, LocalEntityWrapped } from "./interfaces";
 
-export class LegacySemanticModelAggregator implements SemanticModelAggregator {
-  private readonly pim: InMemorySemanticModel;
-  private readonly cim: SourceSemanticModelInterface;
+export interface SourceSemanticModelInterface {
+  search(searchQuery: string): Promise<SemanticModelClass[]>;
+  getSurroundings(iri: string): Promise<SemanticModelEntity[]>;
+  getFullHierarchy(iri: string): Promise<SemanticModelEntity[]>;
+}
+
+/**
+ * Aggregates external semantic model with its cache.
+ */
+export class ExternalModelWithCacheAggregator implements SemanticModelAggregator {
+  /**
+   * Regular semantic model that is used as a cache for the external model that
+   * must be queried.
+   */
+  private readonly cacheSemanticModel: InMemorySemanticModel;
+
+  /**
+   * External semantic model that must be queried to obtain data.
+   */
+  private readonly externalSemanticModel: SourceSemanticModelInterface;
 
   private readonly aggregatedEntities: Record<string, LocalEntityWrapped> = {};
   private readonly subscribers: Set<(updated: Record<string, LocalEntityWrapped>, removed: string[]) => void> = new Set();
 
   readonly thisVocabularyChain: object;
 
-  constructor(pim: InMemorySemanticModel, cim: SourceSemanticModelInterface) {
-    this.pim = pim;
-    this.cim = cim;
+  constructor(cacheSemanticModel: InMemorySemanticModel, externalSemanticModel: SourceSemanticModelInterface) {
+    this.cacheSemanticModel = cacheSemanticModel;
+    this.externalSemanticModel = externalSemanticModel;
 
-    this.updateEntities(this.pim.getEntities(), []);
-    this.pim.subscribeToChanges((updated, removed) => {
+    this.updateEntities(this.cacheSemanticModel.getEntities(), []);
+    this.cacheSemanticModel.subscribeToChanges((updated, removed) => {
       this.updateEntities(updated, removed);
     });
 
     this.thisVocabularyChain = {
-      name: this.pim.getAlias() ?? "Vocabulary",
+      name: this.cacheSemanticModel.getAlias() ?? "Vocabulary",
     };
   }
 
@@ -33,16 +49,17 @@ export class LegacySemanticModelAggregator implements SemanticModelAggregator {
    * Helper function to trigger update of entities
    */
   private updateEntities(updated: Record<string, Entity>, removed: string[]) {
-    const toChanged = {};
-    const toRemoved = [];
+    const toChanged: Record<string, LocalEntityWrapped> = {};
+    const toRemoved: string[] = [];
 
     for (const entity of Object.values(updated)) {
-      this.aggregatedEntities[entity.id] = {
+      const update = {
         aggregatedEntity: entity as SemanticModelEntity,
         vocabularyChain: [this.thisVocabularyChain],
         isReadOnly: true,
       };
-      toChanged[entity.id] = this.aggregatedEntities[entity.id];
+      this.aggregatedEntities[entity.id] = update;
+      toChanged[entity.id] = update;
     }
 
     for (const id of removed) {
@@ -54,7 +71,7 @@ export class LegacySemanticModelAggregator implements SemanticModelAggregator {
   }
 
   async search(searchQuery: string): Promise<ExternalEntityWrapped[]> {
-    const result = this.transformEntities(await this.cim.search(searchQuery));
+    const result = this.transformEntities(await this.externalSemanticModel.search(searchQuery));
     return result;
   }
 
@@ -63,14 +80,14 @@ export class LegacySemanticModelAggregator implements SemanticModelAggregator {
     const iri = entity.aggregatedEntity.iri;
     const cls = entity.aggregatedEntity as SemanticModelClass;
 
-    let foundEntity = Object.values(this.pim.getEntities()).find((entity) => isSemanticModelClass(entity) && entity.iri === iri) as SemanticModelClass | undefined;
+    let foundEntity = Object.values(this.cacheSemanticModel.getEntities()).find((entity) => isSemanticModelClass(entity) && entity.iri === iri) as SemanticModelClass | undefined;
     if (!foundEntity) {
       const op = createClass(cls);
-      const { id } = this.pim.executeOperation(op) as CreatedEntityOperationResult;
-      foundEntity = this.pim.getEntities()[id] as SemanticModelClass;
+      const { id } = this.cacheSemanticModel.executeOperation(op) as CreatedEntityOperationResult;
+      foundEntity = this.cacheSemanticModel.getEntities()[id] as SemanticModelClass;
     }
 
-    return this.aggregatedEntities[foundEntity.id];
+    return this.aggregatedEntities[foundEntity.id]!;
   }
 
   async getHierarchy(localEntityId: string): Promise<ExternalEntityWrapped[]> {
@@ -78,7 +95,7 @@ export class LegacySemanticModelAggregator implements SemanticModelAggregator {
     if (!pim) {
       throw new Error(`getHierarchy work for local entities only.` + localEntityId);
     }
-    const entities = await this.cim.getFullHierarchy(pim.aggregatedEntity.iri);
+    const entities = await this.externalSemanticModel.getFullHierarchy(pim.aggregatedEntity.iri!);
     return this.transformEntities(entities);
   }
 
@@ -89,10 +106,10 @@ export class LegacySemanticModelAggregator implements SemanticModelAggregator {
   async getSurroundings(localOrExternalEntityId: string): Promise<ExternalEntityWrapped[]> {
     const maybePim = this.aggregatedEntities[localOrExternalEntityId];
     if (maybePim) {
-      const entities = await this.cim.getSurroundings(maybePim.aggregatedEntity.iri);
+      const entities = await this.externalSemanticModel.getSurroundings(maybePim.aggregatedEntity.iri!);
       return this.transformEntities(entities);
     } else {
-      const entities = await this.cim.getSurroundings(localOrExternalEntityId);
+      const entities = await this.externalSemanticModel.getSurroundings(localOrExternalEntityId);
       return this.transformEntities(entities);
     }
   }
@@ -110,27 +127,27 @@ export class LegacySemanticModelAggregator implements SemanticModelAggregator {
     const sourceModel = sourceSemanticModel.map((e) => e.aggregatedEntity);
 
     // Create path from the entity to the first end
-    await copyInheritanceToModel(this.pim, sourceModel, fromEntity, entity.aggregatedEntity.ends[direction ? 0 : 1].concept);
+    await copyInheritanceToModel(this.cacheSemanticModel, sourceModel, fromEntity, entity.aggregatedEntity.ends[direction ? 0 : 1]!.concept!);
 
     // Create the other end
-    const conceptId = entity.aggregatedEntity.ends[direction ? 1 : 0].concept;
+    const conceptId = entity.aggregatedEntity.ends[direction ? 1 : 0]!.concept;
     const concept = conceptId ? sourceModel.find((e) => e.id === conceptId) : null;
-    if (concept && !this.pim.getEntities()[conceptId]) {
+    if (concept && !this.cacheSemanticModel.getEntities()[conceptId!]) {
       const op = createClass(concept);
-      this.pim.executeOperation(op);
+      this.cacheSemanticModel.executeOperation(op);
     }
 
     // Create the relationship
-    if (!this.pim.getEntities()[entity.aggregatedEntity.id]) {
+    if (!this.cacheSemanticModel.getEntities()[entity.aggregatedEntity.id]) {
       const op = createRelationship(entity.aggregatedEntity);
-      this.pim.executeOperation(op);
+      this.cacheSemanticModel.executeOperation(op);
     }
 
-    return this.aggregatedEntities[entity.aggregatedEntity.id];
+    return this.aggregatedEntities[entity.aggregatedEntity.id]!;
   }
 
   async execOperation(operation: any) {
-    return this.pim.executeOperation(operation);
+    return this.cacheSemanticModel.executeOperation(operation);
   }
 
   private transformEntities(entities: SemanticModelEntity[]): ExternalEntityWrapped[] {
@@ -150,11 +167,11 @@ export class LegacySemanticModelAggregator implements SemanticModelAggregator {
   ): Promise<LocalEntityWrapped> {
     const sourceModel = sourceSemanticModel.map((e) => e.aggregatedEntity);
     if (isEntityMoreGeneral) {
-      await copyInheritanceToModel(this.pim, sourceModel, fromEntity, entity.aggregatedEntity.id);
+      await copyInheritanceToModel(this.cacheSemanticModel, sourceModel, fromEntity, entity.aggregatedEntity.id);
     } else {
-      await copyInheritanceToModel(this.pim, sourceModel, entity.aggregatedEntity.id, fromEntity);
+      await copyInheritanceToModel(this.cacheSemanticModel, sourceModel, entity.aggregatedEntity.id, fromEntity);
     }
-    return this.aggregatedEntities[entity.aggregatedEntity.id];
+    return this.aggregatedEntities[entity.aggregatedEntity.id]!;
   }
 
   getLocalEntity(id: string): LocalEntityWrapped | null {
