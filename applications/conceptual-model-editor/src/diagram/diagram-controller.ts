@@ -1719,7 +1719,7 @@ const createActions = (
       return reactFlow.getNodes().map(node => node.data);
     },
     addNodes(nodes) {
-      // We set it directly. Using reactflow may create some unwanted delay
+      // We set it directly. Using reactflow may cause "Encountered two children with the same key" warning
       setNodes(previousNodes => previousNodes.concat(nodes.map(nodeToNodeType)));
       console.log("Diagram.addNodes", nodes.map(item => item.identifier), nodes);
     },
@@ -1758,7 +1758,7 @@ const createActions = (
       console.log("Diagram.updateNodesPosition", nodes);
     },
     removeNodes(identifiers) {
-      // Again setting directly instead of using reactFlow because of possible delay
+      // Again setting directly instead of using reactFlow.
       setNodes(previousNodes => previousNodes.filter(previousNode => !identifiers.includes(previousNode.id)));
       console.log("Diagram.removeNodes", identifiers);
     },
@@ -1776,7 +1776,8 @@ const createActions = (
       return [];
     },
     addEdges(edges) {
-      reactFlow.addEdges(edges.map(edgeToEdgeType));
+      // Again directly instead of reactflow.
+      setEdges(previousEdges => previousEdges.concat(edges.map(edgeToEdgeType)));
       console.log("Diagram.addEdges", edges.map(item => item.identifier), edges);
     },
     updateEdges(edges) {
@@ -1794,7 +1795,8 @@ const createActions = (
       console.log("Diagram.setEdgesWaypointPosition", edges);
     },
     removeEdges(identifiers) {
-      reactFlow.deleteElements({ edges: identifiers.map(id => ({ id })) });
+      // Again setting directly instead of using reactFlow.
+      setEdges(previousEdges => previousEdges.filter(previousEdge => !identifiers.includes(previousEdge.id)));
       console.log("Diagram.removeEdges", identifiers);
     },
     //

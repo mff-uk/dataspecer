@@ -51,7 +51,7 @@ import { getGroupMappings, getClassesAndDiagramNodesModelsFromVisualModelRecursi
 import { synchronizeOnAggregatorChange, updateVisualAttributesBasedOnSemanticChanges } from "./dataspecer/visual-model/aggregator-to-visual-model-adapter";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { EntityDsIdentifier } from "./dataspecer/entity-model";
-import { createAttributeProfileLabel, createGetVisualEntitiesForRepresentedWrapper, getEntityLabelToShowInDiagram } from "./util/utils";
+import { createAttributeProfileLabel, createGetVisualEntitiesForRepresentedGlobalWrapper, getEntityLabelToShowInDiagram } from "./util/utils";
 
 import "./visualization.css";
 import { addToRecordArray } from "./utilities/functional";
@@ -232,8 +232,8 @@ function validateVisualModelNonDiagramNodes(
       classProfile: SemanticModelClassProfile
     }> = {};
 
-  // TODO: For now just validate the class profile edges, they are currently not removed from visual model
-  //       (even from the current, not only when switching visual models)
+  // For now just validate the class profile edges, they are currently not removed from visual model.
+  // That was the case even when we had only 1 visual model.
   for (const [identifier, visualEntity] of visualModel.getVisualEntities()) {
     if (isVisualProfileRelationship(visualEntity)) {    // Find the invalid ones
       const source = visualModel.getVisualEntity(visualEntity.visualSource);
@@ -272,8 +272,8 @@ function validateVisualModelNonDiagramNodes(
     }
   }
 
+  // Find the missing ones
   for (const {visualEntity, classProfile} of Object.values(classProfilesInVisualModel)) {
-
     for (const profileOf of classProfile.profiling) {
       const profileOfVisuals = visualModel.getVisualEntitiesForRepresented(profileOf);
       for (const profileOfVisual of profileOfVisuals) {
@@ -372,110 +372,125 @@ function validateVisualModelDiagramNodes(
         continue;
       }
 
-      const isDomainValid = checkEdgeEndValidity(
+      const isDomainValid = checkEdgeEndValidityAndExtend(
         visualModelToContentMappings, visualModel, aggregatorView,
         visualEdgeSource, domain, visualEntity.identifier, invalidEntities);
       if (!isDomainValid) {
         continue;
       }
 
-      const isRangeValid = checkEdgeEndValidity(
+      const isRangeValid = checkEdgeEndValidityAndExtend(
         visualModelToContentMappings, visualModel, aggregatorView,
         visualEdgeTarget, range, visualEntity.identifier, invalidEntities);
       if (!isRangeValid) {
         continue;
       }
     }
-    else if(isVisualProfileRelationship(visualEntity)) {
-      const profile = classesContext.classProfiles.find(classProfile => classProfile.id === visualEntity.entity);
-      if(profile === undefined) {
-        invalidEntities.push(visualEntity.identifier);
+    else if (isVisualProfileRelationship(visualEntity)) {
+      const isSourceInvalid = validateVisualProfileRelationshipEnd(
+        visualModel, visualEntity.visualSource, visualEntity.identifier, invalidEntities);
+      if (isSourceInvalid) {
         continue;
       }
-
-      const visualTarget = visualModel.getVisualEntity(visualEntity.visualTarget);
-      if(visualTarget === null) {
-        invalidEntities.push(visualEntity.identifier);
-        continue;
-      }
-
-      if(!isVisualDiagramNode(visualTarget)) {
-        continue;
-      }
-      addToRecordArray(visualEntity.visualTarget, visualEntity, visualTargetDiagramNodeToProfileMap);
+      validateVisualProfileRelationshipEnd(
+        visualModel, visualEntity.visualTarget, visualEntity.identifier, invalidEntities);
     }
+
+    // TODO RadStr: Actually just remove all of the following code trying to ALWAYS create visual profile relationships
+    //              1) It does not work properly for some cases
+    //              2) The class profile edges pointing from/to visual diagram node don't add much relevant information
+    //                 + They can not be removed from visual model, so it just introduces clutter
+
+    // else if(isVisualProfileRelationship(visualEntity)) {
+    //   const profile = classesContext.classProfiles.find(classProfile => classProfile.id === visualEntity.entity);
+    //   if(profile === undefined) {
+    //     invalidEntities.push(visualEntity.identifier);
+    //     continue;
+    //   }
+
+    //   const visualTarget = visualModel.getVisualEntity(visualEntity.visualTarget);
+    //   if(visualTarget === null) {
+    //     invalidEntities.push(visualEntity.identifier);
+    //     continue;
+    //   }
+
+    //   if(!isVisualDiagramNode(visualTarget)) {
+    //     continue;
+    //   }
+    //   addToRecordArray(visualEntity.visualTarget, visualEntity, visualTargetDiagramNodeToProfileMap);
+    // }
   }
 
-  const entries = Object.entries(visualTargetDiagramNodeToProfileMap);
-  if(entries.length !== 0) {
-    for(const [visualTarget, profileRelationships] of entries) {
-      // Number of class profile edges going to visualTarget from given visual source
-      const profileEdgeCountForSourceDiagramNodes: Record<string, number> = {};
-      const visualSourceToSemanticSourceMap: Record<string, string> = {};
-      for(const profileRelationship of profileRelationships) {
-        const source = visualModel.getVisualEntity(profileRelationship.visualSource);
-        if(source === null) {
-          LOG.error("This is unexpected, the visual entity is missing for some reason, when validating model");
-          continue;
-        }
+  // const entries = Object.entries(visualTargetDiagramNodeToProfileMap);
+  // if(entries.length !== 0) {
+  //   for(const [visualTarget, profileRelationships] of entries) {
+  //     // Number of class profile edges going to visualTarget from given visual source
+  //     const profileEdgeCountForSourceDiagramNodes: Record<string, number> = {};
+  //     const visualSourceToSemanticSourceMap: Record<string, string> = {};
+  //     for(const profileRelationship of profileRelationships) {
+  //       const source = visualModel.getVisualEntity(profileRelationship.visualSource);
+  //       if(source === null) {
+  //         LOG.error("This is unexpected, the visual entity is missing for some reason, when validating model");
+  //         continue;
+  //       }
 
-        visualSourceToSemanticSourceMap[source.identifier] = profileRelationship.entity;
+  //       visualSourceToSemanticSourceMap[source.identifier] = profileRelationship.entity;
 
 
-        if(profileEdgeCountForSourceDiagramNodes[source.identifier] === undefined) {
-          profileEdgeCountForSourceDiagramNodes[source.identifier] = 0;
-        }
-        profileEdgeCountForSourceDiagramNodes[source.identifier]++;
-      }
+  //       if(profileEdgeCountForSourceDiagramNodes[source.identifier] === undefined) {
+  //         profileEdgeCountForSourceDiagramNodes[source.identifier] = 0;
+  //       }
+  //       profileEdgeCountForSourceDiagramNodes[source.identifier]++;
+  //     }
 
-      for (const [visualSource, profileClassEdgeCount] of Object.entries(profileEdgeCountForSourceDiagramNodes)) {
-        const semanticSourceIdentifier = visualSourceToSemanticSourceMap[visualSource];
-        const semanticSource = classesContext.classProfiles.find(profile => profile.id === semanticSourceIdentifier);
-        if(semanticSource === undefined) {
-          LOG.error("Missing class profile in list semantic of semantic entities, when validating");
-          continue;
-        }
-        let profileTargetsInTargetDiagramNodeCount = 0;
-        // Check those in the referenced model
-        for(const [cclass, digramNodes] of Object.entries(classToVisualDiagramNodeMapping)) {
-          if(semanticSource.profiling.includes(cclass)) {
-            profileTargetsInTargetDiagramNodeCount += digramNodes[visualTarget] ?? 0;
-          }
-        }
+  //     for (const [visualSource, profileClassEdgeCount] of Object.entries(profileEdgeCountForSourceDiagramNodes)) {
+  //       const semanticSourceIdentifier = visualSourceToSemanticSourceMap[visualSource];
+  //       const semanticSource = classesContext.classProfiles.find(profile => profile.id === semanticSourceIdentifier);
+  //       if(semanticSource === undefined) {
+  //         LOG.error("Missing class profile in list semantic of semantic entities, when validating");
+  //         continue;
+  //       }
+  //       let profileTargetsInTargetDiagramNodeCount = 0;
+  //       // Check those in the referenced model
+  //       for(const [cclass, digramNodes] of Object.entries(classToVisualDiagramNodeMapping)) {
+  //         if(semanticSource.profiling.includes(cclass)) {
+  //           profileTargetsInTargetDiagramNodeCount += digramNodes[visualTarget] ?? 0;
+  //         }
+  //       }
 
-        if (profileClassEdgeCount > profileTargetsInTargetDiagramNodeCount) {
-          const excessEdgeCount = profileClassEdgeCount - profileTargetsInTargetDiagramNodeCount;
-          const excessEdgesIdentifiers: string[] = [];
-          for (const profileRelationship of profileRelationships) {
-            if(profileRelationship.visualSource === visualSource) {
-              excessEdgesIdentifiers.push(profileRelationship.identifier);
-            }
-            if(excessEdgesIdentifiers.length === excessEdgeCount) {
-              break;
-            }
-          }
+  //       if (profileClassEdgeCount > profileTargetsInTargetDiagramNodeCount) {
+  //         const excessEdgeCount = profileClassEdgeCount - profileTargetsInTargetDiagramNodeCount;
+  //         const excessEdgesIdentifiers: string[] = [];
+  //         for (const profileRelationship of profileRelationships) {
+  //           if(profileRelationship.visualSource === visualSource) {
+  //             excessEdgesIdentifiers.push(profileRelationship.identifier);
+  //           }
+  //           if(excessEdgesIdentifiers.length === excessEdgeCount) {
+  //             break;
+  //           }
+  //         }
 
-          invalidEntities.push(...excessEdgesIdentifiers);
-        }
-        else if(profileClassEdgeCount < profileTargetsInTargetDiagramNodeCount) {
-          // TODO RadStr: But we also have to fix in the opposite direction ... from profileOf to profile
-          // TODO RadStr: Fix
-          // for (let i = 0; i < profileTargetsInTargetDiagramNodeCount - profileClassEdgeCount; i++) {
-          //   if(isWritableVisualModel(visualModel)) {
-          //     visualModel.addVisualProfileRelationship({
-          //       entity: "",
-          //       model: "",
-          //       waypoints: [],
-          //       visualSource: "",
-          //       visualTarget: ""
-          //     })
-          //   }
-          // }
-          LOG.error("Programmer error, there is more semantic class profiles then there are visual edges");
-        }
-      }
-    }
-  }
+  //         invalidEntities.push(...excessEdgesIdentifiers);
+  //       }
+  //         alert("TTTTTTEST");
+  //         // TODO RadStr: But we also have to fix in the opposite direction ... from profileOf to profile
+  //         // TODO RadStr: Fix
+  //         // for (let i = 0; i < profileTargetsInTargetDiagramNodeCount - profileClassEdgeCount; i++) {
+  //         //   if(isWritableVisualModel(visualModel)) {
+  //         //     visualModel.addVisualProfileRelationship({
+  //         //       entity: "",
+  //         //       model: "",
+  //         //       waypoints: [],
+  //         //       visualSource: "",
+  //         //       visualTarget: ""
+  //         //     })
+  //         //   }
+  //         // }
+  //         LOG.error("Programmer error, there is more semantic class profiles then there are visual edges");
+  //       }
+  //     }
+  //   }
+  // }
 
   if(invalidEntities.length > 0) {
     actions.removeFromVisualModelByVisual(invalidEntities);
@@ -483,17 +498,36 @@ function validateVisualModelDiagramNodes(
 }
 
 /**
- * Extends {@link invalidEntities} if necessary.
+ * @returns Returns true if the end is not in visual model or it is visual diagram node.
+ *  Also in such case the {@link invalidEntitiesToExtend} are extended
+ */
+function validateVisualProfileRelationshipEnd(
+  visualModel: VisualModel,
+  visualEndIdentifier: string,
+  VisualProfileRelationship: string,
+  invalidEntitiesToExtend: string[],
+): boolean {
+  const visualEnd = visualModel.getVisualEntity(visualEndIdentifier);
+  if (visualEnd === null || isVisualDiagramNode(visualEnd)) {
+    invalidEntitiesToExtend.push(VisualProfileRelationship);
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Extends {@link invalidEntitiesToExtend} if necessary.
  * @returns returns true if everything is in order, false if invalid.
  */
-function checkEdgeEndValidity(
+function checkEdgeEndValidityAndExtend(
   visualModelToContentMappings : Record<string, Record<string, Record<string, number>>>,
   visualModel: VisualModel,
   aggregatorView: SemanticModelAggregatorView,
   visualEdgeEnd: VisualEntity,
   supposedSemanticEdgeEnd: string,
   examinedEdge: string,
-  invalidEntities: string[]
+  invalidEntitiesToExtend: string[]
 ): boolean {
   let isValid: boolean | null = true;
 
@@ -517,11 +551,11 @@ function checkEdgeEndValidity(
   }
 
   if(isValid === null) {
-    invalidEntities.push(examinedEdge);
-    invalidEntities.push(visualEdgeEnd.identifier);
+    invalidEntitiesToExtend.push(examinedEdge);
+    invalidEntitiesToExtend.push(visualEdgeEnd.identifier);
   }
   else if(!isValid) {
-    invalidEntities.push(examinedEdge);
+    invalidEntitiesToExtend.push(examinedEdge);
   }
 
   return isValid ?? false;

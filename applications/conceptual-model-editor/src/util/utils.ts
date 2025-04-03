@@ -51,7 +51,7 @@ export type VisualsForRepresentedWrapper = (identifier: string) => VisualEntity[
  * (other eason is that it would complicate the model + we would need access to all other
  *  existing VisualModels, which would destroy the fact that it should be separate concept).
  */
-export function createGetVisualEntitiesForRepresentedWrapper(
+export function createGetVisualEntitiesForRepresentedGlobalWrapper(
   availableVisualModels: VisualModel[],
   visualModel: VisualModel
 ): VisualsForRepresentedWrapper {
