@@ -372,7 +372,7 @@ export const RightPanel: React.FC<{ iri: string, close: () => void }> = memo(({i
                 </Typography>
 
                 <FormControlLabel
-                    control={<Checkbox checked={emptyAsComplex} onChange={e => setEmptyAsComplex(e.target.checked)} />}
+                    control={<Checkbox checked={!emptyAsComplex} onChange={e => setEmptyAsComplex(!e.target.checked)} />}
                     label={t('empty as complex.checkbox')}
                 />
 

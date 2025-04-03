@@ -24,9 +24,9 @@
     "title": "Dematerialization"
   },
   "empty as complex": {
-    "checkbox": "Interpret empty class as a complex type",
-    "help": "The default behavior of Dataspecer is that empty classes are interpreted as attributes of the IRI type with appropriate items. This setting allows treating an empty class as an empty complex type.",
-    "title": "Empty class"
+    "checkbox": "Treat class without content as reference",
+    "help": "The default behavior of Dataspecer is that empty classes are interpreted as references - attributes of the IRI type with appropriate items. This setting allows treating an empty class as an empty complex type.",
+    "title": "Empty class behavior"
   },
   "in all languages": "In all languages",
   "instancesHaveIdentity": {

@@ -24,9 +24,9 @@
     "title": "Dematerializace"
   },
   "empty as complex": {
-    "checkbox": "Prázdnou třídu interpretovat jako komplexní typ",
-    "help": "Výchozí chování Dataspeceru je takové, že prázdné třídy jsou interpretovány jako atributy typu IRI s patřičnými položky. Toto nastavení umožňuje chovat se k prázdné třídě jako k prázdnému komplexnímu typu.",
-    "title": "Prázdná třída"
+    "checkbox": "Třídu bez obsahu reprezentovat jako odkaz",
+    "help": "Výchozí chování Dataspeceru je takové, že prázdné třídy jsou interpretovány jako reference - atributy typu IRI s patřičnými položky. Toto nastavení umožňuje chovat se k prázdné třídě jako k prázdnému komplexnímu typu.",
+    "title": "Chování pro třídy bez obsahu"
   },
   "in all languages": "Ve všech jazycích",
   "instancesHaveIdentity": {
