@@ -65,7 +65,7 @@ You can check the [Cloudflare's build script](./cloudflare.build.sh) that deploy
 
 ### In general
 
-Your `node -v` should be at least `v18.19.0`, but `v20` is recommended.
+Your `node -v` should be at least `v22`.
 
 After cloning the repository you should create local config files. Please see individual applications or packages what to do.
 
@@ -74,8 +74,6 @@ Then
 - Run `npm run build` to build everything. This will execute `turbo build` under the hood. This will build packages, which are necessary for the development of other packages and applications; and it also build applications themselves, which is not necessary for development (see the next step). (If you want to build only packages necessary for a specific package or application, use `npx turbo run build --filter=<package-name>`. Obtain the name of the package from `package.json` file.)
 
 To develop a concrete package or application, there is *usually* an `npm run dev` script that will run live server, which updates everything. See individual packages for more details.
-
-### Inside Docker
 
 # Acknowledgments
 
