@@ -310,7 +310,7 @@ class StructureModelAdapter {
       model.cardinalityMax = null;
     } else if (isSemanticModelRelationship(pimAttributeData)) {
       model.cardinalityMin = pimAttributeData.ends[1].cardinality?.[0] ?? 0;
-      model.cardinalityMax = pimAttributeData.ends[1].cardinality?.[1];
+      model.cardinalityMax = pimAttributeData.ends[1].cardinality?.[1] ?? null;
     } else {
       throw new Error(
         `Invalid attribute '${attributeData.iri}' interpretation.`
