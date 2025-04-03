@@ -113,9 +113,6 @@ function rerouteAllRelevantEdgesTotheVisualDiagramNode(
   }
 }
 
-// TODO RadStr: SUPER - Probably does not work with multiple visual entities -
-//              we should pass in the explicit visual identifiers of the entities
-
 /**
  * Removes all {@link VisualNode}s and all {@link VisualDiagramNode}s contained in given
  * visual model identified by {@link visualModelWithNodesToBeRemoved}.

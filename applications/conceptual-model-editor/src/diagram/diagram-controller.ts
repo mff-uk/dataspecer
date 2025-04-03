@@ -1719,9 +1719,7 @@ const createActions = (
       return reactFlow.getNodes().map(node => node.data);
     },
     addNodes(nodes) {
-      // We set it directly. Using reactflow creates some unwanted delay
-      // TODO RadStr: SUPER or does it? there was definitely some issue with it I just forgot which
-      // reactFlow.addNodes(nodes.map(nodeToNodeType));
+      // We set it directly. Using reactflow may create some unwanted delay
       setNodes(previousNodes => previousNodes.concat(nodes.map(nodeToNodeType)));
       console.log("Diagram.addNodes", nodes.map(item => item.identifier), nodes);
     },
@@ -1760,9 +1758,8 @@ const createActions = (
       console.log("Diagram.updateNodesPosition", nodes);
     },
     removeNodes(identifiers) {
-      // TODO RadStr: SUPER
-      // reactFlow.deleteElements({ nodes: identifiers.map(id => ({ id })) });
-      // Again setting directly instead of using reactFlow because of delay
+      reactFlow.deleteElements({ nodes: identifiers.map(id => ({ id })) });
+      // Again setting directly instead of using reactFlow because of possible delay
       setNodes(previousNodes => previousNodes.filter(previousNode => !identifiers.includes(previousNode.id)));
       console.log("Diagram.removeNodes", identifiers);
     },

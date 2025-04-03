@@ -22,7 +22,7 @@
 
 .front  { width: 100%; transform: translateZ(50px); }
 .back   { transform: translateZ(-50px); }
-.left   { border-right: 18px solid black; width: 100px; transform: rotateY(90deg) translateZ(-50px) translateY(-200px)}
+.left   { border-bottom: 4px solid black; border-right: 18px solid black; width: 100px; transform: rotateY(90deg) translateZ(-50px) translateY(-200px)}
 .right  { transform: rotateY(90deg) translateZ(50px); }
 .top    { border-top: 42px solid black; border-right: 6px solid black; width: 100%; transform: rotateX(90deg) translateZ(150px); }
 .bottom { transform: rotateX(90deg) translateZ(-50px); }
