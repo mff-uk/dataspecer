@@ -1,10 +1,10 @@
 import { DragDropContext, Draggable, Droppable, DroppableStateSnapshot, DropResult } from "@hello-pangea/dnd";
-import { configuration, t } from "../../application";
-import { DialogProps, DialogWrapper } from "../dialog-api";
+import { configuration, t } from "../../../application";
+import { DialogProps, DialogWrapper } from "../../dialog-api";
 import { useEditVisualNodeController } from "./edit-visual-node-dialog-controller";
 import { EditVisualNodeDialogState } from "./edit-visual-node-dialog-state";
-import { RelationshipRepresentative } from "../utilities/dialog-utilities";
-import { languageStringToString } from "../../utilities/string";
+import { RelationshipRepresentative } from "../../utilities/dialog-utilities";
+import { languageStringToString } from "../../../utilities/string";
 import { useMemo } from "react";
 
 const LEFT_ID = "left";

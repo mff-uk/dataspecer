@@ -85,6 +85,14 @@ const dialogVisualDiagramNode = prefix(
     "ok-create": "✅ Create",
   });
 
+const dialogVisualModel = prefix(
+  "dialog.visual-model.", {
+    "cancel": "❌ Cancel",
+    // Create
+    "label-create": "Create new visual model",
+    "ok-create": "✅ Create",
+  });
+
 const dataspecer = prefix(
   "dataspecer", {
     "package.state-is-null": "There is no dataspecer state information, please reload the application",
@@ -103,6 +111,7 @@ export const translations: Record<string, string | Function> = {
   ...dialogClass,
   ...dialogClassProfile,
   ...dialogVisualDiagramNode,
+  ...dialogVisualModel,
   ...dataspecer,
   //
   "notification.icon-error": "Error icon",
@@ -338,4 +347,6 @@ export const translations: Record<string, string | Function> = {
   "visual-diagram-node-info-dialog.representedVisualModelName": "Represented visual model",
   "visual-diagram-node-info-dialog.label": "Name",
   "visual-diagram-node-info-dialog.description": "Description",
+  //
+  "create-visual-model-dialog.label": "Visual model name",
 };

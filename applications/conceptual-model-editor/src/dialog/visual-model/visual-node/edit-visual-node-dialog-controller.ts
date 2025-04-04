@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { type DialogProps } from "../dialog-api";
+import { type DialogProps } from "../../dialog-api";
 import { EditVisualNodeDialogState } from "./edit-visual-node-dialog-state";
 
 export const LEFT_ID = "left";

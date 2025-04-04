@@ -4,8 +4,8 @@ import { DialogApiContextType } from "../dialog/dialog-service";
 import { UseNotificationServiceWriterType } from "../notification/notification-service-context";
 import { isVisualDiagramNode, VisualDiagramNode, VisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { VisualModelDiagramNode } from "../diagram";
-import { EditVisualDiagramNodeDialogState } from "@/dialog/visual-diagram-node/edit-visual-diagram-node/edit-visual-diagram-node-dialog-controller";
-import { createEditVisualDiagramNodeDialog, createEditVisualDiagramNodeDialogState } from "@/dialog/visual-diagram-node/edit-visual-diagram-node/create-edit-visual-diagram-node-dialog";
+import { createEditVisualDiagramNodeDialog, createEditVisualDiagramNodeDialogState } from "@/dialog/visual-model/visual-diagram-node/edit-visual-diagram-node/create-edit-visual-diagram-node-dialog";
+import { EditVisualDiagramNodeDialogState } from "@/dialog/visual-model/visual-diagram-node/edit-visual-diagram-node/edit-visual-diagram-node-dialog-controller";
 
 export function openEditVisualDiagramNodeDialogAction(
   notifications: UseNotificationServiceWriterType,

@@ -84,6 +84,7 @@ import { putVisualDiagramNodeContentToVisualModelAction } from "./put-visual-dia
 import { openVisualDiagramNodeInfoDialogAction } from "./open-visual-diagram-node-info-dialog";
 import { addVisualDiagramNodeForExistingModelToVisualModelAction } from "./create-visual-diagram-node-for-existing-model";
 import { addAllRelationshipsForVisualDiagramNodeToVisualModelAction } from "./add-all-relationships";
+import { openCreateVisualModelDialogAction } from "./open-create-new-visual-model-dialog";
 
 const LOG = createLogger(import.meta.url);
 
@@ -266,7 +267,11 @@ interface VisualModelActions {
   /**
    * Creates new visual model with content equal to {@link nodeSelection} and relevant edges from {@link edgeSelection}.
    */
-  createNewVisualModelFromSelection: (nodeSelection: string[], edgeSelection: string[]) => void;
+  createNewVisualModelFromSelection: (
+    nodeSelection: string[],
+    edgeSelection: string[],
+    shouldSwitchToCreatedModel: boolean
+  ) => void;
 
   /**
    * Changes active visual model to the one given in {@link newVisualModel}.
@@ -276,7 +281,7 @@ interface VisualModelActions {
   /**
    * Creates new empty visual model.
    */
-  createNewVisualModel: () => WritableVisualModel | null;
+  createNewVisualModel: (shouldSwitchToCreatedModel: boolean) => void;
 
   //
   // TODO PRQuestion: Again document using {@link .*Action} or not?
@@ -859,13 +864,13 @@ function createActionsContext(
 
   const createNewVisualModelFromSelection = (
     nodeSelection: string[],
-    edgeSelection: string[]
+    edgeSelection: string[],
+    shouldSwitchToCreatedModel: boolean
   ) => {
-    // TODO RadStr: SUPER - It should probably be dialog (to set the name of the model)
     withVisualModel(notifications, graph, (visualModel) => {
-      createNewVisualModelAction(
-        notifications, graph, useGraph, visualModel, {en: "TODO RadStr: Test"},
-        nodeSelection, edgeSelection);
+      openCreateVisualModelDialogAction(
+        notifications, options, dialogs, graph, useGraph, queryParamsContext,
+        visualModel, nodeSelection, edgeSelection, shouldSwitchToCreatedModel);
     });
   };
 
@@ -873,8 +878,8 @@ function createActionsContext(
     changeVisualModelAction(graph, queryParamsContext, newVisualModel);
   };
 
-  const createNewVisualModel = () => {
-    return createNewVisualModelAction(notifications, graph, useGraph, null, null, [], []);
+  const createNewVisualModel = (shouldSwitchToCreatedModel: boolean) => {
+    return createNewVisualModelFromSelection([], [], shouldSwitchToCreatedModel);
   };
 
   const openExtendSelectionDialog = (selections: Selections) => {
@@ -1054,8 +1059,9 @@ function createActionsContext(
 
     onCreateVisualModelDiagramNodeFromSelection: () => {
       withVisualModel(notifications, graph, (visualModel) => {
+        const { nodeSelection, edgeSelection } = getSelections(diagram, false, true);
         openCreateVisualDiagramNodeDialogAction(
-          notifications, options, dialogs, graph, useGraph, diagram, visualModel);
+          notifications, options, dialogs, graph, useGraph, diagram, visualModel, nodeSelection, edgeSelection);
       });
     },
 
@@ -1145,7 +1151,7 @@ function createActionsContext(
 
     onCreateNewViewFromSelection: () => {
       const { nodeSelection, edgeSelection } = getSelections(diagram, false, true);
-      createNewVisualModelFromSelection(nodeSelection, edgeSelection);
+      createNewVisualModelFromSelection(nodeSelection, edgeSelection, false);
     },
 
     onProfileSelection: () => {

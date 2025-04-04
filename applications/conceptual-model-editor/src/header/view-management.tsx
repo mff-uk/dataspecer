@@ -40,12 +40,7 @@ export const ViewManagement = () => {
   };
 
   const handleCreateNewView = () => {
-    const model = actions.createNewVisualModel();
-    if(model === null) {
-      return;
-    }
-    aggregatorView.changeActiveVisualModel(model.getId());
-    setViewIdSearchParam(activeViewId ?? null);
+    const model = actions.createNewVisualModel(true);
   };
 
   const handleViewDeleted = (viewId: string) => {

@@ -1,8 +1,7 @@
+import { useActions } from "@/action/actions-react-binding";
+import { LanguageString } from "@/dataspecer/entity-model";
+import { DialogProps } from "@/dialog/dialog-api";
 import { useMemo } from "react";
-
-import { type DialogProps } from "../../dialog-api";
-import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
-import { useActions } from "../../../action/actions-react-binding";
 
 // There are some extra attrbiutes in the EntityState which we don't need, but that doesn't matter that much
 export interface EditVisualDiagramNodeDialogState {
