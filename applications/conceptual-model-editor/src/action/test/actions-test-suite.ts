@@ -172,7 +172,6 @@ export class ActionsTestSuite {
     return diagram;
   }
 
-
   static createTestDiagramNode = (id: string) => {
     const node: Node = {
       type: NodeType.Class,
@@ -207,6 +206,15 @@ export class ActionsTestSuite {
     return edge;
   };
 
+  /**
+   *
+   * @param models
+   * @param givenClasses
+   * @param givenRelationships
+   * @returns Creates classes context based on given data, but just the object is returned, the logic for handling
+   *  updates needs to be handled separately in test if necessary (but usually we don't want to update it for the test,
+   *  we just need to have it as input for the action)
+   */
   static createClassesContextTypeForTests = (
     models: Map<string, EntityModel>,
     givenClasses: CreatedSemanticEntityData[],
@@ -287,7 +295,9 @@ export class ActionsTestSuite {
    * 2nd forms square
    * 3rd fully connected graph.
    *
-   * Also creates visual model with 1-4 nodes based on given {@link visualModelSize}
+   * Also creates visual model with 0-4 nodes based on given {@link visualModelSize}.
+   *
+   * The {@link classesContext} on output contain the relevant data, but they are not updated based on changes.
    */
   static prepareModelsWithSemanticData = (visualModelSize: number) => {
     const visualModel: WritableVisualModel = createDefaultVisualModelFactory().createNewWritableVisualModelSync();
@@ -340,7 +350,6 @@ export class ActionsTestSuite {
       visualIdentifiers.push(visualIdentifier);
     }
 
-
     const modelIdentifiers = [...models.keys()]
     for(let i = 0; i < modelCount; i++) {
       for(let j = 0; j < 4; j++) {
@@ -353,29 +362,30 @@ export class ActionsTestSuite {
       }
 
       let squareRelationships;
+      let createdDiagonalRelationship;
       switch(i) {
-        case 0:
-          break;
-        case 1:
-          squareRelationships = ActionsTestSuite.createRelationshipSquare(
-            models, modelIdentifiers[i], createdClasses, i);
-          createdRelationships[i].push(...squareRelationships);
-          break;
-        case 2:
-          squareRelationships = ActionsTestSuite.createRelationshipSquare(
-            models, modelIdentifiers[i], createdClasses, i);
-          createdRelationships[i].push(...squareRelationships);
-          let createdDiagonalRelationship = ActionsTestSuite.createSemanticRelationshipTestVariant(
-              models, createdClasses[i][0].identifier,
-              createdClasses[i][2].identifier, modelIdentifiers[i], "");
-          createdRelationships[i].push(createdDiagonalRelationship);
-          createdDiagonalRelationship = ActionsTestSuite.createSemanticRelationshipTestVariant(
-            models, createdClasses[i][1].identifier,
-            createdClasses[i][3].identifier, modelIdentifiers[i], "");
-          createdRelationships[i].push(createdDiagonalRelationship);
-          break;
-        default:
-          fail("Failed on setup");
+      case 0:
+        break;
+      case 1:
+        squareRelationships = ActionsTestSuite.createRelationshipSquare(
+          models, modelIdentifiers[i], createdClasses, i);
+        createdRelationships[i].push(...squareRelationships);
+        break;
+      case 2:
+        squareRelationships = ActionsTestSuite.createRelationshipSquare(
+          models, modelIdentifiers[i], createdClasses, i);
+        createdRelationships[i].push(...squareRelationships);
+        createdDiagonalRelationship = ActionsTestSuite.createSemanticRelationshipTestVariant(
+          models, createdClasses[i][0].identifier,
+          createdClasses[i][2].identifier, modelIdentifiers[i], "");
+        createdRelationships[i].push(createdDiagonalRelationship);
+        createdDiagonalRelationship = ActionsTestSuite.createSemanticRelationshipTestVariant(
+          models, createdClasses[i][1].identifier,
+          createdClasses[i][3].identifier, modelIdentifiers[i], "");
+        createdRelationships[i].push(createdDiagonalRelationship);
+        break;
+      default:
+        fail("Failed on setup");
       }
     }
 
@@ -432,10 +442,6 @@ export class ActionsTestSuite {
     return visualId;
   }
 
-  // Heavily inspired by createSemanticAssociationInternal
-  // We are doing this so:
-  // 1) We don't have create the state for the method
-  // 2) It is less work
   static createSemanticRelationshipTestVariant(
     models: Map<string, EntityModel>,
     domainConceptIdentifier: string,

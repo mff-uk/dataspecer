@@ -36,7 +36,11 @@ import {
 
 import { type UseModelGraphContextType, useModelGraphContext } from "./context/model-context";
 import { type UseClassesContextType, useClassesContext } from "./context/classes-context";
-import { cardinalityToHumanLabel, getDomainAndRange, getDomainAndRangeConcepts } from "./util/relationship-utils";
+import {
+  cardinalityToHumanLabel,
+  getDomainAndRange,
+  getDomainAndRangeConceptsIncludingGeneralizations
+} from "./util/relationship-utils";
 import { ActionsContextType, useActions } from "./action/actions-react-binding";
 import {
   Diagram,
@@ -60,7 +64,6 @@ import { Options, useOptions } from "./configuration/options";
 import {
   getGroupMappings,
   getClassesAndDiagramNodesModelsFromVisualModelRecursively,
-  getVisualDiagramNodeMappingsByRepresented
 } from "./action/utilities";
 import {
   synchronizeOnAggregatorChange,
@@ -209,8 +212,9 @@ function propagateVisualModelColorChangesToVisualization(
     graphContext, changes)
 }
 
-// TODO: Just created checks for my use-case, that is edges going from visual diagram node,
-//       Ideally it should completely validate the correctness of visual model.
+/**
+ * Validates correctness (not complete) of visual model based on semantic data and modifies it based on it.
+ */
 function validateVisualModel(
   actions: ActionsContextType,
   visualModel: VisualModel | null,
@@ -233,7 +237,7 @@ function validateVisualModel(
     ...classesContext.relationshipProfiles,
   ];
 
-  validateVisualModelDiagramNodes(actions, visualModel, aggregatorView, classesContext, allClasses, relationships);
+  validateVisualModelDiagramNodes(actions, visualModel, aggregatorView, allClasses, relationships);
   validateVisualModelNonDiagramNodes(actions, visualModel, classesContext, models);
 }
 
@@ -332,7 +336,6 @@ function validateVisualModelDiagramNodes(
   actions: ActionsContextType,
   visualModel: VisualModel,
   aggregatorView: SemanticModelAggregatorView,
-  classesContext: UseClassesContextType,
   allClasses: string[],
   relationships: (SemanticModelRelationship | SemanticModelGeneralization | SemanticModelRelationshipProfile)[],
 ) {
@@ -354,7 +357,7 @@ function validateVisualModelDiagramNodes(
 
   const getByRepresentedWrapper = createGetVisualEntitiesForRepresentedGlobalWrapper(
     aggregatorView.getAvailableVisualModels(), visualModel);
-  const visualModelsGetByRepresentGlobal: Record<string, VisualsForRepresentedWrapper> = {
+  const visualModelsGetByRepresentedGlobal: Record<string, VisualsForRepresentedWrapper> = {
     [visualModel.getIdentifier()]: getByRepresentedWrapper,
   };
 
@@ -369,17 +372,7 @@ function validateVisualModelDiagramNodes(
         continue;
       }
 
-      let domain: string | null;
-      let range: string | null;
-      if (isSemanticModelGeneralization(represented)) {
-        domain = represented.child;
-        range = represented.parent;
-      }
-      else {
-        const domainAndRange = getDomainAndRangeConcepts(represented);
-        domain = domainAndRange.domain;
-        range = domainAndRange.range;
-      }
+      const { domain, range } = getDomainAndRangeConceptsIncludingGeneralizations(represented);
 
       // The end is missing
       if (domain === null || !allClasses.includes(domain) || range === null || !allClasses.includes(range)) {
@@ -395,14 +388,14 @@ function validateVisualModelDiagramNodes(
       }
 
       const isDomainValid = checkEdgeEndValidityAndExtend(
-        visualModelsGetByRepresentGlobal, visualModel, aggregatorView,
+        visualModelsGetByRepresentedGlobal, aggregatorView,
         visualEdgeSource, domain, visualEntity.identifier, invalidEntities);
       if (!isDomainValid) {
         continue;
       }
 
       const isRangeValid = checkEdgeEndValidityAndExtend(
-        visualModelsGetByRepresentGlobal, visualModel, aggregatorView,
+        visualModelsGetByRepresentedGlobal, aggregatorView,
         visualEdgeTarget, range, visualEntity.identifier, invalidEntities);
       if (!isRangeValid) {
         continue;
@@ -410,8 +403,8 @@ function validateVisualModelDiagramNodes(
     }
     else if (isVisualProfileRelationship(visualEntity)) {
       // Previously we were trying to ALWAYS create visual profile relationships, now we just remove all of them.
-      // Meaning all going from/to visual diagram node. We did that becaues:
-      //  1) It does not work properly for some cases
+      // Meaning all going from/to visual diagram node. We did that because:
+      //  1) It did not work properly for some cases
       //  2) The class profile edges pointing from/to visual diagram node don't add much relevant information
       //     + They can not be removed from visual model, so it just introduces clutter
       const isSourceInvalid = validateVisualProfileRelationshipEnd(
@@ -455,7 +448,6 @@ function validateVisualProfileRelationshipEnd(
  */
 function checkEdgeEndValidityAndExtend(
   visualModelToContentMappings: Record<string, VisualsForRepresentedWrapper>,
-  visualModel: VisualModel,
   aggregatorView: SemanticModelAggregatorView,
   visualEdgeEnd: VisualEntity,
   supposedSemanticEdgeEnd: string,
@@ -466,7 +458,7 @@ function checkEdgeEndValidityAndExtend(
 
   if (isVisualDiagramNode(visualEdgeEnd)) {
     const isDiagramNodeValid = extendMappingsByDiagramNodeModelIfNotSet(
-      visualModelToContentMappings, visualEdgeEnd, visualModel, aggregatorView);
+      visualModelToContentMappings, visualEdgeEnd, aggregatorView);
     if (!isDiagramNodeValid) {
       isValid = null;
     }
@@ -476,7 +468,6 @@ function checkEdgeEndValidityAndExtend(
   }
   else if(isVisualNode(visualEdgeEnd)) {
     if(visualEdgeEnd.representedEntity !== supposedSemanticEdgeEnd) {
-      console.info(visualEdgeEnd.representedEntity, supposedSemanticEdgeEnd);
       isValid = false;
     }
   }
@@ -502,7 +493,6 @@ function checkEdgeEndValidityAndExtend(
 function extendMappingsByDiagramNodeModelIfNotSet(
   visualModelToContentMappings: Record<string, VisualsForRepresentedWrapper>,
   visualEdgeEndPoint: VisualDiagramNode,
-  visualModel: VisualModel,
   aggregatorView: SemanticModelAggregatorView,
 ): boolean {
   const availableVisualModels = aggregatorView.getAvailableVisualModels();
@@ -1047,9 +1037,13 @@ function onChangeVisualEntities(
     if (next !== null) {
       // New or changed entity.
       if(isVisualDiagramNode(next)) {
-        // TODO RadStr: Null just for now
+        let group: string | null = null;
+        if (nodeIdToParentGroupIdMap[next.identifier] !== undefined) {
+          group = nodeIdToParentGroupIdMap[next.identifier];
+        }
+
         const node = createVisualModelDiagramNode(
-          options, aggregatorView.getAvailableVisualModels(), visualModel, next, null);
+          options, aggregatorView.getAvailableVisualModels(), visualModel, next, group);
         if (previous === null) {
           // Create new entity.
           visualDiagramNodesChanges.created.push(node);

@@ -31,7 +31,8 @@ export function removeFromVisualModelByVisualAction(
 /**
  * This is "direct" variant, that is it doesn't take into consideration "delegated" visual entities,
  * that is for example when we pass in class which is hidden inside visual diagram node. Then this method
- * won't find visual relationships going from the visual diagram node, where the semantic source is the passed in class,
+ * won't find visual relationships going from the visual diagram node,
+ * where the semantic source is the passed in class (that is one of the {@link identifiers}),
  * because it is indirect. (If we passed in the visual diagram node instead, it would be found)
  * @param getVisualEntitiesForIdentifier is any method,
  *  which can transform given identifier from {@link identifiers} into VisualEntity[].

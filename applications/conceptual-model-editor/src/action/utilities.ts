@@ -276,46 +276,13 @@ export function findTopLevelGroup<T>(
   return topLevelGroup;
 }
 
-// TODO RadStr: I am not completely sure about the behavior and if I need it - probably not
-/**
- * Returns all visual diagram node mappings in the given model. We are mapping visual elements to visual elements.
- * That is for each diagram node all the nodes and diagram nodes contained in it are returned.
- * To be exact the {@link nodeToVisualDiagramNodeMapping} in result returns for each node (even visual diagram nodes)
- * the parent visual diagram node it is part of.
- * (Both the contained visual diagram node and the content of the contained visual diagram node is in the map).
- * The {@link existingVisualDiagramNodes} returns the diagram nodes stored in given {@link visualModel}
- * @deprecated
- */
-export function getVisualDiagramNodeMappingsByVisual(
-  availableVisualModels: VisualModel[],
-  visualModel: VisualModel
-) {
-  const existingVisualDiagramNodes: Record<string, VisualDiagramNode> = {};
-  const nodeToVisualDiagramNodeMapping: Record<string, string> = {};
-  for(const [identifier, visualEntity] of visualModel.getVisualEntities()) {
-    if(isVisualDiagramNode(visualEntity)) {
-      existingVisualDiagramNodes[identifier] = visualEntity;
-      const containedNodes = getClassesAndDiagramNodesModelsFromVisualModelRecursively(
-        availableVisualModels, visualEntity.representedVisualModel);
-      for(const containedNode of containedNodes) {
-        nodeToVisualDiagramNodeMapping[containedNode] = identifier;
-      }
-    }
-  }
-
-  return {
-    existingVisualDiagramNodes,
-    nodeToVisualDiagramNodeMapping,
-  };
-}
-
 /**
  * Returns all visual diagram node mappings in the given model. We are mapping classes to parent visual diagram nodes.
  * That is for each diagram node all the nodes and diagram nodes contained in it are returned.
  * To be exact the {@link classToVisualDiagramNodeMappingRaw} in result returns for each class
  * all the possible parent visual diagram nodes it is part of.
  * It also contains the mappings of visual diagram nodes to its parent visual diagram node.
- * So keys are both visual and semantic identifiers, but it is simpler to use, if we  have it all in one map.
+ * So keys are both visual and semantic identifiers, but it is simpler to use, if we have it all in one map.
  * The {@link existingVisualDiagramNodes} returns the diagram nodes stored in given {@link visualModel}
  * @returns The {@link classToVisualDiagramNodeMapping} contains the mapped visual diagram nodes together with the amount,
  * {@link classToVisualDiagramNodeMappingRaw} just contains all the visual diagram nodes
@@ -461,6 +428,9 @@ function getNodesAndDiagramNodesFromVisualModelInternal(
   return result;
 }
 
+/**
+ * @deprecated TODO RadStr: Probably already deprecated - just remove
+ */
 export function getVisualSourceAndTargetForEdge(
   visualModel: VisualModel,
   visualRelationship: VisualRelationship | VisualProfileRelationship,
@@ -471,6 +441,9 @@ export function getVisualSourceAndTargetForEdge(
   return {source, target};
 }
 
+/**
+ * @deprecated TODO RadStr: Probably already deprecated - just remove
+ */
 function findVisualEndForEdge(
   visualModel: VisualModel,
   visualRelationshipEnd: string,
@@ -497,6 +470,9 @@ function findVisualEndForEdge(
   return visualEnd;
 }
 
+/**
+ * Checks if we can reach the {@link visualModelToAddTo} from {@link addedVisualModel}
+ */
 export function doesAddingVisualModelCauseSelfReference(
   availableVisualModels: VisualModel[],
   visualModelToAddTo: VisualModel,

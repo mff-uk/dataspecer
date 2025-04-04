@@ -40,7 +40,7 @@ export const ViewManagement = () => {
   };
 
   const handleCreateNewView = () => {
-    const model = actions.createNewVisualModel(true);
+    actions.createNewVisualModel(true);
   };
 
   const handleViewDeleted = (viewId: string) => {

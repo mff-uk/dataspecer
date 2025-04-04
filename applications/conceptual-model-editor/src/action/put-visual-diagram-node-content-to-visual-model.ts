@@ -76,7 +76,6 @@ function copyVisualEntitiesBetweenModels(
 ) {
   const visualEntitiesToMove = copyFrom.getVisualEntities();
   const nodes = [...visualEntitiesToMove.values()].filter(isVisualEdgeEnd);
-  console.info("visualEntitesToMove", {visualEntitesToMove: visualEntitiesToMove, nodes});
   if (nodes.length === 0) {
     return;
   }
@@ -263,11 +262,7 @@ function rerouteEdgesFromVisualDiagramNodeToItsContent(
         visualModelContainingDiagramNode.updateVisualEntity(visualEntity.identifier, {visualTarget: newIdentifier});
       }
     }
-    else if(isVisualProfileRelationship(visualEntity)) {
-      // It is handled by visual model refresh.
-      // Ideally perform similiar stuff as for the visual relationships.
-      // Then we would not need to refresh the model
-    }
+    // Visual profile relationships are handled by visual model refresh and the validation.
   }
 }
 
@@ -277,7 +272,8 @@ enum EdgeEndDirection {
 }
 
 /**
- * @param visualRelationshipsToIteratorMap Maps the semantic relationship to the amount of time it was visited
+ * @param visualRelationshipsToIteratorMap Maps the semantic relationship to the amount of time it was visited,
+ * this is used so we point to correct nodes in case of multi-entities (that is one semantic entity per multiple visual ones).
  */
 function rerouteToEntityInsideDiagramNode(
   notifications: UseNotificationServiceWriterType,
@@ -324,8 +320,6 @@ function rerouteToEntityInsideDiagramNode(
     return null;
   }
 
-  // TODO RadStr: Maybe I dont even need the otherSemanticEnd
-
   const directReroutingCandidates = referencedVisualModel.getVisualEntitiesForRepresented(otherSemanticEndIdentifier);
   if(directReroutingCandidates.length > 0) {
     const visitCount = visualRelationshipsToIteratorMap[visualRelationship.representedRelationship];
@@ -357,6 +351,7 @@ function addCopiesToVisualModel(
 ): Record<string, string> {
   const originalToCopyMap: Record<string, string> = {};
 
+  // Handle nodes first, so the edges have ends in visual model
   for (const node of nodesToCopy) {
     const position = {...node.position};
     position.x -= positionShift.x;
@@ -375,6 +370,7 @@ function addCopiesToVisualModel(
     }
   }
 
+  // Handle relationships
   for (const [_id, visualEntity] of visualEntitiesToCopy) {
     if(isVisualRelationship(visualEntity)) {
       const waypoints = [...visualEntity.waypoints];

@@ -7,7 +7,7 @@ import { ModelGraphContextType } from "@/context/model-context";
 import { UseNotificationServiceWriterType } from "@/notification/notification-service-context";
 
 /**
- * Creates new visual diagram node node, which is referencing existing visual model {@link existingModel}.
+ * Creates new visual diagram node, which is referencing existing visual model {@link existingModel}.
  * The newly created visual diagram node is put into the {@link visualModelToAddTo}
  * @returns The identifier of the created visual diagram node. Null if the action failed
  */

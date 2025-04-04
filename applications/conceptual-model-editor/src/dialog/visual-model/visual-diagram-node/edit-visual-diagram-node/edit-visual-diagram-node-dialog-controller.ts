@@ -3,7 +3,6 @@ import { LanguageString } from "@/dataspecer/entity-model";
 import { DialogProps } from "@/dialog/dialog-api";
 import { useMemo } from "react";
 
-// There are some extra attrbiutes in the EntityState which we don't need, but that doesn't matter that much
 export interface EditVisualDiagramNodeDialogState {
 
   label: LanguageString,

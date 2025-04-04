@@ -32,8 +32,8 @@ export function createNewVisualModelAction(
       notifications, sourceVisualModel, model,
       newVisualModelInitialEdges, oldToNewIdMapping);
   }
+
   useGraph.addVisualModel(model);
-  // TODO RadStr: End of just copied addVisualModel
   model.setLabel(newVisualModelName ?? {en: "Visual model"});
   graph.setAggregatorView(graph.aggregator.getView());
 
@@ -73,8 +73,6 @@ function addEdgesFromSourceModelToTargetModel(
   edgesToAdd: string[],
   oldNodeIdToNewNodeIdMapping: Record<string, string>,
 ) {
-  // TODO RadStr: DEBUG
-  console.info("BEFORE", {edgesToAdd, oldNodeIdToNewNodeIdMapping, targetEntitites: [...targetVisualModel.getVisualEntities().values()]});
 
   for (const entityIdentifier of edgesToAdd) {
     const visualEntity = sourceVisualModel.getVisualEntity(entityIdentifier);
@@ -83,26 +81,26 @@ function addEdgesFromSourceModelToTargetModel(
       continue;
     }
     if(isVisualRelationship(visualEntity)) {
-      const newVisualRelationship = createNewRelationship(visualEntity, oldNodeIdToNewNodeIdMapping);
+      const newVisualRelationship = createRelationshipCopy(visualEntity, oldNodeIdToNewNodeIdMapping);
       if(newVisualRelationship === null) {
         continue;
       }
       targetVisualModel.addVisualRelationship(newVisualRelationship);
     }
     else if(isVisualProfileRelationship(visualEntity)) {
-      const newVisualProfileRelationship = createNewRelationship(visualEntity, oldNodeIdToNewNodeIdMapping);
+      const newVisualProfileRelationship = createRelationshipCopy(visualEntity, oldNodeIdToNewNodeIdMapping);
       if(newVisualProfileRelationship === null) {
         continue;
       }
       targetVisualModel.addVisualProfileRelationship(newVisualProfileRelationship);
     }
   }
-
-  // TODO RadStr: DEBUG
-  console.info("AFTER", {edgesToAdd, oldNodeIdToNewNodeIdMapping, targetEntitites: [...targetVisualModel.getVisualEntities().values()]});
 }
 
-function createNewRelationship<T extends Omit<VisualRelationship, "identifier" | "type"> | Omit<VisualProfileRelationship, "identifier" | "type">>(
+/**
+ * Creates new relationship based on given mapping
+ */
+function createRelationshipCopy<T extends Omit<VisualRelationship, "identifier" | "type"> | Omit<VisualProfileRelationship, "identifier" | "type">>(
   oldVisualRelationship: T,
   oldNodeIdToNewNodeIdMapping: Record<string, string>,
 ): T | null {

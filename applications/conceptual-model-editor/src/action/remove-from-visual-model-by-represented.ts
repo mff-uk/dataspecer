@@ -55,14 +55,14 @@ function collectIndirectVisualEntitiesToRemove(
 /**
  * @returns Finds visual relationships ({@link VisualRelationship} and {@link VisualProfileRelationship})
  *  which should no longer be in visual model, because the class, which was hidden in the {@link VisualDiagramNode}
- *  was removed from semantic model. The classes are found in {@link relevantClasses}
+ *  was removed from semantic model. The classes are found in {@link removedClasses}
  */
 function findInvalidVisualEdgesForVisualDiagramNodes(
   notifications: UseNotificationServiceWriterType | null,
   classesContext: ClassesContextType,
   availableVisualModels: VisualModel[],
   visualModel: VisualModel,
-  relevantClasses: string[],
+  removedClasses: string[],
 ): VisualEntity[] {
 
   const invalidVisualEntities: VisualEntity[] = [];
@@ -79,7 +79,7 @@ function findInvalidVisualEdgesForVisualDiagramNodes(
     return visualEntity === null ? [] : [visualEntity];
   };
 
-  for(const removedClass of relevantClasses) {
+  for(const removedClass of removedClasses) {
     const visualDiagramNodes = [...new Set(classToVisualDiagramNodeMappingRaw[removedClass])];
     const entitiesRelatedToDiagramNodes = collectDirectVisualEntitiesToRemove(
       visualModel, visualDiagramNodes, getVisualEntitiesForVisual, true);

@@ -37,9 +37,10 @@ export function createVisualEdgeEndpointDuplicateAction(
     return null;
   }
 
+  const width = diagram.actions().getNodeWidth(nodeIdentifier) ?? 0;
+
   const position: Position = {
-    x: placeCoordinateOnGrid(node.position.x -
-      (diagram.actions().getNodeWidth(nodeIdentifier) ?? 0), configuration().xSnapGrid),
+    x: placeCoordinateOnGrid(node.position.x - width, configuration().xSnapGrid),
     y: node.position.y,
     anchored: node.position.anchored
   };

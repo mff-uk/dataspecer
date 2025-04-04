@@ -49,7 +49,7 @@ export function prepareDataForVisualDiagramNodeDialog(
 } | null {
   const visualDiagramNode = visualModel?.getVisualEntity(visualModelDiagramNode.identifier) ?? null;
   if(visualDiagramNode === null || !isVisualDiagramNode(visualDiagramNode)) {
-    notifications.error("Some really bad error - editing not existing visual diagram node");
+    notifications.error("Editing non-existing visual diagram node.");
     return null;
   }
 

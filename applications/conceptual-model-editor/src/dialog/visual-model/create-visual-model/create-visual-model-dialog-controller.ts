@@ -3,7 +3,6 @@ import { useMemo } from "react";
 import { type DialogProps } from "../../dialog-api";
 import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 
-// There are some extra attrbiutes in the EntityState which we don't need, but that doesn't matter that much
 export interface CreateVisualModelDialogState {
 
   label: LanguageString,

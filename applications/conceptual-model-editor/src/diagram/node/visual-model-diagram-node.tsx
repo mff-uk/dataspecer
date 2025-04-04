@@ -14,23 +14,7 @@ import { t } from "../../application";
 import { SelectionMenu } from "./selection-menu";
 import { VisualModelDiagramNode } from "../diagram-model";
 
-// We can select zoom option and hide content when zoom is on given threshold.
-// const zoomSelector = (state: ReactFlowState) => state.transform[2] >= 0.9;
-// Following in the entity:
-// const showContent = useStore(zoomSelector);
-
 export const VisualModelNode = (props: NodeProps<Node<VisualModelDiagramNode>>) => {
-  // We can use the bellow to set size based on the content.
-  // useLayoutEffect(() => {
-  //   if (inputRef.current) {
-  //     inputRef.current.style.width = `${data.label.length * 8}px`;
-  //   }
-  // }, [data.label.length]);
-
-  // We can use bellow to get information about active connection
-  // and for example highligh possible targets.
-  // const connection = useConnection()
-
   const data = props.data;
 
   return (

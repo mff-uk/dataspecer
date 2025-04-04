@@ -76,7 +76,6 @@ export function addAllRelationshipsForVisualDiagramNodeToVisualModelAction(
 
 }
 
-
 /**
  * End is either domain or range. Returns the relationships which goes from the {@link end} (respectively {@link otherVisualEnd}),
  * where {@link otherVisualEnd} is the identifier of the visual diagram node.
