@@ -496,3 +496,13 @@ function findVisualEndForEdge(
 
   return visualEnd;
 }
+
+export function doesAddingVisualModelCauseSelfReference(
+  availableVisualModels: VisualModel[],
+  visualModelToAddTo: VisualModel,
+  addedVisualModel: string,
+) {
+  const classesInVisualModel = getClassesAndDiagramNodesModelsFromVisualModelRecursively(
+    availableVisualModels, addedVisualModel);
+  return classesInVisualModel.includes(visualModelToAddTo.getIdentifier());
+}
