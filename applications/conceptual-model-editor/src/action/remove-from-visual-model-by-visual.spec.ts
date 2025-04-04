@@ -192,23 +192,6 @@ const prepareModelWithFourNodes = () => {
   };
 }
 
-const _createEmptyClassesContextType = (): ClassesContextType => {
-  const classes: ClassesContextType = {
-    classes: [],
-    allowedClasses: [],
-    setAllowedClasses: function (_) { },
-    relationships: [],
-    generalizations: [],
-    usages: [],
-    sourceModelOfEntityMap: new Map(),
-    rawEntities: [],
-    classProfiles: [],
-    relationshipProfiles: []
-  };
-
-  return classes;
-};
-
 const createNewVisualNodeForTesting = (
   visualModel: WritableVisualModel,
   model: string,
@@ -253,59 +236,4 @@ const createNewVisualRelationshipsForTestingFromSemanticEnds = (
   });
 
   return visualId;
-}
-
-// TODO RadStr: Remove later probably not used in this file, but will be useful for the rest of tests
-
-// Heavily inspired by createSemanticAssociationInternal
-// We are doing this so:
-// 1) We don't have create the state for the method
-// 2) It is less work
-function _createSemanticRelationshipTestVariant(
-  models: Map<string, EntityModel>,
-  domainConceptIdentifier: string,
-  rangeConceptIdentifier: string,
-  modelDsIdentifier: string,
-  relationshipName: string,
-): {
-  identifier: string,
-  model: InMemorySemanticModel
-} {
-  const name = {"en": relationshipName};
-
-  const operation = createRelationship({
-    ends: [{
-      iri: null,
-      name: {},
-      description: {},
-      concept: domainConceptIdentifier,
-      cardinality: [0, 1],
-    }, {
-      name,
-      description: {},
-      concept: rangeConceptIdentifier,
-      cardinality: [0, 1],
-      iri: generateIriForName(name["en"]),
-    }]
-  });
-
-  const model: InMemorySemanticModel = models.get(modelDsIdentifier) as InMemorySemanticModel;
-  const newAssociation = model.executeOperation(operation) as CreatedEntityOperationResult;
-
-  // Perform additional modifications for which we need to have the class identifier.
-  const operations = [];
-  const specializations : CmeSpecialization[] = [];
-  for (const specialization of specializations) {
-    operations.push(createGeneralization({
-      parent: specialization.specializationOf.identifier,
-      child: newAssociation.id,
-      iri: specialization.iri,
-    }));
-  }
-  model.executeOperations(operations);
-
-  return {
-    identifier: newAssociation.id,
-    model,
-  };
 }

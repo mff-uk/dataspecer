@@ -9,16 +9,16 @@ import { removeFromVisualModelByRepresentedAction } from "../remove-from-visual-
 test("Test dissolving top level groups", () => {
   const {
     visualModel,
-    visualIdentifiers
+    visualNodeIdentifiers
   } = ActionsTestSuite.prepareModelsWithSemanticData(4);
 
   const group1 = addGroupToVisualModelAction(
     visualModel,
-    [visualIdentifiers[0], visualIdentifiers[1]],
+    [visualNodeIdentifiers[0], visualNodeIdentifiers[1]],
   );
   const group2 = addGroupToVisualModelAction(
     visualModel,
-    [visualIdentifiers[2], visualIdentifiers[3]],
+    [visualNodeIdentifiers[2], visualNodeIdentifiers[3]],
   );
   addGroupToVisualModelAction(
     visualModel,
@@ -26,30 +26,30 @@ test("Test dissolving top level groups", () => {
   );
   expect(visualModel.getVisualEntities().size).toEqual(7);
   //
-  removeTopLevelGroupFromVisualModelAction(notificationMockup, visualModel, visualIdentifiers[0]);
+  removeTopLevelGroupFromVisualModelAction(notificationMockup, visualModel, visualNodeIdentifiers[0]);
   expect(visualModel.getVisualEntities().size).toEqual(6);
   //
-  removeTopLevelGroupFromVisualModelAction(notificationMockup, visualModel, visualIdentifiers[0]);
+  removeTopLevelGroupFromVisualModelAction(notificationMockup, visualModel, visualNodeIdentifiers[0]);
   expect(visualModel.getVisualEntities().size).toEqual(5);
   //
-  removeTopLevelGroupFromVisualModelAction(notificationMockup, visualModel, visualIdentifiers[0]);
+  removeTopLevelGroupFromVisualModelAction(notificationMockup, visualModel, visualNodeIdentifiers[0]);
   expect(visualModel.getVisualEntities().size).toEqual(5);
   //
-  removeTopLevelGroupFromVisualModelAction(notificationMockup, visualModel, visualIdentifiers[2]);
+  removeTopLevelGroupFromVisualModelAction(notificationMockup, visualModel, visualNodeIdentifiers[2]);
   expect(visualModel.getVisualEntities().size).toEqual(4);
 });
 
 test("Test dissolving group through visibility", () => {
   const {
     visualModel,
-    visualIdentifiers,
+    visualNodeIdentifiers,
     graph,
     classesContext
   } = ActionsTestSuite.prepareModelsWithSemanticData(3);
 
   addGroupToVisualModelAction(
     visualModel,
-    [visualIdentifiers[0], visualIdentifiers[1]],
+    [visualNodeIdentifiers[0], visualNodeIdentifiers[1]],
   );
   expect(visualModel.getVisualEntities().size).toEqual(4);
   //
@@ -61,18 +61,18 @@ test("Test dissolving group through visibility", () => {
 test("Test dissolving multi-group through visibility of one whole group", () => {
   const {
     visualModel,
-    visualIdentifiers,
+    visualNodeIdentifiers,
     graph,
     classesContext
   } = ActionsTestSuite.prepareModelsWithSemanticData(4);
 
   const group1 = addGroupToVisualModelAction(
     visualModel,
-    [visualIdentifiers[0], visualIdentifiers[1]],
+    [visualNodeIdentifiers[0], visualNodeIdentifiers[1]],
   );
   const group2 = addGroupToVisualModelAction(
     visualModel,
-    [visualIdentifiers[2], visualIdentifiers[3]],
+    [visualNodeIdentifiers[2], visualNodeIdentifiers[3]],
   );
   addGroupToVisualModelAction(
     visualModel,
@@ -88,18 +88,18 @@ test("Test dissolving multi-group through visibility of one whole group", () => 
 test("Test dissolving multi-group through visibility sequentially", () => {
   const {
     visualModel,
-    visualIdentifiers,
+    visualNodeIdentifiers,
     graph,
     classesContext
   } = ActionsTestSuite.prepareModelsWithSemanticData(4);
 
   const group1 = addGroupToVisualModelAction(
     visualModel,
-    [visualIdentifiers[0], visualIdentifiers[1]],
+    [visualNodeIdentifiers[0], visualNodeIdentifiers[1]],
   );
   const group2 = addGroupToVisualModelAction(
     visualModel,
-    [visualIdentifiers[2], visualIdentifiers[3]],
+    [visualNodeIdentifiers[2], visualNodeIdentifiers[3]],
   );
   const group3 = addGroupToVisualModelAction(
     visualModel,
@@ -122,18 +122,18 @@ test("Test dissolving multi-group through visibility sequentially", () => {
 test("Test dissolving multi-group through visibility sequentially again", () => {
   const {
     visualModel,
-    visualIdentifiers,
+    visualNodeIdentifiers,
     graph,
     classesContext
   } = ActionsTestSuite.prepareModelsWithSemanticData(4);
 
   const group1 = addGroupToVisualModelAction(
     visualModel,
-    [visualIdentifiers[0], visualIdentifiers[1]],
+    [visualNodeIdentifiers[0], visualNodeIdentifiers[1]],
   );
   const group2 = addGroupToVisualModelAction(
     visualModel,
-    [visualIdentifiers[2], visualIdentifiers[3]],
+    [visualNodeIdentifiers[2], visualNodeIdentifiers[3]],
   );
   addGroupToVisualModelAction(
     visualModel,
@@ -156,18 +156,18 @@ test("Test dissolving multi-group through visibility sequentially again", () => 
 test("Test dissolving everything through visiblity", () => {
   const {
     visualModel,
-    visualIdentifiers,
+    visualNodeIdentifiers,
     graph,
     classesContext
   } = ActionsTestSuite.prepareModelsWithSemanticData(4);
 
   const group1 = addGroupToVisualModelAction(
     visualModel,
-    [visualIdentifiers[0], visualIdentifiers[1]],
+    [visualNodeIdentifiers[0], visualNodeIdentifiers[1]],
   );
   const group2 = addGroupToVisualModelAction(
     visualModel,
-    [visualIdentifiers[2], visualIdentifiers[3]],
+    [visualNodeIdentifiers[2], visualNodeIdentifiers[3]],
   );
   addGroupToVisualModelAction(
     visualModel,

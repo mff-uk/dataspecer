@@ -21,7 +21,7 @@ import { SetStateAction } from "react";
 import { createDefaultVisualModelFactory, isVisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { XY } from "@dataspecer/layout";
-import { ModelGraphContextType } from "@/context/model-context";
+import { ModelGraphContextType, UseModelGraphContextType } from "@/context/model-context";
 import { CmeSpecialization } from "@/dataspecer/cme-model/model";
 
 type CreatedSemanticEntityData = {
@@ -294,6 +294,7 @@ export class ActionsTestSuite {
    * 1st one has no relationships,
    * 2nd forms square
    * 3rd fully connected graph.
+   * The identifiers of the classes are "0"-"11" and the identifiers of the relationships are sourceID-rangeID
    *
    * Also creates visual model with 0-4 nodes based on given {@link visualModelSize}.
    *
@@ -303,11 +304,12 @@ export class ActionsTestSuite {
     const visualModel: WritableVisualModel = createDefaultVisualModelFactory().createNewWritableVisualModelSync();
     const modelAlias = "TEST MODEL";
     const models : Map<string, EntityModel> = new Map();
+    const modelsAsArray: EntityModel[] = [];
     const modelCount = 3;
     const createdClasses: CreatedSemanticEntityData[][] = [];
     const createdRelationships: CreatedSemanticEntityData[][] = [];
     let firstModel: InMemorySemanticModel | null = null;
-    const visualIdentifiers: string[] = [];
+    const visualNodeIdentifiers: string[] = [];
 
     const aggregator = new SemanticModelAggregator();
     aggregator.addModel(visualModel);
@@ -319,7 +321,7 @@ export class ActionsTestSuite {
       aggregator,
       aggregatorView,
       setAggregatorView: function (_value: SetStateAction<SemanticModelAggregatorView>): void {
-        throw new Error("Function not implemented.");
+        // Do nothing
       },
       models: models,
       setModels: function (_value: SetStateAction<Map<string, EntityModel>>): void {
@@ -337,9 +339,46 @@ export class ActionsTestSuite {
       }
       model.setAlias(modelAlias);
       models.set(model.getId(), model);
+      modelsAsArray.push(model);
       aggregator.addModel(model);
       createdClasses.push([]);
       createdRelationships.push([]);
+    }
+
+    const useGraph: UseModelGraphContextType = {
+      aggregator,
+      aggregatorView,
+      setAggregatorView: function (value: SetStateAction<SemanticModelAggregatorView>): void {
+        throw new Error("Function not implemented.");
+      },
+      models,
+      visualModels,
+      setVisualModels: function (value: SetStateAction<Map<string, WritableVisualModel>>): void {
+        throw new Error("Function not implemented.");
+      },
+      addModel: function (...models: EntityModel[]): void {
+        throw new Error("Function not implemented.");
+      },
+      addVisualModel: function (...visualModels: WritableVisualModel[]): void {
+        for(const visualModel of visualModels) {
+          graph.aggregator.addModel(visualModel);
+        }
+      },
+      setModelAlias: function (alias: string | null, model: EntityModel): void {
+        throw new Error("Function not implemented.");
+      },
+      setModelIri: function (iri: string, model: InMemorySemanticModel): void {
+        throw new Error("Function not implemented.");
+      },
+      replaceModels: function (entityModels: EntityModel[], visualModels: WritableVisualModel[]): void {
+        throw new Error("Function not implemented.");
+      },
+      removeModel: function (modelId: string): void {
+        throw new Error("Function not implemented.");
+      },
+      removeVisualModel: function (modelId: string): void {
+        throw new Error("Function not implemented.");
+      }
     }
 
     // Fill with data
@@ -347,7 +386,7 @@ export class ActionsTestSuite {
     for(let i = 0; i < visualModelSize; i++) {
       const visualIdentifier = ActionsTestSuite.createNewVisualNodeForTesting(
         visualModel, firstModel!.getId(), `${i}`);
-      visualIdentifiers.push(visualIdentifier);
+      visualNodeIdentifiers.push(visualIdentifier);
     }
 
     const modelIdentifiers = [...models.keys()]
@@ -397,11 +436,13 @@ export class ActionsTestSuite {
 
     return {
       visualModel,
-      visualIdentifiers,
+      visualNodeIdentifiers,
       modelAlias,
       model: firstModel as InMemorySemanticModel,
       models,
+      modelsAsArray,
       graph,
+      useGraph,
       classesContext
     };
   }
@@ -452,6 +493,7 @@ export class ActionsTestSuite {
     const name = {"en": relationshipName};
 
     const operation = createRelationship({
+      id: `${domainConceptIdentifier}-${rangeConceptIdentifier}`,
       ends: [{
         iri: null,
         name: {},

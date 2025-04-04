@@ -18,6 +18,9 @@ import { LanguageString } from "@dataspecer/core-v2/semantic-model/concepts";
 import { removeFromVisualModelByVisualAction } from "./remove-from-visual-model-by-visual";
 import { UseDiagramType } from "@/diagram/diagram-hook";
 
+/**
+ * @returns Identifiers of the created visual diagram node
+ */
 export function addVisualDiagramNodeForNewModelToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   graph: ModelGraphContextType,
