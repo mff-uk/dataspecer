@@ -7,7 +7,7 @@
   position: relative;
 	min-width: 100px;
   height: 100px;
-  transform: rotateX(-5deg) rotateY(5deg);
+  transform: rotateX(-5deg) rotateY(5deg) rotateZ(0.4deg); /* rotateZ to fix anti-aliasing */
   transform-style: preserve-3d;
 }
 

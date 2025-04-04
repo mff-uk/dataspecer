@@ -219,6 +219,10 @@ interface VisualModelActions {
    */
   addVisualDiagramNodeForExistingModelToVisualModel: (visualModelToRepresent: string) => void;
 
+  /**
+   * Adds all relationships which are not currently visible on canvas and are going to some of the class inside the
+   * represented visual model, which represents the {@link visualModelDiagramNode}.
+   */
   addAllRelationshipsForVisualDiagramNodeToVisualModel: (visualModelDiagramNode: VisualModelDiagramNode) => void;
 
   // TODO RadStr: Document
@@ -259,18 +263,10 @@ interface VisualModelActions {
 
   //
 
-  //
-  // TODO RadStr: We will see what will this do, maybe will be openDialog instead, where we provide options as mentioned in code review by PeSk:
-  //              I would even imagine that this would open the dialog where user can provide:
-  //              - name of the new model
-  //              - whether to copy model colors
-  //              - whether to keep position (relative / absolute)
-  // TODO RadStr: The API should be probably nodes and edges, because what should happen if we select edge without ends? - then probably the ends should be put to the model
-  //              So we have to differ between the nodes and edges, but that can be decided in future, since creation of new views doesn't work right now anyways
   /**
-   * Creates new visual model with content equal to {@link noddeSelection} and relevant edges from {@link edgeSelection}.
+   * Creates new visual model with content equal to {@link nodeSelection} and relevant edges from {@link edgeSelection}.
    */
-  createNewVisualModelFromSelection: (noddeSelection: string[], edgeSelection: string[]) => void;
+  createNewVisualModelFromSelection: (nodeSelection: string[], edgeSelection: string[]) => void;
 
   /**
    * Changes active visual model to the one given in {@link newVisualModel}.
