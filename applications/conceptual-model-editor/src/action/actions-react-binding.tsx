@@ -80,7 +80,7 @@ import { openEditVisualDiagramNodeDialogAction } from "./open-edit-visual-diagra
 import { openCreateVisualDiagramNodeDialogAction } from "./open-create-visual-diagram-node-dialog";
 import { QueryParamsContextType, useQueryParamsContext } from "@/context/query-params-context";
 import { createNewVisualModelAction } from "./create-new-visual-model-from-source-visual-model";
-import { dissolveVisualDiagramNodeAction } from "./dissolve-visual-diagram-node";
+import { putVisualDiagramNodeContentToVisualModelAction } from "./put-visual-diagram-node-content-to-visual-model";
 import { openVisualDiagramNodeInfoDialogAction } from "./open-visual-diagram-node-info-dialog";
 import { addVisualDiagramNodeForExistingModelToVisualModelAction } from "./create-visual-diagram-node-for-existing-model";
 import { addAllRelationshipsForVisualDiagramNodeToVisualModelAction } from "./add-all-relationships";
@@ -1061,7 +1061,7 @@ function createActionsContext(
 
     onDissolveVisualModelDiagramNode: (visualModelDiagramNode: VisualModelDiagramNode) => {
       withVisualModel(notifications, graph, (visualModel) => {
-        dissolveVisualDiagramNodeAction(notifications, classes, graph, diagram, visualModel, visualModelDiagramNode);
+        putVisualDiagramNodeContentToVisualModelAction(notifications, classes, graph, diagram, visualModel, visualModelDiagramNode);
         removeFromVisualModelByVisualAction(notifications, visualModel, [visualModelDiagramNode.identifier]);
       });
     },

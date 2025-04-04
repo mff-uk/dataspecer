@@ -20,12 +20,12 @@
   color: white;
 }
 
-.front  { width: 100%; transform: translateZ(50px); }
-.back   { transform: translateZ(-50px); }
-.left   { border-bottom: 4px solid black; border-right: 18px solid black; width: 100px; transform: rotateY(90deg) translateZ(-50px) translateY(-200px)}
-.right  { transform: rotateY(90deg) translateZ(50px); }
-.top    { border-top: 42px solid black; border-right: 6px solid black; width: 100%; transform: rotateX(90deg) translateZ(150px); }
-.bottom { transform: rotateX(90deg) translateZ(-50px); }
+.front-face  { width: 100%; transform: translateZ(50px); }
+.back-face   { transform: translateZ(-50px); }
+.left-face   { border-bottom: 4px solid black; border-right: 18px solid black; width: 100px; transform: rotateY(90deg) translateZ(-50px) translateY(-200px)}
+.right-face  { transform: rotateY(90deg) translateZ(50px); }
+.top-face    { border-top: 42px solid black; border-right: 6px solid black; width: 100%; transform: rotateX(90deg) translateZ(150px); }
+.bottom-face { transform: rotateX(90deg) translateZ(-50px); }
 
 
 /* Otherwise the text is not crisp, because of rotations */
@@ -53,28 +53,6 @@
   /* We only need the position in the layout. */
   visibility: hidden;
 }
-
-.grouped-node {
-	position: relative;
-	background: #ffffff; /* Base background */
-	border-radius: 12px;
-	padding: 20px;
-	box-shadow: inset 5px 5px 15px rgba(0, 0, 0, 0.15), /* Soft inset */
-							inset -5px -5px 15px rgba(0, 0, 0, 0.1); /* Light inset */
-}
-
-/* Add a gradient shadow using ::before */
-.grouped-node::before {
-	content: "";
-	position: absolute;
-	top: -10px; left: -10px; right: -10px; bottom: -10px;
-	background: linear-gradient(135deg, rgba(50, 120, 255, 0.4), rgba(255, 255, 255, 0));
-	border-radius: 16px; /* Slightly bigger than the node */
-	z-index: -1;
-	filter: blur(10px); /* Soft glow effect */
-}
-
-
 
 .visual-model-diagram-node .react-flow__handle {
   /* We only need the position in the layout. */

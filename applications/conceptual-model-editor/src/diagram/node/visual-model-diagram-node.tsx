@@ -47,15 +47,15 @@ export const VisualModelNode = (props: NodeProps<Node<VisualModelDiagramNode>>) 
       </div>
       <div className="cube">
         <EntityNodeMenu {...props} />
-        <div className="face front">
+        <div className="face front-face">
           {/* This text is actually invisible it is just to get correct width */}
           <div className="px-8">{data.label}</div>
           <div className="overflow-x-clip px-8">
             {`Represents ${props.data.representedModelAlias}`}
           </div>
         </div>
-        <div className="face top"></div>
-        <div className="face left"></div>
+        <div className="face top-face"></div>
+        <div className="face left-face"></div>
         <Handle className="handle" type="target" position={Position.Right} />
         <Handle className="handle" type="source" position={Position.Right} />
       </div>

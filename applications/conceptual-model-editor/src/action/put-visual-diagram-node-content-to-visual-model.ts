@@ -30,9 +30,8 @@ import {
   SemanticModelClassProfile,
   SemanticModelRelationshipProfile
 } from "@dataspecer/core-v2/semantic-model/profile/concepts";
-import { addToRecordArray } from "@/utilities/functional";
 
-export function dissolveVisualDiagramNodeAction(
+export function putVisualDiagramNodeContentToVisualModelAction(
   notifications: UseNotificationServiceWriterType,
   classesContext: ClassesContextType,
   graph: ModelGraphContextType,
