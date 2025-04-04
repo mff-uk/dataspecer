@@ -1,10 +1,12 @@
-import { type Node } from "@xyflow/react";
-
 export type Point = { x: number, y: number };
 
+export type Size = { width: number, height: number };
+
+export type Rectangle = Point & Size;
+
 /**
- * Find intersection of a line starting from center of the rectangle to target point
- * and the rectangle borders.
+ * Find intersection of a line starting from center of the rectangle to
+ * target point and the rectangle borders.
  */
 export function findRectangleLineIntersection(
   source: Point,
@@ -88,22 +90,21 @@ export function findLineCenter(source: Point, target: Point): Point {
   return { x, y };
 }
 
-export function findNodeCenter(node: Node): Point {
-  const x = node.position.x + ((node.measured?.width ?? 0) / 2);
-  const y = node.position.y + ((node.measured?.height ?? 0) / 2);
+export function findRectangleCenter(rectangle: Rectangle): Point {
+  const x = rectangle.x + (rectangle.width / 2);
+  const y = rectangle.y + (rectangle.height / 2);
   return { x, y };
 }
 
-export function findNodeBorder(node: Node, next: Point): Point {
-  const center = findNodeCenter(node);
-  const size = node.measured;
-  if (size === undefined || size.width === undefined || size.height === undefined) {
-    return center;
-  }
-  const rectangle = { width: size.width + 4, height: size.height + 4 };
-  return findRectangleLineIntersection(center, rectangle, next);
+export function findRectangleBorder(rectangle: Rectangle, point: Point): Point {
+  const center = findRectangleCenter(rectangle);
+  return findRectangleLineIntersection(center, rectangle, point);
 }
 
+/**
+ * Given a lines defined by sequence of points.
+ * Returns an index of a line sub-sequence closest to the point.
+ */
 export function findClosestLine(waypoints: Point[], point: Point): number {
   if (waypoints.length < 2) {
     return 0;
@@ -124,7 +125,7 @@ export function findClosestLine(waypoints: Point[], point: Point): number {
 }
 
 function distanceFromPointToLineSegment(
-  point: Point, start: Point, end: Point
+  point: Point, start: Point, end: Point,
 ): number {
   const { x, y } = point;
   const { x: x1, y: y1 } = start;
@@ -149,4 +150,123 @@ function distanceFromPointToLineSegment(
 
   // Return the distance from the point to the closest point on the line segment
   return Math.sqrt((x - closestX) ** 2 + (y - closestY) ** 2);
+}
+
+/**
+ * Given a rectangle and a point try to find an point on the rectangle
+ * border so there is orthogonal line to the given point.
+ * As a fallback return closest point to the given point.
+ */
+export function findOrthogonalRectangleBorder(rectangle: Rectangle, point: Point) {
+  if (point.x > rectangle.x &&
+    point.x < rectangle.x + rectangle.width) {
+    if (point.y < rectangle.y) {
+      // The point is above.
+      return { x: point.x, y: rectangle.y };
+    } else {
+      // The point is below.
+      return { x: point.x, y: rectangle.y + rectangle.height };
+    }
+  } else if (point.y > rectangle.y &&
+    point.y < rectangle.y + rectangle.height) {
+    if (point.x < rectangle.x) {
+      // The point is to the left.
+      return { x: rectangle.x, y: point.y };
+    } else {
+      // The point is to the right;
+      return { x: rectangle.x + rectangle.width, y: point.y };
+    }
+  }
+  // Fallback
+  return findRectangleBorder(rectangle, point);
+}
+
+export function findOrthogonalRectangleBorders(
+  left: Rectangle, right: Rectangle,
+): Point[] {
+
+  // Calculate rectangle corners and edges.
+  const leftRight = left.x + left.width;
+  const leftBottom = left.y + left.height;
+  const rightRight = right.x + right.width;
+  const rightBottom = right.y + right.height;
+
+  // Check if rectangles overlap
+  const overlaps = !(
+    leftRight < right.x || rightRight < left.x
+    || leftBottom < right.y || rightBottom < left.y
+  );
+
+  // Case 1: Rectangles overlap - find closest points on borders
+  if (overlaps) {
+    return [findRectangleCenter(left), findRectangleCenter(right)];
+  }
+
+  // Check if horizontal connection is possible (y-values overlap)
+  const horizontalOverlap = (
+    (left.y <= right.y && right.y <= leftBottom) ||
+    (left.y <= rightBottom && rightBottom <= leftBottom) ||
+    (right.y <= left.y && left.y <= rightBottom));
+
+  // Case 2: Horizontal connection is possible (y-coordinates can be equal)
+  if (horizontalOverlap) {
+    const y = findPointInOverlap(left.y, leftBottom, right.y, rightBottom);
+
+    let leftX, rightX;
+    if (leftRight < right.x) {
+      // Left is to the left of right
+      leftX = leftRight;
+      rightX = right.x;
+    } else {
+      // Right is to the left of left
+      leftX = left.x;
+      rightX = rightRight;
+    }
+
+    return [{ x: leftX, y }, { x: rightX, y }];
+  }
+
+  // Check if vertical connection is possible (x-values overlap)
+  const verticalOverlap = (
+    (left.x <= right.x && right.x <= leftRight) ||
+    (left.x <= rightRight && rightRight <= leftRight) ||
+    (right.x <= left.x && left.x <= rightRight));
+
+  // Case 3: Vertical connection is possible (x-coordinates can be equal)
+  if (verticalOverlap) {
+    const x = findPointInOverlap(left.x, leftRight, right.x, rightRight);
+
+    let leftY, rightY;
+    if (leftBottom < right.y) {
+      // Left is above right
+      leftY = leftBottom;
+      rightY = right.y;
+    } else {
+      // Right is above left
+      leftY = left.y;
+      rightY = rightBottom;
+    }
+
+    return [{ x, y: leftY }, { x, y: rightY }];
+  }
+
+  const leftCenter = findRectangleCenter(left);
+  const rightCenter = findRectangleCenter(right);
+  return [
+    findRectangleLineIntersection(leftCenter, left, rightCenter),
+    findRectangleLineIntersection(rightCenter, right, leftCenter),
+  ];
+}
+
+/**
+ * The start position must be smaller then the end position.
+ */
+function findPointInOverlap(
+  leftStart: number, leftEnd: number,
+  rightStart: number, rightEnd: number,
+): number {
+  const intersectionStart = Math.max(leftStart, rightStart);
+  const intersectionEnd = Math.min(leftEnd, rightEnd);
+  const intersectionSpan = intersectionEnd - intersectionStart;
+  return intersectionStart + (intersectionSpan / 2);
 }
