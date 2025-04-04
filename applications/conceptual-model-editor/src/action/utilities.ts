@@ -331,12 +331,12 @@ export function getVisualDiagramNodeMappingsByRepresented(
  } {
   const existingVisualDiagramNodes: Record<string, VisualDiagramNode> = {};
   const classToVisualDiagramNodeMappingRaw: Record<string, string[]> = {};
-  for(const [identifier, visualEntity] of visualModel.getVisualEntities()) {
-    if(isVisualDiagramNode(visualEntity)) {
+  for (const [identifier, visualEntity] of visualModel.getVisualEntities()) {
+    if (isVisualDiagramNode(visualEntity)) {
       existingVisualDiagramNodes[identifier] = visualEntity;
       const containedNodes = getClassesAndDiagramNodesModelsFromVisualModelRecursively(
         availableVisualModels, visualEntity.representedVisualModel);
-      for(const containedNode of containedNodes) {
+      for (const containedNode of containedNodes) {
         addToRecordArray(containedNode, identifier, classToVisualDiagramNodeMappingRaw);
       }
     }

@@ -73,7 +73,7 @@ import {
   SemanticModelRelationshipProfile
 } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { EntityDsIdentifier } from "./dataspecer/entity-model";
-import { createAttributeProfileLabel, getEntityLabelToShowInDiagram } from "./util/utils";
+import { createAttributeProfileLabel, createGetVisualEntitiesForRepresentedGlobalWrapper, getEntityLabelToShowInDiagram, VisualsForRepresentedWrapper } from "./util/utils";
 
 import "./visualization.css";
 import { addToRecordArray } from "./utilities/functional";
@@ -260,7 +260,7 @@ function validateVisualModelNonDiagramNodes(
     if (isVisualProfileRelationship(visualEntity)) {    // Find the invalid ones
       const source = visualModel.getVisualEntity(visualEntity.visualSource);
       const target = visualModel.getVisualEntity(visualEntity.visualTarget);
-      if(source === null || target === null){
+      if (source === null || target === null) {
         invalidEntities.push(visualEntity.identifier);
         continue;
       }
@@ -341,19 +341,21 @@ function validateVisualModelDiagramNodes(
   // visual relationships in visual model and check the semantic ends of them and remove the edge,
   // if at least on the ends is missing.
   // For actual visual relationships this is simple.
-  // For visual Profile relationships it is not, since
+  // For visual Profile relationships it is not,
+  // so I just removed the attempt and by default we don't show class profile edges between diagram nodes!
+  // ... so this next part of comment is invalid, but it still may contain some relevant info - TODO RadStr: Remove on clean-up
+  // The reason why it is not that simple is that:
   // The entity property on visual profile edge is no longer enough to identify
   // the original semantic profile source and target, since unlike in usages it is no longer 1:1 mapping.
   // So we do it in a bit more convoluted way.
-
   // The convoluted way is basically that we have to create bunch of maps and compute number
   // of profiles classes, which are supposed to be in each visual diagram node for each visual source.
   // and if we are not equal, we remove the excessive edges.
 
-  const { classToVisualDiagramNodeMapping } = getVisualDiagramNodeMappingsByRepresented(
+  const getByRepresentedWrapper = createGetVisualEntitiesForRepresentedGlobalWrapper(
     aggregatorView.getAvailableVisualModels(), visualModel);
-  const visualModelToContentMappings : Record<string, Record<string, Record<string, number>>> = {
-    [visualModel.getIdentifier()]: classToVisualDiagramNodeMapping,
+  const visualModelsGetByRepresentGlobal: Record<string, VisualsForRepresentedWrapper> = {
+    [visualModel.getIdentifier()]: getByRepresentedWrapper,
   };
 
   const invalidEntities: string[] = [];
@@ -393,14 +395,14 @@ function validateVisualModelDiagramNodes(
       }
 
       const isDomainValid = checkEdgeEndValidityAndExtend(
-        visualModelToContentMappings, visualModel, aggregatorView,
+        visualModelsGetByRepresentGlobal, visualModel, aggregatorView,
         visualEdgeSource, domain, visualEntity.identifier, invalidEntities);
       if (!isDomainValid) {
         continue;
       }
 
       const isRangeValid = checkEdgeEndValidityAndExtend(
-        visualModelToContentMappings, visualModel, aggregatorView,
+        visualModelsGetByRepresentGlobal, visualModel, aggregatorView,
         visualEdgeTarget, range, visualEntity.identifier, invalidEntities);
       if (!isRangeValid) {
         continue;
@@ -448,10 +450,11 @@ function validateVisualProfileRelationshipEnd(
 
 /**
  * Extends {@link invalidEntitiesToExtend} if necessary.
- * @returns returns true if everything is in order, false if invalid.
+ * @returns returns true if everything is in order, false if there was at least one invalid entity
+ *  (Either only the edge or the edge together with the end).
  */
 function checkEdgeEndValidityAndExtend(
-  visualModelToContentMappings : Record<string, Record<string, Record<string, number>>>,
+  visualModelToContentMappings: Record<string, VisualsForRepresentedWrapper>,
   visualModel: VisualModel,
   aggregatorView: SemanticModelAggregatorView,
   visualEdgeEnd: VisualEntity,
@@ -462,9 +465,12 @@ function checkEdgeEndValidityAndExtend(
   let isValid: boolean | null = true;
 
   if (isVisualDiagramNode(visualEdgeEnd)) {
-    extendMappingsByDiagramNodeModelIfNotSet(
+    const isDiagramNodeValid = extendMappingsByDiagramNodeModelIfNotSet(
       visualModelToContentMappings, visualEdgeEnd, visualModel, aggregatorView);
-    if (visualModelToContentMappings[visualEdgeEnd.representedVisualModel][supposedSemanticEdgeEnd] === undefined) {
+    if (!isDiagramNodeValid) {
+      isValid = null;
+    }
+    else if (visualModelToContentMappings[visualEdgeEnd.representedVisualModel](supposedSemanticEdgeEnd).length === 0) {
       isValid = false;
     }
   }
@@ -490,17 +496,28 @@ function checkEdgeEndValidityAndExtend(
   return isValid ?? false;
 }
 
+/**
+ * @returns Returns true if everything was in order, false if error occurred
+ */
 function extendMappingsByDiagramNodeModelIfNotSet(
-  visualModelToContentMappings : Record<string, Record<string, Record<string, number>>>,
+  visualModelToContentMappings: Record<string, VisualsForRepresentedWrapper>,
   visualEdgeEndPoint: VisualDiagramNode,
   visualModel: VisualModel,
   aggregatorView: SemanticModelAggregatorView,
-) {
-  if (visualModelToContentMappings[visualEdgeEndPoint.representedVisualModel] === undefined) {
-    const { classToVisualDiagramNodeMapping } = getVisualDiagramNodeMappingsByRepresented(
-      aggregatorView.getAvailableVisualModels(), visualModel);
-    visualModelToContentMappings[visualEdgeEndPoint.representedVisualModel] = classToVisualDiagramNodeMapping;
+): boolean {
+  const availableVisualModels = aggregatorView.getAvailableVisualModels();
+  const representedVisualModel = availableVisualModels
+    .find(visualModel => visualModel.getIdentifier() === visualEdgeEndPoint.representedVisualModel);
+  if (representedVisualModel === undefined) {
+    return false;
   }
+  if (visualModelToContentMappings[visualEdgeEndPoint.representedVisualModel] === undefined) {
+    const getByRepresentedWrapper = createGetVisualEntitiesForRepresentedGlobalWrapper(
+      availableVisualModels, representedVisualModel);
+    visualModelToContentMappings[visualEdgeEndPoint.representedVisualModel] = getByRepresentedWrapper;
+  }
+
+  return true;
 }
 
 /**

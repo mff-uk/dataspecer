@@ -108,7 +108,7 @@ function findInvalidVisualEdgesForVisualDiagramNodes(
 
         // Compare the semantic ends
         const { domain, range } = getDomainAndRangeConcepts(represented);
-        if(domain === removedClass || range === removedClass) {
+        if((domain === removedClass && isSourceVisualNode) || (range === removedClass && isTargetVisualNode)) {
           invalidVisualEntities.push(visualEntityRelatedToVisualDiagramNode);
         }
       }

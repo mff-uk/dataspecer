@@ -182,12 +182,12 @@ const hasBothEndsInVisualModel = (
     return false;
   }
   if(visualModel.hasVisualEntityForRepresented(entity.id)) {
-    // We do separate if so we can exit early if it is on canvas
-    // Solves for example connection to visual diagram node
-
+    // We do separate if so we can exit early if it is on canvas.
+    // Also solves connection to visual diagram node.
     // Note that if we wanted to return true in cases when
-    // the end is present in visual diagram node, we would have to use the
-    // getNodesAndDiagramNodesFromVisualModelRecursively method
+    // the end is present in visual diagram node,
+    // but the relationship itself is not present on canvas.
+    // We would have to use the getRepresentedGlobalWrapper method
     return true;
   }
 

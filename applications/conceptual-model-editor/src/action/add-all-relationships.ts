@@ -41,9 +41,6 @@ export function addAllRelationshipsForVisualDiagramNodeToVisualModelAction(
   const getVisualEntitiesForRepresentedGlobal = createGetVisualEntitiesForRepresentedGlobalWrapper(
     availableVisualModels, visualModel);
 
-  // TODO RadStr: Debug
-  console.info({classToVisualDiagramNodeMapping});
-
   const classesStoredInDiagramNode: string[] = [];
   for (const [cclass, diagramNodeToCountMap] of Object.entries(classToVisualDiagramNodeMapping)) {
     if (diagramNodeToCountMap[visualModelDiagramNode.identifier] !== undefined) {
