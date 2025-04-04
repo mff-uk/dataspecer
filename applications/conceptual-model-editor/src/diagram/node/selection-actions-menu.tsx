@@ -29,7 +29,7 @@ export function SelectionActionsMenu(_: { menuProps: CanvasMenuContentProps }) {
   return (<>
     <ul className="node-secondary-menu">
       <li>
-        <button onClick={onCreateNewView} title={t("selection-new-view-button")} disabled >🖼️</button>
+        <button onClick={onCreateNewView} title={t("selection-new-view-button")}>🖼️</button>
       </li>
       <li>
         <button onClick={onProfileSelection} title={t("selection-profile-button")}>🧲</button>
