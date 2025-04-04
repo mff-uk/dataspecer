@@ -1,4 +1,5 @@
 import {
+  isVisualNode,
   isVisualProfileRelationship,
   isVisualRelationship,
   VisualEntity,
@@ -93,6 +94,19 @@ function findInvalidVisualEdgesForVisualDiagramNodes(
           }
           continue;
         }
+
+        // Check if exactly one end is visual node
+        const source = visualModel.getVisualEntity(visualEntityRelatedToVisualDiagramNode.visualSource);
+        const target = visualModel.getVisualEntity(visualEntityRelatedToVisualDiagramNode.visualTarget);
+        const isSourceVisualNode = source !== null && isVisualNode(source);
+        const isTargetVisualNode = target !== null && isVisualNode(target);
+        const isExactlyOneEndVisualNode = (!isSourceVisualNode && isTargetVisualNode) ||
+                                          (isSourceVisualNode && !isTargetVisualNode);
+        if(!isExactlyOneEndVisualNode) {
+          continue;
+        }
+
+        // Compare the semantic ends
         const { domain, range } = getDomainAndRangeConcepts(represented);
         if(domain === removedClass || range === removedClass) {
           invalidVisualEntities.push(visualEntityRelatedToVisualDiagramNode);
