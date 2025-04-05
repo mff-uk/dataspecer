@@ -1,7 +1,7 @@
 import { SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { SemanticModelClassUsage, SemanticModelRelationshipUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { getDomainAndRange } from "./relationship-utils";
-import { representCardinality } from "../dialog/utilities/dialog-utilities";
+import { representCardinality, representUndefinedCardinality } from "../dialog/utilities/dialog-utilities";
 import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { getLocalizedStringFromLanguageString } from "./language-utils";
 import { getFallbackDisplayName, getNameLanguageString } from "./name-utils";
@@ -36,9 +36,10 @@ export function createAttributeProfileLabel(
   attributeProfile: SemanticModelRelationshipProfile | SemanticModelRelationshipUsage,
 ) {
   const {range} = getDomainAndRange(attributeProfile);
-  const cardinality = representCardinality(range?.cardinality).label;
-  const label = getEntityLabelToShowInDiagram(language, attributeProfile) + " [" + cardinality + "]";
-
+  const cardinality = representCardinality(range?.cardinality);
+  const cardinalityLabel = representUndefinedCardinality().identifier === cardinality.identifier
+    ? "" : " [" + cardinality.label + "]";
+  const label = getEntityLabelToShowInDiagram(language, attributeProfile) + cardinalityLabel;
   return label;
 }
 

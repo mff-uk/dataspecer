@@ -123,6 +123,8 @@ export const SET_INTERPRETATION = PSM + "SetInterpretation";
 
 export const SET_IS_CLOSED = PSM + "SetIsClosed";
 
+export const SET_EMPTY_AS_COMPLEX = PSM + "SetEmptyAsComplex";
+
 export const SET_ORDER = PSM + "SetOrder";
 
 export const SET_PART = PSM + "SetPart";
@@ -134,6 +136,10 @@ export const SET_MATERIALIZED = PSM + "SetMaterialized";
 export const SET_ROOTS = PSM + "SetRoots";
 
 export const SET_TECHNICAL_LABEL = PSM + "SetTechnicalLabel";
+
+export const SET_JSON_LD_DEFINED_PREFIXES = PSM + "SetJsonLdDefinedPrefixes";
+
+export const SET_JSON_SCHEMA_PREFIXES_IN_IRI_REGEX = PSM + "SetJsonSchemaPrefixesInIriRegex";
 
 export const UNSET_CHOICE = PSM + "UnsetChoice";
 

@@ -3,7 +3,7 @@ import { LanguageString } from "@dataspecer/core/core";
 import { DataPsmCreateClass, DataPsmSetHumanDescription, DataPsmSetHumanLabel, DataPsmSetRoots } from "@dataspecer/core/data-psm/operation";
 import { ComplexOperation } from "@dataspecer/federated-observable-store/complex-operation";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
-import { SemanticModelAggregator } from '../semantic-aggregator/interfaces';
+import { SemanticModelAggregator } from '@dataspecer/core-v2/hierarchical-semantic-aggregator';
 import { TechnicalLabelOperationContext } from "./context/technical-label-operation-context";
 
 /**

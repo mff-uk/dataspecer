@@ -45,6 +45,9 @@ export class JsonSchemaArray extends JsonSchemaDefinition {
 
   items: JsonSchemaDefinition | null = null;
 
+  minItems: number | null = null;
+  maxItems: number | null = null;
+
   /**
    * Definition of items that must be part of the array.
    */

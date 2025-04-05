@@ -3,7 +3,7 @@ import { useStore } from "@xyflow/react";
 
 import { ToolbarPortal } from "./toolbar-portal";
 import { CanvasMenuContentProps, CanvasMenuContentType, viewportStoreSelector } from "./canvas-menu-props";
-import { computePosition } from "../edge/edge-utilities";
+import { computeScreenPosition } from "../edge/edge-utilities";
 
 export type GeneralCanvasMenuComponentProps = {
   menuProps: CanvasMenuContentProps;
@@ -21,7 +21,7 @@ export function CanvasGeneralMenu({canvasMenu}: {canvasMenu: GeneralCanvasMenuCo
     return null;
   }
 
-  const position = computePosition(canvasMenu.menuProps.canvasPosition.x, canvasMenu.menuProps.canvasPosition.y, { x, y, zoom });
+  const position = computeScreenPosition(canvasMenu.menuProps.canvasPosition.x, canvasMenu.menuProps.canvasPosition.y, { x, y, zoom });
 
   return <div>
     <ToolbarPortal>

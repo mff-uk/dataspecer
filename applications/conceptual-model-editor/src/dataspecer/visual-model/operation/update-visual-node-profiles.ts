@@ -1,5 +1,5 @@
 import { isVisualProfileRelationship, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { EntityReference, isEntityReferenceEqual } from "../../entity-model";
+import { CmeReference, isCmeReferenceEqual } from "@/dataspecer/cme-model/model";
 
 /**
  * Propagate changes in the list of profiles to the visual model.
@@ -10,12 +10,12 @@ import { EntityReference, isEntityReferenceEqual } from "../../entity-model";
  */
 export function updateVisualNodeProfiles(
   visualModel: WritableVisualModel,
-  profile: EntityReference,
-  previous: EntityReference[],
-  next: EntityReference[],
+  profile: CmeReference,
+  previous: CmeReference[],
+  next: CmeReference[],
 ) {
   const { create, remove } = createChangeList(
-    previous, next, isEntityReferenceEqual);
+    previous, next, isCmeReferenceEqual);
   const entityVisuals = visualModel.getVisualEntitiesForRepresented(
     profile.identifier);
   if (entityVisuals.length === 0) {

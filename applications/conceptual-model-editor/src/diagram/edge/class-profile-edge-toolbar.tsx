@@ -3,7 +3,7 @@ import { shallow } from "zustand/shallow";
 import { type ReactFlowState, useStore } from "@xyflow/react";
 
 import { DiagramContext, NodeMenuType } from "../diagram-controller";
-import { computePosition } from "./edge-utilities";
+import { computeScreenPosition } from "./edge-utilities";
 import { EdgeToolbarProps, viewportStoreSelector } from "./edge-toolbar";
 import { Edge } from "../diagram-model";
 import { ToolbarPortal } from "../canvas/toolbar-portal";
@@ -25,7 +25,7 @@ export function ProfileEdgeToolbar({ value }: { value: EdgeToolbarProps | null }
   const data = edge.data as Edge;
   const onDetail = () => context?.callbacks().onShowEdgeDetail(data);
 
-  const position = computePosition(value.x, value.y, {x, y, zoom});
+  const position = computeScreenPosition(value.x, value.y, {x, y, zoom});
 
   return (
     <>

@@ -121,8 +121,7 @@ export async function ensurePackageWorksForDSE(packageIri: string) {
                     "models": null
                 }
             };
+            await packageService.setResourceJsonData(packageIri, data);
         }
-
-        await packageService.setResourceJsonData(packageIri, data);
     }
 }

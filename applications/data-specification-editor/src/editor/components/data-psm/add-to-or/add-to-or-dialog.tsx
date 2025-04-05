@@ -5,7 +5,7 @@ import React, { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { dialog, useDialog } from "../../../dialog";
 import { useAsyncMemo } from "../../../hooks/use-async-memo";
-import { ExternalEntityWrapped } from "../../../semantic-aggregator/interfaces";
+import { ExternalEntityWrapped } from "@dataspecer/core-v2/hierarchical-semantic-aggregator";
 import { isAncestorOf } from "../../../utils/is-ancestor-of";
 import { ConfigurationContext } from "../../App";
 import { PimClassDetailDialog } from "../../detail/pim-class-detail-dialog";

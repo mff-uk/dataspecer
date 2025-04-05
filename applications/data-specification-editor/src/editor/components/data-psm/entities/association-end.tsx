@@ -15,6 +15,7 @@ import {useDialog} from "../../../dialog";
 import {ReplaceAssociationWithReferenceDialog} from "../replace-association-with-reference/replace-association-with-reference-dialog";
 import {ReplaceAssociationEndWithReference} from "../replace-association-with-reference/replace-association-end-with-reference";
 import { ExtendedSemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import RemoveIcon from "@mui/icons-material/Remove";
 
 const StrikeOut: React.FC<{
   children: React.ReactNode,
@@ -30,7 +31,6 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots & Clas
 
   const {dataPsmResource: dataPsmAssociationEnd, pimResource: pimSemanticRelationship} = useDataPsmAndInterpretedPim<DataPsmAssociationEnd, SemanticModelRelationship>(props.iri);
   //const readOnly = false;
-  const isDematerialized = !!dataPsmAssociationEnd?.dataPsmIsDematerialize;
 
   // PIM Association and check if it is backward association
 
@@ -38,9 +38,12 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots & Clas
   const correctEnd = pimSemanticRelationship?.ends[isBackwardsAssociation ? 0 : 1];
   const incorrectEnd = pimSemanticRelationship?.ends[isBackwardsAssociation ? 1 : 0];
 
-  const {pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, ExtendedSemanticModelClass>(dataPsmAssociationEnd?.dataPsmPart);
+  const {dataPsmResource: psmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, ExtendedSemanticModelClass>(dataPsmAssociationEnd?.dataPsmPart);
 
   const isCodelist = pimClass?.isCodelist ?? false;
+  const isPrimitive = psmClass?.dataPsmParts.length === 0 && psmClass?.dataPsmEmptyAsComplex !== true;
+
+  const isDematerialized = !!dataPsmAssociationEnd?.dataPsmIsDematerialize && !isPrimitive;
 
   const associationPointsToIri = dataPsmAssociationEnd?.dataPsmPart ?? null;
 
@@ -61,7 +64,7 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots & Clas
       {hasHumanLabelOnAssociationEnd ?
         <DataPsmGetLabelAndDescription dataPsmResourceIri={props.iri}>
           {(label, description) =>
-            <Span title={description} sx={isCodelist ? sxStyles.attribute : sxStyles.association}>{label ?? "[association]"}</Span>
+            <Span title={description} sx={isPrimitive ? sxStyles.attribute : sxStyles.association}>{label ?? "[association]"}</Span>
           }
         </DataPsmGetLabelAndDescription>
         :
@@ -70,7 +73,7 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots & Clas
             <LanguageStringUndefineable from={incorrectEnd?.description ?? null}>
               {description => <>
                 {isBackwardsAssociation && <strong>{t("backwards association")}{" "}</strong>}
-                <Span title={description} sx={isCodelist ? sxStyles.attribute : sxStyles.association}>{label ?? "[association]"}</Span>
+                <Span title={description} sx={isPrimitive ? sxStyles.attribute : sxStyles.association}>{label ?? "[association]"}</Span>
               </>}
             </LanguageStringUndefineable>
           }
@@ -113,7 +116,7 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots & Clas
       iri={associationPointsToIri}
       startRow={startRow}
       endRow={endRow}
-      icon={isCodelist ? <ListRoundedIcon style={{verticalAlign: "middle"}} /> : <AccountTreeTwoToneIcon style={{verticalAlign: "middle"}} />}
+      icon={isCodelist ? <ListRoundedIcon style={{verticalAlign: "middle"}} /> : (isPrimitive ? <RemoveIcon style={{verticalAlign: "middle"}} /> : <AccountTreeTwoToneIcon style={{verticalAlign: "middle"}} />)}
       menu={menu}
       iris={iris}
     />

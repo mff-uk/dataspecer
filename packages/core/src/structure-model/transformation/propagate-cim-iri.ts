@@ -30,7 +30,9 @@ export function propagateCimIri(
     for (const structureClass of classes) {
         structureClass.properties.forEach(
             property => {
-                let conceptualProperty = propertyMap(property.pimIri, property.isReverse);
+                // Find the conceptual property but in non-reverse direction
+                // The logic is that it is the reverse property of property with given iri.
+                let conceptualProperty = propertyMap(property.pimIri, false);
                 if (conceptualProperty) {
                     property.cimIri = conceptualProperty.cimIri;
                     property.iris = conceptualProperty.iris;

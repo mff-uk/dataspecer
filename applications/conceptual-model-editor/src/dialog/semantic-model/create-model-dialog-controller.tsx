@@ -127,7 +127,7 @@ export interface CreateModelState {
 
 }
 
-const DEFAULT_URL = "https://www.w3.org/ns/dcat.ttl";
+const DEFAULT_URL = "https://www.w3.org/ns/dcat3.ttl";
 
 const DEFAULT_ALIAS = "dcat";
 

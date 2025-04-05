@@ -23,6 +23,7 @@ import { executeDataPsmSetCardinality } from "./data-psm-set-cardinality-executo
 import { executeDataPsmSetChoice } from "./data-psm-set-choice-executor";
 import { executeDataPsmSetDatatype } from "./data-psm-set-datatype-executor";
 import { executeDataPsmSetDematerialize } from "./data-psm-set-dematerialize-executor";
+import { executeDataPsmSetEmptyAsComplex } from "./data-psm-set-empty-as-complex";
 import { executeDataPsmSetExternalRootTypes } from "./data-psm-set-external-root-types-executor";
 import { executeDataPsmSetHumanDescription } from "./data-psm-set-human-description-executor";
 import { executeDataPsmSetHumanLabel } from "./data-psm-set-human-label-executor";
@@ -31,6 +32,8 @@ import { executeDataPsmSetInstancesHaveIdentity } from "./data-psm-set-instances
 import { executeDataPsmSetInstancesSpecifyTypes } from "./data-psm-set-instances-specify-type";
 import { executeDataPsmSetInterpretation } from "./data-psm-set-interpretation-executor";
 import { executeDataPsmSetIsClosed } from "./data-psm-set-is-closed-executor";
+import { executeDataPsmSetJsonLdDefinedPrefixes } from "./data-psm-set-json-ld-defined-prefixes-executor";
+import { executeDataPsmSetJsonSchemaPrefixesInIriRegex } from "./data-psm-set-json-schema-prefixes-in-iri-regex-executor";
 import { executeDataPsmSetOrder } from "./data-psm-set-order-executor";
 import { executeDataPsmSetPart } from "./data-psm-set-part-executor";
 import { executeDataPsmSetRootCollection } from "./data-psm-set-root-collection-executor";
@@ -177,6 +180,11 @@ export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.DataPsmSetIsClosed.TYPE
   ),
   CoreOperationExecutor.create(
+    Operations.DataPsmSetEmptyAsComplex.is,
+    executeDataPsmSetEmptyAsComplex,
+    Operations.DataPsmSetEmptyAsComplex.TYPE
+  ),
+  CoreOperationExecutor.create(
     Operations.DataPsmSetOrder.is,
     executeDataPsmSetOrder,
     Operations.DataPsmSetOrder.TYPE
@@ -235,5 +243,15 @@ export const baseDataPsmExecutors: CoreOperationExecutor<CoreOperation>[] = [
     Operations.DataPsmDeleteContainer.is,
     executeDataPsmDeleteContainer,
     Operations.DataPsmDeleteContainer.TYPE
+  ),
+  CoreOperationExecutor.create(
+    Operations.DataPsmSetJsonLdDefinedPrefixes.is,
+    executeDataPsmSetJsonLdDefinedPrefixes,
+    Operations.DataPsmSetJsonLdDefinedPrefixes.TYPE
+  ),
+  CoreOperationExecutor.create(
+    Operations.DataPsmSetJsonSchemaPrefixesInIriRegex.is,
+    executeDataPsmSetJsonSchemaPrefixesInIriRegex,
+    Operations.DataPsmSetJsonSchemaPrefixesInIriRegex.TYPE
   ),
 ];

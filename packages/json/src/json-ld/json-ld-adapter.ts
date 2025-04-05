@@ -1,22 +1,43 @@
-import {StructureModel, StructureModelClass, StructureModelComplexType, StructureModelProperty} from "@dataspecer/core/structure-model/model";
-import {OFN} from "@dataspecer/core/well-known";
-import {DataSpecificationArtefact, DataSpecificationSchema} from "@dataspecer/core/data-specification/model";
-import {assertNot} from "@dataspecer/core/core";
-import {ArtefactGeneratorContext} from "@dataspecer/core/generator";
-import {pathRelative} from "@dataspecer/core/core/utilities/path-relative";
-import {JSON_LD_GENERATOR} from "./json-ld-generator";
-import {DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator} from "../configuration";
-
-type QName = [prefix: string | null, localName: string];
+import { assertNot } from "@dataspecer/core/core";
+import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
+import { DataSpecificationArtefact, DataSpecificationSchema } from "@dataspecer/core/data-specification/model";
+import { ArtefactGeneratorContext } from "@dataspecer/core/generator";
+import { StructureModel, StructureModelClass, StructureModelComplexType, StructureModelProperty } from "@dataspecer/core/structure-model/model";
+import { OFN } from "@dataspecer/core/well-known";
+import { DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator } from "../configuration";
+import { JSON_LD_GENERATOR } from "./json-ld-generator";
 
 // JSON-LD version
 const VERSION = 1.1;
 
+function tryPrefix(iri: string, prefixes: Record<string, string>): string {
+  const prefix = Object.entries(prefixes).sort(
+    (a, b) => b[1].length - a[1].length
+  ).find(([_, v]) => iri.startsWith(v));
+  if (prefix) {
+    return `${prefix[0]}:${iri.substring(prefix[1].length)}`;
+  }
+  return iri;
+}
+
+function getPrefixesForContext(localPrefixes: Record<string, string>, parentPrefixes: Record<string, string> = {}) {
+  const prefixes = {};
+  for (const [prefix, iri] of Object.entries(localPrefixes)) {
+    if (iri !== parentPrefixes[prefix]) {
+      prefixes[prefix] = tryPrefix(iri, {...parentPrefixes, ...Object.fromEntries(Object.entries(localPrefixes).filter(([k, _]) => k !== prefix))});
+    }
+  }
+  return prefixes;
+}
+
 /**
- * Returns string that is used for the @type key in the JSON-LD context and JSON schema.
+ * Returns string array that is used for the @type key in the JSON-LD context and JSON schema.
  */
-export function getClassTypeKey(cls: StructureModelClass, configuration: JsonConfiguration): string {
-  const fallback = cls.cimIri ?? cls.pimIri ?? cls.psmIri;
+export function getClassTypeKey(cls: StructureModelClass, configuration: JsonConfiguration): string[] {
+  let fallback = cls.iris;
+  if (fallback.length === 0) {
+    fallback = [cls.pimIri ?? cls.psmIri];
+  }
 
   if (configuration.jsonDefaultTypeKeyMapping === "human-label") {
     let label = cls.humanLabel[configuration.jsonDefaultTypeKeyMappingHumanLabelLang];
@@ -24,11 +45,13 @@ export function getClassTypeKey(cls: StructureModelClass, configuration: JsonCon
       console.warn(`JSON-LD Generator: There is no ${configuration.jsonDefaultTypeKeyMappingHumanLabelLang} label for given entity.`, cls);
       label = cls.humanLabel[Object.keys(cls.humanLabel)[0]] ?? cls.psmIri;
     }
-    return label ?? fallback;
+    if (label) {
+      return [label];
+    }
   }
 
   if (configuration.jsonDefaultTypeKeyMapping === "technical-label") {
-    return cls.technicalLabel ?? fallback;
+    return [cls.technicalLabel];
   }
 
   return fallback;
@@ -58,40 +81,47 @@ export class JsonLdAdapter {
       console.warn("JSON-LD generator: Multiple schema roots not supported.");
     }
 
+    const prefixes = {
+      // Pre-defined prefixes
+      "xsd": "http://www.w3.org/2001/XMLSchema#",
+
+      ...this.model.jsonLdDefinedPrefixes
+    };
+
     const rootClasses = this.model.roots[0].classes;
     // Iterate over all classes in root OR
     for (const root of rootClasses) {
-      this.generateClassContext(root, context);
+      this.generateClassContext(root, context, prefixes);
     }
 
     // Clean the object of undefined values
     return this.optimize(result);
   }
 
-  protected generatePropertyContext(property: StructureModelProperty, context: object) {
+  protected generatePropertyContext(property: StructureModelProperty, context: object, prefixes: Record<string, string>) {
     const contextData = {};
 
     const firstDataType = property.dataTypes[0];
 
     if (firstDataType.isAttribute()) {
-      contextData["@id"] = property.cimIri;
+      contextData["@id"] = tryPrefix(property.cimIri, prefixes);
 
       if (firstDataType.dataType === OFN.text || (firstDataType.dataType === OFN.rdfLangString && firstDataType.jsonUseKeyValueForLangString)) {
         contextData["@container"] = "@language";
       } else {
-        const qName = simpleTypeMapQName[firstDataType.dataType];
-        contextData["@type"] = qName ? `${qName[0]}:${qName[1]}` : (firstDataType.dataType ?? undefined);
+        const mapped = typeMapping[firstDataType.dataType];
+        contextData["@type"] = (tryPrefix(mapped ?? firstDataType.dataType, prefixes) ?? undefined);
       }
     }
 
     if (firstDataType.isAssociation()) {
       if (property.isReverse) {
-        contextData["@reverse"] = property.cimIri;
+        contextData["@reverse"] = tryPrefix(property.cimIri, prefixes);
       } else {
-        contextData["@id"] = property.cimIri;
+        contextData["@id"] = tryPrefix(property.cimIri, prefixes);
       }
 
-      if (!firstDataType.dataType.isCodelist) {
+      if (firstDataType.dataType.properties.length > 0 || firstDataType.dataType.emptyAsComplex) {
         if ((this.model.psmIri !== firstDataType.dataType.structureSchema || firstDataType.dataType.isReferenced) && !this.configuration.dereferenceContext) {
           if (property.cardinalityMax !== 1) {
             contextData["@container"] = "@set";
@@ -113,13 +143,13 @@ export class JsonLdAdapter {
             } else {
               const localContext = {}
               contextData["@context"] = localContext;
-              this.generateClassContext(firstDataType.dataType, localContext);
+              this.generateClassContext(firstDataType.dataType, localContext, prefixes);
             }
           } else {
             const localContext = [];
             for (const dataType of property.dataTypes) {
               const localContextForType = {};
-              this.generateClassContext((dataType as StructureModelComplexType).dataType, localContextForType);
+              this.generateClassContext((dataType as StructureModelComplexType).dataType, localContextForType, prefixes);
               localContext.push(localContextForType);
             }
             contextData["@context"] = localContext;
@@ -127,9 +157,8 @@ export class JsonLdAdapter {
         }
       } else {
         // This is a codelist
-        if (property.cardinalityMax === 1) {
-          contextData["@type"] = "@id";
-        } else {
+        contextData["@type"] = "@id";
+        if (property.cardinalityMax !== 1) {
           contextData["@container"] = "@set";
         }
       }
@@ -141,7 +170,10 @@ export class JsonLdAdapter {
   /**
    * Adds entry for a class to a given context.
    */
-  protected generateClassContext(cls: StructureModelClass, context: object) {
+  protected generateClassContext(cls: StructureModelClass, context: object, prefixes: Record<string, string>) {
+    Object.assign(context, getPrefixesForContext(cls.jsonLdDefinedPrefixes, prefixes));
+    prefixes = {...prefixes, ...cls.jsonLdDefinedPrefixes};
+
     // This decides whether we use Type-scoped context for this class, or Property-scoped context
     const contextType = cls.instancesSpecifyTypes === "NEVER" ? "PROPERTY-SCOPED" : (cls.instancesSpecifyTypes === "OPTIONAL" ? "BOTH" : "TYPE-SCOPED");
     //const contextType = jsonCls.jsonTypeKeyAlias === null ? "PROPERTY-SCOPED" : (jsonCls.jsonTypeRequired === false ? "BOTH" : "TYPE-SCOPED");
@@ -150,11 +182,11 @@ export class JsonLdAdapter {
 
     if (contextType !== "PROPERTY-SCOPED") {
       const classContext = {
-        "@id": cls.cimIri,
+        "@id": tryPrefix(cls.cimIri, prefixes),
       };
 
       // Classes are identified by its type keyword
-      context[getClassTypeKey(cls, this.configuration)] = classContext;
+      context[getClassTypeKey(cls, this.configuration)[0]] = classContext;
 
       if (contextType === "TYPE-SCOPED") {
         classContext["@context"] = contextForProperties;
@@ -162,7 +194,7 @@ export class JsonLdAdapter {
     }
 
     for (const property of cls.properties) {
-      this.generatePropertyContext(property, contextForProperties);
+      this.generatePropertyContext(property, contextForProperties, prefixes);
     }
   }
 
@@ -170,11 +202,9 @@ export class JsonLdAdapter {
     const context = {
       "@version": VERSION,
 
-      // For datatypes using xsd prefix
-      // todo add only if needed
-      "xsd": "http://www.w3.org/2001/XMLSchema#",
-
       //"rootcontainer": "@graph", // todo add support for root containers
+
+      ...getPrefixesForContext(this.model.jsonLdDefinedPrefixes)
     };
 
     if (this.configuration.jsonIdKeyAlias) {
@@ -240,13 +270,13 @@ function findArtefactForImport(
   return null;
 }
 
-const simpleTypeMapQName: Record<string, QName> = {
-  [OFN.boolean]: ["xsd", "boolean"],
-  [OFN.date]: ["xsd", "date"],
-  [OFN.time]: ["xsd", "time"],
-  [OFN.dateTime]: ["xsd", "dateTimeStamp"],
-  [OFN.integer]: ["xsd", "integer"],
-  [OFN.decimal]: ["xsd", "decimal"],
-  [OFN.url]: ["xsd", "anyURI"],
-  [OFN.string]: ["xsd", "string"],
+const typeMapping: Record<string, string> = {
+  [OFN.boolean]: "http://www.w3.org/2001/XMLSchema#boolean",
+  [OFN.date]: "http://www.w3.org/2001/XMLSchema#date",
+  [OFN.time]: "http://www.w3.org/2001/XMLSchema#time",
+  [OFN.dateTime]: "http://www.w3.org/2001/XMLSchema#dateTimeStamp",
+  [OFN.integer]: "http://www.w3.org/2001/XMLSchema#integer",
+  [OFN.decimal]: "http://www.w3.org/2001/XMLSchema#decimal",
+  [OFN.url]: "http://www.w3.org/2001/XMLSchema#anyURI",
+  [OFN.string]: "http://www.w3.org/2001/XMLSchema#string",
 };

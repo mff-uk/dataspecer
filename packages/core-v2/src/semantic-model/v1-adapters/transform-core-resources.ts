@@ -1,4 +1,4 @@
-import { SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "../concepts";
+import { ExtendedSemanticModelClass, SemanticModelClass, SemanticModelGeneralization, SemanticModelRelationship } from "../concepts";
 import { Entities } from "../../entity-model";
 import { PimAssociation, PimAssociationEnd, PimAttribute, PimClass } from "@dataspecer/core/pim/model";
 import { CoreResource } from "@dataspecer/core/core";
@@ -24,13 +24,20 @@ function createGeneralization(fromIri: string, toIri: string): SemanticModelGene
 export function transformPimClass(cls: PimClass) {
     const result: Record<string, SemanticModelEntity> = {};
 
-    result[cls.iri as string] = {
+    const semanticClass = {
         id: cls.iri!,
         iri: cls.pimInterpretation ?? null,
         name: cls.pimHumanLabel ?? {},
         description: cls.pimHumanDescription ?? {},
         type: ["class"],
-    } as SemanticModelClass;
+    } as SemanticModelClass & Partial<ExtendedSemanticModelClass>;
+
+    result[cls.iri as string] = semanticClass;
+
+    if (cls.pimIsCodelist) {
+        semanticClass.isCodelist = true;
+        semanticClass.codelistUrl = cls.pimCodelistUrl;
+    }
 
     cls.pimExtends
         .map((to) => createGeneralization(cls.iri as string, to))

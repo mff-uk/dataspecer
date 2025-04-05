@@ -557,7 +557,6 @@ function onChangeVisualModel(
 
   for (const visualEntity of visualEntities) {
     if(isVisualDiagramNode(visualEntity)) {
-
       const node = createVisualModelDiagramNode(
         options, aggregatorView.getAvailableVisualModels(), visualModel,
         visualEntity, nodeToGroupMapping[visualEntity.identifier] ?? null);
@@ -569,7 +568,6 @@ function onChangeVisualModel(
       const entity = entities[visualEntity.representedEntity]?.aggregatedEntity ?? null;
       if (isSemanticModelClassUsage(entity) || isSemanticModelClass(entity)
         || isSemanticModelClassProfile(entity)) {
-
         const model = findSourceModelOfEntity(entity.id, models);
         if (model === null) {
           console.error("Ignored entity for missing model.", { entity });
@@ -612,7 +610,6 @@ function onChangeVisualModel(
         console.error("Ignored entity for missing model.", { entity });
         continue;
       }
-
       const profiled: EntityDsIdentifier[] = [];
       if (isSemanticModelClassUsage(entity)) {
         profiled.push(entity.usageOf);
@@ -707,18 +704,20 @@ function createDiagramNode(
 
   const itemCandidates: Record<string, NodeItem> = {};
 
-  for(const attribute of relationships) {
-    if(visualNode.content.includes(attribute.id)) {
-      itemCandidates[attribute.id] = {
-        identifier: attribute.id,
-        label: getEntityLabelToShowInDiagram(language, attribute),
-        profileOf: null,
-      };
+  for (const attribute of relationships) {
+    if (!visualNode.content.includes(attribute.id)) {
+      continue;
     }
+
+    itemCandidates[attribute.id] = {
+      identifier: attribute.id,
+      label: getEntityLabelToShowInDiagram(language, attribute),
+      profileOf: null,
+    };
   }
 
-  for(const attributeUsage of relationshipsUsages) {
-    if(!visualNode.content.includes(attributeUsage.id)) {
+  for (const attributeUsage of relationshipsUsages) {
+    if (!visualNode.content.includes(attributeUsage.id)) {
       continue;
     }
 
@@ -731,11 +730,11 @@ function createDiagramNode(
         label: profileOf === undefined ? "" : getEntityLabelToShowInDiagram(language, profileOf),
         usageNote: getUsageNote(language, attributeUsage),
       },
-    }
+    };
   }
 
   for (const attributeProfile of relationshipsProfiles) {
-    if(!visualNode.content.includes(attributeProfile.id)) {
+    if (!visualNode.content.includes(attributeProfile.id)) {
       continue;
     }
 
@@ -748,14 +747,18 @@ function createDiagramNode(
         label: profileOf.map(item => getEntityLabelToShowInDiagram(language, item)).join(", "),
         usageNote: profileOf.map(item => getUsageNote(language, item)).join(", "),
       },
-    }
+    };
   }
 
-  // Here we could filter using the visualNode.content.
+  // We use map to force ordering of items based on content.
+  //
   // Be aware that the update of the semantic attributes comes later,
   // so there is moment when the content of visual node is set,
   // but the corresponding attributes semantic model in are not.
-  const items: NodeItem[] = visualNode.content.map(id => itemCandidates[id]).filter(item => item !== undefined);
+  // That is why we need to filter the result.
+  const items: NodeItem[] = visualNode.content
+    .map(id => itemCandidates[id])
+    .filter(item => item !== undefined);
 
   const isProfile = isSemanticModelClassUsage(entity)
     || isSemanticModelClassProfile(entity);
@@ -976,6 +979,7 @@ function onChangeVisualEntities(
     void diagram.actions().setContent([], [], []);
     return;
   }
+
   const models = graphContext.models;
   const entities = aggregatorView.getEntities();
   const relationships = classesContext.relationships;
@@ -1144,7 +1148,7 @@ function onChangeVisualEntities(
 
         const edge = createDiagramEdgeForClassUsageOrProfile(visualModel, next, entity);
         if (edge === null) {
-          console.error("Ignored null edge.", {visualEntity: next, entity});
+          console.error("Ignored null edge.", { visualEntity: next, entity });
           break;
         }
         if (previous === null) {
@@ -1153,11 +1157,11 @@ function onChangeVisualEntities(
           edgesToUpdate.push(edge);
         }
 
-        if(edgesToAdd.length > 0) {
+        if (edgesToAdd.length > 0) {
           // Create new entities.
           actions.addEdges(edgesToAdd);
         }
-        if(edgesToUpdate.length > 0) {
+        if (edgesToUpdate.length > 0) {
           // Change of existing.
           actions.updateEdges(edgesToUpdate);
         }

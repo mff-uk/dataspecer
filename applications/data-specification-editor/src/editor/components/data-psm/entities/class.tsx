@@ -52,8 +52,7 @@ export const DataPsmClassItem: React.FC<{
 
   const {dataPsmResource: dataPsmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, ExtendedSemanticModelClass>(type === "class" ? props.iri : (type === "container" ? partContext.parentDataPsmClassIri : null));
   const readOnly = false;
-  const isCodelist = pimClass?.isCodelist ?? false;
-  const cimClassIri = pimClass?.iri;
+  const isPrimitive = dataPsmClass?.dataPsmParts.length === 0 && dataPsmClass?.dataPsmEmptyAsComplex !== true;
 
   // @ts-ignore
   const unwrappedAdapter = {}; //sourceSemanticModel?.model?.cimAdapter ?? {};
@@ -117,7 +116,7 @@ export const DataPsmClassItem: React.FC<{
   };
 
   const thisMenu = <>
-    {pimClassIdForSurroundings && !readOnly && !isCodelist && <MenuItem onClick={() => AddSurroundings.open({
+    {pimClassIdForSurroundings && !readOnly && <MenuItem onClick={() => AddSurroundings.open({
       selected: addSurroundings
     })} title={t("button add")}><AddIcon/></MenuItem>}
   </>;
@@ -176,7 +175,7 @@ export const DataPsmClassItem: React.FC<{
         // @ts-ignore
         parentContainerId={type === "container" ? objectContext.nearestContainerIri : (objectContext.parentDataPsmClassIri ?? null)}
       />}
-      collapseToggle={collapseSubtree}
+      collapseToggle={!isPrimitive ? collapseSubtree : undefined}
       menu={menu}
       hiddenMenu={hiddenMenu}
       iris={iris}

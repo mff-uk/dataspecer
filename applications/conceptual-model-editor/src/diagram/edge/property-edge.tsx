@@ -12,7 +12,7 @@ import { createLogger } from "../../application/";
 
 import { type Edge as EdgeApi } from "../diagram-model";
 import { DiagramContext } from "../diagram-controller";
-import { createSvgPath, createWaypoints, findLabelPosition } from "./edge-utilities";
+import { createSvgPath, createOrthogonalWaypoints, findLabelPosition } from "./edge-utilities";
 import { Waypoints } from "./waypoints";
 import { Point } from "./math";
 
@@ -30,7 +30,7 @@ export const PropertyEdge = (props: EdgeProps<Edge<EdgeApi>>) => {
   }
 
   // Prepare waypoints for the path.
-  const waypoints = createWaypoints(sourceNode, props.data?.waypoints ?? [], targetNode);
+  const waypoints = createOrthogonalWaypoints(sourceNode, props.data?.waypoints ?? [], targetNode);
 
   // Select label position.
   const labelPosition = findLabelPosition(waypoints);
