@@ -117,7 +117,7 @@ export type VisualModelDiagramNode = {
 }
 
 export function isVisualModelDiagramNode(what: DiagramNodeTypes): what is VisualModelDiagramNode {
-  return (what as any)?.containedNodes !== undefined;
+  return (what as any)?.representedModelAlias !== undefined;
 }
 
 export interface AnchoredPosition extends Position {
