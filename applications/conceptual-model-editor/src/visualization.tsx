@@ -558,7 +558,7 @@ function onChangeVisualModel(
   for (const visualEntity of visualEntities) {
     if(isVisualDiagramNode(visualEntity)) {
       const node = createVisualModelDiagramNode(
-        options, aggregatorView.getAvailableVisualModels(), visualModel,
+        options, aggregatorView.getAvailableVisualModels(),
         visualEntity, nodeToGroupMapping[visualEntity.identifier] ?? null);
       nextNodes.push(node);
     } else if(isVisualGroup(visualEntity)) {
@@ -649,12 +649,9 @@ function createGroupNode(
 function createVisualModelDiagramNode(
   options: Options,
   availableVisualModels: VisualModel[],
-  sourceVisualModel: VisualModel,
   visualDiagramNode: VisualDiagramNode,
   group: string | null,
 ): VisualModelDiagramNode {
-  // TODO RadStr: SUPER - Why would I need the nodes recursively?
-  const containedNodes = getClassesAndDiagramNodesModelsFromVisualModelRecursively(availableVisualModels, visualDiagramNode.representedVisualModel);
   const referencedVisualModel = availableVisualModels.find(availableVisualModel => availableVisualModel.getIdentifier() === visualDiagramNode.representedVisualModel);
   let referencedVisualModelLabel = referencedVisualModel === undefined ?
     "" :
@@ -662,7 +659,6 @@ function createVisualModelDiagramNode(
   if(referencedVisualModelLabel === null) {
     referencedVisualModelLabel = "Visual model node";
   }
-  console.info("containedNodes", containedNodes);
 
   const result: VisualModelDiagramNode = {
     identifier: visualDiagramNode.identifier,
@@ -676,7 +672,6 @@ function createVisualModelDiagramNode(
       y: visualDiagramNode.position.y,
       anchored: visualDiagramNode.position.anchored
     },
-    containedNodes,
   };
 
   return result;
@@ -1047,7 +1042,7 @@ function onChangeVisualEntities(
         }
 
         const node = createVisualModelDiagramNode(
-          options, aggregatorView.getAvailableVisualModels(), visualModel, next, group);
+          options, aggregatorView.getAvailableVisualModels(), next, group);
         if (previous === null) {
           // Create new entity.
           visualDiagramNodesChanges.created.push(node);

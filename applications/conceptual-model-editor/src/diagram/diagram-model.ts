@@ -100,11 +100,6 @@ export type VisualModelDiagramNode = {
   description: string | null;
 
   /**
-   * The nodes contained in the visual model, which this node represents
-   */
-  containedNodes: string[];
-
-  /**
    * The alias of the represented visual model
    */
   representedModelAlias: string;
