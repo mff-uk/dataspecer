@@ -403,11 +403,11 @@ export function getClassesAndDiagramNodesModelsFromVisualModelRecursively(
   availableVisualModels: VisualModel[],
   visualModel: string,
 ) {
-  return getNodesAndDiagramNodesFromVisualModelInternal(
+  return getClassesAndDiagramNodesFromVisualModelInternal(
     availableVisualModels, visualModel, []);
 }
 
-function getNodesAndDiagramNodesFromVisualModelInternal(
+function getClassesAndDiagramNodesFromVisualModelInternal(
   availableVisualModels: VisualModel[],
   visualModel: string,
   result: string[],
@@ -420,7 +420,7 @@ function getNodesAndDiagramNodesFromVisualModelInternal(
       }
       else if(isVisualDiagramNode(visualEntity)) {
         result.push(visualEntity.representedVisualModel);
-        getNodesAndDiagramNodesFromVisualModelInternal(availableVisualModels, visualEntity.representedVisualModel, result);
+        getClassesAndDiagramNodesFromVisualModelInternal(availableVisualModels, visualEntity.representedVisualModel, result);
       }
     }
   }
