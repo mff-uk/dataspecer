@@ -44,141 +44,6 @@ type EdgesInLeafComponent = {
 type RootHeuristicType = "MOST_EDGES";
 
 export class GraphAlgorithms {
-    static dfs(graph: DefaultGraph, root: string, edgeType: "TODO" | "GENERALIZATION"): string[] {
-        throw new Error("Unimplemented");
-    }
-    static bfs(graph: DefaultGraph, root: string, edgeType: "TODO" | "GENERALIZATION"): string[][] {
-        throw new Error("Unimplemented");
-    }
-    static findStrongComponents(graph: DefaultGraph, edgeType: "TODO" | "GENERALIZATION"): string[][] {
-        throw new Error("Unimplemented");
-    }
-    static findWeakComponents(graph: DefaultGraph, edgeType: "TODO" | "GENERALIZATION"): string[][] {
-        throw new Error("Unimplemented");
-    }
-    static computeJacardSimilarity(graph: DefaultGraph, edgeType: "TODO" | "GENERALIZATION"): string[][] {
-        throw new Error("Unimplemented");
-    }
-    static findLeaves(graph: DefaultGraph, edgeType: "TODO" | "GENERALIZATION"): string[] {
-        throw new Error("Unimplemented");
-    }
-
-
-    // TODO RadStr: ...... Trying stuff
-    // TODO RadStr: ...... Trying stuff
-
-    // TODO RadStr: Debugs
-    static currentDCATAPTestEdgeLen = 250;
-    static moveTestEdgeLenOneUp() {
-      console.info("GraphAlgorithms.currentDCATAPTestEdgeLen", GraphAlgorithms.currentDCATAPTestEdgeLen, GraphAlgorithms.currentDCATAPTestEdgeLen.toString());
-      GraphAlgorithms.currentDCATAPTestEdgeLen += 50;
-      if(GraphAlgorithms.currentDCATAPTestEdgeLen === 300) {
-        GraphAlgorithms.currentDCATAPTestEdgeLen = 250;
-      }
-    }
-    static dcatAPTestSetter(
-      graph: MainGraph
-    ): void {
-      const leafs: Record<string, Edge[]> = {};
-      const clusters: Record<string, Edge[]> = {};
-      graph.allNodes.forEach(node => {
-        const edges = [...node.getAllEdges()];
-        let secondEnd: string | null = null;
-        let isSameEndForAllEdges = true;
-        for(const edge of node.getAllOutgoingEdges()) {
-          if(secondEnd === null) {
-            secondEnd = edge.end.id;
-          }
-          if(secondEnd !== edge.end.id) {
-            isSameEndForAllEdges = false;
-            break;
-          }
-        }
-        if(isSameEndForAllEdges) {
-          for(const edge of node.getAllIncomingEdges()) {
-            if(secondEnd === null) {
-              secondEnd = edge.start.id;
-            }
-            if(secondEnd !== edge.start.id) {
-              isSameEndForAllEdges = false;
-              break;
-            }
-          }
-
-          if(isSameEndForAllEdges) {
-            for(const edge of edges) {
-              addToRecordArray(node.id, edge, leafs);
-              const otherEnd = edge.start.id === node.id ? edge.end : edge.start;
-              addToRecordArray(otherEnd.id, edge, clusters);
-              edge.layoutOptions["stress_edge_len"] = GraphAlgorithms.currentDCATAPTestEdgeLen.toString();
-            }
-          }
-        }
-      });
-    }
-
-    static dcatAPTestSetterHardcoded(
-      graph: MainGraph
-    ): void {
-      const leafs: Record<string, Edge[]> = {};
-      const clusters: Record<string, Edge[]> = {};
-      graph.allNodes.forEach(node => {
-        const edges = [...node.getAllEdges()];
-        let secondEnd: string | null = null;
-        let isSameEndForAllEdges = true;
-        for(const edge of node.getAllOutgoingEdges()) {
-          if(secondEnd === null) {
-            secondEnd = edge.end.id;
-          }
-          if(secondEnd !== edge.end.id) {
-            isSameEndForAllEdges = false;
-            break;
-          }
-        }
-        if(isSameEndForAllEdges) {
-          for(const edge of node.getAllIncomingEdges()) {
-            if(secondEnd === null) {
-              secondEnd = edge.start.id;
-            }
-            if(secondEnd !== edge.start.id) {
-              isSameEndForAllEdges = false;
-              break;
-            }
-          }
-
-          if(isSameEndForAllEdges) {
-            for(const edge of edges) {
-              addToRecordArray(node.id, edge, leafs);
-              const otherEnd = edge.start.id === node.id ? edge.end : edge.start;
-              addToRecordArray(otherEnd.id, edge, clusters);
-              edge.layoutOptions["stress_edge_len"] = GraphAlgorithms.currentDCATAPTestEdgeLen.toString();
-            }
-          }
-        }
-      });
-
-      graph.allEdges.forEach(edge => {
-        if(edge.semanticEntityRepresentingEdge === null) {
-          return;
-        }
-        if(edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#CataloguedResource.qualifiedRelation" ||
-            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#CataloguedResource.qualifiedAttribution" ||
-            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Relationship.hadRole" ||
-            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Attribution.hadRole" ||
-
-            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Dataset.temporalCoverage" ||
-            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#PeriodOfTime.end" ||
-
-            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Dataset.spatial-geographicalCoverage" ||
-            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Location.geometry" ||
-
-            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Distribution.checksum" ||
-            edge.semanticEntityRepresentingEdge.id === "https://mff-uk.github.io/specifications/dcat-dap/#Checksum.algorithm"
-        ) {
-          edge.layoutOptions["stress_edge_len"] = GraphAlgorithms.currentDCATAPTestEdgeLen.toString();
-        }
-      });
-    }
 
     /**
      * Returns leafs paths - for example when we have node which has leafs around it and some non-leafs but those non-leafs are only paths
@@ -269,8 +134,6 @@ export class GraphAlgorithms {
                 isFirst = false;
                 addToRecordArray(otherEnd.id, edge, uniqueClusters);
               }
-              // TODO RadStr: Commented code
-              // edge.layoutOptions["stress_edge_len"] = "250";
             }
           }
         }
@@ -284,6 +147,7 @@ export class GraphAlgorithms {
         result[name] = cluster;
       }
 
+      // TODO RadStr: Debug
       console.info("Object.keys(result).length", Object.keys(result).length, result);
       console.info("Object.keys(result).length", clusters, uniqueClusters);
       return result;
@@ -341,8 +205,6 @@ export class GraphAlgorithms {
                 isFirst = false;
                 addToRecordArray(clusterRoot.id, edge, uniqueClusters);
               }
-              // TODO RadStr: Commented code
-              // edge.layoutOptions["stress_edge_len"] = "250";
             }
           }
         }
@@ -351,8 +213,6 @@ export class GraphAlgorithms {
 
       const sortedClusters = Object.entries(clusters)
         .sort(([, edgesA], [, edgesB]) => edgesB.length - edgesA.length);
-      // TODO: I should give it the uniqueClusters not the sorted ones (because it has better type)
-      // TODO: Looking up in graph again - not optimal, I should know the entities by now.
       const clusterRoots = Object.keys(clusters)
         .map(identifier => graph.findNodeInAllNodes(identifier))
         .filter(node => node !== null);
@@ -363,6 +223,7 @@ export class GraphAlgorithms {
           clusterRootsToComponentsMap[node] = componentsForNode;
         }
       }
+      // TODO RadStr: Debug
       console.info("Components", components);
       const graphComponentsToExtendClustersWith = GraphAlgorithms.findComponentsToExtendClustersWith(graph, clusterRootsToComponentsMap, sortedClusters, 3);
       GraphAlgorithms.extendClustersWithLoops(graphComponentsToExtendClustersWith.leafComponents);
@@ -373,6 +234,7 @@ export class GraphAlgorithms {
         result[name] = cluster;
       }
 
+      // TODO RadStr: Debug
       console.info("Object.keys(result).length", Object.keys(result).length, result);
       console.info("Object.keys(result).length", clusters, uniqueClusters);
       return result;
@@ -382,7 +244,7 @@ export class GraphAlgorithms {
       const components: Record<string, number[]> = {};
       let currentComponent = -1;
       for(const node of graph.allNodes) {
-        // Clutser roots get the identifier from the nodes in component
+        // Cluster roots get the identifier from the nodes in component
         if(clusterRoots.includes(node)) {
           continue;
         }
@@ -481,12 +343,9 @@ export class GraphAlgorithms {
 
 
       const leafComponents: LeafGraphComponent[] = [];
+      // TODO RadStr: DEBUG console print + we newly allow non-loop components
       console.info("LOOP COMPONENTS", {componentsToClusterRootsMap, nodesInExtensionComponents, extensionComponentToClusterRootMap: leafComponentToClusterRootMap, components: clusterRootsToComponentsMap});
       for(const [extensionComponent, nodesInExtensionComponent] of Object.entries(nodesInExtensionComponents)) {
-        // TODO: Actually no - we newly allow non-loops
-        // if(nodesInExtensionComponent.length < 2) {    // Can not be a loop
-        //   continue;
-        // }
         console.info("IN LOOP COMPONENT");
         const componentToExtendClustersWith = GraphAlgorithms.findAllEdgesInComponent(graph, nodesInExtensionComponent, maxComponentDepth);
         const clusterRootForThisComponent = leafComponentToClusterRootMap[extensionComponent];
@@ -573,19 +432,6 @@ export class GraphAlgorithms {
         const currentChain: [Node, number][] = [];
         const clusterRootForLeafIdentifier = leafComponentsData.leafComponentToClusterRootMap[leafComponent];
         const clusterRootForLeaf = allClusterRoots.find(root => root.id === clusterRootForLeafIdentifier);
-        // TODO: DEBUG
-        if(clusterRootForLeaf.semanticEntityRepresentingNode.iri === "http://spdx.org/rdf/terms#License") {
-          console.info("Chain of length http://spdx.org/rdf/terms#License");
-        }
-        if(clusterRootForLeaf.semanticEntityRepresentingNode.iri === "http://spdx.org/rdf/terms#LicenseException") {
-          console.info("Chain of length http://spdx.org/rdf/terms#LicenseException");
-        }
-        if(clusterRootForLeaf.semanticEntityRepresentingNode.iri === "http://spdx.org/rdf/terms#ExternalRef") {
-          console.info("Chain of length http://spdx.org/rdf/terms#ExternalRef");
-        }
-        if(clusterRootForLeaf.semanticEntityRepresentingNode.iri === "http://spdx.org/rdf/terms#AnyLicenseInfo") {
-          console.info("Chain of length http://spdx.org/rdf/terms#AnyLicenseInfo");
-        }
 
         GraphAlgorithms.createChainOfComponents(
           currentChain, clusterRootForLeaf, Number(leafComponent), allClusterRoots,
@@ -624,9 +470,9 @@ export class GraphAlgorithms {
               }
             }
           }
-          // TODO: The depth
-          // TODO: Return the branching factor also
+
           previousClusterRoot = node;
+          // TODO RadStr: Debug
           console.info("clusters", {...clusters});
           console.info("clusters", node.id);
           const [_cluster, edgesInCluster] = clusters.find(([id, edgesInCluster]) => id === node.id);
@@ -660,7 +506,7 @@ export class GraphAlgorithms {
         }
         const index = clusters.findIndex(([id, _edges]) => id === componentToMerge);
         if(index === -1) {
-          console.error("Shrinking non-existing cluster");
+          console.error("Shrinking non-existing cluster");    // TODO RadStr: Debug
           continue;
         }
         clusters.splice(index, 1);
@@ -687,9 +533,6 @@ export class GraphAlgorithms {
       alreadyProcessedComponents: Record<number, true>,
       leafComponentToClusterRootMap: Record<number, string>,
     ) {
-      // TODO: I am not sure about when to chain - but probably remove, we should do it later (after the if check)
-      // We want to push it in always
-      // chain.push([currentlyProcessedClusterRoot, currentComponent]);
       if(alreadyProcessedComponents[currentComponent]) {
         return;
       }
@@ -708,21 +551,13 @@ export class GraphAlgorithms {
         currentlyProcessedClusterRoot, allClusterRoots)
         .map(root => [root, -1] as [string, number]);
       chain.push([currentlyProcessedClusterRoot, currentComponent]);
+      // TODO RadStr: Debug
       console.info("clusterRootsForComponent.concat(directlyConnectedClusterRoots))", nextRootCandidatesWithComponent.concat(directlyConnectedClusterRoots).length, nextRootCandidatesWithComponent, directlyConnectedClusterRoots);
       const connectedClusterRoots = nextRootCandidatesWithComponent.concat(directlyConnectedClusterRoots);
-      // if(leafComponentToClusterRootMap[currentComponent] !== undefined) {
-      //   // If it is leaf component we we want to push it in even if we will be not extending the path
-      //   // That is the connectedClusterRoots.length > 2 check succeeds
-      //   chain.push([currentlyProcessedClusterRoot, currentComponent]);
-      // }
       if(connectedClusterRoots.length !== 1) {
-        console.info("RETURN");
+        console.info("RETURN");     // TODO RadStr: Debug
         return;
       }
-      // if(leafComponentToClusterRootMap[currentComponent] === undefined) {
-      //   // If we are not leaf, then we will push into if and only if there is next chain
-      //   chain.push([currentlyProcessedClusterRoot, currentComponent]);
-      // }
 
       for(const [nextClusterRoot, nextComponent] of connectedClusterRoots) {
         if(nextClusterRoot === currentlyProcessedClusterRoot.id) {
@@ -756,80 +591,6 @@ export class GraphAlgorithms {
         }
       }
     }
-
-    // /**
-    //  *
-    //  * @param chain Cluster roots together with the components
-    //  */
-    // static createChainOfComponents(
-    //   chain: [Node, number][],
-    //   currentlyProcessedClusterRoot: Node,
-    //   currentComponent: number,
-    //   allClusterRoots: EdgeEndPoint[],
-    //   componentsToClusterRootsMap: Record<number, string[]>,
-    //   nodesToComponentsMap: Record<string, number[]>,
-    //   alreadyProcessedComponents: Record<number, true>,
-    //   leafComponentToClusterRootMap: Record<number, string>
-    // ) {
-    //   if(alreadyProcessedComponents[currentComponent]) {
-    //     return;
-    //   }
-    //   alreadyProcessedComponents[currentComponent] = true;
-    //   chain.push([currentlyProcessedClusterRoot, currentComponent]);
-
-    //   const clusterRootsForComponent = componentsToClusterRootsMap[currentComponent];
-
-    //   const directlyConnectedClusterRoots = GraphAlgorithms.findDirectlyConnectedClusterRoots(
-    //     currentlyProcessedClusterRoot, allClusterRoots);
-
-    //   console.info("clusterRootsForComponent.concat(directlyConnectedClusterRoots))", clusterRootsForComponent.concat(directlyConnectedClusterRoots).length, clusterRootsForComponent, directlyConnectedClusterRoots);
-    //   const connectedClusterRoots = clusterRootsForComponent.concat(directlyConnectedClusterRoots);
-    //   // if(leafComponentToClusterRootMap[currentComponent] !== undefined) {
-    //   //   // If it is leaf component we we want to push it in even if we will be not extending the path
-    //   //   // That is the connectedClusterRoots.length > 2 check succeeds
-    //   //   chain.push([currentlyProcessedClusterRoot, currentComponent]);
-    //   // }
-    //   if(connectedClusterRoots.length > 2) {
-    //     console.info("RETURN");
-    //     return;
-    //   }
-    //   // if(leafComponentToClusterRootMap[currentComponent] === undefined) {
-    //   //   // If we are not leaf, then we will push into if and only if there is next chain
-    //   //   // .... TODO: Well really?
-    //   //   chain.push([currentlyProcessedClusterRoot, currentComponent]);
-    //   // }
-
-    //   for(const clusterRootForComponent of connectedClusterRoots) {
-    //     if(clusterRootForComponent === currentlyProcessedClusterRoot.id) {
-    //       continue;
-    //     }
-
-    //     const clusterRootAsNode = allClusterRoots.find(root => root.id === clusterRootForComponent);
-    //     if(nodesToComponentsMap[clusterRootForComponent].length === 2) {
-    //       for(const componentForClusterRoot of nodesToComponentsMap[clusterRootForComponent]) {
-    //         if(componentForClusterRoot === currentComponent) {
-    //           continue;
-    //         }
-    //         // We process the leaf components separately in the main loop
-    //         // Otherwise we would have something like 2 sided "triangle" -
-    //         // Think of this graph A-B-C-D-E, here B and D are cluster roots, but we don't want to connect them (unless we could somehow make the C
-    //         // the root, but that is way too complicated)
-    //         if(leafComponentToClusterRootMap[componentForClusterRoot] !== undefined) {
-    //           return;
-    //         }
-
-    //         GraphAlgorithms.createChainOfComponents(
-    //           chain, clusterRootAsNode, componentForClusterRoot,
-    //           allClusterRoots, componentsToClusterRootsMap, nodesToComponentsMap,
-    //           alreadyProcessedComponents, leafComponentToClusterRootMap);
-    //       }
-    //     }
-    //     else {
-    //       // We just push it in but we end here, because it is no longer path of components
-    //       chain.push([clusterRootAsNode, -1]);
-    //     }
-    //   }
-    // }
 
     static findDirectlyConnectedClusterRoots(sourceNode: Node, clusterRoots: EdgeEndPoint[]): string[] {
       const directlyConnectedClusterRoots: string[] = [];
@@ -987,11 +748,9 @@ export class GraphAlgorithms {
       }
     }
 
-
-
-    // TODO: We could also put how many nodes collide into the computation
     /**
      * Finds how many edges collide with the bounding box, which is placed - above, below, to the left and to the right of given {@link rootNode}.
+     * Could be improved by checking with how many nodes do we collide.
      */
     static findSectorEdgePopulation(
       graph: MainGraph,
@@ -1086,14 +845,6 @@ export class GraphAlgorithms {
         [Direction.Down]: 0,
         [Direction.Left]: 0
       };
-
-      // TODO RadStr: Actually good, but I could play with the bounding box sizes, but more importantly
-      // I should ideally make it proportional to the distance of the root cluster
-      // TODO: Old without proportional
-      // const verticalBoundingBoxWidth = 8 * ReactflowDimensionsConstantEstimator.getDefaultWidth();
-      // const verticalBoundingBoxHeight = 6 * ReactflowDimensionsConstantEstimator.getDefaultHeight();
-      // const horizontalBoundingBoxWidth = 3 * ReactflowDimensionsConstantEstimator.getDefaultWidth();
-      // const horizontalBoundingBoxHeight = 20 * ReactflowDimensionsConstantEstimator.getDefaultHeight();
       const clusterSize = edgesInCluster.length;
       const verticalBoundingBoxWidth = 2 * clusterSize * ReactflowDimensionsConstantEstimator.getDefaultWidth();
       const verticalBoundingBoxHeight = 6 * ReactflowDimensionsConstantEstimator.getDefaultHeight();
@@ -1136,8 +887,6 @@ export class GraphAlgorithms {
 
       return populations;
     }
-    // TODO RadStr: ...... Trying stuff - END
-    // TODO RadStr: ...... Trying stuff - END
 
     /**
      * This method modifies input graph.
@@ -1145,15 +894,8 @@ export class GraphAlgorithms {
      * The result of this method is the change of input graph in such a way that the input graph becomes a tree (respectively DAG).
      * The method sets the isConsideredInLayout and reverseInLayout properties on edges and may add some dummy edges (for example to connect components)
      */
-    static treeify(graph: Graph, rootNodeIdentifier?: string, edgeType?: "TODO" | "GENERALIZATION"): void {
-      // TODO: Maybe only work with the subgraph or maybe only on the main graph, for example graph.resetForNewLayout, I am not sure if it works on subgraph
-      let rootNode: Node;
-      if(rootNodeIdentifier === undefined) {
-          rootNode = GraphAlgorithms.findRootNode(graph, "MOST_EDGES");
-      }
-      else {
-          // Empty for now
-      }
+    static treeify(graph: Graph, rootNodeIdentifier?: string): void {
+      const rootNode: Node = GraphAlgorithms.findRootNode(graph, "MOST_EDGES");
 
       const visitedNodes: Record<string, true> = {};
       const usedEdges: Record<string, true> = {};
@@ -1161,35 +903,36 @@ export class GraphAlgorithms {
       let nodeToBFSLevelMap = GraphAlgorithms.treeifyBFSFromRoot(graph, visitedNodes, usedEdges, rootNode.id);
       const maxLevelInOriginalTree = Math.max(...Object.values(nodeToBFSLevelMap));
       Object.entries(graph.nodes).forEach(([nodeIdentifier, node]) => {
-          if(visitedNodes[nodeIdentifier] === undefined) {
-              // Have to Add edge because the radial algorithm can not work with graph with multiple components
-              // TODO: Alternative solution is to layout each subgraph with radial algorithm, but it is a bit more work to implement
-              const leaf = graph.nodes[Object.entries(nodeToBFSLevelMap).find(([_, level]) => level === maxLevelInOriginalTree)[0]];
+        if(visitedNodes[nodeIdentifier] === undefined) {
+          // Have to Add edge because the radial algorithm can not work with graph with multiple components
+          // Alternative solution is to layout each subgraph with radial algorithm, but it is a bit more work to implement
+          const leaf = graph.nodes[Object.entries(nodeToBFSLevelMap).find(([_, level]) => level === maxLevelInOriginalTree)[0]];
 
-              const addedEdge = DefaultEdge.addNewEdgeToGraph(
-                  graph, null, null, null, leaf.id, node.id, null, "outgoingRelationshipEdges");
-
-
-              // addedEdge.isConsideredInLayout = true;
-              usedEdges[addedEdge.id] = true;
-              const nextNodeToBFSLevelMap = GraphAlgorithms.treeifyBFSFromRoot(graph, visitedNodes, usedEdges, nodeIdentifier);
-              Object.keys(nextNodeToBFSLevelMap).forEach(id => {
-                nextNodeToBFSLevelMap[id] += maxLevelInOriginalTree;
-              });
+          const addedEdge = DefaultEdge.addNewEdgeToGraph(
+              graph, null, null, null, leaf.id, node.id, null, "outgoingRelationshipEdges");
 
 
-              nodeToBFSLevelMap = {
-                ...nodeToBFSLevelMap,
-                ...nextNodeToBFSLevelMap
-              };
-          }
+          // addedEdge.isConsideredInLayout = true;
+          usedEdges[addedEdge.id] = true;
+          const nextNodeToBFSLevelMap = GraphAlgorithms.treeifyBFSFromRoot(graph, visitedNodes, usedEdges, nodeIdentifier);
+          Object.keys(nextNodeToBFSLevelMap).forEach(id => {
+            nextNodeToBFSLevelMap[id] += maxLevelInOriginalTree;
+          });
+
+
+          nodeToBFSLevelMap = {
+            ...nodeToBFSLevelMap,
+            ...nextNodeToBFSLevelMap
+          };
+        }
       });
 
 
 
       for (const edge of graph.mainGraph.allEdges) {
-        // Otherwise the edges within subgraphs aren't in the final layout, which doesn't actually affect the node positions, but we are missing the edges then
-        // TODO: Or maybe we don't, we can set them from the previous run to the graph and we don't override them in the second run since they are not there ... so maybe unnecessary check
+        // Otherwise the edges within subgraphs aren't in the final layout,
+        // which doesn't actually affect the node positions,
+        // but we are missing the edges then
         const isInSubgraphEdge = graph.nodes[edge.start.id] === undefined || graph.nodes[edge.end.id] === undefined;
         if(Object.keys(usedEdges).find(usedEdge => usedEdge === edge.id) === undefined && !isInSubgraphEdge) {
           edge.isConsideredInLayout = false;
@@ -1200,8 +943,11 @@ export class GraphAlgorithms {
       }
 
 
-      // TODO: This would be better, but for some reason the radial algorithm doesn't work for larger graphs if we use max DAG (it takes too long and it is really interesting
-      //       because on the DCAT-AP it works for the one large component but then we just connect 1 new node to the leaf and we are already in huge recursive call which doesn't stop)
+      // Commented code:
+      // This would be better, but for some reason the radial algorithm doesn't work for larger graphs if we use max DAG.
+      // It takes too long. It is really interesting, because on the DCAT-AP it works for the one large component,
+      // but then we just connect 1 new node to the leaf and we are already in huge recursive call which doesn't stop).
+      // This is Elk issue, not issue in my implementation.
       // GraphAlgorithms.addEdgesBackToGraphAndKeepItDAG(graph, usedEdges, nodeToBFSLevelMap);
   }
 
@@ -1289,8 +1035,11 @@ export class GraphAlgorithms {
       return root;
   }
 
-  // Taken from https://www.geeksforgeeks.org/articulation-points-or-cut-vertices-in-a-graph/
-  // The code is pretty awful though
+  /**
+   * Taken from https://www.geeksforgeeks.org/articulation-points-or-cut-vertices-in-a-graph/
+   * The code is pretty awful though
+   * @deprecated It probably works since it is slightly modified code from web, but we are not using it anyways
+   */
   static findArticulationPoints(graph: MainGraph): EdgeEndPoint[] {
     const vertices = graph.allNodes.length;
     const result = [];
@@ -1326,6 +1075,7 @@ export class GraphAlgorithms {
             result.push(u);
 
     const articulationPoints = result.map(index => graph.allNodes[index]);
+
     console.info("articulations", adjList, articulationPoints);
 
 
@@ -1377,43 +1127,4 @@ export class GraphAlgorithms {
     if (parent === -1 && children > 1)
         isAP[u] = 1;
   }
-
-
-
-  static getSubgraphUsingBFS(graph: DefaultGraph, edgeType: "TODO" | "GENERALIZATION", depth: number): DefaultGraph {
-      throw new Error("Unimplemented");
-  }
-  static findCliques(graph: DefaultGraph, edgeType: "TODO" | "GENERALIZATION", size: number): DefaultGraph {      // TODO:
-      throw new Error("Unimplemented");
-  }
-}
-
-class VisualAlgorithms {
-    findClusters(graph: DefaultGraph): string[][] {
-        throw new Error("Unimplemented");
-    }
-    // TODO: Well this is calling layered algorithm with parameters which perform this effect
-    layerify(graph: DefaultGraph): void {
-        throw new Error("Unimplemented");
-    }
-    // TODO: well this is basically calling https://eclipse.dev/elk/reference/algorithms/org-eclipse-elk-sporeCompaction.html
-    compactify(graph: DefaultGraph): void {
-        throw new Error("Unimplemented");
-    }
-    // TODO: The idea was to do something like layerify but manually, based on node proximities, etc.
-    prettify(graph: DefaultGraph): void {
-        throw new Error("Unimplemented");
-    }
-    computeAspectRatio(graph: DefaultGraph): number {
-        throw new Error("Unimplemented");
-    }
-    computeTotalGraphSize(graph: DefaultGraph): Dimensions {
-        throw new Error("Unimplemented");
-    }
-    computeTotalGraphArea(graph: DefaultGraph): number {
-        throw new Error("Unimplemented");
-    }
-    computeActuallyUsedGraphArea(graph: DefaultGraph): number {
-        throw new Error("Unimplemented");
-    }
 }

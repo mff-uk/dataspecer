@@ -212,16 +212,17 @@ export class DefaultNode implements Node {
       }
 
 
-              // TODO: We don't really need the whole thing, we just need the attribute so storing the target of the relationship should be enough !
-      //       But we store it all for now.
+      // We don't really need the whole thing.
+      // We just need the attribute so storing the target of the relationship should be enough !
+      // But we store it all for now.
       this.attributes = extractedModels.attributes.filter(attributesBundle => {
           const {source, target, ...rest} = getEdgeSourceAndTargetRelationship(attributesBundle.semanticRelationship);
           return this.semanticEntityRepresentingNode.id === source;
       }).map(attributeBundle => attributeBundle.semanticRelationship);
       if(visualNode !== null) {
-          this.id = visualNode.identifier;
           // Kind of ugly,
           // but the reason why need to do this is because the Reactflow dimension handlers, need the id.
+          this.id = visualNode.identifier;
       }
       const width = this.mainGraph.nodeDimensionQueryHandler.getWidth(this);
       const height = this.mainGraph.nodeDimensionQueryHandler.getHeight(this);
