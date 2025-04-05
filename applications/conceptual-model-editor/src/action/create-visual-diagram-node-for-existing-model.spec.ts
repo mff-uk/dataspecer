@@ -18,12 +18,17 @@ test("Test addVisualDiagramNodeForExistingModelToVisualModelAction", () => {
   } = ActionsTestSuite.prepareModelsWithSemanticData(0);
   const diagram = ActionsTestSuite.createTestDiagram();
 
+  // Prepare data
   const referencedVisualModel: WritableVisualModel = createDefaultVisualModelFactory().createNewWritableVisualModelSync();
   ActionsTestSuite.createNewVisualNodeForTesting(referencedVisualModel, model.getId(), "2");
   ActionsTestSuite.createNewVisualNodeForTesting(referencedVisualModel, model.getId(), "3");
   graph.aggregator.addModel(referencedVisualModel);
+
+  // Perform action
   addVisualDiagramNodeForExistingModelToVisualModelAction(
     notificationMockup, graph, diagram, visualModel, {}, {}, referencedVisualModel.getIdentifier());
+
+  // Check results
   expect([...visualModel.getVisualEntities().keys()].length).toBe(1);
   const visualDiagramNode = [...visualModel.getVisualEntities().values()][0];
   expect(isVisualDiagramNode(visualDiagramNode)).toBeTruthy();

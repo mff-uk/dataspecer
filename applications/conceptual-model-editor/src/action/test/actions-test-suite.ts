@@ -9,7 +9,8 @@ import {
   Position,
   ViewportDimensions,
   NodeType,
-  EdgeType
+  EdgeType,
+  VisualModelDiagramNode
 } from "../../diagram";
 import { UseDiagramType } from "../../diagram/diagram-hook";
 import { UseNotificationServiceWriterType } from "../../notification/notification-service-context";
@@ -18,11 +19,12 @@ import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-
 import { createClass, CreatedEntityOperationResult, createGeneralization, createRelationship } from "@dataspecer/core-v2/semantic-model/operations";
 import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
 import { SetStateAction } from "react";
-import { createDefaultVisualModelFactory, isVisualNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
+import { createDefaultVisualModelFactory, isVisualNode, VisualDiagramNode, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
 import { SemanticModelAggregator, SemanticModelAggregatorView } from "@dataspecer/core-v2/semantic-model/aggregator";
 import { XY } from "@dataspecer/layout";
 import { ModelGraphContextType, UseModelGraphContextType } from "@/context/model-context";
 import { CmeSpecialization } from "@/dataspecer/cme-model/model";
+import { addVisualDiagramNode } from "@/dataspecer/visual-model/operation/add-visual-diagram-node";
 
 type CreatedSemanticEntityData = {
   identifier: string,
@@ -296,7 +298,7 @@ export class ActionsTestSuite {
    * 3rd fully connected graph.
    * The identifiers of the classes are "0"-"11" and the identifiers of the relationships are sourceID-rangeID
    *
-   * Also creates visual model with 0-4 nodes based on given {@link visualModelSize}.
+   * Also creates visual model with 0-4 nodes based on given {@link visualModelSize} from the first semantic model.
    *
    * The {@link classesContext} on output contain the relevant data, but they are not updated based on changes.
    */
@@ -481,6 +483,55 @@ export class ActionsTestSuite {
     });
 
     return visualId;
+  }
+
+  /**
+   * @returns The identifier of the created visual entity representing diagram node.
+   */
+  static createNewVisualDiagramNodeForTesting(
+    visualModel: WritableVisualModel,
+    representedVisualModel: string,
+    position?: XY
+  ): string {
+    const nodePosition = position !== undefined ? {...position, anchored: null} : { x: 0, y: 0, anchored: null };
+    const visualId = addVisualDiagramNode(visualModel, {}, {}, nodePosition, representedVisualModel);
+    return visualId;
+  }
+
+  static createNewVisualModelDiagramNodeForTesting(
+    identifier: string,
+    representedVisualModel: string,
+    position?: XY
+  ): VisualModelDiagramNode {
+    const nodePosition = position !== undefined ? {...position, anchored: null} : { x: 0, y: 0, anchored: null };
+
+    const result: VisualModelDiagramNode = {
+      identifier,
+      externalIdentifier: representedVisualModel,
+      label: "",
+      description: null,
+      containedNodes: [],
+      representedModelAlias: "",
+      group: null,
+      position: nodePosition
+    };
+    return result;
+  }
+
+  static createNewVisualModelDiagramNodeFromVisualDiagramNodeForTesting(
+    visualDiagramNode: VisualDiagramNode,
+  ): VisualModelDiagramNode {
+    const result: VisualModelDiagramNode = {
+      identifier: visualDiagramNode.identifier,
+      externalIdentifier: visualDiagramNode.representedVisualModel,
+      label: "",
+      description: "",
+      containedNodes: [],
+      representedModelAlias: "",
+      group: null,
+      position: visualDiagramNode.position
+    };
+    return result;
   }
 
   static createSemanticRelationshipTestVariant(
