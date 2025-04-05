@@ -890,11 +890,11 @@ export class GraphAlgorithms {
 
     /**
      * This method modifies input graph.
-     * Either uses the given {@link rootNodeIdentifier} as root of tree (the node from which starts BFS search) or finds one through heuristic.
+     * Finds the node from which starts BFS search through heuristic.
      * The result of this method is the change of input graph in such a way that the input graph becomes a tree (respectively DAG).
      * The method sets the isConsideredInLayout and reverseInLayout properties on edges and may add some dummy edges (for example to connect components)
      */
-    static treeify(graph: Graph, rootNodeIdentifier?: string): void {
+    static treeify(graph: Graph): void {
       const rootNode: Node = GraphAlgorithms.findRootNode(graph, "MOST_EDGES");
 
       const visitedNodes: Record<string, true> = {};
