@@ -40,8 +40,7 @@ import { ExplicitAnchors } from "./explicit-anchors";
 import { AreaMetric } from "./graph/graph-metrics/implemented-metrics/area-metric";
 import { NodeOrthogonalityMetric } from "./graph/graph-metrics/implemented-metrics/node-orthogonality";
 import { EdgeCrossingAngleMetric } from "./graph/graph-metrics/implemented-metrics/edge-crossing-angle";
-import { Metric } from "./graph/graph-metrics/graph-metric";
-import { GraphAlgorithms } from "./graph-algoritms";
+import { ComputedMetricValues, Metric } from "./graph/graph-metrics/graph-metric";
 import { Node } from "./graph/representation/node";
 export { type Node };
 import { GraphFactory } from "./graph/representation/graph-factory";
@@ -86,9 +85,7 @@ export type XY = Omit<Position, "anchored">;
 // 1) Actions which should be performed before we start the layouting. Meaning layouting in sense that we enter the loop which runs the algorithm 1 or more times to find the best layout.
 // 2) Then actions which should be performed in the loop (For example run random layout, followed by stress layout, followed by layered algorithm)
 // The actions in 1) and 2) are either GraphConversionConstraint or AlgorithmConfiguration, depending on the type of action
-// But that isn't all, we also have pre- and post- conditions, which are special actions which should be performed before, respectively after the steps 1), 2)
-// There are currntly no pre- and post- conditions, so it may make sense to remove that part of code - TODO:
-
+// TODO: Write the important places here to look at if you want to program your own algorithm
 
 
 
@@ -275,7 +272,9 @@ const performLayoutingBasedOnConstraints = async (
 }
 
 /**
- * Run the main layouting algorithm for the given graph. TODO: Well it is not just the main, there may be layerify after, etc.
+ * Run the main layouting algorithm for the given graph. The algorithm is ran multiple times based on settings.
+ * The algorithm is set of steps, it isn't just call of one method, the set of steps depends on the implementation of algorithm.
+ * The steps can be for example - run stress algorithm, after that run node overlap removal algorithm.
  */
 const runMainLayoutAlgorithm = async (
 	graph: MainGraph,
@@ -350,7 +349,8 @@ const runMainLayoutAlgorithm = async (
 	}
 
 	for(const key of Object.keys(computedMetricsData.metricResultAggregations)) {
-		computedMetricsData.metricResultAggregations[key].avg /= numberOfAlgorithmRuns;
+		computedMetricsData.metricResultAggregations[key].avg.absoluteValue /= numberOfAlgorithmRuns;
+		computedMetricsData.metricResultAggregations[key].avg.relativeValue /= numberOfAlgorithmRuns;
 	}
 
 	console.log("Metrics aggregations result: ", computedMetricsData.metricResultAggregations);
@@ -366,43 +366,51 @@ type MetricWithWeight = {
 }
 
 type MetricResultsAggregation = {
-	avg: number,
+	avg: ComputedMetricValues,
 	min: MetricWithGraphPromise | null,
 	max: MetricWithGraphPromise | null,
 }
 
 type MetricWithGraphPromise = {
-	value: number,
+	value: ComputedMetricValues,
 	graphPromise: Promise<MainGraph>
+}
+
+function createMetricMinDefault(): MetricWithGraphPromise {
+	return {
+		value: {
+			absoluteValue: 100000000,
+			relativeValue: 100000000
+		},
+		graphPromise: null
+	};
+}
+
+function createMetricMaxDefault(): MetricWithGraphPromise {
+	return {
+		value: {
+			absoluteValue: -100000000,
+			relativeValue: -100000000
+		},
+		graphPromise: null
+	};
 }
 
 function createObjectsToHoldMetricsData(metrics: MetricWithWeight[]) {
 	const metricResultAggregations: Record<string, MetricResultsAggregation> = {};
 	metrics
 		.forEach(metric => metricResultAggregations[metric.name] = {
-			avg: 0,
-			min: {
-				value: 10000000,
-				graphPromise: null
-			},
-			max: {
-				value: -10000000,
-				graphPromise: null
-			},
+			avg: { absoluteValue: 0, relativeValue: 0 },
+			min: createMetricMinDefault(),
+			max: createMetricMaxDefault(),
 		});
 		metricResultAggregations["total"] = {
-			avg: 0,
-			min: {
-				value: 10000000,
-				graphPromise: null
-			},
-			max: {
-				value: -10000000,
-				graphPromise: null
-			},
+			avg: { absoluteValue: 0, relativeValue: 0 },
+			min: createMetricMinDefault(),
+			max: createMetricMaxDefault(),
 		};
 
-	const metricResults: Record<string, number[]> = {};
+	const metricResults: Record<string, ComputedMetricValues[]> = {};
 	metrics.forEach(metric => metricResults[metric.name] = []);
 	metricResults["total"] = [];
 
@@ -415,25 +423,27 @@ function createObjectsToHoldMetricsData(metrics: MetricWithWeight[]) {
 export function getBestLayoutFromMetricResultAggregation(
 	metricResultAggregations: Record<string, MetricResultsAggregation>
 ): Promise<MainGraph> {
-	const resultingGraph = metricResultAggregations["total"].max.graphPromise;
+	// TODO: If we want to use relative - use max instead of min
+	const resultingGraph = metricResultAggregations["total"].min.graphPromise;
 	return resultingGraph;
 }
 
 export function getBestMetricResultAggregation(
 	metricResultAggregations: Record<string, MetricResultsAggregation>
 ): MetricWithGraphPromise {
-	const best = metricResultAggregations["total"].max;
+	// TODO: If we want to use relative - use max instead of min
+	const best = metricResultAggregations["total"].min;
 	return best;
 }
 
 function performMetricsComputation(
 	metricsToCompute: MetricWithWeight[],
-	computedMetricsFromPreviousIterations: Record<string, number[]>,
+	computedMetricsFromPreviousIterations: Record<string, ComputedMetricValues[]>,
 	metricResultsAggregation: Record<string, MetricResultsAggregation>,
 	graph: MainGraph,
 	layoutedGraphPromise: Promise<MainGraph>,
 ) {
-	const computedMetrics = [];
+	const computedMetrics: ComputedMetricValues[] = [];
 	for(const metricToCompute of metricsToCompute) {
 		const computedMetric = metricToCompute.metric.computeMetric(graph as unknown as DefaultGraph);		// TODO RadStr: Fix the typing
 		computedMetricsFromPreviousIterations[metricToCompute.name].push(computedMetric);
@@ -442,29 +452,38 @@ function performMetricsComputation(
 		setMetricResultsAggregation(metricResultsAggregation, metricToCompute.name, computedMetric, layoutedGraphPromise);
 	}
 
-	let absoluteMetric = 0;
+	const total: ComputedMetricValues = {
+		absoluteValue: 0,
+		relativeValue: 0
+	}
 	for(let i = 0; i < computedMetrics.length; i++) {
-		absoluteMetric += metricsToCompute[i].weight * computedMetrics[i];
+		total.absoluteValue += metricsToCompute[i].weight * computedMetrics[i].absoluteValue;
+		total.relativeValue += metricsToCompute[i].weight * computedMetrics[i].relativeValue;
 	}
 
-	computedMetricsFromPreviousIterations["total"].push(absoluteMetric);
-	setMetricResultsAggregation(metricResultsAggregation, "total", absoluteMetric, layoutedGraphPromise);
+	computedMetricsFromPreviousIterations["total"].push(total);
+	setMetricResultsAggregation(metricResultsAggregation, "total", total, layoutedGraphPromise);
 }
 
 function setMetricResultsAggregation(
 	metricResultsAggregation: Record<string, MetricResultsAggregation>,
 	key: string,
-	computedMetric: number,
+	computedMetric: ComputedMetricValues,
 	layoutedGraphPromise: Promise<MainGraph>,
 ) {
-	metricResultsAggregation[key].avg += computedMetric;
-	if(metricResultsAggregation[key].min.value > computedMetric) {
+	metricResultsAggregation[key].avg.absoluteValue += computedMetric.absoluteValue;
+	metricResultsAggregation[key].avg.relativeValue += computedMetric.relativeValue;
+	// TODO: Just do reallly quick expriment later, maybe I can use the relativeValues and the results are good enough
+
+	// TODO: Ideally we would work with the relativeValue (that is values in range [0, 1]),
+	//       but to find the right normalization and weights for that is highly non-trivial task
+	if(metricResultsAggregation[key].min.value.absoluteValue > computedMetric.absoluteValue) {
 		metricResultsAggregation[key].min = {
 			value: computedMetric,
 			graphPromise: layoutedGraphPromise
 		};
 	}
-	if(metricResultsAggregation[key].max.value < computedMetric) {
+	if(metricResultsAggregation[key].max.value.absoluteValue < computedMetric.absoluteValue) {
 		metricResultsAggregation[key].max = {
 			value: computedMetric,
 			graphPromise: layoutedGraphPromise

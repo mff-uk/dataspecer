@@ -1,6 +1,6 @@
 import { Position } from "@dataspecer/core-v2/visual-model";
 import { DefaultGraph, Graph } from "../../representation/graph";
-import { AllMetricData, Metric } from "../graph-metric";
+import { AllMetricData, ComputedMetricValues, Metric } from "../graph-metric";
 import { findNodeBorder } from "../../../util/utils";
 import { XY } from "../../..";
 import { VisualNodeComplete } from "../../representation/node";
@@ -9,7 +9,7 @@ import { VisualNodeComplete } from "../../representation/node";
  * Metric for the number of crossing edges
  */
 export class EdgeCrossingMetric implements Metric {
-    computeMetric(graph: Graph): number {
+    computeMetric(graph: Graph): ComputedMetricValues {
         let edgeCrossingCount: number = 0;
         const nodes = Object.values(graph.nodes);
         nodes.forEach(sourceNode1 => {
@@ -40,9 +40,16 @@ export class EdgeCrossingMetric implements Metric {
         maxPossibleCrossCount += (1/2) * degrees.reduce((accumulator, degree) => accumulator + degree * (degree - 1), 0);
 
         if(maxPossibleCrossCount === 0) {
-            return 1;
+            return {
+                absoluteValue: 0,
+                relativeValue: 0,
+            };
         }
-        return 1 - (edgeCrossingCount / maxPossibleCrossCount);
+
+        return {
+            absoluteValue: edgeCrossingCount,
+            relativeValue: 1 - (edgeCrossingCount / maxPossibleCrossCount)
+        };
     }
 
     // Based on https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
@@ -72,10 +79,10 @@ export class EdgeCrossingMetric implements Metric {
         return (c.y-a.y)*(b.x-a.x) > (b.y-a.y)*(c.x-a.x);
     }
 
-    computeMetricForNodes(graph: DefaultGraph): Record<string, number> {
+    computeMetricForNodes(graph: DefaultGraph): Record<string, ComputedMetricValues> {
         throw new Error("Method not implemented.");
     }
-    computeMetricForEdges(graph: DefaultGraph): Record<string, number> {
+    computeMetricForEdges(graph: DefaultGraph): Record<string, ComputedMetricValues> {
         throw new Error("Method not implemented.");
     }
     computeMetricsForEverything(graph: DefaultGraph): AllMetricData {

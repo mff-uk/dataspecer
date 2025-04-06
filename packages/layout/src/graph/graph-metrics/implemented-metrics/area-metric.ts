@@ -1,13 +1,13 @@
 import { DefaultGraph, Graph } from "../../representation/graph";
 import { getBotRightPosition, getTopLeftPosition } from "../../../util/utils";
-import { AllMetricData, Metric } from "../graph-metric";
+import { AllMetricData, ComputedMetricValues, Metric } from "../graph-metric";
 
 // Experimental
 /**
  * Metric which computes the area the graph occupies
  */
 export class AreaMetric implements Metric {
-    computeMetric(graph: Graph): number {
+    computeMetric(graph: Graph): ComputedMetricValues {
         const nodes = Object.values(graph.nodes);
         const topLeft = getTopLeftPosition(nodes);
         const botRight = getBotRightPosition(nodes);
@@ -35,13 +35,16 @@ export class AreaMetric implements Metric {
 
         // TODO RadStr: Debug
         console.info({areaMetric, area, idealArea});
-        return areaMetric;
+        return {
+            absoluteValue: area,
+            relativeValue: areaMetric
+        };
     }
 
-    computeMetricForNodes(graph: DefaultGraph): Record<string, number> {
+    computeMetricForNodes(graph: DefaultGraph): Record<string, ComputedMetricValues> {
         throw new Error("Method not implemented.");
     }
-    computeMetricForEdges(graph: DefaultGraph): Record<string, number> {
+    computeMetricForEdges(graph: DefaultGraph): Record<string, ComputedMetricValues> {
         throw new Error("Method not implemented.");
     }
     computeMetricsForEverything(graph: DefaultGraph): AllMetricData {

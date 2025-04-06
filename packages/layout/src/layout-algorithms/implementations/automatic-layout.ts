@@ -22,8 +22,9 @@ export class AutomaticLayout implements LayoutAlgorithm {
       for(const algorithmToTry of algorithmsToTry) {
         const result = await performLayoutFromGraph(graphCopy, algorithmToTry);
         const currentMetricResult = getBestMetricResultAggregation(result);
-        if(currentMetricResult.value > best) {
-          best = currentMetricResult.value;
+        // TODO: If we swap to relative we have to use <
+        if(currentMetricResult.value.absoluteValue > best) {
+          best = currentMetricResult.value.absoluteValue;
           bestGraph = currentMetricResult.graphPromise;
         }
       }

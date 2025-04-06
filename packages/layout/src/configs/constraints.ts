@@ -1,6 +1,6 @@
 import { Direction } from "../util/utils";
 import _ from "lodash";
-import { ElkForceAlgType, ElkStressConfiguration } from "./elk/elk-constraints";
+import { ElkForceAlgType } from "./elk/elk-constraints";
 import { Edge } from "../graph/representation/edge";
 import { AlgorithmName } from "../layout-algorithms/list-of-layout-algorithms";
 
@@ -247,7 +247,9 @@ export interface UserGivenAlgorithmConfigurationOnlyData extends UserGivenAlgori
     "layout_alg": AlgorithmName,        // Now it is actually redundant, but it is still to better to keep it here (rewriting takes too much work)
     // The idea is to have fields which are "main" in a way and universal (so they can be actually shared between algorithms) and then just advanced_settings
     // which contains additional configuration in the JSON format of given library
-    // (Note: the advanced_settings should override the main one if passed - TODO: Rewrite so it is actually the case)
+    // Note: the advanced_settings should override the main ones if passed, but it should not override the algorithm itself.
+    //       (For example when I am calling elk.stress I can't just pass in elk.layered and run that instead,
+    //        but I can change the desiredEdgeLength if I want to)
     "interactive": boolean,
     "advanced_settings": Record<string, string>,
 }
@@ -297,11 +299,8 @@ export function getDefaultMainUserGivenAlgorithmConstraint(algorithmName: Algori
     };
 }
 
-export type ConstraintTime = "PRE-MAIN" | "IN-MAIN" | "POST-MAIN";
-
 interface IConstraintType {
     name: string;
-    constraintTime: ConstraintTime;
     type: string;
 }
 
@@ -340,7 +339,6 @@ export abstract class AlgorithmConfiguration implements IAlgorithmConfiguration 
     data: object;
     type: string;
     name: string;
-    constraintTime: ConstraintTime = "IN-MAIN";
     shouldCreateNewGraph: boolean;
     algorithmPhasesToCall: AlgorithmPhases;
 

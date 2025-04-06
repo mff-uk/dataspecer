@@ -1,14 +1,14 @@
 import { Edge } from "../../representation/edge";
 import { DefaultGraph, Graph } from "../../representation/graph";
 import { VisualNodeComplete } from "../../representation/node";
-import { AllMetricData, Metric } from "../graph-metric";
+import { AllMetricData, ComputedMetricValues, Metric } from "../graph-metric";
 import { EdgeCrossingMetric } from "./edge-crossing";
 
 /**
  * Computes the crosses between nodes and edges
  */
 export class EdgeNodeCrossingMetric implements Metric {
-    computeMetric(graph: Graph): number {
+    computeMetric(graph: Graph): ComputedMetricValues {
         let edgeNodeCrossingCount: number = 0;
         const nodes = Object.values(graph.nodes);
         nodes.forEach(n => {
@@ -24,9 +24,16 @@ export class EdgeNodeCrossingMetric implements Metric {
 
         const maxPossibleCrossingCount = (nodes.length - 2) * graph.mainGraph.allEdges.length;
         if(maxPossibleCrossingCount === 0) {
-            return 1;
+            return {
+                absoluteValue: 0,
+                relativeValue: 0,
+            };
         }
-        return 1 - (edgeNodeCrossingCount / maxPossibleCrossingCount)
+
+        return {
+            absoluteValue: edgeNodeCrossingCount,
+            relativeValue: maxPossibleCrossingCount,
+        };
     }
 
 
@@ -75,10 +82,10 @@ export class EdgeNodeCrossingMetric implements Metric {
         return uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1;
       }
 
-    computeMetricForNodes(graph: DefaultGraph): Record<string, number> {
+    computeMetricForNodes(graph: DefaultGraph): Record<string, ComputedMetricValues> {
         throw new Error("Method not implemented.");
     }
-    computeMetricForEdges(graph: DefaultGraph): Record<string, number> {
+    computeMetricForEdges(graph: DefaultGraph): Record<string, ComputedMetricValues> {
         throw new Error("Method not implemented.");
     }
     computeMetricsForEverything(graph: DefaultGraph): AllMetricData {

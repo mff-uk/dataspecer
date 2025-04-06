@@ -1,7 +1,7 @@
 
 import { Edge } from "../../representation/edge";
 import { DefaultGraph, Graph } from "../../representation/graph";
-import { AllMetricData, Metric } from "../graph-metric";
+import { AllMetricData, ComputedMetricValues, Metric } from "../graph-metric";
 import { EdgeCrossingMetric } from "./edge-crossing";
 
 
@@ -49,7 +49,7 @@ function createVectorFromEdge(edge: Edge) {
  * optimal seems to be 70 degrees
  */
 export class EdgeCrossingAngleMetric implements Metric {
-    computeMetric(graph: Graph): number {
+    computeMetric(graph: Graph): ComputedMetricValues {
       const idealAngle = 70;
       let crossCount = 0;
       let angleDifferenceSum = 0;
@@ -80,15 +80,22 @@ export class EdgeCrossingAngleMetric implements Metric {
       // Based on page 3 in https://osf.io/preprints/osf/wgzn5_v1
       const denominator = crossCount * idealAngle;
       if(denominator === 0) {
-        return 1;
+        return {
+          absoluteValue: 0,
+          relativeValue: 1
+        };
       }
-      return 1 - (angleDifferenceSum / denominator);
+
+      return {
+        absoluteValue: angleDifferenceSum / denominator,
+        relativeValue: 1 - (angleDifferenceSum / denominator),
+      }
     }
 
-    computeMetricForNodes(graph: DefaultGraph): Record<string, number> {
+    computeMetricForNodes(graph: DefaultGraph): Record<string, ComputedMetricValues> {
         throw new Error("Method not implemented.");
     }
-    computeMetricForEdges(graph: DefaultGraph): Record<string, number> {
+    computeMetricForEdges(graph: DefaultGraph): Record<string, ComputedMetricValues> {
         throw new Error("Method not implemented.");
     }
     computeMetricsForEverything(graph: DefaultGraph): AllMetricData {

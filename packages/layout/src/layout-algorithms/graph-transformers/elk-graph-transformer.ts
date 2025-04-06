@@ -12,6 +12,7 @@ import { ReactflowDimensionsConstantEstimator, XY } from "../..";
 import { VisualEntities } from "../../migration-to-cme-v2";
 import { EdgeEndPoint } from "../../graph/representation/edge";
 import _ from "lodash";
+import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 type VisualEntitiesType = (VisualNodeComplete | VisualRelationship | VisualProfileRelationship)[];
 
@@ -62,8 +63,7 @@ export class ElkGraphTransformer implements GraphTransformer {
             console.warn("Visual node copy before createElkNode");
             console.warn(_.cloneDeep(node));
             if(node.isProfile) {
-              // TODO: Profiles instead of usages
-                return this.createElkNode(id, constraintContainer, node, elkNodeToSet, true, "USAGE OF: " + (node.semanticEntityRepresentingNode as SemanticModelClassUsage).usageOf);
+                return this.createElkNode(id, constraintContainer, node, elkNodeToSet, true, "PROFILE OF: " + (node.semanticEntityRepresentingNode as SemanticModelClassProfile)?.profiling);
             }
             else {
                 const elkNode = this.createElkNode(id, constraintContainer, node, elkNodeToSet, true, node?.semanticEntityRepresentingNode?.iri);     // TODO: Not sure what is the ID (visual or semantic entity id?)
@@ -435,9 +435,6 @@ export class ElkGraphTransformer implements GraphTransformer {
         return portOptions;
     }
 
-
-    // TODO: I should have boolean option which says if I should use the position or not and set it always if the position of entity in the source graph is set.
-    //       and update method docs based on it
     /**
      * Creates node in the ELK library representation (type {@link ElkNode}) based on given data.
      */

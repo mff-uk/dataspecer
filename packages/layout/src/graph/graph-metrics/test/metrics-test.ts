@@ -15,7 +15,7 @@ function testMetrics(graph: MainGraph, nodeDimensionQueryHandler: NodeDimensionQ
 	const edgeNodeCrossingMetric: EdgeNodeCrossingMetric = new EdgeNodeCrossingMetric();
 	const edgeCrossCountForCurrent = edgeCrossingMetric.computeMetric(graph);
 	const edgeNodeCrossCountForCurrent = edgeNodeCrossingMetric.computeMetric(graph);
-	const absoluteMetricForCurrent = edgeCrossCountForCurrent + edgeNodeCrossCountForCurrent;
+	const absoluteMetricForCurrent = edgeCrossCountForCurrent.absoluteValue + edgeNodeCrossCountForCurrent.absoluteValue;
 
 	console.log("Edge cross count: " + edgeCrossCountForCurrent);
 	console.log("Edge node cross count: " + edgeNodeCrossCountForCurrent);

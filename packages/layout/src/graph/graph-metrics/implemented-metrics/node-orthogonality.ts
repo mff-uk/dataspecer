@@ -1,6 +1,6 @@
 import { DefaultGraph, Graph } from "../../representation/graph";
 import { VisualNodeComplete } from "../../representation/node";
-import { AllMetricData, Metric } from "../graph-metric";
+import { AllMetricData, ComputedMetricValues, Metric } from "../graph-metric";
 
 function areNodesAligned(
   node1: VisualNodeComplete,
@@ -28,12 +28,11 @@ function areNodesAligned(
 
 
 /**
- * Computes nearly orthogonal nodes TODO: Maybe I would compute nearly orthogonal and close to each other ... bu this just gets too complicated - how can I make that a number between [0, 1]?
+ * Computes nearly orthogonal nodes
  */
 export class NodeOrthogonalityMetric implements Metric {
-    computeMetric(graph: Graph): number {
-      const alingmentLimit = 20;
-      let alignedNodesCount = 0;      // TODO RadStr: I dont know this computes something slightly different, maybe it mgiht be more useful - it computes number of aligned pairs
+    computeMetric(graph: Graph): ComputedMetricValues {
+      const alingmentLimit = 20;      // TODO RadStr: Maybe try 0
       const nodes = Object.values(graph.nodes);
       const alreadyAligned: boolean[] = Array(nodes.length).fill(false);
       for (let i = 0; i < nodes.length; i++) {
@@ -43,7 +42,8 @@ export class NodeOrthogonalityMetric implements Metric {
           }
           const areAligned = areNodesAligned(
             nodes[i].completeVisualNode, nodes[j].completeVisualNode, alingmentLimit);
-          alignedNodesCount += areAligned ? 1 : 0;
+          // Alternatively here we could compute the number of aligned pairs instead:
+          // alignedPairCount += areAligned ? 1 : 0;
           if(areAligned) {
             alreadyAligned[i] = true;
             alreadyAligned[j] = true;
@@ -53,13 +53,18 @@ export class NodeOrthogonalityMetric implements Metric {
 
       console.info({alreadyAligned});
       console.info({nodes});
-      return alreadyAligned.filter(isAligned => isAligned).length / nodes.length;
+
+      const alignedCount = alreadyAligned.filter(isAligned => isAligned).length;
+      return {
+        absoluteValue: alignedCount,
+        relativeValue: alignedCount / nodes.length,
+      };
     }
 
-    computeMetricForNodes(graph: DefaultGraph): Record<string, number> {
+    computeMetricForNodes(graph: DefaultGraph): Record<string, ComputedMetricValues> {
       throw new Error("Method not implemented.");
     }
-    computeMetricForEdges(graph: DefaultGraph): Record<string, number> {
+    computeMetricForEdges(graph: DefaultGraph): Record<string, ComputedMetricValues> {
       throw new Error("Method not implemented.");
     }
     computeMetricsForEverything(graph: DefaultGraph): AllMetricData {

@@ -34,9 +34,9 @@ export class ElkLayeredConfiguration extends LayeredConfiguration implements Elk
         console.log("elkData in LayeredConfiguration");
         console.log(_.cloneDeep(this.elkData));
 
-        // TODO: For now - hardcoded
+        // Hardcoded defaults
         this.elkData['elk.edgeRouting'] = "SPLINES";
-        this.elkData['spacing.edgeEdge'] = "25";
+        this.elkData['spacing.edgeEdge'] = "10";
 
         modifyElkDataObject(this.data, this.elkData);
 

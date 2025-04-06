@@ -68,9 +68,9 @@ export class ReactflowDimensionsEstimator implements NodeDimensionQueryHandler {
 }
 
 
-// TODO PRQuestion: Copy-pasted
-// TODO PRQuestion: I Can't access this, since the CME is dependent on layout package not the other way around.
-// So either have it here copy-pasted or put somewhere, where it can be accessed
+// TODO: Copy-pasted
+// TODO: I Can't access this, since the CME is dependent on layout package not the other way around.
+//       So either have it here copy-pasted or put somewhere, where it can be accessed from both CME and here
 const vocabulary : [string, string][] = [
     ["http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf"],
     ["http://www.w3.org/2000/01/rdf-schema#", "rdfs"],
@@ -84,7 +84,7 @@ const vocabulary : [string, string][] = [
   /**
    * Given IRI return a prefix or null when no prefix is found.
    */
-  export const prefixForIri = (iri: string | null) : string | null => {
+  const prefixForIri = (iri: string | null) : string | null => {
     for (const [prefix, shortcut] of vocabulary) {
       if (iri?.startsWith(prefix)) {
         return shortcut;
@@ -97,7 +97,7 @@ const vocabulary : [string, string][] = [
    * Given an absolute URL replace the absolute part with a prefix.
    * If there is no prefix match, returns the original.
    */
-  export const usePrefixForIri = (iri: string | null) : string | null => {
+  const usePrefixForIri = (iri: string | null) : string | null => {
     for (const [prefix, shortcut] of vocabulary) {
       if (iri?.startsWith(prefix)) {
         return shortcut + ":" + iri.substring(prefix.length);
