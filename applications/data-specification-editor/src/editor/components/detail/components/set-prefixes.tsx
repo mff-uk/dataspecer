@@ -20,7 +20,7 @@ export const SetPrefixes = (props: SetPrefixesProps) => {
 
   return (
     <TableContainer component={Paper}>
-      <Table size="small">
+      <Table size="small" sx={{ tableLayout: "fixed" }}>
         <TableHead>
           <TableRow>
             <TableCell sx={{ width: "20%" }} align="right">
@@ -92,15 +92,19 @@ function Row({
   } else {
     return (
       <TableRow key={prefix}>
-        <TableCell align="right">{prefix}</TableCell>
-        <TableCell sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-          <div style={{ flexGrow: 1 }}>{iri}</div>
-          <IconButton size="small" onClick={() => setIsBeingModified(true)}>
-            <EditTwoToneIcon fontSize="small" />
-          </IconButton>
-          <IconButton color="error" size="small" onClick={onDelete}>
-            <DeleteTwoToneIcon fontSize="small" />
-          </IconButton>
+        <TableCell align="right" style={{ overflow: "hidden", overflowWrap: "anywhere" }}>
+          {prefix}
+        </TableCell>
+        <TableCell>
+          <div style={{ display: "flex", gap: 1, alignItems: "center" }}>
+            <div style={{ flexGrow: 1, overflow: "hidden", overflowWrap: "anywhere" }}>{iri}</div>
+            <IconButton size="small" onClick={() => setIsBeingModified(true)}>
+              <EditTwoToneIcon fontSize="small" />
+            </IconButton>
+            <IconButton color="error" size="small" onClick={onDelete}>
+              <DeleteTwoToneIcon fontSize="small" />
+            </IconButton>
+          </div>
         </TableCell>
       </TableRow>
     );

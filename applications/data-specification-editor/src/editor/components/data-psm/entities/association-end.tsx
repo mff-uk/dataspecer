@@ -39,7 +39,7 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots & Clas
   const correctEnd = pimSemanticRelationship?.ends[isBackwardsAssociation ? 0 : 1];
   const incorrectEnd = pimSemanticRelationship?.ends[isBackwardsAssociation ? 1 : 0];
 
-  const psmClassOrReference = useResource<DataPsmClass | DataPsmClassReference>(dataPsmAssociationEnd?.dataPsmPart);
+  const {resource: psmClassOrReference} = useResource<DataPsmClass | DataPsmClassReference>(dataPsmAssociationEnd?.dataPsmPart);
   const {resource: pimClass} = useResource<ExtendedSemanticModelClass>(DataPsmClass.is(psmClassOrReference) ? psmClassOrReference.dataPsmInterpretation : null);
 
   const isCodelist = pimClass?.isCodelist ?? false;
