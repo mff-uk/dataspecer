@@ -53,10 +53,11 @@ export class EdgeCrossingAngleMetric implements Metric {
       const idealAngle = 70;
       let crossCount = 0;
       let angleDifferenceSum = 0;
-      for(let i = 0; i < graph.mainGraph.allEdges.length; i++) {
-        for(let j = i; j < graph.mainGraph.allEdges.length; j++) {
-          const edge1 = graph.mainGraph.allEdges[i];
-          const edge2 = graph.mainGraph.allEdges[j];
+      const edges = graph.mainGraph.getAllEdgesInMainGraph();
+      for(let i = 0; i < edges.length; i++) {
+        for(let j = i; j < edges.length; j++) {
+          const edge1 = edges[i];
+          const edge2 = edges[j];
 
           const vector1 = createVectorFromEdge(edge1);
           const vector2 = createVectorFromEdge(edge2);

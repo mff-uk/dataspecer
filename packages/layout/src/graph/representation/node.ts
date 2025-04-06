@@ -255,7 +255,7 @@ export class DefaultNode implements Node {
       this.id = this.completeVisualNode.coreVisualNode.identifier;
 
       sourceGraph.nodes[this.id] = this;
-      mainGraph.allNodes.push(this);
+      mainGraph.insertInAllNodes(this);
       if(semanticEntityRepresentingNode === null) {
           addToRecordArray(this.id, this, this.mainGraph.semanticNodeToVisualMap);
       }

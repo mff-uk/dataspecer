@@ -22,7 +22,7 @@ export class EdgeNodeCrossingMetric implements Metric {
             }
         });
 
-        const maxPossibleCrossingCount = (nodes.length - 2) * graph.mainGraph.allEdges.length;
+        const maxPossibleCrossingCount = (nodes.length - 2) * graph.mainGraph.getAllEdgesInMainGraph().length;
         if(maxPossibleCrossingCount === 0) {
             return {
                 absoluteValue: 0,

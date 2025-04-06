@@ -123,8 +123,8 @@ export class DefaultEdge implements Edge {
     //    console.log(visualModel);
 
         const mainGraph = graph.mainGraph;
-        const source = mainGraph.allNodes.find(n => n.id === sourceIdentifier);
-        const target = mainGraph.allNodes.find(n => n.id === targetIdentifier);
+        const source = mainGraph.findNodeInAllNodes(sourceIdentifier);
+        const target = mainGraph.findNodeInAllNodes(targetIdentifier);
 
         // console.log("targetNode");
         // console.log(targetNode);
@@ -174,7 +174,6 @@ export class DefaultEdge implements Edge {
     ) {
         console.info("CREATING EDGE", this);
 
-        sourceGraph.mainGraph.allEdges.push(this);
         this.sourceGraph = sourceGraph;
         this.isDummy = false;
         this.sourceModelIdentifier = sourceModelIdentifier;
@@ -187,6 +186,7 @@ export class DefaultEdge implements Edge {
 
         this.visualEdge = this.createVisualEdgeBasedOnData(visualRelationship, semanticEdge, this.edgeProfileType, sourceModelIdentifier, start, end);
         this.id = identifier ?? this.visualEdge.visualEdge.identifier;
+        sourceGraph.mainGraph.insertInAllEdges(this);
 
         if(semanticEdge === null) {
             addToRecordArray(this.id, this, sourceGraph.mainGraph.semanticEdgeToVisualMap);

@@ -53,7 +53,7 @@ export class GraphAlgorithms {
     ): void {
       const leafs: Record<string, Edge[]> = {};
       const clusters: Record<string, Edge[]> = {};
-      graph.allNodes.forEach(node => {
+      graph.getAllNodesInMainGraph().forEach(node => {
         const edges = [...node.getAllEdges()];
         let secondEnd: string | null = null;
         let isSameEndForAllEdges = true;
@@ -97,7 +97,7 @@ export class GraphAlgorithms {
       const leafs: Record<string, Edge[]> = {};
       const clusters: Record<string, Edge[]> = {};
       const uniqueClusters: Record<string, Edge[]> = {};    // Clusters without multi-edges - we just take 1 representative
-      graph.allNodes.forEach(node => {
+      graph.getAllNodesInMainGraph().forEach(node => {
         const edges = [...node.getAllEdges()];
         let secondEnd: string | null = null;
         let isSameEndForAllEdges = true;
@@ -160,7 +160,7 @@ export class GraphAlgorithms {
       const leafs: Record<string, Edge[]> = {};
       const clusters: Record<string, Edge[]> = {};
       const uniqueClusters: Record<string, Edge[]> = {};    // Clusters without multi-edges - we just take 1 representative
-      graph.allNodes.forEach(node => {
+      graph.getAllNodesInMainGraph().forEach(node => {
         const edges = [...node.getAllEdges()];
         let secondEnd: string | null = null;
         let isSameEndForAllEdges = true;
@@ -243,7 +243,7 @@ export class GraphAlgorithms {
     static findComponents(graph: MainGraph, clusterRoots: EdgeEndPoint[]) {
       const components: Record<string, number[]> = {};
       let currentComponent = -1;
-      for(const node of graph.allNodes) {
+      for(const node of graph.getAllNodesInMainGraph()) {
         // Cluster roots get the identifier from the nodes in component
         if(clusterRoots.includes(node)) {
           continue;
@@ -817,7 +817,7 @@ export class GraphAlgorithms {
                                                                 rootNode.completeVisualNode.height;
       boundingBoxes[Direction.Down] = boundingBoxVisualNodeComplete;
 
-      for(const edge of graph.allEdges) {
+      for(const edge of graph.getAllEdgesInMainGraph()) {
         if((edgesToConsider === ToConsiderFilter.OnlyLayouted && !edge.isConsideredInLayout) ||
            (edgesToConsider === ToConsiderFilter.OnlyNotLayouted && edge.isConsideredInLayout)) {
           continue;
@@ -852,7 +852,7 @@ export class GraphAlgorithms {
       const horizontalBoundingBoxHeight = 3 * clusterSize * ReactflowDimensionsConstantEstimator.getDefaultHeight();
 
       const rootNodePosition = rootNode.completeVisualNode.coreVisualNode.position;
-      for(const node of graph.allNodes) {
+      for(const node of graph.getAllNodesInMainGraph()) {
         if(node.id === rootNode.id) {
           continue;
         }
@@ -929,7 +929,7 @@ export class GraphAlgorithms {
 
 
 
-      for (const edge of graph.mainGraph.allEdges) {
+      for (const edge of graph.mainGraph.getAllEdgesInMainGraph()) {
         // Otherwise the edges within subgraphs aren't in the final layout,
         // which doesn't actually affect the node positions,
         // but we are missing the edges then
@@ -1041,7 +1041,7 @@ export class GraphAlgorithms {
    * @deprecated It probably works since it is slightly modified code from web, but we are not using it anyways
    */
   static findArticulationPoints(graph: MainGraph): EdgeEndPoint[] {
-    const vertices = graph.allNodes.length;
+    const vertices = graph.getAllNodesInMainGraph().length;
     const result = [];
     const disc: number[] = new Array(vertices).fill(0);
     const low: number[] = new Array(vertices).fill(0);
@@ -1056,9 +1056,9 @@ export class GraphAlgorithms {
     for(let i = 0; i < vertices; i++) {
       adjList[i] = [];
     }
-    for(const edge of graph.allEdges) {
-      const start = graph.findNodeIndexInAllNodes(edge.start.id);
-      const end = graph.findNodeIndexInAllNodes(edge.end.id);
+    for(const edge of graph.getAllEdgesInMainGraph()) {
+      const start = graph.getAllNodesInMainGraph().findIndex(node => node.id === edge.start.id);
+      const end = graph.getAllNodesInMainGraph().findIndex(node => node.id === edge.end.id);
       adjList[start].push(end);
       adjList[end].push(start);
     }

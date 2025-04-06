@@ -12,7 +12,7 @@ export class ElkProfileLayout extends ElkLayout {
       console.error("Incorrect configuration for ElkProfileLayout, can't correctly set initial positions for profile layouting");
       return;
     }
-    for(const edge of graph.mainGraph.allEdges) {
+    for(const edge of graph.mainGraph.getAllEdgesInMainGraph()) {
       if(edge.edgeProfileType === "CLASS-PROFILE") {
         const profiledClassPosition = edge.end.completeVisualNode.coreVisualNode.position;
         switch(constraintContainer.currentLayoutAction.action.data.preferredProfileDirection){

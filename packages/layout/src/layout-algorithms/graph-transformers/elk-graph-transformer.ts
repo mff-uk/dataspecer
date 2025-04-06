@@ -259,6 +259,8 @@ export class ElkGraphTransformer implements GraphTransformer {
         console.info(referenceX);
         console.info(referenceY);
 
+        console.info("graphToBeUpdated.mainGraph", graphToBeUpdated.mainGraph);
+
         for(let ch of elkNode.children) {
             const newPosition = this.convertElkNodeToPosition(ch, referenceX, referenceY);
             const node = graphToBeUpdated.mainGraph.findNodeInAllNodes(ch.id);

@@ -32,7 +32,7 @@ export class EdgeCrossingMetric implements Metric {
         });
 
         edgeCrossingCount /= 2;
-        const totalEdgeCount = graph.mainGraph.allEdges.length;
+        const totalEdgeCount = graph.mainGraph.getAllEdgesInMainGraph().length;
         // Upper bound is based on https://osf.io/preprints/osf/wgzn5_v1 (page 3) - it is more strict than
         // the maximum upper bound, which is the first part of the computation - that is m * (m-1) / 2
         let maxPossibleCrossCount = (totalEdgeCount * (totalEdgeCount - 1)) / 2;

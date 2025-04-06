@@ -138,20 +138,24 @@ export interface MainGraph extends Graph {
     /**
      * List of all nodes/subgraphs in the graph.
      */
-    allNodes: EdgeEndPoint[],
+    allNodes: Record<string, EdgeEndPoint>,
+    insertInAllNodes(node: EdgeEndPoint): void,
+    getAllNodesInMainGraph(): EdgeEndPoint[],
     /**
      * List of all edges in the graph.
      */
-    allEdges: Edge[],       // TODO: Kdyz uz mam tyhle edges, tak to potencionalne muzu mit jako mapu a v ramci tech nodu si jen pamatovat ID misto celych objektu, ale je to celkem jedno
-                                    //       (+ tohle pak nebude pole, respektvie bych si ho musel ziskavat skrz Object.values)
+    allEdges: Record<string, Edge>,
+    insertInAllEdges(edge: Edge): void,
+    getAllEdgesInMainGraph(): Edge[],
 
     nodeDimensionQueryHandler: NodeDimensionQueryHandler;
 
-    // TODO: Maybe map to make it faster
     findNodeInAllNodes(nodeIdentifier: string): EdgeEndPoint | null,
     findEdgeInAllEdges(edgeIdentifier: string): Edge | null,
-    findNodeIndexInAllNodes(nodeIdentifier: string): number | null,
-    findEdgeIndexInAllEdges(edgeIdentifier: string): number | null,
+
+    removeFromAllNodes(nodeIdentifier): void,
+    removeFromAllEdges(edgeIdentifier): void,
+
     /**
      * Call this method on the "wrapper" graph to convert all entities within the graph to VisualEntites which can be used in Visual model
      */
@@ -183,7 +187,7 @@ export class DefaultGraph implements Graph {
     ) {
         this.sourceGraph = sourceGraph;
         if(!(this instanceof DefaultMainGraph)) {
-            mainGraph.allNodes.push(this);
+            mainGraph.allNodes[graphIdentifier] = this;
         }
         else {
             if(nodeDimensionQueryHandler === undefined || nodeDimensionQueryHandler === null) {
@@ -548,7 +552,7 @@ export class DefaultGraph implements Graph {
 
     public createGeneralizationSubgraphs() {
         const generalizationEdges: SemanticModelGeneralization[] = [];
-        this.mainGraph.allEdges.forEach(edge => {
+        this.mainGraph.getAllEdgesInMainGraph().forEach(edge => {
             if(isSemanticModelGeneralization(edge.semanticEntityRepresentingEdge) && this.isEdgeInsideGraph(edge)) {
                 generalizationEdges.push(edge.semanticEntityRepresentingEdge);
             }
@@ -776,8 +780,7 @@ export class DefaultGraph implements Graph {
         index = edge.end[reverseEdgeType].indexOf(edge);
         edge.end[reverseEdgeType].splice(index, 1);
 
-        index = this.mainGraph.findEdgeIndexInAllEdges(edge.id);
-        this.mainGraph.allEdges.splice(index, 1);
+        this.mainGraph.removeFromAllEdges(edge.id);
     }
 
     /**
@@ -787,11 +790,7 @@ export class DefaultGraph implements Graph {
         for(const edge of node.getAllEdges()) {
             this.removeEdge(edge);
         }
-
-        const index = this.mainGraph.findNodeIndexInAllNodes(node.id);
-        if(index !== null) {
-            this.mainGraph.allNodes.splice(index, 1);
-        }
+        this.mainGraph.removeFromAllNodes(node.id);
     }
 
 
@@ -870,32 +869,44 @@ export class DefaultGraph implements Graph {
 export class DefaultMainGraph extends DefaultGraph implements MainGraph {
     semanticNodeToVisualMap: Record<string, EdgeEndPoint[]> = {};
     semanticEdgeToVisualMap: Record<string, Edge[]> = {};
-    allNodes: EdgeEndPoint[] = [];
-    allEdges: Edge[] = [];
+    allNodes: Record<string, EdgeEndPoint> = {};
+    allEdges: Record<string, Edge> = {};
     nodeDimensionQueryHandler: NodeDimensionQueryHandler;
 
     findNodeInAllNodes(nodeIdentifier: string): EdgeEndPoint | null {
-        return this.allNodes.find(node => node.id === nodeIdentifier);
+        return this.allNodes[nodeIdentifier] ?? null;
     }
     findEdgeInAllEdges(edgeIdentifier: string): Edge | null {
-        return this.allEdges.find(edge => edge?.id === edgeIdentifier);
+        return this.allEdges[edgeIdentifier] ?? null;
     }
 
-    findNodeIndexInAllNodes(nodeIdentifier: string): number | null {
-        const index = this.allNodes.findIndex(node => node.id === nodeIdentifier);
-        return (index < 0) ? null : index;
+    getAllNodesInMainGraph(): EdgeEndPoint[] {
+        return Object.values(this.allNodes);
     }
-    findEdgeIndexInAllEdges(edgeIdentifier: string): number | null {
-        const index = this.allEdges.findIndex(edge => edge?.id === edgeIdentifier);
-        return (index < 0) ? null : index;
+    getAllEdgesInMainGraph(): Edge[] {
+        return Object.values(this.allEdges);
+    }
+
+    insertInAllNodes(node: EdgeEndPoint): void {
+        this.allNodes[node.id] = node;
+    }
+    insertInAllEdges(edge: Edge): void {
+        this.allEdges[edge.id] = edge;
+    }
+
+    removeFromAllNodes(nodeIdentifier: string): void {
+        delete this.allNodes[nodeIdentifier];
+    }
+    removeFromAllEdges(edgeIdentifier: string): void {
+        delete this.allEdges[edgeIdentifier];
     }
 
     resetForNewLayout(): void {
-        this.allNodes.forEach(node => {
+        this.getAllNodesInMainGraph().forEach(node => {
             node.isConsideredInLayout = true;
         });
 
-        this.allEdges.forEach(edge => {
+        this.getAllEdgesInMainGraph().forEach(edge => {
             edge.reverseInLayout = false;
             edge.isConsideredInLayout = true;
         })
@@ -904,7 +915,7 @@ export class DefaultMainGraph extends DefaultGraph implements MainGraph {
     convertWholeGraphToDataspecerRepresentation(): LayoutedVisualEntities {
         const visualEntities: LayoutedVisualEntities = {};
 
-        for(const node of this.allNodes) {
+        for(const node of this.getAllNodesInMainGraph()) {
             if(node.isDummy) {
                 continue;
             }
@@ -918,7 +929,7 @@ export class DefaultMainGraph extends DefaultGraph implements MainGraph {
             };
         }
 
-        for(const edge of this.allEdges) {
+        for(const edge of this.getAllEdgesInMainGraph()) {
             if(edge.isDummy) {
                 continue;
             }

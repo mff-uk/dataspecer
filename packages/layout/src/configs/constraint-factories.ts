@@ -307,7 +307,7 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
         console.info("algorithmConversionConstraint.data.clusterifyConstraint.data.clusters", algorithmConversionConstraint.data.clusterifyConstraint.data.clusters);
 
         for (const [cluster, edgesInCluster] of Object.entries(algorithmConversionConstraint.data.clusterifyConstraint.data.clusters)) {
-            for (const node of graph.allNodes) {
+            for (const node of graph.getAllNodesInMainGraph()) {
                 const isInCluster = edgesInCluster
                     .find(edge => edge.start.id === node.id || edge.end.id === node.id) !== undefined;
                 if (isInCluster) {
@@ -318,7 +318,7 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
                 }
             }
 
-            for(const edge of graph.allEdges) {
+            for(const edge of graph.getAllEdgesInMainGraph()) {
                 edge.isConsideredInLayout = false;
             }
 
@@ -376,14 +376,14 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
                 x: clusterRoorPositionAfterLayout.x - clusterRootPositionBeforeLayout.x,
                 y: clusterRoorPositionAfterLayout.y - clusterRootPositionBeforeLayout.y,
             };
-            for (const node of graph.allNodes) {
+            for (const node of graph.getAllNodesInMainGraph()) {
                 if (node.isConsideredInLayout) {
                     const nodePosition = node.completeVisualNode.coreVisualNode.position;
                     nodePosition.x -= positionShift.x;
                     nodePosition.y -= positionShift.y;
                 }
             }
-            for (const edge of graph.allEdges) {
+            for (const edge of graph.getAllEdgesInMainGraph()) {
                 if (edge.isConsideredInLayout) {
                     for (const waypoint of edge.visualEdge.visualEdge.waypoints) {
                         waypoint.x -= positionShift.x;
@@ -397,7 +397,7 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
         for (const [cluster, edgesInCluster] of Object.entries(algorithmConversionConstraint.data.clusterifyConstraint.data.clusters)) {
             // Anchor clusters ... alternative solution is to layout subgraphs, but elk doesn't like that
             // (the results are really bad, but maybe that was issue on my side)
-            for (const node of graph.allNodes) {
+            for (const node of graph.getAllNodesInMainGraph()) {
                 const isInCluster = node.id === cluster || edgesInCluster
                     .find(edge => edge.start.id === node.id || edge.end.id === node.id) !== undefined;
                 if (isInCluster) {
