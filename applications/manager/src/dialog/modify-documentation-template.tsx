@@ -145,7 +145,7 @@ export const ModifyDocumentationTemplate = ({ isOpen, resolve, iri }: { iri: str
     (async () => {
       const data = (await packageService.getResourceJsonData(iri)) ?? {};
       const configuration = createDefaultConfigurationModelFromJsonObject(data);
-      const documentationConfiguration = createPartialDocumentationConfiguration(configuration);
+      const documentationConfiguration = structuredClone(createPartialDocumentationConfiguration(configuration));
       currentPartials.current = documentationConfiguration.partials;
       setPartialsState(getNewPartialsState(defaultPartials, currentPartials.current));
       selectNewPartial(MAIN_TEMPLATE);
