@@ -237,11 +237,14 @@ function validateVisualModel(
     ...classesContext.relationshipProfiles,
   ];
 
-  validateVisualModelDiagramNodes(actions, visualModel, aggregatorView, allClasses, relationships);
-  validateVisualModelNonDiagramNodes(actions, visualModel, classesContext, models);
+  validateVisualModelAgainstDiagramNodes(actions, visualModel, aggregatorView, allClasses, relationships);
+  validateClassProfilesInsideVisualModel(actions, visualModel, classesContext, models);
 }
 
-function validateVisualModelNonDiagramNodes(
+/**
+ * Validates the class profiles inside visual model, meaning those which have not on end the visual diagram node.
+ */
+function validateClassProfilesInsideVisualModel(
   actions: ActionsContextType,
   visualModel: WritableVisualModel,
   classesContext: UseClassesContextType,
@@ -332,7 +335,11 @@ function validateVisualModelNonDiagramNodes(
   }
 }
 
-function validateVisualModelDiagramNodes(
+/**
+ * Removes the visual relationship profiles going from/to diagram node and validates relationships
+ * inside model, where one can (but doesn't have to) be visual diagram node.
+ */
+function validateVisualModelAgainstDiagramNodes(
   actions: ActionsContextType,
   visualModel: VisualModel,
   aggregatorView: SemanticModelAggregatorView,
