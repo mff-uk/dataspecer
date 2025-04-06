@@ -7,7 +7,6 @@ import { DefaultGraph, DefaultMainGraph, Graph, isSubgraph, MainGraph } from "..
 import { ElkExtendedEdge, ElkLabel, ElkNode, ElkPort } from "elkjs";
 import { ElkConstraintContainer } from "../../configs/constraint-container";
 import { CONFIG_TO_ELK_CONFIG_MAP } from "../../configs/elk/elk-utils";
-import { SemanticModelClassUsage } from "@dataspecer/core-v2/semantic-model/usage/concepts";
 import { ReactflowDimensionsConstantEstimator, XY } from "../..";
 import { VisualEntities } from "../../migration-to-cme-v2";
 import { EdgeEndPoint } from "../../graph/representation/edge";
@@ -63,10 +62,13 @@ export class ElkGraphTransformer implements GraphTransformer {
             console.warn("Visual node copy before createElkNode");
             console.warn(_.cloneDeep(node));
             if(node.isProfile) {
-                return this.createElkNode(id, constraintContainer, node, elkNodeToSet, true, "PROFILE OF: " + (node.semanticEntityRepresentingNode as SemanticModelClassProfile)?.profiling);
+                return this.createElkNode(
+                    id, constraintContainer, node, elkNodeToSet, true,
+                    "PROFILE OF: " + (node.semanticEntityRepresentingNode as SemanticModelClassProfile)?.profiling);
             }
             else {
-                const elkNode = this.createElkNode(id, constraintContainer, node, elkNodeToSet, true, node?.semanticEntityRepresentingNode?.iri);     // TODO: Not sure what is the ID (visual or semantic entity id?)
+                const elkNode = this.createElkNode(
+                    id, constraintContainer, node, elkNodeToSet, true, node?.semanticEntityRepresentingNode?.iri);
                 if(node instanceof DefaultGraph) {
                     this.convertGraphToLibraryRepresentationInternal(node, true, constraintContainer, elkNode);
                 }
@@ -77,6 +79,7 @@ export class ElkGraphTransformer implements GraphTransformer {
         const edges = [];
 
         Object.entries(graph.nodes).map(([id, node]) => {
+            // TODO RadStr: Remove the commented code after debugging visual model
             // console.log("node");
             // console.log(node);
             // console.log(node.getAllOutgoingEdges());
@@ -86,7 +89,7 @@ export class ElkGraphTransformer implements GraphTransformer {
                 }
 
 
-                // TODO: Remove the commented code after debugging visual model
+                // TODO RadStr: Remove the commented code after debugging visual model
                 // console.log("Created edge:");
                 // console.log("START:");
                 // console.log(edge.start.node?.iri ?? edge.start.id);
@@ -248,8 +251,8 @@ export class ElkGraphTransformer implements GraphTransformer {
      * Recursively updates {@link graphToBeUpdated} based on positions in {@link elkNode}.
      */
     recursivelyUpdateGraphBasedOnElkNode(elkNode: ElkNode, graphToBeUpdated: Graph, referenceX: number, referenceY: number, shouldUpdateEdges: boolean): VisualEntitiesType {
-        // TODO: If we add phantom nodes (and later when also draw edges this may stop working)
         let visualEntities : VisualEntitiesType = [];
+        // TODO RadStr: Debug prints, just remove later
         console.info("referenceX");
         console.info({...elkNode});
         console.info(elkNode);
@@ -266,7 +269,6 @@ export class ElkGraphTransformer implements GraphTransformer {
 
             visualEntities.push(node.completeVisualNode);
 
-            // TODO RadStr LAYOUT: Have a better way to check if node is a graph ... but maybe ok
             if(isSubgraph(this.graph, ch.id)) {
                 node.completeVisualNode.width = elkNode.width ?? node.completeVisualNode.width;
                 node.completeVisualNode.height = elkNode.height ?? node.completeVisualNode.height;
