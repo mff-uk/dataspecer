@@ -423,16 +423,16 @@ function createObjectsToHoldMetricsData(metrics: MetricWithWeight[]) {
 export function getBestLayoutFromMetricResultAggregation(
 	metricResultAggregations: Record<string, MetricResultsAggregation>
 ): Promise<MainGraph> {
-	// TODO: If we want to use relative - use max instead of min
-	const resultingGraph = metricResultAggregations["total"].max.graphPromise;
+	// TODO Relative metric: If we want to use relative - use max instead of min
+	const resultingGraph = metricResultAggregations["total"].min.graphPromise;
 	return resultingGraph;
 }
 
 export function getBestMetricResultAggregation(
 	metricResultAggregations: Record<string, MetricResultsAggregation>
 ): MetricWithGraphPromise {
-	// TODO: If we want to use relative - use max instead of min
-	const best = metricResultAggregations["total"].max;
+	// TODO Relative metric: If we want to use relative - use max instead of min
+	const best = metricResultAggregations["total"].min;
 	return best;
 }
 
@@ -473,17 +473,17 @@ function setMetricResultsAggregation(
 ) {
 	metricResultsAggregation[key].avg.absoluteValue += computedMetric.absoluteValue;
 	metricResultsAggregation[key].avg.relativeValue += computedMetric.relativeValue;
-	// TODO: Just do reallly quick expriment later, maybe I can use the relativeValues and the results are good enough
-
-	// TODO: Ideally we would work with the relativeValue (that is values in range [0, 1]),
+	// TODO Relative metric: Not really a TODO - but possible future improvement
+	//       Ideally we would work with the relativeValue (that is values in range [0, 1]),
 	//       but to find the right normalization and weights for that is highly non-trivial task
-	if(metricResultsAggregation[key].min.value.relativeValue > computedMetric.relativeValue) {
+	if(metricResultsAggregation[key].min.value.absoluteValue > computedMetric.absoluteValue) {
 		metricResultsAggregation[key].min = {
 			value: computedMetric,
 			graphPromise: layoutedGraphPromise
 		};
 	}
-	if(metricResultsAggregation[key].max.value.relativeValue < computedMetric.relativeValue) {
+	// TODO Relative metric:
+	if(metricResultsAggregation[key].max.value.absoluteValue < computedMetric.absoluteValue) {
 		metricResultsAggregation[key].max = {
 			value: computedMetric,
 			graphPromise: layoutedGraphPromise

@@ -17,12 +17,12 @@ export class AutomaticLayout implements LayoutAlgorithm {
     if(this.constraintContainer.currentLayoutAction.action instanceof AutomaticConfiguration) {
       console.info("Running automatic - AutomaticConfiguration", this.constraintContainer.currentLayoutAction.action);
       const algorithmsToTry = getAlgorithmsToTry(this.constraintContainer.currentLayoutAction.action.data.min_distance_between_nodes);
-      let best = -10000000;
+      let best = 10000000;
       const graphCopy = _.cloneDeep(this.graph.mainGraph);
       for(const algorithmToTry of algorithmsToTry) {
         const result = await performLayoutFromGraph(graphCopy, algorithmToTry);
         const currentMetricResult = getBestMetricResultAggregation(result);
-        // TODO: If we swap to relative we have to use <
+        // TODO Relative metric: If we swap to relative we have to use < and change the best to -1000
         if(currentMetricResult.value.absoluteValue < best) {
           best = currentMetricResult.value.absoluteValue;
           bestGraph = currentMetricResult.graphPromise;
