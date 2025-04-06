@@ -162,9 +162,9 @@ export interface MainGraph extends Graph {
     resetForNewLayout(): void,
 
 
-    // TODO: Currently doesn't have reverse operation
     /**
      * Create generalization subgraphs.
+     * Note: Currently doesn't have reverse operation.
      */
     createGeneralizationSubgraphs(): void,
 }
@@ -315,7 +315,7 @@ export class DefaultGraph implements Graph {
         }
 
         for(const [outsider, position] of Object.entries(entitiesToLayout.outsiders)) {
-            // Basically same as for the visual nodes - so TODO: If time try to refactor into one method
+            // Almost the same as for the visual nodes, but there is difference for nodes without semantic equivalents
             const cclass = extractedModels.classes.find(cclass => cclass.semanticClass.id === outsider);
             if(cclass !== undefined) {
                 addNodeToGraph(
@@ -346,7 +346,7 @@ export class DefaultGraph implements Graph {
         visualModel: VisualModel | null,
         extractedModels: ExtractedModels
     ) {
-        const sourceGraph = this;           // TODO RadStr: Probably not needed
+        const sourceGraph = this;
         if(visualModel !== null) {
             const relationshipEdges = entitiesToLayout.visualEntities
                 .map(visualId => visualModel.getVisualEntity(visualId))
@@ -358,11 +358,10 @@ export class DefaultGraph implements Graph {
                 .filter(edge => isVisualProfileRelationship(edge));
 
             for(const edge of relationshipEdges) {
-                const semanticRelationshipBundle = getSemanticRelationshipBundle(edge.representedRelationship, extractedModels);
+                let semanticRelationshipBundle = getSemanticRelationshipBundle(edge.representedRelationship, extractedModels);
                 if(semanticRelationshipBundle === undefined || semanticRelationshipBundle === null) {
-                    // TODO RadStr: Maybe we don't have to skip it - it might work even without the semantic counter-part
-                    console.warn("The visual relationship is not present in the semantic model");
-                    continue;
+                    // If this causes errors, just put here continue to skip it, but so far it seems to be fine.
+                    console.warn("The visual relationship is not present in the semantic model, but we will try to put it into graph anyways");
                 }
 
                 let semanticRelationship: AllowedEdgeTypes = convertAllowedEdgeBundleToAllowedEdgeType(semanticRelationshipBundle);
@@ -370,12 +369,12 @@ export class DefaultGraph implements Graph {
                 DefaultEdge.addNewEdgeToGraph(
                     sourceGraph, null, edge, semanticRelationship,
                     edge.visualSource, edge.visualTarget,
-                    extractedModels, semanticRelationshipBundle.type);
+                    extractedModels, semanticRelationshipBundle?.type);
             }
             for(const edge of classProfilesEdges) {
                 const semanticClassProfile = getSemanticRelationshipBundle(edge.entity, extractedModels);
                 if(semanticClassProfile === undefined) {
-                    // TODO RadStr: Maybe we don't have to skip it - it might work even without the semantic counter-part
+                    // Here we skip it using continue unlike in relationship edges, don't allow profiles without semantic coutner part
                     console.warn("The visual relationship is not present in the semantic model");
                     continue;
                 }
@@ -550,7 +549,6 @@ export class DefaultGraph implements Graph {
     public createGeneralizationSubgraphs() {
         const generalizationEdges: SemanticModelGeneralization[] = [];
         this.mainGraph.allEdges.forEach(edge => {
-            // TODO: Not sure if it actually has to be inside the graph or it can go beyond
             if(isSemanticModelGeneralization(edge.semanticEntityRepresentingEdge) && this.isEdgeInsideGraph(edge)) {
                 generalizationEdges.push(edge.semanticEntityRepresentingEdge);
             }
@@ -586,21 +584,22 @@ export class DefaultGraph implements Graph {
 
         const subgraphs: string[][] = this.findGeneralizationSubgraphs(parents, children);
         let generalizationSubgraphs: EdgeEndPoint[][] = subgraphs.map(subgraph => {
-            // This removes the labels, so it is better to just paste in the original node
-            // TODO: Or maybe the copy of it, but for now just paste in the original one
-            // return subgraph.map(nodeID => this.createNode(nodeID, true));     // TODO: What about subgraphs inside subgraphs
-
-            // TODO: Expects that that are no subgraphs in children
-            // TODO RadStr LAYOUT: - Accessing the first one, that is [0] - which is wrong for multi entities - i guess that jsut iterate through everything using for cycle
-            return subgraph.map(nodeID => this.nodes[this.mainGraph.semanticNodeToVisualMap[nodeID][0].id]);
+            // Just paste in the original node, don't copy
+            const generalizationSubgraphNonFlattened = subgraph
+                .map(nodeID => {
+                    const result: EdgeEndPoint[] = [];
+                    for (const node of this.mainGraph.semanticNodeToVisualMap[nodeID]) {
+                        result.push(this.nodes[node.id])
+                    }
+                    return result;
+                });
+            return generalizationSubgraphNonFlattened.flat();
         });
 
+        // TODO RadStr: 1 + 3 Debug prints
         console.log("Generated subgraphs:");
         console.log(subgraphs);
         console.log(generalizationSubgraphs);
-        // TODO: Just as in the relationships (in case of Schema.org) we have to remove the nodes which are not part of model
-        // TODO: This is exactly the reason why I need to have my own graph representation as single source of truth - because here I am again
-        //       removing nodes which shouldn't be in the graph in the first place, because I already removed them
         generalizationSubgraphs = generalizationSubgraphs.map(subgraph => subgraph.filter(node => node !== undefined));
         console.log(generalizationSubgraphs);
 
@@ -912,7 +911,7 @@ export class DefaultMainGraph extends DefaultGraph implements MainGraph {
 
             const visualEntityForNode = node.convertToDataspecerRepresentation();
 
-            // visualEntities[node.id] = visualEntityForNode;           // TODO: In future these 2 lines should be equivalent
+            // node.id should be the same as visualEntityForNode.identifier
             visualEntities[visualEntityForNode.identifier] = {
                 visualEntity: visualEntityForNode,
                 isOutsider: node.completeVisualNode.isOutsider
@@ -925,7 +924,7 @@ export class DefaultMainGraph extends DefaultGraph implements MainGraph {
             }
 
             const visualEntityForEdge = edge.convertToDataspecerRepresentation();
-            // TODO: Just in case look-up if not set, but I think that in current version this never occurs, we always have the visual node to use
+            // Just in case look-up if not set, but I think that in current version this never occurs, we always have the visual node to use
             if(visualEntityForEdge.visualSource === "") {
                 const sourceGraphNode = this.findNodeInAllNodes(edge.start.id);
                 visualEntityForEdge.visualSource = sourceGraphNode.completeVisualNode.coreVisualNode.identifier;
@@ -934,7 +933,8 @@ export class DefaultMainGraph extends DefaultGraph implements MainGraph {
                 const targetGraphNode = this.findNodeInAllNodes(edge.end.id);
                 visualEntityForEdge.visualTarget = targetGraphNode.completeVisualNode.coreVisualNode.identifier;
             }
-            // visualEntities[edge.id] = visualEntityForEdge;           // TODO: In future these 2 lines should be equivalent
+
+            // Again edge.id should be the same as visualEntityForEdge.identifier
             visualEntities[visualEntityForEdge.identifier] = {
                 visualEntity: visualEntityForEdge,
                 isOutsider: edge.visualEdge.isOutsider,
@@ -947,8 +947,11 @@ export class DefaultMainGraph extends DefaultGraph implements MainGraph {
 
 
 function convertAllowedEdgeBundleToAllowedEdgeType(
-    bundle: AllowedEdgeBundleWithType
+    bundle: AllowedEdgeBundleWithType | null | undefined
 ): AllowedEdgeTypes {
+    if(bundle === null || bundle === undefined) {
+        return null;
+    }
     if(bundle.type === "outgoingRelationshipEdges") {
         return (bundle.semanticRelationship as RelationshipBundle).semanticRelationship;
     }
@@ -958,7 +961,6 @@ function convertAllowedEdgeBundleToAllowedEdgeType(
     else if(bundle.type === "outgoingProfileEdges") {
         return (bundle.semanticRelationship as RelationshipProfileBundle).semanticRelationshipProfile;
     }
-    return null;
 }
 
 /**

@@ -13,7 +13,6 @@ export type AllowedEdgeTypes = SemanticModelGeneralization |
                         null;
 
 
-// TODO: Can create more specific interfaces for generalization, etc, which will be extending this one - they will be different in the fields - edge: type and isProfile value
 export interface Edge {
     /**
      * The graph in which the edge lies, this is relevant for example for ELK layouting library,
@@ -29,7 +28,7 @@ export interface Edge {
     /**
      * Identifier of the edge, can be different from the edge id, for example when splitting
      */
-    id: string;                 // TODO: A lot of this data is same for class/edge/graph so it should be in separate interface/class
+    id: string;
     /**
      * is the edge in the semantic model or null.
      */
@@ -108,8 +107,12 @@ export class DefaultEdge implements Edge {
         sourceIdentifier: string,
         targetIdentifier: string,
         extractedModels: ExtractedModels | null,
-        edgeToAddKey: OutgoingEdgeType,
+        edgeToAddKey: OutgoingEdgeType | null | undefined,
     ): Edge | null {
+        if(edgeToAddKey === null || edgeToAddKey === undefined) {
+            edgeToAddKey = "outgoingRelationshipEdges";
+        }
+
         const reverseEdgeToAddKey: IncomingEdgeType = convertOutgoingEdgeTypeToIncoming(edgeToAddKey);
         console.log("Adding Edge to graph", {allNodes: graph.mainGraph.allNodes, visualEdge, sourceIdentifier, targetIdentifier});
     //    console.log(graph);

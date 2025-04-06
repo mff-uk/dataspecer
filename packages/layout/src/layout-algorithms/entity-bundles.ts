@@ -9,8 +9,6 @@ import {
     isSemanticModelAttribute
  } from "@dataspecer/core-v2/semantic-model/concepts";
 
-import { Graph } from "../graph/representation/graph";
-import { ConstraintContainer } from "../configs/constraint-container";
 import { Entity, EntityModel } from "@dataspecer/core-v2";
 import {
     isSemanticModelClassProfile,

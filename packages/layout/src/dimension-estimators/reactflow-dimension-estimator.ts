@@ -82,18 +82,6 @@ const vocabulary : [string, string][] = [
   ];
 
   /**
-   * Given IRI return a prefix or null when no prefix is found.
-   */
-  const prefixForIri = (iri: string | null) : string | null => {
-    for (const [prefix, shortcut] of vocabulary) {
-      if (iri?.startsWith(prefix)) {
-        return shortcut;
-      }
-    }
-    return null;
-  };
-
-  /**
    * Given an absolute URL replace the absolute part with a prefix.
    * If there is no prefix match, returns the original.
    */

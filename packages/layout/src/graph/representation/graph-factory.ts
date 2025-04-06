@@ -11,14 +11,10 @@ import { EdgeEndPoint } from "./edge";
  * Factory class to create graphs with.
  */
 export class GraphFactory {
-    // TODO: Invalid docs
     /**
      * Creates graph, which is put inside the {@link mainGraph}
-     * @param inputModel if null then {@link nodeContentOfGraph} needs to be set, otherwise behavior is undefined
      * @param nodeContentOfGraph the nodes which are part of the new subgraph.
      *                           The nodes are put inside of the created subgraph and in the {@link sourceGraph} are shown as one node - the newly created graph.
-     * @param isDummy
-     * @param visualModel
      * @param shouldSplitEdges if set to true, then split edges. If set to false, then just paste in the subgraph the nodes, but this results in edges going from
      * the subgraph to possibly other subgraphs, which for example elk can not deal with. In Elk the edges have to go between nodes on the same level.
      * So for this edges the split edges option. Then edge is split into 2 or 3 parts. (Note: If the edge is inside the subgraph it is kept)
@@ -45,8 +41,8 @@ export class GraphFactory {
 
 
     /**
-     * Creates instance of main graph. Main graph is like classic subgraph, but contains additional data about all the entities stored in graph.
-     * TODO: Actually do I get any advantage by having additional type (except for saving space) and what starts happening when we have subgraphs inside subgraphs???
+     * Creates instance of main graph. Main graph should be only one at the top
+     * Main graph is like classic subgraph, but contains additional data about all the entities stored in graph.
      */
     public static createMainGraph(
         graphIdentifier: string | null,

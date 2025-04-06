@@ -9,7 +9,7 @@ import { LayoutAlgorithm } from "../layout-algorithms-interfaces";
  * Layout nodes of given graph using custom made random layout algorithm.
  */
 export async function doRandomLayoutAdvancedFromGraph(graph: Graph, shouldCreateNewGraph: boolean): Promise<MainGraph> {
-    // TOOD: Maybe this should be like "super", because it is always the same - if I want to create new graph then I create copy and change this graph instead of the old one
+    // TODO: Maybe this should be like "super", because it is always the same - if I want to create new graph then I create copy and change this graph instead of the old one
     //       Here I do it in place, normally this would be called in the Transformer before conversion from the library representation to the graph representation.
     if(shouldCreateNewGraph) {
         graph = _.cloneDeep(graph);
