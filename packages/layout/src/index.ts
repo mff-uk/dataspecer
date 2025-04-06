@@ -424,7 +424,7 @@ export function getBestLayoutFromMetricResultAggregation(
 	metricResultAggregations: Record<string, MetricResultsAggregation>
 ): Promise<MainGraph> {
 	// TODO: If we want to use relative - use max instead of min
-	const resultingGraph = metricResultAggregations["total"].min.graphPromise;
+	const resultingGraph = metricResultAggregations["total"].max.graphPromise;
 	return resultingGraph;
 }
 
@@ -432,7 +432,7 @@ export function getBestMetricResultAggregation(
 	metricResultAggregations: Record<string, MetricResultsAggregation>
 ): MetricWithGraphPromise {
 	// TODO: If we want to use relative - use max instead of min
-	const best = metricResultAggregations["total"].min;
+	const best = metricResultAggregations["total"].max;
 	return best;
 }
 
@@ -477,13 +477,13 @@ function setMetricResultsAggregation(
 
 	// TODO: Ideally we would work with the relativeValue (that is values in range [0, 1]),
 	//       but to find the right normalization and weights for that is highly non-trivial task
-	if(metricResultsAggregation[key].min.value.absoluteValue > computedMetric.absoluteValue) {
+	if(metricResultsAggregation[key].min.value.relativeValue > computedMetric.relativeValue) {
 		metricResultsAggregation[key].min = {
 			value: computedMetric,
 			graphPromise: layoutedGraphPromise
 		};
 	}
-	if(metricResultsAggregation[key].max.value.absoluteValue < computedMetric.absoluteValue) {
+	if(metricResultsAggregation[key].max.value.relativeValue < computedMetric.relativeValue) {
 		metricResultsAggregation[key].max = {
 			value: computedMetric,
 			graphPromise: layoutedGraphPromise
