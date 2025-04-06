@@ -42,7 +42,7 @@ export class EdgeCrossingMetric implements Metric {
         if(maxPossibleCrossCount === 0) {
             return {
                 absoluteValue: 0,
-                relativeValue: 0,
+                relativeValue: 1,
             };
         }
 

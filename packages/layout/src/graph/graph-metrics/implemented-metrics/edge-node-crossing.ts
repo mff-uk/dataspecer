@@ -26,13 +26,13 @@ export class EdgeNodeCrossingMetric implements Metric {
         if(maxPossibleCrossingCount === 0) {
             return {
                 absoluteValue: 0,
-                relativeValue: 0,
+                relativeValue: 1,
             };
         }
 
         return {
             absoluteValue: edgeNodeCrossingCount,
-            relativeValue: maxPossibleCrossingCount,
+            relativeValue: 1 - (edgeNodeCrossingCount / maxPossibleCrossingCount),
         };
     }
 
