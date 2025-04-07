@@ -1,4 +1,4 @@
-import { ExternalEntityWrapped } from "../semantic-aggregator/interfaces";
+import { ExternalEntityWrapped } from "@dataspecer/core-v2/hierarchical-semantic-aggregator";
 
 export type ExternalEntityBadgeProps = {
   entity: ExternalEntityWrapped;

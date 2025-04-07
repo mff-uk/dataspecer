@@ -17,7 +17,7 @@ import CallSplitIcon from '@mui/icons-material/CallSplit';
 import CodeIcon from '@mui/icons-material/Code';
 import SearchIcon from '@mui/icons-material/Search';
 import { CreateRootOr } from "../../operations/create-root-or";
-import { LocalEntityWrapped } from "../../semantic-aggregator/interfaces";
+import { LocalEntityWrapped } from "@dataspecer/core-v2/hierarchical-semantic-aggregator";
 
 function formatString(input: string, args: {[key: string]: string}): string {
     return input.replace(/{([^}]+)}/g, (match, key) => args[key]);

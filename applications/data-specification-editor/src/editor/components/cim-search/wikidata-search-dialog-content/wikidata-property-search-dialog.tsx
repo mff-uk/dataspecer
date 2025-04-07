@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { CloseDialogButton } from "../../detail/components/close-dialog-button";
 import React, { useContext } from "react";
 import { WikidataAdapterContext } from "../../wikidata/wikidata-adapter-context";
-import { WdPropertySearchRerankersIds, WdSearchPropertiesConfig, WdSearchRerankerConfig } from "@dataspecer/wikidata-experimental-adapter/lib/wikidata-ontology-connector/api-types/post-experimental-search";
+import { WdPropertySearchRerankersIds, WdSearchPropertiesConfig, WdSearchRerankerConfig } from "@dataspecer/wikidata-experimental-adapter/wikidata-ontology-connector";
 import { WikidataSearchResultsList } from "./wikidata-search-results-list";
 import { WikidataSearchNotice } from "./helpers/wikidata-search-notice";
 import { WikidataSearchBoostSlider } from "./helpers/wikidata-search-boost-slider";
@@ -54,7 +54,7 @@ export const WikidataPropertySearchDialog: React.FC<DialogParameters & WikidataP
     const [searchConfig, setSearchConfig] = React.useState<WdSearchPropertiesConfig>(DEFAULT_PROPERTY_SEARCH_CONFIG);
     const [isLoading, setIsLoading] = React.useState(false);
     const [isError, setError] = React.useState(false);
-    
+
     useDebounceEffect(() => {
         setError(false);
         if (searchConfig.query.text != null && searchConfig.query.text !== "") {
@@ -79,7 +79,7 @@ export const WikidataPropertySearchDialog: React.FC<DialogParameters & WikidataP
         }
     }, 150, [usageBoost, searchConfig.query.text])
 
-    return ( 
+    return (
         <>
             <DialogTitle>
                 {t("wikidata.title property")}
@@ -92,9 +92,9 @@ export const WikidataPropertySearchDialog: React.FC<DialogParameters & WikidataP
                         <TextField
                             placeholder={t("wikidata.property input")}
                             fullWidth
-                            onChange={e => { 
+                            onChange={e => {
                                 const newPropertyQuery = {...searchConfig.query, text: e.target.value}
-                                setSearchConfig({...searchConfig, query: newPropertyQuery}) 
+                                setSearchConfig({...searchConfig, query: newPropertyQuery})
                             }}
                             error={isError}
                             autoComplete="off"
@@ -104,12 +104,12 @@ export const WikidataPropertySearchDialog: React.FC<DialogParameters & WikidataP
                         <CircularProgress style={{marginLeft: "1rem"}} size={30} value={0} variant={isLoading ? "indeterminate" : "determinate"}/>
                     </Box>
                     <Typography sx={{marginLeft: 2, color: "#818181"}} fontSize={13}>{searchConfig.query.text.length.toString()}/{MAX_INPUT_LENGTH.toString()}</Typography>
-                    
+
                     <WikidataSearchBoostSlider infoText={t("wikidata.boost properties")} tooltipText={t("wikidata.boost properties tooltip")} onChange={(value: number) => setUsageBoost(value)} />
                 </Stack>
                 <Stack direction={"row"} alignItems="center">
                 <Typography marginTop={1} marginRight={3} fontSize={20}>{t("wikidata.search results")}:</Typography>
-                { isError && 
+                { isError &&
                     <Stack direction="row" marginTop={1}>
                         <ReportGmailerrorredOutlinedIcon color="error"/>
                         <Typography color="error" fontSize={17}>{t("wikidata.search error")}</Typography>
@@ -117,8 +117,8 @@ export const WikidataPropertySearchDialog: React.FC<DialogParameters & WikidataP
                 }
                 </Stack>
                 {results && results.length !== 0 &&
-                    <WikidataSearchResultsList<WdPropertyDescOnly> 
-                    results={results} 
+                    <WikidataSearchResultsList<WdPropertyDescOnly>
+                    results={results}
                     onSelect={(wdProperty: WdPropertyDescOnly) => {
                         onWdPropertySelect(wdProperty);
                         close()
@@ -128,7 +128,7 @@ export const WikidataPropertySearchDialog: React.FC<DialogParameters & WikidataP
                             onWdPropertySelect(wdEntity);
                         } else {
                             onWdClassSelect(wdEntity)
-                        } 
+                        }
                         close();
                     }}
                     detailOnSelectButtonText={(wdEntity: WdEntityDescOnly) => {
@@ -139,7 +139,7 @@ export const WikidataPropertySearchDialog: React.FC<DialogParameters & WikidataP
                         detailOnSelectDiabledWhen={(wdEntity: WdEntityDescOnly) => false}
                     />
                 }
-                {results && results.length === 0 && 
+                {results && results.length === 0 &&
                     <WikidataSearchNotice key={"nothing"} isProgress={false} isError={false} height={150} message={t("info panel nothing found")}/>
                 }
                 {!results  && !isError && <WikidataSearchNotice key={"start"} isProgress={false} isError={false} height={150} message={t("info panel start typing")}/>}

@@ -45,6 +45,7 @@ class StructureModelAdapter {
     model.humanLabel = psmSchema.dataPsmHumanLabel;
     model.humanDescription = psmSchema.dataPsmHumanDescription;
     model.technicalLabel = psmSchema.dataPsmTechnicalLabel;
+    model.jsonLdDefinedPrefixes = psmSchema.jsonLdDefinedPrefixes ?? {};
     model.roots = roots;
 
     return model;
@@ -91,6 +92,9 @@ class StructureModelAdapter {
       return model;
     }
     model = new StructureModelClass();
+    if (DataPsmClass.is(classData)) {
+      model.jsonLdDefinedPrefixes = classData.jsonLdDefinedPrefixes ?? {};
+    }
     this.classes[classData.iri] = model;
     //
     this.psmClassToModel(classData, model);
@@ -142,9 +146,14 @@ class StructureModelAdapter {
     model.technicalLabel = classData.dataPsmTechnicalLabel;
     model.structureSchema = this.psmSchemaIri;
     if (DataPsmClass.is(classData)) {
+      model.emptyAsComplex = classData.dataPsmEmptyAsComplex === true;
       model.isClosed = classData.dataPsmIsClosed;
       model.instancesHaveIdentity = classData.instancesHaveIdentity;
       model.instancesSpecifyTypes = classData.instancesSpecifyTypes;
+      model.jsonSchemaPrefixesInIriRegex = classData.jsonSchemaPrefixesInIriRegex ?? {
+        usePrefixes: "ALWAYS",
+        includeParentPrefixes: true,
+      };
     }
   }
 
@@ -301,7 +310,7 @@ class StructureModelAdapter {
       model.cardinalityMax = null;
     } else if (isSemanticModelRelationship(pimAttributeData)) {
       model.cardinalityMin = pimAttributeData.ends[1].cardinality?.[0] ?? 0;
-      model.cardinalityMax = pimAttributeData.ends[1].cardinality?.[1];
+      model.cardinalityMax = pimAttributeData.ends[1].cardinality?.[1] ?? null;
     } else {
       throw new Error(
         `Invalid attribute '${attributeData.iri}' interpretation.`

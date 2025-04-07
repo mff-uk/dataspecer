@@ -35,12 +35,13 @@ import { NotificationList } from "./notification";
 import { ActionsContextProvider } from "./action/actions-react-binding";
 import { OptionsContextProvider } from "./configuration/options";
 
-import { migrateVisualModelFromV0, validateVisualModelAttributes } from "./dataspecer/visual-model/visual-model-v0-to-v1";
+import { migrateVisualModelFromV0 } from "./dataspecer/visual-model/visual-model-v0-to-v1";
 import { ExplorationContextProvider } from "./diagram/features/highlighting/exploration/context/highlighting-exploration-mode";
 import { isSemanticModelClassProfile, isSemanticModelRelationshipProfile, SemanticModelClassProfile, SemanticModelRelationshipProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 import { createDefaultWritableVisualModel } from "./dataspecer/visual-model/visual-model-factory";
 import { VerticalSplitter } from "./components/vertical-splitter";
 import { preferences, updatePreferences } from "./configuration";
+import { sanitizeVisualModel } from "./dataspecer/visual-model/visual-model-sanitizer";
 
 const _semanticModelAggregator = new SemanticModelAggregator();
 type SemanticModelAggregatorType = typeof _semanticModelAggregator;
@@ -286,7 +287,7 @@ function initializeWithPackage(
       if (model.getInitialModelVersion() === VisualModelDataVersion.VERSION_0) {
         migrateVisualModelFromV0(entityModelsMap, aggregatorView.getEntities(), model);
       }
-      validateVisualModelAttributes(aggregatorView.getEntities(), model);
+      sanitizeVisualModel(entityModels, aggregatorView.getEntities(), model);
     }
 
     // Set models to state.

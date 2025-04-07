@@ -63,6 +63,11 @@ export class StructureModelClass {
    */
   isCodelist = false;
 
+  /**
+   * True if the empty class is treated as regular class instead of IRI reference.
+   */
+  emptyAsComplex = false;
+
   isReferenced = false;
 
   /**
@@ -91,4 +96,20 @@ export class StructureModelClass {
    * Require explicit instance typing. For example as @type property in JSON-LD.
    */
   instancesSpecifyTypes: "ALWAYS" | "NEVER" | "OPTIONAL" | undefined = undefined;
+
+  /**
+   * List of defined IRI prefixes for JSON-LD context.
+   */
+  jsonLdDefinedPrefixes: { [prefix: string]: string } = {};
+
+  /**
+   * Whether the regex pattern on IRI should be translated to accommodate defined prefixes.
+   */
+  jsonSchemaPrefixesInIriRegex: {
+    usePrefixes: "ALWAYS" | "NEVER" | "OPTIONAL",
+    includeParentPrefixes: boolean,
+  } = {
+    usePrefixes: "ALWAYS",
+    includeParentPrefixes: true,
+  };
 }

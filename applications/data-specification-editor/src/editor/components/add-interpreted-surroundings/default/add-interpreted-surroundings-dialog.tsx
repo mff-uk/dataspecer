@@ -9,7 +9,7 @@ import { dialog } from "../../../dialog";
 import { useDataPsmAndInterpretedPim } from "../../../hooks/use-data-psm-and-interpreted-pim";
 import { useDialog } from "../../../hooks/use-dialog";
 import { useNewFederatedObservableStoreFromSemanticEntities } from "../../../hooks/use-new-federated-observable-store-from-semantic-entities";
-import { ExternalEntityWrapped } from "../../../semantic-aggregator/interfaces";
+import { ExternalEntityWrapped } from "@dataspecer/core-v2/hierarchical-semantic-aggregator";
 import { ConfigurationContext } from "../../App";
 import { DialogContent, DialogTitle } from "../../detail/common";
 import { PimAssociationToClassDetailDialog } from "../../detail/pim-association-to-class-detail-dialog";

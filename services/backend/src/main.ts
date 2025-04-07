@@ -9,7 +9,8 @@ import { LocalStoreModel } from "./models/local-store-model";
 import { ResourceModel } from "./models/resource-model";
 import { getDefaultConfiguration } from "./routes/configuration";
 import { createDataPsm, deleteDataPsm } from "./routes/dataPsm";
-import { getDocumentation, getLightweightOwl, getSingleFile, getZip, getlightweightFromSimplified as getlightweightOwlFromSimplified } from "./routes/experimental";
+import { getlightweightFromSimplified as getlightweightOwlFromSimplified } from "./routes/experimental";
+import { getSingleFile, getZip } from "./routes/generate";
 import { exportPackageResource, importPackageResource } from "./routes/export-import-raw";
 import { getGenerateApplicationByModelId, getGeneratedApplication } from "./routes/genapp";
 import { generate } from "./routes/generate";
@@ -143,9 +144,7 @@ application.put(apiBasename + "/simplified-semantic-model", setSimplifiedSemanti
 
 // Experimental features
 
-application.get(apiBasename + "/experimental/lightweight-owl.ttl", getLightweightOwl);
 application.post(apiBasename + "/experimental/lightweight-owl-from-simplified.ttl", getlightweightOwlFromSimplified);
-application.get(apiBasename + "/experimental/documentation.html", getDocumentation);
 
 // Generate artifacts
 

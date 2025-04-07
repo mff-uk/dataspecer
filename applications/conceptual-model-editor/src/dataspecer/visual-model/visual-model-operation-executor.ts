@@ -1,10 +1,11 @@
 import { VisualEntity, VisualModel, WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { EntityDsIdentifier, EntityReference, ModelDsIdentifier } from "../entity-model";
+import { EntityDsIdentifier, ModelDsIdentifier } from "../entity-model";
 import { addVisualNodeProfile } from "./operation/add-visual-node-profile";
 import { addVisualNode } from "./operation/add-visual-node";
 import { deleteEntityModel } from "./operation/delete-entity-model";
 import { updateVisualNodeProfiles } from "./operation/update-visual-node-profiles";
 import { addVisualRelationships, addVisualRelationshipsWithSpecifiedVisualEnds } from "./operation/add-visual-relationships";
+import { CmeReference } from "../cme-model/model";
 
 export interface VisualModelOperationExecutor {
 
@@ -12,7 +13,7 @@ export interface VisualModelOperationExecutor {
    * @throws DataspecerError
    */
   addGeneralization(
-    represented: EntityReference,
+    represented: CmeReference,
     child: EntityDsIdentifier,
     parent: EntityDsIdentifier,
   ): void;
@@ -21,7 +22,7 @@ export interface VisualModelOperationExecutor {
    * @throws DataspecerError
    */
   addGeneralizationWithSpecifiedVisualEnds(
-    represented: EntityReference,
+    represented: CmeReference,
     visualSources: EntityDsIdentifier[],
     visualTargets: EntityDsIdentifier[],
   ): void;
@@ -30,15 +31,23 @@ export interface VisualModelOperationExecutor {
    * @throws DataspecerError
    */
   addProfile(
-    profile: EntityReference,
-    profiled: EntityReference,
+    profile: CmeReference,
+    profiled: CmeReference,
+  ): void;
+
+  /**
+   * Try to perform {@link addProfile} operation, but ignore failure.
+   */
+  tryAddProfile(
+    profile: CmeReference,
+    profiled: CmeReference,
   ): void;
 
   /**
    * @throws DataspecerError
    */
   addNode(
-    represented: EntityReference,
+    represented: CmeReference,
     position: { x: number, y: number },
     content: string[],
   ): void;
@@ -47,7 +56,7 @@ export interface VisualModelOperationExecutor {
    * @throws DataspecerError
    */
   addRelationship(
-    represented: EntityReference,
+    represented: CmeReference,
     source: EntityDsIdentifier,
     target: EntityDsIdentifier,
   ): void;
@@ -56,7 +65,7 @@ export interface VisualModelOperationExecutor {
    * @throws DataspecerError
    */
   addRelationshipWithSpecifiedVisualEnds(
-    represented: EntityReference,
+    represented: CmeReference,
     visualSources: EntityDsIdentifier[],
     visualTargets: EntityDsIdentifier[],
   ): void;
@@ -66,9 +75,9 @@ export interface VisualModelOperationExecutor {
    * @throws DataspecerError
    */
   updateProfile(
-    represented: EntityReference,
-    previous: EntityReference[],
-    next: EntityReference[],
+    represented: CmeReference,
+    previous: CmeReference[],
+    next: CmeReference[],
   ): void;
 
   /**
@@ -88,7 +97,7 @@ implements VisualModelOperationExecutor {
   }
 
   addGeneralization(
-    represented: EntityReference,
+    represented: CmeReference,
     child: EntityDsIdentifier,
     parent: EntityDsIdentifier,
   ): void {
@@ -97,7 +106,7 @@ implements VisualModelOperationExecutor {
   }
 
   addGeneralizationWithSpecifiedVisualEnds(
-    represented: EntityReference,
+    represented: CmeReference,
     visualChildren: EntityDsIdentifier[],
     visualParents: EntityDsIdentifier[]
   ): void {
@@ -108,14 +117,25 @@ implements VisualModelOperationExecutor {
   }
 
   addProfile(
-    profile: EntityReference,
-    profiled: EntityReference,
+    profile: CmeReference,
+    profiled: CmeReference,
   ): void {
     addVisualNodeProfile(this.visualModel, profile, profiled);
   }
 
+  tryAddProfile(
+    profile: CmeReference,
+    profiled: CmeReference,
+  ): void {
+    try {
+      addVisualNodeProfile(this.visualModel, profile, profiled);
+    } catch {
+      // We do nothing as it is just a try.
+    }
+  }
+
   addNode(
-    represented: EntityReference,
+    represented: CmeReference,
     position: { x: number, y: number },
     content: string[],
   ): void {
@@ -124,7 +144,7 @@ implements VisualModelOperationExecutor {
   }
 
   addRelationshipWithSpecifiedVisualEnds(
-    represented: EntityReference,
+    represented: CmeReference,
     visualSourcesIdentifiers: EntityDsIdentifier[],
     visualTargetsIdentifiers: EntityDsIdentifier[]
   ): void {
@@ -135,7 +155,7 @@ implements VisualModelOperationExecutor {
   }
 
   addRelationship(
-    represented: EntityReference,
+    represented: CmeReference,
     source: EntityDsIdentifier,
     target: EntityDsIdentifier,
   ): void {
@@ -144,9 +164,9 @@ implements VisualModelOperationExecutor {
   }
 
   updateProfile(
-    represented: EntityReference,
-    previous: EntityReference[],
-    next: EntityReference[],
+    represented: CmeReference,
+    previous: CmeReference[],
+    next: CmeReference[],
   ): void {
     updateVisualNodeProfiles(this.visualModel, represented, previous, next);
   }

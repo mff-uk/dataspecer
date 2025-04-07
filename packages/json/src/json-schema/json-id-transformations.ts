@@ -28,27 +28,37 @@ export function structureModelAddIdAndTypeProperties(
       localClassConfiguration.jsonTypeKeyAlias = null;
     }
     // todo: properties are added only to non-empty classes as empty are treated differently
-    if (structureClass.cimIri !== null && structureClass.properties.length > 0) {
+    if (structureClass.cimIri !== null && (structureClass.properties.length > 0 || structureClass.emptyAsComplex)) {
       if (localClassConfiguration.jsonTypeKeyAlias !== null) {
         const typeKeyValue = getClassTypeKey(structureClass, configuration);
 
         const datatype = new StructureModelCustomType();
-        datatype.data = {
-          oneOf: [
-            {
-              const: typeKeyValue
-            },
-            {
-              type: "array",
-              contains: {
+        if (typeKeyValue.length === 1) {
+          datatype.data = {
+            oneOf: [
+              {
                 const: typeKeyValue
               },
-              items: {
-                type: "string"
+              {
+                type: "array",
+                contains: {
+                  const: typeKeyValue
+                },
+                items: {
+                  type: "string"
+                }
               }
+            ]
+          };
+        } else {
+          datatype.data = {
+            type: "array",
+            allOf: typeKeyValue.map(item => ({contains: {const: item}})),
+            items: {
+              type: "string"
             }
-          ]
-        };
+          }
+        }
 
         const id = new StructureModelProperty();
         id.technicalLabel = localClassConfiguration.jsonTypeKeyAlias;

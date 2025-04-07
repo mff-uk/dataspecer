@@ -23,6 +23,11 @@
     "help": "Dematerializováním asociace se všechny prvky odkazované třídy přesunou přímo do rodičovské třídy. Asociace pak nebude ve schématu zanesena.",
     "title": "Dematerializace"
   },
+  "empty as complex": {
+    "checkbox": "Třídu bez obsahu reprezentovat jako odkaz",
+    "help": "Výchozí chování Dataspeceru je takové, že prázdné třídy jsou interpretovány jako reference - atributy typu IRI s patřičnými položky. Toto nastavení umožňuje chovat se k prázdné třídě jako k prázdnému komplexnímu typu.",
+    "title": "Chování pro třídy bez obsahu"
+  },
   "in all languages": "Ve všech jazycích",
   "instancesHaveIdentity": {
     "title": "Identifikace instancí tříd",
@@ -49,6 +54,9 @@
   "json": {
     "use key value for lang string": "Použít formát JSON-LD language map."
   },
+  "JSON attributes": "JSON specifické atributy",
+  "JSON-LD IRI prefixes": "Prefixy použité v JSON-LD kontextu a schématech",
+  "JSON-LD IRI prefixes help": "V tabulce níže lze nastavit často používané prefixy pro IRI použitá v JSON-LD kontextu a tím i pro IRI jež jsou použita v JSON Schématech.",
   "label max": "max",
   "label min": "min",
   "label regex for iri": "Regulární výraz IRI instancí",

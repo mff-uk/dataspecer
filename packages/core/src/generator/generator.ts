@@ -82,7 +82,7 @@ export class Generator {
     await generator.generateToStream(context, artefact, specification, output);
   }
 
-  private async createContext(): Promise<ArtefactGeneratorContext> {
+  public async createContext(): Promise<ArtefactGeneratorContext> {
     const conceptualModels = {};
     const structureModels = {};
     for (const specification of Object.values(this.specifications)) {

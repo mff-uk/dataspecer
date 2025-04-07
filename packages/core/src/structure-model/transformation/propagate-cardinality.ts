@@ -22,9 +22,9 @@ export function propagateCardinality(
       const conceptualProperty = propertyMap(property.pimIri, property.isReverse);
       if (conceptualProperty) {
         property.cardinalityMin =
-          property.cardinalityMin ?? conceptualProperty.cardinalityMin;
+          property.cardinalityMin ?? conceptualProperty.cardinalityMin ?? 0;
         property.cardinalityMax =
-          property.cardinalityMax ?? conceptualProperty.cardinalityMax
+          property.cardinalityMax ?? conceptualProperty.cardinalityMax ?? null;
       }
     });
   }

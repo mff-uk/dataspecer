@@ -1,15 +1,16 @@
-import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
-import { ModelCompositionConfiguration, ModelCompositionConfigurationApplicationProfile, ModelCompositionConfigurationCache, ModelCompositionConfigurationLegacy, ModelCompositionConfigurationMerge } from "./configuration";
-import { VisualModelData } from "@dataspecer/core-v2/visual-model";
-import { ModelIdentifier } from "../../../../../packages/core-v2/lib/visual-model/entity-model/entity-model";
-import { ApplicationProfileAggregator } from "../semantic-aggregator/application-profile-aggregator";
-import { MergeAggregator } from "../semantic-aggregator/merge-aggregator";
-import { VocabularyAggregator } from "../semantic-aggregator/vocabulary-aggregator";
+import {
+  ApplicationProfileAggregator,
+  ExternalModelWithCacheAggregator,
+  MergeAggregator,
+  SemanticModelAggregator,
+  VocabularyAggregator
+} from "@dataspecer/core-v2/hierarchical-semantic-aggregator";
 import { BackendPackageService } from "@dataspecer/core-v2/project";
-import { getProvidedSourceSemanticModel } from "./source-semantic-model/adapter";
-import { LegacySemanticModelAggregator } from "../semantic-aggregator/legacy-semantic-model-aggregator";
-import { SemanticModelAggregator } from "../semantic-aggregator/interfaces";
 import { SemanticModelEntity } from "@dataspecer/core-v2/semantic-model/concepts";
+import { InMemorySemanticModel } from "@dataspecer/core-v2/semantic-model/in-memory";
+import { VisualModelData } from "@dataspecer/core-v2/visual-model";
+import { ModelCompositionConfiguration, ModelCompositionConfigurationApplicationProfile, ModelCompositionConfigurationCache, ModelCompositionConfigurationLegacy, ModelCompositionConfigurationMerge } from "./configuration";
+import { getProvidedSourceSemanticModel } from "./source-semantic-model/adapter";
 
 function mergeIfNecessary(models: SemanticModelAggregator[]): SemanticModelAggregator {
   if (models.length === 1) {
@@ -33,7 +34,7 @@ type rawModelsType = {
  */
 export class SemanticModelAggregatorBuilder {
   private knownModels: Record<string, InMemorySemanticModel>;
-  private modelData: Record<ModelIdentifier, VisualModelData>;
+  private modelData: Record<string, VisualModelData>;
 
   /**
    * Helper set to keep track of used models for the option to use all remaining models.
@@ -146,7 +147,7 @@ export class SemanticModelAggregatorBuilder {
       this.usedModels.add(model);
       if (model.modelMetadata?.["caches"]) { // Some models may not have metadata
         const cimAdapter = await getProvidedSourceSemanticModel(model.modelMetadata["caches"], this.specificationId);
-        const aggregator = new LegacySemanticModelAggregator(model, cimAdapter);
+        const aggregator = new ExternalModelWithCacheAggregator(model, cimAdapter);
         aggregator.thisVocabularyChain["color"] = this.modelData[configuration]?.color;
         return aggregator;
       } else {
@@ -182,7 +183,7 @@ export class SemanticModelAggregatorBuilder {
         const cimAdapter = await getProvidedSourceSemanticModel(legacyConfig.configuration, null);
         const cache = this.knownModels[cacheConfig.model as string];
         this.usedModels.add(cache);
-        return new LegacySemanticModelAggregator(cache, cimAdapter);
+        return new ExternalModelWithCacheAggregator(cache, cimAdapter);
       } else {
         throw new Error("Unsupported model type for semantic model aggregator builder.");
       }

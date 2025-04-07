@@ -1,6 +1,6 @@
 import { WritableVisualModel } from "@dataspecer/core-v2/visual-model";
-import { EntityReference } from "../../entity-model";
 import { DataspecerError } from "../../dataspecer-error";
+import { CmeReference } from "@/dataspecer/cme-model/model";
 
 /**
  * Adds a visual representation for class profile.
@@ -9,8 +9,8 @@ import { DataspecerError } from "../../dataspecer-error";
   */
 export function addVisualNodeProfile(
   visualModel: WritableVisualModel,
-  profile: EntityReference,
-  profiled: EntityReference,
+  profile: CmeReference,
+  profiled: CmeReference,
 ) {
   const sources = visualModel.getVisualEntitiesForRepresented(profile.identifier);
   const targets = visualModel.getVisualEntitiesForRepresented(profiled.identifier);

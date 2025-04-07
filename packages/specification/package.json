@@ -8,10 +8,12 @@
   },
   "exports": {
     ".": "./lib/index.js",
-    "./documentation": "./lib/documentation/index.js"
+    "./documentation": "./lib/documentation/index.js",
+    "./model-repository": "./lib/model-repository/index.js"
   },
   "dependencies": {
     "@dataspecer/core": "*",
+    "@dataspecer/core-v2": "*",
     "@dataspecer/documentation": "*",
     "@dataspecer/json": "*",
     "@dataspecer/xml": "*"

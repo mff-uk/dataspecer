@@ -3,7 +3,7 @@ import { shallow } from "zustand/shallow";
 import { type ReactFlowState, useInternalNode, useStore } from "@xyflow/react";
 
 import { DiagramContext, NodeMenuType } from "../diagram-controller";
-import { computePosition, createWaypoints } from "./edge-utilities";
+import { computeScreenPosition, createOrthogonalWaypoints } from "./edge-utilities";
 import { EdgeToolbarProps, viewportStoreSelector } from "./edge-toolbar";
 import { Edge } from "../diagram-model";
 import { ToolbarPortal } from "../canvas/toolbar-portal";
@@ -29,7 +29,7 @@ export function PropertyEdgeToolbar({ value }: { value: EdgeToolbarProps | null 
     return null;
   }
 
-  const position = computePosition(value.x, value.y, { x, y, zoom });
+  const position = computeScreenPosition(value.x, value.y, { x, y, zoom });
 
   const onDetail = () => context?.callbacks().onShowEdgeDetail(data);
   const onEdit = () => context?.callbacks().onEditEdge(data);
@@ -37,7 +37,7 @@ export function PropertyEdgeToolbar({ value }: { value: EdgeToolbarProps | null 
   const onHide = () => context?.callbacks().onHideEdge(data);
   const onDelete = () => context?.callbacks().onDeleteEdge(data);
   const addWaypoint = () => {
-    const waypoints = createWaypoints(
+    const waypoints = createOrthogonalWaypoints(
       sourceNode, data.waypoints ?? [], targetNode);
     //
     const waypointPosition = {x: value.x, y: value.y};

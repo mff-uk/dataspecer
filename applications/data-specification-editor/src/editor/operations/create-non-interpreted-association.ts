@@ -3,7 +3,7 @@ import { DataPsmCreateAssociationEnd, DataPsmCreateClass } from "@dataspecer/cor
 import { ComplexOperation } from "@dataspecer/federated-observable-store/complex-operation";
 import { FederatedObservableStore } from "@dataspecer/federated-observable-store/federated-observable-store";
 import { TechnicalLabelOperationContext } from "./context/technical-label-operation-context";
-import { SemanticModelAggregator } from "../semantic-aggregator/interfaces";
+import { SemanticModelAggregator } from "@dataspecer/core-v2/hierarchical-semantic-aggregator";
 
 /**
  * Adds association to the same class. The association will not have any interpretation.

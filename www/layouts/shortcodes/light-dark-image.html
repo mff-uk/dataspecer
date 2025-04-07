@@ -1,0 +1,6 @@
+<div class="text-center">
+  {{ $technologiesLight := resources.Get (printf "%v_light%v" (.Get 0) (.Get 1)) }}
+  <img src="{{ $technologiesLight.RelPermalink }}" class="light-only img-fluid">
+  {{ $technologiesDark := resources.Get (printf "%v_dark%v" (.Get 0) (.Get 1)) }}
+  <img src="{{ $technologiesDark.RelPermalink }}" class="dark-only img-fluid">
+</div>

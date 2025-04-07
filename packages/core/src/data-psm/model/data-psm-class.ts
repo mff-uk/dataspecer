@@ -10,6 +10,16 @@ import * as PSM from "../data-psm-vocabulary";
 export class DataPsmClass extends DataPsmResource {
   private static readonly TYPE = PSM.CLASS;
 
+  /**
+   * If true, the empty class is treated as a complex type instead of IRI
+   * (=string) where is expected to use identifier of the class as its value.
+   * This is PSM specific feature as we may want to have one schema with both
+   * primitive and complex types.
+   *
+   * @default false
+   */
+  dataPsmEmptyAsComplex: boolean | undefined;
+
   dataPsmExtends: string[] = [];
 
   dataPsmParts: string[] = [];
@@ -53,6 +63,23 @@ export class DataPsmClass extends DataPsmResource {
    * If set to undefined, the default value will be used which is "ALWAYS" currently.
    */
   instancesSpecifyTypes: "ALWAYS" | "NEVER" | "OPTIONAL" | undefined = undefined;
+
+  /**
+   * List of defined IRI prefixes for JSON-LD context. These prefixes then can be used
+   * instead of full IRI in JSON-LD context, JSON Schema and also in the JSON data.
+   */
+  jsonLdDefinedPrefixes: {
+    [prefix: string]: string;
+  } | undefined = undefined;
+
+  /**
+   * Whether the regex pattern on IRI should be translated to accommodate defined prefixes.
+   * If set to undefined, the default value will be used which is "ALWAYS" and include parent prefixes.
+   */
+  jsonSchemaPrefixesInIriRegex: {
+    usePrefixes: "ALWAYS" | "NEVER" | "OPTIONAL",
+    includeParentPrefixes: boolean,
+  } | undefined = undefined;
 
   constructor(iri: string | null = null) {
     super(iri);

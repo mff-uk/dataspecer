@@ -179,7 +179,7 @@ const items = [
         generator: JSON_SCHEMA.Generator,
     },
     {
-        title: "JSON-LD",
+        title: "JSON-LD context",
         generator: JSON_LD_GENERATOR,
     },
     {

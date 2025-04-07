@@ -1,4 +1,4 @@
-import { SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { ExtendedSemanticModelClass, SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import InfoTwoToneIcon from "@mui/icons-material/InfoTwoTone";
@@ -9,7 +9,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { LanguageStringFallback, LanguageStringUndefineable } from "../../helper/LanguageStringComponents";
 import { SlovnikGovCzGlossary } from "../../slovnik.gov.cz/SlovnikGovCzGlossary";
-import { ExternalEntityWrapped } from "../../../semantic-aggregator/interfaces";
+import { ExternalEntityWrapped } from "@dataspecer/core-v2/hierarchical-semantic-aggregator";
 import { ExternalEntityBadge } from "../../entity-badge";
 
 const CodelistSpan = styled("span")(({theme}) => ({
@@ -30,7 +30,7 @@ export const AssociationItem: React.FC<{
     const relationship = props.relationship.aggregatedEntity;
     const correctEnd = relationship.ends[props.orientation ? 1 : 0];
     const cls = props.allEntities.find(e => e.aggregatedEntity.id === correctEnd.concept) as ExternalEntityWrapped<SemanticModelClass>;
-    const isCodelist = false; //cls?.pimIsCodelist ?? false;
+    const isCodelist = (cls?.aggregatedEntity as Partial<ExtendedSemanticModelClass>)?.isCodelist ?? false;
 
 
     return <ListItem role={undefined} dense button onClick={props.onClick}>

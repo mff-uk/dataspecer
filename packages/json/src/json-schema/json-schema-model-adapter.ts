@@ -133,12 +133,18 @@ function structureModelClassToJsonSchemaDefinition(
       return reference;
     }
   }
-  if (modelClass.isCodelist) {
-    return structureModelClassCodelist(modelClass);
+
+  if (modelClass.properties.length === 0 && !modelClass.emptyAsComplex) {
+    return structureModelClassPrimitive(modelClass);
   }
-  if (modelClass.properties.length === 0) {
-    return structureModelClassEmpty(modelClass);
-  }
+
+
+  // if (modelClass.isCodelist) {
+  //   return structureModelClassPrimitive(modelClass);
+  // }
+  // if (modelClass.properties.length === 0) {
+  //   return structureModelClassPrimitive(modelClass);
+  // }
   const result = new JsonSchemaObject();
   result.title = context.stringSelector(modelClass.humanLabel);
   result.description = context.stringSelector(modelClass.humanDescription);
@@ -181,18 +187,7 @@ function findArtefactForImport(
   return null;
 }
 
-function structureModelClassCodelist(modelClass: StructureModelClass): JsonSchemaDefinition {
-  const str = new JsonSchemaString(JsonSchemaStringFormats.iri);
-  if (modelClass.regex) {
-    str.pattern = modelClass.regex;
-  }
-  if (modelClass.example && modelClass.example.length > 0) {
-    str.examples = modelClass.example as string[];
-  }
-  return str;
-}
-
-function structureModelClassEmpty(modelClass: StructureModelClass): JsonSchemaDefinition {
+function structureModelClassPrimitive(modelClass: StructureModelClass): JsonSchemaDefinition {
   const str = new JsonSchemaString(JsonSchemaStringFormats.iri);
   if (modelClass.regex) {
     str.pattern = modelClass.regex;
@@ -269,6 +264,12 @@ function wrapWithCardinality(
     return definition;
   }
   const result = new JsonSchemaArray();
+  if (property.cardinalityMin > 0) {
+    result.minItems = property.cardinalityMin;
+  }
+  if (property.cardinalityMax !== null) {
+    result.maxItems = property.cardinalityMax;
+  }
   result.items = definition;
   return result;
 }

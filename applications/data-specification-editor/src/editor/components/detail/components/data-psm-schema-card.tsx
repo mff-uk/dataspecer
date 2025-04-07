@@ -16,6 +16,8 @@ import { useSaveHandler } from "../../helper/save-handler";
 import { InDifferentLanguages } from "./InDifferentLanguages";
 import { skip } from "node:test";
 import { XmlSetSkipRootElement } from "../../../operations/xml-set-skip-root-element";
+import { SetPrefixes } from "./set-prefixes";
+import { SetJsonPrefixes } from "../../../operations/set-json-prefixes";
 
 function cardinalityFromPsm(entity?: DataPsmSchema): Cardinality {
   return {
@@ -154,6 +156,20 @@ export const DataPsmSchemaCard: React.FC<{ iri: string; onClose: () => void }> =
   );
   // endregion
 
+  // region JSON prefixes
+  const [jsonPrefixes, setJsonPrefixes] = useState<Record<string, string>>({});
+  useEffect(() => {
+    if (resource) {
+      const prefixes = resource.jsonLdDefinedPrefixes ?? {};
+      setJsonPrefixes(prefixes);
+    }
+  }, [resource]);
+  useSaveHandler(
+    resource && !isEqual(resource.jsonLdDefinedPrefixes ?? {}, jsonPrefixes),
+    () => store.executeComplexOperation(new SetJsonPrefixes(iri, jsonPrefixes))
+  );
+  // endregion
+
   return (
     <>
       <Grid container spacing={5} sx={{ pt: 3 }}>
@@ -187,6 +203,21 @@ export const DataPsmSchemaCard: React.FC<{ iri: string; onClose: () => void }> =
           </Box>
 
           <Typography variant="h6" component="h2">
+            {t("JSON attributes")}
+          </Typography>
+          <Typography variant="subtitle1" component="h2">
+            {t("JSON-LD IRI prefixes")}
+            <InfoHelp text={t("JSON-LD IRI prefixes help")} />
+          </Typography>
+
+          <Box sx={{mt: 2}}>
+            <SetPrefixes
+              currentPrefixes={jsonPrefixes}
+              setCurrentPrefixes={setJsonPrefixes}
+            />
+          </Box>
+
+          <Typography variant="h6" component="h2" sx={{mt: 3}}>
             {t("XML attributes")}
           </Typography>
 

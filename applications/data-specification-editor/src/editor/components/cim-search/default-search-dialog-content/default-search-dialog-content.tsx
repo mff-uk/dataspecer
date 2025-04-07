@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DialogParameters, useDialog } from "../../../dialog";
 import { useNewFederatedObservableStoreFromSemanticEntities } from "../../../hooks/use-new-federated-observable-store-from-semantic-entities";
-import { ExternalEntityWrapped } from "../../../semantic-aggregator/interfaces";
+import { ExternalEntityWrapped } from "@dataspecer/core-v2/hierarchical-semantic-aggregator";
 import { ConfigurationContext } from "../../App";
 import { PimClassDetailDialog } from "../../detail/pim-class-detail-dialog";
 import { ExternalEntityBadge } from "../../entity-badge";
