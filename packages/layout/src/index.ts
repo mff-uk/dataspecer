@@ -423,7 +423,7 @@ function createObjectsToHoldMetricsData(metrics: MetricWithWeight[]) {
 export function getBestLayoutFromMetricResultAggregation(
 	metricResultAggregations: Record<string, MetricResultsAggregation>
 ): Promise<MainGraph> {
-	// TODO Relative metric: If we want to use relative - use max instead of min
+	// TODO Hard to solve by myself - Radstr: If we want to use relative metric - use max instead of min
 	const resultingGraph = metricResultAggregations["total"].min.graphPromise;
 	return resultingGraph;
 }
@@ -431,7 +431,7 @@ export function getBestLayoutFromMetricResultAggregation(
 export function getBestMetricResultAggregation(
 	metricResultAggregations: Record<string, MetricResultsAggregation>
 ): MetricWithGraphPromise {
-	// TODO Relative metric: If we want to use relative - use max instead of min
+	// TODO Hard to solve by myself - Radstr: If we want to use relative metric - use max instead of min
 	const best = metricResultAggregations["total"].min;
 	return best;
 }
@@ -473,7 +473,7 @@ function setMetricResultsAggregation(
 ) {
 	metricResultsAggregation[key].avg.absoluteValue += computedMetric.absoluteValue;
 	metricResultsAggregation[key].avg.relativeValue += computedMetric.relativeValue;
-	// TODO Relative metric: Not really a TODO - but possible future improvement
+	// TODO Hard to solve by myself - Radstr: use relative values for metrics - possible future improvement
 	//       Ideally we would work with the relativeValue (that is values in range [0, 1]),
 	//       but to find the right normalization and weights for that is highly non-trivial task
 	if(metricResultsAggregation[key].min.value.absoluteValue > computedMetric.absoluteValue) {
@@ -482,7 +482,7 @@ function setMetricResultsAggregation(
 			graphPromise: layoutedGraphPromise
 		};
 	}
-	// TODO Relative metric:
+	// TODO Hard to solve by myself - Radstr: again relative metric
 	if(metricResultsAggregation[key].max.value.absoluteValue < computedMetric.absoluteValue) {
 		metricResultsAggregation[key].max = {
 			value: computedMetric,

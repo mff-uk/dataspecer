@@ -51,7 +51,7 @@ const CONFIG_TO_ELK_CONFIG_SPECIAL_CASES_CONVERTOR: Record<string, Record<Algori
         elk_radial: undefined,
         elk_overlapRemoval: undefined,
         elk_stress_advanced_using_clusters: undefined,
-        elk_stress_profile: {           // TODO RadStr: Maybe the mapping should be from the elk's algorithm name not from my algorithm name
+        elk_stress_profile: {
             "interactive": "true"
         },
         automatic: undefined

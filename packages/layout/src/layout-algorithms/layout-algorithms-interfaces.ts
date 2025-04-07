@@ -27,6 +27,7 @@ export interface LayoutAlgorithm {
      * @param shouldCreateNewGraph if true then new graph is created, otherwise the one passed in preparation phase is changed in place
      * @deprecated Not really deprecated, but personally I would not implement this method for any future algorithm,
      *  because layouting of subgraphs doesn't work properly and if somebody wanted to make it work properly it is months of work.
+     *  However for elk it works, but as said the results are not that good
      * @returns promise which on resolve returns the layouted graph
      */
     runGeneralizationLayout: (shouldCreateNewGraph: boolean) => Promise<MainGraph>,

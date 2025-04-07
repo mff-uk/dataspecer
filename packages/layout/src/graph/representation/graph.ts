@@ -298,7 +298,7 @@ export class DefaultGraph implements Graph {
                         .find(classProfile => classProfile.semanticClassProfile.id === node.representedEntity);
                     if(classProfile === undefined) {
                         console.error("Node is neither class or class profile");
-                        // TODO RadStr: We do have nodes which don't have semantic equivalent
+                        // TODO RadStr: We DO have nodes which don't have semantic equivalent
                         throw new Error("Implementation error")
                         return;
                     }

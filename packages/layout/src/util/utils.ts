@@ -66,7 +66,9 @@ export function getBotRightPosition(
 export const createIdentifier = () => (Math.random() + 1).toString(36).substring(7);
 
 
-// TODO: Again copied from the CME, because it is not accessible from this package
+// Similiar (but not exact) method is defined in CME,
+// but since it is not accessible from this package we just "copy-pasted" it here,
+// but since this method never changes, we are fine
 /**
  * @returns The top level group, or null if the node is not part of any group.
  * Note that if {@link identifier} is id of group, then that id is returned if it is top level group.
@@ -145,8 +147,13 @@ function getNonGroupNodesInGroupInternal(
 
 
 
-// TODO RadStr: Copy-pasted from visual model - maybe since I import this package anyways - it could be defined only here
-//               .... It actually isn't exact copy-paste, but almost
+// TODO Hard to solve by myself - Radstr:
+//              Copy-pasted from visual model - maybe since I import this package anyways - it could be defined only here
+//              ... It actually isn't exact copy-paste, but almost
+//              ... The current implementation changed, but the question is should we change it here?
+//                   I don't think so, since the reason why it is here is to check for collisions, sure the collisions won't be exact
+//                   if we don't use the same method as in CME, but the deviation is small and for computation
+//                   of collisions should not matter
 function findRectangleLineIntersection(
   source: XY,
   rectangle: { width: number, height: number },
@@ -234,7 +241,7 @@ export function findNodeBorder(node: VisualNodeComplete, next: XY): XY {
   const rectangle = { width: node.width + 4, height: node.height + 4 };
   return findRectangleLineIntersection(center, rectangle, next);
 }
-// TODO RadStr: End of the "copy-paste"
+// TODO Hard to solve by myself - Radstr: End of the "copy-paste"
 
 
 export enum Direction {

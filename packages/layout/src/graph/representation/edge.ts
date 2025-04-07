@@ -3,9 +3,9 @@ import { VisualEntitiesWithOutsiders, XY } from "../..";
 import { Graph } from "./graph";
 import { isSemanticModelGeneralization, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { VISUAL_PROFILE_RELATIONSHIP_TYPE, VISUAL_RELATIONSHIP_TYPE, VisualModel, VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { AllowedEdgeBundleTypes, ExtractedModels, GeneralizationBundle, RelationshipBundle, RelationshipProfileBundle } from "../../layout-algorithms/entity-bundles";
-import { addToRecordArray, capitalizeFirstLetter, createIdentifier } from "../../util/utils";
-import { Node, isNodeInVisualModel } from "./node";
+import { AllowedEdgeBundleTypes, ExtractedModels } from "../../layout-algorithms/entity-bundles";
+import { capitalizeFirstLetter, createIdentifier } from "../../util/utils";
+import { Node } from "./node";
 
 export type AllowedEdgeTypes = SemanticModelGeneralization |
                         SemanticModelRelationship |
@@ -219,7 +219,8 @@ export class DefaultEdge implements Edge {
         start: EdgeEndPoint,
         end: EdgeEndPoint
     ): VisualRelationship | VisualProfileRelationship {
-        // TODO: It makes sense to use the cme methods to create the visual entities - Instead of implementing it all again - just define method and call it
+        // TODO Hard to solve by myself - Radstr:
+        //      It makes sense to use the cme methods to create the visual entities - Instead of implementing it all again - just define method and call it
         //      ... for example I am not sure the type should cotnain only the VISUAL_RELATIONSHIP_TYPE or also some other type, so for such cases constistency would be nice
         //      But currently it seems sufficient
         const edgeToReturn: VisualProfileRelationship = {
@@ -403,8 +404,9 @@ function createNewVisualRelationshipBasedOnSemanticData(
     start: EdgeEndPoint,
     end: EdgeEndPoint,
 ): VisualRelationship | VisualProfileRelationship {
-    // TODO: It makes sense to use the cme methods to create the visual entities - Instead of implementing it all again - just define method and call it
-    //      ... for example I am not sure the type should cotnain only the VISUAL_RELATIONSHIP_TYPE or also some other type, so for such cases constistency would be nice
+    // TODO Hard to solve by myself - Radstr:
+    //      It makes sense to use the cme methods to create the visual entities - Instead of implementing it all again - just define method and call it
+    //      ... for example I am not sure the type should cotnain only the VISUAL_PROFILE_RELATIONSHIP_TYPE or also some other type, so for such cases constistency would be nice
     //      But currently it seems sufficient
     if(edgeProfileType === "CLASS-PROFILE") {
         const edgeToReturn: VisualProfileRelationship = {

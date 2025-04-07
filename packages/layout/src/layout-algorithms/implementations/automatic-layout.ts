@@ -22,7 +22,7 @@ export class AutomaticLayout implements LayoutAlgorithm {
       for(const algorithmToTry of algorithmsToTry) {
         const result = await performLayoutFromGraph(graphCopy, algorithmToTry);
         const currentMetricResult = getBestMetricResultAggregation(result);
-        // TODO Relative metric: If we swap to relative we have to use < and change the best to -1000
+        // TODO Hard to solve by myself - Radstr: If we swap to relativeValue we have to use < and change the best to -1000...
         if(currentMetricResult.value.absoluteValue < best) {
           best = currentMetricResult.value.absoluteValue;
           bestGraph = currentMetricResult.graphPromise;

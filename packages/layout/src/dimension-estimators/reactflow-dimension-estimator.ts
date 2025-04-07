@@ -68,8 +68,8 @@ export class ReactflowDimensionsEstimator implements NodeDimensionQueryHandler {
 }
 
 
-// TODO: Copy-pasted
-// TODO: I Can't access this, since the CME is dependent on layout package not the other way around.
+// TODO Hard to solve by myself - Radstr: Copy-pasted ... but it should not matter, these don't change
+//       I can't access this, since the CME is dependent on layout package not the other way around.
 //       So either have it here copy-pasted or put somewhere, where it can be accessed from both CME and here
 const vocabulary : [string, string][] = [
     ["http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf"],
