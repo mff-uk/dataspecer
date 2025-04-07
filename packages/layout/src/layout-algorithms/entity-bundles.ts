@@ -103,6 +103,14 @@ export function extractModelObjects(inputSemanticModels: Map<string, EntityModel
             semanticClassProfile: o.semanticEntity as SemanticModelClassProfile,
         }
     });
+
+
+    // TODO Hard to solve by myself - Radstr: Profiles - the isSemanticModelAttributeProfile is internal function
+    //   of the CME, since it is probably kind of hack, so we can not check it here
+    //   So now this contains both relationship profiles and attribute profiles
+    //   which matters only if we are using the reactflow dimension estimator.
+    //   Currently only the semantic attributes are estimated, the semantic profile attributes not.
+    // ... So final remarks idelly we would have relationshipProfiles and attributeProfiles
     const relationshipsProfiles = filterForExtraction(entities, isSemanticModelRelationshipProfile).map((o) => {
         return {
             sourceModelIdentifier: o.sourceModelIdentifier,
@@ -122,7 +130,6 @@ export function extractModelObjects(inputSemanticModels: Map<string, EntityModel
         }
     });
 
-    // TODO: Later take care of profiled attributes vs profile relationships in same way
     const relationships = entities
         .filter((o) => (isSemanticModelRelationship(o.semanticEntity) &&
                         !isSemanticModelAttribute(o.semanticEntity)))

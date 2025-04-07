@@ -475,7 +475,7 @@ export class ElkGraphTransformer implements GraphTransformer {
         const isInteractiveGeneralization = constraintContainer?.currentLayoutAction?.action?.constraintedNodes === "GENERALIZATION" &&
             String(constraintContainer?.currentLayoutAction?.action?.data?.["interactive"]) === "true" &&
             !isNodeSubgraph;
-        const isInteractiveAll =  constraintContainer?.currentLayoutAction.action.constraintedNodes === "ALL" &&
+        const isInteractiveAll = constraintContainer?.currentLayoutAction.action.constraintedNodes === "ALL" &&
             String(constraintContainer?.currentLayoutAction?.action?.data?.["interactive"]) === "true" &&
             ((constraintContainer.isGeneralizationPerformedBefore() && isNodeSubgraph) ||
                 !constraintContainer.isGeneralizationPerformedBefore());
