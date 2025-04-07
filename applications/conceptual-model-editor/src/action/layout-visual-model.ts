@@ -240,7 +240,6 @@ export async function findPositionForNewNodesUsingLayouting(
 export function createExactNodeDimensionsQueryHandler(
   diagram: UseDiagramType,
 ): NodeDimensionQueryHandler {
-  // TODO RadStr: Have to use visual ids for graph nodes
   const getWidth = (node: Node) => {
     // The question is what does it mean if the node isn't in editor? Same for height
     // Actually it is not error, it can be valid state when we are layouting elements which are not yet part of visual model
