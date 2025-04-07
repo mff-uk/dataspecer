@@ -46,6 +46,7 @@ export { type Node };
 import { GraphFactory } from "./graph/representation/graph-factory";
 import { ALGORITHM_NAME_TO_LAYOUT_MAPPING, AlgorithmName } from "./layout-algorithms/list-of-layout-algorithms";
 import { LayoutAlgorithm } from "./layout-algorithms/layout-algorithms-interfaces";
+import _ from "lodash";
 export type { AlgorithmName };
 export { AnchorOverrideSetting } from "./explicit-anchors";
 export { placeCoordinateOnGrid, placePositionOnGrid };
@@ -246,6 +247,10 @@ const performLayoutingBasedOnConstraints = async (
 ): Promise<Record<string, MetricResultsAggregation>> => {
 	let workGraph = graph;
 	for(const action of constraints.layoutActionsIteratorBefore) {
+		if (action.shouldCreateNewGraph) {
+			workGraph = _.cloneDeep(workGraph);
+	 	}
+
 		if(action instanceof GraphConversionConstraint) {
 			SPECIFIC_ALGORITHM_CONVERSIONS_MAP[action.actionName](action, workGraph);
 		}
@@ -256,10 +261,10 @@ const performLayoutingBasedOnConstraints = async (
 			}
 			if(action.algorithmPhasesToCall === "ONLY-RUN" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
 				if(action.constraintedNodes === "GENERALIZATION") {
-					workGraph = await layoutAlgorithm.runGeneralizationLayout(action.shouldCreateNewGraph);
+					workGraph = await layoutAlgorithm.runGeneralizationLayout();
 				}
 				else {
-					workGraph = await layoutAlgorithm.run(action.shouldCreateNewGraph);
+					workGraph = await layoutAlgorithm.run();
 				}
 			}
 		}
@@ -315,6 +320,9 @@ const runMainLayoutAlgorithm = async (
 		let workGraph = graph;		// TODO: Maybe create copy?
 		let layoutedGraphPromise: Promise<MainGraph>;
 		for(const action of constraints.layoutActionsIterator) {
+			if (action.shouldCreateNewGraph) {
+ 				workGraph = _.cloneDeep(workGraph);
+			}
 			if(action instanceof GraphConversionConstraint) {
 				layoutedGraphPromise = SPECIFIC_ALGORITHM_CONVERSIONS_MAP[action.actionName](action, workGraph);
 				workGraph = await layoutedGraphPromise;
@@ -327,11 +335,11 @@ const runMainLayoutAlgorithm = async (
 				}
 				if(action.algorithmPhasesToCall === "ONLY-RUN" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
 					if(action.constraintedNodes === "ALL") {
-						layoutedGraphPromise = layoutAlgorithm.run(action.shouldCreateNewGraph);
+						layoutedGraphPromise = layoutAlgorithm.run();
 						workGraph = await layoutedGraphPromise;
 					}
 					else if(action.constraintedNodes === "GENERALIZATION") {
-						layoutedGraphPromise = layoutAlgorithm.runGeneralizationLayout(action.shouldCreateNewGraph);
+						layoutedGraphPromise = layoutAlgorithm.runGeneralizationLayout();
 						workGraph = await layoutedGraphPromise;
 					}
 				}

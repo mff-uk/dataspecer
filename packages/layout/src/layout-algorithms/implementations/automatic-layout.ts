@@ -10,7 +10,7 @@ export class AutomaticLayout implements LayoutAlgorithm {
     this.graph = graph;
     this.constraintContainer = constraintContainer;
   };
-  async run(shouldCreateNewGraph: boolean): Promise<MainGraph> {
+  async run(): Promise<MainGraph> {
     // TODO RadStr: Put Away the interface (IAlogrithmConfiguration and same for the IGraphConstraint)
     let bestGraph = null;
     // Here we run every algorithm once and choose the best one - we could implement it in the index.js
@@ -18,8 +18,8 @@ export class AutomaticLayout implements LayoutAlgorithm {
       console.info("Running automatic - AutomaticConfiguration", this.constraintContainer.currentLayoutAction.action);
       const algorithmsToTry = getAlgorithmsToTry(this.constraintContainer.currentLayoutAction.action.data.min_distance_between_nodes);
       let best = 10000000;
-      const graphCopy = _.cloneDeep(this.graph.mainGraph);
       for(const algorithmToTry of algorithmsToTry) {
+        const graphCopy = _.cloneDeep(this.graph.mainGraph);
         const result = await performLayoutFromGraph(graphCopy, algorithmToTry);
         const currentMetricResult = getBestMetricResultAggregation(result);
         // TODO Hard to solve by myself - Radstr: If we swap to relativeValue we have to use < and change the best to -1000...
@@ -35,7 +35,7 @@ export class AutomaticLayout implements LayoutAlgorithm {
 
     return bestGraph;
   };
-  runGeneralizationLayout(shouldCreateNewGraph: boolean) {
+  runGeneralizationLayout() {
     return Promise.resolve(this.graph.mainGraph);
   };
 

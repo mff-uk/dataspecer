@@ -82,7 +82,7 @@ export class ElkLayout implements LayoutAlgorithm {
         this.constraintContainer = constraintContainer;
     }
 
-    async run(shouldCreateNewGraph: boolean): Promise<MainGraph> {
+    async run(): Promise<MainGraph> {
         let layoutPromise: Promise<ElkNode | void>;
         const graphInElkWorkCopy = this.getGraphInElk();
         if(this.constraintContainer.isGeneralizationPerformedBefore()) {
@@ -98,21 +98,14 @@ export class ElkLayout implements LayoutAlgorithm {
 
 
         return layoutPromise.then(layoutedGraph => {
-            if(shouldCreateNewGraph) {
-                if(layoutedGraph !== null && typeof layoutedGraph === 'object') {       // Void check
-                    return this.elkGraphTransformer.convertLibraryToGraphRepresentation(layoutedGraph, false);
-                }
-                // The graph is void - layouting failed
-                return this.elkGraphTransformer.convertLibraryToGraphRepresentation(null, false);
+            if(layoutedGraph !== null && typeof layoutedGraph === 'object') {       // Void check
+                this.elkGraphTransformer.updateExistingGraphRepresentationBasedOnLibraryRepresentation(layoutedGraph, this.graph, false, true);
             }
-            else {
-                this.elkGraphTransformer.updateExistingGraphRepresentationBasedOnLibraryRepresentation(graphInElkWorkCopy, this.graph, false, true);
-                return this.graph.mainGraph;            // TODO: Again main graph
-            }
+            return this.graph.mainGraph;            // TODO: Again main graph
         });
     }
 
-    async runGeneralizationLayout(shouldCreateNewGraph: boolean): Promise<MainGraph> {
+    async runGeneralizationLayout(): Promise<MainGraph> {
         const layoutPromises: Promise<void>[] = [];
         let subgraphAllEdges: [ElkExtendedEdge[], ElkExtendedEdge[]][] = [];
         let subgraphIndices: number[] = [];
@@ -153,15 +146,9 @@ export class ElkLayout implements LayoutAlgorithm {
             console.log("GRAPH AFTER FIRST LAYOUTING AND REPAIRING EDGES:");
             console.log(graphInElkWorkCopy);
             console.log(JSON.stringify(graphInElkWorkCopy));
-            if(shouldCreateNewGraph) {
-                const layoutedGraph = this.elkGraphTransformer.convertLibraryToGraphRepresentation(graphInElkWorkCopy, false);
-                // TODO: Alternative solution is just to keep changing the input graph instead of creating copies
-                return layoutedGraph;
-            }
-            else {
-                this.elkGraphTransformer.updateExistingGraphRepresentationBasedOnLibraryRepresentation(graphInElkWorkCopy, this.graph, false, true);
-                return this.graph.mainGraph;            // TODO: Again main graph
-            }
+
+            this.elkGraphTransformer.updateExistingGraphRepresentationBasedOnLibraryRepresentation(graphInElkWorkCopy, this.graph, false, true);
+            return this.graph.mainGraph;            // TODO: Again main graph
         });
     }
 

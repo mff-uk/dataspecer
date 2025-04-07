@@ -143,25 +143,6 @@ export class ElkGraphTransformer implements GraphTransformer {
         return elkGraph;
     }
 
-
-
-    /**
-     * The implementation creates deep copy of the input graph, updates the copy and returns it.
-     */
-    convertLibraryToGraphRepresentation(libraryRepresentation: ElkNode | null, includeDummies: boolean): MainGraph {
-        // Simple, but sufficient implementation.
-        // Ideally we would implement some clone method which clones the necessary stuff,
-        // but keeps relevant references, we can also try to create the graph from scratch
-        // like this, but it is to specific and usually breaks on different ids
-        //  2) TODO: It should be noted in docs that we are actually just cloning the old graph and update the copy and creating completely new one
-        //     because the results may slightly differ
-        //  3) TODO: Using this.graph ... it makes sense since it is the input graph
-        const clonedGraph = _.cloneDeep(this.graph);
-        this.updateExistingGraphRepresentationBasedOnLibraryRepresentation(libraryRepresentation, clonedGraph, includeDummies, true);
-
-        return clonedGraph;
-    }
-
     private approximatelyEqual(xy1: XY, xy2: XY, epsilon: number = 0.001) {
         return Math.abs(xy1.x - xy2.x) < epsilon && Math.abs(xy1.y - xy2.y) < epsilon ;
     }

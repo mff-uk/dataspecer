@@ -22,15 +22,6 @@ export interface GraphTransformer {
     ): object,
 
     /**
-     * Converts library graph representation to our graph representation.
-     * Creates new graph instance with positions set based on the values in library representation of the graph.
-     */
-    convertLibraryToGraphRepresentation(
-        libraryRepresentation: object | null,
-        includeDummies: boolean
-    ): Graph,
-
-    /**
      * Update positions of visual entities in our graph representation based on the positions in the layout library graph representation.
      */
     updateExistingGraphRepresentationBasedOnLibraryRepresentation(

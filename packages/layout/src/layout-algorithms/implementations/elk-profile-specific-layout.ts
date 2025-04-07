@@ -38,11 +38,11 @@ export class ElkProfileLayout extends ElkLayout {
     super.prepareFromGraph(graph, constraintContainer);
     this.setProfileLengthsForEdges();
   };
-  async run(shouldCreateNewGraph: boolean) {
-    return super.run(shouldCreateNewGraph);
+  async run() {
+    return super.run();
   };
-  runGeneralizationLayout(shouldCreateNewGraph: boolean) {
-    return super.runGeneralizationLayout(shouldCreateNewGraph);
+  runGeneralizationLayout() {
+    return super.runGeneralizationLayout();
   };
 
   setProfileLengthsForEdges() {
