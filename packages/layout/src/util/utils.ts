@@ -1,4 +1,5 @@
-import { XY } from "..";
+import { VisualGroup } from "@dataspecer/core-v2/visual-model";
+import { VisualEntitiesWithOutsiders, XY } from "..";
 import { EdgeCrossingMetric } from "../graph/graph-metrics/implemented-metrics/edge-crossing";
 import { EdgeEndPoint } from "../graph/representation/edge";
 import { VisualNodeComplete } from "../graph/representation/node";
@@ -61,6 +62,87 @@ export function getBotRightPosition(
 
   return botRight;
 };
+
+export const createIdentifier = () => (Math.random() + 1).toString(36).substring(7);
+
+
+// TODO: Again copied from the CME, because it is not accessible from this package
+/**
+ * @returns The top level group, or null if the node is not part of any group.
+ * Note that if {@link identifier} is id of group, then that id is returned if it is top level group.
+ */
+export function findTopLevelGroup<T>(
+  identifier: string,
+  existingGroups: Record<string, T>,
+  nodeToGroupMapping: Record<string, string>,
+): string | null {
+  if(nodeToGroupMapping[identifier] === undefined) {
+    return existingGroups[identifier] === undefined ? null : identifier;
+  }
+
+  let topLevelGroup = nodeToGroupMapping[identifier];
+  while(nodeToGroupMapping[topLevelGroup] !== undefined) {
+    topLevelGroup = nodeToGroupMapping[topLevelGroup];
+  }
+  return topLevelGroup;
+}
+
+/**
+ * @returns Returns the mapping of all kind of nodes to group within the given {@link groups}.
+ */
+export function getGroupMappings(groups: VisualGroup[]) {
+  const existingGroups: Record<string, VisualGroup> = {};
+  const nodeToGroupMapping: Record<string, string> = {};
+  for(const group of groups) {
+    existingGroups[group.identifier] = group;
+    for(const nodeInGroup of group.content) {
+      nodeToGroupMapping[nodeInGroup] = group.identifier;
+    }
+  }
+
+  return {
+    existingGroups,
+    nodeToGroupMapping,
+  };
+}
+
+
+export function getNonGroupNodesInGroup(
+  group: VisualGroup,
+  existingGroups: Record<string, VisualGroup>,
+): {
+  processedGroups: Record<string, true>,
+  nonGroupNodes: string[]
+} {
+  return getNonGroupNodesInGroupInternal(group, existingGroups, {}, []);
+}
+
+/**
+ * @param processedGroups Just to double-check that groups are not self-referencing (recursively)
+ */
+function getNonGroupNodesInGroupInternal(
+  group: VisualGroup,
+  existingGroups: Record<string, VisualGroup>,
+  processedGroups: Record<string, true>,
+  nonGroupNodes: string[]
+) {
+    for (const entityInGroup of group.content) {
+      if(existingGroups[entityInGroup] === undefined) {
+        nonGroupNodes.push(entityInGroup);
+      }
+      else {
+        processedGroups[entityInGroup] = true;
+        getNonGroupNodesInGroupInternal(
+          existingGroups[entityInGroup], existingGroups, processedGroups, nonGroupNodes);
+      }
+  }
+
+  return {
+    processedGroups,
+    nonGroupNodes
+  };
+}
+
 
 
 // TODO RadStr: Copy-pasted from visual model - maybe since I import this package anyways - it could be defined only here

@@ -4,7 +4,7 @@ import { Graph } from "./graph";
 import { isSemanticModelGeneralization, SemanticModelGeneralization, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { VISUAL_PROFILE_RELATIONSHIP_TYPE, VISUAL_RELATIONSHIP_TYPE, VisualModel, VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
 import { AllowedEdgeBundleTypes, ExtractedModels, GeneralizationBundle, RelationshipBundle, RelationshipProfileBundle } from "../../layout-algorithms/entity-bundles";
-import { addToRecordArray, capitalizeFirstLetter } from "../../util/utils";
+import { addToRecordArray, capitalizeFirstLetter, createIdentifier } from "../../util/utils";
 import { Node, isNodeInVisualModel } from "./node";
 
 export type AllowedEdgeTypes = SemanticModelGeneralization |
@@ -187,13 +187,6 @@ export class DefaultEdge implements Edge {
         this.visualEdge = this.createVisualEdgeBasedOnData(visualRelationship, semanticEdge, this.edgeProfileType, sourceModelIdentifier, start, end);
         this.id = identifier ?? this.visualEdge.visualEdge.identifier;
         sourceGraph.mainGraph.insertInAllEdges(this);
-
-        if(semanticEdge === null) {
-            addToRecordArray(this.id, this, sourceGraph.mainGraph.semanticEdgeToVisualMap);
-        }
-        else {
-            addToRecordArray(semanticEdge.id, this, sourceGraph.mainGraph.semanticEdgeToVisualMap);
-        }
     }
 
     sourceGraph: Graph;
@@ -228,8 +221,9 @@ export class DefaultEdge implements Edge {
     ): VisualRelationship | VisualProfileRelationship {
         // TODO: It makes sense to use the cme methods to create the visual entities - Instead of implementing it all again - just define method and call it
         //      ... for example I am not sure the type should cotnain only the VISUAL_RELATIONSHIP_TYPE or also some other type, so for such cases constistency would be nice
+        //      But currently it seems sufficient
         const edgeToReturn: VisualProfileRelationship = {
-            identifier: Math.random().toString(36).substring(2),
+            identifier: createIdentifier(),
             entity: "",
             type: [VISUAL_RELATIONSHIP_TYPE],
             waypoints: [],
@@ -411,9 +405,10 @@ function createNewVisualRelationshipBasedOnSemanticData(
 ): VisualRelationship | VisualProfileRelationship {
     // TODO: It makes sense to use the cme methods to create the visual entities - Instead of implementing it all again - just define method and call it
     //      ... for example I am not sure the type should cotnain only the VISUAL_RELATIONSHIP_TYPE or also some other type, so for such cases constistency would be nice
+    //      But currently it seems sufficient
     if(edgeProfileType === "CLASS-PROFILE") {
         const edgeToReturn: VisualProfileRelationship = {
-            identifier: Math.random().toString(36).substring(2),
+            identifier: createIdentifier(),
             entity: start.id,
             type: [VISUAL_PROFILE_RELATIONSHIP_TYPE],
             waypoints: [],
@@ -426,7 +421,7 @@ function createNewVisualRelationshipBasedOnSemanticData(
     }
 
     const edgeToReturn: VisualRelationship = {
-        identifier: Math.random().toString(36).substring(2),
+        identifier: createIdentifier(),
         type: [VISUAL_RELATIONSHIP_TYPE],
         representedRelationship: semanticEdge.id,
         waypoints: [],

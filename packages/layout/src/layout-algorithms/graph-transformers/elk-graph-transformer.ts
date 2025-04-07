@@ -183,13 +183,9 @@ export class ElkGraphTransformer implements GraphTransformer {
         const anchoredPositionBeforeLayout: XY = {...tmpPos};
 
         const visualEntities = this.recursivelyUpdateGraphBasedOnElkNode(libraryRepresentation, graphToBeUpdated, 0, 0, shouldUpdateEdges);
-        // TODO: Actually moving all to the origin point [0, 0] is sometimes unwanted - For example when using the elk.stress algorithm to find position for 1 element
-        //       We don't want to move everything, but just the 1 node. So either 1) remove it or
-        //                                                                        2) It should be GraphTransformation action ... probably 2)
-        // const visualNodes = visualEntities.filter(visualEntity => this.isGraphNode(visualEntity)).map(ve => (ve as VisualNodeComplete).coreVisualNode);
-        // const [leftX, topY] = this.findTopLeftPosition(visualNodes);
-        console.warn("Positions before performing anchor shift");
-        console.warn(JSON.stringify(Object.values(visualEntities).filter(this.isGraphNode).map(n => [n.coreVisualNode.representedEntity, n.coreVisualNode.position])));
+        // Note: Previously we were moving the graph to the origin point [0, 0], but that is sometimes unwanted
+        //       For example when using the elk.stress algorithm to find position for 1 element, then
+        //       we don't want to move everything, but just the 1 node. So either
 
         let positionShiftDueToAnchors: XY = {x: 0, y: 0};
         if(anchoredNode !== null) {
@@ -199,10 +195,6 @@ export class ElkGraphTransformer implements GraphTransformer {
 
         visualEntities.forEach(visualEntity => {
             if(this.isGraphNode(visualEntity)) {
-                // TODO: Comment the code for now, as said above
-                // visualEntity.coreVisualNode.position.x -= leftX;
-                // visualEntity.coreVisualNode.position.y -= topY;
-
                 // TODO: Maybe should have set method on graph instead which does the conversion to grid automatically and maybe should also should update edges?
                 //       (It is most likely the case - After realizing that I want have moving to top left position as GraphTransformation action)
                 //       Also we can't access the cme configuration (applications/conceptual-model-editor/src/application/configuration.ts) from here
@@ -215,9 +207,6 @@ export class ElkGraphTransformer implements GraphTransformer {
             }
             else if(isVisualRelationship(visualEntity) || isVisualProfileRelationship(visualEntity)) {
                 for(let i = 0; i < visualEntity.waypoints.length; i++) {
-                    // TODO: Comment the code for now, as said above
-                    // visualEntity.waypoints[i].x -= leftX;
-                    // visualEntity.waypoints[i].y -= topY;
                     visualEntity.waypoints[i].x -= positionShiftDueToAnchors.x;
                     visualEntity.waypoints[i].y -= positionShiftDueToAnchors.y;
                 }

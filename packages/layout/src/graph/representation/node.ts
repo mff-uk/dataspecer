@@ -1,5 +1,5 @@
 import { VISUAL_NODE_TYPE, VisualModel, VisualNode } from "@dataspecer/core-v2/visual-model";
-import { addToRecordArray, placePositionOnGrid } from "../../util/utils";
+import { addToRecordArray, createIdentifier, placePositionOnGrid } from "../../util/utils";
 import { Graph, MainGraph } from "./graph";
 import { SemanticModelEntity, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import { ExtractedModels, getEdgeSourceAndTargetRelationship } from "../../layout-algorithms/entity-bundles";
@@ -275,7 +275,7 @@ export class DefaultNode implements Node {
           position = {x: 0, y: 0};
       }
       return {
-          identifier: Math.random().toString(36).substring(2),
+          identifier: createIdentifier(),
           type: [VISUAL_NODE_TYPE],
           representedEntity: semanticEntityRepresentingNodeIdentifier,
           position: {

@@ -25,9 +25,9 @@ export interface LayoutAlgorithm {
     /**
      * Runs the layouting algorithm on the graph prepared earlier. Layouts only the generalizations subgraphs separately.
      * @param shouldCreateNewGraph if true then new graph is created, otherwise the one passed in preparation phase is changed in place
+     * @deprecated Not really deprecated, but personally I would not implement this method for any future algorithm,
+     *  because layouting of subgraphs doesn't work properly and if somebody wanted to make it work properly it is months of work.
      * @returns promise which on resolve returns the layouted graph
      */
-    // TODO: Again this could be generalized that we would layout list of any given subgraphs instead of the generalization subgraphs, so it should be moved one level up and
-    //       we should just call layout on the given subgraph
     runGeneralizationLayout: (shouldCreateNewGraph: boolean) => Promise<MainGraph>,
 }

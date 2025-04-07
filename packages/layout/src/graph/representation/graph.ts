@@ -24,7 +24,10 @@ import {
     isVisualGroup
 } from "@dataspecer/core-v2/visual-model";
 import {
+    findTopLevelGroup,
     getBotRightPosition,
+    getGroupMappings,
+    getNonGroupNodesInGroup,
     getTopLeftPosition,
     PhantomElementsFactory,
 } from "../../util/utils";
@@ -69,8 +72,6 @@ export type VisualModelWithOutsiders = {
     outsiders: Record<string, XY | null>,
 } | null;
 
-// TODO: This doesn't really make sense, just have interface IGraph which represents any graph
-//       (it will have only methods manipulating with it - addNode, ...), so something similiar to interface Graph (at top of the file)
 /**
  * Interface which represents the (sub)graph,
  */
@@ -125,15 +126,6 @@ export interface MainGraph extends Graph {
      * If the entity does not have semantic equivalent, its visual one is used as a key
      */
     semanticNodeToVisualMap: Record<string, EdgeEndPoint[]>,
-
-
-    // TODO RadStr: Maybe not needed ... Yeah I think that it is not needed - DELETE
-    /**
-     * Maps the semantic edge to all its visuals.
-     *
-     * If the entity does not have semantic equivalent, its visual one is used as a key
-     */
-    semanticEdgeToVisualMap: Record<string, Edge[]>,
 
     /**
      * List of all nodes/subgraphs in the graph.
@@ -535,13 +527,27 @@ export class DefaultGraph implements Graph {
                 .map(entity => visualModel.getVisualEntity(entity))
                 .filter(entity => entity !== null)
                 .filter(isVisualGroup);
-            for(const group of groups) {
-                // TODO RadStr LAYOUT: We will have to write the getTopLevelGroup method again, otherwise this does not work
 
-                const nodesInSubgraph = group.content
+            const { nodeToGroupMapping, existingGroups } = getGroupMappings(groups);
+            const alreadyProcessedGroups: Record<string, true> = {};
+
+            for(const group of groups) {
+                const topLevelGroup = findTopLevelGroup(group.identifier, existingGroups, nodeToGroupMapping);
+
+                if(alreadyProcessedGroups[topLevelGroup] === true) {
+                    continue;
+                }
+                alreadyProcessedGroups[topLevelGroup] = true;
+
+                const { nonGroupNodes, processedGroups } = getNonGroupNodesInGroup(existingGroups[topLevelGroup], existingGroups);
+                for (const processedGroup of Object.keys(processedGroups)) {
+                    alreadyProcessedGroups[processedGroup] = true;
+                }
+
+                const nodesInSubgraph = nonGroupNodes
                     .map(identifier => this.mainGraph.findNodeInAllNodes(identifier));
                 GraphFactory.createGraph(
-                    this.mainGraph, this, group.identifier, nodesInSubgraph, true, true);
+                    this.mainGraph, this, topLevelGroup, nodesInSubgraph, true, true);
             }
         }
     }
@@ -809,7 +815,7 @@ export class DefaultGraph implements Graph {
     semanticEntityRepresentingNode: SemanticModelEntity | null = null;
     isDummy: boolean = true;
     isProfile: boolean = false;
-    isConsideredInLayout: boolean = true;     // TODO: Create setter/getter instead (iface vs class ... this will need change on lot of places)
+    isConsideredInLayout: boolean = true;
     layoutOptions: Record<string, string> = {};
 
 
