@@ -217,7 +217,7 @@ export class DefaultNode implements Node {
       // But we store it all for now.
       this.attributes = extractedModels.attributes.filter(attributesBundle => {
           const {source, target, ...rest} = getEdgeSourceAndTargetRelationship(attributesBundle.semanticRelationship);
-          return this.semanticEntityRepresentingNode.id === source;
+          return this?.semanticEntityRepresentingNode?.id === source;
       }).map(attributeBundle => attributeBundle.semanticRelationship);
       if(visualNode !== null) {
           // Kind of ugly,
@@ -504,13 +504,16 @@ export const isNodeInVisualModel = (
   visualModel: VisualModel,
   entitiesToLayout: VisualEntitiesWithOutsiders,
   node: AllowedVisualsForNodes | null,
-  classIdentifier: string
+  classIdentifier: string | undefined | null
 ): boolean => {
   if(visualModel === null) {
       return true;
   }
   if(node !== null) {
     return true;
+  }
+  if(classIdentifier === undefined || classIdentifier === null) {
+    return false;
   }
 
   const visualEntities = visualModel.getVisualEntitiesForRepresented(classIdentifier);
@@ -537,7 +540,7 @@ export function addNodeToGraph(
     isDummy: boolean = false,
     explicitAnchors?: ExplicitAnchors
 ): boolean {
-    if(isNodeInVisualModel(visualModel, entitiesToLayout, node, semanticEntityRepresentingNode.id)) {
+    if(isNodeInVisualModel(visualModel, entitiesToLayout, node, semanticEntityRepresentingNode?.id)) {
         new DefaultNode(
             mainGraph, node, semanticEntityRepresentingNode,
             isProfile, sourceModelIdentifier,

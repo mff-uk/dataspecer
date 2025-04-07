@@ -297,15 +297,17 @@ export class DefaultGraph implements Graph {
                     const classProfile = extractedModels.classesProfiles
                         .find(classProfile => classProfile.semanticClassProfile.id === node.representedEntity);
                     if(classProfile === undefined) {
-                        console.error("Node is neither class or class profile");
-                        // TODO RadStr: We DO have nodes which don't have semantic equivalent
-                        throw new Error("Implementation error")
-                        return;
+                        addNodeToGraph(
+                            this.mainGraph, node, null, true,
+                            classProfile?.sourceModelIdentifier ?? null, extractedModels, this,
+                            visualModel, entitiesToLayout, null, false, explicitAnchors);
                     }
-                    addNodeToGraph(
-                        this.mainGraph, node, classProfile.semanticClassProfile, true,
-                        classProfile.sourceModelIdentifier, extractedModels, this,
-                        visualModel, entitiesToLayout, null, false, explicitAnchors);
+                    else {
+                        addNodeToGraph(
+                            this.mainGraph, node, classProfile.semanticClassProfile, true,
+                            classProfile.sourceModelIdentifier, extractedModels, this,
+                            visualModel, entitiesToLayout, null, false, explicitAnchors);
+                    }
                 }
             }
         }
