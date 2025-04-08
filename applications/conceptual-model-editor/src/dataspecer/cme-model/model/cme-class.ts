@@ -14,6 +14,8 @@ export interface NewCmeClass {
 
   role: ClassRole;
 
+  externalDocumentationUrl: string | null;
+
 }
 
 export interface CmeClass extends NewCmeClass {

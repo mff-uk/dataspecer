@@ -23,6 +23,8 @@ export interface NewCmeRelationship {
 
   mandatoryLevel: MandatoryLevel;
 
+  externalDocumentationUrl: string | null;
+
 }
 
 export interface CmeRelationship extends NewCmeRelationship {

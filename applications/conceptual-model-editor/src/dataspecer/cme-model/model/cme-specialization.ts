@@ -22,6 +22,8 @@ export interface NewCmeSpecialization {
    */
   specializationOf: CmeReference;
 
+  externalDocumentationUrl: string | null;
+
 }
 
 export interface CmeSpecialization extends NewCmeSpecialization{

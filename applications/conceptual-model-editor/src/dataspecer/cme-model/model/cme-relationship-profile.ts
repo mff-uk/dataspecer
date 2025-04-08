@@ -33,6 +33,8 @@ export interface NewCmeRelationshipProfile {
 
   mandatoryLevel: MandatoryLevel;
 
+  externalDocumentationUrl: string | null;
+
 }
 
 export interface CmeRelationshipProfile
