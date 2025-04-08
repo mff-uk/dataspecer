@@ -216,7 +216,7 @@ function handleCreateRelationshipOperation(
                 cardinality: operation.entity.ends?.[1]?.cardinality,
                 concept: operation.entity.ends?.[1]?.concept ?? null,
                 iri: operation.entity.ends?.[1]?.iri ?? null,
-                externalDocumentationUrl: operation.entity.ends?.[0]?.externalDocumentationUrl ?? null,
+                externalDocumentationUrl: operation.entity.ends?.[1]?.externalDocumentationUrl ?? null,
             },
         ],
     };
