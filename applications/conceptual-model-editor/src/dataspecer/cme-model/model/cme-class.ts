@@ -12,8 +12,6 @@ export interface NewCmeClass {
 
   description: LanguageString | null;
 
-  role: ClassRole;
-
   externalDocumentationUrl: string | null;
 
 }

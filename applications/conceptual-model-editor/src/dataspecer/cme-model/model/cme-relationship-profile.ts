@@ -31,9 +31,9 @@ export interface NewCmeRelationshipProfile {
 
   rangeCardinality: CmeCardinality | null;
 
-  mandatoryLevel: MandatoryLevel;
-
   externalDocumentationUrl: string | null;
+
+  mandatoryLevel: MandatoryLevel | null;
 
 }
 

@@ -22,9 +22,9 @@ export interface NewCmeClassProfile {
 
   usageNoteSource: EntityDsIdentifier | null;
 
-  role: ClassRole;
-
   externalDocumentationUrl: string | null;
+
+  role: ClassRole | null;
 
 }
 
