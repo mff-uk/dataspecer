@@ -292,39 +292,44 @@ export const placePositionOnGrid = (position: PositionWithOptionalAnchor, gridX:
  * This class is used to create unique identifiers of dummy/phantom elements in graph.
  */
 export class PhantomElementsFactory {
-    static phantomNodeIndex: number = 0;
-    static phantomEdgeIndex: number = 0;
-    static createUniquePhanomNodeIdentifier(): string {
-        const identifier = `phantomNode-${this.phantomNodeIndex}`;
-        this.phantomNodeIndex++;
+  static phantomNodeIndex: number = 0;
+  static phantomEdgeIndex: number = 0;
+  static createUniquePhanomNodeIdentifier(): string {
+    const identifier = `phantomNode-${this.phantomNodeIndex}`;
+    this.phantomNodeIndex++;
 
-        return identifier;
-    }
+    return identifier;
+  }
 
-    /**
-     * @deprecated In future will be probably different way to do it
-     * @returns
-     */
-    static createUniqueGeneralizationSubgraphIdentifier(): string {
-        const identifier = `subgraph-${this.phantomNodeIndex}`;
-        this.phantomNodeIndex++;
+  /**
+   * @deprecated In future will be probably different way to do it
+   * @returns
+   */
+  static createUniqueGeneralizationSubgraphIdentifier(): string {
+    const identifier = `subgraph-${this.phantomNodeIndex}`;
+    this.phantomNodeIndex++;
 
-        return identifier;
-    }
+    return identifier;
+  }
 
-    static createUniquePhanomEdgeIdentifier(): string {
-        const identifier = `phantomEdge-${this.phantomEdgeIndex}`;
-        this.phantomEdgeIndex++;
+  static createUniquePhanomEdgeIdentifier(): string {
+    const identifier = `phantomEdge-${this.phantomEdgeIndex}`;
+    this.phantomEdgeIndex++;
 
-        return identifier;
-    }
+    return identifier;
+  }
 
-    static constructSplitID = (id: string, index: number): string => {
-        return `SPLIT-${index}-${id}`;
-    }
+  static constructSplitID(id: string, index: number): string {
+    return `SPLIT-${index}-${id}`;
+  }
 
-    static deconstructSplitID = (id: string): string => {
-        return id.split("-").splice(2,).join("");
-    }
+  static isSplitID(id: string): boolean {
+    return id.startsWith("SPLIT");
+  }
+
+  static deconstructSplitID(id: string): string {
+    const splitID = id.split("-")
+    return splitID.splice(splitID.length - 1,).join("");
+  }
 }
 

@@ -953,6 +953,11 @@ export class DefaultMainGraph extends DefaultGraph implements MainGraph {
                 visualEntityForEdge.visualTarget = targetGraphNode.completeVisualNode.coreVisualNode.identifier;
             }
 
+            if(PhantomElementsFactory.isSplitID(edge.id)) {
+                visualEntityForEdge.waypoints = [];
+                visualEntityForEdge.identifier = PhantomElementsFactory.deconstructSplitID(edge.id);
+            }
+
             // Again edge.id should be the same as visualEntityForEdge.identifier
             visualEntities[visualEntityForEdge.identifier] = {
                 visualEntity: visualEntityForEdge,

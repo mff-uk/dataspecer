@@ -169,7 +169,11 @@ export const useConfigDialog = () => {
     </div>;
   };
 
-  const RunOverlapRemovalAfterCombobox = (props: {stateField: MainType}) => {
+  const RunOverlapRemovalAfterCombobox = (
+    props: {
+      stateField: MainType
+      text?: string,
+  }) => {
     return <div>
       <input type="checkbox"
               id="checkbox-run-overlap-removal-after"
@@ -187,7 +191,7 @@ export const useConfigDialog = () => {
             }
           });
         }} />
-      <label htmlFor="checkbox-run-overlap-removal-after">Run node overlap removal after</label>
+      <label htmlFor="checkbox-run-overlap-removal-after">{props.text ?? "Run node overlap removal after"}</label>
     </div>;
   };
 
@@ -306,7 +310,7 @@ export const useConfigDialog = () => {
         {config?.[props.stateField]?.elk_stress_advanced_using_clusters?.["number_of_new_algorithm_runs"]}
       </div>
       <hr className="w-48 h-1 mx-auto my-2 bg-gray-100 border-0 rounded dark:bg-gray-700"/>
-      <RunOverlapRemovalAfterCombobox stateField={props.stateField}></RunOverlapRemovalAfterCombobox>
+      <RunOverlapRemovalAfterCombobox stateField={props.stateField} text="Remove edge layout for clusters"></RunOverlapRemovalAfterCombobox>
     </div>;
 
   const StressConfig = (props: {stateField: MainType}) =>

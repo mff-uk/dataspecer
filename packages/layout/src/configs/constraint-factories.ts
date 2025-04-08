@@ -1,4 +1,5 @@
-import { getBestLayoutFromMetricResultAggregation, performLayoutFromGraph } from "..";
+import { VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
+import { getBestLayoutFromMetricResultAggregation, performLayoutFromGraph, XY } from "..";
 import { GraphAlgorithms, ToConsiderFilter } from "../graph-algoritms";
 import { EdgeEndPoint } from "../graph/representation/edge";
 import { MainGraph } from "../graph/representation/graph";
@@ -306,6 +307,10 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
     ): Promise<MainGraph> => {
         console.info("algorithmConversionConstraint.data.clusterifyConstraint.data.clusters", algorithmConversionConstraint.data.clusterifyConstraint.data.clusters);
 
+        const visualEdgesWithWaypoints: (VisualRelationship | VisualProfileRelationship)[] = [];
+
+        const clusterPositionsWhenLayoutingLayered: Record<string, XY> = {};
+
         for (const [cluster, edgesInCluster] of Object.entries(algorithmConversionConstraint.data.clusterifyConstraint.data.clusters)) {
             for (const node of graph.getAllNodesInMainGraph()) {
                 const isInCluster = edgesInCluster
@@ -322,8 +327,6 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
                 edge.isConsideredInLayout = false;
             }
 
-            // TODO RadStr: We created copies after layout ...
-            //              maybe we should use the create copy parameter only after everything is layouted or rather at the begining - that is only once
             const edgesInClusterCurrentVersion = edgesInCluster.map(edge => graph.findEdgeInAllEdges(edge.id)).filter(edge => edge !== null);
             for(const edgeInCluster of edgesInClusterCurrentVersion) {
                 edgeInCluster.isConsideredInLayout = true;
@@ -364,9 +367,9 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
 
             const configuration = getDefaultUserGivenConstraintsVersion4();
             configuration.main.elk_layered.alg_direction = leastPopulatedSector as Direction;
-            configuration.main.elk_layered.in_layer_gap = 100;
-            configuration.main.elk_layered.layer_gap = 50;
-            configuration.main.elk_layered.edge_routing = "POLYLINE";
+            configuration.main.elk_layered.in_layer_gap = 50;
+            configuration.main.elk_layered.layer_gap = 200;
+            configuration.main.elk_layered.edge_routing = "ORTHOGONAL";
             configuration.main.elk_layered.number_of_new_algorithm_runs = 1;            // TODO RadStr: This is not good - but it will be fixed with new constraints/layout actions
             graph = await getBestLayoutFromMetricResultAggregation(await performLayoutFromGraph(graph, configuration));
 
@@ -389,8 +392,12 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
                         waypoint.x -= positionShift.x;
                         waypoint.y -= positionShift.y;
                     }
+
+                    visualEdgesWithWaypoints.push({...edge.visualEdge.visualEdge});
                 }
             }
+
+            clusterPositionsWhenLayoutingLayered[clusterRoot.id] = clusterRoorPositionAfterLayout;
         }
 
         graph.resetForNewLayout();
@@ -413,6 +420,27 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
         configuration.main.elk_stress.run_node_overlap_removal_after = true;
         (configuration.main.elk_stress as UserGivenAlgorithmConfigurationStress).stress_edge_len = algorithmConversionConstraint.data.edgeLength;
         graph = await getBestLayoutFromMetricResultAggregation(await performLayoutFromGraph(graph, configuration));
+
+
+        // Keep the orthogonal layout of edges for clusters
+        for (const [clusterRoot, clusterRootPositionBefore] of Object.entries(clusterPositionsWhenLayoutingLayered)) {
+            const clusterRootPositionCurrent = graph.findNodeInAllNodes(clusterRoot).completeVisualNode.coreVisualNode.position;
+            const positionShift = {
+                x: clusterRootPositionCurrent.x - clusterRootPositionBefore.x,
+                y: clusterRootPositionCurrent.y - clusterRootPositionBefore.y
+            };
+            const edgesInCluster = algorithmConversionConstraint.data.clusterifyConstraint.data.clusters[clusterRoot];
+            for(const edgeInCluster of edgesInCluster) {
+                const edgeInCurrentGraph = graph.findEdgeInAllEdges(edgeInCluster.id);
+                const layoutedEdge = visualEdgesWithWaypoints.find(e => e.identifier === edgeInCluster.id);
+                for (const waypoint of layoutedEdge.waypoints) {
+                    waypoint.x += positionShift.x;
+                    waypoint.y += positionShift.y;
+                }
+
+                edgeInCurrentGraph.visualEdge.visualEdge = layoutedEdge;
+            }
+        }   
 
         return Promise.resolve(graph);
     },

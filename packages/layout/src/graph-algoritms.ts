@@ -438,7 +438,7 @@ export class GraphAlgorithms {
           leafComponentsData.componentsToClusterRootsMap, nodesToComponentsMap,
           alreadyProcessedComponents, leafComponentsData.leafComponentToClusterRootMap);
         // TODO: DEBUG
-        console.info("currentChain", currentChain.map(node => node[0].semanticEntityRepresentingNode.iri));
+        console.info("currentChain", currentChain.map(node => node?.[0]?.semanticEntityRepresentingNode?.iri));
 
         let previousClusterRoot: Node | null = null;
         let previousClusterEdges: Edge[] = null;

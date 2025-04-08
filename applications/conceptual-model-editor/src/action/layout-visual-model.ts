@@ -289,7 +289,7 @@ function processLayoutResult(
     }
 
     // TODO RadStr: I am not sure if this "if" ever passes for non-outsiders, maybe we should keep only the else branch.
-    if(visualModel.getVisualEntity(visualIdentifer) === undefined) {
+    if(visualModel.getVisualEntity(visualIdentifer) === null) {
       if(isVisualNode(visualEntity)) {
         console.info("NEW NODE");
         addClassOrClassProfileToVisualModel(notifications, classes, diagram, graph, visualModel, visualEntity);

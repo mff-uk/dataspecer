@@ -12,6 +12,7 @@ import { VisualEntities } from "../../migration-to-cme-v2";
 import { EdgeEndPoint } from "../../graph/representation/edge";
 import _ from "lodash";
 import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
+import { PhantomElementsFactory } from "../../util/utils";
 
 type VisualEntitiesType = (VisualNodeComplete | VisualRelationship | VisualProfileRelationship)[];
 
@@ -19,11 +20,8 @@ type VisualEntitiesType = (VisualNodeComplete | VisualRelationship | VisualProfi
  * The Transformer class for conversion between our graph representation and ELK graph representation. For more info check {@link GraphTransformer} docs.
  */
 export class ElkGraphTransformer implements GraphTransformer {
-    // TODO: Either I will actually store the representation inside the class or not, If not then constructor should be empty
     constructor(graph: Graph, options?: object) {
-        console.log("graph in ElkGraphTransformer");
-        console.log(graph);
-        this.graph = graph.mainGraph;
+        this.mainGraph = graph.mainGraph;
     }
 
     convertGraphToLibraryRepresentation(
@@ -126,13 +124,19 @@ export class ElkGraphTransformer implements GraphTransformer {
         }
 
         if(shouldSetLayoutOptions) {
-            if((constraintContainer.currentLayoutAction.action.constraintedNodes === "GENERALIZATION" && isSubgraph(this.graph, elkGraph.id)) ||
+            if((constraintContainer.currentLayoutAction.action.constraintedNodes === "GENERALIZATION" && isSubgraph(this.mainGraph, elkGraph.id)) ||
                 (constraintContainer.currentLayoutAction.action.constraintedNodes === "ALL" && (graph instanceof DefaultMainGraph))) {
                 elkGraph.layoutOptions = (constraintContainer.currentLayoutAction.action as (IAlgorithmConfiguration & ElkConstraint)).elkData;
             }
-            else if(isSubgraph(this.graph, elkGraph.id)) {
+            else if(isSubgraph(this.mainGraph, elkGraph.id)) {
+                const nodesInOriginalGraph = Object.values(graph.nodes);
+                let isAnchored = false;
+                if(nodesInOriginalGraph.length > 0) {
+                    isAnchored = nodesInOriginalGraph[0].completeVisualNode.isAnchored;
+                }
                 elkGraph.layoutOptions = {
-                    "algorithm": "fixed"
+                    "algorithm": "fixed",
+                    "org.eclipse.elk.stress.fixed": String(isAnchored),
                 };
             }
         }
@@ -149,7 +153,7 @@ export class ElkGraphTransformer implements GraphTransformer {
 
     updateExistingGraphRepresentationBasedOnLibraryRepresentation(
         libraryRepresentation: ElkNode | null,
-        graphToBeUpdated: Graph,        // TODO: Can use this.graph instead
+        graphToBeUpdated: Graph,
         includeNewVertices: boolean,
         shouldUpdateEdges: boolean
     ): VisualEntities {
@@ -241,7 +245,7 @@ export class ElkGraphTransformer implements GraphTransformer {
 
             visualEntities.push(node.completeVisualNode);
 
-            if(isSubgraph(this.graph, ch.id)) {
+            if(isSubgraph(this.mainGraph, ch.id)) {
                 node.completeVisualNode.width = elkNode.width ?? node.completeVisualNode.width;
                 node.completeVisualNode.height = elkNode.height ?? node.completeVisualNode.height;
 
@@ -258,7 +262,9 @@ export class ElkGraphTransformer implements GraphTransformer {
             for(let edge of elkNode.edges) {
                 const waypoints = this.convertElkEdgeToWaypoints(edge, referenceX, referenceY);
                 const edgeInGraph = graphToBeUpdated.mainGraph.findEdgeInAllEdges(edge.id);
-                // TODO: Update the visual entity of edge or create new one .... But what about the split ones???
+                if(edgeInGraph?.reverseInLayout === true) {
+                    waypoints.reverse();
+                }
                 edgeInGraph.visualEdge.visualEdge.waypoints = waypoints;
                 visualEntities.push(edgeInGraph.visualEdge.visualEdge);
             }
@@ -266,10 +272,7 @@ export class ElkGraphTransformer implements GraphTransformer {
         return visualEntities;
     };
 
-
-    // TODO: Actually should we even store the graph, shouldn't we pass it in methods?
-    private graph: MainGraph;
-
+    private mainGraph: MainGraph;
 
     /**
      * @returns Top left corner of the top left entity in given {@link visualNodes}
@@ -450,9 +453,8 @@ export class ElkGraphTransformer implements GraphTransformer {
             console.info(parentElkNode.width);
         }
 
-        const isNodeSubgraph = isSubgraph(this.graph, node.id);
+        const isNodeSubgraph = isSubgraph(this.mainGraph, node.id);
         const position = graphNode?.completeVisualNode?.coreVisualNode?.position;
-        // TODO: Still touching the data and I would like to have more than 1 algorithm in future for example in the "ALL" bracket
         const isInteractiveGeneralization = constraintContainer?.currentLayoutAction?.action?.constraintedNodes === "GENERALIZATION" &&
             String(constraintContainer?.currentLayoutAction?.action?.data?.["interactive"]) === "true" &&
             !isNodeSubgraph;
