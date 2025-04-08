@@ -132,6 +132,8 @@ function executeModifySemanticModelClassProfile(
     usageNote: entity.usageNote ?? previous.usageNote,
     usageNoteFromProfiled: mergeFromProfiled(entity.usageNoteFromProfiled, previous.usageNoteFromProfiled),
     profiling: entity.profiling ?? previous.profiling,
+    externalDocumentationUrl: mergeFromProfiled(entity.externalDocumentationUrl, previous.externalDocumentationUrl),
+    role: mergeFromProfiled(entity.role, previous.role),
   };
   entityWriter.change({ [identifier]: updatedEntity }, []);
   return {
@@ -173,7 +175,8 @@ function executeCreateSemanticModelRelationshipProfile(
   };
 }
 
-function defaultRelationshipEndProfile() {
+function defaultRelationshipEndProfile():
+  Omit<SemanticModelRelationshipEndProfile, "concept"> {
   return {
     name: null,
     nameFromProfiled: null,
@@ -184,6 +187,8 @@ function defaultRelationshipEndProfile() {
     usageNote: null,
     usageNoteFromProfiled: null,
     profiling: [],
+    externalDocumentationUrl: null,
+    requirementLevel: null,
   }
 }
 

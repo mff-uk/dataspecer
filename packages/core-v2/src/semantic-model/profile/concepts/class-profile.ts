@@ -7,6 +7,12 @@ export interface SemanticModelClassProfile extends SemanticModelEntity, Profile,
 
   type: [typeof SEMANTIC_MODEL_CLASS_PROFILE];
 
+  /**
+   * Class profile role.
+   * {@link https://mff-uk.github.io/data-specification-vocabulary/class-role/class-role.ttl}.
+   */
+  role: string | null;
+
 }
 
 export const SEMANTIC_MODEL_CLASS_PROFILE = "class-profile";

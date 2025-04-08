@@ -45,4 +45,10 @@ export interface SemanticModelRelationshipEndProfile extends NamedThingProfile, 
    */
   cardinality: [number, number | null] | null;
 
+  /**
+   * Requirement level.
+   * {@link https://mff-uk.github.io/data-specification-vocabulary/requirement-level/requirement-level.ttl}
+   */
+  requirementLevel: string | null;
+
 }
