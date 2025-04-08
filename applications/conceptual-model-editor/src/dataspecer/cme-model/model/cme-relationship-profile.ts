@@ -37,8 +37,7 @@ export interface NewCmeRelationshipProfile {
 
 }
 
-export interface CmeRelationshipProfile
-  extends NewCmeRelationshipProfile {
+export interface CmeRelationshipProfile extends NewCmeRelationshipProfile {
 
   identifier: EntityDsIdentifier;
 
