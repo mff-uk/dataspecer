@@ -20,8 +20,6 @@ export interface NewCmeGeneralization {
    */
   parentIdentifier: EntityDsIdentifier;
 
-  externalDocumentationUrl: string | null;
-
 }
 
 export interface CmeGeneralization extends NewCmeGeneralization {

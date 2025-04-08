@@ -1,6 +1,6 @@
 import { LanguageString } from "@dataspecer/core/core/core-resource";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
-import { ClassRole } from "./cme-well-known";
+import { CmeClassProfileRole } from "./cme-well-known";
 
 export interface NewCmeClass {
 

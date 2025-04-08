@@ -2,12 +2,11 @@ import { CmeReference } from "./cme-reference";
 
 /**
  * The Dataspecer does not work with specializations but with
- * generalizations. Yet for dialogs it is better to represent what
+ * generalizations. Yet, for dialogs it is better to represent what
  * an entity is specialization of.
  *
  * The specialization is missing a link to the other entity, the specializing
- * one. This is by design as we do not plan to use this without
- * the entity.
+ * one. This is by design, as we do not plan to use this without the entity.
  */
 export interface NewCmeSpecialization {
 
@@ -21,8 +20,6 @@ export interface NewCmeSpecialization {
    * Entity being specialized.
    */
   specializationOf: CmeReference;
-
-  externalDocumentationUrl: string | null;
 
 }
 

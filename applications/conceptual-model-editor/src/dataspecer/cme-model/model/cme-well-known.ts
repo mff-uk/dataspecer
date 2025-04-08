@@ -1,19 +1,18 @@
 
-const codelistBase = "http://id.dataspecer.com/resource/code-list/"
+export enum CmeRelationshipProfileMandatoryLevel {
 
-export enum MandatoryLevel {
+  Mandatory = "https://w3id.org/dsv/requirement-level#mandatory",
 
-  mandatory = codelistBase + "requirement-level/items/mandatory/mandatory",
+  Recommended = "https://w3id.org/dsv/requirement-level#recommended",
 
-  recommended = codelistBase + "requirement-level/items/mandatory/recommended",
+  Optional = "https://w3id.org/dsv/requirement-level#optional",
 
-  optional = codelistBase + "requirement-level/items/mandatory/optional",
 }
 
-export enum ClassRole {
+export enum CmeClassProfileRole {
 
-  main = codelistBase + "class-role/items/mandatory/main",
+  Main = "https://w3id.org/dsv/class-role#main",
 
-  supportive = codelistBase + "class-role/items/mandatory/supportive",
+  Supportive = "https://w3id.org/dsv/class-role#supportive",
 
 }

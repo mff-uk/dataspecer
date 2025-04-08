@@ -1,7 +1,7 @@
 import { LanguageString } from "@dataspecer/core/core/core-resource";
 import { EntityDsIdentifier, ModelDsIdentifier } from "../../entity-model";
 import { CmeCardinality } from "./cme-cardinality";
-import { MandatoryLevel } from "./cme-well-known";
+import { CmeRelationshipProfileMandatoryLevel } from "./cme-well-known";
 
 export interface NewCmeRelationshipProfile {
 
@@ -33,7 +33,7 @@ export interface NewCmeRelationshipProfile {
 
   externalDocumentationUrl: string | null;
 
-  mandatoryLevel: MandatoryLevel | null;
+  mandatoryLevel: CmeRelationshipProfileMandatoryLevel | null;
 
 }
 
