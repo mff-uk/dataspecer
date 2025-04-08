@@ -1,4 +1,5 @@
 import { NewCmeClass } from "../../dataspecer/cme-model/model";
+import { emptyAsNull } from "../utilities/adapter-utilities";
 import { ClassDialogState } from "./edit-class-dialog-state";
 
 export function classDialogStateToNewCmeClass(
@@ -8,6 +9,6 @@ export function classDialogStateToNewCmeClass(
     name: state.name,
     description: state.description,
     iri: state.iri,
-
+    externalDocumentationUrl: emptyAsNull(state.externalDocumentationUrl),
   }
 }

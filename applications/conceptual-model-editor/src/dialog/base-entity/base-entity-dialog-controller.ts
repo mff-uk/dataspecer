@@ -45,6 +45,11 @@ export interface BaseEntityDialogController {
    */
   removeSpecialization: (value: NewCmeSpecialization | CmeSpecialization) => void;
 
+  /**
+   * Set external documentation URL.
+   */
+  setExternalDocumentationUrl: (value: string) => void;
+
 }
 
 export function createBaseEntityDialogController<
@@ -116,6 +121,13 @@ export function createBaseEntityDialogController<
       specializations: removeFromArray(value, state.specializations),
     }));
 
+  const setExternalDocumentationUrl = (value: string) => changeState(state => {
+    return {
+      ...state,
+      externalDocumentationUrl: value,
+    }
+  });
+
   return {
     setModel,
     setIri,
@@ -124,5 +136,6 @@ export function createBaseEntityDialogController<
     setDescription,
     addSpecialization,
     removeSpecialization,
+    setExternalDocumentationUrl,
   };
 }

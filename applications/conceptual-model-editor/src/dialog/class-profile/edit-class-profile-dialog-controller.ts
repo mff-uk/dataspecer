@@ -11,8 +11,12 @@ import { ClassProfileDialogState } from "./edit-class-profile-dialog-state";
 import { CmeSemanticModel } from "../../dataspecer/cme-model";
 import { sanitizeDuplicitiesInRepresentativeLabels } from "../../utilities/label";
 
-export type ClassProfileDialogController =
-  BaseEntityProfileDialogController<EntityRepresentative>;
+export interface ClassProfileDialogController
+  extends BaseEntityProfileDialogController<EntityRepresentative> {
+
+    setRole: (value: string) => void;
+
+}
 
 export function useClassProfileDialogController(
   { changeState }: DialogProps<ClassProfileDialogState>,
@@ -44,9 +48,15 @@ export function useClassProfileDialogController(
       });
     };
 
+    const setRole = (value: string) => changeState(state => ({
+      ...state,
+      role: value,
+    }));
+
     return {
       ...profileController,
       setModel,
+      setRole,
     };
   }, [changeState]);
 };

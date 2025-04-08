@@ -1,4 +1,5 @@
 import { NewCmeClassProfile } from "../../dataspecer/cme-model/model";
+import { emptyAsNull } from "../utilities/adapter-utilities";
 import { ClassProfileDialogState } from "./edit-class-profile-dialog-state";
 
 export function classProfileDialogStateToNewCmeClassProfile(
@@ -16,5 +17,7 @@ export function classProfileDialogStateToNewCmeClassProfile(
     usageNote: state.usageNote,
     usageNoteSource: state.overrideUsageNote ? null :
       state.usageNoteSource.identifier ?? null,
+    externalDocumentationUrl: emptyAsNull(state.externalDocumentationUrl),
+    role: state.availableRoles.find(item => item.value === state.role)?.cme ?? null,
   }
 }

@@ -12,6 +12,7 @@ import { isValid } from "../utilities/validation-utilities";
 import { AttributeDialogState } from "./edit-attribute-dialog-state";
 import { useAttributeDialogController } from "./edit-attribute-dialog-controller";
 import { SpecializationSelect } from "../components/select-specialization";
+import { InputText } from "../components/input-test";
 
 export const AttributeDialog = (props: DialogProps<AttributeDialogState>) => {
   const controller = useAttributeDialogController(props);
@@ -104,6 +105,12 @@ export const AttributeDialog = (props: DialogProps<AttributeDialogState>) => {
             />
           </DialogDetailRow>
         }
+        <DialogDetailRow detailKey={t("create-class-dialog.external-documentation-url")}>
+          <InputText
+            value={state.externalDocumentationUrl}
+            onChange={controller.setExternalDocumentationUrl}
+          />
+        </DialogDetailRow>
       </div>
     </>
   );
