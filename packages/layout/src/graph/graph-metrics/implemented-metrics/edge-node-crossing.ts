@@ -82,13 +82,13 @@ export class EdgeNodeCrossingMetric implements Metric {
         return uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1;
       }
 
-    computeMetricForNodes(graph: DefaultGraph): Record<string, ComputedMetricValues> {
+    computeMetricForNodes(graph: Graph): Record<string, ComputedMetricValues> {
         throw new Error("Method not implemented.");
     }
-    computeMetricForEdges(graph: DefaultGraph): Record<string, ComputedMetricValues> {
+    computeMetricForEdges(graph: Graph): Record<string, ComputedMetricValues> {
         throw new Error("Method not implemented.");
     }
-    computeMetricsForEverything(graph: DefaultGraph): AllMetricData {
+    computeMetricsForEverything(graph: Graph): AllMetricData {
         throw new Error("Method not implemented.");
     }
 

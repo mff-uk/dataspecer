@@ -3,8 +3,8 @@ import { Position, VisualModel } from "@dataspecer/core-v2/visual-model";
 
 import {
 	UserGivenAlgorithmConfigurationslVersion4,
-	AlgorithmConfiguration,
-	GraphConversionConstraint,
+	DefaultAlgorithmConfiguration,
+	DefaultGraphConversionConstraint,
 } from "./configs/constraints";
 import { DefaultGraph, MainGraph, VisualModelWithOutsiders } from "./graph/representation/graph";
 import { ConstraintContainer } from "./configs/constraint-container";
@@ -251,10 +251,10 @@ const performLayoutingBasedOnConstraints = async (
 			workGraph = _.cloneDeep(workGraph);
 	 	}
 
-		if(action instanceof GraphConversionConstraint) {
+		if(action instanceof DefaultGraphConversionConstraint) {
 			SPECIFIC_ALGORITHM_CONVERSIONS_MAP[action.actionName](action, workGraph);
 		}
-		else if(action instanceof AlgorithmConfiguration) {		// TODO: Using the actual type instead of interface
+		else if(action instanceof DefaultAlgorithmConfiguration) {
 			const layoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[action.algorithmName];
 			if(action.algorithmPhasesToCall === "ONLY-PREPARE" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
 				layoutAlgorithm.prepareFromGraph(workGraph, constraints);
@@ -291,43 +291,43 @@ const runMainLayoutAlgorithm = async (
 			metric: new EdgeCrossingMetric(),
 			weight: 1
 		},
-		{
-			name: "EdgeCrossingAngleMetric",
-			metric: new EdgeCrossingAngleMetric(),
-			weight: 0
-		},
+		// {
+		// 	name: "EdgeCrossingAngleMetric",
+		// 	metric: new EdgeCrossingAngleMetric(),
+		// 	weight: 0
+		// },
 		{
 			name: "EdgeNodeCrossingMetric",
 			metric: new EdgeNodeCrossingMetric(),
 			weight: 20
 		},
-		{
-			name: "AreaMetric",
-			metric: new AreaMetric(),
-			weight: 0
-		},
-		{
-			name: "NodeOrthogonalityMetric",
-			metric: new NodeOrthogonalityMetric(),
-			weight: 0.0
-		},
+		// {
+		// 	name: "AreaMetric",
+		// 	metric: new AreaMetric(),
+		// 	weight: 0
+		// },
+		// {
+		// 	name: "NodeOrthogonalityMetric",
+		// 	metric: new NodeOrthogonalityMetric(),
+		// 	weight: 0.0
+		// },
 	];
 	const computedMetricsData = createObjectsToHoldMetricsData(metricsWithWeights);
 	const numberOfAlgorithmRuns = constraints.numberOfAlgorithmRuns;
 
 
 	for(let i = 0; i < numberOfAlgorithmRuns; i++) {
-		let workGraph = graph;		// TODO: Maybe create copy?
+		let workGraph = graph;
 		let layoutedGraphPromise: Promise<MainGraph>;
 		for(const action of constraints.layoutActionsIterator) {
 			if (action.shouldCreateNewGraph) {
  				workGraph = _.cloneDeep(workGraph);
 			}
-			if(action instanceof GraphConversionConstraint) {
+			if(action instanceof DefaultGraphConversionConstraint) {
 				layoutedGraphPromise = SPECIFIC_ALGORITHM_CONVERSIONS_MAP[action.actionName](action, workGraph);
 				workGraph = await layoutedGraphPromise;
 			}
-			else if(action instanceof AlgorithmConfiguration) {		// TODO: Using the actual type instead of interface
+			else if(action instanceof DefaultAlgorithmConfiguration) {
 				const layoutAlgorithm: LayoutAlgorithm = ALGORITHM_NAME_TO_LAYOUT_MAPPING[action.algorithmName];
 				if(action.algorithmPhasesToCall === "ONLY-PREPARE" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
 					console.info("workGraph", {...workGraph});
@@ -345,9 +345,6 @@ const runMainLayoutAlgorithm = async (
 				}
 			}
 		}
-
-		// const visualEntities = layoutedGraph.convertWholeGraphToDataspecerRepresentation();
-		// console.log(visualEntities);
 
 		performMetricsComputation(
 			metricsWithWeights, computedMetricsData.metricResults,
@@ -453,7 +450,7 @@ function performMetricsComputation(
 ) {
 	const computedMetrics: ComputedMetricValues[] = [];
 	for(const metricToCompute of metricsToCompute) {
-		const computedMetric = metricToCompute.metric.computeMetric(graph as unknown as DefaultGraph);		// TODO RadStr: Fix the typing
+		const computedMetric = metricToCompute.metric.computeMetric(graph);
 		computedMetricsFromPreviousIterations[metricToCompute.name].push(computedMetric);
 		computedMetrics.push(computedMetric);
 

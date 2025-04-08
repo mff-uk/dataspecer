@@ -23,7 +23,7 @@ export async function doRandomLayoutAdvancedFromGraph(graph: Graph): Promise<Mai
             }
         }
     });
-    return graph.mainGraph;     // TODO: !!! Well should it be mainGraph or not? what should we do if we want to layout only part of the graph - only the given argument?
+    return graph.mainGraph;
 }
 
 

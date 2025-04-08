@@ -1,5 +1,5 @@
 import { isVisualProfileRelationship, isVisualRelationship, Position, VisualNode, VisualProfileRelationship, VisualRelationship } from "@dataspecer/core-v2/visual-model";
-import { IAlgorithmConfiguration } from "../../configs/constraints";
+import { AlgorithmConfiguration } from "../../configs/constraints";
 import { ElkConstraint } from "../../configs/elk/elk-constraints";
 import { VisualNodeComplete } from "../../graph/representation/node";
 import { GraphTransformer } from "./graph-transformer-interface";
@@ -126,7 +126,7 @@ export class ElkGraphTransformer implements GraphTransformer {
         if(shouldSetLayoutOptions) {
             if((constraintContainer.currentLayoutAction.action.constraintedNodes === "GENERALIZATION" && isSubgraph(this.mainGraph, elkGraph.id)) ||
                 (constraintContainer.currentLayoutAction.action.constraintedNodes === "ALL" && (graph instanceof DefaultMainGraph))) {
-                elkGraph.layoutOptions = (constraintContainer.currentLayoutAction.action as (IAlgorithmConfiguration & ElkConstraint)).elkData;
+                elkGraph.layoutOptions = (constraintContainer.currentLayoutAction.action as (AlgorithmConfiguration & ElkConstraint)).elkData;
             }
             else if(isSubgraph(this.mainGraph, elkGraph.id)) {
                 const nodesInOriginalGraph = Object.values(graph.nodes);
@@ -179,15 +179,7 @@ export class ElkGraphTransformer implements GraphTransformer {
         }
 
         visualEntities.forEach(visualEntity => {
-            if(this.isGraphNode(visualEntity)) {
-                // TODO: Maybe should have set method on graph instead which does the conversion to grid automatically and maybe should also should update edges?
-                //       (It is most likely the case - After realizing that I want have moving to top left position as GraphTransformation action)
-                //       Also we can't access the cme configuration (applications/conceptual-model-editor/src/application/configuration.ts) from here
-                //       So I am not sure how one should solve this.
-                //       1) Include the reference to CME so we can access the configuration or put the configuration somewhere out since it is constant
-                //       2) Work without it and put it to the grid only when adding to the visual model (but if we are doing that from the manager we also can't access config)
-                //          Another drawback is that the graph metrics are then working with slightly different graph
-
+            if(DefaultGraph.isVisualNodeComplete(visualEntity)) {
                 visualEntity.addToPositionInCoreVisualNode(-positionShiftDueToAnchors.x, -positionShiftDueToAnchors.y);
             }
             else if(isVisualRelationship(visualEntity) || isVisualProfileRelationship(visualEntity)) {
@@ -199,11 +191,11 @@ export class ElkGraphTransformer implements GraphTransformer {
         });
 
         console.warn("Positions after performing anchor shift");
-        console.warn(JSON.stringify(Object.values(visualEntities).filter(this.isGraphNode).map(n => [n.coreVisualNode.representedEntity, n.coreVisualNode.position])));
+        console.warn(JSON.stringify(Object.values(visualEntities).filter(DefaultGraph.isVisualNodeComplete).map(n => [n.coreVisualNode.representedEntity, n.coreVisualNode.position])));
 
 
         return Object.fromEntries(visualEntities.map(visualEntity => {
-            if(this.isGraphNode(visualEntity)) {
+            if(DefaultGraph.isVisualNodeComplete(visualEntity)) {
                 return [visualEntity.coreVisualNode.representedEntity, visualEntity.coreVisualNode];
             }
             else if(isVisualRelationship(visualEntity)) {
@@ -213,11 +205,6 @@ export class ElkGraphTransformer implements GraphTransformer {
                 return [visualEntity.entity, visualEntity];
             }
         })) as VisualEntities;
-    }
-
-    // TODO: Method maybe should be defined in the graph instead
-    isGraphNode(possibleNode: object): possibleNode is VisualNodeComplete {
-        return "coreVisualNode" in possibleNode;
     }
 
 
@@ -334,7 +321,7 @@ export class ElkGraphTransformer implements GraphTransformer {
     }
 
 
-    // TODO: Maybe the referenceX and referenceY have to be also used for edges in case of subgraphs
+    // TODO: Maybe the referenceX and referenceY have to be also used for edges in case of subgraphs (in same way as for nodes)
     /**
      * Converts given {@link elEdge} to the waypoints within the edge
      * @param referenceX is the reference x coordinate used to shift the x position in the resulting visual entity.
@@ -474,7 +461,7 @@ export class ElkGraphTransformer implements GraphTransformer {
             const parentPosition = graphNode.getSourceGraph()?.completeVisualNode?.coreVisualNode?.position;
             node.x = position.x - (parentPosition?.x ?? 0);
             node.y = position.y - (parentPosition?.y ?? 0);
-            if((constraintContainer.currentLayoutAction?.action as (IAlgorithmConfiguration & ElkConstraint))?.algorithmName === "elk_stress") {
+            if((constraintContainer.currentLayoutAction?.action as (AlgorithmConfiguration & ElkConstraint))?.algorithmName === "elk_stress") {
                 node.layoutOptions["org.eclipse.elk.stress.fixed"] = graphNode.completeVisualNode.isAnchored.toString();
             }
         }

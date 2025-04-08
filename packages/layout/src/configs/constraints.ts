@@ -44,12 +44,12 @@ type MainUserGivenAlgorithmConfiguration = UserGivenAlgorithmConfiguration & { "
 
 
 // TODO: Maybe can think of more specific name
-interface IAdditionalControlOptions {
+interface AdditionalControlOptions {
     shouldCreateNewGraph: boolean,
 }
 
 // TODO: Probably move somewhere else in code, since it is the converted constraint not the one given from configuration
-export interface IGraphConversionConstraint extends IAdditionalControlOptions {
+export interface GraphConversionConstraint extends AdditionalControlOptions {
     actionName: SpecificGraphConversions,
     data: object,
     constraintedNodes: ConstraintedNodesGroupingsType | string[],       // Either grouping or list of individual nodes
@@ -58,16 +58,16 @@ export interface IGraphConversionConstraint extends IAdditionalControlOptions {
 
 export type SpecificGraphConversions = "CREATE_GENERALIZATION_SUBGRAPHS" | "TREEIFY" | "CLUSTERIFY" | "LAYOUT_CLUSTERS_ACTION" | "RESET_LAYOUT";
 
-export class GraphConversionConstraint implements IGraphConversionConstraint {
+export class DefaultGraphConversionConstraint implements GraphConversionConstraint {
     static createSpecificAlgorithmConversionConstraint(
         name: SpecificGraphConversions,
         userGivenAlgorithmConfiguration: UserGivenAlgorithmConfiguration | null,
-    ): GraphConversionConstraint {
+    ): DefaultGraphConversionConstraint {
         switch(name) {
             case "CREATE_GENERALIZATION_SUBGRAPHS":
-                return new GraphConversionConstraint(name, {}, "ALL", false);
+                return new DefaultGraphConversionConstraint(name, {}, "ALL", false);
             case "TREEIFY":
-                return new GraphConversionConstraint(name, {}, "ALL", false);
+                return new DefaultGraphConversionConstraint(name, {}, "ALL", false);
             case "CLUSTERIFY":
                 return new ClusterifyConstraint(name, {clusters: null}, "ALL", false);
             case "LAYOUT_CLUSTERS_ACTION":
@@ -77,7 +77,7 @@ export class GraphConversionConstraint implements IGraphConversionConstraint {
                 };
                 return new LayoutClustersActionConstraint(name, layoutClustersActionData, "ALL", false);
             case "RESET_LAYOUT":
-                return new GraphConversionConstraint(name, {}, "ALL", false);
+                return new DefaultGraphConversionConstraint(name, {}, "ALL", false);
             default:
                 throw new Error("Forgot to extend createSpecificAlgorithmConversionConstraint for new conversion")
         }
@@ -102,11 +102,11 @@ export class GraphConversionConstraint implements IGraphConversionConstraint {
     shouldCreateNewGraph: boolean;
 }
 
-export class ClusterifyConstraint extends GraphConversionConstraint {
+export class ClusterifyConstraint extends DefaultGraphConversionConstraint {
     data: Record<"clusters", Record<string, Edge[]> | null> = { clusters: null };
 }
 
-export class LayoutClustersActionConstraint extends GraphConversionConstraint {
+export class LayoutClustersActionConstraint extends DefaultGraphConversionConstraint {
     constructor(
         actionName: SpecificGraphConversions,
         data: LayoutClustersActionConstraintDataType,
@@ -157,7 +157,7 @@ export interface UserGivenAlgorithmConfigurationslVersion4 {
     chosenMainAlgorithm: AlgorithmName,
 
     general: {"elk_layered": UserGivenAlgorithmConfigurationForGeneralization},
-    additionalSteps: Record<number, (UserGivenAlgorithmConfigurationslVersion4 | IGraphConversionConstraint)>,
+    additionalSteps: Record<number, (UserGivenAlgorithmConfigurationslVersion4 | GraphConversionConstraint)>,
 }
 
 
@@ -299,21 +299,18 @@ export function getDefaultMainUserGivenAlgorithmConstraint(algorithmName: Algori
     };
 }
 
-interface IConstraintType {
-    name: string;
-    type: string;
-}
-
 /**
  * Constraint on predefined set of nodes.
  */
-export interface IConstraint extends IConstraintType {
+export interface Constraint {
+    name: string;
+    type: string;
     constraintedNodes: ConstraintedNodesGroupingsType,
     data: object,
 }
 export type AlgorithmPhases = "ONLY-PREPARE" | "ONLY-RUN" | "PREPARE-AND-RUN";
 
-export interface IAlgorithmOnlyConstraint extends IConstraint, IAdditionalControlOptions {
+export interface AlgorithmOnlyConstraint extends Constraint, AdditionalControlOptions {
     algorithmName: AlgorithmName;
     /**
      * Default is "PREPARE-AND-RUN", other values need to be explicitly set in constructor -
@@ -323,17 +320,17 @@ export interface IAlgorithmOnlyConstraint extends IConstraint, IAdditionalContro
     algorithmPhasesToCall: AlgorithmPhases;
 }
 
-interface IAdvancedSettingsForUnderlying {
+interface AdvancedSettingsForUnderlying {
     addAdvancedSettingsForUnderlying(advancedSettings: object): void;
     addAlgorithmConstraintForUnderlying(key: string, value: string): void;
 }
 
-export interface IAlgorithmConfiguration extends IAlgorithmOnlyConstraint, IAdvancedSettingsForUnderlying {
+export interface AlgorithmConfiguration extends AlgorithmOnlyConstraint, AdvancedSettingsForUnderlying {
     addAdvancedSettings(advancedSettings: object): void;
     addAlgorithmConstraint(key: string, value: string): void;
 }
 
-export abstract class AlgorithmConfiguration implements IAlgorithmConfiguration {
+export abstract class DefaultAlgorithmConfiguration implements AlgorithmConfiguration {
     algorithmName: AlgorithmName;
     constraintedNodes: ConstraintedNodesGroupingsType;
     data: object;
@@ -399,7 +396,7 @@ export abstract class AlgorithmConfiguration implements IAlgorithmConfiguration 
     }
 }
 
-export class RandomConfiguration extends AlgorithmConfiguration {
+export class RandomConfiguration extends DefaultAlgorithmConfiguration {
     constructor(constrainedNodes: ConstraintedNodesGroupingsType, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
         super("random", constrainedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
     }
@@ -418,7 +415,7 @@ export class RandomConfiguration extends AlgorithmConfiguration {
  * General Class which has all relevant constraints for the stress like algorithm. The classes extending this should convert the constraints into
  * the representation which will be used in the algorithm (that means renaming, transforming[, etc.] the parameters in the data field)
  */
-export abstract class StressConfiguration extends AlgorithmConfiguration {
+export abstract class StressConfiguration extends DefaultAlgorithmConfiguration {
     getAllRelevantConstraintKeys(): string[] {
         return super.getAllRelevantConstraintKeys().concat([
             "stress_edge_len",
@@ -439,7 +436,7 @@ export abstract class StressConfiguration extends AlgorithmConfiguration {
 }
 
 
-export abstract class LayeredConfiguration extends AlgorithmConfiguration {
+export abstract class LayeredConfiguration extends DefaultAlgorithmConfiguration {
     getAllRelevantConstraintKeys(): string[] {
         return super.getAllRelevantConstraintKeys().concat(Object.keys(LayeredConfiguration.getDefaultObject()));
     }
@@ -468,7 +465,7 @@ export abstract class LayeredConfiguration extends AlgorithmConfiguration {
 
 
 // TODO: Maybe put each class to separate file?
-export abstract class SporeConfiguration extends AlgorithmConfiguration {
+export abstract class SporeConfiguration extends DefaultAlgorithmConfiguration {
     getAllRelevantConstraintKeys(): string[] {
         return super.getAllRelevantConstraintKeys().concat([
             "min_distance_between_nodes",
@@ -490,7 +487,7 @@ export abstract class SporeConfiguration extends AlgorithmConfiguration {
 
 
 
-export abstract class RadialConfiguration extends AlgorithmConfiguration {
+export abstract class RadialConfiguration extends DefaultAlgorithmConfiguration {
     getAllRelevantConstraintKeys(): string[] {
         return super.getAllRelevantConstraintKeys().concat([
             "min_distance_between_nodes",
@@ -511,7 +508,7 @@ export abstract class RadialConfiguration extends AlgorithmConfiguration {
 }
 
 
-export class AutomaticConfiguration extends AlgorithmConfiguration {
+export class AutomaticConfiguration extends DefaultAlgorithmConfiguration {
     addAlgorithmConstraintForUnderlying(key: string, value: string): void {
         // Do Nothing
     }

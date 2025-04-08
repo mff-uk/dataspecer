@@ -30,6 +30,7 @@ import {
     getNonGroupNodesInGroup,
     getTopLeftPosition,
     PhantomElementsFactory,
+    placePositionOnGrid,
 } from "../../util/utils";
 import { LayoutedVisualEntities } from "../../migration-to-cme-v2";
 import { EntityModel } from "@dataspecer/core-v2";
@@ -871,6 +872,10 @@ export class DefaultGraph implements Graph {
     setSourceGraph(sourceGraph: Graph): void {
         this.sourceGraph = sourceGraph;
     }
+
+    static isVisualNodeComplete(possibleNode: object): possibleNode is VisualNodeComplete {
+        return "coreVisualNode" in possibleNode;
+    }
 }
 
 
@@ -929,6 +934,10 @@ export class DefaultMainGraph extends DefaultGraph implements MainGraph {
             }
 
             const visualEntityForNode = node.convertToDataspecerRepresentation();
+            // TODO Hard to solve by myself - Radstr: We want to place it on grid, but
+            // we can't access the cme configuration (applications/conceptual-model-editor/src/application/configuration.ts) from here
+            // So I am not sure how one should solve this.
+            placePositionOnGrid(visualEntityForNode.position, 10, 10)
 
             // node.id should be the same as visualEntityForNode.identifier
             visualEntities[visualEntityForNode.identifier] = {

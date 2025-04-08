@@ -79,13 +79,13 @@ export class EdgeCrossingMetric implements Metric {
         return (c.y-a.y)*(b.x-a.x) > (b.y-a.y)*(c.x-a.x);
     }
 
-    computeMetricForNodes(graph: DefaultGraph): Record<string, ComputedMetricValues> {
+    computeMetricForNodes(graph: Graph): Record<string, ComputedMetricValues> {
         throw new Error("Method not implemented.");
     }
-    computeMetricForEdges(graph: DefaultGraph): Record<string, ComputedMetricValues> {
+    computeMetricForEdges(graph: Graph): Record<string, ComputedMetricValues> {
         throw new Error("Method not implemented.");
     }
-    computeMetricsForEverything(graph: DefaultGraph): AllMetricData {
+    computeMetricsForEverything(graph: Graph): AllMetricData {
         throw new Error("Method not implemented.");
     }
 

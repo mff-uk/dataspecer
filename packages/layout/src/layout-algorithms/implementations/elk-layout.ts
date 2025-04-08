@@ -74,11 +74,10 @@ export class ElkLayout implements LayoutAlgorithm {
         this.elk = new ELK();
     }
 
-    // TODO RadStr: Just put everywhere main graph and be done with it
     prepareFromGraph(graph: Graph, constraintContainer: ElkConstraintContainer): void {
         this.graph = graph
         this.elkGraphTransformer = new ElkGraphTransformer(graph, constraintContainer);
-        this.graphInElk = this.elkGraphTransformer.convertGraphToLibraryRepresentation(graph, true, constraintContainer),       // TODO: Why I need to pass the constraintContainer again???
+        this.graphInElk = this.elkGraphTransformer.convertGraphToLibraryRepresentation(graph, true, constraintContainer),
         this.constraintContainer = constraintContainer;
     }
 
@@ -101,7 +100,7 @@ export class ElkLayout implements LayoutAlgorithm {
             if(layoutedGraph !== null && typeof layoutedGraph === 'object') {       // Void check
                 this.elkGraphTransformer.updateExistingGraphRepresentationBasedOnLibraryRepresentation(layoutedGraph, this.graph, false, true);
             }
-            return this.graph.mainGraph;            // TODO: Again main graph
+            return this.graph.mainGraph;
         });
     }
 

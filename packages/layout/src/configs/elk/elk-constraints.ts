@@ -1,7 +1,7 @@
 import { LayoutOptions } from "elkjs";
 import {
     AlgorithmPhases,
-    AlgorithmConfiguration,
+    DefaultAlgorithmConfiguration,
     LayeredConfiguration,
     RadialConfiguration,
     SporeConfiguration,
@@ -207,7 +207,7 @@ export class ElkStressProfileLayoutConfiguration extends StressConfiguration imp
 /**
  * Stores configuration for elk force algorithm
  */
-export class ElkForceConfiguration extends AlgorithmConfiguration implements ElkConstraint {
+export class ElkForceConfiguration extends DefaultAlgorithmConfiguration implements ElkConstraint {
     getAllRelevantConstraintKeys(): string[] {
         return super.getAllRelevantConstraintKeys().concat([
             "force_alg_type",

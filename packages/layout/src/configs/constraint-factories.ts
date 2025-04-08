@@ -8,12 +8,12 @@ import { LayoutMethod } from "../layout-algorithms/layout-algorithms-interfaces"
 import { Direction, PhantomElementsFactory, reverseDirection } from "../util/utils";
 import { ConstraintContainer } from "./constraint-container";
 import {
+    DefaultAlgorithmConfiguration,
+    GraphConversionConstraint,
     AlgorithmConfiguration,
-    IGraphConversionConstraint,
-    IAlgorithmConfiguration,
     UserGivenAlgorithmConfiguration,
     UserGivenAlgorithmConfigurationslVersion4,
-    GraphConversionConstraint,
+    DefaultGraphConversionConstraint,
     RandomConfiguration,
     getDefaultUserGivenConstraintsVersion4,
     AlgorithmPhases,
@@ -67,7 +67,7 @@ function getOverlapConfigurationToRunAfterMainAlgorithm(
  * This factory class takes care of creating constraints based on given configuration
  */
 class AlgorithmConstraintFactory {
-    static getLayoutMethodForAlgorithmConstraint(algConstraint: AlgorithmConfiguration): LayoutMethod {
+    static getLayoutMethodForAlgorithmConstraint(algConstraint: DefaultAlgorithmConfiguration): LayoutMethod {
         if(algConstraint instanceof ElkStressConfiguration) {
             throw new Error("Not implemented - Should return the layout method for Elk Stress algorithm");
         }
@@ -79,15 +79,15 @@ class AlgorithmConstraintFactory {
 
     private static getRandomLayoutConfiguration(userGivenAlgorithmConfiguration: UserGivenAlgorithmConfiguration,
                                                 shouldCreateNewGraph: boolean,
-                                                algorithmPhasesToCall?: AlgorithmPhases): IAlgorithmConfiguration {
+                                                algorithmPhasesToCall?: AlgorithmPhases): AlgorithmConfiguration {
 
         return new RandomConfiguration(userGivenAlgorithmConfiguration.constraintedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
     }
 
     static addAlgorithmConfigurationLayoutActions(
         userGivenAlgorithmConfiguration: UserGivenAlgorithmConfiguration,
-        layoutActionsBeforeMainRun: (IAlgorithmConfiguration | IGraphConversionConstraint)[] | null,
-        layoutActionsToSet: (IAlgorithmConfiguration | IGraphConversionConstraint)[],
+        layoutActionsBeforeMainRun: (AlgorithmConfiguration | GraphConversionConstraint)[] | null,
+        layoutActionsToSet: (AlgorithmConfiguration | GraphConversionConstraint)[],
         shouldCreateNewGraph: boolean
     ): void {
         if(!userGivenAlgorithmConfiguration.should_be_considered) {
@@ -128,8 +128,8 @@ class AlgorithmConstraintFactory {
                 layoutActionsToSet.push(new ElkSporeCompactionConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
                 break;
             case "elk_radial":
-                layoutActionsToSet.push(GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("RESET_LAYOUT", null));
-                layoutActionsToSet.push(GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("TREEIFY", null));
+                layoutActionsToSet.push(DefaultGraphConversionConstraint.createSpecificAlgorithmConversionConstraint("RESET_LAYOUT", null));
+                layoutActionsToSet.push(DefaultGraphConversionConstraint.createSpecificAlgorithmConversionConstraint("TREEIFY", null));
                 layoutActionsToSet.push(new ElkRadialConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph));
                 break;
             case "elk_overlapRemoval":
@@ -137,19 +137,19 @@ class AlgorithmConstraintFactory {
                 break;
             case "elk_stress_advanced_using_clusters":
                 const elkStressUsingClusters = new ElkStressConfiguration(userGivenAlgorithmConfiguration, shouldCreateNewGraph);
-                layoutActionsToSet.push(AlgorithmConstraintFactory.getRandomLayoutConfiguration(userGivenAlgorithmConfiguration, true));        // TODO RadStr: I should only use this if I don't want the algorithm to use the current positions
+                layoutActionsToSet.push(AlgorithmConstraintFactory.getRandomLayoutConfiguration(userGivenAlgorithmConfiguration, true));
                 elkStressUsingClusters.addAlgorithmConstraint("interactive", "true");
                 layoutActionsToSet.push(elkStressUsingClusters);
-                const layoutClustersAction = GraphConversionConstraint.createSpecificAlgorithmConversionConstraint(
+                const layoutClustersAction = DefaultGraphConversionConstraint.createSpecificAlgorithmConversionConstraint(
                     "LAYOUT_CLUSTERS_ACTION", userGivenAlgorithmConfiguration);
                 const clusterifyAction = layoutActionsBeforeMainRun
-                    .find(action => (action as IGraphConversionConstraint)?.actionName === "CLUSTERIFY");
+                    .find(action => (action as GraphConversionConstraint)?.actionName === "CLUSTERIFY");
                 if(clusterifyAction === undefined) {
                     throw new Error("Missing CLUSTERIFY");
                 }
                 (layoutClustersAction as LayoutClustersActionConstraint).data.clusterifyConstraint = clusterifyAction as ClusterifyConstraint;
                 layoutActionsToSet.push(layoutClustersAction);
-                layoutActionsToSet.push(GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("RESET_LAYOUT", null));
+                layoutActionsToSet.push(DefaultGraphConversionConstraint.createSpecificAlgorithmConversionConstraint("RESET_LAYOUT", null));
                 break;
             case "none":
                 console.info("The chosen algorithm is none");
@@ -187,10 +187,10 @@ class AlgorithmConstraintFactory {
 
     static addToLayoutActionsInPreMainRunBasedOnConfiguration(
         config: UserGivenAlgorithmConfigurationslVersion4,
-        layoutActionsBeforeMainRun: (IAlgorithmConfiguration | IGraphConversionConstraint)[],
+        layoutActionsBeforeMainRun: (AlgorithmConfiguration | GraphConversionConstraint)[],
     ): void {
         if(config.general.elk_layered.should_be_considered) {
-            const convertGeneralizationSubgraphs = GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("CREATE_GENERALIZATION_SUBGRAPHS", null);
+            const convertGeneralizationSubgraphs = DefaultGraphConversionConstraint.createSpecificAlgorithmConversionConstraint("CREATE_GENERALIZATION_SUBGRAPHS", null);
             layoutActionsBeforeMainRun.push(convertGeneralizationSubgraphs);
         }
         AlgorithmConstraintFactory.addAlgorithmConfigurationLayoutActions(
@@ -215,7 +215,7 @@ class AlgorithmConstraintFactory {
             case "elk_overlapRemoval":
                 break;
             case "elk_stress_advanced_using_clusters":
-                layoutActionsBeforeMainRun.push(GraphConversionConstraint.createSpecificAlgorithmConversionConstraint("CLUSTERIFY", null));
+                layoutActionsBeforeMainRun.push(DefaultGraphConversionConstraint.createSpecificAlgorithmConversionConstraint("CLUSTERIFY", null));
                 break;
             case "automatic":
                 break;
@@ -231,8 +231,8 @@ class AlgorithmConstraintFactory {
 
     static addToLayoutActionsInMainRunBasedOnConfiguration(
         config: UserGivenAlgorithmConfigurationslVersion4,
-        layoutActionsBeforeMainRun: (IAlgorithmConfiguration | IGraphConversionConstraint)[],
-        layoutActions: (IAlgorithmConfiguration | IGraphConversionConstraint)[],
+        layoutActionsBeforeMainRun: (AlgorithmConfiguration | GraphConversionConstraint)[],
+        layoutActions: (AlgorithmConfiguration | GraphConversionConstraint)[],
     ): void {
         AlgorithmConstraintFactory.addAlgorithmConfigurationLayoutActions(
             config.main[config.chosenMainAlgorithm], layoutActionsBeforeMainRun, layoutActions, false);
@@ -249,8 +249,8 @@ export class ConstraintFactory {
      * @returns {@link ConstraintContainer} for the whole graph based on given {@link config}.
      */
     static createConstraints(config: UserGivenAlgorithmConfigurationslVersion4): ConstraintContainer {
-        const layoutActionsBeforeMainRun: (IAlgorithmConfiguration | IGraphConversionConstraint)[] = [];
-        const layoutActions: (IAlgorithmConfiguration | IGraphConversionConstraint)[] = [];
+        const layoutActionsBeforeMainRun: (AlgorithmConfiguration | GraphConversionConstraint)[] = [];
+        const layoutActions: (AlgorithmConfiguration | GraphConversionConstraint)[] = [];
 
         AlgorithmConstraintFactory.addToLayoutActionsInPreMainRunBasedOnConfiguration(
             config, layoutActionsBeforeMainRun);
@@ -275,19 +275,18 @@ export class ConstraintFactory {
 
 
 
-export type SpecificGraphConversionMethod = (algorithmConversionConstraint: GraphConversionConstraint, graph: MainGraph) => Promise<MainGraph>;
+export type SpecificGraphConversionMethod = (algorithmConversionConstraint: DefaultGraphConversionConstraint, graph: MainGraph) => Promise<MainGraph>;
 
-// TODO: Not using the shouldCreateNewGraph property
 export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions, SpecificGraphConversionMethod> = {
     CREATE_GENERALIZATION_SUBGRAPHS: async (
-        algorithmConversionConstraint: GraphConversionConstraint,
+        algorithmConversionConstraint: DefaultGraphConversionConstraint,
         graph: MainGraph
     ): Promise<MainGraph> => {
         graph.createGeneralizationSubgraphs();
         return Promise.resolve(graph);
     },
     TREEIFY: async (
-        algorithmConversionConstraint: GraphConversionConstraint,
+        algorithmConversionConstraint: DefaultGraphConversionConstraint,
         graph: MainGraph
     ): Promise<MainGraph> => {
         GraphAlgorithms.treeify(graph);
@@ -440,11 +439,11 @@ export const SPECIFIC_ALGORITHM_CONVERSIONS_MAP: Record<SpecificGraphConversions
 
                 edgeInCurrentGraph.visualEdge.visualEdge = layoutedEdge;
             }
-        }   
+        }
 
         return Promise.resolve(graph);
     },
-    RESET_LAYOUT: function (_algorithmConversionConstraint: GraphConversionConstraint, graph: MainGraph): Promise<MainGraph> {
+    RESET_LAYOUT: function (_algorithmConversionConstraint: DefaultGraphConversionConstraint, graph: MainGraph): Promise<MainGraph> {
         graph.mainGraph.resetForNewLayout();
         return Promise.resolve(graph);
     }

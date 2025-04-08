@@ -11,7 +11,6 @@ export class AutomaticLayout implements LayoutAlgorithm {
     this.constraintContainer = constraintContainer;
   };
   async run(): Promise<MainGraph> {
-    // TODO RadStr: Put Away the interface (IAlogrithmConfiguration and same for the IGraphConstraint)
     let bestGraph = null;
     // Here we run every algorithm once and choose the best one - we could implement it in the index.js
     if(this.constraintContainer.currentLayoutAction.action instanceof AutomaticConfiguration) {
