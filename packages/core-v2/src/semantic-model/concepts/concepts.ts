@@ -32,6 +32,11 @@ export interface SemanticModelClass extends NamedThing, SemanticModelEntity {
     type: [typeof SEMANTIC_MODEL_CLASS];
 
     // todo: is it class, enumeration, datatype, code list, ...
+
+    /**
+     * URL of external documentation.
+     */
+    externalDocumentationUrl: string | null;
 }
 
 /**
@@ -51,6 +56,11 @@ export interface SemanticModelRelationshipEnd extends NamedThing {
 
     /** {@link SemanticModelClass} */
     concept: string | null;
+
+    /**
+     * URL of external documentation.
+     */
+    externalDocumentationUrl: string | null;
 }
 
 /**

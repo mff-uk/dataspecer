@@ -45,4 +45,22 @@ export interface SemanticModelRelationshipEndProfile extends NamedThingProfile, 
    */
   cardinality: [number, number | null] | null;
 
+  /**
+   * This value is not inherited from profiled entity.
+   */
+  requirementLevel: RelationshipProfileMandatoryLevel | null;
+
+}
+
+/**
+ * {@link https://mff-uk.github.io/data-specification-vocabulary/requirement-level/requirement-level.ttl}
+ */
+export enum RelationshipProfileMandatoryLevel {
+
+  Mandatory = "https://w3id.org/dsv/requirement-level#mandatory",
+
+  Recommended = "https://w3id.org/dsv/requirement-level#recommended",
+
+  Optional = "https://w3id.org/dsv/requirement-level#optional",
+
 }
