@@ -57,7 +57,7 @@ export function isComplexType(iri: string): boolean {
     if(iri === OWL_THING) {
         return true;
     }
-    return PRIMITIVE_TYPES.has(iri);
+    return !PRIMITIVE_TYPES.has(iri);
 }
 
 /**
