@@ -562,17 +562,18 @@ export const useConfigDialog = () => {
                 value={(advancedSettingsForAlgorithms.current[config.chosenMainAlgorithm])}
                 onChange={handleAdvancedSettingsChange}></textarea>
       <hr className="my-4"/>
-      <input type="checkbox" id="checkbox-main-layout-alg" name="checkbox-main-layout-alg" checked={config.general.elk_layered.should_be_considered}
+      <input type="checkbox" id="checkbox-main-layout-alg" name="checkbox-main-layout-alg" checked={config.chosenGeneralAlgorithm !== "none"}
         onChange={e => setConfig({...config,
           general: {
             ...config.general,
             elk_layered: {
               ...config.general.elk_layered,
-              "should_be_considered": e.target.checked
             }
-          }})} />
+          },
+          chosenGeneralAlgorithm: e.target.checked ? "elk_layered" : "none"
+          })} />
       <label htmlFor="checkbox-main-layout-alg">Process generalization hierarchies separately ⚠️ WIP ⚠️</label>
-      {config.general.elk_layered.should_be_considered === false ? null :
+      {config.chosenGeneralAlgorithm === "none" ? null :
         <div>
           <div className='h-2'></div>
           <LayeredConfig stateField='general'></LayeredConfig>

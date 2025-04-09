@@ -57,8 +57,7 @@ export { type VisualModelWithOutsiders } from "./graph/representation/graph";
 export type {
 	UserGivenAlgorithmConfiguration,
 	UserGivenAlgorithmConfigurationElkForce,
-	UserGivenAlgorithmConfigurationExtraData,
-	UserGivenAlgorithmConfigurationForGeneralization,
+	UserGivenAlgorithmConfigurationExtraAlgorithmsToRunAfter as UserGivenAlgorithmConfigurationExtraData,
 	UserGivenAlgorithmConfigurationLayered,
 	UserGivenAlgorithmConfigurationStress,
 	UserGivenAlgorithmConfigurationOnlyData,
@@ -260,7 +259,7 @@ const performLayoutingBasedOnConstraints = async (
 				layoutAlgorithm.prepareFromGraph(workGraph, constraints);
 			}
 			if(action.algorithmPhasesToCall === "ONLY-RUN" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
-				if(action.constraintedNodes === "GENERALIZATION") {
+				if(action.affectedNodes === "GENERALIZATION") {
 					workGraph = await layoutAlgorithm.runGeneralizationLayout();
 				}
 				else {
@@ -334,11 +333,11 @@ const runMainLayoutAlgorithm = async (
 					layoutAlgorithm.prepareFromGraph(workGraph, constraints);
 				}
 				if(action.algorithmPhasesToCall === "ONLY-RUN" || action.algorithmPhasesToCall === "PREPARE-AND-RUN") {
-					if(action.constraintedNodes === "ALL") {
+					if(action.affectedNodes === "ALL") {
 						layoutedGraphPromise = layoutAlgorithm.run();
 						workGraph = await layoutedGraphPromise;
 					}
-					else if(action.constraintedNodes === "GENERALIZATION") {
+					else if(action.affectedNodes === "GENERALIZATION") {
 						layoutedGraphPromise = layoutAlgorithm.runGeneralizationLayout();
 						workGraph = await layoutedGraphPromise;
 					}

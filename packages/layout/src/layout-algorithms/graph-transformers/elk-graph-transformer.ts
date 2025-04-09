@@ -124,8 +124,8 @@ export class ElkGraphTransformer implements GraphTransformer {
         }
 
         if(shouldSetLayoutOptions) {
-            if((constraintContainer.currentLayoutAction.action.constraintedNodes === "GENERALIZATION" && isSubgraph(this.mainGraph, elkGraph.id)) ||
-                (constraintContainer.currentLayoutAction.action.constraintedNodes === "ALL" && (graph instanceof DefaultMainGraph))) {
+            if((constraintContainer.currentLayoutAction.action.affectedNodes === "GENERALIZATION" && isSubgraph(this.mainGraph, elkGraph.id)) ||
+                (constraintContainer.currentLayoutAction.action.affectedNodes === "ALL" && (graph instanceof DefaultMainGraph))) {
                 elkGraph.layoutOptions = (constraintContainer.currentLayoutAction.action as (AlgorithmConfiguration & ElkConstraint)).elkData;
             }
             else if(isSubgraph(this.mainGraph, elkGraph.id)) {
@@ -442,14 +442,14 @@ export class ElkGraphTransformer implements GraphTransformer {
 
         const isNodeSubgraph = isSubgraph(this.mainGraph, node.id);
         const position = graphNode?.completeVisualNode?.coreVisualNode?.position;
-        const isInteractiveGeneralization = constraintContainer?.currentLayoutAction?.action?.constraintedNodes === "GENERALIZATION" &&
+        const isInteractiveGeneralization = constraintContainer?.currentLayoutAction?.action?.affectedNodes === "GENERALIZATION" &&
             String(constraintContainer?.currentLayoutAction?.action?.data?.["interactive"]) === "true" &&
             !isNodeSubgraph;
-        const isInteractiveAll = constraintContainer?.currentLayoutAction.action.constraintedNodes === "ALL" &&
+        const isInteractiveAll = constraintContainer?.currentLayoutAction.action.affectedNodes === "ALL" &&
             String(constraintContainer?.currentLayoutAction?.action?.data?.["interactive"]) === "true" &&
             ((constraintContainer.isGeneralizationPerformedBefore() && isNodeSubgraph) ||
                 !constraintContainer.isGeneralizationPerformedBefore());
-        const isInteractiveGeneralizationSubgraphs = constraintContainer?.currentLayoutAction.action.constraintedNodes === "ALL" &&
+        const isInteractiveGeneralizationSubgraphs = constraintContainer?.currentLayoutAction.action.affectedNodes === "ALL" &&
             constraintContainer.isGeneralizationPerformedBefore() && !isNodeSubgraph;
 
 

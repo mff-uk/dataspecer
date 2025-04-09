@@ -9,12 +9,12 @@ import { ElkConstraint } from "./elk/elk-constraints";
  * Behaves like container for constraints of certain subgraph or whole graph. TODO: Maybe just the whole graph
  */
 export class ConstraintContainer {
-    // This are algorithm constraints for general group of nodes (type @{link ConstraintedNodes})
+    // This are algorithm constraints for general group of nodes (type @{link AffectedNodesGroupingsType})
     // This is object for 2 reasons (but maybe we will switch it to array anyways, the issue with array is that order matters):
     //             1) We can have classic algorithm constraints on min node dist and then another constraint on interactivity in term of the Algorithm parameters
     //               (we have stack it together using concat but that is detail)
     //             2) Since the whole class is container it should also contain the algorithm constraints for subgraphs (like generalization for example), in case if we want it
-    // TODO: In future maybe array since the AlgorithmOnlyConstraint already has attribute with ConstraintedNodesGroupingsType
+    // TODO: In future maybe array since the AlgorithmOnlyConstraint already has attribute with AffectedNodesGroupingsType
     /**
      * Represents the actions used to transform and layout graph -
      *    Layout - min distance between nodes, type of algorithm, etc.

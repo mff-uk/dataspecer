@@ -4,7 +4,7 @@ import { ElkForceAlgType } from "./elk/elk-constraints";
 import { Edge } from "../graph/representation/edge";
 import { AlgorithmName } from "../layout-algorithms/list-of-layout-algorithms";
 
-export type ConstraintedNodesGroupingsType = "ALL" | "GENERALIZATION" | "PROFILE";
+export type AffectedNodesGroupingsType = "ALL" | "GENERALIZATION";
 
 
 // We use 2 types of settings:
@@ -37,11 +37,6 @@ export type ConstraintedNodesGroupingsType = "ALL" | "GENERALIZATION" | "PROFILE
 // We pay fot it though, when using setState with nested object it gets more complicated than with flat object
 
 
-// The information after & can be safely deducted from the field name in the actual object
-// TODO: ... I need the should_be_considered field only for the generalization, otherwise not - so I will just take it out and put into the object, simliarly to the chosenAlgorithm
-//       But what about future proofing? ... For now keep it, if I will see in few months that there is no use, just remove the field and and new field, simliarly to the chosenAlgorithm
-type MainUserGivenAlgorithmConfiguration = UserGivenAlgorithmConfiguration & { "should_be_considered": true, "constraintedNodes": "ALL" };
-
 
 // TODO: Maybe can think of more specific name
 interface AdditionalControlOptions {
@@ -52,7 +47,7 @@ interface AdditionalControlOptions {
 export interface GraphConversionConstraint extends AdditionalControlOptions {
     actionName: SpecificGraphConversions,
     data: object,
-    constraintedNodes: ConstraintedNodesGroupingsType | string[],       // Either grouping or list of individual nodes
+    affectedNodes: AffectedNodesGroupingsType | string[],       // Either grouping or list of individual nodes
 }
 
 
@@ -87,18 +82,18 @@ export class DefaultGraphConversionConstraint implements GraphConversionConstrai
     constructor(
         actionName: SpecificGraphConversions,
         data: object,
-        constraintedNodes: ConstraintedNodesGroupingsType | string[],
+        affectedNodes: AffectedNodesGroupingsType | string[],
         shouldCreateNewGraph: boolean
     ) {
         this.actionName = actionName;
         this.data = data;
-        this.constraintedNodes = constraintedNodes;
+        this.affectedNodes = affectedNodes;
         this.shouldCreateNewGraph = shouldCreateNewGraph;
     }
 
     actionName: SpecificGraphConversions;
     data: object;
-    constraintedNodes: ConstraintedNodesGroupingsType | string[];
+    affectedNodes: AffectedNodesGroupingsType | string[];
     shouldCreateNewGraph: boolean;
 }
 
@@ -110,10 +105,10 @@ export class LayoutClustersActionConstraint extends DefaultGraphConversionConstr
     constructor(
         actionName: SpecificGraphConversions,
         data: LayoutClustersActionConstraintDataType,
-        constraintedNodes: ConstraintedNodesGroupingsType | string[],
+        affectedNodes: AffectedNodesGroupingsType | string[],
         shouldCreateNewGraph: boolean
     ) {
-        super(actionName, data, constraintedNodes, shouldCreateNewGraph);
+        super(actionName, data, affectedNodes, shouldCreateNewGraph);
         this.data = data;
     }
 
@@ -134,19 +129,16 @@ export function getDefaultUserGivenConstraintsVersion4(): UserGivenAlgorithmConf
         main: {
             "elk_layered": {
                 ...getDefaultUserGivenAlgorithmConstraint("elk_layered"),
-                "should_be_considered": true,
-                "constraintedNodes": "ALL",
             }
         },
         general: {
             "elk_layered": {
                 ...getDefaultUserGivenAlgorithmConstraint("elk_layered"),
                 "layout_alg": "elk_layered",        // Defined as stress in the default
-                "should_be_considered": false,
-                "constraintedNodes": "GENERALIZATION",
             }
         },
         chosenMainAlgorithm: "elk_layered",
+        chosenGeneralAlgorithm: "none",
         additionalSteps: {}
     };
 }
@@ -156,7 +148,8 @@ export interface UserGivenAlgorithmConfigurationslVersion4 {
     main: Partial<Record<AlgorithmName, UserGivenAlgorithmConfiguration>>,
     chosenMainAlgorithm: AlgorithmName,
 
-    general: {"elk_layered": UserGivenAlgorithmConfigurationForGeneralization},
+    general: {"elk_layered": UserGivenAlgorithmConfiguration},
+    chosenGeneralAlgorithm: AlgorithmName,
     additionalSteps: Record<number, (UserGivenAlgorithmConfigurationslVersion4 | GraphConversionConstraint)>,
 }
 
@@ -169,8 +162,6 @@ export function getDefaultUserGivenConstraintsVersion5(): UserGivenAlgorithmConf
             configuration: {
                 "elk_layered": {
                     ...getDefaultUserGivenAlgorithmConstraint("elk_layered"),
-                    "should_be_considered": true,
-                    "constraintedNodes": "ALL",
                 }
             },
             chosenAlgorithm: "elk_layered",
@@ -180,8 +171,6 @@ export function getDefaultUserGivenConstraintsVersion5(): UserGivenAlgorithmConf
             configuration: {
                 "elk_layered": {
                     ...getDefaultUserGivenAlgorithmConstraint("elk_layered"),
-                    "should_be_considered": false,
-                    "constraintedNodes": "GENERALIZATION",
                 }
             },
             chosenAlgorithm: "none",
@@ -231,11 +220,7 @@ export interface UserGivenAlgorithmConfigurationElkForce {
     "number_of_new_algorithm_runs": number,
 }
 
-// TODO RadStr REFACTOR: first 2 Already covered implicitly by the field (should_be_considered is by the fact that algorithm is set to none),
-//                       run layered is just another algorithm in array same for nodeOverlap
-export interface UserGivenAlgorithmConfigurationExtraData {
-    "constraintedNodes": ConstraintedNodesGroupingsType,
-    "should_be_considered": boolean,
+export interface UserGivenAlgorithmConfigurationExtraAlgorithmsToRunAfter {
     "run_layered_after": boolean,
     "run_node_overlap_removal_after": boolean,
 }
@@ -254,15 +239,10 @@ export interface UserGivenAlgorithmConfigurationOnlyData extends UserGivenAlgori
     "advanced_settings": Record<string, string>,
 }
 
-export interface UserGivenAlgorithmConfiguration extends UserGivenAlgorithmConfigurationOnlyData, UserGivenAlgorithmConfigurationExtraData { }
-
-
-export interface UserGivenAlgorithmConfigurationForGeneralization extends UserGivenAlgorithmConfiguration {
-    "constraintedNodes": "GENERALIZATION"
-}
+export interface UserGivenAlgorithmConfiguration extends UserGivenAlgorithmConfigurationOnlyData, UserGivenAlgorithmConfigurationExtraAlgorithmsToRunAfter { }
 
 // TODO: getDefaultUserGivenAlgorithmConfiguration
-export function getDefaultUserGivenAlgorithmConstraint(algorithmName: AlgorithmName): Omit<UserGivenAlgorithmConfiguration, "constraintedNodes" | "should_be_considered"> {
+export function getDefaultUserGivenAlgorithmConstraint(algorithmName: AlgorithmName): UserGivenAlgorithmConfiguration {
     let interactive = false;
     let run_node_overlap_removal_after = false;
     // TODO RadStr: Spore compaction seems to be useless (it is like layered algorithm)
@@ -291,11 +271,9 @@ export function getDefaultUserGivenAlgorithmConstraint(algorithmName: AlgorithmN
     }
 }
 
-export function getDefaultMainUserGivenAlgorithmConstraint(algorithmName: AlgorithmName): MainUserGivenAlgorithmConfiguration {
+export function getDefaultMainUserGivenAlgorithmConstraint(algorithmName: AlgorithmName): UserGivenAlgorithmConfiguration {
     return {
         ...getDefaultUserGivenAlgorithmConstraint(algorithmName),
-        "should_be_considered": true,
-        "constraintedNodes": "ALL",
     };
 }
 
@@ -305,7 +283,7 @@ export function getDefaultMainUserGivenAlgorithmConstraint(algorithmName: Algori
 export interface Constraint {
     name: string;
     type: string;
-    constraintedNodes: ConstraintedNodesGroupingsType,
+    affectedNodes: AffectedNodesGroupingsType,
     data: object,
 }
 export type AlgorithmPhases = "ONLY-PREPARE" | "ONLY-RUN" | "PREPARE-AND-RUN";
@@ -332,7 +310,7 @@ export interface AlgorithmConfiguration extends AlgorithmOnlyConstraint, Advance
 
 export abstract class DefaultAlgorithmConfiguration implements AlgorithmConfiguration {
     algorithmName: AlgorithmName;
-    constraintedNodes: ConstraintedNodesGroupingsType;
+    affectedNodes: AffectedNodesGroupingsType;
     data: object;
     type: string;
     name: string;
@@ -353,7 +331,12 @@ export abstract class DefaultAlgorithmConfiguration implements AlgorithmConfigur
         return constraintKeys;
     }
 
-    constructor(algorithmName: AlgorithmName, constrainedNodes: ConstraintedNodesGroupingsType, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
+    constructor(
+        algorithmName: AlgorithmName,
+        affectedNodes: AffectedNodesGroupingsType,
+        shouldCreateNewGraph: boolean,
+        algorithmPhasesToCall?: AlgorithmPhases
+    ) {
         if(algorithmPhasesToCall === undefined) {
             this.algorithmPhasesToCall = "PREPARE-AND-RUN";
         }
@@ -362,7 +345,7 @@ export abstract class DefaultAlgorithmConfiguration implements AlgorithmConfigur
         }
         this.shouldCreateNewGraph = shouldCreateNewGraph;
         this.algorithmName = algorithmName;
-        this.constraintedNodes = constrainedNodes;
+        this.affectedNodes = affectedNodes;
         this.type = "ALG";
     }
     abstract addAlgorithmConstraintForUnderlying(key: string, value: string): void;
@@ -397,8 +380,8 @@ export abstract class DefaultAlgorithmConfiguration implements AlgorithmConfigur
 }
 
 export class RandomConfiguration extends DefaultAlgorithmConfiguration {
-    constructor(constrainedNodes: ConstraintedNodesGroupingsType, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
-        super("random", constrainedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+    constructor(affectedNodes: AffectedNodesGroupingsType, shouldCreateNewGraph: boolean, algorithmPhasesToCall?: AlgorithmPhases) {
+        super("random", affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
     }
 
     addAlgorithmConstraintForUnderlying(key: string, value: string): void {
@@ -425,10 +408,11 @@ export abstract class StressConfiguration extends DefaultAlgorithmConfiguration 
     constructor(
         algorithmName: AlgorithmName,
         givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
+        affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(algorithmName, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        super(algorithmName, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.setData(givenAlgorithmConstraints);
     }
 
@@ -453,10 +437,11 @@ export abstract class LayeredConfiguration extends DefaultAlgorithmConfiguration
     constructor(
         algorithmName: AlgorithmName,
         givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
+        affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(algorithmName, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        super(algorithmName, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.setData(givenAlgorithmConstraints);
     }
 
@@ -475,10 +460,11 @@ export abstract class SporeConfiguration extends DefaultAlgorithmConfiguration {
     constructor(
         algorithmName: AlgorithmName,
         givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
+        affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(algorithmName, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        super(algorithmName, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.setData(givenAlgorithmConstraints);
     }
 
@@ -497,10 +483,11 @@ export abstract class RadialConfiguration extends DefaultAlgorithmConfiguration 
     constructor(
         algorithmName: AlgorithmName,
         givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
+        affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(algorithmName, givenAlgorithmConstraints.constraintedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
+        super(algorithmName, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.setData(givenAlgorithmConstraints);
     }
 
@@ -523,12 +510,11 @@ export class AutomaticConfiguration extends DefaultAlgorithmConfiguration {
 
     constructor(
         givenAlgorithmConstraints: UserGivenAlgorithmConfiguration,
+        affectedNodes: AffectedNodesGroupingsType,
         shouldCreateNewGraph: boolean,
         algorithmPhasesToCall?: AlgorithmPhases
     ) {
-        super(givenAlgorithmConstraints.layout_alg,
-            givenAlgorithmConstraints.constraintedNodes,
-            shouldCreateNewGraph, algorithmPhasesToCall);
+        super(givenAlgorithmConstraints.layout_alg, affectedNodes, shouldCreateNewGraph, algorithmPhasesToCall);
         this.setData(givenAlgorithmConstraints);
     }
 
