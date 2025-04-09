@@ -1,4 +1,4 @@
-import { assertNot } from "@dataspecer/core/core";
+import { assertNot, LanguageString } from "@dataspecer/core/core";
 import { pathRelative } from "@dataspecer/core/core/utilities/path-relative";
 import { DataSpecificationArtefact, DataSpecificationSchema } from "@dataspecer/core/data-specification/model";
 import { ArtefactGeneratorContext } from "@dataspecer/core/generator";
@@ -6,6 +6,9 @@ import { StructureModel, StructureModelClass, StructureModelComplexType, Structu
 import { OFN } from "@dataspecer/core/well-known";
 import { DefaultJsonConfiguration, JsonConfiguration, JsonConfigurator } from "../configuration";
 import { JSON_LD_GENERATOR } from "./json-ld-generator";
+import { AggregatedEntityInApplicationProfileAggregator, LocalEntityWrapped, splitProfileToConcepts } from "@dataspecer/core-v2/hierarchical-semantic-aggregator";
+import { SemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
+import { SemanticModelClassProfile } from "@dataspecer/core-v2/semantic-model/profile/concepts";
 
 // JSON-LD version
 const VERSION = 1.1;
@@ -18,6 +21,19 @@ function tryPrefix(iri: string, prefixes: Record<string, string>): string {
     return `${prefix[0]}:${iri.substring(prefix[1].length)}`;
   }
   return iri;
+}
+
+function pickTypeLabel(text: LanguageString, configuration: JsonConfiguration): string | null {
+  let label = text[configuration.jsonDefaultTypeKeyMappingHumanLabelLang];
+  if (!label) {
+    console.warn(`JSON-LD Generator: There is no ${configuration.jsonDefaultTypeKeyMappingHumanLabelLang} label for given entity.`);
+    label = text[Object.keys(text)[0]];
+  }
+  if (label) {
+    return label;
+  } else {
+    return null
+  }
 }
 
 function getPrefixesForContext(localPrefixes: Record<string, string>, parentPrefixes: Record<string, string> = {}) {
@@ -33,28 +49,19 @@ function getPrefixesForContext(localPrefixes: Record<string, string>, parentPref
 /**
  * Returns string array that is used for the @type key in the JSON-LD context and JSON schema.
  */
-export function getClassTypeKey(cls: StructureModelClass, configuration: JsonConfiguration): string[] {
-  let fallback = cls.iris;
-  if (fallback.length === 0) {
-    fallback = [cls.pimIri ?? cls.psmIri];
+export function getClassTypeKey(cls: LocalEntityWrapped<SemanticModelClass | SemanticModelClassProfile>, structureClass: StructureModelClass, configuration: JsonConfiguration): string[] {
+  const concepts = splitProfileToConcepts(cls);
+  const mappingType = configuration.jsonDefaultTypeKeyMapping;
+
+  if (mappingType === "technical-label" && concepts.length <= 1) {
+    return [structureClass.technicalLabel];
   }
 
-  if (configuration.jsonDefaultTypeKeyMapping === "human-label") {
-    let label = cls.humanLabel[configuration.jsonDefaultTypeKeyMappingHumanLabelLang];
-    if (!label) {
-      console.warn(`JSON-LD Generator: There is no ${configuration.jsonDefaultTypeKeyMappingHumanLabelLang} label for given entity.`, cls);
-      label = cls.humanLabel[Object.keys(cls.humanLabel)[0]] ?? cls.psmIri;
-    }
-    if (label) {
-      return [label];
-    }
+  if (mappingType === "human-label") {
+    return concepts.map(concept => pickTypeLabel(concept.aggregatedEntity.name, configuration));
   }
 
-  if (configuration.jsonDefaultTypeKeyMapping === "technical-label") {
-    return [cls.technicalLabel];
-  }
-
-  return fallback;
+  throw new Error(`Unknown mapping type ${mappingType}`);
 }
 
 export class JsonLdAdapter {
@@ -62,8 +69,9 @@ export class JsonLdAdapter {
   protected context: ArtefactGeneratorContext;
   protected artefact: DataSpecificationArtefact;
   protected configuration: JsonConfiguration;
+  protected semanticModel: Record<string, LocalEntityWrapped>;
 
-  constructor(model: StructureModel, context: ArtefactGeneratorContext, artefact: DataSpecificationArtefact) {
+  constructor(model: StructureModel, context: ArtefactGeneratorContext, artefact: DataSpecificationArtefact, semanticModel: Record<string, LocalEntityWrapped>) {
     this.model = model;
     this.context = context;
     this.artefact = artefact;
@@ -71,6 +79,7 @@ export class JsonLdAdapter {
         DefaultJsonConfiguration,
         JsonConfigurator.getFromObject(artefact.configuration)
     ) as JsonConfiguration;
+    this.semanticModel = semanticModel;
   }
 
   public generate = async () => {
@@ -90,9 +99,7 @@ export class JsonLdAdapter {
 
     const rootClasses = this.model.roots[0].classes;
     // Iterate over all classes in root OR
-    for (const root of rootClasses) {
-      this.generateClassContext(root, context, prefixes);
-    }
+    this.generateClassesContext(rootClasses, context, prefixes);
 
     // Clean the object of undefined values
     return this.optimize(result);
@@ -143,15 +150,11 @@ export class JsonLdAdapter {
             } else {
               const localContext = {}
               contextData["@context"] = localContext;
-              this.generateClassContext(firstDataType.dataType, localContext, prefixes);
+              this.generateClassesContext([firstDataType.dataType], localContext, prefixes);
             }
           } else {
-            const localContext = [];
-            for (const dataType of property.dataTypes) {
-              const localContextForType = {};
-              this.generateClassContext((dataType as StructureModelComplexType).dataType, localContextForType, prefixes);
-              localContext.push(localContextForType);
-            }
+            const localContext = {};
+            this.generateClassesContext(property.dataTypes.map(dt => (dt as StructureModelComplexType).dataType), localContext, prefixes);
             contextData["@context"] = localContext;
           }
         }
@@ -168,33 +171,92 @@ export class JsonLdAdapter {
   }
 
   /**
-   * Adds entry for a class to a given context.
+   * Fills the given context with context of given classes.
+   * The trick is that if classes share something or are profiles, then we need to separate them.
    */
-  protected generateClassContext(cls: StructureModelClass, context: object, prefixes: Record<string, string>) {
-    Object.assign(context, getPrefixesForContext(cls.jsonLdDefinedPrefixes, prefixes));
-    prefixes = {...prefixes, ...cls.jsonLdDefinedPrefixes};
+  protected generateClassesContext(classes: StructureModelClass[], context: object, prefixes: Record<string, string>) {
+    const GOES_TO_PARENT = "";
+    const mappingToProperties: Record<string, Set<StructureModelProperty>> = {
+      // this is parent context
+      [GOES_TO_PARENT]: new Set()
+    };
+    const mappingToTypeName: Record<string, string> = {};
+    const idToIri: Record<string, string> = {};
 
-    // This decides whether we use Type-scoped context for this class, or Property-scoped context
-    const contextType = cls.instancesSpecifyTypes === "NEVER" ? "PROPERTY-SCOPED" : (cls.instancesSpecifyTypes === "OPTIONAL" ? "BOTH" : "TYPE-SCOPED");
-    //const contextType = jsonCls.jsonTypeKeyAlias === null ? "PROPERTY-SCOPED" : (jsonCls.jsonTypeRequired === false ? "BOTH" : "TYPE-SCOPED");
+    for (const cls of classes) {
+      const contextType = cls.instancesSpecifyTypes === "NEVER" ? "PROPERTY-SCOPED" : (cls.instancesSpecifyTypes === "OPTIONAL" ? "BOTH" : "TYPE-SCOPED");
+      console.log("JSON-LD generator: context type", contextType);
+      const propertiesUseParentContext = contextType !== "TYPE-SCOPED";
 
-    const contextForProperties = contextType === "TYPE-SCOPED" ? {} : context;
+      const semanticClassWrapped = this.semanticModel[cls.pimIri] as LocalEntityWrapped<SemanticModelClass>;
 
-    if (contextType !== "PROPERTY-SCOPED") {
-      const classContext = {
-        "@id": tryPrefix(cls.cimIri, prefixes),
-      };
+      const classConcepts = splitProfileToConcepts(semanticClassWrapped);
 
-      // Classes are identified by its type keyword
-      context[getClassTypeKey(cls, this.configuration)[0]] = classContext;
+      // For each "real class"
+      if (contextType !== "PROPERTY-SCOPED") {
+        for (const concept of classConcepts) {
+          const iri = concept.aggregatedEntity.iri;
+          if (!mappingToProperties[iri]) {
+            mappingToProperties[iri] = new Set();
+          }
+          mappingToTypeName[iri] = pickTypeLabel(concept.aggregatedEntity.name, this.configuration);
+          if (this.configuration.jsonDefaultTypeKeyMapping === "technical-label") {
+            if (classConcepts.length > 1) {
+              console.warn("JSON-LD generator: Technical labels as type keys are not supported for multiprofiles. Fallback to class name.");
+            } else {
+              mappingToTypeName[iri] = cls.technicalLabel;
+            }
+          }
+          idToIri[concept.aggregatedEntity.id] = iri;
+        }
+      }
 
-      if (contextType === "TYPE-SCOPED") {
-        classContext["@context"] = contextForProperties;
+      for (const property of cls.properties) {
+        // For each property we need to find the original concepts (not
+        // profile) and assign them to appropriate classes
+
+        const semanticPropertyWrapped = this.semanticModel[property.pimIri] as AggregatedEntityInApplicationProfileAggregator<SemanticModelRelationship>;
+        const concepts = splitProfileToConcepts(semanticPropertyWrapped);
+
+        if (concepts.length > 1) {
+          throw new Error("JSON-LD generator: Multiprofile for relationships is not supported by JSON generators!");
+        }
+
+        const relationshipConceptWrapped = concepts[0] as LocalEntityWrapped<SemanticModelRelationship>;
+        const sourceSemanticId = relationshipConceptWrapped.aggregatedEntity.ends[property.isReverse ? 1 : 0].concept;
+
+        if (idToIri[sourceSemanticId] && mappingToProperties[idToIri[sourceSemanticId]] && !propertiesUseParentContext) {
+          mappingToProperties[idToIri[sourceSemanticId]].add(property);
+        } else {
+          mappingToProperties[GOES_TO_PARENT].add(property);
+        }
       }
     }
 
-    for (const property of cls.properties) {
-      this.generatePropertyContext(property, contextForProperties, prefixes);
+    // Now generate the context
+
+    // 1. Generate user-defined prefixes
+    for (const cls of classes) {
+      Object.assign(context, getPrefixesForContext(cls.jsonLdDefinedPrefixes, prefixes));
+      prefixes = {...prefixes, ...cls.jsonLdDefinedPrefixes};
+    }
+
+    // 2. Generate properties that do not belong to specific class
+    for (const property of mappingToProperties[GOES_TO_PARENT]) {
+      this.generatePropertyContext(property, context, prefixes);
+    }
+
+    // 3. Generate classes with their properties
+    for (const iri of Object.keys(mappingToProperties).filter(k => k !== GOES_TO_PARENT)) {
+      const classContext = {
+        "@id": tryPrefix(iri, prefixes),
+      };
+      context[mappingToTypeName[iri]] = classContext;
+      const contextForProperties = {};
+      classContext["@context"] = contextForProperties;
+      for (const property of mappingToProperties[iri]) {
+        this.generatePropertyContext(property, contextForProperties, prefixes);
+      }
     }
   }
 

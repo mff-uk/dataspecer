@@ -1,6 +1,6 @@
 import React, {memo, useMemo} from "react";
 import {Span, sxStyles} from "../styles";
-import {DataPsmAssociationEnd, DataPsmClass} from "@dataspecer/core/data-psm/model";
+import {DataPsmAssociationEnd, DataPsmClass, DataPsmClassReference} from "@dataspecer/core/data-psm/model";
 import {useTranslation} from "react-i18next";
 import {DataPsmGetLabelAndDescription} from "../common/DataPsmGetLabelAndDescription";
 import {RowSlots} from "../base-row";
@@ -16,6 +16,7 @@ import {ReplaceAssociationWithReferenceDialog} from "../replace-association-with
 import {ReplaceAssociationEndWithReference} from "../replace-association-with-reference/replace-association-end-with-reference";
 import { ExtendedSemanticModelClass, SemanticModelRelationship } from "@dataspecer/core-v2/semantic-model/concepts";
 import RemoveIcon from "@mui/icons-material/Remove";
+import { useResource } from "@dataspecer/federated-observable-store-react/use-resource";
 
 const StrikeOut: React.FC<{
   children: React.ReactNode,
@@ -38,10 +39,11 @@ export const DataPsmAssociationEndItem: React.FC<{iri: string} & RowSlots & Clas
   const correctEnd = pimSemanticRelationship?.ends[isBackwardsAssociation ? 0 : 1];
   const incorrectEnd = pimSemanticRelationship?.ends[isBackwardsAssociation ? 1 : 0];
 
-  const {dataPsmResource: psmClass, pimResource: pimClass} = useDataPsmAndInterpretedPim<DataPsmClass, ExtendedSemanticModelClass>(dataPsmAssociationEnd?.dataPsmPart);
+  const {resource: psmClassOrReference} = useResource<DataPsmClass | DataPsmClassReference>(dataPsmAssociationEnd?.dataPsmPart);
+  const {resource: pimClass} = useResource<ExtendedSemanticModelClass>(DataPsmClass.is(psmClassOrReference) ? psmClassOrReference.dataPsmInterpretation : null);
 
   const isCodelist = pimClass?.isCodelist ?? false;
-  const isPrimitive = psmClass?.dataPsmParts.length === 0 && psmClass?.dataPsmEmptyAsComplex !== true;
+  const isPrimitive = DataPsmClass.is(psmClassOrReference) && psmClassOrReference?.dataPsmParts.length === 0 && psmClassOrReference?.dataPsmEmptyAsComplex !== true;
 
   const isDematerialized = !!dataPsmAssociationEnd?.dataPsmIsDematerialize && !isPrimitive;
 

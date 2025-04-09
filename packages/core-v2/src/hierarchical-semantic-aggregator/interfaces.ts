@@ -1,9 +1,10 @@
-import { SemanticModelClass, SemanticModelEntity, SemanticModelRelationship } from "../semantic-model/concepts";
+import { Entity } from "../entity-model";
+import { SemanticModelClass, SemanticModelRelationship } from "../semantic-model/concepts";
 
 /**
  * Wrapped entity that came from the search / adding surrounding entities.
  */
-export type ExternalEntityWrapped<T extends SemanticModelEntity = SemanticModelEntity> = {
+export type ExternalEntityWrapped<T extends Entity = Entity> = {
   aggregatedEntity: T;
   vocabularyChain: object[];
 
@@ -15,10 +16,30 @@ export type ExternalEntityWrapped<T extends SemanticModelEntity = SemanticModelE
   note?: string;
 };
 
-export type LocalEntityWrapped<T extends SemanticModelEntity = SemanticModelEntity> = {
+/**
+ * Contains the aggregated entity with metadata about aggregation.
+ * todo: rename
+ */
+export type LocalEntityWrapped<T extends Entity = Entity> = {
+  /**
+   * Id of the entity after the aggregation.
+   * Ids must be unique and should not be changed.
+   */
+  id: string;
+
+  /**
+   * Type of the aggregatedEntity.
+   */
+  type: string;
+
+  /**
+   * The result after the aggregation.
+   * The type and structure may differ based on the aggregation algorithm.
+   */
   aggregatedEntity: T;
+
+  // todo replace
   vocabularyChain: object[];
-  isReadOnly: boolean;
 };
 
 /**
