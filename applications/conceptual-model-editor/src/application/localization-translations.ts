@@ -73,6 +73,26 @@ const dialogClassProfile = prefix(
     "ok-create": "✅ Create",
   });
 
+const dialogVisualDiagramNode = prefix(
+  "dialog.visual-diagram-node.", {
+    "cancel": "❌ Cancel",
+    // Edit
+    "label-edit": "Edit a visual diagram node",
+    "label-info": "Show info about visual diagram node",
+    "ok-edit": "✅ Save changes",
+    // Create
+    "label-create": "Create a new visual diagram node",
+    "ok-create": "✅ Create",
+  });
+
+const dialogVisualModel = prefix(
+  "dialog.visual-model.", {
+    "cancel": "❌ Cancel",
+    // Create
+    "label-create": "Create new visual model",
+    "ok-create": "✅ Create",
+  });
+
 const dataspecer = prefix(
   "dataspecer", {
     "package.state-is-null": "There is no dataspecer state information, please reload the application",
@@ -90,6 +110,8 @@ export const translations: Record<string, string | Function> = {
   ...dialogAttributeProfile,
   ...dialogClass,
   ...dialogClassProfile,
+  ...dialogVisualDiagramNode,
+  ...dialogVisualModel,
   ...dataspecer,
   //
   "notification.icon-error": "Error icon",
@@ -197,6 +219,10 @@ export const translations: Record<string, string | Function> = {
   "add-model-dialog.tab-predefined.introduction": "Select vocabulary from bellow to import. You can import multiple at once.",
   "add-model-dialog.tab-create.introduction": "Create an empty vocabulary.",
   //
+  "create-visual-diagram-node-dialog.label": "Node name",
+  "create-visual-diagram-node-dialog.model-name": "Name of the referenced visual model",
+  "create-visual-diagram-node-dialog.description": "Description",
+  //
   "model.vocabularies": "Vocabularies",
   "model.classes": "Classes",
   "model.relationship": "Relationship",
@@ -286,7 +312,6 @@ export const translations: Record<string, string | Function> = {
   "extend-selection-dialog.label": "Extend selection by",
   "extend-selection-dialog.btn-ok": "✅ Accept",
   "extend-selection-dialog.btn-cancel": "❌ Cancel",
-  "extend-selection-tooltip": "Blue color (🔵) indicates selected element, Red color (🔴) indicates element which was not selected, but will be. For example:\n🔵⭢🔴=Extend current selection by association targets",
   "extend-selection-association-name": "Association",
   "extend-selection-generalization-name": "Generalization",
   "extend-selection-association-profile-name": "Association profile",
