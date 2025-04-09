@@ -428,31 +428,6 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
       return null;
     }
 
-    const fullCompleteHierarchy: Record<string, ExternalEntityWrapped> = {};
-    const classProfiles = Object.values(this.entities).filter(entity => isSemanticModelClass(entity.aggregatedEntity)) as LocalEntityWrapped<SemanticModelClassProfile>[];
-
-    const subProfiles: LocalEntityWrapped[] = [this.entities[localEntityId] as LocalEntityWrapped];
-    {
-      const lookup: LocalEntityWrapped<SemanticModelClassProfile>[] = [this.entities[localEntityId] as LocalEntityWrapped<SemanticModelClassProfile>];
-      let subProfile: LocalEntityWrapped<SemanticModelClassProfile> | undefined;
-      while (subProfile = lookup.pop()) {
-        for (const profile of classProfiles) {
-          if (profile.aggregatedEntity.profiling.includes(subProfile.aggregatedEntity.id)) {
-            if (!subProfiles.includes(profile)) {
-              lookup.push(profile);
-              subProfiles.push(profile);
-              subProfiles.push(this.getFakeGeneralization(profile.aggregatedEntity.id, subProfile.aggregatedEntity.id));
-            }
-          }
-        }
-      }
-    }
-    subProfiles.map(entity => fullCompleteHierarchy[entity.aggregatedEntity.id] = ({
-      aggregatedEntity: entity.aggregatedEntity,
-      vocabularyChain: [this.thisVocabularyChain],
-      originatingModel: [this],
-    }));
-
     // specific class - generic class
     const generalizations: Map<string, Map<string, LocalEntityWrapped<SemanticModelGeneralization>>> = new Map();
     for (const entity of Object.values(this.entities)) {
@@ -469,6 +444,36 @@ export class ApplicationProfileAggregator implements SemanticModelAggregator {
         }
       }
     }
+
+    const fullCompleteHierarchy: Record<string, ExternalEntityWrapped> = {};
+    const classProfiles = Object.values(this.entities).filter(entity => isSemanticModelClass(entity.aggregatedEntity)) as LocalEntityWrapped<SemanticModelClassProfile>[];
+
+    const subProfiles: LocalEntityWrapped[] = [this.entities[localEntityId] as LocalEntityWrapped];
+    {
+      const lookup: LocalEntityWrapped<SemanticModelClassProfile>[] = [this.entities[localEntityId] as LocalEntityWrapped<SemanticModelClassProfile>];
+      let subProfile: LocalEntityWrapped<SemanticModelClassProfile> | undefined;
+      while (subProfile = lookup.pop()) {
+        for (const profile of classProfiles) {
+          const generalization = generalizations.get(profile.aggregatedEntity.id)?.get(subProfile.aggregatedEntity.id);
+          if (generalization) {
+            lookup.push(profile);
+            subProfiles.push(profile);
+            subProfiles.push(generalization);
+          } else if (profile.aggregatedEntity.profiling.includes(subProfile.aggregatedEntity.id)) {
+            if (!subProfiles.includes(profile)) {
+              lookup.push(profile);
+              subProfiles.push(profile);
+              subProfiles.push(this.getFakeGeneralization(profile.aggregatedEntity.id, subProfile.aggregatedEntity.id));
+            }
+          }
+        }
+      }
+    }
+    subProfiles.map(entity => fullCompleteHierarchy[entity.aggregatedEntity.id] = ({
+      aggregatedEntity: entity.aggregatedEntity,
+      vocabularyChain: [this.thisVocabularyChain],
+      originatingModel: [this],
+    }));
 
     const superProfiles: LocalEntityWrapped[] = [this.entities[localEntityId]];
     {

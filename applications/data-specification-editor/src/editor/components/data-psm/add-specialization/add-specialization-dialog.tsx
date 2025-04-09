@@ -27,20 +27,20 @@ export const AddSpecializationDialog = dialog<{
     const store = useFederatedObservableStore();
 
     const { pimResource } = useDataPsmAndInterpretedPim(dataPsmClassIri);
-    const cimIri = pimResource?.iri;
+    const semanticClassId = pimResource?.id;
 
     const { operationContext, semanticModelAggregator } = React.useContext(ConfigurationContext);
-    const [fullInheritance] = useAsyncMemo(async () => (pimResource?.id ? await semanticModelAggregator.getHierarchy(pimResource.id) : null), [pimResource?.id]);
+    const [fullInheritance] = useAsyncMemo(async () => (semanticClassId ? await semanticModelAggregator.getHierarchyForLookup(semanticClassId) : null), [semanticClassId]);
 
     const PimClassDetail = useDialog(PimClassDetailDialog);
 
     const [descendants] = useAsyncMemo(
       async () => {
-        if (!fullInheritance || !cimIri) {
+        if (!fullInheritance || !semanticClassId) {
           return [];
         }
 
-        const middleClassIri = cimIri;
+        const middleClassIri = semanticClassId;
 
         const descendants: ExternalEntityWrapped<SemanticModelClass>[] = [];
 
@@ -83,7 +83,7 @@ export const AddSpecializationDialog = dialog<{
           <Alert severity="info">{t("add specialization.help")}</Alert>
           <Box sx={{ maxHeight: 400, overflow: "auto", mt: 3 }}>
             {descendants.map((resource) => (
-              <Item semanticModelClass={resource.aggregatedEntity} onClick={() => onSelected(resource)} onInfo={() => PimClassDetail.open({ iri: resource.aggregatedEntity.id })} />
+              <Item semanticModelClass={resource} onClick={() => onSelected(resource)} onInfo={() => PimClassDetail.open({ iri: resource.aggregatedEntity.id })} />
             ))}
             {descendants.length === 0 && (
               <ListItem disabled>
